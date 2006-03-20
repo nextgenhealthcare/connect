@@ -1,0 +1,17 @@
+<?xml version="1.0" ?>
+<!--
+	The syntax of the binding file for DTD is defined in the JAXB EA.
+	See vendorSchemaLangs.html for details.
+-->
+<xml-java-binding-schema xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc">
+  
+  <!-- specify the package name for the generated code -->
+  <options package="foo.jaxb" />
+  
+  <!--
+    additional optional XJC specific extensions
+    are available as follows
+  -->
+  <xjc:serializable uid="5" />
+  <xjc:superClass name="foo.MyRootClass" />
+</xml-java-binding-schema>

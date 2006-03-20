@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Universal Business Language (UBL) Schema 1.0
+
+  Copyright (C) OASIS Open (2004). All Rights Reserved.
+
+  This document and translations of it may be copied and furnished to others, and
+  derivative works that comment on or otherwise explain it or assist in its
+  implementation may be prepared, copied, published and distributed, in whole or
+  in part, without restriction of any kind, provided that the above copyright
+  notice and this paragraph are included on all such copies and derivative works.
+  However, this document itself may not be modified in any way, such as by
+  removing the copyright notice or references to OASIS, except as needed for the
+  purpose of developing OASIS specifications, in which case the procedures for
+  copyrights defined in the OASIS Intellectual Property Rights document must be
+  followed, or as required to translate it into languages other than English.
+
+  The limited permissions granted above are perpetual and will not be revoked by
+  OASIS or its successors or assigns.
+
+  This document and the information contained herein is provided on an "AS IS"
+  basis and OASIS DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+  LIMITED TO ANY WARRANTY THAT THE USE OF THE INFORMATION HEREIN WILL NOT
+  INFRINGE ANY RIGHTS OR ANY IMPLIED WARRANTIES OF MERCHANTABILITY OR FITNESS FOR
+  A PARTICULAR PURPOSE.
+
+  ===============================================================================
+
+  For our absent friend, Michael J. Adcock  - il miglior fabbro
+
+  ===============================================================================
+
+  Universal Business Language Specification
+      (http://www.oasis-open.org/committees/tc_home.php?wg_abbrev=ubl)
+  OASIS Open (http://www.oasis-open.org/)
+
+
+  Document Type:     CoreComponentParameters
+  Generated On:      Tue Apr 27 11:28:51 2004
+-->
+<xsd:schema targetNamespace="urn:oasis:names:tc:ubl:CoreComponentParameters:1:0" xmlns:ccts="urn:oasis:names:tc:ubl:CoreComponentParameters:1:0" xmlns="urn:oasis:names:tc:ubl:CoreComponentParameters:1:0" xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified" version="1:0">
+    <xsd:element name="Component" type="ccts:ComponentType"/>
+    <xsd:complexType name="ComponentType">
+        <xsd:sequence>
+            <xsd:element ref="ComponentType" minOccurs="1" maxOccurs="1"/>
+            <xsd:element ref="DictionaryEntryName" minOccurs="1" maxOccurs="1"/>
+            <xsd:element ref="Version" minOccurs="0" maxOccurs="1"/>
+            <xsd:element ref="Definition" minOccurs="1" maxOccurs="1"/>
+            <xsd:element ref="Cardinality" minOccurs="0" maxOccurs="1"/>
+            <xsd:element ref="ObjectClassQualifier" minOccurs="0" maxOccurs="1"/>
+            <xsd:element ref="ObjectClass" minOccurs="0" maxOccurs="1"/>
+            <xsd:element ref="PropertyTermQualifier" minOccurs="0" maxOccurs="1"/>
+            <xsd:element ref="PropertyTermPossessiveNoun" minOccurs="0" maxOccurs="1"/>
+            <xsd:element ref="PropertyTermPrimaryNoun" minOccurs="0" maxOccurs="1"/>
+            <xsd:element ref="PropertyTerm" minOccurs="0" maxOccurs="1"/>
+            <xsd:element ref="RepresentationTerm" minOccurs="0" maxOccurs="1"/>
+            <xsd:element ref="DataTypeQualifier" minOccurs="0" maxOccurs="1"/>
+            <xsd:element ref="DataType" minOccurs="0" maxOccurs="1"/>
+            <xsd:element ref="AssociatedObjectClassQualifier" minOccurs="0" maxOccurs="1"/>
+            <xsd:element ref="AssociatedObjectClass" minOccurs="0" maxOccurs="1"/>
+            <xsd:element ref="AlternativeBusinessTerms" minOccurs="0" maxOccurs="1"/>
+            <xsd:element ref="Examples" minOccurs="0" maxOccurs="1"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:element name="Context" type="ccts:ContextType"/>
+    <xsd:complexType name="ContextType">
+        <xsd:sequence>
+            <xsd:element ref="IndustryClassification" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element ref="Geopolitical" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element ref="BusinessProcess" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element ref="OfficialConstraint" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element ref="ProductClassification" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element ref="BusinessProcessRole" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element ref="SupportingRole" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element ref="SystemCapability" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:element name="Contextualization" type="ccts:ContextualizationType"/>
+    <xsd:complexType name="ContextualizationType">
+        <xsd:sequence>
+            <xsd:element ref="Context" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:element name="Instance" type="ccts:InstanceType"/>
+    <xsd:complexType name="InstanceType">
+        <xsd:sequence>
+        <xsd:element ref="Name" minOccurs="0" maxOccurs="1"/>
+        <xsd:element ref="CodeListID" minOccurs="0" maxOccurs="1"/>
+        <xsd:element ref="CodeListAgencyID" minOccurs="0" maxOccurs="1"/>
+        <xsd:element ref="CodeListAgencyName" minOccurs="0" maxOccurs="1"/>
+        <xsd:element ref="CodeListName" minOccurs="0" maxOccurs="1"/>
+        <xsd:element ref="CodeListVersionID" minOccurs="0" maxOccurs="1"/>
+        <xsd:element ref="CodeListUniformResourceID" minOccurs="0" maxOccurs="1"/>
+        <xsd:element ref="CodeListSchemeUniformResourceID" minOccurs="0" maxOccurs="1"/>
+        <xsd:element ref="LanguageID" minOccurs="0" maxOccurs="1"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:element name="DictionaryEntryName" type="xsd:normalizedString"/>
+    <xsd:element name="Version" type="xsd:normalizedString"/>
+    <xsd:element name="ObjectClassQualifier" type="xsd:normalizedString"/>
+    <xsd:element name="ObjectClass" type="xsd:normalizedString"/>
+    <xsd:element name="PropertyTermQualifier" type="xsd:normalizedString"/>
+    <xsd:element name="PropertyTermPossessiveNoun" type="xsd:normalizedString"/>
+    <xsd:element name="PropertyTermPrimaryNoun" type="xsd:normalizedString"/>
+    <xsd:element name="PropertyTerm" type="xsd:normalizedString"/>
+    <xsd:element name="RepresentationTerm" type="xsd:normalizedString"/>
+    <xsd:element name="DataTypeQualifier" type="xsd:normalizedString"/>
+    <xsd:element name="DataType" type="xsd:normalizedString"/>
+    <xsd:element name="AssociatedObjectClassQualifier" type="xsd:normalizedString"/>
+    <xsd:element name="AssociatedObjectClass" type="xsd:normalizedString"/>
+    <xsd:element name="AlternativeBusinessTerms" type="xsd:normalizedString"/>
+    <xsd:element name="ComponentType" type="xsd:normalizedString"/>
+    <xsd:element name="Cardinality" type="xsd:normalizedString"/>
+    <xsd:element name="Definition" type="xsd:string"/>
+    <xsd:element name="Examples" type="xsd:string"/>
+
+    <xsd:element name="Name" type="xsd:string"/>
+    <xsd:element name="CodeListID" type="xsd:normalizedString"/>
+    <xsd:element name="CodeListAgencyID" type="xsd:normalizedString"/>
+    <xsd:element name="CodeListAgencyName" type="xsd:string"/>
+    <xsd:element name="CodeListName" type="xsd:string"/>
+    <xsd:element name="CodeListVersionID" type="xsd:normalizedString"/>
+    <xsd:element name="CodeListUniformResourceID" type="xsd:anyURI"/>
+    <xsd:element name="CodeListSchemeUniformResourceID" type="xsd:anyURI"/>
+    <xsd:element name="LanguageID" type="xsd:language"/>
+
+    <xsd:element name="IndustryClassification" type="xsd:string"/>
+    <xsd:element name="Geopolitical" type="xsd:string"/>
+    <xsd:element name="BusinessProcess" type="xsd:string"/>
+    <xsd:element name="OfficialConstraint" type="xsd:string"/>
+    <xsd:element name="ProductClassification" type="xsd:string"/>
+    <xsd:element name="BusinessProcessRole" type="xsd:string"/>
+    <xsd:element name="SupportingRole" type="xsd:string"/>
+    <xsd:element name="SystemCapability" type="xsd:string"/>
+
+</xsd:schema>
+    

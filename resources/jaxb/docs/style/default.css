@@ -1,0 +1,58 @@
+/*
+ * Copyright 2004 Sun Microsystems, Inc. All rights reserved.
+ * SUN PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ */
+
+/*
+ * Default CSS stylesheet
+ */
+
+body {
+    background-color: white;
+}
+
+h1, h2 {
+    text-align: center;
+    font-family: sans-serif;
+    color: #000099;
+}
+
+h3, h4, h5, h6 {
+    text-align: left;
+    font-family: sans-serif;
+    color: #000099;
+}
+
+code {
+    font-family: Courier, monospace;
+}
+
+diff {
+    font-family: Courier, monospace;
+    color: red;
+}
+
+table.property {
+	margin-left: 2em;
+}
+
+table.property tr td {
+	background-color: rgb(240,240,255);
+	padding: 0.2em;
+}
+
+pre.code {
+	background-color: rgb(240,240,255);
+	border: 1px solid navy;
+	color: black;
+	font-weight: bold;
+	padding: 0.5em;
+	margin-left: 2em;
+}
+
+/*
+hr {
+    align: center;
+    width: 70%;
+}
+*/

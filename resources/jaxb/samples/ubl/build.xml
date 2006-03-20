@@ -1,0 +1,213 @@
+<?xml version="1.0" standalone="yes"?>
+<!--
+  Copyright 2004 Sun Microsystems, Inc. All rights reserved.
+-->
+<project basedir="." default="run">
+  <description>
+This project processes a UBL (Universal Business Language) order
+instance and prints a report to the screen. This directory structure
+exists before running the project:
+
+./cd-UBL-1.0 ) Subset of the bundle obtained from
+| |          ) http://docs.oasis-open.org/ubl/cd-UBL-1.0.zip
+| |
+| ./xml/office ) Instance documents
+| |     |                                  ) Order instance
+| |     ./UBL-Order-1.0-Office-Example.xml ) processed by
+| |                                        ) this sample
+| |
+| ./xsd ) The UBL schema
+|  |
+|  ./codelist
+|  | |
+|  | ./UBL-CodeList-AcknowledgementResponseCode-1.0.xsd
+|  | ./UBL-CodeList-AllowanceChargeReasonCode-1.0.xsd
+|  | ./UBL-CodeList-ChannelCode-1.0.xsd
+|  | ./UBL-CodeList-ChipCode-1.0.xsd
+|  | ./UBL-CodeList-CountryIdentificationCode-1.0.xsd
+|  | ./UBL-CodeList-CurrencyCode-1.0.xsd
+|  | ./UBL-CodeList-DocumentStatusCode-1.0.xsd
+|  | ./UBL-CodeList-LatitudeDirectionCode-1.0.xsd
+|  | ./UBL-CodeList-LineStatusCode-1.0.xsd
+|  | ./UBL-CodeList-LongitudeDirectionCode-1.0.xsd
+|  | ./UBL-CodeList-OperatorCode-1.0.xsd
+|  | ./UBL-CodeList-PaymentMeansCode-1.0.xsd
+|  | ./UBL-CodeList-SubstitutionStatusCode-1.0.xsd
+|  |
+|  ./common
+|  | |
+|  | ./UBL-CommonAggregateComponents-1.0.xsd
+|  | ./UBL-CommonBasicComponents-1.0.xsd
+|  | ./UBL-CoreComponentParameters-1.0.xsd
+|  | ./UBL-CoreComponentTypes-1.0.xsd
+|  | ./UBL-SpecializedDatatypes-1.0.xsd
+|  | ./UBL-UnspecializedDatatypes-1.0.xsd
+|  |
+|  ./maindoc
+|    |
+|    ./UBL-DespatchAdvice-1.0.xsd
+|    ./UBL-Invoice-1.0.xsd
+|    ./UBL-Order-1.0.xsd
+|    ./UBL-OrderCancellation-1.0.xsd
+|    ./UBL-OrderChange-1.0.xsd
+|    ./UBL-OrderResponse-1.0.xsd
+|    ./UBL-OrderResponseSimple-1.0.xsd
+|    ./UBL-ReceiptAdvice-1.0.xsd
+|
+./build.xml
+|
+./docs
+| |
+| ./index.html  )
+| ./output.html ) Sample-specific documentation
+| ./xjb.html    )
+|
+./src ) Application source code
+| |
+| ./samples/ubl/report ) Application package
+|               |
+|               ./PrintOrder.java ) Order printing
+|               |                 ) application
+|               |
+|               ./facade ) Code implementing the
+|                 |      ) facade design pattern
+|                 |
+|                 ./AddressFacade.java
+|                 ./OrderFacade.java
+|                 ./OrderLineTypeFacade.java
+|
+./ubl.xjb ) Binding customizations
+
+Running the project creates the directories gen-src, classes and
+docs/api.
+
+          ) Java bindings created by processing
+./gen-src ) UBL schema with xjc using custom-
+| |       ) izations in ubl.xjb.
+| |
+| ./org/oasis/ubl/codelist/acknowledgementresponse
+| ./org/oasis/ubl/codelist/allowancechargereason
+| ./org/oasis/ubl/codelist/channel
+| ./org/oasis/ubl/codelist/chip
+| ./org/oasis/ubl/codelist/countryidentification
+| ./org/oasis/ubl/codelist/currency
+| ./org/oasis/ubl/codelist/documentstatus
+| ./org/oasis/ubl/codelist/latitudedirection
+| ./org/oasis/ubl/codelist/linestatus
+| ./org/oasis/ubl/codelist/longitudedirection
+| ./org/oasis/ubl/codelist/operator
+| ./org/oasis/ubl/codelist/paymentmeans
+| ./org/oasis/ubl/codelist/substitutionstatus
+| ./org/oasis/ubl/commonaggregatecomponents
+| ./org/oasis/ubl/commonbasiccomponents
+| ./org/oasis/ubl/corecomponentparameters
+| ./org/oasis/ubl/corecomponenttypes
+| ./org/oasis/ubl/despatchadvice
+| ./org/oasis/ubl/invoice
+| ./org/oasis/ubl/order
+| ./org/oasis/ubl/ordercancellation
+| ./org/oasis/ubl/orderchange
+| ./org/oasis/ubl/orderresponse
+| ./org/oasis/ubl/orderresponsesimple
+| ./org/oasis/ubl/receiptadvice
+| ./org/oasis/ubl/specializeddatatypes
+| ./org/oasis/ubl/unspecializeddatatypes
+|
+./classes ) Packages for the compiled bindings
+| |       ) and application code.
+| |
+| ./org/oasis/ubl/codelist/acknowledgementresponse
+| ./org/oasis/ubl/codelist/allowancechargereason
+| ./org/oasis/ubl/codelist/channel
+| ./org/oasis/ubl/codelist/chip
+| ./org/oasis/ubl/codelist/countryidentification
+| ./org/oasis/ubl/codelist/currency
+| ./org/oasis/ubl/codelist/documentstatus
+| ./org/oasis/ubl/codelist/latitudedirection
+| ./org/oasis/ubl/codelist/linestatus
+| ./org/oasis/ubl/codelist/longitudedirection
+| ./org/oasis/ubl/codelist/operator
+| ./org/oasis/ubl/codelist/paymentmeans
+| ./org/oasis/ubl/codelist/substitutionstatus
+| ./org/oasis/ubl/commonaggregatecomponents
+| ./org/oasis/ubl/commonbasiccomponents
+| ./org/oasis/ubl/corecomponentparameters
+| ./org/oasis/ubl/corecomponenttypes
+| ./org/oasis/ubl/despatchadvice
+| ./org/oasis/ubl/invoice
+| ./org/oasis/ubl/order
+| ./org/oasis/ubl/ordercancellation
+| ./org/oasis/ubl/orderchange
+| ./org/oasis/ubl/orderresponse
+| ./org/oasis/ubl/orderresponsesimple
+| ./org/oasis/ubl/receiptadvice
+| ./org/oasis/ubl/specializeddatatypes
+| ./org/oasis/ubl/unspecializeddatatypes
+| ./samples/ubl/report
+| ./samples/ubl/report/facade
+|
+./docs/api ) Java documentation for the UBL bindings
+    </description>
+  <!--
+    if you are not running from $JWSDP_HOME/jaxb/samples AND you
+    are using your own version of Ant, then you need to specify
+    "ant -Djwsdp.home=..."
+  -->
+  <property name="jwsdp.home" value="../../.." />
+  <path id="classpath">
+    <pathelement path="src" />
+    <pathelement path="classes" />
+    <!--for use with bundled ant-->
+    <fileset dir="${jwsdp.home}" includes="jaxb/lib/*.jar" />
+    <fileset dir="${jwsdp.home}" includes="jwsdp-shared/lib/*.jar" />
+    <fileset dir="${jwsdp.home}" includes="jaxp/lib/**/*.jar" />
+  </path>
+  <taskdef name="xjc" classname="com.sun.tools.xjc.XJCTask">
+    <classpath refid="classpath" />
+  </taskdef>
+
+  <!--compile Java source files-->
+  <target name="compile" description="Compile all Java source files">
+    <echo message="Compiling the schema..." />
+    <mkdir dir="gen-src" />
+    <xjc binding="ubl.xjb" target="gen-src">
+      <schema dir="cd-UBL-1.0/xsd" includes="**/*.xsd" />
+      <produces dir="gen-src" includes="**/*.java" />
+    </xjc>
+    <echo message="Compiling the java source files..." />
+    <mkdir dir="classes" />
+    <javac destdir="classes" debug="on" fork="true" memoryInitialSize="100m" memoryMaximumSize="1000m">
+      <src path="src" />
+      <src path="gen-src" />
+      <classpath refid="classpath" />
+    </javac>
+    <copy todir="classes">
+      <fileset dir="gen-src">
+        <include name="**/*.properties" />
+        <include name="**/bgm.ser" />
+      </fileset>
+    </copy>
+  </target>
+
+  <target name="run" depends="compile" description="Run the sample app">
+    <echo message="Running the sample application..." />
+    <java classname="samples.ubl.report.PrintOrder" fork="true">
+      <classpath refid="classpath" />
+    </java>
+  </target>
+
+  <target name="javadoc" description="Generates javadoc" depends="compile">
+    <echo message="Generating javadoc..." />
+    <mkdir dir="docs/api" />
+    <javadoc sourcepath="gen-src" destdir="docs/api" windowtitle="Universal Business Language (UBL)" useexternalfile="yes">
+      <fileset dir="." includes="gen-src/**/*.java" excludes="**/impl/**/*.java" />
+    </javadoc>
+  </target>
+
+  <target name="clean" description="Deletes all the generated artifacts.">
+    <delete dir="docs/api" />
+    <delete dir="gen-src" />
+    <delete dir="classes" />
+  </target>
+</project>
+

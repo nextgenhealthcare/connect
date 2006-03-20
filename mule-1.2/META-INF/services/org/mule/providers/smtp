@@ -1,0 +1,7 @@
+connector=org.mule.providers.email.SmtpConnector
+dispatcher.factory=org.mule.providers.email.SmtpMessageDispatcherFactory
+#message.receiver=
+message.adapter=org.mule.providers.email.MailMessageAdapter
+inbound.transformer=org.mule.providers.email.transformers.EmailMessageToString
+outbound.transformer=org.mule.providers.email.transformers.StringToEmailMessage
+endpoint.builder=org.mule.impl.endpoint.UrlEndpointBuilder

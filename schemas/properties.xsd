@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 4 U (http://www.xmlspy.com) by Gary Teichrow (private) -->
+<xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:element name="mirth-properties">
+		<xs:annotation>
+			<xs:documentation>Comment describing your root element</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="component" type="component" maxOccurs="unbounded"/>
+			</xs:sequence>
+			<xs:attribute name="version" type="xs:string" use="optional"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:complexType name="component">
+		<xs:sequence>
+			<xs:element name="type" type="type" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute name="name" type="xs:string" use="required"/>
+	</xs:complexType>
+	<xs:complexType name="type">
+		<xs:sequence>
+			<xs:element name="property" type="property" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute name="name" type="xs:string" use="required"/>
+		<xs:attribute name="displayName" type="xs:string" use="required"/>
+		<xs:attribute name="className" type="xs:string" use="required"/>
+		<xs:attribute name="transformers" type="xs:string" use="required"/>
+		<xs:attribute name="direction" type="xs:string" use="required"/>
+		<xs:attribute name="protocol" type="xs:string" use="required"/>
+	</xs:complexType>
+	<xs:complexType name="property">
+		<xs:all>
+			<xs:element name="defaultValue" type="xs:string"/>
+			<xs:element name="displayName" type="xs:string"/>
+			<xs:element name="description" type="xs:string"/>
+			<xs:element name="formType" type="xs:string"/>
+			<xs:element name="formOptions" type="xs:string"/>
+			<xs:element name="formValidator" type="xs:string"/>
+			<xs:element name="formValidatorOptions" type="xs:string"/>
+		</xs:all>
+		<xs:attribute name="name" type="xs:string" use="required"/>
+		<xs:attribute name="muleProperty" type="xs:boolean" use="required"/>
+		<xs:attribute name="required" type="xs:boolean" use="required"/>
+	</xs:complexType>
+</xs:schema>

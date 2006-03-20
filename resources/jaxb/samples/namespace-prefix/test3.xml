@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+
+<!--
+ Copyright 2004 Sun Microsystems, Inc. All rights reserved.
+ SUN PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+-->
+
+<f:foo2 xmlns:f="http://www.example.com/foo" xmlns="">
+	someQName
+</f:foo2>

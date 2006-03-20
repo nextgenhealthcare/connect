@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+
+<!--
+ Copyright 2004 Sun Microsystems, Inc. All rights reserved.
+ SUN PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+-->
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:element name="addressBook">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="contact" maxOccurs="unbounded" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:element name="contact">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="name"  type="xs:string" />
+        <xs:element name="email" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
+</xs:schema>

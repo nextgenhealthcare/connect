@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Order xmlns:res="urn:oasis:names:tc:ubl:codelist:AcknowledgementResponseCode:1:0" xmlns:cbc="urn:oasis:names:tc:ubl:CommonBasicComponents:1:0" xmlns:cac="urn:oasis:names:tc:ubl:CommonAggregateComponents:1:0" xmlns:cur="urn:oasis:names:tc:ubl:codelist:CurrencyCode:1:0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:oasis:names:tc:ubl:Order:1:0" xsi:schemaLocation="urn:oasis:names:tc:ubl:Order:1:0 ../../xsd/maindoc/UBL-Order-1.0.xsd">
+	<BuyersID>20031234-1</BuyersID>
+	<cbc:IssueDate>2003-01-23</cbc:IssueDate>
+	<cbc:LineExtensionTotalAmount amountCurrencyCodeListVersionID="0.3" amountCurrencyID="USD">438.50</cbc:LineExtensionTotalAmount>
+	<cac:BuyerParty>
+		<cac:Party>
+			<cac:PartyName>
+				<cbc:Name>Bills Microdevices</cbc:Name>
+			</cac:PartyName>
+			<cac:Address>
+				<cbc:StreetName>413 Spring St</cbc:StreetName>
+				<cbc:CityName>Elgin</cbc:CityName>
+				<cbc:PostalZone>60123</cbc:PostalZone>
+				<cac:CountrySubentityCode>IL</cac:CountrySubentityCode>
+			</cac:Address>
+			<cac:Contact>
+				<cbc:Name>George Tirebiter</cbc:Name>
+			</cac:Contact>
+		</cac:Party>
+	</cac:BuyerParty>
+	<cac:SellerParty>
+		<cac:Party>
+			<cac:PartyName>
+				<cbc:Name>Joes Office Supply</cbc:Name>
+			</cac:PartyName>
+			<cac:Address>
+				<cbc:StreetName>32 W. Lakeshore Dr</cbc:StreetName>
+				<cbc:CityName>Chicago</cbc:CityName>
+				<cbc:PostalZone>60022</cbc:PostalZone>
+				<cac:CountrySubentityCode>IL</cac:CountrySubentityCode>
+			</cac:Address>
+		</cac:Party>
+	</cac:SellerParty>
+	<cac:Delivery>
+		<cbc:RequestedDeliveryDateTime>2003-02-14T14:00:00</cbc:RequestedDeliveryDateTime>
+		<cac:DeliveryAddress>
+			<cbc:StreetName>413 N Spring St</cbc:StreetName>
+			<cbc:CityName>Elgin</cbc:CityName>
+			<cbc:PostalZone>60123</cbc:PostalZone>
+			<cac:CountrySubentityCode>IL</cac:CountrySubentityCode>
+		</cac:DeliveryAddress>
+	</cac:Delivery>
+	<cac:DeliveryTerms>
+		<cbc:SpecialTerms>Signature Required</cbc:SpecialTerms>
+	</cac:DeliveryTerms>
+	<cac:OrderLine>
+		<cac:LineItem>
+			<cac:BuyersID>1</cac:BuyersID>
+			<cbc:Quantity quantityUnitCode="PKG">5</cbc:Quantity>
+			<cbc:LineExtensionAmount amountCurrencyCodeListVersionID="0.3" amountCurrencyID="USD">12.50</cbc:LineExtensionAmount>
+			<cac:Item>
+				<cbc:Description>Pencils, box #2 red</cbc:Description>
+				<cac:SellersItemIdentification>
+					<cac:ID>32145-12</cac:ID>
+				</cac:SellersItemIdentification>
+				<cac:BasePrice>
+					<cbc:PriceAmount amountCurrencyCodeListVersionID="0.3" amountCurrencyID="USD">2.50</cbc:PriceAmount>
+				</cac:BasePrice>
+			</cac:Item>
+		</cac:LineItem>
+	</cac:OrderLine>
+	<cac:OrderLine>
+		<cac:LineItem>
+			<cac:BuyersID>2</cac:BuyersID>
+			<cbc:Quantity quantityUnitCode="PKG">10</cbc:Quantity>
+			<cbc:LineExtensionAmount amountCurrencyCodeListVersionID="0.3" amountCurrencyID="USD">300.00</cbc:LineExtensionAmount>
+			<cac:Item>
+				<cbc:Description>Photocopy Paper- case</cbc:Description>
+				<cac:SellersItemIdentification>
+					<cac:ID>78-697-24</cac:ID>
+				</cac:SellersItemIdentification>
+				<cac:BasePrice>
+					<cbc:PriceAmount amountCurrencyCodeListVersionID="0.3" amountCurrencyID="USD">30.00</cbc:PriceAmount>
+				</cac:BasePrice>
+			</cac:Item>
+		</cac:LineItem>
+	</cac:OrderLine>
+	<cac:OrderLine>
+		<cac:LineItem>
+			<cac:BuyersID>3</cac:BuyersID>
+			<cbc:Quantity quantityUnitCode="CTN">10</cbc:Quantity>
+			<cbc:LineExtensionAmount amountCurrencyCodeListVersionID="0.3" amountCurrencyID="USD">50.00</cbc:LineExtensionAmount>
+			<cac:Item>
+				<cbc:Description>Pens, box, blue finepoint</cbc:Description>
+				<cac:SellersItemIdentification>
+					<cac:ID>091356-3</cac:ID>
+				</cac:SellersItemIdentification>
+				<cac:BasePrice>
+					<cbc:PriceAmount amountCurrencyCodeListVersionID="0.3" amountCurrencyID="USD">5.00</cbc:PriceAmount>
+				</cac:BasePrice>
+			</cac:Item>
+		</cac:LineItem>
+	</cac:OrderLine>
+	<cac:OrderLine>
+		<cac:LineItem>
+			<cac:BuyersID>4</cac:BuyersID>
+			<cbc:Quantity quantityUnitCode="CTN">3</cbc:Quantity>
+			<cbc:LineExtensionAmount amountCurrencyCodeListVersionID="0.3" amountCurrencyID="USD">37.50</cbc:LineExtensionAmount>
+			<cac:Item>
+				<cbc:Description>Tape, 1in case</cbc:Description>
+				<cac:SellersItemIdentification>
+					<cac:ID>543-165-1</cac:ID>
+				</cac:SellersItemIdentification>
+				<cac:BasePrice>
+					<cbc:PriceAmount amountCurrencyCodeListVersionID="0.3" amountCurrencyID="USD">12.50</cbc:PriceAmount>
+				</cac:BasePrice>
+			</cac:Item>
+		</cac:LineItem>
+	</cac:OrderLine>
+	<cac:OrderLine>
+		<cac:LineItem>
+			<cac:BuyersID>5</cac:BuyersID>
+			<cbc:Quantity quantityUnitCode="CTN">10</cbc:Quantity>
+			<cbc:LineExtensionAmount amountCurrencyCodeListVersionID="0.3" amountCurrencyID="USD">10.00</cbc:LineExtensionAmount>
+			<cac:Item>
+				<cbc:Description>Staples, wire, box</cbc:Description>
+				<cac:SellersItemIdentification>
+					<cac:ID>984567-12</cac:ID>
+				</cac:SellersItemIdentification>
+				<cac:BasePrice>
+					<cbc:PriceAmount amountCurrencyCodeListVersionID="0.3" amountCurrencyID="USD">1.00</cbc:PriceAmount>
+				</cac:BasePrice>
+			</cac:Item>
+		</cac:LineItem>
+	</cac:OrderLine>
+	<cac:OrderLine>
+		<cac:LineItem>
+			<cac:BuyersID>6</cac:BuyersID>
+			<cbc:Quantity quantityUnitCode="PKG">5</cbc:Quantity>
+			<cbc:LineExtensionAmount amountCurrencyCodeListVersionID="0.3" amountCurrencyID="USD">22.50</cbc:LineExtensionAmount>
+			<cac:Item>
+				<cbc:Description>Pens, box red felt tip </cbc:Description>
+				<cac:SellersItemIdentification>
+					<cac:ID>091344-5</cac:ID>
+				</cac:SellersItemIdentification>
+				<cac:BasePrice>
+					<cbc:PriceAmount amountCurrencyCodeListVersionID="0.3" amountCurrencyID="USD">5.00</cbc:PriceAmount>
+				</cac:BasePrice>
+			</cac:Item>
+		</cac:LineItem>
+	</cac:OrderLine>
+	<cac:OrderLine>
+		<cac:LineItem>
+			<cac:BuyersID>7</cac:BuyersID>
+			<cbc:Quantity quantityUnitCode="UNIT">12</cbc:Quantity>
+			<cbc:LineExtensionAmount amountCurrencyCodeListVersionID="0.3" amountCurrencyID="USD">6.00</cbc:LineExtensionAmount>
+			<cac:Item>
+				<cbc:Description>Mousepad, blue</cbc:Description>
+				<cac:SellersItemIdentification>
+					<cac:ID>21457-3</cac:ID>
+				</cac:SellersItemIdentification>
+				<cac:BasePrice>
+					<cbc:PriceAmount amountCurrencyCodeListVersionID="0.3" amountCurrencyID="USD">.50</cbc:PriceAmount>
+				</cac:BasePrice>
+			</cac:Item>
+		</cac:LineItem>
+	</cac:OrderLine>
+</Order>

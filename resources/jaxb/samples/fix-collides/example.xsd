@@ -1,0 +1,24 @@
+<!--
+ Copyright 2004 Sun Microsystems, Inc. All rights reserved.
+ SUN PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+-->
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:jxb="http://java.sun.com/xml/ns/jaxb"
+           jxb:version="1.0">
+
+  <!-- Demonstrate how to fix this keyword usage error. -->
+  <xs:element name="Class" type="xs:int"/>
+
+  <!-- Show collision between element and type definition namespace. -->
+  <xs:element name="FooBar" type="FooBar"/>
+
+  <xs:complexType name="FooBar">
+    <xs:sequence>
+      <xs:element name="foo" type="xs:int"/>
+      <xs:element ref="Class"/>
+      <xs:element name="zip" type="xs:int"/>
+    </xs:sequence>
+    <xs:attribute name="zip" type="xs:string"/>
+  </xs:complexType>
+</xs:schema>

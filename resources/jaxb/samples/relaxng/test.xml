@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+
+<!--
+ Copyright 2004 Sun Microsystems, Inc. All rights reserved.
+ SUN PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+-->
+
+<!--  -3 + (2-5) -->
+<add>
+	<neg><number>3</number></neg>
+	<sub>
+		<number>2</number>
+		<number>5</number>
+	</sub>
+</add>

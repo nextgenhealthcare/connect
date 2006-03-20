@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+
+<!--
+ Copyright 2004 Sun Microsystems, Inc. All rights reserved.
+ SUN PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+-->
+
+<addressBook>
+    <!-- list of contacts -->
+    
+    <contact>
+        <name>John Doe</name>
+        <email>john@acme.com</email>
+    </contact>
+    <contact>
+        <name>Jane Smith</name>
+        <email>jane@acme.org</email>
+    </contact>
+    
+    <!-- more extra records -->
+    <contact>
+        <name>Bob Cole</name>
+        <email>bob@acme.net</email>
+    </contact>
+</addressBook>

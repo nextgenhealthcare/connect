@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Universal Business Language (UBL) Schema 1.0
+
+  Copyright (C) OASIS Open (2004). All Rights Reserved.
+
+  This document and translations of it may be copied and furnished to others, and
+  derivative works that comment on or otherwise explain it or assist in its
+  implementation may be prepared, copied, published and distributed, in whole or
+  in part, without restriction of any kind, provided that the above copyright
+  notice and this paragraph are included on all such copies and derivative works.
+  However, this document itself may not be modified in any way, such as by
+  removing the copyright notice or references to OASIS, except as needed for the
+  purpose of developing OASIS specifications, in which case the procedures for
+  copyrights defined in the OASIS Intellectual Property Rights document must be
+  followed, or as required to translate it into languages other than English.
+
+  The limited permissions granted above are perpetual and will not be revoked by
+  OASIS or its successors or assigns.
+
+  This document and the information contained herein is provided on an "AS IS"
+  basis and OASIS DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+  LIMITED TO ANY WARRANTY THAT THE USE OF THE INFORMATION HEREIN WILL NOT
+  INFRINGE ANY RIGHTS OR ANY IMPLIED WARRANTIES OF MERCHANTABILITY OR FITNESS FOR
+  A PARTICULAR PURPOSE.
+
+  ===============================================================================
+
+  For our absent friend, Michael J. Adcock  - il miglior fabbro
+
+  ===============================================================================
+
+  Universal Business Language Specification
+      (http://www.oasis-open.org/committees/tc_home.php?wg_abbrev=ubl)
+  OASIS Open (http://www.oasis-open.org/)
+
+
+  Document Type:     SpecializedDatatypes
+  Generated On:      Tue Apr 27 11:29:39 2004
+-->
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns="urn:oasis:names:tc:ubl:SpecializedDatatypes:1:0"
+    xmlns:ccts="urn:oasis:names:tc:ubl:CoreComponentParameters:1:0"
+    xmlns:udt="urn:oasis:names:tc:ubl:UnspecializedDatatypes:1:0"
+    xmlns:cur="urn:oasis:names:tc:ubl:codelist:CurrencyCode:1:0"
+    targetNamespace="urn:oasis:names:tc:ubl:SpecializedDatatypes:1:0"
+    elementFormDefault="qualified"
+    attributeFormDefault="unqualified"
+    version="1:0">
+  <xsd:import namespace="urn:oasis:names:tc:ubl:CoreComponentParameters:1:0" schemaLocation="UBL-CoreComponentParameters-1.0.xsd"/>
+  <xsd:import namespace="urn:oasis:names:tc:ubl:UnspecializedDatatypes:1:0" schemaLocation="UBL-UnspecializedDatatypes-1.0.xsd"/>
+  <xsd:import namespace="urn:oasis:names:tc:ubl:codelist:CurrencyCode:1:0" schemaLocation="../codelist/UBL-CodeList-CurrencyCode-1.0.xsd"/>
+  <xsd:complexType name="UBLAmountType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <ccts:Component>
+          <ccts:ComponentType>DT</ccts:ComponentType>
+          <ccts:DictionaryEntryName>UBL_ Amount. Type</ccts:DictionaryEntryName>
+          <ccts:Definition>A number of monetary units specified in a currency where the unit of currency is explicitly defined using the UBL Currency Code</ccts:Definition>
+          <ccts:RepresentationTerm>Amount</ccts:RepresentationTerm>
+        </ccts:Component>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+      <xsd:restriction base="udt:AmountType">
+        <xsd:attribute name="amountCurrencyID" type="cur:CurrencyCodeContentType" use="required"/>
+        <xsd:attribute name="amountCurrencyCodeListVersionID" type="xsd:normalizedString" fixed="0.3" use="optional"/>
+      </xsd:restriction>
+    </xsd:simpleContent>
+  </xsd:complexType>
+</xsd:schema>

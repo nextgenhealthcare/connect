@@ -1,0 +1,410 @@
+<HTML>
+  
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+<TITLE>JAXB RI 1.0.5 -- Sample Apps Readme</TITLE>
+    
+<META content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+    
+<LINK href="style/default.css" rel="stylesheet" type="text/css">
+  
+</HEAD>
+
+  
+<BODY>
+    
+<CENTER>
+	
+<H1>Java<SUP><FONT size="-2">TM</FONT></SUP> Architecture for XML 
+		Binding<BR> Sample Applications</H1>
+      
+<B>Specification Version:</B> 1.0<BR>
+      
+<B>Reference Implementation (RI) Version:</B> 1.0.5<BR>
+      <!--
+ Copyright 2004 Sun Microsystems, Inc. All rights reserved.
+ SUN PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+-->
+<hr width="50%">
+  Main: <a href="ReleaseNotes.html">Release Notes</a> | <a href="xjc.html">XJC</a> | <a href="ant.html">Ant task</a> | <a href="samples.html">Sample Apps</a> | <a href="changelog.html">Changelog</a>
+<br>
+  JAXB RI Extensions: <a href="vendorProperties.html">Runtime Properties</a> | <a href="vendorCustomizations.html">XJC Customizations</a>
+<br>
+  JAXB RI Schema Languages: <a href="vendorSchemaLangs.html#xschema">W3C XML Schema</a> | <a href="relaxng.html">RELAX NG</a> | <a href="vendorSchemaLangs.html#dtd">DTD</a>
+<br>
+  JAXB Community: <a href="http://jaxb.dev.java.net">Java.net Homepage</a> | <a href="https://jaxb.dev.java.net/servlets/ProjectMailingListList">Developer interest list</a> | <a href="https://jaxb.dev.java.net/faq/index.html">FAQ</a>
+<br>
+
+<hr width="50%">
+    
+</CENTER>
+
+
+
+	
+<H3>Building and Running the Sample Apps with Ant</H3>
+	
+    
+<P>To run the sample applications using the supplied Ant 
+    <TT>build.xml</TT> files, follow these steps:</P>
+
+    
+<BLOCKQUOTE>
+      
+<H5>For Solaris/Linux:</H5>
+      
+<BLOCKQUOTE>
+        
+<OL>
+          
+<LI>
+<TT>% &lt;your JWSDP1.6 installation directory&gt;/apache-ant/bin/ant -emacs</TT>
+</LI>    
+          
+<LI>repeat for each sample app</LI>    
+        
+</OL>
+      
+</BLOCKQUOTE>
+
+      
+<H5>For WindowsNT/2000/XP:</H5>
+      
+<BLOCKQUOTE>
+        
+<OL>
+          
+<LI>
+<TT>&gt; &lt;your JWSDP1.6 installation directory&gt;\apache-ant\bin\ant -emacs</TT>
+</LI>    
+          
+<LI>repeat for each sample app</LI>    
+        
+</OL>
+      
+</BLOCKQUOTE>
+    
+</BLOCKQUOTE>
+    
+    
+<P>A few sample applications do <EM>not</EM> use Ant.  For
+       those samples, refer to the included <TT>readme.txt</TT> files for 
+       instructions.</P>
+
+
+    
+<A name="samples"></A>
+    
+<H3>List of Sample Apps</H3>
+    
+<P>Many of the sample applications have been given more descriptive names 
+       in this release.</P>
+    
+    
+<BLOCKQUOTE>
+      
+<DL>
+        
+<DT>
+<B>samples/bind-choice</B> (formerly part of SampleApp9)</DT>
+        
+<DD>This sample application illustrates how a choice model group is bound 
+        to a Java interface by the &lt;<TT>jaxb:globalBindings bindingStyle="modelGroupBinding"/&gt;</TT> 
+        customization.</DD>
+        
+<DD>&nbsp;</DD>
+
+        
+<DT>
+<B>samples/catalog-resolver</B>
+</DT>
+        
+<DD>This example demonstrates how to use the new "<TT>-catalog</TT>" compiler
+            switch for resolving external entity references.</DD>
+        
+<DD>&nbsp;</DD>
+        
+        
+<DT>
+<B>samples/create-marshal</B> (formerly SampleApp3)</DT>
+        
+<DD>This sample application demonstrates how to use the <TT>ObjectFactory</TT>
+            class to create a Java content tree from scratch and marshal it
+            to XML data.  It also demonstrates how to add content to a JAXB
+            <TT>List</TT> property.</DD>
+        
+<DD>&nbsp;</DD>
+        
+        
+<DT>
+<B>samples/datatypeconverter</B> (formerly SampleApp7)</DT>
+        
+<DD>This sample application is very similar to the inline-customize sample 
+            application (formerly SampleApp6), but illustrates an easier, but not 
+            as robust, &lt;<TT>jaxb:javaType</TT>&gt; customization.</DD>
+        
+<DD>&nbsp;</DD>
+        
+        
+<DT>
+<B>samples/external-customize</B> (formerly SampleApp8)</DT>
+        
+<DD>This sample application is identical to the 
+            datatypeconverter sample application (formerly SampleApp7) except 
+            that the binding customizations are contained in an external 
+            binding file.</DD>
+        
+<DD>&nbsp;</DD>
+        
+        
+<DT>
+<B>samples/fix-collides</B> (formerly part of SampleApp9)</DT>
+        
+<DD>Another binding customization example that illustrates how to resolve
+            name conflicts.  Run "<TT>ant fail</TT>" first to see the compiler output
+            and then look at <TT>binding.xjb</TT> to see how the errors were resolved.
+            Running "<TT>ant</TT>" will use the binding customizations to resolve the
+            name conflicts while compiling the schema.</DD>
+        
+<DD>&nbsp;</DD>
+
+        
+<DT>
+<B>samples/inline-customize</B> (formerly SampleApp6)</DT>
+        
+<DD>This sample application demonstrates how to customize the default
+            binding produced by the XJC binding compiler.</DD>
+        
+<DD>&nbsp;</DD>
+        
+        
+<DT>
+<B>samples/modify-marshal</B> (formerly SampleApp2)</DT>
+        
+<DD>This sample application demonstrates how to modify a java content
+            tree and marshal it back to XML data.</DD>
+        
+<DD>&nbsp;</DD>
+        
+        
+<DT>
+<B>samples/namespace-prefix</B>
+</DT>
+        
+<DD>This sample application demonstrates how to use the new JAXB RI Marshaller
+            property "<TT>com.sun.xml.bind.namespacePrefixMapper</TT>" to customize the namespace
+            prefixes generated during marshalling.</DD>
+        
+<DD>&nbsp;</DD>
+        
+        
+<DT>
+<B>samples/ondemand-validate</B> (formerly SampleApp5)</DT>
+        
+<DD>This sample application demonstrates how to validate a Java content
+            tree at runtime.</DD>
+        
+<DD>&nbsp;</DD>
+        
+        
+<DT>
+<B>samples/partial-unmarshalling</B>
+</DT>
+        
+<DD>In this example, the input document will be unmarshalled a small chunk 
+            at a time, instead of unmarshalling the whole document at once.</DD>
+        
+<DD>&nbsp;</DD>
+        
+        
+<DT>
+<B>samples/pull-parser</B>
+</DT>
+        
+<DD>This sample app demonstrates how a pull-parser can be used with JAXB 
+            to increase the flexibility of processing.</DD>
+        
+<DD>&nbsp;</DD>
+        
+        
+<DT>
+<B>samples/subgroup-extend</B>
+</DT>
+        
+<DD>This example shows how the use of the jxb:implClass customization
+            and substitution groups can be used to inject virtual functions into
+            the derived Java hierarchy.  It compares two equivalent ways of
+            achieving the same processing, but one is much simpler than the
+            other (search for the "enlightened" boolean flag in the code). </DD>
+        
+<DD>&nbsp;</DD>
+        
+        
+<DT>
+<B>samples/ubl</B>
+</DT>
+        
+<DD>This sample application processes a UBL order instance and writes a report 
+            to the screen.</DD>
+        
+<DD>&nbsp;</DD>
+        
+        
+<DT>
+<B>samples/unmarshal-read</B> (formerly SampleApp1)</DT>
+        
+<DD>This sample application demonstrates how to unmarshal an instance
+            document into a Java content tree and access data contained within 
+            it.</DD>
+        
+<DD>&nbsp;</DD>
+        
+        
+<DT>
+<B>samples/unmarshal-validate</B> (formerly SampleApp4)</DT>
+        
+<DD>This sample application demonstrates how to enable validation during
+            the unmarshal operations.</DD>
+        
+<DD>&nbsp;</DD>
+        
+        
+<DT>
+<B>samples/xml-channel</B>
+</DT>
+        
+<DD>This example demonstrates how to use one communication channel
+            (such as a socket) to send multiple XML messages, and how that channel 
+            can be combined with JAXB.</DD>
+        
+<DD>&nbsp;</DD>
+        
+        
+<DT>
+<B>samples/xml-stylesheet</B>
+</DT>
+        
+<DD>This example demonstrates how the behavior of the marshalling process 
+            can be customized. In this example, an &lt;<TT>?xml-stylesheet ... ?</TT>&gt; 
+            processing instruction is inserted into the marshalled document.</DD>
+        
+<DD>&nbsp;</DD>
+        
+      
+</DL>
+    
+</BLOCKQUOTE>
+          
+    
+<P>Sample applications that illustrate JAXB RI <A href="vendor.html">vendor
+       extensions</A>.
+
+    <BLOCKQUOTE>
+      
+<DL>
+        
+<DT>
+<B>samples/character-escape</B>
+</DT>
+        
+<DD>This example shows how you can use the new JAXB RI Marshaller property
+            "<TT>com.sun.xml.bind.characterEscapeHandler</TT>" to change the default character 
+            escaping behavior.</DD>
+        
+<DD>&nbsp;</DD>
+        
+        
+<DT>
+<B>samples/dtd</B>
+</DT>
+        
+<DD>This sample application illustrate some of the DTD support available in
+            the JAXB RI's extension mode.  Please refer to the <A href="vendor.html">
+            Vendor Extensions</A> page for more detail.</DD>
+        
+<DD>&nbsp;</DD>
+        
+        
+<DT>
+<B>samples/element-substitution</B>
+</DT>
+        
+<DD>This sample application illustrates how W3C XML Schema substitution groups
+            are supported in JAXB RI's extension mode.  Please refer to the <A href="vendor.html">
+            Vendor Extensions</A> page for more detail.</DD>
+        
+<DD>&nbsp;</DD>
+        
+        
+<DT>
+<B>samples/locator-support</B>
+</DT>
+        
+<DD>This sample shows how to use the new non-standard locator support.  By following
+            the instructions in the readme.txt file, you can cause all of the generated impl
+            classes to implement a new interface that provides more information about error
+            locations.  When a ValidationEvent happens on your content tree, simply retrieve
+            the object and cast it down to <TT>com.sun.xml.bind.extra.Locatable</TT>.</DD>
+        
+<DD>&nbsp;</DD>
+        
+        
+<DT>
+<B>samples/relaxng</B>
+</DT>
+        
+<DD>This example shows how you can use experimental RELAX NG support.</DD>
+        
+<DD>&nbsp;</DD>
+        
+        
+<DT>
+<B>samples/synchronized-methods</B>
+</DT>
+        
+<DD>This sample shows how to use the new non-standard synchronized method support.
+            By following the instructions in the readme.txt, you can cause all of the 
+            generated impl class methods signatures to contain the "synchronized"
+            keyword.</DD>
+        
+<DD>&nbsp;</DD>
+        
+        
+<DT>
+<B>samples/type-substitution</B>
+</DT>
+        
+<DD>This sample app demonstrates type substitution using the W3C XML Schema
+            Part 0: Primer international purchase order schema.</DD>
+        
+<DD>&nbsp;</DD>
+        
+        
+<DT>
+<B>samples/vendor-extensions</B>
+</DT>
+        
+<DD>This example demonstrates how to use the <TT>&lt;jxb:serializable&gt;
+        </TT> and <TT>&lt;jxb:superClass&gt;</TT> vendor extensions provided by
+        Sun's JAXB RI.</DD>
+        
+<DD>&nbsp;</DD>
+      
+</DL>
+    
+</BLOCKQUOTE>
+
+	
+</P>
+<HR>
+	
+<FONT size="-1">
+	  $Revision: 1.1 $<BR>
+	  $Date: 2004/06/25 21:11:18 $
+	</FONT>
+  
+
+    
+</BODY>
+</HTML>

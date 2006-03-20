@@ -1,0 +1,1898 @@
+<HTML>
+  
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+<META content="HTML Tidy, see www.w3.org" name="generator">
+    
+<META content="text/html; charset=ISO-8859-1" http-equiv="Content-Type">
+
+    
+<TITLE>XML Entity and URI Resolvers</TITLE>
+    
+<META content="DocBook XSL Stylesheets V1.48" name="generator">
+    
+<META content="     $Id: catalog.html,v 1.1 2004/06/25 21:11:17 kohsuke Exp $     " name="cvsinfo">
+
+<STYLE type="text/css">
+pre.programlisting { whitespace: pre;
+                     font-family: monospace;
+                     background-color: #d5dee3;
+                     border-top-width: 1px;
+                     border-top-style: single;
+                     border-top-color: #d3d3d3;
+                     border-bottom-width: 1px;
+                     border-bottom-style: single;
+                     border-bottom-color: #d3d3d3;
+                     padding-top: 4px;
+                     padding-left: 4px;
+                     padding-right: 4px;
+                     padding-top: 0px;
+                     margin: 0em;
+                   }
+div.example p      { padding-bottom: 4px;
+                     margin: 0px;
+                   }
+</STYLE>
+  
+</HEAD>
+
+  
+<BODY alink="#0000FF" bgcolor="white" link="#0000FF" text="black" vlink="#840084">
+    
+<DIV class="article" id="d0e1">
+      
+<DIV class="titlepage">
+        
+<H1 class="title">XML Entity and URI Resolvers</H1>
+
+        
+<H3 class="subtitle">Version 1.1</H3>
+
+        
+<P>
+<A href="#blurb.d0e72">Norman Walsh</A>, <SPAN class="jobtitle">Staff Engineer</SPAN>
+<BR>
+        
+<SPAN class="orgname">Sun Microsystems, XML Technology
+        Center</SPAN>
+</P>
+
+        
+<P class="pubdate">05 Nov 2001</P>
+
+        
+<P class="copyright">Copyright &copy; 2001 Sun Microsystems,
+        Inc.</P>
+
+        
+<P class="copyright">Copyright &copy; 2000 Arbortext, Inc.</P>
+        
+<HR>
+      
+</DIV>
+
+      
+<DIV class="toc">
+        
+<P>
+<B>Table of Contents</B>
+</P>
+
+        
+<UL>
+          
+<LI>
+            
+<A href="#d0e98">Finding Resources on the Net</A>
+
+            
+<UL>
+              
+<LI>
+<A href="#d0e142">Resolver Classes Version
+              1.1</A>
+</LI>
+            
+</UL>
+          
+</LI>
+
+          
+<LI>
+<A href="#d0e172">What's Wrong with System
+          Identifiers?</A>
+</LI>
+
+          
+<LI>
+            
+<A href="#d0e212">Naming Resources</A>
+
+            
+<UL>
+              
+<LI>
+<A href="#d0e229">Public Identifiers</A>
+</LI>
+
+              
+<LI>
+<A href="#d0e241">Uniform Resource Names</A>
+</LI>
+            
+</UL>
+          
+</LI>
+
+          
+<LI>
+<A href="#d0e263">Resolving Names</A>
+</LI>
+
+          
+<LI>
+<A href="#d0e288">Catalog Files</A>
+</LI>
+
+          
+<LI>
+            
+<A href="#d0e312">Understanding Catalog Files</A>
+
+            
+<UL>
+              
+<LI>
+<A href="#xmlcatalogs">OASIS XML
+              Catalogs</A>
+</LI>
+
+              
+<LI>
+<A href="#tr9401catalogs">OASIS TR9401
+              Catalogs</A>
+</LI>
+
+              
+<LI>
+<A href="#d0e719">XCatalogs</A>
+</LI>
+
+              
+<LI>
+<A href="#d0e724">Resolution Semantics</A>
+</LI>
+            
+</UL>
+          
+</LI>
+
+          
+<LI>
+<A href="#ctrlresolver">Controlling the Catalog
+          Resolver</A>
+</LI>
+
+          
+<LI>
+<A href="#d0e904">Using Catalogs with Popular
+          Applications</A>
+</LI>
+
+          
+<LI>
+<A href="#d0e955">Adding Catalog Support to Your
+          Applications</A>
+</LI>
+
+          
+<LI>
+            
+<A href="#d0e998">Catalogs In Action</A>
+
+            
+<UL>
+              
+<LI>
+<A href="#d0e1009">Using resolver</A>
+</LI>
+
+              
+<LI>
+<A href="#d0e1031">Using xparse</A>
+</LI>
+            
+</UL>
+          
+</LI>
+
+          
+<LI>
+<A href="#d0e1091">May All Your Names Resolve
+          Successfully!</A>
+</LI>
+        
+</UL>
+      
+</DIV>
+
+      
+<DIV class="section">
+        
+<DIV class="titlepage">
+          
+<DIV>
+            
+<H2 class="title" style="clear: both">
+<A name="d0e98"></A>Finding Resources on the Net</H2>
+          
+</DIV>
+        
+</DIV>
+
+        
+<P>It's very common for web resources to be related to
+        other resources: documents rely on DTDs and schemas,
+        schemas are derived from other schemas, stylesheets are
+        often customizations of other stylesheets, documents refer
+        to the schemas and stylesheets with which the expect to be
+        processed, etc. These relationships are expressed using
+        URIs, most often URLs.</P>
+
+        
+<P>Relying on URLs to directly identify resources to be
+        retrieved often causes problems for end users:</P>
+
+        
+<DIV class="orderedlist">
+          
+<OL type="1">
+            
+<LI>
+              
+<P>If they're absolute URLs, they only work when you
+              can reach them<SUP>[<A href="#ftn.d0e109" name="d0e109">1</A>]</SUP>. Relying on remote
+              resources makes XML processing susceptible to both
+              planned and unplanned network downtime.</P>
+
+              
+<P>The URL
+              &ldquo;http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd&rdquo;
+              isn't very useful if I'm on an airplane at 35,000
+              feet.</P>
+            
+</LI>
+
+            
+<LI>
+              
+<P>If they're relative URLs, they're only useful in
+              the context where the were initially created.</P>
+
+              
+<P>The URL &ldquo;../../xml/dtd/docbookx.xml&rdquo;
+              isn't useful <SPAN class="emphasis"><I>anywhere</I></SPAN> on my system.
+              Neither, for that matter, is
+              &ldquo;/export/home/fred/docbook412/docbookx.xml&rdquo;.</P>
+            
+</LI>
+          
+</OL>
+        
+</DIV>
+
+        
+<P>One way to avoid these problems is to use an entity
+        resolver (a standard part of SAX) or a URI Resolver (a
+        standard part of JAXP). A resolver can examine the URIs of
+        the resources being requested and determine how best to
+        satisfy those requests.</P>
+
+        
+<P>The best way to make this function in an interoperable
+        way is to define a standard format for mapping system
+        identifiers and URIs. The <A href="http://www.oasis-open.org/committees/entity/" target="_top">OASIS Entity Resolution Technical Committee</A> is
+        defining an XML representation for just such a mapping.
+        These &ldquo;catalog files&rdquo; can be used to map public
+        and system identifiers and other URIs to local files (or
+        just other URIs).</P>
+
+        
+<DIV class="section">
+          
+<DIV class="titlepage">
+            
+<DIV>
+              
+<H3 class="title">
+<A name="d0e142"></A>Resolver
+              Classes Version 1.1</H3>
+            
+</DIV>
+          
+</DIV>
+
+          
+<P>The Resolver classes that are described in this
+          article greatly simplify the task of using Catalog files
+          to perform entity resolution. Many users will want to
+          simply use these classes directly &ldquo;out of the
+          box&rdquo; with their applications (such as Xalan and
+          Saxon), but developers may also be interested in the <A href="apidocs/index.html" target="_top">JavaDoc API
+          Documentation</A>.</P>
+
+          
+<DIV class="section">
+            
+<DIV class="titlepage">
+              
+<DIV>
+                
+<H4 class="title">
+<A name="d0e156"></A>Changes from
+                Version 1.0</H4>
+              
+</DIV>
+            
+</DIV>
+
+            
+<P>The most important change in this release is the
+            availability of both source and binary forms under a <A href="copyright.html" target="_top">generous license
+            agreement</A>.</P>
+
+            
+<P>Other than that, there have been a number of minor
+            bug fixes and the introduction of system properties in
+            addition to the <TT>CatalogManager.properties</TT> file
+            to <A href="#ctrlresolver" title="Controlling the Catalog Resolver">control the
+            resolver</A>.</P>
+          
+</DIV>
+        
+</DIV>
+      
+</DIV>
+
+      
+<DIV class="section">
+        
+<DIV class="titlepage">
+          
+<DIV>
+            
+<H2 class="title" style="clear: both">
+<A name="d0e172"></A>What's Wrong with System Identifiers?</H2>
+          
+</DIV>
+        
+</DIV>
+
+        
+<P>The problems associated with system identifiers (and
+        URIs in general) arise in several ways:</P>
+
+        
+<DIV class="orderedlist">
+          
+<OL type="1">
+            
+<LI>
+              
+<P>I have an XML document that I want to publish on
+              the web or include in the distribution of some piece
+              of software. On my system, I keep the doctype of the
+              document in some local directory, so my doctype
+              declaration reads:</P>
+
+<PRE class="programlisting">
+&lt;!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
+                  "file:///n:/share/doctypes/docbook/xml/docbookx.dtd"&gt;
+</PRE>
+
+              
+<P>As soon as I distribute this document, I
+              immediately begin getting error reports from
+              customers who can't read the document because they
+              don't have DocBook installed at the location
+              identified by the URI in my document.</P>
+            
+</LI>
+
+            
+<LI>
+              
+<P>Or I remember to change the URI before I publish
+              the document:</P>
+
+<PRE class="programlisting">
+&lt;!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
+                  "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd"&gt;
+</PRE>
+
+              
+<P>And the next time I try to edit the document,
+              <SPAN class="emphasis"><I>I get errors</I></SPAN>
+              because I happen to be working on my laptop on a
+              plane somewhere and can't get to the net.</P>
+            
+</LI>
+
+            
+<LI>
+              
+<P>Just as often, I get tripped up this way: I'm
+              working collaboratively with a colleague. She's
+              created initial drafts of some documents that I'm
+              supposed to review and edit. So I grab them and find
+              that I can't open or publish them because I don't
+              have the same network connections she has or I don't
+              have my applications installed in the same place. And
+              if I change the system identifiers so they work on my
+              system, she has the same problems when I send them
+              back to her.</P>
+            
+</LI>
+
+            
+<LI>
+              
+<P>These problems aren't limited to editing
+              applications. If I write a special stylesheet for
+              formatting our collaborative document, it will
+              include some reference to the &ldquo;main&rdquo;
+              stylesheet:</P>
+
+<PRE class="programlisting">
+&lt;xsl:import href="/path/to/real/stylesheet.xsl"/&gt;
+</PRE>
+
+              
+<P>But this won't work on my colleague's machine
+              because she has the main stylesheet installed
+              somewhere else.</P>
+            
+</LI>
+          
+</OL>
+        
+</DIV>
+
+        
+<P>Public identifiers offer an effective solution to this
+        problem, at least for documents. They provide global,
+        unique names for entities independent of their storage
+        location. Unfortunately, public identifiers aren't used
+        very often because many users find that they cannot rely on
+        applications resolving them in an interoperable manner.</P>
+
+        
+<P>For XSLT, XML Schemas, and other applications that rely
+        on URIs without providing a mechanism for associating
+        public identifiers with them, the situation is a little
+        more irksome, but it can still be addressed using a URI
+        Resolver.</P>
+      
+</DIV>
+
+      
+<DIV class="section">
+        
+<DIV class="titlepage">
+          
+<DIV>
+            
+<H2 class="title" style="clear: both">
+<A name="d0e212"></A>Naming Resources</H2>
+          
+</DIV>
+        
+</DIV>
+
+        
+<P>In some contexts, it's more useful to refer to a
+        resource by name than by address. If I want the version 3.1
+        of the DocBook DTD, or the 1911 edition of Webster's
+        dictionary, or <I>The Declaration of Independence</I>,
+        that's what I want, irrespective of its location on the net
+        (or even if it's available on the net). While it is
+        possible to view a URL as an address, I don't think that's
+        the natural interpretation.</P>
+
+        
+<P>There are currently two ways that I might reasonably
+        assign an address-independent name to an object: public
+        identifiers or <A href="http://www.ietf.org/rfc/rfc2141.txt" target="_top">Uniform
+        Resource Names</A> (URNs)<SUP>[<A href="#ftn.d0e225" name="d0e225">2</A>]</SUP>.</P>
+
+        
+<DIV class="section">
+          
+<DIV class="titlepage">
+            
+<DIV>
+              
+<H3 class="title">
+<A name="d0e229"></A>Public
+              Identifiers</H3>
+            
+</DIV>
+          
+</DIV>
+
+          
+<P>Public identifiers are part of <A href="http://www.w3.org/TR/REC-xml" target="_top">XML 1.0</A>.
+          They can occur in any form of external entity
+          declaration. They allow you to give a globally unique
+          name to any entity. For example, the XML version of
+          DocBook V4.1.2 is identified with the following public
+          identifier:</P>
+
+<PRE class="programlisting">
+-//OASIS//DTD DocBook XML V4.1.2//EN
+</PRE>
+
+          
+<P>You'll see this identifier in the two doctype
+          declarations I used earlier. This identifier gives no
+          indication of where the resource (the DTD) may be found,
+          but it does uniquely name the resource. That public
+          identifier, now and forever refers to the XML version of
+          DocBook V4.1.2.</P>
+        
+</DIV>
+
+        
+<DIV class="section">
+          
+<DIV class="titlepage">
+            
+<DIV>
+              
+<H3 class="title">
+<A name="d0e241"></A>Uniform
+              Resource Names</H3>
+            
+</DIV>
+          
+</DIV>
+
+          
+<P>URNs are a form of URI. Like public identifiers, they
+          give a location-neutral, globally unique name to an
+          entity. For example, OASIS might choose to identify the
+          XML version of DocBook V4.1.2 with the following URN:</P>
+
+<PRE class="programlisting">
+urn:oasis:names:specification:docbook:dtd:xml:4.1.2
+</PRE>
+
+          
+<P>Like a public identifier, a URN can now and forever
+          refer to a specific entity in a location-independent
+          manner.</P>
+
+          
+<DIV class="section">
+            
+<DIV class="titlepage">
+              
+<DIV>
+                
+<H4 class="title">
+<A name="d0e250"></A>The publicid
+                URN Namespace</H4>
+              
+</DIV>
+            
+</DIV>
+
+            
+<P>Public identifiers don't fit very well into the web
+            architecture (they are not, for example, always valid
+            URIs). This problem can be addressed by the
+            <TT>publicid</TT> URN namespace defined by <A href="http://www.ietf.org/rfc/rfc3151.txt" target="_top">RFC
+            3151</A>.</P>
+
+            
+<P>This namespace allows public identifiers to be
+            easily represented as URNs. The OASIS XML Catalog
+            specification accords special status to URNs of this
+            form so that catalog resolution occurs in the expected
+            way.</P>
+          
+</DIV>
+        
+</DIV>
+      
+</DIV>
+
+      
+<DIV class="section">
+        
+<DIV class="titlepage">
+          
+<DIV>
+            
+<H2 class="title" style="clear: both">
+<A name="d0e263"></A>Resolving Names</H2>
+          
+</DIV>
+        
+</DIV>
+
+        
+<P>Having extolled the virtues of location-independent
+        names, it must be said that a name isn't very useful if you
+        can't find the thing it refers to. In order to do that, you
+        must have a name resolution mechanism that allows you to
+        determine what resource is referred to by a given name.</P>
+
+        
+<P>One important feature of this mechanism is that it can
+        allow resources to be distributed, so you don't have to go
+        to <A href="http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" target="_top">http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd</A>
+        to get the XML version of DocBook V4.1.2, if you have a
+        local copy.</P>
+
+        
+<P>There are a few possible resolution mechanisms:</P>
+
+        
+<DIV class="itemizedlist">
+          
+<UL type="disc">
+            
+<LI>
+              
+<P>The application just &ldquo;knows&rdquo;. Sure, it
+              sounds a little silly, but this is currently the
+              mechanism being used for namespaces. Applications
+              know what the semantics of namespaced elements are
+              because they recognize the namespace URI.</P>
+            
+</LI>
+
+            
+<LI>
+              
+<P>OASIS Catalog files provide a mechanism for
+              mapping public and system identifiers, allowing
+              resolution to both local and distributed resources.
+              This is the resolution scheme we're going to consider
+              for the balance of this column.</P>
+            
+</LI>
+
+            
+<LI>
+              
+<P>Many other mechanisms are possible. There are
+              already a few for URNs, including at least one built
+              on top of DNS, but they aren't widely deployed.</P>
+            
+</LI>
+          
+</UL>
+        
+</DIV>
+      
+</DIV>
+
+      
+<DIV class="section">
+        
+<DIV class="titlepage">
+          
+<DIV>
+            
+<H2 class="title" style="clear: both">
+<A name="d0e288"></A>Catalog Files</H2>
+          
+</DIV>
+        
+</DIV>
+
+        
+<P>Catalog files are straightforward text files that
+        describe a mapping from names to addresses. Here's a simple
+        one:</P>
+
+        
+<DIV class="example">
+          
+<P>
+<B>Example 1. An Example Catalog File</B>
+</P>
+
+<PRE class="programlisting">
+&lt;catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog"&gt;
+
+&lt;public publicId="-//OASIS//DTD XML DocBook V4.1.2//EN"
+        uri="docbook/xml/docbookx.dtd"/&gt;
+
+&lt;system systemId="urn:x-oasis:docbook-xml-v4.1.2"
+        uri="docbook/xml/docbookx.dtd"/&gt;
+
+&lt;delegatePublic publicIdStartString="-//Example//"
+          catalog="http://www.example.com/catalog"/&gt;
+&lt;/catalog&gt;
+</PRE>
+        
+</DIV>
+
+        
+<P>This file maps both the public identifier and the URN I
+        mentioned earlier to a local copy of DocBook on my system.
+        If the doctype declaration uses the public identifier for
+        DocBook, <SPAN class="emphasis"><I>I'll get
+        DocBook</I></SPAN> regardless of the (possibly bogus)
+        system identifier! Likewise, my local copy of DocBook will
+        be used if the system identifier contains the DocBook
+        URN.</P>
+
+        
+<P>The delegate entry instructs the resolver to use the
+        catalog
+        &ldquo;<TT>http://www.example.com/catalog</TT>&rdquo; for
+        any public identifier that begins with
+        &ldquo;-//Example//&rdquo;. The advantage of delegate in
+        this case is that I don't have to parse that catalog file
+        unless I encounter a public identifier that I reasonably
+        expect to find there.</P>
+      
+</DIV>
+
+      
+<DIV class="section">
+        
+<DIV class="titlepage">
+          
+<DIV>
+            
+<H2 class="title" style="clear: both">
+<A name="d0e312"></A>Understanding Catalog Files</H2>
+          
+</DIV>
+        
+</DIV>
+
+        
+<P>The OASIS <A href="http://www.oasis-open.org/committees/entity/" target="_top">Entity Resolution Technical Committee</A> is
+        actively defining the next generation XML-based catalog
+        file format. When this work is finished, it is expected to
+        become the official XML Catalog format. In the meantime,
+        the existing OASIS <A href="http://www.oasis-open.org/html/a401.htm" target="_top">Technical Resolution TR9401</A> format is the
+        standard.</P>
+
+        
+<DIV class="section">
+          
+<DIV class="titlepage">
+            
+<DIV>
+              
+<H3 class="title">
+<A name="xmlcatalogs"></A>OASIS XML
+              Catalogs</H3>
+            
+</DIV>
+          
+</DIV>
+
+          
+<P>OASIS XML Catalogs are being defined by the <A href="http://www.oasis-open.org/committees/entity/" target="_top">Entity Resolution Technical Committee</A>. This
+          article describes the 01 Aug 2001 draft. Note that this
+          draft is labelled to reflect that it is &ldquo;not an
+          official committee work product and may not reflect the
+          consensus opinion of the committee.&rdquo;</P>
+
+          
+<P>The document element for OASIS XML Catalogs is <TT class="sgmltag-element">catalog</TT>. The official
+          namespace name for OASIS XML Catalogs is
+          &ldquo;<TT>urn:oasis:names:tc:entity:xmlns:xml:catalog</TT>&rdquo;.</P>
+
+          
+<P>There are eight elements that can occur in an XML
+          Catalog: <TT class="sgmltag-element">group</TT>, <TT class="sgmltag-element">public</TT>, <TT class="sgmltag-element">system</TT>, <TT class="sgmltag-element">uri</TT>, <TT class="sgmltag-element">delegatePublic</TT>, <TT class="sgmltag-element">delegateSystem</TT>, <TT class="sgmltag-element">delegateURI</TT>, and <TT class="sgmltag-element">nextCatalog</TT>:</P>
+
+          
+<DIV class="variablelist">
+            
+<DL>
+              
+<DT>
+<A name="catalog"></A><SPAN class="term"><TT>&lt;catalog
+              <I><TT>prefer="public|system"</TT></I>
+              <I><TT>xml:base="uri-reference"</TT></I>&gt;</TT></SPAN>
+</DT>
+
+              
+<DD>
+                
+<P>The <TT class="sgmltag-element">catalog</TT>
+                element is the root of an XML Catalog.</P>
+
+                
+<P>The <TT class="sgmltag-attribute">prefer</TT>
+                setting determines whether or not public
+                identifiers specified in the catalog are to be used
+                in favor of system identifiers supplied in the
+                document. Suppose you have an entity in your
+                document for which both a public identifier and a
+                system identifier has been specified, and the
+                catalog only contains a mapping for the public
+                identifier (e.g., a matching <TT class="sgmltag-element">public</TT> catalog entry). If
+                the current value of <TT class="sgmltag-attribute">prefer</TT> is
+                &ldquo;public&rdquo;, the URI supplied in the
+                matching <TT class="sgmltag-element">public</TT>
+                catalog entry will be used. If it is
+                &ldquo;system&rdquo;, the system identifier in the
+                document will be used. (If the catalog contained a
+                matching <TT class="sgmltag-element">system</TT>
+                catalog entry giving a mapping for the system
+                identifier, that mapping would have been used, the
+                public identifier would never have been considered,
+                and the setting of override would have been
+                irrelevant.)</P>
+
+                
+<P>Generally, the purpose of catalogs is to
+                override the system identifiers in XML documents,
+                so <TT class="sgmltag-attribute">prefer</TT> should
+                usually be &ldquo;public&rdquo; in your
+                catalogs.</P>
+
+                
+<P>The <TT class="sgmltag-attribute">xml:base</TT>
+                URI is used to resolve relative URIs in the catalog
+                as described in the <A href="http://www.w3.org/TR/xmlbase" target="_top">XML
+                Base</A> specification.</P>
+              
+</DD>
+
+              
+<DT>
+<A name="group"></A><SPAN class="term"><TT>&lt;group
+              <I><TT>prefer="public|system"</TT></I>
+              <I><TT>xml:base="uri-reference"</TT></I>&gt;</TT></SPAN>
+</DT>
+
+              
+<DD>
+                
+<P>The <TT class="sgmltag-element">group</TT>
+                element serves merely as a wrapper around one or
+                more other entries for the purpose of establishing
+                the preference and base URI settings for those
+                entries.</P>
+              
+</DD>
+
+              
+<DT>
+<A name="public"></A><SPAN class="term"><TT>&lt;public
+              publicId="<I><TT>pubid</TT></I>"
+              uri="<I><TT>systemuri</TT></I>"/&gt;</TT></SPAN>
+</DT>
+
+              
+<DD>
+                
+<P>Maps the public identifier <I><TT>pubid</TT></I>
+                to the system identifier
+                <I><TT>systemuri</TT></I>.</P>
+              
+</DD>
+
+              
+<DT>
+<A name="system"></A><SPAN class="term"><TT>&lt;system
+              systemId="<I><TT>sysid</TT></I>"
+              uri="<I><TT>systemuri</TT></I>"/&gt;</TT></SPAN>
+</DT>
+
+              
+<DD>
+                
+<P>Maps the system identifier <I><TT>sysid</TT></I>
+                to the alternate system identifier
+                <I><TT>systemuri</TT></I>.</P>
+              
+</DD>
+
+              
+<DT>
+<A name="uri"></A><SPAN class="term"><TT>&lt;uri
+              name="<I><TT>uri</TT></I>"
+              uri="<I><TT>alternateuri</TT></I>"/&gt;</TT></SPAN>
+</DT>
+
+              
+<DD>
+                
+<P>The <TT class="sgmltag-element">uri</TT> entry
+                maps a <I><TT>uri</TT></I> to an
+                <I><TT>alternateuri</TT></I>. This mapping, as
+                might be performed by a JAXP URIResolver, for
+                example, is independent of system and public
+                identifier resolution.</P>
+              
+</DD>
+
+              
+<DT>
+<A name="delegate"></A><SPAN class="term"><TT>&lt;delegatePublic
+              publicIdStartString="<I><TT>pubid-prefix</TT></I>"
+              catalog="<I><TT>cataloguri</TT></I>"/&gt;</TT>,</SPAN>
+              <SPAN class="term"><TT>&lt;delegateSystem
+              systemIdStartString="<I><TT>sysid-prefix</TT></I>"
+              catalog="<I><TT>cataloguri</TT></I>"/&gt;</TT>,</SPAN>
+              <SPAN class="term"><TT>&lt;delegateURI
+              uriStartString="<I><TT>uri-prefix</TT></I>"
+              catalog="<I><TT>cataloguri</TT></I>"/&gt;</TT></SPAN>
+</DT>
+
+              
+<DD>
+                
+<P>The delegate entries specify that identifiers
+                beginning with the matching prefix should be
+                resolved using the catalog specified by the
+                <I><TT>cataloguri</TT></I>. If multiple delegate
+                entries of the same kind match, they will each be
+                searched, starting with the longest prefix and
+                continuing with the next longest to the
+                shortest.</P>
+
+                
+<P>The delegate entries differs from the <TT class="sgmltag-element">nextCatalog</TT> entry in the
+                following way: alternate catalogs referenced with a
+                <TT class="sgmltag-element">nextCatalog</TT> entry
+                are parsed and included in the current catalog.
+                Delegated catalogs are only considered, and
+                consequently only loaded and parsed, if necessary.
+                Delegated catalogs are also used <SPAN class="emphasis"><I>instead of</I></SPAN> the current
+                catalog, not as part of the current catalog.</P>
+              
+</DD>
+
+              
+<DT>
+<A name="rewrite"></A><SPAN class="term"><TT>&lt;rewriteSystem
+              systemIdStartString="<I><TT>sysid-prefix</TT></I>"
+              rewritePrefix="<I><TT>new-prefix</TT></I>"/&gt;</TT>,</SPAN>
+              <SPAN class="term"><TT>&lt;rewriteURI
+              uriStartString="<I><TT>uri-prefix</TT></I>"
+              rewritePrefix="<I><TT>new-prefix</TT></I>"/&gt;</TT></SPAN>
+</DT>
+
+              
+<DD>
+                
+<P>Supports generalized rewriting of system
+                identifiers and URIs. This allows all of the URI
+                references to a particular document (which might
+                include many different fragment identifiers) to be
+                remapped to a different resource).</P>
+              
+</DD>
+
+              
+<DT>
+<A name="nextCatalog"></A><SPAN class="term"><TT>&lt;nextCatalog
+              catalog="<I><TT>cataloguri</TT></I>"/&gt;</TT></SPAN>
+</DT>
+
+              
+<DD>
+                
+<P>Adds the catalog file specified by the
+                <I><TT>cataloguri</TT></I> to the end of the
+                current catalog. This allows one catalog to refer
+                to another.</P>
+              
+</DD>
+            
+</DL>
+          
+</DIV>
+        
+</DIV>
+
+        
+<DIV class="section">
+          
+<DIV class="titlepage">
+            
+<DIV>
+              
+<H3 class="title">
+<A name="tr9401catalogs"></A>OASIS
+              TR9401 Catalogs</H3>
+            
+</DIV>
+          
+</DIV>
+
+          
+<P>These catalogs are officially defined by <A href="http://www.oasis-open.org/html/a401.htm" target="_top">OASIS Technical Resolution TR9401</A>.</P>
+
+          
+<P>A Catalog is a text file that contains a sequence of
+          entries. Of the 13 types of entries that are possible,
+          only six are commonly applicable in XML systems: BASE,
+          CATALOG, OVERRIDE, DELEGATE, PUBLIC, and SYSTEM:</P>
+
+          
+<DIV class="variablelist">
+            
+<DL>
+              
+<DT>
+<SPAN class="term">BASE
+              <I><TT>uri</TT></I></SPAN>
+</DT>
+
+              
+<DD>
+                
+<P>Catalog entries can contain relative URIs. The
+                BASE entry changes the base URI for subsequent
+                relative URIs. The initial base URI is the URI of
+                the <SPAN class="emphasis"><I>catalog</I></SPAN>
+                file.</P>
+
+                
+<P>In <A href="#xmlcatalogs" title="OASIS XML Catalogs">XML Catalogs</A>, this
+                functionality is provided by the closest applicable
+                <TT class="sgmltag-attribute">xml:base</TT>
+                attribute, usually on the surrounding <A href="#catalog"><TT class="sgmltag-element">catalog</TT></A> or <A href="#group"><TT class="sgmltag-element">group</TT></A>
+                element.</P>
+              
+</DD>
+
+              
+<DT>
+<SPAN class="term">CATALOG
+              <I><TT>cataloguri</TT></I></SPAN>
+</DT>
+
+              
+<DD>
+                
+<P>This entry serves the same purpose as the <A href="#nextCatalog"><TT class="sgmltag-element">nextCatalog</TT></A> entry in <A href="#xmlcatalogs" title="OASIS XML Catalogs">XML
+                Catalogs</A>.</P>
+              
+</DD>
+
+              
+<DT>
+<SPAN class="term">OVERRIDE
+              <I><TT>YES|NO</TT></I></SPAN>
+</DT>
+
+              
+<DD>
+                
+<P>This entry enables or disables overriding of
+                system identifiers for subsequent entries in the
+                catalog file.</P>
+
+                
+<P>In <A href="#xmlcatalogs" title="OASIS XML Catalogs">XML Catalogs</A>, this
+                functionality is provided by the closest applicable
+                <TT class="sgmltag-attribute">prefer</TT> attribute
+                on the surrounding <A href="#catalog"><TT class="sgmltag-element">catalog</TT></A> or <A href="#group"><TT class="sgmltag-element">group</TT></A>
+                element.</P>
+
+                
+<P>An override value of &ldquo;yes&rdquo; is
+                equivalent to &ldquo;prefer="public"&rdquo;.</P>
+              
+</DD>
+
+              
+<DT>
+<SPAN class="term">DELEGATE
+              <I><TT>pubid-prefix</TT></I>
+              <I><TT>cataloguri</TT></I></SPAN>
+</DT>
+
+              
+<DD>
+                
+<P>This entry serves the same purpose as the <A href="#delegate"><TT class="sgmltag-element">delegate</TT></A> entry in <A href="#xmlcatalogs" title="OASIS XML Catalogs">XML
+                Catalogs</A>.</P>
+              
+</DD>
+
+              
+<DT>
+<SPAN class="term">PUBLIC <I><TT>pubid</TT></I>
+              <I><TT>systemuri</TT></I></SPAN>
+</DT>
+
+              
+<DD>
+                
+<P>This entry serves the same purpose as the <A href="#public"><TT class="sgmltag-element">public</TT></A> entry in <A href="#xmlcatalogs" title="OASIS XML Catalogs">XML
+                Catalogs</A>.</P>
+              
+</DD>
+
+              
+<DT>
+<SPAN class="term">SYSTEM <I><TT>sysid</TT></I>
+              <I><TT>systemuri</TT></I></SPAN>
+</DT>
+
+              
+<DD>
+                
+<P>This entry serves the same purpose as the <A href="#system"><TT class="sgmltag-element">system</TT></A> entry in <A href="#xmlcatalogs" title="OASIS XML Catalogs">XML
+                Catalogs</A>.</P>
+              
+</DD>
+            
+</DL>
+          
+</DIV>
+        
+</DIV>
+
+        
+<DIV class="section">
+          
+<DIV class="titlepage">
+            
+<DIV>
+              
+<H3 class="title">
+<A name="d0e719"></A>XCatalogs</H3>
+            
+</DIV>
+          
+</DIV>
+
+          
+<P>The Resolver classes also understand the XCatalog
+          format supported by Apache.</P>
+        
+</DIV>
+
+        
+<DIV class="section">
+          
+<DIV class="titlepage">
+            
+<DIV>
+              
+<H3 class="title">
+<A name="d0e724"></A>Resolution
+              Semantics</H3>
+            
+</DIV>
+          
+</DIV>
+
+          
+<P>Resolution is performed in roughly the following
+          way:</P>
+
+          
+<DIV class="orderedlist">
+            
+<OL type="1">
+              
+<LI>
+                
+<P>If a system entry matches the specified system
+                identifier, it is used.</P>
+              
+</LI>
+
+              
+<LI>
+                
+<P>If no system entry matches the specified system
+                identifier, but a rewrite entry matches, it is
+                used.</P>
+              
+</LI>
+
+              
+<LI>
+                
+<P>If a public entry matches the specified public
+                identifier and either <TT class="sgmltag-attribute">prefer</TT> is public or no
+                system identifier is provided, it is used.</P>
+              
+</LI>
+
+              
+<LI>
+                
+<P>If no exact match was found, but it matches one
+                or more of the partial identifiers specified in
+                delegate entries, the delegated catalogs are
+                searched for a matching identifier.</P>
+              
+</LI>
+            
+</OL>
+          
+</DIV>
+
+          
+<P>For a more detailed description of resolution
+          semantics, including the treatment of multiple catalog
+          files and the complete rules for delegation, consult the
+          <A href="http://www.oasis-open.org/committees/entity/spec.html" target="_top">XML Catalog standard</A>.</P>
+        
+</DIV>
+      
+</DIV>
+
+      
+<DIV class="section">
+        
+<DIV class="titlepage">
+          
+<DIV>
+            
+<H2 class="title" style="clear: both">
+<A name="ctrlresolver"></A>Controlling the Catalog
+            Resolver</H2>
+          
+</DIV>
+        
+</DIV>
+
+        
+<P>The Resolver classes uses either Java system properties
+        or a standard Java properties file to establish an initial
+        environment. The property file, if it is used, must be
+        called <TT>CatalogManager.properties</TT> and must be
+        somewhere on your <TT>CLASSPATH</TT>. The following
+        properties are supported:</P>
+
+        
+<DIV class="variablelist">
+          
+<DL>
+            
+<DT>
+<SPAN class="term">System property
+            <TT>xml.catalog.files</TT>; CatalogManager property
+            <TT>catalogs</TT></SPAN>
+</DT>
+
+            
+<DD>
+              
+<P>A semicolon-delimited list of catalog files. These
+              are the catalog files that are initially consulted
+              for resolution.</P>
+
+              
+<P>Unless you are incorporating the resolver classes
+              into your own applications, and subsequently
+              establishing an initial set of catalog files through
+              some other means, at least one file must be
+              specified, or all resolution will fail.</P>
+            
+</DD>
+
+            
+<DT>
+<SPAN class="term">System property
+            <TT>xml.catalog.prefer</TT>; CatalogManager property
+            <TT>prefer</TT></SPAN>
+</DT>
+
+            
+<DD>
+              
+<P>The initial prefer setting, either <TT>public</TT>
+              or <TT>system</TT>.</P>
+            
+</DD>
+
+            
+<DT>
+<SPAN class="term">System property
+            <TT>xml.catalog.verbosity</TT>; CatalogManager property
+            <TT>verbosity</TT></SPAN>
+</DT>
+
+            
+<DD>
+              
+<P>An indication of how much status/debugging
+              information you want to receive. The value is a
+              number; the larger the number, the more information
+              you will receive. A setting of 0 turns off all status
+              information.</P>
+            
+</DD>
+
+            
+<DT>
+<SPAN class="term">System property
+            <TT>xml.catalog.staticCatalog</TT>; CatalogManager
+            property <TT>static-catalog</TT></SPAN>
+</DT>
+
+            
+<DD>
+              
+<P>In the course of processing, an application may
+              parse several XML documents. If you are using the
+              built-in <TT>CatalogResolver</TT>, this option
+              controls whether or not a new instance of the
+              resolver is constructed for each parse. For
+              performance reasons, using a value of <TT>yes</TT>,
+              indicating that a static catalog should be used for
+              all parsing, is probably best.</P>
+            
+</DD>
+
+            
+<DT>
+<SPAN class="term">System property
+            <TT>xml.catalog.allowPI</TT>; CatalogManager property
+            <TT>allow-oasis-xml-catalog-pi</TT></SPAN>
+</DT>
+
+            
+<DD>
+              
+<P>This setting allows you to toggle whether or not
+              the resolver classes obey the <TT class="sgmltag-xmlpi">&lt;?oasis-xml-catalog?&gt;</TT>
+              processing instruction.</P>
+            
+</DD>
+
+            
+<DT>
+<SPAN class="term">System property
+            <TT>xml.catalog.className</TT>; CatalogManager property
+            <TT>catalog-class-name</TT></SPAN>
+</DT>
+
+            
+<DD>
+              
+<P>If you're using the convenience classes
+              <TT>com.sun.resolver.tools.*</TT>), this setting
+              allows you to specify an alternate class name to use
+              for the underlying catalog.</P>
+            
+</DD>
+
+            
+<DT>
+<SPAN class="term">CatalogManager property
+            <TT>relative-catalogs</TT></SPAN>
+</DT>
+
+            
+<DD>
+              
+<P>If <TT>relative-catalogs</TT> is <TT>yes</TT>,
+              relative catalogs in the <TT>catalogs</TT> property
+              will be left relative; otherwise they will be made
+              absolute with respect to the base URI of the
+              <TT>CatalogManager.properties</TT> file. This setting
+              has no effect on catalogs loaded from the
+              <TT>xml.catalogs.files</TT> system property (which
+              are always returned unchanged).</P>
+            
+</DD>
+
+            
+<DT>
+<SPAN class="term">System property
+            <TT>xml.catalog.ignoreMissing</TT></SPAN>
+</DT>
+
+            
+<DD>
+              
+<P>By default, the resolver will issue warning
+              messages if it cannot find a
+              <TT>CatalogManager.properties</TT> file, or if
+              resources are missing in that file. However if <SPAN class="emphasis"><I>either</I></SPAN>
+              <TT>xml.catalog.ignoreMissing</TT> is <TT>yes</TT>,
+              or catalog files are specified with the
+              <TT>xml.catalog.catalogs</TT> system property, this
+              warning will be suppressed.</P>
+            
+</DD>
+          
+</DL>
+        
+</DIV>
+
+        
+<P>My <TT>CatalogManager.properties</TT> file looks like
+        this:</P>
+
+        
+<DIV class="example">
+          
+<P>
+<B>Example 2. Example CatalogManager.properties
+          File</B>
+</P>
+
+<PRE class="programlisting">
+#CatalogManager.properties
+
+verbosity=1
+
+relative-catalogs=yes
+
+# Always use semicolons in this list
+catalogs=./xcatalog;/share/doctypes/catalog;/share/doctypes/xcatalog
+
+prefer=public
+
+static-catalog=yes
+
+allow-oasis-xml-catalog-pi=yes
+
+catalog-class-name=com.sun.resolver.Resolver
+</PRE>
+        
+</DIV>
+      
+</DIV>
+
+      
+<DIV class="section">
+        
+<DIV class="titlepage">
+          
+<DIV>
+            
+<H2 class="title" style="clear: both">
+<A name="d0e904"></A>Using Catalogs with Popular
+            Applications</H2>
+          
+</DIV>
+        
+</DIV>
+
+        
+<P>A number of popular applications provide easy access to
+        catalog resolution:</P>
+
+        
+<DIV class="variablelist">
+          
+<DL>
+            
+<DT>
+<SPAN class="term">Xalan</SPAN>
+</DT>
+
+            
+<DD>
+              
+<P>Recent development versions of Xalan include new
+              command-line switches for setting the resolvers. You
+              can use them directly with the
+              <TT>com.sun.resolver.tools</TT> classes:</P>
+
+<PRE class="screen">
+  -URIRESOLVER com.sun.resolver.tools.CatalogResolver
+  -ENTITYRESOLVER com.sun.resolver.tools.CatalogResolver
+</PRE>
+            
+</DD>
+
+            
+<DT>
+<SPAN class="term">Saxon</SPAN>
+</DT>
+
+            
+<DD>
+              
+<P>Similarly, Saxon supports command-line access to
+              the resolvers:</P>
+
+<PRE class="screen">
+  -x com.sun.resolver.tools.ResolvingXMLReader
+  -y com.sun.resolver.tools.ResolvingXMLReader
+  -r com.sun.resolver.tools.CatalogResolver
+</PRE>
+
+              
+<P>The <I><TT>-x</TT></I> class is used to read
+              source documents, the <I><TT>-y</TT></I> class is
+              used to read stylesheets.</P>
+            
+</DD>
+
+            
+<DT>
+<SPAN class="term">XP</SPAN>
+</DT>
+
+            
+<DD>
+              
+<P>To use XP, simply use the included
+              <TT>com.sun.xp.xml.sax.Driver</TT> class instead of
+              the default XP driver.</P>
+            
+</DD>
+
+            
+<DT>
+<SPAN class="term">XT</SPAN>
+</DT>
+
+            
+<DD>
+              
+<P>Similarly, for XT, use the
+              <TT>com.sun.xt.xsl.sax.Driver</TT> class.</P>
+            
+</DD>
+          
+</DL>
+        
+</DIV>
+      
+</DIV>
+
+      
+<DIV class="section">
+        
+<DIV class="titlepage">
+          
+<DIV>
+            
+<H2 class="title" style="clear: both">
+<A name="d0e955"></A>Adding Catalog Support to Your
+            Applications</H2>
+          
+</DIV>
+        
+</DIV>
+
+        
+<P>If you work with Java applications using a parser that
+        supports the SAX1 <TT>Parser</TT> interface or the SAX2
+        <TT>XMLReader</TT> interface, adding Catalog support to
+        your applications is a snap. The SAX interfaces include an
+        <TT>entityResolver</TT> hook designed to provide an
+        application with an opportunity to do this sort of
+        indirection. The Resolver classes implements the full OASIS
+        Catalog semantics and provide an appropriate class that
+        implements the SAX <TT>entityResolver</TT> interface.</P>
+
+        
+<P>All you have to do is setup a
+        <TT>com.sun.resolver.tools.CatalogResolver</TT> on your
+        parser's <TT>entityResolver</TT> hook. The code listing in
+        <A href="#ex1" title="Example 3. Adding a CatalogResolver to Your Parser">Example
+        3</A> demonstrates how straightforward this is:</P>
+
+        
+<DIV class="example">
+          
+<P>
+<A name="ex1"></A><B>Example 3. Adding a
+          CatalogResolver to Your Parser</B>
+</P>
+
+<PRE class="programlisting">
+import com.sun.resolver.tools.CatalogResolver;
+...
+    CatalogResolver cr = new CatalogResolver();
+...
+    yourParser.setEntityResolver(cr)
+</PRE>
+        
+</DIV>
+
+        
+<P>The system catalogs are loaded from the
+        <TT>CatalogManager.properties</TT> file on your
+        <TT>CLASSPATH</TT>. (For all the gory details about these
+        classes, consult <A href="apidocs/index.html" target="_top">the API documentation</A>.) You can explicitly parse
+        your own catalogs (perhaps taken from command line
+        arguments or a Preferences dialog) instead of or in
+        addition to the system catalogs.</P>
+      
+</DIV>
+
+      
+<DIV class="section">
+        
+<DIV class="titlepage">
+          
+<DIV>
+            
+<H2 class="title" style="clear: both">
+<A name="d0e998"></A>Catalogs In Action</H2>
+          
+</DIV>
+        
+</DIV>
+
+        
+<P>The Resolver distribution includes a couple of test
+        programs, <B>resolver</B> and <B>xparse</B>, that you can
+        use to see how this all works.</P>
+
+        
+<DIV class="section">
+          
+<DIV class="titlepage">
+            
+<DIV>
+              
+<H3 class="title">
+<A name="d0e1009"></A>Using
+              <B>resolver</B>
+</H3>
+            
+</DIV>
+          
+</DIV>
+
+          
+<P>The <B>resolver</B> application simply performs a
+          catalog lookup and returns the result. Given the
+          following catalog:</P>
+
+          
+<DIV class="example">
+            
+<P>
+<A name="ex.catalog.xml"></A><B>Example 4. An
+            Example XML Catalog File</B>
+</P>
+
+<PRE class="programlisting">
+&lt;catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog"&gt;
+
+&lt;public publicId="-//Example//DTD Example V1.0//EN"
+        uri="example.dtd"/&gt;
+
+&lt;/catalog&gt;
+</PRE>
+          
+</DIV>
+
+          
+<P>A demonstration of public identifier resolution can be
+          achieved like this:</P>
+
+          
+<DIV class="example">
+            
+<P>
+<A name="ex.resolver"></A><B>Example 5. Resolving
+            Identifiers</B>
+</P>
+
+<PRE class="screen">
+$ java com.sun.resolver.apps.resolver -d 2 -c example/catalog.xml \
+  -p "-//Example//DTD Example V1.0//EN" public
+Loading catalog: ./catalog
+Loading catalog: /share/doctypes/catalog
+Resolve PUBLIC (publicid, systemid):
+  public id: -//Example//DTD Example V1.0//EN
+Loading catalog: file:/share/doctypes/entities.cat
+Loading catalog: /share/doctypes/xcatalog
+Loading catalog: example/catalog.xml
+Result: file:/share/documents/articles/sun/2001/01-resolver/example/example.dtd
+</PRE>
+          
+</DIV>
+        
+</DIV>
+
+        
+<DIV class="section">
+          
+<DIV class="titlepage">
+            
+<DIV>
+              
+<H3 class="title">
+<A name="d0e1031"></A>Using
+              <B>xparse</B>
+</H3>
+            
+</DIV>
+          
+</DIV>
+
+          
+<P>The <B>xparse</B> command simply sets up a catalog
+          resolver and then parses a document. Any external
+          entities encountered during the parse are resolved
+          appropriately using the catalogs provided.</P>
+
+          
+<P>In order to use the program, you must have the
+          <TT>resolver.jar</TT> file on your <TT>CLASSPATH</TT> and
+          you must be using <A href="http://java.sun.com/xml/" target="_top">JAXP</A>. In the examples that follow, I've
+          already got these files on my <TT>CLASSPATH</TT>.</P>
+
+          
+<P>The file we'll be parsing is shown in <A href="#ex.example.xml" title="Example 6. An xparse Example File">Example 6</A>.</P>
+
+          
+<DIV class="example">
+            
+<P>
+<A name="ex.example.xml"></A><B>Example 6. An xparse
+            Example File</B>
+</P>
+
+<PRE class="programlisting">
+&lt;!DOCTYPE example PUBLIC "-//Example//DTD Example V1.0//EN"
+                  "file:///dev/this/does/not/exist/example.dtd"&gt;
+&lt;example&gt;
+&lt;p&gt;This is just a trivial example.&lt;/p&gt;
+&lt;/example&gt;
+</PRE>
+          
+</DIV>
+
+          
+<P>First let's look at what happens if you try to parse
+          this document without any catalogs. For this example, I
+          deleted the <TT>catalogs</TT> entry on my
+          <TT>CatalogManager.properties</TT> file. As expected, the
+          parse fails:</P>
+
+          
+<DIV class="example">
+            
+<P>
+<A name="ex.nocat.sh"></A><B>Example 7. Parsing
+            Without a Catalog</B>
+</P>
+
+<PRE class="screen">
+$ java com.sun.resolver.apps.xparse -d 2 example.xml
+Attempting validating, namespace-aware parse
+Fatal error:example.xml:2:External entity not found:
+   "file:///dev/this/does/not/exist/example.dtd".
+Parse failed with 1 error and no warnings.
+</PRE>
+          
+</DIV>
+
+          
+<P>With an appropriate catalog file, we can map the
+          public identifier to a local copy of the DTD. We could
+          have mapped the system identifier instead (or as well),
+          but the public identifier is probably more stable.</P>
+
+          
+<P>Using a command-line option to specify the catalog, I
+          can now successfully parse the document:</P>
+
+          
+<DIV class="example">
+            
+<P>
+<A name="ex.withcat.sh"></A><B>Example 8. Parsing
+            With a Catalog</B>
+</P>
+
+<PRE class="screen">
+$ java com.sun.resolver.apps.xparse -d 2 -c catalog.xml example.xml
+Loading catalog: catalog.xml
+Attempting validating, namespace-aware parse
+Resolved public: -//Example//DTD Example V1.0//EN
+    file:/share/documents/articles/sun/2001/01-resolver/example/example.dtd
+Parse succeeded (0.32) with no errors and no warnings.
+</PRE>
+          
+</DIV>
+
+          
+<P>The additional messages in each of these examples
+          arise as a consequence of the debugging option, <I><TT>-d
+          2</TT></I>. In practice, you can make resolution
+          silent.</P>
+        
+</DIV>
+      
+</DIV>
+
+      
+<DIV class="section">
+        
+<DIV class="titlepage">
+          
+<DIV>
+            
+<H2 class="title" style="clear: both">
+<A name="d0e1091"></A>May All Your Names Resolve
+            Successfully!</H2>
+          
+</DIV>
+        
+</DIV>
+
+        
+<P>We hope that these classes become a standard part of
+        your toolkit. Incorporating this code allows you to utilize
+        public identifiers in XML documents with the confidence
+        that you will be able to move those documents from one
+        system to another and around the Web.</P>
+      
+</DIV>
+      
+<HR>
+
+      
+<P>
+<A name="blurb.d0e72"></A>The Author: Sun Microsystems
+      supports Norm's active participation in a number of standards
+      efforts worldwide, including the XML Core, XSL and XML Schema
+      Working Groups of the World Wide Web Consortium, the OASIS
+      XSLT Conformance and RELAX NG Committees, the OASIS Entity
+      Resolution Committee, for which he is the editor, and the
+      OASIS DocBook Technical Committee, which he chairs.</P>
+
+      
+<DIV class="footnotes">
+        
+<BR>
+        
+<HR align="left" width="100">
+
+        
+<DIV class="footnote">
+          
+<P>
+<SUP>[<A href="#d0e109" name="ftn.d0e109">1</A>]</SUP>
+          It is technically possible to use a proxy to
+          transparently cache remote resources, thus making the
+          cached resources available even when the real hosts are
+          unreachable. In practice, this requires more technical
+          skill (and system administration access) than many users
+          have available. And I don't know of any such proxies that
+          can be configured to provide preferential caching to the
+          specific resources that are needed. Without such
+          preferential treatment, its difficult to be sure that the
+          resources you need are actually in the cache.</P>
+        
+</DIV>
+
+        
+<DIV class="footnote">
+          
+<P>
+<SUP>[<A href="#d0e225" name="ftn.d0e225">2</A>]</SUP>
+          URIs that rely on the domain name system to identify
+          objects (in other words, all URLs) are addresses, not
+          names, even though the domain name provides a level of
+          indirection and the illusion of a stable name.</P>
+        
+</DIV>
+      
+</DIV>
+    
+</DIV>
+  
+
+
+
+</BODY>
+</HTML>

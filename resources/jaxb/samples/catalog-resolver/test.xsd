@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+ Copyright 2004 Sun Microsystems, Inc. All rights reserved.
+ SUN PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+-->
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  
+  <xs:import namespace="http://www.w3.org/XML/1998/namespace"
+        schemaLocation="http://www.w3.org/2001/xml.xsd" />
+  
+  <xs:complexType name="foo">
+    <xs:sequence>
+      <xs:element name="age" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  
+  <xs:element name="root" type="foo" />
+  
+</xs:schema>
