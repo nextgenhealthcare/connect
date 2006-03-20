@@ -1,0 +1,124 @@
+#navigation
+{
+	background:#FFF url(../images/navigation/navigation_bg.png) repeat-x;
+	height:76px;
+	margin:0;
+	padding:0;
+	color:#fff;
+	display:block;
+}
+#navigation li
+{
+	display:block;
+	float:left;
+}
+#navigation li a
+{
+	display:block;
+	height:57px;
+}
+#navigation span
+{
+	display:none;
+}
+
+/*Logo */
+#logoNav{
+	width:120px; 
+	display:block;
+	height:57px;
+}
+#logoNav{
+	background:url(../images/navigation/logo.png)  0px 0px no-repeat;
+}
+
+/*Status panel */
+#statusNav{
+	width:83px;
+}
+#statusNav:link, #statusNav:visited {
+	background:url(../images/navigation/statuspanel.png)  0px 0px no-repeat;
+}
+#statusNav:hover, #statusNav:active {
+	background:url(../images/navigation/statuspanel.png)  0px -57px no-repeat;
+}
+#statusNav.selected:link, #statusNav.selected:visited, #statusNav.selected:hover {
+	background:url(../images/navigation/statuspanel.png)  0px -114px no-repeat;
+}
+
+
+/*Channels*/
+#channelsNav{
+	width:83px;
+}
+#channelsNav:link, #channelsNav:visited {
+	background:url(../images/navigation/channels.png)  0px 0px no-repeat;
+}
+#channelsNav:hover, #channelsNav:active {
+	background:url(../images/navigation/channels.png)  0px -57px no-repeat;
+}
+#channelsNav.selected:link, #channelsNav.selected:visited, #channelsNav.selected:hover {
+	background:url(../images/navigation/channels.png)  0px -114px no-repeat;
+}
+
+/*Endpoints*/
+#endpointsNav {
+	width:83px;
+}
+#endpointsNav:link,#endpointsNav:visited {
+	background:url(../images/navigation/endpoints.png)  0px 0px no-repeat;
+}
+#endpointsNav:hover {
+	background:url(../images/navigation/endpoints.png)  0px -57px no-repeat;
+}
+#endpointsNav.selected:link,#endpointsNav.selected:visited, #endpointsNav.selected:hover {
+	background:url(../images/navigation/endpoints.png)   0px -114px no-repeat;
+}
+
+/* Filters */
+#filtersNav{width:83px;}
+#filtersNav:link, #filtersNav:visited {
+	background:url(../images/navigation/filters.png)  0px 0px no-repeat;
+}
+#filtersNav:hover {
+	background:url(../images/navigation/filters.png)  0px  -57px no-repeat;
+}
+#filtersNav.selected:link, #filtersNav.selected:visited, #filtersNav.selected:hover {
+	background:url(../images/navigation/filters.png)  0px -114px no-repeat;
+}
+
+/* Transformers */
+#transformersNav{width:83px;}
+#transformersNav:link, #transformersNav:visited {
+	background:url(../images/navigation/transformers.png)  0px 0px no-repeat;
+}
+#transformersNav:hover {
+	background:url(../images/navigation/transformers.png)  0px  -57px no-repeat;
+}
+#transformersNav.selected:link, #transformersNav.selected:visited, #transformersNav.selected:hover {
+	background:url(../images/navigation/transformers.png)  0px -114px no-repeat;
+}
+
+
+#administrativeNav{
+	width:83px;
+}
+#administrativeNav:link, #administrativeNav:visited {
+	background:url(../images/navigation/administrative.png) 0px 0px no-repeat;
+}
+#administrativeNav:hover {
+	background:url(../images/navigation/administrative.png) 0px -57px no-repeat;
+}
+#administrativeNav.selected:link, #administrativeNav.selected:visited, #administrativeNav.selected:hover {
+	background:url(../images/navigation/administrative.png) 0px -114px  no-repeat;
+}
+
+#logoutNav{
+	width:70px; 
+	clear:both;
+	position:absolute;
+	right:0;
+}
+#logoutNav:link, #logoutNav:visited{background:url(../images/navigation/logout.png)  0px 0px no-repeat;}
+#logoutNav:hover{background:url(../images/navigation/logout.png)  0px -57px no-repeat;}
+

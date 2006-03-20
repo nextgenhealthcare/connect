@@ -1,0 +1,390 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mirth-properties>
+	<component name="endpoint">
+		<type name="tcp_listener" displayName="TCP Listener" className="org.mule.providers.tcp.TcpConnector" transformers="ByteArrayToString HL7StringToXMLString" direction="inbound" protocol="tcp">
+			<property name="host" muleProperty="0" required="1">
+				<defaultValue>127.0.0.1</defaultValue>
+				<displayName>Listener IP Address</displayName>
+				<description>The IP address used for listening for incoming messages.</description>
+				<formType>text</formType>
+				<formOptions>15,15</formOptions>
+				<formValidator>ipAddressValidator</formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>
+			<property name="port" muleProperty="0" required="1">
+				<defaultValue>6660</defaultValue>
+				<displayName>Listening Port</displayName>
+				<description>The incoming host IP port.</description>
+				<formType>text</formType>
+				<formOptions>5,5</formOptions>
+				<formValidator>intValidator</formValidator>
+				<formValidatorOptions>0,65000</formValidatorOptions>
+			</property>
+			<property name="receiveTimeout" muleProperty="1" required="1">
+				<defaultValue>5000</defaultValue>
+				<displayName>Receive Timeout (ms)</displayName>
+				<description>The receive timeout duration.</description>
+				<formType>text</formType>
+				<formOptions>6,6</formOptions>
+				<formValidator>intValidator</formValidator>
+				<formValidatorOptions>0,10000</formValidatorOptions>
+			</property>
+			<property name="bufferSize" muleProperty="1" required="1">
+				<defaultValue>65536</defaultValue>
+				<displayName>Buffer Size</displayName>
+				<description>The buffer size used to read and write data.</description>
+				<formType>text</formType>
+				<formOptions>9,9</formOptions>
+				<formValidator>intValidator</formValidator>
+				<formValidatorOptions>0,131072</formValidatorOptions>
+			</property>			
+			<property name="keepSendSocketOpen" muleProperty="1" required="1">
+				<defaultValue>0</defaultValue>
+				<displayName>Keep Connection Open</displayName>
+				<description>Whether to keep the connection socket open for multiple dispatches.</description>
+				<formType>yes_no</formType>
+				<formOptions></formOptions>
+				<formValidator>yesNoValidator</formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>			
+			<property name="messageStart" muleProperty="0" required="1">
+				<defaultValue>0x0B</defaultValue>
+				<displayName>Start of Message Character</displayName>
+				<description>The character that indicates that the message is beginning.</description>
+				<formType>text</formType>
+				<formOptions>5,5</formOptions>
+				<formValidator>stringValidator</formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>														
+			<property name="messageEnd" muleProperty="0" required="1">
+				<defaultValue>0x1C</defaultValue>
+				<displayName>End of Message Character</displayName>
+				<description>The character that indicates that the message is done.</description>
+				<formType>text</formType>
+				<formOptions>5,5</formOptions>
+				<formValidator>stringValidator</formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>	
+			<property name="recordSeparator" muleProperty="0" required="1">
+				<defaultValue>0x0D</defaultValue>
+				<displayName>Record Separator</displayName>
+				<description></description>
+				<formType>text</formType>
+				<formOptions>5,5</formOptions>
+				<formValidator></formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>															
+			<property name="fieldSeparator" muleProperty="0" required="1">
+				<defaultValue>0x7C</defaultValue>
+				<displayName>Field Separator</displayName>
+				<description></description>
+				<formType>text</formType>
+				<formOptions>5,5</formOptions>
+				<formValidator>stringValidator</formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>				
+			<property name="sendACK" muleProperty="0" required="1">
+				<defaultValue>AUTO</defaultValue>
+				<displayName>Send ACK</displayName>
+				<description></description>
+				<formType>select</formType>
+				<formOptions>AUTO;Auto, ALWAYS;Always, NE;Never</formOptions>
+				<formValidator></formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>		
+		</type>
+
+		<type name="tcp_sender" displayName="TCP Sender" className="org.mule.providers.tcp.TcpConnector" transformers="" direction="outbound" protocol="tcp">
+			<property name="host" muleProperty="0" required="1">
+				<defaultValue>127.0.0.1</defaultValue>
+				<displayName>Host IP Address</displayName>
+				<description>The IP address used by the host system for receiving messages.</description>
+				<formType>text</formType>
+				<formOptions>15,15</formOptions>
+				<formValidator>ipAddressValidator</formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>
+			<property name="port" muleProperty="0" required="1">
+				<defaultValue>6660</defaultValue>
+				<displayName>Host Port</displayName>
+				<description>The receiving host IP port.</description>
+				<formType>text</formType>
+				<formOptions>5,5</formOptions>
+				<formValidator>intValidator</formValidator>
+				<formValidatorOptions>0,65000</formValidatorOptions>
+			</property>
+			<property name="sendTimeout" muleProperty="1" required="1">
+				<defaultValue>5000</defaultValue>
+				<displayName>Send Timeout (ms)</displayName>
+				<description>The send timeout duration.</description>
+				<formType>text</formType>
+				<formOptions>6,6</formOptions>
+				<formValidator>intValidator</formValidator>
+				<formValidatorOptions>0,10000</formValidatorOptions>
+			</property>			
+			<property name="bufferSize" muleProperty="1" required="1">
+				<defaultValue>65536</defaultValue>
+				<displayName>Buffer Size</displayName>
+				<description>The buffer size used to read and write data.</description>
+				<formType>text</formType>
+				<formOptions>9,9</formOptions>
+				<formValidator>intValidator</formValidator>
+				<formValidatorOptions>0,131072</formValidatorOptions>
+			</property>			
+			<property name="keepSendSocketOpen" muleProperty="1" required="1">
+				<defaultValue>0</defaultValue>
+				<displayName>Keep Connection Open</displayName>
+				<description>Whether to keep the connection socket open for multiple dispatches.</description>
+				<formType>yes_no</formType>
+				<formOptions></formOptions>
+				<formValidator>yesNoValidator</formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>			
+			<property name="maxRetryCount" muleProperty="1" required="1">
+				<defaultValue>50</defaultValue>
+				<displayName>Maximum Retry Count</displayName>
+				<description>The number of times Mirth will attempt to re-send data via the socket.</description>
+				<formType>text</formType>
+				<formOptions>3,3</formOptions>
+				<formValidator>intValidator</formValidator>
+				<formValidatorOptions>0,100</formValidatorOptions>
+			</property>	
+			<property name="messageStart" muleProperty="0" required="1">
+				<defaultValue>0x0B</defaultValue>
+				<displayName>Start of Message Character</displayName>
+				<description>The character that indicates that the message is beginning.</description>
+				<formType>text</formType>
+				<formOptions>5,5</formOptions>
+				<formValidator>stringValidator</formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>														
+			<property name="messageEnd" muleProperty="0" required="1">
+				<defaultValue>0x1C</defaultValue>
+				<displayName>End of Message Character</displayName>
+				<description>The character that indicates that the message is done.</description>
+				<formType>text</formType>
+				<formOptions>5,5</formOptions>
+				<formValidator>stringValidator</formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>	
+			<property name="recordSeparator" muleProperty="0" required="1">
+				<defaultValue>0x0D</defaultValue>
+				<displayName>Record Separator</displayName>
+				<description></description>
+				<formType>text</formType>
+				<formOptions>5,5</formOptions>
+				<formValidator></formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>															
+			<property name="fieldSeparator" muleProperty="0" required="1">
+				<defaultValue>0x7C</defaultValue>
+				<displayName>Field Separator</displayName>
+				<description></description>
+				<formType>text</formType>
+				<formOptions>5,5</formOptions>
+				<formValidator>stringValidator</formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>				
+		</type>
+
+		<type name="jdbc_writer" displayName="Database Writer" className="org.mule.providers.jdbc.JdbcConnector" transformers="" direction="inbound" protocol="jdbc">
+			<property name="driver" muleProperty="1" required="1">
+				<defaultValue>com.mysql.jdbc.Driver</defaultValue>
+				<displayName>Driver</displayName>
+				<description>Database driver to use.</description>
+				<formType>select</formType>
+				<formOptions>com.mysql.jdbc.Driver;MySQL</formOptions>
+				<formValidator></formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>		
+			<property name="URL" muleProperty="1" required="1">
+				<defaultValue></defaultValue>
+				<displayName>Database URL</displayName>
+				<description>Database connection URL.</description>
+				<formType>text</formType>
+				<formOptions>50,50</formOptions>
+				<formValidator>stringValidator</formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>
+			<property name="username" muleProperty="1" required="1">
+				<defaultValue></defaultValue>
+				<displayName>Username</displayName>
+				<description>Username that will be used to connect to the database.</description>
+				<formType>text</formType>
+				<formOptions>15,15</formOptions>
+				<formValidator>stringValidator</formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>
+			<property name="password" muleProperty="1" required="1">
+				<defaultValue></defaultValue>
+				<displayName>Password</displayName>
+				<description>Password that will be used to connect to the database.</description>
+				<formType>password</formType>
+				<formOptions>15,15</formOptions>
+				<formValidator>stringValidator</formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>
+			<property name="statement" muleProperty="1" required="1">
+				<defaultValue>INSERT INTO</defaultValue>
+				<displayName>SQL Statement</displayName>
+				<description>The SQL statement to execute. Use ${variable} to insert variables from the transformer map.</description>
+				<formType>textarea</formType>
+				<formOptions>10,60,0</formOptions>
+				<formValidator>stringValidator</formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>
+			<property name="host" muleProperty="0" required="1">
+				<defaultValue>statement</defaultValue>
+				<displayName></displayName>
+				<description></description>
+				<formType>hidden</formType>
+				<formOptions></formOptions>
+				<formValidator></formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>
+		</type>
+
+		<type name="jdbc_reader" displayName="Database Reader" className="org.mule.providers.jdbc.JdbcConnector" transformers="DatabaseRowToXML" direction="outbound" protocol="jdbc">
+			<property name="driver" muleProperty="1" required="1">
+				<defaultValue>com.mysql.jdbc.Driver</defaultValue>
+				<displayName>Driver</displayName>
+				<description>Database driver to use to create a connection to the database.</description>
+				<formType>select</formType>
+				<formOptions>com.mysql.jdbc.Driver;MySQL</formOptions>
+				<formValidator></formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>		
+			<property name="URL" muleProperty="1" required="1">
+				<defaultValue></defaultValue>
+				<displayName>Database URL</displayName>
+				<description>Database connection URL.</description>
+				<formType>text</formType>
+				<formOptions>50,50</formOptions>
+				<formValidator>stringValidator</formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>
+			<property name="username" muleProperty="1" required="1">
+				<defaultValue></defaultValue>
+				<displayName>Username</displayName>
+				<description>Username that will be used to connect to the database.</description>
+				<formType>text</formType>
+				<formOptions>15,15</formOptions>
+				<formValidator>stringValidator</formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>
+			<property name="password" muleProperty="1" required="1">
+				<defaultValue></defaultValue>
+				<displayName>Password</displayName>
+				<description>Password that will be used to connect to the database.</description>
+				<formType>password</formType>
+				<formOptions>15,15</formOptions>
+				<formValidator>stringValidator</formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>
+			<property name="query" muleProperty="1" required="1">
+				<defaultValue>SELECT FROM</defaultValue>
+				<displayName>SQL Query</displayName>
+				<description>The SQL query statement to execute.</description>
+				<formType>textarea</formType>
+				<formOptions>10,60,0</formOptions>
+				<formValidator>queryValidator</formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>
+			<property name="useAck" muleProperty="1" required="1">
+				<defaultValue>0</defaultValue>
+				<displayName>Update on read?</displayName>
+				<description>Whether to update the database once the record has been read.</description>
+				<formType>yes_no</formType>
+				<formOptions></formOptions>
+				<formValidator>yesNoValidator</formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>			
+			<property name="ack" muleProperty="1" required="1">
+				<defaultValue>UPDATE</defaultValue>
+				<displayName>SQL Update</displayName>
+				<description>The SQL update statement to execute after the query.</description>
+				<formType>textarea</formType>
+				<formOptions>10,60,0</formOptions>
+				<formValidator>queryValidator</formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>
+			<property name="host" muleProperty="0" required="1">
+				<defaultValue>query</defaultValue>
+				<displayName></displayName>
+				<description></description>
+				<formType>hidden</formType>
+				<formOptions></formOptions>
+				<formValidator></formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>
+		</type>
+		
+		<type name="smtp_sender" displayName="Mail Sender" className="org.mule.providers.email.SmtpConnector" transformers="" direction="outbound" protocol="smtp">
+			<property name="hostname" muleProperty="1" required="1">
+				<defaultValue></defaultValue>
+				<displayName>SMTP Server Host</displayName>
+				<description>The host address of the SMTP mail server.</description>
+				<formType>text</formType>
+				<formOptions>50,50</formOptions>
+				<formValidator>stringValidator</formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>
+			<property name="port" muleProperty="1" required="1">
+				<defaultValue></defaultValue>
+				<displayName>SMTP Server Port</displayName>
+				<description>The port of the SMTP mail server.</description>
+				<formType>text</formType>
+				<formOptions>50,50</formOptions>
+				<formValidator>stringValidator</formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>
+			<property name="username" muleProperty="1" required="1">
+				<defaultValue></defaultValue>
+				<displayName>Username</displayName>
+				<description>Username that will be used to connect to the mail server.</description>
+				<formType>text</formType>
+				<formOptions>15,15</formOptions>
+				<formValidator>stringValidator</formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>
+			<property name="password" muleProperty="1" required="1">
+				<defaultValue></defaultValue>
+				<displayName>Password</displayName>
+				<description>Password that will be used to connect to the mail server.</description>
+				<formType>password</formType>
+				<formOptions>15,15</formOptions>
+				<formValidator>stringValidator</formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>
+			<property name="to" muleProperty="1" required="1">
+				<defaultValue>user@domain.com</defaultValue>
+				<displayName>TO</displayName>
+				<description>To the address field of the email message.  Use ${variable} to insert variables from the transformer map.</description>
+				<formType>text</formType>
+				<formOptions>20,20</formOptions>
+				<formValidator>stringValidator</formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>
+			<property name="subject" muleProperty="1" required="1">
+				<defaultValue></defaultValue>
+				<displayName>SUBJECT</displayName>
+				<description>The subject of the email message. Use ${variable} to insert variables from the transformer map.</description>
+				<formType>text</formType>
+				<formOptions>20,20</formOptions>
+				<formValidator>stringValidator</formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>
+			<property name="body" muleProperty="1" required="1">
+				<defaultValue>user@domain.com</defaultValue>
+				<displayName>BODY</displayName>
+				<description>The body of the email message. Use ${variable} to insert variables from the transformer map.</description>
+				<formType>text</formType>
+				<formOptions>20,20</formOptions>
+				<formValidator>stringValidator</formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>
+
+		</type>
+		
+	</component>
+</mirth-properties>
