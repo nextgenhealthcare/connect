@@ -1,6 +1,7 @@
 #!/bin/sh
 CLASSPATH=mirth-0.1a.jar
 CLASSPATH=$CLASSPATH:mule-1.2.jar
+
 CLASSPATH=$CLASSPATH:lib/ant.jar
 CLASSPATH=$CLASSPATH:lib/activation-1.0.2.jar
 CLASSPATH=$CLASSPATH:lib/activeio-2.1.jar
@@ -56,6 +57,12 @@ CLASSPATH=$CLASSPATH:lib/xmlParserAPIs.jar
 CLASSPATH=$CLASSPATH:lib/xpp3-1.1.3.4d_b4_min.jar
 CLASSPATH=$CLASSPATH:lib/xsdlib.jar
 CLASSPATH=$CLASSPATH:lib/xstream-1.1.2.jar
+
+CLASSPATH=$CLASSPATH:lib/dbdrivers/jtds-1.2.jar
+CLASSPATH=$CLASSPATH:lib/dbdrivers/mysql-connector-java-3.1.12-bin.jar
+CLASSPATH=$CLASSPATH:lib/dbdrivers/postgresql-8.1-405.jdbc3.jar
+CLASSPATH=$CLASSPATH:lib/dbdrivers/ojdbc14.jar
+
 CLASSPATH=$CLASSPATH:"$JAVA_HOME"/lib/tools.jar
 CLASSPATH=$CLASSPATH:configuration/
-java -classpath $CLASSPATH com.webreach.mirth.Mirth test.xml
+java -classpath $CLASSPATH com.webreach.mirth.Mirth

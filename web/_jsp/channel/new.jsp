@@ -49,7 +49,7 @@
 					</td>
 				</tr>
 				<tr>
-					<td class="fieldLabel"><label for="deployed">Deployed</label></td>
+					<td class="fieldLabel"><label for="deployed">Deploy to Status Panel?</label></td>
 					<td><input type="checkbox" name="deployed"  id="deployed"  value="1" /></td>
 				</tr>		
 				<tr><td class="fieldLabel"><label for="direction">Direction</label></td>

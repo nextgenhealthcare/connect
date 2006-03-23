@@ -59,7 +59,7 @@
 					</td>
 				</tr>
 				<tr>
-					<td class="fieldLabel"><label for="deployed">Deployed</label></td>
+					<td class="fieldLabel"><label for="deployed">Deploy to Status Panel?</label></td>
 					<td>
 						<c:choose>
 							<c:when test="${(param.enabled == null && channel.enabled) || (param.enabled != null && param.enabled == '1')}">

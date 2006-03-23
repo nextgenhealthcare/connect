@@ -191,9 +191,9 @@
 			<property name="driver" muleProperty="1" required="1">
 				<defaultValue>com.mysql.jdbc.Driver</defaultValue>
 				<displayName>Driver</displayName>
-				<description>Database driver to use.</description>
+				<description>Database driver to use to create a connection to the database.</description>
 				<formType>select</formType>
-				<formOptions>com.mysql.jdbc.Driver;MySQL</formOptions>
+				<formOptions>sun.jdbc.odbc.JbdcOdbcDriver;Sun JDBC-ODBC Bridge, com.mysql.jdbc.Driver;ODBC - MySQL, org.postgresql.Driver;ODBC - PostgreSQL, net.sourceforge.jtds.jdbc.Driver;ODBC - SQL Server/Sybase, oracle.jdbc.OracleDriver;ODBC - Oracle 10g Release 2</formOptions>
 				<formValidator></formValidator>
 				<formValidatorOptions></formValidatorOptions>
 			</property>		
@@ -250,7 +250,7 @@
 				<displayName>Driver</displayName>
 				<description>Database driver to use to create a connection to the database.</description>
 				<formType>select</formType>
-				<formOptions>com.mysql.jdbc.Driver;MySQL</formOptions>
+				<formOptions>sun.jdbc.odbc.JbdcOdbcDriver;Sun JDBC-ODBC Bridge, com.mysql.jdbc.Driver;ODBC - MySQL, org.postgresql.Driver;ODBC - PostgreSQL, net.sourceforge.jtds.jdbc.Driver;ODBC - SQL Server/Sybase, oracle.jdbc.OracleDriver;ODBC - Oracle 10g Release 2</formOptions>
 				<formValidator></formValidator>
 				<formValidatorOptions></formValidatorOptions>
 			</property>		

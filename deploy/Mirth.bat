@@ -1,6 +1,7 @@
 @ECHO OFF
 SET CLASSPATH=mirth-0.1a.jar
 SET CLASSPATH=%CLASSPATH%;mule-1.2.jar
+
 SET CLASSPATH=%CLASSPATH%;lib\ant.jar
 SET CLASSPATH=%CLASSPATH%;lib\activation-1.0.2.jar
 SET CLASSPATH=%CLASSPATH%;lib\activeio-2.1.jar
@@ -56,6 +57,12 @@ SET CLASSPATH=%CLASSPATH%;lib\xmlParserAPIs.jar
 SET CLASSPATH=%CLASSPATH%;lib\xpp3-1.1.3.4d_b4_min.jar
 SET CLASSPATH=%CLASSPATH%;lib\xsdlib.jar
 SET CLASSPATH=%CLASSPATH%;lib\xstream-1.1.2.jar
+
+SET CLASSPATH=%CLASSPATH%;lib\dbdrivers\jtds-1.2.jar
+SET CLASSPATH=%CLASSPATH%;lib\dbdrivers\mysql-connector-java-3.1.12-bin.jar
+SET CLASSPATH=%CLASSPATH%;lib\dbdrivers\postgresql-8.1-405.jdbc3.jar
+SET CLASSPATH=%CLASSPATH%;lib\dbdrivers\ojdbc14.jar
+
 SET CLASSPATH=%CLASSPATH%;"%JAVA_HOME%"\lib\tools.jar
 SET CLASSPATH=%CLASSPATH%;configuration\
-java -classpath %CLASSPATH% com.webreach.mirth.Mirth test.xml
+java -classpath %CLASSPATH% com.webreach.mirth.Mirth

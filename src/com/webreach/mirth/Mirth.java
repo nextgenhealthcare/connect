@@ -54,7 +54,12 @@ public class Mirth {
 
 	public static void main(String[] args) {
 		Mirth mirth = new Mirth();
-		mirth.start(args[0]);
+		
+		if (args.length != 0) {
+			mirth.start(args[0]);	
+		} else {
+			mirth.start(null);
+		}
 	}
 
 	public Mirth() {}
@@ -68,7 +73,13 @@ public class Mirth {
 	public void start(String configFile) {
 		startWebServer();
 
-		File muleConfigFile = new File(ConfigurationManager.MULE_CONFIG_FILE);
+		File muleConfigFile;
+		
+		if (configFile != null) {
+			muleConfigFile = new File(configFile);
+		} else {
+			muleConfigFile = new File(ConfigurationManager.MULE_CONFIG_FILE);
+		}
 		
 		// if the mule-config.xml file hasnt been created yet
 		if (!muleConfigFile.exists()) {

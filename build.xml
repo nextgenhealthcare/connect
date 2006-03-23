@@ -35,6 +35,7 @@
 	<property name="setup.lib" value="${setup}/lib" />
 	<property name="setup.configuration" value="${setup}/configuration" />
 	<property name="setup.jetty" value="${setup}/jetty" />
+	<property name="setup.source" value="${setup}/source" />
 
 	<property name="mirth" value="mirth-${version}" />
 	<property name="mule" value="mule-1.2" />
@@ -147,6 +148,12 @@
 		<mkdir dir="${setup.configuration}" />
 		<mkdir dir="${setup.lib}" />
 		<mkdir dir="${setup.jetty}" />
+		<mkdir dir="${setup.source}" />
+
+		<!-- copy source files -->
+		<copy todir="${setup.source}">
+			<fileset dir="${src}" />
+		</copy>
 
 		<!-- copy configuration files -->
 		<copy todir="${setup.configuration}">
@@ -192,7 +199,7 @@
 			</classpath>
 
 			<arg value="mirth" />
-			<arg value="database.sql" />
+			<arg value="deploy/database.sql" />
 		</java>
 
 		<!-- copy the batch scripts -->
@@ -202,6 +209,9 @@
 		<!-- copy the EULA document -->
 		<copy file="${deploy}/LICENSE.txt" todir="${setup}" />
 		<copy file="${deploy}/ACKNOWLEDGEMENTS.txt" todir="${setup}" />
+		
+		<!-- zip the source code -->
+		<zip basedir="${setup.source}" destfile="${setup}/${mirth}-src.zip" />
 	</target>
 
 	<target name="create_dist" depends="create_setup">
