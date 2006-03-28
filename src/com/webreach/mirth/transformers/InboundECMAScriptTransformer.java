@@ -79,14 +79,14 @@ public class InboundECMAScriptTransformer {
 		Message hapiMessage = parser.parse(eventContext.getMessageAsString().substring(eventContext.getMessageAsString().indexOf("=") + 1, eventContext.getMessageAsString().length()));
 		
 		Terser terser = new Terser(hapiMessage);
-        String source = terser.get("/MSH-3-1");
-        String msgId = terser.get("/MSH-7");
+        String sendingFacility = terser.get("/MSH-3-1");
+        String controlId = terser.get("/MSH-10");
 		
 		MirthMessage message = new MirthMessage();
 		message.setChannel(eventContext.getComponentDescriptor().getName());
 		message.setEvent(hapiMessage.getName());
-		message.setSource(source);
-		message.setMsgId(msgId);
+		message.setSendingFacility(sendingFacility);
+		message.setControlId(controlId);
 		message.setSize(String.valueOf((eventContext.getTransformedMessageAsString().getBytes().length)));
 		message.setContent(eventContext.getMessageAsString());
 		message.setContentXml(eventContext.getTransformedMessageAsString());

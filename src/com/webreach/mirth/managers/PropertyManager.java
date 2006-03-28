@@ -194,8 +194,6 @@ public class PropertyManager {
 	 * @return
 	 */
 	public MirthProperty getProperty(String component, String type, String name) {
-		System.out.println("checking: " + component + ", " + type + ", " + name);
-		
 		for (Iterator iter = mirthPropertyList.iterator(); iter.hasNext();) {
 			MirthProperty mirthProperty = (MirthProperty) iter.next();
 

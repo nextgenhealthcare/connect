@@ -31,9 +31,9 @@ import java.io.File;
 import java.io.FileReader;
 
 import org.mule.extras.client.MuleClient;
+import org.mule.umo.UMOMessage;
 
 public class Client {
-
 	public static void main(String[] args) {
 		System.out.println("Mirth Client Demo");
 		
@@ -54,14 +54,18 @@ public class Client {
 				System.out.println("Invalid parameters.");
 			}
 
-
 			System.out.println("Sending message from " + args[1] + " to " + args[0]);
-			client.send("tcp://" + args[0], message.toString(), null);
-
+			UMOMessage response = client.send("tcp://" + args[0], message.toString(), null);
 			client.dispose();
 			System.out.println("Message successfully sent.");
-		} catch (Exception err) {
-			err.printStackTrace();
+
+			if (response != null) {
+				System.out.println("Response was: " + response);
+			} else {
+				System.out.println("There was no response.");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 }

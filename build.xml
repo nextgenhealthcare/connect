@@ -1,68 +1,30 @@
-<project name="Mirth" basedir="." default="compile">
-	<property name="version" value="0.1a" />
+<project name="mirth" basedir="." default="compile">
+	<target name="init">
+		<property file="build.properties" />
 
-	<property name="src" value="${basedir}/src" />
-	<property name="classes" value="${basedir}/classes" />
-	<property name="lib" value="${basedir}/lib" />
-	<property name="configuration" value="${basedir}/configuration" />
-	<property name="dist" value="${basedir}/dist" />
-	<property name="deploy" value="${basedir}/deploy" />
-	<property name="web" value="${basedir}/web" />
-	<property name="schemas" value="${basedir}/schemas" />
+		<path id="xjc_classpath">
+			<fileset dir="resources/jaxb/lib" includes="*.jar" />
+			<fileset dir="resources/misc" includes="*.jar" />
+			<fileset dir="resources/relaxngDatatype-1.0" includes="*.jar" />
+		</path>
 
-	<property name="webinf" value="${web}/WEB-INF" />
-	<property name="webinf.lib" value="${webinf}/lib" />
-	<property name="webinf.classes" value="${webinf}/classes" />
+		<path id="makensis_classpath">
+			<fileset dir="resources/nsisant-1.1" includes="*.jar" />
+		</path>
 
-	<property name="jsp" value="${web}/_jsp" />
-	
-	<property name="assets" value="${web}/assets" />
-	<property name="assets.applets" value="${assets}/applets" />
+		<path id="classpath">
+			<fileset dir="${lib}" includes="*.jar" />
+			<pathelement location="${mule}" />
+		</path>
 
-	<property name="jetty" value="${basedir}/jetty" />
-	<property name="jetty.root" value="${jetty}/webapps/root" />
-	<property name="jetty.jsp" value="${jetty.root}/_jsp" />
-	<property name="jetty.webinf" value="${jetty.root}/WEB-INF" />
-	<property name="jetty.assets" value="${jetty.root}/assets" />
-	<property name="jetty.lib" value="${jetty.root}/lib" />
-	<property name="jetty.logs" value="${jetty.root}/logs" />
+		<taskdef name="xjc" classname="com.sun.tools.xjc.XJCTask">
+			<classpath refid="xjc_classpath" />
+		</taskdef>
 
-	<property name="javac.debug" value="true" />
-	<property name="javac.optimize" value="true" />
-	<property name="javac.deprecation" value="true" />
-
-	<property name="setup" value="${basedir}/setup" />
-	<property name="setup.lib" value="${setup}/lib" />
-	<property name="setup.configuration" value="${setup}/configuration" />
-	<property name="setup.jetty" value="${setup}/jetty" />
-	<property name="setup.source" value="${setup}/source" />
-
-	<property name="mirth" value="mirth-${version}" />
-	<property name="mule" value="mule-1.2" />
-	<property name="setup.script" value="${deploy}/setup.nsi" />
-
-	<path id="xjc_classpath">
-		<fileset dir="resources/jaxb/lib" includes="*.jar" />
-		<fileset dir="resources/misc" includes="*.jar" />
-		<fileset dir="resources/relaxngDatatype-1.0" includes="*.jar" />
-	</path>
-
-	<path id="makensis_classpath">
-		<fileset dir="resources/nsisant-1.1" includes="*.jar" />
-	</path>
-
-	<path id="classpath">
-		<fileset dir="${lib}" includes="*.jar" />
-		<pathelement location="${mule}" />
-	</path>
-
-	<taskdef name="xjc" classname="com.sun.tools.xjc.XJCTask">
-		<classpath refid="xjc_classpath" />
-	</taskdef>
-
-	<taskdef name="makensis" classname="net.sf.nsisant.Task">
-		<classpath refid="makensis_classpath" />
-	</taskdef>
+		<taskdef name="makensis" classname="net.sf.nsisant.Task">
+			<classpath refid="makensis_classpath" />
+		</taskdef>
+	</target>
 
 	<target name="clean">
 		<delete dir="${classes}" />
@@ -72,7 +34,7 @@
 		<delete dir="${dist}" />
 	</target>
 
-	<target name="create_types">
+	<target name="create_types" depends="init">
 		<delete dir="${src}/com/webreach/mirth/managers/types/mirth" />
 		<xjc schema="${schemas}/mirth.xsd" package="com.webreach.mirth.managers.types.mirth" target="${src}" extension="true" binding="${schemas}/binding.xjb">
 			<!-- produces dir="${src}/com/webreach/mirth/managers/types/mirth" includes="**/*.java"/ -->
@@ -89,7 +51,7 @@
 		</xjc>
 	</target>
 
-	<target name="compile" depends="clean">
+	<target name="compile" depends="clean, init">
 		<!-- incremement the build number -->
 		<buildnumber file="${configuration}/build.number" />
 
@@ -132,7 +94,7 @@
 		</copy>
 
 		<!-- create the applets jar -->
-		<jar basedir="${classes}" destfile="${assets.applets}/applets.jar" includes="com/webreach/mirth/applets/"/>
+		<jar basedir="${classes}" destfile="${assets.applets}/applets.jar" includes="com/webreach/mirth/applets/" />
 
 		<copy todir="${jetty.assets}">
 			<fileset dir="${assets}" />
@@ -143,6 +105,8 @@
 	</target>
 
 	<target name="create_setup" depends="create_jetty">
+		<echo>version: ${build.version}</echo>
+		
 		<!-- create the setup directory -->
 		<mkdir dir="${setup}" />
 		<mkdir dir="${setup.configuration}" />
@@ -164,7 +128,7 @@
 			<!-- fileset file="${configuration}/key.dat" /-->
 		</copy>
 
-		<!-- create the Mirth jar file -->
+		<!-- create the Mirth jar file (excludes testing code and applets) -->
 		<jar destfile="${setup}/${mirth}.jar" basedir="${classes}" manifest="${deploy}/Manifest.txt" excludes="com/webreach/mirth/wrhs/ com/webreach/mirth/applets/" />
 
 		<!-- create the Mule jar file -->
@@ -209,7 +173,7 @@
 		<!-- copy the EULA document -->
 		<copy file="${deploy}/LICENSE.txt" todir="${setup}" />
 		<copy file="${deploy}/ACKNOWLEDGEMENTS.txt" todir="${setup}" />
-		
+
 		<!-- zip the source code -->
 		<zip basedir="${setup.source}" destfile="${setup}/${mirth}-src.zip" />
 	</target>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <mirth-properties>
 	<component name="endpoint">
-		<type name="tcp_listener" displayName="TCP Listener" className="org.mule.providers.tcp.TcpConnector" transformers="ByteArrayToString HL7StringToXMLString" direction="inbound" protocol="tcp">
+		<type name="llp_listener" displayName="LLP Listener" className="org.mule.providers.mllp.MllpConnector" transformers="ByteArrayToString HL7StringToXMLString" direction="inbound" protocol="mllp">
 			<property name="host" muleProperty="0" required="1">
 				<defaultValue>127.0.0.1</defaultValue>
 				<displayName>Listener IP Address</displayName>
@@ -94,7 +94,7 @@
 			</property>		
 		</type>
 
-		<type name="tcp_sender" displayName="TCP Sender" className="org.mule.providers.tcp.TcpConnector" transformers="" direction="outbound" protocol="tcp">
+		<type name="llp_sender" displayName="LLP Sender" className="org.mule.providers.mllp.MllpConnector" transformers="" direction="outbound" protocol="mllp">
 			<property name="host" muleProperty="0" required="1">
 				<defaultValue>127.0.0.1</defaultValue>
 				<displayName>Host IP Address</displayName>
@@ -185,6 +185,309 @@
 				<formValidator>stringValidator</formValidator>
 				<formValidatorOptions></formValidatorOptions>
 			</property>				
+		</type>
+
+		<type name="http_listener" displayName="HTTP Listener" className="org.mule.providers.http.HttpConnector" transformers="ByteArrayToString HTTPRequestToString HL7StringToXMLString " direction="inbound" protocol="http">
+			<property name="host" muleProperty="0" required="1">
+				<defaultValue>127.0.0.1</defaultValue>
+				<displayName>Listener IP Address</displayName>
+				<description>The IP address used for listening for incoming messages.</description>
+				<formType>text</formType>
+				<formOptions>15,15</formOptions>
+				<formValidator>ipAddressValidator</formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>
+			<property name="port" muleProperty="0" required="1">
+				<defaultValue>6660</defaultValue>
+				<displayName>Listening Port</displayName>
+				<description>The incoming host IP port.</description>
+				<formType>text</formType>
+				<formOptions>5,5</formOptions>
+				<formValidator>intValidator</formValidator>
+				<formValidatorOptions>0,65000</formValidatorOptions>
+			</property>
+			<property name="receiveTimeout" muleProperty="1" required="1">
+				<defaultValue>5000</defaultValue>
+				<displayName>Receive Timeout (ms)</displayName>
+				<description>The receive timeout duration.</description>
+				<formType>text</formType>
+				<formOptions>6,6</formOptions>
+				<formValidator>intValidator</formValidator>
+				<formValidatorOptions>0,10000</formValidatorOptions>
+			</property>
+			<property name="bufferSize" muleProperty="1" required="1">
+				<defaultValue>65536</defaultValue>
+				<displayName>Buffer Size</displayName>
+				<description>The buffer size used to read and write data.</description>
+				<formType>text</formType>
+				<formOptions>9,9</formOptions>
+				<formValidator>intValidator</formValidator>
+				<formValidatorOptions>0,131072</formValidatorOptions>
+			</property>			
+			<property name="keepSendSocketOpen" muleProperty="1" required="1">
+				<defaultValue>0</defaultValue>
+				<displayName>Keep Connection Open</displayName>
+				<description>Whether to keep the connection socket open for multiple dispatches.</description>
+				<formType>yes_no</formType>
+				<formOptions></formOptions>
+				<formValidator>yesNoValidator</formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>			
+			<property name="messageStart" muleProperty="0" required="1">
+				<defaultValue>0x0B</defaultValue>
+				<displayName>Start of Message Character</displayName>
+				<description>The character that indicates that the message is beginning.</description>
+				<formType>text</formType>
+				<formOptions>5,5</formOptions>
+				<formValidator>stringValidator</formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>														
+			<property name="messageEnd" muleProperty="0" required="1">
+				<defaultValue>0x1C</defaultValue>
+				<displayName>End of Message Character</displayName>
+				<description>The character that indicates that the message is done.</description>
+				<formType>text</formType>
+				<formOptions>5,5</formOptions>
+				<formValidator>stringValidator</formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>	
+			<property name="recordSeparator" muleProperty="0" required="1">
+				<defaultValue>0x0D</defaultValue>
+				<displayName>Record Separator</displayName>
+				<description></description>
+				<formType>text</formType>
+				<formOptions>5,5</formOptions>
+				<formValidator></formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>															
+			<property name="fieldSeparator" muleProperty="0" required="1">
+				<defaultValue>0x7C</defaultValue>
+				<displayName>Field Separator</displayName>
+				<description></description>
+				<formType>text</formType>
+				<formOptions>5,5</formOptions>
+				<formValidator>stringValidator</formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>				
+			<property name="sendACK" muleProperty="0" required="1">
+				<defaultValue>AUTO</defaultValue>
+				<displayName>Send ACK</displayName>
+				<description></description>
+				<formType>select</formType>
+				<formOptions>AUTO;Auto, ALWAYS;Always, NE;Never</formOptions>
+				<formValidator></formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>		
+		</type>
+
+		<type name="https_listener" displayName="HTTPS Listener" className="org.mule.providers.http.HttpsConnector" transformers="ByteArrayToString HTTPRequestToString HL7StringToXMLString" direction="inbound" protocol="https">
+			<property name="host" muleProperty="0" required="1">
+				<defaultValue>127.0.0.1</defaultValue>
+				<displayName>Listener IP Address</displayName>
+				<description>The IP address used for listening for incoming messages.</description>
+				<formType>text</formType>
+				<formOptions>15,15</formOptions>
+				<formValidator>ipAddressValidator</formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>
+			<property name="port" muleProperty="0" required="1">
+				<defaultValue>6660</defaultValue>
+				<displayName>Listening Port</displayName>
+				<description>The incoming host IP port.</description>
+				<formType>text</formType>
+				<formOptions>5,5</formOptions>
+				<formValidator>intValidator</formValidator>
+				<formValidatorOptions>0,65000</formValidatorOptions>
+			</property>
+			<property name="receiveTimeout" muleProperty="1" required="1">
+				<defaultValue>5000</defaultValue>
+				<displayName>Receive Timeout (ms)</displayName>
+				<description>The receive timeout duration.</description>
+				<formType>text</formType>
+				<formOptions>6,6</formOptions>
+				<formValidator>intValidator</formValidator>
+				<formValidatorOptions>0,10000</formValidatorOptions>
+			</property>
+			<property name="bufferSize" muleProperty="1" required="1">
+				<defaultValue>65536</defaultValue>
+				<displayName>Buffer Size</displayName>
+				<description>The buffer size used to read and write data.</description>
+				<formType>text</formType>
+				<formOptions>9,9</formOptions>
+				<formValidator>intValidator</formValidator>
+				<formValidatorOptions>0,131072</formValidatorOptions>
+			</property>			
+			<property name="keepSendSocketOpen" muleProperty="1" required="1">
+				<defaultValue>0</defaultValue>
+				<displayName>Keep Connection Open</displayName>
+				<description>Whether to keep the connection socket open for multiple dispatches.</description>
+				<formType>yes_no</formType>
+				<formOptions></formOptions>
+				<formValidator>yesNoValidator</formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>
+			<property name="keyStore" muleProperty="0" required="1">
+				<defaultValue>.keystore</defaultValue>
+				<displayName>Key Store</displayName>
+				<description>The location of the server keystore used to create a secure server socket.</description>
+				<formType>text</formType>
+				<formOptions>25,25</formOptions>
+				<formValidator>stringValidator</formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>														
+			<property name="storePassword" muleProperty="0" required="1">
+				<defaultValue></defaultValue>
+				<displayName>Key Store Password</displayName>
+				<description>The password for the server keystore.</description>
+				<formType>password</formType>
+				<formOptions>25,25</formOptions>
+				<formValidator>stringValidator</formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>
+			<property name="keytoreType" muleProperty="0" required="1">
+				<defaultValue>KeyStore.getDefaultType()</defaultValue>
+				<displayName>Key Store Type</displayName>
+				<description>The type of keystore being used.</description>
+				<formType>text</formType>
+				<formOptions>25,25</formOptions>
+				<formValidator>stringValidator</formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>
+			<property name="keyManagerAlgorithm" muleProperty="0" required="1">
+				<defaultValue>SunX509</defaultValue>
+				<displayName>Key Manager Algorithm</displayName>
+				<description>The key manager algorithm to use.</description>
+				<formType>text</formType>
+				<formOptions>25,25</formOptions>
+				<formValidator>stringValidator</formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>
+			<property name="protocolHandler" muleProperty="0" required="1">
+				<defaultValue>com.sun.net.ssl.internal.www.protocol</defaultValue>
+				<displayName>Protocol Handler</displayName>
+				<description>The key manager algorithm to use.</description>
+				<formType>text</formType>
+				<formOptions>25,25</formOptions>
+				<formValidator>stringValidator</formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>
+			<property name="requireClientAuthentication" muleProperty="1" required="1">
+				<defaultValue>1</defaultValue>
+				<displayName>Require Client Authentication</displayName>
+				<description>Whether clients should be authenitcated when connecting.</description>
+				<formType>yes_no</formType>
+				<formOptions></formOptions>
+				<formValidator>yesNoValidator</formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>			
+			<property name="provider" muleProperty="0" required="1">
+				<defaultValue>com.sun.net.ssl.internal.ssl.Provider</defaultValue>
+				<displayName>Security Provider</displayName>
+				<description>The sercurity provider object to register with the java Security manager.</description>
+				<formType>text</formType>
+				<formOptions>25,25</formOptions>
+				<formValidator>stringValidator</formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>
+			<property name="clientKeystore" muleProperty="0" required="1">
+				<defaultValue></defaultValue>
+				<displayName>Client Keystore</displayName>
+				<description>The location of the client keystore. This value is used to set javax.net.ssl.keyStore</description>
+				<formType>text</formType>
+				<formOptions>25,25</formOptions>
+				<formValidator>stringValidator</formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>			
+			<property name="clientKeystorePassword" muleProperty="0" required="1">
+				<defaultValue></defaultValue>
+				<displayName>Client Keystore Password</displayName>
+				<description>The password for the client keystore. This value is used to set javax.net.ssl.keyStorePassword</description>
+				<formType>password</formType>
+				<formOptions>25,25</formOptions>
+				<formValidator>stringValidator</formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>			
+			<property name="trustStore" muleProperty="0" required="1">
+				<defaultValue></defaultValue>
+				<displayName>Trust Keystore</displayName>
+				<description>The location of the trust keystore. This value is used to set javax.net.ssl.trustStore</description>
+				<formType>text</formType>
+				<formOptions>25,25</formOptions>
+				<formValidator>stringValidator</formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>			
+			<property name="trustStorePassword" muleProperty="0" required="1">
+				<defaultValue></defaultValue>
+				<displayName>Trust Keystore Password</displayName>
+				<description>The password for the trust store. This value is used to set javax.net.ssl.trustStorePassword</description>
+				<formType>password</formType>
+				<formOptions>25,25</formOptions>
+				<formValidator>stringValidator</formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>
+			<property name="explicitTrustStoreOnly" muleProperty="1" required="1">
+				<defaultValue>0</defaultValue>
+				<displayName>Explicit Trust Store Only</displayName>
+				<description>Whether to use the clientKeyStore details as the trustStore details if a trustStore hasn't been explicitly set.</description>
+				<formType>yes_no</formType>
+				<formOptions></formOptions>
+				<formValidator>yesNoValidator</formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>			
+			<property name="keyManagerFactory" muleProperty="0" required="1">
+				<defaultValue></defaultValue>
+				<displayName>Key Manager Factory</displayName>
+				<description>The key manager factory to use. You woundn't normally set this as the key manager factory is determined based on the key manager algorithm.</description>
+				<formType>text</formType>
+				<formOptions>25,25</formOptions>
+				<formValidator>stringValidator</formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>
+			<property name="messageStart" muleProperty="0" required="1">
+				<defaultValue>0x0B</defaultValue>
+				<displayName>Start of Message Character</displayName>
+				<description>The character that indicates that the message is beginning.</description>
+				<formType>text</formType>
+				<formOptions>5,5</formOptions>
+				<formValidator>stringValidator</formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>														
+			<property name="messageEnd" muleProperty="0" required="1">
+				<defaultValue>0x1C</defaultValue>
+				<displayName>End of Message Character</displayName>
+				<description>The character that indicates that the message is done.</description>
+				<formType>text</formType>
+				<formOptions>5,5</formOptions>
+				<formValidator>stringValidator</formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>	
+			<property name="recordSeparator" muleProperty="0" required="1">
+				<defaultValue>0x0D</defaultValue>
+				<displayName>Record Separator</displayName>
+				<description></description>
+				<formType>text</formType>
+				<formOptions>5,5</formOptions>
+				<formValidator></formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>															
+			<property name="fieldSeparator" muleProperty="0" required="1">
+				<defaultValue>0x7C</defaultValue>
+				<displayName>Field Separator</displayName>
+				<description></description>
+				<formType>text</formType>
+				<formOptions>5,5</formOptions>
+				<formValidator>stringValidator</formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>				
+			<property name="sendACK" muleProperty="0" required="1">
+				<defaultValue>AUTO</defaultValue>
+				<displayName>Send ACK</displayName>
+				<description></description>
+				<formType>select</formType>
+				<formOptions>AUTO;Auto, ALWAYS;Always, NE;Never</formOptions>
+				<formValidator></formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>		
 		</type>
 
 		<type name="jdbc_writer" displayName="Database Writer" className="org.mule.providers.jdbc.JdbcConnector" transformers="" direction="inbound" protocol="jdbc">
@@ -319,7 +622,7 @@
 			</property>
 		</type>
 		
-		<type name="smtp_sender" displayName="Mail Sender" className="org.mule.providers.email.SmtpConnector" transformers="" direction="outbound" protocol="smtp">
+		<type name="smtp_sender" displayName="Email Sender" className="org.mule.providers.email.SmtpConnector" transformers="" direction="outbound" protocol="smtp">
 			<property name="hostname" muleProperty="1" required="1">
 				<defaultValue></defaultValue>
 				<displayName>SMTP Server Host</displayName>
@@ -361,7 +664,7 @@
 				<displayName>TO</displayName>
 				<description>To the address field of the email message.  Use ${variable} to insert variables from the transformer map.</description>
 				<formType>text</formType>
-				<formOptions>20,20</formOptions>
+				<formOptions>30,30</formOptions>
 				<formValidator>stringValidator</formValidator>
 				<formValidatorOptions></formValidatorOptions>
 			</property>
@@ -370,7 +673,7 @@
 				<displayName>SUBJECT</displayName>
 				<description>The subject of the email message. Use ${variable} to insert variables from the transformer map.</description>
 				<formType>text</formType>
-				<formOptions>20,20</formOptions>
+				<formOptions>50,50</formOptions>
 				<formValidator>stringValidator</formValidator>
 				<formValidatorOptions></formValidatorOptions>
 			</property>
@@ -379,11 +682,59 @@
 				<displayName>BODY</displayName>
 				<description>The body of the email message. Use ${variable} to insert variables from the transformer map.</description>
 				<formType>text</formType>
-				<formOptions>20,20</formOptions>
+				<formOptions>30,30</formOptions>
 				<formValidator>stringValidator</formValidator>
 				<formValidatorOptions></formValidatorOptions>
 			</property>
+		</type>
 
+		<type name="file_writer" displayName="File Writer" className="org.mule.providers.file.FileConnector" transformers="" direction="inbound" protocol="file">
+			<property name="host" muleProperty="0" required="1">
+				<defaultValue></defaultValue>
+				<displayName>Directory</displayName>
+				<description>Directory path where files should be written.</description>
+				<formType>text</formType>
+				<formOptions>25,25</formOptions>
+				<formValidator>stringValidator</formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>
+			<property name="outputPattern " muleProperty="1" required="1">
+				<defaultValue></defaultValue>
+				<displayName>New File Name</displayName>
+				<description>The name of the file that will be created for each message.</description>
+				<formType>text</formType>
+				<formOptions>25,25</formOptions>
+				<formValidator>stringValidator</formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>
+			<property name="outputAppend" muleProperty="1" required="1">
+				<defaultValue>0</defaultValue>
+				<displayName>Append message to existing file?</displayName>
+				<description>Whether incoming messages should be appended to an existing file.</description>
+				<formType>yes_no</formType>
+				<formOptions></formOptions>
+				<formValidator>yesNoValidator</formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>			
+			<property name="outputFilename" muleProperty="1" required="0">
+				<defaultValue></defaultValue>
+				<displayName>Append File Name</displayName>
+				<description>The name of the output file if new messages will be appended to existing file.</description>
+				<formType>text</formType>
+				<formOptions>25,25</formOptions>
+				<formValidator>stringValidator</formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>
+			<property name="content" muleProperty="1" required="1">
+				<defaultValue></defaultValue>
+				<displayName>File Content</displayName>
+				<description>The content to be written to the file.</description>
+				<formType>textarea</formType>
+				<formOptions>10,60,0</formOptions>
+				<formValidator>stringValidator</formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>
+			
 		</type>
 		
 	</component>

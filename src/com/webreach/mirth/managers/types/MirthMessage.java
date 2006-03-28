@@ -30,10 +30,10 @@ public class MirthMessage {
 	private String id;
 	private String channel;
 	private String date;
-	private String source;
+	private String sendingFacility;
 	private String event;
 	private String size;
-	private String msgId;
+	private String controlId;
 	private String content;
 	private String contentXml;
 
@@ -85,12 +85,12 @@ public class MirthMessage {
 		this.id = id;
 	}
 
-	public String getMsgId() {
-		return this.msgId;
+	public String getControlId() {
+		return this.controlId;
 	}
 
-	public void setMsgId(String msgId) {
-		this.msgId = msgId;
+	public void setControlId(String msgId) {
+		this.controlId = msgId;
 	}
 
 	public String getSize() {
@@ -101,11 +101,11 @@ public class MirthMessage {
 		this.size = size;
 	}
 
-	public String getSource() {
-		return this.source;
+	public String getSendingFacility() {
+		return this.sendingFacility;
 	}
 
-	public void setSource(String source) {
-		this.source = source;
+	public void setSendingFacility(String source) {
+		this.sendingFacility = source;
 	}
 }

@@ -1089,11 +1089,27 @@ public class ConfigurationManager {
 					createDescriptor(channel);	
 				}
 			}
+			
+			createACKDescriptor();
 		} catch (Exception e) {
 			throw new ManagerException(e);
 		}
 	}
 
+	private void createACKDescriptor() {
+		try {
+			logger.debug("generating ACK descriptor");
+			
+			MuleDescriptorType ackDescriptor = muleFactory.createMuleDescriptorType();
+			ackDescriptor.setName("Mirth-ACKGenerator");
+			ackDescriptor.setImplementation("com.webreach.mirth.components.ACKGenerator");
+			ackDescriptor.setInboundEndpoint("vm://ackgenerator");
+			mule.getModel().getMuleDescriptor().add(ackDescriptor);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
 	private void createDescriptor(Channel channel) throws ManagerException {
 		try {
 			logger.debug("generating channel descriptor: " + channel.getName());
@@ -1233,6 +1249,11 @@ public class ConfigurationManager {
 				outRouterEndpointList.add(outEndpoint);
 			}
 				
+			// add the ACK endpoint
+//			EndpointType ackEndpoint = muleFactory.createEndpointType();
+//			ackEndpoint.setAddress("vm://ackgenerator");
+//			outRouterEndpointList.add(ackEndpoint);
+			
 			// add the router to the list
 			outRouterList.add(outRouter);
 			// add the outbound-router to the outbound descriptor
@@ -1246,7 +1267,7 @@ public class ConfigurationManager {
 				addMuleProperty(muleDescriptor.getProperties().getPropertyOrFactoryPropertyOrContainerProperty(), "script", getTransformer(Integer.parseInt(channel.getTransformerId().split(ID_SEQ_DELIMETER)[0])).getScript().getValue());
 			} else {
 				addMuleProperty(muleDescriptor.getProperties().getPropertyOrFactoryPropertyOrContainerProperty(), "script", getTransformer(Integer.parseInt(channel.getTransformerId().split(ID_SEQ_DELIMETER)[0])).getScript().getValue());
-				addMuleProperty(muleDescriptor.getProperties().getPropertyOrFactoryPropertyOrContainerProperty(), "returnClass", getTransformer(Integer.parseInt(channel.getTransformerId().split(ID_SEQ_DELIMETER)[0])).getScript().getReturnClass());
+//				addMuleProperty(muleDescriptor.getProperties().getPropertyOrFactoryPropertyOrContainerProperty(), "returnClass", getTransformer(Integer.parseInt(channel.getTransformerId().split(ID_SEQ_DELIMETER)[0])).getScript().getReturnClass());
 			}
 			
 			// add the inbound descriptor to the model descriptor list
@@ -1387,6 +1408,9 @@ public class ConfigurationManager {
 			PropertiesType.Property property = muleFactory.createPropertiesTypeProperty();
 			property.setName(name);
 			property.setValue(value);
+			
+			System.out.println("adding property: " + name + " = " + value);
+			
 			propertyList.add(property);
 		} catch (JAXBException e) {
 //			throw new ManagerException(e);

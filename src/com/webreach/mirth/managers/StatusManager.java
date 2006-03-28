@@ -110,6 +110,7 @@ public class StatusManager {
 						&& objectName.getKeyProperty("type").equals("statistics")
 						&& (objectName.getKeyProperty("name") != null)
 						&& !objectName.getKeyProperty("name").startsWith("_")
+						&& !objectName.getKeyProperty("name").startsWith("Mirth-")
 						&& (objectName.getKeyProperty("router") == null)) {
 					channelNames.add(objectName.getKeyProperty("name"));
 				}

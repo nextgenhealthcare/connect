@@ -23,9 +23,9 @@
 			<tr>
 				<th>Index</th>
 				<th>Date</th>
-				<th>Source</th>
+				<th>Sending Facility</th>
 				<th>Event</th>
-				<th>Message ID</th>
+				<th>Control ID</th>
 				<th>Size (Bytes)</th>
 				<th class="actionCol">View</th>
 			</tr>
@@ -44,9 +44,9 @@
 				<tr class="${class}">
 					<td>${status.index + 1}</td>
 					<td>${message.date}</td>
-					<td>${message.source}</td>
+					<td>${message.sendingFacility}</td>
 					<td>${message.event}</td>
-					<td>${message.msgId}</td>					
+					<td>${message.controlId}</td>					
 					<td>${message.size}</td>
 					<td class="actionCol"><a href="/main/?state=message&amp;id=${message.id}&amp;name=${name}" class="messagesButton" title="View Message"><span>View Message</span></a></td>
 				</tr>

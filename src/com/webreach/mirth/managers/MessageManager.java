@@ -84,13 +84,13 @@ public class MessageManager {
 			query.append(now.toString());
 			query.append("', '");
 
-			query.append(message.getSource());
+			query.append(message.getSendingFacility());
 			query.append("', '");
 
 			query.append(message.getEvent());
 			query.append("', '");
 
-			query.append(message.getMsgId());
+			query.append(message.getControlId());
 			query.append("', '");
 			
 			query.append(message.getSize());
@@ -126,9 +126,9 @@ public class MessageManager {
 				
 				mirthMessage.setId(result.getString(1));
 				mirthMessage.setDate(result.getString(2));
-				mirthMessage.setSource(result.getString(3));
+				mirthMessage.setSendingFacility(result.getString(3));
 				mirthMessage.setEvent(result.getString(4));
-				mirthMessage.setMsgId(result.getString(5));
+				mirthMessage.setControlId(result.getString(5));
 				mirthMessage.setSize(result.getString(6));
 				mirthMessage.setContent(result.getString(7));
 				mirthMessage.setContentXml(result.getString(8));

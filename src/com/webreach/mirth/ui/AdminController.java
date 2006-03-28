@@ -47,6 +47,7 @@ public class AdminController extends MirthController {
 		int debugMsg = 0;
 		int numErrors = 0;
 		String sect = req.getParameter("sect");
+		
 		if (op != null && sect != null) {
 			// User operations
 			if (sect.equals("users")) {
@@ -127,7 +128,7 @@ public class AdminController extends MirthController {
 					String passwordCheck = req.getParameter("password_check");
 					String description = req.getParameter("description");
 
-					if (userId != 0) {
+					if (!cm.getUser(userId).getLogin().equals("admin")) {
 						try {
 							editUser = cm.getUser(userId);
 
@@ -153,6 +154,8 @@ public class AdminController extends MirthController {
 						} catch (ManagerException e) {
 							errorMessages.add(stackToString(e));
 						}
+					} else {
+						errorMessages.add("Cannot edit admin account.");
 					}
 
 					if (editUser == null) {
@@ -165,7 +168,7 @@ public class AdminController extends MirthController {
 					int userId = Integer.parseInt(req.getParameter("id"));
 					String login = "";
 
-					if (userId != 0) {
+					if (!cm.getUser(userId).getLogin().equals("admin")) {
 						try {
 							deleteUser = cm.getUser(userId);
 							if (deleteUser != null) {
@@ -175,6 +178,8 @@ public class AdminController extends MirthController {
 						} catch (ManagerException e) {
 							errorMessages.add(stackToString(e));
 						}
+					} else {
+						errorMessages.add("Cannot delete admin account.");
 					}
 
 					if (deleteUser != null) {
@@ -267,6 +272,8 @@ public class AdminController extends MirthController {
 	}
 
 	private boolean isSection(String sect, String section) {
-		return sect != null && section != null && sect.equals(section);
+		return ((sect != null)
+				&& (section != null)
+				&& (sect.equals(section)));
 	}
 }
