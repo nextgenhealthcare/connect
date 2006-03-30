@@ -32,6 +32,9 @@ import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URLDecoder;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * <code>FileMessageDispatcher</code> is used to read/write files to the
@@ -76,16 +79,23 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher
             }
 
             File file = Utility.createFile(endpoint + "/" + filename);
+            String templateContents = connector.getContent();
             byte[] buf;
             if (data instanceof byte[]) {
                 buf = (byte[]) data;
-            } else {
+            } else if (data instanceof HashMap){
+            	HashMap map = (HashMap) data;
+            	templateContents = replaceValues(templateContents, map);
+            	buf = templateContents.getBytes();
+            }
+            else{
                 buf = data.toString().getBytes();
             }
-
+            
             logger.info("Writing file to: " + file.getAbsolutePath());
             FileOutputStream fos = new FileOutputStream(file, connector.isOutputAppend());
             try {
+            	
                 fos.write(buf);
             } finally {
                 fos.close();
@@ -95,6 +105,16 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher
         }
 
     }
+
+	private String replaceValues(String templateContents, HashMap map) {
+		for (Iterator it=map.entrySet().iterator(); it.hasNext(); ) {
+		    Map.Entry entry = (Map.Entry)it.next();
+		    Object key = entry.getKey();
+		    Object value = entry.getValue();
+		    templateContents = templateContents.replaceAll("\\$\\{" + key.toString() + "\\}", value.toString());
+		  }
+		return templateContents;
+	}
 
     /**
      * There is no associated session for a file connector

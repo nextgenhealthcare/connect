@@ -72,6 +72,7 @@ public class FileConnector extends AbstractServiceEnabledConnector
     public static final String PROPERTY_MOVE_TO_DIRECTORY = "moveToDirectory";
     public static final String PROPERTY_DELETE_ON_READ = "autoDelete";
     public static final String PROPERTY_DIRECTORY = "directory";
+    public static final String PROPERTY_CONTENT = "content";
 
     public static final long DEFAULT_POLLING_FREQUENCY = 1000;
 
@@ -95,6 +96,8 @@ public class FileConnector extends AbstractServiceEnabledConnector
     private boolean checkFileAge = false;
 
     private long fileAge = 0;
+    
+    private String content = null;
 
     private FileOutputStream outputStream = null;
 
@@ -325,6 +328,19 @@ public class FileConnector extends AbstractServiceEnabledConnector
     public String getWriteToDirectory()
     {
         return writeToDirectoryName;
+    }
+    /**
+     * @return Contents
+     */
+    public String getContent(){
+    	return content;
+    }
+    /**
+     * 
+     * @param val = content to set
+     */
+    public void setContent(String val){
+    	content = val;
     }
 
     /**
