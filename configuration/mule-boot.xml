@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!DOCTYPE mule-configuration PUBLIC "-//SymphonySoft //DTD mule-configuration XML V1.0//EN"
-                                "http://www.mirthproject.org/files/mule-configuration.dtd">
+<!DOCTYPE mule-configuration SYSTEM "mule-configuration.dtd">
 
 <mule-configuration id="MirthConfiguration" version="1.0">
 	<mule-environment-properties serverUrl="http://localhost:1234" />

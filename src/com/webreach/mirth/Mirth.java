@@ -67,22 +67,24 @@ public class Mirth {
 	/**
 	 * Starts the Mirth service.
 	 * 
-	 * @param configFile
+	 * @param bootConfigFile
 	 *            the Mirth configuration file.
 	 */
-	public void start(String configFile) {
+	public void start(String bootConfigFile) {
 		startWebServer();
 
 		File muleConfigFile;
 		
-		if (configFile != null) {
-			muleConfigFile = new File(configFile);
+		if (bootConfigFile != null) {
+			// if a config file was specified in the arguments
+			muleConfigFile = new File(bootConfigFile);
 		} else {
+			// load the existing config file
 			muleConfigFile = new File(ConfigurationManager.MULE_CONFIG_FILE);
 		}
 		
 		// if the mule-config.xml file hasnt been created yet
-		if (!muleConfigFile.exists()) {
+		if (!muleConfigFile.exists() || !(muleConfigFile.length() > 0)) {
 			// start using the mule-boot.xml
 			muleConfigFile = new File(ConfigurationManager.MULE_BOOT_FILE);
 		}
@@ -126,7 +128,7 @@ public class Mirth {
 
 	// starts mule
 	private void startMule(String configuration) {
-		logger.debug("starting mule: " + configuration);
+		logger.debug("starting mule with configuration file: " + configuration);
 
 		try {
 			MuleXmlConfigurationBuilder builder = new MuleXmlConfigurationBuilder();

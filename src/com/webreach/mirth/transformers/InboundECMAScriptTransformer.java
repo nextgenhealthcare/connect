@@ -51,7 +51,6 @@ import com.webreach.mirth.managers.types.MirthMessage;
 public class InboundECMAScriptTransformer {
 	protected transient Log logger = LogFactory.getLog(InboundECMAScriptTransformer.class);
 	private String script;
-	private String returnClass;
 	
 	private MessageManager messageManager = MessageManager.getInstance();
 	private LogManager logManager = LogManager.getInstance();
@@ -62,14 +61,6 @@ public class InboundECMAScriptTransformer {
 
 	public void setScript(String script) {
 		this.script = script;
-	}
-
-	public String getReturnClass() {
-		return returnClass;
-	}
-
-	public void setReturnClass(String returnClass) {
-		this.returnClass = returnClass;
 	}
 
 	public Object onCall(UMOEventContext eventContext) throws Exception {

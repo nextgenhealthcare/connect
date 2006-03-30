@@ -118,8 +118,8 @@ public class StatusManager {
 
 			return channelNames;
 		} catch (Exception e) {
-			logger.error(e.getMessage());
-			throw new ManagerException("Could not retrieve deployed channel names.", e);
+			// Instead of throwing an exception when channel names cannot be loaded, show no channels.
+			return new ArrayList<String>();
 		}
 	}
 
@@ -308,7 +308,7 @@ public class StatusManager {
 			changeManager.setConfigurationChanged(false);
 		} catch (Exception e) {
 			logger.error(e.getMessage());
-			throw new ManagerException("Error deploying channels.", e);
+			throw new ManagerException("Error deploying channels. Please check logs.");
 		}
 	}
 

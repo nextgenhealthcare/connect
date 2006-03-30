@@ -129,7 +129,7 @@ public class Editor extends Applet {
         methodName.setEnabled(false);
         methodName.setDisabledTextColor(SystemColor.BLACK);
         methodName.setBackground(SystemColor.control);
-        methodName.setText("Object doTransform(String message) {");
+        methodName.setText("");
         methodName.setFont(courierNew);
 
         // validateButton.setBackground(SystemColor.control);
@@ -158,7 +158,7 @@ public class Editor extends Applet {
         rhinoConsole.add(rhinoOutput);
         rhinoConsole.setPreferredSize(new Dimension(10, 50));
 
-        endOfMethodText.setText("} // End of method");
+        endOfMethodText.setText("");
         endOfMethodText.setBackground(SystemColor.control);
         endOfMethodText.setBorder(null);
         endOfMethodText.setEnabled(false);

@@ -23,7 +23,6 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
 /**
  * Encodes an HL7 message String in XML. 
  * 
@@ -43,8 +42,6 @@ import ca.uhn.hl7v2.parser.PipeParser;
 import ca.uhn.hl7v2.parser.XMLParser;
 
 public class HL7StringToXMLString extends AbstractTransformer {
-	private static final long serialVersionUID = 7315050027776022660L;
-	
 	protected static transient Log logger = LogFactory.getLog(HL7StringToXMLString.class);
 
 	public HL7StringToXMLString() {
@@ -57,24 +54,19 @@ public class HL7StringToXMLString extends AbstractTransformer {
 	 * Encodes an HL7 message String in XML.
 	 * 
 	 * @return the HL7 message encoded in XML
-	 * @throws TransformerException if the message could not be parsed and transformed
+	 * @throws TransformerException
+	 *             if the message could not be parsed and transformed
 	 */
 	public Object doTransform(Object src) throws TransformerException {
-		// cast the incomming message Object to a String
+		System.setProperty("ca.uhn.hl7v2.model.primitive.CommonTN.validate", "false"); // disable validation of TN phone numbers
 		String hl7String = (String) src;
-		// this is needed if messages are from an HTTP POST
-		hl7String = hl7String.replace('\n', '\r');
-		// create a new HL7 parser
+		hl7String = hl7String.replace('\n', '\r'); // this is needed for HTTP connector
 		PipeParser pipeParser = new PipeParser();
-
+		
 		try {
-			// parse the message
 			Message hl7Message = pipeParser.parse(hl7String);
-			// create a new XML parser
-            XMLParser xmlParser = new DefaultXMLParser();
-            // encode the message in XML
-            String xmlString = xmlParser.encode(hl7Message);
-			
+			XMLParser xmlParser = new DefaultXMLParser();
+			String xmlString = xmlParser.encode(hl7Message);
 			return xmlString;
 		} catch (HL7Exception e) {
 			throw new TransformerException(org.mule.config.i18n.Message.createStaticMessage("Failed to parse String at: " + e.getSegmentName()), this);

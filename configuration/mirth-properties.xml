@@ -690,7 +690,7 @@
 
 		<type name="file_writer" displayName="File Writer" className="org.mule.providers.file.FileConnector" transformers="" direction="inbound" protocol="file">
 			<property name="host" muleProperty="0" required="1">
-				<defaultValue></defaultValue>
+				<defaultValue>inbox/</defaultValue>
 				<displayName>Directory</displayName>
 				<description>Directory path where files should be written.</description>
 				<formType>text</formType>
@@ -698,37 +698,19 @@
 				<formValidator>stringValidator</formValidator>
 				<formValidatorOptions></formValidatorOptions>
 			</property>
-			<property name="outputPattern " muleProperty="1" required="1">
+			<property name="outputPattern" muleProperty="1" required="1">
 				<defaultValue></defaultValue>
-				<displayName>New File Name</displayName>
+				<displayName>File Name</displayName>
 				<description>The name of the file that will be created for each message.</description>
 				<formType>text</formType>
 				<formOptions>25,25</formOptions>
 				<formValidator>stringValidator</formValidator>
 				<formValidatorOptions></formValidatorOptions>
 			</property>
-			<property name="outputAppend" muleProperty="1" required="1">
-				<defaultValue>0</defaultValue>
-				<displayName>Append message to existing file?</displayName>
-				<description>Whether incoming messages should be appended to an existing file.</description>
-				<formType>yes_no</formType>
-				<formOptions></formOptions>
-				<formValidator>yesNoValidator</formValidator>
-				<formValidatorOptions></formValidatorOptions>
-			</property>			
-			<property name="outputFilename" muleProperty="1" required="0">
+			<property name="template" muleProperty="1" required="1">
 				<defaultValue></defaultValue>
-				<displayName>Append File Name</displayName>
-				<description>The name of the output file if new messages will be appended to existing file.</description>
-				<formType>text</formType>
-				<formOptions>25,25</formOptions>
-				<formValidator>stringValidator</formValidator>
-				<formValidatorOptions></formValidatorOptions>
-			</property>
-			<property name="content" muleProperty="1" required="1">
-				<defaultValue></defaultValue>
-				<displayName>File Content</displayName>
-				<description>The content to be written to the file.</description>
+				<displayName>File Template</displayName>
+				<description>The template to be written to the file.</description>
 				<formType>textarea</formType>
 				<formOptions>10,60,0</formOptions>
 				<formValidator>stringValidator</formValidator>

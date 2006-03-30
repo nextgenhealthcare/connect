@@ -24,9 +24,11 @@
 		<taskdef name="makensis" classname="net.sf.nsisant.Task">
 			<classpath refid="makensis_classpath" />
 		</taskdef>
+		
+		<mkdir dir="${logs}" />
 	</target>
 
-	<target name="clean">
+	<target name="clean" depends="init">
 		<delete dir="${classes}" />
 		<delete dir="${webinf.classes}" />
 		<delete dir="${jetty}" />
@@ -53,7 +55,7 @@
 
 	<target name="compile" depends="clean, init">
 		<!-- incremement the build number -->
-		<buildnumber file="${configuration}/build.number" />
+		<buildnumber file="build.number" />
 
 		<!-- compile the source -->
 		<mkdir dir="${classes}" />
@@ -113,6 +115,7 @@
 		<mkdir dir="${setup.lib}" />
 		<mkdir dir="${setup.jetty}" />
 		<mkdir dir="${setup.source}" />
+		<mkdir dir="${setup.logs}" />
 
 		<!-- copy source files -->
 		<copy todir="${setup.source}">
@@ -124,8 +127,15 @@
 			<fileset file="${configuration}/log4j.properties" />
 			<fileset file="${configuration}/mirth-properties.xml" />
 			<fileset file="${configuration}/mule-boot.xml" />
-			<fileset file="${configuration}/build.number" />
+			<fileset file="${configuration}/mule-configuration.dtd" />
 			<!-- fileset file="${configuration}/key.dat" /-->
+		</copy>
+
+		<!-- copy build files -->
+		<copy todir="${setup}">
+			<fileset file="${basedir}/build.properties" />
+			<fileset file="${basedir}/build.number" />
+			<fileset file="${basedir}/build.xml" />
 		</copy>
 
 		<!-- create the Mirth jar file (excludes testing code and applets) -->
@@ -176,6 +186,9 @@
 
 		<!-- zip the source code -->
 		<zip basedir="${setup.source}" destfile="${setup}/${mirth}-src.zip" />
+		
+		<!-- remove the source code -->
+		<delete dir="${setup.source}"/>
 	</target>
 
 	<target name="create_dist" depends="create_setup">

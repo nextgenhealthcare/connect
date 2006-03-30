@@ -181,7 +181,7 @@ public class PropertyManager {
 	 * @param mirthProperty
 	 */
 	private void addProperty(MirthProperty mirthProperty) {
-		logger.debug("adding property to list: " + mirthProperty.getName());
+//		logger.debug("adding property to list: " + mirthProperty.getName());
 		mirthPropertyList.add(mirthProperty);
 	}
 

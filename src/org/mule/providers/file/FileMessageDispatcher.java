@@ -14,6 +14,15 @@
  */
 package org.mule.providers.file;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.net.URLDecoder;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map.Entry;
+
 import org.mule.MuleException;
 import org.mule.MuleManager;
 import org.mule.config.i18n.Message;
@@ -26,15 +35,6 @@ import org.mule.umo.UMOMessage;
 import org.mule.umo.endpoint.UMOEndpointURI;
 import org.mule.umo.provider.UMOConnector;
 import org.mule.util.Utility;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.net.URLDecoder;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 
 /**
  * <code>FileMessageDispatcher</code> is used to read/write files to the
@@ -79,14 +79,14 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher
             }
 
             File file = Utility.createFile(endpoint + "/" + filename);
-            String templateContents = connector.getContent();
+            String template = connector.getTemplate();
             byte[] buf;
             if (data instanceof byte[]) {
                 buf = (byte[]) data;
             } else if (data instanceof HashMap){
             	HashMap map = (HashMap) data;
-            	templateContents = replaceValues(templateContents, map);
-            	buf = templateContents.getBytes();
+            	template = replaceValues(template, map);
+            	buf = template.getBytes();
             }
             else{
                 buf = data.toString().getBytes();
@@ -106,22 +106,27 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher
 
     }
 
-	private String replaceValues(String templateContents, HashMap map) {
-		for (Iterator it=map.entrySet().iterator(); it.hasNext(); ) {
-		    Map.Entry entry = (Map.Entry)it.next();
-		    Object key = entry.getKey();
-		    Object value = entry.getValue();
-		    templateContents = templateContents.replaceAll("\\$\\{" + key.toString() + "\\}", value.toString());
-		  }
-		return templateContents;
+	private String replaceValues(String template, HashMap map) throws Exception {
+		if ((template == null) || !(template.length() > 0)) {
+			throw new Exception("Template is blank.");
+		}
+		
+		for (Iterator it = map.entrySet().iterator(); it.hasNext();) {
+			Entry entry = (Entry) it.next();
+			String key = entry.getKey().toString();
+			String value = entry.getValue().toString();
+			template = template.replaceAll("\\$\\{" + key + "\\}", value);
+		}
+		
+		return template;
 	}
 
     /**
-     * There is no associated session for a file connector
-     * 
-     * @return
-     * @throws UMOException
-     */
+	 * There is no associated session for a file connector
+	 * 
+	 * @return
+	 * @throws UMOException
+	 */
     public Object getDelegateSession() throws UMOException
     {
         return null;

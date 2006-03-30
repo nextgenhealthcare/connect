@@ -72,7 +72,7 @@ public class FileConnector extends AbstractServiceEnabledConnector
     public static final String PROPERTY_MOVE_TO_DIRECTORY = "moveToDirectory";
     public static final String PROPERTY_DELETE_ON_READ = "autoDelete";
     public static final String PROPERTY_DIRECTORY = "directory";
-    public static final String PROPERTY_CONTENT = "content";
+    public static final String PROPERTY_TEMPLATE = "template";
 
     public static final long DEFAULT_POLLING_FREQUENCY = 1000;
 
@@ -97,7 +97,7 @@ public class FileConnector extends AbstractServiceEnabledConnector
 
     private long fileAge = 0;
     
-    private String content = null;
+    private String template = null;
 
     private FileOutputStream outputStream = null;
 
@@ -332,15 +332,15 @@ public class FileConnector extends AbstractServiceEnabledConnector
     /**
      * @return Contents
      */
-    public String getContent(){
-    	return content;
+    public String getTemplate(){
+    	return template;
     }
     /**
      * 
-     * @param val = content to set
+     * @param val = template to set
      */
-    public void setContent(String val){
-    	content = val;
+    public void setTemplate(String val){
+    	template = val;
     }
 
     /**

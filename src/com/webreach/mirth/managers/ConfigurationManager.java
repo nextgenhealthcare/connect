@@ -84,7 +84,8 @@ public class ConfigurationManager {
 	public static final String ACTIVEMQ_CONFIG_FILE = CONFIG_FOLDER + "activemq-config.xml";
 	public static final String JETTY_CONFIG_FILE = CONFIG_FOLDER + "jetty-config.xml";
 	public static final String KEY_FILE = CONFIG_FOLDER + "key.dat";
-	public static final String BUILD_NUMBER = CONFIG_FOLDER + "build.number";
+	public static final String BUILD_NUMBER = "build.number";
+	public static final String BUILD_PROPERTIES = "build.properties";
 
 	// endpoint types
 	public static final String ENDPOINT_TCP = "tcp";
@@ -126,8 +127,6 @@ public class ConfigurationManager {
 	private List<Endpoint> endpointList = null;
 	private List<Filter> filterList = null;
 	private List<User> userList = null;
-
-	private final String VERSION = "1.0";
 
 	// singleton pattern
 	private static ConfigurationManager instance = null;
@@ -1312,7 +1311,16 @@ public class ConfigurationManager {
 	 * @return the version of ConfigurationManager.
 	 */
 	public String getVersion() {
-		return VERSION;
+		Properties properties = new Properties();
+
+		try {
+			properties.load(new FileInputStream(BUILD_PROPERTIES));
+			return properties.getProperty("build.version");
+		} catch (IOException e) {
+			logger.warn(e);
+
+			return "0.0";
+		}
 	}
 
 	/**
@@ -1327,7 +1335,7 @@ public class ConfigurationManager {
 			properties.load(new FileInputStream(BUILD_NUMBER));
 			return properties.getProperty("build.number");
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.warn(e);
 
 			return "0";
 		}

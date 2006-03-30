@@ -63,7 +63,7 @@ public class PropertyFormUtil {
 	 */
 	public static String getForm(String component, String type, boolean defaultType) {
 		try {
-			logger.debug("generating form: " + component + "/" + type + " (default=" + defaultType + ")");
+//			logger.debug("generating form: " + component + "/" + type + " (default=" + defaultType + ")");
 
 			ArrayList<MirthProperty> propertyList = propertyManager.getProperties(component, type);
 			Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
@@ -159,7 +159,7 @@ public class PropertyFormUtil {
 	}
 
 	private static void generateDescriptions(MirthProperty mirthProperty, Document document, Element fieldset) {
-		logger.debug("generating descriptions for: " + mirthProperty.getName());
+//		logger.debug("generating descriptions for: " + mirthProperty.getName());
 
 		Element div = document.createElement("div");
 		div.setAttribute("class", "help hidden");
@@ -184,7 +184,7 @@ public class PropertyFormUtil {
 
 	private static void generateForm(MirthProperty mirthProperty, Document document, Element table) {
 		try {
-			logger.debug("generating form for: " + mirthProperty.getName());
+//			logger.debug("generating form for: " + mirthProperty.getName());
 
 			Element tr = document.createElement("tr");
 
