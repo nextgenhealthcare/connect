@@ -58,9 +58,12 @@ public class HL7StringToXMLString extends AbstractTransformer {
 	 *             if the message could not be parsed and transformed
 	 */
 	public Object doTransform(Object src) throws TransformerException {
-		System.setProperty("ca.uhn.hl7v2.model.primitive.CommonTN.validate", "false"); // disable validation of TN phone numbers
+		// disable validation of TN phone numbers
+		System.setProperty("ca.uhn.hl7v2.model.primitive.CommonTN.validate", "false");
 		String hl7String = (String) src;
-		hl7String = hl7String.replace('\n', '\r'); // this is needed for HTTP connector
+		logger.debug("incoming message: " + hl7String);
+		// this is needed for HTTP connector
+		hl7String = hl7String.replace('\n', '\r');
 		PipeParser pipeParser = new PipeParser();
 		
 		try {

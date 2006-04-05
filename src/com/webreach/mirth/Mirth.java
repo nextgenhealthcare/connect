@@ -131,6 +131,9 @@ public class Mirth {
 		logger.debug("starting mule with configuration file: " + configuration);
 
 		try {
+			// disables validation of Mule configuration files
+			System.setProperty("org.mule.xml.validate", "false");
+			
 			MuleXmlConfigurationBuilder builder = new MuleXmlConfigurationBuilder();
 			muleManager = builder.configure(configuration);
 		} catch (Exception e) {
@@ -162,6 +165,10 @@ public class Mirth {
 		logger.debug("starting jetty web/jsp server");
 
 		try {
+			// this disables validaiton of the web.xml file, which causes exceptions 
+			// when Mirth is run behind a firewall and the resources cannot be accessed
+			System.setProperty("org.mortbay.xml.XmlParser.NotValidating", "true");
+			
 			webServer = new Server();
 			SocketListener listener = new SocketListener();
 			listener.setPort(8080);

@@ -76,6 +76,7 @@ public class MirthUtil {
 		of.setCDataElements(elements);
 		of.setIndenting(true);
 		of.setLineSeparator("\n");
+		of.setOmitDocumentType(true);
 //		of.setDoctype("-//SymphonySoft //DTD mule-configuration XML V1.0//EN", "mule-configuration.dtd");
 		XMLSerializer serializer = new XMLSerializer(of);
 		serializer.setOutputByteStream(os);

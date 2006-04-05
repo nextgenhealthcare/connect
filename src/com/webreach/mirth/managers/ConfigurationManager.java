@@ -40,6 +40,8 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.ValidationEvent;
+import javax.xml.bind.ValidationEventHandler;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -180,7 +182,15 @@ public class ConfigurationManager {
 			if (mirthConfigFile.exists()) {
 				logger.debug("unmarshalling existing mirth configuration file: " + mirthConfigFile.getAbsolutePath());
 				Unmarshaller unmarsh = mirthContext.createUnmarshaller();
-				unmarsh.setValidating(false); // do I need this?
+				unmarsh.setValidating(false);
+				
+				// disable schema validation completely
+				unmarsh.setEventHandler(new ValidationEventHandler() {
+					public boolean handleEvent(ValidationEvent validationEvent) {
+						return false;
+					}
+				});
+				
 				mirth = (Mirth) unmarsh.unmarshal(mirthConfigFile);
 
 				if (mirth.getComponents() != null) {
@@ -249,7 +259,15 @@ public class ConfigurationManager {
 			if (muleBootFile.exists()) {
 				logger.debug("unmarshalling mule boot-strap configuration file: " + muleBootFile.getAbsolutePath());
 				Unmarshaller unmarsh = muleContext.createUnmarshaller();
-				unmarsh.setValidating(false); // do I need this?
+				unmarsh.setValidating(false);
+				
+				// disable schema validation completely
+				unmarsh.setEventHandler(new ValidationEventHandler() {
+					public boolean handleEvent(ValidationEvent validationEvent) {
+						return false;
+					}
+				});
+
 				mule = (MuleConfiguration) unmarsh.unmarshal(muleBootFile);
 			} else {
 				logger.debug("could not load mule boot-strap configuration file: " + muleBootFile.getAbsolutePath());
@@ -1012,7 +1030,8 @@ public class ConfigurationManager {
 //			of.setCDataElements(elements);
 			of.setIndenting(true);
 			of.setLineSeparator("\n");
-			of.setDoctype("-//SymphonySoft //DTD mule-configuration XML V1.0//EN", "http://www.symphonysoft.com/dtds/mule/mule-configuration.dtd");
+//			of.setDoctype("-//SymphonySoft //DTD mule-configuration XML V1.0//EN", "http://www.symphonysoft.com/dtds/mule/mule-configuration.dtd");
+			of.setOmitDocumentType(true);
 			XMLSerializer serializer = new XMLSerializer(of);
 			serializer.setOutputByteStream(new FileOutputStream(MULE_CONFIG_FILE));
 			
