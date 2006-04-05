@@ -1,7 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <mirth-properties>
 	<component name="endpoint">
-		<type name="llp_listener" displayName="LLP Listener" className="org.mule.providers.mllp.MllpConnector" transformers="ByteArrayToString HL7StringToXMLString" direction="inbound" protocol="mllp">
+		<type name="llp_listener" displayName="LLP Listener" className="org.mule.providers.tcp.TcpConnector" transformers="ByteArrayToString HL7StringToXMLString" direction="inbound" protocol="tcp">
+			<property name="tcpProtocolClassName" muleProperty="1" required="1">
+				<defaultValue>org.mule.providers.tcp.protocols.LlpProtocol</defaultValue>
+				<displayName></displayName>
+				<description></description>
+				<formType>hidden</formType>
+				<formOptions></formOptions>
+				<formValidator></formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>		
 			<property name="host" muleProperty="0" required="1">
 				<defaultValue>127.0.0.1</defaultValue>
 				<displayName>Listener IP Address</displayName>
@@ -94,7 +103,16 @@
 			</property>		
 		</type>
 
-		<type name="llp_sender" displayName="LLP Sender" className="org.mule.providers.mllp.MllpConnector" transformers="" direction="outbound" protocol="mllp">
+		<type name="llp_sender" displayName="LLP Sender" className="org.mule.providers.tcp.TcpConnector" transformers="" direction="outbound" protocol="tcp">
+			<property name="tcpProtocolClassName" muleProperty="1" required="1">
+				<defaultValue>org.mule.providers.tcp.protocols.LlpProtocol</defaultValue>
+				<displayName></displayName>
+				<description></description>
+				<formType>hidden</formType>
+				<formOptions></formOptions>
+				<formValidator></formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>		
 			<property name="host" muleProperty="0" required="1">
 				<defaultValue>127.0.0.1</defaultValue>
 				<displayName>Host IP Address</displayName>
