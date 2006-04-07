@@ -73,6 +73,16 @@ public class LlpProtocol implements TcpProtocol
 
             if (c != START_MESSAGE)
             {
+            	while (c != -1){
+            		s_buffer.append((char)c);
+            		try{
+            			c = myReader.read();
+            		}catch (Exception e){
+            			c = 1;
+            		}
+            	}
+            	String message = s_buffer.toString();
+            	logger.debug(message);
                 throw new IOException("Message violates the "+
                     "minimal lower layer protocol: no start of message indicator "+
                     "received.");
@@ -125,10 +135,12 @@ public class LlpProtocol implements TcpProtocol
 
     public void write(OutputStream os, byte[] data) throws IOException
     {
-        // Write the length and then the data.
+        // Write the data with LLP wrappers
         DataOutputStream dos = new DataOutputStream(os);
-        dos.writeInt(data.length);
+        dos.writeByte(START_MESSAGE);
         dos.write(data);
+        dos.writeByte(END_MESSAGE);
+        dos.writeByte(LAST_CHARACTER);
         dos.flush();
     }
 
