@@ -1,4 +1,4 @@
-package MirthTester;
+package com.webreach.mirth.testbench;
 
 import org.mule.extras.client.MuleClient;
 import org.mule.umo.UMOException;

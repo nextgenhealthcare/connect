@@ -1,4 +1,4 @@
-package MirthTester;
+package com.webreach.mirth.testbench;
 
 import java.io.File;
 import java.io.FileNotFoundException;
