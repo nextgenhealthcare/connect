@@ -1,5 +1,6 @@
 package com.webreach.mirth.testbench;
 
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
@@ -13,6 +14,8 @@ public class FileWriterOutput
 		{
 			FileReader fr = new FileReader(path);
 			fr.close();
+			File file = new File(path);
+			file.delete();
 			return true;
 		}
 		catch(IOException e)

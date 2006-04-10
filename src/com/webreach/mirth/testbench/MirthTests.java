@@ -73,7 +73,6 @@ public class MirthTests extends TestCase
 */
 		assertTrue(in.send(client, hl7messages.get(0), properties.getProperty("TCPtoDatabasePort")));
 		
-		
 		assertTrue(out.receive("SELECT firstName FROM patients ORDER BY id DESC LIMIT 1", "TEST"));	
 	}
 	
@@ -104,7 +103,7 @@ public class MirthTests extends TestCase
 */
 		assertTrue(in.send(client, hl7messages.get(0), properties.getProperty("TCPtoFileWriterPort")));
 		
-		assertTrue(out.receive("\\\\34.34.34.84\\Shared\\test.txt"));				
+		assertTrue(out.receive("\\\\34.34.34.84\\Shared\\inbox\\test.txt"));
 	}
 	
 	public void testHTTPtoFileWriter()
@@ -119,6 +118,6 @@ public class MirthTests extends TestCase
 */
 		assertTrue(in.send(client, hl7messages.get(0), properties.getProperty("HTTPtoFileWriterPort")));
 		
-		assertTrue(out.receive("\\\\34.34.34.84\\inbox\\test.txt"));				
+		assertTrue(out.receive("\\\\34.34.34.84\\Shared\\inbox\\test.txt"));				
 	}
 }
