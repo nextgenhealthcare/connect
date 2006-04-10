@@ -66,14 +66,11 @@ public class MirthTests extends TestCase
 		TCPInput in = new TCPInput();
 		DatabaseOutput out = new DatabaseOutput();
 		
-/*		for(int i = 0; i < hl7messages.size(); i++)
+		for(int i = 0; i < hl7messages.size(); i++)
 		{
-			assertTrue(in.send(client, hl7messages.get(i)));
-		}
-*/
-		assertTrue(in.send(client, hl7messages.get(0), properties.getProperty("TCPtoDatabasePort")));
-		
-		assertTrue(out.receive("SELECT firstName FROM patients ORDER BY id DESC LIMIT 1", "TEST"));	
+			assertTrue(in.send(client, hl7messages.get(i), properties.getProperty("TCPtoDatabasePort")));
+			assertTrue(out.receive("SELECT firstName FROM patients ORDER BY id DESC LIMIT 1", "TEST"));
+		}	
 	}
 	
 	public void testHTTPtoDatabase()
@@ -81,14 +78,11 @@ public class MirthTests extends TestCase
 		HTTPInput in = new HTTPInput();
 		DatabaseOutput out = new DatabaseOutput();
 		
-/*		for(int i = 0; i < hl7messages.size(); i++)
+		for(int i = 0; i < hl7messages.size(); i++)
 		{
-			assertTrue(in.send(client, hl7messages.get(i)));
-		}
-*/
-		assertTrue(in.send(client, hl7messages.get(0), properties.getProperty("HTTPtoDatabasePort")));
-		
-		assertTrue(out.receive("SELECT firstName FROM patients ORDER BY id DESC LIMIT 1", "TEST"));				
+			assertTrue(in.send(client, hl7messages.get(0), properties.getProperty("HTTPtoDatabasePort")));
+			assertTrue(out.receive("SELECT firstName FROM patients ORDER BY id DESC LIMIT 1", "TEST"));	
+		}			
 	}
 	
 	public void testTCPtoFileWriter()
@@ -96,14 +90,11 @@ public class MirthTests extends TestCase
 		TCPInput in = new TCPInput();
 		FileWriterOutput out = new FileWriterOutput();
 		
-/*		for(int i = 0; i < hl7messages.size(); i++)
+		for(int i = 0; i < hl7messages.size(); i++)
 		{
-			assertTrue(in.send(client, hl7messages.get(i)));
+			assertTrue(in.send(client, hl7messages.get(0), properties.getProperty("TCPtoFileWriterPort")));
+			assertTrue(out.receive("\\\\34.34.34.84\\Shared\\inbox\\test.txt"));
 		}
-*/
-		assertTrue(in.send(client, hl7messages.get(0), properties.getProperty("TCPtoFileWriterPort")));
-		
-		assertTrue(out.receive("\\\\34.34.34.84\\Shared\\inbox\\test.txt"));
 	}
 	
 	public void testHTTPtoFileWriter()
@@ -111,13 +102,22 @@ public class MirthTests extends TestCase
 		HTTPInput in = new HTTPInput();
 		FileWriterOutput out = new FileWriterOutput();
 		
-/*		for(int i = 0; i < hl7messages.size(); i++)
+		for(int i = 0; i < hl7messages.size(); i++)
 		{
-			assertTrue(in.send(client, hl7messages.get(i)));
-		}
-*/
-		assertTrue(in.send(client, hl7messages.get(0), properties.getProperty("HTTPtoFileWriterPort")));
+			assertTrue(in.send(client, hl7messages.get(0), properties.getProperty("HTTPtoFileWriterPort")));
+			assertTrue(out.receive("\\\\34.34.34.84\\Shared\\inbox\\test.txt"));
+		}				
+	}
+	
+	public void testTCPtoTCP()
+	{
+		TCPInput in = new TCPInput();
+		TCPOutput out = new TCPOutput(properties.getProperty("TCPtoTCPPort"));
 		
-		assertTrue(out.receive("\\\\34.34.34.84\\Shared\\inbox\\test.txt"));				
+		for(int i = 0; i < hl7messages.size(); i++)
+		{
+			assertTrue(in.send(client, hl7messages.get(0), properties.getProperty("TCPtoTCPPort")));
+			assertTrue(out.receive());
+		}				
 	}
 }

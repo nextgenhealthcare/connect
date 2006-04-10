@@ -8,28 +8,49 @@ import java.net.UnknownHostException;
 public class TCPOutput
 {
 	private TestData properties = new TestData();
+	private Socket mirthSocket;
+	
+	public TCPOutput(String outputPort)
+	{
+		try
+		{
+			mirthSocket = new Socket(properties.getProperty("ip"), Integer.parseInt(outputPort));
+		} 
+		catch (NumberFormatException e)
+		{
+			System.out.println("Port needs to be a valid integer.");
+		} 
+		catch (UnknownHostException e)
+		{
+            System.out.println("Unknown host: " + properties.getProperty("ip"));
+		} 
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+	}
 	
 	public boolean receive()
 	{
-		Socket mirthSocket;
 		BufferedReader in = null;
-
+		
 		try 
 		{
-			mirthSocket = new Socket(properties.getProperty("ip"), Integer.parseInt(properties.getProperty("TCPPort")));
 			in = new BufferedReader(new InputStreamReader(mirthSocket.getInputStream()));
 			in.readLine();
+			mirthSocket.close();
 			return true;
 		}
-		catch (UnknownHostException e) 
-		{
-            System.err.println("Don't know about host: " + properties.getProperty("ip"));
-            System.exit(1);
-            return false;
-        }
 		catch(IOException e) 
 		{
-			System.out.println("Error opening socket: " + e.getMessage());
+			System.out.println("Error reading or closing socket: " + e.getMessage());
+			try
+			{
+				mirthSocket.close();
+			} 
+			catch (IOException ioe)
+			{
+			}
 			return false;
 		}
 	}
