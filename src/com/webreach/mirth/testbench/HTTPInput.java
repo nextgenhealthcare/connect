@@ -7,11 +7,11 @@ public class HTTPInput
 {
 	TestData properties = new TestData();
 	
-	public boolean send(MuleClient client, String hl7)
+	public boolean send(MuleClient client, String hl7, String outputPort)
 	{
 		try
 		{
-			client.send(properties.getProperty("HTTPip"), hl7, null);
+			client.send("http://" + properties.getProperty("IP") + ":" + outputPort, hl7, null);
 		}
 		catch (UMOException e)
 		{
