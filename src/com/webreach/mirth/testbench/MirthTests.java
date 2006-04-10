@@ -76,4 +76,20 @@ public class MirthTests extends TestCase
 		assertTrue(out.receive("SELECT firstName FROM patients ORDER BY id DESC LIMIT 1", "TEST"));
 		
 	}
+	
+	public void testHTTPtoDatabase()
+	{
+		HTTPInput in = new HTTPInput();
+		DatabaseOutput out = new DatabaseOutput();
+		
+/*		for(int i = 0; i < hl7messages.size(); i++)
+		{
+			assertTrue(in.send(client, hl7messages.get(i)));
+		}
+*/
+		assertTrue(in.send(client, hl7messages.get(0)));
+		
+		assertTrue(out.receive("SELECT firstName FROM patients ORDER BY id DESC LIMIT 1", "TEST"));
+				
+	}
 }
