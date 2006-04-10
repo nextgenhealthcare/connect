@@ -12,9 +12,9 @@ import junit.framework.TestCase;
 
 public class MirthTests extends TestCase
 {	
-	ArrayList<String> hl7messages;
-	MuleClient client;
-	TestData properties = new TestData();
+	private ArrayList<String> hl7messages;
+	private MuleClient client;
+	private TestData properties = new TestData();
 	
 	protected void setUp()
 	{

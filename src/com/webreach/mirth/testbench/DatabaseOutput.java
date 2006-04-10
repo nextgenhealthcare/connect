@@ -8,7 +8,7 @@ import java.sql.Statement;
 public class DatabaseOutput
 {
 	private Connection connection = null;
-	TestData properties = new TestData();
+	private TestData properties = new TestData();
 
 	public boolean receive(String query, String queryResult)
 	{

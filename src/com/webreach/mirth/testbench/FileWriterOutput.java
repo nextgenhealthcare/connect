@@ -6,8 +6,6 @@ import java.io.IOException;
 
 public class FileWriterOutput
 {
-	TestData properties = new TestData();
-
 	public boolean receive(String path)
 	{
 		try

@@ -5,7 +5,7 @@ import org.mule.umo.UMOException;
 
 public class TCPInput
 {
-	TestData properties = new TestData();
+	private TestData properties = new TestData();
 	
 	public boolean send(MuleClient client, String hl7, String outputPort)
 	{
