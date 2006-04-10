@@ -73,8 +73,7 @@ public class MirthTests extends TestCase
 */
 		assertTrue(in.send(client, hl7messages.get(0)));
 		
-		assertTrue(out.receive("SELECT firstName FROM patients ORDER BY id DESC LIMIT 1", "TEST"));
-		
+		assertTrue(out.receive("SELECT firstName FROM patients ORDER BY id DESC LIMIT 1", "TEST"));	
 	}
 	
 	public void testHTTPtoDatabase()
@@ -89,7 +88,6 @@ public class MirthTests extends TestCase
 */
 		assertTrue(in.send(client, hl7messages.get(0)));
 		
-		assertTrue(out.receive("SELECT firstName FROM patients ORDER BY id DESC LIMIT 1", "TEST"));
-				
+		assertTrue(out.receive("SELECT firstName FROM patients ORDER BY id DESC LIMIT 1", "TEST"));				
 	}
 }
