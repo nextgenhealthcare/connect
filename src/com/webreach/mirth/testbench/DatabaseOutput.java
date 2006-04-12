@@ -9,17 +9,55 @@ public class DatabaseOutput
 {
 	private Connection connection = null;
 	private TestData properties = new TestData();
-
-	public boolean receive(String query, String queryResult)
+	private int rowCount = 0;
+	
+	public DatabaseOutput(String query)
 	{
-		boolean result = false;
+		loadDriver();
+		connectToDatabase();
+		ResultSet result = runQuery(query);
+		try
+		{
+			result.next();
+			rowCount = Integer.parseInt(result.getString(1));
+			closeConnection();
+		}
+		catch (SQLException e)
+		{
+			e.printStackTrace();
+		}
+		
+	}
+
+	public boolean receive(String query)
+	{
+		int newRowCount = 0;
 		
 		loadDriver();
 		connectToDatabase();
-		result = runQuery(query, queryResult);
-		closeConnection();
+		ResultSet result = runQuery(query);
 		
-		return result;
+		try
+		{
+			result.next();
+			newRowCount = Integer.parseInt(result.getString(1));
+		}
+		catch (SQLException e)
+		{
+			e.printStackTrace();
+		}
+		
+		if (newRowCount == rowCount+1)
+		{
+			rowCount = newRowCount;
+			closeConnection();
+			return true;
+		}
+		
+		closeConnection();
+		return false;
+		
+
 	}
 
 	private final void loadDriver() 
@@ -58,9 +96,8 @@ public class DatabaseOutput
 		}
 	}
     
-	public boolean runQuery(String query, String queryResult)
+	public ResultSet runQuery(String query)
 	{
-		boolean result = false;
 		Statement statement = null;
 		ResultSet resultSet = null;
 		
@@ -68,10 +105,8 @@ public class DatabaseOutput
 		{
 			statement = this.connection.createStatement();
 		    resultSet = statement.executeQuery(query);
-		    resultSet.next();
-		    
-		    if (queryResult.equals(resultSet.getString(1)))
-		    	result = true;
+
+		    return resultSet;
 		    
 		}
 		catch (SQLException sql_excp) 
@@ -89,7 +124,7 @@ public class DatabaseOutput
 		{
 			System.out.println("Encountered error while trying to close result set or statement.");
 		}
-		return result;
+		return resultSet;
 	}
 	
 	private void closeConnection() 

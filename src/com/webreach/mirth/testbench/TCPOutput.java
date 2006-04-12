@@ -9,12 +9,14 @@ public class TCPOutput
 {
 	private TestData properties = new TestData();
 	private Socket mirthSocket;
+	private BufferedReader in = null;
 	
 	public TCPOutput(String outputPort)
 	{
 		try
 		{
 			mirthSocket = new Socket(properties.getProperty("ip"), Integer.parseInt(outputPort));
+			in = new BufferedReader(new InputStreamReader(mirthSocket.getInputStream()));
 		} 
 		catch (NumberFormatException e)
 		{
@@ -32,11 +34,8 @@ public class TCPOutput
 	
 	public boolean receive()
 	{
-		BufferedReader in = null;
-		
 		try 
 		{
-			in = new BufferedReader(new InputStreamReader(mirthSocket.getInputStream()));
 			in.readLine();
 			mirthSocket.close();
 			return true;
