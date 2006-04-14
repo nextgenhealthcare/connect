@@ -60,11 +60,12 @@
 		<!-- compile the source -->
 		<mkdir dir="${classes}" />
 
-		<javac destdir="${classes}" debug="on">
-			<src path="${src}/com/webreach/mirth" />
-			<src path="${src}/org/mule/providers" />
+		<javac srcdir="${src}" destdir="${classes}" debug="on">
+			<include name="com/webreach/mirth/**" />
+			<include name="org/mule/providers/**" />
+			<exclude name="com/webreach/mirth/testbench/**" />
+			<exclude name="com/webreach/mirth/configuration/**" />			
 			<classpath refid="classpath" />
-			<exclude name="${src}/com/webreach/mirth/testbench/**" />
 		</javac>
 
 		<!-- copy over the files needed for jaxb -->
