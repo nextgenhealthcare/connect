@@ -1,5 +1,5 @@
 #!/bin/sh
-CLASSPATH=mirth-0.2.1a.jar
+CLASSPATH=mirth-0.2.2a.jar
 CLASSPATH=$CLASSPATH:mule-1.2.jar
 
 CLASSPATH=$CLASSPATH:lib/ant.jar

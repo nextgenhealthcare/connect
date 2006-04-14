@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!DOCTYPE mule-configuration SYSTEM "mule-configuration.dtd">
-
 <mule-configuration id="MirthConfiguration" version="1.0">
-	<mule-environment-properties serverUrl="http://localhost:1234" />
+	<mule-environment-properties serverUrl="http://localhost:1234" embedded="false" />
 	
 	<agents>
 		<agent name="RMI"

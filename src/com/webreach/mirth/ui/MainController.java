@@ -45,7 +45,7 @@ public class MainController extends MirthController {
 
 				if (name != null) {
 					try {
-						sm.startCannel(name);
+						sm.startChannel(name);
 //						sm.resumeCannel(name);
 					} catch (ManagerException e) {
 						errorMessages.add(stackToString(e));
@@ -57,7 +57,7 @@ public class MainController extends MirthController {
 
 				if (name != null) {
 					try {
-						sm.stopCannel(name);
+						sm.stopChannel(name);
 //						sm.pauseChannel(name);
 					} catch (ManagerException e) {
 						errorMessages.add(stackToString(e));

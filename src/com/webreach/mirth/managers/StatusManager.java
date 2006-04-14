@@ -337,7 +337,7 @@ public class StatusManager {
 	 * @param name
 	 *            the name of the channel.
 	 */
-	public void resumeCannel(String name) throws ManagerException {
+	public void resumeChannel(String name) throws ManagerException {
 		try {
 			logger.debug("resuming channel: " + name);
 			Hashtable<String, String> properties = new Hashtable<String, String>();
@@ -356,7 +356,7 @@ public class StatusManager {
 	 * @param name
 	 *            the name of the channel.
 	 */
-	public void stopCannel(String name) throws ManagerException {
+	public void stopChannel(String name) throws ManagerException {
 		try {
 			logger.debug("stopping channel: " + name);
 			Hashtable<String, String> properties = new Hashtable<String, String>();
@@ -375,7 +375,7 @@ public class StatusManager {
 	 * @param name
 	 *            the name of the channel.
 	 */
-	public void startCannel(String name) throws ManagerException {
+	public void startChannel(String name) throws ManagerException {
 		try {
 			logger.debug("starting channel: " + name);
 			Hashtable<String, String> properties = new Hashtable<String, String>();

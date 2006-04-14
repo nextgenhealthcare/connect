@@ -64,6 +64,13 @@ public class InboundECMAScriptTransformer {
 	}
 
 	public Object onCall(UMOEventContext eventContext) throws Exception {
+		if (eventContext.getOutputStream() != null) {
+			eventContext.getOutputStream().write("HELLO".getBytes());
+			eventContext.getOutputStream().close();
+		} else {
+			System.out.println("OutputStream is NULL!");
+		}
+		
 		PipeParser parser = new PipeParser();
 
 		// FIXME: this is a fix for the HTTP messages

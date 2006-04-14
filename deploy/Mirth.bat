@@ -1,5 +1,5 @@
 @ECHO OFF
-SET CLASSPATH=mirth-0.2.1a.jar
+SET CLASSPATH=mirth-0.2.2a.jar
 SET CLASSPATH=%CLASSPATH%;mule-1.2.jar
 
 SET CLASSPATH=%CLASSPATH%;lib\ant.jar
