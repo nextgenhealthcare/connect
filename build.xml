@@ -64,7 +64,7 @@
 			<src path="${src}/com/webreach/mirth" />
 			<src path="${src}/org/mule/providers" />
 			<classpath refid="classpath" />
-			<exclude name="${src}/com/webreach/mirth/testbecnh/**" />
+			<exclude name="${src}/com/webreach/mirth/testbench/**" />
 		</javac>
 
 		<!-- copy over the files needed for jaxb -->
