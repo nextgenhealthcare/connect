@@ -64,6 +64,7 @@
 			<src path="${src}/com/webreach/mirth" />
 			<src path="${src}/org/mule/providers" />
 			<classpath refid="classpath" />
+			<exclude name="${src}/com/webreach/mirth/testbecnh/**" />
 		</javac>
 
 		<!-- copy over the files needed for jaxb -->
@@ -127,7 +128,6 @@
 			<fileset file="${configuration}/log4j.properties" />
 			<fileset file="${configuration}/mirth-properties.xml" />
 			<fileset file="${configuration}/mule-boot.xml" />
-			<fileset file="${configuration}/mule-configuration.dtd" />
 			<!-- fileset file="${configuration}/key.dat" /-->
 		</copy>
 
