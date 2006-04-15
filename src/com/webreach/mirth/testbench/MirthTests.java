@@ -109,7 +109,7 @@ public class MirthTests extends TestCase
 			assertTrue(out.receive("\\\\34.34.34.108\\shared\\inbox\\test.txt"));
 		}				
 	}
-	
+/*	
 	public void testTCPtoTCP()
 	{
 		TCPInput in = new TCPInput();
@@ -132,5 +132,11 @@ public class MirthTests extends TestCase
 			assertTrue(in.send(client, hl7messages.get(i), properties.getProperty("HTTPtoTCPPort")));
 			assertTrue(out.receive());
 		}				
+	}
+*/
+	public void testTCPtoEmail()
+	{
+		EmailOutput e = new EmailOutput();
+		e.receive();
 	}
 }

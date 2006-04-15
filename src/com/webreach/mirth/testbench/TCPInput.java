@@ -11,7 +11,7 @@ public class TCPInput
 	{
 		try
 		{
-			client.send("tcp://" + properties.getProperty("IP") + ":" + outputPort, hl7, null);
+			client.send("tcp://" + properties.getProperty("IP") + ":" + outputPort + "?tcpProtocolClassName=org.mule.providers.tcp.protocols.LlpProtocol", hl7, null);
 		}
 		catch (UMOException e)
 		{
