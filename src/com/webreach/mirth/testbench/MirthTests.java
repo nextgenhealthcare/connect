@@ -70,6 +70,12 @@ public class MirthTests extends TestCase
 		for(int i = 0; i < hl7messages.size(); i++)
 		{
 			assertTrue(in.send(client, hl7messages.get(i), properties.getProperty("TCPtoDatabasePort")));
+			try
+			{
+				Thread.sleep(1000);
+			}
+			catch (InterruptedException e)
+			{}
 			assertTrue(out.receive(query));
 		}	
 	}
@@ -82,6 +88,12 @@ public class MirthTests extends TestCase
 		for(int i = 0; i < hl7messages.size(); i++)
 		{
 			assertTrue(in.send(client, hl7messages.get(i), properties.getProperty("HTTPtoDatabasePort")));
+			try
+			{
+				Thread.sleep(1000);
+			}
+			catch (InterruptedException e)
+			{}
 			assertTrue(out.receive(query));	
 		}			
 	}
@@ -94,7 +106,19 @@ public class MirthTests extends TestCase
 		for(int i = 0; i < hl7messages.size(); i++)
 		{
 			assertTrue(in.send(client, hl7messages.get(i), properties.getProperty("TCPtoFileWriterPort")));
+			try
+			{
+				Thread.sleep(1000);
+			}
+			catch (InterruptedException e)
+			{}
 			assertTrue(out.receive("\\\\34.34.34.108\\shared\\inbox\\test.txt"));
+			try
+			{
+				Thread.sleep(1000);
+			}
+			catch (InterruptedException e)
+			{}
 		}
 	}
 	
@@ -106,11 +130,23 @@ public class MirthTests extends TestCase
 		for(int i = 0; i < hl7messages.size(); i++)
 		{
 			assertTrue(in.send(client, hl7messages.get(i), properties.getProperty("HTTPtoFileWriterPort")));
+			try
+			{
+				Thread.sleep(1000);
+			}
+			catch (InterruptedException e)
+			{}
 			assertTrue(out.receive("\\\\34.34.34.108\\shared\\inbox\\test.txt"));
+			try
+			{
+				Thread.sleep(1000);
+			}
+			catch (InterruptedException e)
+			{}
 		}				
 	}
-/*	
-	public void testTCPtoTCP()
+	
+/*	public void testTCPtoTCP()
 	{
 		TCPInput in = new TCPInput();
 		TCPOutput out = new TCPOutput(properties.getProperty("TCPfromTCPPort"));
@@ -134,9 +170,10 @@ public class MirthTests extends TestCase
 		}				
 	}
 */
-	public void testTCPtoEmail()
+/*	public void testTCPtoEmail()
 	{
 		EmailOutput e = new EmailOutput();
 		e.receive();
 	}
+*/
 }

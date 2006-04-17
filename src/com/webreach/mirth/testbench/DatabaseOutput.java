@@ -10,17 +10,17 @@ public class DatabaseOutput
 	private Connection connection = null;
 	private TestData properties = new TestData();
 	private int rowCount = 0;
+	private ResultSet result;
 	
 	public DatabaseOutput(String query)
 	{
 		loadDriver();
 		connectToDatabase();
-		ResultSet result = runQuery(query);
+		result = runQuery(query);
 		try
 		{
 			result.next();
 			rowCount = Integer.parseInt(result.getString(1));
-			closeConnection();
 		}
 		catch (SQLException e)
 		{
@@ -32,10 +32,7 @@ public class DatabaseOutput
 	public boolean receive(String query)
 	{
 		int newRowCount = 0;
-		
-		loadDriver();
-		connectToDatabase();
-		ResultSet result = runQuery(query);
+		result = runQuery(query);
 		
 		try
 		{
