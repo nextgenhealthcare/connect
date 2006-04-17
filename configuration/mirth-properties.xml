@@ -664,7 +664,7 @@
 				<displayName>Username</displayName>
 				<description>Username that will be used to connect to the mail server.</description>
 				<formType>text</formType>
-				<formOptions>15,15</formOptions>
+				<formOptions>25,25</formOptions>
 				<formValidator>stringValidator</formValidator>
 				<formValidatorOptions></formValidatorOptions>
 			</property>
