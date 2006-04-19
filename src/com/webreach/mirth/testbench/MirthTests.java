@@ -169,11 +169,41 @@ public class MirthTests extends TestCase
 			assertTrue(out.receive());
 		}				
 	}
-*/
-/*	public void testTCPtoEmail()
+
+	public void testTCPtoEmail()
 	{
-		EmailOutput e = new EmailOutput();
-		e.receive();
+		TCPInput in = new TCPInput();
+		EmailOutput out = new EmailOutput();
+		
+		for(int i = 0; i < hl7messages.size(); i++)
+		{
+			assertTrue(in.send(client, hl7messages.get(i), properties.getProperty("TCPtoEmailPort")));
+			try
+			{
+				Thread.sleep(1000);
+			}
+			catch (InterruptedException e)
+			{}
+			assertTrue(out.receive());
+		}		
+	}
+	
+	public void testHTTPtoEmail()
+	{
+		TCPInput in = new TCPInput();
+		EmailOutput out = new EmailOutput();
+		
+		for(int i = 0; i < hl7messages.size(); i++)
+		{
+			assertTrue(in.send(client, hl7messages.get(i), properties.getProperty("HTTPtoEmailPort ")));
+			try
+			{
+				Thread.sleep(10000);
+			}
+			catch (InterruptedException e)
+			{}
+			assertTrue(out.receive());
+		}		
 	}
 */
 }
