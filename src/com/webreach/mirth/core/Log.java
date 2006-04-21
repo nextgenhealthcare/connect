@@ -1,16 +1,18 @@
 package com.webreach.mirth.core;
 
+import java.sql.Timestamp;
+
 public class Log {
 	private int id;
-	private String date;
+	private Timestamp date;
 	private String event;
 	private int level;
 
-	public String getDate() {
+	public Timestamp getDate() {
 		return this.date;
 	}
 
-	public void setDate(String date) {
+	public void setDate(Timestamp date) {
 		this.date = date;
 	}
 

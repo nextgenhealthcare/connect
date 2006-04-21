@@ -16,7 +16,7 @@ public class JMXConnection {
 	private Properties mirthProperties;
 	private String configurationId;
 	
-	public JMXConnection() throws RuntimeException {
+	public JMXConnection() throws Exception {
 		try {
 			mirthProperties = PropertyLoader.loadProperties("mirth");
 			configurationId = mirthProperties.getProperty("configuration.id");
@@ -24,7 +24,7 @@ public class JMXConnection {
 			jmxConnector = JMXConnectorFactory.connect(serviceURL);
 			jmxConnection = jmxConnector.getMBeanServerConnection();
 		} catch (Exception e) {
-			throw new RuntimeException();
+			throw new Exception(e);
 		}
 	}
 	
@@ -37,11 +37,11 @@ public class JMXConnection {
 	 *            the name of the operation.
 	 * @return the result of the operation.
 	 */
-	public Object invokeOperation(Hashtable properties, String operation, Object[] params) throws RuntimeException {
+	public Object invokeOperation(Hashtable properties, String operation, Object[] params) throws Exception {
 		try {
 			return jmxConnection.invoke(new ObjectName(configurationId, properties), operation, params, null);	
 		} catch (Exception e) {
-			throw new RuntimeException();
+			throw new Exception(e);
 		}
 	}
 	
@@ -52,11 +52,11 @@ public class JMXConnection {
 	 * @param attribute
 	 * @return
 	 */
-	public Object getAttribute(Hashtable properties, String attribute) throws RuntimeException {
+	public Object getAttribute(Hashtable properties, String attribute) throws Exception {
 		try {
 			return jmxConnection.getAttribute(new ObjectName(configurationId, properties), attribute);	
 		} catch (Exception e) {
-			throw new RuntimeException();
+			throw new Exception(e);
 		}
 		
 	}

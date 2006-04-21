@@ -10,46 +10,74 @@ public class Statistics {
 	
 	public Statistics(Channel channel) {
 		this.channel = channel;
-		jmxConnection = new JMXConnection();	
 	}
-	
+
 	public int getSentCount() {
-		return getStatistic(channel.getId(), "TotalEventsSent");
+		try {
+			jmxConnection = new JMXConnection();	
+			return getStatistic(channel.getId(), "TotalEventsSent");	
+		} catch (Exception e) {
+			return -1;
+		}
+		
 	}
 	
 	// This is a hack to address the fact that this statistic is incorrectly incrememnted by 2 in Mule.
 	public int getReceivedCount() {
-		Hashtable<String, String> properties = new Hashtable<String, String>();
-		properties.put("type", "statistics");
-		properties.put("name", String.valueOf(channel.getId()));
-		Double count = ((Long) jmxConnection.getAttribute(properties, "TotalEventsReceived")).doubleValue();
-		return Double.valueOf(Math.ceil(count / 2)).intValue();
+		try {
+			jmxConnection = new JMXConnection();	
+			Hashtable<String, String> properties = new Hashtable<String, String>();
+			properties.put("type", "statistics");
+			properties.put("name", String.valueOf(channel.getId()));
+			Double count = ((Long) jmxConnection.getAttribute(properties, "TotalEventsReceived")).doubleValue();
+			return Double.valueOf(Math.ceil(count / 2)).intValue();
+		} catch (Exception e) {
+			return -1;
+		}
 	}
 	
 	public int getErrorCount() {
-		return getStatistic(channel.getId(), "ExecutionErrors");
+		try {
+			jmxConnection = new JMXConnection();	
+			return getStatistic(channel.getId(), "ExecutionErrors");	
+		} catch (Exception e) {
+			return -1;
+		}
+		
 	}
 	
 	public int getQueueCount() {
-		return getStatistic(channel.getId(), "QueuedEvents");
+		try {
+			jmxConnection = new JMXConnection();	
+			return getStatistic(channel.getId(), "QueuedEvents");	
+		} catch (Exception e) {
+			return -1;
+		}
+		
 	}
 	
 	public void clear() {
-		Hashtable<String, String> properties = new Hashtable<String, String>();
-		properties.put("type", "statistics");
-		properties.put("name", channel.getName());
-		jmxConnection.invokeOperation(properties, "clear", null);	
+		try {
+			jmxConnection = new JMXConnection();	
+			Hashtable<String, String> properties = new Hashtable<String, String>();
+			properties.put("type", "statistics");
+			properties.put("name", channel.getName());
+			jmxConnection.invokeOperation(properties, "clear", null);	
+		} catch (Exception e) {
+//			throw new StatisticsException();
+		}
 	}
 	
-	private int getStatistic(int id, String statistic) throws RuntimeException {
+	private int getStatistic(int id, String statistic) throws Exception {
 		try {
+			jmxConnection = new JMXConnection();	
 			Hashtable<String, String> properties = new Hashtable<String, String>();
 			properties.put("type", "statistics");
 			properties.put("name", String.valueOf(id));
 
 			return ((Long) jmxConnection.getAttribute(properties, statistic)).intValue();
 		} catch (Exception e) {
-			throw new RuntimeException();
+			throw new Exception();
 		}
 	}
 }

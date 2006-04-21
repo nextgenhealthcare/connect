@@ -17,7 +17,7 @@ public class DatabaseConnection {
 			mirthProperties = PropertyLoader.loadProperties("mirth");
 			Class.forName(mirthProperties.getProperty("database.driver"));
 		} catch (Exception e) {
-			throw new RuntimeException();
+			throw new RuntimeException(e);
 		}
 	}
 	
@@ -25,7 +25,7 @@ public class DatabaseConnection {
 		try {
 			return DriverManager.getConnection(mirthProperties.getProperty("database.url"), "sa", "");	
 		} catch (SQLException e) {
-			throw new RuntimeException();
+			throw new RuntimeException(e);
 		}
 	}
 
@@ -40,7 +40,7 @@ public class DatabaseConnection {
 
 			return result;
 		} catch (SQLException e) {
-			throw new RuntimeException();
+			throw new RuntimeException(e);
 		} finally {
 			DatabaseUtil.close(statement);
 		}
@@ -57,7 +57,7 @@ public class DatabaseConnection {
 
 			return rowCount;
 		} catch (SQLException e) {
-			throw new RuntimeException();
+			throw new RuntimeException(e);
 		} finally {
 			DatabaseUtil.close(statement);
 		}
@@ -75,7 +75,7 @@ public class DatabaseConnection {
 			statement.execute("SHUTDOWN");
 			connection.close();
 		} catch (SQLException e) {
-			throw new RuntimeException();
+			throw new RuntimeException(e);
 		} finally {
 			DatabaseUtil.close(statement);
 		}

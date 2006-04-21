@@ -30,7 +30,12 @@ public class Channel {
 	public Channel() {
 		destinationConnectors = new ArrayList<Connector>();
 		statistics = new Statistics(this);
-		jmxConnection = new JMXConnection();
+		
+		try {
+			jmxConnection = new JMXConnection();	
+		} catch (Exception e) {
+			// TODO: handle this exception
+		}
 	}
 
 	public String getDescription() {
@@ -122,44 +127,65 @@ public class Channel {
 	}
 	
 	public void start() {
-		Hashtable<String, String> properties = new Hashtable<String, String>();
-		properties.put("type", "control");
-		properties.put("name", getId() + "ComponentService");
-		jmxConnection.invokeOperation(properties, "start", null);
+		try {
+			Hashtable<String, String> properties = new Hashtable<String, String>();
+			properties.put("type", "control");
+			properties.put("name", getId() + "ComponentService");
+			jmxConnection.invokeOperation(properties, "start", null);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public void stop() {
-		Hashtable<String, String> properties = new Hashtable<String, String>();
-		properties.put("type", "control");
-		properties.put("name", getId() + "ComponentService");
-		jmxConnection.invokeOperation(properties, "stop", null);
+		try {
+			Hashtable<String, String> properties = new Hashtable<String, String>();
+			properties.put("type", "control");
+			properties.put("name", getId() + "ComponentService");
+			jmxConnection.invokeOperation(properties, "stop", null);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public void pause() {
-		Hashtable<String, String> properties = new Hashtable<String, String>();
-		properties.put("type", "control");
-		properties.put("name", getId() + "ComponentService");
-		jmxConnection.invokeOperation(properties, "pause", null);
+		try {
+			Hashtable<String, String> properties = new Hashtable<String, String>();
+			properties.put("type", "control");
+			properties.put("name", getId() + "ComponentService");
+			jmxConnection.invokeOperation(properties, "pause", null);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public void resume() {
-		Hashtable<String, String> properties = new Hashtable<String, String>();
-		properties.put("type", "control");
-		properties.put("name", getId() + "ComponentService");
-		jmxConnection.invokeOperation(properties, "resume", null);
+		try {
+			Hashtable<String, String> properties = new Hashtable<String, String>();
+			properties.put("type", "control");
+			properties.put("name", getId() + "ComponentService");
+			jmxConnection.invokeOperation(properties, "resume", null);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public Status getStatus() {
-		Hashtable<String, String> properties = new Hashtable<String, String>();
-		properties.put("type", "control");
-		properties.put("name", getId() + "ComponentService");
-		
-		if ((Boolean) jmxConnection.getAttribute(properties, "Paused")) {
-			return Status.PAUSED;
-		} else if ((Boolean) jmxConnection.getAttribute(properties, "Stopped")) {
+		try {
+			Hashtable<String, String> properties = new Hashtable<String, String>();
+			properties.put("type", "control");
+			properties.put("name", getId() + "ComponentService");
+			
+			if ((Boolean) jmxConnection.getAttribute(properties, "Paused")) {
+				return Status.PAUSED;
+			} else if ((Boolean) jmxConnection.getAttribute(properties, "Stopped")) {
+				return Status.STOPPED;
+			} else {
+				return Status.STARTED;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 			return Status.STOPPED;
-		} else {
-			return Status.STARTED;
 		}
 	}
 	

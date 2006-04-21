@@ -5,15 +5,15 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.webreach.mirth.core.Message;
+import com.webreach.mirth.core.Log;
 import com.webreach.mirth.core.util.DatabaseConnection;
 import com.webreach.mirth.core.util.DatabaseUtil;
 import com.webreach.mirth.core.util.ValueListHandler;
 
-public class MessageListHandler extends ValueListHandler {
+public class LogListHandler extends ValueListHandler {
 	private String query;
 
-	public MessageListHandler(String query) {
+	public LogListHandler(String query) {
 		this.query = query;
 		executeSearch();
 	}
@@ -37,15 +37,12 @@ public class MessageListHandler extends ValueListHandler {
 		ArrayList list = new ArrayList();
 
 		while (result.next()) {
-			Message message = new Message();
-			message.setId(result.getInt("ID"));
-			message.setEvent(result.getString("EVENT"));
-			message.setControlId(result.getString("CONTROL_ID"));
-			message.setSendingFacility(result.getString("SENDING_FACILITY"));
-			message.setDate(result.getTimestamp("DATE_CREATED"));
-			message.setMessage(result.getString("MESSAGE"));
-			message.setSize(result.getString("MESSAGE").getBytes().length);
-			list.add(message);
+			Log log = new Log();
+			log.setId(result.getInt("ID"));
+			log.setDate(result.getTimestamp("DATE_CREATED"));
+			log.setLevel(result.getInt("LEVEL"));
+			log.setEvent(result.getString("EVENT"));
+			list.add(log);
 		}
 
 		return list;

@@ -1,8 +1,10 @@
 package com.webreach.mirth.core;
 
+import java.sql.Timestamp;
+
 public class Message {
 	private int id;
-	private String date;
+	private Timestamp date;
 	private String sendingFacility;
 	private String event;
 	private String controlId;
@@ -17,11 +19,11 @@ public class Message {
 		this.controlId = controlId;
 	}
 
-	public String getDate() {
+	public Timestamp getDate() {
 		return this.date;
 	}
 
-	public void setDate(String date) {
+	public void setDate(Timestamp date) {
 		this.date = date;
 	}
 
