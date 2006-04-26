@@ -29,18 +29,18 @@ package com.webreach.mirth;
 import java.util.Iterator;
 import java.util.concurrent.PriorityBlockingQueue;
 
-public class MirthCommandQueue {
-	private PriorityBlockingQueue<MirthCommand> commandQueue = new PriorityBlockingQueue<MirthCommand>();
+public class CommandQueue {
+	private PriorityBlockingQueue<Command> commandQueue = new PriorityBlockingQueue<Command>();
 
 	// singleton pattern
-	private static MirthCommandQueue instance = null;
+	private static CommandQueue instance = null;
 
-	private MirthCommandQueue() {}
+	private CommandQueue() {}
 
-	public static MirthCommandQueue getInstance() {
-		synchronized (MirthCommandQueue.class) {
+	public static CommandQueue getInstance() {
+		synchronized (CommandQueue.class) {
 			if (instance == null)
-				instance = new MirthCommandQueue();
+				instance = new CommandQueue();
 
 			return instance;
 		}
@@ -51,7 +51,7 @@ public class MirthCommandQueue {
 	 * 
 	 * @param command
 	 */
-	public void addCommand(MirthCommand command) {
+	public void addCommand(Command command) {
 		commandQueue.put(command);
 	}
 
@@ -60,7 +60,7 @@ public class MirthCommandQueue {
 	 * 
 	 * @return the command with the highest priority from the queue.
 	 */
-	public MirthCommand getCommand() {
+	public Command getCommand() {
 		try {
 			return commandQueue.take();
 		} catch (Exception e) {
@@ -75,7 +75,7 @@ public class MirthCommandQueue {
 	 * 
 	 */
 	public void printQueue() {
-		for (Iterator<MirthCommand> iter = commandQueue.iterator(); iter.hasNext();) {
+		for (Iterator<Command> iter = commandQueue.iterator(); iter.hasNext();) {
 			System.out.println(iter.next());
 		}
 	}

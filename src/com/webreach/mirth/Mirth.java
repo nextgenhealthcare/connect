@@ -29,6 +29,7 @@ package com.webreach.mirth;
 import java.io.File;
 
 import org.apache.log4j.Logger;
+import org.mule.umo.manager.UMOManager;
 
 import com.sun.corba.se.spi.activation.Server;
 import com.webreach.mirth.managers.ConfigurationManager;
@@ -46,7 +47,7 @@ public class Mirth {
 
 	private UMOManager muleManager = null;
 	private Server webServer = null;
-	private MirthCommandQueue commandQueue = MirthCommandQueue.getInstance();
+	private CommandQueue commandQueue = CommandQueue.getInstance();
 
 	public static void main(String[] args) {
 		Mirth mirth = new Mirth();
@@ -86,24 +87,24 @@ public class Mirth {
 		}
 		
 		// boot-strap mule
-		commandQueue.addCommand(new MirthCommand(MirthCommand.CMD_START_MULE, muleConfigFile.getAbsolutePath()));
+		commandQueue.addCommand(new Command(Command.CMD_START_MULE, muleConfigFile.getAbsolutePath()));
 
 		// pulls commands off of the command queue
 		while (running) {
 			System.out.println("waiting for command...");
-			MirthCommand command = commandQueue.getCommand();
+			Command command = commandQueue.getCommand();
 
 			switch (command.getCommand()) {
-				case MirthCommand.CMD_START_MULE:
+				case Command.CMD_START_MULE:
 					startMule((String) command.getParameter());
 					break;
-				case MirthCommand.CMD_STOP_MULE:
+				case Command.CMD_STOP_MULE:
 					stopMule();
 					break;
-				case MirthCommand.CMD_RESTART_MULE:
+				case Command.CMD_RESTART_MULE:
 					restartMule((String) command.getParameter());
 					break;
-				case MirthCommand.CMD_SHUTDOWN:
+				case Command.CMD_SHUTDOWN:
 					stopMule();
 					stopDatabase();
 					stopWebServer();
@@ -146,7 +147,7 @@ public class Mirth {
 				muleManager.stop();
 				System.out.println("stopped mule");
 			} else {
-				commandQueue.addCommand(new MirthCommand(MirthCommand.CMD_STOP_MULE, MirthCommand.PRIORITY_HIGH));
+				commandQueue.addCommand(new Command(Command.CMD_STOP_MULE, Command.PRIORITY_HIGH));
 			}
 		} catch (Exception e) {
 			logger.error(e.toString());

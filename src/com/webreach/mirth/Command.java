@@ -32,7 +32,7 @@ package com.webreach.mirth;
  * 
  * @author <a href="mailto:geraldb@webreachinc.com">Gerald Bortis</a>
  */
-public class MirthCommand implements Comparable {
+public class Command implements Comparable {
 	public static final int CMD_SHUTDOWN = 9;
 	public static final int CMD_START_MULE = 101;
 	public static final int CMD_STOP_MULE = 102;
@@ -45,19 +45,19 @@ public class MirthCommand implements Comparable {
 	private Object parameter;
 	private int priority;
 
-	public MirthCommand(int command) {
+	public Command(int command) {
 		this(command, null, PRIORITY_NORMAL);
 	}
 
-	public MirthCommand(int command, Object parameter) {
+	public Command(int command, Object parameter) {
 		this(command, parameter, PRIORITY_NORMAL);
 	}
 
-	public MirthCommand(int command, int parameter) {
+	public Command(int command, int parameter) {
 		this(command, null, parameter);
 	}
 
-	public MirthCommand(int command, Object parameter, int priority) {
+	public Command(int command, Object parameter, int priority) {
 		this.command = command;
 		this.parameter = parameter;
 		this.priority = priority;
@@ -88,7 +88,7 @@ public class MirthCommand implements Comparable {
 	}
 
 	public int compareTo(Object o) {
-		MirthCommand compareCommand = (MirthCommand) o;
+		Command compareCommand = (Command) o;
 
 		if (getPriority() < compareCommand.getPriority())
 			return -1;

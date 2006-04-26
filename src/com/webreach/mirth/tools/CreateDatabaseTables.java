@@ -24,7 +24,7 @@
  * ***** END LICENSE BLOCK ***** */
 
 
-package com.webreach.mirth.deploy;
+package com.webreach.mirth.tools;
 
 import java.io.BufferedReader;
 import java.io.File;
