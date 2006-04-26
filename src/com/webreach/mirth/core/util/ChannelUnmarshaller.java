@@ -5,6 +5,7 @@ import java.io.InputStream;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -15,11 +16,15 @@ import com.webreach.mirth.core.Transformer;
 import com.webreach.mirth.core.Validator;
 
 public class ChannelUnmarshaller {
+	private Logger logger = Logger.getLogger(ChannelUnmarshaller.class);
+	
 	public ChannelUnmarshaller() {
 		
 	}
 	
 	public Channel unmarshal(String source) throws UnmarshalException {
+		logger.debug("unmarshalling channel");
+		
 		try {
 			InputStream is = new ByteArrayInputStream(source.getBytes());
 			Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(is);

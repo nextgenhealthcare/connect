@@ -9,12 +9,15 @@ import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 
+import org.apache.log4j.Logger;
+
 
 public class JMXConnection {
 	private JMXConnector jmxConnector;
 	private MBeanServerConnection jmxConnection;
 	private Properties mirthProperties;
 	private String configurationId;
+	private Logger logger = Logger.getLogger(JMXConnection.class);
 	
 	public JMXConnection() throws Exception {
 		try {
@@ -39,6 +42,7 @@ public class JMXConnection {
 	 */
 	public Object invokeOperation(Hashtable properties, String operation, Object[] params) throws Exception {
 		try {
+			logger.debug("invoking mbean operation: " + operation);
 			return jmxConnection.invoke(new ObjectName(configurationId, properties), operation, params, null);	
 		} catch (Exception e) {
 			throw new Exception(e);
@@ -54,6 +58,7 @@ public class JMXConnection {
 	 */
 	public Object getAttribute(Hashtable properties, String attribute) throws Exception {
 		try {
+			logger.debug("getting mbean attribute: " + attribute);
 			return jmxConnection.getAttribute(new ObjectName(configurationId, properties), attribute);	
 		} catch (Exception e) {
 			throw new Exception(e);

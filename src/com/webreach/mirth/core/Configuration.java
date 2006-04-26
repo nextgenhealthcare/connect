@@ -1,7 +1,7 @@
 package com.webreach.mirth.core;
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
-import java.io.StringWriter;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -9,7 +9,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
-import com.sun.tools.xjc.generator.validator.StringOutputStream;
+import org.apache.log4j.Logger;
+
 import com.webreach.mirth.core.util.ChannelMarshaller;
 import com.webreach.mirth.core.util.ChannelUnmarshaller;
 import com.webreach.mirth.core.util.ConfigurationBuilderException;
@@ -30,7 +31,8 @@ public class Configuration {
 	private static Configuration instance = null;
 	private DatabaseConnection dbConnection;
 	private boolean initialized = false;
-
+	private Logger logger = Logger.getLogger(Configuration.class);
+	
 	private Configuration() {
 		
 	}
@@ -45,15 +47,14 @@ public class Configuration {
 	}
 	
 	public void initialize() throws ConfigurationException {
-		try {
-			loadUsers();
-			loadTransports();
-			loadProperties();
-			loadChannels();
-			initialized = true;
-		} catch (ConfigurationException e) {
-			throw e;
-		}
+		logger.debug("initializing configuration");
+
+		loadUsers();
+		loadTransports();
+		loadProperties();
+		loadChannels();
+
+		initialized = true;
 	}
 	
 	public boolean isInitialized() {
@@ -61,6 +62,8 @@ public class Configuration {
 	}
 
 	private void loadUsers() throws ConfigurationException {
+		logger.debug("loading user list");
+		
 		users = new ArrayList<User>();
 		ResultSet result = null;
 		
@@ -97,6 +100,8 @@ public class Configuration {
 	}
 	
 	private void storeUsers() throws ConfigurationException {
+		logger.debug("writing user list to database");
+		
 		try {
 			// TODO: write the users list to the database
 			dbConnection = new DatabaseConnection();
@@ -119,6 +124,8 @@ public class Configuration {
 	}
 	
 	private void loadChannels() throws ConfigurationException {
+		logger.debug("loading channel list");
+		
 		channels = new ArrayList<Channel>();
 		ResultSet result = null;
 		ChannelUnmarshaller cu = new ChannelUnmarshaller();
@@ -157,6 +164,8 @@ public class Configuration {
 	}
 	
 	private void storeChannels() throws ConfigurationException {
+		logger.debug("writing channel list to database");
+		
 		try {
 			dbConnection = new DatabaseConnection();
 			
@@ -168,9 +177,9 @@ public class Configuration {
 				insert.append("'" + channel.getName() + "'");
 				
 				ChannelMarshaller cm = new ChannelMarshaller();
-				StringWriter stringWriter = new StringWriter();
-				cm.marshal(channel, new StringOutputStream(stringWriter));
-				insert.append("'" + stringWriter.toString() + "');");
+				ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+				cm.marshal(channel, outputStream);
+				insert.append("'" + outputStream.toString() + "');");
 
 				dbConnection.update(insert.toString());
 			}
@@ -222,6 +231,8 @@ public class Configuration {
 	}
 	
 	private void storeTransports() throws ConfigurationException {
+		logger.debug("writing transport list to database");
+		
 		// TODO: write the transports list to the database
 	}
 	
@@ -247,6 +258,8 @@ public class Configuration {
 	}
 	
 	private void storeProperties() throws ConfigurationException {
+		logger.debug("writing properties to file");
+		
 		try {
 			FileOutputStream fos = new FileOutputStream("mirth.properties");
 			properties.store(fos, null);
@@ -260,14 +273,12 @@ public class Configuration {
 	 * 
 	 */
 	public void store() throws ConfigurationException {
-		try {
-			storeUsers();
-			storeTransports();
-			storeProperties();
-			storeChannels();
-		} catch (ConfigurationException e) {
-			throw e;
-		}
+		logger.debug("storing configuration information");
+
+		storeUsers();
+		storeTransports();
+		storeProperties();
+		storeChannels();
 	}
 	
 	public String getMuleConfiguration() throws ConfigurationException {

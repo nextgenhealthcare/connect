@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.apache.log4j.Logger;
 import org.apache.xml.serialize.OutputFormat;
 import org.apache.xml.serialize.XMLSerializer;
 import org.w3c.dom.Document;
@@ -18,6 +19,8 @@ import com.webreach.mirth.core.Filter;
 import com.webreach.mirth.core.Validator;
 
 public class ChannelMarshaller {
+	private Logger logger = Logger.getLogger(ChannelMarshaller.class);
+	
 	public ChannelMarshaller() {
 		
 	}
@@ -29,6 +32,8 @@ public class ChannelMarshaller {
 	 * @return
 	 */
 	public void marshal(Channel channel, OutputStream os) throws MarshalException {
+		logger.debug("marshaling channel: " + channel.getName());
+		
 		try {
 			Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
 			

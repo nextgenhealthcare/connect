@@ -1,16 +1,16 @@
 package com.webreach.mirth.core.tests;
 
+import java.io.ByteArrayOutputStream;
 import java.io.StringWriter;
 
-import com.sun.tools.xjc.generator.validator.StringOutputStream;
+import junit.framework.TestCase;
+
 import com.webreach.mirth.core.Channel;
 import com.webreach.mirth.core.Connector;
 import com.webreach.mirth.core.Filter;
 import com.webreach.mirth.core.Transformer;
 import com.webreach.mirth.core.Validator;
 import com.webreach.mirth.core.util.ChannelMarshaller;
-
-import junit.framework.TestCase;
 
 public class ChannelMarshallerTest extends TestCase {
 	private Channel channel;
@@ -75,8 +75,9 @@ public class ChannelMarshallerTest extends TestCase {
 		try {
 			ChannelMarshaller cm = new ChannelMarshaller();
 			StringWriter stringWriter = new StringWriter();
-			cm.marshal(channel, new StringOutputStream(stringWriter));
-			System.out.println(stringWriter.toString());
+			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+			cm.marshal(channel, outputStream);
+			System.out.println(outputStream.toString());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -7,10 +7,13 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
 
+import org.apache.log4j.Logger;
+
 
 public class DatabaseConnection {
 	private Properties mirthProperties;
 	private Connection connection;
+	private Logger logger = Logger.getLogger(DatabaseConnection.class);
 	
 	public DatabaseConnection() throws RuntimeException {
 		try {
@@ -36,11 +39,12 @@ public class DatabaseConnection {
 		try {
 			connection = getConnection();
 			statement = connection.createStatement();
+			logger.debug("executing query: " + expression);
 			result = statement.executeQuery(expression);
 
 			return result;
 		} catch (SQLException e) {
-			throw new RuntimeException(e);
+			throw e;
 		} finally {
 			DatabaseUtil.close(statement);
 		}
@@ -52,12 +56,13 @@ public class DatabaseConnection {
 		try {
 			connection = getConnection();
 			statement = connection.createStatement();
+			logger.debug("executing update: " + expression);
 			int rowCount = statement.executeUpdate(expression);
 			statement.close();
 
 			return rowCount;
 		} catch (SQLException e) {
-			throw new RuntimeException(e);
+			throw e;
 		} finally {
 			DatabaseUtil.close(statement);
 		}
@@ -65,7 +70,7 @@ public class DatabaseConnection {
 	
 	public void close() throws RuntimeException {
 		if (connection == null) {
-			throw new RuntimeException("Database connection is not open.");
+			logger.warn("database connection cannot be closed");
 		}
 		
 		Statement statement = null;
@@ -73,6 +78,7 @@ public class DatabaseConnection {
 		try {
 			statement = connection.createStatement();
 			statement.execute("SHUTDOWN");
+			logger.warn("closing database connection");
 			connection.close();
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
