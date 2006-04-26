@@ -34,7 +34,7 @@ public class LogListHandler extends ValueListHandler {
 	}
 	
 	private List prepareResult(ResultSet result) throws SQLException {
-		ArrayList list = new ArrayList();
+		ArrayList<Log> list = new ArrayList<Log>();
 
 		while (result.next()) {
 			Log log = new Log();

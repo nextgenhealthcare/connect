@@ -34,7 +34,7 @@ public class MessageListHandler extends ValueListHandler {
 	}
 	
 	private List prepareResult(ResultSet result) throws SQLException {
-		ArrayList list = new ArrayList();
+		ArrayList<Message> list = new ArrayList<Message>();
 
 		while (result.next()) {
 			Message message = new Message();

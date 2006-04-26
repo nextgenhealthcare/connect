@@ -28,13 +28,9 @@ package com.webreach.mirth;
 
 import java.io.File;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.mortbay.http.SocketListener;
-import org.mortbay.jetty.Server;
-import org.mule.config.builders.MuleXmlConfigurationBuilder;
-import org.mule.umo.manager.UMOManager;
+import org.apache.log4j.Logger;
 
+import com.sun.corba.se.spi.activation.Server;
 import com.webreach.mirth.managers.ConfigurationManager;
 import com.webreach.mirth.managers.Database;
 
@@ -45,7 +41,7 @@ import com.webreach.mirth.managers.Database;
  * @author <a href="mailto:geraldb@webreachinc.com">Gerald Bortis</a>
  */
 public class Mirth {
-	protected transient Log logger = LogFactory.getLog(Mirth.class);
+	private Logger logger = Logger.getLogger(Mirth.class);
 	private boolean running = true;
 
 	private UMOManager muleManager = null;
