@@ -11,12 +11,12 @@ public class LogList {
 		this.channel = channel;
 	}
 	
-	// add a message to the message list
+	// add a log to the log list
 	public void add(Log log) {
 		DatabaseConnection dbConnection = new DatabaseConnection();
 		StringBuffer insert = new StringBuffer();
 
-		insert.append("INSERT INTO " + table + " (CHANNEL_NAME, DATE_CREATED, LEVEL, EVENT) VALUES (");
+		insert.append("INSERT INTO " + table + " (CHANNEL_NAME, DATE_CREATED, EVENT_LEVEL, EVENT) VALUES (");
 		insert.append("'" + channel.getName() + "', ");
 		insert.append("'" + log.getDate() + "', ");
 		insert.append("'" + log.getLevel() + "', ");
@@ -48,7 +48,7 @@ public class LogList {
 	// return logs by date range
 	public LogListHandler getLogsByDateRange(String min, String max) {
 		StringBuffer query = new StringBuffer();
-		query.append("SELECT * FROM " + table + " WHERE DATE_CREATED >= " + min + " AND DATE_CREATED <= " + max + " AND CHANNEL_NAME='" + channel.getName() + "';");
+		query.append("SELECT * FROM " + table + " WHERE DATE_CREATED >= '" + min + "' AND DATE_CREATED <= '" + max + "' AND CHANNEL_NAME='" + channel.getName() + "';");
 		return new LogListHandler(query.toString());	
 	}
 

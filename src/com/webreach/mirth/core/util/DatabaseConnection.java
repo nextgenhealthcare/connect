@@ -21,7 +21,7 @@ public class DatabaseConnection {
 		}
 	}
 	
-	private Connection getConnection() throws RuntimeException {
+	private Connection getConnection() throws SQLException {
 		try {
 			return DriverManager.getConnection(mirthProperties.getProperty("database.url"), "sa", "");	
 		} catch (SQLException e) {
@@ -29,7 +29,7 @@ public class DatabaseConnection {
 		}
 	}
 
-	public synchronized ResultSet query(String expression) throws RuntimeException {
+	public synchronized ResultSet query(String expression) throws SQLException {
 		Statement statement = null;
 		ResultSet result = null;
 		
@@ -46,7 +46,7 @@ public class DatabaseConnection {
 		}
 	}
 
-	public synchronized int update(String expression) throws RuntimeException {
+	public synchronized int update(String expression) throws SQLException {
 		Statement statement = null;
 		
 		try {

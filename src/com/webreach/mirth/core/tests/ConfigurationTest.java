@@ -43,10 +43,6 @@ public class ConfigurationTest extends TestCase {
 		
 	}
 	
-	public void testGetMuleConfiguration() {
-		
-	}
-	
 	public void testGetNextId() {
 		int id1 = configuration.getNextId();
 		int id2 = configuration.getNextId();

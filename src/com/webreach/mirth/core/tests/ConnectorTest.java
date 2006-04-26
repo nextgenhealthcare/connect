@@ -1,10 +1,9 @@
 package com.webreach.mirth.core.tests;
 
+import junit.framework.TestCase;
+
 import com.webreach.mirth.core.Connector;
 import com.webreach.mirth.core.Transformer;
-import com.webreach.mirth.core.Transport;
-
-import junit.framework.TestCase;
 
 public class ConnectorTest extends TestCase {
 	
@@ -14,7 +13,7 @@ public class ConnectorTest extends TestCase {
 		super.setUp();
 		connector = new Connector();
 		connector.setName("Test Connector");
-		connector.setTransport(new Transport());
+		connector.setTransport("Test Transport");
 		connector.getProperties().put("test_property", "test_value");
 		connector.setTransformer(new Transformer());
 	}

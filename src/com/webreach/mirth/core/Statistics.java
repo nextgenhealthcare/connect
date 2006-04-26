@@ -19,7 +19,6 @@ public class Statistics {
 		} catch (Exception e) {
 			return -1;
 		}
-		
 	}
 	
 	// This is a hack to address the fact that this statistic is incorrectly incrememnted by 2 in Mule.
@@ -43,7 +42,6 @@ public class Statistics {
 		} catch (Exception e) {
 			return -1;
 		}
-		
 	}
 	
 	public int getQueueCount() {
@@ -53,7 +51,6 @@ public class Statistics {
 		} catch (Exception e) {
 			return -1;
 		}
-		
 	}
 	
 	public void clear() {
@@ -64,7 +61,8 @@ public class Statistics {
 			properties.put("name", channel.getName());
 			jmxConnection.invokeOperation(properties, "clear", null);	
 		} catch (Exception e) {
-//			throw new StatisticsException();
+			// TODO: do something
+			// throw new StatisticsException();
 		}
 	}
 	

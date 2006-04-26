@@ -23,7 +23,7 @@ public class TransformerTest extends TestCase {
 	}
 	
 	public void testGetMappingScript() {
-		transformer.setType(Transformer.Type.MAPPING);
+		transformer.setType(Transformer.Type.MAP);
 		transformer.getVariables().put("firstName", "msg.PID['PID.5']['XPN.1']");
 		transformer.getVariables().put("lastName", "msg.PID['PID.5']['XPN.2']");
 		String script = "map.put('firstName', msg.PID['PID.5']['XPN.1']);" + "\n" + "map.put('lastName', msg.PID['PID.5']['XPN.2']);";

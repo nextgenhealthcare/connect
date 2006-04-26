@@ -1,20 +1,22 @@
 package com.webreach.mirth.core.tests;
 
-import junit.framework.TestCase;
+import java.io.StringWriter;
 
+import com.sun.tools.xjc.generator.validator.StringOutputStream;
 import com.webreach.mirth.core.Channel;
 import com.webreach.mirth.core.Connector;
 import com.webreach.mirth.core.Filter;
 import com.webreach.mirth.core.Transformer;
 import com.webreach.mirth.core.Validator;
+import com.webreach.mirth.core.util.ChannelMarshaller;
 
-public class ChannelTest extends TestCase {
+import junit.framework.TestCase;
 
+public class ChannelMarshallerTest extends TestCase {
 	private Channel channel;
-	
+
 	protected void setUp() throws Exception {
 		super.setUp();
-
 		Transformer sourceTransformer = new Transformer();
 		sourceTransformer.setType(Transformer.Type.MAP);
 		sourceTransformer.getVariables().put("firstName", "TestFirstName");
@@ -62,9 +64,22 @@ public class ChannelTest extends TestCase {
 
 		channel.getDestinationConnectors().add(destinationConnector1);
 		channel.getDestinationConnectors().add(destinationConnector2);
+		
 	}
 
 	protected void tearDown() throws Exception {
 		super.tearDown();
 	}
+	
+	public void testMarshal() {
+		try {
+			ChannelMarshaller cm = new ChannelMarshaller();
+			StringWriter stringWriter = new StringWriter();
+			cm.marshal(channel, new StringOutputStream(stringWriter));
+			System.out.println(stringWriter.toString());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 }

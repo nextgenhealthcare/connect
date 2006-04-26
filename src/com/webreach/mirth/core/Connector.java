@@ -1,15 +1,16 @@
 package com.webreach.mirth.core;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class Connector {
-	private Transport transport;
 	private String name;
 	private Map<String, String> properties;
 	private Transformer transformer;
+	private String transport;
 	
 	public Connector() {
-		
+		properties = new HashMap<String, String>();
 	}
 	
 	public Connector(String name) {
@@ -32,11 +33,11 @@ public class Connector {
 		this.transformer = transformer;
 	}
 
-	public Transport getTransport() {
+	public String getTransport() {
 		return this.transport;
 	}
 
-	public void setTransport(Transport transport) {
+	public void setTransport(String transport) {
 		this.transport = transport;
 	}
 	

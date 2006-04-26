@@ -1,6 +1,5 @@
 package com.webreach.mirth.core;
 
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
@@ -8,33 +7,44 @@ import java.util.List;
 import com.webreach.mirth.core.util.JMXConnection;
 
 public class Channel {
-	public enum Status { STARTED, STOPPED, PAUSED };
-	public enum Direction { INBOUND, OUTBOUND };
-	public enum Type { ROUTER, BROADCAST, APPLICATION };
-	
+	public enum Status {
+		STARTED, STOPPED, PAUSED
+	};
+
+	public enum Direction {
+		INBOUND, OUTBOUND
+	};
+
+	public enum Type {
+		ROUTER, BROADCAST, APPLICATION
+	};
+
 	private int id;
 	private String name;
 	private String description;
 	private boolean enabled;
 	private boolean modified;
+	private Status initialStatus;
+	private transient Statistics statistics;
 	private Direction direction;
 	private Type type;
 	private Filter filter;
+	private Validator validator;
 	private Connector sourceConnector;
 	private List<Connector> destinationConnectors;
-	private Statistics statistics;
-	private Validator validator;
-	
-	private JMXConnection jmxConnection;
-	
+	private transient MessageList messageList;
+	private transient LogList logList;
+
+	private transient JMXConnection jmxConnection;
+
 	public Channel() {
 		destinationConnectors = new ArrayList<Connector>();
 		statistics = new Statistics(this);
-		
+
 		try {
-			jmxConnection = new JMXConnection();	
+			jmxConnection = new JMXConnection();
 		} catch (Exception e) {
-			// TODO: handle this exception
+			// TODO: handle case where the JMX connection cannot be instantiated
 		}
 	}
 
@@ -60,6 +70,14 @@ public class Channel {
 
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
+	}
+
+	public Status getInitialStatus() {
+		return this.initialStatus;
+	}
+
+	public void setInitialStatus(Status initialStatus) {
+		this.initialStatus = initialStatus;
 	}
 
 	public Filter getFilter() {
@@ -125,7 +143,7 @@ public class Channel {
 	public Statistics getStatistics() {
 		return this.statistics;
 	}
-	
+
 	public void start() {
 		try {
 			Hashtable<String, String> properties = new Hashtable<String, String>();
@@ -136,7 +154,7 @@ public class Channel {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public void stop() {
 		try {
 			Hashtable<String, String> properties = new Hashtable<String, String>();
@@ -147,7 +165,7 @@ public class Channel {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public void pause() {
 		try {
 			Hashtable<String, String> properties = new Hashtable<String, String>();
@@ -158,7 +176,7 @@ public class Channel {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public void resume() {
 		try {
 			Hashtable<String, String> properties = new Hashtable<String, String>();
@@ -169,13 +187,13 @@ public class Channel {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public Status getStatus() {
 		try {
 			Hashtable<String, String> properties = new Hashtable<String, String>();
 			properties.put("type", "control");
 			properties.put("name", getId() + "ComponentService");
-			
+
 			if ((Boolean) jmxConnection.getAttribute(properties, "Paused")) {
 				return Status.PAUSED;
 			} else if ((Boolean) jmxConnection.getAttribute(properties, "Stopped")) {
@@ -188,9 +206,13 @@ public class Channel {
 			return Status.STOPPED;
 		}
 	}
-	
-	public void store(OutputStream os) {
-		// TODO: convert to DOM object, can use StringOutputStream to write it to a string
+
+	public MessageList getMessageList() {
+		return messageList;
+	}
+
+	public LogList getLogList() {
+		return logList;
 	}
 
 }

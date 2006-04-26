@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 public class Transformer implements Script {
-	public enum Type { MAPPING, SCRIPT, XSLT };
+	public enum Type { MAP, SCRIPT, XSLT };
 	private Map<String, String> variables;
 	private Type type;
 	
@@ -34,7 +34,7 @@ public class Transformer implements Script {
 	public String getScript() {
 		StringBuffer script = new StringBuffer();
 		
-		if (getType() == Type.MAPPING) {
+		if (getType() == Type.MAP) {
 			for (Iterator iter = variables.entrySet().iterator(); iter.hasNext();) {
 				Entry entry = (Entry) iter.next();
 				script.append("map.put('" + entry.getKey().toString() + "', " + entry.getValue().toString() + ");");
