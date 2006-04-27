@@ -1,4 +1,4 @@
-package com.webreach.mirth.core.util;
+package com.webreach.mirth.core.handlers;
 
 public class IteratorException extends RuntimeException {
 	public IteratorException() {
@@ -9,7 +9,7 @@ public class IteratorException extends RuntimeException {
 		super(message);
 	}
 	
-	public IteratorException(Exception e) {
-		super(e);
+	public IteratorException(Throwable cause) {
+		super(cause);
 	}
 }

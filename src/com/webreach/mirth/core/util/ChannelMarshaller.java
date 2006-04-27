@@ -21,9 +21,7 @@ import com.webreach.mirth.core.Validator;
 public class ChannelMarshaller {
 	private Logger logger = Logger.getLogger(ChannelMarshaller.class);
 	
-	public ChannelMarshaller() {
-		
-	}
+	public ChannelMarshaller() {}
 	
 	/**
 	 * Returns a DOM Document object representation of a given Channel.
@@ -132,6 +130,7 @@ public class ChannelMarshaller {
 			// transformer
 			Element transformer = document.createElement("transformer");
 			transformer.setAttribute("type", connector.getTransformer().getType().toString());
+			transformer.setAttribute("language", connector.getTransformer().getLanguage().toString());
 			
 			// transformer.variables
 			for (Iterator iter = connector.getTransformer().getVariables().entrySet().iterator(); iter.hasNext();) {

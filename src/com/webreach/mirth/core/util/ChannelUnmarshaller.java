@@ -125,6 +125,7 @@ public class ChannelUnmarshaller {
 		Element transformerElement = (Element) connectorElement.getElementsByTagName("transformer").item(0);
 		Transformer transformer = new Transformer();
 		transformer.setType(Transformer.Type.valueOf(transformerElement.getAttribute("type")));
+		transformer.setLanguage(Transformer.Language.valueOf(transformerElement.getAttribute("language")));
 		
 		// transformer.variables
 		for (int i = 0; i < transformerElement.getElementsByTagName("variable").getLength(); i++) {

@@ -8,7 +8,6 @@ import java.util.List;
 import com.webreach.mirth.core.Log;
 import com.webreach.mirth.core.util.DatabaseConnection;
 import com.webreach.mirth.core.util.DatabaseUtil;
-import com.webreach.mirth.core.util.ValueListHandler;
 
 public class LogListHandler extends ValueListHandler {
 	private String query;
@@ -40,8 +39,8 @@ public class LogListHandler extends ValueListHandler {
 			Log log = new Log();
 			log.setId(result.getInt("ID"));
 			log.setDate(result.getTimestamp("DATE_CREATED"));
-			log.setLevel(result.getInt("LEVEL"));
 			log.setEvent(result.getString("EVENT"));
+			log.setLevel(result.getInt("EVENT_LEVEL"));
 			list.add(log);
 		}
 

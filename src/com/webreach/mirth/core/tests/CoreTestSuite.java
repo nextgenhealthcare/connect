@@ -8,7 +8,7 @@ public class CoreTestSuite {
 	public static void main(String[] args) {}
 
 	public static Test suite() {
-		TestSuite suite = new TestSuite("Test for com.webreach.mirth.configuration.tests");
+		TestSuite suite = new TestSuite("Test for com.webreach.mirth.core.tests");
 		//$JUnit-BEGIN$
 		suite.addTestSuite(UserTest.class);
 		suite.addTestSuite(ChannelTest.class);

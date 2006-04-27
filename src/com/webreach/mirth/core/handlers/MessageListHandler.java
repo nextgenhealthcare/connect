@@ -8,7 +8,6 @@ import java.util.List;
 import com.webreach.mirth.core.Message;
 import com.webreach.mirth.core.util.DatabaseConnection;
 import com.webreach.mirth.core.util.DatabaseUtil;
-import com.webreach.mirth.core.util.ValueListHandler;
 
 public class MessageListHandler extends ValueListHandler {
 	private String query;

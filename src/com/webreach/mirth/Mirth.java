@@ -29,11 +29,12 @@ package com.webreach.mirth;
 import java.io.File;
 
 import org.apache.log4j.Logger;
+import org.mortbay.http.SocketListener;
+import org.mortbay.jetty.Server;
+import org.mule.config.builders.MuleXmlConfigurationBuilder;
 import org.mule.umo.manager.UMOManager;
 
-import com.sun.corba.se.spi.activation.Server;
-import com.webreach.mirth.managers.ConfigurationManager;
-import com.webreach.mirth.managers.Database;
+import com.webreach.mirth.core.Configuration;
 
 /**
  * Instantiate a Mirth server that listens for commands from the
@@ -48,6 +49,7 @@ public class Mirth {
 	private UMOManager muleManager = null;
 	private Server webServer = null;
 	private CommandQueue commandQueue = CommandQueue.getInstance();
+	private Configuration configuration;
 
 	public static void main(String[] args) {
 		Mirth mirth = new Mirth();
@@ -106,7 +108,6 @@ public class Mirth {
 					break;
 				case Command.CMD_SHUTDOWN:
 					stopMule();
-					stopDatabase();
 					stopWebServer();
 					running = false;
 					break;
@@ -182,15 +183,6 @@ public class Mirth {
 		try {
 			webServer.stop();
 		} catch (InterruptedException e) {
-			logger.error(e.toString());
-		}
-	}
-	
-	private void stopDatabase() {
-		try {
-			Database database = new Database("mirth");
-			database.shutdown();
-		} catch (Exception e) {
 			logger.error(e.toString());
 		}
 	}
