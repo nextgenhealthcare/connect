@@ -63,7 +63,6 @@
 		<javac srcdir="${src}" destdir="${classes}" debug="on">
 			<include name="com/webreach/mirth/**" />
 			<include name="org/mule/providers/**" />
-			<exclude name="com/webreach/mirth/core/**" />			
 			<exclude name="com/webreach/mirth/testbench/**" />
 			<exclude name="com/webreach/mirth/configuration/**" />			
 			<classpath refid="classpath" />
