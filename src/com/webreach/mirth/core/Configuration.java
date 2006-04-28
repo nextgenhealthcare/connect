@@ -1,6 +1,7 @@
 package com.webreach.mirth.core;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -33,9 +34,7 @@ public class Configuration {
 	private boolean initialized = false;
 	private Logger logger = Logger.getLogger(Configuration.class);
 	
-	private Configuration() {
-		
-	}
+	private Configuration() {}
 
 	public static Configuration getInstance() {
 		synchronized (Configuration.class) {

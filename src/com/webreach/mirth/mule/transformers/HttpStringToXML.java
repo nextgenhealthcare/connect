@@ -31,14 +31,11 @@ import java.util.Iterator;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.mule.transformers.AbstractTransformer;
 import org.mule.umo.UMOEventContext;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-
-import com.webreach.mirth.MirthUtil;
 
 /**
  * Transforms a database result row map into an XML string.
@@ -46,7 +43,7 @@ import com.webreach.mirth.MirthUtil;
  * @author <a href="mailto:geraldb@webreachinc.com">Gerald Bortis</a>
  */
 public class HttpStringToXML extends AbstractTransformer {
-	protected static transient Log logger = LogFactory.getLog(HttpStringToXML.class);
+	private Logger logger = Logger.getLogger(HttpStringToXML.class);
 
 	private String rootElement;
 	

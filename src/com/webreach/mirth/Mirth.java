@@ -27,6 +27,7 @@
 package com.webreach.mirth;
 
 import java.io.File;
+import java.util.Properties;
 
 import org.apache.log4j.Logger;
 import org.mortbay.http.SocketListener;
@@ -35,6 +36,7 @@ import org.mule.config.builders.MuleXmlConfigurationBuilder;
 import org.mule.umo.manager.UMOManager;
 
 import com.webreach.mirth.core.Configuration;
+import com.webreach.mirth.core.util.PropertyLoader;
 
 /**
  * Instantiate a Mirth server that listens for commands from the
@@ -44,12 +46,13 @@ import com.webreach.mirth.core.Configuration;
  */
 public class Mirth {
 	private Logger logger = Logger.getLogger(Mirth.class);
-	private boolean running = true;
+	private boolean running = false;
 
 	private UMOManager muleManager = null;
 	private Server webServer = null;
 	private CommandQueue commandQueue = CommandQueue.getInstance();
 	private Configuration configuration;
+	private Properties mirthProperties;
 
 	public static void main(String[] args) {
 		Mirth mirth = new Mirth();
@@ -66,30 +69,31 @@ public class Mirth {
 	/**
 	 * Starts the Mirth service.
 	 * 
-	 * @param bootConfigFile
+	 * @param bootConfigurationFile
 	 *            the Mirth configuration file.
 	 */
-	public void start(String bootConfigFile) {
+	public void start(String bootConfigurationFile) {
+		mirthProperties = PropertyLoader.loadProperties("mirth");
 		startWebServer();
 
-		File muleConfigFile;
+		File muleConfigurationFile;
 		
-		if (bootConfigFile != null) {
+		if (bootConfigurationFile != null) {
 			// if a config file was specified in the arguments
-			muleConfigFile = new File(bootConfigFile);
+			muleConfigurationFile = new File(bootConfigurationFile);
 		} else {
 			// load the existing config file
-			muleConfigFile = new File(ConfigurationManager.MULE_CONFIG_FILE);
+			muleConfigurationFile = new File(mirthProperties.getProperty("mule.config"));
 		}
 		
 		// if the mule-config.xml file hasnt been created yet
-		if (!muleConfigFile.exists() || !(muleConfigFile.length() > 0)) {
+		if (!muleConfigurationFile.exists() || !(muleConfigurationFile.length() > 0)) {
 			// start using the mule-boot.xml
-			muleConfigFile = new File(ConfigurationManager.MULE_BOOT_FILE);
+			muleConfigurationFile = new File(mirthProperties.getProperty("mule.boot"));
 		}
 		
 		// boot-strap mule
-		commandQueue.addCommand(new Command(Command.CMD_START_MULE, muleConfigFile.getAbsolutePath()));
+		commandQueue.addCommand(new Command(Command.CMD_START_MULE, muleConfigurationFile.getAbsolutePath()));
 
 		// pulls commands off of the command queue
 		while (running) {
@@ -120,6 +124,7 @@ public class Mirth {
 	// restarts mule
 	private void restartMule(String configuration) {
 		logger.debug("retarting mule");
+		
 		stopMule();
 		startMule(configuration);
 	}
@@ -160,7 +165,7 @@ public class Mirth {
 
 	// starts the Jetty web server
 	private void startWebServer() {
-		logger.debug("starting jetty web/jsp server");
+		logger.debug("starting jetty web server");
 
 		try {
 			// this disables validaiton of the web.xml file, which causes exceptions 
@@ -180,6 +185,8 @@ public class Mirth {
 
 	// stops the Jetty web server
 	private void stopWebServer() {
+		logger.debug("stopping jetty web server");
+		
 		try {
 			webServer.stop();
 		} catch (InterruptedException e) {
