@@ -26,21 +26,14 @@
 
 package com.webreach.mirth;
 
-import java.io.File;
-import java.util.Properties;
-
 import org.apache.log4j.Logger;
 import org.mortbay.http.SocketListener;
 import org.mortbay.jetty.Server;
 import org.mule.config.builders.MuleXmlConfigurationBuilder;
 import org.mule.umo.manager.UMOManager;
 
-import com.webreach.mirth.core.Configuration;
-import com.webreach.mirth.core.util.PropertyLoader;
-
 /**
- * Instantiate a Mirth server that listens for commands from the
- * MirthCommandQueue.
+ * Instantiate a Mirth server that listens for commands from the CommandQueue.
  * 
  * @author <a href="mailto:geraldb@webreachinc.com">Gerald Bortis</a>
  */
@@ -51,49 +44,19 @@ public class Mirth {
 	private UMOManager muleManager = null;
 	private Server webServer = null;
 	private CommandQueue commandQueue = CommandQueue.getInstance();
-	private Configuration configuration;
-	private Properties mirthProperties;
+	private ConfigurationManager configurationManager = ConfigurationManager.getInstance();
 
 	public static void main(String[] args) {
 		Mirth mirth = new Mirth();
-		
-		if (args.length != 0) {
-			mirth.start(args[0]);	
-		} else {
-			mirth.start(null);
-		}
+		mirth.start();
 	}
 
 	public Mirth() {}
 
-	/**
-	 * Starts the Mirth service.
-	 * 
-	 * @param bootConfigurationFile
-	 *            the Mirth configuration file.
-	 */
-	public void start(String bootConfigurationFile) {
-		mirthProperties = PropertyLoader.loadProperties("mirth");
+	public void start() {
+		running = true;
 		startWebServer();
-
-		File muleConfigurationFile;
-		
-		if (bootConfigurationFile != null) {
-			// if a config file was specified in the arguments
-			muleConfigurationFile = new File(bootConfigurationFile);
-		} else {
-			// load the existing config file
-			muleConfigurationFile = new File(mirthProperties.getProperty("mule.config"));
-		}
-		
-		// if the mule-config.xml file hasnt been created yet
-		if (!muleConfigurationFile.exists() || !(muleConfigurationFile.length() > 0)) {
-			// start using the mule-boot.xml
-			muleConfigurationFile = new File(mirthProperties.getProperty("mule.boot"));
-		}
-		
-		// boot-strap mule
-		commandQueue.addCommand(new Command(Command.CMD_START_MULE, muleConfigurationFile.getAbsolutePath()));
+		commandQueue.addCommand(new Command(Command.CMD_START_MULE));
 
 		// pulls commands off of the command queue
 		while (running) {
@@ -102,13 +65,13 @@ public class Mirth {
 
 			switch (command.getCommand()) {
 				case Command.CMD_START_MULE:
-					startMule((String) command.getParameter());
+					startMule();
 					break;
 				case Command.CMD_STOP_MULE:
 					stopMule();
 					break;
 				case Command.CMD_RESTART_MULE:
-					restartMule((String) command.getParameter());
+					restartMule();
 					break;
 				case Command.CMD_SHUTDOWN:
 					stopMule();
@@ -122,23 +85,22 @@ public class Mirth {
 	}
 
 	// restarts mule
-	private void restartMule(String configuration) {
+	private void restartMule() {
 		logger.debug("retarting mule");
-		
+
 		stopMule();
-		startMule(configuration);
+		startMule();
 	}
 
 	// starts mule
-	private void startMule(String configuration) {
-		logger.debug("starting mule with configuration file: " + configuration);
+	private void startMule() {
+		logger.debug("starting mule with configuration file: " + configurationManager.getLatestConfiguration().getAbsolutePath());
 
 		try {
 			// disables validation of Mule configuration files
 			System.setProperty("org.mule.xml.validate", "false");
-			
 			MuleXmlConfigurationBuilder builder = new MuleXmlConfigurationBuilder();
-			muleManager = builder.configure(configuration);
+			muleManager = builder.configure(configurationManager.getLatestConfiguration().getAbsolutePath());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -168,10 +130,12 @@ public class Mirth {
 		logger.debug("starting jetty web server");
 
 		try {
-			// this disables validaiton of the web.xml file, which causes exceptions 
-			// when Mirth is run behind a firewall and the resources cannot be accessed
+			// this disables validaiton of the web.xml file, which causes
+			// exceptions
+			// when Mirth is run behind a firewall and the resources cannot be
+			// accessed
 			System.setProperty("org.mortbay.xml.XmlParser.NotValidating", "true");
-			
+
 			webServer = new Server();
 			SocketListener listener = new SocketListener();
 			listener.setPort(8080);
@@ -186,7 +150,7 @@ public class Mirth {
 	// stops the Jetty web server
 	private void stopWebServer() {
 		logger.debug("stopping jetty web server");
-		
+
 		try {
 			webServer.stop();
 		} catch (InterruptedException e) {

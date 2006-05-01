@@ -23,6 +23,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
+
 /**
  * Encodes an HL7 message String in XML. 
  * 

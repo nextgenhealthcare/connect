@@ -30,20 +30,20 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 
-import com.webreach.mirth.managers.Database;
+import com.webreach.mirth.core.util.DatabaseConnection;
 
 public class CreateDatabaseTables {
 	public static void main(String[] args) {
-		if (args.length != 2) {
-			System.out.println("Usage: java CreateDatabaseTables database script");
-		}
+		DatabaseConnection dbConnection = null;
+		
+		if (args.length != 1) {
+			System.out.println("Usage: java CreateDatabaseTables script");
+		} else {
+			try {
+				dbConnection = new DatabaseConnection();
+				StringBuffer script = new StringBuffer();
 
-		try {
-			Database database = new Database(args[0]);
-			StringBuffer script = new StringBuffer();
-
-			if (args.length == 2) {
-				BufferedReader reader = new BufferedReader(new FileReader(new File(args[1])));
+				BufferedReader reader = new BufferedReader(new FileReader(new File(args[0])));
 				String line = null;
 
 				while ((line = reader.readLine()) != null) {
@@ -51,16 +51,15 @@ public class CreateDatabaseTables {
 				}
 
 				reader.close();
-			} else {
-				System.out.println("Invalid parameters.");
+
+				System.out.println("Executing script \"" + args[0] + "\" on database.");
+
+				dbConnection.update(script.toString());
+			} catch (Exception e) {
+				e.printStackTrace();
+			} finally {
+				dbConnection.close();
 			}
-
-			System.out.println("Executing \"" + args[1] + "\" on database \"" + args[0] + "\".");
-
-			database.update(script.toString());
-			database.shutdown();
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
 	}
 }
