@@ -23,7 +23,6 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
 package com.webreach.mirth;
 
 import org.apache.log4j.Logger;
@@ -102,7 +101,7 @@ public class Mirth {
 			MuleXmlConfigurationBuilder builder = new MuleXmlConfigurationBuilder();
 			muleManager = builder.configure(configurationManager.getLatestConfiguration().getAbsolutePath());
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e);
 		}
 	}
 
@@ -118,7 +117,7 @@ public class Mirth {
 				commandQueue.addCommand(new Command(Command.CMD_STOP_MULE, Command.PRIORITY_HIGH));
 			}
 		} catch (Exception e) {
-			logger.error(e.toString());
+			logger.error(e);
 		} finally {
 			logger.debug("disposing mule");
 			muleManager.dispose();
@@ -130,9 +129,9 @@ public class Mirth {
 		logger.debug("starting jetty web server");
 
 		try {
-			// this disables validaiton of the web.xml file, which causes
-			// exceptions
-			// when Mirth is run behind a firewall and the resources cannot be
+			// this disables validaiton of the web.xml file
+			// which causes exceptions when Mirth is run
+			// behind a firewall and the resources cannot be
 			// accessed
 			System.setProperty("org.mortbay.xml.XmlParser.NotValidating", "true");
 
@@ -140,10 +139,10 @@ public class Mirth {
 			SocketListener listener = new SocketListener();
 			listener.setPort(8080);
 			webServer.addListener(listener);
-			webServer.addWebApplication("/", "./jetty/webapps/root/");
+			webServer.addWebApplication("/", "./jetty/webapps/axis/");
 			webServer.start();
 		} catch (Exception e) {
-			logger.error(e.toString());
+			logger.error(e);
 		}
 	}
 
@@ -154,7 +153,7 @@ public class Mirth {
 		try {
 			webServer.stop();
 		} catch (InterruptedException e) {
-			logger.error(e.toString());
+			logger.error(e);
 		}
 	}
 }
