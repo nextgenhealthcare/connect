@@ -47,7 +47,6 @@ import com.webreach.mirth.managers.Database;
 public class Mirth {
 	protected transient Log logger = LogFactory.getLog(Mirth.class);
 	private boolean running = true;
-
 	private UMOManager muleManager = null;
 	private Server webServer = null;
 	private MirthCommandQueue commandQueue = MirthCommandQueue.getInstance();

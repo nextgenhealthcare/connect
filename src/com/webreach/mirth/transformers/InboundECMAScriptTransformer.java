@@ -26,6 +26,7 @@
 
 package com.webreach.mirth.transformers;
 
+import java.io.OutputStream;
 import java.util.HashMap;
 
 import org.apache.commons.logging.Log;
@@ -64,12 +65,11 @@ public class InboundECMAScriptTransformer {
 	}
 
 	public Object onCall(UMOEventContext eventContext) throws Exception {
-		if (eventContext.getOutputStream() != null) {
-			eventContext.getOutputStream().write("HELLO".getBytes());
-			eventContext.getOutputStream().close();
-		} else {
-			System.out.println("OutputStream is NULL!");
-		}
+		//Write replies - CL
+		//OutputStream os = eventContext.getOutputStream();
+		//os.write("Test!".getBytes());
+		//os.flush();
+		//os.close();
 		
 		PipeParser parser = new PipeParser();
 

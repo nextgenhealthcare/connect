@@ -86,12 +86,16 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher
             } else if (data instanceof HashMap){
             	HashMap map = (HashMap) data;
             	template = replaceValues(template, map);
-            	buf = template.getBytes();
+               	buf = template.getBytes();
             }
             else{
                 buf = data.toString().getBytes();
             }
-            
+            //Hackish way to append a new line
+            //TODO: find where newlines are stripped in config
+            if (connector.isOutputAppend()){
+            	buf = (new String(buf) + "\r\n").getBytes();
+            }
             logger.info("Writing file to: " + file.getAbsolutePath());
             FileOutputStream fos = new FileOutputStream(file, connector.isOutputAppend());
             try {

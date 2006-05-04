@@ -43,7 +43,7 @@ public class ACKGenerator implements Callable {
 		return generateAckResponse(context.getTransformedMessageAsString());
 	}
 	
-	private String generateAckResponse(String message) throws Exception {
+	public String generateAckResponse(String message) throws Exception {
 		PipeParser parser = new PipeParser();
 		Segment header = parser.getCriticalResponseData(message);
         Message response = DefaultApplication.makeACK(header);
