@@ -118,7 +118,7 @@ public class FileMessageReceiver extends PollingMessageReceiver
         }
     }
 
-    public synchronized void processFile(File file) throws UMOException
+	public synchronized void processFile(File file) throws UMOException
     {
 	boolean checkFileAge = ((FileConnector) connector).getCheckFileAge();
 	if (checkFileAge) {
@@ -159,6 +159,14 @@ public class FileMessageReceiver extends PollingMessageReceiver
         		}
         		//move the file if needed
                 if (destinationFile != null) {
+                	try{
+                		destinationFile.delete();
+                		
+                	}
+                	catch (Exception e){
+                			
+                	}
+                	
                     resultOfFileMoveOperation = file.renameTo(destinationFile);
                     if (!resultOfFileMoveOperation) {
                         throw new MuleException(new Message("file",
