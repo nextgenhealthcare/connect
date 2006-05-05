@@ -29,6 +29,10 @@ import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.provider.UMOConnector;
 import org.mule.umo.provider.UMOMessageAdapter;
 import org.mule.util.Utility;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Scanner;
 import java.util.Vector;
 import java.io.File;
 import java.io.FilenameFilter;
@@ -43,6 +47,10 @@ import java.io.*;
 
 public class FileMessageReceiver extends PollingMessageReceiver
 {
+	private static byte startOfMessage = (byte)0x0B;
+	private static byte endOfMessage = (byte)0x1C;
+	private static byte endOfRecord = (byte)0x0D;
+	
     private String readDir = null;
 
     private String moveDir = null;
@@ -138,9 +146,14 @@ public class FileMessageReceiver extends PollingMessageReceiver
                 throw new MuleException(new Message(Messages.FILE_X_DOES_NOT_EXIST, file.getName()));
             } else {
                 //Read in the file, parse it line by line 
-        		Vector fileContents = getFileLines(file);
-        		for (int i = 0; i < fileContents.size(); i++){
-        			msgAdapter = connector.getMessageAdapter(fileContents.elementAt(i));   
+        		//Vector fileContents = getFileLines(file);
+        	
+        		ArrayList hl7messages = LoadHL7Messages(file);
+				Iterator<String> it = hl7messages.iterator();
+				String tempMessage;
+				while (it.hasNext()){
+					tempMessage = it.next();
+        			msgAdapter = connector.getMessageAdapter(tempMessage);   
                     UMOMessage message = new MuleMessage(msgAdapter);
                     routeMessage(message, endpoint.isSynchronous());
         		}
@@ -214,6 +227,37 @@ public class FileMessageReceiver extends PollingMessageReceiver
         }
         return contents;
       }
+    
+    private static ArrayList<String> LoadHL7Messages(File file) throws FileNotFoundException{
+		
+    	ArrayList<String> hl7messages = new ArrayList<String>();
+		StringBuilder message = new StringBuilder();
+		Scanner s = new Scanner(file);
+		
+		while(s.hasNextLine())
+		{
+			String temp = s.nextLine();
+			if(temp.length() == 0)
+			{
+				hl7messages.add(message.toString());
+				message = new StringBuilder();
+				while (temp.length() == 0 && s.hasNextLine()){
+					temp = s.nextLine();
+				}
+				if (temp.length()> 0){
+					message.append(temp);
+					message.append((char)endOfRecord);
+				}
+				
+			}
+			else
+			{
+				message.append(temp);
+				message.append((char)endOfRecord);
+			}
+		}
+		return hl7messages;
+	}
     /**
      * Exception tolerant roll back method
      */

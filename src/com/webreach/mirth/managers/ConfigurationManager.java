@@ -1090,7 +1090,7 @@ public class ConfigurationManager {
 				// add the connector to the list of mule connectors
 				muleConnectorList.add(connector);
 			}
-		} catch (Exception e) {
+		} catch (JAXBException e) {
 			throw new ManagerException(e);
 		}
 	}
@@ -1141,6 +1141,10 @@ public class ConfigurationManager {
 				muleDescriptor.setImplementation("com.webreach.mirth.transformers.InboundECMAScriptTransformer");
 			}
 
+			if (getTransformer(Integer.parseInt(channel.getTransformerId())).getName().equals("Null")){
+				muleDescriptor.setImplementation("com.webreach.mirth.transformers.NullTransformer");
+
+			}
 			String inboundHost = getPropertyValue(getEndpoint(channel.getSourceEndpointId()).getProperties().getProperty(), "host");
 
 			if (inboundHost == null) {
