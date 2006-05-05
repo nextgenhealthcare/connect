@@ -65,6 +65,7 @@
 			<include name="org/mule/providers/**" />
 			<exclude name="com/webreach/mirth/testbench/**" />
 			<exclude name="com/webreach/mirth/configuration/**" />			
+			<exclude name="com/webreach/mirth/components/**" />
 			<classpath refid="classpath" />
 		</javac>
 
