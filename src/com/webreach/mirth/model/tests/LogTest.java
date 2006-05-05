@@ -24,28 +24,32 @@
  * ***** END LICENSE BLOCK ***** */
 
 
-package com.webreach.mirth.server.core.util;
+package com.webreach.mirth.model.tests;
 
-import java.util.List;
+import java.sql.Timestamp;
+import java.util.Calendar;
 
-import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.Transport;
+import com.webreach.mirth.model.Log;
 
-public class MuleConfigurationBuilder {
-	private List<Channel> channels = null;
-	private List<Transport> transports = null;
+import junit.framework.TestCase;
+
+public class LogTest extends TestCase {
 	
-	public MuleConfigurationBuilder(List<Channel> channels, List<Transport> transports) {
-		this.channels = channels;
-		this.transports = transports;
-	}
+	private Log log;
 	
-	public String getConfiguration() throws ConfigurationBuilderException {
-		if ((channels == null) || (transports == null)) {
-			throw new ConfigurationBuilderException();	
-		}
-
-		// TODO: traverse channels and transports to generate mule configuration using DOM object
-		throw new ConfigurationBuilderException();
+	protected void setUp() throws Exception {
+		super.setUp();
+		Calendar calendar = Calendar.getInstance();
+		
+		log = new Log();
+		log.setId(0);
+		log.setDate(new Timestamp(calendar.getTimeInMillis()));
+		log.setEvent("Message sucessfully transformed.");
+		log.setLevel(0);
 	}
+
+	protected void tearDown() throws Exception {
+		super.tearDown();
+	}
+
 }

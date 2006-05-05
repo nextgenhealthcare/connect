@@ -24,10 +24,7 @@
  * ***** END LICENSE BLOCK ***** */
 
 
-package com.webreach.mirth.server.core.tests;
-
-import java.io.ByteArrayOutputStream;
-import java.io.StringWriter;
+package com.webreach.mirth.model.tests;
 
 import junit.framework.TestCase;
 
@@ -36,13 +33,14 @@ import com.webreach.mirth.model.Connector;
 import com.webreach.mirth.model.Filter;
 import com.webreach.mirth.model.Transformer;
 import com.webreach.mirth.model.Validator;
-import com.webreach.mirth.server.core.util.ChannelMarshaller;
 
-public class ChannelMarshallerTest extends TestCase {
+public class ChannelTest extends TestCase {
+
 	private Channel channel;
-
+	
 	protected void setUp() throws Exception {
 		super.setUp();
+
 		Transformer sourceTransformer = new Transformer();
 		sourceTransformer.setType(Transformer.Type.MAP);
 		sourceTransformer.getVariables().put("firstName", "TestFirstName");
@@ -90,23 +88,9 @@ public class ChannelMarshallerTest extends TestCase {
 
 		channel.getDestinationConnectors().add(destinationConnector1);
 		channel.getDestinationConnectors().add(destinationConnector2);
-		
 	}
 
 	protected void tearDown() throws Exception {
 		super.tearDown();
 	}
-	
-	public void testMarshal() {
-		try {
-			ChannelMarshaller cm = new ChannelMarshaller();
-			StringWriter stringWriter = new StringWriter();
-			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-			cm.marshal(channel, outputStream);
-			System.out.println(outputStream.toString());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
 }

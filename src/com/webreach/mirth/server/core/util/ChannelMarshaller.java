@@ -39,10 +39,10 @@ import org.apache.xml.serialize.XMLSerializer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import com.webreach.mirth.server.core.Channel;
-import com.webreach.mirth.server.core.Connector;
-import com.webreach.mirth.server.core.Filter;
-import com.webreach.mirth.server.core.Validator;
+import com.webreach.mirth.model.Channel;
+import com.webreach.mirth.model.Connector;
+import com.webreach.mirth.model.Filter;
+import com.webreach.mirth.model.Validator;
 
 public class ChannelMarshaller {
 	private Logger logger = Logger.getLogger(ChannelMarshaller.class);

@@ -28,16 +28,16 @@ package com.webreach.mirth.server.core.tests;
 
 import junit.framework.TestCase;
 
-import com.webreach.mirth.server.core.Configuration;
 import com.webreach.mirth.server.core.util.DatabaseConnection;
+import com.webreach.mirth.server.services.ConfigurationService;
 
 public class ConfigurationTest extends TestCase {
-	private Configuration configuration;
+	private ConfigurationService configuration;
 	private DatabaseConnection dbConnection;
 	
 	protected void setUp() throws Exception {
 		super.setUp();
-		configuration = Configuration.getInstance();
+		configuration = ConfigurationService.getInstance();
 		dbConnection = new DatabaseConnection();
 		StringBuffer statement = new StringBuffer();
 		statement.append("DROP SEQUENCE SEQ_CONFIGURATION IF EXISTS;");

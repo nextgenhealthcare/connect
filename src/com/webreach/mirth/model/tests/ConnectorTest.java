@@ -24,28 +24,28 @@
  * ***** END LICENSE BLOCK ***** */
 
 
-package com.webreach.mirth.server.core.util;
+package com.webreach.mirth.model.tests;
 
-import java.util.List;
+import junit.framework.TestCase;
 
-import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.Transport;
+import com.webreach.mirth.model.Connector;
+import com.webreach.mirth.model.Transformer;
 
-public class MuleConfigurationBuilder {
-	private List<Channel> channels = null;
-	private List<Transport> transports = null;
+public class ConnectorTest extends TestCase {
 	
-	public MuleConfigurationBuilder(List<Channel> channels, List<Transport> transports) {
-		this.channels = channels;
-		this.transports = transports;
-	}
-	
-	public String getConfiguration() throws ConfigurationBuilderException {
-		if ((channels == null) || (transports == null)) {
-			throw new ConfigurationBuilderException();	
-		}
+	private Connector connector;
 
-		// TODO: traverse channels and transports to generate mule configuration using DOM object
-		throw new ConfigurationBuilderException();
+	protected void setUp() throws Exception {
+		super.setUp();
+		connector = new Connector();
+		connector.setName("Test Connector");
+		connector.setTransport("Test Transport");
+		connector.getProperties().put("test_property", "test_value");
+		connector.setTransformer(new Transformer());
 	}
+
+	protected void tearDown() throws Exception {
+		super.tearDown();
+	}
+
 }

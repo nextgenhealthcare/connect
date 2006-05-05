@@ -35,11 +35,11 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import com.webreach.mirth.server.core.Channel;
-import com.webreach.mirth.server.core.Connector;
-import com.webreach.mirth.server.core.Filter;
-import com.webreach.mirth.server.core.Transformer;
-import com.webreach.mirth.server.core.Validator;
+import com.webreach.mirth.model.Channel;
+import com.webreach.mirth.model.Connector;
+import com.webreach.mirth.model.Filter;
+import com.webreach.mirth.model.Transformer;
+import com.webreach.mirth.model.Validator;
 
 public class ChannelUnmarshaller {
 	private Logger logger = Logger.getLogger(ChannelUnmarshaller.class);

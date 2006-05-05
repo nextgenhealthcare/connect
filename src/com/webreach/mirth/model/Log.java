@@ -24,28 +24,47 @@
  * ***** END LICENSE BLOCK ***** */
 
 
-package com.webreach.mirth.server.core.util;
+package com.webreach.mirth.model;
 
-import java.util.List;
+import java.io.Serializable;
+import java.sql.Timestamp;
 
-import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.Transport;
+public class Log  implements Serializable {
+	private int id;
+	private Timestamp date;
+	private String event;
+	private int level;
 
-public class MuleConfigurationBuilder {
-	private List<Channel> channels = null;
-	private List<Transport> transports = null;
-	
-	public MuleConfigurationBuilder(List<Channel> channels, List<Transport> transports) {
-		this.channels = channels;
-		this.transports = transports;
+	public Timestamp getDate() {
+		return this.date;
 	}
-	
-	public String getConfiguration() throws ConfigurationBuilderException {
-		if ((channels == null) || (transports == null)) {
-			throw new ConfigurationBuilderException();	
-		}
 
-		// TODO: traverse channels and transports to generate mule configuration using DOM object
-		throw new ConfigurationBuilderException();
+	public void setDate(Timestamp date) {
+		this.date = date;
 	}
+
+	public String getEvent() {
+		return this.event;
+	}
+
+	public void setEvent(String event) {
+		this.event = event;
+	}
+
+	public int getId() {
+		return this.id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public int getLevel() {
+		return this.level;
+	}
+
+	public void setLevel(int level) {
+		this.level = level;
+	}
+
 }

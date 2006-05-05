@@ -24,28 +24,20 @@
  * ***** END LICENSE BLOCK ***** */
 
 
-package com.webreach.mirth.server.core.util;
+package com.webreach.mirth.client.core.handlers;
 
 import java.util.List;
 
-import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.Transport;
+public interface ValueListIterator {
 
-public class MuleConfigurationBuilder {
-	private List<Channel> channels = null;
-	private List<Transport> transports = null;
-	
-	public MuleConfigurationBuilder(List<Channel> channels, List<Transport> transports) {
-		this.channels = channels;
-		this.transports = transports;
-	}
-	
-	public String getConfiguration() throws ConfigurationBuilderException {
-		if ((channels == null) || (transports == null)) {
-			throw new ConfigurationBuilderException();	
-		}
+	public int getSize() throws IteratorException;
 
-		// TODO: traverse channels and transports to generate mule configuration using DOM object
-		throw new ConfigurationBuilderException();
-	}
+	public Object getCurrentElement() throws IteratorException;
+
+	public List getPreviousElements(int count) throws IteratorException;
+
+	public List getNextElements(int count) throws IteratorException;
+
+	public void resetIndex() throws IteratorException;
+
 }

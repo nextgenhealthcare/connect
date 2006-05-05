@@ -26,7 +26,7 @@
 
 package com.webreach.mirth.server.core.tests;
 
-import com.webreach.mirth.server.core.Channel;
+import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.server.core.util.ChannelUnmarshaller;
 
 import junit.framework.TestCase;

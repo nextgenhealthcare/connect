@@ -24,28 +24,49 @@
  * ***** END LICENSE BLOCK ***** */
 
 
-package com.webreach.mirth.server.core.util;
+package com.webreach.mirth.model;
 
-import java.util.List;
+import java.io.Serializable;
 
-import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.Transport;
+public class User implements Serializable {
+	private int id;
+	private String username;
+	private String password;
 
-public class MuleConfigurationBuilder {
-	private List<Channel> channels = null;
-	private List<Transport> transports = null;
-	
-	public MuleConfigurationBuilder(List<Channel> channels, List<Transport> transports) {
-		this.channels = channels;
-		this.transports = transports;
+	public User() {
+		
+	}
+
+	public int getId() {
+		return this.id;
 	}
 	
-	public String getConfiguration() throws ConfigurationBuilderException {
-		if ((channels == null) || (transports == null)) {
-			throw new ConfigurationBuilderException();	
-		}
+	public void setId(int id) {
+		this.id = id;
+	}
+	
+	public String getPassword() {
+		return this.password;
+	}
 
-		// TODO: traverse channels and transports to generate mule configuration using DOM object
-		throw new ConfigurationBuilderException();
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public String getUsername() {
+		return this.username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
+	public boolean equals(Object obj) {
+		if (!(obj instanceof User)) {
+			return false;
+		} else {
+			User user = (User) obj;
+			return (this.getUsername().equals(user.getUsername()) && this.getPassword().equals(user.getPassword()));
+		}
 	}
 }
