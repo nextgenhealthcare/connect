@@ -1107,27 +1107,11 @@ public class ConfigurationManager {
 					createDescriptor(channel);	
 				}
 			}
-			
-			createACKDescriptor();
 		} catch (Exception e) {
 			throw new ManagerException(e);
 		}
 	}
 
-	private void createACKDescriptor() {
-		try {
-			logger.debug("generating ACK descriptor");
-			
-			MuleDescriptorType ackDescriptor = muleFactory.createMuleDescriptorType();
-			ackDescriptor.setName("Mirth-ACKGenerator");
-			ackDescriptor.setImplementation("com.webreach.mirth.components.ACKGenerator");
-			ackDescriptor.setInboundEndpoint("vm://ackgenerator");
-			mule.getModel().getMuleDescriptor().add(ackDescriptor);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	
 	private void createDescriptor(Channel channel) throws ManagerException {
 		try {
 			logger.debug("generating channel descriptor: " + channel.getName());
