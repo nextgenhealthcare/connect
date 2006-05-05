@@ -115,107 +115,7 @@
 			</property>		
 		</type>
 
-		<type name="llp_sender" displayName="LLP Sender" className="org.mule.providers.tcp.TcpConnector" transformers="" direction="outbound" protocol="tcp">
-			<property name="tcpProtocolClassName" muleProperty="1" required="1">
-				<defaultValue>org.mule.providers.tcp.protocols.LlpProtocol</defaultValue>
-				<displayName></displayName>
-				<description></description>
-				<formType>hidden</formType>
-				<formOptions></formOptions>
-				<formValidator></formValidator>
-				<formValidatorOptions></formValidatorOptions>
-			</property>		
-			<property name="host" muleProperty="0" required="1">
-				<defaultValue>127.0.0.1</defaultValue>
-				<displayName>Host IP Address</displayName>
-				<description>The IP address used by the host system for receiving messages.</description>
-				<formType>text</formType>
-				<formOptions>15,15</formOptions>
-				<formValidator>ipAddressValidator</formValidator>
-				<formValidatorOptions></formValidatorOptions>
-			</property>
-			<property name="port" muleProperty="0" required="1">
-				<defaultValue>6660</defaultValue>
-				<displayName>Host Port</displayName>
-				<description>The receiving host IP port.</description>
-				<formType>text</formType>
-				<formOptions>5,5</formOptions>
-				<formValidator>intValidator</formValidator>
-				<formValidatorOptions>0,65000</formValidatorOptions>
-			</property>
-			<property name="sendTimeout" muleProperty="1" required="1">
-				<defaultValue>5000</defaultValue>
-				<displayName>Send Timeout (ms)</displayName>
-				<description>The send timeout duration.</description>
-				<formType>text</formType>
-				<formOptions>6,6</formOptions>
-				<formValidator>intValidator</formValidator>
-				<formValidatorOptions>0,10000</formValidatorOptions>
-			</property>			
-			<property name="bufferSize" muleProperty="1" required="1">
-				<defaultValue>65536</defaultValue>
-				<displayName>Buffer Size</displayName>
-				<description>The buffer size used to read and write data.</description>
-				<formType>text</formType>
-				<formOptions>9,9</formOptions>
-				<formValidator>intValidator</formValidator>
-				<formValidatorOptions>0,131072</formValidatorOptions>
-			</property>			
-			<property name="keepSendSocketOpen" muleProperty="1" required="1">
-				<defaultValue>0</defaultValue>
-				<displayName>Keep Connection Open</displayName>
-				<description>Whether to keep the connection socket open for multiple dispatches.</description>
-				<formType>yes_no</formType>
-				<formOptions></formOptions>
-				<formValidator>yesNoValidator</formValidator>
-				<formValidatorOptions></formValidatorOptions>
-			</property>			
-			<property name="maxRetryCount" muleProperty="1" required="1">
-				<defaultValue>50</defaultValue>
-				<displayName>Maximum Retry Count</displayName>
-				<description>The number of times Mirth will attempt to re-send data via the socket.</description>
-				<formType>text</formType>
-				<formOptions>3,3</formOptions>
-				<formValidator>intValidator</formValidator>
-				<formValidatorOptions>0,100</formValidatorOptions>
-			</property>	
-			<property name="messageStart" muleProperty="0" required="1">
-				<defaultValue>0x0B</defaultValue>
-				<displayName>Start of Message Character</displayName>
-				<description>The character that indicates that the message is beginning.</description>
-				<formType>text</formType>
-				<formOptions>5,5</formOptions>
-				<formValidator>stringValidator</formValidator>
-				<formValidatorOptions></formValidatorOptions>
-			</property>														
-			<property name="messageEnd" muleProperty="0" required="1">
-				<defaultValue>0x1C</defaultValue>
-				<displayName>End of Message Character</displayName>
-				<description>The character that indicates that the message is done.</description>
-				<formType>text</formType>
-				<formOptions>5,5</formOptions>
-				<formValidator>stringValidator</formValidator>
-				<formValidatorOptions></formValidatorOptions>
-			</property>	
-			<property name="recordSeparator" muleProperty="0" required="1">
-				<defaultValue>0x0D</defaultValue>
-				<displayName>Record Separator</displayName>
-				<description></description>
-				<formType>text</formType>
-				<formOptions>5,5</formOptions>
-				<formValidator></formValidator>
-				<formValidatorOptions></formValidatorOptions>
-			</property>															
-			<property name="fieldSeparator" muleProperty="0" required="1">
-				<defaultValue>0x7C</defaultValue>
-				<displayName>Field Separator</displayName>
-				<description></description>
-				<formType>text</formType>
-				<formOptions>5,5</formOptions>
-				<formValidator>stringValidator</formValidator>
-				<formValidatorOptions></formValidatorOptions>
-			</property>				
-		</type>
+		
 		<type name="llp_listener" displayName="LLP Listener" className="org.mule.providers.tcp.TcpConnector" transformers="ByteArrayToString HL7StringToXMLString" direction="inbound" protocol="tcp">
 			<property name="tcpProtocolClassName" muleProperty="1" required="1">
 				<defaultValue>org.mule.providers.tcp.protocols.LlpProtocol</defaultValue>
@@ -957,6 +857,79 @@
 				<formOptions>10,60,0</formOptions>
 				<formValidator>stringValidator</formValidator>
 				<formValidatorOptions></formValidatorOptions>
+			</property>
+		</type>
+		<type name="file_listener" displayName="File Listener" className="org.mule.providers.file.FileConnector" transformers="ByteArrayToString HL7StringToXMLString" direction="inbound" protocol="file">
+			<property name="host" muleProperty="0" required="1">
+				<defaultValue></defaultValue>
+				<displayName>Directory to read</displayName>
+				<description>The directory to check for new files to read.</description>
+				<formType>text</formType>
+				<formOptions>50,50</formOptions>
+				<formValidator>stringValidator</formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>
+		
+			<property name="pollingFrequency" muleProperty="1" required="1">
+				<defaultValue>1000</defaultValue>
+				<displayName>Polling Frequency</displayName>
+				<description>How many milliseconds to wait between polling attempts.</description>
+				<formType>text</formType>
+				<formOptions>9,9</formOptions>
+				<formValidator>intValidator</formValidator>
+				<formValidatorOptions>0,650000</formValidatorOptions>
+			</property>
+			<property name="moveToPattern" muleProperty="1" required="1">
+				<defaultValue></defaultValue>
+				<displayName>Move-to Pattern</displayName>
+				<description>Pattern to rename files that are moved. 
+				$[DATE] : the currrent date in the format dd-MM-yy_HH-mm-ss.
+				 $[DATE:yy-MM-dd] : the current date using the specified format
+				 $[SYSTIME] : The current system time milliseconds
+				 $[UUID] : A generated Universally unique id
+				 $[ORIGINALNAME] : The origial file name if the file being written was read from another location
+				 $[COUNT] : An incremental counter
+		 </description>
+				<formType>text</formType>
+				<formOptions>50,50</formOptions>
+				<formValidator></formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>
+			<property name="moveToDirectory" muleProperty="1" required="1">
+				<defaultValue></defaultValue>
+				<displayName>Move to Directory</displayName>
+				<description>Directory to move files that have been processed.</description>
+				<formType>text</formType>
+				<formOptions>50,50</formOptions>
+				<formValidator>stringValidator</formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>
+			<property name="autoDelete" muleProperty="1" required="1">
+				<defaultValue>false</defaultValue>
+				<displayName>Delete File After Read</displayName>
+				<description>Whether to delete the file after it has been read</description>
+				<formType>yes_no</formType>
+				<formOptions></formOptions>
+				<formValidator>yesNoValidator</formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>	
+			<property name="checkFileAge" muleProperty="1" required="1">
+				<defaultValue>false</defaultValue>
+				<displayName>Check File Age</displayName>
+				<description>Whether to check if the file is of a certain age before processing</description>
+				<formType>yes_no</formType>
+				<formOptions></formOptions>
+				<formValidator>yesNoValidator</formValidator>
+				<formValidatorOptions></formValidatorOptions>
+			</property>
+			<property name="fileAge" muleProperty="1" required="1">
+				<defaultValue>0</defaultValue>
+				<displayName>File Age</displayName>
+				<description>The age of a file (in milliseconds) before processing occurs</description>
+				<formType>text</formType>
+				<formOptions>9,9</formOptions>
+				<formValidator>intValidator</formValidator>
+				<formValidatorOptions>0,650000</formValidatorOptions>
 			</property>
 		</type>
 
