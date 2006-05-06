@@ -119,6 +119,10 @@ public class FileContentsMessageAdapter extends AbstractMessageAdapter
 
     public String getUniqueId() throws UniqueIdNotSupportedException
     {
-        return file.getAbsolutePath();
+    	if (file != null){
+    		return file.getAbsolutePath();
+    	}else{
+    		return "";
+    	}
     }
 }
