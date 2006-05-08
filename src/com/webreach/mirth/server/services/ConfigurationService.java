@@ -23,7 +23,6 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
 package com.webreach.mirth.server.services;
 
 import java.io.ByteArrayOutputStream;
@@ -31,7 +30,6 @@ import java.io.FileOutputStream;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
@@ -51,53 +49,18 @@ import com.webreach.mirth.server.core.util.MuleConfigurationBuilder;
 import com.webreach.mirth.server.core.util.PropertyLoader;
 import com.webreach.mirth.server.core.util.UnmarshalException;
 
-
 public class ConfigurationService {
-	private List<User> users;
-	private Properties properties;
-	private List<Transport> transports;
-	private List<Channel> channels;
-	private static ConfigurationService instance = null;
 	private DatabaseConnection dbConnection;
-	private boolean initialized = false;
 	private Logger logger = Logger.getLogger(ConfigurationService.class);
-	
-	private ConfigurationService() {}
 
-	public static ConfigurationService getInstance() {
-		synchronized (ConfigurationService.class) {
-			if (instance == null)
-				instance = new ConfigurationService();
-
-			return instance;
-		}
-	}
-	
-	public void initialize() throws ConfigurationException {
-		logger.debug("initializing configuration");
-
-		loadUsers();
-		loadTransports();
-		loadProperties();
-		loadChannels();
-
-		initialized = true;
-	}
-	
-	public boolean isInitialized() {
-		return initialized;
-	}
-
-	private void loadUsers() throws ConfigurationException {
-		logger.debug("loading user list");
-		
-		users = new ArrayList<User>();
+	public List<User> getUsers() throws ConfigurationException {
+		ArrayList<User> users = new ArrayList<User>();
 		ResultSet result = null;
-		
+
 		try {
 			dbConnection = new DatabaseConnection();
 			result = dbConnection.query("SELECT ID, USERNAME, PASSWORD FROM USERS;");
-			
+
 			while (result.next()) {
 				User user = new User();
 				user.setId(result.getInt("ID"));
@@ -105,6 +68,8 @@ public class ConfigurationService {
 				user.setPassword(result.getString("PASSWORD"));
 				users.add(user);
 			}
+
+			return users;
 		} catch (SQLException e) {
 			throw new ConfigurationException(e);
 		} finally {
@@ -112,61 +77,41 @@ public class ConfigurationService {
 			dbConnection.close();
 		}
 	}
-	
-	/**
-	 * Returns a <code>List</code> of all Users.
-	 * 
-	 * @return
-	 */
-	public List<User> getUsers() throws ConfigurationException {
-		if (!isInitialized()) {
-			throw new ConfigurationException("Configuration must be initialized first."); 
-		} 
-		
-		return users;
-	}
-	
-	private void storeUsers() throws ConfigurationException {
-		logger.debug("writing user list to database");
-		
+
+	public void updateUser(User user) throws ConfigurationException {
+		logger.debug("updating user: " + user.getId());
+
 		try {
-			// TODO: write the users list to the database
 			dbConnection = new DatabaseConnection();
-			dbConnection.update("DELETE FROM USERS;");
-			
-			for (Iterator iter = users.iterator(); iter.hasNext();) {
-				User user = (User) iter.next();
-				StringBuffer statement = new StringBuffer();
-				statement.append("INSERT INTO USERS (ID, USERNAME, PASSWORD)");
-				statement.append("'" + user.getId() + "',");
-				statement.append("'" + user.getUsername() + "',");
-				statement.append("'" + user.getPassword() + "');");
-				dbConnection.update(statement.toString());
-			}
+			StringBuffer statement = new StringBuffer();
+			statement.append("INSERT INTO USERS (ID, USERNAME, PASSWORD)");
+			statement.append("'" + user.getId() + "',");
+			statement.append("'" + user.getUsername() + "',");
+			statement.append("'" + user.getPassword() + "');");
+			dbConnection.update(statement.toString());
 		} catch (SQLException e) {
 			throw new ConfigurationException(e);
 		} finally {
 			dbConnection.close();
 		}
 	}
-	
-	private void loadChannels() throws ConfigurationException {
-		logger.debug("loading channel list");
-		
-		channels = new ArrayList<Channel>();
+
+	public List<Channel> getChannels() throws ConfigurationException {
+		ArrayList<Channel> channels = new ArrayList<Channel>();
 		ResultSet result = null;
 		ChannelUnmarshaller cu = new ChannelUnmarshaller();
-		
+
 		try {
 			dbConnection = new DatabaseConnection();
-			// TODO: create schema for Channels table (attribute name for the XML code)
-			result = dbConnection.query("SELECT ID, DATA FROM CHANNELS;");
-			
+			result = dbConnection.query("SELECT ID, CHANNEL_DATA FROM CHANNELS;");
+
 			while (result.next()) {
-				Channel channel = cu.unmarshal(result.getString("DATA"));
+				Channel channel = cu.unmarshal(result.getString("CHANNEL_DATA"));
 				channel.setId(result.getInt("ID"));
 				channels.add(channel);
 			}
+
+			return channels;
 		} catch (SQLException e) {
 			throw new ConfigurationException(e);
 		} catch (UnmarshalException e) {
@@ -176,40 +121,23 @@ public class ConfigurationService {
 			dbConnection.close();
 		}
 	}
-	
-	/**
-	 * Returns a <code>List</code> containing all Channels.
-	 * 
-	 * @return
-	 */
-	public List<Channel> getChannels() throws ConfigurationException {
-		if (!isInitialized()) {
-			throw new ConfigurationException("Configuration must be initialized first.");
-		}
-		
-		return channels;
-	}
-	
-	private void storeChannels() throws ConfigurationException {
-		logger.debug("writing channel list to database");
-		
+
+	public void updateChannel(Channel channel) throws ConfigurationException {
+		logger.debug("updating channel: " + channel.getId());
+
 		try {
 			dbConnection = new DatabaseConnection();
-			
-			for (Iterator iter = channels.iterator(); iter.hasNext();) {
-				Channel channel = (Channel) iter.next();
-				StringBuffer insert = new StringBuffer();
-				insert.append("INSERT INTO CHANNELS (ID, NAME, DATA) VALUES(");
-				insert.append(channel.getId() + ",");
-				insert.append("'" + channel.getName() + "'");
-				
-				ChannelMarshaller cm = new ChannelMarshaller();
-				ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-				cm.marshal(channel, outputStream);
-				insert.append("'" + outputStream.toString() + "');");
+			StringBuffer insert = new StringBuffer();
+			insert.append("INSERT INTO CHANNELS (ID, CHANNEL_NAME, CHANNEL_DATA) VALUES(");
+			insert.append(channel.getId() + ",");
+			insert.append("'" + channel.getName() + "'");
 
-				dbConnection.update(insert.toString());
-			}
+			ChannelMarshaller cm = new ChannelMarshaller();
+			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+			cm.marshal(channel, outputStream);
+			insert.append("'" + outputStream.toString() + "');");
+
+			dbConnection.update(insert.toString());
 		} catch (SQLException e) {
 			throw new ConfigurationException(e);
 		} catch (MarshalException e) {
@@ -218,15 +146,15 @@ public class ConfigurationService {
 			dbConnection.close();
 		}
 	}
-	
-	private void loadTransports() throws ConfigurationException {
-		transports = new ArrayList<Transport>();
+
+	private List<Transport> getTransports() throws ConfigurationException {
+		ArrayList<Transport> transports = new ArrayList<Transport>();
 		ResultSet result = null;
-		
+
 		try {
 			dbConnection = new DatabaseConnection();
 			result = dbConnection.query("SELECT NAME, DISPLAY_NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS FROM TRANSPORTS;");
-			
+
 			while (result.next()) {
 				Transport transport = new Transport();
 				transport.setName(result.getString("NAME"));
@@ -236,6 +164,8 @@ public class ConfigurationService {
 				transport.setTransformers(result.getString("TRANSFORMERS"));
 				transports.add(transport);
 			}
+
+			return transports;
 		} catch (SQLException e) {
 			throw new ConfigurationException(e);
 		} finally {
@@ -243,50 +173,18 @@ public class ConfigurationService {
 			dbConnection.close();
 		}
 	}
-	
-	/**
-	 * Returns a <code>List</code> containing all Transports.
-	 * 
-	 * @return
-	 */
-	public List<Transport> getTransports() throws ConfigurationException {
-		if (!isInitialized()) {
-			throw new ConfigurationException("Configuration must be initialized first.");
-		}
-		
-		return transports;
-	}
-	
-	private void storeTransports() throws ConfigurationException {
-		logger.debug("writing transport list to database");
-		
-		// TODO: write the transports list to the database
-	}
-	
-	private void loadProperties() throws ConfigurationException {
-		properties = PropertyLoader.loadProperties("mirth");
-		
+
+	public Properties getProperties() throws ConfigurationException {
+		Properties properties = PropertyLoader.loadProperties("mirth");
+
 		if (properties == null) {
 			throw new ConfigurationException("Could not load properties.");
+		} else {
+			return properties;
 		}
 	}
-	
-	/**
-	 * Returns a <code>Properties</code> list.
-	 * 
-	 * @return
-	 */
-	public Properties getProperties() throws ConfigurationException {
-		if (!isInitialized()) {
-			throw new ConfigurationException("Configuration must be initialized first.");
-		}
-		
-		return properties;
-	}
-	
-	private void storeProperties() throws ConfigurationException {
-		logger.debug("writing properties to file");
-		
+
+	public void updateProperties(Properties properties) throws ConfigurationException {
 		try {
 			FileOutputStream fos = new FileOutputStream("mirth.properties");
 			properties.store(fos, null);
@@ -294,20 +192,7 @@ public class ConfigurationService {
 			throw new ConfigurationException(e);
 		}
 	}
-	
-	/**
-	 * Stores all configuration information to the database.
-	 * 
-	 */
-	public void store() throws ConfigurationException {
-		logger.debug("storing configuration information");
 
-		storeUsers();
-		storeTransports();
-		storeProperties();
-		storeChannels();
-	}
-	
 	public String getMuleConfiguration() throws ConfigurationException {
 		try {
 			MuleConfigurationBuilder builder = new MuleConfigurationBuilder(getChannels(), getTransports());
@@ -318,7 +203,7 @@ public class ConfigurationService {
 			throw new ConfigurationException("Could not generate Mule configuration.", e);
 		}
 	}
-	
+
 	/**
 	 * Returns the next available id if avaiable, otherwise returns -1.
 	 * 
@@ -328,13 +213,13 @@ public class ConfigurationService {
 		dbConnection = new DatabaseConnection();
 		ResultSet result = null;
 		int id = -1;
-		
+
 		try {
 			result = dbConnection.query("SELECT NEXT VALUE FOR SEQ_CONFIGURATION FROM INFORMATION_SCHEMA.SYSTEM_SEQUENCES WHERE SEQUENCE_NAME='SEQ_CONFIGURATION';");
 			result.next();
-			
+
 			if (result.getInt(1) > 0) {
-				id = result.getInt(1);	
+				id = result.getInt(1);
 			}
 		} catch (SQLException e) {
 			throw new RuntimeException("Could not generate next unique ID.", e);
@@ -342,7 +227,7 @@ public class ConfigurationService {
 			DatabaseUtil.close(result);
 			dbConnection.close();
 		}
-		
+
 		return id;
 	}
 }
