@@ -28,7 +28,7 @@ package com.webreach.mirth.client.core;
 
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.Log;
-import com.webreach.mirth.server.core.handlers.LogListHandler;
+import com.webreach.mirth.client.core.handlers.LogListHandler;
 import com.webreach.mirth.server.core.util.DatabaseConnection;
 
 public class LogList {

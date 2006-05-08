@@ -28,7 +28,7 @@ package com.webreach.mirth.client.core;
 
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.Message;
-import com.webreach.mirth.server.core.handlers.MessageListHandler;
+import com.webreach.mirth.client.core.handlers.MessageListHandler;
 import com.webreach.mirth.server.core.util.DatabaseConnection;
 
 public class MessageList {
