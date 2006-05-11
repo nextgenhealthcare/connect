@@ -12,35 +12,23 @@ public class ChannelPanel extends javax.swing.JPanel {
     
     private JScrollPane channelPane;
     private JXTable channelTable;
-    private JFrame parent;
+    private Frame parent;
     
     /** Creates new form ChannelPanel */
     public ChannelPanel(JFrame parent) {
-        this.parent = parent;
+        this.parent = (Frame)parent;
         initComponents();
     }
     
-    private void initComponents() {
+    public void initComponents() {
         channelPane = new JScrollPane();
-        channelTable = makeChannelTable();
         
-        channelPane.setViewportView(channelTable);
+        makeChannelTable();
         
-        channelTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-            public void valueChanged(ListSelectionEvent evt) {
-                ChannelListSelected(evt);
-            }
-        });
-/*        channelTable.addFocusListener(new java.awt.event.FocusAdapter()
+        channelPane.addMouseListener(new java.awt.event.MouseAdapter()
         {
-            public void focusLost(java.awt.event.FocusEvent evt)
+            public void mouseClicked(java.awt.event.MouseEvent evt)
             {
-                deselectRows();
-            }
-        });
- */
-        channelPane.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
                 deselectRows();
             }
         });
@@ -57,16 +45,21 @@ public class ChannelPanel extends javax.swing.JPanel {
                 );
     }
     
-    private JXTable makeChannelTable() {
-        JXTable jxTable = new JXTable();
+    public void makeChannelTable() {
+        channelTable = new JXTable();
         
-        jxTable.setModel(new javax.swing.table.DefaultTableModel(
-                new Object [][]
+        Object[][] tableData = new Object[parent.channels.size()][3];
+        
+        for (int i=0; i < parent.channels.size(); i++)
         {
-            {"Enabled","Inbound", "ADT Processing"},
-            {"Enabled","Inbound", "ADT Outflow feed"},
-            {"Disabled","Inbound", "Another Channel"}
-        },
+                tableData[i][0] = parent.channels.get(i).status;
+                tableData[i][1] = parent.channels.get(i).direction;
+                tableData[i][2] = parent.channels.get(i).channelName;
+        }
+                
+        
+        channelTable.setModel(new javax.swing.table.DefaultTableModel(
+                tableData,
                 new String []
         {
             "Status", "Direction", "Name"
@@ -82,25 +75,40 @@ public class ChannelPanel extends javax.swing.JPanel {
             }
         });
         
-        jxTable.setFocusable(false);
-        jxTable.setSelectionMode(0);        
+        channelTable.setFocusable(false);
+        channelTable.setSelectionMode(0);        
         
-        jxTable.getColumnExt(0).setMaxWidth(90);
-        jxTable.getColumnExt(0).setMinWidth(90);
+        channelTable.getColumnExt("Status").setMaxWidth(90);
+        channelTable.getColumnExt("Status").setMinWidth(90);
 
-        jxTable.getColumnExt(1).setMaxWidth(90);
-        jxTable.getColumnExt(1).setMinWidth(90);
+        channelTable.getColumnExt("Direction").setMaxWidth(90);
+        channelTable.getColumnExt("Direction").setMinWidth(90);
         
-        
-        jxTable.setRowHeight(20);
-        jxTable.setColumnMargin(2);
-        jxTable.setOpaque(true);
-        jxTable.setRowSelectionAllowed(true);
+        channelTable.setRowHeight(20);
+        channelTable.setColumnMargin(2);
+        channelTable.setOpaque(true);
+        channelTable.setRowSelectionAllowed(true);
         HighlighterPipeline highlighter = new HighlighterPipeline();
         highlighter.addHighlighter(AlternateRowHighlighter.beige);
-        jxTable.setHighlighters(highlighter);
+        channelTable.setHighlighters(highlighter);
         
-        return jxTable;
+        channelPane.setViewportView(channelTable);
+        
+        channelTable.getSelectionModel().addListSelectionListener(new ListSelectionListener()
+        {
+            public void valueChanged(ListSelectionEvent evt)
+            {
+                ChannelListSelected(evt);
+            }
+        });
+        channelTable.addMouseListener(new java.awt.event.MouseAdapter()
+        {
+            public void mouseClicked(java.awt.event.MouseEvent evt)
+            {
+                if (evt.getClickCount() >= 2)
+                    parent.doEditChannel();
+            }
+        });
     }
     
     private void ChannelListSelected(ListSelectionEvent evt)
@@ -118,7 +126,14 @@ public class ChannelPanel extends javax.swing.JPanel {
             ((Frame)parent).channelTasks.getContentPane().getComponent(i).setVisible(false);
     }
     
-    public int getSelectedRow() {
-        return channelTable.getSelectedRow();
+    public int getSelectedChannel()
+    {
+        String channelName = (String) channelTable.getValueAt(channelTable.getSelectedRow(), 2);
+        for (int i=0; i < parent.channels.size(); i++)
+        {
+            if (parent.channels.get(i).channelName.equals(channelName))
+                return i;
+        }
+        return -1;
     }
 }

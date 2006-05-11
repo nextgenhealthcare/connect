@@ -16,20 +16,14 @@ package com.webreach.mirth.client;
 public class ChannelInfo 
 {
     
-    private String channelName = "";
+    public String channelName;
+    public String status;
+    public String direction;
     
-    /** Creates a new instance of ChannelInfo */
     public ChannelInfo()
     {
+        channelName = "";
+        status = "Disabled";
+        direction = "Inbound";
     }
-    
-    public void setChannelName(String name)
-    {
-        channelName = name;
-    }
-    
-    public String getChannelName()
-    {
-        return channelName;
-    }    
 }

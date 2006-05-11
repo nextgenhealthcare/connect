@@ -2,6 +2,7 @@ package com.webreach.mirth.client;
 
 import java.awt.Color;
 import java.awt.Toolkit;
+import java.awt.event.ComponentEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import javax.swing.SwingUtilities;
@@ -45,8 +46,17 @@ public class Mirth {
         frame.setLocationRelativeTo(null);
         frame.setExtendedState(frame.MAXIMIZED_BOTH);
         frame.setVisible(true);
+        frame.addComponentListener(new java.awt.event.ComponentAdapter() {
+        public void componentResized(ComponentEvent e) {
+           Frame tmp = (Frame)e.getSource();
+           if (tmp.getWidth()<800 || tmp.getHeight()<600) {
+             tmp.setSize(800, 600);
     }
+  }
+});
 
+    }
+    
     /**
      * Application entry point.
      *

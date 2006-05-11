@@ -24,7 +24,9 @@ import org.jdesktop.swingx.decorator.*;
  * @version 1.0
  */
 
-public class Frame extends JXFrame {
+public class Frame extends JXFrame 
+{
+    ArrayList<ChannelInfo> channels = new ArrayList<ChannelInfo>();
     HashMap passwordMap = new HashMap();
     ActionManager manager = ActionManager.getInstance();
     JPanel contentPane;
@@ -42,6 +44,7 @@ public class Frame extends JXFrame {
     StatusPanel statusListPage = new StatusPanel(this);
     ChannelPanel channelListPage = new ChannelPanel(this);
     AdminPanel adminPanel = new AdminPanel();
+    ChannelSetup channelEditPage;
     JXTaskPaneContainer taskPaneContainer = new JXTaskPaneContainer();
     JXTaskPane viewPane;
     JXTaskPane otherPane;
@@ -67,7 +70,9 @@ public class Frame extends JXFrame {
      *
      * @throws java.lang.Exception
      */
-    private void jbInit() throws Exception {
+    private void jbInit() throws Exception 
+    {
+        channelEditPage = new ChannelSetup(this);
         contentPane = (JPanel) getContentPane();
         contentPane.setLayout(new BorderLayout());
         contentPane.setBorder(null);
@@ -81,9 +86,6 @@ public class Frame extends JXFrame {
         jSplitPane1.add(jScrollPane2, JSplitPane.RIGHT);
         jSplitPane1.add(jScrollPane1, JSplitPane.LEFT);
         jSplitPane1.setDividerLocation(170);
-        jScrollPane2.getViewport().add(channelListPage);
-        jScrollPane2.getViewport().add(adminPanel);
-        jScrollPane2.getViewport().add(statusListPage);
         setCurrentContentPage(statusListPage);
         makePaneContainer();
         jScrollPane1.getViewport().add(taskPaneContainer);
@@ -94,10 +96,12 @@ public class Frame extends JXFrame {
      *
      * @param statusListPage JXTable
      */
-    private void setCurrentContentPage(Component contentPageObject) {
+    private void setCurrentContentPage(Component contentPageObject) 
+    {
         if (contentPageObject==currentContentPage)
             return;
-        if (currentContentPage!=null) {
+        if (currentContentPage!=null) 
+        {
             jScrollPane2.getViewport().remove(currentContentPage);
         }
         jScrollPane2.getViewport().add(contentPageObject);
@@ -109,8 +113,8 @@ public class Frame extends JXFrame {
      *
      * @return Component
      */
-    private void makePaneContainer() {
-               
+    private void makePaneContainer() 
+    {
         // Create Action pane
         viewPane = new JXTaskPane();
         viewPane.setTitle("Mirth Views");
@@ -156,7 +160,6 @@ public class Frame extends JXFrame {
         statusTasks.setTitle("Status Tasks");
         statusTasks.setFocusable(false);
         statusTasks.add(initActionCallback("doRefresh",ActionFactory.createBoundAction("doRefresh","Refresh View", "R"), new ImageIcon(com.webreach.mirth.client.Frame.class.getResource("images/refresh.png"))));
-        
         statusTasks.add(initActionCallback("doStart",ActionFactory.createBoundAction("doStart","Start", "P"), new ImageIcon(com.webreach.mirth.client.Frame.class.getResource("images/start.png"))));
         statusTasks.add(initActionCallback("doStop",ActionFactory.createBoundAction("doStop","Stop", "P"), new ImageIcon(com.webreach.mirth.client.Frame.class.getResource("images/stop.png"))));
         statusTasks.add(initActionCallback("doShowStats",ActionFactory.createBoundAction("doShowStats","Stats", "T"), new ImageIcon(com.webreach.mirth.client.Frame.class.getResource("images/stats.png"))));
@@ -223,8 +226,8 @@ public class Frame extends JXFrame {
     public void doShowStatusPanel()
     {
         for (int i=0; i<viewPane.getContentPane().getComponentCount(); i++)
-            viewPane.getContentPane().getComponent(i).setEnabled(true);
-        viewPane.getContentPane().getComponent(0).setEnabled(false);
+            viewPane.getContentPane().getComponent(i).setFont(new Font("Tahoma",Font.PLAIN,11));
+        viewPane.getContentPane().getComponent(0).setFont(new Font("Tahoma",Font.BOLD,11));
         setCurrentContentPage(statusListPage);
         adminTasks.setVisible(false);
         channelTasks.setVisible(false);
@@ -234,8 +237,8 @@ public class Frame extends JXFrame {
     public void doShowChannel()
     {
         for (int i=0; i<viewPane.getContentPane().getComponentCount(); i++)
-            viewPane.getContentPane().getComponent(i).setEnabled(true);
-        viewPane.getContentPane().getComponent(1).setEnabled(false);
+            viewPane.getContentPane().getComponent(i).setFont(new Font("Tahoma",Font.PLAIN,11));
+        viewPane.getContentPane().getComponent(1).setFont(new Font("Tahoma",Font.BOLD,11));
         setCurrentContentPage(channelListPage);  
         adminTasks.setVisible(false);
         statusTasks.setVisible(false);
@@ -245,11 +248,11 @@ public class Frame extends JXFrame {
     public void doShowAdminPage()
     {
         for (int i=0; i<viewPane.getContentPane().getComponentCount(); i++)
-            viewPane.getContentPane().getComponent(i).setEnabled(true);
-        viewPane.getContentPane().getComponent(2).setEnabled(false);
+            viewPane.getContentPane().getComponent(i).setFont(new Font("Tahoma",Font.PLAIN,11));
+        viewPane.getContentPane().getComponent(2).setFont(new Font("Tahoma",Font.BOLD,11));
         setCurrentContentPage(adminPanel);
         channelTasks.setVisible(false);
-        statusTasks.setVisible(false); 
+        statusTasks.setVisible(false);
         adminTasks.setVisible(true);
     }
     
@@ -258,6 +261,35 @@ public class Frame extends JXFrame {
         this.dispose();
         Mirth.main(new String[0]);
         //JXLoginPanel.Status status = JXLoginPanel.showLoginDialog(null, new SimpleLoginService(passwordMap));
+    }
+    
+    public void doEditChannel()
+    {
+        setCurrentContentPage(channelEditPage);
+        channelTasks.setVisible(false);
+        channelEditPage.editChannel(channelListPage.getSelectedChannel());
+    }
+    
+    public void doNewChannel()
+    {
+        setCurrentContentPage(channelEditPage);
+        channelTasks.setVisible(false);
+        channelEditPage.addChannel();
+    }
+    
+    public void doShowMessages()
+    {
+        
+    }
+    
+    public void doShowLogs()
+    {
+        
+    }
+    
+    public void doShowStats()
+    {
+        
     }
 }
 

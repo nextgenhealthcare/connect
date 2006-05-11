@@ -82,7 +82,7 @@ public class StatusPanel extends javax.swing.JPanel {
         {
             boolean[] canEdit = new boolean []
             {
-                false, false, false, false, false
+                false, false, false, false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex)
@@ -93,19 +93,18 @@ public class StatusPanel extends javax.swing.JPanel {
         
         jxTable.setFocusable(false);
         jxTable.setSelectionMode(0);
+                
+        jxTable.getColumnExt("Status").setMaxWidth(90);
+        jxTable.getColumnExt("Status").setMinWidth(90);
         
-        jxTable.getColumnExt(0).setMaxWidth(90);
-        jxTable.getColumnExt(0).setMinWidth(90);
+        jxTable.getColumnExt("Transformed").setMaxWidth(90);
+        jxTable.getColumnExt("Transformed").setMinWidth(90);
         
-        jxTable.getColumnExt(2).setMaxWidth(90);
-        jxTable.getColumnExt(2).setMinWidth(90);
+        jxTable.getColumnExt("Received").setMaxWidth(90);
+        jxTable.getColumnExt("Received").setMinWidth(90);
         
-        jxTable.getColumnExt(3).setMaxWidth(90);
-        jxTable.getColumnExt(3).setMinWidth(90);
-        
-        jxTable.getColumnExt(4).setMaxWidth(90);
-        jxTable.getColumnExt(4).setMinWidth(90);
-        
+        jxTable.getColumnExt("Errors").setMaxWidth(90);
+        jxTable.getColumnExt("Errors").setMinWidth(90);    
         
         jxTable.setRowHeight(20);
         jxTable.setColumnMargin(2);
