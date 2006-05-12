@@ -320,7 +320,7 @@
 			</property>				
 		</type>
 
-		<type name="http_listener" displayName="HTTP Listener" className="org.mule.providers.http.HttpConnector" transformers="ByteArrayToString HTTPRequestToString HL7StringToXMLString " direction="inbound" protocol="http">
+		<type name="http_listener" displayName="HTTP Listener" className="org.mule.providers.http.HttpConnector" transformers="ByteArrayToString HttpRequestToString HL7StringToXMLString " direction="inbound" protocol="http">
 			<property name="host" muleProperty="0" required="1">
 				<defaultValue>127.0.0.1</defaultValue>
 				<displayName>Listener IP Address</displayName>
@@ -413,7 +413,7 @@
 			</property>		
 		</type>
 
-		<type name="https_listener" displayName="HTTPS Listener" className="org.mule.providers.http.HttpsConnector" transformers="ByteArrayToString HTTPRequestToString HL7StringToXMLString" direction="inbound" protocol="https">
+		<type name="https_listener" displayName="HTTPS Listener" className="org.mule.providers.http.HttpsConnector" transformers="ByteArrayToString HttpRequestToString HL7StringToXMLString" direction="inbound" protocol="https">
 			<property name="host" muleProperty="0" required="1">
 				<defaultValue>127.0.0.1</defaultValue>
 				<displayName>Listener IP Address</displayName>
