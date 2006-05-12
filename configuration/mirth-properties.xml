@@ -207,13 +207,13 @@
 				<formValidator>stringValidator</formValidator>
 				<formValidatorOptions></formValidatorOptions>
 			</property>				
-			<property name="sendACK" muleProperty="0" required="1">
-				<defaultValue>AUTO</defaultValue>
+			<property name="sendACK" muleProperty="1" required="1">
+				<defaultValue>yes</defaultValue>
 				<displayName>Send ACK</displayName>
 				<description></description>
-				<formType>select</formType>
-				<formOptions>AUTO;Auto, ALWAYS;Always, NE;Never</formOptions>
-				<formValidator></formValidator>
+				<formType>yes_no</formType>
+				<formOptions></formOptions>
+				<formValidator>yesNoValidator</formValidator>
 				<formValidatorOptions></formValidatorOptions>
 			</property>		
 		</type>
