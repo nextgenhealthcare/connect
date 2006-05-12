@@ -15,6 +15,7 @@
 
 package org.mule.providers.file;
 
+import org.apache.tools.ant.taskdefs.Replace;
 import org.mule.MuleException;
 import org.mule.config.i18n.Message;
 import org.mule.config.i18n.Messages;
@@ -34,8 +35,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Scanner;
 import java.util.Vector;
-import java.io.File;
-import java.io.FilenameFilter;
 import java.io.*;
 /**
  * <code>FileMessageReceiver</code> is a polling listener that reads files
@@ -147,16 +146,20 @@ public class FileMessageReceiver extends PollingMessageReceiver
             } else {
                 //Read in the file, parse it line by line 
         		//Vector fileContents = getFileLines(file);
-        	
-        		ArrayList hl7messages = LoadHL7Messages(file);
-				Iterator<String> it = hl7messages.iterator();
-				String tempMessage;
-				while (it.hasNext()){
-					tempMessage = it.next();
-        			msgAdapter = connector.getMessageAdapter(tempMessage);   
-                    UMOMessage message = new MuleMessage(msgAdapter);
-                    routeMessage(message, endpoint.isSynchronous());
-        		}
+            	try{
+	        		ArrayList hl7messages = LoadHL7Messages(file);
+					Iterator<String> it = hl7messages.iterator();
+					String tempMessage;
+					while (it.hasNext()){
+						tempMessage = it.next();
+	        			msgAdapter = connector.getMessageAdapter(tempMessage);   
+	                    UMOMessage message = new MuleMessage(msgAdapter);
+	                    routeMessage(message, endpoint.isSynchronous());
+	        		}
+            	}
+            	catch (Exception e){
+            		throw new MuleException(new Message(Messages.FAILED_TO_READ_PAYLOAD, file.getName()));
+            	}
         		//move the file if needed
                 if (destinationFile != null) {
                 	try{
@@ -241,11 +244,11 @@ public class FileMessageReceiver extends PollingMessageReceiver
     	ArrayList<String> hl7messages = new ArrayList<String>();
 		StringBuilder message = new StringBuilder();
 		Scanner s = new Scanner(file);
-		
+		char data[] = {(char)startOfMessage, (char)endOfMessage};
 		while(s.hasNextLine())
 		{
-			String temp = s.nextLine();
-			if(temp.length() == 0)
+			String temp = s.nextLine().replaceAll(new String(data, 0, 1), "").replaceAll(new String(data, 1, 1), "");
+			if(temp.length() == 0 || temp.equals((char)endOfMessage))
 			{
 				hl7messages.add(message.toString());
 				message = new StringBuilder();
@@ -262,6 +265,10 @@ public class FileMessageReceiver extends PollingMessageReceiver
 			{
 				message.append(temp);
 				message.append((char)endOfRecord);
+				if (!s.hasNextLine()){
+					hl7messages.add(message.toString());
+					message = new StringBuilder();
+				}
 			}
 		}
 		return hl7messages;

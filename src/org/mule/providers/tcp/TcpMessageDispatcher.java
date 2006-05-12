@@ -86,6 +86,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher
             Object payload = event.getTransformedMessage();
             socket = initSocket(event.getEndpoint().getEndpointURI().getAddress());
             write(socket, payload);
+            
         } finally {
             if (socket != null && !socket.isClosed()) {
                 socket.close();

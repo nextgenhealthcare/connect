@@ -45,6 +45,8 @@ public class TcpConnector extends AbstractServiceEnabledConnector
     private int bufferSize = DEFAULT_BUFFER_SIZE;
 
     private int backlog = DEFAULT_BACKLOG;
+    
+    private boolean sendACK = false;
 
     private String tcpProtocolClassName = DefaultProtocol.class.getName();
 
@@ -135,6 +137,12 @@ public class TcpConnector extends AbstractServiceEnabledConnector
         return this.sendTimeout;
     }
 
+    public boolean getSendACK(){
+    	return sendACK;
+    }
+    public void setSendACK(boolean ack){
+    	sendACK = ack;
+    }
     public void setSendTimeout(int timeout)
     {
         if (timeout < 0) {
