@@ -6,9 +6,11 @@
 
 package com.webreach.mirth.client;
 
+import java.awt.Dimension;
 import java.util.ArrayList;
 import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JTabbedPane;
 import com.webreach.mirth.client.ChannelInfo;
 
@@ -41,6 +43,7 @@ public class ChannelSetup extends javax.swing.JPanel
             jTextPane2.setBackground(new java.awt.Color(236,233,216));
             jTextPane2.setEnabled(false);
         }
+        channelView.setMaximumSize(new Dimension(450, 3000));
     }
     
     public void editChannel(int index)
@@ -53,6 +56,7 @@ public class ChannelSetup extends javax.swing.JPanel
     public void removeChannel(int channelIndex) 
     {                                             
         parent.channels.remove(channelIndex);
+        parent.channelListPage.makeChannelTable();
     }                                            
 
     public void addChannel() 
@@ -65,6 +69,39 @@ public class ChannelSetup extends javax.swing.JPanel
     private void loadChannelInfo()
     {
         summaryChannelName.setText(currentChannel.channelName);
+    }
+    
+    public boolean saveChanges()
+    {
+        if (summaryChannelName.getText().equals(""))
+        {
+            JOptionPane.showMessageDialog(parent, "Channel name cannot be empty.");
+                    return false;
+        }
+        if (!currentChannel.channelName.equals(summaryChannelName.getText()))
+        {
+            for (int i = 0; i < parent.channels.size(); i++)
+            {
+                if (parent.channels.get(i).channelName.equals(summaryChannelName.getText()))
+                {
+                    JOptionPane.showMessageDialog(parent, "Channel name already exists.");
+                    return false;
+                }
+            }
+        }
+        
+        currentChannel.channelName = summaryChannelName.getText();
+        
+        if(index == -1)
+        {
+            index = parent.channels.size();
+            parent.channels.add(currentChannel);
+        }
+        else
+            parent.channels.set(index,currentChannel);
+        
+        parent.channelListPage.makeChannelTable();
+        return true;
     }
     
     /** This method is called from within the constructor to
@@ -83,14 +120,12 @@ public class ChannelSetup extends javax.swing.JPanel
         summaryChannelName = new javax.swing.JTextField();
         jScrollPane2 = new javax.swing.JScrollPane();
         jTextArea1 = new javax.swing.JTextArea();
-        summarySave = new javax.swing.JButton();
         source = new javax.swing.JPanel();
         jComboBox1 = new javax.swing.JComboBox();
         jTextField1 = new javax.swing.JTextField();
         jTextField2 = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
-        continueButtonSource = new javax.swing.JButton();
         addSourceButton = new javax.swing.JButton();
         editSourceButton = new javax.swing.JButton();
         jLabel5 = new javax.swing.JLabel();
@@ -100,14 +135,12 @@ public class ChannelSetup extends javax.swing.JPanel
         jRadioButton2 = new javax.swing.JRadioButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTextPane1 = new javax.swing.JTextPane();
-        continueButtonFilter = new javax.swing.JButton();
         validation = new javax.swing.JPanel();
         jRadioButton3 = new javax.swing.JRadioButton();
         jComboBox3 = new javax.swing.JComboBox();
         jRadioButton4 = new javax.swing.JRadioButton();
         jScrollPane3 = new javax.swing.JScrollPane();
         jTextPane2 = new javax.swing.JTextPane();
-        continueButtonValidation = new javax.swing.JButton();
         destination = new javax.swing.JPanel();
         jComboBox5 = new javax.swing.JComboBox();
         jComboBox6 = new javax.swing.JComboBox();
@@ -117,7 +150,6 @@ public class ChannelSetup extends javax.swing.JPanel
         jTextField3 = new javax.swing.JTextField();
         jTextField4 = new javax.swing.JTextField();
         jLabel4 = new javax.swing.JLabel();
-        jButton4 = new javax.swing.JButton();
         jLabel6 = new javax.swing.JLabel();
 
         summary.setBackground(new java.awt.Color(255, 255, 255));
@@ -125,19 +157,16 @@ public class ChannelSetup extends javax.swing.JPanel
 
         jLabel9.setText("Channel Description:");
 
-        summaryChannelName.setText("New Channel");
+        summaryChannelName.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                summaryChannelNameKeyTyped(evt);
+            }
+        });
 
         jTextArea1.setColumns(20);
         jTextArea1.setRows(5);
         jTextArea1.setText("Channel Description");
         jScrollPane2.setViewportView(jTextArea1);
-
-        summarySave.setText("Save Summary");
-        summarySave.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                summarySaveActionPerformed(evt);
-            }
-        });
 
         org.jdesktop.layout.GroupLayout summaryLayout = new org.jdesktop.layout.GroupLayout(summary);
         summary.setLayout(summaryLayout);
@@ -146,16 +175,13 @@ public class ChannelSetup extends javax.swing.JPanel
             .add(summaryLayout.createSequentialGroup()
                 .addContainerGap()
                 .add(summaryLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(summaryLayout.createSequentialGroup()
-                        .add(summaryLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(jLabel8)
-                            .add(jLabel9))
-                        .add(7, 7, 7)
-                        .add(summaryLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(jScrollPane2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 287, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(summaryChannelName, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 150, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                    .add(summarySave))
-                .addContainerGap(104, Short.MAX_VALUE))
+                    .add(jLabel8)
+                    .add(jLabel9))
+                .add(7, 7, 7)
+                .add(summaryLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(jScrollPane2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 287, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(summaryChannelName, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 150, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(107, Short.MAX_VALUE))
         );
         summaryLayout.setVerticalGroup(
             summaryLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -168,9 +194,7 @@ public class ChannelSetup extends javax.swing.JPanel
                 .add(summaryLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jScrollPane2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(jLabel9))
-                .add(27, 27, 27)
-                .add(summarySave)
-                .addContainerGap(257, Short.MAX_VALUE))
+                .addContainerGap(68, Short.MAX_VALUE))
         );
         channelView.addTab("Summary", summary);
 
@@ -180,8 +204,6 @@ public class ChannelSetup extends javax.swing.JPanel
         jLabel2.setText("Property 1:");
 
         jLabel3.setText("Property 2:");
-
-        continueButtonSource.setText("Save Source");
 
         addSourceButton.setText("New");
 
@@ -196,22 +218,19 @@ public class ChannelSetup extends javax.swing.JPanel
             .add(sourceLayout.createSequentialGroup()
                 .add(28, 28, 28)
                 .add(sourceLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(continueButtonSource)
-                    .add(sourceLayout.createSequentialGroup()
-                        .add(sourceLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(jLabel3)
-                            .add(jLabel2)
-                            .add(jLabel5))
-                        .add(38, 38, 38)
-                        .add(sourceLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
-                            .add(org.jdesktop.layout.GroupLayout.LEADING, jTextField2)
-                            .add(org.jdesktop.layout.GroupLayout.LEADING, jTextField1)
-                            .add(org.jdesktop.layout.GroupLayout.LEADING, jComboBox1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                        .add(15, 15, 15)
-                        .add(addSourceButton)
-                        .add(15, 15, 15)
-                        .add(editSourceButton)))
-                .addContainerGap(180, Short.MAX_VALUE))
+                    .add(jLabel3)
+                    .add(jLabel2)
+                    .add(jLabel5))
+                .add(38, 38, 38)
+                .add(sourceLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, jTextField2)
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, jTextField1)
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, jComboBox1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .add(15, 15, 15)
+                .add(addSourceButton)
+                .add(15, 15, 15)
+                .add(editSourceButton)
+                .addContainerGap(183, Short.MAX_VALUE))
         );
 
         sourceLayout.linkSize(new java.awt.Component[] {addSourceButton, editSourceButton}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
@@ -242,9 +261,7 @@ public class ChannelSetup extends javax.swing.JPanel
                         .add(5, 5, 5)
                         .add(jLabel3))
                     .add(jTextField2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .add(28, 28, 28)
-                .add(continueButtonSource)
-                .add(362, 362, 362))
+                .add(303, 303, 303))
         );
         channelView.addTab("Source", source);
 
@@ -276,8 +293,6 @@ public class ChannelSetup extends javax.swing.JPanel
 
         jScrollPane1.setViewportView(jTextPane1);
 
-        continueButtonFilter.setText("Save Filter");
-
         org.jdesktop.layout.GroupLayout filterLayout = new org.jdesktop.layout.GroupLayout(filter);
         filter.setLayout(filterLayout);
         filterLayout.setHorizontalGroup(
@@ -295,10 +310,8 @@ public class ChannelSetup extends javax.swing.JPanel
                             .add(jRadioButton2)))
                     .add(filterLayout.createSequentialGroup()
                         .add(27, 27, 27)
-                        .add(filterLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(jScrollPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 432, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(continueButtonFilter))))
-                .addContainerGap(48, Short.MAX_VALUE))
+                        .add(jScrollPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 419, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(64, Short.MAX_VALUE))
         );
         filterLayout.setVerticalGroup(
             filterLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -311,8 +324,6 @@ public class ChannelSetup extends javax.swing.JPanel
                 .add(jRadioButton2)
                 .add(15, 15, 15)
                 .add(jScrollPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 280, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(20, 20, 20)
-                .add(continueButtonFilter)
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         channelView.addTab("Filter", filter);
@@ -345,8 +356,6 @@ public class ChannelSetup extends javax.swing.JPanel
 
         jScrollPane3.setViewportView(jTextPane2);
 
-        continueButtonValidation.setText("Save Validation");
-
         org.jdesktop.layout.GroupLayout validationLayout = new org.jdesktop.layout.GroupLayout(validation);
         validation.setLayout(validationLayout);
         validationLayout.setHorizontalGroup(
@@ -363,10 +372,8 @@ public class ChannelSetup extends javax.swing.JPanel
                         .add(jRadioButton4))
                     .add(validationLayout.createSequentialGroup()
                         .add(27, 27, 27)
-                        .add(validationLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(jScrollPane3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 417, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(continueButtonValidation))))
-                .addContainerGap(63, Short.MAX_VALUE))
+                        .add(jScrollPane3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 417, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(66, Short.MAX_VALUE))
         );
         validationLayout.setVerticalGroup(
             validationLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -379,8 +386,6 @@ public class ChannelSetup extends javax.swing.JPanel
                 .add(jRadioButton4)
                 .add(15, 15, 15)
                 .add(jScrollPane3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 280, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(20, 20, 20)
-                .add(continueButtonValidation)
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         channelView.addTab("Validation", validation);
@@ -397,8 +402,6 @@ public class ChannelSetup extends javax.swing.JPanel
         jLabel1.setText("Property 1:");
 
         jLabel4.setText("Property 2:");
-
-        jButton4.setText("Save Destinations");
 
         jLabel6.setText("Source");
 
@@ -423,9 +426,8 @@ public class ChannelSetup extends javax.swing.JPanel
                         .add(16, 16, 16)
                         .add(jButton1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 53, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 14, Short.MAX_VALUE)
-                        .add(jButton3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 53, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(jButton4))
-                .add(459, 459, 459))
+                        .add(jButton3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 53, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                .add(177, 177, 177))
         );
         destinationLayout.setVerticalGroup(
             destinationLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -454,9 +456,7 @@ public class ChannelSetup extends javax.swing.JPanel
                         .add(5, 5, 5)
                         .add(jLabel4))
                     .add(jTextField4, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .add(26, 26, 26)
-                .add(jButton4)
-                .add(323, 323, 323))
+                .add(262, 262, 262))
         );
         channelView.addTab("Destinations", destination);
 
@@ -464,13 +464,18 @@ public class ChannelSetup extends javax.swing.JPanel
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(channelView, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 512, Short.MAX_VALUE)
+            .add(channelView, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 515, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(channelView, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 479, Short.MAX_VALUE)
+            .add(channelView, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 240, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void summaryChannelNameKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_summaryChannelNameKeyTyped
+// TODO add your handling code here:
+        parent.channelEditTasks.getContentPane().getComponent(0).setVisible(true);
+    }//GEN-LAST:event_summaryChannelNameKeyTyped
 
     private void jRadioButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRadioButton2ActionPerformed
 // TODO add your handling code here:
@@ -495,52 +500,16 @@ public class ChannelSetup extends javax.swing.JPanel
         jTextPane2.setBackground(new java.awt.Color(255,255,255));
         jTextPane2.setEnabled(true);
     }//GEN-LAST:event_jRadioButton4ActionPerformed
-
-    private void summarySaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_summarySaveActionPerformed
-        // TODO add your handling code here:
-        if (summaryChannelName.getText().equals(""))
-        {
-            new javax.swing.JOptionPane().showMessageDialog(parent, "Channel name cannot be empty.");
-                    return;
-        }
-        if (!currentChannel.channelName.equals(summaryChannelName.getText()))
-        {
-            for (int i = 0; i < parent.channels.size(); i++)
-            {
-                if (parent.channels.get(i).channelName.equals(summaryChannelName.getText()))
-                {
-                    new javax.swing.JOptionPane().showMessageDialog(parent, "Channel name already exists.");
-                    return;
-                }
-            }
-        }
-        
-        currentChannel.channelName = summaryChannelName.getText();
-        
-        if(index == -1)
-        {
-            index = parent.channels.size();
-            parent.channels.add(currentChannel);
-        }
-        else
-            parent.channels.set(index,currentChannel);
-        
-        parent.channelListPage.makeChannelTable();
-    }//GEN-LAST:event_summarySaveActionPerformed
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addSourceButton;
     private javax.swing.JTabbedPane channelView;
-    private javax.swing.JButton continueButtonFilter;
-    private javax.swing.JButton continueButtonSource;
-    private javax.swing.JButton continueButtonValidation;
     private javax.swing.JPanel destination;
     private javax.swing.JButton editSourceButton;
     private javax.swing.JPanel filter;
     private javax.swing.ButtonGroup filterButtonGroup;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton3;
-    private javax.swing.JButton jButton4;
     private javax.swing.JComboBox jComboBox1;
     private javax.swing.JComboBox jComboBox2;
     private javax.swing.JComboBox jComboBox3;
@@ -571,7 +540,6 @@ public class ChannelSetup extends javax.swing.JPanel
     private javax.swing.JPanel source;
     private javax.swing.JPanel summary;
     private javax.swing.JTextField summaryChannelName;
-    private javax.swing.JButton summarySave;
     private javax.swing.JPanel validation;
     private javax.swing.ButtonGroup validationButtonGroup;
     // End of variables declaration//GEN-END:variables

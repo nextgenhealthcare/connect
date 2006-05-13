@@ -26,19 +26,24 @@ import org.jdesktop.swingx.plaf.windows.WindowsLookAndFeelAddons;
  * @author Gary Teichrow
  * @version 1.0
  */
-public class Mirth {
+public class Mirth 
+{
     boolean packFrame = false;
 
     /**
      * Construct and show the application.
      */
-    public Mirth() {
+    public Mirth() 
+    {
         Frame frame = new Frame();
         // Validate frames that have preset sizes
         // Pack frames that have useful preferred size info, e.g. from their layout
-        if (packFrame) {
+        if (packFrame) 
+        {
             frame.pack();
-        } else {
+        } 
+        else 
+        {
             frame.validate();
         }
 
@@ -46,15 +51,17 @@ public class Mirth {
         frame.setLocationRelativeTo(null);
         frame.setExtendedState(frame.MAXIMIZED_BOTH);
         frame.setVisible(true);
-        frame.addComponentListener(new java.awt.event.ComponentAdapter() {
-        public void componentResized(ComponentEvent e) {
-           Frame tmp = (Frame)e.getSource();
-           if (tmp.getWidth()<800 || tmp.getHeight()<600) {
-             tmp.setSize(800, 600);
-    }
-  }
-});
-
+        frame.addComponentListener(new java.awt.event.ComponentAdapter() 
+        {
+            public void componentResized(ComponentEvent e) 
+            {
+               Frame tmp = (Frame)e.getSource();
+               if (tmp.getWidth()<800 || tmp.getHeight()<600) 
+               {
+                 tmp.setSize(800, 600);
+               }
+            }
+        });
     }
     
     /**
@@ -62,12 +69,15 @@ public class Mirth {
      *
      * @param args String[]
      */
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                try {
-                    UIManager.setLookAndFeel(UIManager.
-                                             getSystemLookAndFeelClassName());
+    public static void main(String[] args) 
+    {
+        SwingUtilities.invokeLater(new Runnable() 
+        {
+            public void run() 
+            {
+                try 
+                {
+                    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
                     //UIManager.put("win.xpstyle.name", "luna");
                     //LookAndFeelAddons.setAddon(WindowsLookAndFeelAddons.class);
                     /*UIManager.put("TaskPaneContainer.useGradient",
@@ -78,13 +88,16 @@ public class Mirth {
                     new Color(18,71,113).darker().darker());
                     UIManager.put("TaskPane.background",
                     Color.WHITE.darker());*/
-                } catch (Exception exception) {
+                } 
+                catch (Exception exception) 
+                {
                     exception.printStackTrace();
                 }
                 final JDBCLoginService svc = new JDBCLoginService(
                 "sun.jdbc.odbc.JdbcOdbcDriver",
                 "jdbc:odbc:northwind");
                 final JXLoginPanel.JXLoginFrame frm = JXLoginPanel.showLoginFrame(svc);
+                //frm.getContentPane().getComponent(1).setFont(frm.getContentPane().getComponent(0).getFont());
                 frm.addWindowListener(new WindowAdapter() {
                     public void windowClosed(WindowEvent e) {
                         JXLoginPanel.Status status = frm.getStatus();

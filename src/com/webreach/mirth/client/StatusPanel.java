@@ -13,12 +13,12 @@ public class StatusPanel extends javax.swing.JPanel {
 
     private JScrollPane statusPane;
     private JXTable statusTable;
-    private JFrame parent;
+    private Frame parent;
     
     /** Creates new form statusPanel */
     public StatusPanel(JFrame parent) 
     {  
-        this.parent = parent;
+        this.parent = (Frame)parent;
         initComponents();
     }
     
@@ -36,14 +36,6 @@ public class StatusPanel extends javax.swing.JPanel {
                 StatusListSelected(evt);
             }
         });
-/*        statusTable.addFocusListener(new java.awt.event.FocusAdapter()
-        {
-            public void focusLost(java.awt.event.FocusEvent evt)
-            {
-                deselectRows();
-            }
-        });
- */
         statusPane.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt)
             {
@@ -122,20 +114,34 @@ public class StatusPanel extends javax.swing.JPanel {
         int row = statusTable.getSelectedRow();
         if(row >= 0 && statusTable.getSelectedColumn()>= 0)
         {
-            for (int i=1; i<((Frame)parent).statusTasks.getContentPane().getComponentCount(); i++)
-                ((Frame)parent).statusTasks.getContentPane().getComponent(i).setVisible(true);
+            parent.setVisibleTasks(parent.statusTasks, 1, true);
+            
+            int columnNumber = getColumnNumber("Status");
+            if (((String)statusTable.getValueAt(row, columnNumber)).equals("Deployed"))
+                parent.statusTasks.getContentPane().getComponent(1).setVisible(false);
+            else
+                parent.statusTasks.getContentPane().getComponent(2).setVisible(false);
         }
     }
     
     private void deselectRows()
     {
         statusTable.clearSelection();
-        for (int i=1; i<((Frame)parent).statusTasks.getContentPane().getComponentCount(); i++)
-            ((Frame)parent).statusTasks.getContentPane().getComponent(i).setVisible(false);
+        parent.setVisibleTasks(parent.statusTasks, 1, false);
     }
     
     public int getSelectedRow()
     {
         return statusTable.getSelectedRow();
+    }
+    
+    private int getColumnNumber(String name)
+    {
+        for (int i = 0; i < statusTable.getColumnCount(); i++)
+        {
+            if (statusTable.getColumnName(i).equalsIgnoreCase(name))
+                return i;
+        }
+        return -1;
     }
 }

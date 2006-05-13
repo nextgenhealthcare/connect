@@ -37,11 +37,11 @@ public class ChannelPanel extends javax.swing.JPanel {
         this.setLayout(layout);
         layout.setHorizontalGroup(
                 layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                .add(channelPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
+                .add(channelPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, channelTable.getWidth(), Short.MAX_VALUE)
                 );
         layout.setVerticalGroup(
                 layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                .add(channelPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 300, Short.MAX_VALUE)
+                .add(channelPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, channelTable.getHeight(), Short.MAX_VALUE)
                 );
     }
     
@@ -114,24 +114,42 @@ public class ChannelPanel extends javax.swing.JPanel {
     private void ChannelListSelected(ListSelectionEvent evt)
     {
         int row = channelTable.getSelectedRow();
-        if(row >= 0 && channelTable.getSelectedColumn()>= 0) {
-            for (int i=2; i<((Frame)parent).channelTasks.getContentPane().getComponentCount(); i++)
-                ((Frame)parent).channelTasks.getContentPane().getComponent(i).setVisible(true);
+        if(row >= 0 && channelTable.getSelectedColumn()>= 0)
+        {
+            parent.setVisibleTasks(parent.channelTasks, 2, true);
+
+            int columnNumber = getColumnNumber("Status");
+            if (((String)channelTable.getValueAt(row, columnNumber)).equals("Enabled"))
+                parent.channelTasks.getContentPane().getComponent(4).setVisible(false);
+            else
+                parent.channelTasks.getContentPane().getComponent(5).setVisible(false);
         }
     }
     
-    private void deselectRows() {
+    public void deselectRows()
+    {
         channelTable.clearSelection();
-        for (int i=2; i<((Frame)parent).channelTasks.getContentPane().getComponentCount(); i++)
-            ((Frame)parent).channelTasks.getContentPane().getComponent(i).setVisible(false);
+        parent.setVisibleTasks(parent.channelTasks, 2, false);
     }
     
     public int getSelectedChannel()
     {
-        String channelName = (String) channelTable.getValueAt(channelTable.getSelectedRow(), 2);
+        int columnNumber = getColumnNumber("Name");
+        
+        String channelName = (String) channelTable.getValueAt(channelTable.getSelectedRow(), columnNumber);
         for (int i=0; i < parent.channels.size(); i++)
         {
             if (parent.channels.get(i).channelName.equals(channelName))
+                return i;
+        }
+        return -1;
+    }
+    
+    private int getColumnNumber(String name)
+    {
+        for (int i = 0; i < channelTable.getColumnCount(); i++)
+        {
+            if (channelTable.getColumnName(i).equalsIgnoreCase(name))
                 return i;
         }
         return -1;
