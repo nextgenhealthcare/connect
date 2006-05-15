@@ -28,9 +28,13 @@ package com.webreach.mirth.managers;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.ListIterator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -67,6 +71,40 @@ public class Database {
 
 		Statement statement = connection.createStatement();
 		int rowCount = statement.executeUpdate(expression);
+
+		if (rowCount == -1) {
+			throw new SQLException();
+		}
+
+		statement.close();
+	}
+	public synchronized void update(String expression, ArrayList parameters) throws SQLException {
+		logger.debug("excuting update: " + expression);
+		
+		PreparedStatement statement = connection.prepareStatement(expression);
+		ListIterator it = parameters.listIterator();
+		while (it.hasNext()){
+			statement.setObject(it.nextIndex(), it.next());
+		}
+		int rowCount = statement.executeUpdate(expression);
+
+		if (rowCount == -1) {
+			throw new SQLException();
+		}
+
+		statement.close();
+	}
+	public synchronized void updateString(String expression, ArrayList<String> parameters) throws SQLException {
+		logger.debug("excuting update: " + expression);
+		
+		PreparedStatement statement = connection.prepareStatement(expression);
+		Iterator<String> it = parameters.iterator();
+		int i = 1;
+		while (it.hasNext()){
+			statement.setString(i, it.next());
+			i++;
+		}
+		int rowCount = statement.executeUpdate();
 
 		if (rowCount == -1) {
 			throw new SQLException();

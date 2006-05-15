@@ -72,37 +72,37 @@ public class MessageManager {
 
 		Date today = new Date();
 		Timestamp now = new Timestamp(today.getTime());
-		
+		ArrayList<String> paramaters = new ArrayList<String>();
 		try {
 			Database database = new Database("mirth");
 			
 			StringBuffer query = new StringBuffer();
-			query.append("INSERT INTO messages(channel, tstamp, source, event, msgid, bytesize, content, contentxml) VALUES('");
-			query.append(message.getChannel());
-			query.append("', '");
+			query.append("INSERT INTO messages(channel, tstamp, source, event, msgid, bytesize, content, contentxml) VALUES(?, ?, ?, ?, ?, ?, ?, ?)");
+			paramaters.add(message.getChannel());
 			
-			query.append(now.toString());
-			query.append("', '");
-
-			query.append(message.getSendingFacility());
-			query.append("', '");
-
-			query.append(message.getEvent());
-			query.append("', '");
-
-			query.append(message.getControlId());
-			query.append("', '");
 			
-			query.append(message.getSize());
-			query.append("', '");
+			paramaters.add(now.toString());
+			
+			
+			paramaters.add(message.getSendingFacility());
+			
+			
+			paramaters.add(message.getEvent());
+		
 
-			query.append(message.getContent());
-			query.append("', '");
+			paramaters.add(message.getControlId());
+			
+			
+			paramaters.add(message.getSize());
+		
 
-			query.append(message.getContentXml());
-			query.append("');");
+			paramaters.add(message.getContent());
+			
 
-			database.update(query.toString());
+			paramaters.add(message.getContentXml());
+			
+
+			database.updateString(query.toString(), paramaters);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
