@@ -23,26 +23,23 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
 package com.webreach.mirth.model;
 
-import java.io.Serializable;
-
-public class Filter implements Script, Serializable {
+public class Filter implements Script {
 	private String script;
 
 	public Filter() {
-		
+
 	}
-	
+
 	public Filter(String script) {
 		this.script = script;
 	}
-	
+
 	public void setScript(String script) {
 		this.script = script;
 	}
-	
+
 	public String getScript() {
 		return script;
 	}

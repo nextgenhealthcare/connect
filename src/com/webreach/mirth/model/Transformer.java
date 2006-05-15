@@ -23,16 +23,14 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
 package com.webreach.mirth.model;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
-public class Transformer implements Script, Serializable {
+public class Transformer implements Script {
 	public enum Type {
 		MAP, SCRIPT, XSLT
 	};

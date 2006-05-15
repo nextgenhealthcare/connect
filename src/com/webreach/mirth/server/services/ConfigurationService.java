@@ -38,22 +38,21 @@ import org.apache.log4j.Logger;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.Transport;
 import com.webreach.mirth.model.User;
-import com.webreach.mirth.server.core.util.ChannelMarshaller;
-import com.webreach.mirth.server.core.util.ChannelUnmarshaller;
+import com.webreach.mirth.model.bind.ChannelMarshaller;
+import com.webreach.mirth.model.bind.ChannelUnmarshaller;
+import com.webreach.mirth.model.bind.MarshalException;
+import com.webreach.mirth.model.bind.UnmarshalException;
 import com.webreach.mirth.server.core.util.ConfigurationBuilderException;
-import com.webreach.mirth.server.core.util.ConfigurationException;
 import com.webreach.mirth.server.core.util.DatabaseConnection;
 import com.webreach.mirth.server.core.util.DatabaseUtil;
-import com.webreach.mirth.server.core.util.MarshalException;
 import com.webreach.mirth.server.core.util.MuleConfigurationBuilder;
 import com.webreach.mirth.server.core.util.PropertyLoader;
-import com.webreach.mirth.server.core.util.UnmarshalException;
 
 public class ConfigurationService {
 	private DatabaseConnection dbConnection;
 	private Logger logger = Logger.getLogger(ConfigurationService.class);
 
-	public List<User> getUsers() throws ConfigurationException {
+	public List<User> getUsers() throws ServiceException {
 		ArrayList<User> users = new ArrayList<User>();
 		ResultSet result = null;
 
@@ -71,32 +70,32 @@ public class ConfigurationService {
 
 			return users;
 		} catch (SQLException e) {
-			throw new ConfigurationException(e);
+			throw new ServiceException(e);
 		} finally {
 			DatabaseUtil.close(result);
 			dbConnection.close();
 		}
 	}
 
-	public void updateUser(User user) throws ConfigurationException {
+	public void updateUser(User user) throws ServiceException {
 		logger.debug("updating user: " + user.getId());
 
 		try {
 			dbConnection = new DatabaseConnection();
 			StringBuffer statement = new StringBuffer();
-			statement.append("INSERT INTO USERS (ID, USERNAME, PASSWORD)");
+			statement.append("INSERT INTO USERS (ID, USERNAME, PASSWORD) VALUES(");
 			statement.append("'" + user.getId() + "',");
 			statement.append("'" + user.getUsername() + "',");
 			statement.append("'" + user.getPassword() + "');");
 			dbConnection.update(statement.toString());
 		} catch (SQLException e) {
-			throw new ConfigurationException(e);
+			throw new ServiceException(e);
 		} finally {
 			dbConnection.close();
 		}
 	}
 
-	public List<Channel> getChannels() throws ConfigurationException {
+	public List<Channel> getChannels() throws ServiceException {
 		ArrayList<Channel> channels = new ArrayList<Channel>();
 		ResultSet result = null;
 		ChannelUnmarshaller cu = new ChannelUnmarshaller();
@@ -113,16 +112,16 @@ public class ConfigurationService {
 
 			return channels;
 		} catch (SQLException e) {
-			throw new ConfigurationException(e);
+			throw new ServiceException(e);
 		} catch (UnmarshalException e) {
-			throw new ConfigurationException(e);
+			throw new ServiceException(e);
 		} finally {
 			DatabaseUtil.close(result);
 			dbConnection.close();
 		}
 	}
 
-	public void updateChannel(Channel channel) throws ConfigurationException {
+	public void updateChannel(Channel channel) throws ServiceException {
 		logger.debug("updating channel: " + channel.getId());
 
 		try {
@@ -139,15 +138,15 @@ public class ConfigurationService {
 
 			dbConnection.update(insert.toString());
 		} catch (SQLException e) {
-			throw new ConfigurationException(e);
+			throw new ServiceException(e);
 		} catch (MarshalException e) {
-			throw new ConfigurationException(e);
+			throw new ServiceException(e);
 		} finally {
 			dbConnection.close();
 		}
 	}
 
-	private List<Transport> getTransports() throws ConfigurationException {
+	public List<Transport> getTransports() throws ServiceException {
 		ArrayList<Transport> transports = new ArrayList<Transport>();
 		ResultSet result = null;
 
@@ -167,48 +166,43 @@ public class ConfigurationService {
 
 			return transports;
 		} catch (SQLException e) {
-			throw new ConfigurationException(e);
+			throw new ServiceException(e);
 		} finally {
 			DatabaseUtil.close(result);
 			dbConnection.close();
 		}
 	}
 
-	public Properties getProperties() throws ConfigurationException {
+	public Properties getProperties() throws ServiceException {
 		Properties properties = PropertyLoader.loadProperties("mirth");
 
 		if (properties == null) {
-			throw new ConfigurationException("Could not load properties.");
+			throw new ServiceException("Could not load properties.");
 		} else {
 			return properties;
 		}
 	}
 
-	public void updateProperties(Properties properties) throws ConfigurationException {
+	public void updateProperties(Properties properties) throws ServiceException {
 		try {
 			FileOutputStream fos = new FileOutputStream("mirth.properties");
 			properties.store(fos, null);
 		} catch (Exception e) {
-			throw new ConfigurationException(e);
+			throw new ServiceException(e);
 		}
 	}
 
-	public String getMuleConfiguration() throws ConfigurationException {
+	public String getMuleConfiguration() throws ServiceException {
 		try {
 			MuleConfigurationBuilder builder = new MuleConfigurationBuilder(getChannels(), getTransports());
 			return builder.getConfiguration();
-		} catch (ConfigurationException e) {
+		} catch (ServiceException e) {
 			throw e;
 		} catch (ConfigurationBuilderException e) {
-			throw new ConfigurationException("Could not generate Mule configuration.", e);
+			throw new ServiceException("Could not generate Mule configuration.", e);
 		}
 	}
 
-	/**
-	 * Returns the next available id if avaiable, otherwise returns -1.
-	 * 
-	 * @return
-	 */
 	public int getNextId() throws RuntimeException {
 		dbConnection = new DatabaseConnection();
 		ResultSet result = null;

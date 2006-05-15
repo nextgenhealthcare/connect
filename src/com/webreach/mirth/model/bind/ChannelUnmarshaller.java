@@ -24,7 +24,7 @@
  * ***** END LICENSE BLOCK ***** */
 
 
-package com.webreach.mirth.server.core.util;
+package com.webreach.mirth.model.bind;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -44,16 +44,16 @@ import com.webreach.mirth.model.Validator;
 public class ChannelUnmarshaller {
 	private Logger logger = Logger.getLogger(ChannelUnmarshaller.class);
 	
-	public ChannelUnmarshaller() {
-		
-	}
+	public ChannelUnmarshaller() {}
 	
 	public Channel unmarshal(String source) throws UnmarshalException {
 		logger.debug("unmarshalling channel");
 		
 		try {
 			InputStream is = new ByteArrayInputStream(source.getBytes());
-			Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(is);
+			DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
+			docBuilderFactory.setNamespaceAware(true);
+			Document document = docBuilderFactory.newDocumentBuilder().parse(is);
 			return unmarshal(document);
 		} catch (UnmarshalException e) {
 			throw e;
@@ -63,16 +63,16 @@ public class ChannelUnmarshaller {
 	}
 	
 	public Channel unmarshal(Document document) throws UnmarshalException {
+		if (document == null) {
+			throw new UnmarshalException("Document is invalid.");
+		}
+		
 		try {
-			if (document == null) {
-				throw new UnmarshalException("Document is invalid.");
-			}
-			
-			// TODO: finish populating DOM object
 			Channel channel = new Channel();
 			
 			// channel (root)
 			Element channelElement = document.getDocumentElement();
+			channel.setId(Integer.parseInt(channelElement.getAttribute("id")));
 			channel.setName(channelElement.getAttribute("name"));
 			channel.setDescription(channelElement.getAttribute("description"));
 			

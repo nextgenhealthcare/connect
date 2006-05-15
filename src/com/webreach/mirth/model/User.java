@@ -23,28 +23,25 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
 package com.webreach.mirth.model;
 
-import java.io.Serializable;
-
-public class User implements Serializable {
+public class User {
 	private int id;
 	private String username;
 	private String password;
 
 	public User() {
-		
+
 	}
 
 	public int getId() {
 		return this.id;
 	}
-	
+
 	public void setId(int id) {
 		this.id = id;
 	}
-	
+
 	public String getPassword() {
 		return this.password;
 	}
@@ -61,12 +58,13 @@ public class User implements Serializable {
 		this.username = username;
 	}
 
-	public boolean equals(Object obj) {
-		if (!(obj instanceof User)) {
-			return false;
-		} else {
-			User user = (User) obj;
-			return (this.getUsername().equals(user.getUsername()) && this.getPassword().equals(user.getPassword()));
-		}
+	public String toString() {
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("User[");
+		buffer.append(getId() + ", ");
+		buffer.append(getUsername() + ", ");
+		buffer.append(getPassword());
+		buffer.append("]");
+		return buffer.toString();
 	}
 }

@@ -63,6 +63,7 @@ public class ChannelMarshaller {
 			
 			// channel (root)
 			Element channelElement = document.createElement("channel");
+			channelElement.setAttribute("id", String.valueOf(channel.getId()));
 			channelElement.setAttribute("name", channel.getName());
 			channelElement.setAttribute("description", channel.getDescription());
 
@@ -175,12 +176,6 @@ public class ChannelMarshaller {
 		}
 	}
 
-	/**
-	 * Returns a String representation of a channel Document.
-	 * 
-	 * @param document
-	 * @return
-	 */
 	private String serialize(Document document) {
 		String[] dataElements = { "filter", "variable", "profile" };
 

@@ -23,14 +23,12 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
 package com.webreach.mirth.model;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Channel implements Serializable {
+public class Channel {
 	public enum Status {
 		STARTED, STOPPED, PAUSED
 	};

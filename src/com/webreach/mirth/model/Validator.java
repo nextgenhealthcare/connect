@@ -23,20 +23,18 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
 package com.webreach.mirth.model;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Validator implements Serializable {
+public class Validator {
 	private Map<String, String> profiles;
-	
+
 	public Validator() {
 		profiles = new HashMap<String, String>();
 	}
-	
+
 	public Map<String, String> getProfiles() {
 		return profiles;
 	}

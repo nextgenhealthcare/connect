@@ -24,22 +24,22 @@
  * ***** END LICENSE BLOCK ***** */
 
 
-package com.webreach.mirth.server.core.util;
+package com.webreach.mirth.server.services;
 
-public class ConfigurationException extends Exception {
-	public ConfigurationException() {
+public class ServiceException extends Exception {
+	public ServiceException() {
 		super();
 	}
 	
-	public ConfigurationException(Throwable cause) {
+	public ServiceException(Throwable cause) {
 		super(cause);
 	}
 	
-	public ConfigurationException(String message) {
+	public ServiceException(String message) {
 		super(message);
 	}
 	
-	public ConfigurationException(String message, Throwable cause) {
+	public ServiceException(String message, Throwable cause) {
 		super(message, cause);
 	}
 }

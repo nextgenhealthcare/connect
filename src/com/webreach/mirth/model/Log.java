@@ -23,13 +23,11 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
 package com.webreach.mirth.model;
 
-import java.io.Serializable;
 import java.sql.Timestamp;
 
-public class Log  implements Serializable {
+public class Log {
 	private int id;
 	private Timestamp date;
 	private String event;

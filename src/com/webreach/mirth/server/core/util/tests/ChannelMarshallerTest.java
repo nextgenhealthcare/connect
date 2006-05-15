@@ -35,7 +35,7 @@ import com.webreach.mirth.model.Connector;
 import com.webreach.mirth.model.Filter;
 import com.webreach.mirth.model.Transformer;
 import com.webreach.mirth.model.Validator;
-import com.webreach.mirth.server.core.util.ChannelMarshaller;
+import com.webreach.mirth.model.bind.ChannelMarshaller;
 
 public class ChannelMarshallerTest extends TestCase {
 	private Channel channel;

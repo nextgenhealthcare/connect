@@ -23,12 +23,9 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
 package com.webreach.mirth.model;
 
-import java.io.Serializable;
-
-public class Transport implements Serializable {
+public class Transport {
 	private String name;
 	private String displayName;
 	private String className;
@@ -73,6 +70,18 @@ public class Transport implements Serializable {
 
 	public void setTransformers(String transformers) {
 		this.transformers = transformers;
+	}
+
+	public String toString() {
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("Transport[");
+		buffer.append(getName() + ", ");
+		buffer.append(getDisplayName() + ", ");
+		buffer.append(getClassName() + ", ");
+		buffer.append("'" + getTransformers() + "', ");
+		buffer.append(getProtocol());
+		buffer.append("]");
+		return buffer.toString();
 	}
 
 }

@@ -5,7 +5,6 @@ import java.util.Hashtable;
 import org.apache.log4j.Logger;
 
 import com.webreach.mirth.model.Channel.Status;
-import com.webreach.mirth.server.core.util.ConfigurationException;
 import com.webreach.mirth.server.core.util.JMXConnection;
 
 public class StatusService {
@@ -25,7 +24,7 @@ public class StatusService {
 		}
 	}
 
-	public void initialize() throws ConfigurationException {
+	public void initialize() throws ServiceException {
 		logger.debug("initializing configuration");
 
 		try {
