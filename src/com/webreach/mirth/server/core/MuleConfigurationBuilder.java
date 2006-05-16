@@ -23,32 +23,36 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-package com.webreach.mirth.model;
+package com.webreach.mirth.server.core;
+
+import java.util.List;
+
+import com.webreach.mirth.model.Channel;
+import com.webreach.mirth.model.Transport;
 
 /**
- * A Filter represents a script which is executed on each message and either
- * accepts or rejects the message.
+ * A MuleConfigurationBuilder is used to generate Mule configuration files based
+ * on the current internal Channel configuration.
  * 
  * @author geraldb
  * 
  */
-public class Filter implements Script {
-	private String script;
+public class MuleConfigurationBuilder {
+	private List<Channel> channels = null;
+	private List<Transport> transports = null;
 
-	public Filter() {
-
+	public MuleConfigurationBuilder(List<Channel> channels, List<Transport> transports) {
+		this.channels = channels;
+		this.transports = transports;
 	}
 
-	public Filter(String script) {
-		this.script = script;
-	}
+	public String getConfiguration() throws ConfigurationBuilderException {
+		if ((channels == null) || (transports == null)) {
+			throw new ConfigurationBuilderException();
+		}
 
-	public void setScript(String script) {
-		this.script = script;
+		// TODO: traverse channels and transports to generate mule configuration
+		// using DOM object
+		throw new ConfigurationBuilderException();
 	}
-
-	public String getScript() {
-		return script;
-	}
-
 }

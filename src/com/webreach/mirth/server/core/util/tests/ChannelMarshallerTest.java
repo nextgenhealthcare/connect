@@ -36,6 +36,7 @@ import com.webreach.mirth.model.Filter;
 import com.webreach.mirth.model.Transformer;
 import com.webreach.mirth.model.Validator;
 import com.webreach.mirth.model.bind.ChannelMarshaller;
+import com.webreach.mirth.model.bind.Serializer;
 
 public class ChannelMarshallerTest extends TestCase {
 	private Channel channel;
@@ -99,9 +100,10 @@ public class ChannelMarshallerTest extends TestCase {
 	public void testMarshal() {
 		try {
 			ChannelMarshaller cm = new ChannelMarshaller();
-			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-			cm.marshal(channel, outputStream);
-			System.out.println(outputStream.toString());
+			ByteArrayOutputStream os = new ByteArrayOutputStream();
+			Serializer serializer = new Serializer();
+			serializer.serialize(cm.marshal(channel), null, os);
+			System.out.println(os.toString());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

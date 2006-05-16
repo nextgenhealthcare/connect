@@ -41,24 +41,46 @@ import com.webreach.mirth.model.User;
 import com.webreach.mirth.model.bind.ChannelMarshaller;
 import com.webreach.mirth.model.bind.ChannelUnmarshaller;
 import com.webreach.mirth.model.bind.MarshalException;
+import com.webreach.mirth.model.bind.Serializer;
 import com.webreach.mirth.model.bind.UnmarshalException;
-import com.webreach.mirth.server.core.util.ConfigurationBuilderException;
+import com.webreach.mirth.server.core.ConfigurationBuilderException;
+import com.webreach.mirth.server.core.MuleConfigurationBuilder;
 import com.webreach.mirth.server.core.util.DatabaseConnection;
 import com.webreach.mirth.server.core.util.DatabaseUtil;
-import com.webreach.mirth.server.core.util.MuleConfigurationBuilder;
 import com.webreach.mirth.server.core.util.PropertyLoader;
 
+/**
+ * The ConfigurationService provides services for the Mirth configuration.
+ * 
+ * @author geraldb
+ * 
+ */
 public class ConfigurationService {
 	private DatabaseConnection dbConnection;
 	private Logger logger = Logger.getLogger(ConfigurationService.class);
 
-	public List<User> getUsers() throws ServiceException {
+	/**
+	 * Returns a List containing the user with the specified <code>id</code>.
+	 * If the <code>id</code> is <code>null</code>, all users are returned.
+	 * 
+	 * @return
+	 * @throws ServiceException
+	 */
+	public List<User> getUsers(Integer id) throws ServiceException {
 		ArrayList<User> users = new ArrayList<User>();
 		ResultSet result = null;
 
 		try {
 			dbConnection = new DatabaseConnection();
-			result = dbConnection.query("SELECT ID, USERNAME, PASSWORD FROM USERS;");
+			StringBuffer query = new StringBuffer();
+			query.append("SELECT ID, USERNAME, PASSWORD FROM USERS");
+
+			if (id != null) {
+				query.append(" WHERE ID = " + id.toString());
+			}
+
+			query.append(";");
+			result = dbConnection.query(query.toString());
 
 			while (result.next()) {
 				User user = new User();
@@ -77,16 +99,31 @@ public class ConfigurationService {
 		}
 	}
 
+	/**
+	 * Updates the specified user.
+	 * 
+	 * @param user
+	 * @throws ServiceException
+	 */
 	public void updateUser(User user) throws ServiceException {
-		logger.debug("updating user: " + user.getId());
+		logger.debug("updating user: " + user.toString());
 
 		try {
 			dbConnection = new DatabaseConnection();
 			StringBuffer statement = new StringBuffer();
-			statement.append("INSERT INTO USERS (ID, USERNAME, PASSWORD) VALUES(");
-			statement.append("'" + user.getId() + "',");
-			statement.append("'" + user.getUsername() + "',");
-			statement.append("'" + user.getPassword() + "');");
+
+			if (getUsers(user.getId()).isEmpty()) {
+				statement.append("INSERT INTO USERS (ID, USERNAME, PASSWORD) VALUES(");
+				statement.append("'" + user.getId() + "',");
+				statement.append("'" + user.getUsername() + "',");
+				statement.append("'" + user.getPassword() + "');");
+			} else {
+				statement.append("UPDATE USERS SET ");
+				statement.append("USERNAME = '" + user.getUsername() + "',");
+				statement.append("PASSWORD = '" + user.getPassword() + "'");
+				statement.append(" WHERE ID = " + user.getId() + ";");
+			}
+
 			dbConnection.update(statement.toString());
 		} catch (SQLException e) {
 			throw new ServiceException(e);
@@ -95,14 +132,30 @@ public class ConfigurationService {
 		}
 	}
 
-	public List<Channel> getChannels() throws ServiceException {
+	/**
+	 * Returns a List containing the channel with the specified <code>id</code>.
+	 * If the <code>id</code> is <code>null</code>, all channels are
+	 * returned.
+	 * 
+	 * @return
+	 * @throws ServiceException
+	 */
+	public List<Channel> getChannels(Integer id) throws ServiceException {
 		ArrayList<Channel> channels = new ArrayList<Channel>();
 		ResultSet result = null;
 		ChannelUnmarshaller cu = new ChannelUnmarshaller();
 
 		try {
 			dbConnection = new DatabaseConnection();
-			result = dbConnection.query("SELECT ID, CHANNEL_DATA FROM CHANNELS;");
+			StringBuffer query = new StringBuffer();
+			query.append("SELECT ID, CHANNEL_DATA FROM CHANNELS");
+
+			if (id != null) {
+				query.append(" WHERE ID = " + id);
+			}
+
+			query.append(";");
+			result = dbConnection.query(query.toString());
 
 			while (result.next()) {
 				Channel channel = cu.unmarshal(result.getString("CHANNEL_DATA"));
@@ -121,22 +174,37 @@ public class ConfigurationService {
 		}
 	}
 
+	/**
+	 * Updates the specified channel.
+	 * 
+	 * @param channel
+	 * @throws ServiceException
+	 */
 	public void updateChannel(Channel channel) throws ServiceException {
 		logger.debug("updating channel: " + channel.getId());
+		ChannelMarshaller marshaller = new ChannelMarshaller();
+		ByteArrayOutputStream os = new ByteArrayOutputStream();
+		Serializer serializer = new Serializer();
 
 		try {
 			dbConnection = new DatabaseConnection();
-			StringBuffer insert = new StringBuffer();
-			insert.append("INSERT INTO CHANNELS (ID, CHANNEL_NAME, CHANNEL_DATA) VALUES(");
-			insert.append(channel.getId() + ",");
-			insert.append("'" + channel.getName() + "'");
+			StringBuffer statement = new StringBuffer();
 
-			ChannelMarshaller cm = new ChannelMarshaller();
-			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-			cm.marshal(channel, outputStream);
-			insert.append("'" + outputStream.toString() + "');");
+			if (getChannels(channel.getId()).isEmpty()) {
+				statement.append("INSERT INTO CHANNELS (ID, CHANNEL_NAME, CHANNEL_DATA) VALUES(");
+				statement.append(channel.getId() + ",");
+				statement.append("'" + channel.getName() + "'");
+				serializer.serialize(marshaller.marshal(channel), ChannelMarshaller.cDataElements, os);
+				statement.append("'" + os.toString() + "');");
+			} else {
+				statement.append("UPDATE CHANNELS SET");
+				statement.append("CHANNEL_NAME = '" + channel.getName() + "'");
+				serializer.serialize(marshaller.marshal(channel), ChannelMarshaller.cDataElements, os);
+				statement.append("CHANNEL_DATA = '" + os.toString() + "'");
+				statement.append(" WHERE ID = " + channel.getId() + ";");
+			}
 
-			dbConnection.update(insert.toString());
+			dbConnection.update(statement.toString());
 		} catch (SQLException e) {
 			throw new ServiceException(e);
 		} catch (MarshalException e) {
@@ -146,6 +214,12 @@ public class ConfigurationService {
 		}
 	}
 
+	/**
+	 * Returns a List of all transports.
+	 * 
+	 * @return
+	 * @throws ServiceException
+	 */
 	public List<Transport> getTransports() throws ServiceException {
 		ArrayList<Transport> transports = new ArrayList<Transport>();
 		ResultSet result = null;
@@ -194,7 +268,7 @@ public class ConfigurationService {
 
 	public String getMuleConfiguration() throws ServiceException {
 		try {
-			MuleConfigurationBuilder builder = new MuleConfigurationBuilder(getChannels(), getTransports());
+			MuleConfigurationBuilder builder = new MuleConfigurationBuilder(getChannels(null), getTransports());
 			return builder.getConfiguration();
 		} catch (ServiceException e) {
 			throw e;
@@ -203,7 +277,13 @@ public class ConfigurationService {
 		}
 	}
 
-	public int getNextId() throws RuntimeException {
+	/**
+	 * Returns the next unique configuration identified.
+	 * 
+	 * @return
+	 * @throws RuntimeException
+	 */
+	public int getNextId() throws ServiceException {
 		dbConnection = new DatabaseConnection();
 		ResultSet result = null;
 		int id = -1;
@@ -216,7 +296,7 @@ public class ConfigurationService {
 				id = result.getInt(1);
 			}
 		} catch (SQLException e) {
-			throw new RuntimeException("Could not generate next unique ID.", e);
+			throw new ServiceException("Could not generate next unique ID.", e);
 		} finally {
 			DatabaseUtil.close(result);
 			dbConnection.close();

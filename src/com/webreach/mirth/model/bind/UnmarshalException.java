@@ -24,7 +24,7 @@
  * ***** END LICENSE BLOCK ***** */
 
 
-package com.webreach.mirth.server.core.util;
+package com.webreach.mirth.model.bind;
 
 public class UnmarshalException extends Exception {
 	public UnmarshalException(Throwable cause) {

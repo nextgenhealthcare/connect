@@ -10,20 +10,20 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
-import com.webreach.mirth.model.User;
+import com.webreach.mirth.model.Channel;
 
-public class UserListUnmarshaller {
-	private Logger logger = Logger.getLogger(UserListUnmarshaller.class);
+public class ChannelListUnmarshaller {
+	private Logger logger = Logger.getLogger(ChannelListUnmarshaller.class);
 
 	/**
-	 * Returns a List of User objects given an XML string representation.
+	 * Returns a List of Channel objects given a XML string representation.
 	 * 
 	 * @param source
 	 * @return
 	 * @throws UnmarshalException
 	 */
-	public List<User> unmarshal(String source) throws UnmarshalException {
-		logger.debug("unmarshalling user list");
+	public List<Channel> unmarshal(String source) throws UnmarshalException {
+		logger.debug("unmarshalling channel list");
 
 		try {
 			InputStream is = new ByteArrayInputStream(source.getBytes());
@@ -38,29 +38,29 @@ public class UserListUnmarshaller {
 	}
 
 	/**
-	 * Returns a List of User objects given a Document representation.
+	 * Returns a List of Channel objects given a Document representation.
 	 * 
 	 * @param document
 	 * @return
 	 * @throws UnmarshalException
 	 */
-	public List<User> unmarshal(Document document) throws UnmarshalException {
-		if ((document == null) || (!document.getDocumentElement().getTagName().equals("users"))) {
+	public List<Channel> unmarshal(Document document) throws UnmarshalException {
+		if ((document == null) || (!document.getDocumentElement().getTagName().equals("channels"))) {
 			throw new UnmarshalException("Document is invalid.");
 		}
 		
 		try {
-			List<User> userList = new ArrayList<User>();
+			List<Channel> channelList = new ArrayList<Channel>();
 			DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
-			UserUnmarshaller userUnmarshaller = new UserUnmarshaller();
+			ChannelUnmarshaller channelUnmarshaller = new ChannelUnmarshaller();
 
-			for (int i = 0; i < document.getElementsByTagName("user").getLength(); i++) {
-				Document userDocument = docBuilderFactory.newDocumentBuilder().newDocument();
-				userDocument.appendChild(userDocument.importNode(document.getElementsByTagName("user").item(i), false));
-				userList.add(userUnmarshaller.unmarshal(userDocument));
+			for (int i = 0; i < document.getElementsByTagName("channel").getLength(); i++) {
+				Document channelDocument = docBuilderFactory.newDocumentBuilder().newDocument();
+				channelDocument.appendChild(channelDocument.importNode(document.getElementsByTagName("channel").item(i), false));
+				channelList.add(channelUnmarshaller.unmarshal(channelDocument));
 			}
 			
-			return userList;
+			return channelList;
 		} catch (Exception e) {
 			throw new UnmarshalException(e);
 		}

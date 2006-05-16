@@ -28,6 +28,13 @@ package com.webreach.mirth.model;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A Channel is the main element of the Mirth architecture. Channels connect a
+ * single source with multiple destinations which are represented by Connectors.
+ * 
+ * @author geraldb
+ * 
+ */
 public class Channel {
 	public enum Status {
 		STARTED, STOPPED, PAUSED

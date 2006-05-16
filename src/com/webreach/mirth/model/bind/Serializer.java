@@ -8,15 +8,18 @@ import org.apache.xml.serialize.XMLSerializer;
 import org.w3c.dom.Document;
 
 public class Serializer {
-	public Serializer() {}
-	
-	public void serialize(Document document, String[] dataElements, OutputStream os) {
-//		dataElements = { "filter", "variable", "profile" };
-
+	/**
+	 * Serializes a Document to XML (with the specified CDATA elements) and writes it to an OutputStream.
+	 * 
+	 * @param document
+	 * @param cDataElements
+	 * @param os
+	 */
+	public void serialize(Document document, String[] cDataElements, OutputStream os) {
 		OutputFormat of = new OutputFormat(document);
 		
-		if (dataElements != null) {
-			of.setCDataElements(dataElements);	
+		if (cDataElements != null) {
+			of.setCDataElements(cDataElements);	
 		}
 		
 		of.setOmitXMLDeclaration(true);

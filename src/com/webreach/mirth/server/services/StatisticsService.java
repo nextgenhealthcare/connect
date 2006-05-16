@@ -7,37 +7,9 @@ import org.apache.log4j.Logger;
 import com.webreach.mirth.server.core.util.JMXConnection;
 
 public class StatisticsService {
-	private static StatisticsService instance = null;
-	private boolean initialized = false;
 	private Logger logger = Logger.getLogger(StatisticsService.class);
 	private JMXConnection jmxConnection = null;
 	
-	private StatisticsService() {}
-
-	public static StatisticsService getInstance() {
-		synchronized (StatusService.class) {
-			if (instance == null)
-				instance = new StatisticsService();
-
-			return instance;
-		}
-	}
-	
-	public void initialize() {
-		logger.debug("initializing configuration");
-		
-		try {
-			jmxConnection = new JMXConnection();
-			initialized = true;
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	
-	public boolean isInitialized() {
-		return initialized;
-	}
-
 	public int getChannelSentCount(int id) {
 		try {
 			jmxConnection = new JMXConnection();
@@ -80,7 +52,7 @@ public class StatisticsService {
 		}
 	}
 
-	public void clearChannelStatistics(int id) {
+	public void clearChannelStatistics(int id) throws ServiceException {
 		try {
 			jmxConnection = new JMXConnection();
 			Hashtable<String, String> properties = new Hashtable<String, String>();
@@ -88,8 +60,7 @@ public class StatisticsService {
 			properties.put("name", String.valueOf(id));
 			jmxConnection.invokeOperation(properties, "clear", null);
 		} catch (Exception e) {
-			// TODO: do something
-			// throw new StatisticsException();
+			throw new ServiceException(e);
 		}
 	}
 

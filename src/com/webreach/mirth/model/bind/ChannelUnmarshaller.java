@@ -44,8 +44,13 @@ import com.webreach.mirth.model.Validator;
 public class ChannelUnmarshaller {
 	private Logger logger = Logger.getLogger(ChannelUnmarshaller.class);
 	
-	public ChannelUnmarshaller() {}
-	
+	/**
+	 * Returns a Channel object given a XML string representation.
+	 * 
+	 * @param source
+	 * @return
+	 * @throws UnmarshalException
+	 */
 	public Channel unmarshal(String source) throws UnmarshalException {
 		logger.debug("unmarshalling channel");
 		
@@ -62,6 +67,13 @@ public class ChannelUnmarshaller {
 		}
 	}
 	
+	/**
+	 * Returns a Channel object given a Document representation.
+	 * 
+	 * @param document
+	 * @return
+	 * @throws UnmarshalException
+	 */
 	public Channel unmarshal(Document document) throws UnmarshalException {
 		if (document == null) {
 			throw new UnmarshalException("Document is invalid.");

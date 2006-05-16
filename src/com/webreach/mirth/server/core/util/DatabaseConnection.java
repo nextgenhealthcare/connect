@@ -35,12 +35,22 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
-
+/**
+ * A DatabaseConnection provides a connection to the internal Mirth database.
+ * 
+ * @author geraldb
+ *
+ */
 public class DatabaseConnection {
 	private Properties mirthProperties;
 	private Connection connection;
 	private Logger logger = Logger.getLogger(DatabaseConnection.class);
 	
+	/**
+	 * Initiliazes the Mirth database.
+	 * 
+	 * @throws RuntimeException
+	 */
 	public DatabaseConnection() throws RuntimeException {
 		try {
 			mirthProperties = PropertyLoader.loadProperties("mirth");
@@ -50,6 +60,12 @@ public class DatabaseConnection {
 		}
 	}
 	
+	/**
+	 * Returns a new connection to the database.
+	 * 
+	 * @return
+	 * @throws SQLException
+	 */
 	private Connection getConnection() throws SQLException {
 		try {
 			return DriverManager.getConnection(mirthProperties.getProperty("database.url"), "sa", "");	
@@ -58,6 +74,13 @@ public class DatabaseConnection {
 		}
 	}
 
+	/**
+	 * Executes a query on the database and returns a ResultSet.
+	 * 
+	 * @param expression
+	 * @return
+	 * @throws SQLException
+	 */
 	public synchronized ResultSet query(String expression) throws SQLException {
 		Statement statement = null;
 		ResultSet result = null;
@@ -76,6 +99,13 @@ public class DatabaseConnection {
 		}
 	}
 
+	/**
+	 * Executes an update on the database and returns the row count.
+	 * 
+	 * @param expression
+	 * @return
+	 * @throws SQLException
+	 */
 	public synchronized int update(String expression) throws SQLException {
 		Statement statement = null;
 		
@@ -94,6 +124,11 @@ public class DatabaseConnection {
 		}
 	}
 	
+	/**
+	 * Closes the database connection.
+	 * 
+	 * @throws RuntimeException
+	 */
 	public void close() throws RuntimeException {
 		if (connection == null) {
 			logger.warn("database connection cannot be closed");

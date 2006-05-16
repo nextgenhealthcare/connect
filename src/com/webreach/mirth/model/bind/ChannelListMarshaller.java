@@ -9,32 +9,33 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.User;
 
-public class UserListMarshaller {
-	private Logger logger = Logger.getLogger(UserListMarshaller.class);
+public class ChannelListMarshaller {
+	private Logger logger = Logger.getLogger(ChannelListMarshaller.class);
 	
 	/**
-	 * Returns a Document representation of a List of User objects.
+	 * Returns a Document representation of a List of Users.
 	 * 
 	 * @param userList
 	 * @return
 	 * @throws MarshalException
 	 */
 	public Document marshal(List<User> userList) throws MarshalException {
-		logger.debug("marshaling user list");
+		logger.debug("marshaling channel list");
 		
 		try {
-			UserMarshaller userMarshaller = new UserMarshaller();
+			ChannelMarshaller channelMarshaller = new ChannelMarshaller();
 			Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-			Element userListElement = document.createElement("users");
+			Element channelListElement = document.createElement("channels");
 			
 			for (Iterator iter = userList.iterator(); iter.hasNext();) {
-				User user = (User) iter.next();
-				userListElement.appendChild(document.importNode(userMarshaller.marshal(user).getDocumentElement(), false));
+				Channel channel = (Channel) iter.next();
+				channelListElement.appendChild(document.importNode(channelMarshaller.marshal(channel).getDocumentElement(), false));
 			}
 			
-			document.appendChild(userListElement);
+			document.appendChild(channelListElement);
 			return document;
 		} catch (Exception e) {
 			throw new MarshalException(e);

@@ -30,6 +30,7 @@ import junit.framework.TestCase;
 
 import com.webreach.mirth.server.core.util.DatabaseConnection;
 import com.webreach.mirth.server.services.ConfigurationService;
+import com.webreach.mirth.server.services.ServiceException;
 
 public class ConfigurationTest extends TestCase {
 	private ConfigurationService configuration;
@@ -70,9 +71,15 @@ public class ConfigurationTest extends TestCase {
 	}
 	
 	public void testGetNextId() {
-		int id1 = configuration.getNextId();
-		int id2 = configuration.getNextId();
-		int id3 = configuration.getNextId();
+		int id1 = 0, id2 = 0, id3 = 0;
+		try {
+			id1 = configuration.getNextId();
+			id2 = configuration.getNextId();
+			id3 = configuration.getNextId();
+
+		} catch (ServiceException e) {
+			e.printStackTrace();
+		}
 		assertEquals(id2 - 1, id1);
 		assertEquals(id3 - 1, id2);
 	}

@@ -1,4 +1,4 @@
-package com.webreach.mirth.server.core.util;
+package com.webreach.mirth.model.bind;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -14,6 +14,13 @@ import com.webreach.mirth.model.Transport;
 public class TransportUnmarshaller {
 	private Logger logger = Logger.getLogger(UserUnmarshaller.class);
 
+	/**
+	 * Returns a Transport object given an XML string representation.
+	 * 
+	 * @param source
+	 * @return
+	 * @throws UnmarshalException
+	 */
 	public Transport unmarshal(String source) throws UnmarshalException {
 		logger.debug("unmarshalling transport");
 
@@ -30,6 +37,13 @@ public class TransportUnmarshaller {
 		}
 	}
 
+	/**
+	 * Returns a Transport object given a Document representation.
+	 * 
+	 * @param document
+	 * @return
+	 * @throws UnmarshalException
+	 */
 	public Transport unmarshal(Document document) throws UnmarshalException {
 		if (document == null) {
 			throw new UnmarshalException("Document is invalid.");

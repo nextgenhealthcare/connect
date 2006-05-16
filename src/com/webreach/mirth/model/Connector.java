@@ -28,6 +28,15 @@ package com.webreach.mirth.model;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * A Connector represents a connection to either a source or destination. Each
+ * Connector has an associated Transformer which performs the appropriate
+ * transformation. A connector is also of a specific Transport type (TCP, HTTP,
+ * etc.).
+ * 
+ * @author geraldb
+ * 
+ */
 public class Connector {
 	private String name;
 	private Map<String, String> properties;

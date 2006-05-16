@@ -38,6 +38,12 @@ import javax.management.remote.JMXServiceURL;
 import org.apache.log4j.Logger;
 
 
+/**
+ * A JMXConnection provides a connection to the Mule MBean server.
+ * 
+ * @author geraldb
+ *
+ */
 public class JMXConnection {
 	private JMXConnector jmxConnector;
 	private MBeanServerConnection jmxConnection;

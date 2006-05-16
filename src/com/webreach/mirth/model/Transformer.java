@@ -30,6 +30,13 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
+/**
+ * A Transformer represents a script which is executed on each message passing
+ * through the Connector with which the transformer is associated.
+ * 
+ * @author geraldb
+ * 
+ */
 public class Transformer implements Script {
 	public enum Type {
 		MAP, SCRIPT, XSLT

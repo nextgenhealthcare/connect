@@ -1,4 +1,4 @@
-package com.webreach.mirth.server.core.util;
+package com.webreach.mirth.model.bind;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -9,10 +9,16 @@ import org.w3c.dom.Element;
 import com.webreach.mirth.model.User;
 
 public class UserMarshaller {
+	public static final String[] cDataElements = null;
 	private Logger logger = Logger.getLogger(UserMarshaller.class);
 	
-	public UserMarshaller() {}
-	
+	/**
+	 * Returns a Document representation of a User object.
+	 * 
+	 * @param user
+	 * @return
+	 * @throws MarshalException
+	 */
 	public Document marshal(User user) throws MarshalException {
 		logger.debug("marshaling user: " + user.toString());
 		

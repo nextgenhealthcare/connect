@@ -24,28 +24,14 @@
  * ***** END LICENSE BLOCK ***** */
 
 
-package com.webreach.mirth.server.core.util;
+package com.webreach.mirth.server.core;
 
-import java.util.List;
-
-import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.Transport;
-
-public class MuleConfigurationBuilder {
-	private List<Channel> channels = null;
-	private List<Transport> transports = null;
-	
-	public MuleConfigurationBuilder(List<Channel> channels, List<Transport> transports) {
-		this.channels = channels;
-		this.transports = transports;
+public class ConfigurationBuilderException extends Exception {
+	public ConfigurationBuilderException() {
+		super();
 	}
 	
-	public String getConfiguration() throws ConfigurationBuilderException {
-		if ((channels == null) || (transports == null)) {
-			throw new ConfigurationBuilderException();	
-		}
-
-		// TODO: traverse channels and transports to generate mule configuration using DOM object
-		throw new ConfigurationBuilderException();
+	public ConfigurationBuilderException(Throwable cause) {
+		super(cause);
 	}
 }
