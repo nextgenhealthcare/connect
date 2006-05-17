@@ -11,6 +11,8 @@ import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.log4j.Logger;
 
 import com.webreach.mirth.model.Channel;
+import com.webreach.mirth.model.Statistics;
+import com.webreach.mirth.model.Transport;
 import com.webreach.mirth.model.User;
 import com.webreach.mirth.model.Channel.Status;
 import com.webreach.mirth.model.bind.ChannelListUnmarshaller;
@@ -18,6 +20,8 @@ import com.webreach.mirth.model.bind.ChannelMarshaller;
 import com.webreach.mirth.model.bind.PropertiesMarshaller;
 import com.webreach.mirth.model.bind.PropertiesUnmarshaller;
 import com.webreach.mirth.model.bind.Serializer;
+import com.webreach.mirth.model.bind.StatisticsUnmarshaller;
+import com.webreach.mirth.model.bind.TransportListUnmarshaller;
 import com.webreach.mirth.model.bind.UserListUnmarshaller;
 import com.webreach.mirth.model.bind.UserMarshaller;
 
@@ -30,7 +34,14 @@ public class Client {
 	private final String AUTHENTICATION_SERVLET = "/authentication";
 	private final String CONFIGURATION_SERVLET = "/configuration";
 	private final String STATUS_SERVLET = "/status";
+	private final String STATISTICS_SERVLET = "/statistics";
 
+	/**
+	 * Instantiates a new Mirth client with a connection to the specified
+	 * server.
+	 * 
+	 * @param serverURL
+	 */
 	public Client(String serverURL) {
 		this.serverURL = serverURL;
 	}
@@ -139,8 +150,8 @@ public class Client {
 				throw new ClientException("method failed: " + post.getStatusLine());
 			}
 
-			ChannelListUnmarshaller channelListUnmarshaller = new ChannelListUnmarshaller();
-			return channelListUnmarshaller.unmarshal(post.getResponseBodyAsString());
+			ChannelListUnmarshaller unmarshaller = new ChannelListUnmarshaller();
+			return unmarshaller.unmarshal(post.getResponseBodyAsString());
 		} catch (Exception e) {
 			throw new ClientException(e);
 		} finally {
@@ -179,6 +190,35 @@ public class Client {
 	}
 
 	/**
+	 * Returns a List of all transports.
+	 * 
+	 * @return
+	 * @throws ClientException
+	 */
+	public List<Transport> getTransports() throws ClientException {
+		logger.debug("retrieving transport list");
+
+		try {
+			post = new PostMethod(serverURL + CONFIGURATION_SERVLET);
+			NameValuePair[] data = { new NameValuePair("method", "getTransports") };
+			post.setRequestBody(data);
+
+			int statusCode = client.executeMethod(post);
+
+			if (statusCode != HttpStatus.SC_OK) {
+				throw new ClientException("method failed: " + post.getStatusLine());
+			}
+
+			TransportListUnmarshaller unmarshaller = new TransportListUnmarshaller();
+			return unmarshaller.unmarshal(post.getResponseBodyAsString());
+		} catch (Exception e) {
+			throw new ClientException(e);
+		} finally {
+			post.releaseConnection();
+		}
+	}
+
+	/**
 	 * Returns a List of all users.
 	 * 
 	 * @return
@@ -198,8 +238,8 @@ public class Client {
 				throw new ClientException("method failed: " + post.getStatusLine());
 			}
 
-			UserListUnmarshaller userListUnmarshaller = new UserListUnmarshaller();
-			return userListUnmarshaller.unmarshal(post.getResponseBodyAsString());
+			UserListUnmarshaller unmarshaller = new UserListUnmarshaller();
+			return unmarshaller.unmarshal(post.getResponseBodyAsString());
 		} catch (Exception e) {
 			throw new ClientException(e);
 		} finally {
@@ -429,7 +469,7 @@ public class Client {
 	}
 
 	/**
-	 * Returns the status of the specified channel.
+	 * Returns the status of the channel with the specified id.
 	 * 
 	 * @return
 	 * @throws ClientException
@@ -449,6 +489,61 @@ public class Client {
 			}
 
 			return Status.valueOf(post.getResponseBodyAsString().trim());
+		} catch (Exception e) {
+			throw new ClientException(e);
+		} finally {
+			post.releaseConnection();
+		}
+	}
+	
+	/**
+	 * Returns the statistics for the channel with the specified id.
+	 * 
+	 * @return
+	 * @throws ClientException
+	 */
+	public Statistics getChannelStatistics(int id) throws ClientException {
+		logger.debug("retrieving channel statistics: " + id);
+
+		try {
+			post = new PostMethod(serverURL + STATISTICS_SERVLET);
+			NameValuePair[] data = { new NameValuePair("op", "getChannelStatistics"), new NameValuePair("id", String.valueOf(id)) };
+			post.setRequestBody(data);
+
+			int statusCode = client.executeMethod(post);
+
+			if (statusCode != HttpStatus.SC_OK) {
+				throw new ClientException("operation failed: " + post.getStatusLine());
+			}
+
+			StatisticsUnmarshaller unmarshaller = new StatisticsUnmarshaller();
+			return unmarshaller.unmarshal(post.getResponseBodyAsString().trim());
+		} catch (Exception e) {
+			throw new ClientException(e);
+		} finally {
+			post.releaseConnection();
+		}
+	}
+
+	/**
+	 * Clears the statistics for the channel with the specified id.
+	 * 
+	 * @param id
+	 * @throws ClientException
+	 */
+	public void clearChannelStatistics(int id) throws ClientException {
+		logger.debug("clearing channel statistics: " + id);
+
+		try {
+			post = new PostMethod(serverURL + STATISTICS_SERVLET);
+			NameValuePair[] data = { new NameValuePair("op", "clearChannelStistics"), new NameValuePair("id", String.valueOf(id)) };
+			post.setRequestBody(data);
+
+			int statusCode = client.executeMethod(post);
+
+			if (statusCode != HttpStatus.SC_OK) {
+				throw new ClientException("operation failed: " + post.getStatusLine());
+			}
 		} catch (Exception e) {
 			throw new ClientException(e);
 		} finally {

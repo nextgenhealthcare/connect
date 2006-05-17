@@ -25,13 +25,13 @@ public class UserListMarshaller {
 		logger.debug("marshalling user list");
 		
 		try {
-			UserMarshaller userMarshaller = new UserMarshaller();
+			UserMarshaller marshaller = new UserMarshaller();
 			Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
 			Element userListElement = document.createElement("users");
 			
 			for (Iterator iter = userList.iterator(); iter.hasNext();) {
 				User user = (User) iter.next();
-				userListElement.appendChild(document.importNode(userMarshaller.marshal(user).getDocumentElement(), false));
+				userListElement.appendChild(document.importNode(marshaller.marshal(user).getDocumentElement(), false));
 			}
 			
 			document.appendChild(userListElement);

@@ -54,12 +54,12 @@ public class UserListUnmarshaller {
 		try {
 			List<User> userList = new ArrayList<User>();
 			DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
-			UserUnmarshaller userUnmarshaller = new UserUnmarshaller();
+			UserUnmarshaller unmarshaller = new UserUnmarshaller();
 
 			for (int i = 0; i < document.getElementsByTagName("user").getLength(); i++) {
 				Document userDocument = docBuilderFactory.newDocumentBuilder().newDocument();
 				userDocument.appendChild(userDocument.importNode(document.getElementsByTagName("user").item(i), false));
-				userList.add(userUnmarshaller.unmarshal(userDocument));
+				userList.add(unmarshaller.unmarshal(userDocument));
 			}
 			
 			return userList;

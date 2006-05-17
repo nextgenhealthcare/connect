@@ -25,13 +25,13 @@ public class ChannelListMarshaller {
 		logger.debug("marshaling channel list");
 		
 		try {
-			ChannelMarshaller channelMarshaller = new ChannelMarshaller();
+			ChannelMarshaller marshaller = new ChannelMarshaller();
 			Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
 			Element channelListElement = document.createElement("channels");
 			
 			for (Iterator iter = userList.iterator(); iter.hasNext();) {
 				Channel channel = (Channel) iter.next();
-				channelListElement.appendChild(document.importNode(channelMarshaller.marshal(channel).getDocumentElement(), false));
+				channelListElement.appendChild(document.importNode(marshaller.marshal(channel).getDocumentElement(), false));
 			}
 			
 			document.appendChild(channelListElement);

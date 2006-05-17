@@ -17,7 +17,7 @@ public class PropertiesMarshaller {
 	/**
 	 * Returns a Document representation of a Properties object.
 	 * 
-	 * @param transport
+	 * @param properties
 	 * @return
 	 * @throws MarshalException
 	 */

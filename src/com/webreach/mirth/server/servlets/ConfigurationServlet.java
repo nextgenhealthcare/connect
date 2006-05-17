@@ -13,6 +13,7 @@ import com.webreach.mirth.model.bind.ChannelUnmarshaller;
 import com.webreach.mirth.model.bind.PropertiesMarshaller;
 import com.webreach.mirth.model.bind.PropertiesUnmarshaller;
 import com.webreach.mirth.model.bind.Serializer;
+import com.webreach.mirth.model.bind.TransportListMarshaller;
 import com.webreach.mirth.model.bind.UnmarshalException;
 import com.webreach.mirth.model.bind.UserListMarshaller;
 import com.webreach.mirth.model.bind.UserUnmarshaller;
@@ -41,6 +42,9 @@ public class ConfigurationServlet extends MirthServlet {
 			} else if (method.equals("getUsers")) {
 				response.setContentType("application/xml");
 				out.println(getUsers());
+			} else if (method.equals("getTransports")) {
+				response.setContentType("application/xml");
+				out.println(getTransports());
 			} else if (method.equals("updateUser")) {
 				String body = request.getParameter("body");
 				updateUser(body);
@@ -78,6 +82,19 @@ public class ConfigurationServlet extends MirthServlet {
 		} catch (ServiceException e) {
 			e.printStackTrace();
 		} catch (UnmarshalException e) {
+			throw new ServletException(e);
+		}
+	}
+
+	private String getTransports() throws ServletException {
+		TransportListMarshaller marshaller = new TransportListMarshaller();
+		Serializer serializer = new Serializer();
+		ByteArrayOutputStream os = new ByteArrayOutputStream();
+
+		try {
+			serializer.serialize(marshaller.marshal(configurationService.getTransports()), null, os);
+			return os.toString();
+		} catch (Exception e) {
 			throw new ServletException(e);
 		}
 	}
