@@ -44,7 +44,7 @@ public class Channel {
 		INBOUND, OUTBOUND
 	};
 
-	public enum Type {
+	public enum Mode {
 		ROUTER, BROADCAST, APPLICATION
 	};
 
@@ -55,7 +55,7 @@ public class Channel {
 	private boolean modified;
 	private Status initialStatus;
 	private Direction direction;
-	private Type type;
+	private Mode mode;
 	private Filter filter;
 	private Validator validator;
 	private Connector sourceConnector;
@@ -137,12 +137,12 @@ public class Channel {
 		this.sourceConnector = sourceConnector;
 	}
 
-	public Type getType() {
-		return this.type;
+	public Mode getMode() {
+		return this.mode;
 	}
 
-	public void setType(Type type) {
-		this.type = type;
+	public void setMode(Mode mode) {
+		this.mode = mode;
 	}
 
 	public Validator getValidator() {

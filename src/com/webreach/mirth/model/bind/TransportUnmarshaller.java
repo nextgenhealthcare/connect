@@ -55,6 +55,7 @@ public class TransportUnmarshaller {
 		Element transportElement = document.getDocumentElement();
 
 		transport.setName(transportElement.getAttribute("name"));
+		transport.setType(Transport.Type.valueOf(transportElement.getAttribute("type")));
 		transport.setDisplayName(transportElement.getAttribute("displayName"));
 		transport.setClassName(transportElement.getAttribute("className"));
 		transport.setProtocol(transportElement.getAttribute("protocol"));

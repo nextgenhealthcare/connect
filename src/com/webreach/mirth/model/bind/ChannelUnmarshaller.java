@@ -88,15 +88,9 @@ public class ChannelUnmarshaller {
 			Element channelElement = document.getDocumentElement();
 			channel.setId(Integer.parseInt(channelElement.getAttribute("id")));
 			channel.setName(channelElement.getAttribute("name"));
+			channel.setMode(Channel.Mode.valueOf(channelElement.getAttribute("mode")));
 			channel.setDescription(channelElement.getAttribute("description"));
-			
-			// channel.enabled
-			if (channelElement.getAttribute("enabled").equals("true")) {
-				channel.setEnabled(true);
-			} else {
-				channel.setEnabled(false);
-			}
-
+			channel.setEnabled(Boolean.valueOf(channelElement.getAttribute("enabled")).booleanValue());
 			channel.setDirection(Channel.Direction.valueOf(channelElement.getAttribute("direction")));
 			channel.setInitialStatus(Channel.Status.valueOf(channelElement.getAttribute("initial")));
 			

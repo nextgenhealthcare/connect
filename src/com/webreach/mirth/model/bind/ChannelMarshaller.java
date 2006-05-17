@@ -60,15 +60,9 @@ public class ChannelMarshaller {
 			Element channelElement = document.createElement("channel");
 			channelElement.setAttribute("id", String.valueOf(channel.getId()));
 			channelElement.setAttribute("name", channel.getName());
+			channelElement.setAttribute("mode", channel.getMode().toString());
 			channelElement.setAttribute("description", channel.getDescription());
-
-			// channel.enabled
-			if (channel.isEnabled()) {
-				channelElement.setAttribute("enabled", "true");
-			} else {
-				channelElement.setAttribute("enabled", "false");
-			}
-
+			channelElement.setAttribute("enabled", new Boolean(channel.isEnabled()).toString());
 			channelElement.setAttribute("initial", channel.getInitialStatus().name());
 			channelElement.setAttribute("direction", channel.getDirection().name());
 

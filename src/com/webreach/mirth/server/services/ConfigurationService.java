@@ -25,8 +25,11 @@
 
 package com.webreach.mirth.server.services;
 
+import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -43,7 +46,8 @@ import com.webreach.mirth.model.bind.ChannelUnmarshaller;
 import com.webreach.mirth.model.bind.MarshalException;
 import com.webreach.mirth.model.bind.Serializer;
 import com.webreach.mirth.model.bind.UnmarshalException;
-import com.webreach.mirth.server.core.ConfigurationBuilderException;
+import com.webreach.mirth.server.Command;
+import com.webreach.mirth.server.CommandQueue;
 import com.webreach.mirth.server.core.MuleConfigurationBuilder;
 import com.webreach.mirth.server.core.util.DatabaseConnection;
 import com.webreach.mirth.server.core.util.DatabaseUtil;
@@ -58,7 +62,7 @@ import com.webreach.mirth.server.core.util.PropertyLoader;
 public class ConfigurationService {
 	private Logger logger = Logger.getLogger(ConfigurationService.class);
 	private DatabaseConnection dbConnection;
-	
+
 	/**
 	 * Returns a List containing the user with the specified <code>id</code>.
 	 * If the <code>id</code> is <code>null</code>, all users are returned.
@@ -69,7 +73,7 @@ public class ConfigurationService {
 	 */
 	public List<User> getUsers(Integer id) throws ServiceException {
 		logger.debug("retrieving user list: " + id);
-		
+
 		ArrayList<User> users = new ArrayList<User>();
 		ResultSet result = null;
 
@@ -146,7 +150,7 @@ public class ConfigurationService {
 	 */
 	public List<Channel> getChannels(Integer id) throws ServiceException {
 		logger.debug("retrieving user list: " + id);
-		
+
 		ArrayList<Channel> channels = new ArrayList<Channel>();
 		ResultSet result = null;
 		ChannelUnmarshaller cu = new ChannelUnmarshaller();
@@ -188,7 +192,7 @@ public class ConfigurationService {
 	 */
 	public void updateChannel(Channel channel) throws ServiceException {
 		logger.debug("updating channel: " + channel.getId());
-		
+
 		ChannelMarshaller marshaller = new ChannelMarshaller();
 		ByteArrayOutputStream os = new ByteArrayOutputStream();
 		Serializer serializer = new Serializer();
@@ -222,16 +226,16 @@ public class ConfigurationService {
 	}
 
 	/**
-	 * Returns a List containing the transport with the specified <code>id</code>.
-	 * If the <code>id</code> is <code>null</code>, all transports are
-	 * returned.
+	 * Returns a List containing the transport with the specified
+	 * <code>id</code>. If the <code>id</code> is <code>null</code>, all
+	 * transports are returned.
 	 * 
 	 * @return
 	 * @throws ServiceException
 	 */
 	public List<Transport> getTransports() throws ServiceException {
 		logger.debug("retrieving transport list");
-		
+
 		ArrayList<Transport> transports = new ArrayList<Transport>();
 		ResultSet result = null;
 
@@ -262,7 +266,7 @@ public class ConfigurationService {
 
 	public Properties getProperties() throws ServiceException {
 		logger.debug("retrieving properties");
-		
+
 		Properties properties = PropertyLoader.loadProperties("mirth");
 
 		if (properties == null) {
@@ -274,7 +278,7 @@ public class ConfigurationService {
 
 	public void updateProperties(Properties properties) throws ServiceException {
 		logger.debug("updating properties");
-		
+
 		try {
 			FileOutputStream fos = new FileOutputStream("mirth.properties");
 			properties.store(fos, null);
@@ -283,22 +287,9 @@ public class ConfigurationService {
 		}
 	}
 
-	public String getMuleConfiguration() throws ServiceException {
-		logger.debug("retrieving mule configuration");
-		
-		try {
-			MuleConfigurationBuilder builder = new MuleConfigurationBuilder(getChannels(null), getTransports());
-			return builder.getConfiguration();
-		} catch (ServiceException e) {
-			throw e;
-		} catch (ConfigurationBuilderException e) {
-			throw new ServiceException("Could not generate Mule configuration.", e);
-		}
-	}
-
 	public int getNextId() throws ServiceException {
 		logger.debug("retrieving next id");
-		
+
 		dbConnection = new DatabaseConnection();
 		ResultSet result = null;
 		int id = -1;
@@ -319,4 +310,82 @@ public class ConfigurationService {
 
 		return id;
 	}
+
+	/**
+	 * Creates a new configuration and restarts the Mule engine.
+	 * 
+	 * @throws ServiceException
+	 */
+	public void deployChannels() throws ServiceException {
+		logger.debug("deploying channels");
+
+		try {
+			CommandQueue queue = CommandQueue.getInstance();
+			ByteArrayOutputStream os = new ByteArrayOutputStream();
+			Serializer serializer = new Serializer();
+
+			// instantiate a new configuration builder given the current channel
+			// and transport list
+			MuleConfigurationBuilder builder = new MuleConfigurationBuilder(getChannels(null), getTransports());
+			// generate the new configuraton and serialize it to XML
+			serializer.serialize(builder.getConfiguration(), MuleConfigurationBuilder.cDataElements, os);
+			// add the newly generated configuration to the database
+			addConfiguration(os.toString());
+			// restart the mule engine which will grab the latest configuration
+			// from the database
+			queue.addCommand(new Command(Command.CMD_RESTART_MULE));
+		} catch (Exception e) {
+			throw new ServiceException(e);
+		}
+	}
+
+	/**
+	 * Returns a File with the latest Mule configuration.
+	 * 
+	 * @return
+	 * @throws ServiceException
+	 */
+	public File getConfiguration() throws ServiceException {
+		logger.debug("retrieving configuration");
+
+		Properties properties = PropertyLoader.loadProperties("mirth");
+		ResultSet result = null;
+		try {
+			result = dbConnection.query("SELECT ID, DATE_CREATED, DATA FROM CONFIGURATIONS WHERE DATE_CREATED = MAX(DATE_CREATED);");
+
+			while (result.next()) {
+				logger.debug("using configuration " + result.getInt("ID") + "[" + result.getTimestamp("DATE_CREATED").toString() + "]");
+				String data = result.getString("DATA");
+				BufferedWriter out = new BufferedWriter(new FileWriter(properties.getProperty("mule.config")));
+				out.write(data);
+				out.close();
+				return new File(properties.getProperty("mule.config"));
+			}
+
+			logger.debug("no configuration found, using default boot file");
+			return new File(properties.getProperty("mule.boot"));
+		} catch (Exception e) {
+			return null;
+		} finally {
+			DatabaseUtil.close(result);
+			dbConnection.close();
+		}
+	}
+
+	private void addConfiguration(String data) throws ServiceException {
+		logger.debug("adding configuration");
+		
+		try {
+			StringBuffer insert = new StringBuffer();
+			insert.append("INSERT INTO CONFIGURATIONS (DATE_CREATED, DATA) VALUES (");
+			insert.append(DatabaseUtil.getNowTimestamp());
+			insert.append("'" + data + "');");
+			dbConnection.update(insert.toString());
+		} catch (Exception e) {
+			throw new ServiceException(e);
+		} finally {
+			dbConnection.close();
+		}
+	}
+
 }

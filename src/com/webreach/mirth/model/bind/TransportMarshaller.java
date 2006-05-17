@@ -26,6 +26,7 @@ public class TransportMarshaller {
 			
 			Element transportElement = document.createElement("transport");
 			transportElement.setAttribute("name", transport.getName());
+			transportElement.setAttribute("type", transport.getType().toString());
 			transportElement.setAttribute("displayName", transport.getDisplayName());
 			transportElement.setAttribute("className", transport.getProtocol());
 			transportElement.setAttribute("protocol", transport.getProtocol());

@@ -28,6 +28,8 @@ package com.webreach.mirth.server.core.util;
 
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.sql.Timestamp;
+import java.util.GregorianCalendar;
 
 public class DatabaseUtil {
 	public static void close(ResultSet result) throws RuntimeException {
@@ -44,5 +46,9 @@ public class DatabaseUtil {
 		} catch (Exception e) {
 			throw new RuntimeException();
 		}
+	}
+	
+	public static String getNowTimestamp() {
+		return (new Timestamp(new GregorianCalendar().getTimeInMillis())).toString();
 	}
 }

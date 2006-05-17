@@ -31,6 +31,8 @@ import org.mortbay.jetty.Server;
 import org.mule.config.builders.MuleXmlConfigurationBuilder;
 import org.mule.umo.manager.UMOManager;
 
+import com.webreach.mirth.server.services.ConfigurationService;
+
 /**
  * Instantiate a Mirth server that listens for commands from the CommandQueue.
  * 
@@ -43,7 +45,7 @@ public class Mirth {
 	private UMOManager muleManager = null;
 	private Server webServer = null;
 	private CommandQueue commandQueue = CommandQueue.getInstance();
-	private ConfigurationManager configurationManager = ConfigurationManager.getInstance();
+	private ConfigurationService configurationService = new ConfigurationService();
 
 	public static void main(String[] args) {
 		Mirth mirth = new Mirth();
@@ -93,13 +95,14 @@ public class Mirth {
 
 	// starts mule
 	private void startMule() {
-		logger.debug("starting mule with configuration file: " + configurationManager.getLatestConfiguration().getAbsolutePath());
-
 		try {
+			String configurationFilePath = configurationService.getConfiguration().getAbsolutePath();
+			logger.debug("starting mule with configuration file: " + configurationFilePath);
+			
 			// disables validation of Mule configuration files
 			System.setProperty("org.mule.xml.validate", "false");
 			MuleXmlConfigurationBuilder builder = new MuleXmlConfigurationBuilder();
-			muleManager = builder.configure(configurationManager.getLatestConfiguration().getAbsolutePath());
+			muleManager = builder.configure(configurationFilePath);
 		} catch (Exception e) {
 			logger.error(e);
 		}

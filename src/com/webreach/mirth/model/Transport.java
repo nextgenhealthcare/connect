@@ -26,11 +26,16 @@
 package com.webreach.mirth.model;
 
 public class Transport {
+	public enum Type {
+		LISTENER, SENDER
+	};
+
 	private String name;
 	private String displayName;
 	private String className;
 	private String transformers;
 	private String protocol;
+	private Type type;
 
 	public String getClassName() {
 		return this.className;
@@ -72,11 +77,20 @@ public class Transport {
 		this.transformers = transformers;
 	}
 
+	public Type getType() {
+		return this.type;
+	}
+
+	public void setType(Type type) {
+		this.type = type;
+	}
+
 	public String toString() {
 		StringBuffer buffer = new StringBuffer();
 		buffer.append("Transport[");
 		buffer.append(getName() + ", ");
 		buffer.append(getDisplayName() + ", ");
+		buffer.append(getType().toString() + ", ");
 		buffer.append(getClassName() + ", ");
 		buffer.append("'" + getTransformers() + "', ");
 		buffer.append(getProtocol());

@@ -25,10 +25,20 @@
 
 package com.webreach.mirth.server.core;
 
+import java.io.File;
 import java.util.List;
+import java.util.Properties;
+
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.apache.log4j.Logger;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.Transport;
+import com.webreach.mirth.model.bind.PropertiesMarshaller;
+import com.webreach.mirth.server.core.util.PropertyLoader;
 
 /**
  * A MuleConfigurationBuilder is used to generate Mule configuration files based
@@ -38,6 +48,9 @@ import com.webreach.mirth.model.Transport;
  * 
  */
 public class MuleConfigurationBuilder {
+	public static final String[] cDataElements = null;
+	private Logger logger = Logger.getLogger(PropertiesMarshaller.class);
+
 	private List<Channel> channels = null;
 	private List<Transport> transports = null;
 
@@ -46,13 +59,27 @@ public class MuleConfigurationBuilder {
 		this.transports = transports;
 	}
 
-	public String getConfiguration() throws ConfigurationBuilderException {
-		if ((channels == null) || (transports == null)) {
+	public Document getConfiguration() throws ConfigurationBuilderException {
+		logger.debug("generating mule configuration");
+
+		if ((channels == null) || (channels.size() == 0) || (transports == null) || (transports.size() == 0)) {
 			throw new ConfigurationBuilderException();
 		}
 
-		// TODO: traverse channels and transports to generate mule configuration
-		// using DOM object
-		throw new ConfigurationBuilderException();
+		try {
+			Properties properties = PropertyLoader.loadProperties("mirth");
+			File muleBootstrapFile = new File(properties.getProperty("mule.boot"));
+			Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(muleBootstrapFile);
+			Element muleConfigurationElement = document.getDocumentElement();
+			
+			System.out.println("CHILD NODE LENGHT: " + muleConfigurationElement.getChildNodes().getLength());
+
+			
+			
+			document.appendChild(muleConfigurationElement);
+			return document;
+		} catch (Exception e) {
+			throw new ConfigurationBuilderException(e);
+		}
 	}
 }
