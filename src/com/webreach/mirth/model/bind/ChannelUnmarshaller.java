@@ -52,7 +52,7 @@ public class ChannelUnmarshaller {
 	 * @throws UnmarshalException
 	 */
 	public Channel unmarshal(String source) throws UnmarshalException {
-		logger.debug("unmarshalling channel");
+		logger.debug("unmarshalling channel from string");
 		
 		try {
 			InputStream is = new ByteArrayInputStream(source.getBytes());
@@ -75,7 +75,9 @@ public class ChannelUnmarshaller {
 	 * @throws UnmarshalException
 	 */
 	public Channel unmarshal(Document document) throws UnmarshalException {
-		if (document == null) {
+		logger.debug("unmarshalling channel from document");
+		
+		if ((document == null) || (!document.getDocumentElement().getTagName().equals("channel"))) {
 			throw new UnmarshalException("Document is invalid.");
 		}
 		

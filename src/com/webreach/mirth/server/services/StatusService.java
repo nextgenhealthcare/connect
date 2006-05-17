@@ -11,7 +11,15 @@ public class StatusService {
 	private Logger logger = Logger.getLogger(StatusService.class);
 	private JMXConnection jmxConnection = null;
 
-	public void startChannel(int id) {
+	/**
+	 * Starts the channel with the specified id.
+	 * 
+	 * @param id
+	 * @throws ServiceException
+	 */
+	public void startChannel(int id) throws ServiceException {
+		logger.debug("starting channel: " + id);
+		
 		try {
 			jmxConnection = new JMXConnection();
 			Hashtable<String, String> properties = new Hashtable<String, String>();
@@ -19,11 +27,19 @@ public class StatusService {
 			properties.put("name", id + "ComponentService");
 			jmxConnection.invokeOperation(properties, "start", null);
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new ServiceException(e);
 		}
 	}
 
-	public void stopChannel(int id) {
+	/**
+	 * Stops the channel with the specified id.
+	 * 
+	 * @param id
+	 * @throws ServiceException
+	 */
+	public void stopChannel(int id) throws ServiceException {
+		logger.debug("stopping channel: " + id);
+		
 		try {
 			jmxConnection = new JMXConnection();
 			Hashtable<String, String> properties = new Hashtable<String, String>();
@@ -31,11 +47,19 @@ public class StatusService {
 			properties.put("name", id + "ComponentService");
 			jmxConnection.invokeOperation(properties, "stop", null);
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new ServiceException(e);
 		}
 	}
 
-	public void pause(int id) {
+	/**
+	 * Pauses the channel with the specified id.
+	 * 
+	 * @param id
+	 * @throws ServiceException
+	 */
+	public void pauseChannel(int id) throws ServiceException {
+		logger.debug("pausing channel: " + id);
+		
 		try {
 			jmxConnection = new JMXConnection();
 			Hashtable<String, String> properties = new Hashtable<String, String>();
@@ -43,11 +67,19 @@ public class StatusService {
 			properties.put("name", id + "ComponentService");
 			jmxConnection.invokeOperation(properties, "pause", null);
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new ServiceException(e);
 		}
 	}
 
-	public void resume(int id) {
+	/**
+	 * Resumes the channel with the specified id.
+	 * 
+	 * @param id
+	 * @throws ServiceException
+	 */
+	public void resumeChannel(int id) throws ServiceException {
+		logger.debug("resuming channel: " + id);
+		
 		try {
 			jmxConnection = new JMXConnection();
 			Hashtable<String, String> properties = new Hashtable<String, String>();
@@ -55,11 +87,20 @@ public class StatusService {
 			properties.put("name", id + "ComponentService");
 			jmxConnection.invokeOperation(properties, "resume", null);
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new ServiceException(e);
 		}
 	}
 
-	public Status getChannelStatus(int id) {
+	/**
+	 * Returns the status of the channel with the specified id.
+	 * 
+	 * @param id
+	 * @return
+	 * @throws ServiceException
+	 */
+	public Status getChannelStatus(int id) throws ServiceException {
+		logger.debug("retrieving channel status: " + id);
+		
 		try {
 			jmxConnection = new JMXConnection();
 			Hashtable<String, String> properties = new Hashtable<String, String>();
@@ -74,8 +115,7 @@ public class StatusService {
 				return Status.STARTED;
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
-			return Status.STOPPED;
+			throw new ServiceException(e);
 		}
 	}
 

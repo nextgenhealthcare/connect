@@ -51,7 +51,7 @@ public class ChannelMarshaller {
 	 * @throws MarshalException
 	 */
 	public Document marshal(Channel channel) throws MarshalException {
-		logger.debug("marshaling channel: " + channel.getName());
+		logger.debug("marshaling channel: " + channel.getId());
 
 		try {
 			Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
@@ -107,6 +107,8 @@ public class ChannelMarshaller {
 	}
 
 	private Element marshalFilter(Document document, Filter filter) throws MarshalException {
+		logger.debug("marshalling filter");
+		
 		try {
 			Element filterElement = document.createElement("filter");
 			filterElement.setTextContent(filter.getScript());
@@ -117,6 +119,8 @@ public class ChannelMarshaller {
 	}
 
 	private Element marshalValidator(Document document, Validator validator) throws MarshalException {
+		logger.debug("marshalling validator");
+		
 		try {
 			Element validatorElement = document.createElement("validator");
 
@@ -135,6 +139,8 @@ public class ChannelMarshaller {
 	}
 
 	private Element marshalConnector(Document document, String elementName, Connector connector) throws MarshalException {
+		logger.debug("marshalling connector");
+		
 		try {
 			Element connectorElement = document.createElement(elementName);
 			connectorElement.setAttribute("name", connector.getName());

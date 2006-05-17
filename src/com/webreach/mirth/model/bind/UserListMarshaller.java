@@ -22,7 +22,7 @@ public class UserListMarshaller {
 	 * @throws MarshalException
 	 */
 	public Document marshal(List<User> userList) throws MarshalException {
-		logger.debug("marshaling user list");
+		logger.debug("marshalling user list");
 		
 		try {
 			UserMarshaller userMarshaller = new UserMarshaller();

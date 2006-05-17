@@ -23,7 +23,7 @@ public class ChannelListUnmarshaller {
 	 * @throws UnmarshalException
 	 */
 	public List<Channel> unmarshal(String source) throws UnmarshalException {
-		logger.debug("unmarshalling channel list");
+		logger.debug("unmarshalling channel list from string");
 
 		try {
 			InputStream is = new ByteArrayInputStream(source.getBytes());
@@ -45,6 +45,8 @@ public class ChannelListUnmarshaller {
 	 * @throws UnmarshalException
 	 */
 	public List<Channel> unmarshal(Document document) throws UnmarshalException {
+		logger.debug("unmarshalling channel list from document");
+		
 		if ((document == null) || (!document.getDocumentElement().getTagName().equals("channels"))) {
 			throw new UnmarshalException("Document is invalid.");
 		}

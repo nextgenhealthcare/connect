@@ -11,6 +11,8 @@ public class StatisticsService {
 	private JMXConnection jmxConnection = null;
 	
 	public int getChannelSentCount(int id) {
+		logger.debug("retrieving message sent count: " + id);
+		
 		try {
 			jmxConnection = new JMXConnection();
 			return getStatistic(id, "TotalEventsSent");
@@ -22,6 +24,8 @@ public class StatisticsService {
 	// This is a hack to address the fact that this statistic is incorrectly
 	// incrememnted by 2 in Mule.
 	public int getChannelReceivedCount(int id) {
+		logger.debug("retrieving message received count: " + id);
+		
 		try {
 			jmxConnection = new JMXConnection();
 			Hashtable<String, String> properties = new Hashtable<String, String>();
@@ -35,6 +39,8 @@ public class StatisticsService {
 	}
 
 	public int getChannelErrorCount(int id) {
+		logger.debug("retrieving error count: " + id);
+		
 		try {
 			jmxConnection = new JMXConnection();
 			return getStatistic(id, "ExecutionErrors");
@@ -44,6 +50,8 @@ public class StatisticsService {
 	}
 
 	public int getChannelQueueCount(int id) {
+		logger.debug("retrieving message queue count: " + id);
+		
 		try {
 			jmxConnection = new JMXConnection();
 			return getStatistic(id, "QueuedEvents");
@@ -53,6 +61,8 @@ public class StatisticsService {
 	}
 
 	public void clearChannelStatistics(int id) throws ServiceException {
+		logger.debug("clearing statistics: " + id);
+		
 		try {
 			jmxConnection = new JMXConnection();
 			Hashtable<String, String> properties = new Hashtable<String, String>();
@@ -64,7 +74,7 @@ public class StatisticsService {
 		}
 	}
 
-	private int getStatistic(int id, String statistic) throws Exception {
+	private int getStatistic(int id, String statistic) throws ServiceException {
 		try {
 			jmxConnection = new JMXConnection();
 			Hashtable<String, String> properties = new Hashtable<String, String>();
@@ -73,7 +83,7 @@ public class StatisticsService {
 
 			return ((Long) jmxConnection.getAttribute(properties, statistic)).intValue();
 		} catch (Exception e) {
-			throw new Exception();
+			throw new ServiceException();
 		}
 	}
 

@@ -23,7 +23,7 @@ public class UserListUnmarshaller {
 	 * @throws UnmarshalException
 	 */
 	public List<User> unmarshal(String source) throws UnmarshalException {
-		logger.debug("unmarshalling user list");
+		logger.debug("unmarshalling user list from string");
 
 		try {
 			InputStream is = new ByteArrayInputStream(source.getBytes());
@@ -45,6 +45,8 @@ public class UserListUnmarshaller {
 	 * @throws UnmarshalException
 	 */
 	public List<User> unmarshal(Document document) throws UnmarshalException {
+		logger.debug("unmarshalling user list from document");
+		
 		if ((document == null) || (!document.getDocumentElement().getTagName().equals("users"))) {
 			throw new UnmarshalException("Document is invalid.");
 		}

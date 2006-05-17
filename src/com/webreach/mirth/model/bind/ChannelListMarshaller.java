@@ -10,7 +10,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.User;
 
 public class ChannelListMarshaller {
 	private Logger logger = Logger.getLogger(ChannelListMarshaller.class);
@@ -22,7 +21,7 @@ public class ChannelListMarshaller {
 	 * @return
 	 * @throws MarshalException
 	 */
-	public Document marshal(List<User> userList) throws MarshalException {
+	public Document marshal(List<Channel> userList) throws MarshalException {
 		logger.debug("marshaling channel list");
 		
 		try {

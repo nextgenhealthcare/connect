@@ -65,4 +65,15 @@ public class Log {
 		this.level = level;
 	}
 
+	public String toString() {
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("Log[");
+		buffer.append("ID" + getId() + ", ");
+		buffer.append("L" + getLevel() + ", ");
+		buffer.append(getEvent() + ", ");
+		buffer.append(getDate().toString() + ", ");
+		buffer.append("]");
+		return buffer.toString();
+	}
+
 }

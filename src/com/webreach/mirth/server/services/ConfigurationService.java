@@ -56,17 +56,20 @@ import com.webreach.mirth.server.core.util.PropertyLoader;
  * 
  */
 public class ConfigurationService {
-	private DatabaseConnection dbConnection;
 	private Logger logger = Logger.getLogger(ConfigurationService.class);
-
+	private DatabaseConnection dbConnection;
+	
 	/**
 	 * Returns a List containing the user with the specified <code>id</code>.
 	 * If the <code>id</code> is <code>null</code>, all users are returned.
 	 * 
+	 * @param id
 	 * @return
 	 * @throws ServiceException
 	 */
 	public List<User> getUsers(Integer id) throws ServiceException {
+		logger.debug("retrieving user list: " + id);
+		
 		ArrayList<User> users = new ArrayList<User>();
 		ResultSet result = null;
 
@@ -137,10 +140,13 @@ public class ConfigurationService {
 	 * If the <code>id</code> is <code>null</code>, all channels are
 	 * returned.
 	 * 
+	 * @param id
 	 * @return
 	 * @throws ServiceException
 	 */
 	public List<Channel> getChannels(Integer id) throws ServiceException {
+		logger.debug("retrieving user list: " + id);
+		
 		ArrayList<Channel> channels = new ArrayList<Channel>();
 		ResultSet result = null;
 		ChannelUnmarshaller cu = new ChannelUnmarshaller();
@@ -182,6 +188,7 @@ public class ConfigurationService {
 	 */
 	public void updateChannel(Channel channel) throws ServiceException {
 		logger.debug("updating channel: " + channel.getId());
+		
 		ChannelMarshaller marshaller = new ChannelMarshaller();
 		ByteArrayOutputStream os = new ByteArrayOutputStream();
 		Serializer serializer = new Serializer();
@@ -215,18 +222,24 @@ public class ConfigurationService {
 	}
 
 	/**
-	 * Returns a List of all transports.
+	 * Returns a List containing the transport with the specified <code>id</code>.
+	 * If the <code>id</code> is <code>null</code>, all transports are
+	 * returned.
 	 * 
 	 * @return
 	 * @throws ServiceException
 	 */
 	public List<Transport> getTransports() throws ServiceException {
+		logger.debug("retrieving transport list");
+		
 		ArrayList<Transport> transports = new ArrayList<Transport>();
 		ResultSet result = null;
 
 		try {
 			dbConnection = new DatabaseConnection();
-			result = dbConnection.query("SELECT NAME, DISPLAY_NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS FROM TRANSPORTS;");
+			StringBuffer query = new StringBuffer();
+			query.append("SELECT NAME, DISPLAY_NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS FROM TRANSPORTS;");
+			result = dbConnection.query(query.toString());
 
 			while (result.next()) {
 				Transport transport = new Transport();
@@ -248,6 +261,8 @@ public class ConfigurationService {
 	}
 
 	public Properties getProperties() throws ServiceException {
+		logger.debug("retrieving properties");
+		
 		Properties properties = PropertyLoader.loadProperties("mirth");
 
 		if (properties == null) {
@@ -258,6 +273,8 @@ public class ConfigurationService {
 	}
 
 	public void updateProperties(Properties properties) throws ServiceException {
+		logger.debug("updating properties");
+		
 		try {
 			FileOutputStream fos = new FileOutputStream("mirth.properties");
 			properties.store(fos, null);
@@ -267,6 +284,8 @@ public class ConfigurationService {
 	}
 
 	public String getMuleConfiguration() throws ServiceException {
+		logger.debug("retrieving mule configuration");
+		
 		try {
 			MuleConfigurationBuilder builder = new MuleConfigurationBuilder(getChannels(null), getTransports());
 			return builder.getConfiguration();
@@ -277,13 +296,9 @@ public class ConfigurationService {
 		}
 	}
 
-	/**
-	 * Returns the next unique configuration identified.
-	 * 
-	 * @return
-	 * @throws RuntimeException
-	 */
 	public int getNextId() throws ServiceException {
+		logger.debug("retrieving next id");
+		
 		dbConnection = new DatabaseConnection();
 		ResultSet result = null;
 		int id = -1;
@@ -296,7 +311,7 @@ public class ConfigurationService {
 				id = result.getInt(1);
 			}
 		} catch (SQLException e) {
-			throw new ServiceException("Could not generate next unique ID.", e);
+			throw new ServiceException("Could not generate next unique identifier.", e);
 		} finally {
 			DatabaseUtil.close(result);
 			dbConnection.close();

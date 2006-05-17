@@ -22,7 +22,7 @@ public class TransportUnmarshaller {
 	 * @throws UnmarshalException
 	 */
 	public Transport unmarshal(String source) throws UnmarshalException {
-		logger.debug("unmarshalling transport");
+		logger.debug("unmarshalling transport from string");
 
 		try {
 			InputStream is = new ByteArrayInputStream(source.getBytes());
@@ -45,7 +45,9 @@ public class TransportUnmarshaller {
 	 * @throws UnmarshalException
 	 */
 	public Transport unmarshal(Document document) throws UnmarshalException {
-		if (document == null) {
+		logger.debug("unmarshalling transport from document");
+		
+		if ((document == null) || (!document.getDocumentElement().getTagName().equals("transport"))) {
 			throw new UnmarshalException("Document is invalid.");
 		}
 

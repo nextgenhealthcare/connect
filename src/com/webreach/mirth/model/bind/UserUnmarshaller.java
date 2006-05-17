@@ -22,7 +22,7 @@ public class UserUnmarshaller {
 	 * @throws UnmarshalException
 	 */
 	public User unmarshal(String source) throws UnmarshalException {
-		logger.debug("unmarshalling user");
+		logger.debug("unmarshalling user from string");
 
 		try {
 			InputStream is = new ByteArrayInputStream(source.getBytes());
@@ -45,7 +45,9 @@ public class UserUnmarshaller {
 	 * @throws UnmarshalException
 	 */
 	public User unmarshal(Document document) throws UnmarshalException {
-		if (document == null) {
+		logger.debug("unmarshalling user from document");
+		
+		if ((document == null) || (!document.getDocumentElement().getTagName().equals("user"))) {
 			throw new UnmarshalException("Document is invalid.");
 		}
 

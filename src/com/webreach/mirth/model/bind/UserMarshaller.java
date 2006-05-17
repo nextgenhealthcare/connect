@@ -20,7 +20,7 @@ public class UserMarshaller {
 	 * @throws MarshalException
 	 */
 	public Document marshal(User user) throws MarshalException {
-		logger.debug("marshaling user: " + user.toString());
+		logger.debug("marshalling user: " + user.toString());
 		
 		try {
 			Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();

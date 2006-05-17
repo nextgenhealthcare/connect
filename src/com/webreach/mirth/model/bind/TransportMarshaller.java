@@ -19,7 +19,7 @@ public class TransportMarshaller {
 	 * @throws MarshalException
 	 */
 	public Document marshal(Transport transport) throws MarshalException {
-		logger.debug("marshaling transport: " + transport.toString());
+		logger.debug("marshalling transport: " + transport.toString());
 		
 		try {
 			Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
