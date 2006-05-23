@@ -27,19 +27,29 @@ package com.webreach.mirth.model;
 
 import java.sql.Timestamp;
 
-public class Log {
+public class MessageEntry {
 	private int id;
-	private int channel;
+	private int channelId;
 	private Timestamp date;
+	private String sendingFacility;
 	private String event;
-	private int level;
+	private String controlId;
+	private String message;
 
-	public int getChannel() {
-		return this.channel;
+	public int getChannelId() {
+		return this.channelId;
 	}
 
-	public void setChannel(int channel) {
-		this.channel = channel;
+	public void setChannelId(int channelId) {
+		this.channelId = channelId;
+	}
+
+	public String getControlId() {
+		return this.controlId;
+	}
+
+	public void setControlId(String controlId) {
+		this.controlId = controlId;
 	}
 
 	public Timestamp getDate() {
@@ -66,23 +76,27 @@ public class Log {
 		this.id = id;
 	}
 
-	public int getLevel() {
-		return this.level;
+	public String getMessage() {
+		return this.message;
 	}
 
-	public void setLevel(int level) {
-		this.level = level;
+	public void setMessage(String message) {
+		this.message = message;
 	}
 
-	public String toString() {
-		StringBuffer buffer = new StringBuffer();
-		buffer.append("Log[");
-		buffer.append("ID" + getId() + ", ");
-		buffer.append("L" + getLevel() + ", ");
-		buffer.append(getEvent() + ", ");
-		buffer.append(getDate().toString() + ", ");
-		buffer.append("]");
-		return buffer.toString();
+	public String getSendingFacility() {
+		return this.sendingFacility;
 	}
 
+	public void setSendingFacility(String sendingFacility) {
+		this.sendingFacility = sendingFacility;
+	}
+
+	public int getSize() {
+		if (getMessage() == null) {
+			return 0;
+		} else {
+			return getMessage().getBytes().length;
+		}
+	}
 }

@@ -32,8 +32,8 @@ import org.mule.config.ConfigurationException;
 import org.mule.config.builders.MuleXmlConfigurationBuilder;
 import org.mule.umo.manager.UMOManager;
 
-import com.webreach.mirth.server.services.ConfigurationService;
-import com.webreach.mirth.server.services.ServiceException;
+import com.webreach.mirth.server.managers.ConfigurationManager;
+import com.webreach.mirth.server.managers.ManagerException;
 
 /**
  * Instantiate a Mirth server that listens for commands from the CommandQueue.
@@ -47,7 +47,7 @@ public class Mirth {
 	private UMOManager muleManager = null;
 	private Server webServer = null;
 	private CommandQueue commandQueue = CommandQueue.getInstance();
-	private ConfigurationService configurationService = new ConfigurationService();
+	private ConfigurationManager configurationService = new ConfigurationManager();
 
 	public static void main(String[] args) {
 		Mirth mirth = new Mirth();
@@ -113,7 +113,7 @@ public class Mirth {
 //			configurationService.revertConfiguration();
 			// restart mule with the last good configuration
 //			commandQueue.addCommand(new Command(Command.CMD_START_MULE, Command.PRIORITY_HIGH));
-		} catch (ServiceException e) {
+		} catch (ManagerException e) {
 			logger.error(e);
 		}
 	}

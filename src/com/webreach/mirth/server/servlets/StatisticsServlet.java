@@ -8,11 +8,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.webreach.mirth.model.Statistics;
-import com.webreach.mirth.server.services.ServiceException;
-import com.webreach.mirth.server.services.StatisticsService;
+import com.webreach.mirth.server.managers.ManagerException;
+import com.webreach.mirth.server.managers.StatisticsManager;
 
 public class StatisticsServlet extends MirthServlet {
-	private StatisticsService statisticsService = new StatisticsService();
+	private StatisticsManager statisticsManager = new StatisticsManager();
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		if (!isLoggedIn(request.getSession())) {
@@ -33,16 +33,16 @@ public class StatisticsServlet extends MirthServlet {
 
 	private Statistics getChannelStatistics(int id) throws ServletException {
 		try {
-			return statisticsService.getChannelStatistics(id);
-		} catch (ServiceException e) {
+			return statisticsManager.getChannelStatistics(id);
+		} catch (ManagerException e) {
 			throw new ServletException(e);
 		}
 	}
 	
 	private void clearChannelStatistics(int id) throws ServletException {
 		try {
-			statisticsService.clearChannelStatistics(id);
-		} catch (ServiceException e) {
+			statisticsManager.clearChannelStatistics(id);
+		} catch (ManagerException e) {
 			throw new ServletException(e);
 		}
 	}

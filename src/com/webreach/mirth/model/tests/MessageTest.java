@@ -29,25 +29,24 @@ package com.webreach.mirth.model.tests;
 import java.sql.Timestamp;
 import java.util.Calendar;
 
-import com.webreach.mirth.model.Message;
+import com.webreach.mirth.model.MessageEntry;
 
 import junit.framework.TestCase;
 
 public class MessageTest extends TestCase {
 
-	private Message message;
+	private MessageEntry message;
 	
 	protected void setUp() throws Exception {
 		super.setUp();
 		
 		Calendar calendar = Calendar.getInstance();
-		message = new Message();
+		message = new MessageEntry();
 		message.setId(0);
 		message.setDate(new Timestamp(calendar.getTimeInMillis()));
 		message.setSendingFacility("Hospital A");
 		message.setEvent("ADT_A01");
 		message.setControlId("123456");
-		message.setSize(10);
 		message.setMessage("MSH");
 	}
 

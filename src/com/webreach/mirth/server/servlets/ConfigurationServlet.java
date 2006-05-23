@@ -17,11 +17,11 @@ import com.webreach.mirth.model.bind.TransportMapMarshaller;
 import com.webreach.mirth.model.bind.UnmarshalException;
 import com.webreach.mirth.model.bind.UserListMarshaller;
 import com.webreach.mirth.model.bind.UserUnmarshaller;
-import com.webreach.mirth.server.services.ConfigurationService;
-import com.webreach.mirth.server.services.ServiceException;
+import com.webreach.mirth.server.managers.ConfigurationManager;
+import com.webreach.mirth.server.managers.ManagerException;
 
 public class ConfigurationServlet extends MirthServlet {
-	private ConfigurationService configurationService = new ConfigurationService();
+	private ConfigurationManager configurationManager = new ConfigurationManager();
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		if (!isLoggedIn(request.getSession())) {
@@ -67,7 +67,7 @@ public class ConfigurationServlet extends MirthServlet {
 		ByteArrayOutputStream os = new ByteArrayOutputStream();
 
 		try {
-			serializer.serialize(marshaller.marshal(configurationService.getChannels(null)), null, os);
+			serializer.serialize(marshaller.marshal(configurationManager.getChannels(null)), null, os);
 			return os.toString();
 		} catch (Exception e) {
 			throw new ServletException(e);
@@ -78,8 +78,8 @@ public class ConfigurationServlet extends MirthServlet {
 		ChannelUnmarshaller unmarshaller = new ChannelUnmarshaller();
 
 		try {
-			configurationService.updateChannel(unmarshaller.unmarshal(channel));
-		} catch (ServiceException e) {
+			configurationManager.updateChannel(unmarshaller.unmarshal(channel));
+		} catch (ManagerException e) {
 			e.printStackTrace();
 		} catch (UnmarshalException e) {
 			throw new ServletException(e);
@@ -92,7 +92,7 @@ public class ConfigurationServlet extends MirthServlet {
 		ByteArrayOutputStream os = new ByteArrayOutputStream();
 
 		try {
-			serializer.serialize(marshaller.marshal(configurationService.getTransports()), null, os);
+			serializer.serialize(marshaller.marshal(configurationManager.getTransports()), null, os);
 			return os.toString();
 		} catch (Exception e) {
 			throw new ServletException(e);
@@ -105,7 +105,7 @@ public class ConfigurationServlet extends MirthServlet {
 		ByteArrayOutputStream os = new ByteArrayOutputStream();
 
 		try {
-			serializer.serialize(marshaller.marshal(configurationService.getUsers(null)), null, os);
+			serializer.serialize(marshaller.marshal(configurationManager.getUsers(null)), null, os);
 			return os.toString();
 		} catch (Exception e) {
 			throw new ServletException(e);
@@ -116,7 +116,7 @@ public class ConfigurationServlet extends MirthServlet {
 		UserUnmarshaller unmarshaller = new UserUnmarshaller();
 
 		try {
-			configurationService.updateUser(unmarshaller.unmarshal(user));
+			configurationManager.updateUser(unmarshaller.unmarshal(user));
 		} catch (Exception e) {
 			throw new ServletException();
 		}
@@ -128,7 +128,7 @@ public class ConfigurationServlet extends MirthServlet {
 		ByteArrayOutputStream os = new ByteArrayOutputStream();
 
 		try {
-			serializer.serialize(marshaller.marshal(configurationService.getProperties()), null, os);
+			serializer.serialize(marshaller.marshal(configurationManager.getProperties()), null, os);
 			return os.toString();
 		} catch (Exception e) {
 			throw new ServletException(e);
@@ -139,7 +139,7 @@ public class ConfigurationServlet extends MirthServlet {
 		PropertiesUnmarshaller unmarshaller = new PropertiesUnmarshaller();
 
 		try {
-			configurationService.updateProperties(unmarshaller.unmarshal(properties));
+			configurationManager.updateProperties(unmarshaller.unmarshal(properties));
 		} catch (Exception e) {
 			throw new ServletException();
 		}
@@ -147,8 +147,8 @@ public class ConfigurationServlet extends MirthServlet {
 
 	private int getNextId() throws ServletException {
 		try {
-			return configurationService.getNextId();
-		} catch (ServiceException e) {
+			return configurationManager.getNextId();
+		} catch (ManagerException e) {
 			throw new ServletException(e);
 		}
 	}

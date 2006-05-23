@@ -7,11 +7,11 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.webreach.mirth.server.services.ServiceException;
-import com.webreach.mirth.server.services.StatusService;
+import com.webreach.mirth.server.managers.ManagerException;
+import com.webreach.mirth.server.managers.StatusManager;
 
 public class StatusServlet extends MirthServlet {
-	private StatusService statusService = new StatusService();
+	private StatusManager statusManager = new StatusManager();
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		if (!isLoggedIn(request.getSession())) {
@@ -38,40 +38,40 @@ public class StatusServlet extends MirthServlet {
 
 	private void startChannel(int id) throws ServletException {
 		try {
-			statusService.startChannel(id);
-		} catch (ServiceException e) {
+			statusManager.startChannel(id);
+		} catch (ManagerException e) {
 			throw new ServletException(e);
 		}
 	}
 
 	private void stopChannel(int id) throws ServletException {
 		try {
-			statusService.stopChannel(id);
-		} catch (ServiceException e) {
+			statusManager.stopChannel(id);
+		} catch (ManagerException e) {
 			throw new ServletException(e);
 		}
 	}
 
 	private void pauseChannel(int id) throws ServletException {
 		try {
-			statusService.pauseChannel(id);
-		} catch (ServiceException e) {
+			statusManager.pauseChannel(id);
+		} catch (ManagerException e) {
 			throw new ServletException(e);
 		}
 	}
 
 	private void resumeChannel(int id) throws ServletException {
 		try {
-			statusService.resumeChannel(id);
-		} catch (ServiceException e) {
+			statusManager.resumeChannel(id);
+		} catch (ManagerException e) {
 			throw new ServletException(e);
 		}
 	}
 
 	private String getChannelStatus(int id) throws ServletException {
 		try {
-			return statusService.getChannelStatus(id).toString();
-		} catch (ServiceException e) {
+			return statusManager.getChannelStatus(id).toString();
+		} catch (ManagerException e) {
 			throw new ServletException(e);
 		}
 	}

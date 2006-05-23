@@ -8,15 +8,15 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import com.webreach.mirth.server.services.AuthenticationService;
-import com.webreach.mirth.server.services.ServiceException;
+import com.webreach.mirth.server.managers.AuthenticationManager;
+import com.webreach.mirth.server.managers.ManagerException;
 
 public class AuthenticationServlet extends MirthServlet {
 	public static final String SESSION_USER = "user";
 	public static final String SESSION_AUTHORIZED = "authorized";
 	public static final String ERROR_UNAUTHORIZED = "You are not logged in.";
 
-	private AuthenticationService authenticationService = new AuthenticationService();
+	private AuthenticationManager authenticationManager = new AuthenticationManager();
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		PrintWriter out = response.getWriter();
@@ -39,7 +39,7 @@ public class AuthenticationServlet extends MirthServlet {
 
 	private boolean login(HttpSession session, String username, String password) throws ServletException {
 		try {
-			int authenticateUserId = authenticationService.authenticateUser(username, password);
+			int authenticateUserId = authenticationManager.authenticateUser(username, password);
 
 			if (authenticateUserId >= 0) {
 				session.setAttribute(SESSION_USER, authenticateUserId);
@@ -48,7 +48,7 @@ public class AuthenticationServlet extends MirthServlet {
 			}
 
 			return false;
-		} catch (ServiceException e) {
+		} catch (ManagerException e) {
 			throw new ServletException(e);
 		}
 	}
