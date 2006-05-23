@@ -29,7 +29,7 @@
  * 
  * @author <a href="mailto:geraldb@webreachinc.com">Gerald Bortis</a>
  */
-package com.webreach.mirth.mule.transformers;
+package com.webreach.mirth.server.mule.transformers;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

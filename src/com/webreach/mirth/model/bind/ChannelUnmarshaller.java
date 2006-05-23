@@ -28,6 +28,9 @@ package com.webreach.mirth.model.bind;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.Iterator;
+import java.util.Properties;
+import java.util.Map.Entry;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -82,6 +85,7 @@ public class ChannelUnmarshaller {
 		}
 		
 		try {
+			PropertiesUnmarshaller unmarshaller = new PropertiesUnmarshaller();
 			Channel channel = new Channel();
 			
 			// channel (root)
@@ -118,10 +122,21 @@ public class ChannelUnmarshaller {
 				channel.getDestinationConnectors().add(destinationConnector);
 			}
 			
+			// properties
+			DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
+			Document propertiesDocument = docBuilderFactory.newDocumentBuilder().newDocument();
+			propertiesDocument.appendChild(propertiesDocument.importNode(document.getElementsByTagName("properties").item(0), true));
+			Properties properties = unmarshaller.unmarshal(propertiesDocument);
+
+			for (Iterator iter = properties.entrySet().iterator(); iter.hasNext();) {
+				Entry property = (Entry) iter.next();
+				channel.getProperties().put(property.getKey(), property.getValue());
+			}
+			
 			// finalize the channel
 			return channel;
-		} catch (UnmarshalException e) {
-			throw e;
+		} catch (Exception e) {
+			throw new UnmarshalException(e);
 		}
 	}
 	
@@ -144,32 +159,41 @@ public class ChannelUnmarshaller {
 	}
 	
 	private Connector unmarshalConnector(Element connectorElement) throws UnmarshalException {
-		Connector connector = new Connector();
-		connector.setName(connectorElement.getAttributes().getNamedItem("name").getNodeValue());
-		connector.setTransport(connectorElement.getAttributes().getNamedItem("transport").getNodeValue());
-
-		// properties
-		for (int i = 0; i < connectorElement.getElementsByTagName("property").getLength(); i++) {
-			String key = connectorElement.getElementsByTagName("property").item(i).getAttributes().getNamedItem("name").getNodeValue();
-			String value = connectorElement.getElementsByTagName("property").item(i).getAttributes().getNamedItem("value").getNodeValue();
-			connector.getProperties().put(key, value);
+		try {
+			PropertiesUnmarshaller unmarshaller = new PropertiesUnmarshaller();
+			Connector connector = new Connector();
+			connector.setName(connectorElement.getAttributes().getNamedItem("name").getNodeValue());
+			connector.setTransportName(connectorElement.getAttributes().getNamedItem("transport").getNodeValue());
+	
+			// properties
+			DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
+			Document propertiesDocument = docBuilderFactory.newDocumentBuilder().newDocument();
+			propertiesDocument.appendChild(propertiesDocument.importNode(connectorElement.getElementsByTagName("properties").item(0), true));
+			Properties properties = unmarshaller.unmarshal(propertiesDocument);
+	
+			for (Iterator iter = properties.entrySet().iterator(); iter.hasNext();) {
+				Entry property = (Entry) iter.next();
+				connector.getProperties().put(property.getKey(), property.getValue());
+			}
+	
+			// transformer
+			Element transformerElement = (Element) connectorElement.getElementsByTagName("transformer").item(0);
+			Transformer transformer = new Transformer();
+			transformer.setType(Transformer.Type.valueOf(transformerElement.getAttribute("type")));
+			transformer.setLanguage(Transformer.Language.valueOf(transformerElement.getAttribute("language")));
+			
+			// transformer.variables
+			for (int i = 0; i < transformerElement.getElementsByTagName("variable").getLength(); i++) {
+				String key = transformerElement.getElementsByTagName("variable").item(i).getAttributes().getNamedItem("name").getNodeValue();
+				String value = transformerElement.getElementsByTagName("variable").item(i).getNodeValue();
+				transformer.getVariables().put(key, value);
+			}
+			
+			connector.setTransformer(transformer);
+			
+			return connector;
+		} catch (Exception e) {
+			throw new UnmarshalException(e);
 		}
-
-		// transformer
-		Element transformerElement = (Element) connectorElement.getElementsByTagName("transformer").item(0);
-		Transformer transformer = new Transformer();
-		transformer.setType(Transformer.Type.valueOf(transformerElement.getAttribute("type")));
-		transformer.setLanguage(Transformer.Language.valueOf(transformerElement.getAttribute("language")));
-		
-		// transformer.variables
-		for (int i = 0; i < transformerElement.getElementsByTagName("variable").getLength(); i++) {
-			String key = transformerElement.getElementsByTagName("variable").item(i).getAttributes().getNamedItem("name").getNodeValue();
-			String value = transformerElement.getElementsByTagName("variable").item(i).getNodeValue();
-			transformer.getVariables().put(key, value);
-		}
-		
-		connector.setTransformer(transformer);
-		
-		return connector;
 	}
 }

@@ -58,7 +58,7 @@ public class ChannelListUnmarshaller {
 
 			for (int i = 0; i < document.getElementsByTagName("channel").getLength(); i++) {
 				Document channelDocument = docBuilderFactory.newDocumentBuilder().newDocument();
-				channelDocument.appendChild(channelDocument.importNode(document.getElementsByTagName("channel").item(i), false));
+				channelDocument.appendChild(channelDocument.importNode(document.getElementsByTagName("channel").item(i), true));
 				channelList.add(unmarshaller.unmarshal(channelDocument));
 			}
 			

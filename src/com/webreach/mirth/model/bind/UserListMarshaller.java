@@ -31,7 +31,7 @@ public class UserListMarshaller {
 			
 			for (Iterator iter = userList.iterator(); iter.hasNext();) {
 				User user = (User) iter.next();
-				userListElement.appendChild(document.importNode(marshaller.marshal(user).getDocumentElement(), false));
+				userListElement.appendChild(document.importNode(marshaller.marshal(user).getDocumentElement(), true));
 			}
 			
 			document.appendChild(userListElement);

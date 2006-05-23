@@ -22,7 +22,7 @@ public class Serializer {
 			of.setCDataElements(cDataElements);	
 		}
 		
-		of.setOmitXMLDeclaration(true);
+		of.setOmitXMLDeclaration(false);
 		of.setIndenting(true);
 		of.setLineSeparator("\n");
 

@@ -53,13 +53,13 @@ public class ChannelMarshallerTest extends TestCase {
 		
 		Connector sourceConnector = new Connector();
 		sourceConnector.setName("sourceConnector");
-		sourceConnector.getProperties().put("key", "value");
+		sourceConnector.getProperties().put("sourceKey", "sourcevalue");
 		sourceConnector.setTransformer(sourceTransformer);
 		
 		Connector destinationConnector1 = new Connector();
 		destinationConnector1.setName("destinationConnector1");
-		destinationConnector1.getProperties().put("key1", "value1");
-		destinationConnector1.getProperties().put("key2", "value2");
+		destinationConnector1.getProperties().put("destkey1", "destvalue1");
+		destinationConnector1.getProperties().put("destkey2", "destvalue2");
 		destinationConnector1.setTransformer(destinationTransformer);
 		
 		Connector destinationConnector2 = new Connector();
@@ -88,9 +88,10 @@ public class ChannelMarshallerTest extends TestCase {
 		channel.setFilter(filter);
 		channel.setValidator(validator);
 
+		channel.getProperties().put("test", "test");
+
 		channel.getDestinationConnectors().add(destinationConnector1);
 		channel.getDestinationConnectors().add(destinationConnector2);
-		
 	}
 
 	protected void tearDown() throws Exception {

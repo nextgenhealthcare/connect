@@ -58,7 +58,7 @@ public class UserListUnmarshaller {
 
 			for (int i = 0; i < document.getElementsByTagName("user").getLength(); i++) {
 				Document userDocument = docBuilderFactory.newDocumentBuilder().newDocument();
-				userDocument.appendChild(userDocument.importNode(document.getElementsByTagName("user").item(i), false));
+				userDocument.appendChild(userDocument.importNode(document.getElementsByTagName("user").item(i), true));
 				userList.add(unmarshaller.unmarshal(userDocument));
 			}
 			

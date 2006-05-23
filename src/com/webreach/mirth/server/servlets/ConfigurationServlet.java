@@ -13,7 +13,7 @@ import com.webreach.mirth.model.bind.ChannelUnmarshaller;
 import com.webreach.mirth.model.bind.PropertiesMarshaller;
 import com.webreach.mirth.model.bind.PropertiesUnmarshaller;
 import com.webreach.mirth.model.bind.Serializer;
-import com.webreach.mirth.model.bind.TransportListMarshaller;
+import com.webreach.mirth.model.bind.TransportMapMarshaller;
 import com.webreach.mirth.model.bind.UnmarshalException;
 import com.webreach.mirth.model.bind.UserListMarshaller;
 import com.webreach.mirth.model.bind.UserUnmarshaller;
@@ -87,7 +87,7 @@ public class ConfigurationServlet extends MirthServlet {
 	}
 
 	private String getTransports() throws ServletException {
-		TransportListMarshaller marshaller = new TransportListMarshaller();
+		TransportMapMarshaller marshaller = new TransportMapMarshaller();
 		Serializer serializer = new Serializer();
 		ByteArrayOutputStream os = new ByteArrayOutputStream();
 

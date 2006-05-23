@@ -33,7 +33,9 @@ import java.io.FileWriter;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
@@ -72,7 +74,7 @@ public class ConfigurationService {
 	 * @throws ServiceException
 	 */
 	public List<User> getUsers(Integer id) throws ServiceException {
-		logger.debug("retrieving user list: " + id);
+		logger.debug("retrieving user list: id = " + id);
 
 		ArrayList<User> users = new ArrayList<User>();
 		ResultSet result = null;
@@ -149,7 +151,7 @@ public class ConfigurationService {
 	 * @throws ServiceException
 	 */
 	public List<Channel> getChannels(Integer id) throws ServiceException {
-		logger.debug("retrieving user list: " + id);
+		logger.debug("retrieving user list: id = " + id);
 
 		ArrayList<Channel> channels = new ArrayList<Channel>();
 		ResultSet result = null;
@@ -233,10 +235,10 @@ public class ConfigurationService {
 	 * @return
 	 * @throws ServiceException
 	 */
-	public List<Transport> getTransports() throws ServiceException {
+	public Map<String, Transport> getTransports() throws ServiceException {
 		logger.debug("retrieving transport list");
 
-		ArrayList<Transport> transports = new ArrayList<Transport>();
+		Map<String, Transport> transports = new HashMap<String, Transport>();
 		ResultSet result = null;
 
 		try {
@@ -252,7 +254,7 @@ public class ConfigurationService {
 				transport.setClassName(result.getString("CLASS_NAME"));
 				transport.setProtocol(result.getString("PROTOCOL"));
 				transport.setTransformers(result.getString("TRANSFORMERS"));
-				transports.add(transport);
+				transports.put(transport.getName(), transport);
 			}
 
 			return transports;
@@ -351,10 +353,11 @@ public class ConfigurationService {
 		Properties properties = PropertyLoader.loadProperties("mirth");
 		ResultSet result = null;
 		try {
-			result = dbConnection.query("SELECT ID, DATE_CREATED, DATA FROM CONFIGURATIONS WHERE DATE_CREATED = MAX(DATE_CREATED);");
+			dbConnection = new DatabaseConnection();
+			result = dbConnection.query("SELECT ID, DATE_CREATED, DATA FROM CONFIGURATIONS WHERE DATE_CREATED IN (SELECT MAX(DATE_CREATED) FROM CONFIGURATIONS);");
 
 			while (result.next()) {
-				logger.debug("using configuration " + result.getInt("ID") + "[" + result.getTimestamp("DATE_CREATED").toString() + "]");
+				logger.debug("using configuration ID" + result.getInt("ID") + " created @ " + result.getTimestamp("DATE_CREATED").toString());
 				String data = result.getString("DATA");
 				BufferedWriter out = new BufferedWriter(new FileWriter(properties.getProperty("mule.config")));
 				out.write(data);
@@ -376,9 +379,10 @@ public class ConfigurationService {
 		logger.debug("adding configuration");
 		
 		try {
+			dbConnection = new DatabaseConnection();
 			StringBuffer insert = new StringBuffer();
 			insert.append("INSERT INTO CONFIGURATIONS (DATE_CREATED, DATA) VALUES (");
-			insert.append(DatabaseUtil.getNowTimestamp());
+			insert.append("'" + DatabaseUtil.getNowTimestamp() + "',");
 			insert.append("'" + data + "');");
 			dbConnection.update(insert.toString());
 		} catch (Exception e) {

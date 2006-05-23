@@ -1,7 +1,8 @@
 package com.webreach.mirth.model.bind;
 
 import java.util.Iterator;
-import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -11,17 +12,17 @@ import org.w3c.dom.Element;
 
 import com.webreach.mirth.model.Transport;
 
-public class TransportListMarshaller {
-	private Logger logger = Logger.getLogger(TransportListMarshaller.class);
+public class TransportMapMarshaller {
+	private Logger logger = Logger.getLogger(TransportMapMarshaller.class);
 	
 	/**
-	 * Returns a Document representation of a List of Transport objects.
+	 * Returns a Document representation of a Map of Transport objects.
 	 * 
-	 * @param transportList
+	 * @param transportMap
 	 * @return
 	 * @throws MarshalException
 	 */
-	public Document marshal(List<Transport> transportList) throws MarshalException {
+	public Document marshal(Map<String, Transport> transportMap) throws MarshalException {
 		logger.debug("marshalling transport list");
 		
 		try {
@@ -29,9 +30,10 @@ public class TransportListMarshaller {
 			Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
 			Element transportListElement = document.createElement("transports");
 			
-			for (Iterator iter = transportList.iterator(); iter.hasNext();) {
-				Transport transport = (Transport) iter.next();
-				transportListElement.appendChild(document.importNode(transportMarshaller.marshal(transport).getDocumentElement(), false));
+			for (Iterator iter = transportMap.entrySet().iterator(); iter.hasNext();) {
+				Entry entry = (Entry) iter.next();
+				Transport transport = (Transport) entry.getValue();
+				transportListElement.appendChild(document.importNode(transportMarshaller.marshal(transport).getDocumentElement(), true));
 			}
 			
 			document.appendChild(transportListElement);

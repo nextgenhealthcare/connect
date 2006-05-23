@@ -39,7 +39,7 @@ public class ConnectorTest extends TestCase {
 		super.setUp();
 		connector = new Connector();
 		connector.setName("Test Connector");
-		connector.setTransport("Test Transport");
+		connector.setTransportName("Test Transport");
 		connector.getProperties().put("test_property", "test_value");
 		connector.setTransformer(new Transformer());
 	}

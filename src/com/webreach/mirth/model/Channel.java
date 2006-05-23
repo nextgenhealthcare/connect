@@ -27,6 +27,7 @@ package com.webreach.mirth.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 /**
  * A Channel is the main element of the Mirth architecture. Channels connect a
@@ -60,9 +61,24 @@ public class Channel {
 	private Validator validator;
 	private Connector sourceConnector;
 	private List<Connector> destinationConnectors;
+	private Properties properties;
 
 	public Channel() {
 		destinationConnectors = new ArrayList<Connector>();
+		properties = new Properties();
+	}
+	
+	public Channel(Direction direction) {
+		this.direction = direction;
+		destinationConnectors = new ArrayList<Connector>();
+		properties = new Properties();
+	}
+	
+	public Channel(Direction direction, Mode mode) {
+		this.direction = direction;
+		this.mode = mode;
+		destinationConnectors = new ArrayList<Connector>();
+		properties = new Properties();
 	}
 
 	public String getDescription() {
@@ -155,5 +171,9 @@ public class Channel {
 
 	public List<Connector> getDestinationConnectors() {
 		return this.destinationConnectors;
+	}
+	
+	public Properties getProperties() {
+		return properties;
 	}
 }

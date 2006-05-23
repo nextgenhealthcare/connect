@@ -25,8 +25,7 @@
 
 package com.webreach.mirth.model;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Properties;
 
 /**
  * A Connector represents a connection to either a source or destination. Each
@@ -39,12 +38,12 @@ import java.util.Map;
  */
 public class Connector {
 	private String name;
-	private Map<String, String> properties;
+	private Properties properties;
 	private Transformer transformer;
-	private String transport;
+	private String transportName;
 
 	public Connector() {
-		properties = new HashMap<String, String>();
+		properties = new Properties();
 	}
 
 	public Connector(String name) {
@@ -67,15 +66,15 @@ public class Connector {
 		this.transformer = transformer;
 	}
 
-	public String getTransport() {
-		return this.transport;
+	public String getTransportName() {
+		return this.transportName;
 	}
 
-	public void setTransport(String transport) {
-		this.transport = transport;
+	public void setTransportName(String transportName) {
+		this.transportName = transportName;
 	}
 
-	public Map<String, String> getProperties() {
+	public Properties getProperties() {
 		return properties;
 	}
 

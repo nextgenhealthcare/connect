@@ -28,10 +28,12 @@ package com.webreach.mirth.server;
 import org.apache.log4j.Logger;
 import org.mortbay.http.SocketListener;
 import org.mortbay.jetty.Server;
+import org.mule.config.ConfigurationException;
 import org.mule.config.builders.MuleXmlConfigurationBuilder;
 import org.mule.umo.manager.UMOManager;
 
 import com.webreach.mirth.server.services.ConfigurationService;
+import com.webreach.mirth.server.services.ServiceException;
 
 /**
  * Instantiate a Mirth server that listens for commands from the CommandQueue.
@@ -98,12 +100,20 @@ public class Mirth {
 		try {
 			String configurationFilePath = configurationService.getConfiguration().getAbsolutePath();
 			logger.debug("starting mule with configuration file: " + configurationFilePath);
-			
+
 			// disables validation of Mule configuration files
 			System.setProperty("org.mule.xml.validate", "false");
 			MuleXmlConfigurationBuilder builder = new MuleXmlConfigurationBuilder();
+
 			muleManager = builder.configure(configurationFilePath);
-		} catch (Exception e) {
+		} catch (ConfigurationException e) {
+			// TODO: revert changes
+			logger.error("Invalid configuration.", e);
+			// remove the latest configuration from the database
+//			configurationService.revertConfiguration();
+			// restart mule with the last good configuration
+//			commandQueue.addCommand(new Command(Command.CMD_START_MULE, Command.PRIORITY_HIGH));
+		} catch (ServiceException e) {
 			logger.error(e);
 		}
 	}

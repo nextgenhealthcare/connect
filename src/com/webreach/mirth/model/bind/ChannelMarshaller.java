@@ -55,6 +55,7 @@ public class ChannelMarshaller {
 
 		try {
 			Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+			PropertiesMarshaller marshaller = new PropertiesMarshaller();
 
 			// channel (root)
 			Element channelElement = document.createElement("channel");
@@ -89,6 +90,9 @@ public class ChannelMarshaller {
 
 			channelElement.appendChild(destinationsElement);
 
+			// properties
+			channelElement.appendChild(document.importNode(marshaller.marshal(channel.getProperties()).getDocumentElement(), true));
+			
 			// finalize the document
 			document.appendChild(channelElement);
 
@@ -138,17 +142,12 @@ public class ChannelMarshaller {
 		try {
 			Element connectorElement = document.createElement(elementName);
 			connectorElement.setAttribute("name", connector.getName());
-			connectorElement.setAttribute("transport", connector.getTransport());
+			connectorElement.setAttribute("transport", connector.getTransportName());
 
 			// properties
-			for (Iterator iter = connector.getProperties().entrySet().iterator(); iter.hasNext();) {
-				Entry property = (Entry) iter.next();
-				Element propertyElement = document.createElement("property");
-				propertyElement.setAttribute("name", property.getKey().toString());
-				propertyElement.setAttribute("value", property.getValue().toString());
-				connectorElement.appendChild(propertyElement);
-			}
-
+			PropertiesMarshaller marshaller = new PropertiesMarshaller();
+			connectorElement.appendChild(document.importNode(marshaller.marshal(connector.getProperties()).getDocumentElement(), true));
+			
 			// transformer
 			Element transformer = document.createElement("transformer");
 			transformer.setAttribute("type", connector.getTransformer().getType().toString());

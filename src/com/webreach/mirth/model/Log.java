@@ -29,9 +29,18 @@ import java.sql.Timestamp;
 
 public class Log {
 	private int id;
+	private int channel;
 	private Timestamp date;
 	private String event;
 	private int level;
+
+	public int getChannel() {
+		return this.channel;
+	}
+
+	public void setChannel(int channel) {
+		this.channel = channel;
+	}
 
 	public Timestamp getDate() {
 		return this.date;

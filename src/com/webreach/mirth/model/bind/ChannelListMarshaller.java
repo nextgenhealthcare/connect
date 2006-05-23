@@ -31,7 +31,7 @@ public class ChannelListMarshaller {
 			
 			for (Iterator iter = userList.iterator(); iter.hasNext();) {
 				Channel channel = (Channel) iter.next();
-				channelListElement.appendChild(document.importNode(marshaller.marshal(channel).getDocumentElement(), false));
+				channelListElement.appendChild(document.importNode(marshaller.marshal(channel).getDocumentElement(), true));
 			}
 			
 			document.appendChild(channelListElement);
