@@ -33,6 +33,15 @@ public class LogEntry {
 	private Timestamp date;
 	private String event;
 	private int level;
+	
+	public LogEntry() {
+	}
+	
+	public LogEntry(int channelId, String event, int level) {
+		this.channelId = channelId;
+		this.event = event;
+		this.level = level;
+	}
 
 	public int getChannelId() {
 		return this.channelId;

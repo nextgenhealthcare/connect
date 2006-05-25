@@ -140,6 +140,29 @@ public class ConfigurationManager {
 			dbConnection.close();
 		}
 	}
+	
+	/**
+	 * Removes the user with the specified id.
+	 * 
+	 * @param userId
+	 * @throws ManagerException
+	 */
+	public void removeUser(int userId) throws ManagerException {
+		logger.debug("removing user: " + userId);
+
+		try {
+			dbConnection = new DatabaseConnection();
+			StringBuffer statement = new StringBuffer();
+			statement.append("DELETE FROM USERS");
+			statement.append(" WHERE ID = " + userId + ";");
+			dbConnection.update(statement.toString());
+		} catch (SQLException e) {
+			throw new ManagerException(e);
+		} finally {
+			dbConnection.close();
+		}
+	}
+
 
 	/**
 	 * Returns a List containing the channel with the specified <code>id</code>.
@@ -151,7 +174,7 @@ public class ConfigurationManager {
 	 * @throws ManagerException
 	 */
 	public List<Channel> getChannels(Integer id) throws ManagerException {
-		logger.debug("retrieving user list: id = " + id);
+		logger.debug("retrieving channel list: id = " + id);
 
 		ArrayList<Channel> channels = new ArrayList<Channel>();
 		ResultSet result = null;
@@ -193,8 +216,6 @@ public class ConfigurationManager {
 	 * @throws ManagerException
 	 */
 	public void updateChannel(Channel channel) throws ManagerException {
-		logger.debug("updating channel: " + channel.getId());
-
 		ChannelMarshaller marshaller = new ChannelMarshaller();
 		ByteArrayOutputStream os = new ByteArrayOutputStream();
 		Serializer serializer = new Serializer();
@@ -204,13 +225,17 @@ public class ConfigurationManager {
 			StringBuffer statement = new StringBuffer();
 
 			if (getChannels(channel.getId()).isEmpty()) {
+				logger.debug("inserting channel: " + channel.getId());
 				statement.append("INSERT INTO CHANNELS (ID, CHANNEL_NAME, CHANNEL_DATA) VALUES(");
 				statement.append(channel.getId() + ",");
-				statement.append("'" + channel.getName() + "'");
+				statement.append("'" + channel.getName() + "',");
 				serializer.serialize(marshaller.marshal(channel), ChannelMarshaller.cDataElements, os);
+				
+				// NOTE: the data might need to be "sanitized" for illegal characters to be removed
 				statement.append("'" + os.toString() + "');");
 			} else {
-				statement.append("UPDATE CHANNELS SET");
+				logger.debug("updating channel: " + channel.getId());
+				statement.append("UPDATE CHANNELS SET ");
 				statement.append("CHANNEL_NAME = '" + channel.getName() + "'");
 				serializer.serialize(marshaller.marshal(channel), ChannelMarshaller.cDataElements, os);
 				statement.append("CHANNEL_DATA = '" + os.toString() + "'");
@@ -221,6 +246,28 @@ public class ConfigurationManager {
 		} catch (SQLException e) {
 			throw new ManagerException(e);
 		} catch (MarshalException e) {
+			throw new ManagerException(e);
+		} finally {
+			dbConnection.close();
+		}
+	}
+	
+	/**
+	 * Removes the channel with the specified id.
+	 * 
+	 * @param channelId
+	 * @throws ManagerException
+	 */
+	public void removeChannel(int channelId) throws ManagerException {
+		logger.debug("removing channel: " + channelId);
+
+		try {
+			dbConnection = new DatabaseConnection();
+			StringBuffer statement = new StringBuffer();
+			statement.append("DELETE FROM CHANNELS");
+			statement.append(" WHERE ID = " + channelId + ";");
+			dbConnection.update(statement.toString());
+		} catch (SQLException e) {
 			throw new ManagerException(e);
 		} finally {
 			dbConnection.close();

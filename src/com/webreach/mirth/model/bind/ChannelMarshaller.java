@@ -156,10 +156,10 @@ public class ChannelMarshaller {
 			// transformer.variables
 			for (Iterator iter = connector.getTransformer().getVariables().entrySet().iterator(); iter.hasNext();) {
 				Entry variable = (Entry) iter.next();
-				Element scriptElement = document.createElement("variable");
-				scriptElement.setAttribute("name", variable.getKey().toString());
-				scriptElement.setTextContent(variable.getValue().toString());
-				transformer.appendChild(scriptElement);
+				Element variableElement = document.createElement("variable");
+				variableElement.setAttribute("name", variable.getKey().toString());
+				variableElement.setTextContent(variable.getValue().toString());
+				transformer.appendChild(variableElement);
 			}
 
 			connectorElement.appendChild(transformer);

@@ -151,7 +151,7 @@ public class ChannelUnmarshaller {
 		
 		for (int i = 0; i < validatorElement.getElementsByTagName("profile").getLength(); i++) {
 			String key = validatorElement.getElementsByTagName("profile").item(i).getAttributes().getNamedItem("name").getNodeValue();
-			String value = validatorElement.getElementsByTagName("profile").item(i).getNodeValue();
+			String value = validatorElement.getElementsByTagName("profile").item(i).getTextContent();
 			validator.getProfiles().put(key, value);
 		}
 		
@@ -185,7 +185,7 @@ public class ChannelUnmarshaller {
 			// transformer.variables
 			for (int i = 0; i < transformerElement.getElementsByTagName("variable").getLength(); i++) {
 				String key = transformerElement.getElementsByTagName("variable").item(i).getAttributes().getNamedItem("name").getNodeValue();
-				String value = transformerElement.getElementsByTagName("variable").item(i).getNodeValue();
+				String value = transformerElement.getElementsByTagName("variable").item(i).getTextContent();
 				transformer.getVariables().put(key, value);
 			}
 			

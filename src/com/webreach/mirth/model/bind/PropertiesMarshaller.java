@@ -22,7 +22,7 @@ public class PropertiesMarshaller {
 	 * @throws MarshalException
 	 */
 	public Document marshal(Properties properties) throws MarshalException {
-		logger.debug("marshalling properties");
+		logger.debug("marshalling properties: " + properties.toString());
 		
 		try {
 			Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
@@ -31,7 +31,7 @@ public class PropertiesMarshaller {
 			for (Iterator iter = properties.entrySet().iterator(); iter.hasNext();) {
 				Entry entry = (Entry) iter.next();
 				Element propertyElement = document.createElement("property");
-				propertyElement.setAttribute("key", entry.getKey().toString());
+				propertyElement.setAttribute("name", entry.getKey().toString());
 				propertyElement.setAttribute("value", entry.getValue().toString());
 				propertiesElement.appendChild(propertyElement);
 			}

@@ -93,4 +93,8 @@ public class ChannelTest extends TestCase {
 	protected void tearDown() throws Exception {
 		super.tearDown();
 	}
+	
+	public void testGetName() {
+		assertEquals("Test Interface", channel.getName());
+	}
 }

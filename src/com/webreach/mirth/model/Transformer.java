@@ -68,7 +68,7 @@ public class Transformer implements Script {
 		setLanguage(language);
 	}
 
-	public Map getVariables() {
+	public Map<String, String> getVariables() {
 		return variables;
 	}
 

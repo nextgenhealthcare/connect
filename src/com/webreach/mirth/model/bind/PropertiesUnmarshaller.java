@@ -53,7 +53,7 @@ public class PropertiesUnmarshaller {
 		Element propertiesElement = document.getDocumentElement();
 		
 		for (int i = 0; i < propertiesElement.getElementsByTagName("property").getLength(); i++) {
-			String key = propertiesElement.getElementsByTagName("property").item(i).getAttributes().getNamedItem("key").getNodeValue();
+			String key = propertiesElement.getElementsByTagName("property").item(i).getAttributes().getNamedItem("name").getNodeValue();
 			String value = propertiesElement.getElementsByTagName("property").item(i).getAttributes().getNamedItem("value").getNodeValue();
 			properties.put(key, value);
 		}

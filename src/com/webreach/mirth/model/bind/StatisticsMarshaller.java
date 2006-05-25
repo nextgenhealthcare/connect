@@ -10,7 +10,7 @@ import com.webreach.mirth.model.Statistics;
 
 public class StatisticsMarshaller {
 	public static final String[] cDataElements = null;
-	private Logger logger = Logger.getLogger(PropertiesMarshaller.class);
+	private Logger logger = Logger.getLogger(StatisticsMarshaller.class);
 	
 	/**
 	 * Returns a Document representation of a Statistics object.

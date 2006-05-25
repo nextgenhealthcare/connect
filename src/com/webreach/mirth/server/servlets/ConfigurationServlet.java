@@ -14,7 +14,6 @@ import com.webreach.mirth.model.bind.PropertiesMarshaller;
 import com.webreach.mirth.model.bind.PropertiesUnmarshaller;
 import com.webreach.mirth.model.bind.Serializer;
 import com.webreach.mirth.model.bind.TransportMapMarshaller;
-import com.webreach.mirth.model.bind.UnmarshalException;
 import com.webreach.mirth.model.bind.UserListMarshaller;
 import com.webreach.mirth.model.bind.UserUnmarshaller;
 import com.webreach.mirth.server.managers.ConfigurationManager;
@@ -28,35 +27,43 @@ public class ConfigurationServlet extends MirthServlet {
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 		} else {
 			PrintWriter out = response.getWriter();
-			String method = request.getParameter("method");
+			String operation = request.getParameter("op");
 
-			if (method.equals("version")) {
+			if (operation.equals("version")) {
 				response.setContentType("text/plain");
 				out.println("1.0");
-			} else if (method.equals("getChannels")) {
+			} else if (operation.equals("getChannels")) {
 				response.setContentType("application/xml");
 				out.println(getChannels());
-			} else if (method.equals("updateChannel")) {
+			} else if (operation.equals("updateChannel")) {
 				String body = request.getParameter("body");
 				updateChannel(body);
-			} else if (method.equals("getUsers")) {
+			} else if (operation.equals("removeChannel")) {
+				String body = request.getParameter("body");
+				removeChannel(Integer.valueOf(body).intValue());
+			} else if (operation.equals("getUsers")) {
 				response.setContentType("application/xml");
 				out.println(getUsers());
-			} else if (method.equals("getTransports")) {
+			} else if (operation.equals("getTransports")) {
 				response.setContentType("application/xml");
 				out.println(getTransports());
-			} else if (method.equals("updateUser")) {
+			} else if (operation.equals("updateUser")) {
 				String body = request.getParameter("body");
 				updateUser(body);
-			} else if (method.equals("getProperties")) {
+			} else if (operation.equals("removeUser")) {
+				String body = request.getParameter("body");
+				removeUser(Integer.valueOf(body).intValue());
+			} else if (operation.equals("getProperties")) {
 				response.setContentType("application/xml");
 				out.println(getProperties());
-			} else if (method.equals("updateProperties")) {
+			} else if (operation.equals("updateProperties")) {
 				String body = request.getParameter("body");
 				updateProperties(body);
-			} else if (method.equals("getNextId")) {
+			} else if (operation.equals("getNextId")) {
 				response.setContentType("text/plain");
 				out.print(getNextId());
+			} else if (operation.equals("deployChannels")) {
+				deployChannels();
 			}
 		}
 	}
@@ -79,10 +86,16 @@ public class ConfigurationServlet extends MirthServlet {
 
 		try {
 			configurationManager.updateChannel(unmarshaller.unmarshal(channel));
-		} catch (ManagerException e) {
-			e.printStackTrace();
-		} catch (UnmarshalException e) {
+		} catch (Exception e) {
 			throw new ServletException(e);
+		}
+	}
+
+	private void removeChannel(int channelId) throws ServletException {
+		try {
+			configurationManager.removeChannel(channelId);
+		} catch (Exception e) {
+			throw new ServletException();
 		}
 	}
 
@@ -121,6 +134,14 @@ public class ConfigurationServlet extends MirthServlet {
 			throw new ServletException();
 		}
 	}
+	
+	private void removeUser(int userId) throws ServletException {
+		try {
+			configurationManager.removeUser(userId);
+		} catch (Exception e) {
+			throw new ServletException();
+		}
+	}
 
 	private String getProperties() throws ServletException {
 		PropertiesMarshaller marshaller = new PropertiesMarshaller();
@@ -148,6 +169,14 @@ public class ConfigurationServlet extends MirthServlet {
 	private int getNextId() throws ServletException {
 		try {
 			return configurationManager.getNextId();
+		} catch (ManagerException e) {
+			throw new ServletException(e);
+		}
+	}
+	
+	private void deployChannels() throws ServletException {
+		try {
+			configurationManager.deployChannels();
 		} catch (ManagerException e) {
 			throw new ServletException(e);
 		}
