@@ -39,11 +39,16 @@ import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
 import com.webreach.mirth.MirthUtil;
+import com.webreach.mirth.components.ACKGenerator;
 
 import ca.uhn.hl7v2.model.Message;
 import ca.uhn.hl7v2.parser.DefaultXMLParser;
 import ca.uhn.hl7v2.parser.GenericParser;
 
+import ca.uhn.hl7v2.model.v21.message.ACK;
+import ca.uhn.hl7v2.model.v231.message.ADT_A01;
+import ca.uhn.hl7v2.model.v231.message.ORU_R01;
+import ca.uhn.hl7v2.model.v24.message.*;
 /**
  * Performs JavaScript transformation on incoming HL7 message.
  *  
@@ -65,6 +70,7 @@ public class OutboundECMAScriptTransformer {
 
 	public String getEncodingVersion() {
 		return encodingVersion;
+		
 	}
 
 	public void setEncodingVersion(String encodingVersion) {
@@ -89,29 +95,41 @@ public class OutboundECMAScriptTransformer {
 			Scriptable scope = cx.initStandardObjects();
 			scope.put("xmlMessage", scope, xmlMessage);
 			scope.put("logger", scope, logger);
-
+			
 			logger.info("Executing outbound transformation script");
-			String jsSource = "function doOutboundTransform() { var msg = new XML(xmlMessage); var ger = new XML(\"<message/>\"); " + script + " } doOutboundTransform()";
+			String jsSource = "function doOutboundTransform() { var msg = new XML(xmlMessage); " + script + " } doOutboundTransform()";
 			Object resultObj = cx.evaluateString(scope, jsSource, "<cmd>", 1, null);
 			
 			System.out.println("OUT TRANSFORMED MESSAGE: " + Context.jsToJava(resultObj, java.lang.String.class));
 			
-			String message = (String) Context.jsToJava(resultObj, java.lang.String.class);
+			Message message = (Message) Context.jsToJava(resultObj, Message.class);
 			
 			// turn the XML message into a Document object
-			InputSource is = new InputSource(new StringReader(message));
-			Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(is);
-			document.setXmlVersion("1.0");
-			document.setXmlStandalone(true);
-			
+			//InputSource is = new InputSource(new StringReader(message));
+			//Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(is);
+			//document.setXmlVersion("1.0");
+			//document.setXmlStandalone(true);
+			/*
+			ORU_R01 oru = new ORU_R01();
+			oru.getMSH().getFieldSeparator().setValue("|");
+			oru.getMSH().getEncodingCharacters().setValue("^~\&");
+			oru.getMSH().getMessageType().getMessageType().setValue("ORU");
+			oru.getMSH().getMessageType().getTriggerEvent().setValue("R01");
+			oru.getMSH().getMessageControlID().setValue("2040214114");
+			oru.getMSH().getProcessingID().getProcessingID().setValue("P");
+			oru.getMSH().get
+			*/
+			return (new GenericParser()).encode(message);
+			/*
 			// FIXME: get rid of this before debugging HL7 output!
 			setEnableEncoding(false);
-			
+		
 			if (isEnableEncoding()) {
 				Message m = (new DefaultXMLParser()).parseDocument(document, getEncodingVersion());
-				return (new GenericParser()).encode(m);
+
 			} else
 				return MirthUtil.serializeDocument(document, false);
+			*/
 		} catch (Exception e) {
 			logger.error(e.toString());
 			

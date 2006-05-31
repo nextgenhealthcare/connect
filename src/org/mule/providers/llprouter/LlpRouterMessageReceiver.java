@@ -273,6 +273,7 @@ public class LlpRouterMessageReceiver extends AbstractMessageReceiver implements
         	
         	//Parse out the message type to figure out where to route the message
     		PipeParser parser = new PipeParser();
+    		System.setProperty("ca.uhn.hl7v2.model.primitive.CommonTN.validate", "false");
     		ca.uhn.hl7v2.model.Message hapiMessage = parser.parse(message);
     		Terser terser = new Terser(hapiMessage);
             String controlId = terser.get("/MSH-9-1") + terser.get("/MSH-9-2");

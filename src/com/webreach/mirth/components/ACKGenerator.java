@@ -46,6 +46,7 @@ public class ACKGenerator implements Callable {
 	public String generateAckResponse(String message) throws Exception {
 		PipeParser parser = new PipeParser();
 		Segment header = parser.getCriticalResponseData(message);
+	
         Message response = DefaultApplication.makeACK(header);
         String originalEncoding = parser.getEncoding(message);
         String ackMessage = parser.encode(response, originalEncoding);

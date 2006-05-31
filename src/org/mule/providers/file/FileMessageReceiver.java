@@ -271,6 +271,9 @@ public class FileMessageReceiver extends PollingMessageReceiver
 				}
 			}
 		}
+		if (s != null){
+			s.close();
+		}
 		return hl7messages;
 	}
     /**
