@@ -43,11 +43,8 @@ import org.apache.log4j.Logger;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.Transport;
 import com.webreach.mirth.model.User;
-import com.webreach.mirth.model.bind.ChannelMarshaller;
-import com.webreach.mirth.model.bind.ChannelUnmarshaller;
-import com.webreach.mirth.model.bind.MarshalException;
-import com.webreach.mirth.model.bind.Serializer;
-import com.webreach.mirth.model.bind.UnmarshalException;
+import com.webreach.mirth.model.converters.DocumentSerializer;
+import com.webreach.mirth.model.converters.ObjectSerializer;
 import com.webreach.mirth.server.Command;
 import com.webreach.mirth.server.CommandQueue;
 import com.webreach.mirth.server.core.MuleConfigurationBuilder;
@@ -64,6 +61,7 @@ import com.webreach.mirth.server.core.util.PropertyLoader;
 public class ConfigurationManager {
 	private Logger logger = Logger.getLogger(ConfigurationManager.class);
 	private DatabaseConnection dbConnection;
+	private ObjectSerializer serializer = new ObjectSerializer();
 
 	/**
 	 * Returns a List containing the user with the specified <code>id</code>.
@@ -76,7 +74,6 @@ public class ConfigurationManager {
 	public List<User> getUsers(Integer id) throws ManagerException {
 		logger.debug("retrieving user list: id = " + id);
 
-		ArrayList<User> users = new ArrayList<User>();
 		ResultSet result = null;
 
 		try {
@@ -90,22 +87,34 @@ public class ConfigurationManager {
 
 			query.append(";");
 			result = dbConnection.query(query.toString());
-
-			while (result.next()) {
-				User user = new User();
-				user.setId(result.getInt("ID"));
-				user.setUsername(result.getString("USERNAME"));
-				user.setPassword(result.getString("PASSWORD"));
-				users.add(user);
-			}
-
-			return users;
+			return getUserList(result);
 		} catch (SQLException e) {
 			throw new ManagerException(e);
 		} finally {
 			DatabaseUtil.close(result);
 			dbConnection.close();
 		}
+	}
+
+	/**
+	 * Returns a List of User objects given a ResultSet.
+	 * 
+	 * @param result
+	 * @return
+	 * @throws SQLException
+	 */
+	private List<User> getUserList(ResultSet result) throws SQLException {
+		ArrayList<User> users = new ArrayList<User>();
+
+		while (result.next()) {
+			User user = new User();
+			user.setId(result.getInt("ID"));
+			user.setUsername(result.getString("USERNAME"));
+			user.setPassword(result.getString("PASSWORD"));
+			users.add(user);
+		}
+
+		return users;
 	}
 
 	/**
@@ -140,7 +149,7 @@ public class ConfigurationManager {
 			dbConnection.close();
 		}
 	}
-	
+
 	/**
 	 * Removes the user with the specified id.
 	 * 
@@ -163,7 +172,6 @@ public class ConfigurationManager {
 		}
 	}
 
-
 	/**
 	 * Returns a List containing the channel with the specified <code>id</code>.
 	 * If the <code>id</code> is <code>null</code>, all channels are
@@ -176,9 +184,7 @@ public class ConfigurationManager {
 	public List<Channel> getChannels(Integer id) throws ManagerException {
 		logger.debug("retrieving channel list: id = " + id);
 
-		ArrayList<Channel> channels = new ArrayList<Channel>();
 		ResultSet result = null;
-		ChannelUnmarshaller cu = new ChannelUnmarshaller();
 
 		try {
 			dbConnection = new DatabaseConnection();
@@ -191,22 +197,32 @@ public class ConfigurationManager {
 
 			query.append(";");
 			result = dbConnection.query(query.toString());
-
-			while (result.next()) {
-				Channel channel = cu.unmarshal(result.getString("CHANNEL_DATA"));
-				channel.setId(result.getInt("ID"));
-				channels.add(channel);
-			}
-
-			return channels;
+			return getChannelList(result);
 		} catch (SQLException e) {
-			throw new ManagerException(e);
-		} catch (UnmarshalException e) {
 			throw new ManagerException(e);
 		} finally {
 			DatabaseUtil.close(result);
 			dbConnection.close();
 		}
+	}
+	
+	/**
+	 * Returns a List of Channel objects given a ResultSet.
+	 * 
+	 * @param result
+	 * @return
+	 * @throws SQLException
+	 */
+	private List<Channel> getChannelList(ResultSet result) throws SQLException {
+		ArrayList<Channel> channels = new ArrayList<Channel>();
+
+		while (result.next()) {
+			Channel channel = (Channel) serializer.fromXML(result.getString("CHANNEL_DATA"));
+			channel.setId(result.getInt("ID"));
+			channels.add(channel);
+		}
+
+		return channels;
 	}
 
 	/**
@@ -216,10 +232,6 @@ public class ConfigurationManager {
 	 * @throws ManagerException
 	 */
 	public void updateChannel(Channel channel) throws ManagerException {
-		ChannelMarshaller marshaller = new ChannelMarshaller();
-		ByteArrayOutputStream os = new ByteArrayOutputStream();
-		Serializer serializer = new Serializer();
-
 		try {
 			dbConnection = new DatabaseConnection();
 			StringBuffer statement = new StringBuffer();
@@ -229,29 +241,23 @@ public class ConfigurationManager {
 				statement.append("INSERT INTO CHANNELS (ID, CHANNEL_NAME, CHANNEL_DATA) VALUES(");
 				statement.append(channel.getId() + ",");
 				statement.append("'" + channel.getName() + "',");
-				serializer.serialize(marshaller.marshal(channel), ChannelMarshaller.cDataElements, os);
-				
-				// NOTE: the data might need to be "sanitized" for illegal characters to be removed
-				statement.append("'" + os.toString() + "');");
+				statement.append("'" + serializer.toXML(channel) + "');");
 			} else {
 				logger.debug("updating channel: " + channel.getId());
 				statement.append("UPDATE CHANNELS SET ");
-				statement.append("CHANNEL_NAME = '" + channel.getName() + "'");
-				serializer.serialize(marshaller.marshal(channel), ChannelMarshaller.cDataElements, os);
-				statement.append("CHANNEL_DATA = '" + os.toString() + "'");
+				statement.append("CHANNEL_NAME = '" + channel.getName() + "', ");
+				statement.append("CHANNEL_DATA = '" + serializer.toXML(channel) + "'");
 				statement.append(" WHERE ID = " + channel.getId() + ";");
 			}
 
 			dbConnection.update(statement.toString());
 		} catch (SQLException e) {
 			throw new ManagerException(e);
-		} catch (MarshalException e) {
-			throw new ManagerException(e);
 		} finally {
 			dbConnection.close();
 		}
 	}
-	
+
 	/**
 	 * Removes the channel with the specified id.
 	 * 
@@ -285,7 +291,6 @@ public class ConfigurationManager {
 	public Map<String, Transport> getTransports() throws ManagerException {
 		logger.debug("retrieving transport list");
 
-		Map<String, Transport> transports = new HashMap<String, Transport>();
 		ResultSet result = null;
 
 		try {
@@ -293,18 +298,7 @@ public class ConfigurationManager {
 			StringBuffer query = new StringBuffer();
 			query.append("SELECT NAME, DISPLAY_NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS FROM TRANSPORTS;");
 			result = dbConnection.query(query.toString());
-
-			while (result.next()) {
-				Transport transport = new Transport();
-				transport.setName(result.getString("NAME"));
-				transport.setDisplayName(result.getString("DISPLAY_NAME"));
-				transport.setClassName(result.getString("CLASS_NAME"));
-				transport.setProtocol(result.getString("PROTOCOL"));
-				transport.setTransformers(result.getString("TRANSFORMERS"));
-				transports.put(transport.getName(), transport);
-			}
-
-			return transports;
+			return getTransportMap(result);
 		} catch (SQLException e) {
 			throw new ManagerException(e);
 		} finally {
@@ -312,8 +306,31 @@ public class ConfigurationManager {
 			dbConnection.close();
 		}
 	}
+	
+	/**
+	 * Returns a Map of Transports given a ResultSet.
+	 * 
+	 * @param result
+	 * @return
+	 * @throws SQLException
+	 */
+	private Map<String, Transport> getTransportMap(ResultSet result) throws SQLException {
+		Map<String, Transport> transports = new HashMap<String, Transport>();
 
-	public Properties getProperties() throws ManagerException {
+		while (result.next()) {
+			Transport transport = new Transport();
+			transport.setName(result.getString("NAME"));
+			transport.setDisplayName(result.getString("DISPLAY_NAME"));
+			transport.setClassName(result.getString("CLASS_NAME"));
+			transport.setProtocol(result.getString("PROTOCOL"));
+			transport.setTransformers(result.getString("TRANSFORMERS"));
+			transports.put(transport.getName(), transport);
+		}
+
+		return transports;
+	}
+
+	public Properties getServerProperties() throws ManagerException {
 		logger.debug("retrieving properties");
 
 		Properties properties = PropertyLoader.loadProperties("mirth");
@@ -325,7 +342,7 @@ public class ConfigurationManager {
 		}
 	}
 
-	public void updateProperties(Properties properties) throws ManagerException {
+	public void updateServerProperties(Properties properties) throws ManagerException {
 		logger.debug("updating properties");
 
 		try {
@@ -371,13 +388,13 @@ public class ConfigurationManager {
 		try {
 			CommandQueue queue = CommandQueue.getInstance();
 			ByteArrayOutputStream os = new ByteArrayOutputStream();
-			Serializer serializer = new Serializer();
+			DocumentSerializer docSerializer = new DocumentSerializer();
 
 			// instantiate a new configuration builder given the current channel
 			// and transport list
 			MuleConfigurationBuilder builder = new MuleConfigurationBuilder(getChannels(null), getTransports());
 			// generate the new configuraton and serialize it to XML
-			serializer.serialize(builder.getConfiguration(), MuleConfigurationBuilder.cDataElements, os);
+			docSerializer.serialize(builder.getConfiguration(), MuleConfigurationBuilder.cDataElements, os);
 			// add the newly generated configuration to the database
 			addConfiguration(os.toString());
 			// restart the mule engine which will grab the latest configuration
@@ -422,9 +439,15 @@ public class ConfigurationManager {
 		}
 	}
 
+	/**
+	 * Adds a new configuraiton to the database.
+	 * 
+	 * @param data
+	 * @throws ManagerException
+	 */
 	private void addConfiguration(String data) throws ManagerException {
 		logger.debug("adding configuration");
-		
+
 		try {
 			dbConnection = new DatabaseConnection();
 			StringBuffer insert = new StringBuffer();

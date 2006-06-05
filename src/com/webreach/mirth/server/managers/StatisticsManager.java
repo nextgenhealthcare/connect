@@ -11,37 +11,50 @@ public class StatisticsManager {
 	private Logger logger = Logger.getLogger(StatisticsManager.class);
 	private JMXConnection jmxConnection = null;
 	
-	public Statistics getChannelStatistics(int id) throws ManagerException {
-		logger.debug("retrieving statistics: " + id);
+	/**
+	 * Returns a Statistics object for the channel with the specified id.
+	 * 
+	 * @param channelId
+	 * @return
+	 * @throws ManagerException
+	 */
+	public Statistics getStatistics(int channelId) throws ManagerException {
+		logger.debug("retrieving statistics: " + channelId);
 		
 		Statistics statistics = new Statistics();
-		statistics.setErrorCount(getChannelErrorCount(id));
-		statistics.setQueueSize(getChannelQueueSize(id));
-		statistics.setReceivedCount(getChannelReceivedCount(id));
-		statistics.setSentCount(getChannelSentCount(id));
+		statistics.setErrorCount(getErrorCount(channelId));
+		statistics.setQueueSize(getQueueSize(channelId));
+		statistics.setReceivedCount(getReceivedCount(channelId));
+		statistics.setSentCount(getSentCount(channelId));
 		return statistics;
 	}
 	
-	public void clearChannelStatistics(int id) throws ManagerException {
-		logger.debug("clearing statistics: " + id);
+	/**
+	 * Clears all of the statistics for the channel with the specified id.
+	 * 
+	 * @param channelId
+	 * @throws ManagerException
+	 */
+	public void clearStatistics(int channelId) throws ManagerException {
+		logger.debug("clearing statistics: " + channelId);
 		
 		try {
 			jmxConnection = new JMXConnection();
 			Hashtable<String, String> properties = new Hashtable<String, String>();
 			properties.put("type", "statistics");
-			properties.put("name", String.valueOf(id));
+			properties.put("name", String.valueOf(channelId));
 			jmxConnection.invokeOperation(properties, "clear", null);
 		} catch (Exception e) {
 			throw new ManagerException(e);
 		}
 	}
 	
-	private int getChannelSentCount(int id) {
-		logger.debug("retrieving message sent count: " + id);
+	private int getSentCount(int channelId) {
+		logger.debug("retrieving message sent count: " + channelId);
 		
 		try {
 			jmxConnection = new JMXConnection();
-			return getStatistic(id, "TotalEventsSent");
+			return getStatistic(channelId, "TotalEventsSent");
 		} catch (Exception e) {
 			return -1;
 		}
@@ -49,14 +62,14 @@ public class StatisticsManager {
 
 	// This is a hack to address the fact that this statistic is incorrectly
 	// incrememnted by 2 in Mule.
-	private int getChannelReceivedCount(int id) {
-		logger.debug("retrieving message received count: " + id);
+	private int getReceivedCount(int channelId) {
+		logger.debug("retrieving message received count: " + channelId);
 		
 		try {
 			jmxConnection = new JMXConnection();
 			Hashtable<String, String> properties = new Hashtable<String, String>();
 			properties.put("type", "statistics");
-			properties.put("name", String.valueOf(id));
+			properties.put("name", String.valueOf(channelId));
 			Double count = ((Long) jmxConnection.getAttribute(properties, "TotalEventsReceived")).doubleValue();
 			return Double.valueOf(Math.ceil(count / 2)).intValue();
 		} catch (Exception e) {
@@ -64,34 +77,34 @@ public class StatisticsManager {
 		}
 	}
 
-	private int getChannelErrorCount(int id) {
-		logger.debug("retrieving error count: " + id);
+	private int getErrorCount(int channelId) {
+		logger.debug("retrieving error count: " + channelId);
 		
 		try {
 			jmxConnection = new JMXConnection();
-			return getStatistic(id, "ExecutionErrors");
+			return getStatistic(channelId, "ExecutionErrors");
 		} catch (Exception e) {
 			return -1;
 		}
 	}
 
-	private int getChannelQueueSize(int id) {
-		logger.debug("retrieving message queue count: " + id);
+	private int getQueueSize(int channelId) {
+		logger.debug("retrieving message queue count: " + channelId);
 		
 		try {
 			jmxConnection = new JMXConnection();
-			return getStatistic(id, "QueuedEvents");
+			return getStatistic(channelId, "QueuedEvents");
 		} catch (Exception e) {
 			return -1;
 		}
 	}
 
-	private int getStatistic(int id, String statistic) throws ManagerException {
+	private int getStatistic(int channelId, String statistic) throws ManagerException {
 		try {
 			jmxConnection = new JMXConnection();
 			Hashtable<String, String> properties = new Hashtable<String, String>();
 			properties.put("type", "statistics");
-			properties.put("name", String.valueOf(id));
+			properties.put("name", String.valueOf(channelId));
 
 			return ((Long) jmxConnection.getAttribute(properties, statistic)).intValue();
 		} catch (Exception e) {

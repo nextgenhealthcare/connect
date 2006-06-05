@@ -41,7 +41,6 @@ import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.Connector;
 import com.webreach.mirth.model.Transformer;
 import com.webreach.mirth.model.Transport;
-import com.webreach.mirth.model.bind.PropertiesMarshaller;
 import com.webreach.mirth.server.core.util.PropertyLoader;
 
 /**
@@ -53,7 +52,7 @@ import com.webreach.mirth.server.core.util.PropertyLoader;
  */
 public class MuleConfigurationBuilder {
 	public static final String[] cDataElements = null;
-	private Logger logger = Logger.getLogger(PropertiesMarshaller.class);
+	private Logger logger = Logger.getLogger(MuleConfigurationBuilder.class);
 
 	private List<Channel> channels = null;
 	private Map<String, Transport> transports = null;
@@ -186,13 +185,11 @@ public class MuleConfigurationBuilder {
 	
 	private void addTransformer(Document document, Element configurationElement, Transformer transformer, String name) throws ConfigurationBuilderException {
 		try {
-			PropertiesMarshaller marshaller = new PropertiesMarshaller();
 			Element transformersElement = (Element) configurationElement.getElementsByTagName("transformers").item(0);
 			Element transformerElement = document.createElement("transformer");
 			transformerElement.setAttribute("name", name);
 
 			String className = new String();
-			Properties properties = new Properties();
 			
 			// if the transformer is of Type SCRIPT, determine which language is used
 			if (transformer.getType().equals(Transformer.Type.SCRIPT)) {
@@ -209,9 +206,12 @@ public class MuleConfigurationBuilder {
 				className = "com.webreach.mirth.mule.transformers.XsltTransformer";
 			}
 
-			properties.put("script", transformer.getScript());
 			transformerElement.setAttribute("className", className);
-			transformerElement.appendChild(document.importNode(marshaller.marshal(properties).getDocumentElement(), true));
+
+			Properties properties = new Properties();
+			properties.put("script", transformer.getScript());
+			// TODO: append properties to transformerElement
+			
 			transformersElement.appendChild(transformerElement);
 		} catch (Exception e) {
 			throw new ConfigurationBuilderException(e);
@@ -220,19 +220,19 @@ public class MuleConfigurationBuilder {
 
 	private void addConnector(Document document, Element configurationElement, Connector connector, String name) throws ConfigurationBuilderException {
 		try {
-			PropertiesMarshaller marshaller = new PropertiesMarshaller();
 			// get the transport associated with this class from the transport map
 			Transport transport = transports.get(connector.getTransportName());
 			Element connectorElement = document.createElement("connector");
 			connectorElement.setAttribute("className", transport.getClassName());
 			connectorElement.setAttribute("name", name);
 			
-			// TODO: create a ConnectorProperty object that has
+			// TODO: (maybe) create a ConnectorProperty object that has
 			// name, value, and isMuleProperty attribute
 			// then only add the properties that have isMuleProperty set to true
 			
 			// TODO: handle the case where a queries map is added
-			connectorElement.appendChild(document.importNode(marshaller.marshal(connector.getProperties()).getDocumentElement(), true));
+			// TODO: append connector.getProperties to connectorElement;
+			
 			configurationElement.appendChild(connectorElement);
 		} catch (Exception e) {
 			throw new ConfigurationBuilderException(e);

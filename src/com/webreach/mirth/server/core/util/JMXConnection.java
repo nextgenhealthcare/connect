@@ -23,11 +23,11 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
 package com.webreach.mirth.server.core.util;
 
 import java.util.Hashtable;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
@@ -37,12 +37,11 @@ import javax.management.remote.JMXServiceURL;
 
 import org.apache.log4j.Logger;
 
-
 /**
  * A JMXConnection provides a connection to the Mule MBean server.
  * 
  * @author geraldb
- *
+ * 
  */
 public class JMXConnection {
 	private JMXConnector jmxConnector;
@@ -50,19 +49,15 @@ public class JMXConnection {
 	private Properties mirthProperties;
 	private String configurationId;
 	private Logger logger = Logger.getLogger(JMXConnection.class);
-	
+
 	public JMXConnection() throws Exception {
-		try {
-			mirthProperties = PropertyLoader.loadProperties("mirth");
-			configurationId = mirthProperties.getProperty("configuration.id");
-			JMXServiceURL serviceURL = new JMXServiceURL(mirthProperties.getProperty("jmx.url"));
-			jmxConnector = JMXConnectorFactory.connect(serviceURL);
-			jmxConnection = jmxConnector.getMBeanServerConnection();
-		} catch (Exception e) {
-			throw new Exception(e);
-		}
+		mirthProperties = PropertyLoader.loadProperties("mirth");
+		configurationId = mirthProperties.getProperty("configuration.id");
+		JMXServiceURL serviceURL = new JMXServiceURL(mirthProperties.getProperty("jmx.url"));
+		jmxConnector = JMXConnectorFactory.connect(serviceURL);
+		jmxConnection = jmxConnector.getMBeanServerConnection();
 	}
-	
+
 	/**
 	 * Invokes an operation on the MBean with the specified properties.
 	 * 
@@ -73,14 +68,10 @@ public class JMXConnection {
 	 * @return the result of the operation.
 	 */
 	public Object invokeOperation(Hashtable properties, String operation, Object[] params) throws Exception {
-		try {
-			logger.debug("invoking mbean operation: " + operation);
-			return jmxConnection.invoke(new ObjectName(configurationId, properties), operation, params, null);	
-		} catch (Exception e) {
-			throw new Exception(e);
-		}
+		logger.debug("invoking mbean operation: " + operation);
+		return jmxConnection.invoke(new ObjectName(configurationId, properties), operation, params, null);
 	}
-	
+
 	/**
 	 * Returns specified attribute from the MBean with the specified properties.
 	 * 
@@ -89,11 +80,12 @@ public class JMXConnection {
 	 * @return
 	 */
 	public Object getAttribute(Hashtable properties, String attribute) throws Exception {
-		try {
-			logger.debug("getting mbean attribute: " + attribute);
-			return jmxConnection.getAttribute(new ObjectName(configurationId, properties), attribute);	
-		} catch (Exception e) {
-			throw new Exception(e);
-		}
+		logger.debug("getting mbean attribute: " + attribute);
+		return jmxConnection.getAttribute(new ObjectName(configurationId, properties), attribute);
+	}
+
+	public Set getMBeanNames() throws Exception {
+		logger.debug("getting mbean names");
+		return jmxConnection.queryNames(null, null);
 	}
 }

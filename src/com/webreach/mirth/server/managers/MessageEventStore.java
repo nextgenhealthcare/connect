@@ -7,36 +7,36 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import com.webreach.mirth.model.MessageEntry;
+import com.webreach.mirth.model.MessageEvent;
 import com.webreach.mirth.server.core.util.DatabaseConnection;
 import com.webreach.mirth.server.core.util.DatabaseUtil;
 
-public class MessageEntryManager {
-	private Logger logger = Logger.getLogger(MessageEntryManager.class);
+public class MessageEventStore {
+	private Logger logger = Logger.getLogger(MessageEventStore.class);
 	private DatabaseConnection dbConnection;
 	
 	/**
 	 * Adds a new message to the database.
 	 * 
-	 * @param messageEntry
+	 * @param messageEvent
 	 * @throws ManagerException
 	 */
-	public void addMessageEntry(MessageEntry messageEntry) throws ManagerException {
-		logger.debug("adding message to channel " + messageEntry.getChannelId());
+	public void addMessageEvent(MessageEvent messageEvent) throws ManagerException {
+		logger.debug("adding message to channel " + messageEvent.getChannelId());
 		
 		try {
 			dbConnection = new DatabaseConnection();	
 			StringBuffer insert = new StringBuffer();
 			insert.append("INSERT INTO MESSAGES (CHANNEL_ID, DATE_CREATED, SENDING_FACILITY, EVENT, CONTROL_ID, MESSAGE) VALUES(");
-			insert.append(messageEntry.getChannelId() + ", ");
+			insert.append(messageEvent.getChannelId() + ", ");
 			insert.append("'" + DatabaseUtil.getNowTimestamp() + "', ");
-			insert.append("'" + messageEntry.getSendingFacility() + "', ");
-			insert.append("'" + messageEntry.getEvent() + "', ");
-			insert.append("'" + messageEntry.getControlId() + "', ");
-			insert.append("'" + messageEntry.getMessage() + "');");
+			insert.append("'" + messageEvent.getSendingFacility() + "', ");
+			insert.append("'" + messageEvent.getEvent() + "', ");
+			insert.append("'" + messageEvent.getControlId() + "', ");
+			insert.append("'" + messageEvent.getMessage() + "');");
 			dbConnection.update(insert.toString());
 		} catch (Exception e) {
-			throw new ManagerException("Could not add message for channel " + messageEntry.getChannelId(), e);
+			throw new ManagerException("Could not add message for channel " + messageEvent.getChannelId(), e);
 		}
 	}
 	
@@ -47,10 +47,10 @@ public class MessageEntryManager {
 	 * @return
 	 * @throws ManagerException
 	 */
-	public List<MessageEntry> getMessageEntries(int channelId) throws ManagerException {
+	public List<MessageEvent> getMessageEvents(int channelId) throws ManagerException {
 		logger.debug("retrieving message list");
 		
-		ArrayList<MessageEntry> messageEntries = new ArrayList<MessageEntry>();
+		ArrayList<MessageEvent> messageEvents = new ArrayList<MessageEvent>();
 		ResultSet result = null;
 		
 		try {
@@ -61,18 +61,18 @@ public class MessageEntryManager {
 			result = dbConnection.query(query.toString());
 
 			while (result.next()) {
-				MessageEntry messageEntry = new MessageEntry();
-				messageEntry.setId(result.getInt("ID"));
-				messageEntry.setChannelId(result.getInt("CHANNEL_ID"));
-				messageEntry.setDate(result.getTimestamp("DATE_CREATED"));
-				messageEntry.setSendingFacility(result.getString("SENDING_FACILITY"));
-				messageEntry.setEvent(result.getString("EVENT"));
-				messageEntry.setControlId(result.getString("CONTROL_ID"));
-				messageEntry.setMessage(result.getString("MESSAGE"));
-				messageEntries.add(messageEntry);
+				MessageEvent messageEvent = new MessageEvent();
+				messageEvent.setId(result.getInt("ID"));
+				messageEvent.setChannelId(result.getInt("CHANNEL_ID"));
+				messageEvent.setDate(result.getTimestamp("DATE_CREATED"));
+				messageEvent.setSendingFacility(result.getString("SENDING_FACILITY"));
+				messageEvent.setEvent(result.getString("EVENT"));
+				messageEvent.setControlId(result.getString("CONTROL_ID"));
+				messageEvent.setMessage(result.getString("MESSAGE"));
+				messageEvents.add(messageEvent);
 			}
 
-			return messageEntries;
+			return messageEvents;
 		} catch (SQLException e) {
 			throw new ManagerException(e);
 		} finally {

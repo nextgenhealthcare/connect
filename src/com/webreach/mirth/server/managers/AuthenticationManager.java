@@ -12,6 +12,14 @@ public class AuthenticationManager {
 	private Logger logger = Logger.getLogger(AuthenticationManager.class);
 	private DatabaseConnection dbConnection;
 
+	/**
+	 * Returns an id given a valid username and password, -1 otherwise.
+	 * 
+	 * @param username
+	 * @param password
+	 * @return
+	 * @throws ManagerException
+	 */
 	public int authenticateUser(String username, String password) throws ManagerException {
 		logger.debug("authenticating user: " + username);
 

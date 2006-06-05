@@ -1,4 +1,4 @@
-package com.webreach.mirth.model.bind;
+package com.webreach.mirth.model.converters;
 
 import java.io.OutputStream;
 import java.io.StringWriter;
@@ -7,7 +7,7 @@ import org.apache.xml.serialize.OutputFormat;
 import org.apache.xml.serialize.XMLSerializer;
 import org.w3c.dom.Document;
 
-public class Serializer {
+public class DocumentSerializer {
 	/**
 	 * Serializes a Document to XML (with the specified CDATA elements) and writes it to an OutputStream.
 	 * 

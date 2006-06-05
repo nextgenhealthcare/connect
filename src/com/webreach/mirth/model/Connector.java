@@ -75,7 +75,21 @@ public class Connector {
 	}
 
 	public Properties getProperties() {
-		return properties;
+		return this.properties;
+	}
+
+	public void setProperties(Properties properties) {
+		this.properties = properties;
+	}
+
+	public String toString() {
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("Connector[");
+		buffer.append(getName() + ", ");
+		buffer.append(getTransportName() + ", ");
+		buffer.append(getProperties());
+		buffer.append("]");
+		return buffer.toString();
 	}
 
 }

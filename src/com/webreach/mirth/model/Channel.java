@@ -37,10 +37,6 @@ import java.util.Properties;
  * 
  */
 public class Channel {
-	public enum Status {
-		STARTED, STOPPED, PAUSED
-	};
-
 	public enum Direction {
 		INBOUND, OUTBOUND
 	};
@@ -54,31 +50,24 @@ public class Channel {
 	private String description;
 	private boolean enabled;
 	private boolean modified;
-	private Status initialStatus;
+	private String initialStatus;
 	private Direction direction;
 	private Mode mode;
 	private Filter filter;
 	private Validator validator;
 	private Connector sourceConnector;
-	private List<Connector> destinationConnectors;
-	private Properties properties;
+	private List<Connector> destinationConnectors = new ArrayList<Connector>();;
+	private Properties properties = new Properties();
 
-	public Channel() {
-		destinationConnectors = new ArrayList<Connector>();
-		properties = new Properties();
-	}
-	
+	public Channel() {}
+
 	public Channel(Direction direction) {
 		this.direction = direction;
-		destinationConnectors = new ArrayList<Connector>();
-		properties = new Properties();
 	}
-	
+
 	public Channel(Direction direction, Mode mode) {
 		this.direction = direction;
 		this.mode = mode;
-		destinationConnectors = new ArrayList<Connector>();
-		properties = new Properties();
 	}
 
 	public String getDescription() {
@@ -105,11 +94,11 @@ public class Channel {
 		this.enabled = enabled;
 	}
 
-	public Status getInitialStatus() {
+	public String getInitialStatus() {
 		return this.initialStatus;
 	}
 
-	public void setInitialStatus(Status initialStatus) {
+	public void setInitialStatus(String initialStatus) {
 		this.initialStatus = initialStatus;
 	}
 
@@ -172,8 +161,17 @@ public class Channel {
 	public List<Connector> getDestinationConnectors() {
 		return this.destinationConnectors;
 	}
-	
-	public Properties getProperties() {
-		return properties;
+
+	public void setDestinationConnectors(List<Connector> destinationConnectors) {
+		this.destinationConnectors = destinationConnectors;
 	}
+
+	public Properties getProperties() {
+		return this.properties;
+	}
+
+	public void setProperties(Properties properties) {
+		this.properties = properties;
+	}
+
 }

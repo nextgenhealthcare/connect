@@ -77,7 +77,7 @@ public class ChannelTest extends TestCase {
 		channel.setDescription("This is a test interface.");
 		channel.setEnabled(true);
 		channel.setDirection(Channel.Direction.INBOUND);
-		channel.setInitialStatus(Channel.Status.STOPPED);
+		channel.setInitialStatus("STOPPED");
 		channel.setMode(Channel.Mode.ROUTER);
 		channel.setModified(false);
 		
