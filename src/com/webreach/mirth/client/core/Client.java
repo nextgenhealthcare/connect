@@ -31,7 +31,7 @@ public class Client {
 	private final String CONFIGURATION_SERVLET = "/configuration";
 	private final String STATUS_SERVLET = "/status";
 	private final String STATISTICS_SERVLET = "/statistics";
-	private final String LOGGING_SERVLET = "/events";
+	private final String LOGGER_SERVLET = "/logger";
 
 	/**
 	 * Instantiates a new Mirth client with a connection to the specified
@@ -567,7 +567,7 @@ public class Client {
 
 	public List<SystemEvent> getSystemEventList(int channelId) throws ClientException {
 		logger.debug("retrieving log event list");
-		post = new PostMethod(serverURL + LOGGING_SERVLET);
+		post = new PostMethod(serverURL + LOGGER_SERVLET);
 		NameValuePair[] data = { new NameValuePair("op", "getSystemEventList") };
 		post.setRequestBody(data);
 
@@ -589,7 +589,7 @@ public class Client {
 
 	public List<MessageEvent> getMessageEventList(int channelId) throws ClientException {
 		logger.debug("retrieving message event list");
-		post = new PostMethod(serverURL + LOGGING_SERVLET);
+		post = new PostMethod(serverURL + LOGGER_SERVLET);
 		NameValuePair[] data = { new NameValuePair("op", "getMessageEventList") };
 		post.setRequestBody(data);
 
