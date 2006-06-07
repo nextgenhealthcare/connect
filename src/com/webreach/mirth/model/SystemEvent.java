@@ -111,7 +111,7 @@ public class SystemEvent {
 		buffer.append("level=" + getLevel() + ", ");
 		buffer.append("event=" + getEvent() + ", ");
 		buffer.append("description=" + getDescription() + ", ");
-		buffer.append("date=" + getDate().toString() + ", ");
+		buffer.append("date=" + getDate().toString());
 		buffer.append("]");
 		return buffer.toString();
 	}
