@@ -10,8 +10,8 @@ import javax.servlet.http.HttpSession;
 
 import com.webreach.mirth.model.User;
 import com.webreach.mirth.model.converters.ObjectSerializer;
-import com.webreach.mirth.server.managers.UserController;
-import com.webreach.mirth.server.managers.ControllerException;
+import com.webreach.mirth.server.controllers.ControllerException;
+import com.webreach.mirth.server.controllers.UserController;
 
 public class UserServlet extends MirthServlet {
 	public static final String SESSION_USER = "user";
@@ -45,7 +45,7 @@ public class UserServlet extends MirthServlet {
 			} else if (operation.equals("isLoggedIn")) {
 				System.out.println("SEVLET CHECKING IF LOGGED IN");
 				response.setContentType("text/plain");
-				out.print(isLoggedIn(session));
+				out.print(isUserLoggedIn(session));
 			}
 		} catch (Exception e) {
 			throw new ServletException(e);

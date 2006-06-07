@@ -9,13 +9,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.webreach.mirth.model.converters.ObjectSerializer;
-import com.webreach.mirth.server.managers.ConfigurationController;
+import com.webreach.mirth.server.controllers.ConfigurationController;
 
 public class ConfigurationServlet extends MirthServlet {
 	private ConfigurationController configurationController = new ConfigurationController();
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		if (!isLoggedIn(request.getSession())) {
+		if (!isUserLoggedIn(request.getSession())) {
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 		} else {
 			try {

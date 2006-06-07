@@ -32,8 +32,8 @@ import org.mule.config.ConfigurationException;
 import org.mule.config.builders.MuleXmlConfigurationBuilder;
 import org.mule.umo.manager.UMOManager;
 
-import com.webreach.mirth.server.managers.ConfigurationController;
-import com.webreach.mirth.server.managers.ControllerException;
+import com.webreach.mirth.server.controllers.ConfigurationController;
+import com.webreach.mirth.server.controllers.ControllerException;
 
 /**
  * Instantiate a Mirth server that listens for commands from the CommandQueue.

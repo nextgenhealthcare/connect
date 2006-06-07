@@ -7,13 +7,13 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.webreach.mirth.server.managers.StatisticsController;
+import com.webreach.mirth.server.controllers.StatisticsController;
 
 public class StatisticsServlet extends MirthServlet {
 	private StatisticsController statisticsManager = new StatisticsController();
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		if (!isLoggedIn(request.getSession())) {
+		if (!isUserLoggedIn(request.getSession())) {
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 		} else {
 			try {

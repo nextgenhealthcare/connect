@@ -7,14 +7,13 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.converters.ObjectSerializer;
-import com.webreach.mirth.server.controllers.MessageLogger;
-import com.webreach.mirth.server.controllers.SystemLogger;
+import com.webreach.mirth.server.controllers.ChannelController;
 
-public class LoggerServlet extends MirthServlet {
-	private MessageLogger messageLogger = new MessageLogger();
-	private SystemLogger systemLogger = new SystemLogger();
-
+public class ChannelServlet  extends MirthServlet {
+	private ChannelController channelController = new ChannelController();
+	
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		if (!isUserLoggedIn(request.getSession())) {
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
@@ -23,18 +22,21 @@ public class LoggerServlet extends MirthServlet {
 				ObjectSerializer serializer = new ObjectSerializer();
 				PrintWriter out = response.getWriter();
 				String operation = request.getParameter("op");
-				int channelId = Integer.parseInt(request.getParameter("id"));
 
-				if (operation.equals("getSystemEventList")) {
+				if (operation.equals("getChannels")) {
 					response.setContentType("application/xml");
-					out.println(serializer.toXML(systemLogger.getSystemEvents(channelId)));
-				} else if (operation.equals("getMessageEventList")) {
-					response.setContentType("application/xml");
-					out.println(serializer.toXML(messageLogger.getMessageEvents(channelId)));
+					out.println(serializer.toXML(channelController.getChannels(null)));
+				} else if (operation.equals("updateChannel")) {
+					String data = request.getParameter("data");
+					channelController.updateChannel((Channel) serializer.fromXML(data));
+				} else if (operation.equals("removeChannel")) {
+					String data = request.getParameter("data");
+					channelController.removeChannel(Integer.valueOf(data).intValue());
 				}
 			} catch (Exception e) {
 				throw new ServletException(e);
 			}
 		}
 	}
+
 }

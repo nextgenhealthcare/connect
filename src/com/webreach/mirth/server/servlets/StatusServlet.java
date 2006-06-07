@@ -8,30 +8,29 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.webreach.mirth.model.converters.ObjectSerializer;
-import com.webreach.mirth.server.managers.ControllerException;
-import com.webreach.mirth.server.managers.StatusController;
+import com.webreach.mirth.server.controllers.ControllerException;
+import com.webreach.mirth.server.controllers.StatusController;
 
 public class StatusServlet extends MirthServlet {
 	private StatusController statusManager = new StatusController();
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		if (!isLoggedIn(request.getSession())) {
+		if (!isUserLoggedIn(request.getSession())) {
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 		} else {
 			try {
 				ObjectSerializer serializer = new ObjectSerializer();
 				PrintWriter out = response.getWriter();
 				String operation = request.getParameter("op");
-				int channelId = Integer.parseInt(request.getParameter("id"));
 
 				if (operation.equals("startChannel")) {
-					statusManager.startChannel(channelId);
+					statusManager.startChannel(Integer.parseInt(request.getParameter("id")));
 				} else if (operation.equals("stopChannel")) {
-					statusManager.stopChannel(channelId);
+					statusManager.stopChannel(Integer.parseInt(request.getParameter("id")));
 				} else if (operation.equals("pauseChannel")) {
-					statusManager.pauseChannel(channelId);
+					statusManager.pauseChannel(Integer.parseInt(request.getParameter("id")));
 				} else if (operation.equals("resumeChannel")) {
-					statusManager.resumeChannel(channelId);
+					statusManager.resumeChannel(Integer.parseInt(request.getParameter("id")));
 				} else if (operation.equals("getStatusList")) {
 					response.setContentType("application/xml");
 					out.print(serializer.toXML(statusManager.getStatusList()));
