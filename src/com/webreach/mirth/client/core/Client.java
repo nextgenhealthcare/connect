@@ -11,10 +11,10 @@ import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.log4j.Logger;
 
 import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.Status;
-import com.webreach.mirth.model.LogEvent;
 import com.webreach.mirth.model.MessageEvent;
 import com.webreach.mirth.model.Statistics;
+import com.webreach.mirth.model.Status;
+import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.model.Transport;
 import com.webreach.mirth.model.User;
 import com.webreach.mirth.model.converters.ObjectSerializer;
@@ -26,11 +26,12 @@ public class Client {
 	private PostMethod post = null;
 	private ObjectSerializer serializer = new ObjectSerializer();
 
-	private final String AUTHENTICATION_SERVLET = "/authentication";
+	private final String USER_SERVLET = "/users";
+	private final String CHANNEL_SERVLET = "/channels";
 	private final String CONFIGURATION_SERVLET = "/configuration";
 	private final String STATUS_SERVLET = "/status";
 	private final String STATISTICS_SERVLET = "/statistics";
-	private final String ENTRY_SERVLET = "/entry";
+	private final String LOGGING_SERVLET = "/events";
 
 	/**
 	 * Instantiates a new Mirth client with a connection to the specified
@@ -52,7 +53,7 @@ public class Client {
 	 */
 	public boolean login(String username, String password) throws ClientException {
 		logger.debug("attempting to login user: " + username);
-		post = new PostMethod(serverURL + AUTHENTICATION_SERVLET);
+		post = new PostMethod(serverURL + USER_SERVLET);
 		NameValuePair[] data = { new NameValuePair("op", "login"), new NameValuePair("username", username), new NameValuePair("password", password) };
 		post.setRequestBody(data);
 
@@ -78,7 +79,7 @@ public class Client {
 	 */
 	public void logout() throws ClientException {
 		logger.debug("logging out");
-		post = new PostMethod(serverURL + AUTHENTICATION_SERVLET);
+		post = new PostMethod(serverURL + USER_SERVLET);
 		NameValuePair[] data = { new NameValuePair("op", "logout") };
 		post.setRequestBody(data);
 
@@ -104,7 +105,7 @@ public class Client {
 	 */
 	public boolean isLoggedIn() throws ClientException {
 		logger.debug("checking if logged in");
-		post = new PostMethod(serverURL + AUTHENTICATION_SERVLET);
+		post = new PostMethod(serverURL + USER_SERVLET);
 		NameValuePair[] data = { new NameValuePair("op", "isLoggedIn") };
 		post.setRequestBody(data);
 
@@ -131,7 +132,7 @@ public class Client {
 	 */
 	public List<Channel> getChannels() throws ClientException {
 		logger.debug("retrieving channel list");
-		post = new PostMethod(serverURL + CONFIGURATION_SERVLET);
+		post = new PostMethod(serverURL + CHANNEL_SERVLET);
 		NameValuePair[] data = { new NameValuePair("op", "getChannels") };
 		post.setRequestBody(data);
 
@@ -158,7 +159,7 @@ public class Client {
 	 */
 	public void updateChannel(Channel channel) throws ClientException {
 		logger.debug("updating channel: " + channel.getId());
-		post = new PostMethod(serverURL + CONFIGURATION_SERVLET);
+		post = new PostMethod(serverURL + CHANNEL_SERVLET);
 
 		try {
 			NameValuePair[] data = { new NameValuePair("op", "updateChannel"), new NameValuePair("data", serializer.toXML(channel)) };
@@ -184,7 +185,7 @@ public class Client {
 	 */
 	public void removeChannel(int channelId) throws ClientException {
 		logger.debug("removing channel: " + channelId);
-		post = new PostMethod(serverURL + CONFIGURATION_SERVLET);
+		post = new PostMethod(serverURL + CHANNEL_SERVLET);
 
 		try {
 			NameValuePair[] data = { new NameValuePair("op", "removeChannel"), new NameValuePair("data", String.valueOf(channelId)) };
@@ -237,7 +238,7 @@ public class Client {
 	 */
 	public List<User> getUsers() throws ClientException {
 		logger.debug("retrieving user list");
-		post = new PostMethod(serverURL + CONFIGURATION_SERVLET);
+		post = new PostMethod(serverURL + USER_SERVLET);
 		NameValuePair[] data = { new NameValuePair("op", "getUsers") };
 		post.setRequestBody(data);
 
@@ -264,7 +265,7 @@ public class Client {
 	 */
 	public void updateUser(User user) throws ClientException {
 		logger.debug("updating user: " + user.toString());
-		post = new PostMethod(serverURL + CONFIGURATION_SERVLET);
+		post = new PostMethod(serverURL + USER_SERVLET);
 
 		try {
 			NameValuePair[] data = { new NameValuePair("op", "updateUser"), new NameValuePair("data", serializer.toXML(user)) };
@@ -290,7 +291,7 @@ public class Client {
 	 */
 	public void removeUser(int userId) throws ClientException {
 		logger.debug("removing user: " + userId);
-		post = new PostMethod(serverURL + CONFIGURATION_SERVLET);
+		post = new PostMethod(serverURL + USER_SERVLET);
 
 		try {
 			NameValuePair[] data = { new NameValuePair("op", "removeUser"), new NameValuePair("data", String.valueOf(userId)) };
@@ -564,10 +565,10 @@ public class Client {
 		}
 	}
 
-	public List<LogEvent> getLogEvents(int channelId) throws ClientException {
+	public List<SystemEvent> getSystemEventList(int channelId) throws ClientException {
 		logger.debug("retrieving log event list");
-		post = new PostMethod(serverURL + ENTRY_SERVLET);
-		NameValuePair[] data = { new NameValuePair("op", "getLogEvents") };
+		post = new PostMethod(serverURL + LOGGING_SERVLET);
+		NameValuePair[] data = { new NameValuePair("op", "getSystemEventList") };
 		post.setRequestBody(data);
 
 		try {
@@ -577,7 +578,7 @@ public class Client {
 				throw new ClientException("method failed: " + post.getStatusLine());
 			}
 
-			return (List<LogEvent>) serializer.fromXML(post.getResponseBodyAsString());
+			return (List<SystemEvent>) serializer.fromXML(post.getResponseBodyAsString());
 		} catch (Exception e) {
 			throw new ClientException("Could not connect to server.", e);
 		} finally {
@@ -586,10 +587,10 @@ public class Client {
 
 	}
 
-	public List<MessageEvent> getMessageEvents(int channelId) throws ClientException {
+	public List<MessageEvent> getMessageEventList(int channelId) throws ClientException {
 		logger.debug("retrieving message event list");
-		post = new PostMethod(serverURL + ENTRY_SERVLET);
-		NameValuePair[] data = { new NameValuePair("op", "getMessageEvents") };
+		post = new PostMethod(serverURL + LOGGING_SERVLET);
+		NameValuePair[] data = { new NameValuePair("op", "getMessageEventList") };
 		post.setRequestBody(data);
 
 		try {

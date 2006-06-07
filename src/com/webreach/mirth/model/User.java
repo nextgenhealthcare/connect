@@ -61,9 +61,9 @@ public class User {
 	public String toString() {
 		StringBuffer buffer = new StringBuffer();
 		buffer.append("User[");
-		buffer.append("ID" + getId() + ", ");
-		buffer.append(getUsername() + ", ");
-		buffer.append(getPassword());
+		buffer.append("id=" + getId() + ", ");
+		buffer.append("username=" + getUsername() + ", ");
+		buffer.append("password=" + getPassword());
 		buffer.append("]");
 		return buffer.toString();
 	}

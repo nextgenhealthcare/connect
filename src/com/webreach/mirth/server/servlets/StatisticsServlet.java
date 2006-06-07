@@ -7,10 +7,10 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.webreach.mirth.server.managers.StatisticsManager;
+import com.webreach.mirth.server.managers.StatisticsController;
 
 public class StatisticsServlet extends MirthServlet {
-	private StatisticsManager statisticsManager = new StatisticsManager();
+	private StatisticsController statisticsManager = new StatisticsController();
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		if (!isLoggedIn(request.getSession())) {

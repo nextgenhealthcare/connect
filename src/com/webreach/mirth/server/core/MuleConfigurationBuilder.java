@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Map.Entry;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -210,7 +211,9 @@ public class MuleConfigurationBuilder {
 
 			Properties properties = new Properties();
 			properties.put("script", transformer.getScript());
-			// TODO: append properties to transformerElement
+
+			// append properties to transformerElement
+			transformerElement.appendChild(getProperties(document, properties));
 			
 			transformersElement.appendChild(transformerElement);
 		} catch (Exception e) {
@@ -229,13 +232,26 @@ public class MuleConfigurationBuilder {
 			// TODO: (maybe) create a ConnectorProperty object that has
 			// name, value, and isMuleProperty attribute
 			// then only add the properties that have isMuleProperty set to true
-			
 			// TODO: handle the case where a queries map is added
-			// TODO: append connector.getProperties to connectorElement;
+			connectorElement.appendChild(getProperties(document, connector.getProperties()));
 			
 			configurationElement.appendChild(connectorElement);
 		} catch (Exception e) {
 			throw new ConfigurationBuilderException(e);
 		}
+	}
+	
+	private Element getProperties(Document document, Properties properties) {
+		Element propertiesElement = document.createElement("properties");
+		
+		for (Iterator iter = properties.entrySet().iterator(); iter.hasNext();) {
+			Entry property = (Entry) iter.next();
+			Element propertyElement = document.createElement("property");
+			propertyElement.setAttribute("name", property.getKey().toString());
+			propertyElement.setAttribute("value", property.getValue().toString());
+			propertiesElement.appendChild(propertyElement);
+		}
+		
+		return propertiesElement;
 	}
 }

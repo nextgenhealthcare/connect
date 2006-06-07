@@ -26,20 +26,24 @@
 package com.webreach.mirth.model;
 
 import java.sql.Timestamp;
+import java.util.Properties;
 
-public class LogEvent {
+public class SystemEvent {
 	private int id;
 	private int channelId;
+	private int level;
 	private Timestamp date;
 	private String event;
-	private int level;
-	
-	public LogEvent() {
+	private String description;
+	private Properties attributes;
+
+	public SystemEvent() {
+
 	}
-	
-	public LogEvent(int channelId, String event, int level) {
+
+	public SystemEvent(int channelId, String event, int level) {
 		this.channelId = channelId;
-		this.event = event;
+		this.description = event;
 		this.level = level;
 	}
 
@@ -59,12 +63,12 @@ public class LogEvent {
 		this.date = date;
 	}
 
-	public String getEvent() {
-		return this.event;
+	public String getDescription() {
+		return this.description;
 	}
 
-	public void setEvent(String event) {
-		this.event = event;
+	public void setDescription(String event) {
+		this.description = event;
 	}
 
 	public int getId() {
@@ -83,13 +87,31 @@ public class LogEvent {
 		this.level = level;
 	}
 
+	public Properties getAttributes() {
+		return this.attributes;
+	}
+
+	public void setAttributes(Properties attributes) {
+		this.attributes = attributes;
+	}
+
+	public String getEvent() {
+		return this.event;
+	}
+
+	public void setEvent(String event) {
+		this.event = event;
+	}
+
 	public String toString() {
 		StringBuffer buffer = new StringBuffer();
-		buffer.append("LogEvent[");
-		buffer.append("ID" + getId() + ", ");
-		buffer.append("L" + getLevel() + ", ");
-		buffer.append(getEvent() + ", ");
-		buffer.append(getDate().toString() + ", ");
+		buffer.append("System Event[");
+		buffer.append("id=" + getId() + ", ");
+		buffer.append("channelId=" + getChannelId() + ", ");
+		buffer.append("level=" + getLevel() + ", ");
+		buffer.append("event=" + getEvent() + ", ");
+		buffer.append("description=" + getDescription() + ", ");
+		buffer.append("date=" + getDate().toString() + ", ");
 		buffer.append("]");
 		return buffer.toString();
 	}

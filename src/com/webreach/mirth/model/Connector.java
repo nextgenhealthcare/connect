@@ -85,9 +85,9 @@ public class Connector {
 	public String toString() {
 		StringBuffer buffer = new StringBuffer();
 		buffer.append("Connector[");
-		buffer.append(getName() + ", ");
-		buffer.append(getTransportName() + ", ");
-		buffer.append(getProperties());
+		buffer.append("name=" + getName() + ", ");
+		buffer.append("transportName=" + getTransportName() + ", ");
+		buffer.append("properties=" + getProperties());
 		buffer.append("]");
 		return buffer.toString();
 	}

@@ -11,18 +11,24 @@ import com.webreach.mirth.model.MessageEvent;
 import com.webreach.mirth.server.core.util.DatabaseConnection;
 import com.webreach.mirth.server.core.util.DatabaseUtil;
 
-public class MessageEventStore {
-	private Logger logger = Logger.getLogger(MessageEventStore.class);
+/**
+ * The MessageLogger is used to store messages as they are processes by a channel.
+ * 
+ * @author GeraldB
+ *
+ */
+public class MessageLogger {
+	private Logger logger = Logger.getLogger(MessageLogger.class);
 	private DatabaseConnection dbConnection;
 	
 	/**
 	 * Adds a new message to the database.
 	 * 
 	 * @param messageEvent
-	 * @throws ManagerException
+	 * @throws ControllerException
 	 */
-	public void addMessageEvent(MessageEvent messageEvent) throws ManagerException {
-		logger.debug("adding message to channel " + messageEvent.getChannelId());
+	public void logMessageEvent(MessageEvent messageEvent) throws ControllerException {
+		logger.debug("adding message event: " + messageEvent.getChannelId());
 		
 		try {
 			dbConnection = new DatabaseConnection();	
@@ -36,7 +42,7 @@ public class MessageEventStore {
 			insert.append("'" + messageEvent.getMessage() + "');");
 			dbConnection.update(insert.toString());
 		} catch (Exception e) {
-			throw new ManagerException("Could not add message for channel " + messageEvent.getChannelId(), e);
+			throw new ControllerException("Could not add message for channel " + messageEvent.getChannelId(), e);
 		}
 	}
 	
@@ -45,10 +51,10 @@ public class MessageEventStore {
 	 * 
 	 * @param channelId
 	 * @return
-	 * @throws ManagerException
+	 * @throws ControllerException
 	 */
-	public List<MessageEvent> getMessageEvents(int channelId) throws ManagerException {
-		logger.debug("retrieving message list");
+	public List<MessageEvent> getMessageEvents(int channelId) throws ControllerException {
+		logger.debug("retrieving message event list: " + channelId);
 		
 		ArrayList<MessageEvent> messageEvents = new ArrayList<MessageEvent>();
 		ResultSet result = null;
@@ -74,7 +80,7 @@ public class MessageEventStore {
 
 			return messageEvents;
 		} catch (SQLException e) {
-			throw new ManagerException(e);
+			throw new ControllerException(e);
 		} finally {
 			DatabaseUtil.close(result);
 			dbConnection.close();

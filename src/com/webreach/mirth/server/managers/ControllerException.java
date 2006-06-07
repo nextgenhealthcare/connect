@@ -26,20 +26,20 @@
 
 package com.webreach.mirth.server.managers;
 
-public class ManagerException extends Exception {
-	public ManagerException() {
+public class ControllerException extends Exception {
+	public ControllerException() {
 		super();
 	}
 	
-	public ManagerException(Throwable cause) {
+	public ControllerException(Throwable cause) {
 		super(cause);
 	}
 	
-	public ManagerException(String message) {
+	public ControllerException(String message) {
 		super(message);
 	}
 	
-	public ManagerException(String message, Throwable cause) {
+	public ControllerException(String message, Throwable cause) {
 		super(message, cause);
 	}
 }

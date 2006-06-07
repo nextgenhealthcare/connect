@@ -7,8 +7,14 @@ import org.apache.log4j.Logger;
 import com.webreach.mirth.model.Statistics;
 import com.webreach.mirth.server.core.util.JMXConnection;
 
-public class StatisticsManager {
-	private Logger logger = Logger.getLogger(StatisticsManager.class);
+/**
+ * The StatisticsContoller provides access to channel statistics.
+ * 
+ * @author GeraldB
+ *
+ */
+public class StatisticsController {
+	private Logger logger = Logger.getLogger(StatisticsController.class);
 	private JMXConnection jmxConnection = null;
 	
 	/**
@@ -16,9 +22,9 @@ public class StatisticsManager {
 	 * 
 	 * @param channelId
 	 * @return
-	 * @throws ManagerException
+	 * @throws ControllerException
 	 */
-	public Statistics getStatistics(int channelId) throws ManagerException {
+	public Statistics getStatistics(int channelId) throws ControllerException {
 		logger.debug("retrieving statistics: " + channelId);
 		
 		Statistics statistics = new Statistics();
@@ -33,9 +39,9 @@ public class StatisticsManager {
 	 * Clears all of the statistics for the channel with the specified id.
 	 * 
 	 * @param channelId
-	 * @throws ManagerException
+	 * @throws ControllerException
 	 */
-	public void clearStatistics(int channelId) throws ManagerException {
+	public void clearStatistics(int channelId) throws ControllerException {
 		logger.debug("clearing statistics: " + channelId);
 		
 		try {
@@ -45,7 +51,7 @@ public class StatisticsManager {
 			properties.put("name", String.valueOf(channelId));
 			jmxConnection.invokeOperation(properties, "clear", null);
 		} catch (Exception e) {
-			throw new ManagerException(e);
+			throw new ControllerException(e);
 		}
 	}
 	
@@ -99,7 +105,7 @@ public class StatisticsManager {
 		}
 	}
 
-	private int getStatistic(int channelId, String statistic) throws ManagerException {
+	private int getStatistic(int channelId, String statistic) throws ControllerException {
 		try {
 			jmxConnection = new JMXConnection();
 			Hashtable<String, String> properties = new Hashtable<String, String>();
@@ -108,7 +114,7 @@ public class StatisticsManager {
 
 			return ((Long) jmxConnection.getAttribute(properties, statistic)).intValue();
 		} catch (Exception e) {
-			throw new ManagerException();
+			throw new ControllerException();
 		}
 	}
 

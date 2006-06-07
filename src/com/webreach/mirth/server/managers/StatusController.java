@@ -13,18 +13,17 @@ import org.apache.log4j.Logger;
 import com.webreach.mirth.model.Status;
 import com.webreach.mirth.server.core.util.JMXConnection;
 
-public class StatusManager {
-	private Logger logger = Logger.getLogger(StatusManager.class);
+public class StatusController {
+	private Logger logger = Logger.getLogger(StatusController.class);
 	private JMXConnection jmxConnection = null;
-	private ConfigurationManager configurationManager = new ConfigurationManager();
 
 	/**
 	 * Starts the channel with the specified id.
 	 * 
 	 * @param channelId
-	 * @throws ManagerException
+	 * @throws ControllerException
 	 */
-	public void startChannel(int channelId) throws ManagerException {
+	public void startChannel(int channelId) throws ControllerException {
 		logger.debug("starting channel: " + channelId);
 		
 		try {
@@ -34,7 +33,7 @@ public class StatusManager {
 			properties.put("name", channelId + "ComponentService");
 			jmxConnection.invokeOperation(properties, "start", null);
 		} catch (Exception e) {
-			throw new ManagerException(e);
+			throw new ControllerException(e);
 		}
 	}
 
@@ -42,9 +41,9 @@ public class StatusManager {
 	 * Stops the channel with the specified id.
 	 * 
 	 * @param channelId
-	 * @throws ManagerException
+	 * @throws ControllerException
 	 */
-	public void stopChannel(int channelId) throws ManagerException {
+	public void stopChannel(int channelId) throws ControllerException {
 		logger.debug("stopping channel: " + channelId);
 		
 		try {
@@ -54,7 +53,7 @@ public class StatusManager {
 			properties.put("name", channelId + "ComponentService");
 			jmxConnection.invokeOperation(properties, "stop", null);
 		} catch (Exception e) {
-			throw new ManagerException(e);
+			throw new ControllerException(e);
 		}
 	}
 
@@ -62,9 +61,9 @@ public class StatusManager {
 	 * Pauses the channel with the specified id.
 	 * 
 	 * @param channelId
-	 * @throws ManagerException
+	 * @throws ControllerException
 	 */
-	public void pauseChannel(int channelId) throws ManagerException {
+	public void pauseChannel(int channelId) throws ControllerException {
 		logger.debug("pausing channel: " + channelId);
 		
 		try {
@@ -74,7 +73,7 @@ public class StatusManager {
 			properties.put("name", channelId + "ComponentService");
 			jmxConnection.invokeOperation(properties, "pause", null);
 		} catch (Exception e) {
-			throw new ManagerException(e);
+			throw new ControllerException(e);
 		}
 	}
 
@@ -82,9 +81,9 @@ public class StatusManager {
 	 * Resumes the channel with the specified id.
 	 * 
 	 * @param channelId
-	 * @throws ManagerException
+	 * @throws ControllerException
 	 */
-	public void resumeChannel(int channelId) throws ManagerException {
+	public void resumeChannel(int channelId) throws ControllerException {
 		logger.debug("resuming channel: " + channelId);
 		
 		try {
@@ -94,7 +93,7 @@ public class StatusManager {
 			properties.put("name", channelId + "ComponentService");
 			jmxConnection.invokeOperation(properties, "resume", null);
 		} catch (Exception e) {
-			throw new ManagerException(e);
+			throw new ControllerException(e);
 		}
 	}
 	
@@ -102,11 +101,12 @@ public class StatusManager {
 	 * Returns a list of ChannelStatus objects representing the running channels. 
 	 * 
 	 * @return
-	 * @throws ManagerException
+	 * @throws ControllerException
 	 */
 	public List<Status> getStatusList() {
 		logger.debug("retrieving channel status list");
 		List<Status> channelStatusList = new ArrayList<Status>();
+		ChannelController channelController = new ChannelController();
 
 		try {
 			ArrayList<String> deployedChannelIdList = (ArrayList<String>) getDeployedIds();
@@ -114,9 +114,9 @@ public class StatusManager {
 			for (Iterator iter = deployedChannelIdList.iterator(); iter.hasNext();) {
 				String channelId = (String) iter.next();
 				Status channelStatus = new Status();
-				channelStatus.setState(getState(Integer.valueOf(channelId).intValue()));
 				channelStatus.setId(Integer.valueOf(channelId).intValue());
-				channelStatus.setName(configurationManager.getChannels(Integer.valueOf(channelId).intValue()).get(0).getName());
+				channelStatus.setName(channelController.getChannels(Integer.valueOf(channelId).intValue()).get(0).getName());
+				channelStatus.setState(getState(Integer.valueOf(channelId).intValue()));
 				channelStatusList.add(channelStatus);
 			}
 			
@@ -132,9 +132,9 @@ public class StatusManager {
 	 * Returns a list of the ids of all running channels.
 	 * 
 	 * @return
-	 * @throws ManagerException
+	 * @throws ControllerException
 	 */
-	private List<String> getDeployedIds() throws ManagerException {
+	private List<String> getDeployedIds() throws ControllerException {
 		logger.debug("retrieving deployed channel id list");
 		List<String> deployedChannelIdList = new ArrayList<String>();
 		
@@ -157,7 +157,7 @@ public class StatusManager {
 
 			return deployedChannelIdList;
 		} catch (Exception e) {
-			throw new ManagerException(e);
+			throw new ControllerException(e);
 		}
 	}
 	
@@ -166,9 +166,9 @@ public class StatusManager {
 	 * 
 	 * @param channelId
 	 * @return
-	 * @throws ManagerException
+	 * @throws ControllerException
 	 */
-	private Status.State getState(int channelId) throws ManagerException {
+	private Status.State getState(int channelId) throws ControllerException {
 		logger.debug("retrieving channel state: " + channelId);
 		
 		try {
@@ -185,7 +185,7 @@ public class StatusManager {
 				return Status.State.STARTED;
 			}
 		} catch (Exception e) {
-			throw new ManagerException(e);
+			throw new ControllerException(e);
 		}
 	}
 }

@@ -29,22 +29,22 @@ package com.webreach.mirth.model.tests;
 import java.sql.Timestamp;
 import java.util.Calendar;
 
-import com.webreach.mirth.model.LogEvent;
+import com.webreach.mirth.model.SystemEvent;
 
 import junit.framework.TestCase;
 
 public class LogTest extends TestCase {
 	
-	private LogEvent log;
+	private SystemEvent log;
 	
 	protected void setUp() throws Exception {
 		super.setUp();
 		Calendar calendar = Calendar.getInstance();
 		
-		log = new LogEvent();
+		log = new SystemEvent();
 		log.setId(0);
 		log.setDate(new Timestamp(calendar.getTimeInMillis()));
-		log.setEvent("Message sucessfully transformed.");
+		log.setDescription("Message sucessfully transformed.");
 		log.setLevel(0);
 	}
 

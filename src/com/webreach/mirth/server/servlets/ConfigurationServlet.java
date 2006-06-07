@@ -8,13 +8,11 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.User;
 import com.webreach.mirth.model.converters.ObjectSerializer;
-import com.webreach.mirth.server.managers.ConfigurationManager;
+import com.webreach.mirth.server.managers.ConfigurationController;
 
 public class ConfigurationServlet extends MirthServlet {
-	private ConfigurationManager configurationManager = new ConfigurationManager();
+	private ConfigurationController configurationController = new ConfigurationController();
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		if (!isLoggedIn(request.getSession())) {
@@ -25,41 +23,20 @@ public class ConfigurationServlet extends MirthServlet {
 				PrintWriter out = response.getWriter();
 				String operation = request.getParameter("op");
 
-				if (operation.equals("version")) {
-					response.setContentType("text/plain");
-					out.println("1.0");
-				} else if (operation.equals("getChannels")) {
+				if (operation.equals("getTransports")) {
 					response.setContentType("application/xml");
-					out.println(serializer.toXML(configurationManager.getChannels(null)));
-				} else if (operation.equals("updateChannel")) {
-					String data = request.getParameter("data");
-					configurationManager.updateChannel((Channel) serializer.fromXML(data));
-				} else if (operation.equals("removeChannel")) {
-					String data = request.getParameter("data");
-					configurationManager.removeChannel(Integer.valueOf(data).intValue());
-				} else if (operation.equals("getUsers")) {
-					response.setContentType("application/xml");
-					out.println(serializer.toXML(configurationManager.getUsers(null)));
-				} else if (operation.equals("getTransports")) {
-					response.setContentType("application/xml");
-					out.println(serializer.toXML(configurationManager.getTransports()));
-				} else if (operation.equals("updateUser")) {
-					String data = request.getParameter("data");
-					configurationManager.updateUser((User) serializer.fromXML(data));
-				} else if (operation.equals("removeUser")) {
-					String data = request.getParameter("data");
-					configurationManager.removeUser(Integer.valueOf(data).intValue());
+					out.println(serializer.toXML(configurationController.getTransports()));
 				} else if (operation.equals("getServerProperties")) {
 					response.setContentType("application/xml");
-					out.println(serializer.toXML(configurationManager.getServerProperties()));
+					out.println(serializer.toXML(configurationController.getServerProperties()));
 				} else if (operation.equals("updateServerProperties")) {
 					String data = request.getParameter("data");
-					configurationManager.updateServerProperties((Properties) serializer.fromXML(data));
+					configurationController.updateServerProperties((Properties) serializer.fromXML(data));
 				} else if (operation.equals("getNextId")) {
 					response.setContentType("text/plain");
-					out.print(configurationManager.getNextId());
+					out.print(configurationController.getNextId());
 				} else if (operation.equals("deployChannels")) {
-					configurationManager.deployChannels();
+					configurationController.deployChannels();
 				}
 			} catch (Exception e) {
 				throw new ServletException(e);

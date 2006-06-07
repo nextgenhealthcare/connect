@@ -8,11 +8,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.webreach.mirth.model.converters.ObjectSerializer;
-import com.webreach.mirth.server.managers.ManagerException;
-import com.webreach.mirth.server.managers.StatusManager;
+import com.webreach.mirth.server.managers.ControllerException;
+import com.webreach.mirth.server.managers.StatusController;
 
 public class StatusServlet extends MirthServlet {
-	private StatusManager statusManager = new StatusManager();
+	private StatusController statusManager = new StatusController();
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		if (!isLoggedIn(request.getSession())) {
@@ -36,7 +36,7 @@ public class StatusServlet extends MirthServlet {
 					response.setContentType("application/xml");
 					out.print(serializer.toXML(statusManager.getStatusList()));
 				}
-			} catch (ManagerException e) {
+			} catch (ControllerException e) {
 				throw new ServletException(e);
 			}
 		}

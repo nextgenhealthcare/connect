@@ -32,8 +32,8 @@ import org.mule.config.ConfigurationException;
 import org.mule.config.builders.MuleXmlConfigurationBuilder;
 import org.mule.umo.manager.UMOManager;
 
-import com.webreach.mirth.server.managers.ConfigurationManager;
-import com.webreach.mirth.server.managers.ManagerException;
+import com.webreach.mirth.server.managers.ConfigurationController;
+import com.webreach.mirth.server.managers.ControllerException;
 
 /**
  * Instantiate a Mirth server that listens for commands from the CommandQueue.
@@ -47,14 +47,16 @@ public class Mirth {
 	private UMOManager muleManager = null;
 	private Server webServer = null;
 	private CommandQueue commandQueue = CommandQueue.getInstance();
-	private ConfigurationManager configurationService = new ConfigurationManager();
+	private ConfigurationController configurationController = new ConfigurationController();
 
 	public static void main(String[] args) {
 		Mirth mirth = new Mirth();
 		mirth.start();
 	}
 
-	public Mirth() {}
+	public Mirth() {
+		
+	}
 
 	public void start() {
 		running = true;
@@ -98,13 +100,13 @@ public class Mirth {
 	// starts mule
 	private void startMule() {
 		try {
-			String configurationFilePath = configurationService.getConfiguration().getAbsolutePath();
+			String configurationFilePath = configurationController.getLatestConfiguration().getAbsolutePath();
 			logger.debug("starting mule with configuration file: " + configurationFilePath);
 
 			// disables validation of Mule configuration files
 			System.setProperty("org.mule.xml.validate", "false");
-			MuleXmlConfigurationBuilder builder = new MuleXmlConfigurationBuilder();
 
+			MuleXmlConfigurationBuilder builder = new MuleXmlConfigurationBuilder();
 			muleManager = builder.configure(configurationFilePath);
 		} catch (ConfigurationException e) {
 			// TODO: revert changes
@@ -113,7 +115,7 @@ public class Mirth {
 //			configurationService.revertConfiguration();
 			// restart mule with the last good configuration
 //			commandQueue.addCommand(new Command(Command.CMD_START_MULE, Command.PRIORITY_HIGH));
-		} catch (ManagerException e) {
+		} catch (ControllerException e) {
 			logger.error(e);
 		}
 	}

@@ -7,48 +7,48 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import com.webreach.mirth.model.LogEvent;
+import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.server.core.util.DatabaseConnection;
 import com.webreach.mirth.server.core.util.DatabaseUtil;
 
-public class LogEventStore {
-	private Logger logger = Logger.getLogger(LogEventStore.class);
+public class SystemLogger {
+	private Logger logger = Logger.getLogger(SystemLogger.class);
 	private DatabaseConnection dbConnection;
 	
 	/**
-	 * Adds a new event to the database.
+	 * Adds a new system event.
 	 * 
-	 * @param logEvent
-	 * @throws ManagerException
+	 * @param systemEvent
+	 * @throws ControllerException
 	 */
-	public void addEvent(LogEvent logEvent) throws ManagerException {
-		logger.debug("adding log message to channel " + logEvent.getChannelId());
+	public void logSystemEvent(SystemEvent systemEvent) throws ControllerException {
+		logger.debug("adding log event: " + systemEvent.getChannelId());
 		
 		try {
 			dbConnection = new DatabaseConnection();	
 			StringBuffer insert = new StringBuffer();
 			insert.append("INSERT INTO EVENTS (CHANNEL_ID, DATE_CREATED, EVENT, EVENT_LEVEL) VALUES(");
-			insert.append(logEvent.getChannelId() + ", ");
+			insert.append(systemEvent.getChannelId() + ", ");
 			insert.append("'" + DatabaseUtil.getNowTimestamp() + "', ");
-			insert.append("'" + logEvent.getEvent() + "', ");
-			insert.append(logEvent.getLevel() + ";");
+			insert.append("'" + systemEvent.getDescription() + "', ");
+			insert.append(systemEvent.getLevel() + ";");
 			dbConnection.update(insert.toString());
 		} catch (Exception e) {
-			throw new ManagerException("Could not add log for channel " + logEvent.getChannelId(), e);
+			throw new ControllerException("Could not add system event for channel " + systemEvent.getChannelId(), e);
 		}
 	}
 	
 	/**
-	 * Returns a List of all events.
+	 * Returns a List of all system events.
 	 * 
 	 * @param channelId
 	 * @return
-	 * @throws ManagerException
+	 * @throws ControllerException
 	 */
-	public List<LogEvent> getEvents(int channelId) throws ManagerException {
-		logger.debug("retrieving log list");
+	public List<SystemEvent> getSystemEvents(int channelId) throws ControllerException {
+		logger.debug("retrieving log event list: " + channelId);
 		
-		ArrayList<LogEvent> logEvents = new ArrayList<LogEvent>();
+		ArrayList<SystemEvent> logEvents = new ArrayList<SystemEvent>();
 		ResultSet result = null;
 		
 		try {
@@ -59,18 +59,18 @@ public class LogEventStore {
 			result = dbConnection.query(query.toString());
 
 			while (result.next()) {
-				LogEvent logEvent = new LogEvent();
+				SystemEvent logEvent = new SystemEvent();
 				logEvent.setId(result.getInt("ID"));
 				logEvent.setChannelId(result.getInt("CHANNEL_ID"));
 				logEvent.setDate(result.getTimestamp("DATE_CREATED"));
-				logEvent.setEvent(result.getString("EVENT"));
+				logEvent.setDescription(result.getString("EVENT"));
 				logEvent.setLevel(result.getInt("EVENT_LEVEL"));
 				logEvents.add(logEvent);
 			}
 
 			return logEvents;
 		} catch (SQLException e) {
-			throw new ManagerException(e);
+			throw new ControllerException(e);
 		} finally {
 			DatabaseUtil.close(result);
 			dbConnection.close();
