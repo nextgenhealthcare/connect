@@ -11,7 +11,7 @@ import javax.management.ObjectName;
 import org.apache.log4j.Logger;
 
 import com.webreach.mirth.model.ChannelStatus;
-import com.webreach.mirth.server.core.util.JMXConnection;
+import com.webreach.mirth.server.util.JMXConnection;
 
 public class ChannelStatusController {
 	private Logger logger = Logger.getLogger(ChannelStatusController.class);

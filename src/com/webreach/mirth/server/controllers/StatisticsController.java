@@ -5,7 +5,7 @@ import java.util.Hashtable;
 import org.apache.log4j.Logger;
 
 import com.webreach.mirth.model.Statistics;
-import com.webreach.mirth.server.core.util.JMXConnection;
+import com.webreach.mirth.server.util.JMXConnection;
 
 /**
  * The StatisticsContoller provides access to channel statistics.

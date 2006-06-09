@@ -23,7 +23,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-package com.webreach.mirth.server.core;
+package com.webreach.mirth.server.builders;
 
 import java.io.File;
 import java.util.Iterator;
@@ -42,7 +42,7 @@ import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.Connector;
 import com.webreach.mirth.model.Transformer;
 import com.webreach.mirth.model.Transport;
-import com.webreach.mirth.server.core.util.PropertyLoader;
+import com.webreach.mirth.server.util.PropertyLoader;
 
 /**
  * A MuleConfigurationBuilder is used to generate Mule configuration files based

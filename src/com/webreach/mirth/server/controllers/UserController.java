@@ -8,8 +8,8 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import com.webreach.mirth.model.User;
-import com.webreach.mirth.server.core.util.DatabaseConnection;
-import com.webreach.mirth.server.core.util.DatabaseUtil;
+import com.webreach.mirth.server.util.DatabaseConnection;
+import com.webreach.mirth.server.util.DatabaseUtil;
 
 public class UserController {
 	private Logger logger = Logger.getLogger(UserController.class);

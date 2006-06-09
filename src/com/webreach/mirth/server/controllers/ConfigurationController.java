@@ -44,10 +44,10 @@ import com.webreach.mirth.model.Transport;
 import com.webreach.mirth.model.converters.DocumentSerializer;
 import com.webreach.mirth.server.Command;
 import com.webreach.mirth.server.CommandQueue;
-import com.webreach.mirth.server.core.MuleConfigurationBuilder;
-import com.webreach.mirth.server.core.util.DatabaseConnection;
-import com.webreach.mirth.server.core.util.DatabaseUtil;
-import com.webreach.mirth.server.core.util.PropertyLoader;
+import com.webreach.mirth.server.builders.MuleConfigurationBuilder;
+import com.webreach.mirth.server.util.DatabaseConnection;
+import com.webreach.mirth.server.util.DatabaseUtil;
+import com.webreach.mirth.server.util.PropertyLoader;
 
 /**
  * The ConfigurationController provides access to the Mirth configuration.

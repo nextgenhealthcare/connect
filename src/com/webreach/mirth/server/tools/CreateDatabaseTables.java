@@ -30,7 +30,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 
-import com.webreach.mirth.server.core.util.DatabaseConnection;
+import com.webreach.mirth.server.util.DatabaseConnection;
 
 public class CreateDatabaseTables {
 	public static void main(String[] args) {

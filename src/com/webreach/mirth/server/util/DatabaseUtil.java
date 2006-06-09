@@ -24,14 +24,31 @@
  * ***** END LICENSE BLOCK ***** */
 
 
-package com.webreach.mirth.server.core;
+package com.webreach.mirth.server.util;
 
-public class ConfigurationBuilderException extends Exception {
-	public ConfigurationBuilderException() {
-		super();
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.sql.Timestamp;
+import java.util.GregorianCalendar;
+
+public class DatabaseUtil {
+	public static void close(ResultSet result) throws RuntimeException {
+		try {
+			result.close();
+		} catch (Exception e) {
+			throw new RuntimeException();
+		}
 	}
 	
-	public ConfigurationBuilderException(Throwable cause) {
-		super(cause);
+	public static void close(Statement statement) throws RuntimeException {
+		try {
+			statement.close();
+		} catch (Exception e) {
+			throw new RuntimeException();
+		}
+	}
+	
+	public static String getNowTimestamp() {
+		return (new Timestamp(new GregorianCalendar().getTimeInMillis())).toString();
 	}
 }

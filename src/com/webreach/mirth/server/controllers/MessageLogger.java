@@ -12,8 +12,8 @@ import com.truemesh.squiggle.SelectQuery;
 import com.truemesh.squiggle.Table;
 import com.webreach.mirth.model.MessageEvent;
 import com.webreach.mirth.server.controllers.filters.MessageEventFilter;
-import com.webreach.mirth.server.core.util.DatabaseConnection;
-import com.webreach.mirth.server.core.util.DatabaseUtil;
+import com.webreach.mirth.server.util.DatabaseConnection;
+import com.webreach.mirth.server.util.DatabaseUtil;
 
 /**
  * The MessageLogger is used to store messages as they are processes by a channel.

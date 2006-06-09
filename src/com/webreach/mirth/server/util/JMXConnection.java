@@ -23,7 +23,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-package com.webreach.mirth.server.core.util;
+package com.webreach.mirth.server.util;
 
 import java.util.Hashtable;
 import java.util.Properties;

@@ -12,8 +12,8 @@ import com.truemesh.squiggle.SelectQuery;
 import com.truemesh.squiggle.Table;
 import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.server.controllers.filters.SystemEventFilter;
-import com.webreach.mirth.server.core.util.DatabaseConnection;
-import com.webreach.mirth.server.core.util.DatabaseUtil;
+import com.webreach.mirth.server.util.DatabaseConnection;
+import com.webreach.mirth.server.util.DatabaseUtil;
 
 public class SystemLogger {
 	private Logger logger = Logger.getLogger(SystemLogger.class);

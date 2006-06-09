@@ -24,7 +24,7 @@
  * ***** END LICENSE BLOCK ***** */
 
 
-package com.webreach.mirth.server.core.util;
+package com.webreach.mirth.server.util;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -34,6 +34,7 @@ import java.sql.Statement;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
+
 
 /**
  * A DatabaseConnection provides a connection to the internal Mirth database.

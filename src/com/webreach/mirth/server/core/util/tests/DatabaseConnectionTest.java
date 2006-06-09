@@ -28,8 +28,8 @@ package com.webreach.mirth.server.core.util.tests;
 
 import java.sql.ResultSet;
 
-import com.webreach.mirth.server.core.util.DatabaseConnection;
-import com.webreach.mirth.server.core.util.DatabaseUtil;
+import com.webreach.mirth.server.util.DatabaseConnection;
+import com.webreach.mirth.server.util.DatabaseUtil;
 
 import junit.framework.TestCase;
 

@@ -28,7 +28,7 @@ package com.webreach.mirth.server.core.util.tests;
 
 import java.util.Properties;
 
-import com.webreach.mirth.server.core.util.PropertyLoader;
+import com.webreach.mirth.server.util.PropertyLoader;
 
 import junit.framework.TestCase;
 
