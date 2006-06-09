@@ -27,6 +27,7 @@
 package com.webreach.mirth.transformers;
 
 import java.io.StringReader;
+import java.util.HashMap;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -93,16 +94,24 @@ public class OutboundECMAScriptTransformer {
 		try {
 			Context cx = Context.enter();
 			Scriptable scope = cx.initStandardObjects();
+			HashMap map = new HashMap();
 			scope.put("xmlMessage", scope, xmlMessage);
 			scope.put("logger", scope, logger);
-			
+			scope.put("map", scope, map);
 			logger.info("Executing outbound transformation script");
 			String jsSource = "function doOutboundTransform() { var msg = new XML(xmlMessage); " + script + " } doOutboundTransform()";
 			Object resultObj = cx.evaluateString(scope, jsSource, "<cmd>", 1, null);
 			
-			System.out.println("OUT TRANSFORMED MESSAGE: " + Context.jsToJava(resultObj, java.lang.String.class));
+			//System.out.println("OUT TRANSFORMED MESSAGE: " + Context.jsToJava(resultObj, java.lang.String.class));
 			
-			Message message = (Message) Context.jsToJava(resultObj, Message.class);
+			if (resultObj != org.mozilla.javascript.Undefined.instance){
+				Object retVal = Context.jsToJava(resultObj, Message.class);
+				if (retVal != null){
+					Message message = (Message) retVal;
+					return (new GenericParser()).encode(message);
+				}
+			}
+				return map;
 			
 			// turn the XML message into a Document object
 			//InputSource is = new InputSource(new StringReader(message));
@@ -119,7 +128,7 @@ public class OutboundECMAScriptTransformer {
 			oru.getMSH().getProcessingID().getProcessingID().setValue("P");
 			oru.getMSH().get
 			*/
-			return (new GenericParser()).encode(message);
+			
 			/*
 			// FIXME: get rid of this before debugging HL7 output!
 			setEnableEncoding(false);

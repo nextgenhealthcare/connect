@@ -83,8 +83,13 @@ public class DatabaseRowToXML extends AbstractTransformer {
 				
 				for (Iterator iter = data.keySet().iterator(); iter.hasNext();) {
 					String key = (String) iter.next();
+					String valueStr = "";
+					Object value = data.get(key);
+					if (value != null){
+						valueStr = value.toString();
+					}
 					Element child = document.createElement(key);
-					child.appendChild(document.createTextNode(data.get(key).toString()));
+					child.appendChild(document.createTextNode(valueStr));
 					root.appendChild(child);
 				}
 				

@@ -89,9 +89,11 @@ public class MessageManager {
 			
 			paramaters.add(message.getEvent());
 		
-
-			paramaters.add(message.getControlId());
-			
+			String controlID = message.getControlId();
+			if (controlID == null){
+				controlID = "";
+			}
+			paramaters.add(controlID);
 			
 			paramaters.add(message.getSize());
 		
