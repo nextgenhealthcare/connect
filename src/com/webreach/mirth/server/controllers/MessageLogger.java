@@ -7,7 +7,11 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import com.truemesh.squiggle.MatchCriteria;
+import com.truemesh.squiggle.SelectQuery;
+import com.truemesh.squiggle.Table;
 import com.webreach.mirth.model.MessageEvent;
+import com.webreach.mirth.server.controllers.filters.MessageEventFilter;
 import com.webreach.mirth.server.core.util.DatabaseConnection;
 import com.webreach.mirth.server.core.util.DatabaseUtil;
 
@@ -32,7 +36,7 @@ public class MessageLogger {
 		
 		try {
 			dbConnection = new DatabaseConnection();	
-			StringBuffer insert = new StringBuffer();
+			StringBuilder insert = new StringBuilder();
 			insert.append("INSERT INTO MESSAGES (CHANNEL_ID, DATE_CREATED, SENDING_FACILITY, EVENT, CONTROL_ID, MESSAGE) VALUES(");
 			insert.append(messageEvent.getChannelId() + ", ");
 			insert.append("'" + DatabaseUtil.getNowTimestamp() + "', ");
@@ -53,32 +57,58 @@ public class MessageLogger {
 	 * @return
 	 * @throws ControllerException
 	 */
-	public List<MessageEvent> getMessageEvents(int channelId) throws ControllerException {
-		logger.debug("retrieving message event list: " + channelId);
+	public List<MessageEvent> getMessageEvents(MessageEventFilter filter) throws ControllerException {
+		logger.debug("retrieving message event list");
 		
-		ArrayList<MessageEvent> messageEvents = new ArrayList<MessageEvent>();
 		ResultSet result = null;
 		
 		try {
 			dbConnection = new DatabaseConnection();
-			StringBuffer query = new StringBuffer();
-			query.append("SELECT ID, CHANNEL_ID, DATE_CREATED, SENDING_FACILITY, EVENT, CONTROL_ID, MESSAGE FROM MESSAGES");
-			query.append(" WHERE CHANNEL_ID = " + channelId + ";");
-			result = dbConnection.query(query.toString());
-
-			while (result.next()) {
-				MessageEvent messageEvent = new MessageEvent();
-				messageEvent.setId(result.getInt("ID"));
-				messageEvent.setChannelId(result.getInt("CHANNEL_ID"));
-				messageEvent.setDate(result.getTimestamp("DATE_CREATED"));
-				messageEvent.setSendingFacility(result.getString("SENDING_FACILITY"));
-				messageEvent.setEvent(result.getString("EVENT"));
-				messageEvent.setControlId(result.getString("CONTROL_ID"));
-				messageEvent.setMessage(result.getString("MESSAGE"));
-				messageEvents.add(messageEvent);
+			
+			Table messages = new Table("messages");
+			SelectQuery select = new SelectQuery(messages);
+			
+			select.addColumn(messages, "id");
+			select.addColumn(messages, "channel_id");
+			select.addColumn(messages, "date_created");
+			select.addColumn(messages, "sending_facility");
+			select.addColumn(messages, "event");
+			select.addColumn(messages, "control_id");
+			select.addColumn(messages, "message");
+			
+			// filter on id
+			if (filter.getId() != -1) {
+				select.addCriteria(new MatchCriteria(messages, "id", MatchCriteria.EQUALS, filter.getId()));
+			}
+			
+			// filter on channelId
+			if (filter.getChannelId() != -1) {
+				select.addCriteria(new MatchCriteria(messages, "channel_id", MatchCriteria.EQUALS, filter.getChannelId()));
+			}
+			
+			// filter on min and max date
+			if ((filter.getMinDate() != null) && (filter.getMaxDate() != null)) {
+				select.addCriteria(new MatchCriteria(messages, "date_created", MatchCriteria.GREATEREQUAL, filter.getMinDate().toString()));
+				select.addCriteria(new MatchCriteria(messages, "date_created", MatchCriteria.LESSEQUAL, filter.getMaxDate().toString()));
 			}
 
-			return messageEvents;
+			// filter on sendingFacility
+			if (filter.getId() != -1) {
+				select.addCriteria(new MatchCriteria(messages, "sending_facility", MatchCriteria.EQUALS, filter.getSendingFacility()));
+			}
+			
+			// filter on event
+			if (filter.getEvent() != null) {
+				select.addCriteria(new MatchCriteria(messages, "event", MatchCriteria.EQUALS, filter.getEvent()));
+			}
+
+			// filter on controlId
+			if (filter.getEvent() != null) {
+				select.addCriteria(new MatchCriteria(messages, "control_id", MatchCriteria.EQUALS, filter.getControlId()));
+			}
+
+			result = dbConnection.query(select.toString());
+			return getMessageEventList(result);
 		} catch (SQLException e) {
 			throw new ControllerException(e);
 		} finally {
@@ -87,4 +117,21 @@ public class MessageLogger {
 		}		
 	}
 
+	private List<MessageEvent> getMessageEventList(ResultSet result) throws SQLException {
+		ArrayList<MessageEvent> messageEvents = new ArrayList<MessageEvent>();
+		
+		while (result.next()) {
+			MessageEvent messageEvent = new MessageEvent();
+			messageEvent.setId(result.getInt("id"));
+			messageEvent.setChannelId(result.getInt("channel_id"));
+			messageEvent.setDate(result.getTimestamp("date_created"));
+			messageEvent.setSendingFacility(result.getString("sending_facility"));
+			messageEvent.setEvent(result.getString("event"));
+			messageEvent.setControlId(result.getString("control_id"));
+			messageEvent.setMessage(result.getString("message"));
+			messageEvents.add(messageEvent);
+		}
+
+		return messageEvents;
+	}
 }

@@ -30,7 +30,7 @@ public class UserController {
 
 		try {
 			dbConnection = new DatabaseConnection();
-			StringBuffer query = new StringBuffer();
+			StringBuilder query = new StringBuilder();
 			query.append("SELECT ID, USERNAME, PASSWORD FROM USERS");
 
 			if (userId != null) {

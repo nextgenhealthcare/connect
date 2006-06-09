@@ -89,7 +89,7 @@ public class Transformer implements Script {
 	}
 
 	public String getScript() {
-		StringBuffer script = new StringBuffer();
+		StringBuilder script = new StringBuilder();
 
 		if (!variables.isEmpty()) {
 			if (getType() == Type.MAP) {

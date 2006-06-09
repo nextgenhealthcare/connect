@@ -38,6 +38,8 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
+import com.truemesh.squiggle.SelectQuery;
+import com.truemesh.squiggle.Table;
 import com.webreach.mirth.model.Transport;
 import com.webreach.mirth.model.converters.DocumentSerializer;
 import com.webreach.mirth.server.Command;
@@ -72,9 +74,17 @@ public class ConfigurationController {
 
 		try {
 			dbConnection = new DatabaseConnection();
-			StringBuffer query = new StringBuffer();
-			query.append("SELECT NAME, DISPLAY_NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS FROM TRANSPORTS;");
-			result = dbConnection.query(query.toString());
+			
+			Table transports = new Table("transports");
+			SelectQuery select = new SelectQuery(transports);
+			
+			select.addColumn(transports, "name");
+			select.addColumn(transports, "display_name");
+			select.addColumn(transports, "class_name");
+			select.addColumn(transports, "protocol");
+			select.addColumn(transports, "transformers");
+			
+			result = dbConnection.query(select.toString());
 			return getTransportMap(result);
 		} catch (SQLException e) {
 			throw new ControllerException(e);
@@ -96,11 +106,11 @@ public class ConfigurationController {
 
 		while (result.next()) {
 			Transport transport = new Transport();
-			transport.setName(result.getString("NAME"));
-			transport.setDisplayName(result.getString("DISPLAY_NAME"));
-			transport.setClassName(result.getString("CLASS_NAME"));
-			transport.setProtocol(result.getString("PROTOCOL"));
-			transport.setTransformers(result.getString("TRANSFORMERS"));
+			transport.setName(result.getString("name"));
+			transport.setDisplayName(result.getString("display_name"));
+			transport.setClassName(result.getString("class_name"));
+			transport.setProtocol(result.getString("protocol"));
+			transport.setTransformers(result.getString("transformers"));
 			transports.put(transport.getName(), transport);
 		}
 
@@ -228,7 +238,7 @@ public class ConfigurationController {
 
 		try {
 			dbConnection = new DatabaseConnection();
-			StringBuffer insert = new StringBuffer();
+			StringBuilder insert = new StringBuilder();
 			insert.append("INSERT INTO CONFIGURATIONS (DATE_CREATED, DATA) VALUES (");
 			insert.append("'" + DatabaseUtil.getNowTimestamp() + "',");
 			insert.append("'" + data + "');");

@@ -39,7 +39,7 @@ public class Client {
 		
 		try {
 			MuleClient client = new MuleClient();
-			StringBuffer message = new StringBuffer();
+			StringBuilder message = new StringBuilder();
 
 			if (args.length == 2) {
 				BufferedReader reader = new BufferedReader(new FileReader(new File(args[1])));

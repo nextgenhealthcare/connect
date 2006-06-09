@@ -13,7 +13,7 @@ import org.apache.log4j.Logger;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.MessageEvent;
 import com.webreach.mirth.model.Statistics;
-import com.webreach.mirth.model.Status;
+import com.webreach.mirth.model.ChannelStatus;
 import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.model.Transport;
 import com.webreach.mirth.model.User;
@@ -608,7 +608,7 @@ public class Client {
 		}
 	}
 	
-	public List<Status> getStatusList() throws ClientException {
+	public List<ChannelStatus> getChannelStatusList() throws ClientException {
 		logger.debug("retrieving channel status list");
 		post = new PostMethod(serverURL + STATUS_SERVLET);
 		NameValuePair[] data = { new NameValuePair("op", "getStatusList") };
@@ -621,7 +621,7 @@ public class Client {
 				throw new ClientException("method failed: " + post.getStatusLine());
 			}
 
-			return (List<Status>) serializer.fromXML(post.getResponseBodyAsString());
+			return (List<ChannelStatus>) serializer.fromXML(post.getResponseBodyAsString());
 		} catch (Exception e) {
 			throw new ClientException("Could not connect to server.", e);
 		}

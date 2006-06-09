@@ -1,20 +1,20 @@
 package com.webreach.mirth.model;
 
-public class Status {
+public class ChannelStatus {
 	public enum State {
 		STARTED, STOPPED, PAUSED
 	};
 
-	private int id;
+	private int channelId;
 	private String name;
 	private State state;
 
-	public int getId() {
-		return this.id;
+	public int getChannelId() {
+		return this.channelId;
 	}
 
-	public void setId(int id) {
-		this.id = id;
+	public void setChannelId(int channelId) {
+		this.channelId = channelId;
 	}
 
 	public String getName() {

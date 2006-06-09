@@ -42,7 +42,7 @@ public class DatabaseConnectionTest extends TestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		dbConnection = new DatabaseConnection();
-		StringBuffer statement = new StringBuffer();
+		StringBuilder statement = new StringBuilder();
 		statement.append("DROP TABLE " + TEST_TABLE + " IF EXISTS;");
 		statement.append("CREATE TABLE " + TEST_TABLE + " (testvalue INTEGER);");
 		dbConnection.update(statement.toString());

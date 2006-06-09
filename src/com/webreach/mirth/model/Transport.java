@@ -86,7 +86,7 @@ public class Transport {
 	}
 
 	public String toString() {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("Transport[");
 		buffer.append(getName() + ", ");
 		buffer.append(getDisplayName() + ", ");

@@ -104,7 +104,7 @@ public class SystemEvent {
 	}
 
 	public String toString() {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("System Event[");
 		buffer.append("id=" + getId() + ", ");
 		buffer.append("channelId=" + getChannelId() + ", ");

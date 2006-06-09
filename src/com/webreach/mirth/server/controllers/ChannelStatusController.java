@@ -10,11 +10,11 @@ import javax.management.ObjectName;
 
 import org.apache.log4j.Logger;
 
-import com.webreach.mirth.model.Status;
+import com.webreach.mirth.model.ChannelStatus;
 import com.webreach.mirth.server.core.util.JMXConnection;
 
-public class StatusController {
-	private Logger logger = Logger.getLogger(StatusController.class);
+public class ChannelStatusController {
+	private Logger logger = Logger.getLogger(ChannelStatusController.class);
 	private JMXConnection jmxConnection = null;
 
 	/**
@@ -103,9 +103,9 @@ public class StatusController {
 	 * @return
 	 * @throws ControllerException
 	 */
-	public List<Status> getStatusList() {
+	public List<ChannelStatus> getChannelStatusList() {
 		logger.debug("retrieving channel status list");
-		List<Status> channelStatusList = new ArrayList<Status>();
+		List<ChannelStatus> channelStatusList = new ArrayList<ChannelStatus>();
 		ChannelController channelController = new ChannelController();
 
 		try {
@@ -113,8 +113,8 @@ public class StatusController {
 			
 			for (Iterator iter = deployedChannelIdList.iterator(); iter.hasNext();) {
 				String channelId = (String) iter.next();
-				Status channelStatus = new Status();
-				channelStatus.setId(Integer.valueOf(channelId).intValue());
+				ChannelStatus channelStatus = new ChannelStatus();
+				channelStatus.setChannelId(Integer.valueOf(channelId).intValue());
 				channelStatus.setName(channelController.getChannels(Integer.valueOf(channelId).intValue()).get(0).getName());
 				channelStatus.setState(getState(Integer.valueOf(channelId).intValue()));
 				channelStatusList.add(channelStatus);
@@ -168,7 +168,7 @@ public class StatusController {
 	 * @return
 	 * @throws ControllerException
 	 */
-	private Status.State getState(int channelId) throws ControllerException {
+	private ChannelStatus.State getState(int channelId) throws ControllerException {
 		logger.debug("retrieving channel state: " + channelId);
 		
 		try {
@@ -178,11 +178,11 @@ public class StatusController {
 			properties.put("name", channelId + "ComponentService");
 
 			if ((Boolean) jmxConnection.getAttribute(properties, "Paused")) {
-				return Status.State.PAUSED;
+				return ChannelStatus.State.PAUSED;
 			} else if ((Boolean) jmxConnection.getAttribute(properties, "Stopped")) {
-				return Status.State.STOPPED;
+				return ChannelStatus.State.STOPPED;
 			} else {
-				return Status.State.STARTED;
+				return ChannelStatus.State.STARTED;
 			}
 		} catch (Exception e) {
 			throw new ControllerException(e);

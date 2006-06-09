@@ -83,7 +83,7 @@ public class Connector {
 	}
 
 	public String toString() {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("Connector[");
 		buffer.append("name=" + getName() + ", ");
 		buffer.append("transportName=" + getTransportName() + ", ");

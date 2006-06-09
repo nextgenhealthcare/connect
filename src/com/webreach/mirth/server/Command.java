@@ -99,7 +99,7 @@ public class Command implements Comparable {
 	}
 
 	public String toString() {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append(this.getClass().getSimpleName() + "[");
 		buffer.append(getCommand() + "/");
 		buffer.append(getPriority() + "/");

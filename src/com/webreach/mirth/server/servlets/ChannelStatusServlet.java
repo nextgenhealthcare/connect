@@ -9,10 +9,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.webreach.mirth.model.converters.ObjectSerializer;
 import com.webreach.mirth.server.controllers.ControllerException;
-import com.webreach.mirth.server.controllers.StatusController;
+import com.webreach.mirth.server.controllers.ChannelStatusController;
 
-public class StatusServlet extends MirthServlet {
-	private StatusController statusManager = new StatusController();
+public class ChannelStatusServlet extends MirthServlet {
+	private ChannelStatusController statusManager = new ChannelStatusController();
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		if (!isUserLoggedIn(request.getSession())) {
@@ -31,9 +31,9 @@ public class StatusServlet extends MirthServlet {
 					statusManager.pauseChannel(Integer.parseInt(request.getParameter("id")));
 				} else if (operation.equals("resumeChannel")) {
 					statusManager.resumeChannel(Integer.parseInt(request.getParameter("id")));
-				} else if (operation.equals("getStatusList")) {
+				} else if (operation.equals("getChannelStatusList")) {
 					response.setContentType("application/xml");
-					out.print(serializer.toXML(statusManager.getStatusList()));
+					out.print(serializer.toXML(statusManager.getChannelStatusList()));
 				}
 			} catch (ControllerException e) {
 				throw new ServletException(e);

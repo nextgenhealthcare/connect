@@ -41,7 +41,7 @@ public class CreateDatabaseTables {
 		} else {
 			try {
 				dbConnection = new DatabaseConnection();
-				StringBuffer script = new StringBuffer();
+				StringBuilder script = new StringBuilder();
 
 				BufferedReader reader = new BufferedReader(new FileReader(new File(args[0])));
 				String line = null;
