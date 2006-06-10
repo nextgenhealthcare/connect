@@ -102,6 +102,25 @@ public class SystemLogger {
 			dbConnection.close();
 		}		
 	}
+
+	/**
+	 * Clears the sysem event list.
+	 *
+	 */
+	public void clearSystemEvents() throws ControllerException {
+		logger.debug("clearing system event list");
+		
+		try {
+			dbConnection = new DatabaseConnection();
+			StringBuilder statement = new StringBuilder();
+			statement.append("delete from events;");
+			dbConnection.update(statement.toString());
+		} catch (SQLException e) {
+			throw new ControllerException(e);
+		} finally {
+			dbConnection.close();
+		}
+	}
 	
 	private List<SystemEvent> getSystemEventList(ResultSet result) throws SQLException {
 		ArrayList<SystemEvent> systemEvents = new ArrayList<SystemEvent>();

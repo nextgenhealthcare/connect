@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.webreach.mirth.server.controllers.StatisticsController;
 
 public class StatisticsServlet extends MirthServlet {
-	private StatisticsController statisticsManager = new StatisticsController();
+	private StatisticsController statisticsController = new StatisticsController();
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		if (!isUserLoggedIn(request.getSession())) {
@@ -23,9 +23,9 @@ public class StatisticsServlet extends MirthServlet {
 
 				if (operation.equals("getStatistics")) {
 					response.setContentType("application/xml");
-					out.println(statisticsManager.getStatistics(channelId));
+					out.println(statisticsController.getStatistics(channelId));
 				} else if (operation.equals("clearStatistics")) {
-					statisticsManager.clearStatistics(channelId);
+					statisticsController.clearStatistics(channelId);
 				}
 			} catch (Exception e) {
 				throw new ServletException(e);

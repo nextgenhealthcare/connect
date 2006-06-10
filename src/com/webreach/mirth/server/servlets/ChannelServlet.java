@@ -27,11 +27,11 @@ public class ChannelServlet  extends MirthServlet {
 					response.setContentType("application/xml");
 					out.println(serializer.toXML(channelController.getChannels(null)));
 				} else if (operation.equals("updateChannel")) {
-					String data = request.getParameter("data");
-					channelController.updateChannel((Channel) serializer.fromXML(data));
+					String channel = request.getParameter("data");
+					channelController.updateChannel((Channel) serializer.fromXML(channel));
 				} else if (operation.equals("removeChannel")) {
-					String data = request.getParameter("data");
-					channelController.removeChannel(Integer.valueOf(data).intValue());
+					String channelId = request.getParameter("data");
+					channelController.removeChannel(Integer.valueOf(channelId).intValue());
 				}
 			} catch (Exception e) {
 				throw new ServletException(e);

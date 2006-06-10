@@ -12,7 +12,7 @@ import com.webreach.mirth.server.controllers.ControllerException;
 import com.webreach.mirth.server.controllers.ChannelStatusController;
 
 public class ChannelStatusServlet extends MirthServlet {
-	private ChannelStatusController statusManager = new ChannelStatusController();
+	private ChannelStatusController channelStatusController = new ChannelStatusController();
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		if (!isUserLoggedIn(request.getSession())) {
@@ -24,16 +24,16 @@ public class ChannelStatusServlet extends MirthServlet {
 				String operation = request.getParameter("op");
 
 				if (operation.equals("startChannel")) {
-					statusManager.startChannel(Integer.parseInt(request.getParameter("id")));
+					channelStatusController.startChannel(Integer.parseInt(request.getParameter("id")));
 				} else if (operation.equals("stopChannel")) {
-					statusManager.stopChannel(Integer.parseInt(request.getParameter("id")));
+					channelStatusController.stopChannel(Integer.parseInt(request.getParameter("id")));
 				} else if (operation.equals("pauseChannel")) {
-					statusManager.pauseChannel(Integer.parseInt(request.getParameter("id")));
+					channelStatusController.pauseChannel(Integer.parseInt(request.getParameter("id")));
 				} else if (operation.equals("resumeChannel")) {
-					statusManager.resumeChannel(Integer.parseInt(request.getParameter("id")));
+					channelStatusController.resumeChannel(Integer.parseInt(request.getParameter("id")));
 				} else if (operation.equals("getChannelStatusList")) {
 					response.setContentType("application/xml");
-					out.print(serializer.toXML(statusManager.getChannelStatusList()));
+					out.print(serializer.toXML(channelStatusController.getChannelStatusList()));
 				}
 			} catch (ControllerException e) {
 				throw new ServletException(e);

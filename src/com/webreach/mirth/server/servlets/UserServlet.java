@@ -16,7 +16,6 @@ import com.webreach.mirth.server.controllers.UserController;
 public class UserServlet extends MirthServlet {
 	public static final String SESSION_USER = "user";
 	public static final String SESSION_AUTHORIZED = "authorized";
-	public static final String ERROR_UNAUTHORIZED = "You are not logged in.";
 
 	private UserController userController = new UserController();
 
@@ -30,11 +29,11 @@ public class UserServlet extends MirthServlet {
 				response.setContentType("application/xml");
 				out.println(serializer.toXML(userController.getUsers(null)));
 			} else if (operation.equals("updateUser")) {
-				String data = request.getParameter("data");
-				userController.updateUser((User) serializer.fromXML(data));
+				String user = request.getParameter("data");
+				userController.updateUser((User) serializer.fromXML(user));
 			} else if (operation.equals("removeUser")) {
-				String data = request.getParameter("data");
-				userController.removeUser(Integer.valueOf(data).intValue());
+				String userId = request.getParameter("data");
+				userController.removeUser(Integer.valueOf(userId).intValue());
 			} else if (operation.equals("login")) {
 				String username = request.getParameter("username");
 				String password = request.getParameter("password");
@@ -43,7 +42,6 @@ public class UserServlet extends MirthServlet {
 			} else if (operation.equals("logout")) {
 				logout(session);
 			} else if (operation.equals("isLoggedIn")) {
-				System.out.println("SEVLET CHECKING IF LOGGED IN");
 				response.setContentType("text/plain");
 				out.print(isUserLoggedIn(session));
 			}

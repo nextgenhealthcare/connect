@@ -11,27 +11,28 @@ import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.log4j.Logger;
 
 import com.webreach.mirth.model.Channel;
+import com.webreach.mirth.model.ChannelStatus;
 import com.webreach.mirth.model.MessageEvent;
 import com.webreach.mirth.model.Statistics;
-import com.webreach.mirth.model.ChannelStatus;
 import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.model.Transport;
 import com.webreach.mirth.model.User;
 import com.webreach.mirth.model.converters.ObjectSerializer;
+import com.webreach.mirth.server.controllers.filters.MessageEventFilter;
+import com.webreach.mirth.server.controllers.filters.SystemEventFilter;
 
 public class Client {
 	private Logger logger = Logger.getLogger(Client.class);
 	private String serverURL = null;
 	private HttpClient client = new HttpClient();
-	private PostMethod post = null;
 	private ObjectSerializer serializer = new ObjectSerializer();
 
-	private final String USER_SERVLET = "/users";
-	private final String CHANNEL_SERVLET = "/channels";
-	private final String CONFIGURATION_SERVLET = "/configuration";
-	private final String STATUS_SERVLET = "/status";
-	private final String STATISTICS_SERVLET = "/statistics";
-	private final String LOGGER_SERVLET = "/logger";
+	private final static String USER_SERVLET = "/users";
+	private final static String CHANNEL_SERVLET = "/channels";
+	private final static String CONFIGURATION_SERVLET = "/configuration";
+	private final static String CHANNEL_STATUS_SERVLET = "/channelstatus";
+	private final static String STATISTICS_SERVLET = "/statistics";
+	private final static String LOGGER_SERVLET = "/logger";
 
 	/**
 	 * Instantiates a new Mirth client with a connection to the specified
@@ -44,6 +45,35 @@ public class Client {
 	}
 
 	/**
+	 * Executes a POST method on a servlet with a set of parameters.
+	 * 
+	 * @param servletName The name of the servlet.
+	 * @param params An array of NameValuePair objects.
+	 * @return
+	 * @throws ClientException
+	 */
+	private String executePostMethod(String servletName, NameValuePair[] params) throws ClientException {
+		PostMethod post = null;
+		
+		try {
+			post = new PostMethod(serverURL + servletName);
+			post.setRequestBody(params);
+
+			int statusCode = client.executeMethod(post);
+
+			if (statusCode != HttpStatus.SC_OK) {
+				throw new ClientException("method failed: " + post.getStatusLine());
+			}
+
+			return post.getResponseBodyAsString();
+		} catch (Exception e) {
+			throw new ClientException(e);
+		} finally {
+			post.releaseConnection();
+		}
+	}
+	
+	/**
 	 * Logs a user in to the Mirth server using the specified name and password.
 	 * 
 	 * @param username
@@ -53,23 +83,8 @@ public class Client {
 	 */
 	public boolean login(String username, String password) throws ClientException {
 		logger.debug("attempting to login user: " + username);
-		post = new PostMethod(serverURL + USER_SERVLET);
-		NameValuePair[] data = { new NameValuePair("op", "login"), new NameValuePair("username", username), new NameValuePair("password", password) };
-		post.setRequestBody(data);
-
-		try {
-			int statusCode = client.executeMethod(post);
-
-			if (statusCode != HttpStatus.SC_OK) {
-				throw new ClientException("method failed: " + post.getStatusLine());
-			}
-
-			return Boolean.valueOf(post.getResponseBodyAsString()).booleanValue();
-		} catch (Exception e) {
-			throw new ClientException("Could not connect to server.", e);
-		} finally {
-			post.releaseConnection();
-		}
+		NameValuePair[] params = { new NameValuePair("op", "login"), new NameValuePair("username", username), new NameValuePair("password", password) };
+		return Boolean.valueOf(executePostMethod(USER_SERVLET, params)).booleanValue();
 	}
 
 	/**
@@ -79,21 +94,8 @@ public class Client {
 	 */
 	public void logout() throws ClientException {
 		logger.debug("logging out");
-		post = new PostMethod(serverURL + USER_SERVLET);
-		NameValuePair[] data = { new NameValuePair("op", "logout") };
-		post.setRequestBody(data);
-
-		try {
-			int statusCode = client.executeMethod(post);
-
-			if (statusCode != HttpStatus.SC_OK) {
-				throw new ClientException("method failed: " + post.getStatusLine());
-			}
-		} catch (Exception e) {
-			throw new ClientException("Could not connect to server.", e);
-		} finally {
-			post.releaseConnection();
-		}
+		NameValuePair[] params = { new NameValuePair("op", "logout") };
+		executePostMethod(USER_SERVLET, params);
 	}
 
 	/**
@@ -105,23 +107,8 @@ public class Client {
 	 */
 	public boolean isLoggedIn() throws ClientException {
 		logger.debug("checking if logged in");
-		post = new PostMethod(serverURL + USER_SERVLET);
-		NameValuePair[] data = { new NameValuePair("op", "isLoggedIn") };
-		post.setRequestBody(data);
-
-		try {
-			int statusCode = client.executeMethod(post);
-
-			if (statusCode != HttpStatus.SC_OK) {
-				throw new ClientException("method failed: " + post.getStatusLine());
-			}
-
-			return Boolean.valueOf(post.getResponseBodyAsString()).booleanValue();
-		} catch (Exception e) {
-			throw new ClientException("Could not connect to server.", e);
-		} finally {
-			post.releaseConnection();
-		}
+		NameValuePair[] params = { new NameValuePair("op", "isLoggedIn") };
+		return Boolean.valueOf(executePostMethod(USER_SERVLET, params));
 	}
 
 	/**
@@ -132,23 +119,8 @@ public class Client {
 	 */
 	public List<Channel> getChannels() throws ClientException {
 		logger.debug("retrieving channel list");
-		post = new PostMethod(serverURL + CHANNEL_SERVLET);
-		NameValuePair[] data = { new NameValuePair("op", "getChannels") };
-		post.setRequestBody(data);
-
-		try {
-			int statusCode = client.executeMethod(post);
-
-			if (statusCode != HttpStatus.SC_OK) {
-				throw new ClientException("method failed: " + post.getStatusLine());
-			}
-
-			return (List<Channel>) serializer.fromXML(post.getResponseBodyAsString());
-		} catch (Exception e) {
-			throw new ClientException("Could not connect to server.", e);
-		} finally {
-			post.releaseConnection();
-		}
+		NameValuePair[] params = { new NameValuePair("op", "getChannels") };
+		return (List<Channel>) serializer.fromXML(executePostMethod(CHANNEL_SERVLET, params));
 	}
 
 	/**
@@ -159,22 +131,8 @@ public class Client {
 	 */
 	public void updateChannel(Channel channel) throws ClientException {
 		logger.debug("updating channel: " + channel.getId());
-		post = new PostMethod(serverURL + CHANNEL_SERVLET);
-
-		try {
-			NameValuePair[] data = { new NameValuePair("op", "updateChannel"), new NameValuePair("data", serializer.toXML(channel)) };
-			post.setRequestBody(data);
-
-			int statusCode = client.executeMethod(post);
-
-			if (statusCode != HttpStatus.SC_OK) {
-				throw new ClientException("method failed: " + post.getStatusLine());
-			}
-		} catch (Exception e) {
-			throw new ClientException("Could not connect to server.", e);
-		} finally {
-			post.releaseConnection();
-		}
+		NameValuePair[] params = { new NameValuePair("op", "updateChannel"), new NameValuePair("data", serializer.toXML(channel)) };
+		executePostMethod(CHANNEL_SERVLET, params);
 	}
 
 	/**
@@ -185,24 +143,10 @@ public class Client {
 	 */
 	public void removeChannel(int channelId) throws ClientException {
 		logger.debug("removing channel: " + channelId);
-		post = new PostMethod(serverURL + CHANNEL_SERVLET);
-
-		try {
-			NameValuePair[] data = { new NameValuePair("op", "removeChannel"), new NameValuePair("data", String.valueOf(channelId)) };
-			post.setRequestBody(data);
-
-			int statusCode = client.executeMethod(post);
-
-			if (statusCode != HttpStatus.SC_OK) {
-				throw new ClientException("method failed: " + post.getStatusLine());
-			}
-		} catch (Exception e) {
-			throw new ClientException("Could not connect to server.", e);
-		} finally {
-			post.releaseConnection();
-		}
+		NameValuePair[] params = { new NameValuePair("op", "removeChannel"), new NameValuePair("data", String.valueOf(channelId)) };
+		executePostMethod(CHANNEL_SERVLET, params);
 	}
-	
+
 	/**
 	 * Returns a List of all transports.
 	 * 
@@ -211,23 +155,8 @@ public class Client {
 	 */
 	public Map<String, Transport> getTransports() throws ClientException {
 		logger.debug("retrieving transport list");
-		post = new PostMethod(serverURL + CONFIGURATION_SERVLET);
-		NameValuePair[] data = { new NameValuePair("op", "getTransports") };
-		post.setRequestBody(data);
-
-		try {
-			int statusCode = client.executeMethod(post);
-
-			if (statusCode != HttpStatus.SC_OK) {
-				throw new ClientException("method failed: " + post.getStatusLine());
-			}
-
-			return (Map<String, Transport>) serializer.fromXML(post.getResponseBodyAsString());
-		} catch (Exception e) {
-			throw new ClientException("Could not connect to server.", e);
-		} finally {
-			post.releaseConnection();
-		}
+		NameValuePair[] params = { new NameValuePair("op", "getTransports") };
+		return (Map<String, Transport>) serializer.fromXML(executePostMethod(CONFIGURATION_SERVLET, params));
 	}
 
 	/**
@@ -238,23 +167,8 @@ public class Client {
 	 */
 	public List<User> getUsers() throws ClientException {
 		logger.debug("retrieving user list");
-		post = new PostMethod(serverURL + USER_SERVLET);
-		NameValuePair[] data = { new NameValuePair("op", "getUsers") };
-		post.setRequestBody(data);
-
-		try {
-			int statusCode = client.executeMethod(post);
-
-			if (statusCode != HttpStatus.SC_OK) {
-				throw new ClientException("method failed: " + post.getStatusLine());
-			}
-
-			return (List<User>) serializer.fromXML(post.getResponseBodyAsString());
-		} catch (Exception e) {
-			throw new ClientException("Could not connect to server.", e);
-		} finally {
-			post.releaseConnection();
-		}
+		NameValuePair[] params = { new NameValuePair("op", "getUsers") };
+		return (List<User>) serializer.fromXML(executePostMethod(USER_SERVLET, params));
 	}
 
 	/**
@@ -265,22 +179,8 @@ public class Client {
 	 */
 	public void updateUser(User user) throws ClientException {
 		logger.debug("updating user: " + user.toString());
-		post = new PostMethod(serverURL + USER_SERVLET);
-
-		try {
-			NameValuePair[] data = { new NameValuePair("op", "updateUser"), new NameValuePair("data", serializer.toXML(user)) };
-			post.setRequestBody(data);
-
-			int statusCode = client.executeMethod(post);
-
-			if (statusCode != HttpStatus.SC_OK) {
-				throw new ClientException("method failed: " + post.getStatusLine());
-			}
-		} catch (Exception e) {
-			throw new ClientException("Could not connect to server.", e);
-		} finally {
-			post.releaseConnection();
-		}
+		NameValuePair[] params = { new NameValuePair("op", "updateUser"), new NameValuePair("data", serializer.toXML(user)) };
+		executePostMethod(USER_SERVLET, params);
 	}
 
 	/**
@@ -291,22 +191,8 @@ public class Client {
 	 */
 	public void removeUser(int userId) throws ClientException {
 		logger.debug("removing user: " + userId);
-		post = new PostMethod(serverURL + USER_SERVLET);
-
-		try {
-			NameValuePair[] data = { new NameValuePair("op", "removeUser"), new NameValuePair("data", String.valueOf(userId)) };
-			post.setRequestBody(data);
-
-			int statusCode = client.executeMethod(post);
-
-			if (statusCode != HttpStatus.SC_OK) {
-				throw new ClientException("method failed: " + post.getStatusLine());
-			}
-		} catch (Exception e) {
-			throw new ClientException("Could not connect to server.", e);
-		} finally {
-			post.releaseConnection();
-		}
+		NameValuePair[] params = { new NameValuePair("op", "removeUser"), new NameValuePair("data", String.valueOf(userId)) };
+		executePostMethod(USER_SERVLET, params);
 	}
 
 	/**
@@ -317,23 +203,8 @@ public class Client {
 	 */
 	public Properties getServerProperties() throws ClientException {
 		logger.debug("retrieving server properties");
-		post = new PostMethod(serverURL + CONFIGURATION_SERVLET);
-		NameValuePair[] data = { new NameValuePair("op", "getServerProperties") };
-		post.setRequestBody(data);
-
-		try {
-			int statusCode = client.executeMethod(post);
-
-			if (statusCode != HttpStatus.SC_OK) {
-				throw new ClientException("method failed: " + post.getStatusLine());
-			}
-
-			return (Properties) serializer.fromXML(post.getResponseBodyAsString());
-		} catch (Exception e) {
-			throw new ClientException("Could not connect to server.", e);
-		} finally {
-			post.releaseConnection();
-		}
+		NameValuePair[] params = { new NameValuePair("op", "getServerProperties") };
+		return (Properties) serializer.fromXML(executePostMethod(CONFIGURATION_SERVLET, params));
 	}
 
 	/**
@@ -344,22 +215,8 @@ public class Client {
 	 */
 	public void updateServerProperties(Properties properties) throws ClientException {
 		logger.debug("updating server properties");
-		post = new PostMethod(serverURL + CONFIGURATION_SERVLET);
-
-		try {
-			NameValuePair[] data = { new NameValuePair("op", "updateServerProperties"), new NameValuePair("data", serializer.toXML(properties)) };
-			post.setRequestBody(data);
-
-			int statusCode = client.executeMethod(post);
-
-			if (statusCode != HttpStatus.SC_OK) {
-				throw new ClientException("method failed: " + post.getStatusLine());
-			}
-		} catch (Exception e) {
-			throw new ClientException("Could not connect to server.", e);
-		} finally {
-			post.releaseConnection();
-		}
+		NameValuePair[] params = { new NameValuePair("op", "updateServerProperties"), new NameValuePair("data", serializer.toXML(properties)) };
+		executePostMethod(CONFIGURATION_SERVLET, params);
 	}
 
 	/**
@@ -370,25 +227,10 @@ public class Client {
 	 */
 	public int getNextId() throws ClientException {
 		logger.debug("retrieving next id");
-		post = new PostMethod(serverURL + CONFIGURATION_SERVLET);
-		NameValuePair[] data = { new NameValuePair("op", "getNextId") };
-		post.setRequestBody(data);
-
-		try {
-			int statusCode = client.executeMethod(post);
-
-			if (statusCode != HttpStatus.SC_OK) {
-				throw new ClientException("method failed: " + post.getStatusLine());
-			}
-
-			return Integer.parseInt(post.getResponseBodyAsString().trim());
-		} catch (Exception e) {
-			throw new ClientException("Could not connect to server.", e);
-		} finally {
-			post.releaseConnection();
-		}
+		NameValuePair[] params = { new NameValuePair("op", "getNextId") };
+		return Integer.parseInt(executePostMethod(CONFIGURATION_SERVLET, params));
 	}
-	
+
 	/**
 	 * Deploys all channels.
 	 * 
@@ -396,21 +238,8 @@ public class Client {
 	 */
 	public void deployChannels() throws ClientException {
 		logger.debug("deploying channels");
-		post = new PostMethod(serverURL + CONFIGURATION_SERVLET);
-		NameValuePair[] data = { new NameValuePair("op", "deployChannels") };
-		post.setRequestBody(data);
-
-		try {
-			int statusCode = client.executeMethod(post);
-
-			if (statusCode != HttpStatus.SC_OK) {
-				throw new ClientException("operation failed: " + post.getStatusLine());
-			}
-		} catch (Exception e) {
-			throw new ClientException("Could not connect to server.", e);
-		} finally {
-			post.releaseConnection();
-		}
+		NameValuePair[] params = { new NameValuePair("op", "deployChannels") };
+		executePostMethod(CONFIGURATION_SERVLET, params);
 	}
 
 	/**
@@ -421,21 +250,8 @@ public class Client {
 	 */
 	public void startChannel(int channelId) throws ClientException {
 		logger.debug("starting channel: " + channelId);
-		post = new PostMethod(serverURL + STATUS_SERVLET);
-		NameValuePair[] data = { new NameValuePair("op", "startChannel"), new NameValuePair("id", String.valueOf(channelId)) };
-		post.setRequestBody(data);
-
-		try {
-			int statusCode = client.executeMethod(post);
-
-			if (statusCode != HttpStatus.SC_OK) {
-				throw new ClientException("operation failed: " + post.getStatusLine());
-			}
-		} catch (Exception e) {
-			throw new ClientException("Could not connect to server.", e);
-		} finally {
-			post.releaseConnection();
-		}
+		NameValuePair[] params = { new NameValuePair("op", "startChannel"), new NameValuePair("id", String.valueOf(channelId)) };
+		executePostMethod(CHANNEL_STATUS_SERVLET, params);
 	}
 
 	/**
@@ -446,47 +262,19 @@ public class Client {
 	 */
 	public void stopChannel(int channelId) throws ClientException {
 		logger.debug("stopping channel: " + channelId);
-		post = new PostMethod(serverURL + STATUS_SERVLET);
-		NameValuePair[] data = { new NameValuePair("op", "stopChannel"), new NameValuePair("id", String.valueOf(channelId)) };
-		post.setRequestBody(data);
-
-		try {
-			int statusCode = client.executeMethod(post);
-
-			if (statusCode != HttpStatus.SC_OK) {
-				throw new ClientException("operation failed: " + post.getStatusLine());
-			}
-		} catch (Exception e) {
-			throw new ClientException("Could not connect to server.", e);
-		} finally {
-			post.releaseConnection();
-		}
-	}
+		NameValuePair[] params = { new NameValuePair("op", "stopChannel"), new NameValuePair("id", String.valueOf(channelId)) };
+		executePostMethod(CHANNEL_STATUS_SERVLET, params);	}
 
 	/**
 	 * Pauses the channel with the specified id.
 	 * 
-	 * @param id
+	 * @param channelId
 	 * @throws ClientException
 	 */
-	public void pauseChannel(int id) throws ClientException {
-		logger.debug("pausing channel: " + id);
-		post = new PostMethod(serverURL + STATUS_SERVLET);
-		NameValuePair[] data = { new NameValuePair("op", "pauseChannel"), new NameValuePair("id", String.valueOf(id)) };
-		post.setRequestBody(data);
-
-		try {
-			int statusCode = client.executeMethod(post);
-
-			if (statusCode != HttpStatus.SC_OK) {
-				throw new ClientException("operation failed: " + post.getStatusLine());
-			}
-		} catch (Exception e) {
-			throw new ClientException("Could not connect to server.", e);
-		} finally {
-			post.releaseConnection();
-		}
-	}
+	public void pauseChannel(int channelId) throws ClientException {
+		logger.debug("pausing channel: " + channelId);
+		NameValuePair[] params = { new NameValuePair("op", "pauseChannel"), new NameValuePair("id", String.valueOf(channelId)) };
+		executePostMethod(CHANNEL_STATUS_SERVLET, params);	}
 
 	/**
 	 * Resumes the channel with the specified id.
@@ -496,22 +284,8 @@ public class Client {
 	 */
 	public void resumeChannel(int channelId) throws ClientException {
 		logger.debug("resuming channel: " + channelId);
-		post = new PostMethod(serverURL + STATUS_SERVLET);
-		NameValuePair[] data = { new NameValuePair("op", "resumeChannel"), new NameValuePair("id", String.valueOf(channelId)) };
-		post.setRequestBody(data);
-
-		try {
-			int statusCode = client.executeMethod(post);
-
-			if (statusCode != HttpStatus.SC_OK) {
-				throw new ClientException("operation failed: " + post.getStatusLine());
-			}
-		} catch (Exception e) {
-			throw new ClientException("Could not connect to server.", e);
-		} finally {
-			post.releaseConnection();
-		}
-	}
+		NameValuePair[] params = { new NameValuePair("op", "resumeChannel"), new NameValuePair("id", String.valueOf(channelId)) };
+		executePostMethod(CHANNEL_STATUS_SERVLET, params);	}
 
 	/**
 	 * Returns the statistics for the channel with the specified id.
@@ -521,109 +295,85 @@ public class Client {
 	 */
 	public Statistics getStatistics(int channelId) throws ClientException {
 		logger.debug("retrieving channel statistics: " + channelId);
-		post = new PostMethod(serverURL + STATISTICS_SERVLET);
-		NameValuePair[] data = { new NameValuePair("op", "getStatistics"), new NameValuePair("id", String.valueOf(channelId)) };
-		post.setRequestBody(data);
-
-		try {
-			int statusCode = client.executeMethod(post);
-
-			if (statusCode != HttpStatus.SC_OK) {
-				throw new ClientException("operation failed: " + post.getStatusLine());
-			}
-
-			return (Statistics) serializer.fromXML(post.getResponseBodyAsString().trim());
-		} catch (Exception e) {
-			throw new ClientException("Could not connect to server.", e);
-		} finally {
-			post.releaseConnection();
-		}
+		NameValuePair[] params = { new NameValuePair("op", "getStatistics"), new NameValuePair("id", String.valueOf(channelId)) };
+		return (Statistics) serializer.fromXML(executePostMethod(STATISTICS_SERVLET, params));
 	}
 
 	/**
 	 * Clears the statistics for the channel with the specified id.
 	 * 
-	 * @param id
+	 * @param channelId
 	 * @throws ClientException
 	 */
-	public void clearStatistics(int id) throws ClientException {
-		logger.debug("clearing channel statistics: " + id);
-		post = new PostMethod(serverURL + STATISTICS_SERVLET);
-		NameValuePair[] data = { new NameValuePair("op", "clearStistics"), new NameValuePair("id", String.valueOf(id)) };
-		post.setRequestBody(data);
-
-		try {
-			int statusCode = client.executeMethod(post);
-
-			if (statusCode != HttpStatus.SC_OK) {
-				throw new ClientException("operation failed: " + post.getStatusLine());
-			}
-		} catch (Exception e) {
-			throw new ClientException("Could not connect to server.", e);
-		} finally {
-			post.releaseConnection();
-		}
+	public void clearStatistics(int channelId) throws ClientException {
+		logger.debug("clearing channel statistics: " + channelId);
+		NameValuePair[] params = { new NameValuePair("op", "clearStistics"), new NameValuePair("id", String.valueOf(channelId)) };
+		executePostMethod(STATISTICS_SERVLET, params);
 	}
 
-	public List<SystemEvent> getSystemEventList(int channelId) throws ClientException {
+	public List<SystemEvent> getSystemEvents(SystemEventFilter filter) throws ClientException {
 		logger.debug("retrieving log event list");
-		post = new PostMethod(serverURL + LOGGER_SERVLET);
-		NameValuePair[] data = { new NameValuePair("op", "getSystemEventList") };
-		post.setRequestBody(data);
-
-		try {
-			int statusCode = client.executeMethod(post);
-
-			if (statusCode != HttpStatus.SC_OK) {
-				throw new ClientException("method failed: " + post.getStatusLine());
-			}
-
-			return (List<SystemEvent>) serializer.fromXML(post.getResponseBodyAsString());
-		} catch (Exception e) {
-			throw new ClientException("Could not connect to server.", e);
-		} finally {
-			post.releaseConnection();
-		}
-
+		NameValuePair[] params = { new NameValuePair("op", "getSystemEvents"), new NameValuePair("filter", serializer.toXML(filter)) };
+		return (List<SystemEvent>) serializer.fromXML(executePostMethod(LOGGER_SERVLET, params));
 	}
 
-	public List<MessageEvent> getMessageEventList(int channelId) throws ClientException {
+	/**
+	 * Clears the system event list.
+	 * 
+	 * @throws ClientException
+	 */
+	public void clearSystemEvents() throws ClientException {
+		logger.debug("clearing system events");
+		NameValuePair[] params = { new NameValuePair("op", "clearSystemEvents") };
+		executePostMethod(LOGGER_SERVLET, params);
+	}
+
+	/**
+	 * Removes the message event with the specified id.
+	 * 
+	 * @param messageEventId
+	 * @throws ClientException
+	 */
+	public void removeMessageEvent(int messageEventId) throws ClientException {
+		logger.debug("removing message event: " + messageEventId);
+		NameValuePair[] params = { new NameValuePair("op", "removeMessageEvent"), new NameValuePair("data", String.valueOf(messageEventId)) };
+		executePostMethod(LOGGER_SERVLET, params);
+	}
+
+	/**
+	 * Clears the message list for the channel with the specified id.
+	 * 
+	 * @param channelId
+	 * @throws ClientException
+	 */
+	public void clearMessageEvents(int channelId) throws ClientException {
+		logger.debug("clearing message events: " + channelId);
+		NameValuePair[] params = { new NameValuePair("op", "clearMessageEvents"), new NameValuePair("data", String.valueOf(channelId)) };
+		executePostMethod(LOGGER_SERVLET, params);
+	}
+
+	/**
+	 * Returns a list of message events based on the specified filter.
+	 * 
+	 * @param filter
+	 * @return
+	 * @throws ClientException
+	 */
+	public List<MessageEvent> getMessageEvents(MessageEventFilter filter) throws ClientException {
 		logger.debug("retrieving message event list");
-		post = new PostMethod(serverURL + LOGGER_SERVLET);
-		NameValuePair[] data = { new NameValuePair("op", "getMessageEventList") };
-		post.setRequestBody(data);
-
-		try {
-			int statusCode = client.executeMethod(post);
-
-			if (statusCode != HttpStatus.SC_OK) {
-				throw new ClientException("method failed: " + post.getStatusLine());
-			}
-
-			return (List<MessageEvent>) serializer.fromXML(post.getResponseBodyAsString());
-		} catch (Exception e) {
-			throw new ClientException("Could not connect to server.", e);
-		} finally {
-			post.releaseConnection();
-		}
+		NameValuePair[] params = { new NameValuePair("op", "getMessageEvents"), new NameValuePair("filter", serializer.toXML(filter)) };
+		return (List<MessageEvent>) serializer.fromXML(executePostMethod(LOGGER_SERVLET, params));
 	}
-	
+
+	/**
+	 * Returns the channel status list.
+	 * 
+	 * @return
+	 * @throws ClientException
+	 */
 	public List<ChannelStatus> getChannelStatusList() throws ClientException {
 		logger.debug("retrieving channel status list");
-		post = new PostMethod(serverURL + STATUS_SERVLET);
-		NameValuePair[] data = { new NameValuePair("op", "getStatusList") };
-		post.setRequestBody(data);
-
-		try {
-			int statusCode = client.executeMethod(post);
-
-			if (statusCode != HttpStatus.SC_OK) {
-				throw new ClientException("method failed: " + post.getStatusLine());
-			}
-
-			return (List<ChannelStatus>) serializer.fromXML(post.getResponseBodyAsString());
-		} catch (Exception e) {
-			throw new ClientException("Could not connect to server.", e);
-		}
+		NameValuePair[] params = { new NameValuePair("op", "getStatusList") };
+		return (List<ChannelStatus>) serializer.fromXML(executePostMethod(CHANNEL_STATUS_SERVLET, params));
 	}
 }

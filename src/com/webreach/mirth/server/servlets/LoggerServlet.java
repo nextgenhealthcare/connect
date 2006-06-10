@@ -26,14 +26,22 @@ public class LoggerServlet extends MirthServlet {
 				PrintWriter out = response.getWriter();
 				String operation = request.getParameter("op");
 
-				if (operation.equals("getSystemEventList")) {
+				if (operation.equals("getSystemEvents")) {
 					String filter = request.getParameter("filter");
 					response.setContentType("application/xml");
 					out.println(serializer.toXML(systemLogger.getSystemEvents((SystemEventFilter) serializer.fromXML(filter))));
-				} else if (operation.equals("getMessageEventList")) {
+				} else if (operation.equals("getMessageEvents")) {
 					String filter = request.getParameter("filter");
 					response.setContentType("application/xml");
 					out.println(serializer.toXML(messageLogger.getMessageEvents((MessageEventFilter) serializer.fromXML(filter))));
+				} else if (operation.equals("clearSystemEvents")) {
+					systemLogger.clearSystemEvents();
+				} else if (operation.equals("removeMessageEvent")) {
+					String messageEventId = request.getParameter("data");
+					messageLogger.removeMessageEvent(Integer.valueOf(messageEventId).intValue());
+				} else if (operation.equals("clearMessageEvents")) {
+					String channelId = request.getParameter("data");
+					messageLogger.clearMessageEvents(Integer.valueOf(channelId).intValue());
 				}
 			} catch (Exception e) {
 				throw new ServletException(e);

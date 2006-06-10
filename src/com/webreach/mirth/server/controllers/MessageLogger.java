@@ -116,6 +116,48 @@ public class MessageLogger {
 			dbConnection.close();
 		}		
 	}
+	
+	/**
+	 * Removes the message with the specified id.
+	 * 
+	 * @param messageEventId
+	 */
+	public void removeMessageEvent(int messageEventId) throws ControllerException {
+		logger.debug("removing message event: " + messageEventId);
+		
+		try {
+			dbConnection = new DatabaseConnection();
+			StringBuilder statement = new StringBuilder();
+			statement.append("delete from messages");
+			statement.append(" where id = " + messageEventId + ";");
+			dbConnection.update(statement.toString());
+		} catch (SQLException e) {
+			throw new ControllerException(e);
+		} finally {
+			dbConnection.close();
+		}
+	}
+	
+	/**
+	 * Clears the message list for the channel with the specified id.
+	 * 
+	 * @param channelId
+	 */
+	public void clearMessageEvents(int channelId) throws ControllerException {
+		logger.debug("clearing message events: " + channelId);
+
+		try {
+			dbConnection = new DatabaseConnection();
+			StringBuilder statement = new StringBuilder();
+			statement.append("delete from messages");
+			statement.append(" where channel_id = " + channelId + ";");
+			dbConnection.update(statement.toString());
+		} catch (SQLException e) {
+			throw new ControllerException(e);
+		} finally {
+			dbConnection.close();
+		}
+	}
 
 	private List<MessageEvent> getMessageEventList(ResultSet result) throws SQLException {
 		ArrayList<MessageEvent> messageEvents = new ArrayList<MessageEvent>();
