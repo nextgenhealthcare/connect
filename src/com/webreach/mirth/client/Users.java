@@ -6,6 +6,7 @@ import com.webreach.mirth.model.User;
 import java.awt.Point;
 import java.util.List;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -145,6 +146,11 @@ public class Users extends javax.swing.JScrollPane {
         if (usersTable.getSelectedRow() != -1)
         {
             String userName = (String) usersTable.getValueAt(getSelectedRow(), columnNumber);
+             if(userName.equalsIgnoreCase("admin")) 
+             {
+                JOptionPane.showMessageDialog(this, "You must have at least one destination.");
+                return -1;
+             }
             for (int i=0; i < parent.users.size(); i++)
             {
                 if(parent.users.get(i).getUsername().equals(userName))

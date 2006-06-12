@@ -53,7 +53,7 @@ public class Messages extends JFrame {
         int x = Math.max(0, parentBounds.x + (parentBounds.width - size.width) / 2);
         int y = Math.max(0, parentBounds.y + (parentBounds.height - size.height) / 2);
         setLocation(new Point(x, y));
-        this.setResizable(false);
+        this.setResizable(true);
         setVisible(true);
     }
     

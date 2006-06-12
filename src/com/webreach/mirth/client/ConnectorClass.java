@@ -6,17 +6,39 @@
 
 package com.webreach.mirth.client;
 
+import java.util.Properties;
+
 /**
  *
  * @author  brendanh
  */
 public class ConnectorClass extends javax.swing.JPanel
 {
+    String name;
+    Properties properties = new Properties();    
     
     /** Creates new form ConnectorClass */
     public ConnectorClass()
     {
         initComponents();
+    }
+    
+    public String getName()
+    {
+        return name;
+    }
+    
+    public Properties getProperties()
+    {
+        return properties;
+    }
+    
+    public void setProperties(Properties props)
+    {
+    }
+    
+    public void setDefaults()
+    {
     }
     
     /** This method is called from within the constructor to

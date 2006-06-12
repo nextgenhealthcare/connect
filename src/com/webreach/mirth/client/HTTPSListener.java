@@ -6,6 +6,8 @@
 
 package com.webreach.mirth.client;
 
+import java.util.Properties;
+
 /**
  *
  * @author  brendanh
@@ -16,8 +18,120 @@ public class HTTPSListener extends ConnectorClass
     /** Creates new form HTTPSListener */
     public HTTPSListener()
     {
+        name = "HTTPS Listener";
         initComponents();
     }
+    
+    public Properties getProperties()
+    {
+        Properties properties = new Properties();
+        properties.put("HTTPSListener_ListenerIPAddress", listenerIPAddressField.getText());
+        properties.put("HTTPSListener_ListenerPort", listenerPortField.getText());
+        properties.put("HTTPSListener_ReceiveTimeout", receiveTimeoutField.getText());
+        properties.put("HTTPSListener_BufferSize", bufferSizeField.getText());
+        
+        if (keepConnectionOpenYesRadio.isSelected())
+            properties.put("HTTPSListener_KeepConnectionOpen", "YES");
+        else
+            properties.put("HTTPSListener_KeepConnectionOpen", "NO");
+        
+        properties.put("HTTPSListener_KeyStore", keyStoreField.getText());
+        properties.put("HTTPSListener_KeyStorePassword", keyStorePasswordField.getText());
+        properties.put("HTTPSListener_KeyStoreType", keyStoreTypeField.getText());
+        properties.put("HTTPSListener_KeyManagerAlgorithm", keyManagerAlgorithmField.getText());
+        properties.put("HTTPSListener_ProtocolHandler", protocolHandlerField.getText());
+        
+        if (requireClientAuthenticationYesRadio.isSelected())
+            properties.put("HTTPSListener_RequireClientAuthentication", "YES");
+        else
+            properties.put("HTTPSListener_RequireClientAuthentication", "NO");        
+        
+        properties.put("HTTPSListener_SecurityProvider", securityProviderField.getText());
+        properties.put("HTTPSListener_ClientKeystore", clientKeystoreField.getText());
+        properties.put("HTTPSListener_ClientKeystorePassword", clientKeystorePasswordField.getText());
+        properties.put("HTTPSListener_TrustKeystore", trustKeystoreField.getText());
+        properties.put("HTTPSListener_TrustKeystorePassword", trustKeystorePasswordField.getText());
+
+        if (explicitTrustStoreOnlyYesRadio.isSelected())
+            properties.put("HTTPSListener_ExplicitTrustStoreOnly", "YES");
+        else
+            properties.put("HTTPSListener_ExplicitTrustStoreOnly", "NO");        
+        
+        properties.put("HTTPSListener_StartOfMessageCharacter", startOfMessageCharacterField.getText());
+        properties.put("HTTPSListener_EndOfMessageCharacter", endOfMessageCharacterField.getText());
+        properties.put("HTTPSListener_FieldSeparator", fieldSeparatorField.getText());
+        properties.put("HTTPSListener_RecordSeparator", recordSeparatorField.getText());
+        properties.put("HTTPSListener_SendACK", sendACKCombobox.getSelectedItem());
+        return properties;
+    }
+
+    public void setProperties(Properties props)
+    {
+        listenerIPAddressField.setText((String)props.get("HTTPSListener_ListenerIPAddress"));
+        listenerPortField.setText((String)props.get("HTTPSListener_ListenerPort"));
+        receiveTimeoutField.setText((String)props.get("HTTPSListener_ReceiveTimeout"));
+        bufferSizeField.setText((String)props.get("HTTPSListener_BufferSize"));
+        
+        if(((String)props.get("HTTPSListener_KeepConnectionOpen")).equals("YES"))
+            keepConnectionOpenYesRadio.setSelected(true);
+        else
+            keepConnectionOpenNoRadio.setSelected(true);
+        
+        keyStoreField.setText((String)props.get("HTTPSListener_KeyStore"));
+        keyStorePasswordField.setText((String)props.get("HTTPSListener_KeyStorePassword"));
+        keyStoreTypeField.setText((String)props.get("HTTPSListener_KeyStoreType"));
+        keyManagerAlgorithmField.setText((String)props.get("HTTPSListener_KeyManagerAlgorithm"));
+        protocolHandlerField.setText((String)props.get("HTTPSListener_ProtocolHandler"));
+        
+        if(((String)props.get("HTTPSListener_RequireClientAuthentication")).equals("YES"))
+            requireClientAuthenticationYesRadio.setSelected(true);
+        else
+            requireClientAuthenticationNoRadio.setSelected(true);
+        
+        securityProviderField.setText((String)props.get("HTTPSListener_SecurityProvider"));
+        clientKeystoreField.setText((String)props.get("HTTPSListener_ClientKeystore"));
+        clientKeystorePasswordField.setText((String)props.get("HTTPSListener_ClientKeystorePassword"));
+        trustKeystoreField.setText((String)props.get("HTTPSListener_TrustKeystore"));
+        trustKeystorePasswordField.setText((String)props.get("HTTPSListener_TrustKeystorePassword"));
+        
+        if(((String)props.get("HTTPSListener_ExplicitTrustStoreOnly")).equals("YES"))
+            explicitTrustStoreOnlyYesRadio.setSelected(true);
+        else
+            explicitTrustStoreOnlyNoRadio.setSelected(true);
+        
+        startOfMessageCharacterField.setText((String)props.get("HTTPSListener_StartOfMessageCharacter"));
+        endOfMessageCharacterField.setText((String)props.get("HTTPSListener_EndOfMessageCharacter"));
+        fieldSeparatorField.setText((String)props.get("HTTPSListener_FieldSeparator"));
+        recordSeparatorField.setText((String)props.get("HTTPSListener_RecordSeparator"));
+        sendACKCombobox.setSelectedItem(props.get("HTTPSListener_SendACK"));
+    }
+    
+    public void setDefault()
+    {
+        listenerIPAddressField.setText("");
+        listenerPortField.setText("");
+        receiveTimeoutField.setText("");
+        bufferSizeField.setText("");
+        keepConnectionOpenYesRadio.setSelected(true);        
+        keyStoreField.setText("");
+        keyStorePasswordField.setText("");
+        keyStoreTypeField.setText("");
+        keyManagerAlgorithmField.setText("");
+        protocolHandlerField.setText("");
+        requireClientAuthenticationYesRadio.setSelected(true);        
+        securityProviderField.setText("");
+        clientKeystoreField.setText("");
+        clientKeystorePasswordField.setText("");
+        trustKeystoreField.setText("");
+        trustKeystorePasswordField.setText("");
+        explicitTrustStoreOnlyYesRadio.setSelected(true);
+        startOfMessageCharacterField.setText("");
+        endOfMessageCharacterField.setText("");
+        fieldSeparatorField.setText("");
+        recordSeparatorField.setText("");
+        sendACKCombobox.setSelectedIndex(0);
+    }
+    
     
     /** This method is called from within the constructor to
      * initialize the form.
@@ -25,8 +139,10 @@ public class HTTPSListener extends ConnectorClass
      * always regenerated by the Form Editor.
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
-    private void initComponents()
-    {
+    private void initComponents() {
+        keepConnectionOpenGroup = new javax.swing.ButtonGroup();
+        requireClientAuthenticationGroup = new javax.swing.ButtonGroup();
+        explicitTrustStoreOnlyGroup = new javax.swing.ButtonGroup();
         jLabel13 = new javax.swing.JLabel();
         jLabel14 = new javax.swing.JLabel();
         jLabel15 = new javax.swing.JLabel();
@@ -48,34 +164,34 @@ public class HTTPSListener extends ConnectorClass
         jLabel12 = new javax.swing.JLabel();
         jLabel21 = new javax.swing.JLabel();
         jLabel22 = new javax.swing.JLabel();
-        jTextField4 = new javax.swing.JTextField();
-        jTextField5 = new javax.swing.JTextField();
-        jTextField6 = new javax.swing.JTextField();
-        jTextField7 = new javax.swing.JTextField();
-        jTextField8 = new javax.swing.JTextField();
-        jTextField9 = new javax.swing.JTextField();
-        jTextField10 = new javax.swing.JTextField();
-        jTextField11 = new javax.swing.JTextField();
-        jTextField12 = new javax.swing.JTextField();
-        jTextField13 = new javax.swing.JTextField();
+        listenerIPAddressField = new javax.swing.JTextField();
+        listenerPortField = new javax.swing.JTextField();
+        receiveTimeoutField = new javax.swing.JTextField();
+        bufferSizeField = new javax.swing.JTextField();
+        keyStoreField = new javax.swing.JTextField();
+        keyStorePasswordField = new javax.swing.JTextField();
+        keyStoreTypeField = new javax.swing.JTextField();
+        keyManagerAlgorithmField = new javax.swing.JTextField();
+        protocolHandlerField = new javax.swing.JTextField();
+        securityProviderField = new javax.swing.JTextField();
         jLabel23 = new javax.swing.JLabel();
         jLabel24 = new javax.swing.JLabel();
-        jTextField14 = new javax.swing.JTextField();
-        jTextField15 = new javax.swing.JTextField();
-        jTextField16 = new javax.swing.JTextField();
-        jTextField17 = new javax.swing.JTextField();
-        jTextField18 = new javax.swing.JTextField();
-        jTextField19 = new javax.swing.JTextField();
-        jTextField20 = new javax.swing.JTextField();
-        jTextField21 = new javax.swing.JTextField();
-        jTextField22 = new javax.swing.JTextField();
-        jComboBox1 = new javax.swing.JComboBox();
-        jRadioButton1 = new javax.swing.JRadioButton();
-        jRadioButton2 = new javax.swing.JRadioButton();
-        jRadioButton3 = new javax.swing.JRadioButton();
-        jRadioButton4 = new javax.swing.JRadioButton();
-        jRadioButton5 = new javax.swing.JRadioButton();
-        jRadioButton6 = new javax.swing.JRadioButton();
+        clientKeystoreField = new javax.swing.JTextField();
+        clientKeystorePasswordField = new javax.swing.JTextField();
+        trustKeystoreField = new javax.swing.JTextField();
+        trustKeystorePasswordField = new javax.swing.JTextField();
+        keyManagerFactoryField = new javax.swing.JTextField();
+        startOfMessageCharacterField = new javax.swing.JTextField();
+        endOfMessageCharacterField = new javax.swing.JTextField();
+        recordSeparatorField = new javax.swing.JTextField();
+        fieldSeparatorField = new javax.swing.JTextField();
+        sendACKCombobox = new javax.swing.JComboBox();
+        keepConnectionOpenYesRadio = new javax.swing.JRadioButton();
+        keepConnectionOpenNoRadio = new javax.swing.JRadioButton();
+        requireClientAuthenticationYesRadio = new javax.swing.JRadioButton();
+        requireClientAuthenticationNoRadio = new javax.swing.JRadioButton();
+        explicitTrustStoreOnlyYesRadio = new javax.swing.JRadioButton();
+        explicitTrustStoreOnlyNoRadio = new javax.swing.JRadioButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createTitledBorder(null, "HTTPS Listener", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(0, 0, 0)));
@@ -87,7 +203,7 @@ public class HTTPSListener extends ConnectorClass
 
         jLabel16.setText("Receive Timeout (ms):");
 
-        jLabel17.setText("Listening Port:");
+        jLabel17.setText("Listener Port:");
 
         jLabel18.setText("Listener IP Address:");
 
@@ -125,37 +241,43 @@ public class HTTPSListener extends ConnectorClass
 
         jLabel24.setText("Key Store Password:");
 
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Auto", "Yes", "No" }));
+        sendACKCombobox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Auto", "Yes", "No" }));
 
-        jRadioButton1.setBackground(new java.awt.Color(255, 255, 255));
-        jRadioButton1.setText("Yes");
-        jRadioButton1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        jRadioButton1.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        keepConnectionOpenYesRadio.setBackground(new java.awt.Color(255, 255, 255));
+        keepConnectionOpenGroup.add(keepConnectionOpenYesRadio);
+        keepConnectionOpenYesRadio.setText("Yes");
+        keepConnectionOpenYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        keepConnectionOpenYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-        jRadioButton2.setBackground(new java.awt.Color(255, 255, 255));
-        jRadioButton2.setText("No");
-        jRadioButton2.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        jRadioButton2.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        keepConnectionOpenNoRadio.setBackground(new java.awt.Color(255, 255, 255));
+        keepConnectionOpenGroup.add(keepConnectionOpenNoRadio);
+        keepConnectionOpenNoRadio.setText("No");
+        keepConnectionOpenNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        keepConnectionOpenNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-        jRadioButton3.setBackground(new java.awt.Color(255, 255, 255));
-        jRadioButton3.setText("Yes");
-        jRadioButton3.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        jRadioButton3.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        requireClientAuthenticationYesRadio.setBackground(new java.awt.Color(255, 255, 255));
+        requireClientAuthenticationGroup.add(requireClientAuthenticationYesRadio);
+        requireClientAuthenticationYesRadio.setText("Yes");
+        requireClientAuthenticationYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        requireClientAuthenticationYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-        jRadioButton4.setBackground(new java.awt.Color(255, 255, 255));
-        jRadioButton4.setText("No");
-        jRadioButton4.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        jRadioButton4.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        requireClientAuthenticationNoRadio.setBackground(new java.awt.Color(255, 255, 255));
+        requireClientAuthenticationGroup.add(requireClientAuthenticationNoRadio);
+        requireClientAuthenticationNoRadio.setText("No");
+        requireClientAuthenticationNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        requireClientAuthenticationNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-        jRadioButton5.setBackground(new java.awt.Color(255, 255, 255));
-        jRadioButton5.setText("Yes");
-        jRadioButton5.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        jRadioButton5.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        explicitTrustStoreOnlyYesRadio.setBackground(new java.awt.Color(255, 255, 255));
+        explicitTrustStoreOnlyGroup.add(explicitTrustStoreOnlyYesRadio);
+        explicitTrustStoreOnlyYesRadio.setText("Yes");
+        explicitTrustStoreOnlyYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        explicitTrustStoreOnlyYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-        jRadioButton6.setBackground(new java.awt.Color(255, 255, 255));
-        jRadioButton6.setText("No");
-        jRadioButton6.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        jRadioButton6.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        explicitTrustStoreOnlyNoRadio.setBackground(new java.awt.Color(255, 255, 255));
+        explicitTrustStoreOnlyGroup.add(explicitTrustStoreOnlyNoRadio);
+        explicitTrustStoreOnlyNoRadio.setText("No");
+        explicitTrustStoreOnlyNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        explicitTrustStoreOnlyNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
@@ -190,38 +312,38 @@ public class HTTPSListener extends ConnectorClass
                 .add(17, 17, 17)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
-                        .add(jRadioButton5)
+                        .add(explicitTrustStoreOnlyYesRadio)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jRadioButton6))
+                        .add(explicitTrustStoreOnlyNoRadio))
                     .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                        .add(jTextField4, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 131, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(jTextField5, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 131, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(jTextField6, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 131, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(jTextField7, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 131, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(jTextField8, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 131, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(jTextField9, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 131, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(jTextField10, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 131, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(jTextField11, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 131, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(jTextField12, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 131, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(jTextField13, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 131, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(jTextField14, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 131, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(jTextField15, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 131, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(jTextField16, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 131, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(jTextField17, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 131, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(jTextField18, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 131, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(jTextField19, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 131, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(jTextField20, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 131, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(jTextField21, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 131, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(jTextField22, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 131, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(jComboBox1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(listenerIPAddressField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 131, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(listenerPortField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 131, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(receiveTimeoutField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 131, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(bufferSizeField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 131, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(keyStoreField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 131, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(keyStorePasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 131, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(keyStoreTypeField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 131, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(keyManagerAlgorithmField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 131, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(protocolHandlerField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 131, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(securityProviderField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 131, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(clientKeystoreField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 131, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(clientKeystorePasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 131, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(trustKeystoreField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 131, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(trustKeystorePasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 131, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(keyManagerFactoryField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 131, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(startOfMessageCharacterField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 131, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(endOfMessageCharacterField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 131, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(recordSeparatorField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 131, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(fieldSeparatorField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 131, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(sendACKCombobox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(layout.createSequentialGroup()
-                        .add(jRadioButton1)
+                        .add(keepConnectionOpenYesRadio)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jRadioButton2))
+                        .add(keepConnectionOpenNoRadio))
                     .add(layout.createSequentialGroup()
-                        .add(jRadioButton3)
+                        .add(requireClientAuthenticationYesRadio)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jRadioButton4)))
+                        .add(requireClientAuthenticationNoRadio)))
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -230,98 +352,98 @@ public class HTTPSListener extends ConnectorClass
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel18)
-                    .add(jTextField4, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(listenerIPAddressField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel17)
-                    .add(jTextField5, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(listenerPortField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel16)
-                    .add(jTextField6, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(receiveTimeoutField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel15)
-                    .add(jTextField7, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(bufferSizeField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel13)
-                    .add(jRadioButton1)
-                    .add(jRadioButton2))
+                    .add(keepConnectionOpenYesRadio)
+                    .add(keepConnectionOpenNoRadio))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel23)
-                    .add(jTextField8, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(keyStoreField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel24)
-                    .add(jTextField9, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(keyStorePasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel14)
-                    .add(jTextField10, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(keyStoreTypeField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel19)
-                    .add(jTextField11, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(keyManagerAlgorithmField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel20)
-                    .add(jTextField12, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(protocolHandlerField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel1)
-                    .add(jRadioButton3)
-                    .add(jRadioButton4))
+                    .add(requireClientAuthenticationYesRadio)
+                    .add(requireClientAuthenticationNoRadio))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel2)
-                    .add(jTextField13, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(securityProviderField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel3)
-                    .add(jTextField14, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(clientKeystoreField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel4)
-                    .add(jTextField15, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(clientKeystorePasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel5)
-                    .add(jTextField16, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(trustKeystoreField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel6)
-                    .add(jTextField17, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(trustKeystorePasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel7)
-                    .add(jRadioButton5)
-                    .add(jRadioButton6))
+                    .add(explicitTrustStoreOnlyYesRadio)
+                    .add(explicitTrustStoreOnlyNoRadio))
                 .add(7, 7, 7)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel8)
-                    .add(jTextField18, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(keyManagerFactoryField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel10)
-                    .add(jTextField19, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(startOfMessageCharacterField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jTextField20, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(endOfMessageCharacterField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(jLabel11))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel12)
-                    .add(jTextField21, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(recordSeparatorField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jLabel21)
                     .add(layout.createSequentialGroup()
-                        .add(jTextField22, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(fieldSeparatorField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(jComboBox1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(sendACKCombobox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(jLabel22))))
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
@@ -329,7 +451,14 @@ public class HTTPSListener extends ConnectorClass
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JComboBox jComboBox1;
+    private javax.swing.JTextField bufferSizeField;
+    private javax.swing.JTextField clientKeystoreField;
+    private javax.swing.JTextField clientKeystorePasswordField;
+    private javax.swing.JTextField endOfMessageCharacterField;
+    private javax.swing.ButtonGroup explicitTrustStoreOnlyGroup;
+    private javax.swing.JRadioButton explicitTrustStoreOnlyNoRadio;
+    private javax.swing.JRadioButton explicitTrustStoreOnlyYesRadio;
+    private javax.swing.JTextField fieldSeparatorField;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
@@ -353,31 +482,27 @@ public class HTTPSListener extends ConnectorClass
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
-    private javax.swing.JRadioButton jRadioButton1;
-    private javax.swing.JRadioButton jRadioButton2;
-    private javax.swing.JRadioButton jRadioButton3;
-    private javax.swing.JRadioButton jRadioButton4;
-    private javax.swing.JRadioButton jRadioButton5;
-    private javax.swing.JRadioButton jRadioButton6;
-    private javax.swing.JTextField jTextField10;
-    private javax.swing.JTextField jTextField11;
-    private javax.swing.JTextField jTextField12;
-    private javax.swing.JTextField jTextField13;
-    private javax.swing.JTextField jTextField14;
-    private javax.swing.JTextField jTextField15;
-    private javax.swing.JTextField jTextField16;
-    private javax.swing.JTextField jTextField17;
-    private javax.swing.JTextField jTextField18;
-    private javax.swing.JTextField jTextField19;
-    private javax.swing.JTextField jTextField20;
-    private javax.swing.JTextField jTextField21;
-    private javax.swing.JTextField jTextField22;
-    private javax.swing.JTextField jTextField4;
-    private javax.swing.JTextField jTextField5;
-    private javax.swing.JTextField jTextField6;
-    private javax.swing.JTextField jTextField7;
-    private javax.swing.JTextField jTextField8;
-    private javax.swing.JTextField jTextField9;
+    private javax.swing.ButtonGroup keepConnectionOpenGroup;
+    private javax.swing.JRadioButton keepConnectionOpenNoRadio;
+    private javax.swing.JRadioButton keepConnectionOpenYesRadio;
+    private javax.swing.JTextField keyManagerAlgorithmField;
+    private javax.swing.JTextField keyManagerFactoryField;
+    private javax.swing.JTextField keyStoreField;
+    private javax.swing.JTextField keyStorePasswordField;
+    private javax.swing.JTextField keyStoreTypeField;
+    private javax.swing.JTextField listenerIPAddressField;
+    private javax.swing.JTextField listenerPortField;
+    private javax.swing.JTextField protocolHandlerField;
+    private javax.swing.JTextField receiveTimeoutField;
+    private javax.swing.JTextField recordSeparatorField;
+    private javax.swing.ButtonGroup requireClientAuthenticationGroup;
+    private javax.swing.JRadioButton requireClientAuthenticationNoRadio;
+    private javax.swing.JRadioButton requireClientAuthenticationYesRadio;
+    private javax.swing.JTextField securityProviderField;
+    private javax.swing.JComboBox sendACKCombobox;
+    private javax.swing.JTextField startOfMessageCharacterField;
+    private javax.swing.JTextField trustKeystoreField;
+    private javax.swing.JTextField trustKeystorePasswordField;
     // End of variables declaration//GEN-END:variables
     
 }

@@ -1,6 +1,7 @@
 package com.webreach.mirth.client;
 
 import com.webreach.mirth.model.Channel;
+import com.webreach.mirth.model.ChannelStatus;
 import java.awt.Point;
 import java.util.List;
 import javax.swing.JFrame;
@@ -27,23 +28,7 @@ public class StatusPanel extends javax.swing.JPanel {
     private void initComponents()
     {
         statusPane = new JScrollPane();
-        statusTable = makeStatusTable();
-        
-        statusPane.setViewportView(statusTable);
-        
-        statusTable.getSelectionModel().addListSelectionListener(new ListSelectionListener()
-        {
-            public void valueChanged(ListSelectionEvent evt)
-            {
-                StatusListSelected(evt);
-            }
-        });
-        statusPane.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt)
-            {
-                deselectRows();
-            }
-        });
+        makeStatusTable();
         
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
@@ -57,35 +42,30 @@ public class StatusPanel extends javax.swing.JPanel {
         );
     }
     
-    private JXTable makeStatusTable()
+    public void makeStatusTable()
     {
-        JXTable jxTable = new JXTable();
-        Object[][] tableData = new Object[parent.channels.size()][3];
-        
-        for (int i=0; i < parent.channels.size(); i++)
+        statusTable = new JXTable();
+        int numColumns = 5;
+        Object[][] tableData = new Object[parent.status.size()][numColumns];
+        for (int i=0; i < parent.status.size(); i++)
         {
-            Channel temp = parent.channels.get(i);
+            ChannelStatus temp = parent.status.get(i);      
+            if (temp.getState() == ChannelStatus.State.STARTED)
+                tableData[i][0] = "Started";
+            else if (temp.getState() == ChannelStatus.State.STOPPED)
+                tableData[i][0] = "Stopped";
+            else if (temp.getState() == ChannelStatus.State.PAUSED)
+                tableData[i][0] = "Paused";
             
-            if (temp.isEnabled())
-                tableData[i][0] = "Enabled";
-            else
-                tableData[i][0] = "Disabled";
+            tableData[i][1] = temp.getName();
             
-            if (temp.getDirection().equals(Channel.Direction.INBOUND))
-                tableData[i][1] = "Inbound";
-            else
-                tableData[i][1] = "Outbound";
-
-            tableData[i][2] = temp.getName();
+            tableData[i][2] = "0";
+            tableData[i][3] = "0";
+            tableData[i][4] = "0";
         }
         
-        jxTable.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][]
-            {
-                {"Deployed", "ADT Processing", "0", "0", "0"},
-                {"Deployed", "ADT Outflow feed", "0", "0", "0"},
-                {"Deployed", "Another status", "0", "0", "0"}
-            },
+        statusTable.setModel(new javax.swing.table.DefaultTableModel(
+            tableData,
             new String []
             {
                 "Status", "Name", "Transformed", "Received", "Errors"
@@ -103,30 +83,43 @@ public class StatusPanel extends javax.swing.JPanel {
             }
         });
         
-        jxTable.setFocusable(false);
-        jxTable.setSelectionMode(0);
+        statusTable.setFocusable(false);
+        statusTable.setSelectionMode(0);
                 
-        jxTable.getColumnExt("Status").setMaxWidth(90);
-        jxTable.getColumnExt("Status").setMinWidth(90);
+        statusTable.getColumnExt("Status").setMaxWidth(90);
+        statusTable.getColumnExt("Status").setMinWidth(90);
         
-        jxTable.getColumnExt("Transformed").setMaxWidth(90);
-        jxTable.getColumnExt("Transformed").setMinWidth(90);
+        statusTable.getColumnExt("Transformed").setMaxWidth(90);
+        statusTable.getColumnExt("Transformed").setMinWidth(90);
         
-        jxTable.getColumnExt("Received").setMaxWidth(90);
-        jxTable.getColumnExt("Received").setMinWidth(90);
+        statusTable.getColumnExt("Received").setMaxWidth(90);
+        statusTable.getColumnExt("Received").setMinWidth(90);
         
-        jxTable.getColumnExt("Errors").setMaxWidth(90);
-        jxTable.getColumnExt("Errors").setMinWidth(90);    
+        statusTable.getColumnExt("Errors").setMaxWidth(90);
+        statusTable.getColumnExt("Errors").setMinWidth(90);    
         
-        jxTable.setRowHeight(20);
-        jxTable.setColumnMargin(2);
-        jxTable.setOpaque(true);
-        jxTable.setRowSelectionAllowed(true);
+        statusTable.setRowHeight(20);
+        statusTable.setColumnMargin(2);
+        statusTable.setOpaque(true);
+        statusTable.setRowSelectionAllowed(true);
         HighlighterPipeline highlighter = new HighlighterPipeline();
         highlighter.addHighlighter(AlternateRowHighlighter.beige);
-        jxTable.setHighlighters(highlighter);
-
-        return jxTable;
+        statusTable.setHighlighters(highlighter);
+        statusPane.setViewportView(statusTable);
+        
+        statusTable.getSelectionModel().addListSelectionListener(new ListSelectionListener()
+        {
+            public void valueChanged(ListSelectionEvent evt)
+            {
+                StatusListSelected(evt);
+            }
+        });
+        statusPane.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt)
+            {
+                deselectRows();
+            }
+        });
     }    
     
     private void StatusListSelected(ListSelectionEvent evt) 
@@ -134,25 +127,44 @@ public class StatusPanel extends javax.swing.JPanel {
         int row = statusTable.getSelectedRow();
         if(row >= 0 && statusTable.getSelectedColumn()>= 0)
         {
-            parent.setVisibleTasks(parent.statusTasks, 1, true);
+            parent.setVisibleTasks(parent.statusTasks, 2, true);
             
             int columnNumber = getColumnNumber("Status");
-            if (((String)statusTable.getValueAt(row, columnNumber)).equals("Deployed"))
-                parent.statusTasks.getContentPane().getComponent(1).setVisible(false);
-            else
+            if (((String)statusTable.getValueAt(row, columnNumber)).equals("Started"))
+            {
                 parent.statusTasks.getContentPane().getComponent(2).setVisible(false);
+                parent.statusTasks.getContentPane().getComponent(3).setVisible(true);
+                parent.statusTasks.getContentPane().getComponent(4).setVisible(true);
+            }
+            else if (((String)statusTable.getValueAt(row, columnNumber)).equals("Paused"))
+            {
+                parent.statusTasks.getContentPane().getComponent(2).setVisible(true);
+                parent.statusTasks.getContentPane().getComponent(3).setVisible(false);
+                parent.statusTasks.getContentPane().getComponent(4).setVisible(true);
+            }
+            else
+            {
+                parent.statusTasks.getContentPane().getComponent(2).setVisible(true);
+                parent.statusTasks.getContentPane().getComponent(3).setVisible(false);
+                parent.statusTasks.getContentPane().getComponent(4).setVisible(false);
+            }
         }
     }
     
     private void deselectRows()
     {
         statusTable.clearSelection();
-        parent.setVisibleTasks(parent.statusTasks, 1, false);
+        parent.setVisibleTasks(parent.statusTasks, 2, false);
     }
     
-    public int getSelectedRow()
+    public int getSelectedStatus()
     {
-        return statusTable.getSelectedRow();
+        for(int i=0; i<parent.status.size(); i++)
+        {
+            if(((String)statusTable.getValueAt(statusTable.getSelectedRow(), getColumnNumber("Name"))).equalsIgnoreCase(parent.status.get(i).getName()))
+                return i;
+        }
+        return -1;
     }
     
     public int getColumnNumber(String name)

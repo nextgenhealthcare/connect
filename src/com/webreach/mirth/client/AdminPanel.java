@@ -69,6 +69,14 @@ public class AdminPanel extends javax.swing.JPanel
         adminPanel.addTab("Users", users);
 
         settings.setBackground(new java.awt.Color(255, 255, 255));
+        settings.addComponentListener(new java.awt.event.ComponentAdapter()
+        {
+            public void componentShown(java.awt.event.ComponentEvent evt)
+            {
+                settingsComponentShown(evt);
+            }
+        });
+
         jLabel1.setText("Refresh Interval Time (s):");
 
         org.jdesktop.layout.GroupLayout settingsLayout = new org.jdesktop.layout.GroupLayout(settings);
@@ -105,11 +113,27 @@ public class AdminPanel extends javax.swing.JPanel
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    private void settingsComponentShown(java.awt.event.ComponentEvent evt)//GEN-FIRST:event_settingsComponentShown
+    {//GEN-HEADEREND:event_settingsComponentShown
+        parent.setFocus(parent.settingsTasks);
+    }//GEN-LAST:event_settingsComponentShown
+
     private void usersComponentShown(java.awt.event.ComponentEvent evt)//GEN-FIRST:event_usersComponentShown
     {//GEN-HEADEREND:event_usersComponentShown
         parent.setFocus(parent.userTasks);
     }//GEN-LAST:event_usersComponentShown
     
+    public void showTasks()
+    {
+        if(settings.isVisible())
+        {
+            parent.setFocus(parent.settingsTasks);
+        }
+        else
+        {
+            parent.setFocus(parent.userTasks);
+        }    
+    }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTabbedPane adminPanel;

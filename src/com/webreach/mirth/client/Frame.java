@@ -1,8 +1,10 @@
 package com.webreach.mirth.client;
 
+import com.sun.corba.se.spi.orbutil.fsm.State;
 import com.webreach.mirth.client.core.Client;
 import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.model.Channel;
+import com.webreach.mirth.model.ChannelStatus;
 import com.webreach.mirth.model.User;
 import java.awt.*;
 import java.awt.event.*;
@@ -17,8 +19,8 @@ public class Frame extends JXFrame
 {
     java.util.List<Channel> channels;
     java.util.List<User> users;
+    java.util.List<ChannelStatus> status;
     Client mirthClient;
-    HashMap passwordMap = new HashMap();
     ActionManager manager = ActionManager.getInstance();
     JPanel contentPane;
     BorderLayout borderLayout1 = new BorderLayout();
@@ -39,39 +41,57 @@ public class Frame extends JXFrame
     JXTaskPaneContainer taskPaneContainer = new JXTaskPaneContainer();
     JXTaskPane viewPane;
     JXTaskPane otherPane;
-    JXTaskPane adminTasks;
+    JXTaskPane settingsTasks;
     JXTaskPane channelTasks;
     JXTaskPane statusTasks;
     JXTaskPane details;
     JXTaskPane channelEditTasks;
     JXTaskPane userTasks;
-
-
-    public Frame()
+    ArrayList<ConnectorClass> sourceConnectors = new ArrayList<ConnectorClass>();
+    ArrayList<ConnectorClass> destinationConnectors = new ArrayList<ConnectorClass>();
+    
+    public Frame(Client mirthClient)
     {
+        this.mirthClient = mirthClient;
+        
         try
         {
-            mirthClient = new Client("http://34.34.34.69:8080");
-            mirthClient.login("admin","abc12345");
-
-            channels = mirthClient.getChannels();
-            users = mirthClient.getUsers();
+            channels = this.mirthClient.getChannels();
+            users = this.mirthClient.getUsers();
+            status = this.mirthClient.getChannelStatusList();
         }
         catch (ClientException ex)
         {
             ex.printStackTrace();
-        }
-
+        }           
         statusListPage = new StatusPanel(this);
         channelListPage = new ChannelPanel(this);
         adminPanel = new AdminPanel(this);
+
+        sourceConnectors.add(new DatabaseReader());
+        sourceConnectors.add(new DatabaseWriter());
+        sourceConnectors.add(new EmailSender());
+        sourceConnectors.add(new FileWriter());
+        sourceConnectors.add(new HTTPListener());
+        sourceConnectors.add(new HTTPSListener());
+        sourceConnectors.add(new LLPListener());
+        sourceConnectors.add(new LLPSender());
+        
+        destinationConnectors.add(new DatabaseReader());
+        destinationConnectors.add(new DatabaseWriter());
+        destinationConnectors.add(new EmailSender());
+        destinationConnectors.add(new FileWriter());
+        destinationConnectors.add(new HTTPListener());
+        destinationConnectors.add(new HTTPSListener());
+        destinationConnectors.add(new LLPListener());
+        destinationConnectors.add(new LLPSender());
 
         try
         {
             setDefaultCloseOperation(EXIT_ON_CLOSE);
             jbInit();
         }
-        catch (Exception exception) 
+        catch (Exception exception)
         {
             exception.printStackTrace();
         }
@@ -130,16 +150,12 @@ public class Frame extends JXFrame
         setNonFocusable(viewPane);
         taskPaneContainer.add(viewPane);
 
-        // Create Admininstration Tasks Pane
-        adminTasks = new JXTaskPane();
-        adminTasks.setTitle("Administration Tasks");
-        adminTasks.setFocusable(false);
-        adminTasks.add(initActionCallback("doNewUser",ActionFactory.createBoundAction("doNewUser","New User", "N"), new ImageIcon(com.webreach.mirth.client.Frame.class.getResource("images/add.png"))));
-        adminTasks.add(initActionCallback("doSettings",ActionFactory.createBoundAction("doSettings","Settings", "S"), new ImageIcon(com.webreach.mirth.client.Frame.class.getResource("images/edit.png"))));
-        adminTasks.add(initActionCallback("doMonitor",ActionFactory.createBoundAction("doMonitor","Monitor","M"), new ImageIcon(com.webreach.mirth.client.Frame.class.getResource("images/application.png"))));
-        adminTasks.add(initActionCallback("doXML",ActionFactory.createBoundAction("doXML","XML","X"), new ImageIcon(com.webreach.mirth.client.Frame.class.getResource("images/messages.png"))));
-        setNonFocusable(adminTasks);
-        taskPaneContainer.add(adminTasks);
+        // Create Settings Tasks Pane
+        settingsTasks = new JXTaskPane();
+        settingsTasks.setTitle("Settings Tasks");
+        settingsTasks.setFocusable(false);
+        setNonFocusable(settingsTasks);
+        taskPaneContainer.add(settingsTasks);
 
         // Create Channel Tasks Pane
         channelTasks = new JXTaskPane();
@@ -160,9 +176,14 @@ public class Frame extends JXFrame
         channelEditTasks = new JXTaskPane();
         channelEditTasks.setTitle("Channel Tasks");
         channelEditTasks.setFocusable(false);
-//       channelEditTasks.add(initActionCallback("doShowChannel",ActionFactory.createBoundAction("doShowChannel","Back to Channels", "B"), new ImageIcon(com.webreach.mirth.client.Frame.class.getResource("images/deployall.png"))));
-        channelEditTasks.add(initActionCallback("doSaveChanges",ActionFactory.createBoundAction("doSaveChanges","Save Changes", "H"), new ImageIcon(com.webreach.mirth.client.Frame.class.getResource("images/add.png"))));
-//        channelEditTasks.add(initActionCallback("doApplyChanges",ActionFactory.createBoundAction("doApplyChanges","Apply Changes", "A"), new ImageIcon(com.webreach.mirth.client.Frame.class.getResource("images/stop.png"))));
+//      channelEditTasks.add(initActionCallback("doShowChannel",ActionFactory.createBoundAction("doShowChannel","Back to Channels", "B"), new ImageIcon(com.webreach.mirth.client.Frame.class.getResource("images/deployall.png"))));
+        channelEditTasks.add(initActionCallback("doSaveChanges",ActionFactory.createBoundAction("doSaveChanges","Save Changes", "H"), new ImageIcon(com.webreach.mirth.client.Frame.class.getResource("images/start.png"))));
+//      channelEditTasks.add(initActionCallback("doApplyChanges",ActionFactory.createBoundAction("doApplyChanges","Apply Changes", "A"), new ImageIcon(com.webreach.mirth.client.Frame.class.getResource("images/stop.png"))));
+        channelEditTasks.add(initActionCallback("doNewDestination",ActionFactory.createBoundAction("doNewDestination","New Destination", "N"), new ImageIcon(com.webreach.mirth.client.Frame.class.getResource("images/add.png"))));
+        channelEditTasks.add(initActionCallback("doDeleteDestination",ActionFactory.createBoundAction("doDeleteDestination","Delete Destination", "D"), new ImageIcon(com.webreach.mirth.client.Frame.class.getResource("images/delete.png"))));
+        channelEditTasks.add(initActionCallback("doEditTransformer",ActionFactory.createBoundAction("doEditTransformer","Edit Transformer", "D"), new ImageIcon(com.webreach.mirth.client.Frame.class.getResource("images/edit.png"))));
+        channelEditTasks.add(initActionCallback("doEditFilter",ActionFactory.createBoundAction("doEditFilter","Edit Filter", "D"), new ImageIcon(com.webreach.mirth.client.Frame.class.getResource("images/edit.png"))));
+        channelEditTasks.add(initActionCallback("doEditValidator",ActionFactory.createBoundAction("doEditValidator","Edit Validator", "D"), new ImageIcon(com.webreach.mirth.client.Frame.class.getResource("images/edit.png"))));
         setNonFocusable(channelEditTasks);
         setVisibleTasks(channelEditTasks, 0, false);
         taskPaneContainer.add(channelEditTasks);
@@ -172,13 +193,15 @@ public class Frame extends JXFrame
         statusTasks.setTitle("Status Tasks");
         statusTasks.setFocusable(false);
         statusTasks.add(initActionCallback("doRefresh",ActionFactory.createBoundAction("doRefresh","Refresh", "R"), new ImageIcon(com.webreach.mirth.client.Frame.class.getResource("images/refresh.png"))));
-        statusTasks.add(initActionCallback("doStart",ActionFactory.createBoundAction("doStart","Deploy Channel", "P"), new ImageIcon(com.webreach.mirth.client.Frame.class.getResource("images/start.png"))));
+        statusTasks.add(initActionCallback("doStartAll",ActionFactory.createBoundAction("doStartAll","Start All Channels", "P"), new ImageIcon(com.webreach.mirth.client.Frame.class.getResource("images/start1.png"))));
+        statusTasks.add(initActionCallback("doStart",ActionFactory.createBoundAction("doStart","Start Channel", "P"), new ImageIcon(com.webreach.mirth.client.Frame.class.getResource("images/start.png"))));
+        statusTasks.add(initActionCallback("doPause",ActionFactory.createBoundAction("doPause","Pause Channel", "P"), new ImageIcon(com.webreach.mirth.client.Frame.class.getResource("images/pause.png"))));
         statusTasks.add(initActionCallback("doStop",ActionFactory.createBoundAction("doStop","Stop Channel", "P"), new ImageIcon(com.webreach.mirth.client.Frame.class.getResource("images/stop.png"))));
         statusTasks.add(initActionCallback("doShowStats",ActionFactory.createBoundAction("doShowStats","Stats", "T"), new ImageIcon(com.webreach.mirth.client.Frame.class.getResource("images/stats.png"))));
         statusTasks.add(initActionCallback("doShowLogs",ActionFactory.createBoundAction("doShowLogs","Logs", "L"), new ImageIcon(com.webreach.mirth.client.Frame.class.getResource("images/logs.png"))));
         statusTasks.add(initActionCallback("doShowMessages",ActionFactory.createBoundAction("doShowMessages","Messages", "M"), new ImageIcon(com.webreach.mirth.client.Frame.class.getResource("images/messages.png"))));
         setNonFocusable(statusTasks);
-        setVisibleTasks(statusTasks, 1, false);
+        setVisibleTasks(statusTasks, 2, false);
         taskPaneContainer.add(statusTasks);
 
         // Create User Tasks Pane
@@ -244,6 +267,7 @@ public class Frame extends JXFrame
     {
         if (!confirmLeaveChannelEditor())
             return;
+        doRefresh();
         setBold(viewPane, 0);
         setCurrentContentPage(statusListPage);
         setFocus(statusTasks);
@@ -266,42 +290,41 @@ public class Frame extends JXFrame
             return;
         setBold(viewPane, 2);
         setCurrentContentPage(adminPanel);
-        setFocus(adminTasks);
+        adminPanel.showTasks();
     }
 
     public void doDisconnect()
     {
         this.dispose();
         Mirth.main(new String[0]);
-        //JXLoginPanel.Status status = JXLoginPanel.showLoginDialog(null, new SimpleLoginService(passwordMap));
     }
 
     public void doNewChannel()
     {
-        setBold(viewPane, -1);
-        WizardDialog w = new WizardDialog(this);
-        Dimension wSize = w.getPreferredSize();
+        ChannelWizard channelWizard = new ChannelWizard(this);
+        Dimension channelWizardSize = channelWizard.getPreferredSize();
         Dimension frmSize = getSize();
         Point loc = getLocation();
-        w.setLocation((frmSize.width - wSize.width) / 2 + loc.x,
-                        (frmSize.height - wSize.height) / 2 + loc.y);
-        w.setResizable(false);
-        w.setVisible(true);
+        channelWizard.setLocation((frmSize.width - channelWizardSize.width) / 2 + loc.x,
+                        (frmSize.height - channelWizardSize.height) / 2 + loc.y);
+        channelWizard.setModal(true);
+        channelWizard.setResizable(false);
+        channelWizard.setVisible(true);
     }
 
     public void doEditChannel()
     {
         doRefreshChannels();
-        
+
         if (channelListPage.getSelectedChannel() == -1)
             JOptionPane.showMessageDialog(this, "Channel no longer exists.");
         else
         {
             setBold(viewPane, -1);
-            channelEditPage.editChannel(channelListPage.getSelectedChannel());        
             setCurrentContentPage(channelEditPage);
             setFocus(channelEditTasks);
             setVisibleTasks(channelEditTasks, 0, false);
+            channelEditPage.editChannel(channelListPage.getSelectedChannel());
         }
     }
 
@@ -319,20 +342,20 @@ public class Frame extends JXFrame
         }
         doShowChannel();
     }
-    
+
     public void doRefreshChannels()
     {
         int channelId = -1;
         String channelName = null;
-        
+
         if(channelListPage.getSelectedChannel() != -1)
             channelId = channels.get(channelListPage.getSelectedChannel()).getId();
-            
+
         try
         {
             channels = mirthClient.getChannels();
             channelListPage.makeChannelTable();
-            
+
             for(int i = 0; i<channels.size(); i++)
             {
                 if(channelId == channels.get(i).getId())
@@ -343,33 +366,173 @@ public class Frame extends JXFrame
         {
             ex.printStackTrace();
         }
-        
+
         // as long as the channel was not deleted
         if (channelName != null)
             channelListPage.setSelectedChannel(channelName);
     }
+    
+    public void doRefresh()
+    {
+        //dummy code
+        
+        status = new ArrayList<ChannelStatus>();
+        ChannelStatus status1 = new ChannelStatus();
+        status1.setChannelId(1);
+        status1.setName("YO");
+        status1.setState(ChannelStatus.State.PAUSED);
+        ChannelStatus status2 = new ChannelStatus();
+        status2.setChannelId(2);
+        status2.setName("YO1");
+        status2.setState(ChannelStatus.State.STOPPED);  
+        ChannelStatus status3 = new ChannelStatus();
+        status3.setChannelId(3);
+        status3.setName("YO2");
+        status3.setState(ChannelStatus.State.STARTED);  
+        status.add(status1);
+        status.add(status2);
+        status.add(status3);
+        statusListPage.makeStatusTable();
+        
+        //end dummy code
+        
+        //real code below
+        /*try
+        {
+            status = mirthClient.getStatusList();
+            statusListPage.makeStatusTable();
+        }
+        catch (ClientException ex)
+        {
+            ex.printStackTrace();
+        }*/
+    }
+    
+    public void doStartAll()
+    {
+        try
+        {
+            for(int i = 0; i<status.size(); i++)
+            {
+                if(status.get(i).getState() == ChannelStatus.State.STOPPED)
+                    mirthClient.startChannel(status.get(i).getChannelId());
+                else if(status.get(i).getState() == ChannelStatus.State.PAUSED)
+                    mirthClient.resumeChannel(status.get(i).getChannelId());
+            }
+        } 
+        catch (ClientException ex)
+        {
+            ex.printStackTrace();
+        }
+        doRefresh();
+    }
+    
+    public void doStart()
+    {
+        try
+        {
+            if(status.get(statusListPage.getSelectedStatus()).getState() == ChannelStatus.State.STOPPED)
+                mirthClient.startChannel(status.get(statusListPage.getSelectedStatus()).getChannelId());
+            else if(status.get(statusListPage.getSelectedStatus()).getState() == ChannelStatus.State.PAUSED)
+                mirthClient.resumeChannel(status.get(statusListPage.getSelectedStatus()).getChannelId());
+        } 
+        catch (ClientException ex)
+        {
+            ex.printStackTrace();
+        }
+        doRefresh();
+    }
+    
+    public void doStop()
+    {
+        try
+        {
+            mirthClient.stopChannel(status.get(statusListPage.getSelectedStatus()).getChannelId());
+        } 
+        catch (ClientException ex)
+        {
+            ex.printStackTrace();
+        }
+        doRefresh();
+    }
+    
+    public void doPause()
+    {
+        try
+        {
+            mirthClient.pauseChannel(status.get(statusListPage.getSelectedStatus()).getChannelId());
+        } 
+        catch (ClientException ex)
+        {
+            ex.printStackTrace();
+        }
+        doRefresh();
+    }
+    
+    public void doNewDestination()
+    {
+        channelEditPage.addNewDestination();
+    }
+    
+    public void doDeleteDestination()
+    {
+        channelEditPage.deleteDestination();
+    }
+    
+    public void doEnable()
+    {
+       doRefreshChannels();
+
+        if (channelListPage.getSelectedChannel() == -1)
+            JOptionPane.showMessageDialog(this, "Channel no longer exists.");
+        else
+        {
+            Channel channel = channels.get(channelListPage.getSelectedChannel());
+            channel.setEnabled(true);
+            updateChannel(channel);
+            channelListPage.deselectRows();
+            channelListPage.setSelectedChannel(channel.getName());
+        }
+    }
+    
+    public void doDisable()
+    {
+        doRefreshChannels();
+
+        if (channelListPage.getSelectedChannel() == -1)
+            JOptionPane.showMessageDialog(this, "Channel no longer exists.");
+        else
+        {
+            Channel channel = channels.get(channelListPage.getSelectedChannel());
+            channel.setEnabled(false);
+            updateChannel(channel);
+            channelListPage.deselectRows();
+            channelListPage.setSelectedChannel(channel.getName());
+        }
+    }
 
     public void doNewUser()
     {
-        UserDialog userDialog = new UserDialog(this, -1);
-        Dimension dialogSize = userDialog.getPreferredSize();
+        UserWizard userWizard = new UserWizard(this, -1);
+        Dimension userWizardSize = userWizard.getPreferredSize();
         Dimension frmSize = getSize();
         Point loc = getLocation();
-        userDialog.setLocation((frmSize.width - dialogSize.width) / 2 + loc.x,
-                        (frmSize.height - dialogSize.height) / 2 + loc.y);
-        userDialog.setResizable(false);
-        userDialog.setVisible(true);
+        userWizard.setLocation((frmSize.width - userWizardSize.width) / 2 + loc.x,
+                        (frmSize.height - userWizardSize.height) / 2 + loc.y);
+        userWizard.setModal(true);
+        userWizard.setResizable(false);
+        userWizard.setVisible(true);
     }
 
     public void doEditUser()
     {
         doRefreshUser();
-       
+
         if (adminPanel.u.getUserIndex() == -1)
             JOptionPane.showMessageDialog(this, "Users no longer exists.");
         else
         {
-            UserDialog userDialog = new UserDialog(this, adminPanel.u.getSelectedRow());
+            UserWizard userDialog = new UserWizard(this, adminPanel.u.getSelectedRow());
             Dimension dialogSize = userDialog.getPreferredSize();
             Dimension frmSize = getSize();
             Point loc = getLocation();
@@ -382,31 +545,35 @@ public class Frame extends JXFrame
 
     public void doDeleteUser()
     {
+        int userToDelete = adminPanel.u.getUserIndex();
         try
         {
-            mirthClient.removeUser(users.get(adminPanel.u.getUserIndex()).getId());
-            users = mirthClient.getUsers();
-            adminPanel.u.makeUsersTable();
+           if(userToDelete != -1) 
+           {
+                mirthClient.removeUser(users.get(userToDelete).getId());
+                users = mirthClient.getUsers();
+                adminPanel.u.makeUsersTable();
+           }
         }
         catch (ClientException ex)
         {
             ex.printStackTrace();
         }
     }
-    
+
     public void doRefreshUser()
     {
         int userId = -1;
         String userName = null;
-        
+
         if(adminPanel.u.getUserIndex() != -1)
             userId = users.get(adminPanel.u.getUserIndex()).getId();
-            
+
         try
         {
             users = mirthClient.getUsers();
             adminPanel.u.makeUsersTable();
-            
+
             for(int i = 0; i<users.size(); i++)
             {
                 if(userId == users.get(i).getId())
@@ -417,7 +584,7 @@ public class Frame extends JXFrame
         {
             ex.printStackTrace();
         }
-        
+
         // as long as the channel was not deleted
         if (userName != null)
             adminPanel.u.setSelectedUser(userName);
@@ -434,7 +601,15 @@ public class Frame extends JXFrame
 */
     public void doDeployAll()
     {
-
+        doRefreshChannels();
+        try
+        {
+            mirthClient.deployChannels();
+        }
+        catch (ClientException ex)
+        {
+            ex.printStackTrace();
+        }
     }
 
     public void doSaveChanges()
@@ -445,17 +620,17 @@ public class Frame extends JXFrame
 
     public void doShowMessages()
     {
-        new Messages(this, statusListPage.getSelectedRow());
+        new Messages(this, statusListPage.statusTable.getSelectedRow());
     }
 
     public void doShowLogs()
     {
-        new Logs(this, statusListPage.getSelectedRow());
+        new Logs(this, statusListPage.statusTable.getSelectedRow());
     }
 
     public void doShowStats()
     {
-        new Stats(this, statusListPage.getSelectedRow());
+        new Stats(this, statusListPage.statusTable.getSelectedRow());
     }
 
     public void setBold(JXTaskPane pane, int index)
@@ -471,7 +646,7 @@ public class Frame extends JXFrame
         channelTasks.setVisible(false);
         channelEditTasks.setVisible(false);
         statusTasks.setVisible(false);
-        adminTasks.setVisible(false);
+        settingsTasks.setVisible(false);
         userTasks.setVisible(false);
         pane.setVisible(true);
     }
