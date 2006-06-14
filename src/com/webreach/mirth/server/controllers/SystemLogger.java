@@ -18,18 +18,18 @@ import com.webreach.mirth.server.util.DatabaseUtil;
 public class SystemLogger {
 	private Logger logger = Logger.getLogger(SystemLogger.class);
 	private DatabaseConnection dbConnection;
-	
+
 	/**
 	 * Adds a new system event.
 	 * 
 	 * @param systemEvent
 	 * @throws ControllerException
 	 */
-	public void logSystemEvent(SystemEvent systemEvent) throws ControllerException {
+	public void logSystemEvent(SystemEvent systemEvent) {
 		logger.debug("adding log event: " + systemEvent.getChannelId());
-		
+
 		try {
-			dbConnection = new DatabaseConnection();	
+			dbConnection = new DatabaseConnection();
 			StringBuilder insert = new StringBuilder();
 			insert.append("INSERT INTO EVENTS (CHANNEL_ID, DATE_CREATED, EVENT, EVENT_LEVEL) VALUES(");
 			insert.append(systemEvent.getChannelId() + ", ");
@@ -38,10 +38,10 @@ public class SystemLogger {
 			insert.append(systemEvent.getLevel() + ";");
 			dbConnection.update(insert.toString());
 		} catch (Exception e) {
-			throw new ControllerException("Could not add system event for channel " + systemEvent.getChannelId(), e);
+			logger.error("could not log system event", e);
 		}
 	}
-	
+
 	/**
 	 * Returns a List of all system events.
 	 * 
@@ -51,12 +51,12 @@ public class SystemLogger {
 	 */
 	public List<SystemEvent> getSystemEvents(SystemEventFilter filter) throws ControllerException {
 		logger.debug("retrieving log event list");
-		
+
 		ResultSet result = null;
-		
+
 		try {
 			dbConnection = new DatabaseConnection();
-			
+
 			Table events = new Table("events");
 			SelectQuery select = new SelectQuery(events);
 
@@ -81,7 +81,7 @@ public class SystemLogger {
 				select.addCriteria(new MatchCriteria(events, "date_created", MatchCriteria.GREATEREQUAL, filter.getMinDate().toString()));
 				select.addCriteria(new MatchCriteria(events, "date_created", MatchCriteria.LESSEQUAL, filter.getMaxDate().toString()));
 			}
-			
+
 			// filter on level
 			if ((filter.getMinLevel() != -1) && (filter.getMaxLevel() != -1)) {
 				select.addCriteria(new MatchCriteria(events, "level", MatchCriteria.GREATEREQUAL, filter.getMinLevel()));
@@ -100,16 +100,16 @@ public class SystemLogger {
 		} finally {
 			DatabaseUtil.close(result);
 			dbConnection.close();
-		}		
+		}
 	}
 
 	/**
 	 * Clears the sysem event list.
-	 *
+	 * 
 	 */
 	public void clearSystemEvents() throws ControllerException {
 		logger.debug("clearing system event list");
-		
+
 		try {
 			dbConnection = new DatabaseConnection();
 			StringBuilder statement = new StringBuilder();
@@ -121,7 +121,7 @@ public class SystemLogger {
 			dbConnection.close();
 		}
 	}
-	
+
 	private List<SystemEvent> getSystemEventList(ResultSet result) throws SQLException {
 		ArrayList<SystemEvent> systemEvents = new ArrayList<SystemEvent>();
 

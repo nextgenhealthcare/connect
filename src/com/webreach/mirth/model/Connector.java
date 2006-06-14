@@ -40,6 +40,7 @@ public class Connector {
 	private String name;
 	private Properties properties;
 	private Transformer transformer;
+	private Filter filter;
 	private String transportName;
 
 	public Connector() {
@@ -64,6 +65,14 @@ public class Connector {
 
 	public void setTransformer(Transformer transformer) {
 		this.transformer = transformer;
+	}
+
+	public Filter getFilter() {
+		return this.filter;
+	}
+
+	public void setFilter(Filter filter) {
+		this.filter = filter;
 	}
 
 	public String getTransportName() {

@@ -62,9 +62,9 @@ public class DatabaseConnection {
 	}
 	
 	/**
-	 * Returns a new connection to the database.
+	 * Returns a new connection to the Mirth database.
 	 * 
-	 * @return
+	 * @return a new connection to the Mirth database.
 	 * @throws SQLException
 	 */
 	private Connection getConnection() throws SQLException {
@@ -78,8 +78,8 @@ public class DatabaseConnection {
 	/**
 	 * Executes a query on the database and returns a ResultSet.
 	 * 
-	 * @param expression
-	 * @return
+	 * @param expression the query expression to be executed.
+	 * @return the result of the query.
 	 * @throws SQLException
 	 */
 	public synchronized ResultSet query(String expression) throws SQLException {
@@ -89,7 +89,7 @@ public class DatabaseConnection {
 		try {
 			connection = getConnection();
 			statement = connection.createStatement();
-			logger.debug("executing query: " + expression);
+			logger.debug("executing query:\n" + expression);
 			result = statement.executeQuery(expression);
 
 			return result;
@@ -103,8 +103,8 @@ public class DatabaseConnection {
 	/**
 	 * Executes an update on the database and returns the row count.
 	 * 
-	 * @param expression
-	 * @return
+	 * @param expression the update query to be executed.
+	 * @return a count of the number of updated rows.
 	 * @throws SQLException
 	 */
 	public synchronized int update(String expression) throws SQLException {
@@ -113,7 +113,7 @@ public class DatabaseConnection {
 		try {
 			connection = getConnection();
 			statement = connection.createStatement();
-			logger.debug("executing update: " + expression);
+			logger.debug("executing update:\n" + expression);
 			int rowCount = statement.executeUpdate(expression);
 			statement.close();
 

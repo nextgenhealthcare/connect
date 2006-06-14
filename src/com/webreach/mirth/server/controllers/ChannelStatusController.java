@@ -11,10 +11,12 @@ import javax.management.ObjectName;
 import org.apache.log4j.Logger;
 
 import com.webreach.mirth.model.ChannelStatus;
+import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.server.util.JMXConnection;
 
 public class ChannelStatusController {
 	private Logger logger = Logger.getLogger(ChannelStatusController.class);
+	private SystemLogger systemLogger = new SystemLogger();
 	private JMXConnection jmxConnection = null;
 
 	/**
@@ -35,6 +37,8 @@ public class ChannelStatusController {
 		} catch (Exception e) {
 			throw new ControllerException(e);
 		}
+
+		systemLogger.logSystemEvent(new SystemEvent(channelId, "Channel started."));
 	}
 
 	/**
@@ -55,6 +59,8 @@ public class ChannelStatusController {
 		} catch (Exception e) {
 			throw new ControllerException(e);
 		}
+
+		systemLogger.logSystemEvent(new SystemEvent(channelId, "Channel stopped."));
 	}
 
 	/**
@@ -75,6 +81,8 @@ public class ChannelStatusController {
 		} catch (Exception e) {
 			throw new ControllerException(e);
 		}
+
+		systemLogger.logSystemEvent(new SystemEvent(channelId, "Channel paused."));
 	}
 
 	/**
@@ -95,6 +103,8 @@ public class ChannelStatusController {
 		} catch (Exception e) {
 			throw new ControllerException(e);
 		}
+
+		systemLogger.logSystemEvent(new SystemEvent(channelId, "Channel resumed."));
 	}
 	
 	/**
@@ -139,6 +149,7 @@ public class ChannelStatusController {
 		List<String> deployedChannelIdList = new ArrayList<String>();
 		
 		try {
+			jmxConnection = new JMXConnection();
 			Set beanObjectNames = jmxConnection.getMBeanNames();
 
 			for (Iterator iter = beanObjectNames.iterator(); iter.hasNext();) {

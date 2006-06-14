@@ -32,6 +32,13 @@ import java.sql.Timestamp;
 import java.util.GregorianCalendar;
 
 public class DatabaseUtil {
+	
+	/**
+	 * Closes the specified ResultSet.
+	 * 
+	 * @param result the ResultSet to be closed.
+	 * @throws RuntimeException
+	 */
 	public static void close(ResultSet result) throws RuntimeException {
 		try {
 			result.close();
@@ -40,6 +47,12 @@ public class DatabaseUtil {
 		}
 	}
 	
+	/**
+	 * Closes the specified Statement.
+	 * 
+	 * @param statement the Statement to be closed.
+	 * @throws RuntimeException
+	 */
 	public static void close(Statement statement) throws RuntimeException {
 		try {
 			statement.close();
@@ -48,6 +61,11 @@ public class DatabaseUtil {
 		}
 	}
 	
+	/**
+	 * Returns a String representation of a SQL Timestamp with the current time.
+	 * 
+	 * @return a String representation of a SQL Timestamp with the current time.
+	 */
 	public static String getNowTimestamp() {
 		return (new Timestamp(new GregorianCalendar().getTimeInMillis())).toString();
 	}

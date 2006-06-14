@@ -26,12 +26,16 @@
 
 package com.webreach.mirth.server.builders;
 
-public class ConfigurationBuilderException extends Exception {
-	public ConfigurationBuilderException() {
+public class BuilderException extends Exception {
+	public BuilderException() {
 		super();
 	}
 	
-	public ConfigurationBuilderException(Throwable cause) {
+	public BuilderException(Throwable cause) {
 		super(cause);
+	}
+	
+	public BuilderException(String message) {
+		super(message);
 	}
 }

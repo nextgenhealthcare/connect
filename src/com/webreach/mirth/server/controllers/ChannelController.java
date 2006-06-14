@@ -19,7 +19,7 @@ import com.webreach.mirth.server.util.DatabaseUtil;
  * The ChannelController provides access to channels.
  * 
  * @author GeraldB
- *
+ * 
  */
 public class ChannelController {
 	private Logger logger = Logger.getLogger(ChannelController.class);
@@ -27,30 +27,33 @@ public class ChannelController {
 	private ObjectSerializer serializer = new ObjectSerializer();
 
 	/**
-	 * Returns a List containing the channel with the specified <code>id</code>.
-	 * If the <code>id</code> is <code>null</code>, all channels are
-	 * returned.
+	 * Returns a List containing the Channel with the specified
+	 * <code>channelId</code>. If the <code>channelId</code> is
+	 * <code>null</code>, all channels are returned.
 	 * 
 	 * @param channelId
-	 * @return
+	 *            the ID of Channel to be returned.
+	 * @return a List containing the Channel with the specified
+	 *         <code>channelId</code>, a List containing all channels
+	 *         otherwise.
 	 * @throws ControllerException
 	 */
 	public List<Channel> getChannels(Integer channelId) throws ControllerException {
-		logger.debug("retrieving channel list: id = " + channelId);
+		logger.debug("retrieving channel list: channel id = " + channelId);
 
 		ResultSet result = null;
 
 		try {
 			dbConnection = new DatabaseConnection();
-			
+
 			Table channels = new Table("channels");
 			SelectQuery select = new SelectQuery(channels);
-			
+
 			select.addColumn(channels, "id");
 			select.addColumn(channels, "channel_data");
-			
+
 			if (channelId != null) {
-				select.addCriteria(new MatchCriteria(channels, "id", MatchCriteria.EQUALS, String.valueOf(channelId)));
+				select.addCriteria(new MatchCriteria(channels, "id", MatchCriteria.EQUALS, channelId.toString()));
 			}
 
 			result = dbConnection.query(select.toString());
@@ -62,12 +65,13 @@ public class ChannelController {
 			dbConnection.close();
 		}
 	}
-	
+
 	/**
-	 * Returns a List of Channel objects given a ResultSet.
+	 * Converts a ResultSet to a List of Channel objects.
 	 * 
 	 * @param result
-	 * @return
+	 *            the ResultSet to be converted.
+	 * @return a List of Channel objects.
 	 * @throws SQLException
 	 */
 	private List<Channel> getChannelList(ResultSet result) throws SQLException {
@@ -83,9 +87,11 @@ public class ChannelController {
 	}
 
 	/**
-	 * Updates the specified channel.
+	 * If a Channel with the specified Channel's ID already exists, the Channel
+	 * will be updated. Otherwise, the Channel will be added.
 	 * 
 	 * @param channel
+	 *            Channel to be updated.
 	 * @throws ControllerException
 	 */
 	public void updateChannel(Channel channel) throws ControllerException {
@@ -116,9 +122,10 @@ public class ChannelController {
 	}
 
 	/**
-	 * Removes the channel with the specified id.
+	 * Removes the channel with the specified ID.
 	 * 
 	 * @param channelId
+	 *            ID of channel to be removed.
 	 * @throws ControllerException
 	 */
 	public void removeChannel(int channelId) throws ControllerException {

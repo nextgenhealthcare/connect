@@ -7,6 +7,9 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import com.truemesh.squiggle.MatchCriteria;
+import com.truemesh.squiggle.SelectQuery;
+import com.truemesh.squiggle.Table;
 import com.webreach.mirth.model.User;
 import com.webreach.mirth.server.util.DatabaseConnection;
 import com.webreach.mirth.server.util.DatabaseUtil;
@@ -16,29 +19,35 @@ public class UserController {
 	private DatabaseConnection dbConnection;
 
 	/**
-	 * Returns a List containing the user with the specified <code>id</code>.
-	 * If the <code>id</code> is <code>null</code>, all users are returned.
+	 * Returns a List containing the User with the specified <code>userId</code>.
+	 * If the <code>userId</code> is <code>null</code>, all users are
+	 * returned.
 	 * 
 	 * @param userId
-	 * @return
+	 *            the ID of the User to be returned.
+	 * @return a List containing the User with the specified <code>userId</code>,
+	 *         a List containing all users otherwise.
 	 * @throws ControllerException
 	 */
 	public List<User> getUsers(Integer userId) throws ControllerException {
-		logger.debug("retrieving user list: " + userId);
+		logger.debug("retrieving user list: user id = " + userId);
 
 		ResultSet result = null;
 
 		try {
 			dbConnection = new DatabaseConnection();
-			StringBuilder query = new StringBuilder();
-			query.append("SELECT ID, USERNAME, PASSWORD FROM USERS");
+
+			Table users = new Table("users");
+			SelectQuery select = new SelectQuery(users);
+
+			select.addColumn(users, "id");
+			select.addColumn(users, "username");
 
 			if (userId != null) {
-				query.append(" WHERE ID = " + userId.toString());
+				select.addCriteria(new MatchCriteria(users, "id", MatchCriteria.EQUALS, userId.toString()));
 			}
 
-			query.append(";");
-			result = dbConnection.query(query.toString());
+			result = dbConnection.query(select.toString());
 			return getUserList(result);
 		} catch (SQLException e) {
 			throw new ControllerException(e);
@@ -49,10 +58,11 @@ public class UserController {
 	}
 
 	/**
-	 * Returns a List of User objects given a ResultSet.
+	 * Converts a ResultSet to a List of User objects.
 	 * 
 	 * @param result
-	 * @return
+	 *            the ResultSet to be converted.
+	 * @return a List of User objects.
 	 * @throws SQLException
 	 */
 	private List<User> getUserList(ResultSet result) throws SQLException {
@@ -70,9 +80,11 @@ public class UserController {
 	}
 
 	/**
-	 * Updates the specified user.
+	 * If a User with the specified User's ID already exists, the User will be
+	 * updated. Otherwise, the User will be added.
 	 * 
 	 * @param user
+	 *            User to be updated.
 	 * @throws ControllerException
 	 */
 	public void updateUser(User user) throws ControllerException {
@@ -103,9 +115,10 @@ public class UserController {
 	}
 
 	/**
-	 * Removes the user with the specified id.
+	 * Removes the user with the specified ID.
 	 * 
 	 * @param userId
+	 *            ID of the User to be removed.
 	 * @throws ControllerException
 	 */
 	public void removeUser(int userId) throws ControllerException {
@@ -125,11 +138,13 @@ public class UserController {
 	}
 
 	/**
-	 * Returns an id given a valid username and password, -1 otherwise.
+	 * Returns a User ID given a valid username and password, -1 otherwise.
 	 * 
 	 * @param username
+	 *            the username of the User to be authenticated.
 	 * @param password
-	 * @return
+	 *            the password of the User to be authenticated.
+	 * @return a User ID given a valid username and password, -1 otherwise.
 	 * @throws ControllerException
 	 */
 	public int authenticateUser(String username, String password) throws ControllerException {
@@ -146,7 +161,7 @@ public class UserController {
 			while (result.next()) {
 				return result.getInt("ID");
 			}
-			
+
 			return -1;
 		} catch (SQLException e) {
 			throw new ControllerException(e);

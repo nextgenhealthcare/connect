@@ -373,7 +373,7 @@ public class Client {
 	 */
 	public List<ChannelStatus> getChannelStatusList() throws ClientException {
 		logger.debug("retrieving channel status list");
-		NameValuePair[] params = { new NameValuePair("op", "getStatusList") };
+		NameValuePair[] params = { new NameValuePair("op", "getChannelStatusList") };
 		return (List<ChannelStatus>) serializer.fromXML(executePostMethod(CHANNEL_STATUS_SERVLET, params));
 	}
 }

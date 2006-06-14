@@ -50,11 +50,8 @@ public class Channel {
 	private String description;
 	private boolean enabled;
 	private boolean modified;
-	private String initialStatus;
 	private Direction direction;
 	private Mode mode;
-	private Filter filter;
-	private Validator validator;
 	private Connector sourceConnector;
 	private List<Connector> destinationConnectors = new ArrayList<Connector>();;
 	private Properties properties = new Properties();
@@ -92,22 +89,6 @@ public class Channel {
 
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
-	}
-
-	public String getInitialStatus() {
-		return this.initialStatus;
-	}
-
-	public void setInitialStatus(String initialStatus) {
-		this.initialStatus = initialStatus;
-	}
-
-	public Filter getFilter() {
-		return this.filter;
-	}
-
-	public void setFilter(Filter filter) {
-		this.filter = filter;
 	}
 
 	public int getId() {
@@ -148,14 +129,6 @@ public class Channel {
 
 	public void setMode(Mode mode) {
 		this.mode = mode;
-	}
-
-	public Validator getValidator() {
-		return this.validator;
-	}
-
-	public void setValidator(Validator validator) {
-		this.validator = validator;
 	}
 
 	public List<Connector> getDestinationConnectors() {

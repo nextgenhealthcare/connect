@@ -8,9 +8,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.model.User;
 import com.webreach.mirth.model.converters.ObjectSerializer;
 import com.webreach.mirth.server.controllers.ControllerException;
+import com.webreach.mirth.server.controllers.SystemLogger;
 import com.webreach.mirth.server.controllers.UserController;
 
 public class UserServlet extends MirthServlet {
@@ -18,6 +20,7 @@ public class UserServlet extends MirthServlet {
 	public static final String SESSION_AUTHORIZED = "authorized";
 
 	private UserController userController = new UserController();
+	private SystemLogger systemLogger = new SystemLogger();
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		PrintWriter out = response.getWriter();
@@ -57,6 +60,14 @@ public class UserServlet extends MirthServlet {
 			if (authenticateUserId >= 0) {
 				session.setAttribute(SESSION_USER, authenticateUserId);
 				session.setAttribute(SESSION_AUTHORIZED, true);
+
+				// log the event
+				SystemEvent event = new SystemEvent("User logged in.");
+				event.getAttributes().put("Session ID", session.getId());
+				event.getAttributes().put("User ID", String.valueOf(authenticateUserId));
+				event.getAttributes().put("User Name", username);
+				systemLogger.logSystemEvent(event);
+				
 				return true;
 			}
 
@@ -64,11 +75,17 @@ public class UserServlet extends MirthServlet {
 		} catch (ControllerException e) {
 			throw new ServletException(e);
 		}
+		
 	}
 
 	private void logout(HttpSession session) {
 		session.removeAttribute(SESSION_USER);
 		session.removeAttribute(SESSION_AUTHORIZED);
 		session.invalidate();
+		
+		// log the event
+		SystemEvent event = new SystemEvent("User logged out.");
+		event.getAttributes().put("Session ID", session.getId());
+		systemLogger.logSystemEvent(event);
 	}
 }

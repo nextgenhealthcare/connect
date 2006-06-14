@@ -77,14 +77,10 @@ public class ChannelTest extends TestCase {
 		channel.setDescription("This is a test interface.");
 		channel.setEnabled(true);
 		channel.setDirection(Channel.Direction.INBOUND);
-		channel.setInitialStatus("STOPPED");
 		channel.setMode(Channel.Mode.ROUTER);
 		channel.setModified(false);
 		
 		channel.setSourceConnector(sourceConnector);
-
-		channel.setFilter(filter);
-		channel.setValidator(validator);
 
 		channel.getDestinationConnectors().add(destinationConnector1);
 		channel.getDestinationConnectors().add(destinationConnector2);

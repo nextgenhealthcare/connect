@@ -42,11 +42,12 @@ import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.Connector;
 import com.webreach.mirth.model.Transformer;
 import com.webreach.mirth.model.Transport;
+import com.webreach.mirth.model.converters.DocumentSerializer;
 import com.webreach.mirth.server.util.PropertyLoader;
 
 /**
- * A MuleConfigurationBuilder is used to generate Mule configuration files based
- * on the current internal Channel configuration.
+ * A MuleConfigurationBuilder is used to generate Mule configurations based on
+ * the current internal Channel configuration.
  * 
  * @author geraldb
  * 
@@ -63,11 +64,16 @@ public class MuleConfigurationBuilder {
 		this.transports = transports;
 	}
 
-	public Document getConfiguration() throws ConfigurationBuilderException {
+	public String getConfiguration() throws BuilderException {
+		DocumentSerializer docSerializer = new DocumentSerializer(cDataElements);
+		return docSerializer.toXML(getConfigurationDocument());
+	}
+
+	private Document getConfigurationDocument() throws BuilderException {
 		logger.debug("generating mule configuration");
 
 		if ((channels == null) || (transports == null)) {
-			throw new ConfigurationBuilderException();
+			throw new BuilderException("Invalid channel or transport list.");
 		}
 
 		try {
@@ -81,169 +87,166 @@ public class MuleConfigurationBuilder {
 			// create descriptors
 			for (Iterator iter = channels.iterator(); iter.hasNext();) {
 				Channel channel = (Channel) iter.next();
-				modelElement.appendChild(getDescriptor(document, muleConfigurationElement, channel));
+
+				if (channel.isEnabled()) {
+					modelElement.appendChild(getDescriptor(document, muleConfigurationElement, channel));
+				}
 			}
 
 			return document;
 		} catch (Exception e) {
-			throw new ConfigurationBuilderException(e);
+			throw new BuilderException(e);
 		}
 	}
 
-	private Element getDescriptor(Document document, Element configurationElement, Channel channel) throws ConfigurationBuilderException {
+	private Element getDescriptor(Document document, Element configurationElement, Channel channel) throws BuilderException {
 		try {
 			Element muleDescriptorElement = document.createElement("mule-descriptor");
-			muleDescriptorElement.setAttribute("implementation", "com.webreach.mirth.mule.components.Channel");
+			muleDescriptorElement.setAttribute("implementation", "com.webreach.mirth.mule.components.ChannelComponent");
 			muleDescriptorElement.setAttribute("name", String.valueOf(channel.getId()));
-			muleDescriptorElement.setAttribute("initialState", channel.getInitialStatus().toString());
+			muleDescriptorElement.setAttribute("initialState", "stopped");
 
 			// inbound-router
 			muleDescriptorElement.appendChild(getInboundRouter(document, configurationElement, channel));
-			 
+
 			// outbound-router
 			muleDescriptorElement.appendChild(getOutboundRouter(document, configurationElement, channel));
 
 			return muleDescriptorElement;
 		} catch (Exception e) {
-			throw new ConfigurationBuilderException(e);
+			throw new BuilderException(e);
 		}
 	}
 
-	private Element getInboundRouter(Document document, Element configurationElement, Channel channel) throws ConfigurationBuilderException {
+	private Element getInboundRouter(Document document, Element configurationElement, Channel channel) throws BuilderException {
 		try {
 			Element inboundRouterElement = document.createElement("inbound-router");
 			Element endpointElement = document.createElement("endpoint");
 			endpointElement.setAttribute("address", channel.getSourceConnector().getProperties().getProperty("address"));
-			
+
 			String connectorReference = String.valueOf(channel.getId()) + "_source";
-			
+
 			// add the source connector
 			addConnector(document, configurationElement, channel.getSourceConnector(), connectorReference);
 			endpointElement.setAttribute("connector", connectorReference);
-			
+
 			// add the transformer for the connector
 			Transport transport = transports.get(channel.getSourceConnector().getTransportName());
 			addTransformer(document, configurationElement, channel.getSourceConnector().getTransformer(), connectorReference);
-			// prepend the necessary transformers required by this transport to turn it into proper format for the transformer
+			// prepend the necessary transformers required by this transport to
+			// turn it into proper format for the transformer
 			endpointElement.setAttribute("transformers", transport.getTransformers() + " " + connectorReference);
-			
+
 			Element routerElement = document.createElement("router");
 			routerElement.setAttribute("className", "org.mule.routing.inbound.SelectiveConsumer");
 
 			Element filterElement = document.createElement("filter");
-			filterElement.setAttribute("className", null);
+			filterElement.setAttribute("className", "com.webreach.mirth.mule.filters.JavaScriptFilter");
 
-			Element propertiesElement = document.createElement("properties");
-			Element propertyElement = document.createElement("property");
-			propertyElement.setAttribute("name", "script");
-			propertyElement.setAttribute("value", channel.getFilter().getScript());
-			propertiesElement.appendChild(propertyElement);
+			// add the filter script properties
+			Properties properties = new Properties();
+			properties.put("script", channel.getSourceConnector().getFilter().getScript());
+			filterElement.appendChild(getProperties(document, properties));
 
-			filterElement.appendChild(propertiesElement);
 			routerElement.appendChild(filterElement);
 			inboundRouterElement.appendChild(routerElement);
 
 			return inboundRouterElement;
 		} catch (Exception e) {
-			throw new ConfigurationBuilderException(e);
+			throw new BuilderException(e);
 		}
 	}
-	
-	private Element getOutboundRouter(Document document, Element configurationElement, Channel channel) throws ConfigurationBuilderException {
+
+	private Element getOutboundRouter(Document document, Element configurationElement, Channel channel) throws BuilderException {
 		try {
 			Element outboundRouterElement = document.createElement("outbound-router");
-			Element routerElement = document.createElement("router");
-			routerElement.setAttribute("className", "org.mule.routing.outbound.MulticastingRouter");
-
 			int connectorIndex = 0;
-			
+
 			for (Iterator iter = channel.getDestinationConnectors().iterator(); iter.hasNext();) {
 				Connector connector = (Connector) iter.next();
+
+				Element routerElement = document.createElement("router");
+				routerElement.setAttribute("className", "org.mule.routing.outbound.FilteringOutboundRouter");
+
 				Element endpointElement = document.createElement("endpoint");
 				endpointElement.setAttribute("address", connector.getProperties().getProperty("address"));
-				
+
 				String connectorReference = String.valueOf(channel.getId()) + "_destination_" + String.valueOf(connectorIndex);
-				
+
 				// add the destination connector
 				addConnector(document, configurationElement, connector, connectorReference);
 				endpointElement.setAttribute("connector", connectorReference);
-				
+
 				// add the transformer for this destination connector
 				Transport transport = transports.get(connector.getTransportName());
 				addTransformer(document, configurationElement, connector.getTransformer(), connectorReference);
 				endpointElement.setAttribute("transformer", transport.getTransformers() + " " + connectorReference);
-				
+
 				routerElement.appendChild(endpointElement);
+
+				// add the filter
+				Element filterElement = document.createElement("filter");
+				filterElement.setAttribute("className", "com.webreach.mirth.mule.filters.JavaScriptFilter");
+
+				// add the filter script properties
+				Properties properties = new Properties();
+				properties.put("script", connector.getFilter().getScript());
+				filterElement.appendChild(getProperties(document, properties));
+
+				routerElement.appendChild(filterElement);
+
+				outboundRouterElement.appendChild(routerElement);
 				connectorIndex++;
 			}
 
-			outboundRouterElement.appendChild(routerElement);
 			return outboundRouterElement;
 		} catch (Exception e) {
-			throw new ConfigurationBuilderException(e);
+			throw new BuilderException(e);
 		}
 	}
-	
-	private void addTransformer(Document document, Element configurationElement, Transformer transformer, String name) throws ConfigurationBuilderException {
+
+	private void addTransformer(Document document, Element configurationElement, Transformer transformer, String name) throws BuilderException {
 		try {
 			Element transformersElement = (Element) configurationElement.getElementsByTagName("transformers").item(0);
 			Element transformerElement = document.createElement("transformer");
 			transformerElement.setAttribute("name", name);
+			transformerElement.setAttribute("className", "com.webreach.mirth.mule.transformers.JavaScriptTransformer");
 
-			String className = new String();
-			
-			// if the transformer is of Type SCRIPT, determine which language is used
-			if (transformer.getType().equals(Transformer.Type.SCRIPT)) {
-				if (transformer.getLanguage().equals(Transformer.Language.JAVASCRIPT)) {
-					className = "com.webreach.mirth.mule.transformers.JavaScriptTransformer";	
-				} else if (transformer.getLanguage().equals(Transformer.Language.PYTHON)) {
-					className = "com.webreach.mirth.mule.transformers.PythonTransformer";	
-				} else if (transformer.getLanguage().equals(Transformer.Language.TCL)) {
-					className = "com.webreach.mirth.mule.transformers.TclTransformer";	
-				}
-			} else if (transformer.getType().equals(Transformer.Type.MAP)) {
-				className = "com.webreach.mirth.mule.transformers.JavaScriptTransformer";
-			} else if (transformer.getType().equals(Transformer.Type.XSLT)) {
-				className = "com.webreach.mirth.mule.transformers.XsltTransformer";
-			}
-
-			transformerElement.setAttribute("className", className);
-
+			// add the transformer script properties
 			Properties properties = new Properties();
 			properties.put("script", transformer.getScript());
-
-			// append properties to transformerElement
 			transformerElement.appendChild(getProperties(document, properties));
-			
+
 			transformersElement.appendChild(transformerElement);
 		} catch (Exception e) {
-			throw new ConfigurationBuilderException(e);
+			throw new BuilderException(e);
 		}
 	}
 
-	private void addConnector(Document document, Element configurationElement, Connector connector, String name) throws ConfigurationBuilderException {
+	private void addConnector(Document document, Element configurationElement, Connector connector, String name) throws BuilderException {
 		try {
-			// get the transport associated with this class from the transport map
+			// get the transport associated with this class from the transport
+			// map
 			Transport transport = transports.get(connector.getTransportName());
 			Element connectorElement = document.createElement("connector");
-			connectorElement.setAttribute("className", transport.getClassName());
 			connectorElement.setAttribute("name", name);
-			
+			connectorElement.setAttribute("className", transport.getClassName());
+
 			// TODO: (maybe) create a ConnectorProperty object that has
 			// name, value, and isMuleProperty attribute
 			// then only add the properties that have isMuleProperty set to true
 			// TODO: handle the case where a queries map is added
 			connectorElement.appendChild(getProperties(document, connector.getProperties()));
-			
+
 			configurationElement.appendChild(connectorElement);
 		} catch (Exception e) {
-			throw new ConfigurationBuilderException(e);
+			throw new BuilderException(e);
 		}
 	}
-	
+
 	private Element getProperties(Document document, Properties properties) {
 		Element propertiesElement = document.createElement("properties");
-		
+
 		for (Iterator iter = properties.entrySet().iterator(); iter.hasNext();) {
 			Entry property = (Entry) iter.next();
 			Element propertyElement = document.createElement("property");
@@ -251,7 +254,7 @@ public class MuleConfigurationBuilder {
 			propertyElement.setAttribute("value", property.getValue().toString());
 			propertiesElement.appendChild(propertyElement);
 		}
-		
+
 		return propertiesElement;
 	}
 }

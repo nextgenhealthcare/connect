@@ -31,7 +31,7 @@ public class MessageLogger {
 	 * @param messageEvent
 	 * @throws ControllerException
 	 */
-	public void logMessageEvent(MessageEvent messageEvent) throws ControllerException {
+	public void logMessageEvent(MessageEvent messageEvent) {
 		logger.debug("adding message event: " + messageEvent.getChannelId());
 		
 		try {
@@ -46,7 +46,7 @@ public class MessageLogger {
 			insert.append("'" + messageEvent.getMessage() + "');");
 			dbConnection.update(insert.toString());
 		} catch (Exception e) {
-			throw new ControllerException("Could not add message for channel " + messageEvent.getChannelId(), e);
+			logger.error("could not log message: channel id = " + messageEvent.getChannelId(), e);
 		}
 	}
 	

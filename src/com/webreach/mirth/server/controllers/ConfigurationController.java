@@ -26,7 +26,6 @@
 package com.webreach.mirth.server.controllers;
 
 import java.io.BufferedWriter;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
@@ -40,8 +39,8 @@ import org.apache.log4j.Logger;
 
 import com.truemesh.squiggle.SelectQuery;
 import com.truemesh.squiggle.Table;
+import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.model.Transport;
-import com.webreach.mirth.model.converters.DocumentSerializer;
 import com.webreach.mirth.server.Command;
 import com.webreach.mirth.server.CommandQueue;
 import com.webreach.mirth.server.builders.MuleConfigurationBuilder;
@@ -57,16 +56,9 @@ import com.webreach.mirth.server.util.PropertyLoader;
  */
 public class ConfigurationController {
 	private Logger logger = Logger.getLogger(ConfigurationController.class);
+	private SystemLogger systemLogger = new SystemLogger();
 	private DatabaseConnection dbConnection;
 
-	/**
-	 * Returns a List containing the transport with the specified
-	 * <code>id</code>. If the <code>id</code> is <code>null</code>, all
-	 * transports are returned.
-	 * 
-	 * @return
-	 * @throws ControllerException
-	 */
 	public Map<String, Transport> getTransports() throws ControllerException {
 		logger.debug("retrieving transport list");
 
@@ -175,22 +167,20 @@ public class ConfigurationController {
 		try {
 			ChannelController channelController = new ChannelController();
 			CommandQueue queue = CommandQueue.getInstance();
-			ByteArrayOutputStream os = new ByteArrayOutputStream();
-			DocumentSerializer docSerializer = new DocumentSerializer();
 
 			// instantiate a new configuration builder given the current channel
 			// and transport list
 			MuleConfigurationBuilder builder = new MuleConfigurationBuilder(channelController.getChannels(null), getTransports());
-			// generate the new configuraton and serialize it to XML
-			docSerializer.serialize(builder.getConfiguration(), MuleConfigurationBuilder.cDataElements, os);
 			// add the newly generated configuration to the database
-			addConfiguration(os.toString());
+			addConfiguration(builder.getConfiguration());
 			// restart the mule engine which will grab the latest configuration
 			// from the database
 			queue.addCommand(new Command(Command.CMD_RESTART_MULE));
 		} catch (Exception e) {
 			throw new ControllerException(e);
 		}
+		
+		systemLogger.logSystemEvent(new SystemEvent("Channels deployed."));
 	}
 
 	/**

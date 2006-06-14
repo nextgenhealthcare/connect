@@ -31,20 +31,25 @@ import java.util.Properties;
 public class SystemEvent {
 	private int id;
 	private int channelId;
-	private int level;
+	private int level = 0;
 	private Timestamp date;
 	private String event;
 	private String description;
 	private Properties attributes;
 
 	public SystemEvent() {
-
+		this.attributes = new Properties();
 	}
 
-	public SystemEvent(int channelId, String event, int level) {
+	public SystemEvent(String event) {
+		this.attributes = new Properties();
+		this.description = event;
+	}
+
+	public SystemEvent(int channelId, String event) {
+		this.attributes = new Properties();
 		this.channelId = channelId;
 		this.description = event;
-		this.level = level;
 	}
 
 	public int getChannelId() {
