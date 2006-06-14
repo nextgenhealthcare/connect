@@ -66,7 +66,7 @@ public class DatabaseUtil {
 	 * 
 	 * @return a String representation of a SQL Timestamp with the current time.
 	 */
-	public static String getNowTimestamp() {
+	public static String getNow() {
 		return (new Timestamp(new GregorianCalendar().getTimeInMillis())).toString();
 	}
 }

@@ -39,7 +39,7 @@ public class MessageLogger {
 			StringBuilder insert = new StringBuilder();
 			insert.append("INSERT INTO MESSAGES (CHANNEL_ID, DATE_CREATED, SENDING_FACILITY, EVENT, CONTROL_ID, MESSAGE) VALUES(");
 			insert.append(messageEvent.getChannelId() + ", ");
-			insert.append("'" + DatabaseUtil.getNowTimestamp() + "', ");
+			insert.append("'" + DatabaseUtil.getNow() + "', ");
 			insert.append("'" + messageEvent.getSendingFacility() + "', ");
 			insert.append("'" + messageEvent.getEvent() + "', ");
 			insert.append("'" + messageEvent.getControlId() + "', ");

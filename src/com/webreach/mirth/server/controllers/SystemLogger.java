@@ -33,9 +33,9 @@ public class SystemLogger {
 			StringBuilder insert = new StringBuilder();
 			insert.append("INSERT INTO EVENTS (CHANNEL_ID, DATE_CREATED, EVENT, EVENT_LEVEL) VALUES(");
 			insert.append(systemEvent.getChannelId() + ", ");
-			insert.append("'" + DatabaseUtil.getNowTimestamp() + "', ");
+			insert.append("'" + DatabaseUtil.getNow() + "', ");
 			insert.append("'" + systemEvent.getDescription() + "', ");
-			insert.append(systemEvent.getLevel() + ";");
+			insert.append(systemEvent.getLevel() + ");");
 			dbConnection.update(insert.toString());
 		} catch (Exception e) {
 			logger.error("could not log system event", e);

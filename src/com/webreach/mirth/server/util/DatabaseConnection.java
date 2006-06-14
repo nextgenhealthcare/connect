@@ -39,7 +39,7 @@ import org.apache.log4j.Logger;
 /**
  * A DatabaseConnection provides a connection to the internal Mirth database.
  * 
- * @author geraldb
+ * @author <a href="mailto:geraldb@webreachinc.com">Gerald Bortis</a>
  *
  */
 public class DatabaseConnection {

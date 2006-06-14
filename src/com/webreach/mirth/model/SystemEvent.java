@@ -31,7 +31,7 @@ import java.util.Properties;
 /**
  * A SystemEvent represents a system event which can be logged. 
  * 
- * @author geraldb
+ * @author <a href="mailto:geraldb@webreachinc.com">Gerald Bortis</a>
  *
  */
 public class SystemEvent {

@@ -29,7 +29,7 @@ package com.webreach.mirth.model;
  * A Filter represents a script which is executed on each message and either
  * accepts or rejects the message.
  * 
- * @author geraldb
+ * @author <a href="mailto:geraldb@webreachinc.com">Gerald Bortis</a>
  * 
  */
 public class Filter implements Script {

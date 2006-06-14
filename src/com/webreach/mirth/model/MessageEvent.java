@@ -27,6 +27,12 @@ package com.webreach.mirth.model;
 
 import java.sql.Timestamp;
 
+/**
+ * 
+ * 
+ * @author <a href="mailto:geraldb@webreachinc.com">Gerald Bortis</a>
+ *
+ */
 public class MessageEvent {
 	private int id;
 	private int channelId;

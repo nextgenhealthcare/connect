@@ -27,10 +27,6 @@
 package com.webreach.mirth.server.controllers;
 
 public class ControllerException extends Exception {
-	public ControllerException() {
-		super();
-	}
-	
 	public ControllerException(Throwable cause) {
 		super(cause);
 	}

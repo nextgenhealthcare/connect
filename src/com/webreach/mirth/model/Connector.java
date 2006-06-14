@@ -32,7 +32,7 @@ import java.util.Properties;
  * Connector has an associated Filter and Transformer. A connector is also of a
  * specific Transport type (TCP, HTTP, etc.).
  * 
- * @author geraldb
+ * @author <a href="mailto:geraldb@webreachinc.com">Gerald Bortis</a>
  * 
  */
 public class Connector {

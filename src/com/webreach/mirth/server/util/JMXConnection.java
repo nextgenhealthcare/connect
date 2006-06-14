@@ -40,7 +40,7 @@ import org.apache.log4j.Logger;
 /**
  * A JMXConnection provides a connection to the Mule MBean server.
  * 
- * @author geraldb
+ * @author <a href="mailto:geraldb@webreachinc.com">Gerald Bortis</a>
  * 
  */
 public class JMXConnection {

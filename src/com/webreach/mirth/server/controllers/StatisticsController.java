@@ -114,7 +114,7 @@ public class StatisticsController {
 
 			return ((Long) jmxConnection.getAttribute(properties, statistic)).intValue();
 		} catch (Exception e) {
-			throw new ControllerException();
+			throw new ControllerException("Could not retrieve statistic.");
 		}
 	}
 

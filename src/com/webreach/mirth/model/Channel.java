@@ -33,7 +33,7 @@ import java.util.Properties;
  * A Channel is the main element of the Mirth architecture. Channels connect a
  * single source with multiple destinations which are represented by Connectors.
  * 
- * @author geraldb
+ * @author <a href="mailto:geraldb@webreachinc.com">Gerald Bortis</a>
  * 
  */
 public class Channel {

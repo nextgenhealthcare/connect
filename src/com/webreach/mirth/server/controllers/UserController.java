@@ -42,6 +42,7 @@ public class UserController {
 
 			select.addColumn(users, "id");
 			select.addColumn(users, "username");
+			select.addColumn(users, "password");
 
 			if (userId != null) {
 				select.addCriteria(new MatchCriteria(users, "id", MatchCriteria.EQUALS, userId.toString()));
@@ -70,9 +71,9 @@ public class UserController {
 
 		while (result.next()) {
 			User user = new User();
-			user.setId(result.getInt("ID"));
-			user.setUsername(result.getString("USERNAME"));
-			user.setPassword(result.getString("PASSWORD"));
+			user.setId(result.getInt("id"));
+			user.setUsername(result.getString("username"));
+			user.setPassword(result.getString("password"));
 			users.add(user);
 		}
 
@@ -154,9 +155,14 @@ public class UserController {
 
 		try {
 			dbConnection = new DatabaseConnection();
-			StringBuffer query = new StringBuffer();
-			query.append("SELECT ID FROM USERS WHERE USERNAME = '" + username + "' AND PASSWORD = '" + password + "';");
-			result = dbConnection.query(query.toString());
+			
+			Table users = new Table("users");
+			SelectQuery select = new SelectQuery(users);
+			select.addColumn(users, "id");
+			select.addCriteria(new MatchCriteria(users, "username", MatchCriteria.EQUALS, username));
+			select.addCriteria(new MatchCriteria(users, "password", MatchCriteria.EQUALS, password));
+			
+			result = dbConnection.query(select.toString());
 
 			while (result.next()) {
 				return result.getInt("ID");

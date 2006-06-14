@@ -3,7 +3,7 @@ package com.webreach.mirth.model;
 /**
  * A ChannelStatus represents the status of a deployed Channel.
  * 
- * @author geraldb
+ * @author <a href="mailto:geraldb@webreachinc.com">Gerald Bortis</a>
  * 
  */
 public class ChannelStatus {
