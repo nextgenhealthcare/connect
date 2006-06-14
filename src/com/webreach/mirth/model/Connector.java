@@ -29,9 +29,8 @@ import java.util.Properties;
 
 /**
  * A Connector represents a connection to either a source or destination. Each
- * Connector has an associated Transformer which performs the appropriate
- * transformation. A connector is also of a specific Transport type (TCP, HTTP,
- * etc.).
+ * Connector has an associated Filter and Transformer. A connector is also of a
+ * specific Transport type (TCP, HTTP, etc.).
  * 
  * @author geraldb
  * 

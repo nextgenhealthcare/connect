@@ -1,5 +1,11 @@
 package com.webreach.mirth.model;
 
+/**
+ * A ChannelStatus represents the status of a deployed Channel.
+ * 
+ * @author geraldb
+ * 
+ */
 public class ChannelStatus {
 	public enum State {
 		STARTED, STOPPED, PAUSED

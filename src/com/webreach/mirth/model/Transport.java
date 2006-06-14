@@ -88,12 +88,12 @@ public class Transport {
 	public String toString() {
 		StringBuilder buffer = new StringBuilder();
 		buffer.append("Transport[");
-		buffer.append(getName() + ", ");
-		buffer.append(getDisplayName() + ", ");
-		buffer.append(getType().toString() + ", ");
-		buffer.append(getClassName() + ", ");
-		buffer.append("'" + getTransformers() + "', ");
-		buffer.append(getProtocol());
+		buffer.append("name=" + getName() + ", ");
+		buffer.append("displayName=" + getDisplayName() + ", ");
+		buffer.append("type=" + getType().toString() + ", ");
+		buffer.append("className=" + getClassName() + ", ");
+		buffer.append("transformers=" + getTransformers() + ", ");
+		buffer.append("protocol=" + getProtocol());
 		buffer.append("]");
 		return buffer.toString();
 	}

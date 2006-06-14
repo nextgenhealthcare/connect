@@ -2,6 +2,12 @@ package com.webreach.mirth.server.controllers.filters;
 
 import java.sql.Timestamp;
 
+/**
+ * A SystemEventFilter is used to search the system event log.
+ * 
+ * @author geraldb
+ *
+ */
 public class SystemEventFilter {
 	private int id = -1;
 	private int channelId = -1;

@@ -28,6 +28,12 @@ package com.webreach.mirth.model;
 import java.sql.Timestamp;
 import java.util.Properties;
 
+/**
+ * A SystemEvent represents a system event which can be logged. 
+ * 
+ * @author geraldb
+ *
+ */
 public class SystemEvent {
 	private int id;
 	private int channelId;
@@ -110,7 +116,7 @@ public class SystemEvent {
 
 	public String toString() {
 		StringBuilder buffer = new StringBuilder();
-		buffer.append("System Event[");
+		buffer.append("SystemEvent[");
 		buffer.append("id=" + getId() + ", ");
 		buffer.append("channelId=" + getChannelId() + ", ");
 		buffer.append("level=" + getLevel() + ", ");
@@ -120,5 +126,4 @@ public class SystemEvent {
 		buffer.append("]");
 		return buffer.toString();
 	}
-
 }

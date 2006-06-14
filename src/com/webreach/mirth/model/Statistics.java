@@ -37,4 +37,16 @@ public class Statistics {
 	public void setSentCount(int sentCount) {
 		this.sentCount = sentCount;
 	}
+	
+	public String toString() {
+		StringBuilder buffer = new StringBuilder();
+		buffer.append("Statistics[");
+		buffer.append("errorCount=" + getErrorCount() + ", ");
+		buffer.append("queueSize=" + getQueueSize() + ", ");
+		buffer.append("receivedCount=" + getReceivedCount() + ", ");
+		buffer.append("sentCount=" + getSentCount() + ", ");
+		buffer.append("]");
+		return buffer.toString();
+	}
+
 }

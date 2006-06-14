@@ -2,12 +2,14 @@ package com.webreach.mirth.server.mule.transformers;
 
 import java.util.HashMap;
 
+import org.apache.log4j.Logger;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 import org.mule.transformers.AbstractTransformer;
 import org.mule.umo.transformer.TransformerException;
 
 public class JavaScriptTransformer extends AbstractTransformer {
+	private Logger logger = Logger.getLogger(JavaScriptTransformer.class);
 	private String script;
 
 	public String getScript() {

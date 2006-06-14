@@ -58,6 +58,9 @@ public class MuleConfigurationBuilder {
 
 	private List<Channel> channels = null;
 	private Map<String, Transport> transports = null;
+	
+	private JavaScriptFilterBuilder filterBuilder = new JavaScriptFilterBuilder();
+	private JavaScriptTransformerBuilder transformerBuilder = new JavaScriptTransformerBuilder();
 
 	public MuleConfigurationBuilder(List<Channel> channels, Map<String, Transport> transports) {
 		this.channels = channels;
@@ -145,7 +148,7 @@ public class MuleConfigurationBuilder {
 
 			// add the filter script properties
 			Properties properties = new Properties();
-			properties.put("script", channel.getSourceConnector().getFilter().getScript());
+			properties.put("script", filterBuilder.getScript(channel.getSourceConnector().getFilter()));
 			filterElement.appendChild(getProperties(document, properties));
 
 			routerElement.appendChild(filterElement);
@@ -190,7 +193,7 @@ public class MuleConfigurationBuilder {
 
 				// add the filter script properties
 				Properties properties = new Properties();
-				properties.put("script", connector.getFilter().getScript());
+				properties.put("script", filterBuilder.getScript(connector.getFilter()));
 				filterElement.appendChild(getProperties(document, properties));
 
 				routerElement.appendChild(filterElement);
@@ -214,7 +217,7 @@ public class MuleConfigurationBuilder {
 
 			// add the transformer script properties
 			Properties properties = new Properties();
-			properties.put("script", transformer.getScript());
+			properties.put("script", transformerBuilder.getScript(transformer));
 			transformerElement.appendChild(getProperties(document, properties));
 
 			transformersElement.appendChild(transformerElement);

@@ -2,6 +2,12 @@ package com.webreach.mirth.server.controllers.filters;
 
 import java.sql.Timestamp;
 
+/**
+ * A MessageEventFilter is used to search the message event logs.
+ * 
+ * @author geraldb
+ *
+ */
 public class MessageEventFilter {
 	private int id = -1;
 	private int channelId = -1;
