@@ -26,7 +26,6 @@
 package com.webreach.mirth.model;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -36,7 +35,7 @@ import java.util.List;
  * @author <a href="mailto:geraldb@webreachinc.com">Gerald Bortis</a>
  * 
  */
-public class Transformer implements Script {
+public class Transformer {
 	private List<Step> steps;
 
 	public Transformer() {
@@ -49,16 +48,5 @@ public class Transformer implements Script {
 
 	public void setSteps(List<Step> steps) {
 		this.steps = steps;
-	}
-
-	public String getScript() {
-		StringBuilder builder = new StringBuilder();
-
-		for (Iterator iter = steps.iterator(); iter.hasNext();) {
-			Step step = (Step) iter.next();
-			builder.append(step.getScript() + "\n");
-		}
-
-		return builder.toString();
 	}
 }
