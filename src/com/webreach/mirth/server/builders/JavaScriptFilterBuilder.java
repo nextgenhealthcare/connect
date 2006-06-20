@@ -11,7 +11,7 @@ public class JavaScriptFilterBuilder {
 
 		for (Iterator iter = filter.getRules().iterator(); iter.hasNext();) {
 			Rule constraint = (Rule) iter.next();
-			builder.append(constraint.getScript() + "\n");
+			builder.append("return " + constraint.getScript() + ";\n");
 		}
 
 		return builder.toString();
