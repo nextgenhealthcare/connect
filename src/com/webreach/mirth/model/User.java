@@ -55,12 +55,12 @@ public class User {
 	}
 
 	public String toString() {
-		StringBuilder buffer = new StringBuilder();
-		buffer.append("User[");
-		buffer.append("id=" + getId() + ", ");
-		buffer.append("username=" + getUsername() + ", ");
-		buffer.append("password=" + getPassword());
-		buffer.append("]");
-		return buffer.toString();
+		StringBuilder builder = new StringBuilder();
+		builder.append("User[");
+		builder.append("id=" + getId() + ", ");
+		builder.append("username=" + getUsername() + ", ");
+		builder.append("password=" + getPassword());
+		builder.append("]");
+		return builder.toString();
 	}
 }

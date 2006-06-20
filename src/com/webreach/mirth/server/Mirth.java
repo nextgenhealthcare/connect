@@ -55,7 +55,7 @@ public class Mirth {
 	}
 
 	public Mirth() {
-		
+
 	}
 
 	public void start() {
@@ -112,9 +112,10 @@ public class Mirth {
 			// TODO: revert changes
 			logger.error("Invalid configuration.", e);
 			// remove the latest configuration from the database
-//			configurationService.revertConfiguration();
+			// configurationService.revertConfiguration();
 			// restart mule with the last good configuration
-//			commandQueue.addCommand(new Command(Command.CMD_START_MULE, Command.PRIORITY_HIGH));
+			// commandQueue.addCommand(new Command(Command.CMD_START_MULE,
+			// Command.PRIORITY_HIGH));
 		} catch (ControllerException e) {
 			logger.error(e);
 		}
@@ -125,12 +126,8 @@ public class Mirth {
 		logger.debug("stopping mule");
 
 		try {
-			if (muleManager.isInitialised()) {
-				muleManager.stop();
-				System.out.println("stopped mule");
-			} else {
-				commandQueue.addCommand(new Command(Command.CMD_STOP_MULE, Command.PRIORITY_HIGH));
-			}
+			muleManager.stop();
+			System.out.println("stopped mule");
 		} catch (Exception e) {
 			logger.error(e);
 		} finally {
@@ -154,7 +151,7 @@ public class Mirth {
 			SocketListener listener = new SocketListener();
 			listener.setPort(8080);
 			webServer.addListener(listener);
-			webServer.addWebApplication("/", "./jetty/webapps/mirth");
+			webServer.addWebApplication("/", "./jetty/webapps/mirth.war");
 			webServer.start();
 		} catch (Exception e) {
 			logger.error(e);

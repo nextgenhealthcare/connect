@@ -100,13 +100,13 @@ public class ChannelController {
 			StringBuilder statement = new StringBuilder();
 
 			if (getChannels(channel.getId()).isEmpty()) {
-				logger.debug("inserting channel: " + channel.getId());
+				logger.debug("inserting channel: channel id = " + channel.getId());
 				statement.append("INSERT INTO CHANNELS (ID, CHANNEL_NAME, CHANNEL_DATA) VALUES(");
 				statement.append(channel.getId() + ",");
 				statement.append("'" + channel.getName() + "',");
 				statement.append("'" + serializer.toXML(channel) + "');");
 			} else {
-				logger.debug("updating channel: " + channel.getId());
+				logger.debug("updating channel: channel id = " + channel.getId());
 				statement.append("UPDATE CHANNELS SET ");
 				statement.append("CHANNEL_NAME = '" + channel.getName() + "', ");
 				statement.append("CHANNEL_DATA = '" + serializer.toXML(channel) + "'");
@@ -129,7 +129,7 @@ public class ChannelController {
 	 * @throws ControllerException
 	 */
 	public void removeChannel(int channelId) throws ControllerException {
-		logger.debug("removing channel: " + channelId);
+		logger.debug("removing channel: channel id = " + channelId);
 
 		try {
 			dbConnection = new DatabaseConnection();
@@ -140,6 +140,35 @@ public class ChannelController {
 		} catch (SQLException e) {
 			throw new ControllerException(e);
 		} finally {
+			dbConnection.close();
+		}
+	}
+
+	/**
+	 * Returns the XML representation of the channel with the specified ID.
+	 * 
+	 * @param channelId
+	 *            ID of the channel to be exported.
+	 * @return the XML representation of the channel with the specified ID.
+	 * @throws ControllerException
+	 */
+	public String exportChannel(int channelId) throws ControllerException {
+		logger.debug("exporting channel: channel id = " + channelId);
+
+		ResultSet result = null;
+
+		try {
+			dbConnection = new DatabaseConnection();
+			Table channels = new Table("channels");
+			SelectQuery select = new SelectQuery(channels);
+			select.addColumn(channels, "channel_data");
+			select.addCriteria(new MatchCriteria(channels, "id", MatchCriteria.EQUALS, channelId));
+			result = dbConnection.query(select.toString());
+			return result.getString("channel_data");
+		} catch (SQLException e) {
+			throw new ControllerException(e);
+		} finally {
+			DatabaseUtil.close(result);
 			dbConnection.close();
 		}
 	}

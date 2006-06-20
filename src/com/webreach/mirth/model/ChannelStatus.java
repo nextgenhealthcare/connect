@@ -39,4 +39,13 @@ public class ChannelStatus {
 		this.state = state;
 	}
 
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("ChannelStatus[");
+		builder.append("channeldId=" + getChannelId() + ", ");
+		builder.append("name=" + getName() + ", ");
+		builder.append("state=" + getState().toString());
+		builder.append("]");
+		return builder.toString();
+	}
 }

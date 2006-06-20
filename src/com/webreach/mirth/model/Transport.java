@@ -31,7 +31,6 @@ public class Transport {
 	};
 
 	private String name;
-	private String displayName;
 	private String className;
 	private String transformers;
 	private String protocol;
@@ -43,14 +42,6 @@ public class Transport {
 
 	public void setClassName(String className) {
 		this.className = className;
-	}
-
-	public String getDisplayName() {
-		return this.displayName;
-	}
-
-	public void setDisplayName(String displayName) {
-		this.displayName = displayName;
 	}
 
 	public String getName() {
@@ -86,16 +77,15 @@ public class Transport {
 	}
 
 	public String toString() {
-		StringBuilder buffer = new StringBuilder();
-		buffer.append("Transport[");
-		buffer.append("name=" + getName() + ", ");
-		buffer.append("displayName=" + getDisplayName() + ", ");
-		buffer.append("type=" + getType().toString() + ", ");
-		buffer.append("className=" + getClassName() + ", ");
-		buffer.append("transformers=" + getTransformers() + ", ");
-		buffer.append("protocol=" + getProtocol());
-		buffer.append("]");
-		return buffer.toString();
+		StringBuilder builder = new StringBuilder();
+		builder.append("Transport[");
+		builder.append("name=" + getName() + ", ");
+		builder.append("type=" + getType().toString() + ", ");
+		builder.append("className=" + getClassName() + ", ");
+		builder.append("transformers=" + getTransformers() + ", ");
+		builder.append("protocol=" + getProtocol());
+		builder.append("]");
+		return builder.toString();
 	}
 
 }

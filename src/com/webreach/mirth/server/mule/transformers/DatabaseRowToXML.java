@@ -37,6 +37,8 @@ import org.mule.umo.UMOEventContext;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import com.webreach.mirth.model.converters.DocumentSerializer;
+
 /**
  * Transforms a database result row map into an XML string.
  *  
@@ -86,7 +88,8 @@ public class DatabaseRowToXML extends AbstractTransformer {
 				}
 				
 				// serialize the DOM object to a String
-				return MirthUtil.serializeDocument(document, false);
+				DocumentSerializer docSerializer = new DocumentSerializer();
+				return docSerializer.toXML(document);
 		} catch (Exception e) {
 			logger.error(e.toString());
 			

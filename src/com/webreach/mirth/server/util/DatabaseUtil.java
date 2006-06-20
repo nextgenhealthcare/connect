@@ -41,7 +41,9 @@ public class DatabaseUtil {
 	 */
 	public static void close(ResultSet result) throws RuntimeException {
 		try {
-			result.close();
+			if (result != null) {
+				result.close();	
+			}
 		} catch (Exception e) {
 			throw new RuntimeException();
 		}
@@ -55,7 +57,9 @@ public class DatabaseUtil {
 	 */
 	public static void close(Statement statement) throws RuntimeException {
 		try {
-			statement.close();
+			if (statement != null) {
+				statement.close();	
+			}
 		} catch (Exception e) {
 			throw new RuntimeException();
 		}

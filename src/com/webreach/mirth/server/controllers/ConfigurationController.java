@@ -71,10 +71,10 @@ public class ConfigurationController {
 			SelectQuery select = new SelectQuery(transports);
 			
 			select.addColumn(transports, "name");
-			select.addColumn(transports, "display_name");
 			select.addColumn(transports, "class_name");
 			select.addColumn(transports, "protocol");
 			select.addColumn(transports, "transformers");
+			select.addColumn(transports, "type");
 			
 			result = dbConnection.query(select.toString());
 			return getTransportMap(result);
@@ -99,10 +99,10 @@ public class ConfigurationController {
 		while (result.next()) {
 			Transport transport = new Transport();
 			transport.setName(result.getString("name"));
-			transport.setDisplayName(result.getString("display_name"));
 			transport.setClassName(result.getString("class_name"));
 			transport.setProtocol(result.getString("protocol"));
 			transport.setTransformers(result.getString("transformers"));
+			transport.setType(Transport.Type.valueOf(result.getString("type")));
 			transports.put(transport.getName(), transport);
 		}
 

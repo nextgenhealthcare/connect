@@ -39,14 +39,14 @@ public class Statistics {
 	}
 	
 	public String toString() {
-		StringBuilder buffer = new StringBuilder();
-		buffer.append("Statistics[");
-		buffer.append("errorCount=" + getErrorCount() + ", ");
-		buffer.append("queueSize=" + getQueueSize() + ", ");
-		buffer.append("receivedCount=" + getReceivedCount() + ", ");
-		buffer.append("sentCount=" + getSentCount() + ", ");
-		buffer.append("]");
-		return buffer.toString();
+		StringBuilder builder = new StringBuilder();
+		builder.append("Statistics[");
+		builder.append("errorCount=" + getErrorCount() + ", ");
+		builder.append("queueSize=" + getQueueSize() + ", ");
+		builder.append("receivedCount=" + getReceivedCount() + ", ");
+		builder.append("sentCount=" + getSentCount() + ", ");
+		builder.append("]");
+		return builder.toString();
 	}
 
 }

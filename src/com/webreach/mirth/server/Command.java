@@ -99,12 +99,12 @@ public class Command implements Comparable {
 	}
 
 	public String toString() {
-		StringBuilder buffer = new StringBuilder();
-		buffer.append(this.getClass().getSimpleName() + "[");
-		buffer.append(getCommand() + "/");
-		buffer.append(getPriority() + "/");
-		buffer.append(getParameter().toString());
-		buffer.append("]");
-		return buffer.toString();
+		StringBuilder builder = new StringBuilder();
+		builder.append(this.getClass().getSimpleName() + "[");
+		builder.append(getCommand() + "/");
+		builder.append(getPriority() + "/");
+		builder.append(getParameter().toString());
+		builder.append("]");
+		return builder.toString();
 	}
 }

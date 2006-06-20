@@ -130,7 +130,7 @@ public class Client {
 	 * @throws ClientException
 	 */
 	public void updateChannel(Channel channel) throws ClientException {
-		logger.debug("updating channel: " + channel.getId());
+		logger.debug("updating channel: channel id = " + channel.getId());
 		NameValuePair[] params = { new NameValuePair("op", "updateChannel"), new NameValuePair("data", serializer.toXML(channel)) };
 		executePostMethod(CHANNEL_SERVLET, params);
 	}
@@ -142,9 +142,21 @@ public class Client {
 	 * @throws ClientException
 	 */
 	public void removeChannel(int channelId) throws ClientException {
-		logger.debug("removing channel: " + channelId);
+		logger.debug("removing channel: channel id = " + channelId);
 		NameValuePair[] params = { new NameValuePair("op", "removeChannel"), new NameValuePair("data", String.valueOf(channelId)) };
 		executePostMethod(CHANNEL_SERVLET, params);
+	}
+
+	/**
+	 * Returns the XML representation of the channel with the specified ID.
+	 * 
+	 * @return
+	 * @throws ClientException
+	 */
+	public String exportChannel(int channelId) throws ClientException {
+		logger.debug("exporting channel: channel id = " + channelId);
+		NameValuePair[] params = { new NameValuePair("op", "exportChannel"), new NameValuePair("data", String.valueOf(channelId)) };
+		return executePostMethod(CHANNEL_SERVLET, params);
 	}
 
 	/**
@@ -178,7 +190,7 @@ public class Client {
 	 * @throws ClientException
 	 */
 	public void updateUser(User user) throws ClientException {
-		logger.debug("updating user: " + user.toString());
+		logger.debug("updating user: user id = " + user.toString());
 		NameValuePair[] params = { new NameValuePair("op", "updateUser"), new NameValuePair("data", serializer.toXML(user)) };
 		executePostMethod(USER_SERVLET, params);
 	}
@@ -190,7 +202,7 @@ public class Client {
 	 * @throws ClientException
 	 */
 	public void removeUser(int userId) throws ClientException {
-		logger.debug("removing user: " + userId);
+		logger.debug("removing user: user id = " + userId);
 		NameValuePair[] params = { new NameValuePair("op", "removeUser"), new NameValuePair("data", String.valueOf(userId)) };
 		executePostMethod(USER_SERVLET, params);
 	}
@@ -249,7 +261,7 @@ public class Client {
 	 * @throws ClientException
 	 */
 	public void startChannel(int channelId) throws ClientException {
-		logger.debug("starting channel: " + channelId);
+		logger.debug("starting channel: channel id = " + channelId);
 		NameValuePair[] params = { new NameValuePair("op", "startChannel"), new NameValuePair("id", String.valueOf(channelId)) };
 		executePostMethod(CHANNEL_STATUS_SERVLET, params);
 	}
@@ -261,7 +273,7 @@ public class Client {
 	 * @throws ClientException
 	 */
 	public void stopChannel(int channelId) throws ClientException {
-		logger.debug("stopping channel: " + channelId);
+		logger.debug("stopping channel: channel id = " + channelId);
 		NameValuePair[] params = { new NameValuePair("op", "stopChannel"), new NameValuePair("id", String.valueOf(channelId)) };
 		executePostMethod(CHANNEL_STATUS_SERVLET, params);	}
 
@@ -272,7 +284,7 @@ public class Client {
 	 * @throws ClientException
 	 */
 	public void pauseChannel(int channelId) throws ClientException {
-		logger.debug("pausing channel: " + channelId);
+		logger.debug("pausing channel: channel id = " + channelId);
 		NameValuePair[] params = { new NameValuePair("op", "pauseChannel"), new NameValuePair("id", String.valueOf(channelId)) };
 		executePostMethod(CHANNEL_STATUS_SERVLET, params);	}
 
@@ -283,7 +295,7 @@ public class Client {
 	 * @throws ClientException
 	 */
 	public void resumeChannel(int channelId) throws ClientException {
-		logger.debug("resuming channel: " + channelId);
+		logger.debug("resuming channel: channel id = " + channelId);
 		NameValuePair[] params = { new NameValuePair("op", "resumeChannel"), new NameValuePair("id", String.valueOf(channelId)) };
 		executePostMethod(CHANNEL_STATUS_SERVLET, params);	}
 
@@ -294,7 +306,7 @@ public class Client {
 	 * @throws ClientException
 	 */
 	public Statistics getStatistics(int channelId) throws ClientException {
-		logger.debug("retrieving channel statistics: " + channelId);
+		logger.debug("retrieving channel statistics: channel id = " + channelId);
 		NameValuePair[] params = { new NameValuePair("op", "getStatistics"), new NameValuePair("id", String.valueOf(channelId)) };
 		return (Statistics) serializer.fromXML(executePostMethod(STATISTICS_SERVLET, params));
 	}
@@ -306,7 +318,7 @@ public class Client {
 	 * @throws ClientException
 	 */
 	public void clearStatistics(int channelId) throws ClientException {
-		logger.debug("clearing channel statistics: " + channelId);
+		logger.debug("clearing channel statistics: channel id = " + channelId);
 		NameValuePair[] params = { new NameValuePair("op", "clearStistics"), new NameValuePair("id", String.valueOf(channelId)) };
 		executePostMethod(STATISTICS_SERVLET, params);
 	}

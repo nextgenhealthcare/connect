@@ -91,13 +91,13 @@ public class Connector {
 	}
 
 	public String toString() {
-		StringBuilder buffer = new StringBuilder();
-		buffer.append("Connector[");
-		buffer.append("name=" + getName() + ", ");
-		buffer.append("transportName=" + getTransportName() + ", ");
-		buffer.append("properties=" + getProperties());
-		buffer.append("]");
-		return buffer.toString();
+		StringBuilder builder = new StringBuilder();
+		builder.append("Connector[");
+		builder.append("name=" + getName() + ", ");
+		builder.append("transportName=" + getTransportName() + ", ");
+		builder.append("properties=" + getProperties());
+		builder.append("]");
+		return builder.toString();
 	}
 
 }

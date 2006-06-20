@@ -4,6 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
@@ -11,12 +12,14 @@ import com.truemesh.squiggle.MatchCriteria;
 import com.truemesh.squiggle.SelectQuery;
 import com.truemesh.squiggle.Table;
 import com.webreach.mirth.model.SystemEvent;
+import com.webreach.mirth.model.converters.ObjectSerializer;
 import com.webreach.mirth.server.controllers.filters.SystemEventFilter;
 import com.webreach.mirth.server.util.DatabaseConnection;
 import com.webreach.mirth.server.util.DatabaseUtil;
 
 public class SystemLogger {
 	private Logger logger = Logger.getLogger(SystemLogger.class);
+	private ObjectSerializer serializer = new ObjectSerializer();
 	private DatabaseConnection dbConnection;
 
 	/**
@@ -31,11 +34,13 @@ public class SystemLogger {
 		try {
 			dbConnection = new DatabaseConnection();
 			StringBuilder insert = new StringBuilder();
-			insert.append("INSERT INTO EVENTS (CHANNEL_ID, DATE_CREATED, EVENT, EVENT_LEVEL) VALUES(");
+			insert.append("INSERT INTO EVENTS (CHANNEL_ID, DATE_CREATED, EVENT, EVENT_LEVEL, DESCRIPTION, ATTRIBUTES) VALUES(");
 			insert.append(systemEvent.getChannelId() + ", ");
 			insert.append("'" + DatabaseUtil.getNow() + "', ");
+			insert.append("'" + systemEvent.getEvent() + "', ");
+			insert.append(systemEvent.getLevel() + ", ");
 			insert.append("'" + systemEvent.getDescription() + "', ");
-			insert.append(systemEvent.getLevel() + ");");
+			insert.append("'" + serializer.toXML(systemEvent.getAttributes()) + "');");
 			dbConnection.update(insert.toString());
 		} catch (Exception e) {
 			logger.error("could not log system event", e);
@@ -65,6 +70,8 @@ public class SystemLogger {
 			select.addColumn(events, "date_created");
 			select.addColumn(events, "event");
 			select.addColumn(events, "event_level");
+			select.addColumn(events, "description");
+			select.addColumn(events, "attributes");
 
 			// filter on id
 			if (filter.getId() != -1) {
@@ -127,11 +134,13 @@ public class SystemLogger {
 
 		while (result.next()) {
 			SystemEvent systemEvent = new SystemEvent();
-			systemEvent.setId(result.getInt("ID"));
-			systemEvent.setChannelId(result.getInt("CHANNEL_ID"));
-			systemEvent.setDate(result.getTimestamp("DATE_CREATED"));
-			systemEvent.setDescription(result.getString("EVENT"));
-			systemEvent.setLevel(result.getInt("EVENT_LEVEL"));
+			systemEvent.setId(result.getInt("id"));
+			systemEvent.setChannelId(result.getInt("channel_id"));
+			systemEvent.setDate(result.getTimestamp("date_created"));
+			systemEvent.setDescription(result.getString("event"));
+			systemEvent.setLevel(result.getInt("event_level"));
+			systemEvent.setDescription(result.getString("description"));
+			systemEvent.setAttributes((Properties) serializer.fromXML(result.getString("attributes")));
 			systemEvents.add(systemEvent);
 		}
 

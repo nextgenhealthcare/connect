@@ -49,13 +49,13 @@ public class SystemEvent {
 
 	public SystemEvent(String event) {
 		this.attributes = new Properties();
-		this.description = event;
+		this.event = event;
 	}
 
 	public SystemEvent(int channelId, String event) {
 		this.attributes = new Properties();
 		this.channelId = channelId;
-		this.description = event;
+		this.event = event;
 	}
 
 	public int getChannelId() {
@@ -115,15 +115,15 @@ public class SystemEvent {
 	}
 
 	public String toString() {
-		StringBuilder buffer = new StringBuilder();
-		buffer.append("SystemEvent[");
-		buffer.append("id=" + getId() + ", ");
-		buffer.append("channelId=" + getChannelId() + ", ");
-		buffer.append("level=" + getLevel() + ", ");
-		buffer.append("event=" + getEvent() + ", ");
-		buffer.append("description=" + getDescription() + ", ");
-		buffer.append("date=" + getDate().toString());
-		buffer.append("]");
-		return buffer.toString();
+		StringBuilder builder = new StringBuilder();
+		builder.append("SystemEvent[");
+		builder.append("id=" + getId() + ", ");
+		builder.append("channelId=" + getChannelId() + ", ");
+		builder.append("level=" + getLevel() + ", ");
+		builder.append("event=" + getEvent() + ", ");
+		builder.append("description=" + getDescription() + ", ");
+		builder.append("date=" + getDate().toString());
+		builder.append("]");
+		return builder.toString();
 	}
 }
