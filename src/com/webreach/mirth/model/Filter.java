@@ -25,6 +25,10 @@
 
 package com.webreach.mirth.model;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 /**
  * A Filter represents a script which is executed on each message and either
  * accepts or rejects the message.
@@ -33,22 +37,21 @@ package com.webreach.mirth.model;
  * 
  */
 public class Filter implements Script {
-	private String script;
+	private List<Constraint> constraints;
 
 	public Filter() {
-
-	}
-
-	public Filter(String script) {
-		this.script = script;
-	}
-
-	public void setScript(String script) {
-		this.script = script;
+		this.constraints = new ArrayList<Constraint>();
 	}
 
 	public String getScript() {
-		return script;
+		StringBuilder builder = new StringBuilder();
+
+		for (Iterator iter = constraints.iterator(); iter.hasNext();) {
+			Constraint constraint = (Constraint) iter.next();
+			builder.append(constraint.getScript() + "\n");
+		}
+
+		return builder.toString();
 	}
 
 }

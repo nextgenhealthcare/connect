@@ -25,10 +25,9 @@
 
 package com.webreach.mirth.model;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Map;
-import java.util.Map.Entry;
+import java.util.List;
 
 /**
  * A Transformer represents a script which is executed on each message passing
@@ -38,73 +37,28 @@ import java.util.Map.Entry;
  * 
  */
 public class Transformer implements Script {
-	public enum Type {
-		MAP, SCRIPT, XSLT
-	};
-
-	public enum Language {
-		JAVASCRIPT, PYTHON, TCL
-	};
-
-	private Map<String, String> variables;
-	private Type type;
-	private Language language;
+	private List<Step> steps;
 
 	public Transformer() {
-		variables = new HashMap<String, String>();
-		setType(Type.SCRIPT);
-		setLanguage(Language.JAVASCRIPT);
+		this.steps = new ArrayList<Step>();
 	}
 
-	public Transformer(Type type) {
-		variables = new HashMap<String, String>();
-		setType(type);
-		setLanguage(Language.JAVASCRIPT);
+	public List<Step> getSteps() {
+		return this.steps;
 	}
 
-	public Transformer(Type type, Language language) {
-		variables = new HashMap<String, String>();
-		setType(type);
-		setLanguage(language);
-	}
-
-	public Map<String, String> getVariables() {
-		return variables;
-	}
-
-	public Language getLanguage() {
-		return this.language;
-	}
-
-	public void setLanguage(Language language) {
-		this.language = language;
-	}
-
-	public void setType(Type type) {
-		this.type = type;
-	}
-
-	public Type getType() {
-		return type;
+	public void setSteps(List<Step> steps) {
+		this.steps = steps;
 	}
 
 	public String getScript() {
-		StringBuilder script = new StringBuilder();
+		StringBuilder builder = new StringBuilder();
 
-		if (!variables.isEmpty()) {
-			if (getType() == Type.MAP) {
-				for (Iterator iter = variables.entrySet().iterator(); iter.hasNext();) {
-					Entry entry = (Entry) iter.next();
-					script.append("map.put('" + entry.getKey().toString() + "', " + entry.getValue().toString() + ");");
-					script.append("\n");
-				}
-			} else if (getType() == Type.SCRIPT) {
-				script.append(variables.get("script").toString());
-			} else if (getType() == Type.XSLT) {
-				script.append(variables.get("xslt").toString());
-			}
+		for (Iterator iter = steps.iterator(); iter.hasNext();) {
+			Step step = (Step) iter.next();
+			builder.append(step.getScript() + "\n");
 		}
 
-		return script.toString().trim();
+		return builder.toString();
 	}
 }

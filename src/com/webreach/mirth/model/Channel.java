@@ -56,7 +56,9 @@ public class Channel {
 	private List<Connector> destinationConnectors = new ArrayList<Connector>();;
 	private Properties properties = new Properties();
 
-	public Channel() {}
+	public Channel() {
+		
+	}
 
 	public Channel(Direction direction) {
 		this.direction = direction;

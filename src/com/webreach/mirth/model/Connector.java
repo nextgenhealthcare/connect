@@ -43,11 +43,12 @@ public class Connector {
 	private String transportName;
 
 	public Connector() {
-		properties = new Properties();
+		this.properties = new Properties();
 	}
 
 	public Connector(String name) {
-		setName(name);
+		this.properties = new Properties();
+		this.name = name;
 	}
 
 	public String getName() {
