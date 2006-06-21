@@ -2,6 +2,7 @@ package com.webreach.mirth.server.controllers;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -73,20 +74,15 @@ public class SystemLogger {
 			select.addColumn(events, "description");
 			select.addColumn(events, "attributes");
 
-			// filter on id
-			if (filter.getId() != -1) {
-				select.addCriteria(new MatchCriteria(events, "id", MatchCriteria.EQUALS, filter.getId()));
-			}
-
 			// filter on channelId
 			if (filter.getChannelId() != -1) {
 				select.addCriteria(new MatchCriteria(events, "channel_id", MatchCriteria.EQUALS, filter.getChannelId()));
 			}
 
 			// filter on min and max date
-			if ((filter.getMinDate() != null) && (filter.getMaxDate() != null)) {
-				select.addCriteria(new MatchCriteria(events, "date_created", MatchCriteria.GREATEREQUAL, filter.getMinDate().toString()));
-				select.addCriteria(new MatchCriteria(events, "date_created", MatchCriteria.LESSEQUAL, filter.getMaxDate().toString()));
+			if ((filter.getStartDate() != null) && (filter.getEndDate() != null)) {
+				select.addCriteria(new MatchCriteria(events, "date_created", MatchCriteria.GREATEREQUAL, new Timestamp(filter.getStartDate().getTimeInMillis()).toString()));
+				select.addCriteria(new MatchCriteria(events, "date_created", MatchCriteria.LESSEQUAL, new Timestamp(filter.getEndDate().getTimeInMillis()).toString()));
 			}
 
 			// filter on level
@@ -97,7 +93,7 @@ public class SystemLogger {
 
 			// filter on event
 			if (filter.getEvent() != null) {
-				select.addCriteria(new MatchCriteria(events, "event", MatchCriteria.EQUALS, filter.getEvent()));
+				select.addCriteria(new MatchCriteria(events, "event", MatchCriteria.LIKE, filter.getEvent()));
 			}
 
 			result = dbConnection.query(select.toString());
@@ -137,7 +133,7 @@ public class SystemLogger {
 			systemEvent.setId(result.getInt("id"));
 			systemEvent.setChannelId(result.getInt("channel_id"));
 			systemEvent.setDate(result.getTimestamp("date_created"));
-			systemEvent.setDescription(result.getString("event"));
+			systemEvent.setEvent(result.getString("event"));
 			systemEvent.setLevel(result.getInt("event_level"));
 			systemEvent.setDescription(result.getString("description"));
 			systemEvent.setAttributes((Properties) serializer.fromXML(result.getString("attributes")));

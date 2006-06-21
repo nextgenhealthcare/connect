@@ -20,8 +20,8 @@ public class ChannelComponent implements Callable {
 	private void logMessageEvent(UMOEventContext eventContext) throws Exception {
 		int channelId = Integer.valueOf(eventContext.getComponentDescriptor().getName()).intValue();
 
-		PipeParser parser = new PipeParser();
-		Message message = parser.parse(eventContext.getMessageAsString());
+		PipeParser pipeParser = new PipeParser();
+		Message message = pipeParser.parse(eventContext.getMessageAsString());
 		Terser terser = new Terser(message);
 		String sendingFacility = terser.get("/MSH-3-1");
 		String controlId = terser.get("/MSH-10");

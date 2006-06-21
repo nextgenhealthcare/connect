@@ -1,20 +1,19 @@
 package com.webreach.mirth.model.filters;
 
-import java.sql.Timestamp;
+import java.util.Calendar;
 
 /**
  * A SystemEventFilter is used to search the system event log.
  * 
  * @author geraldb
- *
+ * 
  */
 public class SystemEventFilter {
-	private int id = -1;
 	private int channelId = -1;
 	private int minLevel = -1;
 	private int maxLevel = -1;
-	private Timestamp minDate;
-	private Timestamp maxDate;
+	private Calendar startDate;
+	private Calendar endDate;
 	private String event;
 
 	public int getChannelId() {
@@ -33,14 +32,6 @@ public class SystemEventFilter {
 		this.event = event;
 	}
 
-	public int getId() {
-		return this.id;
-	}
-
-	public void setId(int id) {
-		this.id = id;
-	}
-
 	public int getMaxLevel() {
 		return this.maxLevel;
 	}
@@ -57,19 +48,20 @@ public class SystemEventFilter {
 		this.minLevel = minLevel;
 	}
 
-	public Timestamp getMaxDate() {
-		return this.maxDate;
+	public Calendar getEndDate() {
+		return this.endDate;
 	}
 
-	public void setMaxDate(Timestamp maxDate) {
-		this.maxDate = maxDate;
+	public void setEndDate(Calendar endDate) {
+		this.endDate = endDate;
 	}
 
-	public Timestamp getMinDate() {
-		return this.minDate;
+	public Calendar getStartDate() {
+		return this.startDate;
 	}
 
-	public void setMinDate(Timestamp minDate) {
-		this.minDate = minDate;
+	public void setStartDate(Calendar startDate) {
+		this.startDate = startDate;
 	}
+
 }

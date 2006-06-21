@@ -29,9 +29,9 @@ public class JavaScriptFilter implements UMOFilter {
 			scope.put("logger", scope, logger);
 
 			String jsSource = "function debug(debug_message) { logger.debug(debug_message) } function doFilter() { default xml namespace = new Namespace(\"urn:hl7-org:v2xml\"); var msg = new XML(message); " + script + " } doFilter()";
-			Object accept = context.evaluateString(scope, jsSource, "<cmd>", 1, null);
+			Object result = context.evaluateString(scope, jsSource, "<cmd>", 1, null);
 
-			return ((Boolean) Context.jsToJava(accept, java.lang.Boolean.class)).booleanValue();
+			return ((Boolean) Context.jsToJava(result, java.lang.Boolean.class)).booleanValue();
 		} catch (Exception e) {
 			logger.error(e);
 			return false;

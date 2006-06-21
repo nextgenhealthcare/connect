@@ -2,6 +2,7 @@ package com.webreach.mirth.server.controllers;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -76,30 +77,25 @@ public class MessageLogger {
 			select.addColumn(messages, "control_id");
 			select.addColumn(messages, "message");
 			
-			// filter on id
-			if (filter.getId() != -1) {
-				select.addCriteria(new MatchCriteria(messages, "id", MatchCriteria.EQUALS, filter.getId()));
-			}
-			
 			// filter on channelId
 			if (filter.getChannelId() != -1) {
 				select.addCriteria(new MatchCriteria(messages, "channel_id", MatchCriteria.EQUALS, filter.getChannelId()));
 			}
 			
 			// filter on min and max date
-			if ((filter.getMinDate() != null) && (filter.getMaxDate() != null)) {
-				select.addCriteria(new MatchCriteria(messages, "date_created", MatchCriteria.GREATEREQUAL, filter.getMinDate().toString()));
-				select.addCriteria(new MatchCriteria(messages, "date_created", MatchCriteria.LESSEQUAL, filter.getMaxDate().toString()));
+			if ((filter.getStartDate() != null) && (filter.getEndDate() != null)) {
+				select.addCriteria(new MatchCriteria(messages, "date_created", MatchCriteria.GREATEREQUAL, new Timestamp(filter.getStartDate().getTimeInMillis()).toString()));
+				select.addCriteria(new MatchCriteria(messages, "date_created", MatchCriteria.LESSEQUAL, new Timestamp(filter.getEndDate().getTimeInMillis()).toString()));
 			}
 
 			// filter on sendingFacility
-			if (filter.getId() != -1) {
-				select.addCriteria(new MatchCriteria(messages, "sending_facility", MatchCriteria.EQUALS, filter.getSendingFacility()));
+			if (filter.getSendingFacility() != null) {
+				select.addCriteria(new MatchCriteria(messages, "sending_facility", MatchCriteria.LIKE, filter.getSendingFacility()));
 			}
 			
 			// filter on event
 			if (filter.getEvent() != null) {
-				select.addCriteria(new MatchCriteria(messages, "event", MatchCriteria.EQUALS, filter.getEvent()));
+				select.addCriteria(new MatchCriteria(messages, "event", MatchCriteria.LIKE, filter.getEvent()));
 			}
 
 			// filter on controlId

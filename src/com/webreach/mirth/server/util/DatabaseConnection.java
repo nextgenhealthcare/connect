@@ -23,7 +23,6 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
 package com.webreach.mirth.server.util;
 
 import java.sql.Connection;
@@ -35,18 +34,17 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
-
 /**
  * A DatabaseConnection provides a connection to the internal Mirth database.
  * 
  * @author <a href="mailto:geraldb@webreachinc.com">Gerald Bortis</a>
- *
+ * 
  */
 public class DatabaseConnection {
 	private Properties mirthProperties;
 	private Connection connection;
 	private Logger logger = Logger.getLogger(DatabaseConnection.class);
-	
+
 	/**
 	 * Initiliazes the Mirth database.
 	 * 
@@ -60,7 +58,7 @@ public class DatabaseConnection {
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	/**
 	 * Returns a new connection to the Mirth database.
 	 * 
@@ -69,7 +67,7 @@ public class DatabaseConnection {
 	 */
 	private Connection getConnection() throws SQLException {
 		try {
-			return DriverManager.getConnection(mirthProperties.getProperty("database.url"), "sa", "");	
+			return DriverManager.getConnection(mirthProperties.getProperty("database.url"), "sa", "");
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
@@ -78,14 +76,15 @@ public class DatabaseConnection {
 	/**
 	 * Executes a query on the database and returns a ResultSet.
 	 * 
-	 * @param expression the query expression to be executed.
+	 * @param expression
+	 *            the query expression to be executed.
 	 * @return the result of the query.
 	 * @throws SQLException
 	 */
 	public synchronized ResultSet query(String expression) throws SQLException {
 		Statement statement = null;
 		ResultSet result = null;
-		
+
 		try {
 			connection = getConnection();
 			statement = connection.createStatement();
@@ -103,13 +102,14 @@ public class DatabaseConnection {
 	/**
 	 * Executes an update on the database and returns the row count.
 	 * 
-	 * @param expression the update query to be executed.
+	 * @param expression
+	 *            the update query to be executed.
 	 * @return a count of the number of updated rows.
 	 * @throws SQLException
 	 */
 	public synchronized int update(String expression) throws SQLException {
 		Statement statement = null;
-		
+
 		try {
 			connection = getConnection();
 			statement = connection.createStatement();
@@ -124,24 +124,26 @@ public class DatabaseConnection {
 			DatabaseUtil.close(statement);
 		}
 	}
-	
+
 	/**
 	 * Closes the database connection.
 	 * 
 	 * @throws RuntimeException
 	 */
 	public void close() throws RuntimeException {
-		Statement statement = null;
-		
-		try {
-			statement = connection.createStatement();
-			statement.execute("SHUTDOWN");
-			logger.debug("closing database connection");
-			connection.close();
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		} finally {
-			DatabaseUtil.close(statement);
+		if (connection != null) {
+			Statement statement = null;
+
+			try {
+				statement = connection.createStatement();
+				statement.execute("SHUTDOWN");
+				logger.debug("closing database connection");
+				connection.close();
+			} catch (SQLException e) {
+				throw new RuntimeException(e);
+			} finally {
+				DatabaseUtil.close(statement);
+			}
 		}
 	}
 }

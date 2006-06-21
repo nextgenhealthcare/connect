@@ -1,18 +1,17 @@
 package com.webreach.mirth.model.filters;
 
-import java.sql.Timestamp;
+import java.util.Calendar;
 
 /**
  * A MessageEventFilter is used to search the message event logs.
  * 
  * @author geraldb
- *
+ * 
  */
 public class MessageEventFilter {
-	private int id = -1;
 	private int channelId = -1;
-	private Timestamp minDate;
-	private Timestamp maxDate;
+	private Calendar startDate;
+	private Calendar endDate;
 	private String sendingFacility;
 	private String event;
 	private String controlId;
@@ -41,28 +40,20 @@ public class MessageEventFilter {
 		this.event = event;
 	}
 
-	public int getId() {
-		return this.id;
+	public Calendar getEndDate() {
+		return this.endDate;
 	}
 
-	public void setId(int id) {
-		this.id = id;
+	public void setEndDate(Calendar endDate) {
+		this.endDate = endDate;
 	}
 
-	public Timestamp getMaxDate() {
-		return this.maxDate;
+	public Calendar getStartDate() {
+		return this.startDate;
 	}
 
-	public void setMaxDate(Timestamp maxDate) {
-		this.maxDate = maxDate;
-	}
-
-	public Timestamp getMinDate() {
-		return this.minDate;
-	}
-
-	public void setMinDate(Timestamp minDate) {
-		this.minDate = minDate;
+	public void setStartDate(Calendar startDate) {
+		this.startDate = startDate;
 	}
 
 	public String getSendingFacility() {
