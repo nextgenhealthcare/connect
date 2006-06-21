@@ -27,10 +27,6 @@
 package com.webreach.mirth.server.builders;
 
 public class BuilderException extends Exception {
-	public BuilderException() {
-		super();
-	}
-	
 	public BuilderException(Throwable cause) {
 		super(cause);
 	}

@@ -54,7 +54,7 @@ public class Step {
 		builder.append("name=" + getName() + ", ");
 		builder.append("script=" + getScript() + ", ");
 		builder.append("type=" + getType() + ", ");
-		builder.append("data=" + getData().toString() + ", ");
+		builder.append("data=" + getData().toString());
 		builder.append("]");
 		return builder.toString();
 	}
