@@ -131,10 +131,6 @@ public class DatabaseConnection {
 	 * @throws RuntimeException
 	 */
 	public void close() throws RuntimeException {
-		if (connection == null) {
-			logger.warn("database connection cannot be closed");
-		}
-		
 		Statement statement = null;
 		
 		try {
