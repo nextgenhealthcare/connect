@@ -47,4 +47,15 @@ public class Step {
 		this.type = type;
 	}
 
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("Step[");
+		builder.append("sequenceNumber=" + getSequenceNumber() + ", ");
+		builder.append("name=" + getName() + ", ");
+		builder.append("script=" + getScript() + ", ");
+		builder.append("type=" + getType() + ", ");
+		builder.append("data=" + getData().toString() + ", ");
+		builder.append("]");
+		return builder.toString();
+	}
 }

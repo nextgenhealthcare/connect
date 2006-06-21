@@ -125,7 +125,14 @@ public class ChannelStatusController {
 				String channelId = (String) iter.next();
 				ChannelStatus channelStatus = new ChannelStatus();
 				channelStatus.setChannelId(Integer.valueOf(channelId).intValue());
-				channelStatus.setName(channelController.getChannels(Integer.valueOf(channelId).intValue()).get(0).getName());
+				
+				// check if the channel is running but has been removed from the channel list
+				if (channelController.getChannels(Integer.valueOf(channelId).intValue()).size() != 0) {
+					channelStatus.setName(channelController.getChannels(Integer.valueOf(channelId).intValue()).get(0).getName());	
+				} else {
+					channelStatus.setName("Channel has been deleted.");
+				}
+				
 				channelStatus.setState(getState(Integer.valueOf(channelId).intValue()));
 				channelStatusList.add(channelStatus);
 			}

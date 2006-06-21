@@ -10,4 +10,12 @@ public class Rule {
 	public void setScript(String script) {
 		this.script = script;
 	}
+
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("Rule[");
+		builder.append("script=" + getScript() + ", ");
+		builder.append("]");
+		return builder.toString();
+	}
 }
