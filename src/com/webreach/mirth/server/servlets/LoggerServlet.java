@@ -8,10 +8,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.webreach.mirth.model.converters.ObjectSerializer;
+import com.webreach.mirth.model.filters.MessageEventFilter;
+import com.webreach.mirth.model.filters.SystemEventFilter;
 import com.webreach.mirth.server.controllers.MessageLogger;
 import com.webreach.mirth.server.controllers.SystemLogger;
-import com.webreach.mirth.server.controllers.filters.MessageEventFilter;
-import com.webreach.mirth.server.controllers.filters.SystemEventFilter;
 
 public class LoggerServlet extends MirthServlet {
 	private MessageLogger messageLogger = new MessageLogger();

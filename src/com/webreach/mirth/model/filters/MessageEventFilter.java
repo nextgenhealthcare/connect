@@ -1,4 +1,4 @@
-package com.webreach.mirth.server.controllers.filters;
+package com.webreach.mirth.model.filters;
 
 import java.sql.Timestamp;
 

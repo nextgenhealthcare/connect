@@ -13,7 +13,7 @@ import com.truemesh.squiggle.SelectQuery;
 import com.truemesh.squiggle.Table;
 import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.model.converters.ObjectSerializer;
-import com.webreach.mirth.server.controllers.filters.SystemEventFilter;
+import com.webreach.mirth.model.filters.SystemEventFilter;
 import com.webreach.mirth.server.util.DatabaseConnection;
 import com.webreach.mirth.server.util.DatabaseUtil;
 

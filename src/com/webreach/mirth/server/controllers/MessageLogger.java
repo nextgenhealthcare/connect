@@ -11,7 +11,7 @@ import com.truemesh.squiggle.MatchCriteria;
 import com.truemesh.squiggle.SelectQuery;
 import com.truemesh.squiggle.Table;
 import com.webreach.mirth.model.MessageEvent;
-import com.webreach.mirth.server.controllers.filters.MessageEventFilter;
+import com.webreach.mirth.model.filters.MessageEventFilter;
 import com.webreach.mirth.server.util.DatabaseConnection;
 import com.webreach.mirth.server.util.DatabaseUtil;
 

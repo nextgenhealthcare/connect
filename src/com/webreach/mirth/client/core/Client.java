@@ -18,8 +18,8 @@ import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.model.Transport;
 import com.webreach.mirth.model.User;
 import com.webreach.mirth.model.converters.ObjectSerializer;
-import com.webreach.mirth.server.controllers.filters.MessageEventFilter;
-import com.webreach.mirth.server.controllers.filters.SystemEventFilter;
+import com.webreach.mirth.model.filters.MessageEventFilter;
+import com.webreach.mirth.model.filters.SystemEventFilter;
 
 public class Client {
 	private Logger logger = Logger.getLogger(Client.class);
