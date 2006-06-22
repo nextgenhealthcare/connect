@@ -63,4 +63,17 @@ public class MessageEventFilter {
 	public void setSendingFacility(String sendingFacility) {
 		this.sendingFacility = sendingFacility;
 	}
+
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("MessageEventFilter[");
+		builder.append("channelId=" + getChannelId() + ", ");
+		builder.append("startDate=" + getStartDate() + ", ");
+		builder.append("endDate=" + getEndDate() + ", ");
+		builder.append("sendingFacility=" + getSendingFacility() + ", ");
+		builder.append("event=" + getEvent() + ", ");
+		builder.append("controlId=" + getControlId());
+		builder.append("]");
+		return builder.toString();
+	}
 }

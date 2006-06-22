@@ -25,18 +25,18 @@
 
 package com.webreach.mirth.model;
 
-import java.sql.Timestamp;
+import java.util.Calendar;
 
 /**
  * 
  * 
  * @author <a href="mailto:geraldb@webreachinc.com">Gerald Bortis</a>
- *
+ * 
  */
 public class MessageEvent {
 	private int id;
 	private int channelId;
-	private Timestamp date;
+	private Calendar date;
 	private String sendingFacility;
 	private String event;
 	private String controlId;
@@ -58,11 +58,11 @@ public class MessageEvent {
 		this.controlId = controlId;
 	}
 
-	public Timestamp getDate() {
+	public Calendar getDate() {
 		return this.date;
 	}
 
-	public void setDate(Timestamp date) {
+	public void setDate(Calendar date) {
 		this.date = date;
 	}
 

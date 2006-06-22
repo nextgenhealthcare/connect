@@ -4,6 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Properties;
 
@@ -56,7 +57,7 @@ public class SystemLogger {
 	 * @throws ControllerException
 	 */
 	public List<SystemEvent> getSystemEvents(SystemEventFilter filter) throws ControllerException {
-		logger.debug("retrieving log event list");
+		logger.debug("retrieving log event list: " + filter.toString());
 
 		ResultSet result = null;
 
@@ -79,7 +80,7 @@ public class SystemLogger {
 				select.addCriteria(new MatchCriteria(events, "channel_id", MatchCriteria.EQUALS, filter.getChannelId()));
 			}
 
-			// filter on min and max date
+			// filter on start and end date
 			if ((filter.getStartDate() != null) && (filter.getEndDate() != null)) {
 				select.addCriteria(new MatchCriteria(events, "date_created", MatchCriteria.GREATEREQUAL, new Timestamp(filter.getStartDate().getTimeInMillis()).toString()));
 				select.addCriteria(new MatchCriteria(events, "date_created", MatchCriteria.LESSEQUAL, new Timestamp(filter.getEndDate().getTimeInMillis()).toString()));
@@ -93,7 +94,7 @@ public class SystemLogger {
 
 			// filter on event
 			if (filter.getEvent() != null) {
-				select.addCriteria(new MatchCriteria(events, "event", MatchCriteria.LIKE, filter.getEvent()));
+				select.addCriteria(new MatchCriteria(events, "event", MatchCriteria.LIKE, "%" + filter.getEvent() + "%"));
 			}
 
 			result = dbConnection.query(select.toString());
@@ -132,7 +133,9 @@ public class SystemLogger {
 			SystemEvent systemEvent = new SystemEvent();
 			systemEvent.setId(result.getInt("id"));
 			systemEvent.setChannelId(result.getInt("channel_id"));
-			systemEvent.setDate(result.getTimestamp("date_created"));
+			Calendar dateCreated = Calendar.getInstance();
+			dateCreated.setTimeInMillis(result.getTimestamp("date_created").getTime());
+			systemEvent.setDate(dateCreated);
 			systemEvent.setEvent(result.getString("event"));
 			systemEvent.setLevel(result.getInt("event_level"));
 			systemEvent.setDescription(result.getString("description"));

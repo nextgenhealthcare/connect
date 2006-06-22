@@ -25,20 +25,20 @@
 
 package com.webreach.mirth.model;
 
-import java.sql.Timestamp;
+import java.util.Calendar;
 import java.util.Properties;
 
 /**
- * A SystemEvent represents a system event which can be logged. 
+ * A SystemEvent represents a system event which can be logged.
  * 
  * @author <a href="mailto:geraldb@webreachinc.com">Gerald Bortis</a>
- *
+ * 
  */
 public class SystemEvent {
 	private int id;
 	private int channelId;
 	private int level = 0;
-	private Timestamp date;
+	private Calendar date;
 	private String event;
 	private String description;
 	private Properties attributes;
@@ -66,11 +66,11 @@ public class SystemEvent {
 		this.channelId = channelId;
 	}
 
-	public Timestamp getDate() {
+	public Calendar getDate() {
 		return this.date;
 	}
 
-	public void setDate(Timestamp date) {
+	public void setDate(Calendar date) {
 		this.date = date;
 	}
 
@@ -122,7 +122,7 @@ public class SystemEvent {
 		builder.append("level=" + getLevel() + ", ");
 		builder.append("event=" + getEvent() + ", ");
 		builder.append("description=" + getDescription() + ", ");
-		builder.append("date=" + getDate().toString());
+		builder.append("date=" + getDate());
 		builder.append("]");
 		return builder.toString();
 	}

@@ -64,4 +64,16 @@ public class SystemEventFilter {
 		this.startDate = startDate;
 	}
 
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("SystemEventFilter[");
+		builder.append("channelId=" + getChannelId() + ", ");
+		builder.append("minLevel=" + getMinLevel() + ", ");
+		builder.append("maxLevel=" + getMaxLevel() + ", ");
+		builder.append("startDate=" + getStartDate() + ", ");
+		builder.append("endDate=" + getEndDate() + ", ");
+		builder.append("event=" + getEvent());
+		builder.append("]");
+		return builder.toString();
+	}
 }

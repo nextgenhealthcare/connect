@@ -4,6 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -59,7 +60,7 @@ public class MessageLogger {
 	 * @throws ControllerException
 	 */
 	public List<MessageEvent> getMessageEvents(MessageEventFilter filter) throws ControllerException {
-		logger.debug("retrieving message event list");
+		logger.debug("retrieving message event list: " + filter.toString());
 		
 		ResultSet result = null;
 		
@@ -82,7 +83,7 @@ public class MessageLogger {
 				select.addCriteria(new MatchCriteria(messages, "channel_id", MatchCriteria.EQUALS, filter.getChannelId()));
 			}
 			
-			// filter on min and max date
+			// filter on start and end date
 			if ((filter.getStartDate() != null) && (filter.getEndDate() != null)) {
 				select.addCriteria(new MatchCriteria(messages, "date_created", MatchCriteria.GREATEREQUAL, new Timestamp(filter.getStartDate().getTimeInMillis()).toString()));
 				select.addCriteria(new MatchCriteria(messages, "date_created", MatchCriteria.LESSEQUAL, new Timestamp(filter.getEndDate().getTimeInMillis()).toString()));
@@ -90,12 +91,12 @@ public class MessageLogger {
 
 			// filter on sendingFacility
 			if (filter.getSendingFacility() != null) {
-				select.addCriteria(new MatchCriteria(messages, "sending_facility", MatchCriteria.LIKE, filter.getSendingFacility()));
+				select.addCriteria(new MatchCriteria(messages, "sending_facility", MatchCriteria.LIKE, "%" + filter.getSendingFacility() + "%"));
 			}
 			
 			// filter on event
 			if (filter.getEvent() != null) {
-				select.addCriteria(new MatchCriteria(messages, "event", MatchCriteria.LIKE, filter.getEvent()));
+				select.addCriteria(new MatchCriteria(messages, "event", MatchCriteria.LIKE, "%" + filter.getEvent() + "%"));
 			}
 
 			// filter on controlId
@@ -162,7 +163,9 @@ public class MessageLogger {
 			MessageEvent messageEvent = new MessageEvent();
 			messageEvent.setId(result.getInt("id"));
 			messageEvent.setChannelId(result.getInt("channel_id"));
-			messageEvent.setDate(result.getTimestamp("date_created"));
+			Calendar dateCreated = Calendar.getInstance();
+			dateCreated.setTimeInMillis(result.getTimestamp("date_created").getTime());
+			messageEvent.setDate(dateCreated);
 			messageEvent.setSendingFacility(result.getString("sending_facility"));
 			messageEvent.setEvent(result.getString("event"));
 			messageEvent.setControlId(result.getString("control_id"));
