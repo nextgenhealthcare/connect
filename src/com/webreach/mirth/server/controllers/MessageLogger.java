@@ -2,7 +2,6 @@ package com.webreach.mirth.server.controllers;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -39,13 +38,13 @@ public class MessageLogger {
 		try {
 			dbConnection = new DatabaseConnection();	
 			StringBuilder insert = new StringBuilder();
-			insert.append("INSERT INTO MESSAGES (CHANNEL_ID, DATE_CREATED, SENDING_FACILITY, EVENT, CONTROL_ID, MESSAGE) VALUES(");
+			insert.append("INSERT INTO MESSAGES (CHANNEL_ID, SENDING_FACILITY, EVENT, CONTROL_ID, MESSAGE, STATUS) VALUES(");
 			insert.append(messageEvent.getChannelId() + ", ");
-			insert.append("'" + DatabaseUtil.getNow() + "', ");
 			insert.append("'" + messageEvent.getSendingFacility() + "', ");
 			insert.append("'" + messageEvent.getEvent() + "', ");
 			insert.append("'" + messageEvent.getControlId() + "', ");
-			insert.append("'" + messageEvent.getMessage() + "');");
+			insert.append("'" + messageEvent.getMessage() + "', ");
+			insert.append("'" + messageEvent.getStatus().toString() + "');");
 			dbConnection.update(insert.toString());
 		} catch (Exception e) {
 			logger.error("could not log message: channel id = " + messageEvent.getChannelId(), e);
@@ -77,6 +76,7 @@ public class MessageLogger {
 			select.addColumn(messages, "event");
 			select.addColumn(messages, "control_id");
 			select.addColumn(messages, "message");
+			select.addColumn(messages, "status");
 			
 			// filter on channelId
 			if (filter.getChannelId() != -1) {
@@ -85,8 +85,10 @@ public class MessageLogger {
 			
 			// filter on start and end date
 			if ((filter.getStartDate() != null) && (filter.getEndDate() != null)) {
-				select.addCriteria(new MatchCriteria(messages, "date_created", MatchCriteria.GREATEREQUAL, new Timestamp(filter.getStartDate().getTimeInMillis()).toString()));
-				select.addCriteria(new MatchCriteria(messages, "date_created", MatchCriteria.LESSEQUAL, new Timestamp(filter.getEndDate().getTimeInMillis()).toString()));
+				String startDate = String.format("%1$tY-%1$tm-%1$td", filter.getStartDate());
+				String endDate = String.format("%1$tY-%1$tm-%1$td", filter.getEndDate());
+				select.addCriteria(new MatchCriteria(messages, "date_created", MatchCriteria.GREATEREQUAL, startDate));
+				select.addCriteria(new MatchCriteria(messages, "date_created", MatchCriteria.LESSEQUAL, endDate));
 			}
 
 			// filter on sendingFacility
@@ -102,6 +104,11 @@ public class MessageLogger {
 			// filter on controlId
 			if (filter.getEvent() != null) {
 				select.addCriteria(new MatchCriteria(messages, "control_id", MatchCriteria.EQUALS, filter.getControlId()));
+			}
+
+			// filter on status
+			if (filter.getStatus() != null) {
+				select.addCriteria(new MatchCriteria(messages, "status", MatchCriteria.EQUALS, filter.getStatus().toString()));
 			}
 
 			result = dbConnection.query(select.toString());
@@ -170,6 +177,7 @@ public class MessageLogger {
 			messageEvent.setEvent(result.getString("event"));
 			messageEvent.setControlId(result.getString("control_id"));
 			messageEvent.setMessage(result.getString("message"));
+			messageEvent.setStatus(MessageEvent.Status.valueOf(result.getString("status")));
 			messageEvents.add(messageEvent);
 		}
 

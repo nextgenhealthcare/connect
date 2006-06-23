@@ -28,8 +28,6 @@ package com.webreach.mirth.server.util;
 
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.sql.Timestamp;
-import java.util.GregorianCalendar;
 
 public class DatabaseUtil {
 	
@@ -63,14 +61,5 @@ public class DatabaseUtil {
 		} catch (Exception e) {
 			throw new RuntimeException();
 		}
-	}
-	
-	/**
-	 * Returns a String representation of a SQL Timestamp with the current time.
-	 * 
-	 * @return a String representation of a SQL Timestamp with the current time.
-	 */
-	public static String getNow() {
-		return (new Timestamp(new GregorianCalendar().getTimeInMillis())).toString();
 	}
 }

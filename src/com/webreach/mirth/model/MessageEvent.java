@@ -28,12 +28,16 @@ package com.webreach.mirth.model;
 import java.util.Calendar;
 
 /**
- * 
+ * Represents an HL7 message received by the system.
  * 
  * @author <a href="mailto:geraldb@webreachinc.com">Gerald Bortis</a>
  * 
  */
 public class MessageEvent {
+	public enum Status {
+		RECEIVED, FILTERED, TRANSFORMED, SENT, ERROR
+	}
+
 	private int id;
 	private int channelId;
 	private Calendar date;
@@ -41,6 +45,7 @@ public class MessageEvent {
 	private String event;
 	private String controlId;
 	private String message;
+	private Status status;
 
 	public int getChannelId() {
 		return this.channelId;
@@ -105,4 +110,13 @@ public class MessageEvent {
 			return getMessage().getBytes().length;
 		}
 	}
+
+	public Status getStatus() {
+		return this.status;
+	}
+
+	public void setStatus(Status status) {
+		this.status = status;
+	}
+
 }

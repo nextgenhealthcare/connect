@@ -2,7 +2,6 @@ package com.webreach.mirth.server.controllers;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -36,9 +35,8 @@ public class SystemLogger {
 		try {
 			dbConnection = new DatabaseConnection();
 			StringBuilder insert = new StringBuilder();
-			insert.append("INSERT INTO EVENTS (CHANNEL_ID, DATE_CREATED, EVENT, EVENT_LEVEL, DESCRIPTION, ATTRIBUTES) VALUES(");
+			insert.append("INSERT INTO EVENTS (CHANNEL_ID, EVENT, EVENT_LEVEL, DESCRIPTION, ATTRIBUTES) VALUES(");
 			insert.append(systemEvent.getChannelId() + ", ");
-			insert.append("'" + DatabaseUtil.getNow() + "', ");
 			insert.append("'" + systemEvent.getEvent() + "', ");
 			insert.append(systemEvent.getLevel() + ", ");
 			insert.append("'" + systemEvent.getDescription() + "', ");
@@ -82,8 +80,10 @@ public class SystemLogger {
 
 			// filter on start and end date
 			if ((filter.getStartDate() != null) && (filter.getEndDate() != null)) {
-				select.addCriteria(new MatchCriteria(events, "date_created", MatchCriteria.GREATEREQUAL, new Timestamp(filter.getStartDate().getTimeInMillis()).toString()));
-				select.addCriteria(new MatchCriteria(events, "date_created", MatchCriteria.LESSEQUAL, new Timestamp(filter.getEndDate().getTimeInMillis()).toString()));
+				String startDate = String.format("%1$tY-%1$tm-%1$td", filter.getStartDate());
+				String endDate = String.format("%1$tY-%1$tm-%1$td", filter.getEndDate());
+				select.addCriteria(new MatchCriteria(events, "date_created", MatchCriteria.GREATEREQUAL, startDate));
+				select.addCriteria(new MatchCriteria(events, "date_created", MatchCriteria.LESSEQUAL, endDate));
 			}
 
 			// filter on level

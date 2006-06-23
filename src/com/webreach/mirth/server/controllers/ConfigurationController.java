@@ -229,8 +229,7 @@ public class ConfigurationController {
 		try {
 			dbConnection = new DatabaseConnection();
 			StringBuilder insert = new StringBuilder();
-			insert.append("INSERT INTO CONFIGURATIONS (DATE_CREATED, DATA) VALUES (");
-			insert.append("'" + DatabaseUtil.getNow() + "',");
+			insert.append("INSERT INTO CONFIGURATIONS (DATA) VALUES (");
 			insert.append("'" + data + "');");
 			dbConnection.update(insert.toString());
 		} catch (Exception e) {

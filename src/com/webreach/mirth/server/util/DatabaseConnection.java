@@ -66,11 +66,7 @@ public class DatabaseConnection {
 	 * @throws SQLException
 	 */
 	private Connection getConnection() throws SQLException {
-		try {
-			return DriverManager.getConnection(mirthProperties.getProperty("database.url"), "sa", "");
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
+		return DriverManager.getConnection(mirthProperties.getProperty("database.url"), "sa", "");
 	}
 
 	/**
@@ -83,15 +79,12 @@ public class DatabaseConnection {
 	 */
 	public synchronized ResultSet query(String expression) throws SQLException {
 		Statement statement = null;
-		ResultSet result = null;
 
 		try {
 			connection = getConnection();
 			statement = connection.createStatement();
 			logger.debug("executing query:\n" + expression);
-			result = statement.executeQuery(expression);
-
-			return result;
+			return statement.executeQuery(expression);
 		} catch (SQLException e) {
 			throw e;
 		} finally {
@@ -114,10 +107,7 @@ public class DatabaseConnection {
 			connection = getConnection();
 			statement = connection.createStatement();
 			logger.debug("executing update:\n" + expression);
-			int rowCount = statement.executeUpdate(expression);
-			statement.close();
-
-			return rowCount;
+			return statement.executeUpdate(expression);
 		} catch (SQLException e) {
 			throw e;
 		} finally {
@@ -132,18 +122,14 @@ public class DatabaseConnection {
 	 */
 	public void close() throws RuntimeException {
 		if (connection != null) {
-			Statement statement = null;
-
 			try {
-				statement = connection.createStatement();
-				statement.execute("SHUTDOWN");
 				logger.debug("closing database connection");
 				connection.close();
 			} catch (SQLException e) {
 				throw new RuntimeException(e);
-			} finally {
-				DatabaseUtil.close(statement);
 			}
+		} else {
+			logger.warn("cannot close database connection");
 		}
 	}
 }

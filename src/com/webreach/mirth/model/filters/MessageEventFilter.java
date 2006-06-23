@@ -2,6 +2,8 @@ package com.webreach.mirth.model.filters;
 
 import java.util.Calendar;
 
+import com.webreach.mirth.model.MessageEvent;
+
 /**
  * A MessageEventFilter is used to search the message event logs.
  * 
@@ -15,6 +17,7 @@ public class MessageEventFilter {
 	private String sendingFacility;
 	private String event;
 	private String controlId;
+	private MessageEvent.Status status;
 
 	public int getChannelId() {
 		return this.channelId;
@@ -64,6 +67,14 @@ public class MessageEventFilter {
 		this.sendingFacility = sendingFacility;
 	}
 
+	public MessageEvent.Status getStatus() {
+		return this.status;
+	}
+
+	public void setStatus(MessageEvent.Status status) {
+		this.status = status;
+	}
+
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("MessageEventFilter[");
@@ -72,7 +83,8 @@ public class MessageEventFilter {
 		builder.append("endDate=" + getEndDate() + ", ");
 		builder.append("sendingFacility=" + getSendingFacility() + ", ");
 		builder.append("event=" + getEvent() + ", ");
-		builder.append("controlId=" + getControlId());
+		builder.append("controlId=" + getControlId() + ", ");
+		builder.append("status=" + getStatus());
 		builder.append("]");
 		return builder.toString();
 	}

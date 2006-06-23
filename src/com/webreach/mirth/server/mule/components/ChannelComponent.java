@@ -33,6 +33,7 @@ public class ChannelComponent implements Callable {
 		messageEvent.setEvent(message.getName());
 		messageEvent.setControlId(controlId);
 		messageEvent.setMessage(eventContext.getMessageAsString());
+		messageEvent.setStatus(MessageEvent.Status.RECEIVED);
 		messageLogger.logMessageEvent(messageEvent);
 	}
 }
