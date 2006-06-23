@@ -41,32 +41,17 @@ import org.apache.log4j.Logger;
  * 
  */
 public class DatabaseConnection {
-	private Properties mirthProperties;
-	private Connection connection;
 	private Logger logger = Logger.getLogger(DatabaseConnection.class);
+	private Connection connection;
 
 	/**
-	 * Initiliazes the Mirth database.
+	 * Initiliazes a database connection.
 	 * 
-	 * @throws RuntimeException
-	 */
-	public DatabaseConnection() throws RuntimeException {
-		try {
-			mirthProperties = PropertyLoader.loadProperties("mirth");
-			Class.forName(mirthProperties.getProperty("database.driver"));
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	/**
-	 * Returns a new connection to the Mirth database.
-	 * 
-	 * @return a new connection to the Mirth database.
 	 * @throws SQLException
 	 */
-	private Connection getConnection() throws SQLException {
-		return DriverManager.getConnection(mirthProperties.getProperty("database.url"), "sa", "");
+	public DatabaseConnection(String address, Properties info) throws SQLException {
+		logger.debug("creating new database connection: address=" + address + ", " + info);
+		connection = DriverManager.getConnection(address, info);
 	}
 
 	/**
@@ -77,11 +62,10 @@ public class DatabaseConnection {
 	 * @return the result of the query.
 	 * @throws SQLException
 	 */
-	public synchronized ResultSet query(String expression) throws SQLException {
+	public synchronized ResultSet executeQuery(String expression) throws SQLException {
 		Statement statement = null;
 
 		try {
-			connection = getConnection();
 			statement = connection.createStatement();
 			logger.debug("executing query:\n" + expression);
 			return statement.executeQuery(expression);
@@ -100,11 +84,10 @@ public class DatabaseConnection {
 	 * @return a count of the number of updated rows.
 	 * @throws SQLException
 	 */
-	public synchronized int update(String expression) throws SQLException {
+	public synchronized int executeUpdate(String expression) throws SQLException {
 		Statement statement = null;
 
 		try {
-			connection = getConnection();
 			statement = connection.createStatement();
 			logger.debug("executing update:\n" + expression);
 			return statement.executeUpdate(expression);
@@ -118,18 +101,17 @@ public class DatabaseConnection {
 	/**
 	 * Closes the database connection.
 	 * 
-	 * @throws RuntimeException
 	 */
-	public void close() throws RuntimeException {
-		if (connection != null) {
-			try {
+	public void close() {
+		try {
+			if ((connection != null) && (!connection.isClosed())) {
 				logger.debug("closing database connection");
 				connection.close();
-			} catch (SQLException e) {
-				throw new RuntimeException(e);
+			} else {
+				logger.warn("connection is null or already closed");
 			}
-		} else {
-			logger.warn("cannot close database connection");
+		} catch (SQLException e) {
+			logger.warn(e);
 		}
 	}
 }

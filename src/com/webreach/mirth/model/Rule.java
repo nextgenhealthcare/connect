@@ -5,8 +5,17 @@ public class Rule {
 		AND, OR, NONE
 	}
 
+	private int sequenceNumber;
 	private String script;
 	private Operator operator;
+
+	public int getSequenceNumber() {
+		return this.sequenceNumber;
+	}
+
+	public void setSequenceNumber(int sequenceNumber) {
+		this.sequenceNumber = sequenceNumber;
+	}
 
 	public String getScript() {
 		return this.script;

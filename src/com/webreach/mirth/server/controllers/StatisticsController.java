@@ -6,6 +6,7 @@ import org.apache.log4j.Logger;
 
 import com.webreach.mirth.model.Statistics;
 import com.webreach.mirth.server.util.JMXConnection;
+import com.webreach.mirth.server.util.JMXConnectionFactory;
 
 /**
  * The StatisticsContoller provides access to channel statistics.
@@ -15,7 +16,6 @@ import com.webreach.mirth.server.util.JMXConnection;
  */
 public class StatisticsController {
 	private Logger logger = Logger.getLogger(StatisticsController.class);
-	private JMXConnection jmxConnection = null;
 	
 	/**
 	 * Returns a Statistics object for the channel with the specified id.
@@ -44,14 +44,18 @@ public class StatisticsController {
 	public void clearStatistics(int channelId) throws ControllerException {
 		logger.debug("clearing statistics: " + channelId);
 		
+		JMXConnection jmxConnection = null;
+		
 		try {
-			jmxConnection = new JMXConnection();
+			jmxConnection = JMXConnectionFactory.createJMXConnection();
 			Hashtable<String, String> properties = new Hashtable<String, String>();
 			properties.put("type", "statistics");
 			properties.put("name", String.valueOf(channelId));
 			jmxConnection.invokeOperation(properties, "clear", null);
 		} catch (Exception e) {
 			throw new ControllerException(e);
+		} finally {
+			// TODO: close the connection
 		}
 	}
 	
@@ -59,7 +63,6 @@ public class StatisticsController {
 		logger.debug("retrieving message sent count: " + channelId);
 		
 		try {
-			jmxConnection = new JMXConnection();
 			return getStatistic(channelId, "TotalEventsSent");
 		} catch (Exception e) {
 			return -1;
@@ -71,8 +74,10 @@ public class StatisticsController {
 	private int getReceivedCount(int channelId) {
 		logger.debug("retrieving message received count: " + channelId);
 		
+		JMXConnection jmxConnection = null;
+		
 		try {
-			jmxConnection = new JMXConnection();
+			jmxConnection = JMXConnectionFactory.createJMXConnection();
 			Hashtable<String, String> properties = new Hashtable<String, String>();
 			properties.put("type", "statistics");
 			properties.put("name", String.valueOf(channelId));
@@ -80,6 +85,8 @@ public class StatisticsController {
 			return Double.valueOf(Math.ceil(count / 2)).intValue();
 		} catch (Exception e) {
 			return -1;
+		} finally {
+			// TODO: close the connection
 		}
 	}
 
@@ -87,7 +94,6 @@ public class StatisticsController {
 		logger.debug("retrieving error count: " + channelId);
 		
 		try {
-			jmxConnection = new JMXConnection();
 			return getStatistic(channelId, "ExecutionErrors");
 		} catch (Exception e) {
 			return -1;
@@ -98,7 +104,6 @@ public class StatisticsController {
 		logger.debug("retrieving message queue count: " + channelId);
 		
 		try {
-			jmxConnection = new JMXConnection();
 			return getStatistic(channelId, "QueuedEvents");
 		} catch (Exception e) {
 			return -1;
@@ -106,8 +111,10 @@ public class StatisticsController {
 	}
 
 	private int getStatistic(int channelId, String statistic) throws ControllerException {
+		JMXConnection jmxConnection = null;
+		
 		try {
-			jmxConnection = new JMXConnection();
+			jmxConnection = JMXConnectionFactory.createJMXConnection();
 			Hashtable<String, String> properties = new Hashtable<String, String>();
 			properties.put("type", "statistics");
 			properties.put("name", String.valueOf(channelId));
@@ -115,6 +122,8 @@ public class StatisticsController {
 			return ((Long) jmxConnection.getAttribute(properties, statistic)).intValue();
 		} catch (Exception e) {
 			throw new ControllerException("Could not retrieve statistic.");
+		} finally {
+			// TODO: close the connection
 		}
 	}
 

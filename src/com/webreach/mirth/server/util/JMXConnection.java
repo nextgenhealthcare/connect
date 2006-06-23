@@ -26,7 +26,6 @@
 package com.webreach.mirth.server.util;
 
 import java.util.Hashtable;
-import java.util.Properties;
 import java.util.Set;
 
 import javax.management.MBeanServerConnection;
@@ -44,17 +43,15 @@ import org.apache.log4j.Logger;
  * 
  */
 public class JMXConnection {
+	private Logger logger = Logger.getLogger(JMXConnection.class);
 	private JMXConnector jmxConnector;
 	private MBeanServerConnection jmxConnection;
-	private Properties mirthProperties;
-	private String configurationId;
-	private Logger logger = Logger.getLogger(JMXConnection.class);
+	private String domain;
 
-	public JMXConnection() throws Exception {
-		mirthProperties = PropertyLoader.loadProperties("mirth");
-		configurationId = mirthProperties.getProperty("configuration.id");
-		JMXServiceURL serviceURL = new JMXServiceURL(mirthProperties.getProperty("jmx.url"));
-		jmxConnector = JMXConnectorFactory.connect(serviceURL);
+	public JMXConnection(String address, String domain) throws Exception {
+		this.domain = domain;
+		JMXServiceURL url = new JMXServiceURL(address);
+		jmxConnector = JMXConnectorFactory.connect(url);
 		jmxConnection = jmxConnector.getMBeanServerConnection();
 	}
 
@@ -69,7 +66,7 @@ public class JMXConnection {
 	 */
 	public Object invokeOperation(Hashtable properties, String operation, Object[] params) throws Exception {
 		logger.debug("invoking mbean operation: " + operation);
-		return jmxConnection.invoke(new ObjectName(configurationId, properties), operation, params, null);
+		return jmxConnection.invoke(new ObjectName(domain, properties), operation, params, null);
 	}
 
 	/**
@@ -81,11 +78,23 @@ public class JMXConnection {
 	 */
 	public Object getAttribute(Hashtable properties, String attribute) throws Exception {
 		logger.debug("getting mbean attribute: " + attribute);
-		return jmxConnection.getAttribute(new ObjectName(configurationId, properties), attribute);
+		return jmxConnection.getAttribute(new ObjectName(domain, properties), attribute);
 	}
 
 	public Set getMBeanNames() throws Exception {
 		logger.debug("getting mbean names");
 		return jmxConnection.queryNames(null, null);
+	}
+	
+	public void close() {
+		try {
+			if (jmxConnector != null) {
+				jmxConnector.close();
+			} else {
+				logger.warn("could not close jmx connection");
+			}
+		} catch (Exception e) {
+			logger.warn(e);
+		}
 	}
 }

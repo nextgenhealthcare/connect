@@ -9,20 +9,11 @@ import java.util.Calendar;
  * 
  */
 public class SystemEventFilter {
-	private int channelId = -1;
 	private int minLevel = -1;
 	private int maxLevel = -1;
 	private Calendar startDate;
 	private Calendar endDate;
 	private String event;
-
-	public int getChannelId() {
-		return this.channelId;
-	}
-
-	public void setChannelId(int channelId) {
-		this.channelId = channelId;
-	}
 
 	public String getEvent() {
 		return this.event;
@@ -67,7 +58,6 @@ public class SystemEventFilter {
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("SystemEventFilter[");
-		builder.append("channelId=" + getChannelId() + ", ");
 		builder.append("minLevel=" + getMinLevel() + ", ");
 		builder.append("maxLevel=" + getMaxLevel() + ", ");
 		builder.append("startDate=" + getStartDate() + ", ");

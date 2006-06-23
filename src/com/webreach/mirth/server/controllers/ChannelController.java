@@ -13,6 +13,7 @@ import com.truemesh.squiggle.Table;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.converters.ObjectSerializer;
 import com.webreach.mirth.server.util.DatabaseConnection;
+import com.webreach.mirth.server.util.DatabaseConnectionFactory;
 import com.webreach.mirth.server.util.DatabaseUtil;
 
 /**
@@ -23,7 +24,6 @@ import com.webreach.mirth.server.util.DatabaseUtil;
  */
 public class ChannelController {
 	private Logger logger = Logger.getLogger(ChannelController.class);
-	private DatabaseConnection dbConnection;
 	private ObjectSerializer serializer = new ObjectSerializer();
 
 	/**
@@ -39,12 +39,13 @@ public class ChannelController {
 	 * @throws ControllerException
 	 */
 	public List<Channel> getChannels(Integer channelId) throws ControllerException {
-		logger.debug("retrieving channel list: channel id = " + channelId);
+		logger.debug("retrieving channel list: channelId=" + channelId);
 
+		DatabaseConnection dbConnection = null;
 		ResultSet result = null;
-
+		
 		try {
-			dbConnection = new DatabaseConnection();
+			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
 
 			Table channels = new Table("channels");
 			SelectQuery select = new SelectQuery(channels);
@@ -56,7 +57,7 @@ public class ChannelController {
 				select.addCriteria(new MatchCriteria(channels, "id", MatchCriteria.EQUALS, channelId.toString()));
 			}
 
-			result = dbConnection.query(select.toString());
+			result = dbConnection.executeQuery(select.toString());
 			return getChannelList(result);
 		} catch (SQLException e) {
 			throw new ControllerException(e);
@@ -95,25 +96,27 @@ public class ChannelController {
 	 * @throws ControllerException
 	 */
 	public void updateChannel(Channel channel) throws ControllerException {
+		DatabaseConnection dbConnection = null;
+		
 		try {
-			dbConnection = new DatabaseConnection();
+			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
 			StringBuilder statement = new StringBuilder();
 
 			if (getChannels(channel.getId()).isEmpty()) {
-				logger.debug("inserting channel: channel id = " + channel.getId());
+				logger.debug("inserting channel: channelId=" + channel.getId());
 				statement.append("INSERT INTO CHANNELS (ID, CHANNEL_NAME, CHANNEL_DATA) VALUES(");
 				statement.append(channel.getId() + ",");
 				statement.append("'" + channel.getName() + "',");
 				statement.append("'" + serializer.toXML(channel) + "');");
 			} else {
-				logger.debug("updating channel: channel id = " + channel.getId());
+				logger.debug("updating channel: channelId=" + channel.getId());
 				statement.append("UPDATE CHANNELS SET ");
 				statement.append("CHANNEL_NAME = '" + channel.getName() + "', ");
 				statement.append("CHANNEL_DATA = '" + serializer.toXML(channel) + "'");
 				statement.append(" WHERE ID = " + channel.getId() + ";");
 			}
 
-			dbConnection.update(statement.toString());
+			dbConnection.executeUpdate(statement.toString());
 		} catch (SQLException e) {
 			throw new ControllerException(e);
 		} finally {
@@ -129,14 +132,15 @@ public class ChannelController {
 	 * @throws ControllerException
 	 */
 	public void removeChannel(int channelId) throws ControllerException {
-		logger.debug("removing channel: channel id = " + channelId);
+		logger.debug("removing channel: channelId=" + channelId);
+		DatabaseConnection dbConnection = null;
 
 		try {
-			dbConnection = new DatabaseConnection();
+			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
 			StringBuilder statement = new StringBuilder();
 			statement.append("DELETE FROM CHANNELS");
 			statement.append(" WHERE ID = " + channelId + ";");
-			dbConnection.update(statement.toString());
+			dbConnection.executeUpdate(statement.toString());
 		} catch (SQLException e) {
 			throw new ControllerException(e);
 		} finally {
@@ -153,17 +157,18 @@ public class ChannelController {
 	 * @throws ControllerException
 	 */
 	public String exportChannel(int channelId) throws ControllerException {
-		logger.debug("exporting channel: channel id = " + channelId);
+		logger.debug("exporting channel: channelId=" + channelId);
 
+		DatabaseConnection dbConnection = null;
 		ResultSet result = null;
 
 		try {
-			dbConnection = new DatabaseConnection();
+			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
 			Table channels = new Table("channels");
 			SelectQuery select = new SelectQuery(channels);
 			select.addColumn(channels, "channel_data");
 			select.addCriteria(new MatchCriteria(channels, "id", MatchCriteria.EQUALS, channelId));
-			result = dbConnection.query(select.toString());
+			result = dbConnection.executeQuery(select.toString());
 			return result.getString("channel_data");
 		} catch (SQLException e) {
 			throw new ControllerException(e);

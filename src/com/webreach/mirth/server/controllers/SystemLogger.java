@@ -16,12 +16,12 @@ import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.model.converters.ObjectSerializer;
 import com.webreach.mirth.model.filters.SystemEventFilter;
 import com.webreach.mirth.server.util.DatabaseConnection;
+import com.webreach.mirth.server.util.DatabaseConnectionFactory;
 import com.webreach.mirth.server.util.DatabaseUtil;
 
 public class SystemLogger {
 	private Logger logger = Logger.getLogger(SystemLogger.class);
 	private ObjectSerializer serializer = new ObjectSerializer();
-	private DatabaseConnection dbConnection;
 
 	/**
 	 * Adds a new system event.
@@ -30,18 +30,19 @@ public class SystemLogger {
 	 * @throws ControllerException
 	 */
 	public void logSystemEvent(SystemEvent systemEvent) {
-		logger.debug("adding log event: " + systemEvent.getChannelId());
+		logger.debug("adding log event: " + systemEvent);
 
+		DatabaseConnection dbConnection = null;
+		
 		try {
-			dbConnection = new DatabaseConnection();
+			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
 			StringBuilder insert = new StringBuilder();
-			insert.append("INSERT INTO EVENTS (CHANNEL_ID, EVENT, EVENT_LEVEL, DESCRIPTION, ATTRIBUTES) VALUES(");
-			insert.append(systemEvent.getChannelId() + ", ");
+			insert.append("INSERT INTO EVENTS (EVENT, EVENT_LEVEL, DESCRIPTION, ATTRIBUTES) VALUES(");
 			insert.append("'" + systemEvent.getEvent() + "', ");
 			insert.append(systemEvent.getLevel() + ", ");
 			insert.append("'" + systemEvent.getDescription() + "', ");
 			insert.append("'" + serializer.toXML(systemEvent.getAttributes()) + "');");
-			dbConnection.update(insert.toString());
+			dbConnection.executeUpdate(insert.toString());
 		} catch (Exception e) {
 			logger.error("could not log system event", e);
 		}
@@ -55,28 +56,23 @@ public class SystemLogger {
 	 * @throws ControllerException
 	 */
 	public List<SystemEvent> getSystemEvents(SystemEventFilter filter) throws ControllerException {
-		logger.debug("retrieving log event list: " + filter.toString());
+		logger.debug("retrieving log event list: " + filter);
 
+		DatabaseConnection dbConnection = null;
 		ResultSet result = null;
 
 		try {
-			dbConnection = new DatabaseConnection();
+			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
 
 			Table events = new Table("events");
 			SelectQuery select = new SelectQuery(events);
 
 			select.addColumn(events, "id");
-			select.addColumn(events, "channel_id");
 			select.addColumn(events, "date_created");
 			select.addColumn(events, "event");
 			select.addColumn(events, "event_level");
 			select.addColumn(events, "description");
 			select.addColumn(events, "attributes");
-
-			// filter on channelId
-			if (filter.getChannelId() != -1) {
-				select.addCriteria(new MatchCriteria(events, "channel_id", MatchCriteria.EQUALS, filter.getChannelId()));
-			}
 
 			// filter on start and end date
 			if ((filter.getStartDate() != null) && (filter.getEndDate() != null)) {
@@ -97,7 +93,7 @@ public class SystemLogger {
 				select.addCriteria(new MatchCriteria(events, "event", MatchCriteria.LIKE, "%" + filter.getEvent() + "%"));
 			}
 
-			result = dbConnection.query(select.toString());
+			result = dbConnection.executeQuery(select.toString());
 			return getSystemEventList(result);
 		} catch (SQLException e) {
 			throw new ControllerException(e);
@@ -114,11 +110,13 @@ public class SystemLogger {
 	public void clearSystemEvents() throws ControllerException {
 		logger.debug("clearing system event list");
 
+		DatabaseConnection dbConnection = null;
+		
 		try {
-			dbConnection = new DatabaseConnection();
+			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
 			StringBuilder statement = new StringBuilder();
 			statement.append("delete from events;");
-			dbConnection.update(statement.toString());
+			dbConnection.executeUpdate(statement.toString());
 		} catch (SQLException e) {
 			throw new ControllerException(e);
 		} finally {
@@ -132,7 +130,6 @@ public class SystemLogger {
 		while (result.next()) {
 			SystemEvent systemEvent = new SystemEvent();
 			systemEvent.setId(result.getInt("id"));
-			systemEvent.setChannelId(result.getInt("channel_id"));
 			Calendar dateCreated = Calendar.getInstance();
 			dateCreated.setTimeInMillis(result.getTimestamp("date_created").getTime());
 			systemEvent.setDate(dateCreated);

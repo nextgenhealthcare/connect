@@ -13,11 +13,11 @@ import org.apache.log4j.Logger;
 import com.webreach.mirth.model.ChannelStatus;
 import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.server.util.JMXConnection;
+import com.webreach.mirth.server.util.JMXConnectionFactory;
 
 public class ChannelStatusController {
 	private Logger logger = Logger.getLogger(ChannelStatusController.class);
 	private SystemLogger systemLogger = new SystemLogger();
-	private JMXConnection jmxConnection = null;
 
 	/**
 	 * Starts the channel with the specified id.
@@ -28,17 +28,21 @@ public class ChannelStatusController {
 	public void startChannel(int channelId) throws ControllerException {
 		logger.debug("starting channel: " + channelId);
 		
+		JMXConnection jmxConnection = null;
+		
 		try {
-			jmxConnection = new JMXConnection();
+			jmxConnection = JMXConnectionFactory.createJMXConnection();
 			Hashtable<String, String> properties = new Hashtable<String, String>();
 			properties.put("type", "control");
 			properties.put("name", channelId + "ComponentService");
 			jmxConnection.invokeOperation(properties, "start", null);
 		} catch (Exception e) {
 			throw new ControllerException(e);
+		} finally {
+			// TODO: close the connection
 		}
 
-		systemLogger.logSystemEvent(new SystemEvent(channelId, "Channel started."));
+		systemLogger.logSystemEvent(new SystemEvent("Channel started (channelId=" + channelId + ")."));
 	}
 
 	/**
@@ -48,19 +52,23 @@ public class ChannelStatusController {
 	 * @throws ControllerException
 	 */
 	public void stopChannel(int channelId) throws ControllerException {
-		logger.debug("stopping channel: " + channelId);
+		logger.debug("stopping channel: channelId=" + channelId);
+		
+		JMXConnection jmxConnection = null;
 		
 		try {
-			jmxConnection = new JMXConnection();
+			jmxConnection = JMXConnectionFactory.createJMXConnection();
 			Hashtable<String, String> properties = new Hashtable<String, String>();
 			properties.put("type", "control");
 			properties.put("name", channelId + "ComponentService");
 			jmxConnection.invokeOperation(properties, "stop", null);
 		} catch (Exception e) {
 			throw new ControllerException(e);
+		} finally {
+			// TODO: close the connection
 		}
 
-		systemLogger.logSystemEvent(new SystemEvent(channelId, "Channel stopped."));
+		systemLogger.logSystemEvent(new SystemEvent("Channel stopped (channelId=" + channelId + ")."));
 	}
 
 	/**
@@ -70,19 +78,23 @@ public class ChannelStatusController {
 	 * @throws ControllerException
 	 */
 	public void pauseChannel(int channelId) throws ControllerException {
-		logger.debug("pausing channel: " + channelId);
+		logger.debug("pausing channel: channelId=" + channelId);
+		
+		JMXConnection jmxConnection = null;
 		
 		try {
-			jmxConnection = new JMXConnection();
+			jmxConnection = JMXConnectionFactory.createJMXConnection();
 			Hashtable<String, String> properties = new Hashtable<String, String>();
 			properties.put("type", "control");
 			properties.put("name", channelId + "ComponentService");
 			jmxConnection.invokeOperation(properties, "pause", null);
 		} catch (Exception e) {
 			throw new ControllerException(e);
+		} finally {
+			// TODO: close the connection
 		}
 
-		systemLogger.logSystemEvent(new SystemEvent(channelId, "Channel paused."));
+		systemLogger.logSystemEvent(new SystemEvent("Channel paused (channelId=" + channelId + ")."));
 	}
 
 	/**
@@ -92,19 +104,23 @@ public class ChannelStatusController {
 	 * @throws ControllerException
 	 */
 	public void resumeChannel(int channelId) throws ControllerException {
-		logger.debug("resuming channel: " + channelId);
+		logger.debug("resuming channel: channelId=" + channelId);
+		
+		JMXConnection jmxConnection = null;
 		
 		try {
-			jmxConnection = new JMXConnection();
+			jmxConnection = JMXConnectionFactory.createJMXConnection();
 			Hashtable<String, String> properties = new Hashtable<String, String>();
 			properties.put("type", "control");
 			properties.put("name", channelId + "ComponentService");
 			jmxConnection.invokeOperation(properties, "resume", null);
 		} catch (Exception e) {
 			throw new ControllerException(e);
+		} finally {
+			// TODO: close the connection
 		}
 
-		systemLogger.logSystemEvent(new SystemEvent(channelId, "Channel resumed."));
+		systemLogger.logSystemEvent(new SystemEvent("Channel resumed (channelId=" + channelId + ")."));
 	}
 	
 	/**
@@ -155,8 +171,10 @@ public class ChannelStatusController {
 		logger.debug("retrieving deployed channel id list");
 		List<String> deployedChannelIdList = new ArrayList<String>();
 		
+		JMXConnection jmxConnection = null;
+		
 		try {
-			jmxConnection = new JMXConnection();
+			jmxConnection = JMXConnectionFactory.createJMXConnection();
 			Set beanObjectNames = jmxConnection.getMBeanNames();
 
 			for (Iterator iter = beanObjectNames.iterator(); iter.hasNext();) {
@@ -176,6 +194,8 @@ public class ChannelStatusController {
 			return deployedChannelIdList;
 		} catch (Exception e) {
 			throw new ControllerException(e);
+		} finally {
+			// TODO: close the connection
 		}
 	}
 	
@@ -187,10 +207,12 @@ public class ChannelStatusController {
 	 * @throws ControllerException
 	 */
 	private ChannelStatus.State getState(int channelId) throws ControllerException {
-		logger.debug("retrieving channel state: " + channelId);
+		logger.debug("retrieving channel state: channelId=" + channelId);
+		
+		JMXConnection jmxConnection = null;
 		
 		try {
-			jmxConnection = new JMXConnection();
+			jmxConnection = JMXConnectionFactory.createJMXConnection();
 			Hashtable<String, String> properties = new Hashtable<String, String>();
 			properties.put("type", "control");
 			properties.put("name", channelId + "ComponentService");
@@ -204,6 +226,8 @@ public class ChannelStatusController {
 			}
 		} catch (Exception e) {
 			throw new ControllerException(e);
+		} finally {
+			// TODO: close the connection
 		}
 	}
 }

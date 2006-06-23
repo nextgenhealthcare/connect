@@ -45,6 +45,7 @@ import com.webreach.mirth.server.Command;
 import com.webreach.mirth.server.CommandQueue;
 import com.webreach.mirth.server.builders.MuleConfigurationBuilder;
 import com.webreach.mirth.server.util.DatabaseConnection;
+import com.webreach.mirth.server.util.DatabaseConnectionFactory;
 import com.webreach.mirth.server.util.DatabaseUtil;
 import com.webreach.mirth.server.util.PropertyLoader;
 
@@ -57,15 +58,15 @@ import com.webreach.mirth.server.util.PropertyLoader;
 public class ConfigurationController {
 	private Logger logger = Logger.getLogger(ConfigurationController.class);
 	private SystemLogger systemLogger = new SystemLogger();
-	private DatabaseConnection dbConnection;
 
 	public Map<String, Transport> getTransports() throws ControllerException {
 		logger.debug("retrieving transport list");
 
+		DatabaseConnection dbConnection = null;
 		ResultSet result = null;
 
 		try {
-			dbConnection = new DatabaseConnection();
+			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
 			
 			Table transports = new Table("transports");
 			SelectQuery select = new SelectQuery(transports);
@@ -76,7 +77,7 @@ public class ConfigurationController {
 			select.addColumn(transports, "transformers");
 			select.addColumn(transports, "type");
 			
-			result = dbConnection.query(select.toString());
+			result = dbConnection.executeQuery(select.toString());
 			return getTransportMap(result);
 		} catch (SQLException e) {
 			throw new ControllerException(e);
@@ -135,12 +136,13 @@ public class ConfigurationController {
 	public int getNextId() throws ControllerException {
 		logger.debug("retrieving next id");
 
-		dbConnection = new DatabaseConnection();
+		DatabaseConnection dbConnection = null;
 		ResultSet result = null;
 		int id = -1;
 
 		try {
-			result = dbConnection.query("SELECT NEXT VALUE FOR SEQ_CONFIGURATION FROM INFORMATION_SCHEMA.SYSTEM_SEQUENCES WHERE SEQUENCE_NAME='SEQ_CONFIGURATION';");
+			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
+			result = dbConnection.executeQuery("SELECT NEXT VALUE FOR SEQ_CONFIGURATION FROM INFORMATION_SCHEMA.SYSTEM_SEQUENCES WHERE SEQUENCE_NAME='SEQ_CONFIGURATION';");
 			result.next();
 
 			if (result.getInt(1) > 0) {
@@ -193,10 +195,12 @@ public class ConfigurationController {
 		logger.debug("retrieving latest configuration");
 
 		Properties properties = PropertyLoader.loadProperties("mirth");
+		DatabaseConnection dbConnection = null;
 		ResultSet result = null;
+		
 		try {
-			dbConnection = new DatabaseConnection();
-			result = dbConnection.query("SELECT ID, DATE_CREATED, DATA FROM CONFIGURATIONS WHERE DATE_CREATED IN (SELECT MAX(DATE_CREATED) FROM CONFIGURATIONS);");
+			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
+			result = dbConnection.executeQuery("SELECT ID, DATE_CREATED, DATA FROM CONFIGURATIONS WHERE DATE_CREATED IN (SELECT MAX(DATE_CREATED) FROM CONFIGURATIONS);");
 
 			while (result.next()) {
 				logger.debug("using configuration ID" + result.getInt("ID") + " created @ " + result.getTimestamp("DATE_CREATED").toString());
@@ -226,12 +230,14 @@ public class ConfigurationController {
 	private void addConfiguration(String data) throws ControllerException {
 		logger.debug("adding configuration");
 
+		DatabaseConnection dbConnection = null;
+		
 		try {
-			dbConnection = new DatabaseConnection();
+			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
 			StringBuilder insert = new StringBuilder();
 			insert.append("INSERT INTO CONFIGURATIONS (DATA) VALUES (");
 			insert.append("'" + data + "');");
-			dbConnection.update(insert.toString());
+			dbConnection.executeUpdate(insert.toString());
 		} catch (Exception e) {
 			throw new ControllerException(e);
 		} finally {

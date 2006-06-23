@@ -12,11 +12,11 @@ import com.truemesh.squiggle.SelectQuery;
 import com.truemesh.squiggle.Table;
 import com.webreach.mirth.model.User;
 import com.webreach.mirth.server.util.DatabaseConnection;
+import com.webreach.mirth.server.util.DatabaseConnectionFactory;
 import com.webreach.mirth.server.util.DatabaseUtil;
 
 public class UserController {
 	private Logger logger = Logger.getLogger(UserController.class);
-	private DatabaseConnection dbConnection;
 
 	/**
 	 * Returns a List containing the User with the specified <code>userId</code>.
@@ -32,10 +32,11 @@ public class UserController {
 	public List<User> getUsers(Integer userId) throws ControllerException {
 		logger.debug("retrieving user list: user id = " + userId);
 
+		DatabaseConnection dbConnection = null;
 		ResultSet result = null;
 
 		try {
-			dbConnection = new DatabaseConnection();
+			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
 
 			Table users = new Table("users");
 			SelectQuery select = new SelectQuery(users);
@@ -48,7 +49,7 @@ public class UserController {
 				select.addCriteria(new MatchCriteria(users, "id", MatchCriteria.EQUALS, userId.toString()));
 			}
 
-			result = dbConnection.query(select.toString());
+			result = dbConnection.executeQuery(select.toString());
 			return getUserList(result);
 		} catch (SQLException e) {
 			throw new ControllerException(e);
@@ -91,8 +92,10 @@ public class UserController {
 	public void updateUser(User user) throws ControllerException {
 		logger.debug("updating user: " + user.toString());
 
+		DatabaseConnection dbConnection = null;
+		
 		try {
-			dbConnection = new DatabaseConnection();
+			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
 			StringBuffer statement = new StringBuffer();
 
 			if (getUsers(user.getId()).isEmpty()) {
@@ -107,7 +110,7 @@ public class UserController {
 				statement.append(" WHERE ID = " + user.getId() + ";");
 			}
 
-			dbConnection.update(statement.toString());
+			dbConnection.executeUpdate(statement.toString());
 		} catch (SQLException e) {
 			throw new ControllerException(e);
 		} finally {
@@ -125,12 +128,14 @@ public class UserController {
 	public void removeUser(int userId) throws ControllerException {
 		logger.debug("removing user: " + userId);
 
+		DatabaseConnection dbConnection = null;
+		
 		try {
-			dbConnection = new DatabaseConnection();
+			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
 			StringBuffer statement = new StringBuffer();
 			statement.append("DELETE FROM USERS");
 			statement.append(" WHERE ID = " + userId + ";");
-			dbConnection.update(statement.toString());
+			dbConnection.executeUpdate(statement.toString());
 		} catch (SQLException e) {
 			throw new ControllerException(e);
 		} finally {
@@ -151,10 +156,11 @@ public class UserController {
 	public int authenticateUser(String username, String password) throws ControllerException {
 		logger.debug("authenticating user: " + username);
 
+		DatabaseConnection dbConnection = null;
 		ResultSet result = null;
 
 		try {
-			dbConnection = new DatabaseConnection();
+			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
 			
 			Table users = new Table("users");
 			SelectQuery select = new SelectQuery(users);
@@ -162,7 +168,7 @@ public class UserController {
 			select.addCriteria(new MatchCriteria(users, "username", MatchCriteria.EQUALS, username));
 			select.addCriteria(new MatchCriteria(users, "password", MatchCriteria.EQUALS, password));
 			
-			result = dbConnection.query(select.toString());
+			result = dbConnection.executeQuery(select.toString());
 
 			while (result.next()) {
 				return result.getInt("ID");

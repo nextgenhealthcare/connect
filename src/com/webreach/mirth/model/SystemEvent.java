@@ -36,7 +36,6 @@ import java.util.Properties;
  */
 public class SystemEvent {
 	private int id;
-	private int channelId;
 	private int level = 0;
 	private Calendar date;
 	private String event;
@@ -46,24 +45,10 @@ public class SystemEvent {
 	public SystemEvent() {
 		this.attributes = new Properties();
 	}
-
+	
 	public SystemEvent(String event) {
 		this.attributes = new Properties();
 		this.event = event;
-	}
-
-	public SystemEvent(int channelId, String event) {
-		this.attributes = new Properties();
-		this.channelId = channelId;
-		this.event = event;
-	}
-
-	public int getChannelId() {
-		return this.channelId;
-	}
-
-	public void setChannelId(int channelId) {
-		this.channelId = channelId;
 	}
 
 	public Calendar getDate() {
@@ -118,7 +103,6 @@ public class SystemEvent {
 		StringBuilder builder = new StringBuilder();
 		builder.append("SystemEvent[");
 		builder.append("id=" + getId() + ", ");
-		builder.append("channelId=" + getChannelId() + ", ");
 		builder.append("level=" + getLevel() + ", ");
 		builder.append("event=" + getEvent() + ", ");
 		builder.append("description=" + getDescription() + ", ");

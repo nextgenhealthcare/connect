@@ -14,6 +14,7 @@ import com.truemesh.squiggle.Table;
 import com.webreach.mirth.model.MessageEvent;
 import com.webreach.mirth.model.filters.MessageEventFilter;
 import com.webreach.mirth.server.util.DatabaseConnection;
+import com.webreach.mirth.server.util.DatabaseConnectionFactory;
 import com.webreach.mirth.server.util.DatabaseUtil;
 
 /**
@@ -24,7 +25,6 @@ import com.webreach.mirth.server.util.DatabaseUtil;
  */
 public class MessageLogger {
 	private Logger logger = Logger.getLogger(MessageLogger.class);
-	private DatabaseConnection dbConnection;
 	
 	/**
 	 * Adds a new message to the database.
@@ -35,8 +35,10 @@ public class MessageLogger {
 	public void logMessageEvent(MessageEvent messageEvent) {
 		logger.debug("adding message event: " + messageEvent.getChannelId());
 		
+		DatabaseConnection dbConnection = null;
+		
 		try {
-			dbConnection = new DatabaseConnection();	
+			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();	
 			StringBuilder insert = new StringBuilder();
 			insert.append("INSERT INTO MESSAGES (CHANNEL_ID, SENDING_FACILITY, EVENT, CONTROL_ID, MESSAGE, STATUS) VALUES(");
 			insert.append(messageEvent.getChannelId() + ", ");
@@ -45,7 +47,7 @@ public class MessageLogger {
 			insert.append("'" + messageEvent.getControlId() + "', ");
 			insert.append("'" + messageEvent.getMessage() + "', ");
 			insert.append("'" + messageEvent.getStatus().toString() + "');");
-			dbConnection.update(insert.toString());
+			dbConnection.executeUpdate(insert.toString());
 		} catch (Exception e) {
 			logger.error("could not log message: channel id = " + messageEvent.getChannelId(), e);
 		}
@@ -61,10 +63,11 @@ public class MessageLogger {
 	public List<MessageEvent> getMessageEvents(MessageEventFilter filter) throws ControllerException {
 		logger.debug("retrieving message event list: " + filter.toString());
 		
+		DatabaseConnection dbConnection = null;
 		ResultSet result = null;
 		
 		try {
-			dbConnection = new DatabaseConnection();
+			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
 			
 			Table messages = new Table("messages");
 			SelectQuery select = new SelectQuery(messages);
@@ -111,7 +114,7 @@ public class MessageLogger {
 				select.addCriteria(new MatchCriteria(messages, "status", MatchCriteria.EQUALS, filter.getStatus().toString()));
 			}
 
-			result = dbConnection.query(select.toString());
+			result = dbConnection.executeQuery(select.toString());
 			return getMessageEventList(result);
 		} catch (SQLException e) {
 			throw new ControllerException(e);
@@ -129,12 +132,14 @@ public class MessageLogger {
 	public void removeMessageEvent(int messageEventId) throws ControllerException {
 		logger.debug("removing message event: " + messageEventId);
 		
+		DatabaseConnection dbConnection = null;
+		
 		try {
-			dbConnection = new DatabaseConnection();
+			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
 			StringBuilder statement = new StringBuilder();
 			statement.append("delete from messages");
 			statement.append(" where id = " + messageEventId + ";");
-			dbConnection.update(statement.toString());
+			dbConnection.executeUpdate(statement.toString());
 		} catch (SQLException e) {
 			throw new ControllerException(e);
 		} finally {
@@ -150,12 +155,14 @@ public class MessageLogger {
 	public void clearMessageEvents(int channelId) throws ControllerException {
 		logger.debug("clearing message events: " + channelId);
 
+		DatabaseConnection dbConnection = null;
+		
 		try {
-			dbConnection = new DatabaseConnection();
+			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
 			StringBuilder statement = new StringBuilder();
 			statement.append("delete from messages");
 			statement.append(" where channel_id = " + channelId + ";");
-			dbConnection.update(statement.toString());
+			dbConnection.executeUpdate(statement.toString());
 		} catch (SQLException e) {
 			throw new ControllerException(e);
 		} finally {

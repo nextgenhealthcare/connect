@@ -31,6 +31,7 @@ import java.io.File;
 import java.io.FileReader;
 
 import com.webreach.mirth.server.util.DatabaseConnection;
+import com.webreach.mirth.server.util.DatabaseConnectionFactory;
 
 public class CreateDatabaseTables {
 	public static void main(String[] args) {
@@ -40,7 +41,7 @@ public class CreateDatabaseTables {
 			System.out.println("Usage: java CreateDatabaseTables script");
 		} else {
 			try {
-				dbConnection = new DatabaseConnection();
+				dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
 				StringBuilder script = new StringBuilder();
 
 				BufferedReader reader = new BufferedReader(new FileReader(new File(args[0])));
@@ -54,7 +55,8 @@ public class CreateDatabaseTables {
 
 				System.out.println("Executing script \"" + args[0] + "\" on database.");
 
-				dbConnection.update(script.toString());
+				dbConnection.executeUpdate(script.toString());
+				dbConnection.executeUpdate("shutdown");
 			} catch (Exception e) {
 				e.printStackTrace();
 			} finally {
