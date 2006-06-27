@@ -9,12 +9,8 @@
 
 		<path id="classpath">
 			<fileset dir="${lib}" includes="*.jar" />
-			
 			<fileset dir="${lib}/mule" includes="*.jar" />
-			<fileset dir="${lib}/mule/lib" includes="*.jar" />
-			<fileset dir="${lib}/mule/lib/opt" includes="*.jar" />
-			
-			<pathelement location="${mule}" />
+			<fileset dir="${lib}/jetty" includes="*.jar" />
 		</path>
 
 		<mkdir dir="${logs}" />

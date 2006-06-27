@@ -139,7 +139,7 @@ public class Mirth {
 			SocketListener listener = new SocketListener();
 			listener.setPort(8080);
 			webServer.addListener(listener);
-			webServer.addWebApplication("/", "./jetty/webapps/mirth.war");
+			webServer.addWebApplication("/", "./web/webapps/mirth.war");
 			webServer.start();
 		} catch (Exception e) {
 			logger.warn("Could not start web server.", e);
