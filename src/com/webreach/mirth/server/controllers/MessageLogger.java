@@ -24,7 +24,7 @@ import com.webreach.mirth.server.util.DatabaseUtil;
  *
  */
 public class MessageLogger {
-	private Logger logger = Logger.getLogger(MessageLogger.class);
+	private Logger logger = Logger.getLogger(this.getClass());
 	
 	/**
 	 * Adds a new message to the database.

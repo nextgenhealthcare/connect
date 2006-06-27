@@ -258,7 +258,7 @@ public class ConfigurationController {
 		try {
 			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
 			StringBuilder insert = new StringBuilder();
-			insert.append("INSERT INTO configurations (date) VALUES (");
+			insert.append("INSERT INTO configurations (data) VALUES (");
 			insert.append("'" + data + "');");
 			dbConnection.executeUpdate(insert.toString());
 		} catch (Exception e) {

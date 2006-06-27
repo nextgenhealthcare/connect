@@ -1,0 +1,161 @@
+<project name="mirth" basedir="." default="help">
+	<target name="help">
+		<echo>Mirth Build Help</echo>
+		<echo>----------------</echo>
+	</target>
+
+	<target name="init">
+		<property file="build.properties" />
+
+		<path id="classpath">
+			<fileset dir="${lib}" includes="*.jar" />
+			
+			<fileset dir="${lib}/mule" includes="*.jar" />
+			<fileset dir="${lib}/mule/lib" includes="*.jar" />
+			<fileset dir="${lib}/mule/lib/opt" includes="*.jar" />
+			
+			<pathelement location="${mule}" />
+		</path>
+
+		<mkdir dir="${logs}" />
+	</target>
+
+	<target name="clean" depends="init">
+		<delete dir="${classes}" />
+		<delete dir="${webapp.classes}" />
+		<delete dir="${web}" />
+		<delete dir="${setup}" />
+		<delete dir="${dist}" />
+	</target>
+
+	<target name="compile" depends="clean, init">
+		<!-- compile the source -->
+		<mkdir dir="${classes}" />
+
+		<javac srcdir="${src}" destdir="${classes}" debug="on">
+			<include name="com/webreach/mirth/model/**" />
+			<include name="com/webreach/mirth/server/**" />
+			<include name="com/webreach/mirth/client/core/**" />
+			<include name="org/mule/providers/**" />
+			<exclude name="org/mule/providers/ejb/**" />
+			<classpath refid="classpath" />
+		</javac>
+	</target>
+	
+	<target name="create-client" depends="compile">
+		<jar destfile="client.jar" basedir="${classes}" includes="com/webreach/mirth/client/core/**, com/webreach/mirth/model/**"/>
+	</target>
+
+	<target name="create-web" depends="compile">
+		<mkdir dir="${web}" />
+		<mkdir dir="${web.webapps}" />
+		<mkdir dir="${web.logs}" />
+		
+		<mkdir dir="${webapp.classes}" />
+
+		<copy todir="${webapp.classes}">
+			<fileset dir="${classes}/com/webreach/mirth/server/servlets" />
+		</copy>
+
+		<!-- create the webapp war in the Jetty webapps directory -->
+		<jar basedir="${webapp}" destfile="${web.webapps}/mirth.war" />
+	</target>
+
+	<target name="create-setup" depends="create-web">
+		<!-- create the setup directory -->
+		<mkdir dir="${setup}" />
+		<mkdir dir="${setup.config}" />
+		<mkdir dir="${setup.scripts}" />
+		<mkdir dir="${setup.lib}" />
+		<mkdir dir="${setup.web}" />
+		<mkdir dir="${setup.source}" />
+		<mkdir dir="${setup.logs}" />
+
+		<!-- copy source files -->
+		<copy todir="${setup.source}">
+			<fileset dir="${src}">
+				<include name="com/webreach/mirth/**" />
+				<include name="org/mule/providers/**" />
+			</fileset>
+		</copy>
+
+		<!-- copy config files -->
+		<copy todir="${setup.config}">
+			<fileset file="${config}/mule-boot.xml" />
+			<fileset file="${config}/mirth.properties" />
+		</copy>
+
+		<!-- copy sql scripts -->
+		<copy todir="${setup.scripts}">
+			<fileset file="${scripts}/database.sql" />
+			<fileset file="${scripts}/transports.sql" />
+		</copy>
+
+		<!-- copy build files -->
+		<copy todir="${setup}">
+			<fileset file="${basedir}/log4j.properties" />
+			<fileset file="${basedir}/build.properties" />
+			<fileset file="${basedir}/build.xml" />
+		</copy>
+
+		<!-- create the Mirth jar file -->
+		<jar destfile="${setup}/${mirth}.jar" basedir="${classes}" manifest="${deploy}/Manifest.txt" excludes="" />
+
+		<!-- create the Mule jar file -->
+		<jar destfile="${setup}/${mule}.jar" basedir="${mule}" />
+
+		<!-- copy lib -->
+		<copy todir="${setup.lib}">
+			<fileset dir="${lib}" />
+		</copy>
+
+		<!-- copy web -->
+		<copy todir="${setup.web}">
+			<fileset dir="${web}" />
+		</copy>
+
+		<!-- remove svn folders -->
+		<delete>
+			<fileset dir="${setup}" includes="**/.svn" />
+		</delete>
+
+		<!-- create the database directory -->
+		<copy file="${deploy}/database.sql" todir="${setup}" />
+
+		<java classname="com.webreach.mirth.deploy.CreateDatabaseTables">
+			<classpath>
+				<pathelement location="${setup}/${mirth}.jar" />
+				<pathelement location="${setup}/${mule}.jar" />
+				<pathelement location="${setup.config}" />
+				<fileset dir="${setup.lib}">
+					<include name="**/*.jar" />
+				</fileset>
+			</classpath>
+
+			<arg value="mirth" />
+			<arg value="${scripts}/database.sql" />
+		</java>
+
+		<!-- copy the batch scripts -->
+		<copy file="${deploy}/Mirth.bat" todir="${setup}" />
+		<copy file="${deploy}/Mirth.sh" todir="${setup}" />
+
+		<!-- copy the EULA document -->
+		<copy file="${deploy}/LICENSE.txt" todir="${setup}" />
+		<copy file="${deploy}/ACKNOWLEDGEMENTS.txt" todir="${setup}" />
+
+		<!-- zip the source code -->
+		<zip basedir="${setup.source}" destfile="${setup}/${mirth}-src.zip" />
+
+		<!-- remove the source code -->
+		<delete dir="${setup.source}" />
+	</target>
+
+	<target name="create-dist" depends="create-setup">
+		<!-- create the dist directory -->
+		<mkdir dir="${dist}" />
+
+		<!-- create the distribution zip -->
+		<zip basedir="${setup}" destfile="${dist}/${mirth}.zip" />
+	</target>
+</project>
