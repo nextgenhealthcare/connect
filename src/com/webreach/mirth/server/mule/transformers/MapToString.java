@@ -26,30 +26,19 @@
 
 package com.webreach.mirth.server.mule.transformers;
 
-import java.util.HashMap;
-import java.util.Iterator;
+import java.util.Map;
 
 import org.mule.transformers.AbstractTransformer;
 import org.mule.umo.transformer.TransformerException;
 
-public class HashMapToString extends AbstractTransformer {
-	public HashMapToString() {
+public class MapToString extends AbstractTransformer {
+	public MapToString() {
 		super();
-		this.registerSourceType(HashMap.class);
+		this.registerSourceType(Map.class);
 		setReturnClass(String.class);
 	}
 
     public Object doTransform(Object source) throws TransformerException {
-    	HashMap map = (HashMap) source;
-    	String string = "";
-    	
-    	
-    	for (Iterator iter = map.keySet().iterator(); iter.hasNext();) {
-			String key = (String) iter.next();
-			
-			string += key + ":" + map.get(key) + "\n";
-		}
-    	
-    	return string;
+    	return ((Map) source).toString();
     }
 }
