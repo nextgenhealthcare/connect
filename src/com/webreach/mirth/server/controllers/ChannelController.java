@@ -100,7 +100,7 @@ public class ChannelController {
 
 		// if it's not a new channel, and its version is different from the one
 		// in the database, and override is not enabled
-		if ((channel.getVersion() > 0) && (getChannels(channel.getId()).get(0).getVersion() != channel.getVersion()) && !override) {
+		if ((channel.getVersion() > 0) && !getChannels(channel.getId()).isEmpty() && (getChannels(channel.getId()).get(0).getVersion() != channel.getVersion()) && !override) {
 			return false;
 		} else {
 			channel.setVersion(channel.getVersion() + 1);
