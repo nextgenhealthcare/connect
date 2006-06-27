@@ -47,7 +47,6 @@ public class Mirth {
 	private UMOManager muleManager = null;
 	private Server webServer = null;
 	private CommandQueue commandQueue = CommandQueue.getInstance();
-	private ConfigurationController configurationController = new ConfigurationController();
 
 	public static void main(String[] args) {
 		Mirth mirth = new Mirth();
@@ -61,30 +60,23 @@ public class Mirth {
 	public void start() {
 		running = true;
 		startWebServer();
-		commandQueue.addCommand(new Command(Command.CMD_START_MULE));
+		commandQueue.addCommand(new Command(Command.Operation.START));
 
 		// pulls commands off of the command queue
 		while (running) {
 			System.out.println("waiting for command...");
 			Command command = commandQueue.getCommand();
-
-			switch (command.getCommand()) {
-				case Command.CMD_START_MULE:
-					startMule();
-					break;
-				case Command.CMD_STOP_MULE:
-					stopMule();
-					break;
-				case Command.CMD_RESTART_MULE:
-					restartMule();
-					break;
-				case Command.CMD_SHUTDOWN:
-					stopMule();
-					stopWebServer();
-					running = false;
-					break;
-				default:
-					break;
+			
+			if (command.getOperation().equals(Command.Operation.START)) {
+				startMule();
+			} else if (command.getOperation().equals(Command.Operation.STOP)) {
+				stopMule();
+			} else if (command.getOperation().equals(Command.Operation.RESTART)) {
+				restartMule();
+			} else if (command.getOperation().equals(Command.Operation.SHUTDOWN)) {
+				stopMule();
+				stopWebServer();
+				running = false;
 			}
 		}
 	}
@@ -92,32 +84,28 @@ public class Mirth {
 	// restarts mule
 	private void restartMule() {
 		logger.debug("retarting mule");
-
 		stopMule();
 		startMule();
 	}
 
 	// starts mule
 	private void startMule() {
+		ConfigurationController configurationController = new ConfigurationController();
+		
 		try {
 			String configurationFilePath = configurationController.getLatestConfiguration().getAbsolutePath();
 			logger.debug("starting mule with configuration file: " + configurationFilePath);
 
 			// disables validation of Mule configuration files
 			System.setProperty("org.mule.xml.validate", "false");
-
 			MuleXmlConfigurationBuilder builder = new MuleXmlConfigurationBuilder();
 			muleManager = builder.configure(configurationFilePath);
 		} catch (ConfigurationException e) {
-			// TODO: revert changes
-			logger.error("Invalid configuration.", e);
-			// remove the latest configuration from the database
-			// configurationService.revertConfiguration();
-			// restart mule with the last good configuration
-			// commandQueue.addCommand(new Command(Command.CMD_START_MULE,
-			// Command.PRIORITY_HIGH));
+			logger.warn("Invalid configuration.", e);
+			configurationController.deleteLatestConfiguration();
+			commandQueue.addCommand(new Command(Command.Operation.START));
 		} catch (ControllerException e) {
-			logger.error(e);
+			logger.warn("Could not retrieve latest configuration.", e);
 		}
 	}
 
@@ -154,7 +142,7 @@ public class Mirth {
 			webServer.addWebApplication("/", "./jetty/webapps/mirth.war");
 			webServer.start();
 		} catch (Exception e) {
-			logger.error(e);
+			logger.warn("Could not start web server.", e);
 		}
 	}
 
@@ -165,7 +153,7 @@ public class Mirth {
 		try {
 			webServer.stop();
 		} catch (InterruptedException e) {
-			logger.error(e);
+			logger.warn("Could not stop web server.", e);
 		}
 	}
 }

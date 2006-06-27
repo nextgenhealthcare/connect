@@ -43,7 +43,7 @@ public class ChannelController {
 
 		DatabaseConnection dbConnection = null;
 		ResultSet result = null;
-		
+
 		try {
 			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
 
@@ -95,9 +95,17 @@ public class ChannelController {
 	 *            Channel to be updated.
 	 * @throws ControllerException
 	 */
-	public void updateChannel(Channel channel) throws ControllerException {
+	public boolean updateChannel(Channel channel, boolean override) throws ControllerException {
 		DatabaseConnection dbConnection = null;
-		
+
+		// if it's not a new channel, and its version is different from the one
+		// in the database, and override is not enabled
+		if ((channel.getVersion() > 0) && (getChannels(channel.getId()).get(0).getVersion() != channel.getVersion()) && !override) {
+			return false;
+		} else {
+			channel.setVersion(channel.getVersion() + 1);
+		}
+
 		try {
 			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
 			StringBuilder statement = new StringBuilder();
@@ -117,6 +125,7 @@ public class ChannelController {
 			}
 
 			dbConnection.executeUpdate(statement.toString());
+			return true;
 		} catch (SQLException e) {
 			throw new ControllerException(e);
 		} finally {
@@ -159,6 +168,7 @@ public class ChannelController {
 	public String exportChannel(int channelId) throws ControllerException {
 		logger.debug("exporting channel: channelId=" + channelId);
 
+		ObjectSerializer serializer = new ObjectSerializer();
 		DatabaseConnection dbConnection = null;
 		ResultSet result = null;
 
@@ -169,7 +179,7 @@ public class ChannelController {
 			select.addColumn(channels, "channel_data");
 			select.addCriteria(new MatchCriteria(channels, "id", MatchCriteria.EQUALS, channelId));
 			result = dbConnection.executeQuery(select.toString());
-			return result.getString("channel_data");
+			return serializer.toXML(result.getString("channel_data"));
 		} catch (SQLException e) {
 			throw new ControllerException(e);
 		} finally {

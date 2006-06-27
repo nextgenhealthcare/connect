@@ -42,7 +42,9 @@ public class ChannelStatusController {
 			// TODO: close the connection
 		}
 
-		systemLogger.logSystemEvent(new SystemEvent("Channel started (channelId=" + channelId + ")."));
+		SystemEvent systemEvent = new SystemEvent("Channel started.");
+		systemEvent.getAttributes().put("channelId", channelId);
+		systemLogger.logSystemEvent(systemEvent);
 	}
 
 	/**
@@ -68,7 +70,9 @@ public class ChannelStatusController {
 			// TODO: close the connection
 		}
 
-		systemLogger.logSystemEvent(new SystemEvent("Channel stopped (channelId=" + channelId + ")."));
+		SystemEvent systemEvent = new SystemEvent("Channel stopped.");
+		systemEvent.getAttributes().put("channelId", channelId);
+		systemLogger.logSystemEvent(systemEvent);
 	}
 
 	/**
@@ -94,7 +98,9 @@ public class ChannelStatusController {
 			// TODO: close the connection
 		}
 
-		systemLogger.logSystemEvent(new SystemEvent("Channel paused (channelId=" + channelId + ")."));
+		SystemEvent systemEvent = new SystemEvent("Channel paused.");
+		systemEvent.getAttributes().put("channelId", channelId);
+		systemLogger.logSystemEvent(systemEvent);
 	}
 
 	/**
@@ -120,7 +126,9 @@ public class ChannelStatusController {
 			// TODO: close the connection
 		}
 
-		systemLogger.logSystemEvent(new SystemEvent("Channel resumed (channelId=" + channelId + ")."));
+		SystemEvent systemEvent = new SystemEvent("Channel resumed.");
+		systemEvent.getAttributes().put("channelId", channelId);
+		systemLogger.logSystemEvent(systemEvent);
 	}
 	
 	/**

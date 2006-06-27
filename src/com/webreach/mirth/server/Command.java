@@ -32,43 +32,53 @@ package com.webreach.mirth.server;
  * 
  * @author <a href="mailto:geraldb@webreachinc.com">Gerald Bortis</a>
  */
-public class Command implements Comparable {
-	public static final int CMD_SHUTDOWN = 9;
-	public static final int CMD_START_MULE = 101;
-	public static final int CMD_STOP_MULE = 102;
-	public static final int CMD_RESTART_MULE = 103;
-
-	public static final int PRIORITY_NORMAL = 0;
-	public static final int PRIORITY_HIGH = 1;
-
-	private int command;
+public class Command implements Comparable<Command> {
+	public enum Operation {
+		SHUTDOWN, START, STOP, RESTART
+	}
+	
+	public enum Priority {
+		NORMAL(0), HIGH(1);
+		
+		private final int value;
+		
+		private Priority(int value) {
+			this.value = value;
+		}
+		
+		public int getValue() {
+			return value;
+		}
+	}
+	
+	private Operation operation;
+	private Priority priority;
 	private Object parameter;
-	private int priority;
 
-	public Command(int command) {
-		this(command, null, PRIORITY_NORMAL);
+	public Command(Operation operation) {
+		this(operation, null, Priority.NORMAL);
 	}
 
-	public Command(int command, Object parameter) {
-		this(command, parameter, PRIORITY_NORMAL);
+	public Command(Operation operation, Object parameter) {
+		this(operation, parameter, Priority.NORMAL);
 	}
 
-	public Command(int command, int parameter) {
-		this(command, null, parameter);
+	public Command(Operation operation, Priority priority) {
+		this(operation, null, priority);
 	}
 
-	public Command(int command, Object parameter, int priority) {
-		this.command = command;
+	public Command(Operation operation, Object parameter, Priority priority) {
+		this.operation = operation;
 		this.parameter = parameter;
 		this.priority = priority;
 	}
 
-	public int getCommand() {
-		return command;
+	public Operation getOperation() {
+		return operation;
 	}
 
-	public void setCommand(int command) {
-		this.command = command;
+	public void setOperation(Operation operation) {
+		this.operation = operation;
 	}
 
 	public Object getParameter() {
@@ -79,20 +89,18 @@ public class Command implements Comparable {
 		this.parameter = parameter;
 	}
 
-	public int getPriority() {
+	public Priority getPriority() {
 		return priority;
 	}
 
-	public void setPriority(int priority) {
+	public void setPriority(Priority priority) {
 		this.priority = priority;
 	}
 
-	public int compareTo(Object o) {
-		Command compareCommand = (Command) o;
-
-		if (getPriority() < compareCommand.getPriority())
+	public int compareTo(Command compareCommand) {
+		if (getPriority().getValue() < compareCommand.getPriority().getValue())
 			return -1;
-		else if (getPriority() > compareCommand.getPriority())
+		else if (getPriority().getValue() > compareCommand.getPriority().getValue())
 			return 1;
 		else
 			return 0;
@@ -100,10 +108,10 @@ public class Command implements Comparable {
 
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append(this.getClass().getSimpleName() + "[");
-		builder.append(getCommand() + "/");
-		builder.append(getPriority() + "/");
-		builder.append(getParameter().toString());
+		builder.append("Command[");
+		builder.append("operation=" + getOperation() + ", ");
+		builder.append("priority=" + getPriority() + ", ");
+		builder.append("parameter=" + getParameter());
 		builder.append("]");
 		return builder.toString();
 	}

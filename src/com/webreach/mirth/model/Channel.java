@@ -49,7 +49,7 @@ public class Channel {
 	private String name;
 	private String description;
 	private boolean enabled;
-	private boolean modified;
+	private int version;
 	private Direction direction;
 	private Mode mode;
 	private Connector sourceConnector;
@@ -57,11 +57,19 @@ public class Channel {
 	private Properties properties = new Properties();
 
 	public Channel() {
-		
+
 	}
 
 	public Channel(Direction direction) {
 		this.direction = direction;
+	}
+
+	public int getVersion() {
+		return this.version;
+	}
+
+	public void setVersion(int version) {
+		this.version = version;
 	}
 
 	public Channel(Direction direction, Mode mode) {
@@ -99,14 +107,6 @@ public class Channel {
 
 	public void setId(int id) {
 		this.id = id;
-	}
-
-	public boolean isModified() {
-		return this.modified;
-	}
-
-	public void setModified(boolean modified) {
-		this.modified = modified;
 	}
 
 	public String getName() {
@@ -149,4 +149,14 @@ public class Channel {
 		this.properties = properties;
 	}
 
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("Channel[");
+		builder.append("id=" + getId() + ", ");
+		builder.append("name=" + getName() + ", ");
+		builder.append("enabled=" + isEnabled() + ", ");
+		builder.append("version=" + getVersion());
+		builder.append("]");
+		return builder.toString();
+	}
 }

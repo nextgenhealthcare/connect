@@ -23,7 +23,7 @@ import com.webreach.mirth.model.filters.SystemEventFilter;
 
 public class Client {
 	private Logger logger = Logger.getLogger(Client.class);
-	private String serverURL = null;
+	private String serverAddress = null;
 	private HttpClient client = new HttpClient();
 	private ObjectSerializer serializer = new ObjectSerializer();
 
@@ -38,10 +38,10 @@ public class Client {
 	 * Instantiates a new Mirth client with a connection to the specified
 	 * server.
 	 * 
-	 * @param serverURL
+	 * @param serverAddress
 	 */
-	public Client(String serverURL) {
-		this.serverURL = serverURL;
+	public Client(String serverAddress) {
+		this.serverAddress = serverAddress;
 	}
 
 	/**
@@ -56,7 +56,7 @@ public class Client {
 		PostMethod post = null;
 		
 		try {
-			post = new PostMethod(serverURL + servletName);
+			post = new PostMethod(serverAddress + servletName);
 			post.setRequestBody(params);
 
 			int statusCode = client.executeMethod(post);
@@ -129,10 +129,10 @@ public class Client {
 	 * @param channel
 	 * @throws ClientException
 	 */
-	public synchronized void updateChannel(Channel channel) throws ClientException {
-		logger.debug("updating channel: channelId=" + channel.getId());
-		NameValuePair[] params = { new NameValuePair("op", "updateChannel"), new NameValuePair("data", serializer.toXML(channel)) };
-		executePostMethod(CHANNEL_SERVLET, params);
+	public synchronized boolean updateChannel(Channel channel, boolean override) throws ClientException {
+		logger.debug("updating channel: channelId=" + channel.getId() + ", override=" + override);
+		NameValuePair[] params = { new NameValuePair("op", "updateChannel"), new NameValuePair("data", serializer.toXML(channel)), new NameValuePair("override", new Boolean(override).toString()) };
+		return Boolean.valueOf(executePostMethod(CHANNEL_SERVLET, params)).booleanValue();
 	}
 
 	/**

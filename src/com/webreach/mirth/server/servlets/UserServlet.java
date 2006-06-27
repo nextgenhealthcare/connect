@@ -19,10 +19,9 @@ public class UserServlet extends MirthServlet {
 	public static final String SESSION_USER = "user";
 	public static final String SESSION_AUTHORIZED = "authorized";
 
-	private UserController userController = new UserController();
-	private SystemLogger systemLogger = new SystemLogger();
-
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		UserController userController = new UserController();
+
 		PrintWriter out = response.getWriter();
 		HttpSession session = request.getSession();
 		String operation = request.getParameter("op");
@@ -55,6 +54,7 @@ public class UserServlet extends MirthServlet {
 
 	private boolean login(HttpSession session, String username, String password) throws ServletException {
 		try {
+			UserController userController = new UserController();
 			int authenticateUserId = userController.authenticateUser(username, password);
 
 			if (authenticateUserId >= 0) {
@@ -62,6 +62,7 @@ public class UserServlet extends MirthServlet {
 				session.setAttribute(SESSION_AUTHORIZED, true);
 
 				// log the event
+				SystemLogger systemLogger = new SystemLogger();
 				SystemEvent event = new SystemEvent("User logged in.");
 				event.getAttributes().put("Session ID", session.getId());
 				event.getAttributes().put("User ID", String.valueOf(authenticateUserId));
@@ -84,6 +85,7 @@ public class UserServlet extends MirthServlet {
 		session.invalidate();
 		
 		// log the event
+		SystemLogger systemLogger = new SystemLogger();
 		SystemEvent event = new SystemEvent("User logged out.");
 		event.getAttributes().put("Session ID", session.getId());
 		systemLogger.logSystemEvent(event);

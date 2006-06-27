@@ -67,16 +67,16 @@ public class ConfigurationController {
 
 		try {
 			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
-			
+
 			Table transports = new Table("transports");
 			SelectQuery select = new SelectQuery(transports);
-			
+
 			select.addColumn(transports, "name");
 			select.addColumn(transports, "class_name");
 			select.addColumn(transports, "protocol");
 			select.addColumn(transports, "transformers");
 			select.addColumn(transports, "type");
-			
+
 			result = dbConnection.executeQuery(select.toString());
 			return getTransportMap(result);
 		} catch (SQLException e) {
@@ -86,7 +86,7 @@ public class ConfigurationController {
 			dbConnection.close();
 		}
 	}
-	
+
 	/**
 	 * Returns a Map of Transports given a ResultSet.
 	 * 
@@ -177,11 +177,11 @@ public class ConfigurationController {
 			addConfiguration(builder.getConfiguration());
 			// restart the mule engine which will grab the latest configuration
 			// from the database
-			queue.addCommand(new Command(Command.CMD_RESTART_MULE));
+			queue.addCommand(new Command(Command.Operation.RESTART));
 		} catch (Exception e) {
 			throw new ControllerException(e);
 		}
-		
+
 		systemLogger.logSystemEvent(new SystemEvent("Channels deployed."));
 	}
 
@@ -197,10 +197,10 @@ public class ConfigurationController {
 		Properties properties = PropertyLoader.loadProperties("mirth");
 		DatabaseConnection dbConnection = null;
 		ResultSet result = null;
-		
+
 		try {
 			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
-			result = dbConnection.executeQuery("SELECT ID, DATE_CREATED, DATA FROM CONFIGURATIONS WHERE DATE_CREATED IN (SELECT MAX(DATE_CREATED) FROM CONFIGURATIONS);");
+			result = dbConnection.executeQuery("SELECT id, date_created, data FROM configurations WHERE date_created IN (SELECT MAX(date_created) FROM configurations);");
 
 			while (result.next()) {
 				logger.debug("using configuration ID" + result.getInt("ID") + " created @ " + result.getTimestamp("DATE_CREATED").toString());
@@ -222,6 +222,29 @@ public class ConfigurationController {
 	}
 
 	/**
+	 * Removes the most recent configuration from the database. This is used to
+	 * revert to the last good configuration.
+	 * 
+	 * @throws ControllerException
+	 */
+	public void deleteLatestConfiguration() {
+		logger.debug("deleting most recent configuration");
+		DatabaseConnection dbConnection = null;
+		
+		try {
+			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
+			StringBuilder statement = new StringBuilder();
+			statement.append("DELETE FROM configurations");
+			statement.append(" WHERE date_created IN (SELECT MAX(date_created) FROM configurations);");
+			dbConnection.executeUpdate(statement.toString());
+		} catch (SQLException e) {
+			logger.warn("Could not delete latest configuration.", e);
+		} finally {
+			dbConnection.close();
+		}
+	}
+
+	/**
 	 * Adds a new configuraiton to the database.
 	 * 
 	 * @param data
@@ -231,11 +254,11 @@ public class ConfigurationController {
 		logger.debug("adding configuration");
 
 		DatabaseConnection dbConnection = null;
-		
+
 		try {
 			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
 			StringBuilder insert = new StringBuilder();
-			insert.append("INSERT INTO CONFIGURATIONS (DATA) VALUES (");
+			insert.append("INSERT INTO configurations (date) VALUES (");
 			insert.append("'" + data + "');");
 			dbConnection.executeUpdate(insert.toString());
 		} catch (Exception e) {

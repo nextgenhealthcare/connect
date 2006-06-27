@@ -12,9 +12,9 @@ import com.webreach.mirth.model.converters.ObjectSerializer;
 import com.webreach.mirth.server.controllers.ConfigurationController;
 
 public class ConfigurationServlet extends MirthServlet {
-	private ConfigurationController configurationController = new ConfigurationController();
-
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		ConfigurationController configurationController = new ConfigurationController();
+		
 		if (!isUserLoggedIn(request.getSession())) {
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 		} else {

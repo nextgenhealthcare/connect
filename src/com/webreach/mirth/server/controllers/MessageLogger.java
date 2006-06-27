@@ -88,8 +88,9 @@ public class MessageLogger {
 			
 			// filter on start and end date
 			if ((filter.getStartDate() != null) && (filter.getEndDate() != null)) {
-				String startDate = String.format("%1$tY-%1$tm-%1$td", filter.getStartDate());
-				String endDate = String.format("%1$tY-%1$tm-%1$td", filter.getEndDate());
+				String startDate = String.format("%1$tY-%1$tm-%1$td 00:00:00", filter.getStartDate());
+				String endDate = String.format("%1$tY-%1$tm-%1$td 23:59:59", filter.getEndDate());
+				
 				select.addCriteria(new MatchCriteria(messages, "date_created", MatchCriteria.GREATEREQUAL, startDate));
 				select.addCriteria(new MatchCriteria(messages, "date_created", MatchCriteria.LESSEQUAL, endDate));
 			}

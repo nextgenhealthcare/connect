@@ -11,10 +11,10 @@ import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.converters.ObjectSerializer;
 import com.webreach.mirth.server.controllers.ChannelController;
 
-public class ChannelServlet  extends MirthServlet {
-	private ChannelController channelController = new ChannelController();
-	
+public class ChannelServlet extends MirthServlet {
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		ChannelController channelController = new ChannelController();
+		
 		if (!isUserLoggedIn(request.getSession())) {
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 		} else {
@@ -27,8 +27,10 @@ public class ChannelServlet  extends MirthServlet {
 					response.setContentType("application/xml");
 					out.println(serializer.toXML(channelController.getChannels(null)));
 				} else if (operation.equals("updateChannel")) {
+					response.setContentType("text/plain");
 					String channel = request.getParameter("data");
-					channelController.updateChannel((Channel) serializer.fromXML(channel));
+					boolean override = Boolean.valueOf(request.getParameter("override")).booleanValue();
+					out.print(channelController.updateChannel((Channel) serializer.fromXML(channel), override));
 				} else if (operation.equals("removeChannel")) {
 					String channelId = request.getParameter("data");
 					channelController.removeChannel(Integer.valueOf(channelId).intValue());
