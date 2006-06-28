@@ -23,7 +23,6 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
 package com.webreach.mirth.server.mule.transformers;
 
 import java.util.HashMap;
@@ -41,14 +40,14 @@ import com.webreach.mirth.model.converters.DocumentSerializer;
 
 /**
  * Transforms a database result row map into an XML string.
- *  
+ * 
  * @author <a href="mailto:geraldb@webreachinc.com">Gerald Bortis</a>
  */
 public class DatabaseRowToXML extends AbstractTransformer {
 	private static final long serialVersionUID = 1L;
 	private Logger logger = Logger.getLogger(DatabaseRowToXML.class);
 	private String rootElement;
-	
+
 	public String getRootElement() {
 		return rootElement;
 	}
@@ -69,30 +68,30 @@ public class DatabaseRowToXML extends AbstractTransformer {
 		return doTransform((HashMap) eventContext.getTransformedMessage());
 	}
 
-	public Object doTransform(Object src) {
-		HashMap data = (HashMap) src;
-		
+	public Object doTransform(Object source) {
+		HashMap data = (HashMap) source;
+
 		try {
-				// create a new document object
-				Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-				// create the root element
-				Element root = document.createElement(getRootElement());
-				// appent the root element to the object				
-				document.appendChild(root);
-				
-				for (Iterator iter = data.keySet().iterator(); iter.hasNext();) {
-					String key = (String) iter.next();
-					Element child = document.createElement(key);
-					child.appendChild(document.createTextNode(data.get(key).toString()));
-					root.appendChild(child);
-				}
-				
-				// serialize the DOM object to a String
-				DocumentSerializer docSerializer = new DocumentSerializer();
-				return docSerializer.toXML(document);
+			// create a new document object
+			Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+			// create the root element
+			Element root = document.createElement(getRootElement());
+			// appent the root element to the object
+			document.appendChild(root);
+
+			for (Iterator iter = data.keySet().iterator(); iter.hasNext();) {
+				String key = (String) iter.next();
+				Element child = document.createElement(key);
+				child.appendChild(document.createTextNode(data.get(key).toString()));
+				root.appendChild(child);
+			}
+
+			// serialize the DOM object to a String
+			DocumentSerializer docSerializer = new DocumentSerializer();
+			return docSerializer.toXML(document);
 		} catch (Exception e) {
 			logger.error(e.toString());
-			
+
 			return null;
 		}
 	}

@@ -24,7 +24,7 @@
  * ***** END LICENSE BLOCK ***** */
 
 
-package com.webreach.mirth.server.util;
+package com.webreach.mirth.util;
 
 import java.io.InputStream;
 import java.util.Enumeration;

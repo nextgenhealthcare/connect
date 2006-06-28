@@ -3,6 +3,8 @@ package com.webreach.mirth.server.util;
 import java.sql.SQLException;
 import java.util.Properties;
 
+import com.webreach.mirth.util.PropertyLoader;
+
 
 public class DatabaseConnectionFactory {
 	private static boolean isDriverRegistered = false;

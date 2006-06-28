@@ -58,10 +58,10 @@ public class HL7StringToXMLString extends AbstractTransformer {
 	 * @throws TransformerException
 	 *             if the message could not be parsed and transformed
 	 */
-	public Object doTransform(Object src) throws TransformerException {
+	public Object doTransform(Object source) throws TransformerException {
 		// disable validation of TN phone numbers
 		System.setProperty("ca.uhn.hl7v2.model.primitive.CommonTN.validate", "false");
-		String hl7String = (String) src;
+		String hl7String = (String) source;
 		logger.debug("incoming message: " + hl7String);
 		// this is needed for HTTP connector
 		hl7String = hl7String.replace('\n', '\r');
@@ -70,8 +70,7 @@ public class HL7StringToXMLString extends AbstractTransformer {
 		try {
 			Message hl7Message = pipeParser.parse(hl7String);
 			XMLParser xmlParser = new DefaultXMLParser();
-			String xmlString = xmlParser.encode(hl7Message);
-			return xmlString;
+			return xmlParser.encode(hl7Message);
 		} catch (HL7Exception e) {
 			throw new TransformerException(org.mule.config.i18n.Message.createStaticMessage("Failed to parse String at: " + e.getSegmentName()), this);
 		}

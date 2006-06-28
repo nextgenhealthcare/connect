@@ -43,7 +43,7 @@ import com.webreach.mirth.model.Connector;
 import com.webreach.mirth.model.Transformer;
 import com.webreach.mirth.model.Transport;
 import com.webreach.mirth.model.converters.DocumentSerializer;
-import com.webreach.mirth.server.util.PropertyLoader;
+import com.webreach.mirth.util.PropertyLoader;
 
 /**
  * A MuleConfigurationBuilder is used to generate Mule configurations based on

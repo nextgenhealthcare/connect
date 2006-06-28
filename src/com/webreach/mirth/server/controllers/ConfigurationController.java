@@ -47,7 +47,7 @@ import com.webreach.mirth.server.builders.MuleConfigurationBuilder;
 import com.webreach.mirth.server.util.DatabaseConnection;
 import com.webreach.mirth.server.util.DatabaseConnectionFactory;
 import com.webreach.mirth.server.util.DatabaseUtil;
-import com.webreach.mirth.server.util.PropertyLoader;
+import com.webreach.mirth.util.PropertyLoader;
 
 /**
  * The ConfigurationController provides access to the Mirth configuration.

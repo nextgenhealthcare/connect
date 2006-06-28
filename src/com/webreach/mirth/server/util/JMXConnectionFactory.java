@@ -2,6 +2,8 @@ package com.webreach.mirth.server.util;
 
 import java.util.Properties;
 
+import com.webreach.mirth.util.PropertyLoader;
+
 public class JMXConnectionFactory {
 	private static Properties properties = PropertyLoader.loadProperties("mirth");
 	
