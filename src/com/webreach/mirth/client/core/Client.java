@@ -148,18 +148,6 @@ public class Client {
 	}
 
 	/**
-	 * Returns the XML representation of the channel with the specified ID.
-	 * 
-	 * @return
-	 * @throws ClientException
-	 */
-	public synchronized String exportChannel(int channelId) throws ClientException {
-		logger.debug("exporting channel: channelId=" + channelId);
-		NameValuePair[] params = { new NameValuePair("op", "exportChannel"), new NameValuePair("data", String.valueOf(channelId)) };
-		return executePostMethod(CHANNEL_SERVLET, params);
-	}
-
-	/**
 	 * Returns a List of all transports.
 	 * 
 	 * @return

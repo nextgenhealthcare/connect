@@ -156,35 +156,4 @@ public class ChannelController {
 			dbConnection.close();
 		}
 	}
-
-	/**
-	 * Returns the XML representation of the channel with the specified ID.
-	 * 
-	 * @param channelId
-	 *            ID of the channel to be exported.
-	 * @return the XML representation of the channel with the specified ID.
-	 * @throws ControllerException
-	 */
-	public String exportChannel(int channelId) throws ControllerException {
-		logger.debug("exporting channel: channelId=" + channelId);
-
-		ObjectSerializer serializer = new ObjectSerializer();
-		DatabaseConnection dbConnection = null;
-		ResultSet result = null;
-
-		try {
-			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
-			Table channels = new Table("channels");
-			SelectQuery select = new SelectQuery(channels);
-			select.addColumn(channels, "channel_data");
-			select.addCriteria(new MatchCriteria(channels, "id", MatchCriteria.EQUALS, channelId));
-			result = dbConnection.executeQuery(select.toString());
-			return serializer.toXML(result.getString("channel_data"));
-		} catch (SQLException e) {
-			throw new ControllerException(e);
-		} finally {
-			DatabaseUtil.close(result);
-			dbConnection.close();
-		}
-	}
 }
