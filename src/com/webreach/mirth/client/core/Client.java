@@ -17,7 +17,7 @@ import com.webreach.mirth.model.Statistics;
 import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.model.Transport;
 import com.webreach.mirth.model.User;
-import com.webreach.mirth.model.converters.ObjectSerializer;
+import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.model.filters.MessageEventFilter;
 import com.webreach.mirth.model.filters.SystemEventFilter;
 
@@ -25,7 +25,7 @@ public class Client {
 	private Logger logger = Logger.getLogger(Client.class);
 	private String serverAddress = null;
 	private HttpClient client = new HttpClient();
-	private ObjectSerializer serializer = new ObjectSerializer();
+	private ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 
 	private final static String USER_SERVLET = "/users";
 	private final static String CHANNEL_SERVLET = "/channels";
@@ -120,7 +120,7 @@ public class Client {
 	public synchronized List<Channel> getChannels() throws ClientException {
 		logger.debug("retrieving channel list");
 		NameValuePair[] params = { new NameValuePair("op", "getChannels") };
-		return (List<Channel>) serializer.fromXML(executePostMethod(CHANNEL_SERVLET, params));
+		return (List<Channel>) serializer.deserialize(executePostMethod(CHANNEL_SERVLET, params));
 	}
 
 	/**
@@ -131,7 +131,7 @@ public class Client {
 	 */
 	public synchronized boolean updateChannel(Channel channel, boolean override) throws ClientException {
 		logger.debug("updating channel: channelId=" + channel.getId() + ", override=" + override);
-		NameValuePair[] params = { new NameValuePair("op", "updateChannel"), new NameValuePair("data", serializer.toXML(channel)), new NameValuePair("override", new Boolean(override).toString()) };
+		NameValuePair[] params = { new NameValuePair("op", "updateChannel"), new NameValuePair("data", serializer.serialize(channel)), new NameValuePair("override", new Boolean(override).toString()) };
 		return Boolean.valueOf(executePostMethod(CHANNEL_SERVLET, params)).booleanValue();
 	}
 
@@ -156,7 +156,7 @@ public class Client {
 	public synchronized Map<String, Transport> getTransports() throws ClientException {
 		logger.debug("retrieving transport list");
 		NameValuePair[] params = { new NameValuePair("op", "getTransports") };
-		return (Map<String, Transport>) serializer.fromXML(executePostMethod(CONFIGURATION_SERVLET, params));
+		return (Map<String, Transport>) serializer.deserialize(executePostMethod(CONFIGURATION_SERVLET, params));
 	}
 
 	/**
@@ -168,7 +168,7 @@ public class Client {
 	public synchronized List<User> getUsers() throws ClientException {
 		logger.debug("retrieving user list");
 		NameValuePair[] params = { new NameValuePair("op", "getUsers") };
-		return (List<User>) serializer.fromXML(executePostMethod(USER_SERVLET, params));
+		return (List<User>) serializer.deserialize(executePostMethod(USER_SERVLET, params));
 	}
 
 	/**
@@ -179,7 +179,7 @@ public class Client {
 	 */
 	public synchronized void updateUser(User user) throws ClientException {
 		logger.debug("updating user: user id = " + user.toString());
-		NameValuePair[] params = { new NameValuePair("op", "updateUser"), new NameValuePair("data", serializer.toXML(user)) };
+		NameValuePair[] params = { new NameValuePair("op", "updateUser"), new NameValuePair("data", serializer.serialize(user)) };
 		executePostMethod(USER_SERVLET, params);
 	}
 
@@ -204,7 +204,7 @@ public class Client {
 	public synchronized Properties getServerProperties() throws ClientException {
 		logger.debug("retrieving server properties");
 		NameValuePair[] params = { new NameValuePair("op", "getServerProperties") };
-		return (Properties) serializer.fromXML(executePostMethod(CONFIGURATION_SERVLET, params));
+		return (Properties) serializer.deserialize(executePostMethod(CONFIGURATION_SERVLET, params));
 	}
 
 	/**
@@ -215,7 +215,7 @@ public class Client {
 	 */
 	public synchronized void updateServerProperties(Properties properties) throws ClientException {
 		logger.debug("updating server properties");
-		NameValuePair[] params = { new NameValuePair("op", "updateServerProperties"), new NameValuePair("data", serializer.toXML(properties)) };
+		NameValuePair[] params = { new NameValuePair("op", "updateServerProperties"), new NameValuePair("data", serializer.serialize(properties)) };
 		executePostMethod(CONFIGURATION_SERVLET, params);
 	}
 
@@ -296,7 +296,7 @@ public class Client {
 	public synchronized Statistics getStatistics(int channelId) throws ClientException {
 		logger.debug("retrieving channel statistics: channelId=" + channelId);
 		NameValuePair[] params = { new NameValuePair("op", "getStatistics"), new NameValuePair("id", String.valueOf(channelId)) };
-		return (Statistics) serializer.fromXML(executePostMethod(STATISTICS_SERVLET, params));
+		return (Statistics) serializer.deserialize(executePostMethod(STATISTICS_SERVLET, params));
 	}
 
 	/**
@@ -313,8 +313,8 @@ public class Client {
 
 	public synchronized List<SystemEvent> getSystemEvents(SystemEventFilter filter) throws ClientException {
 		logger.debug("retrieving log event list");
-		NameValuePair[] params = { new NameValuePair("op", "getSystemEvents"), new NameValuePair("filter", serializer.toXML(filter)) };
-		return (List<SystemEvent>) serializer.fromXML(executePostMethod(LOGGER_SERVLET, params));
+		NameValuePair[] params = { new NameValuePair("op", "getSystemEvents"), new NameValuePair("filter", serializer.serialize(filter)) };
+		return (List<SystemEvent>) serializer.deserialize(executePostMethod(LOGGER_SERVLET, params));
 	}
 
 	/**
@@ -361,8 +361,8 @@ public class Client {
 	 */
 	public synchronized List<MessageEvent> getMessageEvents(MessageEventFilter filter) throws ClientException {
 		logger.debug("retrieving message event list");
-		NameValuePair[] params = { new NameValuePair("op", "getMessageEvents"), new NameValuePair("filter", serializer.toXML(filter)) };
-		return (List<MessageEvent>) serializer.fromXML(executePostMethod(LOGGER_SERVLET, params));
+		NameValuePair[] params = { new NameValuePair("op", "getMessageEvents"), new NameValuePair("filter", serializer.serialize(filter)) };
+		return (List<MessageEvent>) serializer.deserialize(executePostMethod(LOGGER_SERVLET, params));
 	}
 
 	/**
@@ -374,6 +374,6 @@ public class Client {
 	public synchronized List<ChannelStatus> getChannelStatusList() throws ClientException {
 		logger.debug("retrieving channel status list");
 		NameValuePair[] params = { new NameValuePair("op", "getChannelStatusList") };
-		return (List<ChannelStatus>) serializer.fromXML(executePostMethod(CHANNEL_STATUS_SERVLET, params));
+		return (List<ChannelStatus>) serializer.deserialize(executePostMethod(CHANNEL_STATUS_SERVLET, params));
 	}
 }

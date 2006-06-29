@@ -9,7 +9,7 @@ import org.apache.xml.serialize.OutputFormat;
 import org.apache.xml.serialize.XMLSerializer;
 import org.w3c.dom.Document;
 
-public class DocumentSerializer {
+public class DocumentSerializer implements Serializer<Document>{
 	private String[] cDataElements = null;
 	
 	public DocumentSerializer() {
@@ -20,7 +20,7 @@ public class DocumentSerializer {
 		this.cDataElements = cDataElements;
 	}
 	
-	public String toXML(Document source) {
+	public String serialize(Document source) {
 		OutputFormat of = new OutputFormat(source);
 
 		if (cDataElements != null) {
@@ -45,7 +45,7 @@ public class DocumentSerializer {
 		return os.toString();
 	}
 
-	public Document fromXML(String source) {
+	public Document deserialize(String source) {
 		Document document = null;
 		
 		try {

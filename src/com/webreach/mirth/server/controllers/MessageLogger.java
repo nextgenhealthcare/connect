@@ -16,6 +16,7 @@ import com.webreach.mirth.model.filters.MessageEventFilter;
 import com.webreach.mirth.server.util.DatabaseConnection;
 import com.webreach.mirth.server.util.DatabaseConnectionFactory;
 import com.webreach.mirth.server.util.DatabaseUtil;
+import com.webreach.mirth.util.DESEncrypter;
 
 /**
  * The MessageLogger is used to store messages as they are processes by a channel.
@@ -25,6 +26,7 @@ import com.webreach.mirth.server.util.DatabaseUtil;
  */
 public class MessageLogger {
 	private Logger logger = Logger.getLogger(this.getClass());
+	private ConfigurationController configurationController = new ConfigurationController();
 	
 	/**
 	 * Adds a new message to the database.
@@ -38,14 +40,25 @@ public class MessageLogger {
 		DatabaseConnection dbConnection = null;
 		
 		try {
-			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();	
+			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
+			
+			// begin message data encryption
+			DESEncrypter encrypter = null;
+			try {
+				encrypter = new DESEncrypter(configurationController.getEncryptionKey());
+			} catch (ControllerException e) {
+				throw e;
+			}
+			String messageData = encrypter.encrypt(messageEvent.getMessage());
+			// end message data encryption
+			
 			StringBuilder insert = new StringBuilder();
 			insert.append("INSERT INTO MESSAGES (CHANNEL_ID, SENDING_FACILITY, EVENT, CONTROL_ID, MESSAGE, STATUS) VALUES(");
 			insert.append(messageEvent.getChannelId() + ", ");
 			insert.append("'" + messageEvent.getSendingFacility() + "', ");
 			insert.append("'" + messageEvent.getEvent() + "', ");
 			insert.append("'" + messageEvent.getControlId() + "', ");
-			insert.append("'" + messageEvent.getMessage() + "', ");
+			insert.append("'" + messageData + "', ");
 			insert.append("'" + messageEvent.getStatus().toString() + "');");
 			dbConnection.executeUpdate(insert.toString());
 		} catch (Exception e) {
@@ -174,6 +187,14 @@ public class MessageLogger {
 	private List<MessageEvent> getMessageEventList(ResultSet result) throws SQLException {
 		ArrayList<MessageEvent> messageEvents = new ArrayList<MessageEvent>();
 		
+		DESEncrypter encrypter = null;
+
+		try {
+			encrypter = new DESEncrypter(configurationController.getEncryptionKey());	
+		} catch (ControllerException e) {
+			logger.error(e);
+		}
+		
 		while (result.next()) {
 			MessageEvent messageEvent = new MessageEvent();
 			messageEvent.setId(result.getInt("id"));
@@ -184,7 +205,8 @@ public class MessageLogger {
 			messageEvent.setSendingFacility(result.getString("sending_facility"));
 			messageEvent.setEvent(result.getString("event"));
 			messageEvent.setControlId(result.getString("control_id"));
-			messageEvent.setMessage(result.getString("message"));
+			String messageData = encrypter.decrypt(result.getString("message"));
+			messageEvent.setMessage(messageData);
 			messageEvent.setStatus(MessageEvent.Status.valueOf(result.getString("status")));
 			messageEvents.add(messageEvent);
 		}

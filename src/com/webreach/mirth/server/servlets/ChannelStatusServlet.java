@@ -7,7 +7,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.webreach.mirth.model.converters.ObjectSerializer;
+import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.server.controllers.ControllerException;
 import com.webreach.mirth.server.controllers.ChannelStatusController;
 
@@ -19,7 +19,7 @@ public class ChannelStatusServlet extends MirthServlet {
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 		} else {
 			try {
-				ObjectSerializer serializer = new ObjectSerializer();
+				ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 				PrintWriter out = response.getWriter();
 				String operation = request.getParameter("op");
 
@@ -33,7 +33,7 @@ public class ChannelStatusServlet extends MirthServlet {
 					channelStatusController.resumeChannel(Integer.parseInt(request.getParameter("id")));
 				} else if (operation.equals("getChannelStatusList")) {
 					response.setContentType("application/xml");
-					out.print(serializer.toXML(channelStatusController.getChannelStatusList()));
+					out.print(serializer.serialize(channelStatusController.getChannelStatusList()));
 				}
 			} catch (ControllerException e) {
 				throw new ServletException(e);

@@ -13,7 +13,7 @@ import com.truemesh.squiggle.MatchCriteria;
 import com.truemesh.squiggle.SelectQuery;
 import com.truemesh.squiggle.Table;
 import com.webreach.mirth.model.SystemEvent;
-import com.webreach.mirth.model.converters.ObjectSerializer;
+import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.model.filters.SystemEventFilter;
 import com.webreach.mirth.server.util.DatabaseConnection;
 import com.webreach.mirth.server.util.DatabaseConnectionFactory;
@@ -21,7 +21,7 @@ import com.webreach.mirth.server.util.DatabaseUtil;
 
 public class SystemLogger {
 	private Logger logger = Logger.getLogger(SystemLogger.class);
-	private ObjectSerializer serializer = new ObjectSerializer();
+	private ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 
 	/**
 	 * Adds a new system event.
@@ -41,7 +41,7 @@ public class SystemLogger {
 			insert.append("'" + systemEvent.getEvent() + "', ");
 			insert.append(systemEvent.getLevel() + ", ");
 			insert.append("'" + systemEvent.getDescription() + "', ");
-			insert.append("'" + serializer.toXML(systemEvent.getAttributes()) + "');");
+			insert.append("'" + serializer.serialize(systemEvent.getAttributes()) + "');");
 			dbConnection.executeUpdate(insert.toString());
 		} catch (Exception e) {
 			logger.error("could not log system event", e);
@@ -137,7 +137,7 @@ public class SystemLogger {
 			systemEvent.setEvent(result.getString("event"));
 			systemEvent.setLevel(result.getInt("event_level"));
 			systemEvent.setDescription(result.getString("description"));
-			systemEvent.setAttributes((Properties) serializer.fromXML(result.getString("attributes")));
+			systemEvent.setAttributes((Properties) serializer.deserialize(result.getString("attributes")));
 			systemEvents.add(systemEvent);
 		}
 

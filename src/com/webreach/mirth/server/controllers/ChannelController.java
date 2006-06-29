@@ -11,7 +11,7 @@ import com.truemesh.squiggle.MatchCriteria;
 import com.truemesh.squiggle.SelectQuery;
 import com.truemesh.squiggle.Table;
 import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.converters.ObjectSerializer;
+import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.server.util.DatabaseConnection;
 import com.webreach.mirth.server.util.DatabaseConnectionFactory;
 import com.webreach.mirth.server.util.DatabaseUtil;
@@ -24,7 +24,7 @@ import com.webreach.mirth.server.util.DatabaseUtil;
  */
 public class ChannelController {
 	private Logger logger = Logger.getLogger(ChannelController.class);
-	private ObjectSerializer serializer = new ObjectSerializer();
+	private ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 
 	/**
 	 * Returns a List containing the Channel with the specified
@@ -77,9 +77,9 @@ public class ChannelController {
 	 */
 	private List<Channel> getChannelList(ResultSet result) throws SQLException {
 		ArrayList<Channel> channels = new ArrayList<Channel>();
-
+		
 		while (result.next()) {
-			Channel channel = (Channel) serializer.fromXML(result.getString("channel_data"));
+			Channel channel = (Channel) serializer.deserialize(result.getString("channel_data"));
 			channel.setId(result.getInt("id"));
 			channels.add(channel);
 		}
@@ -115,12 +115,12 @@ public class ChannelController {
 				statement.append("INSERT INTO CHANNELS (ID, CHANNEL_NAME, CHANNEL_DATA) VALUES(");
 				statement.append(channel.getId() + ",");
 				statement.append("'" + channel.getName() + "',");
-				statement.append("'" + serializer.toXML(channel) + "');");
+				statement.append("'" + serializer.serialize(channel) + "');");
 			} else {
 				logger.debug("updating channel: channelId=" + channel.getId());
 				statement.append("UPDATE CHANNELS SET ");
 				statement.append("CHANNEL_NAME = '" + channel.getName() + "', ");
-				statement.append("CHANNEL_DATA = '" + serializer.toXML(channel) + "'");
+				statement.append("CHANNEL_DATA = '" + serializer.serialize(channel) + "'");
 				statement.append(" WHERE ID = " + channel.getId() + ";");
 			}
 

@@ -35,18 +35,23 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+
 import org.apache.log4j.Logger;
 
 import com.truemesh.squiggle.SelectQuery;
 import com.truemesh.squiggle.Table;
 import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.model.Transport;
+import com.webreach.mirth.model.converters.ObjectStringSerializer;
 import com.webreach.mirth.server.Command;
 import com.webreach.mirth.server.CommandQueue;
 import com.webreach.mirth.server.builders.MuleConfigurationBuilder;
 import com.webreach.mirth.server.util.DatabaseConnection;
 import com.webreach.mirth.server.util.DatabaseConnectionFactory;
 import com.webreach.mirth.server.util.DatabaseUtil;
+import com.webreach.mirth.util.DESEncrypter;
 import com.webreach.mirth.util.PropertyLoader;
 
 /**
@@ -230,7 +235,7 @@ public class ConfigurationController {
 	public void deleteLatestConfiguration() {
 		logger.debug("deleting most recent configuration");
 		DatabaseConnection dbConnection = null;
-		
+
 		try {
 			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
 			StringBuilder statement = new StringBuilder();
@@ -268,4 +273,39 @@ public class ConfigurationController {
 		}
 	}
 
+	public SecretKey getEncryptionKey() throws ControllerException {
+		logger.debug("retrieving encryption key");
+
+		DatabaseConnection dbConnection = null;
+		ResultSet result = null;
+		ObjectStringSerializer serializer = new ObjectStringSerializer();
+
+		try {
+			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
+			
+			Table keys = new Table("keys");
+			SelectQuery select = new SelectQuery(keys);
+			select.addColumn(keys, "data");
+			result = dbConnection.executeQuery(select.toString());
+
+			while (result.next()) {
+				logger.debug("encryption key found");
+				return (SecretKey) serializer.deserialize(result.getString("data"));
+			}
+			
+			logger.debug("creating new encryption key");
+			SecretKey key = KeyGenerator.getInstance(DESEncrypter.DES_ALGORITHM).generateKey();
+			StringBuilder insert = new StringBuilder();
+			insert.append("insert into keys (data) values(");
+			insert.append("'" + serializer.serialize(key) + "'");
+			insert.append(");");
+			dbConnection.executeUpdate(insert.toString());
+			return key;
+		} catch (Exception e) {
+			throw new ControllerException(e);
+		} finally {
+			DatabaseUtil.close(result);
+			dbConnection.close();
+		}
+	}
 }

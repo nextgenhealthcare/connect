@@ -10,7 +10,7 @@ import javax.servlet.http.HttpSession;
 
 import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.model.User;
-import com.webreach.mirth.model.converters.ObjectSerializer;
+import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.server.controllers.ControllerException;
 import com.webreach.mirth.server.controllers.SystemLogger;
 import com.webreach.mirth.server.controllers.UserController;
@@ -25,14 +25,14 @@ public class UserServlet extends MirthServlet {
 		PrintWriter out = response.getWriter();
 		HttpSession session = request.getSession();
 		String operation = request.getParameter("op");
-		ObjectSerializer serializer = new ObjectSerializer();
+		ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 		try {
 			if (operation.equals("getUsers")) {
 				response.setContentType("application/xml");
-				out.println(serializer.toXML(userController.getUsers(null)));
+				out.println(serializer.serialize(userController.getUsers(null)));
 			} else if (operation.equals("updateUser")) {
 				String user = request.getParameter("data");
-				userController.updateUser((User) serializer.fromXML(user));
+				userController.updateUser((User) serializer.deserialize(user));
 			} else if (operation.equals("removeUser")) {
 				String userId = request.getParameter("data");
 				userController.removeUser(Integer.valueOf(userId).intValue());

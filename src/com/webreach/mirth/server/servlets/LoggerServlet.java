@@ -7,7 +7,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.webreach.mirth.model.converters.ObjectSerializer;
+import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.model.filters.MessageEventFilter;
 import com.webreach.mirth.model.filters.SystemEventFilter;
 import com.webreach.mirth.server.controllers.MessageLogger;
@@ -22,18 +22,18 @@ public class LoggerServlet extends MirthServlet {
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 		} else {
 			try {
-				ObjectSerializer serializer = new ObjectSerializer();
+				ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 				PrintWriter out = response.getWriter();
 				String operation = request.getParameter("op");
 
 				if (operation.equals("getSystemEvents")) {
 					String filter = request.getParameter("filter");
 					response.setContentType("application/xml");
-					out.println(serializer.toXML(systemLogger.getSystemEvents((SystemEventFilter) serializer.fromXML(filter))));
+					out.println(serializer.serialize(systemLogger.getSystemEvents((SystemEventFilter) serializer.deserialize(filter))));
 				} else if (operation.equals("getMessageEvents")) {
 					String filter = request.getParameter("filter");
 					response.setContentType("application/xml");
-					out.println(serializer.toXML(messageLogger.getMessageEvents((MessageEventFilter) serializer.fromXML(filter))));
+					out.println(serializer.serialize(messageLogger.getMessageEvents((MessageEventFilter) serializer.deserialize(filter))));
 				} else if (operation.equals("clearSystemEvents")) {
 					systemLogger.clearSystemEvents();
 				} else if (operation.equals("removeMessageEvent")) {

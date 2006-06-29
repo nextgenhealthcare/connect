@@ -69,7 +69,7 @@ public class MuleConfigurationBuilder {
 
 	public String getConfiguration() throws BuilderException {
 		DocumentSerializer docSerializer = new DocumentSerializer(cDataElements);
-		return docSerializer.toXML(getConfigurationDocument());
+		return docSerializer.serialize(getConfigurationDocument());
 	}
 
 	private Document getConfigurationDocument() throws BuilderException {

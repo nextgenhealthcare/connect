@@ -39,7 +39,7 @@
 	</target>
 	
 	<target name="create-client" depends="compile">
-		<jar destfile="client.jar" basedir="${classes}" includes="com/webreach/mirth/client/core/**, com/webreach/mirth/model/**"/>
+		<jar destfile="client.jar" basedir="${classes}" includes="com/webreach/mirth/client/core/**, com/webreach/mirth/model/**, com/webreach/mirth/util/**"/>
 	</target>
 
 	<target name="create-web" depends="compile">
@@ -53,7 +53,7 @@
 			<fileset dir="${classes}/com/webreach/mirth/server/servlets" />
 		</copy>
 
-		<!-- create the webapp war in the Jetty webapps directory -->
+		<!-- create the webapp war in the web webapps directory -->
 		<jar basedir="${webapp}" destfile="${web.webapps}/mirth.war" />
 	</target>
 
@@ -61,7 +61,6 @@
 		<!-- create the setup directory -->
 		<mkdir dir="${setup}" />
 		<mkdir dir="${setup.config}" />
-		<mkdir dir="${setup.scripts}" />
 		<mkdir dir="${setup.lib}" />
 		<mkdir dir="${setup.web}" />
 		<mkdir dir="${setup.source}" />
@@ -79,26 +78,25 @@
 		<copy todir="${setup.config}">
 			<fileset file="${config}/mule-boot.xml" />
 			<fileset file="${config}/mirth.properties" />
+			<fileset file="${config}/log4j.properties" />
 		</copy>
 
 		<!-- copy sql scripts -->
-		<copy todir="${setup.scripts}">
-			<fileset file="${scripts}/database.sql" />
-			<fileset file="${scripts}/transports.sql" />
+		<copy todir="${setup}">
+			<fileset file="${basedir}/database.sql" />
 		</copy>
 
 		<!-- copy build files -->
 		<copy todir="${setup}">
-			<fileset file="${basedir}/log4j.properties" />
 			<fileset file="${basedir}/build.properties" />
 			<fileset file="${basedir}/build.xml" />
 		</copy>
 
 		<!-- create the Mirth jar file -->
-		<jar destfile="${setup}/${mirth}.jar" basedir="${classes}" manifest="${deploy}/Manifest.txt" excludes="" />
+		<jar destfile="${setup}/mirth.jar" basedir="${classes}" manifest="${deploy}/Manifest.txt" excludes="" />
 
 		<!-- create the Mule jar file -->
-		<jar destfile="${setup}/${mule}.jar" basedir="${mule}" />
+		<!-- jar destfile="${setup}/${mule}.jar" basedir="${mule}" / -->
 
 		<!-- copy lib -->
 		<copy todir="${setup.lib}">
@@ -115,13 +113,9 @@
 			<fileset dir="${setup}" includes="**/.svn" />
 		</delete>
 
-		<!-- create the database directory -->
-		<copy file="${deploy}/database.sql" todir="${setup}" />
-
-		<java classname="com.webreach.mirth.deploy.CreateDatabaseTables">
+		<java classname="com.webreach.mirth.server.tools.CreateDatabaseTables">
 			<classpath>
-				<pathelement location="${setup}/${mirth}.jar" />
-				<pathelement location="${setup}/${mule}.jar" />
+				<pathelement location="${setup}/mirth.jar" />
 				<pathelement location="${setup.config}" />
 				<fileset dir="${setup.lib}">
 					<include name="**/*.jar" />
@@ -129,7 +123,7 @@
 			</classpath>
 
 			<arg value="mirth" />
-			<arg value="${scripts}/database.sql" />
+			<arg value="database.sql" />
 		</java>
 
 		<!-- copy the batch scripts -->

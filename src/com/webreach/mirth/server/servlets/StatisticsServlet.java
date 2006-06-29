@@ -7,7 +7,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.webreach.mirth.model.converters.ObjectSerializer;
+import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.server.controllers.StatisticsController;
 
 public class StatisticsServlet extends MirthServlet {
@@ -18,14 +18,14 @@ public class StatisticsServlet extends MirthServlet {
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 		} else {
 			try {
-				ObjectSerializer serializer = new ObjectSerializer();
+				ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 				PrintWriter out = response.getWriter();
 				String operation = request.getParameter("op");
 				int channelId = Integer.parseInt(request.getParameter("id"));
 
 				if (operation.equals("getStatistics")) {
 					response.setContentType("application/xml");
-					out.println(serializer.toXML(statisticsController.getStatistics(channelId)));
+					out.println(serializer.serialize(statisticsController.getStatistics(channelId)));
 				} else if (operation.equals("clearStatistics")) {
 					statisticsController.clearStatistics(channelId);
 				}

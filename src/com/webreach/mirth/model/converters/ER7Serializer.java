@@ -5,7 +5,7 @@ import ca.uhn.hl7v2.parser.DefaultXMLParser;
 import ca.uhn.hl7v2.parser.PipeParser;
 import ca.uhn.hl7v2.parser.XMLParser;
 
-public class ER7Serializer {
+public class ER7Serializer implements Serializer<String> {
 	private PipeParser pipeParser;
 	private XMLParser xmlParser;
 
@@ -20,7 +20,7 @@ public class ER7Serializer {
 	 * @param source an ER7-encoded HL7 message.
 	 * @return
 	 */
-	public String toXML(String source) {
+	public String serialize(String source) {
 		StringBuilder builder = new StringBuilder();
 
 		try {
@@ -38,7 +38,7 @@ public class ER7Serializer {
 	 * @param source a XML-encoded HL7 message.
 	 * @return
 	 */
-	public String fromXML(String source) {
+	public String deserialize(String source) {
 		StringBuilder builder = new StringBuilder();
 
 		try {
