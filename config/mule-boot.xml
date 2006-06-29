@@ -24,6 +24,9 @@
 
 		<transformer name="StringToByteArray"
 			className="org.mule.transformers.simple.StringToByteArray" />
+
+		<transformer name="HL7StringToXMLString"
+			className="com.webreach.mirth.server.mule.transformers.HL7StringToXMLString" />
 	</transformers>
 
 	<interceptor-stack name="default">
