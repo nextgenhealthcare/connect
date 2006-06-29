@@ -20,8 +20,6 @@ public class ChannelComponent implements Callable {
 	}
 
 	private void logMessageEvent(UMOEventContext eventContext) throws Exception {
-		logger.info("unique message id: " + eventContext.getMessage().getUniqueId());
-		
 		int channelId = Integer.valueOf(eventContext.getComponentDescriptor().getName()).intValue();
 
 		PipeParser pipeParser = new PipeParser();
