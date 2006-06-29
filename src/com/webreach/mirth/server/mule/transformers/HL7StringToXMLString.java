@@ -31,8 +31,7 @@
  */
 package com.webreach.mirth.server.mule.transformers;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.mule.transformers.AbstractTransformer;
 import org.mule.umo.transformer.TransformerException;
 
@@ -43,7 +42,7 @@ import ca.uhn.hl7v2.parser.PipeParser;
 import ca.uhn.hl7v2.parser.XMLParser;
 
 public class HL7StringToXMLString extends AbstractTransformer {
-	protected static transient Log logger = LogFactory.getLog(HL7StringToXMLString.class);
+	private Logger logger = Logger.getLogger(this.getClass());
 
 	public HL7StringToXMLString() {
 		super();
@@ -59,15 +58,16 @@ public class HL7StringToXMLString extends AbstractTransformer {
 	 *             if the message could not be parsed and transformed
 	 */
 	public Object doTransform(Object source) throws TransformerException {
+		
 		// disable validation of TN phone numbers
 		System.setProperty("ca.uhn.hl7v2.model.primitive.CommonTN.validate", "false");
 		String hl7String = (String) source;
-		logger.debug("incoming message: " + hl7String);
 		// this is needed for HTTP connector
 		hl7String = hl7String.replace('\n', '\r');
 		PipeParser pipeParser = new PipeParser();
 		
 		try {
+			logger.debug("encoding HL7 message to XML:\n" + hl7String);
 			Message hl7Message = pipeParser.parse(hl7String);
 			XMLParser xmlParser = new DefaultXMLParser();
 			return xmlParser.encode(hl7Message);
