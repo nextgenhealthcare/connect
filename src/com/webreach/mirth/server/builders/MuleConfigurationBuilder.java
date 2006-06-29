@@ -138,7 +138,7 @@ public class MuleConfigurationBuilder {
 			addTransformer(document, configurationElement, channel.getSourceConnector().getTransformer(), connectorReference);
 			// prepend the necessary transformers required by this transport to
 			// turn it into proper format for the transformer
-			endpointElement.setAttribute("transformers", (transport.getTransformers() + " " + connectorReference).trim());
+			endpointElement.setAttribute("transformers", (transport.getTransformers() + " HL7StringToXMLString " + connectorReference).trim());
 
 			Element routerElement = document.createElement("router");
 			routerElement.setAttribute("className", "org.mule.routing.inbound.SelectiveConsumer");
@@ -241,7 +241,7 @@ public class MuleConfigurationBuilder {
 			// then only add the properties that have isMuleProperty set to true
 			// TODO: handle the case where a queries map is added
 			
-//			connectorElement.appendChild(getProperties(document, connector.getProperties()));
+			connectorElement.appendChild(getProperties(document, connector.getProperties()));
 
 			// insert the connector before the tranformers element to maintain sequence
 			Element transformersElement = (Element) configurationElement.getElementsByTagName("transformers").item(0);
