@@ -55,7 +55,7 @@ public class Client {
 			}
 
 			System.out.println("Sending message from " + args[1] + " to " + args[0]);
-			UMOMessage response = client.send("llp://" + args[0], message.toString(), null);
+			UMOMessage response = client.send("tcp://" + args[0], message.toString(), null);
 			client.dispose();
 			System.out.println("Message successfully sent.");
 
