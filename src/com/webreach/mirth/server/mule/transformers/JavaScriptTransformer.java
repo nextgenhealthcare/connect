@@ -32,6 +32,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			scope.put("map", scope, map);
 
 			String jsSource = "function debug(debug_message) { logger.debug(debug_message) } function doTransform() { default xml namespace = new Namespace(\"urn:hl7-org:v2xml\"); var msg = new XML(message); " + script + " } doTransform()";
+			logger.debug("executing transformation script:\n\t" + jsSource);
 			context.evaluateString(scope, jsSource, "<cmd>", 1, null);
 
 			return map;
