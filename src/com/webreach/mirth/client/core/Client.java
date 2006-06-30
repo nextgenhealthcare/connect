@@ -13,7 +13,7 @@ import org.apache.log4j.Logger;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.ChannelStatus;
 import com.webreach.mirth.model.MessageEvent;
-import com.webreach.mirth.model.Statistics;
+import com.webreach.mirth.model.ChannelStatistics;
 import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.model.Transport;
 import com.webreach.mirth.model.User;
@@ -293,10 +293,10 @@ public class Client {
 	 * @return
 	 * @throws ClientException
 	 */
-	public synchronized Statistics getStatistics(int channelId) throws ClientException {
+	public synchronized ChannelStatistics getStatistics(int channelId) throws ClientException {
 		logger.debug("retrieving channel statistics: channelId=" + channelId);
 		NameValuePair[] params = { new NameValuePair("op", "getStatistics"), new NameValuePair("id", String.valueOf(channelId)) };
-		return (Statistics) serializer.deserialize(executePostMethod(STATISTICS_SERVLET, params));
+		return (ChannelStatistics) serializer.deserialize(executePostMethod(STATISTICS_SERVLET, params));
 	}
 
 	/**

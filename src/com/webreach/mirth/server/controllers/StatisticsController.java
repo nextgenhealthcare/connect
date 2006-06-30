@@ -4,7 +4,7 @@ import java.util.Hashtable;
 
 import org.apache.log4j.Logger;
 
-import com.webreach.mirth.model.Statistics;
+import com.webreach.mirth.model.ChannelStatistics;
 import com.webreach.mirth.server.util.JMXConnection;
 import com.webreach.mirth.server.util.JMXConnectionFactory;
 
@@ -24,10 +24,10 @@ public class StatisticsController {
 	 * @return
 	 * @throws ControllerException
 	 */
-	public Statistics getStatistics(int channelId) throws ControllerException {
+	public ChannelStatistics getStatistics(int channelId) throws ControllerException {
 		logger.debug("retrieving statistics: " + channelId);
 		
-		Statistics statistics = new Statistics();
+		ChannelStatistics statistics = new ChannelStatistics();
 		statistics.setErrorCount(getErrorCount(channelId));
 		statistics.setQueueSize(getQueueSize(channelId));
 		statistics.setReceivedCount(getReceivedCount(channelId));
