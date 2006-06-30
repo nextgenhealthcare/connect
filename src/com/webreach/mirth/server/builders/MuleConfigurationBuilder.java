@@ -256,10 +256,14 @@ public class MuleConfigurationBuilder {
 
 		for (Iterator iter = properties.entrySet().iterator(); iter.hasNext();) {
 			Entry property = (Entry) iter.next();
-			Element propertyElement = document.createElement("property");
-			propertyElement.setAttribute("name", property.getKey().toString());
-			propertyElement.setAttribute("value", property.getValue().toString());
-			propertiesElement.appendChild(propertyElement);
+
+			// only add non-empty properties to the list
+			if (!property.getValue().equals("")) {
+				Element propertyElement = document.createElement("property");
+				propertyElement.setAttribute("name", property.getKey().toString());
+				propertyElement.setAttribute("value", property.getValue().toString());
+				propertiesElement.appendChild(propertyElement);
+			}
 		}
 
 		return propertiesElement;
