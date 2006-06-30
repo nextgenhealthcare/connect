@@ -8,8 +8,10 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.log4j.Logger;
 
+import com.webreach.mirth.client.core.ssl.EasySSLProtocolSocketFactory;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.ChannelStatus;
 import com.webreach.mirth.model.MessageEvent;
@@ -24,7 +26,7 @@ import com.webreach.mirth.model.filters.SystemEventFilter;
 public class Client {
 	private Logger logger = Logger.getLogger(Client.class);
 	private String serverAddress = null;
-	private HttpClient client = new HttpClient();
+	private HttpClient client;
 	private ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 
 	private final static String USER_SERVLET = "/users";
@@ -42,6 +44,9 @@ public class Client {
 	 */
 	public Client(String serverAddress) {
 		this.serverAddress = serverAddress;
+		client = new HttpClient();
+		Protocol mirthHttps = new Protocol("https", new EasySSLProtocolSocketFactory(), 8443);
+		Protocol.registerProtocol("https", mirthHttps);
 	}
 
 	/**

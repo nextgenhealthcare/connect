@@ -26,7 +26,7 @@
 package com.webreach.mirth.server;
 
 import org.apache.log4j.Logger;
-import org.mortbay.http.SocketListener;
+import org.mortbay.http.SslListener;
 import org.mortbay.jetty.Server;
 import org.mule.config.ConfigurationException;
 import org.mule.config.builders.MuleXmlConfigurationBuilder;
@@ -136,9 +136,14 @@ public class Mirth {
 			System.setProperty("org.mortbay.xml.XmlParser.NotValidating", "true");
 
 			webServer = new Server();
-			SocketListener listener = new SocketListener();
-			listener.setPort(8080);
-			webServer.addListener(listener);
+			
+			SslListener sslListener = new SslListener();
+			sslListener.setPort(8443);
+			sslListener.setKeystore("./web/keystore");
+			sslListener.setPassword("abc12345");
+			sslListener.setKeyPassword("abc12345");
+			
+			webServer.addListener(sslListener);
 			webServer.addWebApplication("/", "./web/webapps/mirth.war");
 			webServer.start();
 		} catch (Exception e) {
