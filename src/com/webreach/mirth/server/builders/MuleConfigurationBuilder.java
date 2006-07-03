@@ -141,11 +141,11 @@ public class MuleConfigurationBuilder {
 			StringBuilder transformers = new StringBuilder();
 			
 			// append the default transformers required by the transport (ex. ByteArrayToString)
-			transformers.append(transport.getTransformers());
+			transformers.append(transport.getTransformers() + " ");
 			
 			// if it's an inbound channel, append the HL7StringToXMLString transformer
 			if (channel.getDirection().equals(Channel.Direction.INBOUND)) {
-				transformers.append(" HL7StringToXMLString ");
+				transformers.append("HL7StringToXMLString ");
 			}
 			
 			// finally, append the JavaScriptTransformer that does the mappings
@@ -197,7 +197,11 @@ public class MuleConfigurationBuilder {
 				// add the transformer for this destination connector
 				Transport transport = transports.get(connector.getTransportName());
 				addTransformer(document, configurationElement, connector.getTransformer(), connectorReference);
-				endpointElement.setAttribute("transformers", (transport.getTransformers() + " " + connectorReference).trim());
+				
+				StringBuilder transformers = new StringBuilder();
+				transformers.append(transport.getTransformers() + " ");
+				transformers.append(connectorReference);
+				endpointElement.setAttribute("transformers", transformers.toString().trim());
 
 				routerElement.appendChild(endpointElement);
 
