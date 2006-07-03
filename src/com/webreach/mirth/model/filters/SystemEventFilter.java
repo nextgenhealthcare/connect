@@ -2,6 +2,8 @@ package com.webreach.mirth.model.filters;
 
 import java.util.Calendar;
 
+import com.webreach.mirth.model.SystemEvent.Level;
+
 /**
  * A SystemEventFilter is used to search the system event log.
  * 
@@ -9,8 +11,7 @@ import java.util.Calendar;
  * 
  */
 public class SystemEventFilter {
-	private int minLevel = -1;
-	private int maxLevel = -1;
+	private Level level;
 	private Calendar startDate;
 	private Calendar endDate;
 	private String event;
@@ -23,20 +24,12 @@ public class SystemEventFilter {
 		this.event = event;
 	}
 
-	public int getMaxLevel() {
-		return this.maxLevel;
+	public Level getLevel() {
+		return this.level;
 	}
 
-	public void setMaxLevel(int maxLevel) {
-		this.maxLevel = maxLevel;
-	}
-
-	public int getMinLevel() {
-		return this.minLevel;
-	}
-
-	public void setMinLevel(int minLevel) {
-		this.minLevel = minLevel;
+	public void setLevel(Level level) {
+		this.level = level;
 	}
 
 	public Calendar getEndDate() {
@@ -58,8 +51,7 @@ public class SystemEventFilter {
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("SystemEventFilter[");
-		builder.append("minLevel=" + getMinLevel() + ", ");
-		builder.append("maxLevel=" + getMaxLevel() + ", ");
+		builder.append("level=" + getLevel() + ", ");
 		builder.append("startDate=" + getStartDate() + ", ");
 		builder.append("endDate=" + getEndDate() + ", ");
 		builder.append("event=" + getEvent());

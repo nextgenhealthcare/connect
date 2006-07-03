@@ -35,8 +35,12 @@ import java.util.Properties;
  * 
  */
 public class SystemEvent {
+	public enum Level {
+		NORMAL, HIGH
+	}
+
 	private int id;
-	private int level = 0;
+	private Level level;
 	private Calendar date;
 	private String event;
 	private String description;
@@ -44,11 +48,13 @@ public class SystemEvent {
 
 	public SystemEvent() {
 		this.attributes = new Properties();
+		this.level = Level.NORMAL;
 	}
-	
+
 	public SystemEvent(String event) {
 		this.attributes = new Properties();
 		this.event = event;
+		this.level = Level.NORMAL;
 	}
 
 	public Calendar getDate() {
@@ -75,11 +81,11 @@ public class SystemEvent {
 		this.id = id;
 	}
 
-	public int getLevel() {
+	public Level getLevel() {
 		return this.level;
 	}
 
-	public void setLevel(int level) {
+	public void setLevel(Level level) {
 		this.level = level;
 	}
 

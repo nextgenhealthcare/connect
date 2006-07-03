@@ -39,7 +39,7 @@ public class SystemLogger {
 			StringBuilder insert = new StringBuilder();
 			insert.append("INSERT INTO EVENTS (EVENT, EVENT_LEVEL, DESCRIPTION, ATTRIBUTES) VALUES(");
 			insert.append("'" + systemEvent.getEvent() + "', ");
-			insert.append(systemEvent.getLevel() + ", ");
+			insert.append("'" + systemEvent.getLevel().toString() + "', ");
 			insert.append("'" + systemEvent.getDescription() + "', ");
 			insert.append("'" + serializer.serialize(systemEvent.getAttributes()) + "');");
 			dbConnection.executeUpdate(insert.toString());
@@ -83,10 +83,9 @@ public class SystemLogger {
 				select.addCriteria(new MatchCriteria(events, "date_created", MatchCriteria.LESSEQUAL, endDate));
 			}
 
-			// filter on level
-			if ((filter.getMinLevel() != -1) && (filter.getMaxLevel() != -1)) {
-				select.addCriteria(new MatchCriteria(events, "level", MatchCriteria.GREATEREQUAL, filter.getMinLevel()));
-				select.addCriteria(new MatchCriteria(events, "level", MatchCriteria.LESSEQUAL, filter.getMaxLevel()));
+			// filter on status
+			if (filter.getLevel() != null) {
+				select.addCriteria(new MatchCriteria(events, "event_level", MatchCriteria.EQUALS, filter.getLevel().toString()));
 			}
 
 			// filter on event
@@ -135,7 +134,7 @@ public class SystemLogger {
 			dateCreated.setTimeInMillis(result.getTimestamp("date_created").getTime());
 			systemEvent.setDate(dateCreated);
 			systemEvent.setEvent(result.getString("event"));
-			systemEvent.setLevel(result.getInt("event_level"));
+			systemEvent.setLevel(SystemEvent.Level.valueOf(result.getString("event_level")));
 			systemEvent.setDescription(result.getString("description"));
 			systemEvent.setAttributes((Properties) serializer.deserialize(result.getString("attributes")));
 			systemEvents.add(systemEvent);
