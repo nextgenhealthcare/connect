@@ -136,9 +136,22 @@ public class MuleConfigurationBuilder {
 			// add the transformer for the connector
 			Transport transport = transports.get(channel.getSourceConnector().getTransportName());
 			addTransformer(document, configurationElement, channel.getSourceConnector().getTransformer(), connectorReference);
-			// prepend the necessary transformers required by this transport to
-			// turn it into proper format for the transformer
-			endpointElement.setAttribute("transformers", (transport.getTransformers() + " HL7StringToXMLString " + connectorReference).trim());
+
+			// the list of transformers needed for this endpoint 
+			StringBuilder transformers = new StringBuilder();
+			
+			// append the default transformers required by the transport (ex. ByteArrayToString)
+			transformers.append(transport.getTransformers());
+			
+			// if it's an inbound channel, append the HL7StringToXMLString transformer
+			if (channel.getDirection().equals(Channel.Direction.INBOUND)) {
+				transformers.append(" HL7StringToXMLString ");
+			}
+			
+			// finally, append the JavaScriptTransformer that does the mappings
+			transformers.append(connectorReference);
+			
+			endpointElement.setAttribute("transformers", transformers.toString().trim());
 
 			Element routerElement = document.createElement("router");
 			routerElement.setAttribute("className", "org.mule.routing.inbound.SelectiveConsumer");
