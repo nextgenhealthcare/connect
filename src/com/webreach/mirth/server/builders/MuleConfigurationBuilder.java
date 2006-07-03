@@ -200,6 +200,12 @@ public class MuleConfigurationBuilder {
 				
 				StringBuilder transformers = new StringBuilder();
 				transformers.append(transport.getTransformers() + " ");
+				
+				// TODO: transform a Message object rather than XML to ER7?
+				if (channel.getDirection().equals(Channel.Direction.OUTBOUND)) {
+					transformers.append("HL7XMLtoER7 ");
+				}
+				
 				transformers.append(connectorReference);
 				endpointElement.setAttribute("transformers", transformers.toString().trim());
 
