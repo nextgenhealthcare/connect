@@ -39,6 +39,7 @@ import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.parser.DefaultXMLParser;
 import ca.uhn.hl7v2.parser.PipeParser;
 import ca.uhn.hl7v2.parser.XMLParser;
+import ca.uhn.hl7v2.validation.impl.NoValidation;
 
 public class HL7StringToXMLString extends AbstractTransformer {
 	private Logger logger = Logger.getLogger(this.getClass());
@@ -58,11 +59,10 @@ public class HL7StringToXMLString extends AbstractTransformer {
 	 */
 	public Object doTransform(Object source) throws TransformerException {
 		PipeParser pipeParser = new PipeParser();
+		// disables all message validation
+		pipeParser.setValidationContext(new NoValidation());
 		XMLParser xmlParser = new DefaultXMLParser();
 		String message = (String) source;
-		
-		// disable validation of TN phone numbers
-		System.setProperty("ca.uhn.hl7v2.model.primitive.CommonTN.validate", "false");
 		
 		try {
 			logger.debug("encoding HL7 message to XML:\n" + message);
