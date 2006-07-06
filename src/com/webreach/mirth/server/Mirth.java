@@ -41,7 +41,7 @@ import com.webreach.mirth.server.controllers.ControllerException;
  * @author <a href="mailto:geraldb@webreachinc.com">Gerald Bortis</a>
  */
 public class Mirth {
-	private Logger logger = Logger.getLogger(Mirth.class);
+	private Logger logger = Logger.getLogger(this.getClass());
 	private boolean running = false;
 
 	private UMOManager muleManager = null;
