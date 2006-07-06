@@ -56,6 +56,12 @@ public class ChannelStatusController {
 	public void stopChannel(int channelId) throws ControllerException {
 		logger.debug("stopping channel: channelId=" + channelId);
 		
+		// if paused, must be resumed before stopped
+		if (getState(channelId).equals(ChannelStatus.State.PAUSED)) {
+			logger.debug("channel is paused, must resume before stopping");
+			resumeChannel(channelId);
+		}
+		
 		JMXConnection jmxConnection = null;
 		
 		try {
