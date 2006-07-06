@@ -7,6 +7,7 @@ import org.mule.umo.lifecycle.Callable;
 import ca.uhn.hl7v2.model.Message;
 import ca.uhn.hl7v2.parser.PipeParser;
 import ca.uhn.hl7v2.util.Terser;
+import ca.uhn.hl7v2.validation.impl.NoValidation;
 
 import com.webreach.mirth.model.MessageEvent;
 import com.webreach.mirth.server.controllers.MessageLogger;
@@ -25,6 +26,7 @@ public class ChannelComponent implements Callable {
 		int channelId = Integer.valueOf(eventContext.getComponentDescriptor().getName()).intValue();
 
 		PipeParser pipeParser = new PipeParser();
+		pipeParser.setValidationContext(new NoValidation());
 		Message message = pipeParser.parse(eventContext.getMessageAsString());
 		Terser terser = new Terser(message);
 		String sendingFacility = terser.get("/MSH-3-1");
