@@ -119,7 +119,7 @@ public class MessageLogger {
 			}
 
 			// filter on controlId
-			if (filter.getEvent() != null) {
+			if (filter.getControlId() != null) {
 				select.addCriteria(new MatchCriteria(messages, "control_id", MatchCriteria.EQUALS, filter.getControlId()));
 			}
 
