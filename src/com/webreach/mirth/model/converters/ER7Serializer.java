@@ -4,6 +4,7 @@ import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.parser.DefaultXMLParser;
 import ca.uhn.hl7v2.parser.PipeParser;
 import ca.uhn.hl7v2.parser.XMLParser;
+import ca.uhn.hl7v2.validation.impl.NoValidation;
 
 public class ER7Serializer implements Serializer<String> {
 	private PipeParser pipeParser;
@@ -11,6 +12,7 @@ public class ER7Serializer implements Serializer<String> {
 
 	public ER7Serializer() {
 		pipeParser = new PipeParser();
+		pipeParser.setValidationContext(new NoValidation());
 		xmlParser = new DefaultXMLParser();
 	}
 
