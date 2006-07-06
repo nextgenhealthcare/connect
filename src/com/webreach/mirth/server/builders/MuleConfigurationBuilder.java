@@ -54,7 +54,7 @@ import com.webreach.mirth.util.PropertyLoader;
  */
 public class MuleConfigurationBuilder {
 	public static final String[] cDataElements = null;
-	private Logger logger = Logger.getLogger(MuleConfigurationBuilder.class);
+	private Logger logger = Logger.getLogger(this.getClass());
 
 	private List<Channel> channels = null;
 	private Map<String, Transport> transports = null;
