@@ -25,7 +25,7 @@ public class StatisticsController {
 	 * @throws ControllerException
 	 */
 	public ChannelStatistics getStatistics(int channelId) throws ControllerException {
-		logger.debug("retrieving statistics: " + channelId);
+		logger.debug("retrieving statistics: channelId=" + channelId);
 		
 		ChannelStatistics statistics = new ChannelStatistics();
 		statistics.setErrorCount(getErrorCount(channelId));
@@ -42,7 +42,7 @@ public class StatisticsController {
 	 * @throws ControllerException
 	 */
 	public void clearStatistics(int channelId) throws ControllerException {
-		logger.debug("clearing statistics: " + channelId);
+		logger.debug("clearing statistics: channelId=" + channelId);
 		
 		JMXConnection jmxConnection = null;
 		
@@ -60,7 +60,7 @@ public class StatisticsController {
 	}
 	
 	private int getSentCount(int channelId) {
-		logger.debug("retrieving message sent count: " + channelId);
+		logger.debug("retrieving message sent count: channelId=" + channelId);
 		
 		try {
 			return getStatistic(channelId, "TotalEventsSent");
@@ -91,7 +91,7 @@ public class StatisticsController {
 	}
 
 	private int getErrorCount(int channelId) {
-		logger.debug("retrieving error count: " + channelId);
+		logger.debug("retrieving error count: channelId=" + channelId);
 		
 		try {
 			return getStatistic(channelId, "ExecutionErrors");
@@ -101,7 +101,7 @@ public class StatisticsController {
 	}
 
 	private int getQueueSize(int channelId) {
-		logger.debug("retrieving message queue count: " + channelId);
+		logger.debug("retrieving message queue count: channelId=" + channelId);
 		
 		try {
 			return getStatistic(channelId, "QueuedEvents");
