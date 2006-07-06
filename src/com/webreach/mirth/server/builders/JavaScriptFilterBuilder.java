@@ -17,7 +17,7 @@ public class JavaScriptFilterBuilder {
 			
 			for (Iterator iter = filter.getRules().iterator(); iter.hasNext();) {
 				Rule rule = (Rule) iter.next();
-				builder.append(rule.getScript() + " ");
+				builder.append(rule.getScript() + "\n\t");
 			}
 			
 			builder.append(")");
