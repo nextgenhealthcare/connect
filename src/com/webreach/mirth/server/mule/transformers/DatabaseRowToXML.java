@@ -46,20 +46,9 @@ import com.webreach.mirth.model.converters.DocumentSerializer;
 public class DatabaseRowToXML extends AbstractTransformer {
 	private static final long serialVersionUID = 1L;
 	private Logger logger = Logger.getLogger(DatabaseRowToXML.class);
-	private String rootElement;
-
-	public String getRootElement() {
-		return rootElement;
-	}
-
-	public void setRootElement(String rootElement) {
-		this.rootElement = rootElement;
-	}
 
 	public DatabaseRowToXML() {
 		super();
-		// the default root element name
-		setRootElement("message");
 		registerSourceType(HashMap.class);
 		setReturnClass(String.class);
 	}
@@ -75,7 +64,7 @@ public class DatabaseRowToXML extends AbstractTransformer {
 			// create a new document object
 			Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
 			// create the root element
-			Element root = document.createElement(getRootElement());
+			Element root = document.createElement("result");
 			// appent the root element to the object
 			document.appendChild(root);
 
@@ -91,8 +80,8 @@ public class DatabaseRowToXML extends AbstractTransformer {
 			return docSerializer.serialize(document);
 		} catch (Exception e) {
 			logger.error(e.toString());
-
-			return null;
 		}
+
+		return null;
 	}
 }
