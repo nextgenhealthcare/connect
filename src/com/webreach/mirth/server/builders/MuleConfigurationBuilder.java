@@ -144,8 +144,8 @@ public class MuleConfigurationBuilder {
 			transformers.append(transport.getTransformers() + " ");
 			
 			// if it's an inbound channel and the messages aren't pre-encoded, append the HL7StringToXMLString transformer
-			if (channel.getDirection().equals(Channel.Direction.INBOUND) && !channel.getProperties().get("pre_encoded_message").equals("true")) {
-				transformers.append("HL7StringToXMLString ");
+			if (channel.getDirection().equals(Channel.Direction.INBOUND) && !channel.getProperties().get("recv_pre_encoded").equals("true")) {
+				transformers.append("ER7toXML ");
 			}
 			
 			// finally, append the JavaScriptTransformer that does the mappings
@@ -202,8 +202,8 @@ public class MuleConfigurationBuilder {
 				transformers.append(transport.getTransformers() + " ");
 				
 				// TODO: transform a Message object rather than XML to ER7?
-				if (channel.getDirection().equals(Channel.Direction.OUTBOUND)) {
-					transformers.append("HL7XMLtoER7 ");
+				if (channel.getDirection().equals(Channel.Direction.OUTBOUND) && !channel.getProperties().get("send_pre_encoded").equals("true")) {
+					transformers.append("XMLtoER7 ");
 				}
 				
 				transformers.append(connectorReference);
