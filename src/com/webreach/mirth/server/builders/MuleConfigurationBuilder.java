@@ -143,8 +143,8 @@ public class MuleConfigurationBuilder {
 			// append the default transformers required by the transport (ex. ByteArrayToString)
 			transformers.append(transport.getTransformers() + " ");
 			
-			// if it's an inbound channel, append the HL7StringToXMLString transformer
-			if (channel.getDirection().equals(Channel.Direction.INBOUND)) {
+			// if it's an inbound channel and the messages aren't pre-encoded, append the HL7StringToXMLString transformer
+			if (channel.getDirection().equals(Channel.Direction.INBOUND) && !channel.getProperties().get("pre_encoded_message").equals("true")) {
 				transformers.append("HL7StringToXMLString ");
 			}
 			
