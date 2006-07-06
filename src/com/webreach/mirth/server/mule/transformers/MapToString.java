@@ -34,7 +34,7 @@ import org.mule.umo.transformer.TransformerException;
 public class MapToString extends AbstractTransformer {
 	public MapToString() {
 		super();
-		this.registerSourceType(Map.class);
+		registerSourceType(Map.class);
 		setReturnClass(String.class);
 	}
 

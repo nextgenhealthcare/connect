@@ -46,7 +46,7 @@ public class ER7toXML extends AbstractTransformer {
 
 	public ER7toXML() {
 		super();
-		this.registerSourceType(String.class);
+		registerSourceType(String.class);
 		setReturnClass(String.class);
 	}
 
@@ -58,11 +58,12 @@ public class ER7toXML extends AbstractTransformer {
 	 *             if the message could not be parsed and transformed
 	 */
 	public Object doTransform(Object source) throws TransformerException {
+		String message = (String) source;
+
 		PipeParser pipeParser = new PipeParser();
 		// disables all message validation
 		pipeParser.setValidationContext(new NoValidation());
 		XMLParser xmlParser = new DefaultXMLParser();
-		String message = (String) source;
 		
 		try {
 			logger.debug("encoding HL7 message to XML:\n" + message);

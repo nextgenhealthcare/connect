@@ -97,6 +97,8 @@ public class MuleConfigurationBuilder {
 			}
 
 			return document;
+		} catch (BuilderException be) {
+			throw be;
 		} catch (Exception e) {
 			throw new BuilderException(e);
 		}
