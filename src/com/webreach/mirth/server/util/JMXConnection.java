@@ -43,7 +43,7 @@ import org.apache.log4j.Logger;
  * 
  */
 public class JMXConnection {
-	private Logger logger = Logger.getLogger(JMXConnection.class);
+	private Logger logger = Logger.getLogger(this.getClass());
 	private JMXConnector jmxConnector;
 	private MBeanServerConnection jmxConnection;
 	private String domain;
