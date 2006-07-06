@@ -56,11 +56,6 @@ public class ChannelStatusController {
 	public void stopChannel(int channelId) throws ControllerException {
 		logger.debug("stopping channel: channelId=" + channelId);
 		
-		// a channel can only be paused if started
-		if (getState(channelId).equals(ChannelStatus.State.PAUSED)) {
-			startChannel(channelId);
-		}
-		
 		JMXConnection jmxConnection = null;
 		
 		try {
