@@ -11,7 +11,7 @@ public class JavaScriptFilterBuilder {
 	private Logger logger = Logger.getLogger(this.getClass());
 	
 	public String getScript(Filter filter) throws BuilderException {
-		logger.debug("building java script");
+		logger.debug("building javascript filter: rules=" + filter.getRules().size());
 		
 		StringBuilder builder = new StringBuilder();
 		builder.append("return ");

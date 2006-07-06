@@ -11,7 +11,7 @@ public class JavaScriptTransformerBuilder {
 	private Logger logger = Logger.getLogger(this.getClass());
 	
 	public String getScript(Transformer transformer) throws BuilderException {
-		logger.debug("building java script");
+		logger.debug("building javascript transformer: steps=" + transformer.getSteps().size());
 		
 		StringBuilder builder = new StringBuilder();
 
