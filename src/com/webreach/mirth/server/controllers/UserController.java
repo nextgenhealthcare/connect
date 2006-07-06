@@ -16,7 +16,7 @@ import com.webreach.mirth.server.util.DatabaseConnectionFactory;
 import com.webreach.mirth.server.util.DatabaseUtil;
 
 public class UserController {
-	private Logger logger = Logger.getLogger(UserController.class);
+	private Logger logger = Logger.getLogger(this.getClass());
 
 	/**
 	 * Returns a List containing the User with the specified <code>userId</code>.

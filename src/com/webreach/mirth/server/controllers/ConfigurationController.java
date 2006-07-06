@@ -61,7 +61,7 @@ import com.webreach.mirth.util.PropertyLoader;
  * 
  */
 public class ConfigurationController {
-	private Logger logger = Logger.getLogger(ConfigurationController.class);
+	private Logger logger = Logger.getLogger(this.getClass());
 	private SystemLogger systemLogger = new SystemLogger();
 
 	public Map<String, Transport> getTransports() throws ControllerException {

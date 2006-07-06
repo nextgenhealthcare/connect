@@ -23,7 +23,7 @@ import com.webreach.mirth.server.util.DatabaseUtil;
  * 
  */
 public class ChannelController {
-	private Logger logger = Logger.getLogger(ChannelController.class);
+	private Logger logger = Logger.getLogger(this.getClass());
 	private ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 
 	/**
