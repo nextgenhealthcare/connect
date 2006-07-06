@@ -30,9 +30,8 @@ import java.util.Iterator;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.apache.log4j.Logger;
 import org.mule.transformers.AbstractTransformer;
-import org.mule.umo.UMOEventContext;
+import org.mule.umo.transformer.TransformerException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -44,20 +43,13 @@ import com.webreach.mirth.model.converters.DocumentSerializer;
  * @author <a href="mailto:geraldb@webreachinc.com">Gerald Bortis</a>
  */
 public class ResultMapToXML extends AbstractTransformer {
-	private static final long serialVersionUID = 1L;
-	private Logger logger = Logger.getLogger(ResultMapToXML.class);
-
 	public ResultMapToXML() {
 		super();
 		registerSourceType(HashMap.class);
 		setReturnClass(String.class);
 	}
 
-	public Object onCall(UMOEventContext eventContext) throws Exception {
-		return doTransform((HashMap) eventContext.getTransformedMessage());
-	}
-
-	public Object doTransform(Object source) {
+	public Object doTransform(Object source) throws TransformerException {
 		HashMap data = (HashMap) source;
 
 		try {
@@ -75,9 +67,7 @@ public class ResultMapToXML extends AbstractTransformer {
 			DocumentSerializer docSerializer = new DocumentSerializer();
 			return docSerializer.serialize(document);
 		} catch (Exception e) {
-			logger.error(e.toString());
+			throw new TransformerException(org.mule.config.i18n.Message.createStaticMessage("Failed to parse result map"), this);
 		}
-
-		return null;
 	}
 }
