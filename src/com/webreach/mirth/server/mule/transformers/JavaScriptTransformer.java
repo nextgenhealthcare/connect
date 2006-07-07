@@ -15,6 +15,9 @@ import com.webreach.mirth.server.util.EmailSender;
 public class JavaScriptTransformer extends AbstractTransformer {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private String script;
+	
+	// this map is used for all channels in the server
+	private static HashMap globalMap = new HashMap(); 
 
 	public String getScript() {
 		return this.script;
@@ -29,7 +32,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 		try {
 			Context context = Context.enter();
 			Scriptable scope = context.initStandardObjects();
-			HashMap map = new HashMap();
+			HashMap localMap = new HashMap();
 			
 			// create email sender
 			Properties properties = (new ConfigurationController()).getServerProperties();
@@ -42,7 +45,8 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			// load variables in JavaScript scope
 			scope.put("message", scope, source);
 			scope.put("logger", scope, logger);
-			scope.put("map", scope, map);
+			scope.put("localMap", scope, localMap);
+			scope.put("globalMap", scope, globalMap);
 			scope.put("sender", scope, sender);
 
 			StringBuilder jsSource = new StringBuilder();
@@ -54,7 +58,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			logger.debug("executing transformation script:\n\t" + jsSource.toString());
 			context.evaluateString(scope, jsSource.toString(), "<cmd>", 1, null);
 
-			return map;
+			return localMap;
 		} catch (Exception e) {
 			throw new TransformerException(this, e);
 		} finally {
