@@ -18,6 +18,7 @@ import com.webreach.mirth.server.util.JMXConnectionFactory;
 public class ChannelStatusController {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private SystemLogger systemLogger = new SystemLogger();
+	private	ChannelController channelController = new ChannelController();
 
 	/**
 	 * Starts the channel with the specified id.
@@ -146,7 +147,6 @@ public class ChannelStatusController {
 	public List<ChannelStatus> getChannelStatusList() {
 		logger.debug("retrieving channel status list");
 		List<ChannelStatus> channelStatusList = new ArrayList<ChannelStatus>();
-		ChannelController channelController = new ChannelController();
 
 		try {
 			ArrayList<String> deployedChannelIdList = (ArrayList<String>) getDeployedIds();
