@@ -121,7 +121,7 @@ public class ConfigurationController {
 		logger.debug("retrieving properties");
 
 		// TODO: fix hard-coding of properties file path
-		File serverProperties = new File("config/server.properties");
+		File serverProperties = new File("server.properties");
 		
 		try {
 			serverProperties.createNewFile();
@@ -129,7 +129,7 @@ public class ConfigurationController {
 			throw new ControllerException(e);
 		}
 		
-		return PropertyLoader.loadProperties("server");
+		return PropertyLoader.loadProperties("server.properties");
 	}
 
 	public void updateServerProperties(Properties properties) throws ControllerException {
@@ -137,7 +137,7 @@ public class ConfigurationController {
 
 		try {
 			// TODO: fix hard-coding of properties file path
-			FileOutputStream fos = new FileOutputStream("config/server.properties");
+			FileOutputStream fos = new FileOutputStream("server.properties");
 			properties.store(fos, null);
 		} catch (Exception e) {
 			throw new ControllerException(e);
