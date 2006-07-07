@@ -55,7 +55,7 @@ public class StatisticsController {
 		} catch (Exception e) {
 			throw new ControllerException(e);
 		} finally {
-			// TODO: close the connection
+			jmxConnection.close();
 		}
 	}
 	
@@ -86,7 +86,7 @@ public class StatisticsController {
 		} catch (Exception e) {
 			return -1;
 		} finally {
-			// TODO: close the connection
+			jmxConnection.close();
 		}
 	}
 
@@ -123,7 +123,7 @@ public class StatisticsController {
 		} catch (Exception e) {
 			throw new ControllerException("Could not retrieve statistic.");
 		} finally {
-			// TODO: close the connection
+			jmxConnection.close();
 		}
 	}
 

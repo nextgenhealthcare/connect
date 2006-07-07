@@ -39,7 +39,7 @@ public class ChannelStatusController {
 		} catch (Exception e) {
 			throw new ControllerException(e);
 		} finally {
-			// TODO: close the connection
+			jmxConnection.close();
 		}
 
 		SystemEvent systemEvent = new SystemEvent("Channel started.");
@@ -73,7 +73,7 @@ public class ChannelStatusController {
 		} catch (Exception e) {
 			throw new ControllerException(e);
 		} finally {
-			// TODO: close the connection
+			jmxConnection.close();
 		}
 
 		SystemEvent systemEvent = new SystemEvent("Channel stopped.");
@@ -101,7 +101,7 @@ public class ChannelStatusController {
 		} catch (Exception e) {
 			throw new ControllerException(e);
 		} finally {
-			// TODO: close the connection
+			jmxConnection.close();
 		}
 
 		SystemEvent systemEvent = new SystemEvent("Channel paused.");
@@ -129,7 +129,7 @@ public class ChannelStatusController {
 		} catch (Exception e) {
 			throw new ControllerException(e);
 		} finally {
-			// TODO: close the connection
+			jmxConnection.close();
 		}
 
 		SystemEvent systemEvent = new SystemEvent("Channel resumed.");
@@ -209,7 +209,7 @@ public class ChannelStatusController {
 		} catch (Exception e) {
 			throw new ControllerException(e);
 		} finally {
-			// TODO: close the connection
+			jmxConnection.close();
 		}
 	}
 	
@@ -241,7 +241,7 @@ public class ChannelStatusController {
 		} catch (Exception e) {
 			throw new ControllerException(e);
 		} finally {
-			// TODO: close the connection
+			jmxConnection.close();
 		}
 	}
 }
