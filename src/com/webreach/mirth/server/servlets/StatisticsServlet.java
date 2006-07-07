@@ -11,9 +11,9 @@ import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.server.controllers.StatisticsController;
 
 public class StatisticsServlet extends MirthServlet {
+	private StatisticsController statisticsController = new StatisticsController();
+
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		StatisticsController statisticsController = new StatisticsController();
-		
 		if (!isUserLoggedIn(request.getSession())) {
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 		} else {

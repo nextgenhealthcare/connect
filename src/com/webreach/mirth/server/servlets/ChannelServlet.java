@@ -12,9 +12,9 @@ import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.server.controllers.ChannelController;
 
 public class ChannelServlet extends MirthServlet {
+	private ChannelController channelController = new ChannelController();
+	
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		ChannelController channelController = new ChannelController();
-		
 		if (!isUserLoggedIn(request.getSession())) {
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 		} else {

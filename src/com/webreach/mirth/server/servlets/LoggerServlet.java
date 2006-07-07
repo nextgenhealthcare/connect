@@ -14,10 +14,10 @@ import com.webreach.mirth.server.controllers.MessageLogger;
 import com.webreach.mirth.server.controllers.SystemLogger;
 
 public class LoggerServlet extends MirthServlet {
-	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		MessageLogger messageLogger = new MessageLogger();
-		SystemLogger systemLogger = new SystemLogger();
+	private MessageLogger messageLogger = new MessageLogger();
+	private SystemLogger systemLogger = new SystemLogger();
 
+	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		if (!isUserLoggedIn(request.getSession())) {
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 		} else {

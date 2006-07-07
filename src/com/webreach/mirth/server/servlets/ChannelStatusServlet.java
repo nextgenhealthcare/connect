@@ -12,9 +12,9 @@ import com.webreach.mirth.server.controllers.ControllerException;
 import com.webreach.mirth.server.controllers.ChannelStatusController;
 
 public class ChannelStatusServlet extends MirthServlet {
+	private ChannelStatusController channelStatusController = new ChannelStatusController();
+	
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		ChannelStatusController channelStatusController = new ChannelStatusController();
-		
 		if (!isUserLoggedIn(request.getSession())) {
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 		} else {
