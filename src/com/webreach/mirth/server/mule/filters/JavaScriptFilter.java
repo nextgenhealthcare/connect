@@ -28,9 +28,13 @@ public class JavaScriptFilter implements UMOFilter {
 			scope.put("message", scope, message);
 			scope.put("logger", scope, logger);
 
-			String jsSource = "function debug(debug_message) { logger.debug(debug_message) } function doFilter() { default xml namespace = new Namespace(\"urn:hl7-org:v2xml\"); var msg = new XML(message); " + script + " } doFilter()";
-			logger.debug("executing filter script:\n\t" + jsSource);
-			Object result = context.evaluateString(scope, jsSource, "<cmd>", 1, null);
+			StringBuilder jsSource = new StringBuilder();
+			jsSource.append("function debug(debug_message) { logger.debug(debug_message) }\n");
+			jsSource.append("function doFilter() { default xml namespace = new Namespace(\"urn:hl7-org:v2xml\"); var msg = new XML(message); " + script + " }\n");
+			jsSource.append("doFilter()\n");
+
+			logger.debug("executing filter script:\n\t" + jsSource.toString());
+			Object result = context.evaluateString(scope, jsSource.toString(), "<cmd>", 1, null);
 
 			return ((Boolean) Context.jsToJava(result, java.lang.Boolean.class)).booleanValue();
 		} catch (Exception e) {
