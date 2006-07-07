@@ -29,6 +29,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -118,6 +119,15 @@ public class ConfigurationController {
 	public Properties getServerProperties() throws ControllerException {
 		logger.debug("retrieving properties");
 
+		// TODO: fix hard-coding of path
+		File serverProperties = new File("config/server.properties");
+		
+		try {
+			serverProperties.createNewFile();
+		} catch (IOException e) {
+			throw new ControllerException(e);
+		}
+		
 		Properties properties = PropertyLoader.loadProperties("server.properties");
 
 		if (properties == null) {
