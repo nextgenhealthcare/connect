@@ -32,6 +32,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -272,10 +273,10 @@ public class ConfigurationController {
 
 		try {
 			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
-			StringBuilder insert = new StringBuilder();
-			insert.append("INSERT INTO configurations (data) VALUES (");
-			insert.append("'" + data + "');");
-			dbConnection.executeUpdate(insert.toString());
+			ArrayList<String> parameters = new ArrayList<String>();
+			String insert = "INSERT INTO configurations (data) VALUES (?)";
+			parameters.add(data);
+			dbConnection.executeUpdate(insert, parameters);
 		} catch (Exception e) {
 			throw new ControllerException(e);
 		} finally {
