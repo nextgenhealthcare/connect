@@ -32,8 +32,10 @@ import org.mule.config.ConfigurationException;
 import org.mule.config.builders.MuleXmlConfigurationBuilder;
 import org.mule.umo.manager.UMOManager;
 
+import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.server.controllers.ConfigurationController;
 import com.webreach.mirth.server.controllers.ControllerException;
+import com.webreach.mirth.server.controllers.SystemLogger;
 
 /**
  * Instantiate a Mirth server that listens for commands from the CommandQueue.
@@ -47,6 +49,7 @@ public class Mirth {
 	private UMOManager muleManager = null;
 	private Server webServer = null;
 	private CommandQueue commandQueue = CommandQueue.getInstance();
+	private SystemLogger systemLogger = new SystemLogger();
 
 	public static void main(String[] args) {
 		Mirth mirth = new Mirth();
@@ -101,7 +104,14 @@ public class Mirth {
 			MuleXmlConfigurationBuilder builder = new MuleXmlConfigurationBuilder();
 			muleManager = builder.configure(configurationFilePath);
 		} catch (ConfigurationException e) {
-			logger.warn("Invalid configuration.", e);
+			logger.warn("Error deploying channels.", e);
+
+			// if deploy fails, log to system events
+			SystemEvent event = new SystemEvent("Error deploying channels.");
+			event.setLevel(SystemEvent.Level.HIGH);
+			event.setDescription(e.toString());
+			systemLogger.logSystemEvent(event);
+			
 			configurationController.deleteLatestConfiguration();
 			commandQueue.addCommand(new Command(Command.Operation.START));
 		} catch (ControllerException e) {
