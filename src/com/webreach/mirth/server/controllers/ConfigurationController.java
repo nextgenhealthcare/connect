@@ -118,7 +118,7 @@ public class ConfigurationController {
 	public Properties getServerProperties() throws ControllerException {
 		logger.debug("retrieving properties");
 
-		Properties properties = PropertyLoader.loadProperties("mirth");
+		Properties properties = PropertyLoader.loadProperties("server.properties");
 
 		if (properties == null) {
 			throw new ControllerException("Could not load properties.");
@@ -131,7 +131,7 @@ public class ConfigurationController {
 		logger.debug("updating server properties");
 
 		try {
-			FileOutputStream fos = new FileOutputStream("mirth.properties");
+			FileOutputStream fos = new FileOutputStream("server.properties");
 			properties.store(fos, null);
 		} catch (Exception e) {
 			throw new ControllerException(e);
