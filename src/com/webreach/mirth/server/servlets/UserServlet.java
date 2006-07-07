@@ -16,10 +16,10 @@ import com.webreach.mirth.server.controllers.SystemLogger;
 import com.webreach.mirth.server.controllers.UserController;
 
 public class UserServlet extends MirthServlet {
-	private	UserController userController = new UserController();
-	private SystemLogger systemLogger = new SystemLogger();
 	public static final String SESSION_USER = "user";
 	public static final String SESSION_AUTHORIZED = "authorized";
+	private	UserController userController = new UserController();
+	private SystemLogger systemLogger = new SystemLogger();
 	
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		PrintWriter out = response.getWriter();
