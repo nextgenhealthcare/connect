@@ -122,13 +122,13 @@ public class DatabaseConnection {
 			ListIterator iterator = parameters.listIterator();
 
 			while (iterator.hasNext()) {
-				int index = iterator.nextIndex();
+				int index = iterator.nextIndex() + 1;
 				Object value = iterator.next();
 				logger.debug("adding parameter: index=" + index + ", value=" + value);
 				statement.setObject(index, value);
 			}
 
-			return statement.executeUpdate(expression);
+			return statement.executeUpdate();
 		} catch (SQLException e) {
 			throw e;
 		} finally {
