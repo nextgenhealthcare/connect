@@ -274,7 +274,7 @@ public class ConfigurationController {
 			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
 			StringBuilder insert = new StringBuilder();
 			insert.append("INSERT INTO configurations (data) VALUES (");
-			insert.append("'" + data.replaceAll("$", "\\$") + "');");
+			insert.append("'" + data + "');");
 			dbConnection.executeUpdate(insert.toString());
 		} catch (Exception e) {
 			throw new ControllerException(e);
