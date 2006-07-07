@@ -37,7 +37,13 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			// create email sender
 			Properties properties = (new ConfigurationController()).getServerProperties();
 			String host = properties.getProperty("smtp.host");
-			int port = Integer.valueOf(properties.getProperty("smtp.port")).intValue();
+			
+			int port = 25;
+			
+			if (properties.getProperty("smtp.port") != null) {
+				port = Integer.valueOf(properties.getProperty("smtp.port")).intValue();	
+			}
+			
 			String username = properties.getProperty("smtp.username");
 			String password = properties.getProperty("smtp.password");
 			EmailSender sender = new EmailSender(host, port, username, password);
