@@ -27,9 +27,13 @@ package com.webreach.mirth.server.util;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.ListIterator;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
@@ -90,6 +94,40 @@ public class DatabaseConnection {
 		try {
 			statement = connection.createStatement();
 			logger.debug("executing update:\n" + expression);
+			return statement.executeUpdate(expression);
+		} catch (SQLException e) {
+			throw e;
+		} finally {
+			DatabaseUtil.close(statement);
+		}
+	}
+
+	/**
+	 * Executes a prepared statement on the database and returns the row count.
+	 * 
+	 * @param expression
+	 *            the prepared statement to be executed
+	 * @param parameters
+	 *            the parameteres for the prepared statement
+	 * @return a count of the number of updated rows.
+	 * @throws SQLException
+	 */
+	public synchronized int executeUpdate(String expression, ArrayList parameters) throws SQLException {
+		PreparedStatement statement = null;
+
+		try {
+			statement = connection.prepareStatement(expression);
+			logger.debug("executing prepared statement:\n" + expression);
+
+			ListIterator iterator = parameters.listIterator();
+
+			while (iterator.hasNext()) {
+				int index = iterator.nextIndex();
+				Object value = iterator.next();
+				logger.debug("adding parameter: index=" + index + ", value=" + value);
+				statement.setObject(index, value);
+			}
+
 			return statement.executeUpdate(expression);
 		} catch (SQLException e) {
 			throw e;
