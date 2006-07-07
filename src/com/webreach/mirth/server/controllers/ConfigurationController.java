@@ -120,7 +120,7 @@ public class ConfigurationController {
 	public Properties getServerProperties() throws ControllerException {
 		logger.debug("retrieving properties");
 
-		// TODO: fix hard-coding of path
+		// TODO: fix hard-coding of properties file path
 		File serverProperties = new File("config/server.properties");
 		
 		try {
@@ -129,20 +129,15 @@ public class ConfigurationController {
 			throw new ControllerException(e);
 		}
 		
-		Properties properties = PropertyLoader.loadProperties("server.properties");
-
-		if (properties == null) {
-			throw new ControllerException("Could not load properties.");
-		} else {
-			return properties;
-		}
+		return PropertyLoader.loadProperties("server");
 	}
 
 	public void updateServerProperties(Properties properties) throws ControllerException {
 		logger.debug("updating server properties");
 
 		try {
-			FileOutputStream fos = new FileOutputStream("server.properties");
+			// TODO: fix hard-coding of properties file path
+			FileOutputStream fos = new FileOutputStream("config/server.properties");
 			properties.store(fos, null);
 		} catch (Exception e) {
 			throw new ControllerException(e);
