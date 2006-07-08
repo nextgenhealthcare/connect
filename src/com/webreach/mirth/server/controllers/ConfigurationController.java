@@ -27,6 +27,7 @@ package com.webreach.mirth.server.controllers;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -65,6 +66,7 @@ import com.webreach.mirth.util.PropertyLoader;
 public class ConfigurationController {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private SystemLogger systemLogger = new SystemLogger();
+	private static File serverPropertiesFile = new File("server.properties");
 
 	public Map<String, Transport> getTransports() throws ControllerException {
 		logger.debug("retrieving transport list");
@@ -120,27 +122,42 @@ public class ConfigurationController {
 	public Properties getServerProperties() throws ControllerException {
 		logger.debug("retrieving properties");
 
-		// TODO: fix hard-coding of properties file path
-		File serverProperties = new File("server.properties");
+		FileInputStream fileInputStream = null;
 		
 		try {
-			serverProperties.createNewFile();
-		} catch (IOException e) {
+			serverPropertiesFile.createNewFile();
+			fileInputStream = new FileInputStream(serverPropertiesFile);
+			Properties properties = new Properties();
+			properties.load(fileInputStream);
+			return properties;
+		} catch (Exception e) {
 			throw new ControllerException(e);
+		} finally {
+			try {
+				fileInputStream.close();
+			} catch (IOException e) {
+				logger.warn(e);
+			}
 		}
-		
-		return PropertyLoader.loadProperties("server.properties");
 	}
 
 	public void updateServerProperties(Properties properties) throws ControllerException {
 		logger.debug("updating server properties");
 
+		FileOutputStream fileOuputStream = null;
+		
 		try {
-			// TODO: fix hard-coding of properties file path
-			FileOutputStream fos = new FileOutputStream("server.properties");
-			properties.store(fos, null);
+			fileOuputStream = new FileOutputStream(serverPropertiesFile);
+			properties.store(fileOuputStream, null);
 		} catch (Exception e) {
 			throw new ControllerException(e);
+		} finally {
+			try {
+				fileOuputStream.flush();
+				fileOuputStream.close();
+			} catch (IOException e) {
+				logger.warn(e);
+			}
 		}
 	}
 
