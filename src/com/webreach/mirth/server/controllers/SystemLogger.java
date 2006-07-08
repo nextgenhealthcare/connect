@@ -36,13 +36,16 @@ public class SystemLogger {
 		
 		try {
 			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
-			StringBuilder insert = new StringBuilder();
-			insert.append("INSERT INTO EVENTS (EVENT, EVENT_LEVEL, DESCRIPTION, ATTRIBUTES) VALUES(");
-			insert.append("'" + systemEvent.getEvent() + "', ");
-			insert.append("'" + systemEvent.getLevel().toString() + "', ");
-			insert.append("'" + systemEvent.getDescription() + "', ");
-			insert.append("'" + serializer.serialize(systemEvent.getAttributes()) + "');");
-			dbConnection.executeUpdate(insert.toString());
+			
+			String insert = "insert into events (event, event_level, description, attributes) values(?, ?, ?, ?)";
+			
+			ArrayList<Object> parameters = new ArrayList<Object>();
+			parameters.add(systemEvent.getEvent());
+			parameters.add(systemEvent.getLevel().toString());
+			parameters.add(systemEvent.getDescription());
+			parameters.add(serializer.serialize(systemEvent.getAttributes()));
+			
+			dbConnection.executeUpdate(insert);
 		} catch (Exception e) {
 			logger.error("could not log system event", e);
 		}

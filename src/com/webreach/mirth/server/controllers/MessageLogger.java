@@ -35,7 +35,7 @@ public class MessageLogger {
 	 * @throws ControllerException
 	 */
 	public void logMessageEvent(MessageEvent messageEvent) {
-		logger.debug("adding message event: " + messageEvent.getChannelId());
+		logger.debug("adding message event: channelId=" + messageEvent.getChannelId());
 		
 		DatabaseConnection dbConnection = null;
 		
@@ -49,20 +49,22 @@ public class MessageLogger {
 			} catch (ControllerException e) {
 				throw e;
 			}
-			String messageData = encrypter.encrypt(messageEvent.getMessage());
+			String encryptedMessageData = encrypter.encrypt(messageEvent.getMessage());
 			// end message data encryption
 			
-			StringBuilder insert = new StringBuilder();
-			insert.append("INSERT INTO MESSAGES (CHANNEL_ID, SENDING_FACILITY, EVENT, CONTROL_ID, MESSAGE, STATUS) VALUES(");
-			insert.append(messageEvent.getChannelId() + ", ");
-			insert.append("'" + messageEvent.getSendingFacility() + "', ");
-			insert.append("'" + messageEvent.getEvent() + "', ");
-			insert.append("'" + messageEvent.getControlId() + "', ");
-			insert.append("'" + messageData + "', ");
-			insert.append("'" + messageEvent.getStatus().toString() + "');");
-			dbConnection.executeUpdate(insert.toString());
+			String insert = "insert into messages(channel_id, sending_facility, event, control_id, message, status) values (?, ?, ?, ?, ?, ?)";
+			
+			ArrayList<Object> parameters = new ArrayList<Object>();
+			parameters.add(messageEvent.getChannelId());
+			parameters.add(messageEvent.getSendingFacility());
+			parameters.add(messageEvent.getEvent());
+			parameters.add(messageEvent.getControlId());
+			parameters.add(encryptedMessageData);
+			parameters.add(messageEvent.getStatus().toString());
+			
+			dbConnection.executeUpdate(insert, parameters);
 		} catch (Exception e) {
-			logger.error("could not log message: channel id = " + messageEvent.getChannelId(), e);
+			logger.error("could not log message: channelId=" + messageEvent.getChannelId(), e);
 		}
 	}
 	
@@ -74,7 +76,7 @@ public class MessageLogger {
 	 * @throws ControllerException
 	 */
 	public List<MessageEvent> getMessageEvents(MessageEventFilter filter) throws ControllerException {
-		logger.debug("retrieving message event list: " + filter.toString());
+		logger.debug("retrieving message event list: filter=" + filter.toString());
 		
 		DatabaseConnection dbConnection = null;
 		ResultSet result = null;
@@ -144,7 +146,7 @@ public class MessageLogger {
 	 * @param messageEventId
 	 */
 	public void removeMessageEvent(int messageEventId) throws ControllerException {
-		logger.debug("removing message event: " + messageEventId);
+		logger.debug("removing message event: messageEventId=" + messageEventId);
 		
 		DatabaseConnection dbConnection = null;
 		
