@@ -109,7 +109,7 @@ public class Mirth {
 			// if deploy fails, log to system events
 			SystemEvent event = new SystemEvent("Error deploying channels.");
 			event.setLevel(SystemEvent.Level.HIGH);
-			event.setDescription(e.toString());
+			event.setDescription(e.getDetailedMessage());
 			systemLogger.logSystemEvent(event);
 			
 			configurationController.deleteLatestConfiguration();
