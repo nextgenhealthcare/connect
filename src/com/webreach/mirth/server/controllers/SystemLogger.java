@@ -45,7 +45,7 @@ public class SystemLogger {
 			parameters.add(systemEvent.getDescription());
 			parameters.add(serializer.serialize(systemEvent.getAttributes()));
 			
-			dbConnection.executeUpdate(insert);
+			dbConnection.executeUpdate(insert, parameters);
 		} catch (Exception e) {
 			logger.error("could not log system event", e);
 		}
@@ -131,12 +131,11 @@ public class SystemLogger {
 		ArrayList<SystemEvent> systemEvents = new ArrayList<SystemEvent>();
 
 		while (result.next()) {
-			SystemEvent systemEvent = new SystemEvent();
+			SystemEvent systemEvent = new SystemEvent(result.getString("event"));
 			systemEvent.setId(result.getInt("id"));
 			Calendar dateCreated = Calendar.getInstance();
 			dateCreated.setTimeInMillis(result.getTimestamp("date_created").getTime());
 			systemEvent.setDate(dateCreated);
-			systemEvent.setEvent(result.getString("event"));
 			systemEvent.setLevel(SystemEvent.Level.valueOf(result.getString("event_level")));
 			systemEvent.setDescription(result.getString("description"));
 			systemEvent.setAttributes((Properties) serializer.deserialize(result.getString("attributes")));

@@ -40,21 +40,17 @@ public class SystemEvent {
 	}
 
 	private int id;
-	private Level level;
 	private Calendar date;
+	private Level level;
 	private String event;
 	private String description;
 	private Properties attributes;
 
-	public SystemEvent() {
-		this.attributes = new Properties();
-		this.level = Level.NORMAL;
-	}
-
 	public SystemEvent(String event) {
-		this.attributes = new Properties();
 		this.event = event;
 		this.level = Level.NORMAL;
+		this.description = new String();
+		this.attributes = new Properties();
 	}
 
 	public Calendar getDate() {
