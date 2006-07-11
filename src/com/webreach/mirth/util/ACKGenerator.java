@@ -26,32 +26,17 @@
 
 package com.webreach.mirth.util;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.mule.umo.UMOEventContext;
-import org.mule.umo.lifecycle.Callable;
-
 import ca.uhn.hl7v2.app.DefaultApplication;
 import ca.uhn.hl7v2.model.Message;
 import ca.uhn.hl7v2.model.Segment;
 import ca.uhn.hl7v2.parser.PipeParser;
 
-public class ACKGenerator implements Callable {
-	protected static transient Log logger = LogFactory.getLog(ACKGenerator.class);
-
-	public Object onCall(UMOEventContext context) throws Exception {
-		return generateAckResponse(context.getTransformedMessageAsString());
-	}
-	
+public class ACKGenerator {
 	public String generateAckResponse(String message) throws Exception {
 		PipeParser parser = new PipeParser();
 		Segment header = parser.getCriticalResponseData(message);
-	
         Message response = DefaultApplication.makeACK(header);
         String originalEncoding = parser.getEncoding(message);
-        String ackMessage = parser.encode(response, originalEncoding);
-        logger.debug(ackMessage);
-
-        return ackMessage;
+        return parser.encode(response, originalEncoding);
 	}
 }
