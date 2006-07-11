@@ -285,9 +285,11 @@ public class ConfigurationController {
 
 		try {
 			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
+
+			String insert = "insert into configurations (data) values (?)";
 			ArrayList<String> parameters = new ArrayList<String>();
-			String insert = "INSERT INTO configurations (data) VALUES (?)";
 			parameters.add(data);
+
 			dbConnection.executeUpdate(insert, parameters);
 		} catch (Exception e) {
 			throw new ControllerException(e);
