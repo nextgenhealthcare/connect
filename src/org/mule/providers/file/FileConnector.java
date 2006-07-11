@@ -103,7 +103,7 @@ public class FileConnector extends AbstractServiceEnabledConnector
 
     private boolean serialiseObjects = false;
 
-    public FilenameParser filenameParser;
+    public FilenameParser filenameParser = new SimpleFilenameParser();
 
     /*
      * (non-Javadoc)

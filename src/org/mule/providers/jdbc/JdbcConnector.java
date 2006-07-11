@@ -41,7 +41,7 @@ import java.sql.*;
 public class JdbcConnector extends AbstractServiceEnabledConnector
 {
 
-    private long pollingFrequency = 0;
+    private long pollingFrequency = 5000;
     private DataSource dataSource;
     private String driver;
     private String URL;
@@ -139,7 +139,7 @@ public class JdbcConnector extends AbstractServiceEnabledConnector
                 ackStmt = str;
             }
         } else {
-            ackStmt = readStmt + ".ack";
+            ackStmt = "ack";
             if ((str = getQuery(endpoint, ackStmt)) != null) {
                 ackStmt = str;
             } else {
@@ -170,7 +170,7 @@ public class JdbcConnector extends AbstractServiceEnabledConnector
     {
         Object query = null;
         if (endpoint != null && endpoint.getProperties() != null) {
-            Object queries = endpoint.getProperties().get("queries");
+            Object queries = getQueries();
             if (queries instanceof Map) {
                 query = ((Map) queries).get(stmt);
             }

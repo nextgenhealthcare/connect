@@ -15,6 +15,7 @@
 
 package org.mule.providers.file;
 
+import org.apache.tools.ant.taskdefs.Replace;
 import org.mule.MuleException;
 import org.mule.config.i18n.Message;
 import org.mule.config.i18n.Messages;
@@ -29,9 +30,11 @@ import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.provider.UMOConnector;
 import org.mule.umo.provider.UMOMessageAdapter;
 import org.mule.util.Utility;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Scanner;
 import java.util.Vector;
-import java.io.File;
-import java.io.FilenameFilter;
 import java.io.*;
 /**
  * <code>FileMessageReceiver</code> is a polling listener that reads files
@@ -43,6 +46,10 @@ import java.io.*;
 
 public class FileMessageReceiver extends PollingMessageReceiver
 {
+	private static byte startOfMessage = (byte)0x0B;
+	private static byte endOfMessage = (byte)0x1C;
+	private static byte endOfRecord = (byte)0x0D;
+	
     private String readDir = null;
 
     private String moveDir = null;
@@ -110,7 +117,7 @@ public class FileMessageReceiver extends PollingMessageReceiver
         }
     }
 
-    public synchronized void processFile(File file) throws UMOException
+	public synchronized void processFile(File file) throws UMOException
     {
 	boolean checkFileAge = ((FileConnector) connector).getCheckFileAge();
 	if (checkFileAge) {
@@ -138,14 +145,31 @@ public class FileMessageReceiver extends PollingMessageReceiver
                 throw new MuleException(new Message(Messages.FILE_X_DOES_NOT_EXIST, file.getName()));
             } else {
                 //Read in the file, parse it line by line 
-        		Vector fileContents = getFileLines(file);
-        		for (int i = 0; i < fileContents.size(); i++){
-        			msgAdapter = connector.getMessageAdapter(fileContents.elementAt(i));   
-                    UMOMessage message = new MuleMessage(msgAdapter);
-                    routeMessage(message, endpoint.isSynchronous());
-        		}
+        		//Vector fileContents = getFileLines(file);
+            	try{
+	        		ArrayList hl7messages = LoadHL7Messages(file);
+					Iterator<String> it = hl7messages.iterator();
+					String tempMessage;
+					while (it.hasNext()){
+						tempMessage = it.next();
+	        			msgAdapter = connector.getMessageAdapter(tempMessage);   
+	                    UMOMessage message = new MuleMessage(msgAdapter);
+	                    routeMessage(message, endpoint.isSynchronous());
+	        		}
+            	}
+            	catch (Exception e){
+            		throw new MuleException(new Message(Messages.FAILED_TO_READ_PAYLOAD, file.getName()));
+            	}
         		//move the file if needed
                 if (destinationFile != null) {
+                	try{
+                		destinationFile.delete();
+                		
+                	}
+                	catch (Exception e){
+                			
+                	}
+                	
                     resultOfFileMoveOperation = file.renameTo(destinationFile);
                     if (!resultOfFileMoveOperation) {
                         throw new MuleException(new Message("file",
@@ -214,6 +238,44 @@ public class FileMessageReceiver extends PollingMessageReceiver
         }
         return contents;
       }
+    
+    private static ArrayList<String> LoadHL7Messages(File file) throws FileNotFoundException{
+		
+    	ArrayList<String> hl7messages = new ArrayList<String>();
+		StringBuilder message = new StringBuilder();
+		Scanner s = new Scanner(file);
+		char data[] = {(char)startOfMessage, (char)endOfMessage};
+		while(s.hasNextLine())
+		{
+			String temp = s.nextLine().replaceAll(new String(data, 0, 1), "").replaceAll(new String(data, 1, 1), "");
+			if(temp.length() == 0 || temp.equals((char)endOfMessage))
+			{
+				hl7messages.add(message.toString());
+				message = new StringBuilder();
+				while (temp.length() == 0 && s.hasNextLine()){
+					temp = s.nextLine();
+				}
+				if (temp.length()> 0){
+					message.append(temp);
+					message.append((char)endOfRecord);
+				}
+				
+			}
+			else
+			{
+				message.append(temp);
+				message.append((char)endOfRecord);
+				if (!s.hasNextLine()){
+					hl7messages.add(message.toString());
+					message = new StringBuilder();
+				}
+			}
+		}
+		if (s != null){
+			s.close();
+		}
+		return hl7messages;
+	}
     /**
      * Exception tolerant roll back method
      */
