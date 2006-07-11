@@ -41,33 +41,26 @@ import ca.uhn.hl7v2.parser.PipeParser;
 import ca.uhn.hl7v2.parser.XMLParser;
 import ca.uhn.hl7v2.validation.impl.NoValidation;
 
-public class ER7toXML extends AbstractTransformer {
+public class XMLtoER7 extends AbstractTransformer {
 	private Logger logger = Logger.getLogger(this.getClass());
 
-	public ER7toXML() {
+	public XMLtoER7() {
 		super();
 		registerSourceType(String.class);
 		setReturnClass(String.class);
 	}
 
-	/**
-	 * Encodes an HL7 message String in XML.
-	 * 
-	 * @return the HL7 message encoded in XML
-	 * @throws TransformerException
-	 *             if the message could not be parsed and transformed
-	 */
 	public Object doTransform(Object source) throws TransformerException {
 		String message = (String) source;
 
-		PipeParser pipeParser = new PipeParser();
-		// disables all message validation
-		pipeParser.setValidationContext(new NoValidation());
 		XMLParser xmlParser = new DefaultXMLParser();
+		// disables all message validation
+		xmlParser.setValidationContext(new NoValidation());
+		PipeParser pipeParser = new PipeParser();
 		
 		try {
-			logger.debug("encoding ER7 message to XML:\n" + message);
-			return xmlParser.encode(pipeParser.parse(message));
+			logger.debug("encoding XML message to ER7:\n" + message);
+			return pipeParser.encode(xmlParser.parse(message));
 		} catch (HL7Exception e) {
 			throw new TransformerException(org.mule.config.i18n.Message.createStaticMessage("Failed to parse String at: " + e.getSegmentName()), this);
 		}
