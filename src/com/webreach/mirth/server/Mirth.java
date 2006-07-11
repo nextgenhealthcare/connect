@@ -149,7 +149,7 @@ public class Mirth {
 			
 			SslListener sslListener = new SslListener();
 			sslListener.setPort(8443);
-			sslListener.setKeystore("./web/keystore");
+			sslListener.setKeystore("keystore");
 			sslListener.setPassword("abc12345");
 			sslListener.setKeyPassword("abc12345");
 			
