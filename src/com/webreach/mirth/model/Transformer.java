@@ -38,8 +38,18 @@ import java.util.List;
 public class Transformer {
 	private List<Step> steps;
 
+	private String template;
+
 	public Transformer() {
 		this.steps = new ArrayList<Step>();
+	}
+
+	public String getTemplate() {
+		return template;
+	}
+
+	public void setTemplate(String template) {
+		this.template = template;
 	}
 
 	public List<Step> getSteps() {
