@@ -38,8 +38,18 @@ import java.util.List;
 public class Filter {
 	private List<Rule> rules;
 
+	private String template;
+
 	public Filter() {
 		this.rules = new ArrayList<Rule>();
+	}
+
+	public String getTemplate() {
+		return template;
+	}
+
+	public void setTemplate(String template) {
+		this.template = template;
 	}
 
 	public List<Rule> getRules() {
