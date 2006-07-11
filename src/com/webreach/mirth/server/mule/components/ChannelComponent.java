@@ -31,12 +31,13 @@ public class ChannelComponent implements Callable {
 		Terser terser = new Terser(message);
 		String sendingFacility = terser.get("/MSH-3-1");
 		String controlId = terser.get("/MSH-10");
+		String event = terser.get("/MSH-9-1") + "-" + terser.get("/MSH-9-2") + " (" + message.getVersion() + ")";
 
 		MessageLogger messageLogger = new MessageLogger();
 		MessageEvent messageEvent = new MessageEvent();
 		messageEvent.setChannelId(channelId);
 		messageEvent.setSendingFacility(sendingFacility);
-		messageEvent.setEvent(message.getName());
+		messageEvent.setEvent(event);
 		messageEvent.setControlId(controlId);
 		messageEvent.setMessage(eventContext.getMessageAsString());
 		messageEvent.setStatus(MessageEvent.Status.RECEIVED);
