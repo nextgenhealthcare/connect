@@ -58,7 +58,7 @@ public class MuleConfigurationBuilder {
 
 	private List<Channel> channels = null;
 	private Map<String, Transport> transports = null;
-	
+
 	private JavaScriptFilterBuilder filterBuilder = new JavaScriptFilterBuilder();
 	private JavaScriptTransformerBuilder transformerBuilder = new JavaScriptTransformerBuilder();
 
@@ -136,22 +136,25 @@ public class MuleConfigurationBuilder {
 			endpointElement.setAttribute("connector", connectorReference);
 
 			StringBuilder transformers = new StringBuilder();
-			
-			// 1. append the default transformers required by the transport (ex. ByteArrayToString)
+
+			// 1. append the default transformers required by the transport (ex.
+			// ByteArrayToString)
 			Transport transport = transports.get(channel.getSourceConnector().getTransportName());
 			transformers.append(transport.getTransformers() + " ");
-			
-			// 2. if it's an inbound channel and the messages aren't pre-encoded, append the HL7StringToXMLString transformer
+
+			// 2. if it's an inbound channel and the messages aren't
+			// pre-encoded, append the HL7StringToXMLString transformer
 			if (channel.getDirection().equals(Channel.Direction.INBOUND) && !channel.getProperties().get("recv_xml_encoded").equals("true")) {
 				transformers.append("ER7toXML ");
 			}
-			
-			// 3. finally, append the JavaScriptTransformer that does the mappings if it's BROADCAST
+
+			// 3. finally, append the JavaScriptTransformer that does the
+			// mappings if it's BROADCAST
 			if (channel.getMode().equals(Channel.Mode.BROADCAST)) {
 				addTransformer(document, configurationElement, channel.getSourceConnector().getTransformer(), connectorReference);
 				transformers.append(connectorReference);
 			}
-			
+
 			endpointElement.setAttribute("transformers", transformers.toString().trim());
 
 			Element routerElement = document.createElement("router");
@@ -197,21 +200,23 @@ public class MuleConfigurationBuilder {
 
 				StringBuilder transformers = new StringBuilder();
 
-				// 1. append the JavaScriptTransformer that does the mappings if it's ROUTER
+				// 1. append the JavaScriptTransformer that does the mappings if
+				// it's ROUTER
 				if (channel.getMode().equals(Channel.Mode.ROUTER)) {
 					addTransformer(document, configurationElement, connector.getTransformer(), connectorReference);
 					transformers.append(connectorReference + " ");
 				}
-				
+
 				// 2. convert the XML message in the map to an ER7 message
 				if (channel.getDirection().equals(Channel.Direction.OUTBOUND) && !channel.getProperties().get("send_xml_encoded").equals("true")) {
 					transformers.append("XMLtoER7 ");
 				}
 
-				// 3. finally, append any transformers needed by the transport (ie. StringToByteArray)
+				// 3. finally, append any transformers needed by the transport
+				// (ie. StringToByteArray)
 				Transport transport = transports.get(connector.getTransportName());
 				transformers.append(transport.getTransformers());
-				
+
 				endpointElement.setAttribute("transformers", transformers.toString().trim());
 				routerElement.appendChild(endpointElement);
 
@@ -266,11 +271,38 @@ public class MuleConfigurationBuilder {
 			// TODO: (maybe) create a ConnectorProperty object that has
 			// name, value, and isMuleProperty attribute
 			// then only add the properties that have isMuleProperty set to true
-			// TODO: handle the case where a queries map is added
-			
-			connectorElement.appendChild(getProperties(document, connector.getProperties()));
+			Properties connectorProperties = connector.getProperties();
+			Element propertiesElement = document.createElement("properties");
+			Element mapElement = document.createElement("map");
+			mapElement.setAttribute("name", "queries");
 
-			// insert the connector before the tranformers element to maintain sequence
+			for (Iterator iter = connectorProperties.entrySet().iterator(); iter.hasNext();) {
+				Entry property = (Entry) iter.next();
+
+				// only add non-empty properties to the list
+				if ((property.getValue() != null) && (!property.getValue().equals(""))) {
+					Element propertyElement = document.createElement("property");
+					propertyElement.setAttribute("name", property.getKey().toString());
+					propertyElement.setAttribute("value", property.getValue().toString());
+
+					if (property.getKey().equals("query") || property.getKey().equals("statement") || property.getKey().equals("ack")) {
+						mapElement.appendChild(propertyElement);
+					} else {
+						propertiesElement.appendChild(propertyElement);
+					}
+				}
+			}
+
+			// if queries/statements/ack have been added to the queries map, add
+			// the map to the connector properties
+			if (mapElement.hasChildNodes()) {
+				propertiesElement.appendChild(mapElement);
+			}
+
+			connectorElement.appendChild(propertiesElement);
+
+			// insert the connector before the tranformers element to maintain
+			// sequence
 			Element transformersElement = (Element) configurationElement.getElementsByTagName("transformers").item(0);
 			configurationElement.insertBefore(connectorElement, transformersElement);
 		} catch (Exception e) {
@@ -295,13 +327,13 @@ public class MuleConfigurationBuilder {
 
 		return propertiesElement;
 	}
-	
+
 	private String getEndpointUri(Connector connector) {
 		StringBuilder builder = new StringBuilder();
 		builder.append(transports.get(connector.getTransportName()).getProtocol());
 		builder.append("://");
 		builder.append(connector.getProperties().getProperty("address"));
-		
+
 		if (connector.getProperties().getProperty("port") != null) {
 			builder.append(":");
 			builder.append(connector.getProperties().getProperty("port"));
