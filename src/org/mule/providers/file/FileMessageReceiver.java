@@ -15,7 +15,7 @@
 
 package org.mule.providers.file;
 
-import org.apache.tools.ant.taskdefs.Replace;
+
 import org.mule.MuleException;
 import org.mule.config.i18n.Message;
 import org.mule.config.i18n.Messages;

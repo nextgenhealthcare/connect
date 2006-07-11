@@ -38,8 +38,6 @@ import org.mule.impl.MuleMessage;
 import org.mule.impl.ResponseOutputStream;
 import org.mule.providers.AbstractMessageReceiver;
 import org.mule.providers.ConnectException;
-import org.mule.providers.llprouter.LlpRouterConnector;
-import org.mule.providers.llprouter.protocols.LlpProtocol;
 import org.mule.umo.UMOComponent;
 import org.mule.umo.UMOMessage;
 import org.mule.umo.endpoint.UMOEndpoint;
@@ -48,8 +46,8 @@ import org.mule.umo.lifecycle.DisposeException;
 import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.provider.UMOConnector;
 import org.mule.umo.provider.UMOMessageAdapter;
-
-import com.webreach.mirth.components.ACKGenerator;
+import org.mule.providers.tcp.protocols.*;
+import com.webreach.mirth.util.ACKGenerator;
 
 /**
  * <code>TcpMessageReceiver</code> acts like a tcp server to receive socket
