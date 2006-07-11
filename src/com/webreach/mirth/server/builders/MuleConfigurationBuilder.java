@@ -135,23 +135,22 @@ public class MuleConfigurationBuilder {
 			addConnector(document, configurationElement, channel.getSourceConnector(), connectorReference);
 			endpointElement.setAttribute("connector", connectorReference);
 
-			// add the transformer for the connector
-			Transport transport = transports.get(channel.getSourceConnector().getTransportName());
-			addTransformer(document, configurationElement, channel.getSourceConnector().getTransformer(), connectorReference);
-
-			// the list of transformers needed for this endpoint 
 			StringBuilder transformers = new StringBuilder();
 			
-			// append the default transformers required by the transport (ex. ByteArrayToString)
+			// 1. append the default transformers required by the transport (ex. ByteArrayToString)
+			Transport transport = transports.get(channel.getSourceConnector().getTransportName());
 			transformers.append(transport.getTransformers() + " ");
 			
-			// if it's an inbound channel and the messages aren't pre-encoded, append the HL7StringToXMLString transformer
-			if (channel.getDirection().equals(Channel.Direction.INBOUND) && !channel.getProperties().get("recv_pre_encoded").equals("true")) {
+			// 2. if it's an inbound channel and the messages aren't pre-encoded, append the HL7StringToXMLString transformer
+			if (channel.getDirection().equals(Channel.Direction.INBOUND) && !channel.getProperties().get("recv_xml_encoded").equals("true")) {
 				transformers.append("ER7toXML ");
 			}
 			
-			// finally, append the JavaScriptTransformer that does the mappings
-			transformers.append(connectorReference);
+			// 3. finally, append the JavaScriptTransformer that does the mappings if it's BROADCAST
+			if (channel.getMode().equals(Channel.Mode.BROADCAST)) {
+				addTransformer(document, configurationElement, channel.getSourceConnector().getTransformer(), connectorReference);
+				transformers.append(connectorReference);
+			}
 			
 			endpointElement.setAttribute("transformers", transformers.toString().trim());
 
@@ -196,21 +195,24 @@ public class MuleConfigurationBuilder {
 				addConnector(document, configurationElement, connector, connectorReference);
 				endpointElement.setAttribute("connector", connectorReference);
 
-				// add the transformer for this destination connector
-				Transport transport = transports.get(connector.getTransportName());
-				addTransformer(document, configurationElement, connector.getTransformer(), connectorReference);
-				
 				StringBuilder transformers = new StringBuilder();
-				transformers.append(transport.getTransformers() + " ");
-				
-				// TODO: transform a Message object rather than XML to ER7?
-				if (channel.getDirection().equals(Channel.Direction.OUTBOUND) && !channel.getProperties().get("send_pre_encoded").equals("true")) {
-					transformers.append("XMLtoER7 ");
+
+				// 1. append the JavaScriptTransformer that does the mappings if it's ROUTER
+				if (channel.getMode().equals(Channel.Mode.ROUTER)) {
+					addTransformer(document, configurationElement, connector.getTransformer(), connectorReference);
+					transformers.append(connectorReference + " ");
 				}
 				
-				transformers.append(connectorReference);
-				endpointElement.setAttribute("transformers", transformers.toString().trim());
+				// 2. convert the XML message in the map to an ER7 message
+				if (channel.getDirection().equals(Channel.Direction.OUTBOUND) && !channel.getProperties().get("send_xml_encoded").equals("true")) {
+					transformers.append("XMLtoER7 ");
+				}
 
+				// 3. finally, append any transformers needed by the transport (ie. StringToByteArray)
+				Transport transport = transports.get(connector.getTransportName());
+				transformers.append(transport.getTransformers());
+				
+				endpointElement.setAttribute("transformers", transformers.toString().trim());
 				routerElement.appendChild(endpointElement);
 
 				// add the filter
