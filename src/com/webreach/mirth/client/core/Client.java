@@ -26,7 +26,7 @@ import com.webreach.mirth.model.filters.SystemEventFilter;
 public class Client {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private String serverAddress = null;
-	private HttpClient client;
+	private HttpClient client = null;
 	private ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 
 	private final static String USER_SERVLET = "/users";
