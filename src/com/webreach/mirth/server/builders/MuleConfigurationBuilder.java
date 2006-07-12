@@ -156,7 +156,10 @@ public class MuleConfigurationBuilder {
 				transformers.append(connectorReference);
 			}
 
-			endpointElement.setAttribute("transformers", transformers.toString().trim());
+			// 4. add the transformer sequence as an attribute to the endpoint if not empty
+			if (!transformers.toString().trim().equals("")) {
+				endpointElement.setAttribute("transformers", transformers.toString().trim());	
+			}
 
 			Element routerElement = document.createElement("router");
 			routerElement.setAttribute("className", "org.mule.routing.inbound.SelectiveConsumer");
@@ -218,7 +221,11 @@ public class MuleConfigurationBuilder {
 				Transport transport = transports.get(connector.getTransportName());
 				transformers.append(transport.getTransformers());
 
-				endpointElement.setAttribute("transformers", transformers.toString().trim());
+				// 4. add the transformer sequence as an attribute to the endpoint if not empty
+				if (!transformers.toString().trim().equals("")) {
+					endpointElement.setAttribute("transformers", transformers.toString().trim());	
+				}
+				
 				routerElement.appendChild(endpointElement);
 
 				// add the filter
