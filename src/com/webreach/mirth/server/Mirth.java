@@ -64,12 +64,15 @@ public class Mirth {
 		running = true;
 		startWebServer();
 		commandQueue.addCommand(new Command(Command.Operation.START));
+		
+        ShutdownHook shutdownHook = new ShutdownHook();
+        Runtime.getRuntime().addShutdownHook(shutdownHook);
 
 		// pulls commands off of the command queue
 		while (running) {
 			System.out.println("waiting for command...");
 			Command command = commandQueue.getCommand();
-			
+
 			if (command.getOperation().equals(Command.Operation.START)) {
 				startMule();
 			} else if (command.getOperation().equals(Command.Operation.STOP)) {
@@ -77,11 +80,16 @@ public class Mirth {
 			} else if (command.getOperation().equals(Command.Operation.RESTART)) {
 				restartMule();
 			} else if (command.getOperation().equals(Command.Operation.SHUTDOWN)) {
-				stopMule();
-				stopWebServer();
-				running = false;
+				shutdown();
 			}
 		}
+	}
+	
+	public void shutdown() {
+		System.out.println("shutting down mirth");
+		stopMule();
+		stopWebServer();
+		running = false;
 	}
 
 	// restarts mule
@@ -94,7 +102,7 @@ public class Mirth {
 	// starts mule
 	private void startMule() {
 		ConfigurationController configurationController = new ConfigurationController();
-		
+
 		try {
 			String configurationFilePath = configurationController.getLatestConfiguration().getAbsolutePath();
 			logger.debug("starting mule with configuration file: " + configurationFilePath);
@@ -111,7 +119,7 @@ public class Mirth {
 			event.setLevel(SystemEvent.Level.HIGH);
 			event.setDescription(e.getMessage());
 			systemLogger.logSystemEvent(event);
-			
+
 			configurationController.deleteLatestConfiguration();
 			commandQueue.addCommand(new Command(Command.Operation.START));
 		} catch (ControllerException e) {
@@ -146,13 +154,13 @@ public class Mirth {
 			System.setProperty("org.mortbay.xml.XmlParser.NotValidating", "true");
 
 			webServer = new Server();
-			
+
 			SslListener sslListener = new SslListener();
 			sslListener.setPort(8443);
 			sslListener.setKeystore("keystore");
 			sslListener.setPassword("abc12345");
 			sslListener.setKeyPassword("abc12345");
-			
+
 			webServer.addListener(sslListener);
 			webServer.addWebApplication("/", "./web/webapps/mirth.war");
 			webServer.start();
@@ -169,6 +177,12 @@ public class Mirth {
 			webServer.stop();
 		} catch (InterruptedException e) {
 			logger.warn("Could not stop web server.", e);
+		}
+	}
+
+	private class ShutdownHook extends Thread {
+		public void run() {
+			shutdown();
 		}
 	}
 }
