@@ -279,8 +279,6 @@ public class MuleConfigurationBuilder {
 			// then only add the properties that have isMuleProperty set to true
 			Properties connectorProperties = connector.getProperties();
 			Element propertiesElement = document.createElement("properties");
-			Element mapElement = document.createElement("map");
-			mapElement.setAttribute("name", "queries");
 
 			for (Iterator iter = connectorProperties.entrySet().iterator(); iter.hasNext();) {
 				Entry property = (Entry) iter.next();
@@ -290,25 +288,15 @@ public class MuleConfigurationBuilder {
 				nonConnectorProperties.add("host");
 				nonConnectorProperties.add("hostname");
 				nonConnectorProperties.add("port");
+				nonConnectorProperties.add("DataType");
 
 				// only add non-null, non-empty, non-Mule properties to the list
 				if ((property.getValue() != null) && (!property.getValue().equals("")) && !nonConnectorProperties.contains(property.getKey())) {
 					Element propertyElement = document.createElement("property");
 					propertyElement.setAttribute("name", property.getKey().toString());
 					propertyElement.setAttribute("value", property.getValue().toString());
-
-					if (property.getKey().equals("query") || property.getKey().equals("statement") || property.getKey().equals("ack")) {
-						mapElement.appendChild(propertyElement);
-					} else {
-						propertiesElement.appendChild(propertyElement);
-					}
+					propertiesElement.appendChild(propertyElement);
 				}
-			}
-
-			// if queries/statements/ack have been added to the queries map, add
-			// the map to the connector properties
-			if (mapElement.hasChildNodes()) {
-				propertiesElement.appendChild(mapElement);
 			}
 
 			connectorElement.appendChild(propertiesElement);
