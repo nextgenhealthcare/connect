@@ -128,7 +128,7 @@ public class MuleConfigurationBuilder {
 		try {
 			Element inboundRouterElement = document.createElement("inbound-router");
 			Element endpointElement = document.createElement("endpoint");
-			endpointElement.setAttribute("address", getEndpointUri(channel.getSourceConnector()));
+			endpointElement.setAttribute("host", getEndpointUri(channel.getSourceConnector()));
 
 			String connectorReference = String.valueOf(channel.getId()) + "_source";
 
@@ -194,7 +194,7 @@ public class MuleConfigurationBuilder {
 				routerElement.setAttribute("className", "org.mule.routing.outbound.FilteringOutboundRouter");
 
 				Element endpointElement = document.createElement("endpoint");
-				endpointElement.setAttribute("address", getEndpointUri(connector));
+				endpointElement.setAttribute("host", getEndpointUri(connector));
 
 				String connectorReference = String.valueOf(channel.getId()) + "_destination_" + String.valueOf(connectorIndex);
 
@@ -288,12 +288,13 @@ public class MuleConfigurationBuilder {
 				Entry property = (Entry) iter.next();
 
 				// list of all properties which should not be appended to the connector
-				ArrayList<String> nonMuleConnectorPropertyNames = new ArrayList<String>();
-				nonMuleConnectorPropertyNames.add("address");
-				nonMuleConnectorPropertyNames.add("port");
+				ArrayList<String> nonConnectorProperties = new ArrayList<String>();
+				nonConnectorProperties.add("host");
+				nonConnectorProperties.add("hostname");
+				nonConnectorProperties.add("port");
 
 				// only add non-null, non-empty, non-Mule properties to the list
-				if ((property.getValue() != null) && (!property.getValue().equals("")) && !nonMuleConnectorPropertyNames.contains(property.getKey())) {
+				if ((property.getValue() != null) && (!property.getValue().equals("")) && !nonConnectorProperties.contains(property.getKey())) {
 					Element propertyElement = document.createElement("property");
 					propertyElement.setAttribute("name", property.getKey().toString());
 					propertyElement.setAttribute("value", property.getValue().toString());
@@ -345,7 +346,12 @@ public class MuleConfigurationBuilder {
 		StringBuilder builder = new StringBuilder();
 		builder.append(transports.get(connector.getTransportName()).getProtocol());
 		builder.append("://");
-		builder.append(connector.getProperties().getProperty("address"));
+		
+		if (connector.getProperties().getProperty("host") != null) {
+			builder.append(connector.getProperties().getProperty("host"));	
+		} else {
+			builder.append(connector.getProperties().getProperty("hostname"));
+		}
 
 		if (connector.getProperties().getProperty("port") != null) {
 			builder.append(":");
