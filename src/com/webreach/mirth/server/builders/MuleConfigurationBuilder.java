@@ -157,9 +157,10 @@ public class MuleConfigurationBuilder {
 				transformers.append(connectorReference);
 			}
 
-			// 4. add the transformer sequence as an attribute to the endpoint if not empty
+			// 4. add the transformer sequence as an attribute to the endpoint
+			// if not empty
 			if (!transformers.toString().trim().equals("")) {
-				endpointElement.setAttribute("transformers", transformers.toString().trim());	
+				endpointElement.setAttribute("transformers", transformers.toString().trim());
 			}
 
 			Element routerElement = document.createElement("router");
@@ -221,11 +222,11 @@ public class MuleConfigurationBuilder {
 				Transport transport = transports.get(connector.getTransportName());
 				transformers.append(transport.getTransformers());
 
-				// 4. add the transformer sequence as an attribute to the endpoint if not empty
+				// 4. add the transformer sequence as an attribute to the
+				// endpoint if not empty
 				if (!transformers.toString().trim().equals("")) {
-					endpointElement.setAttribute("transformers", transformers.toString().trim());	
+					endpointElement.setAttribute("transformers", transformers.toString().trim());
 				}
-				
 
 				// add the filter
 				Element filterElement = document.createElement("filter");
@@ -283,7 +284,8 @@ public class MuleConfigurationBuilder {
 			for (Iterator iter = connectorProperties.entrySet().iterator(); iter.hasNext();) {
 				Entry property = (Entry) iter.next();
 
-				// list of all properties which should not be appended to the connector
+				// list of all properties which should not be appended to the
+				// connector
 				ArrayList<String> nonConnectorProperties = new ArrayList<String>();
 				nonConnectorProperties.add("host");
 				nonConnectorProperties.add("hostname");
@@ -328,13 +330,15 @@ public class MuleConfigurationBuilder {
 		return propertiesElement;
 	}
 
+	// Generate the endpoint URI for the specified connector.
+	// The format is: protocol://host|hostname|emtpy:port
 	private String getEndpointUri(Connector connector) {
 		StringBuilder builder = new StringBuilder();
 		builder.append(transports.get(connector.getTransportName()).getProtocol());
 		builder.append("://");
-		
+
 		if (connector.getProperties().getProperty("host") != null) {
-			builder.append(connector.getProperties().getProperty("host"));	
+			builder.append(connector.getProperties().getProperty("host"));
 		} else if (connector.getProperties().getProperty("hostname") != null) {
 			builder.append(connector.getProperties().getProperty("hostname"));
 		}
