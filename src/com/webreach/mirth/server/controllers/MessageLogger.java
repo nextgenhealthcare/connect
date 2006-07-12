@@ -16,7 +16,7 @@ import com.webreach.mirth.model.filters.MessageEventFilter;
 import com.webreach.mirth.server.util.DatabaseConnection;
 import com.webreach.mirth.server.util.DatabaseConnectionFactory;
 import com.webreach.mirth.server.util.DatabaseUtil;
-import com.webreach.mirth.util.DESEncrypter;
+import com.webreach.mirth.util.Encrypter;
 
 /**
  * The MessageLogger is used to store messages as they are processes by a channel.
@@ -43,9 +43,9 @@ public class MessageLogger {
 			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
 			
 			// begin message data encryption
-			DESEncrypter encrypter = null;
+			Encrypter encrypter = null;
 			try {
-				encrypter = new DESEncrypter(configurationController.getEncryptionKey());
+				encrypter = new Encrypter(configurationController.getEncryptionKey());
 			} catch (ControllerException e) {
 				throw e;
 			}
@@ -189,10 +189,10 @@ public class MessageLogger {
 	private List<MessageEvent> getMessageEventList(ResultSet result) throws SQLException {
 		ArrayList<MessageEvent> messageEvents = new ArrayList<MessageEvent>();
 		
-		DESEncrypter encrypter = null;
+		Encrypter encrypter = null;
 
 		try {
-			encrypter = new DESEncrypter(configurationController.getEncryptionKey());	
+			encrypter = new Encrypter(configurationController.getEncryptionKey());	
 		} catch (ControllerException e) {
 			logger.error(e);
 		}

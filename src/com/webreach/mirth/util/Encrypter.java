@@ -39,15 +39,15 @@ import sun.misc.BASE64Encoder;
  * This class implements DES decryption and encryption.
  * 
  */
-public class DESEncrypter {
-	public static String DES_ALGORITHM = "DES";
+public class Encrypter {
+	public static String DES_ALGORITHM = "DESede";
 	public static String UTF8_ENCODING = "UTF8";
 	private Cipher ecipher;
 	private Cipher dcipher;
 
-	protected transient Log logger = LogFactory.getLog(DESEncrypter.class);
+	protected transient Log logger = LogFactory.getLog(this.getClass());
 
-	public DESEncrypter(SecretKey key) {
+	public Encrypter(SecretKey key) {
 		try {
 			ecipher = Cipher.getInstance(DES_ALGORITHM);
 			dcipher = Cipher.getInstance(DES_ALGORITHM);

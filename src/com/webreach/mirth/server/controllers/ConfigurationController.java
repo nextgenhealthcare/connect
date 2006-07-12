@@ -54,7 +54,7 @@ import com.webreach.mirth.server.builders.MuleConfigurationBuilder;
 import com.webreach.mirth.server.util.DatabaseConnection;
 import com.webreach.mirth.server.util.DatabaseConnectionFactory;
 import com.webreach.mirth.server.util.DatabaseUtil;
-import com.webreach.mirth.util.DESEncrypter;
+import com.webreach.mirth.util.Encrypter;
 import com.webreach.mirth.util.PropertyLoader;
 
 /**
@@ -319,7 +319,7 @@ public class ConfigurationController {
 			}
 			
 			logger.debug("creating new encryption key");
-			SecretKey key = KeyGenerator.getInstance(DESEncrypter.DES_ALGORITHM).generateKey();
+			SecretKey key = KeyGenerator.getInstance(Encrypter.DES_ALGORITHM).generateKey();
 			StringBuilder insert = new StringBuilder();
 			insert.append("insert into keys (data) values(");
 			insert.append("'" + serializer.serialize(key) + "'");
