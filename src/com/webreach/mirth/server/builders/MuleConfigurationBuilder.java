@@ -26,6 +26,7 @@
 package com.webreach.mirth.server.builders;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -279,8 +280,13 @@ public class MuleConfigurationBuilder {
 			for (Iterator iter = connectorProperties.entrySet().iterator(); iter.hasNext();) {
 				Entry property = (Entry) iter.next();
 
-				// only add non-empty properties to the list
-				if ((property.getValue() != null) && (!property.getValue().equals(""))) {
+				// list of all properties which should not be appended to the connector
+				ArrayList<String> nonMuleConnectorPropertyNames = new ArrayList<String>();
+				nonMuleConnectorPropertyNames.add("address");
+				nonMuleConnectorPropertyNames.add("port");
+
+				// only add non-null, non-empty, non-Mule properties to the list
+				if ((property.getValue() != null) && (!property.getValue().equals("")) && !nonMuleConnectorPropertyNames.contains(property.getKey())) {
 					Element propertyElement = document.createElement("property");
 					propertyElement.setAttribute("name", property.getKey().toString());
 					propertyElement.setAttribute("value", property.getValue().toString());
@@ -316,8 +322,8 @@ public class MuleConfigurationBuilder {
 		for (Iterator iter = properties.entrySet().iterator(); iter.hasNext();) {
 			Entry property = (Entry) iter.next();
 
-			// only add non-empty properties to the list
-			if (!property.getValue().equals("")) {
+			// only add non-null and non-empty properties to the list
+			if ((property.getValue() != null) && (!property.getValue().equals(""))) {
 				Element propertyElement = document.createElement("property");
 				propertyElement.setAttribute("name", property.getKey().toString());
 				propertyElement.setAttribute("value", property.getValue().toString());
