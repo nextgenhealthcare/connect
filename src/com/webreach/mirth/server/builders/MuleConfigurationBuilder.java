@@ -185,13 +185,14 @@ public class MuleConfigurationBuilder {
 	private Element getOutboundRouter(Document document, Element configurationElement, Channel channel) throws BuilderException {
 		try {
 			Element outboundRouterElement = document.createElement("outbound-router");
+
+			Element routerElement = document.createElement("router");
+			routerElement.setAttribute("className", "org.mule.routing.outbound.MulticastingRouter");
+
 			int connectorIndex = 0;
 
 			for (Iterator iter = channel.getDestinationConnectors().iterator(); iter.hasNext();) {
 				Connector connector = (Connector) iter.next();
-
-				Element routerElement = document.createElement("router");
-				routerElement.setAttribute("className", "org.mule.routing.outbound.FilteringOutboundRouter");
 
 				Element endpointElement = document.createElement("endpoint");
 				endpointElement.setAttribute("address", getEndpointUri(connector));
@@ -226,7 +227,6 @@ public class MuleConfigurationBuilder {
 					endpointElement.setAttribute("transformers", transformers.toString().trim());	
 				}
 				
-				routerElement.appendChild(endpointElement);
 
 				// add the filter
 				Element filterElement = document.createElement("filter");
@@ -237,12 +237,13 @@ public class MuleConfigurationBuilder {
 				properties.put("script", filterBuilder.getScript(connector.getFilter()));
 				filterElement.appendChild(getProperties(document, properties));
 
-				routerElement.appendChild(filterElement);
+				endpointElement.appendChild(filterElement);
+				routerElement.appendChild(endpointElement);
 
-				outboundRouterElement.appendChild(routerElement);
 				connectorIndex++;
 			}
 
+			outboundRouterElement.appendChild(routerElement);
 			return outboundRouterElement;
 		} catch (Exception e) {
 			throw new BuilderException(e);
