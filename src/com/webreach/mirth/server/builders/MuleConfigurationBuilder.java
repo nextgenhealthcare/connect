@@ -347,7 +347,7 @@ public class MuleConfigurationBuilder {
 		
 		if (connector.getProperties().getProperty("host") != null) {
 			builder.append(connector.getProperties().getProperty("host"));	
-		} else {
+		} else if (connector.getProperties().getProperty("hostname") != null) {
 			builder.append(connector.getProperties().getProperty("hostname"));
 		}
 
