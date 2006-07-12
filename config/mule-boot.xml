@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <mule-configuration id="MirthConfiguration" version="1.0">
-	<mule-environment-properties serverUrl="http://localhost:1234" embedded="false" />
+	<mule-environment-properties embedded="false" />
 	
 	<agents>
 		<agent name="RMI"
@@ -27,6 +27,10 @@
 
 		<transformer name="ER7toXML"
 			className="com.webreach.mirth.server.mule.transformers.ER7toXML" />
+
+		<transformer name="XMLtoER7"
+			className="com.webreach.mirth.server.mule.transformers.XMLtoER7" />
+
 	</transformers>
 
 	<interceptor-stack name="default">
