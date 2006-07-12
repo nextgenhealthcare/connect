@@ -29,6 +29,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Map.Entry;
@@ -189,15 +190,13 @@ public class MuleConfigurationBuilder {
 			Element routerElement = document.createElement("router");
 			routerElement.setAttribute("className", "org.mule.routing.outbound.MulticastingRouter");
 
-			int connectorIndex = 0;
-
-			for (Iterator iter = channel.getDestinationConnectors().iterator(); iter.hasNext();) {
-				Connector connector = (Connector) iter.next();
+			for (ListIterator iterator = channel.getDestinationConnectors().listIterator(); iterator.hasNext();) {
+				Connector connector = (Connector) iterator.next();
 
 				Element endpointElement = document.createElement("endpoint");
 				endpointElement.setAttribute("address", getEndpointUri(connector));
 
-				String connectorReference = String.valueOf(channel.getId()) + "_destination_" + String.valueOf(connectorIndex);
+				String connectorReference = String.valueOf(channel.getId()) + "_destination_" + String.valueOf(iterator.nextIndex());
 
 				// add the destination connector
 				addConnector(document, configurationElement, connector, connectorReference);
@@ -239,8 +238,6 @@ public class MuleConfigurationBuilder {
 
 				endpointElement.appendChild(filterElement);
 				routerElement.appendChild(endpointElement);
-
-				connectorIndex++;
 			}
 
 			outboundRouterElement.appendChild(routerElement);
