@@ -128,7 +128,7 @@ public class MuleConfigurationBuilder {
 		try {
 			Element inboundRouterElement = document.createElement("inbound-router");
 			Element endpointElement = document.createElement("endpoint");
-			endpointElement.setAttribute("host", getEndpointUri(channel.getSourceConnector()));
+			endpointElement.setAttribute("address", getEndpointUri(channel.getSourceConnector()));
 
 			String connectorReference = String.valueOf(channel.getId()) + "_source";
 
@@ -194,7 +194,7 @@ public class MuleConfigurationBuilder {
 				routerElement.setAttribute("className", "org.mule.routing.outbound.FilteringOutboundRouter");
 
 				Element endpointElement = document.createElement("endpoint");
-				endpointElement.setAttribute("host", getEndpointUri(connector));
+				endpointElement.setAttribute("address", getEndpointUri(connector));
 
 				String connectorReference = String.valueOf(channel.getId()) + "_destination_" + String.valueOf(connectorIndex);
 
