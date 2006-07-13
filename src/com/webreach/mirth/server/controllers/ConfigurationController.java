@@ -85,6 +85,8 @@ public class ConfigurationController {
 			select.addColumn(transports, "protocol");
 			select.addColumn(transports, "transformers");
 			select.addColumn(transports, "type");
+			select.addColumn(transports, "inbound");
+			select.addColumn(transports, "outbound");
 
 			result = dbConnection.executeQuery(select.toString());
 			return getTransportMap(result);
@@ -113,6 +115,8 @@ public class ConfigurationController {
 			transport.setProtocol(result.getString("protocol"));
 			transport.setTransformers(result.getString("transformers"));
 			transport.setType(Transport.Type.valueOf(result.getString("type")));
+			transport.setInbound(result.getBoolean("inbound"));
+			transport.setInbound(result.getBoolean("outbound"));
 			transports.put(transport.getName(), transport);
 		}
 

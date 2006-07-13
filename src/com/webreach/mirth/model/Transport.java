@@ -35,6 +35,8 @@ public class Transport {
 	private String transformers;
 	private String protocol;
 	private Type type;
+	private boolean inbound;
+	private boolean outbound;
 
 	public String getClassName() {
 		return this.className;
@@ -76,6 +78,22 @@ public class Transport {
 		this.type = type;
 	}
 
+	public boolean isInbound() {
+		return this.inbound;
+	}
+
+	public void setInbound(boolean inbound) {
+		this.inbound = inbound;
+	}
+
+	public boolean isOutbound() {
+		return this.outbound;
+	}
+
+	public void setOutbound(boolean outbound) {
+		this.outbound = outbound;
+	}
+
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("Transport[");
@@ -83,7 +101,9 @@ public class Transport {
 		builder.append("type=" + getType().toString() + ", ");
 		builder.append("className=" + getClassName() + ", ");
 		builder.append("transformers=" + getTransformers() + ", ");
-		builder.append("protocol=" + getProtocol());
+		builder.append("protocol=" + getProtocol() + ", ");
+		builder.append("inbound=" + isInbound() + ", ");
+		builder.append("outbound=" + isOutbound());
 		builder.append("]");
 		return builder.toString();
 	}

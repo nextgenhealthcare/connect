@@ -45,7 +45,9 @@ CREATE TABLE TRANSPORTS
 	CLASS_NAME VARCHAR(4000) NOT NULL,
 	PROTOCOL VARCHAR(4000) NOT NULL,
 	TRANSFORMERS VARCHAR(4000) NOT NULL,
-	TYPE VARCHAR(4000) NOT NULL);
+	TYPE VARCHAR(4000) NOT NULL,
+	INBOUND BOOLEAN NOT NULL,
+	OUTBOUND BOOLEAN NOT NULL);
 
 /* CONFIGURATIONS */
 DROP TABLE CONFIGURATIONS IF EXISTS;
@@ -64,16 +66,16 @@ INSERT INTO USERS VALUES(0, 'admin', 'abc12345');
 
 /* ADD TRANSPORTS */
 
-INSERT INTO TRANSPORTS (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE) VALUES ('LLP Sender', 'org.mule.providers.tcp.TcpConnector', 'tcp', '', 'SENDER');
-INSERT INTO TRANSPORTS (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE) VALUES ('LLP Listener', 'org.mule.providers.tcp.TcpConnector', 'tcp', 'ByteArrayToString', 'LISTENER');
+INSERT INTO TRANSPORTS (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE, INBOUND, OUTBOUND) VALUES ('LLP Sender', 'org.mule.providers.tcp.TcpConnector', 'tcp', '', 'SENDER', FALSE, TRUE);
+INSERT INTO TRANSPORTS (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE, INBOUND, OUTBOUND) VALUES ('LLP Listener', 'org.mule.providers.tcp.TcpConnector', 'tcp', 'ByteArrayToString', 'LISTENER', TRUE, FALSE);
 
-INSERT INTO TRANSPORTS (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE) VALUES ('Database Reader', 'org.mule.providers.jdbc.JdbcConnector', 'jdbc', 'ResultMapToXML', 'LISTENER');
-INSERT INTO TRANSPORTS (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE) VALUES ('Database Writer', 'org.mule.providers.jdbc.JdbcConnector', 'jdbc', '', 'SENDER');
+INSERT INTO TRANSPORTS (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE, INBOUND, OUTBOUND) VALUES ('Database Reader', 'org.mule.providers.jdbc.JdbcConnector', 'jdbc', 'ResultMapToXML', 'LISTENER', FALSE, TRUE);
+INSERT INTO TRANSPORTS (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE, INBOUND, OUTBOUND) VALUES ('Database Writer', 'org.mule.providers.jdbc.JdbcConnector', 'jdbc', '', 'SENDER', TRUE, FALSE);
 
-INSERT INTO TRANSPORTS (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE) VALUES ('File Reader', 'org.mule.providers.file.FileConnector', 'file', '', 'LISTENER');
-INSERT INTO TRANSPORTS (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE) VALUES ('File Writer', 'org.mule.providers.file.FileConnector', 'file', '', 'SENDER');
+INSERT INTO TRANSPORTS (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE, INBOUND, OUTBOUND) VALUES ('File Reader', 'org.mule.providers.file.FileConnector', 'file', '', 'LISTENER', FALSE, TRUE);
+INSERT INTO TRANSPORTS (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE, INBOUND, OUTBOUND) VALUES ('File Writer', 'org.mule.providers.file.FileConnector', 'file', '', 'SENDER', TRUE, FALSE);
 
-/* INSERT INTO TRANSPORTS (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE) VALUES ('JMS Writer', 'org.mule.providers.jms.JmsConnector', 'jms', '', 'SENDER'); */
-/* INSERT INTO TRANSPORTS (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE) VALUES ('HTTP Listener', 'org.mule.providers.http.HttpsConnector', 'http', 'HttpRequestToString', 'LISTENER'); */
-/* INSERT INTO TRANSPORTS (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE) VALUES ('HTTPS Listener', 'org.mule.providers.http.HttpConnector', 'https', 'HttpRequestToString', 'LISTENER'); */
-/* INSERT INTO TRANSPORTS (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE) VALUES ('Email Sender', 'org.mule.providers.smtp.SmtpConnector', 'smtp', '', 'SENDER'); */
+/* INSERT INTO TRANSPORTS (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE, INBOUND, OUTBOUND) VALUES ('JMS Writer', 'org.mule.providers.jms.JmsConnector', 'jms', '', 'SENDER'); */
+/* INSERT INTO TRANSPORTS (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE, INBOUND, OUTBOUND) VALUES ('HTTP Listener', 'org.mule.providers.http.HttpsConnector', 'http', 'HttpRequestToString', 'LISTENER'); */
+/* INSERT INTO TRANSPORTS (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE, INBOUND, OUTBOUND) VALUES ('HTTPS Listener', 'org.mule.providers.http.HttpConnector', 'https', 'HttpRequestToString', 'LISTENER'); */
+/* INSERT INTO TRANSPORTS (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE, INBOUND, OUTBOUND) VALUES ('Email Sender', 'org.mule.providers.smtp.SmtpConnector', 'smtp', '', 'SENDER'); */
