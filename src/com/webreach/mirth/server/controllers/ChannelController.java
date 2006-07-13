@@ -109,24 +109,24 @@ public class ChannelController {
 		try {
 			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
 
-			String insert = null;
+			String statement = null;
 			ArrayList<Object> parameters = new ArrayList<Object>();
 
 			if (getChannels(channel.getId()).isEmpty()) {
 				logger.debug("inserting channel: channelId=" + channel.getId());
-				insert = "insert into channels (id, channel_name, channel_data) values (?, ?, ?)";
+				statement = "insert into channels (id, channel_name, channel_data) values (?, ?, ?)";
 				parameters.add(channel.getId());
 				parameters.add(channel.getName());
 				parameters.add(serializer.serialize(channel));
 			} else {
 				logger.debug("updating channel: channelId=" + channel.getId());
-				insert = "update channels set channel_name = ?, channel_data = ? where id = ?";
+				statement = "update channels set channel_name = ?, channel_data = ? where id = ?";
 				parameters.add(channel.getName());
 				parameters.add(serializer.serialize(channel));
 				parameters.add(channel.getId());
 			}
 
-			dbConnection.executeUpdate(insert, parameters);
+			dbConnection.executeUpdate(statement, parameters);
 			return true;
 		} catch (SQLException e) {
 			throw new ControllerException(e);
