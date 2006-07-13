@@ -10,7 +10,7 @@ import org.mule.transformers.AbstractTransformer;
 import org.mule.umo.transformer.TransformerException;
 
 import com.webreach.mirth.server.controllers.ConfigurationController;
-import com.webreach.mirth.server.mule.components.ChannelComponent;
+import com.webreach.mirth.server.mule.components.InboundChannel;
 import com.webreach.mirth.server.util.EmailSender;
 
 public class JavaScriptTransformer extends AbstractTransformer {
@@ -49,7 +49,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			scope.put("message", scope, source);
 			scope.put("logger", scope, logger);
 			scope.put("localMap", scope, localMap);
-			scope.put("globalMap", scope, ChannelComponent.globalMap);
+			scope.put("globalMap", scope, InboundChannel.globalMap);
 			scope.put("sender", scope, sender);
 
 			StringBuilder jsSource = new StringBuilder();

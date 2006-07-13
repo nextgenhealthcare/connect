@@ -8,7 +8,7 @@ import org.mozilla.javascript.Scriptable;
 import org.mule.umo.UMOFilter;
 import org.mule.umo.UMOMessage;
 
-import com.webreach.mirth.server.mule.components.ChannelComponent;
+import com.webreach.mirth.server.mule.components.InboundChannel;
 
 public class JavaScriptFilter implements UMOFilter {
 	private Logger logger = Logger.getLogger(this.getClass());
@@ -33,7 +33,7 @@ public class JavaScriptFilter implements UMOFilter {
 			scope.put("message", scope, message);
 			scope.put("logger", scope, logger);
 			scope.put("localMap", scope, localMap);
-			scope.put("globalMap", scope, ChannelComponent.globalMap);
+			scope.put("globalMap", scope, InboundChannel.globalMap);
 
 			StringBuilder jsSource = new StringBuilder();
 			jsSource.append("function debug(debug_message) { logger.debug(debug_message) }\n");

@@ -109,7 +109,13 @@ public class MuleConfigurationBuilder {
 	private Element getDescriptor(Document document, Element configurationElement, Channel channel) throws BuilderException {
 		try {
 			Element muleDescriptorElement = document.createElement("mule-descriptor");
-			muleDescriptorElement.setAttribute("implementation", "com.webreach.mirth.server.mule.components.ChannelComponent");
+			
+			if (channel.getDirection().equals(Channel.Direction.INBOUND)) {
+				muleDescriptorElement.setAttribute("implementation", "com.webreach.mirth.server.mule.components.InboundChannel");	
+			} else {
+				muleDescriptorElement.setAttribute("implementation", "com.webreach.mirth.server.mule.components.OutboundChannel");
+			}
+			
 			muleDescriptorElement.setAttribute("name", String.valueOf(channel.getId()));
 			muleDescriptorElement.setAttribute("initialState", "stopped");
 

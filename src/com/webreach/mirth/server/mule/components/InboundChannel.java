@@ -14,7 +14,7 @@ import ca.uhn.hl7v2.validation.impl.NoValidation;
 import com.webreach.mirth.model.MessageEvent;
 import com.webreach.mirth.server.controllers.MessageLogger;
 
-public class ChannelComponent implements Callable {
+public class InboundChannel implements Callable {
 	private Logger logger = Logger.getLogger(this.getClass());
 	public static HashMap globalMap = new HashMap();
 	
@@ -24,7 +24,7 @@ public class ChannelComponent implements Callable {
 	}
 
 	private void logMessageEvent(UMOEventContext eventContext) throws Exception {
-		logger.debug("logging message:\n" + eventContext.getMessageAsString());
+		logger.debug("logging inbound message:\n" + eventContext.getMessageAsString());
 		
 		int channelId = Integer.valueOf(eventContext.getComponentDescriptor().getName()).intValue();
 
