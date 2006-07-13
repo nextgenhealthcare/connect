@@ -116,7 +116,7 @@ public class ConfigurationController {
 			transport.setTransformers(result.getString("transformers"));
 			transport.setType(Transport.Type.valueOf(result.getString("type")));
 			transport.setInbound(result.getBoolean("inbound"));
-			transport.setInbound(result.getBoolean("outbound"));
+			transport.setOutbound(result.getBoolean("outbound"));
 			transports.put(transport.getName(), transport);
 		}
 
