@@ -121,7 +121,7 @@ public class Mirth {
 			systemLogger.logSystemEvent(event);
 
 			configurationController.deleteLatestConfiguration();
-			commandQueue.addCommand(new Command(Command.Operation.START));
+//			commandQueue.addCommand(new Command(Command.Operation.START));
 		} catch (ControllerException e) {
 			logger.warn("Could not retrieve latest configuration.", e);
 		}

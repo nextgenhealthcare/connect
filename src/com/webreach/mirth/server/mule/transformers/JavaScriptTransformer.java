@@ -10,15 +10,13 @@ import org.mule.transformers.AbstractTransformer;
 import org.mule.umo.transformer.TransformerException;
 
 import com.webreach.mirth.server.controllers.ConfigurationController;
+import com.webreach.mirth.server.mule.components.ChannelComponent;
 import com.webreach.mirth.server.util.EmailSender;
 
 public class JavaScriptTransformer extends AbstractTransformer {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private String script;
 	
-	// this map is used for all channels in the server
-	private static HashMap globalMap = new HashMap(); 
-
 	public String getScript() {
 		return this.script;
 	}
@@ -27,7 +25,6 @@ public class JavaScriptTransformer extends AbstractTransformer {
 		this.script = script;
 	}
 
-	@Override
 	public Object doTransform(Object source) throws TransformerException {
 		try {
 			Context context = Context.enter();
@@ -52,7 +49,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			scope.put("message", scope, source);
 			scope.put("logger", scope, logger);
 			scope.put("localMap", scope, localMap);
-			scope.put("globalMap", scope, globalMap);
+			scope.put("globalMap", scope, ChannelComponent.globalMap);
 			scope.put("sender", scope, sender);
 
 			StringBuilder jsSource = new StringBuilder();
