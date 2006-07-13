@@ -18,38 +18,42 @@ import com.webreach.mirth.server.controllers.UserController;
 public class UserServlet extends MirthServlet {
 	public static final String SESSION_USER = "user";
 	public static final String SESSION_AUTHORIZED = "authorized";
-	private	UserController userController = new UserController();
+	private UserController userController = new UserController();
 	private SystemLogger systemLogger = new SystemLogger();
-	
+
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		PrintWriter out = response.getWriter();
 		HttpSession session = request.getSession();
 		String operation = request.getParameter("op");
 		ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-		
-		try {
-			if (operation.equals("getUsers")) {
-				response.setContentType("application/xml");
-				out.println(serializer.serialize(userController.getUsers(null)));
-			} else if (operation.equals("updateUser")) {
-				String user = request.getParameter("data");
-				userController.updateUser((User) serializer.deserialize(user));
-			} else if (operation.equals("removeUser")) {
-				String userId = request.getParameter("data");
-				userController.removeUser(Integer.valueOf(userId).intValue());
-			} else if (operation.equals("login")) {
-				String username = request.getParameter("username");
-				String password = request.getParameter("password");
-				response.setContentType("text/plain");
-				out.print(login(session, username, password));
-			} else if (operation.equals("logout")) {
-				logout(session);
-			} else if (operation.equals("isLoggedIn")) {
-				response.setContentType("text/plain");
-				out.print(isUserLoggedIn(session));
+
+		if (operation.equals("login")) {
+			String username = request.getParameter("username");
+			String password = request.getParameter("password");
+			response.setContentType("text/plain");
+			out.print(login(session, username, password));
+		} else if (!isUserLoggedIn(request.getSession())) {
+			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+		} else {
+			try {
+				if (operation.equals("getUsers")) {
+					response.setContentType("application/xml");
+					out.println(serializer.serialize(userController.getUsers(null)));
+				} else if (operation.equals("updateUser")) {
+					String user = request.getParameter("data");
+					userController.updateUser((User) serializer.deserialize(user));
+				} else if (operation.equals("removeUser")) {
+					String userId = request.getParameter("data");
+					userController.removeUser(Integer.valueOf(userId).intValue());
+				} else if (operation.equals("logout")) {
+					logout(session);
+				} else if (operation.equals("isLoggedIn")) {
+					response.setContentType("text/plain");
+					out.print(isUserLoggedIn(session));
+				}
+			} catch (Exception e) {
+				throw new ServletException(e);
 			}
-		} catch (Exception e) {
-			throw new ServletException(e);
 		}
 	}
 
@@ -67,7 +71,7 @@ public class UserServlet extends MirthServlet {
 				event.getAttributes().put("User ID", String.valueOf(authenticateUserId));
 				event.getAttributes().put("User Name", username);
 				systemLogger.logSystemEvent(event);
-				
+
 				return true;
 			}
 
@@ -75,14 +79,14 @@ public class UserServlet extends MirthServlet {
 		} catch (ControllerException e) {
 			throw new ServletException(e);
 		}
-		
+
 	}
 
 	private void logout(HttpSession session) {
 		session.removeAttribute(SESSION_USER);
 		session.removeAttribute(SESSION_AUTHORIZED);
 		session.invalidate();
-		
+
 		// log the event
 		SystemEvent event = new SystemEvent("User logged out.");
 		event.getAttributes().put("Session ID", session.getId());
