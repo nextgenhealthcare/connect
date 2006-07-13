@@ -11,8 +11,8 @@ import com.webreach.mirth.model.converters.ER7Serializer;
 public class JavaScriptTransformerBuilder {
 	private Logger logger = Logger.getLogger(this.getClass());
 	
-	public String getInboundScript(Transformer transformer) throws BuilderException {
-		logger.debug("building inbound javascript transformer: steps=" + transformer.getSteps().size());
+	public String getOutboundScript(Transformer transformer) throws BuilderException {
+		logger.debug("building outbound javascript transformer: steps=" + transformer.getSteps().size());
 		
 		ER7Serializer serializer = new ER7Serializer();
 		StringBuilder builder = new StringBuilder();
@@ -30,8 +30,8 @@ public class JavaScriptTransformerBuilder {
 		return builder.toString();
 	}
 
-	public String getOutboundScript(Transformer transformer) throws BuilderException {
-		logger.debug("building outbound javascript transformer: steps=" + transformer.getSteps().size());
+	public String getInboundScript(Transformer transformer) throws BuilderException {
+		logger.debug("building inbound javascript transformer: steps=" + transformer.getSteps().size());
 		
 		StringBuilder builder = new StringBuilder();
 		
