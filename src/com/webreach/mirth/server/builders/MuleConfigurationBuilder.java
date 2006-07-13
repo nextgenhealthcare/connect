@@ -159,7 +159,7 @@ public class MuleConfigurationBuilder {
 			// 3. finally, append the JavaScriptTransformer that does the
 			// mappings if it's BROADCAST
 			if (channel.getMode().equals(Channel.Mode.BROADCAST)) {
-				addTransformer(document, configurationElement, channel.getSourceConnector().getTransformer(), connectorReference);
+				addTransformer(document, configurationElement, channel.getSourceConnector().getTransformer(), connectorReference, channel.getDirection());
 				transformers.append(connectorReference);
 			}
 
@@ -214,7 +214,7 @@ public class MuleConfigurationBuilder {
 				// 1. append the JavaScriptTransformer that does the mappings if
 				// it's ROUTER
 				if (channel.getMode().equals(Channel.Mode.ROUTER)) {
-					addTransformer(document, configurationElement, connector.getTransformer(), connectorReference);
+					addTransformer(document, configurationElement, connector.getTransformer(), connectorReference, channel.getDirection());
 					transformers.append(connectorReference + " ");
 				}
 
@@ -254,7 +254,7 @@ public class MuleConfigurationBuilder {
 		}
 	}
 
-	private void addTransformer(Document document, Element configurationElement, Transformer transformer, String name) throws BuilderException {
+	private void addTransformer(Document document, Element configurationElement, Transformer transformer, String name, Channel.Direction direction) throws BuilderException {
 		try {
 			Element transformersElement = (Element) configurationElement.getElementsByTagName("transformers").item(0);
 			Element transformerElement = document.createElement("transformer");
@@ -263,7 +263,13 @@ public class MuleConfigurationBuilder {
 
 			// add the transformer script properties
 			Properties properties = new Properties();
-			properties.put("script", transformerBuilder.getScript(transformer));
+			
+			if (direction.equals(Channel.Direction.INBOUND)) {
+				properties.put("script", transformerBuilder.getInboundScript(transformer));	
+			} else {
+				properties.put("script", transformerBuilder.getOutboundScript(transformer));
+			}
+			
 			transformerElement.appendChild(getProperties(document, properties));
 
 			transformersElement.appendChild(transformerElement);
