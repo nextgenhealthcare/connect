@@ -33,6 +33,7 @@ import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashMap;
 
 /**
  * <code>TcpMessageDispatcher</code> will send transformed mule events over
@@ -107,7 +108,11 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher
             binaryData = data.toString().getBytes();
         } else if (data instanceof byte[]) {
             binaryData = (byte[]) data;
-        } else {
+        } else if (data instanceof HashMap){
+        	String payload = (String)((HashMap)data).get("hl7");
+        	binaryData = payload.getBytes();
+        }else {
+        
             binaryData = Utility.objectToByteArray(data);
         }
         BufferedOutputStream bos = new BufferedOutputStream(socket.getOutputStream());
