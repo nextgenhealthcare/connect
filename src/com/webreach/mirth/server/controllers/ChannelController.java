@@ -108,23 +108,25 @@ public class ChannelController {
 
 		try {
 			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
-			StringBuilder statement = new StringBuilder();
+
+			String insert = null;
+			ArrayList<Object> parameters = new ArrayList<Object>();
 
 			if (getChannels(channel.getId()).isEmpty()) {
 				logger.debug("inserting channel: channelId=" + channel.getId());
-				statement.append("INSERT INTO CHANNELS (ID, CHANNEL_NAME, CHANNEL_DATA) VALUES(");
-				statement.append(channel.getId() + ",");
-				statement.append("'" + channel.getName() + "',");
-				statement.append("'" + serializer.serialize(channel) + "');");
+				insert = "insert into channels (id, channel_name, channel_data) values (?, ?, ?)";
+				parameters.add(channel.getId());
+				parameters.add(channel.getName());
+				parameters.add(serializer.serialize(channel));
 			} else {
 				logger.debug("updating channel: channelId=" + channel.getId());
-				statement.append("UPDATE CHANNELS SET ");
-				statement.append("CHANNEL_NAME = '" + channel.getName() + "', ");
-				statement.append("CHANNEL_DATA = '" + serializer.serialize(channel) + "'");
-				statement.append(" WHERE ID = " + channel.getId() + ";");
+				insert = "update channels set channel_name = ?, channel_data = ? where id = ?";
+				parameters.add(channel.getName());
+				parameters.add(serializer.serialize(channel));
+				parameters.add(channel.getId());
 			}
 
-			dbConnection.executeUpdate(statement.toString());
+			dbConnection.executeUpdate(insert, parameters);
 			return true;
 		} catch (SQLException e) {
 			throw new ControllerException(e);
