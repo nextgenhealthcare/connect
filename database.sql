@@ -66,14 +66,13 @@ INSERT INTO USERS VALUES(0, 'admin', 'abc12345');
 
 /* ADD TRANSPORTS */
 
-INSERT INTO TRANSPORTS (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE, INBOUND, OUTBOUND) VALUES ('LLP Sender', 'org.mule.providers.tcp.TcpConnector', 'tcp', '', 'SENDER', FALSE, TRUE);
-INSERT INTO TRANSPORTS (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE, INBOUND, OUTBOUND) VALUES ('LLP Listener', 'org.mule.providers.tcp.TcpConnector', 'tcp', 'ByteArrayToString', 'LISTENER', TRUE, FALSE);
+INSERT INTO TRANSPORTS (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE, INBOUND, OUTBOUND) VALUES ('LLP Listener', 'org.mule.providers.tcp.TcpConnector', 'tcp', 'ByteArrayToString', 'LISTENER', true, false);
+INSERT INTO TRANSPORTS (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE, INBOUND, OUTBOUND) VALUES ('Database Reader', 'org.mule.providers.jdbc.JdbcConnector', 'jdbc', 'ResultMapToXML', 'LISTENER', false, true);
+INSERT INTO TRANSPORTS (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE, INBOUND, OUTBOUND) VALUES ('File Reader', 'org.mule.providers.file.FileConnector', 'file', '', 'LISTENER', true, false);
 
-INSERT INTO TRANSPORTS (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE, INBOUND, OUTBOUND) VALUES ('Database Reader', 'org.mule.providers.jdbc.JdbcConnector', 'jdbc', 'ResultMapToXML', 'LISTENER', FALSE, TRUE);
-INSERT INTO TRANSPORTS (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE, INBOUND, OUTBOUND) VALUES ('Database Writer', 'org.mule.providers.jdbc.JdbcConnector', 'jdbc', '', 'SENDER', TRUE, FALSE);
-
-INSERT INTO TRANSPORTS (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE, INBOUND, OUTBOUND) VALUES ('File Reader', 'org.mule.providers.file.FileConnector', 'file', '', 'LISTENER', FALSE, TRUE);
-INSERT INTO TRANSPORTS (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE, INBOUND, OUTBOUND) VALUES ('File Writer', 'org.mule.providers.file.FileConnector', 'file', '', 'SENDER', TRUE, FALSE);
+INSERT INTO TRANSPORTS (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE, INBOUND, OUTBOUND) VALUES ('LLP Sender', 'org.mule.providers.tcp.TcpConnector', 'tcp', '', 'SENDER', false, true);
+INSERT INTO TRANSPORTS (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE, INBOUND, OUTBOUND) VALUES ('Database Writer', 'org.mule.providers.jdbc.JdbcConnector', 'jdbc', '', 'SENDER', true, false);
+INSERT INTO TRANSPORTS (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE, INBOUND, OUTBOUND) VALUES ('File Writer', 'org.mule.providers.file.FileConnector', 'file', '', 'SENDER', true, true);
 
 /* INSERT INTO TRANSPORTS (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE, INBOUND, OUTBOUND) VALUES ('JMS Writer', 'org.mule.providers.jms.JmsConnector', 'jms', '', 'SENDER'); */
 /* INSERT INTO TRANSPORTS (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE, INBOUND, OUTBOUND) VALUES ('HTTP Listener', 'org.mule.providers.http.HttpsConnector', 'http', 'HttpRequestToString', 'LISTENER'); */
