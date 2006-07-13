@@ -219,7 +219,7 @@ public class MuleConfigurationBuilder {
 				}
 
 				// 2. convert the XML message in the map to an ER7 message
-				if (channel.getDirection().equals(Channel.Direction.OUTBOUND) && !channel.getProperties().get("send_xml_encoded").equals("true")) {
+				if (channel.getDirection().equals(Channel.Direction.OUTBOUND)) {
 					transformers.append("XMLtoER7 ");
 				}
 
