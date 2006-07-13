@@ -32,6 +32,9 @@ public class UserServlet extends MirthServlet {
 			String password = request.getParameter("password");
 			response.setContentType("text/plain");
 			out.print(login(session, username, password));
+		} else if (operation.equals("isLoggedIn")) {
+			response.setContentType("text/plain");
+			out.print(isUserLoggedIn(session));
 		} else if (!isUserLoggedIn(request.getSession())) {
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 		} else {
@@ -47,9 +50,6 @@ public class UserServlet extends MirthServlet {
 					userController.removeUser(Integer.valueOf(userId).intValue());
 				} else if (operation.equals("logout")) {
 					logout(session);
-				} else if (operation.equals("isLoggedIn")) {
-					response.setContentType("text/plain");
-					out.print(isUserLoggedIn(session));
 				}
 			} catch (Exception e) {
 				throw new ServletException(e);
