@@ -96,21 +96,23 @@ public class UserController {
 		
 		try {
 			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
-			StringBuffer statement = new StringBuffer();
+
+			String statement = null;
+			ArrayList<Object> parameters = new ArrayList<Object>();
 
 			if (getUsers(user.getId()).isEmpty()) {
-				statement.append("INSERT INTO USERS (ID, USERNAME, PASSWORD) VALUES(");
-				statement.append("'" + user.getId() + "',");
-				statement.append("'" + user.getUsername() + "',");
-				statement.append("'" + user.getPassword() + "');");
+				statement = "insert into users (id, username, password) values (?, ?, ?)";
+				parameters.add(user.getId());
+				parameters.add(user.getUsername());
+				parameters.add(user.getPassword());
 			} else {
-				statement.append("UPDATE USERS SET ");
-				statement.append("USERNAME = '" + user.getUsername() + "',");
-				statement.append("PASSWORD = '" + user.getPassword() + "'");
-				statement.append(" WHERE ID = " + user.getId() + ";");
+				statement = "update users set username = ?, password = ? where id = ?";
+				parameters.add(user.getUsername());
+				parameters.add(user.getPassword());
+				parameters.add(user.getId());
 			}
 
-			dbConnection.executeUpdate(statement.toString());
+			dbConnection.executeUpdate(statement, parameters);
 		} catch (SQLException e) {
 			throw new ControllerException(e);
 		} finally {
