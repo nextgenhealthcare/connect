@@ -6,6 +6,7 @@ import org.apache.log4j.Logger;
 
 import com.webreach.mirth.model.Step;
 import com.webreach.mirth.model.Transformer;
+import com.webreach.mirth.model.converters.ER7Serializer;
 
 public class JavaScriptTransformerBuilder {
 	private Logger logger = Logger.getLogger(this.getClass());
@@ -13,13 +14,18 @@ public class JavaScriptTransformerBuilder {
 	public String getScript(Transformer transformer) throws BuilderException {
 		logger.debug("building javascript transformer: steps=" + transformer.getSteps().size());
 		
+		ER7Serializer serializer = new ER7Serializer();
 		StringBuilder builder = new StringBuilder();
+		
+		builder.append("var hl7 = new XML(" + serializer.serialize(transformer.getTemplate()) + ");\n");
 
 		for (Iterator iter = transformer.getSteps().iterator(); iter.hasNext();) {
 			Step step = (Step) iter.next();
 			logger.debug("adding step: " + step.getScript());
 			builder.append(step.getScript() + "\n");
 		}
+		
+		builder.append("localMap.put(\"hl7\", hl7);"); 
 
 		return builder.toString();
 	}
