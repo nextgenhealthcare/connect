@@ -11,6 +11,7 @@ import org.mule.umo.transformer.TransformerException;
 
 import com.webreach.mirth.server.controllers.ConfigurationController;
 import com.webreach.mirth.server.mule.components.InboundChannel;
+import com.webreach.mirth.server.mule.util.ER7Util;
 import com.webreach.mirth.server.util.EmailSender;
 
 public class JavaScriptTransformer extends AbstractTransformer {
@@ -47,6 +48,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 
 			// load variables in JavaScript scope
 			scope.put("message", scope, source);
+			scope.put("source", scope, (String)new ER7Util().ConvertToER7(source));
 			scope.put("logger", scope, logger);
 			scope.put("localMap", scope, localMap);
 			scope.put("globalMap", scope, InboundChannel.globalMap);

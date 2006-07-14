@@ -35,6 +35,8 @@ import org.apache.log4j.Logger;
 import org.mule.transformers.AbstractTransformer;
 import org.mule.umo.transformer.TransformerException;
 
+import com.webreach.mirth.server.mule.util.ER7Util;
+
 import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.parser.DefaultXMLParser;
 import ca.uhn.hl7v2.parser.PipeParser;
@@ -51,18 +53,8 @@ public class XMLtoER7 extends AbstractTransformer {
 	}
 
 	public Object doTransform(Object source) throws TransformerException {
-		String message = (String) source;
-
-		XMLParser xmlParser = new DefaultXMLParser();
-		// disables all message validation
-		xmlParser.setValidationContext(new NoValidation());
-		PipeParser pipeParser = new PipeParser();
-		
-		try {
-			logger.debug("encoding XML message to ER7:\n" + message);
-			return pipeParser.encode(xmlParser.parse(message));
-		} catch (HL7Exception e) {
-			throw new TransformerException(org.mule.config.i18n.Message.createStaticMessage("Failed to parse String at: " + e.getSegmentName()), this);
-		}
+		return new ER7Util().ConvertToER7((String)source);
 	}
+	
+
 }

@@ -109,7 +109,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher
         } else if (data instanceof byte[]) {
             binaryData = (byte[]) data;
         } else if (data instanceof HashMap){
-        	String payload = (String)((HashMap)data).get("hl7");
+        	String payload = (String)((HashMap)data).get("HL7 ER7");
         	binaryData = payload.getBytes();
         }else {
         
