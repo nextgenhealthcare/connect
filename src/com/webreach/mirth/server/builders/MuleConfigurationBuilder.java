@@ -172,15 +172,18 @@ public class MuleConfigurationBuilder {
 			Element routerElement = document.createElement("router");
 			routerElement.setAttribute("className", "org.mule.routing.inbound.SelectiveConsumer");
 
-			Element filterElement = document.createElement("filter");
-			filterElement.setAttribute("className", "com.webreach.mirth.server.mule.filters.JavaScriptFilter");
+			if (channel.getMode().equals(Channel.Mode.BROADCAST)) {
+				Element filterElement = document.createElement("filter");
+				filterElement.setAttribute("className", "com.webreach.mirth.server.mule.filters.JavaScriptFilter");
 
-			// add the filter script properties
-			Properties properties = new Properties();
-			properties.put("script", filterBuilder.getScript(channel.getSourceConnector().getFilter()));
-			filterElement.appendChild(getProperties(document, properties));
+				// add the filter script properties
+				Properties properties = new Properties();
+				properties.put("script", filterBuilder.getScript(channel.getSourceConnector().getFilter()));
+				filterElement.appendChild(getProperties(document, properties));
 
-			routerElement.appendChild(filterElement);
+				routerElement.appendChild(filterElement);
+			}
+			
 			inboundRouterElement.appendChild(endpointElement);
 			inboundRouterElement.appendChild(routerElement);
 
@@ -234,16 +237,19 @@ public class MuleConfigurationBuilder {
 					endpointElement.setAttribute("transformers", transformers.toString().trim());
 				}
 
-				// add the filter
-				Element filterElement = document.createElement("filter");
-				filterElement.setAttribute("className", "com.webreach.mirth.server.mule.filters.JavaScriptFilter");
+				if (channel.getMode().equals(Channel.Mode.ROUTER)) {
+					// add the filter
+					Element filterElement = document.createElement("filter");
+					filterElement.setAttribute("className", "com.webreach.mirth.server.mule.filters.JavaScriptFilter");
 
-				// add the filter script properties
-				Properties properties = new Properties();
-				properties.put("script", filterBuilder.getScript(connector.getFilter()));
-				filterElement.appendChild(getProperties(document, properties));
+					// add the filter script properties
+					Properties properties = new Properties();
+					properties.put("script", filterBuilder.getScript(connector.getFilter()));
+					filterElement.appendChild(getProperties(document, properties));
 
-				endpointElement.appendChild(filterElement);
+					endpointElement.appendChild(filterElement);
+				}
+
 				routerElement.appendChild(endpointElement);
 			}
 
