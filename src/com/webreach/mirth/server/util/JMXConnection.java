@@ -94,7 +94,7 @@ public class JMXConnection {
 				logger.warn("could not close jmx connection");
 			}
 		} catch (Exception e) {
-			logger.warn(e);
+			logger.warn(e.getMessage());
 		}
 	}
 }
