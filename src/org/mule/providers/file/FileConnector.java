@@ -116,9 +116,10 @@ public class FileConnector extends AbstractServiceEnabledConnector
     }
 
     protected Object getReceiverKey(UMOComponent component, UMOEndpoint endpoint) {
-        if(endpoint.getFilter()!=null) {
-            return endpoint.getEndpointURI().getAddress() + "/" + ((FilenameWildcardFilter)endpoint.getFilter()).getPattern();
-        }
+        //if(endpoint.getFilter()!=null) {
+        //    return endpoint.getEndpointURI().getAddress() + "/" + ((FilenameWildcardFilter)endpoint.getFilter()).getPattern();
+        //}
+    	//TODO: Fix later -cl
         return endpoint.getEndpointURI().getAddress();
     }
 

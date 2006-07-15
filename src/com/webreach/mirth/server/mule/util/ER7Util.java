@@ -29,6 +29,7 @@ import org.apache.log4j.Logger;
 import org.mule.umo.transformer.TransformerException;
 
 import ca.uhn.hl7v2.HL7Exception;
+import ca.uhn.hl7v2.model.Message;
 import ca.uhn.hl7v2.parser.DefaultXMLParser;
 import ca.uhn.hl7v2.parser.PipeParser;
 import ca.uhn.hl7v2.parser.XMLParser;
@@ -62,10 +63,11 @@ public class ER7Util {
 		PipeParser pipeParser = new PipeParser();
 		try {
 			logger.debug("encoding XML message to ER7:\n" + message);
-			return pipeParser.encode(xmlParser.parse(message));
-		} catch (HL7Exception e) {
-			logger.error(e.getSegmentName());
-			return "";
+			Message messagex = xmlParser.parse(message);
+			return pipeParser.encode(messagex);
+		} catch (Exception e) {
+			//logger.error(e.getSegmentName());
+			return (String)xml;
 		}
 	}
 }

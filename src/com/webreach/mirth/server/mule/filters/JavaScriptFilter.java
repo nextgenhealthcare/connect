@@ -9,6 +9,7 @@ import org.mule.umo.UMOFilter;
 import org.mule.umo.UMOMessage;
 
 import com.webreach.mirth.server.mule.components.InboundChannel;
+import com.webreach.mirth.server.mule.util.ER7Util;
 
 public class JavaScriptFilter implements UMOFilter {
 	private Logger logger = Logger.getLogger(this.getClass());
@@ -30,7 +31,7 @@ public class JavaScriptFilter implements UMOFilter {
 			Scriptable scope = context.initStandardObjects();
 			HashMap localMap = new HashMap();
 
-			scope.put("message", scope, message);
+			scope.put("message", scope,(String)new ER7Util().ConvertToXML(message));
 			scope.put("logger", scope, logger);
 			scope.put("localMap", scope, localMap);
 			scope.put("globalMap", scope, InboundChannel.globalMap);
