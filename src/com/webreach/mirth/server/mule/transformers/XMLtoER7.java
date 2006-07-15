@@ -31,6 +31,8 @@
  */
 package com.webreach.mirth.server.mule.transformers;
 
+import java.util.HashMap;
+
 import org.apache.log4j.Logger;
 import org.mule.transformers.AbstractTransformer;
 import org.mule.umo.transformer.TransformerException;
@@ -48,12 +50,17 @@ public class XMLtoER7 extends AbstractTransformer {
 
 	public XMLtoER7() {
 		super();
-		registerSourceType(String.class);
+		//registerSourceType(String.class);
 		setReturnClass(String.class);
 	}
 
 	public Object doTransform(Object source) throws TransformerException {
-		return new ER7Util().ConvertToER7((String)source);
+		if (source instanceof HashMap)
+			return new ER7Util().ConvertToER7((HashMap)source);
+		else if (source instanceof String)
+			return new ER7Util().ConvertToER7((String)source);
+		else
+			return null;
 	}
 	
 

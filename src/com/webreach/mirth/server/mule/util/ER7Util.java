@@ -25,6 +25,8 @@
 
 package com.webreach.mirth.server.mule.util;
 
+import java.util.HashMap;
+
 import org.apache.log4j.Logger;
 import org.mule.umo.transformer.TransformerException;
 
@@ -54,9 +56,12 @@ public class ER7Util {
 			return "";
 		}
 	}
+	public String ConvertToER7(HashMap message) {
+		return ConvertToER7(message.get("HL7 XML").toString());
+	}
 	//Converts XML String to ER7
-	public String ConvertToER7(Object xml) {
-		String message = (String) xml;
+	public String ConvertToER7(String message) {
+		
 		XMLParser xmlParser = new DefaultXMLParser();
 		// disables all message validation
 		xmlParser.setValidationContext(new NoValidation());
@@ -67,7 +72,7 @@ public class ER7Util {
 			return pipeParser.encode(messagex);
 		} catch (Exception e) {
 			//logger.error(e.getSegmentName());
-			return (String)xml;
+			return message;
 		}
 	}
 }

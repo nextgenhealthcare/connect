@@ -48,7 +48,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 
 			// load variables in JavaScript scope
 			scope.put("message", scope, source);
-			scope.put("source", scope, (String)new ER7Util().ConvertToER7(source));
+			scope.put("source", scope, ((String)new ER7Util().ConvertToER7((String)source)));
 			scope.put("logger", scope, logger);
 			scope.put("localMap", scope, localMap);
 			scope.put("globalMap", scope, InboundChannel.globalMap);
@@ -60,8 +60,8 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			jsSource.append("function doTransform() { default xml namespace = new Namespace(\"urn:hl7-org:v2xml\"); var msg = new XML(message); " + script + " }\n");
 			jsSource.append("doTransform()\n");
 			
-			logger.debug("executing transformation script:\n\t" + jsSource.toString());
-			context.evaluateString(scope, jsSource.toString(), "<cmd>", 1, null);
+			logger.debug("executing transformation script:\n\t" + jsSource.toString().replace("\\","\\\\"));
+			context.evaluateString(scope, jsSource.toString().replace("\\","\\\\"), "<cmd>", 1, null);
 
 			return localMap;
 		} catch (Exception e) {

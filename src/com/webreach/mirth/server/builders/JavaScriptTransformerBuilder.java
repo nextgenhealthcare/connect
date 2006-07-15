@@ -19,14 +19,14 @@ public class JavaScriptTransformerBuilder {
 		ER7Serializer serializer = new ER7Serializer();
 		StringBuilder builder = new StringBuilder();
 		
-		builder.append("var hl7_xml = new XML(" + serializer.serialize(transformer.getTemplate()) + ");\n");
-		builder.append("var hl7_er7 = '" + transformer.getTemplate() + "';\n");
+		builder.append("var hl7_xml = new XML('" + serializer.serialize(transformer.getTemplate()).replaceAll("\\n","") + "');\n");
+		builder.append("var hl7_er7 = '" + transformer.getTemplate().replaceAll("\\n","").replaceAll("\\r","") + "';\n");
 		for (Iterator iter = transformer.getSteps().iterator(); iter.hasNext();) {
 			Step step = (Step) iter.next();
 			logger.debug("adding step: " + step.getScript());
 			builder.append(step.getScript() + "\n");
 		}
-		
+	
 		builder.append(LOCALMAP_PUT_HL7_XML); 
 		builder.append(LOCALMAP_PUT_HL7_ER7); 
 		return builder.toString();
