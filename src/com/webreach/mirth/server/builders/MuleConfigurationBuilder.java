@@ -169,9 +169,6 @@ public class MuleConfigurationBuilder {
 				endpointElement.setAttribute("transformers", transformers.toString().trim());
 			}
 
-			Element routerElement = document.createElement("router");
-			routerElement.setAttribute("className", "org.mule.routing.inbound.SelectiveConsumer");
-
 			if (channel.getMode().equals(Channel.Mode.BROADCAST)) {
 				Element filterElement = document.createElement("filter");
 				filterElement.setAttribute("className", "com.webreach.mirth.server.mule.filters.JavaScriptFilter");
@@ -181,12 +178,10 @@ public class MuleConfigurationBuilder {
 				properties.put("script", filterBuilder.getScript(channel.getSourceConnector().getFilter()));
 				filterElement.appendChild(getProperties(document, properties));
 
-				routerElement.appendChild(filterElement);
+				endpointElement.appendChild(filterElement);
 			}
 			
 			inboundRouterElement.appendChild(endpointElement);
-			inboundRouterElement.appendChild(routerElement);
-
 			return inboundRouterElement;
 		} catch (Exception e) {
 			throw new BuilderException(e);
