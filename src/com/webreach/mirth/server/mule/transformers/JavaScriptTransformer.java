@@ -38,7 +38,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			
 			int port = 25;
 			
-			if (!properties.getProperty("smtp.port").equals("")) {
+			if (properties.getProperty("smtp.port") != null && !properties.getProperty("smtp.port").equals("")) {
 				port = Integer.valueOf(properties.getProperty("smtp.port")).intValue();	
 			}
 			
