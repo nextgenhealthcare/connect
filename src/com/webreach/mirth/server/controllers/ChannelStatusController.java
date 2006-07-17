@@ -35,8 +35,10 @@ public class ChannelStatusController {
 			jmxConnection = JMXConnectionFactory.createJMXConnection();
 			Hashtable<String, String> properties = new Hashtable<String, String>();
 			properties.put("type", "control");
-			properties.put("name", channelId + "ComponentService");
-			jmxConnection.invokeOperation(properties, "start", null);
+			properties.put("name", "ModelService");
+		
+			String[] params = {String.valueOf(channelId)};
+			jmxConnection.invokeOperation(properties, "startComponent", params);
 		} catch (Exception e) {
 			throw new ControllerException(e);
 		} finally {
