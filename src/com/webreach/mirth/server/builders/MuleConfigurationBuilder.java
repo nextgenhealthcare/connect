@@ -193,7 +193,7 @@ public class MuleConfigurationBuilder {
 			Element outboundRouterElement = document.createElement("outbound-router");
 
 			Element routerElement = document.createElement("router");
-			routerElement.setAttribute("className", "org.mule.routing.outbound.MulticastingRouter");
+			routerElement.setAttribute("className", "org.mule.routing.outbound.FilteringMulticastingRouter");
 
 			for (ListIterator iterator = channel.getDestinationConnectors().listIterator(); iterator.hasNext();) {
 				Connector connector = (Connector) iterator.next();
