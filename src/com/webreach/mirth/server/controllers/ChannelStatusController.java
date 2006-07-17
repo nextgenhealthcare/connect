@@ -207,7 +207,7 @@ public class ChannelStatusController {
 
 			return deployedChannelIdList;
 		} catch (Exception e) {
-			throw new ControllerException(e);
+			throw new ControllerException(e.getMessage());
 		} finally {
 			jmxConnection.close();
 		}
