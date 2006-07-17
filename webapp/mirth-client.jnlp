@@ -2,10 +2,10 @@
 <!DOCTYPE jnlp PUBLIC "-//Sun Microsystems, Inc.//DTD JNLP 1.5//EN" "http://www.netbeans.org/jnlp/DTD/jnlp.dtd">
 <jnlp codebase="$$codebase" href="mirth-client.jnlp">
   <information>
-    <title>Mirth</title>
+    <title>Mirth 1.0.0</title>
     <vendor>WebReach, Inc.</vendor>
     <homepage href="http://www.mirthproject.org"/>
-    <description>HL7 integration engine..</description>
+    <description>HL7 integration engine.</description>
     <icon href="mirth_logo.png"/>
     <shortcut online="true"/>
   </information>
@@ -15,10 +15,13 @@
   </security>
   <icon kind="splash" href="mirth_logo.png" />
   <resources locale="" os="">
-    <j2se href="http://java.sun.com/products/autodl/j2se" version="1.4+"/>
+    <j2se href="http://java.sun.com/products/autodl/j2se" version="1.5"/>
   </resources>
   <resources>
-    <jar download="eager" href="lib/mirth-client.jar" main="false"/>
+    <jar download="eager" href="lib/mirth-client.jar" main="true"/>
+  </resources>
+    <resources locale="" os="">
+    <jar download="eager" href="lib/mirth-client-core.jar" main="false" version=""/>
   </resources>
   <resources locale="" os="">
     <jar download="eager" href="lib/looks-2.0.4.jar" main="false" version=""/>
@@ -66,10 +69,7 @@
     <jar download="eager" href="lib/ostermillerutils-1.06.00.jar" main="false" version=""/>
   </resources>
   <resources locale="" os="">
-    <jar download="eager" href="lib/client.jar" main="false" version=""/>
-  </resources>
-  <resources locale="" os="">
-      <jar download="eager" href="lib/hapi-0.5beta.jar" main="false" version=""/>
+    <jar download="eager" href="lib/hapi-0.5beta.jar" main="false" version=""/>
   </resources>
   <application-desc main-class="com.webreach.mirth.client.ui.Mirth"/>
 </jnlp>
