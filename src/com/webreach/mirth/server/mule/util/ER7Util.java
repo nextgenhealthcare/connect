@@ -53,12 +53,10 @@ public class ER7Util {
 			return xmlParser.encode(pipeParser.parse(message));
 		} catch (HL7Exception e) {
 			logger.error(e.getSegmentName());
-			return "";
+			return message;
 		}
 	}
-	public String ConvertToER7(HashMap message) {
-		return ConvertToER7(message.get("HL7 XML").toString());
-	}
+
 	//Converts XML String to ER7
 	public String ConvertToER7(String message) {
 		

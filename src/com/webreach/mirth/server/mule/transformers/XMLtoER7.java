@@ -47,21 +47,28 @@ import ca.uhn.hl7v2.validation.impl.NoValidation;
 
 public class XMLtoER7 extends AbstractTransformer {
 	private Logger logger = Logger.getLogger(this.getClass());
-
+	private final String HL7XML = "HL7 XML";
+	private final String HL7ER7 = "HL7 ER7";
 	public XMLtoER7() {
 		super();
 		//registerSourceType(String.class);
-		setReturnClass(String.class);
+		setReturnClass(HashMap.class);
 	}
 
 	public Object doTransform(Object source) throws TransformerException {
-		if (source instanceof HashMap)
-			return new ER7Util().ConvertToER7((HashMap)source);
-		else if (source instanceof String)
-			return new ER7Util().ConvertToER7((String)source);
-		else
+		HashMap returnMap = new HashMap();
+		if (source instanceof HashMap){
+			((HashMap)source).put(HL7ER7, new ER7Util().ConvertToER7(getPayload((HashMap)source)));
+			return source;
+		}else if (source instanceof String){
+			returnMap.put(HL7ER7,new ER7Util().ConvertToER7((String)source));
+			returnMap.put(HL7XML,new ER7Util().ConvertToXML(source));
+			return returnMap;
+		}else
 			return null;
 	}
-	
+	private String getPayload(HashMap message) {
+		return message.get(HL7XML).toString();
+	}
 
 }
