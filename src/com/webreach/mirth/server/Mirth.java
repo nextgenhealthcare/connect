@@ -26,6 +26,7 @@
 package com.webreach.mirth.server;
 
 import org.apache.log4j.Logger;
+import org.mortbay.http.SocketListener;
 import org.mortbay.http.SslListener;
 import org.mortbay.jetty.Server;
 import org.mule.config.ConfigurationException;
@@ -160,8 +161,12 @@ public class Mirth {
 			sslListener.setKeystore("keystore");
 			sslListener.setPassword("abc12345");
 			sslListener.setKeyPassword("abc12345");
-
 			webServer.addListener(sslListener);
+			
+			SocketListener listener = new SocketListener();
+			listener.setPort(8080);
+			webServer.addListener(listener);
+
 			webServer.addWebApplication("/", "./web/webapps/mirth.war");
 			webServer.start();
 		} catch (Exception e) {
