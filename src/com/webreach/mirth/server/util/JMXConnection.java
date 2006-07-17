@@ -66,7 +66,8 @@ public class JMXConnection {
 	 */
 	public Object invokeOperation(Hashtable properties, String operation, Object[] params) throws Exception {
 		logger.debug("invoking mbean operation: " + operation);
-		return jmxConnection.invoke(new ObjectName(domain, properties), operation, params, new String[]{"java.lang.String"});
+		String[] signature = { "java.lang.String" };
+		return jmxConnection.invoke(new ObjectName(domain, properties), operation, params, signature);
 	}
 
 	/**

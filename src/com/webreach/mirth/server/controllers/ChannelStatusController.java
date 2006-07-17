@@ -36,8 +36,7 @@ public class ChannelStatusController {
 			Hashtable<String, String> properties = new Hashtable<String, String>();
 			properties.put("type", "control");
 			properties.put("name", "ModelService");
-		
-			String[] params = {String.valueOf(channelId)};
+			String[] params = { String.valueOf(channelId) };
 			jmxConnection.invokeOperation(properties, "startComponent", params);
 		} catch (Exception e) {
 			throw new ControllerException(e);
@@ -71,8 +70,9 @@ public class ChannelStatusController {
 			jmxConnection = JMXConnectionFactory.createJMXConnection();
 			Hashtable<String, String> properties = new Hashtable<String, String>();
 			properties.put("type", "control");
-			properties.put("name", channelId + "ComponentService");
-			jmxConnection.invokeOperation(properties, "stop", null);
+			properties.put("name", "ModelService");
+			String[] params = { String.valueOf(channelId) };
+			jmxConnection.invokeOperation(properties, "stopComponent", params);
 		} catch (Exception e) {
 			throw new ControllerException(e);
 		} finally {
@@ -99,8 +99,9 @@ public class ChannelStatusController {
 			jmxConnection = JMXConnectionFactory.createJMXConnection();
 			Hashtable<String, String> properties = new Hashtable<String, String>();
 			properties.put("type", "control");
-			properties.put("name", channelId + "ComponentService");
-			jmxConnection.invokeOperation(properties, "pause", null);
+			properties.put("name", "ModelService");
+			String[] params = { String.valueOf(channelId) };
+			jmxConnection.invokeOperation(properties, "pauseComponent", params);
 		} catch (Exception e) {
 			throw new ControllerException(e);
 		} finally {
@@ -127,8 +128,9 @@ public class ChannelStatusController {
 			jmxConnection = JMXConnectionFactory.createJMXConnection();
 			Hashtable<String, String> properties = new Hashtable<String, String>();
 			properties.put("type", "control");
-			properties.put("name", channelId + "ComponentService");
-			jmxConnection.invokeOperation(properties, "resume", null);
+			properties.put("name", "ModelService");
+			String[] params = { String.valueOf(channelId) };
+			jmxConnection.invokeOperation(properties, "resumeComponent", params);
 		} catch (Exception e) {
 			throw new ControllerException(e);
 		} finally {
