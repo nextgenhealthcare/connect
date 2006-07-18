@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule-configuration id="MirthConfiguration" version="1.0">
+	<mule-environment-properties serverUrl="http://localhost:1234" embedded="false" />
+	
+	<agents>
+		<agent name="RMI"
+			className="org.mule.management.agents.RmiRegistryAgent" />
+		<agent name="JMX" className="org.mule.management.agents.JmxAgent">
+			<properties>
+				<property name="connectorServerUrl"
+					value="service:jmx:rmi:///jndi/rmi://localhost:1099/server" />
+
+				<map name="connectorServerProperties">
+					<property name="jmx.remote.jndi.rebind" value="true" />
+				</map>
+			</properties>
+		</agent>
+	</agents>
+
+	<transformers>
+		<transformer name="ByteArrayToString"
+			className="org.mule.transformers.simple.ByteArrayToString" />
+
+		<transformer name="ObjectToJMSMessage"
+			className="org.mule.providers.jms.transformers.ObjectToJMSMessage"
+			returnClass="javax.jms.TextMessage" />
+
+		<transformer name="JMSMessageToString"
+			className="org.mule.providers.jms.transformers.JMSMessageToObject"
+			returnClass="java.lang.String" />
+
+		<transformer name="StringToByteArray"
+			className="org.mule.transformers.simple.StringToByteArray" />
+
+		<transformer name="HL7StringToXMLString"
+			className="com.webreach.mirth.mule.transformers.HL7StringToXMLString" />
+
+		<transformer name="DatabaseRowToXML"
+			className="com.webreach.mirth.mule.transformers.DatabaseRowToXML" />
+
+		<transformer name="HttpRequestToString"
+			className="com.webreach.mirth.mule.transformers.HttpRequestToString" />
+
+		<transformer name="HttpStringToXML"
+			className="com.webreach.mirth.mule.transformers.HttpStringToXML" />
+	</transformers>
+
+	<interceptor-stack name="default">
+		<interceptor className="org.mule.interceptors.LoggingInterceptor" />
+		<interceptor className="org.mule.interceptors.TimerInterceptor" />
+	</interceptor-stack>
+
+	<model name="Mirth">
+	<!-- new descriptors will be added here -->
+
+	</model>
+</mule-configuration>

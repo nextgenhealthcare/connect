@@ -1,0 +1,207 @@
+<HTML>
+  
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+<TITLE>
+        JAXB RI 1.0.5 -- Readme
+    </TITLE>
+    
+<META content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+    
+<LINK href="style/default.css" rel="stylesheet" type="text/css">
+  
+</HEAD>
+
+  
+<BODY>
+    
+<CENTER>
+    
+<H1>Java<SUP><FONT size="-2">TM</FONT></SUP> Architecture for XML Binding<BR>
+      README
+    </H1>
+      
+<B>Specification Version:</B> 1.0<BR>
+      
+<B>Reference Implementation (RI) Version:</B> 1.0.5<BR>
+      <!--
+ Copyright 2004 Sun Microsystems, Inc. All rights reserved.
+ SUN PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+-->
+<hr width="50%">
+  Main: <a href="ReleaseNotes.html">Release Notes</a> | <a href="xjc.html">XJC</a> | <a href="ant.html">Ant task</a> | <a href="samples.html">Sample Apps</a> | <a href="changelog.html">Changelog</a>
+<br>
+  JAXB RI Extensions: <a href="vendorProperties.html">Runtime Properties</a> | <a href="vendorCustomizations.html">XJC Customizations</a>
+<br>
+  JAXB RI Schema Languages: <a href="vendorSchemaLangs.html#xschema">W3C XML Schema</a> | <a href="relaxng.html">RELAX NG</a> | <a href="vendorSchemaLangs.html#dtd">DTD</a>
+<br>
+  JAXB Community: <a href="http://jaxb.dev.java.net">Java.net Homepage</a> | <a href="https://jaxb.dev.java.net/servlets/ProjectMailingListList">Developer interest list</a> | <a href="https://jaxb.dev.java.net/faq/index.html">FAQ</a>
+<br>
+
+<hr width="50%">
+    
+</CENTER>
+
+    
+<P>
+    Java<SUP><FONT size="-2">TM</FONT></SUP> Architecture for XML Binding (JAXB) 
+    provides an API and tools that automate the mapping between XML documents 
+    and Java objects.</P>
+
+    
+<P>
+    JAXB makes XML easy to use by compiling an XML schema into one or more 
+    Java technology classes. The combination of the schema-derived classes and 
+    the binding framework enable developers to perform the following operations 
+    on an XML document:</P>
+<BR>
+
+    
+<UL>
+      
+<LI>
+<B>Unmarshal</B> XML content into a Java representation</LI>
+      
+<LI>
+<B>Access</B>, <B>update</B> and <B>validate</B> the Java representation 
+          against schema constraints</LI>
+      
+<LI>
+<B>Marshal</B> the Java representation of the XML content into XML 
+          content</LI>
+    
+</UL>
+
+    
+<P>
+    JAXB gives Java developers an efficient and standard way of mapping between 
+    XML and Java code. Java developers using JAXB are more productive because 
+    they can write less code themselves and do not have to be experts in XML. 
+    JAXB makes it easier for developers to extend their applications with XML and 
+    Web Services technologies.</P>
+
+    
+<A name="documentation"></A>
+    
+<H2>Documentation</H2>
+    Documentation for this release consists of the following: 
+    <UL>
+      
+<LI> 
+<A href="../../docs/index.html">Java<SUP><FONT size="-2">TM</FONT></SUP> Web
+           Services Developer Pack (JWSDP) 1.6 Documentation</A>
+</LI>
+      
+<LI> 
+<A href="ReleaseNotes.html">Release Notes</A>
+</LI>
+      
+<LI> Running the binding compiler (XJC): [<A href="xjc.html">command-line instructions</A>,
+           <A href="ant.html">using the Ant task</A>]</LI>
+      
+<LI> 
+<A href="../../docs/api/index.html">Javadoc API documentation (javax.xml.bind.*)</A> 
+    
+</LI>
+      
+<LI> 
+<A href="samples.html">Sample Applications</A>
+</LI>
+      
+<LI> JAXB FAQs [<A href="http://java.sun.com/xml/jaxb/faq.html">java.sun.com</A>,
+           <A href="https://jaxb.dev.java.net/faq/index.html">jaxb.dev.java.net</A>]</LI>
+      
+<LI> 
+<A href="vendor.html">JAXB RI Vendor Extensions (Additional XML Schema Support, Serializable support, Super Classes, etc)</A>
+</LI>
+    
+</UL>
+    
+    
+<A name="license"></A>
+    
+<H2> Software Licenses </H2>
+    
+<UL>
+      
+<LI>
+<A href="../../LICENSE">JWSDP Licensing Information</A>
+</LI>
+      
+<LI>JAXB is a <A href="../../docs/ReleaseNotes.html#RedistributableComponents">redistributable 
+          component</A> of the JWSDP</LI>
+      
+<LI>Additional copyright notices and license terms applicable to portions of the software 
+          are set forth in the <A href="RELAXNGDATATYPEREADME.txt">RELAXNGDATATYPEREADME.txt</A> 
+          and <A href="ISO-RELAXREADME.txt">ISO-RELAXREADME.txt</A> files.</LI>
+      
+<LI>Parts of the JAXP software bundled with JAXB are covered by the 
+          <A href="License-ASF.txt">Apache License</A> and the 
+          <A href="License-W3C.html">W3C License</A>.  See the latest JAXP 
+          documentation for more specific licensing information.</LI>
+    
+</UL>      
+    
+	
+    
+<A name="feedback"></A>
+    
+<H2>Questions, Feedback, Bug Reports</H2>
+    
+	
+<DL>
+	  
+<DT>
+<A href="http://www.java.net"><IMG alt="java.net!" border="0" height="47" hspace="5" src="javanet_button_170_alt.gif" vspace="5" width="170"></A>
+<BR>
+<A href="http://jaxb.dev.java.net/">
+	      http://jaxb.dev.java.net</A>
+</DT>
+	  
+<DD>Join the JAXB Community on java.net!  This community is the ideal place for people
+	      interested in JAXB to share their ideas and ask each other questions.  
+	      <A href="https://www.dev.java.net/servlets/Join">Join now!</A>
+</DD>  
+	  
+<DT>
+<A href="mailto:jaxb-comments@sun.com">jaxb-comments@sun.com</A>
+</DT>
+	  
+<DD>Use this alias for feedback about the JAXB Reference Implementation.  This alias
+	      should also be used for questions about licensing and distributing JAXB in your
+	      products.</DD>
+	  
+<DT>
+<A href="mailto:jaxb-spec-comments@sun.com">jaxb-spec-comments@sun.com</A>
+</DT>
+	  
+<DD>Use this alias for feedback about the JAXB Specification and API documentation </DD>
+	  
+<DT>
+<A href="http://developer.java.sun.com/developer/bugParade/">Bug Parade</A>
+</DT>
+	  
+<DD>Use this web site to check the status of bugs and to file new bugs against the JAXB 
+	      Specification or Reference Implementation under the category <CODE>JAXB-XSD</CODE>.</DD>
+    
+</DL>	
+    
+	
+<P>
+<I>Due to the high volume of e-mail received on these aliases, you may 
+	   not receive an immediate response to your inquiry.</I>
+</P>	
+	   
+	
+<HR>
+	
+<FONT size="-1">
+	  $Revision: 1.2 $<BR>
+	  $Date: 2004/10/07 21:54:02 $
+	</FONT>
+  
+
+
+</BODY>
+</HTML>

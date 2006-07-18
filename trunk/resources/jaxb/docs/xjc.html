@@ -1,0 +1,583 @@
+<HTML>
+  
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+<TITLE>
+        JAXB RI 1.0.5 -- Binding Compiler (xjc)
+    </TITLE>
+    
+<META content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+    
+<LINK href="style/default.css" rel="stylesheet" type="text/css">
+  
+</HEAD>
+
+  
+<BODY>
+    
+<CENTER>
+    
+<H1>Java<SUP><FONT size="-2">TM</FONT></SUP> Architecture for XML Binding<BR>
+      Binding Compiler (xjc)
+    </H1>
+      
+<B>Specification Version:</B> 1.0<BR>
+      
+<B>Reference Implementation (RI) Version:</B> 1.0.5<BR>
+      <!--
+ Copyright 2004 Sun Microsystems, Inc. All rights reserved.
+ SUN PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+-->
+<hr width="50%">
+  Main: <a href="ReleaseNotes.html">Release Notes</a> | <a href="xjc.html">XJC</a> | <a href="ant.html">Ant task</a> | <a href="samples.html">Sample Apps</a> | <a href="changelog.html">Changelog</a>
+<br>
+  JAXB RI Extensions: <a href="vendorProperties.html">Runtime Properties</a> | <a href="vendorCustomizations.html">XJC Customizations</a>
+<br>
+  JAXB RI Schema Languages: <a href="vendorSchemaLangs.html#xschema">W3C XML Schema</a> | <a href="relaxng.html">RELAX NG</a> | <a href="vendorSchemaLangs.html#dtd">DTD</a>
+<br>
+  JAXB Community: <a href="http://jaxb.dev.java.net">Java.net Homepage</a> | <a href="https://jaxb.dev.java.net/servlets/ProjectMailingListList">Developer interest list</a> | <a href="https://jaxb.dev.java.net/faq/index.html">FAQ</a>
+<br>
+
+<hr width="50%">
+    
+</CENTER>
+
+
+    
+<P>
+	
+</P>
+<H3>Launching xjc</H3>
+	
+<P>The binding compiler can be launched using the appropriate 
+	   <CODE>xjc</CODE> shell script in the <CODE>bin</CODE> directory 
+	   for your platform.  We also provide an Ant task to run the binding
+	   complier - see the instructions for <A href="ant.html">
+	   using xjc with Ant</A>.</P>
+
+	
+<BLOCKQUOTE>
+	  
+<H4>For Solaris/Linux</H4>
+	    
+<BLOCKQUOTE>
+          
+<OL>
+            
+<LI>
+<TT>% export PATH=&lt;your JWSDP1.6 installation directory&gt;/jaxb/bin:$JWSDP_HOME/jwsdp-shared/bin:$PATH</TT>
+</LI>    
+            
+<LI>
+<TT>% $JAXB_HOME/bin/xjc.sh -help</TT>
+</LI>
+          
+</OL>
+        
+</BLOCKQUOTE>
+      
+</BLOCKQUOTE>
+
+	
+<BLOCKQUOTE>
+	  
+<H4>For WindowsNT/2000/XP</H4>
+	    
+<BLOCKQUOTE>
+	      
+<OL>
+            
+<LI>
+<TT>&gt; set PATH=&lt;your JWSDP1.6 installation directory&gt;\jaxb\bin;%JWSDP_HOME%\jwsdp-shared\bin;%PATH%</TT>
+</LI>
+	        
+<LI>
+<TT>&gt; %JAXB_HOME%\bin\xjc.bat -help</TT>
+</LI>
+          
+</OL>
+        
+</BLOCKQUOTE>
+      
+</BLOCKQUOTE>
+
+	
+<BLOCKQUOTE>
+	  
+<H4>Environment Variables</H4>
+	    
+<BLOCKQUOTE>
+	      
+<UL>
+	        
+<LI>XJC_OPTS - command-line arguments that should be passed to the JVM. For 
+	            example, you can define system properties or set the maximum Java heap 
+	            size here.  If you are using the <A href="ant.html">xjc ant task</A>,
+	            you would specify these options via the ANT_OPTS evironment variable.</LI>
+	      
+</UL>
+	    
+</BLOCKQUOTE>
+	
+</BLOCKQUOTE>
+
+	
+<BLOCKQUOTE>
+	  
+<H4>Output</H4>
+	  
+<BLOCKQUOTE>
+        
+<PRE>
+Usage: xjc [-options ...] &lt;schemas&gt;
+
+Options:
+  -nv                :  do not perform strict validation of the input schema(s)
+  -extension         :  allow vendor extensions - do not strictly follow the
+                        Compatibility Rules and App E.2 from the JAXB Spec
+  -b &lt;file&gt;          :  specify external bindings files (each &lt;file&gt; must have its own -b)
+  -d &lt;dir&gt;           :  generated files will go into this directory
+  -p &lt;pkg&gt;           :  specifies the target package
+  -host &lt;proxyHost&gt;  :  set http.proxyHost property to &lt;proxyHost&gt;
+  -port &lt;proxyPort&gt;  :  set http.proxyPort property to &lt;proxyPort&gt;
+  -classpath &lt;arg&gt;   :  specify where to find user class files
+  -catalog &lt;file&gt;    :  specify catalog files to resolve external entity references
+                        support TR9401, XCatalog, and OASIS XML Catalog format
+  -readOnly          :  generated files will be in read-only mode
+  -use-runtime &lt;pkg&gt; :  suppress the generation of the impl.runtime package and simply
+                        refer to another existing runtime in the specified package
+  -xmlschema         :  treat input as W3C XML Schema (default)
+  -relaxng           :  treat input as RELAX NG (experimental,unsupported)
+  -dtd               :  treat input as XML DTD (experimental,unsupported)
+  -quiet             :  suppress compiler output
+  -help              :  display this help message
+  -version           :  display version information
+	    </PRE>
+	  
+</BLOCKQUOTE>
+	
+</BLOCKQUOTE>
+	  
+	
+<BLOCKQUOTE>
+	  
+<H4>Non-standard Commandline Options</H4>
+	  
+<BLOCKQUOTE>
+	    
+<P>These options are non-standard and may change without notice.
+        <PRE>
+  -Xlocator          :  enable source location support for generated code
+  -Xsync-methods     :  generate accessor methods with the 'synchronized' keyword
+	    </PRE>
+	  
+</P>
+</BLOCKQUOTE>
+	
+</BLOCKQUOTE>
+	  
+    
+<BLOCKQUOTE>
+      
+<H4>Execute the <CODE>jaxb-xjc.jar</CODE> JAR File</H4>
+      
+<BLOCKQUOTE>
+        
+<P>If all else fails, you should be able to execute the 
+           <CODE>jaxb-xjc.jar</CODE> file:
+        <BLOCKQUOTE>
+          
+<DL>
+            
+<DT>For Solaris/Linux:</DT> 
+            
+<DD>
+<TT>% java -jar &lt;your JWSDP1.6 installation directory&gt;/jaxb/lib/jaxb-xjc.jar -help</TT>
+</DD>
+            
+<DT>For Windows:</DT>
+            
+<DD>
+<TT>&gt; java -jar &lt;your JWSDP1.6 installation directory&gt;\jaxb\lib\jaxb-xjc.jar -help</TT>
+</DD>
+          
+</DL>
+        
+</BLOCKQUOTE>
+      
+</P>
+</BLOCKQUOTE>
+	
+</BLOCKQUOTE>
+	
+	
+<A name="switches"></A>
+	
+<H3>Summary of Command Line Options</H3>
+	
+<BLOCKQUOTE>
+	  
+<DL>
+	    
+<DT>
+<B>-nv</B>
+</DT>
+	    
+<DD>By default, the XJC binding compiler performs strict validation of the source schema before 
+	        processing it.  Use this option to disable strict schema validation.  This
+	        does not mean that the binding compiler will not perform any validation, it
+	        simply means that it will perform less-strict validation.</DD>
+	    
+<DT>
+<B>-extension</B>
+</DT>
+	    
+<DD>By default, the XJC binding compiler strictly enforces the rules outlined in the Compatibility
+	        chapter of the JAXB Specification.  Appendix E.2 defines a set of W3C XML
+	        Schema features that are not completely supported by JAXB v1.0.  In some
+	        cases, you may be allowed to use them in the "-extension" mode
+	        enabled by this switch.  In the default (strict) mode, you are also limited
+	        to using only the binding customizations defined in the specification.
+	        By using the "-extension" switch, you will be allowed to use the
+	        <A href="vendor.html">JAXB Vendor Extensions</A>.</DD>
+	    
+<DT>
+<B>-b &lt;file&gt;</B>
+</DT>
+	    
+<DD>Specify one or more external binding files to process. (Each binding file must
+	        have it's own <TT>"-b"</TT> switch.)  The syntax of the external
+	        binding files is extremely flexible.  You may have a single binding file
+	        that contains customizations for multiple schemas or you can break the
+	        customizations into multiple bindings files:<P>
+	        
+<BLOCKQUOTE>
+	        	
+<TT>xjc schema1.xsd schema2.xsd schema3.xsd -b bindings123.xjb<BR>
+	        	    xjc schema1.xsd schema2.xsd schema3.xsd -b bindings1.xjb -b bindings2.xjb -b bindings3.xjb</TT>
+	        
+</BLOCKQUOTE>
+	        In addition, the ordering of the schema files and binding files on the
+	        command line does not matter.
+	        </P>
+</DD>
+	    
+<DT>
+<B>-d &lt;dir&gt;</B>
+</DT>
+	    
+<DD>By default, the XJC binding compiler will generate the Java content classes in the current
+	        directory.  Use this option to specify an alternate output directory.
+	        The output directory must already exist, the XJC binding compiler will not create it for you.
+	        </DD>
+	    
+<DT>
+<B>-p &lt;pkg&gt;</B>
+</DT>
+	    
+<DD>Specifying a target package via this command-line option overrides
+	        any binding customization for package name and the default package
+	        name algorithm defined in the specification.</DD>
+		
+<DT>
+<B>-host &lt;proxyHost&gt;</B>
+</DT>
+		
+<DD>Specify a value for the <TT>http.proxyHost</TT> <A href="http://java.sun.com/j2se/1.4.2/docs/guide/net/properties.html">networking
+            property</A>.</DD>
+		
+<DT>
+<B>-port &lt;proxyPort&gt;</B>
+</DT>
+		
+<DD>Specify a value for the <TT>http.proxyPort</TT> <A href="http://java.sun.com/j2se/1.4.2/docs/guide/net/properties.html">networking
+            property</A>.</DD>
+		
+<DT>
+<B>-classpath &lt;arg&gt;</B>
+</DT>
+		
+<DD>Specify where to find client application class files 
+		    used by the <TT>&lt;jxb:javaType&gt;</TT> and <TT>&lt;xjc:superClass&gt;</TT>
+		    customizations.</DD>
+		
+<DT>
+<B>-catalog &lt;file&gt;</B>
+</DT>
+		
+<DD>Specify catalog files to resolve external entity references.  Supports TR9401, 
+		    XCatalog, and OASIS XML Catalog format.  Please read the <A href="catalog.html">
+		    XML Entity and URI Resolvers</A> document or the <TT>catalog-resolver</TT> sample application.</DD>
+	    
+<DT>
+<B>-readOnly</B>
+</DT>
+	    
+<DD>By default, the XJC binding compiler does not write-protect the Java source files it generates.
+	        Use this option to force the XJC binding compiler to mark the generated Java sources read-only.</DD>
+		
+<DT>
+<B>-use-runtime &lt;pkg&gt;</B>
+</DT>
+		
+<DD>suppress the generation of the <TT>impl.runtime</TT> package and simply refer to another 
+		    existing runtime in the specified package.  This option is useful when you are
+		    compiling multiple independent schemas.  Because the generated <TT>impl.runtime</TT> 
+		    packages are identical except for their package declarations, you can reduce the
+		    size of your generated codebase by telling the compiler to reuse an existing
+		    <TT>impl.runtime</TT> package.
+		    
+		    <P>When using this switch, be careful to specify a version 
+		    of the runtime package compatible with your version of JAXB. Otherwise, you may 
+		    encounter javac failures when attempting to compile your generated classes.  For 
+		    example, you should not specify a set of runtime classes generated from an older 
+		    version of the binding compiler with the current binding compiler.		   
+		    </P>
+</DD>
+		
+<DT>
+<B>-xmlschema</B>
+</DT>
+		
+<DD>treat input schemas as W3C XML Schema (default).  If you do not specify this
+		    switch, your input schemas will be treated as W3C XML Schema.</DD>
+		
+<DT>
+<B>-relaxng</B>
+</DT>
+		
+<DD>Treat input schemas as RELAX NG (experimental, unsupported).  Support for 
+		    RELAX NG schemas is provided as a <A href="vendor.html">JAXB Vendor Extension</A>.
+		    </DD>
+		
+<DT>
+<B>-dtd</B>
+</DT>
+		
+<DD>Treat input schemas as XML DTD (experimental, unsupported).  Support for 
+		    RELAX NG schemas is provided as a <A href="vendor.html">JAXB Vendor Extension</A>.
+		    </DD>
+		
+<DT>
+<B>-quiet</B>
+</DT>
+		
+<DD>Suppress compiler output, such as progress information and warnings..
+		    </DD>
+		
+<DT>
+<B>-help</B>
+</DT>
+		
+<DD>Display a brief summary of the compiler switches.</DD>
+		
+<DT>
+<B>-version</B>
+</DT>
+		
+<DD>Display the compiler version information.</DD>
+	    
+<DT>
+<B>&lt;schemas&gt;</B>
+</DT>
+	    
+<DD>Specify one or more schema files to compile.</DD>
+      
+</DL>
+    
+</BLOCKQUOTE>
+
+	
+<H3>Summary of Non-Standard Command Line Options</H3>
+	
+<BLOCKQUOTE>
+	  
+<DL>
+	    
+<DT>
+<B>-Xlocator</B>
+</DT>
+	    
+<DD>This feature is only available when you include 
+	        jwsdp-1.6/jaxb/samples/locator-support/jaxb-locator-support.jar on 
+	        your classpath.  Please refer to the readme.txt file located with the
+	        sample app for more detail.</DD>
+	    
+<DT>
+<B>-Xsync-methods</B>
+</DT>
+	    
+<DD>This feature is only available when you include 
+	        jwsdp-1.6/jaxb/samples/synchronized-methods/jaxb-synchronized-methods.jar on 
+	        your classpath.  Please refer to the readme.txt file located with the
+	        sample app for more detail.</DD>
+      
+</DL>
+    
+</BLOCKQUOTE>
+    
+    
+<A name="restrictions"></A>
+    
+<H3>Compiler Restrictions</H3>
+    
+<P>In general, it is safest to compile all related schemas as a single unit with
+       the same binding compiler switches.</P>
+       
+    
+<P>Please keep the following list of restrictions in mind when running xjc.  Most 
+       of these issues only apply when compiling multiple schemas with multiple 
+       invocations of xjc.</P>
+      
+<UL>
+        
+<LI>To compile multiple schemas at the same time, keep the following 
+            precedence rules for the target Java package name in mind:
+       
+            <OL>
+              
+<LI>The "<TT>-p</TT>" command line option takes the highest precedence.</LI>
+              
+<LI>&lt;<TT>jaxb:package</TT>&gt; customization</LI>
+              
+<LI>If <TT>targetNamespace</TT> is declared, apply <TT>targetNamespace</TT> 
+                  -&gt; Java package name algorithm defined in the specification.</LI>
+              
+<LI>If no <TT>targetNamespace</TT> is declared, use a hardcoded package named 
+                  "generated".</LI>
+            
+</OL>
+        
+</LI>
+    
+        
+<LI>It is not legal to have more than one &lt;<TT>jaxb:schemaBindings</TT>&gt;
+            per namespace, so it is impossible to have two schemas in the same target 
+            namespace compiled into different Java packages.</LI>
+       
+        
+<LI>All schemas being compiled into the same Java package must be submitted to the 
+            XJC binding compiler at the same time - they cannot be compiled independently 
+            and work as expected.</LI>
+        
+<LI>Element substitution groups and type substitution definitions spread across
+            multiple schema files must be compiled at the same time.</LI>
+        
+<LI>When using the "-use-runtime" switch on the binding compiler, be 
+            careful to specify a version of the runtime package compatible with your 
+            version of JAXB. Otherwise, you may encounter javac failures when attempting 
+            to compile your generated classes.  For example, you should not specify a set 
+            of runtime classes generated from an older version of the binding compiler 
+            (v1.0.1) with the current binding compiler (v1.0.2).</LI>
+      
+</UL>
+    
+    
+<A name="xjcresources"></A>
+    
+<H3>Generated Resource Files</H3>
+    
+<P>The xjc binding compiler produces a set of packages containing a combination
+       of Java source files and resource files.  The following list of resource files
+       generated by xjc must be kept with the compiled source code and made available
+       on the runtime classpath of your client applications:</P>
+       
+    
+<BLOCKQUOTE>   
+       
+<UL>
+          
+<LI>jaxb.properties</LI>
+          
+<LI>bgm.ser</LI>
+       
+</UL>
+    
+</BLOCKQUOTE>   
+    
+    
+<P>A pair of these resource files is contained in each of the packages containing
+       schema-derived Java content interfaces.  Make sure to copy these resource files
+       into the appropriate directories to maintain the proper relationship with the
+       generated Java source files.  The following snippet of Ant code illustrates
+       how this can be achieved:</P>
+       
+    
+<BLOCKQUOTE>
+      
+<PRE>
+&lt;path id="classpath"&gt;
+...
+&lt;/path&gt;
+
+&lt;target name="compile"&gt;
+  &lt;!-- compile all xsd files in the src dir and put the output in the build dir --&gt;
+  &lt;xjc target="build"&gt;
+    &lt;schema  dir="src" includes="*.xsd"/&gt;
+    &lt;binding dir="src" includes="*.xjb"/&gt;
+  &lt;/xjc&gt;
+
+  &lt;!-- compile all java files in the src dir and put the output in the build dir --&gt;
+  &lt;javac srcdir="src" destdir="build" debug="on"&gt;
+    &lt;classpath refid="classpath" /&gt;
+  &lt;/javac&gt;
+
+  &lt;!-- copy all of the generated resource files from the src dir into the build dir --&gt;
+  &lt;copy toDir="build"&gt;
+    &lt;fileset dir="src"&gt;
+      &lt;include name="**/jaxb.properties"/&gt;
+      &lt;include name="**/bgm.ser"/&gt;
+    &lt;/fileset&gt;
+  &lt;/copy&gt;
+&lt;/target&gt;
+      </PRE>
+    
+</BLOCKQUOTE>
+       
+    
+    
+<H3>Specifying Proxy Settings</H3>
+    
+<P>The XJC binding compiler has support for the <TT>http.proxyHost</TT> and <TT>http.proxyPort</TT> 
+    <A href="http://java.sun.com/j2se/1.4.1/docs/guide/net/properties.html">networking
+    properties</A>.  Specify the "<TT>-host</TT>" and "<TT>-port</TT>
+    " command-line options on the <TT>xjc</TT> scripts that are located in the <TT>bin</TT> directory.</P>
+    
+    
+<P>If you are launching the XJC binding compiler manually, you can specify 
+       the values of these properties
+on the Java command line as follows:</P>
+    
+<BLOCKQUOTE>
+	  
+<DL>
+	    
+<DT>For Solaris/Linux:</DT> 
+	    
+<DD>
+<TT>% java -Dhttp.proxyHost=myproxy.com -Dhttp.proxyPort=80 -jar $JAXB_HOME/lib/jaxb-xjc.jar -help</TT>
+</DD>
+	    
+<DT>For Windows:</DT>
+	    
+<DD>
+<TT>&gt; java -Dhttp.proxyHost=myproxy.com -Dhttp.proxyPort=80 -jar %JAXB_HOME%\lib\jaxb-xjc.jar -help</TT>
+</DD>
+	  
+</DL>
+	
+</BLOCKQUOTE>
+
+	
+<HR>
+	
+<FONT size="-1">
+	  $Revision: 1.2 $<BR>
+	  $Date: 2004/10/07 21:54:02 $
+	</FONT>
+  
+    
+
+</BODY>
+</HTML>

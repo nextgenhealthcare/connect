@@ -1,0 +1,561 @@
+/* - - - - - - - - - - - - - - - - - - - - -
+Main Style definition
+- - - - - - - - - - - - - - - - - - - - - */
+@import url(navigation.css);
+@import url(tabs.css);
+@import url(wizard.css);
+
+/* ----- Main elements ----- */
+html {
+	margin: 0;
+	padding: 0;
+	height: 100%;
+}
+
+body {
+	margin: 0;
+	padding: 0;
+	background: white;
+	height: 100%;
+	font-size: 100%;
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+}
+
+/* ----- IDS ----- */
+#container {
+	padding-left: 23px;
+	padding-right: 23px;
+}
+
+#primaryContent {
+	background: #F0ECCE;
+	min-height: 475px;
+	margin-top: 0;
+	border: 1px solid #A5A5A5;
+	padding: 0;
+}
+
+#innerContent {
+	padding: 1em;
+	font-size: 0.8em;
+}
+
+#footer {
+	margin-top: 20px;
+	background: #DEF0FE;
+	border: 1px solid #C5C5C5;
+	font-size: 0.65em;
+	text-align: center;
+}
+
+#loginNotice {
+	position: absolute;
+	top: 39px;
+	right: 75px;
+	color: White;
+	font: normal 0.6em Arial, Geneva, Arial, Helvetica, sans-serif;
+}
+
+/* Buttons */
+#channelNew {
+	background: url(../images/buttons/new_channel.png) no-repeat;
+	width: 95px;
+	height: 30px;
+}
+
+#deployChannels {
+	background: url(../images/buttons/deploy_channels.png) no-repeat;
+	width: 121px;
+	height: 30px;
+}
+
+#endpointNew {
+	background: url(../images/buttons/new_endpoint.png) no-repeat;
+	width: 104px;
+	height: 30px;
+}
+
+#filterNew {
+	background: url(../images/buttons/new_filter.png) no-repeat;
+	width: 95px;
+	height: 30px;
+}
+
+#transformerNew {
+	background: url(../images/buttons/new_transformer.png) no-repeat;
+	width: 118px;
+	height: 30px;
+}
+
+#userNew {
+	background: url(../images/buttons/new_user.png) no-repeat;
+	width: 85px;
+	height: 30px;
+}
+
+.editButtonBig {
+	background: url(../images/buttons/edit_button.png) no-repeat;
+	width: 60px;
+	height: 30px;
+}
+
+#listingForm, .pageNavigation {
+	text-align: right;
+}
+
+#listingForm {
+	float: right;
+	font-size: 0.8em;
+	height: 30px;
+	display: block;
+	padding: 8px;
+	padding-top: 12px;
+	padding-right: 10px;
+	border-right: 1px solid #A5A5A5;
+}
+
+#listingForm .button {
+	color: White;
+	font-weight: bold;
+	font-family: Arial, Helvetica, sans-serif;
+	border: 1px solid #EAEAEA;
+	background: #833434 url(../images/button_bg.png) repeat-x;
+	padding: 0.15em 0.3em;
+	text-transform: uppercase;
+}
+
+.button {
+	color: White;
+	font: bold 0.95em Arial, Helvetica, sans-serif;
+	border: 1px solid #EAEAEA;
+	background: #833434 url(../images/button_bg.png) repeat-x;
+	padding: 0.35em 1em;
+	letter-spacing: 0.1em;
+	margin-left: 1em;
+	text-transform: uppercase;
+}
+
+.button:focus {
+	color: Black;
+}
+
+.button:hover, .button:focus {
+	background: #BF6B6B;
+}
+
+.buttonNav {
+	padding-top: 0.5em;
+}
+
+/* ----- CLASSES ----- */
+.breadcrumb {
+	background: #C4BE8F;
+	color: White;
+	padding: 0.3em;
+	padding-left: 0.8em;
+	font: bold 0.8em Arial, Helvetica, sans-serif;
+	letter-spacing: 0.05em;
+}
+
+.success {
+	border: 1px solid #93A626;
+	color: #606D1E;
+	padding: 0.7em;
+	padding-left: 30px;
+	font-size: 0.8em;
+	font-weight: bold;
+	background: #E9F3AA url(../images/checkmark.gif) 10px 8px no-repeat;
+}
+
+.error {
+	border: 1px solid #833434;
+	color: #833434;
+	padding: 0.7em;
+	padding-left: 30px;
+	font-size: 0.8em;
+	font-weight: bold;
+	background: #FFEFEF url(../images/exclamation.gif) 15px 8px no-repeat;
+}
+
+.success li, .error li {
+	list-style: none;
+}
+
+ul.success, ul.error {
+	margin-left: 0;
+}
+
+.block {
+	border-bottom: 1px solid #A5A5A5;
+	padding: 0 1em 1.5em 1em;
+}
+
+.hidden {
+	display: none;
+}
+
+.note, .help {
+	background: #FFFDE1;
+	border: 1px solid #FFD700;
+	padding: 0.6em;
+}
+
+.note h3, .help h3 {
+	color: #7E7645;
+	margin: 0;
+	padding: 0;
+}
+
+.help {
+	float: right;
+	min-height: 10.5em;
+	width: 20em;
+}
+
+.section {
+	background: #FFFDEC;
+	border: 1px solid #D2D2D2;
+	padding: 0 1em;
+	margin-bottom: 0.5em;
+}
+
+/* listing buttons and icons */
+.actionButton {
+	height: 35px;
+	float: right;
+	text-decoration: none;
+	margin: 10px;
+}
+
+.actionButton span, .actionCol span, .statusDeploy span, .statusNotDeploy span
+	{
+	visibility: hidden;
+	text-decoration: none;
+}
+
+/* make sure the new buttons only appear floated when not inside a fieldset */
+fieldset .actionButton {
+	float: left;
+}
+
+/* status indicators  */
+.statusRun, .statusRunError, .statusStop, .statusDeploy, .statusNotDeploy {
+	padding-left: 20px;
+}
+
+.statusRun {
+	background: url(../images/running.gif) no-repeat;
+}
+
+.statusRunError {
+	background: url(../images/running-errors.gif) no-repeat;
+}
+
+.statusStop {
+	background: url(../images/deployed-not.gif) no-repeat;
+}
+
+.statusDeploy {
+	background: url(../images/deployed.gif) no-repeat;
+}
+
+.statusNotDeploy {
+	background: url(../images/deployed-not.gif) no-repeat;
+}
+
+.changed {
+	color: red;
+	font-weight: bold;
+}
+
+.actionCol a, .statusDeploy, .statusNotDeploy {
+	width: 16px;
+	height: 16px;
+	display: block;
+	margin: auto;
+	padding: 0;
+	text-decoration: none;
+	overflow: hidden;
+}
+
+.actionCol {
+	text-align: center;
+}
+
+.editButton {
+	background: url(../images/buttons/edit.gif) no-repeat;
+}
+
+.statsButton {
+	background: url(../images/buttons/stats.png) no-repeat;
+}
+
+.stopButton {
+	background: url(../images/buttons/stop.gif) no-repeat;
+}
+
+.startButton {
+	background: url(../images/buttons/start.gif) no-repeat;
+}
+
+.logsButton {
+	background: url(../images/buttons/logs.gif) no-repeat;
+}
+
+.messagesButton {
+	background: url(../images/buttons/messages.png) no-repeat;
+}
+
+a.deleteButton {
+	background: url(../images/buttons/delete.gif) no-repeat;
+}
+
+a.noDeleteButton {
+	background: url(../images/buttons/delete.gif) no-repeat;
+}
+
+.cloneButton {
+	background: url(../images/buttons/clone.gif) no-repeat;
+}
+
+.arrowButton {
+	display: block;
+	background-color: transparent;
+	background-repeat: no-repeat;
+	border: 0;
+	width: 22px;
+	height: 22px;
+	text-align: center;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 100%;
+	font-weight: bold;
+	text-decoration: none;
+}
+
+#upButton {
+	background-image: url(../images/buttons/up.png);
+}
+
+#downButton {
+	background-image: url(../images/buttons/down.png);
+}
+
+#leftButton {
+	background-image: url(../images/buttons/left.png);
+}
+
+#rightButton {
+	background-image: url(../images/buttons/right.png);
+}
+
+/* tables with id or special classes */
+
+#statusPanelTable {
+	margin-top: 10px;
+}
+
+#statusPanelTable .firstCol {
+	width: 170px;
+}
+
+#statusPanelTable .statCol {
+	width: 30px;
+	text-align: center;
+}
+
+#statusPanelTable .errorCol {
+	width: 30px;
+	text-align: center;
+	background: #FF6699;
+}
+
+#statusPanelTable #channelName {
+	font-weight: bold;
+}
+
+#channelsTable .firstCol {
+	width: 50px;
+}
+
+.directionCol {
+	width: 70px;
+	text-align: center;
+}
+
+/* ----- HEADINGS ----- */
+h1, h2, h3, h4, h5, h6 {
+	font-family: "Times New Roman", Times, serif;
+	text-transform: small-caps;
+}
+
+h1 {
+	font-weight: normal;
+	color: #1A1A1A;
+	font-size: 1.25em;
+	margin: 0;
+	border-bottom: 1px solid #838383;
+	background: #D7D3B0;
+	padding: 0.75em;
+	padding-bottom: 0.6em;
+	letter-spacing: 0.1em;
+}
+
+h3 {
+	font-size: 1.2em;
+}
+
+/* ----- LISTS ----- */
+.section ul {
+	margin: 0;
+}
+
+.section li {
+	list-style: none outside;
+	margin: 0.5em 0;
+}
+
+/* ----- LINKS ----- */
+a, a:visited, a:active, a:focus {
+	color: #416F8A;
+}
+
+a:hover {
+	color: #12435F;
+}
+
+.breadcrumb a {
+	color: #1B5A8C;
+}
+
+.breadcrumb a:hover {
+	color: White;
+}
+
+a.button, a.button:hover, a.button:link, a.button:visited {
+	color: White;
+	text-decoration: none;
+}
+
+/* ----- TABLES ----- */
+table {
+	width: 100%;
+	padding: 0;
+	margin: 0;
+	background: White;
+	border-left: 1px solid #A4A4A4;
+}
+
+tr.highlight {
+	background: #FFFDDE;
+}
+
+th {
+	font: bold 0.9em Verdana, Arial, Helvetica, sans-serif;
+	color: #373535;
+	border-right: 1px solid #A4A4A4;
+	border-bottom: 1px solid #A4A4A4;
+	border-top: 1px solid #A4A4A4;
+	text-align: left;
+	padding: 5px;
+	background: #B0CFE5 url(../images/table_header.png) repeat-x;
+}
+
+.actionCol {
+	width: 60px;
+	text-align: center;
+}
+
+td {
+	border-right: 1px solid #A4A4A4;
+	border-bottom: 1px solid #A4A4A4;
+	padding: 5px;
+}
+
+td p {
+	margin-top: 0;
+}
+
+tr.rowLight {
+	background: #fff;
+}
+
+tr.rowDark {
+	background: #eee
+}
+
+/* ----- FORMS ----- */
+form {
+	
+}
+
+fieldset {
+	border: 1px solid #D2D4CF;
+	margin-top: 1em;
+	padding: 1em;
+}
+
+legend {
+	font-weight: bold;
+	color: #696969;
+}
+
+/* border */
+input, textarea, select {
+	border: 1px solid #B3AB84;
+	border-top: 1px solid #7F7547;
+	border-left: 1px solid #7F7547;
+}
+
+input {
+	padding: 0.2em;
+}
+
+select {
+	
+}
+
+textarea:focus, input:focus {
+	background: #FFFABF;
+}
+
+td.fieldLabel {
+	text-align: right;
+	font-weight: bold;
+}
+
+td.fieldValue {
+	text-align: left;
+}
+
+form td td {
+	padding-top: 0;
+}
+
+form table {
+	background: transparent;
+	width: auto;
+	border: none;
+}
+
+form td {
+	border: none;
+	padding: 0.5em;
+	padding-right: 0;
+	vertical-align: top;
+}
+
+td.verticalButtons {
+	vertical-align: middle;
+}
+
+/* ----- MISC ----- */
+
+.message {
+	font-family: Courier New;
+	border: 1px solid gray;
+	background: #fff;
+	padding: 10px;
+	margin: 10px;
+	white-space: pre;
+	overflow: scroll;
+}

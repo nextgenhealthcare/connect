@@ -1,0 +1,386 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+"http://www.w3.org/TR/REC-html40/loose.dtd">
+<!-- $Id: index.html,v 1.1 2004/06/25 21:12:39 kohsuke Exp $ -->
+<html>
+<head>
+<meta content=
+"HTML Tidy for Cygwin (vers 1st September 2003), see www.w3.org"
+name="generator">
+<title>Processing a UBL Order Instance with JAXB-Generated
+Classes</title>
+<meta http-equiv="Content-Type" content=
+"text/html; charset=us-ascii">
+<link rel="stylesheet" type="text/css" href=
+"../../../docs/style/default.css">
+</head>
+<body>
+<h1>Processing a UBL Order Instance with JAXB-Generated
+Classes</h1>
+<p>Links on this page open their targets in a second window. If
+clicking on a link seems not to do anything, that's probably
+because that window is covered or minimized.</p>
+<p>This sample processes a business order instance, as defined by
+<a href=
+"http://www.oasis-open.org/committees/tc_home.php?wg_abbrev=ubl"
+target="window_2">UBL</a> (Universal Business Language). It shows
+how JAXB helps when developing applications for industry-standard
+schema. The best thing is to start by running the sample,
+especially since many of the links in this document refer to the
+output.</p>
+<h3>Running the Sample</h3>
+<h4>Solaris/Unix</h4>
+<blockquote><code>$ JWSDP_HOME=&lt;<i>Your Java WSDP installation
+directory</i>&gt;</code><br>
+<code>$ $JWSDP_HOME/apache-ant/bin/ant</code></blockquote>
+<h4>Windows NT/2000/XP</h4>
+<blockquote><code>&gt; set JWSDP_HOME=&lt;<i>Your Java WSDP
+installation directory</i>&gt;</code><br>
+<code>&gt; %JWSDP_HOME%\apache-ant\bin\ant</code></blockquote>
+<p>This directory structure exists before running the project:</p>
+<pre>
+./cd-UBL-1.0 ) Subset of the bundle obtained from
+| |          ) <a href=
+"http://docs.oasis-open.org/ubl/cd-UBL-1.0.zip">http://docs.oasis-open.org/ubl/cd-UBL-1.0.zip</a>
+| |
+| ./xml/office ) Instance documents
+| |     |                                  ) Order instance
+| |     ./UBL-Order-1.0-Office-Example.xml ) processed by
+| |                                        ) this sample
+| |
+| ./xsd ) The UBL schema
+|  |
+|  ./codelist
+|  | |
+|  | ./UBL-CodeList-AcknowledgementResponseCode-1.0.xsd
+|  | ./UBL-CodeList-AllowanceChargeReasonCode-1.0.xsd
+|  | ./UBL-CodeList-ChannelCode-1.0.xsd
+|  | ./UBL-CodeList-ChipCode-1.0.xsd
+|  | ./UBL-CodeList-CountryIdentificationCode-1.0.xsd
+|  | ./UBL-CodeList-CurrencyCode-1.0.xsd
+|  | ./UBL-CodeList-DocumentStatusCode-1.0.xsd
+|  | ./UBL-CodeList-LatitudeDirectionCode-1.0.xsd
+|  | ./UBL-CodeList-LineStatusCode-1.0.xsd
+|  | ./UBL-CodeList-LongitudeDirectionCode-1.0.xsd
+|  | ./UBL-CodeList-OperatorCode-1.0.xsd
+|  | ./UBL-CodeList-PaymentMeansCode-1.0.xsd
+|  | ./UBL-CodeList-SubstitutionStatusCode-1.0.xsd
+|  |
+|  ./common
+|  | |
+|  | ./UBL-CommonAggregateComponents-1.0.xsd
+|  | ./UBL-CommonBasicComponents-1.0.xsd
+|  | ./UBL-CoreComponentParameters-1.0.xsd
+|  | ./UBL-CoreComponentTypes-1.0.xsd
+|  | ./UBL-SpecializedDatatypes-1.0.xsd
+|  | ./UBL-UnspecializedDatatypes-1.0.xsd
+|  |
+|  ./maindoc
+|    |
+|    ./UBL-DespatchAdvice-1.0.xsd
+|    ./UBL-Invoice-1.0.xsd
+|    ./UBL-Order-1.0.xsd
+|    ./UBL-OrderCancellation-1.0.xsd
+|    ./UBL-OrderChange-1.0.xsd
+|    ./UBL-OrderResponse-1.0.xsd
+|    ./UBL-OrderResponseSimple-1.0.xsd
+|    ./UBL-ReceiptAdvice-1.0.xsd
+|
+./build.xml
+|
+./docs
+| |
+| ./index.html  )
+| ./output.html ) Sample-specific documentation
+| ./xjb.html    )
+|
+./src ) Application source code
+| |
+| ./samples/ubl/report ) Application package
+|               |
+|               ./PrintOrder.java ) Order printing
+|               |                 ) application
+|               |
+|               ./facade ) Code implementing the
+|                 |      ) facade design pattern
+|                 |
+|                 ./AddressFacade.java
+|                 ./OrderFacade.java
+|                 ./OrderLineTypeFacade.java
+|
+./ubl.xjb ) Binding customizations
+</pre>
+<p>Running the project creates the directories <code>gen-src</code>
+and <code>classes</code>.</p>
+<pre>
+          ) Java bindings created by processing
+./gen-src ) UBL schema with xjc using custom-
+| |       ) izations in ubl.xjb.
+| |
+| ./org/oasis/ubl/codelist/acknowledgementresponse
+| ./org/oasis/ubl/codelist/allowancechargereason
+| ./org/oasis/ubl/codelist/channel
+| ./org/oasis/ubl/codelist/chip
+| ./org/oasis/ubl/codelist/countryidentification
+| ./org/oasis/ubl/codelist/currency
+| ./org/oasis/ubl/codelist/documentstatus
+| ./org/oasis/ubl/codelist/latitudedirection
+| ./org/oasis/ubl/codelist/linestatus
+| ./org/oasis/ubl/codelist/longitudedirection
+| ./org/oasis/ubl/codelist/operator
+| ./org/oasis/ubl/codelist/paymentmeans
+| ./org/oasis/ubl/codelist/substitutionstatus
+| ./org/oasis/ubl/commonaggregatecomponents
+| ./org/oasis/ubl/commonbasiccomponents
+| ./org/oasis/ubl/corecomponentparameters
+| ./org/oasis/ubl/corecomponenttypes
+| ./org/oasis/ubl/despatchadvice
+| ./org/oasis/ubl/invoice
+| ./org/oasis/ubl/order
+| ./org/oasis/ubl/ordercancellation
+| ./org/oasis/ubl/orderchange
+| ./org/oasis/ubl/orderresponse
+| ./org/oasis/ubl/orderresponsesimple
+| ./org/oasis/ubl/receiptadvice
+| ./org/oasis/ubl/specializeddatatypes
+| ./org/oasis/ubl/unspecializeddatatypes
+|
+./classes ) Packages for the compiled bindings
+  |       ) and application code.
+  |
+  ./org/oasis/ubl/codelist/acknowledgementresponse
+  ./org/oasis/ubl/codelist/allowancechargereason
+  ./org/oasis/ubl/codelist/channel
+  ./org/oasis/ubl/codelist/chip
+  ./org/oasis/ubl/codelist/countryidentification
+  ./org/oasis/ubl/codelist/currency
+  ./org/oasis/ubl/codelist/documentstatus
+  ./org/oasis/ubl/codelist/latitudedirection
+  ./org/oasis/ubl/codelist/linestatus
+  ./org/oasis/ubl/codelist/longitudedirection
+  ./org/oasis/ubl/codelist/operator
+  ./org/oasis/ubl/codelist/paymentmeans
+  ./org/oasis/ubl/codelist/substitutionstatus
+  ./org/oasis/ubl/commonaggregatecomponents
+  ./org/oasis/ubl/commonbasiccomponents
+  ./org/oasis/ubl/corecomponentparameters
+  ./org/oasis/ubl/corecomponenttypes
+  ./org/oasis/ubl/despatchadvice
+  ./org/oasis/ubl/invoice
+  ./org/oasis/ubl/order
+  ./org/oasis/ubl/ordercancellation
+  ./org/oasis/ubl/orderchange
+  ./org/oasis/ubl/orderresponse
+  ./org/oasis/ubl/orderresponsesimple
+  ./org/oasis/ubl/receiptadvice
+  ./org/oasis/ubl/specializeddatatypes
+  ./org/oasis/ubl/unspecializeddatatypes
+  ./samples/ubl/report
+  ./samples/ubl/report/facade
+</pre>
+<h3>Interpreting the Output</h3>
+<p>If this is the first time you've run the sample, you'll see
+output similar to <a href="output.html" target="window_2">this</a>.
+Here's what's happening in each step.</p>
+<ul>
+<li>UBL Schema gets compiled into Java (<code><a href=
+"output.html#compile" target="window_2">xjc</a></code>)
+<p>The schema are in the <code><a href="../cd-UBL-1.0/xsd" target=
+"window_2">cd-UBL-1.0/xsd</a></code> directory. Ant places the
+output in the <code><a href="../gen-src" target=
+"window_2">gen-src</a></code> directory.</p>
+<p><i>Binding customizations</i> get applied as part of the schema
+compilation. Their main purpose is to package the code more
+logically than if package names were derived from the schema
+namespaces. These customizations are controlled by this <i><a href=
+"xjb.html" target="window_2">external binding file</a></i>.</p>
+</li>
+<li>Java code (generated and application) gets compiled
+(<code><a href="output.html#compile" target=
+"window_2">compile</a></code>)
+<p>Ant places the output in the <code><a href="../classes" target=
+"window_2">classes</a></code> directory.</p>
+</li>
+<li>Run the application (<code><a href="output.html#run" target=
+"window_2">run</a></code>)</li>
+</ul>
+<h3>Creating the Javadoc</h3>
+<p>To create the Javadoc on, e.g., Unix:</p>
+<blockquote><code>$ <font size=
+"-1">$JWSDP_HOME</font>/apache-ant/bin/ant
+javadoc</code></blockquote>
+<p>Ant places the output in <code><a href="api/index.html" target=
+"window_2">docs/api</a></code>.</p>
+<h3>The PrintOrder Application</h3>
+<code>PrintOrder</code> unmarshals a UBL order instance, does some
+simple calculations, and prints a report to the screen.
+<code>PrintOrder</code> is in the <code>samples.ubl.report</code>
+package. It imports classes having the following functions.
+<ul>
+<li>Classes implementing the Facade design pattern:
+<blockquote>
+<pre>
+import samples.ubl.report.facade.OrderFacade;
+import samples.ubl.report.facade.OrderLineTypeFacade;
+import samples.ubl.report.facade.AddressFacade;
+</pre></blockquote>
+</li>
+<li>Classes for file i/o:
+<blockquote>
+<pre>
+import java.io.FileInputStream;
+import java.io.IOException;
+</pre></blockquote>
+</li>
+<li>Class for locale-sensitive number formatting:
+<blockquote>
+<pre>
+import java.text.NumberFormat;
+</pre></blockquote>
+</li>
+<li>Class to handle default collection type:
+<blockquote>
+<pre>
+import java.util.List;
+</pre></blockquote>
+</li>
+<li>Binding framework classes:
+<blockquote>
+<pre>
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
+</pre></blockquote>
+</li>
+<li>UBL Order object:
+<blockquote>
+<pre>
+import org.oasis.ubl.order.Order;
+</pre></blockquote>
+</li>
+</ul>
+<p><code>PrintOrder</code>'s <code>main</code> method:</p>
+<ul>
+<li>Creates an <code>Unmarshaller</code>:
+<blockquote>
+<pre>
+JAXBContext jc =
+    JAXBContext.newInstance("org.oasis.ubl.order:"
+                            + "org.oasis.ubl.commonaggregatetypes");
+Unmarshaller u = jc.createUnmarshaller();
+</pre></blockquote>
+</li>
+<li>Unmarshals an order instance:
+<blockquote>
+<pre>
+Order order =
+    (Order) u.unmarshal(new
+                        FileInputStream("cd-UBL-1.0/xml/office/"
+                                        + "UBL-Order-1.0-Office-Example.xml"));
+</pre></blockquote>
+</li>
+<li>Calls private methods to print various parts of the order:
+<blockquote>
+<pre>
+OrderFacade of = new OrderFacade(order);
+
+printLetterHead(of);
+printDate(of);
+printBuyer(of);
+printLineItems(of);
+</pre></blockquote>
+</li>
+</ul>
+<p>The private methods in <code>PrintOrder</code> use the facade
+objects to print the data as <code>Strings</code>. For example:</p>
+<blockquote>
+<pre>
+private static void printLetterHead(OrderFacade <span style=
+"color:red">order</span>) {
+    AddressFacade <span style=
+"color:red">addr</span> = <span style="color:red">order</span>.getSellerAddress();
+    System.out.println("         "
+                       + <span style=
+"color:red">order</span>.getSellerName()
+                       + "\n         "
+                       + <span style=
+"color:red">addr</span>.getStreet()
+                       + "\n         "
+                       + <span style=
+"color:red">addr</span>.getCity()
+                       + ", "
+                       + <span style=
+"color:red">addr</span>.getState()
+                       + "  "
+                       + <span style=
+"color:red">addr</span>.getZip());
+}
+</pre></blockquote>
+<p>The facade design pattern provides a simpler, higher-level
+interface. Typically, that's done to isolate an application from
+the complexity of the underlying subsystems. Here, our principle
+motivation is to isolate our application from changes to an
+evolving schema. Since we just wanted to print a simple report, our
+facades are read-only.</p>
+<p>A look at <code>printBuyer()</code> in <code>PrintOrder</code>
+shows that getting the name of the buyer contact (a person,
+usually) is just a matter of calling <code>OrderFacade</code>'s
+<code>getBuyerContact()</code> method:</p>
+<blockquote>
+<pre>
+private static void printBuyer(OrderFacade order) {
+    AddressFacade addr = order.getBuyerAddress();
+    System.out.println("\nSold To: "
+                       + order.<span style=
+"color:red">getBuyerContact()</span>
+                       + "\n         c/o "
+                       + order.getBuyerName()
+                       + "\n         "
+                       + addr.getStreet()
+                       + "\n         "
+                       + addr.getCity()
+                       + ", "
+                       + addr.getState()
+                       + "  "
+                       + addr.getZip());
+}
+</pre></blockquote>
+<p><code>getBuyerContact()</code> insulates our application from
+potential changes in the schema.</p>
+<blockquote>
+<pre>
+public String getBuyerContact() {
+    BuyerPartyType party = order.getBuyerParty();
+    return ((Name) party.getParty().getPartyName().getName().get(0)).getValue();
+}
+</pre></blockquote>
+In this snippet, <span style="color:red"><code>order</code></span>
+is a reference to <code>org.oasis.ubl.order.Order</code>, which is
+bound to
+<blockquote>
+<pre>
+&lt;element name="Order" type="{urn:oasis:names:tc:ubl:Order:1:0}OrderType"/&gt;
+</pre></blockquote>
+in <code>UBL-Order-1.0.xsd</code>. If that binding were to change,
+for example, such that <code>order.getBuyerParty()</code> returned,
+let's say, <code>PartyType</code>, we could make this one-line
+change to <code>getBuyerContact()</code> without affecting
+<code>PrintOrder</code>:
+<blockquote>
+<pre>
+PartyType party = order.getBuyerParty();
+</pre></blockquote>
+This pattern characterizes the other methods in
+<code>OrderFacade</code> and the methods in
+<code>OrderLineTypeFacade</code> and <code>AddressFacade</code>.
+<h3>Further Reading</h3>
+<p>For more information about using <a href=
+"http://java.sun.com/xml/jaxb/index.html" target=
+"window_2">JAXB</a>, refer to the <a href=
+"http://java.sun.com/webservices/tutorial.html" target=
+"window_2">Java Web Services Tutorial</a>. For more information
+about UBL, visit OASIS' <a href=
+"http://www.oasis-open.org/committees/tc_home.php?wg_abbrev=ubl"
+target="window_2">Universal Business Language Technical
+Committee</a> site.</p>
+</body>
+</html>

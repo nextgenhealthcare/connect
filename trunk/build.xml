@@ -1,0 +1,206 @@
+<project name="mirth" basedir="." default="compile">
+	<target name="init">
+		<property file="build.properties" />
+
+		<path id="xjc_classpath">
+			<fileset dir="resources/jaxb/lib" includes="*.jar" />
+			<fileset dir="resources/misc" includes="*.jar" />
+			<fileset dir="resources/relaxngDatatype-1.0" includes="*.jar" />
+		</path>
+
+		<path id="makensis_classpath">
+			<fileset dir="resources/nsisant-1.1" includes="*.jar" />
+		</path>
+
+		<path id="classpath">
+			<fileset dir="${lib}" includes="*.jar" />
+			<pathelement location="${mule}" />
+		</path>
+
+		<taskdef name="xjc" classname="com.sun.tools.xjc.XJCTask">
+			<classpath refid="xjc_classpath" />
+		</taskdef>
+
+		<taskdef name="makensis" classname="net.sf.nsisant.Task">
+			<classpath refid="makensis_classpath" />
+		</taskdef>
+		
+		<mkdir dir="${logs}" />
+	</target>
+
+	<target name="clean" depends="init">
+		<delete dir="${classes}" />
+		<delete dir="${webinf.classes}" />
+		<delete dir="${jetty}" />
+		<delete dir="${setup}" />
+		<delete dir="${dist}" />
+	</target>
+
+	<target name="create_types" depends="init">
+		<delete dir="${src}/com/webreach/mirth/managers/types/mirth" />
+		<xjc schema="${schemas}/mirth.xsd" package="com.webreach.mirth.managers.types.mirth" target="${src}" extension="true" binding="${schemas}/binding.xjb">
+			<!-- produces dir="${src}/com/webreach/mirth/managers/types/mirth" includes="**/*.java"/ -->
+		</xjc>
+
+		<delete dir="${src}/com/webreach/mirth/managers/types/mule" />
+		<xjc schema="${schemas}/mule-1.2.xsd" package="com.webreach.mirth.managers.types.mule" target="${src}">
+			<!-- produces dir="${src}/com/webreach/mirth/managers/types/mule" includes="**/*.java"/ -->
+		</xjc>
+
+		<delete dir="${src}/com/webreach/mirth/managers/types/properties" />
+		<xjc schema="${schemas}/properties.xsd" package="com.webreach.mirth.managers.types.properties" target="${src}">
+			<!-- produces dir="${src}/com/webreach/mirth/managers/types/properties" includes="**/*.java"/ -->
+		</xjc>
+	</target>
+
+	<target name="compile" depends="clean, init">
+		<!-- incremement the build number -->
+		<buildnumber file="build.number" />
+
+		<!-- compile the source -->
+		<mkdir dir="${classes}" />
+
+		<javac srcdir="${src}" destdir="${classes}" debug="on">
+			<include name="com/webreach/mirth/**" />
+			<include name="org/mule/providers/**" />
+			<exclude name="com/webreach/mirth/testbench/**" />
+			<exclude name="com/webreach/mirth/configuration/**" />			
+			<exclude name="com/webreach/mirth/components/**" />
+			<classpath refid="classpath" />
+		</javac>
+
+		<!-- copy over the files needed for jaxb -->
+		<copy todir="${classes}">
+			<fileset dir="${src}">
+				<include name="**/*.properties" />
+				<include name="**/bgm.ser" />
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="create_jetty" depends="compile">
+		<mkdir dir="${webinf.classes}" />
+		<mkdir dir="${jetty}" />
+		<mkdir dir="${jetty.logs}" />
+		<mkdir dir="${jetty.webinf}" />
+		<mkdir dir="${jetty.jsp}" />
+		<mkdir dir="${jetty.assets}" />
+
+		<copy todir="${webinf.classes}">
+			<fileset dir="${classes}/com/webreach/mirth/ui" />
+		</copy>
+
+		<copy todir="${jetty.webinf}">
+			<fileset dir="${webinf}" />
+		</copy>
+
+		<copy todir="${jetty.jsp}">
+			<fileset dir="${jsp}" />
+		</copy>
+
+		<!-- create the applets jar -->
+		<jar basedir="${classes}" destfile="${assets.applets}/applets.jar" includes="com/webreach/mirth/applets/" />
+
+		<copy todir="${jetty.assets}">
+			<fileset dir="${assets}" />
+		</copy>
+
+		<copy file="${web}/error.jsp" todir="${jetty.root}" />
+		<copy file="${web}/index.jsp" todir="${jetty.root}" />
+	</target>
+
+	<target name="create_setup" depends="create_jetty">
+		<echo>version: ${build.version}</echo>
+		
+		<!-- create the setup directory -->
+		<mkdir dir="${setup}" />
+		<mkdir dir="${setup.configuration}" />
+		<mkdir dir="${setup.lib}" />
+		<mkdir dir="${setup.jetty}" />
+		<mkdir dir="${setup.source}" />
+		<mkdir dir="${setup.logs}" />
+
+		<!-- copy source files -->
+		<copy todir="${setup.source}">
+			<fileset dir="${src}" />
+		</copy>
+
+		<!-- copy configuration files -->
+		<copy todir="${setup.configuration}">
+			<fileset file="${configuration}/log4j.properties" />
+			<fileset file="${configuration}/mirth-properties.xml" />
+			<fileset file="${configuration}/mule-boot.xml" />
+			<!-- fileset file="${configuration}/key.dat" /-->
+		</copy>
+
+		<!-- copy build files -->
+		<copy todir="${setup}">
+			<fileset file="${basedir}/build.properties" />
+			<fileset file="${basedir}/build.number" />
+			<fileset file="${basedir}/build.xml" />
+		</copy>
+
+		<!-- create the Mirth jar file (excludes testing code and applets) -->
+		<jar destfile="${setup}/${mirth}.jar" basedir="${classes}" manifest="${deploy}/Manifest.txt" excludes="com/webreach/mirth/wrhs/ com/webreach/mirth/applets/" />
+
+		<!-- create the Mule jar file -->
+		<jar destfile="${setup}/${mule}.jar" basedir="${mule}" />
+
+		<!-- copy lib -->
+		<copy todir="${setup.lib}">
+			<fileset dir="${lib}" />
+		</copy>
+
+		<!-- copy jetty -->
+		<copy todir="${setup.jetty}">
+			<fileset dir="${jetty}" />
+		</copy>
+
+		<!-- remove svn folders -->
+		<delete>
+			<fileset dir="${setup}" includes="**/.svn" />
+		</delete>
+
+		<!-- create the database directory -->
+		<copy file="${deploy}/database.sql" todir="${setup}" />
+
+		<java classname="com.webreach.mirth.deploy.CreateDatabaseTables">
+			<classpath>
+				<pathelement location="${setup}/${mirth}.jar" />
+				<pathelement location="${setup}/${mule}.jar" />
+				<pathelement location="${setup.configuration}" />
+				<fileset dir="${setup.lib}">
+					<include name="**/*.jar" />
+				</fileset>
+			</classpath>
+
+			<arg value="mirth" />
+			<arg value="deploy/database.sql" />
+		</java>
+
+		<!-- copy the batch scripts -->
+		<copy file="${deploy}/Mirth.bat" todir="${setup}" />
+		<copy file="${deploy}/Mirth.sh" todir="${setup}" />
+
+		<!-- copy the EULA document -->
+		<copy file="${deploy}/LICENSE.txt" todir="${setup}" />
+		<copy file="${deploy}/ACKNOWLEDGEMENTS.txt" todir="${setup}" />
+
+		<!-- zip the source code -->
+		<zip basedir="${setup.source}" destfile="${setup}/${mirth}-src.zip" />
+		
+		<!-- remove the source code -->
+		<delete dir="${setup.source}"/>
+	</target>
+
+	<target name="create_dist" depends="create_setup">
+		<!-- create the dist directory -->
+		<mkdir dir="${dist}" />
+
+		<!-- create the distribution zip -->
+		<zip basedir="${setup}" destfile="${dist}/${mirth}.zip" />
+
+		<!-- create the installer -->
+		<!-- makensis script="${setup.script}" verbosity="4" noconfig="yes" nocd="no" /-->
+	</target>
+</project>

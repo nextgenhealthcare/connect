@@ -1,0 +1,700 @@
+<HTML>
+  
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+<TITLE>
+        JAXB RI 1.0.5 -- Changelog
+    </TITLE>
+    
+<META content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+    
+<LINK href="style/default.css" rel="stylesheet" type="text/css">
+  
+</HEAD>
+  
+  
+<BODY>
+    
+<CENTER>
+    
+<H1>Java<SUP><FONT size="-2">TM</FONT></SUP> Architecture for XML Binding<BR>
+      CHANGELOG
+    </H1>
+      
+<B>Specification Version:</B> 1.0<BR>
+      
+<B>Reference Implementation (RI) Version:</B> 1.0.5<BR>
+      <!--
+ Copyright 2004 Sun Microsystems, Inc. All rights reserved.
+ SUN PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+-->
+<hr width="50%">
+  Main: <a href="ReleaseNotes.html">Release Notes</a> | <a href="xjc.html">XJC</a> | <a href="ant.html">Ant task</a> | <a href="samples.html">Sample Apps</a> | <a href="changelog.html">Changelog</a>
+<br>
+  JAXB RI Extensions: <a href="vendorProperties.html">Runtime Properties</a> | <a href="vendorCustomizations.html">XJC Customizations</a>
+<br>
+  JAXB RI Schema Languages: <a href="vendorSchemaLangs.html#xschema">W3C XML Schema</a> | <a href="relaxng.html">RELAX NG</a> | <a href="vendorSchemaLangs.html#dtd">DTD</a>
+<br>
+  JAXB Community: <a href="http://jaxb.dev.java.net">Java.net Homepage</a> | <a href="https://jaxb.dev.java.net/servlets/ProjectMailingListList">Developer interest list</a> | <a href="https://jaxb.dev.java.net/faq/index.html">FAQ</a>
+<br>
+
+<hr width="50%">
+    
+</CENTER>
+
+    
+<A name="diffs-to-1.0.5"></A>
+    
+<H2>Changes between 1.0.4 FCS and 1.0.5 FCS </H2>
+      
+<P>The following list summarizes significant changes made to the JAXB Reference Implementation
+         since the JAXB version 1.0.4 FCS release.
+      </P>
+
+      
+<UL>
+        
+<LI>Bug Fixes
+          <UL>
+            
+<LI>IssueTracker:
+              <UL>
+                
+<LI>
+<A href="https://jaxb.dev.java.net/issues/show_bug.cgi?id=36">36 - com.sun.xml.bind.util.ListImpl does not implement equals method correctly</A>
+</LI>
+                
+<LI>
+<A href="https://jaxb.dev.java.net/issues/show_bug.cgi?id=44">44 - Defect in DTD binding information file (bindingfile.nrg)</A>
+</LI>
+                
+<LI>
+<A href="https://jaxb.dev.java.net/issues/show_bug.cgi?id=50">50 - Generated time in the header of java files created by xjc does not indicate afternoon times</A>
+</LI>
+              
+</UL>
+            
+</LI>
+            
+<LI>fixed bug 6209582: The method _$$init$$1() of ObjectFactory is too big for VM ( &gt; 65535bytes)</LI>
+            
+<LI>fixed bug 6261158: XJC displays @@BUILD_VERSION@@ instead of version string</LI>
+            
+<LI>fixed a <A href="https://jaxb.dev.java.net/servlets/ReadMsg?list=users&msgNo=3818">comparison problem</A> reported by Aleksei</LI>
+            
+<LI>added code to handle broken DOM's and SAX parser implementations more gracefully</LI>
+            
+<LI>fixed an NPE in the XJC Ant task</LI>
+            
+<LI>implemented Anand Vallamshettla's suggestion of doing the state transition before processing the value for more graceful error recovery</LI>
+            
+<LI>modified the xjc shell scripts to set the java.endorsed.dirs so that it runs on JRE 1.4.
+          </LI>
+</UL>
+        
+</LI>
+      
+</UL>
+
+    
+<A name="diffs-to-1.0.4"></A>
+    
+<H2>Changes between 1.0.3 FCS and 1.0.4 FCS </H2>
+      
+<P>The following list summarizes significant changes made to the JAXB Reference Implementation
+         since the JAXB version 1.0.3 FCS release.
+      </P>
+
+      
+<UL>
+        
+<LI>Bug Fixes
+          <UL>
+            
+<LI>IssueTracker:
+              <UL>
+                
+<LI>
+<A href="https://jaxb.dev.java.net/issues/show_bug.cgi?id=15">15 - can't parse W3 SOAP 2003-05 envelope XML schema: "xml:lang"</A>
+</LI>
+                
+<LI>
+<A href="https://jaxb.dev.java.net/issues/show_bug.cgi?id=18">18 - Performance Improvement in NamespaceContextImpl.java</A>
+</LI>
+                
+<LI>
+<A href="https://jaxb.dev.java.net/issues/show_bug.cgi?id=19">19 - Performance Improvement in NamespaceContextImpl.java</A>
+</LI>
+                
+<LI>
+<A href="https://jaxb.dev.java.net/issues/show_bug.cgi?id=24">24 - XJC doesn't work with directories with spaces in them</A>
+</LI>
+                
+<LI>
+<A href="https://jaxb.dev.java.net/issues/show_bug.cgi?id=28">28 - ValidatorImpl does not initialize DatatypeConverter</A>
+</LI>
+              
+</UL>
+            
+</LI>
+            
+<LI>fixed an NPE that affected Acord and UBL 1.0 schemas</LI>
+            
+<LI>found and fixed a StackOverflowError in XJC</LI>
+            
+<LI>xjc handles non-existant ouput directories more gracefully</LI>
+            
+<LI>found and removed some dependencies on jdk1.4</LI>
+            
+<LI>fixed a bug in the entity resolver handling</LI>
+          
+</UL>
+        
+</LI>
+
+        
+<LI>Other
+          <UL>
+            
+<LI>updated UBL sample app to UBL 1.0 schema (Visit the <A href="https://jwsdp.dev.java.net/ubl/index.html">UBL interest</A> page for more information).</LI>
+          
+</UL>
+        
+</LI>
+      
+</UL>
+
+    
+<A name="diffs-to-1.0.3"></A>
+    
+<H2>Changes between 1.0.2 FCS and 1.0.3 FCS </H2>
+      
+<P>The following list summarizes significant changes made to the JAXB Reference Implementation 
+         since the JAXB version 1.0.2 FCS release.
+      </P>
+      
+      
+<UL>
+        
+<LI>Bug Fixes
+          <UL>
+              
+<LI>Improved command line error handling</LI>
+              
+<LI>Fixed bug where JAXB crashed when using JAXBResult</LI>
+              
+<LI>Improved line number reporting for DTD compilation messages</LI>
+              
+<LI>Improved naming collision error messages</LI>
+              
+<LI>Improved DTD wildcard handling</LI>
+              
+<LI>Improved error reporting when &lt;javaType&gt; contains an
+                  undefined simple type</LI>
+              
+<LI>Fixed a couple of bugs related to XJC error handling with
+                  external binding files</LI>
+              
+<LI>Fixed a bug that was causing an exception when Unmarshalling 
+                  an element with int list as value</LI>
+              
+<LI>Fixed a bug related to the compilation of multiple schemas
+                  that import a common base schema</LI>
+        
+</UL>
+      
+</LI>  
+      
+      
+<LI>Performance Enhancements
+        <UL>
+            
+<LI>Fixed a memory leak in XSOM</LI>
+            
+<LI>Modified XJC to use less call stack to avoid StackOverflowErrors</LI>
+            
+<LI>Generated ObjectFactory classes now specify an initialCapaicty
+                on their defaultImpl HashMaps.  This should obviate the need to
+                rehash at runtime for very large schemas.</LI>
+            
+<LI>Improved memory usage in XJC</LI>
+            
+<LI>Force string interning during unmarshalling to improve runtime
+                performance</LI>
+            
+<LI>Reuse AttributesImpl object rather than reallocate</LI>
+            
+<LI>Lazily instantiate ListImpl classes in the generated code to 
+                save on memory usage</LI>
+        
+</UL>
+      
+</LI>
+
+      
+<LI>Other
+        <UL>
+            
+<LI>Added a new JAXB RI vendor customization that allows for
+                <A href="vendorCustomizations.html#lwruntime">partial-code 
+                generation</A> (reduced functionality bindings)</LI>
+            
+<LI>Began posting weekly 
+                <A href="https://jaxb.dev.java.net/binaryDrops.html">binary</A> 
+                and 
+                <A href="https://jaxb.dev.java.net/sourceDrops.html">source</A> 
+                bundles to java.net</LI>
+            
+<LI>Added a -quiet option on the XJC command line to supress verbose
+                output</LI>
+        
+</UL>
+      
+</LI>
+    
+</UL>
+
+    
+<A name="diffs-to-1.0.2"></A>
+    
+<H2>Changes between 1.0.1 FCS and 1.0.2 FCS </H2>
+      
+<P>The following list summarizes significant changes made to the JAXB Reference Implementation 
+         since the JAXB version 1.0.1 FCS release.
+      </P>
+    
+      
+<UL>
+        
+<LI>Additional schema support (available only in "extension mode")
+          <UL>
+            
+<LI>JAXB now supports <TT>xsi:type</TT> (XSD <A href="vendorSchemaLangs.html#typesub">type substitution</A>).</LI>
+            
+<LI>JAXB now supports <TT><A href="vendorSchemaLangs.html#block">block</A>, <A href="vendorSchemaLangs.html#block">abstract</A>, <A href="vendorSchemaLangs.html#block">final</A>, <A href="vendorSchemaLangs.html#block">blockDefault</A>, and 
+                <A href="vendorSchemaLangs.html#block">finalDefault</A></TT> attributes for the <TT>&lt;complexType&gt;, &lt;element&gt;, 
+                and &lt;schema&gt;</TT> elements.</LI>
+          
+</UL>
+        
+</LI>
+        
+        
+<LI>Enhancements
+          <UL>
+            
+<LI>
+<TT>XJCTask</TT> no longer fails if the directory specified by
+                an enclosed <TT>&lt;produces&gt;</TT> doesn't exist.</LI>
+            
+<LI>Marshaller error messages have been revised to be more informative.</LI>
+            
+<LI>The marshaller now supports marshalling of <TT>QName</TT>s.</LI>
+            
+<LI>
+<TT><A href="vendorCustomizations.html#superclass">xjc:superClass</A></TT> now supported for DTD.</LI>
+            
+<LI>
+<TT>javaType</TT> customization now supported for RELAX NG.</LI>
+            
+<LI>A new vendor extension suppresses <TT>&lt;?xml?&gt;.</TT>
+</LI>
+            
+<LI>A new vendor extension allows you to set <TT>&lt;!DOCTYPE&gt;</TT>
+</LI>
+            
+<LI>
+<TT>NamespacePrefixMapper</TT> now allows namespaces to be
+                declared within greater scope.</LI>
+            
+<LI>
+<TT>xjc</TT> is now more tolerant of different XML parser
+                implementations.</LI>
+            
+<LI>Ad hoc performance enhancements</LI>
+            
+<LI>&lt;xs:documentation&gt;s are now also picked up for javadoc comments 
+                for classes</LI>
+          
+</UL>
+        
+</LI>
+          
+        
+<LI>Bug fixes 
+          <UL>
+            
+<LI>
+<TT>xjc</TT> now rejects a <TT>javaType</TT> customization not
+                 enclosed by a <TT>property</TT> tag.</LI>
+            
+<LI>
+<TT>xjc</TT> now emits a warning when compiling a schema with
+                no global element declaration.</LI>
+            
+<LI>The <TT>propagateEvent</TT> method in <TT>ErrorHandlerAdaptor</TT> 
+                now passes the right boolean to <TT>handleEvent</TT>.</LI>
+            
+<LI>A condition where a schema wouldn't validate even after being
+                revised to be valid has been fixed.</LI>
+            
+<LI>
+<TT>xjc</TT> now handles highly cyclic complex types
+                better.</LI>
+            
+<LI>
+<TT>xjc</TT> now provides an application specific error in a
+                case where it had been throwing an <TT>InternalError</TT>.</LI>
+            
+<LI>
+<TT>JAXBException.printStackTrace(PrintWriter)</TT> now works.</LI>
+            
+<LI>
+<TT>xjc</TT> now generates javadoc for <TT>xsd:attribute@use</TT> 
+                and <TT>xsd:attribute@default</TT>.</LI>
+            
+<LI>
+<TT>xjc</TT> now honors vendor extensions in an external
+                binding file.</LI>
+            
+<LI>
+<TT>xjc</TT> now processes <TT>javadoc</TT> customizations
+                within a <TT>property</TT>.</LI>
+            
+<LI>A condition where <TT>xjc</TT> wasn't resolving a reference to
+                a type in an included fragment has been fixed.</LI>
+            
+<LI>A condition where the runtime would marshal an attribute with
+                an empty namespace prefix has been fixed.</LI>
+            
+<LI>A condition where the runtime wouldn't validate an instance
+                with a derived attribute has been fixed.</LI>
+            
+<LI>JAXB now handles the time zone offset properly.</LI>
+            
+<LI>Validation no longer fails when an <TT>xsd:choice</TT> has
+                attributes defined by an <TT>xsd:element</TT> type.</LI>
+          
+</UL>
+        
+</LI>
+      
+</UL>
+    
+    
+<A name="diffs-to-1.0.1"></A>
+    
+<H2>Changes between 1.0 FCS and 1.0.1 FCS </H2>
+      
+<P>The following list summarizes significant changes made to the JAXB Reference Implementation 
+         since the JAXB version 1.0 FCS release.
+      </P>
+    
+      
+<OL>
+        
+<LI>JAR file changes &amp; additions:
+          <BLOCKQUOTE>
+          
+<TABLE border="1" width="75%">
+            
+<TR>
+              
+<TD><TT>$JWSDP_HOME/jaxb/libs/jaxb-ri.jar</TT></TD>
+              <TD>Renamed <TT>$JWSDP_HOME/jaxb/libs/jaxb-impl.jar</TT></TD>
+            
+</TR>
+            
+<TR>
+              
+<TD><TT>$JWSDP_HOME/jwsdp-shared/lib/relaxngDatatype.jar</TT></TD>
+              <TD>New JAR file<SUP><FONT size="-2">*</FONT></SUP></TD>
+            
+</TR>
+            
+<TR>
+              
+<TD><TT>$JWSDP_HOME/jwsdp-shared/lib/xsdlib.jar</TT></TD>
+              <TD>New JAR file<SUP><FONT size="-2">*</FONT></SUP></TD>
+            
+</TR>
+            
+<TR>
+              
+<TD colspan="2">
+                <SUP><FONT size="-2">*</FONT></SUP> The contents of the <TT>relaxngDatatype.jar</TT> and
+                <TT>xsdlib.jar</TT> files used to be contained within the <TT>$JWSDP_HOME/jaxb/libs/jaxb-libs.jar</TT> file, 
+                but were broken out so they could be shared with other Java WSDP component 
+                technologies.
+              </TD>
+            
+</TR>
+          
+</TABLE>
+          
+</BLOCKQUOTE>
+        
+</LI>
+        
+<LI>There are several new compiler switches.  Please read about them in the
+            <A href="xjc.html#switches">xjc notes</A>.</LI>
+        
+<LI>Many of the JAXB runtime classes that used to be contained in the 
+            <TT>jaxb-ri.jar</TT> file are now generated by the binding compiler 
+            as part of the client package.  You can find these classes under 
+            one of the generated packages.  In the following example, the new 
+            generated runtime classes are contained in 
+            <TT>primer.po.impl.runtime</TT>:
+            <PRE>
+     parsing a schema...
+     compiling a schema...
+     primer\po\impl\CommentImpl.java
+     primer\po\impl\ItemsImpl.java
+     primer\po\impl\JAXBVersion.java
+     primer\po\impl\PurchaseOrderImpl.java
+     primer\po\impl\PurchaseOrderTypeImpl.java
+     primer\po\impl\USAddressImpl.java
+     <FONT color="red">primer\po\impl\runtime\Discarder.java
+     primer\po\impl\runtime\AbstractUnmarshallingEventHandlerImpl.java
+     primer\po\impl\runtime\XMLSerializable.java
+     primer\po\impl\runtime\AbstractGrammarInfoImpl.java
+     primer\po\impl\runtime\MarshallerImpl.java
+     primer\po\impl\runtime\ContentHandlerAdaptor.java
+     primer\po\impl\runtime\ValidatableObject.java
+     primer\po\impl\runtime\DefaultJAXBContextImpl.java
+     primer\po\impl\runtime\ErrorHandlerAdaptor.java
+     primer\po\impl\runtime\ValidatingUnmarshaller.java
+     primer\po\impl\runtime\GrammarInfoFacade.java
+     primer\po\impl\runtime\XMLSerializer.java
+     primer\po\impl\runtime\ValidationContext.java
+     primer\po\impl\runtime\Util.java
+     primer\po\impl\runtime\UnmarshallingEventHandler.java
+     primer\po\impl\runtime\UnmarshallingContext.java
+     primer\po\impl\runtime\UnmarshallableObject.java
+     primer\po\impl\runtime\NamespaceContext2.java
+     primer\po\impl\runtime\NamespaceContextImpl.java
+     primer\po\impl\runtime\MSVValidator.java
+     primer\po\impl\runtime\ValidatorImpl.java
+     primer\po\impl\runtime\UnmarshallingEventHandlerAdaptor.java
+     primer\po\impl\runtime\SAXMarshaller.java
+     primer\po\impl\runtime\UnmarshallerImpl.java
+     primer\po\impl\runtime\SAXUnmarshallerHandlerImpl.java
+     primer\po\impl\runtime\GrammarInfo.java
+     primer\po\impl\runtime\PrefixCallback.java
+     primer\po\impl\runtime\SAXUnmarshallerHandler.java</FONT>
+     primer\po\Comment.java
+     primer\po\Items.java
+     primer\po\ObjectFactory.java
+     primer\po\PurchaseOrder.java
+     primer\po\PurchaseOrderType.java
+     primer\po\USAddress.java
+     primer\po\bgm.ser
+     primer\po\jaxb.properties
+            </PRE>
+            
+<P>
+              If you are compiling multiple schemas and would like to share the generated
+              runtime classes across all of the packages, use the "<TT>-use-runtime</TT>" <A href="xjc.html#switches">compiler switch</A>.</P>
+        
+</LI>
+        
+<LI>The JAXB RI has added vendor-specific properties that allow you to control the
+            behavior of some of the runtime classes.  See the <A href="vendor.html#properties">
+            JAXB Vendor Extension</A> documentation for additional information.</LI>
+        
+<LI>Additional features supported (<A href="vendorSchemaLangs.html#subgroup">element substitution</A>, <A href="vendorCustomizations.html#dom">DOM customization</A>, 
+            enhanced pretty printing, better I18N support).</LI>
+        
+<LI>The <TT>$JWSDP_HOME/jaxb/examples</TT> directory was renamed 
+            <TT>$JWSDP_HOME/jaxb/samples</TT> to follow the same directory 
+            naming conventions as the other Java WSDP component technologies.  
+            Also, all of the <TT>SampleApp<EM>#</EM></TT> directories were 
+            give more descriptive names - see the <A href="samples.html#samples">Sample Apps page</A>
+            for more information.</LI>
+        
+<LI>Improved <A href="ant.html">XJC Ant Task</A> support.</LI>
+        
+<LI>
+<TT>javax.xml.namespace.QName</TT> has been updated.  See the 
+            <A href="../../docs/api/javax/xml/namespace/QName.html">QName javadocs</A>
+</LI>
+      
+</OL>
+      
+      
+    
+<A name="diffs-to-1.0"></A>
+    
+<H2>Changes between 1.0 Beta and 1.0 FCS</H2>
+      
+<P>The following list summarizes significant changes made to the JAXB Reference Implementation 
+         since the beta release.
+      </P>
+    
+      
+<OL>
+        
+<LI>
+           
+<P>Factory methods in schema-derived <TT>ObjectFactory</TT> classes were static
+           in Beta and are now instance methods in JAXB v1.0.
+
+           </P>
+<P>Class <TT>ObjectFactory</TT> is specified in section 4.2 of JAXB v1.0 specification.
+           The rationale for this change was to enable associating implementation
+           specific property/value pairs with object creation.
+
+           </P>
+<P>Illustration of change:
+           
+        </P>
+<P>Object Factory Creation fragment in Beta:
+   
+    <PRE>
+    Comment comment = ObjectFactory.createComment("foo");
+    </PRE>
+
+           
+</P>
+<P>Object Factory Creation in FCS:
+   
+    <PRE>
+    ObjectFactory of = new ObjectFactory();
+    Comment comment = of.createComment("foo");
+    </PRE>
+        
+</P>
+</LI>
+        
+        
+<LI>
+        
+<P>A JAXB property representing an XML Schema element reference
+           was not bound to Java accessor methods as specified. The basetype of 
+           the JAXB property was the referenced element's Java element 
+           interface in the Beta release, when it should have been the Java type 
+           representing the XML element's datatype. The rationale for this 
+           change is that the Java method signatures should not be 
+           impacted by whether XML element content is represented as a 
+           local element declaration or an element reference.
+     
+        </P>
+<P>This change manifests itself as a compilation error when a JAXB property
+        should be passing in an instance of a builtin Java datatype,
+        the XML element's type, rather than its element instance. All global
+        element's with XML complex types are not impacted by this change,
+        only references to global elements where the XML global element's type
+        is an XML Schema builtin datatype that is bound to a Java builtin type
+        require any change. 
+
+        </P>
+<P>Illustration of change:
+
+        </P>
+<P>For example, given schema fragments:
+<PRE>
+   &lt;xs:complexType name="AComplexType"/&gt;
+   &lt;xs:element name="GlobalElement" type="AComplexType"/&gt;
+   &lt;xs:element name="Comment" type="xs:string"/&gt;
+   &lt;xs:complexType name="refCommentExample"&gt;
+      &lt;xs:sequence&gt;
+         &lt;xs:element ref="Comment"/&gt;
+         &lt;xs:element ref="GlobalElement"/&gt;
+      &lt;/xs:sequence&gt;
+    &lt;/xs:complexType&gt;
+</PRE>
+
+        
+</P>
+<P>Beta generated accessors for JAXB properties, 
+        <TT>Comment</TT> and <TT>GlobalElement</TT>,
+        with the base type corresponding to the Java element interface, not
+        the Java datatype for the XML element's type.
+
+        </P>
+<P>The following methods were generated with the Beta version:
+        
+<PRE>
+interface AClass {
+  Comment getComment();
+  void setComment(Comment value);
+  GlobalElement getGlobalElement();
+  void setGlobalElement(GlobalElement value);
+}
+</PRE>
+
+        
+</P>
+<P>The following methods were generated with the FCS version:
+
+<PRE>        
+interface AClass {
+  String getComment();
+  void setComment(String value);
+  AComplexType getGlobalElement();
+  // Parameter "value" can be an instance of an XML element's type Or
+  // an instance of an XML element's interface.
+  // Thus, one can pass an instanceof GlobalElement interface OR an
+  // instance of AComplexType to setGlobalElement.
+  void setGlobalElement(AComplexType value);
+}
+</PRE>
+        
+</P>
+</LI>
+
+        
+<LI>        
+          The Customization: javaType <TT>printMethod</TT> and 
+          <TT>parseMethod</TT> attributes are
+          required to be specified more frequently in the FCS release
+          than they had to be in the Beta release. This specification
+          change was the result of not being able to properly
+          handle all the defaulting cases in the Beta release.
+          See Section 6.9 "&lt;javaType&gt; Declaration" in JAXB v1.0 Specification
+          for more details.
+        </LI>
+
+        
+<LI>
+        Additional APIs:
+            <UL>
+                
+<LI>
+<TT>getProperty()</TT> / <TT>setProperty()</TT> added to 
+                    <TT>javax.xml.bind.Unmarshaller</TT>
+</LI>
+                
+<LI>
+<TT>getProperty()</TT> / <TT>setProperty()</TT> added to 
+                    <TT>javax.xml.bind.Validator</TT>
+</LI>
+                
+<LI>
+<TT>getProperty()</TT> / <TT>setProperty()</TT> added to 
+                    all of the generated <TT>ObjectFactory</TT> classes</LI>
+                
+<LI>
+<TT>getNode()</TT> added to <TT>javax.xml.bind.Marshaller</TT>
+</LI>
+            
+</UL>
+        
+</LI>        
+      
+</OL>
+
+
+    
+<HR>
+    
+<FONT size="-1">
+      $Revision: 1.3 $<BR>
+      $Date: 2005/05/19 18:29:15 $
+    </FONT>
+  
+
+
+</BODY>
+</HTML>

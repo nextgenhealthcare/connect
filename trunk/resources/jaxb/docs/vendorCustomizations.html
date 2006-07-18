@@ -1,0 +1,488 @@
+<HTML>
+  
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+<TITLE>
+        JAXB RI 1.0.5 -- Vendor Customizations
+    </TITLE>
+    
+<META content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+    
+<LINK href="style/default.css" rel="stylesheet" type="text/css">
+  
+</HEAD>
+  
+<BODY>
+    
+<CENTER>
+    
+<H1>Java<SUP><FONT size="-2">TM</FONT></SUP> Architecture for XML Binding<BR>
+      JAXB RI Vendor Extensions<BR>
+      Customizations
+    </H1>
+      
+<B>Specification Version:</B> 1.0<BR>
+      
+<B>Reference Implementation (RI) Version:</B> 1.0.5<BR>
+      <!--
+ Copyright 2004 Sun Microsystems, Inc. All rights reserved.
+ SUN PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+-->
+<hr width="50%">
+  Main: <a href="ReleaseNotes.html">Release Notes</a> | <a href="xjc.html">XJC</a> | <a href="ant.html">Ant task</a> | <a href="samples.html">Sample Apps</a> | <a href="changelog.html">Changelog</a>
+<br>
+  JAXB RI Extensions: <a href="vendorProperties.html">Runtime Properties</a> | <a href="vendorCustomizations.html">XJC Customizations</a>
+<br>
+  JAXB RI Schema Languages: <a href="vendorSchemaLangs.html#xschema">W3C XML Schema</a> | <a href="relaxng.html">RELAX NG</a> | <a href="vendorSchemaLangs.html#dtd">DTD</a>
+<br>
+  JAXB Community: <a href="http://jaxb.dev.java.net">Java.net Homepage</a> | <a href="https://jaxb.dev.java.net/servlets/ProjectMailingListList">Developer interest list</a> | <a href="https://jaxb.dev.java.net/faq/index.html">FAQ</a>
+<br>
+
+<hr width="50%">
+    
+</CENTER>
+
+	
+<H2>Customizations</H2>
+	
+	
+<P>
+	The JAXB RI provides additional customizations that are not defined
+	by the JAXB specification.  Note the following: </P>
+	
+	
+<UL>
+		
+<LI>These features may only be used when the JAXB XJC binding compiler 
+		    is run in the <TT>"-extension"</TT> mode.</LI>
+		
+<LI>All of the JAXB RI vendor extensions are defined in the 
+		    <TT>"http://java.sun.com/xml/ns/jaxb/xjc"</TT> namespace.</LI>
+		
+<LI>The namespaces containing extension binding declarations are specified 
+			to a JAXB processor by the occurrence of the global attribute 
+			<TT>@jaxb:extensionBindingPrefixes</TT> within an instance of 
+			<TT>&lt;xs:schema&gt;</TT> element. The value of this attribute is a 
+			whitespace-separated list of namespace prefixes.  For more information, 
+			please refer to section 6.1.1 of the JAXB Specification.</LI>
+	
+</UL>
+		
+	
+<H3>Index of Customizations</H3>
+	
+<UL>
+	  
+<LI>
+<A href="#serializable">&lt;xjc:serializable&gt;</A> - Generating Serializable Classes</LI>
+	  
+<LI>
+<A href="#superclass">&lt;xjc:superClass&gt;</A> - Extending a Common Super Class</LI>
+	  
+<LI>
+<A href="#dom">&lt;xjc:dom&gt;</A> - Mapping to DOM</LI>
+	  
+<LI>
+<A href="#typesub">&lt;xjc:typeSubstitution&gt;</A> - Enabling Type Substitution</LI>
+	  
+<LI>
+<A href="#lwruntime">
+	    &lt;xjc:noMarshaller&gt;
+	    &lt;xjc:noUnmarshaller&gt;
+	    &lt;xjc:noValidator&gt;
+	    &lt;xjc:noValidatingUnmarshaller&gt;
+	  </A> - Generating light-weight runtime&nbsp;&nbsp;</LI>
+	  <!--li><a href=""></a></li-->
+	
+</UL>
+	
+	
+<A name="serializable"></A>
+	
+<H3>Generating Serializable Classes</H3>
+	
+<P>Please Note: Given the experimental nature of serialization in this implementation's 
+	release, the serialization capability produced by JAXB RI v1.0 is not guaranteed to 
+	be serializable compatible with future releases. Subsequent versions of the JAXB
+	specification hope to identify a portable binding framework runtime environment 
+	that would make it impossible to guarantee serialization capabilities with future 
+	releases.</P>
+	
+<P>Placing an <TT>&lt;xjc:serializable&gt;</TT> customization within your
+	<TT>&lt;jaxb:globalBindings&gt;</TT> will cause the XJC binding compiler to generate classes that 
+	implement <TT>java.io.Serializable</TT>.  This customization will not affect 
+	the generated interfaces, only the implementation classes contained in the 
+	impl subpackages.  The following example illustrates how to place the 
+	<TT>&lt;xjc:serializable&gt; </TT> customization within the 
+	<TT>&lt;jaxb:globalBindings&gt;</TT> customization on the 
+	<TT>&lt;xs:schema&gt;</TT> element:</P>
+	
+	
+<BLOCKQUOTE>
+		
+<PRE>
+&lt;xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+           <FONT color="red">xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
+           jaxb:extensionBindingPrefixes="xjc"</FONT>
+           jaxb:version="1.0"&gt;
+         
+    &lt;xs:annotation&gt;
+       &lt;xs:appinfo&gt;
+          &lt;jaxb:globalBindings generateIsSetMethod="true"&gt;
+              <FONT color="red">&lt;xjc:serializable uid="12343"/&gt;</FONT>
+          &lt;/jaxb:globalBindings&gt;
+       &lt;/xs:appinfo&gt;
+    &lt;/xs:annotation&gt;
+.
+.
+.
+&lt;/xs:schema&gt;
+		</PRE>
+	
+</BLOCKQUOTE>
+	
+	
+<P>In the sample above, you can see the use of the optional <TT>@uid</TT> 
+	attribute which allows you to specify the 
+	<A href="http://java.sun.com/j2se/1.4.1/docs/guide/serialization/spec/class.doc6.html#4100">
+	serial version uid</A> that is placed in each class.  At this time, it is not possible to generate different uids
+	in each class - you may only specify a single uid that is placed in all of the
+	generated classes.  For more information about using serial version uids, please
+	read the <A href="http://java.sun.com/j2se/1.4.1/docs/guide/serialization/spec/version.doc.html">
+	Versioning of Serializable Objects</A> section of the serialization documentation.</P>
+
+	
+<P>Please refer to the <TT>examples/vendor-extensions</TT> sample app for an example of
+	how to use this feature.</P>
+	
+	
+<A name="superclass"></A>
+	
+<H3>Extending a Common Super Class</H3>
+	
+<P>It is also possible to specify a common superclass that all 
+	generated implementation classes will extend.  Again, this customization has no effect
+    on the generated interfaces, only the implementation classes contained in the
+    implementation subpackages.</P>
+	
+	
+<P>The <TT>&lt;xjc:superClass&gt;</TT> customization allows you to specify the
+	fully qualified name of the Java class that is to be used as the superclass.
+	Like the <TT>&lt;xjc:serializable&gt;</TT> customization, the  
+	<TT>&lt;xjc:superClass&gt;</TT> customization can only occur within your
+	<TT>&lt;jaxb:globalBindings&gt;</TT> customization on the <TT>&lt;xs:schema&gt;</TT> 
+	element and will only be allowed when xjc is run with the "<TT>-extension</TT>"
+	switch:</P>
+
+	
+<BLOCKQUOTE>
+		
+<PRE>
+&lt;xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+           <FONT color="red">xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
+           jaxb:extensionBindingPrefixes="xjc"</FONT>
+           jaxb:version="1.0"&gt;
+
+    &lt;xs:annotation&gt;
+       &lt;xs:appinfo&gt;
+          &lt;jaxb:globalBindings generateIsSetMethod="true"&gt;
+           <FONT color="red">&lt;xjc:superClass name="org.acme.RocketBooster"/&gt;</FONT>
+          &lt;/jaxb:globalBindings&gt;
+       &lt;/xs:appinfo&gt;
+    &lt;/xs:annotation&gt;
+.
+.
+.
+&lt;/xs:schema&gt;
+		</PRE>
+	
+</BLOCKQUOTE>
+
+	
+<P>In the sample above, the <TT>&lt;xjc:superClass&gt;</TT> customization will
+	cause all of the generated implementation classes to extend the named class,
+	<TT>org.acme.RocketBooster</TT> in this case.</P>
+	
+	
+<P>The <TT>org.acme.RocketBooster</TT> class must be compiled and
+	available on your classpath prior to using the XJC binding compiler to compile your schema (use the 
+	<TT>-classpath</TT> option of the <TT>xjc</TT> command).  The <TT>examples/vendor-extensions</TT> 
+	sample application shows how to use this feature.</P>
+  
+
+	
+<A name="dom"></A>
+	
+<H3>Mapping to DOM</H3>
+	
+	
+<P>The <TT>&lt;xjc:dom&gt;</TT> customization allows you to map a certain part of
+	the schema into a DOM tree. This customization can be attached to the following
+	schema components:</P>
+	
+	
+<UL>
+		
+<LI>Wildcards (<TT>&lt;xs:any&gt;</TT>)
+		</LI>
+<LI>Model groups (<TT>&lt;xs:choice&gt;,&lt;xs:all&gt;,&lt;xs:sequence&gt;</TT>)
+		</LI>
+<LI>Model group declarations (<TT>&lt;xs:group&gt;</TT>)
+		</LI>
+<LI>Particles
+		</LI>
+<LI>Element declarations (<TT>&lt;xs:element</TT>)
+	</LI>
+</UL>
+	
+	
+<P>For example, in the following example, a wildcard is mapped
+	to a DOM node. Each element that matches to the wildcard will be
+	turned into a DOM tree.</P>
+	
+	
+<BLOCKQUOTE>
+		
+<PRE>
+&lt;xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+           <FONT color="red">xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
+           jaxb:extensionBindingPrefixes="xjc"</FONT>
+           jaxb:version="1.0"&gt;
+
+    &lt;xs:element&gt;
+       &lt;xs:complexType&gt;
+          &lt;xs:sequence&gt;
+             &lt;xs:any maxOccurs="unbounded" processContents="skip"&gt;
+                &lt;xs:annotation&gt;&lt;xs:appinfo&gt;
+                <FONT color="red">  &lt;xjc:dom /&gt;</FONT>
+                &lt;/xs:appinfo&gt;&lt;/xs:annotation&gt;
+             &lt;/xs:any&gt;
+          &lt;/xs:sequence&gt;
+       &lt;/xs:complexType&gt;
+    &lt;/xs:element&gt;
+.
+.
+.
+&lt;/xs:schema&gt;
+		</PRE>
+	
+</BLOCKQUOTE>
+	
+	
+<P>This extension can be used to access wildcard content or can be used to 
+	   process a part of a document by using other technologies that require 
+	   "raw" XML.  By default, JAXB generates a getObject() method for accessing
+	   wildcard content, but it only supports "lax" handling which means that
+	   unknown content is discarded.  Since this probably isn't the expected 
+	   behavior, you should use the <TT>&lt;xjc:dom /&gt;</TT> customization which
+	   will preserve all of the wildcard content.
+	   </P>
+	
+	
+<P>You can use the optional <TT>type</TT> attribute to specify the type 
+	   of DOM. By default, it is W3C DOM, but you can write 
+	   <TT>&lt;xjc:dom type="dom4j" /&gt;</TT> to map it to 
+	   <A href="http://www.dom4j.org/">dom4j</A>.</P>
+	   
+	
+<P>Unfortunately, due to the lack of JDOM's functionality to write a 
+	   single element to SAX events, at this moment JDOM is not supported.</P>
+	
+
+	
+<A name="typesub"></A>
+	
+<H3>Enabling Type Substitution</H3>
+	
+	
+<P>The <TT>&lt;xjc:typeSubstitution&gt;</TT> customization generates
+	bindings that let you compose instances (in memory) using subclasses of
+	a particular type wherever that type is expected, as specified by the
+	schema. When you marshal the content tree, those elements are decorated
+	with the appropriate value of <TT>xsi:type</TT>. In addition, the
+	<TT>&lt;xjc:typeSubstitution&gt;</TT> customization lets you unmarshal
+	elements decorated with <TT>xsi:type</TT> attributes as a subclass of
+	the particular type, as specified by the schema.</P>
+
+	
+<P>The <TT>&lt;xjc:typeSubstitution&gt;</TT> customization requires the
+	single attribute <TT>xjc:type</TT>, whose value must always be
+	<I>complex</I>:</P>
+
+	
+<BLOCKQUOTE>
+	  
+<PRE>
+&lt;xs:schema
+   xmlns:xs  ="http://www.w3.org/2001/XMLSchema"
+   xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+   <FONT color="red">xmlns:xjc ="http://java.sun.com/xml/ns/jaxb/xjc"
+   jaxb:extensionBindingPrefixes="xjc"</FONT>
+   jaxb:version="1.0"&gt;
+  
+  &lt;xs:annotation&gt;
+    &lt;xs:appinfo&gt;
+      &lt;jaxb:globalBindings&gt;
+       <FONT color="red">&lt;xjc:typeSubstitution type="complex"/&gt;</FONT>
+      &lt;/jaxb:globalBindings&gt;
+    &lt;/xs:appinfo&gt;
+  &lt;/xs:annotation&gt;
+.
+.
+.  
+&lt;/xs:schema&gt;
+	  </PRE>
+	
+</BLOCKQUOTE>
+
+	
+<P>See <A href="vendorSchemaLangs.html#typesub">Type Substitution Support</A> for
+	a more detailed description of the support this customization
+	enables. See <A href="typesub-extend.html">Implications of Type
+	Substitution for Subclassing</A> if using type substitution with
+	application-specific implementation classes.</P>
+
+
+
+	
+<A name="lwruntime"></A>
+	
+<H3>Generating Light-weight Runtime&nbsp;&nbsp;</H3>
+	
+<P>
+	  Some of the features that the generated code provides (such as validating unmarshaller) require supporting runtime libraries. Similarly, some of the features (such as marshalling) require sizable amount of code to be generated.
+	</P>
+<P>
+	  When the application doesn't use all the features of the generated code, you can say so to XJC so that it can generate smaller code. These four customization controls this behavior.
+	<DL>
+	  
+<DT>&lt;xjc:noMarshaller /&gt;
+	  </DT>
+<DD>
+	    XJC will not generate the marshaller.
+	  </DD>
+<DT>&lt;xjc:noValidator /&gt;
+	  </DT>
+<DD>
+	    XJC will not generate the on-demand validator.
+	  </DD>
+<DT>&lt;xjc:noUnmarshaller /&gt;
+	  </DT>
+<DD>
+	    XJC will not generate the unmarshaller.
+	  </DD>
+<DT>&lt;xjc:noValidatingUnmarshaller /&gt;
+	  </DT>
+<DD>
+	    XJC will not generate the validating unmarshaller.
+	</DD>
+</DL>
+	
+</P>
+<P>
+	  Those elements must be specified inside &lt;jaxb:globalBindings&gt;
+	</P>
+<P>
+	  Here's the list of savings (as of 1.0.3) with respect to the combinations of those options:
+	<UL>
+	  
+<LI>Not having the on-demand validator reduces the generated class size.
+	  </LI>
+<LI>Not having both the on-demand validator and the marshaller allows the compiler to generate smaller code.
+	  </LI>
+<LI>Not having both the on-demand validator and the validating unmarshaller allows the generated code to run without <TT>jaxb-libs.jar</TT>.
+	  </LI>
+<LI>Not having both the validating unmarshaller and the unmarshaller reduces the generated class size.
+	</LI>
+</UL>
+	
+</P>
+<P>
+	  See the following example:
+	</P>
+	
+<BLOCKQUOTE>
+	  
+<PRE>
+&lt;xs:schema
+   xmlns:xs  ="http://www.w3.org/2001/XMLSchema"
+   xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+   <FONT color="red">xmlns:xjc ="http://java.sun.com/xml/ns/jaxb/xjc"
+   jaxb:extensionBindingPrefixes="xjc"</FONT>
+   jaxb:version="1.0"&gt;
+  
+  &lt;xs:annotation&gt;
+    &lt;xs:appinfo&gt;
+      &lt;jaxb:globalBindings&gt;
+       <FONT color="red">&lt;xjc:noMarshaller /&gt;</FONT>
+       <FONT color="red">&lt;xjc:noValidator /&gt;</FONT>
+      &lt;/jaxb:globalBindings&gt;
+    &lt;/xs:appinfo&gt;
+  &lt;/xs:annotation&gt;
+.
+.
+.  
+&lt;/xs:schema&gt;
+	  </PRE>
+	
+</BLOCKQUOTE>
+	
+	
+	
+<P>
+	  For DTD compilation, these customizations can be specified directly under the root <TT>xml-java-binding-schema</TT> element as follows:
+	<BLOCKQUOTE>
+	  
+<PRE>
+&lt;xml-java-binding-schema
+  <FONT color="red">xmlns:xjc ="http://java.sun.com/xml/ns/jaxb/xjc"</FONT>&gt;
+  <FONT color="red">&lt;xjc:noMarshaller /&gt;</FONT>
+  <FONT color="red">&lt;xjc:noValidator /&gt;</FONT>
+  .
+  .
+  .
+&lt;/xml-java-binding-schema&gt;
+	  </PRE>
+	
+</BLOCKQUOTE>
+	
+	
+	
+</P>
+<P>
+	  For RELAX NG compilation, these customizations can be specified anywhere but the effect is global. So typically they should be specified under the root element as follows:
+	<BLOCKQUOTE>
+	  
+<PRE>
+&lt;grammar
+  xmlns="http://relaxng.org/ns/structure/1.0"
+  <FONT color="red">xmlns:xjc ="http://java.sun.com/xml/ns/jaxb/xjc"</FONT>&gt;
+  <FONT color="red">&lt;xjc:noMarshaller /&gt;</FONT>
+  <FONT color="red">&lt;xjc:noValidator /&gt;</FONT>
+  .
+  .
+  .
+&lt;/grammar&gt;
+	  </PRE>
+	
+</BLOCKQUOTE>
+
+
+
+	
+</P>
+<HR>
+	
+<FONT size="-1">
+	  $Revision: 1.2 $<BR>
+	  $Date: 2004/10/07 21:54:02 $
+	</FONT>
+  
+ 
+
+</BODY>
+</HTML>

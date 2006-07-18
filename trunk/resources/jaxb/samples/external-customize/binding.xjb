@@ -1,0 +1,76 @@
+<jxb:bindings version="1.0"
+               xmlns:jxb="http://java.sun.com/xml/ns/jaxb"
+               xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <jxb:bindings schemaLocation="po.xsd" node="/xs:schema">
+    <jxb:globalBindings
+         fixedAttributeAsConstantProperty="true"
+         collectionType="java.util.Vector"
+         typesafeEnumBase="xs:NCName"
+         choiceContentProperty="false"
+         typesafeEnumMemberName="generateError"
+         bindingStyle="elementBinding"
+         enableFailFastCheck="false"   
+         generateIsSetMethod="false"
+         underscoreBinding="asCharInWord"/>
+    <jxb:schemaBindings>
+      <jxb:package name="primer.myPo">
+        <jxb:javadoc><![CDATA[<body>Package level documentation for generated package primer.myPo.</body>]]>
+</jxb:javadoc>
+      </jxb:package>
+      <jxb:nameXmlTransform>
+        <jxb:elementName suffix="Element"/>
+      </jxb:nameXmlTransform>
+    </jxb:schemaBindings>
+
+    <jxb:bindings node="//xs:complexType[@name='PurchaseOrderType']">
+      <jxb:class name="POType">
+        <jxb:javadoc>A &lt;b>Purchase Order&lt;/b> consists of addresses and items.</jxb:javadoc>
+      </jxb:class>
+    </jxb:bindings>
+
+    <jxb:bindings node="//xs:complexType[@name='USAddress']">
+      <jxb:class>
+        <jxb:javadoc><![CDATA[First line of documentation for a <b>USAddress</b>.]]></jxb:javadoc>
+      </jxb:class>
+    
+      <jxb:bindings node=".//xs:element[@name='name']">
+        <jxb:property name="toName"/>
+      </jxb:bindings>
+
+      <jxb:bindings node=".//xs:element[@name='zip']">
+         <jxb:property name="zipCode"/>
+      </jxb:bindings>
+    </jxb:bindings> <!-- node="//xs:complexType[@name='USAddress']" -->
+
+    <jxb:bindings node="//xs:complexType[@name='Items']">
+      <jxb:bindings node=".//xs:element[@name='item']//xs:element[@name='quantity']">
+        <jxb:property generateIsSetMethod="true"/>
+
+        <jxb:bindings node="./xs:simpleType">
+          <jxb:javaType name="short" 
+                        parseMethod="javax.xml.bind.DatatypeConverter.parseShort" 
+                        printMethod="javax.xml.bind.DatatypeConverter.printShort" />
+        </jxb:bindings>
+      </jxb:bindings>  <!--  node="//xs:complexType[@name='Items']" -->
+
+      <jxb:bindings node=".//xs:element[@name='USPrice']">
+        <jxb:property name="Price"/>
+      </jxb:bindings>
+
+      <jxb:bindings node=".//xs:attribute[@name='partNum']">
+        <jxb:property name="partNumber"/>
+      </jxb:bindings>
+    </jxb:bindings>
+
+    <jxb:bindings node="//xs:simpleType[@name='USState']">
+      <jxb:typesafeEnumClass/>
+    </jxb:bindings>
+
+    <jxb:bindings node="//xs:simpleType[@name='ZipCodeType']">
+      <jxb:javaType name="int"     
+                    parseMethod="javax.xml.bind.DatatypeConverter.parseInt" 
+                    printMethod="javax.xml.bind.DatatypeConverter.printInt"/>
+    </jxb:bindings>
+  </jxb:bindings> <!-- schemaLocation="po.xsd" node="/xs:schema" -->
+
+</jxb:bindings>

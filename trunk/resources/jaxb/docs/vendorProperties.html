@@ -1,0 +1,385 @@
+<HTML>
+  
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+<TITLE>
+        JAXB RI 1.0.5 -- Vendor Properties
+    </TITLE>
+    
+<META content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+    
+<LINK href="style/default.css" rel="stylesheet" type="text/css">
+  
+</HEAD>
+
+  
+<BODY>
+    
+<CENTER>
+    
+<H1>Java<SUP><FONT size="-2">TM</FONT></SUP> Architecture for XML Binding<BR>
+      JAXB RI Vendor Extensions<BR>
+      Runtime Properties
+    </H1>
+      
+<B>Specification Version:</B> 1.0<BR>
+      
+<B>Reference Implementation (RI) Version:</B> 1.0.5<BR>
+      <!--
+ Copyright 2004 Sun Microsystems, Inc. All rights reserved.
+ SUN PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+-->
+<hr width="50%">
+  Main: <a href="ReleaseNotes.html">Release Notes</a> | <a href="xjc.html">XJC</a> | <a href="ant.html">Ant task</a> | <a href="samples.html">Sample Apps</a> | <a href="changelog.html">Changelog</a>
+<br>
+  JAXB RI Extensions: <a href="vendorProperties.html">Runtime Properties</a> | <a href="vendorCustomizations.html">XJC Customizations</a>
+<br>
+  JAXB RI Schema Languages: <a href="vendorSchemaLangs.html#xschema">W3C XML Schema</a> | <a href="relaxng.html">RELAX NG</a> | <a href="vendorSchemaLangs.html#dtd">DTD</a>
+<br>
+  JAXB Community: <a href="http://jaxb.dev.java.net">Java.net Homepage</a> | <a href="https://jaxb.dev.java.net/servlets/ProjectMailingListList">Developer interest list</a> | <a href="https://jaxb.dev.java.net/faq/index.html">FAQ</a>
+<br>
+
+<hr width="50%">
+    
+</CENTER>
+
+    
+<H2>Marshaller Properties</H2>
+  
+    
+<P>
+    The JAXB RI provides additional Marshaller properties that are not defined 
+    by the JAXB specification. These properties allow you to better control the 
+    marshalling process, but they only work with the JAXB RI; they may not work  
+    with other JAXB providers.</P>
+  
+	
+<H3>Index of Marshaller Properties</H3>
+	
+<UL>
+	  
+<LI>
+<A href="#prefixmapper">Namespace Prefix Mapping</A>
+</LI>
+	  
+<LI>
+<A href="#indent">Indentation</A>
+</LI>
+	  
+<LI>
+<A href="#charescape">Character Escaping Control</A>
+</LI>
+	  
+<LI>
+<A href="#xmldecl">XML Declaration Control</A>
+</LI>
+	  <!--li><a href=""></a> - </li-->
+	
+</UL>
+
+	
+<A name="prefixmapper"></A>
+    
+<H3>Namespace Prefix Mapping</H3>
+    
+<TABLE class="property" summary="">
+  	  
+<TR>
+<TD>
+  		<B>Property name:</B>
+  	  </TD><TD>
+  		<TT>com.sun.xml.bind.namespacePrefixMapper</TT>
+  	  </TD>
+</TR>
+  	  
+<TR>
+<TD>
+  		<B>Type:</B>
+  	  </TD><TD>
+  		<TT>com.sun.xml.bind.marshaller.NamespacePrefixMapper</TT>
+  	  </TD>
+</TR>
+  	  
+<TR>
+<TD>
+  		<B>Default value:</B>
+  	  </TD><TD>
+  		null
+  	  </TD>
+</TR>
+    
+</TABLE>
+    
+    
+<P>The JAXB RI now provides a mechanism for mapping namespace URIs to 
+       prefixes.  This is the general procedure:</P>
+    
+    
+<OL>
+      
+<LI>The application developer provides an implementation of 
+          <TT>com.sun.xml.bind.marshaller.NamespacePrefixMapper</TT>.</LI>
+      
+<LI>This class is then set on the marshaller via the RI specific property
+          <TT>com.sun.xml.bind.namespacePrefixMapper</TT>.</LI>
+      
+<LI>Each time the marshaller sees a URI, it performs a callback on the 
+          mapper: 
+          "What prefix do you want for this namespace URI?"</LI>
+      
+<LI>If the mapper returns something, the marshaller will try to use it.</LI>
+    
+</OL>
+    
+    
+<P>The <TT>com.sun.xml.bind.marshaller.NamespacePrefixMapper</TT> class has the
+       following method that you need to implement:</P>
+    
+    <!-- copied from src tree since we don't expose com.sun classes in the
+         javadoc distributed with the JWSDP -->
+         
+    
+<PRE class="code">
+public abstract class NamespacePrefixMapper {
+    /**
+     * Returns a preferred prefix for the given namespace URI.
+     * 
+     * This method is intended to be overrided by a derived class.
+     * 
+     * @param namespaceUri
+     *      The namespace URI for which the prefix needs to be found.
+     *      Never be null. "" is used to denote the default namespace.
+     * @param suggestion
+     *      When the content tree has a suggestion for the prefix
+     *      to the given namespaceUri, that suggestion is passed as a
+     *      parameter. Typically this value comes from QName.getPrefix()
+     *      to show the preference of the content tree. This parameter
+     *      may be null, and this parameter may represent an already
+     *      occupied prefix. 
+     * @param requirePrefix
+     *      If this method is expected to return non-empty prefix.
+     *      When this flag is true, it means that the given namespace URI
+     *      cannot be set as the default namespace.
+     * 
+     * @return
+     *      null if there's no preferred prefix for the namespace URI.
+     *      In this case, the system will generate a prefix for you.
+     * 
+     *      Otherwise the system will try to use the returned prefix,
+     *      but generally there's no guarantee if the prefix will be
+     *      actually used or not.
+     * 
+     *      return "" to map this namespace URI to the default namespace.
+     *      Again, there's no guarantee that this preference will be
+     *      honored.
+     * 
+     *      If this method returns "" when requirePrefix=true, the return
+     *      value will be ignored and the system will generate one.
+     */
+    public abstract String getPreferredPrefix(String namespaceUri, String suggestion, boolean requirePrefix);
+}
+</PRE>    
+
+    
+<P>See the <A href="samples.html">namespace-prefix</A> sample application
+       for a detailed example.</P>
+    
+    
+<P>When this property is null, the following default implementation will be used.</P>
+    
+<PRE class="code">
+    public String getPreferredPrefix(String namespaceUri, String suggestion, boolean requirePrefix) {
+        return suggestion;
+    }</PRE>
+  
+
+    
+<A name="indent"></A>
+    
+<H3>Indentation</H3>
+  
+    
+<TABLE class="property" summary="">
+  	  
+<TR>
+<TD>
+  	  	<B>Property name:</B>
+  	  </TD><TD>
+  		<TT>com.sun.xml.bind.indentString</TT>
+  	  </TD>
+</TR>
+  	  
+<TR>
+<TD>
+  		<B>Type:</B>
+  	  </TD><TD>
+  		<TT>java.lang.String</TT>
+  	  </TD>
+</TR>
+  	  
+<TR>
+<TD>
+  		<B>Default value:</B>
+  	  </TD><TD>
+  		"&nbsp;&nbsp;&nbsp;&nbsp;" (four whitespaces)
+  	  </TD>
+</TR>
+    
+</TABLE>
+  
+    
+<P>This property controls the string used for the indentation of XML. An element 
+    of depth <I>k</I> will be indented by printing this string <I>k</I> times. Note 
+    that the "<CODE>jaxb.formatted.output</CODE>" property needs to be set to "true" 
+    for the formatting/indentation of the output to occur. See the API documentation for 
+    <A href="../../doc/api/javax/xml/bind/Marshaller.html"><CODE>
+    javax.xml.bind.Marshaller</CODE></A> interface for details of this property.</P>
+  
+  
+  
+    
+<A name="charescape"></A>
+    
+<H3>Character Escaping Control</H3>
+  
+    
+<TABLE class="property" summary="">
+  	  
+<TR>
+<TD>
+  		<B>Property name:</B>
+  	  </TD><TD>
+  		<TT>com.sun.xml.bind.characterEscapeHandler</TT>
+  	  </TD>
+</TR>
+  	  
+<TR>
+<TD>
+  		<B>Type:</B>
+  	  </TD><TD>
+  		<TT>com.sun.xml.bind.marshaller.CharacterEscapeHandler</TT>
+  	  </TD>
+</TR>
+  	  
+<TR>
+<TD>
+  		<B>Default value:</B>
+  	  </TD><TD>
+  		null
+  	  </TD>
+</TR>
+    
+</TABLE>
+  
+    
+<P>
+  	By default, the marshaller implementation of the JAXB RI tries to escape 
+  	characters so they can be safely represented in the output encoding 
+  	(by using Unicode numeric character references of the form &amp;#dddd;)
+    </P>
+<P>
+  	Unfortunately, due to various technical reasons, the default behavior 
+  	may not meet your expectations. If you need to handle escaping more 
+  	adroitly than the default manner, you can do so by doing the following:
+  	<OL>
+  	
+<LI>Write a class that implements the 
+  	    <CODE>com.sun.xml.bind.marshaller.CharacterEscapeHandler</CODE> 
+  	    interface.</LI> 
+  	
+<LI>Create a new instance of it.</LI>
+  	
+<LI>Set that instance to the Marshaller by using this property.</LI>
+  	
+</OL>
+    
+</P>
+<P>
+  	The default character escaping behavior is sensitive to 
+  	the J2SE SDK version. If you are running J2SE SDK version 1.3 or 
+  	earlier and are dissatisfied with the escaping it does, try J2SE SDK 
+  	version 1.4 or later.
+    </P>
+<P>
+  	See the <A href="samples.html">character-escape</A> sample application 
+  	for more details.
+    </P>
+  
+  
+  
+    
+<A name="xmldecl"></A>
+    
+<H3>XML Declaration Control</H3> 
+  
+    
+<TABLE class="property" summary="">
+  	  
+<TR>
+<TD>
+  		<B>Property name:</B>
+  	  </TD><TD>
+  		<TT>com.sun.xml.bind.xmlDeclaration</TT>
+  	  </TD>
+</TR>
+  	  
+<TR>
+<TD>
+  		<B>Type:</B>
+  	  </TD><TD>
+  		<TT>java.lang.Boolean</TT>
+  	  </TD>
+</TR>
+  	  
+<TR>
+<TD>
+  		<B>Default value:</B>
+  	  </TD><TD>
+  		java.lang.Boolean.TRUE
+  	  </TD>
+</TR>
+    
+</TABLE>
+  
+		
+<P>
+			When set to true, the marshaller will print out the XML declaration (you'll see &lt;?xml version='1.0' encoding='<I>encoding</I>' standalone='yes' ?&gt; in the output.) When set to false, the marshaller will not write this declaration.
+		</P>
+<P>
+			Turning this option to false could be useful if you are inserting the output of the XML into another XML.
+		</P>
+<P>
+			Also, this option can be used when you need to print out things like DOCTYPE declarations or XML stylesheet processing instructions. See the following code for example.
+    </P>
+
+<PRE class="code">
+PrintWriter out = ...;
+
+// print out the prolog part by ourselves
+out.println("&lt;xml version='1.0'?&gt;");
+out.println("&lt;!DOCTYPE foo SYSTEM 'dummy.dtd'&gt;");
+
+marshaller.setProperty("com.sun.xml.bind.xmlDeclaration",Boolean.FALSE);
+marshaller.marshal( jaxbObject, out );
+</PRE>
+    
+<H4>Limitations</H4>
+    
+<P>
+			DOM and SAX are not capable of representing the XML declaration. As a result, when marshalling to DOM Node or SAX <CODE>ContentHandler</CODE>, this setting will not take effect. In other words, this setting takes effect only when you are marshalling to <CODE>Writer</CODE> or <CODE>OutputStream</CODE>.
+    </P>
+
+
+	
+<HR>
+	
+<FONT size="-1">
+	  $Revision: 1.1 $<BR>
+	  $Date: 2004/06/25 21:11:19 $
+	</FONT>
+  
+
+  
+</BODY>
+</HTML>

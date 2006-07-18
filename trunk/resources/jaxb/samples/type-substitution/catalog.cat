@@ -1,0 +1,20 @@
+
+--
+  sample catalog file.
+  
+  double hyphens are used to begin and end a comment section.
+  
+  
+  SYSTEM "<reference>" "<actualLocation>" will define a simple
+  redirection. Whenever XJC tries to load a file from <reference>,
+  this statement will redirect it to <actualLocation>.
+  <refence> needs to be an absolute URI, and <actualLocation> can
+  be relative to the catalog file itself.
+  
+  PUBLIC "<publicId>" "<actualLocation>" will define a mapping
+  from public ID to its actual location. This is only used in
+  conjunction with DTD.
+--
+
+SYSTEM "http://www.example.com/schemas/address.xsd" "address.xsd"
+

@@ -1,0 +1,75 @@
+<?xml version="1.0"?>
+<!--
+  This example demonstrates how customizations can be used to modify
+  the generated code.
+  
+  This schema describes a parse tree of a formula like
+  
+  5+(3-2) =
+                <add>
+                  <num>5</num>
+                  <sub>
+                    <num>3</num>
+                    <num>2</num>
+                  </sub>
+                </add>
+-->
+<grammar xmlns="http://relaxng.org/ns/structure/1.0"
+         datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes"
+         xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+         xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
+         jaxb:extensionBindingPrefixes="xjc"
+         jaxb:version="1.0">
+  
+  <jaxb:schemaBindings>
+    <jaxb:package name="formula"/>
+  </jaxb:schemaBindings>
+  
+  <start>
+    <ref name="expression"/>
+  </start>
+  
+  <define name="expression">
+    <!--
+      Generate the Expression interface so that all the operators
+      derive from this interface.
+    -->
+    <xjc:interface />
+    
+    <choice>
+      <element name="add">
+        <ref name="binaryExpression">
+          <xjc:super /><!-- Add will extend BinaryExpression -->
+        </ref>
+      </element>
+      <element name="sub">
+        <ref name="binaryExpression">
+          <xjc:super />
+        </ref>
+      </element>
+      <element name="neg">
+        <ref name="unaryExpression">
+          <xjc:super />
+        </ref>
+      </element>
+      <element name="number">
+        <data type="int"/>
+      </element>
+    </choice>
+  </define>
+  
+  <define name="binaryExpression">
+    
+    <!-- change the property name to lhs and rhs respectively. -->
+    <ref name="expression">
+      <jaxb:property name="lhs"/>
+    </ref>
+    <ref name="expression">
+      <jaxb:property name="rhs"/>
+    </ref>
+  </define>
+  
+  <define name="unaryExpression">
+    <ref name="expression"/>
+  </define>
+</grammar>

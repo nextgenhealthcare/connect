@@ -1,0 +1,7 @@
+connector=org.mule.providers.llp.LlpConnector
+dispatcher.factory=org.mule.providers.llp.LlpMessageDispatcherFactory
+message.receiver=org.mule.providers.llp.LlpMessageReceiver
+message.adapter=org.mule.providers.llp.LlpMessageAdapter
+inbound.transformer=org.mule.transformers.simple.ByteArrayToString
+outbound.transformer=org.mule.transformers.simple.StringToByteArray
+endpoint.builder=org.mule.impl.endpoint.SocketEndpointBuilder

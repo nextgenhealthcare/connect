@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+
+<!--
+ Copyright 2004 Sun Microsystems, Inc. All rights reserved.
+ SUN PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+-->
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns="http://www.example.com/bar"
+        targetNamespace="http://www.example.com/bar">
+
+	<xs:element name="bar1" type="barType" />
+	<xs:element name="bar2" type="xs:QName" />
+	
+	<xs:complexType name="barType">
+		<xs:sequence>
+			<xs:any maxOccurs="unbounded" minOccurs="0" />
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

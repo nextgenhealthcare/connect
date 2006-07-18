@@ -1,0 +1,24 @@
+<!--
+ Copyright 2004 Sun Microsystems, Inc. All rights reserved.
+ SUN PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+-->
+
+<xs:schema
+   xmlns:xs  ="http://www.w3.org/2001/XMLSchema"
+   xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+   xmlns:xjc ="http://java.sun.com/xml/ns/jaxb/xjc"
+   jaxb:extensionBindingPrefixes="xjc"
+   jaxb:version="1.0">
+  
+  <!--
+    This schema file is used just to enable the type substitution support,
+    and it doesn't define any schema definition at all.
+  -->
+  
+  <xs:annotation><xs:appinfo>
+    <jaxb:globalBindings>
+      <xjc:typeSubstitution type="complex"/>
+    </jaxb:globalBindings>
+  </xs:appinfo></xs:annotation>
+  
+</xs:schema>

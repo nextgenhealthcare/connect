@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<taglib xmlns="http://java.sun.com/xml/ns/j2ee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-jsptaglibrary_2_0.xsd"
+    version="2.0">
+  <description>
+    Validates JSP pages to prohibit use of scripting elements.
+  </description>
+  <tlib-version>1.1</tlib-version>
+  <short-name>scriptfree</short-name>
+  <uri>http://jakarta.apache.org/taglibs/standard/scriptfree</uri>
+
+  <validator>
+    <description>
+      Validates prohibitions against scripting elements.
+    </description>
+    <validator-class>
+    javax.servlet.jsp.jstl.tlv.ScriptFreeTLV
+    </validator-class>
+    <init-param>
+      <description>
+        Controls whether or not declarations are considered valid.
+      </description>
+      <param-name>allowDeclarations</param-name>
+      <param-value>false</param-value>
+    </init-param>
+    <init-param>
+      <description>
+        Controls whether or not scriptlets are considered valid.
+      </description>
+      <param-name>allowScriptlets</param-name>
+      <param-value>false</param-value>
+    </init-param>
+    <init-param>
+      <description>
+        Controls whether or not top-level expressions are considered valid.
+      </description>
+      <param-name>allowExpressions</param-name>
+      <param-value>false</param-value>
+    </init-param>
+    <init-param>
+      <description>
+        Controls whether or not expressions used to supply request-time
+        attribute values are considered valid.
+      </description>
+      <param-name>allowRTExpressions</param-name>
+      <param-value>false</param-value>
+    </init-param>
+  </validator>
+</taglib>

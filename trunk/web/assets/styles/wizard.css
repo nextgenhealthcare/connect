@@ -1,0 +1,41 @@
+/* - - - - - - - - - - - - - - - - - - - - -
+Wizard-specific style definition
+- - - - - - - - - - - - - - - - - - - - - */
+
+#wizardNav {	
+	text-transform: uppercase;
+	font: bold 1.2em "Times New Roman" Times serif;
+	letter-spacing: 0.04em;
+	padding-top: 0;
+	color: #B1B96E;
+	line-height: 2.5em;
+	margin-bottom: 1em;
+}
+
+.wizardNavItem {
+	margin-right: 1.5em;
+	padding-bottom: 1em;
+}
+
+.wizardNavItem a:hover {
+	color: Black;
+}
+
+#wizardNav .current {
+	color: Black;
+	background: url(../images/arrow.gif) no-repeat bottom center;
+}
+
+#wizardNav .visited, #wizardNav a, #wizardNav a:visited {
+	color: #6A6A6A;
+	text-decoration: none;
+}
+
+.wizardButtonNav {
+	padding: 1em;
+	height: 2em;
+}
+
+.wizardButtonNav .next {
+	float:right;
+}
