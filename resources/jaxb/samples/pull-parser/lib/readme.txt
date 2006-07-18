@@ -1,1 +1,0 @@
-See ../readme.txt

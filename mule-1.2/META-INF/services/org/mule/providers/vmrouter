@@ -1,5 +1,0 @@
-connector=org.mule.providers.vmrouter.VMRouterConnector
-dispatcher.factory=org.mule.providers.vmrouter.VMRouterMessageDispatcherFactory
-message.receiver=org.mule.providers.vmrouter.VMRouterMessageReceiver
-message.adapter=org.mule.providers.vmrouter.VMRouterMessageAdapter
-endpoint.builder=org.mule.impl.endpoint.ResourceNameEndpointBuilder
