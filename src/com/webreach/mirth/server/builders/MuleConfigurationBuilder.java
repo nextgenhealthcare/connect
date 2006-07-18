@@ -159,7 +159,7 @@ public class MuleConfigurationBuilder {
 			// 3. finally, append the JavaScriptTransformer that does the
 			// mappings if it's BROADCAST
 			if (channel.getMode().equals(Channel.Mode.BROADCAST)) {
-				addTransformer(document, configurationElement, channel.getSourceConnector().getTransformer(), connectorReference, channel.getDirection());
+				addTransformer(document, configurationElement, channel.getSourceConnector().getTransformer(), connectorReference, channel.getDirection(), channel.getId());
 				transformers.append(connectorReference);
 			}
 
@@ -212,13 +212,14 @@ public class MuleConfigurationBuilder {
 				// 1. append the JavaScriptTransformer that does the mappings if
 				// it's ROUTER
 				if (channel.getMode().equals(Channel.Mode.ROUTER)) {
-					addTransformer(document, configurationElement, connector.getTransformer(), connectorReference, channel.getDirection());
+					addTransformer(document, configurationElement, connector.getTransformer(), connectorReference, channel.getDirection(), channel.getId());
 					transformers.append(connectorReference + " ");
 				}
 
 				// 2. convert the XML message in the map to an ER7 message
 				if (channel.getDirection().equals(Channel.Direction.OUTBOUND)) {
-					transformers.append("XMLtoER7 ");
+					//transformers.append("XMLtoER7 ");
+					//CL - moved to JavascriptTransformer
 				}
 
 				// 3. finally, append any transformers needed by the transport
@@ -255,7 +256,7 @@ public class MuleConfigurationBuilder {
 		}
 	}
 
-	private void addTransformer(Document document, Element configurationElement, Transformer transformer, String name, Channel.Direction direction) throws BuilderException {
+	private void addTransformer(Document document, Element configurationElement, Transformer transformer, String name, Channel.Direction direction, int channelId) throws BuilderException {
 		try {
 			Element transformersElement = (Element) configurationElement.getElementsByTagName("transformers").item(0);
 			Element transformerElement = document.createElement("transformer");
@@ -266,9 +267,9 @@ public class MuleConfigurationBuilder {
 			Properties properties = new Properties();
 			
 			if (direction.equals(Channel.Direction.INBOUND)) {
-				properties.put("script", transformerBuilder.getInboundScript(transformer));	
+				properties.put("script", transformerBuilder.getInboundScript(transformer, channelId));	
 			} else {
-				properties.put("script", transformerBuilder.getOutboundScript(transformer));
+				properties.put("script", transformerBuilder.getOutboundScript(transformer, channelId));
 			}
 			
 			transformerElement.appendChild(getProperties(document, properties));
