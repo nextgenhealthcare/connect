@@ -133,7 +133,7 @@
 			<fileset dir="${setup}" includes="**/.svn" />
 		</delete>
 
-		<java classname="com.webreach.mirth.server.tools.CreateDatabaseTables">
+		<java classname="com.webreach.mirth.server.tools.CreateDatabaseTables" failonerror="true">
 			<classpath>
 				<pathelement location="${setup}/mirth-server.jar" />
 				<pathelement location="${setup.config}" />
@@ -141,8 +141,6 @@
 					<include name="**/*.jar" />
 				</fileset>
 			</classpath>
-
-			<arg value="mirth" />
 			<arg value="database.sql" />
 		</java>
 
