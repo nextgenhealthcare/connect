@@ -11,7 +11,13 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
    "http://www.w3.org/TR/html4/loose.dtd">
-
+<style type="text/css"><!--
+input.launch{
+		background-color:#cec;
+		filter:progid:DXImageTransform.Microsoft.Gradient(
+		GradientType=0,StartColorStr='#ffffffff',EndColorStr='#ffaaddaa');
+	   }
+//--></style>
 <html>
 <head>
 <title>Launch Mirth Administration</title>
@@ -40,8 +46,15 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
 			
 	<tr><td>
 		<h3>Starting Mirth Administrator</h3>
-			Click <a href="mirth-client.jnlp">here</a> to launch the Mirth Administrator using Java Web Start.
+		
+			
+			Click the green link to launch the Mirth Administrator using Java Web Start. <br><br><br><br>
+			
+			<center><input type="button" value="Launch Mirth Administrator" STYLE="font-size:20pt" class="launch" onClick="parent.location='MirthGUI.jnlp'"</input></center>
 	</td></tr>
+	
+	
+	
 	
 <table>
 
