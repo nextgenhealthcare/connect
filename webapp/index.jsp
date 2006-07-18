@@ -50,7 +50,7 @@ input.launch{
 			
 			Click the green link to launch the Mirth Administrator using Java Web Start. <br><br><br><br>
 			
-			<center><input type="button" value="Launch Mirth Administrator" STYLE="font-size:20pt" class="launch" onClick="parent.location='MirthGUI.jnlp'"</input></center>
+			<center><input type="button" value="Launch Mirth Administrator" STYLE="font-size:20pt" class="launch" onClick="parent.location='mirth-client.jnlp'"</input></center>
 	</td></tr>
 	
 	
