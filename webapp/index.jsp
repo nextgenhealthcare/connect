@@ -13,23 +13,40 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
    "http://www.w3.org/TR/html4/loose.dtd">
 <style type="text/css"><!--
 input.launch{
-		background-color:#cec;
+		background-color:#B4D671;
 		filter:progid:DXImageTransform.Microsoft.Gradient(
-		GradientType=0,StartColorStr='#ffffffff',EndColorStr='#ffaaddaa');
+		GradientType=0,StartColorStr='#ffffffff',EndColorStr='#B4D671');
 	   }
-//--></style>
+//-->
+body
+{
+font-family: verdana, tahoma, arial, sans-serif
+}
+p
+{
+font-family: verdana, tahoma, arial, sans-serif
+}
+h2
+{
+font-family: verdana, tahoma, arial, sans-serif
+}
+h3
+{
+font-family: verdana, tahoma, arial, sans-serif
+}
+</style>
 <html>
 <head>
 <title>Launch Mirth Administration</title>
 </head>
 
 <body background="#FFFFFF">
-<font face="sans serif, arial, courier new" color="#000000">
+
 
 <table cellspacing=5 cellpadding=5>
 	<tr>
 		<td><a href="http://www.mirthproject.org/"><img src="mirth_logo.png" border=0></a></td>
-		<td><center><h1> Launch Mirth Administrator </h1></center></td>
+		<td><center><h1><font face="tahoma, verdana, arial, courier new" color="#000000"> Launch Mirth Administrator </font></h1></center></td>
 	</tr>
 </table>
 
@@ -39,18 +56,18 @@ input.launch{
 	<h2>Using Mirth - Java Web Start</h2>
 	
 	<tr><td>
-		<h3>Overview of Web Start</h3>
+		<h3>Overview of Web Start</h3><p>
 			Java Web Start is a framework developed by Sun Microsystems that enables starting 
 			Java applications directly from the Web using a browser. Unlike Java applets, Web 
-			Start applications do not run inside the browser.
+			Start applications do not run inside the browser.</p>
 			
 	<tr><td>
 		<h3>Starting Mirth Administrator</h3>
 		
-			
-			Click the green link to launch the Mirth Administrator using Java Web Start. <br><br><br><br>
-			
-			<center><input type="button" value="Launch Mirth Administrator" STYLE="font-size:20pt" class="launch" onClick="parent.location='mirth-client.jnlp'"</input></center>
+			<p>
+			Click the green link to launch the Mirth Administrator using Java Web Start. <br><br>
+			</p>
+			<center><input type="button" value="Launch Mirth Administrator" STYLE="font-size:14pt" class="launch" onClick="parent.location='mirth-client.jnlp'"</input></center>
 	</td></tr>
 	
 	
