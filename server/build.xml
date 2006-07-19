@@ -1,0 +1,170 @@
+<project name="mirth" basedir="." default="help">
+	<target name="help">
+		<echo>Mirth Build Help</echo>
+		<echo>----------------</echo>
+	</target>
+
+	<target name="init">
+		<property file="build.properties" />
+
+		<path id="classpath">
+			<fileset dir="${lib}" includes="*.jar" />
+			<fileset dir="${lib}/mule" includes="*.jar" />
+			<fileset dir="${lib}/jetty" includes="*.jar" />
+		</path>
+
+		<mkdir dir="${logs}" />
+	</target>
+
+	<target name="clean" depends="init">
+		<delete dir="${classes}" />
+		<delete dir="${webapp.classes}" />
+		<delete dir="${setup}" />
+		<delete dir="${dist}" />
+	</target>
+
+	<target name="compile" depends="clean, init">
+		<!-- compile the source -->
+		<mkdir dir="${classes}" />
+
+		<javac srcdir="${src}" destdir="${classes}" debug="on">
+			<classpath refid="classpath" />
+		</javac>
+	</target>
+
+	<target name="create-client-core" depends="compile">
+		<jar destfile="mirth-client-core.jar" basedir="${classes}">
+			<include name="com/webreach/mirth/client/core/**" />
+			<include name="com/webreach/mirth/model/**" />
+			<include name="com/webreach/mirth/util/**" />
+		</jar>
+	</target>
+
+	<target name="create-web" depends="compile">
+		<delete dir="${web}" />
+
+		<mkdir dir="${web}" />
+		<mkdir dir="${web.webapps}" />
+		<mkdir dir="${webapp.classes}" />
+
+		<copy todir="${webapp.classes}">
+			<fileset dir="${classes}/com/webreach/mirth/server/servlets" />
+		</copy>
+
+		<!-- sign jars for webstart -->
+		<signjar alias="Mirth" keystore="${basedir}/keystore" storepass="abc12345" keypass="abc12345">
+			<fileset file="${webapp.lib}/mirth-client.jar" />
+			<fileset file="${webapp.lib}/mirth-client-core.jar" />
+			<fileset file="${webapp.lib}/commons-codec-1.3.jar" />
+			<fileset file="${webapp.lib}/commons-httpclient-3.0.1.jar" />
+			<fileset file="${webapp.lib}/commons-logging.jar" />
+			<fileset file="${webapp.lib}/databinding-0.8.0.jar" />
+			<fileset file="${webapp.lib}/hapi-0.5beta.jar" />
+			<fileset file="${webapp.lib}/jdic-0.8.0.jar" />
+			<fileset file="${webapp.lib}/log4j-1.2.13.jar" />
+			<fileset file="${webapp.lib}/looks-2.0.4.jar" />
+			<fileset file="${webapp.lib}/ostermillerutils-1.06.00.jar" />
+			<fileset file="${webapp.lib}/swing-layout-1.0.jar" />
+			<fileset file="${webapp.lib}/swingworker-0.8.0.jar" />
+			<fileset file="${webapp.lib}/swingx-0.8.0.jar" />
+			<fileset file="${webapp.lib}/syntax.jar" />
+			<fileset file="${webapp.lib}/xercesImpl.jar" />
+			<fileset file="${webapp.lib}/xpp3_min-1.1.3.4.O.jar" />
+			<fileset file="${webapp.lib}/xstream-1.1.3.jar" />
+		</signjar>
+
+		<!-- create the webapp war in the web webapps directory -->
+		<jar basedir="${webapp}" destfile="${web.webapps}/mirth.war" />
+	</target>
+
+	<target name="create-setup" depends="create-web">
+		<!-- create the setup directory -->
+		<mkdir dir="${setup}" />
+		<mkdir dir="${setup.config}" />
+		<mkdir dir="${setup.lib}" />
+		<mkdir dir="${setup.web}" />
+		<mkdir dir="${setup.source}" />
+		<mkdir dir="${setup.logs}" />
+
+		<!-- copy source files -->
+		<copy todir="${setup.source}">
+			<fileset dir="${src}" />
+		</copy>
+
+		<!-- copy lib -->
+		<copy todir="${setup.lib}">
+			<fileset dir="${lib}" />
+		</copy>
+
+		<!-- copy config files -->
+		<copy todir="${setup.config}">
+			<fileset file="${config}/mule-boot.xml" />
+			<fileset file="${config}/mirth.properties" />
+			<fileset file="${config}/log4j.properties" />
+		</copy>
+
+		<!-- copy misc files -->
+		<copy todir="${setup}">
+			<fileset file="${basedir}/database.sql" />
+			<fileset file="${basedir}/keystore" />
+		</copy>
+
+		<!-- copy build files -->
+		<copy todir="${setup}">
+			<fileset file="${basedir}/build.properties" />
+			<fileset file="${basedir}/build.xml" />
+		</copy>
+
+		<!-- create the Mirth jar file -->
+		<jar destfile="${setup}/mirth-server.jar" basedir="${classes}">
+			<include name="com/webreach/mirth/server/**" />
+			<include name="com/webreach/mirth/model/**" />
+			<include name="com/webreach/mirth/util/**" />
+			<include name="org/mule/**" />
+		</jar>
+
+		<!-- copy web -->
+		<copy todir="${setup.web}">
+			<fileset dir="${web}" />
+		</copy>
+
+		<!-- remove svn folders -->
+		<delete>
+			<fileset dir="${setup}" includes="**/.svn" />
+		</delete>
+
+		<java classname="com.webreach.mirth.server.tools.CreateDatabaseTables" failonerror="true">
+			<classpath>
+				<pathelement location="${setup}/mirth-server.jar" />
+				<pathelement location="${setup.config}" />
+				<fileset dir="${setup.lib}">
+					<include name="**/*.jar" />
+				</fileset>
+			</classpath>
+			<arg value="database.sql" />
+		</java>
+
+		<!-- copy the newly created database over -->
+		<copy todir="${setup}/database">
+			<fileset dir="${basedir}/database" />
+		</copy>
+
+		<!-- copy the batch scripts -->
+		<copy file="${basedir}/Mirth.bat" todir="${setup}" />
+		<copy file="${basedir}/Mirth.sh" todir="${setup}" />
+
+		<!-- zip the source code -->
+		<zip basedir="${setup.source}" destfile="${setup}/mirth-server-src.zip" />
+
+		<!-- remove the source code -->
+		<delete dir="${setup.source}" />
+	</target>
+
+	<target name="create-dist" depends="create-setup">
+		<!-- create the dist directory -->
+		<mkdir dir="${dist}" />
+
+		<!-- create the distribution zip -->
+		<zip basedir="${setup}" destfile="${dist}/mirth.zip" />
+	</target>
+</project>
