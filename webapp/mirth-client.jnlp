@@ -2,7 +2,7 @@
 <!DOCTYPE jnlp PUBLIC "-//Sun Microsystems, Inc.//DTD JNLP 1.5//EN" "http://www.netbeans.org/jnlp/DTD/jnlp.dtd">
 <jnlp codebase="$$codebase" href="mirth-client.jnlp">
   <information>
-    <title>Mirth 1.0.0</title>
+    <title>Mirth Administrator</title>
     <vendor>WebReach, Inc.</vendor>
     <homepage href="http://www.mirthproject.org"/>
     <description>HL7 integration engine.</description>
