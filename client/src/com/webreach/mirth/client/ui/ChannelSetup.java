@@ -26,15 +26,6 @@
 
 package com.webreach.mirth.client.ui;
 
-import com.webreach.mirth.client.core.ClientException;
-import com.webreach.mirth.client.ui.connectors.ConnectorClass;
-import com.webreach.mirth.client.ui.editors.filter.FilterPane;
-import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
-import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.Connector;
-import com.webreach.mirth.model.Filter;
-import com.webreach.mirth.model.Transformer;
-import com.webreach.mirth.model.Transport;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Point;
@@ -44,16 +35,27 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Map.Entry;
 import java.util.prefs.Preferences;
-import javax.swing.JFrame;
+
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.AlternateRowHighlighter;
 import org.jdesktop.swingx.decorator.HighlighterPipeline;
-import java.util.Map.Entry;
+
+import com.webreach.mirth.client.core.ClientException;
+import com.webreach.mirth.client.ui.connectors.ConnectorClass;
+import com.webreach.mirth.client.ui.editors.filter.FilterPane;
+import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
+import com.webreach.mirth.model.Channel;
+import com.webreach.mirth.model.Connector;
+import com.webreach.mirth.model.Filter;
+import com.webreach.mirth.model.Transformer;
+import com.webreach.mirth.model.Transport;
 
 /** The channel editor panel.  Majority of the client application */
 public class ChannelSetup extends javax.swing.JPanel

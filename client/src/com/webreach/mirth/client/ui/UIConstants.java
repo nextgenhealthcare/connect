@@ -28,6 +28,7 @@ package com.webreach.mirth.client.ui;
 
 import java.awt.Color;
 import java.awt.Font;
+
 import javax.swing.ImageIcon;
 
 /**
@@ -43,7 +44,7 @@ public class UIConstants
 
     // for Frame
     public static final int TASK_PANE_WIDTH = 170;
-    public static final String TITLE_TEXT = "Mirth Administrator 1.0.0";
+    public static final String TITLE_TEXT = "Mirth Administrator";
 
     // for error checking
     public static final int ERROR_CONSTANT = -1;

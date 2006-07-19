@@ -26,7 +26,8 @@
 
 package com.webreach.mirth.client.ui;
 
-import java.awt.datatransfer.*;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
 
 /**
  * Package Database Variables for movement.

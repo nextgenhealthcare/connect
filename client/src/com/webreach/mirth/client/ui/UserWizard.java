@@ -26,12 +26,10 @@
 
 package com.webreach.mirth.client.ui;
 
+import java.awt.Cursor;
+
 import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.model.User;
-import java.awt.Cursor;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.UIManager;
 
 /**
  * A wizard for creating a new user or editing a current user

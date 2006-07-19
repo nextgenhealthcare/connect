@@ -26,20 +26,19 @@
 
 package com.webreach.mirth.client.ui;
 
-import com.webreach.mirth.model.Channel;
 import java.awt.Point;
 import java.util.prefs.Preferences;
+
 import javax.swing.ImageIcon;
-import javax.swing.JFrame;
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.text.Highlighter;
+
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.AlternateRowHighlighter;
 import org.jdesktop.swingx.decorator.HighlighterPipeline;
+
+import com.webreach.mirth.model.Channel;
 
 /** The main channel list panel view. */
 public class ChannelPanel extends javax.swing.JPanel

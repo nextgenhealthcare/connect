@@ -26,22 +26,21 @@
 
 package com.webreach.mirth.client.ui;
 
-import com.webreach.mirth.client.core.ClientException;
-import com.webreach.mirth.model.ChannelStatistics;
-import com.webreach.mirth.model.ChannelStatus;
 import java.awt.Point;
 import java.util.prefs.Preferences;
+
 import javax.swing.ImageIcon;
-import javax.swing.JFrame;
 import javax.swing.JScrollPane;
-import javax.swing.SwingConstants;
-import javax.swing.UIManager;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.AlternateRowHighlighter;
 import org.jdesktop.swingx.decorator.HighlighterPipeline;
-import org.jdesktop.swingx.table.ColumnHeaderRenderer;
+
+import com.webreach.mirth.client.core.ClientException;
+import com.webreach.mirth.model.ChannelStatistics;
+import com.webreach.mirth.model.ChannelStatus;
 
 /**
  * The main status panel.

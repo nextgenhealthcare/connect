@@ -26,12 +26,11 @@
 
 package com.webreach.mirth.client.ui;
 
-import com.webreach.mirth.client.core.ClientException;
-import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
-
 import java.util.Properties;
 import java.util.prefs.Preferences;
-import javax.swing.JFrame;
+
+import com.webreach.mirth.client.core.ClientException;
+import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
 
 /**
  * The main administration panel.

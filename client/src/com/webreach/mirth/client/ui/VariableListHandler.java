@@ -34,9 +34,6 @@ import javax.swing.TransferHandler;
 
 import org.jdesktop.swingx.JXList;
 
-import com.webreach.mirth.client.ui.components.MirthVariableList;
-import com.webreach.mirth.client.ui.editors.ReferenceTable;
-
 public class VariableListHandler extends TransferHandler {
 	
 	protected Transferable createTransferable( JComponent c ) {

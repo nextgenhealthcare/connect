@@ -26,7 +26,7 @@
 
 package com.webreach.mirth.client.ui;
 
-import java.awt.datatransfer.*;
+import java.awt.datatransfer.DataFlavor;
 
 public class TreeNodeFlavor extends DataFlavor {
    

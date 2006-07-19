@@ -26,9 +26,6 @@
 
 package com.webreach.mirth.client.ui;
 
-import com.webreach.mirth.client.ui.util.FileUtil;
-import java.io.File;
-import java.io.IOException;
 
 /** Creates the About Mirth dialog.  The content is loaded from about.txt. */
 public class AboutMirth extends javax.swing.JDialog
@@ -50,13 +47,12 @@ public class AboutMirth extends javax.swing.JDialog
     public void loadContent()
     {
     	StringBuilder content = new StringBuilder();
-    	content.append("Mirth Administrator\n");
-    	content.append("Version: 1.0.0\n");
-    	content.append("Built on July 18, 2006\n");
-		content.append("(c) Copyright Mirth contributors and other 2005, 2006. All rights reserved. Visit http://www.mirthproject.org\n");
-		content.append("This product includes software developed by SymphonySoft Limited (http://www.symphonysoft.com) and its contributors.\n");
-		content.append("This product includes software developed by the Apache Software Foundation (http://www.apache.org/).\n");
-    	
+    	content.append("Mirth Administrator\n\n");
+    	content.append("Version: 1.0.0\n\n");
+    	content.append("Built on July 18, 2006\n\n");
+		content.append("(c) Copyright Mirth contributors and other 2005, 2006. All rights reserved. Visit http://www.mirthproject.org\n\n");
+		content.append("This product includes software developed by SymphonySoft Limited (http://www.symphonysoft.com) and its contributors.\n\n");
+		content.append("This product includes software developed by the Apache Software Foundation (http://www.apache.org/).\n\n");
         aboutContent.setText(content.toString());
     }
     

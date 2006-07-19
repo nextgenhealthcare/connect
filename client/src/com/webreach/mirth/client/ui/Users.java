@@ -26,16 +26,18 @@
 
 package com.webreach.mirth.client.ui;
 
-import com.webreach.mirth.model.User;
 import java.awt.Point;
 import java.util.prefs.Preferences;
+
 import javax.swing.ImageIcon;
-import javax.swing.JFrame;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.AlternateRowHighlighter;
 import org.jdesktop.swingx.decorator.HighlighterPipeline;
+
+import com.webreach.mirth.model.User;
 
 /**
  * Creates the main Users scroll pane.

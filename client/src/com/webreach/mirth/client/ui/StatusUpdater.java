@@ -25,7 +25,6 @@
 
 
 package com.webreach.mirth.client.ui;
-import com.webreach.mirth.client.core.ClientException;
 import java.util.prefs.Preferences;
 
 /**

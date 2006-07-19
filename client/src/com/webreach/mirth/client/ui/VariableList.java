@@ -26,12 +26,13 @@
 
 package com.webreach.mirth.client.ui;
 
-import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
-import com.webreach.mirth.model.Step;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
+import com.webreach.mirth.model.Step;
 
 /**
  * A panel that contains the MirthVariableList.

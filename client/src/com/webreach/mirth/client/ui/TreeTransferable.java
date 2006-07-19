@@ -26,10 +26,9 @@
 
 package com.webreach.mirth.client.ui;
 
-import java.awt.datatransfer.*;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
 import java.util.LinkedList;
-import java.util.Queue;
-import java.util.concurrent.BlockingQueue;
 
 import javax.swing.tree.TreeNode;
 

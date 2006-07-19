@@ -26,16 +26,18 @@
 
 package com.webreach.mirth.client.ui;
 
-import com.webreach.mirth.model.Connector;
 import java.awt.Component;
 import java.awt.event.MouseEvent;
 import java.util.EventObject;
 import java.util.List;
+
 import javax.swing.AbstractCellEditor;
 import javax.swing.JComponent;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.TableCellEditor;
+
+import com.webreach.mirth.model.Connector;
 
 /**
  * A table cell editor for the destination table.
