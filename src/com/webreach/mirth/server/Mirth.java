@@ -25,6 +25,8 @@
 
 package com.webreach.mirth.server;
 
+import java.util.Properties;
+
 import org.apache.log4j.Logger;
 import org.mortbay.http.SocketListener;
 import org.mortbay.http.SslListener;
@@ -37,6 +39,7 @@ import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.server.controllers.ConfigurationController;
 import com.webreach.mirth.server.controllers.ControllerException;
 import com.webreach.mirth.server.controllers.SystemLogger;
+import com.webreach.mirth.util.PropertyLoader;
 
 /**
  * Instantiate a Mirth server that listens for commands from the CommandQueue.
@@ -51,6 +54,7 @@ public class Mirth {
 	private Server webServer = null;
 	private CommandQueue commandQueue = CommandQueue.getInstance();
 	private SystemLogger systemLogger = new SystemLogger();
+	private Properties properties = PropertyLoader.loadProperties("mirth");
 
 	public static void main(String[] args) {
 		Mirth mirth = new Mirth();
@@ -156,15 +160,31 @@ public class Mirth {
 
 			webServer = new Server();
 
+			// add HTTPS listener
 			SslListener sslListener = new SslListener();
-			sslListener.setPort(8443);
+			
+			int httpsPort = 8443;
+			
+			if ((properties.getProperty("https.port") != null) && !properties.getProperty("https.port").equals("")) {
+				httpsPort = Integer.valueOf(properties.getProperty("https.port")).intValue();	
+			}
+			
+			sslListener.setPort(httpsPort);
 			sslListener.setKeystore("keystore");
 			sslListener.setPassword("abc12345");
 			sslListener.setKeyPassword("abc12345");
 			webServer.addListener(sslListener);
 			
+			// add HTTP listener
 			SocketListener listener = new SocketListener();
-			listener.setPort(8080);
+			
+			int httpPort = 8080;
+			
+			if ((properties.getProperty("http.port") != null) && !properties.getProperty("http.port").equals("")) {
+				httpPort = Integer.valueOf(properties.getProperty("http.port")).intValue();	
+			}
+			
+			listener.setPort(httpPort);
 			webServer.addListener(listener);
 
 			webServer.addWebApplication("/", "./web/webapps/mirth.war");
