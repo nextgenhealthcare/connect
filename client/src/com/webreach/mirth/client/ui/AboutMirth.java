@@ -48,8 +48,8 @@ public class AboutMirth extends javax.swing.JDialog
     {
     	StringBuilder content = new StringBuilder();
     	content.append("Mirth Administrator\n\n");
-    	content.append("Version: 1.0.0\n\n");
-    	content.append("Built on July 18, 2006\n\n");
+    	content.append("Version: 1.0.1\n\n");
+    	content.append("Built on July 19, 2006\n\n");
 		content.append("(c) Copyright Mirth contributors and other 2005, 2006. All rights reserved. Visit http://www.mirthproject.org\n\n");
 		content.append("This product includes software developed by SymphonySoft Limited (http://www.symphonysoft.com) and its contributors.\n\n");
 		content.append("This product includes software developed by the Apache Software Foundation (http://www.apache.org/).\n\n");
