@@ -57,7 +57,7 @@ public class DatabaseWriter extends ConnectorClass
     public final String DATABASE_URL = "URL";
     public final String DATABASE_USERNAME = "username";
     public final String DATABASE_PASSWORD = "password";
-    public final String DATABASE_SQL_STATEMENT = "statement";
+    public final String DATABASE_SQL_STATEMENT = "query";
     
     private static HighlightedDocument mappingDoc;
     
