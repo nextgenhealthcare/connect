@@ -119,7 +119,7 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher
 			Entry entry = (Entry) it.next();
 			String key = entry.getKey().toString();
 			String value = entry.getValue().toString();
-			template = template.replaceAll("\\$\\{" + key + "\\}", value);
+			template = template.replaceAll("\\$\\{" + key + "\\}", value.replace("\\","\\\\"));
 		}
 		
 		return template;
