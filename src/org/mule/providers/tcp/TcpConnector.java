@@ -30,6 +30,18 @@ import org.mule.util.ClassHelper;
  */
 public class TcpConnector extends AbstractServiceEnabledConnector
 {
+	// customer properties
+	public static final String PROPERTY_CHAR_ENCODING = "charEncoding";
+	public static final String PROPERTY_START_OF_MESSAGE = "messageStart";
+	public static final String PROPERTY_END_OF_MESSAGE = "messageEnd";
+	public static final String PROPERTY_RECORD_SEPARATOR = "recordSeparator";
+	
+	// custom properties
+	private String charEncoding = "hex";
+	private String messageStart = "0x1C";
+	private String messageEnd = "0x0B";
+	private String recordSeparator = "13";
+	
     public static final int DEFAULT_SOCKET_TIMEOUT = 5000;
 
     public static final int DEFAULT_BUFFER_SIZE = 64 * 1024;
@@ -243,4 +255,41 @@ public class TcpConnector extends AbstractServiceEnabledConnector
     {
         return true;
     }
+    
+	public String getCharEncoding() {
+		return this.charEncoding;
+	}
+
+	public void setCharEncoding(String charEncoding) {
+		this.charEncoding = charEncoding;
+	}
+
+	public String getMessageEnd() {
+		return this.messageEnd;
+	}
+
+	public void setMessageEnd(String messageEnd) {
+		this.messageEnd = messageEnd;
+	}
+
+	public String getMessageStart() {
+		return this.messageStart;
+	}
+
+	public void setMessageStart(String messageStart) {
+		this.messageStart = messageStart;
+	}
+
+	public String getRecordSeparator() {
+		return this.recordSeparator;
+	}
+
+	public void setRecordSeparator(String recordSeparator) {
+		this.recordSeparator = recordSeparator;
+	}
+	
+	public char stringToChar(String source) {
+		return source.charAt(0);
+	}
+
 }
