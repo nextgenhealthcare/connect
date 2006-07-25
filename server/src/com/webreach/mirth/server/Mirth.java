@@ -56,22 +56,12 @@ public class Mirth {
 	private SystemLogger systemLogger = new SystemLogger();
 	private Properties properties = PropertyLoader.loadProperties("mirth");
 
-	public static void main(String[] args) {
-		Mirth mirth = new Mirth();
-		mirth.start();
-	}
-
-	public Mirth() {
-
-	}
-
 	public void start() {
 		running = true;
 		startWebServer();
 		commandQueue.addCommand(new Command(Command.Operation.START));
 		
-        ShutdownHook shutdownHook = new ShutdownHook();
-        Runtime.getRuntime().addShutdownHook(shutdownHook);
+        Runtime.getRuntime().addShutdownHook(new ShutdownHook());
 
 		// pulls commands off of the command queue
 		while (running) {
