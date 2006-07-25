@@ -12,12 +12,14 @@
 			<fileset dir="${lib}/mule" includes="*.jar" />
 			<fileset dir="${lib}/jetty" includes="*.jar" />
 		</path>
-
-		<mkdir dir="${logs}" />
 	</target>
 
 	<target name="clean" depends="init">
+		<delete dir="${logs}" />
+		<mkdir dir="${logs}" />
+
 		<delete dir="${classes}" />
+		<delete dir="${web}" />
 		<delete dir="${webapp.classes}" />
 		<delete dir="${setup}" />
 		<delete dir="${dist}" />
