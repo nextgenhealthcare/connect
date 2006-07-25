@@ -175,7 +175,7 @@ public class DatabaseReader extends ConnectorClass
         Properties properties = new Properties();
         properties.put(DATATYPE, name);
         properties.put(DATABASE_HOST, DATABASE_HOST_VALUE);
-        properties.put(DATABASE_DRIVER, (String)databaseDriverCombobox.getItemAt(0));
+        properties.put(DATABASE_DRIVER, drivers.get(0).getClassName());
         properties.put(DATABASE_URL, "");
         properties.put(DATABASE_USERNAME, "");
         properties.put(DATABASE_PASSWORD, "");
