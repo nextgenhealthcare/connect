@@ -62,7 +62,10 @@ public class ConfigurationServlet extends MirthServlet {
 					out.print(configurationController.getNextId());
 				} else if (operation.equals("deployChannels")) {
 					configurationController.deployChannels();
-				}
+				} else if (operation.equals("getDatabaseDrivers")) {
+					response.setContentType("application/xml");
+					out.println(serializer.serialize(configurationController.getDatabaseDrivers()));
+				} 
 			} catch (Exception e) {
 				throw new ServletException(e);
 			}

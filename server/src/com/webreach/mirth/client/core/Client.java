@@ -39,6 +39,7 @@ import org.apache.log4j.Logger;
 import com.webreach.mirth.client.core.ssl.EasySSLProtocolSocketFactory;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.ChannelStatus;
+import com.webreach.mirth.model.DriverInfo;
 import com.webreach.mirth.model.MessageEvent;
 import com.webreach.mirth.model.ChannelStatistics;
 import com.webreach.mirth.model.SystemEvent;
@@ -406,4 +407,17 @@ public class Client {
 		NameValuePair[] params = { new NameValuePair("op", "getChannelStatusList") };
 		return (List<ChannelStatus>) serializer.deserialize(executePostMethod(CHANNEL_STATUS_SERVLET, params));
 	}
+
+	/**
+	 * Returns the database driver list.
+	 * 
+	 * @return
+	 * @throws ClientException
+	 */
+	public synchronized List<DriverInfo> getDatabaseDrivers() throws ClientException {
+		logger.debug("retrieving database driver list");
+		NameValuePair[] params = { new NameValuePair("op", "getDatabaseDrivers") };
+		return (List<DriverInfo>) serializer.deserialize(executePostMethod(CONFIGURATION_SERVLET, params));
+	}
+
 }
