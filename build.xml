@@ -98,6 +98,7 @@
 
 		<!-- copy config files -->
 		<copy todir="${setup.config}">
+			<fileset file="${config}/dbdrivers.xml" />
 			<fileset file="${config}/mule-boot.xml" />
 			<fileset file="${config}/mirth.properties" />
 			<fileset file="${config}/log4j.properties" />

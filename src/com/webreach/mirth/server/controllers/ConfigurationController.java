@@ -35,16 +35,21 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.log4j.Logger;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import com.truemesh.squiggle.SelectQuery;
 import com.truemesh.squiggle.Table;
+import com.webreach.mirth.model.DriverInfo;
 import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.model.Transport;
 import com.webreach.mirth.model.converters.ObjectStringSerializer;
@@ -335,6 +340,28 @@ public class ConfigurationController {
 		} finally {
 			DatabaseUtil.close(result);
 			dbConnection.close();
+		}
+	}
+	
+	public List<DriverInfo> getDatabaseDrivers() throws Exception {
+		logger.debug("retrieving database driver list");
+		File driversFile = new File("config/dbdrivers.xml");
+
+		if (driversFile.exists()) {
+			ArrayList<DriverInfo> drivers = new ArrayList<DriverInfo>();
+			Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(driversFile);
+			Element driversElement = document.getDocumentElement();
+
+			for (int i = 0; i < driversElement.getElementsByTagName("driver").getLength(); i++) {
+				Element driverElement = (Element) driversElement.getElementsByTagName("driver").item(i);
+				DriverInfo driver = new DriverInfo(driverElement.getAttribute("name"), driverElement.getAttribute("class"));
+				logger.info("found database driver: " + driver);
+				drivers.add(driver);
+			}
+
+			return drivers;
+		} else {
+			throw new Exception("Could not locate database drivers file: " + driversFile.getAbsolutePath());
 		}
 	}
 }
