@@ -437,6 +437,21 @@ public class ChannelSetup extends javax.swing.JPanel
         lastIndex = "";
         currentChannel = parent.channels.get(index);
         
+        checkPropertyValidity(currentChannel.getSourceConnector(), parent.sourceConnectors);
+                
+        if(currentChannel.getMode() == Channel.Mode.ROUTER || currentChannel.getMode() == Channel.Mode.BROADCAST)
+        {
+            List<Connector> destinations = currentChannel.getDestinationConnectors();
+            for(int i = 0; i < destinations.size(); i++)
+            {
+                checkPropertyValidity(destinations.get(i), parent.destinationConnectors);
+            }
+        }
+        else
+        {
+            checkPropertyValidity(currentChannel.getDestinationConnectors().get(0), parent.destinationConnectors);
+        }
+        
         channelView.setSelectedComponent(summary);
         
         if(currentChannel.getDirection() == Channel.Direction.INBOUND)
@@ -1261,6 +1276,44 @@ public class ChannelSetup extends javax.swing.JPanel
     public ConnectorClass getDestinationConnector()
     {
     	return destinationConnectorClass;
+    }
+    
+    /**
+     * Checks for properties that are new or not used and adds or removes them.
+     */
+    private void checkPropertyValidity(Connector connector, ArrayList<ConnectorClass> connectors)
+    {
+        Enumeration<?> propertyKeys;
+        Properties properties = connector.getProperties();
+        Properties propertiesDefaults = null;
+
+        for(int j=0; j<connectors.size(); j++)
+        {
+            if(connectors.get(j).getName().equalsIgnoreCase(connector.getTransportName()))
+            {
+                propertiesDefaults = connectors.get(j).getDefaults();
+            }
+        }
+
+        propertyKeys = properties.propertyNames();
+        while (propertyKeys.hasMoreElements())
+        {
+            String key = (String)propertyKeys.nextElement();
+            if(propertiesDefaults.getProperty(key) == null)
+            {
+                properties.remove(key);
+            }
+        }
+
+        propertyKeys = propertiesDefaults.propertyNames();
+        while (propertyKeys.hasMoreElements())
+        {
+            String key = (String)propertyKeys.nextElement();
+            if(properties.getProperty(key) == null)
+            {
+                properties.put(key, propertiesDefaults.getProperty(key));
+            }
+        }        
     }
     
     /** A method to compare two properties file to check if they are the same. */
