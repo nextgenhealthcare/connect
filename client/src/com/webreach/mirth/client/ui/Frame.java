@@ -1736,7 +1736,7 @@ public class Frame extends JXFrame
                     
                     if(exportFile.exists())
                         if(!alertOption("The file " + channel.getName() + ".xml already exists.  Would you like to overwrite it?"))
-                            return;
+                            continue;
 
                     FileUtil.write(exportFile, channelXML);
                 }
