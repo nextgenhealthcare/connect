@@ -112,7 +112,7 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher
 
 	private String replaceValues(String template, HashMap map) throws Exception {
 		if ((template == null) || !(template.length() > 0)) {
-			throw new Exception("Template is blank.");
+			return "";
 		}
 		
 		for (Iterator it = map.entrySet().iterator(); it.hasNext();) {
