@@ -1,8 +1,7 @@
-package com.webreach.mirth.server;
+package com.webreach.mirth.server.launcher;
 
 import java.lang.reflect.Method;
 
-import com.webreach.mirth.server.util.CustomLibrary;
 
 public class Launcher {
 	public static void main(String[] args) {
