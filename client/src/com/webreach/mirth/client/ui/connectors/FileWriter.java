@@ -71,17 +71,6 @@ public class FileWriter extends ConnectorClass
             properties.put(FILE_APPEND, UIConstants.NO_OPTION);
 
         properties.put(FILE_CONTENTS, fileContentsTextPane.getText());
-        
-        properties.put(FILE_START_OF_MESSAGE_CHARACTER, startOfMessageCharacterField.getText());
-        properties.put(FILE_END_OF_MESSAGE_CHARACTER, endOfMessageCharacterField.getText());
-        
-        if (ascii.isSelected())
-            properties.put(FILE_CHAR_ENCODING, "ascii");
-        else
-            properties.put(FILE_CHAR_ENCODING, "hex");
-        
-        properties.put(FILE_RECORD_SEPARATOR, recordSeparatorField.getText());
-        
         return properties;
     }
 
@@ -96,15 +85,6 @@ public class FileWriter extends ConnectorClass
             appendToFileNo.setSelected(true);
 
         fileContentsTextPane.setText((String)props.get(FILE_CONTENTS));
-        
-        if(((String)props.get(FILE_CHAR_ENCODING)).equals("ascii"))
-            ascii.setSelected(true);
-        else
-            hex.setSelected(true);
-        
-        startOfMessageCharacterField.setText((String)props.get(FILE_START_OF_MESSAGE_CHARACTER));
-        endOfMessageCharacterField.setText((String)props.get(FILE_END_OF_MESSAGE_CHARACTER));
-        recordSeparatorField.setText((String)props.get(FILE_RECORD_SEPARATOR));
     }
 
     public Properties getDefaults()
@@ -115,10 +95,6 @@ public class FileWriter extends ConnectorClass
         properties.put(FILE_NAME, "");
         properties.put(FILE_APPEND, UIConstants.YES_OPTION);
         properties.put(FILE_CONTENTS, "");
-        properties.put(FILE_CHAR_ENCODING, "hex");
-        properties.put(FILE_START_OF_MESSAGE_CHARACTER, "0x0B");
-        properties.put(FILE_END_OF_MESSAGE_CHARACTER, "0x1C");
-        properties.put(FILE_RECORD_SEPARATOR, "0x0D");
         return properties;
     }
 
@@ -142,15 +118,8 @@ public class FileWriter extends ConnectorClass
         appendToFileNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         fileContentsTextPane = new com.webreach.mirth.client.ui.components.MirthTextPane();
-        jLabel10 = new javax.swing.JLabel();
-        ascii = new javax.swing.JRadioButton();
-        hex = new javax.swing.JRadioButton();
-        startOfMessageCharacterField = new com.webreach.mirth.client.ui.components.MirthTextField();
-        jLabel42 = new javax.swing.JLabel();
-        jLabel43 = new javax.swing.JLabel();
-        endOfMessageCharacterField = new com.webreach.mirth.client.ui.components.MirthTextField();
-        jLabel44 = new javax.swing.JLabel();
-        recordSeparatorField = new com.webreach.mirth.client.ui.components.MirthTextField();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        mirthVariableList1 = new com.webreach.mirth.client.ui.components.MirthVariableList();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createTitledBorder(null, "File Writer", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(0, 0, 0)));
@@ -177,26 +146,13 @@ public class FileWriter extends ConnectorClass
 
         jScrollPane1.setViewportView(fileContentsTextPane);
 
-        jLabel10.setText("Character Encoding:");
-
-        ascii.setBackground(new java.awt.Color(255, 255, 255));
-        buttonGroup2.add(ascii);
-        ascii.setText("ASCII");
-        ascii.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        ascii.setMargin(new java.awt.Insets(0, 0, 0, 0));
-
-        hex.setBackground(new java.awt.Color(255, 255, 255));
-        buttonGroup2.add(hex);
-        hex.setSelected(true);
-        hex.setText("Hex");
-        hex.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        hex.setMargin(new java.awt.Insets(0, 0, 0, 0));
-
-        jLabel42.setText("Start of Message Character:");
-
-        jLabel43.setText("End of Message Character:");
-
-        jLabel44.setText("Record Sparator:");
+        mirthVariableList1.setModel(new javax.swing.AbstractListModel()
+        {
+            String[] strings = { "DATE", "DATE:yy-MM-dd", "SYSTIME", "UUID", "COUNT" };
+            public int getSize() { return strings.length; }
+            public Object getElementAt(int i) { return strings[i]; }
+        });
+        jScrollPane2.setViewportView(mirthVariableList1);
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
@@ -204,78 +160,49 @@ public class FileWriter extends ConnectorClass
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(jLabel1)
-                    .add(jLabel2)
-                    .add(jLabel4)
-                    .add(jLabel10)
-                    .add(jLabel43)
-                    .add(jLabel42)
-                    .add(jLabel3)
-                    .add(jLabel44))
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel4)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel2)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel1)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel3))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(fileNameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(directoryField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                    .add(layout.createSequentialGroup()
-                        .add(4, 4, 4)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(startOfMessageCharacterField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 40, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(endOfMessageCharacterField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 40, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(recordSeparatorField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 442, Short.MAX_VALUE)
                             .add(layout.createSequentialGroup()
                                 .add(appendToFileYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                                 .add(appendToFileNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                            .add(layout.createSequentialGroup()
-                                .add(ascii)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(hex)))))
+                            .add(directoryField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(fileNameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(jScrollPane2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 321, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel1)
-                    .add(directoryField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel2)
-                    .add(fileNameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
-                        .add(jLabel4)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jLabel10))
-                    .add(layout.createSequentialGroup()
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(appendToFileYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(appendToFileNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .add(jLabel1)
+                            .add(directoryField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(ascii)
-                            .add(hex))))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel42)
-                    .add(startOfMessageCharacterField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel43)
-                    .add(endOfMessageCharacterField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(recordSeparatorField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel44))
+                            .add(jLabel2)
+                            .add(fileNameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(jLabel4)
+                            .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                                .add(appendToFileYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .add(appendToFileNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
+                    .add(jScrollPane2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 82, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jLabel3)
-                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 268, Short.MAX_VALUE))
+                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 184, Short.MAX_VALUE))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -284,25 +211,18 @@ public class FileWriter extends ConnectorClass
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.webreach.mirth.client.ui.components.MirthRadioButton appendToFileNo;
     private com.webreach.mirth.client.ui.components.MirthRadioButton appendToFileYes;
-    private javax.swing.JRadioButton ascii;
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.ButtonGroup buttonGroup2;
     private com.webreach.mirth.client.ui.components.MirthTextField directoryField;
-    private com.webreach.mirth.client.ui.components.MirthTextField endOfMessageCharacterField;
     private com.webreach.mirth.client.ui.components.MirthTextPane fileContentsTextPane;
     private com.webreach.mirth.client.ui.components.MirthTextField fileNameField;
-    private javax.swing.JRadioButton hex;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel42;
-    private javax.swing.JLabel jLabel43;
-    private javax.swing.JLabel jLabel44;
     private javax.swing.JScrollPane jScrollPane1;
-    private com.webreach.mirth.client.ui.components.MirthTextField recordSeparatorField;
-    private com.webreach.mirth.client.ui.components.MirthTextField startOfMessageCharacterField;
+    private javax.swing.JScrollPane jScrollPane2;
+    private com.webreach.mirth.client.ui.components.MirthVariableList mirthVariableList1;
     // End of variables declaration//GEN-END:variables
 
 }
