@@ -1,4 +1,4 @@
-package com.webreach.mirth.server;
+package com.webreach.mirth.server.launcher;
 
 import java.net.URL;
 import java.net.URLClassLoader;
