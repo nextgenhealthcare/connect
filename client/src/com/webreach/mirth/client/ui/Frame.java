@@ -488,7 +488,17 @@ public class Frame extends JXFrame
             }
         });
         channelPopupMenu.add(importChannel);
-
+        
+        channelTasks.add(initActionCallback("doExportAll", "Export all of the channels to XML files.", ActionFactory.createBoundAction("doExportAll","Export All Channels", "O"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/export.png"))));
+        JMenuItem exportAllChannels = new JMenuItem("Export All Channels");
+        exportAllChannels.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/export.png")));
+        exportAllChannels.addActionListener(new ActionListener(){
+             public void actionPerformed(ActionEvent e){
+                doExportAll();
+            }
+        });
+        channelPopupMenu.add(exportAllChannels);
+        
         channelTasks.add(initActionCallback("doExport", "Export the currently selected channel to an XML file.", ActionFactory.createBoundAction("doExport","Export Channel", "X"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/export.png"))));
         JMenuItem exportChannel = new JMenuItem("Export Channel");
         exportChannel.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/export.png")));
@@ -541,7 +551,7 @@ public class Frame extends JXFrame
 
         setNonFocusable(channelTasks);
         setVisibleTasks(channelTasks, channelPopupMenu, 1, 1, false);
-        setVisibleTasks(channelTasks, channelPopupMenu, 4, -1, false);
+        setVisibleTasks(channelTasks, channelPopupMenu, 5, -1, false);
         taskPaneContainer.add(channelTasks);
     }
 
@@ -1281,10 +1291,16 @@ public class Frame extends JXFrame
             channelListPage.makeChannelTable();
 
             if(channels.size() > 0)
+            {
                 setVisibleTasks(channelTasks, channelPopupMenu, 1, 1, true);
+                setVisibleTasks(channelTasks, channelPopupMenu, 4, 4, true);
+            }
             else
+            {
                 setVisibleTasks(channelTasks, channelPopupMenu, 1, 1, false);
-
+                setVisibleTasks(channelTasks, channelPopupMenu, 4, 4, false);
+            }
+           
             for(int i = 0; i<channels.size(); i++)
             {
                 if(channelId == channels.get(i).getId())
@@ -1695,7 +1711,44 @@ public class Frame extends JXFrame
             }
         }
     }
+    
+    public void doExportAll()
+    {
+        JFileChooser exportFileChooser = new JFileChooser();
+        exportFileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        int returnVal = exportFileChooser.showSaveDialog(this);
+        File exportFile = null;
+        File exportDirectory = null;
+        
+        if(returnVal == JFileChooser.APPROVE_OPTION)
+        {
+            try
+            {
+                exportDirectory = exportFileChooser.getSelectedFile();
 
+                for(int i = 0; i < channels.size(); i++)
+                {
+                    Channel channel = channels.get(i);
+                    ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+                    String channelXML = serializer.serialize(channel);
+                    
+                    exportFile = new File(exportDirectory.getAbsolutePath() + "/" + channel.getName() + ".xml");
+                    
+                    if(exportFile.exists())
+                        if(!alertOption("The file " + channel.getName() + ".xml already exists.  Would you like to overwrite it?"))
+                            return;
+
+                    FileUtil.write(exportFile, channelXML);
+                }
+                alertInformation("All files were written successfully to " + exportDirectory.getPath() + ".");
+            }
+            catch (IOException ex)
+            {
+                alertError("File could not be written.");
+            }
+        }
+    }
+    
     public void doRefreshMessages()
     {
         messageBrowser.refresh();

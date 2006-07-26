@@ -227,13 +227,13 @@ public class ChannelPanel extends javax.swing.JPanel
         
         if(row >= 0)
         {
-            parent.setVisibleTasks(parent.channelTasks, parent.channelPopupMenu, 4, -1, true);
+            parent.setVisibleTasks(parent.channelTasks, parent.channelPopupMenu, 5, -1, true);
 
             int columnNumber = getColumnNumber(STATUS_COLUMN_NAME);
             if (((CellData)channelTable.getValueAt(row, columnNumber)).getText().equals(ENABLED_STATUS))
-                parent.setVisibleTasks(parent.channelTasks, parent.channelPopupMenu, 7, 7, false);
-            else
                 parent.setVisibleTasks(parent.channelTasks, parent.channelPopupMenu, 8, 8, false);
+            else
+                parent.setVisibleTasks(parent.channelTasks, parent.channelPopupMenu, 9, 9, false);
         }
     }
     
@@ -241,7 +241,7 @@ public class ChannelPanel extends javax.swing.JPanel
     public void deselectRows()
     {
         channelTable.clearSelection();
-        parent.setVisibleTasks(parent.channelTasks, parent.channelPopupMenu, 4, -1, false);
+        parent.setVisibleTasks(parent.channelTasks, parent.channelPopupMenu, 5, -1, false);
     }
     
     /** Gets the selected channel index that corresponds to the saved channels list */
