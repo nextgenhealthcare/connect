@@ -3,25 +3,16 @@ package com.webreach.mirth.server.launcher;
 import java.io.File;
 import java.io.FileFilter;
 import java.net.URL;
+import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
 
 public class CustomLibrary {
 	private Logger logger = Logger.getLogger(this.getClass());
-	private String jarPath = null;
-	private String classPath = null;
-
-	public CustomLibrary(String jarPath, String classPath) {
-		this.jarPath = jarPath;
-		this.classPath = classPath;
-	}
-
-	public String getClassPath() {
-		return this.classPath;
-	}
-
-	public String getJarPath() {
-		return this.jarPath;
+	private String[] paths = null;
+	
+	public CustomLibrary(String[] paths) {
+		this.paths = paths;
 	}
 
 	public URL[] getLibrary() throws Exception {
@@ -31,27 +22,29 @@ public class CustomLibrary {
 			}
 		};
 
-		File jarsDir = new File(jarPath);
-		URL[] jarURLs = null;
+		ArrayList<URL> urls = new ArrayList<URL>();
+		
+		for (int i = 0; i < paths.length; i++) {
+			File path = new File(paths[i]);
 
-		if (jarsDir.exists()) {
-			File[] jarFiles = jarsDir.listFiles(jarFileFilter);
+			if (path.exists()) {
+				if (path.isDirectory()) {
+					File[] pathFiles = path.listFiles(jarFileFilter);
 
-			// one extra URL is needed for the path to Mirth.class
-			jarURLs = new URL[jarFiles.length + 1];
-
-			for (int i = 0; i < jarFiles.length; i++) {
-				logger.info("found jar: " + jarFiles[i].getAbsolutePath());
-				jarURLs[i] = jarFiles[i].toURL();
+					for (int j = 0; j < pathFiles.length; j++) {
+						logger.info("found jar in path: " + pathFiles[j].getAbsolutePath());
+						urls.add(pathFiles[j].toURL());
+					}
+				} else {
+					logger.info("found jar in path: " + path.getAbsolutePath());
+					urls.add(path.toURL());
+				}
+			} else {
+				throw new Exception("Could not locate custom library directory: " + path.getAbsolutePath());
 			}
-
-			// points to basedir for the Mirth.class
-			jarURLs[jarURLs.length - 1] = (new File(classPath)).toURL();
-		} else {
-			throw new Exception("Could not locate custom library directory: " + jarsDir.getAbsolutePath());
 		}
 
-		return jarURLs;
+		return urls.toArray(new URL[urls.size()]);
 	}
 
 }

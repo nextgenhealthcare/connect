@@ -112,18 +112,18 @@
 			<fileset file="${basedir}/keystore" />
 		</copy>
 
-		<!-- copy build files -->
-		<copy todir="${setup}">
-			<fileset file="${basedir}/build.properties" />
-			<fileset file="${basedir}/build.xml" />
-		</copy>
-
-		<!-- create the Mirth jar file -->
+		<!-- create the Mirth server jar -->
 		<jar destfile="${setup}/mirth-server.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/server/**" />
 			<include name="com/webreach/mirth/model/**" />
 			<include name="com/webreach/mirth/util/**" />
 			<include name="org/mule/**" />
+			<exclude name="com/webreach/mirth/server/launcher/**" />
+		</jar>
+
+		<!-- create the Mirth launcher jar -->
+		<jar destfile="${setup}/mirth-launcher.jar" basedir="${classes}">
+			<include name="com/webreach/mirth/server/launcher/**" />
 		</jar>
 
 		<!-- copy web -->

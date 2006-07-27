@@ -46,7 +46,7 @@ import com.webreach.mirth.util.PropertyLoader;
  * 
  * @author <a href="mailto:geraldb@webreachinc.com">Gerald Bortis</a>
  */
-public class Mirth {
+public class Mirth extends Thread {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private boolean running = false;
 
@@ -56,7 +56,7 @@ public class Mirth {
 	private SystemLogger systemLogger = new SystemLogger();
 	private Properties properties = PropertyLoader.loadProperties("mirth");
 
-	public void start() {
+	public void run() {
 		running = true;
 		startWebServer();
 		commandQueue.addCommand(new Command(Command.Operation.START));
