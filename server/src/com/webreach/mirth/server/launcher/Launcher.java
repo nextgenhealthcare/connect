@@ -18,6 +18,5 @@ public class Launcher {
 		} else {
 			System.out.println("usage: java Launcher launcher.xml");
 		}
-		
 	}
 }

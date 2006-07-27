@@ -44,11 +44,11 @@ public class ClasspathBuilder {
 						File[] pathFiles = path.listFiles(pathFileFilter);
 
 						for (int j = 0; j < pathFiles.length; j++) {
-							logger.info("adding file to path: " + pathFiles[j].getAbsolutePath());
+							logger.trace("adding file to path: " + pathFiles[j].getAbsolutePath());
 							urls.add(pathFiles[j].toURL());
 						}
 					} else {
-						logger.info("adding file to path: " + path.getAbsolutePath());
+						logger.trace("adding file to path: " + path.getAbsolutePath());
 						urls.add(path.toURL());
 					}
 				} else {
