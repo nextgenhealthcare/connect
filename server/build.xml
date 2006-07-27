@@ -42,6 +42,12 @@
 		</jar>
 	</target>
 
+	<target name="create-launcher" depends="compile">
+		<jar destfile="mirth-launcher.jar" basedir="${classes}">
+			<include name="com/webreach/mirth/server/launcher/**" />
+		</jar>
+	</target>
+
 	<target name="create-web" depends="compile">
 		<delete dir="${web}" />
 
