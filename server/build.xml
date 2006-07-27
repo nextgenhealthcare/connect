@@ -109,6 +109,7 @@
 		<!-- copy misc files -->
 		<copy todir="${setup}">
 			<fileset file="${basedir}/database.sql" />
+			<fileset file="${basedir}/launcher.xml" />
 			<fileset file="${basedir}/keystore" />
 		</copy>
 
