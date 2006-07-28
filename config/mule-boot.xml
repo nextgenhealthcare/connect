@@ -34,8 +34,8 @@
 		<transformer name="ResultMapToXML"
 			className="com.webreach.mirth.server.mule.transformers.ResultMapToXML" />
 
-		<transformer name="VariableHashMapToER7"
-			className="com.webreach.mirth.server.mule.transformers.VariableHashMapToER7" />
+		<transformer name="VariableHashMapToER7String"
+			className="com.webreach.mirth.server.mule.transformers.VariableHashMapToER7String" />
 
 	</transformers>
 
