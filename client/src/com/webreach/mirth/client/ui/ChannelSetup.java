@@ -501,8 +501,6 @@ public class ChannelSetup extends javax.swing.JPanel
         Connector sourceConnector = makeNewConnector();
 	sourceConnector.setName("sourceConnector");
         sourceConnector.setTransportName((String)sourceSourceDropdown.getItemAt(0));
-        sourceConnector.setProperties(sourceConnectorClass.getProperties());
-        
         currentChannel.setSourceConnector(sourceConnector);
                 
         if(currentChannel.getMode() == Channel.Mode.APPLICATION)
