@@ -56,6 +56,11 @@ public class Mirth extends Thread {
 	private SystemLogger systemLogger = new SystemLogger();
 	private Properties properties = PropertyLoader.loadProperties("mirth");
 
+	public static void main(String[] args) {
+		Mirth mirth = new Mirth();
+		mirth.run();
+	}
+	
 	public void run() {
 		running = true;
 		startWebServer();
