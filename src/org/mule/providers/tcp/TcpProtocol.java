@@ -26,8 +26,13 @@ import java.io.OutputStream;
  * @version $Revision: 1.2 $
  */
 public interface TcpProtocol
-{
-
+{    /**
+     * Sets the parent tcpConnector
+     * 
+     * @param tcpConnector the parent tcpConnector
+     */
+	public void setTcpConnector(TcpConnector tcpConnector);
+	
     /**
      * Reads the input stream and returns a whole message.
      * 

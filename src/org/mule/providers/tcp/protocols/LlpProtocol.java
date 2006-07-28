@@ -11,6 +11,7 @@ import java.net.SocketTimeoutException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.mule.providers.tcp.TcpConnector;
 import org.mule.providers.tcp.TcpProtocol;
 
 /**
@@ -25,16 +26,31 @@ public class LlpProtocol implements TcpProtocol {
 	private static final Log logger = LogFactory.getLog(LlpProtocol.class);
 	public static final String CHARSET_KEY = "ca.uhn.hl7v2.llp.charset";
 
-	private static final char END_MESSAGE = '\u001c'; // character indicating
+	private static char END_MESSAGE = 0x1C; // character indicating
 														// the
 	// termination of an HL7 message
-	private static final char START_MESSAGE = '\u000b';// character indicating
+	private static char START_MESSAGE = 0x0B;// character indicating
 														// the
 	// start of an HL7 message
-	private static final char LAST_CHARACTER = 13; // the final character of
-
+	private static char LAST_CHARACTER = 0x0D; // the final character of
+	private TcpConnector _tcpConnector;
 	// a message: a carriage return
-
+	public void setTcpConnector(TcpConnector tcpConnector){
+		try{
+			_tcpConnector = tcpConnector;
+			if (_tcpConnector.getCharEncoding().equals("hex")){
+				START_MESSAGE = (char)Integer.decode(_tcpConnector.getMessageStart()).intValue();
+				END_MESSAGE = (char)Integer.decode(_tcpConnector.getMessageEnd()).intValue();
+				LAST_CHARACTER = (char)Integer.decode(_tcpConnector.getRecordSeparator()).intValue();
+			}else{
+				START_MESSAGE = _tcpConnector.getMessageStart().charAt(0);
+				END_MESSAGE = _tcpConnector.getMessageEnd().charAt(1);
+				LAST_CHARACTER = _tcpConnector.getRecordSeparator().charAt(2);
+			}
+		}catch (Exception e){
+			e.printStackTrace();
+		}
+	}
 	/*
 	 * Reads an inputstream and parses messages based on HL7 delimiters @param
 	 * is The InputStream to read from @return <code>byte[]</code> containing

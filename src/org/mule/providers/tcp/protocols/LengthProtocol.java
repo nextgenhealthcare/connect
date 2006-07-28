@@ -20,7 +20,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.mule.providers.tcp.TcpConnector;
 import org.mule.providers.tcp.TcpProtocol;
+
+import sun.rmi.transport.tcp.TCPConnection;
 
 /**
  * The LengthProtocol is an application level tcp protocol that can be used to
@@ -29,7 +32,8 @@ import org.mule.providers.tcp.TcpProtocol;
  * then the data to be transfered.
  * 
  * @author <a href="mailto:gnt@codehaus.org">Guillaume Nodet</a>
- * @version $Revision: 1.2 $
+ * @author <a href="mailto:chrisl@webreachinc.com">Chris Lang</a>
+ * @version $Revision: 1.3 $
  */
 public class LengthProtocol implements TcpProtocol
 {
@@ -66,5 +70,10 @@ public class LengthProtocol implements TcpProtocol
         dos.write(data);
         dos.flush();
     }
+
+	public void setTcpConnector(TcpConnector tcpConnector) {
+		// TODO Auto-generated method stub
+		
+	}
 
 }
