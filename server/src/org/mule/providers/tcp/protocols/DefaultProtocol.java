@@ -23,7 +23,10 @@ import java.net.SocketTimeoutException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.mule.providers.tcp.TcpConnector;
 import org.mule.providers.tcp.TcpProtocol;
+
+import sun.rmi.transport.tcp.TCPConnection;
 
 /**
  * The DefaultProtocol class is an application level tcp protocol that does
@@ -39,7 +42,6 @@ public class DefaultProtocol implements TcpProtocol
     private static final int BUFFER_SIZE = 8192;
 
     private static final Log logger = LogFactory.getLog(DefaultProtocol.class);
-
     public byte[] read(InputStream is) throws IOException
     {
         ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
@@ -81,5 +83,9 @@ public class DefaultProtocol implements TcpProtocol
     {
         os.write(data);
     }
+	public void setTcpConnector(TcpConnector tcpConnector) {
+		// TODO Auto-generated method stub
+		
+	}
 
 }

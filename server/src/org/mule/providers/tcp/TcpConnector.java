@@ -40,7 +40,7 @@ public class TcpConnector extends AbstractServiceEnabledConnector
 	private String charEncoding = "hex";
 	private String messageStart = "0x1C";
 	private String messageEnd = "0x0B";
-	private String recordSeparator = "13";
+	private String recordSeparator = "0x0D";
 	
     public static final int DEFAULT_SOCKET_TIMEOUT = 5000;
 
@@ -124,6 +124,7 @@ public class TcpConnector extends AbstractServiceEnabledConnector
         if (tcpProtocol == null) {
             try {
                 tcpProtocol = (TcpProtocol) ClassHelper.instanciateClass(tcpProtocolClassName, null);
+                tcpProtocol.setTcpConnector(this);
             } catch (Exception e) {
                 throw new InitialisationException(new Message("tcp", 3), e);
             }
