@@ -25,7 +25,7 @@ public class JavaScriptFilter implements UMOFilter {
 
 	public boolean accept(UMOMessage source) {
 		try {
-			String message = (String) source.getPayloadAsString();
+			String message = source.getPayloadAsString();
 
 			Context context = Context.enter();
 			Scriptable scope = context.initStandardObjects();
