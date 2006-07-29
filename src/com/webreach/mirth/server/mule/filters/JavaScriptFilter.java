@@ -10,10 +10,12 @@ import org.mule.umo.UMOMessage;
 
 import com.webreach.mirth.server.mule.components.InboundChannel;
 import com.webreach.mirth.server.mule.util.ER7Util;
+import com.webreach.mirth.server.util.EmbeddedDatabaseConnection;
 
 public class JavaScriptFilter implements UMOFilter {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private String script;
+	private EmbeddedDatabaseConnection dbConnection = new EmbeddedDatabaseConnection();
 
 	public String getScript() {
 		return this.script;
@@ -35,9 +37,11 @@ public class JavaScriptFilter implements UMOFilter {
 			scope.put("logger", scope, logger);
 			scope.put("localMap", scope, localMap);
 			scope.put("globalMap", scope, InboundChannel.globalMap);
+			scope.put("dbconnection", scope, dbConnection);
 
 			StringBuilder jsSource = new StringBuilder();
 			jsSource.append("function debug(debug_message) { logger.debug(debug_message) }\n");
+			jsSource.append("function queryDatabase(driver, address, query) { return dbConnection.executeQuery(driver, address, query) }\n");
 			jsSource.append("function doFilter() { default xml namespace = new Namespace(\"urn:hl7-org:v2xml\"); var msg = new XML(message); " + script + " }\n");
 			jsSource.append("doFilter()\n");
 
