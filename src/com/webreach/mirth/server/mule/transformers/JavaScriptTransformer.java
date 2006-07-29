@@ -22,12 +22,14 @@ import com.webreach.mirth.server.controllers.MessageLogger;
 import com.webreach.mirth.server.mule.components.InboundChannel;
 import com.webreach.mirth.server.mule.util.ER7Util;
 import com.webreach.mirth.server.util.EmailSender;
+import com.webreach.mirth.server.util.EmbeddedDatabaseConnection;
 
 public class JavaScriptTransformer extends AbstractTransformer {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private String script;
 	private final String HL7XML = "HL7 XML";
 	private final String HL7ER7 = "HL7 ER7";
+	private EmbeddedDatabaseConnection dbConnection = new EmbeddedDatabaseConnection();
 	public String getScript() {
 		return this.script;
 	}
@@ -59,14 +61,17 @@ public class JavaScriptTransformer extends AbstractTransformer {
 
 			// load variables in JavaScript scope
 			scope.put("message", scope, source);
-			scope.put("source", scope, ((String)new ER7Util().ConvertToER7((String)source)));
+			scope.put("incomingMessage", scope, ((String)new ER7Util().ConvertToER7((String)source)));
 			scope.put("logger", scope, logger);
 			scope.put("localMap", scope, localMap);
 			scope.put("globalMap", scope, InboundChannel.globalMap);
 			scope.put("sender", scope, sender);
+			scope.put("dbconnection", scope, dbConnection);
 
 			StringBuilder jsSource = new StringBuilder();
 			jsSource.append("function debug(debug_message) { logger.debug(debug_message) }");
+			jsSource.append("function queryDatabase(driver, address, query) { return dbConnection.executeQuery(driver, address, query) }\n");
+			jsSource.append("function updateDatabase(driver, address, query) { return dbConnection.executeUpdate(driver, address, query) }\n");
 			jsSource.append("function sendEmail(to, cc, from, subject, body) { sender.sendEmail(to, cc, from, subject, body) }");
 			jsSource.append("function doTransform() { default xml namespace = new Namespace(\"urn:hl7-org:v2xml\"); var msg = new XML(message); " + script + " }");
 			jsSource.append("doTransform()\n");
