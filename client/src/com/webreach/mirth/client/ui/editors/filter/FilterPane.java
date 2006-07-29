@@ -441,7 +441,7 @@ public class FilterPane extends MirthEditorPane {
 		saveData( filterTable.getSelectedRow() );
 		
 		rule.setSequenceNumber( rowCount );
-		rule.setScript( "" );
+		rule.setScript( "return true;" );
 		if ( rowCount == 0 )
 			rule.setOperator( Rule.Operator.NONE );	// NONE operator by default on row 0
 		else

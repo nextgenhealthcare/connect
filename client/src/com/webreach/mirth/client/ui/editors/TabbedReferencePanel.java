@@ -104,17 +104,22 @@ public class TabbedReferencePanel extends JPanel {
 		treeScrollPane = new JScrollPane();
 		treePanel = new HL7XMLTreePanel();
 
-		String[] referenceData = new String[4];
-		String[] tooltip = new String[4];
+		String[] referenceData = new String[7];
+		String[] tooltip = new String[7];
 		referenceData[0] = "localMap";
 		referenceData[1] = "globalMap";
-		referenceData[2] = "debug(\"message\");";
-		referenceData[3] = "sendEmail(\"to\", \"cc\", \"from\", \"subject\", \"body\");";
+		referenceData[2] = "incomingMessage";
+		referenceData[3] = "debug(\"message\");";
+		referenceData[4] = "sendEmail(\"to\", \"cc\", \"from\", \"subject\", \"body\");";
+		referenceData[5] = "queryDatabase(\"driver\", \"address\", \"query\");";
+		referenceData[6] = "updateDatabase(\"driver\", \"address\", \"query\");";
 		tooltip[0] = "The local variable map that will be sent to the connector.";
 		tooltip[1] = "The global variable map that persists values between channels.";
-		tooltip[2] = "Outputs the message to the system debug log.";
-		tooltip[3] = "Sends an alert email using the alert SMTP properties.";
-
+		tooltip[2] = "The original incoming ER7 or XML string.";
+		tooltip[3] = "Outputs the message to the system debug log.";
+		tooltip[4] = "Sends an alert email using the alert SMTP properties.";
+		tooltip[5] = "Performs a database query and returns the resultset.";
+		tooltip[6] = "Performs a database update.";
 		globalVarTable = new VariableReferenceTable(referenceData, tooltip);
 		globalVarPanel = new JPanel();
 		globalVarPanel.setBorder(BorderFactory.createTitledBorder("Variables & Functions"));
