@@ -10,7 +10,7 @@ import org.apache.log4j.Logger;
 public class EmbeddedDatabaseConnection {
 	private Logger logger = Logger.getLogger(this.getClass());
 
-	public ResultSet executeQuery(String driver, String address, String query) {
+	public ResultSet executeQuery(String driver, String address, String expression) {
 		Connection connection = null;
 		Statement statement = null;
 		
@@ -18,7 +18,7 @@ public class EmbeddedDatabaseConnection {
 			Class.forName(driver);
 			connection = DriverManager.getConnection(address);
 			statement = connection.createStatement();
-			return statement.executeQuery(query);
+			return statement.executeQuery(expression);
 		} catch (Exception e) {
 			logger.error(e);
 			return null;
@@ -33,7 +33,7 @@ public class EmbeddedDatabaseConnection {
 		}
 	}
 	
-	public void executeUpdate(String driver, String address, String query) {
+	public void executeUpdate(String driver, String address, String expression) {
 		Connection connection = null;
 		Statement statement = null;
 		
@@ -41,7 +41,7 @@ public class EmbeddedDatabaseConnection {
 			Class.forName(driver);
 			connection = DriverManager.getConnection(address);
 			statement = connection.createStatement();
-			statement.executeUpdate(query);
+			statement.executeUpdate(expression);
 		} catch (Exception e) {
 			logger.error(e);
 		} finally {
