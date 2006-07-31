@@ -30,6 +30,9 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ComponentEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.util.prefs.Preferences;
 
 import javax.swing.ImageIcon;
@@ -264,6 +267,14 @@ public class Mirth
                 frm.setIconImage(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/emoticon_smile.png")).getImage());
                 frm.setTitle("Mirth Administrator Login");
                 frm.setVisible(true);
+                frm.addWindowListener(new WindowAdapter()
+                {
+                    public void windowClosed(WindowEvent e)
+                    {
+                        if(svc.getMirth() == null)
+                            System.exit(0);
+                    }
+                });
             }
         });
     }
@@ -288,6 +299,7 @@ class MirthLoginListener implements LoginListener
         }
         public void loginCanceled(LoginEvent source) 
         {
+            System.exit(0);
         }
 }
 
@@ -298,7 +310,7 @@ class MirthLoginService extends LoginService
 {
         Client client;
         JPanel loginPanel;
-        Mirth mirth;
+        Mirth mirth = null;
         
         public MirthLoginService() 
         {
