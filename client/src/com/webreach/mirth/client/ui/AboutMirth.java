@@ -48,8 +48,8 @@ public class AboutMirth extends javax.swing.JDialog
     {
     	StringBuilder content = new StringBuilder();
     	content.append("Mirth Administrator\n\n");
-    	content.append("Version: 1.0.1\n\n");
-    	content.append("Built on July 19, 2006\n\n");
+    	content.append("Version: 1.0.2\n\n");
+    	content.append("Built on July 31, 2006\n\n");
 		content.append("(c) Copyright Mirth contributors and other 2005, 2006. All rights reserved. Visit http://www.mirthproject.org\n\n");
 		content.append("This product includes software developed by SymphonySoft Limited (http://www.symphonysoft.com) and its contributors.\n\n");
 		content.append("This product includes software developed by the Apache Software Foundation (http://www.apache.org/).\n\n");
@@ -78,7 +78,7 @@ public class AboutMirth extends javax.swing.JDialog
         jScrollPane1.setViewportView(aboutContent);
 
         jLabel2.setFont(new java.awt.Font("Tahoma", 1, 18));
-        jLabel2.setText("About Mirth");
+        jLabel2.setText("About Mirth Administrator");
 
         org.jdesktop.layout.GroupLayout mirthHeadingPanel1Layout = new org.jdesktop.layout.GroupLayout(mirthHeadingPanel1);
         mirthHeadingPanel1.setLayout(mirthHeadingPanel1Layout);
