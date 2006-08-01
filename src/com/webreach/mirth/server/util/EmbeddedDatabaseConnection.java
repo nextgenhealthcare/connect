@@ -10,10 +10,13 @@ import org.apache.log4j.Logger;
 public class EmbeddedDatabaseConnection {
 	private Logger logger = Logger.getLogger(this.getClass());
 
-	public ResultSet executeQuery(String driver, String address, String expression) {
-		Connection connection = null;
-		Statement statement = null;
-		
+	private Connection connection = null;
+
+	private Statement statement = null;
+
+	public ResultSet executeQuery(String driver, String address,
+			String expression) {
+
 		try {
 			Class.forName(driver);
 			connection = DriverManager.getConnection(address);
@@ -22,21 +25,10 @@ public class EmbeddedDatabaseConnection {
 		} catch (Exception e) {
 			logger.error(e);
 			return null;
-		} finally {
-			DatabaseUtil.close(statement);
-			
-			try {
-				connection.close();	
-			} catch (Exception e) {
-				logger.warn(e);
-			}
 		}
 	}
-	
+
 	public void executeUpdate(String driver, String address, String expression) {
-		Connection connection = null;
-		Statement statement = null;
-		
 		try {
 			Class.forName(driver);
 			connection = DriverManager.getConnection(address);
@@ -44,14 +36,17 @@ public class EmbeddedDatabaseConnection {
 			statement.executeUpdate(expression);
 		} catch (Exception e) {
 			logger.error(e);
-		} finally {
-			DatabaseUtil.close(statement);
-			
+		}
+	}
+
+	public void close() {
+		if (connection != null) {
 			try {
-				connection.close();	
+				connection.close();
+				DatabaseUtil.close(statement);
 			} catch (Exception e) {
 				logger.warn(e);
 			}
 		}
-	}	
+	}
 }

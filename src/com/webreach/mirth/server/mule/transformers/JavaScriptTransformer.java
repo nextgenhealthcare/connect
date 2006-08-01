@@ -70,7 +70,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			scope.put("localMap", scope, localMap);
 			scope.put("globalMap", scope, InboundChannel.globalMap);
 			scope.put("sender", scope, sender);
-			scope.put("dbconnection", scope, dbConnection);
+			scope.put("dbConnection", scope, dbConnection);
 
 			StringBuilder jsSource = new StringBuilder();
 			jsSource.append("function debug(debug_message) { logger.debug(debug_message) }");
@@ -83,6 +83,8 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			logger.debug("executing transformation script:\n\t" + jsSource.toString().replace("\\","\\\\"));
 			context.evaluateString(scope, jsSource.toString().replace("\\", "\\\\"), "<cmd>", 1, null);
 			
+			//Close database connections
+			dbConnection.close();
 			
 			localMap.put(HL7ER7,new ER7Util().ConvertToER7(localMap.get(HL7XML).toString()).replace("\\E", ""));
 			String channelId = Context.toString(scope.get("channelid", scope));
