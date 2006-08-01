@@ -10,7 +10,7 @@ import org.mule.umo.UMOFilter;
 import org.mule.umo.UMOMessage;
 
 import com.webreach.mirth.server.controllers.ConfigurationController;
-import com.webreach.mirth.server.mule.components.InboundChannel;
+import com.webreach.mirth.server.mule.components.ChannelComponent;
 import com.webreach.mirth.server.mule.util.ER7Util;
 import com.webreach.mirth.server.util.EmailSender;
 
@@ -51,7 +51,7 @@ public class JavaScriptFilter implements UMOFilter {
 			scope.put("incomingMessage", scope, ((String) new ER7Util().ConvertToER7(message)));
 			scope.put("logger", scope, logger);
 			scope.put("localMap", scope, localMap);
-			scope.put("globalMap", scope, InboundChannel.globalMap);
+			scope.put("globalMap", scope, ChannelComponent.globalMap);
 			scope.put("sender", scope, sender);
 
 			StringBuilder jsSource = new StringBuilder();

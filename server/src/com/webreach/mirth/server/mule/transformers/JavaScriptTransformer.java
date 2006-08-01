@@ -17,7 +17,7 @@ import ca.uhn.hl7v2.validation.impl.NoValidation;
 import com.webreach.mirth.model.MessageEvent;
 import com.webreach.mirth.server.controllers.ConfigurationController;
 import com.webreach.mirth.server.controllers.MessageLogger;
-import com.webreach.mirth.server.mule.components.InboundChannel;
+import com.webreach.mirth.server.mule.components.ChannelComponent;
 import com.webreach.mirth.server.mule.util.ER7Util;
 import com.webreach.mirth.server.util.EmailSender;
 
@@ -60,7 +60,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			scope.put("incomingMessage", scope, ((String) new ER7Util().ConvertToER7((String) source)));
 			scope.put("logger", scope, logger);
 			scope.put("localMap", scope, localMap);
-			scope.put("globalMap", scope, InboundChannel.globalMap);
+			scope.put("globalMap", scope, ChannelComponent.globalMap);
 			scope.put("sender", scope, sender);
 
 			StringBuilder jsSource = new StringBuilder();
