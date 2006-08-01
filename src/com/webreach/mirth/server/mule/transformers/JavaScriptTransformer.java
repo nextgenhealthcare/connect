@@ -1,5 +1,11 @@
 package com.webreach.mirth.server.mule.transformers;
 
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CharsetEncoder;
 import java.util.HashMap;
 import java.util.Properties;
 
@@ -7,7 +13,6 @@ import org.apache.log4j.Logger;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 import org.mule.transformers.AbstractTransformer;
-import org.mule.umo.UMOEventContext;
 import org.mule.umo.transformer.TransformerException;
 
 import ca.uhn.hl7v2.model.Message;
@@ -15,7 +20,6 @@ import ca.uhn.hl7v2.parser.PipeParser;
 import ca.uhn.hl7v2.util.Terser;
 import ca.uhn.hl7v2.validation.impl.NoValidation;
 
-import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.MessageEvent;
 import com.webreach.mirth.server.controllers.ConfigurationController;
 import com.webreach.mirth.server.controllers.MessageLogger;
@@ -58,7 +62,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			String username = properties.getProperty("smtp.username");
 			String password = properties.getProperty("smtp.password");
 			EmailSender sender = new EmailSender(host, port, username, password);
-
+			
 			// load variables in JavaScript scope
 			scope.put("message", scope, source);
 			scope.put("incomingMessage", scope, ((String)new ER7Util().ConvertToER7((String)source)));
@@ -77,8 +81,10 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			jsSource.append("doTransform()\n");
 			
 			logger.debug("executing transformation script:\n\t" + jsSource.toString().replace("\\","\\\\"));
-			context.evaluateString(scope, jsSource.toString().replace("\\","\\\\"), "<cmd>", 1, null);
-			localMap.put(HL7ER7,new ER7Util().ConvertToER7(localMap.get(HL7XML).toString()));
+			context.evaluateString(scope, jsSource.toString().replace("\\", "\\\\"), "<cmd>", 1, null);
+			
+			
+			localMap.put(HL7ER7,new ER7Util().ConvertToER7(localMap.get(HL7XML).toString()).replace("\\E", ""));
 			String channelId = Context.toString(scope.get("channelid", scope));
 			
 			logMessageEvent(localMap, channelId);

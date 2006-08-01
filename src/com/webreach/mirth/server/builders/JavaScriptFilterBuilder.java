@@ -18,13 +18,15 @@ public class JavaScriptFilterBuilder {
 			logger.debug("filter is emtpy, setting to accept all messages");
 			builder.append("return true;");
 		} else {
+			// generate the functions
 			for (ListIterator iter = filter.getRules().listIterator(); iter.hasNext();) {
 				Rule rule = (Rule) iter.next();
-				builder.append("function rule" + iter.nextIndex() + "() {" + rule.getScript() + "}\n");
+				builder.append("function filterRule" + iter.nextIndex() + "() {" + rule.getScript() + "}\n");
 			}
 		
 			builder.append("return (");
 			
+			// call each of the above functions in a big boolean expression
 			for (ListIterator iter = filter.getRules().listIterator(); iter.hasNext();) {
 				Rule rule = (Rule) iter.next();
 				String operator = "";
@@ -35,7 +37,7 @@ public class JavaScriptFilterBuilder {
 					operator = " || ";
 				}
 				
-				builder.append(operator + "rule" + iter.nextIndex() + "()");
+				builder.append(operator + "filterRule" + iter.nextIndex() + "()");
 			}
 
 			builder.append(");");

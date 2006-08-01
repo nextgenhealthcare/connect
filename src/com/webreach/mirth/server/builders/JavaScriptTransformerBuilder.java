@@ -37,7 +37,7 @@ public class JavaScriptTransformerBuilder {
 		
 		StringBuilder builder = new StringBuilder();
 		builder.append("var hl7_xml = new XML(message);");
-		builder.append("var hl7_er7 = source;");
+		builder.append("var hl7_er7 = incomingMessage;");
 		for (Iterator iter = transformer.getSteps().iterator(); iter.hasNext();) {
 			Step step = (Step) iter.next();
 			logger.debug("adding step: " + step.getScript());
