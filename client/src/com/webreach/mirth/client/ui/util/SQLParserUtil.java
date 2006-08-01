@@ -56,7 +56,7 @@ public class SQLParserUtil {
 			int fromClause = _sqlStatement.toUpperCase().indexOf("FROM");
 			if (fromClause > 0){
 				String columnText = _sqlStatement.substring(7, fromClause).trim();
-				return columnText.replaceAll(" ", "").replaceAll("`","").replaceAll("(","").replaceAll(")","").split(",");
+				return columnText.replaceAll(" ", "").replaceAll("`","").replaceAll("\\(","").replaceAll("\\)","").split(",");
 				
 			}
 			return new String[0];
