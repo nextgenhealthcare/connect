@@ -71,7 +71,7 @@ public class ER7Util {
 		PipeParser pipeParser = new PipeParser();
 		try {
 			logger.debug("encoding XML message to ER7:\n" + message);
-			xmlParser.setKeepAsOriginalNodes(new String[]{"NTE.3"});
+			xmlParser.setKeepAsOriginalNodes(new String[]{"NTE.3", "OBX.5"});
 			Message messagex = xmlParser.parse(message);
 			return pipeParser.encode(messagex);
 		} catch (Exception e) {

@@ -50,13 +50,13 @@ public class JavaScriptFilter implements UMOFilter {
 			EmailSender sender = new EmailSender(host, port, username, password);
 			
 			// load variables in JavaScript scope
-			scope.put("message", scope, source);
+			scope.put("message", scope, (String)new ER7Util().ConvertToXML(message));
 			scope.put("incomingMessage", scope, ((String)new ER7Util().ConvertToER7(message)));
 			scope.put("logger", scope, logger);
 			scope.put("localMap", scope, localMap);
 			scope.put("globalMap", scope, InboundChannel.globalMap);
 			scope.put("sender", scope, sender);
-			scope.put("dbconnection", scope, dbConnection);
+			scope.put("dbConnection", scope, dbConnection);
 
 			StringBuilder jsSource = new StringBuilder();
 			jsSource.append("function debug(debug_message) { logger.debug(debug_message) }\n");
@@ -66,9 +66,10 @@ public class JavaScriptFilter implements UMOFilter {
 			jsSource.append("function doFilter() { default xml namespace = new Namespace(\"urn:hl7-org:v2xml\"); var msg = new XML(message); " + script + " }\n");
 			jsSource.append("doFilter()\n");
 
-			logger.debug("executing filter script:\n\t" + jsSource.toString());
-			Object result = context.evaluateString(scope, jsSource.toString(), "<cmd>", 1, null);
-
+			logger.debug("executing filter script:\n\t" + jsSource.toString().replace("\\", "\\\\"));
+			Object result = context.evaluateString(scope, jsSource.toString().replace("\\", "\\\\"), "<cmd>", 1, null);
+			//Close database connections
+			dbConnection.close();
 			return ((Boolean) Context.jsToJava(result, java.lang.Boolean.class)).booleanValue();
 		} catch (Exception e) {
 			logger.error(e);
