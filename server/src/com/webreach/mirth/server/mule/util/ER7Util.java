@@ -51,7 +51,7 @@ public class ER7Util {
 		// disables all message validation
 		pipeParser.setValidationContext(new NoValidation());
 		XMLParser xmlParser = new DefaultXMLParser();
-
+		
 		try {
 			logger.debug("encoding ER7 message to XML:\n" + message);
 			return xmlParser.encode(pipeParser.parse(message));
@@ -71,6 +71,7 @@ public class ER7Util {
 		PipeParser pipeParser = new PipeParser();
 		try {
 			logger.debug("encoding XML message to ER7:\n" + message);
+			xmlParser.setKeepAsOriginalNodes(new String[]{"NTE.3"});
 			Message messagex = xmlParser.parse(message);
 			return pipeParser.encode(messagex);
 		} catch (Exception e) {

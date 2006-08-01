@@ -34,13 +34,19 @@ import org.mule.extras.client.MuleClient;
 import org.mule.umo.UMOMessage;
 
 public class Client {
+	private static char END_MESSAGE = 0x1C;
+	private static char START_MESSAGE = 0x0B;
+	private static char LAST_CHARACTER = 0x0D;
+	
 	public static void main(String[] args) {
 		System.out.println("Mirth Client Demo");
 		
 		try {
 			MuleClient client = new MuleClient();
 			StringBuilder message = new StringBuilder();
-
+			
+			message.append(START_MESSAGE);
+			
 			if (args.length == 2) {
 				BufferedReader reader = new BufferedReader(new FileReader(new File(args[1])));
 				String line = null;
@@ -53,9 +59,12 @@ public class Client {
 			} else {
 				System.out.println("Invalid parameters.");
 			}
-
+			
+			message.append(END_MESSAGE);
+			message.append(LAST_CHARACTER);
+			
 			System.out.println("Sending message from " + args[1] + " to " + args[0]);
-			UMOMessage response = client.send("tcp://" + args[0] + "?tcpProtocolClassName=org.mule.providers.tcp.protocols.LlpProtocol", message.toString(), null);
+			UMOMessage response = client.send("tcp://" + args[0], message.toString(), null);
 			client.dispose();
 			System.out.println("Message successfully sent.");
 
