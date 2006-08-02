@@ -10,7 +10,6 @@ import org.mule.umo.UMOMessage;
 
 import com.webreach.mirth.server.mule.components.ChannelComponent;
 import com.webreach.mirth.server.mule.util.ER7Util;
-import com.webreach.mirth.server.util.SMTPConnectionFactory;
 
 public class JavaScriptFilter implements UMOFilter {
 	private Logger logger = Logger.getLogger(this.getClass());
@@ -38,7 +37,6 @@ public class JavaScriptFilter implements UMOFilter {
 			scope.put("logger", scope, logger);
 			scope.put("localMap", scope, localMap);
 			scope.put("globalMap", scope, ChannelComponent.globalMap);
-			scope.put("smtpConnection", scope, SMTPConnectionFactory.createSMTPConnection());
 
 			StringBuilder jsSource = new StringBuilder();
 			jsSource.append("function init() { importPackage(com.webreach.mirth.server.util) }");
