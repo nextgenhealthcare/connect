@@ -1,7 +1,6 @@
 package com.webreach.mirth.server.mule.filters;
 
 import java.util.HashMap;
-import java.util.Properties;
 
 import org.apache.log4j.Logger;
 import org.mozilla.javascript.Context;
@@ -9,10 +8,8 @@ import org.mozilla.javascript.Scriptable;
 import org.mule.umo.UMOFilter;
 import org.mule.umo.UMOMessage;
 
-import com.webreach.mirth.server.controllers.ConfigurationController;
 import com.webreach.mirth.server.mule.components.ChannelComponent;
 import com.webreach.mirth.server.mule.util.ER7Util;
-import com.webreach.mirth.server.util.SMTPConnection;
 import com.webreach.mirth.server.util.SMTPConnectionFactory;
 
 public class JavaScriptFilter implements UMOFilter {

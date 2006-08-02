@@ -1,7 +1,6 @@
 package com.webreach.mirth.server.mule.transformers;
 
 import java.util.HashMap;
-import java.util.Properties;
 
 import org.apache.log4j.Logger;
 import org.mozilla.javascript.Context;
@@ -15,11 +14,9 @@ import ca.uhn.hl7v2.util.Terser;
 import ca.uhn.hl7v2.validation.impl.NoValidation;
 
 import com.webreach.mirth.model.MessageEvent;
-import com.webreach.mirth.server.controllers.ConfigurationController;
 import com.webreach.mirth.server.controllers.MessageLogger;
 import com.webreach.mirth.server.mule.components.ChannelComponent;
 import com.webreach.mirth.server.mule.util.ER7Util;
-import com.webreach.mirth.server.util.SMTPConnection;
 import com.webreach.mirth.server.util.SMTPConnectionFactory;
 
 public class JavaScriptTransformer extends AbstractTransformer {
