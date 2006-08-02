@@ -17,7 +17,6 @@ import com.webreach.mirth.model.MessageEvent;
 import com.webreach.mirth.server.controllers.MessageLogger;
 import com.webreach.mirth.server.mule.components.ChannelComponent;
 import com.webreach.mirth.server.mule.util.ER7Util;
-import com.webreach.mirth.server.util.SMTPConnectionFactory;
 
 public class JavaScriptTransformer extends AbstractTransformer {
 	private Logger logger = Logger.getLogger(this.getClass());
@@ -45,7 +44,6 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			scope.put("logger", scope, logger);
 			scope.put("localMap", scope, localMap);
 			scope.put("globalMap", scope, ChannelComponent.globalMap);
-			scope.put("smtpConnection", scope, SMTPConnectionFactory.createSMTPConnection());
 
 			StringBuilder jsSource = new StringBuilder();
 			jsSource.append("function init() { importPackage(com.webreach.mirth.server.util) }");
