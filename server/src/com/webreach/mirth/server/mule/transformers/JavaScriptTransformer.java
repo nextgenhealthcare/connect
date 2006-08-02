@@ -45,7 +45,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			scope.put("logger", scope, logger);
 			scope.put("localMap", scope, localMap);
 			scope.put("globalMap", scope, ChannelComponent.globalMap);
-			scope.put("smtpConnection", scope, SMTPConnectionFactory.getSMTPConnection());
+			scope.put("smtpConnection", scope, SMTPConnectionFactory.createSMTPConnection());
 
 			StringBuilder jsSource = new StringBuilder();
 			jsSource.append("function debug(debug_message) { logger.debug(debug_message) }");
