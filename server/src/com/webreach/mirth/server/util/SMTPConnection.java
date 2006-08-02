@@ -36,21 +36,21 @@ import javax.mail.internet.MimeMessage;
 
 import org.apache.log4j.Logger;
 
-public class EmailSender {
+public class SMTPConnection {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private String host;
 	private int port;
 	private String username;
 	private String password;
 
-	public EmailSender(String host, int port, String username, String password) {
+	public SMTPConnection(String host, int port, String username, String password) {
 		this.host = host;
 		this.port = port;
 		this.username = username;
 		this.password = password;
 	}
 	
-	public void sendEmail(String to, String cc, String from, String subject, String body) {
+	public void send(String to, String cc, String from, String subject, String body) {
 		try {
 			Properties props = System.getProperties();
 

@@ -30,9 +30,8 @@ import java.util.Properties;
 import com.webreach.mirth.util.PropertyLoader;
 
 public class JMXConnectionFactory {
-	private static Properties properties = PropertyLoader.loadProperties("mirth");
-	
 	public static JMXConnection createJMXConnection() throws Exception {
+		Properties properties = PropertyLoader.loadProperties("mirth");
 		return new JMXConnection(properties.getProperty("jmx.url"), properties.getProperty("configuration.id"));
 	}
 }

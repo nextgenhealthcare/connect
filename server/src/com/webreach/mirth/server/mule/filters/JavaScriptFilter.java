@@ -12,7 +12,8 @@ import org.mule.umo.UMOMessage;
 import com.webreach.mirth.server.controllers.ConfigurationController;
 import com.webreach.mirth.server.mule.components.ChannelComponent;
 import com.webreach.mirth.server.mule.util.ER7Util;
-import com.webreach.mirth.server.util.EmailSender;
+import com.webreach.mirth.server.util.SMTPConnection;
+import com.webreach.mirth.server.util.SMTPConnectionFactory;
 
 public class JavaScriptFilter implements UMOFilter {
 	private Logger logger = Logger.getLogger(this.getClass());
@@ -33,18 +34,6 @@ public class JavaScriptFilter implements UMOFilter {
 			Context context = Context.enter();
 			Scriptable scope = context.initStandardObjects();
 			HashMap localMap = new HashMap();
-			Properties properties = (new ConfigurationController()).getServerProperties();
-			String host = properties.getProperty("smtp.host");
-
-			int port = 25;
-
-			if (properties.getProperty("smtp.port") != null && !properties.getProperty("smtp.port").equals("")) {
-				port = Integer.valueOf(properties.getProperty("smtp.port")).intValue();
-			}
-
-			String username = properties.getProperty("smtp.username");
-			String password = properties.getProperty("smtp.password");
-			EmailSender sender = new EmailSender(host, port, username, password);
 
 			// load variables in JavaScript scope
 			scope.put("message", scope, (String) new ER7Util().ConvertToXML(message));
@@ -52,13 +41,13 @@ public class JavaScriptFilter implements UMOFilter {
 			scope.put("logger", scope, logger);
 			scope.put("localMap", scope, localMap);
 			scope.put("globalMap", scope, ChannelComponent.globalMap);
-			scope.put("sender", scope, sender);
+			scope.put("smtpConnection", scope, SMTPConnectionFactory.getSMTPConnection());
 
 			StringBuilder jsSource = new StringBuilder();
 			jsSource.append("function debug(debug_message) { logger.debug(debug_message) }\n");
 			jsSource.append("function queryDatabase(driver, address, username, password, expression) { DatabaseConnection conn = DatabaseConnectionFactory.createDatabaseConnection(driver, address, username, password); return conn.executeQuery(expression); conn.close(); }\n");
 			jsSource.append("function updateDatabase(driver, address, username, password, expression) { DatabaseConnection conn = DatabaseConnectionFactory.createDatabaseConnection(driver, address, username, password); return conn.executeUpdate(expression); conn.close() }\n");
-			jsSource.append("function sendEmail(to, cc, from, subject, body) { sender.sendEmail(to, cc, from, subject, body) }");
+			jsSource.append("function sendEmail(to, cc, from, subject, body) { smtpConnection.send(to, cc, from, subject, body) }");
 			jsSource.append("function doFilter() { default xml namespace = new Namespace(\"urn:hl7-org:v2xml\"); var msg = new XML(message); " + script + " }\n");
 			jsSource.append("doFilter()\n");
 
