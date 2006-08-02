@@ -267,6 +267,8 @@ public class Mirth
                 frm.setIconImage(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/emoticon_smile.png")).getImage());
                 frm.setTitle("Mirth Administrator Login");
                 frm.setVisible(true);
+                nameField.grabFocus();
+                
                 frm.addWindowListener(new WindowAdapter()
                 {
                     public void windowClosed(WindowEvent e)
