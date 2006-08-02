@@ -41,11 +41,9 @@ public class JavaScriptFilter implements UMOFilter {
 			scope.put("smtpConnection", scope, SMTPConnectionFactory.createSMTPConnection());
 
 			StringBuilder jsSource = new StringBuilder();
+			jsSource.append("function init() { importPackage(com.webreach.mirth.server.util) }");
 			jsSource.append("function debug(debug_message) { logger.debug(debug_message) }\n");
-			jsSource.append("function queryDatabase(driver, address, username, password, expression) { DatabaseConnection conn = DatabaseConnectionFactory.createDatabaseConnection(driver, address, username, password); return conn.executeQuery(expression); conn.close(); }\n");
-			jsSource.append("function updateDatabase(driver, address, username, password, expression) { DatabaseConnection conn = DatabaseConnectionFactory.createDatabaseConnection(driver, address, username, password); return conn.executeUpdate(expression); conn.close() }\n");
-			jsSource.append("function sendEmail(to, cc, from, subject, body) { smtpConnection.send(to, cc, from, subject, body) }");
-			jsSource.append("function doFilter() { default xml namespace = new Namespace(\"urn:hl7-org:v2xml\"); var msg = new XML(message); " + script + " }\n");
+			jsSource.append("function doFilter() { init(); default xml namespace = new Namespace(\"urn:hl7-org:v2xml\"); var msg = new XML(message); " + script + " }\n");
 			jsSource.append("doFilter()\n");
 
 			logger.debug("executing filter script:\n\t" + jsSource.toString().replace("\\", "\\\\"));
