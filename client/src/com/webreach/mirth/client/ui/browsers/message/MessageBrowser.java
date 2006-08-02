@@ -262,6 +262,7 @@ public class MessageBrowser extends javax.swing.JPanel
         eventTable.setRowHeight(UIConstants.ROW_HEIGHT);
         eventTable.setOpaque(true);
         eventTable.setRowSelectionAllowed(true);
+        clearDescription();
         
         if(Preferences.systemNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
         {
