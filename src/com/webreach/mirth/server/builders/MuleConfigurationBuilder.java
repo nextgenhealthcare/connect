@@ -265,13 +265,7 @@ public class MuleConfigurationBuilder {
 
 			// add the transformer script properties
 			Properties properties = new Properties();
-			
-			if (channel.getDirection().equals(Channel.Direction.INBOUND)) {
-				properties.put("script", transformerBuilder.getInboundScript(transformer, channel.getId()));	
-			} else {
-				properties.put("script", transformerBuilder.getOutboundScript(transformer, channel.getId()));
-			}
-			
+			properties.put("script", transformerBuilder.getScript(transformer, channel));	
 			transformerElement.appendChild(getProperties(document, properties));
 
 			transformersElement.appendChild(transformerElement);
