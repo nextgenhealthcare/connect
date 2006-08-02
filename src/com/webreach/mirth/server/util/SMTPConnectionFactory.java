@@ -5,7 +5,7 @@ import java.util.Properties;
 import com.webreach.mirth.server.controllers.ConfigurationController;
 
 public class SMTPConnectionFactory {
-	public static SMTPConnection getSMTPConnection() throws Exception {
+	public static SMTPConnection createSMTPConnection() throws Exception {
 		Properties properties = (new ConfigurationController()).getServerProperties();
 		String host = properties.getProperty("smtp.host");
 
