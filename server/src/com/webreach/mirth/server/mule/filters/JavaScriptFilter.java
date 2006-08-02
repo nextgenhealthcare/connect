@@ -40,7 +40,6 @@ public class JavaScriptFilter implements UMOFilter {
 
 			StringBuilder jsSource = new StringBuilder();
 			jsSource.append("function init() { importPackage(com.webreach.mirth.server.util) }");
-			jsSource.append("function debug(debug_message) { logger.debug(debug_message) }\n");
 			jsSource.append("function doFilter() { init(); default xml namespace = new Namespace(\"urn:hl7-org:v2xml\"); var msg = new XML(message); " + script + " }\n");
 			jsSource.append("doFilter()\n");
 

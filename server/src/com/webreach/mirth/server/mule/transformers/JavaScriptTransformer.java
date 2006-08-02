@@ -47,7 +47,6 @@ public class JavaScriptTransformer extends AbstractTransformer {
 
 			StringBuilder jsSource = new StringBuilder();
 			jsSource.append("function init() { importPackage(com.webreach.mirth.server.util) }");
-			jsSource.append("function debug(debug_message) { logger.debug(debug_message) }");
 			jsSource.append("function doTransform() { init(); default xml namespace = new Namespace(\"urn:hl7-org:v2xml\"); var msg = new XML(message); " + script + " }");
 			jsSource.append("doTransform()\n");
 
