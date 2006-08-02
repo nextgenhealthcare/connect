@@ -69,6 +69,7 @@ import com.webreach.mirth.util.PropertyLoader;
  * 
  */
 public class ConfigurationController {
+	private static final String CONF_FOLDER = "conf/";
 	private Logger logger = Logger.getLogger(this.getClass());
 	private SystemLogger systemLogger = new SystemLogger();
 	private static File serverPropertiesFile = new File("server.properties");
@@ -345,7 +346,7 @@ public class ConfigurationController {
 	
 	public List<DriverInfo> getDatabaseDrivers() throws Exception {
 		logger.debug("retrieving database driver list");
-		File driversFile = new File("config/dbdrivers.xml");
+		File driversFile = new File(CONF_FOLDER + "dbdrivers.xml");
 
 		if (driversFile.exists()) {
 			ArrayList<DriverInfo> drivers = new ArrayList<DriverInfo>();
