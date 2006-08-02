@@ -88,7 +88,7 @@
 	<target name="create-setup" depends="create-web">
 		<!-- create the setup directory -->
 		<mkdir dir="${setup}" />
-		<mkdir dir="${setup.config}" />
+		<mkdir dir="${setup.conf}" />
 		<mkdir dir="${setup.lib}" />
 		<mkdir dir="${setup.web}" />
 		<mkdir dir="${setup.source}" />
@@ -104,12 +104,12 @@
 			<fileset dir="${lib}" />
 		</copy>
 
-		<!-- copy config files -->
-		<copy todir="${setup.config}">
-			<fileset file="${config}/dbdrivers.xml" />
-			<fileset file="${config}/mule-boot.xml" />
-			<fileset file="${config}/mirth.properties" />
-			<fileset file="${config}/log4j.properties" />
+		<!-- copy conf files -->
+		<copy todir="${setup.conf}">
+			<fileset file="${conf}/dbdrivers.xml" />
+			<fileset file="${conf}/mule-boot.xml" />
+			<fileset file="${conf}/mirth.properties" />
+			<fileset file="${conf}/log4j.properties" />
 		</copy>
 
 		<!-- copy misc files -->
@@ -146,7 +146,7 @@
 		<java classname="com.webreach.mirth.server.tools.CreateDatabaseTables" failonerror="true">
 			<classpath>
 				<pathelement location="${setup}/mirth-server.jar" />
-				<pathelement location="${setup.config}" />
+				<pathelement location="${setup.conf}" />
 				<fileset dir="${setup.lib}">
 					<include name="**/*.jar" />
 				</fileset>
