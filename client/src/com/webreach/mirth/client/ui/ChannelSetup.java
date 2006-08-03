@@ -557,7 +557,7 @@ public class ChannelSetup extends javax.swing.JPanel
         else
             xmlPreEncoded.setSelected(false);
             
-        if(((String)currentChannel.getProperties().get("initialState")) != null && ((String)currentChannel.getProperties().get("initialState")).equalsIgnoreCase("Started"))
+        if(((String)currentChannel.getProperties().get("initialState")) != null && ((String)currentChannel.getProperties().get("initialState")).equalsIgnoreCase("started"))
             initialState.setSelectedItem("Started");
         else
             initialState.setSelectedItem("Stopped");
@@ -607,9 +607,9 @@ public class ChannelSetup extends javax.swing.JPanel
             currentChannel.getProperties().put("recv_xml_encoded", "false");
         
         if(((String)initialState.getSelectedItem()).equalsIgnoreCase("Stopped"))
-            currentChannel.getProperties().put("initialState", "Stopped");
+            currentChannel.getProperties().put("initialState", "stopped");
         else
-            currentChannel.getProperties().put("initialState", "Started");
+            currentChannel.getProperties().put("initialState", "started");
         
         this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         try
