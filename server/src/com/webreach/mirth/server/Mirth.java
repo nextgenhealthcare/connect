@@ -76,6 +76,7 @@ public class Mirth extends Thread {
 
 			if (command.getOperation().equals(Command.Operation.START)) {
 				startMule();
+				displaySplashScreen();
 			} else if (command.getOperation().equals(Command.Operation.STOP)) {
 				stopMule();
 			} else if (command.getOperation().equals(Command.Operation.RESTART)) {
@@ -112,7 +113,6 @@ public class Mirth extends Thread {
 			System.setProperty("org.mule.xml.validate", "false");
 			MuleXmlConfigurationBuilder builder = new MuleXmlConfigurationBuilder();
 			muleManager = builder.configure(configurationFilePath);
-			displaySplashScreen();
 		} catch (ConfigurationException e) {
 			logger.warn("Error deploying channels.", e);
 
