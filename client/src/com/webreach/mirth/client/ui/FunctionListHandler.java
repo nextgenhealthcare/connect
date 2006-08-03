@@ -23,7 +23,6 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
 package com.webreach.mirth.client.ui;
 
 import java.awt.datatransfer.DataFlavor;
@@ -36,39 +35,44 @@ import javax.swing.TransferHandler;
 import com.webreach.mirth.client.ui.editors.ReferenceTable;
 
 public class FunctionListHandler extends TransferHandler {
-	private ArrayList<FunctionListItem> _listItems;
-	public void setListItems(ArrayList<FunctionListItem> listItems){
-		_listItems = listItems;
-	}
-	public FunctionListHandler(ArrayList<FunctionListItem> listItems){
+	private ArrayList<FunctionListItem> listItems;
+
+	public FunctionListHandler(ArrayList<FunctionListItem> listItems) {
 		super();
-		_listItems = listItems;
+		this.listItems = listItems;
 	}
-	protected Transferable createTransferable( JComponent c ) {
+
+	public void setListItems(ArrayList<FunctionListItem> listItems) {
+		this.listItems = listItems;
+	}
+
+	protected Transferable createTransferable(JComponent c) {
 		try {
-			if (_listItems == null) return null;
-			ReferenceTable reftable = ((ReferenceTable)( c ));
+			if (listItems == null)
+				return null;
+			ReferenceTable reftable = ((ReferenceTable) (c));
 			int currRow = reftable.getSelectedRow();
-		
-			if ( reftable == null ) return null;
-			
+
+			if (reftable == null)
+				return null;
+
 			String text;
-			if (currRow >= 0 && currRow < reftable.getRowCount() && currRow < _listItems.size()) 
-				text = _listItems.get(currRow).getCode();
-			else text = "";
-			
-			return new VariableTransferable( text, "", "" );
-		}
-		catch ( ClassCastException cce ) {
+			if (currRow >= 0 && currRow < reftable.getRowCount() && currRow < listItems.size())
+				text = listItems.get(currRow).getCode();
+			else
+				text = "";
+
+			return new VariableTransferable(text, "", "");
+		} catch (ClassCastException cce) {
 			return null;
 		}
 	}
-	
-	public int getSourceActions( JComponent c ) {
+
+	public int getSourceActions(JComponent c) {
 		return COPY;
 	}
-	
-	public boolean canImport( JComponent c, DataFlavor[] df ) {
+
+	public boolean canImport(JComponent c, DataFlavor[] df) {
 		return false;
 	}
 }
