@@ -71,7 +71,6 @@ public class Mirth extends Thread {
 
 		// pulls commands off of the command queue
 		while (running) {
-			logger.debug("waiting for command...");
 			Command command = commandQueue.getCommand();
 
 			if (command.getOperation().equals(Command.Operation.START)) {
@@ -185,6 +184,7 @@ public class Mirth extends Thread {
 
 			webServer.addWebApplication("/", "./web/webapps/mirth.war");
 			webServer.start();
+			logger.debug("started jetty web server on ports: " + httpPort + ", " + httpsPort);
 		} catch (Exception e) {
 			logger.warn("Could not start web server.", e);
 		}
