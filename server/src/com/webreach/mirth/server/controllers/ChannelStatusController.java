@@ -213,7 +213,10 @@ public class ChannelStatusController {
 		} catch (Exception e) {
 			throw new ControllerException(e.getMessage());
 		} finally {
-			jmxConnection.close();
+			// to prevent closing the connection when the server is restarting
+			if (jmxConnection != null) {
+				jmxConnection.close();	
+			}
 		}
 	}
 	
