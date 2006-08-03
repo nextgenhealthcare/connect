@@ -29,6 +29,7 @@ package com.webreach.mirth.client.ui.editors;
 import java.awt.BorderLayout;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
@@ -36,9 +37,12 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 
 import com.Ostermiller.Syntax.HighlightedDocument;
+import com.webreach.mirth.client.ui.FunctionListHandler;
 import com.webreach.mirth.client.ui.HL7XMLTreePanel;
 import com.webreach.mirth.client.ui.PlatformUI;
 import com.webreach.mirth.client.ui.ReferenceTableHandler;
+import com.webreach.mirth.client.ui.FunctionListBuilder;
+import com.webreach.mirth.client.ui.FunctionListItem;
 import com.webreach.mirth.client.ui.components.MirthTextPane;
 import com.webreach.mirth.client.ui.util.SQLParserUtil;
 import com.webreach.mirth.model.Channel;
@@ -103,7 +107,7 @@ public class TabbedReferencePanel extends JPanel {
 		pasteScrollPane = new JScrollPane();
 		treeScrollPane = new JScrollPane();
 		treePanel = new HL7XMLTreePanel();
-
+		/*
 		String[] referenceData = new String[7];
 		String[] tooltip = new String[7];
 		referenceData[0] = "localMap";
@@ -120,13 +124,17 @@ public class TabbedReferencePanel extends JPanel {
 		tooltip[4] = "Sends an alert email using the alert SMTP properties.";
 		tooltip[5] = "Performs a database query and returns the resultset.";
 		tooltip[6] = "Performs a database update.";
-		globalVarTable = new VariableReferenceTable(referenceData, tooltip);
+		*/
+		ArrayList<FunctionListItem> functionListItems = new FunctionListBuilder().getVariableListItems();
+		globalVarTable = new VariableReferenceTable(functionListItems);
 		globalVarPanel = new JPanel();
 		globalVarPanel.setBorder(BorderFactory.createTitledBorder("Variables & Functions"));
 		globalVarPanel.setBackground(EditorConstants.PANEL_BACKGROUND);
 		globalVarPanel.setLayout(new BorderLayout());
 		globalVarPanel.add(globalVarTable, BorderLayout.CENTER);
-
+		globalVarTable.setDragEnabled(true);
+		globalVarTable.setTransferHandler(new FunctionListHandler(functionListItems));
+		
 		dbVarTable = new VariableReferenceTable();
 		dbVarPanel = new JPanel();
 		dbVarPanel.setBorder(BorderFactory

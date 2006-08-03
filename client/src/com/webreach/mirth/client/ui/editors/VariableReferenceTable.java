@@ -29,17 +29,20 @@ package com.webreach.mirth.client.ui.editors;
 import java.awt.Component;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 import javax.swing.JComponent;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 
 import com.webreach.mirth.client.ui.PlatformUI;
+import com.webreach.mirth.client.ui.FunctionListItem;
 
 
 public class VariableReferenceTable extends ReferenceTable {
 	private Object[] tooltip;
-	
+	private ArrayList<FunctionListItem> _listItems;
 	public VariableReferenceTable () {
 		super();
 		makeTable( null, null );
@@ -55,7 +58,24 @@ public class VariableReferenceTable extends ReferenceTable {
 		makeTable( data, tooltip );
 	}
 	
-	
+	public VariableReferenceTable(ArrayList<FunctionListItem> listItems){
+		this._listItems = listItems;
+		makeTable(listItems);
+	}
+	private void makeTable(ArrayList<FunctionListItem> listItems){
+		if (listItems == null) return;
+		Object[] tooltips = new String[listItems.size()];
+		Object[] names = new String[listItems.size()];
+		Iterator<FunctionListItem> listItemIterator = listItems.iterator();
+		int i = 0; 
+		while (listItemIterator.hasNext()){
+			FunctionListItem listItem = listItemIterator.next();
+			names[i]= listItem.getName();
+			tooltips[i] = listItem.getTooltip();    
+			i++;
+		}
+		makeTable(names, tooltips);
+	}
 	private void makeTable(Object[] data, Object[] tooltip) {
 		if (data == null) return;
 		
