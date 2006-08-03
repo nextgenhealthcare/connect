@@ -356,7 +356,7 @@ public class ConfigurationController {
 			for (int i = 0; i < driversElement.getElementsByTagName("driver").getLength(); i++) {
 				Element driverElement = (Element) driversElement.getElementsByTagName("driver").item(i);
 				DriverInfo driver = new DriverInfo(driverElement.getAttribute("name"), driverElement.getAttribute("class"));
-				logger.info("found database driver: " + driver);
+				logger.debug("found database driver: " + driver);
 				drivers.add(driver);
 			}
 
