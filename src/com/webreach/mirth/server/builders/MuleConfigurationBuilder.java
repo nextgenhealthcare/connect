@@ -117,7 +117,15 @@ public class MuleConfigurationBuilder {
 			}
 			
 			muleDescriptorElement.setAttribute("name", String.valueOf(channel.getId()));
-			muleDescriptorElement.setAttribute("initialState", "stopped");
+			
+			// default initial state is stopped if no state is found
+			String initialState = "stopped";
+			
+			if (channel.getProperties().getProperty("initialState") != null) {
+				initialState = channel.getProperties().getProperty("initialState");
+			}
+			
+			muleDescriptorElement.setAttribute("initialState", initialState);
 
 			// inbound-router
 			muleDescriptorElement.appendChild(getInboundRouter(document, configurationElement, channel));
