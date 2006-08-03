@@ -25,6 +25,7 @@
 
 package com.webreach.mirth.server;
 
+import java.util.Date;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
@@ -70,7 +71,7 @@ public class Mirth extends Thread {
 
 		// pulls commands off of the command queue
 		while (running) {
-			System.out.println("waiting for command...");
+			logger.debug("waiting for command...");
 			Command command = commandQueue.getCommand();
 
 			if (command.getOperation().equals(Command.Operation.START)) {
@@ -86,7 +87,7 @@ public class Mirth extends Thread {
 	}
 	
 	public void shutdown() {
-		System.out.println("shutting down mirth");
+		logger.info("shutting down mirth");
 		stopMule();
 		stopWebServer();
 		running = false;
@@ -111,6 +112,7 @@ public class Mirth extends Thread {
 			System.setProperty("org.mule.xml.validate", "false");
 			MuleXmlConfigurationBuilder builder = new MuleXmlConfigurationBuilder();
 			muleManager = builder.configure(configurationFilePath);
+			displaySplashScreen();
 		} catch (ConfigurationException e) {
 			logger.warn("Error deploying channels.", e);
 
@@ -133,7 +135,6 @@ public class Mirth extends Thread {
 
 		try {
 			muleManager.stop();
-			System.out.println("stopped mule");
 		} catch (Exception e) {
 			logger.error(e);
 		} finally {
@@ -204,5 +205,10 @@ public class Mirth extends Thread {
 		public void run() {
 			shutdown();
 		}
+	}
+	
+	public void displaySplashScreen() {
+		System.out.println("Mirth server successfully started: " + (new Date()).toString());
+		System.out.println("Running Java " +  System.getProperty("java.version") + " on " + System.getProperty("os.name") + " (" + System.getProperty("os.version") + ", " + System.getProperty("os.arch") + ")");
 	}
 }
