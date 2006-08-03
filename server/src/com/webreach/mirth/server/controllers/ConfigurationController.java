@@ -241,8 +241,8 @@ public class ConfigurationController {
 			result = dbConnection.executeQuery("SELECT id, date_created, data FROM configurations WHERE date_created IN (SELECT MAX(date_created) FROM configurations);");
 
 			while (result.next()) {
-				logger.debug("using configuration ID" + result.getInt("ID") + " created @ " + result.getTimestamp("DATE_CREATED").toString());
-				String data = result.getString("DATA");
+				logger.debug("using configuration " + result.getInt("id") + " created on " + result.getTimestamp("date_created").toString());
+				String data = result.getString("data");
 				BufferedWriter out = new BufferedWriter(new FileWriter(properties.getProperty("mule.config")));
 				out.write(data);
 				out.close();
