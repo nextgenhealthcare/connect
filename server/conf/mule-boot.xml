@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <mule-configuration id="MirthConfiguration" version="1.0">
-	<mule-environment-properties embedded="false" />
+	<mule-environment-properties embedded="true" />
 	
 	<agents>
 		<agent name="RMI"
