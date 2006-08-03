@@ -1,37 +1,37 @@
 package com.webreach.mirth.client.ui;
 
 public class FunctionListItem {
-	private String _name;
-	private String _tooltip;
-	private String _code;
-	
+	private String name;
+	private String tooltip;
+	private String code;
+
+	public FunctionListItem(String name, String tooltip, String code) {
+		this.name = name;
+		this.tooltip = tooltip;
+		this.code = code;
+	}
+
 	public String getCode() {
-		return _code;
+		return code;
 	}
 
 	public void setCode(String code) {
-		_code = code;
+		this.code = code;
 	}
 
 	public String getName() {
-		return _name;
+		return name;
 	}
 
 	public void setName(String name) {
-		_name = name;
+		this.name = name;
 	}
 
 	public String getTooltip() {
-		return _tooltip;
+		return tooltip;
 	}
 
 	public void setTooltip(String tooltip) {
-		_tooltip = tooltip;
-	}
-
-	public FunctionListItem(String name, String tooltip, String code){
-		_name = name;
-		_tooltip = tooltip;
-		_code = code;
+		this.tooltip = tooltip;
 	}
 }
