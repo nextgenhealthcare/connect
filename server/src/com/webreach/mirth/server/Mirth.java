@@ -75,7 +75,7 @@ public class Mirth extends Thread {
 
 			if (command.getOperation().equals(Command.Operation.START)) {
 				startMule();
-				displaySplashScreen();
+				printSplashScreen();
 			} else if (command.getOperation().equals(Command.Operation.STOP)) {
 				stopMule();
 			} else if (command.getOperation().equals(Command.Operation.RESTART)) {
@@ -209,7 +209,7 @@ public class Mirth extends Thread {
 		}
 	}
 	
-	public void displaySplashScreen() {
+	private void printSplashScreen() {
 		System.out.println("Mirth server successfully started: " + (new Date()).toString());
 		System.out.println("Running Java " +  System.getProperty("java.version") + " on " + System.getProperty("os.name") + " (" + System.getProperty("os.version") + ", " + System.getProperty("os.arch") + ")");
 	}
