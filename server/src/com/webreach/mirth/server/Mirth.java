@@ -132,13 +132,15 @@ public class Mirth extends Thread {
 	private void stopMule() {
 		logger.debug("stopping mule");
 
-		try {
-			muleManager.stop();
-		} catch (Exception e) {
-			logger.error(e);
-		} finally {
-			logger.debug("disposing mule");
-			muleManager.dispose();
+		if (muleManager != null) {
+			try {
+				muleManager.stop();	
+			} catch (Exception e) {
+				logger.error(e);
+			} finally {
+				logger.debug("disposing mule instance");
+				muleManager.dispose();
+			}
 		}
 	}
 
