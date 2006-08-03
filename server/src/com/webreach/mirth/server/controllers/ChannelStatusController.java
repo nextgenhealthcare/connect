@@ -173,7 +173,7 @@ public class ChannelStatusController {
 			
 			return channelStatusList;
 		} catch (Exception e) {
-			logger.warn("could not retrieve channel status list", e);
+			logger.debug("could not retrieve channel status list");
 			// returns an empty list
 			return channelStatusList;
 		}
@@ -211,7 +211,7 @@ public class ChannelStatusController {
 
 			return deployedChannelIdList;
 		} catch (Exception e) {
-			throw new ControllerException(e.getMessage());
+			throw new ControllerException(e);
 		} finally {
 			// to prevent closing the connection when the server is restarting
 			if (jmxConnection != null) {
