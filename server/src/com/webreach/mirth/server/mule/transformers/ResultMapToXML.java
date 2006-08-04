@@ -65,7 +65,7 @@ public class ResultMapToXML extends AbstractTransformer {
 			}
 
 			DocumentSerializer docSerializer = new DocumentSerializer();
-			return docSerializer.serialize(document);
+			return docSerializer.toXML(document);
 		} catch (Exception e) {
 			throw new TransformerException(org.mule.config.i18n.Message.createStaticMessage("Failed to parse result map"), this);
 		}

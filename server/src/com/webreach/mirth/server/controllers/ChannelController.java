@@ -79,7 +79,7 @@ public class ChannelController {
 		ArrayList<Channel> channels = new ArrayList<Channel>();
 		
 		while (result.next()) {
-			Channel channel = (Channel) serializer.deserialize(result.getString("channel_data"));
+			Channel channel = (Channel) serializer.fromXML(result.getString("channel_data"));
 			channel.setId(result.getInt("id"));
 			channels.add(channel);
 		}
@@ -117,12 +117,12 @@ public class ChannelController {
 				statement = "insert into channels (id, channel_name, channel_data) values (?, ?, ?)";
 				parameters.add(channel.getId());
 				parameters.add(channel.getName());
-				parameters.add(serializer.serialize(channel));
+				parameters.add(serializer.toXML(channel));
 			} else {
 				logger.debug("updating channel: channelId=" + channel.getId());
 				statement = "update channels set channel_name = ?, channel_data = ? where id = ?";
 				parameters.add(channel.getName());
-				parameters.add(serializer.serialize(channel));
+				parameters.add(serializer.toXML(channel));
 				parameters.add(channel.getId());
 			}
 

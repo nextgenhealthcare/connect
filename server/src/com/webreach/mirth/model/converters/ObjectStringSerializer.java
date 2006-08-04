@@ -31,7 +31,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-public class ObjectStringSerializer implements Serializer<Object> {
+public class ObjectStringSerializer {
 	public String serialize(Object source) {
 		String data = null;
 		ByteArrayOutputStream byteOutStream = new ByteArrayOutputStream();

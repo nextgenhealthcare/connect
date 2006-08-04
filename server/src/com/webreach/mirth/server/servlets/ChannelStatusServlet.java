@@ -58,7 +58,7 @@ public class ChannelStatusServlet extends MirthServlet {
 					channelStatusController.resumeChannel(Integer.parseInt(request.getParameter("id")));
 				} else if (operation.equals("getChannelStatusList")) {
 					response.setContentType("application/xml");
-					out.print(serializer.serialize(channelStatusController.getChannelStatusList()));
+					out.print(serializer.toXML(channelStatusController.getChannelStatusList()));
 				}
 			} catch (ControllerException e) {
 				throw new ServletException(e);

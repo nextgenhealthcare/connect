@@ -43,7 +43,7 @@ public class SystemLogger {
 			parameters.add(systemEvent.getEvent());
 			parameters.add(systemEvent.getLevel().toString());
 			parameters.add(systemEvent.getDescription());
-			parameters.add(serializer.serialize(systemEvent.getAttributes()));
+			parameters.add(serializer.toXML(systemEvent.getAttributes()));
 			
 			dbConnection.executeUpdate(insert, parameters);
 		} catch (Exception e) {
@@ -138,7 +138,7 @@ public class SystemLogger {
 			systemEvent.setDate(dateCreated);
 			systemEvent.setLevel(SystemEvent.Level.valueOf(result.getString("event_level")));
 			systemEvent.setDescription(result.getString("description"));
-			systemEvent.setAttributes((Properties) serializer.deserialize(result.getString("attributes")));
+			systemEvent.setAttributes((Properties) serializer.fromXML(result.getString("attributes")));
 			systemEvents.add(systemEvent);
 		}
 

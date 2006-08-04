@@ -31,7 +31,7 @@ import ca.uhn.hl7v2.parser.PipeParser;
 import ca.uhn.hl7v2.parser.XMLParser;
 import ca.uhn.hl7v2.validation.impl.NoValidation;
 
-public class ER7Serializer implements Serializer<String> {
+public class ER7Serializer implements IXMLSerializer<String> {
 	private PipeParser pipeParser;
 	private XMLParser xmlParser;
 
@@ -47,7 +47,7 @@ public class ER7Serializer implements Serializer<String> {
 	 * @param source an ER7-encoded HL7 message.
 	 * @return
 	 */
-	public String serialize(String source) {
+	public String toXML(String source) {
 		StringBuilder builder = new StringBuilder();
 
 		try {
@@ -65,7 +65,7 @@ public class ER7Serializer implements Serializer<String> {
 	 * @param source a XML-encoded HL7 message.
 	 * @return
 	 */
-	public String deserialize(String source) {
+	public String fromXML(String source) {
 		StringBuilder builder = new StringBuilder();
 
 		try {

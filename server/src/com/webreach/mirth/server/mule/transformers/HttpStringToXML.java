@@ -96,7 +96,7 @@ public class HttpStringToXML extends AbstractTransformer {
 				
 				// serialize the DOM object to a String
 				DocumentSerializer docSerializer = new DocumentSerializer();
-				return docSerializer.serialize(document);
+				return docSerializer.toXML(document);
 		} catch (Exception e) {
 			logger.error(e.toString());
 			

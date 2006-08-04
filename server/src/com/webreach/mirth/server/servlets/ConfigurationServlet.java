@@ -50,13 +50,13 @@ public class ConfigurationServlet extends MirthServlet {
 
 				if (operation.equals("getTransports")) {
 					response.setContentType("application/xml");
-					out.println(serializer.serialize(configurationController.getTransports()));
+					out.println(serializer.toXML(configurationController.getTransports()));
 				} else if (operation.equals("getServerProperties")) {
 					response.setContentType("application/xml");
-					out.println(serializer.serialize(configurationController.getServerProperties()));
+					out.println(serializer.toXML(configurationController.getServerProperties()));
 				} else if (operation.equals("updateServerProperties")) {
 					String properties = request.getParameter("data");
-					configurationController.updateServerProperties((Properties) serializer.deserialize(properties));
+					configurationController.updateServerProperties((Properties) serializer.fromXML(properties));
 				} else if (operation.equals("getNextId")) {
 					response.setContentType("text/plain");
 					out.print(configurationController.getNextId());
@@ -64,7 +64,7 @@ public class ConfigurationServlet extends MirthServlet {
 					configurationController.deployChannels();
 				} else if (operation.equals("getDatabaseDrivers")) {
 					response.setContentType("application/xml");
-					out.println(serializer.serialize(configurationController.getDatabaseDrivers()));
+					out.println(serializer.toXML(configurationController.getDatabaseDrivers()));
 				} 
 			} catch (Exception e) {
 				throw new ServletException(e);

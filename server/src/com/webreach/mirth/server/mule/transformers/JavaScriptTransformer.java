@@ -6,7 +6,6 @@ import org.apache.log4j.Logger;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ImporterTopLevel;
 import org.mozilla.javascript.Scriptable;
-import org.mozilla.javascript.ScriptableObject;
 import org.mule.transformers.AbstractTransformer;
 import org.mule.umo.transformer.TransformerException;
 
@@ -36,7 +35,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 
 	public Object doTransform(Object source) throws TransformerException {
 		try {
-		
+			Logger scriptLogger = Logger.getLogger("transformation");
 			Context context = Context.enter();
 			Scriptable scope = new ImporterTopLevel(context);
 						
@@ -45,7 +44,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			// load variables in JavaScript scope
 			scope.put("message", scope, source);
 			scope.put("incomingMessage", scope, ((String) new ER7Util().ConvertToER7((String) source)));
-			scope.put("logger", scope, logger);
+			scope.put("logger", scope, scriptLogger);
 			scope.put("localMap", scope, localMap);
 			scope.put("globalMap", scope, ChannelComponent.globalMap);
 
