@@ -97,7 +97,7 @@ public class HL7XMLTreePanel extends JPanel {
 			try {
 				DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
 				DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-				String er7Message = new ER7Serializer().serialize(source);
+				String er7Message = new ER7Serializer().toXML(source);
 				xmlDoc = docBuilder.parse(new InputSource(new StringReader(er7Message)));
 				message = parser.parse(source);
 			} catch (EncodingNotSupportedException e) {

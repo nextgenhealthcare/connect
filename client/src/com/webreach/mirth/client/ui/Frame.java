@@ -1633,7 +1633,7 @@ public class Frame extends JXFrame
             ObjectXMLSerializer serializer = new ObjectXMLSerializer();
             try
             {
-                Channel importChannel = (Channel)serializer.deserialize(channelXML);
+                Channel importChannel = (Channel)serializer.fromXML(channelXML);
 
                 if(!checkChannelName(importChannel.getName()))
                     return;
@@ -1688,7 +1688,7 @@ public class Frame extends JXFrame
         if(returnVal == JFileChooser.APPROVE_OPTION)
         {
             ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-            String channelXML = serializer.serialize(channel);
+            String channelXML = serializer.toXML(channel);
             exportFile = exportFileChooser.getSelectedFile();
             
             int length = exportFile.getName().length();
@@ -1730,7 +1730,7 @@ public class Frame extends JXFrame
                 {
                     Channel channel = channels.get(i);
                     ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-                    String channelXML = serializer.serialize(channel);
+                    String channelXML = serializer.toXML(channel);
                     
                     exportFile = new File(exportDirectory.getAbsolutePath() + "/" + channel.getName() + ".xml");
                     

@@ -355,7 +355,7 @@ public class MessageBrowser extends javax.swing.JPanel
                 
                 ER7Serializer serializer = new ER7Serializer();
                 XMLTextPane.setDocument(xmlDoc);
-                XMLTextPane.setText(serializer.serialize(message));
+                XMLTextPane.setText(serializer.toXML(message));
                 XMLTextPane.setCaretPosition(0);
                 
                 HL7Panel.setMessage(message);
