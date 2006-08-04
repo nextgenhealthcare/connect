@@ -556,11 +556,6 @@ public class ChannelSetup extends javax.swing.JPanel
             xmlPreEncoded.setSelected(true);
         else
             xmlPreEncoded.setSelected(false);
-            
-        if(((String)currentChannel.getProperties().get("initialState")) != null && ((String)currentChannel.getProperties().get("initialState")).equalsIgnoreCase("started"))
-            initialState.setSelectedItem("Started");
-        else
-            initialState.setSelectedItem("Stopped");
         
         boolean visible = parent.channelEditTasks.getContentPane().getComponent(0).isVisible();
 
@@ -570,6 +565,11 @@ public class ChannelSetup extends javax.swing.JPanel
         {
             destinationSourceDropdown.setSelectedItem(currentChannel.getDestinationConnectors().get(0).getTransportName());
         }
+        
+        if(((String)currentChannel.getProperties().get("initialState")) != null && ((String)currentChannel.getProperties().get("initialState")).equalsIgnoreCase("started"))
+            initialState.setSelectedItem("Started");
+        else
+            initialState.setSelectedItem("Stopped");
         
         parent.channelEditTasks.getContentPane().getComponent(0).setVisible(visible);
     }
