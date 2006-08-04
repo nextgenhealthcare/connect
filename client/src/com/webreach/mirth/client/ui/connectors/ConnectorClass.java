@@ -71,6 +71,10 @@ public class ConnectorClass extends javax.swing.JPanel
         return properties;
     }
     
+    public boolean checkRequiredFields()
+    {
+        return true;
+    }
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is

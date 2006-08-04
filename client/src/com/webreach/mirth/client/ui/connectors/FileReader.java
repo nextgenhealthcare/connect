@@ -121,7 +121,19 @@ public class FileReader extends ConnectorClass
         properties.put(FILE_FILE_AGE, "0");
         return properties;
     }
-
+    
+    public boolean checkRequiredFields()
+    {
+        if(directoryField.getText().length() > 0 && pollingFreq.getText().length() > 0 && 
+                moveToPattern.getText().length() > 0 && moveToDirectory.getText().length() > 0 && 
+                fileAge.getText().length() > 0 && startOfMessageCharacterField.getText().length() > 0 && 
+                endOfMessageCharacterField.getText().length() > 0 && recordSeparatorField.getText().length() > 0)
+        {
+            return true;
+        }
+        return false;
+    }
+    
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is

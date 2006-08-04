@@ -95,7 +95,16 @@ public class EmailSender extends ConnectorClass
         properties.put(EMAIL_BODY, "Test email.");
         return properties;
     }
-
+    
+    public boolean checkRequiredFields()
+    {
+        /*if()
+        {
+            return true;
+        }*/
+        return false;
+    }
+    
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is

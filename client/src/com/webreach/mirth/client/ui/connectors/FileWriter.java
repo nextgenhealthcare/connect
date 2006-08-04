@@ -97,6 +97,15 @@ public class FileWriter extends ConnectorClass
         properties.put(FILE_CONTENTS, "");
         return properties;
     }
+    
+    public boolean checkRequiredFields()
+    {
+        if(directoryField.getText().length() > 0 && fileNameField.getText().length() > 0 && fileContentsTextPane.getText().length() > 0)
+        {
+            return true;
+        }
+        return false;
+    }
 
     /** This method is called from within the constructor to
      * initialize the form.

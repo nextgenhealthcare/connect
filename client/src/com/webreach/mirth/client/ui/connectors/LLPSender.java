@@ -159,7 +159,21 @@ public class LLPSender extends ConnectorClass
         properties.put(LLP_RECORD_SEPARATOR, "0x0D");
         return properties;
     }
-
+    
+    public boolean checkRequiredFields()
+    {
+        if(hostIPAddressField.getText().length() > 0 && hostIPAddressField1.getText().length() > 0 && 
+                hostIPAddressField2.getText().length() > 0 && hostIPAddressField3.getText().length() > 0 && 
+                hostPortField.getText().length() > 0 && serverTimeoutField.getText().length() > 0 && 
+                bufferSizeField.getText().length() > 0 && startOfMessageCharacterField.getText().length() > 0 && 
+                endOfMessageCharacterField.getText().length() > 0 && recordSeparatorField.getText().length() > 0 && 
+                serverTimeoutField.getText().length() > 0)
+        {
+            return true;
+        }
+        return false;
+    }
+    
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is

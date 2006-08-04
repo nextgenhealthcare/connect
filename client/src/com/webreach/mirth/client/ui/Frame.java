@@ -575,7 +575,17 @@ public class Frame extends JXFrame
             }
         });
         channelEditPopupMenu.add(saveChanges);
-
+        
+        channelEditTasks.add(initActionCallback("doValidate", "Validate the currently visible form.", ActionFactory.createBoundAction("doValidate","Validate Form", "V"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/accept.png"))));
+        JMenuItem validateForm = new JMenuItem("Validate Form");
+        validateForm.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/accept.png")));
+        validateForm.addActionListener(new ActionListener(){
+             public void actionPerformed(ActionEvent e){
+                doValidate();
+            }
+        });
+        channelEditPopupMenu.add(validateForm);
+        
         channelEditTasks.add(initActionCallback("doNewDestination", "Create a new destination.", ActionFactory.createBoundAction("doNewDestination","New Destination", "N"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/add.png"))));
         JMenuItem newDestination = new JMenuItem("New Destination");
         newDestination.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/add.png")));
@@ -585,7 +595,7 @@ public class Frame extends JXFrame
             }
         });
         channelEditPopupMenu.add(newDestination);
-
+        
         channelEditTasks.add(initActionCallback("doDeleteDestination", "Delete the currently selected destination.", ActionFactory.createBoundAction("doDeleteDestination","Delete Destination", "D"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png"))));
         JMenuItem deleteDestination = new JMenuItem("Delete Destination");
         deleteDestination.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png")));
@@ -1432,6 +1442,11 @@ public class Frame extends JXFrame
         else
         {
             Channel channel = channels.get(channelListPage.getSelectedChannel());
+            if(channelEditPage.checkAllForms(channel))
+            {
+                alertWarning("Channel was not configured properly.  Please fix the problems in the forms before trying to enable it again.");
+                return;
+            }
             channel.setEnabled(true);
             updateChannel(channel);
             channelListPage.deselectRows();
@@ -1607,7 +1622,12 @@ public class Frame extends JXFrame
     {
         adminPanel.saveSettings();
     }
-
+    
+    public void doValidate()
+    {
+        channelEditPage.validateForm();
+    }
+    
     public void doImport()
     {
         JFileChooser importFileChooser = new JFileChooser();

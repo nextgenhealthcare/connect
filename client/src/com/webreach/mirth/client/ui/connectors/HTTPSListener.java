@@ -210,7 +210,15 @@ public class HTTPSListener extends ConnectorClass
         properties.put(HTTPS_SEND_ACK, sendACKCombobox.getItemAt(0));
         return properties;
     }
-
+    
+    public boolean checkRequiredFields()
+    {
+        /*if()
+        {
+            return true;
+        }*/
+        return false;
+    }
 
     /** This method is called from within the constructor to
      * initialize the form.

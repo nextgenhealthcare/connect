@@ -186,6 +186,18 @@ public class DatabaseReader extends ConnectorClass
         return properties;
     }
     
+    public boolean checkRequiredFields()
+    {
+        if(databaseURLField.getText().length() > 0 && databaseUsernameField.getText().length() > 0 && 
+                new String(databasePasswordField.getPassword()).length() > 0 && pollingFreq.getText().length() > 0 &&
+                databaseSQLTextPane.getText().length() > 0)
+        {
+            if (readOnUpdateYes.isSelected() && databaseUpdateSQLTextPane.getText().length() > 0 || !readOnUpdateYes.isSelected())
+                return true;
+        }
+        return false;
+    }
+    
     private void updateSQL()
     {
         Object sqlStatement = databaseSQLTextPane.getText();

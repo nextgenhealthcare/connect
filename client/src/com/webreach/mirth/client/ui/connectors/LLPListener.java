@@ -166,7 +166,20 @@ public class LLPListener extends ConnectorClass
         properties.put(LLP_SEND_ACK, UIConstants.YES_OPTION);
         return properties;
     }
-
+    
+    public boolean checkRequiredFields()
+    {
+        if(listenerIPAddressField.getText().length() > 0 && listenerIPAddressField1.getText().length() > 0 && 
+                listenerIPAddressField2.getText().length() > 0 && listenerIPAddressField3.getText().length() > 0 && 
+                listenerPortField.getText().length() > 0 && receiveTimeoutField.getText().length() > 0 && 
+                bufferSizeField.getText().length() > 0 && startOfMessageCharacterField.getText().length() > 0 && 
+                endOfMessageCharacterField.getText().length() > 0 && recordSeparatorField.getText().length() > 0)
+        {
+            return true;
+        }
+        return false;
+    }
+    
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is

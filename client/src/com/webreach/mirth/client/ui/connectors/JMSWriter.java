@@ -124,7 +124,16 @@ public class JMSWriter extends ConnectorClass
         properties.put(JMS_REDELIVERY_HANDLER, "org.mule.proivders.jms.DefaultRedeliveryHandler");
         return properties;
     }
-
+    
+    public boolean checkRequiredFields()
+    {
+        /*if()
+        {
+            return true;
+        }*/
+        return false;
+    }
+    
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is

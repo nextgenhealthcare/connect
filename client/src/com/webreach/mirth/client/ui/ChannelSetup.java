@@ -588,6 +588,16 @@ public class ChannelSetup extends javax.swing.JPanel
                 return false;
         }
         
+        boolean enabled = summaryEnabledCheckbox.isSelected();
+                
+        if(checkAllForms(currentChannel))
+        {
+            enabled = false;
+            
+            if(!parent.alertOption("There was a problem with one or more of your connectors.  Please validate all of\nyour connectors to find the problem. Would you still like to save this channel even\nthough you will not be able to enable this channel until you fix the problem(s)?"))
+                return false;   
+        }
+                
         currentChannel.getSourceConnector().setProperties(sourceConnectorClass.getProperties());
         
         Connector temp;
@@ -599,7 +609,7 @@ public class ChannelSetup extends javax.swing.JPanel
 
         currentChannel.setName(summaryNameField.getText());
         currentChannel.setDescription(summaryDescriptionText.getText());
-        currentChannel.setEnabled(summaryEnabledCheckbox.isSelected());
+        currentChannel.setEnabled(enabled);
         
         if(xmlPreEncoded.isSelected())
             currentChannel.getProperties().put("recv_xml_encoded", "true");
@@ -655,6 +665,51 @@ public class ChannelSetup extends javax.swing.JPanel
         makeDestinationTable(false);
         parent.enableSave();
         isDeleting = false;
+    }
+    
+    public boolean checkAllForms(Channel channel)
+    {
+        boolean problemFound = false;
+        ConnectorClass tempConnector = null;
+        
+        for(int i = 0; i < channel.getDestinationConnectors().size(); i++)
+        {
+            for(int j=0; j<parent.destinationConnectors.size(); j++)
+            {
+                if(parent.destinationConnectors.get(j).getName().equalsIgnoreCase(channel.getDestinationConnectors().get(i).getTransportName()))
+                    tempConnector = parent.destinationConnectors.get(j);
+            }
+            if(tempConnector != null && !tempConnector.checkRequiredFields())
+                problemFound = true;
+        }
+        
+        for(int i=0; i<parent.sourceConnectors.size(); i++)
+        {
+            if(parent.sourceConnectors.get(i).getName().equalsIgnoreCase(channel.getSourceConnector().getTransportName()))
+                tempConnector = parent.sourceConnectors.get(i);
+        }
+        if(tempConnector != null && !tempConnector.checkRequiredFields())
+            problemFound = true;
+        
+        return problemFound;
+    }
+    
+    public void validateForm()
+    {
+        if(source.isVisible())
+        {
+            if(!sourceConnectorClass.checkRequiredFields())
+                parent.alertWarning("This form is missing required data.");    
+            else
+                parent.alertInformation("The form was successfully validated.");
+        }
+        else
+        {
+            if(!destinationConnectorClass.checkRequiredFields())
+                parent.alertWarning("This form is missing required data.");  
+            else
+                parent.alertInformation("The form was successfully validated.");
+        }
     }
 
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
@@ -923,38 +978,41 @@ public class ChannelSetup extends javax.swing.JPanel
     /** Action when the summary tab is shown. */
     private void summaryComponentShown(java.awt.event.ComponentEvent evt)//GEN-FIRST:event_summaryComponentShown
     {//GEN-HEADEREND:event_summaryComponentShown
-        parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 1, 4, false);
+        
+        parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 1, 5, false);
     }//GEN-LAST:event_summaryComponentShown
 
     /** Action when the source tab is shown. */
     private void sourceComponentShown(java.awt.event.ComponentEvent evt)//GEN-FIRST:event_sourceComponentShown
     {//GEN-HEADEREND:event_sourceComponentShown
+        parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 1, 1, true);
         if(currentChannel.getMode() == Channel.Mode.ROUTER)
         {
-            parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 1, 4, false);
+            parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 2, 5, false);
         }
         else
         {
-            parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 1, 2, false);
-            parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 3, 4, true);
+            parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 2, 3, false);
+            parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 4, 5, true);
         }
     }//GEN-LAST:event_sourceComponentShown
 
     /** Action when the destinations tab is shown. */
     private void destinationComponentShown(java.awt.event.ComponentEvent evt)//GEN-FIRST:event_destinationComponentShown
     {//GEN-HEADEREND:event_destinationComponentShown
+        parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 1, 1, true);
         if(currentChannel.getMode() == Channel.Mode.APPLICATION)
         {
-            parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 1, 2, false);
-            parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 3, 4, true);
+            parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 2, 3, false);
+            parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 4, 5, true);
         }
         else if(currentChannel.getMode() == Channel.Mode.BROADCAST)
         {
-            parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 1, 2, true);
-            parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 3, 4, false);
+            parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 2, 3, true);
+            parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 4, 5, false);
         }
         else
-            parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 1, 4, true);
+            parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 2, 5, true);
     }//GEN-LAST:event_destinationComponentShown
 
     /** Action when an action is performed on the source connector type dropdown. */
