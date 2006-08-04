@@ -28,7 +28,7 @@ package com.webreach.mirth.model.converters;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.XppDriver;
 
-public class ObjectXMLSerializer implements Serializer<Object>{
+public class ObjectXMLSerializer implements IXMLSerializer<Object>{
 	private XStream xstream;
 	
 	public ObjectXMLSerializer() {
@@ -36,11 +36,11 @@ public class ObjectXMLSerializer implements Serializer<Object>{
 		xstream.setMode(XStream.NO_REFERENCES);
 	}
 	
-	public String serialize(Object source) {
+	public String toXML(Object source) {
 		return xstream.toXML(source);
 	}
 	
-	public Object deserialize(String source) {
+	public Object fromXML(String source) {
 		return xstream.fromXML(source);
 	}
 }

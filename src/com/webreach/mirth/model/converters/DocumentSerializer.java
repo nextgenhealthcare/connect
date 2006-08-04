@@ -34,7 +34,7 @@ import org.apache.xml.serialize.OutputFormat;
 import org.apache.xml.serialize.XMLSerializer;
 import org.w3c.dom.Document;
 
-public class DocumentSerializer implements Serializer<Document>{
+public class DocumentSerializer implements IXMLSerializer<Document>{
 	private String[] cDataElements = null;
 	
 	public DocumentSerializer() {
@@ -45,7 +45,7 @@ public class DocumentSerializer implements Serializer<Document>{
 		this.cDataElements = cDataElements;
 	}
 	
-	public String serialize(Document source) {
+	public String toXML(Document source) {
 		OutputFormat of = new OutputFormat(source);
 
 		if (cDataElements != null) {
@@ -70,7 +70,7 @@ public class DocumentSerializer implements Serializer<Document>{
 		return os.toString();
 	}
 
-	public Document deserialize(String source) {
+	public Document fromXML(String source) {
 		Document document = null;
 		
 		try {

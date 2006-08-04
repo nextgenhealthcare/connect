@@ -66,10 +66,10 @@ public class UserServlet extends MirthServlet {
 			try {
 				if (operation.equals("getUsers")) {
 					response.setContentType("application/xml");
-					out.println(serializer.serialize(userController.getUsers(null)));
+					out.println(serializer.toXML(userController.getUsers(null)));
 				} else if (operation.equals("updateUser")) {
 					String user = request.getParameter("data");
-					userController.updateUser((User) serializer.deserialize(user));
+					userController.updateUser((User) serializer.fromXML(user));
 				} else if (operation.equals("removeUser")) {
 					String userId = request.getParameter("data");
 					userController.removeUser(Integer.valueOf(userId).intValue());

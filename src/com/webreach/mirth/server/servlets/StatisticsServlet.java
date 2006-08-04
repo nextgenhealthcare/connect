@@ -50,7 +50,7 @@ public class StatisticsServlet extends MirthServlet {
 
 				if (operation.equals("getStatistics")) {
 					response.setContentType("application/xml");
-					out.println(serializer.serialize(statisticsController.getStatistics(channelId)));
+					out.println(serializer.toXML(statisticsController.getStatistics(channelId)));
 				} else if (operation.equals("clearStatistics")) {
 					statisticsController.clearStatistics(channelId);
 				}

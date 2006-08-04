@@ -54,11 +54,11 @@ public class LoggerServlet extends MirthServlet {
 				if (operation.equals("getSystemEvents")) {
 					String filter = request.getParameter("filter");
 					response.setContentType("application/xml");
-					out.println(serializer.serialize(systemLogger.getSystemEvents((SystemEventFilter) serializer.deserialize(filter))));
+					out.println(serializer.toXML(systemLogger.getSystemEvents((SystemEventFilter) serializer.fromXML(filter))));
 				} else if (operation.equals("getMessageEvents")) {
 					String filter = request.getParameter("filter");
 					response.setContentType("application/xml");
-					out.println(serializer.serialize(messageLogger.getMessageEvents((MessageEventFilter) serializer.deserialize(filter))));
+					out.println(serializer.toXML(messageLogger.getMessageEvents((MessageEventFilter) serializer.fromXML(filter))));
 				} else if (operation.equals("clearSystemEvents")) {
 					systemLogger.clearSystemEvents();
 				} else if (operation.equals("removeMessageEvent")) {

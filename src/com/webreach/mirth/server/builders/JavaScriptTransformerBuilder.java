@@ -19,7 +19,7 @@ public class JavaScriptTransformerBuilder {
 		StringBuilder builder = new StringBuilder();
 		
 		if (channel.getDirection().equals(Channel.Direction.OUTBOUND)) {
-			builder.append("var hl7_xml = new XML('" + serializer.serialize(transformer.getTemplate()).replaceAll("\\n","") + "');");
+			builder.append("var hl7_xml = new XML('" + serializer.toXML(transformer.getTemplate()).replaceAll("\\n","") + "');");
 			builder.append("var hl7_er7 = '" + transformer.getTemplate().replaceAll("\\r","\\\\r") + "';");
 		} else {
 			builder.append("var hl7_xml = new XML(message);");
