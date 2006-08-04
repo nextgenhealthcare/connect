@@ -4,7 +4,9 @@ import java.util.HashMap;
 
 import org.apache.log4j.Logger;
 import org.mozilla.javascript.Context;
+import org.mozilla.javascript.ImporterTopLevel;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.ScriptableObject;
 import org.mule.transformers.AbstractTransformer;
 import org.mule.umo.transformer.TransformerException;
 
@@ -34,10 +36,12 @@ public class JavaScriptTransformer extends AbstractTransformer {
 
 	public Object doTransform(Object source) throws TransformerException {
 		try {
+		
 			Context context = Context.enter();
-			Scriptable scope = context.initStandardObjects();
+			Scriptable scope = new ImporterTopLevel(context);
+						
 			HashMap localMap = new HashMap();
-
+			
 			// load variables in JavaScript scope
 			scope.put("message", scope, source);
 			scope.put("incomingMessage", scope, ((String) new ER7Util().ConvertToER7((String) source)));
@@ -46,8 +50,8 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			scope.put("globalMap", scope, ChannelComponent.globalMap);
 
 			StringBuilder jsSource = new StringBuilder();
-			jsSource.append("function init() { importPackage(com.webreach.mirth.server.util) }");
-			jsSource.append("function doTransform() { init(); default xml namespace = new Namespace(\"urn:hl7-org:v2xml\"); var msg = new XML(message); " + script + " }");
+			jsSource.append("importPackage(Packages.com.webreach.mirth.server.util);");
+			jsSource.append("function doTransform() { default xml namespace = new Namespace(\"urn:hl7-org:v2xml\"); var msg = new XML(message); " + script + " }");
 			jsSource.append("doTransform()\n");
 
 			logger.debug("executing transformation script:\n\t" + jsSource.toString().replace("\\", "\\\\"));

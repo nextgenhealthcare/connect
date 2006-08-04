@@ -4,7 +4,9 @@ import java.util.HashMap;
 
 import org.apache.log4j.Logger;
 import org.mozilla.javascript.Context;
+import org.mozilla.javascript.ImporterTopLevel;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.ScriptableObject;
 import org.mule.umo.UMOFilter;
 import org.mule.umo.UMOMessage;
 
@@ -26,9 +28,10 @@ public class JavaScriptFilter implements UMOFilter {
 	public boolean accept(UMOMessage source) {
 		try {
 			String message = source.getPayloadAsString();
-
+			
 			Context context = Context.enter();
-			Scriptable scope = context.initStandardObjects();
+			Scriptable scope = new ImporterTopLevel(context);
+			
 			HashMap localMap = new HashMap();
 
 			// load variables in JavaScript scope
@@ -39,8 +42,8 @@ public class JavaScriptFilter implements UMOFilter {
 			scope.put("globalMap", scope, ChannelComponent.globalMap);
 
 			StringBuilder jsSource = new StringBuilder();
-			jsSource.append("function init() { importPackage(com.webreach.mirth.server.util) }");
-			jsSource.append("function doFilter() { init(); default xml namespace = new Namespace(\"urn:hl7-org:v2xml\"); var msg = new XML(message); " + script + " }\n");
+			jsSource.append("importPackage(Packages.com.webreach.mirth.server.util);\n	");
+			jsSource.append("function doFilter() {default xml namespace = new Namespace(\"urn:hl7-org:v2xml\"); var msg = new XML(message);\n " + script + " }\n");
 			jsSource.append("doFilter()\n");
 
 			logger.debug("executing filter script:\n\t" + jsSource.toString().replace("\\", "\\\\"));
