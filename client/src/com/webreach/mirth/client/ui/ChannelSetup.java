@@ -596,6 +596,8 @@ public class ChannelSetup extends javax.swing.JPanel
             
             if(!parent.alertOption("There was a problem with one or more of your connectors.  Please validate all of\nyour connectors to find the problem. Would you still like to save this channel even\nthough you will not be able to enable this channel until you fix the problem(s)?"))
                 return false;   
+            else
+                summaryEnabledCheckbox.setSelected(false);
         }
                 
         currentChannel.getSourceConnector().setProperties(sourceConnectorClass.getProperties());
