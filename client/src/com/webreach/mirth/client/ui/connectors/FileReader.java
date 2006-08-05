@@ -126,8 +126,7 @@ public class FileReader extends ConnectorClass
     {
         if(directoryField.getText().length() > 0 && pollingFreq.getText().length() > 0 && 
                 moveToPattern.getText().length() > 0 && moveToDirectory.getText().length() > 0 && 
-                fileAge.getText().length() > 0 && startOfMessageCharacterField.getText().length() > 0 && 
-                endOfMessageCharacterField.getText().length() > 0 && recordSeparatorField.getText().length() > 0)
+                fileAge.getText().length() > 0)
         {
             return true;
         }
