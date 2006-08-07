@@ -14,7 +14,7 @@ import com.webreach.mirth.server.util.JMXConnectionFactory;
  * @author GeraldB
  *
  */
-public class StatisticsController {
+public class ChannelStatisticsController {
 	private Logger logger = Logger.getLogger(this.getClass());
 	
 	/**

@@ -33,10 +33,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
-import com.webreach.mirth.server.controllers.StatisticsController;
+import com.webreach.mirth.server.controllers.ChannelStatisticsController;
 
 public class StatisticsServlet extends MirthServlet {
-	private StatisticsController statisticsController = new StatisticsController();
+	private ChannelStatisticsController statisticsController = new ChannelStatisticsController();
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		if (!isUserLoggedIn(request.getSession())) {
