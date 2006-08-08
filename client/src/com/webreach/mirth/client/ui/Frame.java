@@ -1061,7 +1061,7 @@ public class Frame extends JXFrame
             int option = JOptionPane.showConfirmDialog(this, "Would you like to save the channel changes?");
             if (option == JOptionPane.YES_OPTION)
             {
-                if (!channelEditPage.saveChanges())
+                if (!channelEditPage.saveChanges(true))
                     return false;
             }
             else if (option == JOptionPane.CANCEL_OPTION || option == JOptionPane.CLOSED_OPTION)
@@ -1584,7 +1584,7 @@ public class Frame extends JXFrame
 
     public void doSaveChanges()
     {
-        if (channelEditPage.saveChanges())
+        if (channelEditPage.saveChanges(true))
             channelEditTasks.getContentPane().getComponent(0).setVisible(false);
     }
 
@@ -1685,7 +1685,7 @@ public class Frame extends JXFrame
         {
             if(alertOption("This channel has been modified. You must save the channel changes before you can export. Would you like to save them now?"))
             {
-                if (!channelEditPage.saveChanges())
+                if (!channelEditPage.saveChanges(true))
                     return;
             }
             else

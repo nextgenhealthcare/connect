@@ -82,6 +82,7 @@ public class ChannelSetup extends javax.swing.JPanel
     private ArrayList<String> destinationConnectorsInbound;
     private ArrayList<String> sourceConnectorsOutbound;
     private ArrayList<String> destinationConnectorsOutbound;
+    
     /** Creates the Channel Editor panel.  Calls initComponents() and 
      *  sets up the model, dropdowns, and mouse listeners.
      */
@@ -523,7 +524,7 @@ public class ChannelSetup extends javax.swing.JPanel
         
         setDestinationVariableList();
         
-        saveChanges();
+        saveChanges(false);
         loadingChannel = false;
     }
 
@@ -575,7 +576,7 @@ public class ChannelSetup extends javax.swing.JPanel
     }
 
     /** Save all of the current channel information in the editor to the actual channel */
-    public boolean saveChanges()
+    public boolean saveChanges(boolean validate)
     {
         if (summaryNameField.getText().equals(""))
         {
@@ -589,17 +590,19 @@ public class ChannelSetup extends javax.swing.JPanel
         }
         
         boolean enabled = summaryEnabledCheckbox.isSelected();
-                
-        if(checkAllForms(currentChannel))
+        
+        if(validate)
         {
-            enabled = false;
-            
-            if(!parent.alertOption("There was a problem with one or more of your connectors.  Please validate all of\nyour connectors to find the problem. Would you still like to save this channel even\nthough you will not be able to enable this channel until you fix the problem(s)?"))
-                return false;   
-            else
-                summaryEnabledCheckbox.setSelected(false);
+            if(checkAllForms(currentChannel))
+            {
+                enabled = false;
+
+                if(!parent.alertOption("There was a problem with one or more of your connectors.  Please validate all of\nyour connectors to find the problem. Would you still like to save this channel even\nthough you will not be able to enable this channel until you fix the problem(s)?"))
+                    return false;   
+                else
+                    summaryEnabledCheckbox.setSelected(false);
+            }
         }
-                
         currentChannel.getSourceConnector().setProperties(sourceConnectorClass.getProperties());
         
         Connector temp;
