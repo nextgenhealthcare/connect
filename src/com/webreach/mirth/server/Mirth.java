@@ -32,9 +32,9 @@ import org.apache.log4j.Logger;
 import org.mortbay.http.SocketListener;
 import org.mortbay.http.SslListener;
 import org.mortbay.jetty.Server;
+import org.mule.MuleManager;
 import org.mule.config.ConfigurationException;
 import org.mule.config.builders.MuleXmlConfigurationBuilder;
-import org.mule.umo.manager.UMOManager;
 
 import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.server.controllers.ConfigurationController;
@@ -51,7 +51,7 @@ public class Mirth extends Thread {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private boolean running = false;
 
-	private UMOManager muleManager = null;
+	private MuleManager muleManager = null;
 	private Server webServer = null;
 	private CommandQueue commandQueue = CommandQueue.getInstance();
 	private SystemLogger systemLogger = new SystemLogger();
@@ -61,13 +61,13 @@ public class Mirth extends Thread {
 		Mirth mirth = new Mirth();
 		mirth.run();
 	}
-	
+
 	public void run() {
 		running = true;
 		startWebServer();
 		commandQueue.addCommand(new Command(Command.Operation.START));
-		
-        Runtime.getRuntime().addShutdownHook(new ShutdownHook());
+
+		Runtime.getRuntime().addShutdownHook(new ShutdownHook());
 
 		// pulls commands off of the command queue
 		while (running) {
@@ -85,7 +85,7 @@ public class Mirth extends Thread {
 			}
 		}
 	}
-	
+
 	public void shutdown() {
 		logger.info("shutting down mirth");
 		stopMule();
@@ -111,7 +111,7 @@ public class Mirth extends Thread {
 			// disables validation of Mule configuration files
 			System.setProperty("org.mule.xml.validate", "false");
 			MuleXmlConfigurationBuilder builder = new MuleXmlConfigurationBuilder();
-			muleManager = builder.configure(configurationFilePath);
+			muleManager = (MuleManager) builder.configure(configurationFilePath);
 		} catch (ConfigurationException e) {
 			logger.warn("Error deploying channels.", e);
 
@@ -122,7 +122,7 @@ public class Mirth extends Thread {
 			systemLogger.logSystemEvent(event);
 
 			configurationController.deleteLatestConfiguration();
-//			commandQueue.addCommand(new Command(Command.Operation.START));
+			// commandQueue.addCommand(new Command(Command.Operation.START));
 		} catch (ControllerException e) {
 			logger.warn("Could not retrieve latest configuration.", e);
 		}
@@ -134,7 +134,7 @@ public class Mirth extends Thread {
 
 		if (muleManager != null) {
 			try {
-				muleManager.stop();	
+				muleManager.stop();
 			} catch (Exception e) {
 				logger.error(e);
 			} finally {
@@ -159,28 +159,28 @@ public class Mirth extends Thread {
 
 			// add HTTPS listener
 			SslListener sslListener = new SslListener();
-			
+
 			int httpsPort = 8443;
-			
+
 			if ((properties.getProperty("https.port") != null) && !properties.getProperty("https.port").equals("")) {
-				httpsPort = Integer.valueOf(properties.getProperty("https.port")).intValue();	
+				httpsPort = Integer.valueOf(properties.getProperty("https.port")).intValue();
 			}
-			
+
 			sslListener.setPort(httpsPort);
 			sslListener.setKeystore("keystore");
 			sslListener.setPassword("abc12345");
 			sslListener.setKeyPassword("abc12345");
 			webServer.addListener(sslListener);
-			
+
 			// add HTTP listener
 			SocketListener listener = new SocketListener();
-			
+
 			int httpPort = 8080;
-			
+
 			if ((properties.getProperty("http.port") != null) && !properties.getProperty("http.port").equals("")) {
-				httpPort = Integer.valueOf(properties.getProperty("http.port")).intValue();	
+				httpPort = Integer.valueOf(properties.getProperty("http.port")).intValue();
 			}
-			
+
 			listener.setPort(httpPort);
 			webServer.addListener(listener);
 
@@ -208,9 +208,9 @@ public class Mirth extends Thread {
 			shutdown();
 		}
 	}
-	
+
 	private void printSplashScreen() {
 		System.out.println("Mirth server successfully started: " + (new Date()).toString());
-		System.out.println("Running Java " +  System.getProperty("java.version") + " on " + System.getProperty("os.name") + " (" + System.getProperty("os.version") + ", " + System.getProperty("os.arch") + ")");
+		System.out.println("Running Java " + System.getProperty("java.version") + " on " + System.getProperty("os.name") + " (" + System.getProperty("os.version") + ", " + System.getProperty("os.arch") + ")");
 	}
 }
