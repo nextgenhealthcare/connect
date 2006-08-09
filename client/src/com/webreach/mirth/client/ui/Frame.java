@@ -1658,20 +1658,18 @@ public class Frame extends JXFrame
                 if(!checkChannelName(importChannel.getName()))
                     return;
 
-                channels.add(importChannel);
-
                 try
                 {
                     importChannel.setId(mirthClient.getNextId());
                     importChannel.setRevision(0);
+                    channels.add(importChannel);
+                    editChannel(channels.size()-1);
+                    channelEditTasks.getContentPane().getComponent(0).setVisible(true);
                 }
                 catch (ClientException e)
                 {
                     alertException(e.getStackTrace(), e.getMessage());
                 }
-
-                editChannel(channels.size()-1);
-                channelEditTasks.getContentPane().getComponent(0).setVisible(true);
             }
             catch (Exception e)
             {
