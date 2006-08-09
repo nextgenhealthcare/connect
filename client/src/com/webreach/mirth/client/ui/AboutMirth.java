@@ -26,6 +26,8 @@
 
 package com.webreach.mirth.client.ui;
 
+import com.webreach.mirth.client.core.ClientException;
+
 
 /** Creates the About Mirth dialog.  The content is loaded from about.txt. */
 public class AboutMirth extends javax.swing.JDialog
@@ -48,11 +50,23 @@ public class AboutMirth extends javax.swing.JDialog
     {
     	StringBuilder content = new StringBuilder();
     	content.append("Mirth Administrator\n\n");
-    	content.append("Version: 1.0.2\n\n");
-    	content.append("Built on July 31, 2006\n\n");
-		content.append("(c) Copyright Mirth contributors and other 2005, 2006. All rights reserved. Visit http://www.mirthproject.org\n\n");
-		content.append("This product includes software developed by SymphonySoft Limited (http://www.symphonysoft.com) and its contributors.\n\n");
-		content.append("This product includes software developed by the Apache Software Foundation (http://www.apache.org/).\n\n");
+    	try
+        {
+            String version = "";
+            version = parent.mirthClient.getVersion();
+            content.append("Version: " + version + "\n\n");
+            
+            String buildDate = "";
+            buildDate = parent.mirthClient.getBuildDate();
+            content.append("Built on " + buildDate + "\n\n");
+        }
+        catch(ClientException e)
+        {
+            parent.alertException(e.getStackTrace(), e.getMessage());
+        }
+    	content.append("(c) Copyright Mirth contributors and other 2005, 2006. All rights reserved. Visit http://www.mirthproject.org\n\n");
+	content.append("This product includes software developed by SymphonySoft Limited (http://www.symphonysoft.com) and its contributors.\n\n");
+	content.append("This product includes software developed by the Apache Software Foundation (http://www.apache.org/).\n\n");
         aboutContent.setText(content.toString());
     }
     
@@ -71,14 +85,14 @@ public class AboutMirth extends javax.swing.JDialog
         jLabel2 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("About");
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
         aboutContent.setEditable(false);
         jScrollPane1.setViewportView(aboutContent);
 
         jLabel2.setFont(new java.awt.Font("Tahoma", 1, 18));
-        jLabel2.setText("About Mirth Administrator");
+        jLabel2.setText("About Mirth");
 
         org.jdesktop.layout.GroupLayout mirthHeadingPanel1Layout = new org.jdesktop.layout.GroupLayout(mirthHeadingPanel1);
         mirthHeadingPanel1.setLayout(mirthHeadingPanel1Layout);
