@@ -4,6 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
@@ -15,6 +16,7 @@ import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.server.util.DatabaseConnection;
 import com.webreach.mirth.server.util.DatabaseConnectionFactory;
 import com.webreach.mirth.server.util.DatabaseUtil;
+import com.webreach.mirth.util.PropertyLoader;
 
 /**
  * The ChannelController provides access to channels.
@@ -25,6 +27,7 @@ import com.webreach.mirth.server.util.DatabaseUtil;
 public class ChannelController {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+	private Properties versionProperties = PropertyLoader.loadProperties("version");
 
 	/**
 	 * Returns a List containing the Channel with the specified
@@ -100,11 +103,14 @@ public class ChannelController {
 
 		// if it's not a new channel, and its version is different from the one
 		// in the database, and override is not enabled
-		if ((channel.getVersion() > 0) && !getChannels(channel.getId()).isEmpty() && (getChannels(channel.getId()).get(0).getVersion() != channel.getVersion()) && !override) {
+		if ((channel.getRevision() > 0) && !getChannels(channel.getId()).isEmpty() && (getChannels(channel.getId()).get(0).getVersion() != channel.getVersion()) && !override) {
 			return false;
 		} else {
 			channel.setVersion(channel.getVersion() + 1);
 		}
+		
+		String version = versionProperties.getProperty("mirth.version");
+		channel.setVersion(version);
 
 		try {
 			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();

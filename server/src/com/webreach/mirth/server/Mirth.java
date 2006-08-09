@@ -55,7 +55,8 @@ public class Mirth extends Thread {
 	private Server webServer = null;
 	private CommandQueue commandQueue = CommandQueue.getInstance();
 	private SystemLogger systemLogger = new SystemLogger();
-	private Properties properties = PropertyLoader.loadProperties("mirth");
+	private Properties mirthProperties = PropertyLoader.loadProperties("mirth");
+	private Properties versionProperties = PropertyLoader.loadProperties("version");
 
 	public static void main(String[] args) {
 		Mirth mirth = new Mirth();
@@ -162,8 +163,8 @@ public class Mirth extends Thread {
 
 			int httpsPort = 8443;
 
-			if ((properties.getProperty("https.port") != null) && !properties.getProperty("https.port").equals("")) {
-				httpsPort = Integer.valueOf(properties.getProperty("https.port")).intValue();
+			if ((mirthProperties.getProperty("https.port") != null) && !mirthProperties.getProperty("https.port").equals("")) {
+				httpsPort = Integer.valueOf(mirthProperties.getProperty("https.port")).intValue();
 			}
 
 			sslListener.setPort(httpsPort);
@@ -177,8 +178,8 @@ public class Mirth extends Thread {
 
 			int httpPort = 8080;
 
-			if ((properties.getProperty("http.port") != null) && !properties.getProperty("http.port").equals("")) {
-				httpPort = Integer.valueOf(properties.getProperty("http.port")).intValue();
+			if ((mirthProperties.getProperty("http.port") != null) && !mirthProperties.getProperty("http.port").equals("")) {
+				httpPort = Integer.valueOf(mirthProperties.getProperty("http.port")).intValue();
 			}
 
 			listener.setPort(httpPort);
@@ -210,7 +211,9 @@ public class Mirth extends Thread {
 	}
 
 	private void printSplashScreen() {
-		System.out.println("Mirth server successfully started: " + (new Date()).toString());
+		String version = versionProperties.getProperty("mirth.version");
+		String buildDate = versionProperties.getProperty("mirth.date");
+		System.out.println("Mirth " + version + " (" + buildDate + ") server successfully started: " + (new Date()).toString());
 		System.out.println("Running Java " + System.getProperty("java.version") + " on " + System.getProperty("os.name") + " (" + System.getProperty("os.version") + ", " + System.getProperty("os.arch") + ")");
 	}
 }
