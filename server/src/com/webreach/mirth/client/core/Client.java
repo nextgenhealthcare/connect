@@ -420,4 +420,27 @@ public class Client {
 		return (List<DriverInfo>) serializer.fromXML(executePostMethod(CONFIGURATION_SERVLET, params));
 	}
 
+	/**
+	 * Returns the version of the Mirth server.
+	 * 
+	 * @return
+	 * @throws ClientException
+	 */
+	public synchronized String getVersion() throws ClientException {
+		logger.debug("retrieving version");
+		NameValuePair[] params = { new NameValuePair("op", "getVersion") };
+		return executePostMethod(CONFIGURATION_SERVLET, params);
+	}
+
+	/**
+	 * Returns the version of the Mirth server.
+	 * 
+	 * @return
+	 * @throws ClientException
+	 */
+	public synchronized String getBuildDate() throws ClientException {
+		logger.debug("retrieving build date");
+		NameValuePair[] params = { new NameValuePair("op", "getBuildDate") };
+		return executePostMethod(CONFIGURATION_SERVLET, params);
+	}
 }

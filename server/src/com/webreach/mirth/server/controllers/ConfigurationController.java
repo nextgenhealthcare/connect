@@ -69,10 +69,12 @@ import com.webreach.mirth.util.PropertyLoader;
  * 
  */
 public class ConfigurationController {
-	private static final String CONF_FOLDER = "conf/";
+	private final String CONF_FOLDER = "conf/";
 	private Logger logger = Logger.getLogger(this.getClass());
 	private SystemLogger systemLogger = new SystemLogger();
-	private static File serverPropertiesFile = new File("server.properties");
+	private File serverPropertiesFile = new File("server.properties");
+	private Properties versionProperties = PropertyLoader.loadProperties("version");
+
 
 	public Map<String, Transport> getTransports() throws ControllerException {
 		logger.debug("retrieving transport list");
@@ -364,5 +366,13 @@ public class ConfigurationController {
 		} else {
 			throw new Exception("Could not locate database drivers file: " + driversFile.getAbsolutePath());
 		}
+	}
+	
+	public String getVersion() {
+		return versionProperties.getProperty("mirth.version");
+	}
+
+	public String getBuildDate() {
+		return versionProperties.getProperty("mirth.date");
 	}
 }
