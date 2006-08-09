@@ -1663,6 +1663,7 @@ public class Frame extends JXFrame
                 try
                 {
                     importChannel.setId(mirthClient.getNextId());
+                    importChannel.setRevision(0);
                 }
                 catch (ClientException e)
                 {
