@@ -5,6 +5,8 @@
 	</target>
 
 	<target name="init">
+		<echo>Version: ${version}</echo>
+
 		<property file="build.properties" />
 
 		<path id="classpath">
@@ -111,6 +113,12 @@
 			<fileset file="${conf}/mirth.properties" />
 			<fileset file="${conf}/log4j.properties" />
 		</copy>
+
+		<!-- create version.properties file -->
+		<propertyfile file="${setup.conf}/version.properties">
+			<entry key="mirth.version" value="${version}" />
+			<entry key="mirth.date" type="date" value="today" pattern="MMMM d, yyyy" />
+		</propertyfile>
 
 		<!-- copy misc files -->
 		<copy todir="${setup}">

@@ -49,7 +49,8 @@ public class Channel {
 	private String name;
 	private String description;
 	private boolean enabled;
-	private int version;
+	private String version;
+	private int revision;
 	private Direction direction;
 	private Mode mode;
 	private Connector sourceConnector;
@@ -57,24 +58,32 @@ public class Channel {
 	private Properties properties = new Properties();
 
 	public Channel() {
-
+		
 	}
-
+	
 	public Channel(Direction direction) {
 		this.direction = direction;
-	}
-
-	public int getVersion() {
-		return this.version;
-	}
-
-	public void setVersion(int version) {
-		this.version = version;
 	}
 
 	public Channel(Direction direction, Mode mode) {
 		this.direction = direction;
 		this.mode = mode;
+	}
+
+	public int getRevision() {
+		return this.revision;
+	}
+
+	public void setRevision(int revision) {
+		this.revision = revision;
+	}
+
+	public String getVersion() {
+		return this.version;
+	}
+
+	public void setVersion(String version) {
+		this.version = version;
 	}
 
 	public String getDescription() {
