@@ -254,6 +254,7 @@ public class ConfigurationController {
 			logger.debug("no configuration found, using default boot file");
 			return new File(properties.getProperty("mule.boot"));
 		} catch (Exception e) {
+			logger.error("Could not retrieve latest configuration.", e);
 			return null;
 		} finally {
 			DatabaseUtil.close(result);
