@@ -433,7 +433,7 @@ public class Client {
 	}
 
 	/**
-	 * Returns the version of the Mirth server.
+	 * Returns the build date of the Mirth server.
 	 * 
 	 * @return
 	 * @throws ClientException
