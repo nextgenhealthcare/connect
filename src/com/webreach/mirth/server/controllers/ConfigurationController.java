@@ -53,6 +53,7 @@ import com.webreach.mirth.model.DriverInfo;
 import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.model.Transport;
 import com.webreach.mirth.model.converters.ObjectStringSerializer;
+import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.server.Command;
 import com.webreach.mirth.server.CommandQueue;
 import com.webreach.mirth.server.builders.MuleConfigurationBuilder;
@@ -316,7 +317,7 @@ public class ConfigurationController {
 
 		DatabaseConnection dbConnection = null;
 		ResultSet result = null;
-		ObjectStringSerializer serializer = new ObjectStringSerializer();
+		ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 
 		try {
 			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
@@ -328,14 +329,14 @@ public class ConfigurationController {
 
 			while (result.next()) {
 				logger.debug("encryption key found");
-				return (SecretKey) serializer.deserialize(result.getString("data"));
+				return (SecretKey) serializer.fromXML(result.getString("data"));
 			}
 			
 			logger.debug("creating new encryption key");
 			SecretKey key = KeyGenerator.getInstance(Encrypter.DES_ALGORITHM).generateKey();
 			StringBuilder insert = new StringBuilder();
 			insert.append("insert into keys (data) values(");
-			insert.append("'" + serializer.serialize(key) + "'");
+			insert.append("'" + serializer.toXML(key) + "'");
 			insert.append(");");
 			dbConnection.executeUpdate(insert.toString());
 			return key;
