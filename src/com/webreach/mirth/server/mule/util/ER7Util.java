@@ -42,7 +42,7 @@ public class ER7Util {
 	//Converts ER7 String to XML 
 	public String ConvertToXML(Object source) {
 		String message = (String) source;
-		if (message.startsWith("<?xml")){
+		if (message.startsWith("<")){
 			//The message is already XML (happens with certain filter combinations)
 			logger.debug("Message is already XML, Skipping Conversion");
 			return message;

@@ -46,7 +46,9 @@ import org.apache.log4j.Logger;
 public class DatabaseConnection {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private Connection connection;
-
+	private Statement statement;
+	private PreparedStatement preparedStatement;
+	private ResultSet resultset;
 	/**
 	 * Initiliazes a database connection.
 	 * 
@@ -66,16 +68,17 @@ public class DatabaseConnection {
 	 * @throws SQLException
 	 */
 	public synchronized ResultSet executeQuery(String expression) throws SQLException {
-		Statement statement = null;
+		//Statement statement = null;
 
 		try {
 			statement = connection.createStatement();
 			logger.debug("executing query:\n" + expression);
-			return statement.executeQuery(expression);
+			resultset = statement.executeQuery(expression);
+			return resultset;
 		} catch (SQLException e) {
 			throw e;
 		} finally {
-			DatabaseUtil.close(statement);
+			//DatabaseUtil.close(statement);
 		}
 	}
 
@@ -88,7 +91,7 @@ public class DatabaseConnection {
 	 * @throws SQLException
 	 */
 	public synchronized int executeUpdate(String expression) throws SQLException {
-		Statement statement = null;
+		//Statement statement = null;
 
 		try {
 			statement = connection.createStatement();
@@ -97,7 +100,7 @@ public class DatabaseConnection {
 		} catch (SQLException e) {
 			throw e;
 		} finally {
-			DatabaseUtil.close(statement);
+			//DatabaseUtil.close(statement);
 		}
 	}
 
@@ -112,10 +115,10 @@ public class DatabaseConnection {
 	 * @throws SQLException
 	 */
 	public synchronized int executeUpdate(String expression, ArrayList parameters) throws SQLException {
-		PreparedStatement statement = null;
+		//PreparedStatement statement = null;
 
 		try {
-			statement = connection.prepareStatement(expression);
+			preparedStatement = connection.prepareStatement(expression);
 			logger.debug("executing prepared statement:\n" + expression);
 
 			ListIterator iterator = parameters.listIterator();
@@ -124,14 +127,14 @@ public class DatabaseConnection {
 				int index = iterator.nextIndex() + 1;
 				Object value = iterator.next();
 				logger.debug("adding parameter: index=" + index + ", value=" + value);
-				statement.setObject(index, value);
+				preparedStatement.setObject(index, value);
 			}
 
-			return statement.executeUpdate();
+			return preparedStatement.executeUpdate();
 		} catch (SQLException e) {
 			throw e;
 		} finally {
-			DatabaseUtil.close(statement);
+			//DatabaseUtil.close(statement);
 		}
 	}
 
@@ -141,12 +144,25 @@ public class DatabaseConnection {
 	 */
 	public void close() {
 		try {
+			if (resultset != null){
+				logger.debug("closing resultset");
+				resultset.close();
+			}
+			if (statement != null){
+				logger.debug("closing statement");
+				statement.close();
+			}
+			if (preparedStatement != null){
+				logger.debug("closing preparedStatement");
+				preparedStatement.close();
+			}
 			if ((connection != null) && (!connection.isClosed())) {
 				logger.debug("closing database connection");
 				connection.close();
 			} else {
 				logger.warn("connection is null or already closed");
 			}
+			
 		} catch (SQLException e) {
 			logger.warn(e);
 		}
