@@ -34,6 +34,12 @@
 		<javac srcdir="${src}" destdir="${classes}" debug="on">
 			<classpath refid="classpath" />
 		</javac>
+		
+		<!-- create version.properties file -->
+		<propertyfile file="${conf}/version.properties">
+			<entry key="mirth.version" value="${version}" />
+			<entry key="mirth.date" type="date" value="today" pattern="MMMM d, yyyy" />
+		</propertyfile>
 	</target>
 
 	<target name="create-client-core" depends="compile">
@@ -183,6 +189,6 @@
 		<mkdir dir="${dist}" />
 
 		<!-- create the distribution zip -->
-		<zip basedir="${setup}" destfile="${dist}/mirth.zip" />
+		<zip basedir="${setup}" destfile="${dist}/mirth-${version}.zip" />
 	</target>
 </project>
