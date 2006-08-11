@@ -1225,6 +1225,7 @@ public class Frame extends JXFrame
         setCurrentContentPage(adminPanel);
         doRefreshUser();
         adminPanel.showTasks();
+        adminPanel.showFirstTab();
     }
 
     public void doLogout()
