@@ -94,7 +94,13 @@ public class TransformerPane extends MirthEditorPane {
 	 * load( Transformer t ) now that the components have been initialized...
 	 */
 	public void load(Transformer t) {
-		transformer = t;
+                transformer = t;
+            
+                if (parent.channelEditTasks.getContentPane().getComponent(0).isVisible())
+                    modified = true;
+                else
+                    modified = false;
+            
 		tabPanel.BuildVarPanel();
 		
 		tabPanel.setHL7Message(transformer.getTemplate());
@@ -128,8 +134,7 @@ public class TransformerPane extends MirthEditorPane {
 			if (hl7builderPanel != null)
 				hl7builderPanel.setData(null);
 		}
-
-
+                
 		transformerTaskPaneContainer.add(parent.getOtherPane());
 		parent.setCurrentContentPage(this);
 		parent.setCurrentTaskPaneContainer(transformerTaskPaneContainer);
@@ -140,7 +145,6 @@ public class TransformerPane extends MirthEditorPane {
 			hl7builderPanel.update();
 		updateStepNumbers();
 		updateTaskPane();
-		modified = false;
 	}
 
 	/**

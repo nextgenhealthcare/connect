@@ -92,6 +92,11 @@ public class FilterPane extends MirthEditorPane {
 	public void load( Filter f ) {
 		filter = f;
 		
+                if (parent.channelEditTasks.getContentPane().getComponent(0).isVisible())
+                    modified = true;
+                else
+                    modified = false;
+                
 		// we need to clear all the old data before we load the new
 		makeFilterTable();
 		
@@ -115,7 +120,7 @@ public class FilterPane extends MirthEditorPane {
 			rulePanel.showCard( BLANK_TYPE );
 			jsPanel.setData( null );
 		}			
-		
+                
 		filterTaskPaneContainer.add(parent.getOtherPane());
 		parent.setCurrentContentPage( this );
 		parent.setCurrentTaskPaneContainer( filterTaskPaneContainer );
@@ -123,7 +128,6 @@ public class FilterPane extends MirthEditorPane {
 		jsPanel.update();
 		updateRuleNumbers();
 		updateTaskPane();
-		modified = false;
 	}
 	
 	/** This method is called from within the constructor to
