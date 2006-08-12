@@ -107,7 +107,6 @@ public class AdminPanel extends javax.swing.JPanel
         jLabel8 = new javax.swing.JLabel();
         requireAuthenticationYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         requireAuthenticationNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        encryptMessageCheckbox = new com.webreach.mirth.client.ui.components.MirthCheckBox();
         jPanel2 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
@@ -182,11 +181,6 @@ public class AdminPanel extends javax.swing.JPanel
             }
         });
 
-        encryptMessageCheckbox.setBackground(new java.awt.Color(255, 255, 255));
-        encryptMessageCheckbox.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        encryptMessageCheckbox.setText("Encrypt HL7 messages in database.");
-        encryptMessageCheckbox.setMargin(new java.awt.Insets(0, 0, 0, 0));
-
         org.jdesktop.layout.GroupLayout jPanel1Layout = new org.jdesktop.layout.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -212,16 +206,13 @@ public class AdminPanel extends javax.swing.JPanel
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                                 .add(requireAuthenticationNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                             .add(smtpPort, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 44, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(smtpHost, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 117, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                    .add(encryptMessageCheckbox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .add(smtpHost, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 117, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap(350, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .add(encryptMessageCheckbox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(18, 18, 18)
                 .add(jLabel3)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
@@ -244,7 +235,7 @@ public class AdminPanel extends javax.swing.JPanel
                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(passwordLabel)
                     .add(smtpPassword, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(96, Short.MAX_VALUE))
+                .addContainerGap(129, Short.MAX_VALUE))
         );
 
         jPanel2.setBackground(new java.awt.Color(255, 255, 255));
@@ -375,11 +366,6 @@ public class AdminPanel extends javax.swing.JPanel
         {
             Properties serverProperties = parent.mirthClient.getServerProperties();
             
-            if(serverProperties.getProperty("encrypt_message") != null && serverProperties.getProperty("encrypt_message").equals(UIConstants.YES_OPTION))
-                encryptMessageCheckbox.setSelected(true);
-            else
-                encryptMessageCheckbox.setSelected(false);
-            
             if(serverProperties.getProperty("smtp.host") != null)
                 smtpHost.setText((String)serverProperties.getProperty("smtp.host"));
             else
@@ -459,12 +445,7 @@ public class AdminPanel extends javax.swing.JPanel
             userPreferences.putBoolean("highlightRows", rowHighlightYes.isSelected());
             
             Properties serverProperties = new Properties();
-            
-            if (encryptMessageCheckbox.isSelected())
-                serverProperties.put("encrypt_message", UIConstants.YES_OPTION);
-            else
-                serverProperties.put("encrypt_message", UIConstants.NO_OPTION);
-            
+
             serverProperties.put("smtp.host", smtpHost.getText());
             serverProperties.put("smtp.port", smtpPort.getText());
             
@@ -496,7 +477,6 @@ public class AdminPanel extends javax.swing.JPanel
     private javax.swing.JTabbedPane adminPanel;
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.ButtonGroup buttonGroup2;
-    private com.webreach.mirth.client.ui.components.MirthCheckBox encryptMessageCheckbox;
     private com.webreach.mirth.client.ui.components.MirthTextField intervalTime;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
