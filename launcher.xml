@@ -7,7 +7,7 @@
 		<lib path="lib/commons-digester-1.7.jar" />
 		<lib path="lib/commons-httpclient-3.0.1.jar" />
 		<lib path="lib/hapi-0.5beta.jar" />
-		<lib path="lib/hsqldb-1.8.0.jar" />
+		<lib path="lib/hsqldb-1.8.0.5.jar" />
 		<lib path="lib/jsr173_1.0_api.jar" />
 		<lib path="lib/rhino-1.6r2.jar" />
 		<lib path="lib/squiggle-1.2.2.jar" />
