@@ -135,7 +135,9 @@ public class Mirth extends Thread {
 
 		if (muleManager != null) {
 			try {
-				muleManager.stop();
+				if (muleManager.isStarted()) {
+					muleManager.stop();	
+				}
 			} catch (Exception e) {
 				logger.error(e);
 			} finally {
