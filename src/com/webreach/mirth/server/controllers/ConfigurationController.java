@@ -52,7 +52,6 @@ import com.truemesh.squiggle.Table;
 import com.webreach.mirth.model.DriverInfo;
 import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.model.Transport;
-import com.webreach.mirth.model.converters.ObjectStringSerializer;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.server.Command;
 import com.webreach.mirth.server.CommandQueue;
@@ -348,25 +347,29 @@ public class ConfigurationController {
 		}
 	}
 	
-	public List<DriverInfo> getDatabaseDrivers() throws Exception {
+	public List<DriverInfo> getDatabaseDrivers() throws ControllerException {
 		logger.debug("retrieving database driver list");
 		File driversFile = new File(CONF_FOLDER + "dbdrivers.xml");
 
 		if (driversFile.exists()) {
-			ArrayList<DriverInfo> drivers = new ArrayList<DriverInfo>();
-			Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(driversFile);
-			Element driversElement = document.getDocumentElement();
+			try {
+				ArrayList<DriverInfo> drivers = new ArrayList<DriverInfo>();
+				Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(driversFile);
+				Element driversElement = document.getDocumentElement();
 
-			for (int i = 0; i < driversElement.getElementsByTagName("driver").getLength(); i++) {
-				Element driverElement = (Element) driversElement.getElementsByTagName("driver").item(i);
-				DriverInfo driver = new DriverInfo(driverElement.getAttribute("name"), driverElement.getAttribute("class"));
-				logger.debug("found database driver: " + driver);
-				drivers.add(driver);
+				for (int i = 0; i < driversElement.getElementsByTagName("driver").getLength(); i++) {
+					Element driverElement = (Element) driversElement.getElementsByTagName("driver").item(i);
+					DriverInfo driver = new DriverInfo(driverElement.getAttribute("name"), driverElement.getAttribute("class"));
+					logger.debug("found database driver: " + driver);
+					drivers.add(driver);
+				}
+
+				return drivers;
+			} catch (Exception e) {
+				throw new ControllerException("Error during loading of database drivers file: " + driversFile.getAbsolutePath(), e);
 			}
-
-			return drivers;
 		} else {
-			throw new Exception("Could not locate database drivers file: " + driversFile.getAbsolutePath());
+			throw new ControllerException("Could not locate database drivers file: " + driversFile.getAbsolutePath());
 		}
 	}
 	
