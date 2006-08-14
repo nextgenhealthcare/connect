@@ -114,8 +114,9 @@ public class ChannelController {
 
 			String statement = null;
 			ArrayList<Object> parameters = new ArrayList<Object>();
-
-			if (getChannels(channel.getId()).isEmpty()) {
+			boolean isNewChannel = getChannels(channel.getId()).isEmpty();
+			
+			if (isNewChannel) {
 				logger.debug("inserting channel: channelId=" + channel.getId());
 				statement = "insert into channels (id, channel_name, channel_data) values (?, ?, ?)";
 				parameters.add(channel.getId());
@@ -130,6 +131,13 @@ public class ChannelController {
 			}
 
 			dbConnection.executeUpdate(statement, parameters);
+			
+			// if it's a new channel, create its associated statistics row
+			if (isNewChannel) {
+				ChannelStatisticsController statisticsController = new ChannelStatisticsController();
+				statisticsController.createStatistics(channel.getId());
+			}
+			
 			return true;
 		} catch (SQLException e) {
 			throw new ControllerException(e);
@@ -152,8 +160,8 @@ public class ChannelController {
 		try {
 			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
 			StringBuilder statement = new StringBuilder();
-			statement.append("DELETE FROM CHANNELS");
-			statement.append(" WHERE ID = " + channelId + ";");
+			statement.append("delete from channels");
+			statement.append(" where id = " + channelId + ";");
 			dbConnection.executeUpdate(statement.toString());
 		} catch (SQLException e) {
 			throw new ControllerException(e);
