@@ -57,6 +57,7 @@ public class Mirth extends Thread {
 	private SystemLogger systemLogger = new SystemLogger();
 	private Properties mirthProperties = PropertyLoader.loadProperties("mirth");
 	private Properties versionProperties = PropertyLoader.loadProperties("version");
+	private MirthManager manager = new MirthManager();
 
 	public static void main(String[] args) {
 		Mirth mirth = new Mirth();
@@ -217,5 +218,9 @@ public class Mirth extends Thread {
 		String buildDate = versionProperties.getProperty("mirth.date");
 		System.out.println("Mirth " + version + " (" + buildDate + ") server successfully started: " + (new Date()).toString());
 		System.out.println("Running Java " + System.getProperty("java.version") + " on " + System.getProperty("os.name") + " (" + System.getProperty("os.version") + ", " + System.getProperty("os.arch") + ")");
+	}
+	
+	public MirthManager getManager() {
+		return manager;
 	}
 }
