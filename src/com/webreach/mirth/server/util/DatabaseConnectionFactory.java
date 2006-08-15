@@ -41,9 +41,9 @@ public class DatabaseConnectionFactory {
 		}
 
 		Properties info = new Properties();
-		info.setProperty("user", "sa");
-		info.setProperty("password", "");
-		info.setProperty("shutdown", "true");
+		info.setProperty("user", properties.getProperty("database.user"));
+		info.setProperty("password", properties.getProperty("database.password"));
+		info.setProperty("shutdown", "true");	
 
 		return new DatabaseConnection(properties.getProperty("database.url"), info);
 	}
