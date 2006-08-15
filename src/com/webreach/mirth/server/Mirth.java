@@ -63,6 +63,10 @@ public class Mirth extends Thread {
 		Mirth mirth = new Mirth();
 		mirth.run();
 	}
+	
+	public MirthManager getManager() {
+		return this.manager;
+	}
 
 	public void run() {
 		running = true;
@@ -89,10 +93,11 @@ public class Mirth extends Thread {
 	}
 
 	public void shutdown() {
-		logger.info("shutting down mirth");
+		logger.info("shutting down mirth due to normal request");
 		stopMule();
 		stopWebServer();
 		running = false;
+		System.exit(0);
 	}
 
 	// restarts mule
@@ -218,9 +223,5 @@ public class Mirth extends Thread {
 		String buildDate = versionProperties.getProperty("mirth.date");
 		System.out.println("Mirth " + version + " (" + buildDate + ") server successfully started: " + (new Date()).toString());
 		System.out.println("Running Java " + System.getProperty("java.version") + " on " + System.getProperty("os.name") + " (" + System.getProperty("os.version") + ", " + System.getProperty("os.arch") + ")");
-	}
-	
-	public MirthManager getManager() {
-		return manager;
 	}
 }
