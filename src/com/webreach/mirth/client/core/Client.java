@@ -342,6 +342,13 @@ public class Client {
 		executePostMethod(STATISTICS_SERVLET, params);
 	}
 
+	/**
+	 * Returns a list of system events.
+	 * 
+	 * @param filter
+	 * @return
+	 * @throws ClientException
+	 */
 	public synchronized List<SystemEvent> getSystemEvents(SystemEventFilter filter) throws ClientException {
 		logger.debug("retrieving log event list");
 		NameValuePair[] params = { new NameValuePair("op", "getSystemEvents"), new NameValuePair("filter", serializer.toXML(filter)) };
