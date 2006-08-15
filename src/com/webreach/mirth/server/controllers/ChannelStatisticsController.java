@@ -132,6 +132,8 @@ public class ChannelStatisticsController {
 	public void clearStatistics(int channelId) throws ControllerException {
 		logger.debug("clearing statistics: channelId=" + channelId);
 
+		// clear the stats in Mule
+		
 		JMXConnection jmxConnection = null;
 
 		try {
@@ -144,6 +146,28 @@ public class ChannelStatisticsController {
 			throw new ControllerException(e);
 		} finally {
 			jmxConnection.close();
+		}
+		
+		// clear the stats in the database
+		
+		DatabaseConnection dbConnection = null;
+
+		try {
+			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
+
+			String statement = "update channel_statistics set received = ?, sent = ?, errors = ? where channel_id = ?";
+
+			ArrayList<Object> parameters = new ArrayList<Object>();
+			parameters.add(0);
+			parameters.add(0);
+			parameters.add(0);
+			parameters.add(channelId);
+
+			dbConnection.executeUpdate(statement, parameters);
+		} catch (Exception e) {
+			throw new ControllerException(e);
+		} finally {
+			dbConnection.close();
 		}
 	}
 
