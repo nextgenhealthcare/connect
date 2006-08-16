@@ -19,15 +19,16 @@ import com.webreach.mirth.server.util.DatabaseUtil;
 import com.webreach.mirth.util.Encrypter;
 
 /**
- * The MessageLogger is used to store messages as they are processes by a channel.
+ * The MessageLogger is used to store messages as they are processes by a
+ * channel.
  * 
  * @author GeraldB
- *
+ * 
  */
 public class MessageLogger {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private ConfigurationController configurationController = new ConfigurationController();
-	
+
 	/**
 	 * Adds a new message to the database.
 	 * 
@@ -36,24 +37,19 @@ public class MessageLogger {
 	 */
 	public void logMessageEvent(MessageEvent messageEvent) {
 		logger.debug("adding message event: channelId=" + messageEvent.getChannelId());
-		
+
 		DatabaseConnection dbConnection = null;
-		
+
 		try {
 			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
-			
+
 			// begin message data encryption
-			Encrypter encrypter = null;
-			try {
-				encrypter = new Encrypter(configurationController.getEncryptionKey());
-			} catch (ControllerException e) {
-				throw e;
-			}
+			Encrypter encrypter = new Encrypter(configurationController.getEncryptionKey());
 			String encryptedMessageData = encrypter.encrypt(messageEvent.getMessage());
 			// end message data encryption
-			
+
 			String insert = "insert into messages(channel_id, sending_facility, event, control_id, message, status) values (?, ?, ?, ?, ?, ?)";
-			
+
 			ArrayList<Object> parameters = new ArrayList<Object>();
 			parameters.add(messageEvent.getChannelId());
 			parameters.add(messageEvent.getSendingFacility());
@@ -61,13 +57,13 @@ public class MessageLogger {
 			parameters.add(messageEvent.getControlId());
 			parameters.add(encryptedMessageData);
 			parameters.add(messageEvent.getStatus().toString());
-			
+
 			dbConnection.executeUpdate(insert, parameters);
 		} catch (Exception e) {
 			logger.error("could not log message: channelId=" + messageEvent.getChannelId(), e);
 		}
 	}
-	
+
 	/**
 	 * Returns a List of all messages.
 	 * 
@@ -77,16 +73,16 @@ public class MessageLogger {
 	 */
 	public List<MessageEvent> getMessageEvents(MessageEventFilter filter) throws ControllerException {
 		logger.debug("retrieving message event list: filter=" + filter.toString());
-		
+
 		DatabaseConnection dbConnection = null;
 		ResultSet result = null;
-		
+
 		try {
 			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
-			
+
 			Table messages = new Table("messages");
 			SelectQuery select = new SelectQuery(messages);
-			
+
 			select.addColumn(messages, "id");
 			select.addColumn(messages, "channel_id");
 			select.addColumn(messages, "date_created");
@@ -95,17 +91,17 @@ public class MessageLogger {
 			select.addColumn(messages, "control_id");
 			select.addColumn(messages, "message");
 			select.addColumn(messages, "status");
-			
+
 			// filter on channelId
 			if (filter.getChannelId() != -1) {
 				select.addCriteria(new MatchCriteria(messages, "channel_id", MatchCriteria.EQUALS, filter.getChannelId()));
 			}
-			
+
 			// filter on start and end date
 			if ((filter.getStartDate() != null) && (filter.getEndDate() != null)) {
 				String startDate = String.format("%1$tY-%1$tm-%1$td 00:00:00", filter.getStartDate());
 				String endDate = String.format("%1$tY-%1$tm-%1$td 23:59:59", filter.getEndDate());
-				
+
 				select.addCriteria(new MatchCriteria(messages, "date_created", MatchCriteria.GREATEREQUAL, startDate));
 				select.addCriteria(new MatchCriteria(messages, "date_created", MatchCriteria.LESSEQUAL, endDate));
 			}
@@ -114,7 +110,7 @@ public class MessageLogger {
 			if (filter.getSendingFacility() != null) {
 				select.addCriteria(new MatchCriteria(messages, "sending_facility", MatchCriteria.LIKE, "%" + filter.getSendingFacility() + "%"));
 			}
-			
+
 			// filter on event
 			if (filter.getEvent() != null) {
 				select.addCriteria(new MatchCriteria(messages, "event", MatchCriteria.LIKE, "%" + filter.getEvent() + "%"));
@@ -137,9 +133,9 @@ public class MessageLogger {
 		} finally {
 			DatabaseUtil.close(result);
 			dbConnection.close();
-		}		
+		}
 	}
-	
+
 	/**
 	 * Removes the message with the specified id.
 	 * 
@@ -147,9 +143,9 @@ public class MessageLogger {
 	 */
 	public void removeMessageEvent(int messageEventId) throws ControllerException {
 		logger.debug("removing message event: messageEventId=" + messageEventId);
-		
+
 		DatabaseConnection dbConnection = null;
-		
+
 		try {
 			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
 			StringBuilder statement = new StringBuilder();
@@ -162,7 +158,7 @@ public class MessageLogger {
 			dbConnection.close();
 		}
 	}
-	
+
 	/**
 	 * Clears the message list for the channel with the specified id.
 	 * 
@@ -172,7 +168,7 @@ public class MessageLogger {
 		logger.debug("clearing message events: " + channelId);
 
 		DatabaseConnection dbConnection = null;
-		
+
 		try {
 			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
 			StringBuilder statement = new StringBuilder();
@@ -188,15 +184,8 @@ public class MessageLogger {
 
 	private List<MessageEvent> getMessageEventList(ResultSet result) throws SQLException {
 		ArrayList<MessageEvent> messageEvents = new ArrayList<MessageEvent>();
-		
-		Encrypter encrypter = null;
+		Encrypter encrypter = new Encrypter(configurationController.getEncryptionKey());
 
-		try {
-			encrypter = new Encrypter(configurationController.getEncryptionKey());	
-		} catch (ControllerException e) {
-			logger.error(e);
-		}
-		
 		while (result.next()) {
 			MessageEvent messageEvent = new MessageEvent();
 			messageEvent.setId(result.getInt("id"));
