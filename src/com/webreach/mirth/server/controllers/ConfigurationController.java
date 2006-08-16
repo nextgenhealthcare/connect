@@ -69,12 +69,12 @@ import com.webreach.mirth.util.PropertyLoader;
  * 
  */
 public class ConfigurationController {
-	private final String CONF_FOLDER = "conf/";
 	private Logger logger = Logger.getLogger(this.getClass());
 	private SystemLogger systemLogger = new SystemLogger();
-	private File serverPropertiesFile = new File("server.properties");
-	private Properties versionProperties = PropertyLoader.loadProperties("version");
-	private SecretKey encryptionKey = null;
+	private static File serverPropertiesFile = new File("server.properties");
+	private static Properties versionProperties = PropertyLoader.loadProperties("version");
+	private static SecretKey encryptionKey = null;
+	private final String CONF_FOLDER = "conf/";
 
 	public void initialize() {
 		try {
@@ -337,20 +337,24 @@ public class ConfigurationController {
 			SelectQuery select = new SelectQuery(keys);
 			select.addColumn(keys, "data");
 			result = dbConnection.executeQuery(select.toString());
-
+			boolean isKeyFound = false;
+			
 			while (result.next()) {
 				logger.debug("encryption key found");
 				encryptionKey = (SecretKey) serializer.fromXML(result.getString("data"));
+				isKeyFound = true;
 			}
 
-			logger.debug("no key found, creating new encryption key");
-			encryptionKey = KeyGenerator.getInstance(Encrypter.DES_ALGORITHM).generateKey();
-			
-			StringBuilder insert = new StringBuilder();
-			insert.append("insert into keys (data) values(");
-			insert.append("'" + serializer.toXML(encryptionKey) + "'");
-			insert.append(");");
-			dbConnection.executeUpdate(insert.toString());
+			if (!isKeyFound) {
+				logger.debug("no key found, creating new encryption key");
+				encryptionKey = KeyGenerator.getInstance(Encrypter.DES_ALGORITHM).generateKey();
+				
+				StringBuilder insert = new StringBuilder();
+				insert.append("insert into keys (data) values(");
+				insert.append("'" + serializer.toXML(encryptionKey) + "'");
+				insert.append(");");
+				dbConnection.executeUpdate(insert.toString());
+			}
 		} catch (Exception e) {
 			throw new ControllerException(e);
 		} finally {
