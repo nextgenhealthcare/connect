@@ -135,8 +135,7 @@ public class DatabaseWriter extends ConnectorClass
 
     public boolean checkRequiredFields()
     {
-        if(databaseURLField.getText().length() > 0 && databaseUsernameField.getText().length() > 0 && 
-                new String(databasePasswordField.getPassword()).length() > 0 && databaseSQLTextPane.getText().length() > 0)
+        if(databaseURLField.getText().length() > 0 && databaseUsernameField.getText().length() > 0 && databaseSQLTextPane.getText().length() > 0)
         {
             return true;
         }
