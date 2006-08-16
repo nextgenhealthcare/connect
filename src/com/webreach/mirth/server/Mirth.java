@@ -58,6 +58,7 @@ public class Mirth extends Thread {
 	private Properties mirthProperties = PropertyLoader.loadProperties("mirth");
 	private Properties versionProperties = PropertyLoader.loadProperties("version");
 	private MirthManager manager = new MirthManager();
+	private ConfigurationController configurationController = new ConfigurationController();
 
 	public static void main(String[] args) {
 		Mirth mirth = new Mirth();
@@ -71,6 +72,7 @@ public class Mirth extends Thread {
 	public void run() {
 		running = true;
 		startWebServer();
+		configurationController.initialize();
 		commandQueue.addCommand(new Command(Command.Operation.START));
 
 		Runtime.getRuntime().addShutdownHook(new ShutdownHook());

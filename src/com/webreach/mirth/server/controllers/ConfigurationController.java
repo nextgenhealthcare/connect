@@ -74,7 +74,15 @@ public class ConfigurationController {
 	private SystemLogger systemLogger = new SystemLogger();
 	private File serverPropertiesFile = new File("server.properties");
 	private Properties versionProperties = PropertyLoader.loadProperties("version");
+	private SecretKey encryptionKey = null;
 
+	public void initialize() {
+		try {
+			loadEncryptionKey();
+		} catch (ControllerException e) {
+			logger.error("could not initialize configuration settings", e);
+		}
+	}
 
 	public Map<String, Transport> getTransports() throws ControllerException {
 		logger.debug("retrieving transport list");
@@ -135,7 +143,7 @@ public class ConfigurationController {
 		logger.debug("retrieving properties");
 
 		FileInputStream fileInputStream = null;
-		
+
 		try {
 			serverPropertiesFile.createNewFile();
 			fileInputStream = new FileInputStream(serverPropertiesFile);
@@ -157,7 +165,7 @@ public class ConfigurationController {
 		logger.debug("updating server properties");
 
 		FileOutputStream fileOuputStream = null;
-		
+
 		try {
 			fileOuputStream = new FileOutputStream(serverPropertiesFile);
 			properties.store(fileOuputStream, null);
@@ -311,8 +319,12 @@ public class ConfigurationController {
 		}
 	}
 
-	public SecretKey getEncryptionKey() throws ControllerException {
-		logger.debug("retrieving encryption key");
+	public SecretKey getEncryptionKey() {
+		return encryptionKey;
+	}
+
+	public void loadEncryptionKey() throws ControllerException {
+		logger.debug("loading encryption key");
 
 		DatabaseConnection dbConnection = null;
 		ResultSet result = null;
@@ -320,7 +332,7 @@ public class ConfigurationController {
 
 		try {
 			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
-			
+
 			Table keys = new Table("keys");
 			SelectQuery select = new SelectQuery(keys);
 			select.addColumn(keys, "data");
@@ -328,17 +340,17 @@ public class ConfigurationController {
 
 			while (result.next()) {
 				logger.debug("encryption key found");
-				return (SecretKey) serializer.fromXML(result.getString("data"));
+				encryptionKey = (SecretKey) serializer.fromXML(result.getString("data"));
 			}
+
+			logger.debug("no key found, creating new encryption key");
+			encryptionKey = KeyGenerator.getInstance(Encrypter.DES_ALGORITHM).generateKey();
 			
-			logger.debug("creating new encryption key");
-			SecretKey key = KeyGenerator.getInstance(Encrypter.DES_ALGORITHM).generateKey();
 			StringBuilder insert = new StringBuilder();
 			insert.append("insert into keys (data) values(");
-			insert.append("'" + serializer.toXML(key) + "'");
+			insert.append("'" + serializer.toXML(encryptionKey) + "'");
 			insert.append(");");
 			dbConnection.executeUpdate(insert.toString());
-			return key;
 		} catch (Exception e) {
 			throw new ControllerException(e);
 		} finally {
@@ -346,7 +358,7 @@ public class ConfigurationController {
 			dbConnection.close();
 		}
 	}
-	
+
 	public List<DriverInfo> getDatabaseDrivers() throws ControllerException {
 		logger.debug("retrieving database driver list");
 		File driversFile = new File(CONF_FOLDER + "dbdrivers.xml");
@@ -372,7 +384,7 @@ public class ConfigurationController {
 			throw new ControllerException("Could not locate database drivers file: " + driversFile.getAbsolutePath());
 		}
 	}
-	
+
 	public String getVersion() {
 		return versionProperties.getProperty("mirth.version");
 	}
