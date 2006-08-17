@@ -692,6 +692,16 @@ public class Frame extends JXFrame
             }
         });
         statusPopupMenu.add(showMessages);
+        
+        statusTasks.add(initActionCallback("doClearStats", "Clear the statistics for a selected channel.", ActionFactory.createBoundAction("doClearStats","Clear Statistics", "C"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png"))));
+        JMenuItem clearStats = new JMenuItem("Clear Statistics");
+        clearStats.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png")));
+        clearStats.addActionListener(new ActionListener(){
+             public void actionPerformed(ActionEvent e){
+                doClearStats();
+            }
+        });
+        statusPopupMenu.add(clearStats);
 
         statusTasks.add(initActionCallback("doStart", "Start the currently selected channel.", ActionFactory.createBoundAction("doStart","Start Channel", "N"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/start.png"))));
         JMenuItem startChannel = new JMenuItem("Start Channel");
@@ -1825,6 +1835,22 @@ public class Frame extends JXFrame
             }
             eventBrowser.refresh();
         }
+    }
+    
+    public void doClearStats()
+    {
+        this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        try
+        {
+            mirthClient.clearStatistics(status.get(statusListPage.getSelectedStatus()).getChannelId());
+        }
+        catch (ClientException e)
+        {
+            alertException(e.getStackTrace(), e.getMessage());
+        }
+        this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+
+        doRefresh();
     }
 
     public void doRefreshSettings()

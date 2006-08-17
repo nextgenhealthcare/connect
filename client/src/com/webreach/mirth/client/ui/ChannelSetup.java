@@ -161,16 +161,16 @@ public class ChannelSetup extends javax.swing.JPanel
     public void editTransformer()
     {
         if (channelView.getSelectedIndex() == SOURCE_TAB_INDEX)
-            transformerPane.load(currentChannel.getSourceConnector().getTransformer());
+            transformerPane.load(currentChannel.getSourceConnector(), currentChannel.getSourceConnector().getTransformer());
         
         else if (channelView.getSelectedIndex() == DESTINATIONS_TAB_INDEX)
         {
             if (currentChannel.getMode() == Channel.Mode.APPLICATION)
-                transformerPane.load(currentChannel.getDestinationConnectors().get(0).getTransformer());
+                transformerPane.load(currentChannel.getDestinationConnectors().get(0), currentChannel.getDestinationConnectors().get(0).getTransformer());
             else
             {
                 int destination = getDestinationConnectorIndex((String)destinationTable.getValueAt(getSelectedDestinationIndex(),getColumnNumber(DESTINATION_COLUMN_NAME)));
-                transformerPane.load(currentChannel.getDestinationConnectors().get(destination).getTransformer());
+                transformerPane.load(currentChannel.getDestinationConnectors().get(destination), currentChannel.getDestinationConnectors().get(destination).getTransformer());
             }
         }
     }
@@ -179,16 +179,16 @@ public class ChannelSetup extends javax.swing.JPanel
     public void editFilter()
     {
         if (channelView.getSelectedIndex() == SOURCE_TAB_INDEX)
-            filterPane.load(currentChannel.getSourceConnector().getFilter());
+            filterPane.load(currentChannel.getSourceConnector(), currentChannel.getSourceConnector().getFilter());
         
         else if (channelView.getSelectedIndex() == DESTINATIONS_TAB_INDEX)
         {
             if (currentChannel.getMode() == Channel.Mode.APPLICATION)
-                filterPane.load(currentChannel.getDestinationConnectors().get(0).getFilter());
+                filterPane.load(currentChannel.getDestinationConnectors().get(0), currentChannel.getDestinationConnectors().get(0).getFilter());
             else
             {
                 int destination = getDestinationConnectorIndex((String)destinationTable.getValueAt(getSelectedDestinationIndex(),getColumnNumber(DESTINATION_COLUMN_NAME)));
-                filterPane.load(currentChannel.getDestinationConnectors().get(destination).getFilter());
+                filterPane.load(currentChannel.getDestinationConnectors().get(destination), currentChannel.getDestinationConnectors().get(destination).getFilter());
             }
         }
     }
