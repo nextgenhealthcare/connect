@@ -35,7 +35,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.server.controllers.ChannelStatisticsController;
 
-public class StatisticsServlet extends MirthServlet {
+public class ChannelStatisticsServlet extends MirthServlet {
 	private ChannelStatisticsController statisticsController = new ChannelStatisticsController();
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
