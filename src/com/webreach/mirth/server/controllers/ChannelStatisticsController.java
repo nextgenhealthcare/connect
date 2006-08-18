@@ -146,7 +146,7 @@ public class ChannelStatisticsController {
 			Hashtable<String, String> properties = new Hashtable<String, String>();
 			properties.put("type", "statistics");
 			properties.put("name", String.valueOf(channelId));
-			jmxConnection.invokeOperation(properties, "clear", null);
+			jmxConnection.invokeOperation(properties, "clear", null, null);
 		} catch (Exception e) {
 			throw new ControllerException(e);
 		} finally {

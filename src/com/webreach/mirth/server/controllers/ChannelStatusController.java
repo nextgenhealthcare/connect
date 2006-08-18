@@ -37,7 +37,8 @@ public class ChannelStatusController {
 			properties.put("type", "control");
 			properties.put("name", "ModelService");
 			String[] params = { String.valueOf(channelId) };
-			jmxConnection.invokeOperation(properties, "startComponent", params);
+			String[] signature = { "java.lang.String" };
+			jmxConnection.invokeOperation(properties, "startComponent", params, signature);
 		} catch (Exception e) {
 			throw new ControllerException(e);
 		} finally {
@@ -72,7 +73,8 @@ public class ChannelStatusController {
 			properties.put("type", "control");
 			properties.put("name", "ModelService");
 			String[] params = { String.valueOf(channelId) };
-			jmxConnection.invokeOperation(properties, "stopComponent", params);
+			String[] signature = { "java.lang.String" };
+			jmxConnection.invokeOperation(properties, "stopComponent", params, signature);
 		} catch (Exception e) {
 			throw new ControllerException(e);
 		} finally {
@@ -101,7 +103,8 @@ public class ChannelStatusController {
 			properties.put("type", "control");
 			properties.put("name", "ModelService");
 			String[] params = { String.valueOf(channelId) };
-			jmxConnection.invokeOperation(properties, "pauseComponent", params);
+			String[] signature = { "java.lang.String" };
+			jmxConnection.invokeOperation(properties, "pauseComponent", params, signature);
 		} catch (Exception e) {
 			throw new ControllerException(e);
 		} finally {
@@ -130,7 +133,8 @@ public class ChannelStatusController {
 			properties.put("type", "control");
 			properties.put("name", "ModelService");
 			String[] params = { String.valueOf(channelId) };
-			jmxConnection.invokeOperation(properties, "resumeComponent", params);
+			String[] signature = { "java.lang.String" };
+			jmxConnection.invokeOperation(properties, "resumeComponent", params, signature);
 		} catch (Exception e) {
 			throw new ControllerException(e);
 		} finally {
