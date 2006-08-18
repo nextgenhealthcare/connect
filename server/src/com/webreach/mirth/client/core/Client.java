@@ -338,7 +338,7 @@ public class Client {
 	 */
 	public synchronized void clearStatistics(int channelId) throws ClientException {
 		logger.debug("clearing channel statistics: channelId=" + channelId);
-		NameValuePair[] params = { new NameValuePair("op", "clearStistics"), new NameValuePair("id", String.valueOf(channelId)) };
+		NameValuePair[] params = { new NameValuePair("op", "clearStatistics"), new NameValuePair("id", String.valueOf(channelId)) };
 		executePostMethod(STATISTICS_SERVLET, params);
 	}
 
