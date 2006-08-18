@@ -71,15 +71,15 @@
 	</servlet-mapping>
 
 	<servlet>
-		<servlet-name>Statistics</servlet-name>
+		<servlet-name>ChannelStatistics</servlet-name>
 		<servlet-class>
-			com.webreach.mirth.server.servlets.StatisticsServlet
+			com.webreach.mirth.server.servlets.ChannelStatisticsServlet
 		</servlet-class>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>Statistics</servlet-name>
-		<url-pattern>/statistics</url-pattern>
+		<servlet-name>ChannelStatistics</servlet-name>
+		<url-pattern>/channelstatistics</url-pattern>
 	</servlet-mapping>
 
 	<servlet>

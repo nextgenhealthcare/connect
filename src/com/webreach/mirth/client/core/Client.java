@@ -59,7 +59,7 @@ public class Client {
 	private final static String CHANNEL_SERVLET = "/channels";
 	private final static String CONFIGURATION_SERVLET = "/configuration";
 	private final static String CHANNEL_STATUS_SERVLET = "/channelstatus";
-	private final static String STATISTICS_SERVLET = "/statistics";
+	private final static String CHANNEL_STATISTICS_SERVLET = "/channelstatistics";
 	private final static String LOGGER_SERVLET = "/logger";
 
 	/**
@@ -327,7 +327,7 @@ public class Client {
 	public synchronized ChannelStatistics getStatistics(int channelId) throws ClientException {
 		logger.debug("retrieving channel statistics: channelId=" + channelId);
 		NameValuePair[] params = { new NameValuePair("op", "getStatistics"), new NameValuePair("id", String.valueOf(channelId)) };
-		return (ChannelStatistics) serializer.fromXML(executePostMethod(STATISTICS_SERVLET, params));
+		return (ChannelStatistics) serializer.fromXML(executePostMethod(CHANNEL_STATISTICS_SERVLET, params));
 	}
 
 	/**
@@ -339,7 +339,7 @@ public class Client {
 	public synchronized void clearStatistics(int channelId) throws ClientException {
 		logger.debug("clearing channel statistics: channelId=" + channelId);
 		NameValuePair[] params = { new NameValuePair("op", "clearStatistics"), new NameValuePair("id", String.valueOf(channelId)) };
-		executePostMethod(STATISTICS_SERVLET, params);
+		executePostMethod(CHANNEL_STATISTICS_SERVLET, params);
 	}
 
 	/**
