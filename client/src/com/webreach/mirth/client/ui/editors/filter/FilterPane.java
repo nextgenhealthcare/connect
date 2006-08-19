@@ -100,6 +100,7 @@ public class FilterPane extends MirthEditorPane
      */
     public void load(Connector c, Filter f)
     {
+        prevSelRow = -1;
         filter = f;
         connector = c;
         

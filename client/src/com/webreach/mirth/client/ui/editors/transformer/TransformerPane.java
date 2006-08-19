@@ -105,6 +105,7 @@ public class TransformerPane extends MirthEditorPane
      */
     public void load(Connector c, Transformer t)
     {
+        prevSelRow = -1;
         connector = c;
         transformer = t;
         tabPanel.BuildVarPanel();
