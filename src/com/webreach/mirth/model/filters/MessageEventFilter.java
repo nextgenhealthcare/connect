@@ -23,7 +23,6 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
 package com.webreach.mirth.model.filters;
 
 import java.util.Calendar;
@@ -44,6 +43,8 @@ public class MessageEventFilter {
 	private String event;
 	private String controlId;
 	private MessageEvent.Status status;
+	private int page = -1;
+	private int pageSize = -1;
 
 	public int getChannelId() {
 		return this.channelId;
@@ -101,6 +102,22 @@ public class MessageEventFilter {
 		this.status = status;
 	}
 
+	public int getPage() {
+		return this.page;
+	}
+
+	public void setPage(int page) {
+		this.page = page;
+	}
+
+	public int getPageSize() {
+		return this.pageSize;
+	}
+
+	public void setPageSize(int pageSize) {
+		this.pageSize = pageSize;
+	}
+
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("MessageEventFilter[");
@@ -110,7 +127,9 @@ public class MessageEventFilter {
 		builder.append("sendingFacility=" + getSendingFacility() + ", ");
 		builder.append("event=" + getEvent() + ", ");
 		builder.append("controlId=" + getControlId() + ", ");
-		builder.append("status=" + getStatus());
+		builder.append("status=" + getStatus() + ", ");
+		builder.append("page=" + getPage() + ", ");
+		builder.append("pageSize=" + getPageSize() + ", ");
 		builder.append("]");
 		return builder.toString();
 	}

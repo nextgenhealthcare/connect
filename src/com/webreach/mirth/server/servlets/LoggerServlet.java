@@ -59,6 +59,10 @@ public class LoggerServlet extends MirthServlet {
 					String filter = request.getParameter("filter");
 					response.setContentType("application/xml");
 					out.println(serializer.toXML(messageLogger.getMessageEvents((MessageEventFilter) serializer.fromXML(filter))));
+				} else if (operation.equals("getMessageEventsCount")) {
+					String filter = request.getParameter("filter");
+					response.setContentType("text/plain");
+					out.print(messageLogger.getMessageEventsCount((MessageEventFilter) serializer.fromXML(filter)));
 				} else if (operation.equals("clearSystemEvents")) {
 					systemLogger.clearSystemEvents();
 				} else if (operation.equals("removeMessageEvent")) {
