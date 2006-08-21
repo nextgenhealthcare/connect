@@ -89,6 +89,9 @@ public class UserServlet extends MirthServlet {
 			if (authenticateUserId >= 0) {
 				session.setAttribute(SESSION_USER, authenticateUserId);
 				session.setAttribute(SESSION_AUTHORIZED, true);
+				
+				// this prevents the session from timing out
+				session.setMaxInactiveInterval(-1);
 
 				// log the event
 				SystemEvent event = new SystemEvent("User logged in.");
