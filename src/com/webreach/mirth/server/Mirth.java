@@ -99,7 +99,6 @@ public class Mirth extends Thread {
 		stopMule();
 		stopWebServer();
 		running = false;
-		System.exit(0);
 	}
 
 	// restarts mule
