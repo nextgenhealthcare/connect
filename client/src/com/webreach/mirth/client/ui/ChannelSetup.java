@@ -456,8 +456,6 @@ public class ChannelSetup extends javax.swing.JPanel
             checkPropertyValidity(currentChannel.getDestinationConnectors().get(0), parent.destinationConnectors);
         }
         
-        channelView.setSelectedComponent(summary);
-        
         if(currentChannel.getDirection() == Channel.Direction.INBOUND)
         {
             sourceSourceDropdown.setModel(new javax.swing.DefaultComboBoxModel(sourceConnectorsInbound.toArray()));
@@ -478,6 +476,8 @@ public class ChannelSetup extends javax.swing.JPanel
         
         setDestinationVariableList();
         loadingChannel = false;
+        
+        channelView.setSelectedIndex(0);
     }
 
     /** Adds a new channel that is passed in and then sets the overall panel to
@@ -499,8 +499,6 @@ public class ChannelSetup extends javax.swing.JPanel
             sourceSourceDropdown.setModel(new javax.swing.DefaultComboBoxModel(sourceConnectorsOutbound.toArray()));
             destinationSourceDropdown.setModel(new javax.swing.DefaultComboBoxModel(destinationConnectorsOutbound.toArray()));
         }
-        
-        channelView.setSelectedComponent(summary);
         
         Connector sourceConnector = makeNewConnector();
 	sourceConnector.setName("sourceConnector");
@@ -529,6 +527,8 @@ public class ChannelSetup extends javax.swing.JPanel
         
         saveChanges(false);
         loadingChannel = false;
+        
+        channelView.setSelectedIndex(0);
     }
 
     /** Load all of the saved channel information into the channel editor */
@@ -681,15 +681,18 @@ public class ChannelSetup extends javax.swing.JPanel
      */
     public void checkVisibleDestinationTasks()
     {
-        if (getSelectedDestinationIndex() == 0)
-            parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 4, 4, false);
-        else
-            parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 4, 4, true);
+        if (channelView.getSelectedComponent() == destination)
+        {
+            if (getSelectedDestinationIndex() == 0)
+                parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 4, 4, false);
+            else
+                parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 4, 4, true);
 
-        if (getSelectedDestinationIndex() == destinationTable.getRowCount()-1)
-            parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 5, 5, false);
-        else
-            parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 5, 5, true);
+            if (getSelectedDestinationIndex() == destinationTable.getRowCount()-1)
+                parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 5, 5, false);
+            else
+                parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 5, 5, true);
+        }
     }
     
     /**
@@ -1033,7 +1036,6 @@ public class ChannelSetup extends javax.swing.JPanel
     /** Action when the summary tab is shown. */
     private void summaryComponentShown(java.awt.event.ComponentEvent evt)//GEN-FIRST:event_summaryComponentShown
     {//GEN-HEADEREND:event_summaryComponentShown
-        
         parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 1, 7, false);
     }//GEN-LAST:event_summaryComponentShown
 
