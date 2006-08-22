@@ -103,7 +103,7 @@ public class StatusPanel extends javax.swing.JPanel
     /**
      * Makes the status table with all current server information.
      */
-    public void makeStatusTable()
+    public synchronized void makeStatusTable()
     {
         if(statusTable != null && statusTable.getSelectedRow() != -1)
             lastIndex = (String)statusTable.getValueAt(statusTable.getSelectedRow(), getColumnNumber(NAME_COLUMN_NAME));
@@ -286,10 +286,11 @@ public class StatusPanel extends javax.swing.JPanel
     /** 
      * Gets the index of the selected status row.
      */
-    public int getSelectedStatus()
+    public synchronized int getSelectedStatus()
     {
         for(int i=0; i<parent.status.size(); i++)
         {
+            System.out.println(statusTable.getSelectedRow());
             if(((String)statusTable.getValueAt(statusTable.getSelectedRow(), getColumnNumber(NAME_COLUMN_NAME))).equalsIgnoreCase(parent.status.get(i).getName()))
                 return i;
         }
