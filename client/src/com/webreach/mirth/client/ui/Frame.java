@@ -605,6 +605,26 @@ public class Frame extends JXFrame
             }
         });
         channelEditPopupMenu.add(deleteDestination);
+        
+        channelEditTasks.add(initActionCallback("doMoveDestinationUp", "Move the currently selected destination up.", ActionFactory.createBoundAction("doMoveDestinationUp","Move Dest. Up", "M"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/arrow_up.png"))));
+        JMenuItem moveDestinationUp = new JMenuItem("Move Destination Up");
+        moveDestinationUp.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/arrow_up.png")));
+        moveDestinationUp.addActionListener(new ActionListener(){
+             public void actionPerformed(ActionEvent e){
+                doMoveDestinationUp();
+            }
+        });
+        channelEditPopupMenu.add(moveDestinationUp);
+        
+        channelEditTasks.add(initActionCallback("doMoveDestinationDown", "Move the currently selected destination down.", ActionFactory.createBoundAction("doMoveDestinationDown","Move Dest. Down", "W"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/arrow_down.png"))));
+        JMenuItem moveDestinationDown = new JMenuItem("Move Destination Down");
+        moveDestinationDown.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/arrow_Down.png")));
+        moveDestinationDown.addActionListener(new ActionListener(){
+             public void actionPerformed(ActionEvent e){
+                doMoveDestinationDown();
+            }
+        });
+        channelEditPopupMenu.add(moveDestinationDown);
 
         channelEditTasks.add(initActionCallback("doEditTransformer", "Edit the transformer for the currently selected destination.", ActionFactory.createBoundAction("doEditTransformer","Edit Transformer", "T"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/edit.png"))));
         JMenuItem editTransformer = new JMenuItem("Edit Transformer");
@@ -637,8 +657,8 @@ public class Frame extends JXFrame
         channelEditPopupMenu.add(exportChannel);
 
         setNonFocusable(channelEditTasks);
-        setVisibleTasks(channelEditTasks, channelEditPopupMenu, 0, 4, false);
-        setVisibleTasks(channelEditTasks, channelEditPopupMenu, 5, 5, true);
+        setVisibleTasks(channelEditTasks, channelEditPopupMenu, 0, 6, false);
+        setVisibleTasks(channelEditTasks, channelEditPopupMenu, 7, 7, true);
         taskPaneContainer.add(channelEditTasks);
     }
 
@@ -1252,7 +1272,17 @@ public class Frame extends JXFrame
         this.dispose();
         Mirth.main(new String[0]);
     }
+    
+    public void doMoveDestinationDown()
+    {
+        channelEditPage.moveDestinationDown();
+    }
 
+    public void doMoveDestinationUp()
+    {
+        channelEditPage.moveDestinationUp();
+    }
+    
     public void doNewChannel()
     {
         ChannelWizard channelWizard = new ChannelWizard();

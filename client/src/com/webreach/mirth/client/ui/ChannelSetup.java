@@ -255,6 +255,7 @@ public class ChannelSetup extends javax.swing.JPanel
         destinationTable.setRowSelectionAllowed(true);
         destinationTable.setRowHeight(UIConstants.ROW_HEIGHT);
         destinationTable.setFocusable(false);   // Need to figure a way to make the arrow keys work here because the pane that shows up steals the focus
+        destinationTable.setSortable(false);
         
         destinationTable.setOpaque(true);
         
@@ -291,7 +292,9 @@ public class ChannelSetup extends javax.swing.JPanel
                     {
                         lastIndex = ((String)destinationTable.getValueAt(getSelectedDestinationIndex(),getColumnNumber(DESTINATION_COLUMN_NAME)));
                     }
-                }
+                    
+                    checkVisibleDestinationTasks();
+                }                
             }
         });
         
@@ -672,6 +675,53 @@ public class ChannelSetup extends javax.swing.JPanel
         isDeleting = false;
     }
     
+    /**
+     * Checks to see which tasks, move up and move down, should be
+     * available for destinations and enables or disables them.
+     */
+    public void checkVisibleDestinationTasks()
+    {
+        if (getSelectedDestinationIndex() == 0)
+            parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 4, 4, false);
+        else
+            parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 4, 4, true);
+
+        if (getSelectedDestinationIndex() == destinationTable.getRowCount()-1)
+            parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 5, 5, false);
+        else
+            parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 5, 5, true);
+    }
+    
+    /**
+     * Moves the selected destination to the previous spot in the array list.
+     */
+    public void moveDestinationUp()
+    {
+        List<Connector> destinationConnectors = currentChannel.getDestinationConnectors();
+        int destinationIndex = getSelectedDestinationIndex();
+        
+        destinationConnectors.add(destinationIndex-1, destinationConnectors.get(destinationIndex));
+        destinationConnectors.remove(destinationIndex+1);
+        
+        makeDestinationTable(false);
+        parent.enableSave();
+    }
+    
+    /**
+     * Moves the selected destination to the next spot in the array list.
+     */
+    public void moveDestinationDown()
+    {
+        List<Connector> destinationConnectors = currentChannel.getDestinationConnectors();
+        int destinationIndex = getSelectedDestinationIndex();
+        
+        destinationConnectors.add(destinationIndex+2, destinationConnectors.get(destinationIndex));
+        destinationConnectors.remove(destinationIndex);
+        
+        makeDestinationTable(false);
+        parent.enableSave();
+    }
+    
     public boolean checkAllForms(Channel channel)
     {
         boolean problemFound = false;
@@ -984,7 +1034,7 @@ public class ChannelSetup extends javax.swing.JPanel
     private void summaryComponentShown(java.awt.event.ComponentEvent evt)//GEN-FIRST:event_summaryComponentShown
     {//GEN-HEADEREND:event_summaryComponentShown
         
-        parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 1, 5, false);
+        parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 1, 7, false);
     }//GEN-LAST:event_summaryComponentShown
 
     /** Action when the source tab is shown. */
@@ -993,12 +1043,12 @@ public class ChannelSetup extends javax.swing.JPanel
         parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 1, 1, true);
         if(currentChannel.getMode() == Channel.Mode.ROUTER)
         {
-            parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 2, 5, false);
+            parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 2, 7, false);
         }
         else
         {
-            parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 2, 3, false);
-            parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 4, 5, true);
+            parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 2, 5, false);
+            parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 6, 7, true);
         }
     }//GEN-LAST:event_sourceComponentShown
 
@@ -1008,16 +1058,20 @@ public class ChannelSetup extends javax.swing.JPanel
         parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 1, 1, true);
         if(currentChannel.getMode() == Channel.Mode.APPLICATION)
         {
-            parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 2, 3, false);
-            parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 4, 5, true);
+            parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 2, 5, false);
+            parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 6, 7, true);
         }
         else if(currentChannel.getMode() == Channel.Mode.BROADCAST)
         {
             parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 2, 3, true);
-            parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 4, 5, false);
+            checkVisibleDestinationTasks();
+            parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 6, 7, false);
         }
         else
-            parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 2, 5, true);
+        {
+            parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 2, 7, true);
+            checkVisibleDestinationTasks();
+        }
     }//GEN-LAST:event_destinationComponentShown
 
     /** Action when an action is performed on the source connector type dropdown. */
