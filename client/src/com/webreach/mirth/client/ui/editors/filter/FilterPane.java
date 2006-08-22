@@ -104,6 +104,11 @@ public class FilterPane extends MirthEditorPane
         filter = f;
         connector = c;
         
+        if (parent.channelEditTasks.getContentPane().getComponent(0).isVisible())
+            modified = true;
+        else
+            modified = false;
+        
         // we need to clear all the old data before we load the new
         makeFilterTable();
         
@@ -140,7 +145,6 @@ public class FilterPane extends MirthEditorPane
         jsPanel.update();
         updateRuleNumbers();
         updateTaskPane();
-        modified = false;
     }
     
     /** This method is called from within the constructor to
@@ -710,6 +714,7 @@ public class FilterPane extends MirthEditorPane
             parent.setPanelName("Edit Channel :: " +  parent.channelEditPage.currentChannel.getName());
             if ( modified ) 
                 parent.enableSave();
+            modified = false;
         }
     }
     

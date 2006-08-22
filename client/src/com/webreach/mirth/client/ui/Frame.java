@@ -1066,7 +1066,7 @@ public class Frame extends JXFrame
      */
     public boolean confirmLeave()
     {
-        if (channelEditTasks.getContentPane().getComponent(0).isVisible())
+        if (channelEditTasks.getContentPane().getComponent(0).isVisible() || channelEditPage.transformerPane.modified || channelEditPage.filterPane.modified)
         {
             int option = JOptionPane.showConfirmDialog(this, "Would you like to save the channel changes?");
             if (option == JOptionPane.YES_OPTION)

@@ -108,6 +108,12 @@ public class TransformerPane extends MirthEditorPane
         prevSelRow = -1;
         connector = c;
         transformer = t;
+        
+        if (parent.channelEditTasks.getContentPane().getComponent(0).isVisible())
+            modified = true;
+        else
+            modified = false;
+        
         tabPanel.BuildVarPanel();
         tabPanel.setDefaultComponent();
         tabPanel.setHL7Message(transformer.getTemplate());
@@ -160,7 +166,6 @@ public class TransformerPane extends MirthEditorPane
             hl7builderPanel.update();
         updateStepNumbers();
         updateTaskPane();
-        modified = false;
     }
     
     /**
@@ -933,6 +938,7 @@ public class TransformerPane extends MirthEditorPane
                         + parent.channelEditPage.currentChannel.getName());
                 if (modified)
                     parent.enableSave();
+                modified = false;
             }
         }
     }
