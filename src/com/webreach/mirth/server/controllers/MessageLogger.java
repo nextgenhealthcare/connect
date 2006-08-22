@@ -9,6 +9,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import com.truemesh.squiggle.MatchCriteria;
+import com.truemesh.squiggle.Order;
 import com.truemesh.squiggle.SelectQuery;
 import com.truemesh.squiggle.Table;
 import com.webreach.mirth.model.MessageEvent;
@@ -86,6 +87,8 @@ public class MessageLogger {
 			select.addColumn(messages, "status");
 
 			addFilterCriteria(select, filter);
+			
+			select.addOrder(messages, "date_created", Order.DESCENDING);
 			
 			String query = select.toString();
 			
