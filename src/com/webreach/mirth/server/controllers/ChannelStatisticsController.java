@@ -109,10 +109,9 @@ public class ChannelStatisticsController {
 
 			String statement = "update channel_statistics set received = ?, sent = ?, errors = ? where channel_id = ?";
 
-			ChannelStatistics channelStatistics = getStatisticsObject(channelId);
-			int received = channelStatistics.getReceivedCount() + getReceivedCount(channelId);
-			int sent = channelStatistics.getSentCount() + getSentCount(channelId);
-			int errors = channelStatistics.getErrorCount() + getErrorCount(channelId);
+			int received = getReceivedCount(channelId);
+			int sent = getSentCount(channelId);
+			int errors = getErrorCount(channelId);
 
 			ArrayList<Object> parameters = new ArrayList<Object>();
 			parameters.add(received);
