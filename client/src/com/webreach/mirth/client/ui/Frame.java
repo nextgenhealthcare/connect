@@ -987,6 +987,8 @@ public class Frame extends JXFrame
         if(message.indexOf("Unauthorized") != -1)
         {
             alertWarning("Sorry your connection to Mirth has either timed out or there was an error in the connection.  Please login again.");
+            if(!exportChannelOnError())
+                return;
             endUpdater();
             this.dispose();
             Mirth.main(new String[0]);
@@ -996,6 +998,8 @@ public class Frame extends JXFrame
         if(message.indexOf("Connection refused") != -1)
         {
             alertWarning("The Mirth server " + PlatformUI.SERVER_NAME + " is no longer running.  Please start it and login again.");
+            if(!exportChannelOnError())
+                return;
             endUpdater();
             this.dispose();
             Mirth.main(new String[0]);
@@ -1091,7 +1095,7 @@ public class Frame extends JXFrame
             int option = JOptionPane.showConfirmDialog(this, "Would you like to save the channel changes?");
             if (option == JOptionPane.YES_OPTION)
             {
-                if (!channelEditPage.saveChanges(true))
+                if (!channelEditPage.saveChanges(true,false))
                     return false;
             }
             else if (option == JOptionPane.CANCEL_OPTION || option == JOptionPane.CLOSED_OPTION)
@@ -1118,7 +1122,7 @@ public class Frame extends JXFrame
     /**
      * Sends the channel passed in to the server, updating it or adding it.
      */
-    public void updateChannel(Channel curr)
+    public boolean updateChannel(Channel curr)
     {
         this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         try
@@ -1128,7 +1132,7 @@ public class Frame extends JXFrame
                 if(alertOption("This channel has been modified since you first opened it.  Would you like to overwrite it?"))
                     mirthClient.updateChannel(curr, true);
                 else
-                    return;
+                    return false;
             }
             channels = mirthClient.getChannels();
             channelListPage.makeChannelTable();
@@ -1136,8 +1140,11 @@ public class Frame extends JXFrame
         catch (ClientException e)
         {
             alertException(e.getStackTrace(), e.getMessage());
+            return false;
         }
         this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        
+        return true;
     }
 
     /**
@@ -1625,7 +1632,7 @@ public class Frame extends JXFrame
 
     public void doSaveChanges()
     {
-        if (channelEditPage.saveChanges(true))
+        if (channelEditPage.saveChanges(true, false))
             channelEditTasks.getContentPane().getComponent(0).setVisible(false);
     }
 
@@ -1719,22 +1726,23 @@ public class Frame extends JXFrame
         }
     }
 
-    public void doExport()
+    public boolean doExport()
     {
         if (channelEditTasks.getContentPane().getComponent(0).isVisible())
         {
             if(alertOption("This channel has been modified. You must save the channel changes before you can export. Would you like to save them now?"))
             {
-                if (!channelEditPage.saveChanges(true))
-                    return;
+                if (!channelEditPage.saveChanges(true, false))
+                    return false;
             }
             else
-                return;
+                return false;
 
             channelEditTasks.getContentPane().getComponent(0).setVisible(false);
         }
+        
         Channel channel;
-        if (currentContentPage == channelEditPage)
+        if (currentContentPage == channelEditPage || currentContentPage == channelEditPage.filterPane || currentContentPage == channelEditPage.transformerPane)
             channel = channelEditPage.currentChannel;
         else
             channel = channels.get(channelListPage.getSelectedChannel());
@@ -1758,7 +1766,7 @@ public class Frame extends JXFrame
             
             if(exportFile.exists())
                 if(!alertOption("This file already exists.  Would you like to overwrite it?"))
-                    return;
+                    return false;
             
             try
             {
@@ -1768,8 +1776,13 @@ public class Frame extends JXFrame
             catch (IOException ex)
             {
                 alertError("File could not be written.");
+                return false;
             }
+            return true;
         }
+        else
+            return false;
+        
     }
     
     public void doExportAll()
@@ -1887,7 +1900,33 @@ public class Frame extends JXFrame
     {
         adminPanel.loadSettings();
     }
-
+    
+    public boolean exportChannelOnError()
+    {
+        if (channelEditTasks.getContentPane().getComponent(0).isVisible() || channelEditPage.transformerPane.modified || channelEditPage.filterPane.modified)
+        {
+            int option = JOptionPane.showConfirmDialog(this, "Would you like to save the channel changes locally to your computer?");
+            if (option == JOptionPane.YES_OPTION)
+            {
+                if (!channelEditPage.saveChanges(true, true))
+                    return false;
+                
+                boolean visible = channelEditTasks.getContentPane().getComponent(0).isVisible();
+                channelEditTasks.getContentPane().getComponent(0).setVisible(false);
+                if(!doExport())
+                {
+                    channelEditTasks.getContentPane().getComponent(0).setVisible(visible);
+                    return false;
+                }
+            }
+            else if (option == JOptionPane.CANCEL_OPTION || option == JOptionPane.CLOSED_OPTION)
+                return false;
+            else
+                channelEditTasks.getContentPane().getComponent(0).setVisible(false);
+        }
+        return true;
+    }
+    
     public void doHelp()
     {
         if(currentContentPage == channelEditPage)

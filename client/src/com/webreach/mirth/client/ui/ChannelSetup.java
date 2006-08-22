@@ -525,7 +525,7 @@ public class ChannelSetup extends javax.swing.JPanel
         
         setDestinationVariableList();
         
-        saveChanges(false);
+        saveChanges(false, false);
         loadingChannel = false;
         
         channelView.setSelectedIndex(0);
@@ -579,7 +579,7 @@ public class ChannelSetup extends javax.swing.JPanel
     }
 
     /** Save all of the current channel information in the editor to the actual channel */
-    public boolean saveChanges(boolean validate)
+    public boolean saveChanges(boolean validate, boolean local)
     {
         if (summaryNameField.getText().equals(""))
         {
@@ -594,7 +594,7 @@ public class ChannelSetup extends javax.swing.JPanel
         
         boolean enabled = summaryEnabledCheckbox.isSelected();
         
-        if(validate)
+        if(validate && !local)
         {
             if(checkAllForms(currentChannel))
             {
@@ -607,6 +607,15 @@ public class ChannelSetup extends javax.swing.JPanel
             }
         }
         currentChannel.getSourceConnector().setProperties(sourceConnectorClass.getProperties());
+        
+        if(parent.currentContentPage == transformerPane)        
+        {
+            transformerPane.accept(false);
+        }
+        if(parent.currentContentPage == filterPane)        
+        {
+            filterPane.accept(false);
+        }
         
         Connector temp;
         if(currentChannel.getMode() == Channel.Mode.APPLICATION)
@@ -629,26 +638,31 @@ public class ChannelSetup extends javax.swing.JPanel
         else
             currentChannel.getProperties().put("initialState", "started");
         
-        this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-        try
-        {
-            if(index == -1)
-            {
-                index = parent.channels.size();
-                currentChannel.setId(parent.mirthClient.getNextId());
-            }
-
-            parent.updateChannel(currentChannel);
-            currentChannel = parent.channels.get(index);
-            parent.channelListPage.makeChannelTable();
-        }
-        catch (ClientException e)
-        {
-            parent.alertException(e.getStackTrace(), e.getMessage());
-        }
-        this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        boolean updated = true;
         
-        return true;
+        if(!local)
+        {
+            this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+            try
+            {
+                if(index == -1)
+                {
+                    index = parent.channels.size();
+                    currentChannel.setId(parent.mirthClient.getNextId());
+                }
+
+                updated = parent.updateChannel(currentChannel);
+                currentChannel = parent.channels.get(index);
+                parent.channelListPage.makeChannelTable();
+            }
+            catch (ClientException e)
+            {
+                parent.alertException(e.getStackTrace(), e.getMessage());
+            }
+            this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        }
+        
+        return updated;
     }
 
     /** Adds a new destination. */
