@@ -26,11 +26,6 @@ import com.webreach.mirth.server.util.JMXConnectionFactory;
 public class ChannelStatisticsController {
 	private Logger logger = Logger.getLogger(this.getClass());
 
-	public ChannelStatistics getStatistics(int channelId) throws ControllerException {
-		updateStatistics(channelId);
-		return getStatisticsObject(channelId);
-	}
-	
 	/**
 	 * Returns a Statistics object for the channel with the specified id.
 	 * 
@@ -38,7 +33,7 @@ public class ChannelStatisticsController {
 	 * @return
 	 * @throws ControllerException
 	 */
-	public ChannelStatistics getStatisticsObject(int channelId) throws ControllerException {
+	public ChannelStatistics getStatistics(int channelId) throws ControllerException {
 		logger.debug("retrieving statistics: channelId=" + channelId);
 
 		DatabaseConnection dbConnection = null;
