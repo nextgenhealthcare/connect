@@ -118,6 +118,7 @@ public class FilterPane extends MirthEditorPane
         }
         
         tabPanel.setHL7Message( filter.getTemplate() );
+        tabPanel.setDefaultComponent();
         
         int rowCount = filterTableModel.getRowCount();
         // select the first row if there is one

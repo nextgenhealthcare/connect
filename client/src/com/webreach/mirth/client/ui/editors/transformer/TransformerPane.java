@@ -109,7 +109,7 @@ public class TransformerPane extends MirthEditorPane
         connector = c;
         transformer = t;
         tabPanel.BuildVarPanel();
-        
+        tabPanel.setDefaultComponent();
         tabPanel.setHL7Message(transformer.getTemplate());
         channel = PlatformUI.MIRTH_FRAME.channelEditPage.currentChannel;
         if (channel.getDirection().equals(Channel.Direction.OUTBOUND))
@@ -358,7 +358,21 @@ public class TransformerPane extends MirthEditorPane
             public void itemStateChanged(ItemEvent evt)
             {
                 String type = evt.getItem().toString();
-                
+                if(type.equalsIgnoreCase(JAVASCRIPT_TYPE))
+                {
+                    jsPanel.setData(null);
+                }
+                else if(type.equalsIgnoreCase(MAPPER_TYPE))
+                {
+                    Map<Object, Object> data = mapperPanel.getData();
+                    data.put("Variable", getUniqueName());
+                    data.put("Mapping", "");
+                    mapperPanel.setData(data);
+                }                
+                else if(type.equalsIgnoreCase(HL7MESSAGE_TYPE))
+                {
+                    hl7builderPanel.setData(null);
+                }
                 stepPanel.showCard(type);
             }
         });
