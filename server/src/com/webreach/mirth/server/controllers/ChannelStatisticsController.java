@@ -36,6 +36,8 @@ public class ChannelStatisticsController {
 	public ChannelStatistics getStatistics(int channelId) throws ControllerException {
 		logger.debug("retrieving statistics: channelId=" + channelId);
 
+		updateStatistics(channelId);
+		
 		DatabaseConnection dbConnection = null;
 		ResultSet result = null;
 
