@@ -59,6 +59,10 @@ public class MessageListHandler implements ListHandler {
 		}
 	}
 	
+	public int getCurrentPage() {
+		return currentPage;
+	}
+	
 	public void resetIndex() {
 		currentPage = 0;
 	}
