@@ -197,17 +197,13 @@ public class MessageBrowser extends javax.swing.JPanel
     public void makeEventTable(MessageListHandler handler, int page) {
         eventTable = new JXTable();
 
+        // Do all paging information below.
         try
         {
             if (page == FIRST_PAGE)
                 messageEventList = handler.getFirstPage();
             else if (page == PREVIOUS_PAGE)
-            {
-                if (handler.getCurrentPage() == 1)
-                    messageEventList = handler.getFirstPage();
-                else
                     messageEventList = handler.getPreviousPage();
-            }
             else if (page == NEXT_PAGE)
             {
                 messageEventList = handler.getNextPage();
@@ -215,19 +211,44 @@ public class MessageBrowser extends javax.swing.JPanel
                     messageEventList = handler.getPreviousPage();
             }
             
+            int pageSize = messageFilter.getPageSize();
+            if (pageSize == -1)
+                pageSize = 0;
+            
+            pageSizeField.setText(pageSize + "");
+            
             if (handler.getCurrentPage() == 0)
                 previousPageButton.setEnabled(false);
             else
                 previousPageButton.setEnabled(true);
             
-            int numberOfPages = handler.getSize() / messageFilter.getPageSize();
-            if (handler.getSize() % messageFilter.getPageSize() == 0)
-                numberOfPages--;
+            int numberOfPages;
+            if (pageSize == 0)
+                numberOfPages = 0;
+            else
+            {
+                numberOfPages = handler.getSize() / pageSize;
+                if ((handler.getSize() % pageSize) == 0)
+                    numberOfPages--;
+            }
             
             if (handler.getCurrentPage() == numberOfPages)
                 nextPageButton.setEnabled(false);
             else
                 nextPageButton.setEnabled(true);
+            
+            int startResult = (handler.getCurrentPage() * pageSize) + 1;
+            
+            int endResult;
+            if (pageSize == 0)
+                endResult = handler.getSize();
+            else
+                endResult = (handler.getCurrentPage() + 1) * pageSize;
+            
+            if (handler.getSize() < endResult)
+                endResult = handler.getSize();
+            resultsLabel.setText("Results " + startResult + " - " + endResult + " of " + handler.getSize());
+            
         }
         catch (ListHandlerException ex)
         {
@@ -432,6 +453,7 @@ public class MessageBrowser extends javax.swing.JPanel
         nextPageButton = new javax.swing.JButton();
         pageSizeField = new com.webreach.mirth.client.ui.components.MirthTextField();
         jLabel6 = new javax.swing.JLabel();
+        resultsLabel = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
@@ -482,6 +504,9 @@ public class MessageBrowser extends javax.swing.JPanel
 
         jLabel6.setText("Page Size:");
 
+        resultsLabel.setForeground(new java.awt.Color(204, 0, 0));
+        resultsLabel.setText("Results");
+
         org.jdesktop.layout.GroupLayout filterPanelLayout = new org.jdesktop.layout.GroupLayout(filterPanel);
         filterPanel.setLayout(filterPanelLayout);
         filterPanelLayout.setHorizontalGroup(
@@ -496,11 +521,10 @@ public class MessageBrowser extends javax.swing.JPanel
                 .add(filterPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(filterPanelLayout.createSequentialGroup()
                         .add(filterButton)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 238, Short.MAX_VALUE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 228, Short.MAX_VALUE)
                         .add(previousPageButton)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(nextPageButton)
-                        .addContainerGap())
+                        .add(nextPageButton))
                     .add(filterPanelLayout.createSequentialGroup()
                         .add(mirthDatePicker1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .add(16, 16, 16)
@@ -510,8 +534,7 @@ public class MessageBrowser extends javax.swing.JPanel
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 65, Short.MAX_VALUE)
                         .add(jLabel6)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(pageSizeField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 30, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap())
+                        .add(pageSizeField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 30, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                     .add(filterPanelLayout.createSequentialGroup()
                         .add(filterPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
                             .add(eventField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -525,8 +548,14 @@ public class MessageBrowser extends javax.swing.JPanel
                             .add(filterPanelLayout.createSequentialGroup()
                                 .add(jLabel5)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(statusComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 105, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))))
+                                .add(statusComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 105, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 196, Short.MAX_VALUE)
+                                .add(resultsLabel)))))
+                .addContainerGap())
         );
+
+        filterPanelLayout.linkSize(new java.awt.Component[] {nextPageButton, previousPageButton}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
+
         filterPanelLayout.setVerticalGroup(
             filterPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(filterPanelLayout.createSequentialGroup()
@@ -549,9 +578,12 @@ public class MessageBrowser extends javax.swing.JPanel
                             .add(jLabel3)
                             .add(jLabel2)
                             .add(mirthDatePicker2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                    .add(filterPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                        .add(pageSizeField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(jLabel6)))
+                    .add(filterPanelLayout.createSequentialGroup()
+                        .add(resultsLabel)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(filterPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                            .add(pageSizeField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(jLabel6))))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(filterPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(filterButton)
@@ -579,7 +611,7 @@ public class MessageBrowser extends javax.swing.JPanel
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 603, Short.MAX_VALUE)
+            .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 611, Short.MAX_VALUE)
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -599,7 +631,7 @@ public class MessageBrowser extends javax.swing.JPanel
             ER7PanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(ER7PanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .add(jScrollPane3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 578, Short.MAX_VALUE)
+                .add(jScrollPane3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 586, Short.MAX_VALUE)
                 .addContainerGap())
         );
         ER7PanelLayout.setVerticalGroup(
@@ -622,7 +654,7 @@ public class MessageBrowser extends javax.swing.JPanel
             XMLPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(XMLPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .add(jScrollPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 578, Short.MAX_VALUE)
+                .add(jScrollPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 586, Short.MAX_VALUE)
                 .addContainerGap())
         );
         XMLPanelLayout.setVerticalGroup(
@@ -638,7 +670,7 @@ public class MessageBrowser extends javax.swing.JPanel
         descriptionPanel.setLayout(descriptionPanelLayout);
         descriptionPanelLayout.setHorizontalGroup(
             descriptionPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(descriptionTabbedPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 603, Short.MAX_VALUE)
+            .add(descriptionTabbedPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 611, Short.MAX_VALUE)
         );
         descriptionPanelLayout.setVerticalGroup(
             descriptionPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -757,6 +789,7 @@ public class MessageBrowser extends javax.swing.JPanel
     private javax.swing.JButton nextPageButton;
     private com.webreach.mirth.client.ui.components.MirthTextField pageSizeField;
     private javax.swing.JButton previousPageButton;
+    private javax.swing.JLabel resultsLabel;
     private com.webreach.mirth.client.ui.components.MirthTextField sendingFacilityField;
     private javax.swing.JLabel sendingFacilityLabel;
     private javax.swing.JComboBox statusComboBox;
