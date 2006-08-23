@@ -141,7 +141,8 @@ public class Frame extends JXFrame
     private Thread statusUpdater;
     private DropShadowBorder dsb;
     private static Preferences userPreferences;
-
+    private StatusUpdater su;
+    
     /**
      * Builds the content panel with a title bar and settings.
      */
@@ -247,8 +248,8 @@ public class Frame extends JXFrame
         {
             alertException(e.getStackTrace(), e.getMessage());
         }
-
-        statusUpdater = new Thread(new StatusUpdater());
+        su = new StatusUpdater();
+        statusUpdater = new Thread(su);
         statusUpdater.start();
     }
 
@@ -349,21 +350,6 @@ public class Frame extends JXFrame
 
         taskPane.getViewport().add(container);
         currentTaskPaneContainer = container;
-    }
-
-    /**
-     * Ends the updater thread.
-     */
-    private void endUpdater()
-    {
-        try
-        {
-            statusUpdater.interrupt();
-            statusUpdater.join();
-        }
-        catch (InterruptedException e)
-        {
-        }
     }
 
     /**
@@ -978,7 +964,7 @@ public class Frame extends JXFrame
     {
         JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
     }
-
+    
     /**
      * Alerts the user with an exception dialog with the passed in stack trace.
      */
@@ -986,10 +972,11 @@ public class Frame extends JXFrame
     {
         if(message.indexOf("Unauthorized") != -1)
         {
+            if(currentContentPage == statusListPage)
+                su.interruptThread();
             alertWarning("Sorry your connection to Mirth has either timed out or there was an error in the connection.  Please login again.");
             if(!exportChannelOnError())
                 return;
-            endUpdater();
             this.dispose();
             Mirth.main(new String[0]);
             return;
@@ -997,10 +984,11 @@ public class Frame extends JXFrame
         
         if(message.indexOf("Connection refused") != -1)
         {
+            if(currentContentPage == statusListPage)
+                su.interruptThread();
             alertWarning("The Mirth server " + PlatformUI.SERVER_NAME + " is no longer running.  Please start it and login again.");
             if(!exportChannelOnError())
                 return;
-            endUpdater();
             this.dispose();
             Mirth.main(new String[0]);
             return;
@@ -1267,7 +1255,8 @@ public class Frame extends JXFrame
 
     public void doLogout()
     {
-        endUpdater();
+        if(currentContentPage == statusListPage)
+            su.interruptThread();
         try
         {
             mirthClient.logout();

@@ -166,10 +166,10 @@ public class EventBrowser extends javax.swing.JPanel
         {
             systemEventList = parent.mirthClient.getSystemEvents(filter);
         } 
-        catch (ClientException ex)
+        catch (ClientException e)
         {
             systemEventList = null;
-            ex.printStackTrace();
+            parent.alertException(e.getStackTrace(), e.getMessage());
         }
         
         if (systemEventList == null)
