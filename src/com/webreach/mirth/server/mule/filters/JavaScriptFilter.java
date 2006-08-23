@@ -46,8 +46,8 @@ public class JavaScriptFilter implements UMOFilter {
 			jsSource.append("function doFilter() {default xml namespace = new Namespace(\"urn:hl7-org:v2xml\"); var msg = new XML(message);\n " + script + " }\n");
 			jsSource.append("doFilter()\n");
 
-			logger.debug("executing filter script:\n\t" + jsSource.toString().replace("\\", "\\\\"));
-			Object result = context.evaluateString(scope, jsSource.toString().replace("\\", "\\\\"), "<cmd>", 1, null);
+			logger.debug("executing filter script:\n\t" + jsSource.toString());
+			Object result = context.evaluateString(scope, jsSource.toString(), "<cmd>", 1, null);
 			return ((Boolean) Context.jsToJava(result, java.lang.Boolean.class)).booleanValue();
 		} catch (Exception e) {
 			logger.error(e);

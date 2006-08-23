@@ -18,8 +18,8 @@ public class JavaScriptTransformerBuilder {
 		ER7Serializer serializer = new ER7Serializer();
 		StringBuilder builder = new StringBuilder();
 		
-		if (channel.getDirection().equals(Channel.Direction.OUTBOUND)) {
-			builder.append("var hl7_xml = new XML('" + serializer.toXML(transformer.getTemplate()).replaceAll("\\n","") + "');");
+		if (channel.getDirection().equals(Channel.Direction.OUTBOUND) && (transformer.getTemplate() != null)) {
+			builder.append("var hl7_xml = new XML('" + serializer.toXML(transformer.getTemplate()).replaceAll("\\n","").replace("\\","\\\\")+ "');");
 			builder.append("var hl7_er7 = '" + transformer.getTemplate().replaceAll("\\r","\\\\r") + "';");
 		} else {
 			builder.append("var hl7_xml = new XML(message);");
