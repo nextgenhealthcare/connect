@@ -237,7 +237,11 @@ public class MessageBrowser extends javax.swing.JPanel
             else
                 nextPageButton.setEnabled(true);
             
-            int startResult = (handler.getCurrentPage() * pageSize) + 1;
+            int startResult;
+            if (handler.getSize() == 0)
+                startResult = 0;
+            else 
+                startResult = (handler.getCurrentPage() * pageSize) + 1;
             
             int endResult;
             if (pageSize == 0)
