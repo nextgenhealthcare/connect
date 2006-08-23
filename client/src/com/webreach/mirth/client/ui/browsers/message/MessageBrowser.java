@@ -254,10 +254,10 @@ public class MessageBrowser extends javax.swing.JPanel
             resultsLabel.setText("Results " + startResult + " - " + endResult + " of " + handler.getSize());
             
         }
-        catch (ListHandlerException ex)
+        catch (ListHandlerException e)
         {
             messageEventList = null;
-            ex.printStackTrace();
+            parent.alertException(e.getStackTrace(), e.getMessage());
         }
         
         if (messageEventList == null)
