@@ -290,7 +290,6 @@ public class StatusPanel extends javax.swing.JPanel
     {
         for(int i=0; i<parent.status.size(); i++)
         {
-            System.out.println(statusTable.getSelectedRow());
             if(((String)statusTable.getValueAt(statusTable.getSelectedRow(), getColumnNumber(NAME_COLUMN_NAME))).equalsIgnoreCase(parent.status.get(i).getName()))
                 return i;
         }
