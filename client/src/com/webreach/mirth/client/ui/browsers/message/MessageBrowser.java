@@ -228,7 +228,7 @@ public class MessageBrowser extends javax.swing.JPanel
             else
             {
                 numberOfPages = handler.getSize() / pageSize;
-                if ((handler.getSize() % pageSize) == 0)
+                if ((handler.getSize() != 0) && ((handler.getSize() % pageSize) == 0))
                     numberOfPages--;
             }
             
