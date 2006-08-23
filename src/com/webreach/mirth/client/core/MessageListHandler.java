@@ -40,7 +40,7 @@ public class MessageListHandler implements ListHandler {
 	public List<MessageEvent> getPreviousPage() throws ListHandlerException  {
 		logger.debug("retrieving previous page of " + filter.getPageSize() + " results");
 		
-		if (currentPage > 1) {
+		if (currentPage > 0) {
 			currentPage--;	
 			filter.setPage(currentPage);
 			return getPage(filter);
