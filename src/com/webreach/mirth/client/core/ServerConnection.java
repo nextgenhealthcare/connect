@@ -32,7 +32,7 @@ public class ServerConnection {
 	 * @return
 	 * @throws ClientException
 	 */
-	public String executePostMethod(String servletName, NameValuePair[] params) throws ClientException {
+	public synchronized String executePostMethod(String servletName, NameValuePair[] params) throws ClientException {
 		PostMethod post = null;
 
 		try {
