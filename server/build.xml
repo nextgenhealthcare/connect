@@ -161,6 +161,7 @@
 			<fileset dir="${setup}" includes="**/.svn" />
 		</delete>
 
+		<delete dir="database" />
 		<java classname="com.webreach.mirth.server.tools.CreateDatabaseTables" failonerror="true">
 			<classpath>
 				<pathelement location="${setup}/mirth-server.jar" />
