@@ -26,15 +26,12 @@ public class LlpProtocol implements TcpProtocol {
 	private static final Log logger = LogFactory.getLog(LlpProtocol.class);
 	public static final String CHARSET_KEY = "ca.uhn.hl7v2.llp.charset";
 
-	private static char END_MESSAGE = 0x1C; // character indicating
-														// the
-	// termination of an HL7 message
-	private static char START_MESSAGE = 0x0B;// character indicating
-														// the
-	// start of an HL7 message
-	private static char LAST_CHARACTER = 0x0D; // the final character of
+	private char END_MESSAGE = 0x1C;    // character indicating end of message
+	private char START_MESSAGE = 0x0B;  // first character of a new message
+	
+	private char LAST_CHARACTER = 0x0D; // character sent between messages
+
 	private TcpConnector _tcpConnector;
-	// a message: a carriage return
 	public void setTcpConnector(TcpConnector tcpConnector){
 		try{
 			_tcpConnector = tcpConnector;
@@ -47,6 +44,7 @@ public class LlpProtocol implements TcpProtocol {
 				END_MESSAGE = _tcpConnector.getMessageEnd().charAt(1);
 				LAST_CHARACTER = _tcpConnector.getRecordSeparator().charAt(2);
 			}
+
 		}catch (Exception e){
 			e.printStackTrace();
 		}
@@ -57,7 +55,8 @@ public class LlpProtocol implements TcpProtocol {
 	 * one HL7 message. <code>null</code> if the incoming message does not
 	 * contain HL7 message delimiters
 	 */
-	public synchronized byte[] read(InputStream is) throws IOException {
+	public byte[] read(InputStream is) throws IOException {
+	
 		BufferedReader myReader;
 		String charset = System.getProperty(CHARSET_KEY, "US-ASCII");
 
@@ -66,7 +65,7 @@ public class LlpProtocol implements TcpProtocol {
 		} else {
 			myReader = new BufferedReader(new InputStreamReader(is, charset));
 		}
-
+		
 		StringBuffer s_buffer = new StringBuffer();
 
 		boolean end_of_message = false;
@@ -111,22 +110,26 @@ public class LlpProtocol implements TcpProtocol {
 			}
 
 			if (c == END_MESSAGE) {
-				// subsequent character should be a carriage return
-				try {
-					c = myReader.read();
-					if (c >= 0) {
 
+				if (LAST_CHARACTER != 0) {
+					// subsequent character should be a carriage return
+					try {
+						c = myReader.read();
+						if (c >= 0) {
+	
+						}
+						if (LAST_CHARACTER != 0 && c != LAST_CHARACTER) {
+							logger.error("Message terminator was: " + c + "  Expected terminator: " + LAST_CHARACTER);
+							throw new IOException("Message " + "violates the minimal lower layer protocol: " + "message terminator not followed by a return " + "character.");
+						}
+					} catch (SocketException e) {
+						logger.info("SocketException on read() attempt.  Socket appears to have been closed: " + e.getMessage());
+					} catch (SocketTimeoutException ste) {
+						logger.info("SocketTimeoutException on read() attempt.  Socket appears to have been closed: " + ste.getMessage());
 					}
-					if (c != LAST_CHARACTER) {
-						throw new IOException("Message " + "violates the minimal lower layer protocol: " + "message terminator not followed by a return " + "character.");
-					}
-				} catch (SocketException e) {
-					logger.info("SocketException on read() attempt.  Socket appears to have been closed: " + e.getMessage());
-				} catch (SocketTimeoutException ste) {
-					logger.info("SocketTimeoutException on read() attempt.  Socket appears to have been closed: " + ste.getMessage());
 				}
-
 				end_of_message = true;
+
 			} else {
 				// the character wasn't the end of message, append it to the
 				// message
@@ -143,8 +146,9 @@ public class LlpProtocol implements TcpProtocol {
 		dos.writeByte(START_MESSAGE);
 		dos.write(data);
 		dos.writeByte(END_MESSAGE);
-		dos.writeByte(LAST_CHARACTER);
+		if (LAST_CHARACTER != 0) {
+			dos.writeByte(LAST_CHARACTER);
+		}
 		dos.flush();
 	}
-
 }

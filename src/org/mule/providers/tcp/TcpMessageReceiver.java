@@ -26,6 +26,7 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.net.URI;
 
 import javax.resource.spi.work.Work;
@@ -90,7 +91,9 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work
         // this will cause the server thread to quit
         disposing.set(true);
         try {
-            serverSocket.close();
+	    if (serverSocket != null) {
+            	serverSocket.close();
+            }
         } catch (IOException e) {
             logger.warn("Failed to close server socket: " + e.getMessage(), e);
         }
@@ -127,11 +130,7 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work
                 Socket socket = null;
                 try {
                     socket = serverSocket.accept();
-                    TcpConnector connector = (TcpConnector) this.connector;
-                    socket.setReceiveBufferSize(connector.getBufferSize());
-                    socket.setSendBufferSize(connector.getBufferSize());
-                    socket.setSoTimeout(connector.getReceiveTimeout());
-                    logger.trace("Server socket Accepted on: " + serverSocket.getLocalPort());
+	            logger.trace("Server socket Accepted on: " + serverSocket.getLocalPort());
                 } catch (java.io.InterruptedIOException iie) {
                     logger.debug("Interupted IO doing serverSocket.accept: " + iie.getMessage());
                 } catch (Exception e) {
@@ -193,6 +192,17 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work
             final TcpConnector tcpConnector = ((TcpConnector) connector);
             this.protocol = tcpConnector.getTcpProtocol();
             tcpConnector.updateReceiveSocketsCount(true);
+            try {
+                socket.setReceiveBufferSize(tcpConnector.getBufferSize());
+                socket.setSendBufferSize(tcpConnector.getBufferSize());
+                socket.setSoTimeout(tcpConnector.getReceiveTimeout());
+                socket.setTcpNoDelay(true);
+                socket.setKeepAlive(tcpConnector.isKeepAlive());
+            } catch (SocketException e) {
+                logger.error("Failed to set Socket properties: " + e.getMessage(), e);
+            }
+
+            logger.info("TCP connection from " + socket.getRemoteSocketAddress().toString() + " on port " + socket.getLocalPort());
         }
 
         public void release()
@@ -206,8 +216,8 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work
             try {
                 if (socket != null && !socket.isClosed()) {
                     logger.debug("Closing listener: " + socket.getLocalSocketAddress().toString());
-                    socket.shutdownInput();
-                    socket.shutdownOutput();
+                    //socket.shutdownInput();
+                    //socket.shutdownOutput();
                     socket.close();
                 }
             } catch (IOException e) {
@@ -229,17 +239,24 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work
 
                 while (!socket.isClosed() && !disposing.get()) {
 
-                    byte[] b = protocol.read(dataIn);
-                    // end of stream
-                    if (b == null) {
-                        break;
-                    }
+                    	byte[] b;
+			try {
+				b = protocol.read(dataIn);
+        	            	// end of stream
+                	    	if (b == null) {
+                	    	    break;
+                	    	}
 
-                    byte[] result = processData(b);
-                    if (result != null) {
-                        protocol.write(dataOut, result);
-                    }
-                    dataOut.flush();
+                	    	byte[] result = processData(b);
+                	    	if (result != null) {
+                	    	    protocol.write(dataOut, result);
+                    		}
+                    		dataOut.flush();
+			} catch (SocketTimeoutException e) {
+				if (!socket.getKeepAlive()) {
+					break;
+				}
+			}
                 }
             } catch (Exception e) {
                 handleException(e);
@@ -250,22 +267,107 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work
 
         protected byte[] processData(byte[] data) throws Exception
         {
-            UMOMessageAdapter adapter = connector.getMessageAdapter(data);
-            OutputStream os = new ResponseOutputStream(socket.getOutputStream(), socket);
-            UMOMessage returnMessage = routeMessage(new MuleMessage(adapter), endpoint.isSynchronous(), os);
-            generateACK(new String(data), os);
-            if (returnMessage != null) {
-                return returnMessage.getPayloadAsBytes();
-            } else {
-                return null;
-            }
+		data = fixMshFields(new String(data)).getBytes();
+
+		UMOMessageAdapter adapter = connector.getMessageAdapter(data);
+		OutputStream os = new ResponseOutputStream(socket.getOutputStream(), socket);
+		UMOMessage returnMessage = routeMessage(new MuleMessage(adapter), endpoint.isSynchronous(), os);
+		generateACK(new String(data), os);
+		if (returnMessage != null) {
+                	return returnMessage.getPayloadAsBytes();
+            	} else {
+                	return null;
+		}
         }
-		private void generateACK(String message, OutputStream os) throws Exception, IOException {
-			if  (((TcpConnector) connector).getSendACK()){
-				String ACK = new ACKGenerator().generateAckResponse(message);
-				logger.debug("Sending ACK: " + ACK);
-				new LlpProtocol().write(os, ACK.getBytes());
-			}
+
+	private void generateACK(String message, OutputStream os) throws Exception, IOException {
+		if  (((TcpConnector) connector).getSendACK()){
+			String ACK = new ACKGenerator().generateAckResponse(message);
+			
+			logger.debug("Sending ACK: " + ACK);
+			((TcpConnector)connector).getTcpProtocol().write(os, ACK.getBytes());
+		}
 		}
     }
+
+        public String fixMshFields(String message) {
+
+                if (message.startsWith("<")) {
+                        return message;
+                }
+
+                String[] segments = message.split("\\r");
+                if (segments[0].startsWith("MSH")) {
+
+                        String fieldSep = String.valueOf(segments[0].charAt(3));
+                        String recSep   = String.valueOf(segments[0].charAt(4));
+
+                        String[] fields = segments[0].split("\\" + fieldSep, -1);
+
+                        // always at least 12 fields
+                        if (fields.length > 8 && fields.length < 12) {
+                                logger.warn("MSH in message from " + fields[3] + " only contains " + fields.length + " fields");
+                                String[] oldFields = fields;
+                                fields = new String[12];
+                                System.arraycopy(oldFields, 0, fields, 0, oldFields.length);
+                        }
+			
+                        // default HL7 version to 2.1
+                        if (fields[11] == null || fields[11].equals("")) {
+                                logger.warn("No HL7 version set in message from " + fields[3]);
+                                fields[11] = "2.1";
+                        }
+			
+			if (fields[10] == null || fields[10].equals("")) {
+				logger.warn("No MSH-11 set in message from " + fields[3]);
+				fields[10] = "P";
+			}
+
+                        // fix MSH-9
+                        String[] msh9 = fields[8].split("\\" + recSep, -1);
+                        if ((msh9[0] == null || msh9[0].equals("")) && (msh9[1].equals("A04") || msh9[1].equals("A08"))) {
+                                logger.warn("No MSH-9-1 set in message from " + fields[3]);
+                                msh9[0] = "ADT";
+                        }
+
+                        // ignore MSH-9-3
+                        fields[8] = msh9[0] + recSep + msh9[1];
+
+                        // fix MSH-10
+                        if (fields[9] == null || fields[9].equals("")) {
+                                logger.warn("No MCID set in message from " + fields[3]);
+                                fields[9] = "INVALID_MCID";
+                        }
+
+                        // reassemble msh
+                        StringBuffer msh = new StringBuffer();
+                        for (int i=0; i < fields.length; i++) {
+                                if (i != 0) {
+                                        msh.append(fieldSep);
+                                }
+                                msh.append(fields[i]);
+                        }
+                        segments[0] = msh.toString();
+
+			// specific fixup for one very broken sender
+			if (segments[1].matches("^:\\d+PID:.*")) {
+				logger.warn("Fixing malformed PID segment in message from " + fields[3]);
+				String[] fixPid = segments[1].split("PID:");
+				segments[1] = "PID:" + fixPid[1];
+			}
+
+                        // reassemble message
+                        StringBuffer segs = new StringBuffer();
+                        for (int i=0; i < segments.length; i++) {
+                                if (i != 0) {
+                                        segs.append("\r");
+                                }
+                                segs.append(segments[i]);
+                        }
+                        message = segs.toString();
+                }
+
+                return message;
+        }
+	
 }
