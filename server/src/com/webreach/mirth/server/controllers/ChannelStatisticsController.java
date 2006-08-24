@@ -26,6 +26,16 @@ import com.webreach.mirth.server.util.JMXConnectionFactory;
 public class ChannelStatisticsController {
 	private Logger logger = Logger.getLogger(this.getClass());
 
+	public ChannelStatistics getStatistics(int channelId) throws ControllerException {
+		ChannelStatistics currentStatistics = getStatisticsObject(channelId);
+		
+		// this is a fix for Mule's double counting of received messages
+		int receivedCount = Double.valueOf(Math.ceil(currentStatistics.getReceivedCount() / 2)).intValue();
+		currentStatistics.setReceivedCount(receivedCount);
+		
+		return currentStatistics;
+	}
+	
 	/**
 	 * Returns a Statistics object for the channel with the specified id.
 	 * 
@@ -33,11 +43,9 @@ public class ChannelStatisticsController {
 	 * @return
 	 * @throws ControllerException
 	 */
-	public ChannelStatistics getStatistics(int channelId) throws ControllerException {
+	public ChannelStatistics getStatisticsObject(int channelId) throws ControllerException {
 		logger.debug("retrieving statistics: channelId=" + channelId);
 
-		updateStatistics(channelId);
-		
 		DatabaseConnection dbConnection = null;
 		ResultSet result = null;
 
@@ -96,23 +104,70 @@ public class ChannelStatisticsController {
 		}
 	}
 
-	public void updateStatistics(int channelId) throws ControllerException {
-		logger.debug("updating channel statistics: channelId=" + channelId);
+	public void incReceivedCount(int channelId) throws ControllerException {
+		logger.debug("incrementing received count: channelId=" + channelId);
 
 		DatabaseConnection dbConnection = null;
 
 		try {
 			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
 
-			String statement = "update channel_statistics set received = ?, sent = ?, errors = ? where channel_id = ?";
+			String statement = "update channel_statistics set received = ? where channel_id = ?";
 
-			int received = getReceivedCount(channelId);
-			int sent = getSentCount(channelId);
-			int errors = getErrorCount(channelId);
+			ChannelStatistics currentStatistics = getStatisticsObject(channelId);
+			int received = currentStatistics.getReceivedCount() + 1;
 
 			ArrayList<Object> parameters = new ArrayList<Object>();
 			parameters.add(received);
+			parameters.add(channelId);
+
+			dbConnection.executeUpdate(statement, parameters);
+		} catch (Exception e) {
+			throw new ControllerException(e);
+		} finally {
+			dbConnection.close();
+		}
+	}
+
+	public void incSentCount(int channelId) throws ControllerException {
+		logger.debug("incrementing sent count: channelId=" + channelId);
+
+		DatabaseConnection dbConnection = null;
+
+		try {
+			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
+
+			String statement = "update channel_statistics set sent = ? where channel_id = ?";
+
+			ChannelStatistics currentStatistics = getStatisticsObject(channelId);
+			int sent = currentStatistics.getSentCount() + 1;
+			
+			ArrayList<Object> parameters = new ArrayList<Object>();
 			parameters.add(sent);
+			parameters.add(channelId);
+
+			dbConnection.executeUpdate(statement, parameters);
+		} catch (Exception e) {
+			throw new ControllerException(e);
+		} finally {
+			dbConnection.close();
+		}
+	}
+
+	public void incErrorCount(int channelId) throws ControllerException {
+		logger.debug("incrementing error: channelId=" + channelId);
+
+		DatabaseConnection dbConnection = null;
+
+		try {
+			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
+
+			String statement = "update channel_statistics set errors = ? where channel_id = ?";
+
+			ChannelStatistics currentStatistics = getStatisticsObject(channelId);
+			int errors = currentStatistics.getErrorCount() + 1;
+
+			ArrayList<Object> parameters = new ArrayList<Object>();
 			parameters.add(errors);
 			parameters.add(channelId);
 
