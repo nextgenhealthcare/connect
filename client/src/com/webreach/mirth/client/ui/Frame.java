@@ -604,7 +604,7 @@ public class Frame extends JXFrame
         
         channelEditTasks.add(initActionCallback("doMoveDestinationDown", "Move the currently selected destination down.", ActionFactory.createBoundAction("doMoveDestinationDown","Move Dest. Down", "W"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/arrow_down.png"))));
         JMenuItem moveDestinationDown = new JMenuItem("Move Destination Down");
-        moveDestinationDown.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/arrow_Down.png")));
+        moveDestinationDown.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/arrow_down.png")));
         moveDestinationDown.addActionListener(new ActionListener(){
              public void actionPerformed(ActionEvent e){
                 doMoveDestinationDown();
