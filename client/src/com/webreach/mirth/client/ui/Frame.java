@@ -1306,6 +1306,26 @@ public class Frame extends JXFrame
 
     public void doDeleteChannel()
     {
+        try
+        {
+            status = mirthClient.getChannelStatusList();
+        }
+        catch (ClientException e)
+        {
+            alertException(e.getStackTrace(), e.getMessage());
+            return;
+        }
+        int channelId = channels.get(channelListPage.getSelectedChannel()).getId();
+        for (int i = 0; i < status.size(); i ++)
+        {
+            if (status.get(i).getChannelId() == channelId)
+            {
+                alertWarning("You may not delete a deployed channel.\nPlease re-deploy without it enabled first.");
+                return;
+            }
+        }
+        
+        
         if(!alertOption("Are you sure you want to delete this channel?"))
             return;
         this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
