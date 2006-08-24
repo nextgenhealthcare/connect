@@ -53,6 +53,10 @@
 	<target name="create-launcher" depends="compile">
 		<jar destfile="mirth-launcher.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/server/launcher/**" />
+			<manifest>
+				<attribute name="Main-Class" value="com.webreach.mirth.server.launcher.Launcher" />
+				<attribute name="Class-Path" value="lib/log4j-1.2.13.jar conf/" />
+			</manifest>
 		</jar>
 	</target>
 
