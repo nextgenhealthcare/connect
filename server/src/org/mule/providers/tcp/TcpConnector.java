@@ -84,6 +84,8 @@ public class TcpConnector extends AbstractServiceEnabledConnector
     // -1 try to reconnect forever
     private int maxRetryCount = KEEP_RETRYING_INDEFINETLY;
 
+    private boolean keepAlive = true;
+
     public boolean isKeepSendSocketOpen()
     {
         return keepSendSocketOpen;
@@ -288,9 +290,18 @@ public class TcpConnector extends AbstractServiceEnabledConnector
 	public void setRecordSeparator(String recordSeparator) {
 		this.recordSeparator = recordSeparator;
 	}
-	
+
 	public char stringToChar(String source) {
 		return source.charAt(0);
 	}
 
+    public boolean isKeepAlive()
+    {
+        return keepAlive;
+    }
+
+    public void setKeepAlive(boolean keepAlive)
+    {
+        this.keepAlive = keepAlive;
+    }
 }
