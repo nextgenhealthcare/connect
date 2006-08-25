@@ -70,6 +70,7 @@ public class Mirth extends Thread {
 	}
 
 	public void run() {
+		logger.info("starting mirth server...");
 		running = true;
 		startWebServer();
 		configurationController.initialize();
