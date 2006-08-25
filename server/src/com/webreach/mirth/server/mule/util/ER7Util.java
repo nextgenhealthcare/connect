@@ -56,8 +56,8 @@ public class ER7Util {
 			logger.debug("encoding ER7 message to XML:\n" + message);
 			return xmlParser.encode(pipeParser.parse(message));
 		} catch (HL7Exception e) {
-			logger.error("Unable to convert message to XML (Possibly already in XML or Invalid HL7)");
-			e.printStackTrace();
+			logger.info("Unable to convert message to XML (Possibly already in XML or Invalid HL7)");
+			//e.printStackTrace();
 			return message;
 		}
 	}

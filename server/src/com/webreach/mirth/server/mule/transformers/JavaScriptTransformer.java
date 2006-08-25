@@ -47,6 +47,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			scope.put("logger", scope, scriptLogger);
 			scope.put("localMap", scope, localMap);
 			scope.put("globalMap", scope, ChannelComponent.globalMap);
+			scope.put("er7util", scope, new ER7Util());
 
 			StringBuilder jsSource = new StringBuilder();
 			jsSource.append("importPackage(Packages.com.webreach.mirth.server.util);");
@@ -73,15 +74,20 @@ public class JavaScriptTransformer extends AbstractTransformer {
 		logger.debug("logging message:\n" + er7message);
 
 		int channelId = Integer.parseInt(channelID);
-
-		PipeParser pipeParser = new PipeParser();
-		pipeParser.setValidationContext(new NoValidation());
-		Message message = pipeParser.parse(er7message);
-		Terser terser = new Terser(message);
-		String sendingFacility = terser.get("/MSH-3-1");
-		String controlId = terser.get("/MSH-10");
-		String event = terser.get("/MSH-9-1") + "-" + terser.get("/MSH-9-2") + " (" + message.getVersion() + ")";
-
+		String sendingFacility = "";
+		String controlId = "";
+		String event = "";
+		try{
+			PipeParser pipeParser = new PipeParser();
+			pipeParser.setValidationContext(new NoValidation());
+			Message message = pipeParser.parse(er7message);
+			Terser terser = new Terser(message);
+			sendingFacility = terser.get("/MSH-3-1");
+			controlId = terser.get("/MSH-10");
+			event = terser.get("/MSH-9-1") + "-" + terser.get("/MSH-9-2") + " (" + message.getVersion() + ")";
+		}catch(Exception e){
+			logger.debug(e.getMessage());
+		}
 		MessageLogger messageLogger = new MessageLogger();
 		MessageEvent messageEvent = new MessageEvent();
 		messageEvent.setChannelId(channelId);
