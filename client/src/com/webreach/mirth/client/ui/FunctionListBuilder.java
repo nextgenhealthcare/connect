@@ -15,6 +15,8 @@ public class FunctionListBuilder {
 		variablelistItems.add(new FunctionListItem("Send an Email", "Sends an alert email using the alert SMTP properties.", "var smtpConn = SMTPConnectionFactory.createSMTPConnection();\nsmtpConn.send('to', 'cc', 'from', 'subject', 'body');"));
 		variablelistItems.add(new FunctionListItem("Perform Database Query", "Performs a database query and returns the rowset.", "var dbConn = DatabaseConnectionFactory.createDatabaseConnection('driver', 'address', 'username', 'password');\nvar result = dbConn.executeCachedQuery('expression');\ndbConn.close();"));
 		variablelistItems.add(new FunctionListItem("Perform Database Update", "Performs a database update.", "var conn = DatabaseConnectionFactory.createDatabaseConnection('driver', 'address', 'username', 'password');\nvar result = conn.executeUpdate('expression');\nconn.close();"));
+		variablelistItems.add(new FunctionListItem("Convert to HL7-XML", "Converts an ER7 encoded HL7 string to XML", "er7util.ConvertToXML(message);"));
+		variablelistItems.add(new FunctionListItem("Convert to HL7-ER7", "Converts an XML encoded HL7 string to ER7", "er7util.ConvertToER7(message);"));
 		return variablelistItems;
 	}
 }
