@@ -40,7 +40,8 @@ public class JavaScriptFilter implements UMOFilter {
 			scope.put("logger", scope, logger);
 			scope.put("localMap", scope, localMap);
 			scope.put("globalMap", scope, ChannelComponent.globalMap);
-
+			scope.put("er7util", scope, new ER7Util());
+			
 			StringBuilder jsSource = new StringBuilder();
 			jsSource.append("importPackage(Packages.com.webreach.mirth.server.util);\n	");
 			jsSource.append("function doFilter() {default xml namespace = new Namespace(\"urn:hl7-org:v2xml\"); var msg = new XML(message);\n " + script + " }\n");
