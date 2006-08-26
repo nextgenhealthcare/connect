@@ -70,9 +70,11 @@ public class HL7TreePanel extends JPanel {
 
 		if (source != null) {
 			try {
-				message = parser.parse(source);
-				Terser terser = new Terser(message);
-				messageName = terser.get("/MSH-9-1") + "-" + terser.get("/MSH-9-2") + " (" + message.getVersion() + ")";
+				if (!source.startsWith("<")){
+					message = parser.parse(source);
+					Terser terser = new Terser(message);
+					messageName = terser.get("/MSH-9-1") + "-" + terser.get("/MSH-9-2") + " (" + message.getVersion() + ")";
+				}
 			} catch (EncodingNotSupportedException e) {
 				PlatformUI.MIRTH_FRAME.alertWarning( "Encoding not supported.\n" +
 						"Please check the syntax of your message\n" +

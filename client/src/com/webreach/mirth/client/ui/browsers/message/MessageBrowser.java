@@ -413,7 +413,11 @@ public class MessageBrowser extends javax.swing.JPanel
                 
                 ER7Serializer serializer = new ER7Serializer();
                 XMLTextPane.setDocument(xmlDoc);
-                XMLTextPane.setText(serializer.toXML(message));
+                //Check for XML encoded data
+                //TODO: add flag on message to check type
+                if (!message.startsWith("<")){
+                	XMLTextPane.setText(serializer.toXML(message));
+                }
                 XMLTextPane.setCaretPosition(0);
                 
                 HL7Panel.setMessage(message);
