@@ -199,5 +199,9 @@
 
 		<!-- create the distribution zip -->
 		<zip basedir="${setup}" destfile="${dist}/mirth-${version}.zip" />
+
+		<!-- create the distribution tar.gzip -->
+		<tar basedir="${setup}" tarfile="${dist}/mirth-${version}.tar"/>
+		<gzip src="${dist}/mirth-${version}.tar" zipfile="${dist}/mirth-${version}.tar.gz"/>
 	</target>
 </project>
