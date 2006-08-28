@@ -1,4 +1,8 @@
 <project name="mirth" basedir="." default="help">
+	<taskdef name="nsis" classname="net.sf.nsisant.Task">
+        <classpath location="nsisant-1.2.jar"/>
+    </taskdef>
+	
 	<target name="help">
 		<echo>Mirth Build Help</echo>
 		<echo>----------------</echo>
@@ -203,5 +207,9 @@
 		<!-- create the distribution tar.gzip -->
 		<tar basedir="${setup}" tarfile="${dist}/mirth-${version}.tar"/>
 		<gzip src="${dist}/mirth-${version}.tar" zipfile="${dist}/mirth-${version}.tar.gz"/>
+		<delete file="${dist}/mirth-${version}.tar"/>
+		
+		<!-- create the win32 distribution exe -->
+		<nsis script="setup.nsi"/>
 	</target>
 </project>
