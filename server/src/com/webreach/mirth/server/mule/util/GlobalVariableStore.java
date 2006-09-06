@@ -4,14 +4,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class GlobalVariableStore {
-	public HashMap globalVariableMap = new HashMap();
+	public Map globalVariableMap = new HashMap();
 	private static GlobalVariableStore instance = null;
 
 	private GlobalVariableStore() {
 
 	}
 
-	public static HashMap getInstance() {
+	public static Map getInstance() {
 		synchronized (GlobalVariableStore.class) {
 			if (instance == null)
 				instance = new GlobalVariableStore();
@@ -19,5 +19,4 @@ public class GlobalVariableStore {
 			return instance.globalVariableMap;
 		}
 	}
-
 }
