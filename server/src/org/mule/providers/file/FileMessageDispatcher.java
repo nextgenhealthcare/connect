@@ -129,7 +129,8 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
 		StringBuffer sb = new StringBuffer();
 		while (m.find()) {
 			String key = m.group();
-			m.appendReplacement(sb, getTemplateValue(key, map));
+			String name = key.substring(2, key.length() - 1);
+			m.appendReplacement(sb, getTemplateValue(name, map));
 		}
 		m.appendTail(sb);
 		return sb.toString();
