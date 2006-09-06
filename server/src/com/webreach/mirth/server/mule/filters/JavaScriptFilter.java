@@ -6,12 +6,11 @@ import org.apache.log4j.Logger;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ImporterTopLevel;
 import org.mozilla.javascript.Scriptable;
-import org.mozilla.javascript.ScriptableObject;
 import org.mule.umo.UMOFilter;
 import org.mule.umo.UMOMessage;
 
-import com.webreach.mirth.server.mule.components.ChannelComponent;
 import com.webreach.mirth.server.mule.util.ER7Util;
+import com.webreach.mirth.server.mule.util.GlobalVariableStore;
 
 public class JavaScriptFilter implements UMOFilter {
 	private Logger logger = Logger.getLogger(this.getClass());
@@ -39,7 +38,7 @@ public class JavaScriptFilter implements UMOFilter {
 			scope.put("incomingMessage", scope, ((String) new ER7Util().ConvertToER7(message)));
 			scope.put("logger", scope, logger);
 			scope.put("localMap", scope, localMap);
-			scope.put("globalMap", scope, ChannelComponent.globalMap);
+			scope.put("globalMap", scope, GlobalVariableStore.getInstance());
 			scope.put("er7util", scope, new ER7Util());
 			
 			StringBuilder jsSource = new StringBuilder();
