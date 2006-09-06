@@ -4,31 +4,20 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class GlobalVariableStore {
-	public Map<String, String> globalVariableMap = new HashMap<String, String>();
+	public HashMap globalVariableMap = new HashMap();
 	private static GlobalVariableStore instance = null;
 
 	private GlobalVariableStore() {
 
 	}
 
-	public static GlobalVariableStore getInstance() {
+	public static HashMap getInstance() {
 		synchronized (GlobalVariableStore.class) {
 			if (instance == null)
 				instance = new GlobalVariableStore();
 
-			return instance;
+			return instance.globalVariableMap;
 		}
 	}
 
-	public boolean containsKey(String key) {
-		return globalVariableMap.containsKey(key);
-	}
-
-	public void put(String key, String value) {
-		globalVariableMap.put(key, value);
-	}
-
-	public String get(String key) {
-		return globalVariableMap.get(key);
-	}
 }
