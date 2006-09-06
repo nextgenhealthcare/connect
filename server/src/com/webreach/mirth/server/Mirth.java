@@ -165,6 +165,8 @@ public class Mirth extends Thread {
 			// behind a firewall and the resources cannot be
 			// accessed
 			System.setProperty("org.mortbay.xml.XmlParser.NotValidating", "true");
+			// this disables a "form too large" error for occuring by setting form size to infinite
+			System.setProperty("org.mortbay.http.HttpRequest.maxFormContentSize", "0");
 
 			webServer = new Server();
 
