@@ -136,10 +136,14 @@ public class JavaScriptPanel extends CardPanel {
 	
 	
 	public void setData( Map<Object, Object> m ) {
-		if ( m != null )
+                boolean modified = parent.modified;
+		
+                if ( m != null )
 			scriptTextPane.setText( (String)m.get( "Script" ) );	
 		else
 			scriptTextPane.setText( "" );
+                
+                parent.modified = modified;
 	}
 	
 	public MirthTextPane getDocument() {

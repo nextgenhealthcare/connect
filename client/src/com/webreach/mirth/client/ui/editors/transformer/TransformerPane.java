@@ -518,6 +518,7 @@ public class TransformerPane extends MirthEditorPane
         String type = (String) transformerTable.getValueAt(row, STEP_TYPE_COL);
         stepPanel.showCard(type);
         transformerTable.setRowSelectionInterval(row, row);
+
         prevSelRow = row;
         updateTaskPane();
         
@@ -620,6 +621,11 @@ public class TransformerPane extends MirthEditorPane
                 }
                 
                 data = mapperPanel.getData();
+                
+                if(mapperPanel.addToGlobal.isSelected())
+                    data.put("isGlobal", UIConstants.YES_OPTION);
+                else
+                    data.put("isGlobal", UIConstants.NO_OPTION);
             }
             else if (type == JAVASCRIPT_TYPE)
             {
@@ -654,7 +660,13 @@ public class TransformerPane extends MirthEditorPane
     private void setPanelData(String type, Map<Object, Object> data)
     {
         if (type == MAPPER_TYPE)
+        {
+            if(data.get("isGlobal") == null || ((String)data.get("isGlobal")).equals(UIConstants.NO_OPTION))
+                mapperPanel.addToGlobal.setSelected(false);
+            else
+                mapperPanel.addToGlobal.setSelected(true);
             mapperPanel.setData(data);
+        }
         else if (type == JAVASCRIPT_TYPE)
             jsPanel.setData(data);
         else if ((hl7builderPanel != null) && (type == HL7MESSAGE_TYPE))
@@ -898,11 +910,14 @@ public class TransformerPane extends MirthEditorPane
                 {
                     
                     StringBuilder script = new StringBuilder();
-                    script.append("localMap.put(");
+                    if(((String)map.get("isGlobal")).equalsIgnoreCase(UIConstants.YES_OPTION))
+                        script.append("globalMap.put(");
+                    else
+                        script.append("localMap.put(");
+
                     script.append("'" + map.get("Variable") + "', ");
                     script.append( map.get("Mapping") + ");");
                     step.setScript(script.toString());
-                    
                 }
                 else if (step.getType().equals(
                         TransformerPane.JAVASCRIPT_TYPE))

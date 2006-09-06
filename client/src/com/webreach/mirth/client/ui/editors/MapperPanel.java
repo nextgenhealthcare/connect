@@ -29,10 +29,14 @@ package com.webreach.mirth.client.ui.editors;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -84,11 +88,25 @@ public class MapperPanel extends CardPanel {
 		mappingTextPanel.setLayout( new BorderLayout() );
 		mappingTextPanel.add( mappingTextPane, BorderLayout.CENTER );
 		
-		labelPanel.setLayout( new BorderLayout() );
-		labelPanel.add( mappingLabel, BorderLayout.NORTH );
+                globalPanel = new JPanel();
+                globalPanel.setLayout( new BorderLayout() );
+                globalPanel.add( new JLabel( "  " ), BorderLayout.WEST );
+                addToGlobal = new JCheckBox();
+                addToGlobal.setFocusable(false);
+                addToGlobal.setText("Add as global variable");
+                addToGlobal.addActionListener(new java.awt.event.ActionListener() {
+                    public void actionPerformed(java.awt.event.ActionEvent evt) {
+                        parent.modified = true;
+                    }
+                });
+                globalPanel.add( addToGlobal,  BorderLayout.EAST );  
+                
+                labelPanel.setLayout( new BorderLayout() );
+                labelPanel.add( mappingLabel, BorderLayout.NORTH );
 		labelPanel.add( new JLabel( " " ), BorderLayout.WEST );
-		labelPanel.add( mappingTextField, BorderLayout.CENTER );
-		labelPanel.setBorder( BorderFactory.createEmptyBorder( 0, 0, 0, 150) );
+		labelPanel.add( mappingTextField, BorderLayout.CENTER);
+		labelPanel.add( globalPanel,  BorderLayout.EAST );                
+                labelPanel.setBorder( BorderFactory.createEmptyBorder( 0, 0, 0, 0) );
 		
 		mappingScrollPane.setViewportView( mappingTextPanel );
 		
@@ -152,6 +170,8 @@ public class MapperPanel extends CardPanel {
 	
 	
 	public void setData( Map<Object, Object> data ) {
+                boolean modified = parent.modified;
+                
 		if ( data != null ) {
 			mappingTextField.setText( (String)data.get( "Variable" ) );
 			mappingTextPane.setText( (String)data.get( "Mapping" ) );
@@ -159,6 +179,8 @@ public class MapperPanel extends CardPanel {
 			mappingTextField.setText( "" );
 			mappingTextPane.setText( "" );
 		}
+                
+                parent.modified = modified;
 	}
 	
 	
@@ -169,7 +191,9 @@ public class MapperPanel extends CardPanel {
 	protected JLabel mappingLabel;
 	protected JPanel labelPanel;
 	protected JPanel mappingPanel;
+        protected JPanel globalPanel;
 	protected MirthTextField mappingTextField;
 	protected JScrollPane mappingScrollPane;
 	protected MirthEditorPane parent;
+        public JCheckBox addToGlobal;
 }
