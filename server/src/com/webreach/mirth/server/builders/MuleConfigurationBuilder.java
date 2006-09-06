@@ -177,7 +177,7 @@ public class MuleConfigurationBuilder {
 
 				// add the filter script properties
 				Properties properties = new Properties();
-				properties.put("script", filterBuilder.getScript(channel.getSourceConnector().getFilter()));
+				properties.put("script", filterBuilder.getScript(channel.getSourceConnector().getFilter(), channel));
 				filterElement.appendChild(getProperties(document, properties));
 
 				endpointElement.appendChild(filterElement);
@@ -242,7 +242,7 @@ public class MuleConfigurationBuilder {
 
 					// add the filter script properties
 					Properties properties = new Properties();
-					properties.put("script", filterBuilder.getScript(connector.getFilter()));
+					properties.put("script", filterBuilder.getScript(connector.getFilter(), channel));
 					filterElement.appendChild(getProperties(document, properties));
 
 					endpointElement.appendChild(filterElement);
