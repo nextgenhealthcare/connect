@@ -7,7 +7,7 @@ public class FunctionListBuilder {
 	public ArrayList<FunctionListItem> getVariableListItems() {
 		ArrayList<FunctionListItem> variablelistItems = new ArrayList<FunctionListItem>();
 		variablelistItems.add(new FunctionListItem("Local Variable Map", "The local variable map that will be sent to the connector.", "localMap.get('')"));
-		variablelistItems.add(new FunctionListItem("Global Variable Map", "The global variable map that persists values between channels.", "GlobalVariableStore.getInstance.get('')"));
+		variablelistItems.add(new FunctionListItem("Global Variable Map", "The global variable map that persists values between channels.", "globalMap.get('')"));
 		variablelistItems.add(new FunctionListItem("Incoming Message", "The original incoming ER7 or XML string as received.", "incomingMessage"));
 		variablelistItems.add(new FunctionListItem("Incoming Message (XML)", "The original incoming ER7 or XML string as XML.", "msg['']"));
 		variablelistItems.add(new FunctionListItem("Log an Info Statement", "Outputs the message to the system info log.", "logger.info('message');"));

@@ -55,6 +55,7 @@ public class VariableList extends javax.swing.JPanel
         int i = 0;
         variables.add("HL7 XML");
         variables.add("HL7 ER7");
+        
         for (Iterator it = steps.iterator(); it.hasNext();)
         {
             Step step = (Step) it.next();

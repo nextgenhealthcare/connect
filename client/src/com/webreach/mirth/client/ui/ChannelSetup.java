@@ -31,6 +31,7 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -54,6 +55,7 @@ import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.Connector;
 import com.webreach.mirth.model.Filter;
+import com.webreach.mirth.model.Step;
 import com.webreach.mirth.model.Transformer;
 import com.webreach.mirth.model.Transport;
 
@@ -1275,7 +1277,9 @@ public class ChannelSetup extends javax.swing.JPanel
         {
             if(currentChannel.getMode() == Channel.Mode.ROUTER || currentChannel.getMode() == Channel.Mode.APPLICATION)
             {
-                destinationVariableList.setVariableListInbound(destinationConnector.getTransformer().getSteps());
+            	List<Step> concatenatedSteps = getMultipleDestinationSteps(destinationConnector);
+                //destinationVariableList.setVariableListInbound(destinationConnector.getTransformer().getSteps());
+            	destinationVariableList.setVariableListInbound(concatenatedSteps);
                 destinationVariableList.setDestinationMappingsLabel();
             }
             else if(currentChannel.getMode() == Channel.Mode.BROADCAST)
@@ -1322,7 +1326,37 @@ public class ChannelSetup extends javax.swing.JPanel
         );
         destination.updateUI();
     }
-
+    private List<Step> getMultipleDestinationSteps(Connector currentDestination){
+    	List<Step> concatenatedSteps = new ArrayList<Step>();
+    	List<Connector> destinationConnectors = currentChannel.getDestinationConnectors();
+    	Iterator<Connector> it = destinationConnectors.iterator();
+    	while (it.hasNext()){
+    		Connector destination = it.next();
+    		if (currentDestination == destination){
+    			//add all the variables
+    			List<Step> destinationSteps = destination.getTransformer().getSteps();
+    			concatenatedSteps.addAll(destinationSteps);
+    			
+    		}else{
+    			//add only the global variables
+    			List<Step> destinationSteps = destination.getTransformer().getSteps();
+    			Iterator stepIterator = destinationSteps.iterator();
+    			while (stepIterator.hasNext()){
+    				Step step = (Step)stepIterator.next();
+    				HashMap map = (HashMap) step.getData();
+    		        if (step.getType().equals(TransformerPane.MAPPER_TYPE))
+    		        {
+    		        	//Check if the step is global
+    		        	if (map.containsKey("isGlobal")){
+    		        		if(((String)map.get("isGlobal")).equalsIgnoreCase(UIConstants.YES_OPTION))
+    		        			concatenatedSteps.add(step);
+    		        	}
+    		        }
+    			}
+    		}
+    	}
+        return concatenatedSteps;
+    }
     public void generateSingleDestinationPage()
     {
         // Get the selected destination connector and set it.
@@ -1401,7 +1435,9 @@ public class ChannelSetup extends javax.swing.JPanel
             if(currentChannel.getMode() == Channel.Mode.ROUTER)
             {
                 int destination = getDestinationConnectorIndex((String)destinationTable.getValueAt(getSelectedDestinationIndex(),getColumnNumber(DESTINATION_COLUMN_NAME)));
-                destinationVariableList.setVariableListInbound(currentChannel.getDestinationConnectors().get(destination).getTransformer().getSteps());
+                List<Step> concatenatedSteps = getMultipleDestinationSteps(currentChannel.getDestinationConnectors().get(destination));
+                destinationVariableList.setVariableListInbound(concatenatedSteps);
+                //destinationVariableList.setVariableListInbound(currentChannel.getDestinationConnectors().get(destination).getTransformer().getSteps());
                 destinationVariableList.setDestinationMappingsLabel();
             }
             else if(currentChannel.getMode() == Channel.Mode.BROADCAST)
