@@ -16,8 +16,8 @@ import ca.uhn.hl7v2.validation.impl.NoValidation;
 
 import com.webreach.mirth.model.MessageEvent;
 import com.webreach.mirth.server.controllers.MessageLogger;
-import com.webreach.mirth.server.mule.components.ChannelComponent;
 import com.webreach.mirth.server.mule.util.ER7Util;
+import com.webreach.mirth.server.mule.util.GlobalVariableStore;
 
 public class JavaScriptTransformer extends AbstractTransformer {
 	private Logger logger = Logger.getLogger(this.getClass());
@@ -38,15 +38,15 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			Logger scriptLogger = Logger.getLogger("transformation");
 			Context context = Context.enter();
 			Scriptable scope = new ImporterTopLevel(context);
-						
+
 			HashMap localMap = new HashMap();
-			
+
 			// load variables in JavaScript scope
-			scope.put("message", scope, ((String)source).replaceAll("&#xd;",""));
+			scope.put("message", scope, ((String) source).replaceAll("&#xd;", ""));
 			scope.put("incomingMessage", scope, ((String) new ER7Util().ConvertToER7((String) source)));
 			scope.put("logger", scope, scriptLogger);
 			scope.put("localMap", scope, localMap);
-			scope.put("globalMap", scope, ChannelComponent.globalMap);
+			scope.put("globalMap", scope, GlobalVariableStore.getInstance());
 			scope.put("er7util", scope, new ER7Util());
 
 			StringBuilder jsSource = new StringBuilder();
@@ -68,7 +68,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			Context.exit();
 		}
 	}
-	
+
 	private void logMessageEvent(HashMap er7data, String channelID) throws Exception {
 		String er7message = (String) er7data.get("HL7 ER7");
 		logger.debug("logging message:\n" + er7message);
@@ -77,7 +77,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 		String sendingFacility = "";
 		String controlId = "";
 		String event = "";
-		try{
+		try {
 			PipeParser pipeParser = new PipeParser();
 			pipeParser.setValidationContext(new NoValidation());
 			Message message = pipeParser.parse(er7message);
@@ -85,7 +85,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			sendingFacility = terser.get("/MSH-3-1");
 			controlId = terser.get("/MSH-10");
 			event = terser.get("/MSH-9-1") + "-" + terser.get("/MSH-9-2") + " (" + message.getVersion() + ")";
-		}catch(Exception e){
+		} catch (Exception e) {
 			logger.debug(e.getMessage());
 		}
 		MessageLogger messageLogger = new MessageLogger();
