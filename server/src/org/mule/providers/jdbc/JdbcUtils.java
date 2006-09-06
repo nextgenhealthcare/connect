@@ -18,6 +18,8 @@ import org.dom4j.Node;
 import org.dom4j.io.DOMReader;
 import org.mule.umo.endpoint.UMOEndpointURI;
 
+import com.webreach.mirth.server.mule.util.GlobalVariableStore;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -98,9 +100,16 @@ public abstract class JdbcUtils
 				//If we have a hashmap cast our root object to a HashMap
 				java.util.HashMap hash = (java.util.HashMap) root;
 				try{
-					//Assign the value to the value in the hash with the key we're looking for (name)
-					value = hash.get(name).toString();
+					if (hash.containsKey(name)){
+						//Assign the value to the value in the hash with the key we're looking for (name)
+						value = hash.get(name).toString();
+					}else if (GlobalVariableStore.getInstance().containsKey(name)){
+						//Try to get Mirth global hash
+						value = GlobalVariableStore.getInstance().get(name).toString();
+						
+					}
 				}catch (Exception ignored){
+				
 					value = null;
 				}
 			}else if (root instanceof org.w3c.dom.Document) {

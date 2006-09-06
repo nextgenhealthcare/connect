@@ -21,6 +21,9 @@ public class GlobalVariableStore {
 		}
 	}
 	
+	public boolean containsKey(Object key){
+		return globalVariableMap.containsKey(key);
+	}
 	public void put(String key, String value) {
 		globalVariableMap.put(key, value);
 	}
