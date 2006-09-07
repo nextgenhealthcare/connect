@@ -211,7 +211,7 @@ public class HTTPSListener extends ConnectorClass
         return properties;
     }
     
-    public boolean checkRequiredFields()
+    public boolean checkProperties(Properties props)
     {
         /*if()
         {

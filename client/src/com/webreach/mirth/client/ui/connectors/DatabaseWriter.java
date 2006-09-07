@@ -132,16 +132,14 @@ public class DatabaseWriter extends ConnectorClass
         properties.put(DATABASE_SQL_STATEMENT, "INSERT INTO");
         return properties;
     }
-
-    public boolean checkRequiredFields()
+    
+    public boolean checkProperties(Properties props)
     {
-        if(databaseURLField.getText().length() > 0 && databaseUsernameField.getText().length() > 0 && databaseSQLTextPane.getText().length() > 0)
-        {
+        if(((String)props.get(DATABASE_URL)).length() > 0 && ((String)props.get(DATABASE_USERNAME)).length() > 0 && ((String)props.get(DATABASE_PASSWORD)).length() > 0 && ((String)props.get(DATABASE_SQL_STATEMENT)).length() > 0)
             return true;
-        }
         return false;
     }
-    
+
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is

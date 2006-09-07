@@ -50,6 +50,16 @@ import org.jdesktop.swingx.decorator.HighlighterPipeline;
 
 import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.ui.connectors.ConnectorClass;
+import com.webreach.mirth.client.ui.connectors.DatabaseReader;
+import com.webreach.mirth.client.ui.connectors.DatabaseWriter;
+import com.webreach.mirth.client.ui.connectors.EmailSender;
+import com.webreach.mirth.client.ui.connectors.FileReader;
+import com.webreach.mirth.client.ui.connectors.FileWriter;
+import com.webreach.mirth.client.ui.connectors.HTTPListener;
+import com.webreach.mirth.client.ui.connectors.HTTPSListener;
+import com.webreach.mirth.client.ui.connectors.JMSWriter;
+import com.webreach.mirth.client.ui.connectors.LLPListener;
+import com.webreach.mirth.client.ui.connectors.LLPSender;
 import com.webreach.mirth.client.ui.editors.filter.FilterPane;
 import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
 import com.webreach.mirth.model.Channel;
@@ -596,18 +606,7 @@ public class ChannelSetup extends javax.swing.JPanel
         
         boolean enabled = summaryEnabledCheckbox.isSelected();
         
-        if(validate && !local)
-        {
-            if(checkAllForms(currentChannel))
-            {
-                enabled = false;
 
-                if(!parent.alertOption("There was a problem with one or more of your connectors.  Please validate all of\nyour connectors to find the problem. Would you still like to save this channel even\nthough you will not be able to enable this channel until you fix the problem(s)?"))
-                    return false;   
-                else
-                    summaryEnabledCheckbox.setSelected(false);
-            }
-        }
         currentChannel.getSourceConnector().setProperties(sourceConnectorClass.getProperties());
         
         if(parent.currentContentPage == transformerPane)        
@@ -626,6 +625,19 @@ public class ChannelSetup extends javax.swing.JPanel
             temp = currentChannel.getDestinationConnectors().get(getDestinationConnectorIndex((String)destinationTable.getValueAt(getSelectedDestinationIndex(),getColumnNumber(DESTINATION_COLUMN_NAME))));
         temp.setProperties(destinationConnectorClass.getProperties());
 
+        if(validate && !local)
+        {
+            if(checkAllForms(currentChannel))
+            {
+                enabled = false;
+
+                if(!parent.alertOption("There was a problem with one or more of your connectors.  Please validate all of\nyour connectors to find the problem. Would you still like to save this channel even\nthough you will not be able to enable this channel until you fix the problem(s)?"))
+                    return false;   
+                else
+                    summaryEnabledCheckbox.setSelected(false);
+            }
+        }        
+        
         currentChannel.setName(summaryNameField.getText());
         currentChannel.setDescription(summaryDescriptionText.getText());
         currentChannel.setEnabled(enabled);
@@ -745,24 +757,37 @@ public class ChannelSetup extends javax.swing.JPanel
     {
         boolean problemFound = false;
         ConnectorClass tempConnector = null;
+        Properties tempProps = null;
         
         for(int i = 0; i < channel.getDestinationConnectors().size(); i++)
         {
-            for(int j=0; j<parent.destinationConnectors.size(); j++)
+            for(int j=0; j < parent.destinationConnectors.size(); j++)
             {
                 if(parent.destinationConnectors.get(j).getName().equalsIgnoreCase(channel.getDestinationConnectors().get(i).getTransportName()))
+                {
                     tempConnector = parent.destinationConnectors.get(j);
+                    tempProps = channel.getDestinationConnectors().get(i).getProperties();
+                }
             }
-            if(tempConnector != null && !tempConnector.checkRequiredFields())
+            if(tempConnector != null && !tempConnector.checkProperties(tempProps))
+            {
+                System.out.println(tempConnector.getName());
                 problemFound = true;
+            }
+            
+            tempConnector = null;
+            tempProps = null;
         }
         
-        for(int i=0; i<parent.sourceConnectors.size(); i++)
+        for(int i=0; i < parent.sourceConnectors.size(); i++)
         {
             if(parent.sourceConnectors.get(i).getName().equalsIgnoreCase(channel.getSourceConnector().getTransportName()))
+            {
                 tempConnector = parent.sourceConnectors.get(i);
+                tempProps = channel.getSourceConnector().getProperties();
+            }
         }
-        if(tempConnector != null && !tempConnector.checkRequiredFields())
+        if(tempConnector != null && !tempConnector.checkProperties(tempProps))
             problemFound = true;
         
         return problemFound;
@@ -772,14 +797,14 @@ public class ChannelSetup extends javax.swing.JPanel
     {
         if(source.isVisible())
         {
-            if(!sourceConnectorClass.checkRequiredFields())
+            if(!sourceConnectorClass.checkProperties(sourceConnectorClass.getProperties()))
                 parent.alertWarning("This form is missing required data.");    
             else
                 parent.alertInformation("The form was successfully validated.");
         }
         else
         {
-            if(!destinationConnectorClass.checkRequiredFields())
+            if(!destinationConnectorClass.checkProperties(destinationConnectorClass.getProperties()))
                 parent.alertWarning("This form is missing required data.");  
             else
                 parent.alertInformation("The form was successfully validated.");

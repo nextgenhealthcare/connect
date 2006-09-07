@@ -96,7 +96,7 @@ public class EmailSender extends ConnectorClass
         return properties;
     }
     
-    public boolean checkRequiredFields()
+    public boolean checkProperties(Properties props)
     {
         /*if()
         {

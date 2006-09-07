@@ -98,12 +98,10 @@ public class FileWriter extends ConnectorClass
         return properties;
     }
     
-    public boolean checkRequiredFields()
+    public boolean checkProperties(Properties props)
     {
-        if(directoryField.getText().length() > 0 && fileNameField.getText().length() > 0 && fileContentsTextPane.getText().length() > 0)
-        {
+        if(((String)props.get(FILE_DIRECTORY)).length() > 0 && ((String)props.get(FILE_NAME)).length() > 0 && ((String)props.get(FILE_CONTENTS)).length() > 0)
             return true;
-        }
         return false;
     }
 

@@ -160,19 +160,16 @@ public class LLPSender extends ConnectorClass
         return properties;
     }
     
-    public boolean checkRequiredFields()
+    public boolean checkProperties(Properties props)
     {
-        if(hostIPAddressField.getText().length() > 0 && hostIPAddressField1.getText().length() > 0 && 
-                hostIPAddressField2.getText().length() > 0 && hostIPAddressField3.getText().length() > 0 && 
-                hostPortField.getText().length() > 0 && serverTimeoutField.getText().length() > 0 && 
-                bufferSizeField.getText().length() > 0 && startOfMessageCharacterField.getText().length() > 0 && 
-                endOfMessageCharacterField.getText().length() > 0 && recordSeparatorField.getText().length() > 0 && 
-                serverTimeoutField.getText().length() > 0)
-        {
+         if(((String)props.get(LLP_ADDRESS)).length() > 0 && ((String)props.get(LLP_PORT)).length() > 0 && 
+        ((String)props.get(LLP_SERVER_TIMEOUT)).length() > 0 && ((String)props.get(LLP_BUFFER_SIZE)).length() > 0 &&
+        ((String)props.get(LLP_MAX_RETRY_COUNT)).length() > 0 && ((String)props.get(LLP_END_OF_MESSAGE_CHARACTER)).length() > 0 &&
+        ((String)props.get(LLP_START_OF_MESSAGE_CHARACTER)).length() > 0 && ((String)props.get(LLP_END_OF_MESSAGE_CHARACTER)).length() > 0 &&
+        ((String)props.get(LLP_RECORD_SEPARATOR)).length() > 0)
             return true;
-        }
-        return false;
-    }
+        return false;       
+    }    
     
     /** This method is called from within the constructor to
      * initialize the form.

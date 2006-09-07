@@ -137,13 +137,14 @@ public class HTTPListener extends ConnectorClass
         return properties;
     }
     
-    public boolean checkRequiredFields()
+    public boolean checkProperties(Properties props)
     {
-        if(listenerIPAddressField.getText().length() > 0 && listenerIPAddressField1.getText().length() > 0 && listenerIPAddressField2.getText().length() > 0 && listenerIPAddressField3.getText().length() > 0 && listenerPortField.getText().length() > 0 && receiveTimeoutField.getText().length() > 0 && bufferSizeField.getText().length() > 0 && startOfMessageCharacterField.getText().length() > 0 && endOfMessageCharacterField.getText().length() > 0 && fieldSeparatorField.getText().length() > 0 && recordSeparatorField.getText().length() > 0)
-        {
+         if(((String)props.get(HTTP_ADDRESS)).length() > 0 && ((String)props.get(HTTP_PORT)).length() > 0 && 
+        ((String)props.get(HTTP_RECEIVE_TIMEOUT)).length() > 0 && ((String)props.get(HTTP_BUFFER_SIZE)).length() > 0 &&
+        ((String)props.get(HTTP_START_OF_MESSAGE_CHARACTER)).length() > 0 && ((String)props.get(HTTP_END_OF_MESSAGE_CHARACTER)).length() > 0 &&
+         ((String)props.get(HTTP_FIELD_SEPARATOR)).length() > 0 && ((String)props.get(HTTP_RECORD_SEPARATOR)).length() > 0)
             return true;
-        }
-        return false;
+        return false;       
     }
 
     /** This method is called from within the constructor to

@@ -186,16 +186,18 @@ public class DatabaseReader extends ConnectorClass
         return properties;
     }
     
-    public boolean checkRequiredFields()
+    public boolean checkProperties(Properties props)
     {
-        if(databaseURLField.getText().length() > 0 && databaseUsernameField.getText().length() > 0 && 
-                pollingFreq.getText().length() > 0 && databaseSQLTextPane.getText().length() > 0)
+        if(((String)props.get(DATABASE_URL)).length() > 0 && ((String)props.get(DATABASE_USERNAME)).length() > 0 && 
+        ((String)props.get(DATABASE_POLLING_FREQUENCY)).length() > 0 && ((String)props.get(DATABASE_SQL_STATEMENT)).length() > 0)
         {
-            if (readOnUpdateYes.isSelected() && databaseUpdateSQLTextPane.getText().length() > 0 || !readOnUpdateYes.isSelected())
+            if(((String)props.get(DATABASE_USE_ACK)).equalsIgnoreCase(UIConstants.YES_OPTION) && ((String)props.get(DATABASE_ACK)).length() > 0)
+                return true;
+            else if(((String)props.get(DATABASE_USE_ACK)).equalsIgnoreCase(UIConstants.NO_OPTION))
                 return true;
         }
         return false;
-    }
+    }  
     
     private void updateSQL()
     {

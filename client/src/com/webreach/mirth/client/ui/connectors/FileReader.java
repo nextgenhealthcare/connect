@@ -122,16 +122,15 @@ public class FileReader extends ConnectorClass
         return properties;
     }
     
-    public boolean checkRequiredFields()
+    public boolean checkProperties(Properties props)
     {
-        if(directoryField.getText().length() > 0 && pollingFreq.getText().length() > 0 && 
-                moveToPattern.getText().length() > 0 && moveToDirectory.getText().length() > 0 && 
-                fileAge.getText().length() > 0)
-        {
+        if(((String)props.get(FILE_DIRECTORY)).length() > 0 && ((String)props.get(FILE_POLLING_FREQUENCY)).length() > 0 && 
+        ((String)props.get(FILE_MOVE_TO_PATTERN)).length() > 0 && ((String)props.get(FILE_MOVE_TO_DIRECTORY)).length() > 0 &&
+        ((String)props.get(FILE_FILE_AGE)).length() > 0)
             return true;
-        }
         return false;
     }
+
     
     /** This method is called from within the constructor to
      * initialize the form.
