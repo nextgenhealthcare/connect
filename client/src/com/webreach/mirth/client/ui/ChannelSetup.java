@@ -1134,7 +1134,7 @@ public class ChannelSetup extends javax.swing.JPanel
             if (sourceConnector.getProperties().size() == 0 || !dataType.equals((String)sourceSourceDropdown.getSelectedItem()))
             {
                 String name = sourceConnector.getName();
-                sourceConnector = makeNewConnector();
+                changeConnectorType(sourceConnector);
                 sourceConnector.setName(name);
                 sourceConnectorClass.setProperties(sourceConnectorClass.getDefaults());
                 sourceConnector.setProperties(sourceConnectorClass.getProperties());
@@ -1253,7 +1253,7 @@ public class ChannelSetup extends javax.swing.JPanel
         if (destinationConnector.getProperties().size() == 0 || !dataType.equals((String)destinationSourceDropdown.getSelectedItem()))
         {
             String name = destinationConnector.getName();
-            destinationConnector = makeNewConnector();
+            changeConnectorType(destinationConnector);
             destinationConnector.setName(name);
             destinationConnectorClass.setProperties(destinationConnectorClass.getDefaults());
             destinationConnector.setProperties(destinationConnectorClass.getProperties());    
@@ -1378,7 +1378,7 @@ public class ChannelSetup extends javax.swing.JPanel
             if (destinationConnector.getProperties().size() == 0 || !dataType.equals((String)destinationSourceDropdown.getSelectedItem()))
             {
                 String name = destinationConnector.getName();
-                destinationConnector = makeNewConnector();
+                changeConnectorType(destinationConnector);
                 destinationConnector.setName(name);
                 destinationConnectorClass.setProperties(destinationConnectorClass.getDefaults());
                 destinationConnector.setProperties(destinationConnectorClass.getProperties());
@@ -1465,6 +1465,16 @@ public class ChannelSetup extends javax.swing.JPanel
         c.setTransformer(dt);
         c.setFilter(df);
         return c;
+    }
+    
+    /** Changes the connector type without clearing filter and transformer */
+    public void changeConnectorType(Connector c)
+    {
+        Transformer oldTransformer = c.getTransformer();
+        Filter oldFilter = c.getFilter();
+        c = makeNewConnector();
+        c.setTransformer(oldTransformer);
+        c.setFilter(oldFilter);        
     }
     
     /** Returns the source connector class */
