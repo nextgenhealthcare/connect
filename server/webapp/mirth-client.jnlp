@@ -71,5 +71,7 @@
   <resources locale="" os="">
     <jar download="eager" href="lib/hapi-0.5beta.jar" main="false" version=""/>
   </resources>
-  <application-desc main-class="com.webreach.mirth.client.ui.Mirth"/>
+  <application-desc main-class="com.webreach.mirth.client.ui.Mirth">
+  	<argument>https://localhost:8443</argument>
+  </application-desc>
 </jnlp>
