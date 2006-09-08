@@ -54,6 +54,10 @@ public class StatusUpdater implements Runnable
             {
                 refreshRate = userPreferences.getInt("intervalTime", DEFAULT_INTERVAL_TIME) * 1000;
                 Thread.sleep(refreshRate);
+                
+                if(interrupted)
+                    return;
+                
                 if(parent.contentPane.getViewport().getComponents().length > 0 && parent.currentContentPage == parent.statusListPage)
                 {
                     parent.doRefresh();

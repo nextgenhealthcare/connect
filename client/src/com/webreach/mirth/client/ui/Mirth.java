@@ -124,6 +124,7 @@ public class Mirth
      */
     public static void main(String[] args)
     {
+        final String blah = args[0];
         SwingUtilities.invokeLater(new Runnable()
         {
             public void run()
@@ -145,7 +146,8 @@ public class Mirth
                 String passwordDefault = "";
                 
                 Preferences userPref = Preferences.systemNodeForPackage(Mirth.class);
-                String mirthServerDefault = userPref.get("defaultServer", "https://127.0.0.1:8443");
+                String mirthServerDefault = blah;
+                //String mirthServerDefault = userPref.get("defaultServer", "https://127.0.0.1:8443");
                 
                 UIManager.put("JXLoginPanel.banner.foreground", UIConstants.TITLE_TEXT_COLOR);
                 UIManager.put("JXLoginPanel.banner.darkBackground", UIConstants.BANNER_DARK_BACKGROUND);
