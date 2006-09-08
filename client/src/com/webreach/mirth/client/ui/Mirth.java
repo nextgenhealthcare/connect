@@ -124,7 +124,13 @@ public class Mirth
      */
     public static void main(String[] args)
     {
-        final String blah = args[0];
+        final String server;
+        
+        if(args.length > 0)
+            server = args[0];
+        else
+            server = "https://localhost:8443";
+        
         SwingUtilities.invokeLater(new Runnable()
         {
             public void run()
@@ -133,7 +139,7 @@ public class Mirth
                 {
                     PlasticLookAndFeel.setPlasticTheme(new Silver());
                     PlasticXPLookAndFeel look = new PlasticXPLookAndFeel();
-                    UIManager.setLookAndFeel(look);  
+                    UIManager.setLookAndFeel(look);
                     UIManager.put("win.xpstyle.name", "metallic");
                     LookAndFeelAddons.setAddon(WindowsLookAndFeelAddons.class);
                 }
@@ -146,8 +152,7 @@ public class Mirth
                 String passwordDefault = "";
                 
                 Preferences userPref = Preferences.systemNodeForPackage(Mirth.class);
-                String mirthServerDefault = blah;
-                //String mirthServerDefault = userPref.get("defaultServer", "https://127.0.0.1:8443");
+                String mirthServerDefault = userPref.get("defaultServer", server);
                 
                 UIManager.put("JXLoginPanel.banner.foreground", UIConstants.TITLE_TEXT_COLOR);
                 UIManager.put("JXLoginPanel.banner.darkBackground", UIConstants.BANNER_DARK_BACKGROUND);
