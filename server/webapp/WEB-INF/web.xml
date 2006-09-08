@@ -83,6 +83,19 @@
 	</servlet-mapping>
 
 	<servlet>
+		<servlet-name>WebStart</servlet-name>
+		<servlet-class>
+			com.webreach.mirth.server.servlets.WebStartServlet
+		</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>WebStart</servlet-name>
+		<url-pattern>/webstart</url-pattern>
+	</servlet-mapping>
+
+
+	<servlet>
 		<servlet-name>JnlpDownloadServlet</servlet-name>
 		<servlet-class>jnlp.sample.servlet.JnlpDownloadServlet</servlet-class>
 	</servlet>
