@@ -21,7 +21,7 @@
  * Contributor(s):
  *   Gerald Bortis <geraldb@webreachinc.com>
  *
- * ***** END LICENSE BLOCK ***** */
+ * ***** END LICENSE BLOCK ******/
 
 package com.webreach.mirth.client.core;
 
