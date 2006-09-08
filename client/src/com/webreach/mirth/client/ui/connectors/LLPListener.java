@@ -259,7 +259,7 @@ public class LLPListener extends ConnectorClass
         jLabel9.setFont(new java.awt.Font("Tahoma", 1, 11));
         jLabel9.setText(".");
 
-        jLabel6.setText("Character Encoding:");
+        jLabel6.setText("LLP Character Encoding:");
 
         ascii.setBackground(new java.awt.Color(255, 255, 255));
         ascii.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));

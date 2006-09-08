@@ -297,7 +297,7 @@
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel6">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Character Encoding:"/>
+        <Property name="text" type="java.lang.String" value="LLP Character Encoding:"/>
       </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="ascii">
