@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<web-app xmlns="http://java.sun.com/xml/ns/j2ee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+	version="2.4">
+
+	<display-name>Mirth Server</display-name>
+
+	<session-config>
+		<session-timeout>30</session-timeout>
+	</session-config>
+
+	<servlet>
+		<servlet-name>Channels</servlet-name>
+		<servlet-class>
+			com.webreach.mirth.server.servlets.ChannelServlet
+		</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Channels</servlet-name>
+		<url-pattern>/channels</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>Configuration</servlet-name>
+		<servlet-class>
+			com.webreach.mirth.server.servlets.ConfigurationServlet
+		</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Configuration</servlet-name>
+		<url-pattern>/configuration</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>Users</servlet-name>
+		<servlet-class>
+			com.webreach.mirth.server.servlets.UserServlet
+		</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Users</servlet-name>
+		<url-pattern>/users</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>Logger</servlet-name>
+		<servlet-class>
+			com.webreach.mirth.server.servlets.LoggerServlet
+		</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Logger</servlet-name>
+		<url-pattern>/logger</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>ChannelStatus</servlet-name>
+		<servlet-class>
+			com.webreach.mirth.server.servlets.ChannelStatusServlet
+		</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>ChannelStatus</servlet-name>
+		<url-pattern>/channelstatus</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>ChannelStatistics</servlet-name>
+		<servlet-class>
+			com.webreach.mirth.server.servlets.ChannelStatisticsServlet
+		</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>ChannelStatistics</servlet-name>
+		<url-pattern>/channelstatistics</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>JnlpDownloadServlet</servlet-name>
+		<servlet-class>jnlp.sample.servlet.JnlpDownloadServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>JnlpDownloadServlet</servlet-name>
+		<url-pattern>*.jnlp</url-pattern>
+	</servlet-mapping>
+
+	<error-page>
+		<error-code>404</error-code>
+		<location>/dump/ERROR</location>
+	</error-page>
+
+</web-app>
+
+
