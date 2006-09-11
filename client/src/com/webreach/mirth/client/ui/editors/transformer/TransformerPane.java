@@ -129,7 +129,7 @@ public class TransformerPane extends MirthEditorPane
         {
             makeTransformerTable(inboundComboBoxValues);
         }
-        
+               
         // add any existing steps to the model
         List<Step> list = transformer.getSteps();
         ListIterator<Step> li = list.listIterator();
@@ -155,15 +155,19 @@ public class TransformerPane extends MirthEditorPane
                 hl7builderPanel.setData(null);
         }
         
-        
         transformerTaskPaneContainer.add(parent.getOtherPane());
         parent.setCurrentContentPage(this);
         parent.setCurrentTaskPaneContainer(transformerTaskPaneContainer);
         
+        mapperPanel.setAddAsGlobal(channel);
         mapperPanel.update();
+
         jsPanel.update();
         if (hl7builderPanel != null)
+        {
+            hl7builderPanel.setAddAsGlobal(channel);
             hl7builderPanel.update();
+        }
         updateStepNumbers();
         updateTaskPane();
     }
@@ -665,6 +669,7 @@ public class TransformerPane extends MirthEditorPane
                 mapperPanel.addToGlobal.setSelected(false);
             else
                 mapperPanel.addToGlobal.setSelected(true);
+
             mapperPanel.setData(data);
         }
         else if (type == JAVASCRIPT_TYPE)
@@ -910,6 +915,7 @@ public class TransformerPane extends MirthEditorPane
                 {
                     
                     StringBuilder script = new StringBuilder();
+                    
                     if(((String)map.get("isGlobal")).equalsIgnoreCase(UIConstants.YES_OPTION))
                         script.append("globalMap.put(");
                     else

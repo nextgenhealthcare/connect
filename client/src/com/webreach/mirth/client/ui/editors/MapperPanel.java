@@ -29,9 +29,6 @@ package com.webreach.mirth.client.ui.editors;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -47,6 +44,7 @@ import javax.swing.event.DocumentListener;
 import com.Ostermiller.Syntax.HighlightedDocument;
 import com.webreach.mirth.client.ui.components.MirthTextField;
 import com.webreach.mirth.client.ui.components.MirthTextPane;
+import com.webreach.mirth.model.Channel;
 
 
 public class MapperPanel extends CardPanel {
@@ -88,26 +86,7 @@ public class MapperPanel extends CardPanel {
 		mappingTextPanel.setLayout( new BorderLayout() );
 		mappingTextPanel.add( mappingTextPane, BorderLayout.CENTER );
 		
-                globalPanel = new JPanel();
-                globalPanel.setLayout( new BorderLayout() );
-                globalPanel.add( new JLabel( "  " ), BorderLayout.WEST );
-                addToGlobal = new JCheckBox();
-                addToGlobal.setFocusable(false);
-                addToGlobal.setText("Add as global variable");
-                addToGlobal.addActionListener(new java.awt.event.ActionListener() {
-                    public void actionPerformed(java.awt.event.ActionEvent evt) {
-                        parent.modified = true;
-                    }
-                });
-                globalPanel.add( addToGlobal,  BorderLayout.EAST );  
-                
-                labelPanel.setLayout( new BorderLayout() );
-                labelPanel.add( mappingLabel, BorderLayout.NORTH );
-		labelPanel.add( new JLabel( " " ), BorderLayout.WEST );
-		labelPanel.add( mappingTextField, BorderLayout.CENTER);
-		labelPanel.add( globalPanel,  BorderLayout.EAST );                
-                labelPanel.setBorder( BorderFactory.createEmptyBorder( 0, 0, 0, 0) );
-		
+	
 		mappingScrollPane.setViewportView( mappingTextPanel );
 		
 		mappingPanel.setLayout( new BorderLayout() );
@@ -183,6 +162,27 @@ public class MapperPanel extends CardPanel {
                 parent.modified = modified;
 	}
 	
+        public void setAddAsGlobal(Channel channel)
+        {
+            labelPanel.setLayout( new BorderLayout() );
+            labelPanel.add( mappingLabel, BorderLayout.NORTH );
+            labelPanel.add( new JLabel( " " ), BorderLayout.WEST );
+            labelPanel.add( mappingTextField, BorderLayout.CENTER);
+            globalPanel = new JPanel();
+            globalPanel.setLayout( new BorderLayout() );
+            globalPanel.add( new JLabel( "  " ), BorderLayout.WEST );
+            addToGlobal = new JCheckBox();
+            addToGlobal.setFocusable(false);
+            addToGlobal.setText("Add as global variable");
+            addToGlobal.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    parent.modified = true;
+                }
+            });
+            globalPanel.add( addToGlobal,  BorderLayout.EAST );  
+            labelPanel.add( globalPanel,  BorderLayout.EAST );     
+            labelPanel.setBorder( BorderFactory.createEmptyBorder( 0, 0, 0, 0) );
+        }
 	
 	protected String label;
 	protected JPanel mappingTextPanel;		// for no linewrap in textpane

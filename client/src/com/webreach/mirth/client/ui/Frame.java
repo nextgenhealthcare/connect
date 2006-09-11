@@ -978,7 +978,7 @@ public class Frame extends JXFrame
             if(!exportChannelOnError())
                 return;
             this.dispose();
-            Mirth.main(new String[0]);
+            Mirth.main(new String []{PlatformUI.SERVER_NAME});
             return;
         }
         
@@ -990,7 +990,7 @@ public class Frame extends JXFrame
             if(!exportChannelOnError())
                 return;
             this.dispose();
-            Mirth.main(new String[0]);
+            Mirth.main(new String []{PlatformUI.SERVER_NAME});
             return;
         }
             
@@ -1266,7 +1266,7 @@ public class Frame extends JXFrame
             alertException(e.getStackTrace(), e.getMessage());
         }
         this.dispose();
-        Mirth.main(new String[0]);
+        Mirth.main(new String []{PlatformUI.SERVER_NAME});
     }
     
     public void doMoveDestinationDown()

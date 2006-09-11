@@ -770,10 +770,7 @@ public class ChannelSetup extends javax.swing.JPanel
                 }
             }
             if(tempConnector != null && !tempConnector.checkProperties(tempProps))
-            {
-                System.out.println(tempConnector.getName());
                 problemFound = true;
-            }
             
             tempConnector = null;
             tempProps = null;
