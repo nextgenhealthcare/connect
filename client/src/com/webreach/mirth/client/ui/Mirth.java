@@ -150,9 +150,7 @@ public class Mirth
                 
                 String userDefault = "";
                 String passwordDefault = "";
-                
-                Preferences userPref = Preferences.systemNodeForPackage(Mirth.class);
-                String mirthServerDefault = userPref.get("defaultServer", server);
+                String mirthServerDefault = server;
                 
                 UIManager.put("JXLoginPanel.banner.foreground", UIConstants.TITLE_TEXT_COLOR);
                 UIManager.put("JXLoginPanel.banner.darkBackground", UIConstants.BANNER_DARK_BACKGROUND);

@@ -75,6 +75,8 @@ public class ChannelWizard extends javax.swing.JDialog
         jLabel2 = new javax.swing.JLabel();
         helpTextPane1 = new javax.swing.JScrollPane();
         helpText1 = new javax.swing.JTextPane();
+        jLabel6 = new javax.swing.JLabel();
+        channelProtocol = new javax.swing.JComboBox();
         channelPattern = new javax.swing.JPanel();
         finishButton = new javax.swing.JButton();
         cancelButton2 = new javax.swing.JButton();
@@ -174,40 +176,51 @@ public class ChannelWizard extends javax.swing.JDialog
         helpText1.setEditable(false);
         helpTextPane1.setViewportView(helpText1);
 
+        jLabel6.setText("Channel Protocol:");
+
+        channelProtocol.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "HL7" }));
+
         org.jdesktop.layout.GroupLayout channelOverviewLayout = new org.jdesktop.layout.GroupLayout(channelOverview);
         channelOverview.setLayout(channelOverviewLayout);
         channelOverviewLayout.setHorizontalGroup(
             channelOverviewLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(channelOverviewLayout.createSequentialGroup()
-                .addContainerGap(74, Short.MAX_VALUE)
-                .add(channelOverviewLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, channelOverviewLayout.createSequentialGroup()
-                        .add(cancelButton)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(nextButton)
-                        .addContainerGap())
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, channelOverviewLayout.createSequentialGroup()
-                        .add(jLabel1)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(channelName, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 167, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(53, 53, 53))))
             .add(channelOverviewLayout.createSequentialGroup()
                 .addContainerGap()
                 .add(jSeparator1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 351, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .add(mirthHeadingPanel2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 371, Short.MAX_VALUE)
             .add(channelOverviewLayout.createSequentialGroup()
-                .add(99, 99, 99)
-                .add(jLabel3)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(channelOverviewLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(inbound)
-                    .add(outbound))
-                .addContainerGap(157, Short.MAX_VALUE))
-            .add(channelOverviewLayout.createSequentialGroup()
                 .addContainerGap()
                 .add(helpTextPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 351, Short.MAX_VALUE)
                 .addContainerGap())
+            .add(channelOverviewLayout.createSequentialGroup()
+                .add(channelOverviewLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
+                    .add(channelOverviewLayout.createSequentialGroup()
+                        .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .add(jLabel1))
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, channelOverviewLayout.createSequentialGroup()
+                        .add(60, 60, 60)
+                        .add(channelOverviewLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                            .add(jLabel6)
+                            .add(jLabel3))))
+                .add(channelOverviewLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(channelOverviewLayout.createSequentialGroup()
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(channelOverviewLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(channelOverviewLayout.createSequentialGroup()
+                                .add(channelOverviewLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
+                                    .add(channelProtocol, 0, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .add(inbound, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(outbound))
+                            .add(channelName, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 167, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .addContainerGap(55, Short.MAX_VALUE))
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, channelOverviewLayout.createSequentialGroup()
+                        .add(80, 80, 80)
+                        .add(cancelButton)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(nextButton)
+                        .addContainerGap())))
         );
 
         channelOverviewLayout.linkSize(new java.awt.Component[] {cancelButton, nextButton}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
@@ -218,15 +231,18 @@ public class ChannelWizard extends javax.swing.JDialog
                 .add(mirthHeadingPanel2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 49, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .add(21, 21, 21)
                 .add(channelOverviewLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(channelName, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel1))
+                    .add(jLabel1)
+                    .add(channelName, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(channelOverviewLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(inbound)
-                    .add(jLabel3))
+                    .add(jLabel3)
+                    .add(outbound))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(outbound)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 14, Short.MAX_VALUE)
+                .add(channelOverviewLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jLabel6)
+                    .add(channelProtocol, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .add(helpTextPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 81, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .add(14, 14, 14)
                 .add(jSeparator1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -371,7 +387,7 @@ public class ChannelWizard extends javax.swing.JDialog
             channelPatternLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(org.jdesktop.layout.GroupLayout.TRAILING, channelPatternLayout.createSequentialGroup()
                 .add(mirthHeadingPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 49, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 23, Short.MAX_VALUE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 22, Short.MAX_VALUE)
                 .add(channelPatternLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(broadcast)
                     .add(jLabel4))
@@ -458,6 +474,9 @@ public class ChannelWizard extends javax.swing.JDialog
         else
             channel.setDirection(Channel.Direction.OUTBOUND);
         
+        if(((String)channelProtocol.getSelectedItem()).equalsIgnoreCase("HL7"))
+            channel.setProtocol(Channel.Protocol.HL7);
+        
         if(inbound.isSelected())
         {
             if(broadcast.isSelected())
@@ -529,6 +548,7 @@ public class ChannelWizard extends javax.swing.JDialog
     private javax.swing.JTextField channelName;
     private javax.swing.JPanel channelOverview;
     private javax.swing.JPanel channelPattern;
+    private javax.swing.JComboBox channelProtocol;
     private javax.swing.JButton finishButton;
     private javax.swing.JTextPane helpText1;
     private javax.swing.JTextPane helpText2;
@@ -540,6 +560,7 @@ public class ChannelWizard extends javax.swing.JDialog
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JSeparator jSeparator2;
     private com.webreach.mirth.client.ui.MirthHeadingPanel mirthHeadingPanel1;
