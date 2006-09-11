@@ -45,6 +45,10 @@ public class Channel {
 		ROUTER, BROADCAST, APPLICATION
 	};
 
+	public enum Protocol {
+		HL7, X12, XML
+	}
+
 	private int id;
 	private String name;
 	private String description;
@@ -52,15 +56,16 @@ public class Channel {
 	private String version;
 	private int revision;
 	private Direction direction;
+	private Protocol protocol = Protocol.HL7;
 	private Mode mode;
 	private Connector sourceConnector;
 	private List<Connector> destinationConnectors = new ArrayList<Connector>();;
 	private Properties properties = new Properties();
 
 	public Channel() {
-		
+
 	}
-	
+
 	public Channel(Direction direction) {
 		this.direction = direction;
 	}
@@ -100,6 +105,14 @@ public class Channel {
 
 	public void setDirection(Direction direction) {
 		this.direction = direction;
+	}
+
+	public Protocol getProtocol() {
+		return this.protocol;
+	}
+
+	public void setProtocol(Protocol protocol) {
+		this.protocol = protocol;
 	}
 
 	public boolean isEnabled() {
