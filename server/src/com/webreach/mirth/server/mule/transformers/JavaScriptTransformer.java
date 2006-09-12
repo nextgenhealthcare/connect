@@ -1,7 +1,5 @@
 package com.webreach.mirth.server.mule.transformers;
 
-import java.util.HashMap;
-
 import org.apache.log4j.Logger;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ImporterTopLevel;
@@ -9,93 +7,188 @@ import org.mozilla.javascript.Scriptable;
 import org.mule.transformers.AbstractTransformer;
 import org.mule.umo.transformer.TransformerException;
 
-import ca.uhn.hl7v2.model.Message;
-import ca.uhn.hl7v2.parser.PipeParser;
-import ca.uhn.hl7v2.util.Terser;
-import ca.uhn.hl7v2.validation.impl.NoValidation;
-
-import com.webreach.mirth.model.MessageEvent;
-import com.webreach.mirth.server.controllers.MessageLogger;
-import com.webreach.mirth.server.mule.util.ER7Util;
+import com.webreach.mirth.model.converters.ER7Serializer;
+import com.webreach.mirth.server.mule.MessageObject;
 import com.webreach.mirth.server.mule.util.GlobalVariableStore;
 
 public class JavaScriptTransformer extends AbstractTransformer {
 	private Logger logger = Logger.getLogger(this.getClass());
-	private String script;
-	private final String HL7XML = "HL7 XML";
-	private final String HL7ER7 = "HL7 ER7";
-
-	public String getScript() {
-		return this.script;
+	private String transformerScript;
+	private String filterScript;
+	private String direction;
+	
+	public String getDirection() {
+		return this.direction;
 	}
 
-	public void setScript(String script) {
-		this.script = script;
+	public void setDirection(String direction) {
+		this.direction = direction;
 	}
 
-	public Object doTransform(Object source) throws TransformerException {
+	public String getFilterScript() {
+		return this.filterScript;
+	}
+
+	public void setFilterScript(String filterScript) {
+		this.filterScript = filterScript;
+	}
+
+	public String getTransformerScript() {
+		return this.transformerScript;
+	}
+
+	public void setTransformerScript(String transformerScript) {
+		this.transformerScript = transformerScript;
+	}
+
+	@Override
+	public Object doTransform(Object src) throws TransformerException {
+		MessageObject messageObject = (MessageObject) src;
+
+		if (direction.equals("inbound")) {
+			if (evaluateFilterScript(messageObject)) {
+				return evaluateInboundTransformerScript(messageObject);
+			}
+		} else {
+			if (evaluateFilterScript(messageObject)) {
+				return evaluateOutboundTransformerScript(messageObject);
+			}
+		}
+
+		return null;
+	}
+
+	private boolean evaluateFilterScript(MessageObject messageObject) {
 		try {
-			Logger scriptLogger = Logger.getLogger("transformation");
+			Logger scriptLogger = Logger.getLogger("filter");
 			Context context = Context.enter();
 			Scriptable scope = new ImporterTopLevel(context);
 
-			HashMap localMap = new HashMap();
-
 			// load variables in JavaScript scope
-			scope.put("message", scope, ((String) source).replaceAll("&#xd;", ""));
-			scope.put("incomingMessage", scope, ((String) new ER7Util().ConvertToER7((String) source)));
 			scope.put("logger", scope, scriptLogger);
-			scope.put("localMap", scope, localMap);
+			
+			if (direction.equals("inbound")) {
+				scope.put("message", scope, messageObject.getTransformedData());	
+			} else {
+				scope.put("message", scope, messageObject.getRawData());
+			}
+			
+			scope.put("localMap", scope, messageObject.getVariableMap());
 			scope.put("globalMap", scope, GlobalVariableStore.getInstance());
-			scope.put("er7util", scope, new ER7Util());
 
 			StringBuilder jsSource = new StringBuilder();
-			jsSource.append("importPackage(Packages.com.webreach.mirth.server.util);");
-			jsSource.append("function doTransform() { default xml namespace = new Namespace(\"urn:hl7-org:v2xml\"); var msg = new XML(message); " + script + " }");
-			jsSource.append("doTransform()\n");
+			jsSource.append("importPackage(Packages.com.webreach.mirth.server.util);\n	");
+			jsSource.append("function doFilter() {");
 
-			logger.debug("executing transformation script:\n\t" + jsSource.toString());
-			context.evaluateString(scope, jsSource.toString(), "<cmd>", 1, null);
+			if (messageObject.getTransformedDataProtocol().equals(MessageObject.Protocol.HL7)) {
+				jsSource.append("default xml namespace = new Namespace(\"urn:hl7-org:v2xml\");");
+			}
 
-			localMap.put(HL7ER7, new ER7Util().ConvertToER7(localMap.get(HL7XML).toString()).replace("\\E", ""));
-			String channelId = Context.toString(scope.get("channelid", scope));
+			jsSource.append("var msg = new XML(message);\n " + filterScript + " }\n");
+			jsSource.append("doFilter()\n");
 
-			logMessageEvent(localMap, channelId);
-			return localMap;
+			logger.debug("executing filter script:\n" + jsSource.toString());
+			Object result = context.evaluateString(scope, jsSource.toString(), "<cmd>", 1, null);
+			boolean messageAccepted = ((Boolean) Context.jsToJava(result, java.lang.Boolean.class)).booleanValue();
+			
+			if (messageAccepted) {
+				messageObject.setStatus(MessageObject.Status.ACCEPTED);
+			} else {
+				messageObject.setStatus(MessageObject.Status.REJECTED);
+			}
+			
+			return messageAccepted;
 		} catch (Exception e) {
-			throw new TransformerException(this, e);
+			logger.error(e);
+			return false;
 		} finally {
 			Context.exit();
 		}
 	}
 
-	private void logMessageEvent(HashMap er7data, String channelID) throws Exception {
-		String er7message = (String) er7data.get("HL7 ER7");
-		logger.debug("logging message:\n" + er7message);
-
-		int channelId = Integer.parseInt(channelID);
-		String sendingFacility = "";
-		String controlId = "";
-		String event = "";
+	private MessageObject evaluateInboundTransformerScript(MessageObject messageObject) throws TransformerException {
 		try {
-			PipeParser pipeParser = new PipeParser();
-			pipeParser.setValidationContext(new NoValidation());
-			Message message = pipeParser.parse(er7message);
-			Terser terser = new Terser(message);
-			sendingFacility = terser.get("/MSH-3-1");
-			controlId = terser.get("/MSH-10");
-			event = terser.get("/MSH-9-1") + "-" + terser.get("/MSH-9-2") + " (" + message.getVersion() + ")";
+			Logger scriptLogger = Logger.getLogger("inbound-transformation");
+			Context context = Context.enter();
+			Scriptable scope = new ImporterTopLevel(context);
+
+			// load variables in JavaScript scope
+			scope.put("logger", scope, scriptLogger);
+			scope.put("message", scope, messageObject.getTransformedData());
+			scope.put("localMap", scope, messageObject.getVariableMap());
+			scope.put("globalMap", scope, GlobalVariableStore.getInstance());
+
+			StringBuilder jsSource = new StringBuilder();
+			jsSource.append("importPackage(Packages.com.webreach.mirth.server.util);");
+			jsSource.append("function doTransform() {");
+
+			// only set the namespace to hl7-org if the message is XML
+			if (messageObject.getTransformedDataProtocol().equals(MessageObject.Protocol.HL7)) {
+				jsSource.append("default xml namespace = new Namespace(\"urn:hl7-org:v2xml\");");
+			}
+
+			jsSource.append("var msg = new XML(message); " + transformerScript + " }");
+			jsSource.append("doTransform()\n");
+
+			logger.debug("executing transformation script: " + jsSource.toString());
+			context.evaluateString(scope, jsSource.toString(), "<cmd>", 1, null);
+
+			// take the now transformed message and convert it back to ER7
+			if ((messageObject.getTransformedData() != null) && (messageObject.getTransformedDataProtocol().equals(MessageObject.Protocol.HL7))) {
+				ER7Serializer serializer = new ER7Serializer();
+				messageObject.getTransformedData().replace("\\E", "");
+				messageObject.setEncodedData(serializer.fromXML(messageObject.getTransformedData()));
+			}
+
+			messageObject.setStatus(MessageObject.Status.TRANSFORMED);
+			return messageObject;
 		} catch (Exception e) {
-			logger.debug(e.getMessage());
+			messageObject.setStatus(MessageObject.Status.ERROR);
+			throw new TransformerException(this, e);
+		} finally {
+			Context.exit();
 		}
-		MessageLogger messageLogger = new MessageLogger();
-		MessageEvent messageEvent = new MessageEvent();
-		messageEvent.setChannelId(channelId);
-		messageEvent.setSendingFacility(sendingFacility);
-		messageEvent.setEvent(event);
-		messageEvent.setControlId(controlId);
-		messageEvent.setMessage(er7message);
-		messageEvent.setStatus(MessageEvent.Status.RECEIVED);
-		messageLogger.logMessageEvent(messageEvent);
+	}
+	
+	private MessageObject evaluateOutboundTransformerScript(MessageObject messageObject) throws TransformerException {
+		try {
+			Logger scriptLogger = Logger.getLogger("outbound-transformation");
+			Context context = Context.enter();
+			Scriptable scope = new ImporterTopLevel(context);
+
+			// load variables in JavaScript scope
+			scope.put("logger", scope, scriptLogger);
+			scope.put("message", scope, messageObject.getRawData());
+			scope.put("localMap", scope, messageObject.getVariableMap());
+			scope.put("globalMap", scope, GlobalVariableStore.getInstance());
+
+			StringBuilder jsSource = new StringBuilder();
+			jsSource.append("importPackage(Packages.com.webreach.mirth.server.util);");
+			jsSource.append("function doTransform() {");
+			jsSource.append("var msg = new XML(message); " + transformerScript + " }");
+			jsSource.append("doTransform()\n");
+
+			logger.debug("executing transformation script:\n" + jsSource.toString());
+			context.evaluateString(scope, jsSource.toString(), "<cmd>", 1, null);
+
+			// since the transformations occur on the template, pull it out of
+			// the scope
+			Object transformedData = scope.get("template", scope);
+			// set the transformedData to the template
+			messageObject.setTransformedData(Context.toString(transformedData));
+			// re-encode the data to ER7
+			if (messageObject.getTransformedDataProtocol().equals(MessageObject.Protocol.HL7)) {
+				ER7Serializer serializer = new ER7Serializer();
+				messageObject.setEncodedData(serializer.toXML(messageObject.getTransformedData()));
+			}
+
+			messageObject.setStatus(MessageObject.Status.TRANSFORMED);
+			return messageObject;
+		} catch (Exception e) {
+			messageObject.setStatus(MessageObject.Status.ERROR);
+			throw new TransformerException(this, e);
+		} finally {
+			Context.exit();
+		}
 	}
 }

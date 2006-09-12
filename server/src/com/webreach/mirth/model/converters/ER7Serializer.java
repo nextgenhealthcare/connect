@@ -39,6 +39,7 @@ public class ER7Serializer implements IXMLSerializer<String> {
 		pipeParser = new PipeParser();
 		pipeParser.setValidationContext(new NoValidation());
 		xmlParser = new DefaultXMLParser();
+		xmlParser.setValidationContext(new NoValidation());
 	}
 
 	/**
