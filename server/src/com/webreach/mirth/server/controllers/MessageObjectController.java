@@ -59,7 +59,7 @@ public class MessageObjectController {
 			
 			if (getMessageCount(filter) == 0) {
 				logger.debug("inserting message: id=" + messageObject.getId());
-				statement = "insert into messages (id, channel_id, date_created, status, raw_data, raw_data_protocol, transformed_data, transformed_data_protocol, encoded_data, encoded_data_protocol, variable_map) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+				statement = "insert into messages (id, channel_id, date_created, status, raw_data, raw_data_protocol, transformed_data, transformed_data_protocol, encoded_data, encoded_data_protocol, variable_map, destination) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
 				parameters.add(messageObject.getId());
 				parameters.add(messageObject.getChannelId());
@@ -188,6 +188,12 @@ public class MessageObjectController {
 		if (filter.getStatus() != null) {
 			select.addCriteria(new MatchCriteria(messages, "status", MatchCriteria.EQUALS, filter.getStatus().toString()));
 		}
+
+		// filter on destination
+		if (filter.getDestination() != null) {
+			select.addCriteria(new MatchCriteria(messages, "destination", MatchCriteria.EQUALS, filter.getDestination()));
+		}
+
 	}
 	
 	public void removeMessage(String messageObjectId) throws ControllerException {
@@ -197,10 +203,12 @@ public class MessageObjectController {
 
 		try {
 			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
-			StringBuilder statement = new StringBuilder();
-			statement.append("delete from messages");
-			statement.append(" where id = '" + messageObjectId + "';");
-			dbConnection.executeUpdate(statement.toString());
+			
+			String statement = "delete from messages where id = ?";
+			ArrayList<Object> parameters = new ArrayList<Object>();
+			parameters.add(messageObjectId);
+			
+			dbConnection.executeUpdate(statement, parameters);
 		} catch (SQLException e) {
 			throw new ControllerException(e);
 		} finally {
@@ -215,10 +223,12 @@ public class MessageObjectController {
 
 		try {
 			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
-			StringBuilder statement = new StringBuilder();
-			statement.append("delete from messages");
-			statement.append(" where channel_id = '" + channelId + "';");
-			dbConnection.executeUpdate(statement.toString());
+			
+			String statement = "delete from messages where channel_id = ?";
+			ArrayList<Object> parameters = new ArrayList<Object>();
+			parameters.add(channelId);
+			
+			dbConnection.executeUpdate(statement, parameters);
 		} catch (SQLException e) {
 			throw new ControllerException(e);
 		} finally {
@@ -262,6 +272,7 @@ public class MessageObjectController {
 			messageObject.setEncodedData(encodedData);
 			messageObject.setEncodedDataProtocol(MessageObject.Protocol.valueOf(result.getString("encoded_data_protocol")));
 			messageObject.setVariableMap((Map) serializer.fromXML(result.getString("variable_map")));
+			messageObject.setDestination(result.getString("destination"));
 			
 			messageObjects.add(messageObject);
 		}
