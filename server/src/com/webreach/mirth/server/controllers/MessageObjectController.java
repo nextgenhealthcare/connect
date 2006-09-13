@@ -59,11 +59,12 @@ public class MessageObjectController {
 			
 			if (getMessageCount(filter) == 0) {
 				logger.debug("inserting message: id=" + messageObject.getId());
-				statement = "insert into messages (id, channel_id, date_created, status, raw_data, raw_data_protocol, transformed_data, transformed_data_protocol, encoded_data, encoded_data_protocol, variable_map, destination) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+				statement = "insert into messages (id, channel_id, date_created, encrypted, status, raw_data, raw_data_protocol, transformed_data, transformed_data_protocol, encoded_data, encoded_data_protocol, variable_map, destination) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
 				parameters.add(messageObject.getId());
 				parameters.add(messageObject.getChannelId());
 				parameters.add(messageObject.getDateCreated());
+				parameters.add(messageObject.isEncrypted());
 				parameters.add(messageObject.getStatus());
 				parameters.add(rawData);
 				parameters.add(messageObject.getRawDataProtocol());
@@ -105,6 +106,7 @@ public class MessageObjectController {
 			select.addColumn(messages, "id");
 			select.addColumn(messages, "channel_id");
 			select.addColumn(messages, "date_created");
+			select.addColumn(messages, "encrypted");
 			select.addColumn(messages, "status");
 			select.addColumn(messages, "raw_data");
 			select.addColumn(messages, "raw_data_protocol");
@@ -113,6 +115,8 @@ public class MessageObjectController {
 			select.addColumn(messages, "encoded_data");
 			select.addColumn(messages, "encoded_data_protocol");
 			select.addColumn(messages, "variable_map");
+			select.addColumn(messages, "destination");
+			
 			addFilterCriteria(select, filter);
 			select.addOrder(messages, "date_created", Order.DESCENDING);
 			
@@ -273,6 +277,7 @@ public class MessageObjectController {
 			messageObject.setEncodedDataProtocol(MessageObject.Protocol.valueOf(result.getString("encoded_data_protocol")));
 			messageObject.setVariableMap((Map) serializer.fromXML(result.getString("variable_map")));
 			messageObject.setDestination(result.getString("destination"));
+			messageObject.setEncrypted(result.getBoolean("encrypted"));
 			
 			messageObjects.add(messageObject);
 		}
