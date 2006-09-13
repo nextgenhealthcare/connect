@@ -49,13 +49,13 @@ public class ChannelStatusServlet extends MirthServlet {
 				String operation = request.getParameter("op");
 
 				if (operation.equals("startChannel")) {
-					channelStatusController.startChannel(Integer.parseInt(request.getParameter("id")));
+					channelStatusController.startChannel(request.getParameter("id"));
 				} else if (operation.equals("stopChannel")) {
-					channelStatusController.stopChannel(Integer.parseInt(request.getParameter("id")));
+					channelStatusController.stopChannel(request.getParameter("id"));
 				} else if (operation.equals("pauseChannel")) {
-					channelStatusController.pauseChannel(Integer.parseInt(request.getParameter("id")));
+					channelStatusController.pauseChannel(request.getParameter("id"));
 				} else if (operation.equals("resumeChannel")) {
-					channelStatusController.resumeChannel(Integer.parseInt(request.getParameter("id")));
+					channelStatusController.resumeChannel(request.getParameter("id"));
 				} else if (operation.equals("getChannelStatusList")) {
 					response.setContentType("application/xml");
 					out.print(serializer.toXML(channelStatusController.getChannelStatusList()));

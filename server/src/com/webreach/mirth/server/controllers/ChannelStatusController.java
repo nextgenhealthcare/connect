@@ -26,7 +26,7 @@ public class ChannelStatusController {
 	 * @param channelId
 	 * @throws ControllerException
 	 */
-	public void startChannel(int channelId) throws ControllerException {
+	public void startChannel(String channelId) throws ControllerException {
 		logger.debug("starting channel: " + channelId);
 		
 		JMXConnection jmxConnection = null;
@@ -36,7 +36,7 @@ public class ChannelStatusController {
 			Hashtable<String, String> properties = new Hashtable<String, String>();
 			properties.put("type", "control");
 			properties.put("name", "ModelService");
-			String[] params = { String.valueOf(channelId) };
+			String[] params = { channelId };
 			String[] signature = { "java.lang.String" };
 			jmxConnection.invokeOperation(properties, "startComponent", params, signature);
 		} catch (Exception e) {
@@ -56,7 +56,7 @@ public class ChannelStatusController {
 	 * @param channelId
 	 * @throws ControllerException
 	 */
-	public void stopChannel(int channelId) throws ControllerException {
+	public void stopChannel(String channelId) throws ControllerException {
 		logger.debug("stopping channel: channelId=" + channelId);
 		
 		// if paused, must be resumed before stopped
@@ -72,7 +72,7 @@ public class ChannelStatusController {
 			Hashtable<String, String> properties = new Hashtable<String, String>();
 			properties.put("type", "control");
 			properties.put("name", "ModelService");
-			String[] params = { String.valueOf(channelId) };
+			String[] params = { channelId };
 			String[] signature = { "java.lang.String" };
 			jmxConnection.invokeOperation(properties, "stopComponent", params, signature);
 		} catch (Exception e) {
@@ -92,7 +92,7 @@ public class ChannelStatusController {
 	 * @param channelId
 	 * @throws ControllerException
 	 */
-	public void pauseChannel(int channelId) throws ControllerException {
+	public void pauseChannel(String channelId) throws ControllerException {
 		logger.debug("pausing channel: channelId=" + channelId);
 		
 		JMXConnection jmxConnection = null;
@@ -102,7 +102,7 @@ public class ChannelStatusController {
 			Hashtable<String, String> properties = new Hashtable<String, String>();
 			properties.put("type", "control");
 			properties.put("name", "ModelService");
-			String[] params = { String.valueOf(channelId) };
+			String[] params = { channelId };
 			String[] signature = { "java.lang.String" };
 			jmxConnection.invokeOperation(properties, "pauseComponent", params, signature);
 		} catch (Exception e) {
@@ -122,7 +122,7 @@ public class ChannelStatusController {
 	 * @param channelId
 	 * @throws ControllerException
 	 */
-	public void resumeChannel(int channelId) throws ControllerException {
+	public void resumeChannel(String channelId) throws ControllerException {
 		logger.debug("resuming channel: channelId=" + channelId);
 		
 		JMXConnection jmxConnection = null;
@@ -132,7 +132,7 @@ public class ChannelStatusController {
 			Hashtable<String, String> properties = new Hashtable<String, String>();
 			properties.put("type", "control");
 			properties.put("name", "ModelService");
-			String[] params = { String.valueOf(channelId) };
+			String[] params = { channelId };
 			String[] signature = { "java.lang.String" };
 			jmxConnection.invokeOperation(properties, "resumeComponent", params, signature);
 		} catch (Exception e) {
@@ -162,16 +162,16 @@ public class ChannelStatusController {
 			for (Iterator iter = deployedChannelIdList.iterator(); iter.hasNext();) {
 				String channelId = (String) iter.next();
 				ChannelStatus channelStatus = new ChannelStatus();
-				channelStatus.setChannelId(Integer.valueOf(channelId).intValue());
+				channelStatus.setChannelId(channelId);
 				
 				// check if the channel is running but has been removed from the channel list
-				if (channelController.getChannels(Integer.valueOf(channelId).intValue()).size() != 0) {
-					channelStatus.setName(channelController.getChannels(Integer.valueOf(channelId).intValue()).get(0).getName());	
+				if (channelController.getChannels(channelId).size() != 0) {
+					channelStatus.setName(channelController.getChannels(channelId).get(0).getName());	
 				} else {
 					channelStatus.setName("Channel has been deleted.");
 				}
 				
-				channelStatus.setState(getState(Integer.valueOf(channelId).intValue()));
+				channelStatus.setState(getState(channelId));
 				channelStatusList.add(channelStatus);
 			}
 			
@@ -231,7 +231,7 @@ public class ChannelStatusController {
 	 * @return
 	 * @throws ControllerException
 	 */
-	private ChannelStatus.State getState(int channelId) throws ControllerException {
+	private ChannelStatus.State getState(String channelId) throws ControllerException {
 		logger.debug("retrieving channel state: channelId=" + channelId);
 		
 		JMXConnection jmxConnection = null;

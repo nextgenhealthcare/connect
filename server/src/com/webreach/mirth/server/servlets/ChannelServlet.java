@@ -58,7 +58,7 @@ public class ChannelServlet extends MirthServlet {
 					out.print(channelController.updateChannel((Channel) serializer.fromXML(channel), override));
 				} else if (operation.equals("removeChannel")) {
 					String channelId = request.getParameter("data");
-					channelController.removeChannel(Integer.valueOf(channelId).intValue());
+					channelController.removeChannel(channelId);
 				}
 			} catch (Exception e) {
 				throw new ServletException(e);

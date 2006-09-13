@@ -66,7 +66,7 @@ public class MirthManager {
 	 * @param channelId
 	 * @throws MirthException
 	 */
-	public void removeChannel(int channelId) throws MirthException {
+	public void removeChannel(String channelId) throws MirthException {
 		try {
 			channelController.removeChannel(channelId);
 		} catch (ControllerException e) {
@@ -191,7 +191,7 @@ public class MirthManager {
 	 * @param channelId
 	 * @throws MirthException
 	 */
-	public void startChannel(int channelId) throws MirthException {
+	public void startChannel(String channelId) throws MirthException {
 		try {
 			channelStatusController.startChannel(channelId);
 		} catch (ControllerException e) {
@@ -205,7 +205,7 @@ public class MirthManager {
 	 * @param channelId
 	 * @throws MirthException
 	 */
-	public void stopChannel(int channelId) throws MirthException {
+	public void stopChannel(String channelId) throws MirthException {
 		try {
 			channelStatusController.stopChannel(channelId);
 		} catch (ControllerException e) {
@@ -219,7 +219,7 @@ public class MirthManager {
 	 * @param channelId
 	 * @throws MirthException
 	 */
-	public void pauseChannel(int channelId) throws MirthException {
+	public void pauseChannel(String channelId) throws MirthException {
 		try {
 			channelStatusController.pauseChannel(channelId);
 		} catch (ControllerException e) {
@@ -233,7 +233,7 @@ public class MirthManager {
 	 * @param channelId
 	 * @throws MirthException
 	 */
-	public void resumeChannel(int channelId) throws MirthException {
+	public void resumeChannel(String channelId) throws MirthException {
 		try {
 			channelStatusController.resumeChannel(channelId);
 		} catch (ControllerException e) {
@@ -247,7 +247,7 @@ public class MirthManager {
 	 * @return
 	 * @throws MirthException
 	 */
-	public ChannelStatistics getStatistics(int channelId) throws MirthException {
+	public ChannelStatistics getStatistics(String channelId) throws MirthException {
 		try {
 			return channelStatisticsController.getStatistics(channelId);
 		} catch (ControllerException e) {
@@ -261,7 +261,7 @@ public class MirthManager {
 	 * @param channelId
 	 * @throws MirthException
 	 */
-	public void clearStatistics(int channelId) throws MirthException {
+	public void clearStatistics(String channelId) throws MirthException {
 		try {
 			channelStatisticsController.clearStatistics(channelId);
 		} catch (ControllerException e) {

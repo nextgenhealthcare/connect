@@ -36,15 +36,15 @@ public class ChannelStatus {
 		STARTED, STOPPED, PAUSED
 	};
 
-	private int channelId;
+	private String channelId;
 	private String name;
 	private State state;
 
-	public int getChannelId() {
+	public String getChannelId() {
 		return this.channelId;
 	}
 
-	public void setChannelId(int channelId) {
+	public void setChannelId(String channelId) {
 		this.channelId = channelId;
 	}
 

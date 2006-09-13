@@ -38,7 +38,7 @@ public class ChannelController {
 	 *         otherwise.
 	 * @throws ControllerException
 	 */
-	public List<Channel> getChannels(Integer channelId) throws ControllerException {
+	public List<Channel> getChannels(String channelId) throws ControllerException {
 		logger.debug("retrieving channel list: channelId=" + channelId);
 
 		DatabaseConnection dbConnection = null;
@@ -54,7 +54,7 @@ public class ChannelController {
 			select.addColumn(channels, "channel_data");
 
 			if (channelId != null) {
-				select.addCriteria(new MatchCriteria(channels, "id", MatchCriteria.EQUALS, channelId.toString()));
+				select.addCriteria(new MatchCriteria(channels, "id", MatchCriteria.EQUALS, channelId));
 			}
 
 			result = dbConnection.executeQuery(select.toString());
@@ -80,7 +80,7 @@ public class ChannelController {
 		
 		while (result.next()) {
 			Channel channel = (Channel) serializer.fromXML(result.getString("channel_data"));
-			channel.setId(result.getInt("id"));
+			channel.setId(result.getString("id"));
 			channels.add(channel);
 		}
 
@@ -153,16 +153,18 @@ public class ChannelController {
 	 *            ID of channel to be removed.
 	 * @throws ControllerException
 	 */
-	public void removeChannel(int channelId) throws ControllerException {
+	public void removeChannel(String channelId) throws ControllerException {
 		logger.debug("removing channel: channelId=" + channelId);
 		DatabaseConnection dbConnection = null;
 
 		try {
 			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
-			StringBuilder statement = new StringBuilder();
-			statement.append("delete from channels");
-			statement.append(" where id = " + channelId + ";");
-			dbConnection.executeUpdate(statement.toString());
+			
+			String statement = "delete from channels where id = ?";
+			ArrayList<Object> parameters = new ArrayList<Object>();
+			parameters.add(channelId);
+			
+			dbConnection.executeUpdate(statement, parameters);
 		} catch (SQLException e) {
 			throw new ControllerException(e);
 		} finally {

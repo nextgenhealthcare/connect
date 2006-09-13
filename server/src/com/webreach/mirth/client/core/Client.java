@@ -135,9 +135,9 @@ public class Client {
 	 * @param channelId
 	 * @throws ClientException
 	 */
-	public synchronized void removeChannel(int channelId) throws ClientException {
+	public synchronized void removeChannel(String channelId) throws ClientException {
 		logger.debug("removing channel: channelId=" + channelId);
-		NameValuePair[] params = { new NameValuePair("op", "removeChannel"), new NameValuePair("data", String.valueOf(channelId)) };
+		NameValuePair[] params = { new NameValuePair("op", "removeChannel"), new NameValuePair("data", channelId) };
 		serverConnection.executePostMethod(CHANNEL_SERVLET, params);
 	}
 
@@ -242,9 +242,9 @@ public class Client {
 	 * @param channelId
 	 * @throws ClientException
 	 */
-	public synchronized void startChannel(int channelId) throws ClientException {
+	public synchronized void startChannel(String channelId) throws ClientException {
 		logger.debug("starting channel: channelId=" + channelId);
-		NameValuePair[] params = { new NameValuePair("op", "startChannel"), new NameValuePair("id", String.valueOf(channelId)) };
+		NameValuePair[] params = { new NameValuePair("op", "startChannel"), new NameValuePair("id", channelId) };
 		serverConnection.executePostMethod(CHANNEL_STATUS_SERVLET, params);
 	}
 
@@ -254,9 +254,9 @@ public class Client {
 	 * @param channelId
 	 * @throws ClientException
 	 */
-	public synchronized void stopChannel(int channelId) throws ClientException {
+	public synchronized void stopChannel(String channelId) throws ClientException {
 		logger.debug("stopping channel: channelId=" + channelId);
-		NameValuePair[] params = { new NameValuePair("op", "stopChannel"), new NameValuePair("id", String.valueOf(channelId)) };
+		NameValuePair[] params = { new NameValuePair("op", "stopChannel"), new NameValuePair("id", channelId) };
 		serverConnection.executePostMethod(CHANNEL_STATUS_SERVLET, params);	}
 
 	/**
@@ -265,9 +265,9 @@ public class Client {
 	 * @param channelId
 	 * @throws ClientException
 	 */
-	public synchronized void pauseChannel(int channelId) throws ClientException {
+	public synchronized void pauseChannel(String channelId) throws ClientException {
 		logger.debug("pausing channel: channelId=" + channelId);
-		NameValuePair[] params = { new NameValuePair("op", "pauseChannel"), new NameValuePair("id", String.valueOf(channelId)) };
+		NameValuePair[] params = { new NameValuePair("op", "pauseChannel"), new NameValuePair("id", channelId) };
 		serverConnection.executePostMethod(CHANNEL_STATUS_SERVLET, params);	}
 
 	/**
@@ -276,9 +276,9 @@ public class Client {
 	 * @param channelId
 	 * @throws ClientException
 	 */
-	public synchronized void resumeChannel(int channelId) throws ClientException {
+	public synchronized void resumeChannel(String channelId) throws ClientException {
 		logger.debug("resuming channel: channelId=" + channelId);
-		NameValuePair[] params = { new NameValuePair("op", "resumeChannel"), new NameValuePair("id", String.valueOf(channelId)) };
+		NameValuePair[] params = { new NameValuePair("op", "resumeChannel"), new NameValuePair("id", channelId) };
 		serverConnection.executePostMethod(CHANNEL_STATUS_SERVLET, params);	}
 
 	/**
@@ -287,9 +287,9 @@ public class Client {
 	 * @return
 	 * @throws ClientException
 	 */
-	public synchronized ChannelStatistics getStatistics(int channelId) throws ClientException {
+	public synchronized ChannelStatistics getStatistics(String channelId) throws ClientException {
 		logger.debug("retrieving channel statistics: channelId=" + channelId);
-		NameValuePair[] params = { new NameValuePair("op", "getStatistics"), new NameValuePair("id", String.valueOf(channelId)) };
+		NameValuePair[] params = { new NameValuePair("op", "getStatistics"), new NameValuePair("id", channelId) };
 		return (ChannelStatistics) serializer.fromXML(serverConnection.executePostMethod(CHANNEL_STATISTICS_SERVLET, params));
 	}
 
@@ -299,9 +299,9 @@ public class Client {
 	 * @param channelId
 	 * @throws ClientException
 	 */
-	public synchronized void clearStatistics(int channelId) throws ClientException {
+	public synchronized void clearStatistics(String channelId) throws ClientException {
 		logger.debug("clearing channel statistics: channelId=" + channelId);
-		NameValuePair[] params = { new NameValuePair("op", "clearStatistics"), new NameValuePair("id", String.valueOf(channelId)) };
+		NameValuePair[] params = { new NameValuePair("op", "clearStatistics"), new NameValuePair("id", channelId) };
 		serverConnection.executePostMethod(CHANNEL_STATISTICS_SERVLET, params);
 	}
 

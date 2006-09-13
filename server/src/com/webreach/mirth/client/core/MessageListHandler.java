@@ -53,7 +53,7 @@ public class MessageListHandler implements ListHandler {
 		NameValuePair[] params = { new NameValuePair("op", "getMessageCount"), new NameValuePair("filter", serializer.toXML(filter)) };
 		
 		try {
-			return Integer.parseInt(connection.executePostMethod(Client.LOGGER_SERVLET, params));	
+			return Integer.parseInt(connection.executePostMethod(Client.MESSAGE_SERVLET, params));	
 		} catch (ClientException e) {
 			throw new ListHandlerException(e);
 		}
@@ -71,7 +71,7 @@ public class MessageListHandler implements ListHandler {
 		NameValuePair[] params = { new NameValuePair("op", "getMessages"), new NameValuePair("filter", serializer.toXML(filter)) };
 		
 		try {
-			return (List<MessageObject>) serializer.fromXML(connection.executePostMethod(Client.LOGGER_SERVLET, params));	
+			return (List<MessageObject>) serializer.fromXML(connection.executePostMethod(Client.MESSAGE_SERVLET, params));	
 		} catch (ClientException e) {
 			throw new ListHandlerException(e);
 		}

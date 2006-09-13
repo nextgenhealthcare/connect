@@ -132,7 +132,7 @@ public class Shell {
 				}
 			} else if (command.equals("start") || command.equals("stop") || command.equals("resume") || command.equals("pause")) {
 				try {
-					int channelId = Integer.parseInt(arguments[1]);
+					String channelId = arguments[1];
 					
 					if (isValidChannel(channelId)) {
 						if (command.equals("start")) {
@@ -175,14 +175,14 @@ public class Shell {
 		}
 	}
 	
-	public boolean isValidChannel(int channelId) throws ClientException {
+	public boolean isValidChannel(String channelId) throws ClientException {
 		List<Channel> channels = client.getChannels();
 		boolean isVerifiedChannelId = false;
 		
 		for (Iterator iter = channels.iterator(); iter.hasNext();) {
 			Channel channel = (Channel) iter.next();
 			
-			if (channelId == channel.getId()) {
+			if (channelId.equals(channel.getId())) {
 				isVerifiedChannelId = true;
 			}
 		}

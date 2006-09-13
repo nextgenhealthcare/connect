@@ -46,7 +46,7 @@ public class ChannelStatisticsServlet extends MirthServlet {
 				ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 				PrintWriter out = response.getWriter();
 				String operation = request.getParameter("op");
-				int channelId = Integer.parseInt(request.getParameter("id"));
+				String channelId = request.getParameter("id");
 
 				if (operation.equals("getStatistics")) {
 					response.setContentType("application/xml");

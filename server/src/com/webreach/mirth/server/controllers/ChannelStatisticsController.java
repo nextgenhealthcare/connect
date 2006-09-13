@@ -26,7 +26,7 @@ import com.webreach.mirth.server.util.JMXConnectionFactory;
 public class ChannelStatisticsController {
 	private Logger logger = Logger.getLogger(this.getClass());
 
-	public ChannelStatistics getStatistics(int channelId) throws ControllerException {
+	public ChannelStatistics getStatistics(String channelId) throws ControllerException {
 		ChannelStatistics currentStatistics = getStatisticsObject(channelId);
 		
 		// this is a fix for Mule's double counting of received messages
@@ -43,7 +43,7 @@ public class ChannelStatisticsController {
 	 * @return
 	 * @throws ControllerException
 	 */
-	public ChannelStatistics getStatisticsObject(int channelId) throws ControllerException {
+	public ChannelStatistics getStatisticsObject(String channelId) throws ControllerException {
 		logger.debug("retrieving statistics: channelId=" + channelId);
 
 		DatabaseConnection dbConnection = null;
@@ -80,7 +80,7 @@ public class ChannelStatisticsController {
 		}
 	}
 
-	public void createStatistics(int channelId) throws ControllerException {
+	public void createStatistics(String channelId) throws ControllerException {
 		logger.debug("creating channel statistcs: channelId" + channelId);
 
 		DatabaseConnection dbConnection = null;
@@ -104,7 +104,7 @@ public class ChannelStatisticsController {
 		}
 	}
 
-	public void incReceivedCount(int channelId) throws ControllerException {
+	public void incReceivedCount(String channelId) throws ControllerException {
 		logger.debug("incrementing received count: channelId=" + channelId);
 
 		DatabaseConnection dbConnection = null;
@@ -129,7 +129,7 @@ public class ChannelStatisticsController {
 		}
 	}
 
-	public void incSentCount(int channelId) throws ControllerException {
+	public void incSentCount(String channelId) throws ControllerException {
 		logger.debug("incrementing sent count: channelId=" + channelId);
 
 		DatabaseConnection dbConnection = null;
@@ -154,7 +154,7 @@ public class ChannelStatisticsController {
 		}
 	}
 
-	public void incErrorCount(int channelId) throws ControllerException {
+	public void incErrorCount(String channelId) throws ControllerException {
 		logger.debug("incrementing error: channelId=" + channelId);
 
 		DatabaseConnection dbConnection = null;
@@ -185,7 +185,7 @@ public class ChannelStatisticsController {
 	 * @param channelId
 	 * @throws ControllerException
 	 */
-	public void clearStatistics(int channelId) throws ControllerException {
+	public void clearStatistics(String channelId) throws ControllerException {
 		logger.debug("clearing statistics: channelId=" + channelId);
 
 		// clear the stats in Mule
@@ -196,7 +196,7 @@ public class ChannelStatisticsController {
 			jmxConnection = JMXConnectionFactory.createJMXConnection();
 			Hashtable<String, String> properties = new Hashtable<String, String>();
 			properties.put("type", "statistics");
-			properties.put("name", String.valueOf(channelId));
+			properties.put("name", channelId);
 			jmxConnection.invokeOperation(properties, "clear", null, null);
 		} catch (Exception e) {
 			throw new ControllerException(e);
@@ -227,7 +227,7 @@ public class ChannelStatisticsController {
 		}
 	}
 
-	private int getSentCount(int channelId) {
+	private int getSentCount(String channelId) {
 		logger.debug("retrieving message sent count: channelId=" + channelId);
 
 		try {
@@ -239,7 +239,7 @@ public class ChannelStatisticsController {
 
 	// This is a hack to address the fact that this statistic is incorrectly
 	// incrememnted by 2 in Mule.
-	private int getReceivedCount(int channelId) {
+	private int getReceivedCount(String channelId) {
 		logger.debug("retrieving message received count: " + channelId);
 
 		JMXConnection jmxConnection = null;
@@ -248,7 +248,7 @@ public class ChannelStatisticsController {
 			jmxConnection = JMXConnectionFactory.createJMXConnection();
 			Hashtable<String, String> properties = new Hashtable<String, String>();
 			properties.put("type", "statistics");
-			properties.put("name", String.valueOf(channelId));
+			properties.put("name", channelId);
 			Double count = ((Long) jmxConnection.getAttribute(properties, "TotalEventsReceived")).doubleValue();
 			return Double.valueOf(Math.ceil(count / 2)).intValue();
 		} catch (Exception e) {
@@ -258,7 +258,7 @@ public class ChannelStatisticsController {
 		}
 	}
 
-	private int getErrorCount(int channelId) {
+	private int getErrorCount(String channelId) {
 		logger.debug("retrieving error count: channelId=" + channelId);
 
 		try {
@@ -268,14 +268,14 @@ public class ChannelStatisticsController {
 		}
 	}
 
-	private int getStatistic(int channelId, String statistic) throws ControllerException {
+	private int getStatistic(String channelId, String statistic) throws ControllerException {
 		JMXConnection jmxConnection = null;
 
 		try {
 			jmxConnection = JMXConnectionFactory.createJMXConnection();
 			Hashtable<String, String> properties = new Hashtable<String, String>();
 			properties.put("type", "statistics");
-			properties.put("name", String.valueOf(channelId));
+			properties.put("name", channelId);
 
 			return ((Long) jmxConnection.getAttribute(properties, statistic)).intValue();
 		} catch (Exception e) {

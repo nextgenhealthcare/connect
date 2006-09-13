@@ -89,7 +89,7 @@ public class ComponentStatistics implements Statistics
     {
     	// added to update stats
     	try {
-    		controller.incReceivedCount(Integer.parseInt(name));	
+    		controller.incReceivedCount(name);	
     	} catch (Exception e) {
     		e.printStackTrace();
     	}
@@ -101,7 +101,7 @@ public class ComponentStatistics implements Statistics
     {
     	// added to update stats
     	try {
-    		controller.incReceivedCount(Integer.parseInt(name));	
+    		controller.incReceivedCount(name);	
     	} catch (Exception e) {
     		e.printStackTrace();
     	}
@@ -113,7 +113,7 @@ public class ComponentStatistics implements Statistics
     {
     	// added to update stats
     	try {
-    		controller.incErrorCount(Integer.parseInt(name));	
+    		controller.incErrorCount(name);	
     	} catch (Exception e) {
     		e.printStackTrace();
     	}
@@ -125,7 +125,7 @@ public class ComponentStatistics implements Statistics
     {
     	// added to update stats
     	try {
-    		controller.incErrorCount(Integer.parseInt(name));	
+    		controller.incErrorCount(name);	
     	} catch (Exception e) {
     		e.printStackTrace();
     	}
@@ -137,7 +137,7 @@ public class ComponentStatistics implements Statistics
     {
     	// added to update stats
     	try {
-    		controller.incSentCount(Integer.parseInt(name));	
+    		controller.incSentCount(name);	
     	} catch (Exception e) {
     		e.printStackTrace();
     	}
@@ -149,7 +149,7 @@ public class ComponentStatistics implements Statistics
     {
     	// added to update stats
     	try {
-    		controller.incSentCount(Integer.parseInt(name));	
+    		controller.incSentCount(name);	
     	} catch (Exception e) {
     		e.printStackTrace();
     	}
