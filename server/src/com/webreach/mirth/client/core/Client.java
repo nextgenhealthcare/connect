@@ -36,12 +36,12 @@ import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.ChannelStatistics;
 import com.webreach.mirth.model.ChannelStatus;
 import com.webreach.mirth.model.DriverInfo;
-import com.webreach.mirth.model.MessageEvent;
+import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.model.Transport;
 import com.webreach.mirth.model.User;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
-import com.webreach.mirth.model.filters.MessageEventFilter;
+import com.webreach.mirth.model.filters.MessageObjectFilter;
 import com.webreach.mirth.model.filters.SystemEventFilter;
 
 public class Client {
@@ -54,7 +54,8 @@ public class Client {
 	public final static String CONFIGURATION_SERVLET = "/configuration";
 	public final static String CHANNEL_STATUS_SERVLET = "/channelstatus";
 	public final static String CHANNEL_STATISTICS_SERVLET = "/channelstatistics";
-	public final static String LOGGER_SERVLET = "/logger";
+	public final static String MESSAGE_SERVLET = "/messages";
+	public final static String EVENT_SERVLET = "/events";
 
 	/**
 	 * Instantiates a new Mirth client with a connection to the specified
@@ -314,7 +315,7 @@ public class Client {
 	public synchronized List<SystemEvent> getSystemEvents(SystemEventFilter filter) throws ClientException {
 		logger.debug("retrieving log event list");
 		NameValuePair[] params = { new NameValuePair("op", "getSystemEvents"), new NameValuePair("filter", serializer.toXML(filter)) };
-		return (List<SystemEvent>) serializer.fromXML(serverConnection.executePostMethod(LOGGER_SERVLET, params));
+		return (List<SystemEvent>) serializer.fromXML(serverConnection.executePostMethod(EVENT_SERVLET, params));
 	}
 
 	/**
@@ -325,7 +326,7 @@ public class Client {
 	public synchronized void clearSystemEvents() throws ClientException {
 		logger.debug("clearing system events");
 		NameValuePair[] params = { new NameValuePair("op", "clearSystemEvents") };
-		serverConnection.executePostMethod(LOGGER_SERVLET, params);
+		serverConnection.executePostMethod(EVENT_SERVLET, params);
 	}
 
 	/**
@@ -334,10 +335,10 @@ public class Client {
 	 * @param messageEventId
 	 * @throws ClientException
 	 */
-	public synchronized void removeMessageEvent(int messageEventId) throws ClientException {
-		logger.debug("removing message event: " + messageEventId);
-		NameValuePair[] params = { new NameValuePair("op", "removeMessageEvent"), new NameValuePair("data", String.valueOf(messageEventId)) };
-		serverConnection.executePostMethod(LOGGER_SERVLET, params);
+	public synchronized void removeMessage(String messageId) throws ClientException {
+		logger.debug("removing message: " + messageId);
+		NameValuePair[] params = { new NameValuePair("op", "removeMessage"), new NameValuePair("data", messageId) };
+		serverConnection.executePostMethod(MESSAGE_SERVLET, params);
 	}
 
 	/**
@@ -346,10 +347,10 @@ public class Client {
 	 * @param channelId
 	 * @throws ClientException
 	 */
-	public synchronized void clearMessageEvents(int channelId) throws ClientException {
-		logger.debug("clearing message events: " + channelId);
-		NameValuePair[] params = { new NameValuePair("op", "clearMessageEvents"), new NameValuePair("data", String.valueOf(channelId)) };
-		serverConnection.executePostMethod(LOGGER_SERVLET, params);
+	public synchronized void clearMessages(String channelId) throws ClientException {
+		logger.debug("clearing messages: " + channelId);
+		NameValuePair[] params = { new NameValuePair("op", "clearMessages"), new NameValuePair("data", channelId) };
+		serverConnection.executePostMethod(MESSAGE_SERVLET, params);
 	}
 
 	/**
@@ -359,13 +360,13 @@ public class Client {
 	 * @return
 	 * @throws ClientException
 	 */
-	public synchronized List<MessageEvent> getMessageEvents(MessageEventFilter filter) throws ClientException {
-		logger.debug("retrieving message event list");
-		NameValuePair[] params = { new NameValuePair("op", "getMessageEvents"), new NameValuePair("filter", serializer.toXML(filter)) };
-		return (List<MessageEvent>) serializer.fromXML(serverConnection.executePostMethod(LOGGER_SERVLET, params));
+	public synchronized List<MessageObject> getMessageEvents(MessageObjectFilter filter) throws ClientException {
+		logger.debug("retrieving messages");
+		NameValuePair[] params = { new NameValuePair("op", "getMessages"), new NameValuePair("filter", serializer.toXML(filter)) };
+		return (List<MessageObject>) serializer.fromXML(serverConnection.executePostMethod(MESSAGE_SERVLET, params));
 	}
 
-	public MessageListHandler getMessageListHandler(MessageEventFilter filter) {
+	public MessageListHandler getMessageListHandler(MessageObjectFilter filter) {
 		return new MessageListHandler(filter, serverConnection);
 	}
 	

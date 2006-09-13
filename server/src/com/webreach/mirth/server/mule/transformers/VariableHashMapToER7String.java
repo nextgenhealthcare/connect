@@ -3,7 +3,7 @@ package com.webreach.mirth.server.mule.transformers;
 import org.mule.transformers.AbstractTransformer;
 import org.mule.umo.transformer.TransformerException;
 
-import com.webreach.mirth.server.mule.MessageObject;
+import com.webreach.mirth.model.MessageObject;
 
 public class VariableHashMapToER7String extends AbstractTransformer {
 	public VariableHashMapToER7String() {

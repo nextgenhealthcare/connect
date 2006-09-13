@@ -5,23 +5,23 @@ import java.util.List;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.log4j.Logger;
 
-import com.webreach.mirth.model.MessageEvent;
+import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
-import com.webreach.mirth.model.filters.MessageEventFilter;
+import com.webreach.mirth.model.filters.MessageObjectFilter;
 
 public class MessageListHandler implements ListHandler {
 	private Logger logger = Logger.getLogger(this.getClass());
-	private MessageEventFilter filter;
+	private MessageObjectFilter filter;
 	private ServerConnection connection;
 	private ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 	private int currentPage;
 	
-	public MessageListHandler(MessageEventFilter filter, ServerConnection connection) {
+	public MessageListHandler(MessageObjectFilter filter, ServerConnection connection) {
 		this.filter = filter;
 		this.connection = connection;
 	}
 	
-	public List<MessageEvent> getFirstPage() throws ListHandlerException {
+	public List<MessageObject> getFirstPage() throws ListHandlerException {
 		logger.debug("retrieving first page of " + filter.getPageSize() + " results");
 		
 		currentPage = 0;
@@ -29,7 +29,7 @@ public class MessageListHandler implements ListHandler {
 		return getPage(filter);
 	}
 	
-	public List<MessageEvent> getNextPage() throws ListHandlerException  {
+	public List<MessageObject> getNextPage() throws ListHandlerException  {
 		logger.debug("retrieving next page of " + filter.getPageSize() + " results");
 		
 		currentPage++;
@@ -37,7 +37,7 @@ public class MessageListHandler implements ListHandler {
 		return getPage(filter);		
 	}
 
-	public List<MessageEvent> getPreviousPage() throws ListHandlerException  {
+	public List<MessageObject> getPreviousPage() throws ListHandlerException  {
 		logger.debug("retrieving previous page of " + filter.getPageSize() + " results");
 		
 		if (currentPage > 0) {
@@ -50,7 +50,7 @@ public class MessageListHandler implements ListHandler {
 	}
 	
 	public int getSize() throws ListHandlerException {
-		NameValuePair[] params = { new NameValuePair("op", "getMessageEventsCount"), new NameValuePair("filter", serializer.toXML(filter)) };
+		NameValuePair[] params = { new NameValuePair("op", "getMessageCount"), new NameValuePair("filter", serializer.toXML(filter)) };
 		
 		try {
 			return Integer.parseInt(connection.executePostMethod(Client.LOGGER_SERVLET, params));	
@@ -67,11 +67,11 @@ public class MessageListHandler implements ListHandler {
 		currentPage = 0;
 	}
 	
-	private List<MessageEvent> getPage(MessageEventFilter filter) throws ListHandlerException {
-		NameValuePair[] params = { new NameValuePair("op", "getMessageEvents"), new NameValuePair("filter", serializer.toXML(filter)) };
+	private List<MessageObject> getPage(MessageObjectFilter filter) throws ListHandlerException {
+		NameValuePair[] params = { new NameValuePair("op", "getMessages"), new NameValuePair("filter", serializer.toXML(filter)) };
 		
 		try {
-			return (List<MessageEvent>) serializer.fromXML(connection.executePostMethod(Client.LOGGER_SERVLET, params));	
+			return (List<MessageObject>) serializer.fromXML(connection.executePostMethod(Client.LOGGER_SERVLET, params));	
 		} catch (ClientException e) {
 			throw new ListHandlerException(e);
 		}

@@ -47,15 +47,27 @@
 	</servlet-mapping>
 
 	<servlet>
-		<servlet-name>Logger</servlet-name>
+		<servlet-name>SystemEvent</servlet-name>
 		<servlet-class>
-			com.webreach.mirth.server.servlets.LoggerServlet
+			com.webreach.mirth.server.servlets.SystemEventServlet
 		</servlet-class>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>Logger</servlet-name>
-		<url-pattern>/logger</url-pattern>
+		<servlet-name>SystemEvent</servlet-name>
+		<url-pattern>/events</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>MessageObject</servlet-name>
+		<servlet-class>
+			com.webreach.mirth.server.servlets.MessageObjectServlet
+		</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>MessageObject</servlet-name>
+		<url-pattern>/messages</url-pattern>
 	</servlet-mapping>
 
 	<servlet>

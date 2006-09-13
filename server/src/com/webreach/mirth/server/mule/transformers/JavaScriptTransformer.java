@@ -7,16 +7,27 @@ import org.mozilla.javascript.Scriptable;
 import org.mule.transformers.AbstractTransformer;
 import org.mule.umo.transformer.TransformerException;
 
+import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.converters.ER7Serializer;
-import com.webreach.mirth.server.mule.MessageObject;
+import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.mule.util.GlobalVariableStore;
 
 public class JavaScriptTransformer extends AbstractTransformer {
 	private Logger logger = Logger.getLogger(this.getClass());
+	private MessageObjectController messageObjectController = new MessageObjectController();
 	private String transformerScript;
 	private String filterScript;
 	private String direction;
-	
+	private String channelId;
+
+	public String getChannelId() {
+		return this.channelId;
+	}
+
+	public void setChannelId(String channelId) {
+		this.channelId = channelId;
+	}
+
 	public String getDirection() {
 		return this.direction;
 	}
@@ -66,13 +77,13 @@ public class JavaScriptTransformer extends AbstractTransformer {
 
 			// load variables in JavaScript scope
 			scope.put("logger", scope, scriptLogger);
-			
+
 			if (direction.equals("inbound")) {
-				scope.put("message", scope, messageObject.getTransformedData());	
+				scope.put("message", scope, messageObject.getTransformedData());
 			} else {
 				scope.put("message", scope, messageObject.getRawData());
 			}
-			
+
 			scope.put("localMap", scope, messageObject.getVariableMap());
 			scope.put("globalMap", scope, GlobalVariableStore.getInstance());
 
@@ -90,16 +101,19 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			logger.debug("executing filter script:\n" + jsSource.toString());
 			Object result = context.evaluateString(scope, jsSource.toString(), "<cmd>", 1, null);
 			boolean messageAccepted = ((Boolean) Context.jsToJava(result, java.lang.Boolean.class)).booleanValue();
-			
+
 			if (messageAccepted) {
 				messageObject.setStatus(MessageObject.Status.ACCEPTED);
 			} else {
 				messageObject.setStatus(MessageObject.Status.REJECTED);
 			}
-			
+
+			messageObjectController.updateMessage(messageObject);
 			return messageAccepted;
 		} catch (Exception e) {
 			logger.error(e);
+			messageObject.setStatus(MessageObject.Status.REJECTED);
+			messageObjectController.updateMessage(messageObject);
 			return false;
 		} finally {
 			Context.exit();
@@ -141,15 +155,17 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			}
 
 			messageObject.setStatus(MessageObject.Status.TRANSFORMED);
+			messageObjectController.updateMessage(messageObject);
 			return messageObject;
 		} catch (Exception e) {
 			messageObject.setStatus(MessageObject.Status.ERROR);
+			messageObjectController.updateMessage(messageObject);
 			throw new TransformerException(this, e);
 		} finally {
 			Context.exit();
 		}
 	}
-	
+
 	private MessageObject evaluateOutboundTransformerScript(MessageObject messageObject) throws TransformerException {
 		try {
 			Logger scriptLogger = Logger.getLogger("outbound-transformation");
@@ -183,9 +199,11 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			}
 
 			messageObject.setStatus(MessageObject.Status.TRANSFORMED);
+			messageObjectController.updateMessage(messageObject);
 			return messageObject;
 		} catch (Exception e) {
 			messageObject.setStatus(MessageObject.Status.ERROR);
+			messageObjectController.updateMessage(messageObject);
 			throw new TransformerException(this, e);
 		} finally {
 			Context.exit();

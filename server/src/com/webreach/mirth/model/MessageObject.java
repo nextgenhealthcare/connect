@@ -1,4 +1,4 @@
-package com.webreach.mirth.server.mule;
+package com.webreach.mirth.model;
 
 import java.io.Serializable;
 import java.util.Calendar;
@@ -14,15 +14,25 @@ public class MessageObject implements Serializable {
 		UNKNOWN, RECEIVED, ACCEPTED, REJECTED, TRANSFORMED, ERROR, SENT
 	}
 
+	private String id;
 	private String channelId;
 	private Status status;
-	private Calendar dateReceived;
+	private Calendar dateCreated;
 	private String rawData;
 	private Protocol rawDataProtocol;
 	private String transformedData;
 	private Protocol transformedDataProtocol;
 	private String encodedData;
 	private Map variableMap;
+	private boolean encrypted;
+
+	public String getId() {
+		return this.id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
 
 	public MessageObject() {
 		this.variableMap = new HashMap();
@@ -45,12 +55,12 @@ public class MessageObject implements Serializable {
 		this.status = status;
 	}
 
-	public Calendar getDateReceived() {
-		return this.dateReceived;
+	public Calendar getDateCreated() {
+		return this.dateCreated;
 	}
 
-	public void setDateReceived(Calendar dateReceived) {
-		this.dateReceived = dateReceived;
+	public void setDateCreated(Calendar dateCreated) {
+		this.dateCreated = dateCreated;
 	}
 
 	public String getEncodedData() {
@@ -100,4 +110,13 @@ public class MessageObject implements Serializable {
 	public void setVariableMap(Map variableMap) {
 		this.variableMap = variableMap;
 	}
+
+	public boolean isEncrypted() {
+		return this.encrypted;
+	}
+
+	public void setEncrypted(boolean encrypted) {
+		this.encrypted = encrypted;
+	}
+
 }

@@ -1,18 +1,17 @@
 package com.webreach.mirth.server.mule.transformers;
 
+import java.util.UUID;
+
 import org.apache.log4j.Logger;
-import org.mule.impl.UMODescriptorAware;
 import org.mule.transformers.AbstractTransformer;
-import org.mule.umo.UMODescriptor;
 import org.mule.umo.transformer.TransformerException;
 
+import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.converters.ER7Serializer;
-import com.webreach.mirth.server.mule.MessageObject;
 
-public class HL7ToMessageObject extends AbstractTransformer implements UMODescriptorAware {
+public class HL7ToMessageObject extends AbstractTransformer {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private ER7Serializer serializer = new ER7Serializer();
-	private UMODescriptor descriptor;
 
 	public HL7ToMessageObject() {
 		super();
@@ -20,21 +19,24 @@ public class HL7ToMessageObject extends AbstractTransformer implements UMODescri
 		setReturnClass(MessageObject.class);
 	}
 
-	public void setDescriptor(UMODescriptor descriptor) {
-		this.descriptor = descriptor;
-	}
-
 	@Override
 	public Object doTransform(Object src) throws TransformerException {
-		logger.debug("creating new message object from source: " + src);
 		String rawData = (String) src;
-
+		String uniqueId = UUID.randomUUID().toString();
+		
+		logger.debug("creating new message object: id=" + uniqueId);
+		
 		MessageObject messageObject = new MessageObject();
-		messageObject.setChannelId(descriptor.getName());
+		messageObject.setId(uniqueId);
 		messageObject.setRawData(rawData);
 		messageObject.setRawDataProtocol(MessageObject.Protocol.HL7);
 		messageObject.setTransformedData(sanitize(serializer.toXML(rawData)));
 		messageObject.setTransformedDataProtocol(MessageObject.Protocol.HL7);
+		messageObject.setStatus(MessageObject.Status.RECEIVED);
+		
+		// TODO: set this based on channel properties
+		messageObject.setEncrypted(false);
+		
 		return messageObject;
 	}
 

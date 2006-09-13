@@ -8,18 +8,18 @@ import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.ChannelStatistics;
 import com.webreach.mirth.model.ChannelStatus;
 import com.webreach.mirth.model.DriverInfo;
-import com.webreach.mirth.model.MessageEvent;
+import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.model.Transport;
 import com.webreach.mirth.model.User;
-import com.webreach.mirth.model.filters.MessageEventFilter;
+import com.webreach.mirth.model.filters.MessageObjectFilter;
 import com.webreach.mirth.model.filters.SystemEventFilter;
 import com.webreach.mirth.server.controllers.ChannelController;
 import com.webreach.mirth.server.controllers.ChannelStatisticsController;
 import com.webreach.mirth.server.controllers.ChannelStatusController;
 import com.webreach.mirth.server.controllers.ConfigurationController;
 import com.webreach.mirth.server.controllers.ControllerException;
-import com.webreach.mirth.server.controllers.MessageLogger;
+import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.controllers.SystemLogger;
 import com.webreach.mirth.server.controllers.UserController;
 
@@ -28,7 +28,7 @@ public class MirthManager {
 	private ChannelStatusController channelStatusController = new ChannelStatusController();
 	private ChannelStatisticsController channelStatisticsController = new ChannelStatisticsController();
 	private ConfigurationController configurationController = new ConfigurationController();
-	private MessageLogger messageLogger = new MessageLogger();
+	private MessageObjectController messageObjectController = new MessageObjectController();
 	private SystemLogger systemLogger = new SystemLogger();
 	private UserController userController = new UserController();
 
@@ -300,12 +300,12 @@ public class MirthManager {
 	/**
 	 * Removes the message event with the specified id.
 	 * 
-	 * @param messageEventId
+	 * @param messageId
 	 * @throws MirthException
 	 */
-	public void removeMessageEvent(int messageEventId) throws MirthException {
+	public void removeMessage(String messageId) throws MirthException {
 		try {
-			messageLogger.removeMessageEvent(messageEventId);
+			messageObjectController.removeMessage(messageId);
 		} catch (ControllerException e) {
 			throw new MirthException(e);
 		}
@@ -317,9 +317,9 @@ public class MirthManager {
 	 * @param channelId
 	 * @throws MirthException
 	 */
-	public void clearMessageEvents(int channelId) throws MirthException {
+	public void clearMessages(String channelId) throws MirthException {
 		try {
-			messageLogger.clearMessageEvents(channelId);
+			messageObjectController.clearMessages(channelId);
 		} catch (ControllerException e) {
 			throw new MirthException(e);
 		}
@@ -332,9 +332,9 @@ public class MirthManager {
 	 * @return
 	 * @throws MirthException
 	 */
-	public List<MessageEvent> getMessageEvents(MessageEventFilter filter) throws MirthException {
+	public List<MessageObject> getMessages(MessageObjectFilter filter) throws MirthException {
 		try {
-			return messageLogger.getMessageEvents(filter);
+			return messageObjectController.getMessages(filter);
 		} catch (ControllerException e) {
 			throw new MirthException(e);
 		}

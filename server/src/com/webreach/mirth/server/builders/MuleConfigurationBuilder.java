@@ -179,7 +179,7 @@ public class MuleConfigurationBuilder {
 				routerElement.setAttribute("className", "org.mule.routing.inbound.SelectiveConsumer");
 
 				Element filterElement = document.createElement("filter");
-				filterElement.setAttribute("className", "com.webreach.mirth.server.mule.filters.MessageObjectFilter");
+				filterElement.setAttribute("className", "com.webreach.mirth.server.mule.filters.ValidMessageFilter");
 
 				routerElement.appendChild(filterElement);
 				inboundRouterElement.appendChild(routerElement);
@@ -235,7 +235,7 @@ public class MuleConfigurationBuilder {
 				if (channel.getMode().equals(Channel.Mode.ROUTER)) {
 					// add the filter
 					Element filterElement = document.createElement("filter");
-					filterElement.setAttribute("className", "com.webreach.mirth.server.mule.filters.MessageObjectFilter");
+					filterElement.setAttribute("className", "com.webreach.mirth.server.mule.filters.ValidMessageFilter");
 					endpointElement.appendChild(filterElement);
 				}
 
@@ -257,11 +257,10 @@ public class MuleConfigurationBuilder {
 			transformerElement.setAttribute("className", "com.webreach.mirth.server.mule.transformers.JavaScriptTransformer");
 
 			Properties properties = new Properties();
-			// add the transformer script properties
-			properties.put("transformerScript", transformerBuilder.getScript(connector.getTransformer(), channel));
-			// add the filter script properties
-			properties.put("filterScript", filterBuilder.getScript(connector.getFilter(), channel));
+			properties.put("channelId", channel.getId());
 			properties.put("direction", channel.getDirection().toString().toLowerCase());
+			properties.put("transformerScript", transformerBuilder.getScript(connector.getTransformer(), channel));
+			properties.put("filterScript", filterBuilder.getScript(connector.getFilter(), channel));
 			transformerElement.appendChild(getProperties(document, properties));
 
 			transformersElement.appendChild(transformerElement);
