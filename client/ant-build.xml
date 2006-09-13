@@ -21,7 +21,7 @@
 
 	<target name="compile" depends="clean, init">
 		<mkdir dir="${classes}" />
-		<javac srcdir="${src}" destdir="${classes}" debug="on">
+		<javac srcdir="${src}" destdir="${classes}" debug="${javac.debug}" verbose="${javac.verbose}" deprecation="${javac.deprecation}" optimize="${javac.optimize}">
 			<classpath refid="classpath" />
 		</javac>
 
@@ -37,7 +37,7 @@
 		<mkdir dir="${dist}" />
 		<mkdir dir="${dist.source}" />
 
-		<jar destfile="${dist}/mirth-client.jar" basedir="${classes}" />
+		<jar destfile="${dist}/${client.jar}" basedir="${classes}" />
 
 		<!-- copy source files -->
 		<copy todir="${dist.source}">
