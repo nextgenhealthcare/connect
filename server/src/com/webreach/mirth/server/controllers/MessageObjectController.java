@@ -76,7 +76,7 @@ public class MessageObjectController {
 				parameters.add(messageObject.getDestination());
 			} else {
 				logger.debug("updating message: id=" + messageObject.getId());
-				statement = "updated messages set status = ?, raw_data = ?, transformed_data = ?, encoded_data = ?, variable_map = ? where id = ?";
+				statement = "update messages set status = ?, raw_data = ?, transformed_data = ?, encoded_data = ?, variable_map = ? where id = ?";
 
 				parameters.add(messageObject.getStatus());
 				parameters.add(rawData);
