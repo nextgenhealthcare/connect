@@ -1315,10 +1315,10 @@ public class Frame extends JXFrame
             alertException(e.getStackTrace(), e.getMessage());
             return;
         }
-        int channelId = channels.get(channelListPage.getSelectedChannel()).getId();
+        String channelId = channels.get(channelListPage.getSelectedChannel()).getId();
         for (int i = 0; i < status.size(); i ++)
         {
-            if (status.get(i).getChannelId() == channelId)
+            if (status.get(i).getChannelId().equals(channelId));
             {
                 alertWarning("You may not delete a deployed channel.\nPlease re-deploy without it enabled first.");
                 return;
@@ -1345,7 +1345,7 @@ public class Frame extends JXFrame
 
     public void doRefreshChannels()
     {
-        int channelId = UIConstants.ERROR_CONSTANT;
+        String channelId = "";
         String channelName = null;
 
         if(channelListPage.getSelectedChannel() != UIConstants.ERROR_CONSTANT)
@@ -1717,7 +1717,7 @@ public class Frame extends JXFrame
 
                 try
                 {
-                    importChannel.setId(mirthClient.getNextId());
+                    importChannel.setId(mirthClient.getGuid());
                     importChannel.setRevision(0);
                     channels.add(importChannel);
                     editChannel(channels.size()-1);
@@ -1842,7 +1842,7 @@ public class Frame extends JXFrame
         {
             try
             {
-                mirthClient.clearMessageEvents(status.get(statusListPage.getSelectedStatus()).getChannelId());
+                mirthClient.clearMessages(status.get(statusListPage.getSelectedStatus()).getChannelId());
             }
             catch (ClientException e)
             {
@@ -1858,7 +1858,7 @@ public class Frame extends JXFrame
         {
             try
             {
-                mirthClient.removeMessageEvent(messageBrowser.getSelectedMessageID());
+                mirthClient.removeMessage(messageBrowser.getSelectedMessageID());
             }
             catch (ClientException e)
             {
