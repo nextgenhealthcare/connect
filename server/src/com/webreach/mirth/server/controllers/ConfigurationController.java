@@ -38,6 +38,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.UUID;
 
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
@@ -204,6 +205,10 @@ public class ConfigurationController {
 		}
 
 		return id;
+	}
+	
+	public String getGuid() throws ControllerException {
+		return UUID.randomUUID().toString();
 	}
 
 	/**

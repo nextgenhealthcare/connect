@@ -226,6 +226,18 @@ public class Client {
 	}
 
 	/**
+	 * Returns a globaly unique id.
+	 * 
+	 * @return
+	 * @throws ClientException
+	 */
+	public synchronized String getGuid() throws ClientException {
+		logger.debug("retrieving next guid");
+		NameValuePair[] params = { new NameValuePair("op", "getGuid") };
+		return serverConnection.executePostMethod(CONFIGURATION_SERVLET, params);
+	}
+
+	/**
 	 * Deploys all channels.
 	 * 
 	 * @throws ClientException

@@ -37,7 +37,7 @@ import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.server.controllers.ConfigurationController;
 
 public class ConfigurationServlet extends MirthServlet {
-	private	ConfigurationController configurationController = new ConfigurationController();
+	private ConfigurationController configurationController = new ConfigurationController();
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		if (!isUserLoggedIn(request.getSession())) {
@@ -60,6 +60,9 @@ public class ConfigurationServlet extends MirthServlet {
 				} else if (operation.equals("getNextId")) {
 					response.setContentType("text/plain");
 					out.print(configurationController.getNextId());
+				} else if (operation.equals("getGuid")) {
+					response.setContentType("text/plain");
+					out.print(configurationController.getGuid());
 				} else if (operation.equals("deployChannels")) {
 					configurationController.deployChannels();
 				} else if (operation.equals("getDatabaseDrivers")) {
