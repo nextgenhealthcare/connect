@@ -259,6 +259,7 @@ public class MuleConfigurationBuilder {
 			Properties properties = new Properties();
 			properties.put("channelId", channel.getId());
 			properties.put("direction", channel.getDirection().toString().toLowerCase());
+			properties.put("encryptData", channel.getProperties().get("encryptData"));
 			properties.put("transformerScript", transformerBuilder.getScript(connector.getTransformer(), channel));
 			properties.put("filterScript", filterBuilder.getScript(connector.getFilter(), channel));
 			transformerElement.appendChild(getProperties(document, properties));

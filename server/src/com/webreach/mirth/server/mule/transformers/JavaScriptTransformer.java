@@ -21,6 +21,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 	private String filterScript;
 	private String direction;
 	private String channelId;
+	private boolean encryptData;
 
 	public String getChannelId() {
 		return this.channelId;
@@ -54,12 +55,20 @@ public class JavaScriptTransformer extends AbstractTransformer {
 		this.transformerScript = transformerScript;
 	}
 
+	public boolean isEncryptData() {
+		return this.encryptData;
+	}
+
+	public void setEncryptData(boolean encryptData) {
+		this.encryptData = encryptData;
+	}
+
 	@Override
 	public Object doTransform(Object src) throws TransformerException {
 		MessageObject messageObject = (MessageObject) src;
 
 		initializeMessage(messageObject);
-		
+
 		if (direction.equals("inbound")) {
 			if (evaluateFilterScript(messageObject)) {
 				return evaluateInboundTransformerScript(messageObject);
@@ -76,7 +85,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 	private boolean evaluateFilterScript(MessageObject messageObject) {
 		try {
 			Logger scriptLogger = Logger.getLogger("filter");
-			
+
 			Context context = Context.enter();
 			Scriptable scope = new ImporterTopLevel(context);
 
@@ -214,9 +223,13 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			Context.exit();
 		}
 	}
-	
+
 	private void initializeMessage(MessageObject messageObject) {
-		messageObject.setId(UUID.randomUUID().toString());
+		String guid = UUID.randomUUID().toString();
+		logger.debug("initializing message: id=" + guid);
+		messageObject.setId(guid);
 		messageObject.setDestination(getName());
+		messageObject.setEncrypted(encryptData);
+		messageObject.setChannelId(channelId);
 	}
 }
