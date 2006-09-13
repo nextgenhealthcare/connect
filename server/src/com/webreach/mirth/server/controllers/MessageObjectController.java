@@ -26,11 +26,6 @@ public class MessageObjectController {
 	private ConfigurationController configurationController = new ConfigurationController();
 	private	Table messages = new Table("messages");
 
-	/**
-	 * Adds a new message to the message store.
-	 * 
-	 * @param messageObject
-	 */
 	public void updateMessage(MessageObject messageObject) {
 		logger.debug("updating message: channelId=" + messageObject.getChannelId());
 
@@ -70,25 +65,20 @@ public class MessageObjectController {
 				parameters.add(messageObject.getChannelId());
 				parameters.add(messageObject.getDateCreated());
 				parameters.add(messageObject.getStatus());
-				
 				parameters.add(rawData);
 				parameters.add(messageObject.getRawDataProtocol());
 				parameters.add(transformedData);
 				parameters.add(messageObject.getTransformedDataProtocol());
 				parameters.add(encodedData);
-				
 				parameters.add(serializer.toXML(messageObject.getVariableMap()));
 			} else {
 				logger.debug("updating message: id=" + messageObject.getId());
 				statement = "updated messages set status = ?, raw_data = ?, transformed_data = ?, encoded_data = ?, variable_map = ? where id = ?";
 
 				parameters.add(messageObject.getStatus());
-				
-				// TODO: use encrypted versions
-				parameters.add(messageObject.getRawData());
-				parameters.add(messageObject.getTransformedData());
-				parameters.add(messageObject.getEncodedData());
-				
+				parameters.add(rawData);
+				parameters.add(transformedData);
+				parameters.add(encodedData);
 				parameters.add(serializer.toXML(messageObject.getVariableMap()));
 				parameters.add(messageObject.getId());
 			}
@@ -114,17 +104,13 @@ public class MessageObjectController {
 			select.addColumn(messages, "channel_id");
 			select.addColumn(messages, "date_created");
 			select.addColumn(messages, "status");
-			
 			select.addColumn(messages, "raw_data");
 			select.addColumn(messages, "raw_data_protocol");
 			select.addColumn(messages, "transformed_data");
 			select.addColumn(messages, "transformed_data_protocol");
 			select.addColumn(messages, "encoded_data");
-			
 			select.addColumn(messages, "variable_map");
-
 			addFilterCriteria(select, filter);
-			
 			select.addOrder(messages, "date_created", Order.DESCENDING);
 			
 			String query = select.toString();
@@ -201,11 +187,6 @@ public class MessageObjectController {
 		}
 	}
 	
-	/**
-	 * Removes the message with the specified id.
-	 * 
-	 * @param messageObjectId
-	 */
 	public void removeMessage(String messageObjectId) throws ControllerException {
 		logger.debug("removing message: id=" + messageObjectId);
 
@@ -224,11 +205,6 @@ public class MessageObjectController {
 		}
 	}
 
-	/**
-	 * Clears the message list for the channel with the specified id.
-	 * 
-	 * @param channelId
-	 */
 	public void clearMessages(String channelId) throws ControllerException {
 		logger.debug("clearing message events: " + channelId);
 
@@ -249,8 +225,8 @@ public class MessageObjectController {
 
 	private List<MessageObject> getMessageList(ResultSet result) throws SQLException {
 		ArrayList<MessageObject> messageObjects = new ArrayList<MessageObject>();
-		Encrypter encrypter = new Encrypter(configurationController.getEncryptionKey());
 		ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+		Encrypter encrypter = new Encrypter(configurationController.getEncryptionKey());
 
 		while (result.next()) {
 			MessageObject messageObject = new MessageObject();
@@ -267,9 +243,9 @@ public class MessageObjectController {
 			String encodedData;
 
 			if (messageObject.isEncrypted()) {
-				rawData = encrypter.decrypt(result.getString("message"));
-				transformedData = encrypter.decrypt(result.getString("message"));
-				encodedData = encrypter.decrypt(result.getString("message"));
+				rawData = encrypter.decrypt(result.getString("raw_data"));
+				transformedData = encrypter.decrypt(result.getString("transformed_data"));
+				encodedData = encrypter.decrypt(result.getString("encoded_data"));
 			} else {
 				rawData = result.getString("raw_data");
 				transformedData = result.getString("transformed_data");
@@ -288,5 +264,4 @@ public class MessageObjectController {
 
 		return messageObjects;
 	}
-
 }
