@@ -1,5 +1,7 @@
 package com.webreach.mirth.server.mule.transformers;
 
+import java.util.UUID;
+
 import org.apache.log4j.Logger;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ImporterTopLevel;
@@ -56,6 +58,8 @@ public class JavaScriptTransformer extends AbstractTransformer {
 	public Object doTransform(Object src) throws TransformerException {
 		MessageObject messageObject = (MessageObject) src;
 
+		initializeMessage(messageObject);
+		
 		if (direction.equals("inbound")) {
 			if (evaluateFilterScript(messageObject)) {
 				return evaluateInboundTransformerScript(messageObject);
@@ -72,6 +76,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 	private boolean evaluateFilterScript(MessageObject messageObject) {
 		try {
 			Logger scriptLogger = Logger.getLogger("filter");
+			
 			Context context = Context.enter();
 			Scriptable scope = new ImporterTopLevel(context);
 
@@ -208,5 +213,10 @@ public class JavaScriptTransformer extends AbstractTransformer {
 		} finally {
 			Context.exit();
 		}
+	}
+	
+	private void initializeMessage(MessageObject messageObject) {
+		messageObject.setId(UUID.randomUUID().toString());
+		messageObject.setDestination(getName());
 	}
 }

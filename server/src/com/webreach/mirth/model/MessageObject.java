@@ -23,7 +23,9 @@ public class MessageObject implements Serializable {
 	private String transformedData;
 	private Protocol transformedDataProtocol;
 	private String encodedData;
+	private Protocol encodedDataProtocol;
 	private Map variableMap;
+	private String destination;
 	private boolean encrypted;
 
 	public String getId() {
@@ -69,6 +71,14 @@ public class MessageObject implements Serializable {
 
 	public void setEncodedData(String encodedData) {
 		this.encodedData = encodedData;
+	}
+
+	public Protocol getEncodedDataProtocol() {
+		return this.encodedDataProtocol;
+	}
+
+	public void setEncodedDataProtocol(Protocol encodedDataProtocol) {
+		this.encodedDataProtocol = encodedDataProtocol;
 	}
 
 	public String getRawData() {
@@ -117,6 +127,14 @@ public class MessageObject implements Serializable {
 
 	public void setEncrypted(boolean encrypted) {
 		this.encrypted = encrypted;
+	}
+
+	public String getDestination() {
+		return this.destination;
+	}
+
+	public void setDestination(String destination) {
+		this.destination = destination;
 	}
 
 }

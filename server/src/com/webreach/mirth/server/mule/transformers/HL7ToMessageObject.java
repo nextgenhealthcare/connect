@@ -1,7 +1,5 @@
 package com.webreach.mirth.server.mule.transformers;
 
-import java.util.UUID;
-
 import org.apache.log4j.Logger;
 import org.mule.transformers.AbstractTransformer;
 import org.mule.umo.transformer.TransformerException;
@@ -22,17 +20,13 @@ public class HL7ToMessageObject extends AbstractTransformer {
 	@Override
 	public Object doTransform(Object src) throws TransformerException {
 		String rawData = (String) src;
-		String uniqueId = UUID.randomUUID().toString();
-		
-		logger.debug("creating new message object: id=" + uniqueId);
-		
 		MessageObject messageObject = new MessageObject();
-		messageObject.setId(uniqueId);
 		messageObject.setRawData(rawData);
 		messageObject.setRawDataProtocol(MessageObject.Protocol.HL7);
 		messageObject.setTransformedData(sanitize(serializer.toXML(rawData)));
 		messageObject.setTransformedDataProtocol(MessageObject.Protocol.HL7);
 		messageObject.setStatus(MessageObject.Status.RECEIVED);
+		messageObject.setEncodedDataProtocol(MessageObject.Protocol.HL7);
 		
 		// TODO: set this based on channel properties
 		messageObject.setEncrypted(false);

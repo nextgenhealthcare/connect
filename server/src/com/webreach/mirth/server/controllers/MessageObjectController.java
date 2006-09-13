@@ -59,7 +59,7 @@ public class MessageObjectController {
 			
 			if (getMessageCount(filter) == 0) {
 				logger.debug("inserting message: id=" + messageObject.getId());
-				statement = "insert into messages (id, channel_id, date_created, status, raw_data, raw_data_protocol, transformed_data, transformed_data_protocol, encoded_data, variable_map) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+				statement = "insert into messages (id, channel_id, date_created, status, raw_data, raw_data_protocol, transformed_data, transformed_data_protocol, encoded_data, encoded_data_protocol variable_map) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
 				parameters.add(messageObject.getId());
 				parameters.add(messageObject.getChannelId());
@@ -70,7 +70,9 @@ public class MessageObjectController {
 				parameters.add(transformedData);
 				parameters.add(messageObject.getTransformedDataProtocol());
 				parameters.add(encodedData);
+				parameters.add(messageObject.getEncodedDataProtocol());
 				parameters.add(serializer.toXML(messageObject.getVariableMap()));
+				parameters.add(messageObject.getDestination());
 			} else {
 				logger.debug("updating message: id=" + messageObject.getId());
 				statement = "updated messages set status = ?, raw_data = ?, transformed_data = ?, encoded_data = ?, variable_map = ? where id = ?";
@@ -109,6 +111,7 @@ public class MessageObjectController {
 			select.addColumn(messages, "transformed_data");
 			select.addColumn(messages, "transformed_data_protocol");
 			select.addColumn(messages, "encoded_data");
+			select.addColumn(messages, "encoded_data_protocol");
 			select.addColumn(messages, "variable_map");
 			addFilterCriteria(select, filter);
 			select.addOrder(messages, "date_created", Order.DESCENDING);
@@ -255,8 +258,9 @@ public class MessageObjectController {
 			messageObject.setRawData(rawData);
 			messageObject.setRawDataProtocol(MessageObject.Protocol.valueOf(result.getString("raw_data_protocol")));
 			messageObject.setTransformedData(transformedData);
-			messageObject.setTransformedDataProtocol(MessageObject.Protocol.valueOf("transformed_data_protocol"));
+			messageObject.setTransformedDataProtocol(MessageObject.Protocol.valueOf(result.getString("transformed_data_protocol")));
 			messageObject.setEncodedData(encodedData);
+			messageObject.setEncodedDataProtocol(MessageObject.Protocol.valueOf(result.getString("encoded_data_protocol")));
 			messageObject.setVariableMap((Map) serializer.fromXML(result.getString("variable_map")));
 			
 			messageObjects.add(messageObject);
