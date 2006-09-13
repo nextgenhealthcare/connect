@@ -35,7 +35,7 @@
 		<!-- compile the source -->
 		<mkdir dir="${classes}" />
 
-		<javac srcdir="${src}" destdir="${classes}" debug="on">
+		<javac srcdir="${src}" destdir="${classes}" debug="${javac.debug}" verbose="${javac.verbose}" deprecation="${javac.deprecation}" optimize="${javac.optimize}">
 			<classpath refid="classpath" />
 		</javac>
 
@@ -47,7 +47,7 @@
 	</target>
 
 	<target name="create-client-core" depends="compile">
-		<jar destfile="mirth-client-core.jar" basedir="${classes}">
+		<jar destfile="${client-core.jar}" basedir="${classes}">
 			<include name="com/webreach/mirth/client/core/**" />
 			<include name="com/webreach/mirth/model/**" />
 			<include name="com/webreach/mirth/util/**" />
@@ -132,7 +132,7 @@
 		</copy>
 
 		<!-- create the Mirth server jar -->
-		<jar destfile="${setup}/mirth-server.jar" basedir="${classes}">
+		<jar destfile="${setup}/${server.jar}" basedir="${classes}">
 			<include name="com/webreach/mirth/server/**" />
 			<include name="com/webreach/mirth/model/**" />
 			<include name="com/webreach/mirth/util/**" />
@@ -141,7 +141,7 @@
 		</jar>
 
 		<!-- create the Mirth launcher jar -->
-		<jar destfile="${setup}/mirth-launcher.jar" basedir="${classes}">
+		<jar destfile="${setup}/${launcher.jar}" basedir="${classes}">
 			<include name="com/webreach/mirth/server/launcher/**" />
 			<manifest>
 				<attribute name="Main-Class" value="com.webreach.mirth.server.launcher.Launcher" />
