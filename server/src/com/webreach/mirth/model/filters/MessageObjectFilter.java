@@ -43,6 +43,7 @@ public class MessageObjectFilter {
 	private MessageObject.Status status;
 	private int page = -1;
 	private int pageSize = -1;
+	private String destination;
 
 	public String getChannelId() {
 		return this.channelId;
@@ -100,6 +101,14 @@ public class MessageObjectFilter {
 		this.status = status;
 	}
 
+	public String getDestination() {
+		return this.destination;
+	}
+
+	public void setDestination(String destination) {
+		this.destination = destination;
+	}
+
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("MessageEventFilter[");
@@ -108,6 +117,7 @@ public class MessageObjectFilter {
 		builder.append("startDate=" + getStartDate() + ", ");
 		builder.append("endDate=" + getEndDate() + ", ");
 		builder.append("status=" + getStatus() + ", ");
+		builder.append("destination=" + getDestination() + ", ");
 		builder.append("page=" + getPage() + ", ");
 		builder.append("pageSize=" + getPageSize() + ", ");
 		builder.append("]");
