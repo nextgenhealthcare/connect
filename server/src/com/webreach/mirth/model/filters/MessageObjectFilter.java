@@ -30,7 +30,7 @@ import java.util.Calendar;
 import com.webreach.mirth.model.MessageObject;
 
 /**
- * A MessageObjectSFilter is used to search the message store.
+ * A MessageObjectFilter is used to search the message store.
  * 
  * @author geraldb
  * 
