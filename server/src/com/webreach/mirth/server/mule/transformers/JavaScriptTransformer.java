@@ -1,5 +1,6 @@
 package com.webreach.mirth.server.mule.transformers;
 
+import java.util.Calendar;
 import java.util.UUID;
 
 import org.apache.log4j.Logger;
@@ -21,6 +22,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 	private String filterScript;
 	private String direction;
 	private String channelId;
+	private String connectorName;
 	private boolean encryptData;
 
 	public String getChannelId() {
@@ -29,6 +31,14 @@ public class JavaScriptTransformer extends AbstractTransformer {
 
 	public void setChannelId(String channelId) {
 		this.channelId = channelId;
+	}
+
+	public String getConnectorName() {
+		return this.connectorName;
+	}
+
+	public void setConnectorName(String connectorName) {
+		this.connectorName = connectorName;
 	}
 
 	public String getDirection() {
@@ -228,8 +238,9 @@ public class JavaScriptTransformer extends AbstractTransformer {
 		String guid = UUID.randomUUID().toString();
 		logger.debug("initializing message: id=" + guid);
 		messageObject.setId(guid);
-		messageObject.setDestination(getName());
+		messageObject.setDestination(getConnectorName());
 		messageObject.setEncrypted(encryptData);
 		messageObject.setChannelId(channelId);
+		messageObject.setDateCreated(Calendar.getInstance());
 	}
 }
