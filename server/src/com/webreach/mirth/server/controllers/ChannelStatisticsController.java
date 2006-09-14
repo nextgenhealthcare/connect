@@ -76,7 +76,7 @@ public class ChannelStatisticsController {
 			throw new ControllerException(e);
 		} finally {
 			DatabaseUtil.close(result);
-			dbConnection.close();
+			DatabaseUtil.close(dbConnection);
 		}
 	}
 
@@ -100,7 +100,7 @@ public class ChannelStatisticsController {
 		} catch (Exception e) {
 			throw new ControllerException(e);
 		} finally {
-			dbConnection.close();
+			DatabaseUtil.close(dbConnection);
 		}
 	}
 
@@ -125,7 +125,7 @@ public class ChannelStatisticsController {
 		} catch (Exception e) {
 			throw new ControllerException(e);
 		} finally {
-			dbConnection.close();
+			DatabaseUtil.close(dbConnection);
 		}
 	}
 
@@ -150,7 +150,7 @@ public class ChannelStatisticsController {
 		} catch (Exception e) {
 			throw new ControllerException(e);
 		} finally {
-			dbConnection.close();
+			DatabaseUtil.close(dbConnection);
 		}
 	}
 
@@ -175,7 +175,7 @@ public class ChannelStatisticsController {
 		} catch (Exception e) {
 			throw new ControllerException(e);
 		} finally {
-			dbConnection.close();
+			DatabaseUtil.close(dbConnection);
 		}
 	}
 
@@ -223,7 +223,7 @@ public class ChannelStatisticsController {
 		} catch (Exception e) {
 			throw new ControllerException(e);
 		} finally {
-			dbConnection.close();
+			DatabaseUtil.close(dbConnection);
 		}
 	}
 

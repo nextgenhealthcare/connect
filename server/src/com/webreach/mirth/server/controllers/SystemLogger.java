@@ -102,7 +102,7 @@ public class SystemLogger {
 			throw new ControllerException(e);
 		} finally {
 			DatabaseUtil.close(result);
-			dbConnection.close();
+			DatabaseUtil.close(dbConnection);
 		}
 	}
 
@@ -123,7 +123,7 @@ public class SystemLogger {
 		} catch (SQLException e) {
 			throw new ControllerException(e);
 		} finally {
-			dbConnection.close();
+			DatabaseUtil.close(dbConnection);
 		}
 	}
 

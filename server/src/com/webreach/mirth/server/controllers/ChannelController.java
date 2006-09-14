@@ -63,7 +63,7 @@ public class ChannelController {
 			throw new ControllerException(e);
 		} finally {
 			DatabaseUtil.close(result);
-			dbConnection.close();
+			DatabaseUtil.close(dbConnection);
 		}
 	}
 
@@ -142,7 +142,7 @@ public class ChannelController {
 		} catch (SQLException e) {
 			throw new ControllerException(e);
 		} finally {
-			dbConnection.close();
+			DatabaseUtil.close(dbConnection);
 		}
 	}
 
@@ -168,7 +168,7 @@ public class ChannelController {
 		} catch (SQLException e) {
 			throw new ControllerException(e);
 		} finally {
-			dbConnection.close();
+			DatabaseUtil.close(dbConnection);
 		}
 	}
 }

@@ -55,7 +55,7 @@ public class UserController {
 			throw new ControllerException(e);
 		} finally {
 			DatabaseUtil.close(result);
-			dbConnection.close();
+			DatabaseUtil.close(dbConnection);
 		}
 	}
 
@@ -116,7 +116,7 @@ public class UserController {
 		} catch (SQLException e) {
 			throw new ControllerException(e);
 		} finally {
-			dbConnection.close();
+			DatabaseUtil.close(dbConnection);
 		}
 	}
 
@@ -141,7 +141,7 @@ public class UserController {
 		} catch (SQLException e) {
 			throw new ControllerException(e);
 		} finally {
-			dbConnection.close();
+			DatabaseUtil.close(dbConnection);
 		}
 	}
 
@@ -181,7 +181,7 @@ public class UserController {
 			throw new ControllerException(e);
 		} finally {
 			DatabaseUtil.close(result);
-			dbConnection.close();
+			DatabaseUtil.close(dbConnection);
 		}
 	}
 

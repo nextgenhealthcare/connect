@@ -111,7 +111,7 @@ public class ConfigurationController {
 			throw new ControllerException(e);
 		} finally {
 			DatabaseUtil.close(result);
-			dbConnection.close();
+			DatabaseUtil.close(dbConnection);
 		}
 	}
 
@@ -201,7 +201,7 @@ public class ConfigurationController {
 			throw new ControllerException("Could not generate next unique identifier.", e);
 		} finally {
 			DatabaseUtil.close(result);
-			dbConnection.close();
+			DatabaseUtil.close(dbConnection);
 		}
 
 		return id;
@@ -271,7 +271,7 @@ public class ConfigurationController {
 			return null;
 		} finally {
 			DatabaseUtil.close(result);
-			dbConnection.close();
+			DatabaseUtil.close(dbConnection);
 		}
 	}
 
@@ -294,7 +294,7 @@ public class ConfigurationController {
 		} catch (SQLException e) {
 			logger.warn("Could not delete latest configuration.", e);
 		} finally {
-			dbConnection.close();
+			DatabaseUtil.close(dbConnection);
 		}
 	}
 
@@ -320,7 +320,7 @@ public class ConfigurationController {
 		} catch (Exception e) {
 			throw new ControllerException(e);
 		} finally {
-			dbConnection.close();
+			DatabaseUtil.close(dbConnection);
 		}
 	}
 
@@ -364,7 +364,7 @@ public class ConfigurationController {
 			throw new ControllerException("error loading encryption key", e);
 		} finally {
 			DatabaseUtil.close(result);
-			dbConnection.close();
+			DatabaseUtil.close(dbConnection);
 		}
 	}
 

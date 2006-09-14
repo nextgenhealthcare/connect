@@ -32,6 +32,7 @@ import java.io.FileReader;
 
 import com.webreach.mirth.server.util.DatabaseConnection;
 import com.webreach.mirth.server.util.DatabaseConnectionFactory;
+import com.webreach.mirth.server.util.DatabaseUtil;
 
 public class CreateDatabaseTables {
 	public static void main(String[] args) {
@@ -60,7 +61,7 @@ public class CreateDatabaseTables {
 			} catch (Exception e) {
 				e.printStackTrace();
 			} finally {
-				dbConnection.close();
+				DatabaseUtil.close(dbConnection);
 			}
 		}
 	}
