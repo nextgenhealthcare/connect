@@ -361,7 +361,7 @@ public class ConfigurationController {
 				dbConnection.executeUpdate(insert.toString());
 			}
 		} catch (Exception e) {
-			throw new ControllerException(e);
+			throw new ControllerException("error loading encryption key", e);
 		} finally {
 			DatabaseUtil.close(result);
 			dbConnection.close();
