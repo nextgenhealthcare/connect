@@ -43,7 +43,7 @@ public class DatabaseUtil {
 				result.close();	
 			}
 		} catch (Exception e) {
-			throw new RuntimeException();
+			throw new RuntimeException(e);
 		}
 	}
 	
@@ -59,7 +59,17 @@ public class DatabaseUtil {
 				statement.close();	
 			}
 		} catch (Exception e) {
-			throw new RuntimeException();
+			throw new RuntimeException(e);
+		}
+	}
+	
+	public static void close(DatabaseConnection connection) throws RuntimeException {
+		try {
+			if (connection != null) {
+				connection.close();
+			}
+		} catch (Exception e) {
+			throw new RuntimeException(e);
 		}
 	}
 }
