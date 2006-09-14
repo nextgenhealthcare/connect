@@ -24,7 +24,7 @@ public class HL7ToMessageObject extends AbstractTransformer {
 		messageObject.setRawData(rawData);
 		messageObject.setRawDataProtocol(MessageObject.Protocol.HL7);
 		messageObject.setTransformedData(sanitize(serializer.toXML(rawData)));
-		messageObject.setTransformedDataProtocol(MessageObject.Protocol.HL7);
+		messageObject.setTransformedDataProtocol(MessageObject.Protocol.XML);
 		messageObject.setEncodedDataProtocol(MessageObject.Protocol.HL7);
 		messageObject.setStatus(MessageObject.Status.RECEIVED);
 		return messageObject;
