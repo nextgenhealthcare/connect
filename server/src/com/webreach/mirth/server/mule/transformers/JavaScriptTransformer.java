@@ -238,7 +238,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 		String guid = UUID.randomUUID().toString();
 		logger.debug("initializing message: id=" + guid);
 		messageObject.setId(guid);
-		messageObject.setDestination(getConnectorName());
+		messageObject.setConnectorName(getConnectorName());
 		messageObject.setEncrypted(encryptData);
 		messageObject.setChannelId(channelId);
 		messageObject.setDateCreated(Calendar.getInstance());

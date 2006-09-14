@@ -74,7 +74,7 @@ public class MessageObjectController {
 				parameters.add(encodedData);
 				parameters.add(messageObject.getEncodedDataProtocol());
 				parameters.add(serializer.toXML(messageObject.getVariableMap()));
-				parameters.add(messageObject.getDestination());
+				parameters.add(messageObject.getConnectorName());
 			} else {
 				logger.debug("updating message: id=" + messageObject.getId());
 				statement = "update messages set status = ?, raw_data = ?, transformed_data = ?, encoded_data = ?, variable_map = ? where id = ?";
@@ -116,7 +116,7 @@ public class MessageObjectController {
 			select.addColumn(messages, "encoded_data");
 			select.addColumn(messages, "encoded_data_protocol");
 			select.addColumn(messages, "variable_map");
-			select.addColumn(messages, "destination");
+			select.addColumn(messages, "connector_name");
 			
 			addFilterCriteria(select, filter);
 			select.addOrder(messages, "date_created", Order.DESCENDING);
@@ -194,9 +194,9 @@ public class MessageObjectController {
 			select.addCriteria(new MatchCriteria(messages, "status", MatchCriteria.EQUALS, filter.getStatus().toString()));
 		}
 
-		// filter on destination
-		if (filter.getDestination() != null) {
-			select.addCriteria(new MatchCriteria(messages, "destination", MatchCriteria.EQUALS, filter.getDestination()));
+		// filter on connector_name
+		if (filter.getConnectorName() != null) {
+			select.addCriteria(new MatchCriteria(messages, "connector_name", MatchCriteria.EQUALS, filter.getConnectorName()));
 		}
 
 	}
@@ -255,6 +255,7 @@ public class MessageObjectController {
 			Calendar dateCreated = Calendar.getInstance();
 			dateCreated.setTimeInMillis(result.getTimestamp("date_created").getTime());
 			messageObject.setDateCreated(dateCreated);
+			messageObject.setEncrypted(result.getBoolean("encrypted"));
 
 			String rawData;
 			String transformedData;
@@ -277,8 +278,7 @@ public class MessageObjectController {
 			messageObject.setEncodedData(encodedData);
 			messageObject.setEncodedDataProtocol(MessageObject.Protocol.valueOf(result.getString("encoded_data_protocol")));
 			messageObject.setVariableMap((Map) serializer.fromXML(result.getString("variable_map")));
-			messageObject.setDestination(result.getString("destination"));
-			messageObject.setEncrypted(result.getBoolean("encrypted"));
+			messageObject.setConnectorName(result.getString("connector_name"));
 			
 			messageObjects.add(messageObject);
 		}

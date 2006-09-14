@@ -25,7 +25,7 @@ public class MessageObject implements Serializable {
 	private String encodedData;
 	private Protocol encodedDataProtocol;
 	private Map variableMap;
-	private String destination;
+	private String connectorName;
 	private boolean encrypted;
 
 	public String getId() {
@@ -129,12 +129,12 @@ public class MessageObject implements Serializable {
 		this.encrypted = encrypted;
 	}
 
-	public String getDestination() {
-		return this.destination;
+	public String getConnectorName() {
+		return this.connectorName;
 	}
 
-	public void setDestination(String destination) {
-		this.destination = destination;
+	public void setConnectorName(String connectorName) {
+		this.connectorName = connectorName;
 	}
 
 }

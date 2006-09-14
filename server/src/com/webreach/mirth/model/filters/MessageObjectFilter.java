@@ -43,7 +43,7 @@ public class MessageObjectFilter {
 	private MessageObject.Status status;
 	private int page = -1;
 	private int pageSize = -1;
-	private String destination;
+	private String connectorName;
 
 	public String getChannelId() {
 		return this.channelId;
@@ -101,12 +101,14 @@ public class MessageObjectFilter {
 		this.status = status;
 	}
 
-	public String getDestination() {
-		return this.destination;
+	
+
+	public String getConnectorName() {
+		return this.connectorName;
 	}
 
-	public void setDestination(String destination) {
-		this.destination = destination;
+	public void setConnectorName(String connectorName) {
+		this.connectorName = connectorName;
 	}
 
 	public String toString() {
@@ -117,7 +119,7 @@ public class MessageObjectFilter {
 		builder.append("startDate=" + getStartDate() + ", ");
 		builder.append("endDate=" + getEndDate() + ", ");
 		builder.append("status=" + getStatus() + ", ");
-		builder.append("destination=" + getDestination() + ", ");
+		builder.append("connectorName=" + getConnectorName() + ", ");
 		builder.append("page=" + getPage() + ", ");
 		builder.append("pageSize=" + getPageSize() + ", ");
 		builder.append("]");
