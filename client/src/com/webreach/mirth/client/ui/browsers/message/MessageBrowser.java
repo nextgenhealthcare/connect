@@ -26,11 +26,9 @@
 
 package com.webreach.mirth.client.ui.browsers.message;
 
-import com.Ostermiller.Syntax.HighlightedDocument;
 import com.webreach.mirth.client.core.ListHandlerException;
 import com.webreach.mirth.client.core.MessageListHandler;
 import com.webreach.mirth.client.ui.Frame;
-import com.webreach.mirth.client.ui.HL7TreePanel;
 import com.webreach.mirth.client.ui.Mirth;
 import com.webreach.mirth.client.ui.CenterCellRenderer;
 import com.webreach.mirth.client.ui.PlatformUI;
@@ -38,18 +36,19 @@ import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
 import com.webreach.mirth.client.ui.components.MirthTextPane;
 import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.model.converters.ER7Serializer;
 import com.webreach.mirth.model.filters.MessageObjectFilter;
 import java.awt.Cursor;
 import java.awt.Point;
 import java.util.Calendar;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.prefs.Preferences;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.text.Document;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.AlternateRowHighlighter;
 import org.jdesktop.swingx.decorator.HighlighterPipeline;
@@ -65,20 +64,18 @@ public class MessageBrowser extends javax.swing.JPanel
     private final String MESSAGE_ID_COLUMN_NAME = "Message ID";
     private final String CHANNEL_ID_COLUMN_NAME = "Channel ID";
     private final String DATE_COLUMN_NAME = "Date";
-    private final String DESTINATION_COLUMN_NAME = "Destination";
+    private final String CONNECTOR_COLUMN_NAME = "Connector";
     private final String STATUS_COLUMN_NAME = "Status";
+    private final String KEY_COLUMN_NAME = "Key";
+    private final String VALUE_COLUMN_NAME = "Value";
     
     private JScrollPane eventPane;
+    private JScrollPane mappingsPane;
     private JXTable eventTable;
     private Frame parent;
     private MessageListHandler messageListHandler;
     private List<MessageObject> messageObjectList;
     private MessageObjectFilter messageObjectFilter;
-    private HL7TreePanel HL7Panel;
-    private JScrollPane HL7ScrollPane;
-    private static HighlightedDocument xmlDoc;
-    private static HighlightedDocument er7Doc;
-    private Document normalDoc;
     
     /**
      * Constructs the new message browser and sets up its default information/layout.
@@ -87,6 +84,20 @@ public class MessageBrowser extends javax.swing.JPanel
     {
         this.parent = PlatformUI.MIRTH_FRAME;
         initComponents();
+        
+        mappingsPane = new JScrollPane();
+        makeMappingsTable(new String[0][0]);
+        
+        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(MappingsPanel);
+        MappingsPanel.setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(mappingsPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(mappingsPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 300, Short.MAX_VALUE)
+        );
         
         this.addMouseListener(new java.awt.event.MouseAdapter()
         {
@@ -101,20 +112,8 @@ public class MessageBrowser extends javax.swing.JPanel
                     parent.eventPopupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
             }
         });
-        
-        xmlDoc = new HighlightedDocument();
-        xmlDoc.setHighlightStyle(HighlightedDocument.HTML_STYLE);
-        er7Doc = new HighlightedDocument();
-        er7Doc.setHighlightStyle(HighlightedDocument.C_STYLE);
-        normalDoc = RawMessageTextPane.getDocument();
-        
+             
         pageSizeField.setDocument(new MirthFieldConstraints(3, false, true));
-        
-        HL7Panel = new HL7TreePanel();
-        HL7ScrollPane = new JScrollPane();
-        HL7ScrollPane.setViewportView(HL7Panel);
-        HL7ScrollPane.setFocusable(false);
-        descriptionTabbedPane.addTab("HL7", HL7ScrollPane);
         
         String[] values = new String[MessageObject.Status.values().length + 1];
         values[0] = "ALL";
@@ -271,7 +270,7 @@ public class MessageBrowser extends javax.swing.JPanel
             Calendar calendar = messageObject.getDateCreated();
             
             tableData[i][2] = String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS", calendar);
-            tableData[i][3] = messageObject.getDestination();
+            tableData[i][3] = messageObject.getConnectorName();
             tableData[i][4] = messageObject.getStatus();
             
         }
@@ -281,7 +280,7 @@ public class MessageBrowser extends javax.swing.JPanel
                 tableData,
                 new String []
         {
-            MESSAGE_ID_COLUMN_NAME, CHANNEL_ID_COLUMN_NAME, DATE_COLUMN_NAME, DESTINATION_COLUMN_NAME, STATUS_COLUMN_NAME
+            MESSAGE_ID_COLUMN_NAME, CHANNEL_ID_COLUMN_NAME, DATE_COLUMN_NAME, CONNECTOR_COLUMN_NAME, STATUS_COLUMN_NAME
         }
         ) {
             boolean[] canEdit = new boolean []
@@ -296,10 +295,10 @@ public class MessageBrowser extends javax.swing.JPanel
         
         eventTable.setSelectionMode(0);        
         
-        eventTable.getColumnExt(MESSAGE_ID_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
-        eventTable.getColumnExt(CHANNEL_ID_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
+//        eventTable.getColumnExt(MESSAGE_ID_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
+//        eventTable.getColumnExt(CHANNEL_ID_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
         eventTable.getColumnExt(DATE_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
-        eventTable.getColumnExt(DESTINATION_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
+        eventTable.getColumnExt(CONNECTOR_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
         eventTable.getColumnExt(STATUS_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
         
         eventTable.getColumnExt(MESSAGE_ID_COLUMN_NAME).setCellRenderer(new CenterCellRenderer());
@@ -344,6 +343,34 @@ public class MessageBrowser extends javax.swing.JPanel
         });
     }
     
+    private void makeMappingsTable(String[][] tableData)
+    {
+        JXTable mappingsTable = new JXTable();
+        
+        
+        
+        mappingsTable.setModel(new javax.swing.table.DefaultTableModel(
+            tableData,
+            new String []
+            {
+                KEY_COLUMN_NAME, VALUE_COLUMN_NAME
+            }
+        )
+        {
+            boolean[] canEdit = new boolean []
+            {
+                false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex)
+            {
+                return canEdit [columnIndex];
+            }
+        });
+        
+        mappingsPane.setViewportView(mappingsTable);
+    }
+    
     /**
      * Shows the trigger button (right-click) popup menu.
      */
@@ -377,13 +404,12 @@ public class MessageBrowser extends javax.swing.JPanel
      */
     public void clearDescription()
     {
-        RawMessageTextPane.setDocument(normalDoc);
-        RawMessageTextPane.setText("Select a message to view the transformed message.");
-        TransformedMessageTextPane.setDocument(normalDoc);
+//        RawMessageTextPane.setDocument(new HighlightedDocument());
+        RawMessageTextPane.setText("Select a message to view the raw message.");
+//        TransformedMessageTextPane.setDocument(new HighlightedDocument());
         TransformedMessageTextPane.setText("Select a message to view the transformed message.");
-        RawMessageTextPane.setDocument(normalDoc);
+//        EncodedMessageTextPane.setDocument(new HighlightedDocument());
         EncodedMessageTextPane.setText("Select a message to view the encoded message.");
-        HL7Panel.clearMessage();
     }
     
     /**
@@ -402,14 +428,23 @@ public class MessageBrowser extends javax.swing.JPanel
                 
                 MessageObject currentMessage = messageObjectList.get(row);
                 
-                // Raw Message
                 setCorrectDocument(RawMessageTextPane, currentMessage.getRawData(), currentMessage.getRawDataProtocol());
-                // Transformed Message
                 setCorrectDocument(TransformedMessageTextPane, currentMessage.getTransformedData(), currentMessage.getTransformedDataProtocol());
-                // Encoded Message
                 setCorrectDocument(EncodedMessageTextPane, currentMessage.getEncodedData(), currentMessage.getEncodedDataProtocol());
                 
-                //HL7Panel.setMessage(message);
+                Map variableMap = currentMessage.getVariableMap();
+                Iterator variableMapSetIterator = variableMap.entrySet().iterator();
+                                
+                String[][] tableData = new String[variableMap.size()][2];
+                
+                for (int i=0; variableMapSetIterator.hasNext(); i++)
+                {
+                    Entry variableMapEntry = (Entry)variableMapSetIterator.next();
+                    tableData[i][0] = (String)variableMapEntry.getKey();
+                    tableData[i][1] = (String)variableMapEntry.getValue();
+                }
+                
+                makeMappingsTable(tableData);
                 
                 this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
             }
@@ -418,14 +453,15 @@ public class MessageBrowser extends javax.swing.JPanel
     
     private void setCorrectDocument(MirthTextPane textPane, String message, MessageObject.Protocol protocol)
     {
-        textPane.setText(message);
-        
+/*
         if (protocol.equals(MessageObject.Protocol.HL7))
-            textPane.setDocument(er7Doc);
+            textPane.setDocument(new HighlightedDocument());
         else if (protocol.equals(MessageObject.Protocol.XML))
-            textPane.setDocument(xmlDoc);
+            textPane.setDocument(new HighlightedDocument());
         else if (protocol.equals(MessageObject.Protocol.X12))
-            textPane.setDocument(normalDoc);
+            textPane.setDocument(new HighlightedDocument());
+*/        
+        textPane.setText(message.replaceAll("\r", "\n"));
         
         textPane.setCaretPosition(0);
     }
@@ -476,8 +512,6 @@ public class MessageBrowser extends javax.swing.JPanel
         jScrollPane4 = new javax.swing.JScrollPane();
         EncodedMessageTextPane = new com.webreach.mirth.client.ui.components.MirthTextPane();
         MappingsPanel = new javax.swing.JPanel();
-        jScrollPane5 = new javax.swing.JScrollPane();
-        MappingsTextPane = new com.webreach.mirth.client.ui.components.MirthTextPane();
 
         setBackground(new java.awt.Color(255, 255, 255));
         filterPanel.setBackground(new java.awt.Color(255, 255, 255));
@@ -547,7 +581,7 @@ public class MessageBrowser extends javax.swing.JPanel
                         .add(jLabel2)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(mirthDatePicker2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 65, Short.MAX_VALUE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 73, Short.MAX_VALUE)
                         .add(jLabel6)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(pageSizeField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 30, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
@@ -685,24 +719,15 @@ public class MessageBrowser extends javax.swing.JPanel
 
         MappingsPanel.setBackground(new java.awt.Color(255, 255, 255));
         MappingsPanel.setFocusable(false);
-        MappingsTextPane.setEditable(false);
-        jScrollPane5.setViewportView(MappingsTextPane);
-
         org.jdesktop.layout.GroupLayout MappingsPanelLayout = new org.jdesktop.layout.GroupLayout(MappingsPanel);
         MappingsPanel.setLayout(MappingsPanelLayout);
         MappingsPanelLayout.setHorizontalGroup(
             MappingsPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(MappingsPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .add(jScrollPane5, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 586, Short.MAX_VALUE)
-                .addContainerGap())
+            .add(0, 606, Short.MAX_VALUE)
         );
         MappingsPanelLayout.setVerticalGroup(
             MappingsPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(MappingsPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .add(jScrollPane5, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 124, Short.MAX_VALUE)
-                .addContainerGap())
+            .add(0, 146, Short.MAX_VALUE)
         );
         descriptionTabbedPane.addTab("Mappings", MappingsPanel);
 
@@ -732,7 +757,7 @@ public class MessageBrowser extends javax.swing.JPanel
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jPanel2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(descriptionPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .add(descriptionPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -763,7 +788,7 @@ public class MessageBrowser extends javax.swing.JPanel
         messageObjectFilter.setChannelId(parent.status.get(parent.statusListPage.getSelectedStatus()).getChannelId());
         
         if (!destinationField.getText().equals(""))
-            messageObjectFilter.setDestination(destinationField.getText());        
+            messageObjectFilter.setConnectorName(destinationField.getText());        
         
         if (!((String)statusComboBox.getSelectedItem()).equalsIgnoreCase("ALL"))
         {
@@ -800,7 +825,6 @@ public class MessageBrowser extends javax.swing.JPanel
     private javax.swing.JPanel EncodedMessagePanel;
     private com.webreach.mirth.client.ui.components.MirthTextPane EncodedMessageTextPane;
     private javax.swing.JPanel MappingsPanel;
-    private com.webreach.mirth.client.ui.components.MirthTextPane MappingsTextPane;
     private javax.swing.JPanel RawMessagePanel;
     private com.webreach.mirth.client.ui.components.MirthTextPane RawMessageTextPane;
     private javax.swing.JPanel TransformedMessagePanel;
@@ -820,7 +844,6 @@ public class MessageBrowser extends javax.swing.JPanel
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
-    private javax.swing.JScrollPane jScrollPane5;
     private javax.swing.JTable jTable1;
     private com.webreach.mirth.client.ui.components.MirthDatePicker mirthDatePicker1;
     private com.webreach.mirth.client.ui.components.MirthDatePicker mirthDatePicker2;
