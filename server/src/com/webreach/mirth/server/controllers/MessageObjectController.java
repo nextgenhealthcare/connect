@@ -60,7 +60,7 @@ public class MessageObjectController {
 			
 			if (getMessageCount(filter) == 0) {
 				logger.debug("inserting message: id=" + messageObject.getId());
-				statement = "insert into messages (id, channel_id, date_created, encrypted, status, raw_data, raw_data_protocol, transformed_data, transformed_data_protocol, encoded_data, encoded_data_protocol, variable_map, destination) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+				statement = "insert into messages (id, channel_id, date_created, encrypted, status, raw_data, raw_data_protocol, transformed_data, transformed_data_protocol, encoded_data, encoded_data_protocol, variable_map, connector_name) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
 				parameters.add(messageObject.getId());
 				parameters.add(messageObject.getChannelId());
