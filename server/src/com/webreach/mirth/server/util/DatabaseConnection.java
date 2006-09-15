@@ -50,6 +50,7 @@ import com.sun.rowset.CachedRowSetImpl;
 public class DatabaseConnection {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private Connection connection;
+	private String address;
 
 	/**
 	 * Initiliazes a database connection.
@@ -58,7 +59,17 @@ public class DatabaseConnection {
 	 */
 	public DatabaseConnection(String address, Properties info) throws SQLException {
 		logger.debug("creating new database connection: address=" + address + ", " + info);
+		this.address = address;
 		connection = DriverManager.getConnection(address, info);
+	}
+
+	/**
+	 * Returns the database address.
+	 * 
+	 * @return
+	 */
+	public String getAddress() {
+		return this.address;
 	}
 
 	/**
@@ -99,9 +110,9 @@ public class DatabaseConnection {
 			logger.debug("executing query:\n" + expression);
 			ResultSet result = statement.executeQuery(expression);
 			CachedRowSetImpl crs = new CachedRowSetImpl();
-		    crs.populate(result); 
-		    DatabaseUtil.close(result);
-		    return crs; 
+			crs.populate(result);
+			DatabaseUtil.close(result);
+			return crs;
 		} catch (SQLException e) {
 			throw e;
 		} finally {
