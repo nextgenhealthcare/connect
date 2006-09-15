@@ -23,46 +23,53 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
 package com.webreach.mirth.server.tools;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 
+import org.apache.log4j.Logger;
+
 import com.webreach.mirth.server.util.DatabaseConnection;
 import com.webreach.mirth.server.util.DatabaseConnectionFactory;
 import com.webreach.mirth.server.util.DatabaseUtil;
 
-public class CreateDatabaseTables {
+public class ScriptRunner {
+	private static Logger logger = Logger.getLogger("ScriptRunner");
+
 	public static void main(String[] args) {
-		DatabaseConnection dbConnection = null;
-		
 		if (args.length != 1) {
-			System.out.println("Usage: java CreateDatabaseTables script");
+			System.out.println("Usage: java ScriptRunner scriptFile");
 		} else {
-			try {
-				dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
-				StringBuilder script = new StringBuilder();
+			runScript(args[0]);
+		}
+	}
 
-				BufferedReader reader = new BufferedReader(new FileReader(new File(args[0])));
-				String line = null;
+	public static void runScript(String scriptFile) {
+		DatabaseConnection dbConnection = null;
 
-				while ((line = reader.readLine()) != null) {
-					script.append(line + "\n");
-				}
+		try {
+			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
+			StringBuilder scriptContent = new StringBuilder();
 
-				reader.close();
+			BufferedReader reader = new BufferedReader(new FileReader(new File(scriptFile)));
+			String line = null;
 
-				System.out.println("Executing script \"" + args[0] + "\" on database.");
-
-				dbConnection.executeUpdate(script.toString());
-				dbConnection.executeUpdate("shutdown");
-			} catch (Exception e) {
-				e.printStackTrace();
-			} finally {
-				DatabaseUtil.close(dbConnection);
+			while ((line = reader.readLine()) != null) {
+				scriptContent.append(line + "\n");
 			}
+
+			reader.close();
+
+			logger.info("executing script '" + scriptFile + "' on database '" + dbConnection.getAddress() + "'");
+
+			dbConnection.executeUpdate(scriptContent.toString());
+			dbConnection.executeUpdate("shutdown");
+		} catch (Exception e) {
+			logger.error("error executing script", e);
+		} finally {
+			DatabaseUtil.close(dbConnection);
 		}
 	}
 }
