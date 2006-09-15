@@ -186,7 +186,7 @@
                     <EmptyBorder bottom="0" left="0" right="0" top="0"/>
                   </Border>
                 </Property>
-                <Property name="text" type="java.lang.String" value="Channel will receive XML pre-encoded HL7 messages."/>
+                <Property name="text" type="java.lang.String" value="Channel will receive XML pre-encoded HL7 messages"/>
                 <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
                   <Insets value="[0, 0, 0, 0]"/>
                 </Property>
@@ -228,7 +228,7 @@
                     <EmptyBorder bottom="0" left="0" right="0" top="0"/>
                   </Border>
                 </Property>
-                <Property name="text" type="java.lang.String" value="Encrypt messages in database."/>
+                <Property name="text" type="java.lang.String" value="Encrypt messages in database"/>
                 <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
                   <Insets value="[0, 0, 0, 0]"/>
                 </Property>
