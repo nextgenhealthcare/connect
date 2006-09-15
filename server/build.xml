@@ -160,7 +160,7 @@
 		</delete>
 
 		<delete dir="database" />
-		<java classname="com.webreach.mirth.server.tools.CreateDatabaseTables" failonerror="true">
+		<java classname="com.webreach.mirth.server.tools.ScriptRunner" failonerror="true">
 			<classpath>
 				<pathelement location="${setup}/mirth-server.jar" />
 				<pathelement location="${setup.conf}" />
