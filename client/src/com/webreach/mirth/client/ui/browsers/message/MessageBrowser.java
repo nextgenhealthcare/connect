@@ -366,6 +366,8 @@ public class MessageBrowser extends javax.swing.JPanel
             }
         });
         
+        mappingsTable.setSelectionMode(0);
+        
         mappingsPane.setViewportView(mappingsTable);
     }
     
@@ -452,17 +454,22 @@ public class MessageBrowser extends javax.swing.JPanel
     
     private void setCorrectDocument(MirthTextPane textPane, String message, MessageObject.Protocol protocol)
     {
-/*
-        if (protocol.equals(MessageObject.Protocol.HL7))
-            textPane.setDocument(new HighlightedDocument());
-        else if (protocol.equals(MessageObject.Protocol.XML))
-            textPane.setDocument(new HighlightedDocument());
-        else if (protocol.equals(MessageObject.Protocol.X12))
-            textPane.setDocument(new HighlightedDocument());
-*/        
-        textPane.setText(message.replaceAll("\r", "\n"));
-        
-        textPane.setCaretPosition(0);
+        if (message != null)
+        {
+    /*
+            if (protocol.equals(MessageObject.Protocol.HL7))
+                textPane.setDocument(new HighlightedDocument());
+            else if (protocol.equals(MessageObject.Protocol.XML))
+                textPane.setDocument(new HighlightedDocument());
+            else if (protocol.equals(MessageObject.Protocol.X12))
+                textPane.setDocument(new HighlightedDocument());
+    */        
+            textPane.setText(message.replaceAll("\r", "\n"));
+
+            textPane.setCaretPosition(0);
+        }
+        else
+            textPane.setText("");
     }
     
     /**
