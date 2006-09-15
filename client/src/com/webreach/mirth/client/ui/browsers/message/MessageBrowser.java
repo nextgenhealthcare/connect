@@ -49,6 +49,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.table.DefaultTableModel;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.AlternateRowHighlighter;
 import org.jdesktop.swingx.decorator.HighlighterPipeline;
@@ -62,7 +63,6 @@ public class MessageBrowser extends javax.swing.JPanel
     private final int PREVIOUS_PAGE = -1;
     private final int NEXT_PAGE = 1;
     private final String MESSAGE_ID_COLUMN_NAME = "Message ID";
-    private final String CHANNEL_ID_COLUMN_NAME = "Channel ID";
     private final String DATE_COLUMN_NAME = "Date";
     private final String CONNECTOR_COLUMN_NAME = "Connector";
     private final String STATUS_COLUMN_NAME = "Status";
@@ -76,6 +76,7 @@ public class MessageBrowser extends javax.swing.JPanel
     private MessageListHandler messageListHandler;
     private List<MessageObject> messageObjectList;
     private MessageObjectFilter messageObjectFilter;
+    private DefaultTableModel eventTableModel;
     
     /**
      * Constructs the new message browser and sets up its default information/layout.
@@ -86,7 +87,7 @@ public class MessageBrowser extends javax.swing.JPanel
         initComponents();
         
         mappingsPane = new JScrollPane();
-        makeMappingsTable(new String[0][0]);
+        makeMappingsTable(new String[0][0], true);
         
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(MappingsPanel);
         MappingsPanel.setLayout(layout);
@@ -258,34 +259,32 @@ public class MessageBrowser extends javax.swing.JPanel
         if (messageObjectList == null)
             return;
                 
-        Object[][] tableData = new Object[messageObjectList.size()][5];
+        Object[][] tableData = new Object[messageObjectList.size()][4];
         
         for (int i=0; i < messageObjectList.size(); i++)
         {
             MessageObject messageObject = messageObjectList.get(i);
             
             tableData[i][0] = messageObject.getId();
-            tableData[i][1] = messageObject.getChannelId();
-            
+
             Calendar calendar = messageObject.getDateCreated();
             
-            tableData[i][2] = String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS", calendar);
-            tableData[i][3] = messageObject.getConnectorName();
-            tableData[i][4] = messageObject.getStatus();
+            tableData[i][1] = String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS", calendar);
+            tableData[i][2] = messageObject.getConnectorName();
+            tableData[i][3] = messageObject.getStatus();
             
         }
-                
         
         eventTable.setModel(new javax.swing.table.DefaultTableModel(
                 tableData,
                 new String []
         {
-            MESSAGE_ID_COLUMN_NAME, CHANNEL_ID_COLUMN_NAME, DATE_COLUMN_NAME, CONNECTOR_COLUMN_NAME, STATUS_COLUMN_NAME
+            MESSAGE_ID_COLUMN_NAME, DATE_COLUMN_NAME, CONNECTOR_COLUMN_NAME, STATUS_COLUMN_NAME
         }
         ) {
             boolean[] canEdit = new boolean []
             {
-                false, false, false, false, false, false, false
+                false, false, false, false
             };
             
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -293,20 +292,11 @@ public class MessageBrowser extends javax.swing.JPanel
             }
         });
         
-        eventTable.setSelectionMode(0);        
+        eventTableModel = (DefaultTableModel) eventTable.getModel();
         
-//        eventTable.getColumnExt(MESSAGE_ID_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
-//        eventTable.getColumnExt(CHANNEL_ID_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
-        eventTable.getColumnExt(DATE_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
-        eventTable.getColumnExt(CONNECTOR_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
-        eventTable.getColumnExt(STATUS_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
+        eventTable.setSelectionMode(0);
         
-        eventTable.getColumnExt(MESSAGE_ID_COLUMN_NAME).setCellRenderer(new CenterCellRenderer());
-        eventTable.getColumnExt(MESSAGE_ID_COLUMN_NAME).setHeaderRenderer(PlatformUI.CENTER_COLUMN_HEADER_RENDERER);
-        eventTable.getColumnExt(CHANNEL_ID_COLUMN_NAME).setCellRenderer(new CenterCellRenderer());
-        eventTable.getColumnExt(CHANNEL_ID_COLUMN_NAME).setHeaderRenderer(PlatformUI.CENTER_COLUMN_HEADER_RENDERER);  
-        
-        eventTable.packTable(UIConstants.COL_MARGIN);    
+        eventTable.getColumnExt(MESSAGE_ID_COLUMN_NAME).setVisible(false);
         
         eventTable.setRowHeight(UIConstants.ROW_HEIGHT);
         eventTable.setOpaque(true);
@@ -319,6 +309,7 @@ public class MessageBrowser extends javax.swing.JPanel
             highlighter.addHighlighter(new AlternateRowHighlighter(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR, UIConstants.TITLE_TEXT_COLOR));
             eventTable.setHighlighters(highlighter);
         }
+        
         
         eventPane.setViewportView(eventTable);
         
@@ -343,11 +334,18 @@ public class MessageBrowser extends javax.swing.JPanel
         });
     }
     
-    private void makeMappingsTable(String[][] tableData)
+    private void makeMappingsTable(String[][] tableData, boolean cleared)
     {
+        if (tableData.length == 0)
+        {
+            tableData = new String[1][2];
+            if (cleared)
+                tableData[0][0] = "Please select a message to view mappings.";
+            else
+                tableData[0][0] = "There are no mappings present.";
+            tableData[0][1] = "";
+        }
         JXTable mappingsTable = new JXTable();
-        
-        
         
         mappingsTable.setModel(new javax.swing.table.DefaultTableModel(
             tableData,
@@ -410,6 +408,7 @@ public class MessageBrowser extends javax.swing.JPanel
         TransformedMessageTextPane.setText("Select a message to view the transformed message.");
 //        EncodedMessageTextPane.setDocument(new HighlightedDocument());
         EncodedMessageTextPane.setText("Select a message to view the encoded message.");
+        makeMappingsTable(new String[0][0], true);
     }
     
     /**
@@ -444,7 +443,7 @@ public class MessageBrowser extends javax.swing.JPanel
                     tableData[i][1] = (String)variableMapEntry.getValue();
                 }
                 
-                makeMappingsTable(tableData);
+                makeMappingsTable(tableData, false);
                 
                 this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
             }
@@ -472,12 +471,12 @@ public class MessageBrowser extends javax.swing.JPanel
     public String getSelectedMessageID()
     {
         int column = -1;
-        for (int i = 0; i < eventTable.getColumnCount(); i++)
+        for (int i = 0; i < eventTableModel.getColumnCount(); i++)
         {
-            if (eventTable.getColumnName(i).equals(MESSAGE_ID_COLUMN_NAME))
+            if (eventTableModel.getColumnName(i).equals(MESSAGE_ID_COLUMN_NAME))
                 column = i;
         }
-        return ((String)eventTable.getValueAt(eventTable.getSelectedRow(), column));
+        return ((String)eventTableModel.getValueAt(eventTable.getSelectedRow(), column));
     }
     
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
