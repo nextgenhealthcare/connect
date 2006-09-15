@@ -26,6 +26,7 @@
 
 package com.webreach.mirth.client.ui.browsers.message;
 
+import com.Ostermiller.Syntax.HighlightedDocument;
 import com.webreach.mirth.client.core.ListHandlerException;
 import com.webreach.mirth.client.core.MessageListHandler;
 import com.webreach.mirth.client.ui.Frame;
@@ -454,22 +455,27 @@ public class MessageBrowser extends javax.swing.JPanel
     
     private void setCorrectDocument(MirthTextPane textPane, String message, MessageObject.Protocol protocol)
     {
+        HighlightedDocument newDoc = new HighlightedDocument();
+
         if (message != null)
         {
-    /*
             if (protocol.equals(MessageObject.Protocol.HL7))
-                textPane.setDocument(new HighlightedDocument());
+                newDoc.setHighlightStyle(HighlightedDocument.C_STYLE);
             else if (protocol.equals(MessageObject.Protocol.XML))
-                textPane.setDocument(new HighlightedDocument());
+                newDoc.setHighlightStyle(HighlightedDocument.HTML_STYLE);
             else if (protocol.equals(MessageObject.Protocol.X12))
-                textPane.setDocument(new HighlightedDocument());
-    */        
-            textPane.setText(message.replaceAll("\r", "\n"));
-
-            textPane.setCaretPosition(0);
+                newDoc.setHighlightStyle(HighlightedDocument.C_STYLE);
+            
+            textPane.setDocument(newDoc);
+            textPane.setText(message);
         }
         else
+        {
+            textPane.setDocument(newDoc);
             textPane.setText("");
+        }
+        
+        textPane.setCaretPosition(0);
     }
     
     /**
