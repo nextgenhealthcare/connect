@@ -104,7 +104,7 @@ public class JavaScriptPanel extends CardPanel {
 				new DocumentListener() {
 					
 					public void changedUpdate(DocumentEvent arg0) {
-						parent.modified = true;
+                                            
 					}
 					
 					public void insertUpdate(DocumentEvent arg0) {

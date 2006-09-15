@@ -97,7 +97,7 @@ public class MapperPanel extends CardPanel {
 		mappingTextField.getDocument().addDocumentListener(
 				new DocumentListener() {
 					public void changedUpdate(DocumentEvent arg0) {
-						parent.modified = true;
+
 					}
 					
 					public void insertUpdate(DocumentEvent arg0) {
@@ -113,7 +113,7 @@ public class MapperPanel extends CardPanel {
 		mappingTextPane.getDocument().addDocumentListener(
 				new DocumentListener() {
 					public void changedUpdate(DocumentEvent arg0) {
-						parent.modified = true;
+
 					}
 					
 					public void insertUpdate(DocumentEvent arg0) {

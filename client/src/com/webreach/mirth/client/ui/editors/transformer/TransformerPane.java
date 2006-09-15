@@ -118,6 +118,13 @@ public class TransformerPane extends MirthEditorPane
         tabPanel.setDefaultComponent();
         tabPanel.setHL7Message(transformer.getTemplate());
         channel = PlatformUI.MIRTH_FRAME.channelEditPage.currentChannel;
+        
+        mapperPanel.setAddAsGlobal(channel);       
+        if (hl7builderPanel != null)
+        {
+            hl7builderPanel.setAddAsGlobal(channel);
+        }
+
         if (channel.getDirection().equals(Channel.Direction.OUTBOUND))
         {
             hl7builderPanel = new HL7MessageBuilder(this);
@@ -129,7 +136,7 @@ public class TransformerPane extends MirthEditorPane
         {
             makeTransformerTable(inboundComboBoxValues);
         }
-               
+        
         // add any existing steps to the model
         List<Step> list = transformer.getSteps();
         ListIterator<Step> li = list.listIterator();
@@ -159,17 +166,15 @@ public class TransformerPane extends MirthEditorPane
         parent.setCurrentContentPage(this);
         parent.setCurrentTaskPaneContainer(transformerTaskPaneContainer);
         
-        mapperPanel.setAddAsGlobal(channel);
         mapperPanel.update();
-
         jsPanel.update();
         if (hl7builderPanel != null)
         {
-            hl7builderPanel.setAddAsGlobal(channel);
             hl7builderPanel.update();
         }
         updateStepNumbers();
         updateTaskPane();
+       
     }
     
     /**
@@ -463,7 +468,9 @@ public class TransformerPane extends MirthEditorPane
             public void valueChanged(ListSelectionEvent evt)
             {
                 if (!updating && !evt.getValueIsAdjusting())
+                {
                     TransformerListSelected(evt);
+                }
             }
         });
     }
@@ -656,8 +663,9 @@ public class TransformerPane extends MirthEditorPane
                     STEP_TYPE_COL);
             Map<Object, Object> data = (Map<Object, Object>) transformerTableModel
                     .getValueAt(row, STEP_DATA_COL);
-            
+
             setPanelData(type, data);
+
         }
     }
     

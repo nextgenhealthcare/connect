@@ -26,8 +26,10 @@
 
 package com.webreach.mirth.client.ui.editors;
 
-import com.webreach.mirth.client.ui.PlatformUI;
 import com.webreach.mirth.model.Channel;
+import java.awt.BorderLayout;
+import javax.swing.BorderFactory;
+import javax.swing.JLabel;
 
 public class HL7MessageBuilder extends MapperPanel {
 	public HL7MessageBuilder(MirthEditorPane p) {
@@ -41,4 +43,13 @@ public class HL7MessageBuilder extends MapperPanel {
 		parent.setDroppedTextPrefix("hl7_xml");
 	
 	}
+        
+        public void setAddAsGlobal(Channel channel)
+        {
+            labelPanel.setLayout( new BorderLayout() );
+            labelPanel.add( mappingLabel, BorderLayout.NORTH );
+            labelPanel.add( new JLabel( " " ), BorderLayout.WEST );
+            labelPanel.add( mappingTextField, BorderLayout.CENTER);
+            labelPanel.setBorder( BorderFactory.createEmptyBorder( 0, 0, 0, 150) );
+        }
 }
