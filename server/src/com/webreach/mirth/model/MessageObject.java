@@ -137,4 +137,24 @@ public class MessageObject implements Serializable {
 		this.connectorName = connectorName;
 	}
 
+	public boolean equals(Object source) {
+		if (source instanceof MessageObject) {
+			MessageObject messageObject = (MessageObject) source;
+			
+			return (messageObject.getChannelId().equals(getChannelId()) &&
+			messageObject.getConnectorName().equals(getConnectorName()) &&
+			messageObject.getDateCreated().equals(getDateCreated()) &&
+			messageObject.getEncodedData().equals(getEncodedData()) &&
+			messageObject.getEncodedDataProtocol().equals(getEncodedDataProtocol()) &&
+			messageObject.getId().equals(getId()) &&
+			messageObject.getRawData().equals(getRawData()) &&
+			messageObject.getRawDataProtocol().equals(getRawDataProtocol()) &&
+			messageObject.getStatus().equals(getStatus()) &&
+			messageObject.getTransformedData().equals(getTransformedData()) &&
+			messageObject.getTransformedDataProtocol().equals(getTransformedDataProtocol()) &&
+			messageObject.getVariableMap().equals(getVariableMap()));
+		} else {
+			return false;
+		}
+	}
 }
