@@ -136,7 +136,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			return messageAccepted;
 		} catch (Exception e) {
 			logger.error(e);
-			messageObject.setStatus(MessageObject.Status.REJECTED);
+			messageObject.setStatus(MessageObject.Status.ERROR);
 			messageObjectController.updateMessage(messageObject);
 			return false;
 		} finally {
