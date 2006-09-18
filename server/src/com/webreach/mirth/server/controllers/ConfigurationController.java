@@ -354,11 +354,11 @@ public class ConfigurationController {
 				logger.debug("no key found, creating new encryption key");
 				encryptionKey = KeyGenerator.getInstance(Encrypter.DES_ALGORITHM).generateKey();
 				
-				StringBuilder insert = new StringBuilder();
-				insert.append("insert into keys (data) values(");
-				insert.append("'" + serializer.toXML(encryptionKey) + "'");
-				insert.append(");");
-				dbConnection.executeUpdate(insert.toString());
+				String insert = "insert into keys (data) values(?)";
+				ArrayList<Object> parameters = new ArrayList<Object>();
+				parameters.add(serializer.toXML(encryptionKey));
+				
+				dbConnection.executeUpdate(insert, parameters);
 			}
 		} catch (Exception e) {
 			throw new ControllerException("error loading encryption key", e);
