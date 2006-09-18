@@ -35,9 +35,22 @@ import javax.swing.JScrollPane;
 
 import com.webreach.mirth.client.ui.Frame;
 import com.webreach.mirth.client.ui.PlatformUI;
+import javax.swing.table.DefaultTableModel;
 
-public class MirthEditorPane extends JPanel {
-	public boolean modified = false;
+public class MirthEditorPane extends JPanel 
+{
+    public static final int STEP_NAME_COL = 1;
+    public static final int STEP_TYPE_COL = 2;
+    public static final int STEP_DATA_COL = 3;
+    
+    // a list of panels to load
+    public static final String BLANK_TYPE = "";   
+    public static final String HL7MESSAGE_TYPE = "HL7 Message Builder";    
+    public static final String MAPPER_TYPE = "Mapper";
+    public static final String JAVASCRIPT_TYPE = "JavaScript";
+    
+    public boolean updating = false;
+    public boolean modified = false;
     public Frame parent = PlatformUI.MIRTH_FRAME;
     public JScrollPane referenceScrollPane;
 	public JPanel refPanel;
@@ -67,5 +80,15 @@ public class MirthEditorPane extends JPanel {
     
     public void setDroppedTextPrefix(String prefix){
     	tabPanel.setDroppedTextPrefix( prefix );
+    }
+    
+    public int getSelectedRow()
+    {
+        return 0;
+    }
+    
+    public DefaultTableModel getTableModel()
+    {
+        return null;
     }
 }

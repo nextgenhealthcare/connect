@@ -28,7 +28,10 @@ package com.webreach.mirth.client.ui.editors;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.EventQueue;
 import java.awt.Font;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,6 +40,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -72,6 +76,12 @@ public class MapperPanel extends CardPanel {
 		mappingTextPane = new MirthTextPane();
                 mappingTextPane.setDocument(mappingDoc);
 		
+                labelPanel.setLayout( new BorderLayout() );
+                labelPanel.add( mappingLabel, BorderLayout.NORTH );
+                labelPanel.add( new JLabel( " " ), BorderLayout.WEST );
+                labelPanel.add( mappingTextField, BorderLayout.CENTER);
+                labelPanel.setBorder( BorderFactory.createEmptyBorder( 0, 0, 0, 150) );
+                
 		mappingPanel.setBorder( BorderFactory.createEmptyBorder() );
 		mappingTextField.setBorder( BorderFactory.createEtchedBorder() );
 		mappingTextPane.setBorder( BorderFactory.createEmptyBorder() );
@@ -97,31 +107,33 @@ public class MapperPanel extends CardPanel {
 		mappingTextField.getDocument().addDocumentListener(
 				new DocumentListener() {
 					public void changedUpdate(DocumentEvent arg0) {
-
+                                                
 					}
 					
 					public void insertUpdate(DocumentEvent arg0) {
-						parent.modified = true;						
+                                            updateTable();
+                                            parent.modified = true;						
 					}
 					
 					public void removeUpdate(DocumentEvent arg0) {
-						parent.modified = true;						
+                                            updateTable();
+                                            parent.modified = true;						
 					}
 					
 				});
-		
-		mappingTextPane.getDocument().addDocumentListener(
+
+                mappingTextPane.getDocument().addDocumentListener(
 				new DocumentListener() {
 					public void changedUpdate(DocumentEvent arg0) {
-
+                                              
 					}
 					
-					public void insertUpdate(DocumentEvent arg0) {
-						parent.modified = true;						
+					public void insertUpdate(DocumentEvent arg0) {	
+                                            parent.modified = true;						
 					}
 					
 					public void removeUpdate(DocumentEvent arg0) {
-						parent.modified = true;						
+                                            parent.modified = true;						
 					}
 					
 				});
@@ -132,6 +144,30 @@ public class MapperPanel extends CardPanel {
 		this.add( mappingPanel, BorderLayout.CENTER );
 	} 
 	
+        public void updateTable()
+        {
+            if(parent.getSelectedRow() != -1)
+            {
+                SwingUtilities.invokeLater(new Runnable() {
+                   public void run() {
+                       parent.getTableModel().setValueAt(mappingTextField.getText(), parent.getSelectedRow(), parent.STEP_NAME_COL);
+                   }
+               });
+            }
+        }
+        
+        public void setAsJavaScript()
+        {
+          if(parent.getSelectedRow() != -1)
+          {
+              SwingUtilities.invokeLater(new Runnable() {
+                   public void run() {
+                       parent.getTableModel().setValueAt("New Step", parent.getSelectedRow(), parent.STEP_NAME_COL);
+                   }
+              });
+          }
+        }
+        
 	public void update(){
 		parent.update();
 		mappingLabel.setText( "   Variable: " );
@@ -148,15 +184,16 @@ public class MapperPanel extends CardPanel {
 	}
 	
 	
-	public void setData( Map<Object, Object> data ) {
+	public void setData( Map<Object, Object> data) {
                 boolean modified = parent.modified;
                 
 		if ( data != null ) {
 			mappingTextField.setText( (String)data.get( "Variable" ) );
-			mappingTextPane.setText( (String)data.get( "Mapping" ) );
+                        mappingTextPane.setText( (String)data.get( "Mapping" ) );
 		} else {
 			mappingTextField.setText( "" );
 			mappingTextPane.setText( "" );
+                        setAsJavaScript();
 		}
                 
                 parent.modified = modified;
@@ -164,10 +201,6 @@ public class MapperPanel extends CardPanel {
 	
         public void setAddAsGlobal(Channel channel)
         {
-            labelPanel.setLayout( new BorderLayout() );
-            labelPanel.add( mappingLabel, BorderLayout.NORTH );
-            labelPanel.add( new JLabel( " " ), BorderLayout.WEST );
-            labelPanel.add( mappingTextField, BorderLayout.CENTER);
             globalPanel = new JPanel();
             globalPanel.setLayout( new BorderLayout() );
             globalPanel.add( new JLabel( "  " ), BorderLayout.WEST );
@@ -180,10 +213,11 @@ public class MapperPanel extends CardPanel {
                 }
             });
             globalPanel.add( addToGlobal,  BorderLayout.EAST );  
-            labelPanel.add( globalPanel,  BorderLayout.EAST );     
+            labelPanel.add( globalPanel,  BorderLayout.EAST ); 
             labelPanel.setBorder( BorderFactory.createEmptyBorder( 0, 0, 0, 0) );
         }
 	
+        public boolean updating = false;
 	protected String label;
 	protected JPanel mappingTextPanel;		// for no linewrap in textpane
 	protected MirthTextPane mappingTextPane;

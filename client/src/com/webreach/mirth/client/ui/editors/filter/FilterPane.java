@@ -106,8 +106,6 @@ public class FilterPane extends MirthEditorPane
         
         if (parent.channelEditTasks.getContentPane().getComponent(0).isVisible())
             modified = true;
-        else
-            modified = false;
         
         // we need to clear all the old data before we load the new
         makeFilterTable();
@@ -790,6 +788,17 @@ public class FilterPane extends MirthEditorPane
                 filterTableModel.setValueAt( Rule.Operator.AND.toString(), i, RULE_OP_COL );
         }
     }
+    
+    public int getSelectedRow()
+    {
+        return filterTable.getSelectedRow();
+    }
+    
+    public DefaultTableModel getTableModel()
+    {
+        return filterTableModel;
+    }
+    
     
 //	............................................................................\\
     

@@ -111,8 +111,6 @@ public class TransformerPane extends MirthEditorPane
         
         if (parent.channelEditTasks.getContentPane().getComponent(0).isVisible())
             modified = true;
-        else
-            modified = false;
         
         tabPanel.BuildVarPanel();
         tabPanel.setDefaultComponent();
@@ -352,11 +350,16 @@ public class TransformerPane extends MirthEditorPane
         
         transformerTable.setModel(new DefaultTableModel(new String[] { "#",
         "Name", "Type", "Data" }, 0)
-        { // Data column is hidden
-            boolean[] canEdit = new boolean[] { false, true, true, true };
-            
+        { // Data column is hidden            
             public boolean isCellEditable(int rowIndex, int columnIndex)
             {
+                boolean[] canEdit;
+                
+                if(!((String)transformerTableModel.getValueAt(rowIndex, STEP_TYPE_COL)).equals(JAVASCRIPT_TYPE))
+                    canEdit = new boolean[] { false, false, true, true };
+                else
+                    canEdit = new boolean[] { false, true, true, true };
+                     
                 return canEdit[columnIndex];
             }
         });
@@ -371,23 +374,31 @@ public class TransformerPane extends MirthEditorPane
         {
             public void itemStateChanged(ItemEvent evt)
             {
-                String type = evt.getItem().toString();
-                if(type.equalsIgnoreCase(JAVASCRIPT_TYPE))
+                if(evt.getStateChange() == evt.SELECTED)
                 {
-                    jsPanel.setData(null);
+                    System.out.println("HEYHEYHEYHEY");
+                    String type = evt.getItem().toString();
+                    if(type.equalsIgnoreCase(JAVASCRIPT_TYPE))
+                    {
+                        mapperPanel.setData(null);
+                        jsPanel.setData(null);
+                    }
+                    else if(type.equalsIgnoreCase(MAPPER_TYPE))
+                    {
+                        Map<Object, Object> data = mapperPanel.getData();
+                        data.put("Variable", getUniqueName(true));
+                        data.put("Mapping", "");
+                        mapperPanel.setData(data);
+                    }                
+                    else if(type.equalsIgnoreCase(HL7MESSAGE_TYPE))
+                    {
+                        Map<Object, Object> data = mapperPanel.getData();
+                        data.put("Variable", getUniqueName(true));
+                        data.put("Mapping", "");
+                        hl7builderPanel.setData(data);
+                    }
+                    stepPanel.showCard(type);
                 }
-                else if(type.equalsIgnoreCase(MAPPER_TYPE))
-                {
-                    Map<Object, Object> data = mapperPanel.getData();
-                    data.put("Variable", getUniqueName());
-                    data.put("Mapping", "");
-                    mapperPanel.setData(data);
-                }                
-                else if(type.equalsIgnoreCase(HL7MESSAGE_TYPE))
-                {
-                    hl7builderPanel.setData(null);
-                }
-                stepPanel.showCard(type);
             }
         });
         
@@ -510,28 +521,31 @@ public class TransformerPane extends MirthEditorPane
         int row = transformerTable.getSelectedRow();
         int last = evt.getLastIndex();
         
-        saveData(prevSelRow);
-        
-        if (invalidVar)
+        if(row != prevSelRow)
         {
-            row = prevSelRow;
-            invalidVar = false;
-        }
-        
-        if (isValid(row))
-            loadData(row);
-        else if (isValid(last))
-        {
-            loadData(last);
-            row = last;
-        }
-        
-        String type = (String) transformerTable.getValueAt(row, STEP_TYPE_COL);
-        stepPanel.showCard(type);
-        transformerTable.setRowSelectionInterval(row, row);
+            saveData(prevSelRow);
 
-        prevSelRow = row;
-        updateTaskPane();
+            if (invalidVar)
+            {
+                row = prevSelRow;
+                invalidVar = false;
+            }
+
+            if (isValid(row))
+                loadData(row);
+            else if (isValid(last))
+            {
+                loadData(last);
+                row = last;
+            }
+
+            String type = (String) transformerTable.getValueAt(row, STEP_TYPE_COL);
+            stepPanel.showCard(type);
+            transformerTable.setRowSelectionInterval(row, row);
+
+            prevSelRow = row;
+            updateTaskPane();
+        }
         
         updating = false;
     }
@@ -545,35 +559,37 @@ public class TransformerPane extends MirthEditorPane
     // returns true if the variable name is unique
     // if an integer is provided, don't check against
     // the var in that row
-    public boolean isUnique(String var)
+    public boolean isUnique(String var, boolean dontCheckCurrentRow)
     {
-        return isUnique(var, -1);
+        return isUnique(var, -1, dontCheckCurrentRow);
     }
     
-    public boolean isUnique(String var, int curRow)
+    public boolean isUnique(String var, int curRow, boolean dontCheckCurrentRow)
     {
         boolean unique = true;
         
         for (int i = 0; i < transformerTableModel.getRowCount(); i++)
         {
-            String temp = "";
-            
-            Map<Object, Object> data = (Map<Object, Object>) transformerTableModel
+            if(!dontCheckCurrentRow || dontCheckCurrentRow && i != getSelectedRow())
+            {
+                String temp = "";
+                Map<Object, Object> data = (Map<Object, Object>) transformerTableModel
                     .getValueAt(i, STEP_DATA_COL);
             
-            if (data != null)
-                temp = (String) data.get("Variable");
-            
-            if (var != null && curRow != i)
-                if (var.equalsIgnoreCase(temp))
-                    unique = false;
+                if (data != null)
+                    temp = (String) data.get("Variable");
+
+                if (var != null && curRow != i)
+                    if (var.equalsIgnoreCase(temp))
+                        unique = false;
+            }
         }
         
         return unique;
     }
     
     // returns a unique default var name
-    private String getUniqueName()
+    private String getUniqueName(boolean dontCheckCurrentRow)
     {
         String base = "newVar";
         int i = 0;
@@ -581,7 +597,7 @@ public class TransformerPane extends MirthEditorPane
         while (true)
         {
             String var = base + i;
-            if (isUnique(var))
+            if (isUnique(var, dontCheckCurrentRow))
                 return var;
             i++;
         }
@@ -609,15 +625,15 @@ public class TransformerPane extends MirthEditorPane
                 String var = data.get("Variable").toString();
                 
                 // check for unique variable names if it is an INBOUND channel
-                if (channel.getDirection().equals(Channel.Direction.INBOUND))
+                if(channel.getDirection() == Channel.Direction.INBOUND)
                 {
-                    if (var == null || var.equals("") || !isUnique(var, row))
+                    if (var == null || var.equals("") || !isUnique(var, row, false))
                     {
                         invalidVar = true;
                         String msg = "";
-                        
+
                         transformerTable.setRowSelectionInterval(row, row);
-                        
+
                         if (var == null || var.equals(""))
                             msg = "The variable name cannot be blank.";
                         else
@@ -625,10 +641,29 @@ public class TransformerPane extends MirthEditorPane
                             msg = "'" + data.get("Variable") + "'"
                                     + " is not unique.";
                         msg += "\nPlease enter a new variable name.\n";
-                        
+
                         parent.alertWarning(msg);
                     }
                     else invalidVar = false;
+                }
+                else
+                {
+                    // check for empty variable names
+                    if (var == null || var.equals(""))
+                    {
+                        invalidVar = true;
+                        String msg = "";
+
+                        transformerTable.setRowSelectionInterval(row, row);
+
+                        if (var == null || var.equals(""))
+                            msg = "The variable name cannot be blank.";
+
+                        msg += "\nPlease enter a new variable name.\n";
+
+                        parent.alertWarning(msg);
+                    }
+                    else invalidVar = false;                    
                 }
                 
                 data = mapperPanel.getData();
@@ -644,6 +679,26 @@ public class TransformerPane extends MirthEditorPane
             }
             else if ((hl7builderPanel != null) && (type == HL7MESSAGE_TYPE))
             {
+                data = hl7builderPanel.getData();
+                String var = data.get("Variable").toString();
+                
+                // check for empty variable names
+                if (var == null || var.equals(""))
+                {
+                    invalidVar = true;
+                    String msg = "";
+
+                    transformerTable.setRowSelectionInterval(row, row);
+
+                    if (var == null || var.equals(""))
+                        msg = "The variable name cannot be blank.";
+                    
+                    msg += "\nPlease enter a new variable name.\n";
+
+                    parent.alertWarning(msg);
+                }
+                else invalidVar = false;
+                
                 data = hl7builderPanel.getData();
             }
             transformerTableModel.setValueAt(data, row, STEP_DATA_COL);
@@ -671,7 +726,7 @@ public class TransformerPane extends MirthEditorPane
     
     private void setPanelData(String type, Map<Object, Object> data)
     {
-        if (type == MAPPER_TYPE)
+        if (type.equalsIgnoreCase(MAPPER_TYPE))
         {
             if(data.get("isGlobal") == null || ((String)data.get("isGlobal")).equals(UIConstants.NO_OPTION))
                 mapperPanel.addToGlobal.setSelected(false);
@@ -680,9 +735,9 @@ public class TransformerPane extends MirthEditorPane
 
             mapperPanel.setData(data);
         }
-        else if (type == JAVASCRIPT_TYPE)
+        else if (type.equalsIgnoreCase(JAVASCRIPT_TYPE))
             jsPanel.setData(data);
-        else if ((hl7builderPanel != null) && (type == HL7MESSAGE_TYPE))
+        else if ((hl7builderPanel != null) && (type.equalsIgnoreCase(HL7MESSAGE_TYPE)))
             hl7builderPanel.setData(data);
     }
     
@@ -704,7 +759,10 @@ public class TransformerPane extends MirthEditorPane
         Object[] tableData = new Object[NUMBER_OF_COLUMNS];
         
         tableData[STEP_NUMBER_COL] = step.getSequenceNumber();
-        tableData[STEP_NAME_COL] = step.getName();
+        if(step.getType().equalsIgnoreCase(MAPPER_TYPE) || step.getType().equalsIgnoreCase(HL7MESSAGE_TYPE))
+            tableData[STEP_NAME_COL] = (String)((Map<Object, Object>) step.getData()).get("Variable");
+        else
+            tableData[STEP_NAME_COL] = step.getName();
         tableData[STEP_TYPE_COL] = step.getType();
         tableData[STEP_DATA_COL] = step.getData();
         
@@ -719,36 +777,40 @@ public class TransformerPane extends MirthEditorPane
      */
     public void addNewStep()
     {
-        modified = true;
-        int rowCount = transformerTable.getRowCount();
-        Step step = new Step();
-        
         saveData(transformerTable.getSelectedRow());
         
-        step.setSequenceNumber(rowCount);
-        step.setScript("");
-        step.setName("New Step");
-        
-        Map<Object, Object> data = new HashMap<Object, Object>();
-        data.put( "Mapping", "" );
-        if (channel.getDirection().equals(Channel.Direction.INBOUND))
+        if (!invalidVar)
         {
-            data.put("Variable", getUniqueName());
-            step.setType(MAPPER_TYPE); // mapper type by default, inbound
-            mapperPanel.setData(data);
+            int rowCount = transformerTable.getRowCount();
+            modified = true;
+            Step step = new Step();
+            step.setSequenceNumber(rowCount);
+            step.setScript("");
+
+
+            Map<Object, Object> data = new HashMap<Object, Object>();
+            data.put( "Mapping", "" );
+            if (channel.getDirection().equals(Channel.Direction.INBOUND))
+            {
+                step.setName(getUniqueName(false));
+                data.put("Variable", step.getName());
+                step.setType(MAPPER_TYPE); // mapper type by default, inbound
+                mapperPanel.setData(data);
+            }
+            else if (channel.getDirection().equals(Channel.Direction.OUTBOUND))
+            {
+                step.setName(getUniqueName(false));
+                data.put("Variable", step.getName());
+                step.setType(HL7MESSAGE_TYPE); // hl7 message type by default, outbound
+                hl7builderPanel.setData(data);
+            }
+            step.setData(data);
+            jsPanel.setData( null );  // for completeness
+
+            setRowData(step, rowCount);
+            prevSelRow = rowCount;
+            updateStepNumbers();
         }
-        else if (channel.getDirection().equals(Channel.Direction.OUTBOUND))
-        {
-            data.put("Variable", "");
-            step.setType(HL7MESSAGE_TYPE); // hl7 message type by default, outbound
-            hl7builderPanel.setData(data);
-        }
-        step.setData(data);
-        jsPanel.setData( null );  // for completeness
-        
-        setRowData(step, rowCount);
-        prevSelRow = rowCount;
-        updateStepNumbers();
     }
     
     /**
@@ -924,7 +986,7 @@ public class TransformerPane extends MirthEditorPane
                     
                     StringBuilder script = new StringBuilder();
                     
-                    if(((String)map.get("isGlobal")).equalsIgnoreCase(UIConstants.YES_OPTION))
+                    if(map.get("isGlobal") != null && ((String)map.get("isGlobal")).equalsIgnoreCase(UIConstants.YES_OPTION))
                         script.append("globalMap.put(");
                     else
                         script.append("localMap.put(");
@@ -1038,6 +1100,16 @@ public class TransformerPane extends MirthEditorPane
         parent.setVisibleTasks(transformerTasks, transformerPopupMenu, 2,3, true);
     }
     
+    public int getSelectedRow()
+    {
+        return transformerTable.getSelectedRow();
+    }
+    
+    public DefaultTableModel getTableModel()
+    {
+        return transformerTableModel;
+    }
+    
     // ............................................................................\\
     
     // used to load the pane
@@ -1071,7 +1143,7 @@ public class TransformerPane extends MirthEditorPane
     
     private Connector connector;
     
-    private boolean updating; // flow control
+    public boolean updating; // flow control
     
     private boolean invalidVar; // selection control
     
@@ -1089,22 +1161,7 @@ public class TransformerPane extends MirthEditorPane
     // transformer constants
     public static final int STEP_NUMBER_COL = 0;
     
-    public static final int STEP_NAME_COL = 1;
-    
-    public static final int STEP_TYPE_COL = 2;
-    
-    public static final int STEP_DATA_COL = 3;
-    
     public static final int NUMBER_OF_COLUMNS = 4;
-    
-    // a list of panels to load
-    public static final String BLANK_TYPE = "";
-    
-    public static final String HL7MESSAGE_TYPE = "HL7 Message Builder";
-    
-    public static final String MAPPER_TYPE = "Mapper";
-    
-    public static final String JAVASCRIPT_TYPE = "JavaScript";
     
     private String[] defaultComboBoxValues = { MAPPER_TYPE, HL7MESSAGE_TYPE,
     JAVASCRIPT_TYPE };
