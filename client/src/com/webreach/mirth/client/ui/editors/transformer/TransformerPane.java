@@ -376,7 +376,6 @@ public class TransformerPane extends MirthEditorPane
             {
                 if(evt.getStateChange() == evt.SELECTED)
                 {
-                    System.out.println("HEYHEYHEYHEY");
                     String type = evt.getItem().toString();
                     if(type.equalsIgnoreCase(JAVASCRIPT_TYPE))
                     {
