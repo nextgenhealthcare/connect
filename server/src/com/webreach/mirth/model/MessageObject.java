@@ -27,6 +27,7 @@ public class MessageObject implements Serializable {
 	private Map variableMap;
 	private String connectorName;
 	private boolean encrypted;
+	private String errors;
 
 	public String getId() {
 		return this.id;
@@ -137,6 +138,14 @@ public class MessageObject implements Serializable {
 		this.connectorName = connectorName;
 	}
 
+	public String getErrors() {
+		return this.errors;
+	}
+
+	public void setErrors(String errors) {
+		this.errors = errors;
+	}
+
 	public boolean equals(Object source) {
 		if (source instanceof MessageObject) {
 			MessageObject messageObject = (MessageObject) source;
@@ -152,7 +161,9 @@ public class MessageObject implements Serializable {
 			messageObject.getStatus().equals(getStatus()) &&
 			messageObject.getTransformedData().equals(getTransformedData()) &&
 			messageObject.getTransformedDataProtocol().equals(getTransformedDataProtocol()) &&
-			messageObject.getVariableMap().equals(getVariableMap()));
+			messageObject.getVariableMap().equals(getVariableMap()) &&
+			messageObject.isEncrypted() == isEncrypted() &&
+			messageObject.getErrors().equals(getErrors()));
 		} else {
 			return false;
 		}

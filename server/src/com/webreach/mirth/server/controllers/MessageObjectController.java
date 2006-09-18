@@ -60,7 +60,7 @@ public class MessageObjectController {
 			
 			if (getMessageCount(filter) == 0) {
 				logger.debug("inserting message: id=" + messageObject.getId());
-				statement = "insert into messages (id, channel_id, date_created, encrypted, status, raw_data, raw_data_protocol, transformed_data, transformed_data_protocol, encoded_data, encoded_data_protocol, variable_map, connector_name) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+				statement = "insert into messages (id, channel_id, date_created, encrypted, status, raw_data, raw_data_protocol, transformed_data, transformed_data_protocol, encoded_data, encoded_data_protocol, variable_map, connector_name, errors) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
 				parameters.add(messageObject.getId());
 				parameters.add(messageObject.getChannelId());
@@ -75,15 +75,17 @@ public class MessageObjectController {
 				parameters.add(messageObject.getEncodedDataProtocol());
 				parameters.add(serializer.toXML(messageObject.getVariableMap()));
 				parameters.add(messageObject.getConnectorName());
+				parameters.add(messageObject.getErrors());
 			} else {
 				logger.debug("updating message: id=" + messageObject.getId());
-				statement = "update messages set status = ?, raw_data = ?, transformed_data = ?, encoded_data = ?, variable_map = ? where id = ?";
+				statement = "update messages set status = ?, raw_data = ?, transformed_data = ?, encoded_data = ?, variable_map = ?, errors = ? where id = ?";
 
 				parameters.add(messageObject.getStatus());
 				parameters.add(rawData);
 				parameters.add(transformedData);
 				parameters.add(encodedData);
 				parameters.add(serializer.toXML(messageObject.getVariableMap()));
+				parameters.add(messageObject.getErrors());
 				parameters.add(messageObject.getId());
 			}
 			
@@ -117,6 +119,7 @@ public class MessageObjectController {
 			select.addColumn(messages, "encoded_data_protocol");
 			select.addColumn(messages, "variable_map");
 			select.addColumn(messages, "connector_name");
+			select.addColumn(messages, "errors");
 			
 			addFilterCriteria(select, filter);
 			select.addOrder(messages, "date_created", Order.DESCENDING);
@@ -279,6 +282,7 @@ public class MessageObjectController {
 			messageObject.setEncodedDataProtocol(MessageObject.Protocol.valueOf(result.getString("encoded_data_protocol")));
 			messageObject.setVariableMap((Map) serializer.fromXML(result.getString("variable_map")));
 			messageObject.setConnectorName(result.getString("connector_name"));
+			messageObject.setErrors(result.getString("errors"));
 			
 			messageObjects.add(messageObject);
 		}
