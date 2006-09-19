@@ -230,7 +230,7 @@ public class MessageObjectController {
 				String startDate = String.format("%1$tY-%1$tm-%1$td 00:00:00", filter.getStartDate());
 				String endDate = String.format("%1$tY-%1$tm-%1$td 23:59:59", filter.getEndDate());
 
-				delete.addCriteria("(date_created >= ? and date_create <= ?)");
+				delete.addCriteria("(date_created >= ? and date_created <= ?)");
 				
 				parameters.add(startDate);
 				parameters.add(endDate);
