@@ -20,6 +20,7 @@ import com.webreach.mirth.model.filters.MessageObjectFilter;
 import com.webreach.mirth.server.util.DatabaseConnection;
 import com.webreach.mirth.server.util.DatabaseConnectionFactory;
 import com.webreach.mirth.server.util.DatabaseUtil;
+import com.webreach.mirth.server.util.sql.Delete;
 import com.webreach.mirth.util.Encrypter;
 
 public class MessageObjectController {
@@ -204,19 +205,48 @@ public class MessageObjectController {
 
 	}
 	
-	public void removeMessage(String messageObjectId) throws ControllerException {
-		logger.debug("removing message: id=" + messageObjectId);
+	public void removeMessages(MessageObjectFilter filter) throws ControllerException {
+		logger.debug("removing messages: filter=" + filter.toString());
 
 		DatabaseConnection dbConnection = null;
 
 		try {
 			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
 			
-			String statement = "delete from messages where id = ?";
+			Delete delete = new Delete("messages");
 			ArrayList<Object> parameters = new ArrayList<Object>();
-			parameters.add(messageObjectId);
 			
-			dbConnection.executeUpdate(statement, parameters);
+			if (filter.getId() != null) {
+				delete.addCriteria("id = ?");
+				parameters.add(filter.getId());
+			}
+			
+			if (filter.getChannelId() != null) {
+				delete.addCriteria("channel_id = ?");
+				parameters.add(filter.getChannelId());
+			}
+			
+			if ((filter.getStartDate() != null) && (filter.getEndDate() != null)) {
+				String startDate = String.format("%1$tY-%1$tm-%1$td 00:00:00", filter.getStartDate());
+				String endDate = String.format("%1$tY-%1$tm-%1$td 23:59:59", filter.getEndDate());
+
+				delete.addCriteria("(date_created >= ? and date_create <= ?)");
+				
+				parameters.add(startDate);
+				parameters.add(endDate);
+			}
+			
+			if (filter.getStatus() != null) {
+				delete.addCriteria("status = ?");
+				parameters.add(filter.getStatus().toString());
+			}
+
+			if (filter.getConnectorName() != null) {
+				delete.addCriteria("connector_name = ?");
+				parameters.add(filter.getConnectorName());
+			}
+			
+			dbConnection.executeUpdate(delete.toString(), parameters);
 		} catch (SQLException e) {
 			throw new ControllerException(e);
 		} finally {

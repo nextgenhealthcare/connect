@@ -347,9 +347,9 @@ public class Client {
 	 * @param messageEventId
 	 * @throws ClientException
 	 */
-	public synchronized void removeMessage(String messageId) throws ClientException {
-		logger.debug("removing message: " + messageId);
-		NameValuePair[] params = { new NameValuePair("op", "removeMessage"), new NameValuePair("data", messageId) };
+	public synchronized void removeMessages(MessageObjectFilter filter) throws ClientException {
+		logger.debug("removing messages");
+		NameValuePair[] params = { new NameValuePair("op", "removeMessages"), new NameValuePair("filter", serializer.toXML(filter)) };
 		serverConnection.executePostMethod(MESSAGE_SERVLET, params);
 	}
 

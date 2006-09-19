@@ -303,9 +303,9 @@ public class MirthManager {
 	 * @param messageId
 	 * @throws MirthException
 	 */
-	public void removeMessage(String messageId) throws MirthException {
+	public void removeMessages(MessageObjectFilter filter) throws MirthException {
 		try {
-			messageObjectController.removeMessage(messageId);
+			messageObjectController.removeMessages(filter);
 		} catch (ControllerException e) {
 			throw new MirthException(e);
 		}
