@@ -208,6 +208,8 @@ public class MessageBrowser extends javax.swing.JPanel
                     messageObjectList = handler.getPreviousPage();
             }
             
+            int messageCount = handler.getSize();
+            int currentPage = handler.getCurrentPage();
             int pageSize = messageObjectFilter.getPageSize();
             if (pageSize == -1)
                 pageSize = 0;
@@ -220,35 +222,36 @@ public class MessageBrowser extends javax.swing.JPanel
                 previousPageButton.setEnabled(true);
             
             int numberOfPages;
+            
             if (pageSize == 0)
-                numberOfPages = 0;
+                numberOfPages = 0;            
             else
             {
-                numberOfPages = handler.getSize() / pageSize;
-                if ((handler.getSize() != 0) && ((handler.getSize() % pageSize) == 0))
+                numberOfPages = messageCount / pageSize;
+                if ((messageCount != 0) && ((messageCount % pageSize) == 0))
                     numberOfPages--;
             }
             
-            if (handler.getCurrentPage() == numberOfPages)
+            if (currentPage == numberOfPages)
                 nextPageButton.setEnabled(false);
             else
                 nextPageButton.setEnabled(true);
             
             int startResult;
-            if (handler.getSize() == 0)
+            if (messageCount == 0)
                 startResult = 0;
             else 
-                startResult = (handler.getCurrentPage() * pageSize) + 1;
+                startResult = (currentPage * pageSize) + 1;
             
             int endResult;
             if (pageSize == 0)
-                endResult = handler.getSize();
+                endResult = messageCount;
             else
-                endResult = (handler.getCurrentPage() + 1) * pageSize;
+                endResult = (currentPage + 1) * pageSize;
             
-            if (handler.getSize() < endResult)
-                endResult = handler.getSize();
-            resultsLabel.setText("Results " + startResult + " - " + endResult + " of " + handler.getSize());
+            if (messageCount < endResult)
+                endResult = messageCount;
+            resultsLabel.setText("Results " + startResult + " - " + endResult + " of " + messageCount);
             
         }
         catch (ListHandlerException e)
