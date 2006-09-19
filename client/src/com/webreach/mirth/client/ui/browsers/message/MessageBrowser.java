@@ -405,12 +405,14 @@ public class MessageBrowser extends javax.swing.JPanel
      */
     public void clearDescription()
     {
-//        RawMessageTextPane.setDocument(new HighlightedDocument());
+        RawMessageTextPane.setDocument(new HighlightedDocument());
         RawMessageTextPane.setText("Select a message to view the raw message.");
-//        TransformedMessageTextPane.setDocument(new HighlightedDocument());
+        TransformedMessageTextPane.setDocument(new HighlightedDocument());
         TransformedMessageTextPane.setText("Select a message to view the transformed message.");
-//        EncodedMessageTextPane.setDocument(new HighlightedDocument());
+        EncodedMessageTextPane.setDocument(new HighlightedDocument());
         EncodedMessageTextPane.setText("Select a message to view the encoded message.");
+        ErrorsTextPane.setDocument(new HighlightedDocument());
+        ErrorsTextPane.setText("Select a message to view any errors.");
         makeMappingsTable(new String[0][0], true);
     }
     
@@ -433,19 +435,17 @@ public class MessageBrowser extends javax.swing.JPanel
                 setCorrectDocument(RawMessageTextPane, currentMessage.getRawData(), currentMessage.getRawDataProtocol());
                 setCorrectDocument(TransformedMessageTextPane, currentMessage.getTransformedData(), currentMessage.getTransformedDataProtocol());
                 setCorrectDocument(EncodedMessageTextPane, currentMessage.getEncodedData(), currentMessage.getEncodedDataProtocol());
+                setCorrectDocument(ErrorsTextPane, currentMessage.getErrors(), null);
                 
                 Map variableMap = currentMessage.getVariableMap();
                 Iterator variableMapSetIterator = variableMap.entrySet().iterator();
-                                
                 String[][] tableData = new String[variableMap.size()][2];
-                
                 for (int i=0; variableMapSetIterator.hasNext(); i++)
                 {
                     Entry variableMapEntry = (Entry)variableMapSetIterator.next();
                     tableData[i][0] = (String)variableMapEntry.getKey();
                     tableData[i][1] = (String)variableMapEntry.getValue();
                 }
-                
                 makeMappingsTable(tableData, false);
                 
                 this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
@@ -459,12 +459,15 @@ public class MessageBrowser extends javax.swing.JPanel
 
         if (message != null)
         {
-            if (protocol.equals(MessageObject.Protocol.HL7))
-                newDoc.setHighlightStyle(HighlightedDocument.C_STYLE);
-            else if (protocol.equals(MessageObject.Protocol.XML))
-                newDoc.setHighlightStyle(HighlightedDocument.HTML_STYLE);
-            else if (protocol.equals(MessageObject.Protocol.X12))
-                newDoc.setHighlightStyle(HighlightedDocument.C_STYLE);
+            if (protocol != null)
+            {
+                if (protocol.equals(MessageObject.Protocol.HL7))
+                    newDoc.setHighlightStyle(HighlightedDocument.C_STYLE);
+                else if (protocol.equals(MessageObject.Protocol.XML))
+                    newDoc.setHighlightStyle(HighlightedDocument.HTML_STYLE);
+                else if (protocol.equals(MessageObject.Protocol.X12))
+                    newDoc.setHighlightStyle(HighlightedDocument.C_STYLE);
+            }
             
             textPane.setDocument(newDoc);
             textPane.setText(message);
@@ -524,6 +527,9 @@ public class MessageBrowser extends javax.swing.JPanel
         jScrollPane4 = new javax.swing.JScrollPane();
         EncodedMessageTextPane = new com.webreach.mirth.client.ui.components.MirthTextPane();
         MappingsPanel = new javax.swing.JPanel();
+        ErrorsPanel = new javax.swing.JPanel();
+        jScrollPane5 = new javax.swing.JScrollPane();
+        ErrorsTextPane = new com.webreach.mirth.client.ui.components.MirthTextPane();
 
         setBackground(new java.awt.Color(255, 255, 255));
         filterPanel.setBackground(new java.awt.Color(255, 255, 255));
@@ -579,11 +585,11 @@ public class MessageBrowser extends javax.swing.JPanel
                         .add(jLabel5)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(statusComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 105, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 186, Short.MAX_VALUE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 198, Short.MAX_VALUE)
                         .add(resultsLabel))
                     .add(filterPanelLayout.createSequentialGroup()
                         .add(filterButton)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 228, Short.MAX_VALUE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 240, Short.MAX_VALUE)
                         .add(previousPageButton)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(nextPageButton))
@@ -593,7 +599,7 @@ public class MessageBrowser extends javax.swing.JPanel
                         .add(jLabel2)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(mirthDatePicker2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 73, Short.MAX_VALUE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 85, Short.MAX_VALUE)
                         .add(jLabel6)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(pageSizeField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 30, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
@@ -651,7 +657,7 @@ public class MessageBrowser extends javax.swing.JPanel
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 611, Short.MAX_VALUE)
+            .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 623, Short.MAX_VALUE)
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -671,7 +677,7 @@ public class MessageBrowser extends javax.swing.JPanel
             RawMessagePanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(RawMessagePanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .add(jScrollPane3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 586, Short.MAX_VALUE)
+                .add(jScrollPane3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 598, Short.MAX_VALUE)
                 .addContainerGap())
         );
         RawMessagePanelLayout.setVerticalGroup(
@@ -694,7 +700,7 @@ public class MessageBrowser extends javax.swing.JPanel
             TransformedMessagePanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(TransformedMessagePanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .add(jScrollPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 586, Short.MAX_VALUE)
+                .add(jScrollPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 598, Short.MAX_VALUE)
                 .addContainerGap())
         );
         TransformedMessagePanelLayout.setVerticalGroup(
@@ -717,7 +723,7 @@ public class MessageBrowser extends javax.swing.JPanel
             EncodedMessagePanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(EncodedMessagePanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .add(jScrollPane4, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 586, Short.MAX_VALUE)
+                .add(jScrollPane4, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 598, Short.MAX_VALUE)
                 .addContainerGap())
         );
         EncodedMessagePanelLayout.setVerticalGroup(
@@ -735,7 +741,7 @@ public class MessageBrowser extends javax.swing.JPanel
         MappingsPanel.setLayout(MappingsPanelLayout);
         MappingsPanelLayout.setHorizontalGroup(
             MappingsPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 606, Short.MAX_VALUE)
+            .add(0, 618, Short.MAX_VALUE)
         );
         MappingsPanelLayout.setVerticalGroup(
             MappingsPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -743,11 +749,34 @@ public class MessageBrowser extends javax.swing.JPanel
         );
         descriptionTabbedPane.addTab("Mappings", MappingsPanel);
 
+        ErrorsPanel.setBackground(new java.awt.Color(255, 255, 255));
+        ErrorsPanel.setFocusable(false);
+        ErrorsTextPane.setEditable(false);
+        jScrollPane5.setViewportView(ErrorsTextPane);
+
+        org.jdesktop.layout.GroupLayout ErrorsPanelLayout = new org.jdesktop.layout.GroupLayout(ErrorsPanel);
+        ErrorsPanel.setLayout(ErrorsPanelLayout);
+        ErrorsPanelLayout.setHorizontalGroup(
+            ErrorsPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(ErrorsPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .add(jScrollPane5, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 598, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        ErrorsPanelLayout.setVerticalGroup(
+            ErrorsPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(ErrorsPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .add(jScrollPane5, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 124, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        descriptionTabbedPane.addTab("Errors", ErrorsPanel);
+
         org.jdesktop.layout.GroupLayout descriptionPanelLayout = new org.jdesktop.layout.GroupLayout(descriptionPanel);
         descriptionPanel.setLayout(descriptionPanelLayout);
         descriptionPanelLayout.setHorizontalGroup(
             descriptionPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(descriptionTabbedPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 611, Short.MAX_VALUE)
+            .add(descriptionTabbedPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 623, Short.MAX_VALUE)
         );
         descriptionPanelLayout.setVerticalGroup(
             descriptionPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -836,6 +865,8 @@ public class MessageBrowser extends javax.swing.JPanel
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel EncodedMessagePanel;
     private com.webreach.mirth.client.ui.components.MirthTextPane EncodedMessageTextPane;
+    private javax.swing.JPanel ErrorsPanel;
+    private com.webreach.mirth.client.ui.components.MirthTextPane ErrorsTextPane;
     private javax.swing.JPanel MappingsPanel;
     private javax.swing.JPanel RawMessagePanel;
     private com.webreach.mirth.client.ui.components.MirthTextPane RawMessageTextPane;
@@ -856,6 +887,7 @@ public class MessageBrowser extends javax.swing.JPanel
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
+    private javax.swing.JScrollPane jScrollPane5;
     private javax.swing.JTable jTable1;
     private com.webreach.mirth.client.ui.components.MirthDatePicker mirthDatePicker1;
     private com.webreach.mirth.client.ui.components.MirthDatePicker mirthDatePicker2;
