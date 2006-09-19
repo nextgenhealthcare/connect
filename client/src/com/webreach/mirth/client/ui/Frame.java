@@ -1180,6 +1180,27 @@ public class Frame extends JXFrame
         }
         return true;
     }
+    
+    /**
+     * Checks to see if the passed in channel version is current,
+     * and prompts the user if it is not.
+     */
+    public boolean checkVersion(String importedChannel, String currentVersion)
+    {
+        if (importedChannel == null)
+        {
+            if(!alertOption("The channel being imported is from an unknown version of Mirth." +
+                    "\nSome channel properties may not be the same.  Would you like to continue?"))
+                return false;
+        }
+        else if (!importedChannel.equals(currentVersion))
+        {
+            if(!alertOption("The channel being imported is from Mirth version " + importedChannel + ". You are using Mirth version " + currentVersion + 
+                    ".\nSome channel properties may not be the same.  Would you like to continue?"))
+                return false;
+        }
+        return true;
+    }
 
     /**
      * Enables the save button for needed page.
@@ -1723,6 +1744,9 @@ public class Frame extends JXFrame
             {
                 Channel importChannel = (Channel)serializer.fromXML(channelXML);
 
+                if (!checkVersion(importChannel.getVersion(), mirthClient.getVersion()))
+                    return;
+                
                 if(!checkChannelName(importChannel.getName()))
                     return;
 
