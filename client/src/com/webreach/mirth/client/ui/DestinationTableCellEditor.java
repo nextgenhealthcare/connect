@@ -112,7 +112,7 @@ public class DestinationTableCellEditor extends AbstractCellEditor implements Ta
                 return false;
         }
         
-        parent.channelEditTasks.getContentPane().getComponent(0).setVisible(true);
+        parent.enableSave();
         // set the name to the new name.
         for(int i = 0; i<destinationConnectors.size(); i++)
         {

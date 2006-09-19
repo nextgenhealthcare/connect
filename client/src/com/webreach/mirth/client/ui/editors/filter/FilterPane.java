@@ -26,6 +26,7 @@
 
 package com.webreach.mirth.client.ui.editors.filter;
 
+import com.webreach.mirth.client.ui.editors.EditorTableCellEditor;
 import java.awt.BorderLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -50,6 +51,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 
 import org.jdesktop.swingx.JXComboBox;
@@ -315,9 +318,9 @@ public class FilterPane extends MirthEditorPane
         filterTable = new JXTable();
         
         filterTable.setModel( new DefaultTableModel(
-                new String [] { "#", "Operator", "Script" }, 0 )
+                new String [] { "#", "Operator", "Name", "Script" }, 0 )
         {
-            boolean[] canEdit = new boolean [] { false, true, false };
+            boolean[] canEdit = new boolean [] { false, true, true, false };
             
             public boolean isCellEditable( int row, int col )
             {
@@ -329,6 +332,8 @@ public class FilterPane extends MirthEditorPane
         
         filterTableModel = (DefaultTableModel)filterTable.getModel();
         
+        filterTable.getColumnModel().getColumn(RULE_NAME_COL).setCellEditor(new EditorTableCellEditor(this));
+        
         // Set the combobox editor on the operator column, and add action listener
         MyComboBoxEditor comboBox = new MyComboBoxEditor( comboBoxValues );
         ((JXComboBox)comboBox.getComponent()).addItemListener(
@@ -336,6 +341,7 @@ public class FilterPane extends MirthEditorPane
         {
             public void itemStateChanged( ItemEvent evt )
             {
+                modified = true;
                 updateOperations();
             }
         });
@@ -353,6 +359,8 @@ public class FilterPane extends MirthEditorPane
         
         filterTable.getColumnExt( RULE_NUMBER_COL ).setHeaderRenderer( PlatformUI.CENTER_COLUMN_HEADER_RENDERER );
         filterTable.getColumnExt( RULE_OP_COL ).setHeaderRenderer( PlatformUI.CENTER_COLUMN_HEADER_RENDERER );
+        
+        filterTable.getColumnExt( RULE_SCRIPT_COL ).setVisible(false);
         
         filterTable.setRowHeight( UIConstants.ROW_HEIGHT );
         filterTable.packTable( UIConstants.COL_MARGIN );
@@ -508,6 +516,10 @@ public class FilterPane extends MirthEditorPane
         
         tableData[RULE_NUMBER_COL] = rule.getSequenceNumber();
         tableData[RULE_OP_COL] = rule.getOperator();
+        if(rule.getName() != null)
+            tableData[RULE_NAME_COL] = rule.getName();
+        else
+            tableData[RULE_NAME_COL] = "New Rule";
         tableData[RULE_SCRIPT_COL] = rule.getScript();
         
         updating = true;
@@ -529,6 +541,8 @@ public class FilterPane extends MirthEditorPane
         
         rule.setSequenceNumber( rowCount );
         rule.setScript( "return true;" );
+        rule.setName("New Rule");
+        
         if ( rowCount == 0 )
             rule.setOperator( Rule.Operator.NONE );	// NONE operator by default on row 0
         else
@@ -695,7 +709,7 @@ public class FilterPane extends MirthEditorPane
                         filterTableModel.getValueAt( i, RULE_OP_COL ).toString() ));
             
             rule.setScript( (String)filterTableModel.getValueAt( i, RULE_SCRIPT_COL ));
-            
+            rule.setName( (String)filterTableModel.getValueAt( i, RULE_NAME_COL ));
             list.add( rule );
         }
         
@@ -829,11 +843,7 @@ public class FilterPane extends MirthEditorPane
     protected BlankPanel blankPanel;	// the cards
     protected JavaScriptPanel jsPanel;  //    \/
     
-    // filter constants
-    public static final int RULE_NUMBER_COL  = 0;
-    public static final int RULE_OP_COL  = 1;
-    public static final int RULE_SCRIPT_COL  = 2;
-    public static final int NUMBER_OF_COLUMNS = 3;
+    public static final int NUMBER_OF_COLUMNS = 4;
     public static final String BLANK_TYPE = "";
     public static final String JAVASCRIPT_TYPE = "JavaScript";
     private String[] comboBoxValues = new String[] {

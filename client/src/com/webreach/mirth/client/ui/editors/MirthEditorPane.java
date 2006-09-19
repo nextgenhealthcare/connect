@@ -39,9 +39,17 @@ import javax.swing.table.DefaultTableModel;
 
 public class MirthEditorPane extends JPanel 
 {
+    // transformer constants
+    public static final int STEP_NUMBER_COL = 0;
     public static final int STEP_NAME_COL = 1;
     public static final int STEP_TYPE_COL = 2;
     public static final int STEP_DATA_COL = 3;
+    
+    // filter constants
+    public static final int RULE_NUMBER_COL  = 0;
+    public static final int RULE_OP_COL  = 1;
+    public static final int RULE_NAME_COL  = 2;
+    public static final int RULE_SCRIPT_COL  = 3;
     
     // a list of panels to load
     public static final String BLANK_TYPE = "";   

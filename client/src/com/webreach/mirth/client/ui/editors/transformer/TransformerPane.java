@@ -28,6 +28,7 @@ package com.webreach.mirth.client.ui.editors.transformer;
 
 import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.ui.XMLFileFilter;
+import com.webreach.mirth.client.ui.editors.EditorTableCellEditor;
 import com.webreach.mirth.client.ui.util.FileUtil;
 import com.webreach.mirth.model.Connector;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
@@ -366,6 +367,8 @@ public class TransformerPane extends MirthEditorPane
         
         transformerTableModel = (DefaultTableModel) transformerTable.getModel();
         
+        transformerTable.getColumnModel().getColumn(STEP_NAME_COL).setCellEditor(new EditorTableCellEditor(this));
+        
         // Set the combobox editor on the type column, and add action listener
         MyComboBoxEditor comboBox = new MyComboBoxEditor(comboBoxValues);
         
@@ -376,6 +379,7 @@ public class TransformerPane extends MirthEditorPane
             {
                 if(evt.getStateChange() == evt.SELECTED)
                 {
+                    modified = true;
                     String type = evt.getItem().toString();
                     if(type.equalsIgnoreCase(JAVASCRIPT_TYPE))
                     {
@@ -1156,9 +1160,6 @@ public class TransformerPane extends MirthEditorPane
     protected HL7MessageBuilder hl7builderPanel; // \/
     
     protected JavaScriptPanel jsPanel; // \/
-    
-    // transformer constants
-    public static final int STEP_NUMBER_COL = 0;
     
     public static final int NUMBER_OF_COLUMNS = 4;
     
