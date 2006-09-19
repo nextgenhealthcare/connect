@@ -137,7 +137,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 		} catch (Exception e) {
 			logger.error("error ocurred in filter", e);
 			messageObject.setStatus(MessageObject.Status.ERROR);
-			messageObject.setErrors(e.getMessage());
+			messageObject.setErrors(e.toString());
 			messageObjectController.updateMessage(messageObject);
 			return false;
 		} finally {
@@ -183,8 +183,8 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			messageObjectController.updateMessage(messageObject);
 			return messageObject;
 		} catch (Exception e) {
-			messageObject.setErrors(e.getMessage());
 			messageObject.setStatus(MessageObject.Status.ERROR);
+			messageObject.setErrors(e.toString());
 			messageObjectController.updateMessage(messageObject);
 			throw new TransformerException(this, e);
 		} finally {
@@ -228,8 +228,8 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			messageObjectController.updateMessage(messageObject);
 			return messageObject;
 		} catch (Exception e) {
-			messageObject.setErrors(e.getMessage());
 			messageObject.setStatus(MessageObject.Status.ERROR);
+			messageObject.setErrors(e.toString());
 			messageObjectController.updateMessage(messageObject);
 			throw new TransformerException(this, e);
 		} finally {
