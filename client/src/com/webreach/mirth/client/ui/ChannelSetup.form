@@ -80,7 +80,7 @@
                                   <Component id="xmlPreEncoded" alignment="0" min="-2" max="-2" attributes="1"/>
                               </Group>
                           </Group>
-                          <Component id="jScrollPane1" pref="523" max="32767" attributes="2"/>
+                          <Component id="jScrollPane1" pref="519" max="32767" attributes="2"/>
                       </Group>
                       <EmptySpace min="-2" pref="80" max="-2" attributes="0"/>
                   </Group>

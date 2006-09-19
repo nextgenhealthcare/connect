@@ -57,6 +57,8 @@ public class MirthEditorPane extends JPanel
     public static final String MAPPER_TYPE = "Mapper";
     public static final String JAVASCRIPT_TYPE = "JavaScript";
     
+    public int prevSelRow = -1;
+    
     public boolean updating = false;
     public boolean modified = false;
     public Frame parent = PlatformUI.MIRTH_FRAME;

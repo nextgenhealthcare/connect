@@ -26,11 +26,31 @@
 
 package com.webreach.mirth.client.ui.editors;
 
+import java.awt.event.MouseEvent;
+import java.util.EventObject;
 import javax.swing.DefaultCellEditor;
 import org.jdesktop.swingx.JXComboBox;
 
-public class MyComboBoxEditor extends DefaultCellEditor {
-    public MyComboBoxEditor(String[] items) {
+public class MyComboBoxEditor extends DefaultCellEditor
+{
+    MirthEditorPane parent;
+    
+    public MyComboBoxEditor(String[] items, MirthEditorPane pane)
+    {
         super(new JXComboBox(items));
+        parent = pane;
+    }
+    
+    /**
+     * Enables the editor only for double-clicks.
+     */
+    public boolean isCellEditable(EventObject evt)
+    {
+        if (evt instanceof MouseEvent)
+        {
+            return ((MouseEvent)evt).getClickCount() >= 2;
+        }
+        
+        return false;
     }
 }

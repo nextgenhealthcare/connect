@@ -51,8 +51,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 
 import org.jdesktop.swingx.JXComboBox;
@@ -335,7 +333,7 @@ public class FilterPane extends MirthEditorPane
         filterTable.getColumnModel().getColumn(RULE_NAME_COL).setCellEditor(new EditorTableCellEditor(this));
         
         // Set the combobox editor on the operator column, and add action listener
-        MyComboBoxEditor comboBox = new MyComboBoxEditor( comboBoxValues );
+        MyComboBoxEditor comboBox = new MyComboBoxEditor( comboBoxValues, this );
         ((JXComboBox)comboBox.getComponent()).addItemListener(
                 new ItemListener()
         {
@@ -724,7 +722,7 @@ public class FilterPane extends MirthEditorPane
             parent.setCurrentContentPage( parent.channelEditPage );
             parent.setCurrentTaskPaneContainer(parent.taskPaneContainer);
             parent.setPanelName("Edit Channel :: " +  parent.channelEditPage.currentChannel.getName());
-            if ( modified ) 
+            if ( modified )
                 parent.enableSave();
             modified = false;
         }
@@ -835,7 +833,6 @@ public class FilterPane extends MirthEditorPane
     
     // this little sucker is used to track the last row that had
     // focus after a new row is selected
-    private int prevSelRow;	// no row by default
     private Connector connector;
     
     // panels using CardLayout
