@@ -31,8 +31,17 @@ public class Rule {
 	}
 
 	private int sequenceNumber;
+	private String name;
 	private String script;
 	private Operator operator;
+
+	public String getName() {
+		return this.name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
 
 	public int getSequenceNumber() {
 		return this.sequenceNumber;
@@ -61,6 +70,7 @@ public class Rule {
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("Rule[");
+		builder.append("name=" + getName() + " ");
 		builder.append("operator=" + getOperator().toString() + " ");
 		builder.append("script=" + getScript() + " ");
 		builder.append("]");

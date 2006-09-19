@@ -5,12 +5,12 @@ import java.util.List;
 import java.util.ListIterator;
 
 public class Delete {
-	private List<String> criteria;
 	private String table;
+	private List<String> criteria;
 	
 	public Delete(String table) {
-		criteria = new ArrayList<String>();
 		this.table = table;
+		this.criteria = new ArrayList<String>();
 	}
 	
 	public void addCriteria(String criteria) {
@@ -26,8 +26,8 @@ public class Delete {
 		builder.append("WHERE");
 		builder.append("\n");
 		
-		for (ListIterator iter = criteria.listIterator(); iter.hasNext();) {
-			String criteria = (String) iter.next();
+		for (ListIterator<String> iter = criteria.listIterator(); iter.hasNext();) {
+			String criteria = iter.next();
 			builder.append("\t");
 			builder.append(criteria);
 			

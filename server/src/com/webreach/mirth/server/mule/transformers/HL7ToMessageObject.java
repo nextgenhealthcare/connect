@@ -38,7 +38,7 @@ public class HL7ToMessageObject extends AbstractTransformer {
 	}
 
 	// cleans up the XML
-	public String sanitize(String source) {
+	private String sanitize(String source) {
 		source.replaceAll("&#xd;", "");
 		return source;
 	}
