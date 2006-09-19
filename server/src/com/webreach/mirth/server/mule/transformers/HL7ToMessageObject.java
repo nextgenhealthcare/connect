@@ -6,6 +6,7 @@ import org.mule.umo.transformer.TransformerException;
 
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.converters.ER7Serializer;
+import com.webreach.mirth.model.converters.SerializerException;
 
 public class HL7ToMessageObject extends AbstractTransformer {
 	private Logger logger = Logger.getLogger(this.getClass());
@@ -23,7 +24,13 @@ public class HL7ToMessageObject extends AbstractTransformer {
 		MessageObject messageObject = new MessageObject();
 		messageObject.setRawData(rawData);
 		messageObject.setRawDataProtocol(MessageObject.Protocol.HL7);
-		messageObject.setTransformedData(sanitize(serializer.toXML(rawData)));
+		
+		try {
+			messageObject.setTransformedData(sanitize(serializer.toXML(rawData)));	
+		} catch (SerializerException e) {
+			messageObject.setErrors(e.toString());
+		}
+		
 		messageObject.setTransformedDataProtocol(MessageObject.Protocol.XML);
 		messageObject.setEncodedDataProtocol(MessageObject.Protocol.HL7);
 		messageObject.setStatus(MessageObject.Status.RECEIVED);

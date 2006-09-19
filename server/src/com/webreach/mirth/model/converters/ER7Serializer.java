@@ -48,13 +48,13 @@ public class ER7Serializer implements IXMLSerializer<String> {
 	 * @param source an ER7-encoded HL7 message.
 	 * @return
 	 */
-	public String toXML(String source) {
+	public String toXML(String source) throws SerializerException {
 		StringBuilder builder = new StringBuilder();
 
 		try {
 			builder.append(xmlParser.encode(pipeParser.parse(source)));
 		} catch (HL7Exception e) {
-			e.printStackTrace();
+			throw new SerializerException(e);
 		}
 
 		return builder.toString();
@@ -66,13 +66,13 @@ public class ER7Serializer implements IXMLSerializer<String> {
 	 * @param source a XML-encoded HL7 message.
 	 * @return
 	 */
-	public String fromXML(String source) {
+	public String fromXML(String source) throws SerializerException {
 		StringBuilder builder = new StringBuilder();
 
 		try {
 			builder.append(pipeParser.encode(xmlParser.parse(source)));
 		} catch (HL7Exception e) {
-			e.printStackTrace();
+			throw new SerializerException(e);
 		}
 
 		return builder.toString();

@@ -26,6 +26,6 @@
 package com.webreach.mirth.model.converters;
 
 public interface IXMLSerializer<E> {
-	public String toXML(E source);
-	public E fromXML(String source);
+	public String toXML(E source) throws SerializerException;
+	public E fromXML(String source) throws SerializerException;
 }
