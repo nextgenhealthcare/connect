@@ -60,7 +60,7 @@
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="1" attributes="0">
-                          <Component id="destinationField" min="-2" pref="104" max="-2" attributes="0"/>
+                          <Component id="connectorField" min="-2" pref="104" max="-2" attributes="0"/>
                           <EmptySpace min="-2" pref="24" max="-2" attributes="0"/>
                           <Component id="jLabel5" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
@@ -87,7 +87,7 @@
                           <Component id="pageSizeField" min="-2" pref="30" max="-2" attributes="0"/>
                       </Group>
                   </Group>
-                  <EmptySpace min="-2" pref="30" max="-2" attributes="0"/>
+                  <EmptySpace min="-2" pref="34" max="-2" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -98,7 +98,7 @@
                       <Group type="102" alignment="1" attributes="0">
                           <Group type="103" groupAlignment="3" attributes="0">
                               <Component id="jLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="destinationField" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="connectorField" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="jLabel5" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="statusComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
@@ -198,10 +198,10 @@
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel1">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Destination:"/>
+            <Property name="text" type="java.lang.String" value="Connector:"/>
           </Properties>
         </Component>
-        <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="destinationField">
+        <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="connectorField">
         </Component>
       </SubComponents>
     </Container>

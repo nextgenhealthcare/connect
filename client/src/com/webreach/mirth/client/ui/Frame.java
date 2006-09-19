@@ -26,6 +26,7 @@
 
 package com.webreach.mirth.client.ui;
 
+import com.webreach.mirth.model.filters.MessageObjectFilter;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Cursor;
@@ -801,17 +802,27 @@ public class Frame extends JXFrame
         });
         messagePopupMenu.add(refresh);
 
-        messageTasks.add(initActionCallback("doClearAllMessages", "Clear all Message Events in this channel.", ActionFactory.createBoundAction("doClearAllMessages","Clear All Messages", "L"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png"))));
-        JMenuItem clearAllMessages = new JMenuItem("Clear All Messages");
-        clearAllMessages.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png")));
-        clearAllMessages.addActionListener(new ActionListener(){
+        messageTasks.add(initActionCallback("doRemoveAllMessages", "Remove all Message Events in this channel.", ActionFactory.createBoundAction("doRemoveAllMessages","Remove All Messages", "L"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png"))));
+        JMenuItem removeAllMessages = new JMenuItem("Remove All Messages");
+        removeAllMessages.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png")));
+        removeAllMessages.addActionListener(new ActionListener(){
              public void actionPerformed(ActionEvent e){
-                doClearAllMessages();
+                doRemoveAllMessages();
             }
         });
-        messagePopupMenu.add(clearAllMessages);
+        messagePopupMenu.add(removeAllMessages);
+        
+        messageTasks.add(initActionCallback("doRemoveFilteredMessages", "Remove all Message Events in the current filter.", ActionFactory.createBoundAction("doRemoveFilteredMessages","Remove Filtered Messages", "F"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png"))));
+        JMenuItem removeFilteredMessages = new JMenuItem("Remove Filtered Messages");
+        removeFilteredMessages.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png")));
+        removeFilteredMessages.addActionListener(new ActionListener(){
+             public void actionPerformed(ActionEvent e){
+                doRemoveFilteredMessages();
+            }
+        });
+        messagePopupMenu.add(removeFilteredMessages);
 
-        messageTasks.add(initActionCallback("doRemoveMessage", "Remove the selected Message Event.", ActionFactory.createBoundAction("doRemoveMessages","Remove Message", "E"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png"))));
+        messageTasks.add(initActionCallback("doRemoveMessage", "Remove the selected Message Event.", ActionFactory.createBoundAction("doRemoveMessage","Remove Message", "E"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png"))));
         JMenuItem removeMessage = new JMenuItem("Remove Message");
         removeMessage.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png")));
         removeMessage.addActionListener(new ActionListener(){
@@ -822,7 +833,7 @@ public class Frame extends JXFrame
         messagePopupMenu.add(removeMessage);
 
         setNonFocusable(messageTasks);
-        setVisibleTasks(messageTasks, messagePopupMenu, 2, -1, false);
+        setVisibleTasks(messageTasks, messagePopupMenu, 3, -1, false);
         taskPaneContainer.add(messageTasks);
     }
 
@@ -1836,13 +1847,29 @@ public class Frame extends JXFrame
         messageBrowser.refresh();
     }
 
-    public void doClearAllMessages()
+    public void doRemoveAllMessages()
     {
-        if (alertOption("Are you sure you would like to clear all messages?"))
+        if (alertOption("Are you sure you would like to remove all messages in this channel?"))
         {
             try
             {
                 mirthClient.clearMessages(status.get(statusListPage.getSelectedStatus()).getChannelId());
+            }
+            catch (ClientException e)
+            {
+                alertException(e.getStackTrace(), e.getMessage());
+            }
+            messageBrowser.refresh();
+        }
+    }
+    
+    public void doRemoveFilteredMessages()
+    {
+        if (alertOption("Are you sure you would like to remove all currently filtered messages in this channel?"))
+        {
+            try
+            {
+                mirthClient.removeMessages(messageBrowser.getCurrentFilter());
             }
             catch (ClientException e)
             {
@@ -1858,7 +1885,9 @@ public class Frame extends JXFrame
         {
             try
             {
-                mirthClient.removeMessage(messageBrowser.getSelectedMessageID());
+                MessageObjectFilter filter = new MessageObjectFilter();
+                filter.setId(messageBrowser.getSelectedMessageID());
+                mirthClient.removeMessages(filter);
             }
             catch (ClientException e)
             {

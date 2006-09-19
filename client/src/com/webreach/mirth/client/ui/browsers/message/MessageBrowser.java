@@ -166,7 +166,7 @@ public class MessageBrowser extends javax.swing.JPanel
     public void loadNew()
     {
         // use the start filters and make the table.
-        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 2, -1, false);
+        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 3, -1, false);
         statusComboBox.setSelectedIndex(0);
         long currentTime = System.currentTimeMillis();
         mirthDatePicker1.setDateInMillis(currentTime);
@@ -395,7 +395,7 @@ public class MessageBrowser extends javax.swing.JPanel
      */
     public void deselectRows()
     {
-        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 2, -1, false);
+        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 3, -1, false);
         eventTable.clearSelection();
         clearDescription();
     }
@@ -495,6 +495,14 @@ public class MessageBrowser extends javax.swing.JPanel
         return ((String)eventTableModel.getValueAt(eventTable.getSelectedRow(), column));
     }
     
+    /**
+     * Returns the current MessageObjectFilter that is set.
+     */
+    public MessageObjectFilter getCurrentFilter()
+    {
+        return messageObjectFilter;
+    }
+    
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
         filterPanel = new javax.swing.JPanel();
@@ -511,7 +519,7 @@ public class MessageBrowser extends javax.swing.JPanel
         jLabel6 = new javax.swing.JLabel();
         resultsLabel = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
-        destinationField = new com.webreach.mirth.client.ui.components.MirthTextField();
+        connectorField = new com.webreach.mirth.client.ui.components.MirthTextField();
         jPanel2 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
@@ -566,7 +574,7 @@ public class MessageBrowser extends javax.swing.JPanel
         resultsLabel.setForeground(new java.awt.Color(204, 0, 0));
         resultsLabel.setText("Results");
 
-        jLabel1.setText("Destination:");
+        jLabel1.setText("Connector:");
 
         org.jdesktop.layout.GroupLayout filterPanelLayout = new org.jdesktop.layout.GroupLayout(filterPanel);
         filterPanel.setLayout(filterPanelLayout);
@@ -580,7 +588,7 @@ public class MessageBrowser extends javax.swing.JPanel
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(filterPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, filterPanelLayout.createSequentialGroup()
-                        .add(destinationField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 104, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(connectorField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 104, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .add(24, 24, 24)
                         .add(jLabel5)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -603,7 +611,7 @@ public class MessageBrowser extends javax.swing.JPanel
                         .add(jLabel6)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(pageSizeField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 30, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                .add(30, 30, 30))
+                .add(34, 34, 34))
         );
 
         filterPanelLayout.linkSize(new java.awt.Component[] {nextPageButton, previousPageButton}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
@@ -615,7 +623,7 @@ public class MessageBrowser extends javax.swing.JPanel
                     .add(filterPanelLayout.createSequentialGroup()
                         .add(filterPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                             .add(jLabel1)
-                            .add(destinationField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(connectorField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(jLabel5)
                             .add(statusComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -828,8 +836,8 @@ public class MessageBrowser extends javax.swing.JPanel
         
         messageObjectFilter.setChannelId(parent.status.get(parent.statusListPage.getSelectedStatus()).getChannelId());
         
-        if (!destinationField.getText().equals(""))
-            messageObjectFilter.setConnectorName(destinationField.getText());        
+        if (!connectorField.getText().equals(""))
+            messageObjectFilter.setConnectorName(connectorField.getText());        
         
         if (!((String)statusComboBox.getSelectedItem()).equalsIgnoreCase("ALL"))
         {
@@ -872,9 +880,9 @@ public class MessageBrowser extends javax.swing.JPanel
     private com.webreach.mirth.client.ui.components.MirthTextPane RawMessageTextPane;
     private javax.swing.JPanel TransformedMessagePanel;
     private com.webreach.mirth.client.ui.components.MirthTextPane TransformedMessageTextPane;
+    private com.webreach.mirth.client.ui.components.MirthTextField connectorField;
     private javax.swing.JPanel descriptionPanel;
     private javax.swing.JTabbedPane descriptionTabbedPane;
-    private com.webreach.mirth.client.ui.components.MirthTextField destinationField;
     private javax.swing.JButton filterButton;
     private javax.swing.JPanel filterPanel;
     private javax.swing.JLabel jLabel1;
