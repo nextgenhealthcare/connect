@@ -40,6 +40,7 @@ import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.server.controllers.ConfigurationController;
 import com.webreach.mirth.server.controllers.ControllerException;
 import com.webreach.mirth.server.controllers.SystemLogger;
+import com.webreach.mirth.server.util.DatabasePruner;
 import com.webreach.mirth.util.PropertyLoader;
 
 /**
@@ -59,6 +60,7 @@ public class Mirth extends Thread {
 	private Properties versionProperties = PropertyLoader.loadProperties("version");
 	private MirthManager manager = new MirthManager();
 	private ConfigurationController configurationController = new ConfigurationController();
+	private DatabasePruner pruner = new DatabasePruner();
 
 	public static void main(String[] args) {
 		Mirth mirth = new Mirth();
@@ -74,6 +76,7 @@ public class Mirth extends Thread {
 		running = true;
 		startWebServer();
 		configurationController.initialize();
+		pruner.start();
 		commandQueue.addCommand(new Command(Command.Operation.START));
 
 		Runtime.getRuntime().addShutdownHook(new ShutdownHook());
@@ -99,6 +102,7 @@ public class Mirth extends Thread {
 		logger.info("shutting down mirth due to normal request");
 		stopMule();
 		stopWebServer();
+		pruner.interrupt();
 		running = false;
 	}
 
