@@ -116,8 +116,8 @@ public class MessageObjectFilter {
 		builder.append(this.getClass().getName() + "[");
 		builder.append("id=" + getId() + ", ");
 		builder.append("channelId=" + getChannelId() + ", ");
-		builder.append("startDate=" + getStartDate() + ", ");
-		builder.append("endDate=" + getEndDate() + ", ");
+		builder.append("startDate=" + String.format("%1$tY-%1$tm-%1$td", getStartDate()) + ", ");
+		builder.append("endDate=" + String.format("%1$tY-%1$tm-%1$td", getEndDate()) + ", ");
 		builder.append("status=" + getStatus() + ", ");
 		builder.append("connectorName=" + getConnectorName() + ", ");
 		builder.append("page=" + getPage() + ", ");
