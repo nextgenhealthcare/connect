@@ -216,16 +216,19 @@ public class MessageObjectController {
 			Delete delete = new Delete("messages");
 			ArrayList<Object> parameters = new ArrayList<Object>();
 			
+			// filter on id
 			if (filter.getId() != null) {
 				delete.addCriteria("id = ?");
 				parameters.add(filter.getId());
 			}
 			
+			// filter on channelId
 			if (filter.getChannelId() != null) {
 				delete.addCriteria("channel_id = ?");
 				parameters.add(filter.getChannelId());
 			}
 			
+			// filter on start and end date
 			if ((filter.getStartDate() != null) && (filter.getEndDate() != null)) {
 				String startDate = String.format("%1$tY-%1$tm-%1$td 00:00:00", filter.getStartDate());
 				String endDate = String.format("%1$tY-%1$tm-%1$td 23:59:59", filter.getEndDate());
@@ -235,12 +238,21 @@ public class MessageObjectController {
 				parameters.add(startDate);
 				parameters.add(endDate);
 			}
+
+			// filter on end date only
+			if ((filter.getStartDate() == null) && (filter.getEndDate() != null)) {
+				String endDate = String.format("%1$tY-%1$tm-%1$td 23:59:59", filter.getEndDate());
+				delete.addCriteria("date_created <= ?");
+				parameters.add(endDate);
+			}
 			
+			// filter on status
 			if (filter.getStatus() != null) {
 				delete.addCriteria("status = ?");
 				parameters.add(filter.getStatus().toString());
 			}
 
+			// filter on connector name
 			if (filter.getConnectorName() != null) {
 				delete.addCriteria("connector_name = ?");
 				parameters.add(filter.getConnectorName());
