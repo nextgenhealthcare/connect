@@ -980,7 +980,7 @@ public class ChannelSetup extends javax.swing.JPanel
             }
         });
 
-        days.setText("days");
+        days.setText("day(s)");
 
         jLabel3.setText("Messages:");
 

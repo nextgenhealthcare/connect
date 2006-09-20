@@ -325,7 +325,7 @@
             </Component>
             <Component class="javax.swing.JLabel" name="days">
               <Properties>
-                <Property name="text" type="java.lang.String" value="days"/>
+                <Property name="text" type="java.lang.String" value="day(s)"/>
               </Properties>
             </Component>
             <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="numDays">
