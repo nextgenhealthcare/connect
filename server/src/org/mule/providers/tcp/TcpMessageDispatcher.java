@@ -13,6 +13,16 @@
  */
 package org.mule.providers.tcp;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.net.SocketTimeoutException;
+import java.net.URI;
+import java.net.URISyntaxException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.mule.impl.MuleMessage;
@@ -24,16 +34,7 @@ import org.mule.umo.endpoint.UMOEndpointURI;
 import org.mule.umo.provider.UMOConnector;
 import org.mule.util.Utility;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.Socket;
-import java.net.SocketTimeoutException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.HashMap;
+import com.webreach.mirth.model.MessageObject;
 
 /**
  * <code>TcpMessageDispatcher</code> will send transformed mule events over
@@ -104,17 +105,18 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher
     {
         TcpProtocol protocol = connector.getTcpProtocol();
         byte[] binaryData;
+        
         if (data instanceof String) {
             binaryData = data.toString().getBytes();
         } else if (data instanceof byte[]) {
             binaryData = (byte[]) data;
-        } else if (data instanceof HashMap){
-        	String payload = (String)((HashMap)data).get("HL7 ER7");
+        } else if (data instanceof MessageObject){
+        	String payload = ((MessageObject) data).getEncodedData();
         	binaryData = payload.getBytes();
-        }else {
-        
+        } else {
             binaryData = Utility.objectToByteArray(data);
         }
+
         BufferedOutputStream bos = new BufferedOutputStream(socket.getOutputStream());
         protocol.write(bos, binaryData);
         bos.flush();

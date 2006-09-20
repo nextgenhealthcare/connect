@@ -19,11 +19,7 @@ import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map.Entry;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -40,6 +36,7 @@ import org.mule.umo.endpoint.UMOEndpointURI;
 import org.mule.umo.provider.UMOConnector;
 import org.mule.util.Utility;
 
+import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.mule.util.GlobalVariableStore;
 
 /**
@@ -89,8 +86,9 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
 			byte[] buf;
 			if (data instanceof byte[]) {
 				buf = (byte[]) data;
-			} else if (data instanceof HashMap) {
-				HashMap map = (HashMap) data;
+			} else if (data instanceof MessageObject) {
+				
+				Map map = ((MessageObject) data).getVariableMap();
 				template = replaceValues(template, map);
 				//Check for Mirth global map
 				//template = replaceValues(template, globalMap);
@@ -100,11 +98,13 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
 			} else {
 				buf = data.toString().getBytes();
 			}
+			
 			//Hackish way to append a new line
 			//TODO: find where newlines are stripped in config
 			if (connector.isOutputAppend()) {
 				buf = (new String(buf) + "\r\n").getBytes();
 			}
+			
 			logger.info("Writing file to: " + file.getAbsolutePath());
 			FileOutputStream fos = new FileOutputStream(file, connector
 					.isOutputAppend());
@@ -120,7 +120,7 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
 
 	}
 
-	private String replaceValues(String template, HashMap map) throws Exception {
+	private String replaceValues(String template, Map map) throws Exception {
 		if ((template == null) || !(template.length() > 0)) {
 			return "";
 		}
@@ -136,7 +136,7 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
 		return sb.toString();
 	}
 
-	private String getTemplateValue(String name, HashMap map) {
+	private String getTemplateValue(String name, Map map) {
 		String value = "";
 		try {
 			if (map.containsKey(name)) {
