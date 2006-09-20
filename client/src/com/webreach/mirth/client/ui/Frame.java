@@ -54,6 +54,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.UIManager;
+import org.apache.log4j.Logger;
 
 import org.jdesktop.swingx.JXFrame;
 import org.jdesktop.swingx.JXTaskPane;
@@ -91,6 +92,8 @@ import com.webreach.mirth.model.converters.ObjectXMLSerializer;
  */
 public class Frame extends JXFrame
 {
+    private Logger logger = Logger.getLogger(this.getClass());
+    
     public Client mirthClient;
 
     public StatusPanel statusListPage;
@@ -1004,7 +1007,9 @@ public class Frame extends JXFrame
             Mirth.main(new String []{PlatformUI.SERVER_NAME});
             return;
         }
-            
+        
+        logger.error(strace);
+        
         String stackTrace = message + "\n";
         for (int i = 0; i < strace.length; i++)
             stackTrace += strace[i].toString() + "\n";
