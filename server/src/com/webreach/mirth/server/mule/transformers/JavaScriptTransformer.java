@@ -24,6 +24,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 	private String channelId;
 	private String connectorName;
 	private boolean encryptData;
+	private boolean storeMessages;
 
 	public String getChannelId() {
 		return this.channelId;
@@ -71,6 +72,14 @@ public class JavaScriptTransformer extends AbstractTransformer {
 
 	public void setEncryptData(boolean encryptData) {
 		this.encryptData = encryptData;
+	}
+
+	public boolean isStoreMessages() {
+		return this.storeMessages;
+	}
+
+	public void setStoreMessages(boolean storeMessages) {
+		this.storeMessages = storeMessages;
 	}
 
 	@Override
@@ -132,13 +141,20 @@ public class JavaScriptTransformer extends AbstractTransformer {
 				messageObject.setStatus(MessageObject.Status.REJECTED);
 			}
 
-			messageObjectController.updateMessage(messageObject);
+			if (storeMessages) {
+				messageObjectController.updateMessage(messageObject);
+			}
+
 			return messageAccepted;
 		} catch (Exception e) {
 			logger.error("error ocurred in filter", e);
 			messageObject.setStatus(MessageObject.Status.ERROR);
 			messageObject.setErrors(e.toString());
-			messageObjectController.updateMessage(messageObject);
+
+			if (storeMessages) {
+				messageObjectController.updateMessage(messageObject);
+			}
+
 			return false;
 		} finally {
 			Context.exit();
@@ -180,12 +196,20 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			}
 
 			messageObject.setStatus(MessageObject.Status.TRANSFORMED);
-			messageObjectController.updateMessage(messageObject);
+
+			if (storeMessages) {
+				messageObjectController.updateMessage(messageObject);
+			}
+
 			return messageObject;
 		} catch (Exception e) {
 			messageObject.setStatus(MessageObject.Status.ERROR);
 			messageObject.setErrors(e.toString());
-			messageObjectController.updateMessage(messageObject);
+
+			if (storeMessages) {
+				messageObjectController.updateMessage(messageObject);
+			}
+
 			throw new TransformerException(this, e);
 		} finally {
 			Context.exit();
@@ -225,12 +249,20 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			}
 
 			messageObject.setStatus(MessageObject.Status.TRANSFORMED);
-			messageObjectController.updateMessage(messageObject);
+
+			if (storeMessages) {
+				messageObjectController.updateMessage(messageObject);
+			}
+
 			return messageObject;
 		} catch (Exception e) {
 			messageObject.setStatus(MessageObject.Status.ERROR);
 			messageObject.setErrors(e.toString());
-			messageObjectController.updateMessage(messageObject);
+
+			if (storeMessages) {
+				messageObjectController.updateMessage(messageObject);
+			}
+
 			throw new TransformerException(this, e);
 		} finally {
 			Context.exit();
