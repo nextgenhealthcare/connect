@@ -22,243 +22,219 @@ import org.mule.util.ClassHelper;
 /**
  * <code>TcpConnector</code> can bind or sent to a given tcp port on a given
  * host.
- *
+ * 
  * @author <a href="mailto:ross.mason@symphonysoft.com">Ross Mason</a>
  * @author <a href="mailto:tsuppari@yahoo.co.uk">P.Oikari</a>
- *
+ * 
  * @version $Revision: 1.11 $
  */
-public class TcpConnector extends AbstractServiceEnabledConnector
-{
+public class TcpConnector extends AbstractServiceEnabledConnector {
 	// customer properties
 	public static final String PROPERTY_CHAR_ENCODING = "charEncoding";
 	public static final String PROPERTY_START_OF_MESSAGE = "messageStart";
 	public static final String PROPERTY_END_OF_MESSAGE = "messageEnd";
 	public static final String PROPERTY_RECORD_SEPARATOR = "recordSeparator";
-	
+	public static final String PROPERTY_END_OF_SEGMENT = "segmentEnd";
+
 	// custom properties
 	private String charEncoding = "hex";
 	private String messageStart = "0x1C";
 	private String messageEnd = "0x0B";
 	private String recordSeparator = "0x0D";
-	
-    public static final int DEFAULT_SOCKET_TIMEOUT = 5000;
+	private String segmentEnd = "0x0D";
 
-    public static final int DEFAULT_BUFFER_SIZE = 64 * 1024;
+	public static final int DEFAULT_SOCKET_TIMEOUT = 5000;
 
-    public static final long DEFAULT_POLLING_FREQUENCY = 10;
+	public static final int DEFAULT_BUFFER_SIZE = 64 * 1024;
 
-    public static final int DEFAULT_BACKLOG = 256;
+	public static final long DEFAULT_POLLING_FREQUENCY = 10;
 
-    private int sendTimeout = DEFAULT_SOCKET_TIMEOUT;
+	public static final int DEFAULT_BACKLOG = 256;
 
-    private int receiveTimeout = DEFAULT_SOCKET_TIMEOUT;
+	private int sendTimeout = DEFAULT_SOCKET_TIMEOUT;
 
-    private int bufferSize = DEFAULT_BUFFER_SIZE;
+	private int receiveTimeout = DEFAULT_SOCKET_TIMEOUT;
 
-    private int backlog = DEFAULT_BACKLOG;
-    
-    private boolean sendACK = false;
+	private int bufferSize = DEFAULT_BUFFER_SIZE;
 
-    private String tcpProtocolClassName = DefaultProtocol.class.getName();
+	private int backlog = DEFAULT_BACKLOG;
 
-    private TcpProtocol tcpProtocol;
+	private boolean sendACK = false;
 
-    ///////////////////////////////////////////////
-    // Does this protocol have any connected sockets?
-    ///////////////////////////////////////////////
-    private boolean sendSocketValid = false;
+	private String tcpProtocolClassName = DefaultProtocol.class.getName();
 
-    private int receiveSocketsCount = 0;
+	private TcpProtocol tcpProtocol;
 
-    ////////////////////////////////////////////////////////////////////////
-    //  Properties for 'keepSocketConnected' TcpMessageDispatcher
-    ////////////////////////////////////////////////////////////////////////
-    public static final int KEEP_RETRYING_INDEFINETLY = 0;
+	// /////////////////////////////////////////////
+	// Does this protocol have any connected sockets?
+	// /////////////////////////////////////////////
+	private boolean sendSocketValid = false;
 
-    private boolean keepSendSocketOpen = false;
+	private int receiveSocketsCount = 0;
 
-    // Time to sleep between reconnects in msecs
-    private int reconnectMillisecs = 10000;
+	// //////////////////////////////////////////////////////////////////////
+	// Properties for 'keepSocketConnected' TcpMessageDispatcher
+	// //////////////////////////////////////////////////////////////////////
+	public static final int KEEP_RETRYING_INDEFINETLY = 0;
 
-    // -1 try to reconnect forever
-    private int maxRetryCount = KEEP_RETRYING_INDEFINETLY;
+	private boolean keepSendSocketOpen = false;
 
-    private boolean keepAlive = true;
+	// Time to sleep between reconnects in msecs
+	private int reconnectMillisecs = 10000;
 
-    public boolean isKeepSendSocketOpen()
-    {
-        return keepSendSocketOpen;
-    }
+	// -1 try to reconnect forever
+	private int maxRetryCount = KEEP_RETRYING_INDEFINETLY;
 
-    public void setKeepSendSocketOpen(boolean keepSendSocketOpen)
-    {
-        this.keepSendSocketOpen = keepSendSocketOpen;
-    }
+	private boolean keepAlive = true;
 
-    public int getReconnectMillisecs()
-    {
-        return reconnectMillisecs;
-    }
+	public boolean isKeepSendSocketOpen() {
+		return keepSendSocketOpen;
+	}
 
-    public void setReconnectMillisecs(int reconnectMillisecs)
-    {
-        this.reconnectMillisecs = reconnectMillisecs;
-    }
+	public void setKeepSendSocketOpen(boolean keepSendSocketOpen) {
+		this.keepSendSocketOpen = keepSendSocketOpen;
+	}
 
-    public int getMaxRetryCount()
-    {
-        return maxRetryCount;
-    }
+	public int getReconnectMillisecs() {
+		return reconnectMillisecs;
+	}
 
-    public void setMaxRetryCount(int maxRetryCount)
-    {
-        // Dont set negative numbers
-        if (maxRetryCount >= KEEP_RETRYING_INDEFINETLY) {
-            this.maxRetryCount = maxRetryCount;
-        }
-    }
+	public void setReconnectMillisecs(int reconnectMillisecs) {
+		this.reconnectMillisecs = reconnectMillisecs;
+	}
 
-    ////////////////////////////////////////////////////////////////////////
-    public void doInitialise() throws InitialisationException
-    {
-        super.doInitialise();
-        if (tcpProtocol == null) {
-            try {
-                tcpProtocol = (TcpProtocol) ClassHelper.instanciateClass(tcpProtocolClassName, null);
-                tcpProtocol.setTcpConnector(this);
-            } catch (Exception e) {
-                throw new InitialisationException(new Message("tcp", 3), e);
-            }
-        }
-    }
+	public int getMaxRetryCount() {
+		return maxRetryCount;
+	}
 
-    public String getProtocol()
-    {
-        return "TCP";
-    }
+	public void setMaxRetryCount(int maxRetryCount) {
+		// Dont set negative numbers
+		if (maxRetryCount >= KEEP_RETRYING_INDEFINETLY) {
+			this.maxRetryCount = maxRetryCount;
+		}
+	}
 
-    /**
-     * A shorthand property setting timeout for
-     * both SEND and RECEIVE sockets.
-     */
-    public void setTimeout(int timeout) {
-        setSendTimeout(timeout);
-        setReceiveTimeout(timeout);
-    }
+	// //////////////////////////////////////////////////////////////////////
+	public void doInitialise() throws InitialisationException {
+		super.doInitialise();
+		if (tcpProtocol == null) {
+			try {
+				tcpProtocol = (TcpProtocol) ClassHelper.instanciateClass(tcpProtocolClassName, null);
+				tcpProtocol.setTcpConnector(this);
+			} catch (Exception e) {
+				throw new InitialisationException(new Message("tcp", 3), e);
+			}
+		}
+	}
 
-    public int getSendTimeout()
-    {
-        return this.sendTimeout;
-    }
+	public String getProtocol() {
+		return "TCP";
+	}
 
-    public boolean getSendACK(){
-    	return sendACK;
-    }
-    public void setSendACK(boolean ack){
-    	sendACK = ack;
-    }
-    public void setSendTimeout(int timeout)
-    {
-        if (timeout < 0) {
-            timeout = DEFAULT_SOCKET_TIMEOUT;
-        }
-        this.sendTimeout = timeout;
-    }
+	/**
+	 * A shorthand property setting timeout for both SEND and RECEIVE sockets.
+	 */
+	public void setTimeout(int timeout) {
+		setSendTimeout(timeout);
+		setReceiveTimeout(timeout);
+	}
 
-    //////////////////////////////////////////////
-    //  New independednt Socket timeout for receiveSocket
-    //////////////////////////////////////////////
-    public int getReceiveTimeout()
-    {
-        return receiveTimeout;
-    }
+	public int getSendTimeout() {
+		return this.sendTimeout;
+	}
 
-    public void setReceiveTimeout(int timeout)
-    {
-        if (timeout < 0)
-            timeout = DEFAULT_SOCKET_TIMEOUT;
-        this.receiveTimeout = timeout;
-    }
+	public boolean getSendACK() {
+		return sendACK;
+	}
 
-    public boolean isSendSocketValid()
-    {
-        return sendSocketValid;
-    }
+	public void setSendACK(boolean ack) {
+		sendACK = ack;
+	}
 
-    public void setSendSocketValid(boolean validity)
-    {
-        this.sendSocketValid = validity;
-    }
+	public void setSendTimeout(int timeout) {
+		if (timeout < 0) {
+			timeout = DEFAULT_SOCKET_TIMEOUT;
+		}
+		this.sendTimeout = timeout;
+	}
 
-    public boolean hasReceiveSockets()
-    {
-        return receiveSocketsCount > 0;
-    }
+	// ////////////////////////////////////////////
+	// New independednt Socket timeout for receiveSocket
+	// ////////////////////////////////////////////
+	public int getReceiveTimeout() {
+		return receiveTimeout;
+	}
 
-    /**
-     * Update the number of receive sockets.
-     *
-     * @param addSocket increase the number if true, decrement otherwise
-     */
-    public synchronized void updateReceiveSocketsCount(boolean addSocket)
-    {
-        if (addSocket) {
-            this.receiveSocketsCount++;
-        }
-        else {
-            this.receiveSocketsCount--;
-        }
-    }
+	public void setReceiveTimeout(int timeout) {
+		if (timeout < 0)
+			timeout = DEFAULT_SOCKET_TIMEOUT;
+		this.receiveTimeout = timeout;
+	}
 
+	public boolean isSendSocketValid() {
+		return sendSocketValid;
+	}
 
-    public int getBufferSize()
-    {
-        return bufferSize;
-    }
+	public void setSendSocketValid(boolean validity) {
+		this.sendSocketValid = validity;
+	}
 
-    public void setBufferSize(int bufferSize)
-    {
-        if (bufferSize < 1)
-            bufferSize = DEFAULT_BUFFER_SIZE;
-        this.bufferSize = bufferSize;
-    }
+	public boolean hasReceiveSockets() {
+		return receiveSocketsCount > 0;
+	}
 
-    public int getBacklog()
-    {
-        return backlog;
-    }
+	/**
+	 * Update the number of receive sockets.
+	 * 
+	 * @param addSocket
+	 *            increase the number if true, decrement otherwise
+	 */
+	public synchronized void updateReceiveSocketsCount(boolean addSocket) {
+		if (addSocket) {
+			this.receiveSocketsCount++;
+		} else {
+			this.receiveSocketsCount--;
+		}
+	}
 
-    public void setBacklog(int backlog)
-    {
-        this.backlog = backlog;
-    }
+	public int getBufferSize() {
+		return bufferSize;
+	}
 
-    public TcpProtocol getTcpProtocol()
-    {
-        return tcpProtocol;
-    }
+	public void setBufferSize(int bufferSize) {
+		if (bufferSize < 1)
+			bufferSize = DEFAULT_BUFFER_SIZE;
+		this.bufferSize = bufferSize;
+	}
 
-    public void setTcpProtocol(TcpProtocol tcpProtocol)
-    {
-        this.tcpProtocol = tcpProtocol;
-    }
+	public int getBacklog() {
+		return backlog;
+	}
 
-    public String getTcpProtocolClassName()
-    {
-        return tcpProtocolClassName;
-    }
+	public void setBacklog(int backlog) {
+		this.backlog = backlog;
+	}
 
-    public void setTcpProtocolClassName(String protocolClassName)
-    {
-        this.tcpProtocolClassName = protocolClassName;
-    }
+	public TcpProtocol getTcpProtocol() {
+		return tcpProtocol;
+	}
 
-    public boolean isRemoteSyncEnabled()
-    {
-        return true;
-    }
-    
+	public void setTcpProtocol(TcpProtocol tcpProtocol) {
+		this.tcpProtocol = tcpProtocol;
+	}
+
+	public String getTcpProtocolClassName() {
+		return tcpProtocolClassName;
+	}
+
+	public void setTcpProtocolClassName(String protocolClassName) {
+		this.tcpProtocolClassName = protocolClassName;
+	}
+
+	public boolean isRemoteSyncEnabled() {
+		return true;
+	}
+
 	public String getCharEncoding() {
 		return this.charEncoding;
 	}
@@ -291,17 +267,23 @@ public class TcpConnector extends AbstractServiceEnabledConnector
 		this.recordSeparator = recordSeparator;
 	}
 
+	public String getSegmentEnd() {
+		return this.segmentEnd;
+	}
+
+	public void setSegmentEnd(String segmentEnd) {
+		this.segmentEnd = segmentEnd;
+	}
+
 	public char stringToChar(String source) {
 		return source.charAt(0);
 	}
 
-    public boolean isKeepAlive()
-    {
-        return keepAlive;
-    }
+	public boolean isKeepAlive() {
+		return keepAlive;
+	}
 
-    public void setKeepAlive(boolean keepAlive)
-    {
-        this.keepAlive = keepAlive;
-    }
+	public void setKeepAlive(boolean keepAlive) {
+		this.keepAlive = keepAlive;
+	}
 }
