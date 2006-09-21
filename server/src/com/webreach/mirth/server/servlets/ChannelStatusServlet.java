@@ -37,13 +37,12 @@ import com.webreach.mirth.server.controllers.ControllerException;
 import com.webreach.mirth.server.controllers.ChannelStatusController;
 
 public class ChannelStatusServlet extends MirthServlet {
-	private ChannelStatusController channelStatusController = new ChannelStatusController();
-	
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		if (!isUserLoggedIn(request.getSession())) {
+		if (!isUserLoggedIn(request)) {
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 		} else {
 			try {
+				ChannelStatusController channelStatusController = new ChannelStatusController();
 				ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 				PrintWriter out = response.getWriter();
 				String operation = request.getParameter("op");

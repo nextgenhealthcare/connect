@@ -37,13 +37,12 @@ import com.webreach.mirth.model.filters.SystemEventFilter;
 import com.webreach.mirth.server.controllers.SystemLogger;
 
 public class SystemEventServlet extends MirthServlet {
-	private SystemLogger systemLogger = new SystemLogger();
-
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		if (!isUserLoggedIn(request.getSession())) {
+		if (!isUserLoggedIn(request)) {
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 		} else {
 			try {
+				SystemLogger systemLogger = new SystemLogger();
 				ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 				PrintWriter out = response.getWriter();
 				String operation = request.getParameter("op");

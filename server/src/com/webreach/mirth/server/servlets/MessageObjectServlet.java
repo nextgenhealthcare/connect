@@ -37,13 +37,12 @@ import com.webreach.mirth.model.filters.MessageObjectFilter;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 
 public class MessageObjectServlet extends MirthServlet {
-	private MessageObjectController messageObjectController = new MessageObjectController();
-
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		if (!isUserLoggedIn(request.getSession())) {
+		if (!isUserLoggedIn(request)) {
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 		} else {
 			try {
+				MessageObjectController messageObjectController = new MessageObjectController();
 				ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 				PrintWriter out = response.getWriter();
 				String operation = request.getParameter("op");

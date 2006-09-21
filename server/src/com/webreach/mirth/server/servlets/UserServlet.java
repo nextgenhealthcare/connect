@@ -43,12 +43,11 @@ import com.webreach.mirth.server.controllers.UserController;
 public class UserServlet extends MirthServlet {
 	public static final String SESSION_USER = "user";
 	public static final String SESSION_AUTHORIZED = "authorized";
-	private UserController userController = new UserController();
-	private SystemLogger systemLogger = new SystemLogger();
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		UserController userController = new UserController();
+		SystemLogger systemLogger = new SystemLogger();
 		PrintWriter out = response.getWriter();
-		HttpSession session = request.getSession();
 		String operation = request.getParameter("op");
 		ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 
@@ -56,11 +55,11 @@ public class UserServlet extends MirthServlet {
 			String username = request.getParameter("username");
 			String password = request.getParameter("password");
 			response.setContentType("text/plain");
-			out.print(login(session, username, password));
+			out.print(login(request, userController, systemLogger, username, password));
 		} else if (operation.equals("isLoggedIn")) {
 			response.setContentType("text/plain");
-			out.print(isUserLoggedIn(session));
-		} else if (!isUserLoggedIn(request.getSession())) {
+			out.print(isUserLoggedIn(request));
+		} else if (!isUserLoggedIn(request)) {
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 		} else {
 			try {
@@ -74,7 +73,7 @@ public class UserServlet extends MirthServlet {
 					String userId = request.getParameter("data");
 					userController.removeUser(Integer.valueOf(userId).intValue());
 				} else if (operation.equals("logout")) {
-					logout(session);
+					logout(request, systemLogger);
 				}
 			} catch (Exception e) {
 				throw new ServletException(e);
@@ -82,8 +81,9 @@ public class UserServlet extends MirthServlet {
 		}
 	}
 
-	private boolean login(HttpSession session, String username, String password) throws ServletException {
+	private boolean login(HttpServletRequest request, UserController userController, SystemLogger systemLogger, String username, String password) throws ServletException {
 		try {
+			HttpSession session = request.getSession();
 			int authenticateUserId = userController.authenticateUser(username, password);
 
 			if (authenticateUserId >= 0) {
@@ -107,10 +107,10 @@ public class UserServlet extends MirthServlet {
 		} catch (ControllerException e) {
 			throw new ServletException(e);
 		}
-
 	}
 
-	private void logout(HttpSession session) {
+	private void logout(HttpServletRequest request, SystemLogger systemLogger) {
+		HttpSession session = request.getSession();
 		session.removeAttribute(SESSION_USER);
 		session.removeAttribute(SESSION_AUTHORIZED);
 		session.invalidate();

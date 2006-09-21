@@ -36,13 +36,12 @@ import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.server.controllers.ChannelStatisticsController;
 
 public class ChannelStatisticsServlet extends MirthServlet {
-	private ChannelStatisticsController statisticsController = new ChannelStatisticsController();
-
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		if (!isUserLoggedIn(request.getSession())) {
+		if (!isUserLoggedIn(request)) {
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 		} else {
 			try {
+				ChannelStatisticsController statisticsController = new ChannelStatisticsController();
 				ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 				PrintWriter out = response.getWriter();
 				String operation = request.getParameter("op");
