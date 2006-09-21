@@ -103,14 +103,16 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			Context context = Context.enter();
 
 			if (filterScript != null) {
+				String filterScript = generateFilterScript();
 				logger.debug("compiling filter script");
-				Script compiledFilterScript = context.compileString(generateFilterScript(), channelId, 1, null);
+				Script compiledFilterScript = context.compileString(filterScript, channelId, 1, null);
 				compiledScriptCache.putCompiledFilterScript(channelId, compiledFilterScript);
 			}
 
 			if (transformerScript != null) {
+				String transformerScript = generateTransformerScript();
 				logger.debug("compiling transformer script");
-				Script compiledTransformerScript = context.compileString(generateTransformerScript(), channelId, 1, null);
+				Script compiledTransformerScript = context.compileString(transformerScript, channelId, 1, null);
 				compiledScriptCache.putCompiledTransformerScript(channelId, compiledTransformerScript);
 			}
 		} catch (EvaluatorException e) {
