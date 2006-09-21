@@ -61,13 +61,19 @@ public class WebStartServlet extends HttpServlet {
 			
 			Properties mirthProperties = PropertyLoader.loadProperties("mirth");
 			
-			int httpsPort = 8443;
-
-			if ((mirthProperties.getProperty("https.port") != null) && !mirthProperties.getProperty("https.port").equals("")) {
-				httpsPort = Integer.valueOf(mirthProperties.getProperty("https.port")).intValue();
-			}
+			String server;
 			
-			String server = "https://" + serverName + ":" + httpsPort;
+			if ((mirthProperties.getProperty("server.url") != null) && !mirthProperties.getProperty("server.url").equals("")) {
+				server = mirthProperties.getProperty("server.url"); 
+			} else {
+				int httpsPort = 8443;
+
+				if ((mirthProperties.getProperty("https.port") != null) && !mirthProperties.getProperty("https.port").equals("")) {
+					httpsPort = Integer.valueOf(mirthProperties.getProperty("https.port")).intValue();
+				}
+
+				server = "https://" + serverName + ":" + httpsPort;
+			}
 			
 			jnlpElement.setAttribute("codebase", codebase);
 			Element applicationDescElement = (Element) jnlpElement.getElementsByTagName("application-desc").item(0);
