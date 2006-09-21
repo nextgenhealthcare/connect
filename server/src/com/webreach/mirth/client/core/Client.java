@@ -430,6 +430,11 @@ public class Client {
 		return serverConnection.executePostMethod(CONFIGURATION_SERVLET, params);
 	}
 	
+	/**
+	 * Submits an error message to the Mirth Project.
+	 * 
+	 * @param message
+	 */
 	public synchronized void submitError(String message) {
         Error error = new Error();
         error.setJavaVersion(System.getProperty("java.version"));
