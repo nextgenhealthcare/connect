@@ -139,7 +139,7 @@ public class MuleConfigurationBuilder {
 			Element endpointElement = document.createElement("endpoint");
 			endpointElement.setAttribute("address", getEndpointUri(channel.getSourceConnector()));
 
-			String connectorReference = "c" + String.valueOf(channel.getId()) + "_source";
+			String connectorReference = channel.getId() + "_source";
 
 			// add the source connector
 			addConnector(document, configurationElement, channel.getSourceConnector(), connectorReference + "_connector");
@@ -206,7 +206,7 @@ public class MuleConfigurationBuilder {
 				endpointElement.setAttribute("address", getEndpointUri(connector));
 				endpointElement.setAttribute("synchronous", "true");
 
-				String connectorReference = "c" + String.valueOf(channel.getId()) + "_destination_" + String.valueOf(iterator.nextIndex());
+				String connectorReference = channel.getId() + "_destination_" + String.valueOf(iterator.nextIndex());
 
 				// add the destination connector
 				addConnector(document, configurationElement, connector, connectorReference + "_connector");
@@ -258,7 +258,8 @@ public class MuleConfigurationBuilder {
 
 			Properties properties = new Properties();
 			properties.put("channelId", channel.getId());
-			properties.put("direction", channel.getDirection().toString().toLowerCase());
+			properties.put("protocol", channel.getProtocol().toString());
+			properties.put("direction", channel.getDirection().toString());
 			properties.put("encryptData", channel.getProperties().get("encryptData"));
 			properties.put("storeMessages", channel.getProperties().get("store_messages"));
 			properties.put("transformerScript", transformerBuilder.getScript(connector.getTransformer(), channel));

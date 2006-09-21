@@ -5,22 +5,29 @@ import java.util.UUID;
 
 import org.apache.log4j.Logger;
 import org.mozilla.javascript.Context;
+import org.mozilla.javascript.EvaluatorException;
 import org.mozilla.javascript.ImporterTopLevel;
+import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
 import org.mule.transformers.AbstractTransformer;
+import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.transformer.TransformerException;
 
+import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.converters.ER7Serializer;
 import com.webreach.mirth.server.controllers.MessageObjectController;
+import com.webreach.mirth.server.mule.util.CompiledScriptCache;
 import com.webreach.mirth.server.mule.util.GlobalVariableStore;
 
 public class JavaScriptTransformer extends AbstractTransformer {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private MessageObjectController messageObjectController = new MessageObjectController();
+	private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
 	private String transformerScript;
 	private String filterScript;
 	private String direction;
+	private String protocol;
 	private String channelId;
 	private String connectorName;
 	private boolean encryptData;
@@ -34,20 +41,28 @@ public class JavaScriptTransformer extends AbstractTransformer {
 		this.channelId = channelId;
 	}
 
-	public String getConnectorName() {
-		return this.connectorName;
-	}
-
-	public void setConnectorName(String connectorName) {
-		this.connectorName = connectorName;
-	}
-
 	public String getDirection() {
 		return this.direction;
 	}
 
 	public void setDirection(String direction) {
 		this.direction = direction;
+	}
+
+	public String getProtocol() {
+		return this.protocol;
+	}
+
+	public void setProtocol(String protocol) {
+		this.protocol = protocol;
+	}
+
+	public String getConnectorName() {
+		return this.connectorName;
+	}
+
+	public void setConnectorName(String connectorName) {
+		this.connectorName = connectorName;
 	}
 
 	public String getFilterScript() {
@@ -83,12 +98,35 @@ public class JavaScriptTransformer extends AbstractTransformer {
 	}
 
 	@Override
+	public void initialise() throws InitialisationException {
+		try {
+			Context context = Context.enter();
+
+			if (filterScript != null) {
+				logger.debug("compiling filter script");
+				Script compiledFilterScript = context.compileString(generateFilterScript(), channelId, 1, null);
+				compiledScriptCache.putCompiledFilterScript(channelId, compiledFilterScript);
+			}
+
+			if (transformerScript != null) {
+				logger.debug("compiling transformer script");
+				Script compiledTransformerScript = context.compileString(generateTransformerScript(), channelId, 1, null);
+				compiledScriptCache.putCompiledTransformerScript(channelId, compiledTransformerScript);
+			}
+		} catch (EvaluatorException e) {
+			logger.error(e);
+		} finally {
+			Context.exit();
+		}
+	}
+
+	@Override
 	public Object doTransform(Object src) throws TransformerException {
 		MessageObject messageObject = (MessageObject) src;
 
 		initializeMessage(messageObject);
 
-		if (direction.equals("inbound")) {
+		if (direction.equals(Channel.Direction.INBOUND.toString())) {
 			if (evaluateFilterScript(messageObject)) {
 				return evaluateInboundTransformerScript(messageObject);
 			}
@@ -111,7 +149,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			// load variables in JavaScript scope
 			scope.put("logger", scope, scriptLogger);
 
-			if (direction.equals("inbound")) {
+			if (direction.equals(Channel.Direction.INBOUND.toString())) {
 				scope.put("message", scope, messageObject.getTransformedData());
 			} else {
 				scope.put("message", scope, messageObject.getRawData());
@@ -120,19 +158,16 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			scope.put("localMap", scope, messageObject.getVariableMap());
 			scope.put("globalMap", scope, GlobalVariableStore.getInstance());
 
-			StringBuilder jsSource = new StringBuilder();
-			jsSource.append("importPackage(Packages.com.webreach.mirth.server.util);\n	");
-			jsSource.append("function doFilter() {");
-
-			if (messageObject.getTransformedDataProtocol().equals(MessageObject.Protocol.HL7)) {
-				jsSource.append("default xml namespace = new Namespace(\"urn:hl7-org:v2xml\");");
+			// get the script from the cache and execute it
+			Script script = compiledScriptCache.getCompiledFilterScript(channelId);
+			Object result = null;
+			
+			if ((filterScript != null) && (script == null)) {
+				logger.error("filter script could not be found in cache");
+			} else {
+				result = script.exec(context, scope);	
 			}
 
-			jsSource.append("var msg = new XML(message);\n " + filterScript + " }\n");
-			jsSource.append("doFilter()\n");
-
-			logger.debug("executing filter script:\n" + jsSource.toString());
-			Object result = context.evaluateString(scope, jsSource.toString(), "<cmd>", 1, null);
 			boolean messageAccepted = ((Boolean) Context.jsToJava(result, java.lang.Boolean.class)).booleanValue();
 
 			if (messageAccepted) {
@@ -173,20 +208,14 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			scope.put("localMap", scope, messageObject.getVariableMap());
 			scope.put("globalMap", scope, GlobalVariableStore.getInstance());
 
-			StringBuilder jsSource = new StringBuilder();
-			jsSource.append("importPackage(Packages.com.webreach.mirth.server.util);");
-			jsSource.append("function doTransform() {");
-
-			// only set the namespace to hl7-org if the message is XML
-			if (messageObject.getTransformedDataProtocol().equals(MessageObject.Protocol.HL7)) {
-				jsSource.append("default xml namespace = new Namespace(\"urn:hl7-org:v2xml\");");
+			// get the script from the cache and execute it
+			Script compiledScript = compiledScriptCache.getCompiledTransformerScript(channelId);
+			
+			if ((transformerScript != null ) && (compiledScript == null)) {
+				logger.warn("transformer script could not be found in cache");
+			} else {
+				compiledScript.exec(context, scope);	
 			}
-
-			jsSource.append("var msg = new XML(message); " + transformerScript + " }");
-			jsSource.append("doTransform()\n");
-
-			logger.debug("executing transformation script: " + jsSource.toString());
-			context.evaluateString(scope, jsSource.toString(), "<cmd>", 1, null);
 
 			// take the now transformed message and convert it back to ER7
 			if ((messageObject.getTransformedData() != null) && (messageObject.getTransformedDataProtocol().equals(MessageObject.Protocol.HL7))) {
@@ -228,14 +257,14 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			scope.put("localMap", scope, messageObject.getVariableMap());
 			scope.put("globalMap", scope, GlobalVariableStore.getInstance());
 
-			StringBuilder jsSource = new StringBuilder();
-			jsSource.append("importPackage(Packages.com.webreach.mirth.server.util);");
-			jsSource.append("function doTransform() {");
-			jsSource.append("var msg = new XML(message); " + transformerScript + " }");
-			jsSource.append("doTransform()\n");
-
-			logger.debug("executing transformation script:\n" + jsSource.toString());
-			context.evaluateString(scope, jsSource.toString(), "<cmd>", 1, null);
+			// get the script from the cache and execute it
+			Script compiledScript = compiledScriptCache.getCompiledTransformerScript(channelId);
+			
+			if ((transformerScript != null ) && (compiledScript == null)) {
+				logger.warn("transformer script could not be found in cache");
+			} else {
+				compiledScript.exec(context, scope);	
+			}
 
 			// since the transformations occur on the template, pull it out of
 			// the scope
@@ -277,5 +306,36 @@ public class JavaScriptTransformer extends AbstractTransformer {
 		messageObject.setEncrypted(encryptData);
 		messageObject.setChannelId(channelId);
 		messageObject.setDateCreated(Calendar.getInstance());
+	}
+
+	private String generateFilterScript() {
+		logger.debug("generating filter script");
+		StringBuilder script = new StringBuilder();
+		script.append("importPackage(Packages.com.webreach.mirth.server.util);\n	");
+		script.append("function doFilter() {");
+
+		if (protocol.equals(Channel.Protocol.HL7.toString())) {
+			script.append("default xml namespace = new Namespace(\"urn:hl7-org:v2xml\");");
+		}
+
+		script.append("var msg = new XML(message);\n " + filterScript + " }\n");
+		script.append("doFilter()\n");
+		return script.toString();
+	}
+
+	private String generateTransformerScript() {
+		logger.debug("generator transformer script");
+		StringBuilder script = new StringBuilder();
+		script.append("importPackage(Packages.com.webreach.mirth.server.util);");
+		script.append("function doTransform() {");
+
+		// only set the namespace to hl7-org if the message is XML
+		if (protocol.equals(Channel.Protocol.HL7.toString())) {
+			script.append("default xml namespace = new Namespace(\"urn:hl7-org:v2xml\");");
+		}
+
+		script.append("var msg = new XML(message); " + transformerScript + " }");
+		script.append("doTransform()\n");
+		return script.toString();
 	}
 }
