@@ -18,6 +18,7 @@ import org.dom4j.Node;
 import org.dom4j.io.DOMReader;
 import org.mule.umo.endpoint.UMOEndpointURI;
 
+import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.mule.util.GlobalVariableStore;
 
 import java.sql.Connection;
@@ -25,6 +26,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -94,22 +96,22 @@ public abstract class JdbcUtils
 			String param = (String) paramNames.get(i);
 			String name = param.substring(2, param.length() - 1);
 			Object value = null;
+			
 			if ("NOW".equalsIgnoreCase(name)) {
 				value = new Timestamp(Calendar.getInstance().getTimeInMillis());
-			} else if (root instanceof java.util.HashMap){
+			} else if (root instanceof MessageObject){
 				//If we have a hashmap cast our root object to a HashMap
-				java.util.HashMap hash = (java.util.HashMap) root;
+				Map valueMap = ((MessageObject) root).getVariableMap();
+				
 				try{
-					if (hash.containsKey(name)){
+					if (valueMap.containsKey(name)){
 						//Assign the value to the value in the hash with the key we're looking for (name)
-						value = hash.get(name).toString();
+						value = valueMap.get(name).toString();
 					}else if (GlobalVariableStore.getInstance().containsKey(name)){
 						//Try to get Mirth global hash
 						value = GlobalVariableStore.getInstance().get(name).toString();
-						
 					}
 				}catch (Exception ignored){
-				
 					value = null;
 				}
 			}else if (root instanceof org.w3c.dom.Document) {
