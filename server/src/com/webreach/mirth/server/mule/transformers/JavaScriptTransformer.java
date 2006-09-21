@@ -163,14 +163,15 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			// get the script from the cache and execute it
 			Script script = compiledScriptCache.getCompiledFilterScript(channelId);
 			Object result = null;
+			boolean messageAccepted;
 			
 			if ((filterScript != null) && (script == null)) {
 				logger.error("filter script could not be found in cache");
+				messageAccepted = false;
 			} else {
-				result = script.exec(context, scope);	
+				result = script.exec(context, scope);
+				messageAccepted = ((Boolean) Context.jsToJava(result, java.lang.Boolean.class)).booleanValue();
 			}
-
-			boolean messageAccepted = ((Boolean) Context.jsToJava(result, java.lang.Boolean.class)).booleanValue();
 
 			if (messageAccepted) {
 				messageObject.setStatus(MessageObject.Status.ACCEPTED);
