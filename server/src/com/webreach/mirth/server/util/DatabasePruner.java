@@ -44,7 +44,7 @@ public class DatabasePruner extends Thread {
 				Channel channel = (Channel) iter.next();
 
 				if ((channel.getProperties().getProperty("store_messages") != null) && channel.getProperties().getProperty("store_messages").equals("true")) {
-					if (channel.getProperties().getProperty("max_message_age") != null) {
+					if ((channel.getProperties().getProperty("max_message_age") != null) && !channel.getProperties().getProperty("max_message_age").equals("-1")) {
 						int numDays = Integer.parseInt(channel.getProperties().getProperty("max_message_age"));
 
 						Calendar endDate = Calendar.getInstance();
