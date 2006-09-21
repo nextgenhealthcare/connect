@@ -204,7 +204,12 @@ public class MuleConfigurationBuilder {
 
 				Element endpointElement = document.createElement("endpoint");
 				endpointElement.setAttribute("address", getEndpointUri(connector));
-				endpointElement.setAttribute("synchronous", "true");
+
+				// if there are multiple endpoints, make them all synchronous to
+				// ensure correct ordering of fired events
+				if (channel.getDestinationConnectors().size() > 0) {
+					endpointElement.setAttribute("synchronous", "true");
+				}
 
 				String connectorReference = channel.getId() + "_destination_" + String.valueOf(iterator.nextIndex());
 
@@ -264,13 +269,13 @@ public class MuleConfigurationBuilder {
 			properties.put("storeMessages", channel.getProperties().get("store_messages"));
 			properties.put("transformerScript", transformerBuilder.getScript(connector.getTransformer(), channel));
 			properties.put("filterScript", filterBuilder.getScript(connector.getFilter(), channel));
-			
+
 			if (channel.getMode().equals(Channel.Mode.ROUTER)) {
-				properties.put("connectorName", connector.getName());	
+				properties.put("connectorName", connector.getName());
 			} else {
 				properties.put("connectorName", "Source");
 			}
-			
+
 			transformerElement.appendChild(getProperties(document, properties));
 
 			transformersElement.appendChild(transformerElement);
