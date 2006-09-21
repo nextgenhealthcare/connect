@@ -66,7 +66,7 @@ public class ChannelStatus {
 
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("ChannelStatus[");
+		builder.append(this.getClass().getName() + "[");
 		builder.append("channeldId=" + getChannelId() + ", ");
 		builder.append("name=" + getName() + ", ");
 		builder.append("state=" + getState().toString());

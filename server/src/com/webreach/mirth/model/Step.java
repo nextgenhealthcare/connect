@@ -74,7 +74,7 @@ public class Step {
 
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("Step[");
+		builder.append(this.getClass().getName() + "[");
 		builder.append("sequenceNumber=" + getSequenceNumber() + ", ");
 		builder.append("name=" + getName() + ", ");
 		builder.append("script=" + getScript() + ", ");

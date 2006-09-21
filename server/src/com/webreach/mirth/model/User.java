@@ -56,7 +56,7 @@ public class User {
 
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("User[");
+		builder.append(this.getClass().getName() + "[");
 		builder.append("id=" + getId() + ", ");
 		builder.append("username=" + getUsername() + ", ");
 		builder.append("password=" + getPassword());

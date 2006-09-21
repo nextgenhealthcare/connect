@@ -173,7 +173,7 @@ public class Channel {
 
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("Channel[");
+		builder.append(this.getClass().getName() + "[");
 		builder.append("id=" + getId() + ", ");
 		builder.append("name=" + getName() + ", ");
 		builder.append("enabled=" + isEnabled() + ", ");

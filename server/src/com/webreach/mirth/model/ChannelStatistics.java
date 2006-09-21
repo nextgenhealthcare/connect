@@ -56,7 +56,7 @@ public class ChannelStatistics {
 	
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("Statistics[");
+		builder.append(this.getClass().getName() + "[");
 		builder.append("receivedCount=" + getReceivedCount() + ", ");
 		builder.append("sentCount=" + getSentCount() + ", ");
 		builder.append("errorCount=" + getErrorCount());

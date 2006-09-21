@@ -103,7 +103,7 @@ public class SystemEvent {
 
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("SystemEvent[");
+		builder.append(this.getClass().getName() + "[");
 		builder.append("id=" + getId() + ", ");
 		builder.append("level=" + getLevel() + ", ");
 		builder.append("event=" + getEvent() + ", ");

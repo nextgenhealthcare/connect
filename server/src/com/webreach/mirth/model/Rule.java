@@ -69,7 +69,7 @@ public class Rule {
 
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("Rule[");
+		builder.append(this.getClass().getName() + "[");
 		builder.append("name=" + getName() + " ");
 		builder.append("operator=" + getOperator().toString() + " ");
 		builder.append("script=" + getScript() + " ");

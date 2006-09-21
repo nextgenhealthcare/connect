@@ -31,7 +31,7 @@ public class DriverInfo {
 
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("Driver[");
+		builder.append(this.getClass().getName() + "[");
 		builder.append("name=" + getName() + ", ");
 		builder.append("className=" + getClassName());
 		builder.append("]");

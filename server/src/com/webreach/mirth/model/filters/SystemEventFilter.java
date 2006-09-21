@@ -76,7 +76,7 @@ public class SystemEventFilter {
 
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("SystemEventFilter[");
+		builder.append(this.getClass().getName() + "[");
 		builder.append("level=" + getLevel() + ", ");
 		builder.append("startDate=" + String.format("%1$tY-%1$tm-%1$td", getStartDate()) + ", ");
 		builder.append("endDate=" + String.format("%1$tY-%1$tm-%1$td", getEndDate()) + ", ");

@@ -93,7 +93,7 @@ public class Connector {
 
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("Connector[");
+		builder.append(this.getClass().getName() + "[");
 		builder.append("name=" + getName() + ", ");
 		builder.append("transportName=" + getTransportName() + ", ");
 		builder.append("properties=" + getProperties());

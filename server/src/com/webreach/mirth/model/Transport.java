@@ -96,7 +96,7 @@ public class Transport {
 
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("Transport[");
+		builder.append(this.getClass().getName() + "[");
 		builder.append("name=" + getName() + ", ");
 		builder.append("type=" + getType().toString() + ", ");
 		builder.append("className=" + getClassName() + ", ");
