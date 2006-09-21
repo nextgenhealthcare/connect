@@ -429,4 +429,22 @@ public class Client {
 		NameValuePair[] params = { new NameValuePair("op", "getBuildDate") };
 		return serverConnection.executePostMethod(CONFIGURATION_SERVLET, params);
 	}
+	
+	public synchronized void submitError(String message) {
+        Error error = new Error();
+        error.setJavaVersion(System.getProperty("java.version"));
+        error.setOsArchitecture(System.getProperty("os.arch"));
+        error.setOsName(System.getProperty("os.name"));
+        error.setOsVersion(System.getProperty("os.version"));
+        error.setStackTrace(message);
+        error.setDate(new ErrorDate());
+
+        ServerConnection errorServerConnection = new ServerConnection("http://www.mirthproject.org:3000/errors");
+        
+        try {
+			errorServerConnection.executePostMethod("/create", error.getAsParams());
+		} catch (ClientException e) {
+			logger.error("could not submit error", e);
+		}
+	}
 }
