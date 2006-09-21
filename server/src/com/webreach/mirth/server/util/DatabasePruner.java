@@ -35,7 +35,7 @@ public class DatabasePruner extends Thread {
 	}
 
 	public void pruneDatabase() {
-		logger.info("pruning database");
+		logger.debug("pruning database");
 		
 		try {
 			List<Channel> channels = channelController.getChannels(null);
@@ -59,7 +59,7 @@ public class DatabasePruner extends Thread {
 				}
 			}
 		} catch (Exception e) {
-			logger.error("could not prune database", e);
+			logger.warn("could not prune database", e);
 		}
 	}
 }
