@@ -21,6 +21,12 @@ public class MessageListHandler implements ListHandler {
 		this.connection = connection;
 	}
 	
+	public List<MessageObject> getAllPages() throws ListHandlerException {
+		logger.debug("retrieving all pages");
+		filter.setPage(-1);
+		return getPage(filter);
+	}
+	
 	public List<MessageObject> getFirstPage() throws ListHandlerException {
 		logger.debug("retrieving first page of " + filter.getPageSize() + " results");
 		
