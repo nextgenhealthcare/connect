@@ -78,19 +78,21 @@ public class JEditTextArea extends JComponent {
 	 * Creates a new JEditTextArea with the default settings.
 	 */
 	public JEditTextArea() {
-		this(new TextAreaDefaults(), false);
+		this(false);
 	}
 
 	/**
 	 * Creates a new JEditTextArea with the specified settings.
 	 * @param defaults The default settings
 	 */
-	public JEditTextArea(TextAreaDefaults defaults, boolean enableLineNumbers) {
+	public JEditTextArea(boolean enableLineNumbers) {
 		// Enable the necessary events
 		enableEvents(AWTEvent.KEY_EVENT_MASK);
 		this.enableLineNumbers = enableLineNumbers;
+		TextAreaDefaults defaults = new TextAreaDefaults();
 		// Initialize some misc. stuff
-		painter = new TextAreaPainter(this, defaults);
+		Font font = new Font("Courier",Font.PLAIN,11);
+		painter = new TextAreaPainter(this, defaults, font );
 		documentHandler = new DocumentHandler();
 		listenerList = new EventListenerList();
 		caretEvent = new MutableCaretEvent();
@@ -102,13 +104,14 @@ public class JEditTextArea extends JComponent {
 		setLayout(new ScrollLayout());
 		if (enableLineNumbers){
 			left = new LineNumber(this);
-		
+			left.setFont(font);
 			left.setLineHeight(painter.getFontMetrics().getHeight());
 		}
 		painter.addMouseWheelListener(new ScrollWheelHandler());
 		add(CENTER, painter);
 		add(RIGHT, vertical = new JScrollBar(JScrollBar.VERTICAL));
 		add(BOTTOM, horizontal = new JScrollBar(JScrollBar.HORIZONTAL));
+	
 		if (enableLineNumbers)
 			add(LEFT, left);
 		//add(LEFT_OF_SCROLLBAR, new LineNumber(this));
@@ -312,8 +315,8 @@ public class JEditTextArea extends JComponent {
 	 */
 	public void updateScrollBars() {
 		//left.setBounds(left.getLocation().x,firstLine * -painter.getFontMetrics().getHeight(),left.getWidth(),left.getHeight() + firstLine * painter.getFontMetrics().getHeight());
-
 		if (vertical != null && visibleLines != 0) {
+			//vertical.setEnabled(true);
 			vertical.setValues(firstLine, visibleLines, 0, getLineCount());
 			///	left.setLocation(0, );
 			vertical.setUnitIncrement(2);
@@ -321,7 +324,6 @@ public class JEditTextArea extends JComponent {
 		}
 
 		int width = painter.getWidth();
-
 		if (horizontal != null && width != 0) {
 			int max_size = 0;
 			if (longestLineSize < width) {
@@ -330,13 +332,10 @@ public class JEditTextArea extends JComponent {
 				max_size = longestLineSize;
 			}
 			horizontal.setValues(-horizontalOffset, width, 0, max_size);
-			System.out.println("Max Size: " + max_size);
-			System.out.println("Offset: :" + horizontalOffset);
 			horizontal
 					.setUnitIncrement(painter.getFontMetrics().charWidth('w'));
 			horizontal.setBlockIncrement(width / 2);
 		}
-
 	}
 
 	/**
@@ -355,8 +354,8 @@ public class JEditTextArea extends JComponent {
 			return;
 		int oldFirstLine = this.firstLine;
 		this.firstLine = firstLine;
-		if (firstLine != vertical.getValue())
-			updateScrollBars();
+		//if (firstLine != vertical.getValue())
+		//	updateScrollBars();
 
 		painter.repaint();
 
@@ -373,7 +372,7 @@ public class JEditTextArea extends JComponent {
 	 * Recalculates the number of visible lines. This should not
 	 * be called directly.
 	 */
-	public final void recalculateVisibleLines() {
+	public final void recalculateVisibleLines(){
 		if (painter == null)
 			return;
 		int height = painter.getHeight();
@@ -457,8 +456,6 @@ public class JEditTextArea extends JComponent {
 	 * line and offset was already visible
 	 */
 	public boolean scrollTo(int line, int offset) {
-		System.out.println("Scroll To Offset: " + offset);
-
 		// visibleLines == 0 before the component is realized
 		// we can't do any proper scrolling then, so we have
 		// this hack...
@@ -481,16 +478,13 @@ public class JEditTextArea extends JComponent {
 		}
 
 		int x = _offsetToX(line, offset);
-		System.out.println("X: " + x);
 		int width = painter.getFontMetrics().charWidth('w');
 
 		if (x < 0) {
 			newHorizontalOffset = 0;
-			System.out.println("Case 1");
 		} else if (x + width >= painter.getWidth() + 5) {
 			newHorizontalOffset = horizontalOffset + (painter.getWidth() - x)
 					- width - 5;
-			System.out.println("Case 2");
 		} else if (horizontalOffset < 0) {
 			updateLongestLine();
 			newHorizontalOffset = (Math.min(0, -(painter.getFontMetrics()
@@ -498,7 +492,6 @@ public class JEditTextArea extends JComponent {
 							getLineText(line).length()))
 					+ painter.getWidth()
 					- painter.getFontMetrics().charWidth('w')));
-			System.out.println("Case 3");
 		}
 
 		return setOrigin(newFirstLine, newHorizontalOffset);
@@ -616,7 +609,9 @@ public class JEditTextArea extends JComponent {
 	 */
 	public int xToOffset(int line, int x) {
 		TokenMarker tokenMarker = getTokenMarker();
-
+		if (left != null){
+			x = x - left.getWidth();
+		}
 		/* Use painter's cached info for speed */
 		FontMetrics fm = painter.getFontMetrics();
 
@@ -1721,16 +1716,20 @@ public class JEditTextArea extends JComponent {
 			if (left != null){
 				leftWidth = left.getPreferredSize().width;
 			}
-			int rightWidth = right.getPreferredSize().width;
-			int bottomHeight = bottom.getPreferredSize().height;
+			int rightWidth = rightWidth = right.getPreferredSize().width;
+			int bottomHeight = bottomHeight = bottom.getPreferredSize().height;
 			int centerWidth = size.width - rightWidth - leftWidth - ileft
 					- iright;
 			int centerHeight = size.height - bottomHeight - itop - ibottom;
 
 			center.setBounds(ileft + leftWidth, itop, centerWidth,
 							centerHeight);
+			System.out.println("Bounds changed");
 			if (left != null){
-				left.setBounds(ileft, itop, leftWidth, centerHeight);
+				if (left.getHeight() > center.getHeight())
+					left.setBounds(ileft, left.getY(), leftWidth, left.getHeight());
+				else
+					left.setBounds(ileft, itop, leftWidth, centerHeight);
 			}
 			right.setBounds(ileft + centerWidth + leftWidth, itop, rightWidth,
 					centerHeight);

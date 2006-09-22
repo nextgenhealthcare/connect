@@ -40,8 +40,12 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import org.syntax.jedit.SyntaxDocument;
+import org.syntax.jedit.tokenmarker.JavaScriptTokenMarker;
+
 import com.Ostermiller.Syntax.HighlightedDocument;
 import com.webreach.mirth.client.ui.UIConstants;
+import com.webreach.mirth.client.ui.components.MirthSyntaxTextArea;
 import com.webreach.mirth.client.ui.components.MirthTextPane;
 
 
@@ -63,10 +67,11 @@ public class JavaScriptPanel extends CardPanel {
 		footerArea = new JTextArea( footer );
 		scriptPanel = new JPanel();
 		scriptScrollPane = new JScrollPane();
-	
-		scriptDoc = new HighlightedDocument();
-		scriptDoc.setHighlightStyle( HighlightedDocument.JAVASCRIPT_STYLE );
-		scriptTextPane = new MirthTextPane();
+		scriptScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		scriptScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+		scriptDoc = new SyntaxDocument();
+		scriptDoc.setTokenMarker(new JavaScriptTokenMarker());
+		scriptTextPane = new MirthSyntaxTextArea(true);
                 scriptTextPane.setDocument(scriptDoc);
 	
 		scriptTextPane.setBorder( BorderFactory.createEmptyBorder() );
@@ -91,9 +96,9 @@ public class JavaScriptPanel extends CardPanel {
 		scriptPanel.add( scriptTextPane, BorderLayout.CENTER );
 		scriptPanel.add( footerArea, BorderLayout.SOUTH );
 		
-		lineNumbers = new LineNumber( scriptPanel );
+		
 		scriptScrollPane.setViewportView( scriptPanel );
-		scriptScrollPane.setRowHeaderView( lineNumbers );
+	
 		scriptScrollPane.setBorder( BorderFactory.createTitledBorder( 
 				BorderFactory.createLoweredBevelBorder(), "JavaScript", TitledBorder.LEFT,
 				TitledBorder.ABOVE_TOP, new Font( null, Font.PLAIN, 11 ), 
@@ -145,17 +150,13 @@ public class JavaScriptPanel extends CardPanel {
                 
                 parent.modified = modified;
 	}
-	
-	public MirthTextPane getDocument() {
-		return scriptTextPane;
-	}
-	
+
 	
 	private JTextArea headerArea;
 	private JTextArea footerArea;
 	private JPanel scriptPanel;
-	private static HighlightedDocument scriptDoc;
-	private MirthTextPane scriptTextPane;
+	private static SyntaxDocument scriptDoc;
+	private MirthSyntaxTextArea scriptTextPane;
 	private JScrollPane scriptScrollPane;
 	private LineNumber lineNumbers;
 	private MirthEditorPane parent;

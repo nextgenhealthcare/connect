@@ -65,8 +65,8 @@ public class TextAreaDefaults
 			this.caretBlinks = true;
 			this.electricScroll = 3;
 
-			this.cols = 20;
-			this.rows = 25;
+			this.cols = 10;
+			this.rows = 10;
 			this.styles = SyntaxUtilities.getDefaultSyntaxStyles();
 			this.caretColor = Color.black; // Color.red;
 			this.selectionColor = new Color(0xccccff);

@@ -30,7 +30,7 @@ public class TextAreaPainter extends JComponent implements TabExpander
 	 * Creates a new repaint manager. This should be not be called
 	 * directly.
 	 */
-	public TextAreaPainter(JEditTextArea textArea, TextAreaDefaults defaults)
+	public TextAreaPainter(JEditTextArea textArea, TextAreaDefaults defaults, Font font)
 	{
 		this.textArea = textArea;
 
@@ -45,7 +45,7 @@ public class TextAreaPainter extends JComponent implements TabExpander
 
 		setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
 
-		setFont(new Font(null,Font.PLAIN,11));
+		setFont(font);
 		setForeground(Color.black);
 		setBackground(Color.white);
 

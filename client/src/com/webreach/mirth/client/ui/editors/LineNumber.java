@@ -130,7 +130,7 @@ public class LineNumber extends JComponent
 		int startLineNumber = (drawHere.y / lineHeight) + 1;
 		int endLineNumber = startLineNumber + (drawHere.height / lineHeight);
 		
-		int start = (drawHere.y / lineHeight) * lineHeight + lineHeight - startOffset;
+		int start = (drawHere.y / lineHeight) * lineHeight + lineHeight - startOffset + 1;
 		
 //		System.out.println( startLineNumber + " : " + endLineNumber + " : " + start );
 		
