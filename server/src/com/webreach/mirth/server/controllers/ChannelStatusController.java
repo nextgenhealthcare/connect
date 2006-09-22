@@ -157,7 +157,7 @@ public class ChannelStatusController {
 		List<ChannelStatus> channelStatusList = new ArrayList<ChannelStatus>();
 
 		try {
-			ArrayList<String> deployedChannelIdList = (ArrayList<String>) getDeployedIds();
+			List<String> deployedChannelIdList = getDeployedIds();
 			
 			for (Iterator iter = deployedChannelIdList.iterator(); iter.hasNext();) {
 				String channelId = (String) iter.next();

@@ -8,6 +8,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import com.truemesh.squiggle.MatchCriteria;
+import com.truemesh.squiggle.Order;
 import com.truemesh.squiggle.SelectQuery;
 import com.truemesh.squiggle.Table;
 import com.webreach.mirth.model.Channel;
@@ -56,6 +57,8 @@ public class ChannelController {
 			if (channelId != null) {
 				select.addCriteria(new MatchCriteria(channels, "id", MatchCriteria.EQUALS, channelId));
 			}
+			
+			select.addOrder(channels, "date_created", Order.ASCENDING);
 
 			result = dbConnection.executeQuery(select.toString());
 			return getChannelList(result);
