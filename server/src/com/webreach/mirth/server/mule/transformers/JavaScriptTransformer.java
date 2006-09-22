@@ -1,5 +1,7 @@
 package com.webreach.mirth.server.mule.transformers;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Calendar;
 import java.util.UUID;
 
@@ -165,7 +167,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			Object result = null;
 			boolean messageAccepted;
 			
-			if ((filterScript != null) && (script == null)) {
+			if (script == null) {
 				logger.error("filter script could not be found in cache");
 				messageAccepted = false;
 			} else {
@@ -187,7 +189,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 		} catch (Exception e) {
 			logger.error("error ocurred in filter", e);
 			messageObject.setStatus(MessageObject.Status.ERROR);
-			messageObject.setErrors(e.toString());
+			messageObject.setErrors(stackTraceToString(e));
 
 			if (storeMessages) {
 				messageObjectController.updateMessage(messageObject);
@@ -214,7 +216,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			// get the script from the cache and execute it
 			Script compiledScript = compiledScriptCache.getCompiledTransformerScript(channelId);
 			
-			if ((transformerScript != null ) && (compiledScript == null)) {
+			if (compiledScript == null) {
 				logger.warn("transformer script could not be found in cache");
 			} else {
 				compiledScript.exec(context, scope);	
@@ -236,7 +238,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			return messageObject;
 		} catch (Exception e) {
 			messageObject.setStatus(MessageObject.Status.ERROR);
-			messageObject.setErrors(e.toString());
+			messageObject.setErrors(stackTraceToString(e));
 
 			if (storeMessages) {
 				messageObjectController.updateMessage(messageObject);
@@ -263,7 +265,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			// get the script from the cache and execute it
 			Script compiledScript = compiledScriptCache.getCompiledTransformerScript(channelId);
 			
-			if ((transformerScript != null ) && (compiledScript == null)) {
+			if (compiledScript == null) {
 				logger.warn("transformer script could not be found in cache");
 			} else {
 				compiledScript.exec(context, scope);	
@@ -289,7 +291,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			return messageObject;
 		} catch (Exception e) {
 			messageObject.setStatus(MessageObject.Status.ERROR);
-			messageObject.setErrors(e.toString());
+			messageObject.setErrors(stackTraceToString(e));
 
 			if (storeMessages) {
 				messageObjectController.updateMessage(messageObject);
@@ -340,5 +342,21 @@ public class JavaScriptTransformer extends AbstractTransformer {
 		script.append("var msg = new XML(message); " + transformerScript + " }");
 		script.append("doTransform()\n");
 		return script.toString();
+	}
+	
+	private String stackTraceToString(Throwable exception) {
+		StringWriter stringWriter = new StringWriter();
+		PrintWriter printWriter = new PrintWriter(stringWriter);
+		exception.printStackTrace(printWriter);
+		String exceptionString = stringWriter.toString();
+		
+		try {
+			stringWriter.close();	
+		} catch (Exception e) {
+			logger.warn(e);
+		}
+		
+		printWriter.close();
+		return exceptionString;
 	}
 }
