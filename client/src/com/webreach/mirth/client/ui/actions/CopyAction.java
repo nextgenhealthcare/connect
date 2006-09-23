@@ -30,12 +30,14 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.text.JTextComponent;
 
+import com.webreach.mirth.client.ui.components.MirthTextInterface;
+
 /** Allows for Copying in text components. */
 public class CopyAction extends AbstractAction
 {
-    JTextComponent comp;
+	MirthTextInterface comp;
     
-    public CopyAction(JTextComponent comp)
+    public CopyAction(MirthTextInterface comp)
     { 
         super("Copy"); 
         this.comp = comp; 

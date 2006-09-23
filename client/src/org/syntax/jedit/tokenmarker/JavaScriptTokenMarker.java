@@ -31,6 +31,7 @@ public class JavaScriptTokenMarker extends CTokenMarker
 		{
 			javaScriptKeywords = new KeywordMap(false);
 			javaScriptKeywords.add("function",Token.KEYWORD3);
+			javaScriptKeywords.add("get",Token.KEYWORD3);
 			javaScriptKeywords.add("var",Token.KEYWORD3);
 			javaScriptKeywords.add("else",Token.KEYWORD1);
 			javaScriptKeywords.add("for",Token.KEYWORD1);

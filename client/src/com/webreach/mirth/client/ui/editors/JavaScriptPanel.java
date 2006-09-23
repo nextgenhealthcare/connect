@@ -63,8 +63,6 @@ public class JavaScriptPanel extends CardPanel {
 	}
 	
 	private void initComponents() {
-		headerArea = new JTextArea( header );
-		footerArea = new JTextArea( footer );
 		scriptPanel = new JPanel();
 		scriptScrollPane = new JScrollPane();
 		scriptScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
@@ -77,24 +75,11 @@ public class JavaScriptPanel extends CardPanel {
 		scriptTextPane.setBorder( BorderFactory.createEmptyBorder() );
 		scriptPanel.setBorder( BorderFactory.createEmptyBorder() );
 		
-		headerArea.setForeground( Color.blue );
-		headerArea.setFont( EditorConstants.DEFAULT_FONT_BOLD );
-		headerArea.setBorder( BorderFactory.createEmptyBorder() );
-		headerArea.setBackground( UIConstants.NONEDITABLE_LINE_BACKGROUND );
-		headerArea.setEditable(false);
-		
 		scriptTextPane.setFont( EditorConstants.DEFAULT_FONT );
 		
-		footerArea.setForeground( Color.blue );
-		footerArea.setFont( EditorConstants.DEFAULT_FONT_BOLD );
-		footerArea.setBorder( BorderFactory.createEmptyBorder() );
-		footerArea.setBackground( UIConstants.NONEDITABLE_LINE_BACKGROUND );
-		footerArea.setEditable(false);
-		
 		scriptPanel.setLayout( new BorderLayout() );
-		scriptPanel.add( headerArea, BorderLayout.NORTH );
 		scriptPanel.add( scriptTextPane, BorderLayout.CENTER );
-		scriptPanel.add( footerArea, BorderLayout.SOUTH );
+
 		
 		
 		scriptScrollPane.setViewportView( scriptPanel );
@@ -152,8 +137,6 @@ public class JavaScriptPanel extends CardPanel {
 	}
 
 	
-	private JTextArea headerArea;
-	private JTextArea footerArea;
 	private JPanel scriptPanel;
 	private static SyntaxDocument scriptDoc;
 	private MirthSyntaxTextArea scriptTextPane;

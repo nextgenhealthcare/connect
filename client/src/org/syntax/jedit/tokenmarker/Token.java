@@ -90,11 +90,12 @@ public class Token
 	 * syntax errors.
 	 */
 	public static final byte INVALID = 10;
-
+	
+	public static final byte DIGIT = 11;
 	/**
 	 * The total number of defined token ids.
 	 */
-	public static final byte ID_COUNT = 11;
+	public static final byte ID_COUNT = 12;
 
 	/**
 	 * The first id that can be used for internal state

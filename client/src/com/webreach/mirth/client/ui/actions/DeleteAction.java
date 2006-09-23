@@ -30,12 +30,14 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.text.JTextComponent;
 
+import com.webreach.mirth.client.ui.components.MirthTextInterface;
+
 /** Allows for Deleting in text components. */
 public class DeleteAction extends AbstractAction
 {
-    JTextComponent comp;
+	MirthTextInterface comp;
     
-    public DeleteAction(JTextComponent comp)
+    public DeleteAction(MirthTextInterface comp)
     { 
         super("Delete"); 
         this.comp = comp; 

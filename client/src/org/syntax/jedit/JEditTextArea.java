@@ -91,7 +91,7 @@ public class JEditTextArea extends JComponent {
 		this.enableLineNumbers = enableLineNumbers;
 		TextAreaDefaults defaults = new TextAreaDefaults();
 		// Initialize some misc. stuff
-		Font font = new Font("Courier",Font.PLAIN,11);
+		Font font = defaults.font;//new Font("Courier",Font.PLAIN,12);
 		painter = new TextAreaPainter(this, defaults, font );
 		documentHandler = new DocumentHandler();
 		listenerList = new EventListenerList();
@@ -134,9 +134,11 @@ public class JEditTextArea extends JComponent {
 
 				public void dragEnter(DropTargetDragEvent dtde) {
 
-					int offset = xyToOffset(dtde.getLocation().x, dtde
-							.getLocation().y);
-					setCaretPosition(offset);
+					requestFocus();
+
+					// Focus events not fired sometimes?
+					setCaretVisible(true);
+					focusedComponent = JEditTextArea.this;
 
 				}
 
@@ -147,16 +149,26 @@ public class JEditTextArea extends JComponent {
 
 				public void dragOver(DropTargetDragEvent dtde) {
 					// TODO Auto-generated method stub
-					int offset = xyToOffset(dtde.getLocation().x, dtde
+					int x = getAdjustedX(dtde.getLocation().x);
+					int offset = xyToOffset(x, dtde
 							.getLocation().y);
 					setCaretPosition(offset);
 
+				}
+				private int getAdjustedX(int x){
+					if (left != null){
+						x = x - left.getWidth();
+						return x;
+					}else{
+						return x;
+					}
 				}
 
 				public void drop(DropTargetDropEvent dtde) {
 
 					int line = yToLine(dtde.getLocation().y);
-					int offset = xToOffset(line, dtde.getLocation().x);
+					int x = getAdjustedX(dtde.getLocation().x);
+					int offset = xToOffset(line, x);
 
 					// TODO Auto-generated method stub
 					Transferable transferable = dtde.getTransferable();
@@ -166,10 +178,12 @@ public class JEditTextArea extends JComponent {
 								.getTransferData(DataFlavor.stringFlavor);
 					} catch (UnsupportedFlavorException e) {
 						// TODO Auto-generated catch block
-						e.printStackTrace();
+						//e.printStackTrace();
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
-						e.printStackTrace();
+						//e.printStackTrace();
+					} catch (Exception e){
+						
 					}
 
 					setSelectedText(data);
@@ -609,9 +623,7 @@ public class JEditTextArea extends JComponent {
 	 */
 	public int xToOffset(int line, int x) {
 		TokenMarker tokenMarker = getTokenMarker();
-		if (left != null){
-			x = x - left.getWidth();
-		}
+
 		/* Use painter's cached info for speed */
 		FontMetrics fm = painter.getFontMetrics();
 
@@ -821,7 +833,7 @@ public class JEditTextArea extends JComponent {
 	 */
 	public String getText() {
 		try {
-			return document.getText(0, document.getLength());
+			return document.getText(0, document.getLength()).replace('\r', '\n');
 		} catch (BadLocationException bl) {
 			bl.printStackTrace();
 			return null;
@@ -835,6 +847,8 @@ public class JEditTextArea extends JComponent {
 		try {
 			document.beginCompoundEdit();
 			document.remove(0, document.getLength());
+			if (text != null)
+				text = text.replace('\r', '\n');
 			document.insertString(0, text, null);
 			updateLongestLine();
 		} catch (BadLocationException bl) {
@@ -1464,6 +1478,7 @@ public class JEditTextArea extends JComponent {
 				String selection = ((String) clipboard.getContents(this)
 						.getTransferData(DataFlavor.stringFlavor)).replace(
 						'\r', '\n');
+				//String selection = ((String) clipboard.getContents(this).getTransferData(DataFlavor.stringFlavor));
 
 				int repeatCount = inputHandler.getRepeatCount();
 				StringBuffer buf = new StringBuffer();
@@ -1581,7 +1596,9 @@ public class JEditTextArea extends JComponent {
 	protected boolean overwrite;
 
 	protected boolean rectSelect;
-
+	
+	protected PopUpHandler popupHandler;
+	
 	protected void fireCaretEvent() {
 		Object[] listeners = listenerList.getListenerList();
 		for (int i = listeners.length - 2; i >= 0; i--) {
@@ -1724,7 +1741,6 @@ public class JEditTextArea extends JComponent {
 
 			center.setBounds(ileft + leftWidth, itop, centerWidth,
 							centerHeight);
-			System.out.println("Bounds changed");
 			if (left != null){
 				if (left.getHeight() > center.getHeight())
 					left.setBounds(ileft, left.getY(), leftWidth, left.getHeight());
@@ -1912,7 +1928,11 @@ public class JEditTextArea extends JComponent {
 
 			if ((evt.getModifiers() & InputEvent.BUTTON3_MASK) != 0
 					&& popup != null) {
-				popup.show(painter, evt.getX(), evt.getY());
+				if (popupHandler != null){
+					popupHandler.showPopupMenu(popup, evt);
+				}else{
+					popup.show(painter, evt.getX(), evt.getY());
+				}
 				return;
 			}
 
@@ -2049,7 +2069,9 @@ public class JEditTextArea extends JComponent {
 			scrollTo(line_to_scroll_to, 0);
 		}
 	}
-
+	public interface PopUpHandler{
+		void showPopupMenu(JPopupMenu menu, java.awt.event.MouseEvent evt);
+	}
 	class CaretUndo extends AbstractUndoableEdit {
 		private int start;
 

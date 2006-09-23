@@ -91,6 +91,13 @@ loop:		for(int i = offset; i < length; i++)
 						lastOffset = lastKeyword = i;
 					}
 					break;
+				case '-': case '&': case '+': case '=': case '*': case '<':case '>':case '%':case '^':case '|':
+					doKeyword(line,i,c);
+						addToken(i - lastOffset,
+								token);
+							addToken(1,Token.OPERATOR);
+							lastOffset = lastKeyword = i1;
+					break;
 				case ':':
 					if(lastKeyword == offset)
 					{
@@ -128,9 +135,16 @@ loop:		for(int i = offset; i < length; i++)
 					break;
 				default:
 					backslash = false;
-					if(!Character.isLetterOrDigit(c)
-						&& c != '_')
+					if (Character.isDigit(c) && i > 0){
 						doKeyword(line,i,c);
+						if (!Character.isLetterOrDigit(array[i-1])){
+							addToken(i - lastOffset,token);
+							token = Token.DIGIT;
+							lastOffset = lastKeyword = i;
+						}
+					}else if(!Character.isLetterOrDigit(c) && c != '_'){
+						doKeyword(line,i,c);
+					}
 					break;
 				}
 				break;
@@ -158,14 +172,30 @@ loop:		for(int i = offset; i < length; i++)
 					lastOffset = lastKeyword = i1;
 				}
 				break;
+			case Token.DIGIT:
+				if(backslash)
+					backslash = false;
+				if(!Character.isLetterOrDigit(c))
+				{
+					addToken(i - lastOffset,Token.DIGIT);
+					token = Token.NULL;
+					lastOffset = lastKeyword = i;
+				}
+				break;
+
 			case Token.LITERAL2:
 				if(backslash)
 					backslash = false;
 				else if(c == '\'')
 				{
-					addToken(i1 - lastOffset,Token.LITERAL1);
+					addToken(i1 - lastOffset,Token.LITERAL2);
 					token = Token.NULL;
 					lastOffset = lastKeyword = i1;
+				}else if(!Character.isLetterOrDigit(c))
+				{
+					addToken(i - lastOffset,Token.LITERAL2);
+					token = Token.NULL;
+					lastOffset = lastKeyword = i;
 				}
 				break;
 			default:
@@ -201,6 +231,7 @@ loop:		for(int i = offset; i < length; i++)
 		if(cKeywords == null)
 		{
 			cKeywords = new KeywordMap(false);
+
 			cKeywords.add("char",Token.KEYWORD3);
 			cKeywords.add("double",Token.KEYWORD3);
 			cKeywords.add("enum",Token.KEYWORD3);

@@ -46,9 +46,9 @@ public class TextAreaPainter extends JComponent implements TabExpander
 		setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
 
 		setFont(font);
-		setForeground(Color.black);
-		setBackground(Color.white);
 
+		setForeground(defaults.foreground);
+		setBackground(defaults.background);
 		blockCaret = defaults.blockCaret;
 		styles = defaults.styles;
 		cols = defaults.cols;
@@ -447,8 +447,13 @@ public class TextAreaPainter extends JComponent implements TabExpander
 	public float nextTabStop(float x, int tabOffset)
 	{
 		int offset = textArea.getHorizontalOffset();
+		if (tabSize != 0){
 		int ntabs = ((int)x - offset) / tabSize;
-		return (ntabs + 1) * tabSize + offset;
+			return (ntabs + 1) * tabSize + offset;
+		}else{
+			System.out.println("Tabsize is 0");
+			return 0;
+		}
 	}
 
 	/**
@@ -458,7 +463,6 @@ public class TextAreaPainter extends JComponent implements TabExpander
 	{
 		Dimension dim = new Dimension();
 		dim.width = fm.charWidth('w') * cols;
-		System.out.println("Pref: " + dim.width);
 		dim.height = fm.getHeight() * rows;
 		return dim;
 	}

@@ -50,7 +50,7 @@ import com.webreach.mirth.client.ui.actions.SelectAllAction;
  * parent. Also adds a trigger button (right click) editor menu with Cut, Copy,
  * Paste, Delete, and Select All.
  */
-public class MirthTextPane extends javax.swing.JTextPane {
+public class MirthTextPane extends javax.swing.JTextPane implements MirthTextInterface {
 	private Frame parent;
 
 	private JPopupMenu menu;

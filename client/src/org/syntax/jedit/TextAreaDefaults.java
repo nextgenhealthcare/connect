@@ -11,6 +11,7 @@ package org.syntax.jedit;
 
 import javax.swing.JPopupMenu;
 import java.awt.Color;
+import java.awt.Font;
 
 /**
  * Encapsulates default settings for a text area. This can be passed
@@ -21,7 +22,8 @@ import java.awt.Color;
 public class TextAreaDefaults
 {
 
-
+	public String STYLE = "RUBY BLUE"; //based on http://wiseheartdesign.com/articles/2006/03/11/ruby-blue-textmate-theme
+	//public String STYLE = "Default";
 	public InputHandler inputHandler;
 	public SyntaxDocument document;
 	public boolean editable;
@@ -37,13 +39,15 @@ public class TextAreaDefaults
 	public Color caretColor;
 	public Color selectionColor;
 	public Color lineHighlightColor;
+	public Color foreground;
+	public Color background;
 	public boolean lineHighlight;
 	public Color bracketHighlightColor;
 	public boolean bracketHighlight;
 	public Color eolMarkerColor;
 	public boolean eolMarkers;
 	public boolean paintInvalid;
-
+	public Font font;
 	public JPopupMenu popup;
 
 	/**
@@ -67,16 +71,38 @@ public class TextAreaDefaults
 
 			this.cols = 10;
 			this.rows = 10;
-			this.styles = SyntaxUtilities.getDefaultSyntaxStyles();
-			this.caretColor = Color.black; // Color.red;
-			this.selectionColor = new Color(0xccccff);
-			this.lineHighlightColor = new Color(0xe0e0e0);
-			this.lineHighlight = true;
-			this.bracketHighlightColor = Color.black;
-			this.bracketHighlight = true;
-			this.eolMarkerColor = new Color(0x009999);
-			this.eolMarkers = false; // true;
-			this.paintInvalid = false; //true;
+			//TODO: Make this dynamic via properties file
+			if (STYLE.equals("RUBY BLUE")){
+				this.styles = SyntaxUtilities.getSyntaxStyles(STYLE);
+				
+				this.caretColor = Color.white; // Color.red;
+				this.background = new Color(0x121E31);
+				this.foreground = Color.white;
+				this.selectionColor = new Color(0x38566F);
+				this.lineHighlightColor = new Color(0x253E5A);
+				this.lineHighlight = true;
+				this.bracketHighlightColor = new Color(0x38566F);
+				this.bracketHighlight = true;
+				this.eolMarkerColor = new Color(0x009999);
+				this.eolMarkers = false; // true;
+				this.paintInvalid = false; //true;
+				this.font = new Font("Courier",Font.PLAIN,14);
+			}else{
+				this.styles = SyntaxUtilities.getSyntaxStyles(STYLE);
+				this.caretColor = Color.black; // Color.red;
+				this.background = Color.white;
+				this.foreground = Color.black;
+				this.selectionColor = Color.lightGray;
+				this.lineHighlightColor = new Color(0x253E5A);
+				this.lineHighlight = false;
+				this.bracketHighlightColor = Color.darkGray;
+				this.bracketHighlight = true;
+				this.eolMarkerColor = new Color(0x009999);
+				this.eolMarkers = false; // true;
+				this.paintInvalid = false; //true;
+				this.font = new Font("Courier",Font.PLAIN,12);
+				
+			}
 
 	}
 }

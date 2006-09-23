@@ -33,12 +33,14 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.text.JTextComponent;
 
+import com.webreach.mirth.client.ui.components.MirthTextInterface;
+
 /** Allows for Pasting in text components. */
 public class PasteAction extends AbstractAction
 {
-    JTextComponent comp;
+	MirthTextInterface comp;
     
-    public PasteAction(JTextComponent comp)
+    public PasteAction(MirthTextInterface comp)
     { 
         super("Paste"); 
         this.comp = comp; 

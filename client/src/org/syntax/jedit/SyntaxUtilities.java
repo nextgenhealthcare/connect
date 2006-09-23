@@ -91,20 +91,58 @@ public class SyntaxUtilities
 	{
 		SyntaxStyle[] styles = new SyntaxStyle[Token.ID_COUNT];
 
-		styles[Token.COMMENT1] = new SyntaxStyle(Color.black,true,false);
-		styles[Token.COMMENT2] = new SyntaxStyle(new Color(0x990033),true,false);
-		styles[Token.KEYWORD1] = new SyntaxStyle(Color.black,false,true);
-		styles[Token.KEYWORD2] = new SyntaxStyle(Color.magenta,false,false);
-		styles[Token.KEYWORD3] = new SyntaxStyle(new Color(0x009600),false,false);
-		styles[Token.LITERAL1] = new SyntaxStyle(new Color(0x650099),false,false);
-		styles[Token.LITERAL2] = new SyntaxStyle(new Color(0x650099),false,true);
-		styles[Token.LABEL] = new SyntaxStyle(new Color(0x990033),false,true);
-		styles[Token.OPERATOR] = new SyntaxStyle(Color.black,false,true);
+		styles[Token.COMMENT1] = new SyntaxStyle(new Color(0x428BDD),true,false);
+		styles[Token.COMMENT2] = new SyntaxStyle(new Color(0x428BDD),true,false);
+		styles[Token.KEYWORD1] = new SyntaxStyle(new Color(0xF8BB00),false,true);
+		styles[Token.KEYWORD2] = new SyntaxStyle(new Color(0xB53B3C),false,false);
+		styles[Token.KEYWORD3] = new SyntaxStyle(new Color(0xB53B3C),false,true);
+		styles[Token.LITERAL1] = new SyntaxStyle(new Color(0x02C005),false,false);
+		styles[Token.LITERAL2] = new SyntaxStyle(new Color(0xEDDD3D),false,false);
+		styles[Token.LABEL] = new SyntaxStyle(new Color(0x8AA6C1),true,true);
+		styles[Token.OPERATOR] = new SyntaxStyle(new Color(0x85A1BB),false,true);
 		styles[Token.INVALID] = new SyntaxStyle(Color.red,false,true);
-
+		styles[Token.DIGIT] = new SyntaxStyle(new Color(0xEDDD3D),false,false);
 		return styles;
+	
 	}
+	//eventually this will load syntax style dynamically from properties file
+	public static SyntaxStyle[] getSyntaxStyles(String name)
+	{
+		SyntaxStyle[] styles = new SyntaxStyle[Token.ID_COUNT];
+		if (name.equals( "RUBY BLUE")){	
+			styles[Token.COMMENT1] = new SyntaxStyle(new Color(0x428BDD),true,false);
+			styles[Token.COMMENT2] = new SyntaxStyle(new Color(0x428BDD),true,false);
+			styles[Token.KEYWORD1] = new SyntaxStyle(new Color(0xF8BB00),false,true);
+			styles[Token.KEYWORD2] = new SyntaxStyle(new Color(0xB53B3C),false,false);
+			styles[Token.KEYWORD3] = new SyntaxStyle(new Color(0xB53B3C),false,true);
+			styles[Token.LITERAL1] = new SyntaxStyle(new Color(0x02C005),false,false);
+			styles[Token.LITERAL2] = new SyntaxStyle(new Color(0xEDDD3D),false,false);
+			styles[Token.LABEL] = new SyntaxStyle(new Color(0x8AA6C1),true,true);
+			styles[Token.OPERATOR] = new SyntaxStyle(new Color(0x85A1BB),false,true);
+			styles[Token.INVALID] = new SyntaxStyle(Color.red,false,true);
+			styles[Token.DIGIT] = new SyntaxStyle(new Color(0xEDDD3D),false,false);
+			return styles;
+		}else{
+			Color maroon = new Color(0xB03060);
+			Color darkBlue = new Color(0x000080);
+			Color darkGreen = Color.GREEN.darker();
+			Color darkPurple = new Color(0xA020F0).darker();
 
+			
+			styles[Token.COMMENT1] = new SyntaxStyle(darkGreen,false,false);
+			styles[Token.COMMENT2] = new SyntaxStyle(darkGreen,false,false);
+			styles[Token.KEYWORD1] = new SyntaxStyle(Color.blue,false,false);
+			styles[Token.KEYWORD2] = new SyntaxStyle(Color.orange,false,false);
+			styles[Token.KEYWORD3] = new SyntaxStyle(Color.darkGray,false,true);
+			styles[Token.LITERAL1] = new SyntaxStyle(maroon,false,false);
+			styles[Token.LITERAL2] = new SyntaxStyle(Color.red,false,false);
+			styles[Token.LABEL] = new SyntaxStyle(Color.orange,true,true);
+			styles[Token.OPERATOR] = new SyntaxStyle(Color.black,false,true);
+			styles[Token.INVALID] = new SyntaxStyle(Color.red,false,false);
+			styles[Token.DIGIT] = new SyntaxStyle(maroon,false,false);
+			return styles;
+		}
+	}
 	/**
 	 * Paints the specified line onto the graphics context. Note that this
 	 * method munges the offset and count values of the segment.

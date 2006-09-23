@@ -30,12 +30,14 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.text.JTextComponent;
 
+import com.webreach.mirth.client.ui.components.MirthTextInterface;
+
 /** Allows for Selecting All in text components. */
 public class SelectAllAction extends AbstractAction
 {
-    JTextComponent comp;
+	MirthTextInterface comp;
     
-    public SelectAllAction(JTextComponent comp)
+    public SelectAllAction(MirthTextInterface comp)
     { 
         super("Select All"); 
         this.comp = comp; 

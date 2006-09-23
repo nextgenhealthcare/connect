@@ -30,12 +30,14 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.text.JTextComponent;
 
+import com.webreach.mirth.client.ui.components.MirthTextInterface;
+
 /** Allows for Cutting in text components. */
 public class CutAction extends AbstractAction
 {
-    JTextComponent comp;
+    MirthTextInterface comp;
     
-    public CutAction(JTextComponent comp)
+    public CutAction(MirthTextInterface comp)
     {
         super("Cut");
         this.comp = comp;

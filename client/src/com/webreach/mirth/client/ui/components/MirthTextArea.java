@@ -47,7 +47,7 @@ import javax.swing.text.ElementIterator;
  * parent. Also adds a trigger button (right click) editor menu with Cut, Copy,
  * Paste, Delete, and Select All.
  */
-public class MirthTextArea extends javax.swing.JTextArea {
+public class MirthTextArea extends javax.swing.JTextArea implements MirthTextInterface  {
 	private Frame parent;
 
 	private JPopupMenu menu;

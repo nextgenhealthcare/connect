@@ -48,7 +48,7 @@ import javax.swing.text.Document;
  * the save button in parent.  Also adds a trigger button (right click)
  * editor menu with Cut, Copy, Paste, Delete, and Select All.
  */
-public class MirthTextField extends javax.swing.JTextField
+public class MirthTextField extends javax.swing.JTextField implements MirthTextInterface 
 {
     private Frame parent;
     private JPopupMenu menu;

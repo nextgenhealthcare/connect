@@ -43,6 +43,10 @@ import java.util.Properties;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import org.syntax.jedit.SyntaxDocument;
+import org.syntax.jedit.tokenmarker.SQLTokenMarker;
+import org.syntax.jedit.tokenmarker.TSQLTokenMarker;
+
 /**
  * A form that extends from ConnectorClass.  All methods implemented
  * are described in ConnectorClass.
@@ -63,8 +67,8 @@ public class DatabaseReader extends ConnectorClass
     public final String DATABASE_USE_ACK = "useAck";
     public final String DATABASE_ACK = "ack";
 
-    private static HighlightedDocument mappingDoc;
-    private static HighlightedDocument mappingDoc2;
+    private static SyntaxDocument mappingDoc;
+    private static SyntaxDocument mappingDoc2;
     private List <DriverInfo> drivers;
     
     public DatabaseReader()
@@ -88,10 +92,10 @@ public class DatabaseReader extends ConnectorClass
             driverNames[i] = drivers.get(i).getName();
         }
         databaseDriverCombobox.setModel(new javax.swing.DefaultComboBoxModel(driverNames));        
-        mappingDoc = new HighlightedDocument();
-        mappingDoc.setHighlightStyle(HighlightedDocument.SQL_STYLE);
-        mappingDoc2 = new HighlightedDocument();
-        mappingDoc2.setHighlightStyle(HighlightedDocument.SQL_STYLE);
+        mappingDoc = new SyntaxDocument();
+        mappingDoc.setTokenMarker(new TSQLTokenMarker());
+        mappingDoc2 = new SyntaxDocument();
+        mappingDoc2.setTokenMarker(new TSQLTokenMarker());
         databaseSQLTextPane.setDocument(mappingDoc);
         databaseUpdateSQLTextPane.setDocument(mappingDoc2);
         
@@ -231,9 +235,9 @@ public class DatabaseReader extends ConnectorClass
         databaseUsernameField = new com.webreach.mirth.client.ui.components.MirthTextField();
         databasePasswordField = new com.webreach.mirth.client.ui.components.MirthPasswordField();
         jScrollPane2 = new javax.swing.JScrollPane();
-        databaseSQLTextPane = new com.webreach.mirth.client.ui.components.MirthTextPane();
+        databaseSQLTextPane = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea(true);
         jScrollPane3 = new javax.swing.JScrollPane();
-        databaseUpdateSQLTextPane = new com.webreach.mirth.client.ui.components.MirthTextPane();
+        databaseUpdateSQLTextPane = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea(true);
         onUpdateLabel = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
         pollingFreq = new com.webreach.mirth.client.ui.components.MirthTextField();
@@ -387,9 +391,9 @@ public class DatabaseReader extends ConnectorClass
     private javax.swing.ButtonGroup buttonGroup1;
     private com.webreach.mirth.client.ui.components.MirthComboBox databaseDriverCombobox;
     private com.webreach.mirth.client.ui.components.MirthPasswordField databasePasswordField;
-    private com.webreach.mirth.client.ui.components.MirthTextPane databaseSQLTextPane;
+    private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea databaseSQLTextPane;
     private com.webreach.mirth.client.ui.components.MirthTextField databaseURLField;
-    private com.webreach.mirth.client.ui.components.MirthTextPane databaseUpdateSQLTextPane;
+    private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea databaseUpdateSQLTextPane;
     private com.webreach.mirth.client.ui.components.MirthTextField databaseUsernameField;
     private com.webreach.mirth.client.ui.components.MirthVariableList dbVarList;
     private javax.swing.JLabel jLabel1;

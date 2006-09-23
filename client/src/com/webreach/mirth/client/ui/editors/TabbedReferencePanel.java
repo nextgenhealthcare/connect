@@ -36,6 +36,9 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 
+import org.syntax.jedit.SyntaxDocument;
+import org.syntax.jedit.tokenmarker.HL7TokenMarker;
+
 import com.Ostermiller.Syntax.HighlightedDocument;
 import com.webreach.mirth.client.ui.FunctionListHandler;
 import com.webreach.mirth.client.ui.HL7XMLTreePanel;
@@ -43,6 +46,7 @@ import com.webreach.mirth.client.ui.PlatformUI;
 import com.webreach.mirth.client.ui.ReferenceTableHandler;
 import com.webreach.mirth.client.ui.FunctionListBuilder;
 import com.webreach.mirth.client.ui.FunctionListItem;
+import com.webreach.mirth.client.ui.components.MirthSyntaxTextArea;
 import com.webreach.mirth.client.ui.components.MirthTextPane;
 import com.webreach.mirth.client.ui.util.SQLParserUtil;
 import com.webreach.mirth.model.Channel;
@@ -191,9 +195,9 @@ public class TabbedReferencePanel extends JPanel
         });
         
         // we need to create an HL7 Lexer...
-        HL7Doc = new HighlightedDocument();
-        HL7Doc.setHighlightStyle(HighlightedDocument.C_STYLE);
-        pasteBox = new MirthTextPane();
+        HL7Doc = new SyntaxDocument();
+        HL7Doc.setTokenMarker(new HL7TokenMarker());
+        pasteBox = new MirthSyntaxTextArea(false);
         pasteBox.setDocument(HL7Doc);
         pasteBox.setFont(EditorConstants.DEFAULT_FONT);
         
@@ -286,9 +290,9 @@ public class TabbedReferencePanel extends JPanel
     
     private JScrollPane pasteScrollPane;
     
-    private MirthTextPane pasteBox;
+    private MirthSyntaxTextArea pasteBox;
     
-    private static HighlightedDocument HL7Doc;
+    private static SyntaxDocument HL7Doc;
     
     private JScrollPane treeScrollPane;
     
