@@ -28,9 +28,17 @@ package com.webreach.mirth.client.ui;
 
 import java.io.File;
 
-public class XMLFileFilter extends javax.swing.filechooser.FileFilter 
+public class MirthFileFilter extends javax.swing.filechooser.FileFilter 
 {
     // abstract method
+    String type;
+    
+    public MirthFileFilter(String type)
+    {
+        super();
+        this.type = type;
+    }
+    
     public boolean accept(File f) 
     {
         //if it is a directory -- we want to show it so return true.
@@ -41,7 +49,7 @@ public class XMLFileFilter extends javax.swing.filechooser.FileFilter
         String extension = getExtension(f);
 
         //check to see if the extension is equal to "xml"
-        if (extension.equals("xml"))
+        if (extension.equalsIgnoreCase(type))
             return true; 
 
         //default -- fall through. False is return on all
@@ -54,7 +62,10 @@ public class XMLFileFilter extends javax.swing.filechooser.FileFilter
     // abstract method
     public String getDescription() 
     {
-        return "XML files";
+        if(type.equalsIgnoreCase("xml"))
+            return "XML files";
+        else
+            return "HTML files";
     }
 
     // Method to get the extension of the file, in lowercase

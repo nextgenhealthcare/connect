@@ -579,13 +579,17 @@ public class ChannelSetup extends javax.swing.JPanel
             encryptMessagesCheckBox.setSelected(true);
         else
             encryptMessagesCheckBox.setSelected(false);
-
+        
+        if(currentChannel.getProtocol() == null)
+            currentChannel.setProtocol(Channel.Protocol.HL7);
+        
         if(((String)currentChannel.getProperties().get("store_messages")) != null && ((String)currentChannel.getProperties().get("store_messages")).equalsIgnoreCase("false"))
         {
             storeMessages.setSelected(false);
             storeMessagesAll.setEnabled(false);
             storeMessagesAll.setSelected(true);
             storeMessagesDays.setEnabled(false);
+            storeMessagesErrors.setEnabled(false);
             numDays.setText("");
             numDays.setEnabled(false);
             days.setEnabled(false);
@@ -593,11 +597,17 @@ public class ChannelSetup extends javax.swing.JPanel
         else
         {
             storeMessages.setSelected(true);
+            
+            if(((String)currentChannel.getProperties().get("error_messages_only")) != null && ((String)currentChannel.getProperties().get("error_messages_only")).equalsIgnoreCase("true"))
+                storeMessagesErrors.setSelected(true);
+            else
+                storeMessagesErrors.setSelected(false);
+            
             if(((String)currentChannel.getProperties().get("max_message_age")) != null && !((String)currentChannel.getProperties().get("max_message_age")).equalsIgnoreCase("-1"))
             {
                 numDays.setText((String)currentChannel.getProperties().get("max_message_age"));
                 storeMessagesDays.setSelected(true);
-                numDays.setEnabled(false);
+                numDays.setEnabled(true);
             }
             else
             {
@@ -631,6 +641,7 @@ public class ChannelSetup extends javax.swing.JPanel
             JOptionPane.showMessageDialog(parent, "Channel name cannot be empty.");
             return false;
         }
+
         if (!currentChannel.getName().equals(summaryNameField.getText()))
         {
             if(!parent.checkChannelName(summaryNameField.getText()))
@@ -638,7 +649,6 @@ public class ChannelSetup extends javax.swing.JPanel
         }
         
         boolean enabled = summaryEnabledCheckbox.isSelected();
-        
         
         currentChannel.getSourceConnector().setProperties(sourceConnectorClass.getProperties());
         
@@ -692,6 +702,11 @@ public class ChannelSetup extends javax.swing.JPanel
                 currentChannel.getProperties().put("max_message_age", "-1");
             else
                 currentChannel.getProperties().put("max_message_age", numDays.getText());
+            
+            if(storeMessagesErrors.isSelected())
+                currentChannel.getProperties().put("error_messages_only", "true");
+            else
+                currentChannel.getProperties().put("error_messages_only", "false");
         }
         else
         {
@@ -718,7 +733,7 @@ public class ChannelSetup extends javax.swing.JPanel
                 }
                 
                 updated = parent.updateChannel(currentChannel);
-                currentChannel = parent.channels.get(index);
+                //currentChannel = parent.channels.get(index);
                 parent.channelListPage.makeChannelTable();
             }
             catch (ClientException e)
@@ -888,6 +903,7 @@ public class ChannelSetup extends javax.swing.JPanel
         days = new javax.swing.JLabel();
         numDays = new com.webreach.mirth.client.ui.components.MirthTextField();
         jLabel3 = new javax.swing.JLabel();
+        storeMessagesErrors = new com.webreach.mirth.client.ui.components.MirthCheckBox();
         source = new javax.swing.JPanel();
         sourceSourceDropdown = new com.webreach.mirth.client.ui.components.MirthComboBox();
         sourceSourceLabel = new javax.swing.JLabel();
@@ -984,6 +1000,18 @@ public class ChannelSetup extends javax.swing.JPanel
 
         jLabel3.setText("Messages:");
 
+        storeMessagesErrors.setBackground(new java.awt.Color(255, 255, 255));
+        storeMessagesErrors.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        storeMessagesErrors.setText("Store messages with errors only");
+        storeMessagesErrors.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        storeMessagesErrors.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                storeMessagesErrorsActionPerformed(evt);
+            }
+        });
+
         org.jdesktop.layout.GroupLayout summaryLayout = new org.jdesktop.layout.GroupLayout(summary);
         summary.setLayout(summaryLayout);
         summaryLayout.setHorizontalGroup(
@@ -991,12 +1019,12 @@ public class ChannelSetup extends javax.swing.JPanel
             .add(summaryLayout.createSequentialGroup()
                 .addContainerGap()
                 .add(summaryLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(summaryDescriptionLabel)
                     .add(jLabel1)
                     .add(summaryPatternLabel1)
                     .add(summaryDirectionLabel1)
                     .add(summaryNameLabel)
-                    .add(jLabel3))
+                    .add(jLabel3)
+                    .add(summaryDescriptionLabel))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(summaryLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(storeMessages, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -1020,9 +1048,10 @@ public class ChannelSetup extends javax.swing.JPanel
                                 .add(numDays, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 26, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                                 .add(4, 4, 4)
                                 .add(days))
-                            .add(storeMessagesAll, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 533, Short.MAX_VALUE))
-                .add(85, 85, 85))
+                            .add(storeMessagesAll, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(storeMessagesErrors, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 519, Short.MAX_VALUE))
+                .add(75, 75, 75))
         );
         summaryLayout.setVerticalGroup(
             summaryLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -1059,10 +1088,12 @@ public class ChannelSetup extends javax.swing.JPanel
                     .add(numDays, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(days))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(storeMessagesErrors, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(summaryLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(summaryDescriptionLabel)
-                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 340, Short.MAX_VALUE))
-                .add(85, 85, 85))
+                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 209, Short.MAX_VALUE))
+                .add(75, 75, 75))
         );
         channelView.addTab("Summary", summary);
 
@@ -1091,11 +1122,11 @@ public class ChannelSetup extends javax.swing.JPanel
         sourceConnectorClass.setLayout(sourceConnectorClassLayout);
         sourceConnectorClassLayout.setHorizontalGroup(
             sourceConnectorClassLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 687, Short.MAX_VALUE)
+            .add(0, 613, Short.MAX_VALUE)
         );
         sourceConnectorClassLayout.setVerticalGroup(
             sourceConnectorClassLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 568, Short.MAX_VALUE)
+            .add(0, 448, Short.MAX_VALUE)
         );
 
         org.jdesktop.layout.GroupLayout sourceLayout = new org.jdesktop.layout.GroupLayout(source);
@@ -1150,11 +1181,11 @@ public class ChannelSetup extends javax.swing.JPanel
         destinationConnectorClass.setLayout(destinationConnectorClassLayout);
         destinationConnectorClassLayout.setHorizontalGroup(
             destinationConnectorClassLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 495, Short.MAX_VALUE)
+            .add(0, 421, Short.MAX_VALUE)
         );
         destinationConnectorClassLayout.setVerticalGroup(
             destinationConnectorClassLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 568, Short.MAX_VALUE)
+            .add(0, 448, Short.MAX_VALUE)
         );
 
         org.jdesktop.layout.GroupLayout destinationLayout = new org.jdesktop.layout.GroupLayout(destination);
@@ -1184,7 +1215,7 @@ public class ChannelSetup extends javax.swing.JPanel
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(destinationLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(destinationConnectorClass, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(destinationVariableList, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 568, Short.MAX_VALUE))
+                    .add(destinationVariableList, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 448, Short.MAX_VALUE))
                 .addContainerGap())
         );
         channelView.addTab("Destinations", destination);
@@ -1193,13 +1224,18 @@ public class ChannelSetup extends javax.swing.JPanel
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(channelView, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 712, Short.MAX_VALUE)
+            .add(channelView, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 638, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(channelView, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 646, Short.MAX_VALUE)
+            .add(channelView, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 526, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void storeMessagesErrorsActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_storeMessagesErrorsActionPerformed
+    {//GEN-HEADEREND:event_storeMessagesErrorsActionPerformed
+// TODO add your handling code here:
+    }//GEN-LAST:event_storeMessagesErrorsActionPerformed
 
     private void storeMessagesDaysActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_storeMessagesDaysActionPerformed
     {//GEN-HEADEREND:event_storeMessagesDaysActionPerformed
@@ -1218,12 +1254,14 @@ public class ChannelSetup extends javax.swing.JPanel
         {
             storeMessagesAll.setEnabled(true);
             storeMessagesDays.setEnabled(true);
+            storeMessagesErrors.setEnabled(true);
             days.setEnabled(true);
         }
         else
         {
             storeMessagesAll.setEnabled(false);
             storeMessagesDays.setEnabled(false);
+            storeMessagesErrors.setEnabled(false);
             days.setEnabled(false);
             numDays.setText("");
             numDays.setEnabled(false); 
@@ -1751,6 +1789,7 @@ public class ChannelSetup extends javax.swing.JPanel
     private com.webreach.mirth.client.ui.components.MirthCheckBox storeMessages;
     private com.webreach.mirth.client.ui.components.MirthRadioButton storeMessagesAll;
     private com.webreach.mirth.client.ui.components.MirthRadioButton storeMessagesDays;
+    private com.webreach.mirth.client.ui.components.MirthCheckBox storeMessagesErrors;
     private javax.swing.JPanel summary;
     private javax.swing.JLabel summaryDescriptionLabel;
     private com.webreach.mirth.client.ui.components.MirthTextPane summaryDescriptionText;

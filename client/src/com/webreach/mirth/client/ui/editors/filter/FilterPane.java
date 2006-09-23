@@ -65,9 +65,9 @@ import org.jdesktop.swingx.decorator.HighlighterPipeline;
 import com.webreach.mirth.client.ui.CenterCellRenderer;
 import com.webreach.mirth.client.ui.Frame;
 import com.webreach.mirth.client.ui.Mirth;
+import com.webreach.mirth.client.ui.MirthFileFilter;
 import com.webreach.mirth.client.ui.PlatformUI;
 import com.webreach.mirth.client.ui.UIConstants;
-import com.webreach.mirth.client.ui.XMLFileFilter;
 import com.webreach.mirth.client.ui.editors.BlankPanel;
 import com.webreach.mirth.client.ui.editors.CardPanel;
 import com.webreach.mirth.client.ui.editors.EditorConstants;
@@ -610,7 +610,7 @@ public class FilterPane extends MirthEditorPane
     public void doImport()
     {
         JFileChooser importFileChooser = new JFileChooser();
-        importFileChooser.setFileFilter(new XMLFileFilter());
+        importFileChooser.setFileFilter(new MirthFileFilter("XML"));
         int returnVal = importFileChooser.showOpenDialog(this);
         File importFile = null;
         
@@ -649,7 +649,7 @@ public class FilterPane extends MirthEditorPane
     {
         accept(false);
         JFileChooser exportFileChooser = new JFileChooser();
-        exportFileChooser.setFileFilter(new XMLFileFilter());
+        exportFileChooser.setFileFilter(new MirthFileFilter("XML"));
         int returnVal = exportFileChooser.showSaveDialog(this);
         File exportFile = null;
         

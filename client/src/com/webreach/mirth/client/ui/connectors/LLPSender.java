@@ -55,6 +55,7 @@ public class LLPSender extends ConnectorClass
     public final String LLP_START_OF_MESSAGE_CHARACTER = "messageStart";
     public final String LLP_END_OF_MESSAGE_CHARACTER = "messageEnd";
     public final String LLP_RECORD_SEPARATOR = "recordSeparator";
+    public final String LLP_SEGMENT_END = "segmentEnd";
 
     public LLPSender()
     {
@@ -96,6 +97,8 @@ public class LLPSender extends ConnectorClass
             properties.put(LLP_CHAR_ENCODING, "hex");
         
         properties.put(LLP_RECORD_SEPARATOR, recordSeparatorField.getText());
+        
+        properties.put(LLP_SEGMENT_END, segmentEnd.getText());
         return properties;
     }
 
@@ -139,7 +142,7 @@ public class LLPSender extends ConnectorClass
         startOfMessageCharacterField.setText((String)props.get(LLP_START_OF_MESSAGE_CHARACTER));
         endOfMessageCharacterField.setText((String)props.get(LLP_END_OF_MESSAGE_CHARACTER));
         recordSeparatorField.setText((String)props.get(LLP_RECORD_SEPARATOR));
-
+        segmentEnd.setText((String)props.get(LLP_SEGMENT_END));
     }
 
     public Properties getDefaults()
@@ -157,6 +160,7 @@ public class LLPSender extends ConnectorClass
         properties.put(LLP_START_OF_MESSAGE_CHARACTER, "0x0B");
         properties.put(LLP_END_OF_MESSAGE_CHARACTER, "0x1C");
         properties.put(LLP_RECORD_SEPARATOR, "0x0D");
+        properties.put(LLP_SEGMENT_END, "0x0D");
         return properties;
     }
     
@@ -166,7 +170,7 @@ public class LLPSender extends ConnectorClass
         ((String)props.get(LLP_SERVER_TIMEOUT)).length() > 0 && ((String)props.get(LLP_BUFFER_SIZE)).length() > 0 &&
         ((String)props.get(LLP_MAX_RETRY_COUNT)).length() > 0 && ((String)props.get(LLP_END_OF_MESSAGE_CHARACTER)).length() > 0 &&
         ((String)props.get(LLP_START_OF_MESSAGE_CHARACTER)).length() > 0 && ((String)props.get(LLP_END_OF_MESSAGE_CHARACTER)).length() > 0 &&
-        ((String)props.get(LLP_RECORD_SEPARATOR)).length() > 0)
+        ((String)props.get(LLP_RECORD_SEPARATOR)).length() > 0 && ((String)props.get(LLP_SEGMENT_END)).length() > 0)
             return true;
         return false;       
     }    
@@ -209,6 +213,8 @@ public class LLPSender extends ConnectorClass
         jLabel14 = new javax.swing.JLabel();
         ascii = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         hex = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        segmentEnd = new com.webreach.mirth.client.ui.components.MirthTextField();
+        jLabel37 = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createTitledBorder(null, "LLP Sender", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(0, 0, 0)));
@@ -265,25 +271,29 @@ public class LLPSender extends ConnectorClass
         hex.setText("Hex");
         hex.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
+        jLabel37.setText("End of Segment Encoding:");
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel12)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel11)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel10)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel14)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel8)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel13)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel15)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel16)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel17)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel18))
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(jLabel12)
+                    .add(jLabel11)
+                    .add(jLabel10)
+                    .add(jLabel14)
+                    .add(jLabel8)
+                    .add(jLabel13)
+                    .add(jLabel15)
+                    .add(jLabel16)
+                    .add(jLabel17)
+                    .add(jLabel18)
+                    .add(jLabel37))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(segmentEnd, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(bufferSizeField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(layout.createSequentialGroup()
                         .add(keepConnectionOpenYesRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -313,7 +323,7 @@ public class LLPSender extends ConnectorClass
                         .add(ascii, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(hex, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(78, Short.MAX_VALUE))
+                .addContainerGap(130, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -366,7 +376,11 @@ public class LLPSender extends ConnectorClass
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(recordSeparatorField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(jLabel12))
-                .addContainerGap(42, Short.MAX_VALUE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(segmentEnd, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jLabel37))
+                .addContainerGap(150, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -393,6 +407,7 @@ public class LLPSender extends ConnectorClass
     private javax.swing.JLabel jLabel18;
     private javax.swing.JLabel jLabel25;
     private javax.swing.JLabel jLabel26;
+    private javax.swing.JLabel jLabel37;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.ButtonGroup keepConnectionOpenGroup;
@@ -400,6 +415,7 @@ public class LLPSender extends ConnectorClass
     private com.webreach.mirth.client.ui.components.MirthRadioButton keepConnectionOpenYesRadio;
     private com.webreach.mirth.client.ui.components.MirthTextField maximumRetryCountField;
     private com.webreach.mirth.client.ui.components.MirthTextField recordSeparatorField;
+    private com.webreach.mirth.client.ui.components.MirthTextField segmentEnd;
     private com.webreach.mirth.client.ui.components.MirthTextField serverTimeoutField;
     private com.webreach.mirth.client.ui.components.MirthTextField startOfMessageCharacterField;
     // End of variables declaration//GEN-END:variables

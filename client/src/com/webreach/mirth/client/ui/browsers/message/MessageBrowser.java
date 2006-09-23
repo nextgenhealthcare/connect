@@ -32,20 +32,28 @@ import com.webreach.mirth.client.core.MessageListHandler;
 import com.webreach.mirth.client.ui.Frame;
 import com.webreach.mirth.client.ui.Mirth;
 import com.webreach.mirth.client.ui.CenterCellRenderer;
+import com.webreach.mirth.client.ui.MirthFileFilter;
 import com.webreach.mirth.client.ui.PlatformUI;
 import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
 import com.webreach.mirth.client.ui.components.MirthTextPane;
+import com.webreach.mirth.client.ui.util.FileUtil;
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.model.filters.MessageObjectFilter;
 import java.awt.Cursor;
 import java.awt.Point;
+import java.io.File;
+import java.io.IOException;
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.prefs.Preferences;
+import javax.swing.JDialog;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.event.ListSelectionEvent;
@@ -166,7 +174,7 @@ public class MessageBrowser extends javax.swing.JPanel
     public void loadNew()
     {
         // use the start filters and make the table.
-        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 3, -1, false);
+        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 4, -1, false);
         statusComboBox.setSelectedIndex(0);
         long currentTime = System.currentTimeMillis();
         mirthDatePicker1.setDateInMillis(currentTime);
@@ -185,6 +193,95 @@ public class MessageBrowser extends javax.swing.JPanel
     {
         deselectRows();
         filterButtonActionPerformed(null);
+    }
+    
+    /**
+     * Export the current messages to XML or HTML
+     */
+    public void export()
+    {
+        String answer = "";
+        
+        JOptionPane pane = new JOptionPane("Would you like to export the file to XML or HTML?");
+        Object[] options = new String[] { "XML", "HTML", "Cancel" };
+        pane.setOptions(options);
+        JDialog dialog = pane.createDialog(new JFrame(), "Select an Option");
+        dialog.setVisible(true);
+        Object obj = pane.getValue(); 
+        for (int k = 0; k < options.length; k++)
+          if (options[k].equals(obj))
+            answer = obj.toString();
+        
+        if(answer.length() == 0 || answer.equals(options[2]))
+            return;
+        
+        JFileChooser exportFileChooser = new JFileChooser();
+        exportFileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+        exportFileChooser.setFileFilter(new MirthFileFilter(answer));
+        int returnVal = exportFileChooser.showSaveDialog(parent);
+        File exportFile = null;
+        File exportDirectory = null;
+        
+        if(returnVal == JFileChooser.APPROVE_OPTION)
+        {
+            try
+            {
+                exportFile = exportFileChooser.getSelectedFile();
+                int length = exportFile.getName().length();
+                String messages = "";
+                List<MessageObject> messageObjects = messageListHandler.getAllPages();
+                                
+                if(answer.equals("HTML"))
+                {
+                    String name = parent.status.get(parent.statusListPage.getSelectedStatus()).getName();
+                    File rawFile = new File(exportFile.getParent() + "/" + name + "_raw_messages.txt");
+                    File transformedFile = new File(exportFile.getParent() + "/" + name + "_transformed_messages.txt");
+                    File encodedFile= new File(exportFile.getParent() + "/" + name + "_encoded_messages.txt");
+                    
+                    MessageObjectHtmlSerializer serializer = new MessageObjectHtmlSerializer();
+                    messages = serializer.toHtml(messageObjects);
+                    
+                    if (length < 5 || !exportFile.getName().substring(length-5, length).equals(".html"))
+                        exportFile = new File(exportFile.getAbsolutePath() + ".html");
+                    
+                    if(exportFile.exists() || rawFile.exists() || transformedFile.exists() || encodedFile.exists())
+                        if(!parent.alertOption("Some of the files already exist.  Would you like to overwrite them?"))
+                            return;
+                    
+                    serializer.outputMessages(messageObjects,rawFile,transformedFile,encodedFile);
+                    
+                    FileUtil.write(exportFile, messages);
+                    parent.alertInformation("All message data was written successfully.");
+                }
+                else
+                {
+                    if(exportFile.exists())
+                        if(!parent.alertOption("The file " + exportFile.getName() + " already exists.  Would you like to overwrite it?"))
+                            return;
+                    
+                    ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+                    for(int i = 0; i < messageObjects.size(); i++)
+                    {
+                        messages += serializer.toXML(messageObjects.get(i));
+                        messages += "\n";
+                    }
+                    
+                    if (length < 4 || !exportFile.getName().substring(length-4, length).equals(".xml"))
+                        exportFile = new File(exportFile.getAbsolutePath() + ".xml");
+                    
+                    FileUtil.write(exportFile, messages);
+                    parent.alertInformation("All messages were written successfully to " + exportFile.getPath() + ".");
+                }
+            }
+            catch (ListHandlerException ex)
+            {
+                parent.alertError("File could not be written.");
+            }
+            catch (IOException ex)
+            {
+                parent.alertError("File could not be written.");
+            }
+        }
     }
     
     /**
@@ -398,7 +495,7 @@ public class MessageBrowser extends javax.swing.JPanel
      */
     public void deselectRows()
     {
-        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 3, -1, false);
+        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 4, -1, false);
         eventTable.clearSelection();
         clearDescription();
     }
@@ -430,7 +527,7 @@ public class MessageBrowser extends javax.swing.JPanel
 
             if(row >= 0)
             {
-                parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 2, -1, true);
+                parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 4, -1, true);
                 this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                 
                 MessageObject currentMessage = messageObjectList.get(row);
@@ -836,7 +933,7 @@ public class MessageBrowser extends javax.swing.JPanel
         }
         
         messageObjectFilter = new MessageObjectFilter();
-        
+
         messageObjectFilter.setChannelId(parent.status.get(parent.statusListPage.getSelectedStatus()).getChannelId());
         
         if (!connectorField.getText().equals(""))

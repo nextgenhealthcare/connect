@@ -192,7 +192,7 @@ public class Frame extends JXFrame
         
         userPreferences = Preferences.systemNodeForPackage(Mirth.class);
         userPreferences.put("defaultServer", PlatformUI.SERVER_NAME);
-        
+
         try
         {
             channels = this.mirthClient.getChannels();
@@ -804,7 +804,17 @@ public class Frame extends JXFrame
             }
         });
         messagePopupMenu.add(refresh);
-
+        
+        messageTasks.add(initActionCallback("doExportMessages", "Export all currently viewed messages.", ActionFactory.createBoundAction("doExportMessages","Export Messages", "E"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/export.png"))));
+        JMenuItem exportMessages = new JMenuItem("Export Messages");
+        exportMessages.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/export.png")));
+        exportMessages.addActionListener(new ActionListener(){
+             public void actionPerformed(ActionEvent e){
+                doExportMessages();
+            }
+        });
+        messagePopupMenu.add(exportMessages);
+        
         messageTasks.add(initActionCallback("doRemoveAllMessages", "Remove all Message Events in this channel.", ActionFactory.createBoundAction("doRemoveAllMessages","Remove All Messages", "L"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png"))));
         JMenuItem removeAllMessages = new JMenuItem("Remove All Messages");
         removeAllMessages.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png")));
@@ -1352,19 +1362,20 @@ public class Frame extends JXFrame
             alertException(e.getStackTrace(), e.getMessage());
             return;
         }
+        
         String channelId = channels.get(channelListPage.getSelectedChannel()).getId();
         for (int i = 0; i < status.size(); i ++)
         {
-            if (status.get(i).getChannelId().equals(channelId));
+            if (status.get(i).getChannelId().equals(channelId))
             {
                 alertWarning("You may not delete a deployed channel.\nPlease re-deploy without it enabled first.");
                 return;
             }
         }
         
-        
         if(!alertOption("Are you sure you want to delete this channel?"))
             return;
+        
         this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         try
         {
@@ -1377,6 +1388,7 @@ public class Frame extends JXFrame
             alertException(e.getStackTrace(), e.getMessage());
         }
         this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        
         doShowChannel();
     }
 
@@ -1725,7 +1737,7 @@ public class Frame extends JXFrame
     public void doImport()
     {
         JFileChooser importFileChooser = new JFileChooser();
-        importFileChooser.setFileFilter(new XMLFileFilter());
+        importFileChooser.setFileFilter(new MirthFileFilter("XML"));
         int returnVal = importFileChooser.showOpenDialog(this);
         File importFile = null;
 
@@ -1798,7 +1810,7 @@ public class Frame extends JXFrame
 
         JFileChooser exportFileChooser = new JFileChooser();
         exportFileChooser.setSelectedFile(new File(channel.getName()));
-        exportFileChooser.setFileFilter(new XMLFileFilter());
+        exportFileChooser.setFileFilter(new MirthFileFilter("XML"));
         int returnVal = exportFileChooser.showSaveDialog(this);
         File exportFile = null;
 
@@ -1874,6 +1886,11 @@ public class Frame extends JXFrame
     public void doRefreshMessages()
     {
         messageBrowser.refresh();
+    }
+    
+    public void doExportMessages()
+    {
+        messageBrowser.export();
     }
 
     public void doRemoveAllMessages()
