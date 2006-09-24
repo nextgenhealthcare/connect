@@ -39,7 +39,9 @@ public class CTokenMarker extends TokenMarker
 		lastKeyword = offset;
 		int length = line.count + offset;
 		boolean backslash = false;
-
+		if (token == Token.DIGIT){
+			token = Token.NULL;
+		}
 loop:		for(int i = offset; i < length; i++)
 		{
 			int i1 = (i+1);
@@ -191,12 +193,13 @@ loop:		for(int i = offset; i < length; i++)
 					addToken(i1 - lastOffset,Token.LITERAL2);
 					token = Token.NULL;
 					lastOffset = lastKeyword = i1;
-				}else if(!Character.isLetterOrDigit(c))
+				}
+				/*else if(!Character.isLetterOrDigit(c))
 				{
 					addToken(i - lastOffset,Token.LITERAL2);
 					token = Token.NULL;
 					lastOffset = lastKeyword = i;
-				}
+				}*/
 				break;
 			default:
 				throw new InternalError("Invalid state: "

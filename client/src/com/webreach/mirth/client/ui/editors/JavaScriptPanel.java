@@ -43,7 +43,6 @@ import javax.swing.event.DocumentListener;
 import org.syntax.jedit.SyntaxDocument;
 import org.syntax.jedit.tokenmarker.JavaScriptTokenMarker;
 
-import com.Ostermiller.Syntax.HighlightedDocument;
 import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.client.ui.components.MirthSyntaxTextArea;
 import com.webreach.mirth.client.ui.components.MirthTextPane;
@@ -69,7 +68,7 @@ public class JavaScriptPanel extends CardPanel {
 		scriptScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
 		scriptDoc = new SyntaxDocument();
 		scriptDoc.setTokenMarker(new JavaScriptTokenMarker());
-		scriptTextPane = new MirthSyntaxTextArea(true);
+		scriptTextPane = new MirthSyntaxTextArea(true, true);
                 scriptTextPane.setDocument(scriptDoc);
 	
 		scriptTextPane.setBorder( BorderFactory.createEmptyBorder() );

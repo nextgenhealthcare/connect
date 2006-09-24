@@ -5,6 +5,7 @@ public interface MirthTextInterface {
 	public void copy();
 	public void paste();
 	public void selectAll();
+
 	public void replaceSelection(String text);
 	public boolean isEditable();
 	public boolean isEnabled();

@@ -45,7 +45,10 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import com.Ostermiller.Syntax.HighlightedDocument;
+import org.syntax.jedit.SyntaxDocument;
+import org.syntax.jedit.tokenmarker.JavaScriptTokenMarker;
+
+import com.webreach.mirth.client.ui.components.MirthSyntaxTextArea;
 import com.webreach.mirth.client.ui.components.MirthTextField;
 import com.webreach.mirth.client.ui.components.MirthTextPane;
 import com.webreach.mirth.model.Channel;
@@ -71,9 +74,9 @@ public class MapperPanel extends CardPanel {
 		mappingTextField = new MirthTextField();
 		mappingScrollPane = new JScrollPane();
 		
-		mappingDoc = new HighlightedDocument();
-		mappingDoc.setHighlightStyle( HighlightedDocument.JAVASCRIPT_STYLE );
-		mappingTextPane = new MirthTextPane();
+		mappingDoc = new SyntaxDocument();
+		mappingDoc.setTokenMarker(new JavaScriptTokenMarker());
+		mappingTextPane = new MirthSyntaxTextArea(true,true);
                 mappingTextPane.setDocument(mappingDoc);
 		
                 labelPanel.setLayout( new BorderLayout() );
@@ -220,8 +223,8 @@ public class MapperPanel extends CardPanel {
         public boolean updating = false;
 	protected String label;
 	protected JPanel mappingTextPanel;		// for no linewrap in textpane
-	protected MirthTextPane mappingTextPane;
-	protected static HighlightedDocument mappingDoc;
+	protected MirthSyntaxTextArea mappingTextPane;
+	protected static SyntaxDocument mappingDoc;
 	protected JLabel mappingLabel;
 	protected JPanel labelPanel;
 	protected JPanel mappingPanel;

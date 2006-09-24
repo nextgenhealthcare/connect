@@ -23,20 +23,28 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
 package com.webreach.mirth.client.ui.components;
 
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.Iterator;
 
+import javax.swing.JMenu;
 import javax.swing.JPopupMenu;
 
 import com.webreach.mirth.client.ui.Frame;
+import com.webreach.mirth.client.ui.FunctionListBuilder;
+import com.webreach.mirth.client.ui.FunctionListItem;
 import com.webreach.mirth.client.ui.PlatformUI;
 import com.webreach.mirth.client.ui.actions.CopyAction;
 import com.webreach.mirth.client.ui.actions.CutAction;
 import com.webreach.mirth.client.ui.actions.DeleteAction;
 import com.webreach.mirth.client.ui.actions.PasteAction;
+import com.webreach.mirth.client.ui.actions.RedoAction;
 import com.webreach.mirth.client.ui.actions.SelectAllAction;
+import com.webreach.mirth.client.ui.actions.SnippetAction;
+import com.webreach.mirth.client.ui.actions.UndoAction;
+import com.webreach.mirth.client.ui.CodeSnippetType;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
@@ -52,10 +60,11 @@ import org.syntax.jedit.SyntaxDocument;
  * parent. Also adds a trigger button (right click) editor menu with Cut, Copy,
  * Paste, Delete, and Select All.
  */
-public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInterface {
+public class MirthSyntaxTextArea extends JEditTextArea implements
+		MirthTextInterface {
 	private Frame parent;
 
-	//private JPopupMenu menu;
+	// private JPopupMenu menu;
 
 	private CutAction cutAction;
 
@@ -67,65 +76,131 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
 
 	private SelectAllAction selectAllAction;
 
-	public MirthSyntaxTextArea(boolean lineNumbers) {
+	private UndoAction undoAction;
+
+	private RedoAction redoAction;
+
+	private JMenu varlist;
+
+	private JMenu hl7list;
+
+	private JMenu funclist;
+
+	protected boolean showSnippets;
+
+	public MirthSyntaxTextArea(boolean lineNumbers, final boolean showSnippets) {
 		super(lineNumbers);
 		this.parent = PlatformUI.MIRTH_FRAME;
-
+		this.showSnippets = showSnippets;
+		// Setup menu actions
 		cutAction = new CutAction(this);
 		copyAction = new CopyAction(this);
 		pasteAction = new PasteAction(this);
 		deleteAction = new DeleteAction(this);
 		selectAllAction = new SelectAllAction(this);
-
+		undoAction = new UndoAction(this);
+		redoAction = new RedoAction(this);
 		popup = new JPopupMenu();
+
+		popup.add(undoAction);
+		popup.add(redoAction);
+		popup.addSeparator();
 		popup.add(cutAction);
 		popup.add(copyAction);
 		popup.add(pasteAction);
+		popup.addSeparator();
 		popup.add(deleteAction);
 		popup.addSeparator();
 		popup.add(selectAllAction);
+
+		if (showSnippets) {
+			varlist = new JMenu("Built-in Variables");
+			hl7list = new JMenu("HL7 Helpers");
+			funclist = new JMenu("Built-in Functions");
+			FunctionListBuilder functionBuilder = new FunctionListBuilder();
+			ArrayList<FunctionListItem> jshelpers = functionBuilder
+					.getVariableListItems();
+			Iterator<FunctionListItem> it = jshelpers.iterator();
+
+			while (it.hasNext()) {
+				FunctionListItem item = it.next();
+				switch (item.getType()) {
+				case FUNCTION:
+					funclist.add(new SnippetAction(this, item.getName(), item
+							.getCode()));
+					break;
+				case HL7HELPER:
+					hl7list.add(new SnippetAction(this, item.getName(), item
+							.getCode()));
+					break;
+				case VARIABLE:
+					varlist.add(new SnippetAction(this, item.getName(), item
+							.getCode()));
+					break;
+				}
+			}
+			popup.addSeparator();
+			popup.add(varlist);
+			popup.add(funclist);
+			//popup.add(hl7list);
+		}
+
 		this.popupHandler = new PopUpHandler() {
-		
+
 			public void showPopupMenu(JPopupMenu menu, MouseEvent evt) {
 				if (evt.isPopupTrigger()) {
-					menu.getComponent(0).setEnabled(cutAction.isEnabled());
-					menu.getComponent(1).setEnabled(copyAction.isEnabled());
-					menu.getComponent(2).setEnabled(pasteAction.isEnabled());
-					menu.getComponent(3).setEnabled(deleteAction.isEnabled());
-					menu.getComponent(5).setEnabled(selectAllAction.isEnabled());
 
+					menu.getComponent(0).setEnabled(undoAction.isEnabled());
+					menu.getComponent(1).setEnabled(redoAction.isEnabled());
+					menu.getComponent(3).setEnabled(cutAction.isEnabled());
+					menu.getComponent(4).setEnabled(copyAction.isEnabled());
+					menu.getComponent(5).setEnabled(pasteAction.isEnabled());
+					menu.getComponent(7).setEnabled(deleteAction.isEnabled());
+					menu.getComponent(9)
+							.setEnabled(selectAllAction.isEnabled());
+					if (showSnippets) {
+						menu.getComponent(11).setEnabled(varlist.isEnabled());
+						menu.getComponent(12).setEnabled(funclist.isEnabled());
+						//menu.getComponent(13).setEnabled(hl7list.isEnabled());
+					}
 					menu.show(evt.getComponent(), evt.getX(), evt.getY());
 				}
-		
-			}
-		
-		};
-		/*
-		this.addMouseListener(new java.awt.event.MouseAdapter() {
-			public void mousePressed(java.awt.event.MouseEvent evt) {
-				showPopupMenu(evt);
+
 			}
 
-			public void mouseReleased(java.awt.event.MouseEvent evt) {
-				showPopupMenu(evt);
-			}
-		});
-		*/
+		};
 	}
 
-	/**
-	 * Shows the popup menu for the trigger button
+	/*
+	 * Support for undo and redo
+	 * 
 	 */
-	//private void showPopupMenu(JPopupMenu menu, java.awt.event.MouseEvent evt) {
-	//
-	//}
+	public void undo() {
+		if (this.undo.canUndo()) {
+			this.undo.undo();
+		}
+	}
+
+	public void redo() {
+		if (this.undo.canRedo()) {
+			this.undo.redo();
+		}
+	}
+
+	public boolean canRedo() {
+		return this.undo.canRedo();
+	}
+
+	public boolean canUndo() {
+		return this.undo.canUndo();
+	}
 
 	/**
 	 * Overrides setDocument(Document doc) so that a document listener is added
 	 * to the current document to listen for changes.
 	 */
 	public void setDocument(SyntaxDocument doc) {
-		
+
 		super.setDocument(doc);
 		this.getDocument().addDocumentListener(new DocumentListener() {
 			public void changedUpdate(DocumentEvent e) {
@@ -139,19 +214,20 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
 				parent.enableSave();
 			}
 		});
-		
+
 	}
 
 	/**
 	 * Overrides setText(String t) so that the save button is disabled when
 	 * Mirth sets the text of a field.
 	 */
-    public void setText(String t)
-    {
-    	super.setText(t);
-        parent.disableSave();
-    }
-    public String getText() {
+	public void setText(String t) {
+		super.setText(t);
+
+		parent.disableSave();
+	}
+
+	public String getText() {
 		StringBuffer sb = new StringBuffer();
 		// Get paragraph element
 		Element paragraph = getDocument().getDefaultRootElement();
@@ -170,20 +246,21 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
 				String text = getText(rangeStart, rangeEnd - rangeStart);
 				sb.append(text.replaceAll("\\n", ""));
 				sb.append("\r");
-				
+
 			} catch (Exception ex) {
 			}
 
 		}
 		String retval = sb.toString();
 		if (retval.length() > 0) {
-			retval = retval.substring(0, retval.length() -1);
+			retval = retval.substring(0, retval.length() - 1);
 		}
 		return retval;
 
 	}
+
 	public void replaceSelection(String text) {
 		setSelectedText(text);
-		
+
 	}
 }

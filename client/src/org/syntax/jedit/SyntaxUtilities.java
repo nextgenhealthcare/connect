@@ -127,17 +127,17 @@ public class SyntaxUtilities
 			Color darkBlue = new Color(0x000080);
 			Color darkGreen = Color.GREEN.darker();
 			Color darkPurple = new Color(0xA020F0).darker();
-
+			Color darkRed = Color.red.darker();
 			
 			styles[Token.COMMENT1] = new SyntaxStyle(darkGreen,false,false);
 			styles[Token.COMMENT2] = new SyntaxStyle(darkGreen,false,false);
 			styles[Token.KEYWORD1] = new SyntaxStyle(Color.blue,false,false);
 			styles[Token.KEYWORD2] = new SyntaxStyle(Color.orange,false,false);
-			styles[Token.KEYWORD3] = new SyntaxStyle(Color.darkGray,false,true);
+			styles[Token.KEYWORD3] = new SyntaxStyle(darkPurple,false,true);
 			styles[Token.LITERAL1] = new SyntaxStyle(maroon,false,false);
-			styles[Token.LITERAL2] = new SyntaxStyle(Color.red,false,false);
-			styles[Token.LABEL] = new SyntaxStyle(Color.orange,true,true);
-			styles[Token.OPERATOR] = new SyntaxStyle(Color.black,false,true);
+			styles[Token.LITERAL2] = new SyntaxStyle(darkRed,false,false);
+			styles[Token.LABEL] = new SyntaxStyle(darkGreen,false,false);
+			styles[Token.OPERATOR] = new SyntaxStyle(Color.gray.darker(),false,true);
 			styles[Token.INVALID] = new SyntaxStyle(Color.red,false,false);
 			styles[Token.DIGIT] = new SyntaxStyle(maroon,false,false);
 			return styles;

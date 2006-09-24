@@ -26,7 +26,6 @@
 
 package com.webreach.mirth.client.ui.connectors;
 
-import com.Ostermiller.Syntax.HighlightedDocument;
 import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.ui.Frame;
 import com.webreach.mirth.client.ui.PlatformUI;
@@ -235,9 +234,9 @@ public class DatabaseReader extends ConnectorClass
         databaseUsernameField = new com.webreach.mirth.client.ui.components.MirthTextField();
         databasePasswordField = new com.webreach.mirth.client.ui.components.MirthPasswordField();
         jScrollPane2 = new javax.swing.JScrollPane();
-        databaseSQLTextPane = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea(true);
+        databaseSQLTextPane = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea(true, false);
         jScrollPane3 = new javax.swing.JScrollPane();
-        databaseUpdateSQLTextPane = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea(true);
+        databaseUpdateSQLTextPane = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea(true, false);
         onUpdateLabel = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
         pollingFreq = new com.webreach.mirth.client.ui.components.MirthTextField();

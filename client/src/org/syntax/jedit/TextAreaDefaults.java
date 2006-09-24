@@ -22,8 +22,8 @@ import java.awt.Font;
 public class TextAreaDefaults
 {
 
-	public String STYLE = "RUBY BLUE"; //based on http://wiseheartdesign.com/articles/2006/03/11/ruby-blue-textmate-theme
-	//public String STYLE = "Default";
+	//public String STYLE = "RUBY BLUE";//based on http://wiseheartdesign.com/articles/2006/03/11/ruby-blue-textmate-theme
+	public String STYLE = "Default";
 	public InputHandler inputHandler;
 	public SyntaxDocument document;
 	public boolean editable;
@@ -67,10 +67,10 @@ public class TextAreaDefaults
 			this.blockCaret = false;
 			this.caretVisible = true;
 			this.caretBlinks = true;
-			this.electricScroll = 3;
+			this.electricScroll = 1;
 
-			this.cols = 10;
-			this.rows = 10;
+			this.cols = 1;
+			this.rows = 1;
 			//TODO: Make this dynamic via properties file
 			if (STYLE.equals("RUBY BLUE")){
 				this.styles = SyntaxUtilities.getSyntaxStyles(STYLE);

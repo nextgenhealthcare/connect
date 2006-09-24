@@ -7,6 +7,7 @@ import org.mule.umo.transformer.TransformerException;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.converters.ER7Serializer;
 import com.webreach.mirth.model.converters.SerializerException;
+import com.webreach.mirth.util.EntityDecoder;
 
 public class HL7ToMessageObject extends AbstractTransformer {
 	private Logger logger = Logger.getLogger(this.getClass());
@@ -28,7 +29,7 @@ public class HL7ToMessageObject extends AbstractTransformer {
 		try {
 			messageObject.setTransformedData(sanitize(serializer.toXML(rawData)));	
 		} catch (SerializerException e) {
-			messageObject.setErrors(e.toString());
+			messageObject.setErrors(sanitize(e.toString()));
 		}
 		
 		messageObject.setTransformedDataProtocol(MessageObject.Protocol.XML);
@@ -39,7 +40,6 @@ public class HL7ToMessageObject extends AbstractTransformer {
 
 	// cleans up the XML
 	private String sanitize(String source) {
-		source.replaceAll("&#xd;", "");
-		return source;
+		return source.replaceAll("\n", "\r"); //FIXME(newline) find a better solution
 	}
 }

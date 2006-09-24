@@ -212,7 +212,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			scope.put("message", scope, messageObject.getTransformedData());
 			scope.put("localMap", scope, messageObject.getVariableMap());
 			scope.put("globalMap", scope, GlobalVariableStore.getInstance());
-
+			//TODO: Verify all functions work on UI (ER7 util, IE);
 			// get the script from the cache and execute it
 			Script compiledScript = compiledScriptCache.getCompiledTransformerScript(channelId);
 			
@@ -348,7 +348,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 		StringWriter stringWriter = new StringWriter();
 		PrintWriter printWriter = new PrintWriter(stringWriter);
 		exception.printStackTrace(printWriter);
-		String exceptionString = stringWriter.toString();
+		String exceptionString = stringWriter.toString().replace('\n', '\r'); //FIXME(newline) find a better solution
 		
 		try {
 			stringWriter.close();	

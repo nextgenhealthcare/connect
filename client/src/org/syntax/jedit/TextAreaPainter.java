@@ -451,7 +451,6 @@ public class TextAreaPainter extends JComponent implements TabExpander
 		int ntabs = ((int)x - offset) / tabSize;
 			return (ntabs + 1) * tabSize + offset;
 		}else{
-			System.out.println("Tabsize is 0");
 			return 0;
 		}
 	}

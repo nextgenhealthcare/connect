@@ -32,7 +32,7 @@ public class JavaScriptTokenMarker extends CTokenMarker
 			javaScriptKeywords = new KeywordMap(false);
 			javaScriptKeywords.add("function",Token.KEYWORD3);
 			javaScriptKeywords.add("get",Token.KEYWORD3);
-			javaScriptKeywords.add("var",Token.KEYWORD3);
+			javaScriptKeywords.add("var",Token.KEYWORD1);
 			javaScriptKeywords.add("else",Token.KEYWORD1);
 			javaScriptKeywords.add("for",Token.KEYWORD1);
 			javaScriptKeywords.add("if",Token.KEYWORD1);
@@ -48,6 +48,34 @@ public class JavaScriptTokenMarker extends CTokenMarker
 			javaScriptKeywords.add("false",Token.LABEL);
 			javaScriptKeywords.add("this",Token.LABEL);
 			javaScriptKeywords.add("true",Token.LABEL);
+			//Mirth specific
+			//TODO: Figure out a consistent coloring scheme
+			javaScriptKeywords.add("msg",Token.KEYWORD1);
+			javaScriptKeywords.add("hl7_xml",Token.KEYWORD1);
+			javaScriptKeywords.add("localMap",Token.KEYWORD1);
+			javaScriptKeywords.add("globalMap",Token.KEYWORD1);
+			javaScriptKeywords.add("hl7_er7",Token.KEYWORD1);
+			javaScriptKeywords.add("logger",Token.KEYWORD3);
+			javaScriptKeywords.add("message",Token.KEYWORD3);
+			javaScriptKeywords.add("SMTPConnectionFactory",Token.KEYWORD3);
+			javaScriptKeywords.add("DatabaseConnectionFactory",Token.KEYWORD3);
+			javaScriptKeywords.add("executeCachedQuery",Token.KEYWORD1);
+			javaScriptKeywords.add("createDatabaseConnection",Token.KEYWORD1);
+			javaScriptKeywords.add("createSMTPConnection",Token.KEYWORD1);
+			javaScriptKeywords.add("executeUpdate",Token.KEYWORD1);
+			/*
+			javaScriptKeywords.add("send",Token.KEYWORD1);
+			javaScriptKeywords.add("info",Token.KEYWORD1);
+			javaScriptKeywords.add("error",Token.KEYWORD1);
+			javaScriptKeywords.add("close",Token.KEYWORD1);
+			javaScriptKeywords.add("next",Token.KEYWORD1);
+			javaScriptKeywords.add("getInt",Token.KEYWORD1);
+			javaScriptKeywords.add("getString",Token.KEYWORD1);
+			javaScriptKeywords.add("length",Token.KEYWORD1);
+			*/
+			//TODO: Should functions have coloring?
+			//TODO: Finish adding variables from Mirth
+			
 		}
 		return javaScriptKeywords;
 	}

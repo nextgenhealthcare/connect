@@ -81,6 +81,10 @@ public class DefaultInputHandler extends InputHandler
 		addKeyBinding("C+C", CLIP_COPY);
 		addKeyBinding("C+V", CLIP_PASTE);
 		addKeyBinding("C+X", CLIP_CUT);
+		
+		//undo & redo
+		addKeyBinding("C+Z", UNDO);
+		addKeyBinding("C+Y", REDO);
 	}
 
 	/**

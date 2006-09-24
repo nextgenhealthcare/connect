@@ -26,7 +26,6 @@
 
 package com.webreach.mirth.client.ui.browsers.message;
 
-import com.Ostermiller.Syntax.HighlightedDocument;
 import com.webreach.mirth.client.core.ListHandlerException;
 import com.webreach.mirth.client.core.MessageListHandler;
 import com.webreach.mirth.client.ui.Frame;
@@ -36,11 +35,14 @@ import com.webreach.mirth.client.ui.MirthFileFilter;
 import com.webreach.mirth.client.ui.PlatformUI;
 import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
+import com.webreach.mirth.client.ui.components.MirthSyntaxTextArea;
 import com.webreach.mirth.client.ui.components.MirthTextPane;
 import com.webreach.mirth.client.ui.util.FileUtil;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.model.filters.MessageObjectFilter;
+import com.webreach.mirth.util.EntityDecoder;
+
 import java.awt.Cursor;
 import java.awt.Point;
 import java.io.File;
@@ -62,6 +64,9 @@ import javax.swing.table.DefaultTableModel;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.AlternateRowHighlighter;
 import org.jdesktop.swingx.decorator.HighlighterPipeline;
+import org.syntax.jedit.SyntaxDocument;
+import org.syntax.jedit.tokenmarker.HL7TokenMarker;
+import org.syntax.jedit.tokenmarker.XMLTokenMarker;
 
 /**
  * The message browser panel.
@@ -505,13 +510,13 @@ public class MessageBrowser extends javax.swing.JPanel
      */
     public void clearDescription()
     {
-        RawMessageTextPane.setDocument(new HighlightedDocument());
+        RawMessageTextPane.setDocument(new SyntaxDocument());
         RawMessageTextPane.setText("Select a message to view the raw message.");
-        TransformedMessageTextPane.setDocument(new HighlightedDocument());
+        TransformedMessageTextPane.setDocument(new SyntaxDocument());
         TransformedMessageTextPane.setText("Select a message to view the transformed message.");
-        EncodedMessageTextPane.setDocument(new HighlightedDocument());
+        EncodedMessageTextPane.setDocument(new SyntaxDocument());
         EncodedMessageTextPane.setText("Select a message to view the encoded message.");
-        ErrorsTextPane.setDocument(new HighlightedDocument());
+        ErrorsTextPane.setDocument(new SyntaxDocument());
         ErrorsTextPane.setText("Select a message to view any errors.");
         makeMappingsTable(new String[0][0], true);
     }
@@ -553,24 +558,24 @@ public class MessageBrowser extends javax.swing.JPanel
         }
     }
     
-    private void setCorrectDocument(MirthTextPane textPane, String message, MessageObject.Protocol protocol)
+    private void setCorrectDocument(MirthSyntaxTextArea textPane, String message, MessageObject.Protocol protocol)
     {
-        HighlightedDocument newDoc = new HighlightedDocument();
+        SyntaxDocument newDoc = new SyntaxDocument();
 
         if (message != null)
         {
             if (protocol != null)
             {
                 if (protocol.equals(MessageObject.Protocol.HL7))
-                    newDoc.setHighlightStyle(HighlightedDocument.C_STYLE);
+                    newDoc.setTokenMarker(new HL7TokenMarker());
                 else if (protocol.equals(MessageObject.Protocol.XML))
-                    newDoc.setHighlightStyle(HighlightedDocument.HTML_STYLE);
+                	newDoc.setTokenMarker(new XMLTokenMarker());
                 else if (protocol.equals(MessageObject.Protocol.X12))
-                    newDoc.setHighlightStyle(HighlightedDocument.C_STYLE);
+                	newDoc.setTokenMarker(new XMLTokenMarker());
             }
             
             textPane.setDocument(newDoc);
-            textPane.setText(message);
+            textPane.setText(message.replace('\r', '\n')); //TODO: Check newlines
         }
         else
         {
@@ -627,17 +632,17 @@ public class MessageBrowser extends javax.swing.JPanel
         descriptionTabbedPane = new javax.swing.JTabbedPane();
         RawMessagePanel = new javax.swing.JPanel();
         jScrollPane3 = new javax.swing.JScrollPane();
-        RawMessageTextPane = new com.webreach.mirth.client.ui.components.MirthTextPane();
+        RawMessageTextPane = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea(true, false);
         TransformedMessagePanel = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
-        TransformedMessageTextPane = new com.webreach.mirth.client.ui.components.MirthTextPane();
+        TransformedMessageTextPane = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea(false, false);
         EncodedMessagePanel = new javax.swing.JPanel();
         jScrollPane4 = new javax.swing.JScrollPane();
-        EncodedMessageTextPane = new com.webreach.mirth.client.ui.components.MirthTextPane();
+        EncodedMessageTextPane = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea(false, false);
         MappingsPanel = new javax.swing.JPanel();
         ErrorsPanel = new javax.swing.JPanel();
         jScrollPane5 = new javax.swing.JScrollPane();
-        ErrorsTextPane = new com.webreach.mirth.client.ui.components.MirthTextPane();
+        ErrorsTextPane = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea(false, false);
 
         setBackground(new java.awt.Color(255, 255, 255));
         filterPanel.setBackground(new java.awt.Color(255, 255, 255));
@@ -972,14 +977,14 @@ public class MessageBrowser extends javax.swing.JPanel
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel EncodedMessagePanel;
-    private com.webreach.mirth.client.ui.components.MirthTextPane EncodedMessageTextPane;
+    private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea EncodedMessageTextPane;
     private javax.swing.JPanel ErrorsPanel;
-    private com.webreach.mirth.client.ui.components.MirthTextPane ErrorsTextPane;
+    private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea ErrorsTextPane;
     private javax.swing.JPanel MappingsPanel;
     private javax.swing.JPanel RawMessagePanel;
-    private com.webreach.mirth.client.ui.components.MirthTextPane RawMessageTextPane;
+    private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea RawMessageTextPane;
     private javax.swing.JPanel TransformedMessagePanel;
-    private com.webreach.mirth.client.ui.components.MirthTextPane TransformedMessageTextPane;
+    private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea TransformedMessageTextPane;
     private com.webreach.mirth.client.ui.components.MirthTextField connectorField;
     private javax.swing.JPanel descriptionPanel;
     private javax.swing.JTabbedPane descriptionTabbedPane;

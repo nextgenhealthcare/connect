@@ -4,11 +4,13 @@ public class FunctionListItem {
 	private String name;
 	private String tooltip;
 	private String code;
+	private CodeSnippetType type;
 
-	public FunctionListItem(String name, String tooltip, String code) {
+	public FunctionListItem(String name, String tooltip, String code, CodeSnippetType type) {
 		this.name = name;
 		this.tooltip = tooltip;
 		this.code = code;
+		this.type = type;
 	}
 
 	public String getCode() {
@@ -33,5 +35,13 @@ public class FunctionListItem {
 
 	public void setTooltip(String tooltip) {
 		this.tooltip = tooltip;
+	}
+
+	public CodeSnippetType getType() {
+		return type;
+	}
+
+	public void setType(CodeSnippetType type) {
+		this.type = type;
 	}
 }

@@ -39,7 +39,6 @@ import javax.swing.JTabbedPane;
 import org.syntax.jedit.SyntaxDocument;
 import org.syntax.jedit.tokenmarker.HL7TokenMarker;
 
-import com.Ostermiller.Syntax.HighlightedDocument;
 import com.webreach.mirth.client.ui.FunctionListHandler;
 import com.webreach.mirth.client.ui.HL7XMLTreePanel;
 import com.webreach.mirth.client.ui.PlatformUI;
@@ -91,15 +90,17 @@ public class TabbedReferencePanel extends JPanel
         varPanel = new JPanel();
         varPanel.setLayout(new BorderLayout());
         Channel channel = PlatformUI.MIRTH_FRAME.channelEditPage.currentChannel;
-        if (channel.getDirection().equals(Channel.Direction.OUTBOUND))
-        {
+        //Now that the db reader is available on inbound, we can show the vars
+        //Chrisl 9/23
+      //  if (channel.getDirection().equals(Channel.Direction.OUTBOUND))
+       // {
             varPanel.add(globalVarPanel, BorderLayout.NORTH);
             varPanel.add(dbVarPanel, BorderLayout.CENTER);
-        }
-        else
-        {
-            varPanel.add(globalVarPanel, BorderLayout.CENTER);
-        }
+     //   }
+     //   else
+      //  {
+      //      varPanel.add(globalVarPanel, BorderLayout.CENTER);
+      //  }
         varScrollPane.setViewportView(varPanel);
         repaint();
     }
@@ -197,7 +198,7 @@ public class TabbedReferencePanel extends JPanel
         // we need to create an HL7 Lexer...
         HL7Doc = new SyntaxDocument();
         HL7Doc.setTokenMarker(new HL7TokenMarker());
-        pasteBox = new MirthSyntaxTextArea(false);
+        pasteBox = new MirthSyntaxTextArea(false, false);
         pasteBox.setDocument(HL7Doc);
         pasteBox.setFont(EditorConstants.DEFAULT_FONT);
         

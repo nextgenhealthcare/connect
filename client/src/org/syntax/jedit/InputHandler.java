@@ -78,7 +78,9 @@ public abstract class InputHandler extends KeyAdapter
 	public static final ActionListener CLIP_COPY = new clip_copy();
 	public static final ActionListener CLIP_PASTE = new clip_paste();
 	public static final ActionListener CLIP_CUT = new clip_cut();
-
+	
+	public static final ActionListener UNDO = new undo();
+	public static final ActionListener REDO = new redo();
 	// Default action
 	public static final ActionListener INSERT_CHAR = new insert_char();
 
@@ -1109,6 +1111,24 @@ public abstract class InputHandler extends KeyAdapter
 		{
 			JEditTextArea textArea = getTextArea(evt);
 			textArea.cut();
+		}
+	}
+	public static class undo implements ActionListener {
+		public void actionPerformed(ActionEvent evt)
+		{
+			JEditTextArea textArea = getTextArea(evt);
+			if (textArea.undo.canUndo()){
+				textArea.undo.undo();
+			}
+		}
+	}
+	public static class redo implements ActionListener {
+		public void actionPerformed(ActionEvent evt)
+		{
+			JEditTextArea textArea = getTextArea(evt);
+			if (textArea.undo.canRedo()){
+				textArea.undo.redo();
+			}
 		}
 	}
 }
