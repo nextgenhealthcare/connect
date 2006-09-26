@@ -76,7 +76,6 @@ public class JEditTextArea extends JComponent {
 
 	private boolean enableLineNumbers = false;
 
-
 	String newline = "\n";
 
 	/**
@@ -125,6 +124,8 @@ public class JEditTextArea extends JComponent {
 		// Add some event listeners
 		vertical.addAdjustmentListener(new AdjustHandler());
 		horizontal.addAdjustmentListener(new AdjustHandler());
+		vertical.setEnabled(false);
+		horizontal.setEnabled(false);
 		// left.
 
 		painter.addComponentListener(new ComponentHandler());
@@ -132,9 +133,7 @@ public class JEditTextArea extends JComponent {
 		painter.addMouseMotionListener(new DragHandler());
 		addFocusListener(new FocusHandler());
 
-
-
-	//	getDocument().addDocumentListener(new MyDocumentListener());
+		// getDocument().addDocumentListener(new MyDocumentListener());
 
 		// Load the defaults
 		setInputHandler(defaults.inputHandler);
@@ -236,8 +235,6 @@ public class JEditTextArea extends JComponent {
 		// We don't seem to get the initial focus event?
 		focusedComponent = this;
 	}
-
-	
 
 	/**
 	 * Returns if this component can be traversed by pressing the Tab key. This
@@ -351,8 +348,12 @@ public class JEditTextArea extends JComponent {
 		// left.setBounds(left.getLocation().x,firstLine *
 		// -painter.getFontMetrics().getHeight(),left.getWidth(),left.getHeight()
 		// + firstLine * painter.getFontMetrics().getHeight());
+		vertical.setEnabled(false);
 		if (vertical != null && visibleLines != 0) {
-			// vertical.setEnabled(true);
+			if (getLineCount() <= visibleLines)
+				vertical.setEnabled(false);
+			else
+				vertical.setEnabled(true);
 			vertical.setValues(firstLine, visibleLines, 0, getLineCount());
 			// / left.setLocation(0, );
 			vertical.setUnitIncrement(2);
@@ -363,14 +364,20 @@ public class JEditTextArea extends JComponent {
 		if (horizontal != null && width != 0) {
 			int max_size = 0;
 			if (longestLineSize < width) {
+				horizontal.setEnabled(false);
 				max_size = width;
 			} else {
+				horizontal.setEnabled(true);
 				max_size = longestLineSize;
 			}
+			
+			
 			horizontal.setValues(-horizontalOffset, width, 0, max_size);
 			horizontal
 					.setUnitIncrement(painter.getFontMetrics().charWidth('w'));
 			horizontal.setBlockIncrement(width / 2);
+		}else{
+			horizontal.setEnabled(false);
 		}
 	}
 
@@ -894,7 +901,8 @@ public class JEditTextArea extends JComponent {
 	public String getText() {
 		try {
 			return document.getText(0, document.getLength())
-					.replace('\r', '\n'); //FIXME(newline) Find better solution for fixing newlines
+					.replace('\r', '\n'); // FIXME(newline) Find better
+											// solution for fixing newlines
 		} catch (BadLocationException bl) {
 			bl.printStackTrace();
 			return null;
@@ -909,7 +917,9 @@ public class JEditTextArea extends JComponent {
 			document.beginCompoundEdit();
 			document.remove(0, document.getLength());
 			if (text != null)
-				text = text.replace('\r', '\n'); //FIXME(newline) Find better solution for fixing newlines
+				text = text.replace('\r', '\n'); // FIXME(newline) Find
+													// better solution for
+													// fixing newlines
 			document.insertString(0, text, null);
 			updateLongestLine();
 			setCaretPosition(0);
@@ -1367,6 +1377,7 @@ public class JEditTextArea extends JComponent {
 	 */
 	public final void setEditable(boolean editable) {
 		this.editable = editable;
+		setCaretVisible(false);
 	}
 
 	/**
@@ -2025,16 +2036,17 @@ public class JEditTextArea extends JComponent {
 
 			if ((evt.getModifiers() & InputEvent.BUTTON3_MASK) != 0
 					&& popup != null) {
-				setCursor(Cursor.getDefaultCursor());
+
+				// setCursor(Cursor.getDefaultCursor());
 				if (popupHandler != null) {
 					popupHandler.showPopupMenu(popup, evt);
 				} else {
 					popup.show(painter, evt.getX(), evt.getY());
 				}
-				setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
+				// setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
 				return;
 			}
-			
+
 			int line = yToLine(evt.getY());
 			int offset = xToOffset(line, evt.getX());
 			int dot = getLineStartOffset(line) + offset;
@@ -2059,84 +2071,89 @@ public class JEditTextArea extends JComponent {
 		}
 
 		private void doSingleClick(MouseEvent evt, int line, int offset, int dot) {
-			if ((evt.getModifiers() & InputEvent.SHIFT_MASK) != 0) {
-				rectSelect = (evt.getModifiers() & InputEvent.CTRL_MASK) != 0;
-				select(getMarkPosition(), dot);
-			} else
-				setCaretPosition(dot);
+			if (isEditable()) {
+				if ((evt.getModifiers() & InputEvent.SHIFT_MASK) != 0) {
+					rectSelect = (evt.getModifiers() & InputEvent.CTRL_MASK) != 0;
+					select(getMarkPosition(), dot);
+				} else
+					setCaretPosition(dot);
+			}
 		}
 
 		private void doDoubleClick(MouseEvent evt, int line, int offset, int dot)
 				throws BadLocationException {
 			// Ignore empty lines
-			if (getLineLength(line) == 0)
-				return;
-
-			try {
-				int bracket = TextUtilities.findMatchingBracket(document, Math
-						.max(0, dot - 1));
-				if (bracket != -1) {
-					int mark = getMarkPosition();
-					// Hack
-					if (bracket > mark) {
-						bracket++;
-						mark--;
-					}
-					select(mark, bracket);
+			if (isEditable()) {
+				if (getLineLength(line) == 0)
 					return;
+
+				try {
+					int bracket = TextUtilities.findMatchingBracket(document,
+							Math.max(0, dot - 1));
+					if (bracket != -1) {
+						int mark = getMarkPosition();
+						// Hack
+						if (bracket > mark) {
+							bracket++;
+							mark--;
+						}
+						select(mark, bracket);
+						return;
+					}
+				} catch (BadLocationException bl) {
+					bl.printStackTrace();
 				}
-			} catch (BadLocationException bl) {
-				bl.printStackTrace();
-			}
 
-			// Ok, it's not a bracket... select the word
-			String lineText = getLineText(line);
-			char ch = lineText.charAt(Math.max(0, offset - 1));
+				// Ok, it's not a bracket... select the word
+				String lineText = getLineText(line);
+				char ch = lineText.charAt(Math.max(0, offset - 1));
 
-			String noWordSep = (String) document.getProperty("noWordSep");
-			if (noWordSep == null)
-				noWordSep = "";
+				String noWordSep = (String) document.getProperty("noWordSep");
+				if (noWordSep == null)
+					noWordSep = "";
 
-			// If the user clicked on a non-letter char,
-			// we select the surrounding non-letters
-			boolean selectNoLetter = (!Character.isLetterOrDigit(ch) && noWordSep
-					.indexOf(ch) == -1);
+				// If the user clicked on a non-letter char,
+				// we select the surrounding non-letters
+				boolean selectNoLetter = (!Character.isLetterOrDigit(ch) && noWordSep
+						.indexOf(ch) == -1);
 
-			int wordStart = 0;
+				int wordStart = 0;
 
-			for (int i = offset - 1; i >= 0; i--) {
-				ch = lineText.charAt(i);
-				if (selectNoLetter
-						^ (!Character.isLetterOrDigit(ch) && noWordSep
-								.indexOf(ch) == -1)) {
-					wordStart = i + 1;
-					break;
+				for (int i = offset - 1; i >= 0; i--) {
+					ch = lineText.charAt(i);
+					if (selectNoLetter
+							^ (!Character.isLetterOrDigit(ch) && noWordSep
+									.indexOf(ch) == -1)) {
+						wordStart = i + 1;
+						break;
+					}
 				}
-			}
 
-			int wordEnd = lineText.length();
-			for (int i = offset; i < lineText.length(); i++) {
-				ch = lineText.charAt(i);
-				if (selectNoLetter
-						^ (!Character.isLetterOrDigit(ch) && noWordSep
-								.indexOf(ch) == -1)) {
-					wordEnd = i;
-					break;
+				int wordEnd = lineText.length();
+				for (int i = offset; i < lineText.length(); i++) {
+					ch = lineText.charAt(i);
+					if (selectNoLetter
+							^ (!Character.isLetterOrDigit(ch) && noWordSep
+									.indexOf(ch) == -1)) {
+						wordEnd = i;
+						break;
+					}
 				}
+
+				int lineStart = getLineStartOffset(line);
+				select(lineStart + wordStart, lineStart + wordEnd);
+
+				/*
+				 * String lineText = getLineText(line); String noWordSep =
+				 * (String)document.getProperty("noWordSep"); int wordStart =
+				 * TextUtilities.findWordStart(lineText,offset,noWordSep); int
+				 * wordEnd =
+				 * TextUtilities.findWordEnd(lineText,offset,noWordSep);
+				 * 
+				 * int lineStart = getLineStartOffset(line); select(lineStart +
+				 * wordStart,lineStart + wordEnd);
+				 */
 			}
-
-			int lineStart = getLineStartOffset(line);
-			select(lineStart + wordStart, lineStart + wordEnd);
-
-			/*
-			 * String lineText = getLineText(line); String noWordSep =
-			 * (String)document.getProperty("noWordSep"); int wordStart =
-			 * TextUtilities.findWordStart(lineText,offset,noWordSep); int
-			 * wordEnd = TextUtilities.findWordEnd(lineText,offset,noWordSep);
-			 * 
-			 * int lineStart = getLineStartOffset(line); select(lineStart +
-			 * wordStart,lineStart + wordEnd);
-			 */
 		}
 
 		private void doTripleClick(MouseEvent evt, int line, int offset, int dot) {
@@ -2231,6 +2248,5 @@ public class JEditTextArea extends JComponent {
 		caretTimer.setInitialDelay(500);
 		caretTimer.start();
 	}
-
 
 }

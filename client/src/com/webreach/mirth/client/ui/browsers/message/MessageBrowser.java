@@ -41,7 +41,7 @@ import com.webreach.mirth.client.ui.util.FileUtil;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.model.filters.MessageObjectFilter;
-import com.webreach.mirth.util.EntityDecoder;
+//import com.webreach.mirth.util.EntityDecoder;
 
 import java.awt.Cursor;
 import java.awt.Point;

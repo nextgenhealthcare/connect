@@ -366,8 +366,12 @@ public class TextAreaPainter extends JComponent implements TabExpander
 			PlainDocument.tabSizeAttribute)).intValue();
 
 		Rectangle clipRect = gfx.getClipBounds();
+		if (textArea.isEnabled()){
+			gfx.setColor(getBackground());
 
-		gfx.setColor(getBackground());
+		}else{
+			gfx.setColor(new Color(0xE6E6E6).brighter());
+		}
 		gfx.fillRect(clipRect.x,clipRect.y,clipRect.width,clipRect.height);
 
 		// We don't use yToLine() here because that method doesn't
@@ -521,7 +525,7 @@ public class TextAreaPainter extends JComponent implements TabExpander
 				gfx.drawString("~",0,y + fm.getHeight());
 			}
 		}
-		else if(tokenMarker == null)
+		else if(!textArea.isEnabled() || tokenMarker == null)
 		{
 			paintPlainLine(gfx,line,defaultFont,defaultColor,x,y);
 		}
@@ -535,12 +539,15 @@ public class TextAreaPainter extends JComponent implements TabExpander
 	protected void paintPlainLine(Graphics gfx, int line, Font defaultFont,
 		Color defaultColor, int x, int y)
 	{
-		paintHighlight(gfx,line,y);
+		if(textArea.isEnabled())
+			paintHighlight(gfx,line,y);
 		textArea.getLineText(line,currentLine);
-
+		
 		gfx.setFont(defaultFont);
-		gfx.setColor(defaultColor);
-
+		if (textArea.isEnabled())
+			gfx.setColor(defaultColor);
+		else
+			gfx.setColor(Color.gray);
 		y += fm.getHeight();
 		x = Utilities.drawTabbedText(currentLine,x,y,gfx,this,0);
 

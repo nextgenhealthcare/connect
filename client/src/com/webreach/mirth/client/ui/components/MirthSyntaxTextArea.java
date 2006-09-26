@@ -148,8 +148,6 @@ public class MirthSyntaxTextArea extends JEditTextArea implements
 		this.popupHandler = new PopUpHandler() {
 
 			public void showPopupMenu(JPopupMenu menu, MouseEvent evt) {
-				if (evt.isPopupTrigger()) {
-
 					menu.getComponent(0).setEnabled(undoAction.isEnabled());
 					menu.getComponent(1).setEnabled(redoAction.isEnabled());
 					menu.getComponent(3).setEnabled(cutAction.isEnabled());
@@ -164,8 +162,6 @@ public class MirthSyntaxTextArea extends JEditTextArea implements
 						//menu.getComponent(13).setEnabled(hl7list.isEnabled());
 					}
 					menu.show(evt.getComponent(), evt.getX(), evt.getY());
-				}
-
 			}
 
 		};

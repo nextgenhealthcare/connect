@@ -95,9 +95,9 @@ loop:		for(int i = offset; i < length; i++)
 					break;
 				case '-': case '&': case '+': case '=': case '*': case '<':case '>':case '%':case '^':case '|':
 					doKeyword(line,i,c);
-						addToken(i - lastOffset,
-								token);
-							addToken(1,Token.OPERATOR);
+						addToken(i - lastOffset, token);
+						addToken(1,Token.OPERATOR);
+							//token = Token.OPERATOR;
 							lastOffset = lastKeyword = i1;
 					break;
 				case ':':
@@ -137,10 +137,12 @@ loop:		for(int i = offset; i < length; i++)
 					break;
 				default:
 					backslash = false;
+				    //doKeyword(line,i+1,c);
 					if (Character.isDigit(c) && i > 0){
-						doKeyword(line,i,c);
+						//doKeyword(line,i,c);
 						if (!Character.isLetterOrDigit(array[i-1])){
 							addToken(i - lastOffset,token);
+							//addToken(1,Token.DIGIT);
 							token = Token.DIGIT;
 							lastOffset = lastKeyword = i;
 						}
@@ -180,8 +182,9 @@ loop:		for(int i = offset; i < length; i++)
 				if(!Character.isLetterOrDigit(c))
 				{
 					addToken(i - lastOffset,Token.DIGIT);
+					addToken(1,Token.OPERATOR); //TODO: Check this out again
 					token = Token.NULL;
-					lastOffset = lastKeyword = i;
+					lastOffset = lastKeyword = i1;
 				}
 				break;
 
