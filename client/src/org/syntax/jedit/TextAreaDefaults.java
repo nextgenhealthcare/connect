@@ -22,8 +22,8 @@ import java.awt.Font;
 public class TextAreaDefaults
 {
 
-	//public String STYLE = "RUBY BLUE";//based on http://wiseheartdesign.com/articles/2006/03/11/ruby-blue-textmate-theme
-	public String STYLE = "Default";
+	public String STYLE = "RUBY BLUE";//based on http://wiseheartdesign.com/articles/2006/03/11/ruby-blue-textmate-theme
+	//public String STYLE = "Default";
 	public InputHandler inputHandler;
 	public SyntaxDocument document;
 	public boolean editable;

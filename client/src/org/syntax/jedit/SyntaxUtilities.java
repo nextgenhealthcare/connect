@@ -113,12 +113,12 @@ public class SyntaxUtilities
 			styles[Token.COMMENT1] = new SyntaxStyle(new Color(0x428BDD),true,false);
 			styles[Token.COMMENT2] = new SyntaxStyle(new Color(0x428BDD),true,false);
 			styles[Token.KEYWORD1] = new SyntaxStyle(new Color(0xF8BB00),false,true);
-			styles[Token.KEYWORD2] = new SyntaxStyle(new Color(0xB53B3C),false,false);
-			styles[Token.KEYWORD3] = new SyntaxStyle(new Color(0xB53B3C),false,true);
+			styles[Token.KEYWORD2] = new SyntaxStyle(new Color(0xEDDD3D),false,false);
+			styles[Token.KEYWORD3] = new SyntaxStyle(new Color(0x85A1BB),false,true);
 			styles[Token.LITERAL1] = new SyntaxStyle(new Color(0x02C005),false,false);
 			styles[Token.LITERAL2] = new SyntaxStyle(new Color(0xEDDD3D),false,false);
 			styles[Token.LABEL] = new SyntaxStyle(new Color(0x8AA6C1),true,true);
-			styles[Token.OPERATOR] = new SyntaxStyle(new Color(0x85A1BB),false,true);
+			styles[Token.OPERATOR] = new SyntaxStyle(Color.lightGray,false,true);
 			styles[Token.INVALID] = new SyntaxStyle(Color.red,false,true);
 			styles[Token.DIGIT] = new SyntaxStyle(new Color(0xEDDD3D),false,false);
 			return styles;

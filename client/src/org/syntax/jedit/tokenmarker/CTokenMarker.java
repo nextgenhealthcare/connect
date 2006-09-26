@@ -182,7 +182,14 @@ loop:		for(int i = offset; i < length; i++)
 				if(!Character.isLetterOrDigit(c))
 				{
 					addToken(i - lastOffset,Token.DIGIT);
-					addToken(1,Token.OPERATOR); //TODO: Check this out again
+					switch (c){
+						case '-': case '&': case '+': case '=': case '*': case '<':case '>':case '%':case '^':case '|':
+							addToken(1,Token.OPERATOR); //TODO: Check this out again
+							break;
+						default:
+							addToken(1,Token.NULL); //TODO: Check this out again
+					}
+					
 					token = Token.NULL;
 					lastOffset = lastKeyword = i1;
 				}
