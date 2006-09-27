@@ -28,6 +28,12 @@ public class MessageObject implements Serializable {
 	private String connectorName;
 	private boolean encrypted;
 	private String errors;
+	private String version;
+
+	public MessageObject() {
+		this.variableMap = new HashMap();
+		this.status = Status.UNKNOWN;
+	}
 
 	public String getId() {
 		return this.id;
@@ -36,10 +42,13 @@ public class MessageObject implements Serializable {
 	public void setId(String id) {
 		this.id = id;
 	}
+	
+	public String getVersion() {
+		return this.version;
+	}
 
-	public MessageObject() {
-		this.variableMap = new HashMap();
-		this.status = Status.UNKNOWN;
+	public void setVersion(String version) {
+		this.version = version;
 	}
 
 	public String getChannelId() {
@@ -151,6 +160,7 @@ public class MessageObject implements Serializable {
 			MessageObject messageObject = (MessageObject) source;
 			
 			return (messageObject.getChannelId().equals(getChannelId()) &&
+			messageObject.getVersion().equals(getVersion()) &&
 			messageObject.getConnectorName().equals(getConnectorName()) &&
 			messageObject.getDateCreated().equals(getDateCreated()) &&
 			messageObject.getEncodedData().equals(getEncodedData()) &&

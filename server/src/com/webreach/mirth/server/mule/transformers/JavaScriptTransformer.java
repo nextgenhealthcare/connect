@@ -161,6 +161,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 
 			scope.put("localMap", scope, messageObject.getVariableMap());
 			scope.put("globalMap", scope, GlobalVariableStore.getInstance());
+			scope.put("version", scope, messageObject.getVersion());
 
 			// get the script from the cache and execute it
 			Script script = compiledScriptCache.getCompiledFilterScript(channelId);
@@ -212,6 +213,8 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			scope.put("message", scope, messageObject.getTransformedData());
 			scope.put("localMap", scope, messageObject.getVariableMap());
 			scope.put("globalMap", scope, GlobalVariableStore.getInstance());
+			scope.put("version", scope, messageObject.getVersion());
+			
 			//TODO: Verify all functions work on UI (ER7 util, IE);
 			// get the script from the cache and execute it
 			Script compiledScript = compiledScriptCache.getCompiledTransformerScript(channelId);
@@ -261,6 +264,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			scope.put("message", scope, messageObject.getRawData());
 			scope.put("localMap", scope, messageObject.getVariableMap());
 			scope.put("globalMap", scope, GlobalVariableStore.getInstance());
+			scope.put("version", scope, messageObject.getVersion());
 
 			// get the script from the cache and execute it
 			Script compiledScript = compiledScriptCache.getCompiledTransformerScript(channelId);

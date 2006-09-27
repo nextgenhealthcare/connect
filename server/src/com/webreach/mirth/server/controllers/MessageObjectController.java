@@ -61,11 +61,12 @@ public class MessageObjectController {
 			
 			if (getMessageCount(filter) == 0) {
 				logger.debug("inserting message: id=" + messageObject.getId());
-				statement = "insert into messages (id, channel_id, date_created, encrypted, status, raw_data, raw_data_protocol, transformed_data, transformed_data_protocol, encoded_data, encoded_data_protocol, variable_map, connector_name, errors) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+				statement = "insert into messages (id, channel_id, date_created, version, encrypted, status, raw_data, raw_data_protocol, transformed_data, transformed_data_protocol, encoded_data, encoded_data_protocol, variable_map, connector_name, errors) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
 				parameters.add(messageObject.getId());
 				parameters.add(messageObject.getChannelId());
 				parameters.add(new Timestamp(messageObject.getDateCreated().getTimeInMillis()));
+				parameters.add(messageObject.getVersion());
 				parameters.add(messageObject.isEncrypted());
 				parameters.add(messageObject.getStatus());
 				parameters.add(rawData);
@@ -110,6 +111,7 @@ public class MessageObjectController {
 			select.addColumn(messages, "id");
 			select.addColumn(messages, "channel_id");
 			select.addColumn(messages, "date_created");
+			select.addColumn(messages, "version");
 			select.addColumn(messages, "encrypted");
 			select.addColumn(messages, "status");
 			select.addColumn(messages, "raw_data");
@@ -300,6 +302,7 @@ public class MessageObjectController {
 			Calendar dateCreated = Calendar.getInstance();
 			dateCreated.setTimeInMillis(result.getTimestamp("date_created").getTime());
 			messageObject.setDateCreated(dateCreated);
+			messageObject.setVersion(result.getString("version"));
 			messageObject.setEncrypted(result.getBoolean("encrypted"));
 
 			String rawData;

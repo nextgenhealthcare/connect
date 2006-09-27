@@ -41,6 +41,7 @@ public class MessageObjectControllerTest extends TestCase {
 			sampleMessageObject.setChannelId(channelId);
 			sampleMessageObject.setConnectorName("SampleConnector");
 			sampleMessageObject.setDateCreated(Calendar.getInstance());
+			sampleMessageObject.setVersion("2.3.1");
 			sampleMessageObject.setEncrypted(false);
 			sampleMessageObject.setStatus(MessageObject.Status.TRANSFORMED);
 
