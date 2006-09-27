@@ -26,13 +26,12 @@
 package com.webreach.mirth.model.converters;
 
 import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.io.xml.XppDriver;
 
 public class ObjectXMLSerializer implements IXMLSerializer<Object>{
 	private XStream xstream;
 	
 	public ObjectXMLSerializer() {
-		xstream = new XStream(new XppDriver());
+		xstream = new XStream(new CustomXppDriver());
 		xstream.setMode(XStream.NO_REFERENCES);
 	}
 	
