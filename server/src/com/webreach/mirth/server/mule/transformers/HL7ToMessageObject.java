@@ -8,11 +8,13 @@ import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.converters.ER7Serializer;
 import com.webreach.mirth.model.converters.HAPIMessageSerializer;
 import com.webreach.mirth.model.converters.SerializerException;
+import com.webreach.mirth.server.mule.util.StackTracePrinter;
 
 public class HL7ToMessageObject extends AbstractTransformer {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private ER7Serializer xmlSerializer = new ER7Serializer();
 	private HAPIMessageSerializer hapiSerializer = new HAPIMessageSerializer();
+	private StackTracePrinter stackTracePrinter = new StackTracePrinter();
 
 	public HL7ToMessageObject() {
 		super();
@@ -31,7 +33,8 @@ public class HL7ToMessageObject extends AbstractTransformer {
 			messageObject.setVersion(hapiSerializer.deserialize(rawData).getVersion());
 			messageObject.setTransformedData(sanitize(xmlSerializer.toXML(rawData)));	
 		} catch (SerializerException e) {
-			messageObject.setErrors(sanitize(e.toString()));
+			logger.warn("error transforming message", e);
+			messageObject.setErrors(stackTracePrinter.stackTraceToString(e));
 		}
 		
 		messageObject.setTransformedDataProtocol(MessageObject.Protocol.XML);
