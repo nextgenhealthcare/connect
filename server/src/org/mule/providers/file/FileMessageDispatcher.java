@@ -130,7 +130,7 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
 		while (m.find()) {
 			String key = m.group();
 			String name = key.substring(2, key.length() - 1);
-			m.appendReplacement(sb, getTemplateValue(name, map));
+			m.appendReplacement(sb, getTemplateValue(name, map).replace("\\", "\\\\").replace("$", "\\$"));
 		}
 		m.appendTail(sb);
 		return sb.toString();
