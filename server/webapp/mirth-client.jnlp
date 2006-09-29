@@ -12,6 +12,7 @@
 		<all-permissions />
 	</security>
 	<icon kind="splash" href="mirth_logo.png" />
+	
 	<resources locale="" os="">
 		<j2se href="http://java.sun.com/products/autodl/j2se" version="1.5" />
 	</resources>
@@ -35,7 +36,7 @@
 			main="false" version="" />
 	</resources>
 	<resources locale="" os="">
-		<jar download="eager" href="lib/commons-logging.jar" main="false"
+		<jar download="eager" href="lib/commons-logging-1.1.jar" main="false"
 			version="" />
 	</resources>
 	<resources locale="" os="">
@@ -54,7 +55,7 @@
 			version="" />
 	</resources>
 	<resources locale="" os="">
-		<jar download="eager" href="lib/log4j-1.2.13.jar" main="false"
+		<jar download="eager" href="lib/log4j-1.2.14.jar" main="false"
 			version="" />
 	</resources>
 	<resources locale="" os="">
@@ -65,11 +66,11 @@
 			version="" />
 	</resources>
 	<resources locale="" os="">
-		<jar download="eager" href="lib/xstream-1.1.3.jar" main="false"
+		<jar download="eager" href="lib/xstream-1.2.jar" main="false"
 			version="" />
 	</resources>
 	<resources locale="" os="">
-		<jar download="eager" href="lib/swing-layout-1.0.jar" main="false"
+		<jar download="eager" href="lib/swing-layout-1.0.1.jar" main="false"
 			version="" />
 	</resources>
 	<resources locale="" os="">
