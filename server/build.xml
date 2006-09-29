@@ -66,7 +66,7 @@
 		</copy>
 
 		<!-- sign jars for webstart -->
-		<signjar alias="Mirth" keystore="${basedir}/keystore" storepass="abc12345" keypass="abc12345">
+		<signjar alias="mirth" keystore="${basedir}/keystore" storepass="abc12345" keypass="abc12345">
 			<fileset file="${webapp.lib}/mirth-client.jar" />
 			<fileset file="${webapp.lib}/mirth-client-core.jar" />
 			<fileset file="${webapp.lib}/commons-codec-1.3.jar" />
@@ -77,11 +77,9 @@
 			<fileset file="${webapp.lib}/jdic-0.8.0.jar" />
 			<fileset file="${webapp.lib}/log4j-1.2.13.jar" />
 			<fileset file="${webapp.lib}/looks-2.0.4.jar" />
-			<fileset file="${webapp.lib}/ostermillerutils-1.06.00.jar" />
 			<fileset file="${webapp.lib}/swing-layout-1.0.jar" />
 			<fileset file="${webapp.lib}/swingworker-0.8.0.jar" />
 			<fileset file="${webapp.lib}/swingx-0.8.0.jar" />
-			<fileset file="${webapp.lib}/syntax.jar" />
 			<fileset file="${webapp.lib}/xercesImpl.jar" />
 			<fileset file="${webapp.lib}/xpp3_min-1.1.3.4.O.jar" />
 			<fileset file="${webapp.lib}/xstream-1.1.3.jar" />

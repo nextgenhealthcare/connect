@@ -73,13 +73,6 @@
 			version="" />
 	</resources>
 	<resources locale="" os="">
-		<jar download="eager" href="lib/syntax.jar" main="false" version="" />
-	</resources>
-	<resources locale="" os="">
-		<jar download="eager" href="lib/ostermillerutils-1.06.00.jar"
-			main="false" version="" />
-	</resources>
-	<resources locale="" os="">
 		<jar download="eager" href="lib/hapi-0.5beta.jar" main="false"
 			version="" />
 	</resources>
