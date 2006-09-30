@@ -154,6 +154,7 @@ public class MapperPanel extends CardPanel {
                 SwingUtilities.invokeLater(new Runnable() {
                    public void run() {
                        parent.getTableModel().setValueAt(mappingTextField.getText(), parent.getSelectedRow(), parent.STEP_NAME_COL);
+                       parent.updateTaskPane();
                    }
                });
             }
@@ -166,6 +167,7 @@ public class MapperPanel extends CardPanel {
               SwingUtilities.invokeLater(new Runnable() {
                    public void run() {
                        parent.getTableModel().setValueAt("New Step", parent.getSelectedRow(), parent.STEP_NAME_COL);
+                       parent.updateTaskPane();
                    }
               });
           }

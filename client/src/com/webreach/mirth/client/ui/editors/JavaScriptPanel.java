@@ -79,10 +79,8 @@ public class JavaScriptPanel extends CardPanel {
 		scriptPanel.setLayout( new BorderLayout() );
 		scriptPanel.add( scriptTextPane, BorderLayout.CENTER );
 
-		
-		
 		scriptScrollPane.setViewportView( scriptPanel );
-	
+                
 		scriptScrollPane.setBorder( BorderFactory.createTitledBorder( 
 				BorderFactory.createLoweredBevelBorder(), "JavaScript", TitledBorder.LEFT,
 				TitledBorder.ABOVE_TOP, new Font( null, Font.PLAIN, 11 ), 
@@ -134,7 +132,11 @@ public class JavaScriptPanel extends CardPanel {
                 
                 parent.modified = modified;
 	}
-
+        
+        public String getJavaScript()
+        {
+            return scriptTextPane.getText();
+        }
 	
 	private JPanel scriptPanel;
 	private static SyntaxDocument scriptDoc;

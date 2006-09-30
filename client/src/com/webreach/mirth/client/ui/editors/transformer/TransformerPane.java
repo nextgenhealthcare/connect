@@ -85,6 +85,10 @@ import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.Step;
 import com.webreach.mirth.model.Transformer;
 import java.io.IOException;
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.EvaluatorException;
+import org.mozilla.javascript.JavaScriptException;
+import org.mozilla.javascript.Script;
 
 public class TransformerPane extends MirthEditorPane
 {
@@ -277,6 +281,22 @@ public class TransformerPane extends MirthEditorPane
             }
         });
         transformerPopupMenu.add(exportTransformer);
+        
+        transformerTasks.add(initActionCallback("doValidate", ActionFactory
+        .createBoundAction("doValidate", "Validate Step",
+        "V"), new ImageIcon(Frame.class
+        .getResource("images/accept.png"))));
+        JMenuItem validateStep = new JMenuItem("Validate Step");
+        validateStep.setIcon(new ImageIcon(Frame.class
+                .getResource("images/accept.png")));
+        validateStep.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                doValidate();
+            }
+        });
+        transformerPopupMenu.add(validateStep);
         
         // move step up task
         transformerTasks.add(initActionCallback("moveStepUp", ActionFactory
@@ -852,6 +872,9 @@ public class TransformerPane extends MirthEditorPane
         updateStepNumbers();
     }
     
+    /*
+     * Import the transfomer
+     */
     public void doImport()
     {
         JFileChooser importFileChooser = new JFileChooser();
@@ -889,7 +912,9 @@ public class TransformerPane extends MirthEditorPane
             }
         }
     }
-    
+    /*
+     * Export the transfomer
+     */
     public void doExport()
     {
         accept(false);
@@ -922,6 +947,27 @@ public class TransformerPane extends MirthEditorPane
             {
                 parent.alertError("File could not be written.");
             }
+        }
+    }
+    
+    /*
+     * Validate the current step if it has JavaScript
+     */
+    public void doValidate()
+    {
+        try 
+        {
+            Context context = Context.enter();
+            Script compiledFilterScript = context.compileString("function rhinoWrapper() {\n" + jsPanel.getJavaScript() + "\n}", null, 1, null);
+            parent.alertInformation("JavaScript was successfully validated.");
+        } 
+        catch (EvaluatorException e) 
+        {
+            parent.alertInformation("Error on line " + e.lineNumber() + ": " + e.getMessage() + ".");
+        } 
+        finally 
+        {
+            Context.exit();
         }
     }
     
@@ -1075,7 +1121,7 @@ public class TransformerPane extends MirthEditorPane
      * updateTaskPane() configure the task pane so that it shows only relevant
      * tasks
      */
-    private void updateTaskPane()
+    public void updateTaskPane()
     {
         int rowCount = transformerTableModel.getRowCount();
         if (rowCount <= 0)
@@ -1096,12 +1142,18 @@ public class TransformerPane extends MirthEditorPane
             int selRow = transformerTable.getSelectedRow();
             if (selRow == 0) // hide move up
                 parent.setVisibleTasks(transformerTasks, transformerPopupMenu,
-                        4, 4, false);
+                        5, 5, false);
             else if (selRow == rowCount - 1) // hide move down
                 parent.setVisibleTasks(transformerTasks, transformerPopupMenu,
-                        5, 5, false);
+                        6, 6, false);
         }
         parent.setVisibleTasks(transformerTasks, transformerPopupMenu, 2,3, true);
+        
+        String type = (String) transformerTableModel.getValueAt(getSelectedRow(), STEP_TYPE_COL);
+        if(type != null && type.equals(JAVASCRIPT_TYPE))
+            parent.setVisibleTasks(transformerTasks, transformerPopupMenu, 4, 4, true);
+        else
+            parent.setVisibleTasks(transformerTasks, transformerPopupMenu, 4, 4, false);
     }
     
     public int getSelectedRow()

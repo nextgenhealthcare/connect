@@ -92,6 +92,8 @@ public class MirthEditorPane extends JPanel
     	tabPanel.setDroppedTextPrefix( prefix );
     }
     
+    public void updateTaskPane(){}
+    
     public int getSelectedRow()
     {
         return 0;

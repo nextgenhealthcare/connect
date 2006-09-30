@@ -82,6 +82,9 @@ import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import java.io.File;
 import java.io.IOException;
 import javax.swing.JFileChooser;
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.EvaluatorException;
+import org.mozilla.javascript.Script;
 
 
 
@@ -242,6 +245,22 @@ public class FilterPane extends MirthEditorPane
             }
         });
         filterPopupMenu.add(exportFilter);
+        
+        filterTasks.add(initActionCallback("doValidate", ActionFactory
+        .createBoundAction("doValidate", "Validate Step",
+        "V"), new ImageIcon(Frame.class
+        .getResource("images/accept.png"))));
+        JMenuItem validateStep = new JMenuItem("Validate Step");
+        validateStep.setIcon(new ImageIcon(Frame.class
+                .getResource("images/accept.png")));
+        validateStep.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                doValidate();
+            }
+        });
+        filterPopupMenu.add(validateStep);
         
         // move rule up task
         filterTasks.add( initActionCallback( "moveRuleUp",
@@ -606,7 +625,9 @@ public class FilterPane extends MirthEditorPane
         
         updateRuleNumbers();
     }
-    
+    /*
+     * Import a filter.
+     */
     public void doImport()
     {
         JFileChooser importFileChooser = new JFileChooser();
@@ -645,6 +666,9 @@ public class FilterPane extends MirthEditorPane
         }
     }
     
+    /*
+     * Export the filter.
+     */
     public void doExport()
     {
         accept(false);
@@ -677,6 +701,27 @@ public class FilterPane extends MirthEditorPane
             {
                 parent.alertError("File could not be written.");
             }
+        }
+    }
+    
+    /*
+     * Validate the current step if it has JavaScript
+     */
+    public void doValidate()
+    {
+        try 
+        {
+            Context context = Context.enter();
+            Script compiledFilterScript = context.compileString("function rhinoWrapper() {\n" + jsPanel.getJavaScript() + "\n}", null, 1, null);
+            parent.alertInformation("JavaScript was successfully validated.");
+        } 
+        catch (EvaluatorException e) 
+        {
+            parent.alertInformation("Error on line " + e.lineNumber() + ": " + e.getMessage() + ".");
+        } 
+        finally 
+        {
+            Context.exit();
         }
     }
     
@@ -763,7 +808,7 @@ public class FilterPane extends MirthEditorPane
     /** updateTaskPane()
      *  configure the task pane so that it shows only relevant tasks
      */
-    private void updateTaskPane()
+    public void updateTaskPane()
     {
         int rowCount = filterTableModel.getRowCount();
         if ( rowCount <= 0 )
@@ -772,6 +817,7 @@ public class FilterPane extends MirthEditorPane
         {
             parent.setVisibleTasks( filterTasks, filterPopupMenu, 0, -1, true );
             parent.setVisibleTasks( filterTasks, filterPopupMenu, 2, -1, false );
+            parent.setVisibleTasks( filterTasks, filterPopupMenu, 4, 4, true );
         }
         else
         {
@@ -779,9 +825,10 @@ public class FilterPane extends MirthEditorPane
             
             int selRow = filterTable.getSelectedRow();
             if ( selRow == 0 ) // hide move up
-                parent.setVisibleTasks( filterTasks, filterPopupMenu, 4, 4, false );
-            else if ( selRow == rowCount - 1 ) // hide move down
                 parent.setVisibleTasks( filterTasks, filterPopupMenu, 5, 5, false );
+            else if ( selRow == rowCount - 1 ) // hide move down
+                parent.setVisibleTasks( filterTasks, filterPopupMenu, 6, 6, false );
+            parent.setVisibleTasks( filterTasks, filterPopupMenu, 4, 4, true );
         }
         parent.setVisibleTasks( filterTasks, filterPopupMenu, 2, 3, true );
     }
