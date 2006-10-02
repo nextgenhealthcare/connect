@@ -1,13 +1,10 @@
 package com.webreach.mirth.server.mule.transformers;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.Calendar;
 import java.util.UUID;
 
 import org.apache.log4j.Logger;
 import org.mozilla.javascript.Context;
-import org.mozilla.javascript.EvaluatorException;
 import org.mozilla.javascript.ImporterTopLevel;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
@@ -19,13 +16,18 @@ import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.converters.ER7Serializer;
 import com.webreach.mirth.server.controllers.MessageObjectController;
+import com.webreach.mirth.server.controllers.ScriptController;
 import com.webreach.mirth.server.mule.util.CompiledScriptCache;
 import com.webreach.mirth.server.mule.util.GlobalVariableStore;
+import com.webreach.mirth.server.mule.util.StackTracePrinter;
 
 public class JavaScriptTransformer extends AbstractTransformer {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private MessageObjectController messageObjectController = new MessageObjectController();
+	private StackTracePrinter stackTracePrinter = new StackTracePrinter();
+	private ScriptController scriptController = new ScriptController();
 	private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
+
 	private String transformerScript;
 	private String filterScript;
 	private String direction;
@@ -67,22 +69,6 @@ public class JavaScriptTransformer extends AbstractTransformer {
 		this.connectorName = connectorName;
 	}
 
-	public String getFilterScript() {
-		return this.filterScript;
-	}
-
-	public void setFilterScript(String filterScript) {
-		this.filterScript = filterScript;
-	}
-
-	public String getTransformerScript() {
-		return this.transformerScript;
-	}
-
-	public void setTransformerScript(String transformerScript) {
-		this.transformerScript = transformerScript;
-	}
-
 	public boolean isEncryptData() {
 		return this.encryptData;
 	}
@@ -104,21 +90,25 @@ public class JavaScriptTransformer extends AbstractTransformer {
 		try {
 			Context context = Context.enter();
 
+			// get the scripts from the cache
+			filterScript = scriptController.getFilterScript(channelId);
+			transformerScript = scriptController.getTransformerScript(channelId);
+
 			if (filterScript != null) {
-				String filterScript = generateFilterScript();
+				String generatedFilterScript = generateFilterScript();
 				logger.debug("compiling filter script");
-				Script compiledFilterScript = context.compileString(filterScript, channelId, 1, null);
+				Script compiledFilterScript = context.compileString(generatedFilterScript, channelId, 1, null);
 				compiledScriptCache.putCompiledFilterScript(channelId, compiledFilterScript);
 			}
 
 			if (transformerScript != null) {
-				String transformerScript = generateTransformerScript();
+				String generatedTransformerScript = generateTransformerScript();
 				logger.debug("compiling transformer script");
-				Script compiledTransformerScript = context.compileString(transformerScript, channelId, 1, null);
+				Script compiledTransformerScript = context.compileString(generatedTransformerScript, channelId, 1, null);
 				compiledScriptCache.putCompiledTransformerScript(channelId, compiledTransformerScript);
 			}
-		} catch (EvaluatorException e) {
-			logger.error(e);
+		} catch (Exception e) {
+			throw new InitialisationException(e, this);
 		} finally {
 			Context.exit();
 		}
@@ -167,7 +157,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			Script script = compiledScriptCache.getCompiledFilterScript(channelId);
 			Object result = null;
 			boolean messageAccepted;
-			
+
 			if (script == null) {
 				logger.error("filter script could not be found in cache");
 				messageAccepted = false;
@@ -190,7 +180,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 		} catch (Exception e) {
 			logger.error("error ocurred in filter", e);
 			messageObject.setStatus(MessageObject.Status.ERROR);
-			messageObject.setErrors(stackTraceToString(e));
+			messageObject.setErrors(stackTracePrinter.stackTraceToString(e));
 
 			if (storeMessages) {
 				messageObjectController.updateMessage(messageObject);
@@ -214,15 +204,15 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			scope.put("localMap", scope, messageObject.getVariableMap());
 			scope.put("globalMap", scope, GlobalVariableStore.getInstance());
 			scope.put("version", scope, messageObject.getVersion());
-			
-			//TODO: Verify all functions work on UI (ER7 util, IE);
+
+			// TODO: Verify all functions work on UI (ER7 util, IE);
 			// get the script from the cache and execute it
 			Script compiledScript = compiledScriptCache.getCompiledTransformerScript(channelId);
-			
+
 			if (compiledScript == null) {
 				logger.warn("transformer script could not be found in cache");
 			} else {
-				compiledScript.exec(context, scope);	
+				compiledScript.exec(context, scope);
 			}
 
 			// take the now transformed message and convert it back to ER7
@@ -241,7 +231,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			return messageObject;
 		} catch (Exception e) {
 			messageObject.setStatus(MessageObject.Status.ERROR);
-			messageObject.setErrors(stackTraceToString(e));
+			messageObject.setErrors(stackTracePrinter.stackTraceToString(e));
 
 			if (storeMessages) {
 				messageObjectController.updateMessage(messageObject);
@@ -268,11 +258,11 @@ public class JavaScriptTransformer extends AbstractTransformer {
 
 			// get the script from the cache and execute it
 			Script compiledScript = compiledScriptCache.getCompiledTransformerScript(channelId);
-			
+
 			if (compiledScript == null) {
 				logger.warn("transformer script could not be found in cache");
 			} else {
-				compiledScript.exec(context, scope);	
+				compiledScript.exec(context, scope);
 			}
 
 			// since the transformations occur on the template, pull it out of
@@ -295,7 +285,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			return messageObject;
 		} catch (Exception e) {
 			messageObject.setStatus(MessageObject.Status.ERROR);
-			messageObject.setErrors(stackTraceToString(e));
+			messageObject.setErrors(stackTracePrinter.stackTraceToString(e));
 
 			if (storeMessages) {
 				messageObjectController.updateMessage(messageObject);
@@ -347,20 +337,5 @@ public class JavaScriptTransformer extends AbstractTransformer {
 		script.append("doTransform()\n");
 		return script.toString();
 	}
-	
-	private String stackTraceToString(Throwable exception) {
-		StringWriter stringWriter = new StringWriter();
-		PrintWriter printWriter = new PrintWriter(stringWriter);
-		exception.printStackTrace(printWriter);
-		String exceptionString = stringWriter.toString().replace('\n', '\r'); //FIXME(newline) find a better solution
-		
-		try {
-			stringWriter.close();	
-		} catch (Exception e) {
-			logger.warn(e);
-		}
-		
-		printWriter.close();
-		return exceptionString;
-	}
+
 }

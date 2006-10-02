@@ -44,6 +44,7 @@ import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.Connector;
 import com.webreach.mirth.model.Transport;
 import com.webreach.mirth.model.converters.DocumentSerializer;
+import com.webreach.mirth.server.controllers.ScriptController;
 import com.webreach.mirth.util.PropertyLoader;
 
 /**
@@ -62,6 +63,7 @@ public class MuleConfigurationBuilder {
 
 	private JavaScriptFilterBuilder filterBuilder = new JavaScriptFilterBuilder();
 	private JavaScriptTransformerBuilder transformerBuilder = new JavaScriptTransformerBuilder();
+	private ScriptController scriptController = new ScriptController();
 
 	public MuleConfigurationBuilder(List<Channel> channels, Map<String, Transport> transports) {
 		this.channels = channels;
@@ -267,8 +269,11 @@ public class MuleConfigurationBuilder {
 			properties.put("direction", channel.getDirection().toString());
 			properties.put("encryptData", channel.getProperties().get("encryptData"));
 			properties.put("storeMessages", channel.getProperties().get("store_messages"));
-			properties.put("transformerScript", transformerBuilder.getScript(connector.getTransformer(), channel));
-			properties.put("filterScript", filterBuilder.getScript(connector.getFilter(), channel));
+			
+			// store the filter and transformer scripts in the database
+			String filterScript = filterBuilder.getScript(connector.getFilter(), channel);
+			String transformerScript = transformerBuilder.getScript(connector.getTransformer(), channel);
+			scriptController.putScripts(channel.getId(), filterScript, transformerScript);
 
 			if (channel.getMode().equals(Channel.Mode.ROUTER)) {
 				properties.put("connectorName", connector.getName());
