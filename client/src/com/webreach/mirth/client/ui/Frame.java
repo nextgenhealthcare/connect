@@ -55,7 +55,6 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-import javax.swing.JTextArea;
 import javax.swing.UIManager;
 import org.apache.log4j.Logger;
 
@@ -88,6 +87,8 @@ import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.ChannelStatus;
 import com.webreach.mirth.model.User;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
+import java.util.Enumeration;
+import javax.swing.UIDefaults;
 
 /**
  * The main conent frame for the Mirth Client Application.
@@ -234,8 +235,8 @@ public class Frame extends JXFrame
         eventBrowser = new EventBrowser();
         messageBrowser = new MessageBrowser();
         
-        /*
-        FOR DEBUGGING THE UIDefaults:
+        
+        /* DEBUGGING THE UIDefaults:
  
         UIDefaults uiDefaults = UIManager.getDefaults();
         Enumeration enum1 = uiDefaults.keys();
@@ -243,12 +244,12 @@ public class Frame extends JXFrame
         {
             Object key = enum1.nextElement();
             Object val = uiDefaults.get(key);
-            if(key.toString().indexOf("font") != -1)
+            if(key.toString().indexOf("image") != -1)
                 System.out.println("UIManager.put(\"" + key.toString() + "\",\"" +
                     (null != val ? val.toString() : "(null)") +
                     "\");");
-        } 
-        */
+        } */
+        
         try
         {
             setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
@@ -970,6 +971,18 @@ public class Frame extends JXFrame
         else
             return false;
     }
+    
+    /**
+     * Alerts the user with a Ok/cancel option with the passed in 'message'
+     */
+    public boolean alertOkCancel(String message)
+    {
+        int option = JOptionPane.showConfirmDialog(this, message , "Select an Option", JOptionPane.OK_CANCEL_OPTION);
+        if (option == JOptionPane.OK_OPTION)
+            return true;
+        else
+            return false;
+    }
 
     /**
      * Alerts the user with an information dialog with the passed in 'message'
@@ -1000,7 +1013,7 @@ public class Frame extends JXFrame
      */
     public void alertException(StackTraceElement[] strace, String message)
     {
-        if(message.indexOf("Unauthorized") != -1)
+        if(message.indexOf("Unauthorized") != -1 || message.indexOf("reset") != -1)
         {
             if(currentContentPage == statusListPage)
                 su.interruptThread();
@@ -1029,19 +1042,26 @@ public class Frame extends JXFrame
         String stackTrace = message + "\n";
         for (int i = 0; i < strace.length; i++)
             stackTrace += strace[i].toString() + "\n";
-            
-        JScrollPane errorScrollPane = new JScrollPane();
-        JTextArea errorTextArea = new JTextArea();
-        errorTextArea.setBackground(UIManager.getColor("Control"));
-        errorTextArea.setColumns(60);
-        errorTextArea.setRows(20);
-        errorTextArea.setText(stackTrace);
-        errorTextArea.setEditable(false);
-        errorTextArea.setCaretPosition(0);
-        errorScrollPane.setViewportView(errorTextArea);
-        JOptionPane.showMessageDialog(this, errorScrollPane, "Critical Error", JOptionPane.ERROR_MESSAGE);
+        
+        ErrorDialog dlg = new ErrorDialog(stackTrace);
+        Dimension dlgSize = dlg.getPreferredSize();
+        Dimension frmSize = getSize();
+        Point loc = getLocation();
+        dlg.setLocation((frmSize.width - dlgSize.width) / 2 + loc.x,
+                        (frmSize.height - dlgSize.height) / 2 + loc.y);
+        dlg.setModal(true);
+        dlg.pack();
+        dlg.setVisible(true);
     }
-
+    
+    /* 
+     * Send the message to MirthProject.org
+     */
+    public void sendError(String message)
+    {
+        mirthClient.submitError(message);
+    }
+    
     /**
      * Sets the 'index' in 'pane' to be bold
      */
