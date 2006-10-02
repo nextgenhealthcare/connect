@@ -53,8 +53,9 @@ public class VariableList extends javax.swing.JPanel
     {
         ArrayList<String> variables = new ArrayList<String>();
         int i = 0;
-        variables.add("HL7 XML");
-        variables.add("HL7 ER7");
+        variables.add("Raw Data");
+        variables.add("Transformed Data");
+        variables.add("Encoded Data");
         
         for (Iterator it = steps.iterator(); it.hasNext();)
         {
@@ -78,8 +79,9 @@ public class VariableList extends javax.swing.JPanel
     public void setVariableListOutbound()
     {
         ArrayList<String> variables = new ArrayList<String>();
-        variables.add("HL7 XML");
-        variables.add("HL7 ER7");
+        variables.add("Raw Data");
+        variables.add("Transformed Data");
+        variables.add("Encoded Data");
         mirthVariableList.removeAll();
         mirthVariableList.setListData(variables.toArray());
         

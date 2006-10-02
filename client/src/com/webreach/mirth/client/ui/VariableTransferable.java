@@ -44,7 +44,14 @@ public class VariableTransferable implements Transferable {
     * type, etc.
     */
    public VariableTransferable( String data, String prefix, String suffix ) {
-      this.data = data;
+      if(data.equals("Raw Data"))
+          this.data = "raw_data";
+      else if(data.equals("Transformed Data"))
+          this.data = "transformed_data";
+      else if(data.equals("Encoded Data"))
+          this.data = "encoded_data";
+      else
+          this.data = data;
       _prefix = prefix;
       _suffix = suffix;
       init();
