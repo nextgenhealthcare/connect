@@ -35,6 +35,7 @@ public class CustomPrettyPrintWriter implements HierarchicalStreamWriter {
 	private static final char[] AMP = "&amp;".toCharArray();
 	private static final char[] LT = "&lt;".toCharArray();
 	private static final char[] GT = "&gt;".toCharArray();
+	private static final char[] SLASH_R = "&#x0D;".toCharArray();
 	private static final char[] QUOT = "&quot;".toCharArray();
 	private static final char[] APOS = "&apos;".toCharArray();
 	private static final char[] CLOSE = "</".toCharArray();
@@ -111,6 +112,9 @@ public class CustomPrettyPrintWriter implements HierarchicalStreamWriter {
 					break;
 				case '\'':
 					this.writer.write(APOS);
+					break;
+				case '\r':
+					this.writer.write(SLASH_R);
 					break;
 				default:
 					this.writer.write(c);
