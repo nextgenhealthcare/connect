@@ -14,6 +14,14 @@
  */
 package org.mule.providers.ftp;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
@@ -28,15 +36,6 @@ import org.mule.umo.UMOMessage;
 import org.mule.umo.endpoint.UMOEndpointURI;
 
 import com.webreach.mirth.model.MessageObject;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author <a href="mailto:gnt@codehaus.org">Guillaume Nodet</a>
@@ -78,8 +77,8 @@ public class FtpMessageDispatcher extends AbstractMessageDispatcher {
 			if (data instanceof byte[]) {
 				buf = (byte[]) data;
 			} else if (data instanceof MessageObject) {
-				Map map = ((MessageObject) data).getVariableMap();
-				template = ProviderUtil.replaceValues(template, map);
+				MessageObject messageObject = (MessageObject) data;
+				template = ProviderUtil.replaceValues(template, messageObject);
 				buf = template.getBytes();
 			} else {
 				buf = data.toString().getBytes();

@@ -19,7 +19,6 @@ import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URLDecoder;
-import java.util.Map;
 
 import org.mule.MuleException;
 import org.mule.MuleManager;
@@ -82,8 +81,8 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
 			if (data instanceof byte[]) {
 				buf = (byte[]) data;
 			} else if (data instanceof MessageObject) {
-				Map map = ((MessageObject) data).getVariableMap();
-				template = ProviderUtil.replaceValues(template, map);
+				MessageObject messageObject = (MessageObject) data;
+				template = ProviderUtil.replaceValues(template, messageObject);
 				buf = template.getBytes();
 			} else {
 				buf = data.toString().getBytes();
