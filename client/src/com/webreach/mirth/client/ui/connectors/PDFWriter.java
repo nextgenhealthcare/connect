@@ -44,6 +44,8 @@ public class PDFWriter extends ConnectorClass
     public final String DATATYPE = "DataType";
     public final String FILE_DIRECTORY = "host";
     public final String FILE_NAME = "outputPattern";
+    public final String PDF_PASSWORD_PROTECTED = "encrypt";
+    public final String PDF_PASSWORD = "password";
     public final String FILE_CONTENTS = "template";
 
     public PDFWriter()
@@ -59,8 +61,15 @@ public class PDFWriter extends ConnectorClass
         properties.put(DATATYPE, name);
         properties.put(FILE_DIRECTORY, directoryField.getText().replace('\\', '/'));
         properties.put(FILE_NAME, fileNameField.getText());
-
+        
+        if (passwordYes.isSelected())
+            properties.put(PDF_PASSWORD_PROTECTED, UIConstants.YES_OPTION);
+        else
+            properties.put(PDF_PASSWORD_PROTECTED, UIConstants.NO_OPTION);
+        
+        properties.put(PDF_PASSWORD, new String(passwordField.getPassword()));
         properties.put(FILE_CONTENTS, fileContentsTextPane.getText());
+        
         return properties;
     }
 
@@ -68,6 +77,19 @@ public class PDFWriter extends ConnectorClass
     {
         directoryField.setText((String)props.get(FILE_DIRECTORY));
         fileNameField.setText((String)props.get(FILE_NAME));
+        
+        if(((String)props.get(PDF_PASSWORD_PROTECTED)).equalsIgnoreCase(UIConstants.YES_OPTION))
+        {
+            passwordYes.setSelected(true);
+            passwordYesActionPerformed(null);
+        }
+        else
+        {
+            passwordNo.setSelected(true);
+            passwordNoActionPerformed(null);
+        }
+        
+        passwordField.setText((String)props.get(PDF_PASSWORD));
 
         fileContentsTextPane.setText((String)props.get(FILE_CONTENTS));
     }
@@ -78,14 +100,25 @@ public class PDFWriter extends ConnectorClass
         properties.put(DATATYPE, name);
         properties.put(FILE_DIRECTORY, "");
         properties.put(FILE_NAME, "");
+        properties.put(PDF_PASSWORD_PROTECTED, UIConstants.YES_OPTION);
+        properties.put(PDF_PASSWORD, "");
         properties.put(FILE_CONTENTS, "");
         return properties;
     }
     
     public boolean checkProperties(Properties props)
     {
-        if(((String)props.get(FILE_DIRECTORY)).length() > 0 && ((String)props.get(FILE_NAME)).length() > 0 && ((String)props.get(FILE_CONTENTS)).length() > 0)
-            return true;
+        if (((String)props.get(PDF_PASSWORD_PROTECTED)).equals(UIConstants.YES_OPTION))
+        {
+            if(((String)props.get(FILE_DIRECTORY)).length() > 0 && ((String)props.get(FILE_NAME)).length() > 0
+                    && ((String)props.get(PDF_PASSWORD)).length() > 0 && ((String)props.get(FILE_CONTENTS)).length() > 0)
+                return true;
+        }
+        else
+        {
+            if(((String)props.get(FILE_DIRECTORY)).length() > 0 && ((String)props.get(FILE_NAME)).length() > 0 && ((String)props.get(FILE_CONTENTS)).length() > 0)
+                return true;
+        }
         return false;
     }
 
@@ -97,7 +130,6 @@ public class PDFWriter extends ConnectorClass
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
         buttonGroup1 = new javax.swing.ButtonGroup();
-        buttonGroup2 = new javax.swing.ButtonGroup();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
@@ -107,6 +139,11 @@ public class PDFWriter extends ConnectorClass
         fileContentsTextPane = new com.webreach.mirth.client.ui.components.MirthTextPane();
         jScrollPane2 = new javax.swing.JScrollPane();
         mirthVariableList1 = new com.webreach.mirth.client.ui.components.MirthVariableList();
+        passwordYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        passwordNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        jLabel4 = new javax.swing.JLabel();
+        passwordField = new com.webreach.mirth.client.ui.components.MirthPasswordField();
+        passwordLabel = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createTitledBorder(null, "PDF Writer", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(0, 0, 0)));
@@ -125,22 +162,57 @@ public class PDFWriter extends ConnectorClass
         });
         jScrollPane2.setViewportView(mirthVariableList1);
 
+        passwordYes.setBackground(new java.awt.Color(255, 255, 255));
+        passwordYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        buttonGroup1.add(passwordYes);
+        passwordYes.setText("Yes");
+        passwordYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        passwordYes.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                passwordYesActionPerformed(evt);
+            }
+        });
+
+        passwordNo.setBackground(new java.awt.Color(255, 255, 255));
+        passwordNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        buttonGroup1.add(passwordNo);
+        passwordNo.setText("No");
+        passwordNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        passwordNo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                passwordNoActionPerformed(evt);
+            }
+        });
+
+        jLabel4.setText("Password Protected:");
+
+        passwordField.setFont(new java.awt.Font("Tahoma", 0, 11));
+
+        passwordLabel.setText("Password:");
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .add(14, 14, 14)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel2)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel1)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel3))
+                .add(10, 10, 10)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(jLabel2)
+                    .add(jLabel1)
+                    .add(jLabel3)
+                    .add(jLabel4)
+                    .add(passwordLabel))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(directoryField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(fileNameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .add(fileNameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(layout.createSequentialGroup()
+                                .add(passwordYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(passwordNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .add(passwordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(jScrollPane2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                     .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 321, Short.MAX_VALUE))
@@ -157,7 +229,16 @@ public class PDFWriter extends ConnectorClass
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                             .add(jLabel2)
-                            .add(fileNameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                            .add(fileNameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                            .add(passwordYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(passwordNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(jLabel4))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                            .add(passwordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(passwordLabel)))
                     .add(jScrollPane2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 98, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -167,19 +248,33 @@ public class PDFWriter extends ConnectorClass
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    private void passwordNoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_passwordNoActionPerformed
+        passwordLabel.setEnabled(false);
+        passwordField.setEnabled(false);
+    }//GEN-LAST:event_passwordNoActionPerformed
+
+    private void passwordYesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_passwordYesActionPerformed
+        passwordLabel.setEnabled(true);
+        passwordField.setEnabled(true);
+    }//GEN-LAST:event_passwordYesActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup buttonGroup1;
-    private javax.swing.ButtonGroup buttonGroup2;
     private com.webreach.mirth.client.ui.components.MirthTextField directoryField;
     private com.webreach.mirth.client.ui.components.MirthTextPane fileContentsTextPane;
     private com.webreach.mirth.client.ui.components.MirthTextField fileNameField;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private com.webreach.mirth.client.ui.components.MirthVariableList mirthVariableList1;
+    private com.webreach.mirth.client.ui.components.MirthPasswordField passwordField;
+    private javax.swing.JLabel passwordLabel;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton passwordNo;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton passwordYes;
     // End of variables declaration//GEN-END:variables
 
 }
