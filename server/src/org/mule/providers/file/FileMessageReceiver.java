@@ -248,10 +248,12 @@ public class FileMessageReceiver extends PollingMessageReceiver
 		while(s.hasNextLine())
 		{
 			String temp = s.nextLine().replaceAll(new String(data, 0, 1), "").replaceAll(new String(data, 1, 1), "");
-			if(temp.length() == 0 || temp.equals((char)endOfMessage))
+			if(temp.length() == 0 || temp.equals((char)endOfMessage) || temp.startsWith("MSH"))
 			{
-				hl7messages.add(message.toString());
-				message = new StringBuilder();
+				if (message.length() > 0){
+					hl7messages.add(message.toString());
+					message = new StringBuilder();
+				}
 				while (temp.length() == 0 && s.hasNextLine()){
 					temp = s.nextLine();
 				}
