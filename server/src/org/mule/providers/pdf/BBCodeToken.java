@@ -1,10 +1,10 @@
 package org.mule.providers.pdf;
 
-public class BBToken {
+public class BBCodeToken {
 	private String value;
 	private String type;
 
-	public BBToken(String value, String type) {
+	public BBCodeToken(String value, String type) {
 		this.value = value;
 		this.type = type;
 	}
