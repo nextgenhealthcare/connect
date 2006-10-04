@@ -98,7 +98,20 @@ public class MapperPanel extends CardPanel {
 		mappingTextPanel = new JPanel();
 		mappingTextPanel.setLayout( new BorderLayout() );
 		mappingTextPanel.add( mappingTextPane, BorderLayout.CENTER );
-		
+		  globalPanel = new JPanel();
+          globalPanel.setLayout( new BorderLayout() );
+          globalPanel.add( new JLabel( "  " ), BorderLayout.WEST );
+          addToGlobal = new JCheckBox();
+          addToGlobal.setFocusable(false);
+          addToGlobal.setText("Add as global variable");
+          addToGlobal.addActionListener(new java.awt.event.ActionListener() {
+              public void actionPerformed(java.awt.event.ActionEvent evt) {
+                  parent.modified = true;
+              }
+          });
+          globalPanel.add( addToGlobal,  BorderLayout.EAST );  
+          labelPanel.add( globalPanel,  BorderLayout.EAST ); 
+          labelPanel.setBorder( BorderFactory.createEmptyBorder( 0, 0, 0, 0) );
 	
 		mappingScrollPane.setViewportView( mappingTextPanel );
 		
@@ -206,20 +219,7 @@ public class MapperPanel extends CardPanel {
 	
         public void setAddAsGlobal(Channel channel)
         {
-            globalPanel = new JPanel();
-            globalPanel.setLayout( new BorderLayout() );
-            globalPanel.add( new JLabel( "  " ), BorderLayout.WEST );
-            addToGlobal = new JCheckBox();
-            addToGlobal.setFocusable(false);
-            addToGlobal.setText("Add as global variable");
-            addToGlobal.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent evt) {
-                    parent.modified = true;
-                }
-            });
-            globalPanel.add( addToGlobal,  BorderLayout.EAST );  
-            labelPanel.add( globalPanel,  BorderLayout.EAST ); 
-            labelPanel.setBorder( BorderFactory.createEmptyBorder( 0, 0, 0, 0) );
+          
         }
 	
         public boolean updating = false;

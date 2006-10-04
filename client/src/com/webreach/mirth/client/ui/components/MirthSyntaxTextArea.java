@@ -92,6 +92,7 @@ public class MirthSyntaxTextArea extends JEditTextArea implements
 		super(lineNumbers);
 		this.parent = PlatformUI.MIRTH_FRAME;
 		this.showSnippets = showSnippets;
+		this.setCaretVisible(false);
 		// Setup menu actions
 		cutAction = new CutAction(this);
 		copyAction = new CopyAction(this);

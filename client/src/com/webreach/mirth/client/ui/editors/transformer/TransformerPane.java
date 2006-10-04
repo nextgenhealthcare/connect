@@ -1148,8 +1148,11 @@ public class TransformerPane extends MirthEditorPane
                         6, 6, false);
         }
         parent.setVisibleTasks(transformerTasks, transformerPopupMenu, 2,3, true);
-        
-        String type = (String) transformerTableModel.getValueAt(getSelectedRow(), STEP_TYPE_COL);
+        String type = null;
+        int selectedRow = getSelectedRow();
+        if (selectedRow > -1){
+        	type = (String) transformerTableModel.getValueAt(getSelectedRow(), STEP_TYPE_COL);
+        }
         if(type != null && type.equals(JAVASCRIPT_TYPE))
             parent.setVisibleTasks(transformerTasks, transformerPopupMenu, 4, 4, true);
         else

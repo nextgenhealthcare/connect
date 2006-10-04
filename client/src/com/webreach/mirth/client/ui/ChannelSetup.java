@@ -1550,17 +1550,19 @@ public class ChannelSetup extends javax.swing.JPanel
         List<Step> concatenatedSteps = new ArrayList<Step>();
         List<Connector> destinationConnectors = currentChannel.getDestinationConnectors();
         Iterator<Connector> it = destinationConnectors.iterator();
+        boolean seenCurrent = false;
         while (it.hasNext())
         {
             Connector destination = it.next();
             if (currentDestination == destination)
             {
+            	seenCurrent = true;
                 //add all the variables
                 List<Step> destinationSteps = destination.getTransformer().getSteps();
                 concatenatedSteps.addAll(destinationSteps);
                 
             }
-            else
+            else if (!seenCurrent)
             {
                 //add only the global variables
                 List<Step> destinationSteps = destination.getTransformer().getSteps();
