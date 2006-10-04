@@ -61,38 +61,37 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
 		try {
 			String endpoint = event.getEndpoint().getEndpointURI().getAddress();
 			Object data = event.getTransformedMessage();
-			String filename = (String) event.getProperty(FileConnector.PROPERTY_FILENAME);
-
-			if (filename == null) {
-				String outPattern = (String) event.getProperty(FileConnector.PROPERTY_OUTPUT_PATTERN);
-				if (outPattern == null) {
-					outPattern = connector.getOutputPattern();
-				}
-				filename = generateFilename(event, outPattern);
-			}
-
-			if (filename == null) {
-				throw new IOException("Filename is null");
-			}
-
-			File file = Utility.createFile(endpoint + "/" + filename);
+			MessageObject messageObject = null;
 			String template = connector.getTemplate();
 			byte[] buf;
 			if (data instanceof byte[]) {
 				buf = (byte[]) data;
 			} else if (data instanceof MessageObject) {
-				MessageObject messageObject = (MessageObject) data;
+				messageObject = (MessageObject) data;
 				template = ProviderUtil.replaceValues(template, messageObject);
 				buf = template.getBytes();
 			} else {
 				buf = data.toString().getBytes();
 			}
-
 			// Hackish way to append a new line
 			// TODO: find where newlines are stripped in config
 			if (connector.isOutputAppend()) {
 				buf = (new String(buf) + "\r\n").getBytes();
 			}
+			
+			String filename = (String) event.getProperty(FileConnector.PROPERTY_FILENAME);
+			if (filename == null) {
+				String outPattern = (String) event.getProperty(FileConnector.PROPERTY_OUTPUT_PATTERN);
+				if (outPattern == null) {
+					outPattern = connector.getOutputPattern();
+				}
+				filename = generateFilename(event, outPattern, messageObject);
+			}
+
+			if (filename == null) {
+				throw new IOException("Filename is null");
+			}
+			File file = Utility.createFile(endpoint + "/" + filename);
 
 			logger.info("Writing file to: " + file.getAbsolutePath());
 			FileOutputStream fos = new FileOutputStream(file, connector.isOutputAppend());
@@ -215,9 +214,16 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
 		return connector;
 	}
 
-	private String generateFilename(UMOEvent event, String pattern) {
+	private String generateFilename(UMOEvent event, String pattern, MessageObject messageObject) {
 		if (pattern == null) {
 			pattern = connector.getOutputPattern();
+		}
+		if (messageObject != null){
+			try {
+				pattern = ProviderUtil.replaceValues(pattern, messageObject);
+			} catch (Exception e) {
+				logger.error(e.getMessage());
+			}
 		}
 		return connector.getFilenameParser().getFilename(event.getMessage(), pattern);
 	}
