@@ -60,7 +60,11 @@ public class ResultMapToXML extends AbstractTransformer {
 			for (Iterator iter = data.keySet().iterator(); iter.hasNext();) {
 				String key = (String) iter.next();
 				Element child = document.createElement(key);
-				child.appendChild(document.createTextNode(data.get(key).toString()));
+				String value = new String();
+				Object objectValue = data.get(key);
+				if (objectValue != null)
+					value = objectValue.toString();
+				child.appendChild(document.createTextNode(value));
 				root.appendChild(child);
 			}
 
