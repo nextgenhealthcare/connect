@@ -29,6 +29,8 @@ package com.webreach.mirth.client.ui;
 import com.webreach.mirth.client.ui.connectors.FTPReader;
 import com.webreach.mirth.client.ui.connectors.FTPWriter;
 import com.webreach.mirth.client.ui.connectors.PDFWriter;
+import com.webreach.mirth.client.ui.connectors.SFTPReader;
+import com.webreach.mirth.client.ui.connectors.SFTPWriter;
 import com.webreach.mirth.model.filters.MessageObjectFilter;
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -216,6 +218,7 @@ public class Frame extends JXFrame
         sourceConnectors.add(new LLPListener());
         sourceConnectors.add(new FileReader());
         sourceConnectors.add(new FTPReader());
+        sourceConnectors.add(new SFTPReader());
 
         destinationConnectors = new ArrayList<ConnectorClass>();
         destinationConnectors.add(new DatabaseWriter());
@@ -224,6 +227,7 @@ public class Frame extends JXFrame
         destinationConnectors.add(new LLPSender());
         destinationConnectors.add(new JMSWriter());
         destinationConnectors.add(new FTPWriter());
+        destinationConnectors.add(new SFTPWriter());
         destinationConnectors.add(new PDFWriter());
 
         taskPaneContainer = new JXTaskPaneContainer();
