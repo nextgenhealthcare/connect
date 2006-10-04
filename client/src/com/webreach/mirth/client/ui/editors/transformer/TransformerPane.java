@@ -120,13 +120,7 @@ public class TransformerPane extends MirthEditorPane
         tabPanel.setDefaultComponent();
         tabPanel.setHL7Message(transformer.getTemplate());
         channel = PlatformUI.MIRTH_FRAME.channelEditPage.currentChannel;
-        
-        mapperPanel.setAddAsGlobal(channel);
-        if (hl7builderPanel != null)
-        {
-            hl7builderPanel.setAddAsGlobal(channel);
-        }
-        
+
         if (channel.getDirection().equals(Channel.Direction.OUTBOUND))
         {
             hl7builderPanel = new HL7MessageBuilder(this);
@@ -411,6 +405,7 @@ public class TransformerPane extends MirthEditorPane
                         Map<Object, Object> data = mapperPanel.getData();
                         data.put("Variable", getUniqueName(true));
                         data.put("Mapping", "");
+                        data.put("isGlobal", UIConstants.NO_OPTION);
                         mapperPanel.setData(data);
                     }
                     else if(type.equalsIgnoreCase(HL7MESSAGE_TYPE))
@@ -692,10 +687,7 @@ public class TransformerPane extends MirthEditorPane
                 
                 data = mapperPanel.getData();
                 
-                if(mapperPanel.addToGlobal.isSelected())
-                    data.put("isGlobal", UIConstants.YES_OPTION);
-                else
-                    data.put("isGlobal", UIConstants.NO_OPTION);
+
             }
             else if (type == JAVASCRIPT_TYPE)
             {
@@ -752,11 +744,6 @@ public class TransformerPane extends MirthEditorPane
     {
         if (type.equalsIgnoreCase(MAPPER_TYPE))
         {
-            if(data.get("isGlobal") == null || ((String)data.get("isGlobal")).equals(UIConstants.NO_OPTION))
-                mapperPanel.addToGlobal.setSelected(false);
-            else
-                mapperPanel.addToGlobal.setSelected(true);
-            
             mapperPanel.setData(data);
         }
         else if (type.equalsIgnoreCase(JAVASCRIPT_TYPE))

@@ -23,7 +23,6 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
 package com.webreach.mirth.client.ui.editors;
 
 import com.webreach.mirth.model.Channel;
@@ -34,22 +33,22 @@ import javax.swing.JLabel;
 public class HL7MessageBuilder extends MapperPanel {
 	public HL7MessageBuilder(MirthEditorPane p) {
 		super();
-		parent = p;		
+		parent = p;
 		initComponents();
 	}
-	public void update(){
+
+	public void update() {
 		parent.update();
-		mappingLabel.setText( "   HL7 Message Segment: " );
+		mappingLabel.setText("   HL7 Message Segment: ");
 		parent.setDroppedTextPrefix("hl7_xml");
-	
+
 	}
-        
-        public void setAddAsGlobal(Channel channel)
-        {
-            labelPanel.setLayout( new BorderLayout() );
-            labelPanel.add( mappingLabel, BorderLayout.NORTH );
-            labelPanel.add( new JLabel( " " ), BorderLayout.WEST );
-            labelPanel.add( mappingTextField, BorderLayout.CENTER);
-            labelPanel.setBorder( BorderFactory.createEmptyBorder( 0, 0, 0, 150) );
-        }
+	
+	public void setAddAsGlobal() {
+		labelPanel.setLayout(new BorderLayout());
+		labelPanel.add(mappingLabel, BorderLayout.NORTH);
+		labelPanel.add(new JLabel(" "), BorderLayout.WEST);
+		labelPanel.add(mappingTextField, BorderLayout.CENTER);
+		labelPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 100));
+	}
 }
