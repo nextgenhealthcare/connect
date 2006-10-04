@@ -49,6 +49,6 @@ public class HL7MessageBuilder extends MapperPanel {
 		labelPanel.add(mappingLabel, BorderLayout.NORTH);
 		labelPanel.add(new JLabel(" "), BorderLayout.WEST);
 		labelPanel.add(mappingTextField, BorderLayout.CENTER);
-		labelPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 100));
+		labelPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
 	}
 }

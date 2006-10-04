@@ -336,6 +336,8 @@ public class HL7TokenMarker extends CTokenMarker
 			ccKeywords.add("VTQ", Token.KEYWORD3);
 
 			ccKeywords.add("ZL7", Token.KEYWORD3);
+			ccKeywords.add("ZCS", Token.KEYWORD3);
+			ccKeywords.add("ZFT", Token.KEYWORD3);
 		}
 		return ccKeywords;
 	}
