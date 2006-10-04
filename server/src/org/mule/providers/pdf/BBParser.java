@@ -1,7 +1,7 @@
 package org.mule.providers.pdf;
 
 public class BBParser {
-	private String current = new String();
+	private String currentSegment = new String();
 	private int currentIndex;
 	private String[] startKeywords = { "", "[i]", "[u]", "[b]" };
 	private String[] endKeywords = { "", "[/i]", "[/u]", "[/b]" };
@@ -9,7 +9,7 @@ public class BBParser {
 
 	public BBParser(String current) {
 		this.currentIndex = 0;
-		this.current = current;
+		this.currentSegment = current;
 	}
 
 	/*
@@ -20,9 +20,9 @@ public class BBParser {
 		int type = -1;
 
 		while (hasNext()) {
-			if (current.charAt(currentIndex) == '[') {
+			if (currentSegment.charAt(currentIndex) == '[') {
 				for (int i = 1; i < startKeywords.length; i++) {
-					if (current.substring(currentIndex, currentIndex + startKeywords[i].length()).equalsIgnoreCase(startKeywords[i])) {
+					if (currentSegment.substring(currentIndex, currentIndex + startKeywords[i].length()).equalsIgnoreCase(startKeywords[i])) {
 						if (type == 0)
 							return new BBToken(result, keywordType[type]);
 						else {
@@ -34,7 +34,7 @@ public class BBParser {
 
 				if (type > 0) {
 					for (int i = 1; i < endKeywords.length; i++) {
-						if (current.substring(currentIndex, currentIndex + endKeywords[i].length()).equalsIgnoreCase(endKeywords[i])) {
+						if (currentSegment.substring(currentIndex, currentIndex + endKeywords[i].length()).equalsIgnoreCase(endKeywords[i])) {
 							if (type == i) {
 								currentIndex += endKeywords[i].length();
 								return new BBToken(result, keywordType[type]);
@@ -45,7 +45,7 @@ public class BBParser {
 			} else if (type == -1)
 				type = 0;
 
-			result += current.charAt(currentIndex);
+			result += currentSegment.charAt(currentIndex);
 			currentIndex++;
 		}
 
@@ -56,7 +56,7 @@ public class BBParser {
 	 * See if there are more tokens.
 	 */
 	public boolean hasNext() {
-		return currentIndex < (current.length());
+		return currentIndex < (currentSegment.length());
 	}
 
 	/*
