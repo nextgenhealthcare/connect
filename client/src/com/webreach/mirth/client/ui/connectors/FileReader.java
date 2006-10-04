@@ -125,7 +125,6 @@ public class FileReader extends ConnectorClass
     public boolean checkProperties(Properties props)
     {
         if(((String)props.get(FILE_DIRECTORY)).length() > 0 && ((String)props.get(FILE_POLLING_FREQUENCY)).length() > 0 && 
-        ((String)props.get(FILE_MOVE_TO_PATTERN)).length() > 0 && ((String)props.get(FILE_MOVE_TO_DIRECTORY)).length() > 0 &&
         ((String)props.get(FILE_FILE_AGE)).length() > 0)
             return true;
         return false;
