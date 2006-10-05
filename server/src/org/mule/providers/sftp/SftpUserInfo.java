@@ -5,7 +5,7 @@ import com.jcraft.jsch.UserInfo;
 public class SftpUserInfo implements UserInfo {
 	private String password;
 	
-	public SftpUserInfo(String passphrase, String password) {
+	public SftpUserInfo(String password) {
 		this.password = password;
 	}
 	
@@ -18,7 +18,7 @@ public class SftpUserInfo implements UserInfo {
 	}
 
 	public boolean promptPassword(String password) {
-		return false;
+		return true;
 	}
 
 	public boolean promptPassphrase(String passphrase) {
@@ -26,7 +26,7 @@ public class SftpUserInfo implements UserInfo {
 	}
 
 	public boolean promptYesNo(String str) {
-		return false;
+		return true;
 	}
 
 	public void showMessage(String message) {

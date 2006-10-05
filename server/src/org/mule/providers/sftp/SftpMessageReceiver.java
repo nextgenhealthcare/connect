@@ -22,18 +22,13 @@ import org.mule.umo.endpoint.UMOEndpointURI;
 import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.provider.UMOConnector;
 
-import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelSftp;
-import com.jcraft.jsch.JSch;
-import com.jcraft.jsch.Session;
-import com.jcraft.jsch.UserInfo;
 
 public class SftpMessageReceiver extends PollingMessageReceiver {
 	private Logger logger = Logger.getLogger(this.getClass());
 	protected SftpConnector connector;
 	private FilenameFilter filenameFilter = null;
 	protected Set currentFiles = Collections.synchronizedSet(new HashSet());
-	protected ChannelSftp sftp;
 
 	public SftpMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint, Long frequency) throws InitialisationException {
 		super(connector, component, endpoint, frequency);
@@ -66,62 +61,58 @@ public class SftpMessageReceiver extends PollingMessageReceiver {
 					public void release() {}
 				});
 			}
-
 		}
 	}
 
 	protected List listFiles() throws Exception {
+		ChannelSftp client = null;
 		UMOEndpointURI uri = endpoint.getEndpointURI();
-		Vector entries = sftp.ls(uri.getPath());
+		
+		try {
+			client = connector.getClient(uri);
+			Vector entries = client.ls(".");
+			List<ChannelSftp.LsEntry> files = new ArrayList<ChannelSftp.LsEntry>();
 
-		if (entries != null) {
-			for (int i = 0; i < entries.size(); i++) {
-				Object entry = entries.elementAt(i);
+			for (Iterator iter = entries.iterator(); iter.hasNext();) {
+				ChannelSftp.LsEntry entry = (ChannelSftp.LsEntry) iter.next();
 
-				if (entry instanceof ChannelSftp.LsEntry) {
-					System.out.println(((ChannelSftp.LsEntry) entry).getLongname());
+				if (!entry.getAttrs().isDir() && !entry.getAttrs().isLink()) {
+					if ((filenameFilter == null) || (filenameFilter.accept(null, entry.getFilename()))) {
+						files.add(entry);
+					}
 				}
 			}
+
+			return files;
+		} finally {
+			connector.releaseClient(uri, client);
 		}
-
-		List<ChannelSftp.LsEntry> files = new ArrayList<ChannelSftp.LsEntry>();
-
-		for (Iterator iter = entries.iterator(); iter.hasNext();) {
-			ChannelSftp.LsEntry entry = (ChannelSftp.LsEntry) iter.next();
-
-			if ((filenameFilter == null) || (filenameFilter.accept(null, entry.getFilename()))) {
-				files.add(entry);
-			}
-		}
-
-		return files;
 	}
 
 	protected void processFile(ChannelSftp.LsEntry entry) throws Exception {
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		sftp.get(entry.getFilename(), baos);
-		UMOMessage message = new MuleMessage(connector.getMessageAdapter(baos.toByteArray()));
-		message.setProperty(SftpConnector.PROPERTY_FILENAME, entry.getFilename());
-		routeMessage(message);
-		sftp.rm(entry.getFilename());
+		ChannelSftp client = null;
+		UMOEndpointURI uri = endpoint.getEndpointURI();
+		
+		try {
+			client = connector.getClient(uri);
+			logger.debug("processing file: " + entry.getFilename());
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			client.get(entry.getFilename(), baos);
+			UMOMessage message = new MuleMessage(connector.getMessageAdapter(baos.toByteArray()));
+			message.setProperty(SftpConnector.PROPERTY_FILENAME, entry.getFilename());
+			routeMessage(message);
+			client.rm(entry.getFilename());
+		} finally {
+			connector.releaseClient(uri, client);
+		}
 	}
 
 	public void doConnect() throws Exception {
-		UMOEndpointURI uri = endpoint.getEndpointURI();
-		JSch jsch = new JSch();
-		System.out.println("connecting to server: " + uri.getUsername() + ":" + uri.getPassword() + "@" + uri.getHost() + ":" + uri.getPort());
-		Session session = jsch.getSession(uri.getUsername(), uri.getHost(), uri.getPort());
-		UserInfo userInfo = new SftpUserInfo(uri.getUsername(), uri.getPassword());
-		session.setUserInfo(userInfo);
-		session.connect();
-		Channel channel = session.openChannel("sftp");
-		channel.connect();
-		sftp = (ChannelSftp) channel;
+		ChannelSftp client = connector.getClient(getEndpointURI());
+        connector.releaseClient(getEndpointURI(), client);
 	}
 
 	public void doDisconnect() throws Exception {
-		if (sftp != null) {
-			sftp.disconnect();
-		}
+		
 	}
 }
