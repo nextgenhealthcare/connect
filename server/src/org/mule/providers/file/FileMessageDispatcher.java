@@ -68,6 +68,7 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
 				buf = (byte[]) data;
 			} else if (data instanceof MessageObject) {
 				messageObject = (MessageObject) data;
+				//template = ProviderUtil.getPredefinedValues(event.getMessage(), template, '{', '}');
 				template = ProviderUtil.replaceValues(template, messageObject);
 				buf = template.getBytes();
 			} else {
@@ -218,14 +219,13 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
 		if (pattern == null) {
 			pattern = connector.getOutputPattern();
 		}
-		if (messageObject != null){
-			try {
-				pattern = ProviderUtil.replaceValues(pattern, messageObject);
-			} catch (Exception e) {
-				logger.error(e.getMessage());
-			}
+		if (connector.getFilenameParser() instanceof VariableFilenameParser) {
+			VariableFilenameParser filenameParser = (VariableFilenameParser) connector.getFilenameParser();
+			filenameParser.setMessageObject(messageObject);
+			return filenameParser.getFilename(event.getMessage(), pattern);
+		}else{
+			return connector.getFilenameParser().getFilename(event.getMessage(), pattern);
 		}
-		return connector.getFilenameParser().getFilename(event.getMessage(), pattern);
 	}
 
 	public void doDispose() {}
