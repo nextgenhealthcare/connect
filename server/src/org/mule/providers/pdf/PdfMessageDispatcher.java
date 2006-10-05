@@ -3,7 +3,6 @@ package org.mule.providers.pdf;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Map;
 
 import org.mule.providers.AbstractMessageDispatcher;
 import org.mule.providers.ProviderUtil;
@@ -14,7 +13,8 @@ import org.mule.umo.endpoint.UMOEndpointURI;
 import org.mule.util.Utility;
 
 import com.lowagie.text.Document;
-import com.lowagie.text.Paragraph;
+import com.lowagie.text.Font;
+import com.lowagie.text.Phrase;
 import com.lowagie.text.pdf.PdfWriter;
 import com.webreach.mirth.model.MessageObject;
 
@@ -50,8 +50,8 @@ public class PdfMessageDispatcher extends AbstractMessageDispatcher {
 			String template = connector.getTemplate();
 
 			if (data instanceof MessageObject) {
-				Map map = ((MessageObject) data).getVariableMap();
-				template = ProviderUtil.replaceValues(template, map);
+				MessageObject messageObject = (MessageObject) data;
+				template = ProviderUtil.replaceValues(template, messageObject);
 			}
 
 			logger.info("Writing PDF to: " + file.getAbsolutePath());
@@ -75,13 +75,23 @@ public class PdfMessageDispatcher extends AbstractMessageDispatcher {
 		try {
 			PdfWriter.getInstance(document, new FileOutputStream(file));
 			document.open();
-
-			// split the template based on newlines and generate a paragraph for
-			// each of the sections
-			String[] paragraphs = template.split("\n");
-
-			for (int i = 0; i < paragraphs.length; i++) {
-				document.add(new Paragraph(paragraphs[i]));
+			BBCodeParser parser = new BBCodeParser(template);
+			
+			while (parser.hasNext()) {
+				BBCodeToken token = parser.getNext();
+				Phrase phrase;
+				
+				if (token.getType().equals("BOLD")) {
+					phrase = new Phrase(token.getValue(), new Font(Font.TIMES_ROMAN, Font.DEFAULTSIZE, Font.BOLD));
+				} else if (token.getType().equals("ITALIC")) {
+					phrase = new Phrase(token.getValue(), new Font(Font.TIMES_ROMAN, Font.DEFAULTSIZE, Font.ITALIC));
+				} else if (token.getType().equals("UNDERLINE")) {
+					phrase = new Phrase(token.getValue(), new Font(Font.TIMES_ROMAN, Font.DEFAULTSIZE, Font.UNDERLINE));
+				} else {
+					phrase = new Phrase(token.getValue(), new Font(Font.TIMES_ROMAN, Font.DEFAULTSIZE));
+				}
+				
+				document.add(phrase);
 			}
 		} catch (Exception e) {
 			throw e;
