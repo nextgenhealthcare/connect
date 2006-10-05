@@ -37,8 +37,7 @@ public class ProviderUtil {
 		while (matcher.find()) {
 			String key = matcher.group();
 			String name = key.substring(2, key.length() - 1);
-			matcher.appendReplacement(sb, getTemplateValue(name, messageObject, filename)
-					.replace("\\", "\\\\").replace("$", "\\$"));
+			matcher.appendReplacement(sb, getTemplateValue(name, messageObject, filename).replace("\\", "\\\\").replace("$", "\\$"));
 		}
 
 		matcher.appendTail(sb);
@@ -55,8 +54,12 @@ public class ProviderUtil {
 	}
 
 	public static String getTemplateValue(String name,
-			MessageObject messageObject, String filename) {
-		Map map = messageObject.getVariableMap();
+		MessageObject messageObject, String filename) {
+		Map map = null;
+		if (filename == null)
+			filename = "";
+		if (messageObject != null)
+			map = messageObject.getVariableMap();
 
 		if (name.equals("raw_data")) {
 			return messageObject.getRawData();
@@ -67,17 +70,20 @@ public class ProviderUtil {
 		} else if (name.equals("DATE")) {
 			return (Utility.getTimeStamp(DEFAULT_DATE_FORMAT));
 		} else if (name.startsWith("DATE:")) {
-			String dateformat = name.substring(7, name.length() - 1);
+			String dateformat = name.substring(5, name.length() - 1);
 			return (Utility.getTimeStamp(dateformat));
 		} else if (name.equals("COUNT")) {
 			return (String.valueOf(getCount()));
 		} else if (name.equals("UUID") || name.equals("message_id")) {
-			return messageObject.getId();
+			if (messageObject != null)
+				return messageObject.getId();
+			else
+				return new UUID().getUUID();
 		} else if (name.equals("SYSTIME")) {
 			return String.valueOf(System.currentTimeMillis());
 		} else if (name.equals("ORIGINALNAME")) {
 			return filename;
-		} else if (map.containsKey(name)) {
+		} else if (map != null && map.containsKey(name)) {
 			return (String) map.get(name);
 		} else if (GlobalVariableStore.getInstance().containsKey(name)) {
 			return (String) GlobalVariableStore.getInstance().get(name);

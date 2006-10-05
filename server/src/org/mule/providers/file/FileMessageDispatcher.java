@@ -63,13 +63,20 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
 			Object data = event.getTransformedMessage();
 			MessageObject messageObject = null;
 			String template = connector.getTemplate();
+			String filename = (String) event.getProperty(FileConnector.PROPERTY_FILENAME);
 			byte[] buf;
 			if (data instanceof byte[]) {
 				buf = (byte[]) data;
 			} else if (data instanceof MessageObject) {
 				messageObject = (MessageObject) data;
-				//template = ProviderUtil.getPredefinedValues(event.getMessage(), template, '{', '}');
-				template = ProviderUtil.replaceValues(template, messageObject);
+				if (filename == null) {
+					String outPattern = (String) event.getProperty(FileConnector.PROPERTY_OUTPUT_PATTERN);
+					if (outPattern == null) {
+						outPattern = connector.getOutputPattern();
+					}
+					filename = generateFilename(event, outPattern, messageObject);
+				}
+				template = ProviderUtil.replaceValues(template, filename, messageObject);
 				buf = template.getBytes();
 			} else {
 				buf = data.toString().getBytes();
@@ -80,15 +87,6 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
 				buf = (new String(buf) + "\r\n").getBytes();
 			}
 			
-			String filename = (String) event.getProperty(FileConnector.PROPERTY_FILENAME);
-			if (filename == null) {
-				String outPattern = (String) event.getProperty(FileConnector.PROPERTY_OUTPUT_PATTERN);
-				if (outPattern == null) {
-					outPattern = connector.getOutputPattern();
-				}
-				filename = generateFilename(event, outPattern, messageObject);
-			}
-
 			if (filename == null) {
 				throw new IOException("Filename is null");
 			}

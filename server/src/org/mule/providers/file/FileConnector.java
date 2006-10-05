@@ -103,7 +103,7 @@ public class FileConnector extends AbstractServiceEnabledConnector
 
     private boolean serialiseObjects = false;
 
-    public FilenameParser filenameParser = new SimpleFilenameParser();
+    public FilenameParser filenameParser = new VariableFilenameParser();
 
     /*
      * (non-Javadoc)
@@ -112,7 +112,7 @@ public class FileConnector extends AbstractServiceEnabledConnector
      */
     public FileConnector()
     {
-        filenameParser = new SimpleFilenameParser();
+        filenameParser = new VariableFilenameParser();
     }
 
     protected Object getReceiverKey(UMOComponent component, UMOEndpoint endpoint) {
