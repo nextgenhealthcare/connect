@@ -350,7 +350,7 @@ public class JdbcConnector extends AbstractServiceEnabledConnector
     {
         UMOTransaction tx = TransactionCoordination.getInstance().getTransaction();
         if (tx != null) {
-            if (tx.hasResource(dataSource)) {
+            if (tx.hasResource(URL)) {
                 logger.debug("Retrieving connection from current transaction");
                 return (Connection) tx.getResource(dataSource);
             }
@@ -362,6 +362,7 @@ public class JdbcConnector extends AbstractServiceEnabledConnector
 
             // Step 2: Establish the connection to the database. 
             con = DriverManager.getConnection(URL, username, password);
+            
         }else{
         	logger.debug("Retrieving new connection from data source");
         	con = dataSource.getConnection();
@@ -370,7 +371,7 @@ public class JdbcConnector extends AbstractServiceEnabledConnector
         if (tx != null) {
             logger.debug("Binding connection to current transaction");
             try {
-                tx.bindResource(dataSource, con);
+                tx.bindResource(URL, con);
             } catch (TransactionException e) {
                 throw new RuntimeException("Could not bind connection to current transaction", e);
             }

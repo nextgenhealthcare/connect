@@ -35,6 +35,15 @@ public class JdbcTransaction extends AbstractSingleResourceTransaction
     public JdbcTransaction()
     {
     }
+    public Object getResource(Object key)
+    {
+        return key != null && this.key != null && this.key.equals(key) ? this.resource : null;
+    }
+
+    public boolean hasResource(Object key)
+    {
+        return key != null && this.key != null && this.key.equals(key);
+    }
 
     /*
      * (non-Javadoc)
@@ -44,11 +53,12 @@ public class JdbcTransaction extends AbstractSingleResourceTransaction
      */
     public void bindResource(Object key, Object resource) throws TransactionException
     {
-        if (!(key instanceof DataSource) || !(resource instanceof Connection)) {
-            throw new IllegalTransactionStateException(new Message(Messages.TX_CAN_ONLY_BIND_TO_X_TYPE_RESOURCES,
-                                                                   "javax.sql.DataSource/java.sql.Connection"));
-        }
+       // if (((key != null)&&!(key instanceof DataSource)) || !(resource instanceof Connection)) {
+       //     throw new IllegalTransactionStateException(new Message(Messages.TX_CAN_ONLY_BIND_TO_X_TYPE_RESOURCES,
+       //                                                            "javax.sql.DataSource/java.sql.Connection"));
+       // }
         Connection con = (Connection) resource;
+        
         try {
             if (con.getAutoCommit()) {
                 con.setAutoCommit(false);
