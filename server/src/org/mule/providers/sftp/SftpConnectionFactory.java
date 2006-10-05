@@ -37,6 +37,7 @@ public class SftpConnectionFactory implements PoolableObjectFactory {
 			channel.connect();
 			client = (ChannelSftp) channel;
 
+			// FIXME: find elegant way to work even with starting slash
 			String path = uri.getPath().substring(1, uri.getPath().length());
 			client.cd(path);
 		} catch (Exception e) {
@@ -66,6 +67,6 @@ public class SftpConnectionFactory implements PoolableObjectFactory {
 	}
 
 	public void passivateObject(Object obj) throws Exception {
-		
+
 	}
 }
