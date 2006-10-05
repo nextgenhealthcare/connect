@@ -100,7 +100,7 @@ public class PDFWriter extends ConnectorClass
         properties.put(DATATYPE, name);
         properties.put(FILE_DIRECTORY, "");
         properties.put(FILE_NAME, "");
-        properties.put(PDF_PASSWORD_PROTECTED, UIConstants.YES_OPTION);
+        properties.put(PDF_PASSWORD_PROTECTED, UIConstants.NO_OPTION);
         properties.put(PDF_PASSWORD, "");
         properties.put(FILE_CONTENTS, "");
         return properties;
