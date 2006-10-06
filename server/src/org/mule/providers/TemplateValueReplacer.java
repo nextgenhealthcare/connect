@@ -11,7 +11,7 @@ import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.mule.util.GlobalVariableStore;
 
 public class TemplateValueReplacer {
-	public static final String DEFAULT_DATE_FORMAT = "dd-MM-yy_HH-mm-ss.SS";
+	private final String DEFAULT_DATE_FORMAT = "dd-MM-yy_HH-mm-ss.SS";
 	private final String TEMPLATE_REPLACE_PATTERN = "\\$\\{[^\\}]*\\}";
 	private long count = 1;
 
