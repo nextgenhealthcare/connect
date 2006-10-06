@@ -1,19 +1,45 @@
 package org.mule.providers.pdf;
 
-public class BBCodeToken {
-	private String value;
-	private String type;
+import java.util.ArrayList;
+import java.util.List;
 
-	public BBCodeToken(String value, String type) {
+import org.mule.providers.pdf.BBCodeParser.KeywordType;
+
+public class BBCodeToken
+{
+	private String value;
+
+	private ArrayList<KeywordType> tags;
+
+	private int size;
+
+	private String color;
+
+	public BBCodeToken(String value, ArrayList<KeywordType> tags, int size, String color)
+	{
 		this.value = value;
-		this.type = type;
+		this.tags = tags;
+		this.size = size;
+		this.color = color;
 	}
 
-	public String getValue() {
+	public String getValue()
+	{
 		return value;
 	}
 
-	public String getType() {
-		return type;
+	public List<KeywordType> getApplicableTags()
+	{
+		return tags;
+	}
+
+	public int getSize()
+	{
+		return size;
+	}
+
+	public String getColor()
+	{
+		return color;
 	}
 }
