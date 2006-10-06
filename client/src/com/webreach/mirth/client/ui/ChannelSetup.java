@@ -38,6 +38,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Map.Entry;
 import java.util.prefs.Preferences;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
@@ -1926,25 +1928,23 @@ public class ChannelSetup extends javax.swing.JPanel {
 				.getProperties());
 		setDestinationVariableList();
 		/*
-		if (currentChannel.getDirection() == Channel.Direction.OUTBOUND) {
-			// destinationVariableList.setVariableListOutbound();
-			List<Step> concatenatedSteps = getMultipleDestinationSteps(destinationConnector);
-			destinationVariableList.setVariableListInbound(concatenatedSteps);
-			destinationVariableList.setDestinationMappingsLabel();
-		} else {
-			if (currentChannel.getMode() == Channel.Mode.ROUTER
-					|| currentChannel.getMode() == Channel.Mode.APPLICATION) {
-				List<Step> concatenatedSteps = getMultipleDestinationSteps(destinationConnector);
-				destinationVariableList
-						.setVariableListInbound(concatenatedSteps);
-				destinationVariableList.setDestinationMappingsLabel();
-			} else if (currentChannel.getMode() == Channel.Mode.BROADCAST) {
-				destinationVariableList.setVariableListInbound(currentChannel
-						.getSourceConnector().getTransformer().getSteps());
-				destinationVariableList.setSourceMappingsLabel();
-			}
-		}
-	*/
+		 * if (currentChannel.getDirection() == Channel.Direction.OUTBOUND) { //
+		 * destinationVariableList.setVariableListOutbound(); List<Step>
+		 * concatenatedSteps =
+		 * getMultipleDestinationSteps(destinationConnector);
+		 * destinationVariableList.setVariableListInbound(concatenatedSteps);
+		 * destinationVariableList.setDestinationMappingsLabel(); } else { if
+		 * (currentChannel.getMode() == Channel.Mode.ROUTER ||
+		 * currentChannel.getMode() == Channel.Mode.APPLICATION) { List<Step>
+		 * concatenatedSteps =
+		 * getMultipleDestinationSteps(destinationConnector);
+		 * destinationVariableList .setVariableListInbound(concatenatedSteps);
+		 * destinationVariableList.setDestinationMappingsLabel(); } else if
+		 * (currentChannel.getMode() == Channel.Mode.BROADCAST) {
+		 * destinationVariableList.setVariableListInbound(currentChannel
+		 * .getSourceConnector().getTransformer().getSteps());
+		 * destinationVariableList.setSourceMappingsLabel(); } }
+		 */
 		destination.removeAll();
 
 		// Reset the generated layout.
@@ -2045,6 +2045,8 @@ public class ChannelSetup extends javax.swing.JPanel {
 	}
 
 	private List<Step> getMultipleDestinationSteps(Connector currentDestination) {
+		final String VAR_PATTERN = "globalMap.put\\(['|\"]([^'|^\"]*)[\"|']\\)";
+		   
 		List<Step> concatenatedSteps = new ArrayList<Step>();
 		List<Connector> destinationConnectors = currentChannel
 				.getDestinationConnectors();
@@ -2074,6 +2076,18 @@ public class ChannelSetup extends javax.swing.JPanel {
 									.equalsIgnoreCase(UIConstants.YES_OPTION))
 								concatenatedSteps.add(step);
 						}
+					}else if (step.getType().equals(TransformerPane.JAVASCRIPT_TYPE)){
+		            	Pattern pattern = Pattern.compile(VAR_PATTERN);
+		            	Matcher matcher = pattern.matcher(step.getScript());
+		        		while (matcher.find()) {
+		        			String key = matcher.group(1);
+		        			Step tempStep = new Step();
+		        			Map tempMap = new HashMap();
+		        			tempMap.put("Variable", key);
+		        			tempStep.setData(tempMap);
+		        			tempStep.setType(TransformerPane.MAPPER_TYPE);
+		        			concatenatedSteps.add(tempStep);
+		        		}
 					}
 				}
 			}
@@ -2210,7 +2224,9 @@ public class ChannelSetup extends javax.swing.JPanel {
 
 	/** Sets the destination variable list from the transformer steps */
 	public void setDestinationVariableList() {
-		if (currentChannel.getDirection() == Channel.Direction.OUTBOUND) {
+
+		if (currentChannel.getMode() == Channel.Mode.ROUTER
+				|| currentChannel.getDirection() == Channel.Direction.OUTBOUND) {
 			int destination = getDestinationConnectorIndex((String) destinationTable
 					.getValueAt(getSelectedDestinationIndex(),
 							getColumnNumber(DESTINATION_COLUMN_NAME)));
@@ -2219,30 +2235,19 @@ public class ChannelSetup extends javax.swing.JPanel {
 			destinationVariableList.setVariableListInbound(concatenatedSteps);
 			// destinationVariableList.setVariableListInbound(currentChannel.getDestinationConnectors().get(destination).getTransformer().getSteps());
 			destinationVariableList.setDestinationMappingsLabel();
+		} else if (currentChannel.getMode() == Channel.Mode.BROADCAST) {
+			destinationVariableList.setVariableListInbound(currentChannel
+					.getSourceConnector().getTransformer().getSteps());
+			destinationVariableList.setSourceMappingsLabel();
 		} else {
-			if (currentChannel.getMode() == Channel.Mode.ROUTER) {
-				int destination = getDestinationConnectorIndex((String) destinationTable
-						.getValueAt(getSelectedDestinationIndex(),
-								getColumnNumber(DESTINATION_COLUMN_NAME)));
-				List<Step> concatenatedSteps = getMultipleDestinationSteps(currentChannel
-						.getDestinationConnectors().get(destination));
-				destinationVariableList
-						.setVariableListInbound(concatenatedSteps);
-				// destinationVariableList.setVariableListInbound(currentChannel.getDestinationConnectors().get(destination).getTransformer().getSteps());
-				destinationVariableList.setDestinationMappingsLabel();
-			} else if (currentChannel.getMode() == Channel.Mode.BROADCAST) {
-				destinationVariableList.setVariableListInbound(currentChannel
-						.getSourceConnector().getTransformer().getSteps());
-				destinationVariableList.setSourceMappingsLabel();
-			} else {
-				destinationVariableList.setVariableListInbound(currentChannel
-						.getDestinationConnectors().get(0).getTransformer()
-						.getSteps());
-				destinationVariableList.setDestinationMappingsLabel();
-			}
+			destinationVariableList.setVariableListInbound(currentChannel
+					.getDestinationConnectors().get(0).getTransformer()
+					.getSteps());
+			destinationVariableList.setDestinationMappingsLabel();
 		}
 
 		destinationVariableList.repaint();
+
 	}
 
 	/** Returns a new connector, that has a new transformer and filter */

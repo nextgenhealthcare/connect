@@ -30,6 +30,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
 import com.webreach.mirth.model.Step;
@@ -38,8 +40,7 @@ import com.webreach.mirth.model.Step;
  * A panel that contains the MirthVariableList.
  */
 public class VariableList extends javax.swing.JPanel
-{
-    
+{	private final String VAR_PATTERN = "[glob|loc]alMap.put\\(['|\"]([^'|^\"]*)[\"|']\\)";
     /** Creates new form VariableList */
     public VariableList()
     {
@@ -61,12 +62,19 @@ public class VariableList extends javax.swing.JPanel
         {
             Step step = (Step) it.next();
             Map data;
-            
+            data = (Map)step.getData();
             if(step.getType().equalsIgnoreCase(TransformerPane.MAPPER_TYPE))
             {
-                data = (Map)step.getData();
                 variables.add((String)data.get("Variable"));
                 i++;
+            }else if (step.getType().equalsIgnoreCase(TransformerPane.JAVASCRIPT_TYPE)){
+            	Pattern pattern = Pattern.compile(VAR_PATTERN);
+            	Matcher matcher = pattern.matcher(step.getScript());
+        		while (matcher.find()) {
+        			String key = matcher.group(1);
+        			variables.add(key);
+        		}
+
             }
         }
         
