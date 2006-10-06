@@ -1,6 +1,7 @@
-package org.mule.providers.file;
+package org.mule.providers;
 
-import org.mule.providers.TemplateValueReplacer;
+import org.mule.providers.file.FileConnector;
+import org.mule.providers.file.FilenameParser;
 import org.mule.umo.provider.UMOMessageAdapter;
 
 import com.webreach.mirth.model.MessageObject;

@@ -28,6 +28,7 @@ import org.mule.config.MuleProperties;
 import org.mule.config.i18n.Message;
 import org.mule.config.i18n.Messages;
 import org.mule.providers.AbstractServiceEnabledConnector;
+import org.mule.providers.VariableFilenameParser;
 import org.mule.providers.file.filters.FilenameWildcardFilter;
 import org.mule.transformers.simple.ByteArrayToSerializable;
 import org.mule.transformers.simple.SerializableToByteArray;

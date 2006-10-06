@@ -9,8 +9,8 @@ import org.apache.commons.pool.impl.GenericObjectPool;
 import org.mule.config.i18n.Message;
 import org.mule.config.i18n.Messages;
 import org.mule.providers.AbstractServiceEnabledConnector;
+import org.mule.providers.VariableFilenameParser;
 import org.mule.providers.file.FilenameParser;
-import org.mule.providers.file.SimpleFilenameParser;
 import org.mule.umo.UMOComponent;
 import org.mule.umo.UMOException;
 import org.mule.umo.endpoint.UMOEndpoint;
@@ -29,7 +29,7 @@ public class SftpConnector extends AbstractServiceEnabledConnector {
 	private long pollingFrequency = 0;
 	private String outputPattern = null;
 	private String template = null;
-	private FilenameParser filenameParser = new SimpleFilenameParser();
+	private FilenameParser filenameParser = new VariableFilenameParser();
 	private Map pools = new HashMap();
 
 	public UMOMessageReceiver createReceiver(UMOComponent component, UMOEndpoint endpoint) throws Exception {

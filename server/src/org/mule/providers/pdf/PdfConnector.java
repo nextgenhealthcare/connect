@@ -1,15 +1,15 @@
 package org.mule.providers.pdf;
 
 import org.mule.providers.AbstractServiceEnabledConnector;
+import org.mule.providers.VariableFilenameParser;
 import org.mule.providers.file.FilenameParser;
-import org.mule.providers.file.SimpleFilenameParser;
 
 public class PdfConnector extends AbstractServiceEnabledConnector {
 	public static final String PROPERTY_FILENAME = "filename";
 	public static final String PROPERTY_TEMPLATE = "template";
 	public static final String PROPERTY_OUTPUT_PATTERN = "outputPattern";
 
-	private FilenameParser filenameParser = new SimpleFilenameParser();
+	private FilenameParser filenameParser = new VariableFilenameParser();
 	private String template;
 	private String outputPattern;
 	private boolean encrypted;
