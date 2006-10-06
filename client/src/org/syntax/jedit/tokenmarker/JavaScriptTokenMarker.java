@@ -35,6 +35,7 @@ public class JavaScriptTokenMarker extends CTokenMarker
 			javaScriptKeywords.add("var",Token.KEYWORD1);
 			javaScriptKeywords.add("else",Token.KEYWORD1);
 			javaScriptKeywords.add("for",Token.KEYWORD1);
+			javaScriptKeywords.add("each",Token.KEYWORD1);
 			javaScriptKeywords.add("if",Token.KEYWORD1);
 			javaScriptKeywords.add("in",Token.KEYWORD1);
 			javaScriptKeywords.add("new",Token.KEYWORD1);
