@@ -4,27 +4,22 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.mule.umo.provider.UMOMessageAdapter;
 import org.mule.util.UUID;
 import org.mule.util.Utility;
-
-import sun.management.snmp.AdaptorBootstrap;
 
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.mule.util.GlobalVariableStore;
 
-public class ProviderUtil {
-	private static final String TEMPLATE_REPLACE_PATTERN = "\\$\\{[^\\}]*\\}";
-
+public class TemplateValueReplacer {
 	public static final String DEFAULT_DATE_FORMAT = "dd-MM-yy_HH-mm-ss.SS";
+	private final String TEMPLATE_REPLACE_PATTERN = "\\$\\{[^\\}]*\\}";
+	private long count = 1;
 
-	private static long count = 1;
-	
-	public static String replaceValues(String template, MessageObject messageObject) throws Exception {
-		return replaceValues(template, "", messageObject);
+	protected synchronized long getCount() {
+		return count++;
 	}
-	public static String replaceValues(String template, String filename,
-			MessageObject messageObject) throws Exception {
+
+	public String replaceValues(String template, MessageObject messageObject, String filename) {
 		// if the template has not been set, return an empty string
 		if ((template == null) || !(template.length() > 0)) {
 			return new String();
@@ -32,34 +27,24 @@ public class ProviderUtil {
 
 		Pattern pattern = Pattern.compile(TEMPLATE_REPLACE_PATTERN);
 		Matcher matcher = pattern.matcher(template);
-		StringBuffer sb = new StringBuffer();
+		StringBuffer buffer = new StringBuffer();
 
 		while (matcher.find()) {
 			String key = matcher.group();
 			String name = key.substring(2, key.length() - 1);
-			matcher.appendReplacement(sb, getTemplateValue(name, messageObject, filename).replace("\\", "\\\\").replace("$", "\\$"));
+			matcher.appendReplacement(buffer, getTemplateValue(name, messageObject, filename).replace("\\", "\\\\").replace("$", "\\$"));
 		}
 
-		matcher.appendTail(sb);
-		return sb.toString();
+		matcher.appendTail(buffer);
+		return buffer.toString();
 	}
 
-	protected static synchronized long getCount() {
-		return count++;
-	}
+	public String getTemplateValue(String name, MessageObject messageObject, String filename) {
+		Map map = messageObject.getVariableMap();
 
-	public static String getTemplateValue(String name,
-			MessageObject messageObject) {
-		return getTemplateValue(name, messageObject, "");
-	}
-
-	public static String getTemplateValue(String name,
-		MessageObject messageObject, String filename) {
-		Map map = null;
-		if (filename == null)
-			filename = "";
-		if (messageObject != null)
-			map = messageObject.getVariableMap();
+		if (filename == null) {
+			filename = System.currentTimeMillis() + ".dat";
+		}
 
 		if (name.equals("raw_data")) {
 			return messageObject.getRawData();
@@ -67,18 +52,17 @@ public class ProviderUtil {
 			return messageObject.getTransformedData();
 		} else if (name.equals("encoded_data")) {
 			return messageObject.getEncodedData();
+		} else if (name.equals("message_id")) {
+			return messageObject.getId();
 		} else if (name.equals("DATE")) {
-			return (Utility.getTimeStamp(DEFAULT_DATE_FORMAT));
+			return Utility.getTimeStamp(DEFAULT_DATE_FORMAT);
 		} else if (name.startsWith("DATE:")) {
 			String dateformat = name.substring(5, name.length() - 1);
-			return (Utility.getTimeStamp(dateformat));
+			return Utility.getTimeStamp(dateformat);
 		} else if (name.equals("COUNT")) {
-			return (String.valueOf(getCount()));
-		} else if (name.equals("UUID") || name.equals("message_id")) {
-			if (messageObject != null)
-				return messageObject.getId();
-			else
-				return new UUID().getUUID();
+			return String.valueOf(getCount());
+		} else if (name.equals("UUID")) {
+			return new UUID().getUUID();
 		} else if (name.equals("SYSTIME")) {
 			return String.valueOf(System.currentTimeMillis());
 		} else if (name.equals("ORIGINALNAME")) {
@@ -94,4 +78,5 @@ public class ProviderUtil {
 			return new String();
 		}
 	}
+
 }

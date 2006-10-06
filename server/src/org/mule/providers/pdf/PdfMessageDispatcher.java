@@ -5,7 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import org.mule.providers.AbstractMessageDispatcher;
-import org.mule.providers.ProviderUtil;
+import org.mule.providers.TemplateValueReplacer;
 import org.mule.umo.UMOEvent;
 import org.mule.umo.UMOException;
 import org.mule.umo.UMOMessage;
@@ -28,6 +28,7 @@ public class PdfMessageDispatcher extends AbstractMessageDispatcher {
 
 	public void doDispatch(UMOEvent event) throws Exception {
 		try {
+			TemplateValueReplacer replacer = new TemplateValueReplacer();
 			String endpoint = event.getEndpoint().getEndpointURI().getAddress();
 			Object data = event.getTransformedMessage();
 			String filename = (String) event.getProperty(PdfConnector.PROPERTY_FILENAME);
@@ -51,7 +52,7 @@ public class PdfMessageDispatcher extends AbstractMessageDispatcher {
 
 			if (data instanceof MessageObject) {
 				MessageObject messageObject = (MessageObject) data;
-				template = ProviderUtil.replaceValues(template, messageObject);
+				template = replacer.replaceValues(template, messageObject, filename);
 			}
 
 			logger.info("Writing PDF to: " + file.getAbsolutePath());
@@ -73,7 +74,12 @@ public class PdfMessageDispatcher extends AbstractMessageDispatcher {
 		Document document = new Document();
 
 		try {
-			PdfWriter.getInstance(document, new FileOutputStream(file));
+			PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(file));
+			
+			if (connector.isEncrypted()) {
+				writer.setEncryption(PdfWriter.STRENGTH128BITS, connector.getPassword(), null, PdfWriter.AllowCopy | PdfWriter.AllowPrinting | PdfWriter.AllowFillIn);	
+			}
+			
 			document.open();
 			BBCodeParser parser = new BBCodeParser(template);
 			

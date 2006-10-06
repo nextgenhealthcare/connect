@@ -25,7 +25,7 @@ import org.mule.MuleManager;
 import org.mule.config.i18n.Message;
 import org.mule.impl.MuleMessage;
 import org.mule.providers.AbstractMessageDispatcher;
-import org.mule.providers.ProviderUtil;
+import org.mule.providers.TemplateValueReplacer;
 import org.mule.providers.file.filters.FilenameWildcardFilter;
 import org.mule.umo.UMOEvent;
 import org.mule.umo.UMOException;
@@ -59,6 +59,7 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
 	 */
 	public void doDispatch(UMOEvent event) throws Exception {
 		try {
+			TemplateValueReplacer replacer = new TemplateValueReplacer();
 			String endpoint = event.getEndpoint().getEndpointURI().getAddress();
 			Object data = event.getTransformedMessage();
 			MessageObject messageObject = null;
@@ -76,7 +77,7 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
 					}
 					filename = generateFilename(event, outPattern, messageObject);
 				}
-				template = ProviderUtil.replaceValues(template, filename, messageObject);
+				template = replacer.replaceValues(template, messageObject, filename);
 				buf = template.getBytes();
 			} else {
 				buf = data.toString().getBytes();

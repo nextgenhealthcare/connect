@@ -13,7 +13,7 @@ import java.util.Vector;
 import org.mule.MuleManager;
 import org.mule.impl.MuleMessage;
 import org.mule.providers.AbstractMessageDispatcher;
-import org.mule.providers.ProviderUtil;
+import org.mule.providers.TemplateValueReplacer;
 import org.mule.providers.file.filters.FilenameWildcardFilter;
 import org.mule.providers.ftp.FtpConnector;
 import org.mule.umo.UMOEvent;
@@ -33,6 +33,7 @@ public class SftpMessageDispatcher extends AbstractMessageDispatcher {
 	}
 
 	public void doDispatch(UMOEvent event) throws Exception {
+		TemplateValueReplacer replacer = new TemplateValueReplacer();
 		ChannelSftp client = null;
 		UMOEndpointURI uri = event.getEndpoint().getEndpointURI();
 
@@ -62,7 +63,7 @@ public class SftpMessageDispatcher extends AbstractMessageDispatcher {
 				buffer = (byte[]) data;
 			} else if (data instanceof MessageObject) {
 				MessageObject messageObject = (MessageObject) data;
-				template = ProviderUtil.replaceValues(template, messageObject);
+				template = replacer.replaceValues(template, messageObject, filename);
 				buffer = template.getBytes();
 			} else {
 				buffer = data.toString().getBytes();
@@ -91,10 +92,10 @@ public class SftpMessageDispatcher extends AbstractMessageDispatcher {
 
 	public UMOMessage receive(UMOEndpointURI endpointUri, long timeout) throws Exception {
 		ChannelSftp client = null;
-		
+
 		try {
 			client = connector.getClient(endpointUri);
-			
+
 			FilenameFilter filenameFilter = null;
 			String filter = (String) endpointUri.getParams().get("filter");
 
@@ -102,7 +103,7 @@ public class SftpMessageDispatcher extends AbstractMessageDispatcher {
 				filter = URLDecoder.decode(filter, MuleManager.getConfiguration().getEncoding());
 				filenameFilter = new FilenameWildcardFilter(filter);
 			}
-			
+
 			Vector entries = client.ls(".");
 			List<ChannelSftp.LsEntry> files = new ArrayList<ChannelSftp.LsEntry>();
 
@@ -119,7 +120,7 @@ public class SftpMessageDispatcher extends AbstractMessageDispatcher {
 			if (files.isEmpty()) {
 				return null;
 			}
-			
+
 			ChannelSftp.LsEntry entry = files.get(0);
 			logger.debug("processing file: " + entry.getFilename());
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();

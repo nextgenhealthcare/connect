@@ -28,7 +28,7 @@ import org.apache.commons.net.ftp.FTPReply;
 import org.mule.MuleManager;
 import org.mule.impl.MuleMessage;
 import org.mule.providers.AbstractMessageDispatcher;
-import org.mule.providers.ProviderUtil;
+import org.mule.providers.TemplateValueReplacer;
 import org.mule.providers.file.filters.FilenameWildcardFilter;
 import org.mule.umo.UMOEvent;
 import org.mule.umo.UMOException;
@@ -55,6 +55,8 @@ public class FtpMessageDispatcher extends AbstractMessageDispatcher {
 	public void doDispatch(UMOEvent event) throws Exception {
 		FTPClient client = null;
 		UMOEndpointURI uri = event.getEndpoint().getEndpointURI();
+		TemplateValueReplacer replacer = new TemplateValueReplacer();
+		
 		try {
 			String filename = (String) event.getProperty(FtpConnector.PROPERTY_FILENAME);
 
@@ -78,7 +80,7 @@ public class FtpMessageDispatcher extends AbstractMessageDispatcher {
 				buf = (byte[]) data;
 			} else if (data instanceof MessageObject) {
 				MessageObject messageObject = (MessageObject) data;
-				template = ProviderUtil.replaceValues(template, messageObject);
+				template = replacer.replaceValues(template, messageObject, filename);
 				buf = template.getBytes();
 			} else {
 				buf = data.toString().getBytes();
