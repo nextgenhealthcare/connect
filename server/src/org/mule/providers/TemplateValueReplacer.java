@@ -40,21 +40,32 @@ public class TemplateValueReplacer {
 	}
 
 	public String getTemplateValue(String name, MessageObject messageObject, String filename) {
-		Map map = messageObject.getVariableMap();
+		// message variables
+		if (messageObject != null) {
+			Map map = messageObject.getVariableMap();
 
+			if (name.equals("raw_data")) {
+				return messageObject.getRawData();
+			} else if (name.equals("transformed_data")) {
+				return messageObject.getTransformedData();
+			} else if (name.equals("encoded_data")) {
+				return messageObject.getEncodedData();
+			} else if (name.equals("message_id")) {
+				return messageObject.getId();
+			} else if (map.containsKey(name)) {
+				return (String) map.get(name);
+			} else if (GlobalVariableStore.getInstance().containsKey(name)) {
+				return (String) GlobalVariableStore.getInstance().get(name);
+			}
+		}
+
+		// default filename
 		if (filename == null) {
 			filename = System.currentTimeMillis() + ".dat";
 		}
 
-		if (name.equals("raw_data")) {
-			return messageObject.getRawData();
-		} else if (name.equals("transformed_data")) {
-			return messageObject.getTransformedData();
-		} else if (name.equals("encoded_data")) {
-			return messageObject.getEncodedData();
-		} else if (name.equals("message_id")) {
-			return messageObject.getId();
-		} else if (name.equals("DATE")) {
+		// system variables
+		if (name.equals("DATE")) {
 			return Utility.getTimeStamp(DEFAULT_DATE_FORMAT);
 		} else if (name.startsWith("DATE:")) {
 			String dateformat = name.substring(5, name.length() - 1);
@@ -67,16 +78,9 @@ public class TemplateValueReplacer {
 			return String.valueOf(System.currentTimeMillis());
 		} else if (name.equals("ORIGINALNAME")) {
 			return filename;
-		} else if (map.containsKey(name)) {
-			return (String) map.get(name);
-		} else if (GlobalVariableStore.getInstance().containsKey(name)) {
-			return (String) GlobalVariableStore.getInstance().get(name);
-		} else {
-			// TODO: this should return a special
-			// character to indicate that the value was
-			// not found
-			return new String();
 		}
+
+		return new String();
 	}
 
 }
