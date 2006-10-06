@@ -29,8 +29,10 @@ import java.util.Date;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
+import org.mortbay.http.HttpContext;
 import org.mortbay.http.SocketListener;
 import org.mortbay.http.SslListener;
+import org.mortbay.http.handler.ResourceHandler;
 import org.mortbay.jetty.Server;
 import org.mule.MuleManager;
 import org.mule.config.ConfigurationException;
@@ -66,7 +68,7 @@ public class Mirth extends Thread {
 		Mirth mirth = new Mirth();
 		mirth.run();
 	}
-	
+
 	public MirthManager getManager() {
 		return this.manager;
 	}
@@ -148,7 +150,7 @@ public class Mirth extends Thread {
 		if (muleManager != null) {
 			try {
 				if (muleManager.isStarted()) {
-					muleManager.stop();	
+					muleManager.stop();
 				}
 			} catch (Exception e) {
 				logger.error(e);
@@ -169,7 +171,8 @@ public class Mirth extends Thread {
 			// behind a firewall and the resources cannot be
 			// accessed
 			System.setProperty("org.mortbay.xml.XmlParser.NotValidating", "true");
-			// this disables a "form too large" error for occuring by setting form size to infinite
+			// this disables a "form too large" error for occuring by setting
+			// form size to infinite
 			System.setProperty("org.mortbay.http.HttpRequest.maxFormContentSize", "0");
 
 			webServer = new Server();
@@ -201,6 +204,20 @@ public class Mirth extends Thread {
 			listener.setPort(httpPort);
 			webServer.addListener(listener);
 
+			// add a context for sharing files
+			String htdocs = "public";
+			
+			if ((mirthProperties.getProperty("http.htdocs") != null) && !mirthProperties.getProperty("http.htdocs").equals("")) {
+				htdocs = mirthProperties.getProperty("http.htdocs");
+			}
+			
+			HttpContext context = new HttpContext();
+			context.setContextPath("/" + htdocs + "/*");
+			webServer.addContext(context);
+			context.setResourceBase("./web/" + htdocs + "/");
+			context.addHandler(new ResourceHandler());
+
+			// add the war
 			webServer.addWebApplication("/", "./web/webapps/mirth.war");
 			webServer.start();
 			logger.debug("started jetty web server on ports: " + httpPort + ", " + httpsPort);
