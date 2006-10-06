@@ -67,7 +67,7 @@ public class TemplateValueReplacer {
 			return String.valueOf(System.currentTimeMillis());
 		} else if (name.equals("ORIGINALNAME")) {
 			return filename;
-		} else if (map != null && map.containsKey(name)) {
+		} else if (map.containsKey(name)) {
 			return (String) map.get(name);
 		} else if (GlobalVariableStore.getInstance().containsKey(name)) {
 			return (String) GlobalVariableStore.getInstance().get(name);
