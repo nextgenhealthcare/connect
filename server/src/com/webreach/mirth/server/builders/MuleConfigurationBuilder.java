@@ -249,6 +249,25 @@ public class MuleConfigurationBuilder {
 				routerElement.appendChild(endpointElement);
 			}
 
+			// transaction support
+			boolean transactional = ((channel.getProperties().get("transactional") != null) && channel.getProperties().get("transactional").toString().equals("1"));
+
+			if (transactional) {
+				// transports.get(connector.getTransportName()).getProtocol();
+				String protocol = "jdbc";
+				String factory = new String();
+				String action = "BEGIN_OR_JOIN";
+				
+				if (protocol.equals("jdbc")) {
+					factory = "org.mule.providers.jdbc.JdbcTransactionFactory";
+				}
+				
+				Element transactionElement = document.createElement("transaction");
+				transactionElement.setAttribute("action", action);
+				transactionElement.setAttribute("factory", factory);
+				routerElement.appendChild(transactionElement);
+			}
+
 			outboundRouterElement.appendChild(routerElement);
 			return outboundRouterElement;
 		} catch (Exception e) {
@@ -269,7 +288,7 @@ public class MuleConfigurationBuilder {
 			properties.put("direction", channel.getDirection().toString());
 			properties.put("encryptData", channel.getProperties().get("encryptData"));
 			properties.put("storeMessages", channel.getProperties().get("store_messages"));
-			
+
 			// store the filter and transformer scripts in the database
 			String filterScript = filterBuilder.getScript(connector.getFilter(), channel);
 			String transformerScript = transformerBuilder.getScript(connector.getTransformer(), channel);
