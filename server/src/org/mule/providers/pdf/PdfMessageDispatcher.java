@@ -1,8 +1,11 @@
 package org.mule.providers.pdf;
 
+import java.awt.Color;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Iterator;
+import java.util.List;
 
 import org.mule.providers.AbstractMessageDispatcher;
 import org.mule.providers.TemplateValueReplacer;
@@ -14,6 +17,7 @@ import org.mule.util.Utility;
 
 import com.lowagie.text.Document;
 import com.lowagie.text.Font;
+import com.lowagie.text.Image;
 import com.lowagie.text.Phrase;
 import com.lowagie.text.pdf.PdfWriter;
 import com.webreach.mirth.model.MessageObject;
@@ -75,29 +79,55 @@ public class PdfMessageDispatcher extends AbstractMessageDispatcher {
 
 		try {
 			PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(file));
-			
+
 			if (connector.isEncrypted()) {
-				writer.setEncryption(PdfWriter.STRENGTH128BITS, connector.getPassword(), null, PdfWriter.AllowCopy | PdfWriter.AllowPrinting | PdfWriter.AllowFillIn);	
+				writer.setEncryption(PdfWriter.STRENGTH128BITS, connector.getPassword(), null, PdfWriter.AllowCopy | PdfWriter.AllowPrinting | PdfWriter.AllowFillIn);
 			}
-			
+
 			document.open();
 			BBCodeParser parser = new BBCodeParser(template);
-			
+
 			while (parser.hasNext()) {
 				BBCodeToken token = parser.getNext();
-				Phrase phrase;
-				
-				if (token.getType().equals("BOLD")) {
-					phrase = new Phrase(token.getValue(), new Font(Font.TIMES_ROMAN, Font.DEFAULTSIZE, Font.BOLD));
-				} else if (token.getType().equals("ITALIC")) {
-					phrase = new Phrase(token.getValue(), new Font(Font.TIMES_ROMAN, Font.DEFAULTSIZE, Font.ITALIC));
-				} else if (token.getType().equals("UNDERLINE")) {
-					phrase = new Phrase(token.getValue(), new Font(Font.TIMES_ROMAN, Font.DEFAULTSIZE, Font.UNDERLINE));
+				List<BBCodeParser.KeywordType> tags = token.getApplicableTags();
+
+				if (tags.contains(BBCodeParser.KeywordType.NEWLINE)) {
+					document.newPage();
+				} else if (tags.contains(BBCodeParser.KeywordType.IMAGE)) {
+					Image image = Image.getInstance(token.getValue());
+					document.add(image);
+				} else if (tags.contains(BBCodeParser.KeywordType.PRE)) {
+					document.add(new Phrase(token.getValue(), new Font(Font.TIMES_ROMAN, Font.DEFAULTSIZE, Font.NORMAL)));
 				} else {
-					phrase = new Phrase(token.getValue(), new Font(Font.TIMES_ROMAN, Font.DEFAULTSIZE));
+					int fontStyle = 0;
+
+					for (Iterator iter = tags.iterator(); iter.hasNext();) {
+						BBCodeParser.KeywordType keyword = (BBCodeParser.KeywordType) iter.next();
+
+						if (keyword.equals(BBCodeParser.KeywordType.BOLD)) {
+							fontStyle |= Font.BOLD;
+						} else if (keyword.equals(BBCodeParser.KeywordType.ITALIC)) {
+							fontStyle |= Font.ITALIC;
+						} else if (keyword.equals(BBCodeParser.KeywordType.UNDERLINE)) {
+							fontStyle |= Font.UNDERLINE;
+						} else if (keyword.equals(BBCodeParser.KeywordType.STRIKETHROUGH)) {
+							fontStyle |= Font.STRIKETHRU;
+						}
+					}
+
+					// set the size
+					int fontSize = Font.DEFAULTSIZE;
+
+					if (token.getSize() > 0) {
+						fontSize = token.getSize();
+					}
+
+					// set the color
+					Color fontColor = Color.getColor(token.getColor());
+
+					document.add(new Phrase(token.getValue(), new Font(Font.TIMES_ROMAN, fontSize, fontStyle, fontColor)));
 				}
-				
-				document.add(phrase);
+
 			}
 		} catch (Exception e) {
 			throw e;
