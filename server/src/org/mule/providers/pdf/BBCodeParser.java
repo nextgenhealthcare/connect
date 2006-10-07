@@ -27,7 +27,7 @@ public class BBCodeParser
 		SIZE("[size=\"", "[/size]"), 
 		COLOR("[color=\"", "[/color]"), 
 		NEWPAGE("[n]", ""), 
-		STRIKETHROUGH("[s]", "[/s]");
+		STRIKETHRU("[s]", "[/s]");
 
 		public String start;
 

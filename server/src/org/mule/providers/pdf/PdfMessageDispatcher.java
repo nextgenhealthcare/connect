@@ -99,7 +99,8 @@ public class PdfMessageDispatcher extends AbstractMessageDispatcher {
 				} else if (tags.contains(BBCodeParser.KeywordType.PRE)) {
 					document.add(new Phrase(token.getValue(), new Font(Font.TIMES_ROMAN, Font.DEFAULTSIZE, Font.NORMAL)));
 				} else {
-					int fontStyle = 0;
+					// set the style
+					int fontStyle = Font.NORMAL;
 
 					for (Iterator iter = tags.iterator(); iter.hasNext();) {
 						BBCodeParser.KeywordType keyword = (BBCodeParser.KeywordType) iter.next();
@@ -110,7 +111,7 @@ public class PdfMessageDispatcher extends AbstractMessageDispatcher {
 							fontStyle |= Font.ITALIC;
 						} else if (keyword.equals(BBCodeParser.KeywordType.UNDERLINE)) {
 							fontStyle |= Font.UNDERLINE;
-						} else if (keyword.equals(BBCodeParser.KeywordType.STRIKETHROUGH)) {
+						} else if (keyword.equals(BBCodeParser.KeywordType.STRIKETHRU)) {
 							fontStyle |= Font.STRIKETHRU;
 						}
 					}
@@ -123,11 +124,14 @@ public class PdfMessageDispatcher extends AbstractMessageDispatcher {
 					}
 
 					// set the color
-					Color fontColor = Color.getColor(token.getColor());
-
+					Color fontColor = Color.BLACK;
+					
+					if (token.getColor() != null) {
+						fontColor = Color.getColor(token.getColor());
+					}
+					
 					document.add(new Phrase(token.getValue(), new Font(Font.TIMES_ROMAN, fontSize, fontStyle, fontColor)));
 				}
-
 			}
 		} catch (Exception e) {
 			throw e;
