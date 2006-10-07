@@ -26,7 +26,7 @@ public class BBCodeParser
 		PRE("[pre]", "[/pre]"), 
 		SIZE("[size=\"", "[/size]"), 
 		COLOR("[color=\"", "[/color]"), 
-		NEWLINE("[n]", ""), 
+		NEWPAGE("[n]", ""), 
 		STRIKETHROUGH("[s]", "[/s]");
 
 		public String start;
@@ -45,7 +45,7 @@ public class BBCodeParser
 	 */
 	public BBCodeParser(String BBCode)
 	{
-		size = 3;
+		size = 12;
 		color = "black";
 		elements = new LinkedBlockingQueue<BBCodeToken>();
 		knownTags = new Stack<KeywordType>();
@@ -174,7 +174,7 @@ public class BBCodeParser
 								currentIndex = endIndex + kt.end.length();
 							}
 						} 
-						else if (kt == KeywordType.NEWLINE)
+						else if (kt == KeywordType.NEWPAGE)
 						{
 							knownTags.push(kt);
 							createBBCodeToken("");
