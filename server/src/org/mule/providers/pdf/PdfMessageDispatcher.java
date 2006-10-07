@@ -91,7 +91,7 @@ public class PdfMessageDispatcher extends AbstractMessageDispatcher {
 				BBCodeToken token = parser.getNext();
 				List<BBCodeParser.KeywordType> tags = token.getApplicableTags();
 
-				if (tags.contains(BBCodeParser.KeywordType.NEWLINE)) {
+				if (tags.contains(BBCodeParser.KeywordType.NEWPAGE)) {
 					document.newPage();
 				} else if (tags.contains(BBCodeParser.KeywordType.IMAGE)) {
 					Image image = Image.getInstance(token.getValue());
