@@ -99,7 +99,7 @@ public class SftpMessageReceiver extends PollingMessageReceiver {
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			client.get(entry.getFilename(), baos);
 			UMOMessage message = new MuleMessage(connector.getMessageAdapter(baos.toByteArray()));
-			message.setProperty(SftpConnector.PROPERTY_FILENAME, entry.getFilename());
+			message.setProperty(SftpConnector.PROPERTY_ORIGINAL_FILENAME, entry.getFilename());
 			routeMessage(message);
 			client.rm(entry.getFilename());
 		} finally {

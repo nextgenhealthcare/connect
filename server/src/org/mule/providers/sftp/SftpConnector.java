@@ -22,6 +22,7 @@ import org.mule.umo.provider.UMOMessageReceiver;
 import com.jcraft.jsch.ChannelSftp;
 
 public class SftpConnector extends AbstractServiceEnabledConnector {
+	public static final String PROPERTY_ORIGINAL_FILENAME = "originalFilename";
 	public static final String PROPERTY_POLLING_FREQUENCY = "pollingFrequency";
 	public static final String PROPERTY_FILENAME = "filename";
 	public static final String PROPERTY_OUTPUT_PATTERN = "outputPattern";

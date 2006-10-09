@@ -7,8 +7,8 @@ import com.webreach.mirth.model.MessageObject;
 
 public class VariableFilenameParser implements FilenameParser {
 	public static final String PROPERTY_ORIGINAL_FILENAME = "originalFilename";
-	private MessageObject messageObject;
 	private TemplateValueReplacer replacer = new TemplateValueReplacer();
+	private MessageObject messageObject;
 
 	public MessageObject getMessageObject() {
 		return messageObject;
@@ -19,8 +19,8 @@ public class VariableFilenameParser implements FilenameParser {
 	}
 
 	public String getFilename(UMOMessageAdapter adaptor, String pattern) {
-		String filename = (String) adaptor.getProperty(PROPERTY_ORIGINAL_FILENAME);
-		return replacer.replaceValues(pattern, messageObject, filename);
+		String originalFilename = (String) adaptor.getProperty(PROPERTY_ORIGINAL_FILENAME);
+		return replacer.replaceValues(pattern, messageObject, originalFilename);
 	}
 
 }

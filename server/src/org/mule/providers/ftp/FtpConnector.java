@@ -43,7 +43,7 @@ import org.mule.umo.provider.UMOMessageReceiver;
  * @version $Revision: 1.7 $
  */
 public class FtpConnector extends AbstractServiceEnabledConnector {
-
+	public static final String PROPERTY_ORIGINAL_FILENAME = "originalFilename";
 	public static final String PROPERTY_POLLING_FREQUENCY = "pollingFrequency";
 	public static final String PROPERTY_FILENAME = "filename";
 	public static final String PROPERTY_OUTPUT_PATTERN = "outputPattern";
