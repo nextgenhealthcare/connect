@@ -32,7 +32,6 @@ import org.mule.umo.UMOEvent;
 import org.mule.umo.UMOException;
 import org.mule.umo.UMOMessage;
 import org.mule.umo.endpoint.UMOEndpointURI;
-import org.mule.umo.provider.UMOConnector;
 import org.mule.util.Utility;
 
 import com.webreach.mirth.model.MessageObject;
@@ -59,62 +58,52 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
 	 * @see org.mule.umo.provider.UMOConnectorSession#dispatch(org.mule.umo.UMOEvent)
 	 */
 	public void doDispatch(UMOEvent event) throws Exception {
-		try {
-			TemplateValueReplacer replacer = new TemplateValueReplacer();
-			String endpoint = event.getEndpoint().getEndpointURI().getAddress();
-			Object data = event.getTransformedMessage();
-			MessageObject messageObject = null;
-			String template = connector.getTemplate();
-			String filename = (String) event.getProperty(FileConnector.PROPERTY_FILENAME);
-			byte[] buf;
-			if (data instanceof byte[]) {
-				buf = (byte[]) data;
-			} else if (data instanceof MessageObject) {
-				messageObject = (MessageObject) data;
-				if (filename == null) {
-					String outPattern = (String) event.getProperty(FileConnector.PROPERTY_OUTPUT_PATTERN);
-					if (outPattern == null) {
-						outPattern = connector.getOutputPattern();
-					}
-					filename = generateFilename(event, outPattern, messageObject);
-				}
-				template = replacer.replaceValues(template, messageObject, filename);
-				buf = template.getBytes();
-			} else {
-				buf = data.toString().getBytes();
-			}
-			// Hackish way to append a new line
-			// TODO: find where newlines are stripped in config
-			if (connector.isOutputAppend()) {
-				buf = (new String(buf) + "\r\n").getBytes();
-			}
-			
-			if (filename == null) {
-				throw new IOException("Filename is null");
-			}
-			File file = Utility.createFile(endpoint + "/" + filename);
+		TemplateValueReplacer replacer = new TemplateValueReplacer();
+		UMOEndpointURI uri = event.getEndpoint().getEndpointURI();
+		FileOutputStream fos = null;
 
-			logger.info("Writing file to: " + file.getAbsolutePath());
-			FileOutputStream fos = new FileOutputStream(file, connector.isOutputAppend());
-			try {
-				fos.write(buf);
-			} finally {
-				fos.close();
+		try {
+			Object data = event.getTransformedMessage();
+
+			if (data instanceof MessageObject) {
+				MessageObject messageObject = (MessageObject) data;
+				String filename = (String) event.getProperty(FileConnector.PROPERTY_FILENAME);
+
+				if (filename == null) {
+					String pattern = (String) event.getProperty(FileConnector.PROPERTY_OUTPUT_PATTERN);
+
+					if (pattern == null) {
+						pattern = connector.getOutputPattern();
+					}
+
+					filename = generateFilename(event, pattern, messageObject);
+				}
+
+				if (filename == null) {
+					throw new IOException("Filename is null");
+				}
+
+				String template = replacer.replaceValues(connector.getTemplate(), messageObject, filename);
+				File file = Utility.createFile(uri.getAddress() + "/" + filename);
+				byte[] buffer = template.getBytes();
+
+				if (connector.isOutputAppend()) {
+					buffer = (new String(buffer) + "\r\n").getBytes();
+				}
+
+				logger.info("Writing file to: " + file.getAbsolutePath());
+				fos = new FileOutputStream(file, connector.isOutputAppend());
+				fos.write(buffer);
+			} else {
+				logger.warn("received data is not of expected type");
 			}
 		} catch (Exception e) {
-			getConnector().handleException(e);
+			connector.handleException(e);
+		} finally {
+			if (fos != null) {
+				fos.close();	
+			}
 		}
-
-	}
-
-	/**
-	 * There is no associated session for a file connector
-	 * 
-	 * @return
-	 * @throws UMOException
-	 */
-	public Object getDelegateSession() throws UMOException {
-		return null;
 	}
 
 	/**
@@ -196,38 +185,24 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.mule.umo.provider.UMOConnectorSession#send(org.mule.umo.UMOEvent)
-	 */
 	public UMOMessage doSend(UMOEvent event) throws Exception {
 		doDispatch(event);
 		return event.getMessage();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.mule.umo.provider.UMOConnectorSession#getConnector()
-	 */
-	public UMOConnector getConnector() {
-		return connector;
+	public Object getDelegateSession() throws UMOException {
+		return null;
 	}
 
+	public void doDispose() {}
+	
 	private String generateFilename(UMOEvent event, String pattern, MessageObject messageObject) {
-		if (pattern == null) {
-			pattern = connector.getOutputPattern();
-		}
 		if (connector.getFilenameParser() instanceof VariableFilenameParser) {
 			VariableFilenameParser filenameParser = (VariableFilenameParser) connector.getFilenameParser();
 			filenameParser.setMessageObject(messageObject);
 			return filenameParser.getFilename(event.getMessage(), pattern);
-		}else{
+		} else {
 			return connector.getFilenameParser().getFilename(event.getMessage(), pattern);
 		}
 	}
-
-	public void doDispose() {}
-
 }

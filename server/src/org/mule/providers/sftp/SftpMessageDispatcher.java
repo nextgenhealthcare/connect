@@ -14,8 +14,8 @@ import org.mule.MuleManager;
 import org.mule.impl.MuleMessage;
 import org.mule.providers.AbstractMessageDispatcher;
 import org.mule.providers.TemplateValueReplacer;
+import org.mule.providers.VariableFilenameParser;
 import org.mule.providers.file.filters.FilenameWildcardFilter;
-import org.mule.providers.ftp.FtpConnector;
 import org.mule.umo.UMOEvent;
 import org.mule.umo.UMOException;
 import org.mule.umo.UMOMessage;
@@ -34,60 +34,46 @@ public class SftpMessageDispatcher extends AbstractMessageDispatcher {
 
 	public void doDispatch(UMOEvent event) throws Exception {
 		TemplateValueReplacer replacer = new TemplateValueReplacer();
-		ChannelSftp client = null;
 		UMOEndpointURI uri = event.getEndpoint().getEndpointURI();
+		ChannelSftp client = null;
 
 		try {
-			String filename = (String) event.getProperty(FtpConnector.PROPERTY_FILENAME);
-
-			if (filename == null) {
-				String outPattern = (String) event.getProperty(FtpConnector.PROPERTY_OUTPUT_PATTERN);
-
-				if (outPattern == null) {
-					outPattern = connector.getOutputPattern();
-				}
-
-				filename = generateFilename(event, outPattern);
-			}
-
-			if (filename == null) {
-				throw new IOException("Filename is null");
-			}
-
-			String template = connector.getTemplate();
 			Object data = event.getTransformedMessage();
 
-			byte[] buffer;
-
-			if (data instanceof byte[]) {
-				buffer = (byte[]) data;
-			} else if (data instanceof MessageObject) {
+			if (data instanceof MessageObject) {
 				MessageObject messageObject = (MessageObject) data;
-				template = replacer.replaceValues(template, messageObject, filename);
-				buffer = template.getBytes();
-			} else {
-				buffer = data.toString().getBytes();
-			}
+				String filename = (String) event.getProperty(SftpConnector.PROPERTY_FILENAME);
 
-			client = connector.getClient(uri);
-			int mode = ChannelSftp.OVERWRITE;
-			client.put(new ByteArrayInputStream(buffer), ".", mode);
+				if (filename == null) {
+					String pattern = (String) event.getProperty(SftpConnector.PROPERTY_OUTPUT_PATTERN);
+
+					if (pattern == null) {
+						pattern = connector.getOutputPattern();
+					}
+
+					filename = generateFilename(event, pattern, messageObject);
+				}
+
+				if (filename == null) {
+					throw new IOException("Filename is null");
+				}
+
+				String template = replacer.replaceValues(connector.getTemplate(), messageObject, filename);
+				byte[] buffer = template.getBytes();
+				client = connector.getClient(uri);
+				
+				// TODO: have this mode be set by the connector
+				int mode = ChannelSftp.OVERWRITE;
+				
+				client.put(new ByteArrayInputStream(buffer), ".", mode);
+			} else {
+				logger.warn("received data is not of expected type");
+			}
+		} catch (Exception e) {
+			connector.handleException(e);
 		} finally {
 			connector.releaseClient(uri, client);
 		}
-	}
-
-	private String generateFilename(UMOEvent event, String pattern) {
-		if (pattern == null) {
-			pattern = connector.getOutputPattern();
-		}
-
-		return connector.getFilenameParser().getFilename(event.getMessage(), pattern);
-	}
-
-	public UMOMessage doSend(UMOEvent event) throws Exception {
-		doDispatch(event);
-		return event.getMessage();
 	}
 
 	public UMOMessage receive(UMOEndpointURI endpointUri, long timeout) throws Exception {
@@ -135,11 +121,25 @@ public class SftpMessageDispatcher extends AbstractMessageDispatcher {
 		}
 	}
 
+	public UMOMessage doSend(UMOEvent event) throws Exception {
+		doDispatch(event);
+		return event.getMessage();
+	}
+	
 	public Object getDelegateSession() throws UMOException {
 		return null;
 	}
 
-	public void doDispose() {
-
+	public void doDispose() {}
+	
+	private String generateFilename(UMOEvent event, String pattern, MessageObject messageObject) {
+		if (connector.getFilenameParser() instanceof VariableFilenameParser) {
+			VariableFilenameParser filenameParser = (VariableFilenameParser) connector.getFilenameParser();
+			filenameParser.setMessageObject(messageObject);
+			return filenameParser.getFilename(event.getMessage(), pattern);
+		} else {
+			return connector.getFilenameParser().getFilename(event.getMessage(), pattern);
+		}
 	}
+
 }

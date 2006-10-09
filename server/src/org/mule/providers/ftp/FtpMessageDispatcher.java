@@ -29,6 +29,7 @@ import org.mule.MuleManager;
 import org.mule.impl.MuleMessage;
 import org.mule.providers.AbstractMessageDispatcher;
 import org.mule.providers.TemplateValueReplacer;
+import org.mule.providers.VariableFilenameParser;
 import org.mule.providers.file.filters.FilenameWildcardFilter;
 import org.mule.umo.UMOEvent;
 import org.mule.umo.UMOException;
@@ -50,65 +51,59 @@ public class FtpMessageDispatcher extends AbstractMessageDispatcher {
 		this.connector = connector;
 	}
 
-	public void doDispose() {}
-
 	public void doDispatch(UMOEvent event) throws Exception {
-		FTPClient client = null;
 		UMOEndpointURI uri = event.getEndpoint().getEndpointURI();
 		TemplateValueReplacer replacer = new TemplateValueReplacer();
-		
+		FTPClient client = null;
+
 		try {
-			String filename = (String) event.getProperty(FtpConnector.PROPERTY_FILENAME);
-
-			if (filename == null) {
-				String outPattern = (String) event.getProperty(FtpConnector.PROPERTY_OUTPUT_PATTERN);
-				if (outPattern == null) {
-					outPattern = connector.getOutputPattern();
-				}
-				filename = generateFilename(event, outPattern);
-			}
-			if (filename == null) {
-				throw new IOException("Filename is null");
-			}
-
-			String template = connector.getTemplate();
 			Object data = event.getTransformedMessage();
 
-			byte[] buf;
-
-			if (data instanceof byte[]) {
-				buf = (byte[]) data;
-			} else if (data instanceof MessageObject) {
+			if (data instanceof MessageObject) {
 				MessageObject messageObject = (MessageObject) data;
-				template = replacer.replaceValues(template, messageObject, filename);
-				buf = template.getBytes();
+				String filename = (String) event.getProperty(FtpConnector.PROPERTY_FILENAME);
+
+				if (filename == null) {
+					String pattern = (String) event.getProperty(FtpConnector.PROPERTY_OUTPUT_PATTERN);
+					
+					if (pattern == null) {
+						pattern = connector.getOutputPattern();
+					}
+					
+					filename = generateFilename(event, pattern, messageObject);
+				}
+
+				if (filename == null) {
+					throw new IOException("Filename is null");
+				}
+
+				String template = replacer.replaceValues(connector.getTemplate(), messageObject, filename);
+				byte[] buffer = template.getBytes();
+				client = connector.getFtp(uri);
+
+				if (!client.changeWorkingDirectory(uri.getPath())) {
+					throw new IOException("Ftp error: " + client.getReplyCode());
+				}
+
+				if (!client.storeFile(filename, new ByteArrayInputStream(buffer))) {
+					throw new IOException("Ftp error: " + client.getReplyCode());
+				}
 			} else {
-				buf = data.toString().getBytes();
+				logger.warn("received data is not of expected type");
 			}
-
-			client = connector.getFtp(uri);
-			if (!client.changeWorkingDirectory(uri.getPath())) {
-				throw new IOException("Ftp error: " + client.getReplyCode());
-			}
-			if (!client.storeFile(filename, new ByteArrayInputStream(buf))) {
-				throw new IOException("Ftp error: " + client.getReplyCode());
-			}
-
+		} catch (Exception e) {
+			connector.handleException(e);
 		} finally {
 			connector.releaseFtp(uri, client);
 		}
 	}
 
-	public UMOMessage doSend(UMOEvent event) throws Exception {
-		doDispatch(event);
-		return event.getMessage();
-	}
-
 	public UMOMessage receive(UMOEndpointURI endpointUri, long timeout) throws Exception {
 		FTPClient client = null;
+		
 		try {
-
 			client = connector.getFtp(endpointUri);
+
 			if (!client.changeWorkingDirectory(endpointUri.getPath())) {
 				throw new IOException("Ftp error: " + client.getReplyCode());
 			}
@@ -151,15 +146,25 @@ public class FtpMessageDispatcher extends AbstractMessageDispatcher {
 		}
 	}
 
+	public UMOMessage doSend(UMOEvent event) throws Exception {
+		doDispatch(event);
+		return event.getMessage();
+	}
+
 	public Object getDelegateSession() throws UMOException {
 		return null;
 	}
+	
+	public void doDispose() {}
 
-	private String generateFilename(UMOEvent event, String pattern) {
-		if (pattern == null) {
-			pattern = connector.getOutputPattern();
+	private String generateFilename(UMOEvent event, String pattern, MessageObject messageObject) {
+		if (connector.getFilenameParser() instanceof VariableFilenameParser) {
+			VariableFilenameParser filenameParser = (VariableFilenameParser) connector.getFilenameParser();
+			filenameParser.setMessageObject(messageObject);
+			return filenameParser.getFilename(event.getMessage(), pattern);
+		} else {
+			return connector.getFilenameParser().getFilename(event.getMessage(), pattern);
 		}
-		return connector.getFilenameParser().getFilename(event.getMessage(), pattern);
 	}
 
 }

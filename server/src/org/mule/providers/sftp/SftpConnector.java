@@ -24,8 +24,9 @@ import com.jcraft.jsch.ChannelSftp;
 public class SftpConnector extends AbstractServiceEnabledConnector {
 	public static final String PROPERTY_POLLING_FREQUENCY = "pollingFrequency";
 	public static final String PROPERTY_FILENAME = "filename";
+	public static final String PROPERTY_OUTPUT_PATTERN = "outputPattern";
 	public static final String PROPERTY_TEMPLATE = "template";
-
+	
 	private long pollingFrequency = 0;
 	private String outputPattern = null;
 	private String template = null;
@@ -136,4 +137,5 @@ public class SftpConnector extends AbstractServiceEnabledConnector {
 		this.template = template;
 	}
 
+	
 }

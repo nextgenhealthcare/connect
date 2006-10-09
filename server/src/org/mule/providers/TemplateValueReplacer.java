@@ -1,18 +1,21 @@
 package org.mule.providers;
 
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.io.StringWriter;
+import java.util.Calendar;
+import java.util.Iterator;
+import java.util.Map.Entry;
 
+import org.apache.log4j.Logger;
+import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.Velocity;
+import org.apache.velocity.app.tools.VelocityFormatter;
 import org.mule.util.UUID;
-import org.mule.util.Utility;
 
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.mule.util.GlobalVariableStore;
 
 public class TemplateValueReplacer {
-	private final String DEFAULT_DATE_FORMAT = "dd-MM-yy_HH-mm-ss.SS";
-	private final String TEMPLATE_REPLACE_PATTERN = "\\$\\{[^\\}]*\\}";
+	private Logger logger = Logger.getLogger(this.getClass());
 	private long count = 1;
 
 	protected synchronized long getCount() {
@@ -20,42 +23,35 @@ public class TemplateValueReplacer {
 	}
 
 	public String replaceValues(String template, MessageObject messageObject, String filename) {
-		// if the template has not been set, return an empty string
-		if ((template == null) || !(template.length() > 0)) {
-			return new String();
+		VelocityContext context = new VelocityContext();
+		loadContext(context, messageObject, filename);
+		StringWriter writer = new StringWriter();
+
+		try {
+			Velocity.init();
+			Velocity.evaluate(context, writer, "LOG", template);
+		} catch (Exception e) {
+			logger.warn("could not replace template values", e);
 		}
 
-		Pattern pattern = Pattern.compile(TEMPLATE_REPLACE_PATTERN);
-		Matcher matcher = pattern.matcher(template);
-		StringBuffer buffer = new StringBuffer();
-
-		while (matcher.find()) {
-			String key = matcher.group();
-			String name = key.substring(2, key.length() - 1);
-			matcher.appendReplacement(buffer, getTemplateValue(name, messageObject, filename).replace("\\", "\\\\").replace("$", "\\$"));
-		}
-
-		matcher.appendTail(buffer);
-		return buffer.toString();
+		return writer.toString();
 	}
 
-	public String getTemplateValue(String name, MessageObject messageObject, String filename) {
+	private void loadContext(VelocityContext context, MessageObject messageObject, String filename) {
 		// message variables
 		if (messageObject != null) {
-			Map map = messageObject.getVariableMap();
+			context.put("message", messageObject);
 
-			if (name.equals("raw_data")) {
-				return messageObject.getRawData();
-			} else if (name.equals("transformed_data")) {
-				return messageObject.getTransformedData();
-			} else if (name.equals("encoded_data")) {
-				return messageObject.getEncodedData();
-			} else if (name.equals("message_id")) {
-				return messageObject.getId();
-			} else if (map.containsKey(name)) {
-				return (String) map.get(name);
-			} else if (GlobalVariableStore.getInstance().containsKey(name)) {
-				return (String) GlobalVariableStore.getInstance().get(name);
+			// load variables from global map
+			for (Iterator iter = GlobalVariableStore.getInstance().entrySet().iterator(); iter.hasNext();) {
+				Entry entry = (Entry) iter.next();
+				context.put(entry.getKey().toString(), entry.getValue());
+			}
+
+			// load variables from local map
+			for (Iterator iter = messageObject.getVariableMap().entrySet().iterator(); iter.hasNext();) {
+				Entry entry = (Entry) iter.next();
+				context.put(entry.getKey().toString(), entry.getValue());
 			}
 		}
 
@@ -65,22 +61,13 @@ public class TemplateValueReplacer {
 		}
 
 		// system variables
-		if (name.equals("DATE")) {
-			return Utility.getTimeStamp(DEFAULT_DATE_FORMAT);
-		} else if (name.startsWith("DATE:")) {
-			String dateformat = name.substring(5, name.length() - 1);
-			return Utility.getTimeStamp(dateformat);
-		} else if (name.equals("COUNT")) {
-			return String.valueOf(getCount());
-		} else if (name.equals("UUID")) {
-			return new UUID().getUUID();
-		} else if (name.equals("SYSTIME")) {
-			return String.valueOf(System.currentTimeMillis());
-		} else if (name.equals("ORIGINALNAME")) {
-			return filename;
-		}
-
-		return new String();
+		Calendar today = Calendar.getInstance();
+		context.put("TODAY", today.getTime());
+		context.put("FORMATTER", new VelocityFormatter(context));
+		
+		context.put("COUNT", String.valueOf(getCount()));
+		context.put("UUID", (new UUID()).getUUID());
+		context.put("SYSTIME", String.valueOf(System.currentTimeMillis()));
+		context.put("ORIGINALFILENAME", filename);
 	}
-
 }

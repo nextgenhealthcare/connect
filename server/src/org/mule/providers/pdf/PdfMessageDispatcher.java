@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.mule.providers.AbstractMessageDispatcher;
 import org.mule.providers.TemplateValueReplacer;
+import org.mule.providers.VariableFilenameParser;
 import org.mule.umo.UMOEvent;
 import org.mule.umo.UMOException;
 import org.mule.umo.UMOMessage;
@@ -31,47 +32,40 @@ public class PdfMessageDispatcher extends AbstractMessageDispatcher {
 	}
 
 	public void doDispatch(UMOEvent event) throws Exception {
+		TemplateValueReplacer replacer = new TemplateValueReplacer();
+		String endpoint = event.getEndpoint().getEndpointURI().getAddress();
+
 		try {
-			TemplateValueReplacer replacer = new TemplateValueReplacer();
-			String endpoint = event.getEndpoint().getEndpointURI().getAddress();
 			Object data = event.getTransformedMessage();
-			String filename = (String) event.getProperty(PdfConnector.PROPERTY_FILENAME);
-
-			if (filename == null) {
-				String outPattern = (String) event.getProperty(PdfConnector.PROPERTY_OUTPUT_PATTERN);
-
-				if (outPattern == null) {
-					outPattern = connector.getOutputPattern();
-				}
-
-				filename = generateFilename(event, outPattern);
-			}
-
-			if (filename == null) {
-				throw new IOException("Filename is null");
-			}
-
-			File file = Utility.createFile(endpoint + "/" + filename);
-			String template = connector.getTemplate();
 
 			if (data instanceof MessageObject) {
 				MessageObject messageObject = (MessageObject) data;
-				template = replacer.replaceValues(template, messageObject, filename);
+				String filename = (String) event.getProperty(PdfConnector.PROPERTY_FILENAME);
+
+				if (filename == null) {
+					String pattern = (String) event.getProperty(PdfConnector.PROPERTY_OUTPUT_PATTERN);
+
+					if (pattern == null) {
+						pattern = connector.getOutputPattern();
+					}
+
+					filename = generateFilename(event, pattern, messageObject);
+				}
+
+				if (filename == null) {
+					throw new IOException("Filename is null");
+				}
+
+				String template = replacer.replaceValues(connector.getTemplate(), messageObject, filename);
+				File file = Utility.createFile(endpoint + "/" + filename);
+				logger.info("Writing PDF to: " + file.getAbsolutePath());
+				writeDocument(template, file);
+			} else {
+				logger.warn("received data is not of expected type");
 			}
-
-			logger.info("Writing PDF to: " + file.getAbsolutePath());
-			writeDocument(template, file);
 		} catch (Exception e) {
-			getConnector().handleException(e);
+			connector.handleException(e);
 		}
-	}
-
-	private String generateFilename(UMOEvent event, String pattern) {
-		if (pattern == null) {
-			pattern = connector.getOutputPattern();
-		}
-
-		return connector.getFilenameParser().getFilename(event.getMessage(), pattern);
 	}
 
 	private void writeDocument(String template, File file) throws Exception {
@@ -153,5 +147,15 @@ public class PdfMessageDispatcher extends AbstractMessageDispatcher {
 		return null;
 	}
 
+	private String generateFilename(UMOEvent event, String pattern, MessageObject messageObject) {
+		if (connector.getFilenameParser() instanceof VariableFilenameParser) {
+			VariableFilenameParser filenameParser = (VariableFilenameParser) connector.getFilenameParser();
+			filenameParser.setMessageObject(messageObject);
+			return filenameParser.getFilename(event.getMessage(), pattern);
+		} else {
+			return connector.getFilenameParser().getFilename(event.getMessage(), pattern);
+		}
+	}
+	
 	public void doDispose() {}
 }
