@@ -338,14 +338,21 @@ public class MuleConfigurationBuilder {
 
 				// only add non-null, non-empty, non-Mule properties to the list
 				if ((property.getValue() != null) && (!property.getValue().equals("")) && !nonConnectorProperties.contains(property.getKey())) {
-					Element propertyElement = document.createElement("property");
-					propertyElement.setAttribute("name", property.getKey().toString());
-					propertyElement.setAttribute("value", property.getValue().toString());
-
-					if (property.getKey().equals("query") || property.getKey().equals("statement") || property.getKey().equals("ack")) {
-						mapElement.appendChild(propertyElement);
+					if (property.getKey().equals("template")) {
+						Element textPropertyElement = document.createElement("text-property");
+						textPropertyElement.setAttribute("name", "template");
+						textPropertyElement.setTextContent(property.getValue().toString());
+						propertiesElement.appendChild(textPropertyElement);
 					} else {
-						propertiesElement.appendChild(propertyElement);
+						Element propertyElement = document.createElement("property");
+						propertyElement.setAttribute("name", property.getKey().toString());
+						propertyElement.setAttribute("value", property.getValue().toString());
+
+						if (property.getKey().equals("query") || property.getKey().equals("statement") || property.getKey().equals("ack")) {
+							mapElement.appendChild(propertyElement);
+						} else {
+							propertiesElement.appendChild(propertyElement);
+						}
 					}
 				}
 			}
