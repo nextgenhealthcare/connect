@@ -67,7 +67,7 @@ public class FileReader extends ConnectorClass
         properties.put(FILE_DIRECTORY, directoryField.getText().replace('\\', '/'));
         properties.put(FILE_POLLING_FREQUENCY, pollingFreq.getText());
         properties.put(FILE_MOVE_TO_PATTERN, moveToPattern.getText());
-        properties.put(FILE_MOVE_TO_DIRECTORY, moveToDirectory.getText());
+        properties.put(FILE_MOVE_TO_DIRECTORY, moveToDirectory.getText().replace('\\', '/'));
 
         if (deleteAfterReadYes.isSelected())
             properties.put(FILE_DELETE_AFTER_READ, UIConstants.YES_OPTION);

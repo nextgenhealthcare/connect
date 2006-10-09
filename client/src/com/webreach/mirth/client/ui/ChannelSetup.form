@@ -84,21 +84,21 @@
                               </Group>
                           </Group>
                           <Component id="encryptMessagesCheckBox" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Component id="jScrollPane1" alignment="0" pref="519" max="32767" attributes="3"/>
                           <Group type="102" alignment="0" attributes="0">
                               <EmptySpace min="-2" pref="35" max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" attributes="0">
+                                  <Component id="storeMessagesAll" alignment="0" min="-2" max="-2" attributes="0"/>
                                   <Group type="102" alignment="0" attributes="0">
                                       <Component id="storeMessagesDays" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace min="-2" pref="4" max="-2" attributes="0"/>
+                                      <Component id="numDays" min="-2" pref="30" max="-2" attributes="0"/>
                                       <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="numDays" min="-2" pref="26" max="-2" attributes="0"/>
-                                      <EmptySpace min="4" pref="4" max="-2" attributes="0"/>
                                       <Component id="days" min="-2" max="-2" attributes="0"/>
                                   </Group>
-                                  <Component id="storeMessagesAll" alignment="0" min="-2" max="-2" attributes="0"/>
                                   <Component id="storeMessagesErrors" alignment="0" min="-2" max="-2" attributes="0"/>
                               </Group>
                           </Group>
-                          <Component id="jScrollPane1" alignment="0" pref="519" max="32767" attributes="3"/>
                       </Group>
                       <EmptySpace min="-2" pref="75" max="-2" attributes="0"/>
                   </Group>
@@ -136,22 +136,22 @@
                       </Group>
                       <EmptySpace min="-2" max="-2" attributes="0"/>
                       <Component id="storeMessages" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace min="-2" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="5" max="-2" attributes="0"/>
+                      <Component id="storeMessagesErrors" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
                       <Component id="storeMessagesAll" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="storeMessagesDays" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="numDays" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="days" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="storeMessagesDays" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="storeMessagesErrors" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Component id="summaryDescriptionLabel" min="-2" max="-2" attributes="0"/>
                           <Component id="jScrollPane1" pref="209" max="32767" attributes="0"/>
                       </Group>
-                      <EmptySpace min="-2" pref="75" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="76" max="-2" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -295,7 +295,7 @@
                 <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
                   <ComponentRef name="buttonGroup1"/>
                 </Property>
-                <Property name="text" type="java.lang.String" value="Store all messages"/>
+                <Property name="text" type="java.lang.String" value="Store indefinitely"/>
                 <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
                   <Insets value="[0, 0, 0, 0]"/>
                 </Property>
@@ -317,7 +317,7 @@
                 <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
                   <ComponentRef name="buttonGroup1"/>
                 </Property>
-                <Property name="text" type="java.lang.String" value="Store messages for "/>
+                <Property name="text" type="java.lang.String" value="Store for "/>
                 <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
                   <Insets value="[0, 0, 0, 0]"/>
                 </Property>
@@ -348,7 +348,7 @@
                     <EmptyBorder bottom="0" left="0" right="0" top="0"/>
                   </Border>
                 </Property>
-                <Property name="text" type="java.lang.String" value="Store messages with errors only"/>
+                <Property name="text" type="java.lang.String" value="With errors only"/>
                 <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
                   <Insets value="[0, 0, 0, 0]"/>
                 </Property>

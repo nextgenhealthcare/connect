@@ -43,12 +43,12 @@ public class SFTPWriter extends ConnectorClass
 
     /** Creates new form FTPReader */
     public final String DATATYPE = "DataType";
-    public final String FTP_URL = "url";
-    public final String FTP_USERNAME = "username";
-    public final String FTP_PASSWORD = "password";
-    public final String FTP_POLLING_FREQUENCY = "pollingFrequency";
-    public final String FTP_FILENAME_PARSER = "filenameParser ";
-    public final String FTP_OUTPUT_PATTERN = "outputPattern";
+    public final String SFTP_ADDRESS = "host";
+    public final String SFTP_USERNAME = "username";
+    public final String SFTP_PASSWORD = "password";
+    public final String SFTP_POLLING_FREQUENCY = "pollingFrequency";
+    public final String SFTP_FILENAME_PARSER = "filenameParser ";
+    public final String SFTP_OUTPUT_PATTERN = "outputPattern";
 
     public SFTPWriter()
     {
@@ -62,45 +62,45 @@ public class SFTPWriter extends ConnectorClass
     {
         Properties properties = new Properties();
         properties.put(DATATYPE, name);
-        properties.put(FTP_URL, FTPURLField.getText());        
-        properties.put(FTP_USERNAME, FTPUsernameField.getText());
-        properties.put(FTP_PASSWORD, new String(FTPPasswordField.getPassword()));
-        properties.put(FTP_POLLING_FREQUENCY, pollingFrequencyField.getText());
-        properties.put(FTP_FILENAME_PARSER, filenameParserField.getText());
-        properties.put(FTP_OUTPUT_PATTERN, outputPatternField.getText());
+        properties.put(SFTP_ADDRESS, FTPURLField.getText());        
+        properties.put(SFTP_USERNAME, FTPUsernameField.getText());
+        properties.put(SFTP_PASSWORD, new String(FTPPasswordField.getPassword()));
+        properties.put(SFTP_POLLING_FREQUENCY, pollingFrequencyField.getText());
+        properties.put(SFTP_FILENAME_PARSER, filenameParserField.getText());
+        properties.put(SFTP_OUTPUT_PATTERN, outputPatternField.getText());
 
         return properties;
     }
 
     public void setProperties(Properties props)
     {
-        FTPURLField.setText((String)props.get(FTP_URL));        
-        FTPUsernameField.setText((String)props.get(FTP_USERNAME));
-        FTPPasswordField.setText((String)props.get(FTP_PASSWORD));
-        pollingFrequencyField.setText((String)props.get(FTP_POLLING_FREQUENCY));
-        filenameParserField.setText((String)props.get(FTP_FILENAME_PARSER));
-        outputPatternField.setText((String)props.get(FTP_OUTPUT_PATTERN));
+        FTPURLField.setText((String)props.get(SFTP_ADDRESS));        
+        FTPUsernameField.setText((String)props.get(SFTP_USERNAME));
+        FTPPasswordField.setText((String)props.get(SFTP_PASSWORD));
+        pollingFrequencyField.setText((String)props.get(SFTP_POLLING_FREQUENCY));
+        filenameParserField.setText((String)props.get(SFTP_FILENAME_PARSER));
+        outputPatternField.setText((String)props.get(SFTP_OUTPUT_PATTERN));
     }
     
     public Properties getDefaults()
     {
         Properties properties = new Properties();
         properties.put(DATATYPE, name);
-        properties.put(FTP_URL, "");
-        properties.put(FTP_USERNAME, "");
-        properties.put(FTP_PASSWORD, "");
-        properties.put(FTP_POLLING_FREQUENCY, "1000");
-        properties.put(FTP_FILENAME_PARSER, "");
-        properties.put(FTP_OUTPUT_PATTERN, "");
+        properties.put(SFTP_ADDRESS, "");
+        properties.put(SFTP_USERNAME, "");
+        properties.put(SFTP_PASSWORD, "");
+        properties.put(SFTP_POLLING_FREQUENCY, "1000");
+        properties.put(SFTP_FILENAME_PARSER, "");
+        properties.put(SFTP_OUTPUT_PATTERN, "");
         
         return properties;
     }
     
     public boolean checkProperties(Properties props)
     {
-        if(((String)props.get(FTP_URL)).length() > 0 && ((String)props.get(FTP_USERNAME)).length() > 0 && 
-           ((String)props.get(FTP_PASSWORD)).length() > 0 && ((String)props.get(FTP_POLLING_FREQUENCY)).length() > 0 && 
-           ((String)props.get(FTP_FILENAME_PARSER)).length() > 0 && ((String)props.get(FTP_OUTPUT_PATTERN)).length() > 0)
+        if(((String)props.get(SFTP_ADDRESS)).length() > 0 && ((String)props.get(SFTP_USERNAME)).length() > 0 && 
+           ((String)props.get(SFTP_PASSWORD)).length() > 0 && ((String)props.get(SFTP_POLLING_FREQUENCY)).length() > 0 && 
+           ((String)props.get(SFTP_FILENAME_PARSER)).length() > 0 && ((String)props.get(SFTP_OUTPUT_PATTERN)).length() > 0)
             return true;
         return false;
     }
@@ -134,7 +134,7 @@ public class SFTPWriter extends ConnectorClass
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createTitledBorder(null, "SFTP Writer", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(0, 0, 0)));
-        URL.setText("SFTP URL:");
+        URL.setText("SFTP Address:");
 
         jLabel4.setText("Filename Parser:");
 
