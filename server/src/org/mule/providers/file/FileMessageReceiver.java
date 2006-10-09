@@ -133,7 +133,9 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 		boolean resultOfFileMoveOperation = false;
 		try {
 			// Perform some quick checks to make sure file can be processed
-			if (!(file.canRead() && file.exists() && file.isFile())) {
+			if (file.isDirectory()) {
+				// ignore directories
+			} else if (!(file.canRead() && file.exists() && file.isFile())) {
 				throw new MuleException(new Message(Messages.FILE_X_DOES_NOT_EXIST, file.getName()));
 			} else {
 				// Read in the file, parse it line by line
@@ -193,14 +195,14 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 
 		// declared here only to make visible to finally clause
 		BufferedReader input = null;
-		
+
 		try {
 			// use buffering
 			// this implementation reads one line at a time
 			// FileReader always assumes default encoding is OK!
 			input = new BufferedReader(new FileReader(aFile));
 			String line = null; // not declared within while loop
-			
+
 			while ((line = input.readLine()) != null) {
 				contents.add(line);
 			}
@@ -227,20 +229,20 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 		StringBuilder message = new StringBuilder();
 		Scanner scanner = new Scanner(file);
 		char data[] = { (char) startOfMessage, (char) endOfMessage };
-		
+
 		while (scanner.hasNextLine()) {
 			String line = scanner.nextLine().replaceAll(new String(data, 0, 1), "").replaceAll(new String(data, 1, 1), "");
-			
+
 			if ((line.length() == 0) || line.equals((char) endOfMessage) || line.startsWith("MSH")) {
 				if (message.length() > 0) {
 					messages.add(message.toString());
 					message = new StringBuilder();
 				}
-				
+
 				while ((line.length() == 0) && scanner.hasNextLine()) {
 					line = scanner.nextLine();
 				}
-				
+
 				if (line.length() > 0) {
 					message.append(line);
 					message.append((char) endOfRecord);
@@ -248,14 +250,14 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 			} else {
 				message.append(line);
 				message.append((char) endOfRecord);
-				
+
 				if (!scanner.hasNextLine()) {
 					messages.add(message.toString());
 					message = new StringBuilder();
 				}
 			}
 		}
-		
+
 		scanner.close();
 		return messages;
 	}
