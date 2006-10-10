@@ -68,6 +68,6 @@ public class TemplateValueReplacer {
 		context.put("COUNT", String.valueOf(getCount()));
 		context.put("UUID", (new UUID()).getUUID());
 		context.put("SYSTIME", String.valueOf(System.currentTimeMillis()));
-		context.put("ORIGINALFILENAME", originalFilename);
+		context.put("ORIGINALNAME", originalFilename);
 	}
 }
