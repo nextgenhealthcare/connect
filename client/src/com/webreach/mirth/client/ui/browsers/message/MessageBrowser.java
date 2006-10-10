@@ -58,6 +58,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
@@ -548,8 +549,8 @@ public class MessageBrowser extends javax.swing.JPanel
                 for (int i=0; variableMapSetIterator.hasNext(); i++)
                 {
                     Entry variableMapEntry = (Entry)variableMapSetIterator.next();
-                    tableData[i][0] = (String)variableMapEntry.getKey();
-                    tableData[i][1] = (String)variableMapEntry.getValue();
+                    tableData[i][0] = variableMapEntry.getKey().toString();
+                    tableData[i][1] = variableMapEntry.getValue().toString();
                 }
                 makeMappingsTable(tableData, false);
                 
