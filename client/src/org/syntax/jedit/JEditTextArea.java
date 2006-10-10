@@ -138,7 +138,7 @@ public class JEditTextArea extends JComponent {
 		// Load the defaults
 		setInputHandler(defaults.inputHandler);
 		setDocument(defaults.document);
-
+	
 		DropTarget gt = new DropTarget();
 		try {
 			gt.addDropTargetListener(new DropTargetListener() {
@@ -2071,7 +2071,7 @@ public class JEditTextArea extends JComponent {
 		}
 
 		private void doSingleClick(MouseEvent evt, int line, int offset, int dot) {
-			if (isEditable()) {
+			if (isEnabled()) {
 				if ((evt.getModifiers() & InputEvent.SHIFT_MASK) != 0) {
 					rectSelect = (evt.getModifiers() & InputEvent.CTRL_MASK) != 0;
 					select(getMarkPosition(), dot);
