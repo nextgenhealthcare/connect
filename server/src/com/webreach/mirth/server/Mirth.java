@@ -247,6 +247,7 @@ public class Mirth extends Thread {
 		String version = versionProperties.getProperty("mirth.version");
 		String buildDate = versionProperties.getProperty("mirth.date");
 		System.out.println("Mirth " + version + " (" + buildDate + ") server successfully started: " + (new Date()).toString());
+		System.out.println("This product includes software developed by SymphonySoft Limited (http://www.symphonysoft.com) and its contributors.");
 		System.out.println("Running Java " + System.getProperty("java.version") + " on " + System.getProperty("os.name") + " (" + System.getProperty("os.version") + ", " + System.getProperty("os.arch") + ")");
 	}
 }
