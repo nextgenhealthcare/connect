@@ -28,6 +28,8 @@ public class SftpConnector extends AbstractServiceEnabledConnector {
 	public static final String PROPERTY_OUTPUT_PATTERN = "outputPattern";
 	public static final String PROPERTY_TEMPLATE = "template";
 	
+	private String username;
+	private String password;
 	private long pollingFrequency = 0;
 	private String outputPattern = null;
 	private String template = null;
@@ -84,7 +86,7 @@ public class SftpConnector extends AbstractServiceEnabledConnector {
 		ObjectPool pool = (ObjectPool) pools.get(key);
 		
 		if (pool == null) {
-			pool = new GenericObjectPool(new SftpConnectionFactory(uri));
+			pool = new GenericObjectPool(new SftpConnectionFactory(uri, username, password));
 			pools.put(key, pool);
 		}
 		
@@ -136,6 +138,22 @@ public class SftpConnector extends AbstractServiceEnabledConnector {
 
 	public void setTemplate(String template) {
 		this.template = template;
+	}
+
+	public String getPassword() {
+		return this.password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public String getUsername() {
+		return this.username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
 	}
 
 	

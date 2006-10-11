@@ -53,14 +53,12 @@ public class FtpConnector extends AbstractServiceEnabledConnector {
 	 * Time in milliseconds to poll. On each poll the poll() method is called
 	 */
 	private long pollingFrequency = 0;
-
 	private String outputPattern = null;
-
 	private String template = null;
-
 	private FilenameParser filenameParser = new VariableFilenameParser();
-
 	private Map pools = new HashMap();
+	private String username;
+	private String password;
 
 	public String getProtocol() {
 		return "ftp";
@@ -81,6 +79,22 @@ public class FtpConnector extends AbstractServiceEnabledConnector {
 		}
 		logger.debug("set polling frequency to: " + polling);
 		return serviceDescriptor.createMessageReceiver(this, component, endpoint, new Object[] { new Long(polling) });
+	}
+	
+	public String getPassword() {
+		return this.password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public String getUsername() {
+		return this.username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
 	}
 
 	/**
@@ -126,7 +140,7 @@ public class FtpConnector extends AbstractServiceEnabledConnector {
 		String key = uri.getUsername() + ":" + uri.getPassword() + "@" + uri.getHost() + ":" + uri.getPort();
 		ObjectPool pool = (ObjectPool) pools.get(key);
 		if (pool == null) {
-			pool = new GenericObjectPool(new FtpConnectionFactory(uri));
+			pool = new GenericObjectPool(new FtpConnectionFactory(uri, username, password));
 			pools.put(key, pool);
 		}
 		return pool;
@@ -137,9 +151,13 @@ public class FtpConnector extends AbstractServiceEnabledConnector {
 	 */
 	protected class FtpConnectionFactory implements PoolableObjectFactory {
 		private UMOEndpointURI uri;
+		private String username;
+		private String password;
 
-		public FtpConnectionFactory(UMOEndpointURI uri) {
+		public FtpConnectionFactory(UMOEndpointURI uri, String username, String password) {
 			this.uri = uri;
+			this.username = username;
+			this.password = password;
 		}
 
 		public Object makeObject() throws Exception {
@@ -153,7 +171,7 @@ public class FtpConnector extends AbstractServiceEnabledConnector {
 				if (!FTPReply.isPositiveCompletion(client.getReplyCode())) {
 					throw new IOException("Ftp error: " + client.getReplyCode());
 				}
-				if (!client.login(uri.getUsername(), uri.getPassword())) {
+				if (!client.login(username, password)) {
 					throw new IOException("Ftp error: " + client.getReplyCode());
 				}
 				if (!client.setFileType(FTP.BINARY_FILE_TYPE)) {

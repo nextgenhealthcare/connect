@@ -11,9 +11,13 @@ import com.jcraft.jsch.UserInfo;
 
 public class SftpConnectionFactory implements PoolableObjectFactory {
 	private UMOEndpointURI uri;
-
-	public SftpConnectionFactory(UMOEndpointURI uri) {
+	private String username;
+	private String password;
+	
+	public SftpConnectionFactory(UMOEndpointURI uri, String username, String password) {
 		this.uri = uri;
+		this.username = username;
+		this.password = password;
 	}
 
 	public Object makeObject() throws Exception {
@@ -24,12 +28,12 @@ public class SftpConnectionFactory implements PoolableObjectFactory {
 			Session session = null;
 
 			if (uri.getPort() > 0) {
-				session = jsch.getSession(uri.getUsername(), uri.getHost(), uri.getPort());
+				session = jsch.getSession(username, uri.getHost(), uri.getPort());
 			} else {
-				session = jsch.getSession(uri.getUsername(), uri.getHost());
+				session = jsch.getSession(username, uri.getHost());
 			}
 
-			UserInfo userInfo = new SftpUserInfo(uri.getPassword());
+			UserInfo userInfo = new SftpUserInfo(password);
 			session.setUserInfo(userInfo);
 			session.connect();
 

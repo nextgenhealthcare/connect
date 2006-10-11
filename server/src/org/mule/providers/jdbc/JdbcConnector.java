@@ -198,32 +198,41 @@ public class JdbcConnector extends AbstractServiceEnabledConnector
     public String getURL(){
     	return URL;
     }
-    public String getusername(){
-    	return username;
-    }
-    public String getpassword(){
-    	return password;
-    }
 
-    /**
+    
+
+    public String getPassword() {
+		return this.password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public String getUsername() {
+		return this.username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
+	/**
      * @param dataSource The dataSource to set.
      */
     public void setDataSource(DataSource dataSource)
     {
         this.dataSource = dataSource;
     }
+    
     public void setDriver(String _driver){
     	driver = _driver;
     }
+    
     public void setURL(String url){
     	URL = url;
     }
-    public void setusername(String userName){
-    	username = userName;
-    }
-    public void setpassword(String passWord){
-    	password = passWord;
-    }
+
     /**
      * @return Returns the pollingFrequency.
      */
