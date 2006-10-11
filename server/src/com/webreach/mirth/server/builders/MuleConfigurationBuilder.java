@@ -121,6 +121,11 @@ public class MuleConfigurationBuilder {
 			}
 
 			muleDescriptorElement.setAttribute("initialState", initialState);
+			
+			// exception-strategy
+			Element exceptionStrategyElement = document.createElement("exception-strategy");
+			exceptionStrategyElement.setAttribute("className", "com.webreach.mirth.server.mule.ExceptionStrategy");
+			muleDescriptorElement.appendChild(exceptionStrategyElement);
 
 			// inbound-router
 			muleDescriptorElement.appendChild(getInboundRouter(document, configurationElement, channel));
@@ -316,6 +321,11 @@ public class MuleConfigurationBuilder {
 			Element connectorElement = document.createElement("connector");
 			connectorElement.setAttribute("name", name);
 			connectorElement.setAttribute("className", transport.getClassName());
+			
+			// exception-strategy
+			Element exceptionStrategyElement = document.createElement("exception-strategy");
+			exceptionStrategyElement.setAttribute("className", "com.webreach.mirth.server.mule.ExceptionStrategy");
+			connectorElement.appendChild(exceptionStrategyElement);
 
 			// TODO: (maybe) create a ConnectorProperty object that has
 			// name, value, and isMuleProperty attribute

@@ -8,10 +8,10 @@ import org.apache.log4j.Logger;
 public class StackTracePrinter {
 	private Logger logger = Logger.getLogger(this.getClass());
 	
-	public String stackTraceToString(Throwable exception) {
+	public String stackTraceToString(Throwable t) {
 		StringWriter stringWriter = new StringWriter();
 		PrintWriter printWriter = new PrintWriter(stringWriter);
-		exception.printStackTrace(printWriter);
+		t.printStackTrace(printWriter);
 		String exceptionString = stringWriter.toString();
 		
 		try {
