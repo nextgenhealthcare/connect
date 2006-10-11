@@ -26,23 +26,6 @@
 
 package com.webreach.mirth.client.ui.browsers.message;
 
-import com.webreach.mirth.client.core.ListHandlerException;
-import com.webreach.mirth.client.core.MessageListHandler;
-import com.webreach.mirth.client.ui.Frame;
-import com.webreach.mirth.client.ui.Mirth;
-import com.webreach.mirth.client.ui.CenterCellRenderer;
-import com.webreach.mirth.client.ui.MirthFileFilter;
-import com.webreach.mirth.client.ui.PlatformUI;
-import com.webreach.mirth.client.ui.UIConstants;
-import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
-import com.webreach.mirth.client.ui.components.MirthSyntaxTextArea;
-import com.webreach.mirth.client.ui.components.MirthTextPane;
-import com.webreach.mirth.client.ui.util.FileUtil;
-import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.model.converters.ObjectXMLSerializer;
-import com.webreach.mirth.model.filters.MessageObjectFilter;
-//import com.webreach.mirth.util.EntityDecoder;
-
 import java.awt.Cursor;
 import java.awt.Point;
 import java.io.File;
@@ -53,21 +36,36 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.prefs.Preferences;
+
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
-import javax.swing.ScrollPaneConstants;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
+
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.AlternateRowHighlighter;
 import org.jdesktop.swingx.decorator.HighlighterPipeline;
 import org.syntax.jedit.SyntaxDocument;
 import org.syntax.jedit.tokenmarker.HL7TokenMarker;
 import org.syntax.jedit.tokenmarker.XMLTokenMarker;
+
+import com.webreach.mirth.client.core.ListHandlerException;
+import com.webreach.mirth.client.core.MessageListHandler;
+import com.webreach.mirth.client.ui.Frame;
+import com.webreach.mirth.client.ui.Mirth;
+import com.webreach.mirth.client.ui.MirthFileFilter;
+import com.webreach.mirth.client.ui.PlatformUI;
+import com.webreach.mirth.client.ui.UIConstants;
+import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
+import com.webreach.mirth.client.ui.components.MirthSyntaxTextArea;
+import com.webreach.mirth.client.ui.util.FileUtil;
+import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.model.converters.ObjectXMLSerializer;
+import com.webreach.mirth.model.filters.MessageObjectFilter;
 
 /**
  * The message browser panel.

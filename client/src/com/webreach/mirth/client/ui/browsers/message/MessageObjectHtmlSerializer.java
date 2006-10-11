@@ -9,13 +9,12 @@
 
 package com.webreach.mirth.client.ui.browsers.message;
 
-import com.webreach.mirth.client.ui.util.FileUtil;
-import com.webreach.mirth.model.MessageObject;
 import java.io.File;
 import java.io.IOException;
-import java.text.CharacterIterator;
-import java.text.StringCharacterIterator;
 import java.util.List;
+
+import com.webreach.mirth.client.ui.util.FileUtil;
+import com.webreach.mirth.model.MessageObject;
 
 /**
  *

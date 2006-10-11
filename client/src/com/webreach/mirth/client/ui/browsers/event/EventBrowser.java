@@ -26,31 +26,28 @@
 
 package com.webreach.mirth.client.ui.browsers.event;
 
-import com.webreach.mirth.client.core.ClientException;
-import com.webreach.mirth.client.ui.Frame;
-import com.webreach.mirth.client.ui.Mirth;
-import com.webreach.mirth.client.ui.CenterCellRenderer;
-import com.webreach.mirth.client.ui.PlatformUI;
-import com.webreach.mirth.client.ui.UIConstants;
-import com.webreach.mirth.model.SystemEvent;
-import com.webreach.mirth.model.filters.SystemEventFilter;
-import java.awt.Font;
 import java.awt.Point;
 import java.util.Calendar;
 import java.util.List;
 import java.util.prefs.Preferences;
+
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
-import javax.swing.SwingConstants;
-import javax.swing.UIManager;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.table.DefaultTableCellRenderer;
+
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.AlternateRowHighlighter;
-import org.jdesktop.swingx.decorator.ComponentAdapter;
-import org.jdesktop.swingx.decorator.ConditionalHighlighter;
 import org.jdesktop.swingx.decorator.HighlighterPipeline;
+
+import com.webreach.mirth.client.core.ClientException;
+import com.webreach.mirth.client.ui.CenterCellRenderer;
+import com.webreach.mirth.client.ui.Frame;
+import com.webreach.mirth.client.ui.Mirth;
+import com.webreach.mirth.client.ui.PlatformUI;
+import com.webreach.mirth.client.ui.UIConstants;
+import com.webreach.mirth.model.SystemEvent;
+import com.webreach.mirth.model.filters.SystemEventFilter;
 
 /**
  * The event browser panel.
