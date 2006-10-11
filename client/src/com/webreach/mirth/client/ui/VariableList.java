@@ -54,9 +54,16 @@ public class VariableList extends javax.swing.JPanel
     {
         ArrayList<String> variables = new ArrayList<String>();
         int i = 0;
+        
         variables.add("Raw Data");
         variables.add("Transformed Data");
         variables.add("Encoded Data");
+        variables.add("DATE");
+        variables.add("DATE:yy-MM-dd");
+        variables.add("SYSTIME");
+        variables.add("UUID");
+        variables.add("ORIGINALNAME");
+        variables.add("COUNT");
         
         for (Iterator it = steps.iterator(); it.hasNext();)
         {

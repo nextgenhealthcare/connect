@@ -49,16 +49,10 @@
                   <Component id="FTPURLField" alignment="0" min="-2" pref="250" max="-2" attributes="1"/>
                   <Component id="FTPPasswordField" alignment="0" min="-2" pref="125" max="-2" attributes="0"/>
                   <Component id="pollingFrequencyField" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
-                  <Group type="102" attributes="0">
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="filenameParserField" alignment="0" min="-2" pref="200" max="-2" attributes="1"/>
-                          <Component id="outputPatternField" alignment="0" min="-2" pref="200" max="-2" attributes="1"/>
-                      </Group>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jScrollPane1" min="-2" max="-2" attributes="0"/>
-                  </Group>
+                  <Component id="filenameParserField" alignment="0" min="-2" pref="200" max="-2" attributes="1"/>
+                  <Component id="outputPatternField" alignment="0" min="-2" pref="200" max="-2" attributes="1"/>
               </Group>
-              <EmptySpace pref="35" max="32767" attributes="0"/>
+              <EmptySpace pref="73" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -98,12 +92,8 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="outputPatternField" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace min="-2" pref="81" max="-2" attributes="0"/>
-                      <Component id="jScrollPane1" min="-2" pref="98" max="-2" attributes="0"/>
-                  </Group>
               </Group>
-              <EmptySpace pref="43" max="32767" attributes="0"/>
+              <EmptySpace pref="97" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -130,29 +120,6 @@
         <Property name="text" type="java.lang.String" value="Output Pattern:"/>
       </Properties>
     </Component>
-    <Container class="javax.swing.JScrollPane" name="jScrollPane1">
-      <AuxValues>
-        <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
-      </AuxValues>
-
-      <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
-      <SubComponents>
-        <Component class="com.webreach.mirth.client.ui.components.MirthVariableList" name="mirthVariableList1">
-          <Properties>
-            <Property name="model" type="javax.swing.ListModel" editor="org.netbeans.modules.form.editors2.ListModelEditor">
-              <StringArray count="6">
-                <StringItem index="0" value="DATE"/>
-                <StringItem index="1" value="DATE:yy-MM-dd"/>
-                <StringItem index="2" value="SYSTIME"/>
-                <StringItem index="3" value="UUID"/>
-                <StringItem index="4" value="ORIGINALNAME"/>
-                <StringItem index="5" value="COUNT"/>
-              </StringArray>
-            </Property>
-          </Properties>
-        </Component>
-      </SubComponents>
-    </Container>
     <Component class="javax.swing.JLabel" name="FTPUsernameLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Username:"/>
