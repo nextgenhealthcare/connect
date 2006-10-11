@@ -27,8 +27,8 @@
 package com.webreach.mirth.client.ui.actions;
 
 import java.awt.event.ActionEvent;
+
 import javax.swing.AbstractAction;
-import javax.swing.text.JTextComponent;
 
 import com.webreach.mirth.client.ui.components.MirthTextInterface;
 
