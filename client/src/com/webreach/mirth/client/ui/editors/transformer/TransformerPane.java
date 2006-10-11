@@ -821,6 +821,9 @@ public class TransformerPane extends MirthEditorPane
             setRowData(step, rowCount);
             prevSelRow = rowCount;
             updateStepNumbers();
+            transformerTable.setRowSelectionInterval(rowCount, rowCount);
+            transformerTable.setVisibleRowCount(rowCount);
+            transformerTablePane.getViewport().setViewPosition(new Point(0, transformerTable.getRowHeight()*rowCount));
         }
     }
     

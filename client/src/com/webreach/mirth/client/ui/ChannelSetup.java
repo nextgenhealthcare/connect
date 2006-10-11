@@ -911,6 +911,7 @@ public class ChannelSetup extends javax.swing.JPanel
     public void addNewDestination()
     {
         makeDestinationTable(true);
+        destinationPane.getViewport().setViewPosition(new Point(0, destinationTable.getRowHeight()*destinationTable.getRowCount()));
         parent.enableSave();
     }
     

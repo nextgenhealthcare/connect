@@ -568,6 +568,8 @@ public class FilterPane extends MirthEditorPane
         setRowData( rule, rowCount );
         prevSelRow = rowCount;
         updateRuleNumbers();
+        filterTable.setRowSelectionInterval( rowCount, rowCount );
+        filterTablePane.getViewport().setViewPosition(new Point(0, filterTable.getRowHeight()*rowCount));
     }
     
     /** void deleteRule(MouseEvent evt)
