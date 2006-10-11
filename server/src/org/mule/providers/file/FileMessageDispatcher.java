@@ -35,6 +35,7 @@ import org.mule.umo.endpoint.UMOEndpointURI;
 import org.mule.util.Utility;
 
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.server.controllers.MessageObjectController;
 
 /**
  * <code>FileMessageDispatcher</code> is used to read/write files to the
@@ -46,6 +47,7 @@ import com.webreach.mirth.model.MessageObject;
  */
 public class FileMessageDispatcher extends AbstractMessageDispatcher {
 	private FileConnector connector;
+	private MessageObjectController messageObjectController = new MessageObjectController();
 
 	public FileMessageDispatcher(FileConnector connector) {
 		super(connector);
@@ -94,6 +96,10 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
 				logger.info("Writing file to: " + file.getAbsolutePath());
 				fos = new FileOutputStream(file, connector.isOutputAppend());
 				fos.write(buffer);
+				
+				// update the message status to sent
+				messageObject.setStatus(MessageObject.Status.SENT);
+				messageObjectController.updateMessage(messageObject);
 			} else {
 				logger.warn("received data is not of expected type");
 			}

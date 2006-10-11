@@ -18,9 +18,11 @@ import com.lowagie.text.Document;
 import com.lowagie.text.html.HtmlParser;
 import com.lowagie.text.pdf.PdfWriter;
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.server.controllers.MessageObjectController;
 
 public class PdfMessageDispatcher extends AbstractMessageDispatcher {
 	private PdfConnector connector;
+	private MessageObjectController messageObjectController = new MessageObjectController();
 
 	public PdfMessageDispatcher(PdfConnector connector) {
 		super(connector);
@@ -56,6 +58,10 @@ public class PdfMessageDispatcher extends AbstractMessageDispatcher {
 				File file = Utility.createFile(endpoint + "/" + filename);
 				logger.info("Writing PDF to: " + file.getAbsolutePath());
 				writeDocument(template, file);
+				
+				// update the message status to sent
+				messageObject.setStatus(MessageObject.Status.SENT);
+				messageObjectController.updateMessage(messageObject);
 			} else {
 				logger.warn("received data is not of expected type");
 			}

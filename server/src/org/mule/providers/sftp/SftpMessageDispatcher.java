@@ -23,9 +23,11 @@ import org.mule.umo.endpoint.UMOEndpointURI;
 
 import com.jcraft.jsch.ChannelSftp;
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.server.controllers.MessageObjectController;
 
 public class SftpMessageDispatcher extends AbstractMessageDispatcher {
 	protected SftpConnector connector;
+	private MessageObjectController messageObjectController = new MessageObjectController();
 
 	public SftpMessageDispatcher(SftpConnector connector) {
 		super(connector);
@@ -66,6 +68,10 @@ public class SftpMessageDispatcher extends AbstractMessageDispatcher {
 				int mode = ChannelSftp.OVERWRITE;
 				
 				client.put(new ByteArrayInputStream(buffer), ".", mode);
+				
+				// update the message status to sent
+				messageObject.setStatus(MessageObject.Status.SENT);
+				messageObjectController.updateMessage(messageObject);
 			} else {
 				logger.warn("received data is not of expected type");
 			}

@@ -35,6 +35,7 @@ import org.mule.umo.provider.UMOConnector;
 import org.mule.util.Utility;
 
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.server.controllers.MessageObjectController;
 
 /**
  * <code>TcpMessageDispatcher</code> will send transformed mule events over
@@ -61,6 +62,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher
     protected static transient Log logger = LogFactory.getLog(TcpMessageDispatcher.class);
 
     private TcpConnector connector;
+    private MessageObjectController messageObjectController = new MessageObjectController();
 
     public TcpMessageDispatcher(TcpConnector connector)
     {
@@ -125,7 +127,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher
     public UMOMessage doSend(UMOEvent event) throws Exception
     {
         try {
-            Object payload = event.getTransformedMessage();
+            Object data = event.getTransformedMessage();
 
             if (!connector.isKeepSendSocketOpen()) {
                 connectedSocket = initSocket(event.getEndpoint().getEndpointURI().getAddress());
@@ -134,7 +136,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher
             }
 
             try {
-                write(connectedSocket, payload);
+                write(connectedSocket, data);
                 // If we're doing sync receive try and read return info from socket
             }
             catch (IOException e) {
@@ -144,12 +146,19 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher
                     doDispose();
 
                     if (reconnect(event, connector.getMaxRetryCount()))
-                        write(connectedSocket, payload);
+                        write(connectedSocket, data);
                 } else {
                     throw e;
                 }
             }
 
+			// update the message status to sent
+            if (data instanceof MessageObject) {
+            	MessageObject messageObject = (MessageObject) data;
+    			messageObject.setStatus(MessageObject.Status.SENT);
+    			messageObjectController.updateMessage(messageObject);
+            }
+            
             if (useRemoteSync(event)) {
                 try {
                     byte[] result = receive(connectedSocket, event.getEndpoint().getRemoteSyncTimeout());

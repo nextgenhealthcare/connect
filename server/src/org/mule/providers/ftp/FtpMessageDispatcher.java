@@ -37,6 +37,7 @@ import org.mule.umo.UMOMessage;
 import org.mule.umo.endpoint.UMOEndpointURI;
 
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.server.controllers.MessageObjectController;
 
 /**
  * @author <a href="mailto:gnt@codehaus.org">Guillaume Nodet</a>
@@ -45,6 +46,7 @@ import com.webreach.mirth.model.MessageObject;
  */
 public class FtpMessageDispatcher extends AbstractMessageDispatcher {
 	protected FtpConnector connector;
+	private MessageObjectController messageObjectController = new MessageObjectController();
 
 	public FtpMessageDispatcher(FtpConnector connector) {
 		super(connector);
@@ -88,6 +90,10 @@ public class FtpMessageDispatcher extends AbstractMessageDispatcher {
 				if (!client.storeFile(filename, new ByteArrayInputStream(buffer))) {
 					throw new IOException("Ftp error: " + client.getReplyCode());
 				}
+				
+				// update the message status to sent
+				messageObject.setStatus(MessageObject.Status.SENT);
+				messageObjectController.updateMessage(messageObject);
 			} else {
 				logger.warn("received data is not of expected type");
 			}
