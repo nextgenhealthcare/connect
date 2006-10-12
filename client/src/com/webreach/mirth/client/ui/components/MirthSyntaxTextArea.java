@@ -87,9 +87,10 @@ public class MirthSyntaxTextArea extends JEditTextArea implements
 	private JMenu funclist;
 
 	protected boolean showSnippets;
-
-	public MirthSyntaxTextArea(boolean lineNumbers, final boolean showSnippets) {
-		super(lineNumbers);
+	public MirthSyntaxTextArea(){
+		initialize(false, false);
+	}
+	private void initialize(boolean lineNumbers, final boolean showSnippets){
 		this.parent = PlatformUI.MIRTH_FRAME;
 		this.showSnippets = showSnippets;
 		this.setCaretVisible(false);
@@ -166,6 +167,11 @@ public class MirthSyntaxTextArea extends JEditTextArea implements
 			}
 
 		};
+		
+	}
+	public MirthSyntaxTextArea(boolean lineNumbers, final boolean showSnippets) {
+		super(lineNumbers);
+		initialize(lineNumbers, showSnippets);
 	}
 
 	/*
