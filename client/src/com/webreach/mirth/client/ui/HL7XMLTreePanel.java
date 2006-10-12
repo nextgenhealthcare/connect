@@ -72,6 +72,7 @@ public class HL7XMLTreePanel extends JPanel {
 	private JTree tree;
 	private Logger logger = Logger.getLogger(this.getClass());
 	private String _dropPrefix = "msg";
+	private String _dropSuffix = ".toString()";
 	public HL7XMLTreePanel() {
 		parser = new PipeParser();
 		parser.setValidationContext(new NoValidation());
@@ -80,8 +81,9 @@ public class HL7XMLTreePanel extends JPanel {
 		this.setLayout(new GridLayout(1, 1));
 		this.setBackground( Color.white );
 	}
-	public void setDroppedTextPrefix(String prefix){
+	public void setDroppedTextSuffixPrefix(String prefix, String suffix){
 		_dropPrefix = prefix;
+		_dropSuffix = suffix;
 	}
 	/**
 	 * Updates the panel with a new Message.
@@ -225,7 +227,7 @@ public class HL7XMLTreePanel extends JPanel {
 					String leaf = tp.toString();
 					// if (leaf.equals(DNDConstants.TASK) || leaf.equals(DNDConstants.TYPE))
 					//   return null;
-					return new TreeTransferable( tp, _dropPrefix );
+					return new TreeTransferable( tp, _dropPrefix, _dropSuffix );
 				}
 				catch ( ClassCastException cce ) {
 					return null;

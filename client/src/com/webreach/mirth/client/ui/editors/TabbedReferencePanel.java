@@ -105,9 +105,9 @@ public class TabbedReferencePanel extends JPanel
         repaint();
     }
     
-    public void setDroppedTextPrefix(String prefix)
+    public void setDroppedTextSuffixPrefix(String prefix, String suffix)
     {
-        treePanel.setDroppedTextPrefix(prefix);
+        treePanel.setDroppedTextSuffixPrefix(prefix, suffix);
     }
     
     public String getHL7Message()

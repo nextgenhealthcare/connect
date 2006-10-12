@@ -179,7 +179,7 @@ public class MapperPanel extends CardPanel {
 		mappingLabel.setText("   Variable: ");
 		if (addToGlobal != null)
 			addToGlobal.setSelected(false);
-		parent.setDroppedTextPrefix("msg");
+		parent.setDroppedTextSuffixPrefix("msg", ".toString()");
 
 	}
 

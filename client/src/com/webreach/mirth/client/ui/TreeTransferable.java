@@ -40,13 +40,15 @@ public class TreeTransferable implements Transferable {
    private static DataFlavor[] flavors = null;
    private TreeNode data = null;
    private String prefix = "msg";
+   private String suffix = "";
    /**
     * @param data the type of Ant element being transferred, e.g., target, task,
     * type, etc.
     */
-   public TreeTransferable( TreeNode data, String prefix ) {
+   public TreeTransferable( TreeNode data, String prefix, String suffix ) {
       this.data = data;
       this.prefix = prefix;
+      this.suffix = suffix;
       init();
    }
 
@@ -92,7 +94,7 @@ public class TreeTransferable implements Transferable {
          while(!nodeQ.isEmpty()) {
         	 sb.append("['" + nodeQ.removeLast() + "']");
          }
-
+         sb.append(suffix);
          return sb.toString();
       }
       return null;

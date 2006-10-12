@@ -88,8 +88,8 @@ public class MirthEditorPane extends JPanel
     	tabPanel.update();
 	}
     
-    public void setDroppedTextPrefix(String prefix){
-    	tabPanel.setDroppedTextPrefix( prefix );
+    public void setDroppedTextSuffixPrefix(String prefix, String suffix){
+    	tabPanel.setDroppedTextSuffixPrefix( prefix, suffix );
     }
     
     public void updateTaskPane(){}
