@@ -33,9 +33,10 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" attributes="0">
+          <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="1" attributes="0">
+                  <Component id="jLabel3" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel10" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="URL" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="FTPPasswordLabel" alignment="1" min="-2" max="-2" attributes="0"/>
@@ -49,34 +50,42 @@
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="anonymousYes" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="anonymousNo" min="-2" max="-2" attributes="0"/>
+                  <Group type="102" attributes="0">
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="anonymousYes" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="anonymousNo" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Component id="FTPPasswordField" min="-2" pref="125" max="-2" attributes="0"/>
+                          <Component id="filenameParserField" alignment="0" min="-2" pref="200" max="-2" attributes="1"/>
+                          <Component id="pollingFrequencyField" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
+                          <Component id="outputPatternField" alignment="0" min="-2" pref="200" max="-2" attributes="1"/>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="passiveModeYes" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="passiveModeNo" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="fileTypeBinary" min="-2" max="-2" attributes="1"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="fileTypeASCII" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="validateConnectionYes" min="-2" max="-2" attributes="1"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="validateConnectionNo" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Component id="FTPURLField" alignment="0" min="-2" pref="250" max="-2" attributes="1"/>
+                          <Component id="FTPUsernameField" min="-2" pref="125" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace min="-2" pref="273" max="-2" attributes="0"/>
                   </Group>
-                  <Component id="FTPPasswordField" min="-2" pref="125" max="-2" attributes="0"/>
-                  <Component id="filenameParserField" alignment="0" min="-2" pref="200" max="-2" attributes="1"/>
-                  <Component id="pollingFrequencyField" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
-                  <Component id="outputPatternField" alignment="0" min="-2" pref="200" max="-2" attributes="1"/>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="passiveModeYes" min="-2" max="-2" attributes="0"/>
+                  <Group type="102" attributes="0">
+                      <Component id="jScrollPane1" pref="513" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="passiveModeNo" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="fileTypeBinary" min="-2" max="-2" attributes="1"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="fileTypeASCII" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="validateConnectionYes" min="-2" max="-2" attributes="1"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="validateConnectionNo" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <Component id="FTPURLField" alignment="0" min="-2" pref="250" max="-2" attributes="1"/>
-                  <Component id="FTPUsernameField" min="-2" pref="125" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace pref="96" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -138,7 +147,12 @@
                   <Component id="validateConnectionYes" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="validateConnectionNo" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace pref="89" max="32767" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="jLabel3" min="-2" max="-2" attributes="0"/>
+                  <Component id="jScrollPane1" pref="315" max="32767" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -146,7 +160,7 @@
   <SubComponents>
     <Component class="javax.swing.JLabel" name="URL">
       <Properties>
-        <Property name="text" type="java.lang.String" value="FTP URL:"/>
+        <Property name="text" type="java.lang.String" value="Host:"/>
       </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="FTPURLField">
@@ -373,5 +387,21 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="anonymousNoActionPerformed"/>
       </Events>
     </Component>
+    <Component class="javax.swing.JLabel" name="jLabel3">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Template:"/>
+      </Properties>
+    </Component>
+    <Container class="javax.swing.JScrollPane" name="jScrollPane1">
+      <AuxValues>
+        <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
+      </AuxValues>
+
+      <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
+      <SubComponents>
+        <Component class="com.webreach.mirth.client.ui.components.MirthTextPane" name="ftpContentsTextPane">
+        </Component>
+      </SubComponents>
+    </Container>
   </SubComponents>
 </Form>

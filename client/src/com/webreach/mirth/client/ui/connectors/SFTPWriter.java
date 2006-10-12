@@ -49,7 +49,8 @@ public class SFTPWriter extends ConnectorClass
     public final String SFTP_POLLING_FREQUENCY = "pollingFrequency";
     public final String SFTP_FILENAME_PARSER = "filenameParser ";
     public final String SFTP_OUTPUT_PATTERN = "outputPattern";
-
+    public final String SFTP_CONTENTS = "template";
+    
     public SFTPWriter()
     {
         this.parent = PlatformUI.MIRTH_FRAME;
@@ -68,7 +69,7 @@ public class SFTPWriter extends ConnectorClass
         properties.put(SFTP_POLLING_FREQUENCY, pollingFrequencyField.getText());
         properties.put(SFTP_FILENAME_PARSER, filenameParserField.getText());
         properties.put(SFTP_OUTPUT_PATTERN, outputPatternField.getText());
-
+        properties.put(SFTP_CONTENTS, ftpContentsTextPane.getText());
         return properties;
     }
 
@@ -80,6 +81,7 @@ public class SFTPWriter extends ConnectorClass
         pollingFrequencyField.setText((String)props.get(SFTP_POLLING_FREQUENCY));
         filenameParserField.setText((String)props.get(SFTP_FILENAME_PARSER));
         outputPatternField.setText((String)props.get(SFTP_OUTPUT_PATTERN));
+        ftpContentsTextPane.setText((String)props.get(SFTP_CONTENTS));
     }
     
     public Properties getDefaults()
@@ -92,7 +94,7 @@ public class SFTPWriter extends ConnectorClass
         properties.put(SFTP_POLLING_FREQUENCY, "1000");
         properties.put(SFTP_FILENAME_PARSER, "");
         properties.put(SFTP_OUTPUT_PATTERN, "");
-        
+        properties.put(SFTP_CONTENTS, "");
         return properties;
     }
     
@@ -100,7 +102,8 @@ public class SFTPWriter extends ConnectorClass
     {
         if(((String)props.get(SFTP_ADDRESS)).length() > 0 && ((String)props.get(SFTP_USERNAME)).length() > 0 && 
            ((String)props.get(SFTP_PASSWORD)).length() > 0 && ((String)props.get(SFTP_POLLING_FREQUENCY)).length() > 0 && 
-           ((String)props.get(SFTP_FILENAME_PARSER)).length() > 0 && ((String)props.get(SFTP_OUTPUT_PATTERN)).length() > 0)
+           ((String)props.get(SFTP_FILENAME_PARSER)).length() > 0 && ((String)props.get(SFTP_OUTPUT_PATTERN)).length() > 0 && 
+            ((String)props.get(SFTP_CONTENTS)).length() > 0)
             return true;
         return false;
     }
@@ -130,10 +133,13 @@ public class SFTPWriter extends ConnectorClass
         FTPPasswordLabel = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
         pollingFrequencyField = new com.webreach.mirth.client.ui.components.MirthTextField();
+        jLabel3 = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        ftpContentsTextPane = new com.webreach.mirth.client.ui.components.MirthTextPane();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createTitledBorder(null, "SFTP Writer", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(0, 0, 0)));
-        URL.setText("SFTP Address:");
+        URL.setText("Host:");
 
         jLabel4.setText("Filename Parser:");
 
@@ -147,19 +153,24 @@ public class SFTPWriter extends ConnectorClass
 
         jLabel9.setText("Polling Frequency (ms):");
 
+        jLabel3.setText("Template:");
+
+        jScrollPane1.setViewportView(ftpContentsTextPane);
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel5)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel4)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel9)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, FTPPasswordLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, FTPUsernameLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, URL))
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(jLabel3)
+                    .add(jLabel5)
+                    .add(jLabel4)
+                    .add(jLabel9)
+                    .add(FTPPasswordLabel)
+                    .add(FTPUsernameLabel)
+                    .add(URL))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(FTPUsernameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -167,8 +178,9 @@ public class SFTPWriter extends ConnectorClass
                     .add(FTPPasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(pollingFrequencyField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(filenameParserField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(outputPatternField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(73, Short.MAX_VALUE))
+                    .add(outputPatternField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 313, Short.MAX_VALUE))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -199,7 +211,11 @@ public class SFTPWriter extends ConnectorClass
                             .add(jLabel4))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(outputPatternField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(97, Short.MAX_VALUE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(jLabel3)
+                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 246, Short.MAX_VALUE))
+                .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -216,9 +232,12 @@ public class SFTPWriter extends ConnectorClass
     private javax.swing.ButtonGroup buttonGroup3;
     private javax.swing.ButtonGroup buttonGroup4;
     private com.webreach.mirth.client.ui.components.MirthTextField filenameParserField;
+    private com.webreach.mirth.client.ui.components.MirthTextPane ftpContentsTextPane;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel9;
+    private javax.swing.JScrollPane jScrollPane1;
     private com.webreach.mirth.client.ui.components.MirthTextField outputPatternField;
     private com.webreach.mirth.client.ui.components.MirthTextField pollingFrequencyField;
     // End of variables declaration//GEN-END:variables

@@ -150,7 +150,7 @@ public class PDFWriter extends ConnectorClass
 
         jLabel2.setText("File Name:");
 
-        jLabel3.setText("PDF Template:");
+        jLabel3.setText("Template:");
 
         jScrollPane1.setViewportView(fileContentsTextPane);
 
@@ -180,7 +180,7 @@ public class PDFWriter extends ConnectorClass
             }
         });
 
-        jLabel4.setText("Password Protected:");
+        jLabel4.setText("Encrypted:");
 
         passwordField.setFont(new java.awt.Font("Tahoma", 0, 11));
 
@@ -191,13 +191,13 @@ public class PDFWriter extends ConnectorClass
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .add(10, 10, 10)
+                .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
                     .add(jLabel2)
                     .add(jLabel1)
-                    .add(jLabel3)
                     .add(jLabel4)
-                    .add(passwordLabel))
+                    .add(passwordLabel)
+                    .add(jLabel3))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(directoryField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -208,7 +208,7 @@ public class PDFWriter extends ConnectorClass
                         .add(passwordNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                     .add(passwordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 321, Short.MAX_VALUE))
-                .addContainerGap())
+                .add(57, 57, 57))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -229,10 +229,10 @@ public class PDFWriter extends ConnectorClass
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(passwordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(passwordLabel))
-                .add(14, 14, 14)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jLabel3)
-                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 168, Short.MAX_VALUE))
+                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 176, Short.MAX_VALUE)
+                    .add(jLabel3))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
