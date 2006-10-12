@@ -62,9 +62,8 @@ public class TemplateValueReplacer {
 
 		// system variables
 		Calendar today = Calendar.getInstance();
-		context.put("TODAY", today.getTime());
+		context.put("DATE", today.getTime());
 		context.put("FORMATTER", new VelocityFormatter(context));
-		
 		context.put("COUNT", String.valueOf(getCount()));
 		context.put("UUID", (new UUID()).getUUID());
 		context.put("SYSTIME", String.valueOf(System.currentTimeMillis()));
