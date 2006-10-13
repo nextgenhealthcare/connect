@@ -36,8 +36,8 @@
                   <Component id="databasePasswordField" alignment="0" min="-2" pref="125" max="-2" attributes="1"/>
                   <Component id="databaseUsernameField" alignment="0" min="-2" pref="125" max="-2" attributes="1"/>
                   <Component id="databaseURLField" alignment="0" min="-2" pref="200" max="-2" attributes="1"/>
-                  <Component id="jScrollPane2" alignment="0" pref="424" max="32767" attributes="0"/>
                   <Component id="databaseDriverCombobox" alignment="0" min="-2" max="-2" attributes="1"/>
+                  <Component id="databaseSQLTextPane" pref="424" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -74,7 +74,7 @@
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="jLabel5" min="-2" max="-2" attributes="0"/>
-                  <Component id="jScrollPane2" pref="174" max="32767" attributes="0"/>
+                  <Component id="databaseSQLTextPane" pref="174" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -131,16 +131,14 @@
         </Property>
       </Properties>
     </Component>
-    <Container class="javax.swing.JScrollPane" name="jScrollPane2">
-      <AuxValues>
-        <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
-      </AuxValues>
-
-      <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
-      <SubComponents>
-        <Component class="com.webreach.mirth.client.ui.components.MirthTextPane" name="databaseSQLTextPane">
-        </Component>
-      </SubComponents>
-    </Container>
+    <Component class="com.webreach.mirth.client.ui.components.MirthSyntaxTextArea" name="databaseSQLTextPane">
+      <Properties>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EtchedBorderInfo">
+            <EtchetBorder/>
+          </Border>
+        </Property>
+      </Properties>
+    </Component>
   </SubComponents>
 </Form>

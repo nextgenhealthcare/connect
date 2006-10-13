@@ -88,10 +88,9 @@ public class MirthSyntaxTextArea extends JEditTextArea implements
 
 	protected boolean showSnippets;
 	public MirthSyntaxTextArea(){
-		//initialize(false, false);
             super();
 	}
-	private void initialize(boolean lineNumbers, final boolean showSnippets){
+	public void initialize(boolean lineNumbers, final boolean showSnippets){
 		this.parent = PlatformUI.MIRTH_FRAME;
 		this.showSnippets = showSnippets;
 		this.setCaretVisible(false);

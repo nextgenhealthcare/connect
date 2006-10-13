@@ -78,10 +78,11 @@ public class DatabaseWriter extends ConnectorClass
         {
             driverNames[i] = drivers.get(i).getName();
         }
+        databaseSQLTextPane.initialize(true, false);
         databaseDriverCombobox.setModel(new javax.swing.DefaultComboBoxModel(driverNames));    
-        //mappingDoc = new SyntaxDocument();
-        //mappingDoc.setTokenMarker(new TSQLTokenMarker());
-        //databaseSQLTextPane.setDocument(mappingDoc);
+        mappingDoc = new SyntaxDocument();
+        mappingDoc.setTokenMarker(new TSQLTokenMarker());
+        databaseSQLTextPane.setDocument(mappingDoc);
     }
 
     public Properties getProperties()
@@ -159,8 +160,7 @@ public class DatabaseWriter extends ConnectorClass
         databaseURLField = new com.webreach.mirth.client.ui.components.MirthTextField();
         databaseUsernameField = new com.webreach.mirth.client.ui.components.MirthTextField();
         databasePasswordField = new com.webreach.mirth.client.ui.components.MirthPasswordField();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        databaseSQLTextPane = new com.webreach.mirth.client.ui.components.MirthTextPane();
+        databaseSQLTextPane = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Database Writer", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(0, 0, 0)));
@@ -178,7 +178,7 @@ public class DatabaseWriter extends ConnectorClass
 
         databasePasswordField.setFont(new java.awt.Font("Tahoma", 0, 11));
 
-        jScrollPane2.setViewportView(databaseSQLTextPane);
+        databaseSQLTextPane.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
@@ -196,8 +196,8 @@ public class DatabaseWriter extends ConnectorClass
                     .add(databasePasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(databaseUsernameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(databaseURLField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jScrollPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 424, Short.MAX_VALUE)
-                    .add(databaseDriverCombobox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(databaseDriverCombobox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(databaseSQLTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 424, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -224,7 +224,7 @@ public class DatabaseWriter extends ConnectorClass
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jLabel5)
-                    .add(jScrollPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 174, Short.MAX_VALUE))
+                    .add(databaseSQLTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 174, Short.MAX_VALUE))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -233,7 +233,7 @@ public class DatabaseWriter extends ConnectorClass
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.webreach.mirth.client.ui.components.MirthComboBox databaseDriverCombobox;
     private com.webreach.mirth.client.ui.components.MirthPasswordField databasePasswordField;
-    private com.webreach.mirth.client.ui.components.MirthTextPane databaseSQLTextPane;
+    private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea databaseSQLTextPane;
     private com.webreach.mirth.client.ui.components.MirthTextField databaseURLField;
     private com.webreach.mirth.client.ui.components.MirthTextField databaseUsernameField;
     private javax.swing.JLabel jLabel1;
@@ -241,7 +241,6 @@ public class DatabaseWriter extends ConnectorClass
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
-    private javax.swing.JScrollPane jScrollPane2;
     // End of variables declaration//GEN-END:variables
 
 }

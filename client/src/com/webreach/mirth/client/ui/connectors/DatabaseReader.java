@@ -90,13 +90,16 @@ public class DatabaseReader extends ConnectorClass
         {
             driverNames[i] = drivers.get(i).getName();
         }
+        
+        databaseSQLTextPane.initialize(true, false);
+        databaseUpdateSQLTextPane.initialize(true, false);
         databaseDriverCombobox.setModel(new javax.swing.DefaultComboBoxModel(driverNames));        
-        /*mappingDoc = new SyntaxDocument();
+        mappingDoc = new SyntaxDocument();
         mappingDoc.setTokenMarker(new TSQLTokenMarker());
         mappingDoc2 = new SyntaxDocument();
         mappingDoc2.setTokenMarker(new TSQLTokenMarker());
         databaseSQLTextPane.setDocument(mappingDoc);
-        databaseUpdateSQLTextPane.setDocument(mappingDoc2);*/
+        databaseUpdateSQLTextPane.setDocument(mappingDoc2);
         
         databaseSQLTextPane.getDocument().addDocumentListener(new DocumentListener() {
             public void changedUpdate(DocumentEvent e) {
@@ -234,10 +237,6 @@ public class DatabaseReader extends ConnectorClass
         databaseURLField = new com.webreach.mirth.client.ui.components.MirthTextField();
         databaseUsernameField = new com.webreach.mirth.client.ui.components.MirthTextField();
         databasePasswordField = new com.webreach.mirth.client.ui.components.MirthPasswordField();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        databaseSQLTextPane = new com.webreach.mirth.client.ui.components.MirthTextPane();
-        jScrollPane3 = new javax.swing.JScrollPane();
-        databaseUpdateSQLTextPane = new com.webreach.mirth.client.ui.components.MirthTextPane();
         onUpdateLabel = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
         pollingFreq = new com.webreach.mirth.client.ui.components.MirthTextField();
@@ -246,6 +245,8 @@ public class DatabaseReader extends ConnectorClass
         jLabel8 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         dbVarList = new com.webreach.mirth.client.ui.components.MirthVariableList();
+        databaseSQLTextPane = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea();
+        databaseUpdateSQLTextPane = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Database Reader", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(0, 0, 0)));
@@ -262,10 +263,6 @@ public class DatabaseReader extends ConnectorClass
         databaseDriverCombobox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Sun JDBC-ODBC Bridge", "ODBC - MySQL", "ODBC - PostgresSQL", "ODBC - SQL Server/Sybase", "ODBC - Oracle 10g Release 2" }));
 
         databasePasswordField.setFont(new java.awt.Font("Tahoma", 0, 11));
-
-        jScrollPane2.setViewportView(databaseSQLTextPane);
-
-        jScrollPane3.setViewportView(databaseUpdateSQLTextPane);
 
         onUpdateLabel.setText("On-Update Statement:");
 
@@ -302,12 +299,16 @@ public class DatabaseReader extends ConnectorClass
 
         jScrollPane1.setViewportView(dbVarList);
 
+        databaseSQLTextPane.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        databaseUpdateSQLTextPane.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .add(10, 10, 10)
+                .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel5)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel7)
@@ -328,11 +329,11 @@ public class DatabaseReader extends ConnectorClass
                         .add(readOnUpdateYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(readOnUpdateNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(jScrollPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 380, Short.MAX_VALUE)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                        .add(jScrollPane3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 279, Short.MAX_VALUE)
+                        .add(databaseUpdateSQLTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 279, Short.MAX_VALUE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jScrollPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 95, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                        .add(jScrollPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 95, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(databaseSQLTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 380, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -363,17 +364,17 @@ public class DatabaseReader extends ConnectorClass
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jLabel5)
-                    .add(jScrollPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 145, Short.MAX_VALUE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                    .add(databaseSQLTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 140, Short.MAX_VALUE))
+                .add(7, 7, 7)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(readOnUpdateYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(readOnUpdateNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(jLabel8))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 145, Short.MAX_VALUE)
-                    .add(onUpdateLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 14, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jScrollPane3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 145, Short.MAX_VALUE))
+                    .add(databaseUpdateSQLTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 140, Short.MAX_VALUE)
+                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 140, Short.MAX_VALUE)
+                    .add(onUpdateLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 14, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -395,9 +396,9 @@ public class DatabaseReader extends ConnectorClass
     private javax.swing.ButtonGroup buttonGroup1;
     private com.webreach.mirth.client.ui.components.MirthComboBox databaseDriverCombobox;
     private com.webreach.mirth.client.ui.components.MirthPasswordField databasePasswordField;
-    private com.webreach.mirth.client.ui.components.MirthTextPane databaseSQLTextPane;
+    private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea databaseSQLTextPane;
     private com.webreach.mirth.client.ui.components.MirthTextField databaseURLField;
-    private com.webreach.mirth.client.ui.components.MirthTextPane databaseUpdateSQLTextPane;
+    private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea databaseUpdateSQLTextPane;
     private com.webreach.mirth.client.ui.components.MirthTextField databaseUsernameField;
     private com.webreach.mirth.client.ui.components.MirthVariableList dbVarList;
     private javax.swing.JLabel jLabel1;
@@ -408,8 +409,6 @@ public class DatabaseReader extends ConnectorClass
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JLabel onUpdateLabel;
     private com.webreach.mirth.client.ui.components.MirthTextField pollingFreq;
     private com.webreach.mirth.client.ui.components.MirthRadioButton readOnUpdateNo;
