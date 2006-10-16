@@ -216,7 +216,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			}
 
 			// take the now transformed message and convert it back to ER7
-			if ((messageObject.getTransformedData() != null) && (messageObject.getTransformedDataProtocol().equals(MessageObject.Protocol.HL7))) {
+			if ((messageObject.getTransformedData() != null) && (messageObject.getEncodedDataProtocol().equals(MessageObject.Protocol.HL7))) {
 				ER7Serializer serializer = new ER7Serializer();
 				messageObject.getTransformedData().replace("\\E", "");
 				messageObject.setEncodedData(serializer.fromXML(messageObject.getTransformedData()));
@@ -271,7 +271,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			// set the transformedData to the template
 			messageObject.setTransformedData(Context.toString(transformedData));
 			// re-encode the data to ER7
-			if (messageObject.getTransformedDataProtocol().equals(MessageObject.Protocol.HL7)) {
+			if ((messageObject.getTransformedData() != null) && messageObject.getEncodedDataProtocol().equals(MessageObject.Protocol.HL7)) {
 				ER7Serializer serializer = new ER7Serializer();
 				messageObject.setEncodedData(serializer.toXML(messageObject.getTransformedData()));
 			}
