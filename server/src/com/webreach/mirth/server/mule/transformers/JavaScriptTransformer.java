@@ -111,7 +111,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 				String generatedFilterScript = generateFilterScript(filterScript);
 				logger.debug("compiling filter script");
 				Script compiledFilterScript = context.compileString(generatedFilterScript, filterScriptId, 1, null);
-				compiledScriptCache.putCompiledFilterScript(filterScriptId, compiledFilterScript);
+				compiledScriptCache.putCompiledScript(filterScriptId, compiledFilterScript);
 			}
 
 			String transformerScript = scriptController.getScript(transformerScriptId);
@@ -119,7 +119,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 				String generatedTransformerScript = generateTransformerScript(transformerScript);
 				logger.debug("compiling transformer script");
 				Script compiledTransformerScript = context.compileString(generatedTransformerScript, transformerScriptId, 1, null);
-				compiledScriptCache.putCompiledTransformerScript(transformerScriptId, compiledTransformerScript);
+				compiledScriptCache.putCompiledScript(transformerScriptId, compiledTransformerScript);
 			}
 		} catch (Exception e) {
 			throw new InitialisationException(e, this);
@@ -168,7 +168,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			scope.put("version", scope, messageObject.getVersion());
 
 			// get the script from the cache and execute it
-			Script script = compiledScriptCache.getCompiledFilterScript(filterScriptId);
+			Script script = compiledScriptCache.getCompiledScript(filterScriptId);
 			Object result = null;
 			boolean messageAccepted;
 
@@ -221,7 +221,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 
 			// TODO: Verify all functions work on UI (ER7 util, IE);
 			// get the script from the cache and execute it
-			Script compiledScript = compiledScriptCache.getCompiledTransformerScript(transformerScriptId);
+			Script compiledScript = compiledScriptCache.getCompiledScript(transformerScriptId);
 
 			if (compiledScript == null) {
 				logger.warn("transformer script could not be found in cache");
@@ -271,7 +271,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			scope.put("version", scope, messageObject.getVersion());
 
 			// get the script from the cache and execute it
-			Script compiledScript = compiledScriptCache.getCompiledTransformerScript(transformerScriptId);
+			Script compiledScript = compiledScriptCache.getCompiledScript(transformerScriptId);
 
 			if (compiledScript == null) {
 				logger.warn("transformer script could not be found in cache");

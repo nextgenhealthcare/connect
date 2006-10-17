@@ -8,8 +8,7 @@ import org.mozilla.javascript.Script;
 
 public class CompiledScriptCache {
 	private Logger logger = Logger.getLogger(this.getClass());
-	private Map<String, Script> compiledFilterScripts = new HashMap<String, Script>();
-	private Map<String, Script> compiledTransformerScripts = new HashMap<String, Script>();
+	private Map<String, Script> compiledScripts = new HashMap<String, Script>();
 
 	// singleton pattern
 	private static CompiledScriptCache instance = null;
@@ -25,21 +24,12 @@ public class CompiledScriptCache {
 		}
 	}
 
-	public Script getCompiledFilterScript(String id) {
-		return compiledFilterScripts.get(id);
+	public Script getCompiledScript(String id) {
+		return compiledScripts.get(id);
 	}
 
-	public void putCompiledFilterScript(String id, Script compiledScript) {
-		logger.debug("adding filter script to cache");
-		compiledFilterScripts.put(id, compiledScript);
-	}
-
-	public Script getCompiledTransformerScript(String id) {
-		return compiledTransformerScripts.get(id);
-	}
-
-	public void putCompiledTransformerScript(String id, Script compiledScript) {
-		logger.debug("adding transformer script to cache");
-		compiledTransformerScripts.put(id, compiledScript);
+	public void putCompiledScript(String id, Script compiledScript) {
+		logger.debug("adding script to cache");
+		compiledScripts.put(id, compiledScript);
 	}
 }
