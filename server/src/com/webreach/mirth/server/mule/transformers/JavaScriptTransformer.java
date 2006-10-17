@@ -16,6 +16,7 @@ import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.converters.ER7Serializer;
 import com.webreach.mirth.server.controllers.MessageObjectController;
+import com.webreach.mirth.server.controllers.ScriptController;
 import com.webreach.mirth.server.mule.util.CompiledScriptCache;
 import com.webreach.mirth.server.mule.util.GlobalVariableStore;
 import com.webreach.mirth.server.mule.util.StackTracePrinter;
@@ -25,6 +26,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 	private MessageObjectController messageObjectController = new MessageObjectController();
 	private StackTracePrinter stackTracePrinter = new StackTracePrinter();
 	private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
+	private ScriptController scriptController = new ScriptController();
 
 	private String direction;
 	private String protocol;
@@ -32,8 +34,8 @@ public class JavaScriptTransformer extends AbstractTransformer {
 	private String connectorName;
 	private boolean encryptData;
 	private boolean storeMessages;
-	private String transformerScript;
-	private String filterScript;
+	private String transformerScriptId;
+	private String filterScriptId;
 
 	public String getChannelId() {
 		return this.channelId;
@@ -83,20 +85,20 @@ public class JavaScriptTransformer extends AbstractTransformer {
 		this.storeMessages = storeMessages;
 	}
 
-	public String getFilterScript() {
-		return this.filterScript;
+	public String getFilterScriptId() {
+		return this.filterScriptId;
 	}
 
-	public void setFilterScript(String filterScript) {
-		this.filterScript = filterScript;
+	public void setFilterScriptId(String filterScriptId) {
+		this.filterScriptId = filterScriptId;
 	}
 
-	public String getTransformerScript() {
-		return this.transformerScript;
+	public String getTransformerScriptId() {
+		return this.transformerScriptId;
 	}
 
-	public void setTransformerScript(String transformerScript) {
-		this.transformerScript = transformerScript;
+	public void setTransformerScriptId(String transformerScriptId) {
+		this.transformerScriptId = transformerScriptId;
 	}
 
 	@Override
@@ -104,18 +106,20 @@ public class JavaScriptTransformer extends AbstractTransformer {
 		try {
 			Context context = Context.enter();
 
+			String filterScript = scriptController.getScript(filterScriptId);
 			if (filterScript != null) {
-				String generatedFilterScript = generateFilterScript();
+				String generatedFilterScript = generateFilterScript(filterScript);
 				logger.debug("compiling filter script");
-				Script compiledFilterScript = context.compileString(generatedFilterScript, channelId, 1, null);
-				compiledScriptCache.putCompiledFilterScript(channelId, compiledFilterScript);
+				Script compiledFilterScript = context.compileString(generatedFilterScript, filterScriptId, 1, null);
+				compiledScriptCache.putCompiledFilterScript(filterScriptId, compiledFilterScript);
 			}
 
+			String transformerScript = scriptController.getScript(transformerScriptId);
 			if (transformerScript != null) {
-				String generatedTransformerScript = generateTransformerScript();
+				String generatedTransformerScript = generateTransformerScript(transformerScript);
 				logger.debug("compiling transformer script");
-				Script compiledTransformerScript = context.compileString(generatedTransformerScript, channelId, 1, null);
-				compiledScriptCache.putCompiledTransformerScript(channelId, compiledTransformerScript);
+				Script compiledTransformerScript = context.compileString(generatedTransformerScript, transformerScriptId, 1, null);
+				compiledScriptCache.putCompiledTransformerScript(transformerScriptId, compiledTransformerScript);
 			}
 		} catch (Exception e) {
 			throw new InitialisationException(e, this);
@@ -164,7 +168,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			scope.put("version", scope, messageObject.getVersion());
 
 			// get the script from the cache and execute it
-			Script script = compiledScriptCache.getCompiledFilterScript(channelId);
+			Script script = compiledScriptCache.getCompiledFilterScript(filterScriptId);
 			Object result = null;
 			boolean messageAccepted;
 
@@ -217,7 +221,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 
 			// TODO: Verify all functions work on UI (ER7 util, IE);
 			// get the script from the cache and execute it
-			Script compiledScript = compiledScriptCache.getCompiledTransformerScript(channelId);
+			Script compiledScript = compiledScriptCache.getCompiledTransformerScript(transformerScriptId);
 
 			if (compiledScript == null) {
 				logger.warn("transformer script could not be found in cache");
@@ -267,7 +271,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			scope.put("version", scope, messageObject.getVersion());
 
 			// get the script from the cache and execute it
-			Script compiledScript = compiledScriptCache.getCompiledTransformerScript(channelId);
+			Script compiledScript = compiledScriptCache.getCompiledTransformerScript(transformerScriptId);
 
 			if (compiledScript == null) {
 				logger.warn("transformer script could not be found in cache");
@@ -317,7 +321,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 		messageObject.setDateCreated(Calendar.getInstance());
 	}
 
-	private String generateFilterScript() {
+	private String generateFilterScript(String filterScript) {
 		logger.debug("generating filter script");
 		StringBuilder script = new StringBuilder();
 		script.append("importPackage(Packages.com.webreach.mirth.server.util);\n	");
@@ -332,7 +336,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 		return script.toString();
 	}
 
-	private String generateTransformerScript() {
+	private String generateTransformerScript(String transformerScript) {
 		logger.debug("generator transformer script");
 		StringBuilder script = new StringBuilder();
 		script.append("importPackage(Packages.com.webreach.mirth.server.util);");

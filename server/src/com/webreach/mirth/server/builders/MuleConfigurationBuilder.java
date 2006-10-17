@@ -44,6 +44,8 @@ import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.Connector;
 import com.webreach.mirth.model.Transport;
 import com.webreach.mirth.model.converters.DocumentSerializer;
+import com.webreach.mirth.server.controllers.ScriptController;
+import com.webreach.mirth.server.util.ServerUtil;
 import com.webreach.mirth.util.PropertyLoader;
 
 /**
@@ -63,6 +65,8 @@ public class MuleConfigurationBuilder {
 	private JavaScriptFilterBuilder filterBuilder = new JavaScriptFilterBuilder();
 	private JavaScriptTransformerBuilder transformerBuilder = new JavaScriptTransformerBuilder();
 
+	private ScriptController scriptController = new ScriptController();
+	
 	public MuleConfigurationBuilder(List<Channel> channels, Map<String, Transport> transports) {
 		this.channels = channels;
 		this.transports = transports;
@@ -291,8 +295,16 @@ public class MuleConfigurationBuilder {
 			properties.put("direction", channel.getDirection().toString());
 			properties.put("encryptData", channel.getProperties().get("encryptData"));
 			properties.put("storeMessages", channel.getProperties().get("store_messages"));
-			properties.put("filterScript", filterBuilder.getScript(connector.getFilter(), channel));
-			properties.put("transformerScript", transformerBuilder.getScript(connector.getTransformer(), channel));
+
+			// put the filter script in the scripts table
+			String filterScriptId = ServerUtil.getUUID();
+			scriptController.putScript(filterScriptId, filterBuilder.getScript(connector.getFilter(), channel));
+			properties.put("filterScriptId", filterScriptId);
+
+			// put the transformer script in the scripts table
+			String transformerScriptId = ServerUtil.getUUID();
+			scriptController.putScript(transformerScriptId, transformerBuilder.getScript(connector.getTransformer(), channel));
+			properties.put("transformerScriptId", transformerScriptId);
 
 			if (channel.getMode().equals(Channel.Mode.ROUTER)) {
 				properties.put("connectorName", connector.getName());
@@ -300,10 +312,7 @@ public class MuleConfigurationBuilder {
 				properties.put("connectorName", "Source");
 			}
 
-			List<String> textProperties = new ArrayList<String>();
-			textProperties.add("filterScript");
-			textProperties.add("transformerScript");
-			transformerElement.appendChild(getProperties(document, properties, textProperties));
+			transformerElement.appendChild(getProperties(document, properties, null));
 
 			transformersElement.appendChild(transformerElement);
 		} catch (Exception e) {
@@ -401,7 +410,7 @@ public class MuleConfigurationBuilder {
 
 			// only add non-null and non-empty properties to the list
 			if ((property.getValue() != null) && (!property.getValue().equals(""))) {
-				if (textProperties.contains(property.getKey())) {
+				if ((textProperties != null) &&  textProperties.contains(property.getKey())) {
 					Element textPropertyElement = document.createElement("text-property");
 					textPropertyElement.setAttribute("name", property.getKey().toString());
 					textPropertyElement.setTextContent(property.getValue().toString());

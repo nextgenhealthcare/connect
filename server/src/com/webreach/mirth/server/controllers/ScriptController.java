@@ -16,8 +16,15 @@ import com.webreach.mirth.server.util.DatabaseUtil;
 public class ScriptController {
 	private Logger logger = Logger.getLogger(this.getClass());
 
-	public String getFilterScript(String channelId) throws ControllerException {
-		logger.debug("retrieving filter script: channelId=" + channelId);
+	/**
+	 * Returns the script with the specified id, null otherwise.
+	 * 
+	 * @param id
+	 * @return
+	 * @throws ControllerException
+	 */
+	public String getScript(String id) throws ControllerException {
+		logger.debug("retrieving script: id=" + id);
 
 		DatabaseConnection dbConnection = null;
 		ResultSet result = null;
@@ -26,16 +33,16 @@ public class ScriptController {
 			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
 			Table scripts = new Table("scripts");
 			SelectQuery select = new SelectQuery(scripts);
-			select.addColumn(scripts, "filter_script");
-			select.addCriteria(new MatchCriteria(scripts, "channel_id", MatchCriteria.EQUALS, channelId));
+			select.addColumn(scripts, "script");
+			select.addCriteria(new MatchCriteria(scripts, "id", MatchCriteria.EQUALS, id));
 			result = dbConnection.executeQuery(select.toString());
-			String filterScript = null;
+			String script = null;
 
 			while (result.next()) {
-				filterScript = result.getString("filter_script");
+				script = result.getString("script");
 			}
 
-			return filterScript;
+			return script;
 		} catch (SQLException e) {
 			throw new ControllerException(e);
 		} finally {
@@ -44,36 +51,16 @@ public class ScriptController {
 		}
 	}
 
-	public String getTransformerScript(String channelId) throws ControllerException {
-		logger.debug("retrieving transformer script: channelId=" + channelId);
-
-		DatabaseConnection dbConnection = null;
-		ResultSet result = null;
-
-		try {
-			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
-			Table scripts = new Table("scripts");
-			SelectQuery select = new SelectQuery(scripts);
-			select.addColumn(scripts, "transformer_script");
-			select.addCriteria(new MatchCriteria(scripts, "channel_id", MatchCriteria.EQUALS, channelId));
-			result = dbConnection.executeQuery(select.toString());
-			String transformerScript = null;
-
-			while (result.next()) {
-				transformerScript = result.getString("transformer_script");
-			}
-
-			return transformerScript;
-		} catch (SQLException e) {
-			throw new ControllerException(e);
-		} finally {
-			DatabaseUtil.close(result);
-			DatabaseUtil.close(dbConnection);
-		}
-	}
-
-	public void putScripts(String channelId, String filterScript, String transformerScript) throws ControllerException {
-		logger.debug("adding filter and transformer scripts");
+	/**
+	 * Adds a script with the specified id to the database. If a script with the
+	 * id already exists it will be overwritten.
+	 * 
+	 * @param id
+	 * @param script
+	 * @throws ControllerException
+	 */
+	public void putScript(String id, String script) throws ControllerException {
+		logger.debug("adding script: id=" + id);
 		DatabaseConnection dbConnection = null;
 
 		try {
@@ -81,16 +68,14 @@ public class ScriptController {
 			String statement = null;
 			ArrayList<Object> parameters = new ArrayList<Object>();
 
-			if (getFilterScript(channelId) == null) {
-				statement = "insert into scripts (channel_id, filter_script, transformer_script) values (?, ?, ?)";
-				parameters.add(channelId);
-				parameters.add(filterScript);
-				parameters.add(transformerScript);
+			if (getScript(id) == null) {
+				statement = "insert into scripts (id, script) values (?, ?)";
+				parameters.add(id);
+				parameters.add(script);
 			} else {
-				statement = "update scripts set filter_script = ?, transformer_script = ? where channel_id = ?";
-				parameters.add(filterScript);
-				parameters.add(transformerScript);
-				parameters.add(channelId);
+				statement = "update scripts set script = ? where id = ?";
+				parameters.add(script);
+				parameters.add(id);
 			}
 
 			dbConnection.executeUpdate(statement, parameters);
