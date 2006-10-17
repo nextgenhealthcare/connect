@@ -161,7 +161,11 @@ public class MuleConfigurationBuilder {
 			Transport transport = transports.get(channel.getSourceConnector().getTransportName());
 			transformers.append(transport.getTransformers() + " ");
 
-			// 2. determine which transformer to use
+			// 2. append the preprocessing transformer
+			addPreprocessor(document, configurationElement, channel, connectorReference + "_preprocessor");
+			transformers.append(connectorReference + "_preprocessor ");
+			
+			// 3. determine which transformer to use
 			if (channel.getProtocol().equals(Channel.Protocol.HL7)) {
 				transformers.append("HL7ToMessageObject ");
 			} else if (channel.getProtocol().equals(Channel.Protocol.X12)) {
@@ -170,14 +174,14 @@ public class MuleConfigurationBuilder {
 				transformers.append("XMLToMessageObject ");
 			}
 
-			// 3. finally, append the JavaScriptTransformer that does the
+			// 4. finally, append the JavaScriptTransformer that does the
 			// mappings if it's BROADCAST
 			if (channel.getMode().equals(Channel.Mode.BROADCAST)) {
 				addTransformer(document, configurationElement, channel, channel.getSourceConnector(), connectorReference + "_transformer");
 				transformers.append(connectorReference + "_transformer");
 			}
 
-			// 4. add the transformer sequence as an attribute to the endpoint
+			// 5. add the transformer sequence as an attribute to the endpoint
 			// if not empty
 			if (!transformers.toString().trim().equals("")) {
 				endpointElement.setAttribute("transformers", transformers.toString().trim());
@@ -392,6 +396,24 @@ public class MuleConfigurationBuilder {
 			throw new BuilderException(e);
 		}
 	}
+	
+	private void addPreprocessor(Document document, Element configurationElement, Channel channel, String name) throws BuilderException {
+		try {
+			Element transformersElement = (Element) configurationElement.getElementsByTagName("transformers").item(0);
+			Element transformerElement = document.createElement("transformer");
+			transformerElement.setAttribute("name", name);
+			transformerElement.setAttribute("className", "com.webreach.mirth.server.mule.transformers.JavaScriptPreprocessor");
+			Properties properties = new Properties();
+			String preprocessingScriptId = ServerUtil.getUUID();
+			scriptController.putScript(preprocessingScriptId, channel.getPreprocessingScript());
+			properties.put("preprocessingScriptId", preprocessingScriptId);
+			transformerElement.appendChild(getProperties(document, properties, null));
+			transformersElement.appendChild(transformerElement);
+		} catch (Exception e) {
+			throw new BuilderException(e);
+		}
+	}
+	
 
 	/**
 	 * Returns a properties element given a Properties object and a List of

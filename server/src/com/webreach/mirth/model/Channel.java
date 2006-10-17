@@ -61,6 +61,7 @@ public class Channel {
 	private Connector sourceConnector;
 	private List<Connector> destinationConnectors = new ArrayList<Connector>();;
 	private Properties properties = new Properties();
+	private String preprocessingScript;
 
 	public Channel() {
 
@@ -169,6 +170,14 @@ public class Channel {
 
 	public void setProperties(Properties properties) {
 		this.properties = properties;
+	}
+	
+	public String getPreprocessingScript() {
+		return this.preprocessingScript;
+	}
+
+	public void setPreprocessingScript(String preprocessingScript) {
+		this.preprocessingScript = preprocessingScript;
 	}
 
 	public String toString() {
