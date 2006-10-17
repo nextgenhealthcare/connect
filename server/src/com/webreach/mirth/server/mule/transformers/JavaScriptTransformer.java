@@ -16,7 +16,6 @@ import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.converters.ER7Serializer;
 import com.webreach.mirth.server.controllers.MessageObjectController;
-import com.webreach.mirth.server.controllers.ScriptController;
 import com.webreach.mirth.server.mule.util.CompiledScriptCache;
 import com.webreach.mirth.server.mule.util.GlobalVariableStore;
 import com.webreach.mirth.server.mule.util.StackTracePrinter;
@@ -25,17 +24,16 @@ public class JavaScriptTransformer extends AbstractTransformer {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private MessageObjectController messageObjectController = new MessageObjectController();
 	private StackTracePrinter stackTracePrinter = new StackTracePrinter();
-	private ScriptController scriptController = new ScriptController();
 	private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
 
-	private String transformerScript;
-	private String filterScript;
 	private String direction;
 	private String protocol;
 	private String channelId;
 	private String connectorName;
 	private boolean encryptData;
 	private boolean storeMessages;
+	private String transformerScript;
+	private String filterScript;
 
 	public String getChannelId() {
 		return this.channelId;
@@ -85,14 +83,26 @@ public class JavaScriptTransformer extends AbstractTransformer {
 		this.storeMessages = storeMessages;
 	}
 
+	public String getFilterScript() {
+		return this.filterScript;
+	}
+
+	public void setFilterScript(String filterScript) {
+		this.filterScript = filterScript;
+	}
+
+	public String getTransformerScript() {
+		return this.transformerScript;
+	}
+
+	public void setTransformerScript(String transformerScript) {
+		this.transformerScript = transformerScript;
+	}
+
 	@Override
 	public void initialise() throws InitialisationException {
 		try {
 			Context context = Context.enter();
-
-			// get the scripts from the cache
-			filterScript = scriptController.getFilterScript(channelId);
-			transformerScript = scriptController.getTransformerScript(channelId);
 
 			if (filterScript != null) {
 				String generatedFilterScript = generateFilterScript();
