@@ -28,23 +28,15 @@ import org.mule.util.ClassHelper;
  * @author <a href="mailto:ross.mason@symphonysoft.com">Ross Mason</a>
  * @version $Revision: 1.3 $
  */
-public class SoapServiceFinder implements ConnectorServiceFinder
-{
-    public static final String AXIS_CLASS = "org.apache.axis.AxisEngine";
-    public static final String GLUE_CLASS = "electric.server.http.HTTP";
+public class SoapServiceFinder implements ConnectorServiceFinder {
+	public static final String AXIS_CLASS = "org.apache.axis.AxisEngine";
 
-    public ConnectorServiceDescriptor findService(String service) throws ConnectorFactoryException
-    {
-        try {
-            ClassHelper.loadClass(AXIS_CLASS, getClass());
-            return ConnectorFactory.getServiceDescriptor("axis");
-        } catch (ClassNotFoundException e) {
-            try {
-                ClassHelper.loadClass(GLUE_CLASS, getClass());
-                return ConnectorFactory.getServiceDescriptor("glue");
-            } catch (ClassNotFoundException e1) {
-                throw new ConnectorServiceNotFoundException("Could not find Axis or glue on the classpath");
-            }
-        }
-    }
+	public ConnectorServiceDescriptor findService(String service) throws ConnectorFactoryException {
+		try {
+			ClassHelper.loadClass(AXIS_CLASS, getClass());
+			return ConnectorFactory.getServiceDescriptor("axis");
+		} catch (ClassNotFoundException e) {
+			throw new ConnectorServiceNotFoundException("Could not find Axis on the classpath");
+		}
+	}
 }

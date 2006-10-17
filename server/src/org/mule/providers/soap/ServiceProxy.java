@@ -13,24 +13,22 @@
  */
 package org.mule.providers.soap;
 
-import electric.service.IService;
-import org.mule.config.MuleProperties;
-import org.mule.impl.MuleMessage;
-import org.mule.providers.AbstractMessageReceiver;
-import org.mule.providers.soap.glue.GlueMessageAdapter;
-import org.mule.umo.UMOComponent;
-import org.mule.umo.UMOException;
-import org.mule.umo.UMOMessage;
-import org.mule.umo.lifecycle.Callable;
-import org.mule.umo.provider.UMOMessageAdapter;
-import org.mule.util.ClassHelper;
-
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import org.mule.config.MuleProperties;
+import org.mule.impl.MuleMessage;
+import org.mule.providers.AbstractMessageReceiver;
+import org.mule.umo.UMOComponent;
+import org.mule.umo.UMOException;
+import org.mule.umo.UMOMessage;
+import org.mule.umo.lifecycle.Callable;
+import org.mule.umo.provider.UMOMessageAdapter;
+import org.mule.util.ClassHelper;
 
 /**
  * <code>ServiceProxy</code> is a proxy that wraps a soap endpointUri to look
@@ -106,18 +104,6 @@ public class ServiceProxy
         return results;
     }
 
-    public static Object createGlueProxy(AbstractMessageReceiver receiver, boolean synchronous, Class[] classes)
-    {
-        return Proxy.newProxyInstance(ServiceProxy.class.getClassLoader(),
-                                      classes,
-                                      createGlueServiceHandler(receiver, synchronous));
-    }
-
-    public static InvocationHandler createGlueServiceHandler(AbstractMessageReceiver receiver, boolean synchronous)
-    {
-        return new GlueServiceHandler(receiver, synchronous);
-    }
-
     public static Object createAxisProxy(AbstractMessageReceiver receiver, boolean synchronous, Class[] classes)
     {
         return Proxy.newProxyInstance(ServiceProxy.class.getClassLoader(),
@@ -147,40 +133,6 @@ public class ServiceProxy
             messageAdapter.setProperty(MuleProperties.MULE_METHOD_PROPERTY, method);
 
             UMOMessage message = receiver.routeMessage(new MuleMessage(messageAdapter), synchronous);
-            if (message != null) {
-                return message.getPayload();
-            } else {
-                return null;
-            }
-        }
-    }
-
-    private static class GlueServiceHandler implements InvocationHandler
-    {
-        private AbstractMessageReceiver receiver;
-        private boolean synchronous = true;
-
-        public GlueServiceHandler(AbstractMessageReceiver receiver, boolean synchronous)
-        {
-            this.receiver = receiver;
-            this.synchronous = synchronous;
-        }
-
-        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
-        {
-            GlueMessageAdapter.GlueMessageHolder holder;
-            if (args.length == 1) {
-                holder = new GlueMessageAdapter.GlueMessageHolder(args[0], (IService) proxy);
-            } else {
-                holder = new GlueMessageAdapter.GlueMessageHolder(args, (IService) proxy);
-            }
-            UMOMessageAdapter messageAdapter = receiver.getConnector().getMessageAdapter(holder);
-            messageAdapter.setProperty(MuleProperties.MULE_METHOD_PROPERTY, method);
-
-            UMOMessage message = receiver.routeMessage(new MuleMessage(messageAdapter), synchronous);
-            if(message.getExceptionPayload()!=null) {
-                throw message.getExceptionPayload().getException();
-            }
             if (message != null) {
                 return message.getPayload();
             } else {
