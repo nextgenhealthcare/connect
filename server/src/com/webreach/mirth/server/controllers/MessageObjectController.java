@@ -5,10 +5,13 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.mule.extras.client.MuleClient;
+import org.mule.umo.UMOException;
 
 import com.truemesh.squiggle.MatchCriteria;
 import com.truemesh.squiggle.Order;
@@ -26,7 +29,7 @@ import com.webreach.mirth.util.Encrypter;
 public class MessageObjectController {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private ConfigurationController configurationController = new ConfigurationController();
-	private	Table messages = new Table("messages");
+	private Table messages = new Table("messages");
 
 	public void updateMessage(MessageObject messageObject) {
 		logger.debug("updating message: channelId=" + messageObject.getChannelId());
@@ -58,7 +61,7 @@ public class MessageObjectController {
 
 			MessageObjectFilter filter = new MessageObjectFilter();
 			filter.setId(messageObject.getId());
-			
+
 			if (getMessageCount(filter) == 0) {
 				logger.debug("inserting message: id=" + messageObject.getId());
 				statement = "insert into messages (id, channel_id, date_created, version, encrypted, status, raw_data, raw_data_protocol, transformed_data, transformed_data_protocol, encoded_data, encoded_data_protocol, variable_map, connector_name, errors) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
@@ -90,7 +93,7 @@ public class MessageObjectController {
 				parameters.add(messageObject.getErrors());
 				parameters.add(messageObject.getId());
 			}
-			
+
 			dbConnection.executeUpdate(statement, parameters);
 		} catch (Exception e) {
 			logger.error("could not log message: id=" + messageObject.getId(), e);
@@ -107,7 +110,7 @@ public class MessageObjectController {
 			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
 
 			SelectQuery select = new SelectQuery(messages);
-			
+
 			select.addColumn(messages, "id");
 			select.addColumn(messages, "channel_id");
 			select.addColumn(messages, "date_created");
@@ -123,22 +126,22 @@ public class MessageObjectController {
 			select.addColumn(messages, "variable_map");
 			select.addColumn(messages, "connector_name");
 			select.addColumn(messages, "errors");
-			
+
 			addFilterCriteria(select, filter);
 			select.addOrder(messages, "date_created", Order.DESCENDING);
-			
+
 			String query = select.toString();
-			
+
 			if ((filter.getPage() != -1) && (filter.getPageSize() != -1)) {
 				int limit = filter.getPageSize();
 				int offset = filter.getPageSize() * filter.getPage();
-				
+
 				if (offset > 0)
 					query += " LIMIT " + limit + " OFFSET " + offset;
-				else 
+				else
 					query += " LIMIT " + limit;
 			}
-			
+
 			result = dbConnection.executeQuery(query.toString());
 			return getMessageList(result);
 		} catch (SQLException e) {
@@ -159,13 +162,13 @@ public class MessageObjectController {
 			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
 			SelectQuery select = new SelectQuery(messages);
 			select.addColumn(messages, "count", "id");
-			addFilterCriteria(select, filter);			
+			addFilterCriteria(select, filter);
 			result = dbConnection.executeQuery(select.toString());
-			
+
 			while (result.next()) {
-				return result.getInt(1);	
+				return result.getInt(1);
 			}
-			
+
 			return -1;
 		} catch (SQLException e) {
 			throw new ControllerException(e);
@@ -180,7 +183,7 @@ public class MessageObjectController {
 		if (filter.getId() != null) {
 			select.addCriteria(new MatchCriteria(messages, "id", MatchCriteria.EQUALS, filter.getId()));
 		}
-		
+
 		// filter on channelId
 		if (filter.getChannelId() != null) {
 			select.addCriteria(new MatchCriteria(messages, "channel_id", MatchCriteria.EQUALS, filter.getChannelId()));
@@ -206,7 +209,7 @@ public class MessageObjectController {
 		}
 
 	}
-	
+
 	public void removeMessages(MessageObjectFilter filter) throws ControllerException {
 		logger.debug("removing messages: filter=" + filter.toString());
 
@@ -214,29 +217,29 @@ public class MessageObjectController {
 
 		try {
 			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
-			
+
 			Delete delete = new Delete("messages");
 			ArrayList<Object> parameters = new ArrayList<Object>();
-			
+
 			// filter on id
 			if (filter.getId() != null) {
 				delete.addCriteria("id = ?");
 				parameters.add(filter.getId());
 			}
-			
+
 			// filter on channelId
 			if (filter.getChannelId() != null) {
 				delete.addCriteria("channel_id = ?");
 				parameters.add(filter.getChannelId());
 			}
-			
+
 			// filter on start and end date
 			if ((filter.getStartDate() != null) && (filter.getEndDate() != null)) {
 				String startDate = String.format("%1$tY-%1$tm-%1$td 00:00:00", filter.getStartDate());
 				String endDate = String.format("%1$tY-%1$tm-%1$td 23:59:59", filter.getEndDate());
 
 				delete.addCriteria("(date_created >= ? and date_created <= ?)");
-				
+
 				parameters.add(startDate);
 				parameters.add(endDate);
 			}
@@ -247,7 +250,7 @@ public class MessageObjectController {
 				delete.addCriteria("date_created <= ?");
 				parameters.add(endDate);
 			}
-			
+
 			// filter on status
 			if (filter.getStatus() != null) {
 				delete.addCriteria("status = ?");
@@ -259,7 +262,7 @@ public class MessageObjectController {
 				delete.addCriteria("connector_name = ?");
 				parameters.add(filter.getConnectorName());
 			}
-			
+
 			dbConnection.executeUpdate(delete.toString(), parameters);
 		} catch (SQLException e) {
 			throw new ControllerException(e);
@@ -275,11 +278,11 @@ public class MessageObjectController {
 
 		try {
 			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
-			
+
 			String statement = "delete from messages where channel_id = ?";
 			ArrayList<Object> parameters = new ArrayList<Object>();
 			parameters.add(channelId);
-			
+
 			dbConnection.executeUpdate(statement, parameters);
 		} catch (SQLException e) {
 			throw new ControllerException(e);
@@ -298,7 +301,7 @@ public class MessageObjectController {
 			messageObject.setId(result.getString("id"));
 			messageObject.setChannelId(result.getString("channel_id"));
 			messageObject.setStatus(MessageObject.Status.valueOf(result.getString("status")));
-			
+
 			Calendar dateCreated = Calendar.getInstance();
 			dateCreated.setTimeInMillis(result.getTimestamp("date_created").getTime());
 			messageObject.setDateCreated(dateCreated);
@@ -318,7 +321,7 @@ public class MessageObjectController {
 				transformedData = result.getString("transformed_data");
 				encodedData = result.getString("encoded_data");
 			}
-			
+
 			messageObject.setRawData(rawData);
 			messageObject.setRawDataProtocol(MessageObject.Protocol.valueOf(result.getString("raw_data_protocol")));
 			messageObject.setTransformedData(transformedData);
@@ -328,10 +331,25 @@ public class MessageObjectController {
 			messageObject.setVariableMap((Map) serializer.fromXML(result.getString("variable_map")));
 			messageObject.setConnectorName(result.getString("connector_name"));
 			messageObject.setErrors(result.getString("errors"));
-			
+
 			messageObjects.add(messageObject);
 		}
 
 		return messageObjects;
+	}
+
+	public void reprocessMessages(MessageObjectFilter filter) throws ControllerException {
+		List<MessageObject> messages = getMessages(filter);
+
+		try {
+			MuleClient client = new MuleClient();
+
+			for (Iterator iter = messages.iterator(); iter.hasNext();) {
+				MessageObject message = (MessageObject) iter.next();
+				client.dispatch("vm://" + message.getChannelId(), message.getRawData(), null);	
+			}
+		} catch (UMOException e) {
+			throw new ControllerException("could not reprocess message", e);
+		}
 	}
 }

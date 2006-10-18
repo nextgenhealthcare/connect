@@ -341,15 +341,15 @@ public class Client {
 		serverConnection.executePostMethod(EVENT_SERVLET, params);
 	}
 
-	/**
-	 * Removes the message event with the specified id.
-	 * 
-	 * @param messageEventId
-	 * @throws ClientException
-	 */
 	public synchronized void removeMessages(MessageObjectFilter filter) throws ClientException {
 		logger.debug("removing messages");
 		NameValuePair[] params = { new NameValuePair("op", "removeMessages"), new NameValuePair("filter", serializer.toXML(filter)) };
+		serverConnection.executePostMethod(MESSAGE_SERVLET, params);
+	}
+
+	public synchronized void reprocessMessages(MessageObjectFilter filter) throws ClientException {
+		logger.debug("reprocessing messages");
+		NameValuePair[] params = { new NameValuePair("op", "reprocessMessages"), new NameValuePair("filter", serializer.toXML(filter)) };
 		serverConnection.executePostMethod(MESSAGE_SERVLET, params);
 	}
 

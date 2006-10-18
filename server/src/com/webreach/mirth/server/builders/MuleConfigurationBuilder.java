@@ -145,6 +145,12 @@ public class MuleConfigurationBuilder {
 		try {
 			Element inboundRouterElement = document.createElement("inbound-router");
 
+			// add the VM endpoint for reprocessing capabilities
+			Element vmEndpointElement = document.createElement("endpoint");
+			vmEndpointElement.setAttribute("address", "vm://" + channel.getId());
+			inboundRouterElement.appendChild(vmEndpointElement);
+			
+			// add the configured endpoint
 			Element endpointElement = document.createElement("endpoint");
 			endpointElement.setAttribute("address", getEndpointUri(channel.getSourceConnector()));
 
