@@ -29,54 +29,7 @@ public class WSDLDefinition {
 	public List<WSOperation> getOperations(){
 		return operations;
 	}
-	public class LocReader extends WSDLReaderImpl{
-		public WSDLLocator getLocator(){
-			return this.loc;
-		}
-	}
-	public class WSOperation{
-		private List<WSParameter> parameters;
-		private String name;
-		public String getName() {
-			return name;
-		}
-
-		public void setName(String name) {
-			this.name = name;
-		}
-
-		public List<WSParameter> getParameters() {
-			return parameters;
-		}
-
-		public void setParameters(List<WSParameter> parameters) {
-			this.parameters = parameters;
-		}
-		 
-	}
-	public class WSParameter{
-		private String name;
-		private String type;
-		private String value;
-		public String getName() {
-			return name;
-		}
-		public void setName(String name) {
-			this.name = name;
-		}
-		public String getType() {
-			return type;
-		}
-		public void setType(String type) {
-			this.type = type;
-		}
-		public String getValue() {
-			return value;
-		}
-		public void setValue(String value) {
-			this.value = value;
-		}
-	}
+	
 
 	public WSDLDefinition(String wsdlLocation) {
 		this.wsdlLocation = wsdlLocation;
@@ -164,4 +117,31 @@ public class WSDLDefinition {
 			}
 		}
 	}
+	public class LocReader extends WSDLReaderImpl{
+		public WSDLLocator getLocator(){
+			return this.loc;
+		}
+	}
+	public class WSOperation{
+		private List<WSParameter> parameters;
+		private String name;
+		public String getName() {
+			return name;
+		}
+
+		public void setName(String name) {
+			this.name = name;
+		}
+
+		public List<WSParameter> getParameters() {
+			return parameters;
+		}
+
+		public void setParameters(List<WSParameter> parameters) {
+			this.parameters = parameters;
+		}
+		 
+	}
 }
+
+
