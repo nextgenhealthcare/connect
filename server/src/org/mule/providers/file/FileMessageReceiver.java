@@ -22,6 +22,8 @@ import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Scanner;
@@ -53,17 +55,11 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 	private static byte startOfMessage = (byte) 0x0B;
 	private static byte endOfMessage = (byte) 0x1C;
 	private static byte endOfRecord = (byte) 0x0D;
-
 	private String readDir = null;
-
 	private String moveDir = null;
-
 	private File readDirectory = null;
-
 	private File moveDirectory = null;
-
 	private String moveToPattern = null;
-
 	private FilenameFilter filenameFilter = null;
 
 	public FileMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint, String readDir, String moveDir, String moveToPattern, Long frequency) throws InitialisationException {
@@ -71,6 +67,7 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 		this.readDir = readDir;
 		this.moveDir = moveDir;
 		this.moveToPattern = moveToPattern;
+
 		if (endpoint.getFilter() instanceof FilenameFilter) {
 			filenameFilter = (FilenameFilter) endpoint.getFilter();
 		}
@@ -98,14 +95,43 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 	public void poll() {
 		try {
 			File[] files = listFiles();
+
 			if (files == null) {
 				return;
 			}
+
+			// sort files by specified attribute before sorting
+			sortFiles(files);
+
 			for (int i = 0; i < files.length; i++) {
 				processFile(files[i]);
 			}
 		} catch (Exception e) {
 			handleException(e);
+		}
+	}
+
+	public void sortFiles(File[] files) {
+		String sortAttribute = ((FileConnector) connector).getSortAttribute();
+
+		if (sortAttribute.equals(FileConnector.SORT_DATE)) {
+			Arrays.sort(files, new Comparator<File>() {
+				public int compare(File file1, File file2) {
+					return Float.compare(file1.lastModified(), file2.lastModified());
+				}
+			});
+		} else if (sortAttribute.equals(FileConnector.SORT_SIZE)) {
+			Arrays.sort(files, new Comparator<File>() {
+				public int compare(File file1, File file2) {
+					return Float.compare(file1.length(), file2.length());
+				}
+			});
+		} else {
+			Arrays.sort(files, new Comparator<File>() {
+				public int compare(File file1, File file2) {
+					return file1.compareTo(file2);
+				}
+			});
 		}
 	}
 
