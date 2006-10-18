@@ -134,10 +134,12 @@ public class UserController {
 		
 		try {
 			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
-			StringBuffer statement = new StringBuffer();
-			statement.append("DELETE FROM USERS");
-			statement.append(" WHERE ID = " + userId + ";");
-			dbConnection.executeUpdate(statement.toString());
+			
+			String statement = "delete from users where id = ?";
+			ArrayList<Object> parameters = new ArrayList<Object>();
+			parameters.add(userId);
+			
+			dbConnection.executeUpdate(statement, parameters);
 		} catch (SQLException e) {
 			throw new ControllerException(e);
 		} finally {
@@ -173,7 +175,7 @@ public class UserController {
 			result = dbConnection.executeQuery(select.toString());
 
 			while (result.next()) {
-				return result.getInt("ID");
+				return result.getInt("id");
 			}
 
 			return -1;
