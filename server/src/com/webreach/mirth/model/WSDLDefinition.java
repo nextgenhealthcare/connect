@@ -29,12 +29,12 @@ public class WSDLDefinition {
 	public List<WSOperation> getOperations(){
 		return operations;
 	}
-	class LocReader extends WSDLReaderImpl{
+	public class LocReader extends WSDLReaderImpl{
 		public WSDLLocator getLocator(){
 			return this.loc;
 		}
 	}
-	class WSOperation{
+	public class WSOperation{
 		private List<WSParameter> parameters;
 		private String name;
 		public String getName() {
@@ -54,7 +54,7 @@ public class WSDLDefinition {
 		}
 		 
 	}
-	class WSParameter{
+	public class WSParameter{
 		private String name;
 		private String type;
 		private String value;
