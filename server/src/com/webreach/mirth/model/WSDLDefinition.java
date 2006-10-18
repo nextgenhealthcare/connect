@@ -1,4 +1,4 @@
-package com.webreach.mirth.client.ui.util;
+package com.webreach.mirth.model;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,13 +17,6 @@ import javax.wsdl.xml.WSDLLocator;
 import javax.wsdl.xml.WSDLReader;
 import javax.xml.namespace.QName;
 
-import org.apache.wsif.WSIFException;
-import org.apache.wsif.compiler.util.Utils;
-import org.apache.wsif.schema.ComplexType;
-import org.apache.wsif.schema.Parser;
-import org.apache.wsif.schema.SchemaType;
-import org.apache.wsif.util.WSIFUtils;
-import org.apache.wsif.schema.Schema;
 import org.xml.sax.InputSource;
 
 import sun.security.krb5.internal.util.o;
@@ -138,6 +131,7 @@ public class WSDLDefinition {
 		}
 
 	}
+	/*For future use with WSIF
 	public Map typesToMap(List typeList){
 		HashMap<String,SchemaType> map = new HashMap<String,SchemaType>();
 		Iterator<SchemaType> it = typeList.iterator();
@@ -148,6 +142,7 @@ public class WSDLDefinition {
 		return map;
 		
 	}
+	*/
 	//Definition wsdlDefinition = reader.readWSDL("http://winterspring.msoft.com:8080/MirthView/MirthViewServices?wsdl");
 	//Definition wsdlDefinition = reader.readWSDL("http://www.xmethods.net/sd/2001/TemperatureService.wsdl");
 	//**Definition wsdlDefinition = reader.readWSDL("http://ws.strikeiron.com/relauto/iplookup?WSDL");
