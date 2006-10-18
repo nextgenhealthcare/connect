@@ -20,6 +20,8 @@
 
 	<transformers>
 		<transformer name="ByteArrayToString" className="org.mule.transformers.simple.ByteArrayToString" />
+		<transformer name="JMSMessageToObject" className="org.mule.providers.jms.transformers.JMSMessageToObject" returnClass="java.lang.String" />
+		<transformer name="ObjectToJMSMessage" className="org.mule.providers.jms.transformers.ObjectToJMSMessage" />
 		<transformer name="StringToByteArray" className="org.mule.transformers.simple.StringToByteArray" />
 		<transformer name="HL7ToMessageObject" className="com.webreach.mirth.server.mule.transformers.HL7ToMessageObject" />
 		<transformer name="ResultMapToXML" className="com.webreach.mirth.server.mule.transformers.ResultMapToXML" />
