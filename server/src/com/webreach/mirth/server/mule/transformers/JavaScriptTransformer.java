@@ -17,7 +17,6 @@ import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.converters.ER7Serializer;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.controllers.ScriptController;
-import com.webreach.mirth.server.mule.util.CompiledScriptCache;
 import com.webreach.mirth.server.mule.util.GlobalVariableStore;
 import com.webreach.mirth.server.mule.util.StackTracePrinter;
 
@@ -25,7 +24,6 @@ public class JavaScriptTransformer extends AbstractTransformer {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private MessageObjectController messageObjectController = new MessageObjectController();
 	private StackTracePrinter stackTracePrinter = new StackTracePrinter();
-	private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
 	private ScriptController scriptController = new ScriptController();
 
 	private String direction;
@@ -36,6 +34,9 @@ public class JavaScriptTransformer extends AbstractTransformer {
 	private boolean storeMessages;
 	private String transformerScriptId;
 	private String filterScriptId;
+	
+	private Script compiledFilterScript;
+	private Script compiledTransformerScript;
 
 	public String getChannelId() {
 		return this.channelId;
@@ -110,16 +111,14 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			if (filterScript != null) {
 				String generatedFilterScript = generateFilterScript(filterScript);
 				logger.debug("compiling filter script");
-				Script compiledFilterScript = context.compileString(generatedFilterScript, filterScriptId, 1, null);
-				compiledScriptCache.putCompiledScript(filterScriptId, compiledFilterScript);
+				compiledFilterScript = context.compileString(generatedFilterScript, filterScriptId, 1, null);
 			}
 
 			String transformerScript = scriptController.getScript(transformerScriptId);
 			if (transformerScript != null) {
 				String generatedTransformerScript = generateTransformerScript(transformerScript);
 				logger.debug("compiling transformer script");
-				Script compiledTransformerScript = context.compileString(generatedTransformerScript, transformerScriptId, 1, null);
-				compiledScriptCache.putCompiledScript(transformerScriptId, compiledTransformerScript);
+				compiledTransformerScript = context.compileString(generatedTransformerScript, transformerScriptId, 1, null);
 			}
 		} catch (Exception e) {
 			throw new InitialisationException(e, this);
@@ -167,16 +166,14 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			scope.put("globalMap", scope, GlobalVariableStore.getInstance());
 			scope.put("version", scope, messageObject.getVersion());
 
-			// get the script from the cache and execute it
-			Script script = compiledScriptCache.getCompiledScript(filterScriptId);
 			Object result = null;
 			boolean messageAccepted;
 
-			if (script == null) {
-				logger.error("filter script could not be found in cache");
+			if (compiledFilterScript == null) {
+				logger.error("compiled filter script is null");
 				messageAccepted = false;
 			} else {
-				result = script.exec(context, scope);
+				result = compiledFilterScript.exec(context, scope);
 				messageAccepted = ((Boolean) Context.jsToJava(result, java.lang.Boolean.class)).booleanValue();
 			}
 
@@ -219,14 +216,10 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			scope.put("globalMap", scope, GlobalVariableStore.getInstance());
 			scope.put("version", scope, messageObject.getVersion());
 
-			// TODO: Verify all functions work on UI (ER7 util, IE);
-			// get the script from the cache and execute it
-			Script compiledScript = compiledScriptCache.getCompiledScript(transformerScriptId);
-
-			if (compiledScript == null) {
-				logger.warn("transformer script could not be found in cache");
+			if (compiledTransformerScript == null) {
+				logger.warn("compiled transformer script is null");
 			} else {
-				compiledScript.exec(context, scope);
+				compiledTransformerScript.exec(context, scope);
 			}
 
 			// take the now transformed message and convert it back to ER7
@@ -270,13 +263,10 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			scope.put("globalMap", scope, GlobalVariableStore.getInstance());
 			scope.put("version", scope, messageObject.getVersion());
 
-			// get the script from the cache and execute it
-			Script compiledScript = compiledScriptCache.getCompiledScript(transformerScriptId);
-
-			if (compiledScript == null) {
-				logger.warn("transformer script could not be found in cache");
+			if (compiledTransformerScript == null) {
+				logger.warn("compiled transformer script is null");
 			} else {
-				compiledScript.exec(context, scope);
+				compiledTransformerScript.exec(context, scope);
 			}
 
 			// since the transformations occur on the template, pull it out of
