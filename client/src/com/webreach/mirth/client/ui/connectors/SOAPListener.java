@@ -26,12 +26,14 @@
 
 package com.webreach.mirth.client.ui.connectors;
 
+import com.sun.jmx.defaults.ServiceName;
 import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
 import java.util.Properties;
 
 import com.webreach.mirth.client.ui.Frame;
 import com.webreach.mirth.client.ui.PlatformUI;
+import javax.sound.sampled.Port;
 
 /**
  * A form that extends from ConnectorClass.  All methods implemented
@@ -45,40 +47,55 @@ public class SOAPListener extends ConnectorClass
      * Creates new form SOAPListener
      */
     public final String DATATYPE = "DataType";
-    public final String SOAP_URL = "url";
-    public final String SOAP_METHOD = "method";
-    public final String SOAP_PARAMETERS = "parameters";
+    public final String SOAP_HOST = "host";
+    public final String SOAP_LISTENER_ADDRESS = "listenerAddress";
+    public final String SOAP_SERVICE_NAME = "serviceName";
+    public final String SOAP_PORT = "port";
 
     public SOAPListener()
     {
         this.parent = PlatformUI.MIRTH_FRAME;
         name = "SOAP Listener";
         initComponents();
+        wsdlURL.setEditable(false);
+        method.setEditable(false);
     }
 
     public Properties getProperties()
     {
         Properties properties = new Properties();
         properties.put(DATATYPE, name);
-        properties.put(SOAP_URL, soapUrl.getText());
-        properties.put(SOAP_METHOD, (String)method.getSelectedItem());
-        
+        properties.put(SOAP_LISTENER_ADDRESS, listenerAddress.getText());
+        properties.put(SOAP_PORT, port.getText());
+        properties.put(SOAP_SERVICE_NAME, serviceName.getText());
         return properties;
     }
 
     public void setProperties(Properties props)
     {
-        soapUrl.setText((String)props.get(SOAP_URL));
-        method.setSelectedItem((String)props.getProperty(SOAP_METHOD));
+        listenerAddress.setText((String)props.get(SOAP_LISTENER_ADDRESS));
+        port.setText((String)props.getProperty(SOAP_PORT));
+        serviceName.setText((String)props.getProperty(SOAP_SERVICE_NAME));
+        updateWSDL();
     }
     
     public Properties getDefaults()
     {
         Properties properties = new Properties();
-        properties.put(DATATYPE, name);
-        properties.put(SOAP_URL, "");
-        properties.put(SOAP_METHOD, "Get Methods First");
+        properties.put(SOAP_HOST, "axis:http://localhost:8081/services/Mirth");
+        properties.put(SOAP_LISTENER_ADDRESS, "localhost");
+        properties.put(SOAP_PORT, "8081");
         return properties;
+    }
+    
+    public String buildHost()
+    {
+        return "axis:http://" + listenerAddress.getText() + ":" + port.getText() + "/services/" + serviceName.getText();
+    }
+    
+    public void updateWSDL()
+    {
+        wsdlURL.setText("http" + PlatformUI.SERVER_NAME.substring(PlatformUI.SERVER_NAME.lastIndexOf("://"), PlatformUI.SERVER_NAME.lastIndexOf(":")) + port.getText() + "/services/" + serviceName.getText() + "?wsdl");
     }
     
     public boolean checkProperties(Properties props)
@@ -100,99 +117,136 @@ public class SOAPListener extends ConnectorClass
         buttonGroup3 = new javax.swing.ButtonGroup();
         buttonGroup4 = new javax.swing.ButtonGroup();
         URL = new javax.swing.JLabel();
-        soapUrl = new com.webreach.mirth.client.ui.components.MirthTextField();
-        jButton1 = new javax.swing.JButton();
-        method = new com.webreach.mirth.client.ui.components.MirthComboBox();
+        serviceName = new com.webreach.mirth.client.ui.components.MirthTextField();
+        port = new com.webreach.mirth.client.ui.components.MirthTextField();
         jLabel1 = new javax.swing.JLabel();
-        paramPane = new javax.swing.JScrollPane();
-        paramTable = new com.webreach.mirth.client.ui.components.MirthTable();
+        jLabel2 = new javax.swing.JLabel();
+        method = new com.webreach.mirth.client.ui.components.MirthTextField();
+        URL1 = new javax.swing.JLabel();
+        wsdlURL = new com.webreach.mirth.client.ui.components.MirthTextField();
+        listenerAddress = new com.webreach.mirth.client.ui.components.MirthTextField();
+        jLabel3 = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createTitledBorder(null, "SOAP Listener", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(0, 0, 0)));
-        URL.setText(" Provider URL:");
+        URL.setText("Service Name:");
 
-        jButton1.setText("Get Methods");
-
-        method.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-
-        jLabel1.setText("Method:");
-
-        paramTable.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][]
-            {
-                {null, null},
-                {null, null},
-                {null, null},
-                {null, null}
-            },
-            new String []
-            {
-                "Parameter", "Value"
-            }
-        )
+        serviceName.addKeyListener(new java.awt.event.KeyAdapter()
         {
-            boolean[] canEdit = new boolean []
+            public void keyReleased(java.awt.event.KeyEvent evt)
             {
-                false, true
-            };
-
-            public boolean isCellEditable(int rowIndex, int columnIndex)
-            {
-                return canEdit [columnIndex];
+                serviceNameKeyReleased(evt);
             }
         });
-        paramPane.setViewportView(paramTable);
+
+        port.addKeyListener(new java.awt.event.KeyAdapter()
+        {
+            public void keyReleased(java.awt.event.KeyEvent evt)
+            {
+                portKeyReleased(evt);
+            }
+        });
+
+        jLabel1.setText("Port:");
+
+        jLabel2.setText("Method:");
+
+        URL1.setText("WSDL URL:");
+
+        listenerAddress.addKeyListener(new java.awt.event.KeyAdapter()
+        {
+            public void keyReleased(java.awt.event.KeyEvent evt)
+            {
+                listenerAddressKeyReleased(evt);
+            }
+        });
+
+        jLabel3.setText("Listener Addresse:");
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(URL)
-                    .add(jLabel1))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, paramPane)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
+                    .add(layout.createSequentialGroup()
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                            .add(org.jdesktop.layout.GroupLayout.LEADING, soapUrl, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 349, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(org.jdesktop.layout.GroupLayout.LEADING, method, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 173, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .add(URL)
+                            .add(jLabel1)
+                            .add(jLabel3)
+                            .add(URL1))
+                        .add(5, 5, 5))
+                    .add(layout.createSequentialGroup()
+                        .add(jLabel2)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)))
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(serviceName, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 150, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(port, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(listenerAddress, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 250, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(layout.createSequentialGroup()
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jButton1)))
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(method, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 250, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(wsdlURL, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 400, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
+                .addContainerGap(46, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(URL)
-                    .add(jButton1)
-                    .add(soapUrl, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(listenerAddress, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jLabel3))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel1)
-                    .add(method, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(port, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jLabel1))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(paramPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 362, Short.MAX_VALUE)
-                .addContainerGap())
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(serviceName, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(URL))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(wsdlURL, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(URL1))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(method, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jLabel2))
+                .addContainerGap(311, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void serviceNameKeyReleased(java.awt.event.KeyEvent evt)//GEN-FIRST:event_serviceNameKeyReleased
+    {//GEN-HEADEREND:event_serviceNameKeyReleased
+        updateWSDL();
+    }//GEN-LAST:event_serviceNameKeyReleased
+
+    private void portKeyReleased(java.awt.event.KeyEvent evt)//GEN-FIRST:event_portKeyReleased
+    {//GEN-HEADEREND:event_portKeyReleased
+        updateWSDL();
+    }//GEN-LAST:event_portKeyReleased
+
+    private void listenerAddressKeyReleased(java.awt.event.KeyEvent evt)//GEN-FIRST:event_listenerAddressKeyReleased
+    {//GEN-HEADEREND:event_listenerAddressKeyReleased
+        updateWSDL();
+    }//GEN-LAST:event_listenerAddressKeyReleased
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel URL;
+    private javax.swing.JLabel URL1;
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.ButtonGroup buttonGroup2;
     private javax.swing.ButtonGroup buttonGroup3;
     private javax.swing.ButtonGroup buttonGroup4;
-    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
-    private com.webreach.mirth.client.ui.components.MirthComboBox method;
-    private javax.swing.JScrollPane paramPane;
-    private com.webreach.mirth.client.ui.components.MirthTable paramTable;
-    private com.webreach.mirth.client.ui.components.MirthTextField soapUrl;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private com.webreach.mirth.client.ui.components.MirthTextField listenerAddress;
+    private com.webreach.mirth.client.ui.components.MirthTextField method;
+    private com.webreach.mirth.client.ui.components.MirthTextField port;
+    private com.webreach.mirth.client.ui.components.MirthTextField serviceName;
+    private com.webreach.mirth.client.ui.components.MirthTextField wsdlURL;
     // End of variables declaration//GEN-END:variables
 
 }

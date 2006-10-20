@@ -57,7 +57,9 @@ public class SOAPSender extends ConnectorClass
      * Creates new form SOAPListener
      */
     public final String DATATYPE = "DataType";
-    public final String SOAP_URL = "url";
+    public final String SOAP_HOST = "host";
+    public final String SOAP_SERVICE_ENDPOINT = "serviceEndpoint";
+    public final String SOAP_URL = "wsdlUrl";
     public final String SOAP_METHOD = "method";
     public final String SOAP_PARAMETERS = "parameters";
 
@@ -75,6 +77,7 @@ public class SOAPSender extends ConnectorClass
         properties.put(SOAP_URL, soapUrl.getText());
         properties.put(SOAP_METHOD, (String)method.getSelectedItem());
         properties.put(SOAP_PARAMETERS, getParameters());
+        properties.put(SOAP_HOST, buildHost());
         return properties;
     }
 
@@ -133,6 +136,11 @@ public class SOAPSender extends ConnectorClass
         //methodList
     }
     
+    public String buildHost()
+    {
+        return "axis:" + serviceEndpoint.getText() + "/" + (String)method.getSelectedItem();
+    }
+    
     public List getParameters()
     {
         ArrayList <WSParameter> parameters = new ArrayList<WSParameter>();
@@ -168,10 +176,12 @@ public class SOAPSender extends ConnectorClass
         jLabel1 = new javax.swing.JLabel();
         paramPane = new javax.swing.JScrollPane();
         paramTable = new com.webreach.mirth.client.ui.components.MirthTable();
+        jLabel2 = new javax.swing.JLabel();
+        mirthTextField1 = new com.webreach.mirth.client.ui.components.MirthTextField();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createTitledBorder(null, "SOAP Listener", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(0, 0, 0)));
-        URL.setText(" Provider URL:");
+        URL.setText("WSDL URL:");
 
         getMethodsButton.setText("Get Methods");
         getMethodsButton.addActionListener(new java.awt.event.ActionListener()
@@ -182,7 +192,7 @@ public class SOAPSender extends ConnectorClass
             }
         });
 
-        method.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        method.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Press Get Methods" }));
 
         jLabel1.setText("Method:");
 
@@ -212,6 +222,8 @@ public class SOAPSender extends ConnectorClass
         });
         paramPane.setViewportView(paramTable);
 
+        jLabel2.setText("Service Endpoint:");
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -219,18 +231,20 @@ public class SOAPSender extends ConnectorClass
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(jLabel2)
                     .add(URL)
                     .add(jLabel1))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, paramPane)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, paramPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 449, Short.MAX_VALUE)
                     .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                            .add(org.jdesktop.layout.GroupLayout.LEADING, soapUrl, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 350, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
+                            .add(org.jdesktop.layout.GroupLayout.LEADING, mirthTextField1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .add(org.jdesktop.layout.GroupLayout.LEADING, soapUrl, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 350, Short.MAX_VALUE)
                             .add(org.jdesktop.layout.GroupLayout.LEADING, method, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 150, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(getMethodsButton)))
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -241,10 +255,14 @@ public class SOAPSender extends ConnectorClass
                     .add(soapUrl, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel1)
-                    .add(method, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(jLabel2)
+                    .add(mirthTextField1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(paramPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 362, Short.MAX_VALUE)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(method, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jLabel1))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(paramPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 337, Short.MAX_VALUE)
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -264,7 +282,9 @@ public class SOAPSender extends ConnectorClass
     private javax.swing.ButtonGroup buttonGroup4;
     private javax.swing.JButton getMethodsButton;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private com.webreach.mirth.client.ui.components.MirthComboBox method;
+    private com.webreach.mirth.client.ui.components.MirthTextField mirthTextField1;
     private javax.swing.JScrollPane paramPane;
     private com.webreach.mirth.client.ui.components.MirthTable paramTable;
     private com.webreach.mirth.client.ui.components.MirthTextField soapUrl;
