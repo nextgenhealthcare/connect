@@ -57,9 +57,7 @@ public class JavaScriptPreprocessor extends AbstractTransformer {
 			Script compiledScript = compiledScriptCache.getCompiledScript(preprocessingScriptId);
 			String returnValue = message;
 
-			if (compiledScript == null) {
-				logger.warn("preprocessor script could not be found in cache");
-			} else {
+			if (compiledScript != null) {
 				Object result = compiledScript.exec(context, scope);
 				String processedMessage = (String) Context.jsToJava(result, java.lang.String.class);
 
