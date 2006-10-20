@@ -35,6 +35,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.server.controllers.ConfigurationController;
+import com.webreach.mirth.server.util.WebServiceReader;
 
 public class ConfigurationServlet extends MirthServlet {
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -73,6 +74,11 @@ public class ConfigurationServlet extends MirthServlet {
 				} else if (operation.equals("getBuildDate")) {
 					response.setContentType("text/plain");
 					out.print(configurationController.getBuildDate());
+				} else if (operation.equals("getWebServiceDefinition")) {
+					response.setContentType("application/xml");
+					String address = request.getParameter("address");
+					WebServiceReader wsReader = new WebServiceReader(address);
+					out.println(serializer.toXML(wsReader.getWSDefinition()));
 				}
 			} catch (Exception e) {
 				throw new ServletException(e);

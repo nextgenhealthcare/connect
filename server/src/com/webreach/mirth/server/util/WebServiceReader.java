@@ -22,19 +22,18 @@ public class WebServiceReader {
 
 	public WSDefinition getWSDefinition() throws Exception {
 		WSDefinition wsDefinition = new WSDefinition();
-
-		// for dealing with complex types, this needs to be extended to
-		// implement a getLocation method
 		WSDLReaderImpl reader = new WSDLReaderImpl();
-		
+
 		Definition definition = reader.readWSDL(address);
 		Iterator bindingIter = definition.getBindings().values().iterator();
-		//TODO: check if the base URI is correct
+
+		// TODO: check if the base URI is correct
 		wsDefinition.setServiceEndpoint(definition.getDocumentBaseURI());
+
 		while (bindingIter.hasNext()) {
 			Binding binding = (Binding) bindingIter.next();
 			Iterator bindingOperationIter = binding.getBindingOperations().iterator();
-			
+
 			while (bindingOperationIter.hasNext()) {
 				BindingOperation bindingOperation = (BindingOperation) bindingOperationIter.next();
 

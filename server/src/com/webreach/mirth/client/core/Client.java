@@ -40,6 +40,7 @@ import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.model.Transport;
 import com.webreach.mirth.model.User;
+import com.webreach.mirth.model.WSDefinition;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.model.filters.MessageObjectFilter;
 import com.webreach.mirth.model.filters.SystemEventFilter;
@@ -451,5 +452,12 @@ public class Client {
 		} catch (ClientException e) {
 			logger.error("could not submit error", e);
 		}
+	}
+	
+	public WSDefinition getWebServiceDefinition(String address) throws ClientException {
+		logger.debug("retrieving web service definition for address: " + address);
+		NameValuePair[] params = { new NameValuePair("op", "getWebServiceDefinition"), new NameValuePair("address", address) };
+		return (WSDefinition) serializer.fromXML(serverConnection.executePostMethod(CONFIGURATION_SERVLET, params));
+
 	}
 }
