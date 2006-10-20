@@ -27,7 +27,7 @@
 package com.webreach.mirth.client.ui.connectors;
 
 import com.webreach.mirth.client.ui.components.MirthTable;
-import com.webreach.mirth.model.WSDLDefinition;
+import com.webreach.mirth.model.WSDefinition;
 import com.webreach.mirth.model.WSParameter;
 import java.util.Iterator;
 import java.util.ArrayList;
@@ -51,7 +51,7 @@ public class SOAPSender extends ConnectorClass
     public final String TYPE_COLUMN_NAME = "Type";
     public final String VALUE_COLUMN_NAME = "Value";
     Frame parent;
-    WSDLDefinition methodList;
+    WSDefinition methodList;
     
     /**
      * Creates new form SOAPListener
