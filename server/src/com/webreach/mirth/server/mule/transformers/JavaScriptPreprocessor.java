@@ -9,12 +9,13 @@ import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.transformer.TransformerException;
 
 import com.webreach.mirth.server.controllers.ScriptController;
+import com.webreach.mirth.server.mule.util.CompiledScriptCache;
 
 public class JavaScriptPreprocessor extends AbstractTransformer {
 	private String preprocessingScriptId;
+	private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
 	private ScriptController scriptController = new ScriptController();
-	private Script compiledPreprocessingScript = null;
-	
+
 	public String getPreprocessingScriptId() {
 		return this.preprocessingScriptId;
 	}
@@ -32,7 +33,8 @@ public class JavaScriptPreprocessor extends AbstractTransformer {
 			if (preprocessingScript != null) {
 				String generatedPreprocessingScript = generatePreprocessingScript(preprocessingScript);
 				logger.debug("compiling preprocessing script");
-				compiledPreprocessingScript = context.compileString(generatedPreprocessingScript, preprocessingScriptId, 1, null);
+				Script compiledPreprocessingScript = context.compileString(generatedPreprocessingScript, preprocessingScriptId, 1, null);
+				compiledScriptCache.putCompiledScript(preprocessingScriptId, compiledPreprocessingScript);
 			}
 		} catch (Exception e) {
 			throw new InitialisationException(e, this);
@@ -52,12 +54,13 @@ public class JavaScriptPreprocessor extends AbstractTransformer {
 			Context context = Context.enter();
 			Scriptable scope = new ImporterTopLevel(context);
 			scope.put("message", scope, message);
+			Script compiledScript = compiledScriptCache.getCompiledScript(preprocessingScriptId);
 			String returnValue = message;
 
-			if (compiledPreprocessingScript == null) {
-				logger.warn("compiled preprocessing script is null");
+			if (compiledScript == null) {
+				logger.warn("preprocessor script could not be found in cache");
 			} else {
-				Object result = compiledPreprocessingScript.exec(context, scope);
+				Object result = compiledScript.exec(context, scope);
 				String processedMessage = (String) Context.jsToJava(result, java.lang.String.class);
 
 				if (processedMessage != null) {
