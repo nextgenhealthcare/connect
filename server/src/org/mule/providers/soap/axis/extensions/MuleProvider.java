@@ -49,7 +49,7 @@ public class MuleProvider extends RPCProvider
         if (receiver == null) {
             throw new AxisFault("Could not find Mule registered service: " + s);
         }
-        Class[] classes = ServiceProxy.getInterfacesForComponent(receiver.getComponent());
+        Class[] classes = ServiceProxy.getInterfaceForClass("com.webreach.mirth.server.mule.components.SoapService");
         return ServiceProxy.createAxisProxy(receiver, true, classes);
     }
 
@@ -57,7 +57,7 @@ public class MuleProvider extends RPCProvider
     {
         UMOSession session = MuleManager.getInstance().getModel().getComponentSession(soapService.getName());
         try {
-            Class[] classes = ServiceProxy.getInterfacesForComponent(session.getComponent());
+            Class[] classes =  ServiceProxy.getInterfaceForClass("com.webreach.mirth.server.mule.components.SoapService");
             return Proxy.getProxyClass(Thread.currentThread().getContextClassLoader(), classes);
         } catch (Exception e) {
             throw new AxisFault("Failed to implementation class for component: " + e.getMessage(), e);

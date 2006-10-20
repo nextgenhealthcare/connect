@@ -76,7 +76,7 @@ public class AxisMessageReceiver extends AbstractMessageReceiver
         service.setEngine(connector.getAxisServer());
 
         UMOEndpointURI uri = endpoint.getEndpointURI();
-        String serviceName = component.getDescriptor().getName();
+        String serviceName = connector.getServiceName();//component.getDescriptor().getName();
 
         String servicePath = uri.getPath();
         service.setOption(serviceName, this);
@@ -95,7 +95,7 @@ public class AxisMessageReceiver extends AbstractMessageReceiver
             }
         }
         // set method names
-        Class[] interfaces = ServiceProxy.getInterfacesForComponent(component);
+        Class[] interfaces = ServiceProxy.getInterfaceForClass("com.webreach.mirth.server.mule.components.SoapService");
         if (interfaces.length == 0) {
             throw new InitialisationException(new Message(Messages.X_MUST_IMPLEMENT_AN_INTERFACE, serviceName),
                                               component);

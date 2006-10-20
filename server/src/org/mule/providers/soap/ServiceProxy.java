@@ -41,103 +41,108 @@ import org.mule.util.ClassHelper;
  * @version $Revision: 1.4 $
  */
 
-public class ServiceProxy
-{
-    public static Class[] getInterfacesForComponent(UMOComponent component) throws UMOException, ClassNotFoundException
-    {
-        Class[] interfaces = new Class[0];
-        List ifaces = (List) component.getDescriptor().getProperties().get("serviceInterfaces");
-        if (ifaces == null || ifaces.size() == 0) {
-            interfaces = component.getDescriptor().getImplementationClass().getInterfaces();
+public class ServiceProxy {
+	public static Class[] getInterfaceForClass(String clazz)
+			throws UMOException, ClassNotFoundException {
+		Class[] interfaces = new Class[0];
 
-        } else {
-            interfaces = new Class[ifaces.size()];
-            for (int i = 0; i < ifaces.size(); i++) {
-                String iface = (String) ifaces.get(i);
-                interfaces[i] = ClassHelper.loadClass(iface, ServiceProxy.class);
-            }
-        }
+		String iface = clazz;
+		interfaces[0] = ClassHelper.loadClass(iface, ServiceProxy.class);
 
-        interfaces = removeInterface(interfaces, Callable.class);
-        return interfaces;
-    }
+		interfaces = removeInterface(interfaces, Callable.class);
+		return interfaces;
+	}
 
-    public static Class[] removeInterface(Class[] interfaces, Class iface)
-    {
-        if (interfaces == null)
-            return null;
-        List results = new ArrayList();
-        for (int i = 0; i < interfaces.length; i++) {
-            Class anInterface = interfaces[i];
-            if (!anInterface.equals(iface)) {
-                results.add(anInterface);
-            }
-        }
-        Class[] arResults = new Class[results.size()];
-        if (arResults.length == 0) {
-            return arResults;
-        } else {
-            results.toArray(arResults);
-            return arResults;
-        }
-    }
+	/*
+	 * We have modified this to work with just the Mirth soap classes public
+	 * static Class[] getInterfacesForComponent(UMOComponent component) throws
+	 * UMOException, ClassNotFoundException { Class[] interfaces = new Class[0];
+	 * List ifaces = (List)
+	 * component.getDescriptor().getProperties().get("serviceInterfaces"); if
+	 * (ifaces == null || ifaces.size() == 0) { interfaces =
+	 * component.getDescriptor().getImplementationClass().getInterfaces();
+	 *  } else { interfaces = new Class[ifaces.size()]; for (int i = 0; i <
+	 * ifaces.size(); i++) { String iface = (String) ifaces.get(i);
+	 * interfaces[i] = ClassHelper.loadClass(iface, ServiceProxy.class); } }
+	 * 
+	 * interfaces = removeInterface(interfaces, Callable.class); return
+	 * interfaces; }
+	 */
+	public static Class[] removeInterface(Class[] interfaces, Class iface) {
+		if (interfaces == null)
+			return null;
+		List results = new ArrayList();
+		for (int i = 0; i < interfaces.length; i++) {
+			Class anInterface = interfaces[i];
+			if (!anInterface.equals(iface)) {
+				results.add(anInterface);
+			}
+		}
+		Class[] arResults = new Class[results.size()];
+		if (arResults.length == 0) {
+			return arResults;
+		} else {
+			results.toArray(arResults);
+			return arResults;
+		}
+	}
 
-    public static Method[] getMethods(Class[] interfaces)
-    {
-        List methodNames = new ArrayList();
-        for (int i = 0; i < interfaces.length; i++) {
-            methodNames.addAll(Arrays.asList(interfaces[i].getMethods()));
-        }
-        Method[] results = new Method[methodNames.size()];
-        return (Method[]) methodNames.toArray(results);
+	public static Method[] getMethods(Class[] interfaces) {
+		List methodNames = new ArrayList();
+		for (int i = 0; i < interfaces.length; i++) {
+			methodNames.addAll(Arrays.asList(interfaces[i].getMethods()));
+		}
+		Method[] results = new Method[methodNames.size()];
+		return (Method[]) methodNames.toArray(results);
 
-    }
+	}
 
-    public static String[] getMethodNames(Class[] interfaces)
-    {
-        Method[] methods = getMethods(interfaces);
+	public static String[] getMethodNames(Class[] interfaces) {
+		Method[] methods = getMethods(interfaces);
 
-        String[] results = new String[methods.length];
-        for (int i = 0; i < results.length; i++) {
-            results[i] = methods[i].getName();
-        }
-        return results;
-    }
+		String[] results = new String[methods.length];
+		for (int i = 0; i < results.length; i++) {
+			results[i] = methods[i].getName();
+		}
+		return results;
+	}
 
-    public static Object createAxisProxy(AbstractMessageReceiver receiver, boolean synchronous, Class[] classes)
-    {
-        return Proxy.newProxyInstance(ServiceProxy.class.getClassLoader(),
-                                      classes,
-                                      createAxisServiceHandler(receiver, synchronous));
-    }
+	public static Object createAxisProxy(AbstractMessageReceiver receiver,
+			boolean synchronous, Class[] classes) {
+		return Proxy.newProxyInstance(ServiceProxy.class.getClassLoader(),
+				classes, createAxisServiceHandler(receiver, synchronous));
+	}
 
-    public static InvocationHandler createAxisServiceHandler(AbstractMessageReceiver receiver, boolean synchronous)
-    {
-        return new AxisServiceHandler(receiver, synchronous);
-    }
+	public static InvocationHandler createAxisServiceHandler(
+			AbstractMessageReceiver receiver, boolean synchronous) {
+		return new AxisServiceHandler(receiver, synchronous);
+	}
 
-    private static class AxisServiceHandler implements InvocationHandler
-    {
-        private AbstractMessageReceiver receiver;
-        private boolean synchronous = true;
+	private static class AxisServiceHandler implements InvocationHandler {
+		private AbstractMessageReceiver receiver;
 
-        public AxisServiceHandler(AbstractMessageReceiver receiver, boolean synchronous)
-        {
-            this.receiver = receiver;
-            this.synchronous = synchronous;
-        }
+		private boolean synchronous = true;
 
-        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
-        {
-            UMOMessageAdapter messageAdapter = receiver.getConnector().getMessageAdapter(args);
-            messageAdapter.setProperty(MuleProperties.MULE_METHOD_PROPERTY, method);
+		public AxisServiceHandler(AbstractMessageReceiver receiver,
+				boolean synchronous) {
+			this.receiver = receiver;
+			this.synchronous = synchronous;
+		}
 
-            UMOMessage message = receiver.routeMessage(new MuleMessage(messageAdapter), synchronous);
-            if (message != null) {
-                return message.getPayload();
-            } else {
-                return null;
-            }
-        }
-    }
+		public Object invoke(Object proxy, Method method, Object[] args)
+				throws Throwable {
+			UMOMessageAdapter messageAdapter = receiver.getConnector()
+					.getMessageAdapter(args);
+			messageAdapter.setProperty(MuleProperties.MULE_METHOD_PROPERTY,
+					method);
+
+			UMOMessage message = receiver.routeMessage(new MuleMessage(
+					messageAdapter), synchronous);
+			if (message != null) {
+				return message.getPayload();
+			} else {
+				return null;
+			}
+		}
+	}
 }

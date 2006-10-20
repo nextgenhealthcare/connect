@@ -43,6 +43,8 @@ import org.mule.umo.manager.UMOServerEvent;
 import org.mule.umo.provider.UMOMessageReceiver;
 import org.mule.util.ClassHelper;
 
+import com.webreach.mirth.model.WSParameter;
+
 import javax.xml.namespace.QName;
 import java.io.File;
 import java.io.FileInputStream;
@@ -81,8 +83,15 @@ public class AxisConnector extends AbstractServiceEnabledConnector implements Mo
     public static final String ENDPOINT_COUNTERS_PROPERTY = "endpointCounters";
 
     public static final String WSDL_URL_PROPERTY = "wsdlUrl";
-
+    public static final String SERVICE_NAME = "Mirth";
+    public final String LISTENER_ADDRESS_PROPERTY = "listenerAddress";
+    public final String SERVICE_NAME_PROPERTY = "serviceName";
+    public final String PORT_PROPERTY = "port";
+    public final String SERVICE_ENDPOINT_PROPERTY = "serviceEndpoint";
+    public final String METHOD_PROPERTY = "method";
+    public final String PARAMETERS_PROPERTY = "parameters";
     private String serverConfig;
+
     private AxisServer axisServer;
     private SimpleProvider serverProvider;
     // Client configuration currently not used but the endpoint should
@@ -92,6 +101,13 @@ public class AxisConnector extends AbstractServiceEnabledConnector implements Mo
 
     private List beanTypes;
     private MuleDescriptor axisDescriptor;
+    private String serviceEndpoint;
+    private String port = "8081";
+    private String wsdlUrl = "";
+    private String listenerAddress = "localhost";
+    private String serviceName = SERVICE_NAME;
+    private String method = "";
+    private List<WSParameter> parameters;
     /**
      * These protocols will be set on client invocations.  by default Mule uses it's own transports
      * rather that Axis's.  This is only because it gives us more flexibility inside Mule and
@@ -525,4 +541,60 @@ public class AxisConnector extends AbstractServiceEnabledConnector implements Mo
     public void setSupportedSchemes(List supportedSchemes) {
         this.supportedSchemes = supportedSchemes;
     }
+
+	public String getServiceName() {
+		return serviceName;
+	}
+
+	public void setServiceName(String serviceName) {
+		this.serviceName = serviceName;
+	}
+
+	public List<WSParameter> getParameterMapping() {
+		return parameters;
+	}
+
+	public void setParameterMapping(List<WSParameter> parameterMapping) {
+		this.parameters = parameterMapping;
+	}
+
+	public String getListenerAddress() {
+		return listenerAddress;
+	}
+
+	public void setListenerAddress(String listenerAddress) {
+		this.listenerAddress = listenerAddress;
+	}
+
+	public String getPort() {
+		return port;
+	}
+
+	public void setPort(String port) {
+		this.port = port;
+	}
+
+	public String getServiceEndpoint() {
+		return serviceEndpoint;
+	}
+
+	public void setServiceEndpoint(String serviceEndpoint) {
+		this.serviceEndpoint = serviceEndpoint;
+	}
+
+	public String getWsdlUrl() {
+		return wsdlUrl;
+	}
+
+	public void setWsdlUrl(String wsdlUrl) {
+		this.wsdlUrl = wsdlUrl;
+	}
+
+	public String getMethod() {
+		return method;
+	}
+
+	public void setMethod(String method) {
+		this.method = method;
+	}
 }
