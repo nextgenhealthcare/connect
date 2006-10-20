@@ -148,7 +148,6 @@ public class MuleConfigurationBuilder {
 			// add the VM endpoint for reprocessing capabilities
 			Element vmEndpointElement = document.createElement("endpoint");
 			vmEndpointElement.setAttribute("address", "vm://" + channel.getId());
-			inboundRouterElement.appendChild(vmEndpointElement);
 			
 			// add the configured endpoint
 			Element endpointElement = document.createElement("endpoint");
@@ -160,38 +159,47 @@ public class MuleConfigurationBuilder {
 			addConnector(document, configurationElement, channel.getSourceConnector(), connectorReference + "_connector");
 			endpointElement.setAttribute("connector", connectorReference + "_connector");
 
-			StringBuilder transformers = new StringBuilder();
+			StringBuilder endpointTransformers = new StringBuilder();
+			StringBuilder vmTransformers = new StringBuilder();
 
 			// 1. append the default transformers required by the transport (ex.
 			// ByteArrayToString)
 			Transport transport = transports.get(channel.getSourceConnector().getTransportName());
-			transformers.append(transport.getTransformers() + " ");
+			endpointTransformers.append(transport.getTransformers() + " ");
 
 			// 2. append the preprocessing transformer
 			addPreprocessor(document, configurationElement, channel, connectorReference + "_preprocessor");
-			transformers.append(connectorReference + "_preprocessor ");
+			endpointTransformers.append(connectorReference + "_preprocessor ");
+			vmTransformers.append(connectorReference + "_preprocessor ");
 			
 			// 3. determine which transformer to use
 			if (channel.getProtocol().equals(Channel.Protocol.HL7)) {
-				transformers.append("HL7ToMessageObject ");
+				endpointTransformers.append("HL7ToMessageObject ");
+				vmTransformers.append("HL7ToMessageObject ");
 			} else if (channel.getProtocol().equals(Channel.Protocol.X12)) {
-				transformers.append("X12ToMessageObject ");
+				endpointTransformers.append("X12ToMessageObject ");
+				vmTransformers.append("X12ToMessageObject ");
 			} else {
-				transformers.append("XMLToMessageObject ");
+				endpointTransformers.append("XMLToMessageObject ");
+				vmTransformers.append("XMLToMessageObject ");
 			}
 
 			// 4. finally, append the JavaScriptTransformer that does the
 			// mappings if it's BROADCAST
 			if (channel.getMode().equals(Channel.Mode.BROADCAST)) {
 				addTransformer(document, configurationElement, channel, channel.getSourceConnector(), connectorReference + "_transformer");
-				transformers.append(connectorReference + "_transformer");
+				endpointTransformers.append(connectorReference + "_transformer");
+				vmTransformers.append(connectorReference + "_transformer");
 			}
 
 			// 5. add the transformer sequence as an attribute to the endpoint
 			// if not empty
-			if (!transformers.toString().trim().equals("")) {
-				endpointElement.setAttribute("transformers", transformers.toString().trim());
+			if (!endpointTransformers.toString().trim().equals("")) {
+				endpointElement.setAttribute("transformers", endpointTransformers.toString().trim());
+				vmEndpointElement.setAttribute("transformers", vmTransformers.toString().trim());
 			}
+			
+			inboundRouterElement.appendChild(vmEndpointElement);
 
 			if (channel.getMode().equals(Channel.Mode.BROADCAST)) {
 				Element routerElement = document.createElement("router");
@@ -203,7 +211,7 @@ public class MuleConfigurationBuilder {
 				routerElement.appendChild(filterElement);
 				inboundRouterElement.appendChild(routerElement);
 			}
-
+			
 			inboundRouterElement.appendChild(endpointElement);
 			return inboundRouterElement;
 		} catch (Exception e) {
