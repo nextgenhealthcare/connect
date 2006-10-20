@@ -47,7 +47,7 @@
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="1" attributes="0">
-                          <Component id="jLabel5" alignment="1" min="-2" max="-2" attributes="0"/>
+                          <Component id="clientIdLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                           <Component id="jLabel4" alignment="1" min="-2" max="-2" attributes="0"/>
                           <Component id="jLabel10" alignment="1" min="-2" max="-2" attributes="0"/>
                           <Component id="jLabel11" alignment="1" min="-2" max="-2" attributes="0"/>
@@ -58,7 +58,7 @@
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="jmsURL" alignment="0" min="-2" pref="200" max="-2" attributes="0"/>
+                          <Component id="jmsURL" alignment="0" min="-2" pref="300" max="-2" attributes="0"/>
                           <Group type="102" alignment="0" attributes="0">
                               <Component id="recoverJMSConnectionsYes" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
@@ -70,7 +70,7 @@
                               <Component id="durableNo" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <Component id="cliendId" alignment="0" min="-2" pref="125" max="-2" attributes="1"/>
-                          <Component id="connectionFactory" alignment="0" pref="200" max="32767" attributes="1"/>
+                          <Component id="connectionFactory" alignment="0" min="-2" pref="300" max="-2" attributes="1"/>
                           <Component id="maxRedelivery" alignment="0" min="-2" pref="125" max="-2" attributes="1"/>
                           <Group type="103" alignment="0" groupAlignment="1" max="-2" attributes="0">
                               <Component id="username" alignment="0" pref="125" max="32767" attributes="1"/>
@@ -79,7 +79,7 @@
                       </Group>
                   </Group>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace pref="137" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -104,7 +104,7 @@
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="jLabel5" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="clientIdLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="cliendId" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
@@ -138,7 +138,7 @@
                   <Component id="recoverJMSConnectionsYes" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="recoverJMSConnectionsNo" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace pref="32" max="32767" attributes="0"/>
+              <EmptySpace pref="170" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -171,7 +171,7 @@
         <Property name="text" type="java.lang.String" value="Durable:"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="jLabel5">
+    <Component class="javax.swing.JLabel" name="clientIdLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Client ID:"/>
       </Properties>
@@ -200,6 +200,9 @@
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="durableNoActionPerformed"/>
+      </Events>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="durableYes">
       <Properties>
@@ -219,6 +222,9 @@
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="durableYesActionPerformed"/>
+      </Events>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="cliendId">
     </Component>

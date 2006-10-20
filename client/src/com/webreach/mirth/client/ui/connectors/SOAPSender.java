@@ -62,7 +62,8 @@ public class SOAPSender extends ConnectorClass
     public final String SOAP_URL = "wsdlUrl";
     public final String SOAP_METHOD = "method";
     public final String SOAP_PARAMETERS = "parameters";
-
+    public final String SOAP_DEFAULT_DROPDOWN = "Press Get Methods";
+    
     public SOAPSender()
     {
         this.parent = PlatformUI.MIRTH_FRAME;
@@ -74,7 +75,8 @@ public class SOAPSender extends ConnectorClass
     {
         Properties properties = new Properties();
         properties.put(DATATYPE, name);
-        properties.put(SOAP_URL, soapUrl.getText());
+        properties.put(SOAP_URL, wsdlUrl.getText());
+        properties.put(SOAP_SERVICE_ENDPOINT, serviceEndpoint.getText());
         properties.put(SOAP_METHOD, (String)method.getSelectedItem());
         properties.put(SOAP_PARAMETERS, getParameters());
         properties.put(SOAP_HOST, buildHost());
@@ -85,36 +87,18 @@ public class SOAPSender extends ConnectorClass
     {
         methodList = null;
         
-        soapUrl.setText((String)props.get(SOAP_URL));
+        wsdlUrl.setText((String)props.get(SOAP_URL));
+        serviceEndpoint.setText((String)props.get(SOAP_SERVICE_ENDPOINT));
         
         if(props.getProperty(SOAP_METHOD) != null)
         {    
             method.setModel(new javax.swing.DefaultComboBoxModel(new String[] { (String)props.getProperty(SOAP_METHOD) }));
         }
         
-        ArrayList<WSParameter> parameters = (ArrayList<WSParameter>) props.get(SOAP_PARAMETERS);
-        
-        Object[][] tableData = new Object[parameters.size()][3];
-        paramTable = new MirthTable();
-      
-        for (int i = 0; i < parameters.size(); i++)
-        {
-            tableData[i][PARAMETER_COLUMN] = parameters.get(i).getName();
-            tableData[i][TYPE_COLUMN] = parameters.get(i).getType();
-            tableData[i][VALUE_COLUMN] = parameters.get(i).getValue();
-        }        
-        
-        paramTable.setModel(new javax.swing.table.DefaultTableModel(
-        tableData, new String[] { PARAMETER_COLUMN_NAME, TYPE_COLUMN_NAME,
-        VALUE_COLUMN_NAME })
-        {
-            boolean[] canEdit = new boolean[] { false, false, true };
-            
-            public boolean isCellEditable(int rowIndex, int columnIndex)
-            {
-                return canEdit[columnIndex];
-            }
-        });
+        if(props.get(SOAP_PARAMETERS) != null)
+            setupTable((ArrayList<WSParameter>) props.get(SOAP_PARAMETERS));
+        else
+            setupTable(new ArrayList<WSParameter>());
     }
     
     public Properties getDefaults()
@@ -122,18 +106,18 @@ public class SOAPSender extends ConnectorClass
         Properties properties = new Properties();
         properties.put(DATATYPE, name);
         properties.put(SOAP_URL, "");
-        properties.put(SOAP_METHOD, "Press Get Methods");
+        properties.put(SOAP_SERVICE_ENDPOINT, "");
+        properties.put(SOAP_METHOD, SOAP_DEFAULT_DROPDOWN);
         return properties;
     }
     
     public boolean checkProperties(Properties props)
     {
+        if(!((String)props.getProperty(SOAP_METHOD)).equals(SOAP_DEFAULT_DROPDOWN) && 
+                ((String)props.getProperty(SOAP_URL)).length() > 0 &&
+                ((String)props.getProperty(SOAP_SERVICE_ENDPOINT)).length() > 0)
+            return true;
         return false;
-    }
-    
-    public void setDropDownItems()
-    {
-        //methodList
     }
     
     public String buildHost()
@@ -156,6 +140,31 @@ public class SOAPSender extends ConnectorClass
         
         return parameters;
     }
+    
+    public void setupTable(List<WSParameter> parameters)
+    {
+        Object[][] tableData = new Object[parameters.size()][3];
+        paramTable = new MirthTable();
+
+        for (int i = 0; i < parameters.size(); i++)
+        {
+            tableData[i][PARAMETER_COLUMN] = parameters.get(i).getName();
+            tableData[i][TYPE_COLUMN] = parameters.get(i).getType();
+            tableData[i][VALUE_COLUMN] = parameters.get(i).getValue();
+        }        
+
+        paramTable.setModel(new javax.swing.table.DefaultTableModel(
+        tableData, new String[] { PARAMETER_COLUMN_NAME, TYPE_COLUMN_NAME,
+        VALUE_COLUMN_NAME })
+        {
+            boolean[] canEdit = new boolean[] { false, false, true };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex)
+            {
+                return canEdit[columnIndex];
+            }
+        });
+    }
         
     /** This method is called from within the constructor to
      * initialize the form.
@@ -170,7 +179,7 @@ public class SOAPSender extends ConnectorClass
         buttonGroup3 = new javax.swing.ButtonGroup();
         buttonGroup4 = new javax.swing.ButtonGroup();
         URL = new javax.swing.JLabel();
-        soapUrl = new com.webreach.mirth.client.ui.components.MirthTextField();
+        wsdlUrl = new com.webreach.mirth.client.ui.components.MirthTextField();
         getMethodsButton = new javax.swing.JButton();
         method = new com.webreach.mirth.client.ui.components.MirthComboBox();
         jLabel1 = new javax.swing.JLabel();
@@ -192,7 +201,13 @@ public class SOAPSender extends ConnectorClass
             }
         });
 
-        method.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Press Get Methods" }));
+        method.addItemListener(new java.awt.event.ItemListener()
+        {
+            public void itemStateChanged(java.awt.event.ItemEvent evt)
+            {
+                methodItemStateChanged(evt);
+            }
+        });
 
         jLabel1.setText("Method:");
 
@@ -240,7 +255,7 @@ public class SOAPSender extends ConnectorClass
                     .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
                             .add(org.jdesktop.layout.GroupLayout.LEADING, serviceEndpoint, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .add(org.jdesktop.layout.GroupLayout.LEADING, soapUrl, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 350, Short.MAX_VALUE)
+                            .add(org.jdesktop.layout.GroupLayout.LEADING, wsdlUrl, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 350, Short.MAX_VALUE)
                             .add(org.jdesktop.layout.GroupLayout.LEADING, method, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 150, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(getMethodsButton)))
@@ -252,7 +267,7 @@ public class SOAPSender extends ConnectorClass
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(URL)
                     .add(getMethodsButton)
-                    .add(soapUrl, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(wsdlUrl, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel2)
@@ -267,10 +282,35 @@ public class SOAPSender extends ConnectorClass
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    private void methodItemStateChanged(java.awt.event.ItemEvent evt)//GEN-FIRST:event_methodItemStateChanged
+    {//GEN-HEADEREND:event_methodItemStateChanged
+        if(methodList != null)
+        {
+            if(evt.getStateChange() == evt.SELECTED)
+            {
+                String item = evt.getItem().toString();
+                if(item.equals(SOAP_DEFAULT_DROPDOWN))
+                    return;
+                else
+                    setupTable(methodList.getOperations().get(method.getSelectedIndex()).getParameters());
+            }
+        }
+    }//GEN-LAST:event_methodItemStateChanged
+
     private void getMethodsButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_getMethodsButtonActionPerformed
     {//GEN-HEADEREND:event_getMethodsButtonActionPerformed
         //methodList = parent.mirthClient.getMethods(soapUrl.getText().trim());
+        String[] methodNames = new String[methodList.getOperations().size()];
+        for (int i = 0; i < methodList.getOperations().size(); i++)
+        {
+            methodNames[i] = methodList.getOperations().get(i).getName();
+        }
         
+        method.setModel(new javax.swing.DefaultComboBoxModel(methodNames));
+        
+        method.setSelectedIndex(0);
+        
+        setupTable( methodList.getOperations().get(0).getParameters() );        
     }//GEN-LAST:event_getMethodsButtonActionPerformed
 
 
@@ -287,7 +327,7 @@ public class SOAPSender extends ConnectorClass
     private javax.swing.JScrollPane paramPane;
     private com.webreach.mirth.client.ui.components.MirthTable paramTable;
     private com.webreach.mirth.client.ui.components.MirthTextField serviceEndpoint;
-    private com.webreach.mirth.client.ui.components.MirthTextField soapUrl;
+    private com.webreach.mirth.client.ui.components.MirthTextField wsdlUrl;
     // End of variables declaration//GEN-END:variables
 
 }

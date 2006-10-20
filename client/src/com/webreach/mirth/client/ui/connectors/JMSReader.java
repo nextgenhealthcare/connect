@@ -118,9 +118,15 @@ public class JMSReader extends ConnectorClass
         specDropDown.setSelectedItem(props.get(JMS_SPECIFICATION));
         
         if(((String)props.get(JMS_DURABLE)).equalsIgnoreCase(UIConstants.NO_OPTION))
+        {
             durableNo.setSelected(true);
+            durableNoActionPerformed(null);
+        }
         else
+        {
             durableYes.setSelected(true);
+            durableYesActionPerformed(null);
+        }
         
         cliendId.setText((String)props.get(JMS_CLIENT_ID));
         jmsURL.setText((String)props.get(JMS_URL));
@@ -156,11 +162,17 @@ public class JMSReader extends ConnectorClass
     
     public boolean checkProperties(Properties props)
     {
-        /*if()
-        {
+        if(((String)props.getProperty(JMS_DURABLE)).equals(UIConstants.YES_OPTION) && ((String)props.getProperty(JMS_CLIENT_ID)).length() == 0)
+            return false;
+        else if(((String)props.getProperty(JMS_URL)).length() > 0 &&
+                ((String)props.getProperty(JMS_CONNECTION_FACTORY)).length() > 0 &&
+                ((String)props.getProperty(JMS_USERNAME)).length() > 0 &&
+                ((String)props.getProperty(JMS_PASSWORD)).length() > 0 &&
+                ((String)props.getProperty(JMS_CONNECTION_FACTORY)).length() > 0 &&
+                ((String)props.getProperty(JMS_MAX_REDELIVERY)).length() > 0)
             return true;
-        }*/
-        return false;
+        else
+            return false;
     }
     
     /** This method is called from within the constructor to
@@ -177,7 +189,7 @@ public class JMSReader extends ConnectorClass
         jLabel3 = new javax.swing.JLabel();
         specDropDown = new com.webreach.mirth.client.ui.components.MirthComboBox();
         jLabel4 = new javax.swing.JLabel();
-        jLabel5 = new javax.swing.JLabel();
+        clientIdLabel = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
         durableNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         durableYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
@@ -206,7 +218,7 @@ public class JMSReader extends ConnectorClass
 
         jLabel4.setText("Durable:");
 
-        jLabel5.setText("Client ID:");
+        clientIdLabel.setText("Client ID:");
 
         jLabel9.setText("Maximun Redelivery:");
 
@@ -216,12 +228,26 @@ public class JMSReader extends ConnectorClass
         durableNo.setSelected(true);
         durableNo.setText("No");
         durableNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        durableNo.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                durableNoActionPerformed(evt);
+            }
+        });
 
         durableYes.setBackground(new java.awt.Color(255, 255, 255));
         durableYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         durableButtonGroup.add(durableYes);
         durableYes.setText("Yes");
         durableYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        durableYes.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                durableYesActionPerformed(evt);
+            }
+        });
 
         maxRedelivery.setAutoscrolls(false);
 
@@ -269,7 +295,7 @@ public class JMSReader extends ConnectorClass
                     .add(layout.createSequentialGroup()
                         .addContainerGap()
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                            .add(jLabel5)
+                            .add(clientIdLabel)
                             .add(jLabel4)
                             .add(jLabel10)
                             .add(jLabel11)
@@ -279,7 +305,7 @@ public class JMSReader extends ConnectorClass
                             .add(jLabel15))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(jmsURL, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(jmsURL, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 300, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(layout.createSequentialGroup()
                                 .add(recoverJMSConnectionsYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -289,12 +315,12 @@ public class JMSReader extends ConnectorClass
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                                 .add(durableNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                             .add(cliendId, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(connectionFactory, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
+                            .add(connectionFactory, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 300, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(maxRedelivery, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
                                 .add(org.jdesktop.layout.GroupLayout.LEADING, username, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 125, Short.MAX_VALUE)
                                 .add(org.jdesktop.layout.GroupLayout.LEADING, password, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 125, Short.MAX_VALUE)))))
-                .addContainerGap())
+                .addContainerGap(137, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -314,7 +340,7 @@ public class JMSReader extends ConnectorClass
                     .add(durableNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel5)
+                    .add(clientIdLabel)
                     .add(cliendId, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -341,14 +367,27 @@ public class JMSReader extends ConnectorClass
                     .add(jLabel15)
                     .add(recoverJMSConnectionsYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(recoverJMSConnectionsNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(32, Short.MAX_VALUE))
+                .addContainerGap(170, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void durableYesActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_durableYesActionPerformed
+    {//GEN-HEADEREND:event_durableYesActionPerformed
+        cliendId.setEnabled(true);  
+        clientIdLabel.setEnabled(true);
+    }//GEN-LAST:event_durableYesActionPerformed
+
+    private void durableNoActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_durableNoActionPerformed
+    {//GEN-HEADEREND:event_durableNoActionPerformed
+        cliendId.setEnabled(false);
+        clientIdLabel.setEnabled(false);
+    }//GEN-LAST:event_durableNoActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.webreach.mirth.client.ui.components.MirthComboBox ackMode;
     private com.webreach.mirth.client.ui.components.MirthTextField cliendId;
+    private javax.swing.JLabel clientIdLabel;
     private com.webreach.mirth.client.ui.components.MirthTextField connectionFactory;
     private javax.swing.ButtonGroup deliveryButtonGroup;
     private javax.swing.ButtonGroup durableButtonGroup;
@@ -362,7 +401,6 @@ public class JMSReader extends ConnectorClass
     private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel9;
     private com.webreach.mirth.client.ui.components.MirthTextField jmsURL;
     private com.webreach.mirth.client.ui.components.MirthTextField maxRedelivery;
