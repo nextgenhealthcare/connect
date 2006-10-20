@@ -26,6 +26,7 @@
 
 package com.webreach.mirth.client.ui.connectors;
 
+import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.ui.components.MirthTable;
 import com.webreach.mirth.model.WSDefinition;
 import com.webreach.mirth.model.WSParameter;
@@ -299,18 +300,25 @@ public class SOAPSender extends ConnectorClass
 
     private void getMethodsButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_getMethodsButtonActionPerformed
     {//GEN-HEADEREND:event_getMethodsButtonActionPerformed
-        //methodList = parent.mirthClient.getMethods(soapUrl.getText().trim());
-        String[] methodNames = new String[methodList.getOperations().size()];
-        for (int i = 0; i < methodList.getOperations().size(); i++)
+        try
         {
-            methodNames[i] = methodList.getOperations().get(i).getName();
+            methodList = parent.mirthClient.getWebServiceDefinition(wsdlUrl.getText().trim());
+            String[] methodNames = new String[methodList.getOperations().size()];
+            for (int i = 0; i < methodList.getOperations().size(); i++)
+            {
+                methodNames[i] = methodList.getOperations().get(i).getName();
+            }
+
+            method.setModel(new javax.swing.DefaultComboBoxModel(methodNames));
+
+            method.setSelectedIndex(0);
+
+            setupTable( methodList.getOperations().get(0).getParameters() ); 
         }
-        
-        method.setModel(new javax.swing.DefaultComboBoxModel(methodNames));
-        
-        method.setSelectedIndex(0);
-        
-        setupTable( methodList.getOperations().get(0).getParameters() );        
+        catch(ClientException e)
+        {
+            parent.alertError("No methods found.  Check the WSDL URL and try again.");
+        }
     }//GEN-LAST:event_getMethodsButtonActionPerformed
 
 
