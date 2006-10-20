@@ -179,6 +179,7 @@ public class MessageBrowser extends javax.swing.JPanel
     {
         // use the start filters and make the table.
         parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 4, -1, false);
+        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 5, 5, true);
         statusComboBox.setSelectedIndex(0);
         long currentTime = System.currentTimeMillis();
         mirthDatePicker1.setDateInMillis(currentTime);
@@ -500,6 +501,7 @@ public class MessageBrowser extends javax.swing.JPanel
     public void deselectRows()
     {
         parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 4, -1, false);
+        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 5, 5, true);
         eventTable.clearSelection();
         clearDescription();
     }

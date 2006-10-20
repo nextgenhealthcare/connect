@@ -817,7 +817,7 @@ public class Frame extends JXFrame
         });
         messagePopupMenu.add(refresh);
         
-        messageTasks.add(initActionCallback("doExportMessages", "Export all currently viewed messages.", ActionFactory.createBoundAction("doExportMessages","Export Messages", "E"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/export.png"))));
+        messageTasks.add(initActionCallback("doExportMessages", "Export all currently viewed messages.", ActionFactory.createBoundAction("doExportMessages","Export Messages", "X"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/export.png"))));
         JMenuItem exportMessages = new JMenuItem("Export Messages");
         exportMessages.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/export.png")));
         exportMessages.addActionListener(new ActionListener(){
@@ -856,9 +856,30 @@ public class Frame extends JXFrame
             }
         });
         messagePopupMenu.add(removeMessage);
+        
+                messageTasks.add(initActionCallback("doReprocessFilteredMessages", "Reprocess all Message Events in the current filter.", ActionFactory.createBoundAction("doReprocessFilteredMessages","Reprocess Filtered Messages", "G"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/deployall.png"))));
+        JMenuItem reprocessFilteredMessages = new JMenuItem("Reprocess Filtered Messages");
+        reprocessFilteredMessages.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png")));
+        reprocessFilteredMessages.addActionListener(new ActionListener(){
+             public void actionPerformed(ActionEvent e){
+                doReprocessFilteredMessages();
+            }
+        });
+        messagePopupMenu.add(reprocessFilteredMessages);
+
+        messageTasks.add(initActionCallback("doReprocessMessage", "Reprocess the selected Message.", ActionFactory.createBoundAction("doReprocessMessage","Reprocess Message", "C"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/deploy.png"))));
+        JMenuItem reprocessMessage = new JMenuItem("Reprocess Message");
+        reprocessMessage.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png")));
+        reprocessMessage.addActionListener(new ActionListener(){
+             public void actionPerformed(ActionEvent e){
+                doReprocessMessage();
+            }
+        });
+        messagePopupMenu.add(reprocessMessage);
 
         setNonFocusable(messageTasks);
-        setVisibleTasks(messageTasks, messagePopupMenu, 3, -1, false);
+        setVisibleTasks(messageTasks, messagePopupMenu, 4, -1, false);
+        setVisibleTasks(messageTasks, messagePopupMenu, 5, 5, true);
         taskPaneContainer.add(messageTasks);
     }
 
@@ -1972,6 +1993,34 @@ public class Frame extends JXFrame
             }
             messageBrowser.refresh();
         }
+    }
+    
+    public void doReprocessFilteredMessages()
+    {
+        try
+        {
+            mirthClient.reprocessMessages(messageBrowser.getCurrentFilter());
+        }
+        catch (ClientException e)
+        {
+            alertException(e.getStackTrace(), e.getMessage());
+        }
+        messageBrowser.refresh();
+    }
+    
+    public void doReprocessMessage()
+    {
+        try
+        {
+            MessageObjectFilter filter = new MessageObjectFilter();
+            filter.setId(messageBrowser.getSelectedMessageID());
+            mirthClient.reprocessMessages(filter);
+        }
+        catch (ClientException e)
+        {
+            alertException(e.getStackTrace(), e.getMessage());
+        }
+        messageBrowser.refresh();
     }
 
     public void doRefreshEvents()
