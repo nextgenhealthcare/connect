@@ -91,8 +91,6 @@ public class DatabaseReader extends ConnectorClass
             driverNames[i] = drivers.get(i).getName();
         }
         
-        databaseSQLTextPane.initialize(true, false);
-        databaseUpdateSQLTextPane.initialize(true, false);
         databaseDriverCombobox.setModel(new javax.swing.DefaultComboBoxModel(driverNames));        
         mappingDoc = new SyntaxDocument();
         mappingDoc.setTokenMarker(new TSQLTokenMarker());
@@ -245,8 +243,8 @@ public class DatabaseReader extends ConnectorClass
         jLabel8 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         dbVarList = new com.webreach.mirth.client.ui.components.MirthVariableList();
-        databaseSQLTextPane = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea();
-        databaseUpdateSQLTextPane = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea();
+        databaseSQLTextPane = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea(true,false);
+        databaseUpdateSQLTextPane = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea(true,false);
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Database Reader", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(0, 0, 0)));

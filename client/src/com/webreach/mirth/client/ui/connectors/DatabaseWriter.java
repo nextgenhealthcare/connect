@@ -78,7 +78,6 @@ public class DatabaseWriter extends ConnectorClass
         {
             driverNames[i] = drivers.get(i).getName();
         }
-        databaseSQLTextPane.initialize(true, false);
         databaseDriverCombobox.setModel(new javax.swing.DefaultComboBoxModel(driverNames));    
         mappingDoc = new SyntaxDocument();
         mappingDoc.setTokenMarker(new TSQLTokenMarker());
@@ -160,7 +159,7 @@ public class DatabaseWriter extends ConnectorClass
         databaseURLField = new com.webreach.mirth.client.ui.components.MirthTextField();
         databaseUsernameField = new com.webreach.mirth.client.ui.components.MirthTextField();
         databasePasswordField = new com.webreach.mirth.client.ui.components.MirthPasswordField();
-        databaseSQLTextPane = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea();
+        databaseSQLTextPane = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea(true,false);
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Database Writer", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(0, 0, 0)));

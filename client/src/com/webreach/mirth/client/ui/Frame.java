@@ -81,6 +81,7 @@ import com.webreach.mirth.client.ui.connectors.FileReader;
 import com.webreach.mirth.client.ui.connectors.FileWriter;
 import com.webreach.mirth.client.ui.connectors.HTTPListener;
 import com.webreach.mirth.client.ui.connectors.HTTPSListener;
+import com.webreach.mirth.client.ui.connectors.JMSReader;
 import com.webreach.mirth.client.ui.connectors.JMSWriter;
 import com.webreach.mirth.client.ui.connectors.LLPListener;
 import com.webreach.mirth.client.ui.connectors.LLPSender;
@@ -89,8 +90,6 @@ import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.ChannelStatus;
 import com.webreach.mirth.model.User;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
-import java.util.Enumeration;
-import javax.swing.UIDefaults;
 
 /**
  * The main conent frame for the Mirth Client Application.
@@ -219,6 +218,7 @@ public class Frame extends JXFrame
         sourceConnectors.add(new FileReader());
         sourceConnectors.add(new FTPReader());
         sourceConnectors.add(new SFTPReader());
+        sourceConnectors.add(new JMSReader());
 
         destinationConnectors = new ArrayList<ConnectorClass>();
         destinationConnectors.add(new DatabaseWriter());
@@ -229,7 +229,8 @@ public class Frame extends JXFrame
         destinationConnectors.add(new FTPWriter());
         destinationConnectors.add(new SFTPWriter());
         destinationConnectors.add(new PDFWriter());
-
+        destinationConnectors.add(new JMSWriter());
+        
         taskPaneContainer = new JXTaskPaneContainer();
 
         statusListPage = new StatusPanel();

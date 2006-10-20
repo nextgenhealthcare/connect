@@ -70,6 +70,8 @@ import com.webreach.mirth.model.Filter;
 import com.webreach.mirth.model.Step;
 import com.webreach.mirth.model.Transformer;
 import com.webreach.mirth.model.Transport;
+import org.syntax.jedit.SyntaxDocument;
+import org.syntax.jedit.tokenmarker.JavaScriptTokenMarker;
 
 /** The channel editor panel. Majority of the client application */
 public class ChannelSetup extends javax.swing.JPanel
@@ -114,6 +116,7 @@ public class ChannelSetup extends javax.swing.JPanel
     
     private ArrayList<String> destinationConnectorsOutbound;
     
+    private static SyntaxDocument preprocessorDoc;
     /**
      * Creates the Channel Editor panel. Calls initComponents() and sets up the
      * model, dropdowns, and mouse listeners.
@@ -122,6 +125,9 @@ public class ChannelSetup extends javax.swing.JPanel
     {
         this.parent = PlatformUI.MIRTH_FRAME;
         initComponents();
+        preprocessorDoc = new SyntaxDocument();
+        preprocessorDoc.setTokenMarker(new JavaScriptTokenMarker());
+        
         numDays.setDocument(new MirthFieldConstraints(3, false, true));
         
         channelView.addMouseListener(new java.awt.event.MouseAdapter()
@@ -689,6 +695,9 @@ public class ChannelSetup extends javax.swing.JPanel
         else
             summaryEnabledCheckbox.setSelected(false);
         
+        if(currentChannel.getPreprocessingScript() != null)
+            preprocessor.setText(currentChannel.getPreprocessingScript());
+                
         if (((String) currentChannel.getProperties().get("recv_xml_encoded")) != null
                 && ((String) currentChannel.getProperties().get(
                 "recv_xml_encoded")).equalsIgnoreCase("true"))
@@ -835,6 +844,8 @@ public class ChannelSetup extends javax.swing.JPanel
         currentChannel.setName(summaryNameField.getText());
         currentChannel.setDescription(summaryDescriptionText.getText());
         currentChannel.setEnabled(enabled);
+        
+        currentChannel.setPreprocessingScript(preprocessor.getText());
         
         if (xmlPreEncoded.isSelected())
             currentChannel.getProperties().put("recv_xml_encoded", "true");
@@ -1091,6 +1102,8 @@ public class ChannelSetup extends javax.swing.JPanel
         jLabel3 = new javax.swing.JLabel();
         storeMessagesErrors = new com.webreach.mirth.client.ui.components.MirthCheckBox();
         transactionalCheckBox = new com.webreach.mirth.client.ui.components.MirthCheckBox();
+        preprocessor = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea(true,false);
+        jLabel2 = new javax.swing.JLabel();
         source = new javax.swing.JPanel();
         sourceSourceDropdown = new com.webreach.mirth.client.ui.components.MirthComboBox();
         sourceSourceLabel = new javax.swing.JLabel();
@@ -1204,11 +1217,15 @@ public class ChannelSetup extends javax.swing.JPanel
         transactionalCheckBox.setText("Transactional Endpoints");
         transactionalCheckBox.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
+        preprocessor.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        jLabel2.setText("Preprocessing Script:");
+
         org.jdesktop.layout.GroupLayout summaryLayout = new org.jdesktop.layout.GroupLayout(summary);
         summary.setLayout(summaryLayout);
         summaryLayout.setHorizontalGroup(
             summaryLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(summaryLayout.createSequentialGroup()
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, summaryLayout.createSequentialGroup()
                 .addContainerGap()
                 .add(summaryLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
                     .add(jLabel1)
@@ -1216,12 +1233,12 @@ public class ChannelSetup extends javax.swing.JPanel
                     .add(summaryDirectionLabel1)
                     .add(summaryNameLabel)
                     .add(jLabel3)
-                    .add(summaryDescriptionLabel))
+                    .add(summaryDescriptionLabel)
+                    .add(jLabel2))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(summaryLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                .add(summaryLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
                     .add(storeMessages, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(encryptMessagesCheckBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 519, Short.MAX_VALUE)
                     .add(summaryLayout.createSequentialGroup()
                         .add(35, 35, 35)
                         .add(summaryLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -1243,8 +1260,10 @@ public class ChannelSetup extends javax.swing.JPanel
                         .add(summaryLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(transactionalCheckBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(summaryEnabledCheckbox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(xmlPreEncoded, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
-                .add(75, 75, 75))
+                            .add(xmlPreEncoded, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 566, Short.MAX_VALUE)
+                    .add(preprocessor, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
         summaryLayout.setVerticalGroup(
             summaryLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -1286,8 +1305,12 @@ public class ChannelSetup extends javax.swing.JPanel
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(summaryLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(summaryDescriptionLabel)
-                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 209, Short.MAX_VALUE))
-                .add(76, 76, 76))
+                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 167, Short.MAX_VALUE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(summaryLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(jLabel2)
+                    .add(preprocessor, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 168, Short.MAX_VALUE))
+                .addContainerGap())
         );
         channelView.addTab("Summary", summary);
 
@@ -1316,11 +1339,11 @@ public class ChannelSetup extends javax.swing.JPanel
         sourceConnectorClass.setLayout(sourceConnectorClassLayout);
         sourceConnectorClassLayout.setHorizontalGroup(
             sourceConnectorClassLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 613, Short.MAX_VALUE)
+            .add(0, 673, Short.MAX_VALUE)
         );
         sourceConnectorClassLayout.setVerticalGroup(
             sourceConnectorClassLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 448, Short.MAX_VALUE)
+            .add(0, 516, Short.MAX_VALUE)
         );
 
         org.jdesktop.layout.GroupLayout sourceLayout = new org.jdesktop.layout.GroupLayout(source);
@@ -1375,11 +1398,11 @@ public class ChannelSetup extends javax.swing.JPanel
         destinationConnectorClass.setLayout(destinationConnectorClassLayout);
         destinationConnectorClassLayout.setHorizontalGroup(
             destinationConnectorClassLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 421, Short.MAX_VALUE)
+            .add(0, 481, Short.MAX_VALUE)
         );
         destinationConnectorClassLayout.setVerticalGroup(
             destinationConnectorClassLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 448, Short.MAX_VALUE)
+            .add(0, 516, Short.MAX_VALUE)
         );
 
         org.jdesktop.layout.GroupLayout destinationLayout = new org.jdesktop.layout.GroupLayout(destination);
@@ -1409,7 +1432,7 @@ public class ChannelSetup extends javax.swing.JPanel
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(destinationLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(destinationConnectorClass, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(destinationVariableList, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 448, Short.MAX_VALUE))
+                    .add(destinationVariableList, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 516, Short.MAX_VALUE))
                 .addContainerGap())
         );
         channelView.addTab("Destinations", destination);
@@ -1418,11 +1441,11 @@ public class ChannelSetup extends javax.swing.JPanel
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(channelView, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 638, Short.MAX_VALUE)
+            .add(channelView, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 698, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(channelView, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 526, Short.MAX_VALUE)
+            .add(channelView, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 594, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
     
@@ -2264,9 +2287,11 @@ public class ChannelSetup extends javax.swing.JPanel
     private javax.swing.ButtonGroup filterButtonGroup;
     private com.webreach.mirth.client.ui.components.MirthComboBox initialState;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JScrollPane jScrollPane1;
     private com.webreach.mirth.client.ui.components.MirthTextField numDays;
+    private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea preprocessor;
     private javax.swing.JPanel source;
     private com.webreach.mirth.client.ui.connectors.ConnectorClass sourceConnectorClass;
     private com.webreach.mirth.client.ui.components.MirthComboBox sourceSourceDropdown;

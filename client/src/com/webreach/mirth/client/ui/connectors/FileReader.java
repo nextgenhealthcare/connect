@@ -50,6 +50,10 @@ public class FileReader extends ConnectorClass
     public final String FILE_DELETE_AFTER_READ = "autoDelete";
     public final String FILE_CHECK_FILE_AGE = "checkFileAge";
     public final String FILE_FILE_AGE = "fileAge";
+    public final String FILE_SORT_BY = "sortAttribute";
+    public final String SORT_BY_NAME = "name";
+    public final String SORT_BY_SIZE = "size";
+    public final String SORT_BY_DATE = "date";
 
     public FileReader()
     {
@@ -80,7 +84,14 @@ public class FileReader extends ConnectorClass
             properties.put(FILE_CHECK_FILE_AGE, UIConstants.NO_OPTION);
 
         properties.put(FILE_FILE_AGE, fileAge.getText());
-
+        
+        if(((String)sortBy.getSelectedItem()).equals("Name"))
+            properties.put(FILE_SORT_BY,SORT_BY_NAME);
+        else if(((String)sortBy.getSelectedItem()).equals("Size"))
+            properties.put(FILE_SORT_BY,SORT_BY_SIZE);
+        else if(((String)sortBy.getSelectedItem()).equals("Date"))
+            properties.put(FILE_SORT_BY,SORT_BY_DATE);
+        
         return properties;
     }
 
@@ -106,6 +117,13 @@ public class FileReader extends ConnectorClass
         }
 
         fileAge.setText((String)props.get(FILE_FILE_AGE));
+        
+        if(props.get(FILE_SORT_BY).equals(SORT_BY_NAME))
+            sortBy.setSelectedItem("Name");
+        else if(props.get(FILE_SORT_BY).equals(SORT_BY_SIZE))
+            sortBy.setSelectedItem("Size");
+        else if(props.get(FILE_SORT_BY).equals(SORT_BY_DATE))
+            sortBy.setSelectedItem("Date");
     }
     
     public Properties getDefaults()
@@ -119,6 +137,7 @@ public class FileReader extends ConnectorClass
         properties.put(FILE_DELETE_AFTER_READ, UIConstants.NO_OPTION);
         properties.put(FILE_CHECK_FILE_AGE, UIConstants.NO_OPTION);
         properties.put(FILE_FILE_AGE, "0");
+        properties.put(FILE_SORT_BY, SORT_BY_DATE);
         return properties;
     }
     
@@ -157,6 +176,8 @@ public class FileReader extends ConnectorClass
         checkFileAgeYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         checkFileAgeNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         fileAge = new com.webreach.mirth.client.ui.components.MirthTextField();
+        jLabel3 = new javax.swing.JLabel();
+        sortBy = new com.webreach.mirth.client.ui.components.MirthComboBox();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createTitledBorder(null, "File Reader", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(0, 0, 0)));
@@ -214,6 +235,10 @@ public class FileReader extends ConnectorClass
             }
         });
 
+        jLabel3.setText("Sort Files By:");
+
+        sortBy.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Date", "Name", "Size" }));
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -236,9 +261,11 @@ public class FileReader extends ConnectorClass
                             .add(jLabel5)
                             .add(jLabel6)
                             .add(jLabel7)
-                            .add(fileAgeLabel))
+                            .add(fileAgeLabel)
+                            .add(jLabel3))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(sortBy, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(moveToDirectory, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(layout.createSequentialGroup()
                                 .add(deleteAfterReadYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -286,7 +313,11 @@ public class FileReader extends ConnectorClass
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(fileAgeLabel)
                     .add(fileAge, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(156, Short.MAX_VALUE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jLabel3)
+                    .add(sortBy, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(128, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -315,6 +346,7 @@ public class FileReader extends ConnectorClass
     private javax.swing.JLabel fileAgeLabel;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
@@ -322,6 +354,7 @@ public class FileReader extends ConnectorClass
     private com.webreach.mirth.client.ui.components.MirthTextField moveToDirectory;
     private com.webreach.mirth.client.ui.components.MirthTextField moveToPattern;
     private com.webreach.mirth.client.ui.components.MirthTextField pollingFreq;
+    private com.webreach.mirth.client.ui.components.MirthComboBox sortBy;
     // End of variables declaration//GEN-END:variables
 
 }

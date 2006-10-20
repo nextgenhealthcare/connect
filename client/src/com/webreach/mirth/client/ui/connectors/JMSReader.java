@@ -36,28 +36,33 @@ import com.webreach.mirth.client.ui.PlatformUI;
  * A form that extends from ConnectorClass.  All methods implemented
  * are described in ConnectorClass.
  */
-public class JMSWriter extends ConnectorClass
+public class JMSReader extends ConnectorClass
 {
     Frame parent;
     
     /** Creates new form FileWriter */
     public final String DATATYPE = "DataType";
+    public final String JMS_ACK_MODE = "acknowledgementMode";
+    public final String JMS_ACK_MODE_TRANSACTED = "0";
+    public final String JMS_ACK_MODE_AUTO_ACKNOWLEDGE = "1";
+    public final String JMS_ACK_MODE_CLIENT_ACKNOWLEDGE = "2";
+    public final String JMS_ACK_MODE_DUPS_OK = "3";
     public final String JMS_SPECIFICATION = "specification";
-    public final String JMS_DELIVERY = "persistentDelivery";
     public final String JMS_DURABLE = "durable ";
     public final String JMS_CLIENT_ID = "clientId ";
     public final String JMS_URL = "jmsUrl";
     public final String JMS_USERNAME = "username";
     public final String JMS_PASSWORD = "password";
     public final String JMS_CONNECTION_FACTORY = "connectionFactory";
-    public final String JMS_REDELIVERY_HANDLER = "redeliveryHandler";
-    public final String JMS_RECOVER_CONNECTIONS = "recoverJmsConnections";   
+    public final String JMS_MAX_REDELIVERY = "maxRedelivery ";
+    public final String JMS_RECOVER_CONNECTIONS = "recoverJmsConnections";    
     
-    public JMSWriter()
+    public JMSReader()
     {
         this.parent = PlatformUI.MIRTH_FRAME;
-        name = "JMS Writer";
+        name = "JMS Reader";
         initComponents();
+        ackMode.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Transacted", "Auto Acknowledge", "Client Acknowledge", "Dups OK" }));
         specDropDown.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "1.0.2b", "1.1"}));
     }
 
@@ -65,12 +70,17 @@ public class JMSWriter extends ConnectorClass
     {
         Properties properties = new Properties();
         properties.put(DATATYPE, name);
-        properties.put(JMS_SPECIFICATION, (String)specDropDown.getSelectedItem());
         
-        if(deliveryNo.isSelected())
-            properties.put(JMS_DELIVERY, UIConstants.NO_OPTION);
-        else
-            properties.put(JMS_DELIVERY, UIConstants.YES_OPTION);
+        if(ackMode.getSelectedIndex() == 0)
+            properties.put(JMS_ACK_MODE, JMS_ACK_MODE_TRANSACTED);
+        else if(ackMode.getSelectedIndex() == 1)
+            properties.put(JMS_ACK_MODE, JMS_ACK_MODE_AUTO_ACKNOWLEDGE);
+        else if(ackMode.getSelectedIndex() == 2)
+            properties.put(JMS_ACK_MODE, JMS_ACK_MODE_CLIENT_ACKNOWLEDGE);
+        else if(ackMode.getSelectedIndex() == 3)
+            properties.put(JMS_ACK_MODE, JMS_ACK_MODE_DUPS_OK);
+        
+        properties.put(JMS_SPECIFICATION, (String)specDropDown.getSelectedItem());
         
         if(durableNo.isSelected())
             properties.put(JMS_DURABLE, UIConstants.NO_OPTION);
@@ -82,6 +92,7 @@ public class JMSWriter extends ConnectorClass
         properties.put(JMS_USERNAME, username.getText());
         properties.put(JMS_PASSWORD,String.valueOf(password.getPassword()));
         properties.put(JMS_CONNECTION_FACTORY, connectionFactory.getText());
+        properties.put(JMS_MAX_REDELIVERY, maxRedelivery.getText());
         
         if(recoverJMSConnectionsNo.isSelected())
             properties.put(JMS_RECOVER_CONNECTIONS, UIConstants.NO_OPTION);
@@ -95,14 +106,18 @@ public class JMSWriter extends ConnectorClass
     {
         boolean visible = parent.channelEditTasks.getContentPane().getComponent(0).isVisible();
         
+        if(((String)props.get(JMS_ACK_MODE)).equals(JMS_ACK_MODE_TRANSACTED))
+            ackMode.setSelectedIndex(0);
+        else if(((String)props.get(JMS_ACK_MODE)).equals(JMS_ACK_MODE_AUTO_ACKNOWLEDGE))
+            ackMode.setSelectedIndex(1);
+        else if(((String)props.get(JMS_ACK_MODE)).equals(JMS_ACK_MODE_CLIENT_ACKNOWLEDGE))
+            ackMode.setSelectedIndex(2);
+        else if(((String)props.get(JMS_ACK_MODE)).equals(JMS_ACK_MODE_DUPS_OK))
+            ackMode.setSelectedIndex(3);
+
         specDropDown.setSelectedItem(props.get(JMS_SPECIFICATION));
         
-        if(((String)props.get(JMS_DELIVERY)).equalsIgnoreCase(UIConstants.NO_OPTION))
-            deliveryNo.setSelected(true);
-        else
-            deliveryYes.setSelected(true);
-        
-        if(((String)props.get(JMS_DELIVERY)).equalsIgnoreCase(UIConstants.NO_OPTION))
+        if(((String)props.get(JMS_DURABLE)).equalsIgnoreCase(UIConstants.NO_OPTION))
             durableNo.setSelected(true);
         else
             durableYes.setSelected(true);
@@ -112,6 +127,7 @@ public class JMSWriter extends ConnectorClass
         username.setText((String)props.get(JMS_USERNAME));
         password.setText((String)props.get(JMS_PASSWORD));
         connectionFactory.setText((String)props.get(JMS_CONNECTION_FACTORY));
+        maxRedelivery.setText((String)props.get(JMS_MAX_REDELIVERY));
         
         if(((String)props.get(JMS_RECOVER_CONNECTIONS)).equalsIgnoreCase(UIConstants.NO_OPTION))
             recoverJMSConnectionsNo.setSelected(true);
@@ -125,14 +141,15 @@ public class JMSWriter extends ConnectorClass
     {
         Properties properties = new Properties();
         properties.put(DATATYPE, name);
+        properties.put(JMS_ACK_MODE, "1");
         properties.put(JMS_SPECIFICATION, (String)specDropDown.getItemAt(0));
-        properties.put(JMS_DELIVERY, UIConstants.NO_OPTION);
         properties.put(JMS_DURABLE, UIConstants.NO_OPTION);
         properties.put(JMS_CLIENT_ID, "");
         properties.put(JMS_URL, "");
         properties.put(JMS_USERNAME, "");
         properties.put(JMS_PASSWORD, "");
-        properties.put(JMS_CONNECTION_FACTORY, "org.mule.proivders.jms.JmsMessageDispatcher");
+        properties.put(JMS_CONNECTION_FACTORY, "org.mule.proivders.jms.JmsMessageReceiver");
+        properties.put(JMS_MAX_REDELIVERY, "50");
         properties.put(JMS_RECOVER_CONNECTIONS, UIConstants.NO_OPTION);
         return properties;
     }
@@ -156,34 +173,32 @@ public class JMSWriter extends ConnectorClass
     {
         deliveryButtonGroup = new javax.swing.ButtonGroup();
         durableButtonGroup = new javax.swing.ButtonGroup();
-        recoverButtonGroup = new javax.swing.ButtonGroup();
-        jLabel2 = new javax.swing.JLabel();
+        jLabel1 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         specDropDown = new com.webreach.mirth.client.ui.components.MirthComboBox();
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
-        jLabel6 = new javax.swing.JLabel();
-        jLabel7 = new javax.swing.JLabel();
-        jLabel8 = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
-        deliveryYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        deliveryNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         durableNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         durableYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         cliendId = new com.webreach.mirth.client.ui.components.MirthTextField();
-        jmsURL = new com.webreach.mirth.client.ui.components.MirthTextField();
-        connectionFactory = new com.webreach.mirth.client.ui.components.MirthTextField();
-        redeliveryHandler = new com.webreach.mirth.client.ui.components.MirthTextField();
+        maxRedelivery = new com.webreach.mirth.client.ui.components.MirthTextField();
         username = new com.webreach.mirth.client.ui.components.MirthTextField();
+        jmsURL = new com.webreach.mirth.client.ui.components.MirthTextField();
         jLabel10 = new javax.swing.JLabel();
         jLabel11 = new javax.swing.JLabel();
-        recoverJMSConnectionsYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        jLabel12 = new javax.swing.JLabel();
+        jLabel13 = new javax.swing.JLabel();
+        connectionFactory = new com.webreach.mirth.client.ui.components.MirthTextField();
         recoverJMSConnectionsNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        recoverJMSConnectionsYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        jLabel15 = new javax.swing.JLabel();
         password = new com.webreach.mirth.client.ui.components.MirthPasswordField();
+        ackMode = new com.webreach.mirth.client.ui.components.MirthComboBox();
 
         setBackground(new java.awt.Color(255, 255, 255));
-        setBorder(javax.swing.BorderFactory.createTitledBorder(null, "JMS Writer", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(0, 0, 0)));
-        jLabel2.setText("Persistent Delivery:");
+        setBorder(javax.swing.BorderFactory.createTitledBorder(null, "JMS Reader", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(0, 0, 0)));
+        jLabel1.setText("Acknowledgement Mode:");
 
         jLabel3.setText("Specification:");
 
@@ -193,26 +208,7 @@ public class JMSWriter extends ConnectorClass
 
         jLabel5.setText("Client ID:");
 
-        jLabel6.setText("Password:");
-
-        jLabel7.setText("URL:");
-
-        jLabel8.setText("Connection Factory:");
-
-        jLabel9.setText("Redelivery Handler:");
-
-        deliveryYes.setBackground(new java.awt.Color(255, 255, 255));
-        deliveryYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        deliveryButtonGroup.add(deliveryYes);
-        deliveryYes.setText("Yes");
-        deliveryYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
-
-        deliveryNo.setBackground(new java.awt.Color(255, 255, 255));
-        deliveryNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        deliveryButtonGroup.add(deliveryNo);
-        deliveryNo.setSelected(true);
-        deliveryNo.setText("No");
-        deliveryNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        jLabel9.setText("Maximun Redelivery:");
 
         durableNo.setBackground(new java.awt.Color(255, 255, 255));
         durableNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -227,78 +223,90 @@ public class JMSWriter extends ConnectorClass
         durableYes.setText("Yes");
         durableYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-        redeliveryHandler.setAutoscrolls(false);
+        maxRedelivery.setAutoscrolls(false);
 
-        jLabel10.setText("Username:");
+        jLabel10.setText("URL:");
 
-        jLabel11.setText("Recover JMS Connections:");
+        jLabel11.setText("Username:");
 
-        recoverJMSConnectionsYes.setBackground(new java.awt.Color(255, 255, 255));
-        recoverJMSConnectionsYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        recoverButtonGroup.add(recoverJMSConnectionsYes);
-        recoverJMSConnectionsYes.setText("Yes");
-        recoverJMSConnectionsYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        jLabel12.setText("Password:");
+
+        jLabel13.setText("Connection Factory:");
+
+        connectionFactory.setAutoscrolls(false);
 
         recoverJMSConnectionsNo.setBackground(new java.awt.Color(255, 255, 255));
         recoverJMSConnectionsNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        recoverButtonGroup.add(recoverJMSConnectionsNo);
         recoverJMSConnectionsNo.setText("No");
         recoverJMSConnectionsNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
+        recoverJMSConnectionsYes.setBackground(new java.awt.Color(255, 255, 255));
+        recoverJMSConnectionsYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        recoverJMSConnectionsYes.setText("Yes");
+        recoverJMSConnectionsYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
+        jLabel15.setText("Recover JMS Connections:");
+
         password.setFont(new java.awt.Font("Tahoma", 0, 11));
+
+        ackMode.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(jLabel2)
-                    .add(jLabel11)
-                    .add(jLabel5)
-                    .add(jLabel3)
-                    .add(jLabel4)
-                    .add(jLabel7)
-                    .add(jLabel10)
-                    .add(jLabel6)
-                    .add(jLabel8)
-                    .add(jLabel9))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
-                        .add(durableYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(18, 18, 18)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                            .add(jLabel3)
+                            .add(jLabel1))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(durableNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
+                            .add(org.jdesktop.layout.GroupLayout.LEADING, ackMode, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 150, Short.MAX_VALUE)
+                            .add(org.jdesktop.layout.GroupLayout.LEADING, specDropDown, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 150, Short.MAX_VALUE)))
                     .add(layout.createSequentialGroup()
-                        .add(deliveryYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap()
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                            .add(jLabel5)
+                            .add(jLabel4)
+                            .add(jLabel10)
+                            .add(jLabel11)
+                            .add(jLabel12)
+                            .add(jLabel13)
+                            .add(jLabel9)
+                            .add(jLabel15))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(deliveryNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(layout.createSequentialGroup()
-                        .add(recoverJMSConnectionsYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(recoverJMSConnectionsNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(specDropDown, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 150, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jmsURL, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(cliendId, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
-                        .add(org.jdesktop.layout.GroupLayout.LEADING, connectionFactory, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
-                        .add(org.jdesktop.layout.GroupLayout.LEADING, username, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(org.jdesktop.layout.GroupLayout.LEADING, password, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(org.jdesktop.layout.GroupLayout.LEADING, redeliveryHandler, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(68, Short.MAX_VALUE))
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(jmsURL, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(layout.createSequentialGroup()
+                                .add(recoverJMSConnectionsYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(recoverJMSConnectionsNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .add(layout.createSequentialGroup()
+                                .add(durableYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(durableNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .add(cliendId, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(connectionFactory, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
+                            .add(maxRedelivery, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
+                                .add(org.jdesktop.layout.GroupLayout.LEADING, username, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 125, Short.MAX_VALUE)
+                                .add(org.jdesktop.layout.GroupLayout.LEADING, password, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 125, Short.MAX_VALUE)))))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
+                .addContainerGap()
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jLabel1)
+                    .add(ackMode, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel3)
                     .add(specDropDown, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(deliveryYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(deliveryNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel2))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel4)
@@ -309,60 +317,58 @@ public class JMSWriter extends ConnectorClass
                     .add(jLabel5)
                     .add(cliendId, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel7)
-                    .add(jmsURL, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jLabel10)
+                    .add(jmsURL, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jLabel11)
                     .add(username, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel6)
+                    .add(jLabel12)
                     .add(password, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel8)
+                    .add(jLabel13)
                     .add(connectionFactory, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel9)
-                    .add(redeliveryHandler, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(maxRedelivery, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel11)
+                    .add(jLabel15)
                     .add(recoverJMSConnectionsYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(recoverJMSConnectionsNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(115, Short.MAX_VALUE))
+                .addContainerGap(32, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private com.webreach.mirth.client.ui.components.MirthComboBox ackMode;
     private com.webreach.mirth.client.ui.components.MirthTextField cliendId;
     private com.webreach.mirth.client.ui.components.MirthTextField connectionFactory;
     private javax.swing.ButtonGroup deliveryButtonGroup;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton deliveryNo;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton deliveryYes;
     private javax.swing.ButtonGroup durableButtonGroup;
     private com.webreach.mirth.client.ui.components.MirthRadioButton durableNo;
     private com.webreach.mirth.client.ui.components.MirthRadioButton durableYes;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
-    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel13;
+    private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel7;
-    private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private com.webreach.mirth.client.ui.components.MirthTextField jmsURL;
+    private com.webreach.mirth.client.ui.components.MirthTextField maxRedelivery;
     private com.webreach.mirth.client.ui.components.MirthPasswordField password;
-    private javax.swing.ButtonGroup recoverButtonGroup;
     private com.webreach.mirth.client.ui.components.MirthRadioButton recoverJMSConnectionsNo;
     private com.webreach.mirth.client.ui.components.MirthRadioButton recoverJMSConnectionsYes;
-    private com.webreach.mirth.client.ui.components.MirthTextField redeliveryHandler;
     private com.webreach.mirth.client.ui.components.MirthComboBox specDropDown;
     private com.webreach.mirth.client.ui.components.MirthTextField username;
     // End of variables declaration//GEN-END:variables
