@@ -861,7 +861,7 @@ public class Frame extends JXFrame
         
                 messageTasks.add(initActionCallback("doReprocessFilteredMessages", "Reprocess all Message Events in the current filter.", ActionFactory.createBoundAction("doReprocessFilteredMessages","Reprocess Filtered Messages", "G"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/deployall.png"))));
         JMenuItem reprocessFilteredMessages = new JMenuItem("Reprocess Filtered Messages");
-        reprocessFilteredMessages.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png")));
+        reprocessFilteredMessages.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/deployall.png")));
         reprocessFilteredMessages.addActionListener(new ActionListener(){
              public void actionPerformed(ActionEvent e){
                 doReprocessFilteredMessages();
@@ -871,7 +871,7 @@ public class Frame extends JXFrame
 
         messageTasks.add(initActionCallback("doReprocessMessage", "Reprocess the selected Message.", ActionFactory.createBoundAction("doReprocessMessage","Reprocess Message", "C"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/deploy.png"))));
         JMenuItem reprocessMessage = new JMenuItem("Reprocess Message");
-        reprocessMessage.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png")));
+        reprocessMessage.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/deploy.png")));
         reprocessMessage.addActionListener(new ActionListener(){
              public void actionPerformed(ActionEvent e){
                 doReprocessMessage();

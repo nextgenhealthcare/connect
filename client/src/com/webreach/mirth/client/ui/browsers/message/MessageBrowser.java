@@ -118,12 +118,12 @@ public class MessageBrowser extends javax.swing.JPanel
             public void mousePressed(java.awt.event.MouseEvent evt)
             {
                 if (evt.isPopupTrigger())
-                    parent.eventPopupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
+                    parent.messagePopupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
             }
             public void mouseReleased(java.awt.event.MouseEvent evt)
             {
                 if (evt.isPopupTrigger())
-                    parent.eventPopupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
+                    parent.messagePopupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
             }
         });
              
@@ -491,7 +491,7 @@ public class MessageBrowser extends javax.swing.JPanel
             }
             else
                 deselectRows();
-            parent.eventPopupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
+            parent.messagePopupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
         }
     }
     
