@@ -466,6 +466,10 @@ public class MuleConfigurationBuilder {
 	// Generate the endpoint URI for the specified connector.
 	// The format is: protocol://host|hostname|emtpy:port
 	private String getEndpointUri(Connector connector) {
+		//TODO: This is a hack.
+		if (connector.getProperties().getProperty("host") != null && connector.getProperties().getProperty("host").startsWith("axis:http")){
+			return connector.getProperties().getProperty("host");
+		}
 		StringBuilder builder = new StringBuilder();
 		builder.append(transports.get(connector.getTransportName()).getProtocol());
 		builder.append("://");

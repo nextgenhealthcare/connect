@@ -76,7 +76,7 @@ public class AxisConnector extends AbstractServiceEnabledConnector implements Mo
     public static final String AXIS_SERVICE_COMPONENT_NAME = "_axisServiceComponent";
     public static final String METHOD_NAMESPACE_PROPERTY = "methodNamespace";
     public static final String SOAP_ACTION_PROPERTY = "soapAction";
-
+ //   public static final String SOAP_CONTENT_TYPE_PROPERTY = "Content-Type";
     public static final String SERVICE_PROPERTY_COMPONENT_NAME = "componentName";
     public static final String SERVICE_PROPERTY_SERVCE_PATH = "servicePath";
 
@@ -90,6 +90,7 @@ public class AxisConnector extends AbstractServiceEnabledConnector implements Mo
     public final String SERVICE_ENDPOINT_PROPERTY = "serviceEndpoint";
     public final String METHOD_PROPERTY = "method";
     public final String PARAMETERS_PROPERTY = "parameters";
+    private String contentType = "text/xml";
     private String serverConfig;
 
     private AxisServer axisServer;
@@ -252,7 +253,7 @@ public class AxisConnector extends AbstractServiceEnabledConnector implements Mo
      *         name.
      */
     protected Object getReceiverKey(UMOComponent component, UMOEndpoint endpoint) {
-        return component.getDescriptor().getName();
+        return this.getServiceName();//component.getDescriptor().getName();
     }
 
     public UMOMessageReceiver createReceiver(UMOComponent component, UMOEndpoint endpoint) throws Exception {
@@ -340,7 +341,7 @@ public class AxisConnector extends AbstractServiceEnabledConnector implements Mo
             }
             axisDescriptor.setContainerManaged(false);
         }
-        String serviceName = receiver.getComponent().getDescriptor().getName();
+        String serviceName = ((AxisConnector)receiver.getConnector()).getServiceName();//receiver.getComponent().getDescriptor().getName();
         // No determine if the endpointUri requires a new connector to be
         // registed in the case of http we only need to register the new endpointUri if
         // the port is different
@@ -596,5 +597,13 @@ public class AxisConnector extends AbstractServiceEnabledConnector implements Mo
 
 	public void setMethod(String method) {
 		this.method = method;
+	}
+
+	public String getContentType() {
+		return contentType;
+	}
+
+	public void setContentType(String contentType) {
+		this.contentType = contentType;
 	}
 }

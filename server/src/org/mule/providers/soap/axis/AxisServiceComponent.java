@@ -128,6 +128,7 @@ public class AxisServiceComponent implements Initialisable, Callable
     {
         String method = (String) context.getProperty(HttpConnector.HTTP_METHOD_PROPERTY, "POST");
         WriterMessageAdapter response = new WriterMessageAdapter(new StringWriter());
+        
         if ("GET".equals(method.toUpperCase())) {
             doGet(context, response);
         } else {
@@ -328,6 +329,7 @@ public class AxisServiceComponent implements Initialisable, Callable
             responseMsg = msgContext.getResponseMessage();
             response.setProperty(HTTPConstants.HEADER_CACHE_CONTROL, "no-cache");
             response.setProperty(HTTPConstants.HEADER_PRAGMA, "no-cache");
+            response.setProperty(HTTPConstants.HEADER_CONTENT_TYPE, "text/xml");
             if (responseMsg == null)
                 throw new Exception(Messages.getMessage("noResponse01"));
         } catch (AxisFault fault) {
@@ -530,9 +532,13 @@ public class AxisServiceComponent implements Initialisable, Callable
             if (request instanceof File) {
             	((File) request).delete();
             }
+            response.setProperty(HTTPConstants.HEADER_CONTENT_TYPE, "text/xml");
             responseMsg = msgContext.getResponseMessage();
+
             if (responseMsg == null)
                 throw new Exception(Messages.getMessage("noResponse01"));
+            responseMsg.setProperty(HTTPConstants.HEADER_CONTENT_TYPE, "text/xml");
+            
         } catch (AxisFault fault) {
             processAxisFault(fault);
             configureResponseFromAxisFault(response, fault);
@@ -545,7 +551,7 @@ public class AxisServiceComponent implements Initialisable, Callable
             responseMsg = convertExceptionToAxisFault(e, responseMsg);
         }
 
-        contentType = responseMsg.getContentType(msgContext.getSOAPConstants());
+        contentType = "text/xml";//responseMsg.getContentType(msgContext.getSOAPConstants());
         if (tlog.isDebugEnabled())
             t3 = System.currentTimeMillis();
         if (responseMsg != null)

@@ -20,15 +20,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.mule.config.MuleProperties;
 import org.mule.impl.MuleMessage;
 import org.mule.providers.AbstractMessageReceiver;
-import org.mule.umo.UMOComponent;
 import org.mule.umo.UMOException;
 import org.mule.umo.UMOMessage;
 import org.mule.umo.lifecycle.Callable;
 import org.mule.umo.provider.UMOMessageAdapter;
 import org.mule.util.ClassHelper;
+
+import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.util.ACKGenerator;
 
 /**
  * <code>ServiceProxy</code> is a proxy that wraps a soap endpointUri to look
@@ -44,7 +45,7 @@ import org.mule.util.ClassHelper;
 public class ServiceProxy {
 	public static Class[] getInterfaceForClass(String clazz)
 			throws UMOException, ClassNotFoundException {
-		Class[] interfaces = new Class[0];
+		Class[] interfaces = new Class[1];
 
 		String iface = clazz;
 		interfaces[0] = ClassHelper.loadClass(iface, ServiceProxy.class);
@@ -60,8 +61,8 @@ public class ServiceProxy {
 	 * List ifaces = (List)
 	 * component.getDescriptor().getProperties().get("serviceInterfaces"); if
 	 * (ifaces == null || ifaces.size() == 0) { interfaces =
-	 * component.getDescriptor().getImplementationClass().getInterfaces();
-	 *  } else { interfaces = new Class[ifaces.size()]; for (int i = 0; i <
+	 * component.getDescriptor().getImplementationClass().getInterfaces(); }
+	 * else { interfaces = new Class[ifaces.size()]; for (int i = 0; i <
 	 * ifaces.size(); i++) { String iface = (String) ifaces.get(i);
 	 * interfaces[i] = ClassHelper.loadClass(iface, ServiceProxy.class); } }
 	 * 
@@ -133,16 +134,15 @@ public class ServiceProxy {
 				throws Throwable {
 			UMOMessageAdapter messageAdapter = receiver.getConnector()
 					.getMessageAdapter(args);
-			messageAdapter.setProperty(MuleProperties.MULE_METHOD_PROPERTY,
-					method);
+			// messageAdapter.setProperty(MuleProperties.MULE_METHOD_PROPERTY,
+			// method);
 
-			UMOMessage message = receiver.routeMessage(new MuleMessage(
-					messageAdapter), synchronous);
-			if (message != null) {
-				return message.getPayload();
-			} else {
-				return null;
-			}
+            UMOMessage message = receiver.routeMessage(new MuleMessage(messageAdapter), synchronous);
+            if (message != null) {
+                return new ACKGenerator().generateAckResponse(((MessageObject)message.getPayload()).getRawData());
+            } else {
+                return null;
+            }
 		}
 	}
 }

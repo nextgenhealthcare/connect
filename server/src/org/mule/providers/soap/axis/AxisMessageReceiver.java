@@ -13,12 +13,20 @@
  */
 package org.mule.providers.soap.axis;
 
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import javax.xml.namespace.QName;
+
 import org.apache.axis.AxisProperties;
 import org.apache.axis.constants.Style;
 import org.apache.axis.constants.Use;
 import org.apache.axis.encoding.TypeMappingRegistryImpl;
 import org.apache.axis.encoding.ser.BeanDeserializerFactory;
 import org.apache.axis.encoding.ser.BeanSerializerFactory;
+import org.apache.axis.encoding.ser.SimpleDeserializerFactory;
+import org.apache.axis.encoding.ser.SimpleSerializerFactory;
 import org.apache.axis.handlers.soap.SOAPService;
 import org.apache.axis.providers.java.RPCProvider;
 import org.apache.axis.wsdl.fromJava.Namespaces;
@@ -36,11 +44,6 @@ import org.mule.umo.endpoint.UMOEndpointURI;
 import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.provider.UMOConnector;
 import org.mule.util.ClassHelper;
-
-import javax.xml.namespace.QName;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 /**
  * <code>AxisMessageReceiver</code> is used to register a component as a
@@ -79,6 +82,7 @@ public class AxisMessageReceiver extends AbstractMessageReceiver
         String serviceName = connector.getServiceName();//component.getDescriptor().getName();
 
         String servicePath = uri.getPath();
+        service.setOption(connector.getServiceName(), this);
         service.setOption(serviceName, this);
         service.setOption(AxisConnector.SERVICE_PROPERTY_SERVCE_PATH, servicePath);
         service.setOption(AxisConnector.SERVICE_PROPERTY_COMPONENT_NAME, serviceName);
@@ -191,7 +195,16 @@ public class AxisMessageReceiver extends AbstractMessageReceiver
         registerTypes(registry, types);
         // register any beantypes set on the connector for this service
         registerTypes(registry, connector.getBeanTypes());
-
+        Class strclass = ClassHelper.loadClass("java.lang.String", getClass());
+        Class moclazz = ClassHelper.loadClass("java.lang.Object", getClass());
+        String localName = Types.getLocalNameFromFullName(moclazz.getName());
+     
+        QName xmlType = new QName(Namespaces.makeNamespace(moclazz.getName()),
+                localName);
+        registry.getDefaultTypeMapping().register(moclazz,
+                                                  xmlType,
+                                                  new  SimpleSerializerFactory(strclass, xmlType),
+                                                  new  SimpleDeserializerFactory(strclass, xmlType));
         service.setName(serviceName);
 
         // Add initialisation callback for the Axis service
