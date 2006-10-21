@@ -5,7 +5,6 @@ import java.util.List;
 
 public class WSDefinition {
 	private List<WSOperation> operations;
-	private String serviceEndpoint;
 	public WSDefinition() {
 		this.operations = new ArrayList<WSOperation>();
 	}
@@ -14,11 +13,4 @@ public class WSDefinition {
 		return this.operations;
 	}
 
-	public String getServiceEndpoint() {
-		return serviceEndpoint;
-	}
-
-	public void setServiceEndpoint(String serviceEndpoint) {
-		this.serviceEndpoint = serviceEndpoint;
-	}
 }
