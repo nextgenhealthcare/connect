@@ -1,10 +1,15 @@
 package com.webreach.mirth.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class WSOperation {
 	private String name;
 	private List<WSParameter> parameters;
+	
+	public WSOperation() {
+		this.parameters = new ArrayList<WSParameter>();
+	}
 
 	public String getName() {
 		return this.name;
