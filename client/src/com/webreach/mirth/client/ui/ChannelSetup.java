@@ -1076,8 +1076,7 @@ public class ChannelSetup extends javax.swing.JPanel
     
     // <editor-fold defaultstate="collapsed" desc=" Generated Code
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
-    private void initComponents()
-    {
+    private void initComponents() {
         filterButtonGroup = new javax.swing.ButtonGroup();
         validationButtonGroup = new javax.swing.ButtonGroup();
         buttonGroup1 = new javax.swing.ButtonGroup();
@@ -1120,10 +1119,8 @@ public class ChannelSetup extends javax.swing.JPanel
         channelView.setFocusable(false);
         summary.setBackground(new java.awt.Color(255, 255, 255));
         summary.setFocusable(false);
-        summary.addComponentListener(new java.awt.event.ComponentAdapter()
-        {
-            public void componentShown(java.awt.event.ComponentEvent evt)
-            {
+        summary.addComponentListener(new java.awt.event.ComponentAdapter() {
+            public void componentShown(java.awt.event.ComponentEvent evt) {
                 summaryComponentShown(evt);
             }
         });
@@ -1165,10 +1162,8 @@ public class ChannelSetup extends javax.swing.JPanel
         storeMessages.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         storeMessages.setText("Store messages");
         storeMessages.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        storeMessages.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
+        storeMessages.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
                 storeMessagesActionPerformed(evt);
             }
         });
@@ -1178,10 +1173,8 @@ public class ChannelSetup extends javax.swing.JPanel
         buttonGroup1.add(storeMessagesAll);
         storeMessagesAll.setText("Store indefinitely");
         storeMessagesAll.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        storeMessagesAll.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
+        storeMessagesAll.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
                 storeMessagesAllActionPerformed(evt);
             }
         });
@@ -1191,10 +1184,8 @@ public class ChannelSetup extends javax.swing.JPanel
         buttonGroup1.add(storeMessagesDays);
         storeMessagesDays.setText("Store for ");
         storeMessagesDays.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        storeMessagesDays.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
+        storeMessagesDays.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
                 storeMessagesDaysActionPerformed(evt);
             }
         });
@@ -1207,10 +1198,8 @@ public class ChannelSetup extends javax.swing.JPanel
         storeMessagesErrors.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         storeMessagesErrors.setText("With errors only");
         storeMessagesErrors.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        storeMessagesErrors.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
+        storeMessagesErrors.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
                 storeMessagesErrorsActionPerformed(evt);
             }
         });
@@ -1264,9 +1253,11 @@ public class ChannelSetup extends javax.swing.JPanel
                             .add(transactionalCheckBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(summaryEnabledCheckbox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(xmlPreEncoded, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                    .add(preprocessor, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 659, Short.MAX_VALUE)
-                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 659, Short.MAX_VALUE))
-                .add(75, 75, 75))
+                    .add(preprocessor, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 527, Short.MAX_VALUE)
+                    .add(summaryLayout.createSequentialGroup()
+                        .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 527, Short.MAX_VALUE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)))
+                .addContainerGap())
         );
         summaryLayout.setVerticalGroup(
             summaryLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -1308,30 +1299,26 @@ public class ChannelSetup extends javax.swing.JPanel
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(summaryLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(summaryDescriptionLabel)
-                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE))
+                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 129, Short.MAX_VALUE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(summaryLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jLabel2)
-                    .add(preprocessor, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE))
+                    .add(preprocessor, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 131, Short.MAX_VALUE))
                 .addContainerGap())
         );
         channelView.addTab("Summary", summary);
 
         source.setBackground(new java.awt.Color(255, 255, 255));
         source.setFocusable(false);
-        source.addComponentListener(new java.awt.event.ComponentAdapter()
-        {
-            public void componentShown(java.awt.event.ComponentEvent evt)
-            {
+        source.addComponentListener(new java.awt.event.ComponentAdapter() {
+            public void componentShown(java.awt.event.ComponentEvent evt) {
                 sourceComponentShown(evt);
             }
         });
 
         sourceSourceDropdown.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "TCP/IP", "Database", "Email" }));
-        sourceSourceDropdown.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
+        sourceSourceDropdown.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
                 sourceSourceDropdownActionPerformed(evt);
             }
         });
@@ -1342,11 +1329,11 @@ public class ChannelSetup extends javax.swing.JPanel
         sourceConnectorClass.setLayout(sourceConnectorClassLayout);
         sourceConnectorClassLayout.setHorizontalGroup(
             sourceConnectorClassLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 830, Short.MAX_VALUE)
+            .add(0, 634, Short.MAX_VALUE)
         );
         sourceConnectorClassLayout.setVerticalGroup(
             sourceConnectorClassLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 581, Short.MAX_VALUE)
+            .add(0, 441, Short.MAX_VALUE)
         );
 
         org.jdesktop.layout.GroupLayout sourceLayout = new org.jdesktop.layout.GroupLayout(source);
@@ -1378,19 +1365,15 @@ public class ChannelSetup extends javax.swing.JPanel
 
         destination.setBackground(new java.awt.Color(255, 255, 255));
         destination.setFocusable(false);
-        destination.addComponentListener(new java.awt.event.ComponentAdapter()
-        {
-            public void componentShown(java.awt.event.ComponentEvent evt)
-            {
+        destination.addComponentListener(new java.awt.event.ComponentAdapter() {
+            public void componentShown(java.awt.event.ComponentEvent evt) {
                 destinationComponentShown(evt);
             }
         });
 
         destinationSourceDropdown.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "TCP/IP", "Database", "Email" }));
-        destinationSourceDropdown.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
+        destinationSourceDropdown.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
                 destinationSourceDropdownActionPerformed(evt);
             }
         });
@@ -1401,11 +1384,11 @@ public class ChannelSetup extends javax.swing.JPanel
         destinationConnectorClass.setLayout(destinationConnectorClassLayout);
         destinationConnectorClassLayout.setHorizontalGroup(
             destinationConnectorClassLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 638, Short.MAX_VALUE)
+            .add(0, 442, Short.MAX_VALUE)
         );
         destinationConnectorClassLayout.setVerticalGroup(
             destinationConnectorClassLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 581, Short.MAX_VALUE)
+            .add(0, 441, Short.MAX_VALUE)
         );
 
         org.jdesktop.layout.GroupLayout destinationLayout = new org.jdesktop.layout.GroupLayout(destination);
@@ -1435,7 +1418,7 @@ public class ChannelSetup extends javax.swing.JPanel
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(destinationLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(destinationConnectorClass, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(destinationVariableList, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 581, Short.MAX_VALUE))
+                    .add(destinationVariableList, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 441, Short.MAX_VALUE))
                 .addContainerGap())
         );
         channelView.addTab("Destinations", destination);
@@ -1444,11 +1427,11 @@ public class ChannelSetup extends javax.swing.JPanel
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(channelView, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 855, Short.MAX_VALUE)
+            .add(channelView, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 659, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(channelView, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 659, Short.MAX_VALUE)
+            .add(channelView, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 519, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
     

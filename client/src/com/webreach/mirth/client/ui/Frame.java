@@ -859,7 +859,7 @@ public class Frame extends JXFrame
         });
         messagePopupMenu.add(removeMessage);
         
-                messageTasks.add(initActionCallback("doReprocessFilteredMessages", "Reprocess all Message Events in the current filter.", ActionFactory.createBoundAction("doReprocessFilteredMessages","Reprocess Filtered Messages", "G"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/deployall.png"))));
+        messageTasks.add(initActionCallback("doReprocessFilteredMessages", "Reprocess all Message Events in the current filter.", ActionFactory.createBoundAction("doReprocessFilteredMessages","Reprocess Filtered Messages", "G"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/deployall.png"))));
         JMenuItem reprocessFilteredMessages = new JMenuItem("Reprocess Filtered Messages");
         reprocessFilteredMessages.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/deployall.png")));
         reprocessFilteredMessages.addActionListener(new ActionListener(){
