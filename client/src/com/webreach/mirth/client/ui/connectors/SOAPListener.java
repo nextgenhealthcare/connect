@@ -51,7 +51,7 @@ public class SOAPListener extends ConnectorClass
     public final String SOAP_LISTENER_ADDRESS = "listenerAddress";
     public final String SOAP_SERVICE_NAME = "serviceName";
     public final String SOAP_PORT = "port";
-
+    public final String SOAP_CONTENT_TYPE = "Content-Type";
     public SOAPListener()
     {
         this.parent = PlatformUI.MIRTH_FRAME;
@@ -68,6 +68,8 @@ public class SOAPListener extends ConnectorClass
         properties.put(SOAP_LISTENER_ADDRESS, listenerAddress.getText());
         properties.put(SOAP_PORT, port.getText());
         properties.put(SOAP_SERVICE_NAME, serviceName.getText());
+        properties.put(SOAP_HOST, buildHost());
+        properties.put(SOAP_CONTENT_TYPE, "text/xml");
         return properties;
     }
 
@@ -76,6 +78,7 @@ public class SOAPListener extends ConnectorClass
         listenerAddress.setText((String)props.get(SOAP_LISTENER_ADDRESS));
         port.setText((String)props.getProperty(SOAP_PORT));
         serviceName.setText((String)props.getProperty(SOAP_SERVICE_NAME));
+        
         updateWSDL();
     }
     
@@ -86,12 +89,13 @@ public class SOAPListener extends ConnectorClass
         properties.put(SOAP_LISTENER_ADDRESS, "localhost");
         properties.put(SOAP_PORT, "8081");
         properties.put(SOAP_SERVICE_NAME, "Mirth");
+        properties.put(SOAP_CONTENT_TYPE, "text/xml");
         return properties;
     }
     
     public String buildHost()
     {
-        return "axis:http://" + listenerAddress.getText() + ":" + port.getText() + "/services/" + serviceName.getText();
+        return "axis:http://" + listenerAddress.getText() + ":" + port.getText() + "/services";
     }
     
     public void updateWSDL()

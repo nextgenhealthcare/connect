@@ -672,6 +672,7 @@ public class ChannelSetup extends javax.swing.JPanel
     /** Load all of the saved channel information into the channel editor */
     private void loadChannelInfo()
     {
+   
         summaryNameField.setText(currentChannel.getName());
         summaryDescriptionText.setText(currentChannel.getDescription());
         if (currentChannel.getDirection().equals(Channel.Direction.INBOUND))
@@ -697,7 +698,9 @@ public class ChannelSetup extends javax.swing.JPanel
         
         if(currentChannel.getPreprocessingScript() != null)
             preprocessor.setText(currentChannel.getPreprocessingScript());
-                
+        else
+         	preprocessor.setText("//Modify the message variable below to pre process data\r\nreturn message;");
+        
         if (((String) currentChannel.getProperties().get("recv_xml_encoded")) != null
                 && ((String) currentChannel.getProperties().get(
                 "recv_xml_encoded")).equalsIgnoreCase("true"))

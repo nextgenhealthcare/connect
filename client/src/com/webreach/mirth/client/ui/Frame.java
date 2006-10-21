@@ -86,6 +86,7 @@ import com.webreach.mirth.client.ui.connectors.JMSWriter;
 import com.webreach.mirth.client.ui.connectors.LLPListener;
 import com.webreach.mirth.client.ui.connectors.LLPSender;
 import com.webreach.mirth.client.ui.connectors.SOAPListener;
+import com.webreach.mirth.client.ui.connectors.SOAPSender;
 import com.webreach.mirth.client.ui.util.FileUtil;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.ChannelStatus;
@@ -231,7 +232,7 @@ public class Frame extends JXFrame
         destinationConnectors.add(new SFTPWriter());
         destinationConnectors.add(new PDFWriter());
         destinationConnectors.add(new JMSWriter());
-       // destinationConnectors.add(new SOAPWr());
+        destinationConnectors.add(new SOAPSender());
         taskPaneContainer = new JXTaskPaneContainer();
 
         statusListPage = new StatusPanel();

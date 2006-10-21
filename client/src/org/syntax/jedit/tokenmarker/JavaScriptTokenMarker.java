@@ -52,6 +52,7 @@ public class JavaScriptTokenMarker extends CTokenMarker
 			//Mirth specific
 			//TODO: Figure out a consistent coloring scheme
 			javaScriptKeywords.add("msg",Token.KEYWORD1);
+			javaScriptKeywords.add("message",Token.KEYWORD1);
 			javaScriptKeywords.add("hl7_xml",Token.KEYWORD1);
 			javaScriptKeywords.add("localMap",Token.KEYWORD1);
 			javaScriptKeywords.add("globalMap",Token.KEYWORD1);
