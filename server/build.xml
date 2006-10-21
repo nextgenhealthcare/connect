@@ -1,7 +1,7 @@
 <project name="mirth" basedir="." default="help">
-	<taskdef name="nsis" classname="net.sf.nsisant.Task">
+	<!-- <taskdef name="nsis" classname="net.sf.nsisant.Task">
 		<classpath location="nsisant-1.2.jar" />
-	</taskdef>
+	</taskdef> -->
 
 	<target name="help">
 		<echo>Mirth Build Help</echo>
@@ -114,6 +114,7 @@
 			<fileset file="${conf}/mule-boot.xml" />
 			<fileset file="${conf}/mirth.properties" />
 			<fileset file="${conf}/log4j.properties" />
+			<fileset file="${conf}/wrapper.conf" />
 		</copy>
 
 		<!-- create version.properties file -->
@@ -127,6 +128,11 @@
 			<fileset file="${basedir}/database.sql" />
 			<fileset file="${basedir}/launcher.xml" />
 			<fileset file="${basedir}/keystore" />
+			<fileset file="${basedir}/InstallMirth-NT.bat" />
+			<fileset file="${basedir}/UninstallMirth-NT.bat" />
+			<fileset file="${basedir}/StartMirth-NT.bat" />
+			<fileset file="${basedir}/StopMirth-NT.bat" />
+			<fileset file="${basedir}/wrapper.exe" />
 		</copy>
 
 		<!-- create the Mirth server jar -->
@@ -198,6 +204,6 @@
 		<delete file="${dist}/mirth-${version}.tar" />
 
 		<!-- create the win32 distribution exe -->
-		<nsis script="setup.nsi" verbosity="2"/>
+		<!-- <nsis script="setup.nsi" verbosity="2"/> -->
 	</target>
 </project>
