@@ -165,6 +165,7 @@ public class SOAPSender extends ConnectorClass
                 return canEdit[columnIndex];
             }
         });
+        paramPane.setViewportView(paramTable);
     }
         
     /** This method is called from within the constructor to
@@ -190,7 +191,7 @@ public class SOAPSender extends ConnectorClass
         serviceEndpoint = new com.webreach.mirth.client.ui.components.MirthTextField();
 
         setBackground(new java.awt.Color(255, 255, 255));
-        setBorder(javax.swing.BorderFactory.createTitledBorder(null, "SOAP Listener", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(0, 0, 0)));
+        setBorder(javax.swing.BorderFactory.createTitledBorder(null, "SOAP Senders", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(0, 0, 0)));
         URL.setText("WSDL URL:");
 
         getMethodsButton.setText("Get Methods");
@@ -292,8 +293,10 @@ public class SOAPSender extends ConnectorClass
                 String item = evt.getItem().toString();
                 if(item.equals(SOAP_DEFAULT_DROPDOWN))
                     return;
-                else
+                else{
+                	serviceEndpoint.setText(methodList.getOperations().get(method.getSelectedIndex()).getEndpointURI());
                     setupTable(methodList.getOperations().get(method.getSelectedIndex()).getParameters());
+                }
             }
         }
     }//GEN-LAST:event_methodItemStateChanged
@@ -312,7 +315,7 @@ public class SOAPSender extends ConnectorClass
             method.setModel(new javax.swing.DefaultComboBoxModel(methodNames));
 
             method.setSelectedIndex(0);
-
+            serviceEndpoint.setText(methodList.getOperations().get(method.getSelectedIndex()).getEndpointURI());
             setupTable( methodList.getOperations().get(0).getParameters() ); 
         }
         catch(ClientException e)
