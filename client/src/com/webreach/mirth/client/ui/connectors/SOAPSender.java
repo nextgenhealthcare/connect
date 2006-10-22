@@ -128,14 +128,14 @@ public class SOAPSender extends ConnectorClass
     
     public List getParameters()
     {
-        ArrayList <WSParameter> parameters = new ArrayList<WSParameter>();
+        ArrayList parameters = new ArrayList();
         
         for(int i = 0; i < paramTable.getRowCount(); i++)
         {
             WSParameter param = new WSParameter();
             param.setName((String)paramTable.getValueAt(i,PARAMETER_COLUMN));
-            param.setName((String)paramTable.getValueAt(i,TYPE_COLUMN));
-            param.setName((String)paramTable.getValueAt(i,VALUE_COLUMN));
+            param.setType((String)paramTable.getValueAt(i,TYPE_COLUMN));
+            param.setValue((String)paramTable.getValueAt(i,VALUE_COLUMN));
             parameters.add(param);
         }
         
