@@ -270,7 +270,7 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
 		}
 
 		protected byte[] processData(byte[] data) throws Exception {
-			data = fixMshFields(new String(data)).getBytes();
+			data = new String(data).getBytes();
 
 			UMOMessageAdapter adapter = connector.getMessageAdapter(data);
 			OutputStream os = new ResponseOutputStream(
@@ -296,93 +296,4 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
 			}
 		}
 	}
-
-	public String fixMshFields(String message) {
-
-		if (message.startsWith("<")) {
-			return message;
-		}
-		//TODO: Fix the split logic and examine the fixup-code
-		//TODO: Move this processing out of the message receiver into a utility class
-		//TODO: Remove this and instruct user to use a pre-processor
-		String[] segments = message.split("\\r");
-		if (segments.length > 1) {
-			if (segments[0].startsWith("MSH")) {
-
-				String fieldSep = String.valueOf(segments[0].charAt(3));
-				String recSep = String.valueOf(segments[0].charAt(4));
-
-				String[] fields = segments[0].split("\\" + fieldSep, -1);
-
-				// always at least 12 fields
-				if (fields.length > 8 && fields.length < 12) {
-					logger.warn("MSH in message from " + fields[3]
-							+ " only contains " + fields.length + " fields");
-					String[] oldFields = fields;
-					fields = new String[12];
-					System.arraycopy(oldFields, 0, fields, 0, oldFields.length);
-				}
-
-				// default HL7 version to 2.1
-				if (fields[11] == null || fields[11].equals("")) {
-					logger.warn("No HL7 version set in message from "
-							+ fields[3]);
-					fields[11] = "2.1";
-				}
-
-				if (fields[10] == null || fields[10].equals("")) {
-					logger.warn("No MSH-11 set in message from " + fields[3]);
-					fields[10] = "P";
-				}
-
-				// fix MSH-9
-				String[] msh9 = fields[8].split("\\" + recSep, -1);
-				if ((msh9[0] == null || msh9[0].equals(""))
-						&& (msh9[1].equals("A04") || msh9[1].equals("A08"))) {
-					logger.warn("No MSH-9-1 set in message from " + fields[3]);
-					msh9[0] = "ADT";
-				}
-
-				// ignore MSH-9-3
-				fields[8] = msh9[0] + recSep + msh9[1];
-
-				// fix MSH-10
-				if (fields[9] == null || fields[9].equals("")) {
-					logger.warn("No MCID set in message from " + fields[3]);
-					fields[9] = "INVALID_MCID";
-				}
-
-				// reassemble msh
-				StringBuffer msh = new StringBuffer();
-				for (int i = 0; i < fields.length; i++) {
-					if (i != 0) {
-						msh.append(fieldSep);
-					}
-					msh.append(fields[i]);
-				}
-				segments[0] = msh.toString();
-
-				// specific fixup for one very broken sender
-				if (segments[1].matches("^:\\d+PID:.*")) {
-					logger.warn("Fixing malformed PID segment in message from "
-							+ fields[3]);
-					String[] fixPid = segments[1].split("PID:");
-					segments[1] = "PID:" + fixPid[1];
-				}
-
-				// reassemble message
-				StringBuffer segs = new StringBuffer();
-				for (int i = 0; i < segments.length; i++) {
-					if (i != 0) {
-						segs.append("\r");
-					}
-					segs.append(segments[i]);
-				}
-				message = segs.toString();
-			}
-		}
-
-		return message;
-	}
-
 }
