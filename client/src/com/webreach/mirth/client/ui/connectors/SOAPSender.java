@@ -26,6 +26,9 @@
 
 package com.webreach.mirth.client.ui.connectors;
 
+import com.l2fprod.common.beans.BaseBeanInfo;
+import com.l2fprod.common.propertysheet.Property;
+import com.l2fprod.common.propertysheet.PropertySheetPanel;
 import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.ui.components.MirthTable;
 import com.webreach.mirth.model.WSDefinition;
@@ -35,8 +38,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import javax.swing.JTree;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+
+import com.webreach.mirth.client.ui.BeanBinder;
 import com.webreach.mirth.client.ui.Frame;
 import com.webreach.mirth.client.ui.PlatformUI;
+
+import org.apache.wsif.schema.ComplexType;
+import org.apache.wsif.schema.ElementType;
+import org.apache.wsif.schema.SchemaType;
+import org.apache.wsif.schema.SequenceElement;
+import org.syntax.jedit.SyntaxDocument;
+import org.syntax.jedit.tokenmarker.XMLTokenMarker;
 
 /**
  * A form that extends from ConnectorClass.  All methods implemented
@@ -52,7 +67,9 @@ public class SOAPSender extends ConnectorClass
     public final String TYPE_COLUMN_NAME = "Type";
     public final String VALUE_COLUMN_NAME = "Value";
     Frame parent;
-    WSDefinition methodList;
+    WSDefinition definition;
+    private BeanBinder beanBinder;
+    private DefaultMutableTreeNode currentNode;
     
     /**
      * Creates new form SOAPListener
@@ -64,12 +81,18 @@ public class SOAPSender extends ConnectorClass
     public final String SOAP_METHOD = "method";
     public final String SOAP_PARAMETERS = "parameters";
     public final String SOAP_DEFAULT_DROPDOWN = "Press Get Methods";
+    public final String SOAP_ENVELOPE = "soapEnvelope";
+    public final String SOAP_ACTION_URI = "soapActionURI";
     
     public SOAPSender()
     {
         this.parent = PlatformUI.MIRTH_FRAME;
         name = "SOAP Sender";
         initComponents();
+        propertySheetPanel1.setRestoreToggleStates(true);
+        SyntaxDocument document = new SyntaxDocument();
+        document.setTokenMarker(new XMLTokenMarker());
+        soapEnvelope.setDocument(document);
     }
 
     public Properties getProperties()
@@ -79,18 +102,21 @@ public class SOAPSender extends ConnectorClass
         properties.put(SOAP_URL, wsdlUrl.getText());
         properties.put(SOAP_SERVICE_ENDPOINT, serviceEndpoint.getText());
         properties.put(SOAP_METHOD, (String)method.getSelectedItem());
-        properties.put(SOAP_PARAMETERS, getParameters());
+        properties.put(SOAP_PARAMETERS, new ArrayList());//getParameters());
         properties.put(SOAP_HOST, buildHost());
+        properties.put(SOAP_ENVELOPE, soapEnvelope.getText());
+        properties.put(SOAP_ACTION_URI, soapActionURI.getText());
         return properties;
     }
 
     public void setProperties(Properties props)
     {
-        methodList = null;
+        definition = null;
         
         wsdlUrl.setText((String)props.get(SOAP_URL));
         serviceEndpoint.setText((String)props.get(SOAP_SERVICE_ENDPOINT));
-        
+        soapEnvelope.setText((String)props.getProperty(SOAP_ENVELOPE));
+        soapActionURI.setText((String)props.getProperty(SOAP_ACTION_URI));
         if(props.getProperty(SOAP_METHOD) != null)
         {    
             method.setModel(new javax.swing.DefaultComboBoxModel(new String[] { (String)props.getProperty(SOAP_METHOD) }));
@@ -108,7 +134,9 @@ public class SOAPSender extends ConnectorClass
         properties.put(DATATYPE, name);
         properties.put(SOAP_URL, "");
         properties.put(SOAP_SERVICE_ENDPOINT, "");
+        properties.put(SOAP_ENVELOPE, "");
         properties.put(SOAP_METHOD, SOAP_DEFAULT_DROPDOWN);
+        properties.put(SOAP_ACTION_URI, "");
         return properties;
     }
     
@@ -123,12 +151,13 @@ public class SOAPSender extends ConnectorClass
     
     public String buildHost()
     {
-        return "axis:" + serviceEndpoint.getText() + "/" + (String)method.getSelectedItem();
+        return "axis:" + serviceEndpoint.getText() + "?method=" + (String)method.getSelectedItem();
     }
     
     public List getParameters()
     {
-        ArrayList parameters = new ArrayList();
+    	return null;
+       /* ArrayList parameters = new ArrayList();
         
         for(int i = 0; i < paramTable.getRowCount(); i++)
         {
@@ -140,10 +169,60 @@ public class SOAPSender extends ConnectorClass
         }
         
         return parameters;
+        */
     }
     
     public void setupTable(List<WSParameter> parameters)
     {
+    	
+    	DefaultMutableTreeNode root = new DefaultMutableTreeNode(method.getSelectedItem());
+    	DefaultMutableTreeNode headers = new DefaultMutableTreeNode("Headers");
+    	DefaultMutableTreeNode body = new DefaultMutableTreeNode("Body");
+    	root.add(headers);
+    	root.add(body);
+    	Iterator<WSParameter> paramIterator = parameters.iterator();
+    	DefaultMutableTreeNode currentNode = body;
+    	while (paramIterator.hasNext()){
+    		WSParameter parameter = paramIterator.next();
+    		//Add the root for this param (the type and the name)
+    		//DefaultMutableTreeNode pNode = new DefaultMutableTreeNode(parameter.getType() + " " + parameter.getName());
+    		
+    		//when dealing with a complex param set, don't include first node
+    		
+    		/*if (parameter.getName().equals("parameters") && parameter.getSchemaType() != null){
+    			SchemaType schemaType = definition.getComplexTypes().get(parameter.getSchemaType().getTypeName().getLocalPart());
+    			ComplexType complexType = null;
+    			if (schemaType.isComplex()){
+    				complexType = (ComplexType)schemaType;
+    			}else if(schemaType.isElement()){
+    				complexType = ((ComplexType)((ElementType)schemaType).getChildren().get(0));
+    			}
+    				parameter.setSchemaType(complexType);
+    				/*
+    				SequenceElement[] elements = complexType.getSequenceElements();
+    				SequenceElement seqElement = elements[0];
+					
+					//if we have a complex type, set the param name
+					parameter.setName(seqElement.getTypeName().getLocalPart());
+					parameter.setType(seqElement.getElementType().getLocalPart());
+					parameter.setSchemaType(definition.getComplexTypes().get(seqElement.getElementType().getLocalPart()));
+    			
+    		}
+    		*/
+    		buildParams(body,parameter);
+    		System.out.print("");
+    		//pNode.setUserObject(parameter);
+    		//body.add(pNode);
+    	}
+    	jTree1 = new JTree(root);
+    	jTree1.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() {
+            public void valueChanged(javax.swing.event.TreeSelectionEvent evt) {
+                jTree1ValueChanged(evt);
+            }
+        });
+
+    	jScrollPane1.setViewportView(jTree1);
+    	/*
         Object[][] tableData = new Object[parameters.size()][3];
         paramTable = new MirthTable();
 
@@ -166,7 +245,88 @@ public class SOAPSender extends ConnectorClass
             }
         });
         paramPane.setViewportView(paramTable);
+        */
     }
+    private void buildParams(DefaultMutableTreeNode parentNode, WSParameter parameter) {
+
+		//If this is a complex type, we need to add the sub nodes
+		if (parameter.getSchemaType() != null){
+			//loop through each param of the complex type
+			SchemaType schemaType = parameter.getSchemaType();
+			
+			if (schemaType.isComplex()){
+				ComplexType complexType = (ComplexType)schemaType;
+				SequenceElement[] elements = complexType.getSequenceElements();
+					DefaultMutableTreeNode pNode;
+					if (!parameter.getName().equals("parameters"))
+						pNode = new DefaultMutableTreeNode(parameter);
+					else
+						pNode = parentNode;
+					
+					for (int i = 0; i < elements.length; i++){
+						SequenceElement seqElement = elements[i];
+						WSParameter newParam = new WSParameter();
+						//if we have a complex type, set the param name
+						newParam.setName(seqElement.getTypeName().getLocalPart());
+						newParam.setType(seqElement.getElementType().getLocalPart());
+						//setup sub parameter list
+						SchemaType subSchema = definition.getComplexTypes().get(newParam.getType());
+						newParam.setSchemaType(subSchema);
+						//when we have no subschema, we have a simple type
+	
+						parameter.getSubParameters().add(newParam);
+						System.out.println(newParam);
+						DefaultMutableTreeNode subNode = new DefaultMutableTreeNode(newParam);
+						
+						if (subSchema != null){
+							buildParams(subNode, newParam);
+							if (subNode.getChildCount() > 0)
+								pNode.add((DefaultMutableTreeNode)subNode.getFirstChild());
+							else
+								pNode.add(subNode);
+						}else{
+							pNode.add(subNode);
+							
+						}
+						
+						
+					}
+					//To remove parameters node
+					//if (((WSParameter)pNode.getUserObject()).getSchemaType() != null && ((WSParameter)pNode.getUserObject()).getName().equals("parameters") && pNode.getChildCount()> 0)
+					//	pNode = (DefaultMutableTreeNode)pNode.getFirstChild();
+					if (parentNode != pNode)
+						parentNode.add(pNode);
+			
+				//recurse
+			
+			}else if (parameter.getSchemaType().isSimple()){
+				
+				DefaultMutableTreeNode pNode = new DefaultMutableTreeNode(parameter);
+				//recurse
+				parentNode.add(pNode);
+				return;
+			}else if (parameter.getSchemaType().isElement()){
+				ElementType elementType = (ElementType)parameter.getSchemaType();
+				Iterator it = elementType.getChildren().iterator();
+				while (it.hasNext()){
+					parameter.setSchemaType((SchemaType)it.next());
+					buildParams(parentNode,parameter );
+				}
+								
+				//DefaultMutableTreeNode pNode = new DefaultMutableTreeNode(parameter);
+				//recurse
+				//parentNode.add(pNode);
+				return;
+			}
+		}else{
+			
+			DefaultMutableTreeNode pNode = new DefaultMutableTreeNode(parameter);
+			//recurse
+			parentNode.add(pNode);
+			return;
+		}
+	}
+	
         
     /** This method is called from within the constructor to
      * initialize the form.
@@ -174,8 +334,7 @@ public class SOAPSender extends ConnectorClass
      * always regenerated by the Form Editor.
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
-    private void initComponents()
-    {
+    private void initComponents() {
         buttonGroup1 = new javax.swing.ButtonGroup();
         buttonGroup2 = new javax.swing.ButtonGroup();
         buttonGroup3 = new javax.swing.ButtonGroup();
@@ -185,80 +344,75 @@ public class SOAPSender extends ConnectorClass
         getMethodsButton = new javax.swing.JButton();
         method = new com.webreach.mirth.client.ui.components.MirthComboBox();
         jLabel1 = new javax.swing.JLabel();
-        paramPane = new javax.swing.JScrollPane();
-        paramTable = new com.webreach.mirth.client.ui.components.MirthTable();
         jLabel2 = new javax.swing.JLabel();
+        soapActionURI = new com.webreach.mirth.client.ui.components.MirthTextField();
+        soapEnvelope = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea(true,false);
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTree1 = new javax.swing.JTree();
+        propertySheetPanel1 = new com.l2fprod.common.propertysheet.PropertySheetPanel();
+        jLabel3 = new javax.swing.JLabel();
         serviceEndpoint = new com.webreach.mirth.client.ui.components.MirthTextField();
 
         setBackground(new java.awt.Color(255, 255, 255));
-        setBorder(javax.swing.BorderFactory.createTitledBorder(null, "SOAP Senders", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(0, 0, 0)));
+        setBorder(javax.swing.BorderFactory.createTitledBorder(null, "SOAP Listener", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(0, 0, 0)));
         URL.setText("WSDL URL:");
 
         getMethodsButton.setText("Get Methods");
-        getMethodsButton.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
+        getMethodsButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
                 getMethodsButtonActionPerformed(evt);
             }
         });
 
-        method.addItemListener(new java.awt.event.ItemListener()
-        {
-            public void itemStateChanged(java.awt.event.ItemEvent evt)
-            {
+        method.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 methodItemStateChanged(evt);
             }
         });
 
         jLabel1.setText("Method:");
 
-        paramTable.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][]
-            {
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null}
-            },
-            new String []
-            {
-                "Parameter", "Type", "Value"
-            }
-        )
-        {
-            boolean[] canEdit = new boolean []
-            {
-                false, false, true
-            };
+        jLabel2.setText("Service Endpoint URI:");
 
-            public boolean isCellEditable(int rowIndex, int columnIndex)
-            {
-                return canEdit [columnIndex];
+        soapEnvelope.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        jTree1.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() {
+            public void valueChanged(javax.swing.event.TreeSelectionEvent evt) {
+                jTree1ValueChanged(evt);
             }
         });
-        paramPane.setViewportView(paramTable);
 
-        jLabel2.setText("Service Endpoint:");
+        jScrollPane1.setViewportView(jTree1);
+
+        propertySheetPanel1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        propertySheetPanel1.setAutoscrolls(true);
+
+        jLabel3.setText("Soap Action URI:");
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
                     .add(jLabel2)
                     .add(URL)
+                    .add(jLabel3)
                     .add(jLabel1))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, paramPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 449, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, soapEnvelope, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 449, Short.MAX_VALUE)
+                    .add(layout.createSequentialGroup()
+                        .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 257, Short.MAX_VALUE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(propertySheetPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 186, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                     .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
                             .add(org.jdesktop.layout.GroupLayout.LEADING, serviceEndpoint, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .add(org.jdesktop.layout.GroupLayout.LEADING, wsdlUrl, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 350, Short.MAX_VALUE)
-                            .add(org.jdesktop.layout.GroupLayout.LEADING, method, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 150, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .add(org.jdesktop.layout.GroupLayout.LEADING, soapActionURI, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .add(org.jdesktop.layout.GroupLayout.LEADING, method, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(getMethodsButton)))
                 .addContainerGap())
@@ -274,19 +428,49 @@ public class SOAPSender extends ConnectorClass
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel2)
                     .add(serviceEndpoint, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .add(8, 8, 8)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jLabel3)
+                    .add(soapActionURI, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(method, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel1))
+                    .add(jLabel1)
+                    .add(method, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(paramPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 337, Short.MAX_VALUE)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(jScrollPane1, 0, 0, Short.MAX_VALUE)
+                    .add(propertySheetPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 128, Short.MAX_VALUE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(soapEnvelope, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 166, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
+
+    private void jTree1ValueChanged(javax.swing.event.TreeSelectionEvent evt) {//GEN-FIRST:event_jTree1ValueChanged
+    	if (currentNode != null)
+    		((DefaultTreeModel)jTree1.getModel()).nodeChanged(currentNode);
+    	if (beanBinder != null){
+    		beanBinder.setWriteEnabled(false);
+			beanBinder.unbind();
+    	}
+
+    	DefaultMutableTreeNode nodeSelected = (DefaultMutableTreeNode)jTree1.getLastSelectedPathComponent();
+    	
+    	if (nodeSelected != null && nodeSelected.getUserObject() != null && nodeSelected.getUserObject() instanceof WSParameter){
+    		currentNode = nodeSelected;
+    		beanBinder = new BeanBinder((WSParameter)nodeSelected.getUserObject(), propertySheetPanel1);
+    		beanBinder.setWriteEnabled(true);
+    		if (((WSParameter)nodeSelected.getUserObject()).getSchemaType() != null)
+    			propertySheetPanel1.removeProperty(propertySheetPanel1.getProperties()[2]);
+    		
+    		System.out.println(((WSParameter)nodeSelected.getUserObject()));
+    	}
+    }//GEN-LAST:event_jTree1ValueChanged
+
     private void methodItemStateChanged(java.awt.event.ItemEvent evt)//GEN-FIRST:event_methodItemStateChanged
     {//GEN-HEADEREND:event_methodItemStateChanged
-        if(methodList != null)
+        if(definition != null)
         {
             if(evt.getStateChange() == evt.SELECTED)
             {
@@ -294,8 +478,8 @@ public class SOAPSender extends ConnectorClass
                 if(item.equals(SOAP_DEFAULT_DROPDOWN))
                     return;
                 else{
-                	serviceEndpoint.setText(methodList.getOperations().get(method.getSelectedIndex()).getEndpointURI());
-                    setupTable(methodList.getOperations().get(method.getSelectedIndex()).getParameters());
+                	soapActionURI.setText(definition.getOperations().get(method.getSelectedIndex()).getSoapActionURI());
+                    setupTable(definition.getOperations().get(method.getSelectedIndex()).getParameters());
                 }
             }
         }
@@ -305,18 +489,19 @@ public class SOAPSender extends ConnectorClass
     {//GEN-HEADEREND:event_getMethodsButtonActionPerformed
         try
         {
-            methodList = parent.mirthClient.getWebServiceDefinition(wsdlUrl.getText().trim());
-            String[] methodNames = new String[methodList.getOperations().size()];
-            for (int i = 0; i < methodList.getOperations().size(); i++)
+            definition = parent.mirthClient.getWebServiceDefinition(wsdlUrl.getText().trim());
+            String[] methodNames = new String[definition.getOperations().size()];
+            for (int i = 0; i < definition.getOperations().size(); i++)
             {
-                methodNames[i] = methodList.getOperations().get(i).getName();
+                methodNames[i] = definition.getOperations().get(i).getName();
             }
 
             method.setModel(new javax.swing.DefaultComboBoxModel(methodNames));
 
             method.setSelectedIndex(0);
-            serviceEndpoint.setText(methodList.getOperations().get(method.getSelectedIndex()).getEndpointURI());
-            setupTable( methodList.getOperations().get(0).getParameters() ); 
+            serviceEndpoint.setText(definition.getServiceEndpointURI());
+            soapActionURI.setText(definition.getOperations().get(method.getSelectedIndex()).getSoapActionURI());
+            setupTable( definition.getOperations().get(0).getParameters() ); 
         }
         catch(ClientException e)
         {
@@ -334,10 +519,14 @@ public class SOAPSender extends ConnectorClass
     private javax.swing.JButton getMethodsButton;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTree jTree1;
     private com.webreach.mirth.client.ui.components.MirthComboBox method;
-    private javax.swing.JScrollPane paramPane;
-    private com.webreach.mirth.client.ui.components.MirthTable paramTable;
+    private com.l2fprod.common.propertysheet.PropertySheetPanel propertySheetPanel1;
     private com.webreach.mirth.client.ui.components.MirthTextField serviceEndpoint;
+    private com.webreach.mirth.client.ui.components.MirthTextField soapActionURI;
+    private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea soapEnvelope;
     private com.webreach.mirth.client.ui.components.MirthTextField wsdlUrl;
     // End of variables declaration//GEN-END:variables
 
