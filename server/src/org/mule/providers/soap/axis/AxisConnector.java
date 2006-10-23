@@ -103,12 +103,14 @@ public class AxisConnector extends AbstractServiceEnabledConnector implements Mo
     private List beanTypes;
     private MuleDescriptor axisDescriptor;
     private String serviceEndpoint;
+    private String soapActionURI;
     private String port = "8081";
     private String wsdlUrl = "";
     private String listenerAddress = "localhost";
     private String serviceName = SERVICE_NAME;
     private String method = "";
-    private List<WSParameter> parameters;
+    private List parameters;
+    private String soapEnvelope;
     /**
      * These protocols will be set on client invocations.  by default Mule uses it's own transports
      * rather that Axis's.  This is only because it gives us more flexibility inside Mule and
@@ -551,11 +553,11 @@ public class AxisConnector extends AbstractServiceEnabledConnector implements Mo
 		this.serviceName = serviceName;
 	}
 
-	public List<WSParameter> getParameterMapping() {
+	public List getParameterMapping() {
 		return parameters;
 	}
 
-	public void setParameterMapping(List<WSParameter> parameterMapping) {
+	public void setParameterMapping(List parameterMapping) {
 		this.parameters = parameterMapping;
 	}
 
@@ -605,5 +607,21 @@ public class AxisConnector extends AbstractServiceEnabledConnector implements Mo
 
 	public void setContentType(String contentType) {
 		this.contentType = contentType;
+	}
+
+	public String getSoapEnvelope() {
+		return soapEnvelope;
+	}
+
+	public void setSoapEnvelope(String soapEnvelope) {
+		this.soapEnvelope = soapEnvelope;
+	}
+
+	public String getSoapActionURI() {
+		return soapActionURI;
+	}
+
+	public void setSoapActionURI(String soapActionURI) {
+		this.soapActionURI = soapActionURI;
 	}
 }

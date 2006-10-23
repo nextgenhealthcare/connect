@@ -6,7 +6,7 @@ import java.util.List;
 public class WSOperation {
 	private String name;
 	private List<WSParameter> parameters;
-	private String endpointURI;
+	private String soapActionURI;
 	public WSOperation() {
 		this.parameters = new ArrayList<WSParameter>();
 	}
@@ -27,11 +27,11 @@ public class WSOperation {
 		this.parameters = parameters;
 	}
 
-	public String getEndpointURI() {
-		return endpointURI;
+	public String getSoapActionURI() {
+		return soapActionURI;
 	}
 
-	public void setEndpointURI(String endpointURI) {
-		this.endpointURI = endpointURI;
+	public void setSoapActionURI(String soapActionURI) {
+		this.soapActionURI = soapActionURI;
 	}
 }

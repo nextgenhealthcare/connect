@@ -18,6 +18,9 @@ import javax.wsdl.xml.WSDLLocator;
 import javax.xml.namespace.QName;
 
 
+import org.apache.wsif.WSIFException;
+import org.apache.wsif.schema.Parser;
+import org.apache.wsif.schema.SchemaType;
 import org.apache.xmlbeans.impl.soap.SOAPElement;
 
 import com.ibm.wsdl.xml.WSDLReaderImpl;
@@ -31,13 +34,13 @@ public class WebServiceReader {
 	public WebServiceReader(String address) {
 		this.address = address;
 	}
-	/* For complex types
+	// For complex types
 	class LocReader extends WSDLReaderImpl{
 		public WSDLLocator getLocator(){
 			return this.loc;
 		}
 	}
-	public Map typesToMap(List typeList){
+	public Map<String,SchemaType> typesToMap(List typeList){
 		HashMap<String,SchemaType> map = new HashMap<String,SchemaType>();
 		Iterator<SchemaType> it = typeList.iterator();
 		while(it.hasNext()){
@@ -47,28 +50,30 @@ public class WebServiceReader {
 		return map;
 		
 	}
-	*/
+	
 	public WSDefinition getWSDefinition() throws Exception {
 		WSDefinition wsDefinition = new WSDefinition();
 		WSDLReaderImpl reader = new WSDLReaderImpl();
 
+		//Read in the WSDL 
 		Definition definition = reader.readWSDL(address);
-		/*For complex types
+	
+		//Parse the WSDL (and any imports) for type definitions
 		LocReader lreader = new LocReader();
-		//For complex type mappings, use the following
-		List types = new ArrayList();
+		List types = new ArrayList();   
 		try {
-			Map map = new HashMap();
 			Parser.getAllSchemaTypes(definition, types, lreader.getLocator());
 		} catch (WSIFException e) {
 			
 		}
-		Map schemaTypes = typesToMap(types)
-		*/
+	
+		Map<String,SchemaType> schemaTypes = typesToMap(types);
+		wsDefinition.setComplexTypes(schemaTypes);
+		
 		Iterator<Service> serviceIter = definition.getServices().values().iterator();
 		while (serviceIter.hasNext()){
 			Service service = serviceIter.next();
-			Iterator<Port> portIter = service.getPorts().values().iterator();
+		 	Iterator<Port> portIter = service.getPorts().values().iterator();
 			while (portIter.hasNext()){
 				Port port = portIter.next();
 				Iterator extIter = port.getExtensibilityElements().iterator();
@@ -78,6 +83,7 @@ public class WebServiceReader {
 					Object extelement = extIter.next();
 					if (extelement instanceof SOAPAddress){
 						endpointURI = ((SOAPAddress)extelement).getLocationURI();
+						wsDefinition.setServiceEndpointURI(endpointURI);
 					}
 				}
 				Binding binding = port.getBinding();
@@ -90,12 +96,7 @@ public class WebServiceReader {
 					if (concreteOperation instanceof SOAPOperation){
 						WSOperation wsOperation = new WSOperation();
 						SOAPOperation soapOperation = (SOAPOperation)concreteOperation;
-						if (endpointURI.equals("")){
-							
-						}else{
-							wsOperation.setEndpointURI(endpointURI);
-						}
-						
+						wsOperation.setSoapActionURI(soapOperation.getSoapActionURI());
 						wsOperation.setName(bindingOperation.getName());
 
 						Iterator partIterator = bindingOperation.getOperation().getInput().getMessage().getParts().values().iterator();
@@ -116,7 +117,8 @@ public class WebServiceReader {
 							WSParameter wsParameter = new WSParameter();
 							wsParameter.setName(part.getName());
 							wsParameter.setType(type);
-
+							if (schemaTypes.get(type) != null)
+								wsParameter.setSchemaType((SchemaType)schemaTypes.get(type));
 							wsOperation.getParameters().add(wsParameter);
 						}
 

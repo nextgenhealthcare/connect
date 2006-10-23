@@ -191,15 +191,29 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher {
 
 	public void doDispatch(UMOEvent event) throws Exception {
 		AxisProperties.setProperty("axis.doAutoTypes", "true");
-		Object[] args = getArgs(event);
+		Object[] args = new Object[0];//getArgs(event);
 		Call call = getCall(event, args);
+		call = new Call(((AxisConnector)connector).getServiceEndpoint());
+		Message reqMessage = new Message(((AxisConnector)connector).getSoapEnvelope());
+		call.setSOAPActionURI(((AxisConnector)connector).getSoapActionURI());
+		call.setTargetEndpointAddress(((AxisConnector)connector).getServiceEndpoint());
+		//call.setRequestMessage(reqMessage);
 		// dont use invokeOneWay here as we are already in a thread pool.
 		// Axis creates a new thread for every invoke one way call. nasty!
 		// Mule overides the default Axis HttpSender to return immediately if
 		// the axis.one.way property is set
-		call.setProperty("axis.one.way", Boolean.TRUE);
+		call.setProperty("axis.one.way", Boolean.FALSE);
 		call.setProperty(MuleProperties.MULE_EVENT_PROPERTY, event);
-		call.invoke(args);
+
+		//call.invoke(args);
+		Object result = call.invoke(reqMessage);
+		if (result == null) {
+		
+		} else {
+			logger.debug(result.toString());
+		}
+		//org.apache.axis.message.SOAPEnvelope envelope = new org.apache.axis.message.SOAPEnvelope();
+		//Message message = new Message()
 
 	}
 
