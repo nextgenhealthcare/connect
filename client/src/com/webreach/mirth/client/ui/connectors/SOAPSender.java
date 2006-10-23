@@ -135,8 +135,9 @@ public class SOAPSender extends ConnectorClass
         properties.put(SOAP_URL, "");
         properties.put(SOAP_SERVICE_ENDPOINT, "");
         properties.put(SOAP_ENVELOPE, "");
-        properties.put(SOAP_METHOD, SOAP_DEFAULT_DROPDOWN);
+        properties.put(SOAP_METHOD, "");
         properties.put(SOAP_ACTION_URI, "");
+        properties.put(SOAP_PARAMETERS, new ArrayList<WSParameter>());
         return properties;
     }
     
@@ -184,35 +185,7 @@ public class SOAPSender extends ConnectorClass
     	DefaultMutableTreeNode currentNode = body;
     	while (paramIterator.hasNext()){
     		WSParameter parameter = paramIterator.next();
-    		//Add the root for this param (the type and the name)
-    		//DefaultMutableTreeNode pNode = new DefaultMutableTreeNode(parameter.getType() + " " + parameter.getName());
-    		
-    		//when dealing with a complex param set, don't include first node
-    		
-    		/*if (parameter.getName().equals("parameters") && parameter.getSchemaType() != null){
-    			SchemaType schemaType = definition.getComplexTypes().get(parameter.getSchemaType().getTypeName().getLocalPart());
-    			ComplexType complexType = null;
-    			if (schemaType.isComplex()){
-    				complexType = (ComplexType)schemaType;
-    			}else if(schemaType.isElement()){
-    				complexType = ((ComplexType)((ElementType)schemaType).getChildren().get(0));
-    			}
-    				parameter.setSchemaType(complexType);
-    				/*
-    				SequenceElement[] elements = complexType.getSequenceElements();
-    				SequenceElement seqElement = elements[0];
-					
-					//if we have a complex type, set the param name
-					parameter.setName(seqElement.getTypeName().getLocalPart());
-					parameter.setType(seqElement.getElementType().getLocalPart());
-					parameter.setSchemaType(definition.getComplexTypes().get(seqElement.getElementType().getLocalPart()));
-    			
-    		}
-    		*/
     		buildParams(body,parameter);
-    		System.out.print("");
-    		//pNode.setUserObject(parameter);
-    		//body.add(pNode);
     	}
     	jTree1 = new JTree(root);
     	jTree1.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() {
@@ -250,78 +223,34 @@ public class SOAPSender extends ConnectorClass
     private void buildParams(DefaultMutableTreeNode parentNode, WSParameter parameter) {
 
 		//If this is a complex type, we need to add the sub nodes
-		if (parameter.getSchemaType() != null){
+		if (parameter.isComplex()){
 			//loop through each param of the complex type
-			SchemaType schemaType = parameter.getSchemaType();
-			
-			if (schemaType.isComplex()){
-				ComplexType complexType = (ComplexType)schemaType;
-				SequenceElement[] elements = complexType.getSequenceElements();
 					DefaultMutableTreeNode pNode;
 					if (!parameter.getName().equals("parameters"))
 						pNode = new DefaultMutableTreeNode(parameter);
 					else
 						pNode = parentNode;
-					
-					for (int i = 0; i < elements.length; i++){
-						SequenceElement seqElement = elements[i];
-						WSParameter newParam = new WSParameter();
-						//if we have a complex type, set the param name
-						newParam.setName(seqElement.getTypeName().getLocalPart());
-						newParam.setType(seqElement.getElementType().getLocalPart());
-						//setup sub parameter list
-						SchemaType subSchema = definition.getComplexTypes().get(newParam.getType());
-						newParam.setSchemaType(subSchema);
-						//when we have no subschema, we have a simple type
-	
-						parameter.getSubParameters().add(newParam);
-						System.out.println(newParam);
-						DefaultMutableTreeNode subNode = new DefaultMutableTreeNode(newParam);
-						
-						if (subSchema != null){
-							buildParams(subNode, newParam);
+					Iterator<WSParameter> paramIter = parameter.getChildParameters().iterator();
+					while(paramIter.hasNext()){
+						WSParameter child = paramIter.next();
+						System.out.println(child);
+						DefaultMutableTreeNode subNode = new DefaultMutableTreeNode(child);
+						if (child.isComplex()){
+							buildParams(subNode, child);
 							if (subNode.getChildCount() > 0)
 								pNode.add((DefaultMutableTreeNode)subNode.getFirstChild());
 							else
 								pNode.add(subNode);
 						}else{
 							pNode.add(subNode);
-							
 						}
-						
-						
 					}
-					//To remove parameters node
-					//if (((WSParameter)pNode.getUserObject()).getSchemaType() != null && ((WSParameter)pNode.getUserObject()).getName().equals("parameters") && pNode.getChildCount()> 0)
-					//	pNode = (DefaultMutableTreeNode)pNode.getFirstChild();
 					if (parentNode != pNode)
 						parentNode.add(pNode);
-			
-				//recurse
-			
-			}else if (parameter.getSchemaType().isSimple()){
-				
-				DefaultMutableTreeNode pNode = new DefaultMutableTreeNode(parameter);
-				//recurse
-				parentNode.add(pNode);
-				return;
-			}else if (parameter.getSchemaType().isElement()){
-				ElementType elementType = (ElementType)parameter.getSchemaType();
-				Iterator it = elementType.getChildren().iterator();
-				while (it.hasNext()){
-					parameter.setSchemaType((SchemaType)it.next());
-					buildParams(parentNode,parameter );
-				}
-								
-				//DefaultMutableTreeNode pNode = new DefaultMutableTreeNode(parameter);
-				//recurse
-				//parentNode.add(pNode);
-				return;
-			}
+
 		}else{
 			
 			DefaultMutableTreeNode pNode = new DefaultMutableTreeNode(parameter);
-			//recurse
 			parentNode.add(pNode);
 			return;
 		}
