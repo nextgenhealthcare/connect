@@ -85,7 +85,8 @@ public class SOAPListener extends ConnectorClass
     public Properties getDefaults()
     {
         Properties properties = new Properties();
-        properties.put(SOAP_HOST, "axis:http://localhost:8081/services/Mirth");
+        properties.put(DATATYPE, name);
+        properties.put(SOAP_HOST, "axis:http://localhost:8081/services");
         properties.put(SOAP_LISTENER_ADDRESS, "localhost");
         properties.put(SOAP_PORT, "8081");
         properties.put(SOAP_SERVICE_NAME, "Mirth");
