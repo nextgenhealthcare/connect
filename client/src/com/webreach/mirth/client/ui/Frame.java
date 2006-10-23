@@ -1356,8 +1356,12 @@ public class Frame extends JXFrame
 
     public void doLogout()
     {
+        if (!confirmLeave())
+            return;
+        
         if(currentContentPage == statusListPage)
             su.interruptThread();
+        
         try
         {
             mirthClient.logout();
