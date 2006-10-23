@@ -100,7 +100,7 @@ public class SOAPListener extends ConnectorClass
     
     public void updateWSDL()
     {
-        wsdlURL.setText("http" + PlatformUI.SERVER_NAME.substring(PlatformUI.SERVER_NAME.lastIndexOf("://"), PlatformUI.SERVER_NAME.lastIndexOf(":")) + port.getText() + "/services/" + serviceName.getText() + "?wsdl");
+        wsdlURL.setText("http" + PlatformUI.SERVER_NAME.substring(PlatformUI.SERVER_NAME.lastIndexOf("://"), PlatformUI.SERVER_NAME.lastIndexOf(":")) + ":" + port.getText() + "/services/" + serviceName.getText() + "?wsdl");
         
     }
     
@@ -186,7 +186,7 @@ public class SOAPListener extends ConnectorClass
                     .add(listenerAddress, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 250, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(wsdlURL, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 400, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(method, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 250, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .add(266, 266, 266))
+                .add(34, 34, 34))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)

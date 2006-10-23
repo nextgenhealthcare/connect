@@ -50,7 +50,7 @@
                   <Component id="wsdlURL" alignment="0" min="-2" pref="400" max="-2" attributes="1"/>
                   <Component id="method" min="-2" pref="250" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace min="-2" pref="266" max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="34" max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>

@@ -52,9 +52,9 @@
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
                       <Group type="103" groupAlignment="1" max="-2" attributes="0">
-                          <Component id="serviceEndpoint" alignment="0" max="32767" attributes="1"/>
+                          <Component id="serviceEndpoint" alignment="0" pref="350" max="32767" attributes="1"/>
                           <Component id="wsdlUrl" alignment="0" pref="350" max="32767" attributes="1"/>
-                          <Component id="soapActionURI" alignment="0" max="32767" attributes="1"/>
+                          <Component id="soapActionURI" alignment="0" pref="350" max="32767" attributes="1"/>
                           <Component id="method" alignment="0" min="-2" pref="200" max="-2" attributes="1"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
@@ -94,7 +94,7 @@
                   <Component id="propertySheetPanel1" alignment="0" pref="128" max="32767" attributes="2"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
-              <Component id="soapEnvelope" min="-2" pref="166" max="-2" attributes="0"/>
+              <Component id="soapEnvelope" pref="166" max="32767" attributes="0"/>
               <EmptySpace min="-2" max="-2" attributes="0"/>
           </Group>
       </Group>

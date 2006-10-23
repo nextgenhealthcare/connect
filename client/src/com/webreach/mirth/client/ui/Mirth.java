@@ -83,13 +83,13 @@ public class Mirth
                 
         PlatformUI.MIRTH_FRAME.setupFrame(m);
         
-        int width = 900;
-        int height = 700;
+        int width = UIConstants.MIRTH_WIDTH;
+        int height = UIConstants.MIRTH_HEIGHT;
         
         if(userPreferences.getInt("maximizedState", PlatformUI.MIRTH_FRAME.MAXIMIZED_BOTH) != PlatformUI.MIRTH_FRAME.MAXIMIZED_BOTH)
         {
-            width = userPreferences.getInt("width", 900);    
-            height = userPreferences.getInt("height", 700);
+            width = userPreferences.getInt("width", UIConstants.MIRTH_WIDTH);    
+            height = userPreferences.getInt("height", UIConstants.MIRTH_HEIGHT);
         }
         
         PlatformUI.MIRTH_FRAME.setSize(width,height);
@@ -103,15 +103,15 @@ public class Mirth
         {
             public void componentResized(ComponentEvent e) 
             {
-               Frame tmp = (Frame)e.getSource();
-               if (tmp.getWidth()<900) 
-               {
-                 tmp.setSize(900, tmp.getHeight());
-               }
-               if (tmp.getHeight()<700) 
-               {
-                 tmp.setSize(tmp.getWidth(), 700);
-               }
+                Frame tmp = (Frame)e.getSource();
+                if (tmp.getWidth()<UIConstants.MIRTH_WIDTH) 
+                {
+                    tmp.setSize(UIConstants.MIRTH_WIDTH, tmp.getHeight());
+                }
+                if (tmp.getHeight()<UIConstants.MIRTH_HEIGHT) 
+                {
+                    tmp.setSize(tmp.getWidth(), UIConstants.MIRTH_HEIGHT);
+                }
             }
         });
     }

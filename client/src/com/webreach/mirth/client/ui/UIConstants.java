@@ -35,16 +35,18 @@ import javax.swing.ImageIcon;
  * A constants class for the Mirth UI
  */
 public class UIConstants
-{
-	// for EOL stuff
-	public static final String EOL_JAVA = "\n";
-	public static final String EOL_UNIX = "\n";
-	public static final String EOL_WIN32 = "\r\n";
-	public static final String EOL_MAC = "\r";
+{    
+    // for EOL stuff
+    public static final String EOL_JAVA = "\n";
+    public static final String EOL_UNIX = "\n";
+    public static final String EOL_WIN32 = "\r\n";
+    public static final String EOL_MAC = "\r";
 
     // for Frame
     public static final int TASK_PANE_WIDTH = 170;
     public static final String TITLE_TEXT = "Mirth Administrator";
+    public static final int MIRTH_WIDTH = 900;
+    public static final int MIRTH_HEIGHT = 700;
 
     // for error checking
     public static final int ERROR_CONSTANT = -1;
