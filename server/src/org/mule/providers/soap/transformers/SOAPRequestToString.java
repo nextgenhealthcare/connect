@@ -1,4 +1,4 @@
-package com.webreach.mirth.server.mule.transformers;
+package org.mule.providers.soap.transformers;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -8,17 +8,13 @@ import org.mule.transformers.AbstractTransformer;
 import org.mule.umo.transformer.TransformerException;
 
 /**
- * <code>SOAPRequestToString</code> transformer returns string from incoming 
+ * <code>SOAPRequestToString</code> transformer returns string from incoming
  * SOAP data payload. Based on Mule ObjectToString
+ * 
  * @author <a href="mailto:chrisl@webreachinc.com">Chris Lang</a>
  * @version $Revision: 1.0 $
  */
 public class SOAPRequestToString extends AbstractTransformer {
-	public SOAPRequestToString() {
-		registerSourceType(Object.class);
-		setReturnClass(String.class);
-	}
-
 	public Object doTransform(Object src) throws TransformerException {
 		String output = "";
 		if (src instanceof Map) {
@@ -38,10 +34,10 @@ public class SOAPRequestToString extends AbstractTransformer {
 			}
 
 		} else if (src instanceof String) {
-			output = (String)src;
+			output = (String) src;
 		} else if (src instanceof Object[]) {
-			output = (String)(((Object[])src)[0]);
-		}else {
+			output = (String) (((Object[]) src)[0]);
+		} else {
 			output = src.toString();
 		}
 
