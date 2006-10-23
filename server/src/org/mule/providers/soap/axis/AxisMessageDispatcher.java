@@ -71,6 +71,7 @@ import org.mule.util.TemplateParser;
 
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.WSParameter;
+import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.mule.util.GlobalVariableStore;
 
 /**
@@ -197,6 +198,11 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher {
 		Message reqMessage = new Message(((AxisConnector)connector).getSoapEnvelope());
 		call.setSOAPActionURI(((AxisConnector)connector).getSoapActionURI());
 		call.setTargetEndpointAddress(((AxisConnector)connector).getServiceEndpoint());
+		
+		MessageObject messageObject = (MessageObject)event.getTransformedMessage();
+//		 update the message status to sent
+		messageObject.setStatus(MessageObject.Status.SENT);
+		new MessageObjectController().updateMessage(messageObject);
 		//call.setRequestMessage(reqMessage);
 		// dont use invokeOneWay here as we are already in a thread pool.
 		// Axis creates a new thread for every invoke one way call. nasty!

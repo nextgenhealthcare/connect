@@ -16,7 +16,11 @@ public class WSParameter {
 	private String length;
 	private boolean array;
 	private boolean Null;
-	private List<WSParameter> subParameters;
+	private int minOccurs;
+	private int maxOccurs;
+	private boolean nillable;
+	private boolean complex;
+	private List<WSParameter> childParameters;
 	public String getName() {
 		return name;
 	}
@@ -79,15 +83,67 @@ public class WSParameter {
 		Null = null1;
 	}
 
-	public List<WSParameter> getSubParameters() {
-		if (subParameters == null){
-			subParameters = new ArrayList<WSParameter>();
+	public List<WSParameter> getChildParameters() {
+		if (childParameters == null){
+			childParameters = new ArrayList<WSParameter>();
 		}
-		return subParameters;
+		return childParameters;
 	}
 
-	public void setSubParameters(List<WSParameter> subParameters) {
-		this.subParameters = subParameters;
+	public void getChildParameters(List<WSParameter> subParameters) {
+		this.childParameters = subParameters;
+	}
+
+	public int getMaxOccurs() {
+		return maxOccurs;
+	}
+
+	public void setMaxOccurs(int maxOccurs) {
+		this.maxOccurs = maxOccurs;
+		//we have an array
+		if (maxOccurs == -1 || maxOccurs > 0){
+			this.setArray(true);
+		}
+	}
+	public void setMaxOccurs(String maxOccurs) {
+		if (maxOccurs.equals("unbounded")){
+			setMaxOccurs(-1); //TODO: Maybe use a better value?
+		}else{
+			try{
+				setMaxOccurs(Integer.parseInt(maxOccurs));
+			}catch(Exception e){}
+		}
+	}
+	public int getMinOccurs() {
+		return minOccurs;
+	}
+
+	public void setMinOccurs(int minOccurs) {
+		this.minOccurs = minOccurs;
+	}
+	public void setMinOccurs(String minOccurs) {
+		if (minOccurs.equals("unbounded")){
+			setMinOccurs(-1); //TODO: Maybe use a better value?
+		}else{
+			try{
+				setMinOccurs(Integer.parseInt(minOccurs));
+			}catch(Exception e){}
+		}
+	}
+	public boolean isNillable() {
+		return nillable;
+	}
+
+	public void setNillable(boolean nillable) {
+		this.nillable = nillable;
+	}
+
+	public boolean isComplex() {
+		return complex;
+	}
+
+	public void setComplex(boolean complex) {
+		this.complex = complex;
 	}
 
 }

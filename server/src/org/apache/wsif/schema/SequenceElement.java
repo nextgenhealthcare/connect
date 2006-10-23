@@ -59,7 +59,7 @@ public class SequenceElement extends ElementType implements Serializable {
      * @param The name of the attribute
      * @return The value of the attribute or null if the attribute does not exist
      */
-    QName getXMLAttribute(String name) {
+    public QName getXMLAttribute(String name) {
         return (QName) attributes.get(new QName(name));
     }
 
