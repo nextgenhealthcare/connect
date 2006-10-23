@@ -43,6 +43,7 @@ import com.webreach.mirth.server.controllers.ConfigurationController;
 import com.webreach.mirth.server.controllers.ControllerException;
 import com.webreach.mirth.server.controllers.SystemLogger;
 import com.webreach.mirth.server.util.DatabasePruner;
+import com.webreach.mirth.server.util.StackTracePrinter;
 import com.webreach.mirth.util.PropertyLoader;
 
 /**
@@ -131,9 +132,10 @@ public class Mirth extends Thread {
 			logger.warn("Error deploying channels.", e);
 
 			// if deploy fails, log to system events
+			StackTracePrinter stackTracePrinter = new StackTracePrinter();
 			SystemEvent event = new SystemEvent("Error deploying channels.");
 			event.setLevel(SystemEvent.Level.HIGH);
-			event.setDescription(e.getMessage());
+			event.setDescription(stackTracePrinter.stackTraceToString(e));
 			systemLogger.logSystemEvent(event);
 
 			configurationController.deleteLatestConfiguration();

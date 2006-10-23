@@ -1,4 +1,4 @@
-package com.webreach.mirth.server.mule.util;
+package com.webreach.mirth.server.util;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;

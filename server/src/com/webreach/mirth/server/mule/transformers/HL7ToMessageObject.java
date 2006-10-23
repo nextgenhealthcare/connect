@@ -8,7 +8,7 @@ import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.converters.ER7Serializer;
 import com.webreach.mirth.model.converters.HAPIMessageSerializer;
 import com.webreach.mirth.model.converters.SerializerException;
-import com.webreach.mirth.server.mule.util.StackTracePrinter;
+import com.webreach.mirth.server.util.StackTracePrinter;
 
 public class HL7ToMessageObject extends AbstractTransformer {
 	private Logger logger = Logger.getLogger(this.getClass());

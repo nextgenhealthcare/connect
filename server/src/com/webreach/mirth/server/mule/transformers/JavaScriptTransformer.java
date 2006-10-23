@@ -19,7 +19,7 @@ import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.controllers.ScriptController;
 import com.webreach.mirth.server.mule.util.CompiledScriptCache;
 import com.webreach.mirth.server.mule.util.GlobalVariableStore;
-import com.webreach.mirth.server.mule.util.StackTracePrinter;
+import com.webreach.mirth.server.util.StackTracePrinter;
 
 public class JavaScriptTransformer extends AbstractTransformer {
 	private Logger logger = Logger.getLogger(this.getClass());

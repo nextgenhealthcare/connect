@@ -4,7 +4,7 @@ import org.mule.impl.DefaultComponentExceptionStrategy;
 
 import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.server.controllers.SystemLogger;
-import com.webreach.mirth.server.mule.util.StackTracePrinter;
+import com.webreach.mirth.server.util.StackTracePrinter;
 
 public class ExceptionStrategy extends DefaultComponentExceptionStrategy {
 	protected void defaultHandler(Throwable t) {
