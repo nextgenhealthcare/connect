@@ -21,12 +21,12 @@
 	<transformers>
 		<transformer name="ByteArrayToString" className="org.mule.transformers.simple.ByteArrayToString" />
 		<transformer name="JMSMessageToObject" className="org.mule.providers.jms.transformers.JMSMessageToObject" returnClass="java.lang.String" />
-		<transformer name="ObjectToJMSMessage" className="org.mule.providers.jms.transformers.ObjectToJMSMessage" />
+		<transformer name="MessageObjectToJMSMessage" className="org.mule.providers.jms.transformers.MessageObjectToJMSMessage" />
 		<transformer name="StringToByteArray" className="org.mule.transformers.simple.StringToByteArray" />
 		<transformer name="HL7ToMessageObject" className="com.webreach.mirth.server.mule.transformers.HL7ToMessageObject" />
 		<transformer name="SOAPRequestToString" className="com.webreach.mirth.server.mule.transformers.SOAPRequestToString" />
 		<transformer name="ResultMapToXML" className="com.webreach.mirth.server.mule.transformers.ResultMapToXML" />
-		<transformer name="VariableHashMapToER7String" className="com.webreach.mirth.server.mule.transformers.VariableHashMapToER7String"/>
+		<transformer name="ObjectToString" className="org.mule.transformers.simple.ObjectToString"/>
 	</transformers>
 
 	<interceptor-stack name="default">
