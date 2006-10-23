@@ -192,4 +192,35 @@ public class DatabaseConnection {
 			logger.warn(e);
 		}
 	}
+
+	/**
+	 * Sets this connection's auto-commit mode to the given state.
+	 * 
+	 * @param autoCommit
+	 * @throws SQLException
+	 */
+	public void setAutoCommit(boolean autoCommit) throws SQLException {
+		connection.setAutoCommit(autoCommit);
+	}
+
+	/**
+	 * Undoes all changes made in the current transaction and releases any
+	 * database locks currently held by this Connection object.
+	 * 
+	 * @throws SQLException
+	 */
+	public void rollback() throws SQLException {
+		connection.rollback();
+	}
+
+	/**
+	 * Makes all changes made since the previous commit/rollback permanent and
+	 * releases any database locks currently held by this DatabaseConnection
+	 * object.
+	 * 
+	 * @throws SQLException
+	 */
+	public void commit() throws SQLException {
+		connection.commit();
+	}
 }
