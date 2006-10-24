@@ -54,6 +54,7 @@ import org.mule.impl.endpoint.MuleEndpointURI;
 import org.mule.providers.AbstractMessageDispatcher;
 import org.mule.providers.NullPayload;
 import org.mule.providers.ParameterValueReplacer;
+import org.mule.providers.TemplateValueReplacer;
 import org.mule.providers.soap.NamedParameter;
 import org.mule.providers.soap.SoapMethod;
 import org.mule.providers.soap.axis.extensions.MuleHttpSender;
@@ -195,20 +196,23 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher {
 		Object[] args = new Object[0];//getArgs(event);
 		Call call = getCall(event, args);
 		call = new Call(((AxisConnector)connector).getServiceEndpoint());
-		Message reqMessage = new Message(((AxisConnector)connector).getSoapEnvelope());
+		String requestMessage = ((AxisConnector)connector).getSoapEnvelope();
+		MessageObject messageObject = (MessageObject)event.getTransformedMessage();
+		//Run the template replacer on the xml
+		TemplateValueReplacer replacer = new TemplateValueReplacer();
+		requestMessage = replacer.replaceValues(requestMessage, messageObject, "");
+		Message reqMessage = new Message(requestMessage);
+		//Only set the actionURI if we have one explicitly defined
 		if (((AxisConnector)connector).getSoapActionURI() != null && ((AxisConnector)connector).getSoapActionURI().length() > 0)
 			call.setSOAPActionURI(((AxisConnector)connector).getSoapActionURI());
 		call.setTargetEndpointAddress(((AxisConnector)connector).getServiceEndpoint());
 	
-		MessageObject messageObject = (MessageObject)event.getTransformedMessage();
-//		 update the message status to sent
-		messageObject.setStatus(MessageObject.Status.SENT);
-		new MessageObjectController().updateMessage(messageObject);
-		call.setRequestMessage(reqMessage);
 		// dont use invokeOneWay here as we are already in a thread pool.
 		// Axis creates a new thread for every invoke one way call. nasty!
 		// Mule overides the default Axis HttpSender to return immediately if
 		// the axis.one.way property is set
+		//Change this to TRUE before we deploy
+		//TODO: LOOK ABOVE!!
 		call.setProperty("axis.one.way", Boolean.FALSE);
 		call.setProperty(MuleProperties.MULE_EVENT_PROPERTY, event);
 
@@ -219,9 +223,10 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher {
 		} else {
 			logger.error(result.toString());
 		}
-		//org.apache.axis.message.SOAPEnvelope envelope = new org.apache.axis.message.SOAPEnvelope();
-		//Message message = new Message()
-
+		//update the message status to sent
+		messageObject.setStatus(MessageObject.Status.SENT);
+		new MessageObjectController().updateMessage(messageObject);
+		call.setRequestMessage(reqMessage);
 	}
 
 	public UMOMessage doSend(UMOEvent event) throws Exception {

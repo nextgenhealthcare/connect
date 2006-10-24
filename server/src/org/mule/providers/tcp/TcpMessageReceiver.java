@@ -28,6 +28,7 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.URI;
+import java.util.Iterator;
 
 import javax.resource.spi.work.Work;
 import javax.resource.spi.work.WorkException;
@@ -48,6 +49,8 @@ import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.provider.UMOConnector;
 import org.mule.umo.provider.UMOMessageAdapter;
 import org.mule.providers.tcp.protocols.*;
+
+import com.webreach.mirth.server.mule.util.BatchMessageProcessor;
 import com.webreach.mirth.util.ACKGenerator;
 
 /**
@@ -61,10 +64,27 @@ import com.webreach.mirth.util.ACKGenerator;
  */
 public class TcpMessageReceiver extends AbstractMessageReceiver implements Work {
 	protected ServerSocket serverSocket = null;
-
+	private char END_MESSAGE = 0x1C;    // character indicating end of message
+	private char START_MESSAGE = 0x0B;  // first character of a new message
+	private char END_OF_RECORD = 0x0D; // character sent between messages
+	private char END_OF_SEGMENT = 0x0D; // character sent between hl7 segments (usually same as end of record)
+	
 	public TcpMessageReceiver(UMOConnector connector, UMOComponent component,
 			UMOEndpoint endpoint) throws InitialisationException {
 		super(connector, component, endpoint);
+		TcpConnector tcpConnector = (TcpConnector)connector;
+		if (tcpConnector.getCharEncoding().equals("hex")){
+			START_MESSAGE = (char)Integer.decode(tcpConnector.getMessageStart()).intValue();
+			END_MESSAGE = (char)Integer.decode(tcpConnector.getMessageEnd()).intValue();
+			END_OF_RECORD = (char)Integer.decode(tcpConnector.getRecordSeparator()).intValue();
+			END_OF_SEGMENT = (char)Integer.decode(tcpConnector.getSegmentEnd()).intValue();
+		}else{
+			//TODO: wtf? why are we getting .charAt? Check this
+			START_MESSAGE = tcpConnector.getMessageStart().charAt(0);
+			END_MESSAGE = tcpConnector.getMessageEnd().charAt(1);
+			END_OF_RECORD = tcpConnector.getRecordSeparator().charAt(2);
+			END_OF_SEGMENT = tcpConnector.getSegmentEnd().charAt(0);
+		}
 	}
 
 	public void doConnect() throws ConnectException {
@@ -270,14 +290,24 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
 		}
 
 		protected byte[] processData(byte[] data) throws Exception {
-			data = new String(data).getBytes();
-
-			UMOMessageAdapter adapter = connector.getMessageAdapter(data);
-			OutputStream os = new ResponseOutputStream(
-					socket.getOutputStream(), socket);
-			UMOMessage returnMessage = routeMessage(new MuleMessage(adapter),
-					endpoint.isSynchronous(), os);
-			generateACK(new String(data), os);
+			String str_data = new String(data);
+			BatchMessageProcessor batchProcessor = new BatchMessageProcessor();
+			batchProcessor.setEndOfMessage((byte)END_MESSAGE);
+			batchProcessor.setStartOfMessage((byte)START_MESSAGE);
+			batchProcessor.setEndOfRecord((byte)END_OF_RECORD);
+			Iterator<String> it = batchProcessor.processHL7Messages(str_data).iterator();
+			UMOMessage returnMessage = null;
+			OutputStream os;
+			while (it.hasNext()) {
+				data = (it.next()).getBytes();
+				UMOMessageAdapter adapter = connector.getMessageAdapter(data);
+				os = new ResponseOutputStream(socket.getOutputStream(), socket);
+				returnMessage = routeMessage(new MuleMessage(adapter), endpoint
+						.isSynchronous(), os);
+				generateACK(new String(data), os);
+			}
+			//The return message is always the last message routed if in a batch
+			//TODO: Check this for 1.2.1
 			if (returnMessage != null) {
 				return returnMessage.getPayloadAsBytes();
 			} else {

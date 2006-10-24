@@ -28,9 +28,8 @@ public class LlpProtocol implements TcpProtocol {
 
 	private char END_MESSAGE = 0x1C;    // character indicating end of message
 	private char START_MESSAGE = 0x0B;  // first character of a new message
-	
-	private char LAST_CHARACTER = 0x0D; // character sent between messages
-
+	private char END_OF_RECORD = 0x0D; // character sent between messages
+	private char END_OF_SEGMENT = 0x0D; // character sent between hl7 segments (usually same as end of record)
 	private TcpConnector _tcpConnector;
 	public void setTcpConnector(TcpConnector tcpConnector){
 		try{
@@ -38,11 +37,15 @@ public class LlpProtocol implements TcpProtocol {
 			if (_tcpConnector.getCharEncoding().equals("hex")){
 				START_MESSAGE = (char)Integer.decode(_tcpConnector.getMessageStart()).intValue();
 				END_MESSAGE = (char)Integer.decode(_tcpConnector.getMessageEnd()).intValue();
-				LAST_CHARACTER = (char)Integer.decode(_tcpConnector.getRecordSeparator()).intValue();
+				END_OF_RECORD = (char)Integer.decode(_tcpConnector.getRecordSeparator()).intValue();
+				END_OF_SEGMENT = (char)Integer.decode(_tcpConnector.getSegmentEnd()).intValue();
+				
 			}else{
+				//TODO: wtf? why are we getting .charAt? Check this
 				START_MESSAGE = _tcpConnector.getMessageStart().charAt(0);
 				END_MESSAGE = _tcpConnector.getMessageEnd().charAt(1);
-				LAST_CHARACTER = _tcpConnector.getRecordSeparator().charAt(2);
+				END_OF_RECORD = _tcpConnector.getRecordSeparator().charAt(2);
+				END_OF_SEGMENT = _tcpConnector.getSegmentEnd().charAt(0);
 			}
 
 		}catch (Exception e){
@@ -111,15 +114,15 @@ public class LlpProtocol implements TcpProtocol {
 
 			if (c == END_MESSAGE) {
 
-				if (LAST_CHARACTER != 0) {
+				if (END_OF_RECORD != 0) {
 					// subsequent character should be a carriage return
 					try {
 						c = myReader.read();
 						if (c >= 0) {
 	
 						}
-						if (LAST_CHARACTER != 0 && c != LAST_CHARACTER) {
-							logger.error("Message terminator was: " + c + "  Expected terminator: " + LAST_CHARACTER);
+						if (END_OF_RECORD != 0 && c != END_OF_RECORD) {
+							logger.error("Message terminator was: " + c + "  Expected terminator: " + END_OF_RECORD);
 							throw new IOException("Message " + "violates the minimal lower layer protocol: " + "message terminator not followed by a return " + "character.");
 						}
 					} catch (SocketException e) {
@@ -146,8 +149,8 @@ public class LlpProtocol implements TcpProtocol {
 		dos.writeByte(START_MESSAGE);
 		dos.write(data);
 		dos.writeByte(END_MESSAGE);
-		if (LAST_CHARACTER != 0) {
-			dos.writeByte(LAST_CHARACTER);
+		if (END_OF_RECORD != 0) {
+			dos.writeByte(END_OF_RECORD);
 		}
 		dos.flush();
 	}
