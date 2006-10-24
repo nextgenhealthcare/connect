@@ -18,8 +18,8 @@ public class WSParameter {
 	private boolean Null;
 	private int minOccurs;
 	private int maxOccurs;
-	private boolean nillable;
-	private boolean complex;
+	private boolean nillable = false;
+	private boolean complex = false;
 	private List<WSParameter> childParameters;
 	public String getName() {
 		return name;

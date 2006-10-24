@@ -196,14 +196,15 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher {
 		Call call = getCall(event, args);
 		call = new Call(((AxisConnector)connector).getServiceEndpoint());
 		Message reqMessage = new Message(((AxisConnector)connector).getSoapEnvelope());
-		call.setSOAPActionURI(((AxisConnector)connector).getSoapActionURI());
+		if (((AxisConnector)connector).getSoapActionURI() != null && ((AxisConnector)connector).getSoapActionURI().length() > 0)
+			call.setSOAPActionURI(((AxisConnector)connector).getSoapActionURI());
 		call.setTargetEndpointAddress(((AxisConnector)connector).getServiceEndpoint());
-		
+	
 		MessageObject messageObject = (MessageObject)event.getTransformedMessage();
 //		 update the message status to sent
 		messageObject.setStatus(MessageObject.Status.SENT);
 		new MessageObjectController().updateMessage(messageObject);
-		//call.setRequestMessage(reqMessage);
+		call.setRequestMessage(reqMessage);
 		// dont use invokeOneWay here as we are already in a thread pool.
 		// Axis creates a new thread for every invoke one way call. nasty!
 		// Mule overides the default Axis HttpSender to return immediately if
@@ -216,7 +217,7 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher {
 		if (result == null) {
 		
 		} else {
-			logger.debug(result.toString());
+			logger.error(result.toString());
 		}
 		//org.apache.axis.message.SOAPEnvelope envelope = new org.apache.axis.message.SOAPEnvelope();
 		//Message message = new Message()

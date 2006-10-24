@@ -13,7 +13,9 @@ import javax.wsdl.Definition;
 import javax.wsdl.Part;
 import javax.wsdl.Port;
 import javax.wsdl.Service;
+import javax.wsdl.extensions.ExtensibilityElement;
 import javax.wsdl.extensions.soap.SOAPAddress;
+import javax.wsdl.extensions.soap.SOAPBody;
 import javax.wsdl.extensions.soap.SOAPOperation;
 import javax.wsdl.xml.WSDLLocator;
 import javax.xml.namespace.QName;
@@ -109,7 +111,18 @@ public class WebServiceReader {
 						wsOperation.setSoapActionURI(soapOperation
 								.getSoapActionURI());
 						wsOperation.setName(bindingOperation.getName());
-
+						Iterator extElements = bindingOperation.getBindingInput().getExtensibilityElements().iterator();
+						String namespace = bindingOperation.getOperation().getInput().getMessage().getQName().getNamespaceURI();
+						while (extElements.hasNext()){
+							ExtensibilityElement element = (ExtensibilityElement)extElements.next();
+							if (element instanceof SOAPBody){
+								if (((SOAPBody)element).getNamespaceURI() != null && ((SOAPBody)element).getNamespaceURI().length() > 0){
+									namespace = ((SOAPBody)element).getNamespaceURI();
+									break;
+								}
+							}
+						}
+						wsOperation.setNamespace(namespace);
 						Iterator partIterator = bindingOperation.getOperation()
 								.getInput().getMessage().getParts().values()
 								.iterator();
@@ -130,10 +143,11 @@ public class WebServiceReader {
 							WSParameter wsParameter = new WSParameter();
 							wsParameter.setName(part.getName());
 							wsParameter.setType(type);
+							wsParameter.setComplex(false);
 							// If we have a schemaType, we're dealing with a
 							// complex type
 							Object schemaType = schemaTypes.get(type);
-							if (schemaTypes != null) {
+							if (schemaType != null) {
 								wsParameter
 										.setSchemaType((SchemaType) schemaType);
 								wsParameter.setComplex(true);
@@ -193,11 +207,10 @@ public class WebServiceReader {
 				// when we have no subschema, we have a simple type
 
 				parameter.getChildParameters().add(newParam);
-				System.out.println(newParam);
 				DefaultMutableTreeNode subNode = new DefaultMutableTreeNode(
 						newParam);
-
-				if (subSchema != null) {
+				newParam.setComplex(false);
+				if (subSchema != null && subSchema.isComplex()) {
 					newParam.setComplex(true);
 					buildParams(schemaTypes, newParam);
 				} else {

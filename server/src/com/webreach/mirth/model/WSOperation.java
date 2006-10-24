@@ -7,6 +7,7 @@ public class WSOperation {
 	private String name;
 	private List<WSParameter> parameters;
 	private String soapActionURI;
+	private String namespace;
 	public WSOperation() {
 		this.parameters = new ArrayList<WSParameter>();
 	}
@@ -33,5 +34,13 @@ public class WSOperation {
 
 	public void setSoapActionURI(String soapActionURI) {
 		this.soapActionURI = soapActionURI;
+	}
+
+	public String getNamespace() {
+		return namespace;
+	}
+
+	public void setNamespace(String namespace) {
+		this.namespace = namespace;
 	}
 }
