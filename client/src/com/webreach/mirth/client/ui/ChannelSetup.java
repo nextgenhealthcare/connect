@@ -2254,7 +2254,12 @@ public class ChannelSetup extends javax.swing.JPanel
         while (propertyKeys.hasMoreElements())
         {
             String key = (String) propertyKeys.nextElement();
-            if (!p1.getProperty(key).equals(p2.getProperty(key)))
+            if (p1.getProperty(key) == null)
+            {
+                if (p2.getProperty(key) != null)
+                    return false;
+            }
+            else if (!p1.getProperty(key).equals(p2.getProperty(key)))
                 return false;
         }
         return true;

@@ -134,10 +134,12 @@ public class SOAPSender extends ConnectorClass
         properties.put(DATATYPE, name);
         properties.put(SOAP_URL, "");
         properties.put(SOAP_SERVICE_ENDPOINT, "");
-        properties.put(SOAP_ENVELOPE, "");
-        properties.put(SOAP_METHOD, "");
-        properties.put(SOAP_ACTION_URI, "");
+        properties.put(SOAP_METHOD, SOAP_DEFAULT_DROPDOWN);
         properties.put(SOAP_PARAMETERS, new ArrayList<WSParameter>());
+        properties.put(SOAP_HOST, buildHost());
+        properties.put(SOAP_ENVELOPE, "");
+        properties.put(SOAP_ACTION_URI, "");
+        
         return properties;
     }
     
@@ -145,7 +147,8 @@ public class SOAPSender extends ConnectorClass
     {
         if(!((String)props.getProperty(SOAP_METHOD)).equals(SOAP_DEFAULT_DROPDOWN) && 
                 ((String)props.getProperty(SOAP_URL)).length() > 0 &&
-                ((String)props.getProperty(SOAP_SERVICE_ENDPOINT)).length() > 0)
+                ((String)props.getProperty(SOAP_SERVICE_ENDPOINT)).length() > 0 &&
+                ((String)props.getProperty(SOAP_ENVELOPE)).length() > 0)
             return true;
         return false;
     }
