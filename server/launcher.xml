@@ -16,6 +16,6 @@
 		<lib path="lib/xstream-1.1.3.jar" />
 		<lib path="lib/jetty" />
 		<lib path="lib/mule" />
-		<lib path="lib/dbdrivers" />
+		<lib path="lib/custom" />
 	</classpath>
 </launcher>
