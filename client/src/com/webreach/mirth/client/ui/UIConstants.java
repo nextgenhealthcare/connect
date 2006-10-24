@@ -75,13 +75,15 @@ public class UIConstants
     public static final Font DIALOG_FONT = new Font("Dialog", Font.PLAIN, 12);
 
     // help link
-    public static final String HELP_LOCATION = "http://www.mirthproject.org/help/";
-    public static final String CHANNEL_HELP_LOCATION = "channel_editor.html";
-    public static final String TRANFORMER_HELP_LOCATION = "transformer_editor.html";
-    public static final String FILTER_HELP_LOCATION = "filter_editor.html";
-    public static final String CHANNELS_HELP_LOCATION = "channel_list.html";
-    public static final String STATUS_HELP_LOCATION = "status_list.html";
-    public static final String ADMIN_HELP_LOCATION = "administration.html";
+    public static final String HELP_LOCATION = "http://www.mirthproject.org/index.php?option=com_jd-wiki&Itemid=44&id=";
+    public static final String CHANNEL_HELP_LOCATION = "channeleditor";
+    public static final String TRANFORMER_HELP_LOCATION = "transformereditor";
+    public static final String FILTER_HELP_LOCATION = "filtereditor";
+    public static final String CHANNELS_HELP_LOCATION = "channellist";
+    public static final String STATUS_HELP_LOCATION = "statuslist";
+    public static final String MESSAGE_BROWSER_HELP_LOCATION = "messagebrowser";
+    public static final String SYSTEM_EVENT_HELP_LOCATION = "systemevents";
+    public static final String ADMIN_HELP_LOCATION = "administration";
 
     // for JTrees
     public static final ImageIcon LEAF_ICON = new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_green.png"));

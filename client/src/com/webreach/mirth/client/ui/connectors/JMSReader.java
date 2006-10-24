@@ -155,7 +155,7 @@ public class JMSReader extends ConnectorClass
         properties.put(JMS_USERNAME, "");
         properties.put(JMS_PASSWORD, "");
         properties.put(JMS_CONNECTION_FACTORY, "org.mule.proivders.jms.JmsMessageReceiver");
-        properties.put(JMS_MAX_REDELIVERY, "50");
+        properties.put(JMS_MAX_REDELIVERY, "0");
         properties.put(JMS_RECOVER_CONNECTIONS, UIConstants.NO_OPTION);
         return properties;
     }
