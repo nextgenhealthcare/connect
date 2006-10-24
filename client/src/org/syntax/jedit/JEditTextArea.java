@@ -916,8 +916,8 @@ public class JEditTextArea extends JComponent {
 		try {
 			document.beginCompoundEdit();
 			document.remove(0, document.getLength());
-			if (text != null)
-				text = text.replace('\r', '\n'); // FIXME(newline) Find
+			//if (text != null)
+		//		text = text.replace('\r', '\n'); // FIXME(newline) Find
 													// better solution for
 													// fixing newlines
 			document.insertString(0, text, null);

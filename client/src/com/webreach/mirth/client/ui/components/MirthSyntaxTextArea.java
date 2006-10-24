@@ -229,7 +229,7 @@ public class MirthSyntaxTextArea extends JEditTextArea implements
 
 		parent.disableSave();
 	}
-
+/*
 	public String getText() {
 		StringBuffer sb = new StringBuffer();
 		// Get paragraph element
@@ -261,7 +261,7 @@ public class MirthSyntaxTextArea extends JEditTextArea implements
 		return retval;
 
 	}
-
+*/
 	public void replaceSelection(String text) {
 		setSelectedText(text);
 

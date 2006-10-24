@@ -21,12 +21,17 @@ import com.l2fprod.common.model.DefaultBeanInfoResolver;
 import com.l2fprod.common.propertysheet.Property;
 import com.l2fprod.common.propertysheet.PropertySheetPanel;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.BeanInfo;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyVetoException;
 
+import javax.swing.JTree;
 import javax.swing.UIManager;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
 
 /**
  * Binds a bean object to a PropertySheet.
@@ -39,18 +44,18 @@ public class BeanBinder {
 
 	private final PropertySheetPanel sheet;
 
-	private final PropertyChangeListener listener;
-
+	private PropertyChangeListener listener = null;
+	private ActionListener updateListener;
 	private boolean writeEnabled;
 
-	public BeanBinder(Object bean, PropertySheetPanel sheet) {
-		this(bean, sheet, new DefaultBeanInfoResolver().getBeanInfo(bean));
+	public BeanBinder(Object bean, PropertySheetPanel sheet, ActionListener updateListener) {
+		this(bean, sheet, new DefaultBeanInfoResolver().getBeanInfo(bean), updateListener);
 	}
 
-	public BeanBinder(Object bean, PropertySheetPanel sheet, BeanInfo beanInfo) {
+	public BeanBinder(Object bean, PropertySheetPanel sheet, BeanInfo beanInfo, ActionListener updateListener) {
 		this.bean = bean;
 		this.sheet = sheet;
-
+		this.updateListener = updateListener;
 		sheet.setProperties(beanInfo.getPropertyDescriptors());
 		sheet.readFromObject(bean);
 
@@ -59,8 +64,10 @@ public class BeanBinder {
 			public void propertyChange(PropertyChangeEvent evt) {
 				if (writeEnabled){
 					Property prop = (Property) evt.getSource();
+				
 					try {
 						prop.writeToObject(BeanBinder.this.bean);
+						BeanBinder.this.updateListener.actionPerformed(new ActionEvent(evt,0,""));
 					} catch (RuntimeException e) {
 						// handle PropertyVetoException and restore previous
 						// value
@@ -73,12 +80,15 @@ public class BeanBinder {
 				}
 			}
 		};
+		
 		sheet.addPropertySheetChangeListener(listener);
 	}
 
 	public void unbind() {
 		sheet.removePropertyChangeListener(listener);
 		sheet.setProperties(new Property[0]);
+		
+		
 	}
 
 	public boolean isWriteEnabled() {
