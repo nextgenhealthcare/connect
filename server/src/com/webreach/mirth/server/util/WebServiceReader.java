@@ -141,7 +141,7 @@ public class WebServiceReader {
 							}
 							wsOperation.getParameters().add(wsParameter);
 						}
-						wsDefinition.getOperations().add(wsOperation);
+						wsDefinition.getOperations().put(wsOperation.getName(),wsOperation);
 					}
 				}
 			}
