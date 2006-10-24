@@ -355,7 +355,7 @@ public class MuleConfigurationBuilder {
 			// TODO: (maybe) create a ConnectorProperty object that has
 			// name, value, and isMuleProperty attribute
 			// then only add the properties that have isMuleProperty set to true
-			Properties connectorProperties = connector.getProperties();
+			Map connectorProperties = connector.getProperties();
 			Element propertiesElement = document.createElement("properties");
 			Element mapElement = document.createElement("map");
 			mapElement.setAttribute("name", "queries");
@@ -467,22 +467,22 @@ public class MuleConfigurationBuilder {
 	// The format is: protocol://host|hostname|emtpy:port
 	private String getEndpointUri(Connector connector) {
 		//TODO: This is a hack.
-		if (connector.getProperties().getProperty("host") != null && connector.getProperties().getProperty("host").startsWith("axis:http")){
-			return connector.getProperties().getProperty("host");
+		if (connector.getProperties().get("host") != null && connector.getProperties().get("host").toString().startsWith("axis:http")){
+			return connector.getProperties().get("host").toString();
 		}
 		StringBuilder builder = new StringBuilder();
 		builder.append(transports.get(connector.getTransportName()).getProtocol());
 		builder.append("://");
 
-		if (connector.getProperties().getProperty("host") != null) {
-			builder.append(connector.getProperties().getProperty("host"));
-		} else if (connector.getProperties().getProperty("hostname") != null) {
-			builder.append(connector.getProperties().getProperty("hostname"));
+		if (connector.getProperties().get("host") != null) {
+			builder.append(connector.getProperties().get("host").toString());
+		} else if (connector.getProperties().get("hostname") != null) {
+			builder.append(connector.getProperties().get("hostname").toString());
 		}
 
-		if (connector.getProperties().getProperty("port") != null) {
+		if (connector.getProperties().get("port") != null) {
 			builder.append(":");
-			builder.append(connector.getProperties().getProperty("port"));
+			builder.append(connector.getProperties().get("port").toString());
 		}
 
 		return builder.toString();
