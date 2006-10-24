@@ -34,6 +34,7 @@ import com.webreach.mirth.client.ui.components.MirthTable;
 import com.webreach.mirth.model.WSDefinition;
 import com.webreach.mirth.model.WSOperation;
 import com.webreach.mirth.model.WSParameter;
+import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import java.util.Iterator;
 import java.util.ArrayList;
 import java.util.List;
@@ -69,6 +70,7 @@ public class SOAPSender extends ConnectorClass
     public final String VALUE_COLUMN_NAME = "Value";
     Frame parent;
     WSDefinition definition = new WSDefinition();
+    ObjectXMLSerializer serializer = new ObjectXMLSerializer();
     private BeanBinder beanBinder;
     private DefaultMutableTreeNode currentNode;
     
@@ -105,7 +107,7 @@ public class SOAPSender extends ConnectorClass
         properties.put(SOAP_METHOD, (String)method.getSelectedItem());
         if (definition == null)
         	definition = new WSDefinition();
-        properties.put(SOAP_DEFINITION, definition);//getParameters());
+        properties.put(SOAP_DEFINITION, (String)serializer.toXML(definition));//getParameters());
         properties.put(SOAP_HOST, buildHost());
         properties.put(SOAP_ENVELOPE, soapEnvelope.getText());
         properties.put(SOAP_ACTION_URI, soapActionURI.getText());
@@ -113,8 +115,8 @@ public class SOAPSender extends ConnectorClass
     }
 
     public void setProperties(Properties props)
-    {
-        definition = (WSDefinition)props.getProperty(SOAP_DEFINITION);
+    {        
+        definition = (WSDefinition)(serializer.fromXML(props.getProperty(SOAP_DEFINITION)));
         
         wsdlUrl.setText((String)props.get(SOAP_URL));
         serviceEndpoint.setText((String)props.get(SOAP_SERVICE_ENDPOINT));
@@ -126,7 +128,7 @@ public class SOAPSender extends ConnectorClass
         }
         
         if(props.get(SOAP_DEFINITION) != null){
-        	WSOperation operation = ((WSDefinition) props.get(SOAP_DEFINITION)).getOperation((String)props.getProperty(SOAP_METHOD));
+        	WSOperation operation = ((WSDefinition) serializer.fromXML((String)props.get(SOAP_DEFINITION))).getOperation((String)props.getProperty(SOAP_METHOD));
         	if (operation != null)
         		setupTable(operation.getParameters());
             
@@ -142,7 +144,7 @@ public class SOAPSender extends ConnectorClass
         properties.put(SOAP_URL, "");
         properties.put(SOAP_SERVICE_ENDPOINT, "");
         properties.put(SOAP_METHOD, SOAP_DEFAULT_DROPDOWN);
-        properties.put(SOAP_DEFINITION, new WSDefinition());
+        properties.put(SOAP_DEFINITION, (String)serializer.toXML(new WSDefinition()));
         properties.put(SOAP_HOST, buildHost());
         properties.put(SOAP_ENVELOPE, "");
         properties.put(SOAP_ACTION_URI, "");
