@@ -2243,7 +2243,9 @@ public class ChannelSetup extends javax.swing.JPanel
             String key = (String) propertyKeys.nextElement();
             if (properties.getProperty(key) == null)
             {
-                properties.put(key, propertiesDefaults.getProperty(key));
+            	System.out.println(key);
+            	if ( propertiesDefaults.getProperty(key)!= null)
+            		properties.put(key, propertiesDefaults.getProperty(key));
             }
         }
     }

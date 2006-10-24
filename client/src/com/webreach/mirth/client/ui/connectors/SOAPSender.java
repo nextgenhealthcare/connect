@@ -32,6 +32,7 @@ import com.l2fprod.common.propertysheet.PropertySheetPanel;
 import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.ui.components.MirthTable;
 import com.webreach.mirth.model.WSDefinition;
+import com.webreach.mirth.model.WSOperation;
 import com.webreach.mirth.model.WSParameter;
 import java.util.Iterator;
 import java.util.ArrayList;
@@ -67,7 +68,7 @@ public class SOAPSender extends ConnectorClass
     public final String TYPE_COLUMN_NAME = "Type";
     public final String VALUE_COLUMN_NAME = "Value";
     Frame parent;
-    WSDefinition definition;
+    WSDefinition definition = new WSDefinition();
     private BeanBinder beanBinder;
     private DefaultMutableTreeNode currentNode;
     
@@ -79,7 +80,7 @@ public class SOAPSender extends ConnectorClass
     public final String SOAP_SERVICE_ENDPOINT = "serviceEndpoint";
     public final String SOAP_URL = "wsdlUrl";
     public final String SOAP_METHOD = "method";
-    public final String SOAP_PARAMETERS = "parameters";
+    public final String SOAP_DEFINITION = "definition";
     public final String SOAP_DEFAULT_DROPDOWN = "Press Get Methods";
     public final String SOAP_ENVELOPE = "soapEnvelope";
     public final String SOAP_ACTION_URI = "soapActionURI";
@@ -102,7 +103,9 @@ public class SOAPSender extends ConnectorClass
         properties.put(SOAP_URL, wsdlUrl.getText());
         properties.put(SOAP_SERVICE_ENDPOINT, serviceEndpoint.getText());
         properties.put(SOAP_METHOD, (String)method.getSelectedItem());
-        properties.put(SOAP_PARAMETERS, new ArrayList());//getParameters());
+        if (definition == null)
+        	definition = new WSDefinition();
+        properties.put(SOAP_DEFINITION, definition);//getParameters());
         properties.put(SOAP_HOST, buildHost());
         properties.put(SOAP_ENVELOPE, soapEnvelope.getText());
         properties.put(SOAP_ACTION_URI, soapActionURI.getText());
@@ -111,7 +114,7 @@ public class SOAPSender extends ConnectorClass
 
     public void setProperties(Properties props)
     {
-        definition = null;
+        definition = (WSDefinition)props.getProperty(SOAP_DEFINITION);
         
         wsdlUrl.setText((String)props.get(SOAP_URL));
         serviceEndpoint.setText((String)props.get(SOAP_SERVICE_ENDPOINT));
@@ -122,8 +125,12 @@ public class SOAPSender extends ConnectorClass
             method.setModel(new javax.swing.DefaultComboBoxModel(new String[] { (String)props.getProperty(SOAP_METHOD) }));
         }
         
-        if(props.get(SOAP_PARAMETERS) != null)
-            setupTable((ArrayList<WSParameter>) props.get(SOAP_PARAMETERS));
+        if(props.get(SOAP_DEFINITION) != null){
+        	WSOperation operation = ((WSDefinition) props.get(SOAP_DEFINITION)).getOperation((String)props.getProperty(SOAP_METHOD));
+        	if (operation != null)
+        		setupTable(operation.getParameters());
+            
+        }
         else
             setupTable(new ArrayList<WSParameter>());
     }
@@ -135,7 +142,7 @@ public class SOAPSender extends ConnectorClass
         properties.put(SOAP_URL, "");
         properties.put(SOAP_SERVICE_ENDPOINT, "");
         properties.put(SOAP_METHOD, SOAP_DEFAULT_DROPDOWN);
-        properties.put(SOAP_PARAMETERS, new ArrayList<WSParameter>());
+        properties.put(SOAP_DEFINITION, new WSDefinition());
         properties.put(SOAP_HOST, buildHost());
         properties.put(SOAP_ENVELOPE, "");
         properties.put(SOAP_ACTION_URI, "");
@@ -423,17 +430,18 @@ public class SOAPSender extends ConnectorClass
         {
             definition = parent.mirthClient.getWebServiceDefinition(wsdlUrl.getText().trim());
             String[] methodNames = new String[definition.getOperations().size()];
+            Iterator<WSOperation> opIterator = definition.getOperations().values().iterator();
             for (int i = 0; i < definition.getOperations().size(); i++)
             {
-                methodNames[i] = definition.getOperations().get(i).getName();
+                methodNames[i] = opIterator.next().getName();
             }
 
             method.setModel(new javax.swing.DefaultComboBoxModel(methodNames));
 
             method.setSelectedIndex(0);
             serviceEndpoint.setText(definition.getServiceEndpointURI());
-            soapActionURI.setText(definition.getOperations().get(method.getSelectedIndex()).getSoapActionURI());
-            setupTable( definition.getOperations().get(0).getParameters() ); 
+            soapActionURI.setText(definition.getOperations().get(method.getSelectedItem()).getSoapActionURI());
+            setupTable( definition.getOperations().get(method.getSelectedItem()).getParameters() ); 
         }
         catch(ClientException e)
         {
