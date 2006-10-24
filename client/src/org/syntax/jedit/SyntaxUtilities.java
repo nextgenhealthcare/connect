@@ -125,7 +125,7 @@ public class SyntaxUtilities
 		}else{
 			Color maroon = new Color(0xB03060);
 			Color darkBlue = new Color(0x000080);
-			Color darkGreen = Color.GREEN.darker();
+			Color darkGreen = Color.GREEN.darker().darker();
 			Color darkPurple = new Color(0xA020F0).darker();
 			Color darkRed = Color.red.darker();
 			
