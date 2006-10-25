@@ -51,6 +51,7 @@
 			<include name="com/webreach/mirth/client/core/**" />
 			<include name="com/webreach/mirth/model/**" />
 			<include name="com/webreach/mirth/util/**" />
+			<include name="com/thoughtworks/xstream/converters/collections/**" />
 		</jar>
 	</target>
 
