@@ -8,6 +8,7 @@ import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 import org.mule.extras.client.MuleClient;
@@ -78,7 +79,16 @@ public class MessageObjectController {
 				parameters.add(messageObject.getTransformedDataProtocol());
 				parameters.add(encodedData);
 				parameters.add(messageObject.getEncodedDataProtocol());
-				parameters.add(serializer.toXML(messageObject.getVariableMap()));
+
+				// convert the values in the variable map to strings
+				Map variableMap = messageObject.getVariableMap();
+				
+				for (Iterator iter = variableMap.entrySet().iterator(); iter.hasNext();) {
+					Entry entry = (Entry) iter.next();
+					entry.setValue(entry.getValue().toString());
+				}
+				
+				parameters.add(serializer.toXML(variableMap));
 				parameters.add(messageObject.getConnectorName());
 				parameters.add(messageObject.getErrors());
 			} else {
