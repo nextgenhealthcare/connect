@@ -273,9 +273,8 @@ public class MuleConfigurationBuilder {
 
 				routerElement.appendChild(endpointElement);
 			}
-
-			// transaction support
-			boolean transactional = ((channel.getProperties().get("transactional") != null) && channel.getProperties().get("transactional").toString().equals("1"));
+//			 transaction support
+			boolean transactional = ((channel.getProperties().get("transactional") != null) && channel.getProperties().get("transactional").toString().equals("true"));
 
 			if (transactional) {
 				// transports.get(connector.getTransportName()).getProtocol();
@@ -292,7 +291,7 @@ public class MuleConfigurationBuilder {
 				transactionElement.setAttribute("factory", factory);
 				routerElement.appendChild(transactionElement);
 			}
-
+			
 			outboundRouterElement.appendChild(routerElement);
 			return outboundRouterElement;
 		} catch (Exception e) {
