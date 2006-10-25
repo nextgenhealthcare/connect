@@ -40,7 +40,7 @@ import com.webreach.mirth.model.Step;
  * A panel that contains the MirthVariableList.
  */
 public class VariableList extends javax.swing.JPanel
-{	private final String VAR_PATTERN = "[glob|loc]alMap.put\\(['|\"]([^'|^\"]*)[\"|']\\)";
+{	private final String VAR_PATTERN = "[glob|loc]alMap.put\\(['|\"]([^'|^\"]*)[\"|']";
     /** Creates new form VariableList */
     public VariableList()
     {
@@ -58,12 +58,13 @@ public class VariableList extends javax.swing.JPanel
         variables.add("Raw Data");
         variables.add("Transformed Data");
         variables.add("Encoded Data");
-        variables.add("DATE");
-        variables.add("DATE:yy-MM-dd");
-        variables.add("SYSTIME");
-        variables.add("UUID");
-        variables.add("ORIGINALNAME");
-        variables.add("COUNT");
+        variables.add("Message ID");
+        variables.add("Date");
+        variables.add("Formatted Date");
+        variables.add("Timestamp");
+        variables.add("Unique ID");
+        variables.add("Original File");
+        variables.add("Count");
         
         for (Iterator it = steps.iterator(); it.hasNext();)
         {

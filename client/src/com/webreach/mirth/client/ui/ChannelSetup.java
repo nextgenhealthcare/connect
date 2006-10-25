@@ -1949,7 +1949,7 @@ public class ChannelSetup extends javax.swing.JPanel
     
     private List<Step> getMultipleDestinationSteps(Connector currentDestination)
     {
-        final String VAR_PATTERN = "globalMap.put\\(['|\"]([^'|^\"]*)[\"|']\\)";
+        final String VAR_PATTERN = "globalMap.put\\(['|\"]([^'|^\"]*)[\"|']";
         
         List<Step> concatenatedSteps = new ArrayList<Step>();
         List<Connector> destinationConnectors = currentChannel
