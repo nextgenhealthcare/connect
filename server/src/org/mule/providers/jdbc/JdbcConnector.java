@@ -361,7 +361,7 @@ public class JdbcConnector extends AbstractServiceEnabledConnector
         if (tx != null) {
             if (tx.hasResource(URL)) {
                 logger.debug("Retrieving connection from current transaction");
-                return (Connection) tx.getResource(dataSource);
+                return (Connection) tx.getResource(URL);
             }
         }
         Connection con;

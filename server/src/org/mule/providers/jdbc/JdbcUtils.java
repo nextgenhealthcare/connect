@@ -16,7 +16,9 @@ package org.mule.providers.jdbc;
 import org.apache.commons.beanutils.BeanUtils;
 import org.dom4j.Node;
 import org.dom4j.io.DOMReader;
+import org.mule.providers.TemplateValueReplacer;
 import org.mule.umo.endpoint.UMOEndpointURI;
+import org.mule.util.TemplateParser;
 
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.mule.util.GlobalVariableStore;
@@ -100,6 +102,10 @@ public abstract class JdbcUtils
 			if ("NOW".equalsIgnoreCase(name)) {
 				value = new Timestamp(Calendar.getInstance().getTimeInMillis());
 			} else if (root instanceof MessageObject){
+				TemplateValueReplacer parser = new TemplateValueReplacer();
+				value = parser.replaceValues(param, (MessageObject)root, "");
+				/*
+				value = parser.
 				//If we have a hashmap cast our root object to a HashMap
 				Map valueMap = ((MessageObject) root).getVariableMap();
 				
@@ -114,6 +120,7 @@ public abstract class JdbcUtils
 				}catch (Exception ignored){
 					value = null;
 				}
+				*/
 			}else if (root instanceof org.w3c.dom.Document) {
 				
 				
