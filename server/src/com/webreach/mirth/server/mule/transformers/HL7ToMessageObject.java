@@ -30,18 +30,24 @@ public class HL7ToMessageObject extends AbstractTransformer {
 		MessageObject messageObject = new MessageObject();
 		messageObject.setRawData(rawData);
 		messageObject.setRawDataProtocol(MessageObject.Protocol.HL7);
-
-		try {
-			messageObject.setVersion(hapiSerializer.deserialize(rawData).getVersion());
-			messageObject.setTransformedData(sanitize(xmlSerializer.toXML(rawData)));
-		} catch (SerializerException e) {
-			logger.warn("error transforming message", e);
-			messageObject.setErrors(stackTracePrinter.stackTraceToString(e));
+		if (rawData.startsWith("<?xml")){
+			//messageObject.setTransformedData(rawData);
+			//messageObject.setTransformedDataProtocol(MessageObject.Protocol.XML);
+			messageObject.setEncodedDataProtocol(MessageObject.Protocol.HL7);
+			messageObject.setStatus(MessageObject.Status.RECEIVED);
+		}else{
+			try {
+				messageObject.setVersion(hapiSerializer.deserialize(rawData).getVersion());
+				messageObject.setTransformedData(sanitize(xmlSerializer.toXML(rawData)));
+			} catch (SerializerException e) {
+				logger.warn("error transforming message", e);
+				messageObject.setErrors(stackTracePrinter.stackTraceToString(e));
+			}
+			messageObject.setTransformedDataProtocol(MessageObject.Protocol.XML);
+			messageObject.setEncodedDataProtocol(MessageObject.Protocol.HL7);
+			messageObject.setStatus(MessageObject.Status.RECEIVED);
 		}
 
-		messageObject.setTransformedDataProtocol(MessageObject.Protocol.XML);
-		messageObject.setEncodedDataProtocol(MessageObject.Protocol.HL7);
-		messageObject.setStatus(MessageObject.Status.RECEIVED);
 		return messageObject;
 	}
 

@@ -192,6 +192,9 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher {
 	}
 
 	public void doDispatch(UMOEvent event) throws Exception {
+		invokeWebService(event);
+	}
+	private Object[] invokeWebService(UMOEvent event) throws Exception{
 		AxisProperties.setProperty("axis.doAutoTypes", "true");
 		Object[] args = new Object[0];//getArgs(event);
 		Call call = getCall(event, args);
@@ -213,7 +216,7 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher {
 		// the axis.one.way property is set
 		//Change this to TRUE before we deploy
 		//TODO: LOOK ABOVE!!
-		call.setProperty("axis.one.way", Boolean.FALSE);
+		call.setProperty("axis.one.way", Boolean.TRUE);
 		call.setProperty(MuleProperties.MULE_EVENT_PROPERTY, event);
 
 		//call.invoke(args);
@@ -226,21 +229,20 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher {
 		//update the message status to sent
 		messageObject.setStatus(MessageObject.Status.SENT);
 		new MessageObjectController().updateMessage(messageObject);
-		call.setRequestMessage(reqMessage);
+		Object[] retVal = new Object[2];
+		retVal[0] = result;
+		retVal[1] = call.getMessageContext();
+		return retVal;
 	}
-
 	public UMOMessage doSend(UMOEvent event) throws Exception {
-		AxisProperties.setProperty("axis.doAutoTypes", "true");
-		Object[] args = getArgs(event);
-		Call call = getCall(event, args);
-
-		Object result = call.invoke(args);
+		Object[] results = invokeWebService(event);
+		Object result = results[0];
 		if (result == null) {
 			return null;
 		} else {
 			UMOMessage resultMessage = new MuleMessage(result, event
 					.getProperties());
-			setMessageContextProperties(resultMessage, call.getMessageContext());
+			setMessageContextProperties(resultMessage, (MessageContext)results[1]);
 			return resultMessage;
 		}
 	}

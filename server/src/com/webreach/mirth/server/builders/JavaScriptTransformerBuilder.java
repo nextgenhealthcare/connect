@@ -16,8 +16,10 @@ public class JavaScriptTransformerBuilder {
 		StringBuilder builder = new StringBuilder();
 
 		// if the channel is outbound, add the template to the transformer
-		if (channel.getDirection().equals(Channel.Direction.OUTBOUND) && (transformer.getTemplate() != null)) {
+		if (channel.getDirection().equals(Channel.Direction.OUTBOUND) && (transformer.getTemplate() != null) && (transformer.getTemplate().length() > 0)) {
 			builder.append("var template = new XML('" + transformer.getTemplate() + "');");
+		}else if (channel.getDirection().equals(Channel.Direction.OUTBOUND) && ((transformer.getTemplate() == null) || (transformer.getTemplate().length() == 0))){
+			builder.append("var template = '';");
 		}
 
 		for (Iterator iter = transformer.getSteps().iterator(); iter.hasNext();) {

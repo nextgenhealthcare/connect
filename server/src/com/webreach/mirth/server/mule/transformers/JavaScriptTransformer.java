@@ -9,6 +9,7 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ImporterTopLevel;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.UniqueTag;
 import org.mule.transformers.AbstractTransformer;
 import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.transformer.TransformerException;
@@ -297,10 +298,17 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			// since the transformations occur on the template, pull it out of
 			// the scope
 			Object transformedData = scope.get("template", scope);
-			// set the transformedData to the template
-			messageObject.setTransformedData(Context.toString(transformedData));
-			// re-encode the data to ER7
-			if ((messageObject.getTransformedData() != null) && messageObject.getEncodedDataProtocol().equals(MessageObject.Protocol.HL7)) {
+			if (transformedData instanceof UniqueTag){
+				UniqueTag tag = (UniqueTag)transformedData;
+				if (tag.equals(tag.NOT_FOUND)){
+					
+				}
+			}else{
+				// set the transformedData to the template
+				messageObject.setTransformedData(Context.toString(transformedData));
+			}
+			// re-encode the data to ER7, but check to make sure we have a template
+			if ((messageObject.getTransformedData() != null) && (messageObject.getTransformedData().length() > 0) && messageObject.getEncodedDataProtocol().equals(MessageObject.Protocol.HL7)) {
 				ER7Serializer serializer = new ER7Serializer();
 				messageObject.setEncodedData(serializer.toXML(messageObject.getTransformedData()));
 			}
