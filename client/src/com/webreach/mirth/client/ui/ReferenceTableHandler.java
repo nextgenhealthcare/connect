@@ -48,7 +48,7 @@ public class ReferenceTableHandler extends TransferHandler {
 				text = (String)reftable.getModel().getValueAt(reftable.getSelectedRow(), 0);
 			else text = "";
 			
-			return new VariableTransferable( text, "msg['", "']" );
+			return new VariableTransferable( text, "msg['", "'].toString()" );
 		}
 		catch ( ClassCastException cce ) {
 			return null;

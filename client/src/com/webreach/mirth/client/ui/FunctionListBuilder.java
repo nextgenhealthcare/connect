@@ -17,7 +17,7 @@ public class FunctionListBuilder {
 						"globalMap.get('')",CodeSnippetType.VARIABLE));
 		variablelistItems.add(new FunctionListItem("Incoming Message",
 				"The original incoming ER7 or XML string as received.",
-				"message",CodeSnippetType.VARIABLE));
+				"rawData",CodeSnippetType.VARIABLE));
 		variablelistItems.add(new FunctionListItem("Incoming Message (XML)",
 				"The original incoming ER7 or XML string as XML.", "msg['']",CodeSnippetType.VARIABLE));
 		variablelistItems.add(new FunctionListItem("Log an Info Statement",
@@ -26,6 +26,9 @@ public class FunctionListBuilder {
 		variablelistItems.add(new FunctionListItem("Log an Error Statement",
 				"Outputs the message to the system error log.",
 				"logger.error('message');",CodeSnippetType.FUNCTION));
+		variablelistItems.add(new FunctionListItem("Message Version",
+				"The HL7 or EDI message version",
+				"version",CodeSnippetType.VARIABLE));
 		variablelistItems
 				.add(new FunctionListItem(
 						"Send an Email",
@@ -43,10 +46,13 @@ public class FunctionListBuilder {
 						"var dbConn = DatabaseConnectionFactory.createDatabaseConnection('driver', 'address', 'username', 'password');\nvar result = dbConn.executeUpdate('expression');\ndbConn.close();",CodeSnippetType.FUNCTION));
 		variablelistItems.add(new FunctionListItem("Convert to HL7-XML",
 				"Converts an ER7 encoded HL7 string to XML",
-				"er7util.ConvertToXML(message);",CodeSnippetType.FUNCTION));
+				"er7Serializer.toXML(message);",CodeSnippetType.FUNCTION));
 		variablelistItems.add(new FunctionListItem("Convert to HL7-ER7",
 				"Converts an XML encoded HL7 string to ER7",
-				"er7util.ConvertToER7(message);",CodeSnippetType.FUNCTION));
+				"er7Serializer.fromXML(message);",CodeSnippetType.FUNCTION));
+		variablelistItems.add(new FunctionListItem("Use JAVA Class",
+				"Access any Java class in the current classpath",
+				"var object = Packages.[fully-qualified name];",CodeSnippetType.FUNCTION));
 		/*Removed due to HL7 versioning issues
 		variablelistItems.add(new FunctionListItem("Get Message Version",
 				"Extracts the HL7 message version as a numeric value",

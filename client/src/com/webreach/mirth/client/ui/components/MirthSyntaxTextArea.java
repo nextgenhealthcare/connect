@@ -207,6 +207,7 @@ public class MirthSyntaxTextArea extends JEditTextArea implements
 		super.setDocument(doc);
 		this.getDocument().addDocumentListener(new DocumentListener() {
 			public void changedUpdate(DocumentEvent e) {
+				parent.enableSave();
 			}
 
 			public void removeUpdate(DocumentEvent e) {
@@ -225,12 +226,16 @@ public class MirthSyntaxTextArea extends JEditTextArea implements
 	 * Mirth sets the text of a field.
 	 */
 	public void setText(String t) {
+		//if (t != null)
+		//	t = t.replaceAll("\r", "\n");
 		super.setText(t);
 
 		parent.disableSave();
 	}
-/*
+
 	public String getText() {
+		return super.getText();
+		/*
 		StringBuffer sb = new StringBuffer();
 		// Get paragraph element
 		Element paragraph = getDocument().getDefaultRootElement();
@@ -247,8 +252,8 @@ public class MirthSyntaxTextArea extends JEditTextArea implements
 			int rangeEnd = e.getEndOffset();
 			try {
 				String text = getText(rangeStart, rangeEnd - rangeStart);
-				sb.append(text.replaceAll("\\n", ""));
-				sb.append("\r");
+				sb.append(text.replaceAll("\\n", "").replaceAll("\\r", ""));
+				sb.append(System.getProperty("line.separator"));
 
 			} catch (Exception ex) {
 			}
@@ -259,9 +264,9 @@ public class MirthSyntaxTextArea extends JEditTextArea implements
 			retval = retval.substring(0, retval.length() - 1);
 		}
 		return retval;
-
-	}
 */
+	}
+
 	public void replaceSelection(String text) {
 		setSelectedText(text);
 

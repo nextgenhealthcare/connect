@@ -53,6 +53,7 @@ public class JavaScriptTokenMarker extends CTokenMarker
 			//TODO: Figure out a consistent coloring scheme
 			javaScriptKeywords.add("msg",Token.KEYWORD1);
 			javaScriptKeywords.add("message",Token.KEYWORD1);
+			javaScriptKeywords.add("version",Token.KEYWORD1);
 			javaScriptKeywords.add("hl7_xml",Token.KEYWORD1);
 			javaScriptKeywords.add("localMap",Token.KEYWORD1);
 			javaScriptKeywords.add("globalMap",Token.KEYWORD1);
@@ -370,6 +371,8 @@ public class JavaScriptTokenMarker extends CTokenMarker
 			javaScriptKeywords.add("VTQ", Token.KEYWORD3);
 
 			javaScriptKeywords.add("ZL7", Token.KEYWORD3);
+			javaScriptKeywords.add("ZCS", Token.KEYWORD3);
+			javaScriptKeywords.add("ZFT", Token.KEYWORD3);
 			/*
 			javaScriptKeywords.add("send",Token.KEYWORD1);
 			javaScriptKeywords.add("info",Token.KEYWORD1);

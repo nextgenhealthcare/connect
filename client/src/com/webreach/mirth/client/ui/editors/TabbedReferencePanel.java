@@ -112,12 +112,14 @@ public class TabbedReferencePanel extends JPanel
     
     public String getHL7Message()
     {
-        return pasteBox.getText();
+        return pasteBox.getText().replace('\n', '\r');
     }
     
     public void setHL7Message(String msg)
     {
-        pasteBox.setText(msg);
+    	if (msg != null)
+    		msg = msg.replace('\r', '\n');
+    	pasteBox.setText(msg);
     }
     
     private void initComponents()

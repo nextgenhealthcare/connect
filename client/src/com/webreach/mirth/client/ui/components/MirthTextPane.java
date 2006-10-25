@@ -140,6 +140,9 @@ public class MirthTextPane extends javax.swing.JTextPane implements MirthTextInt
 	}
 
 	public String getText() {
+		
+		return super.getText();
+		/*
 		StringBuffer sb = new StringBuffer();
 		// Get paragraph element
 		Element paragraph = getDocument().getDefaultRootElement();
@@ -168,7 +171,7 @@ public class MirthTextPane extends javax.swing.JTextPane implements MirthTextInt
 			retval = retval.substring(0, retval.length() -1);
 		}
 		return retval;
-
+*/
 	}
 
 }

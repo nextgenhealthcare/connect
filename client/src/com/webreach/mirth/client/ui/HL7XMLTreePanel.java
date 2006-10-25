@@ -95,7 +95,10 @@ public class HL7XMLTreePanel extends JPanel {
 		
 		if (source != null && !source.equals("")) {
 			PlatformUI.MIRTH_FRAME.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-			
+			//This message might come from a system that doesn't use carriage returns
+			//Since hapi requires a CR for the end of segment character
+			//we will force it.
+			source = source.replaceAll("\\n", "\r");
 			try {
 				DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
 				DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
