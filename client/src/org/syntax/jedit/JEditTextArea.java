@@ -796,7 +796,7 @@ public class JEditTextArea extends JComponent {
 		if (this.document != null)
 			this.document.removeDocumentListener(documentHandler);
 		this.document = document;
-
+		this.document.putProperty("filterNewlines", false);
 		document.addDocumentListener(documentHandler);
 		document.addUndoableEditListener(new MyUndoableEditListener());
 		select(0, 0);
@@ -900,8 +900,8 @@ public class JEditTextArea extends JComponent {
 	 */
 	public String getText() {
 		try {
-			return document.getText(0, document.getLength())
-					.replace('\r', '\n'); // FIXME(newline) Find better
+			return document.getText(0, document.getLength());
+				//	.replace('\r', '\n'); // FIXME(newline) Find better
 											// solution for fixing newlines
 		} catch (BadLocationException bl) {
 			bl.printStackTrace();
@@ -917,7 +917,7 @@ public class JEditTextArea extends JComponent {
 			document.beginCompoundEdit();
 			document.remove(0, document.getLength());
 			//if (text != null)
-		//		text = text.replace('\r', '\n'); // FIXME(newline) Find
+				//text = text.replace('\r', '\n'); // FIXME(newline) Find
 													// better solution for
 													// fixing newlines
 			document.insertString(0, text, null);
@@ -1426,7 +1426,7 @@ public class JEditTextArea extends JComponent {
 					0, line.length());
 			if (lsize >= max_size) {
 				longestLine = i;
-				longestLineSize = lsize;
+				longestLineSize = lsize + 10; //added padding
 				max_size = lsize;
 			}
 		}
