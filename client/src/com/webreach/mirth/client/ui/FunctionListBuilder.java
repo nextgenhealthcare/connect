@@ -55,6 +55,11 @@ public class FunctionListBuilder {
 		variablelistItems.add(new FunctionListItem("Use JAVA Class",
 				"Access any Java class in the current classpath",
 				"var object = Packages.[fully-qualified name];",CodeSnippetType.FUNCTION));
+		variablelistItems.add(new FunctionListItem("Generate Unique ID",
+				"Generate a Universally Unique Identifier",
+				"var uuid = UUIDGenerator.getUUID();",CodeSnippetType.FUNCTION));
+
+		
 		/*Removed due to HL7 versioning issues
 		variablelistItems.add(new FunctionListItem("Get Message Version",
 				"Extracts the HL7 message version as a numeric value",
