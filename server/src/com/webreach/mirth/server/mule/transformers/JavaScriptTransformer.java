@@ -383,7 +383,14 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			script.append("default xml namespace = new Namespace(\"urn:hl7-org:v2xml\");");
 		}
 
-		script.append("var msg = new XML(message); " + transformerScript + " }");
+		// turn the template into an E4X XML object
+		if (direction.equals(Channel.Direction.OUTBOUND)) {
+			script.append("var tmp = new XML(template);");
+		}
+		
+		script.append("var msg = new XML(message);");
+		script.append(transformerScript);
+		script.append(" }");
 		script.append("doTransform()\n");
 		return script.toString();
 	}
