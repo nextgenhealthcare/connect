@@ -1,6 +1,5 @@
 package com.webreach.mirth.client.ui;
 
-import java.awt.Cursor;
 import java.util.ArrayList;
 
 public class FunctionListBuilder {
@@ -49,10 +48,10 @@ public class FunctionListBuilder {
 						"var dbConn = DatabaseConnectionFactory.createDatabaseConnection('driver', 'address', 'username', 'password');\nvar result = dbConn.executeUpdate('expression');\ndbConn.close();",CodeSnippetType.FUNCTION));
 		variablelistItems.add(new FunctionListItem("Convert to HL7-XML",
 				"Converts an ER7 encoded HL7 string to XML",
-				"er7Serializer.toXML(message);",CodeSnippetType.FUNCTION));
+				"serializer.toXML(message);",CodeSnippetType.FUNCTION));
 		variablelistItems.add(new FunctionListItem("Convert to HL7-ER7",
 				"Converts an XML encoded HL7 string to ER7",
-				"er7Serializer.fromXML(message);",CodeSnippetType.FUNCTION));
+				"serializer.fromXML(message);",CodeSnippetType.FUNCTION));
 		variablelistItems.add(new FunctionListItem("Use JAVA Class",
 				"Access any Java class in the current classpath",
 				"var object = Packages.[fully-qualified name];",CodeSnippetType.FUNCTION));
