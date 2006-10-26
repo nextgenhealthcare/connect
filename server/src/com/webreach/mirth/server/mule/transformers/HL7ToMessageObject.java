@@ -33,7 +33,7 @@ public class HL7ToMessageObject extends AbstractTransformer {
 
 		try {
 			messageObject.setVersion(hapiSerializer.deserialize(rawData).getVersion());
-			messageObject.setTransformedData(sanitize(xmlSerializer.toXML(rawData)));
+			messageObject.setTransformedData(xmlSerializer.toXML(rawData));
 		} catch (SerializerException e) {
 			logger.warn("error transforming message", e);
 			messageObject.setErrors(stackTracePrinter.stackTraceToString(e));
@@ -43,10 +43,5 @@ public class HL7ToMessageObject extends AbstractTransformer {
 		messageObject.setEncodedDataProtocol(MessageObject.Protocol.HL7);
 		messageObject.setStatus(MessageObject.Status.RECEIVED);
 		return messageObject;
-	}
-
-	// cleans up the XML
-	private String sanitize(String source) {
-		return source.replaceAll("\n", "\r");
 	}
 }

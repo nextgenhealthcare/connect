@@ -18,6 +18,7 @@ import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.converters.ER7Serializer;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.controllers.ScriptController;
+import com.webreach.mirth.server.controllers.TemplateController;
 import com.webreach.mirth.server.mule.util.CompiledScriptCache;
 import com.webreach.mirth.server.mule.util.GlobalVariableStore;
 import com.webreach.mirth.server.util.StackTracePrinter;
@@ -37,6 +38,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 	private boolean storeMessages;
 	private String transformerScriptId;
 	private String filterScriptId;
+	private String templateId;
 
 	public String getChannelId() {
 		return this.channelId;
@@ -102,6 +104,14 @@ public class JavaScriptTransformer extends AbstractTransformer {
 		this.transformerScriptId = transformerScriptId;
 	}
 
+	public String getTemplateId() {
+		return this.templateId;
+	}
+
+	public void setTemplateId(String templateId) {
+		this.templateId = templateId;
+	}
+
 	@Override
 	public void initialise() throws InitialisationException {
 		try {
@@ -162,10 +172,10 @@ public class JavaScriptTransformer extends AbstractTransformer {
 				scope.put("message", scope, messageObject.getTransformedData());
 			} else {
 				scope.put("message", scope, messageObject.getRawData()); // TODO:
-																			// Check
-																			// this
-																			// for
-																			// outbound
+				// Check
+				// this
+				// for
+				// outbound
 			}
 
 			scope.put("localMap", scope, messageObject.getVariableMap());
@@ -223,7 +233,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			scope.put("globalMap", scope, GlobalVariableStore.getInstance());
 			scope.put("messageObject", scope, messageObject);
 			scope.put("serializer", scope, new ER7Serializer());
-			
+
 			// get the script from the cache and execute it
 			Script compiledScript = compiledScriptCache.getCompiledScript(transformerScriptId);
 
@@ -240,13 +250,13 @@ public class JavaScriptTransformer extends AbstractTransformer {
 				messageObject.setEncodedData(serializer.fromXML(messageObject.getTransformedData()));
 			}
 
-			populateGlobalVariables(messageObject);
+			addGlobalVariables(messageObject);
 			messageObject.setStatus(MessageObject.Status.TRANSFORMED);
 
 			if (storeMessages) {
 				messageObjectController.updateMessage(messageObject);
 			}
-			
+
 			return messageObject;
 		} catch (Exception e) {
 			messageObject.setStatus(MessageObject.Status.ERROR);
@@ -262,9 +272,9 @@ public class JavaScriptTransformer extends AbstractTransformer {
 		}
 	}
 
-	private void populateGlobalVariables(MessageObject messageObject) {
+	private void addGlobalVariables(MessageObject messageObject) {
 		Iterator iter = GlobalVariableStore.getInstance().keySet().iterator();
-		
+
 		while (iter.hasNext()) {
 			String key = (String) iter.next();
 			messageObject.getVariableMap().put("(Global) " + key, GlobalVariableStore.getInstance().get(key));
@@ -274,6 +284,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 	private MessageObject evaluateOutboundTransformerScript(MessageObject messageObject) throws TransformerException {
 		try {
 			Logger scriptLogger = Logger.getLogger("outbound-transformation");
+			TemplateController templateController = new TemplateController();
 			Context context = Context.enter();
 			Scriptable scope = new ImporterTopLevel(context);
 
@@ -284,7 +295,12 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			scope.put("globalMap", scope, GlobalVariableStore.getInstance());
 			scope.put("messageObject", scope, messageObject);
 			scope.put("serializer", scope, new ER7Serializer());
-			
+
+			// put the template in the scope
+			if (templateId != null) {
+				scope.put("template", scope, templateController.getTemplate(templateId));
+			}
+
 			// get the script from the cache and execute it
 			Script compiledScript = compiledScriptCache.getCompiledScript(transformerScriptId);
 
@@ -315,7 +331,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			if (storeMessages) {
 				messageObjectController.updateMessage(messageObject);
 			}
-			populateGlobalVariables(messageObject);
+			addGlobalVariables(messageObject);
 			return messageObject;
 		} catch (Exception e) {
 			messageObject.setStatus(MessageObject.Status.ERROR);

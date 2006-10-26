@@ -59,7 +59,7 @@ public class ER7Serializer implements IXMLSerializer<String> {
 			throw new SerializerException(e);
 		}
 
-		return builder.toString();
+		return sanitize(builder.toString());
 	}
 
 	/**
@@ -79,5 +79,10 @@ public class ER7Serializer implements IXMLSerializer<String> {
 		}
 
 		return builder.toString();
+	}
+	
+	// cleans up the XML
+	public String sanitize(String source) {
+		return source.replaceAll("&amp;", "&").replaceAll("\n", "\r");
 	}
 }

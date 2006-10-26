@@ -44,7 +44,9 @@ import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.Connector;
 import com.webreach.mirth.model.Transport;
 import com.webreach.mirth.model.converters.DocumentSerializer;
+import com.webreach.mirth.model.converters.ER7Serializer;
 import com.webreach.mirth.server.controllers.ScriptController;
+import com.webreach.mirth.server.controllers.TemplateController;
 import com.webreach.mirth.server.util.ServerUtil;
 import com.webreach.mirth.util.PropertyLoader;
 
@@ -312,6 +314,15 @@ public class MuleConfigurationBuilder {
 			properties.put("encryptData", channel.getProperties().get("encryptData"));
 			properties.put("storeMessages", channel.getProperties().get("store_messages"));
 
+			// if outbound, put the template in the templates table
+			if (channel.getDirection().equals(Channel.Direction.OUTBOUND) && (connector.getTransformer().getTemplate() != null)) {
+				TemplateController templateController = new TemplateController();
+				ER7Serializer serializer = new ER7Serializer();
+				String templateId = ServerUtil.getUUID();
+				templateController.putTemplate(templateId, serializer.toXML(connector.getTransformer().getTemplate()));
+				properties.put("templateId", templateId);
+			}
+			
 			// put the filter script in the scripts table
 			String filterScriptId = ServerUtil.getUUID();
 			scriptController.putScript(filterScriptId, filterBuilder.getScript(connector.getFilter(), channel));

@@ -8,21 +8,20 @@ import java.util.Scanner;
 
 public class BatchMessageProcessor {
 	private byte startOfMessage = (byte) 0x0B;
-
 	private byte endOfMessage = (byte) 0x1C;
-
 	private byte endOfRecord = (byte) 0x0D;
 
 	public BatchMessageProcessor() {
 
 	}
+
 	public BatchMessageProcessor(byte startOfMessage, byte endOfMessage, byte endOfRecord) {
 		this.startOfMessage = startOfMessage;
 		this.endOfMessage = endOfMessage;
 		this.endOfRecord = endOfRecord;
 	}
-	public List<String> processHL7Messages(File file)
-			throws FileNotFoundException {
+
+	public List<String> processHL7Messages(File file) throws FileNotFoundException {
 		Scanner scanner = new Scanner(file);
 		return processHL7Messages(scanner);
 	}
@@ -39,11 +38,9 @@ public class BatchMessageProcessor {
 		char data[] = { (char) startOfMessage, (char) endOfMessage };
 
 		while (scanner.hasNextLine()) {
-			String line = scanner.nextLine().replaceAll(new String(data, 0, 1),
-					"").replaceAll(new String(data, 1, 1), "");
+			String line = scanner.nextLine().replaceAll(new String(data, 0, 1), "").replaceAll(new String(data, 1, 1), "");
 
-			if ((line.length() == 0) || line.equals((char) endOfMessage)
-					|| line.startsWith("MSH")) {
+			if ((line.length() == 0) || line.equals((char) endOfMessage) || line.startsWith("MSH")) {
 				if (message.length() > 0) {
 					messages.add(message.toString());
 					message = new StringBuilder();
