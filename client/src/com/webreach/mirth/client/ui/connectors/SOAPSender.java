@@ -31,10 +31,10 @@ import com.l2fprod.common.propertysheet.Property;
 import com.l2fprod.common.propertysheet.PropertySheetPanel;
 import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.ui.components.MirthTable;
-import com.webreach.mirth.model.WSDefinition;
-import com.webreach.mirth.model.WSOperation;
-import com.webreach.mirth.model.WSParameter;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
+import com.webreach.mirth.model.ws.WSDefinition;
+import com.webreach.mirth.model.ws.WSOperation;
+import com.webreach.mirth.model.ws.WSParameter;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
