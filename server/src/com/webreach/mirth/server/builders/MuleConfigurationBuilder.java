@@ -319,7 +319,7 @@ public class MuleConfigurationBuilder {
 				TemplateController templateController = new TemplateController();
 				ER7Serializer serializer = new ER7Serializer();
 				String templateId = ServerUtil.getUUID();
-				templateController.putTemplate(templateId, serializer.toXML(connector.getTransformer().getTemplate()));
+				templateController.putTemplate(templateId, serializer.toXML(connector.getTransformer().getTemplate()).replaceAll("&amp;", "&"));
 				properties.put("templateId", templateId);
 			}
 			
