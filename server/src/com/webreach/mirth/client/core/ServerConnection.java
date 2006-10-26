@@ -2,7 +2,6 @@ package com.webreach.mirth.client.core;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.nio.CharBuffer;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
@@ -50,6 +49,7 @@ public class ServerConnection {
 
 			StringBuffer result = new StringBuffer();
 			String input = new String();
+			
 			while ((input = reader.readLine()) != null) {
 				result.append(input);
 				result.append('\n');

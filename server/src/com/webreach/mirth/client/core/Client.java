@@ -458,6 +458,5 @@ public class Client {
 		logger.debug("retrieving web service definition for address: " + address);
 		NameValuePair[] params = { new NameValuePair("op", "getWebServiceDefinition"), new NameValuePair("address", address) };
 		return (WSDefinition) serializer.fromXML(serverConnection.executePostMethod(CONFIGURATION_SERVLET, params));
-
 	}
 }

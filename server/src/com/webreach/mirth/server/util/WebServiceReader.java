@@ -26,7 +26,6 @@ import org.apache.wsif.schema.ElementType;
 import org.apache.wsif.schema.Parser;
 import org.apache.wsif.schema.SchemaType;
 import org.apache.wsif.schema.SequenceElement;
-import org.apache.xmlbeans.impl.soap.SOAPElement;
 
 import com.ibm.wsdl.xml.WSDLReaderImpl;
 import com.webreach.mirth.model.WSDefinition;
@@ -77,8 +76,7 @@ public class WebServiceReader {
 		Map<String, SchemaType> schemaTypes = typesToMap(types);
 		wsDefinition.setComplexTypes(schemaTypes);
 
-		Iterator<Service> serviceIter = definition.getServices().values()
-				.iterator();
+		Iterator<Service> serviceIter = definition.getServices().values().iterator();
 		while (serviceIter.hasNext()) {
 			Service service = serviceIter.next();
 			Iterator<Port> portIter = service.getPorts().values().iterator();
@@ -90,42 +88,35 @@ public class WebServiceReader {
 				while (extIter.hasNext()) {
 					Object extelement = extIter.next();
 					if (extelement instanceof SOAPAddress) {
-						endpointURI = ((SOAPAddress) extelement)
-								.getLocationURI();
+						endpointURI = ((SOAPAddress) extelement).getLocationURI();
 						wsDefinition.setServiceEndpointURI(endpointURI);
 					}
 				}
 				Binding binding = port.getBinding();
-				Iterator bindingOperationIter = binding.getBindingOperations()
-						.iterator();
+				Iterator bindingOperationIter = binding.getBindingOperations().iterator();
 
 				while (bindingOperationIter.hasNext()) {
-					BindingOperation bindingOperation = (BindingOperation) bindingOperationIter
-							.next();
-					Object concreteOperation = bindingOperation
-							.getExtensibilityElements().get(0);
+					BindingOperation bindingOperation = (BindingOperation) bindingOperationIter.next();
+					Object concreteOperation = bindingOperation.getExtensibilityElements().get(0);
 					// wsDefinition.setServiceEndpoint(soapOperation.getSoapActionURI());
 					if (concreteOperation instanceof SOAPOperation) {
 						WSOperation wsOperation = new WSOperation();
 						SOAPOperation soapOperation = (SOAPOperation) concreteOperation;
-						wsOperation.setSoapActionURI(soapOperation
-								.getSoapActionURI());
+						wsOperation.setSoapActionURI(soapOperation.getSoapActionURI());
 						wsOperation.setName(bindingOperation.getName());
 						Iterator extElements = bindingOperation.getBindingInput().getExtensibilityElements().iterator();
 						String namespace = bindingOperation.getOperation().getInput().getMessage().getQName().getNamespaceURI();
-						while (extElements.hasNext()){
-							ExtensibilityElement element = (ExtensibilityElement)extElements.next();
-							if (element instanceof SOAPBody){
-								if (((SOAPBody)element).getNamespaceURI() != null && ((SOAPBody)element).getNamespaceURI().length() > 0){
-									namespace = ((SOAPBody)element).getNamespaceURI();
+						while (extElements.hasNext()) {
+							ExtensibilityElement element = (ExtensibilityElement) extElements.next();
+							if (element instanceof SOAPBody) {
+								if (((SOAPBody) element).getNamespaceURI() != null && ((SOAPBody) element).getNamespaceURI().length() > 0) {
+									namespace = ((SOAPBody) element).getNamespaceURI();
 									break;
 								}
 							}
 						}
 						wsOperation.setNamespace(namespace);
-						Iterator partIterator = bindingOperation.getOperation()
-								.getInput().getMessage().getParts().values()
-								.iterator();
+						Iterator partIterator = bindingOperation.getOperation().getInput().getMessage().getParts().values().iterator();
 
 						while (partIterator.hasNext()) {
 							Part part = (Part) partIterator.next();
@@ -148,14 +139,13 @@ public class WebServiceReader {
 							// complex type
 							Object schemaType = schemaTypes.get(type);
 							if (schemaType != null) {
-								wsParameter
-										.setSchemaType((SchemaType) schemaType);
+								wsParameter.setSchemaType((SchemaType) schemaType);
 								wsParameter.setComplex(true);
 								buildParams(schemaTypes, wsParameter);
 							}
 							wsOperation.getParameters().add(wsParameter);
 						}
-						wsDefinition.getOperations().put(wsOperation.getName(),wsOperation);
+						wsDefinition.getOperations().put(wsOperation.getName(), wsOperation);
 					}
 				}
 			}
@@ -164,8 +154,7 @@ public class WebServiceReader {
 		return wsDefinition;
 	}
 
-	private void buildParams(Map<String, SchemaType> schemaTypes,
-			WSParameter parameter) {
+	private void buildParams(Map<String, SchemaType> schemaTypes, WSParameter parameter) {
 		if (parameter.getSchemaType() != null) {
 			// loop through each param of the complex type
 			SchemaType schemaType = parameter.getSchemaType();
@@ -175,14 +164,14 @@ public class WebServiceReader {
 	}
 
 	private void buildComplexTypes(Map<String, SchemaType> schemaTypes, WSParameter parameter, SchemaType schemaType) {
-		if (schemaType.isElement()){
-			ElementType elementType = (ElementType)schemaType;
+		if (schemaType.isElement()) {
+			ElementType elementType = (ElementType) schemaType;
 			Iterator it = elementType.getChildren().iterator();
-			while (it.hasNext()){
-				schemaType = (SchemaType)it.next();
+			while (it.hasNext()) {
+				schemaType = (SchemaType) it.next();
 				buildComplexTypes(schemaTypes, parameter, schemaType);
 			}
-		}else if (schemaType.isComplex()) {
+		} else if (schemaType.isComplex()) {
 			ComplexType complexType = (ComplexType) schemaType;
 			SequenceElement[] elements = complexType.getSequenceElements();
 			for (int i = 0; i < elements.length; i++) {
@@ -191,7 +180,7 @@ public class WebServiceReader {
 				// if we have a complex type, set the param name
 				newParam.setName(seqElement.getTypeName().getLocalPart());
 				newParam.setType(seqElement.getElementType().getLocalPart());
-				//Can we have multiple?
+				// Can we have multiple?
 				QName maxOccurs = seqElement.getXMLAttribute("maxOccurs");
 				if (maxOccurs != null)
 					newParam.setMaxOccurs(maxOccurs.getLocalPart());
@@ -207,8 +196,7 @@ public class WebServiceReader {
 				// when we have no subschema, we have a simple type
 
 				parameter.getChildParameters().add(newParam);
-				DefaultMutableTreeNode subNode = new DefaultMutableTreeNode(
-						newParam);
+				DefaultMutableTreeNode subNode = new DefaultMutableTreeNode(newParam);
 				newParam.setComplex(false);
 				if (subSchema != null && subSchema.isComplex()) {
 					newParam.setComplex(true);

@@ -5,14 +5,12 @@ import java.util.List;
 
 import org.apache.wsif.schema.SchemaType;
 
-import com.l2fprod.common.beans.BaseBeanInfo;
-
 public class WSParameter {
 	private String name;
 	private String type;
 	private String value = new String();
 	private SchemaType schemaType;
-	//Used for array types
+	// Used for array types
 	private String length;
 	private boolean array;
 	private boolean Null;
@@ -21,6 +19,7 @@ public class WSParameter {
 	private boolean nillable = false;
 	private boolean complex = false;
 	private List<WSParameter> childParameters;
+
 	public String getName() {
 		return name;
 	}
@@ -60,13 +59,14 @@ public class WSParameter {
 	public void setLength(String length) {
 		this.length = length;
 	}
-	public String toString(){
+
+	public String toString() {
 		if (this.getSchemaType() != null)
 			return this.getType() + " " + this.getName();
-		else 
+		else
 			return this.getType() + " " + this.getName() + " = " + this.getValue();
 	}
-	
+
 	public boolean isArray() {
 		return array;
 	}
@@ -84,7 +84,7 @@ public class WSParameter {
 	}
 
 	public List<WSParameter> getChildParameters() {
-		if (childParameters == null){
+		if (childParameters == null) {
 			childParameters = new ArrayList<WSParameter>();
 		}
 		return childParameters;
@@ -100,20 +100,23 @@ public class WSParameter {
 
 	public void setMaxOccurs(int maxOccurs) {
 		this.maxOccurs = maxOccurs;
-		//we have an array
-		if (maxOccurs == -1 || maxOccurs > 0){
+		// we have an array
+		if (maxOccurs == -1 || maxOccurs > 0) {
 			this.setArray(true);
 		}
 	}
+
 	public void setMaxOccurs(String maxOccurs) {
-		if (maxOccurs.equals("unbounded")){
-			setMaxOccurs(-1); //TODO: Maybe use a better value?
-		}else{
-			try{
+		if (maxOccurs.equals("unbounded")) {
+			setMaxOccurs(-1); // TODO: Maybe use a better value?
+		} else {
+			try {
 				setMaxOccurs(Integer.parseInt(maxOccurs));
-			}catch(Exception e){}
+			} catch (Exception e) {
+			}
 		}
 	}
+
 	public int getMinOccurs() {
 		return minOccurs;
 	}
@@ -121,15 +124,18 @@ public class WSParameter {
 	public void setMinOccurs(int minOccurs) {
 		this.minOccurs = minOccurs;
 	}
+
 	public void setMinOccurs(String minOccurs) {
-		if (minOccurs.equals("unbounded")){
-			setMinOccurs(-1); //TODO: Maybe use a better value?
-		}else{
-			try{
+		if (minOccurs.equals("unbounded")) {
+			setMinOccurs(-1); // TODO: Maybe use a better value?
+		} else {
+			try {
 				setMinOccurs(Integer.parseInt(minOccurs));
-			}catch(Exception e){}
+			} catch (Exception e) {
+			}
 		}
 	}
+
 	public boolean isNillable() {
 		return nillable;
 	}

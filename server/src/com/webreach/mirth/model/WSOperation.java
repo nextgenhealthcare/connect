@@ -8,6 +8,7 @@ public class WSOperation {
 	private List<WSParameter> parameters;
 	private String soapActionURI;
 	private String namespace;
+
 	public WSOperation() {
 		this.parameters = new ArrayList<WSParameter>();
 	}

@@ -1,23 +1,24 @@
 package com.webreach.mirth.model;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.wsif.schema.SchemaType;
 
 public class WSDefinition {
-	private Map<String,WSOperation> operations;
-	private Map<String,SchemaType> complexTypes;
+	private Map<String, WSOperation> operations;
+	private Map<String, SchemaType> complexTypes;
 	private String serviceEndpointURI;
+
 	public WSDefinition() {
-		this.operations = new HashMap<String,WSOperation>();
+		this.operations = new HashMap<String, WSOperation>();
 	}
-	public WSOperation getOperation(String name){
+
+	public WSOperation getOperation(String name) {
 		return getOperations().get(name);
 	}
-	public Map<String,WSOperation> getOperations() {
+
+	public Map<String, WSOperation> getOperations() {
 		return this.operations;
 	}
 
