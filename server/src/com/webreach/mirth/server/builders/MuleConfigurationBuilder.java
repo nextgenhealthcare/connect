@@ -47,7 +47,7 @@ import com.webreach.mirth.model.converters.DocumentSerializer;
 import com.webreach.mirth.model.converters.ER7Serializer;
 import com.webreach.mirth.server.controllers.ScriptController;
 import com.webreach.mirth.server.controllers.TemplateController;
-import com.webreach.mirth.server.util.ServerUtil;
+import com.webreach.mirth.server.util.UUIDGenerator;
 import com.webreach.mirth.util.PropertyLoader;
 
 /**
@@ -318,18 +318,18 @@ public class MuleConfigurationBuilder {
 			if (channel.getDirection().equals(Channel.Direction.OUTBOUND) && (connector.getTransformer().getTemplate() != null)) {
 				TemplateController templateController = new TemplateController();
 				ER7Serializer serializer = new ER7Serializer();
-				String templateId = ServerUtil.getUUID();
+				String templateId = UUIDGenerator.getUUID();
 				templateController.putTemplate(templateId, serializer.toXML(connector.getTransformer().getTemplate()));
 				properties.put("templateId", templateId);
 			}
 			
 			// put the filter script in the scripts table
-			String filterScriptId = ServerUtil.getUUID();
+			String filterScriptId = UUIDGenerator.getUUID();
 			scriptController.putScript(filterScriptId, filterBuilder.getScript(connector.getFilter(), channel));
 			properties.put("filterScriptId", filterScriptId);
 
 			// put the transformer script in the scripts table
-			String transformerScriptId = ServerUtil.getUUID();
+			String transformerScriptId = UUIDGenerator.getUUID();
 			scriptController.putScript(transformerScriptId, transformerBuilder.getScript(connector.getTransformer(), channel));
 			properties.put("transformerScriptId", transformerScriptId);
 
@@ -427,7 +427,7 @@ public class MuleConfigurationBuilder {
 			transformerElement.setAttribute("name", name);
 			transformerElement.setAttribute("className", "com.webreach.mirth.server.mule.transformers.JavaScriptPreprocessor");
 			Properties properties = new Properties();
-			String preprocessingScriptId = ServerUtil.getUUID();
+			String preprocessingScriptId = UUIDGenerator.getUUID();
 			scriptController.putScript(preprocessingScriptId, channel.getPreprocessingScript());
 			properties.put("preprocessingScriptId", preprocessingScriptId);
 			transformerElement.appendChild(getProperties(document, properties, null));
