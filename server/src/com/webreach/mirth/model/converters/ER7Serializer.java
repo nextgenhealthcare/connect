@@ -83,6 +83,6 @@ public class ER7Serializer implements IXMLSerializer<String> {
 	
 	// cleans up the XML
 	public String sanitize(String source) {
-		return source.replaceAll("&amp;", "&").replaceAll("\n", "\r");
+		return source.replaceAll("&amp;", "&");
 	}
 }
