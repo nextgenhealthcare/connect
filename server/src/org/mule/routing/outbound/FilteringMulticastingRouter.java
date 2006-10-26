@@ -75,6 +75,7 @@ public class FilteringMulticastingRouter extends FilteringOutboundRouter
 						processFilter = true;
 					} else
 					{
+						
 						if (endpoint.getFilter().accept(message))
 							processFilter = true;
 					}

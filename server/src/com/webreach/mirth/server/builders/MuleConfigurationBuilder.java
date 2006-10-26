@@ -173,15 +173,20 @@ public class MuleConfigurationBuilder {
 			vmTransformers.append(connectorReference + "_preprocessor ");
 			
 			// 3. determine which transformer to use
-			if (channel.getProtocol().equals(Channel.Protocol.HL7)) {
-				endpointTransformers.append("HL7ToMessageObject ");
-				vmTransformers.append("HL7ToMessageObject ");
-			} else if (channel.getProtocol().equals(Channel.Protocol.X12)) {
-				endpointTransformers.append("X12ToMessageObject ");
-				vmTransformers.append("X12ToMessageObject ");
-			} else {
+			if (channel.getDirection().equals(Channel.Direction.OUTBOUND)){
 				endpointTransformers.append("XMLToMessageObject ");
 				vmTransformers.append("XMLToMessageObject ");
+			}else{
+				if (channel.getProtocol().equals(Channel.Protocol.HL7)) {
+					endpointTransformers.append("HL7ToMessageObject ");
+					vmTransformers.append("HL7ToMessageObject ");
+				} else if (channel.getProtocol().equals(Channel.Protocol.X12)) {
+					endpointTransformers.append("X12ToMessageObject ");
+					vmTransformers.append("X12ToMessageObject ");
+				} else {
+					endpointTransformers.append("XMLToMessageObject ");
+					vmTransformers.append("XMLToMessageObject ");
+				}
 			}
 
 			// 4. finally, append the JavaScriptTransformer that does the
@@ -264,17 +269,11 @@ public class MuleConfigurationBuilder {
 					endpointElement.setAttribute("transformers", transformers.toString().trim());
 				}
 
-				if (channel.getMode().equals(Channel.Mode.ROUTER)) {
-					// add the filter
-					Element filterElement = document.createElement("filter");
-					filterElement.setAttribute("className", "com.webreach.mirth.server.mule.filters.ValidMessageFilter");
-					endpointElement.appendChild(filterElement);
-				}
-
 				routerElement.appendChild(endpointElement);
 			}
-//			 transaction support
-			boolean transactional = ((channel.getProperties().get("transactional") != null) && channel.getProperties().get("transactional").toString().equals("true"));
+
+			// transaction support
+			boolean transactional = ((channel.getProperties().get("transactional") != null) && channel.getProperties().get("transactional").toString().equalsIgnoreCase("true"));
 
 			if (transactional) {
 				// transports.get(connector.getTransportName()).getProtocol();
@@ -291,7 +290,7 @@ public class MuleConfigurationBuilder {
 				transactionElement.setAttribute("factory", factory);
 				routerElement.appendChild(transactionElement);
 			}
-			
+
 			outboundRouterElement.appendChild(routerElement);
 			return outboundRouterElement;
 		} catch (Exception e) {

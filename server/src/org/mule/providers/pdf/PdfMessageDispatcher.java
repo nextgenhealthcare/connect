@@ -22,6 +22,7 @@ import com.webreach.mirth.server.controllers.MessageObjectController;
 
 public class PdfMessageDispatcher extends AbstractMessageDispatcher {
 	private PdfConnector connector;
+
 	private MessageObjectController messageObjectController = new MessageObjectController();
 
 	public PdfMessageDispatcher(PdfConnector connector) {
@@ -34,9 +35,10 @@ public class PdfMessageDispatcher extends AbstractMessageDispatcher {
 		String endpoint = event.getEndpoint().getEndpointURI().getAddress();
 
 		try {
-			Object data = event.getTransformedMessage();
-
-			if (data instanceof MessageObject) {
+			Object data = event.getMessage().getPayload();
+			if (data == null) {
+				return;
+			} else if (data instanceof MessageObject) {
 				MessageObject messageObject = (MessageObject) data;
 				String filename = (String) event.getProperty(PdfConnector.PROPERTY_FILENAME);
 
@@ -58,7 +60,7 @@ public class PdfMessageDispatcher extends AbstractMessageDispatcher {
 				File file = Utility.createFile(endpoint + "/" + filename);
 				logger.info("Writing PDF to: " + file.getAbsolutePath());
 				writeDocument(template, file);
-				
+
 				// update the message status to sent
 				messageObject.setStatus(MessageObject.Status.SENT);
 				messageObjectController.updateMessage(messageObject);
@@ -122,5 +124,6 @@ public class PdfMessageDispatcher extends AbstractMessageDispatcher {
 		}
 	}
 
-	public void doDispose() {}
+	public void doDispose() {
+	}
 }

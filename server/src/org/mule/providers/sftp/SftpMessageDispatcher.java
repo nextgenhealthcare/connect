@@ -40,9 +40,10 @@ public class SftpMessageDispatcher extends AbstractMessageDispatcher {
 		ChannelSftp client = null;
 
 		try {
-			Object data = event.getTransformedMessage();
-
-			if (data instanceof MessageObject) {
+			Object data = event.getMessage().getPayload();
+			if (data == null) {
+				return;
+			} else if (data instanceof MessageObject) {
 				MessageObject messageObject = (MessageObject) data;
 				String filename = (String) event.getProperty(SftpConnector.PROPERTY_FILENAME);
 

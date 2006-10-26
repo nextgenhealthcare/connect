@@ -40,6 +40,7 @@ public class ER7Serializer implements IXMLSerializer<String> {
 		pipeParser.setValidationContext(new NoValidation());
 		xmlParser = new DefaultXMLParser();
 		xmlParser.setValidationContext(new NoValidation());
+		xmlParser.setKeepAsOriginalNodes(new String[]{"NTE.3","OBX.5"});
 	}
 
 	/**
@@ -50,7 +51,7 @@ public class ER7Serializer implements IXMLSerializer<String> {
 	 */
 	public String toXML(String source) throws SerializerException {
 		StringBuilder builder = new StringBuilder();
-
+		
 		try {
 			builder.append(xmlParser.encode(pipeParser.parse(source)));
 		} catch (HL7Exception e) {

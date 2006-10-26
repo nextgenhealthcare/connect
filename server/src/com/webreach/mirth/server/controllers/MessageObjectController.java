@@ -99,7 +99,15 @@ public class MessageObjectController {
 				parameters.add(rawData);
 				parameters.add(transformedData);
 				parameters.add(encodedData);
-				parameters.add(serializer.toXML(messageObject.getVariableMap()));
+				// convert the values in the variable map to strings
+				Map variableMap = messageObject.getVariableMap();
+				
+				for (Iterator iter = variableMap.entrySet().iterator(); iter.hasNext();) {
+					Entry entry = (Entry) iter.next();
+					entry.setValue(entry.getValue().toString());
+				}
+				
+				parameters.add(serializer.toXML(variableMap));
 				parameters.add(messageObject.getErrors());
 				parameters.add(messageObject.getId());
 			}

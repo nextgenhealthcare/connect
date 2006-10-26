@@ -9,6 +9,6 @@ public class ValidMessageFilter implements UMOFilter {
 
 	public boolean accept(UMOMessage message) {
 		MessageObject messageObject = (MessageObject) message.getPayload();
-		return (messageObject.getStatus().equals(MessageObject.Status.TRANSFORMED) || messageObject.getStatus().equals(MessageObject.Status.RECEIVED));
+		return messageObject.getStatus().equals(MessageObject.Status.TRANSFORMED);
 	}
 }

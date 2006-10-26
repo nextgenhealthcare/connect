@@ -145,7 +145,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 				return evaluateOutboundTransformerScript(messageObject);
 			}
 		}
-
+		
 		return null;
 	}
 
@@ -167,9 +167,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 
 			scope.put("localMap", scope, messageObject.getVariableMap());
 			scope.put("globalMap", scope, GlobalVariableStore.getInstance());
-			scope.put("version", scope, messageObject.getVersion());
-			scope.put("rawData", scope, messageObject.getRawData());
-			scope.put("messageId", scope, messageObject.getId());
+			scope.put("messageObject", scope, messageObject);
 			// get the script from the cache and execute it
 			Script compiledScript = compiledScriptCache.getCompiledScript(filterScriptId);
 			Object result = null;
@@ -220,9 +218,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			scope.put("message", scope, messageObject.getTransformedData());
 			scope.put("localMap", scope, messageObject.getVariableMap());
 			scope.put("globalMap", scope, GlobalVariableStore.getInstance());
-			scope.put("version", scope, messageObject.getVersion());
-			scope.put("rawData", scope, messageObject.getRawData());
-			scope.put("messageId", scope, messageObject.getId());
+			scope.put("messageObject", scope, messageObject);
 			scope.put("er7Serializer", scope, new ER7Serializer());
 			// TODO: Verify all functions work on UI (ER7 util, IE);
 			// get the script from the cache and execute it
@@ -282,9 +278,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			scope.put("message", scope, messageObject.getRawData());
 			scope.put("localMap", scope, messageObject.getVariableMap());
 			scope.put("globalMap", scope, GlobalVariableStore.getInstance());
-			scope.put("version", scope, messageObject.getVersion());
-			scope.put("rawData", scope, messageObject.getRawData());
-			scope.put("messageId", scope, messageObject.getId());
+			scope.put("messageObject", scope, messageObject);
 			scope.put("er7Serializer", scope, new ER7Serializer());
 			// get the script from the cache and execute it
 			Script compiledScript = compiledScriptCache.getCompiledScript(transformerScriptId);
@@ -298,12 +292,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			// since the transformations occur on the template, pull it out of
 			// the scope
 			Object transformedData = scope.get("template", scope);
-			if (transformedData instanceof UniqueTag){
-				UniqueTag tag = (UniqueTag)transformedData;
-				if (tag.equals(tag.NOT_FOUND)){
-					
-				}
-			}else{
+			if (transformedData != Scriptable.NOT_FOUND) {
 				// set the transformedData to the template
 				messageObject.setTransformedData(Context.toString(transformedData));
 			}

@@ -46,6 +46,7 @@ import com.webreach.mirth.server.controllers.MessageObjectController;
  */
 public class FtpMessageDispatcher extends AbstractMessageDispatcher {
 	protected FtpConnector connector;
+
 	private MessageObjectController messageObjectController = new MessageObjectController();
 
 	public FtpMessageDispatcher(FtpConnector connector) {
@@ -59,19 +60,20 @@ public class FtpMessageDispatcher extends AbstractMessageDispatcher {
 		FTPClient client = null;
 
 		try {
-			Object data = event.getTransformedMessage();
-
-			if (data instanceof MessageObject) {
+			Object data = event.getMessage().getPayload();
+			if (data == null) {
+				return;
+			} else if (data instanceof MessageObject) {
 				MessageObject messageObject = (MessageObject) data;
 				String filename = (String) event.getProperty(FtpConnector.PROPERTY_FILENAME);
 
 				if (filename == null) {
 					String pattern = (String) event.getProperty(FtpConnector.PROPERTY_OUTPUT_PATTERN);
-					
+
 					if (pattern == null) {
 						pattern = connector.getOutputPattern();
 					}
-					
+
 					filename = generateFilename(event, pattern, messageObject);
 				}
 
@@ -90,7 +92,7 @@ public class FtpMessageDispatcher extends AbstractMessageDispatcher {
 				if (!client.storeFile(filename, new ByteArrayInputStream(buffer))) {
 					throw new IOException("Ftp error: " + client.getReplyCode());
 				}
-				
+
 				// update the message status to sent
 				messageObject.setStatus(MessageObject.Status.SENT);
 				messageObjectController.updateMessage(messageObject);
@@ -106,7 +108,7 @@ public class FtpMessageDispatcher extends AbstractMessageDispatcher {
 
 	public UMOMessage receive(UMOEndpointURI endpointUri, long timeout) throws Exception {
 		FTPClient client = null;
-		
+
 		try {
 			client = connector.getFtp(endpointUri);
 
@@ -160,8 +162,9 @@ public class FtpMessageDispatcher extends AbstractMessageDispatcher {
 	public Object getDelegateSession() throws UMOException {
 		return null;
 	}
-	
-	public void doDispose() {}
+
+	public void doDispose() {
+	}
 
 	private String generateFilename(UMOEvent event, String pattern, MessageObject messageObject) {
 		if (connector.getFilenameParser() instanceof VariableFilenameParser) {

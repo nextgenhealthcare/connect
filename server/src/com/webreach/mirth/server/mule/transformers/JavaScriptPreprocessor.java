@@ -1,5 +1,6 @@
 package com.webreach.mirth.server.mule.transformers;
 
+import org.apache.log4j.Logger;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ImporterTopLevel;
 import org.mozilla.javascript.Script;
@@ -51,9 +52,12 @@ public class JavaScriptPreprocessor extends AbstractTransformer {
 
 	public String doPreprocess(String message) throws TransformerException {
 		try {
+			Logger scriptLogger = Logger.getLogger("preprocessor");
 			Context context = Context.enter();
 			Scriptable scope = new ImporterTopLevel(context);
 			scope.put("message", scope, message);
+			scope.put("logger", scope, scriptLogger);
+
 			Script compiledScript = compiledScriptCache.getCompiledScript(preprocessingScriptId);
 			String returnValue = message;
 

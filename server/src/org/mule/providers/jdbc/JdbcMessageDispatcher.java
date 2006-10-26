@@ -67,7 +67,9 @@ public class JdbcMessageDispatcher extends AbstractMessageDispatcher
         if (logger.isDebugEnabled()) {
             logger.debug("Dispatch event: " + event);
         }
-
+        if (event.getMessage().getPayload()== null){
+        	return;
+        }
         UMOEndpoint endpoint = event.getEndpoint();
         UMOEndpointURI endpointURI = endpoint.getEndpointURI();
         String writeStmt = endpointURI.getAddress();
