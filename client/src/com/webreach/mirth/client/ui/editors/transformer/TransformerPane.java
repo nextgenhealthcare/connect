@@ -810,7 +810,7 @@ public class TransformerPane extends MirthEditorPane
             }
             else if (channel.getDirection().equals(Channel.Direction.OUTBOUND))
             {
-                step.setName(getUniqueName(false));
+                step.setName("");
                 data.put("Variable", step.getName());
                 step.setType(HL7MESSAGE_TYPE); // hl7 message type by default, outbound
                 hl7builderPanel.setData(data);
@@ -1056,8 +1056,8 @@ public class TransformerPane extends MirthEditorPane
                     }
                     script.append(" = ");
                     String mapping = (String) map.get("Mapping");
-                    if (mapping.startsWith("msg") && !mapping.endsWith(".text()[0]")){
-                    	script.append(mapping + ".text()[0];");
+                    if (mapping.startsWith("msg") && !mapping.endsWith(".toString()")){
+                    	script.append(mapping + ".toString();");
                     }else{
                     	script.append(mapping + ";");
                     }

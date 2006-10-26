@@ -17,7 +17,13 @@ public class FunctionListBuilder {
 						"globalMap.get('')",CodeSnippetType.VARIABLE));
 		variablelistItems.add(new FunctionListItem("Incoming Message",
 				"The original incoming ER7 or XML string as received.",
-				"rawData",CodeSnippetType.VARIABLE));
+				"messageObject.getRawData()",CodeSnippetType.VARIABLE));
+		variablelistItems.add(new FunctionListItem("Message Version",
+				"The HL7 or EDI message version",
+				"messageObject.getVersion()",CodeSnippetType.VARIABLE));
+		variablelistItems.add(new FunctionListItem("Message ID",
+				"The unique id of the message in Mirth",
+				"messageObject.getId()",CodeSnippetType.VARIABLE));
 		variablelistItems.add(new FunctionListItem("Incoming Message (XML)",
 				"The original incoming ER7 or XML string as XML.", "msg['']",CodeSnippetType.VARIABLE));
 		variablelistItems.add(new FunctionListItem("Log an Info Statement",
@@ -26,9 +32,6 @@ public class FunctionListBuilder {
 		variablelistItems.add(new FunctionListItem("Log an Error Statement",
 				"Outputs the message to the system error log.",
 				"logger.error('message');",CodeSnippetType.FUNCTION));
-		variablelistItems.add(new FunctionListItem("Message Version",
-				"The HL7 or EDI message version",
-				"version",CodeSnippetType.VARIABLE));
 		variablelistItems
 				.add(new FunctionListItem(
 						"Send an Email",
