@@ -31,6 +31,8 @@ import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -150,7 +152,7 @@ public class MapperPanel extends CardPanel {
 	}
 
 	public void updateTable() {
-		if (parent.getSelectedRow() != -1) {
+		if (parent.getSelectedRow() != -1 && !parent.getTableModel().getValueAt(parent.getSelectedRow(), parent.STEP_TYPE_COL).toString().equals("JavaScript")) {
 			SwingUtilities.invokeLater(new Runnable() {
 				public void run() {
 					parent.getTableModel().setValueAt(

@@ -127,6 +127,7 @@ public class JavaScriptPanel extends CardPanel {
 		
                 if ( m != null )
 			scriptTextPane.setText( (String)m.get( "Script" ) );	
+           
 		else
 			scriptTextPane.setText( "" );
                 

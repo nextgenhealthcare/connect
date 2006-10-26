@@ -707,9 +707,9 @@ public class TransformerPane extends MirthEditorPane
                     transformerTable.setRowSelectionInterval(row, row);
                     
                     if (var == null || var.equals(""))
-                        msg = "The variable name cannot be blank.";
+                        msg = "The mapping field cannot be blank.";
                     
-                    msg += "\nPlease enter a new variable name.\n";
+                    msg += "\nPlease enter a new mapping field name.\n";
                     
                     parent.alertWarning(msg);
                 }

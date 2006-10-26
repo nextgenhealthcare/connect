@@ -230,17 +230,25 @@ public class TabbedReferencePanel extends JPanel
             public void componentShown(ComponentEvent arg0)
             {
                 String message = pasteBox.getText();
-                if (message != null || !message.equals(""))
-                    treePanel.setMessage(message.replaceAll("//n", "/r/n"));
-                else
-                    treePanel.clearMessage();
+                //We only want to refresh the tree if the message changes
+                if (currentMessage == null || (currentMessage != null && !currentMessage.equals(message))){
+	                if (message != null || !message.equals("")){
+	                    treePanel.setMessage(message);
+	                    currentMessage = message;
+	                }
+	                else{
+	                    treePanel.clearMessage();
+	                }
+	 
+                }
                 treePanel.revalidate();
                 treePanel.repaint();
             }
             
+            
             public void componentHidden(ComponentEvent arg0)
             {
-                treePanel.clearMessage();
+                //treePanel.clearMessage();
             }
             
         });
@@ -312,4 +320,5 @@ public class TabbedReferencePanel extends JPanel
     private JScrollPane varScrollPane;
     
     private JPanel varPanel;
+    private String currentMessage;
 }
