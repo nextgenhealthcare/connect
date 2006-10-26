@@ -1,4 +1,4 @@
-package com.webreach.mirth.model;
+package com.webreach.mirth.model.ws;
 
 import com.l2fprod.common.beans.BaseBeanInfo;
 

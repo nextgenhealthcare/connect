@@ -71,7 +71,7 @@ import org.mule.util.BeanUtils;
 import org.mule.util.TemplateParser;
 
 import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.model.WSParameter;
+import com.webreach.mirth.model.ws.WSParameter;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.mule.util.GlobalVariableStore;
 

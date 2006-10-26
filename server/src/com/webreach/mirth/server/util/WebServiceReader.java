@@ -28,9 +28,9 @@ import org.apache.wsif.schema.SchemaType;
 import org.apache.wsif.schema.SequenceElement;
 
 import com.ibm.wsdl.xml.WSDLReaderImpl;
-import com.webreach.mirth.model.WSDefinition;
-import com.webreach.mirth.model.WSOperation;
-import com.webreach.mirth.model.WSParameter;
+import com.webreach.mirth.model.ws.WSDefinition;
+import com.webreach.mirth.model.ws.WSOperation;
+import com.webreach.mirth.model.ws.WSParameter;
 
 public class WebServiceReader {
 	private String address;

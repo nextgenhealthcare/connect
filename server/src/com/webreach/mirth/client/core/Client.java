@@ -40,10 +40,10 @@ import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.model.Transport;
 import com.webreach.mirth.model.User;
-import com.webreach.mirth.model.WSDefinition;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.model.filters.MessageObjectFilter;
 import com.webreach.mirth.model.filters.SystemEventFilter;
+import com.webreach.mirth.model.ws.WSDefinition;
 
 public class Client {
 	private Logger logger = Logger.getLogger(this.getClass());

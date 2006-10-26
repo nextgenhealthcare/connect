@@ -43,7 +43,7 @@ import org.mule.umo.manager.UMOServerEvent;
 import org.mule.umo.provider.UMOMessageReceiver;
 import org.mule.util.ClassHelper;
 
-import com.webreach.mirth.model.WSParameter;
+import com.webreach.mirth.model.ws.WSParameter;
 
 import javax.xml.namespace.QName;
 import java.io.File;
