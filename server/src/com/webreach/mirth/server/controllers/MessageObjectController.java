@@ -99,6 +99,7 @@ public class MessageObjectController {
 				parameters.add(rawData);
 				parameters.add(transformedData);
 				parameters.add(encodedData);
+				
 				// convert the values in the variable map to strings
 				Map variableMap = messageObject.getVariableMap();
 				

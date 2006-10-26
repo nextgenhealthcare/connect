@@ -47,7 +47,6 @@ public class HL7ToMessageObject extends AbstractTransformer {
 
 	// cleans up the XML
 	private String sanitize(String source) {
-		return source.replaceAll("\n", "\r"); // FIXME(newline) find a better
-												// solution
+		return source.replaceAll("\n", "\r");
 	}
 }

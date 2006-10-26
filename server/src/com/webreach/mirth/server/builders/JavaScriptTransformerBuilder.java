@@ -18,15 +18,17 @@ public class JavaScriptTransformerBuilder {
 		StringBuilder builder = new StringBuilder();
 
 		// if the channel is outbound, add the template to the transformer
-		if (channel.getDirection().equals(Channel.Direction.OUTBOUND) && (transformer.getTemplate() != null) && (!transformer.getTemplate().equals(""))) {
+		if (channel.getDirection().equals(Channel.Direction.OUTBOUND) && (transformer.getTemplate() != null) && !transformer.getTemplate().equals("")) {
 			ER7Serializer serializer = new ER7Serializer();
 			String template = new String();
+			
 			try {
 				template = serializer.toXML(transformer.getTemplate());
 			} catch (SerializerException e) {
 				throw new BuilderException(e);
 			}
-			builder.append("var template = new XML('" + template.replaceAll("&amp;", "&").replaceAll("\\n","") + "');");
+			
+			builder.append("var template = new XML('" + template.replaceAll("&amp;", "&").replaceAll("\\n", "") + "');");
 		}
 
 		for (Iterator iter = transformer.getSteps().iterator(); iter.hasNext();) {

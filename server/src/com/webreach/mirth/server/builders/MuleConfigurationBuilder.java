@@ -66,7 +66,7 @@ public class MuleConfigurationBuilder {
 	private JavaScriptTransformerBuilder transformerBuilder = new JavaScriptTransformerBuilder();
 
 	private ScriptController scriptController = new ScriptController();
-	
+
 	public MuleConfigurationBuilder(List<Channel> channels, Map<String, Transport> transports) {
 		this.channels = channels;
 		this.transports = transports;
@@ -148,7 +148,7 @@ public class MuleConfigurationBuilder {
 			// add the VM endpoint for reprocessing capabilities
 			Element vmEndpointElement = document.createElement("endpoint");
 			vmEndpointElement.setAttribute("address", "vm://" + channel.getId());
-			
+
 			// add the configured endpoint
 			Element endpointElement = document.createElement("endpoint");
 			endpointElement.setAttribute("address", getEndpointUri(channel.getSourceConnector()));
@@ -171,12 +171,12 @@ public class MuleConfigurationBuilder {
 			addPreprocessor(document, configurationElement, channel, connectorReference + "_preprocessor");
 			endpointTransformers.append(connectorReference + "_preprocessor ");
 			vmTransformers.append(connectorReference + "_preprocessor ");
-			
+
 			// 3. determine which transformer to use
-			if (channel.getDirection().equals(Channel.Direction.OUTBOUND)){
+			if (channel.getDirection().equals(Channel.Direction.OUTBOUND)) {
 				endpointTransformers.append("XMLToMessageObject ");
 				vmTransformers.append("XMLToMessageObject ");
-			}else{
+			} else {
 				if (channel.getProtocol().equals(Channel.Protocol.HL7)) {
 					endpointTransformers.append("HL7ToMessageObject ");
 					vmTransformers.append("HL7ToMessageObject ");
@@ -203,7 +203,7 @@ public class MuleConfigurationBuilder {
 				endpointElement.setAttribute("transformers", endpointTransformers.toString().trim());
 				vmEndpointElement.setAttribute("transformers", vmTransformers.toString().trim());
 			}
-			
+
 			inboundRouterElement.appendChild(vmEndpointElement);
 
 			if (channel.getMode().equals(Channel.Mode.BROADCAST)) {
@@ -216,7 +216,7 @@ public class MuleConfigurationBuilder {
 				routerElement.appendChild(filterElement);
 				inboundRouterElement.appendChild(routerElement);
 			}
-			
+
 			inboundRouterElement.appendChild(endpointElement);
 			return inboundRouterElement;
 		} catch (Exception e) {
@@ -408,7 +408,7 @@ public class MuleConfigurationBuilder {
 			throw new BuilderException(e);
 		}
 	}
-	
+
 	private void addPreprocessor(Document document, Element configurationElement, Channel channel, String name) throws BuilderException {
 		try {
 			Element transformersElement = (Element) configurationElement.getElementsByTagName("transformers").item(0);
@@ -425,7 +425,6 @@ public class MuleConfigurationBuilder {
 			throw new BuilderException(e);
 		}
 	}
-	
 
 	/**
 	 * Returns a properties element given a Properties object and a List of
@@ -444,7 +443,7 @@ public class MuleConfigurationBuilder {
 
 			// only add non-null and non-empty properties to the list
 			if ((property.getValue() != null) && (!property.getValue().equals(""))) {
-				if ((textProperties != null) &&  textProperties.contains(property.getKey())) {
+				if ((textProperties != null) && textProperties.contains(property.getKey())) {
 					Element textPropertyElement = document.createElement("text-property");
 					textPropertyElement.setAttribute("name", property.getKey().toString());
 					textPropertyElement.setTextContent(property.getValue().toString());
@@ -464,8 +463,8 @@ public class MuleConfigurationBuilder {
 	// Generate the endpoint URI for the specified connector.
 	// The format is: protocol://host|hostname|emtpy:port
 	private String getEndpointUri(Connector connector) {
-		//TODO: This is a hack.
-		if (connector.getProperties().getProperty("host") != null && connector.getProperties().getProperty("host").startsWith("axis:http")){
+		// TODO: This is a hack.
+		if (connector.getProperties().getProperty("host") != null && connector.getProperties().getProperty("host").startsWith("axis:http")) {
 			return connector.getProperties().getProperty("host");
 		}
 		StringBuilder builder = new StringBuilder();

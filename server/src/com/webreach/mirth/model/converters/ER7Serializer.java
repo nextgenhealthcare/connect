@@ -40,18 +40,19 @@ public class ER7Serializer implements IXMLSerializer<String> {
 		pipeParser.setValidationContext(new NoValidation());
 		xmlParser = new DefaultXMLParser();
 		xmlParser.setValidationContext(new NoValidation());
-		xmlParser.setKeepAsOriginalNodes(new String[]{"NTE.3","OBX.5"});
+		xmlParser.setKeepAsOriginalNodes(new String[] { "NTE.3", "OBX.5" });
 	}
 
 	/**
 	 * Returns an XML-encoded HL7 message given an ER7-enconded HL7 message.
 	 * 
-	 * @param source an ER7-encoded HL7 message.
+	 * @param source
+	 *            an ER7-encoded HL7 message.
 	 * @return
 	 */
 	public String toXML(String source) throws SerializerException {
 		StringBuilder builder = new StringBuilder();
-		
+
 		try {
 			builder.append(xmlParser.encode(pipeParser.parse(source)));
 		} catch (HL7Exception e) {
@@ -64,7 +65,8 @@ public class ER7Serializer implements IXMLSerializer<String> {
 	/**
 	 * Returns an ER7-encoded HL7 message given an XML-encoded HL7 message.
 	 * 
-	 * @param source a XML-encoded HL7 message.
+	 * @param source
+	 *            a XML-encoded HL7 message.
 	 * @return
 	 */
 	public String fromXML(String source) throws SerializerException {

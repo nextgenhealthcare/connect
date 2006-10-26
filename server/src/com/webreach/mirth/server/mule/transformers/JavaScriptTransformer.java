@@ -9,7 +9,6 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ImporterTopLevel;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
-import org.mozilla.javascript.UniqueTag;
 import org.mule.transformers.AbstractTransformer;
 import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.transformer.TransformerException;
@@ -145,7 +144,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 				return evaluateOutboundTransformerScript(messageObject);
 			}
 		}
-		
+
 		return null;
 	}
 
@@ -162,7 +161,11 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			if (direction.equals(Channel.Direction.INBOUND.toString())) {
 				scope.put("message", scope, messageObject.getTransformedData());
 			} else {
-				scope.put("message", scope, messageObject.getRawData()); //TODO: Check this for outbound
+				scope.put("message", scope, messageObject.getRawData()); // TODO:
+																			// Check
+																			// this
+																			// for
+																			// outbound
 			}
 
 			scope.put("localMap", scope, messageObject.getVariableMap());
@@ -219,8 +222,8 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			scope.put("localMap", scope, messageObject.getVariableMap());
 			scope.put("globalMap", scope, GlobalVariableStore.getInstance());
 			scope.put("messageObject", scope, messageObject);
-			scope.put("er7Serializer", scope, new ER7Serializer());
-			// TODO: Verify all functions work on UI (ER7 util, IE);
+			scope.put("serializer", scope, new ER7Serializer());
+			
 			// get the script from the cache and execute it
 			Script compiledScript = compiledScriptCache.getCompiledScript(transformerScriptId);
 
@@ -237,12 +240,13 @@ public class JavaScriptTransformer extends AbstractTransformer {
 				messageObject.setEncodedData(serializer.fromXML(messageObject.getTransformedData()));
 			}
 
+			populateGlobalVariables(messageObject);
 			messageObject.setStatus(MessageObject.Status.TRANSFORMED);
 
 			if (storeMessages) {
 				messageObjectController.updateMessage(messageObject);
 			}
-			populateGlobalVariables(messageObject);
+			
 			return messageObject;
 		} catch (Exception e) {
 			messageObject.setStatus(MessageObject.Status.ERROR);
@@ -259,10 +263,10 @@ public class JavaScriptTransformer extends AbstractTransformer {
 	}
 
 	private void populateGlobalVariables(MessageObject messageObject) {
-		//Loop through the current globalMap and add the vars to the message object
-		Iterator<String> globalIterator = GlobalVariableStore.getInstance().keySet().iterator();
-		while (globalIterator.hasNext()){
-			String key = globalIterator.next();
+		Iterator iter = GlobalVariableStore.getInstance().keySet().iterator();
+		
+		while (iter.hasNext()) {
+			String key = (String) iter.next();
 			messageObject.getVariableMap().put("(Global) " + key, GlobalVariableStore.getInstance().get(key));
 		}
 	}
@@ -279,7 +283,8 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			scope.put("localMap", scope, messageObject.getVariableMap());
 			scope.put("globalMap", scope, GlobalVariableStore.getInstance());
 			scope.put("messageObject", scope, messageObject);
-			scope.put("er7Serializer", scope, new ER7Serializer());
+			scope.put("serializer", scope, new ER7Serializer());
+			
 			// get the script from the cache and execute it
 			Script compiledScript = compiledScriptCache.getCompiledScript(transformerScriptId);
 
@@ -292,11 +297,14 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			// since the transformations occur on the template, pull it out of
 			// the scope
 			Object transformedData = scope.get("template", scope);
+
 			if (transformedData != Scriptable.NOT_FOUND) {
 				// set the transformedData to the template
 				messageObject.setTransformedData(Context.toString(transformedData));
 			}
-			// re-encode the data to ER7, but check to make sure we have a template
+
+			// re-encode the data to ER7, but check to make sure we have a
+			// template
 			if ((messageObject.getTransformedData() != null) && (messageObject.getTransformedData().length() > 0) && messageObject.getEncodedDataProtocol().equals(MessageObject.Protocol.HL7)) {
 				ER7Serializer serializer = new ER7Serializer();
 				messageObject.setEncodedData(serializer.toXML(messageObject.getTransformedData()));
