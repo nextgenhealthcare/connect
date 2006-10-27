@@ -51,6 +51,7 @@ public class JMSReader extends ConnectorClass
     public final String JMS_URL = "jndiProviderUrl";
     public final String JMS_INITIAL_FACTORY = "jndiInitialFactory";
     public final String JMS_CONNECTION_FACTORY = "connectionFactoryJndiName";
+    public final String JMS_SELECTOR = "selector";
     
     public JMSReader()
     {
@@ -78,6 +79,7 @@ public class JMSReader extends ConnectorClass
         properties.put(JMS_URL, jmsURL.getText());
         properties.put(JMS_INITIAL_FACTORY,jndiInitialFactory.getText());
         properties.put(JMS_CONNECTION_FACTORY, connectionFactory.getText());
+        properties.put(JMS_SELECTOR, selector.getText());
         
         return properties;
     }
@@ -106,7 +108,7 @@ public class JMSReader extends ConnectorClass
         queue.setText((String)props.get(JMS_QUEUE));
         jndiInitialFactory.setText((String)props.get(JMS_INITIAL_FACTORY));
         connectionFactory.setText((String)props.get(JMS_CONNECTION_FACTORY));
-        
+        selector.setText((String)props.get(JMS_SELECTOR));
         parent.channelEditTasks.getContentPane().getComponent(0).setVisible(visible);
     }
 
@@ -123,6 +125,7 @@ public class JMSReader extends ConnectorClass
         properties.put(JMS_QUEUE, "");
         properties.put(JMS_INITIAL_FACTORY, "");
         properties.put(JMS_CONNECTION_FACTORY, "");
+        properties.put(JMS_SELECTOR, "");
         return properties;
     }
     
@@ -170,6 +173,8 @@ public class JMSReader extends ConnectorClass
         username = new com.webreach.mirth.client.ui.components.MirthTextField();
         password = new com.webreach.mirth.client.ui.components.MirthPasswordField();
         jLabel12 = new javax.swing.JLabel();
+        jLabel1 = new javax.swing.JLabel();
+        selector = new com.webreach.mirth.client.ui.components.MirthTextField();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createTitledBorder(null, "JMS Reader", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(0, 0, 0)));
@@ -224,22 +229,26 @@ public class JMSReader extends ConnectorClass
 
         jLabel12.setText("Password:");
 
+        jLabel1.setText("Selector:");
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel3)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel7)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel10)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel8)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel9)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel11)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel12)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel4)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, clientIdLabel))
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(jLabel3)
+                    .add(jLabel7)
+                    .add(jLabel10)
+                    .add(jLabel8)
+                    .add(jLabel9)
+                    .add(jLabel11)
+                    .add(jLabel12)
+                    .add(jLabel4)
+                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                        .add(jLabel1)
+                        .add(clientIdLabel)))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(specDropDown, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 150, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -253,8 +262,10 @@ public class JMSReader extends ConnectorClass
                         .add(durableYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(durableNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(cliendId, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
+                        .add(org.jdesktop.layout.GroupLayout.LEADING, selector, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .add(org.jdesktop.layout.GroupLayout.LEADING, cliendId, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 125, Short.MAX_VALUE)))
+                .addContainerGap(93, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -294,7 +305,12 @@ public class JMSReader extends ConnectorClass
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(clientIdLabel)
-                    .add(cliendId, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                    .add(cliendId, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jLabel1)
+                    .add(selector, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(114, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -320,6 +336,7 @@ public class JMSReader extends ConnectorClass
     private javax.swing.ButtonGroup durableButtonGroup;
     private com.webreach.mirth.client.ui.components.MirthRadioButton durableNo;
     private com.webreach.mirth.client.ui.components.MirthRadioButton durableYes;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
@@ -333,6 +350,7 @@ public class JMSReader extends ConnectorClass
     private com.webreach.mirth.client.ui.components.MirthPasswordField password;
     private com.webreach.mirth.client.ui.components.MirthTextField queue;
     private javax.swing.ButtonGroup recoverButtonGroup;
+    private com.webreach.mirth.client.ui.components.MirthTextField selector;
     private com.webreach.mirth.client.ui.components.MirthComboBox specDropDown;
     private com.webreach.mirth.client.ui.components.MirthTextField username;
     // End of variables declaration//GEN-END:variables
