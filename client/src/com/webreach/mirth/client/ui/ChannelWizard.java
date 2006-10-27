@@ -448,7 +448,7 @@ public class ChannelWizard extends javax.swing.JDialog
 
     private void outboundActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_outboundActionPerformed
     {//GEN-HEADEREND:event_outboundActionPerformed
-        helpText1.setText("The server will read data from a database and create HL7 messages.");
+        helpText1.setText("The server will read data from an endpoint and create HL7 messages.");
         this.nextButton.setText("Finish");
     }//GEN-LAST:event_outboundActionPerformed
 
