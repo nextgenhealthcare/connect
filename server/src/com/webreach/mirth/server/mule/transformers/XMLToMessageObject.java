@@ -11,7 +11,9 @@ public class XMLToMessageObject extends AbstractTransformer {
 		String rawData = (String) src;
 		MessageObject messageObject = new MessageObject();
 		messageObject.setRawData(rawData);
-		messageObject.setRawDataProtocol(MessageObject.Protocol.HL7);
+		messageObject.setRawDataProtocol(MessageObject.Protocol.XML);
+		messageObject.setTransformedDataProtocol(MessageObject.Protocol.XML);
+		messageObject.setEncodedDataProtocol(MessageObject.Protocol.HL7);
 		return messageObject;
 	}
 }

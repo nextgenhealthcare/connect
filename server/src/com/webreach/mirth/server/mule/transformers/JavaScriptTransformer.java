@@ -287,7 +287,8 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			TemplateController templateController = new TemplateController();
 			Context context = Context.enter();
 			Scriptable scope = new ImporterTopLevel(context);
-
+		
+			
 			// load variables in JavaScript scope
 			scope.put("logger", scope, scriptLogger);
 			scope.put("message", scope, messageObject.getRawData());
@@ -312,7 +313,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 
 			// since the transformations occur on the template, pull it out of
 			// the scope
-			Object transformedData = scope.get("template", scope);
+			Object transformedData = scope.get("tmp", scope);
 
 			if (transformedData != Scriptable.NOT_FOUND) {
 				// set the transformedData to the template
@@ -323,7 +324,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			// template
 			if ((messageObject.getTransformedData() != null) && (messageObject.getTransformedData().length() > 0) && messageObject.getEncodedDataProtocol().equals(MessageObject.Protocol.HL7)) {
 				ER7Serializer serializer = new ER7Serializer();
-				messageObject.setEncodedData(serializer.toXML(messageObject.getTransformedData()));
+				messageObject.setEncodedData(serializer.fromXML(messageObject.getTransformedData()));
 			}
 
 			messageObject.setStatus(MessageObject.Status.TRANSFORMED);
@@ -382,10 +383,11 @@ public class JavaScriptTransformer extends AbstractTransformer {
 		if (protocol.equals(Channel.Protocol.HL7.toString())) {
 			script.append("default xml namespace = new Namespace(\"urn:hl7-org:v2xml\");");
 		}
-
+		
 		// turn the template into an E4X XML object
-		if (direction.equals(Channel.Direction.OUTBOUND)) {
-			script.append("var tmp = new XML(template);");
+		if (direction.equals(Channel.Direction.OUTBOUND.name())) {
+			//Removed 'var' so that we could grab it from the scope
+			script.append("tmp = new XML(template);");
 		}
 		
 		script.append("var msg = new XML(message);");

@@ -84,7 +84,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 	public void doDispatch(UMOEvent event) throws Exception {
 		Socket socket = null;
 		try {
-			Object payload = event.getMessage().getPayload();
+			Object payload = event.getTransformedMessage();
 			if (payload == null) {
 				return;
 			} else {

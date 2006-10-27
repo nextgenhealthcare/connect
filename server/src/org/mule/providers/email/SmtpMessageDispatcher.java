@@ -71,7 +71,7 @@ public class SmtpMessageDispatcher extends AbstractMessageDispatcher
         try {
         	//Mirth - modified to get the raw payload
         	//If our message is a hashmap, we pull the fields out and build a java message
-        	Object data = event.getMessage().getPayload();
+        	Object data = event.getTransformedMessage();
         	if (data instanceof HashMap){
         		MapToMessage mtm = new MapToMessage();
         		data = mtm.mapToMessage(session, (HashMap) data); //Util function that converts HashMap to message

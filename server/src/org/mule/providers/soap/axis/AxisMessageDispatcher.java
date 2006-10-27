@@ -186,7 +186,7 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher {
 	}
 
 	public void doDispatch(UMOEvent event) throws Exception {
-		if (event.getMessage().getPayload() == null) {
+		if (event.getTransformedMessage() == null) {
 			return;
 		} else {
 			invokeWebService(event);
@@ -215,7 +215,9 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher {
 		// the axis.one.way property is set
 		// Change this to TRUE before we deploy
 		// TODO: LOOK ABOVE!!
-		call.setProperty("axis.one.way", Boolean.TRUE);
+		
+		
+		call.setProperty("axis.one.way", Boolean.FALSE);
 		call.setProperty(MuleProperties.MULE_EVENT_PROPERTY, event);
 
 		// call.invoke(args);
@@ -223,7 +225,7 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher {
 		if (result == null) {
 
 		} else {
-			logger.error(result.toString());
+			logger.warn(result.toString());
 		}
 		// update the message status to sent
 		messageObject.setStatus(MessageObject.Status.SENT);

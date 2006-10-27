@@ -65,7 +65,7 @@ public class JmsMessageDispatcher extends AbstractMessageDispatcher {
 	 *      org.mule.providers.MuleEndpoint)
 	 */
 	public void doDispatch(UMOEvent event) throws Exception {
-		if (event.getMessage().getPayload() == null) {
+		if (event.getTransformedMessage() == null) {
 			return;
 		} else {
 			dispatchMessage(event);

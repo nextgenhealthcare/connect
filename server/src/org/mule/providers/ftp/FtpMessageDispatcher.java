@@ -60,7 +60,7 @@ public class FtpMessageDispatcher extends AbstractMessageDispatcher {
 		FTPClient client = null;
 
 		try {
-			Object data = event.getMessage().getPayload();
+			Object data = event.getTransformedMessage();
 			if (data == null) {
 				return;
 			} else if (data instanceof MessageObject) {

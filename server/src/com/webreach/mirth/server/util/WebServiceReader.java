@@ -20,6 +20,7 @@ import javax.wsdl.extensions.soap.SOAPOperation;
 import javax.wsdl.xml.WSDLLocator;
 import javax.xml.namespace.QName;
 
+import org.apache.log4j.Logger;
 import org.apache.wsif.WSIFException;
 import org.apache.wsif.schema.ComplexType;
 import org.apache.wsif.schema.ElementType;
@@ -34,7 +35,7 @@ import com.webreach.mirth.model.ws.WSParameter;
 
 public class WebServiceReader {
 	private String address;
-
+	private Logger logger = Logger.getLogger(this.getClass());
 	public WebServiceReader(String address) {
 		this.address = address;
 	}
@@ -60,9 +61,15 @@ public class WebServiceReader {
 	public WSDefinition getWSDefinition() throws Exception {
 		WSDefinition wsDefinition = new WSDefinition();
 		WSDLReaderImpl reader = new WSDLReaderImpl();
-
+		Definition definition = null;
 		// Read in the WSDL
-		Definition definition = reader.readWSDL(address);
+		try{
+			definition = reader.readWSDL(address);
+		}catch (Exception e){
+			logger.warn("Unable to read WSDL location: " + address);
+			//e.printStackTrace();
+			return null;
+		}
 
 		// Parse the WSDL (and any imports) for type definitions
 		LocReader lreader = new LocReader();

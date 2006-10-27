@@ -65,7 +65,7 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
 		FileOutputStream fos = null;
 
 		try {
-			Object data = event.getMessage().getPayload();
+			Object data = event.getTransformedMessage();
 
 			if (data instanceof MessageObject) {
 				MessageObject messageObject = (MessageObject) data;
