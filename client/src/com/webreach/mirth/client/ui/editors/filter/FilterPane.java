@@ -247,10 +247,10 @@ public class FilterPane extends MirthEditorPane
         filterPopupMenu.add(exportFilter);
         
         filterTasks.add(initActionCallback("doValidate", ActionFactory
-        .createBoundAction("doValidate", "Validate Step",
+        .createBoundAction("doValidate", "Validate JavaScript",
         "V"), new ImageIcon(Frame.class
         .getResource("images/accept.png"))));
-        JMenuItem validateStep = new JMenuItem("Validate Step");
+        JMenuItem validateStep = new JMenuItem("Validate JavaScript");
         validateStep.setIcon(new ImageIcon(Frame.class
                 .getResource("images/accept.png")));
         validateStep.addActionListener(new ActionListener()
@@ -714,7 +714,7 @@ public class FilterPane extends MirthEditorPane
         try 
         {
             Context context = Context.enter();
-            Script compiledFilterScript = context.compileString("function rhinoWrapper() {\n" + jsPanel.getJavaScript() + "\n}", null, 1, null);
+            Script compiledFilterScript = context.compileString("function rhinoWrapper() {" + jsPanel.getJavaScript() + "}", null, 1, null);
             parent.alertInformation("JavaScript was successfully validated.");
         } 
         catch (EvaluatorException e) 

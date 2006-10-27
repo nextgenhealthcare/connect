@@ -567,16 +567,20 @@ public class MessageBrowser extends javax.swing.JPanel
         {
             if (protocol != null)
             {
-                if (protocol.equals(MessageObject.Protocol.HL7))
+                if (protocol.equals(MessageObject.Protocol.HL7)){
                     newDoc.setTokenMarker(new HL7TokenMarker());
-                else if (protocol.equals(MessageObject.Protocol.XML))
+                    message = message.replace('\r', '\n');
+                    //HL7 (ER7) encoded messages have \r as end of line segments
+                    //The syntax editor box only recognizes \n
+                    //Add \n to make things look normal
+                }else if (protocol.equals(MessageObject.Protocol.XML))
                 	newDoc.setTokenMarker(new XMLTokenMarker());
                 else if (protocol.equals(MessageObject.Protocol.X12))
                 	newDoc.setTokenMarker(new XMLTokenMarker());
             }
             
             textPane.setDocument(newDoc);
-            textPane.setText(message.replace('\r', '\n')); //TODO: Check newlines
+            textPane.setText(message); //TODO: Check newlines
         }
         else
         {

@@ -324,6 +324,7 @@ public class SOAPSender extends ConnectorClass
 
         soapEnvelope.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
+        jTree1.setModel(new DefaultTreeModel(new DefaultMutableTreeNode("")));
         jTree1.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() {
             public void valueChanged(javax.swing.event.TreeSelectionEvent evt) {
                 jTree1ValueChanged(evt);

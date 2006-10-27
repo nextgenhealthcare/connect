@@ -62,7 +62,7 @@ public class VariableTransferable implements Transferable {
           this.data = "ORIGINALFILE";
       else if(data.equals("Count"))
           this.data = "COUNT";
-      else if(data.equals("Formatted Data"))
+      else if(data.equals("Formatted Date"))
           this.data = "date.get('yyyy-M-d H:m:s')";
       else
           this.data = data;

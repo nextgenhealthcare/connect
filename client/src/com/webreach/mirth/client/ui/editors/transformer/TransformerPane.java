@@ -277,10 +277,10 @@ public class TransformerPane extends MirthEditorPane
         transformerPopupMenu.add(exportTransformer);
         
         transformerTasks.add(initActionCallback("doValidate", ActionFactory
-        .createBoundAction("doValidate", "Validate Step",
+        .createBoundAction("doValidate", "Validate JavaScript",
         "V"), new ImageIcon(Frame.class
         .getResource("images/accept.png"))));
-        JMenuItem validateStep = new JMenuItem("Validate Step");
+        JMenuItem validateStep = new JMenuItem("Validate JavaScript");
         validateStep.setIcon(new ImageIcon(Frame.class
                 .getResource("images/accept.png")));
         validateStep.addActionListener(new ActionListener()
@@ -948,7 +948,7 @@ public class TransformerPane extends MirthEditorPane
         try 
         {
             Context context = Context.enter();
-            Script compiledFilterScript = context.compileString("function rhinoWrapper() {\n" + jsPanel.getJavaScript() + "\n}", null, 1, null);
+            Script compiledFilterScript = context.compileString("function rhinoWrapper() {" + jsPanel.getJavaScript() + "}", null, 1, null);
             parent.alertInformation("JavaScript was successfully validated.");
         } 
         catch (EvaluatorException e) 
@@ -990,6 +990,7 @@ public class TransformerPane extends MirthEditorPane
         }
         
         updateStepNumbers();
+        parent.enableSave();
     }
     
     /**
@@ -1032,8 +1033,13 @@ public class TransformerPane extends MirthEditorPane
                         script.append("localMap.put(");
                     
                     script.append("'" + map.get("Variable") + "', ");
-                    
-                    script.append( map.get("Mapping") + ");");
+                    String mapping = (String) map.get("Mapping");
+                    if (mapping.startsWith("msg") && !mapping.endsWith(".toString()")){
+                    	mapping = mapping + ".toString()";
+                    }else{
+                    	//mapping = mapping + "";
+                    }
+                    script.append( mapping + ");");
                     step.setScript(script.toString());
                 }
                 else if (step.getType().equals(
@@ -1049,11 +1055,11 @@ public class TransformerPane extends MirthEditorPane
                 	//TODO: Figure out a way to do this without checking for the existence of .text
                     StringBuilder script = new StringBuilder();
                     String variable = (String) map.get("Variable");
-                    if (variable.startsWith("template") && !variable.endsWith(".text()[0]")){
-                    	script.append(variable + ".text()[0]");
-                    }else{
+                   // if (variable.startsWith("template") && !variable.endsWith(".text()[0]")){
+                   // 	script.append(variable + ".text()[0]");
+                   // }else{
                     	script.append(variable);
-                    }
+                    //}
                     script.append(" = ");
                     String mapping = (String) map.get("Mapping");
                     if (mapping.startsWith("msg") && !mapping.endsWith(".toString()")){

@@ -82,7 +82,7 @@ public class SQLParserUtil
                             }
                         }
                         vars[i] = vars[i].trim();
-                        
+                        vars[i] = vars[i].toLowerCase();
                         if(vars[i].length() > 0)
                         {
                             if(vars[i].toUpperCase().indexOf(" AS ") != -1)
@@ -98,6 +98,7 @@ public class SQLParserUtil
                                 varList.add( vars[i].replaceAll(" ", "").replaceAll("\\(","").replaceAll("\\)","") );
                             }
                         }
+                       
                     }
                 }
                 return varList.toArray( new String[varList.size()] );
