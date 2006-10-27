@@ -327,14 +327,17 @@ public class MessageObjectController {
 			messageObject.setVersion(result.getString("version"));
 			messageObject.setEncrypted(result.getBoolean("encrypted"));
 
-			String rawData;
-			String transformedData;
-			String encodedData;
+			String rawData = new String();
+			String transformedData = new String();
+			String encodedData = new String();
 
 			if (messageObject.isEncrypted()) {
-				rawData = encrypter.decrypt(result.getString("raw_data"));
-				transformedData = encrypter.decrypt(result.getString("transformed_data"));
-				encodedData = encrypter.decrypt(result.getString("encoded_data"));
+				if (result.getString("raw_data")!=null)
+					rawData = encrypter.decrypt(result.getString("raw_data"));
+				if (result.getString("transformed_data")!=null)
+					transformedData = encrypter.decrypt(result.getString("transformed_data"));
+				if (result.getString("encoded_data")!=null)
+					encodedData = encrypter.decrypt(result.getString("encoded_data"));
 			} else {
 				rawData = result.getString("raw_data");
 				transformedData = result.getString("transformed_data");

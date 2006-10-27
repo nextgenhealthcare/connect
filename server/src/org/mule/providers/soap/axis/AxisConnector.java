@@ -423,7 +423,8 @@ public class AxisConnector extends AbstractServiceEnabledConnector implements Mo
      * @throws org.mule.umo.UMOException if the method fails
      */
     protected void doStart() throws UMOException {
-        axisServer.start();
+    	if (axisServer != null)
+    		axisServer.start();
     }
 
     /**
