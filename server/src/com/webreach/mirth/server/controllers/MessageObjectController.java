@@ -82,12 +82,12 @@ public class MessageObjectController {
 
 				// convert the values in the variable map to strings
 				Map variableMap = messageObject.getVariableMap();
-				
+
 				for (Iterator iter = variableMap.entrySet().iterator(); iter.hasNext();) {
 					Entry entry = (Entry) iter.next();
 					entry.setValue(entry.getValue().toString());
 				}
-				
+
 				parameters.add(serializer.toXML(variableMap));
 				parameters.add(messageObject.getConnectorName());
 				parameters.add(messageObject.getErrors());
@@ -99,15 +99,15 @@ public class MessageObjectController {
 				parameters.add(rawData);
 				parameters.add(transformedData);
 				parameters.add(encodedData);
-				
+
 				// convert the values in the variable map to strings
 				Map variableMap = messageObject.getVariableMap();
-				
+
 				for (Iterator iter = variableMap.entrySet().iterator(); iter.hasNext();) {
 					Entry entry = (Entry) iter.next();
 					entry.setValue(entry.getValue().toString());
 				}
-				
+
 				parameters.add(serializer.toXML(variableMap));
 				parameters.add(messageObject.getErrors());
 				parameters.add(messageObject.getId());
@@ -155,10 +155,12 @@ public class MessageObjectController {
 				int limit = filter.getPageSize();
 				int offset = filter.getPageSize() * filter.getPage();
 
-				if (offset > 0)
+				if (offset > 0) {
 					query += " LIMIT " + limit + " OFFSET " + offset;
-				else
+				} else {
 					query += " LIMIT " + limit;
+				}
+
 			}
 
 			result = dbConnection.executeQuery(query.toString());
@@ -332,12 +334,17 @@ public class MessageObjectController {
 			String encodedData = new String();
 
 			if (messageObject.isEncrypted()) {
-				if (result.getString("raw_data")!=null)
+				if (result.getString("raw_data") != null) {
 					rawData = encrypter.decrypt(result.getString("raw_data"));
-				if (result.getString("transformed_data")!=null)
+				}
+
+				if (result.getString("transformed_data") != null) {
 					transformedData = encrypter.decrypt(result.getString("transformed_data"));
-				if (result.getString("encoded_data")!=null)
+				}
+
+				if (result.getString("encoded_data") != null) {
 					encodedData = encrypter.decrypt(result.getString("encoded_data"));
+				}
 			} else {
 				rawData = result.getString("raw_data");
 				transformedData = result.getString("transformed_data");
@@ -368,7 +375,7 @@ public class MessageObjectController {
 
 			for (Iterator iter = messages.iterator(); iter.hasNext();) {
 				MessageObject message = (MessageObject) iter.next();
-				client.dispatch("vm://" + message.getChannelId(), message.getRawData(), null);	
+				client.dispatch("vm://" + message.getChannelId(), message.getRawData(), null);
 			}
 		} catch (UMOException e) {
 			throw new ControllerException("could not reprocess message", e);

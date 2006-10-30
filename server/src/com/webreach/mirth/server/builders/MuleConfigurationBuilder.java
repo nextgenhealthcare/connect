@@ -319,12 +319,14 @@ public class MuleConfigurationBuilder {
 				TemplateController templateController = new TemplateController();
 				ER7Serializer serializer = new ER7Serializer();
 				String templateId = UUIDGenerator.getUUID();
-				if (connector.getTransformer().getTemplate() != null && connector.getTransformer().getTemplate().length() > 0){
+
+				if ((connector.getTransformer().getTemplate() != null) && connector.getTransformer().getTemplate().length() > 0) {
 					templateController.putTemplate(templateId, serializer.toXML(connector.getTransformer().getTemplate()));
 				}
+
 				properties.put("templateId", templateId);
 			}
-			
+
 			// put the filter script in the scripts table
 			String filterScriptId = UUIDGenerator.getUUID();
 			scriptController.putScript(filterScriptId, filterBuilder.getScript(connector.getFilter(), channel));
