@@ -790,7 +790,7 @@ public class TransformerPane extends MirthEditorPane
     {
         saveData(transformerTable.getSelectedRow());
         
-        if (!invalidVar)
+        if (!invalidVar || transformerTable.getRowCount() == 0)
         {
             int rowCount = transformerTable.getRowCount();
             modified = true;
@@ -1006,7 +1006,7 @@ public class TransformerPane extends MirthEditorPane
     {
         saveData(transformerTable.getSelectedRow());
         
-        if (!invalidVar)
+        if (!invalidVar || transformerTable.getRowCount() == 0)
         {
             List<Step> list = new ArrayList<Step>();
             for (int i = 0; i < transformerTable.getRowCount(); i++)

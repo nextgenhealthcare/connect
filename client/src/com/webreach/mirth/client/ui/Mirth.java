@@ -80,7 +80,7 @@ public class Mirth
         UIManager.put("Tree.closedIcon", UIConstants.CLOSED_ICON);
         
         userPreferences = Preferences.systemNodeForPackage(Mirth.class);
-                
+
         PlatformUI.MIRTH_FRAME.setupFrame(m);
         
         int width = UIConstants.MIRTH_WIDTH;
