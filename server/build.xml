@@ -51,7 +51,7 @@
 			<include name="com/webreach/mirth/client/core/**" />
 			<include name="com/webreach/mirth/model/**" />
 			<include name="com/webreach/mirth/util/**" />
-			<include name="com/thoughtworks/xstream/converters/collections/**" />
+			<include name="com/thoughtworks/**" />
 		</jar>
 	</target>
 
@@ -145,6 +145,7 @@
 
 		<!-- create the Mirth server jar -->
 		<jar destfile="${setup}/${server.jar}" basedir="${classes}">
+			<include name="com/thoughtworks/**" />
 			<include name="com/webreach/mirth/server/**" />
 			<include name="com/webreach/mirth/model/**" />
 			<include name="com/webreach/mirth/util/**" />
