@@ -24,9 +24,7 @@
 	<resources locale="" os="">
 		<jar download="eager" href="lib/mirth-client-core.jar" main="false" version="" />
 	</resources>
-	<resources locale="" os="">
-		<jar download="eager" href="lib/looks-2.0.4.jar" main="false" version="" />
-	</resources>
+	
 	<resources locale="" os="">
 		<jar download="eager" href="lib/commons-codec-1.3.jar" main="false" version="" />
 	</resources>
@@ -40,6 +38,9 @@
 		<jar download="eager" href="lib/databinding-0.8.0.jar" main="false" version="" />
 	</resources>
 	<resources locale="" os="">
+		<jar download="eager" href="lib/hapi-0.5beta.jar" main="false" version="" />
+	</resources>
+	<resources locale="" os="">
 		<jar download="eager" href="lib/jdic-0.8.0.jar" main="false" version="" />
 	</resources>
 	<resources locale="" os="">
@@ -49,13 +50,13 @@
 		<jar download="eager" href="lib/log4j-1.2.14.jar" main="false" version="" />
 	</resources>
 	<resources locale="" os="">
+		<jar download="eager" href="lib/looks-2.0.4.jar" main="false" version="" />
+	</resources>
+	<resources locale="" os="">
 		<jar download="eager" href="lib/qname.jar" main="false" version="" />
 	</resources>
 	<resources locale="" os="">
-		<jar download="eager" href="lib/xercesImpl.jar" main="false" version="" />
-	</resources>
-	<resources locale="" os="">
-		<jar download="eager" href="lib/xpp3_min-1.1.3.4.O.jar" main="false" version="" />
+		<jar download="eager" href="lib/rhino-1.6r2.jar" main="false" version="" />
 	</resources>
 	<resources locale="" os="">
 		<jar download="eager" href="lib/swing-layout-1.0.1.jar" main="false" version="" />
@@ -73,7 +74,10 @@
 		<jar download="eager" href="lib/wsif.jar" main="false" version="" />
 	</resources>
 	<resources locale="" os="">
-		<jar download="eager" href="lib/hapi-0.5beta.jar" main="false" version="" />
+		<jar download="eager" href="lib/xercesImpl.jar" main="false" version="" />
+	</resources>
+	<resources locale="" os="">
+		<jar download="eager" href="lib/xpp3_min-1.1.3.4.O.jar" main="false" version="" />
 	</resources>
 	<resources locale="" os="">
 		<jar download="eager" href="lib/xstream-1.2.jar" main="false" version="" />
