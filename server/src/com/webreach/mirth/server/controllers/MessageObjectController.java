@@ -46,14 +46,17 @@ public class MessageObjectController {
 			String statement = null;
 			ArrayList<Object> parameters = new ArrayList<Object>();
 
-			String rawData;
-			String transformedData;
-			String encodedData;
+			String rawData = new String();
+			String transformedData = new String();
+			String encodedData = new String();
 
 			if (messageObject.isEncrypted()) {
-				rawData = encrypter.encrypt(messageObject.getRawData());
-				transformedData = encrypter.encrypt(messageObject.getTransformedData());
-				encodedData = encrypter.encrypt(messageObject.getEncodedData());
+				if (messageObject.getRawData() != null)
+					rawData = encrypter.encrypt(messageObject.getRawData());
+				if (messageObject.getTransformedData() != null)
+					transformedData = encrypter.encrypt(messageObject.getTransformedData());
+				if (messageObject.getEncodedData() != null)
+					encodedData = encrypter.encrypt(messageObject.getEncodedData());
 			} else {
 				rawData = messageObject.getRawData();
 				transformedData = messageObject.getTransformedData();
