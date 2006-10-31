@@ -191,7 +191,7 @@
 		<copy file="${basedir}/mirth.sh" todir="${setup}" />
 
 		<!-- zip the source code -->
-		<zip basedir="${setup.source}" destfile="${setup}/mirth-server-src.zip" />
+		<!-- zip basedir="${setup.source}" destfile="${setup}/mirth-server-src.zip" / -->
 
 		<!-- remove the source code -->
 		<delete dir="${setup.source}" />
