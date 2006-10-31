@@ -51,12 +51,17 @@ public class MessageObjectController {
 			String encodedData = new String();
 
 			if (messageObject.isEncrypted()) {
-				if (messageObject.getRawData() != null)
+				if (messageObject.getRawData() != null) {
 					rawData = encrypter.encrypt(messageObject.getRawData());
-				if (messageObject.getTransformedData() != null)
+				}
+
+				if (messageObject.getTransformedData() != null) {
 					transformedData = encrypter.encrypt(messageObject.getTransformedData());
-				if (messageObject.getEncodedData() != null)
+				}
+
+				if (messageObject.getEncodedData() != null) {
 					encodedData = encrypter.encrypt(messageObject.getEncodedData());
+				}
 			} else {
 				rawData = messageObject.getRawData();
 				transformedData = messageObject.getTransformedData();
@@ -163,7 +168,6 @@ public class MessageObjectController {
 				} else {
 					query += " LIMIT " + limit;
 				}
-
 			}
 
 			result = dbConnection.executeQuery(query.toString());
