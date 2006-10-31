@@ -138,8 +138,9 @@ public class Mirth extends Thread {
 			event.setDescription(stackTracePrinter.stackTraceToString(e));
 			systemLogger.logSystemEvent(event);
 
+			// remove the errant configuration and stop mule
 			configurationController.deleteLatestConfiguration();
-			// commandQueue.addCommand(new Command(Command.Operation.START));
+			stopMule();
 		} catch (ControllerException e) {
 			logger.warn("Could not retrieve latest configuration.", e);
 		}
