@@ -445,7 +445,7 @@ public class Client {
         error.setStackTrace(message);
         error.setDate(new ErrorDate());
 
-        ServerConnection errorServerConnection = new ServerConnection("http://www.mirthproject.org:3000/errors");
+        ServerConnection errorServerConnection = new ServerConnection("http://www.mirthproject.org:8083/errors");
         
         try {
 			errorServerConnection.executePostMethod("/create", error.getAsParams());
