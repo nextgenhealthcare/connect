@@ -134,6 +134,7 @@
 		<copy todir="${setup}">
 			<fileset file="${basedir}/database.sql" />
 			<fileset file="${basedir}/launcher.xml" />
+			<fileset file="${basedir}/mirth-client.jnlp" />
 			<fileset file="${basedir}/keystore" />
 			<fileset file="${basedir}/InstallMirth-NT.bat" />
 			<fileset file="${basedir}/UninstallMirth-NT.bat" />

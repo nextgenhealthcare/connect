@@ -50,7 +50,7 @@ public class WebStartServlet extends HttpServlet {
 			response.setContentType("application/x-java-jnlp-file");
 			response.setHeader("Pragma", "no-cache");
 
-			Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse("webapp/mirth-client.jnlp");
+			Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse("mirth-client.jnlp");
 			Element jnlpElement = document.getDocumentElement();
 
 			String scheme = request.getScheme();
