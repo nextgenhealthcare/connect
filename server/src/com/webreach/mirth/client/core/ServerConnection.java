@@ -41,7 +41,7 @@ public class ServerConnection {
 
 			int statusCode = client.executeMethod(post);
 
-			if ((statusCode != HttpStatus.SC_OK) || (statusCode != HttpStatus.SC_MOVED_TEMPORARILY)) {
+			if ((statusCode != HttpStatus.SC_OK) && (statusCode != HttpStatus.SC_MOVED_TEMPORARILY)) {
 				throw new ClientException("method failed: " + post.getStatusLine());
 			}
 
