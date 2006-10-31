@@ -76,11 +76,15 @@
 			<fileset file="${webapp.lib}/databinding-0.8.0.jar" />
 			<fileset file="${webapp.lib}/hapi-0.5beta.jar" />
 			<fileset file="${webapp.lib}/jdic-0.8.0.jar" />
+			<fileset file="${webapp.lib}/l2fprod-common-sheet.jar" />
 			<fileset file="${webapp.lib}/log4j-1.2.14.jar" />
 			<fileset file="${webapp.lib}/looks-2.0.4.jar" />
+			<fileset file="${webapp.lib}/qname.jar" />
 			<fileset file="${webapp.lib}/swing-layout-1.0.1.jar" />
 			<fileset file="${webapp.lib}/swingworker-0.8.0.jar" />
 			<fileset file="${webapp.lib}/swingx-0.8.0.jar" />
+			<fileset file="${webapp.lib}/wsdl4j.jar" />
+			<fileset file="${webapp.lib}/wsif.jar" />
 			<fileset file="${webapp.lib}/xercesImpl.jar" />
 			<fileset file="${webapp.lib}/xpp3_min-1.1.3.4.O.jar" />
 			<fileset file="${webapp.lib}/xstream-1.2.jar" />
