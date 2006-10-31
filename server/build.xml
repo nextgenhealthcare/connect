@@ -80,6 +80,7 @@
 			<fileset file="${webapp.lib}/log4j-1.2.14.jar" />
 			<fileset file="${webapp.lib}/looks-2.0.4.jar" />
 			<fileset file="${webapp.lib}/qname.jar" />
+			<fileset file="${webapp.lib}/rhino-1.6r2.jar" />
 			<fileset file="${webapp.lib}/swing-layout-1.0.1.jar" />
 			<fileset file="${webapp.lib}/swingworker-0.8.0.jar" />
 			<fileset file="${webapp.lib}/swingx-0.8.0.jar" />
