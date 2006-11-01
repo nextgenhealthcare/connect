@@ -57,7 +57,7 @@ public class VariableTransferable implements Transferable {
       else if(data.equals("Unique ID"))
           this.data = "UUID";
       else if(data.equals("Date"))
-          this.data = "DATE";
+          this.data = "date";
       else if(data.equals("Original File"))
           this.data = "ORIGINALFILE";
       else if(data.equals("Count"))
