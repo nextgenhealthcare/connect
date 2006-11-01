@@ -1,31 +1,28 @@
-/*
- * $Header: /home/jerenkrantz/tmp/commons/commons-convert/cvs/home/cvs/jakarta-commons//httpclient/src/contrib/org/apache/commons/httpclient/contrib/ssl/AuthSSLX509TrustManager.java,v 1.2 2004/06/10 18:25:24 olegk Exp $
- * $Revision: 376759 $
- * $Date: 2006-02-10 08:45:54 -0800 (Fri, 10 Feb 2006) $
+/* ***** BEGIN LICENSE BLOCK *****
+ * Version: MPL 1.1
  *
- * ====================================================================
+ * The contents of this file are subject to the Mozilla Public License Version
+ * 1.1 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * http://www.mozilla.org/MPL/
  *
- *  Copyright 2002-2004 The Apache Software Foundation
+ * Software distributed under the License is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+ * for the specific language governing rights and limitations under the
+ * License.
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * The Original Code is Mirth.
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * The Initial Developer of the Original Code is
+ * WebReach, Inc.
+ * Portions created by the Initial Developer are Copyright (C) 2006
+ * the Initial Developer. All Rights Reserved.
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
- * ====================================================================
+ * Contributor(s):
+ *   Gerald Bortis <geraldb@webreachinc.com>
  *
- * This software consists of voluntary contributions made by many
- * individuals on behalf of the Apache Software Foundation.  For more
- * information on the Apache Software Foundation, please see
- * <http://www.apache.org/>.
- *
- */
+ * ***** END LICENSE BLOCK ***** */
+
 
 package com.webreach.mirth.client.core.ssl;
 

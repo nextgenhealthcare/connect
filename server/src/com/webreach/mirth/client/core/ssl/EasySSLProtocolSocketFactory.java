@@ -1,31 +1,28 @@
-/*
- * $Header: /home/jerenkrantz/tmp/commons/commons-convert/cvs/home/cvs/jakarta-commons//httpclient/src/contrib/org/apache/commons/httpclient/contrib/ssl/EasySSLProtocolSocketFactory.java,v 1.7 2004/06/11 19:26:27 olegk Exp $
- * $Revision: 376971 $
- * $Date: 2006-02-11 03:57:16 -0800 (Sat, 11 Feb 2006) $
- * 
- * ====================================================================
+/* ***** BEGIN LICENSE BLOCK *****
+ * Version: MPL 1.1
  *
- *  Copyright 2002-2004 The Apache Software Foundation
+ * The contents of this file are subject to the Mozilla Public License Version
+ * 1.1 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * http://www.mozilla.org/MPL/
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Software distributed under the License is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+ * for the specific language governing rights and limitations under the
+ * License.
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * The Original Code is Mirth.
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
- * ====================================================================
+ * The Initial Developer of the Original Code is
+ * WebReach, Inc.
+ * Portions created by the Initial Developer are Copyright (C) 2006
+ * the Initial Developer. All Rights Reserved.
  *
- * This software consists of voluntary contributions made by many
- * individuals on behalf of the Apache Software Foundation.  For more
- * information on the Apache Software Foundation, please see
- * <http://www.apache.org/>.
+ * Contributor(s):
+ *   Gerald Bortis <geraldb@webreachinc.com>
  *
- */
+ * ***** END LICENSE BLOCK ***** */
+
 
 package com.webreach.mirth.client.core.ssl;
 

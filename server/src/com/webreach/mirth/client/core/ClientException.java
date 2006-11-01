@@ -23,6 +23,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
+
 package com.webreach.mirth.client.core;
 
 public class ClientException extends Exception {

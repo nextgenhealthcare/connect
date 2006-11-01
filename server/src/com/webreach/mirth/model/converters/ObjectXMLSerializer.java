@@ -23,6 +23,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
+
 package com.webreach.mirth.model.converters;
 
 import com.thoughtworks.xstream.XStream;

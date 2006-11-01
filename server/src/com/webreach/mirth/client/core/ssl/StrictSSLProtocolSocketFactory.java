@@ -1,45 +1,28 @@
-/*
- * $Header: /home/jerenkrantz/tmp/commons/commons-convert/cvs/home/cvs/jakarta-commons//httpclient/src/contrib/org/apache/commons/httpclient/contrib/ssl/StrictSSLProtocolSocketFactory.java,v 1.5 2004/06/10 18:25:24 olegk Exp $
- * $Revision: 376971 $
- * $Date: 2006-02-11 03:57:16 -0800 (Sat, 11 Feb 2006) $
+/* ***** BEGIN LICENSE BLOCK *****
+ * Version: MPL 1.1
  *
- * ====================================================================
+ * The contents of this file are subject to the Mozilla Public License Version
+ * 1.1 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * http://www.mozilla.org/MPL/
  *
- *  Copyright 1999-2004 The Apache Software Foundation
+ * Software distributed under the License is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+ * for the specific language governing rights and limitations under the
+ * License.
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * The Original Code is Mirth.
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * The Initial Developer of the Original Code is
+ * WebReach, Inc.
+ * Portions created by the Initial Developer are Copyright (C) 2006
+ * the Initial Developer. All Rights Reserved.
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
- * ====================================================================
+ * Contributor(s):
+ *   Gerald Bortis <geraldb@webreachinc.com>
  *
- * This software consists of voluntary contributions made by many
- * individuals on behalf of the Apache Software Foundation.  For more
- * information on the Apache Software Foundation, please see
- * <http://www.apache.org/>.
- *
- * [Additional notices, if required by prior licensing conditions]
- *
- * Alternatively, the contents of this file may be used under the
- * terms of the GNU Lesser General Public License Version 2 or later
- * (the "LGPL"), in which case the provisions of the LGPL are 
- * applicable instead of those above.  See terms of LGPL at
- * <http://www.gnu.org/copyleft/lesser.txt>.
- * If you wish to allow use of your version of this file only under 
- * the terms of the LGPL and not to allow others to use your version
- * of this file under the Apache Software License, indicate your 
- * decision by deleting the provisions above and replace them with 
- * the notice and other provisions required by the LGPL.  If you do 
- * not delete the provisions above, a recipient may use your version 
- * of this file under either the Apache Software License or the LGPL.
- */
+ * ***** END LICENSE BLOCK ***** */
+
 
 package com.webreach.mirth.client.core.ssl;
 
