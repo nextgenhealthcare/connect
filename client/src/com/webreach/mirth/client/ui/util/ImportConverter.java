@@ -6,8 +6,8 @@ import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.Connector;
 import com.webreach.mirth.model.Step;
 
-public class ImportUtil {
-	public static Channel convert(Channel channel) {
+public class ImportConverter {
+	public Channel convert(Channel channel) {
 		if (channel.getDirection().equals(Channel.Direction.OUTBOUND)) {
 			for (Iterator iter = channel.getDestinationConnectors().iterator(); iter.hasNext();) {
 				Connector connector = (Connector) iter.next();
