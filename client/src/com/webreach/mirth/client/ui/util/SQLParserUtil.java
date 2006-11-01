@@ -27,8 +27,6 @@
 package com.webreach.mirth.client.ui.util;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.*;
 
 import org.apache.log4j.Logger;
 
@@ -37,10 +35,9 @@ import org.apache.log4j.Logger;
  */
 public class SQLParserUtil
 {
-    private String REGEX = "`[^`]*`";
-    String _sqlStatement = "";
     private Logger logger = Logger.getLogger(this.getClass());
     private String[] keywords = {"INTO", "DISTINCT", "UNIQUE", "FIRST", "MIDDLE", "SKIP", "LIMIT"};
+    String _sqlStatement = "";
     
     public SQLParserUtil(String statement)
     {
