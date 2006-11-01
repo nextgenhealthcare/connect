@@ -23,7 +23,6 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
 package com.webreach.mirth.server.builders;
 
 import java.io.File;
@@ -234,10 +233,10 @@ public class MuleConfigurationBuilder {
 			Element routerElement = document.createElement("router");
 			routerElement.setAttribute("className", "org.mule.routing.outbound.FilteringMulticastingRouter");
 			boolean enableTransactions = false;
+
 			for (ListIterator iterator = channel.getDestinationConnectors().listIterator(); iterator.hasNext();) {
 				Connector connector = (Connector) iterator.next();
-		
-				
+
 				Element endpointElement = document.createElement("endpoint");
 				endpointElement.setAttribute("address", getEndpointUri(connector));
 
@@ -266,8 +265,13 @@ public class MuleConfigurationBuilder {
 				// (ie. StringToByteArray)
 				Transport transport = transports.get(connector.getTransportName());
 				transformers.append(transport.getTransformers());
-				if (transport.getProtocol().equals("jdbc"))
+
+				// enable transactions for the outbount router only if it has a
+				// JDBC connector
+				if (transport.getProtocol().equals("jdbc")) {
 					enableTransactions = true;
+				}
+
 				// 3. add the transformer sequence as an attribute to the
 				// endpoint if not empty
 				if (!transformers.toString().trim().equals("")) {
@@ -277,14 +281,13 @@ public class MuleConfigurationBuilder {
 				routerElement.appendChild(endpointElement);
 			}
 
-			// transaction support
+			// check for enabled transactions
 			boolean transactional = ((channel.getProperties().get("transactional") != null) && channel.getProperties().get("transactional").toString().equalsIgnoreCase("true"));
 
 			if (enableTransactions && transactional) {
-				// transports.get(connector.getTransportName()).getProtocol();
 				String protocol = "jdbc";
-				String factory = new String();
 				String action = "BEGIN_OR_JOIN";
+				String factory = new String();
 
 				if (protocol.equals("jdbc")) {
 					factory = "org.mule.providers.jdbc.JdbcTransactionFactory";
