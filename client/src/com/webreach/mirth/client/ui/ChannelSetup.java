@@ -76,7 +76,15 @@ import org.syntax.jedit.tokenmarker.JavaScriptTokenMarker;
 /** The channel editor panel. Majority of the client application */
 public class ChannelSetup extends javax.swing.JPanel
 {
-    private final String DESTINATION_COLUMN_NAME = "Destination";
+    private static final String DESTINATION_DEFAULT_INBOUND = "File Writer";
+    
+    private static final String DESTINATION_DEFAULT_OUTBOUND = "File Writer";
+    
+	private static final String SOURCE_DEFAULT_OUTBOUND = "Database Reader";
+
+	private static final String SOURCE_DEFAULT_INBOUND = "LLP Listener";
+
+	private final String DESTINATION_COLUMN_NAME = "Destination";
     
     private final String CONNECTOR_TYPE_COLUMN_NAME = "Connector Type";
     
@@ -159,24 +167,34 @@ public class ChannelSetup extends javax.swing.JPanel
             {
                 Entry entry = (Entry) i.next();
                 if (transports.get(entry.getKey()).getType() == Transport.Type.LISTENER
-                        && transports.get(entry.getKey()).isInbound())
-                    sourceConnectorsInbound.add(transports.get(entry.getKey())
-                    .getName());
-                
+                        && transports.get(entry.getKey()).isInbound()){
+                	if (entry.getKey().equals(SOURCE_DEFAULT_INBOUND))
+                		sourceConnectorsInbound.add(0,transports.get(entry.getKey()).getName());
+                	else
+                		sourceConnectorsInbound.add(transports.get(entry.getKey()).getName());
+                }
                 if (transports.get(entry.getKey()).getType() == Transport.Type.LISTENER
-                        && transports.get(entry.getKey()).isOutbound())
-                    sourceConnectorsOutbound.add(transports.get(entry.getKey())
+                        && transports.get(entry.getKey()).isOutbound()){
+                  	if (entry.getKey().equals(SOURCE_DEFAULT_OUTBOUND))
+                  		sourceConnectorsOutbound.add(0,transports.get(entry.getKey()).getName());
+                  	else
+                  		sourceConnectorsOutbound.add(transports.get(entry.getKey())
                     .getName());
-                
+                }
                 if (transports.get(entry.getKey()).getType() == Transport.Type.SENDER
-                        && transports.get(entry.getKey()).isInbound())
-                    destinationConnectorsInbound.add(transports.get(
-                            entry.getKey()).getName());
-                
+                        && transports.get(entry.getKey()).isInbound()){
+                	if (entry.getKey().equals(DESTINATION_DEFAULT_INBOUND))
+                		destinationConnectorsInbound.add(0, transports.get(entry.getKey()).getName());
+                	else
+                		destinationConnectorsInbound.add(transports.get(entry.getKey()).getName());
+                }
                 if (transports.get(entry.getKey()).getType() == Transport.Type.SENDER
-                        && transports.get(entry.getKey()).isOutbound())
-                    destinationConnectorsOutbound.add(transports.get(
-                            entry.getKey()).getName());
+                        && transports.get(entry.getKey()).isOutbound()){
+                	if (entry.getKey().equals(DESTINATION_DEFAULT_OUTBOUND))
+                		destinationConnectorsOutbound.add(0, transports.get(entry.getKey()).getName());
+                	else
+                		destinationConnectorsOutbound.add(transports.get(entry.getKey()).getName());
+                }
             }
         }
         catch (ClientException e)
