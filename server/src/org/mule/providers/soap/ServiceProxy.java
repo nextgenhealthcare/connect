@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.axis.message.SOAPEnvelope;
 import org.mule.impl.MuleMessage;
 import org.mule.providers.AbstractMessageReceiver;
 import org.mule.umo.UMOException;
@@ -139,7 +140,14 @@ public class ServiceProxy {
 
             UMOMessage message = receiver.routeMessage(new MuleMessage(messageAdapter), synchronous);
             if (message != null) {
-                return new ACKGenerator().generateAckResponse(((MessageObject)message.getPayload()).getRawData());
+            	Object data = message.getPayload();
+            	if (data instanceof MessageObject){
+            		return new ACKGenerator().generateAckResponse(((MessageObject)message.getPayload()).getRawData());
+            	}else if (data instanceof SOAPEnvelope){
+            		return ((SOAPEnvelope)data).toString();
+            	}else{
+            		return data.toString();
+            	}
             } else {
                 return null;
             }
