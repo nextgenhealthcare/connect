@@ -43,7 +43,7 @@ public class FTPReader extends ConnectorClass
 
     /** Creates new form FTPReader */
     public final String DATATYPE = "DataType";
-    public final String FTP_URL = "url";
+    public final String FTP_HOST = "host";
     public final String FTP_ANONYMOUS = "FTPAnonymous";
     public final String FTP_USERNAME = "username";
     public final String FTP_PASSWORD = "password";
@@ -64,7 +64,7 @@ public class FTPReader extends ConnectorClass
     {
         Properties properties = new Properties();
         properties.put(DATATYPE, name);
-        properties.put(FTP_URL, FTPURLField.getText());
+        properties.put(FTP_HOST, FTPURLField.getText());
         
         if (anonymousYes.isSelected())
             properties.put(FTP_ANONYMOUS, UIConstants.YES_OPTION);
@@ -95,7 +95,7 @@ public class FTPReader extends ConnectorClass
 
     public void setProperties(Properties props)
     {
-        FTPURLField.setText((String)props.get(FTP_URL));
+        FTPURLField.setText((String)props.get(FTP_HOST));
         
         if(((String)props.get(FTP_ANONYMOUS)).equalsIgnoreCase(UIConstants.YES_OPTION))
         {
@@ -132,7 +132,7 @@ public class FTPReader extends ConnectorClass
     {
         Properties properties = new Properties();
         properties.put(DATATYPE, name);
-        properties.put(FTP_URL, "");
+        properties.put(FTP_HOST, "");
         properties.put(FTP_ANONYMOUS, UIConstants.YES_OPTION);
         properties.put(FTP_USERNAME, "");
         properties.put(FTP_PASSWORD, "");
@@ -147,12 +147,12 @@ public class FTPReader extends ConnectorClass
     {
         if (((String)props.get(FTP_ANONYMOUS)).equals(UIConstants.YES_OPTION))
         {
-            if(((String)props.get(FTP_URL)).length() > 0 && ((String)props.get(FTP_POLLING_FREQUENCY)).length() > 0)
+            if(((String)props.get(FTP_HOST)).length() > 0 && ((String)props.get(FTP_POLLING_FREQUENCY)).length() > 0)
                 return true;
         }
         else
         {
-            if(((String)props.get(FTP_URL)).length() > 0 && ((String)props.get(FTP_USERNAME)).length() > 0 && 
+            if(((String)props.get(FTP_HOST)).length() > 0 && ((String)props.get(FTP_USERNAME)).length() > 0 && 
                ((String)props.get(FTP_PASSWORD)).length() > 0 && ((String)props.get(FTP_POLLING_FREQUENCY)).length() > 0)
                 return true;
         }
