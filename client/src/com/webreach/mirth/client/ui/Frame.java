@@ -1252,27 +1252,6 @@ public class Frame extends JXFrame
     }
     
     /**
-     * Checks to see if the passed in channel version is current,
-     * and prompts the user if it is not.
-     */
-    public boolean checkVersion(String importedChannel, String currentVersion)
-    {
-        if (importedChannel == null)
-        {
-            if(!alertOption("The channel being imported is from an unknown version of Mirth." +
-                    "\nSome channel properties may not be the same.  Would you like to continue?"))
-                return false;
-        }
-        else if (!importedChannel.equals(currentVersion))
-        {
-            if(!alertOption("The channel being imported is from Mirth version " + importedChannel + ". You are using Mirth version " + currentVersion + 
-                    ".\nSome channel properties may not be the same.  Would you like to continue?"))
-                return false;
-        }
-        return true;
-    }
-
-    /**
      * Enables the save button for needed page.
      */
     public void enableSave()
@@ -1823,15 +1802,35 @@ public class Frame extends JXFrame
             try
             {
                 Channel importChannel = (Channel)serializer.fromXML(channelXML);
-
-                if (!checkVersion(importChannel.getVersion(), mirthClient.getVersion()))
+                
+                
+                
+                /**
+                 * Checks to see if the passed in channel version is current,
+                 * and prompts the user if it is not.
+                 */
+                int option = JOptionPane.YES_OPTION;
+                if (importChannel.getVersion() == null)
+                {
+                    option = JOptionPane.showConfirmDialog(this, "The channel being imported is from an unknown version of Mirth." +
+                            "\nSome channel properties may not be the same.  Would you like to automatically convert the properties?", "Select an Option", JOptionPane.YES_NO_CANCEL_OPTION);
+                }
+                else if (!importChannel.getVersion().equals(mirthClient.getVersion()))
+                {
+                    option = JOptionPane.showConfirmDialog(this, "The channel being imported is from Mirth version " + importChannel.getVersion() + ". You are using Mirth version " + mirthClient.getVersion() + 
+                            ".\nSome channel properties may not be the same.  Would you like to automatically convert the properties?", "Select an Option", JOptionPane.YES_NO_CANCEL_OPTION);
+                }
+                    
+                if (option == JOptionPane.YES_OPTION)
+                {
+                    ImportConverter converter = new ImportConverter();
+                    importChannel = converter.convertChannel(importChannel);
+                }
+                else if(option != JOptionPane.NO_OPTION)
                     return;
                 
                 if(!checkChannelName(importChannel.getName()))
                     return;
-                
-                ImportConverter converter = new ImportConverter();
-                importChannel = converter.convertChannel(importChannel);
                 
                 try
                 {
