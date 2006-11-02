@@ -80,7 +80,7 @@ public class JMSReader extends ConnectorClass
     public final String JMS_INITIAL_FACTORY = "jndiInitialFactory";
     public final String JMS_CONNECTION_FACTORY = "connectionFactoryJndiName";
     public final String JMS_SELECTOR = "selector";
-    public final String JMS_ADDITIONAL_PROPERTIES = "additionalProperties";
+    public final String JMS_ADDITIONAL_PROPERTIES = "connectionFactoryProperties";
         
     public JMSReader()
     {
