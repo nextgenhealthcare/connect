@@ -15,6 +15,7 @@ import org.mule.util.UUID;
 
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.mule.util.GlobalVariableStore;
+import com.webreach.mirth.util.Entities;
 
 public class TemplateValueReplacer {
 	private Logger logger = Logger.getLogger(this.getClass());
@@ -70,5 +71,6 @@ public class TemplateValueReplacer {
 		context.put("UUID", (new UUID()).getUUID());
 		context.put("SYSTIME", String.valueOf(System.currentTimeMillis()));
 		context.put("ORIGINALNAME", originalFilename);
+		context.put("encoder", new Entities());
 	}
 }

@@ -268,11 +268,18 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			} else {
 				compiledScript.exec(context, scope);
 			}
+			// since the transformations occur on the template, pull it out of
+			// the scope
+			Object transformedData = scope.get("msg", scope);
 
+			if (transformedData != Scriptable.NOT_FOUND) {
+				// set the transformedData to the template
+				messageObject.setTransformedData(Context.toString(transformedData));
+			}
 			// take the now transformed message and convert it back to ER7
 			if ((messageObject.getTransformedData() != null) && (messageObject.getEncodedDataProtocol().equals(MessageObject.Protocol.HL7))) {
 				ER7Serializer serializer = new ER7Serializer();
-				messageObject.getTransformedData().replace("\\E", "");
+				//messageObject.getTransformedData().replace("\\E", "");
 				messageObject.setEncodedData(serializer.fromXML(messageObject.getTransformedData()));
 			}
 
@@ -374,14 +381,16 @@ public class JavaScriptTransformer extends AbstractTransformer {
 		}
 	}
 
-	private void initializeMessage(MessageObject messageObject) {
+	private void initializeMessage(MessageObject originalMessageObject) {
 		String guid = UUID.randomUUID().toString();
-		logger.debug("initializing message: id=" + guid);
+		logger.warn("initializing message: id=" + guid);
+		MessageObject messageObject = (MessageObject)originalMessageObject.clone();
 		messageObject.setId(guid);
 		messageObject.setConnectorName(getConnectorName());
 		messageObject.setEncrypted(encryptData);
 		messageObject.setChannelId(channelId);
 		messageObject.setDateCreated(Calendar.getInstance());
+		
 	}
 
 	private String generateFilterScript(String filterScript) {
@@ -416,7 +425,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			script.append("tmp = new XML(template);");
 		}
 		
-		script.append("var msg = new XML(message);");
+		script.append("msg = new XML(message);");
 		script.append(transformerScript);
 		script.append(" }");
 		script.append("doTransform()\n");

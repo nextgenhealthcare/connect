@@ -93,6 +93,7 @@ public class PdfMessageDispatcher extends AbstractMessageDispatcher {
 			ByteArrayInputStream bais = new ByteArrayInputStream(contents.toString().getBytes());
 			document.open();
 			HtmlParser parser = new HtmlParser();
+			
 			parser.go(document, bais);
 		} catch (Exception e) {
 			throw e;

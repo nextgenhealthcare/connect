@@ -59,12 +59,15 @@ import com.webreach.mirth.util.PropertyLoader;
  */
 public class MuleConfigurationBuilder {
 	public static final String[] cDataElements = null;
+
 	private Logger logger = Logger.getLogger(this.getClass());
 
 	private List<Channel> channels = null;
+
 	private Map<String, Transport> transports = null;
 
 	private JavaScriptFilterBuilder filterBuilder = new JavaScriptFilterBuilder();
+
 	private JavaScriptTransformerBuilder transformerBuilder = new JavaScriptTransformerBuilder();
 
 	private ScriptController scriptController = new ScriptController();
@@ -259,6 +262,8 @@ public class MuleConfigurationBuilder {
 				if (channel.getMode().equals(Channel.Mode.ROUTER)) {
 					addTransformer(document, configurationElement, channel, connector, connectorReference + "_transformer");
 					transformers.append(connectorReference + "_transformer" + " ");
+				} else {
+					transformers.append("NoActionTransformer ");
 				}
 
 				// 2. finally, append any transformers needed by the transport

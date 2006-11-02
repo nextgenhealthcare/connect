@@ -213,11 +213,9 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher {
 		// Axis creates a new thread for every invoke one way call. nasty!
 		// Mule overides the default Axis HttpSender to return immediately if
 		// the axis.one.way property is set
-		// Change this to TRUE before we deploy
-		// TODO: LOOK ABOVE!!
+		// Change this to FALSE to debug
 		
-		
-		call.setProperty("axis.one.way", Boolean.FALSE);
+		call.setProperty("axis.one.way", Boolean.TRUE);
 		call.setProperty(MuleProperties.MULE_EVENT_PROPERTY, event);
 
 		// call.invoke(args);

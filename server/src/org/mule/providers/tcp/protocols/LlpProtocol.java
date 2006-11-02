@@ -68,7 +68,7 @@ public class LlpProtocol implements TcpProtocol {
 		} else {
 			myReader = new BufferedReader(new InputStreamReader(is, charset));
 		}
-		
+
 		StringBuffer s_buffer = new StringBuffer();
 
 		boolean end_of_message = false;
@@ -123,7 +123,7 @@ public class LlpProtocol implements TcpProtocol {
 						}
 						if (END_OF_RECORD != 0 && c != END_OF_RECORD) {
 							logger.error("Message terminator was: " + c + "  Expected terminator: " + END_OF_RECORD);
-							throw new IOException("Message " + "violates the minimal lower layer protocol: " + "message terminator not followed by a return " + "character.");
+							throw new IOException("Message " + "violates the minimal lower layer protocol: " + "message terminator not followed by a return " + "character." + s_buffer.toString());
 						}
 					} catch (SocketException e) {
 						logger.info("SocketException on read() attempt.  Socket appears to have been closed: " + e.getMessage());

@@ -180,7 +180,26 @@ public class MessageObject implements Serializable {
 	public void setErrors(String errors) {
 		this.errors = errors;
 	}
-
+	public Object clone(){
+		
+		MessageObject messageObject = new MessageObject();
+		messageObject.setChannelId(this.getChannelId());
+		messageObject.setConnectorName(this.getConnectorName());
+		messageObject.setDateCreated(this.getDateCreated());
+		messageObject.setEncodedData(this.getEncodedData());
+		messageObject.setEncodedDataProtocol(this.getEncodedDataProtocol());
+		messageObject.setEncrypted(this.isEncrypted());
+		messageObject.setErrors(this.getErrors());
+		messageObject.setId(this.getId());
+		messageObject.setRawData(this.getRawData());
+		messageObject.setRawDataProtocol(this.getRawDataProtocol());
+		messageObject.setStatus(this.getStatus());
+		messageObject.setTransformedData(this.getTransformedData());
+		messageObject.setTransformedDataProtocol(this.getTransformedDataProtocol());
+		messageObject.setVariableMap(this.getVariableMap());
+		messageObject.setVersion(this.getVersion());
+		return messageObject;
+	}
 	public boolean equals(Object source) {
 		if (source instanceof MessageObject) {
 			MessageObject messageObject = (MessageObject) source;

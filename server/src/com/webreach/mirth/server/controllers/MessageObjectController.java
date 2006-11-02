@@ -220,6 +220,7 @@ public class MessageObjectController {
 			result = dbConnection.executeQuery(select.toString());
 
 			while (result.next()) {
+				logger.debug("message count: " + result.getInt(1) + "filter=" + filter.toString());
 				return result.getInt(1);
 			}
 

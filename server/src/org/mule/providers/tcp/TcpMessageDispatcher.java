@@ -121,6 +121,12 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 		BufferedOutputStream bos = new BufferedOutputStream(socket.getOutputStream());
 		protocol.write(bos, binaryData);
 		bos.flush();
+		// update the message status to sent
+		if (data instanceof MessageObject) {
+			MessageObject messageObject = (MessageObject) data;
+			messageObject.setStatus(MessageObject.Status.SENT);
+			messageObjectController.updateMessage(messageObject);
+		}
 	}
 
 	public UMOMessage doSend(UMOEvent event) throws Exception {
