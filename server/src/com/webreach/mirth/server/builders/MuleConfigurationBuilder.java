@@ -45,6 +45,7 @@ import com.webreach.mirth.model.Connector;
 import com.webreach.mirth.model.Transport;
 import com.webreach.mirth.model.converters.DocumentSerializer;
 import com.webreach.mirth.model.converters.ER7Serializer;
+import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.server.controllers.ScriptController;
 import com.webreach.mirth.server.controllers.TemplateController;
 import com.webreach.mirth.server.util.UUIDGenerator;
@@ -404,6 +405,21 @@ public class MuleConfigurationBuilder {
 						textPropertyElement.setAttribute("name", "template");
 						textPropertyElement.setTextContent(property.getValue().toString());
 						propertiesElement.appendChild(textPropertyElement);
+					} else if (property.getKey().equals("connectionFactoryProperties")) {
+						Element connectionFactoryPropertiesMapElement = document.createElement("map");
+						connectionFactoryPropertiesMapElement.setAttribute("name", "connectionFactoryProperties");
+						ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+						Properties connectionFactoryProperties = (Properties) serializer.fromXML(property.getValue().toString());
+
+						for (Iterator iterator = connectionFactoryProperties.entrySet().iterator(); iterator.hasNext();) {
+							Entry connectionFactoryProperty = (Entry) iterator.next();
+							Element connectionFactoryPropertyElement = document.createElement("property");
+							connectionFactoryPropertyElement.setAttribute("name", connectionFactoryProperty.getKey().toString());
+							connectionFactoryPropertyElement.setAttribute("value", connectionFactoryProperty.getValue().toString());
+							connectionFactoryPropertiesMapElement.appendChild(connectionFactoryPropertyElement);
+						}
+						
+						propertiesElement.appendChild(connectionFactoryPropertiesMapElement);
 					} else {
 						Element propertyElement = document.createElement("property");
 						propertyElement.setAttribute("name", property.getKey().toString());
