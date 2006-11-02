@@ -64,8 +64,8 @@ public class VariableTransferable implements Transferable {
           this.data = "COUNT";
       else if(data.equals("Formatted Date"))
           this.data = "date.get('yyyy-M-d H:m:s')";
-      else if(data.equals("Entity Decoder"))
-          this.data = "decoder.decode()";
+      else if(data.equals("Entity Encoder"))
+          this.data = "encoder.encode()";
       else
           this.data = data;
       _prefix = prefix;

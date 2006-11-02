@@ -65,7 +65,7 @@ public class VariableList extends javax.swing.JPanel
         variables.add("Unique ID");
         variables.add("Original File");
         variables.add("Count");
-        variables.add("Entity Decoder");
+        variables.add("Entity Encoder");
         for (Iterator it = steps.iterator(); it.hasNext();)
         {
             Step step = (Step) it.next();
