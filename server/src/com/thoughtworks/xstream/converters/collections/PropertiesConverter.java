@@ -59,7 +59,12 @@ public class PropertiesConverter implements Converter {
                 Fields.write(defaultsField, properties, defaults);
             } else {
                 String name = reader.getAttribute("name");
-                String value = reader.getValue();
+                String value = reader.getAttribute("value");
+                
+                if ((value == null) || (value.length() == 0)){
+                	value = reader.getValue();
+                }
+                
                 properties.setProperty(name, value);
             }
             reader.moveUp();
