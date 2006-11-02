@@ -29,9 +29,13 @@ package com.webreach.mirth.client.ui.connectors;
 import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
 import java.util.Properties;
+import javax.swing.JComponent;
+import org.jdesktop.layout.GroupLayout;
+import org.jdesktop.layout.LayoutStyle;
 
 import com.webreach.mirth.client.ui.Frame;
 import com.webreach.mirth.client.ui.PlatformUI;
+
 
 /**
  * A form that extends from ConnectorClass.  All methods implemented
@@ -180,6 +184,8 @@ public class FTPWriter extends ConnectorClass
         buttonGroup2 = new javax.swing.ButtonGroup();
         buttonGroup3 = new javax.swing.ButtonGroup();
         buttonGroup4 = new javax.swing.ButtonGroup();
+		GroupLayout layout = new GroupLayout((JComponent) this);
+		this.setLayout(layout);
         URL = new javax.swing.JLabel();
         FTPURLField = new com.webreach.mirth.client.ui.components.MirthTextField();
         outputPatternField = new com.webreach.mirth.client.ui.components.MirthTextField();
@@ -195,7 +201,6 @@ public class FTPWriter extends ConnectorClass
         FTPUsernameField = new com.webreach.mirth.client.ui.components.MirthTextField();
         FTPPasswordField = new com.webreach.mirth.client.ui.components.MirthPasswordField();
         FTPPasswordLabel = new javax.swing.JLabel();
-        jLabel9 = new javax.swing.JLabel();
         validateConnectionYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         validateConnectionNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         anonymousYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
@@ -249,8 +254,6 @@ public class FTPWriter extends ConnectorClass
 
         FTPPasswordLabel.setText("Password:");
 
-        jLabel9.setText("Polling Frequency (ms):");
-
         validateConnectionYes.setBackground(new java.awt.Color(255, 255, 255));
         validateConnectionYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         buttonGroup3.add(validateConnectionYes);
@@ -293,106 +296,94 @@ public class FTPWriter extends ConnectorClass
 
         jScrollPane1.setViewportView(ftpContentsTextPane);
 
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                            .add(jLabel10)
-                            .add(URL)
-                            .add(FTPPasswordLabel)
-                            .add(jLabel9)
-                            .add(FTPUsernameLabel))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(layout.createSequentialGroup()
-                                .add(anonymousYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(anonymousNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                            .add(FTPPasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(FTPURLField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 250, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(FTPUsernameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                    .add(layout.createSequentialGroup()
-                        .add(23, 23, 23)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                            .add(jLabel3)
-                            .add(jLabel5)
-                            .add(jLabel6)
-                            .add(jLabel7)
-                            .add(fileAgeLabel))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(layout.createSequentialGroup()
-                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                    .add(outputPatternField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                    .add(layout.createSequentialGroup()
-                                        .add(passiveModeYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                        .add(passiveModeNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                                    .add(layout.createSequentialGroup()
-                                        .add(fileTypeBinary, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                        .add(fileTypeASCII, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                                    .add(layout.createSequentialGroup()
-                                        .add(validateConnectionYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                        .add(validateConnectionNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                                .add(263, 263, 263))
-                            .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 513, Short.MAX_VALUE))))
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(URL)
-                    .add(FTPURLField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(anonymousNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel10)
-                    .add(anonymousYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(FTPUsernameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(FTPUsernameLabel))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(FTPPasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(FTPPasswordLabel))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                                 .add(jLabel9))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(outputPatternField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel5))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(jLabel6)
-                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                        .add(passiveModeYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(passiveModeNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel7)
-                    .add(fileTypeBinary, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(fileTypeASCII, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(fileAgeLabel)
-                    .add(validateConnectionYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(validateConnectionNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jLabel3)
-                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 340, Short.MAX_VALUE))
-                .addContainerGap())
-        );
+        layout.setVerticalGroup(layout.createSequentialGroup()
+            .add(layout.createParallelGroup(GroupLayout.BASELINE)
+                .add(URL)
+                .add(FTPURLField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+            .addPreferredGap(LayoutStyle.RELATED)
+            .add(layout.createParallelGroup(GroupLayout.BASELINE)
+                .add(anonymousNo, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                .add(jLabel10)
+                .add(anonymousYes, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+            .addPreferredGap(LayoutStyle.RELATED)
+            .add(layout.createParallelGroup(GroupLayout.BASELINE)
+                .add(FTPUsernameField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                .add(FTPUsernameLabel))
+            .addPreferredGap(LayoutStyle.RELATED)
+            .add(layout.createParallelGroup(GroupLayout.BASELINE)
+                .add(FTPPasswordField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                .add(FTPPasswordLabel))
+            .addPreferredGap(LayoutStyle.RELATED, 26, 26)
+            .add(layout.createParallelGroup(GroupLayout.BASELINE)
+                .add(outputPatternField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                .add(jLabel5))
+            .addPreferredGap(LayoutStyle.RELATED)
+            .add(layout.createParallelGroup(GroupLayout.TRAILING)
+                .add(jLabel6)
+                .add(layout.createParallelGroup(GroupLayout.BASELINE)
+                    .add(passiveModeYes, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                    .add(passiveModeNo, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
+            .addPreferredGap(LayoutStyle.RELATED)
+            .add(layout.createParallelGroup(GroupLayout.BASELINE)
+                .add(jLabel7)
+                .add(fileTypeBinary, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                .add(fileTypeASCII, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+            .addPreferredGap(LayoutStyle.RELATED)
+            .add(layout.createParallelGroup(GroupLayout.BASELINE)
+                .add(fileAgeLabel)
+                .add(validateConnectionYes, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                .add(validateConnectionNo, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+            .addPreferredGap(LayoutStyle.RELATED)
+            .add(layout.createParallelGroup(GroupLayout.LEADING)
+                .add(jLabel3)
+                .add(jScrollPane1, GroupLayout.DEFAULT_SIZE, 340, Short.MAX_VALUE))
+            .addContainerGap());
+        layout.setHorizontalGroup(layout.createSequentialGroup()
+            .add(layout.createParallelGroup(GroupLayout.LEADING)
+                .add(layout.createSequentialGroup()
+                    .addContainerGap()
+                    .add(layout.createParallelGroup(GroupLayout.TRAILING)
+                        .add(jLabel10)
+                        .add(URL)
+                        .add(FTPPasswordLabel)
+                        .add(FTPUsernameLabel))
+                    .addPreferredGap(LayoutStyle.RELATED)
+                    .add(layout.createParallelGroup(GroupLayout.LEADING)
+                        .add(layout.createSequentialGroup()
+                            .add(anonymousYes, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(LayoutStyle.RELATED)
+                            .add(anonymousNo, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+                        .add(FTPPasswordField, GroupLayout.PREFERRED_SIZE, 125, GroupLayout.PREFERRED_SIZE)
+                        .add(FTPURLField, GroupLayout.PREFERRED_SIZE, 250, GroupLayout.PREFERRED_SIZE)
+                        .add(FTPUsernameField, GroupLayout.PREFERRED_SIZE, 125, GroupLayout.PREFERRED_SIZE)))
+                .add(layout.createSequentialGroup()
+                    .add(23, 23, 23)
+                    .add(layout.createParallelGroup(GroupLayout.TRAILING)
+                        .add(jLabel3)
+                        .add(jLabel5)
+                        .add(jLabel6)
+                        .add(jLabel7)
+                        .add(fileAgeLabel))
+                    .addPreferredGap(LayoutStyle.RELATED)
+                    .add(layout.createParallelGroup(GroupLayout.LEADING)
+                        .add(layout.createSequentialGroup()
+                            .add(layout.createParallelGroup(GroupLayout.LEADING)
+                                .add(outputPatternField, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE)
+                                .add(layout.createSequentialGroup()
+                                    .add(passiveModeYes, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                    .addPreferredGap(LayoutStyle.RELATED)
+                                    .add(passiveModeNo, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+                                .add(layout.createSequentialGroup()
+                                    .add(fileTypeBinary, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                    .addPreferredGap(LayoutStyle.RELATED)
+                                    .add(fileTypeASCII, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+                                .add(layout.createSequentialGroup()
+                                    .add(validateConnectionYes, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                    .addPreferredGap(LayoutStyle.RELATED)
+                                    .add(validateConnectionNo, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
+                            .add(263, 263, 263))
+                        .add(jScrollPane1, GroupLayout.DEFAULT_SIZE, 513, Short.MAX_VALUE))))
+            .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE));
     }// </editor-fold>//GEN-END:initComponents
 
     private void anonymousNoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_anonymousNoActionPerformed
@@ -432,7 +423,6 @@ public class FTPWriter extends ConnectorClass
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
-    private javax.swing.JLabel jLabel9;
     private javax.swing.JScrollPane jScrollPane1;
     private com.webreach.mirth.client.ui.components.MirthTextField outputPatternField;
     private com.webreach.mirth.client.ui.components.MirthRadioButton passiveModeNo;
