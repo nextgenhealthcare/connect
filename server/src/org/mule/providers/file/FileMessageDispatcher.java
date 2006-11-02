@@ -69,6 +69,10 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
 
 			if (data instanceof MessageObject) {
 				MessageObject messageObject = (MessageObject) data;
+				if (messageObject.getStatus().equals(MessageObject.Status.REJECTED)){
+					return;
+				}
+				
 				String filename = (String) event.getProperty(FileConnector.PROPERTY_FILENAME);
 
 				if (filename == null) {

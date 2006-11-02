@@ -7,11 +7,15 @@ import com.webreach.mirth.server.controllers.MessageObjectController;
 
 public class MessageObjectToJMSMessage extends AbstractJmsTransformer {
 	private MessageObjectController messageObjectController = new MessageObjectController();
-	
+
 	public Object doTransform(Object src) throws TransformerException {
 		if (src instanceof MessageObject) {
 			MessageObject messageObject = (MessageObject) src;
-			
+
+			if (messageObject.getStatus().equals(MessageObject.Status.REJECTED)) {
+				return null;
+			}
+
 			// update the message status to sent
 			messageObject.setStatus(MessageObject.Status.SENT);
 			messageObjectController.updateMessage(messageObject);

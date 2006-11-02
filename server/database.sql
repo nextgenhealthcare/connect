@@ -100,7 +100,7 @@ INSERT INTO USERS VALUES(0, 'admin', 'admin');
 
 /* ADD TRANSPORTS */
 
-INSERT INTO TRANSPORTS (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE, INBOUND, OUTBOUND) VALUES ('FTP Reader', 'org.mule.providers.ftp.FtpConnector', 'ftp', '', 'LISTENER', true, false);
+INSERT INTO TRANSPORTS (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE, INBOUND, OUTBOUND) VALUES ('FTP Reader', 'org.mule.providers.ftp.FtpConnector', 'ftp', 'ByteArrayToString', 'LISTENER', true, false);
 INSERT INTO TRANSPORTS (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE, INBOUND, OUTBOUND) VALUES ('SFTP Reader', 'org.mule.providers.sftp.SftpConnector', 'sftp', 'ByteArrayToString', 'LISTENER', true, false);
 INSERT INTO TRANSPORTS (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE, INBOUND, OUTBOUND) VALUES ('JMS Reader', 'org.mule.providers.jms.JmsConnector', 'jms', 'JMSMessageToObject ObjectToString', 'LISTENER', true, true);
 INSERT INTO TRANSPORTS (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE, INBOUND, OUTBOUND) VALUES ('SOAP Listener', 'org.mule.providers.soap.axis.AxisConnector', 'axis', 'SOAPRequestToString', 'LISTENER', true, true);

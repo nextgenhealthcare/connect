@@ -167,10 +167,8 @@ public class JavaScriptTransformer extends AbstractTransformer {
 
 	@Override
 	public Object doTransform(Object src) throws TransformerException {
-		MessageObject messageObject = (MessageObject) src;
-
-		initializeMessage(messageObject);
-
+		MessageObject messageObject = 	initializeMessage((MessageObject) src);
+		
 		if (direction.equals(Channel.Direction.INBOUND.toString())) {
 			if (evaluateFilterScript(messageObject)) {
 				return evaluateInboundTransformerScript(messageObject);
@@ -180,8 +178,9 @@ public class JavaScriptTransformer extends AbstractTransformer {
 				return evaluateOutboundTransformerScript(messageObject);
 			}
 		}
-
-		return null;
+		
+		messageObject.setStatus(MessageObject.Status.REJECTED);
+		return messageObject;
 	}
 
 	private boolean evaluateFilterScript(MessageObject messageObject) {
@@ -381,7 +380,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 		}
 	}
 
-	private void initializeMessage(MessageObject source) {
+	private MessageObject initializeMessage(MessageObject source) {
 		String guid = UUID.randomUUID().toString();
 		MessageObject messageObject = (MessageObject) source.clone();
 		messageObject.setId(guid);
@@ -389,6 +388,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 		messageObject.setEncrypted(encryptData);
 		messageObject.setChannelId(channelId);
 		messageObject.setDateCreated(Calendar.getInstance());
+		return messageObject;
 	}
 
 	private String generateFilterScript(String filterScript) {

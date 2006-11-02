@@ -112,7 +112,12 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 		} else if (data instanceof byte[]) {
 			binaryData = (byte[]) data;
 		} else if (data instanceof MessageObject) {
-			String payload = ((MessageObject) data).getEncodedData();
+			MessageObject messageObject = (MessageObject) data;
+			
+			if (messageObject.getStatus().equals(MessageObject.Status.REJECTED)){
+				return;
+			}
+			String payload = messageObject.getEncodedData();
 			binaryData = payload.getBytes();
 		} else {
 			binaryData = Utility.objectToByteArray(data);

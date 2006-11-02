@@ -29,6 +29,8 @@ import org.mule.umo.endpoint.UMOEndpointURI;
 import org.mule.umo.provider.ConnectorException;
 import org.mule.umo.provider.UMOMessageAdapter;
 
+import com.webreach.mirth.model.MessageObject;
+
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
@@ -67,9 +69,16 @@ public class JdbcMessageDispatcher extends AbstractMessageDispatcher
         if (logger.isDebugEnabled()) {
             logger.debug("Dispatch event: " + event);
         }
-        if (event.getTransformedMessage() == null){
-        	return;
-        }
+		Object data = event.getTransformedMessage();
+		if (data == null) {
+			return;
+		} else if (data instanceof MessageObject) {
+			MessageObject messageObject = (MessageObject) data;
+			
+			if (messageObject.getStatus().equals(MessageObject.Status.REJECTED)){
+				return;
+			}
+		}
         UMOEndpoint endpoint = event.getEndpoint();
         UMOEndpointURI endpointURI = endpoint.getEndpointURI();
         String writeStmt = endpointURI.getAddress();
@@ -87,7 +96,7 @@ public class JdbcMessageDispatcher extends AbstractMessageDispatcher
         }
         List paramNames = new ArrayList();
         writeStmt = JdbcUtils.parseStatement(writeStmt, paramNames);
-        Object[] paramValues = JdbcUtils.getParams(endpointURI, paramNames, event.getTransformedMessage());
+        Object[] paramValues = JdbcUtils.getParams(endpointURI, paramNames, data);
 
         UMOTransaction tx = TransactionCoordination.getInstance().getTransaction();
         Connection con = null;

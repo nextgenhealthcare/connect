@@ -186,20 +186,28 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher {
 	}
 
 	public void doDispatch(UMOEvent event) throws Exception {
-		if (event.getTransformedMessage() == null) {
+		Object data = event.getTransformedMessage();
+		if (data == null) {
 			return;
-		} else {
-			invokeWebService(event);
+		} else if (data instanceof MessageObject) {
+			MessageObject messageObject = (MessageObject) data;
+			
+			if (messageObject.getStatus().equals(MessageObject.Status.REJECTED)){
+				return;
+			}
+			invokeWebService(event, messageObject);	
 		}
 	}
 
-	private Object[] invokeWebService(UMOEvent event) throws Exception {
+	private Object[] invokeWebService(UMOEvent event, MessageObject messageObject) throws Exception {
 		AxisProperties.setProperty("axis.doAutoTypes", "true");
 		Object[] args = new Object[0];// getArgs(event);
 		Call call = getCall(event, args);
 		call = new Call(((AxisConnector) connector).getServiceEndpoint());
 		String requestMessage = ((AxisConnector) connector).getSoapEnvelope();
-		MessageObject messageObject = (MessageObject) event.getTransformedMessage();
+		
+		
+
 		// Run the template replacer on the xml
 		TemplateValueReplacer replacer = new TemplateValueReplacer();
 		requestMessage = replacer.replaceValues(requestMessage, messageObject, null);
@@ -235,8 +243,23 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher {
 	}
 
 	public UMOMessage doSend(UMOEvent event) throws Exception {
-		Object[] results = invokeWebService(event);
-		Object result = results[0];
+
+		Object[] results = null;
+		Object data = event.getTransformedMessage();
+		if (data == null) {
+			return null;
+		} else if (data instanceof MessageObject) {
+			MessageObject messageObject = (MessageObject) data;
+			
+			if (messageObject.getStatus().equals(MessageObject.Status.REJECTED)){
+				return null;
+			}
+			results = invokeWebService(event, messageObject);	
+		}
+		Object result = null;
+		if (results != null){
+			result = results[0];
+		}
 		if (result == null) {
 			return null;
 		} else {
