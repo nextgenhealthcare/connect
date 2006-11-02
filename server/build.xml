@@ -104,6 +104,7 @@
 		<mkdir dir="${setup.source}" />
 		<mkdir dir="${setup.logs}" />
 		<mkdir dir="${setup.licenses}" />
+		<mkdir dir="${setup.conf}/META-INF" />
 
 		<!-- copy source files -->
 		<copy todir="${setup.source}">
@@ -122,6 +123,11 @@
 			<fileset file="${conf}/mirth.properties" />
 			<fileset file="${conf}/log4j.properties" />
 			<fileset file="${conf}/wrapper.conf" />
+		</copy>
+
+		<!-- copy WEB-INF files -->
+		<copy todir="${setup.conf}/META-INF">
+			<fileset dir="${conf}/META-INF" />
 		</copy>
 
 		<!-- create version.properties file -->
@@ -198,7 +204,7 @@
 
 		<!-- remove the source code -->
 		<delete dir="${setup.source}" />
-		
+
 		<!-- copy license files -->
 		<copy todir="${setup.licenses}">
 			<fileset dir="${licenses}" />
