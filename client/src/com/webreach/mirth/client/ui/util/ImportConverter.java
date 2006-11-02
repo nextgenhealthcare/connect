@@ -38,18 +38,18 @@ public class ImportConverter
         if (connector.getProperties().getProperty("template") != null)
         {
             String template = connector.getProperties().getProperty("template");
-            template = template.replaceAll("hl7_xml", "message.transformedData");
+            template = template.replaceAll("\\$\\{HL7 XML\\}", "\\$\\{message.transformedData\\}");
             
             if(template.indexOf("${DATE}") != -1)
                     template = template.replaceAll("\\$\\{DATE\\}", "\\$\\{date\\}");;
 
             if (channel.getDirection().equals(Channel.Direction.INBOUND))
             {
-                template = template.replaceAll("hl7_er7", "message.rawData");
+                template = template.replaceAll("\\$\\{HL7 ER7\\}", "\\$\\{message.rawData\\}");
             }
             else
             {
-                template = template.replaceAll("hl7_er7", "message.encodedData");
+                template = template.replaceAll("\\$\\{HL7 ER7\\}", "\\$\\{message.encodedData\\}");
             }
 
             connector.getProperties().setProperty("template", template);
@@ -110,18 +110,18 @@ public class ImportConverter
             if (connector.getProperties().getProperty("template") != null)
             {
                 String template = connector.getProperties().getProperty("template");
-                template = template.replaceAll("hl7_xml", "message.transformedData");
+                template = template.replaceAll("\\$\\{HL7 XML\\}", "\\$\\{message.transformedData\\}");
                 
                 if(template.indexOf("${DATE}") != -1)
                     template = template.replaceAll("\\$\\{DATE\\}", "\\$\\{date\\}");
                 
                 if (channel.getDirection().equals(Channel.Direction.INBOUND))
                 {
-                    template = template.replaceAll("hl7_er7", "message.rawData");
+                    template = template.replaceAll("\\$\\{HL7 ER7\\}", "\\$\\{message.rawData\\}");
                 }
                 else
                 {
-                    template = template.replaceAll("hl7_er7", "message.encodedData");
+                    template = template.replaceAll("\\$\\{HL7 ER7\\}", "\\$\\{message.encodedData\\}");
                 }
                 
                 connector.getProperties().setProperty("template", template);
