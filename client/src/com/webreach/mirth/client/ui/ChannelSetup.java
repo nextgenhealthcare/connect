@@ -455,7 +455,6 @@ public class ChannelSetup extends javax.swing.JPanel
                 showChannelEditPopupMenu(evt, false);
             }
         });
-        
     }
     
     /** Get the index of a destination by being passed its name. */
@@ -717,7 +716,7 @@ public class ChannelSetup extends javax.swing.JPanel
         if(currentChannel.getPreprocessingScript() != null)
             preprocessor.setText(currentChannel.getPreprocessingScript());
         else
-         	preprocessor.setText("//Modify the message variable below to pre process data\r\nreturn message;");
+         	preprocessor.setText("// Modify the message variable below to pre process data\r\nreturn message;");
         
         if (((String) currentChannel.getProperties().get("recv_xml_encoded")) != null
                 && ((String) currentChannel.getProperties().get(

@@ -81,13 +81,13 @@ import com.webreach.mirth.client.ui.editors.JavaScriptPanel;
 import com.webreach.mirth.client.ui.editors.MapperPanel;
 import com.webreach.mirth.client.ui.editors.MirthEditorPane;
 import com.webreach.mirth.client.ui.editors.MyComboBoxEditor;
+import com.webreach.mirth.client.ui.util.ImportConverter;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.Step;
 import com.webreach.mirth.model.Transformer;
 import java.io.IOException;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EvaluatorException;
-import org.mozilla.javascript.JavaScriptException;
 import org.mozilla.javascript.Script;
 
 public class TransformerPane extends MirthEditorPane
@@ -262,7 +262,7 @@ public class TransformerPane extends MirthEditorPane
         
         transformerTasks.add(initActionCallback("doExport", ActionFactory
                 .createBoundAction("doExport", "Export Transformer",
-                "I"), new ImageIcon(Frame.class
+                "E"), new ImageIcon(Frame.class
                 .getResource("images/export.png"))));
         JMenuItem exportTransformer = new JMenuItem("Export Transformer");
         exportTransformer.setIcon(new ImageIcon(Frame.class
@@ -294,7 +294,7 @@ public class TransformerPane extends MirthEditorPane
         
         // move step up task
         transformerTasks.add(initActionCallback("moveStepUp", ActionFactory
-                .createBoundAction("moveStepUp", "Move Step Up", "U"),
+                .createBoundAction("moveStepUp", "Move Step Up", "P"),
                 new ImageIcon(Frame.class.getResource("images/arrow_up.png"))));
         JMenuItem moveStepUp = new JMenuItem("Move Step Up");
         moveStepUp.setIcon(new ImageIcon(Frame.class
@@ -447,6 +447,7 @@ public class TransformerPane extends MirthEditorPane
         transformerTable.setSortable(false);
         transformerTable.setOpaque(true);
         transformerTable.setRowSelectionAllowed(true);
+        transformerTable.getTableHeader().setReorderingAllowed(false);
         
         if (Preferences.systemNodeForPackage(Mirth.class).getBoolean(
                 "highlightRows", true))
@@ -891,6 +892,8 @@ public class TransformerPane extends MirthEditorPane
             try
             {
                 Transformer importTransformer = (Transformer)serializer.fromXML(transformerXML);
+                ImportConverter converter = new ImportConverter();
+                importTransformer = converter.convertTransformer(importTransformer, parent.channelEditPage.currentChannel.getDirection());
                 prevSelRow = -1;
                 modified = true;
                 connector.setTransformer(importTransformer);

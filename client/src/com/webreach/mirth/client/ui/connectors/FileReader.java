@@ -185,7 +185,7 @@ public class FileReader extends ConnectorClass
 
         jLabel2.setText("Polling Frequency (ms):");
 
-        jLabel4.setText("Move-to Pattern:");
+        jLabel4.setText("Move-to File Name:");
 
         jLabel5.setText("Move-to Directory:");
 
@@ -278,7 +278,7 @@ public class FileReader extends ConnectorClass
                                     .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                                     .add(checkFileAgeNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                                     .add(8, 8, 8))))))
-                .addContainerGap(146, Short.MAX_VALUE))
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -317,7 +317,7 @@ public class FileReader extends ConnectorClass
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel3)
                     .add(sortBy, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(128, Short.MAX_VALUE))
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 

@@ -26,6 +26,7 @@
 
 package com.webreach.mirth.client.ui;
 
+import com.webreach.mirth.model.converters.SerializerException;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.GridLayout;
@@ -105,15 +106,27 @@ public class HL7XMLTreePanel extends JPanel {
 				String er7Message = new ER7Serializer().toXML(source);
 				xmlDoc = docBuilder.parse(new InputSource(new StringReader(er7Message)));
 				message = parser.parse(source);
-			} catch (EncodingNotSupportedException e) {
-				PlatformUI.MIRTH_FRAME.alertWarning( "Encoding not supported.\n" +
+			}
+                        catch (SerializerException e)
+                        {
+                            PlatformUI.MIRTH_FRAME.alertWarning( "Encoding not supported.\n" +
 						"Please check the syntax of your message\n" +
 				"and try again.");
-			} catch (HL7Exception e) {
+                        }
+                        catch (EncodingNotSupportedException e) 
+                        {
+                            PlatformUI.MIRTH_FRAME.alertWarning( "Encoding not supported.\n" +
+						"Please check the syntax of your message\n" +
+                                                "and try again.");
+			} 
+                        catch (HL7Exception e) 
+                        {
 				PlatformUI.MIRTH_FRAME.alertError( "HL7 Error!\n" +
 						"Please check the syntax of your message\n" +
 				"and try again.");
-			} catch (Exception e) {
+			} 
+                        catch (Exception e) 
+                        {
 				PlatformUI.MIRTH_FRAME.alertException(e.getStackTrace(), e.getMessage());
 				e.printStackTrace();
 			}

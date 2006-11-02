@@ -30,7 +30,27 @@ import com.webreach.mirth.client.ui.UIConstants;
 import java.util.Properties;
 
 import com.webreach.mirth.client.ui.Frame;
+import com.webreach.mirth.client.ui.Mirth;
 import com.webreach.mirth.client.ui.PlatformUI;
+import com.webreach.mirth.client.ui.components.MirthTable;
+import com.webreach.mirth.model.converters.ObjectXMLSerializer;
+import java.awt.Component;
+import java.awt.event.MouseEvent;
+import java.util.EventObject;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.prefs.Preferences;
+import javax.swing.AbstractCellEditor;
+import javax.swing.JComponent;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellEditor;
+import org.jdesktop.swingx.decorator.AlternateRowHighlighter;
+import org.jdesktop.swingx.decorator.HighlighterPipeline;
 
 /** 
  * A form that extends from ConnectorClass.  All methods implemented
@@ -39,6 +59,14 @@ import com.webreach.mirth.client.ui.PlatformUI;
 public class JMSWriter extends ConnectorClass
 {
     Frame parent;
+    
+    public final int PROPERTY_COLUMN = 0;
+    public final int VALUE_COLUMN = 1;
+    
+    public final String PROPERTY_COLUMN_NAME = "Property";
+    public final String VALUE_COLUMN_NAME = "Value";
+    
+    private int lastIndex = -1;
     
     /** Creates new form JMSWriter */
     public final String DATATYPE = "DataType";
@@ -51,6 +79,7 @@ public class JMSWriter extends ConnectorClass
     public final String JMS_URL = "jndiProviderUrl";
     public final String JMS_INITIAL_FACTORY = "jndiInitialFactory";
     public final String JMS_CONNECTION_FACTORY = "connectionFactoryJndiName";
+    public final String JMS_ADDITIONAL_PROPERTIES = "additionalProperties";
     
     public JMSWriter()
     {
@@ -58,6 +87,14 @@ public class JMSWriter extends ConnectorClass
         name = "JMS Writer";
         initComponents();
         specDropDown.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "1.1", "1.0.2b"}));
+        propertiesPane.addMouseListener(new java.awt.event.MouseAdapter()
+        {
+            public void mouseClicked(java.awt.event.MouseEvent evt)
+            {
+                deselectRows();
+            }
+        });
+        deleteButton.setEnabled(false);
     }
 
     public Properties getProperties()
@@ -78,6 +115,8 @@ public class JMSWriter extends ConnectorClass
         properties.put(JMS_URL, jmsURL.getText());
         properties.put(JMS_INITIAL_FACTORY,jndiInitialFactory.getText());
         properties.put(JMS_CONNECTION_FACTORY, connectionFactory.getText());
+        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+        properties.put(JMS_ADDITIONAL_PROPERTIES, serializer.toXML(getAdditionalProperties()));
         
         return properties;
     }
@@ -107,6 +146,13 @@ public class JMSWriter extends ConnectorClass
         jndiInitialFactory.setText((String)props.get(JMS_INITIAL_FACTORY));
         connectionFactory.setText((String)props.get(JMS_CONNECTION_FACTORY));
         
+        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+        
+        if(((String)props.get(JMS_ADDITIONAL_PROPERTIES)).length() > 0)
+            setAdditionalProperties((TreeMap<String,String>) serializer.fromXML((String)props.get(JMS_ADDITIONAL_PROPERTIES)));
+        else
+            setAdditionalProperties(new TreeMap<String,String>());                       
+        
         parent.channelEditTasks.getContentPane().getComponent(0).setVisible(visible);
     }
 
@@ -123,7 +169,210 @@ public class JMSWriter extends ConnectorClass
         properties.put(JMS_QUEUE, "");
         properties.put(JMS_INITIAL_FACTORY, "");
         properties.put(JMS_CONNECTION_FACTORY, "");
+        properties.put(JMS_ADDITIONAL_PROPERTIES, "");
         return properties;
+    }
+    
+    public void setAdditionalProperties(Map properties)
+    {
+        Object[][] tableData = new Object[properties.size()][2];
+        
+        propertiesTable = new MirthTable();
+        
+        int j = 0;
+        Iterator i = properties.entrySet().iterator();
+        while (i.hasNext())
+        {
+            Map.Entry entry = (Map.Entry) i.next();
+            tableData[j][PROPERTY_COLUMN] = (String) entry.getKey();
+            tableData[j][VALUE_COLUMN] = (String) entry.getValue();
+            j++;
+        }        
+
+        propertiesTable.setModel(new javax.swing.table.DefaultTableModel(
+        tableData, new String[] { PROPERTY_COLUMN_NAME, VALUE_COLUMN_NAME })
+        {
+            boolean[] canEdit = new boolean[] { true, true };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex)
+            {
+                return canEdit[columnIndex];
+            }
+        });
+        
+        propertiesTable.getSelectionModel().addListSelectionListener(new ListSelectionListener()
+        {
+            public void valueChanged(ListSelectionEvent evt)
+            {
+                if(getSelectedRow() != -1)
+                {
+                    lastIndex = getSelectedRow();
+                    deleteButton.setEnabled(true);
+                }
+                else
+                    deleteButton.setEnabled(false);
+            }
+        });
+        
+        class JMSTableCellEditor extends AbstractCellEditor implements TableCellEditor
+        {
+            JComponent component = new JTextField();
+            Object originalValue;
+            boolean checkProperties;
+            
+            public JMSTableCellEditor(boolean checkProperties)
+            {
+                super();
+                this.checkProperties = checkProperties;
+            }
+            
+            public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column)
+            {
+                // 'value' is value contained in the cell located at (rowIndex, vColIndex)
+                originalValue = value;
+
+                if (isSelected)
+                {
+                    // cell (and perhaps other cells) are selected
+                }
+
+                // Configure the component with the specified value
+                ((JTextField)component).setText((String)value);
+
+                // Return the configured component
+                return component;
+            }
+
+            public Object getCellEditorValue()
+            {
+                return ((JTextField)component).getText();
+            }
+            
+            public boolean stopCellEditing()
+            {
+                String s = (String)getCellEditorValue();
+                
+                if(checkProperties && (s.length() == 0 || checkUniqueProperty(s)))
+                    super.cancelCellEditing();
+                else
+                    parent.enableSave();
+                
+                deleteButton.setEnabled(true);
+                
+                return super.stopCellEditing();
+            }
+            
+            public boolean checkUniqueProperty(String property)
+            {
+                boolean exists = false;
+                                
+                for(int i = 0; i < propertiesTable.getRowCount(); i++)
+                {
+                    if(propertiesTable.getValueAt(i,PROPERTY_COLUMN) != null && ((String)propertiesTable.getValueAt(i,PROPERTY_COLUMN)).equalsIgnoreCase(property))
+                        exists = true;                        
+                }
+                
+                return exists;
+            }
+            
+            /**
+             * Enables the editor only for double-clicks.
+             */
+            public boolean isCellEditable(EventObject evt) 
+            {
+                if (evt instanceof MouseEvent && ((MouseEvent)evt).getClickCount() >= 2) 
+                {
+                    deleteButton.setEnabled(false);
+                    return true;
+                }
+                return false;
+            }
+        };
+        
+        // Set the custom cell editor for the Destination Name column.
+        propertiesTable.getColumnModel().getColumn(
+                propertiesTable.getColumnModel().getColumnIndex(
+                PROPERTY_COLUMN_NAME)).setCellEditor(
+                new JMSTableCellEditor(true));
+        
+        // Set the custom cell editor for the Destination Name column.
+        propertiesTable.getColumnModel().getColumn(
+                propertiesTable.getColumnModel().getColumnIndex(
+                VALUE_COLUMN_NAME)).setCellEditor(
+                new JMSTableCellEditor(false));
+                
+        propertiesTable.setSelectionMode(0);
+        propertiesTable.setRowSelectionAllowed(true);
+        propertiesTable.setRowHeight(UIConstants.ROW_HEIGHT);
+        propertiesTable.setDragEnabled(false);
+        propertiesTable.setOpaque(true);
+        propertiesTable.setSortable(false);
+        propertiesTable.getTableHeader().setReorderingAllowed(false);
+        
+        if (Preferences.systemNodeForPackage(Mirth.class).getBoolean(
+        "highlightRows", true))
+        {
+            HighlighterPipeline highlighter = new HighlighterPipeline();
+            highlighter
+                    .addHighlighter(new AlternateRowHighlighter(
+                    UIConstants.HIGHLIGHTER_COLOR,
+                    UIConstants.BACKGROUND_COLOR,
+                    UIConstants.TITLE_TEXT_COLOR));
+            propertiesTable.setHighlighters(highlighter);
+        }
+        
+        propertiesPane.setViewportView(propertiesTable);
+    }
+    
+    public Map getAdditionalProperties()
+    {
+        TreeMap <String,String> properties = new TreeMap<String,String>();
+        
+        for(int i = 0; i < propertiesTable.getRowCount(); i++)
+            if(((String)propertiesTable.getValueAt(i,PROPERTY_COLUMN)).length() > 0)
+                properties.put(((String)propertiesTable.getValueAt(i,PROPERTY_COLUMN)),((String)propertiesTable.getValueAt(i,VALUE_COLUMN)));
+        
+        return properties;
+    }
+    
+    /** Clears the selection in the table and sets the tasks appropriately */
+    public void deselectRows()
+    {
+        propertiesTable.clearSelection();
+        deleteButton.setEnabled(false);
+    }
+    
+        /** Get the currently selected destination index */
+    public int getSelectedRow()
+    {
+        if (propertiesTable.isEditing())
+            return propertiesTable.getEditingRow();
+        else
+            return propertiesTable.getSelectedRow();
+    }
+    
+    /**
+     * Get the name that should be used for a new property so that it is
+     * unique.
+     */
+    private String getNewPropertyName()
+    {
+        String temp = "Property ";
+        
+        for (int i = 1; i <= propertiesTable.getRowCount() + 1; i++)
+        {
+            boolean exists = false;
+            for (int j = 0; j < propertiesTable.getRowCount(); j++)
+            {
+                if (((String) propertiesTable.getValueAt(j,PROPERTY_COLUMN)).equalsIgnoreCase(temp + i))
+                {
+                    exists = true;
+                }
+            }
+            if (!exists)
+                return temp + i;
+        }
+        return "";
     }
     
     public boolean checkProperties(Properties props)
@@ -170,6 +419,11 @@ public class JMSWriter extends ConnectorClass
         username = new com.webreach.mirth.client.ui.components.MirthTextField();
         password = new com.webreach.mirth.client.ui.components.MirthPasswordField();
         jLabel12 = new javax.swing.JLabel();
+        newButton = new javax.swing.JButton();
+        deleteButton = new javax.swing.JButton();
+        propertiesPane = new javax.swing.JScrollPane();
+        propertiesTable = new com.webreach.mirth.client.ui.components.MirthTable();
+        jLabel2 = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createTitledBorder(null, "JMS Writer", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(0, 0, 0)));
@@ -185,7 +439,7 @@ public class JMSWriter extends ConnectorClass
 
         jLabel8.setText("Connection Factory JNDI Name:");
 
-        jLabel9.setText("Queue:");
+        jLabel9.setText("Destination:");
 
         durableNo.setBackground(new java.awt.Color(255, 255, 255));
         durableNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -224,6 +478,38 @@ public class JMSWriter extends ConnectorClass
 
         jLabel12.setText("Password:");
 
+        newButton.setText("New");
+        newButton.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                newButtonActionPerformed(evt);
+            }
+        });
+
+        deleteButton.setText("Delete");
+        deleteButton.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                deleteButtonActionPerformed(evt);
+            }
+        });
+
+        propertiesTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][]
+            {
+
+            },
+            new String []
+            {
+                "Property", "Value"
+            }
+        ));
+        propertiesPane.setViewportView(propertiesTable);
+
+        jLabel2.setText("Additional Properties:");
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -231,6 +517,7 @@ public class JMSWriter extends ConnectorClass
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(jLabel2)
                     .add(jLabel7)
                     .add(jLabel3)
                     .add(jLabel10)
@@ -253,9 +540,18 @@ public class JMSWriter extends ConnectorClass
                     .add(connectionFactory, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(specDropDown, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 150, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(jmsURL, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 300, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jndiInitialFactory, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 300, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .add(jndiInitialFactory, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 300, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(layout.createSequentialGroup()
+                        .add(propertiesPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 311, Short.MAX_VALUE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                            .add(newButton)
+                            .add(deleteButton))))
+                .addContainerGap())
         );
+
+        layout.linkSize(new java.awt.Component[] {deleteButton, newButton}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
+
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
@@ -295,9 +591,44 @@ public class JMSWriter extends ConnectorClass
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(clientIdLabel)
                     .add(cliendId, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(layout.createSequentialGroup()
+                        .add(newButton)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(deleteButton))
+                    .add(jLabel2)
+                    .add(propertiesPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 220, Short.MAX_VALUE))
+                .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_deleteButtonActionPerformed
+    {//GEN-HEADEREND:event_deleteButtonActionPerformed
+        if(getSelectedRow() != -1 && !propertiesTable.isEditing())
+        {
+            ((DefaultTableModel)propertiesTable.getModel()).removeRow(getSelectedRow());
+            
+            if(propertiesTable.getRowCount() != 0)
+            {
+                if(lastIndex == 0)
+                    propertiesTable.setRowSelectionInterval(0,0);
+                else if(lastIndex == propertiesTable.getRowCount())
+                    propertiesTable.setRowSelectionInterval(lastIndex-1,lastIndex-1);
+                else
+                    propertiesTable.setRowSelectionInterval(lastIndex,lastIndex);
+            }
+            
+            parent.enableSave();
+        }
+    }//GEN-LAST:event_deleteButtonActionPerformed
+
+    private void newButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_newButtonActionPerformed
+    {//GEN-HEADEREND:event_newButtonActionPerformed
+        ((DefaultTableModel)propertiesTable.getModel()).addRow(new Object[]{getNewPropertyName(),""});
+        propertiesTable.setRowSelectionInterval(propertiesTable.getRowCount()-1,propertiesTable.getRowCount()-1);
+        parent.enableSave();
+    }//GEN-LAST:event_newButtonActionPerformed
 
     private void durableYesActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_durableYesActionPerformed
     {//GEN-HEADEREND:event_durableYesActionPerformed
@@ -317,6 +648,7 @@ public class JMSWriter extends ConnectorClass
     private com.webreach.mirth.client.ui.components.MirthTextField cliendId;
     private javax.swing.JLabel clientIdLabel;
     private com.webreach.mirth.client.ui.components.MirthTextField connectionFactory;
+    private javax.swing.JButton deleteButton;
     private javax.swing.ButtonGroup deliveryButtonGroup;
     private javax.swing.ButtonGroup durableButtonGroup;
     private com.webreach.mirth.client.ui.components.MirthRadioButton durableNo;
@@ -324,6 +656,7 @@ public class JMSWriter extends ConnectorClass
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel7;
@@ -331,7 +664,10 @@ public class JMSWriter extends ConnectorClass
     private javax.swing.JLabel jLabel9;
     private com.webreach.mirth.client.ui.components.MirthTextField jmsURL;
     private com.webreach.mirth.client.ui.components.MirthTextField jndiInitialFactory;
+    private javax.swing.JButton newButton;
     private com.webreach.mirth.client.ui.components.MirthPasswordField password;
+    private javax.swing.JScrollPane propertiesPane;
+    private com.webreach.mirth.client.ui.components.MirthTable propertiesTable;
     private com.webreach.mirth.client.ui.components.MirthTextField queue;
     private javax.swing.ButtonGroup recoverButtonGroup;
     private com.webreach.mirth.client.ui.components.MirthComboBox specDropDown;

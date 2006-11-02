@@ -136,13 +136,12 @@ public class PDFWriter extends ConnectorClass
         jLabel3 = new javax.swing.JLabel();
         directoryField = new com.webreach.mirth.client.ui.components.MirthTextField();
         fileNameField = new com.webreach.mirth.client.ui.components.MirthTextField();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        fileContentsTextPane = new com.webreach.mirth.client.ui.components.MirthTextPane();
         passwordYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         passwordNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         jLabel4 = new javax.swing.JLabel();
         passwordField = new com.webreach.mirth.client.ui.components.MirthPasswordField();
         passwordLabel = new javax.swing.JLabel();
+        fileContentsTextPane = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea(false,false);
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createTitledBorder(null, "PDF Writer", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(0, 0, 0)));
@@ -151,8 +150,6 @@ public class PDFWriter extends ConnectorClass
         jLabel2.setText("File Name:");
 
         jLabel3.setText("Template:");
-
-        jScrollPane1.setViewportView(fileContentsTextPane);
 
         passwordYes.setBackground(new java.awt.Color(255, 255, 255));
         passwordYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -186,6 +183,8 @@ public class PDFWriter extends ConnectorClass
 
         passwordLabel.setText("Password:");
 
+        fileContentsTextPane.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -207,8 +206,8 @@ public class PDFWriter extends ConnectorClass
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(passwordNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                     .add(passwordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 321, Short.MAX_VALUE))
-                .add(57, 57, 57))
+                    .add(fileContentsTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 368, Short.MAX_VALUE))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -231,8 +230,8 @@ public class PDFWriter extends ConnectorClass
                     .add(passwordLabel))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 176, Short.MAX_VALUE)
-                    .add(jLabel3))
+                    .add(jLabel3)
+                    .add(fileContentsTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 176, Short.MAX_VALUE))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -251,13 +250,12 @@ public class PDFWriter extends ConnectorClass
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup buttonGroup1;
     private com.webreach.mirth.client.ui.components.MirthTextField directoryField;
-    private com.webreach.mirth.client.ui.components.MirthTextPane fileContentsTextPane;
+    private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea fileContentsTextPane;
     private com.webreach.mirth.client.ui.components.MirthTextField fileNameField;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JScrollPane jScrollPane1;
     private com.webreach.mirth.client.ui.components.MirthPasswordField passwordField;
     private javax.swing.JLabel passwordLabel;
     private com.webreach.mirth.client.ui.components.MirthRadioButton passwordNo;

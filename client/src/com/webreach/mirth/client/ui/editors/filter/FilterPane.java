@@ -27,6 +27,7 @@
 package com.webreach.mirth.client.ui.editors.filter;
 
 import com.webreach.mirth.client.ui.editors.EditorTableCellEditor;
+import com.webreach.mirth.client.ui.util.ImportConverter;
 import java.awt.BorderLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -232,7 +233,7 @@ public class FilterPane extends MirthEditorPane
         
         filterTasks.add(initActionCallback("doExport", ActionFactory
                 .createBoundAction("doExport", "Export Filter",
-                "I"), new ImageIcon(Frame.class
+                "E"), new ImageIcon(Frame.class
                 .getResource("images/export.png"))));
         JMenuItem exportFilter = new JMenuItem("Export Filter");
         exportFilter.setIcon(new ImageIcon(Frame.class
@@ -264,7 +265,7 @@ public class FilterPane extends MirthEditorPane
         
         // move rule up task
         filterTasks.add( initActionCallback( "moveRuleUp",
-                ActionFactory.createBoundAction( "moveRuleUp", "Move Rule Up", "U" ),
+                ActionFactory.createBoundAction( "moveRuleUp", "Move Rule Up", "P" ),
                 new ImageIcon( Frame.class.getResource( "images/arrow_up.png" )) ));
         JMenuItem moveRuleUp = new JMenuItem("Move Rule Up");
         moveRuleUp.setIcon( new ImageIcon( Frame.class.getResource( "images/arrow_up.png" )) );
@@ -384,6 +385,7 @@ public class FilterPane extends MirthEditorPane
         filterTable.setSortable( false );
         filterTable.setOpaque( true );
         filterTable.setRowSelectionAllowed( true );
+        filterTable.getTableHeader().setReorderingAllowed(false);
         
         if(Preferences.systemNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
         {
@@ -656,6 +658,8 @@ public class FilterPane extends MirthEditorPane
             try
             {
                 Filter importFilter = (Filter)serializer.fromXML(filterXML);
+                ImportConverter converter = new ImportConverter();
+                importFilter = converter.convertFilter(importFilter, parent.channelEditPage.currentChannel.getDirection());
                 prevSelRow = -1;
                 modified = true;
                 connector.setFilter(importFilter);

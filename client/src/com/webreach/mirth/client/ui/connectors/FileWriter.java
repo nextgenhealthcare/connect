@@ -119,14 +119,13 @@ public class FileWriter extends ConnectorClass
         jLabel4 = new javax.swing.JLabel();
         appendToFileYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         appendToFileNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        fileContentsTextPane = new com.webreach.mirth.client.ui.components.MirthTextPane();
+        fileContentsTextPane = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea(false,false);
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createTitledBorder(null, "File Writer", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(0, 0, 0)));
         jLabel1.setText("Directory:");
 
-        jLabel2.setText("Output Pattern:");
+        jLabel2.setText("File Name:");
 
         jLabel3.setText("Template:");
 
@@ -145,7 +144,7 @@ public class FileWriter extends ConnectorClass
         appendToFileNo.setText("No");
         appendToFileNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-        jScrollPane1.setViewportView(fileContentsTextPane);
+        fileContentsTextPane.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
@@ -166,7 +165,7 @@ public class FileWriter extends ConnectorClass
                         .add(appendToFileNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                     .add(directoryField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(fileNameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 315, Short.MAX_VALUE))
+                    .add(fileContentsTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 321, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -187,8 +186,8 @@ public class FileWriter extends ConnectorClass
                         .add(appendToFileNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 201, Short.MAX_VALUE)
-                    .add(jLabel3))
+                    .add(jLabel3)
+                    .add(fileContentsTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 201, Short.MAX_VALUE))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -200,13 +199,12 @@ public class FileWriter extends ConnectorClass
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.ButtonGroup buttonGroup2;
     private com.webreach.mirth.client.ui.components.MirthTextField directoryField;
-    private com.webreach.mirth.client.ui.components.MirthTextPane fileContentsTextPane;
+    private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea fileContentsTextPane;
     private com.webreach.mirth.client.ui.components.MirthTextField fileNameField;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JScrollPane jScrollPane1;
     // End of variables declaration//GEN-END:variables
 
 }
