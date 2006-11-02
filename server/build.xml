@@ -155,7 +155,7 @@
 			<include name="com/webreach/mirth/server/**" />
 			<include name="com/webreach/mirth/model/**" />
 			<include name="com/webreach/mirth/util/**" />
-			<include name="org/mule/**" />
+			<include name="org/**" />
 			<exclude name="com/webreach/mirth/server/launcher/**" />
 		</jar>
 
