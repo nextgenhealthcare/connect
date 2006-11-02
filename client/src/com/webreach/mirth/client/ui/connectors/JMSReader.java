@@ -39,7 +39,6 @@ import com.webreach.mirth.client.ui.Frame;
 import com.webreach.mirth.client.ui.Mirth;
 import com.webreach.mirth.client.ui.PlatformUI;
 import java.awt.event.MouseEvent;
-import java.util.TreeMap;
 import java.util.prefs.Preferences;
 import javax.swing.AbstractCellEditor;
 import javax.swing.JComponent;
@@ -152,9 +151,9 @@ public class JMSReader extends ConnectorClass
         ObjectXMLSerializer serializer = new ObjectXMLSerializer();
         
         if(((String)props.get(JMS_ADDITIONAL_PROPERTIES)).length() > 0)
-            setAdditionalProperties((TreeMap<String,String>) serializer.fromXML((String)props.get(JMS_ADDITIONAL_PROPERTIES)));
+            setAdditionalProperties((Properties) serializer.fromXML((String)props.get(JMS_ADDITIONAL_PROPERTIES)));
         else
-            setAdditionalProperties(new TreeMap<String,String>());                       
+            setAdditionalProperties(new Properties());                       
         
         parent.channelEditTasks.getContentPane().getComponent(0).setVisible(visible);
     }
@@ -177,7 +176,7 @@ public class JMSReader extends ConnectorClass
         return properties;
     }
     
-    public void setAdditionalProperties(Map properties)
+    public void setAdditionalProperties(Properties properties)
     {
         Object[][] tableData = new Object[properties.size()][2];
         
@@ -328,10 +327,10 @@ public class JMSReader extends ConnectorClass
         propertiesPane.setViewportView(propertiesTable);
     }
     
-    public Map getAdditionalProperties()
+    public Properties getAdditionalProperties()
     {
-        TreeMap <String,String> properties = new TreeMap<String,String>();
-        
+        Properties properties = new Properties();
+       
         for(int i = 0; i < propertiesTable.getRowCount(); i++)
             if(((String)propertiesTable.getValueAt(i,PROPERTY_COLUMN)).length() > 0)
                 properties.put(((String)propertiesTable.getValueAt(i,PROPERTY_COLUMN)),((String)propertiesTable.getValueAt(i,VALUE_COLUMN)));

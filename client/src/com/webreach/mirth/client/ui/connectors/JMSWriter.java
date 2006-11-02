@@ -39,7 +39,6 @@ import java.awt.event.MouseEvent;
 import java.util.EventObject;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.prefs.Preferences;
 import javax.swing.AbstractCellEditor;
 import javax.swing.JComponent;
@@ -162,9 +161,9 @@ public class JMSWriter extends ConnectorClass
         ObjectXMLSerializer serializer = new ObjectXMLSerializer();
         
         if(((String)props.get(JMS_ADDITIONAL_PROPERTIES)).length() > 0)
-            setAdditionalProperties((TreeMap<String,String>) serializer.fromXML((String)props.get(JMS_ADDITIONAL_PROPERTIES)));
+            setAdditionalProperties((Properties) serializer.fromXML((String)props.get(JMS_ADDITIONAL_PROPERTIES)));
         else
-            setAdditionalProperties(new TreeMap<String,String>());                       
+            setAdditionalProperties(new Properties());                       
         
         parent.channelEditTasks.getContentPane().getComponent(0).setVisible(visible);
     }
@@ -186,7 +185,7 @@ public class JMSWriter extends ConnectorClass
         return properties;
     }
     
-    public void setAdditionalProperties(Map properties)
+    public void setAdditionalProperties(Properties properties)
     {
         Object[][] tableData = new Object[properties.size()][2];
         
@@ -339,7 +338,7 @@ public class JMSWriter extends ConnectorClass
     
     public Map getAdditionalProperties()
     {
-        TreeMap <String,String> properties = new TreeMap<String,String>();
+        Properties properties = new Properties();
         
         for(int i = 0; i < propertiesTable.getRowCount(); i++)
             if(((String)propertiesTable.getValueAt(i,PROPERTY_COLUMN)).length() > 0)
