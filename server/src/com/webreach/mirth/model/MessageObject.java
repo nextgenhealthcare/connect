@@ -180,8 +180,8 @@ public class MessageObject implements Serializable {
 	public void setErrors(String errors) {
 		this.errors = errors;
 	}
-	public Object clone(){
-		
+	
+	public Object clone() {
 		MessageObject messageObject = new MessageObject();
 		messageObject.setChannelId(this.getChannelId());
 		messageObject.setConnectorName(this.getConnectorName());
@@ -200,6 +200,7 @@ public class MessageObject implements Serializable {
 		messageObject.setVersion(this.getVersion());
 		return messageObject;
 	}
+	
 	public boolean equals(Object source) {
 		if (source instanceof MessageObject) {
 			MessageObject messageObject = (MessageObject) source;

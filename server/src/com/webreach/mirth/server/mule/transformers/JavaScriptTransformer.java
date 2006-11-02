@@ -381,16 +381,14 @@ public class JavaScriptTransformer extends AbstractTransformer {
 		}
 	}
 
-	private void initializeMessage(MessageObject originalMessageObject) {
+	private void initializeMessage(MessageObject source) {
 		String guid = UUID.randomUUID().toString();
-		logger.warn("initializing message: id=" + guid);
-		MessageObject messageObject = (MessageObject)originalMessageObject.clone();
+		MessageObject messageObject = (MessageObject) source.clone();
 		messageObject.setId(guid);
 		messageObject.setConnectorName(getConnectorName());
 		messageObject.setEncrypted(encryptData);
 		messageObject.setChannelId(channelId);
 		messageObject.setDateCreated(Calendar.getInstance());
-		
 	}
 
 	private String generateFilterScript(String filterScript) {
