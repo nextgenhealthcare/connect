@@ -47,7 +47,6 @@ public class FTPWriter extends ConnectorClass
     public final String FTP_ANONYMOUS = "FTPAnonymous";
     public final String FTP_USERNAME = "username";
     public final String FTP_PASSWORD = "password";
-    public final String FTP_POLLING_FREQUENCY = "pollingFrequency";
     public final String FTP_FILENAME_PARSER = "filenameParser ";
     public final String FTP_OUTPUT_PATTERN = "outputPattern";
     public final String FTP_PASSIVE_MODE = "passive";
@@ -60,7 +59,6 @@ public class FTPWriter extends ConnectorClass
         this.parent = PlatformUI.MIRTH_FRAME;
         name = "FTP Writer";
         initComponents();
-        pollingFrequencyField.setDocument(new MirthFieldConstraints(0, false, true));
     }
 
     public Properties getProperties()
@@ -76,7 +74,6 @@ public class FTPWriter extends ConnectorClass
         
         properties.put(FTP_USERNAME, FTPUsernameField.getText());
         properties.put(FTP_PASSWORD, new String(FTPPasswordField.getPassword()));
-        properties.put(FTP_POLLING_FREQUENCY, pollingFrequencyField.getText());
         properties.put(FTP_OUTPUT_PATTERN, outputPatternField.getText());
 
         if (passiveModeYes.isSelected())
@@ -115,7 +112,6 @@ public class FTPWriter extends ConnectorClass
         
         FTPUsernameField.setText((String)props.get(FTP_USERNAME));
         FTPPasswordField.setText((String)props.get(FTP_PASSWORD));
-        pollingFrequencyField.setText((String)props.get(FTP_POLLING_FREQUENCY));
         outputPatternField.setText((String)props.get(FTP_OUTPUT_PATTERN));
         
         if(((String)props.get(FTP_PASSIVE_MODE)).equalsIgnoreCase(UIConstants.YES_OPTION))
@@ -143,7 +139,6 @@ public class FTPWriter extends ConnectorClass
         properties.put(FTP_ANONYMOUS, UIConstants.YES_OPTION);
         properties.put(FTP_USERNAME, "");
         properties.put(FTP_PASSWORD, "");
-        properties.put(FTP_POLLING_FREQUENCY, "1000");
         properties.put(FTP_FILENAME_PARSER, "");
         properties.put(FTP_OUTPUT_PATTERN, "");
         properties.put(FTP_PASSIVE_MODE, UIConstants.YES_OPTION);
@@ -157,7 +152,7 @@ public class FTPWriter extends ConnectorClass
     {
         if (((String)props.get(FTP_ANONYMOUS)).equals(UIConstants.YES_OPTION))
         {
-            if(((String)props.get(FTP_URL)).length() > 0 && ((String)props.get(FTP_POLLING_FREQUENCY)).length() > 0 && 
+            if(((String)props.get(FTP_URL)).length() > 0 && 
                ((String)props.get(FTP_FILENAME_PARSER)).length() > 0 && ((String)props.get(FTP_OUTPUT_PATTERN)).length() > 0  && 
                 ((String)props.get(FTP_CONTENTS)).length() > 0)
                 return true;
@@ -165,7 +160,7 @@ public class FTPWriter extends ConnectorClass
         else
         {
             if(((String)props.get(FTP_URL)).length() > 0 && ((String)props.get(FTP_USERNAME)).length() > 0 && 
-               ((String)props.get(FTP_PASSWORD)).length() > 0 && ((String)props.get(FTP_POLLING_FREQUENCY)).length() > 0 && 
+               ((String)props.get(FTP_PASSWORD)).length() > 0 &&
                ((String)props.get(FTP_OUTPUT_PATTERN)).length() > 0  && 
                 ((String)props.get(FTP_CONTENTS)).length() > 0)
                 return true;
@@ -201,7 +196,6 @@ public class FTPWriter extends ConnectorClass
         FTPPasswordField = new com.webreach.mirth.client.ui.components.MirthPasswordField();
         FTPPasswordLabel = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
-        pollingFrequencyField = new com.webreach.mirth.client.ui.components.MirthTextField();
         validateConnectionYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         validateConnectionNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         anonymousYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
@@ -320,7 +314,6 @@ public class FTPWriter extends ConnectorClass
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                                 .add(anonymousNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                             .add(FTPPasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(pollingFrequencyField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(FTPURLField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 250, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(FTPUsernameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
                     .add(layout.createSequentialGroup()
@@ -373,8 +366,7 @@ public class FTPWriter extends ConnectorClass
                     .add(FTPPasswordLabel))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(pollingFrequencyField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel9))
+                                 .add(jLabel9))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(outputPatternField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -445,7 +437,6 @@ public class FTPWriter extends ConnectorClass
     private com.webreach.mirth.client.ui.components.MirthTextField outputPatternField;
     private com.webreach.mirth.client.ui.components.MirthRadioButton passiveModeNo;
     private com.webreach.mirth.client.ui.components.MirthRadioButton passiveModeYes;
-    private com.webreach.mirth.client.ui.components.MirthTextField pollingFrequencyField;
     private com.webreach.mirth.client.ui.components.MirthRadioButton validateConnectionNo;
     private com.webreach.mirth.client.ui.components.MirthRadioButton validateConnectionYes;
     // End of variables declaration//GEN-END:variables
