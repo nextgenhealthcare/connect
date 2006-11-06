@@ -253,6 +253,7 @@ public class ChannelStatisticsController {
 		}
 	}
 
+	@Deprecated
 	private int getSentCount(String channelId) {
 		logger.debug("retrieving message sent count: channelId=" + channelId);
 
@@ -265,6 +266,7 @@ public class ChannelStatisticsController {
 
 	// This is a hack to address the fact that this statistic is incorrectly
 	// incrememnted by 2 in Mule.
+	@Deprecated
 	private int getReceivedCount(String channelId) {
 		logger.debug("retrieving message received count: " + channelId);
 
@@ -284,6 +286,7 @@ public class ChannelStatisticsController {
 		}
 	}
 
+	@Deprecated
 	private int getErrorCount(String channelId) {
 		logger.debug("retrieving error count: channelId=" + channelId);
 
@@ -294,6 +297,7 @@ public class ChannelStatisticsController {
 		}
 	}
 
+	@Deprecated
 	private int getStatistic(String channelId, String statistic) throws ControllerException {
 		JMXConnection jmxConnection = null;
 
