@@ -60,17 +60,11 @@ import com.webreach.mirth.util.PropertyLoader;
  */
 public class MuleConfigurationBuilder {
 	public static final String[] cDataElements = null;
-
 	private Logger logger = Logger.getLogger(this.getClass());
-
 	private List<Channel> channels = null;
-
 	private Map<String, Transport> transports = null;
-
 	private JavaScriptFilterBuilder filterBuilder = new JavaScriptFilterBuilder();
-
 	private JavaScriptTransformerBuilder transformerBuilder = new JavaScriptTransformerBuilder();
-
 	private ScriptController scriptController = new ScriptController();
 
 	public MuleConfigurationBuilder(List<Channel> channels, Map<String, Transport> transports) {
@@ -418,7 +412,7 @@ public class MuleConfigurationBuilder {
 							connectionFactoryPropertyElement.setAttribute("value", connectionFactoryProperty.getValue().toString());
 							connectionFactoryPropertiesMapElement.appendChild(connectionFactoryPropertyElement);
 						}
-						
+
 						propertiesElement.appendChild(connectionFactoryPropertiesMapElement);
 					} else {
 						Element propertyElement = document.createElement("property");
@@ -509,6 +503,7 @@ public class MuleConfigurationBuilder {
 		if (connector.getProperties().getProperty("host") != null && connector.getProperties().getProperty("host").startsWith("axis:http")) {
 			return connector.getProperties().getProperty("host");
 		}
+		
 		StringBuilder builder = new StringBuilder();
 		builder.append(transports.get(connector.getTransportName()).getProtocol());
 		builder.append("://");
