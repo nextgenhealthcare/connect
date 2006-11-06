@@ -182,38 +182,19 @@ public class Mirth extends Thread {
 
 			// add HTTPS listener
 			SslListener sslListener = new SslListener();
-
-			int httpsPort = 8443;
-
-			if ((mirthProperties.getProperty("https.port") != null) && !mirthProperties.getProperty("https.port").equals("")) {
-				httpsPort = Integer.valueOf(mirthProperties.getProperty("https.port")).intValue();
-			}
-
-			sslListener.setPort(httpsPort);
-			sslListener.setKeystore("keystore");
-			sslListener.setPassword("abc12345");
-			sslListener.setKeyPassword("abc12345");
+			sslListener.setPort(Integer.valueOf(mirthProperties.getProperty("https.port")).intValue());
+			sslListener.setKeystore(mirthProperties.getProperty("https.keystore"));
+			sslListener.setPassword(mirthProperties.getProperty("https.password"));
+			sslListener.setKeyPassword(mirthProperties.getProperty("https.keypassword"));
 			webServer.addListener(sslListener);
 
 			// add HTTP listener
 			SocketListener listener = new SocketListener();
-
-			int httpPort = 8080;
-
-			if ((mirthProperties.getProperty("http.port") != null) && !mirthProperties.getProperty("http.port").equals("")) {
-				httpPort = Integer.valueOf(mirthProperties.getProperty("http.port")).intValue();
-			}
-
-			listener.setPort(httpPort);
+			listener.setPort(Integer.valueOf(mirthProperties.getProperty("http.port")).intValue());
 			webServer.addListener(listener);
 
 			// add a context for sharing files
-			String htdocs = "public";
-			
-			if ((mirthProperties.getProperty("http.htdocs") != null) && !mirthProperties.getProperty("http.htdocs").equals("")) {
-				htdocs = mirthProperties.getProperty("http.htdocs");
-			}
-			
+			String htdocs = mirthProperties.getProperty("http.htdocs");
 			HttpContext context = new HttpContext();
 			context.setContextPath("/" + htdocs + "/*");
 			webServer.addContext(context);
@@ -223,7 +204,7 @@ public class Mirth extends Thread {
 			// add the war
 			webServer.addWebApplication("/", "./web/webapps/mirth.war");
 			webServer.start();
-			logger.debug("started jetty web server on ports: " + httpPort + ", " + httpsPort);
+			logger.debug("started jetty web server on ports: " + listener.getPort() + ", " + sslListener.getPort());
 		} catch (Exception e) {
 			logger.warn("Could not start web server.", e);
 		}
