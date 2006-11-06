@@ -23,7 +23,6 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
 package com.webreach.mirth.server;
 
 import java.util.Date;
@@ -55,13 +54,12 @@ import com.webreach.mirth.util.PropertyLoader;
 public class Mirth extends Thread {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private boolean running = false;
-
+	private Properties mirthProperties = null;
+	private Properties versionProperties = null;
 	private MuleManager muleManager = null;
 	private Server webServer = null;
 	private CommandQueue commandQueue = CommandQueue.getInstance();
 	private SystemLogger systemLogger = new SystemLogger();
-	private Properties mirthProperties = PropertyLoader.loadProperties("mirth");
-	private Properties versionProperties = PropertyLoader.loadProperties("version");
 	private MirthManager manager = new MirthManager();
 	private ConfigurationController configurationController = new ConfigurationController();
 	private DatabasePruner pruner = new DatabasePruner();
@@ -76,32 +74,54 @@ public class Mirth extends Thread {
 	}
 
 	public void run() {
-		logger.info("starting mirth server...");
-		running = true;
-		startWebServer();
-		configurationController.initialize();
-		pruner.start();
-		commandQueue.addCommand(new Command(Command.Operation.START));
+		if (initResources()) {
+			logger.info("starting mirth server...");
+			running = true;
+			startWebServer();
+			configurationController.initialize();
+			pruner.start();
+			commandQueue.addCommand(new Command(Command.Operation.START));
 
-		Runtime.getRuntime().addShutdownHook(new ShutdownHook());
+			Runtime.getRuntime().addShutdownHook(new ShutdownHook());
 
-		// pulls commands off of the command queue
-		while (running) {
-			Command command = commandQueue.getCommand();
+			// pulls commands off of the command queue
+			while (running) {
+				Command command = commandQueue.getCommand();
 
-			if (command.getOperation().equals(Command.Operation.START)) {
-				startMule();
-				printSplashScreen();
-			} else if (command.getOperation().equals(Command.Operation.STOP)) {
-				stopMule();
-			} else if (command.getOperation().equals(Command.Operation.RESTART)) {
-				restartMule();
-			} else if (command.getOperation().equals(Command.Operation.SHUTDOWN)) {
-				shutdown();
+				if (command.getOperation().equals(Command.Operation.START)) {
+					startMule();
+					printSplashScreen();
+				} else if (command.getOperation().equals(Command.Operation.STOP)) {
+					stopMule();
+				} else if (command.getOperation().equals(Command.Operation.RESTART)) {
+					restartMule();
+				} else if (command.getOperation().equals(Command.Operation.SHUTDOWN)) {
+					shutdown();
+				}
 			}
+		} else {
+			logger.error("could not initialize resources");
 		}
 	}
 
+	/**
+	 * Returns true if the resources required by the server have been
+	 * sucessfully loaded
+	 * 
+	 * @return true if the resources required by the server have been
+	 *         sucessfully loaded
+	 */
+	public boolean initResources() {
+		mirthProperties = PropertyLoader.loadProperties("mirth");
+		versionProperties = PropertyLoader.loadProperties("version");
+
+		return (mirthProperties != null);
+	}
+
+	/**
+	 * Shuts down the server.
+	 * 
+	 */
 	public void shutdown() {
 		logger.info("shutting down mirth due to normal request");
 		stopMule();
@@ -110,14 +130,21 @@ public class Mirth extends Thread {
 		running = false;
 	}
 
-	// restarts mule
+	/**
+	 * Restarts the Mule server. This is accomplished by stopping and starting
+	 * the server.
+	 * 
+	 */
 	private void restartMule() {
 		logger.debug("retarting mule");
 		stopMule();
 		startMule();
 	}
 
-	// starts mule
+	/**
+	 * Starts the Mule server.
+	 * 
+	 */
 	private void startMule() {
 		ConfigurationController configurationController = new ConfigurationController();
 
@@ -146,7 +173,10 @@ public class Mirth extends Thread {
 		}
 	}
 
-	// stops mule
+	/**
+	 * Stops the Mule server.
+	 * 
+	 */
 	private void stopMule() {
 		logger.debug("stopping mule");
 
@@ -164,7 +194,10 @@ public class Mirth extends Thread {
 		}
 	}
 
-	// starts the Jetty web server
+	/**
+	 * Starts the Jetty web server.
+	 * 
+	 */
 	private void startWebServer() {
 		logger.debug("starting jetty web server");
 
@@ -210,7 +243,10 @@ public class Mirth extends Thread {
 		}
 	}
 
-	// stops the Jetty web server
+	/**
+	 * Stops the Jetty web server.
+	 * 
+	 */
 	private void stopWebServer() {
 		logger.debug("stopping jetty web server");
 
@@ -227,6 +263,11 @@ public class Mirth extends Thread {
 		}
 	}
 
+	/**
+	 * Displays the splash screen information, including the server version and
+	 * build date, to the system console.
+	 * 
+	 */
 	private void printSplashScreen() {
 		String version = versionProperties.getProperty("mirth.version");
 		String buildDate = versionProperties.getProperty("mirth.date");
