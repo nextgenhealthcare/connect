@@ -28,7 +28,6 @@ package com.webreach.mirth.server.mule.transformers;
 
 import java.util.Calendar;
 import java.util.Iterator;
-import java.util.UUID;
 
 import org.apache.log4j.Logger;
 import org.mozilla.javascript.Context;
@@ -48,6 +47,7 @@ import com.webreach.mirth.server.controllers.TemplateController;
 import com.webreach.mirth.server.mule.util.CompiledScriptCache;
 import com.webreach.mirth.server.mule.util.GlobalVariableStore;
 import com.webreach.mirth.server.util.StackTracePrinter;
+import com.webreach.mirth.server.util.UUIDGenerator;
 
 public class JavaScriptTransformer extends AbstractTransformer {
 	private Logger logger = Logger.getLogger(this.getClass());
@@ -381,9 +381,8 @@ public class JavaScriptTransformer extends AbstractTransformer {
 	}
 
 	private MessageObject initializeMessage(MessageObject source) {
-		String guid = UUID.randomUUID().toString();
 		MessageObject messageObject = (MessageObject) source.clone();
-		messageObject.setId(guid);
+		messageObject.setId(UUIDGenerator.getUUID());
 		messageObject.setConnectorName(getConnectorName());
 		messageObject.setEncrypted(encryptData);
 		messageObject.setChannelId(channelId);
