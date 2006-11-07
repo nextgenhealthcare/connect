@@ -23,12 +23,11 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
 package com.webreach.mirth.server.tools;
 
 import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.Iterator;
 import java.util.List;
 
@@ -44,12 +43,9 @@ import org.apache.commons.cli.ParseException;
 import com.webreach.mirth.client.core.Client;
 import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.ChannelStatistics;
-import com.webreach.mirth.model.ChannelStatus;
 
 public class Shell {
 	private Client client;
-	private static boolean running;
 
 	public static void main(String[] args) {
 		Shell shell = new Shell();
@@ -57,9 +53,10 @@ public class Shell {
 	}
 
 	private void run(String[] args) {
-		Option serverOption = OptionBuilder.withArgName("address").hasArg().withDescription("server").create("s");
+		Option serverOption = OptionBuilder.withArgName("address").hasArg().withDescription("server address").create("a");
 		Option userOption = OptionBuilder.withArgName("user").hasArg().withDescription("user login").create("u");
 		Option passwordOption = OptionBuilder.withArgName("password").hasArg().withDescription("user password").create("p");
+		Option scriptOption = OptionBuilder.withArgName("script").hasArg().withDescription("script file").create("s");
 		Option helpOption = new Option("h", "help");
 
 		Options options = new Options();
@@ -67,41 +64,46 @@ public class Shell {
 		options.addOption(userOption);
 		options.addOption(passwordOption);
 		options.addOption(helpOption);
+		options.addOption(scriptOption);
 
 		CommandLineParser parser = new GnuParser();
 
 		try {
 			CommandLine line = parser.parse(options, args);
 
-			if (line.hasOption("s") && line.hasOption("u") && line.hasOption("p")) {
-				String server = line.getOptionValue("s");
+			if (line.hasOption("a") && line.hasOption("u") && line.hasOption("p") && line.hasOption("s")) {
+				String server = line.getOptionValue("a");
 				String user = line.getOptionValue("u");
 				String password = line.getOptionValue("p");
-
-				client = new Client(server);
+				String script = line.getOptionValue("s");
 
 				try {
+					client = new Client(server);
+
 					if (client.login(user, password)) {
 						System.out.println("Connected to Mirth server @ " + server + " (" + client.getVersion() + ")");
 
-						running = true;
+						BufferedReader reader = new BufferedReader(new FileReader(script));
+						String statement = null;
 
-						while (running) {
-							System.out.print(user + "@mirth> ");
-
-							BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-							String input = reader.readLine();
-							
-							processInput(input);
+						try {
+							while ((statement = reader.readLine()) != null) {
+								System.out.println("Executing statement: " + statement);
+								executeStatement(statement);
+							}
+						} finally {
+							reader.close();
 						}
 					} else {
 						System.out.println("Error: Could not login to server.");
 					}
+
+					client.logout();
+					System.out.println("Disconnected from server.");
 				} catch (ClientException ce) {
 					ce.printStackTrace();
 				} catch (IOException ioe) {
-					System.out.println("Error: Could not read command input.");
-					System.exit(1);
+					System.out.println("Error: Could not load script file.");
 				}
 			} else if (line.hasOption("h")) {
 				HelpFormatter formatter = new HelpFormatter();
@@ -111,108 +113,41 @@ public class Shell {
 			System.err.println("Error: Could not parse input arguments.");
 		}
 	}
-	
-	private void processInput(String input) {
-		try {
-			String[] arguments = input.split(" ");
-			String command = arguments[0].toLowerCase();
 
-			if (command.equals("channels")) {
-				List<Channel> channels = client.getChannels();
-				
-				for (Iterator iter = channels.iterator(); iter.hasNext();) {
-					Channel channel = (Channel) iter.next();
-					
-					StringBuffer row = new StringBuffer();
-					row.append("[" + channel.getId() + "]");
-					row.append(" ");
-					row.append(channel.getName());
-					row.append(" (");
-					row.append(channel.getDirection().toString().toLowerCase());
-					row.append(" ");
-					row.append(channel.getMode().toString().toLowerCase());
-					row.append(")");
-					System.out.println(row.toString());
-				}
-			} else if (command.equals("status")) {
-				List<ChannelStatus> channelStatusList = client.getChannelStatusList();
-				
-				for (Iterator iter = channelStatusList.iterator(); iter.hasNext();) {
-					ChannelStatus status = (ChannelStatus) iter.next();
-					ChannelStatistics statistics = client.getStatistics(status.getChannelId());
-					
-					StringBuffer row = new StringBuffer();
-					row.append("[" + status.getChannelId() + "]");
-					row.append(" ");
-					row.append(status.getName());
-					row.append(" (");
-					row.append(status.getState().toString().toLowerCase());
-					row.append(") [");
-					row.append(statistics.getReceivedCount());
-					row.append(" received, ");
-					row.append(statistics.getSentCount());
-					row.append(" sent, ");
-					row.append(statistics.getErrorCount());
-					row.append(" errors]");
-					System.out.println(row.toString());
-				}
-			} else if (command.equals("start") || command.equals("stop") || command.equals("resume") || command.equals("pause")) {
-				try {
-					String channelId = arguments[1];
-					
-					if (isValidChannel(channelId)) {
+	private void executeStatement(String statement) {
+		try {
+			String[] arguments = statement.split(" ");
+			
+			if (arguments.length > 0) {
+				String command = arguments[0].toLowerCase();
+
+				if (command.equalsIgnoreCase("start") || command.equalsIgnoreCase("stop")) {
+					List<Channel> channels = client.getChannels();
+
+					for (Iterator iter = channels.iterator(); iter.hasNext();) {
+						Channel channel = (Channel) iter.next();
+
 						if (command.equals("start")) {
-							client.startChannel(channelId);
-							System.out.println("Channel " + channelId + " successfully started.");
+							client.startChannel(channel.getId());
 						} else if (command.equals("stop")) {
-							client.stopChannel(channelId);
-							System.out.println("Channel " + channelId + " successfully stopped.");
-						} else if (command.equals("pause")) {
-							client.pauseChannel(channelId);
-							System.out.println("Channel " + channelId + " successfully paused.");
-						} else if (command.equals("resume")) {
-							client.resumeChannel(channelId);
-							System.out.println("Channel " + channelId + " successfully resumed.");
+							client.stopChannel(channel.getId());
 						}
-					} else {
-						System.out.println("Error: Channel with id " + channelId + " does not exist");
 					}
-				} catch (NumberFormatException e) {
-					System.out.println("Error: Invalid channel id." );
+				} else if (command.equalsIgnoreCase("clear")) {
+					List<Channel> channels = client.getChannels();
+
+					for (Iterator iter = channels.iterator(); iter.hasNext();) {
+						Channel channel = (Channel) iter.next();
+
+						client.clearStatistics(channel.getId());
+						client.clearMessages(channel.getId());
+					}
+				} else {
+					System.out.println("Error: Bad command: " + statement);
 				}
-			} else if (command.equals("quit") || command.equals("exit")) {
-				System.out.println("Quitting.");
-				running = false;
-				System.exit(0);
-			} else if (command.equals("help")) {
-				System.out.println("\tchannels - List all channels.");
-				System.out.println("\tstatus - List status of all channels.");
-				System.out.println("\tstart <id | all> - Start channel with specified id, or all channels.");
-				System.out.println("\tstop <id | all> - Stop channel with specified id, or all channels.");
-				System.out.println("\tpause <id | all> - Pause channel with specified id, or all channels.");
-				System.out.println("\tresume <id | all> - Resume channel with specified id, or all channels.");
-				System.out.println("\thelp - Display help.");
-				System.out.println("\tquit - Exit the Mirth shell.");
-			} else {
-				System.out.println("Error: Bad command: " + input);
 			}
 		} catch (ClientException e) {
 			e.printStackTrace();
 		}
-	}
-	
-	public boolean isValidChannel(String channelId) throws ClientException {
-		List<Channel> channels = client.getChannels();
-		boolean isVerifiedChannelId = false;
-		
-		for (Iterator iter = channels.iterator(); iter.hasNext();) {
-			Channel channel = (Channel) iter.next();
-			
-			if (channelId.equals(channel.getId())) {
-				isVerifiedChannelId = true;
-			}
-		}
-		
-		return isVerifiedChannelId;
 	}
 }
