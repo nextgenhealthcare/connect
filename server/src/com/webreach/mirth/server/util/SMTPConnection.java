@@ -23,7 +23,6 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
 package com.webreach.mirth.server.util;
 
 import java.util.Date;
@@ -50,7 +49,7 @@ public class SMTPConnection {
 		this.username = username;
 		this.password = password;
 	}
-	
+
 	public void send(String to, String cc, String from, String subject, String body) {
 		try {
 			Properties props = System.getProperties();
@@ -70,7 +69,7 @@ public class SMTPConnection {
 
 			// include CC recipients
 			if (cc != null) {
-				message.setRecipients(Message.RecipientType.CC,InternetAddress.parse(cc, false));	
+				message.setRecipients(Message.RecipientType.CC, InternetAddress.parse(cc, false));
 			}
 
 			// set the subject and body text
