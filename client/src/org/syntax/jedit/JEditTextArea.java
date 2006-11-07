@@ -64,6 +64,8 @@ import java.util.Vector;
  * @version $Id: JEditTextArea.java,v 1.36 1999/12/13 03:40:30 sp Exp $
  */
 public class JEditTextArea extends JComponent {
+	private static final String MAC_OS = "Mac OS";
+
 	/**
 	 * Adding components with this name to the text area will place them left of
 	 * the horizontal scroll bar. In jEdit, the status bar is added this way.
@@ -1581,12 +1583,13 @@ public class JEditTextArea extends JComponent {
 			try {
 				// The MacOS MRJ doesn't convert \r to \n,
 				// so do it here
-				String selection = ((String) clipboard.getContents(this)
-						.getTransferData(DataFlavor.stringFlavor)).replace(
-						'\r', '\n');
+				String selection = (String) clipboard.getContents(this).getTransferData(DataFlavor.stringFlavor);
+				if (System.getProperty("os.name").equals(MAC_OS)){
+					selection = selection.replace('\r', '\n');
+				}
 				// String selection = ((String)
 				// clipboard.getContents(this).getTransferData(DataFlavor.stringFlavor));
-
+					
 				int repeatCount = inputHandler.getRepeatCount();
 				StringBuffer buf = new StringBuffer();
 				for (int i = 0; i < repeatCount; i++)
