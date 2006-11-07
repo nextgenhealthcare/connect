@@ -326,7 +326,7 @@ public class MessageObjectController {
 	}
 
 	public void clearMessages(String channelId) throws ControllerException {
-		logger.debug("clearing message events: " + channelId);
+		logger.debug("clearing messages: " + channelId);
 
 		DatabaseConnection dbConnection = null;
 
