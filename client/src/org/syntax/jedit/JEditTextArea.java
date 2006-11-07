@@ -1586,9 +1586,7 @@ public class JEditTextArea extends JComponent {
 				String selection = (String) clipboard.getContents(this).getTransferData(DataFlavor.stringFlavor);
 				if (System.getProperty("os.name").equals(MAC_OS)){
 					selection = selection.replace('\r', '\n');
-				}
-				// String selection = ((String)
-				// clipboard.getContents(this).getTransferData(DataFlavor.stringFlavor));
+				} 
 					
 				int repeatCount = inputHandler.getRepeatCount();
 				StringBuffer buf = new StringBuffer();
