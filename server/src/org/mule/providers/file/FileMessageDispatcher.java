@@ -94,7 +94,7 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
 				byte[] buffer = template.getBytes();
 
 				if (connector.isOutputAppend()) {
-					buffer = (new String(buffer) + "\r\n").getBytes();
+					buffer = (new String(buffer)).getBytes();
 				}
 
 				logger.info("Writing file to: " + file.getAbsolutePath());
