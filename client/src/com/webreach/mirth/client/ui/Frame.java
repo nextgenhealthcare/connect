@@ -26,11 +26,8 @@
 
 package com.webreach.mirth.client.ui;
 
-import com.webreach.mirth.client.ui.connectors.FTPReader;
-import com.webreach.mirth.client.ui.connectors.FTPWriter;
-import com.webreach.mirth.client.ui.connectors.PDFWriter;
-import com.webreach.mirth.client.ui.connectors.SFTPReader;
-import com.webreach.mirth.client.ui.connectors.SFTPWriter;
+import com.webreach.mirth.client.ui.editors.filter.FilterPane;
+import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
 import com.webreach.mirth.client.ui.util.ImportConverter;
 import com.webreach.mirth.model.filters.MessageObjectFilter;
 import java.awt.BorderLayout;
@@ -75,19 +72,6 @@ import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.ui.browsers.event.EventBrowser;
 import com.webreach.mirth.client.ui.browsers.message.MessageBrowser;
 import com.webreach.mirth.client.ui.connectors.ConnectorClass;
-import com.webreach.mirth.client.ui.connectors.DatabaseReader;
-import com.webreach.mirth.client.ui.connectors.DatabaseWriter;
-import com.webreach.mirth.client.ui.connectors.EmailSender;
-import com.webreach.mirth.client.ui.connectors.FileReader;
-import com.webreach.mirth.client.ui.connectors.FileWriter;
-import com.webreach.mirth.client.ui.connectors.HTTPListener;
-import com.webreach.mirth.client.ui.connectors.HTTPSListener;
-import com.webreach.mirth.client.ui.connectors.JMSReader;
-import com.webreach.mirth.client.ui.connectors.JMSWriter;
-import com.webreach.mirth.client.ui.connectors.LLPListener;
-import com.webreach.mirth.client.ui.connectors.LLPSender;
-import com.webreach.mirth.client.ui.connectors.SOAPListener;
-import com.webreach.mirth.client.ui.connectors.SOAPSender;
 import com.webreach.mirth.client.ui.util.FileUtil;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.ChannelStatus;
@@ -213,36 +197,15 @@ public class Frame extends JXFrame
         }
         this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 
-        sourceConnectors = new ArrayList<ConnectorClass>();
-        sourceConnectors.add(new DatabaseReader());
-        sourceConnectors.add(new HTTPListener());
-        sourceConnectors.add(new HTTPSListener());
-        sourceConnectors.add(new LLPListener());
-        sourceConnectors.add(new FileReader());
-        sourceConnectors.add(new FTPReader());
-        sourceConnectors.add(new SFTPReader());
-        sourceConnectors.add(new JMSReader());
-        sourceConnectors.add(new SOAPListener());
-        destinationConnectors = new ArrayList<ConnectorClass>();
-        destinationConnectors.add(new DatabaseWriter());
-        destinationConnectors.add(new EmailSender());
-        destinationConnectors.add(new FileWriter());
-        destinationConnectors.add(new LLPSender());
-        destinationConnectors.add(new JMSWriter());
-        destinationConnectors.add(new FTPWriter());
-        destinationConnectors.add(new SFTPWriter());
-        destinationConnectors.add(new PDFWriter());
-        destinationConnectors.add(new JMSWriter());
-        destinationConnectors.add(new SOAPSender());
         taskPaneContainer = new JXTaskPaneContainer();
 
         statusListPage = new StatusPanel();
-        channelListPage = new ChannelPanel();
         adminPanel = new AdminPanel();
-        channelEditPage = new ChannelSetup();
-        eventBrowser = new EventBrowser();
-        messageBrowser = new MessageBrowser();
         
+        sourceConnectors = new ArrayList<ConnectorClass>();
+        destinationConnectors = new ArrayList<ConnectorClass>();
+        
+        channelEditPage = new ChannelSetup();
         
         /* DEBUGGING THE UIDefaults:
  
@@ -265,6 +228,7 @@ public class Frame extends JXFrame
         }
         catch (Exception e)
         {
+            e.printStackTrace();
             alertException(e.getStackTrace(), e.getMessage());
         }
         su = new StatusUpdater();
@@ -1159,7 +1123,7 @@ public class Frame extends JXFrame
      */
     public boolean confirmLeave()
     {
-        if (channelEditTasks.getContentPane().getComponent(0).isVisible() || (currentContentPage == channelEditPage.transformerPane && channelEditPage.transformerPane.modified) || (currentContentPage == channelEditPage.filterPane && channelEditPage.filterPane.modified))
+        if (channelEditPage != null && (channelEditTasks.getContentPane().getComponent(0).isVisible() || (currentContentPage == channelEditPage.transformerPane && channelEditPage.transformerPane.modified) || (currentContentPage == channelEditPage.filterPane && channelEditPage.filterPane.modified)))
         {
             int option = JOptionPane.showConfirmDialog(this, "Would you like to save the channel changes?");
             if (option == JOptionPane.YES_OPTION)
@@ -1172,7 +1136,7 @@ public class Frame extends JXFrame
 
             channelEditTasks.getContentPane().getComponent(0).setVisible(false);
         }
-        else if (settingsTasks.getContentPane().getComponent(1).isVisible())
+        else if (adminPanel != null && settingsTasks.getContentPane().getComponent(1).isVisible())
         {
             int option = JOptionPane.showConfirmDialog(this, "Would you like to save the settings?");
 
@@ -1256,13 +1220,13 @@ public class Frame extends JXFrame
      */
     public void enableSave()
     {
-        if(currentContentPage == channelEditPage)
+        if(channelEditPage != null && currentContentPage == channelEditPage)
             channelEditTasks.getContentPane().getComponent(0).setVisible(true);
-        else if (currentContentPage == channelEditPage.transformerPane)
+        else if (channelEditPage != null && currentContentPage == channelEditPage.transformerPane)
             channelEditPage.transformerPane.modified = true;
-        else if (currentContentPage == channelEditPage.filterPane)
+        else if (channelEditPage != null && currentContentPage == channelEditPage.filterPane)
             channelEditPage.filterPane.modified = true;
-        else if (currentContentPage == adminPanel)
+        else if (adminPanel != null && currentContentPage == adminPanel)
             settingsTasks.getContentPane().getComponent(1).setVisible(true);
     }
     
@@ -1314,9 +1278,12 @@ public class Frame extends JXFrame
 
     public void doShowChannel()
     {
+        if(channelListPage == null)
+            channelListPage = new ChannelPanel();
+        
         if (!confirmLeave())
             return;
-
+        
         doRefreshChannels();
         setBold(viewPane, 1);
         setPanelName("Channels");
@@ -1326,7 +1293,7 @@ public class Frame extends JXFrame
     }
 
     public void doShowAdminPage()
-    {
+    {        
         if (!confirmLeave())
             return;
 
@@ -1738,7 +1705,10 @@ public class Frame extends JXFrame
 
     public void doShowMessages()
     {
-        setBold(viewPane, UIConstants.ERROR_CONSTANT);
+        if(messageBrowser == null)
+            messageBrowser = new MessageBrowser();
+        
+        setBold(viewPane, -1);
         setPanelName("Channel Messages :: " + status.get(statusListPage.getSelectedStatus()).getName());
         messageBrowser.loadNew();
         setCurrentContentPage(messageBrowser);
@@ -1747,7 +1717,10 @@ public class Frame extends JXFrame
 
     public void doShowEvents()
     {
-        setBold(viewPane, UIConstants.ERROR_CONSTANT);
+        if(eventBrowser == null)
+            eventBrowser = new EventBrowser();
+        
+        setBold(viewPane, -1);
         setPanelName("System Events");
         eventBrowser.loadNew();
         setCurrentContentPage(eventBrowser);
@@ -1756,12 +1729,18 @@ public class Frame extends JXFrame
 
     public void doEditTransformer()
     {
+        if(channelEditPage.transformerPane == null)
+            channelEditPage.transformerPane = new TransformerPane();
+        
         setPanelName("Edit Channel :: " + channelEditPage.currentChannel.getName() + " :: Edit Transformer");
         channelEditPage.editTransformer();
     }
 
     public void doEditFilter()
     {
+        if(channelEditPage.filterPane == null)
+            channelEditPage.filterPane = new FilterPane();
+        
         setPanelName("Edit Channel :: " + channelEditPage.currentChannel.getName() + " :: Edit Filter");
         channelEditPage.editFilter();
     }
@@ -1801,9 +1780,7 @@ public class Frame extends JXFrame
             ObjectXMLSerializer serializer = new ObjectXMLSerializer();
             try
             {
-                Channel importChannel = (Channel)serializer.fromXML(channelXML);
-                
-                
+                Channel importChannel = (Channel)serializer.fromXML(channelXML.replaceAll("\\&\\#x0D","\\&\\#x0A"));
                 
                 /**
                  * Checks to see if the passed in channel version is current,

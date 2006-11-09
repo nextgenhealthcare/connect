@@ -55,13 +55,21 @@ import com.webreach.mirth.client.ui.connectors.ConnectorClass;
 import com.webreach.mirth.client.ui.connectors.DatabaseReader;
 import com.webreach.mirth.client.ui.connectors.DatabaseWriter;
 import com.webreach.mirth.client.ui.connectors.EmailSender;
+import com.webreach.mirth.client.ui.connectors.FTPReader;
+import com.webreach.mirth.client.ui.connectors.FTPWriter;
 import com.webreach.mirth.client.ui.connectors.FileReader;
 import com.webreach.mirth.client.ui.connectors.FileWriter;
 import com.webreach.mirth.client.ui.connectors.HTTPListener;
 import com.webreach.mirth.client.ui.connectors.HTTPSListener;
+import com.webreach.mirth.client.ui.connectors.JMSReader;
 import com.webreach.mirth.client.ui.connectors.JMSWriter;
 import com.webreach.mirth.client.ui.connectors.LLPListener;
 import com.webreach.mirth.client.ui.connectors.LLPSender;
+import com.webreach.mirth.client.ui.connectors.PDFWriter;
+import com.webreach.mirth.client.ui.connectors.SFTPReader;
+import com.webreach.mirth.client.ui.connectors.SFTPWriter;
+import com.webreach.mirth.client.ui.connectors.SOAPListener;
+import com.webreach.mirth.client.ui.connectors.SOAPSender;
 import com.webreach.mirth.client.ui.editors.filter.FilterPane;
 import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
 import com.webreach.mirth.model.Channel;
@@ -132,6 +140,33 @@ public class ChannelSetup extends javax.swing.JPanel
     public ChannelSetup()
     {
         this.parent = PlatformUI.MIRTH_FRAME;
+        
+        if(parent.sourceConnectors.size() == 0)
+        {
+            parent.sourceConnectors.add(new DatabaseReader());
+            //parent.sourceConnectors.add(new HTTPListener());
+            //parent.sourceConnectors.add(new HTTPSListener());
+            parent.sourceConnectors.add(new LLPListener());
+            parent.sourceConnectors.add(new FileReader());
+            parent.sourceConnectors.add(new FTPReader());
+            parent.sourceConnectors.add(new SFTPReader());
+            parent.sourceConnectors.add(new JMSReader());
+            parent.sourceConnectors.add(new SOAPListener());
+        }
+        if(parent.destinationConnectors.size() == 0)
+        {
+            parent.destinationConnectors.add(new DatabaseWriter());
+            //parent.destinationConnectors.add(new EmailSender());
+            parent.destinationConnectors.add(new FileWriter());
+            parent.destinationConnectors.add(new LLPSender());
+            parent.destinationConnectors.add(new JMSWriter());
+            parent.destinationConnectors.add(new FTPWriter());
+            parent.destinationConnectors.add(new SFTPWriter());
+            parent.destinationConnectors.add(new PDFWriter());
+            parent.destinationConnectors.add(new JMSWriter());
+            parent.destinationConnectors.add(new SOAPSender());
+        }        
+        
         initComponents();
         preprocessorDoc = new SyntaxDocument();
         preprocessorDoc.setTokenMarker(new JavaScriptTokenMarker());
@@ -151,8 +186,6 @@ public class ChannelSetup extends javax.swing.JPanel
             }
         });
         destinationPane = new JScrollPane();
-        transformerPane = new TransformerPane();
-        filterPane = new FilterPane();
         
         this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         try
@@ -577,6 +610,9 @@ public class ChannelSetup extends javax.swing.JPanel
         checkPropertyValidity(currentChannel.getSourceConnector(),
                 parent.sourceConnectors);
         
+        /*
+         * Once application integration is added clean up this code
+         */
         if (currentChannel.getMode() == Channel.Mode.ROUTER
                 || currentChannel.getMode() == Channel.Mode.BROADCAST)
         {
