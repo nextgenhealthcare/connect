@@ -41,10 +41,9 @@ public class LlpProtocol implements TcpProtocol {
 				END_OF_SEGMENT = (char)Integer.decode(_tcpConnector.getSegmentEnd()).intValue();
 				
 			}else{
-				//TODO: wtf? why are we getting .charAt? Check this
 				START_MESSAGE = _tcpConnector.getMessageStart().charAt(0);
-				END_MESSAGE = _tcpConnector.getMessageEnd().charAt(1);
-				END_OF_RECORD = _tcpConnector.getRecordSeparator().charAt(2);
+				END_MESSAGE = _tcpConnector.getMessageEnd().charAt(0);
+				END_OF_RECORD = _tcpConnector.getRecordSeparator().charAt(0);
 				END_OF_SEGMENT = _tcpConnector.getSegmentEnd().charAt(0);
 			}
 
