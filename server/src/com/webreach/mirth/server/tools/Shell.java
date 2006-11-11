@@ -26,8 +26,14 @@
 package com.webreach.mirth.server.tools;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -43,9 +49,13 @@ import org.apache.commons.cli.ParseException;
 import com.webreach.mirth.client.core.Client;
 import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.model.Channel;
+import com.webreach.mirth.model.ChannelStatistics;
+import com.webreach.mirth.model.SystemEvent;
+import com.webreach.mirth.model.filters.SystemEventFilter;
 
 public class Shell {
 	private Client client;
+    private SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yy_HH-mm-ss.SS");
 
 	public static void main(String[] args) {
 		Shell shell = new Shell();
@@ -114,26 +124,26 @@ public class Shell {
 		}
 	}
 
-	private void executeStatement(String statement) {
+	private void executeStatement(String command) {
 		try {
-			String[] arguments = statement.split(" ");
+			String[] arguments = command.split(" ");
 			
-			if (arguments.length > 0) {
-				String command = arguments[0].toLowerCase();
+			if (arguments.length >= 1) {
+				String arg1 = arguments[0];
 
-				if (command.equalsIgnoreCase("start") || command.equalsIgnoreCase("stop")) {
+				if (arg1.equalsIgnoreCase("start") || arg1.equalsIgnoreCase("stop")) {
 					List<Channel> channels = client.getChannels();
 
 					for (Iterator iter = channels.iterator(); iter.hasNext();) {
 						Channel channel = (Channel) iter.next();
 
-						if (command.equals("start")) {
+						if (arg1.equals("start")) {
 							client.startChannel(channel.getId());
-						} else if (command.equals("stop")) {
+						} else if (arg1.equals("stop")) {
 							client.stopChannel(channel.getId());
 						}
 					}
-				} else if (command.equalsIgnoreCase("clear")) {
+				} else if (arg1.equalsIgnoreCase("clear")) {
 					List<Channel> channels = client.getChannels();
 
 					for (Iterator iter = channels.iterator(); iter.hasNext();) {
@@ -142,12 +152,93 @@ public class Shell {
 						client.clearStatistics(channel.getId());
 						client.clearMessages(channel.getId());
 					}
+				} else if (arg1.equalsIgnoreCase("dump")) {
+					if (arguments.length >= 2) {
+						String arg2 = arguments[1];	
+
+						if (arg2.equalsIgnoreCase("stats")) {
+							String dumpFilename = arguments[2];
+							dumpFilename = replaceValues(dumpFilename);
+
+							StringBuilder builder = new StringBuilder();
+							builder.append("Mirth Channel Statistics Dump: " + (new Date()).toString() + "\n");
+							builder.append("Name, Received, Sent, Error\n");
+
+							List<Channel> channels = client.getChannels();
+							
+							for (Iterator iter = channels.iterator(); iter.hasNext();) {
+								Channel channel = (Channel) iter.next();
+								ChannelStatistics stats = client.getStatistics(channel.getId());
+								builder.append(channel.getName() + ", " + stats.getReceivedCount() + ", " + stats.getSentCount() + ", " + stats.getErrorCount());
+							}
+
+							File dumpFile = new File(dumpFilename);
+
+							try {
+								writeFile(dumpFile, builder.toString());	
+							} catch (IOException e) {
+								System.out.println("Error: Could not write file: " + dumpFile.getAbsolutePath());
+							}
+						} else if (arg2.equals("events")) {
+							String dumpFilename = arguments[2];
+							dumpFilename = replaceValues(dumpFilename);
+
+							StringBuilder builder = new StringBuilder();
+							builder.append("Mirth Event Log Dump: " + (new Date()).toString() + "\n");
+							builder.append("Id, Event, Date, Description, Level\n");
+
+							List<SystemEvent> events = client.getSystemEvents(new SystemEventFilter());
+							
+							for (Iterator iter = events.iterator(); iter.hasNext();) {
+								SystemEvent event = (SystemEvent) iter.next();
+								builder.append(event.getId() +", " + event.getEvent() + ", " + formatDate(event.getDate()) + ", " + event.getDescription() + ", " + event.getLevel()  + "\n");
+							}
+							
+							File dumpFile = new File(dumpFilename);
+
+							try {
+								writeFile(dumpFile, builder.toString());	
+							} catch (IOException e) {
+								System.out.println("Error: Could not write file: " + dumpFile.getAbsolutePath());
+							}
+						} else {
+							System.out.println("Error: Unknown dump command: " + arg2);
+						}
+					} else {
+						System.out.println("Error: Missing dump commands.");
+					}
 				} else {
-					System.out.println("Error: Bad command: " + statement);
+					System.out.println("Error: Unknown command: " + command);
 				}
 			}
 		} catch (ClientException e) {
 			e.printStackTrace();
 		}
 	}
+	
+	private String replaceValues(String source) {
+		source = source.replaceAll("\\$\\{date\\}", getTimeStamp());
+		return source;
+	}
+	
+	private void writeFile(File file, String data) throws IOException {
+		BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+		
+		try {
+			writer.write(data);
+			writer.flush();
+		} finally {
+			writer.close();
+		}
+	}
+	
+    private String getTimeStamp() {
+        Date currentTime = new Date();
+        return formatter.format(currentTime);
+    }
+    
+    private String formatDate(Calendar date) {
+    	return String.format("%1$tY-%1$tm-%1$td 00:00:00", date);
+    }
 }
+
