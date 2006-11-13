@@ -46,8 +46,16 @@ public class GlobalVariableStore {
 			return instance;
 		}
 	}
+
+	public boolean containsKey(String key) {
+		return globalVariableMap.containsKey(key);
+	}
 	
-	public synchronized Object get(String key) {
+	public synchronized void remove(String key) {
+		globalVariableMap.remove(key);
+	}
+	
+	public Object get(String key) {
 		return globalVariableMap.get(key);
 	}
 	
