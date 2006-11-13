@@ -305,7 +305,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 	}
 
 	private void addGlobalVariables(MessageObject messageObject) {
-		Iterator iter = GlobalVariableStore.getInstance().keySet().iterator();
+		Iterator iter = GlobalVariableStore.getInstance().getVariables().keySet().iterator();
 
 		while (iter.hasNext()) {
 			String key = (String) iter.next();

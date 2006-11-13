@@ -18,7 +18,7 @@ public class ParameterValueReplacer {
 		
 		if ((variableMap != null) && variableMap.containsKey(key)) {
 			return variableMap.get(key);
-		} else if (GlobalVariableStore.getInstance().containsKey(key)) {
+		} else if (GlobalVariableStore.getInstance().getVariables().containsKey(key)) {
 			return GlobalVariableStore.getInstance().get(key);
 		} else {
 			TemplateValueReplacer replacer = new TemplateValueReplacer();

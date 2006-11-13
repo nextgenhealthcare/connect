@@ -1,7 +1,6 @@
 package org.mule.providers;
 
 import java.io.StringWriter;
-import java.util.Calendar;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
@@ -10,7 +9,6 @@ import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.app.tools.VelocityFormatter;
 import org.apache.velocity.tools.generic.DateTool;
-
 import org.mule.util.UUID;
 
 import com.webreach.mirth.model.MessageObject;
@@ -46,7 +44,7 @@ public class TemplateValueReplacer {
 			context.put("message", messageObject);
 
 			// load variables from global map
-			for (Iterator iter = GlobalVariableStore.getInstance().entrySet().iterator(); iter.hasNext();) {
+			for (Iterator iter = GlobalVariableStore.getInstance().getVariables().entrySet().iterator(); iter.hasNext();) {
 				Entry entry = (Entry) iter.next();
 				context.put(entry.getKey().toString(), entry.getValue());
 			}

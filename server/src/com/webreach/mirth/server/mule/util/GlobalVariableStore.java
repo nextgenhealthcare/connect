@@ -26,23 +26,36 @@
 
 package com.webreach.mirth.server.mule.util;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 public class GlobalVariableStore {
-	public Map globalVariableMap = new HashMap();
+	public Map<String, Object> globalVariableMap = new HashMap<String, Object>();
 	private static GlobalVariableStore instance = null;
 
 	private GlobalVariableStore() {
 
 	}
 
-	public static Map getInstance() {
+	public static GlobalVariableStore getInstance() {
 		synchronized (GlobalVariableStore.class) {
 			if (instance == null)
 				instance = new GlobalVariableStore();
 
-			return instance.globalVariableMap;
+			return instance;
 		}
+	}
+	
+	public synchronized Object get(String key) {
+		return globalVariableMap.get(key);
+	}
+	
+	public synchronized void put(String key, Object value) {
+		globalVariableMap.put(key, value);
+	}
+	
+	public Map<String, Object> getVariables() {
+		return Collections.unmodifiableMap(globalVariableMap);
 	}
 }
