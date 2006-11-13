@@ -56,10 +56,12 @@ import com.webreach.mirth.util.Encrypter;
 public class MessageObjectController {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private ConfigurationController configurationController = new ConfigurationController();
+	private MonitorMessageObjectController monitorController = new MonitorMessageObjectController();
 	private Table messages = new Table("messages");
 
 	public void updateMessage(MessageObject messageObject) {
 		logger.debug("updating message: channelId=" + messageObject.getChannelId());
+		monitorController.addMonitorMessage(messageObject);
 
 		DatabaseConnection dbConnection = null;
 
