@@ -409,6 +409,8 @@ public class JavaScriptTransformer extends AbstractTransformer {
 		logger.debug("generator transformer script");
 		StringBuilder script = new StringBuilder();
 		script.append("importPackage(Packages.com.webreach.mirth.server.util);");
+		// script used to check for exitence of segment
+		script.append("function validate(mapping) { result = ''; if (typeof mapping != undefined) result = mapping.toString(); return mapping; }");
 		script.append("function doTransform() {");
 
 		// only set the namespace to hl7-org if the message is XML
