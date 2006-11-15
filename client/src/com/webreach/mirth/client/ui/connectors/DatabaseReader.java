@@ -192,8 +192,7 @@ public class DatabaseReader extends ConnectorClass
     
     public boolean checkProperties(Properties props)
     {
-        if(((String)props.get(DATABASE_URL)).length() > 0 && ((String)props.get(DATABASE_USERNAME)).length() > 0 && 
-        ((String)props.get(DATABASE_POLLING_FREQUENCY)).length() > 0 && ((String)props.get(DATABASE_SQL_STATEMENT)).length() > 0)
+        if(((String)props.get(DATABASE_URL)).length() > 0 && ((String)props.get(DATABASE_POLLING_FREQUENCY)).length() > 0 && ((String)props.get(DATABASE_SQL_STATEMENT)).length() > 0)
         {
             if(((String)props.get(DATABASE_USE_ACK)).equalsIgnoreCase(UIConstants.YES_OPTION) && ((String)props.get(DATABASE_ACK)).length() > 0)
                 return true;

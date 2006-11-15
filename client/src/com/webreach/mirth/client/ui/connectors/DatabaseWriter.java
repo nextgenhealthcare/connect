@@ -137,7 +137,7 @@ public class DatabaseWriter extends ConnectorClass
     
     public boolean checkProperties(Properties props)
     {
-        if(((String)props.get(DATABASE_URL)).length() > 0 && ((String)props.get(DATABASE_USERNAME)).length() > 0 && ((String)props.get(DATABASE_PASSWORD)).length() > 0 && ((String)props.get(DATABASE_SQL_STATEMENT)).length() > 0)
+        if(((String)props.get(DATABASE_URL)).length() > 0 && ((String)props.get(DATABASE_SQL_STATEMENT)).length() > 0)
             return true;
         return false;
     }
