@@ -59,6 +59,7 @@ public class DatabaseConnectionFactory {
 		Properties info = new Properties();
 		info.setProperty("user", username);
 		info.setProperty("password", password);
+		info.setProperty("shutdown", "true");
 
 		return new DatabaseConnection(address, info);
 	}
