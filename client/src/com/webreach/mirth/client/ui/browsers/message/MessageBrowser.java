@@ -295,7 +295,7 @@ public class MessageBrowser extends javax.swing.JPanel
      */
     public void makeEventTable(MessageListHandler handler, int page) {
         eventTable = new JXTable();
-
+        
         // Do all paging information below.
         try
         {
@@ -312,7 +312,8 @@ public class MessageBrowser extends javax.swing.JPanel
             
             int messageCount = handler.getSize();
             int currentPage = handler.getCurrentPage();
-            int pageSize = messageObjectFilter.getPageSize();
+            int pageSize = handler.getPageSize();
+
             if (pageSize == -1)
                 pageSize = 0;
             
@@ -933,6 +934,8 @@ public class MessageBrowser extends javax.swing.JPanel
      * the actual filter and remakes the table with that filter.
      */
     private void filterButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_filterButtonActionPerformed
+    	int pageSize = 0;
+    	
         if (mirthDatePicker1.getDate() != null && mirthDatePicker2.getDate() != null)
         {
             if (mirthDatePicker1.getDateInMillis() > mirthDatePicker2.getDateInMillis())
@@ -972,9 +975,9 @@ public class MessageBrowser extends javax.swing.JPanel
         }
         
         if (!pageSizeField.getText().equals(""))
-            messageObjectFilter.setPageSize(Integer.parseInt(pageSizeField.getText()));
+            pageSize = Integer.parseInt(pageSizeField.getText());
         
-        messageListHandler = parent.mirthClient.getMessageListHandler(messageObjectFilter);
+        messageListHandler = parent.mirthClient.getMessageListHandler(messageObjectFilter, pageSize);
         
         makeEventTable(messageListHandler, FIRST_PAGE);
     }//GEN-LAST:event_filterButtonActionPerformed
