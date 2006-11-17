@@ -129,7 +129,7 @@ public class MessageObjectControllerTest extends TestCase {
 		testFilter.setChannelId(channelId);
 		messageObjectController.createMessagesTempTable(testFilter);
 		List<MessageObject> testMessageObjectList = messageObjectController.getMessagesByPage(-1, -1);
-		Assert.assertEquals(testMessageObjectList.size(), messageObjectController.getMessageCount(testFilter));
+		Assert.assertEquals(testMessageObjectList.size(), messageObjectController.createMessagesTempTable(testFilter));
 	}
 
 	public void testRemoveMessages() throws ControllerException {

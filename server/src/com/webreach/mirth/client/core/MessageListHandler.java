@@ -42,6 +42,7 @@ public class MessageListHandler implements ListHandler {
 	private MessageObjectFilter filter;
 	private int pageSize;
 	private int currentPage;
+	private int size = 0;
 	
 	public MessageListHandler(MessageObjectFilter filter, int pageSize, ServerConnection connection) {
 		this.filter = filter;
@@ -50,7 +51,7 @@ public class MessageListHandler implements ListHandler {
 
 		// TODO: have this method throw a ListHandlerException
 		try {
-			createMessagesTempTable();
+			size = createMessagesTempTable();
 		} catch (Exception e) {
 			logger.error(e);
 		}
@@ -66,6 +67,10 @@ public class MessageListHandler implements ListHandler {
 	
 	public int getCurrentPage() {
 		return currentPage;
+	}
+	
+	public int getSize() {
+		return size;
 	}
 	
 	public void resetIndex() {
@@ -102,11 +107,11 @@ public class MessageListHandler implements ListHandler {
 		}
 	}
 	
-	private void createMessagesTempTable() throws ListHandlerException {
+	private int createMessagesTempTable() throws ListHandlerException {
 		NameValuePair[] params = { new NameValuePair("op", "createMessagesTempTable"), new NameValuePair("filter", serializer.toXML(filter)) };
 		
 		try {
-			connection.executePostMethod(Client.MESSAGE_SERVLET, params);	
+			return Integer.parseInt(connection.executePostMethod(Client.MESSAGE_SERVLET, params));	
 		} catch (ClientException e) {
 			throw new ListHandlerException(e);
 		}
@@ -117,16 +122,6 @@ public class MessageListHandler implements ListHandler {
 		
 		try {
 			return (List<MessageObject>) serializer.fromXML(connection.executePostMethod(Client.MESSAGE_SERVLET, params));	
-		} catch (ClientException e) {
-			throw new ListHandlerException(e);
-		}
-	}
-
-	public int getSize() throws ListHandlerException {
-		NameValuePair[] params = { new NameValuePair("op", "getMessageCount"), new NameValuePair("filter", serializer.toXML(filter)) };
-		
-		try {
-			return Integer.parseInt(connection.executePostMethod(Client.MESSAGE_SERVLET, params));	
 		} catch (ClientException e) {
 			throw new ListHandlerException(e);
 		}

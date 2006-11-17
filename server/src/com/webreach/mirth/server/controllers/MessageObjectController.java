@@ -60,15 +60,11 @@ public class MessageObjectController {
 	private Table messages = new Table("messages");
 
 	public void updateMessage(MessageObject messageObject) {
-		logger.debug("updating message: channelId=" + messageObject.getChannelId());
 		monitorController.addMonitorMessage(messageObject);
-
+		ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 		DatabaseConnection dbConnection = null;
 
 		try {
-			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
-
-			ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 			Encrypter encrypter = new Encrypter(configurationController.getEncryptionKey());
 
 			String statement = null;
@@ -99,7 +95,7 @@ public class MessageObjectController {
 			MessageObjectFilter filter = new MessageObjectFilter();
 			filter.setId(messageObject.getId());
 
-			if (getMessageCount(filter) == 0) {
+			if (createMessagesTempTable(filter) == 0) {
 				logger.debug("inserting message: id=" + messageObject.getId());
 				statement = "insert into messages (id, channel_id, date_created, version, encrypted, status, raw_data, raw_data_protocol, transformed_data, transformed_data_protocol, encoded_data, encoded_data_protocol, variable_map, connector_name, errors) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
@@ -149,6 +145,7 @@ public class MessageObjectController {
 				parameters.add(messageObject.getId());
 			}
 
+			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
 			dbConnection.executeUpdate(statement, parameters);
 		} catch (Exception e) {
 			logger.error("could not log message: id=" + messageObject.getId(), e);
@@ -162,8 +159,6 @@ public class MessageObjectController {
 		ResultSet result = null;
 
 		try {
-			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
-
 			StringBuilder query = new StringBuilder();
 			query.append("select messages.* from messages_temp, messages where messages_temp.id = messages.sequence_id");
 			
@@ -172,7 +167,8 @@ public class MessageObjectController {
 				int last = first + pageSize;
 				query.append(" and messages_temp.sequence_order between " + first + " and " + last + ";");
 			}
-			
+
+			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
 			result = dbConnection.executeQuery(query.toString());
 			return getMessageList(result);
 		} catch (SQLException e) {
@@ -183,7 +179,7 @@ public class MessageObjectController {
 		}
 	}
 	
-	public void createMessagesTempTable(MessageObjectFilter filter) throws ControllerException {
+	public int createMessagesTempTable(MessageObjectFilter filter) throws ControllerException {
 		logger.debug("creating temporary message table: filter=" + filter.toString());
 
 		DatabaseConnection dbConnection = null;
@@ -204,38 +200,17 @@ public class MessageObjectController {
 			select.addOrder(messages, "date_created", Order.DESCENDING);
 			insert.append(select.toString());
 
-			dbConnection.executeUpdate(insert.toString());
+			return dbConnection.executeUpdate(insert.toString());
+		} catch (SQLException e) {
+			throw new ControllerException(e);
+		} finally {
 			// FIXME: why is this shutdown required?
-			dbConnection.executeUpdate("shutdown");
-		} catch (SQLException e) {
-			throw new ControllerException(e);
-		} finally {
-			DatabaseUtil.close(dbConnection);
-		}
-	}
-
-	public int getMessageCount(MessageObjectFilter filter) throws ControllerException {
-		logger.debug("retrieving message count: filter=" + filter.toString());
-
-		DatabaseConnection dbConnection = null;
-		ResultSet result = null;
-
-		try {
-			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
-			SelectQuery select = new SelectQuery(messages);
-			select.addColumn(messages, "count", "id");
-			addFilterCriteria(select, filter);
-			result = dbConnection.executeQuery(select.toString());
-
-			while (result.next()) {
-				return result.getInt(1);
+			try {
+				dbConnection.executeUpdate("shutdown");
+			} catch (Exception e) {
+				logger.error(e);
 			}
-
-			return -1;
-		} catch (SQLException e) {
-			throw new ControllerException(e);
-		} finally {
-			DatabaseUtil.close(result);
+			
 			DatabaseUtil.close(dbConnection);
 		}
 	}

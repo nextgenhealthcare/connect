@@ -49,16 +49,13 @@ public class MessageObjectServlet extends MirthServlet {
 
 				if (operation.equals("createMessagesTempTable")) {
 					String filter = request.getParameter("filter");
-					messageObjectController.createMessagesTempTable((MessageObjectFilter) serializer.fromXML(filter));
+					response.setContentType("text/plain");
+					out.println(messageObjectController.createMessagesTempTable((MessageObjectFilter) serializer.fromXML(filter)));
 				} else if (operation.equals("getMessagesByPage")) {
 					String page = request.getParameter("page");
 					String pageSize = request.getParameter("pageSize");
 					response.setContentType("application/xml");
 					out.print(serializer.toXML(messageObjectController.getMessagesByPage(Integer.parseInt(page), Integer.parseInt(pageSize))));
-				} else if (operation.equals("getMessageCount")) {
-					String filter = request.getParameter("filter");
-					response.setContentType("text/plain");
-					out.print(messageObjectController.getMessageCount((MessageObjectFilter) serializer.fromXML(filter)));
 				} else if (operation.equals("removeMessages")) {
 					String filter = request.getParameter("filter");
 					messageObjectController.removeMessages((MessageObjectFilter) serializer.fromXML(filter));
