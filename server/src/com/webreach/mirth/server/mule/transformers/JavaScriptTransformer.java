@@ -219,16 +219,11 @@ public class JavaScriptTransformer extends AbstractTransformer {
 				messageAccepted = ((Boolean) Context.jsToJava(result, java.lang.Boolean.class)).booleanValue();
 			}
 
-			if (messageAccepted) {
-				messageObject.setStatus(MessageObject.Status.ACCEPTED);
-			} else {
+			if (!messageAccepted && storeMessages) {
 				messageObject.setStatus(MessageObject.Status.REJECTED);
-			}
-
-			if (storeMessages) {
 				messageObjectController.updateMessage(messageObject);
 			}
-
+			
 			return messageAccepted;
 		} catch (Exception e) {
 			logger.error("error ocurred in filter", e);
@@ -283,12 +278,6 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			}
 
 			addGlobalVariables(messageObject);
-			messageObject.setStatus(MessageObject.Status.TRANSFORMED);
-
-			if (storeMessages) {
-				messageObjectController.updateMessage(messageObject);
-			}
-
 			return messageObject;
 		} catch (Exception e) {
 			messageObject.setStatus(MessageObject.Status.ERROR);
@@ -359,11 +348,6 @@ public class JavaScriptTransformer extends AbstractTransformer {
 				messageObject.setEncodedData(serializer.fromXML(messageObject.getTransformedData()));
 			}
 
-			messageObject.setStatus(MessageObject.Status.TRANSFORMED);
-
-			if (storeMessages) {
-				messageObjectController.updateMessage(messageObject);
-			}
 			addGlobalVariables(messageObject);
 			return messageObject;
 		} catch (Exception e) {
