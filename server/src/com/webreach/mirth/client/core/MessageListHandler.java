@@ -40,20 +40,24 @@ public class MessageListHandler implements ListHandler {
 	private ServerConnection connection;
 	private ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 	private MessageObjectFilter filter;
-	private int currentPage;
 	private int pageSize;
+	private int currentPage;
 	
 	public MessageListHandler(MessageObjectFilter filter, int pageSize, ServerConnection connection) {
+		this.filter = filter;
+		this.pageSize = pageSize;
+		this.connection = connection;
+
 		// TODO: have this method throw a ListHandlerException
-		
 		try {
-			this.filter = filter;
-			this.pageSize = pageSize;
-			this.connection = connection;
 			createMessagesTempTable();
 		} catch (Exception e) {
 			logger.error(e);
 		}
+	}
+	
+	public MessageObjectFilter getFilter() {
+		return filter;
 	}
 	
 	public int getPageSize() {

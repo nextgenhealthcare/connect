@@ -170,7 +170,7 @@ public class MessageObjectController {
 			if ((page != -1) && (pageSize != -1)) {
 				int first = page * pageSize;
 				int last = first + pageSize;
-				query.append("  and messages_temp.sequence_order between " + first + " and " + last + ";");
+				query.append(" and messages_temp.sequence_order between " + first + " and " + last + ";");
 			}
 			
 			result = dbConnection.executeQuery(query.toString());
@@ -183,7 +183,7 @@ public class MessageObjectController {
 		}
 	}
 	
-	public void createTempMessagesTable(MessageObjectFilter filter) throws ControllerException {
+	public void createMessagesTempTable(MessageObjectFilter filter) throws ControllerException {
 		logger.debug("creating temporary message table: filter=" + filter.toString());
 
 		DatabaseConnection dbConnection = null;
@@ -409,7 +409,7 @@ public class MessageObjectController {
 	}
 
 	public void reprocessMessages(MessageObjectFilter filter) throws ControllerException {
-		createTempMessagesTable(filter);
+		createMessagesTempTable(filter);
 		List<MessageObject> messages = getMessagesByPage(-1, -1);
 
 		try {

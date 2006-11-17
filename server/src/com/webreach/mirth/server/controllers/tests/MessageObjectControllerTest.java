@@ -100,7 +100,7 @@ public class MessageObjectControllerTest extends TestCase {
 		
 		MessageObjectFilter testFilter = new MessageObjectFilter();
 		testFilter.setId(sampleMessageObject.getId());
-		messageObjectController.createTempMessagesTable(testFilter);
+		messageObjectController.createMessagesTempTable(testFilter);
 		List<MessageObject> testMessageObjectList = messageObjectController.getMessagesByPage(-1, -1);
 		MessageObject testMessageObject = testMessageObjectList.get(0);
 
@@ -113,7 +113,7 @@ public class MessageObjectControllerTest extends TestCase {
 		
 		MessageObjectFilter testFilter = new MessageObjectFilter();
 		testFilter.setChannelId(channelId);
-		messageObjectController.createTempMessagesTable(testFilter);
+		messageObjectController.createMessagesTempTable(testFilter);
 		List<MessageObject> testMessageObjectList = messageObjectController.getMessagesByPage(-1, -1);
 
 		for (Iterator iter = sampleMessageObjectList.iterator(); iter.hasNext();) {
@@ -127,7 +127,7 @@ public class MessageObjectControllerTest extends TestCase {
 		
 		MessageObjectFilter testFilter = new MessageObjectFilter();
 		testFilter.setChannelId(channelId);
-		messageObjectController.createTempMessagesTable(testFilter);
+		messageObjectController.createMessagesTempTable(testFilter);
 		List<MessageObject> testMessageObjectList = messageObjectController.getMessagesByPage(-1, -1);
 		Assert.assertEquals(testMessageObjectList.size(), messageObjectController.getMessageCount(testFilter));
 	}
@@ -143,7 +143,7 @@ public class MessageObjectControllerTest extends TestCase {
 
 		MessageObjectFilter testFilter = new MessageObjectFilter();
 		testFilter.setChannelId(channelId);
-		messageObjectController.createTempMessagesTable(testFilter);
+		messageObjectController.createMessagesTempTable(testFilter);
 		List<MessageObject> testMessageObjectList = messageObjectController.getMessagesByPage(-1, -1);
 
 		Assert.assertEquals(sampleMessageObjectList.size() - 1, testMessageObjectList.size());
@@ -155,7 +155,7 @@ public class MessageObjectControllerTest extends TestCase {
 
 		MessageObjectFilter testFilter = new MessageObjectFilter();
 		testFilter.setChannelId(channelId);
-		messageObjectController.createTempMessagesTable(testFilter);
+		messageObjectController.createMessagesTempTable(testFilter);
 		List<MessageObject> testMessageObjectList = messageObjectController.getMessagesByPage(-1, -1);
 
 		Assert.assertEquals(0, testMessageObjectList.size());
