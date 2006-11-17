@@ -47,7 +47,7 @@ public class MessageObjectServlet extends MirthServlet {
 				PrintWriter out = response.getWriter();
 				String operation = request.getParameter("op");
 
-				if (operation.equals("createTempMessageTable")) {
+				if (operation.equals("createMessageTempTable")) {
 					String filter = request.getParameter("filter");
 					response.setContentType("application/xml");
 					messageObjectController.createTempMessagesTable((MessageObjectFilter) serializer.fromXML(filter));

@@ -37,9 +37,9 @@ import com.webreach.mirth.model.filters.MessageObjectFilter;
 
 public class MessageListHandler implements ListHandler {
 	private Logger logger = Logger.getLogger(this.getClass());
-	private MessageObjectFilter filter;
 	private ServerConnection connection;
 	private ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+	private MessageObjectFilter filter;
 	private int currentPage;
 	private int pageSize;
 	
@@ -47,9 +47,10 @@ public class MessageListHandler implements ListHandler {
 		// TODO: have this method throw a ListHandlerException
 		
 		try {
+			this.filter = filter;
 			this.pageSize = pageSize;
 			this.connection = connection;
-			loadResults(filter);
+			createMessagesTempTable();
 		} catch (Exception e) {
 			logger.error(e);
 		}
@@ -97,8 +98,8 @@ public class MessageListHandler implements ListHandler {
 		}
 	}
 	
-	private void loadResults(MessageObjectFilter filter) throws ListHandlerException {
-		NameValuePair[] params = { new NameValuePair("op", "createTempMessagesTable"), new NameValuePair("filter", serializer.toXML(filter)) };
+	private void createMessagesTempTable() throws ListHandlerException {
+		NameValuePair[] params = { new NameValuePair("op", "createMessagesTempTable"), new NameValuePair("filter", serializer.toXML(filter)) };
 		
 		try {
 			connection.executePostMethod(Client.MESSAGE_SERVLET, params);	
