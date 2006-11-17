@@ -97,11 +97,11 @@ public class MessageListHandler implements ListHandler {
 		}
 	}
 	
-	private List<MessageObject> loadResults(MessageObjectFilter filter) throws ListHandlerException {
+	private void loadResults(MessageObjectFilter filter) throws ListHandlerException {
 		NameValuePair[] params = { new NameValuePair("op", "createTempMessagesTable"), new NameValuePair("filter", serializer.toXML(filter)) };
 		
 		try {
-			return (List<MessageObject>) serializer.fromXML(connection.executePostMethod(Client.MESSAGE_SERVLET, params));	
+			connection.executePostMethod(Client.MESSAGE_SERVLET, params);	
 		} catch (ClientException e) {
 			throw new ListHandlerException(e);
 		}
