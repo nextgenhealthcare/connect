@@ -51,7 +51,7 @@ public class MessageListHandler implements ListHandler {
 			this.connection = connection;
 			loadResults(filter);
 		} catch (Exception e) {
-			logger.warn(e);
+			logger.error(e);
 		}
 	}
 	
