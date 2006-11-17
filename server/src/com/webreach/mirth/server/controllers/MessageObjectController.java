@@ -204,13 +204,6 @@ public class MessageObjectController {
 		} catch (SQLException e) {
 			throw new ControllerException(e);
 		} finally {
-			// FIXME: why is this shutdown required?
-			try {
-				dbConnection.executeUpdate("shutdown");
-			} catch (Exception e) {
-				logger.error(e);
-			}
-			
 			DatabaseUtil.close(dbConnection);
 		}
 	}

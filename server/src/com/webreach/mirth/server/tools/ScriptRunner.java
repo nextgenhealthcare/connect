@@ -66,7 +66,6 @@ public class ScriptRunner {
 			logger.info("executing script '" + scriptFile + "' on database '" + dbConnection.getAddress() + "'");
 
 			dbConnection.executeUpdate(scriptContent.toString());
-			dbConnection.executeUpdate("shutdown");
 		} catch (Exception e) {
 			logger.error("error executing script", e);
 		} finally {
