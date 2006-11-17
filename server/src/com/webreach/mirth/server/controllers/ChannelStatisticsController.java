@@ -76,8 +76,6 @@ public class ChannelStatisticsController {
 		ResultSet result = null;
 
 		try {
-			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
-
 			Table statistics = new Table("channel_statistics");
 			SelectQuery select = new SelectQuery(statistics);
 
@@ -86,6 +84,7 @@ public class ChannelStatisticsController {
 			select.addColumn(statistics, "errors");
 			select.addCriteria(new MatchCriteria(statistics, "channel_id", MatchCriteria.EQUALS, channelId));
 
+			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
 			result = dbConnection.executeQuery(select.toString());
 
 			ChannelStatistics channelStatistics = new ChannelStatistics();
@@ -112,8 +111,6 @@ public class ChannelStatisticsController {
 		DatabaseConnection dbConnection = null;
 
 		try {
-			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
-			
 			String insert = "insert into channel_statistics (channel_id, received, sent, errors) values (?, ?, ?, ?)";
 			
 			ArrayList<Object> parameters = new ArrayList<Object>();
@@ -122,6 +119,7 @@ public class ChannelStatisticsController {
 			parameters.add(0);
 			parameters.add(0);
 
+			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
 			dbConnection.executeUpdate(insert, parameters);
 		} catch (Exception e) {
 			throw new ControllerException(e);
@@ -136,8 +134,6 @@ public class ChannelStatisticsController {
 		DatabaseConnection dbConnection = null;
 
 		try {
-			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
-
 			String statement = "update channel_statistics set received = ? where channel_id = ?";
 
 			ChannelStatistics currentStatistics = getStatisticsObject(channelId);
@@ -147,6 +143,7 @@ public class ChannelStatisticsController {
 			parameters.add(received);
 			parameters.add(channelId);
 
+			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
 			dbConnection.executeUpdate(statement, parameters);
 		} catch (Exception e) {
 			throw new ControllerException(e);
@@ -161,8 +158,6 @@ public class ChannelStatisticsController {
 		DatabaseConnection dbConnection = null;
 
 		try {
-			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
-
 			String statement = "update channel_statistics set sent = ? where channel_id = ?";
 
 			ChannelStatistics currentStatistics = getStatisticsObject(channelId);
@@ -172,6 +167,7 @@ public class ChannelStatisticsController {
 			parameters.add(sent);
 			parameters.add(channelId);
 
+			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
 			dbConnection.executeUpdate(statement, parameters);
 		} catch (Exception e) {
 			throw new ControllerException(e);
@@ -186,8 +182,6 @@ public class ChannelStatisticsController {
 		DatabaseConnection dbConnection = null;
 
 		try {
-			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
-
 			String statement = "update channel_statistics set errors = ? where channel_id = ?";
 
 			ChannelStatistics currentStatistics = getStatisticsObject(channelId);
@@ -197,6 +191,7 @@ public class ChannelStatisticsController {
 			parameters.add(errors);
 			parameters.add(channelId);
 
+			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
 			dbConnection.executeUpdate(statement, parameters);
 		} catch (Exception e) {
 			throw new ControllerException(e);
