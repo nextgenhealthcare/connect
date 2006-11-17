@@ -41,54 +41,22 @@ public class MessageListHandler implements ListHandler {
 	private ServerConnection connection;
 	private ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 	private int currentPage;
+	private int pageSize;
 	
-	public MessageListHandler(MessageObjectFilter filter, ServerConnection connection) {
-		this.filter = filter;
-		this.connection = connection;
-	}
-	
-	public List<MessageObject> getAllPages() throws ListHandlerException {
-		logger.debug("retrieving all pages");
-		filter.setPage(-1);
-		return getPage(filter);
-	}
-	
-	public List<MessageObject> getFirstPage() throws ListHandlerException {
-		logger.debug("retrieving first page of " + filter.getPageSize() + " results");
-		
-		currentPage = 0;
-		filter.setPage(currentPage);
-		return getPage(filter);
-	}
-	
-	public List<MessageObject> getNextPage() throws ListHandlerException  {
-		logger.debug("retrieving next page of " + filter.getPageSize() + " results");
-		
-		currentPage++;
-		filter.setPage(currentPage);
-		return getPage(filter);		
-	}
-
-	public List<MessageObject> getPreviousPage() throws ListHandlerException  {
-		logger.debug("retrieving previous page of " + filter.getPageSize() + " results");
-		
-		if (currentPage > 0) {
-			currentPage--;	
-			filter.setPage(currentPage);
-			return getPage(filter);
-		} else {
-			throw new ListHandlerException("Invalid page.");
-		}
-	}
-	
-	public int getSize() throws ListHandlerException {
-		NameValuePair[] params = { new NameValuePair("op", "getMessageCount"), new NameValuePair("filter", serializer.toXML(filter)) };
+	public MessageListHandler(MessageObjectFilter filter, int pageSize, ServerConnection connection) {
+		// TODO: have this method throw a ListHandlerException
 		
 		try {
-			return Integer.parseInt(connection.executePostMethod(Client.MESSAGE_SERVLET, params));	
-		} catch (ClientException e) {
-			throw new ListHandlerException(e);
+			this.pageSize = pageSize;
+			this.connection = connection;
+			loadResults(filter);
+		} catch (Exception e) {
+			logger.warn(e);
 		}
+	}
+	
+	public int getPageSize() {
+		return pageSize;
 	}
 	
 	public int getCurrentPage() {
@@ -99,11 +67,61 @@ public class MessageListHandler implements ListHandler {
 		currentPage = 0;
 	}
 	
-	private List<MessageObject> getPage(MessageObjectFilter filter) throws ListHandlerException {
-		NameValuePair[] params = { new NameValuePair("op", "getMessages"), new NameValuePair("filter", serializer.toXML(filter)) };
+	public List<MessageObject> getAllPages() throws ListHandlerException {
+		logger.debug("retrieving all pages");
+		return getMessagesByPage(-1);
+	}
+	
+	public List<MessageObject> getFirstPage() throws ListHandlerException {
+		logger.debug("retrieving first page of " + pageSize + " results");
+		
+		currentPage = 0;
+		return getMessagesByPage(currentPage);
+	}
+	
+	public List<MessageObject> getNextPage() throws ListHandlerException  {
+		logger.debug("retrieving next page of " + pageSize + " results");
+		
+		currentPage++;
+		return getMessagesByPage(currentPage);		
+	}
+
+	public List<MessageObject> getPreviousPage() throws ListHandlerException  {
+		logger.debug("retrieving previous page of " + pageSize + " results");
+		
+		if (currentPage > 0) {
+			currentPage--;	
+			return getMessagesByPage(currentPage);
+		} else {
+			throw new ListHandlerException("Invalid page.");
+		}
+	}
+	
+	private List<MessageObject> loadResults(MessageObjectFilter filter) throws ListHandlerException {
+		NameValuePair[] params = { new NameValuePair("op", "createTempMessagesTable"), new NameValuePair("filter", serializer.toXML(filter)) };
 		
 		try {
 			return (List<MessageObject>) serializer.fromXML(connection.executePostMethod(Client.MESSAGE_SERVLET, params));	
+		} catch (ClientException e) {
+			throw new ListHandlerException(e);
+		}
+	}
+	
+	private List<MessageObject> getMessagesByPage(int page) throws ListHandlerException {
+		NameValuePair[] params = { new NameValuePair("op", "getMessagesByPage"), new NameValuePair("page", String.valueOf(page)), new NameValuePair("pageSize", String.valueOf(pageSize)) };
+		
+		try {
+			return (List<MessageObject>) serializer.fromXML(connection.executePostMethod(Client.MESSAGE_SERVLET, params));	
+		} catch (ClientException e) {
+			throw new ListHandlerException(e);
+		}
+	}
+
+	public int getSize() throws ListHandlerException {
+		NameValuePair[] params = { new NameValuePair("op", "getMessageCount"), new NameValuePair("filter", serializer.toXML(filter)) };
+		
+		try {
+			return Integer.parseInt(connection.executePostMethod(Client.MESSAGE_SERVLET, params));	
 		} catch (ClientException e) {
 			throw new ListHandlerException(e);
 		}

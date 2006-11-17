@@ -23,7 +23,6 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
 package com.webreach.mirth.server.servlets;
 
 import java.io.IOException;
@@ -48,10 +47,15 @@ public class MessageObjectServlet extends MirthServlet {
 				PrintWriter out = response.getWriter();
 				String operation = request.getParameter("op");
 
-				if (operation.equals("getMessages")) {
+				if (operation.equals("createTempMessageTable")) {
 					String filter = request.getParameter("filter");
 					response.setContentType("application/xml");
-					out.println(serializer.toXML(messageObjectController.getMessages((MessageObjectFilter) serializer.fromXML(filter))));
+					messageObjectController.createTempMessagesTable((MessageObjectFilter) serializer.fromXML(filter));
+				} else if (operation.equals("getMessagesByPage")) {
+					String page = request.getParameter("page");
+					String pageSize = request.getParameter("pageSize");
+					response.setContentType("application/xml");
+					out.print(messageObjectController.getMessagesByPage(Integer.parseInt(page), Integer.parseInt(pageSize)));
 				} else if (operation.equals("getMessageCount")) {
 					String filter = request.getParameter("filter");
 					response.setContentType("text/plain");

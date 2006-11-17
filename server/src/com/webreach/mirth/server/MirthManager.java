@@ -352,21 +352,6 @@ public class MirthManager {
 	}
 
 	/**
-	 * Returns a list of message events based on the specified filter.
-	 * 
-	 * @param filter
-	 * @return
-	 * @throws MirthException
-	 */
-	public List<MessageObject> getMessages(MessageObjectFilter filter) throws MirthException {
-		try {
-			return messageObjectController.getMessages(filter);
-		} catch (ControllerException e) {
-			throw new MirthException(e);
-		}
-	}
-
-	/**
 	 * Returns the channel status list.
 	 * 
 	 * @return

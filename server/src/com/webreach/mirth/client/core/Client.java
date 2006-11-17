@@ -380,8 +380,8 @@ public class Client {
 		return (List<MessageObject>) serializer.fromXML(serverConnection.executePostMethod(MESSAGE_SERVLET, params));
 	}
 
-	public MessageListHandler getMessageListHandler(MessageObjectFilter filter) {
-		return new MessageListHandler(filter, serverConnection);
+	public MessageListHandler getMessageListHandler(MessageObjectFilter filter, int pageSize) {
+		return new MessageListHandler(filter, pageSize, serverConnection);
 	}
 	
 	/**

@@ -42,8 +42,6 @@ public class MessageObjectFilter {
 	private Calendar startDate;
 	private Calendar endDate;
 	private MessageObject.Status status;
-	private int page = -1;
-	private int pageSize = -1;
 	private String connectorName;
 
 	public String getChannelId() {
@@ -68,22 +66,6 @@ public class MessageObjectFilter {
 
 	public void setEndDate(Calendar endDate) {
 		this.endDate = endDate;
-	}
-
-	public int getPage() {
-		return this.page;
-	}
-
-	public void setPage(int page) {
-		this.page = page;
-	}
-
-	public int getPageSize() {
-		return this.pageSize;
-	}
-
-	public void setPageSize(int pageSize) {
-		this.pageSize = pageSize;
 	}
 
 	public Calendar getStartDate() {
@@ -120,9 +102,7 @@ public class MessageObjectFilter {
 		builder.append("startDate=" + String.format("%1$tY-%1$tm-%1$td", getStartDate()) + ", ");
 		builder.append("endDate=" + String.format("%1$tY-%1$tm-%1$td", getEndDate()) + ", ");
 		builder.append("status=" + getStatus() + ", ");
-		builder.append("connectorName=" + getConnectorName() + ", ");
-		builder.append("page=" + getPage() + ", ");
-		builder.append("pageSize=" + getPageSize() + ", ");
+		builder.append("connectorName=" + getConnectorName());
 		builder.append("]");
 		return builder.toString();
 	}
