@@ -56,11 +56,9 @@ import com.webreach.mirth.util.Encrypter;
 public class MessageObjectController {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private ConfigurationController configurationController = new ConfigurationController();
-	private MonitorMessageObjectController monitorController = new MonitorMessageObjectController();
 	private Table messages = new Table("messages");
 
 	public void updateMessage(MessageObject messageObject) {
-		monitorController.addMonitorMessage(messageObject);
 		ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 		DatabaseConnection dbConnection = null;
 
