@@ -28,6 +28,7 @@ package com.webreach.mirth.server.servlets;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -64,15 +65,16 @@ public class UserServlet extends MirthServlet {
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 		} else {
 			try {
-				if (operation.equals("getUsers")) {
+				if (operation.equals("getUser")) {
 					response.setContentType("application/xml");
-					out.println(serializer.toXML(userController.getUsers(null)));
+					User user = (User) serializer.fromXML(request.getParameter("user"));
+					out.println(serializer.toXML(userController.getUser(user)));
 				} else if (operation.equals("updateUser")) {
-					String user = request.getParameter("data");
-					userController.updateUser((User) serializer.fromXML(user));
+					User user = (User) serializer.fromXML(request.getParameter("user"));
+					userController.updateUser(user);
 				} else if (operation.equals("removeUser")) {
-					String userId = request.getParameter("data");
-					userController.removeUser(Integer.valueOf(userId).intValue());
+					User user = (User) serializer.fromXML(request.getParameter("user"));
+					userController.removeUser(user);
 				} else if (operation.equals("logout")) {
 					logout(request, systemLogger);
 				}
@@ -85,10 +87,16 @@ public class UserServlet extends MirthServlet {
 	private boolean login(HttpServletRequest request, UserController userController, SystemLogger systemLogger, String username, String password) throws ServletException {
 		try {
 			HttpSession session = request.getSession();
-			int authenticateUserId = userController.authenticateUser(username, password);
-
-			if (authenticateUserId >= 0) {
-				session.setAttribute(SESSION_USER, authenticateUserId);
+			
+			User user = new User();
+			user.setUsername(username);
+			user.setPassword(password);
+			List<User> users = userController.getUser(user);
+			
+			if (!users.isEmpty()) {
+				User validUser = users.get(0);
+				
+				session.setAttribute(SESSION_USER, validUser.getId());
 				session.setAttribute(SESSION_AUTHORIZED, true);
 				
 				// this prevents the session from timing out
@@ -97,8 +105,8 @@ public class UserServlet extends MirthServlet {
 				// log the event
 				SystemEvent event = new SystemEvent("User logged in.");
 				event.getAttributes().put("Session ID", session.getId());
-				event.getAttributes().put("User ID", String.valueOf(authenticateUserId));
-				event.getAttributes().put("User Name", username);
+				event.getAttributes().put("User ID", validUser.getId());
+				event.getAttributes().put("User Name", validUser.getUsername());
 				systemLogger.logSystemEvent(event);
 
 				return true;

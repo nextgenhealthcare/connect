@@ -161,9 +161,9 @@ public class Client {
 	 * @return
 	 * @throws ClientException
 	 */
-	public synchronized List<User> getUsers() throws ClientException {
-		logger.debug("retrieving user list");
-		NameValuePair[] params = { new NameValuePair("op", "getUsers") };
+	public synchronized List<User> getUser(User user) throws ClientException {
+		logger.debug("getting user: " + user);
+		NameValuePair[] params = { new NameValuePair("op", "getUser"), new NameValuePair("user", serializer.toXML(user)) };
 		return (List<User>) serializer.fromXML(serverConnection.executePostMethod(USER_SERVLET, params));
 	}
 
@@ -174,8 +174,8 @@ public class Client {
 	 * @throws ClientException
 	 */
 	public synchronized void updateUser(User user) throws ClientException {
-		logger.debug("updating user: user id = " + user.toString());
-		NameValuePair[] params = { new NameValuePair("op", "updateUser"), new NameValuePair("data", serializer.toXML(user)) };
+		logger.debug("updating user: " + user);
+		NameValuePair[] params = { new NameValuePair("op", "updateUser"), new NameValuePair("user", serializer.toXML(user)) };
 		serverConnection.executePostMethod(USER_SERVLET, params);
 	}
 
@@ -185,9 +185,9 @@ public class Client {
 	 * @param userId
 	 * @throws ClientException
 	 */
-	public synchronized void removeUser(int userId) throws ClientException {
-		logger.debug("removing user: user id = " + userId);
-		NameValuePair[] params = { new NameValuePair("op", "removeUser"), new NameValuePair("data", String.valueOf(userId)) };
+	public synchronized void removeUser(User user) throws ClientException {
+		logger.debug("removing user: " + user);
+		NameValuePair[] params = { new NameValuePair("op", "removeUser"), new NameValuePair("user", serializer.toXML(user)) };
 		serverConnection.executePostMethod(USER_SERVLET, params);
 	}
 

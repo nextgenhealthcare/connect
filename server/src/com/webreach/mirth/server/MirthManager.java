@@ -115,14 +115,14 @@ public class MirthManager {
 	}
 
 	/**
-	 * Returns a List of all users.
+	 * Returns a List of users.
 	 * 
 	 * @return
 	 * @throws MirthException
 	 */
-	public List<User> getUsers() throws MirthException {
+	public List<User> getUser(User user) throws MirthException {
 		try {
-			return userController.getUsers(null);
+			return userController.getUser(user);
 		} catch (ControllerException e) {
 			throw new MirthException(e);
 		}
@@ -143,14 +143,14 @@ public class MirthManager {
 	}
 
 	/**
-	 * Removes the user with the specified id.
+	 * Removes the user.
 	 * 
-	 * @param userId
+	 * @param user
 	 * @throws MirthException
 	 */
-	public void removeUser(int userId) throws MirthException {
+	public void removeUser(User user) throws MirthException {
 		try {
-			userController.removeUser(userId);
+			userController.removeUser(user);
 		} catch (ControllerException e) {
 			throw new MirthException(e);
 		}

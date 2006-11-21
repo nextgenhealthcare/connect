@@ -27,15 +27,15 @@
 package com.webreach.mirth.model;
 
 public class User {
-	private int id;
+	private String id;
 	private String username;
 	private String password;
 
-	public int getId() {
+	public String getId() {
 		return this.id;
 	}
 
-	public void setId(int id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 
@@ -53,6 +53,18 @@ public class User {
 
 	public void setUsername(String username) {
 		this.username = username;
+	}
+	
+	public boolean equals(Object obj) {
+		if (obj instanceof User) {
+			User user = (User) obj;
+			
+			return (user.getId().equals(getId()) &&
+					user.getUsername().equals(getUsername()) &&
+					user.getPassword().equals(getPassword()));
+		} else {
+			return false;
+		}
 	}
 
 	public String toString() {
