@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap
+PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+"http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="User">
+	<typeAlias alias="user" type="com.webreach.mirth.model.User" />
+	
+	<select id="getUser" parameterClass="user" resultClass="user">
+		SELECT
+			ID as id,
+			USERNAME as username,
+			PASSWORD as password
+		FROM USERS
+		<dynamic prepend="WHERE">
+			<isNotNull prepend="AND" property="id">
+				ID=#id#
+			</isNotNull>
+			<isNotNull prepend="AND" property="username">
+				USERNAME=#username#
+			</isNotNull>
+			<isNotNull prepend="AND" property="password">
+				PASSWORD=#password#
+			</isNotNull>
+		</dynamic>
+	</select>
+	
+	<insert id="insertUser" parameterClass="user">
+		INSERT INTO
+		USERS (ID, USERNAME, PASSWORD)
+		VALUES (#id#, #username#, #password#)
+	</insert>
+	
+	<update id="updateUser" parameterClass="user">
+		UPDATE USERS
+			SET USERNAME = #username#,
+			PASSWORD = #password#
+		WHERE ID = #id#
+	</update>
+	
+	<delete id="deleteUser" parameterClass="user">
+		DELETE FROM USERS
+	<dynamic prepend="WHERE">
+			<isNotNull prepend="AND" property="id">
+				ID=#id#
+			</isNotNull>
+			<isNotNull prepend="AND" property="username">
+				USERNAME=#username#
+			</isNotNull>
+			<isNotNull prepend="AND" property="password">
+				PASSWORD=#password#
+			</isNotNull>
+		</dynamic>
+	</delete>
+</sqlMap>
