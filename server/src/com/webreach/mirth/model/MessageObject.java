@@ -201,25 +201,25 @@ public class MessageObject implements Serializable {
 		return messageObject;
 	}
 	
-	public boolean equals(Object source) {
-		if (source instanceof MessageObject) {
-			MessageObject messageObject = (MessageObject) source;
+	public boolean equals(Object obj) {
+		if (obj instanceof MessageObject) {
+			MessageObject messageObject = (MessageObject) obj;
 			
 			return (messageObject.getChannelId().equals(getChannelId()) &&
-			messageObject.getVersion().equals(getVersion()) &&
-			messageObject.getConnectorName().equals(getConnectorName()) &&
-			messageObject.getDateCreated().equals(getDateCreated()) &&
-			messageObject.getEncodedData().equals(getEncodedData()) &&
-			messageObject.getEncodedDataProtocol().equals(getEncodedDataProtocol()) &&
-			messageObject.getId().equals(getId()) &&
-			messageObject.getRawData().equals(getRawData()) &&
-			messageObject.getRawDataProtocol().equals(getRawDataProtocol()) &&
-			messageObject.getStatus().equals(getStatus()) &&
-			messageObject.getTransformedData().equals(getTransformedData()) &&
-			messageObject.getTransformedDataProtocol().equals(getTransformedDataProtocol()) &&
-			messageObject.getVariableMap().equals(getVariableMap()) &&
-			messageObject.isEncrypted() == isEncrypted() &&
-			messageObject.getErrors().equals(getErrors()));
+					messageObject.getVersion().equals(getVersion()) &&
+					messageObject.getConnectorName().equals(getConnectorName()) &&
+					messageObject.getDateCreated().equals(getDateCreated()) &&
+					messageObject.getEncodedData().equals(getEncodedData()) &&
+					messageObject.getEncodedDataProtocol().equals(getEncodedDataProtocol()) &&
+					messageObject.getId().equals(getId()) &&
+					messageObject.getRawData().equals(getRawData()) &&
+					messageObject.getRawDataProtocol().equals(getRawDataProtocol()) &&
+					messageObject.getStatus().equals(getStatus()) &&
+					messageObject.getTransformedData().equals(getTransformedData()) &&
+					messageObject.getTransformedDataProtocol().equals(getTransformedDataProtocol()) &&
+					messageObject.getVariableMap().equals(getVariableMap()) &&
+					messageObject.isEncrypted() == isEncrypted() &&
+					messageObject.getErrors().equals(getErrors()));
 		} else {
 			return false;
 		}
