@@ -182,31 +182,6 @@ public class ConfigurationController {
 			}
 		}
 	}
-
-	public int getNextId() throws ControllerException {
-		logger.debug("retrieving next id");
-
-		DatabaseConnection dbConnection = null;
-		ResultSet result = null;
-		int id = -1;
-
-		try {
-			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
-			result = dbConnection.executeQuery("SELECT NEXT VALUE FOR SEQ_CONFIGURATION FROM INFORMATION_SCHEMA.SYSTEM_SEQUENCES WHERE SEQUENCE_NAME='SEQ_CONFIGURATION';");
-			result.next();
-
-			if (result.getInt(1) > 0) {
-				id = result.getInt(1);
-			}
-		} catch (SQLException e) {
-			throw new ControllerException("Could not generate next unique identifier.", e);
-		} finally {
-			DatabaseUtil.close(result);
-			DatabaseUtil.close(dbConnection);
-		}
-
-		return id;
-	}
 	
 	public String getGuid() throws ControllerException {
 		return UUID.randomUUID().toString();
@@ -226,7 +201,7 @@ public class ConfigurationController {
 
 			// instantiate a new configuration builder given the current channel
 			// and transport list
-			MuleConfigurationBuilder builder = new MuleConfigurationBuilder(channelController.getChannels(null), getTransports());
+			MuleConfigurationBuilder builder = new MuleConfigurationBuilder(channelController.getChannel(null), getTransports());
 			// add the newly generated configuration to the database
 			addConfiguration(builder.getConfiguration());
 			// restart the mule engine which will grab the latest configuration

@@ -113,9 +113,9 @@ public class Client {
 	 * @return
 	 * @throws ClientException
 	 */
-	public synchronized List<Channel> getChannels() throws ClientException {
-		logger.debug("retrieving channel list");
-		NameValuePair[] params = { new NameValuePair("op", "getChannels") };
+	public synchronized List<Channel> getChannel(Channel channel) throws ClientException {
+		logger.debug("getting channel");
+		NameValuePair[] params = { new NameValuePair("op", "getChannels"), new NameValuePair("channel", serializer.toXML(channel)) };
 		return (List<Channel>) serializer.fromXML(serverConnection.executePostMethod(CHANNEL_SERVLET, params));
 	}
 
@@ -127,7 +127,7 @@ public class Client {
 	 */
 	public synchronized boolean updateChannel(Channel channel, boolean override) throws ClientException {
 		logger.debug("updating channel: channelId=" + channel.getId() + ", override=" + override);
-		NameValuePair[] params = { new NameValuePair("op", "updateChannel"), new NameValuePair("data", serializer.toXML(channel)), new NameValuePair("override", new Boolean(override).toString()) };
+		NameValuePair[] params = { new NameValuePair("op", "updateChannel"), new NameValuePair("channel", serializer.toXML(channel)), new NameValuePair("override", new Boolean(override).toString()) };
 		return Boolean.valueOf(serverConnection.executePostMethod(CHANNEL_SERVLET, params)).booleanValue();
 	}
 
@@ -137,9 +137,9 @@ public class Client {
 	 * @param channelId
 	 * @throws ClientException
 	 */
-	public synchronized void removeChannel(String channelId) throws ClientException {
-		logger.debug("removing channel: channelId=" + channelId);
-		NameValuePair[] params = { new NameValuePair("op", "removeChannel"), new NameValuePair("data", channelId) };
+	public synchronized void removeChannel(Channel channel) throws ClientException {
+		logger.debug("removing channel: channelId=" + channel.getId());
+		NameValuePair[] params = { new NameValuePair("op", "removeChannel"), new NameValuePair("channel", serializer.toXML(channel)) };
 		serverConnection.executePostMethod(CHANNEL_SERVLET, params);
 	}
 
@@ -213,18 +213,6 @@ public class Client {
 		logger.debug("updating server properties");
 		NameValuePair[] params = { new NameValuePair("op", "updateServerProperties"), new NameValuePair("data", serializer.toXML(properties)) };
 		serverConnection.executePostMethod(CONFIGURATION_SERVLET, params);
-	}
-
-	/**
-	 * Returns the latest configuration id.
-	 * 
-	 * @return
-	 * @throws ClientException
-	 */
-	public synchronized int getNextId() throws ClientException {
-		logger.debug("retrieving next id");
-		NameValuePair[] params = { new NameValuePair("op", "getNextId") };
-		return Integer.parseInt(serverConnection.executePostMethod(CONFIGURATION_SERVLET, params));
 	}
 
 	/**

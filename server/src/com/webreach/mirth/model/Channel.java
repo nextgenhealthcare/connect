@@ -30,6 +30,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import com.webreach.mirth.util.EqualsUtil;
+
 /**
  * A Channel is the main element of the Mirth architecture. Channels connect a
  * single source with multiple destinations which are represented by Connectors.
@@ -60,7 +62,7 @@ public class Channel {
 	private Protocol protocol = Protocol.HL7;
 	private Mode mode;
 	private Connector sourceConnector;
-	private List<Connector> destinationConnectors = new ArrayList<Connector>();;
+	private List<Connector> destinationConnectors = new ArrayList<Connector>();
 	private Properties properties = new Properties();
 	private String preprocessingScript;
 
@@ -179,6 +181,33 @@ public class Channel {
 
 	public void setPreprocessingScript(String preprocessingScript) {
 		this.preprocessingScript = preprocessingScript;
+	}
+	
+	public boolean equals(Object that) {
+		if (this == that) {
+			return true;
+		}
+		
+		if (!(that instanceof Channel)) {
+			return false;
+		}
+
+		Channel channel = (Channel) that;
+			
+		return
+			EqualsUtil.areEqual(this.getId(), channel.getId()) &&
+			EqualsUtil.areEqual(this.getName(), channel.getName()) &&
+			EqualsUtil.areEqual(this.getDescription(), channel.getDescription()) &&
+			EqualsUtil.areEqual(this.isEnabled(), channel.isEnabled()) &&
+			EqualsUtil.areEqual(this.getVersion(), channel.getVersion()) &&
+			EqualsUtil.areEqual(this.getRevision(), channel.getRevision()) &&
+			EqualsUtil.areEqual(this.getDirection(), channel.getDirection()) &&
+			EqualsUtil.areEqual(this.getProtocol(), channel.getProtocol()) &&
+			EqualsUtil.areEqual(this.getMode(), channel.getMode()) &&
+			EqualsUtil.areEqual(this.getSourceConnector(), channel.getSourceConnector()) &&
+			EqualsUtil.areEqual(this.getDestinationConnectors(), channel.getDestinationConnectors()) &&
+			EqualsUtil.areEqual(this.getProperties(), channel.getProperties()) &&
+			EqualsUtil.areEqual(this.getPreprocessingScript(), channel.getPreprocessingScript());
 	}
 
 	public String toString() {

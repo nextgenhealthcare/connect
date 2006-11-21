@@ -29,6 +29,8 @@ package com.webreach.mirth.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.webreach.mirth.util.EqualsUtil;
+
 /**
  * A Transformer represents a script which is executed on each message passing
  * through the Connector with which the transformer is associated.
@@ -38,7 +40,6 @@ import java.util.List;
  */
 public class Transformer {
 	private List<Step> steps;
-
 	private String template;
 
 	public Transformer() {
@@ -59,5 +60,21 @@ public class Transformer {
 
 	public void setSteps(List<Step> steps) {
 		this.steps = steps;
+	}
+	
+	public boolean equals(Object that) {
+		if (this == that) {
+			return true;
+		}
+		
+		if (!(that instanceof Transformer)) {
+			return false;
+		}
+		
+		Transformer transformer = (Transformer) that;
+		
+		return
+			EqualsUtil.areEqual(this.getSteps(), transformer.getSteps()) &&
+			EqualsUtil.areEqual(this.getTemplate(), transformer.getTemplate());
 	}
 }

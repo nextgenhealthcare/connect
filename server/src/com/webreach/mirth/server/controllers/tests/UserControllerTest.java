@@ -30,9 +30,7 @@ public class UserControllerTest extends TestCase {
 		
 		for (int i = 0; i < 10; i++) {
 			User sampleUser = new User();
-			int id = configurationController.getNextId();
-			sampleUser.setId(String.valueOf(id));
-			sampleUser.setUsername("user" + id);
+			sampleUser.setUsername("user" + i);
 			sampleUser.setPassword("password");
 			sampleUserList.add(sampleUser);
 		}
@@ -49,17 +47,17 @@ public class UserControllerTest extends TestCase {
 		User testUser = testUserList.get(0);
 		
 		Assert.assertEquals(1, testUserList.size());
-		Assert.assertEquals(sampleUser, testUser);
+		Assert.assertEquals(sampleUser.getUsername(), testUser.getUsername());
+		Assert.assertEquals(sampleUser.getPassword(), testUser.getPassword());
 	}
 	
 	public void testGetUser() throws ControllerException {
 		insertSampleUsers();
 		
-		List<User> testUserList = userController.getUser(null);
-		
 		for (Iterator iter = sampleUserList.iterator(); iter.hasNext();) {
 			User sampleUser = (User) iter.next();
-			Assert.assertTrue(testUserList.contains(sampleUser));
+			List<User> testUserList = userController.getUser(sampleUser);
+			Assert.assertFalse(testUserList.isEmpty());
 		}
 	}
 	

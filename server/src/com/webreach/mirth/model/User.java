@@ -26,6 +26,8 @@
 
 package com.webreach.mirth.model;
 
+import com.webreach.mirth.util.EqualsUtil;
+
 public class User {
 	private String id;
 	private String username;
@@ -55,16 +57,21 @@ public class User {
 		this.username = username;
 	}
 	
-	public boolean equals(Object obj) {
-		if (obj instanceof User) {
-			User user = (User) obj;
-			
-			return (user.getId().equals(getId()) &&
-					user.getUsername().equals(getUsername()) &&
-					user.getPassword().equals(getPassword()));
-		} else {
+	public boolean equals(Object that) {
+		if (this == that) {
+			return true;
+		}
+		
+		if (!(that instanceof User)) {
 			return false;
 		}
+		
+		User user = (User) that;
+		
+		return
+			EqualsUtil.areEqual(this.getId(), user.getId()) &&
+			EqualsUtil.areEqual(this.getUsername(), user.getUsername()) &&
+			EqualsUtil.areEqual(this.getPassword(), user.getPassword());
 	}
 
 	public String toString() {

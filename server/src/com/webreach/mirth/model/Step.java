@@ -26,6 +26,8 @@
 
 package com.webreach.mirth.model;
 
+import com.webreach.mirth.util.EqualsUtil;
+
 public class Step {
 	private int sequenceNumber;
 	private String name;
@@ -71,6 +73,24 @@ public class Step {
 
 	public void setType(String type) {
 		this.type = type;
+	}
+	
+	public boolean equals(Object that) {
+		if (this == that) {
+			return true;
+		}
+		
+		if (!(that instanceof Step)) {
+			return false;
+		}
+		
+		Step step = (Step) that;
+		
+		return
+			EqualsUtil.areEqual(this.getSequenceNumber(), step.getSequenceNumber()) &&
+			EqualsUtil.areEqual(this.getName(), step.getName()) &&
+			EqualsUtil.areEqual(this.getScript(), step.getScript()) &&
+			EqualsUtil.areEqual(this.getType(), step.getType());
 	}
 
 	public String toString() {

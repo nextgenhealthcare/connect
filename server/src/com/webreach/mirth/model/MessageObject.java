@@ -31,6 +31,8 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.webreach.mirth.util.EqualsUtil;
+
 public class MessageObject implements Serializable {
 	public enum Protocol {
 		HL7, X12, XML
@@ -201,27 +203,32 @@ public class MessageObject implements Serializable {
 		return messageObject;
 	}
 	
-	public boolean equals(Object obj) {
-		if (obj instanceof MessageObject) {
-			MessageObject messageObject = (MessageObject) obj;
-			
-			return (messageObject.getChannelId().equals(getChannelId()) &&
-					messageObject.getVersion().equals(getVersion()) &&
-					messageObject.getConnectorName().equals(getConnectorName()) &&
-					messageObject.getDateCreated().equals(getDateCreated()) &&
-					messageObject.getEncodedData().equals(getEncodedData()) &&
-					messageObject.getEncodedDataProtocol().equals(getEncodedDataProtocol()) &&
-					messageObject.getId().equals(getId()) &&
-					messageObject.getRawData().equals(getRawData()) &&
-					messageObject.getRawDataProtocol().equals(getRawDataProtocol()) &&
-					messageObject.getStatus().equals(getStatus()) &&
-					messageObject.getTransformedData().equals(getTransformedData()) &&
-					messageObject.getTransformedDataProtocol().equals(getTransformedDataProtocol()) &&
-					messageObject.getVariableMap().equals(getVariableMap()) &&
-					messageObject.isEncrypted() == isEncrypted() &&
-					messageObject.getErrors().equals(getErrors()));
-		} else {
+	public boolean equals(Object that) {
+		if (this == that) {
+			return true;
+		}
+		
+		if (!(that instanceof MessageObject)) {
 			return false;
 		}
+		
+		MessageObject messageObject = (MessageObject) that;
+		
+		return
+			EqualsUtil.areEqual(this.getId(), messageObject.getId()) &&
+			EqualsUtil.areEqual(this.getChannelId(), messageObject.getChannelId()) &&
+			EqualsUtil.areEqual(this.getStatus(), messageObject.getStatus()) &&
+			EqualsUtil.areEqual(this.getDateCreated(), messageObject.getDateCreated()) &&
+			EqualsUtil.areEqual(this.getRawData(), messageObject.getRawData()) &&
+			EqualsUtil.areEqual(this.getRawDataProtocol(), messageObject.getRawDataProtocol()) &&
+			EqualsUtil.areEqual(this.getTransformedData(), messageObject.getTransformedData()) &&
+			EqualsUtil.areEqual(this.getTransformedDataProtocol(), messageObject.getTransformedDataProtocol()) &&
+			EqualsUtil.areEqual(this.getEncodedData(), messageObject.getEncodedData()) &&
+			EqualsUtil.areEqual(this.getEncodedDataProtocol(), messageObject.getEncodedDataProtocol()) &&
+			EqualsUtil.areEqual(this.getVariableMap(), messageObject.getVariableMap()) &&
+			EqualsUtil.areEqual(this.getConnectorName(), messageObject.getConnectorName()) &&
+			EqualsUtil.areEqual(this.isEncrypted(), messageObject.isEncrypted()) &&
+			EqualsUtil.areEqual(this.getErrors(), messageObject.getErrors()) &&
+			EqualsUtil.areEqual(this.getVersion(), messageObject.getVersion());
 	}
 }

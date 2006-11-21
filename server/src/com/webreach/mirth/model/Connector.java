@@ -28,6 +28,8 @@ package com.webreach.mirth.model;
 
 import java.util.Properties;
 
+import com.webreach.mirth.util.EqualsUtil;
+
 /**
  * A Connector represents a connection to either a source or destination. Each
  * Connector has an associated Filter and Transformer. A connector is also of a
@@ -90,6 +92,25 @@ public class Connector {
 
 	public void setProperties(Properties properties) {
 		this.properties = properties;
+	}
+	
+	public boolean equals(Object that) {
+		if (this == that) {
+			return true;
+		}
+		
+		if (!(that instanceof Connector)) {
+			return false;
+		}
+		
+		Connector connector = (Connector) that;
+		
+		return
+			EqualsUtil.areEqual(this.getName(), connector.getName()) &&
+			EqualsUtil.areEqual(this.getProperties(), getProperties()) &&
+			EqualsUtil.areEqual(this.getTransformer(), getTransformer()) &&
+			EqualsUtil.areEqual(this.getFilter(), getFilter()) &&
+			EqualsUtil.areEqual(this.getTransportName(), getTransportName());
 	}
 
 	public String toString() {

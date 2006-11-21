@@ -64,7 +64,7 @@ public class DatabasePruner extends Thread {
 		logger.debug("pruning database");
 		
 		try {
-			List<Channel> channels = channelController.getChannels(null);
+			List<Channel> channels = channelController.getChannel(null);
 
 			for (Iterator iter = channels.iterator(); iter.hasNext();) {
 				Channel channel = (Channel) iter.next();

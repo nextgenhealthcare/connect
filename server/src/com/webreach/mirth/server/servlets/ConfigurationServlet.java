@@ -23,7 +23,6 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
 package com.webreach.mirth.server.servlets;
 
 import java.io.IOException;
@@ -58,9 +57,6 @@ public class ConfigurationServlet extends MirthServlet {
 				} else if (operation.equals("updateServerProperties")) {
 					String properties = request.getParameter("data");
 					configurationController.updateServerProperties((Properties) serializer.fromXML(properties));
-				} else if (operation.equals("getNextId")) {
-					response.setContentType("text/plain");
-					out.print(configurationController.getNextId());
 				} else if (operation.equals("getGuid")) {
 					response.setContentType("text/plain");
 					out.print(configurationController.getGuid());

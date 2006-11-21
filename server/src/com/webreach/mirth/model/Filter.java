@@ -29,6 +29,8 @@ package com.webreach.mirth.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.webreach.mirth.util.EqualsUtil;
+
 /**
  * A Filter represents a list of rules which are executed on each message and
  * either accepts or rejects the message.
@@ -38,7 +40,6 @@ import java.util.List;
  */
 public class Filter {
 	private List<Rule> rules;
-
 	private String template;
 
 	public Filter() {
@@ -59,5 +60,21 @@ public class Filter {
 
 	public void setRules(List<Rule> rules) {
 		this.rules = rules;
+	}
+	
+	public boolean equals(Object that) {
+		if (this == that) {
+			return true;
+		}
+		
+		if (!(that instanceof Filter)) {
+			return false;
+		}
+		
+		Filter filter = (Filter) that;
+		
+		return
+			EqualsUtil.areEqual(this.getRules(), filter.getRules()) &&
+			EqualsUtil.areEqual(this.getTemplate(), getTemplate());
 	}
 }

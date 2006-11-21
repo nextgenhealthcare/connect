@@ -36,6 +36,7 @@ import javax.management.ObjectName;
 
 import org.apache.log4j.Logger;
 
+import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.ChannelStatus;
 import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.server.util.JMXConnection;
@@ -187,12 +188,15 @@ public class ChannelStatusController {
 			
 			for (Iterator iter = deployedChannelIdList.iterator(); iter.hasNext();) {
 				String channelId = (String) iter.next();
+				Channel channel = new Channel();
+				channel.setId(channelId);
+				
 				ChannelStatus channelStatus = new ChannelStatus();
 				channelStatus.setChannelId(channelId);
 				
 				// check if the channel is running but has been removed from the channel list
-				if (channelController.getChannels(channelId).size() != 0) {
-					channelStatus.setName(channelController.getChannels(channelId).get(0).getName());	
+				if (channelController.getChannel(channel).size() != 0) {
+					channelStatus.setName(channelController.getChannel(channel).get(0).getName());	
 				} else {
 					channelStatus.setName("Channel has been deleted.");
 				}

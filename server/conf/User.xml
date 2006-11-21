@@ -28,13 +28,13 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 	
 	<insert id="insertUser" parameterClass="user">
 		INSERT INTO
-		USERS (ID, USERNAME, PASSWORD)
-		VALUES (#id#, #username#, #password#)
+		USERS (USERNAME, PASSWORD)
+		VALUES (#username#, #password#)
 	</insert>
 	
 	<update id="updateUser" parameterClass="user">
 		UPDATE USERS
-			SET USERNAME = #username#,
+		SET USERNAME = #username#,
 			PASSWORD = #password#
 		WHERE ID = #id#
 	</update>

@@ -132,7 +132,7 @@ public class Shell {
 				String arg1 = arguments[0];
 
 				if (arg1.equalsIgnoreCase("start") || arg1.equalsIgnoreCase("stop")) {
-					List<Channel> channels = client.getChannels();
+					List<Channel> channels = client.getChannel(null);
 
 					for (Iterator iter = channels.iterator(); iter.hasNext();) {
 						Channel channel = (Channel) iter.next();
@@ -144,7 +144,7 @@ public class Shell {
 						}
 					}
 				} else if (arg1.equalsIgnoreCase("clear")) {
-					List<Channel> channels = client.getChannels();
+					List<Channel> channels = client.getChannel(null);
 
 					for (Iterator iter = channels.iterator(); iter.hasNext();) {
 						Channel channel = (Channel) iter.next();
@@ -164,7 +164,7 @@ public class Shell {
 							builder.append("Mirth Channel Statistics Dump: " + (new Date()).toString() + "\n");
 							builder.append("Name, Received, Sent, Error\n");
 
-							List<Channel> channels = client.getChannels();
+							List<Channel> channels = client.getChannel(null);
 							
 							for (Iterator iter = channels.iterator(); iter.hasNext();) {
 								Channel channel = (Channel) iter.next();

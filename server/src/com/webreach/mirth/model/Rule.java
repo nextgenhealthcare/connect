@@ -26,6 +26,8 @@
 
 package com.webreach.mirth.model;
 
+import com.webreach.mirth.util.EqualsUtil;
+
 public class Rule {
 	public enum Operator {
 		AND, OR, NONE
@@ -68,6 +70,24 @@ public class Rule {
 		this.operator = operator;
 	}
 
+	public boolean equals(Object that) {
+		if (this == that) {
+			return true;
+		}
+		
+		if (!(that instanceof Rule)) {
+			return false;
+		}
+		
+		Rule rule = (Rule) that;
+		
+		return
+			EqualsUtil.areEqual(this.getSequenceNumber(), rule.getSequenceNumber()) &&
+			EqualsUtil.areEqual(this.getName(), rule.getName()) &&
+			EqualsUtil.areEqual(this.getScript(), rule.getScript()) &&
+			EqualsUtil.areEqual(this.getOperator(), rule.getOperator());
+	}
+	
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append(this.getClass().getName() + "[");

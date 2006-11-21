@@ -48,17 +48,18 @@ public class ChannelServlet extends MirthServlet {
 				PrintWriter out = response.getWriter();
 				String operation = request.getParameter("op");
 
-				if (operation.equals("getChannels")) {
+				if (operation.equals("getChannel")) {
 					response.setContentType("application/xml");
-					out.println(serializer.toXML(channelController.getChannels(null)));
+					Channel channel = (Channel) serializer.fromXML(request.getParameter("channel"));
+					out.println(serializer.toXML(channelController.getChannel(channel)));
 				} else if (operation.equals("updateChannel")) {
 					response.setContentType("text/plain");
-					String channel = request.getParameter("data");
+					Channel channel = (Channel) serializer.fromXML(request.getParameter("channel"));
 					boolean override = Boolean.valueOf(request.getParameter("override")).booleanValue();
-					out.print(channelController.updateChannel((Channel) serializer.fromXML(channel), override));
+					out.print(channelController.updateChannel(channel, override));
 				} else if (operation.equals("removeChannel")) {
-					String channelId = request.getParameter("data");
-					channelController.removeChannel(channelId);
+					Channel channel = (Channel) serializer.fromXML(request.getParameter("channel"));
+					channelController.removeChannel(channel);
 				}
 			} catch (Exception e) {
 				throw new ServletException(e);

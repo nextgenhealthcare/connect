@@ -34,7 +34,6 @@ import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.ChannelStatistics;
 import com.webreach.mirth.model.ChannelStatus;
 import com.webreach.mirth.model.DriverInfo;
-import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.model.Transport;
 import com.webreach.mirth.model.User;
@@ -64,9 +63,9 @@ public class MirthManager {
 	 * @return
 	 * @throws MirthException
 	 */
-	public List<Channel> getChannels() throws MirthException {
+	public List<Channel> getChannel(Channel channel) throws MirthException {
 		try {
-			return channelController.getChannels(null);
+			return channelController.getChannel(channel);
 		} catch (ControllerException e) {
 			throw new MirthException(e);
 		}
@@ -92,9 +91,9 @@ public class MirthManager {
 	 * @param channelId
 	 * @throws MirthException
 	 */
-	public void removeChannel(String channelId) throws MirthException {
+	public void removeChannel(Channel channel) throws MirthException {
 		try {
-			channelController.removeChannel(channelId);
+			channelController.removeChannel(channel);
 		} catch (ControllerException e) {
 			throw new MirthException(e);
 		}
@@ -179,20 +178,6 @@ public class MirthManager {
 	public void updateServerProperties(Properties properties) throws MirthException {
 		try {
 			configurationController.updateServerProperties(properties);
-		} catch (ControllerException e) {
-			throw new MirthException(e);
-		}
-	}
-
-	/**
-	 * Returns the latest configuration id.
-	 * 
-	 * @return
-	 * @throws MirthException
-	 */
-	public int getNextId() throws MirthException {
-		try {
-			return configurationController.getNextId();
 		} catch (ControllerException e) {
 			throw new MirthException(e);
 		}
