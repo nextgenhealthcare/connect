@@ -270,20 +270,20 @@ public class UserWizard extends javax.swing.JDialog
         {
             User temp = new User();
             this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-            try
+            /*try
             {
                 if(index != -1)
                     temp.setId(this.parent.users.get(index).getId());
                 else
-                    temp.setId(parent.mirthClient.getNextId());
+                    temp.setId(parent.mirthClient.getNextId());*/
                 temp.setUsername(username.getText());
                 temp.setPassword(String.valueOf(password1.getPassword()));
                 parent.updateUser(temp);
-            } 
+            /*} 
             catch (ClientException e)
             {
                 parent.alertException(e.getStackTrace(), e.getMessage());
-            }
+            }*/
             this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
             this.dispose();
         }

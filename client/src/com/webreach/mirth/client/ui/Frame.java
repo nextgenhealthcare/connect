@@ -187,8 +187,8 @@ public class Frame extends JXFrame
 
         try
         {
-            channels = this.mirthClient.getChannels();
-            users = this.mirthClient.getUsers();
+            channels = this.mirthClient.getChannel(null);
+            users = this.mirthClient.getUser(null);
             status = this.mirthClient.getChannelStatusList();
         }
         catch (ClientException e)
@@ -1167,7 +1167,7 @@ public class Frame extends JXFrame
                 else
                     return false;
             }
-            channels = mirthClient.getChannels();
+            channels = mirthClient.getChannel(null);
             channelListPage.makeChannelTable();
         }
         catch (ClientException e)
@@ -1189,7 +1189,7 @@ public class Frame extends JXFrame
         try
         {
             mirthClient.updateUser(curr);
-            users = mirthClient.getUsers();
+            users = mirthClient.getUser(null);
             adminPanel.userPane.makeUsersTable();
         }
         catch (ClientException e)
@@ -1356,7 +1356,6 @@ public class Frame extends JXFrame
         else
         {
             editChannel(channelListPage.getSelectedChannel());
-            setPanelName("Edit Channel :: " +  channelEditPage.currentChannel.getName());
         }
     }
 
@@ -1388,8 +1387,8 @@ public class Frame extends JXFrame
         this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         try
         {
-            mirthClient.removeChannel(channels.get(channelListPage.getSelectedChannel()).getId());
-            channels = mirthClient.getChannels();
+            mirthClient.removeChannel(channels.get(channelListPage.getSelectedChannel()));
+            channels = mirthClient.getChannel(null);
             channelListPage.makeChannelTable();
         }
         catch (ClientException e)
@@ -1412,7 +1411,7 @@ public class Frame extends JXFrame
         this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         try
         {
-            channels = mirthClient.getChannels();
+            channels = mirthClient.getChannel(null);
             channelListPage.makeChannelTable();
 
             if(channels.size() > 0)
@@ -1635,8 +1634,8 @@ public class Frame extends JXFrame
         {
            if(userToDelete != UIConstants.ERROR_CONSTANT)
            {
-                mirthClient.removeUser(users.get(userToDelete).getId());
-                users = mirthClient.getUsers();
+                mirthClient.removeUser(users.get(userToDelete));
+                users = mirthClient.getUser(null);
                 adminPanel.userPane.makeUsersTable();
                 adminPanel.userPane.deselectRows();
            }
@@ -1650,22 +1649,25 @@ public class Frame extends JXFrame
 
     public void doRefreshUser()
     {
-        int userId = UIConstants.ERROR_CONSTANT;
+        User user = null;
         String userName = null;
 
         if(adminPanel.userPane.getUserIndex() != UIConstants.ERROR_CONSTANT)
-            userId = users.get(adminPanel.userPane.getUserIndex()).getId();
+            user = users.get(adminPanel.userPane.getUserIndex());
 
         this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         try
         {
-            users = mirthClient.getUsers();
+            users = mirthClient.getUser(null);
             adminPanel.userPane.makeUsersTable();
-
-            for(int i = 0; i<users.size(); i++)
+            
+            if(user != null)
             {
-                if(userId == users.get(i).getId())
-                    userName = users.get(i).getUsername();
+                for(int i = 0; i<users.size(); i++)
+                {
+                    if(user.equals(users.get(i)))
+                        userName = users.get(i).getUsername();
+                }
             }
         }
         catch (ClientException e)

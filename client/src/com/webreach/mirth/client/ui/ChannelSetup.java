@@ -725,7 +725,7 @@ public class ChannelSetup extends javax.swing.JPanel
     /** Load all of the saved channel information into the channel editor */
     private void loadChannelInfo()
     {
-   
+        parent.setPanelName("Edit Channel :: " +  currentChannel.getName());
         summaryNameField.setText(currentChannel.getName());
         summaryDescriptionText.setText(currentChannel.getDescription());
         if (currentChannel.getDirection().equals(Channel.Direction.INBOUND))

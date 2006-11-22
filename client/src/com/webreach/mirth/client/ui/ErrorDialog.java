@@ -49,7 +49,10 @@ public class ErrorDialog extends javax.swing.JDialog {
 
 	/** Loads the contents of the error*/
 	public void loadContent(String message) {
-		errorContent.setText(message);
+            if(emailAddress.getText().length() > 0)
+                message = emailAddress.getText() + " " + message;
+            
+            errorContent.setText(message);
 	}
 
 	/**
@@ -66,6 +69,8 @@ public class ErrorDialog extends javax.swing.JDialog {
         errorContent = new javax.swing.JTextPane();
         submit = new javax.swing.JButton();
         cancel = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
+        emailAddress = new javax.swing.JTextField();
         questionPane = new javax.swing.JScrollPane();
         question = new javax.swing.JTextPane();
         image = new javax.swing.JLabel();
@@ -94,6 +99,8 @@ public class ErrorDialog extends javax.swing.JDialog {
             }
         });
 
+        jLabel1.setText("Email Address (optional):");
+
         org.jdesktop.layout.GroupLayout jPanel1Layout = new org.jdesktop.layout.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -104,7 +111,11 @@ public class ErrorDialog extends javax.swing.JDialog {
                         .add(10, 10, 10)
                         .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 394, Short.MAX_VALUE))
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .addContainerGap(268, Short.MAX_VALUE)
+                        .addContainerGap()
+                        .add(jLabel1)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(emailAddress, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 129, Short.MAX_VALUE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(submit)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(cancel)))
@@ -121,7 +132,9 @@ public class ErrorDialog extends javax.swing.JDialog {
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(submit)
-                    .add(cancel))
+                    .add(cancel)
+                    .add(jLabel1)
+                    .add(emailAddress, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
 
@@ -171,8 +184,10 @@ public class ErrorDialog extends javax.swing.JDialog {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton cancel;
+    private javax.swing.JTextField emailAddress;
     private javax.swing.JTextPane errorContent;
     private javax.swing.JLabel image;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextPane question;
