@@ -115,7 +115,7 @@ public class Client {
 	 */
 	public synchronized List<Channel> getChannel(Channel channel) throws ClientException {
 		logger.debug("getting channel");
-		NameValuePair[] params = { new NameValuePair("op", "getChannels"), new NameValuePair("channel", serializer.toXML(channel)) };
+		NameValuePair[] params = { new NameValuePair("op", "getChannel"), new NameValuePair("channel", serializer.toXML(channel)) };
 		return (List<Channel>) serializer.fromXML(serverConnection.executePostMethod(CHANNEL_SERVLET, params));
 	}
 
