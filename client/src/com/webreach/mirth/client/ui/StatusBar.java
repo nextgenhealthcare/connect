@@ -27,7 +27,7 @@
 package com.webreach.mirth.client.ui;
 
 import javax.swing.ImageIcon;
-import javax.swing.JLabel;
+import javax.swing.UIManager;
 import javax.swing.border.BevelBorder;
 
 /**
@@ -42,10 +42,14 @@ public class StatusBar extends javax.swing.JPanel
         initComponents();
         left.setText("Connected to: " + PlatformUI.SERVER_NAME);
         left.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/server.png")));
-        right.setText("Logged in as: " + PlatformUI.USER_NAME);
-        right.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/user.png")));
-        right.setHorizontalTextPosition(JLabel.LEADING);
+        progressBar.setEnabled(false);
+        progressBar.setForeground(UIManager.getColor("TaskPaneContainer.backgroundGradientEnd"));
         this.setBorder(new BevelBorder(BevelBorder.LOWERED));
+    }
+    
+    public void setWorking(boolean working)
+    {
+        progressBar.setIndeterminate(working);
     }
     
     /** This method is called from within the constructor to
@@ -57,33 +61,36 @@ public class StatusBar extends javax.swing.JPanel
     private void initComponents()
     {
         left = new javax.swing.JLabel();
-        right = new javax.swing.JLabel();
+        progressBar = new javax.swing.JProgressBar();
 
         left.setText("jLabel1");
-
-        right.setText("jLabel2");
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                .add(3, 3, 3)
                 .add(left)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 637, Short.MAX_VALUE)
-                .add(right))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 576, Short.MAX_VALUE)
+                .add(progressBar, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(14, 14, 14))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                .add(left)
-                .add(right))
+            .add(layout.createSequentialGroup()
+                .add(5, 5, 5)
+                .add(progressBar, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 18, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+            .add(layout.createSequentialGroup()
+                .add(7, 7, 7)
+                .add(left))
         );
     }// </editor-fold>//GEN-END:initComponents
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel left;
-    private javax.swing.JLabel right;
+    private javax.swing.JProgressBar progressBar;
     // End of variables declaration//GEN-END:variables
     
 }

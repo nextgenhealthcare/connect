@@ -55,8 +55,10 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import org.apache.log4j.Logger;
+import org.jdesktop.swingworker.SwingWorker;
 
 import org.jdesktop.swingx.JXFrame;
 import org.jdesktop.swingx.JXTaskPane;
@@ -138,6 +140,7 @@ public class Frame extends JXFrame
     private DropShadowBorder dsb;
     private static Preferences userPreferences;
     private StatusUpdater su;
+    private boolean connectionError;
     
     /**
      * Builds the content panel with a title bar and settings.
@@ -180,7 +183,7 @@ public class Frame extends JXFrame
         this.mirthClient = mirthClient;
         this.setIconImage(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/emoticon_smile.png")).getImage());
         
-        this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        setWorking(true);
         
         userPreferences = Preferences.systemNodeForPackage(Mirth.class);
         userPreferences.put("defaultServer", PlatformUI.SERVER_NAME);
@@ -195,7 +198,7 @@ public class Frame extends JXFrame
         {
             alertException(e.getStackTrace(), e.getMessage());
         }
-        this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        setWorking(false);
 
         taskPaneContainer = new JXTaskPaneContainer();
 
@@ -231,6 +234,7 @@ public class Frame extends JXFrame
             e.printStackTrace();
             alertException(e.getStackTrace(), e.getMessage());
         }
+        connectionError = false;
         su = new StatusUpdater();
         statusUpdater = new Thread(su);
         statusUpdater.start();
@@ -277,6 +281,12 @@ public class Frame extends JXFrame
                 System.exit(0);
             }
         });
+    }
+        
+    public void setWorking(final boolean working)
+    {
+        if(statusBar != null)
+            statusBar.setWorking(working);
     }
 
     /**
@@ -647,7 +657,7 @@ public class Frame extends JXFrame
         refresh.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png")));
         refresh.addActionListener(new ActionListener(){
              public void actionPerformed(ActionEvent e){
-                doRefresh();
+                doRefreshStatuses();
             }
         });
         statusPopupMenu.add(refresh);
@@ -1006,8 +1016,12 @@ public class Frame extends JXFrame
      */
     public void alertException(StackTraceElement[] strace, String message)
     {
+        if(connectionError)
+            return;
+        
         if(message.indexOf("Unauthorized") != -1 || message.indexOf("reset") != -1)
         {
+            connectionError = true;
             if(currentContentPage == statusListPage)
                 su.interruptThread();
             alertWarning("Sorry your connection to Mirth has either timed out or there was an error in the connection.  Please login again.");
@@ -1020,6 +1034,7 @@ public class Frame extends JXFrame
         
         if(message.indexOf("Connection refused") != -1)
         {
+            connectionError = true;
             if(currentContentPage == statusListPage)
                 su.interruptThread();
             alertWarning("The Mirth server " + PlatformUI.SERVER_NAME + " is no longer running.  Please start it and login again.");
@@ -1157,7 +1172,6 @@ public class Frame extends JXFrame
      */
     public boolean updateChannel(Channel curr)
     {
-        this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         try
         {
             if(!mirthClient.updateChannel(curr, false))
@@ -1175,7 +1189,6 @@ public class Frame extends JXFrame
             alertException(e.getStackTrace(), e.getMessage());
             return false;
         }
-        this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         
         return true;
     }
@@ -1185,7 +1198,6 @@ public class Frame extends JXFrame
      */
     public void updateUser(User curr)
     {
-        this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         try
         {
             mirthClient.updateUser(curr);
@@ -1196,7 +1208,6 @@ public class Frame extends JXFrame
         {
             alertException(e.getStackTrace(), e.getMessage());
         }
-        this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }
 
     /**
@@ -1268,12 +1279,28 @@ public class Frame extends JXFrame
     {
         if (!confirmLeave())
             return;
-
-        doRefresh();
-        setBold(viewPane, 0);
-        setPanelName("Status");
-        setCurrentContentPage(statusListPage);
-        setFocus(statusTasks);
+        
+        setWorking(true);
+        
+        SwingWorker worker = new SwingWorker <Void, Void> ()
+        {
+            public Void doInBackground() 
+            {        
+                refreshStatuses();
+                return null;
+            }
+            
+            public void done()
+            {
+                setBold(viewPane, 0);
+                setPanelName("Status");
+                setCurrentContentPage(statusListPage);
+                setFocus(statusTasks);
+                setWorking(false);
+            }
+        };
+        
+        worker.execute();
     }
 
     public void doShowChannel()
@@ -1284,25 +1311,57 @@ public class Frame extends JXFrame
         if (!confirmLeave())
             return;
         
-        doRefreshChannels();
-        setBold(viewPane, 1);
-        setPanelName("Channels");
-        setCurrentContentPage(channelListPage);
-        setFocus(channelTasks);
-        channelListPage.deselectRows();
+        setWorking(true);
+        
+        SwingWorker worker = new SwingWorker <Void, Void> ()
+        {
+            public Void doInBackground() 
+            {        
+                refreshChannels();
+                return null;
+            }
+            
+            public void done()
+            {
+                setBold(viewPane, 1);
+                setPanelName("Channels");
+                setCurrentContentPage(channelListPage);
+                setFocus(channelTasks);
+                channelListPage.deselectRows();
+                setWorking(false);
+            }
+        };
+        
+        worker.execute();
     }
 
     public void doShowAdminPage()
     {        
         if (!confirmLeave())
             return;
-
-        setBold(viewPane, 2);
-        setPanelName("Administration");
-        setCurrentContentPage(adminPanel);
-        doRefreshUser();
-        adminPanel.showTasks();
-        adminPanel.showFirstTab();
+        
+        setWorking(true);
+        
+        SwingWorker worker = new SwingWorker <Void, Void> ()
+        {
+            public Void doInBackground() 
+            {
+                setBold(viewPane, 2);
+                setPanelName("Administration");
+                setCurrentContentPage(adminPanel);
+                doRefreshUser();
+                adminPanel.showTasks();
+                adminPanel.showFirstTab();
+                return null;
+            }
+            
+            public void done()
+            {
+                setWorking(false);
+            }
+        };
+        
+        worker.execute();
     }
 
     public void doLogout()
@@ -1322,6 +1381,7 @@ public class Frame extends JXFrame
             alertException(e.getStackTrace(), e.getMessage());
         }
         this.dispose();
+        
         Mirth.main(new String []{PlatformUI.SERVER_NAME});
     }
     
@@ -1349,66 +1409,114 @@ public class Frame extends JXFrame
 
     public void doEditChannel()
     {
-        doRefreshChannels();
-
-        if (channelListPage.getSelectedChannel() == UIConstants.ERROR_CONSTANT)
-            JOptionPane.showMessageDialog(this, "Channel no longer exists.");
-        else
+        setWorking(true);
+        
+        SwingWorker worker = new SwingWorker <Void, Void> ()
         {
-            editChannel(channelListPage.getSelectedChannel());
-        }
+            public Void doInBackground() 
+            {        
+                refreshChannels();
+                return null;
+            }
+            
+            public void done()
+            {
+                if (channelListPage.getSelectedChannel() == UIConstants.ERROR_CONSTANT)
+                    JOptionPane.showMessageDialog(getThis(), "Channel no longer exists.");
+                else
+                    editChannel(channelListPage.getSelectedChannel());
+                
+                setWorking(false);
+            }
+        };
+        
+        worker.execute();
+        
     }
-
+    
     public void doDeleteChannel()
     {
-        try
-        {
-            status = mirthClient.getChannelStatusList();
-        }
-        catch (ClientException e)
-        {
-            alertException(e.getStackTrace(), e.getMessage());
-            return;
-        }
+        setWorking(true);
         
-        String channelId = channels.get(channelListPage.getSelectedChannel()).getId();
-        for (int i = 0; i < status.size(); i ++)
+        SwingWorker worker = new SwingWorker <Void, Void> ()
         {
-            if (status.get(i).getChannelId().equals(channelId))
-            {
-                alertWarning("You may not delete a deployed channel.\nPlease re-deploy without it enabled first.");
-                return;
-            }
-        }
-        
-        if(!alertOption("Are you sure you want to delete this channel?"))
-            return;
-        
-        this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-        try
-        {
-            mirthClient.removeChannel(channels.get(channelListPage.getSelectedChannel()));
-            channels = mirthClient.getChannel(null);
-            channelListPage.makeChannelTable();
-        }
-        catch (ClientException e)
-        {
-            alertException(e.getStackTrace(), e.getMessage());
-        }
-        this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-        
-        doShowChannel();
-    }
+            public Void doInBackground() 
+            {        
+                try
+                {
+                    status = mirthClient.getChannelStatusList();
+                }
+                catch (ClientException e)
+                {
+                    alertException(e.getStackTrace(), e.getMessage());
+                    return null;
+                }
 
+                String channelId = channels.get(channelListPage.getSelectedChannel()).getId();
+                for (int i = 0; i < status.size(); i ++)
+                {
+                    if (status.get(i).getChannelId().equals(channelId))
+                    {
+                        alertWarning("You may not delete a deployed channel.\nPlease re-deploy without it enabled first.");
+                        return null;
+                    }
+                }
+
+                if(!alertOption("Are you sure you want to delete this channel?"))
+                    return null;
+
+                try
+                {
+                    mirthClient.removeChannel(channels.get(channelListPage.getSelectedChannel()));
+                    channels = mirthClient.getChannel(null);
+                    channelListPage.makeChannelTable();
+                }
+                catch (ClientException e)
+                {
+                    alertException(e.getStackTrace(), e.getMessage());
+                }
+                return null;
+            }
+            
+            public void done()
+            {
+                doShowChannel();
+                setWorking(false);
+            }
+        };
+        
+        worker.execute();
+    }
+    
     public void doRefreshChannels()
+    {
+        setWorking(true);
+        
+        SwingWorker worker = new SwingWorker <Void, Void> ()
+        {
+            public Void doInBackground() 
+            {        
+                refreshChannels();
+                return null;
+            }
+            
+            public void done()
+            {
+                setWorking(false);
+            }
+        };
+        
+        worker.execute();
+    }
+    
+    public void refreshChannels()
     {
         String channelId = "";
         String channelName = null;
 
         if(channelListPage.getSelectedChannel() != UIConstants.ERROR_CONSTANT)
             channelId = channels.get(channelListPage.getSelectedChannel()).getId();
-
-        this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        
         try
         {
             channels = mirthClient.getChannel(null);
@@ -1424,7 +1532,7 @@ public class Frame extends JXFrame
                 setVisibleTasks(channelTasks, channelPopupMenu, 1, 1, false);
                 setVisibleTasks(channelTasks, channelPopupMenu, 4, 4, false);
             }
-           
+
             for(int i = 0; i<channels.size(); i++)
             {
                 if(channelId == channels.get(i).getId())
@@ -1435,16 +1543,35 @@ public class Frame extends JXFrame
         {
             alertException(e.getStackTrace(), e.getMessage());
         }
-        this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 
         // as long as the channel was not deleted
         if (channelName != null)
             channelListPage.setSelectedChannel(channelName);
     }
-
-    public void doRefresh()
+    
+    public void doRefreshStatuses()
     {
-        this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        setWorking(true);
+        
+        SwingWorker worker = new SwingWorker <Void, Void> ()
+        {
+            public Void doInBackground() 
+            {        
+                refreshStatuses();
+                return null;
+            }
+            
+            public void done()
+            {
+                setWorking(false);
+            }
+        };
+        
+        worker.execute();
+    }
+    
+    public void refreshStatuses()
+    {
         try
         {
             status = mirthClient.getChannelStatusList();
@@ -1458,80 +1585,131 @@ public class Frame extends JXFrame
         {
             alertException(e.getStackTrace(), e.getMessage());
         }
-        this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }
 
     public void doStartAll()
     {
-        this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-        try
+        setWorking(true);
+        
+        SwingWorker worker = new SwingWorker <Void, Void> ()
         {
-            for(int i = 0; i<status.size(); i++)
-            {
-                if(status.get(i).getState() == ChannelStatus.State.STOPPED)
-                    mirthClient.startChannel(status.get(i).getChannelId());
-                else if(status.get(i).getState() == ChannelStatus.State.PAUSED)
-                    mirthClient.resumeChannel(status.get(i).getChannelId());
+            public Void doInBackground() 
+            {        
+                try
+                {
+                    for(int i = 0; i<status.size(); i++)
+                    {
+                        if(status.get(i).getState() == ChannelStatus.State.STOPPED)
+                            mirthClient.startChannel(status.get(i).getChannelId());
+                        else if(status.get(i).getState() == ChannelStatus.State.PAUSED)
+                            mirthClient.resumeChannel(status.get(i).getChannelId());
+                    }
+                }
+                catch (ClientException e)
+                {
+                    alertException(e.getStackTrace(), e.getMessage());
+                }
+                return null;
             }
-        }
-        catch (ClientException e)
-        {
-            alertException(e.getStackTrace(), e.getMessage());
-        }
-        this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-
-        doRefresh();
+            
+            public void done()
+            {
+                refreshStatuses();
+                setWorking(false);
+            }
+        };
+        
+        worker.execute();
     }
 
     public void doStart()
     {
-        this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-        try
+        setWorking(true);
+        
+        SwingWorker worker = new SwingWorker <Void, Void> ()
         {
-            if(status.get(statusListPage.getSelectedStatus()).getState() == ChannelStatus.State.STOPPED)
-                mirthClient.startChannel(status.get(statusListPage.getSelectedStatus()).getChannelId());
-            else if(status.get(statusListPage.getSelectedStatus()).getState() == ChannelStatus.State.PAUSED)
-                mirthClient.resumeChannel(status.get(statusListPage.getSelectedStatus()).getChannelId());
-        }
-        catch (ClientException e)
-        {
-            alertException(e.getStackTrace(), e.getMessage());
-        }
-        this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-
-        doRefresh();
+            public Void doInBackground() 
+            {        
+                try
+                {
+                    if(status.get(statusListPage.getSelectedStatus()).getState() == ChannelStatus.State.STOPPED)
+                        mirthClient.startChannel(status.get(statusListPage.getSelectedStatus()).getChannelId());
+                    else if(status.get(statusListPage.getSelectedStatus()).getState() == ChannelStatus.State.PAUSED)
+                        mirthClient.resumeChannel(status.get(statusListPage.getSelectedStatus()).getChannelId());
+                }
+                catch (ClientException e)
+                {
+                    alertException(e.getStackTrace(), e.getMessage());
+                }
+                return null;
+            }
+            
+            public void done()
+            {
+                refreshStatuses();
+                setWorking(false);
+            }
+        };
+        
+        worker.execute();
     }
 
     public void doStop()
     {
-        this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-        try
+        setWorking(true);
+        
+        SwingWorker worker = new SwingWorker <Void, Void> ()
         {
-            mirthClient.stopChannel(status.get(statusListPage.getSelectedStatus()).getChannelId());
-        }
-        catch (ClientException e)
-        {
-            alertException(e.getStackTrace(), e.getMessage());
-        }
-        this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-
-        doRefresh();
+            public Void doInBackground() 
+            {        
+                try
+                {
+                    mirthClient.stopChannel(status.get(statusListPage.getSelectedStatus()).getChannelId());
+                }
+                catch (ClientException e)
+                {
+                    alertException(e.getStackTrace(), e.getMessage());
+                }
+                return null;
+            }
+            
+            public void done()
+            {
+                refreshStatuses();
+                setWorking(false);
+            }
+        };
+        
+        worker.execute();
     }
 
     public void doPause()
     {
-        this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-        try
+        setWorking(true);
+        
+        SwingWorker worker = new SwingWorker <Void, Void> ()
         {
-            mirthClient.pauseChannel(status.get(statusListPage.getSelectedStatus()).getChannelId());
-        }
-        catch (ClientException e)
-        {
-            alertException(e.getStackTrace(), e.getMessage());
-        }
-        this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-
-        doRefresh();
+            public Void doInBackground() 
+            {        
+                try
+                {
+                    mirthClient.pauseChannel(status.get(statusListPage.getSelectedStatus()).getChannelId());
+                }
+                catch (ClientException e)
+                {
+                    alertException(e.getStackTrace(), e.getMessage());
+                }
+                return null;
+            }
+            
+            public void done()
+            {
+                refreshStatuses();
+                setWorking(false);
+            }
+        };
+        
+        worker.execute();
     }
 
     public void doNewDestination()
@@ -1549,39 +1727,69 @@ public class Frame extends JXFrame
 
     public void doEnable()
     {
-       doRefreshChannels();
-
-        if (channelListPage.getSelectedChannel() == UIConstants.ERROR_CONSTANT)
-            alertWarning("Channel no longer exists.");
-        else
+        setWorking(true);
+        
+        SwingWorker worker = new SwingWorker <Void, Void> ()
         {
-            Channel channel = channels.get(channelListPage.getSelectedChannel());
-            if(channelEditPage.checkAllForms(channel))
-            {
-                alertWarning("Channel was not configured properly.  Please fix the problems in the forms before trying to enable it again.");
-                return;
+            public Void doInBackground() 
+            {        
+                refreshChannels();
+                if (channelListPage.getSelectedChannel() == UIConstants.ERROR_CONSTANT)
+                    alertWarning("Channel no longer exists.");
+                else
+                {
+                    Channel channel = channels.get(channelListPage.getSelectedChannel());
+                    if(channelEditPage.checkAllForms(channel))
+                    {
+                        alertWarning("Channel was not configured properly.  Please fix the problems in the forms before trying to enable it again.");
+                        return null;
+                    }
+                    channel.setEnabled(true);
+                    updateChannel(channel);
+                    channelListPage.deselectRows();
+                    channelListPage.setSelectedChannel(channel.getName());
+                }
+                return null;
             }
-            channel.setEnabled(true);
-            updateChannel(channel);
-            channelListPage.deselectRows();
-            channelListPage.setSelectedChannel(channel.getName());
-        }
+            
+            public void done()
+            {
+                setWorking(false);
+            }
+        };
+        
+        worker.execute();
     }
 
     public void doDisable()
     {
-        doRefreshChannels();
-
-        if (channelListPage.getSelectedChannel() == UIConstants.ERROR_CONSTANT)
-            alertWarning("Channel no longer exists.");
-        else
+        setWorking(true);
+        
+        SwingWorker worker = new SwingWorker <Void, Void> ()
         {
-            Channel channel = channels.get(channelListPage.getSelectedChannel());
-            channel.setEnabled(false);
-            updateChannel(channel);
-            channelListPage.deselectRows();
-            channelListPage.setSelectedChannel(channel.getName());
-        }
+            public Void doInBackground() 
+            {        
+                refreshChannels();
+                if (channelListPage.getSelectedChannel() == UIConstants.ERROR_CONSTANT)
+                    alertWarning("Channel no longer exists.");
+                else
+                {
+                    Channel channel = channels.get(channelListPage.getSelectedChannel());
+                    channel.setEnabled(false);
+                    updateChannel(channel);
+                    channelListPage.deselectRows();
+                    channelListPage.setSelectedChannel(channel.getName());
+                }
+                return null;
+            }
+            
+            public void done()
+            {
+                setWorking(false);
+            }
+        };
+        
+        worker.execute();
     }
 
     public void doNewUser()
@@ -1618,91 +1826,150 @@ public class Frame extends JXFrame
     {
         if(!alertOption("Are you sure you want to delete this user?"))
             return;
-        doRefreshUser();
         
-        if(users.size() == 1)
+        setWorking(true);
+        
+        SwingWorker worker = new SwingWorker <Void, Void> ()
         {
-            alertWarning("You must have at least one user account.");
-            return;
-        }
+            public Void doInBackground() 
+            {        
+                 doRefreshUser();
         
-        int userToDelete = adminPanel.userPane.getUserIndex();
-        String userName = ((CellData)adminPanel.userPane.usersTable.getValueAt(adminPanel.userPane.getSelectedRow(), adminPanel.userPane.getColumnNumber("Username"))).getText();
+                if(users.size() == 1)
+                {
+                    alertWarning("You must have at least one user account.");
+                    return null;
+                }
 
-        this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-        try
-        {
-           if(userToDelete != UIConstants.ERROR_CONSTANT)
-           {
-                mirthClient.removeUser(users.get(userToDelete));
-                users = mirthClient.getUser(null);
-                adminPanel.userPane.makeUsersTable();
-                adminPanel.userPane.deselectRows();
-           }
-        }
-        catch (ClientException e)
-        {
-            alertException(e.getStackTrace(), e.getMessage());
-        }
-        this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                int userToDelete = adminPanel.userPane.getUserIndex();
+                String userName = ((CellData)adminPanel.userPane.usersTable.getValueAt(adminPanel.userPane.getSelectedRow(), adminPanel.userPane.getColumnNumber("Username"))).getText();
+
+                setWorking(true);
+                try
+                {
+                   if(userToDelete != UIConstants.ERROR_CONSTANT)
+                   {
+                        mirthClient.removeUser(users.get(userToDelete));
+                        users = mirthClient.getUser(null);
+                        adminPanel.userPane.makeUsersTable();
+                        adminPanel.userPane.deselectRows();
+                   }
+                }
+                catch (ClientException e)
+                {
+                    alertException(e.getStackTrace(), e.getMessage());
+                }
+                return null;
+            }
+            
+            public void done()
+            {
+                setWorking(false);
+            }
+        };
+        
+        worker.execute();
     }
 
     public void doRefreshUser()
     {
-        User user = null;
-        String userName = null;
+        setWorking(true);
 
-        if(adminPanel.userPane.getUserIndex() != UIConstants.ERROR_CONSTANT)
-            user = users.get(adminPanel.userPane.getUserIndex());
-
-        this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-        try
+        SwingWorker worker = new SwingWorker <Void, Void> ()
         {
-            users = mirthClient.getUser(null);
-            adminPanel.userPane.makeUsersTable();
-            
-            if(user != null)
-            {
-                for(int i = 0; i<users.size(); i++)
+            public Void doInBackground() 
+            {        
+                User user = null;
+                String userName = null;
+
+                if(adminPanel.userPane.getUserIndex() != UIConstants.ERROR_CONSTANT)
+                    user = users.get(adminPanel.userPane.getUserIndex());
+
+                try
                 {
-                    if(user.equals(users.get(i)))
-                        userName = users.get(i).getUsername();
-                }
-            }
-        }
-        catch (ClientException e)
-        {
-            alertException(e.getStackTrace(), e.getMessage());
-        }
-        this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                    users = mirthClient.getUser(null);
+                    adminPanel.userPane.makeUsersTable();
 
-        // as long as the channel was not deleted
-        if (userName != null)
-            adminPanel.userPane.setSelectedUser(userName);
+                    if(user != null)
+                    {
+                        for(int i = 0; i<users.size(); i++)
+                        {
+                            if(user.equals(users.get(i)))
+                                userName = users.get(i).getUsername();
+                        }
+                    }
+                }
+                catch (ClientException e)
+                {
+                    alertException(e.getStackTrace(), e.getMessage());
+                }
+
+                // as long as the channel was not deleted
+                if (userName != null)
+                    adminPanel.userPane.setSelectedUser(userName);
+                return null;
+            }
+            
+            public void done()
+            {
+                setWorking(false);
+            }
+        };
+        
+        worker.execute();
     }
 
     public void doDeployAll()
     {
-        doRefreshChannels();
-
-        this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-        try
+        setWorking(true);
+        
+        SwingWorker worker = new SwingWorker <Void, Void> ()
         {
-            mirthClient.deployChannels();
-            statusListPage.deselectRows();
-            doShowStatusPanel();
-        }
-        catch (ClientException e)
-        {
-            alertException(e.getStackTrace(), e.getMessage());
-        }
-        this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            public Void doInBackground() 
+            {        
+                refreshChannels();
+                try
+                {
+                    mirthClient.deployChannels();
+                    statusListPage.deselectRows();
+                }
+                catch (ClientException e)
+                {
+                    alertException(e.getStackTrace(), e.getMessage());
+                }
+                return null;
+            }
+            
+            public void done()
+            {
+                doShowStatusPanel();
+                setWorking(false);
+            }
+        };
+        
+        worker.execute();
     }
 
     public void doSaveChanges()
     {
-        if (channelEditPage.saveChanges(true, false))
-            channelEditTasks.getContentPane().getComponent(0).setVisible(false);
+        setWorking(true);
+        
+        SwingWorker worker = new SwingWorker <Void, Void> ()
+        {
+            public Void doInBackground() 
+            {        
+                if (channelEditPage.saveChanges(true, false))
+                    channelEditTasks.getContentPane().getComponent(0).setVisible(false);
+                return null;
+            }
+            
+            public void done()
+            {
+                setWorking(false);
+            }
+        };
+        
+        worker.execute();
     }
 
     public void doShowMessages()
@@ -1749,7 +2016,23 @@ public class Frame extends JXFrame
 
     public void doSaveSettings()
     {
-        adminPanel.saveSettings();
+        setWorking(true);
+        
+        SwingWorker worker = new SwingWorker <Void, Void> ()
+        {
+            public Void doInBackground() 
+            {        
+                adminPanel.saveSettings();
+                return null;
+            }
+            
+            public void done()
+            {
+                setWorking(false);
+            }
+        };
+        
+        worker.execute();
     }
     
     public void doValidate()
@@ -1826,7 +2109,7 @@ public class Frame extends JXFrame
             }
             catch (Exception e)
             {
-                e.printStackTrace();//alertError("Invalid channel file.");
+                alertError("Invalid channel file.");
             }
         }
     }
@@ -1929,7 +2212,23 @@ public class Frame extends JXFrame
     
     public void doRefreshMessages()
     {
-        messageBrowser.refresh();
+        setWorking(true);
+        
+        SwingWorker worker = new SwingWorker <Void, Void> ()
+        {
+            public Void doInBackground() 
+            {        
+                messageBrowser.refresh();
+                return null;
+            }
+            
+            public void done()
+            {
+                setWorking(false);
+            }
+        };
+        
+        worker.execute();
     }
     
     public void doExportMessages()
@@ -1941,15 +2240,31 @@ public class Frame extends JXFrame
     {
         if (alertOption("Are you sure you would like to remove all messages in this channel?"))
         {
-            try
+            setWorking(true);
+        
+            SwingWorker worker = new SwingWorker <Void, Void> ()
             {
-                mirthClient.clearMessages(status.get(statusListPage.getSelectedStatus()).getChannelId());
-            }
-            catch (ClientException e)
-            {
-                alertException(e.getStackTrace(), e.getMessage());
-            }
-            messageBrowser.refresh();
+                public Void doInBackground() 
+                {        
+                    try
+                    {
+                        mirthClient.clearMessages(status.get(statusListPage.getSelectedStatus()).getChannelId());
+                    }
+                    catch (ClientException e)
+                    {
+                        alertException(e.getStackTrace(), e.getMessage());
+                    }
+                    return null;
+                }
+
+                public void done()
+                {
+                    messageBrowser.refresh();
+                    setWorking(false);
+                }
+            };
+
+            worker.execute();
         }
     }
     
@@ -1957,15 +2272,32 @@ public class Frame extends JXFrame
     {
         if (alertOption("Are you sure you would like to remove all currently filtered messages in this channel?"))
         {
-            try
+            setWorking(true);
+        
+            SwingWorker worker = new SwingWorker <Void, Void> ()
             {
-                mirthClient.removeMessages(messageBrowser.getCurrentFilter());
-            }
-            catch (ClientException e)
-            {
-                alertException(e.getStackTrace(), e.getMessage());
-            }
-            messageBrowser.refresh();
+                public Void doInBackground() 
+                {        
+                    try
+                    {
+                        mirthClient.removeMessages(messageBrowser.getCurrentFilter());
+                    }
+                    catch (ClientException e)
+                    {
+                        alertException(e.getStackTrace(), e.getMessage());
+                    }
+                    return null;
+                }
+
+                public void done()
+                {
+                    messageBrowser.refresh();
+                    setWorking(false);
+                }
+            };
+
+            worker.execute();
+            
         }
     }
 
@@ -1973,93 +2305,203 @@ public class Frame extends JXFrame
     {
         if (alertOption("Are you sure you would like to remove the selected message?"))
         {
-            try
+            setWorking(true);
+        
+            SwingWorker worker = new SwingWorker <Void, Void> ()
             {
-                MessageObjectFilter filter = new MessageObjectFilter();
-                filter.setId(messageBrowser.getSelectedMessageID());
-                mirthClient.removeMessages(filter);
-            }
-            catch (ClientException e)
-            {
-                alertException(e.getStackTrace(), e.getMessage());
-            }
-            messageBrowser.refresh();
+                public Void doInBackground() 
+                {        
+                    try
+                    {
+                        MessageObjectFilter filter = new MessageObjectFilter();
+                        filter.setId(messageBrowser.getSelectedMessageID());
+                        mirthClient.removeMessages(filter);
+                    }
+                    catch (ClientException e)
+                    {
+                        alertException(e.getStackTrace(), e.getMessage());
+                    }
+                    return null;
+                }
+
+                public void done()
+                {
+                    messageBrowser.refresh();
+                    setWorking(false);
+                }
+            };
+
+            worker.execute();
         }
     }
     
     public void doReprocessFilteredMessages()
     {
-        try
+        setWorking(true);
+        
+        SwingWorker worker = new SwingWorker <Void, Void> ()
         {
-            mirthClient.reprocessMessages(messageBrowser.getCurrentFilter());
-        }
-        catch (ClientException e)
-        {
-            alertException(e.getStackTrace(), e.getMessage());
-        }
-        messageBrowser.refresh();
+            public Void doInBackground() 
+            {        
+                try
+                {
+                    mirthClient.reprocessMessages(messageBrowser.getCurrentFilter());
+                }
+                catch (ClientException e)
+                {
+                    alertException(e.getStackTrace(), e.getMessage());
+                }
+                return null;
+            }
+            
+            public void done()
+            {
+                messageBrowser.refresh();
+                setWorking(false);
+            }
+        };
+        
+        worker.execute();
     }
     
     public void doReprocessMessage()
     {
-        try
+        setWorking(true);
+        
+        SwingWorker worker = new SwingWorker <Void, Void> ()
         {
-            MessageObjectFilter filter = new MessageObjectFilter();
-            filter.setId(messageBrowser.getSelectedMessageID());
-            mirthClient.reprocessMessages(filter);
-        }
-        catch (ClientException e)
-        {
-            alertException(e.getStackTrace(), e.getMessage());
-        }
-        messageBrowser.refresh();
+            public Void doInBackground() 
+            {        
+                try
+                {
+                    MessageObjectFilter filter = new MessageObjectFilter();
+                    filter.setId(messageBrowser.getSelectedMessageID());
+                    mirthClient.reprocessMessages(filter);
+                }
+                catch (ClientException e)
+                {
+                    alertException(e.getStackTrace(), e.getMessage());
+                }
+                return null;
+            }
+            
+            public void done()
+            {
+                messageBrowser.refresh();
+                setWorking(false);
+            }
+        };
+        
+        worker.execute();
     }
 
     public void doRefreshEvents()
     {
-        eventBrowser.refresh();
+        setWorking(true);
+        
+        SwingWorker worker = new SwingWorker <Void, Void> ()
+        {
+            public Void doInBackground() 
+            {        
+                eventBrowser.refresh();
+                return null;
+            }
+            
+            public void done()
+            {
+                setWorking(false);
+            }
+        };
+        
+        worker.execute();
     }
 
     public void doClearEvents()
     {
         if (alertOption("Are you sure you would like to clear all system events?"))
         {
-            try
+            setWorking(true);
+        
+            SwingWorker worker = new SwingWorker <Void, Void> ()
             {
-                mirthClient.clearSystemEvents();
-            }
-            catch (ClientException e)
-            {
-                alertException(e.getStackTrace(), e.getMessage());
-            }
-            eventBrowser.refresh();
+                public Void doInBackground() 
+                {        
+                    try
+                    {
+                        mirthClient.clearSystemEvents();
+                    }
+                    catch (ClientException e)
+                    {
+                        alertException(e.getStackTrace(), e.getMessage());
+                    }
+                    return null;
+                }
+
+                public void done()
+                {
+                    eventBrowser.refresh();
+                    setWorking(false);
+                }
+            };
+
+            worker.execute();
         }
     }
     
     public void doClearStats()
     {
-        this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-        try
+        setWorking(true);
+        
+        SwingWorker worker = new SwingWorker <Void, Void> ()
         {
-            mirthClient.clearStatistics(status.get(statusListPage.getSelectedStatus()).getChannelId());
-        }
-        catch (ClientException e)
-        {
-            alertException(e.getStackTrace(), e.getMessage());
-        }
-        this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-
-        doRefresh();
+            public Void doInBackground() 
+            {        
+                try
+                {
+                    mirthClient.clearStatistics(status.get(statusListPage.getSelectedStatus()).getChannelId());
+                }
+                catch (ClientException e)
+                {
+                    alertException(e.getStackTrace(), e.getMessage());
+                }
+                return null;
+            }
+            
+            public void done()
+            {
+                refreshStatuses();
+                setWorking(false);
+            }
+        };
+        
+        worker.execute(); 
     }
 
     public void doRefreshSettings()
     {
-        adminPanel.loadSettings();
+        setWorking(true);
+        
+        SwingWorker worker = new SwingWorker <Void, Void> ()
+        {
+            public Void doInBackground() 
+            {        
+                adminPanel.loadSettings();
+                return null;
+            }
+            
+            public void done()
+            {
+                setWorking(false);
+            }
+        };
+        
+        worker.execute(); 
+        
     }
     
     public boolean exportChannelOnError()
     {
-        if (channelEditTasks.getContentPane().getComponent(0).isVisible() || channelEditPage.transformerPane.modified || channelEditPage.filterPane.modified)
+        if (channelEditPage != null && (channelEditTasks.getContentPane().getComponent(0).isVisible() || (channelEditPage.transformerPane != null && channelEditPage.transformerPane.modified) || (channelEditPage.filterPane != null && channelEditPage.filterPane.modified)))
         {
             int option = JOptionPane.showConfirmDialog(this, "Would you like to save the channel changes locally to your computer?");
             if (option == JOptionPane.YES_OPTION)
@@ -2104,5 +2546,11 @@ public class Frame extends JXFrame
         else
             BareBonesBrowserLaunch.openURL(UIConstants.HELP_LOCATION);
     }
+    
+    public Frame getThis()
+    {
+        return this;
+    }
+
 }
 

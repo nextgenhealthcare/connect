@@ -60,7 +60,7 @@ public class StatusUpdater implements Runnable
                 
                 if(parent.contentPane.getViewport().getComponents().length > 0 && parent.currentContentPage == parent.statusListPage)
                 {
-                    parent.doRefresh();
+                    parent.refreshStatuses();
                 }
             }
         }
