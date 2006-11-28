@@ -60,22 +60,17 @@ public class ChannelController {
 		channel.setVersion(configurationController.getVersion());
 
 		try {
-			boolean isNewChannel = getChannel(channel).isEmpty();
-
-			if (isNewChannel) {
+			if (getChannel(channel).isEmpty()) {
 				logger.debug("adding channel");
 				sqlMap.insert("insertChannel", channel);
+
+				ChannelStatisticsController statisticsController = new ChannelStatisticsController();
+				statisticsController.createStatistics(channel.getId());
 			} else {
 				logger.debug("updating channel");
 				sqlMap.update("updateChannel", channel);
 			}
-
-			// if it's a new channel, create its associated statistics row
-			if (isNewChannel) {
-				ChannelStatisticsController statisticsController = new ChannelStatisticsController();
-				statisticsController.createStatistics(channel.getId());
-			}
-
+			
 			return true;
 		} catch (SQLException e) {
 			throw new ControllerException(e);

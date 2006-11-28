@@ -26,6 +26,8 @@
 
 package com.webreach.mirth.model;
 
+import com.webreach.mirth.util.EqualsUtil;
+
 public class Transport {
 	public enum Type {
 		LISTENER, SENDER
@@ -93,6 +95,27 @@ public class Transport {
 
 	public void setOutbound(boolean outbound) {
 		this.outbound = outbound;
+	}
+	
+	public boolean equals(Object that) {
+		if (this == that) {
+			return true;
+		}
+		
+		if (!(that instanceof Transport)) {
+			return false;
+		}
+		
+		Transport transport = (Transport) that;
+		
+		return
+			EqualsUtil.areEqual(this.getName(), transport.getName()) &&
+			EqualsUtil.areEqual(this.getClassName(), transport.getClassName()) &&
+			EqualsUtil.areEqual(this.getProtocol(), transport.getProtocol()) &&
+			EqualsUtil.areEqual(this.getTransformers(), transport.getTransformers()) &&
+			EqualsUtil.areEqual(this.getType(), transport.getType()) &&
+			EqualsUtil.areEqual(this.isInbound(), transport.isInbound()) &&
+			EqualsUtil.areEqual(this.isOutbound(), transport.isOutbound());
 	}
 
 	public String toString() {

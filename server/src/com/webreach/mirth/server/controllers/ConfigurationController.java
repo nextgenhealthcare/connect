@@ -23,7 +23,6 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
 package com.webreach.mirth.server.controllers;
 
 import java.io.BufferedWriter;
@@ -32,10 +31,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -49,8 +46,8 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import com.truemesh.squiggle.SelectQuery;
-import com.truemesh.squiggle.Table;
+import com.ibatis.sqlmap.client.SqlMapClient;
+import com.webreach.mirth.model.Configuration;
 import com.webreach.mirth.model.DriverInfo;
 import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.model.Transport;
@@ -58,9 +55,6 @@ import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.server.Command;
 import com.webreach.mirth.server.CommandQueue;
 import com.webreach.mirth.server.builders.MuleConfigurationBuilder;
-import com.webreach.mirth.server.util.DatabaseConnection;
-import com.webreach.mirth.server.util.DatabaseConnectionFactory;
-import com.webreach.mirth.server.util.DatabaseUtil;
 import com.webreach.mirth.util.Encrypter;
 import com.webreach.mirth.util.PropertyLoader;
 
@@ -77,6 +71,7 @@ public class ConfigurationController {
 	private static Properties versionProperties = PropertyLoader.loadProperties("version");
 	private static SecretKey encryptionKey = null;
 	private final String CONF_FOLDER = "conf/";
+	private SqlMapClient sqlMap = SqlConfig.getSqlMapInstance();
 
 	public void initialize() {
 		try {
@@ -89,56 +84,11 @@ public class ConfigurationController {
 	public Map<String, Transport> getTransports() throws ControllerException {
 		logger.debug("retrieving transport list");
 
-		DatabaseConnection dbConnection = null;
-		ResultSet result = null;
-
 		try {
-			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
-
-			Table transports = new Table("transports");
-			SelectQuery select = new SelectQuery(transports);
-
-			select.addColumn(transports, "name");
-			select.addColumn(transports, "class_name");
-			select.addColumn(transports, "protocol");
-			select.addColumn(transports, "transformers");
-			select.addColumn(transports, "type");
-			select.addColumn(transports, "inbound");
-			select.addColumn(transports, "outbound");
-
-			result = dbConnection.executeQuery(select.toString());
-			return getTransportMap(result);
+			return (Map<String, Transport>) sqlMap.queryForMap("getTransports", null, "name");
 		} catch (SQLException e) {
 			throw new ControllerException(e);
-		} finally {
-			DatabaseUtil.close(result);
-			DatabaseUtil.close(dbConnection);
 		}
-	}
-
-	/**
-	 * Returns a Map of Transports given a ResultSet.
-	 * 
-	 * @param result
-	 * @return
-	 * @throws SQLException
-	 */
-	private Map<String, Transport> getTransportMap(ResultSet result) throws SQLException {
-		Map<String, Transport> transports = new HashMap<String, Transport>();
-
-		while (result.next()) {
-			Transport transport = new Transport();
-			transport.setName(result.getString("name"));
-			transport.setClassName(result.getString("class_name"));
-			transport.setProtocol(result.getString("protocol"));
-			transport.setTransformers(result.getString("transformers"));
-			transport.setType(Transport.Type.valueOf(result.getString("type")));
-			transport.setInbound(result.getBoolean("inbound"));
-			transport.setOutbound(result.getBoolean("outbound"));
-			transports.put(transport.getName(), transport);
-		}
-
-		return transports;
 	}
 
 	public Properties getServerProperties() throws ControllerException {
@@ -182,7 +132,7 @@ public class ConfigurationController {
 			}
 		}
 	}
-	
+
 	public String getGuid() throws ControllerException {
 		return UUID.randomUUID().toString();
 	}
@@ -224,18 +174,14 @@ public class ConfigurationController {
 		logger.debug("retrieving latest configuration");
 
 		Properties properties = PropertyLoader.loadProperties("mirth");
-		DatabaseConnection dbConnection = null;
-		ResultSet result = null;
 
 		try {
-			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
-			result = dbConnection.executeQuery("SELECT id, date_created, data FROM configurations WHERE date_created IN (SELECT MAX(date_created) FROM configurations);");
+			Configuration latestConfiguration = (Configuration) sqlMap.queryForObject("getLatestConfiguration");
 
-			while (result.next()) {
-				logger.debug("using configuration " + result.getInt("id") + " created on " + result.getTimestamp("date_created").toString());
-				String data = result.getString("data");
+			if (latestConfiguration != null) {
+				logger.debug("using configuration " + latestConfiguration.getId() + " created on " + latestConfiguration.getDateCreated());
 				BufferedWriter out = new BufferedWriter(new FileWriter(properties.getProperty("mule.config")));
-				out.write(data);
+				out.write(latestConfiguration.getData());
 				out.close();
 				return new File(properties.getProperty("mule.config"));
 			}
@@ -245,9 +191,6 @@ public class ConfigurationController {
 		} catch (Exception e) {
 			logger.error("Could not retrieve latest configuration.", e);
 			return null;
-		} finally {
-			DatabaseUtil.close(result);
-			DatabaseUtil.close(dbConnection);
 		}
 	}
 
@@ -259,18 +202,11 @@ public class ConfigurationController {
 	 */
 	public void deleteLatestConfiguration() {
 		logger.debug("deleting most recent configuration");
-		DatabaseConnection dbConnection = null;
 
 		try {
-			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
-			StringBuilder statement = new StringBuilder();
-			statement.append("DELETE FROM configurations");
-			statement.append(" WHERE date_created IN (SELECT MAX(date_created) FROM configurations);");
-			dbConnection.executeUpdate(statement.toString());
+			sqlMap.delete("deleteLatestConfiguration");
 		} catch (SQLException e) {
 			logger.warn("Could not delete latest configuration.", e);
-		} finally {
-			DatabaseUtil.close(dbConnection);
 		}
 	}
 
@@ -283,20 +219,10 @@ public class ConfigurationController {
 	private void addConfiguration(String data) throws ControllerException {
 		logger.debug("adding configuration");
 
-		DatabaseConnection dbConnection = null;
-
 		try {
-			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
-
-			String insert = "insert into configurations (data) values (?)";
-			ArrayList<String> parameters = new ArrayList<String>();
-			parameters.add(data);
-
-			dbConnection.executeUpdate(insert, parameters);
+			sqlMap.insert("insertConfiguration", data);
 		} catch (Exception e) {
 			throw new ControllerException(e);
-		} finally {
-			DatabaseUtil.close(dbConnection);
 		}
 	}
 
@@ -307,40 +233,25 @@ public class ConfigurationController {
 	public void loadEncryptionKey() throws ControllerException {
 		logger.debug("loading encryption key");
 
-		DatabaseConnection dbConnection = null;
-		ResultSet result = null;
 		ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 
 		try {
-			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
-
-			Table keys = new Table("keys");
-			SelectQuery select = new SelectQuery(keys);
-			select.addColumn(keys, "data");
-			result = dbConnection.executeQuery(select.toString());
+			String data = (String) sqlMap.queryForObject("getKey");
 			boolean isKeyFound = false;
-			
-			while (result.next()) {
+
+			while (data != null) {
 				logger.debug("encryption key found");
-				encryptionKey = (SecretKey) serializer.fromXML(result.getString("data"));
+				encryptionKey = (SecretKey) serializer.fromXML(data);
 				isKeyFound = true;
 			}
 
 			if (!isKeyFound) {
 				logger.debug("no key found, creating new encryption key");
 				encryptionKey = KeyGenerator.getInstance(Encrypter.DES_ALGORITHM).generateKey();
-				
-				String insert = "insert into keys (data) values(?)";
-				ArrayList<Object> parameters = new ArrayList<Object>();
-				parameters.add(serializer.toXML(encryptionKey));
-				
-				dbConnection.executeUpdate(insert, parameters);
+				sqlMap.insert("insertKey", serializer.toXML(encryptionKey));
 			}
 		} catch (Exception e) {
 			throw new ControllerException("error loading encryption key", e);
-		} finally {
-			DatabaseUtil.close(result);
-			DatabaseUtil.close(dbConnection);
 		}
 	}
 

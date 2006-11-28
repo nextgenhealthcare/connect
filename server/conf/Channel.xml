@@ -22,7 +22,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 			DESTINATION_CONNECTORS as destinationConnectors,
 			PROPERTIES as properties,
 			PREPROCESSING_SCRIPT as preprocessingScript
-		FROM CHANNELS
+		FROM CHANNEL
 		<dynamic prepend="WHERE">
 			<isNotNull prepend="AND" property="id">
 				ID=#id#
@@ -35,12 +35,12 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 	
 	<insert id="insertChannel" parameterClass="channel">
 		INSERT INTO
-		CHANNELS (ID, NAME, DESCRIPTION, ENABLED, VERSION, REVISION, DIRECTION, PROTOCOL, MODE, SOURCE_CONNECTOR, DESTINATION_CONNECTORS, PROPERTIES, PREPROCESSING_SCRIPT)
+		CHANNEL (ID, NAME, DESCRIPTION, ENABLED, VERSION, REVISION, DIRECTION, PROTOCOL, MODE, SOURCE_CONNECTOR, DESTINATION_CONNECTORS, PROPERTIES, PREPROCESSING_SCRIPT)
 		VALUES (#id#, #name#, #description#, #enabled#, #version#, #revision#, #direction#, #protocol#, #mode#, #sourceConnector#, #destinationConnectors#, #properties#, #preprocessingScript#)
 	</insert>
 	
 	<update id="updateChannel" parameterClass="channel">
-		UPDATE CHANNELS
+		UPDATE CHANNEL
 		SET NAME = #name#,
 			DESCRIPTION = #description#,
 			ENABLED = #enabled#,
@@ -57,7 +57,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 	</update>
 	
 	<delete id="deleteChannel" parameterClass="channel">
-		DELETE FROM CHANNELS
+		DELETE FROM CHANNEL
 		<dynamic prepend="WHERE">
 			<isNotNull prepend="AND" property="id">
 				ID=#id#

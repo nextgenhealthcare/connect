@@ -7,11 +7,14 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 <sqlMap namespace="User">
 	<typeAlias alias="user" type="com.webreach.mirth.model.User" />
 	
-	<select id="getUser" parameterClass="user" resultClass="user">
-		SELECT
-			ID as id,
-			USERNAME as username,
-			PASSWORD as password
+	<resultMap class="user" id="get-user-result">
+		<result property="id" column="ID" />
+		<result property="username" column="USERNAME" />
+		<result property="password" column="PASSWORD" />
+	</resultMap>
+	
+	<select id="getUser" parameterClass="user" resultClass="user" resultMap="get-user-result">
+		SELECT *
 		FROM USER
 		<dynamic prepend="WHERE">
 			<isNotNull prepend="AND" property="id">
