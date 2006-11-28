@@ -381,9 +381,6 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher {
 			while (it.hasNext()) {
 				// Note that this DOES NOT take into account vars such as
 				// "Original Filename"
-				// TODO: link this up to the templatevaluereplacements, but
-				// ENSURE that the original objects are returned, NOT just
-				// strings
 				WSParameter param = it.next();
 				arguments.add(paramValueReplacer.getValue(param.getValue(), messageObject));
 			}

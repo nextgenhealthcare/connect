@@ -27,7 +27,7 @@ import javax.xml.soap.SOAPMessage;
 import java.util.Iterator;
 
 /**
- * <code>AxisMessageAdapter</code> TODO
+ * <code>AxisMessageAdapter</code>
  * 
  * @author <a href="mailto:ross.mason@symphonysoft.com">Ross Mason</a>
  * @version $Revision: 1.6 $

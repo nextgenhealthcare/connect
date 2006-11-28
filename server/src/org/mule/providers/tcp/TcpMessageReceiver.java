@@ -79,10 +79,10 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
 			END_OF_RECORD = (char)Integer.decode(tcpConnector.getRecordSeparator()).intValue();
 			END_OF_SEGMENT = (char)Integer.decode(tcpConnector.getSegmentEnd()).intValue();
 		}else{
-			//TODO: wtf? why are we getting .charAt? Check this
+			//TODO: Ensure this is unit-tested
 			START_MESSAGE = tcpConnector.getMessageStart().charAt(0);
-			END_MESSAGE = tcpConnector.getMessageEnd().charAt(1);
-			END_OF_RECORD = tcpConnector.getRecordSeparator().charAt(2);
+			END_MESSAGE = tcpConnector.getMessageEnd().charAt(0);
+			END_OF_RECORD = tcpConnector.getRecordSeparator().charAt(0);
 			END_OF_SEGMENT = tcpConnector.getSegmentEnd().charAt(0);
 		}
 	}

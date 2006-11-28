@@ -25,7 +25,7 @@ import java.util.Collections;
 import java.util.Map;
 
 /**
- * <code>DefaultRedeliveryHandler</code> TODO
+ * <code>DefaultRedeliveryHandler</code>
  * 
  * @author <a href="mailto:ross.mason@symphonysoft.com">Ross Mason</a>
  * @version $Revision: 1.6 $
