@@ -156,12 +156,10 @@ public class JEditTextArea extends JComponent {
 				}
 
 				public void dragExit(DropTargetEvent dte) {
-					// TODO Auto-generated method stub
 
 				}
 
 				public void dragOver(DropTargetDragEvent dtde) {
-					// TODO Auto-generated method stub
 					int x = getAdjustedX(dtde.getLocation().x);
 					int offset = xyToOffset(x, dtde.getLocation().y);
 					setCaretPosition(offset);
@@ -183,17 +181,14 @@ public class JEditTextArea extends JComponent {
 					int x = getAdjustedX(dtde.getLocation().x);
 					int offset = xToOffset(line, x);
 
-					// TODO Auto-generated method stub
 					Transferable transferable = dtde.getTransferable();
 					String data = "";
 					try {
 						data = (String) transferable
 								.getTransferData(DataFlavor.stringFlavor);
 					} catch (UnsupportedFlavorException e) {
-						// TODO Auto-generated catch block
 						// e.printStackTrace();
 					} catch (IOException e) {
-						// TODO Auto-generated catch block
 						// e.printStackTrace();
 					} catch (Exception e) {
 
@@ -203,25 +198,20 @@ public class JEditTextArea extends JComponent {
 				}
 
 				public void dropActionChanged(DropTargetDragEvent dtde) {
-					// TODO Auto-generated method stub
-					// System.out.println("here");
 				}
 			});
 		} catch (TooManyListenersException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
 		gt.setFlavorMap(new FlavorMap() {
 
 			public Map<String, DataFlavor> getFlavorsForNatives(String[] natives) {
-				// TODO Auto-generated method stub
 				return null;
 			}
 
 			public Map<DataFlavor, String> getNativesForFlavors(
 					DataFlavor[] flavors) {
-				// TODO Auto-generated method stub
 				return null;
 			}
 		});
@@ -903,8 +893,6 @@ public class JEditTextArea extends JComponent {
 	public String getText() {
 		try {
 			return document.getText(0, document.getLength());
-				//	.replace('\r', '\n'); // FIXME(newline) Find better
-											// solution for fixing newlines
 		} catch (BadLocationException bl) {
 			bl.printStackTrace();
 			return null;
@@ -918,10 +906,6 @@ public class JEditTextArea extends JComponent {
 		try {
 			document.beginCompoundEdit();
 			document.remove(0, document.getLength());
-			//if (text != null)
-				//text = text.replace('\r', '\n'); // FIXME(newline) Find
-													// better solution for
-													// fixing newlines
 			document.insertString(0, text, null);
 			updateLongestLine();
 			setCaretPosition(0);
@@ -1842,8 +1826,8 @@ public class JEditTextArea extends JComponent {
 			if (left != null) {
 				leftWidth = left.getPreferredSize().width;
 			}
-			int rightWidth = rightWidth = right.getPreferredSize().width;
-			int bottomHeight = bottomHeight = bottom.getPreferredSize().height;
+			int rightWidth = right.getPreferredSize().width;
+			int bottomHeight = bottom.getPreferredSize().height;
 			int centerWidth = size.width - rightWidth - leftWidth - ileft
 					- iright;
 			int centerHeight = size.height - bottomHeight - itop - ibottom;

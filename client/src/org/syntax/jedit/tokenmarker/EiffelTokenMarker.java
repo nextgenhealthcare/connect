@@ -231,7 +231,6 @@ loop:		for(int i = offset; i < length; i++)
 	// private members
 	private static KeywordMap eiffelKeywords;
 
-	private boolean cpp;
 	private KeywordMap keywords;
 	private int lastOffset;
 	private int lastKeyword;

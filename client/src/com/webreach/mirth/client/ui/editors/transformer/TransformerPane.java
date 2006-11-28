@@ -1036,13 +1036,7 @@ public class TransformerPane extends MirthEditorPane
                         script.append("localMap.put(");
                     
                     script.append("'" + map.get("Variable") + "', ");
-                    String mapping = (String) map.get("Mapping");
-                    if (mapping.startsWith("msg") && !mapping.endsWith(".toString()")){
-                    	mapping = mapping + ".toString()";
-                    }else{
-                    	//mapping = mapping + "";
-                    }
-                    script.append( mapping + ");");
+                    script.append( "validate(" + map.get("Mapping") + "));");
                     step.setScript(script.toString());
                 }
                 else if (step.getType().equals(
@@ -1053,20 +1047,13 @@ public class TransformerPane extends MirthEditorPane
                 else if (step.getType().equals(
                         TransformerPane.HL7MESSAGE_TYPE))
                 {
-                	//The XML requires you to use .text()[0] to reference the text object of a message. 
-                	//This is mainly for backwards compatability
-                	//TODO: Figure out a way to do this without checking for the existence of .text
                     StringBuilder script = new StringBuilder();
                     String variable = (String) map.get("Variable");
-                   // if (variable.startsWith("template") && !variable.endsWith(".text()[0]")){
-                   // 	script.append(variable + ".text()[0]");
-                   // }else{
-                    	script.append(variable);
-                    //}
+                    script.append(variable);
                     script.append(" = ");
                     String mapping = (String) map.get("Mapping");
-                    if (mapping.startsWith("msg") && !mapping.endsWith(".toString()")){
-                    	script.append(mapping + ".toString();");
+                    if (mapping.startsWith("msg") && mapping.endsWith("]")){
+                    	script.append("validate(" +  mapping + ");");
                     }else{
                     	script.append(mapping + ";");
                     }

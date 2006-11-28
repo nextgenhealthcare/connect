@@ -193,7 +193,6 @@ loop:		for(int i = offset; i < length; i++)
 						break;
 					// Doesn't pick up all labels,
 					// but at least doesn't mess up
-					// XXX::YYY
 					if(lastKeyword != 0)
 						break;
 					addToken(i1 - lastOffset,Token.LABEL);
@@ -405,7 +404,7 @@ loop:		for(int i = offset; i < length; i++)
 			token = Token.NULL;
 			break;
 		case S_ONE: case S_TWO:
-			addToken(length - lastOffset,Token.INVALID); // XXX
+			addToken(length - lastOffset,Token.INVALID);
 			token = Token.NULL;
 			break;
 		default:

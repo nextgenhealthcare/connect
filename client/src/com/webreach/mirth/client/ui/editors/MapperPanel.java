@@ -27,12 +27,7 @@ package com.webreach.mirth.client.ui.editors;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.EventQueue;
 import java.awt.Font;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -52,10 +47,14 @@ import org.syntax.jedit.tokenmarker.JavaScriptTokenMarker;
 import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.client.ui.components.MirthSyntaxTextArea;
 import com.webreach.mirth.client.ui.components.MirthTextField;
-import com.webreach.mirth.client.ui.components.MirthTextPane;
-import com.webreach.mirth.model.Channel;
+
 
 public class MapperPanel extends CardPanel {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	/** Creates new form MapperPanel */
 	public MapperPanel() {

@@ -492,19 +492,15 @@ public class SOAPSender extends ConnectorClass
 					t.transform(new DOMSource(document), new StreamResult(
 							output));
 				} catch (TransformerConfigurationException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (TransformerException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (TransformerFactoryConfigurationError e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 		
 				soapEnvelopeString.append(output.toString());
 			} catch (ParserConfigurationException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			
