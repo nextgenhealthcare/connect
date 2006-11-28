@@ -28,7 +28,7 @@ package com.webreach.mirth.model.filters;
 
 import java.util.Calendar;
 
-import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.model.MessageObject.Status;
 
 /**
  * A MessageObjectFilter is used to search the message store.
@@ -41,7 +41,7 @@ public class MessageObjectFilter {
 	private String channelId;
 	private Calendar startDate;
 	private Calendar endDate;
-	private MessageObject.Status status;
+	private Status status;
 	private String connectorName;
 
 	public String getChannelId() {
@@ -76,15 +76,13 @@ public class MessageObjectFilter {
 		this.startDate = startDate;
 	}
 
-	public MessageObject.Status getStatus() {
+	public Status getStatus() {
 		return this.status;
 	}
 
-	public void setStatus(MessageObject.Status status) {
+	public void setStatus(Status status) {
 		this.status = status;
 	}
-
-	
 
 	public String getConnectorName() {
 		return this.connectorName;

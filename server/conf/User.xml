@@ -12,7 +12,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 			ID as id,
 			USERNAME as username,
 			PASSWORD as password
-		FROM USERS
+		FROM USER
 		<dynamic prepend="WHERE">
 			<isNotNull prepend="AND" property="id">
 				ID=#id#
@@ -28,19 +28,19 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 	
 	<insert id="insertUser" parameterClass="user">
 		INSERT INTO
-		USERS (USERNAME, PASSWORD)
+		USER (USERNAME, PASSWORD)
 		VALUES (#username#, #password#)
 	</insert>
 	
 	<update id="updateUser" parameterClass="user">
-		UPDATE USERS
+		UPDATE USER
 		SET USERNAME = #username#,
 			PASSWORD = #password#
 		WHERE ID = #id#
 	</update>
 	
 	<delete id="deleteUser" parameterClass="user">
-		DELETE FROM USERS
+		DELETE FROM USER
 	<dynamic prepend="WHERE">
 			<isNotNull prepend="AND" property="id">
 				ID=#id#

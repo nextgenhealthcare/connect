@@ -20,6 +20,12 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map Config 2.0//EN"
 	<typeHandler javaType="com.webreach.mirth.model.Channel$Mode"
 		callback="com.webreach.mirth.server.sqlmap.extensions.ChannelModeTypeHandler" />
 
+	<typeHandler javaType="com.webreach.mirth.model.MessageObject$Protocol"
+		callback="com.webreach.mirth.server.sqlmap.extensions.MessageProtocolTypeHandler" />
+
+	<typeHandler javaType="com.webreach.mirth.model.MessageObject$Status"
+		callback="com.webreach.mirth.server.sqlmap.extensions.MessageStatusTypeHandler" />
+
 	<typeHandler javaType="com.webreach.mirth.model.Connector"
 		callback="com.webreach.mirth.server.sqlmap.extensions.ConnectorTypeHandler" />
 
@@ -29,6 +35,12 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map Config 2.0//EN"
 	<typeHandler javaType="java.util.Properties"
 		callback="com.webreach.mirth.server.sqlmap.extensions.PropertiesTypeHandler" />
 
+	<typeHandler javaType="java.util.Map"
+		callback="com.webreach.mirth.server.sqlmap.extensions.MapTypeHandler" />
+
+	<typeHandler javaType="java.util.Calendar"
+		callback="com.webreach.mirth.server.sqlmap.extensions.CalendarTypeHandler" />
+		
 	<transactionManager type="JDBC">
 		<dataSource type="SIMPLE">
 			<property name="JDBC.Driver" value="${driver}" />
@@ -41,4 +53,5 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map Config 2.0//EN"
 
 	<sqlMap resource="User.xml" />
 	<sqlMap resource="Channel.xml" />
+	<sqlMap resource="Message.xml" />
 </sqlMapConfig>
