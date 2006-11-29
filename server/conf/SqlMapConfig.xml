@@ -29,6 +29,9 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map Config 2.0//EN"
 	<typeHandler javaType="com.webreach.mirth.model.Transport$Type"
 		callback="com.webreach.mirth.server.sqlmap.extensions.TransportTypeTypeHandler" />
 
+	<typeHandler javaType="com.webreach.mirth.model.SystemEvent$Level"
+		callback="com.webreach.mirth.server.sqlmap.extensions.EventLevelTypeHandler" />
+
 	<typeHandler javaType="com.webreach.mirth.model.Connector"
 		callback="com.webreach.mirth.server.sqlmap.extensions.ConnectorTypeHandler" />
 
@@ -60,4 +63,5 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map Config 2.0//EN"
 	<sqlMap resource="Script.xml" />
 	<sqlMap resource="Template.xml" />
 	<sqlMap resource="Configuration.xml" />
+	<sqlMap resource="Event.xml"/>
 </sqlMapConfig>

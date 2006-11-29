@@ -22,7 +22,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 	</resultMap>
 
 	<select id="getKey" resultClass="java.lang.String">
-		SELECT KEY
+		SELECT DATA
 		FROM KEY;
 	</select>
 

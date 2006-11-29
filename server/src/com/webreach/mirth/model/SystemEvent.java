@@ -29,6 +29,8 @@ package com.webreach.mirth.model;
 import java.util.Calendar;
 import java.util.Properties;
 
+import com.webreach.mirth.util.EqualsUtil;
+
 /**
  * A SystemEvent represents a system event which can be logged.
  * 
@@ -47,6 +49,12 @@ public class SystemEvent {
 	private String description;
 	private Properties attributes;
 
+	public SystemEvent() {
+		this.level = Level.NORMAL;
+		this.description = new String();
+		this.attributes = new Properties();
+	}
+	
 	public SystemEvent(String event) {
 		this.event = event;
 		this.level = Level.NORMAL;
@@ -100,6 +108,26 @@ public class SystemEvent {
 
 	public void setEvent(String event) {
 		this.event = event;
+	}
+
+	public boolean equals(Object that) {
+		if (this == that) {
+			return true;
+		}
+		
+		if (!(that instanceof SystemEvent)) {
+			return false;
+		}
+		
+		SystemEvent systemEvent = (SystemEvent) that;
+		
+		return
+			EqualsUtil.areEqual(this.getId(), systemEvent.getId()) &&
+			EqualsUtil.areEqual(this.getLevel(), systemEvent.getLevel()) &&
+			EqualsUtil.areEqual(this.getEvent(), systemEvent.getEvent()) &&
+			EqualsUtil.areEqual(this.getDescription(), systemEvent.getDescription()) &&
+			EqualsUtil.areEqual(this.getDate(), systemEvent.getDate()) &&
+			EqualsUtil.areEqual(this.getAttributes(), systemEvent.getAttributes());
 	}
 
 	public String toString() {
