@@ -11,8 +11,8 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		<result property="protocol" column="PROTOCOL" />
 		<result property="transformers" column="TRANSFORMERS" />
 		<result property="type" column="TYPE" />
-		<result property="inbound" column="INBOUND" />		
-		<result property="outbound" column="OUTBOUND" />								
+		<result property="inbound" column="IS_INBOUND" />		
+		<result property="outbound" column="IS_OUTBOUND" />								
 	</resultMap>
 
 	<resultMap class="com.webreach.mirth.model.Configuration" id="get-configuration-result">
@@ -23,18 +23,18 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 
 	<select id="getKey" resultClass="java.lang.String">
 		SELECT DATA
-		FROM KEY;
+		FROM ENCRYPTION_KEY
 	</select>
 
 	<insert id="insertKey" parameterClass="java.lang.String">
 		INSERT INTO
-		KEY (DATA)
-		VALUES (#data#);
+		ENCRYPTION_KEY (DATA)
+		VALUES (#data#)
 	</insert>
 
 	<select id="getTransports" resultClass="com.webreach.mirth.model.Transport" resultMap="get-transport-result">
 		SELECT *
-		FROM TRANSPORT;
+		FROM TRANSPORT
 	</select>
 
 	<select id="getLatestConfiguration" resultClass="com.webreach.mirth.model.Configuration">
@@ -42,14 +42,14 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		FROM CONFIGURATION
 		WHERE DATE_CREATED IN
 			(SELECT MAX(DATE_CREATED)
-			FROM CONFIGURATION);
+			FROM CONFIGURATION)
 	</select>
 	
 	<delete id="deleteLatestConfiguration">
 		DELETE FROM CONFIGURATION
 		WHERE DATE_CREATED IN
 			(SELECT MAX(DATE_CREATED)
-			FROM CONFIGURATION);
+			FROM CONFIGURATION)
 	</delete>
 	
 	<insert id="insertConfiguration" parameterClass="java.lang.String">

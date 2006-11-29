@@ -32,6 +32,7 @@ public class User {
 	private String id;
 	private String username;
 	private String password;
+	private String email;
 
 	public String getId() {
 		return this.id;
@@ -57,6 +58,14 @@ public class User {
 		this.username = username;
 	}
 	
+	public String getEmail() {
+		return this.email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
 	public boolean equals(Object that) {
 		if (this == that) {
 			return true;
@@ -71,7 +80,8 @@ public class User {
 		return
 			EqualsUtil.areEqual(this.getId(), user.getId()) &&
 			EqualsUtil.areEqual(this.getUsername(), user.getUsername()) &&
-			EqualsUtil.areEqual(this.getPassword(), user.getPassword());
+			EqualsUtil.areEqual(this.getPassword(), user.getPassword()) &&
+			EqualsUtil.areEqual(this.getEmail(), user.getEmail());
 	}
 
 	public String toString() {
@@ -79,7 +89,8 @@ public class User {
 		builder.append(this.getClass().getName() + "[");
 		builder.append("id=" + getId() + ", ");
 		builder.append("username=" + getUsername() + ", ");
-		builder.append("password=" + getPassword());
+		builder.append("password=" + getPassword() + ", ");
+		builder.append("email=" + getEmail());
 		builder.append("]");
 		return builder.toString();
 	}

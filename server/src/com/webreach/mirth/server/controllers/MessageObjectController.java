@@ -84,7 +84,14 @@ public class MessageObjectController {
 		logger.debug("creating temporary message table: filter=" + filter.toString());
 
 		try {
-			sqlMap.insert("createTempMessageTable");
+			sqlMap.update("dropTempMessageTable");
+		} catch (SQLException e) {
+			logger.warn(e);
+		}
+		
+		try {
+			sqlMap.update("createTempMessageTable");
+			sqlMap.update("createTempMessageTableIndex");
 			return sqlMap.update("populateTempMessageTable", filter);
 		} catch (SQLException e) {
 			throw new ControllerException(e);

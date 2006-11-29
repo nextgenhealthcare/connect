@@ -13,37 +13,26 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map Config 2.0//EN"
 
 	<typeHandler javaType="com.webreach.mirth.model.Channel$Direction"
 		callback="com.webreach.mirth.server.sqlmap.extensions.ChannelDirectionTypeHandler" />
-
 	<typeHandler javaType="com.webreach.mirth.model.Channel$Protocol"
 		callback="com.webreach.mirth.server.sqlmap.extensions.ChannelProtocolTypeHandler" />
-
 	<typeHandler javaType="com.webreach.mirth.model.Channel$Mode"
 		callback="com.webreach.mirth.server.sqlmap.extensions.ChannelModeTypeHandler" />
-
 	<typeHandler javaType="com.webreach.mirth.model.MessageObject$Protocol"
 		callback="com.webreach.mirth.server.sqlmap.extensions.MessageProtocolTypeHandler" />
-
 	<typeHandler javaType="com.webreach.mirth.model.MessageObject$Status"
 		callback="com.webreach.mirth.server.sqlmap.extensions.MessageStatusTypeHandler" />
-
 	<typeHandler javaType="com.webreach.mirth.model.Transport$Type"
 		callback="com.webreach.mirth.server.sqlmap.extensions.TransportTypeTypeHandler" />
-
 	<typeHandler javaType="com.webreach.mirth.model.SystemEvent$Level"
 		callback="com.webreach.mirth.server.sqlmap.extensions.EventLevelTypeHandler" />
-
 	<typeHandler javaType="com.webreach.mirth.model.Connector"
 		callback="com.webreach.mirth.server.sqlmap.extensions.ConnectorTypeHandler" />
-
 	<typeHandler javaType="java.util.List"
 		callback="com.webreach.mirth.server.sqlmap.extensions.ListTypeHandler" />
-
 	<typeHandler javaType="java.util.Properties"
 		callback="com.webreach.mirth.server.sqlmap.extensions.PropertiesTypeHandler" />
-
 	<typeHandler javaType="java.util.Map"
 		callback="com.webreach.mirth.server.sqlmap.extensions.MapTypeHandler" />
-
 	<typeHandler javaType="java.util.Calendar"
 		callback="com.webreach.mirth.server.sqlmap.extensions.CalendarTypeHandler" />
 
@@ -53,7 +42,16 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map Config 2.0//EN"
 			<property name="JDBC.ConnectionURL" value="${url}" />
 			<property name="JDBC.Username" value="${username}" />
 			<property name="JDBC.Password" value="${password}" />
-			<property name="JDBC.Shutdown" value="true" />
+			<!-- Advanced settings -->
+			<property name="JDBC.DefaultAutoCommit" value="false" />
+			<property name="Pool.MaximumActiveConnections" value="10" />
+			<property name="Pool.MaximumIdleConnections" value="5" />
+			<property name="Pool.MaximumCheckoutTime" value="120000" />
+			<property name="Pool.TimeToWait" value="10000" />
+			<property name="Pool.PingQuery" value="SELECT * FROM DUAL" />
+			<property name="Pool.PingEnabled" value="false" />
+			<property name="Pool.PingConnectionsOlderThan" value="0" />
+			<property name="Pool.PingConnectionsNotUsedFor" value="0" />
 		</dataSource>
 	</transactionManager>
 
@@ -63,6 +61,6 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map Config 2.0//EN"
 	<sqlMap resource="Script.xml" />
 	<sqlMap resource="Template.xml" />
 	<sqlMap resource="Configuration.xml" />
-	<sqlMap resource="Event.xml"/>
+	<sqlMap resource="Event.xml" />
 	<sqlMap resource="Statistic.xml" />
 </sqlMapConfig>

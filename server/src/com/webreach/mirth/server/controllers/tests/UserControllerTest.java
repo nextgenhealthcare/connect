@@ -32,6 +32,7 @@ public class UserControllerTest extends TestCase {
 			User sampleUser = new User();
 			sampleUser.setUsername("user" + i);
 			sampleUser.setPassword("password");
+			sampleUser.setEmail("user" + i + "@email.com");
 			sampleUserList.add(sampleUser);
 		}
 	}

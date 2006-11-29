@@ -26,15 +26,15 @@
 
 package com.webreach.mirth.server.tools;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.sql.Connection;
+import java.sql.DriverManager;
 
+import org.apache.derby.tools.ij;
 import org.apache.log4j.Logger;
-
-import com.webreach.mirth.server.util.DatabaseConnection;
-import com.webreach.mirth.server.util.DatabaseConnectionFactory;
-import com.webreach.mirth.server.util.DatabaseUtil;
 
 public class ScriptRunner {
 	private static Logger logger = Logger.getLogger("ScriptRunner");
@@ -48,28 +48,14 @@ public class ScriptRunner {
 	}
 
 	public static void runScript(String scriptFile) {
-		DatabaseConnection dbConnection = null;
-
 		try {
-			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
-			StringBuilder scriptContent = new StringBuilder();
-
-			BufferedReader reader = new BufferedReader(new FileReader(new File(scriptFile)));
-			String line = null;
-
-			while ((line = reader.readLine()) != null) {
-				scriptContent.append(line + "\n");
-			}
-
-			reader.close();
-
-			logger.info("executing script '" + scriptFile + "' on database '" + dbConnection.getAddress() + "'");
-
-			dbConnection.executeUpdate(scriptContent.toString());
+			Class.forName("org.apache.derby.jdbc.EmbeddedDriver").newInstance();
+			Connection connection = DriverManager.getConnection("jdbc:derby:mirthdb;create=true"); 
+			DataInputStream in = new DataInputStream(new FileInputStream(scriptFile));
+			DataOutputStream out = new DataOutputStream(new FileOutputStream("scriptrunner.log"));
+			ij.runScript(connection, in, "UTF-8", out, "UTF-8");
 		} catch (Exception e) {
 			logger.error("error executing script", e);
-		} finally {
-			DatabaseUtil.close(dbConnection);
 		}
 	}
 }
