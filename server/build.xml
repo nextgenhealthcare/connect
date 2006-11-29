@@ -178,7 +178,7 @@
 			<fileset dir="${setup}" includes="**/.svn" />
 		</delete>
 
-		<delete dir="database" />
+		<delete dir="mirthdb" />
 		<java classname="com.webreach.mirth.server.tools.ScriptRunner" failonerror="true">
 			<classpath>
 				<pathelement location="${setup}/mirth-server.jar" />
@@ -191,8 +191,8 @@
 		</java>
 
 		<!-- copy the newly created database over -->
-		<copy todir="${setup}/database">
-			<fileset dir="${basedir}/database" />
+		<copy todir="${setup}/mirthdb">
+			<fileset dir="${basedir}/mirthdb" />
 		</copy>
 
 		<!-- copy the batch scripts -->
