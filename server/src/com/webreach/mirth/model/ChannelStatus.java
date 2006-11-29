@@ -26,6 +26,8 @@
 
 package com.webreach.mirth.model;
 
+import com.webreach.mirth.util.EqualsUtil;
+
 /**
  * A ChannelStatus represents the status of a deployed Channel.
  * 
@@ -65,6 +67,23 @@ public class ChannelStatus {
 		this.state = state;
 	}
 
+	public boolean equals(Object that) {
+		if (this == that) {
+			return true;
+		}
+		
+		if (!(that instanceof ChannelStatus)) {
+			return false;
+		}
+		
+		ChannelStatus status = (ChannelStatus) that;
+		
+		return
+			EqualsUtil.areEqual(this.getChannelId(), status.getChannelId()) &&
+			EqualsUtil.areEqual(this.getName(), status.getName()) &&
+			EqualsUtil.areEqual(this.getState(), status.getState());
+	}
+	
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append(this.getClass().getName() + "[");

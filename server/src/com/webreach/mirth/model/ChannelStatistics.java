@@ -23,13 +23,23 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
 package com.webreach.mirth.model;
 
+import com.webreach.mirth.util.EqualsUtil;
+
 public class ChannelStatistics {
+	private String channelId;
 	private int receivedCount = 0;
 	private int sentCount = 0;
 	private int errorCount = 0;
+
+	public String getChannelId() {
+		return this.channelId;
+	}
+
+	public void setChannelId(String channelId) {
+		this.channelId = channelId;
+	}
 
 	public int getErrorCount() {
 		return this.errorCount;
@@ -55,9 +65,28 @@ public class ChannelStatistics {
 		this.sentCount = sentCount;
 	}
 	
+	public boolean equals(Object that) {
+		if (this == that) {
+			return true;
+		}
+		
+		if (!(that instanceof ChannelStatistics)) {
+			return false;
+		}
+		
+		ChannelStatistics statistic = (ChannelStatistics) that;
+		
+		return
+			EqualsUtil.areEqual(this.getChannelId(), statistic.getChannelId()) &&
+			EqualsUtil.areEqual(this.getReceivedCount(), statistic.getReceivedCount()) &&
+			EqualsUtil.areEqual(this.getSentCount(), statistic.getSentCount()) &&
+			EqualsUtil.areEqual(this.getErrorCount(), statistic.getErrorCount());
+	}	
+
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append(this.getClass().getName() + "[");
+		builder.append("channelId=" + getChannelId() + ", ");
 		builder.append("receivedCount=" + getReceivedCount() + ", ");
 		builder.append("sentCount=" + getSentCount() + ", ");
 		builder.append("errorCount=" + getErrorCount());

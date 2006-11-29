@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap
+PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+"http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="Event">
+	<resultMap class="com.webreach.mirth.model.SystemEvent" id="get-event-result">
+		<result property="id" column="ID" />
+		<result property="date" column="DATE_CREATED" />
+		<result property="level" column="EVENT_LEVEL"/>
+		<result property="event" column="EVENT" />
+		<result property="description" column="DESCRIPTION" />
+		<result property="attributes" column="ATTRIBUTES" />
+	</resultMap>
+
+	<select id="getEvent" parameterClass="com.webreach.mirth.model.filters.SystemEventFilter" resultMap="get-event-result">
+		SELECT *
+		FROM EVENT
+		<dynamic prepend="WHERE">
+			<isNotNull prepend="AND" property="event">
+				<![CDATA[ LCASE(EVENT) LIKE %#event#% ]]>
+			</isNotNull>
+			<isNotNull prepend="AND" property="level">
+				EVENT_LEVEL = #level#
+			</isNotNull>
+			<isNotNull prepend="AND" property="startDate">
+				DATE_CREATED <![CDATA[ >= ]]> #startDate#
+			</isNotNull>
+			<isNotNull prepend="AND" property="endDate">
+				DATE_CREATED <![CDATA[ <= ]]> #endDate#
+			</isNotNull>
+		</dynamic>
+		ORDER BY DATE_CREATED
+	</select>
+
+	<insert id="insertEvent" parameterClass="com.webreach.mirth.model.SystemEvent">
+		INSERT INTO
+		EVENT (EVENT, EVENT_LEVEL, DESCRIPTION, ATTRIBUTES)
+		VALUES (#event#, #level#, #description#, #attributes#)
+	</insert>
+
+	<delete id="deleteEvent">
+		DELETE FROM EVENT
+	</delete>
+</sqlMap>

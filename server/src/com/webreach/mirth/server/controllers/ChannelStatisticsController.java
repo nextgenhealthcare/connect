@@ -23,23 +23,17 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
 package com.webreach.mirth.server.controllers;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import com.truemesh.squiggle.MatchCriteria;
-import com.truemesh.squiggle.SelectQuery;
-import com.truemesh.squiggle.Table;
+import com.ibatis.sqlmap.client.SqlMapClient;
 import com.webreach.mirth.model.ChannelStatistics;
-import com.webreach.mirth.server.util.DatabaseConnection;
-import com.webreach.mirth.server.util.DatabaseConnectionFactory;
-import com.webreach.mirth.server.util.DatabaseUtil;
 import com.webreach.mirth.server.util.JMXConnection;
 import com.webreach.mirth.server.util.JMXConnectionFactory;
 
@@ -51,17 +45,18 @@ import com.webreach.mirth.server.util.JMXConnectionFactory;
  */
 public class ChannelStatisticsController {
 	private Logger logger = Logger.getLogger(this.getClass());
+	private SqlMapClient sqlMap = SqlConfig.getSqlMapInstance();
 
 	public ChannelStatistics getStatistics(String channelId) throws ControllerException {
 		ChannelStatistics currentStatistics = getStatisticsObject(channelId);
-		
+
 		// this is a fix for Mule's double counting of received messages
 		int receivedCount = Double.valueOf(Math.ceil(currentStatistics.getReceivedCount() / 2)).intValue();
 		currentStatistics.setReceivedCount(receivedCount);
-		
+
 		return currentStatistics;
 	}
-	
+
 	/**
 	 * Returns a Statistics object for the channel with the specified id.
 	 * 
@@ -69,134 +64,62 @@ public class ChannelStatisticsController {
 	 * @return
 	 * @throws ControllerException
 	 */
-	public ChannelStatistics getStatisticsObject(String channelId) throws ControllerException {
+	private ChannelStatistics getStatisticsObject(String channelId) throws ControllerException {
 		logger.debug("retrieving statistics: channelId=" + channelId);
 
-		DatabaseConnection dbConnection = null;
-		ResultSet result = null;
-
 		try {
-			Table statistics = new Table("channel_statistics");
-			SelectQuery select = new SelectQuery(statistics);
-
-			select.addColumn(statistics, "received");
-			select.addColumn(statistics, "sent");
-			select.addColumn(statistics, "errors");
-			select.addCriteria(new MatchCriteria(statistics, "channel_id", MatchCriteria.EQUALS, channelId));
-
-			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
-			result = dbConnection.executeQuery(select.toString());
-
-			ChannelStatistics channelStatistics = new ChannelStatistics();
-
-			while (result.next()) {
-				channelStatistics = new ChannelStatistics();
-				channelStatistics.setReceivedCount(result.getInt("received"));
-				channelStatistics.setSentCount(result.getInt("sent"));
-				channelStatistics.setErrorCount(result.getInt("errors"));
-			}
-
-			return channelStatistics;
+			return (ChannelStatistics) sqlMap.queryForObject("getStatistic", channelId);
 		} catch (SQLException e) {
 			throw new ControllerException(e);
-		} finally {
-			DatabaseUtil.close(result);
-			DatabaseUtil.close(dbConnection);
 		}
 	}
 
 	public void createStatistics(String channelId) throws ControllerException {
 		logger.debug("creating channel statistcs: channelId" + channelId);
 
-		DatabaseConnection dbConnection = null;
-
 		try {
-			String insert = "insert into channel_statistics (channel_id, received, sent, errors) values (?, ?, ?, ?)";
-			
-			ArrayList<Object> parameters = new ArrayList<Object>();
-			parameters.add(channelId);
-			parameters.add(0);
-			parameters.add(0);
-			parameters.add(0);
-
-			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
-			dbConnection.executeUpdate(insert, parameters);
+			sqlMap.insert("createStatistic", channelId);
 		} catch (Exception e) {
 			throw new ControllerException(e);
-		} finally {
-			DatabaseUtil.close(dbConnection);
 		}
 	}
 
 	public void incReceivedCount(String channelId) throws ControllerException {
 		logger.debug("incrementing received count: channelId=" + channelId);
 
-		DatabaseConnection dbConnection = null;
-
 		try {
-			String statement = "update channel_statistics set received = ? where channel_id = ?";
-
-			ChannelStatistics currentStatistics = getStatisticsObject(channelId);
-			int received = currentStatistics.getReceivedCount() + 1;
-
-			ArrayList<Object> parameters = new ArrayList<Object>();
-			parameters.add(received);
-			parameters.add(channelId);
-
-			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
-			dbConnection.executeUpdate(statement, parameters);
+			Map parameterMap = new HashMap();
+			parameterMap.put("statistic", "received");
+			parameterMap.put("channelId", channelId);
+			sqlMap.update("updateStatistic", parameterMap);
 		} catch (Exception e) {
 			throw new ControllerException(e);
-		} finally {
-			DatabaseUtil.close(dbConnection);
 		}
 	}
 
 	public void incSentCount(String channelId) throws ControllerException {
 		logger.debug("incrementing sent count: channelId=" + channelId);
 
-		DatabaseConnection dbConnection = null;
-
 		try {
-			String statement = "update channel_statistics set sent = ? where channel_id = ?";
-
-			ChannelStatistics currentStatistics = getStatisticsObject(channelId);
-			int sent = currentStatistics.getSentCount() + 1;
-			
-			ArrayList<Object> parameters = new ArrayList<Object>();
-			parameters.add(sent);
-			parameters.add(channelId);
-
-			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
-			dbConnection.executeUpdate(statement, parameters);
+			Map parameterMap = new HashMap();
+			parameterMap.put("statistic", "sent");
+			parameterMap.put("channelId", channelId);
+			sqlMap.update("updateStatistic", parameterMap);
 		} catch (Exception e) {
 			throw new ControllerException(e);
-		} finally {
-			DatabaseUtil.close(dbConnection);
 		}
 	}
 
 	public void incErrorCount(String channelId) throws ControllerException {
 		logger.debug("incrementing error: channelId=" + channelId);
 
-		DatabaseConnection dbConnection = null;
-
 		try {
-			String statement = "update channel_statistics set errors = ? where channel_id = ?";
-
-			ChannelStatistics currentStatistics = getStatisticsObject(channelId);
-			int errors = currentStatistics.getErrorCount() + 1;
-
-			ArrayList<Object> parameters = new ArrayList<Object>();
-			parameters.add(errors);
-			parameters.add(channelId);
-
-			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
-			dbConnection.executeUpdate(statement, parameters);
+			Map parameterMap = new HashMap();
+			parameterMap.put("statistic", "errors");
+			parameterMap.put("channelId", channelId);
+			sqlMap.update("updateStatistic", parameterMap);
 		} catch (Exception e) {
 			throw new ControllerException(e);
-		} finally {
-			DatabaseUtil.close(dbConnection);
 		}
 	}
 
@@ -210,7 +133,6 @@ public class ChannelStatisticsController {
 		logger.debug("clearing statistics: channelId=" + channelId);
 
 		// clear the stats in Mule
-		
 		JMXConnection jmxConnection = null;
 
 		try {
@@ -222,92 +144,18 @@ public class ChannelStatisticsController {
 		} catch (Exception e) {
 			throw new ControllerException(e);
 		} finally {
-			jmxConnection.close();
+			if (jmxConnection != null) {
+				jmxConnection.close();	
+			} else {
+				logger.warn("could not close JMX connection");
+			}
 		}
-		
+
 		// clear the stats in the database
-		
-		DatabaseConnection dbConnection = null;
-
 		try {
-			dbConnection = DatabaseConnectionFactory.createDatabaseConnection();
-
-			String statement = "update channel_statistics set received = ?, sent = ?, errors = ? where channel_id = ?";
-
-			ArrayList<Object> parameters = new ArrayList<Object>();
-			parameters.add(0);
-			parameters.add(0);
-			parameters.add(0);
-			parameters.add(channelId);
-
-			dbConnection.executeUpdate(statement, parameters);
+			sqlMap.update("clearStatistic", channelId);
 		} catch (Exception e) {
 			throw new ControllerException(e);
-		} finally {
-			DatabaseUtil.close(dbConnection);
 		}
 	}
-
-	@Deprecated
-	private int getSentCount(String channelId) {
-		logger.debug("retrieving message sent count: channelId=" + channelId);
-
-		try {
-			return getStatistic(channelId, "TotalEventsSent");
-		} catch (Exception e) {
-			return -1;
-		}
-	}
-
-	// This is a hack to address the fact that this statistic is incorrectly
-	// incrememnted by 2 in Mule.
-	@Deprecated
-	private int getReceivedCount(String channelId) {
-		logger.debug("retrieving message received count: " + channelId);
-
-		JMXConnection jmxConnection = null;
-
-		try {
-			jmxConnection = JMXConnectionFactory.createJMXConnection();
-			Hashtable<String, String> properties = new Hashtable<String, String>();
-			properties.put("type", "statistics");
-			properties.put("name", channelId);
-			Double count = ((Long) jmxConnection.getAttribute(properties, "TotalEventsReceived")).doubleValue();
-			return Double.valueOf(Math.ceil(count / 2)).intValue();
-		} catch (Exception e) {
-			return -1;
-		} finally {
-			jmxConnection.close();
-		}
-	}
-
-	@Deprecated
-	private int getErrorCount(String channelId) {
-		logger.debug("retrieving error count: channelId=" + channelId);
-
-		try {
-			return getStatistic(channelId, "ExecutionErrors");
-		} catch (Exception e) {
-			return -1;
-		}
-	}
-
-	@Deprecated
-	private int getStatistic(String channelId, String statistic) throws ControllerException {
-		JMXConnection jmxConnection = null;
-
-		try {
-			jmxConnection = JMXConnectionFactory.createJMXConnection();
-			Hashtable<String, String> properties = new Hashtable<String, String>();
-			properties.put("type", "statistics");
-			properties.put("name", channelId);
-
-			return ((Long) jmxConnection.getAttribute(properties, statistic)).intValue();
-		} catch (Exception e) {
-			throw new ControllerException("Could not retrieve statistic.");
-		} finally {
-			jmxConnection.close();
-		}
-	}
-
 }

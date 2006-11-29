@@ -64,4 +64,5 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map Config 2.0//EN"
 	<sqlMap resource="Template.xml" />
 	<sqlMap resource="Configuration.xml" />
 	<sqlMap resource="Event.xml"/>
+	<sqlMap resource="Statistic.xml" />
 </sqlMapConfig>
