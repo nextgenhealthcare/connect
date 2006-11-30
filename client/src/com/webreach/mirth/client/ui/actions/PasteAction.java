@@ -53,7 +53,7 @@ public class PasteAction extends AbstractAction
  
     public boolean isEnabled()
     { 
-        if (comp.isEditable() && comp.isEnabled())
+        if (comp.isVisible() && comp.isEditable() && comp.isEnabled())
         { 
             Transferable contents = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(this); 
             return contents.isDataFlavorSupported(DataFlavor.stringFlavor); 

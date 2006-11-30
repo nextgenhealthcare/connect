@@ -9,6 +9,7 @@ public interface MirthTextInterface {
 	public void replaceSelection(String text);
 	public boolean isEditable();
 	public boolean isEnabled();
+	public boolean isVisible();
 	public String getSelectedText();
 	public String getText();
 }

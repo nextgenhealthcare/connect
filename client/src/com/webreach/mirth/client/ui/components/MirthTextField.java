@@ -51,19 +51,23 @@ import javax.swing.text.Document;
 public class MirthTextField extends javax.swing.JTextField implements MirthTextInterface 
 {
     private Frame parent;
+    private boolean visible = false;
     private JPopupMenu menu;
     private CutAction cutAction;
     private CopyAction copyAction;
     private PasteAction pasteAction;
     private DeleteAction deleteAction;
     private SelectAllAction selectAllAction;
-
+    public boolean isVisible(){
+    	return visible;
+    }
     public MirthTextField()
     {
         super();
         this.parent = PlatformUI.MIRTH_FRAME;
         cutAction = new CutAction(this);
         copyAction = new CopyAction(this);
+        
         pasteAction = new PasteAction(this);
         deleteAction = new DeleteAction(this);
         selectAllAction = new SelectAllAction(this);
@@ -87,6 +91,7 @@ public class MirthTextField extends javax.swing.JTextField implements MirthTextI
                 showPopupMenu(evt);
             }
         });
+        visible = true;
     }
     
     /**
