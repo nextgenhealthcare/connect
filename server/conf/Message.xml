@@ -8,6 +8,24 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 	<typeAlias alias="message" type="com.webreach.mirth.model.MessageObject" />
 	<typeAlias alias="messageFilter" type="com.webreach.mirth.model.filters.MessageObjectFilter" />
 
+	<parameterMap class="com.webreach.mirth.model.MessageObject" id="insert-message-param">
+		<parameter property="id" jdbcType="VARCHAR" />
+		<parameter property="channelId" jdbcType="VARCHAR" />
+		<parameter property="dateCreated" jdbcType="TIMESTAMP" />
+		<parameter property="version" jdbcType="VARCHAR" />
+		<parameter property="encrypted" jdbcType="SMALLINT" />
+		<parameter property="status" jdbcType="VARCHAR" />
+		<parameter property="rawData" jdbcType="CLOB" />
+		<parameter property="rawDataProtocol" jdbcType="VARCHAR" />
+		<parameter property="transformedData" jdbcType="CLOB" />
+		<parameter property="transformedDataProtocol" jdbcType="VARCHAR" />
+		<parameter property="encodedData" jdbcType="CLOB" />
+		<parameter property="encodedDataProtocol" jdbcType="VARCHAR" />
+		<parameter property="variableMap" jdbcType="CLOB" />
+		<parameter property="connectorName" jdbcType="VARCHAR" />
+		<parameter property="errors" jdbcType="CLOB" />
+	</parameterMap>
+
 	<sql id="messageFilterCriteria">
 		<dynamic prepend="WHERE">
 			<isNotNull prepend="AND" property="id">
@@ -32,21 +50,21 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 	</sql>
 	
 	<resultMap class="message" id="get-message-result">
-		<result property="id" column="ID" jdbcType="VARCHAR" />
-		<result property="channelId" column="CHANNEL_ID" jdbcType="VARCHAR" />
-		<result property="dateCreated" column="DATE_CREATED" jdbcType="TIMESTAMP" />
-		<result property="version" column="VERSION" jdbcType="VARCHAR" />
-		<result property="encrypted" column="IS_ENCRYPTED" jdbcType="SMALLINT" />
-		<result property="status" column="STATUS" jdbcType="VARCHAR" />
-		<result property="rawData" column="RAW_DATA" jdbcType="CLOB" />
-		<result property="rawDataProtocol" column="RAW_DATA_PROTOCOL" jdbcType="VARCHAR" />
-		<result property="transformedData" column="TRANSFORMED_DATA" jdbcType="CLOB" />
-		<result property="transformedDataProtocol" column="TRANSFORMED_DATA_PROTOCOL" jdbcType="VARCHAR" />
-		<result property="encodedData" column="ENCODED_DATA" jdbcType="CLOB" />
-		<result property="encodedDataProtocol" column="ENCODED_DATA_PROTOCOL" jdbcType="VARCHAR" />
-		<result property="variableMap" column="VARIABLE_MAP" jdbcType="CLOB" />
-		<result property="connectorName" column="CONNECTOR_NAME" jdbcType="VARCHAR" />
-		<result property="errors" column="ERRORS" jdbcType="CLOB" />
+		<result property="id" column="ID" />
+		<result property="channelId" column="CHANNEL_ID" />
+		<result property="dateCreated" column="DATE_CREATED" />
+		<result property="version" column="VERSION" />
+		<result property="encrypted" column="IS_ENCRYPTED" />
+		<result property="status" column="STATUS" />
+		<result property="rawData" column="RAW_DATA" />
+		<result property="rawDataProtocol" column="RAW_DATA_PROTOCOL" />
+		<result property="transformedData" column="TRANSFORMED_DATA" />
+		<result property="transformedDataProtocol" column="TRANSFORMED_DATA_PROTOCOL" />
+		<result property="encodedData" column="ENCODED_DATA" />
+		<result property="encodedDataProtocol" column="ENCODED_DATA_PROTOCOL" />
+		<result property="variableMap" column="VARIABLE_MAP" />
+		<result property="connectorName" column="CONNECTOR_NAME" />
+		<result property="errors" column="ERRORS" />
 	</resultMap>
 	
 	<select id="getMessageByPage" resultClass="message" parameterClass="java.util.Map" resultMap="get-message-result">
@@ -84,13 +102,13 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 			<include refid="messageFilterCriteria" />)
 	</insert>
 	
-	<insert id="insertMessage" parameterClass="message">
+	<insert id="insertMessage" parameterMap="insert-message-param">
 		INSERT INTO
 		MESSAGE (ID, CHANNEL_ID, DATE_CREATED, VERSION, IS_ENCRYPTED, STATUS, RAW_DATA, RAW_DATA_PROTOCOL, TRANSFORMED_DATA, TRANSFORMED_DATA_PROTOCOL, ENCODED_DATA, ENCODED_DATA_PROTOCOL, VARIABLE_MAP, CONNECTOR_NAME, ERRORS)
 		VALUES (#id#, #channelId#, #dateCreated#, #version#, #encrypted#, #status#, #rawData#, #rawDataProtocol#, #transformedData#, #transformedDataProtocol#, #encodedData#, #encodedDataProtocol#, #variableMap#, #connectorName#, #errors#)
 	</insert>
 	
-	<update id="updateMessage" parameterClass="message">
+	<update id="updateMessage" parameterMap="insert-message-param">
 		UPDATE MESSAGE
 		SET STATUS = #status#,
 			RAW_DATA = #rawData#,
