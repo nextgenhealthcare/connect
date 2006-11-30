@@ -86,7 +86,8 @@ public class MessageObjectController {
 		try {
 			sqlMap.update("dropTempMessageTable");
 		} catch (SQLException e) {
-			logger.warn(e);
+			// supress any warnings about the table not existing
+			logger.debug(e);
 		}
 		
 		try {
@@ -98,8 +99,14 @@ public class MessageObjectController {
 			parameterMap.put("channelId", filter.getChannelId());
 			parameterMap.put("status", filter.getStatus());
 			parameterMap.put("connectorName", filter.getConnectorName());
-			parameterMap.put("startDate", String.format("%1$tY-%1$tm-%1$td 00:00:00", filter.getStartDate()));
-			parameterMap.put("endDate", String.format("%1$tY-%1$tm-%1$td 23:59:59", filter.getEndDate()));
+
+			if (filter.getStartDate() != null) {
+				parameterMap.put("startDate", String.format("%1$tY-%1$tm-%1$td 00:00:00", filter.getStartDate()));	
+			}
+			
+			if (filter.getEndDate() != null) {
+				parameterMap.put("endDate", String.format("%1$tY-%1$tm-%1$td 23:59:59", filter.getEndDate()));	
+			}
 
 			return sqlMap.update("populateTempMessageTable", parameterMap);
 		} catch (SQLException e) {

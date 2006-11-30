@@ -113,6 +113,9 @@ public class MessageObjectControllerTest extends TestCase {
 		
 		MessageObjectFilter testFilter = new MessageObjectFilter();
 		testFilter.setChannelId(channelId);
+		testFilter.setStartDate(Calendar.getInstance());
+		testFilter.setEndDate(Calendar.getInstance());
+		
 		messageObjectController.createMessagesTempTable(testFilter);
 		List<MessageObject> testMessageObjectList = messageObjectController.getMessagesByPage(-1, -1);
 

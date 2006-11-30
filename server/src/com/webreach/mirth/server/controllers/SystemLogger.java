@@ -71,8 +71,14 @@ public class SystemLogger {
 			Map parameterMap = new HashMap();
 			parameterMap.put("event", filter.getEvent());
 			parameterMap.put("level", filter.getLevel());
-			parameterMap.put("startDate", String.format("%1$tY-%1$tm-%1$td 00:00:00", filter.getStartDate()));
-			parameterMap.put("endDate", String.format("%1$tY-%1$tm-%1$td 23:59:59", filter.getEndDate()));
+			
+			if (filter.getStartDate() != null) {
+				parameterMap.put("startDate", String.format("%1$tY-%1$tm-%1$td 00:00:00", filter.getStartDate()));	
+			}
+			
+			if (filter.getEndDate() != null) {
+				parameterMap.put("endDate", String.format("%1$tY-%1$tm-%1$td 23:59:59", filter.getEndDate()));	
+			}
 			
 			return (List<SystemEvent>) sqlMap.queryForList("getEvent", parameterMap);
 		} catch (SQLException e) {
