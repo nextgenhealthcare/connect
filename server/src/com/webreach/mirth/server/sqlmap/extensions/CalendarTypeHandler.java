@@ -11,7 +11,7 @@ import com.ibatis.sqlmap.client.extensions.TypeHandlerCallback;
 public class CalendarTypeHandler implements TypeHandlerCallback {
 	public void setParameter(ParameterSetter setter, Object parameter) throws SQLException {
 		Calendar calendar = (Calendar) parameter;
-		setter.setString((new Timestamp(calendar.getTimeInMillis())).toString());
+		setter.setTimestamp(new Timestamp(calendar.getTimeInMillis()));
 	}
 
 	public Object getResult(ResultGetter getter) throws SQLException {
@@ -21,6 +21,8 @@ public class CalendarTypeHandler implements TypeHandlerCallback {
 	}
 
 	public Object valueOf(String source) {
-		return source;
-	}
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTimeInMillis(Long.valueOf(source));
+		return calendar;
+	}	
 }

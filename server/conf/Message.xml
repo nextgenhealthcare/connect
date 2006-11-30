@@ -7,7 +7,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 <sqlMap namespace="Message">
 	<typeAlias alias="message" type="com.webreach.mirth.model.MessageObject" />
 	<typeAlias alias="messageFilter" type="com.webreach.mirth.model.filters.MessageObjectFilter" />
-	
+
 	<sql id="messageFilterCriteria">
 		<dynamic prepend="WHERE">
 			<isNotNull prepend="AND" property="id">
@@ -76,8 +76,8 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		CREATE INDEX INDEX_MESSAGE_TEMP ON MESSAGE_TEMP(SEQUENCE_ORDER, ID)
 	</statement>
 
-	<!-- NOTE: The SELECT needs an ORDER BY DATE_CREATED, which Derby does not support -->
-	<insert id="populateTempMessageTable" parameterClass="messageFilter">
+	<!-- NOTE: The nested SELECT needs an ORDER BY DATE_CREATED, which Derby does not support -->
+	<insert id="populateTempMessageTable" parameterClass="java.util.Map">
 		INSERT INTO MESSAGE_TEMP(ID)
 			(SELECT SEQUENCE_ID
 			FROM MESSAGE
@@ -101,7 +101,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		WHERE ID = #id#
 	</update>
 	
-	<delete id="deleteMessage" parameterClass="messageFilter">
+	<delete id="deleteMessage" parameterClass="java.util.Map">
 		DELETE FROM MESSAGE
 		<include refid="messageFilterCriteria" />
 	</delete>

@@ -92,7 +92,16 @@ public class MessageObjectController {
 		try {
 			sqlMap.update("createTempMessageTable");
 			sqlMap.update("createTempMessageTableIndex");
-			return sqlMap.update("populateTempMessageTable", filter);
+			
+			Map parameterMap = new HashMap();
+			parameterMap.put("id", filter.getId());
+			parameterMap.put("channelId", filter.getChannelId());
+			parameterMap.put("status", filter.getStatus());
+			parameterMap.put("connectorName", filter.getConnectorName());
+			parameterMap.put("startDate", String.format("%1$tY-%1$tm-%1$td 00:00:00", filter.getStartDate()));
+			parameterMap.put("endDate", String.format("%1$tY-%1$tm-%1$td 23:59:59", filter.getEndDate()));
+
+			return sqlMap.update("populateTempMessageTable", parameterMap);
 		} catch (SQLException e) {
 			throw new ControllerException(e);
 		}
@@ -102,7 +111,15 @@ public class MessageObjectController {
 		logger.debug("removing messages: filter=" + filter.toString());
 
 		try {
-			sqlMap.delete("deleteMessage", filter);
+			Map parameterMap = new HashMap();
+			parameterMap.put("id", filter.getId());
+			parameterMap.put("channelId", filter.getChannelId());
+			parameterMap.put("status", filter.getStatus());
+			parameterMap.put("connectorName", filter.getConnectorName());
+			parameterMap.put("startDate", String.format("%1$tY-%1$tm-%1$td 00:00:00", filter.getStartDate()));
+			parameterMap.put("endDate", String.format("%1$tY-%1$tm-%1$td 23:59:59", filter.getEndDate()));
+
+			sqlMap.delete("deleteMessage", parameterMap);
 		} catch (SQLException e) {
 			throw new ControllerException(e);
 		}
@@ -112,9 +129,9 @@ public class MessageObjectController {
 		logger.debug("clearing messages: channelId=" + channelId);
 
 		try {
-			MessageObjectFilter filter = new MessageObjectFilter();
-			filter.setChannelId(channelId);
-			sqlMap.delete("deleteMessage", filter);
+			Map parameterMap = new HashMap();
+			parameterMap.put("channelId", channelId);
+			sqlMap.delete("deleteMessage", parameterMap);
 		} catch (SQLException e) {
 			throw new ControllerException(e);
 		}

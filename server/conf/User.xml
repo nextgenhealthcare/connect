@@ -31,14 +31,14 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 	<insert id="insertUser" parameterClass="com.webreach.mirth.model.User">
 		INSERT INTO
 		PERSON (USERNAME, PASSWORD, EMAIL)
-		VALUES (#username#, #password#, #email#)
+		VALUES (#username#, #password#, #email:VARCHAR#)
 	</insert>
 	
 	<update id="updateUser" parameterClass="com.webreach.mirth.model.User">
 		UPDATE PERSON
 		SET USERNAME = #username#,
 			PASSWORD = #password#,
-			EMAIL = #email#
+			EMAIL = #email:VARCHAR#
 		WHERE ID = #id#
 	</update>
 	
