@@ -93,22 +93,7 @@ public class MessageObjectController {
 		try {
 			sqlMap.update("createTempMessageTable");
 			sqlMap.update("createTempMessageTableIndex");
-			
-			Map parameterMap = new HashMap();
-			parameterMap.put("id", filter.getId());
-			parameterMap.put("channelId", filter.getChannelId());
-			parameterMap.put("status", filter.getStatus());
-			parameterMap.put("connectorName", filter.getConnectorName());
-
-			if (filter.getStartDate() != null) {
-				parameterMap.put("startDate", String.format("%1$tY-%1$tm-%1$td 00:00:00", filter.getStartDate()));	
-			}
-			
-			if (filter.getEndDate() != null) {
-				parameterMap.put("endDate", String.format("%1$tY-%1$tm-%1$td 23:59:59", filter.getEndDate()));	
-			}
-
-			return sqlMap.update("populateTempMessageTable", parameterMap);
+			return sqlMap.update("populateTempMessageTable", getFilterMap(filter));
 		} catch (SQLException e) {
 			throw new ControllerException(e);
 		}
@@ -118,15 +103,7 @@ public class MessageObjectController {
 		logger.debug("removing messages: filter=" + filter.toString());
 
 		try {
-			Map parameterMap = new HashMap();
-			parameterMap.put("id", filter.getId());
-			parameterMap.put("channelId", filter.getChannelId());
-			parameterMap.put("status", filter.getStatus());
-			parameterMap.put("connectorName", filter.getConnectorName());
-			parameterMap.put("startDate", String.format("%1$tY-%1$tm-%1$td 00:00:00", filter.getStartDate()));
-			parameterMap.put("endDate", String.format("%1$tY-%1$tm-%1$td 23:59:59", filter.getEndDate()));
-
-			sqlMap.delete("deleteMessage", parameterMap);
+			sqlMap.delete("deleteMessage", getFilterMap(filter));
 		} catch (SQLException e) {
 			throw new ControllerException(e);
 		}
@@ -158,5 +135,23 @@ public class MessageObjectController {
 		} catch (UMOException e) {
 			throw new ControllerException("could not reprocess message", e);
 		}
+	}
+	
+	private Map getFilterMap(MessageObjectFilter filter) {
+		Map parameterMap = new HashMap();
+		parameterMap.put("id", filter.getId());
+		parameterMap.put("channelId", filter.getChannelId());
+		parameterMap.put("status", filter.getStatus());
+		parameterMap.put("connectorName", filter.getConnectorName());
+
+		if (filter.getStartDate() != null) {
+			parameterMap.put("startDate", String.format("%1$tY-%1$tm-%1$td 00:00:00", filter.getStartDate()));	
+		}
+		
+		if (filter.getEndDate() != null) {
+			parameterMap.put("endDate", String.format("%1$tY-%1$tm-%1$td 23:59:59", filter.getEndDate()));	
+		}
+
+		return parameterMap;
 	}
 }
