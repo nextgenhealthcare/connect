@@ -11,6 +11,13 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		<parameter property="email" jdbcType="VARCHAR" />
 	</parameterMap>
 
+	<parameterMap class="com.webreach.mirth.model.User" id="update-user-param">
+		<parameter property="username" />
+		<parameter property="password" />
+		<parameter property="email" jdbcType="VARCHAR" />
+		<parameter property="id" />
+	</parameterMap>
+
 	<resultMap class="com.webreach.mirth.model.User" id="get-user-result">
 		<result property="id" column="ID" />
 		<result property="username" column="USERNAME" />
@@ -37,15 +44,15 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 	<insert id="insertUser" parameterMap="insert-user-param">
 		INSERT INTO
 		PERSON (USERNAME, PASSWORD, EMAIL)
-		VALUES (#username#, #password#, #email#)
+		VALUES (?, ?, ?)
 	</insert>
 	
-	<update id="updateUser" parameterMap="insert-user-param">
+	<update id="updateUser" parameterMap="update-user-param">
 		UPDATE PERSON
-		SET USERNAME = #username#,
-			PASSWORD = #password#,
-			EMAIL = #email#
-		WHERE ID = #id#
+		SET USERNAME = ?,
+			PASSWORD = ?,
+			EMAIL = ?
+		WHERE ID = ?
 	</update>
 	
 	<delete id="deleteUser" parameterClass="com.webreach.mirth.model.User">
