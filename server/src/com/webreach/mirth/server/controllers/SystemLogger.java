@@ -27,18 +27,18 @@
 package com.webreach.mirth.server.controllers;
 
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
 import com.ibatis.sqlmap.client.SqlMapClient;
 import com.webreach.mirth.model.SystemEvent;
-import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.model.filters.SystemEventFilter;
 
 public class SystemLogger {
 	private Logger logger = Logger.getLogger(this.getClass());
-	private ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 	private SqlMapClient sqlMap = SqlConfig.getSqlMapInstance();
 
 	/**
@@ -68,7 +68,13 @@ public class SystemLogger {
 		logger.debug("retrieving log event list: " + filter);
 
 		try {
-			return (List<SystemEvent>) sqlMap.queryForList("getEvent", filter);
+			Map parameterMap = new HashMap();
+			parameterMap.put("event", filter.getEvent());
+			parameterMap.put("level", filter.getLevel());
+			parameterMap.put("startDate", String.format("%1$tY-%1$tm-%1$td 00:00:00", filter.getStartDate()));
+			parameterMap.put("endDate", String.format("%1$tY-%1$tm-%1$td 23:59:59", filter.getEndDate()));
+			
+			return (List<SystemEvent>) sqlMap.queryForList("getEvent", parameterMap);
 		} catch (SQLException e) {
 			throw new ControllerException(e);
 		}

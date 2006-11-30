@@ -14,7 +14,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		<result property="attributes" column="ATTRIBUTES" />
 	</resultMap>
 
-	<select id="getEvent" parameterClass="com.webreach.mirth.model.filters.SystemEventFilter" resultMap="get-event-result">
+	<select id="getEvent" parameterClass="java.util.Map" resultMap="get-event-result">
 		SELECT *
 		FROM EVENT
 		<dynamic prepend="WHERE">
