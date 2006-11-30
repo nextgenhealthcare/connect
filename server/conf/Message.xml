@@ -32,21 +32,21 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 	</sql>
 	
 	<resultMap class="message" id="get-message-result">
-		<result property="id" column="ID" />
-		<result property="channelId" column="CHANNEL_ID" />
-		<result property="dateCreated" column="DATE_CREATED" />
-		<result property="version" column="VERSION" />
-		<result property="encrypted" column="IS_ENCRYPTED" />
-		<result property="status" column="STATUS" />
-		<result property="rawData" column="RAW_DATA" />
-		<result property="rawDataProtocol" column="RAW_DATA_PROTOCOL" />
-		<result property="transformedData" column="TRANSFORMED_DATA" />
-		<result property="transformedDataProtocol" column="TRANSFORMED_DATA_PROTOCOL" />
-		<result property="encodedData" column="ENCODED_DATA" />
-		<result property="encodedDataProtocol" column="ENCODED_DATA_PROTOCOL" />
-		<result property="variableMap" column="VARIABLE_MAP" />
-		<result property="connectorName" column="CONNECTOR_NAME" />
-		<result property="errors" column="ERRORS" />
+		<result property="id" column="ID" jdbcType="VARCHAR" />
+		<result property="channelId" column="CHANNEL_ID" jdbcType="VARCHAR" />
+		<result property="dateCreated" column="DATE_CREATED" jdbcType="TIMESTAMP" />
+		<result property="version" column="VERSION" jdbcType="VARCHAR" />
+		<result property="encrypted" column="IS_ENCRYPTED" jdbcType="SMALLINT" />
+		<result property="status" column="STATUS" jdbcType="VARCHAR" />
+		<result property="rawData" column="RAW_DATA" jdbcType="CLOB" />
+		<result property="rawDataProtocol" column="RAW_DATA_PROTOCOL" jdbcType="VARCHAR" />
+		<result property="transformedData" column="TRANSFORMED_DATA" jdbcType="CLOB" />
+		<result property="transformedDataProtocol" column="TRANSFORMED_DATA_PROTOCOL" jdbcType="VARCHAR" />
+		<result property="encodedData" column="ENCODED_DATA" jdbcType="CLOB" />
+		<result property="encodedDataProtocol" column="ENCODED_DATA_PROTOCOL" jdbcType="VARCHAR" />
+		<result property="variableMap" column="VARIABLE_MAP" jdbcType="CLOB" />
+		<result property="connectorName" column="CONNECTOR_NAME" jdbcType="VARCHAR" />
+		<result property="errors" column="ERRORS" jdbcType="CLOB" />
 	</resultMap>
 	
 	<select id="getMessageByPage" resultClass="message" parameterClass="java.util.Map" resultMap="get-message-result">

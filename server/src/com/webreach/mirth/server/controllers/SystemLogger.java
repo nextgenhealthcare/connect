@@ -68,19 +68,7 @@ public class SystemLogger {
 		logger.debug("retrieving log event list: " + filter);
 
 		try {
-			Map parameterMap = new HashMap();
-			parameterMap.put("event", filter.getEvent());
-			parameterMap.put("level", filter.getLevel());
-			
-			if (filter.getStartDate() != null) {
-				parameterMap.put("startDate", String.format("%1$tY-%1$tm-%1$td 00:00:00", filter.getStartDate()));	
-			}
-			
-			if (filter.getEndDate() != null) {
-				parameterMap.put("endDate", String.format("%1$tY-%1$tm-%1$td 23:59:59", filter.getEndDate()));	
-			}
-			
-			return (List<SystemEvent>) sqlMap.queryForList("getEvent", parameterMap);
+			return (List<SystemEvent>) sqlMap.queryForList("getEvent", getFilterMap(filter));
 		} catch (SQLException e) {
 			throw new ControllerException(e);
 		}
@@ -98,5 +86,21 @@ public class SystemLogger {
 		} catch (SQLException e) {
 			throw new ControllerException(e);
 		}
+	}
+	
+	private Map getFilterMap(SystemEventFilter filter) {
+		Map parameterMap = new HashMap();
+		parameterMap.put("event", filter.getEvent());
+		parameterMap.put("level", filter.getLevel());
+		
+		if (filter.getStartDate() != null) {
+			parameterMap.put("startDate", String.format("%1$tY-%1$tm-%1$td 00:00:00", filter.getStartDate()));	
+		}
+		
+		if (filter.getEndDate() != null) {
+			parameterMap.put("endDate", String.format("%1$tY-%1$tm-%1$td 23:59:59", filter.getEndDate()));	
+		}
+
+		return parameterMap;
 	}
 }
