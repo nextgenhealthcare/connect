@@ -1,4 +1,4 @@
-INSERT INTO USER(USERNAME, PASSWORD) VALUES('admin', 'admin');
+INSERT INTO PERSON (USERNAME, PASSWORD) VALUES('admin', 'admin');
 INSERT INTO TRANSPORT (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE, IS_INBOUND, IS_OUTBOUND) VALUES ('FTP Reader', 'org.mule.providers.ftp.FtpConnector', 'ftp', 'ByteArrayToString', 'LISTENER', 1, 0);
 INSERT INTO TRANSPORT (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE, IS_INBOUND, IS_OUTBOUND) VALUES ('SFTP Reader', 'org.mule.providers.sftp.SftpConnector', 'sftp', 'ByteArrayToString', 'LISTENER', 1, 0);
 INSERT INTO TRANSPORT (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE, IS_INBOUND, IS_OUTBOUND) VALUES ('JMS Reader', 'org.mule.providers.jms.JmsConnector', 'jms', 'JMSMessageToObject ObjectToString', 'LISTENER', 1, 0);
