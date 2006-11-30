@@ -239,7 +239,7 @@ public class ConfigurationController {
 			String data = (String) sqlMap.queryForObject("getKey");
 			boolean isKeyFound = false;
 
-			while (data != null) {
+			if (data != null) {
 				logger.debug("encryption key found");
 				encryptionKey = (SecretKey) serializer.fromXML(data);
 				isKeyFound = true;
