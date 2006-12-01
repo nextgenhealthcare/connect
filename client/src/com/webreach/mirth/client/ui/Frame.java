@@ -2068,15 +2068,27 @@ public class Frame extends JXFrame
             }
 
             ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+            Channel importChannel;
+            
             try
             {
-                Channel importChannel = (Channel)serializer.fromXML(channelXML.replaceAll("\\&\\#x0D","\\&\\#x0A"));
-                
-                /**
-                 * Checks to see if the passed in channel version is current,
-                 * and prompts the user if it is not.
-                 */
-                int option = JOptionPane.YES_OPTION;
+                 importChannel = (Channel)serializer.fromXML(channelXML.replaceAll("\\&\\#x0D","\\&\\#x0A"));
+             }
+            catch (Exception e)
+            {
+                alertError("Invalid channel file.");
+                return;
+            }   
+            
+            /**
+             * Checks to see if the passed in channel version is current,
+             * and prompts the user if it is not.
+             */
+            int option;
+            
+            try
+            {
+                option = JOptionPane.YES_OPTION;
                 if (importChannel.getVersion() == null)
                 {
                     option = JOptionPane.showConfirmDialog(this, "The channel being imported is from an unknown version of Mirth." +
@@ -2087,26 +2099,39 @@ public class Frame extends JXFrame
                     option = JOptionPane.showConfirmDialog(this, "The channel being imported is from Mirth version " + importChannel.getVersion() + ". You are using Mirth version " + mirthClient.getVersion() + 
                             ".\nSome channel properties may not be the same.  Would you like to automatically convert the properties?", "Select an Option", JOptionPane.YES_NO_CANCEL_OPTION);
                 }
-                    
-                if (option == JOptionPane.YES_OPTION)
-                {
-                    ImportConverter converter = new ImportConverter();
-                    importChannel = converter.convertChannel(importChannel);
-                }
-                else if(option != JOptionPane.NO_OPTION)
-                    return;
-                
-                if(!checkChannelName(importChannel.getName()))
-                    return;
-                
-                importChannel.setRevision(0);
-                channels.add(importChannel);
+            }
+            catch (ClientException e)
+            {
+                alertError("Could not get the clients version.");
+                return;
+            }
+            
+            
+            if (option == JOptionPane.YES_OPTION)
+            {
+                ImportConverter converter = new ImportConverter();
+                importChannel = converter.convertChannel(importChannel);
+            }
+            else if(option != JOptionPane.NO_OPTION)
+                return;
+
+            if(!checkChannelName(importChannel.getName()))
+                return;
+            
+            importChannel.setRevision(0);
+            channels.add(importChannel);
+            
+            try
+            {
                 editChannel(channels.size()-1);
                 channelEditTasks.getContentPane().getComponent(0).setVisible(true);
             }
             catch (Exception e)
             {
-                alertError("Invalid channel file.");
+                alertError("Channel had an unknown problem. Channel import aborted.");
+                channels.remove(channels.size() -1);
+                channelEditPage = new ChannelSetup();
+                this.doShowChannel();
             }
         }
     }
