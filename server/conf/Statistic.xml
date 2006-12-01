@@ -31,7 +31,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 	</update>
 
 	<update id="clearStatistic" parameterClass="java.lang.String">
-		UPDATE CHANNEL_STATISTICS
+		UPDATE CHANNEL_STATISTIC
 		SET RECEIVED = 0,
 			SENT = 0,
 			ERRORS = 0
