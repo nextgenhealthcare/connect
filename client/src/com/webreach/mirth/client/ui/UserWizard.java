@@ -38,6 +38,7 @@ public class UserWizard extends javax.swing.JDialog
 {
     private Frame parent;
     private int index = -1;
+    boolean editingUser;
     
     /** Creates new form UserDialog */
     public UserWizard(int row)
@@ -55,11 +56,14 @@ public class UserWizard extends javax.swing.JDialog
             username.setText(this.parent.users.get(index).getUsername());     
             password1.setText(this.parent.users.get(index).getPassword());
             password2.setText(this.parent.users.get(index).getPassword());
+            email.setText(this.parent.users.get(index).getEmail());
+            editingUser = true;
         }
         else
         {
             jLabel2.setText("New User");
             jLabel2.setForeground(UIConstants.TITLE_TEXT_COLOR);
+            editingUser = false;
         }
         setModal(true);
         this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -85,6 +89,8 @@ public class UserWizard extends javax.swing.JDialog
         password2 = new javax.swing.JPasswordField();
         mirthHeadingPanel1 = new com.webreach.mirth.client.ui.MirthHeadingPanel();
         jLabel2 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
+        email = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("User Wizard");
@@ -161,6 +167,16 @@ public class UserWizard extends javax.swing.JDialog
                 .addContainerGap())
         );
 
+        jLabel5.setText("Email (optional):");
+
+        email.addKeyListener(new java.awt.event.KeyAdapter()
+        {
+            public void keyReleased(java.awt.event.KeyEvent evt)
+            {
+                emailKeyReleased(evt);
+            }
+        });
+
         org.jdesktop.layout.GroupLayout channelOverviewLayout = new org.jdesktop.layout.GroupLayout(channelOverview);
         channelOverview.setLayout(channelOverviewLayout);
         channelOverviewLayout.setHorizontalGroup(
@@ -179,14 +195,17 @@ public class UserWizard extends javax.swing.JDialog
             .add(org.jdesktop.layout.GroupLayout.TRAILING, channelOverviewLayout.createSequentialGroup()
                 .addContainerGap(49, Short.MAX_VALUE)
                 .add(channelOverviewLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(jLabel5)
                     .add(jLabel4)
                     .add(jLabel3)
                     .add(jLabel1))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(channelOverviewLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                    .add(username, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 167, Short.MAX_VALUE)
-                    .add(password1)
-                    .add(password2))
+                .add(channelOverviewLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(channelOverviewLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
+                        .add(username, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 167, Short.MAX_VALUE)
+                        .add(password1)
+                        .add(password2))
+                    .add(email, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 167, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .add(59, 59, 59))
         );
 
@@ -208,7 +227,11 @@ public class UserWizard extends javax.swing.JDialog
                 .add(channelOverviewLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel4)
                     .add(password2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 74, Short.MAX_VALUE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(channelOverviewLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jLabel5)
+                    .add(email, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 49, Short.MAX_VALUE)
                 .add(jSeparator1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(channelOverviewLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
@@ -229,6 +252,14 @@ public class UserWizard extends javax.swing.JDialog
         );
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void emailKeyReleased(java.awt.event.KeyEvent evt)//GEN-FIRST:event_emailKeyReleased
+    {//GEN-HEADEREND:event_emailKeyReleased
+        if(!checkIfAbleToFinish())
+            return;
+        if(evt.getKeyCode() == evt.VK_ENTER)
+            finishButtonActionPerformed(null);
+    }//GEN-LAST:event_emailKeyReleased
 
     private void password2KeyReleased(java.awt.event.KeyEvent evt)//GEN-FIRST:event_password2KeyReleased
     {//GEN-HEADEREND:event_password2KeyReleased
@@ -255,7 +286,7 @@ public class UserWizard extends javax.swing.JDialog
     {//GEN-HEADEREND:event_finishButtonActionPerformed
         for (int i = 0; i < parent.users.size(); i++)
         {
-            if (parent.users.get(i).getUsername().equals(username.getText()))
+            if (!editingUser && parent.users.get(i).getUsername().equals(username.getText()))
             {
                 parent.alertWarning("Username already exists.");
                 return;
@@ -268,23 +299,18 @@ public class UserWizard extends javax.swing.JDialog
         }
         else
         {
-            User temp = new User();
-            this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-            /*try
-            {
-                if(index != -1)
-                    temp.setId(this.parent.users.get(index).getId());
-                else
-                    temp.setId(parent.mirthClient.getNextId());*/
-                temp.setUsername(username.getText());
-                temp.setPassword(String.valueOf(password1.getPassword()));
-                parent.updateUser(temp);
-            /*} 
-            catch (ClientException e)
-            {
-                parent.alertException(e.getStackTrace(), e.getMessage());
-            }*/
-            this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            User temp;
+                        
+            if(editingUser)
+                temp = this.parent.users.get(index);
+            else
+                temp = new User();
+            
+            System.out.println(username.getText() + " " + String.valueOf(password1.getPassword()) + " " + email.getText() + " " + temp.getId());
+            temp.setUsername(username.getText());
+            temp.setPassword(String.valueOf(password1.getPassword()));
+            temp.setEmail(email.getText());
+            parent.updateUser(temp);
             this.dispose();
         }
     }//GEN-LAST:event_finishButtonActionPerformed
@@ -320,11 +346,13 @@ public class UserWizard extends javax.swing.JDialog
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton cancelButton;
     private javax.swing.JPanel channelOverview;
+    private javax.swing.JTextField email;
     private javax.swing.JButton finishButton;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JSeparator jSeparator1;
     private com.webreach.mirth.client.ui.MirthHeadingPanel mirthHeadingPanel1;
     private javax.swing.JPasswordField password1;
