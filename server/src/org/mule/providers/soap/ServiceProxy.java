@@ -145,8 +145,10 @@ public class ServiceProxy {
             		return new ACKGenerator().generateAckResponse(((MessageObject)message.getPayload()).getRawData());
             	}else if (data instanceof SOAPEnvelope){
             		return ((SOAPEnvelope)data).toString();
-            	}else{
+            	}else if (data != null){
             		return data.toString();
+            	}else{
+            		return null;
             	}
             } else {
                 return null;
