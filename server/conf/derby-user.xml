@@ -15,11 +15,11 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		<parameter property="username" />
 		<parameter property="password" />
 		<parameter property="email" jdbcType="VARCHAR" />
-		<parameter property="id" />
+		<parameter property="id" jdbcType="INTEGER" />
 	</parameterMap>
 
 	<resultMap class="com.webreach.mirth.model.User" id="get-user-result">
-		<result property="id" column="ID" />
+		<result property="id" column="ID" jdbcType="INTEGER" />
 		<result property="username" column="USERNAME" />
 		<result property="password" column="PASSWORD" />
 		<result property="email" column="EMAIL" />
