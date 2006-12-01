@@ -92,13 +92,13 @@ CREATE TABLE ENCRYPTION_KEY
 	(DATA CLOB NOT NULL);
 	
 INSERT INTO PERSON (USERNAME, PASSWORD) VALUES('admin', 'admin');
-INSERT INTO TRANSPORT (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE, IS_INBOUND, IS_OUTBOUND) VALUES ('FTP Reader', 'org.mule.providers.ftp.FtpConnector', 'ftp', 'ByteArrayToString', 'LISTENER', 1, 0);
-INSERT INTO TRANSPORT (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE, IS_INBOUND, IS_OUTBOUND) VALUES ('SFTP Reader', 'org.mule.providers.sftp.SftpConnector', 'sftp', 'ByteArrayToString', 'LISTENER', 1, 0);
-INSERT INTO TRANSPORT (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE, IS_INBOUND, IS_OUTBOUND) VALUES ('JMS Reader', 'org.mule.providers.jms.JmsConnector', 'jms', 'JMSMessageToObject ObjectToString', 'LISTENER', 1, 0);
-INSERT INTO TRANSPORT (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE, IS_INBOUND, IS_OUTBOUND) VALUES ('SOAP Listener', 'org.mule.providers.soap.axis.AxisConnector', 'axis', 'SOAPRequestToString', 'LISTENER', 1, 0);
-INSERT INTO TRANSPORT (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE, IS_INBOUND, IS_OUTBOUND) VALUES ('File Reader', 'org.mule.providers.file.FileConnector', 'file', 'ByteArrayToString', 'LISTENER', 1, 0);
+INSERT INTO TRANSPORT (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE, IS_INBOUND, IS_OUTBOUND) VALUES ('FTP Reader', 'org.mule.providers.ftp.FtpConnector', 'ftp', 'ByteArrayToString', 'LISTENER', 1, 1);
+INSERT INTO TRANSPORT (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE, IS_INBOUND, IS_OUTBOUND) VALUES ('SFTP Reader', 'org.mule.providers.sftp.SftpConnector', 'sftp', 'ByteArrayToString', 'LISTENER', 1, 1);
+INSERT INTO TRANSPORT (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE, IS_INBOUND, IS_OUTBOUND) VALUES ('JMS Reader', 'org.mule.providers.jms.JmsConnector', 'jms', 'JMSMessageToObject ObjectToString', 'LISTENER', 1, 1);
+INSERT INTO TRANSPORT (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE, IS_INBOUND, IS_OUTBOUND) VALUES ('SOAP Listener', 'org.mule.providers.soap.axis.AxisConnector', 'axis', 'SOAPRequestToString', 'LISTENER', 1, 1);
+INSERT INTO TRANSPORT (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE, IS_INBOUND, IS_OUTBOUND) VALUES ('File Reader', 'org.mule.providers.file.FileConnector', 'file', 'ByteArrayToString', 'LISTENER', 1, 1);
 INSERT INTO TRANSPORT (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE, IS_INBOUND, IS_OUTBOUND) VALUES ('Database Reader', 'org.mule.providers.jdbc.JdbcConnector', 'jdbc', 'ResultMapToXML', 'LISTENER', 0, 1);
-INSERT INTO TRANSPORT (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE, IS_INBOUND, IS_OUTBOUND) VALUES ('LLP Listener', 'org.mule.providers.tcp.TcpConnector', 'tcp', 'ByteArrayToString', 'LISTENER', 1, 0);
+INSERT INTO TRANSPORT (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE, IS_INBOUND, IS_OUTBOUND) VALUES ('LLP Listener', 'org.mule.providers.tcp.TcpConnector', 'tcp', 'ByteArrayToString', 'LISTENER', 1, 1);
 
 INSERT INTO TRANSPORT (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE, IS_INBOUND, IS_OUTBOUND) VALUES ('FTP Writer', 'org.mule.providers.ftp.FtpConnector', 'ftp', '', 'SENDER', 1, 1);
 INSERT INTO TRANSPORT (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE, IS_INBOUND, IS_OUTBOUND) VALUES ('JMS Writer', 'org.mule.providers.jms.JmsConnector', 'jms', 'MessageObjectToJMSMessage', 'SENDER', 1, 1);
