@@ -74,6 +74,12 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		</dynamic>
 	</sql>
 	
+	<select id="getMessageCount" parameterClass="java.lang.String" resultClass="java.lang.Integer">
+		SELECT COUNT(*) AS VALUE
+		FROM MESSAGE
+		WHERE ID = #id#	
+	</select>
+	
 	<select id="getMessageByPage" parameterClass="java.util.Map" resultMap="get-message-result">
 		SELECT
 			MESSAGE.*
@@ -98,12 +104,12 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 	</statement>
 
 	<statement id="createTempMessageTableIndex">
-		CREATE INDEX INDEX_MESSAGE_TEMP ON MESSAGE_TEMP(SEQUENCE_ORDER, ID)
+		CREATE INDEX INDEX_MESSAGE_TEMP ON MESSAGE_TEMP (SEQUENCE_ORDER, ID)
 	</statement>
 
 	<!-- NOTE: The nested SELECT needs an ORDER BY DATE_CREATED, which Derby does not support -->
 	<insert id="populateTempMessageTable" parameterClass="java.util.Map">
-		INSERT INTO MESSAGE_TEMP(ID)
+		INSERT INTO MESSAGE_TEMP (ID)
 			(SELECT SEQUENCE_ID
 			FROM MESSAGE
 			<include refid="messageFilterCriteria" />)

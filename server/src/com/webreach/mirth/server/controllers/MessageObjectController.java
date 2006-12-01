@@ -45,10 +45,9 @@ public class MessageObjectController {
 
 	public void updateMessage(MessageObject messageObject) {
 		try {
-			MessageObjectFilter filter = new MessageObjectFilter();
-			filter.setId(messageObject.getId());
-
-			if (createMessagesTempTable(filter) == 0) {
+			int count = (Integer) sqlMap.queryForObject("getMessageCount", messageObject.getId());
+			
+			if (count == 0) {
 				logger.debug("adding message: id=" + messageObject.getId());
 				sqlMap.insert("insertMessage", messageObject);
 			} else {
