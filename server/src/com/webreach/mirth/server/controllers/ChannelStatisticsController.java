@@ -36,6 +36,7 @@ import com.ibatis.sqlmap.client.SqlMapClient;
 import com.webreach.mirth.model.ChannelStatistics;
 import com.webreach.mirth.server.util.JMXConnection;
 import com.webreach.mirth.server.util.JMXConnectionFactory;
+import com.webreach.mirth.server.util.SqlConfig;
 
 /**
  * The StatisticsContoller provides access to channel statistics.

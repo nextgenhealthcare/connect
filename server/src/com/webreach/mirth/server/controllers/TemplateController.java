@@ -32,6 +32,7 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import com.ibatis.sqlmap.client.SqlMapClient;
+import com.webreach.mirth.server.util.SqlConfig;
 
 public class TemplateController {
 	private Logger logger = Logger.getLogger(this.getClass());

@@ -38,6 +38,7 @@ import org.mule.umo.UMOException;
 import com.ibatis.sqlmap.client.SqlMapClient;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.filters.MessageObjectFilter;
+import com.webreach.mirth.server.util.SqlConfig;
 
 public class MessageObjectController {
 	private Logger logger = Logger.getLogger(this.getClass());

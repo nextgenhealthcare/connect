@@ -55,6 +55,7 @@ import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.server.Command;
 import com.webreach.mirth.server.CommandQueue;
 import com.webreach.mirth.server.builders.MuleConfigurationBuilder;
+import com.webreach.mirth.server.util.SqlConfig;
 import com.webreach.mirth.util.Encrypter;
 import com.webreach.mirth.util.PropertyLoader;
 

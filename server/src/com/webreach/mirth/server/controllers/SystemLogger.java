@@ -36,6 +36,7 @@ import org.apache.log4j.Logger;
 import com.ibatis.sqlmap.client.SqlMapClient;
 import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.model.filters.SystemEventFilter;
+import com.webreach.mirth.server.util.SqlConfig;
 
 public class SystemLogger {
 	private Logger logger = Logger.getLogger(this.getClass());
