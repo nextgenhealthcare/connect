@@ -50,7 +50,10 @@ public class UserController {
 
 	public void updateUser(User user) throws ControllerException {
 		try {
-			if (getUser(user).isEmpty()) {
+			User updateUser = new User();
+			updateUser.setId(user.getId());
+			
+			if (getUser(updateUser).isEmpty()) {
 				logger.debug("adding user: " + user);
 				sqlMap.insert("insertUser", user);
 			} else {
