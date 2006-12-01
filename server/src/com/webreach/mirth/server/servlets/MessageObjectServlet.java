@@ -46,16 +46,17 @@ public class MessageObjectServlet extends MirthServlet {
 				ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 				PrintWriter out = response.getWriter();
 				String operation = request.getParameter("op");
+				String userId = (String) request.getSession().getAttribute(UserServlet.SESSION_USER);
 
 				if (operation.equals("createMessagesTempTable")) {
 					String filter = request.getParameter("filter");
 					response.setContentType("text/plain");
-					out.println(messageObjectController.createMessagesTempTable((MessageObjectFilter) serializer.fromXML(filter)));
+					out.println(messageObjectController.createMessagesTempTable((MessageObjectFilter) serializer.fromXML(filter), userId));
 				} else if (operation.equals("getMessagesByPage")) {
 					String page = request.getParameter("page");
 					String pageSize = request.getParameter("pageSize");
 					response.setContentType("application/xml");
-					out.print(serializer.toXML(messageObjectController.getMessagesByPage(Integer.parseInt(page), Integer.parseInt(pageSize))));
+					out.print(serializer.toXML(messageObjectController.getMessagesByPage(Integer.parseInt(page), Integer.parseInt(pageSize), userId)));
 				} else if (operation.equals("removeMessages")) {
 					String filter = request.getParameter("filter");
 					messageObjectController.removeMessages((MessageObjectFilter) serializer.fromXML(filter));
@@ -64,7 +65,7 @@ public class MessageObjectServlet extends MirthServlet {
 					messageObjectController.clearMessages(channelId);
 				} else if (operation.equals("reprocessMessages")) {
 					String filter = request.getParameter("filter");
-					messageObjectController.reprocessMessages((MessageObjectFilter) serializer.fromXML(filter));
+					messageObjectController.reprocessMessages((MessageObjectFilter) serializer.fromXML(filter), userId);
 				}
 			} catch (Exception e) {
 				throw new ServletException(e);

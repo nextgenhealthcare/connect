@@ -84,32 +84,34 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		SELECT
 			MESSAGE.*
 		FROM
-			MESSAGE_TEMP,
+			MESSAGE_TEMP_$uid$ AS TEMP_TABLE,
 			MESSAGE
 		WHERE
-			MESSAGE_TEMP.ID = MESSAGE.SEQUENCE_ID
+			TEMP_TABLE.ID = MESSAGE.SEQUENCE_ID
 			<dynamic prepend="AND">
-				<isParameterPresent>
-					MESSAGE_TEMP.SEQUENCE_ORDER BETWEEN #first# AND #last#
-				</isParameterPresent>
+				<isNotNull property="first">
+					<isNotNull property="last">
+						TEMP_TABLE.SEQUENCE_ORDER BETWEEN #first# AND #last#
+					</isNotNull>
+				</isNotNull>
 			</dynamic>
 	</select>
 
-	<statement id="dropTempMessageTable">
-		DROP TABLE MESSAGE_TEMP
+	<statement id="dropTempMessageTable" parameterClass="java.lang.String">
+		DROP TABLE MESSAGE_TEMP_$uid$
 	</statement>
 
-	<statement id="createTempMessageTable">
-		CREATE TABLE MESSAGE_TEMP (ID INTEGER, SEQUENCE_ORDER INTEGER GENERATED ALWAYS AS IDENTITY)
+	<statement id="createTempMessageTable" parameterClass="java.lang.String">
+		CREATE TABLE MESSAGE_TEMP_$uid$ (ID INTEGER, SEQUENCE_ORDER INTEGER GENERATED ALWAYS AS IDENTITY)
 	</statement>
 
-	<statement id="createTempMessageTableIndex">
-		CREATE INDEX INDEX_MESSAGE_TEMP ON MESSAGE_TEMP (SEQUENCE_ORDER, ID)
+	<statement id="createTempMessageTableIndex" parameterClass="java.lang.String">
+		CREATE INDEX INDEX_MESSAGE_TEMP_$uid$ ON MESSAGE_TEMP_$uid$ (SEQUENCE_ORDER, ID)
 	</statement>
 
 	<!-- NOTE: The nested SELECT needs an ORDER BY DATE_CREATED, which Derby does not support -->
 	<insert id="populateTempMessageTable" parameterClass="java.util.Map">
-		INSERT INTO MESSAGE_TEMP (ID)
+		INSERT INTO MESSAGE_TEMP_$uid$ (ID)
 			(SELECT SEQUENCE_ID
 			FROM MESSAGE
 			<include refid="messageFilterCriteria" />)

@@ -59,40 +59,40 @@ public class MessageObjectController {
 		}
 	}
 
-	public List<MessageObject> getMessagesByPage(int page, int pageSize) throws ControllerException {
-		logger.debug("retrieving messages by page: page=" + page);
-
-		try {
-			if ((page != -1) && (pageSize != -1)) {
-				int first = page * pageSize;
-				int last = first + pageSize;
-
-				Map parameterMap = new HashMap();
-				parameterMap.put("first", first);
-				parameterMap.put("last", last);
-				return sqlMap.queryForList("getMessageByPage", parameterMap);
-			} else {
-				return sqlMap.queryForList("getMessageByPage");
-			}
-		} catch (SQLException e) {
-			throw new ControllerException(e);
-		}
-	}
-
-	public int createMessagesTempTable(MessageObjectFilter filter) throws ControllerException {
+	public int createMessagesTempTable(MessageObjectFilter filter, String uid) throws ControllerException {
 		logger.debug("creating temporary message table: filter=" + filter.toString());
 
 		try {
-			sqlMap.update("dropTempMessageTable");
+			sqlMap.update("dropTempMessageTable", uid);
 		} catch (SQLException e) {
 			// supress any warnings about the table not existing
 			logger.debug(e);
 		}
 		
 		try {
-			sqlMap.update("createTempMessageTable");
-			sqlMap.update("createTempMessageTableIndex");
-			return sqlMap.update("populateTempMessageTable", getFilterMap(filter));
+			sqlMap.update("createTempMessageTable", uid);
+			sqlMap.update("createTempMessageTableIndex", uid);
+			return sqlMap.update("populateTempMessageTable", getFilterMap(filter, uid));
+		} catch (SQLException e) {
+			throw new ControllerException(e);
+		}
+	}
+
+	public List<MessageObject> getMessagesByPage(int page, int pageSize, String uid) throws ControllerException {
+		logger.debug("retrieving messages by page: page=" + page);
+
+		try {
+			Map parameterMap = new HashMap();
+			parameterMap.put("uid", uid);
+
+			if ((page != -1) && (pageSize != -1)) {
+				int first = page * pageSize;
+				int last = first + pageSize;
+				parameterMap.put("first", first);
+				parameterMap.put("last", last);
+			}
+			
+			return sqlMap.queryForList("getMessageByPage", parameterMap);
 		} catch (SQLException e) {
 			throw new ControllerException(e);
 		}
@@ -102,7 +102,7 @@ public class MessageObjectController {
 		logger.debug("removing messages: filter=" + filter.toString());
 
 		try {
-			sqlMap.delete("deleteMessage", getFilterMap(filter));
+			sqlMap.delete("deleteMessage", getFilterMap(filter, null));
 		} catch (SQLException e) {
 			throw new ControllerException(e);
 		}
@@ -120,9 +120,9 @@ public class MessageObjectController {
 		}
 	}
 
-	public void reprocessMessages(MessageObjectFilter filter) throws ControllerException {
-		createMessagesTempTable(filter);
-		List<MessageObject> messages = getMessagesByPage(-1, -1);
+	public void reprocessMessages(MessageObjectFilter filter, String uid) throws ControllerException {
+		createMessagesTempTable(filter, uid);
+		List<MessageObject> messages = getMessagesByPage(-1, -1, uid);
 
 		try {
 			MuleClient client = new MuleClient();
@@ -136,8 +136,13 @@ public class MessageObjectController {
 		}
 	}
 	
-	private Map getFilterMap(MessageObjectFilter filter) {
+	private Map getFilterMap(MessageObjectFilter filter, String uid) {
 		Map parameterMap = new HashMap();
+		
+		if (uid != null) {
+			parameterMap.put("uid", uid);	
+		}
+		
 		parameterMap.put("id", filter.getId());
 		parameterMap.put("channelId", filter.getChannelId());
 		parameterMap.put("status", filter.getStatus());
