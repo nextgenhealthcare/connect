@@ -86,8 +86,8 @@ public class MessageObjectController {
 			parameterMap.put("uid", uid);
 
 			if ((page != -1) && (pageSize != -1)) {
-				int first = page * pageSize;
-				int last = first + pageSize;
+				int first = (page * pageSize) + 1;
+				int last = (first + pageSize) - 1;
 				parameterMap.put("first", first);
 				parameterMap.put("last", last);
 			}
