@@ -306,7 +306,6 @@ public class UserWizard extends javax.swing.JDialog
             else
                 temp = new User();
             
-            System.out.println(username.getText() + " " + String.valueOf(password1.getPassword()) + " " + email.getText() + " " + temp.getId());
             temp.setUsername(username.getText());
             temp.setPassword(String.valueOf(password1.getPassword()));
             temp.setEmail(email.getText());
