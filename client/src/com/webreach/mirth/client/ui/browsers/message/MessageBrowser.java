@@ -46,6 +46,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
+import org.jdesktop.swingworker.SwingWorker;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.AlternateRowHighlighter;
 import org.jdesktop.swingx.decorator.HighlighterPipeline;
@@ -53,6 +54,7 @@ import org.syntax.jedit.SyntaxDocument;
 import org.syntax.jedit.tokenmarker.HL7TokenMarker;
 import org.syntax.jedit.tokenmarker.XMLTokenMarker;
 
+import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.core.ListHandlerException;
 import com.webreach.mirth.client.core.MessageListHandler;
 import com.webreach.mirth.client.ui.Frame;
@@ -295,91 +297,98 @@ public class MessageBrowser extends javax.swing.JPanel
      */
     public void makeEventTable(MessageListHandler handler, int page) {
         eventTable = new JXTable();
-        
-        // Do all paging information below.
-        try
-        {
-            if (page == FIRST_PAGE)
-                messageObjectList = handler.getFirstPage();
-            else if (page == PREVIOUS_PAGE)
-                    messageObjectList = handler.getPreviousPage();
-            else if (page == NEXT_PAGE)
-            {
-                messageObjectList = handler.getNextPage();
-                if (messageObjectList.size() == 0)
-                    messageObjectList = handler.getPreviousPage();
-            }
-            
-            int messageCount = handler.getSize();
-            int currentPage = handler.getCurrentPage();
-            int pageSize = handler.getPageSize();
-
-            if (pageSize == -1)
-                pageSize = 0;
-            
-            pageSizeField.setText(pageSize + "");
-            
-            if (handler.getCurrentPage() == 0)
-                previousPageButton.setEnabled(false);
-            else
-                previousPageButton.setEnabled(true);
-            
-            int numberOfPages;
-            
-            if (pageSize == 0)
-                numberOfPages = 0;            
-            else
-            {
-                numberOfPages = messageCount / pageSize;
-                if ((messageCount != 0) && ((messageCount % pageSize) == 0))
-                    numberOfPages--;
-            }
-            
-            if (currentPage == numberOfPages)
-                nextPageButton.setEnabled(false);
-            else
-                nextPageButton.setEnabled(true);
-            
-            int startResult;
-            if (messageCount == 0)
-                startResult = 0;
-            else 
-                startResult = (currentPage * pageSize) + 1;
-            
-            int endResult;
-            if (pageSize == 0)
-                endResult = messageCount;
-            else
-                endResult = (currentPage + 1) * pageSize;
-            
-            if (messageCount < endResult)
-                endResult = messageCount;
-            resultsLabel.setText("Results " + startResult + " - " + endResult + " of " + messageCount);
-            
-        }
-        catch (ListHandlerException e)
-        {
-            messageObjectList = null;
-            parent.alertException(e.getStackTrace(), e.getMessage());
-        }
-        
-        if (messageObjectList == null)
-            return;
-                
-        Object[][] tableData = new Object[messageObjectList.size()][4];
-        
-        for (int i=0; i < messageObjectList.size(); i++)
-        {
-            MessageObject messageObject = messageObjectList.get(i);
-            
-            tableData[i][0] = messageObject.getId();
-
-            Calendar calendar = messageObject.getDateCreated();
-            
-            tableData[i][1] = String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS", calendar);
-            tableData[i][2] = messageObject.getConnectorName();
-            tableData[i][3] = messageObject.getStatus();
-            
+        Object[][] tableData = null;
+        if (handler != null){
+	        // Do all paging information below.
+	        try
+	        {
+	            if (page == FIRST_PAGE)
+	                messageObjectList = handler.getFirstPage();
+	            else if (page == PREVIOUS_PAGE)
+	                    messageObjectList = handler.getPreviousPage();
+	            else if (page == NEXT_PAGE)
+	            {
+	                messageObjectList = handler.getNextPage();
+	                if (messageObjectList.size() == 0)
+	                    messageObjectList = handler.getPreviousPage();
+	            }
+	            
+	            int messageCount = handler.getSize();
+	            int currentPage = handler.getCurrentPage();
+	            int pageSize = handler.getPageSize();
+	
+	            if (pageSize == -1)
+	                pageSize = 0;
+	            
+	            pageSizeField.setText(pageSize + "");
+	            
+	            if (handler.getCurrentPage() == 0)
+	                previousPageButton.setEnabled(false);
+	            else
+	                previousPageButton.setEnabled(true);
+	            
+	            int numberOfPages;
+	            
+	            if (pageSize == 0)
+	                numberOfPages = 0;            
+	            else
+	            {
+	                numberOfPages = messageCount / pageSize;
+	                if ((messageCount != 0) && ((messageCount % pageSize) == 0))
+	                    numberOfPages--;
+	            }
+	            
+	            if (currentPage == numberOfPages)
+	                nextPageButton.setEnabled(false);
+	            else
+	                nextPageButton.setEnabled(true);
+	            
+	            int startResult;
+	            if (messageCount == 0)
+	                startResult = 0;
+	            else 
+	                startResult = (currentPage * pageSize) + 1;
+	            
+	            int endResult;
+	            if (pageSize == 0)
+	                endResult = messageCount;
+	            else
+	                endResult = (currentPage + 1) * pageSize;
+	            
+	            if (messageCount < endResult)
+	                endResult = messageCount;
+	            resultsLabel.setText("Results " + startResult + " - " + endResult + " of " + messageCount);
+	            
+	        }
+	        catch (ListHandlerException e)
+	        {
+	            messageObjectList = null;
+	            parent.alertException(e.getStackTrace(), e.getMessage());
+	        }
+	        
+	        if (messageObjectList != null){
+		          
+		                
+		        tableData = new Object[messageObjectList.size()][4];
+		        
+		        for (int i=0; i < messageObjectList.size(); i++)
+		        {
+		            MessageObject messageObject = messageObjectList.get(i);
+		            
+		            tableData[i][0] = messageObject.getId();
+		
+		            Calendar calendar = messageObject.getDateCreated();
+		            
+		            tableData[i][1] = String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS", calendar);
+		            tableData[i][2] = messageObject.getConnectorName();
+		            tableData[i][3] = messageObject.getStatus();
+		            
+		        }
+	        }else{
+	        	 tableData = new Object[0][4];
+	        }
+        }else{
+        	   tableData = new Object[0][4];
         }
         
         eventTable.setModel(new javax.swing.table.DefaultTableModel(
@@ -922,11 +931,41 @@ public class MessageBrowser extends javax.swing.JPanel
     }// </editor-fold>//GEN-END:initComponents
 
     private void nextPageButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nextPageButtonActionPerformed
-        makeEventTable(messageListHandler, NEXT_PAGE);
+    	parent.setWorking(true);
+        
+        SwingWorker worker = new SwingWorker <Void, Void> ()
+        {
+            public Void doInBackground() 
+            {        
+            	makeEventTable(messageListHandler, NEXT_PAGE);
+                return null;
+            }
+
+            public void done()
+            {
+                parent. setWorking(false);
+            }
+        };
+        worker.execute();
+    	
     }//GEN-LAST:event_nextPageButtonActionPerformed
 
     private void previousPageButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_previousPageButtonActionPerformed
-        makeEventTable(messageListHandler, PREVIOUS_PAGE);
+    	parent.setWorking(true);
+        
+        SwingWorker worker = new SwingWorker <Void, Void> ()
+        {
+            public Void doInBackground() 
+            {        
+            	makeEventTable(messageListHandler, PREVIOUS_PAGE);
+                return null;
+            }
+            public void done()
+            {
+                parent. setWorking(false);
+            }
+        };
+        worker.execute();
     }//GEN-LAST:event_previousPageButtonActionPerformed
 
     /**
@@ -977,9 +1016,36 @@ public class MessageBrowser extends javax.swing.JPanel
         if (!pageSizeField.getText().equals(""))
             pageSize = Integer.parseInt(pageSizeField.getText());
         
-        messageListHandler = parent.mirthClient.getMessageListHandler(messageObjectFilter, pageSize);
+        parent.setWorking(true);
+        if (messageListHandler == null){
+        	makeEventTable(null, FIRST_PAGE);
+        	messageListHandler = parent.mirthClient.getMessageListHandler(messageObjectFilter, pageSize);
+        	makeEventTable(messageListHandler, FIRST_PAGE);
+        	parent.setWorking(false);
+        }else{
+	        class MessageWorker extends SwingWorker<Void, Void>
+	        {
+	        	protected int pageSize;
+	            public Void doInBackground() 
+	            {        
+	                messageListHandler = parent.mirthClient.getMessageListHandler(messageObjectFilter, pageSize);
+	                
+	                return null;
+	            }
+	            
+	            public void done()
+	            {
+	            	makeEventTable(messageListHandler, FIRST_PAGE);
+	                parent.setWorking(false);
+	            }
+	        };
+	        MessageWorker worker = new MessageWorker();
+	        worker.pageSize = pageSize;
+	        worker.execute();
+        }
         
-        makeEventTable(messageListHandler, FIRST_PAGE);
+    
+        
     }//GEN-LAST:event_filterButtonActionPerformed
     
     

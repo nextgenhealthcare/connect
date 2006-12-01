@@ -652,7 +652,7 @@ public class Frame extends JXFrame
         statusTasks.setTitle("Status Tasks");
         statusTasks.setFocusable(false);
 
-        statusTasks.add(initActionCallback("doRefresh", "Refresh the list of statuses.", ActionFactory.createBoundAction("doRefresh","Refresh", "R"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png"))));
+        statusTasks.add(initActionCallback("doRefreshStatuses", "Refresh the list of statuses.", ActionFactory.createBoundAction("doRefresh","Refresh", "R"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png"))));
         JMenuItem refresh = new JMenuItem("Refresh");
         refresh.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png")));
         refresh.addActionListener(new ActionListener(){
@@ -1280,6 +1280,11 @@ public class Frame extends JXFrame
         if (!confirmLeave())
             return;
         
+        setBold(viewPane, 0);
+        setPanelName("Status");
+        setCurrentContentPage(statusListPage);
+        setFocus(statusTasks);
+        
         setWorking(true);
         
         SwingWorker worker = new SwingWorker <Void, Void> ()
@@ -1292,10 +1297,6 @@ public class Frame extends JXFrame
             
             public void done()
             {
-                setBold(viewPane, 0);
-                setPanelName("Status");
-                setCurrentContentPage(statusListPage);
-                setFocus(statusTasks);
                 setWorking(false);
             }
         };
@@ -1979,9 +1980,13 @@ public class Frame extends JXFrame
         
         setBold(viewPane, -1);
         setPanelName("Channel Messages :: " + status.get(statusListPage.getSelectedStatus()).getName());
-        messageBrowser.loadNew();
+        
         setCurrentContentPage(messageBrowser);
+        messageBrowser.loadNew();       
         setFocus(messageTasks);
+    
+        
+
     }
 
     public void doShowEvents()
