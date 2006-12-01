@@ -25,6 +25,8 @@
 
 package com.webreach.mirth.client.ui;
 
+import java.io.UnsupportedEncodingException;
+
 import javax.swing.Icon;
 import javax.swing.UIManager;
 
@@ -41,6 +43,11 @@ public class ErrorDialog extends javax.swing.JDialog {
                 errorContent.setBackground(UIManager.getColor("Control"));
                 image.setIcon((Icon) UIManager.get("OptionPane.errorIcon"));
                 questionPane.setBorder(null);
+        try {
+			message = java.net.URLDecoder.decode(message, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			
+		}
 		loadContent(message);
 		errorContent.setCaretPosition(0);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
