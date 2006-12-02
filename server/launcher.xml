@@ -8,6 +8,7 @@
 		<lib path="lib/commons-httpclient-3.0.1.jar" />
 		<lib path="lib/derby.jar" />
 		<lib path="lib/derbytools.jar" />
+		<lib path="lib/hapi-0.5beta.jar" />
 		<lib path="lib/ibatis-2.3.0.674.jar" />
 		<lib path="lib/jsr173_1.0_api.jar" />
 		<lib path="lib/l2fprod-common-all.jar" />

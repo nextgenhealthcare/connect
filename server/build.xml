@@ -123,6 +123,7 @@
 			<fileset file="${conf}/mirth.properties" />
 			<fileset file="${conf}/log4j.properties" />
 			<fileset file="${conf}/wrapper.conf" />
+			<fileset file="${conf}/derby-*" />
 		</copy>
 
 		<!-- copy WEB-INF files -->
