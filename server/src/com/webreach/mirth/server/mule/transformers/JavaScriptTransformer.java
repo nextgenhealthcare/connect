@@ -282,9 +282,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 				messageObject.setEncodedData(serializer.fromXML(messageObject.getTransformedData()));
 			}
 
-			//addGlobalVariables(messageObject);
-			//Removed for performance.
-			
+			messageObject.setStatus(MessageObject.Status.TRANSFORMED);
 			return messageObject;
 		} catch (Exception e) {
 			messageObject.setStatus(MessageObject.Status.ERROR);
@@ -355,8 +353,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 				messageObject.setEncodedData(serializer.fromXML(messageObject.getTransformedData()));
 			}
 
-			//addGlobalVariables(messageObject);
-			//Removed for performance
+			messageObject.setStatus(MessageObject.Status.TRANSFORMED);
 			return messageObject;
 		} catch (Exception e) {
 			messageObject.setStatus(MessageObject.Status.ERROR);
