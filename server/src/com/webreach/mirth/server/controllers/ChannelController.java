@@ -61,7 +61,10 @@ public class ChannelController {
 		channel.setVersion(configurationController.getVersion());
 
 		try {
-			if (getChannel(channel).isEmpty()) {
+			Channel channelFilter = new Channel();
+			channelFilter.setId(channel.getId());
+			
+			if (getChannel(channelFilter).isEmpty()) {
 				logger.debug("adding channel");
 				sqlMap.insert("insertChannel", channel);
 
