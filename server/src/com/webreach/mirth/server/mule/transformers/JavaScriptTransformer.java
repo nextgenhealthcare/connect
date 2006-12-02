@@ -219,9 +219,14 @@ public class JavaScriptTransformer extends AbstractTransformer {
 				messageAccepted = ((Boolean) Context.jsToJava(result, java.lang.Boolean.class)).booleanValue();
 			}
 
-			if (!messageAccepted && storeMessages) {
+			if (!messageAccepted) {
 				messageObject.setStatus(MessageObject.Status.REJECTED);
-				messageObjectController.updateMessage(messageObject);
+				
+				if (storeMessages) {
+					messageObjectController.updateMessage(messageObject);	
+				}
+			} else {
+				messageObject.setStatus(MessageObject.Status.ACCEPTED);
 			}
 			
 			return messageAccepted;
