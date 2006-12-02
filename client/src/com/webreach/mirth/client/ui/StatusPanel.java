@@ -50,7 +50,7 @@ public class StatusPanel extends javax.swing.JPanel
     private final String STATUS_COLUMN_NAME = "Status";
     private final String NAME_COLUMN_NAME = "Name";
     private final String RECEIVED_COLUMN_NAME = "Received";
-    private final String SENT_COLUMN_NAME = "Sent";
+    private final String SENT_COLUMN_NAME = "Processed";
     private final String ERROR_COLUMN_NAME = "Errors";
     
     public JXTable statusTable;

@@ -29,6 +29,8 @@ import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -487,6 +489,23 @@ public class ChannelSetup extends javax.swing.JPanel
             {
                 showChannelEditPopupMenu(evt, false);
             }
+        });
+        //Key Listener trigger for CTRL-S
+        destinationTable.addKeyListener(new KeyListener(){
+			public void keyPressed(KeyEvent e) {
+				// TODO Auto-generated method stub
+				if (e.getKeyCode() == KeyEvent.VK_S && e.isControlDown()){
+					PlatformUI.MIRTH_FRAME.doSaveChanges();
+				}
+			}
+			public void keyReleased(KeyEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			public void keyTyped(KeyEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
         });
     }
     

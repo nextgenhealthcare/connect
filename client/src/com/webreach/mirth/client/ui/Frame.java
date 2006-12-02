@@ -38,6 +38,8 @@ import java.awt.Font;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -265,7 +267,8 @@ public class Frame extends JXFrame
         makePaneContainer();
         setCurrentTaskPaneContainer(taskPaneContainer);
         adminPanel.loadSettings();
-
+        
+        
         this.addWindowListener(new WindowAdapter()
         {
             public void windowClosing(WindowEvent e)
@@ -1959,9 +1962,19 @@ public class Frame extends JXFrame
         {
             public Void doInBackground() 
             {        
-                if (channelEditPage.saveChanges(true, false))
-                    channelEditTasks.getContentPane().getComponent(0).setVisible(false);
-                return null;
+            	if (channelEditTasks.getContentPane().getComponent(0).isVisible() || currentContentPage == channelEditPage.transformerPane || currentContentPage == channelEditPage.filterPane){
+	                if (channelEditPage.saveChanges(true, false)){
+	                    channelEditTasks.getContentPane().getComponent(0).setVisible(false);
+	                    if (currentContentPage == channelEditPage.transformerPane){
+	                    	channelEditPage.transformerPane.modified = false;
+	                    }else if (currentContentPage == channelEditPage.filterPane){
+	                    	channelEditPage.filterPane.modified = false;
+	                    }
+	                }
+	                return null;
+            	}else{
+            		return null;
+            	}
             }
             
             public void done()

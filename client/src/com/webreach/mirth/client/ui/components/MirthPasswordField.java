@@ -27,6 +27,9 @@
 package com.webreach.mirth.client.ui.components;
 
 
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+
 import com.webreach.mirth.client.ui.Frame;
 import com.webreach.mirth.client.ui.PlatformUI;
 import com.webreach.mirth.client.ui.actions.CopyAction;
@@ -83,6 +86,26 @@ public class MirthPasswordField extends javax.swing.JPasswordField implements Mi
             {
                 showPopupMenu(evt);
             }
+        });
+        this.addKeyListener(new KeyListener(){
+
+			public void keyPressed(KeyEvent e) {
+				// TODO Auto-generated method stub
+				if (e.getKeyCode() == KeyEvent.VK_S && e.isControlDown()){
+					PlatformUI.MIRTH_FRAME.doSaveChanges();
+				}
+			}
+
+			public void keyReleased(KeyEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			public void keyTyped(KeyEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+        	
         });
     }
     

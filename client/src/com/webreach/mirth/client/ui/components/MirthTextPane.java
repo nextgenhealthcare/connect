@@ -27,6 +27,8 @@
 package com.webreach.mirth.client.ui.components;
 
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+
 import javax.swing.JPopupMenu;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -82,7 +84,26 @@ public class MirthTextPane extends javax.swing.JTextPane implements MirthTextInt
 		menu.add(deleteAction);
 		menu.addSeparator();
 		menu.add(selectAllAction);
+		this.addKeyListener(new KeyListener(){
 
+			public void keyPressed(KeyEvent e) {
+				// TODO Auto-generated method stub
+				if (e.getKeyCode() == KeyEvent.VK_S && e.isControlDown()){
+					PlatformUI.MIRTH_FRAME.doSaveChanges();
+				}
+			}
+
+			public void keyReleased(KeyEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			public void keyTyped(KeyEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+        	
+        });
 		this.addMouseListener(new java.awt.event.MouseAdapter() {
 			public void mousePressed(java.awt.event.MouseEvent evt) {
 				showPopupMenu(evt);

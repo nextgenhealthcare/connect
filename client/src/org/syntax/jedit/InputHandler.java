@@ -11,6 +11,9 @@ package org.syntax.jedit;
 
 import javax.swing.text.*;
 import javax.swing.JPopupMenu;
+
+import com.webreach.mirth.client.ui.PlatformUI;
+
 import java.awt.event.*;
 import java.awt.Component;
 import java.util.*;
@@ -83,8 +86,9 @@ public abstract class InputHandler extends KeyAdapter
 	public static final ActionListener REDO = new redo();
 	// Default action
 	public static final ActionListener INSERT_CHAR = new insert_char();
+	public static final ActionListener SAVE = new save();
 
-	private static Hashtable actions;
+	private static Hashtable<String, ActionListener> actions;
 
 	static
 	{
@@ -127,6 +131,7 @@ public abstract class InputHandler extends KeyAdapter
 		actions.put("clipboard-copy",CLIP_COPY);
 		actions.put("clipboard-paste",CLIP_PASTE);
 		actions.put("clipboard-cut",CLIP_CUT);
+		actions.put("save", SAVE);
 	}
 
 	/**
@@ -1129,6 +1134,12 @@ public abstract class InputHandler extends KeyAdapter
 			if (textArea.undo.canRedo()){
 				textArea.undo.redo();
 			}
+		}
+	}
+	public static class save implements ActionListener {
+		public void actionPerformed(ActionEvent evt)
+		{
+			PlatformUI.MIRTH_FRAME.doSaveChanges();
 		}
 	}
 }
