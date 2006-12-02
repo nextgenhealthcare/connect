@@ -36,6 +36,7 @@ import org.mule.util.Utility;
 
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.controllers.MessageObjectController;
+import com.webreach.mirth.server.util.StackTracePrinter;
 
 /**
  * <code>TcpMessageDispatcher</code> will send transformed mule events over
@@ -59,7 +60,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 	 * logger used by this class
 	 */
 	protected static transient Log logger = LogFactory.getLog(TcpMessageDispatcher.class);
-
+	private StackTracePrinter stackTracePrinter = new StackTracePrinter();	
 	private TcpConnector connector;
 
 	private MessageObjectController messageObjectController = new MessageObjectController();
@@ -126,12 +127,6 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 		BufferedOutputStream bos = new BufferedOutputStream(socket.getOutputStream());
 		protocol.write(bos, binaryData);
 		bos.flush();
-		// update the message status to sent
-		if (data instanceof MessageObject) {
-			MessageObject messageObject = (MessageObject) data;
-			messageObject.setStatus(MessageObject.Status.SENT);
-			messageObjectController.updateMessage(messageObject);
-		}
 	}
 
 	public UMOMessage doSend(UMOEvent event) throws Exception {
@@ -157,6 +152,14 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 					if (reconnect(event, connector.getMaxRetryCount()))
 						write(connectedSocket, data);
 				} else {
+					// update the message status to sent
+					if (data instanceof MessageObject) {
+						MessageObject messageObject = (MessageObject) data;
+						messageObject.setStatus(MessageObject.Status.ERROR);
+						messageObject.setErrors(stackTracePrinter.stackTraceToString(e));
+						messageObjectController.updateMessage(messageObject);
+					}
+
 					throw e;
 				}
 			}
