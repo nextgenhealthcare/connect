@@ -27,7 +27,6 @@
 package com.webreach.mirth.server.mule.transformers;
 
 import java.util.Calendar;
-import java.util.Iterator;
 
 import org.apache.log4j.Logger;
 import org.mozilla.javascript.Context;
@@ -295,15 +294,6 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			throw new TransformerException(this, e);
 		} finally {
 			Context.exit();
-		}
-	}
-
-	private void addGlobalVariables(MessageObject messageObject) {
-		Iterator iter = GlobalVariableStore.getInstance().getVariables().keySet().iterator();
-
-		while (iter.hasNext()) {
-			String key = (String) iter.next();
-			messageObject.getVariableMap().put("(Global) " + key, GlobalVariableStore.getInstance().get(key));
 		}
 	}
 
