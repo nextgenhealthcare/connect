@@ -172,7 +172,8 @@ public class JMSReader extends ConnectorClass
         properties.put(JMS_INITIAL_FACTORY, "");
         properties.put(JMS_CONNECTION_FACTORY, "");
         properties.put(JMS_SELECTOR, "");
-        properties.put(JMS_ADDITIONAL_PROPERTIES, "");
+        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+        properties.put(JMS_ADDITIONAL_PROPERTIES, serializer.toXML(new Properties()));
         return properties;
     }
     

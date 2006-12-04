@@ -169,7 +169,8 @@ public class JMSWriter extends ConnectorClass
         properties.put(JMS_QUEUE, "");
         properties.put(JMS_INITIAL_FACTORY, "");
         properties.put(JMS_CONNECTION_FACTORY, "");
-        properties.put(JMS_ADDITIONAL_PROPERTIES, "");
+        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+        properties.put(JMS_ADDITIONAL_PROPERTIES, serializer.toXML(new Properties()));
         return properties;
     }
     
