@@ -71,6 +71,8 @@ public class AdminPanel extends javax.swing.JPanel
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(userPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 300, Short.MAX_VALUE)
         );
+        
+        loadSettings();
     }
 
     /** Shows the right click popup menu */

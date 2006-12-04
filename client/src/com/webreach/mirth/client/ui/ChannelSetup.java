@@ -56,13 +56,10 @@ import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.ui.connectors.ConnectorClass;
 import com.webreach.mirth.client.ui.connectors.DatabaseReader;
 import com.webreach.mirth.client.ui.connectors.DatabaseWriter;
-import com.webreach.mirth.client.ui.connectors.EmailSender;
 import com.webreach.mirth.client.ui.connectors.FTPReader;
 import com.webreach.mirth.client.ui.connectors.FTPWriter;
 import com.webreach.mirth.client.ui.connectors.FileReader;
 import com.webreach.mirth.client.ui.connectors.FileWriter;
-import com.webreach.mirth.client.ui.connectors.HTTPListener;
-import com.webreach.mirth.client.ui.connectors.HTTPSListener;
 import com.webreach.mirth.client.ui.connectors.JMSReader;
 import com.webreach.mirth.client.ui.connectors.JMSWriter;
 import com.webreach.mirth.client.ui.connectors.LLPListener;
@@ -90,11 +87,11 @@ public class ChannelSetup extends javax.swing.JPanel
     
     private static final String DESTINATION_DEFAULT_OUTBOUND = "File Writer";
     
-	private static final String SOURCE_DEFAULT_OUTBOUND = "Database Reader";
-
-	private static final String SOURCE_DEFAULT_INBOUND = "LLP Listener";
-
-	private final String DESTINATION_COLUMN_NAME = "Destination";
+    private static final String SOURCE_DEFAULT_OUTBOUND = "Database Reader";
+    
+    private static final String SOURCE_DEFAULT_INBOUND = "LLP Listener";
+    
+    private final String DESTINATION_COLUMN_NAME = "Destination";
     
     private final String CONNECTOR_TYPE_COLUMN_NAME = "Connector Type";
     
@@ -167,7 +164,7 @@ public class ChannelSetup extends javax.swing.JPanel
             parent.destinationConnectors.add(new PDFWriter());
             parent.destinationConnectors.add(new JMSWriter());
             parent.destinationConnectors.add(new SOAPSender());
-        }        
+        }
         
         initComponents();
         preprocessorDoc = new SyntaxDocument();
@@ -202,33 +199,37 @@ public class ChannelSetup extends javax.swing.JPanel
             {
                 Entry entry = (Entry) i.next();
                 if (transports.get(entry.getKey()).getType() == Transport.Type.LISTENER
-                        && transports.get(entry.getKey()).isInbound()){
-                	if (entry.getKey().equals(SOURCE_DEFAULT_INBOUND))
-                		sourceConnectorsInbound.add(0,transports.get(entry.getKey()).getName());
-                	else
-                		sourceConnectorsInbound.add(transports.get(entry.getKey()).getName());
+                        && transports.get(entry.getKey()).isInbound())
+                {
+                    if (entry.getKey().equals(SOURCE_DEFAULT_INBOUND))
+                        sourceConnectorsInbound.add(0,transports.get(entry.getKey()).getName());
+                    else
+                        sourceConnectorsInbound.add(transports.get(entry.getKey()).getName());
                 }
                 if (transports.get(entry.getKey()).getType() == Transport.Type.LISTENER
-                        && transports.get(entry.getKey()).isOutbound()){
-                  	if (entry.getKey().equals(SOURCE_DEFAULT_OUTBOUND))
-                  		sourceConnectorsOutbound.add(0,transports.get(entry.getKey()).getName());
-                  	else
-                  		sourceConnectorsOutbound.add(transports.get(entry.getKey())
-                    .getName());
+                        && transports.get(entry.getKey()).isOutbound())
+                {
+                    if (entry.getKey().equals(SOURCE_DEFAULT_OUTBOUND))
+                        sourceConnectorsOutbound.add(0,transports.get(entry.getKey()).getName());
+                    else
+                        sourceConnectorsOutbound.add(transports.get(entry.getKey())
+                        .getName());
                 }
                 if (transports.get(entry.getKey()).getType() == Transport.Type.SENDER
-                        && transports.get(entry.getKey()).isInbound()){
-                	if (entry.getKey().equals(DESTINATION_DEFAULT_INBOUND))
-                		destinationConnectorsInbound.add(0, transports.get(entry.getKey()).getName());
-                	else
-                		destinationConnectorsInbound.add(transports.get(entry.getKey()).getName());
+                        && transports.get(entry.getKey()).isInbound())
+                {
+                    if (entry.getKey().equals(DESTINATION_DEFAULT_INBOUND))
+                        destinationConnectorsInbound.add(0, transports.get(entry.getKey()).getName());
+                    else
+                        destinationConnectorsInbound.add(transports.get(entry.getKey()).getName());
                 }
                 if (transports.get(entry.getKey()).getType() == Transport.Type.SENDER
-                        && transports.get(entry.getKey()).isOutbound()){
-                	if (entry.getKey().equals(DESTINATION_DEFAULT_OUTBOUND))
-                		destinationConnectorsOutbound.add(0, transports.get(entry.getKey()).getName());
-                	else
-                		destinationConnectorsOutbound.add(transports.get(entry.getKey()).getName());
+                        && transports.get(entry.getKey()).isOutbound())
+                {
+                    if (entry.getKey().equals(DESTINATION_DEFAULT_OUTBOUND))
+                        destinationConnectorsOutbound.add(0, transports.get(entry.getKey()).getName());
+                    else
+                        destinationConnectorsOutbound.add(transports.get(entry.getKey()).getName());
                 }
             }
         }
@@ -491,21 +492,26 @@ public class ChannelSetup extends javax.swing.JPanel
             }
         });
         //Key Listener trigger for CTRL-S
-        destinationTable.addKeyListener(new KeyListener(){
-			public void keyPressed(KeyEvent e) {
-				// TODO Auto-generated method stub
-				if (e.getKeyCode() == KeyEvent.VK_S && e.isControlDown()){
-					PlatformUI.MIRTH_FRAME.doSaveChanges();
-				}
-			}
-			public void keyReleased(KeyEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-			public void keyTyped(KeyEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
+        destinationTable.addKeyListener(new KeyListener()
+        {
+            public void keyPressed(KeyEvent e)
+            {
+                // TODO Auto-generated method stub
+                if (e.getKeyCode() == KeyEvent.VK_S && e.isControlDown())
+                {
+                    PlatformUI.MIRTH_FRAME.doSaveChanges();
+                }
+            }
+            public void keyReleased(KeyEvent e)
+            {
+                // TODO Auto-generated method stub
+                
+            }
+            public void keyTyped(KeyEvent e)
+            {
+                // TODO Auto-generated method stub
+                
+            }
         });
     }
     
@@ -734,10 +740,8 @@ public class ChannelSetup extends javax.swing.JPanel
             generateSingleDestinationPage();
         
         setDestinationVariableList();
-        
-        saveChanges(false, false);
+        saveChanges(true, false, false);
         loadingChannel = false;
-        
         channelView.setSelectedIndex(0);
     }
     
@@ -771,7 +775,7 @@ public class ChannelSetup extends javax.swing.JPanel
         if(currentChannel.getPreprocessingScript() != null)
             preprocessor.setText(currentChannel.getPreprocessingScript());
         else
-         	preprocessor.setText("// Modify the message variable below to pre process data\r\nreturn message;");
+            preprocessor.setText("// Modify the message variable below to pre process data\r\nreturn message;");
         
         if (((String) currentChannel.getProperties().get("recv_xml_encoded")) != null
                 && ((String) currentChannel.getProperties().get(
@@ -863,8 +867,11 @@ public class ChannelSetup extends javax.swing.JPanel
      * Save all of the current channel information in the editor to the actual
      * channel
      */
-    public boolean saveChanges(boolean validate, boolean local)
+    public boolean saveChanges(boolean addingNew, boolean validate, boolean local)
     {
+        if (!addingNew && currentChannel.getDirection() == Channel.Direction.OUTBOUND && currentChannel.getSourceConnector().getTransformer().getSteps().size() == 0)
+            parent.alertWarning("This channel has a blank transformer template.");
+        
         if (summaryNameField.getText().equals(""))
         {
             JOptionPane.showMessageDialog(parent,
@@ -981,7 +988,7 @@ public class ChannelSetup extends javax.swing.JPanel
                 
                 updated = parent.updateChannel(currentChannel);
                 // currentChannel = parent.channels.get(index);
-                parent.channelListPage.makeChannelTable();
+                parent.channelPanel.makeChannelTable();
             }
             catch (ClientException e)
             {
@@ -1146,7 +1153,7 @@ public class ChannelSetup extends javax.swing.JPanel
         }
     }
     
-    // <editor-fold defaultstate="collapsed" desc=" Generated Code
+    
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
         filterButtonGroup = new javax.swing.ButtonGroup();
@@ -1509,24 +1516,24 @@ public class ChannelSetup extends javax.swing.JPanel
     }// </editor-fold>//GEN-END:initComponents
     
     private void storeMessagesErrorsActionPerformed(
-            java.awt.event.ActionEvent evt)// GEN-FIRST:event_storeMessagesErrorsActionPerformed
-    {// GEN-HEADEREND:event_storeMessagesErrorsActionPerformed
+            java.awt.event.ActionEvent evt)
+    {
         // TODO add your handling code here:
-    }// GEN-LAST:event_storeMessagesErrorsActionPerformed
+    }
     
-    private void storeMessagesDaysActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_storeMessagesDaysActionPerformed
-    {// GEN-HEADEREND:event_storeMessagesDaysActionPerformed
+    private void storeMessagesDaysActionPerformed(java.awt.event.ActionEvent evt)
+    {
         numDays.setEnabled(true);
-    }// GEN-LAST:event_storeMessagesDaysActionPerformed
+    }
     
-    private void storeMessagesAllActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_storeMessagesAllActionPerformed
-    {// GEN-HEADEREND:event_storeMessagesAllActionPerformed
+    private void storeMessagesAllActionPerformed(java.awt.event.ActionEvent evt)
+    {
         numDays.setEnabled(false);
         numDays.setText("");
-    }// GEN-LAST:event_storeMessagesAllActionPerformed
+    }
     
-    private void storeMessagesActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_storeMessagesActionPerformed
-    {// GEN-HEADEREND:event_storeMessagesActionPerformed
+    private void storeMessagesActionPerformed(java.awt.event.ActionEvent evt)
+    {
         if (storeMessages.isSelected())
         {
             storeMessagesAll.setEnabled(true);
@@ -1543,18 +1550,18 @@ public class ChannelSetup extends javax.swing.JPanel
             numDays.setText("");
             numDays.setEnabled(false);
         }
-    }// GEN-LAST:event_storeMessagesActionPerformed
+    }
     
     /** Action when the summary tab is shown. */
     private void summaryComponentShown(java.awt.event.ComponentEvent evt)// GEN-FIRST:event_summaryComponentShown
-    {// GEN-HEADEREND:event_summaryComponentShown
+    {
         parent.setVisibleTasks(parent.channelEditTasks,
                 parent.channelEditPopupMenu, 1, 7, false);
-    }// GEN-LAST:event_summaryComponentShown
+    }
     
     /** Action when the source tab is shown. */
     private void sourceComponentShown(java.awt.event.ComponentEvent evt)// GEN-FIRST:event_sourceComponentShown
-    {// GEN-HEADEREND:event_sourceComponentShown
+    {
         parent.setVisibleTasks(parent.channelEditTasks,
                 parent.channelEditPopupMenu, 1, 1, true);
         if (currentChannel.getMode() == Channel.Mode.ROUTER)
@@ -1569,11 +1576,11 @@ public class ChannelSetup extends javax.swing.JPanel
             parent.setVisibleTasks(parent.channelEditTasks,
                     parent.channelEditPopupMenu, 6, 7, true);
         }
-    }// GEN-LAST:event_sourceComponentShown
+    }
     
     /** Action when the destinations tab is shown. */
     private void destinationComponentShown(java.awt.event.ComponentEvent evt)// GEN-FIRST:event_destinationComponentShown
-    {// GEN-HEADEREND:event_destinationComponentShown
+    {
         parent.setVisibleTasks(parent.channelEditTasks,
                 parent.channelEditPopupMenu, 1, 1, true);
         if (currentChannel.getMode() == Channel.Mode.APPLICATION)
@@ -1597,12 +1604,12 @@ public class ChannelSetup extends javax.swing.JPanel
                     parent.channelEditPopupMenu, 2, 7, true);
             checkVisibleDestinationTasks();
         }
-    }// GEN-LAST:event_destinationComponentShown
+    }
     
     /** Action when an action is performed on the source connector type dropdown. */
     private void sourceSourceDropdownActionPerformed(
             java.awt.event.ActionEvent evt)
-    {// GEN-FIRST:event_sourceSourceDropdownActionPerformed
+    {
         // If a channel is not being loaded then alert the user when necessary
         // that
         // changing the connector type will lose all current connector data.
@@ -1737,7 +1744,7 @@ public class ChannelSetup extends javax.swing.JPanel
                 .addContainerGap()));
         
         source.updateUI();
-    }// GEN-LAST:event_sourceSourceDropdownActionPerformed
+    }
     
     /**
      * Action when an action is performed on the destination connector type
@@ -1745,8 +1752,8 @@ public class ChannelSetup extends javax.swing.JPanel
      * generateSingleDestinationPage()
      */
     private void destinationSourceDropdownActionPerformed(
-            java.awt.event.ActionEvent evt)// GEN-FIRST:event_destinationSourceDropdownActionPerformed
-    {// GEN-HEADEREND:event_destinationSourceDropdownActionPerformed
+            java.awt.event.ActionEvent evt)
+    {
         // If a channel is not being loaded then alert the user when necessary
         // that
         // changing the connector type will lose all current connector data.
@@ -1834,7 +1841,7 @@ public class ChannelSetup extends javax.swing.JPanel
             }
             generateSingleDestinationPage();
         }
-    }// GEN-LAST:event_destinationSourceDropdownActionPerformed
+    }
     
     public void generateMultipleDestinationPage()
     {
@@ -2315,8 +2322,8 @@ public class ChannelSetup extends javax.swing.JPanel
             String key = (String) propertyKeys.nextElement();
             if (properties.getProperty(key) == null)
             {
-            	if ( propertiesDefaults.getProperty(key)!= null)
-            		properties.put(key, propertiesDefaults.getProperty(key));
+                if ( propertiesDefaults.getProperty(key)!= null)
+                    properties.put(key, propertiesDefaults.getProperty(key));
             }
         }
     }

@@ -58,7 +58,7 @@ public class StatusUpdater implements Runnable
                 if(interrupted)
                     return;
                 
-                if(parent.contentPane.getViewport().getComponents().length > 0 && parent.currentContentPage == parent.statusListPage)
+                if(parent.contentPane.getViewport().getComponents().length > 0 && parent.currentContentPage == parent.statusPanel)
                 {
                     parent.refreshStatuses();
                 }

@@ -103,7 +103,7 @@ public class DestinationTableCellEditor extends AbstractCellEditor implements Ta
      */
     private boolean valueChanged(String s)
     {
-        List<Connector> destinationConnectors = parent.channelEditPage.currentChannel.getDestinationConnectors();
+        List<Connector> destinationConnectors = parent.channelEditPanel.currentChannel.getDestinationConnectors();
         
         // make sure the name doesn't already exist
         for(int i = 0; i<destinationConnectors.size(); i++)

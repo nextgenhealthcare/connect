@@ -556,17 +556,19 @@ public class SOAPSender extends ConnectorClass
         try
         {
             definition = parent.mirthClient.getWebServiceDefinition(wsdlUrl.getText().trim());
-            if (definition.getOperations() == null)
+            
+            if (definition == null)
             	throw new ClientException("No WSDL Methods Found.");
+            
             String[] methodNames = new String[definition.getOperations().size()];
             Iterator<WSOperation> opIterator = definition.getOperations().values().iterator();
+            
             for (int i = 0; i < definition.getOperations().size(); i++)
             {
                 methodNames[i] = opIterator.next().getName();
             }
 
             method.setModel(new javax.swing.DefaultComboBoxModel(methodNames));
-
             method.setSelectedIndex(0);
             serviceEndpoint.setText(definition.getServiceEndpointURI());
             soapActionURI.setText(definition.getOperations().get(method.getSelectedItem()).getSoapActionURI());

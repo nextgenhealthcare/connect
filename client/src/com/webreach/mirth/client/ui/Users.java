@@ -89,15 +89,19 @@ public class Users extends javax.swing.JScrollPane
     {
         usersTable = new JXTable();
         Object[][] tableData = null;
-        tableData = new Object[parent.users.size()][3];
         
-        for (int i=0; i < parent.users.size(); i++)
+        if(parent.users != null)
         {
-            User temp = parent.users.get(i);
+            tableData = new Object[parent.users.size()][3];
 
-            tableData[i][0] = "" + temp.getId();
-            tableData[i][1] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/user.png")), temp.getUsername());
-        } 
+            for (int i=0; i < parent.users.size(); i++)
+            {
+                User temp = parent.users.get(i);
+
+                tableData[i][0] = "" + temp.getId();
+                tableData[i][1] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/user.png")), temp.getUsername());
+            } 
+        }
         
         usersTable.setModel(new javax.swing.table.DefaultTableModel(
             tableData,

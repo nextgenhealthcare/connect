@@ -105,14 +105,14 @@ public class SOAPListener extends ConnectorClass
         
     }
     
-    public boolean checkProperties(Properties props) {
-		if (((String) props.get(SOAP_LISTENER_ADDRESS)).length() > 0
-				&& ((String) props.get(SOAP_PORT)).length() > 0
-				&& ((String) props.get(SOAP_SERVICE_NAME)).length() > 0)
-			return true;
-		return false;
-
-	}
+    public boolean checkProperties(Properties props) 
+    {
+        if (((String) props.get(SOAP_LISTENER_ADDRESS)).length() > 0
+                        && ((String) props.get(SOAP_PORT)).length() > 0
+                        && ((String) props.get(SOAP_SERVICE_NAME)).length() > 0)
+                return true;
+        return false;
+    }
 
     
     /**

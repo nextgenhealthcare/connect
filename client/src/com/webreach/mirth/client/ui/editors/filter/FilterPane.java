@@ -680,7 +680,7 @@ public class FilterPane extends MirthEditorPane
             {
                 Filter importFilter = (Filter)serializer.fromXML(filterXML);
                 ImportConverter converter = new ImportConverter();
-                importFilter = converter.convertFilter(importFilter, parent.channelEditPage.currentChannel.getDirection());
+                importFilter = converter.convertFilter(importFilter, parent.channelEditPanel.currentChannel.getDirection());
                 prevSelRow = -1;
                 modified = true;
                 connector.setFilter(importFilter);
@@ -789,11 +789,11 @@ public class FilterPane extends MirthEditorPane
         // reset the task pane and content to channel edit page
         if(returning)
         {
-            parent.channelEditPage.setDestinationVariableList();
+            parent.channelEditPanel.setDestinationVariableList();
             parent.taskPaneContainer.add(parent.getOtherPane());
-            parent.setCurrentContentPage( parent.channelEditPage );
+            parent.setCurrentContentPage( parent.channelEditPanel );
             parent.setCurrentTaskPaneContainer(parent.taskPaneContainer);
-            parent.setPanelName("Edit Channel :: " +  parent.channelEditPage.currentChannel.getName());
+            parent.setPanelName("Edit Channel :: " +  parent.channelEditPanel.currentChannel.getName());
             if ( modified )
                 parent.enableSave();
             modified = false;

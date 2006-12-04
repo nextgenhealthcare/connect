@@ -67,7 +67,7 @@ public class TabbedReferencePanel extends JPanel
     
     private void updateSQL()
     {
-        Object sqlStatement = PlatformUI.MIRTH_FRAME.channelEditPage
+        Object sqlStatement = PlatformUI.MIRTH_FRAME.channelEditPanel
                 .getSourceConnector().getProperties().get("query");
         if ((sqlStatement != null) && (!sqlStatement.equals("")))
         {
@@ -89,7 +89,7 @@ public class TabbedReferencePanel extends JPanel
         dbVarPanel.add(dbVarTable, BorderLayout.CENTER);
         varPanel = new JPanel();
         varPanel.setLayout(new BorderLayout());
-        Channel channel = PlatformUI.MIRTH_FRAME.channelEditPage.currentChannel;
+        Channel channel = PlatformUI.MIRTH_FRAME.channelEditPanel.currentChannel;
         //Now that the db reader is available on inbound, we can show the vars
         //Chrisl 9/23
       //  if (channel.getDirection().equals(Channel.Direction.OUTBOUND))

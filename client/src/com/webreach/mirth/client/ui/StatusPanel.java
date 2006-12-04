@@ -111,31 +111,37 @@ public class StatusPanel extends javax.swing.JPanel
             lastIndex = null;
         
         statusTable = new JXTable();
-        Object[][] tableData = new Object[parent.status.size()][5];
-        for (int i=0; i < parent.status.size(); i++)
+        Object[][] tableData = null;
+        
+        if(parent.status != null)
         {
-            ChannelStatus tempStatus = parent.status.get(i); 
-            try
+            tableData = new Object[parent.status.size()][5];
+            for (int i=0; i < parent.status.size(); i++)
             {
-                ChannelStatistics tempStats = parent.mirthClient.getStatistics(tempStatus.getChannelId());
-                tableData[i][2] = tempStats.getReceivedCount();
-                tableData[i][3] = tempStats.getSentCount();
-                tableData[i][4] = tempStats.getErrorCount();
-            } 
-            catch (ClientException ex)
-            {
-                ex.printStackTrace();
+                ChannelStatus tempStatus = parent.status.get(i); 
+                try
+                {
+                    ChannelStatistics tempStats = parent.mirthClient.getStatistics(tempStatus.getChannelId());
+                    tableData[i][2] = tempStats.getReceivedCount();
+                    tableData[i][3] = tempStats.getSentCount();
+                    tableData[i][4] = tempStats.getErrorCount();
+                } 
+                catch (ClientException ex)
+                {
+                    ex.printStackTrace();
+                }
+
+                if (tempStatus.getState() == ChannelStatus.State.STARTED)
+                    tableData[i][0] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_green.png")), "Started");
+                else if (tempStatus.getState() == ChannelStatus.State.STOPPED)
+                    tableData[i][0] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_red.png")), "Stopped");
+                else if (tempStatus.getState() == ChannelStatus.State.PAUSED)
+                    tableData[i][0] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_yellow.png")), "Paused");
+
+                tableData[i][1] = tempStatus.getName();
+
             }
             
-            if (tempStatus.getState() == ChannelStatus.State.STARTED)
-                tableData[i][0] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_green.png")), "Started");
-            else if (tempStatus.getState() == ChannelStatus.State.STOPPED)
-                tableData[i][0] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_red.png")), "Stopped");
-            else if (tempStatus.getState() == ChannelStatus.State.PAUSED)
-                tableData[i][0] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_yellow.png")), "Paused");
-            
-            tableData[i][1] = tempStatus.getName();
-                
         }
         
         statusTable.setModel(new javax.swing.table.DefaultTableModel(

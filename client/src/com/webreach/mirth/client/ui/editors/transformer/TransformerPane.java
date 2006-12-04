@@ -121,7 +121,7 @@ public class TransformerPane extends MirthEditorPane
         tabPanel.BuildVarPanel();
         tabPanel.setDefaultComponent();
         tabPanel.setHL7Message(transformer.getTemplate());
-        channel = PlatformUI.MIRTH_FRAME.channelEditPage.currentChannel;
+        channel = PlatformUI.MIRTH_FRAME.channelEditPanel.currentChannel;
 
         if (channel.getDirection().equals(Channel.Direction.OUTBOUND))
         {
@@ -915,7 +915,7 @@ public class TransformerPane extends MirthEditorPane
             {
                 Transformer importTransformer = (Transformer)serializer.fromXML(transformerXML);
                 ImportConverter converter = new ImportConverter();
-                importTransformer = converter.convertTransformer(importTransformer, parent.channelEditPage.currentChannel.getDirection());
+                importTransformer = converter.convertTransformer(importTransformer, parent.channelEditPanel.currentChannel.getDirection());
                 prevSelRow = -1;
                 modified = true;
                 connector.setTransformer(importTransformer);
@@ -1092,12 +1092,12 @@ public class TransformerPane extends MirthEditorPane
             // reset the task pane and content to channel edit page
             if(returning)
             {
-                parent.channelEditPage.setDestinationVariableList();
+                parent.channelEditPanel.setDestinationVariableList();
                 parent.taskPaneContainer.add(parent.getOtherPane());
-                parent.setCurrentContentPage(parent.channelEditPage);
+                parent.setCurrentContentPage(parent.channelEditPanel);
                 parent.setCurrentTaskPaneContainer(parent.taskPaneContainer);
                 parent.setPanelName("Edit Channel :: "
-                        + parent.channelEditPage.currentChannel.getName());
+                        + parent.channelEditPanel.currentChannel.getName());
                 if (modified)
                     parent.enableSave();
                 modified = false;

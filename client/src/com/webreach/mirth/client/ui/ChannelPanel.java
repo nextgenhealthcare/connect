@@ -105,37 +105,40 @@ public class ChannelPanel extends javax.swing.JPanel
     public void makeChannelTable()
     {
         channelTable = new JXTable();
+        Object[][] tableData = null;
         
-        Object[][] tableData = new Object[parent.channels.size()][4];
-        
-        for (int i=0; i < parent.channels.size(); i++)
+        if(parent.channels != null)
         {
-            Channel temp = parent.channels.get(i);
-            
-            if (temp.isEnabled())
-                tableData[i][0] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_blue.png")),"Enabled");
-            else
-                tableData[i][0] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_black.png")),"Disabled");
-            
-            if (temp.getDirection().equals(Channel.Direction.INBOUND))
-                tableData[i][1] = INBOUND_DIRECTION;
-            else
-                tableData[i][1] = OUTBOUND_DIRECTION;
-            
-            if(temp.getMode() == Channel.Mode.APPLICATION)
-                tableData[i][2] = APPLICATION;
-            else if(temp.getMode() == Channel.Mode.BROADCAST)
-                tableData[i][2] = BROADCAST;
-            else if(temp.getMode() == Channel.Mode.ROUTER)
-                tableData[i][2] = ROUTER;
-            
-            tableData[i][3] = temp.getName();
+            tableData = new Object[parent.channels.size()][4];
+
+            for (int i=0; i < parent.channels.size(); i++)
+            {
+                Channel temp = parent.channels.get(i);
+
+                if (temp.isEnabled())
+                    tableData[i][0] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_blue.png")),"Enabled");
+                else
+                    tableData[i][0] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_black.png")),"Disabled");
+
+                if (temp.getDirection().equals(Channel.Direction.INBOUND))
+                    tableData[i][1] = INBOUND_DIRECTION;
+                else
+                    tableData[i][1] = OUTBOUND_DIRECTION;
+
+                if(temp.getMode() == Channel.Mode.APPLICATION)
+                    tableData[i][2] = APPLICATION;
+                else if(temp.getMode() == Channel.Mode.BROADCAST)
+                    tableData[i][2] = BROADCAST;
+                else if(temp.getMode() == Channel.Mode.ROUTER)
+                    tableData[i][2] = ROUTER;
+
+                tableData[i][3] = temp.getName();
+            }
         }
-                
-        
+            
         channelTable.setModel(new javax.swing.table.DefaultTableModel(
-                tableData,
-                new String []
+            tableData,
+            new String []
         {
             STATUS_COLUMN_NAME, DIRECTION_COLUMN_NAME, MODE_COLUMN_NAME, NAME_COLUMN_NAME
         }
@@ -144,12 +147,12 @@ public class ChannelPanel extends javax.swing.JPanel
             {
                 false, false, false, false
             };
-            
+
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return canEdit [columnIndex];
             }
         });
-        
+                
         channelTable.setSelectionMode(0);        
         
         // Must set the maximum width on columns that should be packed.
