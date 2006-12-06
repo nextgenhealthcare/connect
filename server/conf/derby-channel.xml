@@ -5,6 +5,38 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 "http://ibatis.apache.org/dtd/sql-map-2.dtd">
 
 <sqlMap namespace="Channel">
+	<parameterMap class="com.webreach.mirth.model.Channel" id="insert-channel-param">
+		<parameter property="id" jdbcType="VARCHAR"/>
+		<parameter property="name" jdbcType="VARCHAR"/>
+		<parameter property="description" jdbcType="CLOB"/>
+		<parameter property="enabled" jdbcType="SMALLINT"/>
+		<parameter property="version" jdbcType="VARCHAR"/>
+		<parameter property="revision" jdbcType="INTEGER"/>
+		<parameter property="direction" jdbcType="VARCHAR"/>
+		<parameter property="protocol" jdbcType="VARCHAR"/>
+		<parameter property="mode" jdbcType="VARCHAR"/>
+		<parameter property="sourceConnector" jdbcType="CLOB"/>
+		<parameter property="destinationConnectors" jdbcType="CLOB"/>
+		<parameter property="properties" jdbcType="CLOB"/>
+		<parameter property="preprocessingScript" jdbcType="CLOB"/>
+	</parameterMap>
+
+	<parameterMap class="com.webreach.mirth.model.Channel" id="update-channel-param">
+		<parameter property="name" jdbcType="VARCHAR"/>
+		<parameter property="description" jdbcType="CLOB"/>
+		<parameter property="enabled" jdbcType="SMALLINT"/>
+		<parameter property="version" jdbcType="VARCHAR"/>
+		<parameter property="revision" jdbcType="INTEGER"/>
+		<parameter property="direction" jdbcType="VARCHAR"/>
+		<parameter property="protocol" jdbcType="VARCHAR"/>
+		<parameter property="mode" jdbcType="VARCHAR"/>
+		<parameter property="sourceConnector" jdbcType="CLOB"/>
+		<parameter property="destinationConnectors" jdbcType="CLOB"/>
+		<parameter property="properties" jdbcType="CLOB"/>
+		<parameter property="preprocessingScript" jdbcType="CLOB"/>
+		<parameter property="id" jdbcType="VARCHAR"/>
+	</parameterMap>
+
 	<resultMap class="com.webreach.mirth.model.Channel" id="get-channel-result">
 		<result property="id" column="ID" />
 		<result property="name" column="NAME" />
@@ -34,27 +66,27 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		</dynamic>
 	</select>
 	
-	<insert id="insertChannel" parameterClass="com.webreach.mirth.model.Channel">
+	<insert id="insertChannel" parameterMap="insert-channel-param">
 		INSERT INTO
 		CHANNEL (ID, NAME, DESCRIPTION, IS_ENABLED, VERSION, REVISION, DIRECTION, PROTOCOL, MODE, SOURCE_CONNECTOR, DESTINATION_CONNECTORS, PROPERTIES, PREPROCESSING_SCRIPT)
-		VALUES (#id#, #name#, #description#, #enabled#, #version#, #revision#, #direction#, #protocol#, #mode#, #sourceConnector#, #destinationConnectors#, #properties#, #preprocessingScript#)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	</insert>
 	
-	<update id="updateChannel" parameterClass="com.webreach.mirth.model.Channel">
+	<update id="updateChannel" parameterMap="update-channel-param">
 		UPDATE CHANNEL
-		SET NAME = #name#,
-			DESCRIPTION = #description#,
-			IS_ENABLED = #enabled#,
-			VERSION = #version#,
-			REVISION = #revision#,
-			DIRECTION = #direction#,
-			PROTOCOL = #protocol#,
-			MODE = #mode#,
-			SOURCE_CONNECTOR = #sourceConnector#,
-			DESTINATION_CONNECTORS = #destinationConnectors#,
-			PROPERTIES = #properties#,
-			PREPROCESSING_SCRIPT = #preprocessingScript#
-		WHERE ID = #id#
+		SET NAME = ?,
+			DESCRIPTION = ?,
+			IS_ENABLED = ?,
+			VERSION = ?,
+			REVISION = ?,
+			DIRECTION = ?,
+			PROTOCOL = ?,
+			MODE = ?,
+			SOURCE_CONNECTOR = ?,
+			DESTINATION_CONNECTORS = ?,
+			PROPERTIES = ?,
+			PREPROCESSING_SCRIPT = ?
+		WHERE ID = ?
 	</update>
 	
 	<delete id="deleteChannel" parameterClass="com.webreach.mirth.model.Channel">
