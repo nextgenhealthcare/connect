@@ -58,7 +58,7 @@ public class ChannelController {
 		List<ChannelSummary> channelSummaries = new ArrayList<ChannelSummary>();
 
 		try {
-			Map<String, Integer> serverChannels = sqlMap.queryForMap("getChannelRevision", null, "id");
+			Map<String, Integer> serverChannels = sqlMap.queryForMap("getChannelRevision", null, "id", "revision");
 
 			/*
 			 * Iterate through the cached channel list and check if a channel
