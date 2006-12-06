@@ -73,27 +73,27 @@ public class ChannelController {
 				boolean channelExistsOnServer = false;
 
 				// iterate through all of the channels on the server
-				for (Iterator iterator = serverChannels.entrySet().iterator(); !channelExistsOnServer && iterator.hasNext();) {
+				for (Iterator iterator = serverChannels.entrySet().iterator(); iterator.hasNext() && !channelExistsOnServer;) {
 					Entry entry = (Entry) iterator.next();
 					String id = (String) entry.getKey();
 					Integer revision = (Integer) entry.getValue();
 
 					// if the channel with the cached id exists
-					if (id.equals(cachedChannelId)) 
-					{
-						// and the revision numbers aren't equal, add it as updated
-						if (!revision.equals(cachedChannels.get(cachedChannelId))) 
-						{
+					if (id.equals(cachedChannelId)) {
+						// and the revision numbers aren't equal, add it as
+						// updated
+						if (!revision.equals(cachedChannels.get(cachedChannelId))) {
 							ChannelSummary summary = new ChannelSummary();
 							summary.setId(id);
 							channelSummaries.add(summary);
-						} 
-						
+						}
+
 						channelExistsOnServer = true;
 					}
 				}
 
-				// if a channel with the id is never found on the server, add it as deleted
+				// if a channel with the id is never found on the server, add it
+				// as deleted
 				if (!channelExistsOnServer) {
 					ChannelSummary summary = new ChannelSummary();
 					summary.setId(cachedChannelId);
@@ -111,7 +111,7 @@ public class ChannelController {
 			for (Iterator iter = serverChannels.entrySet().iterator(); iter.hasNext();) {
 				Entry entry = (Entry) iter.next();
 				String id = (String) entry.getKey();
-				
+
 				if (!cachedChannels.keySet().contains(id)) {
 					ChannelSummary summary = new ChannelSummary();
 					summary.setId(id);
