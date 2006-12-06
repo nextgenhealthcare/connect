@@ -57,14 +57,15 @@ public class ChannelServlet extends MirthServlet {
 					response.setContentType("text/plain");
 					Channel channel = (Channel) serializer.fromXML(request.getParameter("channel"));
 					boolean override = Boolean.valueOf(request.getParameter("override")).booleanValue();
-					out.println(channelController.updateChannel(channel, override));
+					// NOTE: This needs to be print rather than println to avoid the newline
+					out.print(channelController.updateChannel(channel, override));
 				} else if (operation.equals("removeChannel")) {
 					Channel channel = (Channel) serializer.fromXML(request.getParameter("channel"));
 					channelController.removeChannel(channel);
 				} else if (operation.equals("getChannelSummary")) {
 					response.setContentType("application/xml");
 					Map<String, Integer> cachedChannels = (Map<String, Integer>) serializer.fromXML(request.getParameter("cachedChannels"));
-					out.println(channelController.getChannelSummary(cachedChannels));
+					out.println(serializer.toXML(channelController.getChannelSummary(cachedChannels)));
 				}
 			} catch (Exception e) {
 				throw new ServletException(e);
