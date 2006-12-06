@@ -5,6 +5,11 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 "http://ibatis.apache.org/dtd/sql-map-2.dtd">
 
 <sqlMap namespace="Channel">
+	<resultMap class="java.util.HashMap" id="get-channel-revision-result">
+		<result property="id" column="ID" javaType="java.lang.String" />
+		<result property="revision" column="REVISION" javaType="java.lang.Integer" />
+	</resultMap>
+
 	<resultMap class="com.webreach.mirth.model.Channel" id="get-channel-result">
 		<result property="id" column="ID" />
 		<result property="name" column="NAME" />
@@ -34,7 +39,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		</dynamic>
 	</select>
 	
-	<select id="getChannelRevision" resultClass="java.util.HashMap">
+	<select id="getChannelRevision" resultMap="get-channel-revision-result">
 		SELECT ID, REVISION FROM CHANNEL
 	</select>
 	
