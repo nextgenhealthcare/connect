@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 
@@ -57,7 +58,7 @@ public class ChannelController {
 		List<ChannelSummary> channelSummaries = new ArrayList<ChannelSummary>();
 
 		try {
-			List<Channel> serverChannels = sqlMap.queryForList("getChannel", null);
+			Map<String, Integer> serverChannels = sqlMap.queryForMap("getChannelRevision", null, "id");
 
 			/*
 			 * Iterate through the cached channel list and check if a channel
@@ -71,13 +72,18 @@ public class ChannelController {
 				String cachedChannelId = (String) iter.next();
 				boolean channelExistsOnServer = false;
 
-				for (Iterator iterator = serverChannels.iterator(); iterator.hasNext();) {
-					Channel serverChannel = (Channel) iterator.next();
+				// iterate through all of the channels on the server
+				for (Iterator iterator = serverChannels.entrySet().iterator(); iterator.hasNext();) {
+					Entry entry = (Entry) iterator.next();
+					String id = (String) entry.getKey();
+					Integer revision = (Integer) entry.getValue();
 
-					if (serverChannel.getId().equals(cachedChannelId)) {
-						if (serverChannel.getRevision() != cachedChannels.get(cachedChannelId)) {
+					// if the channel with the cached id exists
+					if (id.equals(cachedChannelId)) {
+						// and the revision numbers aren't equal, add it as updated
+						if (revision != cachedChannels.get(cachedChannelId)) {
 							ChannelSummary summary = new ChannelSummary();
-							summary.setId(serverChannel.getId());
+							summary.setId(id);
 							channelSummaries.add(summary);
 						} else {
 							channelExistsOnServer = true;
@@ -85,6 +91,7 @@ public class ChannelController {
 					}
 				}
 
+				// if a channel with the id is never found on the server, add it as deleted
 				if (!channelExistsOnServer) {
 					ChannelSummary summary = new ChannelSummary();
 					summary.setId(cachedChannelId);
@@ -99,12 +106,13 @@ public class ChannelController {
 			 * list as added.
 			 * 
 			 */
-			for (Iterator iter = serverChannels.iterator(); iter.hasNext();) {
-				Channel serverChannel = (Channel) iter.next();
-
-				if (!cachedChannels.keySet().contains(serverChannel.getId())) {
+			for (Iterator iter = serverChannels.entrySet().iterator(); iter.hasNext();) {
+				Entry entry = (Entry) iter.next();
+				String id = (String) entry.getKey();
+				
+				if (!cachedChannels.keySet().contains(id)) {
 					ChannelSummary summary = new ChannelSummary();
-					summary.setId(serverChannel.getId());
+					summary.setId(id);
 					summary.setAdded(true);
 					channelSummaries.add(summary);
 				}

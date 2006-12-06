@@ -34,6 +34,13 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		</dynamic>
 	</select>
 	
+	<select id="getChannelRevision">
+		SELECT
+			ID,
+			REVISION
+		FROM CHANNEL
+	</select>
+	
 	<insert id="insertChannel" parameterClass="com.webreach.mirth.model.Channel">
 		INSERT INTO
 		CHANNEL (ID, NAME, DESCRIPTION, IS_ENABLED, VERSION, REVISION, DIRECTION, PROTOCOL, MODE, SOURCE_CONNECTOR, DESTINATION_CONNECTORS, PROPERTIES, PREPROCESSING_SCRIPT)
