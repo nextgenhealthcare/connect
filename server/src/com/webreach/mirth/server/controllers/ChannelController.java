@@ -73,21 +73,23 @@ public class ChannelController {
 				boolean channelExistsOnServer = false;
 
 				// iterate through all of the channels on the server
-				for (Iterator iterator = serverChannels.entrySet().iterator(); iterator.hasNext();) {
+				for (Iterator iterator = serverChannels.entrySet().iterator(); !channelExistsOnServer && iterator.hasNext();) {
 					Entry entry = (Entry) iterator.next();
 					String id = (String) entry.getKey();
 					Integer revision = (Integer) entry.getValue();
 
 					// if the channel with the cached id exists
-					if (id.equals(cachedChannelId)) {
+					if (id.equals(cachedChannelId)) 
+					{
 						// and the revision numbers aren't equal, add it as updated
-						if (!revision.equals(cachedChannels.get(cachedChannelId))) {
+						if (!revision.equals(cachedChannels.get(cachedChannelId))) 
+						{
 							ChannelSummary summary = new ChannelSummary();
 							summary.setId(id);
 							channelSummaries.add(summary);
-						} else {
-							channelExistsOnServer = true;
-						}
+						} 
+						
+						channelExistsOnServer = true;
 					}
 				}
 
