@@ -34,7 +34,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		</dynamic>
 	</select>
 	
-	<select id="getChannelRevision" resultClass="java.util.Map">
+	<select id="getChannelRevision" resultClass="java.util.HashMap">
 		SELECT ID, REVISION FROM CHANNEL
 	</select>
 	
