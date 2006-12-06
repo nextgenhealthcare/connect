@@ -130,7 +130,7 @@ public class ChannelController {
 		if ((channel.getRevision() > 0) && !getChannel(channel).isEmpty() && (getChannel(channel).get(0).getVersion() != channel.getVersion()) && !override) {
 			return false;
 		} else {
-			channel.setVersion(channel.getVersion() + 1);
+			channel.setRevision(channel.getRevision() + 1);
 		}
 
 		ConfigurationController configurationController = new ConfigurationController();
