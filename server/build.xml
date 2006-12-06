@@ -188,7 +188,7 @@
 					<include name="**/*.jar" />
 				</fileset>
 			</classpath>
-			<arg value="database.sql" />
+			<arg value="derby-database.sql" />
 		</java>
 
 		<!-- copy the newly created database over -->
