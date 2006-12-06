@@ -81,7 +81,7 @@ public class ChannelController {
 					// if the channel with the cached id exists
 					if (id.equals(cachedChannelId)) {
 						// and the revision numbers aren't equal, add it as updated
-						if (revision != cachedChannels.get(cachedChannelId)) {
+						if (revision.equals(cachedChannels.get(cachedChannelId))) {
 							ChannelSummary summary = new ChannelSummary();
 							summary.setId(id);
 							channelSummaries.add(summary);
