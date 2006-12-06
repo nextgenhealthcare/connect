@@ -26,6 +26,7 @@
 
 package com.webreach.mirth.client.ui;
 
+import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.model.Channel;
 
 /** Creates the new channel wizard dialog */
@@ -468,6 +469,16 @@ public class ChannelWizard extends javax.swing.JDialog
                 return;
         }
         channel = new Channel();
+        
+        try
+        {
+            channel.setId(parent.mirthClient.getGuid());        
+        }
+        catch (ClientException e)
+        {
+            parent.alertException(e.getStackTrace(), e.getMessage());
+        }
+        
         channel.setName(channelName.getText());
         if(inbound.isSelected())
             channel.setDirection(Channel.Direction.INBOUND);

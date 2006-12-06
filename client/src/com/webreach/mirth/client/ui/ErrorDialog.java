@@ -51,7 +51,6 @@ public class ErrorDialog extends javax.swing.JDialog {
 		loadContent(message);
 		errorContent.setCaretPosition(0);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-		this.setResizable(false);
 	}
 
 	/** Loads the contents of the error*/

@@ -29,17 +29,15 @@ package com.webreach.mirth.client.ui;
 import com.webreach.mirth.client.ui.editors.filter.FilterPane;
 import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
 import com.webreach.mirth.client.ui.util.ImportConverter;
+import com.webreach.mirth.model.ChannelSummary;
 import com.webreach.mirth.model.filters.MessageObjectFilter;
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -57,7 +55,6 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import org.apache.log4j.Logger;
 import org.jdesktop.swingworker.SwingWorker;
@@ -81,6 +78,8 @@ import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.ChannelStatus;
 import com.webreach.mirth.model.User;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * The main conent frame for the Mirth Client Application.
@@ -146,9 +145,11 @@ public class Frame extends JXFrame
     
     public Frame()
     {
-        dsb = new DropShadowBorder(UIManager.getColor("Control"), 0, 3, .3f, 12, true, true, true, true);
+        dsb = new DropShadowBorder(UIManager.getColor("Control"), 0, 4, .3f, 12, true, true, true, true);
         leftContainer = new JXTitledPanel();
         rightContainer = new JXTitledPanel();
+        
+        channels = new ArrayList<Channel>();
         
         taskPaneContainer = new JXTaskPaneContainer();
         sourceConnectors = new ArrayList<ConnectorClass>();
@@ -1149,8 +1150,7 @@ public class Frame extends JXFrame
                 else
                     return false;
             }
-            channels = mirthClient.getChannel(null);
-            channelPanel.makeChannelTable();
+            refreshChannels();
         }
         catch (ClientException e)
         {
@@ -1355,14 +1355,13 @@ public class Frame extends JXFrame
         try
         {
             mirthClient.logout();
+            this.dispose();
+            Mirth.main(new String []{PlatformUI.SERVER_NAME});
         }
         catch (ClientException e)
         {
             alertException(e.getStackTrace(), e.getMessage());
         }
-        this.dispose();
-        
-        Mirth.main(new String []{PlatformUI.SERVER_NAME});
     }
     
     public void doMoveDestinationDown()
@@ -1448,8 +1447,7 @@ public class Frame extends JXFrame
                 try
                 {
                     mirthClient.removeChannel(channels.get(channelPanel.getSelectedChannel()));
-                    channels = mirthClient.getChannel(null);
-                    channelPanel.makeChannelTable();
+                    refreshChannels();
                 }
                 catch (ClientException e)
                 {
@@ -1499,7 +1497,40 @@ public class Frame extends JXFrame
         
         try
         {
-            channels = mirthClient.getChannel(null);
+            List<ChannelSummary> changedChannels = mirthClient.getChannelSummary(getChannelHeaders());
+            System.out.println(changedChannels);
+            if(changedChannels.size() == 0)
+                return;
+            else
+            {
+                for(int i = 0; i < changedChannels.size(); i++)
+                {
+                    if(changedChannels.get(i).isAdded())
+                    {
+                        Channel filterChannel = new Channel();
+                        filterChannel.setId(changedChannels.get(i).getId());
+                        channels.add(mirthClient.getChannel(filterChannel).get(0));
+                    }
+                    else
+                    {
+                        for(int j = 0; j < channels.size(); j++)
+                        {
+                            if(changedChannels.get(i).getId() == channels.get(j).getId())
+                            {
+                                if(changedChannels.get(i).isDeleted())
+                                    channels.remove(channels.get(j));
+                                else
+                                {
+                                    Channel filterChannel = new Channel();
+                                    filterChannel.setId(changedChannels.get(i).getId());
+                                    channels.set(j, mirthClient.getChannel(filterChannel).get(0));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
             channelPanel.makeChannelTable();
 
             if(channels.size() > 0)
@@ -1527,6 +1558,18 @@ public class Frame extends JXFrame
         // as long as the channel was not deleted
         if (channelName != null)
             channelPanel.setSelectedChannel(channelName);
+    }
+    
+    public Map<String, Integer> getChannelHeaders()
+    {
+        HashMap<String, Integer> channelHeaders = new HashMap<String, Integer>();
+        
+        for(int i = 0; i < channels.size(); i++)
+        {
+            channelHeaders.put(channels.get(i).getId(), channels.get(i).getRevision());
+        }
+        
+        return channelHeaders;
     }
     
     public void doRefreshStatuses()
@@ -1719,6 +1762,7 @@ public class Frame extends JXFrame
                 else
                 {
                     Channel channel = channels.get(channelPanel.getSelectedChannel());
+                    
                     if(channelEditPanel.checkAllForms(channel))
                     {
                         alertWarning("Channel was not configured properly.  Please fix the problems in the forms before trying to enable it again.");
@@ -2053,7 +2097,7 @@ public class Frame extends JXFrame
             catch (IOException e)
             {
                 alertError("File could not be read.");
-                    return;
+                return;
             }
 
             ObjectXMLSerializer serializer = new ObjectXMLSerializer();
@@ -2107,8 +2151,16 @@ public class Frame extends JXFrame
             if(!checkChannelName(importChannel.getName()))
                 return;
             
-            importChannel.setRevision(0);
-            channels.add(importChannel);
+            try
+            {
+                importChannel.setRevision(0);
+                importChannel.setId(mirthClient.getGuid());
+                channels.add(importChannel);
+            }
+            catch (ClientException e)
+            {
+                alertException(e.getStackTrace(), e.getMessage());
+            }
             
             try
             {
