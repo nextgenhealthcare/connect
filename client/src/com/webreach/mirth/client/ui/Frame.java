@@ -1498,7 +1498,7 @@ public class Frame extends JXFrame
         try
         {
             List<ChannelSummary> changedChannels = mirthClient.getChannelSummary(getChannelHeaders());
-            System.out.println(changedChannels);
+
             if(changedChannels.size() == 0)
                 return;
             else
