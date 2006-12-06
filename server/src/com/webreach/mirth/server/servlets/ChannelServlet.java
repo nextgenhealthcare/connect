@@ -28,6 +28,7 @@ package com.webreach.mirth.server.servlets;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -56,10 +57,14 @@ public class ChannelServlet extends MirthServlet {
 					response.setContentType("text/plain");
 					Channel channel = (Channel) serializer.fromXML(request.getParameter("channel"));
 					boolean override = Boolean.valueOf(request.getParameter("override")).booleanValue();
-					out.print(channelController.updateChannel(channel, override));
+					out.println(channelController.updateChannel(channel, override));
 				} else if (operation.equals("removeChannel")) {
 					Channel channel = (Channel) serializer.fromXML(request.getParameter("channel"));
 					channelController.removeChannel(channel);
+				} else if (operation.equals("getChannelSummary")) {
+					response.setContentType("application/xml");
+					Map<String, Integer> cachedChannels = (Map<String, Integer>) serializer.fromXML(request.getParameter("cachedChannels"));
+					out.println(channelController.getChannelSummary(cachedChannels));
 				}
 			} catch (Exception e) {
 				throw new ServletException(e);

@@ -36,6 +36,7 @@ import org.apache.log4j.Logger;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.ChannelStatistics;
 import com.webreach.mirth.model.ChannelStatus;
+import com.webreach.mirth.model.ChannelSummary;
 import com.webreach.mirth.model.DriverInfo;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.SystemEvent;
@@ -117,6 +118,12 @@ public class Client {
 		logger.debug("getting channel");
 		NameValuePair[] params = { new NameValuePair("op", "getChannel"), new NameValuePair("channel", serializer.toXML(channel)) };
 		return (List<Channel>) serializer.fromXML(serverConnection.executePostMethod(CHANNEL_SERVLET, params));
+	}
+
+	public synchronized List<ChannelSummary> getChannelSummary(Map<String, Integer> cachedChannels) throws ClientException {
+		logger.debug("getting channel summary");
+		NameValuePair[] params = { new NameValuePair("op", "getChannelSummary"), new NameValuePair("cachedChannels", serializer.toXML(cachedChannels)) };
+		return (List<ChannelSummary>) serializer.fromXML(serverConnection.executePostMethod(CHANNEL_SERVLET, params));
 	}
 
 	/**

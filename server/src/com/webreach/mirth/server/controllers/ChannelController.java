@@ -26,12 +26,16 @@
 package com.webreach.mirth.server.controllers;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
 import com.ibatis.sqlmap.client.SqlMapClient;
 import com.webreach.mirth.model.Channel;
+import com.webreach.mirth.model.ChannelSummary;
 import com.webreach.mirth.server.util.SqlConfig;
 
 public class ChannelController {
@@ -43,6 +47,70 @@ public class ChannelController {
 
 		try {
 			return sqlMap.queryForList("getChannel", channel);
+		} catch (SQLException e) {
+			throw new ControllerException(e);
+		}
+	}
+
+	public List<ChannelSummary> getChannelSummary(Map<String, Integer> cachedChannels) throws ControllerException {
+		logger.debug("getting channel summary");
+		List<ChannelSummary> channelSummaries = new ArrayList<ChannelSummary>();
+
+		try {
+			List<Channel> serverChannels = sqlMap.queryForList("getChannel", null);
+
+			/*
+			 * Iterate through the cached channel list and check if a channel
+			 * with the id exists on the server. If it does, and the revision
+			 * numbers aren't equal, then add the channel to the updated list.
+			 * Otherwise, if the channel is not found, add it to the deleted
+			 * list.
+			 * 
+			 */
+			for (Iterator iter = cachedChannels.keySet().iterator(); iter.hasNext();) {
+				String cachedChannelId = (String) iter.next();
+				boolean channelExistsOnServer = false;
+
+				for (Iterator iterator = serverChannels.iterator(); iterator.hasNext();) {
+					Channel serverChannel = (Channel) iterator.next();
+
+					if (serverChannel.getId().equals(cachedChannelId)) {
+						if (serverChannel.getRevision() != cachedChannels.get(cachedChannelId)) {
+							ChannelSummary summary = new ChannelSummary();
+							summary.setId(serverChannel.getId());
+							channelSummaries.add(summary);
+						} else {
+							channelExistsOnServer = true;
+						}
+					}
+				}
+
+				if (!channelExistsOnServer) {
+					ChannelSummary summary = new ChannelSummary();
+					summary.setId(cachedChannelId);
+					summary.setDeleted(true);
+					channelSummaries.add(summary);
+				}
+			}
+
+			/*
+			 * Iterate through the server channel list, check if every id exists
+			 * in the cached channel list. If it doesn't, add it to the summary
+			 * list as added.
+			 * 
+			 */
+			for (Iterator iter = serverChannels.iterator(); iter.hasNext();) {
+				Channel serverChannel = (Channel) iter.next();
+
+				if (!cachedChannels.keySet().contains(serverChannel.getId())) {
+					ChannelSummary summary = new ChannelSummary();
+					summary.setId(serverChannel.getId());
+					summary.setAdded(true);
+					channelSummaries.add(summary);
+				}
+			}
+
+			return channelSummaries;
 		} catch (SQLException e) {
 			throw new ControllerException(e);
 		}
@@ -63,7 +131,7 @@ public class ChannelController {
 		try {
 			Channel channelFilter = new Channel();
 			channelFilter.setId(channel.getId());
-			
+
 			if (getChannel(channelFilter).isEmpty()) {
 				logger.debug("adding channel");
 				sqlMap.insert("insertChannel", channel);
@@ -74,7 +142,7 @@ public class ChannelController {
 				logger.debug("updating channel");
 				sqlMap.update("updateChannel", channel);
 			}
-			
+
 			return true;
 		} catch (SQLException e) {
 			throw new ControllerException(e);
