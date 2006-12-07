@@ -63,16 +63,21 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
 		TemplateValueReplacer replacer = new TemplateValueReplacer();
 		UMOEndpointURI uri = event.getEndpoint().getEndpointURI();
 		FileOutputStream fos = null;
-
+		Object data = null;
+		MessageObject messageObject = null;
 		try {
-			Object data = event.getTransformedMessage();
-
+			data = event.getTransformedMessage();
+		} catch (Exception ext) {
+			logger.error("Error at tranformer" + ext);
+			connector.handleException(ext);
+		}
+		try {
 			if (data instanceof MessageObject) {
-				MessageObject messageObject = (MessageObject) data;
-				if (messageObject.getStatus().equals(MessageObject.Status.REJECTED)){
+				messageObject = (MessageObject) data;
+				if (messageObject.getStatus().equals(MessageObject.Status.REJECTED)) {
 					return;
 				}
-				
+
 				String filename = (String) event.getProperty(FileConnector.PROPERTY_FILENAME);
 
 				if (filename == null) {
@@ -94,13 +99,13 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
 				byte[] buffer = template.getBytes();
 
 				if (connector.isOutputAppend()) {
-					buffer = (new String(buffer)).getBytes();
+					buffer = (new String(buffer) + "\r\n").getBytes();
 				}
 
 				logger.info("Writing file to: " + file.getAbsolutePath());
 				fos = new FileOutputStream(file, connector.isOutputAppend());
 				fos.write(buffer);
-				
+
 				// update the message status to sent
 				messageObject.setStatus(MessageObject.Status.SENT);
 				messageObjectController.updateMessage(messageObject);
@@ -108,10 +113,13 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
 				logger.warn("received data is not of expected type");
 			}
 		} catch (Exception e) {
+			messageObject.setStatus(MessageObject.Status.ERROR);
+			messageObject.setErrors("Error writing the file" + e);
+			messageObjectController.updateMessage(messageObject);
 			connector.handleException(e);
 		} finally {
 			if (fos != null) {
-				fos.close();	
+				fos.close();
 			}
 		}
 	}
@@ -205,7 +213,7 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
 	}
 
 	public void doDispose() {}
-	
+
 	private String generateFilename(UMOEvent event, String pattern, MessageObject messageObject) {
 		if (connector.getFilenameParser() instanceof VariableFilenameParser) {
 			VariableFilenameParser filenameParser = (VariableFilenameParser) connector.getFilenameParser();

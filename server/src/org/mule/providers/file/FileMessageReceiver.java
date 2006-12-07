@@ -21,12 +21,10 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Scanner;
 import java.util.Vector;
 
 import org.mule.MuleException;
@@ -55,27 +53,16 @@ import com.webreach.mirth.server.mule.util.BatchMessageProcessor;
 
 public class FileMessageReceiver extends PollingMessageReceiver {
 	private static byte startOfMessage = (byte) 0x0B;
-
 	private static byte endOfMessage = (byte) 0x1C;
-
 	private static byte endOfRecord = (byte) 0x0D;
-
 	private String readDir = null;
-
 	private String moveDir = null;
-
 	private File readDirectory = null;
-
 	private File moveDirectory = null;
-
 	private String moveToPattern = null;
-
 	private FilenameFilter filenameFilter = null;
 
-	public FileMessageReceiver(UMOConnector connector, UMOComponent component,
-			UMOEndpoint endpoint, String readDir, String moveDir,
-			String moveToPattern, Long frequency)
-			throws InitialisationException {
+	public FileMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint, String readDir, String moveDir, String moveToPattern, Long frequency) throws InitialisationException {
 		super(connector, component, endpoint, frequency);
 		this.readDir = readDir;
 		this.moveDir = moveDir;
@@ -90,14 +77,12 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 		if (readDir != null) {
 			readDirectory = Utility.openDirectory(readDir);
 			if (!(readDirectory.canRead())) {
-				throw new ConnectException(new Message(
-						Messages.FILE_X_DOES_NOT_EXIST, readDirectory
-								.getAbsolutePath()), this);
+				throw new ConnectException(new Message(Messages.FILE_X_DOES_NOT_EXIST, readDirectory.getAbsolutePath()), this);
 			} else {
-				logger.debug("Listening on endpointUri: "
-						+ readDirectory.getAbsolutePath());
+				logger.debug("Listening on endpointUri: " + readDirectory.getAbsolutePath());
 			}
 		}
+		
 		if (moveDir != null) {
 			moveDirectory = Utility.openDirectory((moveDir));
 			if (!(moveDirectory.canRead()) || !moveDirectory.canWrite()) {
@@ -106,8 +91,7 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 		}
 	}
 
-	public void doDisconnect() throws Exception {
-	}
+	public void doDisconnect() throws Exception {}
 
 	public void poll() {
 		try {
@@ -134,8 +118,7 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 		if (sortAttribute.equals(FileConnector.SORT_DATE)) {
 			Arrays.sort(files, new Comparator<File>() {
 				public int compare(File file1, File file2) {
-					return Float.compare(file1.lastModified(), file2
-							.lastModified());
+					return Float.compare(file1.lastModified(), file2.lastModified());
 				}
 			});
 		} else if (sortAttribute.equals(FileConnector.SORT_SIZE)) {
@@ -166,40 +149,36 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 		File destinationFile = null;
 		String orginalFilename = file.getName();
 		UMOMessageAdapter adapter = connector.getMessageAdapter(file);
-		adapter.setProperty(FileConnector.PROPERTY_ORIGINAL_FILENAME,
-				orginalFilename);
+		adapter.setProperty(FileConnector.PROPERTY_ORIGINAL_FILENAME, orginalFilename);
 		if (moveDir != null) {
 			String fileName = file.getName();
 			if (moveToPattern != null) {
-				fileName = ((FileConnector) connector).getFilenameParser()
-						.getFilename(adapter, moveToPattern);
+				fileName = ((FileConnector) connector).getFilenameParser().getFilename(adapter, moveToPattern);
 			}
 			destinationFile = new File(moveDir, fileName);
 		}
+		
 		boolean resultOfFileMoveOperation = false;
+		
 		try {
 			// Perform some quick checks to make sure file can be processed
 			if (file.isDirectory()) {
 				// ignore directories
 			} else if (!(file.canRead() && file.exists() && file.isFile())) {
-				throw new MuleException(new Message(
-						Messages.FILE_X_DOES_NOT_EXIST, file.getName()));
+				throw new MuleException(new Message(Messages.FILE_X_DOES_NOT_EXIST, file.getName()));
 			} else {
 				// Read in the file, parse it line by line
 				// Vector fileContents = getFileLines(file);
+				Exception fileProcesedException = null;
 				try {
-					List<String> messages = new BatchMessageProcessor()
-							.processHL7Messages(file);
+					List<String> messages = new BatchMessageProcessor().processHL7Messages(file);
 
-					for (Iterator iter = messages.iterator(); iter.hasNext();) {
+					for (Iterator iter = messages.iterator(); iter.hasNext() && (fileProcesedException == null);) {
 						String message = (String) iter.next();
-						routeMessage(new MuleMessage(connector
-								.getMessageAdapter(message)), endpoint
-								.isSynchronous());
+						routeMessage(new MuleMessage(connector.getMessageAdapter(message)), endpoint.isSynchronous());
 					}
 				} catch (Exception e) {
-					throw new MuleException(new Message(
-							Messages.FAILED_TO_READ_PAYLOAD, file.getName()));
+					fileProcesedException = new MuleException(new Message(Messages.FAILED_TO_READ_PAYLOAD, file.getName()));
 				}
 				// move the file if needed
 				if (destinationFile != null) {
@@ -212,9 +191,7 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 
 					resultOfFileMoveOperation = file.renameTo(destinationFile);
 					if (!resultOfFileMoveOperation) {
-						throw new MuleException(new Message("file", 4, file
-								.getAbsolutePath(), destinationFile
-								.getAbsolutePath()));
+						throw new MuleException(new Message("file", 4, file.getAbsolutePath(), destinationFile.getAbsolutePath()));
 					}
 
 				}
@@ -226,23 +203,24 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 					if (destinationFile == null) {
 						resultOfFileMoveOperation = file.delete();
 						if (!resultOfFileMoveOperation) {
-							throw new MuleException(new Message("file", 3, file
-									.getAbsolutePath()));
+							throw new MuleException(new Message("file", 3, file.getAbsolutePath()));
 						}
 					}
 				}
+				if (fileProcesedException != null)
+					throw fileProcesedException;
 
 			}
 		} catch (Exception e) {
-			boolean resultOfRollbackFileMove = false;
-			if (resultOfFileMoveOperation) {
-				resultOfRollbackFileMove = rollbackFileMove(destinationFile,
-						file.getAbsolutePath());
-			}
-			Exception ex = new MuleException(new Message("file", 2, file
-					.getName(), (resultOfRollbackFileMove ? "successful"
-					: "unsuccessful")), e);
-			handleException(ex);
+			/*
+			 * boolean resultOfRollbackFileMove = false; if
+			 * (resultOfFileMoveOperation) { resultOfRollbackFileMove =
+			 * rollbackFileMove(destinationFile, file.getAbsolutePath()); }
+			 * Exception ex = new MuleException(new Message("file", 2, file
+			 * .getName(), (resultOfRollbackFileMove ? "successful" :
+			 * "unsuccessful")), e); handleException(ex);
+			 */
+			handleException(e);
 		}
 	}
 

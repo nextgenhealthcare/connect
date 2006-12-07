@@ -51,7 +51,6 @@ import com.webreach.mirth.server.util.UUIDGenerator;
 public class JavaScriptTransformer extends AbstractTransformer {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private MessageObjectController messageObjectController = new MessageObjectController();
-	private StackTracePrinter stackTracePrinter = new StackTracePrinter();
 	private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
 	private ScriptController scriptController = new ScriptController();
 
@@ -232,7 +231,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 		} catch (Exception e) {
 			logger.error("error ocurred in filter", e);
 			messageObject.setStatus(MessageObject.Status.ERROR);
-			messageObject.setErrors(stackTracePrinter.stackTraceToString(e));
+			messageObject.setErrors(StackTracePrinter.stackTraceToString(e));
 
 			if (storeMessages) {
 				messageObjectController.updateMessage(messageObject);
@@ -285,7 +284,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			return messageObject;
 		} catch (Exception e) {
 			messageObject.setStatus(MessageObject.Status.ERROR);
-			messageObject.setErrors(stackTracePrinter.stackTraceToString(e));
+			messageObject.setErrors(StackTracePrinter.stackTraceToString(e));
 
 			if (storeMessages) {
 				messageObjectController.updateMessage(messageObject);
@@ -347,7 +346,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			return messageObject;
 		} catch (Exception e) {
 			messageObject.setStatus(MessageObject.Status.ERROR);
-			messageObject.setErrors(stackTracePrinter.stackTraceToString(e));
+			messageObject.setErrors(StackTracePrinter.stackTraceToString(e));
 
 			if (storeMessages) {
 				messageObjectController.updateMessage(messageObject);

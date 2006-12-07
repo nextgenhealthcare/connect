@@ -135,10 +135,44 @@ public class MuleConfigurationBuilder {
 			// outbound-router
 			muleDescriptorElement.appendChild(getOutboundRouter(document, configurationElement, channel));
 
+			// ast: Response router
+			Element responseRouterElement = getResponseRouter(document, configurationElement, channel);
+
+			if (responseRouterElement != null) {
+				muleDescriptorElement.appendChild(responseRouterElement);
+			}
+
 			return muleDescriptorElement;
 		} catch (Exception e) {
 			throw new BuilderException(e);
 		}
+	}
+
+	/*
+	 * ast: Add the getResponseRouter elements for the queued connectors
+	 * 
+	 */
+	private Element getResponseRouter(Document document, Element configurationElement, Channel channel) throws BuilderException {
+		Element responseRouterElement = null;
+
+		for (ListIterator iterator = channel.getDestinationConnectors().listIterator(); iterator.hasNext();) {
+			Connector connector = (Connector) iterator.next();
+			String usePersistentQueues = connector.getProperties().getProperty("usePersistentQueues");
+
+			if ((usePersistentQueues != null) && (usePersistentQueues.equals("1"))) {
+				if (responseRouterElement == null) {
+					responseRouterElement = document.createElement("response-router");
+				}
+
+				Element endpointElement = document.createElement("endpoint");
+				endpointElement.setAttribute("address", getEndpointUri(connector));
+				String connectorName = getConnectorNameForOutputRouter(getConnectorReferenceForOutputRouter(channel, String.valueOf(iterator.nextIndex())));
+				endpointElement.setAttribute("connector", connectorName);
+				responseRouterElement.appendChild(endpointElement);
+			}
+		}
+
+		return responseRouterElement;
 	}
 
 	private Element getInboundRouter(Document document, Element configurationElement, Channel channel) throws BuilderException {
@@ -244,11 +278,16 @@ public class MuleConfigurationBuilder {
 					endpointElement.setAttribute("synchronous", "true");
 				}
 
-				String connectorReference = channel.getId() + "_destination_" + String.valueOf(iterator.nextIndex());
+				// ast: now, a funciont gets the connection reference string
+				// String connectorReference = channel.getId() + "_destination_"
+				// + String.valueOf(iterator.nextIndex());
+				String connectorReference = getConnectorReferenceForOutputRouter(channel, String.valueOf(iterator.nextIndex()));
 
 				// add the destination connector
-				addConnector(document, configurationElement, connector, connectorReference + "_connector");
-				endpointElement.setAttribute("connector", connectorReference + "_connector");
+				// ast: changes to get the same name for the connector and
+				String connectorName = getConnectorNameForOutputRouter(connectorReference);
+				addConnector(document, configurationElement, connector, connectorName);
+				endpointElement.setAttribute("connector", connectorName);
 
 				StringBuilder transformers = new StringBuilder();
 
@@ -304,6 +343,17 @@ public class MuleConfigurationBuilder {
 		} catch (Exception e) {
 			throw new BuilderException(e);
 		}
+	}
+
+	// ast: to sincronize the name of the connector for the output router and
+	// the response router
+	public String getConnectorNameForOutputRouter(String coonnectorReference) {
+		return coonnectorReference + "_connector";
+
+	}
+
+	public String getConnectorReferenceForOutputRouter(Channel channel, String value) {
+		return channel.getId() + "_destination_" + value;
 	}
 
 	private void addTransformer(Document document, Element configurationElement, Channel channel, Connector connector, String name) throws BuilderException {
@@ -503,7 +553,6 @@ public class MuleConfigurationBuilder {
 		if (connector.getProperties().getProperty("host") != null && connector.getProperties().getProperty("host").startsWith("axis:http")) {
 			return connector.getProperties().getProperty("host");
 		}
-		
 		StringBuilder builder = new StringBuilder();
 		builder.append(transports.get(connector.getTransportName()).getProtocol());
 		builder.append("://");

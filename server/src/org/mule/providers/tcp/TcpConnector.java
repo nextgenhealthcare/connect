@@ -14,10 +14,22 @@
 package org.mule.providers.tcp;
 
 import org.mule.config.i18n.Message;
+import org.mule.management.stats.ComponentStatistics;
 import org.mule.providers.AbstractServiceEnabledConnector;
 import org.mule.providers.tcp.protocols.DefaultProtocol;
 import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.util.ClassHelper;
+
+// ast: Add the queue libs
+import org.mule.MuleManager;
+import org.mule.umo.endpoint.UMOEndpoint;
+import org.mule.config.QueueProfile;
+import org.mule.impl.model.AbstractComponent;
+import org.mule.util.queue.Queue;
+import org.mule.util.queue.QueueManager;
+import org.mule.util.queue.QueueSession;
+import org.mule.umo.UMOComponent;
+import org.mule.umo.provider.UMOMessageReceiver;
 
 /**
  * <code>TcpConnector</code> can bind or sent to a given tcp port on a given
@@ -44,47 +56,43 @@ public class TcpConnector extends AbstractServiceEnabledConnector {
 	private String segmentEnd = "0x0D";
 
 	public static final int DEFAULT_SOCKET_TIMEOUT = 5000;
-
+	public static final int DEFAULT_ACK_TIMEOUT = 5000;
 	public static final int DEFAULT_BUFFER_SIZE = 64 * 1024;
-
 	public static final long DEFAULT_POLLING_FREQUENCY = 10;
-
 	public static final int DEFAULT_BACKLOG = 256;
-
 	private int sendTimeout = DEFAULT_SOCKET_TIMEOUT;
-
 	private int receiveTimeout = DEFAULT_SOCKET_TIMEOUT;
-
 	private int bufferSize = DEFAULT_BUFFER_SIZE;
-
 	private int backlog = DEFAULT_BACKLOG;
-
 	private boolean sendACK = false;
-
 	private String tcpProtocolClassName = DefaultProtocol.class.getName();
-
 	private TcpProtocol tcpProtocol;
+
+	// ast: Queue variables
+	private boolean usePersistentQueues = false;
+	private int maxQueues = 16;
+	private QueueProfile queueProfile;
+	private UMOComponent component = null;
+	private int ackTimeout = DEFAULT_ACK_TIMEOUT;
 
 	// /////////////////////////////////////////////
 	// Does this protocol have any connected sockets?
 	// /////////////////////////////////////////////
 	private boolean sendSocketValid = false;
-
 	private int receiveSocketsCount = 0;
 
 	// //////////////////////////////////////////////////////////////////////
 	// Properties for 'keepSocketConnected' TcpMessageDispatcher
 	// //////////////////////////////////////////////////////////////////////
-	public static final int KEEP_RETRYING_INDEFINETLY = 0;
-
+	public static final int KEEP_RETRYING_INDEFINETLY = 100;
+	public static final int DEFAULT_RETRY_TIMES = 100;
 	private boolean keepSendSocketOpen = false;
 
 	// Time to sleep between reconnects in msecs
 	private int reconnectMillisecs = 10000;
 
 	// -1 try to reconnect forever
-	private int maxRetryCount = KEEP_RETRYING_INDEFINETLY;
-
+	private int maxRetryCount = DEFAULT_RETRY_TIMES;
 	private boolean keepAlive = true;
 
 	public boolean isKeepSendSocketOpen() {
@@ -111,6 +119,10 @@ public class TcpConnector extends AbstractServiceEnabledConnector {
 		// Dont set negative numbers
 		if (maxRetryCount >= KEEP_RETRYING_INDEFINETLY) {
 			this.maxRetryCount = maxRetryCount;
+		} else if (maxRetryCount < 0) {
+			this.maxRetryCount = 0;
+		} else {
+			this.maxRetryCount = maxRetryCount;
 		}
 	}
 
@@ -124,6 +136,10 @@ public class TcpConnector extends AbstractServiceEnabledConnector {
 			} catch (Exception e) {
 				throw new InitialisationException(new Message("tcp", 3), e);
 			}
+		}
+		// ast: configure the queue (if selected)
+		if (isQueueEvents() && (queueProfile == null)) {
+			queueProfile = MuleManager.getConfiguration().getQueueProfile();
 		}
 	}
 
@@ -285,5 +301,175 @@ public class TcpConnector extends AbstractServiceEnabledConnector {
 
 	public void setKeepAlive(boolean keepAlive) {
 		this.keepAlive = keepAlive;
+	}
+
+	/***************************************************************************
+	 * ***************ast: Queue functions**********************
+	 **************************************************************************/
+
+	public void setAckTimeout(int timeout) {
+		if (timeout < 0) {
+			timeout = DEFAULT_ACK_TIMEOUT;
+		}
+		this.ackTimeout = timeout;
+	}
+
+	public int getAckTimeout() {
+		return (ackTimeout);
+	}
+
+	/*
+	 * Overload method to avoid error startting the channel after an stop
+	 * (non-Javadoc)
+	 * 
+	 * @see org.mule.providers.AbstractConnector#registerListener(org.mule.umo.UMOComponent,
+	 *      org.mule.umo.endpoint.UMOEndpoint)
+	 */
+	public UMOMessageReceiver registerListener(UMOComponent component, UMOEndpoint endpoint) throws Exception {
+		UMOMessageReceiver r = null;
+		this.component = component;
+		try {
+			r = super.registerListener(component, endpoint);
+		} catch (org.mule.umo.provider.ConnectorException e) {
+			logger.warn("Trying to reconnect a listener: this is not an error with this kind of router");
+		}
+		return r;
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.mule.umo.provider.UMOConnector#registerListener(org.mule.umo.UMOSession,
+	 *      org.mule.umo.endpoint.UMOEndpoint)
+	 */
+	public UMOMessageReceiver createReceiver(UMOComponent component, UMOEndpoint endpoint) throws Exception {
+		this.component = component;
+		if (usePersistentQueues) {
+			configureQueues(endpoint);
+			return new TcpMessageResponseQueued(this, component, endpoint, (long) 10000);
+		} else {
+			return super.createReceiver(component, endpoint);
+
+		}
+
+	}
+
+	public String getQueueName(UMOEndpoint endpoint) {
+		String adr = "dummy";
+		String adr_securefile;
+		try {
+			adr = endpoint.getEndpointURI().getAddress();
+			adr = this.getName() + adr;
+		} catch (Throwable t) {
+		}
+		adr_securefile = adr.replace("\\", "");
+		adr_securefile = adr_securefile.replace("/", "");
+		adr_securefile = adr_securefile.replace(":", "_");
+		adr_securefile = adr_securefile.replace(" ", "_");
+
+		return adr_securefile;
+	}
+
+	public String getErrorQueueName(UMOEndpoint endpoint) {
+		return "_Error" + getQueueName(endpoint);
+	}
+
+	public void configureQueues(UMOEndpoint endpoint) throws Exception {
+
+		try {
+			queueProfile.configureQueue(getQueueName(endpoint));
+			queueProfile.configureQueue(getErrorQueueName(endpoint));
+		} catch (Throwable t) {
+			System.out.println("It's impossible to configure a queue for the endooint " + t);
+		}
+	}
+
+	public boolean isQueueEvents() {
+		return usePersistentQueues;
+	}
+
+	public void setQueueEvents(boolean usePersistentQueues) {
+		this.usePersistentQueues = usePersistentQueues;
+	}
+
+	public boolean isUsePersistentQueues() {
+		return usePersistentQueues;
+	}
+
+	public void setUsePersistentQueues(boolean usePersistentQueues) {
+		this.usePersistentQueues = usePersistentQueues;
+	}
+
+	public QueueProfile getQueueProfile() {
+		return queueProfile;
+	}
+
+	public void setQueueProfile(QueueProfile queueProfile) {
+		this.queueProfile = queueProfile;
+	}
+
+	public void setMaxQueues(int maxQueues) {
+		this.maxQueues = maxQueues;
+	}
+
+	public int getMaxQueues(int maxQueues) {
+		return this.maxQueues;
+	}
+
+	public Queue getQueue(UMOEndpoint endpoint) throws InitialisationException {
+
+		QueueSession qs = getQueueSession();
+		Queue q = qs.getQueue(getQueueName(endpoint));
+		return q;
+
+	}
+
+	public Queue getErrorQueue(UMOEndpoint endpoint) throws InitialisationException {
+
+		QueueSession qs = getQueueSession();
+		Queue q = qs.getQueue(getErrorQueueName(endpoint));
+		return q;
+
+	}
+
+	public QueueSession getQueueSession() throws InitialisationException {
+
+		QueueManager qm = MuleManager.getInstance().getQueueManager();
+
+		logger.debug("Retrieving new queue session from queue manager " + this.getName());
+
+		QueueSession session = qm.getQueueSession();
+
+		return session;
+	}
+
+	public void incErrorStatistics() {
+		incErrorStatistics(component);
+	}
+
+	public void incErrorStatistics(UMOComponent umoComponent) {
+		ComponentStatistics statistics = null;
+		
+		if (umoComponent != null)
+			component = umoComponent;
+
+		if (component == null) {
+			return;
+		}
+		
+		if (!(component instanceof AbstractComponent)) {
+			return;
+		}
+			
+		try {
+			statistics = ((AbstractComponent) component).getStatistics();
+			if (statistics == null) {
+				return;
+			}
+			statistics.incExecutionError();
+		} catch (Throwable t) {
+			logger.error("Error setting statistics ");
+		}
 	}
 }

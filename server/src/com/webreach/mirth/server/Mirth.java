@@ -160,10 +160,9 @@ public class Mirth extends Thread {
 			logger.warn("Error deploying channels.", e);
 
 			// if deploy fails, log to system events
-			StackTracePrinter stackTracePrinter = new StackTracePrinter();
 			SystemEvent event = new SystemEvent("Error deploying channels.");
 			event.setLevel(SystemEvent.Level.HIGH);
-			event.setDescription(stackTracePrinter.stackTraceToString(e));
+			event.setDescription(StackTracePrinter.stackTraceToString(e));
 			systemLogger.logSystemEvent(event);
 
 			// remove the errant configuration

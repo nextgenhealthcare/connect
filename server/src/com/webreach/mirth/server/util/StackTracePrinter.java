@@ -29,12 +29,12 @@ package com.webreach.mirth.server.util;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-import org.apache.log4j.Logger;
-
 public class StackTracePrinter {
-	private Logger logger = Logger.getLogger(this.getClass());
+	private StackTracePrinter() {
+		
+	}
 	
-	public String stackTraceToString(Throwable t) {
+	public static String stackTraceToString(Throwable t) {
 		StringWriter stringWriter = new StringWriter();
 		PrintWriter printWriter = new PrintWriter(stringWriter);
 		t.printStackTrace(printWriter);
@@ -43,7 +43,7 @@ public class StackTracePrinter {
 		try {
 			stringWriter.close();	
 		} catch (Exception e) {
-			logger.warn(e);
+			
 		}
 		
 		printWriter.close();

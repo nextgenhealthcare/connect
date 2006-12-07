@@ -30,6 +30,7 @@ import org.mule.umo.provider.ConnectorException;
 import org.mule.umo.provider.UMOMessageAdapter;
 
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.server.controllers.MessageObjectController;
 
 import java.sql.Connection;
 import java.util.ArrayList;
@@ -41,6 +42,7 @@ import java.util.List;
  */
 public class JdbcMessageDispatcher extends AbstractMessageDispatcher
 {
+    private MessageObjectController messageObjectController = new MessageObjectController();
 
     private JdbcConnector connector;
 
@@ -69,16 +71,24 @@ public class JdbcMessageDispatcher extends AbstractMessageDispatcher
         if (logger.isDebugEnabled()) {
             logger.debug("Dispatch event: " + event);
         }
-		Object data = event.getTransformedMessage();
-		if (data == null) {
-			return;
-		} else if (data instanceof MessageObject) {
-			MessageObject messageObject = (MessageObject) data;
 			
+        Object data =null;
+        MessageObject messageObject = null;
+        UMOTransaction tx =null;
+        Connection con = null;
+        try{
+            data = event.getTransformedMessage();
+        }catch(Exception ext){
+            logger.error("Error at tranformer"+ext);
+            throw ext;
+        }    
+	if (data instanceof MessageObject) {
+            messageObject = (MessageObject) data;			
 			if (messageObject.getStatus().equals(MessageObject.Status.REJECTED)){
 				return;
 			}
 		}
+        try {
         UMOEndpoint endpoint = event.getEndpoint();
         UMOEndpointURI endpointURI = endpoint.getEndpointURI();
         String writeStmt = endpointURI.getAddress();
@@ -98,9 +108,8 @@ public class JdbcMessageDispatcher extends AbstractMessageDispatcher
         writeStmt = JdbcUtils.parseStatement(writeStmt, paramNames);
         Object[] paramValues = JdbcUtils.getParams(endpointURI, paramNames, data);
 
-        UMOTransaction tx = TransactionCoordination.getInstance().getTransaction();
-        Connection con = null;
-        try {
+            tx = TransactionCoordination.getInstance().getTransaction();            
+        
             con = this.connector.getConnection();
 
             int nbRows = new QueryRunner().update(con, writeStmt, paramValues);
@@ -116,8 +125,18 @@ public class JdbcMessageDispatcher extends AbstractMessageDispatcher
             if (tx == null) {
                 JdbcUtils.rollbackAndClose(con);
             }
+            if (messageObject!=null){
+                messageObject.setStatus(MessageObject.Status.ERROR);
+                messageObject.setErrors("Error writing to the database"+e);
+		messageObjectController.updateMessage(messageObject);            
+            }
             throw e;
         }
+        if (messageObject!=null){
+            messageObject.setStatus(MessageObject.Status.SENT);
+            messageObjectController.updateMessage(messageObject);            
+        }
+        
     }
 
     /*

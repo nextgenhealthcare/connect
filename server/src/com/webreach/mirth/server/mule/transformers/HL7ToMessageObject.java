@@ -40,7 +40,6 @@ public class HL7ToMessageObject extends AbstractTransformer {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private ER7Serializer xmlSerializer = new ER7Serializer();
 	private HAPIMessageSerializer hapiSerializer = new HAPIMessageSerializer();
-	private StackTracePrinter stackTracePrinter = new StackTracePrinter();
 
 	public HL7ToMessageObject() {
 		super();
@@ -62,7 +61,7 @@ public class HL7ToMessageObject extends AbstractTransformer {
 			messageObject.setTransformedData(xmlSerializer.toXML(rawData));
 		} catch (SerializerException e) {
 			logger.warn("error transforming message", e);
-			messageObject.setErrors(stackTracePrinter.stackTraceToString(e));
+			messageObject.setErrors(StackTracePrinter.stackTraceToString(e));
 		}
 
 		messageObject.setTransformedDataProtocol(MessageObject.Protocol.XML);

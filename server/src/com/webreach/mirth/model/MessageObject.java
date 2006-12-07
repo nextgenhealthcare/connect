@@ -39,7 +39,7 @@ public class MessageObject implements Serializable {
 	}
 
 	public enum Status {
-		UNKNOWN, RECEIVED, ACCEPTED, REJECTED, TRANSFORMED, ERROR, SENT
+		UNKNOWN, RECEIVED, ACCEPTED, REJECTED, TRANSFORMED, ERROR, SENT, QUEUED
 	}
 
 	private String id;

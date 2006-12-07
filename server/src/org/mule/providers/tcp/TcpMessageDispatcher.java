@@ -22,6 +22,7 @@ import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Iterator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -30,16 +31,18 @@ import org.mule.providers.AbstractMessageDispatcher;
 import org.mule.umo.UMOEvent;
 import org.mule.umo.UMOException;
 import org.mule.umo.UMOMessage;
+import org.mule.umo.endpoint.UMOEndpoint;
 import org.mule.umo.endpoint.UMOEndpointURI;
 import org.mule.umo.provider.UMOConnector;
 import org.mule.util.Utility;
+import org.mule.util.queue.Queue;
 
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.controllers.MessageObjectController;
-import com.webreach.mirth.server.util.StackTracePrinter;
+import com.webreach.mirth.server.mule.util.BatchMessageProcessor;
 
 /**
- * <code>TcpMessageDispatcher</code> will send transformed mule events over
+ * f <code>TcpMessageDispatcher</code> will send transformed mule events over
  * tcp.
  * 
  * @author <a href="mailto:ross.mason@symphonysoft.com">Ross Mason</a>
@@ -55,12 +58,16 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 
 	protected Socket connectedSocket = null;
 
+	// ast:queue variables
+	protected Queue queue = null;
+	protected Queue errorQueue = null;
+
 	// ///////////////////////////////////////////////////////////////
 	/**
 	 * logger used by this class
 	 */
 	protected static transient Log logger = LogFactory.getLog(TcpMessageDispatcher.class);
-	private StackTracePrinter stackTracePrinter = new StackTracePrinter();	
+
 	private TcpConnector connector;
 
 	private MessageObjectController messageObjectController = new MessageObjectController();
@@ -68,6 +75,22 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 	public TcpMessageDispatcher(TcpConnector connector) {
 		super(connector);
 		this.connector = connector;
+	}
+
+	// ast: set queues
+	public void setQueues(UMOEndpoint endpoint) {
+		// connect to the queues
+		this.queue = null;
+		this.errorQueue = null;
+
+		if (connector.isUsePersistentQueues() && (endpoint != null)) {
+			try {
+				this.queue = connector.getQueue(endpoint);
+				this.errorQueue = connector.getErrorQueue(endpoint);
+			} catch (Exception e) {
+				logger.error("Error setting queues to the endpoint" + e);
+			}
+		}
 	}
 
 	protected Socket initSocket(String endpoint) throws IOException, URISyntaxException {
@@ -82,22 +105,94 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 		return socket;
 	}
 
+	// ast:Code changes to allow queues
+	/*
+	 * As doSend is never called, all the changes are made to the doSispatch
+	 * method
+	 */
 	public void doDispatch(UMOEvent event) throws Exception {
-		Socket socket = null;
-		try {
-			Object payload = event.getTransformedMessage();
-			if (payload == null) {
-				return;
-			} else {
-				socket = initSocket(event.getEndpoint().getEndpointURI().getAddress());
-				write(socket, payload);
-			}
 
-		} finally {
-			if (socket != null && !socket.isClosed()) {
-				socket.close();
+		Socket socket = null;
+		Object payload = null;
+		boolean success = false;
+		Exception exceptionWriting = null;
+		MessageObject messageObject = null;
+
+		this.setQueues(event.getEndpoint());
+		try {
+			payload = event.getTransformedMessage();
+		} catch (Exception et) {
+			logger.error("Error in transformation " + et);
+			payload = null;
+			throw et;
+		}
+
+		// ast: now, the stuff for queueing (and re-try)
+		if (payload == null)
+			return;
+		try {
+			if (queue != null) {
+				try {
+					queue.put(payload);
+					if (payload instanceof MessageObject) {
+						((MessageObject) payload).setStatus(MessageObject.Status.QUEUED);
+						messageObjectController.updateMessage(((MessageObject) payload));
+					}
+					return;
+				} catch (Exception exq) {
+					logger.error("Cant save payload to the queue\r\n\t " + exq);
+					exceptionWriting = exq;
+					success = false;
+				}
+			} else {
+				int retryCount = -1;
+				int maxRetries = connector.getMaxRetryCount();
+
+				while (!success && !disposed && (retryCount < maxRetries)) {
+					retryCount++;
+					try {
+						socket = initSocket(event.getEndpoint().getEndpointURI().getAddress());
+						write(socket, payload);
+						success = true;
+					} catch (Exception exs) {
+						if (retryCount < maxRetries) {
+							logger.warn("Can't connect to the endopint,waiting" + new Float(connector.getReconnectMillisecs() / 1000) + "seconds for reconnecting \r\n(" + exs + ")");
+							try {
+								Thread.sleep(connector.getReconnectMillisecs());
+							} catch (Throwable t) {
+								logger.error("Sending interrupption. Payload not sended");
+								retryCount = maxRetries + 1;
+								exceptionWriting = exs;
+							}
+						} else {
+							logger.error("Can't connect to the endopint: payload not sended");
+							exceptionWriting = exs;
+						}
+					}
+				}
+			}
+		} catch (Exception exu) {
+			logger.error("Unknown exception dispatching " + exu);
+			exceptionWriting = exu;
+		}
+		if (payload instanceof MessageObject) {
+			messageObject = (MessageObject) payload;
+		}
+		if (!success) {
+			if (messageObject != null) {
+				messageObject.setStatus(MessageObject.Status.ERROR);
+				messageObject.setErrors("Can't connect to the endpoint " + exceptionWriting);
+				messageObjectController.updateMessage(messageObject);
+				connector.incErrorStatistics(event.getComponent());
 			}
 		}
+		if (success && (exceptionWriting == null)) {
+			manageResponseAck(socket, event.getEndpoint(), messageObject);
+		}
+		if (socket != null && !socket.isClosed()) {
+			socket.close();
+		}
+		// if (exceptionWriting!=null) throw exceptionWriting;
 	}
 
 	protected Socket createSocket(int port, InetAddress inetAddress) throws IOException {
@@ -105,6 +200,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 	}
 
 	protected void write(Socket socket, Object data) throws IOException {
+
 		TcpProtocol protocol = connector.getTcpProtocol();
 		byte[] binaryData;
 
@@ -114,8 +210,9 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 			binaryData = (byte[]) data;
 		} else if (data instanceof MessageObject) {
 			MessageObject messageObject = (MessageObject) data;
-			
-			if (messageObject.getStatus().equals(MessageObject.Status.REJECTED)){
+
+			if (messageObject.getStatus().equals(MessageObject.Status.REJECTED)) {
+				logger.warn("message marked as rejected");
 				return;
 			}
 			String payload = messageObject.getEncodedData();
@@ -127,70 +224,267 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 		BufferedOutputStream bos = new BufferedOutputStream(socket.getOutputStream());
 		protocol.write(bos, binaryData);
 		bos.flush();
+		
+		// update the message status to sent
+		if (data instanceof MessageObject) {
+			MessageObject messageObject = (MessageObject) data;
+			messageObject.setStatus(MessageObject.Status.SENT);
+			messageObjectController.updateMessage(messageObject);
+		}
+
 	}
 
+	// ast: split the doSend code into three functions: sendPayload (sending)
+	// and doTheRemoteSyncStuff (for remote-sync)
+
 	public UMOMessage doSend(UMOEvent event) throws Exception {
+		Object data = null;
+		MessageObject messageObject = null;
+		this.setQueues(event.getEndpoint());
 		try {
-			Object data = event.getTransformedMessage();
-
-			if (!connector.isKeepSendSocketOpen()) {
-				connectedSocket = initSocket(event.getEndpoint().getEndpointURI().getAddress());
+			data = event.getTransformedMessage();
+			if (!connector.isKeepSendSocketOpen())
+				doDispose();
+		} catch (Exception e) {
+			logger.error("Error at transformation: " + e);
+			throw e;
+		}
+		if (data == null)
+			return null;
+		if (data instanceof MessageObject) {
+			messageObject = (MessageObject) data;
+		}
+		try {
+			if (queue != null) {
+				queue.put(data);
 			} else {
-				reconnect(event, connector.getMaxRetryCount());
+				sendPayload(data, event.getEndpoint());
 			}
+		} catch (Exception e) {
+			logger.error("Error sending: " + e);
+			if (messageObject != null) {
+				messageObject.setStatus(MessageObject.Status.ERROR);
+				messageObject.setErrors("Can't connect to the endpoint " + e);
+				messageObjectController.updateMessage(messageObject);
+			}
+			throw e;
+		}
+		// update the message status to sent
+		if (messageObject != null) {
+			messageObject.setStatus(MessageObject.Status.SENT);
+			messageObjectController.updateMessage(messageObject);
+		}
 
+		if (useRemoteSync(event)) {
+			return doTheRemoteSyncStuff(connectedSocket, event.getEndpoint());
+		} else {
+			return event.getMessage();
+		}
+
+	}
+
+	// ast: sendPayload is called from the doSend method, or from
+	// MessageResponseQueued
+	public boolean sendPayload(Object data, UMOEndpoint endpoint) throws Exception {
+		Boolean result = false;
+		Exception sendException = null;
+		if (this.queue == null)
+			this.queue = connector.getQueue(endpoint);
+		try {
+			if (!connector.isKeepSendSocketOpen()) {
+				try {
+					connectedSocket = initSocket(endpoint.getEndpointURI().getAddress());
+				} catch (Throwable tnf) {
+					connectedSocket = null;
+				}
+			}
+			// reconnect(endpoint, connector.getMaxRetryCount());
+			result = reconnect(endpoint, 1);
+			if (!result)
+				return result;
 			try {
 				write(connectedSocket, data);
+				result = true;
 				// If we're doing sync receive try and read return info from
 				// socket
 			} catch (IOException e) {
-				if (connector.isKeepSendSocketOpen()) {
-					logger.warn("Write raised exception: '" + e.getMessage() + "' attempting to reconnect.");
-
-					doDispose();
-
-					if (reconnect(event, connector.getMaxRetryCount()))
+				logger.warn("Write raised exception: '" + e.getMessage() + "' attempting to reconnect.");
+				doDispose();
+				try {
+					if (reconnect(endpoint, connector.getMaxRetryCount())) {
 						write(connectedSocket, data);
-				} else {
-					// update the message status to sent
-					if (data instanceof MessageObject) {
-						MessageObject messageObject = (MessageObject) data;
-						messageObject.setStatus(MessageObject.Status.ERROR);
-						messageObject.setErrors(stackTracePrinter.stackTraceToString(e));
-						messageObjectController.updateMessage(messageObject);
+						result = true;
 					}
-
-					throw e;
+				} catch (Exception ers) {
+					logger.warn("Write raised exception: '" + e.getMessage() + "' ceasing reconnecting.");
+					sendException = ers;
 				}
 			}
+		} catch (Exception e) {
+			logger.warn("Write raised exception: '" + e.getMessage() + "' desisting reconnecting.");
+			sendException = e;
+		}
+		MessageObject messageObject = null;
+		if (data instanceof MessageObject)
+			messageObject = (MessageObject) data;
+		if ((result == false) || (sendException != null)) {
+			if (sendException != null)
+				throw sendException;
+			return result;
+		}
 
-			// update the message status to sent
-			if (data instanceof MessageObject) {
-				MessageObject messageObject = (MessageObject) data;
+		// If we have reached this point, the conections has been fine
+		manageResponseAck(connectedSocket, endpoint, messageObject);
+		if (!connector.isKeepSendSocketOpen()) {
+			doDispose();
+		}
+		return result;
+	}
+
+	// ast: for sync
+	public UMOMessage doTheRemoteSyncStuff(UMOEndpoint endpoint) {
+		return doTheRemoteSyncStuff(connectedSocket, endpoint);
+	}
+
+	public void manageResponseAck(Socket socket, UMOEndpoint endpoint, MessageObject messageObject) {
+
+		int maxTime = connector.getAckTimeout();
+		if (maxTime <= 0)
+			return;
+		byte[] theAck = getAck(socket, endpoint);
+
+		if (theAck == null) {
+			if (messageObject != null) {
+				// NACK
+				messageObject.setStatus(MessageObject.Status.ERROR);
+				messageObject.setErrors("Timeout exception waiting for the ACK");
+				messageObjectController.updateMessage(messageObject);
+				connector.incErrorStatistics();
+			}
+			return;
+		}
+		String ackString = null;
+		try {
+			ackString = processResponseData(theAck);
+
+		} catch (Throwable t) {
+			logger.error("Error processing the Ack" + t);
+		}
+		if (ackString == null) {
+			if (messageObject != null) {
+				// //NACK
+				messageObject.setStatus(MessageObject.Status.ERROR);
+				messageObject.setErrors("ACK message violates LLP protocol");
+				messageObjectController.updateMessage(messageObject);
+				connector.incErrorStatistics();
+			}
+			return;
+		}
+		ResponseAck rack = new ResponseAck(ackString);
+
+		if (rack.getTypeOfAck()) {// Ack Ok
+			if (messageObject != null) {
 				messageObject.setStatus(MessageObject.Status.SENT);
 				messageObjectController.updateMessage(messageObject);
 			}
-
-			if (useRemoteSync(event)) {
-				try {
-					byte[] result = receive(connectedSocket, event.getEndpoint().getRemoteSyncTimeout());
-					if (result == null) {
-						return null;
-					}
-					return new MuleMessage(connector.getMessageAdapter(result));
-				} catch (SocketTimeoutException e) {
-					// we don't necessarily expect to receive a response here
-					logger.info("Socket timed out normally while doing a synchronous receive on endpointUri: " + event.getEndpoint().getEndpointURI());
-					return null;
-				}
-			} else {
-				return event.getMessage();
-			}
-		} finally {
-			if (!connector.isKeepSendSocketOpen()) {
-				doDispose();
+		} else {
+			if (messageObject != null) {
+				// NACK
+				messageObject.setStatus(MessageObject.Status.ERROR);
+				messageObject.setErrors("NACK sended from the receiver" + rack.getErrorDescription());
+				messageObjectController.updateMessage(messageObject);
+				connector.incErrorStatistics();
 			}
 		}
+
+	}
+
+	public byte[] getAck(Socket socket, UMOEndpoint endpoint) {
+
+		int maxTime = endpoint.getRemoteSyncTimeout();
+		if (maxTime == 0)
+			return null;
+		try {
+			byte[] result = receive(socket, maxTime);
+			if (result == null) {
+				return null;
+			}
+			return result;
+		} catch (SocketTimeoutException e) {
+			// we don't necessarily expect to receive a response here
+			logger.warn("Socket timed out normally while doing a synchronous receive on endpointUri: " + endpoint.getEndpointURI());
+			return null;
+		} catch (Exception ex) {
+			logger.info("Socket error while doing a synchronous receive on endpointUri: " + endpoint.getEndpointURI());
+			return null;
+		}
+	}
+
+	// ast:for syncronous
+	public UMOMessage doTheRemoteSyncStuff(Socket socket, UMOEndpoint endpoint) {
+		try {
+			byte[] result = receive(socket, endpoint.getRemoteSyncTimeout());
+			if (result == null) {
+				return null;
+			}
+			return new MuleMessage(connector.getMessageAdapter(result));
+		} catch (SocketTimeoutException e) {
+			// we don't necessarily expect to receive a response here
+			logger.info("Socket timed out normally while doing a synchronous receive on endpointUri: " + endpoint.getEndpointURI());
+			return null;
+		} catch (Exception ex) {
+			logger.info("Socket error while doing a synchronous receive on endpointUri: " + endpoint.getEndpointURI());
+			return null;
+		}
+	}
+
+	// Function similar to the Receiver
+	protected String processResponseData(byte[] data) throws Exception {
+
+		char START_MESSAGE, END_MESSAGE, END_OF_RECORD, END_OF_SEGMENT;
+
+		if (connector.getCharEncoding().equals("hex")) {
+			START_MESSAGE = (char) Integer.decode(connector.getMessageStart()).intValue();
+			END_MESSAGE = (char) Integer.decode(connector.getMessageEnd()).intValue();
+			END_OF_RECORD = (char) Integer.decode(connector.getRecordSeparator()).intValue();
+			END_OF_SEGMENT = (char) Integer.decode(connector.getSegmentEnd()).intValue();
+		} else {
+			// TODO: wtf? why are we getting .charAt? Check this
+			START_MESSAGE = connector.getMessageStart().charAt(0);
+			END_MESSAGE = connector.getMessageEnd().charAt(1);
+			END_OF_RECORD = connector.getRecordSeparator().charAt(2);
+			END_OF_SEGMENT = connector.getSegmentEnd().charAt(0);
+		}
+
+		// The next lines, removes any '\n' (decimal code 10 or 0x0A) in the
+		// message
+		byte[] bites = data;
+		int destPointer = 0, srcPointer = 0;
+		for (destPointer = 0, srcPointer = 0; srcPointer < bites.length; srcPointer++) {
+			// System.out.println("["+new Integer(bites[k])+"]--["+new
+			// String(bites,k,1,"ISO-8859-1")+"]");
+			// bites[destPointer]=32;
+			if (bites[srcPointer] != 10) {
+				bites[destPointer] = bites[srcPointer];
+				destPointer++;
+			}
+		}
+		data = bites;
+		String str_data = new String(data, 0, destPointer);
+
+		// String str_data = new String(data);
+		// str_data.replace("\n","");
+		BatchMessageProcessor batchProcessor = new BatchMessageProcessor();
+		batchProcessor.setEndOfMessage((byte) END_MESSAGE);
+		batchProcessor.setStartOfMessage((byte) START_MESSAGE);
+		batchProcessor.setEndOfRecord((byte) END_OF_RECORD);
+		Iterator<String> it = batchProcessor.processHL7Messages(str_data).iterator();
+		UMOMessage returnMessage = null;
+		if (it.hasNext()) {
+			data = (it.next()).getBytes();
+			return new String(data);
+		}
+		return null;
 	}
 
 	protected byte[] receive(Socket socket, int timeout) throws IOException {
@@ -247,7 +541,11 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 	// ///////////////////////////////////////////////////////////////
 	// New keepSocketOpen option methods by P.Oikari
 	// ///////////////////////////////////////////////////////////////
-	public boolean reconnect(UMOEvent event, int maxRetries) throws Exception {
+	// ast: instead an event, now we pass the endpoint
+
+	// public boolean reconnect(UMOEvent event, int maxRetries) throws Exception
+	// {
+	public boolean reconnect(UMOEndpoint endpoint, int maxRetries) throws Exception {
 		if (null != connectedSocket) {
 			// We already have a connected socket
 			return true;
@@ -259,7 +557,8 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 
 		while (!success && !disposed && (retryCount < maxRetries)) {
 			try {
-				connectedSocket = initSocket(event.getEndpoint().getEndpointURI().getAddress());
+				// ast: we now work with the endpoint
+				connectedSocket = initSocket(endpoint.getEndpointURI().getAddress());
 
 				success = true;
 
@@ -272,8 +571,8 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 				if (maxRetries != TcpConnector.KEEP_RETRYING_INDEFINETLY) {
 					retryCount++;
 				}
-
-				logger.warn("run() warning at host: '" + event.getEndpoint().getEndpointURI().getAddress() + "'. Reason: " + e.getMessage());
+				// ast: we now work with the endpoint
+				logger.warn("run() warning at host: '" + endpoint.getEndpointURI().getAddress() + "'. Reason: " + e.getMessage());
 
 				if (retryCount < maxRetries) {
 					try {
