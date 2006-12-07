@@ -30,10 +30,12 @@ import org.apache.log4j.Logger;
 import org.mule.transformers.AbstractTransformer;
 import org.mule.umo.transformer.TransformerException;
 
+import ca.uhn.hl7v2.model.Message;
+import ca.uhn.hl7v2.util.Terser;
+
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.converters.ER7Serializer;
 import com.webreach.mirth.model.converters.HAPIMessageSerializer;
-import com.webreach.mirth.model.converters.SerializerException;
 import com.webreach.mirth.server.util.StackTracePrinter;
 
 public class HL7ToMessageObject extends AbstractTransformer {
@@ -57,9 +59,15 @@ public class HL7ToMessageObject extends AbstractTransformer {
 		messageObject.setRawDataProtocol(MessageObject.Protocol.HL7);
 
 		try {
-			messageObject.setVersion(hapiSerializer.deserialize(rawData).getVersion());
+			Message message = hapiSerializer.deserialize(rawData);
+			Terser terser = new Terser(message);
+			String sendingFacility = terser.get("/MSH-3-1");
+			String event = terser.get("/MSH-9-1") + terser.get("/MSH-9-2");
+			messageObject.setSource(sendingFacility);
+			messageObject.setType(event);
+			messageObject.setVersion(message.getVersion());
 			messageObject.setTransformedData(xmlSerializer.toXML(rawData));
-		} catch (SerializerException e) {
+		} catch (Exception e) {
 			logger.warn("error transforming message", e);
 			messageObject.setErrors(StackTracePrinter.stackTraceToString(e));
 		}

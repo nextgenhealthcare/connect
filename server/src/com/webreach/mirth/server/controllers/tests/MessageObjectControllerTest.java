@@ -53,7 +53,7 @@ public class MessageObjectControllerTest extends TestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		// clear all database tables
-		ScriptRunner.runScript("database.sql");
+		ScriptRunner.runScript("derby-database.sql");
 
 		// initialize the configuration controller to cache encryption key
 		configurationController.initialize();
@@ -65,6 +65,10 @@ public class MessageObjectControllerTest extends TestCase {
 			MessageObject sampleMessageObject = new MessageObject();
 			sampleMessageObject.setId(UUID.randomUUID().toString());
 			sampleMessageObject.setChannelId(channelId);
+			
+			sampleMessageObject.setSource("SendingFacility");
+			sampleMessageObject.setType("ADT-A0" + i);
+			
 			sampleMessageObject.setConnectorName("SampleConnector");
 			sampleMessageObject.setDateCreated(Calendar.getInstance());
 			sampleMessageObject.setVersion("2.3.1");

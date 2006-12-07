@@ -23,7 +23,6 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
 package com.webreach.mirth.model;
 
 import java.io.Serializable;
@@ -44,6 +43,8 @@ public class MessageObject implements Serializable {
 
 	private String id;
 	private String channelId;
+	private String source;
+	private String type;
 	private Status status;
 	private Calendar dateCreated;
 	private String rawData;
@@ -63,6 +64,22 @@ public class MessageObject implements Serializable {
 		this.status = Status.UNKNOWN;
 	}
 
+	public String getSource() {
+		return this.source;
+	}
+
+	public void setSource(String source) {
+		this.source = source;
+	}
+
+	public String getType() {
+		return this.type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
 	public String getId() {
 		return this.id;
 	}
@@ -70,7 +87,7 @@ public class MessageObject implements Serializable {
 	public void setId(String id) {
 		this.id = id;
 	}
-	
+
 	public String getVersion() {
 		return this.version;
 	}
@@ -182,7 +199,7 @@ public class MessageObject implements Serializable {
 	public void setErrors(String errors) {
 		this.errors = errors;
 	}
-	
+
 	public Object clone() {
 		MessageObject messageObject = new MessageObject();
 		messageObject.setChannelId(this.getChannelId());
@@ -202,33 +219,18 @@ public class MessageObject implements Serializable {
 		messageObject.setVersion(this.getVersion());
 		return messageObject;
 	}
-	
+
 	public boolean equals(Object that) {
 		if (this == that) {
 			return true;
 		}
-		
+
 		if (!(that instanceof MessageObject)) {
 			return false;
 		}
-		
+
 		MessageObject messageObject = (MessageObject) that;
-		
-		return
-			EqualsUtil.areEqual(this.getId(), messageObject.getId()) &&
-			EqualsUtil.areEqual(this.getChannelId(), messageObject.getChannelId()) &&
-			EqualsUtil.areEqual(this.getStatus(), messageObject.getStatus()) &&
-			EqualsUtil.areEqual(this.getDateCreated(), messageObject.getDateCreated()) &&
-			EqualsUtil.areEqual(this.getRawData(), messageObject.getRawData()) &&
-			EqualsUtil.areEqual(this.getRawDataProtocol(), messageObject.getRawDataProtocol()) &&
-			EqualsUtil.areEqual(this.getTransformedData(), messageObject.getTransformedData()) &&
-			EqualsUtil.areEqual(this.getTransformedDataProtocol(), messageObject.getTransformedDataProtocol()) &&
-			EqualsUtil.areEqual(this.getEncodedData(), messageObject.getEncodedData()) &&
-			EqualsUtil.areEqual(this.getEncodedDataProtocol(), messageObject.getEncodedDataProtocol()) &&
-			EqualsUtil.areEqual(this.getVariableMap(), messageObject.getVariableMap()) &&
-			EqualsUtil.areEqual(this.getConnectorName(), messageObject.getConnectorName()) &&
-			EqualsUtil.areEqual(this.isEncrypted(), messageObject.isEncrypted()) &&
-			EqualsUtil.areEqual(this.getErrors(), messageObject.getErrors()) &&
-			EqualsUtil.areEqual(this.getVersion(), messageObject.getVersion());
+
+		return EqualsUtil.areEqual(this.getId(), messageObject.getId()) && EqualsUtil.areEqual(this.getChannelId(), messageObject.getChannelId()) && EqualsUtil.areEqual(this.getStatus(), messageObject.getStatus()) && EqualsUtil.areEqual(this.getDateCreated(), messageObject.getDateCreated()) && EqualsUtil.areEqual(this.getRawData(), messageObject.getRawData()) && EqualsUtil.areEqual(this.getRawDataProtocol(), messageObject.getRawDataProtocol()) && EqualsUtil.areEqual(this.getTransformedData(), messageObject.getTransformedData()) && EqualsUtil.areEqual(this.getTransformedDataProtocol(), messageObject.getTransformedDataProtocol()) && EqualsUtil.areEqual(this.getEncodedData(), messageObject.getEncodedData()) && EqualsUtil.areEqual(this.getEncodedDataProtocol(), messageObject.getEncodedDataProtocol()) && EqualsUtil.areEqual(this.getVariableMap(), messageObject.getVariableMap()) && EqualsUtil.areEqual(this.getConnectorName(), messageObject.getConnectorName()) && EqualsUtil.areEqual(this.isEncrypted(), messageObject.isEncrypted()) && EqualsUtil.areEqual(this.getErrors(), messageObject.getErrors()) && EqualsUtil.areEqual(this.getVersion(), messageObject.getVersion());
 	}
 }

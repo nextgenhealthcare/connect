@@ -8,6 +8,8 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 	<parameterMap class="com.webreach.mirth.model.MessageObject" id="insert-message-param">
 		<parameter property="id" jdbcType="VARCHAR" />
 		<parameter property="channelId" jdbcType="VARCHAR" />
+		<parameter property="source" jdbcType="VARCHAR" />
+		<parameter property="type" jdbcType="VARCHAR" />
 		<parameter property="dateCreated" jdbcType="TIMESTAMP" />
 		<parameter property="version" jdbcType="VARCHAR" />
 		<parameter property="encrypted" jdbcType="SMALLINT" />
@@ -36,6 +38,8 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 	<resultMap class="com.webreach.mirth.model.MessageObject" id="get-message-result">
 		<result property="id" column="ID" />
 		<result property="channelId" column="CHANNEL_ID" />
+		<result property="source" column="SOURCE" />
+		<result property="type" column="TYPE" />
 		<result property="dateCreated" column="DATE_CREATED" />
 		<result property="version" column="VERSION" />
 		<result property="encrypted" column="IS_ENCRYPTED" />
@@ -119,8 +123,8 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 	
 	<insert id="insertMessage" parameterMap="insert-message-param">
 		INSERT INTO
-		MESSAGE (ID, CHANNEL_ID, DATE_CREATED, VERSION, IS_ENCRYPTED, STATUS, RAW_DATA, RAW_DATA_PROTOCOL, TRANSFORMED_DATA, TRANSFORMED_DATA_PROTOCOL, ENCODED_DATA, ENCODED_DATA_PROTOCOL, VARIABLE_MAP, CONNECTOR_NAME, ERRORS)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		MESSAGE (ID, CHANNEL_ID, SOURCE, TYPE, DATE_CREATED, VERSION, IS_ENCRYPTED, STATUS, RAW_DATA, RAW_DATA_PROTOCOL, TRANSFORMED_DATA, TRANSFORMED_DATA_PROTOCOL, ENCODED_DATA, ENCODED_DATA_PROTOCOL, VARIABLE_MAP, CONNECTOR_NAME, ERRORS)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	</insert>
 	
 	<update id="updateMessage" parameterMap="update-message-param">
