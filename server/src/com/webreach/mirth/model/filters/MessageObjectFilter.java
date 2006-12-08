@@ -23,7 +23,6 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
 package com.webreach.mirth.model.filters;
 
 import java.util.Calendar;
@@ -43,6 +42,8 @@ public class MessageObjectFilter {
 	private Calendar endDate;
 	private Status status;
 	private String connectorName;
+	private String source;
+	private String type;
 
 	public String getChannelId() {
 		return this.channelId;
@@ -92,11 +93,29 @@ public class MessageObjectFilter {
 		this.connectorName = connectorName;
 	}
 
+	public String getSource() {
+		return this.source;
+	}
+
+	public void setSource(String source) {
+		this.source = source;
+	}
+
+	public String getType() {
+		return this.type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append(this.getClass().getName() + "[");
 		builder.append("id=" + getId() + ", ");
 		builder.append("channelId=" + getChannelId() + ", ");
+		builder.append("source=" + getSource() + ", ");
+		builder.append("type=" + getType() + ", ");
 		builder.append("startDate=" + String.format("%1$tY-%1$tm-%1$td", getStartDate()) + ", ");
 		builder.append("endDate=" + String.format("%1$tY-%1$tm-%1$td", getEndDate()) + ", ");
 		builder.append("status=" + getStatus() + ", ");

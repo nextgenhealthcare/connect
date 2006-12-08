@@ -63,6 +63,12 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 			<isNotNull prepend="AND" property="channelId">
 				CHANNEL_ID = #channelId#
 			</isNotNull>
+			<isNotNull prepend="AND" property="source">
+				SOURCE LIKE #source#
+			</isNotNull>
+			<isNotNull prepend="AND" property="type">
+				TYPE = #type#
+			</isNotNull>
 			<isNotNull prepend="AND" property="status">
 				STATUS = #status#
 			</isNotNull>
