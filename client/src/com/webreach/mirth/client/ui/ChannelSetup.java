@@ -987,7 +987,7 @@ public class ChannelSetup extends javax.swing.JPanel
                 }
                 
                 updated = parent.updateChannel(currentChannel);
-                // currentChannel = parent.channels.get(index);
+                currentChannel = parent.channels.get(index);
                 parent.channelPanel.makeChannelTable();
             }
             catch (ClientException e)
