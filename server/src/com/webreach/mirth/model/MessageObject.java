@@ -203,6 +203,8 @@ public class MessageObject implements Serializable {
 	public Object clone() {
 		MessageObject messageObject = new MessageObject();
 		messageObject.setChannelId(this.getChannelId());
+		messageObject.setSource(this.getSource());
+		messageObject.setType(this.getType());
 		messageObject.setConnectorName(this.getConnectorName());
 		messageObject.setDateCreated(this.getDateCreated());
 		messageObject.setEncodedData(this.getEncodedData());
@@ -231,6 +233,23 @@ public class MessageObject implements Serializable {
 
 		MessageObject messageObject = (MessageObject) that;
 
-		return EqualsUtil.areEqual(this.getId(), messageObject.getId()) && EqualsUtil.areEqual(this.getChannelId(), messageObject.getChannelId()) && EqualsUtil.areEqual(this.getStatus(), messageObject.getStatus()) && EqualsUtil.areEqual(this.getDateCreated(), messageObject.getDateCreated()) && EqualsUtil.areEqual(this.getRawData(), messageObject.getRawData()) && EqualsUtil.areEqual(this.getRawDataProtocol(), messageObject.getRawDataProtocol()) && EqualsUtil.areEqual(this.getTransformedData(), messageObject.getTransformedData()) && EqualsUtil.areEqual(this.getTransformedDataProtocol(), messageObject.getTransformedDataProtocol()) && EqualsUtil.areEqual(this.getEncodedData(), messageObject.getEncodedData()) && EqualsUtil.areEqual(this.getEncodedDataProtocol(), messageObject.getEncodedDataProtocol()) && EqualsUtil.areEqual(this.getVariableMap(), messageObject.getVariableMap()) && EqualsUtil.areEqual(this.getConnectorName(), messageObject.getConnectorName()) && EqualsUtil.areEqual(this.isEncrypted(), messageObject.isEncrypted()) && EqualsUtil.areEqual(this.getErrors(), messageObject.getErrors()) && EqualsUtil.areEqual(this.getVersion(), messageObject.getVersion());
+		return
+			EqualsUtil.areEqual(this.getId(), messageObject.getId()) &&
+			EqualsUtil.areEqual(this.getChannelId(), messageObject.getChannelId()) &&
+			EqualsUtil.areEqual(this.getSource(), messageObject.getSource()) &&
+			EqualsUtil.areEqual(this.getType(), messageObject.getType()) &&
+			EqualsUtil.areEqual(this.getStatus(), messageObject.getStatus()) &&
+			EqualsUtil.areEqual(this.getDateCreated(), messageObject.getDateCreated()) &&
+			EqualsUtil.areEqual(this.getRawData(), messageObject.getRawData()) &&
+			EqualsUtil.areEqual(this.getRawDataProtocol(), messageObject.getRawDataProtocol()) &&
+			EqualsUtil.areEqual(this.getTransformedData(), messageObject.getTransformedData()) &&
+			EqualsUtil.areEqual(this.getTransformedDataProtocol(), messageObject.getTransformedDataProtocol()) &&
+			EqualsUtil.areEqual(this.getEncodedData(), messageObject.getEncodedData()) &&
+			EqualsUtil.areEqual(this.getEncodedDataProtocol(), messageObject.getEncodedDataProtocol()) &&
+			EqualsUtil.areEqual(this.getVariableMap(), messageObject.getVariableMap()) &&
+			EqualsUtil.areEqual(this.getConnectorName(), messageObject.getConnectorName()) &&
+			EqualsUtil.areEqual(this.isEncrypted(), messageObject.isEncrypted()) &&
+			EqualsUtil.areEqual(this.getErrors(), messageObject.getErrors()) &&
+			EqualsUtil.areEqual(this.getVersion(), messageObject.getVersion());
 	}
 }
