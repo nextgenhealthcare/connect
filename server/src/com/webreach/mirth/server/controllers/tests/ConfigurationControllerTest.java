@@ -16,8 +16,7 @@ public class ConfigurationControllerTest extends TestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		// clear all database tables
-		ScriptRunner.runScript("database.sql");
-		ScriptRunner.runScript("initdb.sql");
+		ScriptRunner.runScript("derby-database.sql");
 
 		// initialize the configuration controller to cache encryption key
 		configurationController.initialize();
