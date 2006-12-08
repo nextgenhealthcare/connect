@@ -129,7 +129,7 @@ public class ChannelController {
 	public boolean updateChannel(Channel channel, boolean override) throws ControllerException {
 		// if it's not a new channel, and its version is different from the one
 		// in the database, and override is not enabled
-		if ((channel.getRevision() > 0) && !getChannel(channel).isEmpty() && (getChannel(channel).get(0).getVersion() != channel.getVersion()) && !override) {
+		if ((channel.getRevision() > 0) && !getChannel(channel).isEmpty() && (getChannel(channel).get(0).getVersion().equals(channel.getVersion())) && !override) {
 			return false;
 		} else {
 			channel.setRevision(channel.getRevision() + 1);
