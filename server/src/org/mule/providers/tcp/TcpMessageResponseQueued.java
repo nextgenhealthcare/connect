@@ -23,7 +23,6 @@ import org.mule.providers.ConnectException;
 import org.mule.providers.PollingMessageReceiver;
 import org.mule.umo.UMOComponent;
 import org.mule.umo.UMOException;
-import org.mule.umo.UMOMessage;
 import org.mule.umo.endpoint.UMOEndpoint;
 import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.util.queue.Queue;
@@ -38,24 +37,21 @@ import org.mule.util.queue.Queue;
  * @version $Revision: 1.23 $
  */
 public class TcpMessageResponseQueued extends PollingMessageReceiver {
-	
-	  public static final long DEFAULT_POLL_FREQUENCY = 1000;
-	    public static final long STARTUP_DELAY = 1000;
-	    private long frequency = DEFAULT_POLL_FREQUENCY;
-	    private long pollMaxTime= 10000;
-	    protected Queue queue = null;  
 
-	 protected static transient Log logger = LogFactory.getLog(TcpMessageDispatcher.class);
-	 protected TcpMessageDispatcher auxDispatcher;
-	 
-	 
-	
-	public TcpMessageResponseQueued(TcpConnector connector, UMOComponent component,
-			UMOEndpoint endpoint, Long frecuency) throws InitialisationException {
-		super(connector, component, endpoint,frecuency);
-		this.connector =connector;
-		this.auxDispatcher=new TcpMessageDispatcher(connector);
-		this.queue=connector.getQueue(endpoint);
+	public static final long DEFAULT_POLL_FREQUENCY = 1000;
+	public static final long STARTUP_DELAY = 1000;
+	private long frequency = DEFAULT_POLL_FREQUENCY;
+	private long pollMaxTime = 10000;
+	protected Queue queue = null;
+
+	protected static transient Log logger = LogFactory.getLog(TcpMessageDispatcher.class);
+	protected TcpMessageDispatcher auxDispatcher;
+
+	public TcpMessageResponseQueued(TcpConnector connector, UMOComponent component, UMOEndpoint endpoint, Long frecuency) throws InitialisationException {
+		super(connector, component, endpoint, frecuency);
+		this.connector = connector;
+		this.auxDispatcher = new TcpMessageDispatcher(connector);
+		this.queue = connector.getQueue(endpoint);
 	}
 
 	public void doConnect() throws ConnectException {
@@ -64,63 +60,61 @@ public class TcpMessageResponseQueued extends PollingMessageReceiver {
 
 	public void doDisconnect() throws ConnectException {
 		// this will cause the server thread to quit
-		disposing.set(true);		
+		disposing.set(true);
 		auxDispatcher.doDispose();
 	}
 
-	public void doDispose()
-    {
-		try{   
+	public void doDispose() {
+		try {
 			doDisconnect();
-		}catch(Throwable t){
-			logger.error("Error disconnecting: "+t);
+		} catch (Throwable t) {
+			logger.error("Error disconnecting: " + t);
 		}
-    }
-	 public void doStart() throws UMOException
-	 {
-	    	
-	    	super.doStart();
-	    	//System.out.println("[TcpMessageDispatcherQueued] doStart() ");
-	        
-	 }
-	    public void doStop() throws UMOException
-	    {
-	    	
-	    	super.doStop();
-	    	//System.out.println("[TcpMessageDispatcherQueued] doStop() ");
-	        
-	    }
-	    
-	    public int getQueueSize(){
-	    	if (queue!=null)    	return queue.size();
-	    	else return 0;
-	    }
-	
-	    
-	    public void poll() throws Exception{
-	    	Boolean open=true;
-	    	if (queue.size()==0) return;
-	    	// If the endopoint is active, try to send without waiting for another pool()
-	    	while((queue.size()>0) && open ){
-	    		try {
-	    			Object thePayload=queue.peek();
-	    			if (auxDispatcher.sendPayload(thePayload,endpoint)){
-	    				queue.poll(pollMaxTime);
-	    				open=true;
-	    				//UMOMessage um=auxDispatcher.doTheRemoteSyncStuff(endpoint);
-	    				//if (um!=null) System.out.println("MENSAJE RECIBIDO \r\n ["+um.getPayloadAsString()+"]");
-	    			}
-	    		} catch (Throwable t) {
-	    			logger.debug("Conexion error ["+t+"] "+" at "+endpoint.getEndpointURI() +" queue size "+new Integer(queue.size()).toString());
-	    			open=false;
-	    		}
-	    	}
-	    }
+	}
 
-	    
-	    
-	    
-	    
+	public void doStart() throws UMOException {
 
+		super.doStart();
+		// System.out.println("[TcpMessageDispatcherQueued] doStart() ");
+
+	}
+
+	public void doStop() throws UMOException {
+
+		super.doStop();
+		// System.out.println("[TcpMessageDispatcherQueued] doStop() ");
+
+	}
+
+	public int getQueueSize() {
+		if (queue != null)
+			return queue.size();
+		else
+			return 0;
+	}
+
+	public void poll() throws Exception {
+		Boolean open = true;
+		if (queue.size() == 0)
+			return;
+		// If the endopoint is active, try to send without waiting for another
+		// pool()
+		while ((queue.size() > 0) && open) {
+			try {
+				Object thePayload = queue.peek();
+				if (auxDispatcher.sendPayload(thePayload, endpoint)) {
+					queue.poll(pollMaxTime);
+					open = true;
+					// UMOMessage
+					// um=auxDispatcher.doTheRemoteSyncStuff(endpoint);
+					// if (um!=null) System.out.println("MENSAJE RECIBIDO \r\n
+					// ["+um.getPayloadAsString()+"]");
+				}
+			} catch (Throwable t) {
+				logger.debug("Conexion error [" + t + "] " + " at " + endpoint.getEndpointURI() + " queue size " + new Integer(queue.size()).toString());
+				open = false;
+			}
+		}
+	}
 
 }

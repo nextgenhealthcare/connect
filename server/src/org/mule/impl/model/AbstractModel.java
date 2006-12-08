@@ -346,7 +346,6 @@ public abstract class AbstractModel implements UMOModel {
 
 			for (Iterator i = components.values().iterator(); i.hasNext();) {
 				UMOComponent temp = (UMOComponent) i.next();
-				System.out.println("********Iniciando componente: [" + temp + "]");
 
 				try {
 					if (temp.getDescriptor().getInitialState().equals(ImmutableMuleDescriptor.INITIAL_STATE_STARTED)) {
@@ -378,14 +377,9 @@ public abstract class AbstractModel implements UMOModel {
 				}
 
 			}
+
 			fireEvent(new ModelEvent(this, ModelEvent.MODEL_STARTED));
-
-			/*
-			 * System.out.println("TRAZA DE ABSTRACT MODEL"); (new
-			 * Exception()).printStackTrace();
-			 */
 			started.set(true);
-
 		} else {
 			logger.debug("Model already started");
 		}
@@ -402,6 +396,7 @@ public abstract class AbstractModel implements UMOModel {
 	 */
 	public void stopComponent(String name) throws UMOException {
 		UMOComponent component = (UMOComponent) components.get(name);
+		
 		if (component == null) {
 			throw new ModelException(new Message(Messages.COMPONENT_X_NOT_REGISTERED, name));
 		} else {
