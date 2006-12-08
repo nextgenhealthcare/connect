@@ -147,6 +147,8 @@ public class MessageObjectController {
 		parameterMap.put("id", filter.getId());
 		parameterMap.put("channelId", filter.getChannelId());
 		parameterMap.put("status", filter.getStatus());
+		parameterMap.put("type", filter.getType());
+		parameterMap.put("status", filter.getStatus());
 		parameterMap.put("connectorName", filter.getConnectorName());
 
 		if (filter.getStartDate() != null) {

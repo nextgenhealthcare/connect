@@ -66,7 +66,7 @@ public class MessageObjectControllerTest extends TestCase {
 			sampleMessageObject.setId(UUID.randomUUID().toString());
 			sampleMessageObject.setChannelId(channelId);
 			
-			sampleMessageObject.setSource("SendingFacility");
+			sampleMessageObject.setSource("SendingFacility" + i);
 			sampleMessageObject.setType("ADT-A0" + i);
 			
 			sampleMessageObject.setConnectorName("SampleConnector");
@@ -127,6 +127,28 @@ public class MessageObjectControllerTest extends TestCase {
 			MessageObject sampleMessageObject = (MessageObject) iter.next();
 			Assert.assertTrue(testMessageObjectList.contains(sampleMessageObject));
 		}
+	}
+
+	public void testGetMessagesByFilter() throws ControllerException {
+		insertSampleMessages();
+
+		List<MessageObject> testMessageObjectList = null;
+		MessageObjectFilter testFilter = null;
+		
+		testFilter = new MessageObjectFilter();
+		testFilter.setChannelId(channelId);
+		testFilter.setStartDate(Calendar.getInstance());
+		testFilter.setEndDate(Calendar.getInstance());
+		messageObjectController.createMessagesTempTable(testFilter, "test");
+		testMessageObjectList = messageObjectController.getMessagesByPage(-1, -1, "test");
+		Assert.assertEquals(10, testMessageObjectList.size());
+
+		testFilter = new MessageObjectFilter();
+		testFilter.setType("ADT-A01");
+		testFilter.setSource("SendingFacility1");
+		messageObjectController.createMessagesTempTable(testFilter, "test");
+		testMessageObjectList = messageObjectController.getMessagesByPage(-1, -1, "test");
+		Assert.assertEquals(1, testMessageObjectList.size());
 	}
 
 	public void testGetMessageCount() throws ControllerException {
