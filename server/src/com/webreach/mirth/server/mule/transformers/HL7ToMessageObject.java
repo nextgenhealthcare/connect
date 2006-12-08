@@ -61,7 +61,7 @@ public class HL7ToMessageObject extends AbstractTransformer {
 		try {
 			Message message = hapiSerializer.deserialize(rawData);
 			Terser terser = new Terser(message);
-			String sendingFacility = terser.get("/MSH-3-1");
+			String sendingFacility = terser.get("/MSH-4-1");
 			String event = terser.get("/MSH-9-1") + terser.get("/MSH-9-2");
 			messageObject.setSource(sendingFacility);
 			messageObject.setType(event);
