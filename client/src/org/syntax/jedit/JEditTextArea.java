@@ -1568,9 +1568,9 @@ public class JEditTextArea extends JComponent {
 				// The MacOS MRJ doesn't convert \r to \n,
 				// so do it here
 				String selection = (String) clipboard.getContents(this).getTransferData(DataFlavor.stringFlavor);
-				if (System.getProperty("os.name").equals(MAC_OS)){
+				//if (System.getProperty("os.name").equals(MAC_OS)){
 					selection = selection.replace('\r', '\n');
-				} 
+				//} 
 					
 				int repeatCount = inputHandler.getRepeatCount();
 				StringBuffer buf = new StringBuffer();

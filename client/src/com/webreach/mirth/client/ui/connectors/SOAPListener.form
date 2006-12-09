@@ -51,7 +51,7 @@
                   <Component id="wsdlURL" alignment="0" min="-2" pref="400" max="-2" attributes="1"/>
                   <Component id="method" min="-2" pref="250" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace pref="24" max="32767" attributes="0"/>
+              <EmptySpace pref="30" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -125,7 +125,7 @@
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel3">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Listener Addresse:"/>
+        <Property name="text" type="java.lang.String" value="Listener Address:"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JTextField" name="method">

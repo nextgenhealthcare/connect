@@ -93,4 +93,13 @@ public class UIConstants
     // for Forms
     public static final String YES_OPTION = "1";
     public static final String NO_OPTION = "0";
+    
+    //ast: encodings    
+    public static final String DEFAULT_ENCODING_OPTION = "DEFAULT_ENCODING";
+    public static final String UTF8_OPTION = "UTF-8";
+    public static final String UTF16LE_OPTION = "UTF-16LE";
+    public static final String UTF16BE_OPTION = "UTF-16BE";
+    public static final String UTF16BOM_OPTION = "UTF-16";
+    public static final String LATIN1_OPTION = "ISO-8859-1";
+    public static final String USASCII_OPTION = "US-ASCII";
 }

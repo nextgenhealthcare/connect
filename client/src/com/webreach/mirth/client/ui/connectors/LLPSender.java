@@ -56,7 +56,13 @@ public class LLPSender extends ConnectorClass
     public final String LLP_END_OF_MESSAGE_CHARACTER = "messageEnd";
     public final String LLP_RECORD_SEPARATOR = "recordSeparator";
     public final String LLP_SEGMENT_END = "segmentEnd";
-
+    //ast:queue
+    public final String LLP_USE_PERSISTENT_QUEUES = "usePersistentQueues";
+    //ast:ack
+    public final String LLP_ACK_TIMEOUT = "ackTimeout";
+    //ast: encodign
+    public final String CONNECTOR_CHARSET_ENCODING = "charsetEncoding";
+    
     public LLPSender()
     {
         this.parent = PlatformUI.MIRTH_FRAME;
@@ -69,6 +75,8 @@ public class LLPSender extends ConnectorClass
         serverTimeoutField.setDocument(new MirthFieldConstraints(0, false, true));
         bufferSizeField.setDocument(new MirthFieldConstraints(0, false, true));
         maximumRetryCountField.setDocument(new MirthFieldConstraints(2, false, true));
+        //ast: Acktimeout constrain        
+        ackTimeoutField.setDocument(new MirthFieldConstraints(0, false, true));
     }
 
     public Properties getProperties()
@@ -99,6 +107,30 @@ public class LLPSender extends ConnectorClass
         properties.put(LLP_RECORD_SEPARATOR, recordSeparatorField.getText());
         
         properties.put(LLP_SEGMENT_END, segmentEnd.getText());
+        //ast: queues
+        if (usePersistentQueuesYesRadio.isSelected())
+            properties.put(LLP_USE_PERSISTENT_QUEUES, UIConstants.YES_OPTION);
+        else
+            properties.put(LLP_USE_PERSISTENT_QUEUES, UIConstants.NO_OPTION);
+        
+        //ast: ACK 
+        properties.put(LLP_ACK_TIMEOUT, ackTimeoutField.getText());
+        
+         //ast:encoding        
+        if( charsetEncodingCombobox.getSelectedIndex()==1)
+            properties.put(CONNECTOR_CHARSET_ENCODING, UIConstants.UTF8_OPTION);
+        else if (charsetEncodingCombobox.getSelectedIndex()==2)
+            properties.put(CONNECTOR_CHARSET_ENCODING, UIConstants.LATIN1_OPTION);
+        else if (charsetEncodingCombobox.getSelectedIndex()==3)
+            properties.put(CONNECTOR_CHARSET_ENCODING, UIConstants.UTF16LE_OPTION);        
+        else if (charsetEncodingCombobox.getSelectedIndex()==4)
+            properties.put(CONNECTOR_CHARSET_ENCODING, UIConstants.UTF16BE_OPTION);        
+        else if (charsetEncodingCombobox.getSelectedIndex()==5)
+            properties.put(CONNECTOR_CHARSET_ENCODING, UIConstants.UTF16BOM_OPTION);
+        else if (charsetEncodingCombobox.getSelectedIndex()==5)
+            properties.put(CONNECTOR_CHARSET_ENCODING, UIConstants.USASCII_OPTION);
+        else
+            properties.put(CONNECTOR_CHARSET_ENCODING, UIConstants.DEFAULT_ENCODING_OPTION);
         return properties;
     }
 
@@ -143,6 +175,31 @@ public class LLPSender extends ConnectorClass
         endOfMessageCharacterField.setText((String)props.get(LLP_END_OF_MESSAGE_CHARACTER));
         recordSeparatorField.setText((String)props.get(LLP_RECORD_SEPARATOR));
         segmentEnd.setText((String)props.get(LLP_SEGMENT_END));
+        //ast:queued
+        if(((String)props.get(LLP_USE_PERSISTENT_QUEUES)).equals(UIConstants.YES_OPTION))
+            usePersistentQueuesYesRadio.setSelected(true);
+        else
+            usePersistentQueuesNoRadio.setSelected(true);        
+        //ast:ack
+        ackTimeoutField.setText((String)props.get(LLP_ACK_TIMEOUT));        
+         //ast:encoding        
+        String encoding=(String)props.get(CONNECTOR_CHARSET_ENCODING);
+         if(encoding.equalsIgnoreCase(UIConstants.UTF8_OPTION)){
+             charsetEncodingCombobox.setSelectedIndex(1);
+         }else if (encoding.equalsIgnoreCase(UIConstants.LATIN1_OPTION)){
+             charsetEncodingCombobox.setSelectedIndex(2);
+         }else if (encoding.equalsIgnoreCase(UIConstants.UTF16LE_OPTION)){
+             charsetEncodingCombobox.setSelectedIndex(3);
+        }else if (encoding.equalsIgnoreCase(UIConstants.UTF16BE_OPTION)){
+             charsetEncodingCombobox.setSelectedIndex(4);
+        }else if (encoding.equalsIgnoreCase(UIConstants.UTF16BOM_OPTION)){
+             charsetEncodingCombobox.setSelectedIndex(5);
+        }else if (encoding.equalsIgnoreCase(UIConstants.USASCII_OPTION)){              
+             charsetEncodingCombobox.setSelectedIndex(6);
+         }else{
+             charsetEncodingCombobox.setSelectedIndex(0);
+         }
+        
     }
 
     public Properties getDefaults()
@@ -161,6 +218,12 @@ public class LLPSender extends ConnectorClass
         properties.put(LLP_END_OF_MESSAGE_CHARACTER, "0x1C");
         properties.put(LLP_RECORD_SEPARATOR, "0x0D");
         properties.put(LLP_SEGMENT_END, "0x0D");
+         //ast:queued
+        properties.put(LLP_USE_PERSISTENT_QUEUES, UIConstants.NO_OPTION);
+        //ast:ack
+        properties.put(LLP_ACK_TIMEOUT, "5000");
+        //ast:encoding
+        properties.put(CONNECTOR_CHARSET_ENCODING, UIConstants.DEFAULT_ENCODING_OPTION);
         return properties;
     }
     
@@ -184,6 +247,7 @@ public class LLPSender extends ConnectorClass
     private void initComponents() {
         keepConnectionOpenGroup = new javax.swing.ButtonGroup();
         buttonGroup1 = new javax.swing.ButtonGroup();
+        usePersistenceQueuesGroup = new javax.swing.ButtonGroup();
         jLabel13 = new javax.swing.JLabel();
         jLabel15 = new javax.swing.JLabel();
         jLabel16 = new javax.swing.JLabel();
@@ -214,6 +278,13 @@ public class LLPSender extends ConnectorClass
         hex = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         segmentEnd = new com.webreach.mirth.client.ui.components.MirthTextField();
         jLabel37 = new javax.swing.JLabel();
+        ackTimeoutField = new com.webreach.mirth.client.ui.components.MirthTextField();
+        jLabel19 = new javax.swing.JLabel();
+        charsetEncodingCombobox = new com.webreach.mirth.client.ui.components.MirthComboBox();
+        jLabel20 = new javax.swing.JLabel();
+        jLabel36 = new javax.swing.JLabel();
+        usePersistentQueuesYesRadio = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        usePersistentQueuesNoRadio = new com.webreach.mirth.client.ui.components.MirthRadioButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createTitledBorder(null, "LLP Sender", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(0, 0, 0)));
@@ -229,11 +300,11 @@ public class LLPSender extends ConnectorClass
 
         jLabel8.setText("Maximum Retry Count:");
 
-        jLabel10.setText("Start of Message String:");
+        jLabel10.setText("Start of Message Char:");
 
-        jLabel11.setText("End of Message String:");
+        jLabel11.setText("End of Message Char:");
 
-        jLabel12.setText("Record Sparator String:");
+        jLabel12.setText("Record Sparator Char:");
 
         keepConnectionOpenYesRadio.setBackground(new java.awt.Color(255, 255, 255));
         keepConnectionOpenYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -247,16 +318,13 @@ public class LLPSender extends ConnectorClass
         keepConnectionOpenNoRadio.setText("No");
         keepConnectionOpenNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-        jLabel25.setFont(new java.awt.Font("Tahoma", 1, 11));
         jLabel25.setText(".");
 
-        jLabel26.setFont(new java.awt.Font("Tahoma", 1, 11));
         jLabel26.setText(".");
 
-        jLabel9.setFont(new java.awt.Font("Tahoma", 1, 11));
         jLabel9.setText(".");
 
-        jLabel14.setText("Frame Encoding:");
+        jLabel14.setText("LLP Frame Encoding:");
 
         ascii.setBackground(new java.awt.Color(255, 255, 255));
         ascii.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -270,7 +338,33 @@ public class LLPSender extends ConnectorClass
         hex.setText("Hex");
         hex.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-        jLabel37.setText("End of Segment Encoding:");
+        jLabel37.setText("End of Segment Char:");
+
+        jLabel19.setText("ACK timeout (ms):");
+
+        charsetEncodingCombobox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Default", "UTF-8", "ISO-8859-1", "UTF-16 (le)", "UTF-16 (be)", "UTF-16 (bom)", "US-ASCII" }));
+        charsetEncodingCombobox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                charsetEncodingComboboxActionPerformed(evt);
+            }
+        });
+
+        jLabel20.setText("Encoding to use:");
+
+        jLabel36.setText("Use persistent queues");
+
+        usePersistentQueuesYesRadio.setBackground(new java.awt.Color(255, 255, 255));
+        usePersistentQueuesYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        usePersistenceQueuesGroup.add(usePersistentQueuesYesRadio);
+        usePersistentQueuesYesRadio.setText("Yes");
+        usePersistentQueuesYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
+        usePersistentQueuesNoRadio.setBackground(new java.awt.Color(255, 255, 255));
+        usePersistentQueuesNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        usePersistenceQueuesGroup.add(usePersistentQueuesNoRadio);
+        usePersistentQueuesNoRadio.setSelected(true);
+        usePersistentQueuesNoRadio.setText("No");
+        usePersistentQueuesNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
@@ -289,22 +383,30 @@ public class LLPSender extends ConnectorClass
                     .add(jLabel16)
                     .add(jLabel17)
                     .add(jLabel18)
-                    .add(jLabel37))
+                    .add(jLabel37)
+                    .add(jLabel36)
+                    .add(jLabel19)
+                    .add(jLabel20))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(segmentEnd, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(bufferSizeField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(hostPortField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(serverTimeoutField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(startOfMessageCharacterField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(endOfMessageCharacterField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(recordSeparatorField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(layout.createSequentialGroup()
-                        .add(keepConnectionOpenYesRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(keepConnectionOpenNoRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(maximumRetryCountField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 21, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(layout.createSequentialGroup()
-                        .add(hostIPAddressField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 31, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jLabel9)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(hostIPAddressField1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 31, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(layout.createSequentialGroup()
+                                .add(hostIPAddressField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 31, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(jLabel9)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(hostIPAddressField1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 31, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .add(layout.createSequentialGroup()
+                                .add(usePersistentQueuesYesRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(usePersistentQueuesNoRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(jLabel26)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -313,16 +415,20 @@ public class LLPSender extends ConnectorClass
                         .add(jLabel25)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(hostIPAddressField3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 31, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(hostPortField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(serverTimeoutField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(startOfMessageCharacterField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(endOfMessageCharacterField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(recordSeparatorField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(segmentEnd, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(charsetEncodingCombobox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(ackTimeoutField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(layout.createSequentialGroup()
-                        .add(ascii, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(ascii, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
+                                .add(org.jdesktop.layout.GroupLayout.LEADING, maximumRetryCountField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .add(org.jdesktop.layout.GroupLayout.LEADING, keepConnectionOpenYesRadio, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(hex, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(130, Short.MAX_VALUE))
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(keepConnectionOpenNoRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(hex, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
+                .addContainerGap(142, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -352,12 +458,12 @@ public class LLPSender extends ConnectorClass
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(keepConnectionOpenYesRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(keepConnectionOpenNoRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel13))
+                    .add(jLabel13)
+                    .add(keepConnectionOpenNoRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(maximumRetryCountField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel8))
+                    .add(jLabel8)
+                    .add(maximumRetryCountField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel14)
@@ -377,17 +483,36 @@ public class LLPSender extends ConnectorClass
                     .add(jLabel12))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(segmentEnd, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel37))
-                .addContainerGap(150, Short.MAX_VALUE))
+                    .add(jLabel37)
+                    .add(segmentEnd, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jLabel36)
+                    .add(usePersistentQueuesYesRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(usePersistentQueuesNoRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jLabel19)
+                    .add(ackTimeoutField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(charsetEncodingCombobox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jLabel20))
+                .addContainerGap(77, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    private void charsetEncodingComboboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_charsetEncodingComboboxActionPerformed
+// TODO add your handling code here:
+    }//GEN-LAST:event_charsetEncodingComboboxActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private com.webreach.mirth.client.ui.components.MirthTextField ackTimeoutField;
     private com.webreach.mirth.client.ui.components.MirthRadioButton ascii;
     private com.webreach.mirth.client.ui.components.MirthTextField bufferSizeField;
     private javax.swing.ButtonGroup buttonGroup1;
+    private com.webreach.mirth.client.ui.components.MirthComboBox charsetEncodingCombobox;
     private com.webreach.mirth.client.ui.components.MirthTextField endOfMessageCharacterField;
     private com.webreach.mirth.client.ui.components.MirthRadioButton hex;
     private com.webreach.mirth.client.ui.components.MirthTextField hostIPAddressField;
@@ -404,8 +529,11 @@ public class LLPSender extends ConnectorClass
     private javax.swing.JLabel jLabel16;
     private javax.swing.JLabel jLabel17;
     private javax.swing.JLabel jLabel18;
+    private javax.swing.JLabel jLabel19;
+    private javax.swing.JLabel jLabel20;
     private javax.swing.JLabel jLabel25;
     private javax.swing.JLabel jLabel26;
+    private javax.swing.JLabel jLabel36;
     private javax.swing.JLabel jLabel37;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
@@ -417,6 +545,9 @@ public class LLPSender extends ConnectorClass
     private com.webreach.mirth.client.ui.components.MirthTextField segmentEnd;
     private com.webreach.mirth.client.ui.components.MirthTextField serverTimeoutField;
     private com.webreach.mirth.client.ui.components.MirthTextField startOfMessageCharacterField;
+    private javax.swing.ButtonGroup usePersistenceQueuesGroup;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton usePersistentQueuesNoRadio;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton usePersistentQueuesYesRadio;
     // End of variables declaration//GEN-END:variables
 
 }
