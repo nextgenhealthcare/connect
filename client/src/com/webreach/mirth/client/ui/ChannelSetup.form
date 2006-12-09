@@ -214,6 +214,7 @@
                     <EmptyBorder bottom="0" left="0" right="0" top="0"/>
                   </Border>
                 </Property>
+                <Property name="selected" type="boolean" value="true"/>
                 <Property name="text" type="java.lang.String" value="Enabled"/>
                 <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
                   <Insets value="[0, 0, 0, 0]"/>
@@ -256,8 +257,8 @@
               <Properties>
                 <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
                   <StringArray count="2">
-                    <StringItem index="0" value="Stopped"/>
-                    <StringItem index="1" value="Started"/>
+                    <StringItem index="0" value="Started"/>
+                    <StringItem index="1" value="Stopped"/>
                   </StringArray>
                 </Property>
               </Properties>

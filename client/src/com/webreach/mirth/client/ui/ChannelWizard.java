@@ -499,6 +499,9 @@ public class ChannelWizard extends javax.swing.JDialog
         }
         else
             channel.setMode(Channel.Mode.BROADCAST);
+        
+        channel.setEnabled(true);
+        channel.getProperties().setProperty("initialState", "Started");
         parent.setupChannel(channel);
         this.dispose();
     }

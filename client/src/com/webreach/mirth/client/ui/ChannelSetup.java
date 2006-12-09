@@ -893,10 +893,12 @@ public class ChannelSetup extends javax.swing.JPanel
         if (parent.currentContentPage == transformerPane)
         {
             transformerPane.accept(false);
+            transformerPane.modified = false; //TODO: Check this. Fix to prevent double save on confirmLeave
         }
         if (parent.currentContentPage == filterPane)
         {
             filterPane.accept(false);
+            filterPane.modified = false; //TODO: Check this. Fix to prevent double save on confirmLeave
         }
         
         Connector temp;
@@ -1218,6 +1220,7 @@ public class ChannelSetup extends javax.swing.JPanel
 
         summaryEnabledCheckbox.setBackground(new java.awt.Color(255, 255, 255));
         summaryEnabledCheckbox.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        summaryEnabledCheckbox.setSelected(true);
         summaryEnabledCheckbox.setText("Enabled");
         summaryEnabledCheckbox.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
@@ -1230,7 +1233,7 @@ public class ChannelSetup extends javax.swing.JPanel
 
         jLabel1.setText("Initial State:");
 
-        initialState.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Stopped", "Started" }));
+        initialState.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Started", "Stopped" }));
 
         encryptMessagesCheckBox.setBackground(new java.awt.Color(255, 255, 255));
         encryptMessagesCheckBox.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
