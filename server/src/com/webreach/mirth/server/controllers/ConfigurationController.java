@@ -75,9 +75,13 @@ public class ConfigurationController {
 	private SqlMapClient sqlMap = SqlConfig.getSqlMapInstance();
 
 	public void initialize() {
+		// ast: If an user has choosen one, overwrite the platform encoding
+		// character
 		try {
+			Properties mirthProperties = PropertyLoader.loadProperties("mirth");
+			System.setProperty("ca.uhn.hl7v2.llp.charset", mirthProperties.getProperty("ca.uhn.hl7v2.llp.charset"));
 			loadEncryptionKey();
-		} catch (ControllerException e) {
+		} catch (Exception e) {
 			logger.error("could not initialize configuration settings", e);
 		}
 	}

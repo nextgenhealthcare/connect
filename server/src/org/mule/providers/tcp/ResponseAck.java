@@ -41,8 +41,7 @@ public class ResponseAck {
         String xmlAck=null;
         try {        
             xmlAck=serializer.toXML(ackMessageString);            
-            logger.debug("ACK:"+xmlAck);
-            
+            logger.debug("ACK:"+xmlAck);            
             this.ackMessageDocument = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(xmlAck.getBytes()));            
         } catch (Exception e) {
                 errorMessage=" Message is not a valid ACK";

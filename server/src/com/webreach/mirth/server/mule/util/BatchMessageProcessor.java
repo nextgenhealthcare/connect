@@ -23,11 +23,9 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
 package com.webreach.mirth.server.mule.util;
 
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -47,8 +45,9 @@ public class BatchMessageProcessor {
 		this.endOfRecord = endOfRecord;
 	}
 
-	public List<String> processHL7Messages(File file) throws FileNotFoundException {
-		Scanner scanner = new Scanner(file);
+	// ast: change the File to a java.io.InputStreamReader
+	public List<String> processHL7Messages(InputStreamReader is) {
+		Scanner scanner = new Scanner(is);
 		return processHL7Messages(scanner);
 	}
 

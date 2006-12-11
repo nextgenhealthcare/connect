@@ -21,6 +21,8 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.FileInputStream;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -166,12 +168,14 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 				// ignore directories
 			} else if (!(file.canRead() && file.exists() && file.isFile())) {
 				throw new MuleException(new Message(Messages.FILE_X_DOES_NOT_EXIST, file.getName()));
-			} else {
-				// Read in the file, parse it line by line
-				// Vector fileContents = getFileLines(file);
+			} else {				
 				Exception fileProcesedException = null;
 				try {
-					List<String> messages = new BatchMessageProcessor().processHL7Messages(file);
+                                        //ast: use the user-selected encoding
+					List<String> messages = new BatchMessageProcessor()
+							.processHL7Messages(new InputStreamReader(
+                                                        new FileInputStream(file),((FileConnector)connector).
+                                                        getCharsetEncoding()));
 
 					for (Iterator iter = messages.iterator(); iter.hasNext() && (fileProcesedException == null);) {
 						String message = (String) iter.next();
@@ -224,40 +228,6 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 		}
 	}
 
-	public Vector getFileLines(File aFile) {
-		// ...checks on aFile are elided
-		Vector contents = new Vector();
-
-		// declared here only to make visible to finally clause
-		BufferedReader input = null;
-
-		try {
-			// use buffering
-			// this implementation reads one line at a time
-			// FileReader always assumes default encoding is OK!
-			input = new BufferedReader(new FileReader(aFile));
-			String line = null; // not declared within while loop
-
-			while ((line = input.readLine()) != null) {
-				contents.add(line);
-			}
-		} catch (FileNotFoundException ex) {
-			ex.printStackTrace();
-		} catch (IOException ex) {
-			ex.printStackTrace();
-		} finally {
-			try {
-				if (input != null) {
-					// flush and close both "input" and its underlying
-					// FileReader
-					input.close();
-				}
-			} catch (IOException ex) {
-				ex.printStackTrace();
-			}
-		}
-		return contents;
-	}
 
 	/**
 	 * Exception tolerant roll back method

@@ -26,27 +26,43 @@ import org.mule.umo.provider.MessageTypeNotSupportedException;
 
 public class TcpMessageAdapter extends AbstractMessageAdapter
 {
-    private byte[] message;
+   //ast: an HL7 message is really a String
+    private String message;
 
     public TcpMessageAdapter(Object message) throws MessagingException
     {
         if (message instanceof byte[]) {
-            this.message = (byte[]) message;
-        } else {
+            this.message = new String((byte[])message);
+        }else if (message instanceof String){
+            this.message = (String) message;
+        }else{
             throw new MessageTypeNotSupportedException(message, getClass());
         }
     }
 
     public String getPayloadAsString() throws Exception
     {
-        return new String(message);
+        return message;
     }
 
     public byte[] getPayloadAsBytes() throws Exception
     {
-        return message;
+         return message.getBytes();
     }
-
+    
+    //ast: select the encoding in which we whant the message
+    public byte[] getPayloadAsBytes(String encoding) throws Exception
+    {
+        byte []r;
+        try{
+            r=message.getBytes(encoding);
+        }catch(Exception e){
+            logger.error("The charset "+encoding+" can't be used in this JVM " +e);
+            r=message.getBytes();
+        }
+        return r;
+    }
+    
     public Object getPayload()
     {
         return message;

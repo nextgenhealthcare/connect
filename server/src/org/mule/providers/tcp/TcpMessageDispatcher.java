@@ -205,7 +205,8 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 		byte[] binaryData;
 
 		if (data instanceof String) {
-			binaryData = data.toString().getBytes();
+			//ast: encode using the selected encoding
+			binaryData = ((String)data).getBytes(connector.getCharsetEncoding());
 		} else if (data instanceof byte[]) {
 			binaryData = (byte[]) data;
 		} else if (data instanceof MessageObject) {
@@ -215,8 +216,8 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 				logger.warn("message marked as rejected");
 				return;
 			}
-			String payload = messageObject.getEncodedData();
-			binaryData = payload.getBytes();
+			//ast: encode using the selected encoding
+			binaryData = messageObject.getEncodedData().getBytes(connector.getCharsetEncoding());
 		} else {
 			binaryData = Utility.objectToByteArray(data);
 		}
@@ -449,10 +450,9 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 			END_OF_RECORD = (char) Integer.decode(connector.getRecordSeparator()).intValue();
 			END_OF_SEGMENT = (char) Integer.decode(connector.getSegmentEnd()).intValue();
 		} else {
-			// TODO: wtf? why are we getting .charAt? Check this
 			START_MESSAGE = connector.getMessageStart().charAt(0);
-			END_MESSAGE = connector.getMessageEnd().charAt(1);
-			END_OF_RECORD = connector.getRecordSeparator().charAt(2);
+			END_MESSAGE = connector.getMessageEnd().charAt(0);
+			END_OF_RECORD = connector.getRecordSeparator().charAt(0);
 			END_OF_SEGMENT = connector.getSegmentEnd().charAt(0);
 		}
 
@@ -461,19 +461,15 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 		byte[] bites = data;
 		int destPointer = 0, srcPointer = 0;
 		for (destPointer = 0, srcPointer = 0; srcPointer < bites.length; srcPointer++) {
-			// System.out.println("["+new Integer(bites[k])+"]--["+new
-			// String(bites,k,1,"ISO-8859-1")+"]");
-			// bites[destPointer]=32;
 			if (bites[srcPointer] != 10) {
 				bites[destPointer] = bites[srcPointer];
 				destPointer++;
 			}
 		}
 		data = bites;
-		String str_data = new String(data, 0, destPointer);
+                //ast: use the user's encoding
+		String str_data = new String(data, 0, destPointer,connector.getCharsetEncoding());
 
-		// String str_data = new String(data);
-		// str_data.replace("\n","");
 		BatchMessageProcessor batchProcessor = new BatchMessageProcessor();
 		batchProcessor.setEndOfMessage((byte) END_MESSAGE);
 		batchProcessor.setStartOfMessage((byte) START_MESSAGE);
@@ -540,11 +536,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 
 	// ///////////////////////////////////////////////////////////////
 	// New keepSocketOpen option methods by P.Oikari
-	// ///////////////////////////////////////////////////////////////
-	// ast: instead an event, now we pass the endpoint
-
-	// public boolean reconnect(UMOEvent event, int maxRetries) throws Exception
-	// {
+	// ///////////////////////////////////////////////////////////////	
 	public boolean reconnect(UMOEndpoint endpoint, int maxRetries) throws Exception {
 		if (null != connectedSocket) {
 			// We already have a connected socket

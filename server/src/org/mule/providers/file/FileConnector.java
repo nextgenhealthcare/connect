@@ -43,6 +43,8 @@ import org.mule.umo.endpoint.UMOEndpoint;
 import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.provider.UMOMessageReceiver;
 import org.mule.util.Utility;
+import com.webreach.mirth.model.SystemEvent;
+import com.webreach.mirth.server.controllers.SystemLogger;
 
 /**
  * <code>FileConnector</code> is used for setting up listeners on a directory
@@ -79,6 +81,12 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 	public static final String SORT_SIZE = "size";
 	
 	public static final long DEFAULT_POLLING_FREQUENCY = 1000;
+        
+        //ast: encoding Charset
+        public static final String PROPERTY_CHARSET_ENCODING = "charsetEncoding";
+        public static final String CHARSET_KEY = "ca.uhn.hl7v2.llp.charset";
+        public static final String DEFAULT_CHARSET_ENCODING =System.getProperty(CHARSET_KEY, java.nio.charset.Charset.defaultCharset().name());
+        
 
 	/**
 	 * Time in milliseconds to poll. On each poll the poll() method is called
@@ -97,6 +105,8 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 	private FileOutputStream outputStream = null;
 	private boolean serialiseObjects = false;
 	public FilenameParser filenameParser = new VariableFilenameParser();
+        //ast: encoding charset
+        private String charsetEncoding = DEFAULT_CHARSET_ENCODING;
 
 	/*
 	 * (non-Javadoc)
@@ -105,6 +115,8 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 	 */
 	public FileConnector() {
 		filenameParser = new VariableFilenameParser();
+                //ast: try to set the default encoding
+                 this.setCharsetEncoding(DEFAULT_CHARSET_ENCODING);                
 	}
 
 	protected Object getReceiverKey(UMOComponent component, UMOEndpoint endpoint) {
@@ -383,5 +395,30 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 	public void setSortAttribute(String sortAttribute) {
 		this.sortAttribute = sortAttribute;
 	}
-
+        //ast: set the charset Encoding
+        public void setCharsetEncoding(String charsetEncoding) {                
+                if ((charsetEncoding==null) || (charsetEncoding=="") || (charsetEncoding.equalsIgnoreCase("DEFAULT_ENCODING"))) charsetEncoding=DEFAULT_CHARSET_ENCODING;
+                logger.debug("FileConnector: trying to set the encoding to "+charsetEncoding);                
+		try{
+                    byte b[]={20,21,22,23};
+                    String k=new String(b,charsetEncoding);
+                    this.charsetEncoding = charsetEncoding;
+                }catch(Exception e){
+                    //set the encoding to the default one: this charset can't launch an exception
+                    this.charsetEncoding=java.nio.charset.Charset.defaultCharset().name();
+                    logger.error("Impossible to use ["+charsetEncoding+"] as the Charset Encoding: changing to the platform default ["+this.charsetEncoding+"]");
+                    SystemLogger systemLogger = new SystemLogger();                  
+                    SystemEvent event = new SystemEvent("Exception occured in channel.");
+                    event.setDescription("Impossible to use ["+charsetEncoding+"] as the Charset Encoding: changing to the platform default ["+this.charsetEncoding+"]");
+                    systemLogger.logSystemEvent(event);
+                }
+	}
+        // ast: get the charset encoding
+        public String getCharsetEncoding() {
+            if ((this.charsetEncoding==null) || (this.charsetEncoding =="") || (this.charsetEncoding.equalsIgnoreCase("DEFAULT_ENCODING"))){
+                //Default Charset
+                return DEFAULT_CHARSET_ENCODING;
+            }                 
+		return(this.charsetEncoding);
+	 }
 }
