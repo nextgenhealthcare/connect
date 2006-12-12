@@ -455,4 +455,11 @@ public class Client {
 		NameValuePair[] params = { new NameValuePair("op", "getWebServiceDefinition"), new NameValuePair("address", address) };
 		return (WSDefinition) serializer.fromXML(serverConnection.executePostMethod(CONFIGURATION_SERVLET, params));
 	}
+	
+	public String getResourceByPath(String path) throws ClientException{
+		logger.debug("getting resource " + path);
+		NameValuePair[] params = { new NameValuePair("op", "getResourceByPath"), new NameValuePair("path", path) };
+		return serverConnection.executePostMethod(CONFIGURATION_SERVLET, params);
+	
+	}
 }
