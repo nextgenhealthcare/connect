@@ -25,10 +25,12 @@
 
 package com.webreach.mirth.server.controllers;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.SQLException;
@@ -75,17 +77,43 @@ public class ConfigurationController {
 	private SqlMapClient sqlMap = SqlConfig.getSqlMapInstance();
 
 	public void initialize() {
-		// ast: If an user has choosen one, overwrite the platform encoding
-		// character
 		try {
+			// ast: If an user has choosen one, overwrite the platform encoding
+			// character
 			Properties mirthProperties = PropertyLoader.loadProperties("mirth");
 			System.setProperty("ca.uhn.hl7v2.llp.charset", mirthProperties.getProperty("ca.uhn.hl7v2.llp.charset"));
+		} catch (Exception e) {
+			logger.warn(e);
+		}
+		
+		try {
 			loadEncryptionKey();
 		} catch (Exception e) {
 			logger.error("could not initialize configuration settings", e);
 		}
 	}
 
+	public String getResourceByPath(String path) throws ControllerException {
+		StringBuilder contents = new StringBuilder();
+
+		try {
+			BufferedReader reader = new BufferedReader(new FileReader(path));
+			String line = null;
+
+			try {
+				while ((line = reader.readLine()) != null) {
+					contents.append(line + "\n");
+				}
+			} finally {
+				reader.close();	
+			}
+		} catch (IOException e) {
+			throw new ControllerException(e);
+		}
+		
+		return contents.toString();		
+	}
+	
 	public Map<String, Transport> getTransports() throws ControllerException {
 		logger.debug("retrieving transport list");
 
