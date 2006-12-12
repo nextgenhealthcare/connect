@@ -29,6 +29,7 @@ package com.webreach.mirth.client.core;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Vector;
 
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.log4j.Logger;
@@ -162,6 +163,19 @@ public class Client {
 		return (Map<String, Transport>) serializer.fromXML(serverConnection.executePostMethod(CONFIGURATION_SERVLET, params));
 	}
 
+        /**
+	 * Returns a List of all of the encodings supported by the server
+	 * 
+	 * @return
+	 * @throws ClientException
+	 */
+        //ast: The avaiable charset encodings depends on the JVM in which the server is running
+	public synchronized Vector<String> getAvaiableCharsetEncodings() throws ClientException {
+		logger.debug("retrieving the server supported charset encoging list");
+		NameValuePair[] params = { new NameValuePair("op", "getAvaiableCharsetEncodings") };
+		return (Vector<String>) serializer.fromXML(serverConnection.executePostMethod(CONFIGURATION_SERVLET, params));
+	}
+        
 	/**
 	 * Returns a List of all users.
 	 * 

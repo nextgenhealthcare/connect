@@ -51,6 +51,9 @@ public class ConfigurationServlet extends MirthServlet {
 				if (operation.equals("getTransports")) {
 					response.setContentType("application/xml");
 					out.println(serializer.toXML(configurationController.getTransports()));
+				} else if (operation.equals("getAvaiableCharsetEncodings")) {
+					response.setContentType("application/xml");
+					out.println(serializer.toXML(configurationController.getAvaiableCharsetEncodings()));
 				} else if (operation.equals("getServerProperties")) {
 					response.setContentType("application/xml");
 					out.println(serializer.toXML(configurationController.getServerProperties()));

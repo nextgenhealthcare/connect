@@ -80,25 +80,33 @@ public class JdbcMessageReceiver extends TransactedPollingMessageReceiver
     }
 
     public void processMessage(Object message) throws Exception
-    {
+    {        
         Connection con = null;
         UMOTransaction tx = TransactionCoordination.getInstance().getTransaction();
-        try {
-            con = this.connector.getConnection();
-
-            if (this.ackStmt != null) {
-                Object[] ackParams = JdbcUtils.getParams(getEndpointURI(), this.ackParams, message);
-                int nbRows = new QueryRunner().update(con, this.ackStmt, ackParams);
-                if (nbRows != 1) {
-                    logger.warn("Row count for ack should be 1 and not " + nbRows);
+        Exception ackException=null;
+        try {            
+            try{
+                if (this.ackStmt != null) {
+                    con = this.connector.getConnection();
+                    Object[] ackParams = JdbcUtils.getParams(getEndpointURI(), this.ackParams, message);
+                    int nbRows = new QueryRunner().update(con, this.ackStmt, ackParams);
+                    if (nbRows != 1) {
+                        logger.warn("Row count for ack should be 1 and not " + nbRows);
+                    }
                 }
+            }catch(Exception ue){
+                logger.error("Error in the ACK sentence of the JDBC connection, but the message is beeing sended anyway "+ue);
+                ackException=ue;
             }
             UMOMessageAdapter msgAdapter = this.connector.getMessageAdapter(message);
             UMOMessage umoMessage = new MuleMessage(msgAdapter);
             routeMessage(umoMessage, tx, tx != null || endpoint.isSynchronous());
+            if (ackException!=null) throw ackException;
+        }catch(ConnectException ce){
+                throw new Exception(((ConnectException)ce).getCause());
         } finally {
             if (tx == null) {
-                JdbcUtils.close(con);
+                if (con!=null) JdbcUtils.close(con);
             }
         }
     }
