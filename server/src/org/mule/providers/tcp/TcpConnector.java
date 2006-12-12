@@ -421,7 +421,7 @@ public class TcpConnector extends AbstractServiceEnabledConnector {
 			queueProfile.configureQueue(getQueueName(endpoint));
 			queueProfile.configureQueue(getErrorQueueName(endpoint));
 		} catch (Throwable t) {
-			System.out.println("It's impossible to configure a queue for the endooint " + t);
+			logger.warn("It's impossible to configure a queue for the endooint " + t);
 		}
 	}
 
