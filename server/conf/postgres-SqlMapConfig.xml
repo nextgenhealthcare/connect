@@ -1,56 +1,1 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-
-<!DOCTYPE sqlMapConfig
-PUBLIC "-//ibatis.apache.org//DTD SQL Map Config 2.0//EN"
-"http://ibatis.apache.org/dtd/sql-map-config-2.dtd">
-
-<sqlMapConfig>
-	<properties resource="postgres-SqlMapConfig.properties" />
-
-	<settings cacheModelsEnabled="true" enhancementEnabled="true"
-		lazyLoadingEnabled="true" maxRequests="32" maxSessions="10"
-		maxTransactions="5" useStatementNamespaces="false" />
-
-	<typeHandler javaType="com.webreach.mirth.model.Channel$Direction"
-		callback="com.webreach.mirth.server.sqlmap.extensions.ChannelDirectionTypeHandler" />
-	<typeHandler javaType="com.webreach.mirth.model.Channel$Protocol"
-		callback="com.webreach.mirth.server.sqlmap.extensions.ChannelProtocolTypeHandler" />
-	<typeHandler javaType="com.webreach.mirth.model.Channel$Mode"
-		callback="com.webreach.mirth.server.sqlmap.extensions.ChannelModeTypeHandler" />
-	<typeHandler javaType="com.webreach.mirth.model.MessageObject$Protocol"
-		callback="com.webreach.mirth.server.sqlmap.extensions.MessageProtocolTypeHandler" />
-	<typeHandler javaType="com.webreach.mirth.model.MessageObject$Status"
-		callback="com.webreach.mirth.server.sqlmap.extensions.MessageStatusTypeHandler" />
-	<typeHandler javaType="com.webreach.mirth.model.Transport$Type"
-		callback="com.webreach.mirth.server.sqlmap.extensions.TransportTypeTypeHandler" />
-	<typeHandler javaType="com.webreach.mirth.model.SystemEvent$Level"
-		callback="com.webreach.mirth.server.sqlmap.extensions.EventLevelTypeHandler" />
-	<typeHandler javaType="com.webreach.mirth.model.Connector"
-		callback="com.webreach.mirth.server.sqlmap.extensions.ConnectorTypeHandler" />
-	<typeHandler javaType="java.util.List"
-		callback="com.webreach.mirth.server.sqlmap.extensions.ListTypeHandler" />
-	<typeHandler javaType="java.util.Properties"
-		callback="com.webreach.mirth.server.sqlmap.extensions.PropertiesTypeHandler" />
-	<typeHandler javaType="java.util.Map"
-		callback="com.webreach.mirth.server.sqlmap.extensions.MapTypeHandler" />
-	<typeHandler javaType="java.util.Calendar"
-		callback="com.webreach.mirth.server.sqlmap.extensions.CalendarTypeHandler" />
-
-	<transactionManager type="JDBC">
-		<dataSource type="SIMPLE">
-			<property name="JDBC.Driver" value="${driver}" />
-			<property name="JDBC.ConnectionURL" value="${url}" />
-			<property name="JDBC.Username" value="${username}" />
-			<property name="JDBC.Password" value="${password}" />
-		</dataSource>
-	</transactionManager>
-
-	<sqlMap resource="postgres-user.xml" />
-	<sqlMap resource="postgres-channel.xml" />
-	<sqlMap resource="postgres-message.xml" />
-	<sqlMap resource="postgres-script.xml" />
-	<sqlMap resource="postgres-template.xml" />
-	<sqlMap resource="postgres-configuration.xml" />
-	<sqlMap resource="postgres-event.xml" />
-	<sqlMap resource="postgres-statistic.xml" />
-</sqlMapConfig>
+<?xml version="1.0" encoding="UTF-8" ?><!DOCTYPE sqlMapConfigPUBLIC "-//ibatis.apache.org//DTD SQL Map Config 2.0//EN""http://ibatis.apache.org/dtd/sql-map-config-2.dtd"><sqlMapConfig>	<properties resource="postgres-SqlMapConfig.properties" />	<settings cacheModelsEnabled="true" enhancementEnabled="true"		lazyLoadingEnabled="true" maxRequests="32" maxSessions="10"		maxTransactions="5" useStatementNamespaces="false" />	<typeHandler javaType="com.webreach.mirth.model.Channel$Direction"		callback="com.webreach.mirth.server.sqlmap.extensions.ChannelDirectionTypeHandler" />	<typeHandler javaType="com.webreach.mirth.model.Channel$Protocol"		callback="com.webreach.mirth.server.sqlmap.extensions.ChannelProtocolTypeHandler" />	<typeHandler javaType="com.webreach.mirth.model.Channel$Mode"		callback="com.webreach.mirth.server.sqlmap.extensions.ChannelModeTypeHandler" />	<typeHandler javaType="com.webreach.mirth.model.MessageObject$Protocol"		callback="com.webreach.mirth.server.sqlmap.extensions.MessageProtocolTypeHandler" />	<typeHandler javaType="com.webreach.mirth.model.MessageObject$Status"		callback="com.webreach.mirth.server.sqlmap.extensions.MessageStatusTypeHandler" />	<typeHandler javaType="com.webreach.mirth.model.Transport$Type"		callback="com.webreach.mirth.server.sqlmap.extensions.TransportTypeTypeHandler" />	<typeHandler javaType="com.webreach.mirth.model.SystemEvent$Level"		callback="com.webreach.mirth.server.sqlmap.extensions.EventLevelTypeHandler" />	<typeHandler javaType="com.webreach.mirth.model.Connector"		callback="com.webreach.mirth.server.sqlmap.extensions.ConnectorTypeHandler" />	<typeHandler javaType="java.util.List"		callback="com.webreach.mirth.server.sqlmap.extensions.ListTypeHandler" />	<typeHandler javaType="java.util.Properties"		callback="com.webreach.mirth.server.sqlmap.extensions.PropertiesTypeHandler" />	<typeHandler javaType="java.util.Map"		callback="com.webreach.mirth.server.sqlmap.extensions.MapTypeHandler" />	<typeHandler javaType="java.util.Calendar"		callback="com.webreach.mirth.server.sqlmap.extensions.CalendarTypeHandler" />	<transactionManager type="JDBC">		<dataSource type="SIMPLE">			<property name="JDBC.Driver" value="${driver}" />			<property name="JDBC.ConnectionURL" value="${url}" />			<property name="JDBC.Username" value="${username}" />			<property name="JDBC.Password" value="${password}" />		</dataSource>	</transactionManager>	<sqlMap resource="postgres-user.xml" />	<sqlMap resource="postgres-channel.xml" />	<sqlMap resource="postgres-message.xml" />	<sqlMap resource="postgres-script.xml" />	<sqlMap resource="postgres-template.xml" />	<sqlMap resource="postgres-configuration.xml" />	<sqlMap resource="postgres-event.xml" />	<sqlMap resource="postgres-statistic.xml" /></sqlMapConfig>
