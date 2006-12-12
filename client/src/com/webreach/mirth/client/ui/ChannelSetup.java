@@ -733,9 +733,9 @@ public class ChannelSetup extends javax.swing.JPanel
             generateSingleDestinationPage();
         
         setDestinationVariableList();
-        saveChanges(true, false, false);
         loadingChannel = false;
         channelView.setSelectedIndex(0);
+        parent.enableSave();
     }
     
     /** Load all of the saved channel information into the channel editor */
@@ -860,7 +860,7 @@ public class ChannelSetup extends javax.swing.JPanel
      * Save all of the current channel information in the editor to the actual
      * channel
      */
-    public boolean saveChanges(boolean addingNew, boolean validate, boolean local)
+    public boolean saveChanges(boolean addingNew, boolean validate)
     {
         if (!addingNew && currentChannel.getDirection() == Channel.Direction.OUTBOUND && currentChannel.getSourceConnector().getTransformer().getSteps().size() == 0)
             parent.alertWarning("This channel has a blank transformer template.");
@@ -904,7 +904,7 @@ public class ChannelSetup extends javax.swing.JPanel
                     getColumnNumber(DESTINATION_COLUMN_NAME))));
         temp.setProperties(destinationConnectorClass.getProperties());
         
-        if (validate && !local)
+        if (validate)// && !local)
         {
             if (checkAllForms(currentChannel))
             {
@@ -970,22 +970,22 @@ public class ChannelSetup extends javax.swing.JPanel
         
         boolean updated = true;
         
-        if (!local)
+        //if (!local)
+        //{
+        try
         {
-            try
-            {
-                if(!parent.channels.containsKey(currentChannel.getId()))
-                    currentChannel.setId(parent.mirthClient.getGuid());
-                
-                updated = parent.updateChannel(currentChannel);
-                currentChannel = parent.channels.get(index);
-                parent.channelPanel.makeChannelTable();
-            }
-            catch (ClientException e)
-            {
-                parent.alertException(e.getStackTrace(), e.getMessage());
-            }
+            if(!parent.channels.containsKey(currentChannel.getId()))
+                currentChannel.setId(parent.mirthClient.getGuid());
+
+            updated = parent.updateChannel(currentChannel);
+            currentChannel = parent.channels.get(currentChannel.getId());
+            parent.channelPanel.makeChannelTable();
         }
+        catch (ClientException e)
+        {
+            parent.alertException(e.getStackTrace(), e.getMessage());
+        }
+        //}
         
         return updated;
     }
