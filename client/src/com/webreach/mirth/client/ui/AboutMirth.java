@@ -57,6 +57,7 @@ public class AboutMirth extends javax.swing.JDialog {
 		content.append("(c) Copyright Mirth contributors and other 2005, 2006. All rights reserved. Visit http://www.mirthproject.org\n\n");
 		content.append("This product includes software developed by SymphonySoft Limited (http://www.symphonysoft.com) and its contributors.\n\n");
 		content.append("This product includes software developed by the Apache Software Foundation (http://www.apache.org/).\n\n");
+		content.append("This product includes all or a portion of the HL7 Vocabulary database, or is derived from the HL7 Vocabulary database, subject to a license from Health Level Seven, Inc.\n\n");
 		aboutContent.setText(content.toString());
 	}
 

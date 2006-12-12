@@ -26,6 +26,7 @@
 
 package com.webreach.mirth.client.ui;
 
+import com.webreach.mirth.client.ui.util.HL7Reference;
 import com.webreach.mirth.model.converters.SerializerException;
 import java.awt.Color;
 import java.awt.Cursor;
@@ -69,6 +70,7 @@ import com.webreach.mirth.model.converters.ER7Serializer;
 public class HL7XMLTreePanel extends JPanel {
 	private PipeParser parser;
 	private XMLParser xmlParser;
+	private String version;
 	private EncodingCharacters encodingChars;
 	private JTree tree;
 	private Logger logger = Logger.getLogger(this.getClass());
@@ -135,13 +137,20 @@ public class HL7XMLTreePanel extends JPanel {
 				Element el = xmlDoc.getDocumentElement();
 				Terser terser = new Terser(message);
 				String messageName = el.getNodeName();
+				String messageDescription = "";
+				version = message.getVersion();
 				try {
-					messageName = terser.get("/MSH-9-1") + "-" + terser.get("/MSH-9-2") + " (" + message.getVersion() + ")";
+					messageName = terser.get("/MSH-9-1") + "-" + terser.get("/MSH-9-2") + " (" + version + ")";
+					messageDescription = HL7Reference.getInstance().getDescription(terser.get("/MSH-9-1") + terser.get("/MSH-9-2"), version);
 				} catch (HL7Exception e) {
 					// TODO Auto-generated catch block
 					logger.error(e);
 				}
-				DefaultMutableTreeNode top = new DefaultMutableTreeNode(messageName);
+				DefaultMutableTreeNode top;
+				if (messageDescription.length() > 0)
+					top = new DefaultMutableTreeNode(messageName + " (" + messageDescription + ")");
+				else
+					top = new DefaultMutableTreeNode(messageName);
 				
 				NodeList children = el.getChildNodes();
 				for (int i = 0; i < children.getLength(); i++) {
@@ -196,8 +205,12 @@ public class HL7XMLTreePanel extends JPanel {
 	private void processElement(Object elo, DefaultMutableTreeNode dmtn) {
 		if (elo instanceof Element) {
 			Element el = (Element)elo;
-			DefaultMutableTreeNode currentNode =
-				new DefaultMutableTreeNode(el.getNodeName());
+			String description = HL7Reference.getInstance().getDescription(el.getNodeName(), version);
+			DefaultMutableTreeNode currentNode ;
+			if (description.length() > 0)
+				currentNode = new DefaultMutableTreeNode(el.getNodeName() + " (" + description + ")");
+			else
+				currentNode = new DefaultMutableTreeNode(el.getNodeName());
 			String text = "";
 			if (el.hasChildNodes()) {
 				text = el.getFirstChild().getNodeValue();
@@ -206,9 +219,10 @@ public class HL7XMLTreePanel extends JPanel {
 				text = el.getTextContent();
 			}
 			text = text.trim();
-			if((text != null) && (!text.equals("")))
+			if((text != null) && (!text.equals(""))){
+				
 				currentNode.add(new DefaultMutableTreeNode(text));
-			
+			}
 			//processAttributes(el, currentNode);
 			
 			NodeList children = el.getChildNodes();
