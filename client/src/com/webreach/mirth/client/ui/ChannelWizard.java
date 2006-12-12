@@ -463,11 +463,9 @@ public class ChannelWizard extends javax.swing.JDialog
      */
     private void createChannel()
     {
-        for (int i = 0; i < parent.channels.size(); i++)
-        {
-            if (!parent.checkChannelName(channelName.getText()))
-                return;
-        }
+        if (!parent.checkChannelName(channelName.getText()))
+            return;
+        
         channel = new Channel();
         
         try
@@ -534,11 +532,9 @@ public class ChannelWizard extends javax.swing.JDialog
     private void nextButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_nextButtonActionPerformed
     {//GEN-HEADEREND:event_nextButtonActionPerformed
         parent.doRefreshChannels();
-        for (int i = 0; i < parent.channels.size(); i++)
-        {
-            if (!parent.checkChannelName(channelName.getText()))
-                return;
-        }
+        
+        if (!parent.checkChannelName(channelName.getText()))
+            return;
         
         if(this.nextButton.getText().equals("Next"))
         {

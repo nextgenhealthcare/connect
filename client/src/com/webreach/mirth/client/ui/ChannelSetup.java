@@ -109,8 +109,6 @@ public class ChannelSetup extends javax.swing.JPanel
     
     public FilterPane filterPane;
     
-    private int index;
-    
     private Frame parent;
     
     private boolean isDeleting = false;
@@ -186,7 +184,6 @@ public class ChannelSetup extends javax.swing.JPanel
         });
         destinationPane = new JScrollPane();
         
-        this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         try
         {
             transports = this.parent.mirthClient.getTransports();
@@ -237,9 +234,7 @@ public class ChannelSetup extends javax.swing.JPanel
         {
             parent.alertException(e.getStackTrace(), e.getMessage());
         }
-        this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         
-        index = -1;
         channelView.setMaximumSize(new Dimension(450, 3000));
     }
     
@@ -625,12 +620,11 @@ public class ChannelSetup extends javax.swing.JPanel
     }
     
     /** Sets the overall panel to edit the channel with the given channel index. */
-    public void editChannel(int index)
+    public void editChannel(Channel channel)
     {
         loadingChannel = true;
-        this.index = index;
         lastIndex = "";
-        currentChannel = parent.channels.get(index);
+        currentChannel = channel;
         
         checkPropertyValidity(currentChannel.getSourceConnector(),
                 parent.sourceConnectors);
@@ -693,7 +687,6 @@ public class ChannelSetup extends javax.swing.JPanel
     public void addChannel(Channel channel)
     {
         loadingChannel = true;
-        index = -1;
         lastIndex = "";
         currentChannel = channel;
         
@@ -979,14 +972,10 @@ public class ChannelSetup extends javax.swing.JPanel
         
         if (!local)
         {
-            this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
             try
             {
-                if (index == -1)
-                {
-                    index = parent.channels.size();
+                if(!parent.channels.containsKey(currentChannel.getId()))
                     currentChannel.setId(parent.mirthClient.getGuid());
-                }
                 
                 updated = parent.updateChannel(currentChannel);
                 currentChannel = parent.channels.get(index);
@@ -996,7 +985,6 @@ public class ChannelSetup extends javax.swing.JPanel
             {
                 parent.alertException(e.getStackTrace(), e.getMessage());
             }
-            this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         }
         
         return updated;

@@ -100,7 +100,7 @@ public class Frame extends JXFrame
     public JXTaskPaneContainer taskPaneContainer;
     
     public List<ChannelStatus> status = null;
-    public List<Channel> channels = null;
+    public Map<String, Channel> channels = null;
     public List<User> users = null;
 
     public ActionManager manager = ActionManager.getInstance();
@@ -149,7 +149,7 @@ public class Frame extends JXFrame
         leftContainer = new JXTitledPanel();
         rightContainer = new JXTitledPanel();
         
-        channels = new ArrayList<Channel>();
+        channels = new HashMap<String, Channel>();
         
         taskPaneContainer = new JXTaskPaneContainer();
         sourceConnectors = new ArrayList<ConnectorClass>();
@@ -277,13 +277,13 @@ public class Frame extends JXFrame
      * Edits a channel at a specified index, setting that channel
      * as the current channel in the editor.
      */
-    public void editChannel(int index)
+    public void editChannel(Channel channel)
     {
         setBold(viewPane, UIConstants.ERROR_CONSTANT);
         setCurrentContentPage(channelEditPanel);
         setFocus(channelEditTasks);
         setVisibleTasks(channelEditTasks, channelEditPopupMenu, 0, 4, false);
-        channelEditPanel.editChannel(index);
+        channelEditPanel.editChannel(channel);
     }
 
     /**
@@ -1183,9 +1183,9 @@ public class Frame extends JXFrame
      */
     public boolean checkChannelName(String name)
     {
-        for (int i = 0; i < channels.size(); i++)
+        for (Channel channel : channels.values())
         {
-            if (channels.get(i).getName().equalsIgnoreCase(name))
+            if (channel.getName().equalsIgnoreCase(name))
             {
                 alertWarning("Channel name already exists. Please choose a unique name.");
                 return false;
@@ -1400,11 +1400,10 @@ public class Frame extends JXFrame
             
             public void done()
             {
-                if (channelPanel.getSelectedChannel() == UIConstants.ERROR_CONSTANT)
+                if (channelPanel.getSelectedChannel() == null)
                     JOptionPane.showMessageDialog(getThis(), "Channel no longer exists.");
                 else
                     editChannel(channelPanel.getSelectedChannel());
-                
                 setWorking(false);
             }
         };
@@ -1431,7 +1430,7 @@ public class Frame extends JXFrame
                     return null;
                 }
 
-                String channelId = channels.get(channelPanel.getSelectedChannel()).getId();
+                String channelId = channelPanel.getSelectedChannel().getId();
                 for (int i = 0; i < status.size(); i ++)
                 {
                     if (status.get(i).getChannelId().equals(channelId))
@@ -1446,7 +1445,7 @@ public class Frame extends JXFrame
 
                 try
                 {
-                    mirthClient.removeChannel(channels.get(channelPanel.getSelectedChannel()));
+                    mirthClient.removeChannel(channelPanel.getSelectedChannel());
                     refreshChannels();
                 }
                 catch (ClientException e)
@@ -1489,11 +1488,10 @@ public class Frame extends JXFrame
     
     public void refreshChannels()
     {
-        String channelId = "";
-        String channelName = null;
+        String channelId = null;
 
-        if(channelPanel.getSelectedChannel() != UIConstants.ERROR_CONSTANT)
-            channelId = channels.get(channelPanel.getSelectedChannel()).getId();
+        if(channelPanel.getSelectedChannel() != null)
+            channelId = channelPanel.getSelectedChannel().getId();
         
         try
         {
@@ -1509,23 +1507,21 @@ public class Frame extends JXFrame
                     {
                         Channel filterChannel = new Channel();
                         filterChannel.setId(changedChannels.get(i).getId());
-                        channels.add(mirthClient.getChannel(filterChannel).get(0));
+                        Channel channelToAdd = mirthClient.getChannel(filterChannel).get(0);
+                        channels.put(channelToAdd.getId(), channelToAdd);
                     }
                     else
                     {
-                        for(int j = 0; j < channels.size(); j++)
+                        Channel matchingChannel = channels.get(changedChannels.get(i).getId());
+                        
+                        if(changedChannels.get(i).isDeleted())
+                            channels.remove(matchingChannel.getId());
+                        else
                         {
-                            if(changedChannels.get(i).getId() == channels.get(j).getId())
-                            {
-                                if(changedChannels.get(i).isDeleted())
-                                    channels.remove(channels.get(j));
-                                else
-                                {
-                                    Channel filterChannel = new Channel();
-                                    filterChannel.setId(changedChannels.get(i).getId());
-                                    channels.set(j, mirthClient.getChannel(filterChannel).get(0));
-                                }
-                            }
+                            Channel filterChannel = new Channel();
+                            filterChannel.setId(matchingChannel.getId());
+                            Channel channelToUpdate = mirthClient.getChannel(filterChannel).get(0);
+                            channels.put(matchingChannel.getId(), channelToUpdate);
                         }
                     }
                 }
@@ -1543,12 +1539,6 @@ public class Frame extends JXFrame
                 setVisibleTasks(channelTasks, channelPopupMenu, 1, 1, false);
                 setVisibleTasks(channelTasks, channelPopupMenu, 4, 4, false);
             }
-
-            for(int i = 0; i<channels.size(); i++)
-            {
-                if(channelId == channels.get(i).getId())
-                    channelName = channels.get(i).getName();
-            }
         }
         catch (ClientException e)
         {
@@ -1556,17 +1546,17 @@ public class Frame extends JXFrame
         }
 
         // as long as the channel was not deleted
-        if (channelName != null)
-            channelPanel.setSelectedChannel(channelName);
+        if (channels.containsKey(channelId))
+            channelPanel.setSelectedChannel(channelId);
     }
     
     public Map<String, Integer> getChannelHeaders()
     {
         HashMap<String, Integer> channelHeaders = new HashMap<String, Integer>();
         
-        for(int i = 0; i < channels.size(); i++)
+        for (Channel channel : channels.values())
         {
-            channelHeaders.put(channels.get(i).getId(), channels.get(i).getRevision());
+            channelHeaders.put(channel.getId(), channel.getRevision());
         }
         
         return channelHeaders;
@@ -1757,11 +1747,11 @@ public class Frame extends JXFrame
             public Void doInBackground() 
             {        
                 refreshChannels();
-                if (channelPanel.getSelectedChannel() == UIConstants.ERROR_CONSTANT)
+                if (channelPanel.getSelectedChannel() == null)
                     alertWarning("Channel no longer exists.");
                 else
                 {
-                    Channel channel = channels.get(channelPanel.getSelectedChannel());
+                    Channel channel = channelPanel.getSelectedChannel();
                     
                     if(channelEditPanel.checkAllForms(channel))
                     {
@@ -1794,11 +1784,11 @@ public class Frame extends JXFrame
             public Void doInBackground() 
             {        
                 refreshChannels();
-                if (channelPanel.getSelectedChannel() == UIConstants.ERROR_CONSTANT)
+                if (channelPanel.getSelectedChannel() == null)
                     alertWarning("Channel no longer exists.");
                 else
                 {
-                    Channel channel = channels.get(channelPanel.getSelectedChannel());
+                    Channel channel = channelPanel.getSelectedChannel();
                     channel.setEnabled(false);
                     updateChannel(channel);
                     channelPanel.deselectRows();
@@ -2105,7 +2095,7 @@ public class Frame extends JXFrame
             
             try
             {
-                 importChannel = (Channel)serializer.fromXML(channelXML.replaceAll("\\&\\#x0D","\\&\\#x0A"));
+                 importChannel = (Channel)serializer.fromXML(channelXML.replaceAll("\\&\\#x0D;\\n", "\\&\\#x0D;").replaceAll("\\&\\#x0D","\\&\\#x0A"));
              }
             catch (Exception e)
             {
@@ -2155,7 +2145,7 @@ public class Frame extends JXFrame
             {
                 importChannel.setRevision(0);
                 importChannel.setId(mirthClient.getGuid());
-                channels.add(importChannel);
+                channels.put(importChannel.getId(), importChannel);
             }
             catch (ClientException e)
             {
@@ -2164,13 +2154,13 @@ public class Frame extends JXFrame
             
             try
             {
-                editChannel(channels.size()-1);
+                editChannel(importChannel);
                 channelEditTasks.getContentPane().getComponent(0).setVisible(true);
             }
             catch (Exception e)
             {
                 alertError("Channel had an unknown problem. Channel import aborted.");
-                channels.remove(channels.size() -1);
+                channels.remove(importChannel.getId());
                 channelEditPanel = new ChannelSetup();
                 this.doShowChannel();
             }
@@ -2196,7 +2186,7 @@ public class Frame extends JXFrame
         if (currentContentPage == channelEditPanel || currentContentPage == channelEditPanel.filterPane || currentContentPage == channelEditPanel.transformerPane)
             channel = channelEditPanel.currentChannel;
         else
-            channel = channels.get(channelPanel.getSelectedChannel());
+            channel = channelPanel.getSelectedChannel();
 
         JFileChooser exportFileChooser = new JFileChooser();
         exportFileChooser.setSelectedFile(new File(channel.getName()));
@@ -2250,9 +2240,8 @@ public class Frame extends JXFrame
             {
                 exportDirectory = exportFileChooser.getSelectedFile();
 
-                for(int i = 0; i < channels.size(); i++)
+                for (Channel channel : channels.values())
                 {
-                    Channel channel = channels.get(i);
                     ObjectXMLSerializer serializer = new ObjectXMLSerializer();
                     String channelXML = serializer.toXML(channel);
                     

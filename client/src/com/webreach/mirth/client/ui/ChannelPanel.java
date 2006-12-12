@@ -47,6 +47,8 @@ public class ChannelPanel extends javax.swing.JPanel
     private final String DIRECTION_COLUMN_NAME = "Direction";
     private final String NAME_COLUMN_NAME = "Name";
     private final String MODE_COLUMN_NAME = "Mode";
+    private final String ID_COLUMN_NAME = "Id";
+    private final int ID_COLUMN_NUMBER = 4;
     private final String INBOUND_DIRECTION = "Inbound";
     private final String OUTBOUND_DIRECTION = "Outbound";
     private final String ENABLED_STATUS = "Enabled";
@@ -109,30 +111,31 @@ public class ChannelPanel extends javax.swing.JPanel
         
         if(parent.channels != null)
         {
-            tableData = new Object[parent.channels.size()][4];
-
-            for (int i=0; i < parent.channels.size(); i++)
+            tableData = new Object[parent.channels.size()][5];
+            
+            int i = 0;
+            for (Channel channel : parent.channels.values())
             {
-                Channel temp = parent.channels.get(i);
-
-                if (temp.isEnabled())
+                if (channel.isEnabled())
                     tableData[i][0] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_blue.png")),"Enabled");
                 else
                     tableData[i][0] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_black.png")),"Disabled");
 
-                if (temp.getDirection().equals(Channel.Direction.INBOUND))
+                if (channel.getDirection().equals(Channel.Direction.INBOUND))
                     tableData[i][1] = INBOUND_DIRECTION;
                 else
                     tableData[i][1] = OUTBOUND_DIRECTION;
 
-                if(temp.getMode() == Channel.Mode.APPLICATION)
+                if(channel.getMode() == Channel.Mode.APPLICATION)
                     tableData[i][2] = APPLICATION;
-                else if(temp.getMode() == Channel.Mode.BROADCAST)
+                else if(channel.getMode() == Channel.Mode.BROADCAST)
                     tableData[i][2] = BROADCAST;
-                else if(temp.getMode() == Channel.Mode.ROUTER)
+                else if(channel.getMode() == Channel.Mode.ROUTER)
                     tableData[i][2] = ROUTER;
 
-                tableData[i][3] = temp.getName();
+                tableData[i][3] = channel.getName();
+                tableData[i][4] = channel.getId();
+                i++;
             }
         }
             
@@ -140,12 +143,12 @@ public class ChannelPanel extends javax.swing.JPanel
             tableData,
             new String []
         {
-            STATUS_COLUMN_NAME, DIRECTION_COLUMN_NAME, MODE_COLUMN_NAME, NAME_COLUMN_NAME
+            STATUS_COLUMN_NAME, DIRECTION_COLUMN_NAME, MODE_COLUMN_NAME, NAME_COLUMN_NAME, ID_COLUMN_NAME
         }
         ) {
             boolean[] canEdit = new boolean []
             {
-                false, false, false, false
+                false, false, false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -161,6 +164,7 @@ public class ChannelPanel extends javax.swing.JPanel
         channelTable.getColumnExt(MODE_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
         
         channelTable.getColumnExt(STATUS_COLUMN_NAME).setCellRenderer(new ImageCellRenderer());
+        channelTable.getColumnExt(ID_COLUMN_NAME).setVisible(false);
         channelTable.packTable(UIConstants.COL_MARGIN);
 
         channelTable.setRowHeight(UIConstants.ROW_HEIGHT);
@@ -248,33 +252,29 @@ public class ChannelPanel extends javax.swing.JPanel
     }
     
     /** Gets the selected channel index that corresponds to the saved channels list */
-    public int getSelectedChannel()
+    public Channel getSelectedChannel()
     {
-        int columnNumber = getColumnNumber(NAME_COLUMN_NAME);
-        
         if (channelTable.getSelectedRow() != -1)
         {
-            String channelName = (String) channelTable.getValueAt(channelTable.getSelectedRow(), columnNumber);
-            for (int i=0; i < parent.channels.size(); i++)
-            {
-                if (parent.channels.get(i).getName().equals(channelName))
-                    return i;
-            }
+            String channelId = (String) channelTable.getModel().getValueAt(channelTable.getSelectedRow(), ID_COLUMN_NUMBER);
+            return parent.channels.get(channelId);
         }
-        return -1;
+        
+        return null;
     }
     
     /** Sets a channel to be selected by taking it's name */
-    public boolean setSelectedChannel(String channelName)
+    public boolean setSelectedChannel(String channelId)
     {
-        int columnNumber = getColumnNumber(NAME_COLUMN_NAME);
-        for (int i = 0; i < parent.channels.size(); i++)
+        int i = 0;
+        for (Channel channel : parent.channels.values())
         {
-            if (channelName.equals(channelTable.getValueAt(i, columnNumber)))
+            if (channelId.equals(channelTable.getModel().getValueAt(i, ID_COLUMN_NUMBER)))
             {
                 channelTable.setRowSelectionInterval(i,i);
                 return true;
             }
+            i++;
         }
         return false;
     }
