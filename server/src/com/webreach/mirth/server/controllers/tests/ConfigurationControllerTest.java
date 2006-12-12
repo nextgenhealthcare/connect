@@ -34,7 +34,7 @@ public class ConfigurationControllerTest extends TestCase {
 		sampleTransport.setTransformers("ByteArrayToString");
 		sampleTransport.setType(Transport.Type.LISTENER);
 		sampleTransport.setInbound(true);
-		sampleTransport.setOutbound(false);
+		sampleTransport.setOutbound(true);
 		Map<String, Transport> testTransportList = configurationController.getTransports();
 
 		Assert.assertTrue(testTransportList.containsValue(sampleTransport));
