@@ -76,10 +76,6 @@ public class ConfigurationServlet extends MirthServlet {
 					String address = request.getParameter("address");
 					WebServiceReader wsReader = new WebServiceReader(address);
 					out.println(serializer.toXML(wsReader.getWSDefinition()));
-				} else if (operation.equals("getResourceByPath")) {
-					response.setContentType("text/plain");
-					String path = request.getParameter("path");
-					out.print(configurationController.getResourceByPath(path));
 				}
 			} catch (Exception e) {
 				throw new ServletException(e);
