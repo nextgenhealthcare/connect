@@ -624,6 +624,11 @@ public class PipeParser extends Parser {
             String messControlID = fields[9];
             String[] procIDComps = split(fields[10], String.valueOf(compSep));
             
+            String sendingApp = (fields[3] == null) ? "" : fields[3];
+            String sendingFacility = (fields[4] == null) ? "" : fields[4];
+            String receivingApp = (fields[5] == null) ? "" : fields[5];
+            String receivingFacility = (fields[6] == null) ? "" : fields[6];
+            
             //fill MSH segment
             String version = "2.4"; //default
             try {
@@ -633,8 +638,13 @@ public class PipeParser extends Parser {
             }
             
             msh = Parser.makeControlMSH(version, getFactory());
+            
             Terser.set(msh, 1, 0, 1, 1, String.valueOf(fieldSep));
             Terser.set(msh, 2, 0, 1, 1, encChars);
+            Terser.set(msh, 3, 0, 1, 1, sendingApp);
+            Terser.set(msh, 4, 0, 1, 1, sendingFacility);
+            Terser.set(msh, 5, 0, 1, 1, receivingApp);
+            Terser.set(msh, 6, 0, 1, 1, receivingFacility);
             Terser.set(msh, 10, 0, 1, 1, messControlID);
             Terser.set(msh, 11, 0, 1, 1, procIDComps[0]);
             Terser.set(msh, 12, 0, 1, 1, version);
