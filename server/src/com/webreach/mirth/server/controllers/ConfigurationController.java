@@ -75,17 +75,22 @@ public class ConfigurationController {
 	private static SecretKey encryptionKey = null;
 	private final String CONF_FOLDER = "conf/";
 	private SqlMapClient sqlMap = SqlConfig.getSqlMapInstance();
+	private static final String CHARSET = "ca.uhn.hl7v2.llp.charset";
 
 	public void initialize() {
 		try {
 			// ast: If an user has choosen one, overwrite the platform encoding
 			// character
 			Properties mirthProperties = PropertyLoader.loadProperties("mirth");
-			System.setProperty("ca.uhn.hl7v2.llp.charset", mirthProperties.getProperty("ca.uhn.hl7v2.llp.charset"));
+			
+			if (mirthProperties.getProperty(CHARSET) != null) {
+				System.setProperty(CHARSET, mirthProperties.getProperty(CHARSET));	
+			}
 		} catch (Exception e) {
 			logger.warn(e);
 		}
-		
+
+		// critical steps
 		try {
 			loadEncryptionKey();
 		} catch (Exception e) {
