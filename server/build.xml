@@ -148,6 +148,8 @@
 			<fileset file="${basedir}/StartMirth-NT.bat" />
 			<fileset file="${basedir}/StopMirth-NT.bat" />
 			<fileset file="${basedir}/wrapper.exe" />
+			<fileset file="${basedir}/wrapper" />
+			<fileset file="${basedir}/wrapper-x86-32bit" />
 		</copy>
 
 		<!-- create the Mirth server jar -->
