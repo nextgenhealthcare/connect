@@ -860,9 +860,9 @@ public class ChannelSetup extends javax.swing.JPanel
      * Save all of the current channel information in the editor to the actual
      * channel
      */
-    public boolean saveChanges(boolean addingNew, boolean validate)
+    public boolean saveChanges()
     {
-        if (!addingNew && currentChannel.getDirection() == Channel.Direction.OUTBOUND){
+        if (currentChannel.getDirection() == Channel.Direction.OUTBOUND){
         	Iterator<Connector> it = currentChannel.getDestinationConnectors().iterator();
         	boolean templateExists = true;
         	while (it.hasNext() && templateExists){
@@ -912,18 +912,15 @@ public class ChannelSetup extends javax.swing.JPanel
                     getColumnNumber(DESTINATION_COLUMN_NAME))));
         temp.setProperties(destinationConnectorClass.getProperties());
         
-        if (validate)// && !local)
+        if (checkAllForms(currentChannel))
         {
-            if (checkAllForms(currentChannel))
-            {
-                enabled = false;
-                
-                if (!parent
-                        .alertOption("There was a problem with one or more of your connectors.  Please validate all of\nyour connectors to find the problem. Would you still like to save this channel even\nthough you will not be able to enable this channel until you fix the problem(s)?"))
-                    return false;
-                else
-                    summaryEnabledCheckbox.setSelected(false);
-            }
+            enabled = false;
+
+            if (!parent
+                    .alertOption("There was a problem with one or more of your connectors.  Please validate all of\nyour connectors to find the problem. Would you still like to save this channel even\nthough you will not be able to enable this channel until you fix the problem(s)?"))
+                return false;
+            else
+                summaryEnabledCheckbox.setSelected(false);
         }
         
         currentChannel.setName(summaryNameField.getText());
@@ -978,8 +975,6 @@ public class ChannelSetup extends javax.swing.JPanel
         
         boolean updated = true;
         
-        //if (!local)
-        //{
         try
         {
             if(!parent.channels.containsKey(currentChannel.getId()))
@@ -993,7 +988,6 @@ public class ChannelSetup extends javax.swing.JPanel
         {
             parent.alertException(e.getStackTrace(), e.getMessage());
         }
-        //}
         
         return updated;
     }
