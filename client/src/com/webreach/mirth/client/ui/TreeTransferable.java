@@ -84,7 +84,7 @@ public class TreeTransferable implements Transferable {
     	 TreeNode parent = data.getParent();
     	 LinkedList<String> nodeQ = new LinkedList<String>();
          while(parent != null){
-        	 nodeQ.add(parent.toString());
+        	 nodeQ.add(parent.toString().replaceAll(" \\(.*\\)", ""));
         	 parent = parent.getParent();
          }
          if (!nodeQ.isEmpty())

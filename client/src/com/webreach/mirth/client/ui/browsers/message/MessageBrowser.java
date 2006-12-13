@@ -83,7 +83,7 @@ public class MessageBrowser extends javax.swing.JPanel
     private final String STATUS_COLUMN_NAME = "Status";
     private final String KEY_COLUMN_NAME = "Key";
     private final String VALUE_COLUMN_NAME = "Value";
-    private final String TYPE_COLUMN_NAME = "Message Type";
+    private final String TYPE_COLUMN_NAME = "Type";
     private final String SOURCE_COLUMN_NAME = "Source";
     private JScrollPane eventPane;
     private JScrollPane mappingsPane;
@@ -382,9 +382,10 @@ public class MessageBrowser extends javax.swing.JPanel
 		            
 		            tableData[i][1] = String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS", calendar);
 		            tableData[i][2] = messageObject.getConnectorName();
-		            tableData[i][3] = messageObject.getStatus();
-		            tableData[i][4] = messageObject.getType();
-		            tableData[i][5] = messageObject.getSource();
+		            
+		            tableData[i][3] = messageObject.getType();
+		            tableData[i][4] = messageObject.getSource();
+		            tableData[i][5] = messageObject.getStatus();
 		        }
 	        }else{
 	        	 tableData = new Object[0][6];
@@ -397,7 +398,7 @@ public class MessageBrowser extends javax.swing.JPanel
                 tableData,
                 new String []
         {
-            MESSAGE_ID_COLUMN_NAME, DATE_COLUMN_NAME, CONNECTOR_COLUMN_NAME, STATUS_COLUMN_NAME, TYPE_COLUMN_NAME, SOURCE_COLUMN_NAME
+            MESSAGE_ID_COLUMN_NAME, DATE_COLUMN_NAME, CONNECTOR_COLUMN_NAME, TYPE_COLUMN_NAME, SOURCE_COLUMN_NAME, STATUS_COLUMN_NAME
         }
         ) {
             boolean[] canEdit = new boolean []

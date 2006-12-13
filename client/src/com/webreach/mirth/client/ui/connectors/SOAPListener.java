@@ -101,7 +101,7 @@ public class SOAPListener extends ConnectorClass
     
     public void updateWSDL()
     {
-        wsdlURL.setText("http" + PlatformUI.SERVER_NAME.substring(PlatformUI.SERVER_NAME.lastIndexOf("://"), PlatformUI.SERVER_NAME.lastIndexOf(":")) + ":" + port.getText() + "/services/" + serviceName.getText() + "?wsdl");
+        wsdlURL.setText("http://" + listenerAddress.getText() + ":" + port.getText() + "/services/" + serviceName.getText() + "?wsdl");
         
     }
     
