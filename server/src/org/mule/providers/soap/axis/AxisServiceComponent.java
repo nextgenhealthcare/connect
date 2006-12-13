@@ -48,6 +48,9 @@ import org.mule.umo.lifecycle.Initialisable;
 import org.mule.umo.lifecycle.InitialisationException;
 import org.w3c.dom.Document;
 
+import com.webreach.mirth.server.controllers.ChannelStatisticsController;
+import com.webreach.mirth.server.controllers.ControllerException;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.namespace.QName;
@@ -91,7 +94,7 @@ public class AxisServiceComponent implements Initialisable, Callable
     public static final String INIT_PROPERTY_USE_SECURITY = "use-servlet-security";
     public static final String INIT_PROPERTY_ENABLE_LIST = "axis.enableListQuery";
     public static final String DEFAULT_AXIS_HOME = "/axisHome";
-
+    private ChannelStatisticsController channelStatisticsController = new ChannelStatisticsController();
     private String transportName = "http";
     private ServletSecurityProvider securityProvider;
     private boolean enableList;
@@ -152,6 +155,8 @@ public class AxisServiceComponent implements Initialisable, Callable
 //            if(i > -1) {
 //                uri = uri.substring(0, i);
 //            }
+            //update stats
+            channelStatisticsController.incReceivedCount(context.getComponentDescriptor().getName());
             uri += context.getMessageAsString();
             UMOEndpointURI endpointUri = new MuleEndpointURI(uri);
             AxisEngine engine = getAxisServer();
@@ -466,6 +471,12 @@ public class AxisServiceComponent implements Initialisable, Callable
         long t2 = 0L;
         long t3 = 0L;
         long t4 = 0L;
+        try {
+			channelStatisticsController.incReceivedCount(context.getComponentDescriptor().getName());
+		} catch (ControllerException e1) {
+			// TODO Auto-generated catch block
+			logger.error(e1);
+		}
         String soapAction = null;
         AxisEngine engine = getAxisServer();
         if (engine == null) {
