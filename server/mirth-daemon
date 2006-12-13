@@ -440,38 +440,9 @@ stopit() {
             fi
         fi
 
-        # We can not predict how long it will take for the wrapper to
-        #  actually stop as it depends on settings in wrapper.conf.
-        #  Loop until it does.
-        savepid=$pid
-        #CNT=0
-        #TOTCNT=0
-        #while [ "X$pid" != "X" ]
-        #do
-            # Show a waiting message every 5 seconds.
-        #    if [ "$CNT" -lt "5" ]
-        #    then
-        #        CNT=`expr $CNT + 1`
-        #    else
-        #        echo "Waiting for $APP_LONG_NAME to exit..."
-        #        CNT=0
-        #    fi
-        #    TOTCNT=`expr $TOTCNT + 1`
-
-        #    sleep 1
-
-         #   testpid
-        #done
-
-        pid=$savepid
-        #testpid
-        #if [ "X$pid" != "X" ]
-        #then
-        #    echo "Failed to stop $APP_LONG_NAME."
-        #    exit 1
-        #else
-            echo "Stopped $APP_LONG_NAME."
-        #fi
+		sleep 5
+		pid=""
+        echo "Stopped $APP_LONG_NAME."
     fi
 }
 
