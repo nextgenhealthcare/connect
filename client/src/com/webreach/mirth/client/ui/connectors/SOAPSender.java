@@ -67,6 +67,7 @@ import org.apache.wsif.schema.ElementType;
 import org.apache.wsif.schema.SchemaType;
 import org.apache.wsif.schema.SequenceElement;
 import org.apache.xerces.dom.ElementImpl;
+import org.jdesktop.swingworker.SwingWorker;
 import org.syntax.jedit.SyntaxDocument;
 import org.syntax.jedit.InputHandler.document_end;
 import org.syntax.jedit.tokenmarker.XMLTokenMarker;
@@ -562,32 +563,52 @@ public class SOAPSender extends ConnectorClass
 
     private void getMethodsButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_getMethodsButtonActionPerformed
     {//GEN-HEADEREND:event_getMethodsButtonActionPerformed
-        try
+    	
+    	parent.setWorking(true);
+        
+        SwingWorker worker = new SwingWorker <Void, Void> ()
         {
-            definition = parent.mirthClient.getWebServiceDefinition(wsdlUrl.getText().trim());
-            
-            if (definition == null)
-            	throw new ClientException("No WSDL Methods Found.");
-            
-            String[] methodNames = new String[definition.getOperations().size()];
-            Iterator<WSOperation> opIterator = definition.getOperations().values().iterator();
-            
-            for (int i = 0; i < definition.getOperations().size(); i++)
-            {
-                methodNames[i] = opIterator.next().getName();
+            public Void doInBackground() 
+            {        
+            	
+                try
+                {
+                    definition = parent.mirthClient.getWebServiceDefinition(wsdlUrl.getText().trim());
+                    if (definition == null)
+                    	throw new ClientException("No WSDL Methods Found.");
+                    return null;
+                }
+                catch(ClientException e)
+                {
+                	
+                    parent.alertError("No methods found.  Check the WSDL URL and try again.");
+                    return null;
+                }
             }
+            
+            public void done()
+            {
+                
+                
+                String[] methodNames = new String[definition.getOperations().size()];
+                Iterator<WSOperation> opIterator = definition.getOperations().values().iterator();
+                
+                for (int i = 0; i < definition.getOperations().size(); i++)
+                {
+                    methodNames[i] = opIterator.next().getName();
+                }
 
-            method.setModel(new javax.swing.DefaultComboBoxModel(methodNames));
-            method.setSelectedIndex(0);
-            serviceEndpoint.setText(definition.getServiceEndpointURI());
-            soapActionURI.setText(definition.getOperations().get(method.getSelectedItem()).getSoapActionURI());
-            setupTable( definition.getOperations().get(method.getSelectedItem()).getParameters() ); 
-            buildSoapEnvelope();
-        }
-        catch(ClientException e)
-        {
-            parent.alertError("No methods found.  Check the WSDL URL and try again.");
-        }
+                method.setModel(new javax.swing.DefaultComboBoxModel(methodNames));
+                method.setSelectedIndex(0);
+                serviceEndpoint.setText(definition.getServiceEndpointURI());
+                soapActionURI.setText(definition.getOperations().get(method.getSelectedItem()).getSoapActionURI());
+                setupTable( definition.getOperations().get(method.getSelectedItem()).getParameters() ); 
+                buildSoapEnvelope();
+            	parent.setWorking(false);
+            }
+            
+        };
+        worker.execute();
     }//GEN-LAST:event_getMethodsButtonActionPerformed
 
 

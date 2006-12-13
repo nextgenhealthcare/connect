@@ -862,9 +862,17 @@ public class ChannelSetup extends javax.swing.JPanel
      */
     public boolean saveChanges(boolean addingNew, boolean validate)
     {
-        if (!addingNew && currentChannel.getDirection() == Channel.Direction.OUTBOUND && currentChannel.getSourceConnector().getTransformer().getSteps().size() == 0)
-            parent.alertWarning("This channel has a blank transformer template.");
-        
+        if (!addingNew && currentChannel.getDirection() == Channel.Direction.OUTBOUND){
+        	Iterator<Connector> it = currentChannel.getDestinationConnectors().iterator();
+        	boolean templateExists = true;
+        	while (it.hasNext() && templateExists){
+        		Connector destinationConnector = it.next();
+        		if (destinationConnector.getTransformer().getTemplate() == null || destinationConnector.getTransformer().getTemplate().length() == 0){
+        			parent.alertWarning("This channel has a blank transformer template.");
+        			templateExists = false;
+        		}
+        	}
+    	}
         if (summaryNameField.getText().equals(""))
         {
             JOptionPane.showMessageDialog(parent,

@@ -8007,7 +8007,7 @@ public class HL7Reference {
 		map.put("MFE.1", "Record-level Event Code");
 		map.put("MFE.2", "MFN Control ID");
 		map.put("MFE.3", "Effective Date/Time");
-		map.put("MFE.4", "Primary Key Value - Mfe");
+		map.put("MFE.4", "Primary Key Value - MFE");
 		map.put("MFE.5", "Primary Key Value Type");
 		map.put("MFI", "Master File Identification Segment");
 		map.put("MFI.1", "Master File Identifier");
@@ -8016,7 +8016,7 @@ public class HL7Reference {
 		map.put("MFI.4", "Entered Date/Time");
 		map.put("MFI.5", "Effective Date/Time");
 		map.put("MFI.6", "Response Level Code");
-		map.put("MRG", "Merge Patient Information Segment-");
+		map.put("MRG", "Merge Patient Information Segment");
 		map.put("MRG.1", "Prior Patient Identifier List");
 		map.put("MRG.2", "Prior Alternate Patient ID");
 		map.put("MRG.3", "Prior Patient Account Number");
@@ -8054,7 +8054,7 @@ public class HL7Reference {
 		map.put("MSH.20", "Alternate Character Set Handling Scheme");
 		map.put("NCK", "System Clock");
 		map.put("NCK.1", "System Date/Time");
-		map.put("NK1", "Next of Kin/Associated Parties Segment-");
+		map.put("NK1", "Next of Kin/Associated Parties Segment");
 		map.put("NK1.1", "Set ID - NK1");
 		map.put("NK1.2", "Name");
 		map.put("NK1.3", "Relationship");
@@ -8540,7 +8540,7 @@ public class HL7Reference {
 		map.put("PTH.4", "Pathway Established Date/Time");
 		map.put("PTH.5", "Pathway Life Cycle Status");
 		map.put("PTH.6", "Change Pathway Life Cycle Status Date/Time");
-		map.put("PV1", "Patient Visit Segment-");
+		map.put("PV1", "Patient Visit Segment");
 		map.put("PV1.1", "Set ID - PV1");
 		map.put("PV1.2", "Patient Class");
 		map.put("PV1.3", "Assigned Patient Location");

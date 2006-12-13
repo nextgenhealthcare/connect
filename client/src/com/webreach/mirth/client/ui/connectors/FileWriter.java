@@ -160,7 +160,7 @@ public class FileWriter extends ConnectorClass
 
         fileContentsTextPane.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
-        charsetEncodingCombobox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "default", "utf-8", "iso-8859-1", "utf-16 (le)", "utf-16 (be)", "utf-16 (bom)", "us-ascii" }));
+        charsetEncodingCombobox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Default", "UTF-8", "ISO-8859-1", "UTF-16 (le)", "UTF-16 (be)", "UTF-16 (bom)", "US-ASCII" }));
 
         jLabel41.setText("Encoding:");
 
