@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
-import com.webreach.mirth.server.mule.util.GlobalVariableStore;
 
 public class HL7Reference {
 	
