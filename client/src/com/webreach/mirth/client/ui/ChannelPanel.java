@@ -256,14 +256,14 @@ public class ChannelPanel extends javax.swing.JPanel
     {
         if (channelTable.getSelectedRow() != -1)
         {
-            String channelId = (String) channelTable.getModel().getValueAt(channelTable.getSelectedRow(), ID_COLUMN_NUMBER);
+            String channelId = (String) channelTable.getModel().getValueAt(channelTable.convertRowIndexToModel(channelTable.getSelectedRow()), ID_COLUMN_NUMBER);
             return parent.channels.get(channelId);
         }
         
         return null;
     }
     
-    /** Sets a channel to be selected by taking it's name */
+    /** Sets a channel to be selected by taking it's id */
     public boolean setSelectedChannel(String channelId)
     {
         int i = 0;

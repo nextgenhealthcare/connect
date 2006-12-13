@@ -373,7 +373,7 @@
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel39">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Encoding to use:"/>
+        <Property name="text" type="java.lang.String" value="Encoding:"/>
       </Properties>
     </Component>
   </SubComponents>

@@ -391,7 +391,7 @@
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel20">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Encoding to use:"/>
+        <Property name="text" type="java.lang.String" value="Encoding:"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel36">
