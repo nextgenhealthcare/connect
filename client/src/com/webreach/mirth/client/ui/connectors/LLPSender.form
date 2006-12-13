@@ -87,18 +87,17 @@
                   <Component id="charsetEncodingCombobox" min="-2" max="-2" attributes="0"/>
                   <Component id="ackTimeoutField" min="-2" pref="75" max="-2" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="ascii" alignment="0" min="-2" max="-2" attributes="0"/>
-                          <Group type="103" alignment="0" groupAlignment="1" max="-2" attributes="0">
-                              <Component id="maximumRetryCountField" alignment="0" max="32767" attributes="1"/>
-                              <Component id="keepConnectionOpenYesRadio" alignment="0" max="32767" attributes="1"/>
-                          </Group>
+                      <Component id="ascii" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="hex" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Group type="103" groupAlignment="1" max="-2" attributes="0">
+                          <Component id="maximumRetryCountField" alignment="0" max="32767" attributes="1"/>
+                          <Component id="keepConnectionOpenYesRadio" alignment="0" max="32767" attributes="1"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="keepConnectionOpenNoRadio" alignment="0" min="-2" max="-2" attributes="0"/>
-                          <Component id="hex" alignment="0" min="-2" max="-2" attributes="0"/>
-                      </Group>
+                      <Component id="keepConnectionOpenNoRadio" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
               <EmptySpace pref="142" max="32767" attributes="0"/>
