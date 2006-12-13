@@ -59,14 +59,14 @@ public class HL7ToMessageObject extends AbstractTransformer {
 		messageObject.setRawDataProtocol(MessageObject.Protocol.HL7);
 
 		try {
-			Message message = hapiSerializer.deserialize(rawData);
+			Message message = hapiSerializer.deserialize(rawData.replaceAll("\n", "\r"));
 			Terser terser = new Terser(message);
 			String sendingFacility = terser.get("/MSH-4-1");
 			String event = terser.get("/MSH-9-1") + "-" + terser.get("/MSH-9-2");
 			messageObject.setSource(sendingFacility);
 			messageObject.setType(event);
 			messageObject.setVersion(message.getVersion());
-			messageObject.setTransformedData(xmlSerializer.toXML(rawData));
+			messageObject.setTransformedData(xmlSerializer.toXML(rawData.replaceAll("\n", "\r")));
 		} catch (Exception e) {
 			logger.warn("error transforming message", e);
 			messageObject.setErrors(StackTracePrinter.stackTraceToString(e));

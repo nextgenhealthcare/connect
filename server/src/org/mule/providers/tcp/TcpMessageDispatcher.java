@@ -40,6 +40,7 @@ import org.mule.util.queue.Queue;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.mule.util.BatchMessageProcessor;
+import com.webreach.mirth.server.util.StackTracePrinter;
 
 /**
  * f <code>TcpMessageDispatcher</code> will send transformed mule events over
@@ -181,7 +182,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 		if (!success) {
 			if (messageObject != null) {
 				messageObject.setStatus(MessageObject.Status.ERROR);
-				messageObject.setErrors("Can't connect to the endpoint " + exceptionWriting);
+				messageObject.setErrors("Can't connect to the endpoint\n" + StackTracePrinter.stackTraceToString(exceptionWriting));
 				messageObjectController.updateMessage(messageObject);
 				connector.incErrorStatistics(event.getComponent());
 			}

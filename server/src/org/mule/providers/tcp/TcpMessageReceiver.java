@@ -304,7 +304,7 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
 				os = new ResponseOutputStream(socket.getOutputStream(), socket);
 				returnMessage = routeMessage(new MuleMessage(adapter), endpoint
 						.isSynchronous(), os);
-				generateACK(new String(data), os);
+				generateACK(new String(data), os);		
 			}
 			//The return message is always the last message routed if in a batch
 			//TODO: Check this for 1.2.1

@@ -38,6 +38,7 @@ import org.mule.umo.endpoint.UMOEndpointURI;
 
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.controllers.MessageObjectController;
+import com.webreach.mirth.server.util.StackTracePrinter;
 
 /**
  * @author <a href="mailto:gnt@codehaus.org">Guillaume Nodet</a>
@@ -58,13 +59,13 @@ public class FtpMessageDispatcher extends AbstractMessageDispatcher {
 		UMOEndpointURI uri = event.getEndpoint().getEndpointURI();
 		TemplateValueReplacer replacer = new TemplateValueReplacer();
 		FTPClient client = null;
-
+		MessageObject messageObject = null;
 		try {
 			Object data = event.getTransformedMessage();
 			if (data == null) {
 				return;
 			} else if (data instanceof MessageObject) {
-				MessageObject messageObject = (MessageObject) data;
+				messageObject = (MessageObject) data;
 				
 				if (messageObject.getStatus().equals(MessageObject.Status.REJECTED)){
 					return;
@@ -105,6 +106,12 @@ public class FtpMessageDispatcher extends AbstractMessageDispatcher {
 				logger.warn("received data is not of expected type");
 			}
 		} catch (Exception e) {
+			if (messageObject != null){
+				messageObject.setStatus(MessageObject.Status.ERROR);
+				messageObject.setErrors("Error writing to FTP\n" + StackTracePrinter.stackTraceToString(e));
+				messageObjectController.updateMessage(messageObject);
+			}
+			connector.releaseFtp(uri, client);
 			connector.handleException(e);
 		} finally {
 			connector.releaseFtp(uri, client);

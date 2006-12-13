@@ -19,6 +19,7 @@ import com.lowagie.text.html.HtmlParser;
 import com.lowagie.text.pdf.PdfWriter;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.controllers.MessageObjectController;
+import com.webreach.mirth.server.util.StackTracePrinter;
 
 public class PdfMessageDispatcher extends AbstractMessageDispatcher {
 	private PdfConnector connector;
@@ -33,13 +34,13 @@ public class PdfMessageDispatcher extends AbstractMessageDispatcher {
 	public void doDispatch(UMOEvent event) throws Exception {
 		TemplateValueReplacer replacer = new TemplateValueReplacer();
 		String endpoint = event.getEndpoint().getEndpointURI().getAddress();
-
+		MessageObject messageObject = null;
 		try {
 			Object data = event.getTransformedMessage();
 			if (data == null) {
 				return;
 			} else if (data instanceof MessageObject) {
-				MessageObject messageObject = (MessageObject) data;
+				messageObject = (MessageObject) data;
 				
 				if (messageObject.getStatus().equals(MessageObject.Status.REJECTED)){
 					return;
@@ -73,6 +74,11 @@ public class PdfMessageDispatcher extends AbstractMessageDispatcher {
 				logger.warn("received data is not of expected type");
 			}
 		} catch (Exception e) {
+			if (messageObject != null){
+				messageObject.setStatus(MessageObject.Status.ERROR);
+				messageObject.setErrors("Error writing the PDF\n" +  StackTracePrinter.stackTraceToString(e));
+				messageObjectController.updateMessage(messageObject);
+			}
 			connector.handleException(e);
 		}
 	}

@@ -74,6 +74,7 @@ import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.ws.WSParameter;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.mule.util.GlobalVariableStore;
+import com.webreach.mirth.server.util.StackTracePrinter;
 
 /**
  * <code>AxisMessageDispatcher</code> is used to make soap requests via the
@@ -88,6 +89,7 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher {
 	private Map<String, SoapMethod> callParameters;
 
 	protected SimpleProvider clientConfig;
+	private MessageObjectController messageObjectController = new MessageObjectController();
 
 	public AxisMessageDispatcher(AxisConnector connector) throws UMOException {
 		super(connector);
@@ -200,14 +202,12 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher {
 	}
 
 	private Object[] invokeWebService(UMOEvent event, MessageObject messageObject) throws Exception {
+		try{
 		AxisProperties.setProperty("axis.doAutoTypes", "true");
 		Object[] args = new Object[0];// getArgs(event);
 		Call call = getCall(event, args);
 		call = new Call(((AxisConnector) connector).getServiceEndpoint());
 		String requestMessage = ((AxisConnector) connector).getSoapEnvelope();
-		
-		
-
 		// Run the template replacer on the xml
 		TemplateValueReplacer replacer = new TemplateValueReplacer();
 		requestMessage = replacer.replaceValues(requestMessage, messageObject, null);
@@ -235,11 +235,21 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher {
 		}
 		// update the message status to sent
 		messageObject.setStatus(MessageObject.Status.SENT);
-		new MessageObjectController().updateMessage(messageObject);
+		messageObjectController.updateMessage(messageObject);
 		Object[] retVal = new Object[2];
 		retVal[0] = result;
 		retVal[1] = call.getMessageContext();
 		return retVal;
+		}catch(Exception e){
+			if (messageObject != null){
+				messageObject.setStatus(MessageObject.Status.ERROR);
+				messageObject.setErrors("Error invoking Web Service\n" +  StackTracePrinter.stackTraceToString(e));
+				messageObjectController.updateMessage(messageObject);
+			}
+			connector.handleException(e);
+			return null;
+		}
+
 	}
 
 	public UMOMessage doSend(UMOEvent event) throws Exception {

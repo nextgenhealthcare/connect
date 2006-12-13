@@ -31,6 +31,7 @@ import org.mule.umo.provider.UMOMessageAdapter;
 
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.controllers.MessageObjectController;
+import com.webreach.mirth.server.util.StackTracePrinter;
 
 import java.sql.Connection;
 import java.util.ArrayList;
@@ -40,194 +41,186 @@ import java.util.List;
  * @author Guillaume Nodet
  * @version $Revision: 1.8 $
  */
-public class JdbcMessageDispatcher extends AbstractMessageDispatcher
-{
-    private MessageObjectController messageObjectController = new MessageObjectController();
+public class JdbcMessageDispatcher extends AbstractMessageDispatcher {
+	private MessageObjectController messageObjectController = new MessageObjectController();
 
-    private JdbcConnector connector;
+	private JdbcConnector connector;
 
-    public JdbcMessageDispatcher(JdbcConnector connector)
-    {
-        super(connector);
-        this.connector = connector;
-    }
+	public JdbcMessageDispatcher(JdbcConnector connector) {
+		super(connector);
+		this.connector = connector;
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.mule.providers.AbstractMessageDispatcher#doDispose()
-     */
-    public void doDispose()
-    {
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.mule.providers.AbstractMessageDispatcher#doDispose()
+	 */
+	public void doDispose() {
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.mule.providers.AbstractMessageDispatcher#doDispatch(org.mule.umo.UMOEvent)
-     */
-    public void doDispatch(UMOEvent event) throws Exception
-    {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Dispatch event: " + event);
-        }
-			
-        Object data =null;
-        MessageObject messageObject = null;
-        UMOTransaction tx =null;
-        Connection con = null;
-        try{
-            data = event.getTransformedMessage();
-        }catch(Exception ext){
-            logger.error("Error at tranformer"+ext);
-            throw ext;
-        }    
-	if (data instanceof MessageObject) {
-            messageObject = (MessageObject) data;			
-			if (messageObject.getStatus().equals(MessageObject.Status.REJECTED)){
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.mule.providers.AbstractMessageDispatcher#doDispatch(org.mule.umo.UMOEvent)
+	 */
+	public void doDispatch(UMOEvent event) throws Exception {
+		if (logger.isDebugEnabled()) {
+			logger.debug("Dispatch event: " + event);
+		}
+
+		Object data = null;
+		MessageObject messageObject = null;
+		UMOTransaction tx = null;
+		Connection con = null;
+		try {
+			data = event.getTransformedMessage();
+		} catch (Exception ext) {
+			logger.error("Error at tranformer" + ext);
+			throw ext;
+		}
+		if (data instanceof MessageObject) {
+			messageObject = (MessageObject) data;
+			if (messageObject.getStatus().equals(MessageObject.Status.REJECTED)) {
+				//TODO: Check if this should be here
 				return;
 			}
 		}
-        try {
-        UMOEndpoint endpoint = event.getEndpoint();
-        UMOEndpointURI endpointURI = endpoint.getEndpointURI();
-        String writeStmt = endpointURI.getAddress();
-        String str;
-        if ((str = this.connector.getQuery(endpoint, writeStmt)) != null) {
-            writeStmt = str;
-        }
-        if (writeStmt == null) {
-            throw new IllegalArgumentException("Write statement should not be null");
-        }
-        if (!"insert".equalsIgnoreCase(writeStmt.substring(0, 6))
-                && !"update".equalsIgnoreCase(writeStmt.substring(0, 6))
-                && !"delete".equalsIgnoreCase(writeStmt.substring(0, 6))) {
-            throw new IllegalArgumentException("Write statement should be an insert / update / delete sql statement");
-        }
-        List paramNames = new ArrayList();
-        writeStmt = JdbcUtils.parseStatement(writeStmt, paramNames);
-        Object[] paramValues = JdbcUtils.getParams(endpointURI, paramNames, data);
+		try {
+			UMOEndpoint endpoint = event.getEndpoint();
+			UMOEndpointURI endpointURI = endpoint.getEndpointURI();
+			String writeStmt = endpointURI.getAddress();
+			String str;
+			if ((str = this.connector.getQuery(endpoint, writeStmt)) != null) {
+				writeStmt = str;
+			}
+			if (writeStmt == null) {
+				throw new IllegalArgumentException("Write statement should not be null");
+			}
+			if (!"insert".equalsIgnoreCase(writeStmt.substring(0, 6)) && !"update".equalsIgnoreCase(writeStmt.substring(0, 6)) && !"delete".equalsIgnoreCase(writeStmt.substring(0, 6))) {
+				throw new IllegalArgumentException("Write statement should be an insert / update / delete sql statement");
+			}
+			List paramNames = new ArrayList();
+			writeStmt = JdbcUtils.parseStatement(writeStmt, paramNames);
+			Object[] paramValues = JdbcUtils.getParams(endpointURI, paramNames, data);
 
-            tx = TransactionCoordination.getInstance().getTransaction();            
-        
-            con = this.connector.getConnection();
+			tx = TransactionCoordination.getInstance().getTransaction();
 
-            int nbRows = new QueryRunner().update(con, writeStmt, paramValues);
-            if (nbRows != 1) {
-                logger.warn("Row count for write should be 1 and not " + nbRows);
-            }
-            if (tx == null) {
-                JdbcUtils.commitAndClose(con);
-            }
-            logger.debug("Event dispatched succesfuly");
-        } catch (Exception e) {
-            logger.debug("Error dispatching event: " + e.getMessage(), e);
-            if (tx == null) {
-                JdbcUtils.rollbackAndClose(con);
-            }
-            if (messageObject!=null){
-                messageObject.setStatus(MessageObject.Status.ERROR);
-                messageObject.setErrors("Error writing to the database"+e);
-		messageObjectController.updateMessage(messageObject);            
-            }
-            throw e;
-        }
-        if (messageObject!=null){
-            messageObject.setStatus(MessageObject.Status.SENT);
-            messageObjectController.updateMessage(messageObject);            
-        }
-        
-    }
+			con = this.connector.getConnection();
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.mule.providers.AbstractMessageDispatcher#doSend(org.mule.umo.UMOEvent)
-     */
-    public UMOMessage doSend(UMOEvent event) throws Exception
-    {
-        doDispatch(event);
-        return event.getMessage();
-    }
+			int nbRows = new QueryRunner().update(con, writeStmt, paramValues);
+			if (nbRows != 1) {
+				logger.warn("Row count for write should be 1 and not " + nbRows);
+			}
+			if (tx == null) {
+				JdbcUtils.commitAndClose(con);
+			}
+	        if (messageObject!=null){
+	            messageObject.setStatus(MessageObject.Status.SENT);
+	            messageObjectController.updateMessage(messageObject);            
+	        }
+	        
+			logger.debug("Event dispatched succesfuly");
+			
+		} catch (Exception e) {
+			logger.debug("Error dispatching event: " + e.getMessage(), e);
+			if (tx == null) {
+				JdbcUtils.rollbackAndClose(con);
+			}
+			if (messageObject != null) {
+				messageObject.setStatus(MessageObject.Status.ERROR);
+				messageObject.setErrors("Error writing to the database\n" + StackTracePrinter.stackTraceToString(e));
+				messageObjectController.updateMessage(messageObject);
+			}
+			connector.handleException(e);
+			// throw e;
+		}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.mule.umo.provider.UMOMessageDispatcher#receive(org.mule.umo.endpoint.UMOEndpointURI,
-     *      long)
-     */
-    public UMOMessage receive(UMOEndpointURI endpointUri, long timeout) throws Exception
-    {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Trying to receive a message with a timeout of " + timeout);
-        }
+	}
 
-        String[] stmts = this.connector.getReadAndAckStatements(endpointUri, null);
-        String readStmt = stmts[0];
-        String ackStmt = stmts[1];
-        List readParams = new ArrayList();
-        List ackParams = new ArrayList();
-        readStmt = JdbcUtils.parseStatement(readStmt, readParams);
-        ackStmt = JdbcUtils.parseStatement(ackStmt, ackParams);
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.mule.providers.AbstractMessageDispatcher#doSend(org.mule.umo.UMOEvent)
+	 */
+	public UMOMessage doSend(UMOEvent event) throws Exception {
+		doDispatch(event);
+		return event.getMessage();
+	}
 
-        Connection con = null;
-        long t0 = System.currentTimeMillis();
-        try {
-            con = this.connector.getConnection();
-            if (timeout < 0) {
-                timeout = Long.MAX_VALUE;
-            }
-            Object result = null;
-            do {
-                result = new QueryRunner().query(con,
-                                                 readStmt,
-                                                 JdbcUtils.getParams(endpointUri, readParams, null),
-                                                 new MapHandler());
-                if (result != null) {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("Received: " + result);
-                    }
-                    break;
-                }
-                long sleep = Math.min(this.connector.getPollingFrequency(), timeout - (System.currentTimeMillis() - t0));
-                if (sleep > 0) {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("No results, sleeping for " + sleep);
-                    }
-                    Thread.sleep(sleep);
-                } else {
-                    logger.debug("Timeout");
-                    return null;
-                }
-            } while (true);
-            if (result != null && ackStmt != null) {
-                int nbRows = new QueryRunner().update(con, ackStmt, JdbcUtils.getParams(endpointUri, ackParams, result));
-                if (nbRows != 1) {
-                    logger.warn("Row count for ack should be 1 and not " + nbRows);
-                }
-            }
-            UMOMessageAdapter msgAdapter = this.connector.getMessageAdapter(result);
-            UMOMessage message = new MuleMessage(msgAdapter);
-            JdbcUtils.commitAndClose(con);
-            return message;
-        } catch (Exception e) {
-            JdbcUtils.rollbackAndClose(con);
-            throw e;
-        }
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.mule.umo.provider.UMOMessageDispatcher#receive(org.mule.umo.endpoint.UMOEndpointURI,
+	 *      long)
+	 */
+	public UMOMessage receive(UMOEndpointURI endpointUri, long timeout) throws Exception {
+		if (logger.isDebugEnabled()) {
+			logger.debug("Trying to receive a message with a timeout of " + timeout);
+		}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.mule.umo.provider.UMOMessageDispatcher#getDelegateSession()
-     */
-    public Object getDelegateSession() throws UMOException
-    {
-        try {
-            return connector.getConnection();
-        } catch (Exception e) {
-            throw new ConnectorException(new Message(Messages.FAILED_TO_CREATE_X, "Jdbc Connection"), connector, e);
-        }
-    }
+		String[] stmts = this.connector.getReadAndAckStatements(endpointUri, null);
+		String readStmt = stmts[0];
+		String ackStmt = stmts[1];
+		List readParams = new ArrayList();
+		List ackParams = new ArrayList();
+		readStmt = JdbcUtils.parseStatement(readStmt, readParams);
+		ackStmt = JdbcUtils.parseStatement(ackStmt, ackParams);
+
+		Connection con = null;
+		long t0 = System.currentTimeMillis();
+		try {
+			con = this.connector.getConnection();
+			if (timeout < 0) {
+				timeout = Long.MAX_VALUE;
+			}
+			Object result = null;
+			do {
+				result = new QueryRunner().query(con, readStmt, JdbcUtils.getParams(endpointUri, readParams, null), new MapHandler());
+				if (result != null) {
+					if (logger.isDebugEnabled()) {
+						logger.debug("Received: " + result);
+					}
+					break;
+				}
+				long sleep = Math.min(this.connector.getPollingFrequency(), timeout - (System.currentTimeMillis() - t0));
+				if (sleep > 0) {
+					if (logger.isDebugEnabled()) {
+						logger.debug("No results, sleeping for " + sleep);
+					}
+					Thread.sleep(sleep);
+				} else {
+					logger.debug("Timeout");
+					return null;
+				}
+			} while (true);
+			if (result != null && ackStmt != null) {
+				int nbRows = new QueryRunner().update(con, ackStmt, JdbcUtils.getParams(endpointUri, ackParams, result));
+				if (nbRows != 1) {
+					logger.warn("Row count for ack should be 1 and not " + nbRows);
+				}
+			}
+			UMOMessageAdapter msgAdapter = this.connector.getMessageAdapter(result);
+			UMOMessage message = new MuleMessage(msgAdapter);
+			JdbcUtils.commitAndClose(con);
+			return message;
+		} catch (Exception e) {
+			JdbcUtils.rollbackAndClose(con);
+			throw e;
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.mule.umo.provider.UMOMessageDispatcher#getDelegateSession()
+	 */
+	public Object getDelegateSession() throws UMOException {
+		try {
+			return connector.getConnection();
+		} catch (Exception e) {
+			throw new ConnectorException(new Message(Messages.FAILED_TO_CREATE_X, "Jdbc Connection"), connector, e);
+		}
+	}
 
 }

@@ -36,6 +36,7 @@ import org.mule.util.Utility;
 
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.controllers.MessageObjectController;
+import com.webreach.mirth.server.util.StackTracePrinter;
 
 /**
  * <code>FileMessageDispatcher</code> is used to read/write files to the
@@ -112,9 +113,11 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
 				logger.warn("received data is not of expected type");
 			}
 		} catch (Exception e) {
-			messageObject.setStatus(MessageObject.Status.ERROR);
-			messageObject.setErrors("Error writing the file" + e);
-			messageObjectController.updateMessage(messageObject);
+			if (messageObject != null){
+				messageObject.setStatus(MessageObject.Status.ERROR);
+				messageObject.setErrors("Error writing the file\n" +  StackTracePrinter.stackTraceToString(e));
+				messageObjectController.updateMessage(messageObject);
+			}
 			connector.handleException(e);
 		} finally {
 			if (fos != null) {

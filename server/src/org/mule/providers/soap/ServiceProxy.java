@@ -142,7 +142,7 @@ public class ServiceProxy {
             if (message != null) {
             	Object data = message.getPayload();
             	if (data instanceof MessageObject){
-            		return new ACKGenerator().generateAckResponse(((MessageObject)message.getPayload()).getRawData());
+            		return new ACKGenerator().generateAckResponse(((MessageObject)message.getPayload()).getRawData().replaceAll("\n", "\r"));
             	}else if (data instanceof SOAPEnvelope){
             		return ((SOAPEnvelope)data).toString();
             	}else if (data != null){
