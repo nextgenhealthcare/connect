@@ -1761,7 +1761,7 @@ public class Frame extends JXFrame
                     channel.setEnabled(true);
                     updateChannel(channel);
                     channelPanel.deselectRows();
-                    channelPanel.setSelectedChannel(channel.getName());
+                    channelPanel.setSelectedChannel(channel.getId());
                 }
                 return null;
             }
@@ -1792,7 +1792,7 @@ public class Frame extends JXFrame
                     channel.setEnabled(false);
                     updateChannel(channel);
                     channelPanel.deselectRows();
-                    channelPanel.setSelectedChannel(channel.getName());
+                    channelPanel.setSelectedChannel(channel.getId());
                 }
                 return null;
             }

@@ -271,7 +271,8 @@ public class ChannelPanel extends javax.swing.JPanel
         {
             if (channelId.equals(channelTable.getModel().getValueAt(i, ID_COLUMN_NUMBER)))
             {
-                channelTable.setRowSelectionInterval(i,i);
+                int row = channelTable.convertRowIndexToView(i);
+                channelTable.setRowSelectionInterval(row,row);
                 return true;
             }
             i++;
