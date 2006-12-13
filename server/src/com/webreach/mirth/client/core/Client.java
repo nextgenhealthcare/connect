@@ -170,10 +170,10 @@ public class Client {
 	 * @throws ClientException
 	 */
         //ast: The avaiable charset encodings depends on the JVM in which the server is running
-	public synchronized Vector<String> getAvaiableCharsetEncodings() throws ClientException {
+	public synchronized List<String> getAvaiableCharsetEncodings() throws ClientException {
 		logger.debug("retrieving the server supported charset encoging list");
 		NameValuePair[] params = { new NameValuePair("op", "getAvaiableCharsetEncodings") };
-		return (Vector<String>) serializer.fromXML(serverConnection.executePostMethod(CONFIGURATION_SERVLET, params));
+		return (List<String>) serializer.fromXML(serverConnection.executePostMethod(CONFIGURATION_SERVLET, params));
 	}
         
 	/**
