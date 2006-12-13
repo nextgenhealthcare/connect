@@ -348,10 +348,15 @@ class MirthLoginService extends LoginService
             {
                 if(client.login(user,pw))
                 {
-                    PlatformUI.USER_NAME = user;
-                    PlatformUI.SERVER_NAME = mirthServer;
-                    mirth = new Mirth(client);
-                    return true;
+                    try{
+                        PlatformUI.USER_NAME = user;
+                        PlatformUI.SERVER_NAME = mirthServer;
+                        mirth = new Mirth(client);
+                        return true;
+                    }catch(Throwable t){
+                        System.out.println("Error starting the Frame: "+t);
+                        t.printStackTrace();
+                    }
                 }
             }
             catch (ClientException ex)

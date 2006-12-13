@@ -26,11 +26,6 @@
 
 package com.webreach.mirth.client.ui;
 
-import com.webreach.mirth.client.ui.editors.filter.FilterPane;
-import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
-import com.webreach.mirth.client.ui.util.ImportConverter;
-import com.webreach.mirth.model.ChannelSummary;
-import com.webreach.mirth.model.filters.MessageObjectFilter;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -43,7 +38,9 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.prefs.Preferences;
 
 import javax.swing.Action;
@@ -56,9 +53,9 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.UIManager;
+
 import org.apache.log4j.Logger;
 import org.jdesktop.swingworker.SwingWorker;
-
 import org.jdesktop.swingx.JXFrame;
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
@@ -73,13 +70,16 @@ import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.ui.browsers.event.EventBrowser;
 import com.webreach.mirth.client.ui.browsers.message.MessageBrowser;
 import com.webreach.mirth.client.ui.connectors.ConnectorClass;
+import com.webreach.mirth.client.ui.editors.filter.FilterPane;
+import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
 import com.webreach.mirth.client.ui.util.FileUtil;
+import com.webreach.mirth.client.ui.util.ImportConverter;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.ChannelStatus;
+import com.webreach.mirth.model.ChannelSummary;
 import com.webreach.mirth.model.User;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
-import java.util.HashMap;
-import java.util.Map;
+import com.webreach.mirth.model.filters.MessageObjectFilter;
 
 /**
  * The main conent frame for the Mirth Client Application.
@@ -142,6 +142,10 @@ public class Frame extends JXFrame
     private static Preferences userPreferences;
     private StatusUpdater su;
     private boolean connectionError;
+    //ast: charset encoding list
+    private ArrayList<CharsetEncodingInformation>  avaiableCharsetEncodings=null;
+    private List<String> charsetEncodings=null;
+    
     
     public Frame()
     {
@@ -174,6 +178,92 @@ public class Frame extends JXFrame
             }
         });
     }
+    
+    //ast: encoding
+    /**
+     * Prepares the list of the encodings
+     * This method is called from the ChannelSetup class
+     *
+     **/
+    public synchronized void setCharsetEncodings(){
+        if (this.avaiableCharsetEncodings!=null) return;
+        try{            
+            this.charsetEncodings=this.mirthClient.getAvaiableCharsetEncodings();
+            this.avaiableCharsetEncodings=new ArrayList();
+            this.avaiableCharsetEncodings.add(new CharsetEncodingInformation(UIConstants.DEFAULT_ENCODING_OPTION,"Default"));
+            for (int i=0;i<charsetEncodings.size();i++){
+                String canonical=(String) charsetEncodings.get(i);
+                this.avaiableCharsetEncodings.add(new CharsetEncodingInformation(canonical,canonical));
+            }       
+        }catch(Exception e){
+            alertInformation("Error getting the charset list\n "+e);
+        }
+    }
+    
+    /**
+     ** Creates all the items in the combo box  for the channels
+     *
+     *  This method is called from each  channel
+     */
+    //ast: encoding
+    public void setupCharsetEncodingForChannel(javax.swing.JComboBox channelCombo){
+        if (this.avaiableCharsetEncodings==null){
+            this.setCharsetEncodings();
+        }
+        if (this.avaiableCharsetEncodings==null){
+            logger.error("Error, no encodings detected ");
+            return;
+        } 
+        channelCombo.removeAllItems();    
+        for (int i=0;i<this.avaiableCharsetEncodings.size();i++){
+            channelCombo.addItem(this.avaiableCharsetEncodings.get(i));
+        }
+    }
+    
+    /**
+     * stes the combobox for the string previously selected
+     * If the server can't support the encoding, the default one is selectd
+     *This method is called from each  channel
+     */
+    //ast: encoding
+    public void sePreviousSelectedEncodingForChannel(javax.swing.JComboBox channelCombo,String selectedCharset){
+        if (this.avaiableCharsetEncodings==null){
+            this.setCharsetEncodings();
+        }
+        if (this.avaiableCharsetEncodings==null){
+            logger.error("Error, no encodings detected ");
+            return;
+        }  
+        if ( (selectedCharset==null) || (selectedCharset.equalsIgnoreCase(UIConstants.DEFAULT_ENCODING_OPTION)) ){
+            channelCombo.setSelectedIndex(0);
+        }else if (this.charsetEncodings.contains(selectedCharset)){            
+            int index=this.avaiableCharsetEncodings.indexOf(new CharsetEncodingInformation(selectedCharset,selectedCharset));            
+            if (index<0){
+                logger.error("Syncro lost in the list of the encoding characters");
+                index=0;
+            }
+            channelCombo.setSelectedIndex(index);        
+        }else{
+            alertInformation("Sorry, the JVM of the server, can't support the previously selected "+selectedCharset+ "encoding, please choose another one or install more encodings in the server");
+            channelCombo.setSelectedIndex(0);
+        }        
+    }
+    
+    /**
+     * Get the strings which identifies the encoding selected by the user
+     *
+     * This method is called from each  channel
+     */
+    //ast: encoding
+    public String getSelectedEncodingForChannel(javax.swing.JComboBox channelCombo){
+        try{
+            return ((CharsetEncodingInformation)channelCombo.getSelectedItem()).getCanonicalName();        
+        }catch(Throwable t){
+            alertInformation("Error "+t);
+            return UIConstants.DEFAULT_ENCODING_OPTION;
+        }
+    }
+    
     
     /**
      * Called to set up this main window frame.  Calls jbInit() as well.
@@ -224,7 +314,7 @@ public class Frame extends JXFrame
                     "\");");
         } */
     }
-    
+  
     /**
      * Builds the content panel with a title bar and settings.
      */
@@ -2604,5 +2694,46 @@ public class Frame extends JXFrame
         return this;
     }
 
+    //ast: class for encoding information
+    /*
+     * class CharsetEncodingInformation
+     * gets all the information we need for an encoding class
+     **/
+    public class CharsetEncodingInformation{
+        protected String canonicalName="";
+        protected String description="";
+
+        public CharsetEncodingInformation(String name,String descp){
+            this.canonicalName=name;
+            this.description=descp;
+        }
+        public CharsetEncodingInformation(String name){
+            this.canonicalName=name;
+            this.description="";
+        }
+        /**
+         *Overloaded method to show the description in the combo box
+         */
+        public String toString(){
+            return new String(this.description);
+        }
+        /**
+         *Overloaded method to show the description in the combo box
+         */
+        public boolean equals(Object obj){
+            if (obj instanceof String){
+                return canonicalName.equalsIgnoreCase((String)obj);
+            }else if(obj instanceof CharsetEncodingInformation){
+                return canonicalName.equalsIgnoreCase(((CharsetEncodingInformation)obj).getCanonicalName());
+            }else{
+                return this.equals(obj);
+            }            
+        }
+        public String getCanonicalName(){return this.canonicalName;}
+        public void setCanonicalName(String c){this.canonicalName=c;}
+        public String getDescription(){return this.description;}
+        public void setDescription(String d){this.description=d;}
+    }
+    
 }
 

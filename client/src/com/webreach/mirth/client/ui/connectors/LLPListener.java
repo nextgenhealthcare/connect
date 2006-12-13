@@ -70,6 +70,8 @@ public class LLPListener extends ConnectorClass
         listenerPortField.setDocument(new MirthFieldConstraints(5, false, true));
         receiveTimeoutField.setDocument(new MirthFieldConstraints(0, false, true));
         bufferSizeField.setDocument(new MirthFieldConstraints(0, false, true));
+        //ast:encoding activation
+        parent.setupCharsetEncodingForChannel(charsetEncodingCombobox);
     }
 
     public Properties getProperties()
@@ -103,20 +105,8 @@ public class LLPListener extends ConnectorClass
         else
             properties.put(LLP_SEND_ACK, UIConstants.NO_OPTION);
         //ast:encoding        
-        if( charsetEncodingCombobox.getSelectedIndex()==1)
-            properties.put(CONNECTOR_CHARSET_ENCODING, UIConstants.UTF8_OPTION);
-        else if (charsetEncodingCombobox.getSelectedIndex()==2)
-            properties.put(CONNECTOR_CHARSET_ENCODING, UIConstants.LATIN1_OPTION);
-        else if (charsetEncodingCombobox.getSelectedIndex()==3)
-            properties.put(CONNECTOR_CHARSET_ENCODING, UIConstants.UTF16LE_OPTION);        
-        else if (charsetEncodingCombobox.getSelectedIndex()==4)
-            properties.put(CONNECTOR_CHARSET_ENCODING, UIConstants.UTF16BE_OPTION);        
-        else if (charsetEncodingCombobox.getSelectedIndex()==5)
-            properties.put(CONNECTOR_CHARSET_ENCODING, UIConstants.UTF16BOM_OPTION);
-        else if (charsetEncodingCombobox.getSelectedIndex()==5)
-            properties.put(CONNECTOR_CHARSET_ENCODING, UIConstants.USASCII_OPTION);
-        else
-            properties.put(CONNECTOR_CHARSET_ENCODING, UIConstants.DEFAULT_ENCODING_OPTION);
+        properties.put(CONNECTOR_CHARSET_ENCODING,parent.
+                        getSelectedEncodingForChannel(charsetEncodingCombobox));        
         return properties;
     }
 
@@ -166,22 +156,9 @@ public class LLPListener extends ConnectorClass
         else
             sendACKCombobox.setSelectedItem("No");
         //ast:encoding        
-        String encoding=(String)props.get(CONNECTOR_CHARSET_ENCODING);
-         if(encoding.equalsIgnoreCase(UIConstants.UTF8_OPTION)){
-             charsetEncodingCombobox.setSelectedIndex(1);
-         }else if (encoding.equalsIgnoreCase(UIConstants.LATIN1_OPTION)){
-             charsetEncodingCombobox.setSelectedIndex(2);
-         }else if (encoding.equalsIgnoreCase(UIConstants.UTF16LE_OPTION)){
-             charsetEncodingCombobox.setSelectedIndex(3);
-        }else if (encoding.equalsIgnoreCase(UIConstants.UTF16BE_OPTION)){
-             charsetEncodingCombobox.setSelectedIndex(4);
-        }else if (encoding.equalsIgnoreCase(UIConstants.UTF16BOM_OPTION)){
-             charsetEncodingCombobox.setSelectedIndex(5);
-        }else if (encoding.equalsIgnoreCase(UIConstants.USASCII_OPTION)){              
-             charsetEncodingCombobox.setSelectedIndex(6);
-         }else{
-             charsetEncodingCombobox.setSelectedIndex(0);
-         }
+        parent.sePreviousSelectedEncodingForChannel(charsetEncodingCombobox,
+                        (String)props.get(CONNECTOR_CHARSET_ENCODING));
+
         parent.channelEditTasks.getContentPane().getComponent(0).setVisible(visible);
     }
 
@@ -201,7 +178,7 @@ public class LLPListener extends ConnectorClass
         properties.put(LLP_RECORD_SEPARATOR, "0x0D");
         properties.put(LLP_SEGMENT_END, "0x0D");
         properties.put(LLP_SEND_ACK, UIConstants.YES_OPTION);
-        //ast:encoding
+        //ast:encoding        
         properties.put(CONNECTOR_CHARSET_ENCODING, UIConstants.DEFAULT_ENCODING_OPTION);
         return properties;
     }
