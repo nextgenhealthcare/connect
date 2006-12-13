@@ -57,21 +57,21 @@
                       <Component id="jScrollPane2" min="-2" pref="105" max="-2" attributes="0"/>
                   </Group>
                   <Group type="103" alignment="0" groupAlignment="0" max="-2" attributes="0">
-                      <Component id="charsetEncodingCombobox" alignment="0" max="32767" attributes="1"/>
-                      <Component id="sortBy" alignment="0" max="32767" attributes="1"/>
-                      <Component id="fileAge" alignment="0" max="32767" attributes="1"/>
-                      <Group type="102" alignment="1" attributes="0">
+                      <Component id="charsetEncodingCombobox" alignment="0" min="-2" pref="125" max="-2" attributes="1"/>
+                      <Component id="sortBy" alignment="0" min="-2" pref="125" max="-2" attributes="1"/>
+                      <Group type="102" alignment="0" attributes="0">
                           <Group type="103" groupAlignment="0" attributes="0">
                               <Component id="deleteAfterReadYes" alignment="0" min="-2" max="-2" attributes="0"/>
                               <Component id="checkFileAgeYes" max="32767" attributes="1"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="checkFileAgeNo" min="-2" max="-2" attributes="0"/>
                               <Component id="deleteAfterReadNo" min="-2" max="-2" attributes="0"/>
+                              <Component id="checkFileAgeNo" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <EmptySpace min="-2" pref="18" max="-2" attributes="0"/>
+                          <EmptySpace min="-2" pref="53" max="-2" attributes="0"/>
                       </Group>
+                      <Component id="fileAge" alignment="0" min="-2" pref="125" max="-2" attributes="1"/>
                   </Group>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
