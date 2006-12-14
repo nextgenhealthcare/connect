@@ -113,7 +113,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 	</statement>
 
 	<statement id="createTempMessageTable" parameterClass="java.lang.String">
-		CREATE TABLE MESSAGE_TEMP_$uid$ (ID INTEGER, SEQUENCE_ORDER INTEGER GENERATED ALWAYS AS IDENTITY)
+		CREATE TABLE MESSAGE_TEMP_$uid$ (ID INTEGER, SEQUENCE_ORDER INTEGER GENERATED ALWAYS AS IDENTITY, DATE_CREATED TIMESTAMP)
 	</statement>
 
 	<statement id="createTempMessageTableIndex" parameterClass="java.lang.String">
