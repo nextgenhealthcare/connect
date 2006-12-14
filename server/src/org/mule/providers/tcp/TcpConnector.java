@@ -399,8 +399,8 @@ public class TcpConnector extends AbstractServiceEnabledConnector {
 		String adr = "dummy";
 		String adr_securefile;
 		try {
-			adr = endpoint.getEndpointURI().getAddress();
-			adr = this.getName() + adr;
+			//adr = endpoint.getEndpointURI().getAddress();
+			adr = this.getName();
 		} catch (Throwable t) {
 		}
 		adr_securefile = adr.replace("\\", "");

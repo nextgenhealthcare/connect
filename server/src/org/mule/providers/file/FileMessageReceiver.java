@@ -41,9 +41,11 @@ import org.mule.umo.endpoint.UMOEndpoint;
 import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.provider.UMOConnector;
 import org.mule.umo.provider.UMOMessageAdapter;
+import org.mule.umo.routing.RoutingException;
 import org.mule.util.Utility;
 
 import com.webreach.mirth.server.mule.util.BatchMessageProcessor;
+import com.webreach.mirth.server.util.StackTracePrinter;
 
 /**
  * <code>FileMessageReceiver</code> is a polling listener that reads files
@@ -63,7 +65,7 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 	private File moveDirectory = null;
 	private String moveToPattern = null;
 	private FilenameFilter filenameFilter = null;
-
+	private boolean routingError = false;
 	public FileMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint, String readDir, String moveDir, String moveToPattern, Long frequency) throws InitialisationException {
 		super(connector, component, endpoint, frequency);
 		this.readDir = readDir;
@@ -105,9 +107,10 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 
 			// sort files by specified attribute before sorting
 			sortFiles(files);
-
+			routingError = false;
 			for (int i = 0; i < files.length; i++) {
-				processFile(files[i]);
+				if (!routingError)
+					processFile(files[i]);
 			}
 		} catch (Exception e) {
 			handleException(e);
@@ -181,14 +184,18 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 						String message = (String) iter.next();
 						routeMessage(new MuleMessage(connector.getMessageAdapter(message)), endpoint.isSynchronous());
 					}
-				} catch (Exception e) {
+				}catch (RoutingException e){
+					logger.error("Unable to route. Stopping Connector: " + StackTracePrinter.stackTraceToString(e));
+					//connector.stopConnector();
+					routingError = true;
+				}
+				catch (Exception e) {
 					fileProcesedException = new MuleException(new Message(Messages.FAILED_TO_READ_PAYLOAD, file.getName()));
 				}
 				// move the file if needed
 				if (destinationFile != null) {
 					try {
 						destinationFile.delete();
-
 					} catch (Exception e) {
 
 					}
@@ -257,6 +264,14 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 			throw new MuleException(new Message("file", 1), e);
 		}
 		return todoFiles;
+	}
+
+	public boolean isRoutingError() {
+		return routingError;
+	}
+
+	public void setRoutingError(boolean routingError) {
+		this.routingError = routingError;
 	}
 
 }

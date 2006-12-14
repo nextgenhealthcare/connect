@@ -65,7 +65,7 @@ public class PdfMessageDispatcher extends AbstractMessageDispatcher {
 				String template = replacer.replaceValues(connector.getTemplate(), messageObject, filename);
 				File file = Utility.createFile(endpoint + "/" + filename);
 				logger.info("Writing PDF to: " + file.getAbsolutePath());
-				writeDocument(template, file);
+				writeDocument(template, file, messageObject);
 
 				// update the message status to sent
 				messageObject.setStatus(MessageObject.Status.SENT);
@@ -83,7 +83,7 @@ public class PdfMessageDispatcher extends AbstractMessageDispatcher {
 		}
 	}
 
-	private void writeDocument(String template, File file) throws Exception {
+	private void writeDocument(String template, File file, MessageObject messageObject) throws Exception {
 		Document document = new Document();
 
 		try {
@@ -107,7 +107,12 @@ public class PdfMessageDispatcher extends AbstractMessageDispatcher {
 			
 			parser.go(document, bais);
 		} catch (Exception e) {
-			throw e;
+			if (messageObject != null){
+				messageObject.setStatus(MessageObject.Status.ERROR);
+				messageObject.setErrors("Error writing the PDF\n" +  StackTracePrinter.stackTraceToString(e));
+				messageObjectController.updateMessage(messageObject);
+			}
+			connector.handleException(e);
 		} finally {
 			document.close();
 		}

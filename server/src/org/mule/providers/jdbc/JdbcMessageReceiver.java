@@ -95,7 +95,7 @@ public class JdbcMessageReceiver extends TransactedPollingMessageReceiver
                     }
                 }
             }catch(Exception ue){
-                logger.error("Error in the ACK sentence of the JDBC connection, but the message is beeing sended anyway "+ue);
+                logger.error("Error in the ACK sentence of the JDBC connection, but the message is being sent anyway"+ue);
                 ackException=ue;
             }
             UMOMessageAdapter msgAdapter = this.connector.getMessageAdapter(message);

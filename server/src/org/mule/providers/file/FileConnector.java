@@ -105,6 +105,7 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 	private FileOutputStream outputStream = null;
 	private boolean serialiseObjects = false;
 	public FilenameParser filenameParser = new VariableFilenameParser();
+	private UMOMessageReceiver receiver = null;
         //ast: encoding charset
         private String charsetEncoding = DEFAULT_CHARSET_ENCODING;
 
@@ -166,8 +167,8 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 			logger.debug("set polling frequency to: " + polling);
 		}
 		try {
-			return serviceDescriptor.createMessageReceiver(this, component, endpoint, new Object[] { readDir, moveTo, moveToPattern, new Long(polling) });
-
+			receiver = serviceDescriptor.createMessageReceiver(this, component, endpoint, new Object[] { readDir, moveTo, moveToPattern, new Long(polling) });
+			return receiver;
 		} catch (Exception e) {
 			throw new InitialisationException(new Message(Messages.FAILED_TO_CREATE_X_WITH_X, "Message Receiver", serviceDescriptor.getMessageReceiver()), e, this);
 		}
@@ -187,6 +188,18 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 			}
 		}
 	}
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.mule.providers.UMOConnector#stop()
+	 */
+	protected synchronized void doStart() throws UMOException {
+		if (receiver != null){
+			((FileMessageReceiver)receiver).setRoutingError(false);
+		}
+	}
+	
+
 
 	/*
 	 * (non-Javadoc)
@@ -204,6 +217,8 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 	public void setFilenameParser(FilenameParser filenameParser) {
 		this.filenameParser = filenameParser;
 	}
+	
+
 
 	/*
 	 * (non-Javadoc)

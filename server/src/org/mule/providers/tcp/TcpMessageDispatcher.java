@@ -161,12 +161,12 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 							try {
 								Thread.sleep(connector.getReconnectMillisecs());
 							} catch (Throwable t) {
-								logger.error("Sending interrupption. Payload not sended");
+								logger.error("Sending interrupption. Payload not sent");
 								retryCount = maxRetries + 1;
 								exceptionWriting = exs;
 							}
 						} else {
-							logger.error("Can't connect to the endopint: payload not sended");
+							logger.error("Can't connect to the endopint: payload not sent");
 							exceptionWriting = exs;
 						}
 					}

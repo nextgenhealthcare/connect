@@ -10,6 +10,7 @@ import org.apache.velocity.app.Velocity;
 import org.apache.velocity.app.tools.VelocityFormatter;
 import org.apache.velocity.tools.generic.DateTool;
 import org.mule.util.UUID;
+import org.mule.util.Utility;
 
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.mule.util.GlobalVariableStore;
@@ -64,7 +65,7 @@ public class TemplateValueReplacer {
 		// system variables
 		//Calendar today = Calendar.getInstance();
 		context.put("date", new DateTool());
-		context.put("DATE", new DateTool());
+		context.put("DATE", Utility.getTimeStamp("dd-MM-yy_HH-mm-ss.SS"));
 		context.put("FORMATTER", new VelocityFormatter(context));
 		context.put("COUNT", String.valueOf(getCount()));
 		context.put("UUID", (new UUID()).getUUID());
