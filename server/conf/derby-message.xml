@@ -105,6 +105,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 					</isNotNull>
 				</isNotNull>
 			</dynamic>
+		ORDER BY TEMP_TABLE.DATE_CREATED
 	</select>
 
 	<statement id="dropTempMessageTable" parameterClass="java.lang.String">
@@ -121,8 +122,8 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 
 	<!-- NOTE: The nested SELECT needs an ORDER BY DATE_CREATED, which Derby does not support -->
 	<insert id="populateTempMessageTable" parameterClass="java.util.Map">
-		INSERT INTO MESSAGE_TEMP_$uid$ (ID)
-			(SELECT SEQUENCE_ID
+		INSERT INTO MESSAGE_TEMP_$uid$ (ID, DATE_CREATED)
+			(SELECT SEQUENCE_ID, DATE_CREATED
 			FROM MESSAGE
 			<include refid="messageFilterCriteria" />)
 	</insert>
