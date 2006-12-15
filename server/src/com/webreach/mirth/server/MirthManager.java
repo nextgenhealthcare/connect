@@ -267,20 +267,6 @@ public class MirthManager {
 	}
 
 	/**
-	 * Clears the statistics for the channel with the specified id.
-	 * 
-	 * @param channelId
-	 * @throws MirthException
-	 */
-	public void clearStatistics(String channelId) throws MirthException {
-		try {
-			channelStatisticsController.clearStatistics(channelId);
-		} catch (ControllerException e) {
-			throw new MirthException(e);
-		}
-	}
-
-	/**
 	 * Returns the system event list.
 	 * 
 	 * @param filter

@@ -51,8 +51,6 @@ public class ChannelStatisticsServlet extends MirthServlet {
 				if (operation.equals("getStatistics")) {
 					response.setContentType("application/xml");
 					out.println(serializer.toXML(statisticsController.getStatistics(channelId)));
-				} else if (operation.equals("clearStatistics")) {
-					statisticsController.clearStatistics(channelId);
 				}
 			} catch (Exception e) {
 				throw new ServletException(e);

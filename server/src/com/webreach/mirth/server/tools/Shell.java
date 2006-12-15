@@ -148,8 +148,6 @@ public class Shell {
 
 					for (Iterator iter = channels.iterator(); iter.hasNext();) {
 						Channel channel = (Channel) iter.next();
-
-						client.clearStatistics(channel.getId());
 						client.clearMessages(channel.getId());
 					}
 				} else if (arg1.equalsIgnoreCase("dump")) {

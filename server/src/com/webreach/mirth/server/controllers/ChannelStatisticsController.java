@@ -78,27 +78,4 @@ public class ChannelStatisticsController {
 			throw new ControllerException(e);
 		}
 	}
-
-	public void clearStatistics(String channelId) throws ControllerException {
-		logger.debug("clearing statistics: channelId=" + channelId);
-
-		// clear the stats in Mule
-		JMXConnection jmxConnection = null;
-
-		try {
-			jmxConnection = JMXConnectionFactory.createJMXConnection();
-			Hashtable<String, String> properties = new Hashtable<String, String>();
-			properties.put("type", "statistics");
-			properties.put("name", channelId);
-			jmxConnection.invokeOperation(properties, "clear", null, null);
-		} catch (Exception e) {
-			throw new ControllerException(e);
-		} finally {
-			if (jmxConnection != null) {
-				jmxConnection.close();	
-			} else {
-				logger.warn("could not close JMX connection");
-			}
-		}
-	}
 }
