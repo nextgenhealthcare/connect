@@ -751,16 +751,6 @@ public class Frame extends JXFrame
         });
         statusPopupMenu.add(showMessages);
         
-        statusTasks.add(initActionCallback("doClearStats", "Clear the statistics for a selected channel.", ActionFactory.createBoundAction("doClearStats","Clear Statistics", "C"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png"))));
-        JMenuItem clearStats = new JMenuItem("Clear Statistics");
-        clearStats.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png")));
-        clearStats.addActionListener(new ActionListener(){
-             public void actionPerformed(ActionEvent e){
-                doClearStats();
-            }
-        });
-        statusPopupMenu.add(clearStats);
-
         statusTasks.add(initActionCallback("doStart", "Start the currently selected channel.", ActionFactory.createBoundAction("doStart","Start Channel", "N"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/start.png"))));
         JMenuItem startChannel = new JMenuItem("Start Channel");
         startChannel.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/start.png")));
@@ -2588,35 +2578,6 @@ public class Frame extends JXFrame
 
             worker.execute();
         }
-    }
-    
-    public void doClearStats()
-    {
-        setWorking(true);
-        
-        SwingWorker worker = new SwingWorker <Void, Void> ()
-        {
-            public Void doInBackground() 
-            {        
-                try
-                {
-                    mirthClient.clearStatistics(status.get(statusPanel.getSelectedStatus()).getChannelId());
-                }
-                catch (ClientException e)
-                {
-                    alertException(e.getStackTrace(), e.getMessage());
-                }
-                return null;
-            }
-            
-            public void done()
-            {
-                refreshStatuses();
-                setWorking(false);
-            }
-        };
-        
-        worker.execute(); 
     }
 
     public void doRefreshSettings()
