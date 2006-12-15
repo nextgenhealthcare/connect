@@ -31,17 +31,15 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.UUID;
-import java.util.Vector;
 import java.util.SortedMap;
-import java.util.Iterator;
-
-import java.nio.charset.Charset;
+import java.util.UUID;
 
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
@@ -114,25 +112,25 @@ public class ConfigurationController {
 	// ast: Get the list of all avaiable encodings for this JVM
 	public List<String> getAvaiableCharsetEncodings() throws ControllerException {
 		logger.debug("Retrieving avaiable character encodings");
-		
+
 		try {
 			SortedMap<String, Charset> avaiablesCharsets = Charset.availableCharsets();
 			List<String> simpleAvaiablesCharset = new ArrayList<String>();
-			
+
 			for (Iterator iter = avaiablesCharsets.values().iterator(); iter.hasNext();) {
 				Charset charset = (Charset) iter.next();
 				String charsetName = charset.name();
-				
+
 				try {
 					if ((charsetName == null) || (charsetName == ""))
 						charsetName = charset.aliases().iterator().next();
 				} catch (Exception e) {
 					charsetName = "UNKNOWN";
 				}
-				
+
 				simpleAvaiablesCharset.add(charsetName);
 			}
-			
+
 			return simpleAvaiablesCharset;
 		} catch (Exception e) {
 			logger.error("Error at getAvaiableCharsetEncodings", e);
