@@ -5,36 +5,25 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 "http://ibatis.apache.org/dtd/sql-map-2.dtd">
 
 <sqlMap namespace="Statistic">
-	<resultMap class="com.webreach.mirth.model.ChannelStatistics" id="get-statistic-result">
-		<result property="channelId" column="CHANNEL_ID" />
-		<result property="receivedCount" column="RECEIVED" />
-		<result property="sentCount" column="SENT" />
-		<result property="errorCount" column="ERRORS" />
-	</resultMap>
-
-	<select id="getStatistic" parameterClass="java.lang.String" resultMap="get-statistic-result">
-		SELECT *
-		FROM CHANNEL_STATISTIC
+	<select id="getReceivedCount" parameterClass="java.lang.String" resultClass="java.lang.Integer">
+		SELECT COUNT(*)
+		FROM MESSAGE
 		WHERE CHANNEL_ID = #channelId#
 	</select>
-
-	<insert id="createStatistic" parameterClass="java.lang.String">
-		INSERT INTO
-		CHANNEL_STATISTIC (CHANNEL_ID, RECEIVED, SENT, ERRORS)
-		VALUES (#channelId#, 0, 0, 0)
-	</insert>
-
-	<update id="updateStatistic" parameterClass="java.util.Map">
-		UPDATE CHANNEL_STATISTIC
-		SET $statistic$ = $statistic$ + 1
-		WHERE CHANNEL_ID = #channelId#
-	</update>
-
-	<update id="clearStatistic" parameterClass="java.lang.String">
-		UPDATE CHANNEL_STATISTIC
-		SET RECEIVED = 0,
-			SENT = 0,
-			ERRORS = 0
-		WHERE CHANNEL_ID = #channelId#
-	</update>
+	
+	<select id="getSentCount" parameterClass="java.lang.String" resultClass="java.lang.Integer">
+		SELECT COUNT(*)
+		FROM MESSAGE
+		WHERE
+			CHANNEL_ID = #channelId# AND
+			STATUS='SENT'
+	</select>
+	
+	<select id="getErrorCount" parameterClass="java.lang.String" resultClass="java.lang.Integer">
+		SELECT COUNT(*)
+		FROM MESSAGE
+		WHERE
+			CHANNEL_ID = #channelId# AND
+			STATUS='ERROR'
+	</select>
 </sqlMap>

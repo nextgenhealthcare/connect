@@ -53,21 +53,21 @@ public class StatisticsControllerTest extends TestCase {
 		super.tearDown();
 	}
 
-	public void testGetStatistics() throws ControllerException {
-		// Important: the received count is incremented twice to simulate the
-		// errant behavior of Mule
-		statisticsController.incReceivedCount(sampleChannel.getId());
-		statisticsController.incReceivedCount(sampleChannel.getId());
-
-		statisticsController.incSentCount(sampleChannel.getId());
-		statisticsController.incErrorCount(sampleChannel.getId());
-
-		ChannelStatistics testStatistics = statisticsController.getStatistics(sampleChannel.getId());
-
-		Assert.assertEquals(sampleChannel.getId(), testStatistics.getChannelId());
-		Assert.assertEquals(1, testStatistics.getReceivedCount());
-		Assert.assertEquals(1, testStatistics.getSentCount());
-		Assert.assertEquals(1, testStatistics.getErrorCount());
-	}
+//	public void testGetStatistics() throws ControllerException {
+//		// Important: the received count is incremented twice to simulate the
+//		// errant behavior of Mule
+//		statisticsController.incReceivedCount(sampleChannel.getId());
+//		statisticsController.incReceivedCount(sampleChannel.getId());
+//
+//		statisticsController.incSentCount(sampleChannel.getId());
+//		statisticsController.incErrorCount(sampleChannel.getId());
+//
+//		ChannelStatistics testStatistics = statisticsController.getStatistics(sampleChannel.getId());
+//
+//		Assert.assertEquals(sampleChannel.getId(), testStatistics.getChannelId());
+//		Assert.assertEquals(1, testStatistics.getReceivedCount());
+//		Assert.assertEquals(1, testStatistics.getSentCount());
+//		Assert.assertEquals(1, testStatistics.getErrorCount());
+//	}
 
 }

@@ -145,9 +145,6 @@ public class ChannelController {
 			if (getChannel(channelFilter).isEmpty()) {
 				logger.debug("adding channel");
 				sqlMap.insert("insertChannel", channel);
-
-				ChannelStatisticsController statisticsController = new ChannelStatisticsController();
-				statisticsController.createStatistics(channel.getId());
 			} else {
 				logger.debug("updating channel");
 				sqlMap.update("updateChannel", channel);

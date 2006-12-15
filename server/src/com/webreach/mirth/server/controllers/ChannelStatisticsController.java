@@ -26,9 +26,7 @@
 package com.webreach.mirth.server.controllers;
 
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -49,87 +47,38 @@ public class ChannelStatisticsController {
 	private SqlMapClient sqlMap = SqlConfig.getSqlMapInstance();
 
 	public ChannelStatistics getStatistics(String channelId) throws ControllerException {
-		ChannelStatistics currentStatistics = getStatisticsObject(channelId);
-
-		// this is a fix for Mule's double counting of received messages
-		int receivedCount = Double.valueOf(Math.ceil(currentStatistics.getReceivedCount() / 2)).intValue();
-		currentStatistics.setReceivedCount(receivedCount);
-
-		return currentStatistics;
+		ChannelStatistics statistics = new ChannelStatistics();
+		statistics.setChannelId(channelId);
+		statistics.setReceivedCount(getReceivedCount(channelId));
+		statistics.setSentCount(getSentCount(channelId));
+		statistics.setErrorCount(getErrorCount(channelId));
+		return statistics;
 	}
-
-	/**
-	 * Returns a Statistics object for the channel with the specified id.
-	 * 
-	 * @param channelId
-	 * @return
-	 * @throws ControllerException
-	 */
-	private ChannelStatistics getStatisticsObject(String channelId) throws ControllerException {
-		logger.debug("retrieving statistics: channelId=" + channelId);
-
+	
+	public Integer getReceivedCount(String channelId) throws ControllerException {
 		try {
-			return (ChannelStatistics) sqlMap.queryForObject("getStatistic", channelId);
+			return (Integer) sqlMap.queryForObject("getReceivedCount", channelId);
+		} catch (SQLException e) {
+			throw new ControllerException(e);
+		}
+	}
+	
+	public Integer getSentCount(String channelId) throws ControllerException {
+		try {
+			return (Integer) sqlMap.queryForObject("getSentCount", channelId);
+		} catch (SQLException e) {
+			throw new ControllerException(e);
+		}
+	}
+	
+	public Integer getErrorCount(String channelId) throws ControllerException {
+		try {
+			return (Integer) sqlMap.queryForObject("getErrorCount", channelId);
 		} catch (SQLException e) {
 			throw new ControllerException(e);
 		}
 	}
 
-	public void createStatistics(String channelId) throws ControllerException {
-		logger.debug("creating channel statistcs: channelId" + channelId);
-
-		try {
-			sqlMap.insert("createStatistic", channelId);
-		} catch (Exception e) {
-			throw new ControllerException(e);
-		}
-	}
-
-	public void incReceivedCount(String channelId) throws ControllerException {
-		logger.debug("incrementing received count: channelId=" + channelId);
-
-		try {
-			Map parameterMap = new HashMap();
-			parameterMap.put("statistic", "received");
-			parameterMap.put("channelId", channelId);
-			sqlMap.update("updateStatistic", parameterMap);
-		} catch (Exception e) {
-			throw new ControllerException(e);
-		}
-	}
-
-	public void incSentCount(String channelId) throws ControllerException {
-		logger.debug("incrementing sent count: channelId=" + channelId);
-
-		try {
-			Map parameterMap = new HashMap();
-			parameterMap.put("statistic", "sent");
-			parameterMap.put("channelId", channelId);
-			sqlMap.update("updateStatistic", parameterMap);
-		} catch (Exception e) {
-			throw new ControllerException(e);
-		}
-	}
-
-	public void incErrorCount(String channelId) throws ControllerException {
-		logger.debug("incrementing error: channelId=" + channelId);
-
-		try {
-			Map parameterMap = new HashMap();
-			parameterMap.put("statistic", "errors");
-			parameterMap.put("channelId", channelId);
-			sqlMap.update("updateStatistic", parameterMap);
-		} catch (Exception e) {
-			throw new ControllerException(e);
-		}
-	}
-
-	/**
-	 * Clears all of the statistics for the channel with the specified id.
-	 * 
-	 * @param channelId
-	 * @throws ControllerException
-	 */
 	public void clearStatistics(String channelId) throws ControllerException {
 		logger.debug("clearing statistics: channelId=" + channelId);
 
@@ -150,13 +99,6 @@ public class ChannelStatisticsController {
 			} else {
 				logger.warn("could not close JMX connection");
 			}
-		}
-
-		// clear the stats in the database
-		try {
-			sqlMap.update("clearStatistic", channelId);
-		} catch (Exception e) {
-			throw new ControllerException(e);
 		}
 	}
 }
