@@ -92,7 +92,7 @@ public class MessageBrowser extends javax.swing.JPanel
     private MessageListHandler messageListHandler;
     private List<MessageObject> messageObjectList;
     private MessageObjectFilter messageObjectFilter;
-    private DefaultTableModel eventTableModel;
+    private DefaultTableModel messageTableModel;
     
     /**
      * Constructs the new message browser and sets up its default information/layout.
@@ -108,13 +108,13 @@ public class MessageBrowser extends javax.swing.JPanel
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(MappingsPanel);
         MappingsPanel.setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(mappingsPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
-        );
+                layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                .add(mappingsPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
+                );
         layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(mappingsPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 300, Short.MAX_VALUE)
-        );
+                layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                .add(mappingsPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 300, Short.MAX_VALUE)
+                );
         
         this.addMouseListener(new java.awt.event.MouseAdapter()
         {
@@ -129,7 +129,7 @@ public class MessageBrowser extends javax.swing.JPanel
                     parent.messagePopupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
             }
         });
-             
+        
         pageSizeField.setDocument(new MirthFieldConstraints(3, false, true));
         
         String[] values = new String[MessageObject.Status.values().length + 1];
@@ -159,18 +159,18 @@ public class MessageBrowser extends javax.swing.JPanel
         
         eventPane.setViewportView(eventTable);
         
-        jPanel2.removeAll();  
+        jPanel2.removeAll();
         
         org.jdesktop.layout.GroupLayout jPanel2Layout = new org.jdesktop.layout.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(eventPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 526, Short.MAX_VALUE)
-        );
+                jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                .add(eventPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 526, Short.MAX_VALUE)
+                );
         jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(eventPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 185, Short.MAX_VALUE)
-        );
+                jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                .add(eventPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 185, Short.MAX_VALUE)
+                );
         
         jPanel2.updateUI();
     }
@@ -215,10 +215,10 @@ public class MessageBrowser extends javax.swing.JPanel
         pane.setOptions(options);
         JDialog dialog = pane.createDialog(new JFrame(), "Select an Option");
         dialog.setVisible(true);
-        Object obj = pane.getValue(); 
+        Object obj = pane.getValue();
         for (int k = 0; k < options.length; k++)
-          if (options[k].equals(obj))
-            answer = obj.toString();
+            if (options[k].equals(obj))
+                answer = obj.toString();
         
         if(answer.length() == 0 || answer.equals(options[2]))
             return;
@@ -238,7 +238,7 @@ public class MessageBrowser extends javax.swing.JPanel
                 int length = exportFile.getName().length();
                 String messages = "";
                 List<MessageObject> messageObjects = messageListHandler.getAllPages();
-                                
+                
                 if(answer.equals("HTML"))
                 {
                     String name = parent.status.get(parent.statusPanel.getSelectedStatus()).getName();
@@ -296,102 +296,109 @@ public class MessageBrowser extends javax.swing.JPanel
      * Creates the table with all of the information given after
      * being filtered by the specified 'filter'
      */
-    public void makeEventTable(MessageListHandler handler, int page) {
+    public void makeMessageTable(MessageListHandler handler, int page)
+    {
         eventTable = new JXTable();
         Object[][] tableData = null;
-        if (handler != null){
-	        // Do all paging information below.
-	        try
-	        {
-	            if (page == FIRST_PAGE)
-	                messageObjectList = handler.getFirstPage();
-	            else if (page == PREVIOUS_PAGE)
-	                    messageObjectList = handler.getPreviousPage();
-	            else if (page == NEXT_PAGE)
-	            {
-	                messageObjectList = handler.getNextPage();
-	                if (messageObjectList.size() == 0)
-	                    messageObjectList = handler.getPreviousPage();
-	            }
-	            
-	            int messageCount = handler.getSize();
-	            int currentPage = handler.getCurrentPage();
-	            int pageSize = handler.getPageSize();
-	
-	            if (pageSize == -1)
-	                pageSize = 0;
-	            
-	            pageSizeField.setText(pageSize + "");
-	            
-	            if (handler.getCurrentPage() == 0)
-	                previousPageButton.setEnabled(false);
-	            else
-	                previousPageButton.setEnabled(true);
-	            
-	            int numberOfPages;
-	            
-	            if (pageSize == 0)
-	                numberOfPages = 0;            
-	            else
-	            {
-	                numberOfPages = messageCount / pageSize;
-	                if ((messageCount != 0) && ((messageCount % pageSize) == 0))
-	                    numberOfPages--;
-	            }
-	            
-	            if (currentPage == numberOfPages)
-	                nextPageButton.setEnabled(false);
-	            else
-	                nextPageButton.setEnabled(true);
-	            
-	            int startResult;
-	            if (messageCount == 0)
-	                startResult = 0;
-	            else 
-	                startResult = (currentPage * pageSize) + 1;
-	            
-	            int endResult;
-	            if (pageSize == 0)
-	                endResult = messageCount;
-	            else
-	                endResult = (currentPage + 1) * pageSize;
-	            
-	            if (messageCount < endResult)
-	                endResult = messageCount;
-	            resultsLabel.setText("Results " + startResult + " - " + endResult + " of " + messageCount);
-	            
-	        }
-	        catch (ListHandlerException e)
-	        {
-	            messageObjectList = null;
-	            parent.alertException(e.getStackTrace(), e.getMessage());
-	        }
-	        
-	        if (messageObjectList != null){
-		          
-		                
-		        tableData = new Object[messageObjectList.size()][6];
-		        
-		        for (int i=0; i < messageObjectList.size(); i++)
-		        {
-		            MessageObject messageObject = messageObjectList.get(i);
-		            
-		            tableData[i][0] = messageObject.getId();
-		
-		            Calendar calendar = messageObject.getDateCreated();
-		            
-		            tableData[i][1] = String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS", calendar);
-		            tableData[i][2] = messageObject.getConnectorName();
-		            
-		            tableData[i][3] = messageObject.getType();
-		            tableData[i][4] = messageObject.getSource();
-		            tableData[i][5] = messageObject.getStatus();
-		        }
-	        }else{
-	        	 tableData = new Object[0][6];
-	        }
-        }else{
-        	   tableData = new Object[0][6];
+        if (handler != null)
+        {
+            // Do all paging information below.
+            try
+            {
+                if (page == FIRST_PAGE)
+                    messageObjectList = handler.getFirstPage();
+                else if (page == PREVIOUS_PAGE)
+                    messageObjectList = handler.getPreviousPage();
+                else if (page == NEXT_PAGE)
+                {
+                    messageObjectList = handler.getNextPage();
+                    if (messageObjectList.size() == 0)
+                        messageObjectList = handler.getPreviousPage();
+                }
+                
+                int messageCount = handler.getSize();
+                int currentPage = handler.getCurrentPage();
+                int pageSize = handler.getPageSize();
+                
+                if (pageSize == -1)
+                    pageSize = 0;
+                
+                pageSizeField.setText(pageSize + "");
+                
+                if (handler.getCurrentPage() == 0)
+                    previousPageButton.setEnabled(false);
+                else
+                    previousPageButton.setEnabled(true);
+                
+                int numberOfPages;
+                
+                if (pageSize == 0)
+                    numberOfPages = 0;
+                else
+                {
+                    numberOfPages = messageCount / pageSize;
+                    if ((messageCount != 0) && ((messageCount % pageSize) == 0))
+                        numberOfPages--;
+                }
+                
+                if (currentPage == numberOfPages)
+                    nextPageButton.setEnabled(false);
+                else
+                    nextPageButton.setEnabled(true);
+                
+                int startResult;
+                if (messageCount == 0)
+                    startResult = 0;
+                else
+                    startResult = (currentPage * pageSize) + 1;
+                
+                int endResult;
+                if (pageSize == 0)
+                    endResult = messageCount;
+                else
+                    endResult = (currentPage + 1) * pageSize;
+                
+                if (messageCount < endResult)
+                    endResult = messageCount;
+                resultsLabel.setText("Results " + startResult + " - " + endResult + " of " + messageCount);
+                
+            }
+            catch (ListHandlerException e)
+            {
+                messageObjectList = null;
+                parent.alertException(e.getStackTrace(), e.getMessage());
+            }
+            
+            if (messageObjectList != null)
+            {
+                
+                
+                tableData = new Object[messageObjectList.size()][6];
+                
+                for (int i=0; i < messageObjectList.size(); i++)
+                {
+                    MessageObject messageObject = messageObjectList.get(i);
+                    
+                    tableData[i][0] = messageObject.getId();
+                    
+                    Calendar calendar = messageObject.getDateCreated();
+                    
+                    tableData[i][1] = String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS", calendar);
+                    tableData[i][2] = messageObject.getConnectorName();
+                    
+                    tableData[i][3] = messageObject.getType();
+                    tableData[i][4] = messageObject.getSource();
+                    tableData[i][5] = messageObject.getStatus();
+                }
+            }
+            else
+            {
+                tableData = new Object[0][6];
+            }
+        }
+        else
+        {
+            tableData = new Object[0][6];
         }
         
         eventTable.setModel(new javax.swing.table.DefaultTableModel(
@@ -400,18 +407,20 @@ public class MessageBrowser extends javax.swing.JPanel
         {
             MESSAGE_ID_COLUMN_NAME, DATE_COLUMN_NAME, CONNECTOR_COLUMN_NAME, TYPE_COLUMN_NAME, SOURCE_COLUMN_NAME, STATUS_COLUMN_NAME
         }
-        ) {
+        )
+        {
             boolean[] canEdit = new boolean []
             {
                 false, false, false, false, false, false
             };
             
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
+            public boolean isCellEditable(int rowIndex, int columnIndex)
+            {
                 return canEdit [columnIndex];
             }
         });
         
-        eventTableModel = (DefaultTableModel) eventTable.getModel();
+        messageTableModel = (DefaultTableModel) eventTable.getModel();
         
         eventTable.setSelectionMode(0);
         
@@ -467,18 +476,18 @@ public class MessageBrowser extends javax.swing.JPanel
         JXTable mappingsTable = new JXTable();
         
         mappingsTable.setModel(new javax.swing.table.DefaultTableModel(
-            tableData,
-            new String []
-            {
-                KEY_COLUMN_NAME, VALUE_COLUMN_NAME
-            }
+                tableData,
+                new String []
+        {
+            KEY_COLUMN_NAME, VALUE_COLUMN_NAME
+        }
         )
         {
             boolean[] canEdit = new boolean []
             {
                 false, false
             };
-
+            
             public boolean isCellEditable(int rowIndex, int columnIndex)
             {
                 return canEdit [columnIndex];
@@ -542,8 +551,8 @@ public class MessageBrowser extends javax.swing.JPanel
     {
         if (!evt.getValueIsAdjusting())
         {
-            int row = eventTable.getSelectedRow();
-
+            int row = eventTable.convertRowIndexToModel(eventTable.getSelectedRow());
+            
             if(row >= 0)
             {
                 parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 4, -1, true);
@@ -575,21 +584,23 @@ public class MessageBrowser extends javax.swing.JPanel
     private void setCorrectDocument(MirthSyntaxTextArea textPane, String message, MessageObject.Protocol protocol)
     {
         SyntaxDocument newDoc = new SyntaxDocument();
-
+        
         if (message != null)
         {
             if (protocol != null)
             {
-                if (protocol.equals(MessageObject.Protocol.HL7)){
+                if (protocol.equals(MessageObject.Protocol.HL7))
+                {
                     newDoc.setTokenMarker(new HL7TokenMarker());
                     message = message.replace('\r', '\n');
                     //HL7 (ER7) encoded messages have \r as end of line segments
                     //The syntax editor box only recognizes \n
                     //Add \n to make things look normal
-                }else if (protocol.equals(MessageObject.Protocol.XML))
-                	newDoc.setTokenMarker(new XMLTokenMarker());
+                }
+                else if (protocol.equals(MessageObject.Protocol.XML))
+                    newDoc.setTokenMarker(new XMLTokenMarker());
                 else if (protocol.equals(MessageObject.Protocol.X12))
-                	newDoc.setTokenMarker(new XMLTokenMarker());
+                    newDoc.setTokenMarker(new XMLTokenMarker());
             }
             
             textPane.setDocument(newDoc);
@@ -610,12 +621,12 @@ public class MessageBrowser extends javax.swing.JPanel
     public String getSelectedMessageID()
     {
         int column = -1;
-        for (int i = 0; i < eventTableModel.getColumnCount(); i++)
+        for (int i = 0; i < messageTableModel.getColumnCount(); i++)
         {
-            if (eventTableModel.getColumnName(i).equals(MESSAGE_ID_COLUMN_NAME))
+            if (messageTableModel.getColumnName(i).equals(MESSAGE_ID_COLUMN_NAME))
                 column = i;
         }
-        return ((String)eventTableModel.getValueAt(eventTable.getSelectedRow(), column));
+        return ((String)messageTableModel.getValueAt(eventTable.convertRowIndexToModel(eventTable.getSelectedRow()), column));
     }
     
     /**
@@ -627,7 +638,8 @@ public class MessageBrowser extends javax.swing.JPanel
     }
     
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
-    private void initComponents() {
+    private void initComponents()
+    {
         filterPanel = new javax.swing.JPanel();
         jLabel3 = new javax.swing.JLabel();
         filterButton = new javax.swing.JButton();
@@ -669,8 +681,10 @@ public class MessageBrowser extends javax.swing.JPanel
         jLabel3.setText("Start Date:");
 
         filterButton.setText("Filter");
-        filterButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        filterButton.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
                 filterButtonActionPerformed(evt);
             }
         });
@@ -680,15 +694,19 @@ public class MessageBrowser extends javax.swing.JPanel
         jLabel5.setText("Status:");
 
         previousPageButton.setText("Previous Page");
-        previousPageButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        previousPageButton.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
                 previousPageButtonActionPerformed(evt);
             }
         });
 
         nextPageButton.setText("Next Page");
-        nextPageButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        nextPageButton.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
                 nextPageButtonActionPerformed(evt);
             }
         });
@@ -717,10 +735,6 @@ public class MessageBrowser extends javax.swing.JPanel
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(filterPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(filterPanelLayout.createSequentialGroup()
-                        .add(filterButton)
-                        .add(178, 178, 178)
-                        .add(previousPageButton))
-                    .add(filterPanelLayout.createSequentialGroup()
                         .add(filterPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
                             .add(mirthDatePicker1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .add(messageTypeField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -734,17 +748,20 @@ public class MessageBrowser extends javax.swing.JPanel
                         .add(filterPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
                             .add(mirthDatePicker2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .add(messageSourceField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .add(statusComboBox, 0, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(filterPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(statusComboBox, 0, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .add(filterButton))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 28, Short.MAX_VALUE)
+                .add(filterPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(filterPanelLayout.createSequentialGroup()
+                        .add(previousPageButton)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(nextPageButton))
                     .add(filterPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                        .add(nextPageButton)
+                        .add(org.jdesktop.layout.GroupLayout.TRAILING, resultsLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 120, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .add(filterPanelLayout.createSequentialGroup()
                             .add(jLabel6)
                             .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                            .add(pageSizeField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                    .add(resultsLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 101, Short.MAX_VALUE))
-                .addContainerGap())
+                            .add(pageSizeField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 66, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))))
         );
 
         filterPanelLayout.linkSize(new java.awt.Component[] {nextPageButton, previousPageButton}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
@@ -752,45 +769,46 @@ public class MessageBrowser extends javax.swing.JPanel
         filterPanelLayout.setVerticalGroup(
             filterPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(filterPanelLayout.createSequentialGroup()
-                .add(filterPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel1)
-                    .add(jLabel5)
-                    .add(connectorField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(statusComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(filterPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(filterPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                        .add(jLabel4)
-                        .add(messageTypeField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(filterPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                        .add(jLabel7)
-                        .add(messageSourceField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(resultsLabel)))
-                .add(8, 8, 8)
-                .add(filterPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                .add(filterPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
                     .add(filterPanelLayout.createSequentialGroup()
+                        .add(resultsLabel)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(filterPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                            .add(pageSizeField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(jLabel6))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(filterPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                            .add(nextPageButton)
+                            .add(previousPageButton)))
+                    .add(filterPanelLayout.createSequentialGroup()
+                        .add(filterPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                            .add(jLabel1)
+                            .add(jLabel5)
+                            .add(connectorField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(statusComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(filterPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(filterPanelLayout.createSequentialGroup()
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(filterPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                    .add(jLabel3)
-                                    .add(org.jdesktop.layout.GroupLayout.TRAILING, mirthDatePicker1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                            .add(mirthDatePicker2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(filterPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                                .add(jLabel6)
-                                .add(pageSizeField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                                .add(jLabel4)
+                                .add(messageTypeField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .add(filterPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                                .add(jLabel7)
+                                .add(messageSourceField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                        .add(8, 8, 8)
                         .add(filterPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(filterPanelLayout.createSequentialGroup()
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .add(filterPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                                    .add(previousPageButton)
-                                    .add(nextPageButton)))
-                            .add(filterPanelLayout.createSequentialGroup()
+                                .add(filterPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                    .add(filterPanelLayout.createSequentialGroup()
+                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                        .add(filterPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                            .add(jLabel3)
+                                            .add(org.jdesktop.layout.GroupLayout.TRAILING, mirthDatePicker1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                                    .add(mirthDatePicker2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(filterButton))))
-                    .add(filterPanelLayout.createSequentialGroup()
-                        .add(jLabel2)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 37, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                                .add(filterButton))
+                            .add(filterPanelLayout.createSequentialGroup()
+                                .add(jLabel2)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 37, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))))
                 .addContainerGap())
         );
 
@@ -809,7 +827,7 @@ public class MessageBrowser extends javax.swing.JPanel
             RawMessagePanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(RawMessagePanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .add(RawMessageTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 529, Short.MAX_VALUE)
+                .add(RawMessageTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 642, Short.MAX_VALUE)
                 .addContainerGap())
         );
         RawMessagePanelLayout.setVerticalGroup(
@@ -832,7 +850,7 @@ public class MessageBrowser extends javax.swing.JPanel
             TransformedMessagePanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(TransformedMessagePanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .add(TransformedMessageTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 529, Short.MAX_VALUE)
+                .add(TransformedMessageTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 642, Short.MAX_VALUE)
                 .addContainerGap())
         );
         TransformedMessagePanelLayout.setVerticalGroup(
@@ -855,7 +873,7 @@ public class MessageBrowser extends javax.swing.JPanel
             EncodedMessagePanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(EncodedMessagePanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .add(EncodedMessageTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 529, Short.MAX_VALUE)
+                .add(EncodedMessageTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 642, Short.MAX_VALUE)
                 .addContainerGap())
         );
         EncodedMessagePanelLayout.setVerticalGroup(
@@ -873,7 +891,7 @@ public class MessageBrowser extends javax.swing.JPanel
         MappingsPanel.setLayout(MappingsPanelLayout);
         MappingsPanelLayout.setHorizontalGroup(
             MappingsPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 549, Short.MAX_VALUE)
+            .add(0, 662, Short.MAX_VALUE)
         );
         MappingsPanelLayout.setVerticalGroup(
             MappingsPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -892,7 +910,7 @@ public class MessageBrowser extends javax.swing.JPanel
             ErrorsPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(ErrorsPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .add(ErrorsTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 529, Short.MAX_VALUE)
+                .add(ErrorsTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 642, Short.MAX_VALUE)
                 .addContainerGap())
         );
         ErrorsPanelLayout.setVerticalGroup(
@@ -908,7 +926,7 @@ public class MessageBrowser extends javax.swing.JPanel
         descriptionPanel.setLayout(descriptionPanelLayout);
         descriptionPanelLayout.setHorizontalGroup(
             descriptionPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(descriptionTabbedPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 554, Short.MAX_VALUE)
+            .add(descriptionTabbedPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 667, Short.MAX_VALUE)
         );
         descriptionPanelLayout.setVerticalGroup(
             descriptionPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -919,13 +937,15 @@ public class MessageBrowser extends javax.swing.JPanel
         jPanel2.setBackground(new java.awt.Color(255, 255, 255));
         jScrollPane1.setBackground(new java.awt.Color(255, 255, 255));
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
+            new Object [][]
+            {
                 {null, null, null, null},
                 {null, null, null, null},
                 {null, null, null, null},
                 {null, null, null, null}
             },
-            new String [] {
+            new String []
+            {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
@@ -935,7 +955,7 @@ public class MessageBrowser extends javax.swing.JPanel
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 554, Short.MAX_VALUE)
+            .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 667, Short.MAX_VALUE)
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -947,8 +967,8 @@ public class MessageBrowser extends javax.swing.JPanel
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(filterPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, jSplitPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 556, Short.MAX_VALUE)
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, jSplitPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 669, Short.MAX_VALUE)
+            .add(filterPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 669, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -958,35 +978,35 @@ public class MessageBrowser extends javax.swing.JPanel
                 .add(jSplitPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 303, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
-
+    
     private void nextPageButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nextPageButtonActionPerformed
-    	parent.setWorking(true);
+        parent.setWorking(true);
         
         SwingWorker worker = new SwingWorker <Void, Void> ()
         {
-            public Void doInBackground() 
-            {        
-            	makeEventTable(messageListHandler, NEXT_PAGE);
+            public Void doInBackground()
+            {
+                makeMessageTable(messageListHandler, NEXT_PAGE);
                 return null;
             }
-
+            
             public void done()
             {
                 parent. setWorking(false);
             }
         };
         worker.execute();
-    	
+        
     }//GEN-LAST:event_nextPageButtonActionPerformed
-
+    
     private void previousPageButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_previousPageButtonActionPerformed
-    	parent.setWorking(true);
+        parent.setWorking(true);
         
         SwingWorker worker = new SwingWorker <Void, Void> ()
         {
-            public Void doInBackground() 
-            {        
-            	makeEventTable(messageListHandler, PREVIOUS_PAGE);
+            public Void doInBackground()
+            {
+                makeMessageTable(messageListHandler, PREVIOUS_PAGE);
                 return null;
             }
             public void done()
@@ -996,14 +1016,14 @@ public class MessageBrowser extends javax.swing.JPanel
         };
         worker.execute();
     }//GEN-LAST:event_previousPageButtonActionPerformed
-
+    
     /**
      * An action when the filter button is pressed.  Creates
      * the actual filter and remakes the table with that filter.
      */
     private void filterButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_filterButtonActionPerformed
-    	int pageSize = 0;
-    	
+        int pageSize = 0;
+        
         if (mirthDatePicker1.getDate() != null && mirthDatePicker2.getDate() != null)
         {
             if (mirthDatePicker1.getDateInMillis() > mirthDatePicker2.getDateInMillis())
@@ -1014,15 +1034,15 @@ public class MessageBrowser extends javax.swing.JPanel
         }
         
         messageObjectFilter = new MessageObjectFilter();
-
+        
         messageObjectFilter.setChannelId(parent.status.get(parent.statusPanel.getSelectedStatus()).getChannelId());
         
         if (!connectorField.getText().equals(""))
-            messageObjectFilter.setConnectorName(connectorField.getText());        
+            messageObjectFilter.setConnectorName(connectorField.getText());
         if (!messageSourceField.getText().equals(""))
-            messageObjectFilter.setSource(messageSourceField.getText());     
+            messageObjectFilter.setSource(messageSourceField.getText());
         if (!messageTypeField.getText().equals(""))
-            messageObjectFilter.setType(messageTypeField.getText());     
+            messageObjectFilter.setType(messageTypeField.getText());
         if (!((String)statusComboBox.getSelectedItem()).equalsIgnoreCase("ALL"))
         {
             for (int i = 0; i < MessageObject.Status.values().length; i++)
@@ -1049,34 +1069,37 @@ public class MessageBrowser extends javax.swing.JPanel
             pageSize = Integer.parseInt(pageSizeField.getText());
         
         parent.setWorking(true);
-        if (messageListHandler == null){
-        	makeEventTable(null, FIRST_PAGE);
-        	messageListHandler = parent.mirthClient.getMessageListHandler(messageObjectFilter, pageSize);
-        	makeEventTable(messageListHandler, FIRST_PAGE);
-        	parent.setWorking(false);
-        }else{
-	        class MessageWorker extends SwingWorker<Void, Void>
-	        {
-	        	protected int pageSize;
-	            public Void doInBackground() 
-	            {        
-	                messageListHandler = parent.mirthClient.getMessageListHandler(messageObjectFilter, pageSize);
-	                
-	                return null;
-	            }
-	            
-	            public void done()
-	            {
-	            	makeEventTable(messageListHandler, FIRST_PAGE);
-	                parent.setWorking(false);
-	            }
-	        };
-	        MessageWorker worker = new MessageWorker();
-	        worker.pageSize = pageSize;
-	        worker.execute();
+        if (messageListHandler == null)
+        {
+            makeMessageTable(null, FIRST_PAGE);
+            messageListHandler = parent.mirthClient.getMessageListHandler(messageObjectFilter, pageSize);
+            makeMessageTable(messageListHandler, FIRST_PAGE);
+            parent.setWorking(false);
+        }
+        else
+        {
+            class MessageWorker extends SwingWorker<Void, Void>
+            {
+                protected int pageSize;
+                public Void doInBackground()
+                {
+                    messageListHandler = parent.mirthClient.getMessageListHandler(messageObjectFilter, pageSize);
+                    
+                    return null;
+                }
+                
+                public void done()
+                {
+                    makeMessageTable(messageListHandler, FIRST_PAGE);
+                    parent.setWorking(false);
+                }
+            };
+            MessageWorker worker = new MessageWorker();
+            worker.pageSize = pageSize;
+            worker.execute();
         }
         
-    
+        
         
     }//GEN-LAST:event_filterButtonActionPerformed
     
