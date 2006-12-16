@@ -55,14 +55,19 @@ public class HL7ToMessageObject extends AbstractTransformer {
 		// message
 		String rawData = ((String) src).trim();
 		MessageObject messageObject = new MessageObject();
+
+		// set the data
 		messageObject.setRawData(rawData);
 		messageObject.setRawDataProtocol(MessageObject.Protocol.HL7);
+		messageObject.setTransformedDataProtocol(MessageObject.Protocol.XML);
+		messageObject.setEncodedDataProtocol(MessageObject.Protocol.HL7);
 
 		try {
 			Message message = hapiSerializer.deserialize(rawData.replaceAll("\n", "\r"));
 			Terser terser = new Terser(message);
 			String sendingFacility = terser.get("/MSH-4-1");
 			String event = terser.get("/MSH-9-1") + "-" + terser.get("/MSH-9-2");
+			
 			messageObject.setSource(sendingFacility);
 			messageObject.setType(event);
 			messageObject.setVersion(message.getVersion());
@@ -72,8 +77,6 @@ public class HL7ToMessageObject extends AbstractTransformer {
 			messageObject.setErrors(StackTracePrinter.stackTraceToString(e));
 		}
 
-		messageObject.setTransformedDataProtocol(MessageObject.Protocol.XML);
-		messageObject.setEncodedDataProtocol(MessageObject.Protocol.HL7);
 		messageObject.setStatus(MessageObject.Status.RECEIVED);
 		return messageObject;
 	}

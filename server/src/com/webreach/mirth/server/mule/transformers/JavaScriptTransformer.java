@@ -195,10 +195,6 @@ public class JavaScriptTransformer extends AbstractTransformer {
 				scope.put("message", scope, messageObject.getTransformedData());
 			} else {
 				scope.put("message", scope, messageObject.getRawData()); // TODO:
-				// Check
-				// this
-				// for
-				// outbound
 			}
 
 			scope.put("localMap", scope, messageObject.getVariableMap());
@@ -276,7 +272,6 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			// take the now transformed message and convert it back to ER7
 			if ((messageObject.getTransformedData() != null) && (messageObject.getEncodedDataProtocol().equals(MessageObject.Protocol.HL7))) {
 				ER7Serializer serializer = new ER7Serializer();
-				//messageObject.getTransformedData().replace("\\E", "");
 				messageObject.setEncodedData(serializer.fromXML(messageObject.getTransformedData()));
 			}
 
@@ -302,7 +297,6 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			TemplateController templateController = new TemplateController();
 			Context context = Context.enter();
 			Scriptable scope = new ImporterTopLevel(context);
-		
 			
 			// load variables in JavaScript scope
 			scope.put("logger", scope, scriptLogger);
