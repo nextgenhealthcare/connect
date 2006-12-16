@@ -87,7 +87,6 @@ public class LoginPanel extends javax.swing.JFrame
         jLabel5 = new javax.swing.JLabel();
         loginProgress = new javax.swing.JProgressBar();
         status = new javax.swing.JLabel();
-        cancelButton = new javax.swing.JButton();
         jSeparator2 = new javax.swing.JSeparator();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -260,15 +259,6 @@ public class LoginPanel extends javax.swing.JFrame
 
         status.setText("Please wait: Logging in...");
 
-        cancelButton.setText("Cancel");
-        cancelButton.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
-                cancelButtonActionPerformed(evt);
-            }
-        });
-
         org.jdesktop.layout.GroupLayout loggingInLayout = new org.jdesktop.layout.GroupLayout(loggingIn);
         loggingIn.setLayout(loggingInLayout);
         loggingInLayout.setHorizontalGroup(
@@ -286,10 +276,6 @@ public class LoginPanel extends javax.swing.JFrame
                 .addContainerGap()
                 .add(jSeparator2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 368, Short.MAX_VALUE)
                 .addContainerGap())
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, loggingInLayout.createSequentialGroup()
-                .addContainerGap(313, Short.MAX_VALUE)
-                .add(cancelButton)
-                .addContainerGap())
         );
         loggingInLayout.setVerticalGroup(
             loggingInLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -301,9 +287,7 @@ public class LoginPanel extends javax.swing.JFrame
                 .add(loginProgress, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 67, Short.MAX_VALUE)
                 .add(jSeparator2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(cancelButton)
-                .addContainerGap())
+                .add(40, 40, 40))
         );
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
@@ -331,13 +315,6 @@ public class LoginPanel extends javax.swing.JFrame
         loginButtonActionPerformed(null);
     }//GEN-LAST:event_serverNameActionPerformed
 
-    private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_cancelButtonActionPerformed
-    {//GEN-HEADEREND:event_cancelButtonActionPerformed
-        loggingIn.setVisible(false);
-        loginMain.setVisible(true);
-        loginProgress.setIndeterminate(false);
-    }//GEN-LAST:event_cancelButtonActionPerformed
-
     private void passwordActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_passwordActionPerformed
     {//GEN-HEADEREND:event_passwordActionPerformed
         loginButtonActionPerformed(null);
@@ -361,7 +338,9 @@ public class LoginPanel extends javax.swing.JFrame
                 else
                 {
                     errorPane.setVisible(true);
-                    cancelButtonActionPerformed(null);
+                    loggingIn.setVisible(false);
+                    loginMain.setVisible(true);
+                    loginProgress.setIndeterminate(false);
                 }
                 return null;
             }
@@ -411,7 +390,6 @@ public class LoginPanel extends javax.swing.JFrame
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.ButtonGroup buttonGroup2;
-    private javax.swing.JButton cancelButton;
     private javax.swing.JButton closeButton;
     private javax.swing.JTextArea error;
     private javax.swing.JScrollPane errorPane;
