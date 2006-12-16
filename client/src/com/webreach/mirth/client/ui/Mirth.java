@@ -26,9 +26,11 @@
 
 package com.webreach.mirth.client.ui;
 
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.Point;
 import java.awt.event.ComponentEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -64,7 +66,7 @@ public class Mirth
 {
     public Client client;
     private static Preferences userPreferences; 
-    
+    private static LoginPanel login;
     /**
      * Construct and show the application.
      */
@@ -80,7 +82,7 @@ public class Mirth
         UIManager.put("Tree.closedIcon", UIConstants.CLOSED_ICON);
         
         userPreferences = Preferences.systemNodeForPackage(Mirth.class);
-
+        login.setStatus("Loading components...");
         PlatformUI.MIRTH_FRAME.setupFrame(m);
         
         int width = UIConstants.MIRTH_WIDTH;
@@ -148,13 +150,6 @@ public class Mirth
                     e.printStackTrace();
                 }
                 
-                String userDefault = "";
-                String passwordDefault = "";
-                String mirthServerDefault = server;
-                
-                UIManager.put("JXLoginPanel.banner.foreground", UIConstants.TITLE_TEXT_COLOR);
-                UIManager.put("JXLoginPanel.banner.darkBackground", UIConstants.BANNER_DARK_BACKGROUND);
-                UIManager.put("JXLoginPanel.banner.lightBackground", UIConstants.BANNER_LIGHT_BACKGROUND);
                 UIManager.put("TextPane.font",UIConstants.TEXTFIELD_PLAIN_FONT);
                 UIManager.put("ToggleButton.font",UIConstants.TEXTFIELD_PLAIN_FONT);
                 UIManager.put("Panel.font",UIConstants.DIALOG_FONT);
@@ -192,177 +187,11 @@ public class Mirth
                 UIManager.put("ComboBox.font",UIConstants.TEXTFIELD_PLAIN_FONT);
                 UIManager.put("JXLoginPanel.banner.font",UIConstants.BANNER_FONT);
                 UIManager.put("List.font",UIConstants.TEXTFIELD_PLAIN_FONT);
-
                 
-                final MirthLoginService svc = new MirthLoginService();
-                JXLoginPanel panel = new JXLoginPanel(svc, null, null, null);
-                
-                panel.setBannerText("");
-                PlatformUI.BACKGROUND_IMAGE = new ImageIcon(panel.getUI().getBanner());
-                
-                panel.setBannerText("Login :: Mirth");
-                panel.setOpaque(true);
-                JPanel loginInfo = (JPanel)((JPanel)panel.getComponent(1)).getComponent(1);
-
-                loginInfo.removeAll();
-                
-                String CLASS_NAME = JXLoginPanel.class.getCanonicalName(); 
-                JLabel serverLabel = new JLabel("Server");
-                javax.swing.JTextField serverName = new javax.swing.JTextField(mirthServerDefault, 30); 
-                JLabel nameLabel = new JLabel("Login"); 
-                JLabel passwordLabel = new JLabel("Password");  
-                javax.swing.JTextField nameField = new javax.swing.JTextField(userDefault, 30); 
-                JPasswordField passwordField = new JPasswordField(passwordDefault, 30);  
-                               
-                loginInfo.setLayout(new GridBagLayout());  
-                
-                GridBagConstraints gridBagConstraints = new GridBagConstraints();  
-                gridBagConstraints.gridx = 0;  
-                gridBagConstraints.gridy = 0;  
-                gridBagConstraints.anchor = GridBagConstraints.EAST;  
-                gridBagConstraints.insets = new Insets(0, 0, 5, 11);  
-                loginInfo.add(serverLabel, gridBagConstraints);  
-
-                gridBagConstraints = new GridBagConstraints();  
-                gridBagConstraints.gridx = 1;  
-                gridBagConstraints.gridy = 0;  
-                gridBagConstraints.gridwidth = 1;  
-                gridBagConstraints.anchor = GridBagConstraints.WEST;  
-                gridBagConstraints.weightx = 1.0;  
-                gridBagConstraints.insets = new Insets(0, 0, 5, 0);  
-                loginInfo.add(serverName, gridBagConstraints);  
-                
-                gridBagConstraints = new GridBagConstraints();  
-                gridBagConstraints.gridx = 0;  
-                gridBagConstraints.gridy = 1;  
-                gridBagConstraints.anchor = GridBagConstraints.EAST;  
-                gridBagConstraints.insets = new Insets(0, 0, 5, 11);  
-                loginInfo.add(nameLabel, gridBagConstraints);  
-
-                gridBagConstraints = new GridBagConstraints();  
-                gridBagConstraints.gridx = 1;  
-                gridBagConstraints.gridy = 1;  
-                gridBagConstraints.gridwidth = 1;  
-                gridBagConstraints.anchor = GridBagConstraints.WEST;  
-                gridBagConstraints.weightx = 1.0;  
-                gridBagConstraints.insets = new Insets(0, 0, 5, 0);  
-                loginInfo.add(nameField, gridBagConstraints);  
-
-                gridBagConstraints = new GridBagConstraints();  
-                gridBagConstraints.gridx = 0;  
-                gridBagConstraints.gridy = 2;  
-                gridBagConstraints.anchor = GridBagConstraints.EAST;  
-                gridBagConstraints.insets = new Insets(0, 0, 11, 11);  
-                loginInfo.add(passwordLabel, gridBagConstraints);  
-
-                gridBagConstraints = new GridBagConstraints();
-                gridBagConstraints.gridx = 1;
-                gridBagConstraints.gridy = 2;  
-                gridBagConstraints.gridwidth = 1;  
-                gridBagConstraints.anchor = GridBagConstraints.WEST;  
-                gridBagConstraints.weightx = 1.0;
-                gridBagConstraints.insets = new Insets(0, 0, 11, 0);  
-                loginInfo.add(passwordField, gridBagConstraints);  
-                
-                loginInfo.getComponent(5).setFont(loginInfo.getComponent(1).getFont());
-                svc.setPanel(loginInfo);
-                svc.addLoginListener(new MirthLoginListener());
-                
-                final JXLoginPanel.JXLoginFrame frm = JXLoginPanel.showLoginFrame(panel);
-                frm.setIconImage(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/emoticon_smile.png")).getImage());
-                frm.setTitle("Mirth Administrator Login");
-                frm.setVisible(true);
-                nameField.grabFocus();
-                
-                frm.addWindowListener(new WindowAdapter()
-                {
-                    public void windowClosed(WindowEvent e)
-                    {
-                        if(svc.getMirth() == null)
-                            System.exit(0);
-                    }
-                });
+                PlatformUI.BACKGROUND_IMAGE = new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/header.jpg"));
+                login = new LoginPanel(server);
             }
         });
     }
 }
 
-/**
- * A listener for logging in.
- */
-class MirthLoginListener implements LoginListener 
-{
-        public MirthLoginListener() 
-        {
-        }
-        public void loginSucceeded(LoginEvent source) 
-        {
-        }
-        public void loginStarted(LoginEvent source) 
-        {
-        }
-        public void loginFailed(LoginEvent source) 
-        {
-        }
-        public void loginCanceled(LoginEvent source) 
-        {
-            System.exit(0);
-        }
-}
-
-/**
- * A login service that authenticates login information.
- */
-class MirthLoginService extends LoginService 
-{
-        Client client;
-        JPanel loginPanel;
-        Mirth mirth = null;
-        
-        public MirthLoginService() 
-        {
-        }
-        
-        public void setPanel(JPanel p)
-        {
-            this.loginPanel = p;
-        }
-        
-        public Client getClient()
-        {
-            return client;
-        }
-        
-        public Mirth getMirth()
-        {
-            return mirth;
-        }
-        
-        public boolean authenticate(final String username, char[] pass, String server) throws Exception 
-        {
-            String user = ((javax.swing.JTextField)loginPanel.getComponent(3)).getText();
-            String pw =  ((javax.swing.JTextField)loginPanel.getComponent(5)).getText();
-            String mirthServer = ((javax.swing.JTextField)loginPanel.getComponent(1)).getText();
-            client = new Client(mirthServer);
-            try
-            {
-                if(client.login(user,pw))
-                {
-                    try{
-                        PlatformUI.USER_NAME = user;
-                        PlatformUI.SERVER_NAME = mirthServer;
-                        mirth = new Mirth(client);
-                        return true;
-                    }catch(Throwable t){
-                        System.out.println("Error starting the Frame: "+t);
-                        t.printStackTrace();
-                    }
-                }
-            }
-            catch (ClientException ex)
-            {
-                System.out.println("Could not connect to server...");
-            }      
-            return false;
-        }
-}
