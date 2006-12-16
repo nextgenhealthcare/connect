@@ -51,7 +51,6 @@ public class LoginPanel extends javax.swing.JFrame
         jLabel5.setForeground(UIConstants.TITLE_TEXT_COLOR);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setIconImage(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/emoticon_smile.png")).getImage());
-        setResizable(false);
         setLocationRelativeTo(null);
         setVisible(true);
         username.grabFocus();
@@ -90,7 +89,8 @@ public class LoginPanel extends javax.swing.JFrame
         jSeparator2 = new javax.swing.JSeparator();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("Create Channel Wizard");
+        setTitle("Mirth Administrator Login");
+        setResizable(false);
         loginMain.setBackground(new java.awt.Color(255, 255, 255));
         loginMain.setName("");
         errorPane.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
@@ -144,7 +144,7 @@ public class LoginPanel extends javax.swing.JFrame
             .add(mirthHeadingPanel2Layout.createSequentialGroup()
                 .addContainerGap()
                 .add(jLabel2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 165, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(213, Short.MAX_VALUE))
+                .addContainerGap(211, Short.MAX_VALUE))
         );
         mirthHeadingPanel2Layout.setVerticalGroup(
             mirthHeadingPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -185,25 +185,25 @@ public class LoginPanel extends javax.swing.JFrame
                 .addContainerGap())
             .add(loginMainLayout.createSequentialGroup()
                 .addContainerGap()
-                .add(jSeparator1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 368, Short.MAX_VALUE)
+                .add(jSeparator1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 366, Short.MAX_VALUE)
                 .addContainerGap())
             .add(org.jdesktop.layout.GroupLayout.TRAILING, loginMainLayout.createSequentialGroup()
                 .add(49, 49, 49)
                 .add(loginMainLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, errorPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 287, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, errorPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 285, Short.MAX_VALUE)
                     .add(loginMainLayout.createSequentialGroup()
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 1, Short.MAX_VALUE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .add(loginMainLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel6)
                             .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel3)
                             .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel1))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(loginMainLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(serverName, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 230, Short.MAX_VALUE)
-                            .add(username, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 230, Short.MAX_VALUE)
-                            .add(password, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 230, Short.MAX_VALUE))))
+                            .add(serverName, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 229, Short.MAX_VALUE)
+                            .add(username, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 229, Short.MAX_VALUE)
+                            .add(password, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 229, Short.MAX_VALUE))))
                 .add(52, 52, 52))
-            .add(mirthHeadingPanel2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 388, Short.MAX_VALUE)
+            .add(mirthHeadingPanel2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 386, Short.MAX_VALUE)
         );
 
         loginMainLayout.linkSize(new java.awt.Component[] {closeButton, loginButton}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
@@ -224,7 +224,7 @@ public class LoginPanel extends javax.swing.JFrame
                 .add(loginMainLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(password, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(jLabel6))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 7, Short.MAX_VALUE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .add(errorPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 46, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jSeparator1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -247,7 +247,7 @@ public class LoginPanel extends javax.swing.JFrame
             .add(mirthHeadingPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .add(jLabel5, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 182, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(196, Short.MAX_VALUE))
+                .addContainerGap(194, Short.MAX_VALUE))
         );
         mirthHeadingPanel1Layout.setVerticalGroup(
             mirthHeadingPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -263,18 +263,18 @@ public class LoginPanel extends javax.swing.JFrame
         loggingIn.setLayout(loggingInLayout);
         loggingInLayout.setHorizontalGroup(
             loggingInLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(mirthHeadingPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 388, Short.MAX_VALUE)
+            .add(mirthHeadingPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 386, Short.MAX_VALUE)
             .add(org.jdesktop.layout.GroupLayout.TRAILING, loggingInLayout.createSequentialGroup()
                 .addContainerGap()
-                .add(loginProgress, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 368, Short.MAX_VALUE)
+                .add(loginProgress, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 366, Short.MAX_VALUE)
                 .addContainerGap())
             .add(loggingInLayout.createSequentialGroup()
                 .addContainerGap()
                 .add(status)
-                .addContainerGap(257, Short.MAX_VALUE))
+                .addContainerGap(255, Short.MAX_VALUE))
             .add(loggingInLayout.createSequentialGroup()
                 .addContainerGap()
-                .add(jSeparator2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 368, Short.MAX_VALUE)
+                .add(jSeparator2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 366, Short.MAX_VALUE)
                 .addContainerGap())
         );
         loggingInLayout.setVerticalGroup(
@@ -285,7 +285,7 @@ public class LoginPanel extends javax.swing.JFrame
                 .add(status)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(loginProgress, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 67, Short.MAX_VALUE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 66, Short.MAX_VALUE)
                 .add(jSeparator2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .add(40, 40, 40))
         );
