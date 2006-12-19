@@ -256,7 +256,7 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher {
 		}catch(Exception e){
 			if (messageObject != null){
 				messageObject.setStatus(MessageObject.Status.ERROR);
-				messageObject.setErrors(messageObject.getErrors() + '\n' + "Error invoking Web Service\n" +  StackTracePrinter.stackTraceToString(e));
+				messageObject.setErrors(messageObject.getErrors() != null ? messageObject.getErrors() + '\n' : "" +  "Error invoking Web Service\n" +  StackTracePrinter.stackTraceToString(e));
 				messageObjectController.updateMessage(messageObject);
 			}
 			connector.handleException(e);

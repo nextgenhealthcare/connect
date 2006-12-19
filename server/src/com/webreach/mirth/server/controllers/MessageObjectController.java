@@ -54,7 +54,7 @@ public class MessageObjectController {
 			if (channelCache != null && channelCache.containsKey(channelId)) {
 				Channel channel = channelCache.get(channelId);
 				if (channel.getProperties().containsKey("store_messages")) {
-					if (channel.getProperties().get("store_messages").equals("false") || (channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("error_messages_only").equals("true") && !messageObject.getStatus().equals(MessageObject.Status.ERROR))) {
+					if (channel.getProperties().get("store_messages").equals("false") || ((channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("error_messages_only").equals("true") && !messageObject.getStatus().equals(MessageObject.Status.ERROR)))) {
 						// If we don't want to store messages, then lets
 						// sanitize the data in a clone
 						// TODO: Check if pass by value

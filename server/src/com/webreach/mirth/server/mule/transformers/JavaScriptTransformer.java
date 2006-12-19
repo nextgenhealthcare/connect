@@ -327,7 +327,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			return messageObject;
 		} catch (Exception e) {
 			messageObject.setStatus(MessageObject.Status.ERROR);
-			messageObject.setErrors(messageObject.getErrors() + '\n' + StackTracePrinter.stackTraceToString(e));
+			messageObject.setErrors(messageObject.getErrors() != null ? messageObject.getErrors() + '\n' : "" + StackTracePrinter.stackTraceToString(e));
 			messageObjectController.updateMessage(messageObject);
 			throw new TransformerException(this, e);
 		} finally {
@@ -384,7 +384,10 @@ public class JavaScriptTransformer extends AbstractTransformer {
 		if (protocol.equals(Channel.Protocol.HL7.toString())) {
 			script.append("default xml namespace = new Namespace(\"urn:hl7-org:v2xml\");");
 		}
-		
+		//ast: Allow ending whitespaces from the input XML
+		script.append("XML.ignoreWhitespace=false;");
+		//ast: Allow ending whitespaces to the output XML
+		script.append("XML.prettyPrinting=false;");
 		// turn the template into an E4X XML object
 		if (direction.equals(Channel.Direction.OUTBOUND.name())) {
 			//Removed 'var' so that we could grab it from the scope

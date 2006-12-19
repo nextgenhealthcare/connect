@@ -203,7 +203,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 		if (!success) {
 			if (messageObject != null) {
 				messageObject.setStatus(MessageObject.Status.ERROR);
-				messageObject.setErrors(messageObject.getErrors() + '\n' + "Can't connect to the endpoint\n" + StackTracePrinter.stackTraceToString(exceptionWriting));
+				messageObject.setErrors(messageObject.getErrors() != null ? messageObject.getErrors() + '\n' : "" +  "Can't connect to the endpoint\n" + StackTracePrinter.stackTraceToString(exceptionWriting));
 				messageObjectController.updateMessage(messageObject);
 				connector.incErrorStatistics(event.getComponent());
 			}
@@ -303,7 +303,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 			logger.error("Error sending: " + e);
 			if (messageObject != null) {
 				messageObject.setStatus(MessageObject.Status.ERROR);
-				messageObject.setErrors(messageObject.getErrors() + '\n' + "Can't connect to the endpoint " + e);
+				messageObject.setErrors(messageObject.getErrors() != null ? messageObject.getErrors() + '\n' : "" +  "Can't connect to the endpoint " + e);
 				messageObjectController.updateMessage(messageObject);
 			}
 			throw e;
@@ -394,7 +394,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 			if (messageObject != null) {
 				// NACK
 				messageObject.setStatus(MessageObject.Status.ERROR);
-				messageObject.setErrors(messageObject.getErrors() + '\n' + "Timeout waiting for the ACK");
+				messageObject.setErrors(messageObject.getErrors() != null ? messageObject.getErrors() + '\n' : "" + "Timeout waiting for the ACK");
 				messageObjectController.updateMessage(messageObject);
 				connector.incErrorStatistics();
 			}
@@ -411,7 +411,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 			if (messageObject != null) {
 				// //NACK
 				messageObject.setStatus(MessageObject.Status.ERROR);
-				messageObject.setErrors(messageObject.getErrors() + '\n' + "ACK message violates LLP protocol");
+				messageObject.setErrors(messageObject.getErrors() != null ? messageObject.getErrors() + '\n' : "" +  "ACK message violates LLP protocol");
 				messageObjectController.updateMessage(messageObject);
 				connector.incErrorStatistics();
 			}
@@ -428,7 +428,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 			if (messageObject != null) {
 				// NACK
 				messageObject.setStatus(MessageObject.Status.ERROR);
-				messageObject.setErrors(messageObject.getErrors() + '\n' + "NACK sent from the receiver:\n" + rack.getErrorDescription());
+				messageObject.setErrors(messageObject.getErrors() != null ? messageObject.getErrors() + '\n' : "" +   "NACK sent from the receiver:\n" + rack.getErrorDescription());
 				messageObjectController.updateMessage(messageObject);
 				connector.incErrorStatistics();
 			}
