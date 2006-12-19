@@ -44,40 +44,31 @@ import com.webreach.mirth.server.util.SqlConfig;
 public class MessageObjectController {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private SqlMapClient sqlMap = SqlConfig.getSqlMapInstance();
+	private static final String MESSAGE_NO_DATA_STORE = "No data stored for this channel.";
 
 	public void updateMessage(MessageObject messageObject) {
 		try {
 			String channelId = messageObject.getChannelId();
-			HashMap<String,Channel> channelCache = ChannelController.getChannelCache();
-			//Check the cache for the channel
-			if (channelCache != null && channelCache.containsKey(channelId)){
+			HashMap<String, Channel> channelCache = ChannelController.getChannelCache();
+			// Check the cache for the channel
+			if (channelCache != null && channelCache.containsKey(channelId)) {
 				Channel channel = channelCache.get(channelId);
-				if (channel.getProperties().containsKey("store_messages")){
-					if (channel.getProperties().get("store_messages").equals("false")){
-						//If we don't want to store messages, then lets sanitize the data in a clone
-						//TODO: Check if pass by value
-						messageObject = (MessageObject)messageObject.clone();
-						messageObject.setRawData(new String());
-						messageObject.setEncodedData(new String());
-						messageObject.setTransformedData(new String());
-						messageObject.setRawData(new String());
+				if (channel.getProperties().containsKey("store_messages")) {
+					if (channel.getProperties().get("store_messages").equals("false") || (channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("error_messages_only").equals("true") && !messageObject.getStatus().equals(MessageObject.Status.ERROR))) {
+						// If we don't want to store messages, then lets
+						// sanitize the data in a clone
+						// TODO: Check if pass by value
+						messageObject = (MessageObject) messageObject.clone();
+						messageObject.setRawData(MESSAGE_NO_DATA_STORE);
+						messageObject.setEncodedData(MESSAGE_NO_DATA_STORE);
+						messageObject.setTransformedData(MESSAGE_NO_DATA_STORE);
 						messageObject.setVariableMap(new HashMap());
-					}else if(channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("error_messages_only").equals("true")){
-						//Check if it's not an error message and sanitize
-						if (!messageObject.getStatus().equals(MessageObject.Status.ERROR)){
-							messageObject = (MessageObject)messageObject.clone();
-							messageObject.setRawData(new String());
-							messageObject.setEncodedData(new String());
-							messageObject.setTransformedData(new String());
-							messageObject.setRawData(new String());
-							messageObject.setVariableMap(new HashMap());
-						}
 					}
 				}
-
 			}
+
 			int count = (Integer) sqlMap.queryForObject("getMessageCount", messageObject.getId());
-			
+
 			if (count == 0) {
 				logger.debug("adding message: id=" + messageObject.getId());
 				sqlMap.insert("insertMessage", messageObject);
@@ -99,7 +90,7 @@ public class MessageObjectController {
 			// supress any warnings about the table not existing
 			logger.debug(e);
 		}
-		
+
 		try {
 			sqlMap.update("createTempMessageTable", uid);
 			sqlMap.update("createTempMessageTableIndex", uid);
@@ -122,7 +113,7 @@ public class MessageObjectController {
 				parameterMap.put("first", first);
 				parameterMap.put("last", last);
 			}
-			
+
 			return sqlMap.queryForList("getMessageByPage", parameterMap);
 		} catch (SQLException e) {
 			throw new ControllerException(e);
@@ -166,14 +157,14 @@ public class MessageObjectController {
 			throw new ControllerException("could not reprocess message", e);
 		}
 	}
-	
+
 	private Map getFilterMap(MessageObjectFilter filter, String uid) {
 		Map parameterMap = new HashMap();
-		
+
 		if (uid != null) {
-			parameterMap.put("uid", uid);	
+			parameterMap.put("uid", uid);
 		}
-		
+
 		parameterMap.put("id", filter.getId());
 		parameterMap.put("channelId", filter.getChannelId());
 		parameterMap.put("status", filter.getStatus());
@@ -182,11 +173,11 @@ public class MessageObjectController {
 		parameterMap.put("connectorName", filter.getConnectorName());
 
 		if (filter.getStartDate() != null) {
-			parameterMap.put("startDate", String.format("%1$tY-%1$tm-%1$td 00:00:00", filter.getStartDate()));	
+			parameterMap.put("startDate", String.format("%1$tY-%1$tm-%1$td 00:00:00", filter.getStartDate()));
 		}
-		
+
 		if (filter.getEndDate() != null) {
-			parameterMap.put("endDate", String.format("%1$tY-%1$tm-%1$td 23:59:59", filter.getEndDate()));	
+			parameterMap.put("endDate", String.format("%1$tY-%1$tm-%1$td 23:59:59", filter.getEndDate()));
 		}
 
 		return parameterMap;
