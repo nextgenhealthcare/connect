@@ -29,6 +29,7 @@ package com.webreach.mirth.client.ui;
 import java.awt.Color;
 import java.awt.GridLayout;
 
+import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -59,6 +60,7 @@ public class HL7TreePanel extends JPanel {
 		encodingChars = new EncodingCharacters('|', null);
 		this.setLayout(new GridLayout(1, 1));
 		this.setBackground( Color.white );
+		setBorder(BorderFactory.createEmptyBorder());
 	}
 
 	/**

@@ -29,6 +29,7 @@ package com.webreach.mirth.client.ui;
 import java.awt.Point;
 import java.util.prefs.Preferences;
 
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -56,6 +57,7 @@ public class Users extends javax.swing.JScrollPane
     {  
         this.parent = PlatformUI.MIRTH_FRAME;
         initComponents();
+        setBorder(BorderFactory.createEmptyBorder());
         setVisible(true);
     }
     
@@ -64,7 +66,9 @@ public class Users extends javax.swing.JScrollPane
      */
     private void initComponents()
     {
+    	
         makeUsersTable();
+        usersTable.setBorder(BorderFactory.createEmptyBorder());
         this.addMouseListener(new java.awt.event.MouseAdapter() 
         {
             public void mousePressed(java.awt.event.MouseEvent evt)
@@ -88,6 +92,7 @@ public class Users extends javax.swing.JScrollPane
     public void makeUsersTable()
     {
         usersTable = new JXTable();
+        usersTable.setBorder(BorderFactory.createEmptyBorder());
         Object[][] tableData = null;
         
         if(parent.users != null)

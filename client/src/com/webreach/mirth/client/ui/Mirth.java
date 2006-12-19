@@ -26,6 +26,7 @@
 
 package com.webreach.mirth.client.ui;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -44,6 +45,7 @@ import javax.swing.JPasswordField;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.plaf.InsetsUIResource;
 
 import org.jdesktop.swingx.JXLoginPanel;
 import org.jdesktop.swingx.auth.LoginEvent;
@@ -54,7 +56,7 @@ import org.jdesktop.swingx.plaf.windows.WindowsLookAndFeelAddons;
 
 import com.jgoodies.looks.plastic.PlasticLookAndFeel;
 import com.jgoodies.looks.plastic.PlasticXPLookAndFeel;
-import com.jgoodies.looks.plastic.theme.Silver;
+import com.jgoodies.looks.plastic.theme.*;
 import com.webreach.mirth.client.core.Client;
 import com.webreach.mirth.client.core.ClientException;
 
@@ -139,7 +141,7 @@ public class Mirth
             {
                 try
                 {
-                    PlasticLookAndFeel.setPlasticTheme(new Silver());
+                    PlasticLookAndFeel.setPlasticTheme(new MirthTheme());
                     PlasticXPLookAndFeel look = new PlasticXPLookAndFeel();
                     UIManager.setLookAndFeel(look);
                     UIManager.put("win.xpstyle.name", "metallic");
@@ -149,7 +151,15 @@ public class Mirth
                 {
                     e.printStackTrace();
                 }
-                
+                //UIManager.put("TabbedPane.selected", new Color(0xffffff));
+                UIManager.put("TabbedPane.highlight", new Color(225,225,225));
+                UIManager.put("TabbedPane.selectHighlight", new Color(0xc3c3c3));
+                //UIManager.put("TabbedPane.background",new Color(225,225,225));
+                //UIManager.put("TabbedPane.tabAreaBackground",new Color(225,225,225));
+                UIManager.put("TabbedPane.contentBorderInsets", new InsetsUIResource(0,0,0,0));
+                UIManager.put("TaskPaneContainer.backgroundGradientStart", new Color(0xc0d2dc));
+                UIManager.put("TaskPaneContainer.backgroundGradientEnd", new Color(0x94b4c6));
+                UIManager.put("TextPane.font",UIConstants.TEXTFIELD_PLAIN_FONT);
                 UIManager.put("TextPane.font",UIConstants.TEXTFIELD_PLAIN_FONT);
                 UIManager.put("ToggleButton.font",UIConstants.TEXTFIELD_PLAIN_FONT);
                 UIManager.put("Panel.font",UIConstants.DIALOG_FONT);
@@ -187,7 +197,8 @@ public class Mirth
                 UIManager.put("ComboBox.font",UIConstants.TEXTFIELD_PLAIN_FONT);
                 UIManager.put("JXLoginPanel.banner.font",UIConstants.BANNER_FONT);
                 UIManager.put("List.font",UIConstants.TEXTFIELD_PLAIN_FONT);
-                
+                UIManager.put("TaskPane.titleBackgroundGradientStart", new Color(0xffffff));
+                UIManager.put("TaskPane.titleBackgroundGradientEnd",new Color(0xffffff));
                 PlatformUI.BACKGROUND_IMAGE = new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/header.jpg"));
                 login = new LoginPanel(server);
             }

@@ -329,6 +329,8 @@ public class FilterPane extends MirthEditorPane
         this.setLayout( new BorderLayout() );
         this.add( vSplitPane, BorderLayout.CENTER );
         this.setBorder( BorderFactory.createEmptyBorder() );
+        vSplitPane.setBorder( BorderFactory.createEmptyBorder() );
+        hSplitPane.setBorder( BorderFactory.createEmptyBorder() );
         // END LAYOUT
         
     }  // END initComponents()
@@ -792,7 +794,7 @@ public class FilterPane extends MirthEditorPane
             parent.taskPaneContainer.add(parent.getOtherPane());
             parent.setCurrentContentPage( parent.channelEditPanel );
             parent.setCurrentTaskPaneContainer(parent.taskPaneContainer);
-            parent.setPanelName("Edit Channel :: " +  parent.channelEditPanel.currentChannel.getName());
+            parent.setPanelName("Edit Channel - " +  parent.channelEditPanel.currentChannel.getName());
             if ( modified )
                 parent.enableSave();
             modified = false;

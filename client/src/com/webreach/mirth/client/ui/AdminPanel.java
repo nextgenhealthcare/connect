@@ -116,7 +116,10 @@ public class AdminPanel extends javax.swing.JPanel
         rowHighlightYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         rowHighlightNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
 
+        setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        adminPanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         adminPanel.setFocusable(false);
+        users.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         users.setFocusable(false);
         users.addComponentListener(new java.awt.event.ComponentAdapter() {
             public void componentShown(java.awt.event.ComponentEvent evt) {

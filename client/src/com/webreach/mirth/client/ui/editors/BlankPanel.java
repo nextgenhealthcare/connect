@@ -26,10 +26,13 @@
 
 package com.webreach.mirth.client.ui.editors;
 
+import javax.swing.BorderFactory;
+
 
 public class BlankPanel extends CardPanel {
 
 	public BlankPanel() {
 		super();
+		setBorder(BorderFactory.createEmptyBorder());
 	}
 }

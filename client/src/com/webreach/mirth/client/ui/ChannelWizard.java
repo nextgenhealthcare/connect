@@ -47,8 +47,8 @@ public class ChannelWizard extends javax.swing.JDialog
         channelOverview.setVisible(true);
         broadcastActionPerformed(null);
         inboundActionPerformed(null);
-        jLabel2.setForeground(UIConstants.TITLE_TEXT_COLOR);
-        jLabel5.setForeground(UIConstants.TITLE_TEXT_COLOR);
+        jLabel2.setForeground(UIConstants.HEADER_TITLE_TEXT_COLOR);
+        jLabel5.setForeground(UIConstants.HEADER_TITLE_TEXT_COLOR);
         setModal(true);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
     }

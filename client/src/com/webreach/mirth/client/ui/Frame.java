@@ -38,12 +38,14 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.prefs.Preferences;
 
 import javax.swing.Action;
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JMenuItem;
@@ -52,7 +54,9 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.UIDefaults;
 import javax.swing.UIManager;
+import javax.swing.border.Border;
 
 import org.apache.log4j.Logger;
 import org.jdesktop.swingworker.SwingWorker;
@@ -138,7 +142,7 @@ public class Frame extends JXFrame
     public ArrayList<ConnectorClass> destinationConnectors;
 
     private Thread statusUpdater;
-    private DropShadowBorder dsb;
+    private Border dsb;
     private static Preferences userPreferences;
     private StatusUpdater su;
     private boolean connectionError;
@@ -149,8 +153,9 @@ public class Frame extends JXFrame
     
     public Frame()
     {
-        dsb = new DropShadowBorder(UIManager.getColor("Control"), 0, 4, .3f, 12, true, true, true, true);
-        leftContainer = new JXTitledPanel();
+       // dsb = new DropShadowBorder(UIManager.getColor("Control"), 0, ., .3f, 12, true, true, true, true);
+        dsb = BorderFactory.createEmptyBorder();
+    	leftContainer = new JXTitledPanel();
         rightContainer = new JXTitledPanel();
         
         channels = new HashMap<String, Channel>();
@@ -161,7 +166,7 @@ public class Frame extends JXFrame
         
         setTitle(UIConstants.TITLE_TEXT);
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-        setIconImage(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/emoticon_smile.png")).getImage());
+        setIconImage(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/mirthlogo1616.png")).getImage());
         makePaneContainer();
         
         connectionError = false;
@@ -276,12 +281,16 @@ public class Frame extends JXFrame
         userPreferences.put("defaultServer", PlatformUI.SERVER_NAME);
 
         splitPane.setDividerSize(0);
+        splitPane.setBorder(BorderFactory.createEmptyBorder());
+        
         contentPanel = (JPanel) getContentPane();
+        contentPanel.setBorder(BorderFactory.createEmptyBorder());
         contentPanel.setLayout(new BorderLayout());
-        contentPanel.setBorder(null);
+        contentPanel.setBorder(BorderFactory.createEmptyBorder());
+        taskPane.setBorder(BorderFactory.createEmptyBorder());
         
         statusBar = new StatusBar();
-
+        statusBar.setBorder(BorderFactory.createEmptyBorder());
         buildContentPanel(rightContainer, contentPane, false);
 
         splitPane.add(rightContainer, JSplitPane.RIGHT);
@@ -299,20 +308,21 @@ public class Frame extends JXFrame
         su = new StatusUpdater();
         statusUpdater = new Thread(su);
         statusUpdater.start();
-              
-        /* DEBUGGING THE UIDefaults:
- 
+        
+        //DEBUGGING THE UIDefaults:
+        /*
         UIDefaults uiDefaults = UIManager.getDefaults();
         Enumeration enum1 = uiDefaults.keys();
         while (enum1.hasMoreElements())
         {
             Object key = enum1.nextElement();
             Object val = uiDefaults.get(key);
-            if(key.toString().indexOf("image") != -1)
+            if(key.toString().indexOf("Tab") != -1)
                 System.out.println("UIManager.put(\"" + key.toString() + "\",\"" +
                     (null != val ? val.toString() : "(null)") +
                     "\");");
-        } */
+        } 
+        */ 
     }
   
     /**
@@ -321,9 +331,9 @@ public class Frame extends JXFrame
     private void buildContentPanel(JXTitledPanel container, JScrollPane component, boolean opaque)
     {
         container.getContentContainer().setLayout(new BorderLayout());
-        container.setBorder(dsb);
-        container.setTitleFont(new Font("Tahoma",Font.BOLD,12));
-        container.setTitleForeground(UIManager.getColor("windowText"));
+        container.setBorder(null);
+        container.setTitleFont(new Font("Tahoma",Font.BOLD, 18));
+        container.setTitleForeground(UIConstants.HEADER_TITLE_TEXT_COLOR);
         container.getContentContainer().add(component);
         if(UIManager.getColor("TaskPaneContainer.backgroundGradientStart") != null)
             container.setTitleDarkBackground(UIManager.getColor("TaskPaneContainer.backgroundGradientStart"));
@@ -2087,7 +2097,9 @@ public class Frame extends JXFrame
             messageBrowser = new MessageBrowser();
         
         setBold(viewPane, -1);
-        setPanelName("Channel Messages :: " + status.get(statusPanel.getSelectedStatus()).getName());
+        if (statusPanel.getSelectedStatus() == -1)
+        	return;
+        setPanelName("Channel Messages - " + status.get(statusPanel.getSelectedStatus()).getName());
         
         setCurrentContentPage(messageBrowser);
         messageBrowser.loadNew();       
@@ -2114,7 +2126,7 @@ public class Frame extends JXFrame
         if(channelEditPanel.transformerPane == null)
             channelEditPanel.transformerPane = new TransformerPane();
         
-        setPanelName("Edit Channel :: " + channelEditPanel.currentChannel.getName() + " :: Edit Transformer");
+        setPanelName("Edit Channel - " + channelEditPanel.currentChannel.getName() + " - Edit Transformer");
         channelEditPanel.editTransformer();
     }
 
@@ -2123,7 +2135,7 @@ public class Frame extends JXFrame
         if(channelEditPanel.filterPane == null)
             channelEditPanel.filterPane = new FilterPane();
         
-        setPanelName("Edit Channel :: " + channelEditPanel.currentChannel.getName() + " :: Edit Filter");
+        setPanelName("Edit Channel - " + channelEditPanel.currentChannel.getName() + " - Edit Filter");
         channelEditPanel.editFilter();
     }
 

@@ -35,6 +35,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
+import javax.swing.border.Border;
 
 import org.syntax.jedit.SyntaxDocument;
 import org.syntax.jedit.tokenmarker.HL7TokenMarker;
@@ -58,6 +59,7 @@ public class TabbedReferencePanel extends JPanel
         initComponents();
         HL7TabbedPane.addTab("HL7 Tree", treeScrollPane);
         HL7TabbedPane.addTab("HL7 Message Template", pasteScrollPane);
+        HL7TabbedPane.setBorder(BorderFactory.createEmptyBorder());
     }
     
     public void update()
@@ -129,6 +131,7 @@ public class TabbedReferencePanel extends JPanel
         pasteScrollPane = new JScrollPane();
         treeScrollPane = new JScrollPane();
         treePanel = new HL7XMLTreePanel();
+        treePanel.setBorder(BorderFactory.createEtchedBorder());
         /*
         String[] referenceData = new String[7];
         String[] tooltip = new String[7];
@@ -171,9 +174,11 @@ public class TabbedReferencePanel extends JPanel
         varPanel.setLayout(new BorderLayout());
         varPanel.add(globalVarPanel, BorderLayout.NORTH);
         varPanel.add(dbVarPanel, BorderLayout.CENTER);
+        varPanel.setBorder(BorderFactory.createEmptyBorder());
         
         varScrollPane = new JScrollPane();
         varScrollPane.setViewportView(varPanel);
+        varScrollPane.setBorder(BorderFactory.createEmptyBorder());
         varScrollPane.addComponentListener(new ComponentListener()
         {
             public void componentResized(ComponentEvent arg0)
@@ -200,6 +205,7 @@ public class TabbedReferencePanel extends JPanel
         // we need to create an HL7 Lexer...
         HL7Doc = new SyntaxDocument();
         HL7Doc.setTokenMarker(new HL7TokenMarker());
+        
         pasteBox = new MirthSyntaxTextArea(false, false);
         pasteBox.setDocument(HL7Doc);
         pasteBox.setFont(EditorConstants.DEFAULT_FONT);
@@ -212,9 +218,13 @@ public class TabbedReferencePanel extends JPanel
         pasteBoxPanel.setLayout(new BorderLayout());
         pasteBoxPanel.add(pasteBox, BorderLayout.CENTER);
         pasteScrollPane.setViewportView(pasteBoxPanel);
+        pasteBoxPanel.setBorder(BorderFactory.createEmptyBorder());
+        pasteScrollPane.setBorder(BorderFactory.createEmptyBorder());
+        pasteBox.setBorder(BorderFactory.createEtchedBorder());
+        
         treeScrollPane.setViewportView(treePanel);
         
-        
+        treeScrollPane.setBorder(BorderFactory.createEmptyBorder());
         
         treeScrollPane.addComponentListener(new ComponentListener()
         {

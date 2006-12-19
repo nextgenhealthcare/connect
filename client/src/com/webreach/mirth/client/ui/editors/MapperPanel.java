@@ -65,6 +65,7 @@ public class MapperPanel extends CardPanel {
 		super();
 		parent = p;
 		initComponents();
+		setBorder(BorderFactory.createEmptyBorder());
 	}
 
 	/**
@@ -93,7 +94,7 @@ public class MapperPanel extends CardPanel {
 		mappingTextField.setBorder(BorderFactory.createEtchedBorder());
 		mappingTextPane.setBorder(BorderFactory.createEmptyBorder());
 		mappingScrollPane.setBorder(BorderFactory.createTitledBorder(
-				BorderFactory.createLoweredBevelBorder(), "Mapping: ",
+				BorderFactory.createEtchedBorder(), "Mapping: ",
 				TitledBorder.LEFT, TitledBorder.ABOVE_TOP, new Font(null,
 						Font.PLAIN, 11), Color.black));
 

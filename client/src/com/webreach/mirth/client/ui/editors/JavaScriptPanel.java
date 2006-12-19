@@ -59,6 +59,7 @@ public class JavaScriptPanel extends CardPanel {
 		super();
 		parent = p;
 		initComponents();
+		setBorder(BorderFactory.createEmptyBorder());
 	}
 	
 	private void initComponents() {
@@ -82,7 +83,7 @@ public class JavaScriptPanel extends CardPanel {
 		scriptScrollPane.setViewportView( scriptPanel );
                 
 		scriptScrollPane.setBorder( BorderFactory.createTitledBorder( 
-				BorderFactory.createLoweredBevelBorder(), "JavaScript", TitledBorder.LEFT,
+				BorderFactory.createEtchedBorder(), "JavaScript", TitledBorder.LEFT,
 				TitledBorder.ABOVE_TOP, new Font( null, Font.PLAIN, 11 ), 
 				Color.black ));
 		

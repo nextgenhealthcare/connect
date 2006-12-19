@@ -741,7 +741,7 @@ public class ChannelSetup extends javax.swing.JPanel
     /** Load all of the saved channel information into the channel editor */
     private void loadChannelInfo()
     {
-        parent.setPanelName("Edit Channel :: " +  currentChannel.getName());
+        parent.setPanelName("Edit Channel - " +  currentChannel.getName());
         summaryNameField.setText(currentChannel.getName());
         summaryDescriptionText.setText(currentChannel.getDescription());
         if (currentChannel.getDirection().equals(Channel.Direction.INBOUND))
@@ -1187,8 +1187,11 @@ public class ChannelSetup extends javax.swing.JPanel
         destinationConnectorClass = new com.webreach.mirth.client.ui.connectors.ConnectorClass();
         destinationVariableList = new com.webreach.mirth.client.ui.VariableList();
 
+        setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        channelView.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         channelView.setFocusable(false);
         summary.setBackground(new java.awt.Color(255, 255, 255));
+        summary.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         summary.setFocusable(false);
         summary.addComponentListener(new java.awt.event.ComponentAdapter() {
             public void componentShown(java.awt.event.ComponentEvent evt) {
@@ -1382,6 +1385,7 @@ public class ChannelSetup extends javax.swing.JPanel
         channelView.addTab("Summary", summary);
 
         source.setBackground(new java.awt.Color(255, 255, 255));
+        source.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         source.setFocusable(false);
         source.addComponentListener(new java.awt.event.ComponentAdapter() {
             public void componentShown(java.awt.event.ComponentEvent evt) {
@@ -1437,6 +1441,7 @@ public class ChannelSetup extends javax.swing.JPanel
         channelView.addTab("Source", source);
 
         destination.setBackground(new java.awt.Color(255, 255, 255));
+        destination.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         destination.setFocusable(false);
         destination.addComponentListener(new java.awt.event.ComponentAdapter() {
             public void componentShown(java.awt.event.ComponentEvent evt) {

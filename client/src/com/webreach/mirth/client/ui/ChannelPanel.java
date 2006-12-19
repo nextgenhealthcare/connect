@@ -29,6 +29,7 @@ package com.webreach.mirth.client.ui;
 import java.awt.Point;
 import java.util.prefs.Preferences;
 
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JScrollPane;
 import javax.swing.event.ListSelectionEvent;
@@ -108,7 +109,8 @@ public class ChannelPanel extends javax.swing.JPanel
     {
         channelTable = new JXTable();
         Object[][] tableData = null;
-        
+        channelPane.setBorder(BorderFactory.createEmptyBorder());
+        channelTable.setBorder(BorderFactory.createEmptyBorder());
         if(parent.channels != null)
         {
             tableData = new Object[parent.channels.size()][5];

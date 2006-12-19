@@ -61,6 +61,7 @@ public class UIConstants
     // background colors
     public static final Color BACKGROUND_COLOR = new Color(255,255,255);
     public static final Color TITLE_TEXT_COLOR = new Color(0,0,0);
+    public static final Color HEADER_TITLE_TEXT_COLOR = new Color(255,255,255);
     public static final Color BANNER_DARK_BACKGROUND = new Color(170,170,170);
     public static final Color BANNER_LIGHT_BACKGROUND = new Color(220,220,220);
     public static final Color NONEDITABLE_LINE_BACKGROUND = new Color(255,255,224);

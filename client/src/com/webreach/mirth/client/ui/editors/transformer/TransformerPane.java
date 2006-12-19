@@ -104,6 +104,7 @@ public class TransformerPane extends MirthEditorPane
         modified = false;
         
         initComponents();
+        setBorder(BorderFactory.createEmptyBorder());
     }
     
     /**
@@ -159,7 +160,7 @@ public class TransformerPane extends MirthEditorPane
             if (hl7builderPanel != null)
                 hl7builderPanel.setData(null);
         }
-        
+        transformerTable.setBorder(BorderFactory.createEmptyBorder());
         transformerTaskPaneContainer.add(parent.getOtherPane());
         parent.setCurrentContentPage(this);
         parent.setCurrentTaskPaneContainer(transformerTaskPaneContainer);
@@ -194,7 +195,7 @@ public class TransformerPane extends MirthEditorPane
         stepPanel.addCard(jsPanel, JAVASCRIPT_TYPE);
         
         transformerTablePane = new JScrollPane();
-        
+        transformerTablePane.setBorder(BorderFactory.createEmptyBorder());
         // make and place the task pane in the parent Frame
         transformerTaskPaneContainer = new JXTaskPaneContainer();
         
@@ -207,7 +208,6 @@ public class TransformerPane extends MirthEditorPane
                 .getResource("images/resultset_previous.png"))));
         parent.setNonFocusable(viewTasks);
         transformerTaskPaneContainer.add(viewTasks);
-        
         transformerTasks = new JXTaskPane();
         transformerTasks.setTitle("Transformer Tasks");
         transformerTasks.setFocusable(false);
@@ -334,6 +334,7 @@ public class TransformerPane extends MirthEditorPane
         makeTransformerTable();
         
         // BGN LAYOUT
+        transformerTable.setBorder(BorderFactory.createEmptyBorder());
         transformerTablePane.setBorder(BorderFactory.createEmptyBorder());
         stepPanel.setBorder(BorderFactory.createEmptyBorder());
         
@@ -347,10 +348,11 @@ public class TransformerPane extends MirthEditorPane
                 transformerTablePane, hSplitPane);
         vSplitPane.setContinuousLayout(true);
         vSplitPane.setDividerLocation(EditorConstants.TABLE_DIVIDER_LOCATION);
-        
+        hSplitPane.setBorder(BorderFactory.createEmptyBorder());
+        vSplitPane.setBorder(BorderFactory.createEmptyBorder());
         this.setLayout(new BorderLayout());
         this.add(vSplitPane, BorderLayout.CENTER);
-        this.setBorder(BorderFactory.createEmptyBorder());
+        setBorder(BorderFactory.createEmptyBorder());
         // END LAYOUT
         
     } // END initComponents()
@@ -363,7 +365,7 @@ public class TransformerPane extends MirthEditorPane
     public void makeTransformerTable(String[] comboBoxValues)
     {
         transformerTable = new JXTable();
-        
+        transformerTable.setBorder(BorderFactory.createEmptyBorder());
         transformerTable.setModel(new DefaultTableModel(new String[] { "#",
         "Name", "Type", "Data" }, 0)
         { // Data column is hidden
@@ -494,7 +496,7 @@ public class TransformerPane extends MirthEditorPane
                 showTransformerPopupMenu(evt, false);
             }
         });
-        
+       
         transformerTable.getSelectionModel().addListSelectionListener(
                 new ListSelectionListener()
         {
@@ -1095,7 +1097,7 @@ public class TransformerPane extends MirthEditorPane
                 parent.taskPaneContainer.add(parent.getOtherPane());
                 parent.setCurrentContentPage(parent.channelEditPanel);
                 parent.setCurrentTaskPaneContainer(parent.taskPaneContainer);
-                parent.setPanelName("Edit Channel :: "
+                parent.setPanelName("Edit Channel - "
                         + parent.channelEditPanel.currentChannel.getName());
                 if (modified)
                     parent.enableSave();

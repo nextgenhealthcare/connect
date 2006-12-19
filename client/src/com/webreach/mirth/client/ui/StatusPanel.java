@@ -29,6 +29,7 @@ package com.webreach.mirth.client.ui;
 import java.awt.Point;
 import java.util.prefs.Preferences;
 
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JScrollPane;
 import javax.swing.event.ListSelectionEvent;
@@ -50,9 +51,9 @@ public class StatusPanel extends javax.swing.JPanel
     private final String STATUS_COLUMN_NAME = "Status";
     private final String NAME_COLUMN_NAME = "Name";
     private final String RECEIVED_COLUMN_NAME = "Received";
-    private final String SENT_COLUMN_NAME = "Processed";
+    private final String SENT_COLUMN_NAME = "Sent";
     private final String ERROR_COLUMN_NAME = "Errors";
-    
+    private final String REJECTED_COLUMN_NAME = "Rejected";
     public JXTable statusTable;
      
     private JScrollPane statusPane;
@@ -64,6 +65,7 @@ public class StatusPanel extends javax.swing.JPanel
     {  
         this.parent = PlatformUI.MIRTH_FRAME;
         initComponents();
+        setBorder(BorderFactory.createEmptyBorder());
     }
     
     /**
@@ -111,11 +113,13 @@ public class StatusPanel extends javax.swing.JPanel
             lastIndex = null;
         
         statusTable = new JXTable();
+        statusPane.setBorder(BorderFactory.createEmptyBorder());
+        statusTable.setBorder(BorderFactory.createEmptyBorder());
         Object[][] tableData = null;
         
         if(parent.status != null)
         {
-            tableData = new Object[parent.status.size()][5];
+            tableData = new Object[parent.status.size()][6];
             for (int i=0; i < parent.status.size(); i++)
             {
                 ChannelStatus tempStatus = parent.status.get(i); 
@@ -123,8 +127,9 @@ public class StatusPanel extends javax.swing.JPanel
                 {
                     ChannelStatistics tempStats = parent.mirthClient.getStatistics(tempStatus.getChannelId());
                     tableData[i][2] = tempStats.getReceivedCount();
-                    tableData[i][3] = tempStats.getSentCount();
-                    tableData[i][4] = tempStats.getErrorCount();
+                    tableData[i][3] = tempStats.getRejectedCount();
+                    tableData[i][4] = tempStats.getSentCount();
+                    tableData[i][5] = tempStats.getErrorCount();
                 } 
                 catch (ClientException ex)
                 {
@@ -148,13 +153,13 @@ public class StatusPanel extends javax.swing.JPanel
             tableData,
             new String []
             {
-                STATUS_COLUMN_NAME, NAME_COLUMN_NAME, RECEIVED_COLUMN_NAME, SENT_COLUMN_NAME, ERROR_COLUMN_NAME
+                STATUS_COLUMN_NAME, NAME_COLUMN_NAME, RECEIVED_COLUMN_NAME, REJECTED_COLUMN_NAME, SENT_COLUMN_NAME, ERROR_COLUMN_NAME
             }
         )
         {
             boolean[] canEdit = new boolean []
             {
-                false, false, false, false, false, false
+                false, false, false, false, false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex)
@@ -169,16 +174,18 @@ public class StatusPanel extends javax.swing.JPanel
         statusTable.getColumnExt(RECEIVED_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
         statusTable.getColumnExt(SENT_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
         statusTable.getColumnExt(ERROR_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
+        statusTable.getColumnExt(REJECTED_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
         
         statusTable.getColumnExt(STATUS_COLUMN_NAME).setCellRenderer(new ImageCellRenderer());
-        
         statusTable.getColumnExt(RECEIVED_COLUMN_NAME).setCellRenderer(new CenterCellRenderer());
         statusTable.getColumnExt(SENT_COLUMN_NAME).setCellRenderer(new CenterCellRenderer());
         statusTable.getColumnExt(ERROR_COLUMN_NAME).setCellRenderer(new CenterCellRenderer());
+        statusTable.getColumnExt(REJECTED_COLUMN_NAME).setCellRenderer(new CenterCellRenderer());
         
         statusTable.getColumnExt(RECEIVED_COLUMN_NAME).setHeaderRenderer(PlatformUI.CENTER_COLUMN_HEADER_RENDERER);
         statusTable.getColumnExt(SENT_COLUMN_NAME).setHeaderRenderer(PlatformUI.CENTER_COLUMN_HEADER_RENDERER);
         statusTable.getColumnExt(ERROR_COLUMN_NAME).setHeaderRenderer(PlatformUI.CENTER_COLUMN_HEADER_RENDERER);
+        statusTable.getColumnExt(REJECTED_COLUMN_NAME).setHeaderRenderer(PlatformUI.CENTER_COLUMN_HEADER_RENDERER);
         
         statusTable.packTable(UIConstants.COL_MARGIN);
         
@@ -296,7 +303,7 @@ public class StatusPanel extends javax.swing.JPanel
     {
         for(int i=0; i<parent.status.size(); i++)
         {
-            if(((String)statusTable.getValueAt(statusTable.getSelectedRow(), getColumnNumber(NAME_COLUMN_NAME))).equalsIgnoreCase(parent.status.get(i).getName()))
+            if(statusTable.getSelectedRow() > -1 && ((String)statusTable.getValueAt(statusTable.getSelectedRow(), getColumnNumber(NAME_COLUMN_NAME))).equalsIgnoreCase(parent.status.get(i).getName()))
                 return i;
         }
         return UIConstants.ERROR_CONSTANT;

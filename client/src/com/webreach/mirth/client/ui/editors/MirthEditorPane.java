@@ -70,7 +70,8 @@ public class MirthEditorPane extends JPanel
     	super();
     	
 		tabPanel = new TabbedReferencePanel();
-		
+		tabPanel.setBorder(BorderFactory.createEmptyBorder());
+		this.setBorder(BorderFactory.createEmptyBorder());
 		referenceScrollPane = new JScrollPane();
     	referenceScrollPane.setBorder( BorderFactory.createEmptyBorder() );
 		referenceScrollPane.setViewportView( tabPanel );

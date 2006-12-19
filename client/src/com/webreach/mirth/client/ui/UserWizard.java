@@ -51,7 +51,7 @@ public class UserWizard extends javax.swing.JDialog
         if(row != -1)
         {
             jLabel2.setText("Edit User");
-            jLabel2.setForeground(UIConstants.TITLE_TEXT_COLOR);
+            jLabel2.setForeground(UIConstants.HEADER_TITLE_TEXT_COLOR);
             index = this.parent.adminPanel.userPane.getUserIndex();
             username.setText(this.parent.users.get(index).getUsername());     
             password1.setText(this.parent.users.get(index).getPassword());
@@ -62,7 +62,7 @@ public class UserWizard extends javax.swing.JDialog
         else
         {
             jLabel2.setText("New User");
-            jLabel2.setForeground(UIConstants.TITLE_TEXT_COLOR);
+            jLabel2.setForeground(UIConstants.HEADER_TITLE_TEXT_COLOR);
             editingUser = false;
         }
         setModal(true);
