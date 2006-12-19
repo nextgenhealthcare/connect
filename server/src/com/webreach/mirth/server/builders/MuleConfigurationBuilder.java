@@ -192,7 +192,10 @@ public class MuleConfigurationBuilder {
 			// add the source connector
 			addConnector(document, configurationElement, channel.getSourceConnector(), connectorReference + "_connector");
 			endpointElement.setAttribute("connector", connectorReference + "_connector");
-
+			// if the channel is snychronous
+			if ((channel.getProperties().get("synchronous")) != null && ((String)channel.getProperties().get("synchronous")).equalsIgnoreCase("true")) {
+				endpointElement.setAttribute("synchronous", "true");
+			}
 			StringBuilder endpointTransformers = new StringBuilder();
 			StringBuilder vmTransformers = new StringBuilder();
 
@@ -276,6 +279,7 @@ public class MuleConfigurationBuilder {
 				// ensure correct ordering of fired events
 				if (channel.getDestinationConnectors().size() > 0) {
 					endpointElement.setAttribute("synchronous", "true");
+					routerElement.setAttribute("synchronous", "true");
 				}
 
 				// ast: now, a funciont gets the connection reference string
