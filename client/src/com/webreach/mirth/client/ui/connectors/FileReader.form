@@ -330,8 +330,8 @@
                 <StringItem index="0" value="DATE"/>
                 <StringItem index="1" value="COUNT"/>
                 <StringItem index="2" value="UUID"/>
-                <StringItem index="3" value="ORIGINALFILE"/>
-                <StringItem index="4" value="SYSTIME"/>
+                <StringItem index="3" value="SYSTIME"/>
+                <StringItem index="4" value="ORIGINALNAME"/>
               </StringArray>
             </Property>
           </Properties>
