@@ -20,21 +20,21 @@ public class ImportConverter
         
         // source connector
         connector = channel.getSourceConnector();
-        
-        for (Iterator iterator = connector.getFilter().getRules().iterator(); iterator.hasNext();)
-        {
-            Rule rule = (Rule) iterator.next();
-            String script = rule.getScript();
-            
-            if (channel.getDirection().equals(Channel.Direction.OUTBOUND))
-                script = script.replaceAll("hl7_xml", "tmp");
-            else
-                script = script.replaceAll("hl7_xml", "msg");
-            
-            script = script.replaceAll("text\\(\\)\\[0\\]", "toString\\(\\)");
-            rule.setScript(script);
-        }            
-                
+        if (connector.getFilter() != null && connector.getFilter().getRules() != null){
+	        for (Iterator iterator = connector.getFilter().getRules().iterator(); iterator.hasNext();)
+	        {
+	            Rule rule = (Rule) iterator.next();
+	            String script = rule.getScript();
+	            
+	            if (channel.getDirection().equals(Channel.Direction.OUTBOUND))
+	                script = script.replaceAll("hl7_xml", "tmp");
+	            else
+	                script = script.replaceAll("hl7_xml", "msg");
+	            
+	            script = script.replaceAll("text\\(\\)\\[0\\]", "toString\\(\\)");
+	            rule.setScript(script);
+	        }            
+        } 
         if (connector.getProperties().getProperty("template") != null)
         {
             String template = connector.getProperties().getProperty("template");
@@ -54,59 +54,60 @@ public class ImportConverter
 
             connector.getProperties().setProperty("template", template);
         }
-
-        for (Iterator iterator = connector.getTransformer().getSteps().iterator(); iterator.hasNext();)
-        {
-            Step step = (Step) iterator.next();
-            Map data = (Map) step.getData();
-            if(step.getType().equals(TransformerPane.JAVASCRIPT_TYPE))
-            {
-                String script = (String)data.get("Script");
-                if (channel.getDirection().equals(Channel.Direction.OUTBOUND))
-                    script = script.replaceAll("hl7_xml", "tmp");
-                else
-                    script = script.replaceAll("hl7_xml", "msg");
-
-                script = script.replaceAll("text\\(\\)\\[0\\]", "toString\\(\\)");
-
-                data.put("Script", script);
-                step.setData(data);
-            }
-            else if(step.getType().equals(TransformerPane.MAPPER_TYPE) || step.getType().equals(TransformerPane.HL7MESSAGE_TYPE))
-            {
-                String script = (String)data.get("Mapping");
-
-                if (channel.getDirection().equals(Channel.Direction.OUTBOUND))
-                    script = script.replaceAll("hl7_xml", "tmp");
-                else
-                    script = script.replaceAll("hl7_xml", "msg");
-
-                script = script.replaceAll("text\\(\\)\\[0\\]", "toString\\(\\)");
-
-                data.put("Mapping", script);
-                step.setData(data);
-            }
+        if (connector.getTransformer() != null && connector.getTransformer().getSteps() != null){
+	        for (Iterator iterator = connector.getTransformer().getSteps().iterator(); iterator.hasNext();)
+	        {
+	            Step step = (Step) iterator.next();
+	            Map data = (Map) step.getData();
+	            if(step.getType().equals(TransformerPane.JAVASCRIPT_TYPE))
+	            {
+	                String script = (String)data.get("Script");
+	                if (channel.getDirection().equals(Channel.Direction.OUTBOUND))
+	                    script = script.replaceAll("hl7_xml", "tmp");
+	                else
+	                    script = script.replaceAll("hl7_xml", "msg");
+	
+	                script = script.replaceAll("text\\(\\)\\[0\\]", "toString\\(\\)");
+	                script = script.replaceAll("incomingMessage", "messageObject.getRawData()");
+	                data.put("Script", script);
+	                step.setData(data);
+	            }
+	            else if(step.getType().equals(TransformerPane.MAPPER_TYPE) || step.getType().equals(TransformerPane.HL7MESSAGE_TYPE))
+	            {
+	                String script = (String)data.get("Mapping");
+	
+	                if (channel.getDirection().equals(Channel.Direction.OUTBOUND))
+	                    script = script.replaceAll("hl7_xml", "tmp");
+	                else
+	                    script = script.replaceAll("hl7_xml", "msg");
+	
+	                script = script.replaceAll("text\\(\\)\\[0\\]", "toString\\(\\)");
+	                script = script.replaceAll("incomingMessage", "messageObject.getRawData()");
+	                data.put("Mapping", script);
+	                step.setData(data);
+	            }
+	        }
         }
         
         // destination
         for (Iterator iter = channel.getDestinationConnectors().iterator(); iter.hasNext();)
         {
             connector = (Connector) iter.next();
-            
-            for (Iterator iterator = connector.getFilter().getRules().iterator(); iterator.hasNext();)
-            {
-                Rule rule = (Rule) iterator.next();
-                String script = rule.getScript();
-                
-                if (channel.getDirection().equals(Channel.Direction.OUTBOUND))
-                    script = script.replaceAll("hl7_xml", "tmp");
-                else
-                    script = script.replaceAll("hl7_xml", "msg");
-                
-                script = script.replaceAll("text\\(\\)\\[0\\]", "toString\\(\\)");
-                rule.setScript(script);
+            if (connector.getFilter() != null && connector.getFilter().getRules() != null){
+	            for (Iterator iterator = connector.getFilter().getRules().iterator(); iterator.hasNext();)
+	            {
+	                Rule rule = (Rule) iterator.next();
+	                String script = rule.getScript();
+	                
+	                if (channel.getDirection().equals(Channel.Direction.OUTBOUND))
+	                    script = script.replaceAll("hl7_xml", "tmp");
+	                else
+	                    script = script.replaceAll("hl7_xml", "msg");
+	                script = script.replaceAll("incomingMessage", "messageObject.getRawData()");
+	                script = script.replaceAll("text\\(\\)\\[0\\]", "toString\\(\\)");
+	                rule.setScript(script);
+	            }
             }
-            
             if (connector.getProperties().getProperty("template") != null)
             {
                 String template = connector.getProperties().getProperty("template");
@@ -127,37 +128,39 @@ public class ImportConverter
                 connector.getProperties().setProperty("template", template);
             }
             
-            for (Iterator iterator = connector.getTransformer().getSteps().iterator(); iterator.hasNext();)
-            {
-                Step step = (Step) iterator.next();
-                Map data = (Map) step.getData();
-                if(step.getType().equals(TransformerPane.JAVASCRIPT_TYPE))
-                {
-                    String script = (String)data.get("Script");
-                    if (channel.getDirection().equals(Channel.Direction.OUTBOUND))
-                        script = script.replaceAll("hl7_xml", "tmp");
-                    else
-                        script = script.replaceAll("hl7_xml", "msg");
-
-                    script = script.replaceAll("text\\(\\)\\[0\\]", "toString\\(\\)");
-                    
-                    data.put("Script", script);
-                    step.setData(data);
-                }
-                else if(step.getType().equals(TransformerPane.MAPPER_TYPE) || step.getType().equals(TransformerPane.HL7MESSAGE_TYPE))
-                {
-                    String script = (String)data.get("Mapping");
-                    
-                    if (channel.getDirection().equals(Channel.Direction.OUTBOUND))
-                        script = script.replaceAll("hl7_xml", "tmp");
-                    else
-                        script = script.replaceAll("hl7_xml", "msg");
-                    
-                    script = script.replaceAll("text\\(\\)\\[0\\]", "toString\\(\\)");
-                    
-                    data.put("Mapping", script);
-                    step.setData(data);
-                }
+            if (connector.getTransformer() != null && connector.getTransformer().getSteps() != null){
+     	       for (Iterator iterator = connector.getTransformer().getSteps().iterator(); iterator.hasNext();)
+	            {
+	                Step step = (Step) iterator.next();
+	                Map data = (Map) step.getData();
+	                if(step.getType().equals(TransformerPane.JAVASCRIPT_TYPE))
+	                {
+	                    String script = (String)data.get("Script");
+	                    if (channel.getDirection().equals(Channel.Direction.OUTBOUND))
+	                        script = script.replaceAll("hl7_xml", "tmp");
+	                    else
+	                        script = script.replaceAll("hl7_xml", "msg");
+	
+	                    script = script.replaceAll("text\\(\\)\\[0\\]", "toString\\(\\)");
+	                    
+	                    data.put("Script", script);
+	                    step.setData(data);
+	                }
+	                else if(step.getType().equals(TransformerPane.MAPPER_TYPE) || step.getType().equals(TransformerPane.HL7MESSAGE_TYPE))
+	                {
+	                    String script = (String)data.get("Mapping");
+	                    
+	                    if (channel.getDirection().equals(Channel.Direction.OUTBOUND))
+	                        script = script.replaceAll("hl7_xml", "tmp");
+	                    else
+	                        script = script.replaceAll("hl7_xml", "msg");
+	                    
+	                    script = script.replaceAll("text\\(\\)\\[0\\]", "toString\\(\\)");
+	                    
+	                    data.put("Mapping", script);
+	                    step.setData(data);
+	                }
+	            }
             }
         }
 
