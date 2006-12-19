@@ -74,11 +74,11 @@
 			<fileset file="${webapp.lib}/commons-httpclient-3.0.1.jar" />
 			<fileset file="${webapp.lib}/commons-logging-1.1.jar" />
 			<fileset file="${webapp.lib}/databinding-0.8.0.jar" />
-			<fileset file="${webapp.lib}/hapi-0.5beta.jar" />
+			<fileset file="${webapp.lib}/hapi-0.5.jar" />
 			<fileset file="${webapp.lib}/jdic-0.8.0.jar" />
 			<fileset file="${webapp.lib}/l2fprod-common-sheet.jar" />
 			<fileset file="${webapp.lib}/log4j-1.2.14.jar" />
-			<fileset file="${webapp.lib}/looks-2.0.4.jar" />
+			<fileset file="${webapp.lib}/looks-2.1.1.jar" />
 			<fileset file="${webapp.lib}/qname.jar" />
 			<fileset file="${webapp.lib}/rhino-1.6r2.jar" />
 			<fileset file="${webapp.lib}/swing-layout-1.0.1.jar" />
