@@ -173,7 +173,7 @@ public class Frame extends JXFrame
                 if (!confirmLeave())
                     return;
                 
-                doLogout();
+                logout();
                 System.exit(0);
             }
         });
@@ -1424,6 +1424,11 @@ public class Frame extends JXFrame
         if (!confirmLeave())
             return;
         
+        logout();
+    }
+    
+    public void logout()
+    {
         if(currentContentPage == statusPanel)
             su.interruptThread();
         
