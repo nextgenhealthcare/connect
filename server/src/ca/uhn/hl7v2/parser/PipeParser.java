@@ -229,8 +229,16 @@ public class PipeParser extends Parser {
                 segments[i] = stripLeadingWhitespace(segments[i]);
             
             //sometimes people put extra segment delimiters at end of msg ...
+            char delim = '|';
             if (segments[i] != null && segments[i].length() >= 3) {
-                final String name = segments[i].substring(0, 3);
+                final String name;
+                if (i == 0) {
+                    name = segments[i].substring(0, 3);
+                    delim = segments[i].charAt(3);
+                } else {
+                    name = segments[i].substring(0, segments[i].indexOf(delim));
+                }
+                
                 log.debug("Parsing segment " + name);
                 
                 messageIter.setDirection(name);
@@ -658,7 +666,7 @@ public class PipeParser extends Parser {
             + e.getMessage()
             + "): "
             + mshString,
-            HL7Exception.REQUIRED_FIELD_MISSING);
+            HL7Exception.REQUIRED_FIELD_MISSING, e);
         }
         
         return msh;
@@ -708,6 +716,12 @@ public class PipeParser extends Parser {
      * into which the text of the message should be parsed.
      * @throws HL7Exception if the version field can not be found.
      */
+    /**
+     * Returns the version ID (MSH-12) from the given message, without fully parsing the message.
+     * The version is needed prior to parsing in order to determine the message class
+     * into which the text of the message should be parsed.
+     * @throws HL7Exception if the version field can not be found.
+     */
     public String getVersion(String message) throws HL7Exception {
         int startMSH = message.indexOf("MSH");
         int endMSH = message.indexOf(PipeParser.segDelim, startMSH);
@@ -725,17 +739,23 @@ public class PipeParser extends Parser {
         String[] fields = split(msh, fieldSep);
         
         String compSep = null;
-        if (fields.length >= 2 && fields[1].length() > 0) {
+        if (fields.length >= 2 && fields[1] != null && fields[1].length() == 4) {
             compSep = String.valueOf(fields[1].charAt(0)); //get component separator as 1st encoding char
         } 
         else {
-            throw new HL7Exception("Can't find encoding characters - MSH has only " + fields.length + " fields", 
+            throw new HL7Exception("Invalid or incomplete encoding characters - MSH-2 is " + fields[1],  
                     HL7Exception.REQUIRED_FIELD_MISSING);
         }
         
         String version = null;
         if (fields.length >= 12) {
-            version = split(fields[11], compSep)[0];
+        	String[] comp = split(fields[11], compSep);
+        	if (comp.length >= 1) {
+        		version = comp[0];
+        	} else {
+        		throw new HL7Exception("Can't find version ID - MSH.12 is " + fields[11],
+        				HL7Exception.REQUIRED_FIELD_MISSING);
+        	}
         }
         else {
             throw new HL7Exception(
@@ -744,6 +764,7 @@ public class PipeParser extends Parser {
         }
         return version;
     }
+
     
     /**
      * A struct for holding a message class string and a boolean indicating whether it 

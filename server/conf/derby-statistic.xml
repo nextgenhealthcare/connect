@@ -8,7 +8,10 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 	<select id="getReceivedCount" parameterClass="java.lang.String" resultClass="java.lang.Integer">
 		SELECT COUNT(*)
 		FROM MESSAGE
-		WHERE CHANNEL_ID = #channelId#
+		WHERE 
+			CHANNEL_ID = #channelId# AND
+			CORRELATION_ID IS NULL
+		
 	</select>
 	
 	<select id="getSentCount" parameterClass="java.lang.String" resultClass="java.lang.Integer">
@@ -25,5 +28,13 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		WHERE
 			CHANNEL_ID = #channelId# AND
 			STATUS='ERROR'
+	</select>
+	
+	<select id="getRejectedCount" parameterClass="java.lang.String" resultClass="java.lang.Integer">
+		SELECT COUNT(*)
+		FROM MESSAGE
+		WHERE
+			CHANNEL_ID = #channelId# AND
+			STATUS='REJECTED'
 	</select>
 </sqlMap>

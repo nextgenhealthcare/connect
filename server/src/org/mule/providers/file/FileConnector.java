@@ -66,6 +66,7 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 	// declaration
 	public static final String PROPERTY_POLLING_FREQUENCY = "pollingFrequency";
 	public static final String PROPERTY_FILE_AGE = "fileAge";
+	public static final String PROPERTY_FILE_FILTER = "fileFilter";
 	public static final String PROPERTY_FILENAME = "filename";
 	public static final String PROPERTY_ORIGINAL_FILENAME = "originalFilename";
 	public static final String PROPERTY_OUTPUT_PATTERN = "outputPattern";
@@ -100,6 +101,7 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 	private boolean outputAppend = false;
 	private boolean autoDelete = true;
 	private boolean checkFileAge = false;
+	private String fileFilter = "*.*";
 	private long fileAge = 0;
 	private String template = null;
 	private FileOutputStream outputStream = null;
@@ -436,4 +438,12 @@ public class FileConnector extends AbstractServiceEnabledConnector {
             }                 
 		return(this.charsetEncoding);
 	 }
+
+		public String getFileFilter() {
+			return fileFilter;
+		}
+
+		public void setFileFilter(String fileFilter) {
+			this.fileFilter = fileFilter;
+		}
 }

@@ -17,6 +17,7 @@ package org.mule.providers.soap.axis;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -72,9 +73,11 @@ import org.mule.util.TemplateParser;
 
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.ws.WSParameter;
+import com.webreach.mirth.server.controllers.ChannelController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.mule.util.GlobalVariableStore;
 import com.webreach.mirth.server.util.StackTracePrinter;
+import com.webreach.mirth.server.util.UUIDGenerator;
 
 /**
  * <code>AxisMessageDispatcher</code> is used to make soap requests via the
@@ -197,6 +200,16 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher {
 			if (messageObject.getStatus().equals(MessageObject.Status.REJECTED)){
 				return;
 			}
+			if (messageObject.getCorrelationId() == null){
+				//If we have no correlation id, this means this is the original message
+				//so let's copy it and assign a new id and set the proper correlationid
+				MessageObject clone = (MessageObject) messageObject.clone();
+				clone.setId(UUIDGenerator.getUUID());
+				clone.setDateCreated(Calendar.getInstance());
+				clone.setCorrelationId(messageObject.getId());
+				clone.setConnectorName(new ChannelController().getDestinationName(this.getConnector().getName()));
+				messageObject = clone;
+			}
 			invokeWebService(event, messageObject);	
 		}
 	}
@@ -243,7 +256,7 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher {
 		}catch(Exception e){
 			if (messageObject != null){
 				messageObject.setStatus(MessageObject.Status.ERROR);
-				messageObject.setErrors("Error invoking Web Service\n" +  StackTracePrinter.stackTraceToString(e));
+				messageObject.setErrors(messageObject.getErrors() + '\n' + "Error invoking Web Service\n" +  StackTracePrinter.stackTraceToString(e));
 				messageObjectController.updateMessage(messageObject);
 			}
 			connector.handleException(e);
@@ -263,6 +276,15 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher {
 			
 			if (messageObject.getStatus().equals(MessageObject.Status.REJECTED)){
 				return null;
+			}
+			if (messageObject.getCorrelationId() == null){
+				//If we have no correlation id, this means this is the original message
+				//so let's copy it and assign a new id and set the proper correlationid
+				MessageObject clone = (MessageObject) messageObject.clone();
+				clone.setId(UUIDGenerator.getUUID());
+				clone.setDateCreated(Calendar.getInstance());
+				clone.setCorrelationId(messageObject.getId());
+				messageObject = clone;
 			}
 			results = invokeWebService(event, messageObject);	
 		}

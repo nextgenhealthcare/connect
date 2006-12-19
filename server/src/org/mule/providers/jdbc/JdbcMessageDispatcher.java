@@ -30,11 +30,14 @@ import org.mule.umo.provider.ConnectorException;
 import org.mule.umo.provider.UMOMessageAdapter;
 
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.server.controllers.ChannelController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.util.StackTracePrinter;
+import com.webreach.mirth.server.util.UUIDGenerator;
 
 import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -85,6 +88,16 @@ public class JdbcMessageDispatcher extends AbstractMessageDispatcher {
 				//TODO: Check if this should be here
 				return;
 			}
+			if (messageObject.getCorrelationId() == null){
+				//If we have no correlation id, this means this is the original message
+				//so let's copy it and assign a new id and set the proper correlationid
+				MessageObject clone = (MessageObject) messageObject.clone();
+				clone.setId(UUIDGenerator.getUUID());
+				clone.setDateCreated(Calendar.getInstance());
+				clone.setCorrelationId(messageObject.getId());
+				clone.setConnectorName(new ChannelController().getDestinationName(this.getConnector().getName()));
+				messageObject = clone;
+			}
 		}
 		try {
 			UMOEndpoint endpoint = event.getEndpoint();
@@ -129,7 +142,7 @@ public class JdbcMessageDispatcher extends AbstractMessageDispatcher {
 			}
 			if (messageObject != null) {
 				messageObject.setStatus(MessageObject.Status.ERROR);
-				messageObject.setErrors("Error writing to the database\n" + StackTracePrinter.stackTraceToString(e));
+				messageObject.setErrors(messageObject.getErrors() + '\n' + "Error writing to the database\n" + StackTracePrinter.stackTraceToString(e));
 				messageObjectController.updateMessage(messageObject);
 			}
 			connector.handleException(e);

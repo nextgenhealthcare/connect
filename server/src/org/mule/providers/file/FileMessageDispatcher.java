@@ -19,6 +19,7 @@ import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URLDecoder;
+import java.util.Calendar;
 
 import org.mule.MuleException;
 import org.mule.MuleManager;
@@ -35,8 +36,10 @@ import org.mule.umo.endpoint.UMOEndpointURI;
 import org.mule.util.Utility;
 
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.server.controllers.ChannelController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.util.StackTracePrinter;
+import com.webreach.mirth.server.util.UUIDGenerator;
 
 /**
  * <code>FileMessageDispatcher</code> is used to read/write files to the
@@ -75,10 +78,20 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
 		try {
 			if (data instanceof MessageObject) {
 				messageObject = (MessageObject) data;
+
 				if (messageObject.getStatus().equals(MessageObject.Status.REJECTED)) {
 					return;
 				}
-
+				if (messageObject.getCorrelationId() == null){
+					//If we have no correlation id, this means this is the original message
+					//so let's copy it and assign a new id and set the proper correlationid
+					MessageObject clone = (MessageObject) messageObject.clone();
+					clone.setId(UUIDGenerator.getUUID());
+					clone.setDateCreated(Calendar.getInstance());
+					clone.setCorrelationId(messageObject.getId());
+					clone.setConnectorName(new ChannelController().getDestinationName(this.getConnector().getName()));
+					messageObject = clone;
+				}
 				String filename = (String) event.getProperty(FileConnector.PROPERTY_FILENAME);
 
 				if (filename == null) {
@@ -107,6 +120,7 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
 				fos.write(buffer);
 
 				// update the message status to sent
+				
 				messageObject.setStatus(MessageObject.Status.SENT);
 				messageObjectController.updateMessage(messageObject);
 			} else {
@@ -115,7 +129,7 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
 		} catch (Exception e) {
 			if (messageObject != null){
 				messageObject.setStatus(MessageObject.Status.ERROR);
-				messageObject.setErrors("Error writing the file\n" +  StackTracePrinter.stackTraceToString(e));
+				messageObject.setErrors(messageObject.getErrors() + '\n' + "Error writing the file\n" +  StackTracePrinter.stackTraceToString(e));
 				messageObjectController.updateMessage(messageObject);
 			}
 			connector.handleException(e);

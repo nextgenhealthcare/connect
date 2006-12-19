@@ -36,6 +36,7 @@ import org.mule.extras.client.MuleClient;
 import org.mule.umo.UMOException;
 
 import com.ibatis.sqlmap.client.SqlMapClient;
+import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.filters.MessageObjectFilter;
 import com.webreach.mirth.server.util.SqlConfig;
@@ -46,6 +47,35 @@ public class MessageObjectController {
 
 	public void updateMessage(MessageObject messageObject) {
 		try {
+			String channelId = messageObject.getChannelId();
+			HashMap<String,Channel> channelCache = ChannelController.getChannelCache();
+			//Check the cache for the channel
+			if (channelCache != null && channelCache.containsKey(channelId)){
+				Channel channel = channelCache.get(channelId);
+				if (channel.getProperties().containsKey("store_messages")){
+					if (channel.getProperties().get("store_messages").equals("false")){
+						//If we don't want to store messages, then lets sanitize the data in a clone
+						//TODO: Check if pass by value
+						messageObject = (MessageObject)messageObject.clone();
+						messageObject.setRawData(new String());
+						messageObject.setEncodedData(new String());
+						messageObject.setTransformedData(new String());
+						messageObject.setRawData(new String());
+						messageObject.setVariableMap(new HashMap());
+					}else if(channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("error_messages_only").equals("true")){
+						//Check if it's not an error message and sanitize
+						if (!messageObject.getStatus().equals(MessageObject.Status.ERROR)){
+							messageObject = (MessageObject)messageObject.clone();
+							messageObject.setRawData(new String());
+							messageObject.setEncodedData(new String());
+							messageObject.setTransformedData(new String());
+							messageObject.setRawData(new String());
+							messageObject.setVariableMap(new HashMap());
+						}
+					}
+				}
+
+			}
 			int count = (Integer) sqlMap.queryForObject("getMessageCount", messageObject.getId());
 			
 			if (count == 0) {

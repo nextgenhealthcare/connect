@@ -368,8 +368,7 @@ public class MuleConfigurationBuilder {
 			properties.put("protocol", channel.getProtocol().toString());
 			properties.put("direction", channel.getDirection().toString());
 			properties.put("encryptData", channel.getProperties().get("encryptData"));
-			properties.put("storeMessages", channel.getProperties().get("store_messages"));
-
+			properties.put("mode", channel.getMode());
 			// if outbound, put the template in the templates table
 			if (channel.getDirection().equals(Channel.Direction.OUTBOUND) && (connector.getTransformer().getTemplate() != null)) {
 				TemplateController templateController = new TemplateController();

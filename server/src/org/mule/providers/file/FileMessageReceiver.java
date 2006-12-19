@@ -35,6 +35,7 @@ import org.mule.config.i18n.Messages;
 import org.mule.impl.MuleMessage;
 import org.mule.providers.ConnectException;
 import org.mule.providers.PollingMessageReceiver;
+import org.mule.providers.file.filters.FilenameWildcardFilter;
 import org.mule.umo.UMOComponent;
 import org.mule.umo.UMOException;
 import org.mule.umo.endpoint.UMOEndpoint;
@@ -71,10 +72,7 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 		this.readDir = readDir;
 		this.moveDir = moveDir;
 		this.moveToPattern = moveToPattern;
-
-		if (endpoint.getFilter() instanceof FilenameFilter) {
-			filenameFilter = (FilenameFilter) endpoint.getFilter();
-		}
+		filenameFilter = new FilenameWildcardFilter(((FileConnector)connector).getFileFilter());
 	}
 
 	public void doConnect() throws Exception {
@@ -190,7 +188,9 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 					routingError = true;
 				}
 				catch (Exception e) {
+					logger.error(e.getMessage());
 					fileProcesedException = new MuleException(new Message(Messages.FAILED_TO_READ_PAYLOAD, file.getName()));
+					
 				}
 				// move the file if needed
 				if (destinationFile != null) {

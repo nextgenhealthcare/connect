@@ -58,7 +58,7 @@ public class MessageObject implements Serializable {
 	private boolean encrypted;
 	private String errors;
 	private String version;
-
+	private String correlationId;
 	public MessageObject() {
 		this.variableMap = new HashMap();
 		this.status = Status.UNKNOWN;
@@ -219,6 +219,7 @@ public class MessageObject implements Serializable {
 		messageObject.setTransformedDataProtocol(this.getTransformedDataProtocol());
 		messageObject.setVariableMap(this.getVariableMap());
 		messageObject.setVersion(this.getVersion());
+		messageObject.setCorrelationId(this.getCorrelationId());
 		return messageObject;
 	}
 
@@ -250,6 +251,15 @@ public class MessageObject implements Serializable {
 			EqualsUtil.areEqual(this.getConnectorName(), messageObject.getConnectorName()) &&
 			EqualsUtil.areEqual(this.isEncrypted(), messageObject.isEncrypted()) &&
 			EqualsUtil.areEqual(this.getErrors(), messageObject.getErrors()) &&
-			EqualsUtil.areEqual(this.getVersion(), messageObject.getVersion());
+			EqualsUtil.areEqual(this.getVersion(), messageObject.getVersion())&&
+			EqualsUtil.areEqual(this.getCorrelationId(), messageObject.getCorrelationId());
+	}
+
+	public String getCorrelationId() {
+		return correlationId;
+	}
+
+	public void setCorrelationId(String correlationId) {
+		this.correlationId = correlationId;
 	}
 }

@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Calendar;
 
 import org.mule.providers.AbstractMessageDispatcher;
 import org.mule.providers.TemplateValueReplacer;
@@ -18,8 +19,10 @@ import com.lowagie.text.Document;
 import com.lowagie.text.html.HtmlParser;
 import com.lowagie.text.pdf.PdfWriter;
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.server.controllers.ChannelController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.util.StackTracePrinter;
+import com.webreach.mirth.server.util.UUIDGenerator;
 
 public class PdfMessageDispatcher extends AbstractMessageDispatcher {
 	private PdfConnector connector;
@@ -45,7 +48,16 @@ public class PdfMessageDispatcher extends AbstractMessageDispatcher {
 				if (messageObject.getStatus().equals(MessageObject.Status.REJECTED)){
 					return;
 				}
-				
+				if (messageObject.getCorrelationId() == null){
+					//If we have no correlation id, this means this is the original message
+					//so let's copy it and assign a new id and set the proper correlationid
+					MessageObject clone = (MessageObject) messageObject.clone();
+					clone.setId(UUIDGenerator.getUUID());
+					clone.setDateCreated(Calendar.getInstance());
+					clone.setCorrelationId(messageObject.getId());
+					clone.setConnectorName(new ChannelController().getDestinationName(this.getConnector().getName()));
+					messageObject = clone;
+				}
 				String filename = (String) event.getProperty(PdfConnector.PROPERTY_FILENAME);
 
 				if (filename == null) {
@@ -76,7 +88,7 @@ public class PdfMessageDispatcher extends AbstractMessageDispatcher {
 		} catch (Exception e) {
 			if (messageObject != null){
 				messageObject.setStatus(MessageObject.Status.ERROR);
-				messageObject.setErrors("Error writing the PDF\n" +  StackTracePrinter.stackTraceToString(e));
+				messageObject.setErrors(messageObject.getErrors() != null ? messageObject.getErrors() + '\n' : "" + "Error writing PDF\n" +  StackTracePrinter.stackTraceToString(e));
 				messageObjectController.updateMessage(messageObject);
 			}
 			connector.handleException(e);
@@ -109,7 +121,7 @@ public class PdfMessageDispatcher extends AbstractMessageDispatcher {
 		} catch (Exception e) {
 			if (messageObject != null){
 				messageObject.setStatus(MessageObject.Status.ERROR);
-				messageObject.setErrors("Error writing the PDF\n" +  StackTracePrinter.stackTraceToString(e));
+				messageObject.setErrors(messageObject.getErrors() != null ? messageObject.getErrors() + '\n' : "" + "Error writing PDF\n" +  StackTracePrinter.stackTraceToString(e));
 				messageObjectController.updateMessage(messageObject);
 			}
 			connector.handleException(e);

@@ -32,6 +32,14 @@ public class ChannelStatistics {
 	private int receivedCount = 0;
 	private int sentCount = 0;
 	private int errorCount = 0;
+	private int rejectedCount = 0;
+	public int getRejectedCount() {
+		return rejectedCount;
+	}
+
+	public void setRejectedCount(int rejectedCount) {
+		this.rejectedCount = rejectedCount;
+	}
 
 	public String getChannelId() {
 		return this.channelId;

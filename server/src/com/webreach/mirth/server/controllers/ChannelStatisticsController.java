@@ -52,6 +52,7 @@ public class ChannelStatisticsController {
 		statistics.setReceivedCount(getReceivedCount(channelId));
 		statistics.setSentCount(getSentCount(channelId));
 		statistics.setErrorCount(getErrorCount(channelId));
+		statistics.setRejectedCount(getRejectedCount(channelId));
 		return statistics;
 	}
 	
@@ -74,6 +75,13 @@ public class ChannelStatisticsController {
 	public Integer getErrorCount(String channelId) throws ControllerException {
 		try {
 			return (Integer) sqlMap.queryForObject("getErrorCount", channelId);
+		} catch (SQLException e) {
+			throw new ControllerException(e);
+		}
+	}
+	public Integer getRejectedCount(String channelId) throws ControllerException {
+		try {
+			return (Integer) sqlMap.queryForObject("getRejectedCount", channelId);
 		} catch (SQLException e) {
 			throw new ControllerException(e);
 		}

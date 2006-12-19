@@ -50,6 +50,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.ibatis.sqlmap.client.SqlMapClient;
+import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.Configuration;
 import com.webreach.mirth.model.DriverInfo;
 import com.webreach.mirth.model.SystemEvent;
@@ -198,9 +199,12 @@ public class ConfigurationController {
 
 			// instantiate a new configuration builder given the current channel
 			// and transport list
-			MuleConfigurationBuilder builder = new MuleConfigurationBuilder(channelController.getChannel(null), getTransports());
+			List<Channel> channels = channelController.getChannel(null);
+			MuleConfigurationBuilder builder = new MuleConfigurationBuilder(channels, getTransports());
 			// add the newly generated configuration to the database
 			addConfiguration(builder.getConfiguration());
+			// update the storeMessages reference
+			ChannelController.updateChannelCache(channels);
 			// restart the mule engine which will grab the latest configuration
 			// from the database
 			queue.addCommand(new Command(Command.Operation.RESTART));

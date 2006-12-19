@@ -20,6 +20,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import org.apache.commons.net.ftp.FTPClient;
@@ -37,8 +38,10 @@ import org.mule.umo.UMOMessage;
 import org.mule.umo.endpoint.UMOEndpointURI;
 
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.server.controllers.ChannelController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.util.StackTracePrinter;
+import com.webreach.mirth.server.util.UUIDGenerator;
 
 /**
  * @author <a href="mailto:gnt@codehaus.org">Guillaume Nodet</a>
@@ -70,7 +73,16 @@ public class FtpMessageDispatcher extends AbstractMessageDispatcher {
 				if (messageObject.getStatus().equals(MessageObject.Status.REJECTED)){
 					return;
 				}
-				
+				if (messageObject.getCorrelationId() == null){
+					//If we have no correlation id, this means this is the original message
+					//so let's copy it and assign a new id and set the proper correlationid
+					MessageObject clone = (MessageObject) messageObject.clone();
+					clone.setId(UUIDGenerator.getUUID());
+					clone.setDateCreated(Calendar.getInstance());
+					clone.setCorrelationId(messageObject.getId());
+					clone.setConnectorName(new ChannelController().getDestinationName(this.getConnector().getName()));
+					messageObject = clone;
+				}
 				String filename = (String) event.getProperty(FtpConnector.PROPERTY_FILENAME);
 
 				if (filename == null) {
@@ -108,10 +120,9 @@ public class FtpMessageDispatcher extends AbstractMessageDispatcher {
 		} catch (Exception e) {
 			if (messageObject != null){
 				messageObject.setStatus(MessageObject.Status.ERROR);
-				messageObject.setErrors("Error writing to FTP\n" + StackTracePrinter.stackTraceToString(e));
+				messageObject.setErrors(messageObject.getErrors() + '\n' + "Error writing to FTP\n" + StackTracePrinter.stackTraceToString(e));
 				messageObjectController.updateMessage(messageObject);
 			}
-			connector.releaseFtp(uri, client);
 			connector.handleException(e);
 		} finally {
 			connector.releaseFtp(uri, client);

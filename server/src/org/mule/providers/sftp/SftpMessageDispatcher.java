@@ -6,6 +6,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
@@ -23,7 +24,10 @@ import org.mule.umo.endpoint.UMOEndpointURI;
 
 import com.jcraft.jsch.ChannelSftp;
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.server.controllers.ChannelController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
+import com.webreach.mirth.server.util.StackTracePrinter;
+import com.webreach.mirth.server.util.UUIDGenerator;
 
 public class SftpMessageDispatcher extends AbstractMessageDispatcher {
 	protected SftpConnector connector;
@@ -38,18 +42,27 @@ public class SftpMessageDispatcher extends AbstractMessageDispatcher {
 		TemplateValueReplacer replacer = new TemplateValueReplacer();
 		UMOEndpointURI uri = event.getEndpoint().getEndpointURI();
 		ChannelSftp client = null;
-
+		MessageObject messageObject = null;
 		try {
 			Object data = event.getTransformedMessage();
 			if (data == null) {
 				return;
 			} else if (data instanceof MessageObject) {
-				MessageObject messageObject = (MessageObject) data;
+				messageObject = (MessageObject) data;
 				
 				if (messageObject.getStatus().equals(MessageObject.Status.REJECTED)){
 					return;
 				}
-				
+				if (messageObject.getCorrelationId() == null){
+					//If we have no correlation id, this means this is the original message
+					//so let's copy it and assign a new id and set the proper correlationid
+					MessageObject clone = (MessageObject) messageObject.clone();
+					clone.setId(UUIDGenerator.getUUID());
+					clone.setDateCreated(Calendar.getInstance());
+					clone.setCorrelationId(messageObject.getId());
+					clone.setConnectorName(new ChannelController().getDestinationName(this.getConnector().getName()));
+					messageObject = clone;
+				}
 				String filename = (String) event.getProperty(SftpConnector.PROPERTY_FILENAME);
 
 				if (filename == null) {
@@ -82,6 +95,11 @@ public class SftpMessageDispatcher extends AbstractMessageDispatcher {
 				logger.warn("received data is not of expected type");
 			}
 		} catch (Exception e) {
+			if (messageObject != null){
+				messageObject.setStatus(MessageObject.Status.ERROR);
+				messageObject.setErrors(messageObject.getErrors() != null ? messageObject.getErrors() + '\n' : "" + "Error writing to SFTP server\n" +  StackTracePrinter.stackTraceToString(e));
+				messageObjectController.updateMessage(messageObject);
+			}
 			connector.handleException(e);
 		} finally {
 			connector.releaseClient(uri, client);

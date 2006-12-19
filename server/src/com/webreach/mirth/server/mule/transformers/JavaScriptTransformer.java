@@ -59,10 +59,17 @@ public class JavaScriptTransformer extends AbstractTransformer {
 	private String channelId;
 	private String connectorName;
 	private boolean encryptData;
-	private boolean storeMessages;
 	private String transformerScriptId;
 	private String filterScriptId;
 	private String templateId;
+	private String mode;
+	public String getMode() {
+		return mode;
+	}
+
+	public void setMode(String mode) {
+		this.mode = mode;
+	}
 
 	public String getChannelId() {
 		return this.channelId;
@@ -103,15 +110,6 @@ public class JavaScriptTransformer extends AbstractTransformer {
 	public void setEncryptData(boolean encryptData) {
 		this.encryptData = encryptData;
 	}
-
-	public boolean isStoreMessages() {
-		return this.storeMessages;
-	}
-
-	public void setStoreMessages(boolean storeMessages) {
-		this.storeMessages = storeMessages;
-	}
-
 	public String getFilterScriptId() {
 		return this.filterScriptId;
 	}
@@ -215,10 +213,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 
 			if (!messageAccepted) {
 				messageObject.setStatus(MessageObject.Status.REJECTED);
-				
-				if (storeMessages) {
-					messageObjectController.updateMessage(messageObject);	
-				}
+				messageObjectController.updateMessage(messageObject);	
 			} else {
 				messageObject.setStatus(MessageObject.Status.ACCEPTED);
 			}
@@ -227,12 +222,8 @@ public class JavaScriptTransformer extends AbstractTransformer {
 		} catch (Exception e) {
 			logger.error("error ocurred in filter", e);
 			messageObject.setStatus(MessageObject.Status.ERROR);
-			messageObject.setErrors(StackTracePrinter.stackTraceToString(e));
-
-			if (storeMessages) {
-				messageObjectController.updateMessage(messageObject);
-			}
-
+			messageObject.setErrors(messageObject.getErrors() != null ? messageObject.getErrors() + '\n' : "" + StackTracePrinter.stackTraceToString(e));
+			messageObjectController.updateMessage(messageObject);
 			return false;
 		} finally {
 			Context.exit();
@@ -279,12 +270,8 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			return messageObject;
 		} catch (Exception e) {
 			messageObject.setStatus(MessageObject.Status.ERROR);
-			messageObject.setErrors(StackTracePrinter.stackTraceToString(e));
-
-			if (storeMessages) {
-				messageObjectController.updateMessage(messageObject);
-			}
-
+			messageObject.setErrors(messageObject.getErrors() != null ? messageObject.getErrors() + '\n' : "" + StackTracePrinter.stackTraceToString(e));
+			messageObjectController.updateMessage(messageObject);
 			throw new TransformerException(this, e);
 		} finally {
 			Context.exit();
@@ -340,12 +327,8 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			return messageObject;
 		} catch (Exception e) {
 			messageObject.setStatus(MessageObject.Status.ERROR);
-			messageObject.setErrors(StackTracePrinter.stackTraceToString(e));
-
-			if (storeMessages) {
-				messageObjectController.updateMessage(messageObject);
-			}
-
+			messageObject.setErrors(messageObject.getErrors() + '\n' + StackTracePrinter.stackTraceToString(e));
+			messageObjectController.updateMessage(messageObject);
 			throw new TransformerException(this, e);
 		} finally {
 			Context.exit();
@@ -353,8 +336,20 @@ public class JavaScriptTransformer extends AbstractTransformer {
 	}
 
 	private MessageObject initializeMessage(MessageObject source) {
-		MessageObject messageObject = (MessageObject) source.clone();
-		messageObject.setId(UUIDGenerator.getUUID());
+		MessageObject messageObject = null;
+		if (mode.equals(Channel.Mode.ROUTER.toString())){
+			//In a router, we run the transformer for each destination
+			//creating a new MO each time. The correlationID should be
+			//the id of the original message
+			messageObject = (MessageObject) source.clone();
+			messageObject.setId(UUIDGenerator.getUUID());
+			messageObject.setCorrelationId(source.getId());
+		}else if (mode.equals(Channel.Mode.BROADCAST.toString())){
+			//In a broadcast, the transformer is run one time.
+			//It is up to the individual dispatchers to assign new ids
+			//if the correlation id is blank
+			messageObject = source;
+		}
 		messageObject.setConnectorName(getConnectorName());
 		messageObject.setEncrypted(encryptData);
 		messageObject.setChannelId(channelId);

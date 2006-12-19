@@ -26,6 +26,8 @@
 
 package com.webreach.mirth.server.mule.transformers;
 
+import java.util.Calendar;
+
 import org.apache.log4j.Logger;
 import org.mule.transformers.AbstractTransformer;
 import org.mule.umo.transformer.TransformerException;
@@ -36,13 +38,15 @@ import ca.uhn.hl7v2.util.Terser;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.converters.ER7Serializer;
 import com.webreach.mirth.model.converters.HAPIMessageSerializer;
+import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.util.StackTracePrinter;
+import com.webreach.mirth.server.util.UUIDGenerator;
 
 public class HL7ToMessageObject extends AbstractTransformer {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private ER7Serializer xmlSerializer = new ER7Serializer();
 	private HAPIMessageSerializer hapiSerializer = new HAPIMessageSerializer();
-
+	private MessageObjectController messageObjectController = new MessageObjectController();
 	public HL7ToMessageObject() {
 		super();
 		registerSourceType(String.class);
@@ -55,29 +59,32 @@ public class HL7ToMessageObject extends AbstractTransformer {
 		// message
 		String rawData = ((String) src).trim();
 		MessageObject messageObject = new MessageObject();
-
-		// set the data
 		messageObject.setRawData(rawData);
 		messageObject.setRawDataProtocol(MessageObject.Protocol.HL7);
+		messageObject.setId(UUIDGenerator.getUUID());
+		messageObject.setDateCreated(Calendar.getInstance());
+		messageObject.setChannelId(this.getEndpoint().getConnector().getName().substring(0, this.getEndpoint().getConnector().getName().indexOf('_')));
+		messageObject.setConnectorName("Source");
 		messageObject.setTransformedDataProtocol(MessageObject.Protocol.XML);
 		messageObject.setEncodedDataProtocol(MessageObject.Protocol.HL7);
-
 		try {
 			Message message = hapiSerializer.deserialize(rawData.replaceAll("\n", "\r"));
 			Terser terser = new Terser(message);
 			String sendingFacility = terser.get("/MSH-4-1");
 			String event = terser.get("/MSH-9-1") + "-" + terser.get("/MSH-9-2");
-			
 			messageObject.setSource(sendingFacility);
 			messageObject.setType(event);
 			messageObject.setVersion(message.getVersion());
 			messageObject.setTransformedData(xmlSerializer.toXML(rawData.replaceAll("\n", "\r")));
 		} catch (Exception e) {
 			logger.warn("error transforming message", e);
-			messageObject.setErrors(StackTracePrinter.stackTraceToString(e));
+			messageObject.setErrors(messageObject.getErrors() != null ? messageObject.getErrors() + '\n' : "" + StackTracePrinter.stackTraceToString(e));
+			messageObject.setStatus(MessageObject.Status.ERROR);
+			messageObjectController.updateMessage(messageObject);
+			throw new TransformerException(this, e);
 		}
-
 		messageObject.setStatus(MessageObject.Status.RECEIVED);
+		messageObjectController.updateMessage(messageObject);
 		return messageObject;
 	}
 }

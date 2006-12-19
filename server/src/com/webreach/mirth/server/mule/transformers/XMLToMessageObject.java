@@ -26,20 +26,31 @@
 
 package com.webreach.mirth.server.mule.transformers;
 
+import java.util.Calendar;
+
 import org.mule.transformers.AbstractTransformer;
 import org.mule.umo.transformer.TransformerException;
 
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.server.controllers.MessageObjectController;
+import com.webreach.mirth.server.util.UUIDGenerator;
 
 public class XMLToMessageObject extends AbstractTransformer {
 	@Override
 	public Object doTransform(Object src) throws TransformerException {
 		String rawData = (String) src;
 		MessageObject messageObject = new MessageObject();
+		messageObject.setId(UUIDGenerator.getUUID());
 		messageObject.setRawData(rawData);
 		messageObject.setRawDataProtocol(MessageObject.Protocol.XML);
 		messageObject.setTransformedDataProtocol(MessageObject.Protocol.XML);
 		messageObject.setEncodedDataProtocol(MessageObject.Protocol.HL7);
+		messageObject.setDateCreated(Calendar.getInstance());
+		messageObject.setStatus(MessageObject.Status.RECEIVED);
+		messageObject.setType("XML");
+		messageObject.setChannelId(this.getEndpoint().getConnector().getName().substring(0, this.getEndpoint().getConnector().getName().indexOf('_')));
+		messageObject.setConnectorName("Source");
+		new MessageObjectController().updateMessage(messageObject);
 		return messageObject;
 	}
 }

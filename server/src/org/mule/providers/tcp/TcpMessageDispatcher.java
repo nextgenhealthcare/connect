@@ -22,6 +22,7 @@ import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Calendar;
 import java.util.Iterator;
 
 import org.apache.commons.logging.Log;
@@ -38,9 +39,11 @@ import org.mule.util.Utility;
 import org.mule.util.queue.Queue;
 
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.server.controllers.ChannelController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.mule.util.BatchMessageProcessor;
 import com.webreach.mirth.server.util.StackTracePrinter;
+import com.webreach.mirth.server.util.UUIDGenerator;
 
 /**
  * f <code>TcpMessageDispatcher</code> will send transformed mule events over
@@ -122,6 +125,24 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 		this.setQueues(event.getEndpoint());
 		try {
 			payload = event.getTransformedMessage();
+			if (payload instanceof MessageObject){
+				messageObject = (MessageObject) payload;
+				if (messageObject.getStatus().equals(MessageObject.Status.REJECTED)){
+					return;
+				}
+				if (messageObject.getCorrelationId() == null){
+					//If we have no correlation id, this means this is the original message
+					//so let's copy it and assign a new id and set the proper correlationid
+					MessageObject clone = (MessageObject) messageObject.clone();
+					clone.setId(UUIDGenerator.getUUID());
+					clone.setDateCreated(Calendar.getInstance());
+					clone.setCorrelationId(messageObject.getId());
+					clone.setConnectorName(new ChannelController().getDestinationName(this.getConnector().getName()));
+					messageObject = clone;
+				}
+				//we only want the encoded data
+				//payload = messageObject.getEncodedData();
+			}
 		} catch (Exception et) {
 			logger.error("Error in transformation " + et);
 			payload = null;
@@ -129,16 +150,18 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 		}
 
 		// ast: now, the stuff for queueing (and re-try)
-		if (payload == null)
+		if (messageObject == null)
 			return;
 		try {
+			//The status should be queued, even if we are retrying
+			if (messageObject != null) {
+				messageObject.setStatus(MessageObject.Status.QUEUED);
+				messageObjectController.updateMessage(messageObject);
+			}
 			if (queue != null) {
 				try {
-					queue.put(payload);
-					if (payload instanceof MessageObject) {
-						((MessageObject) payload).setStatus(MessageObject.Status.QUEUED);
-						messageObjectController.updateMessage(((MessageObject) payload));
-					}
+
+					queue.put(messageObject);
 					return;
 				} catch (Exception exq) {
 					logger.error("Cant save payload to the queue\r\n\t " + exq);
@@ -153,7 +176,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 					retryCount++;
 					try {
 						socket = initSocket(event.getEndpoint().getEndpointURI().getAddress());
-						write(socket, payload);
+						write(socket, messageObject.getEncodedData());
 						success = true;
 					} catch (Exception exs) {
 						if (retryCount < maxRetries) {
@@ -168,6 +191,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 						} else {
 							logger.error("Can't connect to the endopint: payload not sent");
 							exceptionWriting = exs;
+							
 						}
 					}
 				}
@@ -176,13 +200,10 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 			logger.error("Unknown exception dispatching " + exu);
 			exceptionWriting = exu;
 		}
-		if (payload instanceof MessageObject) {
-			messageObject = (MessageObject) payload;
-		}
 		if (!success) {
 			if (messageObject != null) {
 				messageObject.setStatus(MessageObject.Status.ERROR);
-				messageObject.setErrors("Can't connect to the endpoint\n" + StackTracePrinter.stackTraceToString(exceptionWriting));
+				messageObject.setErrors(messageObject.getErrors() + '\n' + "Can't connect to the endpoint\n" + StackTracePrinter.stackTraceToString(exceptionWriting));
 				messageObjectController.updateMessage(messageObject);
 				connector.incErrorStatistics(event.getComponent());
 			}
@@ -255,18 +276,34 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 			return null;
 		if (data instanceof MessageObject) {
 			messageObject = (MessageObject) data;
+			if (messageObject.getStatus().equals(MessageObject.Status.REJECTED)){
+				return null;
+			}
+			if (messageObject.getCorrelationId() == null){
+				//If we have no correlation id, this means this is the original message
+				//so let's copy it and assign a new id and set the proper correlationid
+				MessageObject clone = (MessageObject) messageObject.clone();
+				clone.setId(UUIDGenerator.getUUID());
+				clone.setDateCreated(Calendar.getInstance());
+				clone.setCorrelationId(messageObject.getId());
+				messageObject = clone;
+			}
+			//We don't want to send the actual MO, just the encoded data
+			//data = messageObject.getEncodedData();
 		}
+		
+
 		try {
 			if (queue != null) {
-				queue.put(data);
+				queue.put(messageObject);
 			} else {
-				sendPayload(data, event.getEndpoint());
+				sendPayload(messageObject, event.getEndpoint());
 			}
 		} catch (Exception e) {
 			logger.error("Error sending: " + e);
 			if (messageObject != null) {
 				messageObject.setStatus(MessageObject.Status.ERROR);
-				messageObject.setErrors("Can't connect to the endpoint " + e);
+				messageObject.setErrors(messageObject.getErrors() + '\n' + "Can't connect to the endpoint " + e);
 				messageObjectController.updateMessage(messageObject);
 			}
 			throw e;
@@ -287,7 +324,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 
 	// ast: sendPayload is called from the doSend method, or from
 	// MessageResponseQueued
-	public boolean sendPayload(Object data, UMOEndpoint endpoint) throws Exception {
+	public boolean sendPayload(MessageObject data, UMOEndpoint endpoint) throws Exception {
 		Boolean result = false;
 		Exception sendException = null;
 		if (this.queue == null)
@@ -305,7 +342,8 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 			if (!result)
 				return result;
 			try {
-				write(connectedSocket, data);
+				//Send the encoded data
+				write(connectedSocket, data.getEncodedData());
 				result = true;
 				// If we're doing sync receive try and read return info from
 				// socket
@@ -326,9 +364,6 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 			logger.warn("Write raised exception: '" + e.getMessage() + "' desisting reconnecting.");
 			sendException = e;
 		}
-		MessageObject messageObject = null;
-		if (data instanceof MessageObject)
-			messageObject = (MessageObject) data;
 		if ((result == false) || (sendException != null)) {
 			if (sendException != null)
 				throw sendException;
@@ -336,7 +371,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 		}
 
 		// If we have reached this point, the conections has been fine
-		manageResponseAck(connectedSocket, endpoint, messageObject);
+		manageResponseAck(connectedSocket, endpoint, data);
 		if (!connector.isKeepSendSocketOpen()) {
 			doDispose();
 		}
@@ -359,7 +394,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 			if (messageObject != null) {
 				// NACK
 				messageObject.setStatus(MessageObject.Status.ERROR);
-				messageObject.setErrors("Timeout exception waiting for the ACK");
+				messageObject.setErrors(messageObject.getErrors() + '\n' + "Timeout waiting for the ACK");
 				messageObjectController.updateMessage(messageObject);
 				connector.incErrorStatistics();
 			}
@@ -376,7 +411,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 			if (messageObject != null) {
 				// //NACK
 				messageObject.setStatus(MessageObject.Status.ERROR);
-				messageObject.setErrors("ACK message violates LLP protocol");
+				messageObject.setErrors(messageObject.getErrors() + '\n' + "ACK message violates LLP protocol");
 				messageObjectController.updateMessage(messageObject);
 				connector.incErrorStatistics();
 			}
@@ -393,7 +428,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 			if (messageObject != null) {
 				// NACK
 				messageObject.setStatus(MessageObject.Status.ERROR);
-				messageObject.setErrors("NACK sended from the receiver" + rack.getErrorDescription());
+				messageObject.setErrors(messageObject.getErrors() + '\n' + "NACK sent from the receiver:\n" + rack.getErrorDescription());
 				messageObjectController.updateMessage(messageObject);
 				connector.incErrorStatistics();
 			}

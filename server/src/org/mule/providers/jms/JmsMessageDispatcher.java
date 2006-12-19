@@ -14,6 +14,8 @@
  */
 package org.mule.providers.jms;
 
+import java.util.Calendar;
+
 import edu.emory.mathcs.backport.java.util.concurrent.TimeUnit;
 import org.mule.MuleException;
 import org.mule.config.i18n.Messages;
@@ -29,6 +31,12 @@ import org.mule.umo.provider.UMOConnector;
 import org.mule.util.PropertiesHelper;
 import org.mule.util.concurrent.Latch;
 
+import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.server.controllers.ChannelController;
+import com.webreach.mirth.server.controllers.MessageObjectController;
+import com.webreach.mirth.server.util.StackTracePrinter;
+import com.webreach.mirth.server.util.UUIDGenerator;
+
 import javax.jms.DeliveryMode;
 import javax.jms.Destination;
 import javax.jms.Message;
@@ -36,6 +44,7 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
+import javax.jms.TextMessage;
 
 /**
  * <code>JmsMessageDispatcher</code> is responsible for dispatching messages
@@ -52,6 +61,8 @@ public class JmsMessageDispatcher extends AbstractMessageDispatcher {
 	private JmsConnector connector;
 
 	private Session delegateSession;
+
+	private MessageObjectController messageObjectController = new MessageObjectController();
 
 	public JmsMessageDispatcher(JmsConnector connector) {
 		super(connector);
@@ -80,122 +91,131 @@ public class JmsMessageDispatcher extends AbstractMessageDispatcher {
 		Session session = null;
 		MessageProducer producer = null;
 		MessageConsumer consumer = null;
-
-		try {
-			// Retrieve a session from the connector
-			session = connector.getSession(event.getEndpoint());
-			// Retrieve the session for the current transaction
-			// If there is one, this is up to the transaction to close the
-			// session
-			txSession = connector.getCurrentSession();
-
-			// If a transaction is running, we can not receive any messages
-			// in the same transaction
-			boolean remoteSync = useRemoteSync(event);
-			if (txSession != null && remoteSync) {
-				throw new IllegalTransactionStateException(new org.mule.config.i18n.Message("jms", 2));
+		MessageObject messageObject = null;
+		Object data = event.getTransformedMessage();
+		if (data instanceof MessageObject) {
+			messageObject = (MessageObject) data;
+			if (messageObject.getStatus().equals(MessageObject.Status.REJECTED)){
+				return null;
 			}
-
-			UMOEndpointURI endpointUri = event.getEndpoint().getEndpointURI();
-			// determine if endpointUri is a queue or topic
-			// the format is topic:destination
-			boolean topic = false;
-			String resourceInfo = endpointUri.getResourceInfo();
-			topic = (resourceInfo != null && "topic".equalsIgnoreCase(resourceInfo));
-			// todo MULE20 remove resource info support
-			if (!topic)
-				topic = PropertiesHelper.getBooleanProperty(event.getEndpoint().getProperties(), "topic", false);
-
-			Destination dest = connector.getJmsSupport().createDestination(session, endpointUri.getAddress(), topic);
-			producer = connector.getJmsSupport().createProducer(session, dest);
-
-			Object message = event.getTransformedMessage();
-			if (!(message instanceof Message)) {
-				throw new DispatchException(new org.mule.config.i18n.Message(Messages.MESSAGE_NOT_X_IT_IS_TYPE_X_CHECK_TRANSFORMER_ON_X, "JMS message", message.getClass().getName(), connector.getName()), event.getMessage(), event.getEndpoint());
+			if (messageObject.getCorrelationId() == null) {
+				// If we have no correlation id, this means this is the original
+				// message
+				// so let's copy it and assign a new id and set the proper
+				// correlationid
+				MessageObject clone = (MessageObject) messageObject.clone();
+				clone.setId(UUIDGenerator.getUUID());
+				clone.setDateCreated(Calendar.getInstance());
+				clone.setCorrelationId(messageObject.getId());
+				clone.setConnectorName(new ChannelController().getDestinationName(this.getConnector().getName()));
+				messageObject = clone;
 			}
+			try {
+				// Retrieve a session from the connector
+				session = connector.getSession(event.getEndpoint());
+				// Retrieve the session for the current transaction
+				// If there is one, this is up to the transaction to close the
+				// session
+				txSession = connector.getCurrentSession();
 
-			Message msg = (Message) message;
-			if (event.getMessage().getCorrelationId() != null) {
-				msg.setJMSCorrelationID(event.getMessage().getCorrelationId());
-			}
+				// If a transaction is running, we can not receive any messages
+				// in the same transaction
+				boolean remoteSync = useRemoteSync(event);
+				if (txSession != null && remoteSync) {
+					throw new IllegalTransactionStateException(new org.mule.config.i18n.Message("jms", 2));
+				}
 
-			Destination replyTo = null;
-			Object tempReplyTo = event.removeProperty("JMSReplyTo");
-			if (tempReplyTo != null) {
-				if (tempReplyTo instanceof Destination) {
-					replyTo = (Destination) tempReplyTo;
-				} else {
-					boolean replyToTopic = false;
-					String reply = tempReplyTo.toString();
-					int i = reply.indexOf(":");
-					if (i > -1) {
-						String qtype = reply.substring(0, i);
-						replyToTopic = "topic".equalsIgnoreCase(qtype);
-						reply = reply.substring(i + 1);
+				UMOEndpointURI endpointUri = event.getEndpoint().getEndpointURI();
+				// determine if endpointUri is a queue or topic
+				// the format is topic:destination
+				boolean topic = false;
+				String resourceInfo = endpointUri.getResourceInfo();
+				topic = (resourceInfo != null && "topic".equalsIgnoreCase(resourceInfo));
+				// todo MULE20 remove resource info support
+				if (!topic)
+					topic = PropertiesHelper.getBooleanProperty(event.getEndpoint().getProperties(), "topic", false);
+
+				Destination dest = connector.getJmsSupport().createDestination(session, endpointUri.getAddress(), topic);
+				producer = connector.getJmsSupport().createProducer(session, dest);
+
+				// if (!(message instanceof Message)) {
+				// throw new DispatchException(new
+				// org.mule.config.i18n.Message(Messages.MESSAGE_NOT_X_IT_IS_TYPE_X_CHECK_TRANSFORMER_ON_X,
+				// "JMS message", message.getClass().getName(),
+				// connector.getName()), event.getMessage(),
+				// event.getEndpoint());
+				// }
+
+				//We create a new textMessage with the contents of the encodedData in our MO
+				Message msg = session.createTextMessage(messageObject.getEncodedData());
+				if (event.getMessage().getCorrelationId() != null) {
+					msg.setJMSCorrelationID(event.getMessage().getCorrelationId());
+				}
+
+				Destination replyTo = null;
+				Object tempReplyTo = event.removeProperty("JMSReplyTo");
+				if (tempReplyTo != null) {
+					if (tempReplyTo instanceof Destination) {
+						replyTo = (Destination) tempReplyTo;
+					} else {
+						boolean replyToTopic = false;
+						String reply = tempReplyTo.toString();
+						int i = reply.indexOf(":");
+						if (i > -1) {
+							String qtype = reply.substring(0, i);
+							replyToTopic = "topic".equalsIgnoreCase(qtype);
+							reply = reply.substring(i + 1);
+						}
+						replyTo = connector.getJmsSupport().createDestination(session, reply, replyToTopic);
 					}
-					replyTo = connector.getJmsSupport().createDestination(session, reply, replyToTopic);
 				}
-			}
-			// Are we going to wait for a return event ?
-			if (remoteSync && replyTo == null) {
-				replyTo = connector.getJmsSupport().createTemporaryDestination(session, topic);
-			}
-			// Set the replyTo property
-			if (replyTo != null) {
-				msg.setJMSReplyTo(replyTo);
-			}
-
-			// Are we going to wait for a return event ?
-			if (remoteSync) {
-				consumer = connector.getJmsSupport().createConsumer(session, replyTo);
-			}
-
-			// QoS support
-			String ttlString = (String) event.removeProperty("TimeToLive");
-			String priorityString = (String) event.removeProperty("Priority");
-			String persistentDeliveryString = (String) event.removeProperty("PersistentDelivery");
-
-			long ttl = Message.DEFAULT_TIME_TO_LIVE;
-			int priority = Message.DEFAULT_PRIORITY;
-			boolean persistent = Message.DEFAULT_DELIVERY_MODE == DeliveryMode.PERSISTENT;
-
-			if (ttlString != null) {
-				ttl = Long.parseLong(ttlString);
-			}
-			if (priorityString != null) {
-				priority = Integer.parseInt(priorityString);
-			}
-			if (persistentDeliveryString != null) {
-				persistent = Boolean.valueOf(persistentDeliveryString).booleanValue();
-			}
-
-			if (consumer != null && topic) {
-				// need to register a listener for a topic
-				Latch l = new Latch();
-				ReplyToListener listener = new ReplyToListener(l);
-				consumer.setMessageListener(listener);
-
-				connector.getJmsSupport().send(producer, msg, persistent, priority, ttl);
-
-				int timeout = event.getEndpoint().getRemoteSyncTimeout();
-				logger.debug("Waiting for return event for: " + timeout + " ms on " + replyTo);
-				l.await(timeout, TimeUnit.MILLISECONDS);
-				consumer.setMessageListener(null);
-				listener.release();
-				Message result = listener.getMessage();
-				if (result == null) {
-					logger.debug("No message was returned via replyTo destination");
-					return null;
-				} else {
-					Object resultObject = JmsMessageUtils.getObjectForMessage(result);
-					return new MuleMessage(resultObject);
+				// Are we going to wait for a return event ?
+				if (remoteSync && replyTo == null) {
+					replyTo = connector.getJmsSupport().createTemporaryDestination(session, topic);
 				}
-			} else {
-				connector.getJmsSupport().send(producer, msg, persistent, priority, ttl);
-				if (consumer != null) {
+				// Set the replyTo property
+				if (replyTo != null) {
+					msg.setJMSReplyTo(replyTo);
+				}
+
+				// Are we going to wait for a return event ?
+				if (remoteSync) {
+					consumer = connector.getJmsSupport().createConsumer(session, replyTo);
+				}
+
+				// QoS support
+				String ttlString = (String) event.removeProperty("TimeToLive");
+				String priorityString = (String) event.removeProperty("Priority");
+				String persistentDeliveryString = (String) event.removeProperty("PersistentDelivery");
+
+				long ttl = Message.DEFAULT_TIME_TO_LIVE;
+				int priority = Message.DEFAULT_PRIORITY;
+				boolean persistent = Message.DEFAULT_DELIVERY_MODE == DeliveryMode.PERSISTENT;
+
+				if (ttlString != null) {
+					ttl = Long.parseLong(ttlString);
+				}
+				if (priorityString != null) {
+					priority = Integer.parseInt(priorityString);
+				}
+				if (persistentDeliveryString != null) {
+					persistent = Boolean.valueOf(persistentDeliveryString).booleanValue();
+				}
+
+				if (consumer != null && topic) {
+					// need to register a listener for a topic
+					Latch l = new Latch();
+					ReplyToListener listener = new ReplyToListener(l);
+					consumer.setMessageListener(listener);
+
+					connector.getJmsSupport().send(producer, msg, persistent, priority, ttl);
+
 					int timeout = event.getEndpoint().getRemoteSyncTimeout();
 					logger.debug("Waiting for return event for: " + timeout + " ms on " + replyTo);
-					Message result = consumer.receive(timeout);
+					l.await(timeout, TimeUnit.MILLISECONDS);
+					consumer.setMessageListener(null);
+					listener.release();
+					Message result = listener.getMessage();
 					if (result == null) {
 						logger.debug("No message was returned via replyTo destination");
 						return null;
@@ -203,16 +223,38 @@ public class JmsMessageDispatcher extends AbstractMessageDispatcher {
 						Object resultObject = JmsMessageUtils.getObjectForMessage(result);
 						return new MuleMessage(resultObject);
 					}
+				} else {
+					connector.getJmsSupport().send(producer, msg, persistent, priority, ttl);
+					if (consumer != null) {
+						int timeout = event.getEndpoint().getRemoteSyncTimeout();
+						logger.debug("Waiting for return event for: " + timeout + " ms on " + replyTo);
+						Message result = consumer.receive(timeout);
+						if (result == null) {
+							logger.debug("No message was returned via replyTo destination");
+							return null;
+						} else {
+							Object resultObject = JmsMessageUtils.getObjectForMessage(result);
+							return new MuleMessage(resultObject);
+						}
+					}
+				}
+				return null;
+			}catch (Exception e){
+				if (messageObject != null){
+					messageObject.setStatus(MessageObject.Status.ERROR);
+					messageObject.setErrors(messageObject.getErrors() + '\n' + "Error writing to JMS server\n" +  StackTracePrinter.stackTraceToString(e));
+					messageObjectController.updateMessage(messageObject);
+				}
+				connector.handleException(e);
+			} finally {
+				JmsUtils.closeQuietly(consumer);
+				JmsUtils.closeQuietly(producer);
+				if (session != null && session != txSession) {
+					JmsUtils.closeQuietly(session);
 				}
 			}
-			return null;
-		} finally {
-			JmsUtils.closeQuietly(consumer);
-			JmsUtils.closeQuietly(producer);
-			if (session != null && session != txSession) {
-				JmsUtils.closeQuietly(session);
-			}
 		}
+		return null;
 	}
 
 	/*
