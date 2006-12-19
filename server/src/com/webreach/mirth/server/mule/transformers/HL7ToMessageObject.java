@@ -23,7 +23,6 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
 package com.webreach.mirth.server.mule.transformers;
 
 import java.util.Calendar;
@@ -47,6 +46,7 @@ public class HL7ToMessageObject extends AbstractTransformer {
 	private ER7Serializer xmlSerializer = new ER7Serializer();
 	private HAPIMessageSerializer hapiSerializer = new HAPIMessageSerializer();
 	private MessageObjectController messageObjectController = new MessageObjectController();
+
 	public HL7ToMessageObject() {
 		super();
 		registerSourceType(String.class);
@@ -67,6 +67,7 @@ public class HL7ToMessageObject extends AbstractTransformer {
 		messageObject.setConnectorName("Source");
 		messageObject.setTransformedDataProtocol(MessageObject.Protocol.XML);
 		messageObject.setEncodedDataProtocol(MessageObject.Protocol.HL7);
+		
 		try {
 			Message message = hapiSerializer.deserialize(rawData.replaceAll("\n", "\r"));
 			Terser terser = new Terser(message);
@@ -83,6 +84,7 @@ public class HL7ToMessageObject extends AbstractTransformer {
 			messageObjectController.updateMessage(messageObject);
 			throw new TransformerException(this, e);
 		}
+		
 		messageObject.setStatus(MessageObject.Status.RECEIVED);
 		messageObjectController.updateMessage(messageObject);
 		return messageObject;
