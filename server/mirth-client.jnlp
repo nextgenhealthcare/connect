@@ -24,11 +24,11 @@
 		<jar download="eager" href="lib/commons-httpclient-3.0.1.jar" />
 		<jar download="eager" href="lib/commons-logging-1.1.jar" />
 		<jar download="eager" href="lib/databinding-0.8.0.jar" />
-		<jar download="eager" href="lib/hapi-0.5beta.jar" />
+		<jar download="eager" href="lib/hapi-0.5.jar" />
 		<jar download="eager" href="lib/jdic-0.8.0.jar" />
 		<jar download="eager" href="lib/l2fprod-common-sheet.jar" />
 		<jar download="eager" href="lib/log4j-1.2.14.jar" />
-		<jar download="eager" href="lib/looks-2.0.4.jar" />
+		<jar download="eager" href="lib/looks-2.1.1.jar" />
 		<jar download="eager" href="lib/qname.jar" />
 		<jar download="eager" href="lib/rhino-1.6r2.jar" />
 		<jar download="eager" href="lib/swing-layout-1.0.1.jar" />
