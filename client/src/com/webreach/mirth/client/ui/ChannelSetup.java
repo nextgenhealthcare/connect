@@ -1246,7 +1246,7 @@ public class ChannelSetup extends javax.swing.JPanel
 
         storeMessages.setBackground(new java.awt.Color(255, 255, 255));
         storeMessages.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        storeMessages.setText("Store messages");
+        storeMessages.setText("Store message data");
         storeMessages.setMargin(new java.awt.Insets(0, 0, 0, 0));
         storeMessages.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
