@@ -82,6 +82,11 @@ public class Mirth extends Thread {
 			running = true;
 			startWebServer();
 			configurationController.initialize();
+			try {
+				ChannelController.updateChannelCache(new ChannelController().getChannel(null));
+			} catch (ControllerException e) {
+				logger.warn("could not update channel cache\n" + StackTracePrinter.stackTraceToString(e));
+			}
 			pruner.start();
 			commandQueue.addCommand(new Command(Command.Operation.START));
 
@@ -159,7 +164,6 @@ public class Mirth extends Thread {
 			System.setProperty("org.mule.xml.validate", "false");
 			MuleXmlConfigurationBuilder builder = new MuleXmlConfigurationBuilder();
 			muleManager = (MuleManager) builder.configure(configurationFilePath);
-			ChannelController.updateChannelCache(new ChannelController().getChannel(null));
 		} catch (ConfigurationException e) {
 			logger.warn("Error deploying channels.", e);
 
