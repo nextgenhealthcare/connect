@@ -49,7 +49,7 @@ public class LoginPanel extends javax.swing.JFrame
         serverName.setText(mirthServer);
         jLabel2.setForeground(UIConstants.HEADER_TITLE_TEXT_COLOR);
         jLabel5.setForeground(UIConstants.HEADER_TITLE_TEXT_COLOR);
-        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
         setIconImage(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/mirthlogo1616.png")).getImage());
         setLocationRelativeTo(null);
         setVisible(true);
@@ -99,7 +99,7 @@ public class LoginPanel extends javax.swing.JFrame
         error.setColumns(20);
         error.setFont(new java.awt.Font("Tahoma", 0, 11));
         error.setRows(3);
-        error.setText("Login failed. Check your username and/or password. \nAlso check if Caps Lock is enabled.");
+        error.setText("There was a problem authenticating the information that\nwas entered.  Please verify that the server is up and \nrunning and that the user information is valid.");
         error.setAutoscrolls(false);
         errorPane.setViewportView(error);
 

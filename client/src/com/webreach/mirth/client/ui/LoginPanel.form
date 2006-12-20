@@ -140,7 +140,7 @@
                   <Font name="Tahoma" size="11" style="0"/>
                 </Property>
                 <Property name="rows" type="int" value="3"/>
-                <Property name="text" type="java.lang.String" value="Login failed. Check your username and/or password. &#xa;Also check if Caps Lock is enabled."/>
+                <Property name="text" type="java.lang.String" value="There was a problem authenticating the information that&#xa;was entered.  Please verify that the server is up and &#xa;running and that the user information is valid."/>
                 <Property name="autoscrolls" type="boolean" value="false"/>
               </Properties>
             </Component>
