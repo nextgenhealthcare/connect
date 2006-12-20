@@ -32,6 +32,7 @@ import org.mule.transformers.AbstractTransformer;
 import org.mule.umo.transformer.TransformerException;
 
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.server.controllers.ChannelController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.util.UUIDGenerator;
 
@@ -50,6 +51,7 @@ public class XMLToMessageObject extends AbstractTransformer {
 		messageObject.setType("XML");
 		messageObject.setChannelId(this.getEndpoint().getConnector().getName().substring(0, this.getEndpoint().getConnector().getName().indexOf('_')));
 		messageObject.setConnectorName("Source");
+		
 		new MessageObjectController().updateMessage(messageObject);
 		return messageObject;
 	}

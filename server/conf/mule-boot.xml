@@ -2,7 +2,7 @@
 
 <mule-configuration id="MirthConfiguration" version="1.0">
 	
-	<mule-environment-properties embedded="true" recoverableMode="true">
+	<mule-environment-properties embedded="true">
 		<queue-profile persistent="true" maxOutstandingMessages="100000"/>
 		<persistence-strategy className="org.mule.util.queue.FilePersistenceStrategy"/>
 	</mule-environment-properties>

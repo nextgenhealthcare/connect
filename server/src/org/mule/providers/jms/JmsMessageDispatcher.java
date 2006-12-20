@@ -98,17 +98,10 @@ public class JmsMessageDispatcher extends AbstractMessageDispatcher {
 			if (messageObject.getStatus().equals(MessageObject.Status.REJECTED)){
 				return null;
 			}
-			if (messageObject.getCorrelationId() == null) {
-				// If we have no correlation id, this means this is the original
-				// message
-				// so let's copy it and assign a new id and set the proper
-				// correlationid
-				MessageObject clone = (MessageObject) messageObject.clone();
-				clone.setId(UUIDGenerator.getUUID());
-				clone.setDateCreated(Calendar.getInstance());
-				clone.setCorrelationId(messageObject.getId());
-				clone.setConnectorName(new ChannelController().getDestinationName(this.getConnector().getName()));
-				messageObject = clone;
+			if (messageObject.getCorrelationId() == null){
+				//If we have no correlation id, this means this is the original message
+				//so let's copy it and assign a new id and set the proper correlationid
+				messageObject = messageObjectController.cloneMessageObjectForBroadcast(messageObject, this.getConnector().getName());
 			}
 			try {
 				// Retrieve a session from the connector

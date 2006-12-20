@@ -56,12 +56,7 @@ public class SftpMessageDispatcher extends AbstractMessageDispatcher {
 				if (messageObject.getCorrelationId() == null){
 					//If we have no correlation id, this means this is the original message
 					//so let's copy it and assign a new id and set the proper correlationid
-					MessageObject clone = (MessageObject) messageObject.clone();
-					clone.setId(UUIDGenerator.getUUID());
-					clone.setDateCreated(Calendar.getInstance());
-					clone.setCorrelationId(messageObject.getId());
-					clone.setConnectorName(new ChannelController().getDestinationName(this.getConnector().getName()));
-					messageObject = clone;
+					messageObject = messageObjectController.cloneMessageObjectForBroadcast(messageObject, this.getConnector().getName());
 				}
 				String filename = (String) event.getProperty(SftpConnector.PROPERTY_FILENAME);
 

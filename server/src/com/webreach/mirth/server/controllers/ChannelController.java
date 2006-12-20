@@ -55,7 +55,7 @@ public class ChannelController {
 	}
 	public static String getDestinationName(String id){
 		//String format: channelid_destination_index
-		String destinationName = "";
+		String destinationName = id; //if we can't parse the name, just use the id
 		String channelId = id.substring(0, id.indexOf('_'));
 		String strIndex = id.substring(id.indexOf("destination_") + 12, id.indexOf("_connector"));
 		int index = Integer.parseInt(strIndex) -1;

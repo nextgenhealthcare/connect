@@ -38,6 +38,7 @@ import org.mule.util.Utility;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.controllers.ChannelController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
+import com.webreach.mirth.server.mule.components.Channel;
 import com.webreach.mirth.server.util.StackTracePrinter;
 import com.webreach.mirth.server.util.UUIDGenerator;
 
@@ -85,12 +86,7 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
 				if (messageObject.getCorrelationId() == null){
 					//If we have no correlation id, this means this is the original message
 					//so let's copy it and assign a new id and set the proper correlationid
-					MessageObject clone = (MessageObject) messageObject.clone();
-					clone.setId(UUIDGenerator.getUUID());
-					clone.setDateCreated(Calendar.getInstance());
-					clone.setCorrelationId(messageObject.getId());
-					clone.setConnectorName(new ChannelController().getDestinationName(this.getConnector().getName()));
-					messageObject = clone;
+					messageObject = messageObjectController.cloneMessageObjectForBroadcast(messageObject, this.getConnector().getName());
 				}
 				String filename = (String) event.getProperty(FileConnector.PROPERTY_FILENAME);
 
@@ -112,7 +108,8 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
 				File file = Utility.createFile(uri.getAddress() + "/" + filename);
                                 
                                 //ast: change the output method to allow encoding election
-				if (connector.isOutputAppend()) template+=System.getProperty("line.separator");
+				//if (connector.isOutputAppend()) template+=System.getProperty("line.separator");
+				//don't automatically include line break
 				byte[] buffer= template.getBytes(connector.getCharsetEncoding());
 
 				logger.info("Writing file to: " + file.getAbsolutePath());

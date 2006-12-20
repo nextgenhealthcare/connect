@@ -26,6 +26,7 @@
 package com.webreach.mirth.server.controllers;
 
 import java.sql.SQLException;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -40,6 +41,7 @@ import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.filters.MessageObjectFilter;
 import com.webreach.mirth.server.util.SqlConfig;
+import com.webreach.mirth.server.util.UUIDGenerator;
 
 public class MessageObjectController {
 	private Logger logger = Logger.getLogger(this.getClass());
@@ -181,5 +183,14 @@ public class MessageObjectController {
 		}
 
 		return parameterMap;
+	}
+	
+	public MessageObject cloneMessageObjectForBroadcast(MessageObject messageObject, String connectorName){
+		MessageObject clone = (MessageObject) messageObject.clone();
+		clone.setId(UUIDGenerator.getUUID());
+		clone.setDateCreated(Calendar.getInstance());
+		clone.setCorrelationId(messageObject.getId());
+		clone.setConnectorName(new ChannelController().getDestinationName(connectorName));
+		return clone;
 	}
 }
