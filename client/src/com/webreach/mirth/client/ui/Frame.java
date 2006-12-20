@@ -304,7 +304,7 @@ public class Frame extends JXFrame
         setCurrentTaskPaneContainer(taskPaneContainer);
         doShowStatusPanel();
         channelEditPanel = new ChannelSetup();
-        
+        messageBrowser = new MessageBrowser();
         su = new StatusUpdater();
         statusUpdater = new Thread(su);
         statusUpdater.start();
