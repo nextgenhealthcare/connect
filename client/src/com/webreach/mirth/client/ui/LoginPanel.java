@@ -99,7 +99,7 @@ public class LoginPanel extends javax.swing.JFrame
         error.setColumns(20);
         error.setFont(new java.awt.Font("Tahoma", 0, 11));
         error.setRows(3);
-        error.setText("There was a problem authenticating the information that\nwas entered.  Please verify that the server is up and \nrunning and that the user information is valid.");
+        error.setText("Login failed. Check your username and/or password. \nAlso check if Caps Lock is enabled.");
         error.setAutoscrolls(false);
         errorPane.setViewportView(error);
 
