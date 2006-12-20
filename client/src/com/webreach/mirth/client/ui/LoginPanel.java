@@ -44,8 +44,6 @@ public class LoginPanel extends javax.swing.JFrame
     {
         initComponents();
         setTitle("Mirth Administrator - Login");
-        client = new Client(mirthServer);
-        PlatformUI.SERVER_NAME = mirthServer;
         serverName.setText(mirthServer);
         jLabel2.setForeground(UIConstants.HEADER_TITLE_TEXT_COLOR);
         jLabel5.setForeground(UIConstants.HEADER_TITLE_TEXT_COLOR);
@@ -360,6 +358,9 @@ public class LoginPanel extends javax.swing.JFrame
     {        
         try
         {
+            String server = serverName.getText();
+            client = new Client(server);
+            PlatformUI.SERVER_NAME = server;
             if(client.login(username.getText(),String.valueOf(password.getPassword())))
             {
                 PlatformUI.USER_NAME = username.getText();
