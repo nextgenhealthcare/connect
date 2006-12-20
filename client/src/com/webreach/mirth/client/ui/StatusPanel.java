@@ -65,6 +65,7 @@ public class StatusPanel extends javax.swing.JPanel
     {  
         this.parent = PlatformUI.MIRTH_FRAME;
         initComponents();
+        this.setDoubleBuffered(true);
         setBorder(BorderFactory.createEmptyBorder());
     }
     
@@ -74,6 +75,8 @@ public class StatusPanel extends javax.swing.JPanel
     private void initComponents()
     {
         statusPane = new JScrollPane();
+        statusPane.setDoubleBuffered(true);
+        statusPane.setBorder(BorderFactory.createEmptyBorder());
         makeStatusTable();
         statusPane.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt)
@@ -105,17 +108,9 @@ public class StatusPanel extends javax.swing.JPanel
     /**
      * Makes the status table with all current server information.
      */
-    public synchronized void makeStatusTable()
+    public void makeStatusTable()
     {
-        if(statusTable != null && statusTable.getSelectedRow() != -1)
-            lastIndex = (String)statusTable.getValueAt(statusTable.getSelectedRow(), getColumnNumber(NAME_COLUMN_NAME));
-        else
-            lastIndex = null;
-        
-        statusTable = new JXTable();
-        statusPane.setBorder(BorderFactory.createEmptyBorder());
-        statusTable.setBorder(BorderFactory.createEmptyBorder());
-        Object[][] tableData = null;
+    	Object[][] tableData = null;
         
         if(parent.status != null)
         {
@@ -148,6 +143,15 @@ public class StatusPanel extends javax.swing.JPanel
             }
             
         }
+        if(statusTable != null && statusTable.getSelectedRow() != -1)
+            lastIndex = (String)statusTable.getValueAt(statusTable.getSelectedRow(), getColumnNumber(NAME_COLUMN_NAME));
+        else
+            lastIndex = null;
+        
+        statusTable = new JXTable();
+        statusTable.setDoubleBuffered(true);
+        statusTable.setBorder(BorderFactory.createEmptyBorder());
+        
         
         statusTable.setModel(new javax.swing.table.DefaultTableModel(
             tableData,
@@ -268,21 +272,24 @@ public class StatusPanel extends javax.swing.JPanel
             int columnNumber = getColumnNumber(STATUS_COLUMN_NAME);
             if (((CellData)statusTable.getValueAt(row, columnNumber)).getText().equals("Started"))
             {
-                parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 4, 4, false);
-                parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 5, 5, true);
+            	parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 4, 4, true);
+                parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 5, 5, false);
                 parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 6, 6, true);
+                parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 7, 7, true);
             }
             else if (((CellData)statusTable.getValueAt(row, columnNumber)).getText().equals("Paused"))
             {
-                parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 4, 4, true);
-                parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 5, 5, false);
-                parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 6, 6, true);
+            	parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 4, 4, true);
+                parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 5, 5, true);
+                parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 6, 6, false);
+                parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 7, 7, true);
             }
             else
             {
-                parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 4, 4, true);
-                parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 5, 5, false);
+            	parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 4, 4, true);
+                parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 5, 5, true);
                 parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 6, 6, false);
+                parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 7, 7, false);
             }
         }
     }

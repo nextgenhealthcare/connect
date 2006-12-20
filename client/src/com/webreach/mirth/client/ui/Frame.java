@@ -146,6 +146,7 @@ public class Frame extends JXFrame
     private static Preferences userPreferences;
     private StatusUpdater su;
     private boolean connectionError;
+    private boolean statusUpdateComplete = true;
     //ast: charset encoding list
     private ArrayList<CharsetEncodingInformation>  avaiableCharsetEncodings=null;
     private List<String> charsetEncodings=null;
@@ -154,10 +155,10 @@ public class Frame extends JXFrame
     public Frame()
     {
        // dsb = new DropShadowBorder(UIManager.getColor("Control"), 0, ., .3f, 12, true, true, true, true);
-        dsb = BorderFactory.createEmptyBorder();
+    	dsb = BorderFactory.createEmptyBorder();
     	leftContainer = new JXTitledPanel();
         rightContainer = new JXTitledPanel();
-        
+        //rightContainer.setDoubleBuffered(true);
         channels = new HashMap<String, Channel>();
         
         taskPaneContainer = new JXTaskPaneContainer();
@@ -770,6 +771,16 @@ public class Frame extends JXFrame
             }
         });
         statusPopupMenu.add(showMessages);
+        
+        statusTasks.add(initActionCallback("doRemoveAllMessages", "Remove all Message Events in this channel.", ActionFactory.createBoundAction("doRemoveAllMessages","Remove All Messages", "L"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png"))));
+        JMenuItem removeAllMessages = new JMenuItem("Remove All Messages");
+        removeAllMessages.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png")));
+        removeAllMessages.addActionListener(new ActionListener(){
+             public void actionPerformed(ActionEvent e){
+                doRemoveAllMessages();
+            }
+        });
+        statusPopupMenu.add(removeAllMessages);
         
         statusTasks.add(initActionCallback("doStart", "Start the currently selected channel.", ActionFactory.createBoundAction("doStart","Start Channel", "N"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/start.png"))));
         JMenuItem startChannel = new JMenuItem("Start Channel");
@@ -1540,8 +1551,11 @@ public class Frame extends JXFrame
                     alertException(e.getStackTrace(), e.getMessage());
                     return null;
                 }
-
-                String channelId = channelPanel.getSelectedChannel().getId();
+                Channel channel = channelPanel.getSelectedChannel();
+                if (channel == null){
+                	return null;
+                }
+                String channelId = channel.getId();
                 for (int i = 0; i < status.size(); i ++)
                 {
                     if (status.get(i).getChannelId().equals(channelId))
@@ -1556,7 +1570,7 @@ public class Frame extends JXFrame
 
                 try
                 {
-                    mirthClient.removeChannel(channelPanel.getSelectedChannel());
+                    mirthClient.removeChannel(channel);
                     refreshChannels();
                 }
                 catch (ClientException e)
@@ -1698,8 +1712,10 @@ public class Frame extends JXFrame
     {
         try
         {
+        	statusUpdateComplete = false;
             status = mirthClient.getChannelStatusList();
             statusPanel.makeStatusTable();
+            statusUpdateComplete = true;
             if(status.size() > 0)
                 setVisibleTasks(statusTasks, statusPopupMenu, 1, 1, true);
             else
@@ -1710,7 +1726,7 @@ public class Frame extends JXFrame
             alertException(e.getStackTrace(), e.getMessage());
         }
     }
-
+   
     public void doStartAll()
     {
         setWorking(true);
@@ -1756,6 +1772,9 @@ public class Frame extends JXFrame
             {        
                 try
                 {
+                	if (statusPanel.getSelectedStatus() == -1){
+                		return null;
+                	}
                     if(status.get(statusPanel.getSelectedStatus()).getState() == ChannelStatus.State.STOPPED)
                         mirthClient.startChannel(status.get(statusPanel.getSelectedStatus()).getChannelId());
                     else if(status.get(statusPanel.getSelectedStatus()).getState() == ChannelStatus.State.PAUSED)
@@ -1788,6 +1807,9 @@ public class Frame extends JXFrame
             {        
                 try
                 {
+                	if (statusPanel.getSelectedStatus() == -1){
+                		return null;
+                	}
                     mirthClient.stopChannel(status.get(statusPanel.getSelectedStatus()).getChannelId());
                 }
                 catch (ClientException e)
@@ -2109,32 +2131,61 @@ public class Frame extends JXFrame
 
     public void doShowMessages()
     {
-        if(messageBrowser == null)
-            messageBrowser = new MessageBrowser();
+    	setWorking(true);
         
-        setBold(viewPane, -1);
-        if (statusPanel.getSelectedStatus() == -1)
-        	return;
-        setPanelName("Channel Messages - " + status.get(statusPanel.getSelectedStatus()).getName());
-        
-        setCurrentContentPage(messageBrowser);
-        messageBrowser.loadNew();       
-        setFocus(messageTasks);
-    
-        
+        SwingWorker worker = new SwingWorker <Void, Void> ()
+        {
+            public Void doInBackground() 
+            {        
+                if(messageBrowser == null)
+                    messageBrowser = new MessageBrowser();
 
+                if (statusPanel.getSelectedStatus() == -1)
+                	return null;
+            	setBold(viewPane, -1);
+                setPanelName("Channel Messages - " + status.get(statusPanel.getSelectedStatus()).getName());
+                setCurrentContentPage(messageBrowser);
+                setFocus(messageTasks);
+                messageBrowser.loadNew();       
+                return null;
+            }
+            
+            public void done()
+            {
+            	//We don't want to turn off the working
+            	//because load new is on a diff thread
+                //setWorking(false);
+            }
+        };    
+        worker.execute();
     }
 
     public void doShowEvents()
     {
-        if(eventBrowser == null)
-            eventBrowser = new EventBrowser();
+    	//setWorking(true);
         
-        setBold(viewPane, -1);
-        setPanelName("System Events");
-        eventBrowser.loadNew();
-        setCurrentContentPage(eventBrowser);
-        setFocus(eventTasks);
+        SwingWorker worker = new SwingWorker <Void, Void> ()
+        {
+            public Void doInBackground() 
+            {        
+                if(eventBrowser == null)
+                    eventBrowser = new EventBrowser();
+                eventBrowser.loadNew();
+                return null;
+            }
+            
+            public void done()
+            {
+                setBold(viewPane, -1);
+                setPanelName("System Events");
+                setCurrentContentPage(eventBrowser);
+                setFocus(eventTasks);
+                setWorking(false);
+            }
+        };
+        
+        worker.execute();
+
     }
 
     public void doEditTransformer()
@@ -2447,7 +2498,10 @@ public class Frame extends JXFrame
                 {        
                     try
                     {
-                        mirthClient.clearMessages(status.get(statusPanel.getSelectedStatus()).getChannelId());
+                    	if (statusPanel.getSelectedStatus() > -1)
+                    		mirthClient.clearMessages(status.get(statusPanel.getSelectedStatus()).getChannelId());
+                        messageBrowser.refresh();
+                        refreshStatuses();
                     }
                     catch (ClientException e)
                     {
@@ -2458,7 +2512,7 @@ public class Frame extends JXFrame
 
                 public void done()
                 {
-                    messageBrowser.refresh();
+
                     setWorking(false);
                 }
             };
@@ -2491,6 +2545,7 @@ public class Frame extends JXFrame
                 public void done()
                 {
                     messageBrowser.refresh();
+                    refreshStatuses();
                     setWorking(false);
                 }
             };
@@ -2526,6 +2581,7 @@ public class Frame extends JXFrame
                 public void done()
                 {
                     messageBrowser.refresh();
+                    refreshStatuses();
                     setWorking(false);
                 }
             };
@@ -2762,6 +2818,14 @@ public class Frame extends JXFrame
         public String getDescription(){return this.description;}
         public void setDescription(String d){this.description=d;}
     }
+
+	public boolean isStatusUpdateComplete() {
+		return statusUpdateComplete;
+	}
+
+	public void setStatusUpdateComplete(boolean statusUpdateComplete) {
+		this.statusUpdateComplete = statusUpdateComplete;
+	}
     
 }
 

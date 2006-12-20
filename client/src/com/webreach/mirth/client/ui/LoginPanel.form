@@ -318,6 +318,9 @@
           </SubComponents>
         </Container>
         <Component class="javax.swing.JProgressBar" name="loginProgress">
+          <Properties>
+            <Property name="doubleBuffered" type="boolean" value="true"/>
+          </Properties>
         </Component>
         <Component class="javax.swing.JLabel" name="status">
           <Properties>

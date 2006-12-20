@@ -524,8 +524,10 @@ public class MessageBrowser extends javax.swing.JPanel
     {
         parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 4, -1, false);
         parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 5, 5, true);
-        eventTable.clearSelection();
-        clearDescription();
+        if (eventTable != null){
+        	eventTable.clearSelection();
+        	clearDescription();
+        }
     }
     
     /**

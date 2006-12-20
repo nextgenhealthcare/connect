@@ -44,6 +44,9 @@
       </Properties>
     </Component>
     <Component class="javax.swing.JProgressBar" name="progressBar">
+      <Properties>
+        <Property name="doubleBuffered" type="boolean" value="true"/>
+      </Properties>
     </Component>
   </SubComponents>
 </Form>

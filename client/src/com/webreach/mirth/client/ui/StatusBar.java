@@ -65,6 +65,8 @@ public class StatusBar extends javax.swing.JPanel
         setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         left.setText("jLabel1");
 
+        progressBar.setDoubleBuffered(true);
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
