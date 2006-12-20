@@ -556,6 +556,16 @@ public class Frame extends JXFrame
             }
         });
         channelPopupMenu.add(exportChannel);
+        
+        channelTasks.add(initActionCallback("doCloneChannel", "Clone the currently selected channel.", ActionFactory.createBoundAction("doCloneChannel","Clone Channel", "L"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/clone.png"))));
+        JMenuItem cloneChannel = new JMenuItem("Clone Channel");
+        cloneChannel.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/clone.png")));
+        cloneChannel.addActionListener(new ActionListener(){
+             public void actionPerformed(ActionEvent e){
+                doCloneChannel();
+            }
+        });
+        channelPopupMenu.add(cloneChannel);
 
         channelTasks.add(initActionCallback("doEditChannel", "Edit the currently selected channel.", ActionFactory.createBoundAction("doEditChannel","Edit Channel", "E"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/edit.png"))));
         JMenuItem editChannel = new JMenuItem("Edit Channel");
@@ -1273,6 +1283,12 @@ public class Frame extends JXFrame
      */
     public boolean checkChannelName(String name)
     {
+        if (name.equals(""))
+        {
+            alertWarning("Channel name cannot be blank.");
+            return false;
+        }
+        
         for (Channel channel : channels.values())
         {
             if (channel.getName().equalsIgnoreCase(name))
@@ -2235,9 +2251,15 @@ public class Frame extends JXFrame
             else if(option != JOptionPane.NO_OPTION)
                 return;
 
-            if(!checkChannelName(importChannel.getName()))
-                return;
-            
+            String channelName = importChannel.getName();
+            while(!checkChannelName(channelName))
+            {
+                channelName = JOptionPane.showInputDialog(this, "Please enter a new name for the channel.");
+                if (channelName == null)
+                    return;
+            }
+            importChannel.setName(channelName);
+
             try
             {
                 importChannel.setRevision(0);
@@ -2357,6 +2379,34 @@ public class Frame extends JXFrame
                 alertError("File could not be written.");
             }
         }
+    }
+    
+    public void doCloneChannel()
+    {
+        Channel channel = channelPanel.getSelectedChannel();
+        
+        try
+        {
+            channel.setRevision(0);
+            channel.setId(mirthClient.getGuid());
+            channels.put(channel.getId(), channel);
+        }
+        catch (ClientException e)
+        {
+            alertException(e.getStackTrace(), e.getMessage());
+        }
+
+        String channelName = JOptionPane.showInputDialog(this, "Please enter a new name for the channel.");
+        while(!checkChannelName(channelName))
+        {
+            channelName = JOptionPane.showInputDialog(this, "Please enter a new name for the channel.");
+            if (channelName == null)
+                return;
+        }
+        channel.setName(channelName);
+        
+        editChannel(channel);
+        channelEditTasks.getContentPane().getComponent(0).setVisible(true);
     }
     
     public void doRefreshMessages()

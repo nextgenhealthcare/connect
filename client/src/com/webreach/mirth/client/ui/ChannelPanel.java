@@ -240,9 +240,9 @@ public class ChannelPanel extends javax.swing.JPanel
 
             int columnNumber = getColumnNumber(STATUS_COLUMN_NAME);
             if (((CellData)channelTable.getValueAt(row, columnNumber)).getText().equals(ENABLED_STATUS))
-                parent.setVisibleTasks(parent.channelTasks, parent.channelPopupMenu, 8, 8, false);
-            else
                 parent.setVisibleTasks(parent.channelTasks, parent.channelPopupMenu, 9, 9, false);
+            else
+                parent.setVisibleTasks(parent.channelTasks, parent.channelPopupMenu, 10, 10, false);
         }
     }
     
