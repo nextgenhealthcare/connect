@@ -124,6 +124,7 @@
 			<fileset file="${conf}/log4j.properties" />
 			<fileset file="${conf}/wrapper.conf" />
 			<fileset file="${conf}/derby-*" />
+			<fileset file="${conf}/postgres-*" />
 		</copy>
 
 		<!-- copy WEB-INF files -->
@@ -139,7 +140,8 @@
 
 		<!-- copy misc files -->
 		<copy todir="${setup}">
-			<fileset file="${basedir}/database.sql" />
+			<fileset file="${basedir}/derby-database.sql" />
+			<fileset file="${basedir}/postgres-database.sql" />
 			<fileset file="${basedir}/launcher.xml" />
 			<fileset file="${basedir}/mirth-client.jnlp" />
 			<fileset file="${basedir}/keystore" />
