@@ -630,7 +630,9 @@ public class PipeParser extends Parser {
             String encChars = fields[1];
             char compSep = encChars.charAt(0);
             String messControlID = fields[9];
-            String[] procIDComps = split(fields[10], String.valueOf(compSep));
+            String[] procIDComps = {""};
+            if (fields[10] != null)
+            	procIDComps = split(fields[10], String.valueOf(compSep));
             
             String sendingApp = (fields[3] == null) ? "" : fields[3];
             String sendingFacility = (fields[4] == null) ? "" : fields[4];
