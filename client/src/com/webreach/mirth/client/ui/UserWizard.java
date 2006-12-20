@@ -167,7 +167,7 @@ public class UserWizard extends javax.swing.JDialog
                 .addContainerGap())
         );
 
-        jLabel5.setText("Email (optional):");
+        jLabel5.setText("Email:");
 
         email.addKeyListener(new java.awt.event.KeyAdapter()
         {
@@ -332,7 +332,7 @@ public class UserWizard extends javax.swing.JDialog
      */
     public boolean checkIfAbleToFinish()
     {
-        if(String.valueOf(password1.getPassword()).equals("") || String.valueOf(password2.getPassword()).trim().equals("") || username.getText().trim().equals(""))
+        if(String.valueOf(password1.getPassword()).equals("") || String.valueOf(password2.getPassword()).trim().equals("") || username.getText().trim().equals("") || email.getText().trim().equals(""))
             finishButton.setEnabled(false);
         else
         {
