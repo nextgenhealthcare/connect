@@ -26,6 +26,7 @@
 
 package com.webreach.mirth.model;
 
+import java.io.Serializable;
 import java.util.Properties;
 
 import com.webreach.mirth.util.EqualsUtil;
@@ -38,7 +39,7 @@ import com.webreach.mirth.util.EqualsUtil;
  * @author <a href="mailto:geraldb@webreachinc.com">Gerald Bortis</a>
  * 
  */
-public class Connector {
+public class Connector implements Serializable {
 	private String name;
 	private Properties properties;
 	private Transformer transformer;

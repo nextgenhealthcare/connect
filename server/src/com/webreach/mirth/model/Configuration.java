@@ -1,8 +1,9 @@
 package com.webreach.mirth.model;
 
+import java.io.Serializable;
 import java.util.Calendar;
 
-public class Configuration {
+public class Configuration implements Serializable {
 	private String id;
 	private Calendar dateCreated;
 	private String data;

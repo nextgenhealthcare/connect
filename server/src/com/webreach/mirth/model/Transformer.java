@@ -26,6 +26,7 @@
 
 package com.webreach.mirth.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,7 +39,7 @@ import com.webreach.mirth.util.EqualsUtil;
  * @author <a href="mailto:geraldb@webreachinc.com">Gerald Bortis</a>
  * 
  */
-public class Transformer {
+public class Transformer implements Serializable {
 	private List<Step> steps;
 	private String template;
 

@@ -26,9 +26,11 @@
 
 package com.webreach.mirth.model;
 
+import java.io.Serializable;
+
 import com.webreach.mirth.util.EqualsUtil;
 
-public class Step {
+public class Step implements Serializable {
 	private int sequenceNumber;
 	private String name;
 	private String script;

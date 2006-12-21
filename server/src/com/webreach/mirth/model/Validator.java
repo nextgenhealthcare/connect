@@ -26,10 +26,11 @@
 
 package com.webreach.mirth.model;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Validator {
+public class Validator implements Serializable {
 	private Map<String, String> profiles;
 
 	public Validator() {

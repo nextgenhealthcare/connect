@@ -24,45 +24,18 @@
  * ***** END LICENSE BLOCK ***** */
 
 
-package com.webreach.mirth.model;
+package com.webreach.mirth.model.converters;
 
-import java.io.Serializable;
-
-public class DriverInfo implements Serializable {
-	private String className;
-	private String name;
-
-	public DriverInfo() {
-
+public class ObjectClonerException extends Exception {
+	public ObjectClonerException(Throwable cause) {
+		super(cause);
+	}
+	
+	public ObjectClonerException(String message, Throwable cause) {
+		super(message, cause);
 	}
 
-	public DriverInfo(String name, String className) {
-		this.name = name;
-		this.className = className;
-	}
-
-	public String getClassName() {
-		return this.className;
-	}
-
-	public void setClassName(String className) {
-		this.className = className;
-	}
-
-	public String getName() {
-		return this.name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append(this.getClass().getName() + "[");
-		builder.append("name=" + getName() + ", ");
-		builder.append("className=" + getClassName());
-		builder.append("]");
-		return builder.toString();
+	public ObjectClonerException(String message) {
+		super(message);
 	}
 }

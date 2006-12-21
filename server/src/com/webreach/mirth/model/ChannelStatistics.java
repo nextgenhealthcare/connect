@@ -25,9 +25,11 @@
 
 package com.webreach.mirth.model;
 
+import java.io.Serializable;
+
 import com.webreach.mirth.util.EqualsUtil;
 
-public class ChannelStatistics {
+public class ChannelStatistics implements Serializable {
 	private String channelId;
 	private int receivedCount = 0;
 	private int sentCount = 0;

@@ -26,6 +26,7 @@
 
 package com.webreach.mirth.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,7 +39,7 @@ import com.webreach.mirth.util.EqualsUtil;
  * @author <a href="mailto:geraldb@webreachinc.com">Gerald Bortis</a>
  * 
  */
-public class Filter {
+public class Filter implements Serializable {
 	private List<Rule> rules;
 	private String template;
 

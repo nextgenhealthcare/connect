@@ -26,6 +26,7 @@
 
 package com.webreach.mirth.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -39,7 +40,7 @@ import com.webreach.mirth.util.EqualsUtil;
  * @author <a href="mailto:geraldb@webreachinc.com">Gerald Bortis</a>
  * 
  */
-public class Channel {
+public class Channel implements Serializable {
 	public enum Direction {
 		INBOUND, OUTBOUND
 	};

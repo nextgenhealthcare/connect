@@ -26,9 +26,11 @@
 
 package com.webreach.mirth.model;
 
+import java.io.Serializable;
+
 import com.webreach.mirth.util.EqualsUtil;
 
-public class Rule {
+public class Rule implements Serializable {
 	public enum Operator {
 		AND, OR, NONE
 	}

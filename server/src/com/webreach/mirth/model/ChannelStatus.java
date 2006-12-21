@@ -26,6 +26,8 @@
 
 package com.webreach.mirth.model;
 
+import java.io.Serializable;
+
 import com.webreach.mirth.util.EqualsUtil;
 
 /**
@@ -34,7 +36,7 @@ import com.webreach.mirth.util.EqualsUtil;
  * @author <a href="mailto:geraldb@webreachinc.com">Gerald Bortis</a>
  * 
  */
-public class ChannelStatus {
+public class ChannelStatus implements Serializable {
 	public enum State {
 		STARTED, STOPPED, PAUSED
 	};

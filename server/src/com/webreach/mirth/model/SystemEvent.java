@@ -26,6 +26,7 @@
 
 package com.webreach.mirth.model;
 
+import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Properties;
 
@@ -37,7 +38,7 @@ import com.webreach.mirth.util.EqualsUtil;
  * @author <a href="mailto:geraldb@webreachinc.com">Gerald Bortis</a>
  * 
  */
-public class SystemEvent {
+public class SystemEvent implements Serializable {
 	public enum Level {
 		NORMAL, HIGH
 	}

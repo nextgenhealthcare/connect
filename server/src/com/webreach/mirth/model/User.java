@@ -26,9 +26,11 @@
 
 package com.webreach.mirth.model;
 
+import java.io.Serializable;
+
 import com.webreach.mirth.util.EqualsUtil;
 
-public class User {
+public class User implements Serializable {
 	private String id;
 	private String username;
 	private String password;

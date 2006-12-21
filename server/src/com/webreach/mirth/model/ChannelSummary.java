@@ -1,8 +1,9 @@
 package com.webreach.mirth.model;
 
+import java.io.Serializable;
 import java.util.Calendar;
 
-public class ChannelSummary {
+public class ChannelSummary implements Serializable {
 	private String id;
 	private boolean added;
 	private boolean deleted;
