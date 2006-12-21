@@ -4,17 +4,24 @@
 		<vendor>WebReach, Inc.</vendor>
 		<homepage href="http://www.mirthproject.org" />
 		<description>Open source HL7 integration engine.</description>
-		<icon href="mirth_logo.png" />
-		<shortcut online="true" />
+		
+		<icon href="mirth_logo_32.jpg" />
+		<icon kind="splash" href="mirth_logo.jpg"/>
+		<offline-allowed />
+		<shortcut online="false">
+		
+		            <!-- put a shortcut on the desktop -->
+		            <desktop/>
+		            <!-- put shortcut in start menu too -->
+		            <menu submenu="Mirth Project"/>
+        	</shortcut>
 	</information>
 	
-	<offline-allowed />
+	
 	
 	<security>
 		<all-permissions />
 	</security>
-	
-	<icon kind="splash" href="mirth_logo.png" />
 	
 	<resources>
 		<j2se href="http://java.sun.com/products/autodl/j2se" version="1.5" />
