@@ -63,7 +63,7 @@ public class VariableList extends javax.swing.JPanel
         variables.add("Formatted Date");
         variables.add("Timestamp");
         variables.add("Unique ID");
-        variables.add("Original File");
+        variables.add("Original File Name");
         variables.add("Count");
         variables.add("Entity Encoder");
         for (Iterator it = steps.iterator(); it.hasNext();)

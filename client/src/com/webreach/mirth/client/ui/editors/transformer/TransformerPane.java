@@ -663,7 +663,7 @@ public class TransformerPane extends MirthEditorPane
             String type = (String) transformerTable.getValueAt(row,
                     STEP_TYPE_COL);
             
-            if (type == MAPPER_TYPE)
+            if (type.equals(MAPPER_TYPE))
             {
                 data = mapperPanel.getData();
                 String var = data.get("Variable").toString();
@@ -714,11 +714,11 @@ public class TransformerPane extends MirthEditorPane
                 
 
             }
-            else if (type == JAVASCRIPT_TYPE)
+            else if (type.equals(JAVASCRIPT_TYPE))
             {
                 data = jsPanel.getData();
             }
-            else if ((hl7builderPanel != null) && (type == HL7MESSAGE_TYPE))
+            else if ((hl7builderPanel != null) && (type.equals(HL7MESSAGE_TYPE)))
             {
                 data = hl7builderPanel.getData();
                 String var = data.get("Variable").toString();

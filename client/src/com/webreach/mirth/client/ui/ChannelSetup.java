@@ -1026,6 +1026,7 @@ public class ChannelSetup extends javax.swing.JPanel
         destination.setName(getNewDestinationName(destinationConnectors.size()+1));
         destinationConnectors.add(destination);
         makeDestinationTable(false);
+        parent.enableSave();
     }
     
     /** Deletes the selected destination. */
