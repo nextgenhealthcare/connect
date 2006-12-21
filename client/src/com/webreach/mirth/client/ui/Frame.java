@@ -1536,8 +1536,13 @@ public class Frame extends JXFrame
             {
                 if (channelPanel.getSelectedChannel() == null)
                     JOptionPane.showMessageDialog(getThis(), "Channel no longer exists.");
-                else
-                    editChannel(channelPanel.getSelectedChannel());
+				else
+					try {
+						editChannel((Channel)ObjectCloner.deepCopy(channelPanel.getSelectedChannel()));
+					} catch (ObjectClonerException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
                 setWorking(false);
             }
         };
