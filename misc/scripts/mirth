@@ -1,0 +1,50 @@
+#!/bin/sh
+#
+#   chkconfig: 35 95 5
+#   description: Startup/shutdown script for Mirth.
+#
+# We can use mirth-daemon, but $JAVA_HOME/bin needs to be in 
+# the path first.
+#
+
+. /etc/init.d/functions
+
+JAVA_HOME=/opt/java
+export JAVA_HOME
+PATH=${PATH}:$JAVA_HOME/bin
+MIRTH_HOME="/opt/mirth"
+
+
+start() {
+        $MIRTH_HOME/mirth-daemon start
+}
+
+stop() {
+        $MIRTH_HOME/mirth-daemon stop
+}
+
+status() {
+        $MIRTH_HOME/mirth-daemon status
+}
+
+### main logic ###
+case "$1" in
+  start)
+        start
+        ;;
+  stop)
+        stop
+        ;;
+  status)
+        status mirth
+        ;;
+  restart|reload|condrestart)
+        stop
+        start
+        ;;
+  *)
+        echo "Usage: $0 {start|stop|restart|reload|status}"
+        exit 1
+esac
+
+exit 0
