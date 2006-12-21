@@ -26,7 +26,6 @@
 package com.webreach.mirth.server;
 
 import java.util.Date;
-import java.util.List;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
@@ -39,7 +38,6 @@ import org.mule.MuleManager;
 import org.mule.config.ConfigurationException;
 import org.mule.config.builders.MuleXmlConfigurationBuilder;
 
-import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.server.controllers.ChannelController;
 import com.webreach.mirth.server.controllers.ConfigurationController;

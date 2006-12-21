@@ -51,6 +51,7 @@ import org.w3c.dom.Element;
 
 import com.ibatis.sqlmap.client.SqlMapClient;
 import com.webreach.mirth.model.Channel;
+import com.webreach.mirth.model.ChannelStatus;
 import com.webreach.mirth.model.Configuration;
 import com.webreach.mirth.model.DriverInfo;
 import com.webreach.mirth.model.SystemEvent;
@@ -195,6 +196,7 @@ public class ConfigurationController {
 
 		try {
 			ChannelController channelController = new ChannelController();
+			ChannelStatusController channelStatusController = new ChannelStatusController();
 			CommandQueue queue = CommandQueue.getInstance();
 
 			// instantiate a new configuration builder given the current channel
@@ -207,6 +209,15 @@ public class ConfigurationController {
 			ChannelController.updateChannelCache(channels);
 			// restart the mule engine which will grab the latest configuration
 			// from the database
+
+			// stop all current running channels
+			List<ChannelStatus> deployedChannels = channelStatusController.getChannelStatusList();
+			
+			for (Iterator iter = deployedChannels.iterator(); iter.hasNext();) {
+				ChannelStatus status = (ChannelStatus) iter.next();
+				channelStatusController.stopChannel(status.getChannelId());
+			}
+			
 			queue.addCommand(new Command(Command.Operation.RESTART));
 		} catch (Exception e) {
 			throw new ControllerException(e);
