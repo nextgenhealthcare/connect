@@ -26,6 +26,8 @@
 package com.webreach.mirth.client.ui;
 
 import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
+import com.webreach.mirth.model.converters.ObjectCloner;
+import com.webreach.mirth.model.converters.ObjectClonerException;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Point;
@@ -536,12 +538,8 @@ public class ChannelSetup extends javax.swing.JPanel
             boolean exists = false;
             for (int j = 0; j < size - 1; j++)
             {
-                if (((String) destinationTable.getValueAt(j,
-                        getColumnNumber(DESTINATION_COLUMN_NAME)))
-                        .equalsIgnoreCase(temp + i))
-                {
+                if (((String) destinationTable.getValueAt(j, getColumnNumber(DESTINATION_COLUMN_NAME))).equalsIgnoreCase(temp + i))
                     exists = true;
-                }
             }
             if (!exists)
                 return temp + i;
@@ -1009,6 +1007,27 @@ public class ChannelSetup extends javax.swing.JPanel
         parent.enableSave();
     }
     
+    public void cloneDestination(int destinationIndex)
+    {
+        List<Connector> destinationConnectors = currentChannel.getDestinationConnectors();
+        String destinationName = (String)destinationTable.getValueAt(getSelectedDestinationIndex(), getColumnNumber(DESTINATION_COLUMN_NAME));
+        
+        Connector destination = null;
+        try
+        {
+            destination = (Connector) ObjectCloner.deepCopy(destinationConnectors.get(getDestinationConnectorIndex(destinationName)));
+        }
+        catch (ObjectClonerException e)
+        {
+            parent.alertException(e.getStackTrace(), e.getMessage());
+            return;
+        }
+
+        destination.setName(getNewDestinationName(destinationConnectors.size()+1));
+        destinationConnectors.add(destination);
+        makeDestinationTable(false);
+    }
+    
     /** Deletes the selected destination. */
     public void deleteDestination()
     {
@@ -1041,17 +1060,17 @@ public class ChannelSetup extends javax.swing.JPanel
         {
             if (getSelectedDestinationIndex() == 0)
                 parent.setVisibleTasks(parent.channelEditTasks,
-                        parent.channelEditPopupMenu, 4, 4, false);
-            else
-                parent.setVisibleTasks(parent.channelEditTasks,
-                        parent.channelEditPopupMenu, 4, 4, true);
-            
-            if (getSelectedDestinationIndex() == destinationTable.getRowCount() - 1)
-                parent.setVisibleTasks(parent.channelEditTasks,
                         parent.channelEditPopupMenu, 5, 5, false);
             else
                 parent.setVisibleTasks(parent.channelEditTasks,
                         parent.channelEditPopupMenu, 5, 5, true);
+            
+            if (getSelectedDestinationIndex() == destinationTable.getRowCount() - 1)
+                parent.setVisibleTasks(parent.channelEditTasks,
+                        parent.channelEditPopupMenu, 6, 6, false);
+            else
+                parent.setVisibleTasks(parent.channelEditTasks,
+                        parent.channelEditPopupMenu, 6, 6, true);
         }
     }
     
@@ -1583,7 +1602,7 @@ public class ChannelSetup extends javax.swing.JPanel
     private void summaryComponentShown(java.awt.event.ComponentEvent evt)// GEN-FIRST:event_summaryComponentShown
     {
         parent.setVisibleTasks(parent.channelEditTasks,
-                parent.channelEditPopupMenu, 1, 7, false);
+                parent.channelEditPopupMenu, 1, 8, false);
     }
     
     /** Action when the source tab is shown. */
@@ -1594,14 +1613,14 @@ public class ChannelSetup extends javax.swing.JPanel
         if (currentChannel.getMode() == Channel.Mode.ROUTER)
         {
             parent.setVisibleTasks(parent.channelEditTasks,
-                    parent.channelEditPopupMenu, 2, 7, false);
+                    parent.channelEditPopupMenu, 2, 8, false);
         }
         else
         {
             parent.setVisibleTasks(parent.channelEditTasks,
-                    parent.channelEditPopupMenu, 2, 5, false);
+                    parent.channelEditPopupMenu, 2, 6, false);
             parent.setVisibleTasks(parent.channelEditTasks,
-                    parent.channelEditPopupMenu, 6, 7, true);
+                    parent.channelEditPopupMenu, 7, 8, true);
         }
     }
     
@@ -1613,22 +1632,22 @@ public class ChannelSetup extends javax.swing.JPanel
         if (currentChannel.getMode() == Channel.Mode.APPLICATION)
         {
             parent.setVisibleTasks(parent.channelEditTasks,
-                    parent.channelEditPopupMenu, 2, 5, false);
+                    parent.channelEditPopupMenu, 2, 6, false);
             parent.setVisibleTasks(parent.channelEditTasks,
-                    parent.channelEditPopupMenu, 6, 7, true);
+                    parent.channelEditPopupMenu, 7, 8, true);
         }
         else if (currentChannel.getMode() == Channel.Mode.BROADCAST)
         {
             parent.setVisibleTasks(parent.channelEditTasks,
-                    parent.channelEditPopupMenu, 2, 3, true);
+                    parent.channelEditPopupMenu, 2, 4, true);
             checkVisibleDestinationTasks();
             parent.setVisibleTasks(parent.channelEditTasks,
-                    parent.channelEditPopupMenu, 6, 7, false);
+                    parent.channelEditPopupMenu, 7, 8, false);
         }
         else
         {
             parent.setVisibleTasks(parent.channelEditTasks,
-                    parent.channelEditPopupMenu, 2, 7, true);
+                    parent.channelEditPopupMenu, 2, 8, true);
             checkVisibleDestinationTasks();
         }
     }

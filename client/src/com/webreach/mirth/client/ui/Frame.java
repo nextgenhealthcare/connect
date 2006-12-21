@@ -26,6 +26,8 @@
 
 package com.webreach.mirth.client.ui;
 
+import com.webreach.mirth.model.converters.ObjectCloner;
+import com.webreach.mirth.model.converters.ObjectClonerException;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -665,6 +667,16 @@ public class Frame extends JXFrame
         });
         channelEditPopupMenu.add(deleteDestination);
         
+        channelEditTasks.add(initActionCallback("doCloneDestination", "Clones the currently selected destination.", ActionFactory.createBoundAction("doCloneDestination","Clone Destination", "D"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/clone.png"))));
+        JMenuItem cloneDestination = new JMenuItem("Clone Destination");
+        cloneDestination.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/clone.png")));
+        cloneDestination.addActionListener(new ActionListener(){
+             public void actionPerformed(ActionEvent e){
+                doCloneDestination();
+            }
+        });
+        channelEditPopupMenu.add(cloneDestination);
+        
         channelEditTasks.add(initActionCallback("doMoveDestinationUp", "Move the currently selected destination up.", ActionFactory.createBoundAction("doMoveDestinationUp","Move Dest. Up", "P"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/arrow_up.png"))));
         JMenuItem moveDestinationUp = new JMenuItem("Move Destination Up");
         moveDestinationUp.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/arrow_up.png")));
@@ -716,8 +728,8 @@ public class Frame extends JXFrame
         channelEditPopupMenu.add(exportChannel);
 
         setNonFocusable(channelEditTasks);
-        setVisibleTasks(channelEditTasks, channelEditPopupMenu, 0, 6, false);
-        setVisibleTasks(channelEditTasks, channelEditPopupMenu, 7, 7, true);
+        setVisibleTasks(channelEditTasks, channelEditPopupMenu, 0, 8, false);
+        setVisibleTasks(channelEditTasks, channelEditPopupMenu, 9, 9, true);
         taskPaneContainer.add(channelEditTasks);
     }
 
@@ -1870,7 +1882,14 @@ public class Frame extends JXFrame
 
         channelEditPanel.deleteDestination();
     }
-
+    
+    public void doCloneDestination()
+    {
+        int index = channelEditPanel.getSelectedDestinationIndex();
+        channelEditPanel.cloneDestination(index);
+        
+    }
+    
     public void doEnable()
     {
         setWorking(true);
@@ -2434,7 +2453,16 @@ public class Frame extends JXFrame
     
     public void doCloneChannel()
     {
-        Channel channel = channelPanel.getSelectedChannel();
+        Channel channel = null;
+        try
+        {
+            channel = (Channel)ObjectCloner.deepCopy(channelPanel.getSelectedChannel());
+        }
+        catch (ObjectClonerException e)
+        {
+            alertException(e.getStackTrace(), e.getMessage());
+            return;
+        }
         
         try
         {
@@ -2447,13 +2475,14 @@ public class Frame extends JXFrame
             alertException(e.getStackTrace(), e.getMessage());
         }
 
-        String channelName = JOptionPane.showInputDialog(this, "Please enter a new name for the channel.");
-        while(!checkChannelName(channelName))
+        String channelName = null;
+        do
         {
             channelName = JOptionPane.showInputDialog(this, "Please enter a new name for the channel.");
             if (channelName == null)
                 return;
-        }
+        } while(!checkChannelName(channelName));
+        
         channel.setName(channelName);
         
         editChannel(channel);
