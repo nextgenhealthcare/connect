@@ -5,8 +5,8 @@
 		<homepage href="http://www.mirthproject.org" />
 		<description>Open source HL7 integration engine.</description>
 		
-		<icon href="mirth_logo_32.jpg" />
-		<icon kind="splash" href="mirth_logo.jpg"/>
+		<icon href="mirth_logo_64.jpg" />
+		<icon kind="splash" href="mirth_logo_64.jpg"/>
 		<offline-allowed />
 		<shortcut online="false">
 		
