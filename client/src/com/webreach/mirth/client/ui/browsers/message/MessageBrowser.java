@@ -560,7 +560,11 @@ public class MessageBrowser extends javax.swing.JPanel
     {
         if (!evt.getValueIsAdjusting())
         {
-            int row = eventTable.convertRowIndexToModel(eventTable.getSelectedRow());
+        	int row = -1;
+        	if (eventTable.getSelectedRow() > -1)
+            {
+        		row = eventTable.convertRowIndexToModel(eventTable.getSelectedRow());
+            }
             
             if(row >= 0)
             {
