@@ -44,6 +44,7 @@ import javax.swing.JTree;
 import javax.swing.TransferHandler;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -249,7 +250,10 @@ public class HL7XMLTreePanel extends JPanel {
 		protected Transferable createTransferable( JComponent c ) {
 			if ( c != null ) {
 				try {
-					TreeNode tp = (TreeNode)( ( JTree ) c ).getSelectionPath().getLastPathComponent();
+					TreePath path = ((JTree)c).getSelectionPath();
+					if (path == null)
+						return null;
+					TreeNode tp = (TreeNode)path.getLastPathComponent();
 					if ( tp == null )
 						return null;
 					if (!tp.isLeaf())
