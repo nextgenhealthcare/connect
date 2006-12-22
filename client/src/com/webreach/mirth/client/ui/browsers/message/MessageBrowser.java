@@ -189,8 +189,7 @@ public class MessageBrowser extends javax.swing.JPanel
         mirthDatePicker2.setDateInMillis(currentTime);
         pageSizeField.setText("20");
         //Clear the table first
-        makeMessageTable(null,1);
-        
+        makeMessageTable(null, FIRST_PAGE);
         filterButtonActionPerformed(null);
         clearDescription();
         descriptionTabbedPane.setSelectedIndex(0);
@@ -1100,9 +1099,6 @@ public class MessageBrowser extends javax.swing.JPanel
             worker.pageSize = pageSize;
             worker.execute();
         }
-        
-        
-        
     }//GEN-LAST:event_filterButtonActionPerformed
     
     
