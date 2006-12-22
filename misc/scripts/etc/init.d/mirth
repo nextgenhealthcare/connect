@@ -1,7 +1,9 @@
 #!/bin/sh
 #
-#   chkconfig: 35 95 5
+#   chkconfig: 35 99 1
 #   description: Startup/shutdown script for Mirth.
+#
+# Start as 99 so PostgreSQL (98) starts up first.
 #
 # We can use mirth-daemon, but $JAVA_HOME/bin needs to be in 
 # the path first.
