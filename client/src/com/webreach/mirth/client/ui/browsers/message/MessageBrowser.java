@@ -191,7 +191,6 @@ public class MessageBrowser extends javax.swing.JPanel
         //Clear the table first
         makeMessageTable(null, FIRST_PAGE);
         filterButtonActionPerformed(null);
-        clearDescription();
         descriptionTabbedPane.setSelectedIndex(0);
     }
     
@@ -200,7 +199,6 @@ public class MessageBrowser extends javax.swing.JPanel
      */
     public void refresh()
     {
-        deselectRows();
         filterButtonActionPerformed(null);
     }
     
@@ -430,7 +428,7 @@ public class MessageBrowser extends javax.swing.JPanel
         eventTable.setRowHeight(UIConstants.ROW_HEIGHT);
         eventTable.setOpaque(true);
         eventTable.setRowSelectionAllowed(true);
-        clearDescription();
+        deselectRows();
         
         if(Preferences.systemNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
         {
