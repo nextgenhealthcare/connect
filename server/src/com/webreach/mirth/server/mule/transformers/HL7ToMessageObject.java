@@ -37,6 +37,7 @@ import ca.uhn.hl7v2.util.Terser;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.converters.ER7Serializer;
 import com.webreach.mirth.model.converters.HAPIMessageSerializer;
+import com.webreach.mirth.server.controllers.ChannelController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.util.StackTracePrinter;
 import com.webreach.mirth.server.util.UUIDGenerator;
