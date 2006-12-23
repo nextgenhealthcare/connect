@@ -195,7 +195,7 @@ public class LLPSender extends ConnectorClass
         properties.put(LLP_RECORD_SEPARATOR, "0x0D");
         properties.put(LLP_SEGMENT_END, "0x0D");
          //ast:queued
-        properties.put(LLP_USE_PERSISTENT_QUEUES, UIConstants.NO_OPTION);
+        properties.put(LLP_USE_PERSISTENT_QUEUES, UIConstants.YES_OPTION);
         //ast:ack
         properties.put(LLP_ACK_TIMEOUT, "5000");
         //ast:encoding
