@@ -67,16 +67,24 @@ public class HL7ToMessageObject extends AbstractTransformer {
 		messageObject.setConnectorName("Source");
 		messageObject.setTransformedDataProtocol(MessageObject.Protocol.XML);
 		messageObject.setEncodedDataProtocol(MessageObject.Protocol.HL7);
-		
+		com.webreach.mirth.model.Channel channel = ChannelController.getChannelCache().get(messageObject.getChannelId());
+
 		try {
-			Message message = hapiSerializer.deserialize(rawData.replaceAll("\n", "\r"));
-			Terser terser = new Terser(message);
-			String sendingFacility = terser.get("/MSH-4-1");
-			String event = terser.get("/MSH-9-1") + "-" + terser.get("/MSH-9-2");
-			messageObject.setSource(sendingFacility);
-			messageObject.setType(event);
-			messageObject.setVersion(message.getVersion());
-			messageObject.setTransformedData(xmlSerializer.toXML(rawData.replaceAll("\n", "\r")));
+			if (channel.getProperties().getProperty("recv_xml_encoded") != null && channel.getProperties().getProperty("recv_xml_encoded").equalsIgnoreCase("true")){
+				messageObject.setSource(new String());
+				messageObject.setType(new String());
+				messageObject.setVersion(new String());
+				messageObject.setTransformedData(rawData);
+			}else{
+				Message message = hapiSerializer.deserialize(rawData.replaceAll("\n", "\r"));
+				Terser terser = new Terser(message);
+				String sendingFacility = terser.get("/MSH-4-1");
+				String event = terser.get("/MSH-9-1") + "-" + terser.get("/MSH-9-2");
+				messageObject.setSource(sendingFacility);
+				messageObject.setType(event);
+				messageObject.setVersion(message.getVersion());
+				messageObject.setTransformedData(xmlSerializer.toXML(rawData.replaceAll("\n", "\r")));
+			}
 		} catch (Exception e) {
 			logger.warn("error transforming message", e);
 			messageObject.setErrors(messageObject.getErrors() != null ? messageObject.getErrors() + '\n' : "" + StackTracePrinter.stackTraceToString(e));
