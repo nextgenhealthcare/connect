@@ -20,7 +20,7 @@ import java.util.StringTokenizer;
  * and inserts key typed events into the text area.
  * @author Slava Pestov
  * @version $Id: DefaultInputHandler.java,v 1.18 1999/12/13 03:40:30 sp Exp $
- */
+ */ 
 public class DefaultInputHandler extends InputHandler
 {
 	/**

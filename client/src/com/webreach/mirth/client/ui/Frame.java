@@ -2166,6 +2166,7 @@ public class Frame extends JXFrame
 
                 if (statusPanel.getSelectedStatus() == -1)
                 	return null;
+                messageBrowser.makeMessageTable(null, 1);
             	setBold(viewPane, -1);
                 setPanelName("Channel Messages - " + status.get(statusPanel.getSelectedStatus()).getName());
                 setCurrentContentPage(messageBrowser);

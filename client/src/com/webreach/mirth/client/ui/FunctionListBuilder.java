@@ -17,6 +17,12 @@ public class FunctionListBuilder {
 		variablelistItems.add(new FunctionListItem("Incoming Message",
 				"The original incoming ER7 or XML string as received.",
 				"messageObject.getRawData()",CodeSnippetType.VARIABLE));
+		variablelistItems.add(new FunctionListItem("Message Type",
+				"The HL7 or EDI message type (ex. ADT-A01)",
+				"messageObject.getType()",CodeSnippetType.VARIABLE));
+		variablelistItems.add(new FunctionListItem("Message Source",
+				"The HL7 or EDI message source (sending facility)",
+				"messageObject.getSource()",CodeSnippetType.VARIABLE));
 		variablelistItems.add(new FunctionListItem("Message Version",
 				"The HL7 or EDI message version",
 				"messageObject.getVersion()",CodeSnippetType.VARIABLE));
@@ -58,6 +64,9 @@ public class FunctionListBuilder {
 		variablelistItems.add(new FunctionListItem("Generate Unique ID",
 				"Generate a Universally Unique Identifier",
 				"var uuid = UUIDGenerator.getUUID();",CodeSnippetType.FUNCTION));
+		variablelistItems.add(new FunctionListItem("Call System Function",
+				"Execute a command on server system. Must have proper security enabled.",
+				"java.lang.Runtime.getRuntime().exec(\"system_command\");",CodeSnippetType.FUNCTION));
 
 		
 		/*Removed due to HL7 versioning issues
