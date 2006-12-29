@@ -1,0 +1,3 @@
+connector=org.mule.providers.pdf.PdfConnector
+dispatcher.factory=org.mule.providers.pdf.PdfMessageDispatcherFactory
+endpoint.builder=org.mule.providers.file.FileEndpointBuilder
