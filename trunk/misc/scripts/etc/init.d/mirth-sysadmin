@@ -1,0 +1,56 @@
+#!/bin/sh
+#
+#   chkconfig: 35 90 10
+#   description: Startup/shutdown script for the simple Mirth sysadmin server.
+#
+#
+
+. /etc/init.d/functions
+
+JAVA_HOME=/opt/java
+export JAVA_HOME
+PATH=${PATH}:$JAVA_HOME/bin
+MIRTH_SYSADMIN_HOME="/opt/mirth-sysadmin"
+
+
+start() {
+        initlog -c "echo -n Starting Mirth-sysadmin server: "
+        $MIRTH_SYSADMIN_HOME/start.sh > /var/log/mirth-sysadmin.log 2>&1 &
+	echo $! > /var/run/mirth-sysadmin.pid
+        touch /var/lock/subsys/mirth-sysadmin
+        success "Mirth-sysadmin server startup"
+        echo
+}
+
+stop() {
+        initlog -c "echo -n Stopping Mirth-sysadmin server: "
+        killproc mirth-sysadmin
+        rm -f /var/lock/subsys/mirth-sysadmin
+        echo
+}
+
+status() {
+	echo "Not supported"
+}
+
+### main logic ###
+case "$1" in
+  start)
+        start
+        ;;
+  stop)
+        stop
+        ;;
+  status)
+        status mirth
+        ;;
+  restart|reload|condrestart)
+        stop
+        start
+        ;;
+  *)
+        echo "Usage: $0 {start|stop|restart|reload|status}"
+        exit 1
+esac
+
+exit 0

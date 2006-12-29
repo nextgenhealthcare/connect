@@ -1,0 +1,71 @@
+package com.webreach.mirth.server.controllers.tests;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import junit.framework.Assert;
+import junit.framework.TestCase;
+
+import com.webreach.mirth.model.SystemEvent;
+import com.webreach.mirth.model.filters.SystemEventFilter;
+import com.webreach.mirth.server.controllers.ConfigurationController;
+import com.webreach.mirth.server.controllers.ControllerException;
+import com.webreach.mirth.server.controllers.SystemLogger;
+import com.webreach.mirth.server.tools.ScriptRunner;
+
+public class EventControllerTest extends TestCase {
+	private SystemLogger eventController = new SystemLogger();
+	private ConfigurationController configurationController = new ConfigurationController();
+	private List<SystemEvent> sampleEventList;
+
+	protected void setUp() throws Exception {
+		super.setUp();
+		// clear all database tables
+		ScriptRunner.runScript("derby-database.sql");
+
+		// initialize the configuration controller to cache encryption key
+		configurationController.initialize();
+		
+		sampleEventList = new ArrayList<SystemEvent>();
+		
+		for(int i = 0; i < 10; i++) {
+			SystemEvent sampleEvent = new SystemEvent("Sample event " + i);
+			sampleEventList.add(sampleEvent);
+		}
+	}
+
+	protected void tearDown() throws Exception {
+		super.tearDown();
+	}
+
+	public void testAddEvent() throws ControllerException {
+		SystemEvent sampleEvent = sampleEventList.get(0);
+		eventController.logSystemEvent(sampleEvent);
+		List<SystemEvent> testEventList = eventController.getSystemEvents(new SystemEventFilter());
+
+		Assert.assertEquals(1, testEventList.size());
+	}
+
+	public void testGetEvent() throws ControllerException {
+		insertSampleEvents();
+		
+		List<SystemEvent> testEventList = eventController.getSystemEvents(new SystemEventFilter());
+		Assert.assertEquals(sampleEventList.size(), testEventList.size());
+	}
+
+	public void testRemoveEvent() throws ControllerException {
+		insertSampleEvents();
+		
+		eventController.clearSystemEvents();
+		List<SystemEvent> testEventList = eventController.getSystemEvents(new SystemEventFilter());
+		Assert.assertTrue(testEventList.isEmpty());
+	}
+
+	private void insertSampleEvents() throws ControllerException {
+		for (Iterator iter = sampleEventList.iterator(); iter.hasNext();) {
+			SystemEvent sampleEvent = (SystemEvent) iter.next();
+			eventController.logSystemEvent(sampleEvent);
+		}
+	}
+}

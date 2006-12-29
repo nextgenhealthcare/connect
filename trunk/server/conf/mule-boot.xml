@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule-configuration id="MirthConfiguration" version="1.0">
+	
+	<mule-environment-properties embedded="true" recoverable="true">
+		<queue-profile persistent="true" maxOutstandingMessages="100000"/>
+		<persistence-strategy className="org.mule.util.queue.FilePersistenceStrategy"/>
+	</mule-environment-properties>
+	
+	<agents>
+		<agent name="RMI"
+			className="org.mule.management.agents.RmiRegistryAgent" />
+		<agent name="JMX" className="org.mule.management.agents.JmxAgent">
+			<properties>
+				<property name="connectorServerUrl"
+					value="service:jmx:rmi:///jndi/rmi://localhost:1099/server" />
+
+				<map name="connectorServerProperties">
+					<property name="jmx.remote.jndi.rebind" value="true" />
+				</map>
+			</properties>
+		</agent>
+	</agents>
+
+	<transformers>
+		<transformer name="ByteArrayToString" className="org.mule.transformers.simple.ByteArrayToString" />
+		<transformer name="JMSMessageToObject" className="org.mule.providers.jms.transformers.JMSMessageToObject" returnClass="java.lang.String" />
+		<transformer name="MessageObjectToJMSMessage" className="org.mule.providers.jms.transformers.MessageObjectToJMSMessage" />
+		<transformer name="StringToByteArray" className="org.mule.transformers.simple.StringToByteArray" />
+		<transformer name="HL7ToMessageObject" className="com.webreach.mirth.server.mule.transformers.HL7ToMessageObject" />
+        <transformer name="XMLToMessageObject" className="com.webreach.mirth.server.mule.transformers.XMLToMessageObject" />		
+		<transformer name="SOAPRequestToString" className="org.mule.providers.soap.transformers.SOAPRequestToString" />
+		<transformer name="ResultMapToXML" className="com.webreach.mirth.server.mule.transformers.ResultMapToXML" />
+		<transformer name="ObjectToString" className="org.mule.transformers.simple.ObjectToString"/>
+		<transformer name="NoActionTransformer" className="org.mule.transformers.NoActionTransformer"/>
+	</transformers>
+
+	<interceptor-stack name="default">
+		<interceptor className="org.mule.interceptors.LoggingInterceptor" />
+		<interceptor className="org.mule.interceptors.TimerInterceptor" />
+	</interceptor-stack>
+
+	<model name="Mirth">
+	<!-- new descriptors will be added here -->
+
+	</model>
+</mule-configuration>
