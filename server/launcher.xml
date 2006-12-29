@@ -1,0 +1,28 @@
+<launcher>
+	<classpath base=".">
+		<lib path="mirth-server.jar" />
+		<lib path="lib/backport-util-concurrent.jar" />
+		<lib path="lib/commons-beanutils.jar" />
+		<lib path="lib/commons-dbutils-1.0.jar" />
+		<lib path="lib/commons-digester-1.7.jar" />
+		<lib path="lib/commons-httpclient-3.0.1.jar" />
+		<lib path="lib/derby.jar" />
+		<lib path="lib/derbytools.jar" />
+		<lib path="lib/hapi-0.5.jar" />
+		<lib path="lib/ibatis-2.3.0.674.jar" />
+		<lib path="lib/jsr173_1.0_api.jar" />
+		<lib path="lib/l2fprod-common-all.jar" />
+		<lib path="lib/qname.jar" />
+		<lib path="lib/rhino-1.6r2.jar" />
+		<lib path="lib/squiggle-1.2.2.jar" />
+		<lib path="lib/velocity-tools-1.2.jar" />
+		<lib path="lib/wsdl4j.jar" />
+		<lib path="lib/wsif.jar" />
+		<lib path="lib/xbean.jar" />
+		<lib path="lib/xpp3_min-1.1.3.4.O.jar" />
+		<lib path="lib/xstream-1.2.jar" />
+		<lib path="lib/jetty" />
+		<lib path="lib/mule" />
+		<lib path="lib/custom" />
+	</classpath>
+</launcher>
