@@ -1,0 +1,10 @@
+#
+# $Id: auto.master,v 1.3 2003/09/29 08:22:35 raven Exp $
+#
+# Sample auto.master file
+# This is an automounter map and it has the following format
+# key [ -mount-options-separated-by-comma ] location
+# For details of the format look at autofs(5).
+#/misc	/etc/auto.misc --timeout=60
+#/misc	/etc/auto.misc
+/net	/etc/auto.net

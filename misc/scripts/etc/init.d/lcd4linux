@@ -1,0 +1,52 @@
+#!/bin/sh
+#
+#   chkconfig: 35 99 1
+#   description: Startup/shutdown script for the LCD display.
+#
+#
+
+. /etc/init.d/functions
+
+
+start() {
+        initlog -c "echo -n Starting lcd4linux: "
+        #/usr/local/bin/lcd4linux -q -f /etc/mirthlcd.conf > /var/log/lcd4linux.log 2>&1 &
+        /usr/local/bin/lcd4linux -q -F -f /etc/mirthlcd.conf &
+	echo $! > /var/run/lcd4linux.pid
+        touch /var/lock/subsys/lcd4linux
+        success "lcd4linux server startup"
+        echo
+}
+
+stop() {
+        initlog -c "echo -n Stopping lcd4linux: "
+        kill `ps -ef | grep lcd4linux | grep -v grep | awk '{print $2}'`
+        rm -f /var/lock/subsys/lcd4linux
+        echo
+}
+
+status() {
+	echo "Not supported"
+}
+
+### main logic ###
+case "$1" in
+  start)
+        start
+        ;;
+  stop)
+        stop
+        ;;
+  status)
+        status mirth
+        ;;
+  restart|reload|condrestart)
+        stop
+        start
+        ;;
+  *)
+        echo "Usage: $0 {start|stop|restart|reload|status}"
+        exit 1
+esac
+
+exit 0
