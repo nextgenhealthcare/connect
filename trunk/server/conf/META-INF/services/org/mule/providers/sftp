@@ -1,5 +1,0 @@
-connector=org.mule.providers.sftp.SftpConnector
-dispatcher.factory=org.mule.providers.sftp.SftpMessageDispatcherFactory
-message.receiver=org.mule.providers.sftp.SftpMessageReceiver
-message.adapter=org.mule.providers.sftp.SftpMessageAdapter
-endpoint.builder=org.mule.impl.endpoint.SocketEndpointBuilder
