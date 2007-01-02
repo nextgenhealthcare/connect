@@ -52,13 +52,13 @@ public class SMTPConnection {
 
 	public void send(String to, String cc, String from, String subject, String body) {
 		try {
-			Properties props = System.getProperties();
+			Properties properties = System.getProperties();
 
 			// attaching to default Session, or we could start a new one --
-			props.put("mail.smtp.host", host);
-			props.put("mail.smtp.port", port);
+			properties.put("mail.smtp.host", host);
+			properties.put("mail.smtp.port", port);
 
-			Session session = Session.getDefaultInstance(props, null);
+			Session session = Session.getInstance(properties);
 
 			// create a new message
 			Message message = new MimeMessage(session);
