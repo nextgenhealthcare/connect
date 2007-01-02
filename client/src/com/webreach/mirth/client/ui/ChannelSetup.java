@@ -1009,6 +1009,7 @@ public class ChannelSetup extends javax.swing.JPanel
     
     public void cloneDestination(int destinationIndex)
     {
+    	parent.doSaveChanges();
         List<Connector> destinationConnectors = currentChannel.getDestinationConnectors();
         String destinationName = (String)destinationTable.getValueAt(getSelectedDestinationIndex(), getColumnNumber(DESTINATION_COLUMN_NAME));
         
