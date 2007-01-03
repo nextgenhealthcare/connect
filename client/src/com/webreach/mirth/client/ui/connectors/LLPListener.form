@@ -34,22 +34,71 @@
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" attributes="0">
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="1" attributes="0">
+                  <Component id="jLabel2" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel3" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel4" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel5" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel34" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel6" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="rejectedACKCodeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="errorACKCodeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="successACKCodeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel38" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel39" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel37" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel36" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel35" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="listenerPortField" alignment="0" min="-2" pref="50" max="-2" attributes="0"/>
+                  <Component id="receiveTimeoutField" alignment="0" min="-2" pref="160" max="-2" attributes="1"/>
+                  <Component id="bufferSizeField" alignment="0" min="-2" pref="160" max="-2" attributes="1"/>
                   <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace min="129" pref="129" max="129" attributes="0"/>
-                      <Group type="103" groupAlignment="1" max="-2" attributes="0">
-                          <Component id="bufferSizeField" alignment="0" pref="160" max="32767" attributes="1"/>
-                          <Component id="receiveTimeoutField" alignment="0" pref="160" max="32767" attributes="1"/>
-                      </Group>
-                  </Group>
-                  <Group type="102" alignment="0" attributes="1">
-                      <EmptySpace min="129" pref="129" max="129" attributes="0"/>
                       <Component id="keepConnectionOpenYesRadio" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="keepConnectionOpenNoRadio" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace min="129" pref="129" max="129" attributes="0"/>
+                      <Component id="ascii" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="hex" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <Component id="startOfMessageCharacterField" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
+                  <Component id="endOfMessageCharacterField" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
+                  <Component id="recordSeparatorField" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
+                  <Component id="segmentEnd" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
+                  <Component id="charsetEncodingCombobox" alignment="0" min="-2" max="-2" attributes="0"/>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="sendACKYes" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="sendACKNo" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="errorACKCode" min="-2" pref="31" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="errorACKMessageLabel" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="errorACKMessage" min="-2" pref="345" max="-2" attributes="0"/>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="successACKCode" min="-2" pref="31" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="successACKMessageLabel" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="successACKMessage" min="-2" pref="345" max="-2" attributes="0"/>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="rejectedACKCode" min="-2" pref="31" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="rejectedACKMessageLabel" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="rejectedACKMessage" min="-2" pref="345" max="-2" attributes="0"/>
+                  </Group>
+                  <Group type="102" attributes="0">
                       <Component id="listenerIPAddressField" min="-2" pref="31" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jLabel9" min="-2" max="-2" attributes="0"/>
@@ -64,83 +113,8 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="listenerIPAddressField3" min="-2" pref="31" max="-2" attributes="0"/>
                   </Group>
-                  <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace min="129" pref="129" max="129" attributes="0"/>
-                      <Component id="segmentEnd" min="-2" pref="75" max="-2" attributes="0"/>
-                  </Group>
-                  <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace min="129" pref="129" max="129" attributes="0"/>
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="startOfMessageCharacterField" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="ascii" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="hex" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                      </Group>
-                  </Group>
-                  <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace min="129" pref="129" max="129" attributes="0"/>
-                      <Component id="endOfMessageCharacterField" min="-2" pref="75" max="-2" attributes="0"/>
-                  </Group>
-                  <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace min="129" pref="129" max="129" attributes="0"/>
-                      <Component id="recordSeparatorField" min="-2" pref="75" max="-2" attributes="0"/>
-                  </Group>
-                  <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace min="129" pref="129" max="129" attributes="0"/>
-                      <Component id="listenerPortField" min="-2" pref="50" max="-2" attributes="0"/>
-                  </Group>
-                  <Group type="102" attributes="0">
-                      <EmptySpace min="129" pref="129" max="129" attributes="0"/>
-                      <Component id="charsetEncodingCombobox" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="jLabel1" alignment="1" min="-2" max="-2" attributes="0"/>
-                          <Component id="jLabel2" alignment="1" min="-2" max="-2" attributes="0"/>
-                          <Component id="jLabel3" alignment="1" min="-2" max="-2" attributes="0"/>
-                          <Component id="jLabel4" alignment="1" min="-2" max="-2" attributes="0"/>
-                          <Component id="jLabel5" alignment="1" min="-2" max="-2" attributes="0"/>
-                          <Component id="jLabel34" alignment="1" min="-2" max="-2" attributes="0"/>
-                          <Component id="jLabel6" alignment="1" min="-2" max="-2" attributes="0"/>
-                          <Component id="rejectedACKCodeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                          <Component id="errorACKCodeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                          <Component id="successACKCodeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                          <Component id="jLabel38" alignment="1" min="-2" max="-2" attributes="0"/>
-                          <Component id="jLabel39" alignment="1" min="-2" max="-2" attributes="0"/>
-                          <Component id="jLabel37" alignment="1" min="-2" max="-2" attributes="0"/>
-                          <Component id="jLabel36" alignment="1" min="-2" max="-2" attributes="0"/>
-                          <Component id="jLabel35" alignment="1" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="rejectedACKCode" alignment="0" min="-2" pref="31" max="-2" attributes="0"/>
-                          <Component id="errorACKCode" alignment="0" min="-2" pref="31" max="-2" attributes="0"/>
-                          <Component id="successACKCode" alignment="0" min="-2" pref="31" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="successACKMessageLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                          <Component id="errorACKMessageLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                          <Component id="rejectedACKMessageLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="successACKMessage" alignment="0" min="-2" pref="345" max="-2" attributes="0"/>
-                          <Component id="errorACKMessage" alignment="0" min="-2" pref="345" max="-2" attributes="0"/>
-                          <Component id="rejectedACKMessage" alignment="0" min="-2" pref="345" max="-2" attributes="0"/>
-                      </Group>
-                  </Group>
-                  <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace min="129" pref="129" max="129" attributes="0"/>
-                      <Component id="sendACKYes" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="sendACKNo" min="-2" max="-2" attributes="0"/>
-                  </Group>
               </Group>
-              <EmptySpace max="32767" attributes="0"/>
+              <EmptySpace pref="10" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
