@@ -21,9 +21,11 @@ public class ImportConverter
         
         // source connector
         connector = channel.getSourceConnector();
-        if(connector.getProperties().getProperty("DataType").equals("LLP Listener") && 
-                connector.getProperties().getProperty("sendACK").equals(UIConstants.YES_OPTION) && 
-                channel.getProperties().get("synchronous").equals("false"))
+        if(connector.getProperties().getProperty("DataType") != null && connector.getProperties().getProperty("DataType").equals("LLP Listener") && 
+        		connector.getProperties().getProperty("sendACK") != null &&
+        		connector.getProperties().getProperty("sendACK").equals(UIConstants.YES_OPTION) && 
+        		channel.getProperties().get("synchronous") != null &&
+        		channel.getProperties().get("synchronous").equals("false"))
         {
             channel.getProperties().setProperty("synchronous","true");
         }
