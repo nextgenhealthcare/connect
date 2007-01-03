@@ -1,5 +1,6 @@
 package com.webreach.mirth.client.ui.util;
 
+import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
 import com.webreach.mirth.model.Rule;
 import java.util.Iterator;
@@ -20,6 +21,13 @@ public class ImportConverter
         
         // source connector
         connector = channel.getSourceConnector();
+        if(connector.getProperties().getProperty("DataType").equals("LLP Listener") && 
+                connector.getProperties().getProperty("sendACK").equals(UIConstants.YES_OPTION) && 
+                channel.getProperties().get("synchronous").equals("false"))
+        {
+            channel.getProperties().setProperty("synchronous","true");
+        }
+            
         if (connector.getFilter() != null && connector.getFilter().getRules() != null)
         {
             for (Iterator iterator = connector.getFilter().getRules().iterator(); iterator.hasNext();)

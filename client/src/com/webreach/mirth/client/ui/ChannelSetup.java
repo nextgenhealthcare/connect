@@ -780,10 +780,10 @@ public class ChannelSetup extends javax.swing.JPanel
         else
             transactionalCheckBox.setSelected(false);
         
-        if((currentChannel.getProperties().get("synchronous")) != null && ((String)currentChannel.getProperties().get("synchronous")).equalsIgnoreCase("true"))
-        	synchronousCheckBox.setSelected(true);
-        else
+        if((currentChannel.getProperties().get("synchronous")) != null && ((String)currentChannel.getProperties().get("synchronous")).equalsIgnoreCase("false"))
         	synchronousCheckBox.setSelected(false);
+        else
+        	synchronousCheckBox.setSelected(true);
         
         if ((currentChannel.getProperties().get("encryptData")) != null
                 && ((String) currentChannel.getProperties().get("encryptData"))
@@ -1177,7 +1177,8 @@ public class ChannelSetup extends javax.swing.JPanel
     
     
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
-    private void initComponents() {
+    private void initComponents()
+    {
         filterButtonGroup = new javax.swing.ButtonGroup();
         validationButtonGroup = new javax.swing.ButtonGroup();
         buttonGroup1 = new javax.swing.ButtonGroup();
@@ -1208,7 +1209,6 @@ public class ChannelSetup extends javax.swing.JPanel
         preprocessor = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea(true,false);
         jLabel2 = new javax.swing.JLabel();
         synchronousCheckBox = new com.webreach.mirth.client.ui.components.MirthCheckBox();
-        jLabel4 = new javax.swing.JLabel();
         source = new javax.swing.JPanel();
         sourceSourceDropdown = new com.webreach.mirth.client.ui.components.MirthComboBox();
         sourceSourceLabel = new javax.swing.JLabel();
@@ -1225,8 +1225,10 @@ public class ChannelSetup extends javax.swing.JPanel
         summary.setBackground(new java.awt.Color(255, 255, 255));
         summary.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         summary.setFocusable(false);
-        summary.addComponentListener(new java.awt.event.ComponentAdapter() {
-            public void componentShown(java.awt.event.ComponentEvent evt) {
+        summary.addComponentListener(new java.awt.event.ComponentAdapter()
+        {
+            public void componentShown(java.awt.event.ComponentEvent evt)
+            {
                 summaryComponentShown(evt);
             }
         });
@@ -1269,8 +1271,10 @@ public class ChannelSetup extends javax.swing.JPanel
         storeMessages.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         storeMessages.setText("Store message data");
         storeMessages.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        storeMessages.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        storeMessages.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
                 storeMessagesActionPerformed(evt);
             }
         });
@@ -1280,8 +1284,10 @@ public class ChannelSetup extends javax.swing.JPanel
         buttonGroup1.add(storeMessagesAll);
         storeMessagesAll.setText("Store indefinitely");
         storeMessagesAll.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        storeMessagesAll.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        storeMessagesAll.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
                 storeMessagesAllActionPerformed(evt);
             }
         });
@@ -1291,8 +1297,10 @@ public class ChannelSetup extends javax.swing.JPanel
         buttonGroup1.add(storeMessagesDays);
         storeMessagesDays.setText("Store for ");
         storeMessagesDays.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        storeMessagesDays.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        storeMessagesDays.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
                 storeMessagesDaysActionPerformed(evt);
             }
         });
@@ -1305,8 +1313,10 @@ public class ChannelSetup extends javax.swing.JPanel
         storeMessagesErrors.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         storeMessagesErrors.setText("With errors only");
         storeMessagesErrors.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        storeMessagesErrors.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        storeMessagesErrors.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
                 storeMessagesErrorsActionPerformed(evt);
             }
         });
@@ -1322,10 +1332,8 @@ public class ChannelSetup extends javax.swing.JPanel
 
         synchronousCheckBox.setBackground(new java.awt.Color(255, 255, 255));
         synchronousCheckBox.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        synchronousCheckBox.setText("Process messages in order received");
+        synchronousCheckBox.setText("Synchronize source connector (may decrease performance)");
         synchronousCheckBox.setMargin(new java.awt.Insets(0, 0, 0, 0));
-
-        jLabel4.setText("(Note: May decrease performance)");
 
         org.jdesktop.layout.GroupLayout summaryLayout = new org.jdesktop.layout.GroupLayout(summary);
         summary.setLayout(summaryLayout);
@@ -1355,9 +1363,9 @@ public class ChannelSetup extends javax.swing.JPanel
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                                 .add(days))
                             .add(storeMessagesErrors, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                    .add(preprocessor, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 586, Short.MAX_VALUE)
+                    .add(preprocessor, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 642, Short.MAX_VALUE)
                     .add(summaryLayout.createSequentialGroup()
-                        .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 586, Short.MAX_VALUE)
+                        .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 642, Short.MAX_VALUE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED))
                     .add(summaryLayout.createSequentialGroup()
                         .add(summaryLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -1371,10 +1379,7 @@ public class ChannelSetup extends javax.swing.JPanel
                             .add(transactionalCheckBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(summaryEnabledCheckbox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(xmlPreEncoded, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(synchronousCheckBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(summaryLayout.createSequentialGroup()
-                                .add(17, 17, 17)
-                                .add(jLabel4)))
+                            .add(synchronousCheckBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                         .add(93, 93, 93)))
                 .addContainerGap())
         );
@@ -1418,10 +1423,7 @@ public class ChannelSetup extends javax.swing.JPanel
                             .add(numDays, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(days)
                             .add(storeMessagesDays, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                    .add(summaryLayout.createSequentialGroup()
-                        .add(synchronousCheckBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jLabel4)))
+                    .add(synchronousCheckBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(summaryLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(summaryDescriptionLabel)
@@ -1437,15 +1439,19 @@ public class ChannelSetup extends javax.swing.JPanel
         source.setBackground(new java.awt.Color(255, 255, 255));
         source.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         source.setFocusable(false);
-        source.addComponentListener(new java.awt.event.ComponentAdapter() {
-            public void componentShown(java.awt.event.ComponentEvent evt) {
+        source.addComponentListener(new java.awt.event.ComponentAdapter()
+        {
+            public void componentShown(java.awt.event.ComponentEvent evt)
+            {
                 sourceComponentShown(evt);
             }
         });
 
         sourceSourceDropdown.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "TCP/IP", "Database", "Email" }));
-        sourceSourceDropdown.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        sourceSourceDropdown.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
                 sourceSourceDropdownActionPerformed(evt);
             }
         });
@@ -1456,7 +1462,7 @@ public class ChannelSetup extends javax.swing.JPanel
         sourceConnectorClass.setLayout(sourceConnectorClassLayout);
         sourceConnectorClassLayout.setHorizontalGroup(
             sourceConnectorClassLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 634, Short.MAX_VALUE)
+            .add(0, 746, Short.MAX_VALUE)
         );
         sourceConnectorClassLayout.setVerticalGroup(
             sourceConnectorClassLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -1493,15 +1499,19 @@ public class ChannelSetup extends javax.swing.JPanel
         destination.setBackground(new java.awt.Color(255, 255, 255));
         destination.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         destination.setFocusable(false);
-        destination.addComponentListener(new java.awt.event.ComponentAdapter() {
-            public void componentShown(java.awt.event.ComponentEvent evt) {
+        destination.addComponentListener(new java.awt.event.ComponentAdapter()
+        {
+            public void componentShown(java.awt.event.ComponentEvent evt)
+            {
                 destinationComponentShown(evt);
             }
         });
 
         destinationSourceDropdown.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "TCP/IP", "Database", "Email" }));
-        destinationSourceDropdown.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        destinationSourceDropdown.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
                 destinationSourceDropdownActionPerformed(evt);
             }
         });
@@ -1512,7 +1522,7 @@ public class ChannelSetup extends javax.swing.JPanel
         destinationConnectorClass.setLayout(destinationConnectorClassLayout);
         destinationConnectorClassLayout.setHorizontalGroup(
             destinationConnectorClassLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 442, Short.MAX_VALUE)
+            .add(0, 554, Short.MAX_VALUE)
         );
         destinationConnectorClassLayout.setVerticalGroup(
             destinationConnectorClassLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -1555,7 +1565,7 @@ public class ChannelSetup extends javax.swing.JPanel
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(channelView, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 659, Short.MAX_VALUE)
+            .add(channelView, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 771, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -2410,7 +2420,6 @@ public class ChannelSetup extends javax.swing.JPanel
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
     private javax.swing.JScrollPane jScrollPane1;
     private com.webreach.mirth.client.ui.components.MirthTextField numDays;
     private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea preprocessor;
@@ -2432,7 +2441,7 @@ public class ChannelSetup extends javax.swing.JPanel
     private javax.swing.JLabel summaryNameLabel;
     private javax.swing.JLabel summaryPatternLabel1;
     private javax.swing.JLabel summaryPatternLabel2;
-    private com.webreach.mirth.client.ui.components.MirthCheckBox synchronousCheckBox;
+    public com.webreach.mirth.client.ui.components.MirthCheckBox synchronousCheckBox;
     private com.webreach.mirth.client.ui.components.MirthCheckBox transactionalCheckBox;
     private javax.swing.ButtonGroup validationButtonGroup;
     private com.webreach.mirth.client.ui.components.MirthCheckBox xmlPreEncoded;
