@@ -32,10 +32,10 @@ import ca.uhn.hl7v2.model.Segment;
 import ca.uhn.hl7v2.parser.PipeParser;
 
 public class ACKGenerator {
-	public String generateAckResponse(String message) throws Exception {
+	public String generateAckResponse(String message, String acknowledgementCode, String textMessage) throws Exception {
 		PipeParser parser = new PipeParser();
 		Segment header = parser.getCriticalResponseData(message);
-        Message response = DefaultApplication.makeACK(header);
+        Message response = DefaultApplication.makeACK(header, acknowledgementCode, textMessage);
         String originalEncoding = parser.getEncoding(message);
         return parser.encode(response, originalEncoding);
 	}

@@ -70,13 +70,13 @@ public class ResponseAck {
                 errorSegment=((Element) nl.item(0)).getTextContent();                
             }
             if (errorSegment==null) errorSegment="";
-            if (msa1.equals("AA")){
+            if ( msa1.equals("AA") || msa1.equals("CA") ){
                 responseType=true;
                 errorMessage="";
-            }else if (msa1.equals("AR")){
+            }else if (msa1.equals("AR") || msa1.equals("CR")){
                 responseType=false;
                 errorMessage=" [Application Reject]"+"\n"+msa3+"\n"+errorSegment;
-            }else if (msa1.equals("AE")){
+            }else if (msa1.equals("AE") || msa1.equals("CE") ){
                 responseType=false;
                 errorMessage=" [Application Error]"+"\n"+msa3+"\n"+errorSegment;
             }else{

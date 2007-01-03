@@ -381,8 +381,10 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 	public void manageResponseAck(Socket socket, UMOEndpoint endpoint, MessageObject messageObject) {
 
 		int maxTime = connector.getAckTimeout();
-		if (maxTime <= 0)
-			return;
+		if (maxTime <= 0){
+			messageObject.setStatus(MessageObject.Status.SENT);
+			messageObjectController.updateMessage(messageObject);
+		}
 		byte[] theAck = getAck(socket, endpoint);
 
 		if (theAck == null) {

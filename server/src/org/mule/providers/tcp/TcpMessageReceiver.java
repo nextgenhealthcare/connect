@@ -50,6 +50,7 @@ import org.mule.umo.provider.UMOConnector;
 import org.mule.umo.provider.UMOMessageAdapter;
 import org.mule.providers.tcp.protocols.*;
 
+import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.mule.util.BatchMessageProcessor;
 import com.webreach.mirth.util.ACKGenerator;
 
@@ -271,10 +272,7 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
 							break;
 						}
 
-						byte[] result = processData(b);
-						if (result != null) {
-							protocol.write(dataOut, result);
-						}
+						processData(b);
 						dataOut.flush();
 					} catch (SocketTimeoutException e) {
 						if (!socket.getKeepAlive()) {
@@ -304,7 +302,25 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
 				os = new ResponseOutputStream(socket.getOutputStream(), socket);
 				returnMessage = routeMessage(new MuleMessage(adapter), endpoint
 						.isSynchronous(), os);
-				generateACK(new String(data), os);		
+				//We need to check the message status
+				if (returnMessage != null && returnMessage instanceof MuleMessage){
+					Object payload = returnMessage.getPayload();
+					if (payload instanceof MessageObject){
+						MessageObject messageObjectResponse = (MessageObject)payload;
+						String errorString = "";
+						//we only want the first line
+						if (messageObjectResponse.getStatus().equals(MessageObject.Status.ERROR) && messageObjectResponse.getErrors() != null){
+							if (messageObjectResponse.getErrors().indexOf('\n') > -1){
+								errorString = messageObjectResponse.getErrors().substring(0,messageObjectResponse.getErrors().indexOf('\n'));
+							}else{
+								errorString = messageObjectResponse.getErrors();
+							}
+						}
+						generateACK(new String(data), os, messageObjectResponse.getStatus(), errorString);
+					}
+				}else{
+					generateACK(new String(data), os, MessageObject.Status.RECEIVED, new String());		
+				}
 			}
 			//The return message is always the last message routed if in a batch
 			//TODO: Check this for 1.2.1
@@ -315,13 +331,27 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
 			}
 		}
 
-		private void generateACK(String message, OutputStream os)
+		private void generateACK(String message, OutputStream os, MessageObject.Status status, String error)
 				throws Exception, IOException {
-			if (((TcpConnector) connector).getSendACK()) {
-				String ACK = new ACKGenerator().generateAckResponse(message);
+			TcpConnector tcpConnector = ((TcpConnector) connector);
+			if (tcpConnector.getSendACK()) {
+				String ackCode = "AA";
+				String textMessage = "";
+				if (status.equals(MessageObject.Status.ERROR)){
+					ackCode = tcpConnector.getAckCodeError();
+					String conError = tcpConnector.getAckMsgError();
+					textMessage = conError.replaceFirst("\\$\\{ERROR\\}", error);
+				}else if(status.equals(MessageObject.Status.REJECTED)){
+					ackCode = tcpConnector.getAckCodeRejected();
+					textMessage = tcpConnector.getAckMsgRejected();
+				}else{
+					ackCode = tcpConnector.getAckCodeSuccessful();
+					textMessage = tcpConnector.getAckMsgSuccessful();
+				}
+				String ACK = new ACKGenerator().generateAckResponse(message, ackCode, textMessage);
 
 				logger.debug("Sending ACK: " + ACK);
-				((TcpConnector) connector).getTcpProtocol().write(os,
+				tcpConnector.getTcpProtocol().write(os,
 						ACK.getBytes());
 			}
 		}

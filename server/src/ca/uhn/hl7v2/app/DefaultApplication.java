@@ -70,7 +70,7 @@ public class DefaultApplication implements Application {
         Message out = null;
         try {
             //get default ACK
-            out = makeACK((Segment) in.get("MSH"));
+            out = makeACK((Segment) in.get("MSH"), "CA", "");
             fillDetails(out);
         } catch (Exception e) {
             throw new ApplicationException("Couldn't create response message: " + e.getMessage());
@@ -124,7 +124,7 @@ public class DefaultApplication implements Application {
      * @throws IOException if there is a problem reading or writing the message ID file
      * @throws DataTypeException if there is a problem setting ACK values
      */
-    public static Message makeACK(Segment inboundHeader) throws HL7Exception, IOException {
+    public static Message makeACK(Segment inboundHeader, String statusCode, String textMessage ) throws HL7Exception, IOException {
         if (!inboundHeader.getName().equals("MSH"))
             throw new HL7Exception(
                 "Need an MSH segment to create a response ACK (got " + inboundHeader.getName() + ")");
@@ -156,8 +156,9 @@ public class DefaultApplication implements Application {
 
         terser.set("/MSH-9", "ACK");
         terser.set("/MSH-12", version);
-        terser.set("/MSA-1", "CA");
+        terser.set("/MSA-1", statusCode);
         terser.set("/MSA-2", terser.get(inboundHeader, 10, 0, 1, 1));
+        terser.set("/MSA-3", textMessage);
         terser.set("/MSH-3", terser.get(inboundHeader, 5, 0, 1, 1));
         terser.set("/MSH-4", terser.get(inboundHeader, 6, 0, 1, 1));
         terser.set("/MSH-5", terser.get(inboundHeader, 3, 0, 1, 1));

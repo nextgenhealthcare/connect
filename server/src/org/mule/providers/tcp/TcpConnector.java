@@ -42,7 +42,7 @@ import com.webreach.mirth.server.controllers.SystemLogger;
  * @version $Revision: 1.11 $
  */
 public class TcpConnector extends AbstractServiceEnabledConnector {
-	// customer properties
+	// custom properties
 	public static final String PROPERTY_CHAR_ENCODING = "charEncoding";
 	public static final String PROPERTY_START_OF_MESSAGE = "messageStart";
 	public static final String PROPERTY_END_OF_MESSAGE = "messageEnd";
@@ -55,7 +55,24 @@ public class TcpConnector extends AbstractServiceEnabledConnector {
 	private String messageEnd = "0x0B";
 	private String recordSeparator = "0x0D";
 	private String segmentEnd = "0x0D";
-
+	
+	// ack properties
+	public static final String PROPERTY_ACKCODE_SUCCESSFUL = "ackCodeSuccessful";
+	public static final String PROPERTY_ACKMSG_SUCCESSFUL = "ackMsgSuccessful";
+	
+	public static final String PROPERTY_ACKCODE_ERROR = "ackCodeError";
+	public static final String PROPERTY_ACKMSG_ERROR = "ackMsgError";
+	
+	public static final String PROPERTY_ACKCODE_REJECTED = "ackCodeRejected";
+	public static final String PROPERTY_ACKMSG_REJECTED = "ackMsgRejected";
+	
+	private String ackCodeSuccessful = "AA";
+	private String ackMsgSuccessful = "";
+	private String ackCodeError = "AE";
+	private String ackMsgError = "Error Processing Message";
+	private String ackCodeRejected = "AR";
+	private String ackMsgRejected = "Message Rejected";
+	
 	public static final int DEFAULT_SOCKET_TIMEOUT = 5000;
 	public static final int DEFAULT_ACK_TIMEOUT = 5000;
 	public static final int DEFAULT_BUFFER_SIZE = 64 * 1024;
@@ -511,5 +528,53 @@ public class TcpConnector extends AbstractServiceEnabledConnector {
 		} catch (Throwable t) {
 			logger.error("Error setting statistics ");
 		}
+	}
+
+	public String getAckCodeError() {
+		return ackCodeError;
+	}
+
+	public void setAckCodeError(String ackCodeError) {
+		this.ackCodeError = ackCodeError;
+	}
+
+	public String getAckCodeRejected() {
+		return ackCodeRejected;
+	}
+
+	public void setAckCodeRejected(String ackCodeRejected) {
+		this.ackCodeRejected = ackCodeRejected;
+	}
+
+	public String getAckCodeSuccessful() {
+		return ackCodeSuccessful;
+	}
+
+	public void setAckCodeSuccessful(String ackCodeSuccessful) {
+		this.ackCodeSuccessful = ackCodeSuccessful;
+	}
+
+	public String getAckMsgError() {
+		return ackMsgError;
+	}
+
+	public void setAckMsgError(String ackMsgError) {
+		this.ackMsgError = ackMsgError;
+	}
+
+	public String getAckMsgRejected() {
+		return ackMsgRejected;
+	}
+
+	public void setAckMsgRejected(String ackMsgRejected) {
+		this.ackMsgRejected = ackMsgRejected;
+	}
+
+	public String getAckMsgSuccessful() {
+		return ackMsgSuccessful;
+	}
+
+	public void setAckMsgSuccessful(String ackMsgSuccessful) {
+		this.ackMsgSuccessful = ackMsgSuccessful;
 	}
 }

@@ -56,7 +56,7 @@ public class DocumentSerializer implements IXMLSerializer<Document>{
 		of.setOmitXMLDeclaration(false);
 		of.setIndenting(true);
 		of.setPreserveSpace(true);
-		//of.setLineSeparator("\r\n");
+		of.setLineSeparator("\r\n");
 
 		StringWriter stringWriter = new StringWriter();
 		XMLSerializer serializer = new XMLSerializer(stringWriter, of);
