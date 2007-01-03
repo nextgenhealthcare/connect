@@ -300,6 +300,7 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
 				data = (it.next()).getBytes();
 				UMOMessageAdapter adapter = connector.getMessageAdapter(data);
 				os = new ResponseOutputStream(socket.getOutputStream(), socket);
+				try{
 				returnMessage = routeMessage(new MuleMessage(adapter), endpoint
 						.isSynchronous(), os);
 				//We need to check the message status
@@ -320,6 +321,10 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
 					}
 				}else{
 					generateACK(new String(data), os, MessageObject.Status.RECEIVED, new String());		
+				}
+				}catch(Exception e){
+					generateACK(new String(data), os, MessageObject.Status.ERROR, e.getMessage());		
+					throw e;
 				}
 			}
 			//The return message is always the last message routed if in a batch
