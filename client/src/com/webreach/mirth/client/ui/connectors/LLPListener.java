@@ -235,6 +235,7 @@ public class LLPListener extends ConnectorClass
     {
         keepConnectionOpenGroup = new javax.swing.ButtonGroup();
         buttonGroup1 = new javax.swing.ButtonGroup();
+        buttonGroup2 = new javax.swing.ButtonGroup();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
@@ -341,7 +342,7 @@ public class LLPListener extends ConnectorClass
 
         sendACKYes.setBackground(new java.awt.Color(255, 255, 255));
         sendACKYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        keepConnectionOpenGroup.add(sendACKYes);
+        buttonGroup2.add(sendACKYes);
         sendACKYes.setText("Yes");
         sendACKYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
         sendACKYes.addActionListener(new java.awt.event.ActionListener()
@@ -354,7 +355,7 @@ public class LLPListener extends ConnectorClass
 
         sendACKNo.setBackground(new java.awt.Color(255, 255, 255));
         sendACKNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        keepConnectionOpenGroup.add(sendACKNo);
+        buttonGroup2.add(sendACKNo);
         sendACKNo.setText("No");
         sendACKNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
         sendACKNo.addActionListener(new java.awt.event.ActionListener()
@@ -600,6 +601,7 @@ public class LLPListener extends ConnectorClass
     private com.webreach.mirth.client.ui.components.MirthRadioButton ascii;
     private com.webreach.mirth.client.ui.components.MirthTextField bufferSizeField;
     private javax.swing.ButtonGroup buttonGroup1;
+    private javax.swing.ButtonGroup buttonGroup2;
     private com.webreach.mirth.client.ui.components.MirthComboBox charsetEncodingCombobox;
     private com.webreach.mirth.client.ui.components.MirthTextField endOfMessageCharacterField;
     private com.webreach.mirth.client.ui.components.MirthTextField errorACKCode;
