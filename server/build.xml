@@ -125,6 +125,8 @@
 			<fileset file="${conf}/wrapper.conf" />
 			<fileset file="${conf}/derby-*" />
 			<fileset file="${conf}/postgres-*" />
+			<fileset file="${conf}/sql-map-config-2.dtd" />
+			<fileset file="${conf}/sql-map-2.dtd" />
 		</copy>
 
 		<!-- copy WEB-INF files -->
