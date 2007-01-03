@@ -26,7 +26,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		FROM EVENT
 		<dynamic prepend="WHERE">
 			<isNotNull prepend="AND" property="event">
-				<![CDATA[ LCASE(EVENT) LIKE %#event#% ]]>
+				LOWER(EVENT) LIKE LOWER(#event#)
 			</isNotNull>
 			<isNotNull prepend="AND" property="level">
 				EVENT_LEVEL = #level#
