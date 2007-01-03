@@ -6,7 +6,6 @@
 		<description>Open source HL7 integration engine.</description>
 		
 		<icon href="mirth_logo_64.jpg" />
-		<icon kind="splash" href="mirth_logo_64.jpg"/>
 		<offline-allowed />
 		<shortcut online="false">
 		
