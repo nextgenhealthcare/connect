@@ -31,7 +31,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class GlobalVariableStore {
-	public Map<String, Object> globalVariableMap = new HashMap<String, Object>();
+	public Map<String, Object> globalVariableMap = Collections.synchronizedMap(new HashMap<String, Object>());
 	private static GlobalVariableStore instance = null;
 
 	private GlobalVariableStore() {
