@@ -288,7 +288,8 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
 		}
 
 		protected byte[] processData(byte[] data) throws Exception {
-			String str_data = new String(data);
+			String charset=((TcpConnector)connector).getCharsetEncoding();
+			String str_data = new String(data,charset);
 			BatchMessageProcessor batchProcessor = new BatchMessageProcessor();
 			batchProcessor.setEndOfMessage((byte)END_MESSAGE);
 			batchProcessor.setStartOfMessage((byte)START_MESSAGE);
@@ -297,8 +298,8 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
 			UMOMessage returnMessage = null;
 			OutputStream os;
 			while (it.hasNext()) {
-				data = (it.next()).getBytes();
-				UMOMessageAdapter adapter = connector.getMessageAdapter(data);
+				data = (it.next()).getBytes(charset);
+				UMOMessageAdapter adapter = connector.getMessageAdapter(new String(data,charset));
 				os = new ResponseOutputStream(socket.getOutputStream(), socket);
 				try{
 				returnMessage = routeMessage(new MuleMessage(adapter), endpoint
@@ -317,13 +318,13 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
 								errorString = messageObjectResponse.getErrors();
 							}
 						}
-						generateACK(new String(data), os, messageObjectResponse.getStatus(), errorString);
+						generateACK(new String(data,charset), os, messageObjectResponse.getStatus(), errorString);
 					}
 				}else{
-					generateACK(new String(data), os, MessageObject.Status.RECEIVED, new String());		
+					generateACK(new String(data,charset), os, MessageObject.Status.RECEIVED, new String());		
 				}
 				}catch(Exception e){
-					generateACK(new String(data), os, MessageObject.Status.ERROR, e.getMessage());		
+					generateACK(new String(data,charset), os, MessageObject.Status.ERROR, e.getMessage());		
 					throw e;
 				}
 			}
@@ -353,11 +354,14 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
 					ackCode = tcpConnector.getAckCodeSuccessful();
 					textMessage = tcpConnector.getAckMsgSuccessful();
 				}
-				String ACK = new ACKGenerator().generateAckResponse(message, ackCode, textMessage);
+				String ACK = new ACKGenerator().generateAckResponse(message.trim(), ackCode, textMessage);
 
 				logger.debug("Sending ACK: " + ACK);
-				tcpConnector.getTcpProtocol().write(os,
-						ACK.getBytes());
+				try{
+					tcpConnector.getTcpProtocol().write(os,ACK.getBytes(((TcpConnector)connector).getCharsetEncoding()));
+				}catch(Throwable t){
+					logger.error("Can't write ACK to the sender");
+				}
 			}
 		}
 	}
