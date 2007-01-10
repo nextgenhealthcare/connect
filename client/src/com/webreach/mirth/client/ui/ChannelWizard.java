@@ -27,6 +27,7 @@
 package com.webreach.mirth.client.ui;
 
 import com.webreach.mirth.client.core.ClientException;
+import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
 import com.webreach.mirth.model.Channel;
 
 /** Creates the new channel wizard dialog */
@@ -41,6 +42,7 @@ public class ChannelWizard extends javax.swing.JDialog
         super(PlatformUI.MIRTH_FRAME);
         this.parent = PlatformUI.MIRTH_FRAME;
         initComponents();
+        channelName.setDocument(new MirthFieldConstraints(40, false, false));
         channelName.setText("");
         nextButton.setEnabled(false);
         channelPattern.setVisible(false);
