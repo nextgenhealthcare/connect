@@ -102,7 +102,7 @@ public class HL7XMLTreePanel extends JPanel {
 			//This message might come from a system that doesn't use carriage returns
 			//Since hapi requires a CR for the end of segment character
 			//we will force it.
-			source = source.replaceAll("\\n", "\r");
+			source = source.replaceAll("\\n", "\r").trim();
 			try {
 				DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
 				DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
