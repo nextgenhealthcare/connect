@@ -203,9 +203,10 @@
 			<fileset dir="${basedir}/mirthdb" />
 		</copy>
 
-		<!-- copy the batch scripts -->
+		<!-- copy the batch scripts and icons -->
 		<copy file="${basedir}/Mirth.bat" todir="${setup}" />
 		<copy file="${basedir}/mirth.sh" todir="${setup}" />
+		<copy file="${basedir}/Mirth.ico" todir="${setup}" />
 
 		<!-- zip the source code -->
 		<!-- zip basedir="${setup.source}" destfile="${setup}/mirth-server-src.zip" / -->
