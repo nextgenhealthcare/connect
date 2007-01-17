@@ -3,7 +3,6 @@ package org.mule.providers;
 import java.io.StringWriter;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
@@ -45,26 +44,22 @@ public class TemplateValueReplacer {
 		// message variables
 		if (messageObject != null) {
 			context.put("message", messageObject);
-			try{
-				// load variables from global map
-				// we don't use an iterator here because of concurrent modification issues
-				Map<String,Object> globalVars = GlobalVariableStore.getInstance().getVariables();
-				String[] keys = {};
-				keys = globalVars.keySet().toArray(keys);
-				for (int i = 0; i < keys.length; i++) {
-					context.put(keys[i], globalVars.get(keys[i]));
-				}
-			}catch (Exception ex){
-				logger.error("Error loading GlobalVariables: " + ex.getMessage());
+
+			// load variables from global map
+			// we don't use an iterator here because of concurrent modification
+			// issues
+			Map<String, Object> globalVariables = GlobalVariableStore.getInstance().getVariables();
+			String[] keys = {};
+			keys = globalVariables.keySet().toArray(keys);
+
+			for (int i = 0; i < keys.length; i++) {
+				context.put(keys[i], globalVariables.get(keys[i]));
 			}
-			try{
-				// load variables from local map
-				for (Iterator iter = messageObject.getVariableMap().entrySet().iterator(); iter.hasNext();) {
-					Entry entry = (Entry) iter.next();
-					context.put(entry.getKey().toString(), entry.getValue());
-				}
-			}catch (Exception exe){
-				logger.error("Error loading LocalVariables: " + exe.getMessage());
+
+			// load variables from local map
+			for (Iterator iter = messageObject.getVariableMap().entrySet().iterator(); iter.hasNext();) {
+				Entry entry = (Entry) iter.next();
+				context.put(entry.getKey().toString(), entry.getValue());
 			}
 		}
 
@@ -74,7 +69,7 @@ public class TemplateValueReplacer {
 		}
 
 		// system variables
-		//Calendar today = Calendar.getInstance();
+		// Calendar today = Calendar.getInstance();
 		context.put("date", new DateTool());
 		context.put("DATE", Utility.getTimeStamp("dd-MM-yy_HH-mm-ss.SS"));
 		context.put("FORMATTER", new VelocityFormatter(context));
