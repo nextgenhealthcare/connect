@@ -2284,7 +2284,7 @@ public class Frame extends JXFrame
             
             try
             {
-                 importChannel = (Channel)serializer.fromXML(channelXML.replaceAll("\\&\\#x0D;\\n", "\\&\\#x0D;").replaceAll("\\&\\#x0D","\\&\\#x0A"));
+                 importChannel = (Channel)serializer.fromXML(channelXML.replaceAll("\\&\\#x0D;\\n", "\n").replaceAll("\\&\\#x0D;",""));
              }
             catch (Exception e)
             {
