@@ -1535,7 +1535,7 @@ public class Frame extends JXFrame
             public void done()
             {
                 if (channelPanel.getSelectedChannel() == null)
-                    JOptionPane.showMessageDialog(getThis(), "Channel no longer exists.");
+                    JOptionPane.showMessageDialog(Frame.this, "Channel no longer exists.");
 				else
 					try {
 						editChannel((Channel)ObjectCloner.deepCopy(channelPanel.getSelectedChannel()));
@@ -2808,11 +2808,6 @@ public class Frame extends JXFrame
             BareBonesBrowserLaunch.openURL(UIConstants.HELP_LOCATION);
     }
     
-    public Frame getThis()
-    {
-        return this;
-    }
-
     //ast: class for encoding information
     /*
      * class CharsetEncodingInformation

@@ -126,8 +126,8 @@ public class TransformerPane extends MirthEditorPane
 
         if (channel.getDirection().equals(Channel.Direction.OUTBOUND))
         {
-            hl7builderPanel = new HL7MessageBuilder(this);
-            stepPanel.addCard(hl7builderPanel, HL7MESSAGE_TYPE);
+            //hl7builderPanel = new HL7MessageBuilder(this);
+           // stepPanel.addCard(hl7builderPanel, HL7MESSAGE_TYPE);
             // we need to clear all the old data before we load the new
             makeTransformerTable(outboundComboBoxValues);
         }
@@ -157,8 +157,9 @@ public class TransformerPane extends MirthEditorPane
             stepPanel.showCard(BLANK_TYPE);
             mapperPanel.setData(null);
             jsPanel.setData(null);
-            if (hl7builderPanel != null)
+            if (hl7builderPanel != null){
                 hl7builderPanel.setData(null);
+            }
         }
         transformerTable.setBorder(BorderFactory.createEmptyBorder());
         transformerTaskPaneContainer.add(parent.getOtherPane());
@@ -185,6 +186,7 @@ public class TransformerPane extends MirthEditorPane
         // the available panels (cards)
         stepPanel = new CardPanel();
         blankPanel = new BlankPanel();
+        hl7builderPanel = new HL7MessageBuilder(this);
         mapperPanel = new MapperPanel(this);
         jsPanel = new JavaScriptPanel(this);
         
@@ -193,6 +195,7 @@ public class TransformerPane extends MirthEditorPane
         stepPanel.addCard(mapperPanel, MAPPER_TYPE);
         
         stepPanel.addCard(jsPanel, JAVASCRIPT_TYPE);
+        stepPanel.addCard(hl7builderPanel, HL7MESSAGE_TYPE);
         
         transformerTablePane = new JScrollPane();
         transformerTablePane.setBorder(BorderFactory.createEmptyBorder());
@@ -403,6 +406,7 @@ public class TransformerPane extends MirthEditorPane
                     {
                         mapperPanel.setData(null);
                         jsPanel.setData(null);
+                        jsPanel.update();
                     }
                     else if(type.equalsIgnoreCase(MAPPER_TYPE))
                     {
@@ -411,6 +415,7 @@ public class TransformerPane extends MirthEditorPane
                         data.put("Mapping", "");
                         data.put("isGlobal", UIConstants.NO_OPTION);
                         mapperPanel.setData(data);
+                        mapperPanel.update();
                     }
                     else if(type.equalsIgnoreCase(HL7MESSAGE_TYPE))
                     {
@@ -418,6 +423,7 @@ public class TransformerPane extends MirthEditorPane
                         data.put("Variable", getUniqueName(true));
                         data.put("Mapping", "");
                         hl7builderPanel.setData(data);
+                        hl7builderPanel.update();
                     }
                     stepPanel.showCard(type);
                 }
@@ -832,6 +838,7 @@ public class TransformerPane extends MirthEditorPane
                 data.put("Variable", step.getName());
                 step.setType(MAPPER_TYPE); // mapper type by default, inbound
                 mapperPanel.setData(data);
+                mapperPanel.update();
             }
             else if (channel.getDirection().equals(Channel.Direction.OUTBOUND))
             {
@@ -839,6 +846,7 @@ public class TransformerPane extends MirthEditorPane
                 data.put("Variable", step.getName());
                 step.setType(HL7MESSAGE_TYPE); // hl7 message type by default, outbound
                 hl7builderPanel.setData(data);
+                hl7builderPanel.update();
             }
             step.setData(data);
             jsPanel.setData( null );  // for completeness

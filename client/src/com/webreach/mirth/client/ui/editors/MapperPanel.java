@@ -153,7 +153,7 @@ public class MapperPanel extends CardPanel {
 
 	public void updateTable() {
 		if (parent.getSelectedRow() != -1 && !parent.getTableModel().getValueAt(parent.getSelectedRow(), parent.STEP_TYPE_COL).toString().equals("JavaScript")) {
-			parent.setDroppedTextSuffixPrefix("msg", ".toString()");
+			//parent.setDroppedTextSuffixPrefix("msg", ".toString()");
 			SwingUtilities.invokeLater(new Runnable() {
 				public void run() {
 					parent.getTableModel().setValueAt(
@@ -167,7 +167,7 @@ public class MapperPanel extends CardPanel {
 
 	public void setAsJavaScript() {
 		if (parent.getSelectedRow() != -1) {
-			parent.setDroppedTextSuffixPrefix("msg", ".toString()");
+			//parent.setDroppedTextSuffixPrefix("msg", ".toString()");
 			SwingUtilities.invokeLater(new Runnable() {
 				public void run() {
 					parent.getTableModel().setValueAt("New Step",

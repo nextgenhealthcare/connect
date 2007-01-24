@@ -32,9 +32,9 @@ import javax.swing.JLabel;
 
 public class HL7MessageBuilder extends MapperPanel {
 	public HL7MessageBuilder(MirthEditorPane p) {
-		super();
+		super(p);
 		parent = p;
-		initComponents();
+		//initComponents();
 	}
 
 	public void update() {
@@ -49,6 +49,6 @@ public class HL7MessageBuilder extends MapperPanel {
 		labelPanel.add(mappingLabel, BorderLayout.NORTH);
 		labelPanel.add(new JLabel(" "), BorderLayout.WEST);
 		labelPanel.add(mappingTextField, BorderLayout.CENTER);
-		labelPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+		labelPanel.setBorder(BorderFactory.createEmptyBorder());
 	}
 }
