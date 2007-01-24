@@ -235,8 +235,12 @@ public class PipeParser extends Parser {
                 if (i == 0) {
                     name = segments[i].substring(0, 3);
                     delim = segments[i].charAt(3);
-                } else {
+                } else if (segments[i].length() > 3) {
                     name = segments[i].substring(0, segments[i].indexOf(delim));
+                } else{
+                	//if the segment is only 3 chars, don't crash
+                	//MIRTH-235
+                	name = segments[i];
                 }
                 
                 log.debug("Parsing segment " + name);
