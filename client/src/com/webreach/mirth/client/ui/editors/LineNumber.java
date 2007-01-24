@@ -128,7 +128,8 @@ public class LineNumber extends JComponent
 		
 		g.setColor( getForeground() );
 		int startLineNumber = (drawHere.y / lineHeight) + 1;
-		int endLineNumber = startLineNumber + (drawHere.height / lineHeight);
+		//subtract 10 or so pixels to account for scroll bars
+		int endLineNumber = startLineNumber + ((drawHere.height - 17) / lineHeight);
 		
 		int start = (drawHere.y / lineHeight) * lineHeight + lineHeight - startOffset + 1;
 		

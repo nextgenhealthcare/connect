@@ -58,59 +58,65 @@
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
-                      <Component id="hostIPAddressField" min="-2" pref="31" max="-2" attributes="0"/>
+                      <Component id="usePersistentQueuesYesRadio" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jLabel9" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="hostIPAddressField1" min="-2" pref="31" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jLabel26" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="hostIPAddressField2" min="-2" pref="31" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jLabel25" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="hostIPAddressField3" min="-2" pref="31" max="-2" attributes="0"/>
+                      <Component id="usePersistentQueuesNoRadio" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Group type="102" attributes="0">
+                  <Component id="startOfMessageCharacterField" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
+                  <Component id="endOfMessageCharacterField" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
+                  <Component id="recordSeparatorField" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
+                  <Component id="segmentEnd" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
+                  <Component id="charsetEncodingCombobox" alignment="0" min="-2" max="-2" attributes="0"/>
+                  <Component id="ackTimeoutField" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
+                  <Component id="bufferSizeField" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
+                  <Component id="serverTimeoutField" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="ascii" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="hex" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Group type="103" groupAlignment="1" max="-2" attributes="0">
+                          <Component id="maximumRetryCountField" alignment="0" max="32767" attributes="1"/>
+                          <Component id="keepConnectionOpenYesRadio" alignment="0" max="32767" attributes="1"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="keepConnectionOpenNoRadio" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" alignment="0" attributes="0">
-                              <Component id="usePersistentQueuesYesRadio" min="-2" max="-2" attributes="0"/>
+                              <Component id="hostIPAddressField" min="-2" pref="31" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="usePersistentQueuesNoRadio" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <Component id="startOfMessageCharacterField" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
-                          <Component id="endOfMessageCharacterField" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
-                          <Component id="recordSeparatorField" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
-                          <Component id="segmentEnd" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
-                          <Component id="charsetEncodingCombobox" alignment="0" min="-2" max="-2" attributes="0"/>
-                          <Component id="ackTimeoutField" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
-                          <Component id="bufferSizeField" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="serverTimeoutField" min="-2" pref="75" max="-2" attributes="0"/>
-                              <EmptySpace min="-2" pref="19" max="-2" attributes="0"/>
-                              <Component id="jLabel7" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="ascii" min="-2" max="-2" attributes="0"/>
+                              <Component id="jLabel9" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="hex" min="-2" max="-2" attributes="0"/>
+                              <Component id="hostIPAddressField1" min="-2" pref="31" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="jLabel26" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="hostIPAddressField2" min="-2" pref="31" max="-2" attributes="0"/>
+                          </Group>
+                          <Component id="hostPortField" alignment="0" min="-2" pref="50" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="jLabel25" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="hostIPAddressField3" min="-2" pref="31" max="-2" attributes="0"/>
                           </Group>
                           <Group type="102" alignment="0" attributes="0">
-                              <Group type="103" groupAlignment="1" max="-2" attributes="0">
-                                  <Component id="maximumRetryCountField" alignment="0" max="32767" attributes="1"/>
-                                  <Component id="keepConnectionOpenYesRadio" alignment="0" max="32767" attributes="1"/>
+                              <EmptySpace min="10" pref="10" max="10" attributes="0"/>
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Component id="template" alignment="0" pref="221" max="32767" attributes="0"/>
+                                  <Component id="jLabel7" alignment="0" min="-2" max="-2" attributes="0"/>
                               </Group>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="keepConnectionOpenNoRadio" min="-2" max="-2" attributes="0"/>
                           </Group>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="template" pref="172" max="32767" attributes="0"/>
                   </Group>
-                  <Component id="hostPortField" min="-2" pref="50" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace pref="25" max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -207,15 +213,14 @@
                           <Component id="jLabel20" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                   </Group>
-                  <Group type="102" alignment="0" max="-2" attributes="0">
-                      <EmptySpace min="-2" pref="33" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                          <Component id="template" alignment="0" min="-2" pref="283" max="-2" attributes="0"/>
-                          <Component id="jLabel7" alignment="0" min="-2" max="-2" attributes="0"/>
-                      </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <EmptySpace min="-2" pref="13" max="-2" attributes="0"/>
+                      <Component id="jLabel7" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="template" min="-2" pref="298" max="-2" attributes="0"/>
                   </Group>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace pref="44" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>

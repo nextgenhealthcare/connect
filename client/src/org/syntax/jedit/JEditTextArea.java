@@ -519,24 +519,52 @@ public class JEditTextArea extends JComponent {
 			if (newFirstLine < 0)
 				newFirstLine = 0;
 		}
-
-		int x = _offsetToX(line, offset);
-		int width = painter.getFontMetrics().charWidth('w');
-
-		if (x < 0) {
-			newHorizontalOffset = 0;
-		} else if (x + width >= painter.getWidth() + 5) {
-			newHorizontalOffset = horizontalOffset + (painter.getWidth() - x)
-					- width - 5;
-		} else if (horizontalOffset < 0) {
-			updateLongestLine();
-			newHorizontalOffset = (Math.min(0, -(painter.getFontMetrics()
+		if (offset >= 0){
+			//x is the location we currently have the caret
+			int x = _offsetToX(line, offset) + painter.getFontMetrics().charWidth('w');
+			int width = painter.getFontMetrics().charWidth('w');
+	
+			if (x < 0) {
+				//If we are scrolled over to the right and the carat is being moved
+				//towards the left side of the component edge
+				//we will get an x value less than zero
+				//in theory we should NEVER get here (see third if clause)
+				//TODO: figure out why we sometimes get here.
+				if (horizontalOffset <= 0){
+					newHorizontalOffset = 0;
+				}else{
+					//80, eh? 
+					newHorizontalOffset = horizontalOffset - x + 80;
+				}
+			} else if (x + width >= painter.getWidth() + 5) {
+				//if we are typing (or scrolling) and we reached the right edger
+				//of the component, we need to move the contents over a bit
+				newHorizontalOffset = horizontalOffset + (painter.getWidth() - x)
+						- width - 5;
+			} else if (horizontalOffset < 0) {
+				//if we are scrolled over we need to see if we are on the longest line or not
+				updateLongestLine();
+				if (line == longestLine){
+					//if we are on the longest line, then we check if the horizontal offset
+					//needs to be updated (our line length > width)
+					int longestLineLen = painter.getFontMetrics()
 					.charsWidth(getLineText(line).toCharArray(), 0,
-							getLineText(line).length()))
-					+ painter.getWidth()
-					- painter.getFontMetrics().charWidth('w')));
+							getLineText(line).length());
+					//check if we are at the end of the line
+					if (-(horizontalOffset - painter.getWidth()) >= longestLineLen){
+						//we start to reduce the horizonal offset. This essentially
+						//moves the view area of the component
+						//so that the end of the longest line is at the very right edge
+						newHorizontalOffset =(Math.min(0, -(longestLineLen))
+								+ painter.getWidth()
+								- painter.getFontMetrics().charWidth('w'));
+					}
+				}
+			}
+		}else{
+			newHorizontalOffset = horizontalOffset;
 		}
-
+		//System.out.println(newHorizontalOffset);
 		return setOrigin(newFirstLine, newHorizontalOffset);
 	}
 
@@ -1403,7 +1431,8 @@ public class JEditTextArea extends JComponent {
 	}
 
 	public void updateLongestLine() {
-
+		//this loops through each line and figures out the longest line size
+		//needs optimization. One day.
 		int size = getLineCount();
 		int max_size = 0;
 		for (int i = 0; i < size; i++) {
@@ -2168,7 +2197,7 @@ public class JEditTextArea extends JComponent {
 				}
 			}
 
-			scrollTo(line_to_scroll_to, 0);
+			scrollTo(line_to_scroll_to, -1);
 		}
 	}
 
