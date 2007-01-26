@@ -121,8 +121,9 @@ public abstract class JdbcUtils
 					value = null;
 				}
 				*/
-			}else if (root instanceof org.w3c.dom.Document) {
-				
+			}else if (root instanceof Map){
+				value = ((Map)root).get(name);
+			}else if (root instanceof org.w3c.dom.Document) {				
 				
 				org.w3c.dom.Document x3cDoc = (org.w3c.dom.Document) root;
 				org.dom4j.Document dom4jDoc = new DOMReader().read(x3cDoc);
