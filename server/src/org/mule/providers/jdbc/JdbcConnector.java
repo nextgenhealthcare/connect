@@ -51,6 +51,7 @@ public class JdbcConnector extends AbstractServiceEnabledConnector
     private Context jndiContext;
     private String jndiInitialFactory;
     private String jndiProviderUrl;
+    private boolean useAck;
     private Map providerProperties;
     private Map queries;
 
@@ -387,5 +388,13 @@ public class JdbcConnector extends AbstractServiceEnabledConnector
         }
         return con;
     }
+
+	public boolean isUseAck() {
+		return useAck;
+	}
+
+	public void setUseAck(boolean useAck) {
+		this.useAck = useAck;
+	}
 
 }

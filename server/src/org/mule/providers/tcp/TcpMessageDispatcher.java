@@ -29,6 +29,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.mule.impl.MuleMessage;
 import org.mule.providers.AbstractMessageDispatcher;
+import org.mule.providers.TemplateValueReplacer;
 import org.mule.umo.UMOEvent;
 import org.mule.umo.UMOException;
 import org.mule.umo.UMOMessage;
@@ -75,7 +76,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 	private TcpConnector connector;
 
 	private MessageObjectController messageObjectController = new MessageObjectController();
-
+	private TemplateValueReplacer replacer = new TemplateValueReplacer();
 	public TcpMessageDispatcher(TcpConnector connector) {
 		super(connector);
 		this.connector = connector;
@@ -171,7 +172,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 					retryCount++;
 					try {
 						socket = initSocket(event.getEndpoint().getEndpointURI().getAddress());
-						write(socket, messageObject.getEncodedData());
+						writeTemplatedData(socket, messageObject);
 						success = true;
 					} catch (Exception exs) {
 						if (retryCount < maxRetries) {
@@ -337,8 +338,8 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 			if (!result)
 				return result;
 			try {
-				//Send the encoded data
-				write(connectedSocket, data.getEncodedData());
+				//Send the templated data
+				writeTemplatedData(connectedSocket, data);
 				result = true;
 				// If we're doing sync receive try and read return info from
 				// socket
@@ -371,6 +372,15 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 			doDispose();
 		}
 		return result;
+	}
+
+	private void writeTemplatedData(Socket socket, MessageObject data) throws IOException {
+		if (connector.getTemplate() != ""){
+			String template = replacer.replaceValues(connector.getTemplate(), data, "llp");
+			write(socket, template);
+		}else{
+			write(socket, data.getEncodedData());
+		}
 	}
 
 	// ast: for sync

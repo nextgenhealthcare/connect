@@ -35,7 +35,6 @@ public class ValidMessageFilter implements UMOFilter {
 
 	public boolean accept(UMOMessage message) {
 		MessageObject messageObject = (MessageObject) message.getPayload();
-		message.setProperty("MIRTH_STATUS", messageObject.getStatus().toString());
 		return messageObject.getStatus().equals(MessageObject.Status.TRANSFORMED);
 	}
 }

@@ -86,7 +86,7 @@ public class JdbcMessageReceiver extends TransactedPollingMessageReceiver
         Exception ackException=null;
         try {            
             try{
-                if (this.ackStmt != null) {
+                if (connector.isUseAck() && this.ackStmt != null) {
                     con = this.connector.getConnection();
                     Object[] ackParams = JdbcUtils.getParams(getEndpointURI(), this.ackParams, message);
                     int nbRows = new QueryRunner().update(con, this.ackStmt, ackParams);

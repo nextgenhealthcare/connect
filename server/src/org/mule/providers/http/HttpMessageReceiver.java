@@ -47,10 +47,11 @@ import java.util.StringTokenizer;
  */
 public class HttpMessageReceiver extends TcpMessageReceiver {
     //private ExpiryMonitor keepAliveMonitor;
-
+	private HttpConnector connector;
     public HttpMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint)
             throws InitialisationException {
         super(connector, component, endpoint);
+        connector = (HttpConnector)connector;
 //        if (((HttpConnector) connector).isKeepAlive()) {
 //            keepAliveMonitor = new ExpiryMonitor(1000);
 //        }

@@ -28,6 +28,7 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Iterator;
 
 import javax.resource.spi.work.Work;
@@ -50,8 +51,14 @@ import org.mule.umo.provider.UMOConnector;
 import org.mule.umo.provider.UMOMessageAdapter;
 import org.mule.providers.tcp.protocols.*;
 
+import ca.uhn.hl7v2.parser.EncodingCharacters;
+import ca.uhn.hl7v2.parser.PipeParser;
+import ca.uhn.hl7v2.util.Terser;
+import ca.uhn.hl7v2.validation.impl.NoValidation;
+
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.mule.util.BatchMessageProcessor;
+import com.webreach.mirth.server.util.StackTracePrinter;
 import com.webreach.mirth.util.ACKGenerator;
 
 /**
@@ -69,11 +76,12 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
 	private char START_MESSAGE = 0x0B;  // first character of a new message
 	private char END_OF_RECORD = 0x0D; // character sent between messages
 	private char END_OF_SEGMENT = 0x0D; // character sent between hl7 segments (usually same as end of record)
-	
+	private TcpConnector connector;
 	public TcpMessageReceiver(UMOConnector connector, UMOComponent component,
 			UMOEndpoint endpoint) throws InitialisationException {
 		super(connector, component, endpoint);
 		TcpConnector tcpConnector = (TcpConnector)connector;
+		this.connector = tcpConnector;
 		if (tcpConnector.getCharEncoding().equals("hex")){
 			START_MESSAGE = (char)Integer.decode(tcpConnector.getMessageStart()).intValue();
 			END_MESSAGE = (char)Integer.decode(tcpConnector.getMessageEnd()).intValue();
@@ -121,7 +129,7 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
 
 	protected ServerSocket createSocket(URI uri) throws Exception {
 		String host = uri.getHost();
-		int backlog = ((TcpConnector) connector).getBacklog();
+		int backlog = connector.getBacklog();
 		if (host == null || host.length() == 0) {
 			host = "localhost";
 		}
@@ -212,7 +220,7 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
 		public TcpWorker(Socket socket) {
 			this.socket = socket;
 
-			final TcpConnector tcpConnector = ((TcpConnector) connector);
+			final TcpConnector tcpConnector = connector;
 			this.protocol = tcpConnector.getTcpProtocol();
 			tcpConnector.updateReceiveSocketsCount(true);
 			try {
@@ -248,7 +256,7 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
 			} catch (IOException e) {
 				logger.error("Socket close failed with: " + e);
 			} finally {
-				((TcpConnector) connector).updateReceiveSocketsCount(false);
+				connector.updateReceiveSocketsCount(false);
 			}
 		}
 
@@ -288,7 +296,7 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
 		}
 
 		protected byte[] processData(byte[] data) throws Exception {
-			String charset=((TcpConnector)connector).getCharsetEncoding();
+			String charset=connector.getCharsetEncoding();
 			String str_data = new String(data,charset);
 			BatchMessageProcessor batchProcessor = new BatchMessageProcessor();
 			batchProcessor.setEndOfMessage((byte)END_MESSAGE);
@@ -336,31 +344,92 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
 				return null;
 			}
 		}
+		protected Socket initSocket(String endpoint) throws IOException, URISyntaxException {
+			URI uri = new URI(endpoint);
+			int port = uri.getPort();
+			InetAddress inetAddress = InetAddress.getByName(uri.getHost());
+			Socket socket = createSocket(port, inetAddress);
+			socket.setReuseAddress(true);
+			socket.setReceiveBufferSize(connector.getBufferSize());
+			socket.setSendBufferSize(connector.getBufferSize());
+			socket.setSoTimeout(connector.getSendTimeout());
+			return socket;
+		}
+		protected Socket createSocket(int port, InetAddress inetAddress) throws IOException {
+			return new Socket(inetAddress, port);
+		}
 
 		private void generateACK(String message, OutputStream os, MessageObject.Status status, String error)
 				throws Exception, IOException {
-			TcpConnector tcpConnector = ((TcpConnector) connector);
-			if (tcpConnector.getSendACK()) {
+			boolean errorOnly = false;
+			boolean always = false;
+			boolean successOnly = false;
+			//Check if we want to send ACKs at all.
+			if (connector.getSendACK()) {
+				//Check if we have to look at MSH15
+				if (connector.isCheckMSH15()){
+					//MSH15 Dictionary:
+					//AL: Always
+					//NE: Never
+					//ER: Error / Reject condition
+					//SU: Successful completion only
+					PipeParser parser = new PipeParser();
+					parser.setValidationContext(new NoValidation());
+					ca.uhn.hl7v2.model.Message hl7message = parser.parse(message.trim());
+					Terser terser = new Terser(hl7message);
+					String msh15 =  terser.get("/MSH-15-1");
+					if (msh15 != null && !msh15.equals("")){
+						if (msh15.equalsIgnoreCase("AL")){
+							always = true;
+						}else if(msh15.equalsIgnoreCase("NE")){
+							logger.debug("MSH15 is NE, Skipping ACK");
+							return;
+						}else if(msh15.equalsIgnoreCase("ER")){
+							errorOnly = true;
+
+						}else if(msh15.equalsIgnoreCase("SU")){
+							successOnly = true;
+						}
+					}
+				}
 				String ackCode = "AA";
 				String textMessage = "";
 				if (status.equals(MessageObject.Status.ERROR)){
-					ackCode = tcpConnector.getAckCodeError();
-					String conError = tcpConnector.getAckMsgError();
+					if (successOnly){
+						//we only send an ACK on success
+						return;
+					}
+					ackCode = connector.getAckCodeError();
+					String conError = connector.getAckMsgError();
 					textMessage = conError.replaceFirst("\\$\\{ERROR\\}", error);
 				}else if(status.equals(MessageObject.Status.REJECTED)){
-					ackCode = tcpConnector.getAckCodeRejected();
-					textMessage = tcpConnector.getAckMsgRejected();
+					if (successOnly){
+						return;
+					}
+					ackCode = connector.getAckCodeRejected();
+					textMessage = connector.getAckMsgRejected();
 				}else{
-					ackCode = tcpConnector.getAckCodeSuccessful();
-					textMessage = tcpConnector.getAckMsgSuccessful();
+					if (errorOnly){
+						return;
+					}
+					ackCode = connector.getAckCodeSuccessful();
+					textMessage = connector.getAckMsgSuccessful();
 				}
 				String ACK = new ACKGenerator().generateAckResponse(message.trim(), ackCode, textMessage);
 
 				logger.debug("Sending ACK: " + ACK);
 				try{
-					tcpConnector.getTcpProtocol().write(os,ACK.getBytes(((TcpConnector)connector).getCharsetEncoding()));
+					if (connector.isAckOnNewConnection()){
+						String endpointURI = connector.getAckIP() + ":" + connector.getAckPort();
+						Socket socket = initSocket("tcp://" + endpointURI);
+						BufferedOutputStream bos = new BufferedOutputStream(socket.getOutputStream());
+						protocol.write(bos, ACK.getBytes((connector).getCharsetEncoding()));
+						bos.flush();
+					}else{
+						protocol.write(os,ACK.getBytes((connector).getCharsetEncoding()));
+					}
 				}catch(Throwable t){
-					logger.error("Can't write ACK to the sender");
+					logger.error("Can't write ACK to the sender\n" + StackTracePrinter.stackTraceToString(t));
 				}
 			}
 		}

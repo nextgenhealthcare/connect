@@ -48,14 +48,24 @@ public class TcpConnector extends AbstractServiceEnabledConnector {
 	public static final String PROPERTY_END_OF_MESSAGE = "messageEnd";
 	public static final String PROPERTY_RECORD_SEPARATOR = "recordSeparator";
 	public static final String PROPERTY_END_OF_SEGMENT = "segmentEnd";
+	public static final String PROPERTY_TEMPLATE = "template";
+	public static final String PROPERTY_CHECKMSH15 = "checkMSH15";
+    public static final String PROPERTY_ACK_NEW_CONNECTION = "ackOnNewConnection";
+    public static final String PROPERTY_ACK_NEW_CONNECTION_IP = "ackIP";
+    public static final String PROPERTY_ACK_NEW_CONNECTION_PORT = "ackPort";
 
+	
 	// custom properties
 	private String charEncoding = "hex";
 	private String messageStart = "0x1C";
 	private String messageEnd = "0x0B";
 	private String recordSeparator = "0x0D";
 	private String segmentEnd = "0x0D";
-	
+	private String template = "message.encodedData";
+	private boolean checkMSH15 = false;
+	private boolean ackOnNewConnection = false;
+	private String ackIP = "";
+	private String ackPort = "";
 	// ack properties
 	public static final String PROPERTY_ACKCODE_SUCCESSFUL = "ackCodeSuccessful";
 	public static final String PROPERTY_ACKMSG_SUCCESSFUL = "ackMsgSuccessful";
@@ -576,5 +586,45 @@ public class TcpConnector extends AbstractServiceEnabledConnector {
 
 	public void setAckMsgSuccessful(String ackMsgSuccessful) {
 		this.ackMsgSuccessful = ackMsgSuccessful;
+	}
+
+	public String getTemplate() {
+		return template;
+	}
+
+	public void setTemplate(String template) {
+		this.template = template;
+	}
+
+	public boolean isCheckMSH15() {
+		return checkMSH15;
+	}
+
+	public void setCheckMSH15(boolean checkMSH15) {
+		this.checkMSH15 = checkMSH15;
+	}
+
+	public boolean isAckOnNewConnection() {
+		return ackOnNewConnection;
+	}
+
+	public void setAckOnNewConnection(boolean ackOnNewConnection) {
+		this.ackOnNewConnection = ackOnNewConnection;
+	}
+
+	public String getAckIP() {
+		return ackIP;
+	}
+
+	public void setAckIP(String ackIP) {
+		this.ackIP = ackIP;
+	}
+
+	public String getAckPort() {
+		return ackPort;
+	}
+
+	public void setAckPort(String ackPort) {
+		this.ackPort = ackPort;
 	}
 }
