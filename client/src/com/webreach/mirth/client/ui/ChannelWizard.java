@@ -181,7 +181,7 @@ public class ChannelWizard extends javax.swing.JDialog
 
         jLabel6.setText("Channel Protocol:");
 
-        channelProtocol.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "HL7" }));
+        channelProtocol.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "HL7 v2.X", "HL7 v3.0" }));
 
         org.jdesktop.layout.GroupLayout channelOverviewLayout = new org.jdesktop.layout.GroupLayout(channelOverview);
         channelOverview.setLayout(channelOverviewLayout);
@@ -485,8 +485,10 @@ public class ChannelWizard extends javax.swing.JDialog
         else
             channel.setDirection(Channel.Direction.OUTBOUND);
         
-        if(((String)channelProtocol.getSelectedItem()).equalsIgnoreCase("HL7"))
+        if(((String)channelProtocol.getSelectedItem()).equalsIgnoreCase("HL7 v2.X"))
             channel.setProtocol(Channel.Protocol.HL7);
+        else if(((String)channelProtocol.getSelectedItem()).equalsIgnoreCase("HL7 v3.0"))
+            channel.setProtocol(Channel.Protocol.HL7v3);
         
         if(inbound.isSelected())
         {

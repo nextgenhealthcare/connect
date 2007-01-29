@@ -775,6 +775,14 @@ public class ChannelSetup extends javax.swing.JPanel
         else
             xmlPreEncoded.setSelected(false);
         
+        if (currentChannel.getProtocol() == Channel.Protocol.HL7v3)
+        {
+            xmlPreEncoded.setSelected(true);
+            xmlPreEncoded.setEnabled(false);
+        }
+        else
+            xmlPreEncoded.setEnabled(true);
+        
         if((currentChannel.getProperties().get("transactional")) != null && ((String)currentChannel.getProperties().get("transactional")).equalsIgnoreCase("true"))
             transactionalCheckBox.setSelected(true);
         else

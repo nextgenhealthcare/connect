@@ -105,7 +105,7 @@
                           </Group>
                           <Group type="102" alignment="0" attributes="0">
                               <Group type="103" groupAlignment="1" attributes="0">
-                                  <Component id="preprocessor" alignment="0" pref="554" max="32767" attributes="3"/>
+                                  <Component id="preprocessor" alignment="0" pref="559" max="32767" attributes="3"/>
                                   <Group type="102" alignment="0" attributes="0">
                                       <Group type="103" groupAlignment="0" attributes="0">
                                           <Component id="summaryNameField" alignment="0" min="-2" pref="200" max="-2" attributes="0"/>
@@ -122,7 +122,7 @@
                                           <Component id="synchronousCheckBox" alignment="0" min="-2" max="-2" attributes="0"/>
                                       </Group>
                                   </Group>
-                                  <Component id="jScrollPane1" alignment="0" pref="554" max="32767" attributes="2"/>
+                                  <Component id="jScrollPane1" alignment="0" pref="559" max="32767" attributes="2"/>
                               </Group>
                               <EmptySpace min="-2" pref="10" max="-2" attributes="0"/>
                           </Group>
@@ -532,7 +532,7 @@
               <Layout>
                 <DimensionLayout dim="0">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <EmptySpace min="0" pref="692" max="32767" attributes="0"/>
+                      <EmptySpace min="0" pref="666" max="32767" attributes="0"/>
                   </Group>
                 </DimensionLayout>
                 <DimensionLayout dim="1">
@@ -631,7 +631,7 @@
               <Layout>
                 <DimensionLayout dim="0">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <EmptySpace min="0" pref="500" max="32767" attributes="0"/>
+                      <EmptySpace min="0" pref="474" max="32767" attributes="0"/>
                   </Group>
                 </DimensionLayout>
                 <DimensionLayout dim="1">
