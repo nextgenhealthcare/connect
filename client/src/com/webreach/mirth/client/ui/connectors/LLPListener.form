@@ -55,8 +55,8 @@
                   <Component id="successACKCodeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="errorACKCodeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="rejectedACKCodeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel40" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel41" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="mshAckAcceptLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="ackOnNewConnectionLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="ackIPLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="ackPortLabel" alignment="1" min="-2" max="-2" attributes="0"/>
               </Group>
@@ -250,13 +250,13 @@
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="jLabel40" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="mshAckAcceptLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="mshAckAcceptYes" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="mshAckAcceptNo" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="jLabel41" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="ackOnNewConnectionLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="ackOnNewConnectionYes" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="ackOnNewConnectionNo" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
@@ -562,7 +562,7 @@
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="rejectedACKMessage">
     </Component>
-    <Component class="javax.swing.JLabel" name="jLabel40">
+    <Component class="javax.swing.JLabel" name="mshAckAcceptLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="MSH-15 ACK Accept:"/>
       </Properties>
@@ -605,7 +605,7 @@
         </Property>
       </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="jLabel41">
+    <Component class="javax.swing.JLabel" name="ackOnNewConnectionLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="ACK on New Connection:"/>
       </Properties>

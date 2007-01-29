@@ -344,10 +344,10 @@ public class LLPListener extends ConnectorClass
         errorACKMessageLabel = new javax.swing.JLabel();
         errorACKMessage = new com.webreach.mirth.client.ui.components.MirthTextField();
         rejectedACKMessage = new com.webreach.mirth.client.ui.components.MirthTextField();
-        jLabel40 = new javax.swing.JLabel();
+        mshAckAcceptLabel = new javax.swing.JLabel();
         mshAckAcceptYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         mshAckAcceptNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        jLabel41 = new javax.swing.JLabel();
+        ackOnNewConnectionLabel = new javax.swing.JLabel();
         ackOnNewConnectionYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         ackOnNewConnectionNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         ackIPLabel = new javax.swing.JLabel();
@@ -457,7 +457,7 @@ public class LLPListener extends ConnectorClass
 
         errorACKMessageLabel.setText("Message:");
 
-        jLabel40.setText("MSH-15 ACK Accept:");
+        mshAckAcceptLabel.setText("MSH-15 ACK Accept:");
 
         mshAckAcceptYes.setBackground(new java.awt.Color(255, 255, 255));
         mshAckAcceptYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -471,7 +471,7 @@ public class LLPListener extends ConnectorClass
         mshAckAcceptNo.setText("No");
         mshAckAcceptNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-        jLabel41.setText("ACK on New Connection:");
+        ackOnNewConnectionLabel.setText("ACK on New Connection:");
 
         ackOnNewConnectionYes.setBackground(new java.awt.Color(255, 255, 255));
         ackOnNewConnectionYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -531,8 +531,8 @@ public class LLPListener extends ConnectorClass
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, successACKCodeLabel)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, errorACKCodeLabel)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, rejectedACKCodeLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel40)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel41)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, mshAckAcceptLabel)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, ackOnNewConnectionLabel)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, ackIPLabel)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, ackPortLabel))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -695,12 +695,12 @@ public class LLPListener extends ConnectorClass
                     .add(rejectedACKMessage, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel40)
+                    .add(mshAckAcceptLabel)
                     .add(mshAckAcceptYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(mshAckAcceptNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel41)
+                    .add(ackOnNewConnectionLabel)
                     .add(ackOnNewConnectionYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(ackOnNewConnectionNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -776,6 +776,27 @@ public class LLPListener extends ConnectorClass
         rejectedACKCodeLabel.setEnabled(true);
         rejectedACKMessageLabel.setEnabled(true);
         
+        ackOnNewConnectionNo.setEnabled(true);
+        ackOnNewConnectionYes.setEnabled(true);
+        ackOnNewConnectionLabel.setEnabled(true);
+        mshAckAcceptNo.setEnabled(true);
+        mshAckAcceptYes.setEnabled(true);
+        mshAckAcceptLabel.setEnabled(true);
+        
+        if(ackOnNewConnectionYes.isEnabled())
+        {
+            ackIPAddressField.setEnabled(true);
+            ackIPAddressField1.setEnabled(true);
+            ackIPAddressField2.setEnabled(true);
+            ackIPAddressField3.setEnabled(true);
+            ackPortField.setEnabled(true);
+
+            ipDot.setEnabled(true);
+            ipDot1.setEnabled(true);
+            ipDot2.setEnabled(true);
+            ackIPLabel.setEnabled(true);
+            ackPortLabel.setEnabled(true);
+        }
     }//GEN-LAST:event_sendACKYesActionPerformed
 
     private void sendACKNoActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_sendACKNoActionPerformed
@@ -793,6 +814,25 @@ public class LLPListener extends ConnectorClass
         errorACKMessageLabel.setEnabled(false);
         rejectedACKCodeLabel.setEnabled(false);
         rejectedACKMessageLabel.setEnabled(false);
+        
+        ackIPAddressField.setEnabled(false);
+        ackIPAddressField1.setEnabled(false);
+        ackIPAddressField2.setEnabled(false);
+        ackIPAddressField3.setEnabled(false);
+        ackPortField.setEnabled(false);
+
+        ipDot.setEnabled(false);
+        ipDot1.setEnabled(false);
+        ipDot2.setEnabled(false);
+        ackIPLabel.setEnabled(false);
+        ackPortLabel.setEnabled(false);
+
+        ackOnNewConnectionNo.setEnabled(false);
+        ackOnNewConnectionYes.setEnabled(false);
+        ackOnNewConnectionLabel.setEnabled(false);
+        mshAckAcceptNo.setEnabled(false);
+        mshAckAcceptYes.setEnabled(false);
+        mshAckAcceptLabel.setEnabled(false);
     }//GEN-LAST:event_sendACKNoActionPerformed
 
 
@@ -802,6 +842,7 @@ public class LLPListener extends ConnectorClass
     private com.webreach.mirth.client.ui.components.MirthTextField ackIPAddressField2;
     private com.webreach.mirth.client.ui.components.MirthTextField ackIPAddressField3;
     private javax.swing.JLabel ackIPLabel;
+    private javax.swing.JLabel ackOnNewConnectionLabel;
     private com.webreach.mirth.client.ui.components.MirthRadioButton ackOnNewConnectionNo;
     private com.webreach.mirth.client.ui.components.MirthRadioButton ackOnNewConnectionYes;
     private com.webreach.mirth.client.ui.components.MirthTextField ackPortField;
@@ -834,8 +875,6 @@ public class LLPListener extends ConnectorClass
     private javax.swing.JLabel jLabel38;
     private javax.swing.JLabel jLabel39;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel40;
-    private javax.swing.JLabel jLabel41;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel9;
@@ -847,6 +886,7 @@ public class LLPListener extends ConnectorClass
     private com.webreach.mirth.client.ui.components.MirthTextField listenerIPAddressField2;
     private com.webreach.mirth.client.ui.components.MirthTextField listenerIPAddressField3;
     private com.webreach.mirth.client.ui.components.MirthTextField listenerPortField;
+    private javax.swing.JLabel mshAckAcceptLabel;
     private com.webreach.mirth.client.ui.components.MirthRadioButton mshAckAcceptNo;
     private com.webreach.mirth.client.ui.components.MirthRadioButton mshAckAcceptYes;
     private com.webreach.mirth.client.ui.components.MirthTextField receiveTimeoutField;
