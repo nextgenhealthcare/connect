@@ -181,7 +181,7 @@ public class ChannelWizard extends javax.swing.JDialog
 
         jLabel6.setText("Channel Protocol:");
 
-        channelProtocol.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "HL7 v2.X", "HL7 v3.0" }));
+        channelProtocol.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "HL7 v2.X", "HL7 v3.0", "X12" }));
 
         org.jdesktop.layout.GroupLayout channelOverviewLayout = new org.jdesktop.layout.GroupLayout(channelOverview);
         channelOverview.setLayout(channelOverviewLayout);
@@ -427,17 +427,17 @@ public class ChannelWizard extends javax.swing.JDialog
 
     private void applicationIntegrationActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_applicationIntegrationActionPerformed
     {//GEN-HEADEREND:event_applicationIntegrationActionPerformed
-        helpText2.setText("Single HL7 data feed that will be filtered and transformed into another data type to be used by an application. The application response is sent back as a formatted and validated HL7 message. This pattern would be used with synchronous responses such as web services or remote procedure calls.");
+        helpText2.setText("Single data feed that will be filtered and transformed into another data type to be used by an application. The application response is sent back as a formatted and validated message. This pattern would be used with synchronous responses such as web services or remote procedure calls.");
     }//GEN-LAST:event_applicationIntegrationActionPerformed
 
     private void routerActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_routerActionPerformed
     {//GEN-HEADEREND:event_routerActionPerformed
-        helpText2.setText("Single HL7 data feed that will be routed to several systems which require their own unique filtering and transformation. Data may also be also transformed and written to a data source such as a database or a file system.");
+        helpText2.setText("Single data feed that will be routed to several systems which require their own unique filtering and transformation. Data may also be also transformed and written to a data source such as a database or a file system.");
     }//GEN-LAST:event_routerActionPerformed
 
     private void broadcastActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_broadcastActionPerformed
     {//GEN-HEADEREND:event_broadcastActionPerformed
-        helpText2.setText("Single HL7 data feed that will be filtered, transformed, and broadcast to several systems.");
+        helpText2.setText("Single  data feed that will be filtered, transformed, and broadcast to several systems.");
     }//GEN-LAST:event_broadcastActionPerformed
 
     private void channelNameKeyReleased(java.awt.event.KeyEvent evt)//GEN-FIRST:event_channelNameKeyReleased
@@ -451,7 +451,7 @@ public class ChannelWizard extends javax.swing.JDialog
 
     private void outboundActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_outboundActionPerformed
     {//GEN-HEADEREND:event_outboundActionPerformed
-        helpText1.setText("The server will read data from an endpoint and create HL7 messages.");
+        helpText1.setText("The server will read data from an endpoint and create messages of the selected type.");
         this.nextButton.setText("Finish");
     }//GEN-LAST:event_outboundActionPerformed
 
@@ -489,6 +489,8 @@ public class ChannelWizard extends javax.swing.JDialog
             channel.setProtocol(Channel.Protocol.HL7);
         else if(((String)channelProtocol.getSelectedItem()).equalsIgnoreCase("HL7 v3.0"))
             channel.setProtocol(Channel.Protocol.HL7v3);
+        else if(((String)channelProtocol.getSelectedItem()).equalsIgnoreCase("X12"))
+            channel.setProtocol(Channel.Protocol.X12);
         
         if(inbound.isSelected())
         {
@@ -510,7 +512,7 @@ public class ChannelWizard extends javax.swing.JDialog
     
     private void inboundActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_inboundActionPerformed
     {//GEN-HEADEREND:event_inboundActionPerformed
-        helpText1.setText("The server will listen for HL7 messages or read them from a file and transform them for use by other systems, or into different HL7 messages.");
+        helpText1.setText("The server will listen for or read incoming messages and transform or extract data for use by other systems.");
         this.nextButton.setText("Next");
     }//GEN-LAST:event_inboundActionPerformed
 
