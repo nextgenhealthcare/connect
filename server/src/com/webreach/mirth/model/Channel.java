@@ -50,7 +50,7 @@ public class Channel implements Serializable {
 	};
 
 	public enum Protocol {
-		HL7, X12, XML
+		HL7, X12, XML, HL7v3
 	}
 
 	private String id;
