@@ -9,12 +9,18 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		<parameter property="username" />
 		<parameter property="password" />
 		<parameter property="email" jdbcType="VARCHAR" />
+		<parameter property="phoneNumber" jdbcType="VARCHAR" />
+		<parameter property="fullName" jdbcType="VARCHAR" />
+		<parameter property="description" jdbcType="VARCHAR" />
 	</parameterMap>
 
 	<parameterMap class="com.webreach.mirth.model.User" id="update-user-param">
 		<parameter property="username" />
 		<parameter property="password" />
 		<parameter property="email" jdbcType="VARCHAR" />
+		<parameter property="phoneNumber" jdbcType="VARCHAR" />
+		<parameter property="fullName" jdbcType="VARCHAR" />
+		<parameter property="description" jdbcType="VARCHAR" />
 		<parameter property="id" jdbcType="INTEGER" />
 	</parameterMap>
 
@@ -23,8 +29,11 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		<result property="username" column="USERNAME" />
 		<result property="password" column="PASSWORD" />
 		<result property="email" column="EMAIL" />
+		<result property="phoneNumber" column="PHONENUMBER" />
+		<result property="fullName" column="FULLNAME" />
+		<result property="description" column="DESCRIPTION" />
 	</resultMap>
-	
+
 	<select id="getUser" parameterClass="com.webreach.mirth.model.User" resultMap="get-user-result">
 		SELECT *
 		FROM PERSON
@@ -43,15 +52,18 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 	
 	<insert id="insertUser" parameterMap="insert-user-param">
 		INSERT INTO
-		PERSON (USERNAME, PASSWORD, EMAIL)
-		VALUES (?, ?, ?)
+		PERSON (USERNAME, PASSWORD, FULLNAME, EMAIL, PHONENUMBER, DESCRIPTION)
+		VALUES (?, ?, ?, ?, ?, ?)
 	</insert>
 	
 	<update id="updateUser" parameterMap="update-user-param">
 		UPDATE PERSON
 		SET USERNAME = ?,
 			PASSWORD = ?,
-			EMAIL = ?
+			FULLNAME = ?,
+			EMAIL = ?,
+			PHONENUMBER = ?,
+			DESCRIPTION = ?
 		WHERE ID = ?
 	</update>
 	

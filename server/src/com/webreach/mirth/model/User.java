@@ -35,7 +35,10 @@ public class User implements Serializable {
 	private String username;
 	private String password;
 	private String email;
-
+	private String fullName;
+	private String description;
+	private String phoneNumber;
+	
 	public String getId() {
 		return this.id;
 	}
@@ -67,6 +70,30 @@ public class User implements Serializable {
 	public void setEmail(String email) {
 		this.email = email;
 	}
+	
+	public String getFullName() {
+		return this.fullName;
+	}
+
+	public void setFullName(String fullName) {
+		this.fullName = fullName;
+	}
+	
+	public String getDescription() {
+		return this.description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+	
+	public String getPhoneNumber() {
+		return this.phoneNumber;
+	}
+
+	public void setPhoneNumber(String phoneNumber) {
+		this.phoneNumber = phoneNumber;
+	}
 
 	public boolean equals(Object that) {
 		if (this == that) {
@@ -83,7 +110,10 @@ public class User implements Serializable {
 			EqualsUtil.areEqual(this.getId(), user.getId()) &&
 			EqualsUtil.areEqual(this.getUsername(), user.getUsername()) &&
 			EqualsUtil.areEqual(this.getPassword(), user.getPassword()) &&
-			EqualsUtil.areEqual(this.getEmail(), user.getEmail());
+			EqualsUtil.areEqual(this.getEmail(), user.getEmail()) &&
+			EqualsUtil.areEqual(this.getFullName(), user.getFullName()) &&
+			EqualsUtil.areEqual(this.getDescription(), user.getDescription()) &&
+			EqualsUtil.areEqual(this.getPhoneNumber(), user.getPhoneNumber());
 	}
 
 	public String toString() {
@@ -92,7 +122,10 @@ public class User implements Serializable {
 		builder.append("id=" + getId() + ", ");
 		builder.append("username=" + getUsername() + ", ");
 		builder.append("password=" + getPassword() + ", ");
-		builder.append("email=" + getEmail());
+		builder.append("email=" + getEmail() + ", ");
+		builder.append("fullname=" + getFullName() + ", ");
+		builder.append("description=" + getDescription() + ", ");
+		builder.append("phonenumber=" + getPhoneNumber());
 		builder.append("]");
 		return builder.toString();
 	}
