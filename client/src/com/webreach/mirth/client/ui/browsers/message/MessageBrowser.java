@@ -240,7 +240,7 @@ public class MessageBrowser extends javax.swing.JPanel
                 
                 if(answer.equals("HTML"))
                 {
-                    String name = parent.status.get(parent.statusPanel.getSelectedStatus()).getName();
+                    String name = parent.status.get(parent.dashboardPanel.getSelectedStatus()).getName();
                     File rawFile = new File(exportFile.getParent() + "/" + name + "_raw_messages.txt");
                     File transformedFile = new File(exportFile.getParent() + "/" + name + "_transformed_messages.txt");
                     File encodedFile= new File(exportFile.getParent() + "/" + name + "_encoded_messages.txt");
@@ -1034,7 +1034,7 @@ public class MessageBrowser extends javax.swing.JPanel
         
         messageObjectFilter = new MessageObjectFilter();
         
-        messageObjectFilter.setChannelId(parent.status.get(parent.statusPanel.getSelectedStatus()).getChannelId());
+        messageObjectFilter.setChannelId(parent.status.get(parent.dashboardPanel.getSelectedStatus()).getChannelId());
         
         if (!connectorField.getText().equals(""))
             messageObjectFilter.setConnectorName(connectorField.getText());

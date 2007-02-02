@@ -272,7 +272,7 @@
           <Properties>
             <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
               <StringArray count="3">
-                <StringItem index="0" value="HL7 v2.X"/>
+                <StringItem index="0" value="HL7 v2.x"/>
                 <StringItem index="1" value="HL7 v3.0"/>
                 <StringItem index="2" value="X12"/>
               </StringArray>

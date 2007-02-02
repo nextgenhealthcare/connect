@@ -31,6 +31,7 @@ import java.util.prefs.Preferences;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
+import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -42,11 +43,26 @@ import org.jdesktop.swingx.decorator.HighlighterPipeline;
 import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.model.ChannelStatistics;
 import com.webreach.mirth.model.ChannelStatus;
+import java.awt.Graphics2D;
+import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
+import java.util.Timer;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.XYDotRenderer;
+import org.jfree.data.category.CategoryDataset;
+import org.jfree.data.category.DefaultCategoryDataset;
+import org.jfree.data.xy.XYDataset;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
 
 /**
- * The main status panel.
+ * The main dashboard panel.
  */
-public class StatusPanel extends javax.swing.JPanel 
+public class DashboardPanel extends javax.swing.JPanel 
 {
     private final String STATUS_COLUMN_NAME = "Status";
     private final String NAME_COLUMN_NAME = "Name";
@@ -60,8 +76,8 @@ public class StatusPanel extends javax.swing.JPanel
     private Frame parent;
     private String lastIndex = null;
     
-    /** Creates new form statusPanel */
-    public StatusPanel() 
+    /** Creates new form DashboardPanel */
+    public DashboardPanel() 
     {  
         this.parent = PlatformUI.MIRTH_FRAME;
         initComponents();
@@ -70,7 +86,7 @@ public class StatusPanel extends javax.swing.JPanel
     }
     
     /**
-     * Initializes the status panel layout, table, and mouse listeners.
+     * Initializes the dashboard panel layout, table, and mouse listeners.
      */
     private void initComponents()
     {
@@ -95,13 +111,18 @@ public class StatusPanel extends javax.swing.JPanel
         
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
+        
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(statusPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, statusPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(statusPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 300, Short.MAX_VALUE)
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                .add(statusPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED))
         );
     }
     

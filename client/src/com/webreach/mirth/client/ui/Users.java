@@ -45,8 +45,11 @@ import com.webreach.mirth.model.User;
  */
 public class Users extends javax.swing.JScrollPane 
 {
-    private final String USER_ID_COLUMN_NAME = "User ID";
+    private final String USER_EMAIL_COLUMN_NAME = "Email";
     private final String USERNAME_COLUMN_NAME = "Username";
+    private final String USERFULLNAME_COLUMN_NAME = "Full Name";
+    private final String USERPHONENUMBER_COLUMN_NAME = "Phone Number";
+    private final String USERDESCRIPTION_COLUMN_NAME = "Description";
     
     public JXTable usersTable;
     
@@ -97,14 +100,17 @@ public class Users extends javax.swing.JScrollPane
         
         if(parent.users != null)
         {
-            tableData = new Object[parent.users.size()][3];
+            tableData = new Object[parent.users.size()][5];
 
             for (int i=0; i < parent.users.size(); i++)
             {
                 User temp = parent.users.get(i);
 
-                tableData[i][0] = "" + temp.getId();
-                tableData[i][1] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/user.png")), temp.getUsername());
+                tableData[i][0] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/user.png")), temp.getUsername());
+                tableData[i][1] = temp.getFullName();
+                tableData[i][2] = temp.getEmail();
+                tableData[i][3] = temp.getPhoneNumber();
+                tableData[i][4] = temp.getDescription();
             } 
         }
         
@@ -112,13 +118,13 @@ public class Users extends javax.swing.JScrollPane
             tableData,
             new String []
             {
-                USER_ID_COLUMN_NAME, USERNAME_COLUMN_NAME
+                USERNAME_COLUMN_NAME, USERFULLNAME_COLUMN_NAME, USER_EMAIL_COLUMN_NAME, USERPHONENUMBER_COLUMN_NAME, USERDESCRIPTION_COLUMN_NAME
             }
         )
         {
             boolean[] canEdit = new boolean []
             {
-                false, false
+                false, false, false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex)
@@ -130,10 +136,12 @@ public class Users extends javax.swing.JScrollPane
         usersTable.setSelectionMode(0);
         
         usersTable.getColumnExt(USERNAME_COLUMN_NAME).setCellRenderer(new ImageCellRenderer());        
-        usersTable.getColumnExt(USER_ID_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
+        usersTable.getColumnExt(USER_EMAIL_COLUMN_NAME).setHeaderRenderer(PlatformUI.CENTER_COLUMN_HEADER_RENDERER); 
         
-        usersTable.getColumnExt(USER_ID_COLUMN_NAME).setCellRenderer(new CenterCellRenderer());
-        usersTable.getColumnExt(USER_ID_COLUMN_NAME).setHeaderRenderer(PlatformUI.CENTER_COLUMN_HEADER_RENDERER); 
+        usersTable.getColumnExt(USERNAME_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
+        usersTable.getColumnExt(USERFULLNAME_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
+        usersTable.getColumnExt(USER_EMAIL_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
+        usersTable.getColumnExt(USERPHONENUMBER_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
         
         usersTable.packTable(UIConstants.COL_MARGIN);
         

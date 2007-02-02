@@ -33,17 +33,19 @@ import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
 
 /**
- * The main administration panel.
+ * The main configuration panel.
  */
-public class AdminPanel extends javax.swing.JPanel
+public class ConfigurationPanel extends javax.swing.JPanel
 {
     public Users userPane;
 
     private static Preferences userPreferences;
     private Frame parent;
 
-    /** Creates new form AdminPanel */
-    public AdminPanel()
+    /**
+     * Creates new form ConfigurationPanel
+     */
+    public ConfigurationPanel()
     {
         this.parent = PlatformUI.MIRTH_FRAME;
         initComponents();
@@ -94,7 +96,7 @@ public class AdminPanel extends javax.swing.JPanel
     {
         buttonGroup1 = new javax.swing.ButtonGroup();
         buttonGroup2 = new javax.swing.ButtonGroup();
-        adminPanel = new javax.swing.JTabbedPane();
+        configPanel = new javax.swing.JTabbedPane();
         users = new javax.swing.JPanel();
         settings = new javax.swing.JPanel();
         jPanel1 = new javax.swing.JPanel();
@@ -118,8 +120,8 @@ public class AdminPanel extends javax.swing.JPanel
         rowHighlightNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
 
         setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        adminPanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        adminPanel.setFocusable(false);
+        configPanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        configPanel.setFocusable(false);
         users.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         users.setFocusable(false);
         users.addComponentListener(new java.awt.event.ComponentAdapter()
@@ -140,7 +142,7 @@ public class AdminPanel extends javax.swing.JPanel
             usersLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(0, 414, Short.MAX_VALUE)
         );
-        adminPanel.addTab("Users", users);
+        configPanel.addTab("Users", users);
 
         settings.setBackground(new java.awt.Color(255, 255, 255));
         settings.setFocusable(false);
@@ -323,17 +325,17 @@ public class AdminPanel extends javax.swing.JPanel
                 .add(jPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
         );
-        adminPanel.addTab("Settings", settings);
+        configPanel.addTab("Settings", settings);
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, adminPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 552, Short.MAX_VALUE)
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, configPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 552, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(adminPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 442, Short.MAX_VALUE)
+            .add(configPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 442, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -440,7 +442,7 @@ public class AdminPanel extends javax.swing.JPanel
     
     public void showFirstTab()
     {
-        adminPanel.setSelectedIndex(0);
+        configPanel.setSelectedIndex(0);
     }
 
     /** Saves the current settings from the settings form */
@@ -488,9 +490,9 @@ public class AdminPanel extends javax.swing.JPanel
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JTabbedPane adminPanel;
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.ButtonGroup buttonGroup2;
+    private javax.swing.JTabbedPane configPanel;
     private com.webreach.mirth.client.ui.components.MirthTextField intervalTime;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;

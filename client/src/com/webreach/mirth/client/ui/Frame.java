@@ -97,9 +97,9 @@ public class Frame extends JXFrame
     
     public Client mirthClient;
 
-    public StatusPanel statusPanel;
+    public DashboardPanel dashboardPanel;
     public ChannelPanel channelPanel;
-    public AdminPanel adminPanel;
+    public ConfigurationPanel configurationPanel;
     public ChannelSetup channelEditPanel;
     public EventBrowser eventBrowser;
     public MessageBrowser messageBrowser;
@@ -149,18 +149,15 @@ public class Frame extends JXFrame
     private StatusUpdater su;
     private boolean connectionError;
     private boolean statusUpdateComplete = true;
-    //ast: charset encoding list
     private ArrayList<CharsetEncodingInformation>  avaiableCharsetEncodings=null;
     private List<String> charsetEncodings=null;
     
     
     public Frame()
     {
-       // dsb = new DropShadowBorder(UIManager.getColor("Control"), 0, ., .3f, 12, true, true, true, true);
     	dsb = BorderFactory.createEmptyBorder();
     	leftContainer = new JXTitledPanel();
         rightContainer = new JXTitledPanel();
-        //rightContainer.setDoubleBuffered(true);
         channels = new HashMap<String, Channel>();
         
         taskPaneContainer = new JXTaskPaneContainer();
@@ -187,24 +184,29 @@ public class Frame extends JXFrame
         });
     }
     
-    //ast: encoding
     /**
      * Prepares the list of the encodings
      * This method is called from the ChannelSetup class
      *
      **/
-    public synchronized void setCharsetEncodings(){
-        if (this.avaiableCharsetEncodings!=null) return;
-        try{            
+    public void setCharsetEncodings()
+    {
+        if (this.avaiableCharsetEncodings!=null) 
+            return;
+        try
+        {            
             this.charsetEncodings=this.mirthClient.getAvaiableCharsetEncodings();
             this.avaiableCharsetEncodings=new ArrayList();
             this.avaiableCharsetEncodings.add(new CharsetEncodingInformation(UIConstants.DEFAULT_ENCODING_OPTION,"Default"));
-            for (int i=0;i<charsetEncodings.size();i++){
+            for (int i=0;i<charsetEncodings.size();i++)
+            {
                 String canonical=(String) charsetEncodings.get(i);
                 this.avaiableCharsetEncodings.add(new CharsetEncodingInformation(canonical,canonical));
             }       
-        }catch(Exception e){
-            alertInformation("Error getting the charset list\n "+e);
+        }
+        catch(Exception e)
+        {
+            alertError("Error getting the charset list\n "+e);
         }
     }
     
@@ -213,9 +215,10 @@ public class Frame extends JXFrame
      *
      *  This method is called from each  channel
      */
-    //ast: encoding
-    public void setupCharsetEncodingForChannel(javax.swing.JComboBox channelCombo){
-        if (this.avaiableCharsetEncodings==null){
+    public void setupCharsetEncodingForChannel(javax.swing.JComboBox channelCombo)
+    {
+        if (this.avaiableCharsetEncodings==null)
+        {
             this.setCharsetEncodings();
         }
         if (this.avaiableCharsetEncodings==null){
@@ -223,7 +226,8 @@ public class Frame extends JXFrame
             return;
         } 
         channelCombo.removeAllItems();    
-        for (int i=0;i<this.avaiableCharsetEncodings.size();i++){
+        for (int i=0;i<this.avaiableCharsetEncodings.size();i++)
+        {
             channelCombo.addItem(this.avaiableCharsetEncodings.get(i));
         }
     }
@@ -233,25 +237,32 @@ public class Frame extends JXFrame
      * If the server can't support the encoding, the default one is selectd
      *This method is called from each  channel
      */
-    //ast: encoding
-    public void sePreviousSelectedEncodingForChannel(javax.swing.JComboBox channelCombo,String selectedCharset){
-        if (this.avaiableCharsetEncodings==null){
+    public void sePreviousSelectedEncodingForChannel(javax.swing.JComboBox channelCombo,String selectedCharset)
+    {
+        if (this.avaiableCharsetEncodings==null)
+        {
             this.setCharsetEncodings();
         }
-        if (this.avaiableCharsetEncodings==null){
+        if (this.avaiableCharsetEncodings==null)
+        {
             logger.error("Error, no encodings detected ");
             return;
         }  
-        if ( (selectedCharset==null) || (selectedCharset.equalsIgnoreCase(UIConstants.DEFAULT_ENCODING_OPTION)) ){
+        if ( (selectedCharset==null) || (selectedCharset.equalsIgnoreCase(UIConstants.DEFAULT_ENCODING_OPTION)) )
+        {
             channelCombo.setSelectedIndex(0);
-        }else if (this.charsetEncodings.contains(selectedCharset)){            
+        }
+        else if (this.charsetEncodings.contains(selectedCharset))
+        {            
             int index=this.avaiableCharsetEncodings.indexOf(new CharsetEncodingInformation(selectedCharset,selectedCharset));            
             if (index<0){
                 logger.error("Syncro lost in the list of the encoding characters");
                 index=0;
             }
             channelCombo.setSelectedIndex(index);        
-        }else{
+        }
+        else
+        {
             alertInformation("Sorry, the JVM of the server, can't support the previously selected "+selectedCharset+ "encoding, please choose another one or install more encodings in the server");
             channelCombo.setSelectedIndex(0);
         }        
@@ -262,19 +273,21 @@ public class Frame extends JXFrame
      *
      * This method is called from each  channel
      */
-    //ast: encoding
-    public String getSelectedEncodingForChannel(javax.swing.JComboBox channelCombo){
-        try{
+    public String getSelectedEncodingForChannel(javax.swing.JComboBox channelCombo)
+    {
+        try
+        {
             return ((CharsetEncodingInformation)channelCombo.getSelectedItem()).getCanonicalName();        
-        }catch(Throwable t){
+        }
+        catch(Throwable t)
+        {
             alertInformation("Error "+t);
             return UIConstants.DEFAULT_ENCODING_OPTION;
         }
     }
-    
-    
+        
     /**
-     * Called to set up this main window frame.  Calls jbInit() as well.
+     * Called to set up this main window frame.
      */
     public void setupFrame(Client mirthClient)
     {
@@ -305,7 +318,7 @@ public class Frame extends JXFrame
         contentPanel.add(splitPane, java.awt.BorderLayout.CENTER);
         
         setCurrentTaskPaneContainer(taskPaneContainer);
-        doShowStatusPanel();
+        doShowDashboardPanel();
         channelEditPanel = new ChannelSetup();
         messageBrowser = new MessageBrowser();
         su = new StatusUpdater();
@@ -420,7 +433,7 @@ public class Frame extends JXFrame
     }
 
     /**
-     * Makes all of the task panes and shows the status panel.
+     * Makes all of the task panes and shows the dashboard panel.
      */
     private void makePaneContainer()
     {
@@ -428,7 +441,7 @@ public class Frame extends JXFrame
         createSettingsPane();
         createChannelPane();
         createChannelEditPane();
-        createStatusPane();
+        createDashboardPane();
         createEventPane();
         createMessagePane();
         createUserPane();
@@ -445,9 +458,9 @@ public class Frame extends JXFrame
         viewPane = new JXTaskPane();
         viewPane.setTitle("Mirth");
         viewPane.setFocusable(false);
-        viewPane.add(initActionCallback("doShowStatusPanel", "Contains information about your currently deployed channels.", ActionFactory.createBoundAction("showStatusPanel","Status","U"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/status.png"))));
+        viewPane.add(initActionCallback("doShowDashboardPanel", "Contains information about your currently deployed channels.", ActionFactory.createBoundAction("showDashboardPanel","Dashboard","H"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/status.png"))));
         viewPane.add(initActionCallback("doShowChannel", "Contains various operations to perform on your channels.", ActionFactory.createBoundAction("showChannelPannel","Channels","C"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/channel.png"))));
-        viewPane.add(initActionCallback("doShowAdminPage", "Contains user and system settings.", ActionFactory.createBoundAction("adminPage","Administration","A"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/admin.png"))));
+        viewPane.add(initActionCallback("doShowConfigurationPage", "Contains user and system settings.", ActionFactory.createBoundAction("configurationPage","Configuration","A"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/admin.png"))));
         setNonFocusable(viewPane);
         taskPaneContainer.add(viewPane);
     }
@@ -736,7 +749,7 @@ public class Frame extends JXFrame
     /**
      * Creates the status task pane.
      */
-    private void createStatusPane()
+    private void createDashboardPane()
     {
         // Create Status Tasks Pane
         statusTasks = new JXTaskPane();
@@ -1114,7 +1127,7 @@ public class Frame extends JXFrame
         if(message.indexOf("Unauthorized") != -1 || message.indexOf("reset") != -1)
         {
             connectionError = true;
-            if(currentContentPage == statusPanel)
+            if(currentContentPage == dashboardPanel)
                 su.interruptThread();
             alertWarning("Sorry your connection to Mirth has either timed out or there was an error in the connection.  Please login again.");
             if(!exportChannelOnError())
@@ -1127,7 +1140,7 @@ public class Frame extends JXFrame
         if(message.indexOf("Connection refused") != -1)
         {
             connectionError = true;
-            if(currentContentPage == statusPanel)
+            if(currentContentPage == dashboardPanel)
                 su.interruptThread();
             alertWarning("The Mirth server " + PlatformUI.SERVER_NAME + " is no longer running.  Please start it and login again.");
             if(!exportChannelOnError())
@@ -1243,14 +1256,14 @@ public class Frame extends JXFrame
 
             channelEditTasks.getContentPane().getComponent(0).setVisible(false);
         }
-        else if (adminPanel != null && settingsTasks.getContentPane().getComponent(1).isVisible())
+        else if (configurationPanel != null && settingsTasks.getContentPane().getComponent(1).isVisible())
         {
             int option = JOptionPane.showConfirmDialog(this, "Would you like to save the settings?");
 
             if (option == JOptionPane.YES_OPTION)
-                adminPanel.saveSettings();
+                configurationPanel.saveSettings();
             else if (option == JOptionPane.NO_OPTION)
-                adminPanel.loadSettings();
+                configurationPanel.loadSettings();
             else if (option == JOptionPane.CANCEL_OPTION || option == JOptionPane.CLOSED_OPTION)
                 return false;
 
@@ -1293,7 +1306,7 @@ public class Frame extends JXFrame
         {
             mirthClient.updateUser(curr);
             users = mirthClient.getUser(null);
-            adminPanel.userPane.makeUsersTable();
+            configurationPanel.userPane.makeUsersTable();
         }
         catch (ClientException e)
         {
@@ -1334,7 +1347,7 @@ public class Frame extends JXFrame
             channelEditPanel.transformerPane.modified = true;
         else if (channelEditPanel != null && currentContentPage == channelEditPanel.filterPane)
             channelEditPanel.filterPane.modified = true;
-        else if (adminPanel != null && currentContentPage == adminPanel)
+        else if (configurationPanel != null && currentContentPage == configurationPanel)
             settingsTasks.getContentPane().getComponent(1).setVisible(true);
     }
     
@@ -1345,7 +1358,7 @@ public class Frame extends JXFrame
     {
         if(currentContentPage == channelEditPanel)
             channelEditTasks.getContentPane().getComponent(0).setVisible(false);
-        else if (currentContentPage == adminPanel)
+        else if (currentContentPage == configurationPanel)
             settingsTasks.getContentPane().getComponent(1).setVisible(false);
     }
 
@@ -1372,17 +1385,17 @@ public class Frame extends JXFrame
         dlg.setVisible(true);
     }
 
-    public void doShowStatusPanel()
+    public void doShowDashboardPanel()
     {
-        if(statusPanel == null)
-            statusPanel = new StatusPanel();
+        if(dashboardPanel == null)
+            dashboardPanel = new DashboardPanel();
         
         if (!confirmLeave())
             return;
         
         setBold(viewPane, 0);
         setPanelName("Status");
-        setCurrentContentPage(statusPanel);
+        setCurrentContentPage(dashboardPanel);
         setFocus(statusTasks);
         
         setWorking(true);
@@ -1436,10 +1449,10 @@ public class Frame extends JXFrame
         worker.execute();
     }
 
-    public void doShowAdminPage()
+    public void doShowConfigurationPage()
     {        
-        if(adminPanel == null)
-            adminPanel = new AdminPanel();
+        if(configurationPanel == null)
+            configurationPanel = new ConfigurationPanel();
         
         if (!confirmLeave())
             return;
@@ -1451,11 +1464,11 @@ public class Frame extends JXFrame
             public Void doInBackground() 
             {
                 setBold(viewPane, 2);
-                setPanelName("Administration");
-                setCurrentContentPage(adminPanel);
+                setPanelName("Configuration");
+                setCurrentContentPage(configurationPanel);
                 doRefreshUser();
-                adminPanel.showTasks();
-                adminPanel.showFirstTab();
+                configurationPanel.showTasks();
+                configurationPanel.showFirstTab();
                 return null;
             }
             
@@ -1478,7 +1491,7 @@ public class Frame extends JXFrame
     
     public void logout()
     {
-        if(currentContentPage == statusPanel)
+        if(currentContentPage == dashboardPanel)
             su.interruptThread();
         
             userPreferences = Preferences.systemNodeForPackage(Mirth.class);
@@ -1731,7 +1744,7 @@ public class Frame extends JXFrame
         {
         	statusUpdateComplete = false;
             status = mirthClient.getChannelStatusList();
-            statusPanel.makeStatusTable();
+            dashboardPanel.makeStatusTable();
             statusUpdateComplete = true;
             if(status.size() > 0)
                 setVisibleTasks(statusTasks, statusPopupMenu, 1, 1, true);
@@ -1789,13 +1802,13 @@ public class Frame extends JXFrame
             {        
                 try
                 {
-                	if (statusPanel.getSelectedStatus() == -1){
+                	if (dashboardPanel.getSelectedStatus() == -1){
                 		return null;
                 	}
-                    if(status.get(statusPanel.getSelectedStatus()).getState() == ChannelStatus.State.STOPPED)
-                        mirthClient.startChannel(status.get(statusPanel.getSelectedStatus()).getChannelId());
-                    else if(status.get(statusPanel.getSelectedStatus()).getState() == ChannelStatus.State.PAUSED)
-                        mirthClient.resumeChannel(status.get(statusPanel.getSelectedStatus()).getChannelId());
+                    if(status.get(dashboardPanel.getSelectedStatus()).getState() == ChannelStatus.State.STOPPED)
+                        mirthClient.startChannel(status.get(dashboardPanel.getSelectedStatus()).getChannelId());
+                    else if(status.get(dashboardPanel.getSelectedStatus()).getState() == ChannelStatus.State.PAUSED)
+                        mirthClient.resumeChannel(status.get(dashboardPanel.getSelectedStatus()).getChannelId());
                 }
                 catch (ClientException e)
                 {
@@ -1824,10 +1837,10 @@ public class Frame extends JXFrame
             {        
                 try
                 {
-                	if (statusPanel.getSelectedStatus() == -1){
+                	if (dashboardPanel.getSelectedStatus() == -1){
                 		return null;
                 	}
-                    mirthClient.stopChannel(status.get(statusPanel.getSelectedStatus()).getChannelId());
+                    mirthClient.stopChannel(status.get(dashboardPanel.getSelectedStatus()).getChannelId());
                 }
                 catch (ClientException e)
                 {
@@ -1856,7 +1869,7 @@ public class Frame extends JXFrame
             {        
                 try
                 {
-                    mirthClient.pauseChannel(status.get(statusPanel.getSelectedStatus()).getChannelId());
+                    mirthClient.pauseChannel(status.get(dashboardPanel.getSelectedStatus()).getChannelId());
                 }
                 catch (ClientException e)
                 {
@@ -1978,12 +1991,14 @@ public class Frame extends JXFrame
     public void doEditUser()
     {
         doRefreshUser();
-
-        if (adminPanel.userPane.getUserIndex() == UIConstants.ERROR_CONSTANT)
+        
+        int index = configurationPanel.userPane.getUserIndex();
+        
+        if (index == UIConstants.ERROR_CONSTANT)
             JOptionPane.showMessageDialog(this, "User no longer exists.");
         else
         {
-            UserWizard userDialog = new UserWizard(adminPanel.userPane.getSelectedRow());
+            UserWizard userDialog = new UserWizard(index);
             Dimension dialogSize = userDialog.getPreferredSize();
             Dimension frmSize = getSize();
             Point loc = getLocation();
@@ -2012,8 +2027,8 @@ public class Frame extends JXFrame
                     return null;
                 }
 
-                int userToDelete = adminPanel.userPane.getUserIndex();
-                String userName = ((CellData)adminPanel.userPane.usersTable.getValueAt(adminPanel.userPane.getSelectedRow(), adminPanel.userPane.getColumnNumber("Username"))).getText();
+                int userToDelete = configurationPanel.userPane.getUserIndex();
+                String userName = ((CellData)configurationPanel.userPane.usersTable.getValueAt(configurationPanel.userPane.getSelectedRow(), configurationPanel.userPane.getColumnNumber("Username"))).getText();
 
                 setWorking(true);
                 try
@@ -2022,8 +2037,8 @@ public class Frame extends JXFrame
                    {
                         mirthClient.removeUser(users.get(userToDelete));
                         users = mirthClient.getUser(null);
-                        adminPanel.userPane.makeUsersTable();
-                        adminPanel.userPane.deselectRows();
+                        configurationPanel.userPane.makeUsersTable();
+                        configurationPanel.userPane.deselectRows();
                    }
                 }
                 catch (ClientException e)
@@ -2045,21 +2060,22 @@ public class Frame extends JXFrame
     public void doRefreshUser()
     {
         setWorking(true);
-
+        
         SwingWorker worker = new SwingWorker <Void, Void> ()
         {
             public Void doInBackground() 
             {        
                 User user = null;
                 String userName = null;
-
-                if(adminPanel.userPane.getUserIndex() != UIConstants.ERROR_CONSTANT)
-                    user = users.get(adminPanel.userPane.getUserIndex());
-
+                int index = configurationPanel.userPane.getUserIndex();
+                
+                if(index != UIConstants.ERROR_CONSTANT)
+                    user = users.get(index);
+                
                 try
                 {
                     users = mirthClient.getUser(null);
-                    adminPanel.userPane.makeUsersTable();
+                    configurationPanel.userPane.makeUsersTable();
 
                     if(user != null)
                     {
@@ -2077,7 +2093,7 @@ public class Frame extends JXFrame
 
                 // as long as the channel was not deleted
                 if (userName != null)
-                    adminPanel.userPane.setSelectedUser(userName);
+                    configurationPanel.userPane.setSelectedUser(userName);
                 return null;
             }
             
@@ -2102,7 +2118,7 @@ public class Frame extends JXFrame
                 try
                 {
                     mirthClient.deployChannels();
-                    statusPanel.deselectRows();
+                    dashboardPanel.deselectRows();
                 }
                 catch (ClientException e)
                 {
@@ -2113,7 +2129,7 @@ public class Frame extends JXFrame
             
             public void done()
             {
-                doShowStatusPanel();
+                doShowDashboardPanel();
                 setWorking(false);
             }
         };
@@ -2164,11 +2180,11 @@ public class Frame extends JXFrame
                 if(messageBrowser == null)
                     messageBrowser = new MessageBrowser();
 
-                if (statusPanel.getSelectedStatus() == -1)
+                if (dashboardPanel.getSelectedStatus() == -1)
                 	return null;
                 messageBrowser.makeMessageTable(null, 1);
             	setBold(viewPane, -1);
-                setPanelName("Channel Messages - " + status.get(statusPanel.getSelectedStatus()).getName());
+                setPanelName("Channel Messages - " + status.get(dashboardPanel.getSelectedStatus()).getName());
                 setCurrentContentPage(messageBrowser);
                 setFocus(messageTasks);
                 messageBrowser.loadNew();       
@@ -2239,7 +2255,7 @@ public class Frame extends JXFrame
         {
             public Void doInBackground() 
             {        
-                adminPanel.saveSettings();
+                configurationPanel.saveSettings();
                 return null;
             }
             
@@ -2284,8 +2300,8 @@ public class Frame extends JXFrame
             
             try
             {
-                 importChannel = (Channel)serializer.fromXML(channelXML.replaceAll("\\&\\#x0D;\\n", "\n").replaceAll("\\&\\#x0D;",""));
-             }
+                 importChannel = (Channel)serializer.fromXML(channelXML.replaceAll("\\&\\#x0D;\\n", "\n").replaceAll("\\&\\#x0D;","\n"));
+            }
             catch (Exception e)
             {
                 alertError("Invalid channel file.");
@@ -2533,8 +2549,8 @@ public class Frame extends JXFrame
                 {        
                     try
                     {
-                    	if (statusPanel.getSelectedStatus() > -1)
-                    		mirthClient.clearMessages(status.get(statusPanel.getSelectedStatus()).getChannelId());
+                    	if (dashboardPanel.getSelectedStatus() > -1)
+                    		mirthClient.clearMessages(status.get(dashboardPanel.getSelectedStatus()).getChannelId());
                         messageBrowser.refresh();
                         refreshStatuses();
                     }
@@ -2746,7 +2762,7 @@ public class Frame extends JXFrame
         {
             public Void doInBackground() 
             {        
-                adminPanel.loadSettings();
+                configurationPanel.loadSettings();
                 return null;
             }
             
@@ -2792,14 +2808,14 @@ public class Frame extends JXFrame
             BareBonesBrowserLaunch.openURL(UIConstants.HELP_LOCATION + UIConstants.CHANNEL_HELP_LOCATION);
         else if(currentContentPage == channelPanel)
             BareBonesBrowserLaunch.openURL(UIConstants.HELP_LOCATION + UIConstants.CHANNELS_HELP_LOCATION);
-        else if(currentContentPage == statusPanel)
-            BareBonesBrowserLaunch.openURL(UIConstants.HELP_LOCATION + UIConstants.STATUS_HELP_LOCATION);
+        else if(currentContentPage == dashboardPanel)
+            BareBonesBrowserLaunch.openURL(UIConstants.HELP_LOCATION + UIConstants.DASHBOARD_HELP_LOCATION);
         else if(currentContentPage == messageBrowser)
             BareBonesBrowserLaunch.openURL(UIConstants.HELP_LOCATION + UIConstants.MESSAGE_BROWSER_HELP_LOCATION);
         else if(currentContentPage == eventBrowser)
             BareBonesBrowserLaunch.openURL(UIConstants.HELP_LOCATION + UIConstants.SYSTEM_EVENT_HELP_LOCATION);
-        else if(currentContentPage == adminPanel)
-            BareBonesBrowserLaunch.openURL(UIConstants.HELP_LOCATION + UIConstants.ADMIN_HELP_LOCATION);
+        else if(currentContentPage == configurationPanel)
+            BareBonesBrowserLaunch.openURL(UIConstants.HELP_LOCATION + UIConstants.CONFIGURATION_HELP_LOCATION);
         else if(currentContentPage == channelEditPanel.transformerPane)
             BareBonesBrowserLaunch.openURL(UIConstants.HELP_LOCATION + UIConstants.TRANFORMER_HELP_LOCATION);
         else if(currentContentPage == channelEditPanel.filterPane)

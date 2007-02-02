@@ -26,6 +26,7 @@
 
 package com.webreach.mirth.client.ui;
 
+import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
 import java.awt.Cursor;
 
 import com.webreach.mirth.client.core.ClientException;
@@ -47,16 +48,29 @@ public class UserWizard extends javax.swing.JDialog
         this.parent = PlatformUI.MIRTH_FRAME;
         initComponents();
         finishButton.setEnabled(false);
+        index = row;
+        description.setDocument(new MirthFieldConstraints(200, false, false));
+        username.setDocument(new MirthFieldConstraints(40, false, false));
+        password1.setDocument(new MirthFieldConstraints(40, false, false));
+        password2.setDocument(new MirthFieldConstraints(40, false, false));
+        fullName.setDocument(new MirthFieldConstraints(40, false, false));
+        email.setDocument(new MirthFieldConstraints(255, false, false));
+        phoneNumber.setDocument(new MirthFieldConstraints(40, false, false));
+        description.setDocument(new MirthFieldConstraints(200, false, false));       
         
-        if(row != -1)
+        if(index != -1)
         {
+            User currentUser = this.parent.users.get(index);
+            
             jLabel2.setText("Edit User");
             jLabel2.setForeground(UIConstants.HEADER_TITLE_TEXT_COLOR);
-            index = this.parent.adminPanel.userPane.getUserIndex();
-            username.setText(this.parent.users.get(index).getUsername());     
-            password1.setText(this.parent.users.get(index).getPassword());
-            password2.setText(this.parent.users.get(index).getPassword());
-            email.setText(this.parent.users.get(index).getEmail());
+            username.setText(currentUser.getUsername());     
+            password1.setText(currentUser.getPassword());
+            password2.setText(currentUser.getPassword());
+            fullName.setText(currentUser.getFullName());
+            email.setText(currentUser.getEmail());
+            phoneNumber.setText(currentUser.getPhoneNumber());
+            description.setText(currentUser.getDescription());
             editingUser = true;
         }
         else
@@ -91,6 +105,13 @@ public class UserWizard extends javax.swing.JDialog
         jLabel2 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
         email = new javax.swing.JTextField();
+        jLabel6 = new javax.swing.JLabel();
+        fullName = new javax.swing.JTextField();
+        phoneNumber = new javax.swing.JTextField();
+        jLabel7 = new javax.swing.JLabel();
+        jLabel8 = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        description = new javax.swing.JTextArea();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("User Wizard");
@@ -157,7 +178,7 @@ public class UserWizard extends javax.swing.JDialog
             .add(mirthHeadingPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .add(jLabel2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 135, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(226, Short.MAX_VALUE))
+                .addContainerGap(236, Short.MAX_VALUE))
         );
         mirthHeadingPanel1Layout.setVerticalGroup(
             mirthHeadingPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -177,36 +198,76 @@ public class UserWizard extends javax.swing.JDialog
             }
         });
 
+        jLabel6.setText("Full Name:");
+
+        fullName.addKeyListener(new java.awt.event.KeyAdapter()
+        {
+            public void keyReleased(java.awt.event.KeyEvent evt)
+            {
+                fullNameKeyReleased(evt);
+            }
+        });
+
+        phoneNumber.addKeyListener(new java.awt.event.KeyAdapter()
+        {
+            public void keyReleased(java.awt.event.KeyEvent evt)
+            {
+                phoneNumberKeyReleased(evt);
+            }
+        });
+
+        jLabel7.setText("Phone Number:");
+
+        jLabel8.setText("Description:");
+
+        description.setColumns(20);
+        description.setRows(6);
+        description.setAutoscrolls(false);
+        description.addKeyListener(new java.awt.event.KeyAdapter()
+        {
+            public void keyReleased(java.awt.event.KeyEvent evt)
+            {
+                descriptionKeyReleased(evt);
+            }
+        });
+
+        jScrollPane1.setViewportView(description);
+
         org.jdesktop.layout.GroupLayout channelOverviewLayout = new org.jdesktop.layout.GroupLayout(channelOverview);
         channelOverview.setLayout(channelOverviewLayout);
         channelOverviewLayout.setHorizontalGroup(
             channelOverviewLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(channelOverviewLayout.createSequentialGroup()
-                .addContainerGap(226, Short.MAX_VALUE)
+                .addContainerGap(236, Short.MAX_VALUE)
                 .add(cancelButton)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(finishButton)
                 .add(9, 9, 9))
-            .add(mirthHeadingPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 371, Short.MAX_VALUE)
+            .add(mirthHeadingPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 381, Short.MAX_VALUE)
             .add(org.jdesktop.layout.GroupLayout.TRAILING, channelOverviewLayout.createSequentialGroup()
                 .addContainerGap()
-                .add(jSeparator1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 351, Short.MAX_VALUE)
+                .add(jSeparator1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 361, Short.MAX_VALUE)
                 .addContainerGap())
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, channelOverviewLayout.createSequentialGroup()
-                .addContainerGap(49, Short.MAX_VALUE)
-                .add(channelOverviewLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(jLabel5)
-                    .add(jLabel4)
-                    .add(jLabel3)
-                    .add(jLabel1))
+            .add(channelOverviewLayout.createSequentialGroup()
+                .add(26, 26, 26)
+                .add(channelOverviewLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel5)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel7)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel8)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel6)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel4)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel3)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel1))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(channelOverviewLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(channelOverviewLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                        .add(username, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 167, Short.MAX_VALUE)
-                        .add(password1)
-                        .add(password2))
-                    .add(email, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 167, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .add(59, 59, 59))
+                    .add(phoneNumber, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 175, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(email, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 175, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(fullName, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 175, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(password1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 175, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(username, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 175, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(password2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 175, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 228, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(31, Short.MAX_VALUE))
         );
 
         channelOverviewLayout.linkSize(new java.awt.Component[] {cancelButton, finishButton}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
@@ -215,23 +276,35 @@ public class UserWizard extends javax.swing.JDialog
             channelOverviewLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(org.jdesktop.layout.GroupLayout.TRAILING, channelOverviewLayout.createSequentialGroup()
                 .add(mirthHeadingPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 51, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(46, 46, 46)
+                .add(30, 30, 30)
                 .add(channelOverviewLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(username, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel1))
+                    .add(jLabel1)
+                    .add(username, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(channelOverviewLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(password1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel3))
+                    .add(jLabel3)
+                    .add(password1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(channelOverviewLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel4)
                     .add(password2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(channelOverviewLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jLabel6)
+                    .add(fullName, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(channelOverviewLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel5)
                     .add(email, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 49, Short.MAX_VALUE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(channelOverviewLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jLabel7)
+                    .add(phoneNumber, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(channelOverviewLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(jLabel8)
+                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 147, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 30, Short.MAX_VALUE)
                 .add(jSeparator1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(channelOverviewLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
@@ -252,6 +325,28 @@ public class UserWizard extends javax.swing.JDialog
         );
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void descriptionKeyReleased(java.awt.event.KeyEvent evt)//GEN-FIRST:event_descriptionKeyReleased
+    {//GEN-HEADEREND:event_descriptionKeyReleased
+        if(!checkIfAbleToFinish())
+            return;
+    }//GEN-LAST:event_descriptionKeyReleased
+
+    private void phoneNumberKeyReleased(java.awt.event.KeyEvent evt)//GEN-FIRST:event_phoneNumberKeyReleased
+    {//GEN-HEADEREND:event_phoneNumberKeyReleased
+        if(!checkIfAbleToFinish())
+            return;
+        if(evt.getKeyCode() == evt.VK_ENTER)
+            finishButtonActionPerformed(null);
+    }//GEN-LAST:event_phoneNumberKeyReleased
+
+    private void fullNameKeyReleased(java.awt.event.KeyEvent evt)//GEN-FIRST:event_fullNameKeyReleased
+    {//GEN-HEADEREND:event_fullNameKeyReleased
+        if(!checkIfAbleToFinish())
+            return;
+        if(evt.getKeyCode() == evt.VK_ENTER)
+            finishButtonActionPerformed(null);
+    }//GEN-LAST:event_fullNameKeyReleased
 
     private void emailKeyReleased(java.awt.event.KeyEvent evt)//GEN-FIRST:event_emailKeyReleased
     {//GEN-HEADEREND:event_emailKeyReleased
@@ -308,7 +403,10 @@ public class UserWizard extends javax.swing.JDialog
             
             temp.setUsername(username.getText());
             temp.setPassword(String.valueOf(password1.getPassword()));
+            temp.setFullName(fullName.getText());
             temp.setEmail(email.getText());
+            temp.setPhoneNumber(phoneNumber.getText());
+            temp.setDescription(description.getText());
             parent.updateUser(temp);
             this.dispose();
         }
@@ -345,17 +443,24 @@ public class UserWizard extends javax.swing.JDialog
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton cancelButton;
     private javax.swing.JPanel channelOverview;
+    private javax.swing.JTextArea description;
     private javax.swing.JTextField email;
     private javax.swing.JButton finishButton;
+    private javax.swing.JTextField fullName;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSeparator jSeparator1;
     private com.webreach.mirth.client.ui.MirthHeadingPanel mirthHeadingPanel1;
     private javax.swing.JPasswordField password1;
     private javax.swing.JPasswordField password2;
+    private javax.swing.JTextField phoneNumber;
     private javax.swing.JTextField username;
     // End of variables declaration//GEN-END:variables
     

@@ -81,10 +81,10 @@ public class UIConstants
     public static final String TRANFORMER_HELP_LOCATION = "transformereditor";
     public static final String FILTER_HELP_LOCATION = "filtereditor";
     public static final String CHANNELS_HELP_LOCATION = "channellist";
-    public static final String STATUS_HELP_LOCATION = "statuslist";
+    public static final String DASHBOARD_HELP_LOCATION = "statuslist";
     public static final String MESSAGE_BROWSER_HELP_LOCATION = "messagebrowser";
     public static final String SYSTEM_EVENT_HELP_LOCATION = "systemevents";
-    public static final String ADMIN_HELP_LOCATION = "administration";
+    public static final String CONFIGURATION_HELP_LOCATION = "administration";
 
     // for JTrees
     public static final ImageIcon LEAF_ICON = new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_green.png"));

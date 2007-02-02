@@ -783,7 +783,7 @@ public class LLPListener extends ConnectorClass
         mshAckAcceptYes.setEnabled(true);
         mshAckAcceptLabel.setEnabled(true);
         
-        if(ackOnNewConnectionYes.isEnabled())
+        if(ackOnNewConnectionYes.isSelected())
         {
             ackIPAddressField.setEnabled(true);
             ackIPAddressField1.setEnabled(true);

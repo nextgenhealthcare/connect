@@ -775,7 +775,7 @@ public class ChannelSetup extends javax.swing.JPanel
         else
             xmlPreEncoded.setSelected(false);
         
-        if (currentChannel.getProtocol() == Channel.Protocol.HL7v3)
+        if (currentChannel.getProtocol() == Channel.Protocol.HL7v3  || currentChannel.getDirection() == Channel.Direction.OUTBOUND) 
         {
             xmlPreEncoded.setSelected(true);
             xmlPreEncoded.setEnabled(false);

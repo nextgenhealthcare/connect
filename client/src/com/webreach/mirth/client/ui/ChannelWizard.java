@@ -181,7 +181,7 @@ public class ChannelWizard extends javax.swing.JDialog
 
         jLabel6.setText("Channel Protocol:");
 
-        channelProtocol.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "HL7 v2.X", "HL7 v3.0", "X12" }));
+        channelProtocol.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "HL7 v2.x", "HL7 v3.0", "X12" }));
 
         org.jdesktop.layout.GroupLayout channelOverviewLayout = new org.jdesktop.layout.GroupLayout(channelOverview);
         channelOverview.setLayout(channelOverviewLayout);
