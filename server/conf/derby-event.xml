@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap
+PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+"conf/sql-map-2.dtd">
+
+<sqlMap namespace="Event">
+	<parameterMap class="com.webreach.mirth.model.SystemEvent" id="insert-event-param">
+		<parameter property="event" jdbcType="CLOB" />
+		<parameter property="level" jdbcType="VARCHAR" />
+		<parameter property="description" jdbcType="CLOB" />
+		<parameter property="attributes" jdbcType="CLOB" />
+	</parameterMap>
+
+	<resultMap class="com.webreach.mirth.model.SystemEvent" id="get-event-result">
+		<result property="id" column="ID" />
+		<result property="date" column="DATE_CREATED" />
+		<result property="level" column="EVENT_LEVEL"/>
+		<result property="event" column="EVENT" />
+		<result property="description" column="DESCRIPTION" />
+		<result property="attributes" column="ATTRIBUTES" />
+	</resultMap>
+
+	<select id="getEvent" parameterClass="java.util.Map" resultMap="get-event-result">
+		SELECT *
+		FROM EVENT
+		<dynamic prepend="WHERE">
+			<isNotNull prepend="AND" property="event">
+				LOWER(EVENT) LIKE LOWER(#event#)
+			</isNotNull>
+			<isNotNull prepend="AND" property="level">
+				EVENT_LEVEL = #level#
+			</isNotNull>
+			<isNotNull prepend="AND" property="startDate">
+				DATE_CREATED <![CDATA[ >= ]]> #startDate#
+			</isNotNull>
+			<isNotNull prepend="AND" property="endDate">
+				DATE_CREATED <![CDATA[ <= ]]> #endDate#
+			</isNotNull>
+		</dynamic>
+		ORDER BY DATE_CREATED
+	</select>
+
+	<insert id="insertEvent" parameterMap="insert-event-param">
+		INSERT INTO
+		EVENT (EVENT, EVENT_LEVEL, DESCRIPTION, ATTRIBUTES)
+		VALUES (?, ?, ?, ?)
+	</insert>
+
+	<delete id="deleteEvent">
+		DELETE FROM EVENT
+	</delete>
+</sqlMap>

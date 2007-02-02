@@ -1,0 +1,51 @@
+<jnlp>
+	<information>
+		<title>Mirth Administrator</title>
+		<vendor>WebReach, Inc.</vendor>
+		<homepage href="http://www.mirthproject.org" />
+		<description>Open source HL7 integration engine.</description>
+		
+		<icon href="mirth_logo_64.jpg" />
+		<offline-allowed />
+		<shortcut online="false">
+		
+		            <!-- put a shortcut on the desktop -->
+		            <desktop/>
+		            <!-- put shortcut in start menu too -->
+		            <menu submenu="Mirth Project"/>
+        	</shortcut>
+	</information>
+	
+	
+	
+	<security>
+		<all-permissions />
+	</security>
+	
+	<resources>
+		<j2se href="http://java.sun.com/products/autodl/j2se" version="1.5" />
+		<jar download="eager" href="lib/mirth-client.jar" main="true" />
+		<jar download="eager" href="lib/mirth-client-core.jar" />
+		<jar download="eager" href="lib/commons-codec-1.3.jar" />
+		<jar download="eager" href="lib/commons-httpclient-3.0.1.jar" />
+		<jar download="eager" href="lib/commons-logging-1.1.jar" />
+		<jar download="eager" href="lib/databinding-0.8.0.jar" />
+		<jar download="eager" href="lib/hapi-0.5.jar" />
+		<jar download="eager" href="lib/jdic-0.8.0.jar" />
+		<jar download="eager" href="lib/l2fprod-common-sheet.jar" />
+		<jar download="eager" href="lib/log4j-1.2.14.jar" />
+		<jar download="eager" href="lib/looks-2.1.1.jar" />
+		<jar download="eager" href="lib/qname.jar" />
+		<jar download="eager" href="lib/rhino-1.6r2.jar" />
+		<jar download="eager" href="lib/swing-layout-1.0.1.jar" />
+		<jar download="eager" href="lib/swingworker-0.8.0.jar" />
+		<jar download="eager" href="lib/swingx-0.8.0.jar" />
+		<jar download="eager" href="lib/wsdl4j.jar" />
+		<jar download="eager" href="lib/wsif.jar" />
+		<jar download="eager" href="lib/xercesImpl.jar" />
+		<jar download="eager" href="lib/xpp3_min-1.1.3.4.O.jar" />
+		<jar download="eager" href="lib/xstream-1.2.jar" />
+	</resources>
+	
+	<application-desc main-class="com.webreach.mirth.client.ui.Mirth" />
+</jnlp>
