@@ -119,9 +119,9 @@ public class TransformerPane extends MirthEditorPane
         if (parent.channelEditTasks.getContentPane().getComponent(0).isVisible())
             modified = true;
         
-        tabPanel.BuildVarPanel();
         tabPanel.setDefaultComponent();
-        tabPanel.setHL7Message(transformer.getTemplate());
+        tabPanel.setInHL7Message(transformer.getIncomingTemplate());
+        tabPanel.setOutHL7Message(transformer.getOutgoingTemplate());
         channel = PlatformUI.MIRTH_FRAME.channelEditPanel.currentChannel;
 
         if (channel.getDirection().equals(Channel.Direction.OUTBOUND))
@@ -341,16 +341,14 @@ public class TransformerPane extends MirthEditorPane
         transformerTablePane.setBorder(BorderFactory.createEmptyBorder());
         stepPanel.setBorder(BorderFactory.createEmptyBorder());
         
-        hSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, stepPanel,
-                refPanel);
+        hSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, transformerTablePane, stepPanel);
         hSplitPane.setContinuousLayout(true);
-        hSplitPane
-                .setDividerLocation(EditorConstants.TAB_PANEL_DIVIDER_LOCATION);
+        hSplitPane.setDividerLocation((int)(PlatformUI.MIRTH_FRAME.currentContentPage.getWidth()/2));
         
-        vSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
-                transformerTablePane, hSplitPane);
+        vSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, hSplitPane, refPanel);
         vSplitPane.setContinuousLayout(true);
-        vSplitPane.setDividerLocation(EditorConstants.TABLE_DIVIDER_LOCATION);
+        vSplitPane.setDividerLocation((int)(PlatformUI.MIRTH_FRAME.currentContentPage.getHeight()/2));
+        
         hSplitPane.setBorder(BorderFactory.createEmptyBorder());
         vSplitPane.setBorder(BorderFactory.createEmptyBorder());
         this.setLayout(new BorderLayout());
@@ -1097,7 +1095,8 @@ public class TransformerPane extends MirthEditorPane
             
             transformer.setSteps(list);
             
-            transformer.setTemplate(tabPanel.getHL7Message());
+            transformer.setInTemplate(tabPanel.getIncomingHL7Message());
+            transformer.setOutTemplate(tabPanel.getOutgoingHL7Message());
             // reset the task pane and content to channel edit page
             if(returning)
             {

@@ -1394,7 +1394,7 @@ public class Frame extends JXFrame
             return;
         
         setBold(viewPane, 0);
-        setPanelName("Status");
+        setPanelName("Dashboard");
         setCurrentContentPage(dashboardPanel);
         setFocus(statusTasks);
         

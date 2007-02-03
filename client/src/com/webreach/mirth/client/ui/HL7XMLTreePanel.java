@@ -75,20 +75,19 @@ public class HL7XMLTreePanel extends JPanel {
 	private EncodingCharacters encodingChars;
 	private JTree tree;
 	private Logger logger = Logger.getLogger(this.getClass());
-	private String _dropPrefix = "msg";
-	private String _dropSuffix = ".toString()";
-	public HL7XMLTreePanel() {
+	private String _dropPrefix;
+	private String _dropSuffix;
+	public HL7XMLTreePanel(String prefix, String suffix) 
+        {
+                _dropPrefix = prefix;
+		_dropSuffix = suffix;
 		parser = new PipeParser();
 		parser.setValidationContext(new NoValidation());
 		xmlParser = new DefaultXMLParser();
 		encodingChars = new EncodingCharacters('|', null);
 		this.setLayout(new GridLayout(1, 1));
 		this.setBackground( Color.white );
-	}
-	public void setDroppedTextSuffixPrefix(String prefix, String suffix){
-		_dropPrefix = prefix;
-		_dropSuffix = suffix;
-	}
+        }
 	/**
 	 * Updates the panel with a new Message.
 	 */

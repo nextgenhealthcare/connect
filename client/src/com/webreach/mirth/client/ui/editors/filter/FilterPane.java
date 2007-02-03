@@ -127,7 +127,7 @@ public class FilterPane extends MirthEditorPane
             setRowData( s, row );
         }
         
-        tabPanel.setHL7Message( filter.getTemplate() );
+        //tabPanel.setHL7Message( filter.getTemplate() );
         tabPanel.setDefaultComponent();
         
         int rowCount = filterTableModel.getRowCount();
@@ -319,12 +319,12 @@ public class FilterPane extends MirthEditorPane
         hSplitPane = new JSplitPane( JSplitPane.HORIZONTAL_SPLIT,
                 rulePanel, refPanel );
         hSplitPane.setContinuousLayout( true );
-        hSplitPane.setDividerLocation( EditorConstants.TAB_PANEL_DIVIDER_LOCATION );
+        hSplitPane.setDividerLocation((int)(PlatformUI.MIRTH_FRAME.currentContentPage.getHeight()/2));
         
         vSplitPane = new JSplitPane( JSplitPane.VERTICAL_SPLIT,
                 filterTablePane, hSplitPane );
         vSplitPane.setContinuousLayout( true );
-        vSplitPane.setDividerLocation( EditorConstants.TABLE_DIVIDER_LOCATION );
+        vSplitPane.setDividerLocation((int)(PlatformUI.MIRTH_FRAME.currentContentPage.getHeight()/2));
         
         this.setLayout( new BorderLayout() );
         this.add( vSplitPane, BorderLayout.CENTER );
@@ -786,7 +786,7 @@ public class FilterPane extends MirthEditorPane
         }
         
         filter.setRules( list );
-        filter.setTemplate( tabPanel.getHL7Message() );
+        filter.setTemplate( tabPanel.getIncomingHL7Message() );
         // reset the task pane and content to channel edit page
         if(returning)
         {
