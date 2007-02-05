@@ -120,22 +120,22 @@ public class TabbedTemplatePanel extends javax.swing.JPanel
     
     public String getIncomingHL7Message()
     {
-        return incoming.getHL7Message();
+        return incoming.getMessage();
     }
     
-    public void setIncomingHL7Message(String msg)
+    public void setIncomingMessage(String msg)
     {
-        incoming.setHL7Message(msg);
+        incoming.setMessage(msg);
     }
     
-    public String getOutgoingHL7Message()
+    public String getOutgoingMessage()
     {
-        return outgoing.getHL7Message();
+        return outgoing.getMessage();
     }
     
     public void setOutgoingHL7Message(String msg)
     {
-        outgoing.setHL7Message(msg);
+        outgoing.setMessage(msg);
     }
     
     public void setDefaultComponent()

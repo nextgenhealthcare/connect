@@ -878,7 +878,7 @@ public class ChannelSetup extends javax.swing.JPanel
         	boolean templateExists = true;
         	while (it.hasNext() && templateExists){
         		Connector destinationConnector = it.next();
-        		if (destinationConnector.getTransformer().getTemplate() == null || destinationConnector.getTransformer().getTemplate().length() == 0){
+        		if (destinationConnector.getTransformer().getInboundTemplate() == null || destinationConnector.getTransformer().getInboundTemplate().length() == 0){
         			parent.alertWarning("This channel has a blank transformer template.");
         			templateExists = false;
         		}

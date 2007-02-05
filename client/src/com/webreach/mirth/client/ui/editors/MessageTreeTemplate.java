@@ -10,6 +10,14 @@ import com.webreach.mirth.client.ui.HL7XMLTreePanel;
 import com.webreach.mirth.client.ui.PlatformUI;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+
 import org.syntax.jedit.SyntaxDocument;
 import org.syntax.jedit.tokenmarker.HL7TokenMarker;
 
@@ -34,41 +42,29 @@ public class MessageTreeTemplate extends javax.swing.JPanel
         pasteBox.setDocument(HL7Doc);
         pasteBox.setFont(EditorConstants.DEFAULT_FONT);
         
-        treeScrollPane.addComponentListener(new ComponentListener()
-        {
-            
-            public void componentResized(ComponentEvent arg0)
-            {
-            }
-            
-            public void componentMoved(ComponentEvent arg0)
-            {
-            }
-            
-            public void componentShown(ComponentEvent arg0)
-            {
+        //handles updating the tree
+        pasteBox.getDocument().addDocumentListener(new DocumentListener(){
+
+        	private void updateText(){
                 String message = pasteBox.getText();
-                //We only want to refresh the tree if the message changes
-                if (currentMessage == null || (currentMessage != null && !currentMessage.equals(message))){
-	                if (message != null || !message.equals("")){
-	                    treePanel.setMessage(message);
-	                    currentMessage = message;
-	                }
-	                else{
-	                    treePanel.clearMessage();
-	                }
-	 
-                }
+                treePanel.setMessage(message);
                 treePanel.revalidate();
                 treePanel.repaint();
-            }
-            
-            public void componentHidden(ComponentEvent arg0)
-            {
-                //treePanel.clearMessage();
-            }
-            
+        	}
+			public void changedUpdate(DocumentEvent e) {
+				updateText();
+			}
+
+			public void insertUpdate(DocumentEvent e) {
+				updateText();
+			}
+
+			public void removeUpdate(DocumentEvent e) {
+				updateText();
+			}
+				
         });
+ 
     }
     
     public void setTreePanel(String prefix, String suffix)
@@ -77,12 +73,12 @@ public class MessageTreeTemplate extends javax.swing.JPanel
         treeScrollPane.setViewportView(treePanel);
     }
 
-    public String getHL7Message()
+    public String getMessage()
     {
         return pasteBox.getText().replace('\n', '\r');
     }
     
-    public void setHL7Message(String msg)
+    public void setMessage(String msg)
     {
         if (msg != null)
             msg = msg.replace('\r', '\n');

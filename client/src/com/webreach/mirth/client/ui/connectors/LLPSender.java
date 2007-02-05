@@ -204,7 +204,7 @@ public class LLPSender extends ConnectorClass
         properties.put(LLP_ACK_TIMEOUT, "5000");
         //ast:encoding
         properties.put(CONNECTOR_CHARSET_ENCODING, UIConstants.DEFAULT_ENCODING_OPTION);
-        properties.put(LLP_TEMPLATE, "message.encodedData");
+        properties.put(LLP_TEMPLATE, "${message.encodedData}");
         return properties;
     }
     

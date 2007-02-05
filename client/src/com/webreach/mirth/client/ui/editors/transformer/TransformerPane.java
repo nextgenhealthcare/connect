@@ -120,8 +120,8 @@ public class TransformerPane extends MirthEditorPane
             modified = true;
         
         tabPanel.setDefaultComponent();
-        tabPanel.setInHL7Message(transformer.getIncomingTemplate());
-        tabPanel.setOutHL7Message(transformer.getOutgoingTemplate());
+        tabPanel.setIncomingMessage(transformer.getInboundTemplate());
+        tabPanel.setOutgoingHL7Message(transformer.getOutboundTemplate());
         channel = PlatformUI.MIRTH_FRAME.channelEditPanel.currentChannel;
 
         if (channel.getDirection().equals(Channel.Direction.OUTBOUND))
@@ -1095,8 +1095,8 @@ public class TransformerPane extends MirthEditorPane
             
             transformer.setSteps(list);
             
-            transformer.setInTemplate(tabPanel.getIncomingHL7Message());
-            transformer.setOutTemplate(tabPanel.getOutgoingHL7Message());
+            transformer.setInboundTemplate(tabPanel.getIncomingHL7Message());
+            transformer.setOutboundTemplate(tabPanel.getOutgoingMessage());
             // reset the task pane and content to channel edit page
             if(returning)
             {

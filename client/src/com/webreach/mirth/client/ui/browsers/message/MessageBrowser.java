@@ -508,7 +508,9 @@ public class MessageBrowser extends javax.swing.JPanel
             if (onTable)
             {
                 int row = eventTable.rowAtPoint(new Point(evt.getX(), evt.getY()));
-                eventTable.setRowSelectionInterval(row, row);
+                if (row > -1){
+                	eventTable.setRowSelectionInterval(row, row);
+                }
             }
             else
                 deselectRows();
