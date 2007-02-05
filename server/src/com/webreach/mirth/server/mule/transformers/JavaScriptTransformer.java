@@ -264,7 +264,10 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			if ((messageObject.getTransformedData() != null) && (messageObject.getEncodedDataProtocol().equals(MessageObject.Protocol.HL7))) {
 				ER7Serializer serializer = new ER7Serializer();
 				messageObject.setEncodedData(serializer.fromXML(messageObject.getTransformedData()));
+			}else if (messageObject.getEncodedDataProtocol().equals(MessageObject.Protocol.HL7v3)){
+				messageObject.setEncodedData(messageObject.getTransformedData());
 			}
+
 
 			messageObject.setStatus(MessageObject.Status.TRANSFORMED);
 			return messageObject;
@@ -321,6 +324,8 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			if ((messageObject.getTransformedData() != null) && (messageObject.getTransformedData().length() > 0) && messageObject.getEncodedDataProtocol().equals(MessageObject.Protocol.HL7)) {
 				ER7Serializer serializer = new ER7Serializer();
 				messageObject.setEncodedData(serializer.fromXML(messageObject.getTransformedData()));
+			} else if (messageObject.getEncodedDataProtocol().equals(MessageObject.Protocol.HL7v3)){
+				messageObject.setEncodedData(messageObject.getTransformedData());
 			}
 
 			messageObject.setStatus(MessageObject.Status.TRANSFORMED);

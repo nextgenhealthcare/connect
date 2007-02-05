@@ -33,6 +33,7 @@
 		<transformer name="ResultMapToXML" className="com.webreach.mirth.server.mule.transformers.ResultMapToXML" />
 		<transformer name="ObjectToString" className="org.mule.transformers.simple.ObjectToString"/>
 		<transformer name="NoActionTransformer" className="org.mule.transformers.NoActionTransformer"/>
+		<transformer name="HL7v3ToMessageObject" className="com.webreach.mirth.server.mule.transformers.HL7v3ToMessageObject"/>
 	</transformers>
 
 	<interceptor-stack name="default">

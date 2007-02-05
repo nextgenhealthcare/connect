@@ -220,7 +220,10 @@ public class MuleConfigurationBuilder {
 				} else if (channel.getProtocol().equals(Channel.Protocol.X12)) {
 					endpointTransformers.append("X12ToMessageObject ");
 					vmTransformers.append("X12ToMessageObject ");
-				} else {
+				} else if (channel.getProtocol().equals(Channel.Protocol.HL7v3)) {
+					endpointTransformers.append("HL7v3ToMessageObject ");
+					vmTransformers.append("HL7v3ToMessageObject ");
+				}else {
 					endpointTransformers.append("XMLToMessageObject ");
 					vmTransformers.append("XMLToMessageObject ");
 				}
@@ -374,13 +377,13 @@ public class MuleConfigurationBuilder {
 			properties.put("encryptData", channel.getProperties().get("encryptData"));
 			properties.put("mode", channel.getMode());
 			// if outbound, put the template in the templates table
-			if (channel.getDirection().equals(Channel.Direction.OUTBOUND) && (connector.getTransformer().getTemplate() != null)) {
+			if (channel.getDirection().equals(Channel.Direction.OUTBOUND) && (connector.getTransformer().getInboundTemplate() != null)) {
 				TemplateController templateController = new TemplateController();
 				ER7Serializer serializer = new ER7Serializer();
 				String templateId = UUIDGenerator.getUUID();
 
-				if ((connector.getTransformer().getTemplate() != null) && connector.getTransformer().getTemplate().length() > 0) {
-					templateController.putTemplate(templateId, serializer.toXML(connector.getTransformer().getTemplate()));
+				if ((connector.getTransformer().getInboundTemplate() != null) && connector.getTransformer().getInboundTemplate().length() > 0) {
+					templateController.putTemplate(templateId, serializer.toXML(connector.getTransformer().getInboundTemplate()));
 				}
 
 				properties.put("templateId", templateId);

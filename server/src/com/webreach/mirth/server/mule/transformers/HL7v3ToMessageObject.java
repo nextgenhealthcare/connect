@@ -26,17 +26,26 @@
 
 package com.webreach.mirth.server.mule.transformers;
 
+import java.io.StringReader;
 import java.util.Calendar;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.mule.transformers.AbstractTransformer;
 import org.mule.umo.transformer.TransformerException;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
 
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.controllers.ChannelController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
+import com.webreach.mirth.server.util.StackTracePrinter;
 import com.webreach.mirth.server.util.UUIDGenerator;
 
-public class XMLToMessageObject extends AbstractTransformer {
+public class HL7v3ToMessageObject extends AbstractTransformer {
+	private MessageObjectController messageObjectController = new MessageObjectController();
+
 	@Override
 	public Object doTransform(Object src) throws TransformerException {
 		String rawData = (String) src;
@@ -44,14 +53,30 @@ public class XMLToMessageObject extends AbstractTransformer {
 		messageObject.setId(UUIDGenerator.getUUID());
 		messageObject.setRawData(rawData);
 		messageObject.setRawDataProtocol(MessageObject.Protocol.HL7v3);
-		messageObject.setTransformedDataProtocol(MessageObject.Protocol.HL7v3);
+		messageObject.setTransformedDataProtocol(MessageObject.Protocol.XML);
 		messageObject.setEncodedDataProtocol(MessageObject.Protocol.HL7v3);
 		messageObject.setDateCreated(Calendar.getInstance());
 		messageObject.setStatus(MessageObject.Status.RECEIVED);
 		messageObject.setType("XML");
 		messageObject.setChannelId(this.getEndpoint().getConnector().getName().substring(0, this.getEndpoint().getConnector().getName().indexOf('_')));
 		messageObject.setConnectorName("Source");
-		
+    	DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder docBuilder;
+		try {
+			docBuilder = docFactory.newDocumentBuilder();
+			Document xmlDoc = docBuilder.parse(new InputSource(new StringReader(rawData)));
+			messageObject.setSource(new String());
+			messageObject.setType(xmlDoc.getDocumentElement().getNodeName());
+			messageObject.setVersion("3.0");
+		} catch (Exception e) {
+			logger.warn("error transforming message", e);
+			messageObject.setErrors(messageObject.getErrors() != null ? messageObject.getErrors() + '\n' : "" + StackTracePrinter.stackTraceToString(e));
+			messageObject.setStatus(MessageObject.Status.ERROR);
+			messageObjectController.updateMessage(messageObject);
+			throw new TransformerException(this, e);
+		}
+
+		messageObject.setTransformedData(rawData);
 		new MessageObjectController().updateMessage(messageObject);
 		return messageObject;
 	}

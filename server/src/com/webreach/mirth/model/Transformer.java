@@ -30,6 +30,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.webreach.mirth.model.MessageObject.Protocol;
 import com.webreach.mirth.util.EqualsUtil;
 
 /**
@@ -41,19 +42,68 @@ import com.webreach.mirth.util.EqualsUtil;
  */
 public class Transformer implements Serializable {
 	private List<Step> steps;
-	private String template;
-
+	private String inboundTemplate;
+	private String outboundTemplate;
+	private Protocol inboundProtcol;
+	private Protocol outboundProtocol;
+	public enum Type {
+		SOURCE, DESTINATION
+	}
+	private Type type;
 	public Transformer() {
 		this.steps = new ArrayList<Step>();
 	}
 
-	public String getTemplate() {
-		return template;
+
+	public Protocol getInboundProtcol() {
+		return inboundProtcol;
 	}
 
-	public void setTemplate(String template) {
-		this.template = template;
+
+	public void setInboundProtcol(Protocol inboundProtcol) {
+		this.inboundProtcol = inboundProtcol;
 	}
+
+
+	public String getInboundTemplate() {
+		return inboundTemplate;
+	}
+
+
+	public void setInboundTemplate(String inboundTemplate) {
+		this.inboundTemplate = inboundTemplate;
+	}
+
+
+	public Protocol getOutboundProtocol() {
+		return outboundProtocol;
+	}
+
+
+	public void setOutboundProtocol(Protocol outboundProtocol) {
+		this.outboundProtocol = outboundProtocol;
+	}
+
+
+	public String getOutboundTemplate() {
+		return outboundTemplate;
+	}
+
+
+	public void setOutboundTemplate(String outboundTemplate) {
+		this.outboundTemplate = outboundTemplate;
+	}
+
+
+	public Type getType() {
+		return type;
+	}
+
+
+	public void setType(Type type) {
+		this.type = type;
+	}
+
 
 	public List<Step> getSteps() {
 		return this.steps;
@@ -76,6 +126,10 @@ public class Transformer implements Serializable {
 		
 		return
 			EqualsUtil.areEqual(this.getSteps(), transformer.getSteps()) &&
-			EqualsUtil.areEqual(this.getTemplate(), transformer.getTemplate());
+			EqualsUtil.areEqual(this.getInboundTemplate(), transformer.getInboundTemplate()) &&
+			EqualsUtil.areEqual(this.getOutboundTemplate(), transformer.getOutboundTemplate()) &&
+			EqualsUtil.areEqual(this.getType(), transformer.getType()) &&
+			EqualsUtil.areEqual(this.getInboundProtcol(), transformer.getInboundProtcol())&&
+			EqualsUtil.areEqual(this.getOutboundProtocol(), transformer.getOutboundProtocol());
 	}
 }
