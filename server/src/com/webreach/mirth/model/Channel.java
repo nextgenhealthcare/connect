@@ -41,27 +41,12 @@ import com.webreach.mirth.util.EqualsUtil;
  * 
  */
 public class Channel implements Serializable {
-	public enum Direction {
-		INBOUND, OUTBOUND
-	};
-
-	public enum Mode {
-		ROUTER, BROADCAST, APPLICATION
-	};
-
-	public enum Protocol {
-		HL7, X12, XML, HL7v3
-	}
-
 	private String id;
 	private String name;
 	private String description;
 	private boolean enabled;
 	private String version;
 	private int revision;
-	private Direction direction;
-	private Protocol protocol = Protocol.HL7;
-	private Mode mode;
 	private Connector sourceConnector;
 	private List<Connector> destinationConnectors = new ArrayList<Connector>();
 	private Properties properties = new Properties();
@@ -69,15 +54,6 @@ public class Channel implements Serializable {
 
 	public Channel() {
 
-	}
-
-	public Channel(Direction direction) {
-		this.direction = direction;
-	}
-
-	public Channel(Direction direction, Mode mode) {
-		this.direction = direction;
-		this.mode = mode;
 	}
 
 	public String getId() {
@@ -112,22 +88,6 @@ public class Channel implements Serializable {
 		this.description = description;
 	}
 
-	public Direction getDirection() {
-		return this.direction;
-	}
-
-	public void setDirection(Direction direction) {
-		this.direction = direction;
-	}
-
-	public Protocol getProtocol() {
-		return this.protocol;
-	}
-
-	public void setProtocol(Protocol protocol) {
-		this.protocol = protocol;
-	}
-
 	public boolean isEnabled() {
 		return this.enabled;
 	}
@@ -150,14 +110,6 @@ public class Channel implements Serializable {
 
 	public void setSourceConnector(Connector sourceConnector) {
 		this.sourceConnector = sourceConnector;
-	}
-
-	public Mode getMode() {
-		return this.mode;
-	}
-
-	public void setMode(Mode mode) {
-		this.mode = mode;
 	}
 
 	public List<Connector> getDestinationConnectors() {
@@ -202,9 +154,6 @@ public class Channel implements Serializable {
 			EqualsUtil.areEqual(this.isEnabled(), channel.isEnabled()) &&
 			EqualsUtil.areEqual(this.getVersion(), channel.getVersion()) &&
 			EqualsUtil.areEqual(this.getRevision(), channel.getRevision()) &&
-			EqualsUtil.areEqual(this.getDirection(), channel.getDirection()) &&
-			EqualsUtil.areEqual(this.getProtocol(), channel.getProtocol()) &&
-			EqualsUtil.areEqual(this.getMode(), channel.getMode()) &&
 			EqualsUtil.areEqual(this.getSourceConnector(), channel.getSourceConnector()) &&
 			EqualsUtil.areEqual(this.getDestinationConnectors(), channel.getDestinationConnectors()) &&
 			EqualsUtil.areEqual(this.getProperties(), channel.getProperties()) &&

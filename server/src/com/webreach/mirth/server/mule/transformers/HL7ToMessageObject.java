@@ -61,13 +61,13 @@ public class HL7ToMessageObject extends AbstractTransformer {
 		String rawData = ((String) src).trim();
 		MessageObject messageObject = new MessageObject();
 		messageObject.setRawData(rawData);
-		messageObject.setRawDataProtocol(MessageObject.Protocol.HL7);
+		messageObject.setRawDataProtocol(MessageObject.Protocol.HL7V2);
 		messageObject.setId(UUIDGenerator.getUUID());
 		messageObject.setDateCreated(Calendar.getInstance());
 		messageObject.setChannelId(this.getEndpoint().getConnector().getName().substring(0, this.getEndpoint().getConnector().getName().indexOf('_')));
 		messageObject.setConnectorName("Source");
 		messageObject.setTransformedDataProtocol(MessageObject.Protocol.XML);
-		messageObject.setEncodedDataProtocol(MessageObject.Protocol.HL7);
+		messageObject.setEncodedDataProtocol(MessageObject.Protocol.HL7V2);
 		com.webreach.mirth.model.Channel channel = ChannelController.getChannelCache().get(messageObject.getChannelId());
 
 		try {

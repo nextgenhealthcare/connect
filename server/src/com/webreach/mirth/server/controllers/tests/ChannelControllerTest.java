@@ -38,9 +38,6 @@ public class ChannelControllerTest extends TestCase {
 			sampleChannel.setEnabled(true);
 			sampleChannel.setVersion(configurationController.getVersion());
 			sampleChannel.setRevision(0);
-			sampleChannel.setDirection(Channel.Direction.INBOUND);
-			sampleChannel.setProtocol(Channel.Protocol.HL7);
-			sampleChannel.setMode(Channel.Mode.ROUTER);
 			sampleChannel.setSourceConnector(new Connector());
 			sampleChannel.setPreprocessingScript("return 1;");
 			

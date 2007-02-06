@@ -1,22 +1,13 @@
 package com.webreach.mirth.model.converters;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.StringReader;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 
 import org.apache.commons.lang.NotImplementedException;
 import org.milyn.edisax.EDIParser;
 import org.milyn.io.StreamUtils;
-import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import org.xml.sax.helpers.DefaultHandler;
 
 public class X12Serializer implements IXMLSerializer {
 	//private 

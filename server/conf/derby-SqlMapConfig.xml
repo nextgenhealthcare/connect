@@ -11,12 +11,6 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map Config 2.0//EN"
 		lazyLoadingEnabled="true" maxRequests="32" maxSessions="10"
 		maxTransactions="5" useStatementNamespaces="false" />
 
-	<typeHandler javaType="com.webreach.mirth.model.Channel$Direction"
-		callback="com.webreach.mirth.server.sqlmap.extensions.ChannelDirectionTypeHandler" />
-	<typeHandler javaType="com.webreach.mirth.model.Channel$Protocol"
-		callback="com.webreach.mirth.server.sqlmap.extensions.ChannelProtocolTypeHandler" />
-	<typeHandler javaType="com.webreach.mirth.model.Channel$Mode"
-		callback="com.webreach.mirth.server.sqlmap.extensions.ChannelModeTypeHandler" />
 	<typeHandler javaType="com.webreach.mirth.model.MessageObject$Protocol"
 		callback="com.webreach.mirth.server.sqlmap.extensions.MessageProtocolTypeHandler" />
 	<typeHandler javaType="com.webreach.mirth.model.MessageObject$Status"

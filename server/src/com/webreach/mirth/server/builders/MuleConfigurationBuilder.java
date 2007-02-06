@@ -193,7 +193,7 @@ public class MuleConfigurationBuilder {
 			addConnector(document, configurationElement, channel.getSourceConnector(), connectorReference + "_connector");
 			endpointElement.setAttribute("connector", connectorReference + "_connector");
 			// if the channel is snychronous
-			if ((channel.getProperties().get("synchronous")) != null && ((String)channel.getProperties().get("synchronous")).equalsIgnoreCase("true")) {
+			if ((channel.getProperties().get("synchronous")) != null && ((String) channel.getProperties().get("synchronous")).equalsIgnoreCase("true")) {
 				endpointElement.setAttribute("synchronous", "true");
 			}
 			StringBuilder endpointTransformers = new StringBuilder();
@@ -209,35 +209,13 @@ public class MuleConfigurationBuilder {
 			endpointTransformers.append(connectorReference + "_preprocessor ");
 			vmTransformers.append(connectorReference + "_preprocessor ");
 
-			// 3. determine which transformer to use
-			if (channel.getDirection().equals(Channel.Direction.OUTBOUND)) {
-				endpointTransformers.append("XMLToMessageObject ");
-				vmTransformers.append("XMLToMessageObject ");
-			} else {
-				if (channel.getProtocol().equals(Channel.Protocol.HL7)) {
-					endpointTransformers.append("HL7ToMessageObject ");
-					vmTransformers.append("HL7ToMessageObject ");
-				} else if (channel.getProtocol().equals(Channel.Protocol.X12)) {
-					endpointTransformers.append("X12ToMessageObject ");
-					vmTransformers.append("X12ToMessageObject ");
-				} else if (channel.getProtocol().equals(Channel.Protocol.HL7v3)) {
-					endpointTransformers.append("HL7v3ToMessageObject ");
-					vmTransformers.append("HL7v3ToMessageObject ");
-				}else {
-					endpointTransformers.append("XMLToMessageObject ");
-					vmTransformers.append("XMLToMessageObject ");
-				}
-			}
+			// 3. finally, append the JavaScriptTransformer that does the
+			// mappings
+			addTransformer(document, configurationElement, channel, channel.getSourceConnector(), connectorReference + "_transformer");
+			endpointTransformers.append(connectorReference + "_transformer");
+			vmTransformers.append(connectorReference + "_transformer");
 
-			// 4. finally, append the JavaScriptTransformer that does the
-			// mappings if it's BROADCAST
-			if (channel.getMode().equals(Channel.Mode.BROADCAST)) {
-				addTransformer(document, configurationElement, channel, channel.getSourceConnector(), connectorReference + "_transformer");
-				endpointTransformers.append(connectorReference + "_transformer");
-				vmTransformers.append(connectorReference + "_transformer");
-			}
-
-			// 5. add the transformer sequence as an attribute to the endpoint
+			// 4. add the transformer sequence as an attribute to the endpoint
 			// if not empty
 			if (!endpointTransformers.toString().trim().equals("")) {
 				endpointElement.setAttribute("transformers", endpointTransformers.toString().trim());
@@ -246,16 +224,14 @@ public class MuleConfigurationBuilder {
 
 			inboundRouterElement.appendChild(vmEndpointElement);
 
-			if (channel.getMode().equals(Channel.Mode.BROADCAST)) {
-				Element routerElement = document.createElement("router");
-				routerElement.setAttribute("className", "org.mule.routing.inbound.SelectiveConsumer");
+			Element routerElement = document.createElement("router");
+			routerElement.setAttribute("className", "org.mule.routing.inbound.SelectiveConsumer");
 
-				Element filterElement = document.createElement("filter");
-				filterElement.setAttribute("className", "com.webreach.mirth.server.mule.filters.ValidMessageFilter");
+			Element filterElement = document.createElement("filter");
+			filterElement.setAttribute("className", "com.webreach.mirth.server.mule.filters.ValidMessageFilter");
 
-				routerElement.appendChild(filterElement);
-				inboundRouterElement.appendChild(routerElement);
-			}
+			routerElement.appendChild(filterElement);
+			inboundRouterElement.appendChild(routerElement);
 
 			inboundRouterElement.appendChild(endpointElement);
 			return inboundRouterElement;
@@ -298,14 +274,9 @@ public class MuleConfigurationBuilder {
 
 				StringBuilder transformers = new StringBuilder();
 
-				// 1. append the JavaScriptTransformer that does the mappings if
-				// it's ROUTER
-				if (channel.getMode().equals(Channel.Mode.ROUTER)) {
-					addTransformer(document, configurationElement, channel, connector, connectorReference + "_transformer");
-					transformers.append(connectorReference + "_transformer" + " ");
-				} else {
-					transformers.append("NoActionTransformer ");
-				}
+				// 1. append the JavaScriptTransformer that does the mappings
+				addTransformer(document, configurationElement, channel, connector, connectorReference + "_transformer");
+				transformers.append(connectorReference + "_transformer" + " ");
 
 				// 2. finally, append any transformers needed by the transport
 				// (ie. StringToByteArray)
@@ -372,12 +343,13 @@ public class MuleConfigurationBuilder {
 
 			Properties properties = new Properties();
 			properties.put("channelId", channel.getId());
-			properties.put("protocol", channel.getProtocol().toString());
-			properties.put("direction", channel.getDirection().toString());
+			properties.put("inboundProtocol", connector.getTransformer().getInboundProtcol());
+			properties.put("outboundProtocol", connector.getTransformer().getOutboundProtocol());
 			properties.put("encryptData", channel.getProperties().get("encryptData"));
-			properties.put("mode", channel.getMode());
-			// if outbound, put the template in the templates table
-			if (channel.getDirection().equals(Channel.Direction.OUTBOUND) && (connector.getTransformer().getInboundTemplate() != null)) {
+			properties.put("mode", connector.getTransformer().getMode().toString());
+
+			// put the inbound template in the templates table
+			if (connector.getTransformer().getInboundTemplate() != null) {
 				TemplateController templateController = new TemplateController();
 				ER7Serializer serializer = new ER7Serializer();
 				String templateId = UUIDGenerator.getUUID();
@@ -398,12 +370,7 @@ public class MuleConfigurationBuilder {
 			String transformerScriptId = UUIDGenerator.getUUID();
 			scriptController.putScript(transformerScriptId, transformerBuilder.getScript(connector.getTransformer(), channel));
 			properties.put("transformerScriptId", transformerScriptId);
-
-			if (channel.getMode().equals(Channel.Mode.ROUTER)) {
-				properties.put("connectorName", connector.getName());
-			} else {
-				properties.put("connectorName", "Source");
-			}
+			properties.put("connectorName", connector.getName() + " " + connector.getTransformer().getMode().toString());
 
 			transformerElement.appendChild(getProperties(document, properties, null));
 

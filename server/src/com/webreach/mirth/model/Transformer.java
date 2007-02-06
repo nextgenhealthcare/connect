@@ -23,7 +23,6 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
 package com.webreach.mirth.model;
 
 import java.io.Serializable;
@@ -41,69 +40,60 @@ import com.webreach.mirth.util.EqualsUtil;
  * 
  */
 public class Transformer implements Serializable {
+	public enum Mode {
+		SOURCE, DESTINATION
+	}
+	
 	private List<Step> steps;
 	private String inboundTemplate;
 	private String outboundTemplate;
 	private Protocol inboundProtcol;
 	private Protocol outboundProtocol;
-	public enum Type {
-		SOURCE, DESTINATION
-	}
-	private Type type;
+	private Mode mode;
+
 	public Transformer() {
 		this.steps = new ArrayList<Step>();
 	}
 
+	public Mode getMode() {
+		return this.mode;
+	}
+
+	public void setMode(Mode mode) {
+		this.mode = mode;
+	}
 
 	public Protocol getInboundProtcol() {
 		return inboundProtcol;
 	}
 
-
 	public void setInboundProtcol(Protocol inboundProtcol) {
 		this.inboundProtcol = inboundProtcol;
 	}
-
 
 	public String getInboundTemplate() {
 		return inboundTemplate;
 	}
 
-
 	public void setInboundTemplate(String inboundTemplate) {
 		this.inboundTemplate = inboundTemplate;
 	}
-
 
 	public Protocol getOutboundProtocol() {
 		return outboundProtocol;
 	}
 
-
 	public void setOutboundProtocol(Protocol outboundProtocol) {
 		this.outboundProtocol = outboundProtocol;
 	}
-
 
 	public String getOutboundTemplate() {
 		return outboundTemplate;
 	}
 
-
 	public void setOutboundTemplate(String outboundTemplate) {
 		this.outboundTemplate = outboundTemplate;
 	}
-
-
-	public Type getType() {
-		return type;
-	}
-
-
-	public void setType(Type type) {
-		this.type = type;
-	}
-
 
 	public List<Step> getSteps() {
 		return this.steps;
@@ -112,24 +102,24 @@ public class Transformer implements Serializable {
 	public void setSteps(List<Step> steps) {
 		this.steps = steps;
 	}
-	
+
 	public boolean equals(Object that) {
 		if (this == that) {
 			return true;
 		}
-		
+
 		if (!(that instanceof Transformer)) {
 			return false;
 		}
-		
+
 		Transformer transformer = (Transformer) that;
-		
+
 		return
 			EqualsUtil.areEqual(this.getSteps(), transformer.getSteps()) &&
 			EqualsUtil.areEqual(this.getInboundTemplate(), transformer.getInboundTemplate()) &&
 			EqualsUtil.areEqual(this.getOutboundTemplate(), transformer.getOutboundTemplate()) &&
-			EqualsUtil.areEqual(this.getType(), transformer.getType()) &&
-			EqualsUtil.areEqual(this.getInboundProtcol(), transformer.getInboundProtcol())&&
+			EqualsUtil.areEqual(this.getMode(), transformer.getMode()) &&
+			EqualsUtil.areEqual(this.getInboundProtcol(), transformer.getInboundProtcol()) &&
 			EqualsUtil.areEqual(this.getOutboundProtocol(), transformer.getOutboundProtocol());
 	}
 }

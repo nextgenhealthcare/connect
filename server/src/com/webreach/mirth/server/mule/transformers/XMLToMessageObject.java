@@ -43,9 +43,9 @@ public class XMLToMessageObject extends AbstractTransformer {
 		MessageObject messageObject = new MessageObject();
 		messageObject.setId(UUIDGenerator.getUUID());
 		messageObject.setRawData(rawData);
-		messageObject.setRawDataProtocol(MessageObject.Protocol.HL7v3);
-		messageObject.setTransformedDataProtocol(MessageObject.Protocol.HL7v3);
-		messageObject.setEncodedDataProtocol(MessageObject.Protocol.HL7v3);
+		messageObject.setRawDataProtocol(MessageObject.Protocol.HL7V3);
+		messageObject.setTransformedDataProtocol(MessageObject.Protocol.HL7V3);
+		messageObject.setEncodedDataProtocol(MessageObject.Protocol.HL7V3);
 		messageObject.setDateCreated(Calendar.getInstance());
 		messageObject.setStatus(MessageObject.Status.RECEIVED);
 		messageObject.setType("XML");

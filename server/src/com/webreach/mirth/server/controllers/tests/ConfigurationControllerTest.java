@@ -33,8 +33,6 @@ public class ConfigurationControllerTest extends TestCase {
 		sampleTransport.setProtocol("ftp");
 		sampleTransport.setTransformers("ByteArrayToString");
 		sampleTransport.setType(Transport.Type.LISTENER);
-		sampleTransport.setInbound(true);
-		sampleTransport.setOutbound(true);
 		Map<String, Transport> testTransportList = configurationController.getTransports();
 
 		Assert.assertTrue(testTransportList.containsValue(sampleTransport));

@@ -2,16 +2,13 @@ package com.webreach.mirth.server.controllers.tests;
 
 import java.util.Properties;
 
-import junit.framework.Assert;
 import junit.framework.TestCase;
 
 import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.ChannelStatistics;
 import com.webreach.mirth.model.Connector;
 import com.webreach.mirth.server.controllers.ChannelController;
 import com.webreach.mirth.server.controllers.ChannelStatisticsController;
 import com.webreach.mirth.server.controllers.ConfigurationController;
-import com.webreach.mirth.server.controllers.ControllerException;
 import com.webreach.mirth.server.tools.ScriptRunner;
 
 public class StatisticsControllerTest extends TestCase {
@@ -36,9 +33,6 @@ public class StatisticsControllerTest extends TestCase {
 		sampleChannel.setEnabled(true);
 		sampleChannel.setVersion(configurationController.getVersion());
 		sampleChannel.setRevision(0);
-		sampleChannel.setDirection(Channel.Direction.INBOUND);
-		sampleChannel.setProtocol(Channel.Protocol.HL7);
-		sampleChannel.setMode(Channel.Mode.ROUTER);
 		sampleChannel.setSourceConnector(new Connector());
 		sampleChannel.setPreprocessingScript("return 1;");
 

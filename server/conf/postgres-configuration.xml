@@ -11,8 +11,6 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		<result property="protocol" column="PROTOCOL" />
 		<result property="transformers" column="TRANSFORMERS" />
 		<result property="type" column="TYPE" />
-		<result property="inbound" column="IS_INBOUND" />		
-		<result property="outbound" column="IS_OUTBOUND" />								
 	</resultMap>
 
 	<resultMap class="com.webreach.mirth.model.Configuration" id="get-configuration-result">

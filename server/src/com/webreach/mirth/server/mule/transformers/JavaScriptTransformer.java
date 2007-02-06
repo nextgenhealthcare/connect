@@ -23,7 +23,6 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
 package com.webreach.mirth.server.mule.transformers;
 
 import java.util.Calendar;
@@ -37,8 +36,8 @@ import org.mule.transformers.AbstractTransformer;
 import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.transformer.TransformerException;
 
-import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.model.MessageObject.Protocol;
 import com.webreach.mirth.model.converters.ER7Serializer;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.controllers.ScriptController;
@@ -54,8 +53,8 @@ public class JavaScriptTransformer extends AbstractTransformer {
 	private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
 	private ScriptController scriptController = new ScriptController();
 
-	private String direction;
-	private String protocol;
+	private String inboundProtocol;
+	private String outboundProtocol;
 	private String channelId;
 	private String connectorName;
 	private boolean encryptData;
@@ -63,36 +62,37 @@ public class JavaScriptTransformer extends AbstractTransformer {
 	private String filterScriptId;
 	private String templateId;
 	private String mode;
+
+	public String getChannelId() {
+		return this.channelId;
+	}
+
 	public String getMode() {
-		return mode;
+		return this.mode;
 	}
 
 	public void setMode(String mode) {
 		this.mode = mode;
 	}
 
-	public String getChannelId() {
-		return this.channelId;
-	}
-
 	public void setChannelId(String channelId) {
 		this.channelId = channelId;
 	}
 
-	public String getDirection() {
-		return this.direction;
+	public String getInboundProtocol() {
+		return this.inboundProtocol;
 	}
 
-	public void setDirection(String direction) {
-		this.direction = direction;
+	public void setInboundProtocol(String inboundProtocol) {
+		this.inboundProtocol = inboundProtocol;
 	}
 
-	public String getProtocol() {
-		return this.protocol;
+	public String getOutboundProtocol() {
+		return this.outboundProtocol;
 	}
 
-	public void setProtocol(String protocol) {
-		this.protocol = protocol;
+	public void setOutboundProtocol(String outboundProtocol) {
+		this.outboundProtocol = outboundProtocol;
 	}
 
 	public String getConnectorName() {
@@ -110,6 +110,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 	public void setEncryptData(boolean encryptData) {
 		this.encryptData = encryptData;
 	}
+
 	public String getFilterScriptId() {
 		return this.filterScriptId;
 	}
@@ -148,6 +149,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			}
 
 			String transformerScript = scriptController.getScript(transformerScriptId);
+			
 			if (transformerScript != null) {
 				String generatedTransformerScript = generateTransformerScript(transformerScript);
 				logger.debug("compiling transformer script");
@@ -162,21 +164,15 @@ public class JavaScriptTransformer extends AbstractTransformer {
 	}
 
 	@Override
-	public Object doTransform(Object src) throws TransformerException {
-		MessageObject messageObject = 	initializeMessage((MessageObject) src);
-		
-		if (direction.equals(Channel.Direction.INBOUND.toString())) {
-			if (evaluateFilterScript(messageObject)) {
-				return evaluateInboundTransformerScript(messageObject);
-			}
+	public Object doTransform(Object source) throws TransformerException {
+		MessageObject messageObject = initializeMessage((String) source);
+
+		if (evaluateFilterScript(messageObject)) {
+			return evaluateTransformerScript(messageObject);
 		} else {
-			if (evaluateFilterScript(messageObject)) {
-				return evaluateOutboundTransformerScript(messageObject);
-			}
+			messageObject.setStatus(MessageObject.Status.REJECTED);
+			return messageObject;
 		}
-		
-		messageObject.setStatus(MessageObject.Status.REJECTED);
-		return messageObject;
 	}
 
 	private boolean evaluateFilterScript(MessageObject messageObject) {
@@ -188,13 +184,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 
 			// load variables in JavaScript scope
 			scope.put("logger", scope, scriptLogger);
-
-			if (direction.equals(Channel.Direction.INBOUND.toString())) {
-				scope.put("message", scope, messageObject.getTransformedData());
-			} else {
-				scope.put("message", scope, messageObject.getRawData()); // TODO:
-			}
-
+			scope.put("message", scope, messageObject.getTransformedData());
 			scope.put("localMap", scope, messageObject.getVariableMap());
 			scope.put("globalMap", scope, GlobalVariableStore.getInstance());
 			scope.put("messageObject", scope, messageObject);
@@ -213,11 +203,11 @@ public class JavaScriptTransformer extends AbstractTransformer {
 
 			if (!messageAccepted) {
 				messageObject.setStatus(MessageObject.Status.REJECTED);
-				messageObjectController.updateMessage(messageObject);	
+				messageObjectController.updateMessage(messageObject);
 			} else {
 				messageObject.setStatus(MessageObject.Status.ACCEPTED);
 			}
-			
+
 			return messageAccepted;
 		} catch (Exception e) {
 			logger.error("error ocurred in filter", e);
@@ -230,15 +220,19 @@ public class JavaScriptTransformer extends AbstractTransformer {
 		}
 	}
 
-	private MessageObject evaluateInboundTransformerScript(MessageObject messageObject) throws TransformerException {
+	private MessageObject evaluateTransformerScript(MessageObject messageObject) throws TransformerException {
 		try {
 			Logger scriptLogger = Logger.getLogger("inbound-transformation");
 			Context context = Context.enter();
+			TemplateController templateController = new TemplateController();
 			Scriptable scope = new ImporterTopLevel(context);
+
+			String template = templateController.getTemplate(templateId);
 
 			// load variables in JavaScript scope
 			scope.put("logger", scope, scriptLogger);
 			scope.put("message", scope, messageObject.getTransformedData());
+			scope.put("template", scope, template);
 			scope.put("localMap", scope, messageObject.getVariableMap());
 			scope.put("globalMap", scope, GlobalVariableStore.getInstance());
 			scope.put("messageObject", scope, messageObject);
@@ -252,22 +246,26 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			} else {
 				compiledScript.exec(context, scope);
 			}
-			// since the transformations occur on the template, pull it out of
-			// the scope
-			Object transformedData = scope.get("msg", scope);
+
+			Object transformedData;
+
+			if (template != null) {
+				transformedData = scope.get("tmp", scope);
+			} else {
+				transformedData = scope.get("msg", scope);
+			}
 
 			if (transformedData != Scriptable.NOT_FOUND) {
 				// set the transformedData to the template
 				messageObject.setTransformedData(Context.toString(transformedData));
 			}
 			// take the now transformed message and convert it back to ER7
-			if ((messageObject.getTransformedData() != null) && (messageObject.getEncodedDataProtocol().equals(MessageObject.Protocol.HL7))) {
+			if ((messageObject.getTransformedData() != null) && (messageObject.getEncodedDataProtocol().equals(MessageObject.Protocol.HL7V2))) {
 				ER7Serializer serializer = new ER7Serializer();
 				messageObject.setEncodedData(serializer.fromXML(messageObject.getTransformedData()));
-			}else if (messageObject.getEncodedDataProtocol().equals(MessageObject.Protocol.HL7v3)){
+			} else if (messageObject.getEncodedDataProtocol().equals(MessageObject.Protocol.HL7V3)) {
 				messageObject.setEncodedData(messageObject.getTransformedData());
 			}
-
 
 			messageObject.setStatus(MessageObject.Status.TRANSFORMED);
 			return messageObject;
@@ -281,85 +279,28 @@ public class JavaScriptTransformer extends AbstractTransformer {
 		}
 	}
 
-	private MessageObject evaluateOutboundTransformerScript(MessageObject messageObject) throws TransformerException {
+	private MessageObject initializeMessage(String source) {
+		// TODO: This is BAD BAD must fix
 		try {
-			Logger scriptLogger = Logger.getLogger("outbound-transformation");
-			TemplateController templateController = new TemplateController();
-			Context context = Context.enter();
-			Scriptable scope = new ImporterTopLevel(context);
+			MessageObject messageObject = null;
 			
-			// load variables in JavaScript scope
-			scope.put("logger", scope, scriptLogger);
-			scope.put("message", scope, messageObject.getRawData());
-			scope.put("localMap", scope, messageObject.getVariableMap());
-			scope.put("globalMap", scope, GlobalVariableStore.getInstance());
-			scope.put("messageObject", scope, messageObject);
-			scope.put("serializer", scope, new ER7Serializer());
-
-			// put the template in the scope
-			if (templateId != null) {
-				scope.put("template", scope, templateController.getTemplate(templateId));
-			}
-
-			// get the script from the cache and execute it
-			Script compiledScript = compiledScriptCache.getCompiledScript(transformerScriptId);
-
-			if (compiledScript == null) {
-				logger.warn("transformer script could not be found in cache");
+			if (inboundProtocol.equals(Protocol.HL7V2)) {
+				messageObject = (MessageObject) (new HL7ToMessageObject()).transform(source);
+			} else if (inboundProtocol.equals(Protocol.HL7V3)) {
+				messageObject = (MessageObject) (new HL7v3ToMessageObject()).transform(source);
 			} else {
-				compiledScript.exec(context, scope);
+				messageObject = (MessageObject) (new XMLToMessageObject()).transform(source);
 			}
-
-			// since the transformations occur on the template, pull it out of
-			// the scope
-			Object transformedData = scope.get("tmp", scope);
-
-			if (transformedData != Scriptable.NOT_FOUND) {
-				// set the transformedData to the template
-				messageObject.setTransformedData(Context.toString(transformedData));
-			}
-
-			// re-encode the data to ER7, but check to make sure we have a
-			// template
-			if ((messageObject.getTransformedData() != null) && (messageObject.getTransformedData().length() > 0) && messageObject.getEncodedDataProtocol().equals(MessageObject.Protocol.HL7)) {
-				ER7Serializer serializer = new ER7Serializer();
-				messageObject.setEncodedData(serializer.fromXML(messageObject.getTransformedData()));
-			} else if (messageObject.getEncodedDataProtocol().equals(MessageObject.Protocol.HL7v3)){
-				messageObject.setEncodedData(messageObject.getTransformedData());
-			}
-
-			messageObject.setStatus(MessageObject.Status.TRANSFORMED);
+			
+			messageObject.setId(UUIDGenerator.getUUID());
+			messageObject.setConnectorName(getConnectorName());
+			messageObject.setEncrypted(encryptData);
+			messageObject.setChannelId(channelId);
+			messageObject.setDateCreated(Calendar.getInstance());
 			return messageObject;
 		} catch (Exception e) {
-			messageObject.setStatus(MessageObject.Status.ERROR);
-			messageObject.setErrors(messageObject.getErrors() != null ? messageObject.getErrors() + '\n' : "" + StackTracePrinter.stackTraceToString(e));
-			messageObjectController.updateMessage(messageObject);
-			throw new TransformerException(this, e);
-		} finally {
-			Context.exit();
+			return null;
 		}
-	}
-
-	private MessageObject initializeMessage(MessageObject source) {
-		MessageObject messageObject = null;
-		if (mode.equals(Channel.Mode.ROUTER.toString())){
-			//In a router, we run the transformer for each destination
-			//creating a new MO each time. The correlationID should be
-			//the id of the original message
-			messageObject = (MessageObject) source.clone();
-			messageObject.setId(UUIDGenerator.getUUID());
-			messageObject.setCorrelationId(source.getId());
-		}else if (mode.equals(Channel.Mode.BROADCAST.toString())){
-			//In a broadcast, the transformer is run one time.
-			//It is up to the individual dispatchers to assign new ids
-			//if the correlation id is blank
-			messageObject = source;
-		}
-		messageObject.setConnectorName(getConnectorName());
-		messageObject.setEncrypted(encryptData);
-		messageObject.setChannelId(channelId);
-		messageObject.setDateCreated(Calendar.getInstance());
-		return messageObject;
 	}
 
 	private String generateFilterScript(String filterScript) {
@@ -368,7 +309,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 		script.append("importPackage(Packages.com.webreach.mirth.server.util);\n	");
 		script.append("function doFilter() {");
 
-		if (protocol.equals(Channel.Protocol.HL7.toString())) {
+		if (inboundProtocol.equals(Protocol.HL7V2.toString())) {
 			script.append("default xml namespace = new Namespace(\"urn:hl7-org:v2xml\");");
 		}
 
@@ -386,19 +327,16 @@ public class JavaScriptTransformer extends AbstractTransformer {
 		script.append("function doTransform() {");
 
 		// only set the namespace to hl7-org if the message is XML
-		if (protocol.equals(Channel.Protocol.HL7.toString())) {
+		if (inboundProtocol.equals(Protocol.HL7V2.toString())) {
 			script.append("default xml namespace = new Namespace(\"urn:hl7-org:v2xml\");");
 		}
-		//ast: Allow ending whitespaces from the input XML
+
+		// ast: Allow ending whitespaces from the input XML
 		script.append("XML.ignoreWhitespace=false;");
-		//ast: Allow ending whitespaces to the output XML
+		// ast: Allow ending whitespaces to the output XML
 		script.append("XML.prettyPrinting=false;");
 		// turn the template into an E4X XML object
-		if (direction.equals(Channel.Direction.OUTBOUND.name())) {
-			//Removed 'var' so that we could grab it from the scope
-			script.append("tmp = new XML(template);");
-		}
-		
+		script.append("tmp = new XML(template);");
 		script.append("msg = new XML(message);");
 		script.append(transformerScript);
 		script.append(" }");

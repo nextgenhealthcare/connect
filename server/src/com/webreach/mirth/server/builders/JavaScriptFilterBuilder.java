@@ -45,10 +45,6 @@ public class JavaScriptFilterBuilder {
 			logger.debug("filter is emtpy, setting to accept all messages");
 			builder.append("return true;");
 		} else {
-			if (channel.getDirection().equals(Channel.Direction.OUTBOUND) && (filter.getTemplate() != null)) {
-				builder.append("var template = new XML('" + filter.getTemplate() + "');");
-			}
-			
 			// generate the functions
 			for (ListIterator iter = filter.getRules().listIterator(); iter.hasNext();) {
 				Rule rule = (Rule) iter.next();

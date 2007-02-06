@@ -40,8 +40,6 @@ public class Transport implements Serializable {
 	private String transformers;
 	private String protocol;
 	private Type type;
-	private boolean inbound;
-	private boolean outbound;
 
 	public String getClassName() {
 		return this.className;
@@ -83,22 +81,6 @@ public class Transport implements Serializable {
 		this.type = type;
 	}
 
-	public boolean isInbound() {
-		return this.inbound;
-	}
-
-	public void setInbound(boolean inbound) {
-		this.inbound = inbound;
-	}
-
-	public boolean isOutbound() {
-		return this.outbound;
-	}
-
-	public void setOutbound(boolean outbound) {
-		this.outbound = outbound;
-	}
-	
 	public boolean equals(Object that) {
 		if (this == that) {
 			return true;
@@ -115,9 +97,7 @@ public class Transport implements Serializable {
 			EqualsUtil.areEqual(this.getClassName(), transport.getClassName()) &&
 			EqualsUtil.areEqual(this.getProtocol(), transport.getProtocol()) &&
 			EqualsUtil.areEqual(this.getTransformers(), transport.getTransformers()) &&
-			EqualsUtil.areEqual(this.getType(), transport.getType()) &&
-			EqualsUtil.areEqual(this.isInbound(), transport.isInbound()) &&
-			EqualsUtil.areEqual(this.isOutbound(), transport.isOutbound());
+			EqualsUtil.areEqual(this.getType(), transport.getType());
 	}
 
 	public String toString() {
@@ -127,9 +107,7 @@ public class Transport implements Serializable {
 		builder.append("type=" + getType().toString() + ", ");
 		builder.append("className=" + getClassName() + ", ");
 		builder.append("transformers=" + getTransformers() + ", ");
-		builder.append("protocol=" + getProtocol() + ", ");
-		builder.append("inbound=" + isInbound() + ", ");
-		builder.append("outbound=" + isOutbound());
+		builder.append("protocol=" + getProtocol());
 		builder.append("]");
 		return builder.toString();
 	}
