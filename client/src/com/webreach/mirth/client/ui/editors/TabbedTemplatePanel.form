@@ -38,12 +38,12 @@
           <Layout>
             <DimensionLayout dim="0">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="variableSplitPane" alignment="1" pref="224" max="32767" attributes="0"/>
+                  <Component id="variableSplitPane" alignment="1" pref="407" max="32767" attributes="0"/>
               </Group>
             </DimensionLayout>
             <DimensionLayout dim="1">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="variableSplitPane" alignment="0" pref="419" max="32767" attributes="0"/>
+                  <Component id="variableSplitPane" alignment="0" pref="525" max="32767" attributes="0"/>
               </Group>
             </DimensionLayout>
           </Layout>
@@ -78,7 +78,7 @@
                   <Layout>
                     <DimensionLayout dim="0">
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <EmptySpace min="0" pref="206" max="32767" attributes="0"/>
+                          <EmptySpace min="0" pref="389" max="32767" attributes="0"/>
                       </Group>
                     </DimensionLayout>
                     <DimensionLayout dim="1">
@@ -110,12 +110,12 @@
                   <Layout>
                     <DimensionLayout dim="0">
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <EmptySpace min="0" pref="206" max="32767" attributes="0"/>
+                          <EmptySpace min="0" pref="389" max="32767" attributes="0"/>
                       </Group>
                     </DimensionLayout>
                     <DimensionLayout dim="1">
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <EmptySpace min="0" pref="299" max="32767" attributes="0"/>
+                          <EmptySpace min="0" pref="405" max="32767" attributes="0"/>
                       </Group>
                     </DimensionLayout>
                   </Layout>
@@ -141,26 +141,31 @@
           <Layout>
             <DimensionLayout dim="0">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" attributes="0">
+                  <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="incoming" alignment="0" pref="387" max="32767" attributes="0"/>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="mirthComboBox1" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                      </Group>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="mirthComboBox1" min="-2" pref="100" max="-2" attributes="0"/>
-                      <EmptySpace pref="56" max="32767" attributes="0"/>
                   </Group>
-                  <Component id="incoming" alignment="0" pref="224" max="32767" attributes="0"/>
               </Group>
             </DimensionLayout>
             <DimensionLayout dim="1">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace min="-2" max="-2" attributes="0"/>
+                  <Group type="102" attributes="0">
+                      <EmptySpace min="11" pref="11" max="11" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="jLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="mirthComboBox1" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="incoming" pref="380" max="32767" attributes="0"/>
+                      <Component id="incoming" pref="475" max="32767" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -170,8 +175,6 @@
               <Properties>
                 <Property name="text" type="java.lang.String" value="Data Type:"/>
               </Properties>
-            </Component>
-            <Component class="com.webreach.mirth.client.ui.editors.MessageTreeTemplate" name="incoming">
             </Component>
             <Component class="com.webreach.mirth.client.ui.components.MirthComboBox" name="mirthComboBox1">
               <Properties>
@@ -185,6 +188,8 @@
                 </Property>
                 <Property name="enabled" type="boolean" value="false"/>
               </Properties>
+            </Component>
+            <Component class="com.webreach.mirth.client.ui.editors.MessageTreeTemplate" name="incoming">
             </Component>
           </SubComponents>
         </Container>
@@ -205,14 +210,18 @@
           <Layout>
             <DimensionLayout dim="0">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="0" attributes="0">
+                  <Group type="102" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jLabel4" min="-2" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Group type="102" attributes="0">
+                              <Component id="jLabel4" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="outgoingMessageType" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Component id="outgoing" alignment="0" pref="387" max="32767" attributes="0"/>
+                      </Group>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="outgoingMessageType" min="-2" pref="100" max="-2" attributes="0"/>
-                      <EmptySpace pref="56" max="32767" attributes="0"/>
                   </Group>
-                  <Component id="outgoing" alignment="0" pref="224" max="32767" attributes="0"/>
               </Group>
             </DimensionLayout>
             <DimensionLayout dim="1">
@@ -224,7 +233,8 @@
                           <Component id="outgoingMessageType" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="outgoing" pref="380" max="32767" attributes="0"/>
+                      <Component id="outgoing" pref="475" max="32767" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -234,8 +244,6 @@
               <Properties>
                 <Property name="text" type="java.lang.String" value="Data Type:"/>
               </Properties>
-            </Component>
-            <Component class="com.webreach.mirth.client.ui.editors.MessageTreeTemplate" name="outgoing">
             </Component>
             <Component class="com.webreach.mirth.client.ui.components.MirthComboBox" name="outgoingMessageType">
               <Properties>
@@ -248,6 +256,8 @@
                   </StringArray>
                 </Property>
               </Properties>
+            </Component>
+            <Component class="com.webreach.mirth.client.ui.editors.MessageTreeTemplate" name="outgoing">
             </Component>
           </SubComponents>
         </Container>

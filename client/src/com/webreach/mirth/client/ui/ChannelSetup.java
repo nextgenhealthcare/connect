@@ -27,6 +27,7 @@ package com.webreach.mirth.client.ui;
 
 import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.model.MessageObject.Protocol;
 import com.webreach.mirth.model.converters.ObjectCloner;
 import com.webreach.mirth.model.converters.ObjectClonerException;
 import java.awt.Cursor;
@@ -629,8 +630,12 @@ public class ChannelSetup extends javax.swing.JPanel
         sourceConnector.setName("sourceConnector");
         sourceConnector.setTransportName((String) sourceSourceDropdown
                 .getItemAt(0));
+        Transformer sourceTransformer = new Transformer();
+        sourceTransformer.setInboundProtcol(Protocol.HL7V2);
+        sourceConnector.setTransformer(sourceTransformer);
+        
         currentChannel.setSourceConnector(sourceConnector);
-                
+        
         loadChannelInfo();
         makeDestinationTable(true);
         setDestinationVariableList();
@@ -1790,7 +1795,7 @@ public class ChannelSetup extends javax.swing.JPanel
         
         // If the connector type has changed then set the new value in the
         // destination table.
-        if (!((String) destinationTable.getValueAt(
+        if (destinationConnector.getTransportName() != null && !((String) destinationTable.getValueAt(
                 getSelectedDestinationIndex(),
                 getColumnNumber(CONNECTOR_TYPE_COLUMN_NAME)))
                 .equals(destinationConnector.getTransportName())

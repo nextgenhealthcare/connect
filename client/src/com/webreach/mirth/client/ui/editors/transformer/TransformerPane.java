@@ -121,7 +121,7 @@ public class TransformerPane extends MirthEditorPane
         
         tabPanel.setDefaultComponent();
         tabPanel.setIncomingMessage(transformer.getInboundTemplate());
-        tabPanel.setOutgoingHL7Message(transformer.getOutboundTemplate());
+        tabPanel.setOutgoingMessage(transformer.getOutboundTemplate());
         channel = PlatformUI.MIRTH_FRAME.channelEditPanel.currentChannel;
 
         makeTransformerTable(transformerComboBoxValues);
@@ -663,10 +663,7 @@ public class TransformerPane extends MirthEditorPane
             {
                 data = mapperPanel.getData();
                 String var = data.get("Variable").toString();
-                
-                // check for unique variable names if it is an INBOUND channel
-                if(channel.getDirection() == Channel.Direction.INBOUND)
-                {
+          
                     if (var == null || var.equals("") || !isUnique(var, row, false))
                     {
                         invalidVar = true;
@@ -684,28 +681,9 @@ public class TransformerPane extends MirthEditorPane
                         
                         parent.alertWarning(msg);
                     }
-                    else invalidVar = false;
-                }
-                else
-                {
-                    // check for empty variable names
-                    if (var == null || var.equals(""))
-                    {
-                        invalidVar = true;
-                        String msg = "";
-                        
-                        transformerTable.setRowSelectionInterval(row, row);
-                        
-                        if (var == null || var.equals(""))
-                            msg = "The variable name cannot be blank.";
-                        
-                        msg += "\nPlease enter a new variable name.\n";
-                        
-                        parent.alertWarning(msg);
+                    else {
+                    	invalidVar = false;
                     }
-                    else invalidVar = false;
-                }
-                
                 data = mapperPanel.getData();
                 
 
@@ -825,13 +803,13 @@ public class TransformerPane extends MirthEditorPane
             step.setName("");
             data.put("Variable", step.getName());
             
-            if (channel.getDirection().equals(Channel.Direction.INBOUND))
+            if (1==1)
             {
                 step.setType(MAPPER_TYPE); // mapper type by default, inbound
                 mapperPanel.setData(data);
                 mapperPanel.update();
             }
-            else if (channel.getDirection().equals(Channel.Direction.OUTBOUND))
+            else if (1==0)
             {
                 step.setType(HL7MESSAGE_TYPE); // hl7 message type by default, outbound
                 hl7builderPanel.setData(data);
@@ -1086,7 +1064,7 @@ public class TransformerPane extends MirthEditorPane
             
             transformer.setSteps(list);
             
-            transformer.setInboundTemplate(tabPanel.getIncomingHL7Message());
+            transformer.setInboundTemplate(tabPanel.getIncomingMessage());
             transformer.setOutboundTemplate(tabPanel.getOutgoingMessage());
             // reset the task pane and content to channel edit page
             if(returning)

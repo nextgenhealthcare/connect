@@ -786,7 +786,7 @@ public class FilterPane extends MirthEditorPane
         }
         
         filter.setRules( list );
-        filter.setTemplate( tabPanel.getIncomingHL7Message() );
+        filter.setTemplate( tabPanel.getIncomingMessage() );
         // reset the task pane and content to channel edit page
         if(returning)
         {
