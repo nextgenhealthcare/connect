@@ -4,9 +4,7 @@ import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
 import com.webreach.mirth.model.Rule;
 import java.util.Iterator;
-
 import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.Channel.Direction;
 import com.webreach.mirth.model.Connector;
 import com.webreach.mirth.model.Filter;
 import com.webreach.mirth.model.Step;
@@ -17,6 +15,7 @@ public class ImportConverter
 {
     public Channel convertChannel(Channel channel)
     {
+        /*
         Connector connector;
         
         // source connector
@@ -214,12 +213,13 @@ public class ImportConverter
                 }
             }
         }
-
+        */
         return channel;
     }
     
-    public Transformer convertTransformer(Transformer transformer, Direction direction)
+    public Transformer convertTransformer(Transformer transformer)
     {
+        /*
         for (Iterator iterator = transformer.getSteps().iterator(); iterator.hasNext();)
         {
             Step step = (Step) iterator.next();
@@ -268,13 +268,13 @@ public class ImportConverter
                 data.put("Variable", variable);
                 step.setData(data);
             }
-        }
-        
+        }*/
         return transformer;
     }
     
-    public Filter convertFilter(Filter filter, Direction direction)
+    public Filter convertFilter(Filter filter)
     {
+        /*
         for (Iterator iterator = filter.getRules().iterator(); iterator.hasNext();)
         {
             Rule rule = (Rule) iterator.next();
@@ -294,8 +294,7 @@ public class ImportConverter
             script = script.replaceAll("er7util.ConvertToXML", "serializer.toXML");
             
             rule.setScript(script);
-        }
-        
+        }*/
         return filter;
     }
 }

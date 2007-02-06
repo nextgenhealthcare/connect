@@ -117,9 +117,6 @@ public class MessageTreeTemplate extends javax.swing.JPanel
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea incomingPasteBox;
-    private javax.swing.JSplitPane incomingSplitPane;
-    private javax.swing.JScrollPane incomingTreeScrollPane;
     private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea pasteBox;
     private javax.swing.JSplitPane split;
     private javax.swing.JScrollPane treeScrollPane;

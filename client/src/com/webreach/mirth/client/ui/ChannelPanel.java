@@ -45,17 +45,10 @@ import com.webreach.mirth.model.Channel;
 public class ChannelPanel extends javax.swing.JPanel
 {
     private final String STATUS_COLUMN_NAME = "Status";
-    private final String DIRECTION_COLUMN_NAME = "Direction";
     private final String NAME_COLUMN_NAME = "Name";
-    private final String MODE_COLUMN_NAME = "Mode";
     private final String ID_COLUMN_NAME = "Id";
     private final int ID_COLUMN_NUMBER = 4;
-    private final String INBOUND_DIRECTION = "Inbound";
-    private final String OUTBOUND_DIRECTION = "Outbound";
     private final String ENABLED_STATUS = "Enabled";
-    private final String ROUTER = "Router";
-    private final String BROADCAST = "Broadcast";
-    private final String APPLICATION = "Application Integration";
     
     private JScrollPane channelPane;
     private JXTable channelTable;
@@ -123,20 +116,8 @@ public class ChannelPanel extends javax.swing.JPanel
                 else
                     tableData[i][0] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_black.png")),"Disabled");
 
-                if (channel.getDirection().equals(Channel.Direction.INBOUND))
-                    tableData[i][1] = INBOUND_DIRECTION;
-                else
-                    tableData[i][1] = OUTBOUND_DIRECTION;
-
-                if(channel.getMode() == Channel.Mode.APPLICATION)
-                    tableData[i][2] = APPLICATION;
-                else if(channel.getMode() == Channel.Mode.BROADCAST)
-                    tableData[i][2] = BROADCAST;
-                else if(channel.getMode() == Channel.Mode.ROUTER)
-                    tableData[i][2] = ROUTER;
-
-                tableData[i][3] = channel.getName();
-                tableData[i][4] = channel.getId();
+                tableData[i][1] = channel.getName();
+                tableData[i][2] = channel.getId();
                 i++;
             }
         }
@@ -145,7 +126,7 @@ public class ChannelPanel extends javax.swing.JPanel
             tableData,
             new String []
         {
-            STATUS_COLUMN_NAME, DIRECTION_COLUMN_NAME, MODE_COLUMN_NAME, NAME_COLUMN_NAME, ID_COLUMN_NAME
+            STATUS_COLUMN_NAME, NAME_COLUMN_NAME, ID_COLUMN_NAME
         }
         ) {
             boolean[] canEdit = new boolean []
@@ -162,8 +143,6 @@ public class ChannelPanel extends javax.swing.JPanel
         
         // Must set the maximum width on columns that should be packed.
         channelTable.getColumnExt(STATUS_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
-        channelTable.getColumnExt(DIRECTION_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
-        channelTable.getColumnExt(MODE_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
         
         channelTable.getColumnExt(STATUS_COLUMN_NAME).setCellRenderer(new ImageCellRenderer());
         channelTable.getColumnExt(ID_COLUMN_NAME).setVisible(false);

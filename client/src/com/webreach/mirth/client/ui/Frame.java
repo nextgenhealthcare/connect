@@ -26,6 +26,7 @@
 
 package com.webreach.mirth.client.ui;
 
+import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.converters.ObjectCloner;
 import com.webreach.mirth.model.converters.ObjectClonerException;
 import java.awt.BorderLayout;
@@ -152,6 +153,7 @@ public class Frame extends JXFrame
     private ArrayList<CharsetEncodingInformation>  avaiableCharsetEncodings=null;
     private List<String> charsetEncodings=null;
     
+    public HashMap<MessageObject.Protocol, String> protocols;
     
     public Frame()
     {
@@ -163,6 +165,12 @@ public class Frame extends JXFrame
         taskPaneContainer = new JXTaskPaneContainer();
         sourceConnectors = new ArrayList<ConnectorClass>();
         destinationConnectors = new ArrayList<ConnectorClass>();
+        
+        protocols = new HashMap<MessageObject.Protocol, String>();
+        protocols.put(MessageObject.Protocol.HL7V2, "HL7 v2.x");
+        protocols.put(MessageObject.Protocol.HL7V3, "HL7 v3.0");
+        protocols.put(MessageObject.Protocol.X12, "X12");
+        protocols.put(MessageObject.Protocol.XML, "XML");
         
         setTitle(UIConstants.TITLE_TEXT);
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
@@ -206,7 +214,7 @@ public class Frame extends JXFrame
         }
         catch(Exception e)
         {
-            alertError("Error getting the charset list\n "+e);
+            alertError("Error getting the charset list:\n "+e);
         }
     }
     
@@ -222,7 +230,7 @@ public class Frame extends JXFrame
             this.setCharsetEncodings();
         }
         if (this.avaiableCharsetEncodings==null){
-            logger.error("Error, no encodings detected ");
+            logger.error("Error, the are no encodings detected ");
             return;
         } 
         channelCombo.removeAllItems();    
@@ -245,7 +253,7 @@ public class Frame extends JXFrame
         }
         if (this.avaiableCharsetEncodings==null)
         {
-            logger.error("Error, no encodings detected ");
+            logger.error("Error, there are no encodings detected.");
             return;
         }  
         if ( (selectedCharset==null) || (selectedCharset.equalsIgnoreCase(UIConstants.DEFAULT_ENCODING_OPTION)) )
@@ -263,7 +271,7 @@ public class Frame extends JXFrame
         }
         else
         {
-            alertInformation("Sorry, the JVM of the server, can't support the previously selected "+selectedCharset+ "encoding, please choose another one or install more encodings in the server");
+            alertInformation("Sorry, the JVM of the server can't support the previously selected " + selectedCharset+ " encoding. Please choose another one or install more encodings in the server");
             channelCombo.setSelectedIndex(0);
         }        
     }
@@ -1523,14 +1531,21 @@ public class Frame extends JXFrame
     
     public void doNewChannel()
     {
-        ChannelWizard channelWizard = new ChannelWizard();
-        Dimension channelWizardSize = channelWizard.getPreferredSize();
-        Dimension frmSize = getSize();
-        Point loc = getLocation();
-        channelWizard.setLocation((frmSize.width - channelWizardSize.width) / 2 + loc.x, (frmSize.height - channelWizardSize.height) / 2 + loc.y);
-        channelWizard.setModal(true);
-        channelWizard.setResizable(false);
-        channelWizard.setVisible(true);
+        Channel channel = new Channel();
+        
+        try
+        {
+            channel.setId(mirthClient.getGuid());        
+        }
+        catch (ClientException e)
+        {
+            alertException(e.getStackTrace(), e.getMessage());
+        }
+        
+        channel.setName("");
+        channel.setEnabled(true);
+        channel.getProperties().setProperty("initialState", "Started");
+        setupChannel(channel);
     }
 
     public void doEditChannel()

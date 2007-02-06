@@ -124,17 +124,9 @@ public class TransformerPane extends MirthEditorPane
         tabPanel.setOutgoingHL7Message(transformer.getOutboundTemplate());
         channel = PlatformUI.MIRTH_FRAME.channelEditPanel.currentChannel;
 
-        if (channel.getDirection().equals(Channel.Direction.OUTBOUND))
-        {
-            //hl7builderPanel = new HL7MessageBuilder(this);
-           // stepPanel.addCard(hl7builderPanel, HL7MESSAGE_TYPE);
-            // we need to clear all the old data before we load the new
-            makeTransformerTable(outboundComboBoxValues);
-        }
-        else
-        {
-            makeTransformerTable(inboundComboBoxValues);
-        }
+        makeTransformerTable(transformerComboBoxValues);
+
+
         
         // add any existing steps to the model
         List<Step> list = transformer.getSteps();
@@ -409,7 +401,7 @@ public class TransformerPane extends MirthEditorPane
                     else if(type.equalsIgnoreCase(MAPPER_TYPE))
                     {
                         Map<Object, Object> data = mapperPanel.getData();
-                        data.put("Variable", getUniqueName(true));
+                        data.put("Variable", "");
                         data.put("Mapping", "");
                         data.put("isGlobal", UIConstants.NO_OPTION);
                         mapperPanel.setData(data);
@@ -418,7 +410,7 @@ public class TransformerPane extends MirthEditorPane
                     else if(type.equalsIgnoreCase(HL7MESSAGE_TYPE))
                     {
                         Map<Object, Object> data = mapperPanel.getData();
-                        data.put("Variable", getUniqueName(true));
+                        data.put("Variable", "");
                         data.put("Mapping", "");
                         hl7builderPanel.setData(data);
                         hl7builderPanel.update();
@@ -830,18 +822,17 @@ public class TransformerPane extends MirthEditorPane
             
             Map<Object, Object> data = new HashMap<Object, Object>();
             data.put( "Mapping", "" );
+            step.setName("");
+            data.put("Variable", step.getName());
+            
             if (channel.getDirection().equals(Channel.Direction.INBOUND))
             {
-                step.setName(getUniqueName(false));
-                data.put("Variable", step.getName());
                 step.setType(MAPPER_TYPE); // mapper type by default, inbound
                 mapperPanel.setData(data);
                 mapperPanel.update();
             }
             else if (channel.getDirection().equals(Channel.Direction.OUTBOUND))
             {
-                step.setName("");
-                data.put("Variable", step.getName());
                 step.setType(HL7MESSAGE_TYPE); // hl7 message type by default, outbound
                 hl7builderPanel.setData(data);
                 hl7builderPanel.update();
@@ -923,7 +914,7 @@ public class TransformerPane extends MirthEditorPane
             {
                 Transformer importTransformer = (Transformer)serializer.fromXML(transformerXML);
                 ImportConverter converter = new ImportConverter();
-                importTransformer = converter.convertTransformer(importTransformer, parent.channelEditPanel.currentChannel.getDirection());
+                importTransformer = converter.convertTransformer(importTransformer);
                 prevSelRow = -1;
                 modified = true;
                 connector.setTransformer(importTransformer);
@@ -1248,9 +1239,7 @@ public class TransformerPane extends MirthEditorPane
     private String[] defaultComboBoxValues = { MAPPER_TYPE, HL7MESSAGE_TYPE,
     JAVASCRIPT_TYPE };
     
-    private String[] outboundComboBoxValues = { HL7MESSAGE_TYPE, MAPPER_TYPE,
+    private String[] transformerComboBoxValues = { HL7MESSAGE_TYPE, MAPPER_TYPE,
     JAVASCRIPT_TYPE };
-    
-    private String[] inboundComboBoxValues = { MAPPER_TYPE, JAVASCRIPT_TYPE };
-    
+   
 }

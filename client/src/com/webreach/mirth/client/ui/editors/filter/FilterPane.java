@@ -682,7 +682,7 @@ public class FilterPane extends MirthEditorPane
             {
                 Filter importFilter = (Filter)serializer.fromXML(filterXML);
                 ImportConverter converter = new ImportConverter();
-                importFilter = converter.convertFilter(importFilter, parent.channelEditPanel.currentChannel.getDirection());
+                importFilter = converter.convertFilter(importFilter);
                 prevSelRow = -1;
                 modified = true;
                 connector.setFilter(importFilter);

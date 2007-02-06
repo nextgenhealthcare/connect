@@ -27,7 +27,7 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Component id="channelView" alignment="0" pref="691" max="32767" attributes="0"/>
+          <Component id="channelView" alignment="0" pref="726" max="32767" attributes="0"/>
       </Group>
     </DimensionLayout>
     <DimensionLayout dim="1">
@@ -76,15 +76,19 @@
             <DimensionLayout dim="0">
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="1" attributes="0">
-                      <EmptySpace min="-2" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="13" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="1" attributes="0">
-                          <Component id="jLabel1" alignment="1" min="-2" max="-2" attributes="0"/>
-                          <Component id="summaryPatternLabel1" alignment="1" min="-2" max="-2" attributes="0"/>
-                          <Component id="summaryDirectionLabel1" alignment="1" min="-2" max="-2" attributes="0"/>
-                          <Component id="summaryNameLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                          <Component id="jLabel3" min="-2" max="-2" attributes="0"/>
-                          <Component id="summaryDescriptionLabel" min="-2" max="-2" attributes="0"/>
-                          <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
+                          <Group type="102" attributes="0">
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="1" attributes="0">
+                                  <Component id="jLabel1" alignment="1" min="-2" max="-2" attributes="0"/>
+                                  <Component id="summaryPatternLabel1" alignment="1" min="-2" max="-2" attributes="0"/>
+                                  <Component id="jLabel3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="summaryDescriptionLabel" min="-2" max="-2" attributes="0"/>
+                                  <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
+                              </Group>
+                          </Group>
+                          <Component id="summaryNameLabel" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace min="-2" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
@@ -104,28 +108,25 @@
                               </Group>
                           </Group>
                           <Group type="102" alignment="0" attributes="0">
-                              <Group type="103" groupAlignment="1" attributes="0">
-                                  <Component id="preprocessor" alignment="0" pref="559" max="32767" attributes="3"/>
-                                  <Group type="102" alignment="0" attributes="0">
-                                      <Group type="103" groupAlignment="0" attributes="0">
-                                          <Component id="summaryNameField" alignment="0" min="-2" pref="200" max="-2" attributes="0"/>
-                                          <Component id="summaryPatternLabel2" min="-2" pref="159" max="-2" attributes="0"/>
-                                          <Component id="summaryDirectionLabel2" alignment="0" min="-2" pref="78" max="-2" attributes="0"/>
-                                          <Component id="initialState" alignment="0" min="-2" pref="108" max="-2" attributes="0"/>
-                                          <Component id="encryptMessagesCheckBox" alignment="0" min="-2" max="-2" attributes="0"/>
-                                      </Group>
-                                      <EmptySpace min="46" pref="46" max="-2" attributes="0"/>
-                                      <Group type="103" groupAlignment="0" attributes="0">
-                                          <Component id="transactionalCheckBox" min="-2" max="-2" attributes="0"/>
-                                          <Component id="summaryEnabledCheckbox" min="-2" max="-2" attributes="0"/>
-                                          <Component id="xmlPreEncoded" alignment="0" min="-2" max="-2" attributes="1"/>
-                                          <Component id="synchronousCheckBox" alignment="0" min="-2" max="-2" attributes="0"/>
-                                      </Group>
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Component id="encryptMessagesCheckBox" alignment="0" min="-2" max="-2" attributes="0"/>
+                                  <Group type="103" alignment="0" groupAlignment="1" max="-2" attributes="0">
+                                      <Component id="incomingProtocol" alignment="0" max="32767" attributes="1"/>
+                                      <Component id="initialState" alignment="0" min="-2" pref="108" max="-2" attributes="1"/>
                                   </Group>
-                                  <Component id="jScrollPane1" alignment="0" pref="559" max="32767" attributes="2"/>
+                                  <Component id="summaryNameField" min="-2" pref="200" max="-2" attributes="0"/>
                               </Group>
-                              <EmptySpace min="-2" pref="10" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Component id="transactionalCheckBox" min="-2" max="-2" attributes="0"/>
+                                  <Component id="summaryEnabledCheckbox" min="-2" max="-2" attributes="0"/>
+                                  <Component id="xmlPreEncoded" alignment="0" min="-2" max="-2" attributes="1"/>
+                                  <Component id="synchronousCheckBox" alignment="0" min="-2" max="-2" attributes="0"/>
+                              </Group>
+                              <EmptySpace min="-2" pref="3" max="-2" attributes="0"/>
                           </Group>
+                          <Component id="jScrollPane1" alignment="0" pref="596" max="32767" attributes="2"/>
+                          <Component id="preprocessor" alignment="0" pref="596" max="32767" attributes="2"/>
                       </Group>
                       <EmptySpace min="-2" max="-2" attributes="0"/>
                   </Group>
@@ -135,28 +136,18 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="1" attributes="0">
-                          <Group type="103" groupAlignment="3" attributes="0">
-                              <Component id="summaryNameField" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="summaryNameLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <Component id="summaryEnabledCheckbox" alignment="1" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="summaryDirectionLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="summaryDirectionLabel2" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="xmlPreEncoded" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace min="-2" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="summaryPatternLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="summaryPatternLabel2" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="transactionalCheckBox" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" attributes="0">
+                              <Group type="103" groupAlignment="3" attributes="0">
+                                  <Component id="summaryNameLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="summaryNameField" alignment="3" min="-2" max="-2" attributes="0"/>
+                              </Group>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="3" attributes="0">
+                                  <Component id="summaryPatternLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="incomingProtocol" alignment="3" min="-2" max="-2" attributes="0"/>
+                              </Group>
+                              <EmptySpace max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="3" attributes="0">
                                   <Component id="jLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
                                   <Component id="initialState" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -179,17 +170,25 @@
                                   <Component id="storeMessagesDays" alignment="3" min="-2" max="-2" attributes="0"/>
                               </Group>
                           </Group>
-                          <Component id="synchronousCheckBox" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="summaryEnabledCheckbox" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="xmlPreEncoded" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace min="-2" max="-2" attributes="0"/>
+                              <Component id="transactionalCheckBox" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="synchronousCheckBox" min="-2" max="-2" attributes="0"/>
+                          </Group>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Component id="summaryDescriptionLabel" min="-2" max="-2" attributes="0"/>
-                          <Component id="jScrollPane1" pref="136" max="32767" attributes="0"/>
+                          <Component id="jScrollPane1" pref="143" max="32767" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
-                          <Component id="preprocessor" pref="137" max="32767" attributes="0"/>
+                          <Component id="preprocessor" pref="144" max="32767" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
@@ -208,25 +207,13 @@
               </Properties>
             </Component>
             <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="summaryNameField">
-            </Component>
-            <Component class="javax.swing.JLabel" name="summaryDirectionLabel1">
-              <Properties>
-                <Property name="text" type="java.lang.String" value="Direction:"/>
-              </Properties>
-            </Component>
-            <Component class="javax.swing.JLabel" name="summaryDirectionLabel2">
-              <Properties>
-                <Property name="text" type="java.lang.String" value="Outbound"/>
-              </Properties>
+              <Events>
+                <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="summaryNameFieldKeyReleased"/>
+              </Events>
             </Component>
             <Component class="javax.swing.JLabel" name="summaryPatternLabel1">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Pattern:"/>
-              </Properties>
-            </Component>
-            <Component class="javax.swing.JLabel" name="summaryPatternLabel2">
-              <Properties>
-                <Property name="text" type="java.lang.String" value="Application Integration"/>
+                <Property name="text" type="java.lang.String" value="Incoming Data:"/>
               </Properties>
             </Component>
             <Component class="com.webreach.mirth.client.ui.components.MirthCheckBox" name="summaryEnabledCheckbox">
@@ -450,6 +437,18 @@
                 <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>
               </AuxValues>
             </Component>
+            <Component class="com.webreach.mirth.client.ui.components.MirthComboBox" name="incomingProtocol">
+              <Properties>
+                <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
+                  <StringArray count="4">
+                    <StringItem index="0" value="Item 1"/>
+                    <StringItem index="1" value="Item 2"/>
+                    <StringItem index="2" value="Item 3"/>
+                    <StringItem index="3" value="Item 4"/>
+                  </StringArray>
+                </Property>
+              </Properties>
+            </Component>
           </SubComponents>
         </Container>
         <Container class="javax.swing.JPanel" name="source">
@@ -532,7 +531,7 @@
               <Layout>
                 <DimensionLayout dim="0">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <EmptySpace min="0" pref="666" max="32767" attributes="0"/>
+                      <EmptySpace min="0" pref="701" max="32767" attributes="0"/>
                   </Group>
                 </DimensionLayout>
                 <DimensionLayout dim="1">
@@ -631,7 +630,7 @@
               <Layout>
                 <DimensionLayout dim="0">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <EmptySpace min="0" pref="474" max="32767" attributes="0"/>
+                      <EmptySpace min="0" pref="509" max="32767" attributes="0"/>
                   </Group>
                 </DimensionLayout>
                 <DimensionLayout dim="1">
