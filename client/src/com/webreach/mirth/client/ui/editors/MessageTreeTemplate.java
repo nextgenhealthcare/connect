@@ -35,7 +35,7 @@ public class MessageTreeTemplate extends javax.swing.JPanel
     {
         initComponents();
         try{
-            split.setDividerLocation((int)(PlatformUI.MIRTH_FRAME.currentContentPage.getHeight()/2));
+            resizePanes();
         }catch (Exception e){
           
         }
@@ -85,6 +85,11 @@ public class MessageTreeTemplate extends javax.swing.JPanel
         if (msg != null)
             msg = msg.replace('\r', '\n');
         pasteBox.setText(msg);
+    }
+    
+    public void resizePanes()
+    {
+        split.setDividerLocation((int)(PlatformUI.MIRTH_FRAME.currentContentPage.getHeight()/2 - PlatformUI.MIRTH_FRAME.currentContentPage.getHeight()/10));
     }
     
     /** This method is called from within the constructor to

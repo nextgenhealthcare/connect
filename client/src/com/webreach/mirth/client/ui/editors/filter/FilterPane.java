@@ -71,8 +71,7 @@ import com.webreach.mirth.client.ui.Mirth;
 import com.webreach.mirth.client.ui.MirthFileFilter;
 import com.webreach.mirth.client.ui.PlatformUI;
 import com.webreach.mirth.client.ui.UIConstants;
-import com.webreach.mirth.client.ui.editors.BlankPanel;
-import com.webreach.mirth.client.ui.editors.CardPanel;
+import com.webreach.mirth.client.ui.editors.BasePanel;
 import com.webreach.mirth.client.ui.editors.EditorConstants;
 import com.webreach.mirth.client.ui.editors.JavaScriptPanel;
 import com.webreach.mirth.client.ui.editors.MirthEditorPane;
@@ -127,8 +126,8 @@ public class FilterPane extends MirthEditorPane
             setRowData( s, row );
         }
         
-        //tabPanel.setHL7Message( filter.getTemplate() );
-        tabPanel.setDefaultComponent();
+        tabTemplatePanel.setDefaultComponent();
+        tabTemplatePanel.tabPanel.remove(tabTemplatePanel.outgoingTab);
         
         int rowCount = filterTableModel.getRowCount();
         // select the first row if there is one
@@ -147,9 +146,9 @@ public class FilterPane extends MirthEditorPane
         parent.setCurrentContentPage( this );
         parent.setCurrentTaskPaneContainer( filterTaskPaneContainer );
         
-        jsPanel.update();
         updateRuleNumbers();
         updateTaskPane();
+        
     }
     
     /** This method is called from within the constructor to
@@ -159,8 +158,8 @@ public class FilterPane extends MirthEditorPane
     {
         
         // the available panels (cards)
-        rulePanel = new CardPanel();
-        blankPanel = new BlankPanel();
+        rulePanel = new BasePanel();
+        blankPanel = new BasePanel();
         jsPanel = new JavaScriptPanel( this );
         // 		establish the cards to use in the Filter
         rulePanel.addCard( blankPanel, BLANK_TYPE );
@@ -298,33 +297,18 @@ public class FilterPane extends MirthEditorPane
         // add the tasks to the taskpane, and the taskpane to the mirth client
         parent.setNonFocusable( filterTasks );
         filterTaskPaneContainer.add( filterTasks );
-        
-                /*
-                otherTasks = new JXTaskPane();
-        otherTasks.setTitle("Other");
-        otherTasks.setFocusable(false);
-        otherTasks.add(initActionCallback("doHelp", ActionFactory.createBoundAction("doHelp","Help on this topic","H"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/help.png"))));
-        otherTasks.add(initActionCallback("goToAbout",  ActionFactory.createBoundAction("goToAbout","About Mirth","U"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/about.png"))));
-        otherTasks.add(initActionCallback("goToMirth", ActionFactory.createBoundAction("goToMirth","Visit MirthProject.org","V"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/home.png"))));
-        otherTasks.add(initActionCallback("doLogout", ActionFactory.createBoundAction("doLogout","Logout","G"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/disconnect.png"))));
-        filterTaskPaneContainer.add(otherTasks);
-                 */
-        
+             
         makeFilterTable();
         
         // BGN LAYOUT
         filterTablePane.setBorder( BorderFactory.createEmptyBorder() );
         rulePanel.setBorder( BorderFactory.createEmptyBorder() );
         
-        hSplitPane = new JSplitPane( JSplitPane.HORIZONTAL_SPLIT,
-                rulePanel, refPanel );
-        hSplitPane.setContinuousLayout( true );
-        hSplitPane.setDividerLocation((int)(PlatformUI.MIRTH_FRAME.currentContentPage.getHeight()/2));
-        
-        vSplitPane = new JSplitPane( JSplitPane.VERTICAL_SPLIT,
-                filterTablePane, hSplitPane );
-        vSplitPane.setContinuousLayout( true );
-        vSplitPane.setDividerLocation((int)(PlatformUI.MIRTH_FRAME.currentContentPage.getHeight()/2));
+        hSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, filterTablePane, rulePanel);
+        hSplitPane.setContinuousLayout(true);        
+        vSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, hSplitPane, refPanel);
+        vSplitPane.setContinuousLayout(true);
+        resizePanes();
         
         this.setLayout( new BorderLayout() );
         this.add( vSplitPane, BorderLayout.CENTER );
@@ -786,7 +770,7 @@ public class FilterPane extends MirthEditorPane
         }
         
         filter.setRules( list );
-        filter.setTemplate( tabPanel.getIncomingMessage() );
+        filter.setTemplate( tabTemplatePanel.getIncomingMessage() );
         // reset the task pane and content to channel edit page
         if(returning)
         {
@@ -886,8 +870,14 @@ public class FilterPane extends MirthEditorPane
         return filterTableModel;
     }
     
+    public void resizePanes()
+    {
+        hSplitPane.setDividerLocation((int)(PlatformUI.MIRTH_FRAME.currentContentPage.getHeight()/2 - PlatformUI.MIRTH_FRAME.currentContentPage.getHeight()/3.5));
+        vSplitPane.setDividerLocation((int)(PlatformUI.MIRTH_FRAME.currentContentPage.getWidth()/2 + PlatformUI.MIRTH_FRAME.currentContentPage.getWidth()/5.5));
+        tabTemplatePanel.resizePanes();
+    }
     
-//	............................................................................\\
+    //	............................................................................\\
     
     // used to load this pane
     private Filter filter;
@@ -911,9 +901,9 @@ public class FilterPane extends MirthEditorPane
     private Connector connector;
     
     // panels using CardLayout
-    protected CardPanel rulePanel;		// the card holder
-    protected BlankPanel blankPanel;	// the cards
-    protected JavaScriptPanel jsPanel;  //    \/
+    protected BasePanel rulePanel;		// the card holder
+    protected BasePanel blankPanel;	
+    protected JavaScriptPanel jsPanel;
     
     public static final int NUMBER_OF_COLUMNS = 4;
     public static final String BLANK_TYPE = "";

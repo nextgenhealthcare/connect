@@ -47,7 +47,7 @@ public class ChannelPanel extends javax.swing.JPanel
     private final String STATUS_COLUMN_NAME = "Status";
     private final String NAME_COLUMN_NAME = "Name";
     private final String ID_COLUMN_NAME = "Id";
-    private final int ID_COLUMN_NUMBER = 4;
+    private final int ID_COLUMN_NUMBER = 2;
     private final String ENABLED_STATUS = "Enabled";
     
     private JScrollPane channelPane;
@@ -106,7 +106,7 @@ public class ChannelPanel extends javax.swing.JPanel
         channelTable.setBorder(BorderFactory.createEmptyBorder());
         if(parent.channels != null)
         {
-            tableData = new Object[parent.channels.size()][5];
+            tableData = new Object[parent.channels.size()][3];
             
             int i = 0;
             for (Channel channel : parent.channels.values())
@@ -131,7 +131,7 @@ public class ChannelPanel extends javax.swing.JPanel
         ) {
             boolean[] canEdit = new boolean []
             {
-                false, false, false, false, false
+                false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {

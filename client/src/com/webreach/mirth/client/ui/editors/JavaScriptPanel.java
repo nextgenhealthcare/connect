@@ -1,153 +1,125 @@
-/* ***** BEGIN LICENSE BLOCK *****
- * Version: MPL 1.1
+/*
+ * JavaScriptPanel.java
  *
- * The contents of this file are subject to the Mozilla Public License Version
- * 1.1 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * http://www.mozilla.org/MPL/
- *
- * Software distributed under the License is distributed on an "AS IS" basis,
- * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
- * for the specific language governing rights and limitations under the
- * License.
- *
- * The Original Code is Mirth.
- *
- * The Initial Developer of the Original Code is
- * WebReach, Inc.
- * Portions created by the Initial Developer are Copyright (C) 2006
- * the Initial Developer. All Rights Reserved.
- *
- * Contributor(s):
- *   Gerald Bortis <geraldb@webreachinc.com>
- *
- * ***** END LICENSE BLOCK ***** */
-
+ * Created on February 6, 2007, 12:16 PM
+ */
 
 package com.webreach.mirth.client.ui.editors;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Font;
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.swing.BorderFactory;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-
 import org.syntax.jedit.SyntaxDocument;
 import org.syntax.jedit.tokenmarker.JavaScriptTokenMarker;
 
-import com.webreach.mirth.client.ui.UIConstants;
-import com.webreach.mirth.client.ui.components.MirthSyntaxTextArea;
-import com.webreach.mirth.client.ui.components.MirthTextPane;
-
-
 /**
- * @author franciscos
  *
+ * @author  brendanh
  */
-public class JavaScriptPanel extends CardPanel {
-	
-	public JavaScriptPanel(){initComponents();}
-	public JavaScriptPanel(MirthEditorPane p) {
-		super();
-		parent = p;
-		initComponents();
-		setBorder(BorderFactory.createEmptyBorder());
-	}
-	
-	private void initComponents() {
-		scriptPanel = new JPanel();
-		scriptScrollPane = new JScrollPane();
-		scriptScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		scriptScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
-		scriptDoc = new SyntaxDocument();
-		scriptDoc.setTokenMarker(new JavaScriptTokenMarker());
-		scriptTextPane = new MirthSyntaxTextArea(true, true);
-                scriptTextPane.setDocument(scriptDoc);
-	
-		scriptTextPane.setBorder( BorderFactory.createEmptyBorder() );
-		scriptPanel.setBorder( BorderFactory.createEmptyBorder() );
-		
-		scriptTextPane.setFont( EditorConstants.DEFAULT_FONT );
-		
-		scriptPanel.setLayout( new BorderLayout() );
-		scriptPanel.add( scriptTextPane, BorderLayout.CENTER );
+public class JavaScriptPanel extends BasePanel
+{
+    private static SyntaxDocument scriptDoc;
+    private LineNumber lineNumbers;
+    private MirthEditorPane parent;
 
-		scriptScrollPane.setViewportView( scriptPanel );
-                
-		scriptScrollPane.setBorder( BorderFactory.createTitledBorder( 
-				BorderFactory.createEtchedBorder(), "JavaScript", TitledBorder.LEFT,
-				TitledBorder.ABOVE_TOP, new Font( null, Font.PLAIN, 11 ), 
-				Color.black ));
-		
-		//BGN listeners
-		scriptTextPane.getDocument().addDocumentListener(
-				new DocumentListener() {
-					
-					public void changedUpdate(DocumentEvent arg0) {
-                                            
-					}
-					
-					public void insertUpdate(DocumentEvent arg0) {
-						parent.modified = true;			
-					}
-					
-					public void removeUpdate(DocumentEvent arg0) {
-						parent.modified = true;
-					}
-					
-				});
-		//END listeners
-		
-		this.setBorder( BorderFactory.createEmptyBorder( 10, 10, 10, 10) );
-		this.setLayout( new BorderLayout() );
-		this.add( scriptScrollPane, BorderLayout.CENTER );
-		
-	}
-	
-	public void update(){
-		parent.update();
-	}
-	
-	public Map<Object, Object> getData() {
-		Map<Object, Object> m = new HashMap<Object, Object>();
-		m.put( "Script", scriptTextPane.getText().trim() );
-		return m;
-	}
-	
-	
-	public void setData( Map<Object, Object> m ) {
-                boolean modified = parent.modified;
-		
-                if ( m != null )
-			scriptTextPane.setText( (String)m.get( "Script" ) );	
-           
-		else
-			scriptTextPane.setText( "" );
-                
-                parent.modified = modified;
-	}
-        
-        public String getJavaScript()
+    private String header = "{";
+    private String footer = "}";
+    
+    /** Creates new form JavaScriptPanel */
+    public JavaScriptPanel(MirthEditorPane p)
+    {
+        super();
+        parent = p;
+        initComponents();
+        scriptDoc = new SyntaxDocument();
+        scriptDoc.setTokenMarker(new JavaScriptTokenMarker());
+        scriptTextPane.setDocument(scriptDoc);
+        scriptTextPane.getDocument().addDocumentListener(new DocumentListener() 
         {
-            return scriptTextPane.getText();
-        }
-	
-	private JPanel scriptPanel;
-	private static SyntaxDocument scriptDoc;
-	private MirthSyntaxTextArea scriptTextPane;
-	private JScrollPane scriptScrollPane;
-	private LineNumber lineNumbers;
-	private MirthEditorPane parent;
-	
-	private String header = "{";
-	private String footer = "}";
-	
+            public void changedUpdate(DocumentEvent arg0) 
+            {
+            }
+            public void insertUpdate(DocumentEvent arg0) 
+            {
+                parent.modified = true;			
+            }
+            public void removeUpdate(DocumentEvent arg0) 
+            {
+                parent.modified = true;
+            }
+        });
+    }
+    
+
+    public Map<Object, Object> getData() 
+    {
+        Map<Object, Object> m = new HashMap<Object, Object>();
+        m.put( "Script", scriptTextPane.getText().trim() );
+        return m;
+    }
+
+
+    public void setData( Map<Object, Object> m ) 
+    {
+        boolean modified = parent.modified;
+
+        if (m != null)
+            scriptTextPane.setText((String)m.get("Script"));	
+
+        else
+            scriptTextPane.setText("");
+
+        parent.modified = modified;
+    }
+
+    public String getJavaScript()
+    {
+        return scriptTextPane.getText();
+    }
+
+    /** This method is called from within the constructor to
+     * initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is
+     * always regenerated by the Form Editor.
+     */
+    // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
+    private void initComponents()
+    {
+        jLabel1 = new javax.swing.JLabel();
+        scriptTextPane = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea(true,true);
+
+        setBackground(new java.awt.Color(255, 255, 255));
+        jLabel1.setText("JavaScript");
+
+        scriptTextPane.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
+        this.setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(layout.createSequentialGroup()
+                .addContainerGap()
+                .add(jLabel1)
+                .addContainerGap(340, Short.MAX_VALUE))
+            .add(scriptTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(layout.createSequentialGroup()
+                .addContainerGap()
+                .add(jLabel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 14, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(scriptTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 280, Short.MAX_VALUE))
+        );
+    }// </editor-fold>//GEN-END:initComponents
+    
+    
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel jLabel1;
+    private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea scriptTextPane;
+    // End of variables declaration//GEN-END:variables
+
 }

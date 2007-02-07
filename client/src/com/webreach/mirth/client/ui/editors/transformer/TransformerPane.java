@@ -42,10 +42,12 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Properties;
 import java.util.prefs.Preferences;
 
 import javax.swing.Action;
@@ -75,8 +77,7 @@ import com.webreach.mirth.client.ui.Mirth;
 import com.webreach.mirth.client.ui.MirthFileFilter;
 import com.webreach.mirth.client.ui.PlatformUI;
 import com.webreach.mirth.client.ui.UIConstants;
-import com.webreach.mirth.client.ui.editors.BlankPanel;
-import com.webreach.mirth.client.ui.editors.CardPanel;
+import com.webreach.mirth.client.ui.editors.BasePanel;
 import com.webreach.mirth.client.ui.editors.EditorConstants;
 import com.webreach.mirth.client.ui.editors.HL7MessageBuilder;
 import com.webreach.mirth.client.ui.editors.JavaScriptPanel;
@@ -119,14 +120,14 @@ public class TransformerPane extends MirthEditorPane
         if (parent.channelEditTasks.getContentPane().getComponent(0).isVisible())
             modified = true;
         
-        tabPanel.setDefaultComponent();
-        tabPanel.setIncomingMessage(transformer.getInboundTemplate());
-        tabPanel.setOutgoingMessage(transformer.getOutboundTemplate());
+        tabTemplatePanel.setDefaultComponent();
+        tabTemplatePanel.tabPanel.add("Outgoing Data", tabTemplatePanel.outgoingTab);
+
+        tabTemplatePanel.setIncomingMessage(transformer.getInboundTemplate());
+        tabTemplatePanel.setOutgoingMessage(transformer.getOutboundTemplate());
         channel = PlatformUI.MIRTH_FRAME.channelEditPanel.currentChannel;
 
-        makeTransformerTable(transformerComboBoxValues);
-
-
+        makeTransformerTable();
         
         // add any existing steps to the model
         List<Step> list = transformer.getSteps();
@@ -158,15 +159,8 @@ public class TransformerPane extends MirthEditorPane
         parent.setCurrentContentPage(this);
         parent.setCurrentTaskPaneContainer(transformerTaskPaneContainer);
         
-        mapperPanel.update();
-        jsPanel.update();
-        if (hl7builderPanel != null)
-        {
-            hl7builderPanel.update();
-        }
         updateStepNumbers();
         updateTaskPane();
-        
     }
     
     /**
@@ -176,8 +170,8 @@ public class TransformerPane extends MirthEditorPane
     {
         
         // the available panels (cards)
-        stepPanel = new CardPanel();
-        blankPanel = new BlankPanel();
+        stepPanel = new BasePanel();
+        blankPanel = new BasePanel();
         hl7builderPanel = new HL7MessageBuilder(this);
         mapperPanel = new MapperPanel(this);
         jsPanel = new JavaScriptPanel(this);
@@ -335,11 +329,9 @@ public class TransformerPane extends MirthEditorPane
         
         hSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, transformerTablePane, stepPanel);
         hSplitPane.setContinuousLayout(true);
-        hSplitPane.setDividerLocation((int)(PlatformUI.MIRTH_FRAME.currentContentPage.getWidth()/2));
-        
         vSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, hSplitPane, refPanel);
         vSplitPane.setContinuousLayout(true);
-        vSplitPane.setDividerLocation((int)(PlatformUI.MIRTH_FRAME.currentContentPage.getHeight()/2));
+        resizePanes();
         
         hSplitPane.setBorder(BorderFactory.createEmptyBorder());
         vSplitPane.setBorder(BorderFactory.createEmptyBorder());
@@ -351,11 +343,6 @@ public class TransformerPane extends MirthEditorPane
     } // END initComponents()
     
     public void makeTransformerTable()
-    {
-        makeTransformerTable(defaultComboBoxValues);
-    }
-    
-    public void makeTransformerTable(String[] comboBoxValues)
     {
         transformerTable = new JXTable();
         transformerTable.setBorder(BorderFactory.createEmptyBorder());
@@ -380,7 +367,7 @@ public class TransformerPane extends MirthEditorPane
         transformerTable.getColumnModel().getColumn(STEP_NAME_COL).setCellEditor(new EditorTableCellEditor(this));
         
         // Set the combobox editor on the type column, and add action listener
-        MyComboBoxEditor comboBox = new MyComboBoxEditor(comboBoxValues, this);
+        MyComboBoxEditor comboBox = new MyComboBoxEditor(defaultComboBoxValues, this);
         
         ((JXComboBox) comboBox.getComponent())
         .addItemListener(new ItemListener()
@@ -394,9 +381,11 @@ public class TransformerPane extends MirthEditorPane
                     
                     if(type.equalsIgnoreCase(JAVASCRIPT_TYPE))
                     {
-                        mapperPanel.setData(null);
                         jsPanel.setData(null);
-                        jsPanel.update();
+                        getTableModel().setValueAt("New Step", getSelectedRow(), STEP_NAME_COL);
+                        updateTaskPane();
+                        mapperPanel.setData(null);
+                        hl7builderPanel.setData(null);
                     }
                     else if(type.equalsIgnoreCase(MAPPER_TYPE))
                     {
@@ -405,15 +394,21 @@ public class TransformerPane extends MirthEditorPane
                         data.put("Mapping", "");
                         data.put("isGlobal", UIConstants.NO_OPTION);
                         mapperPanel.setData(data);
-                        mapperPanel.update();
+                        getTableModel().setValueAt("", getSelectedRow(), STEP_NAME_COL);
+                        updateTaskPane();
+                        hl7builderPanel.setData(null);
+                        jsPanel.setData(null);
                     }
                     else if(type.equalsIgnoreCase(HL7MESSAGE_TYPE))
                     {
-                        Map<Object, Object> data = mapperPanel.getData();
+                        Map<Object, Object> data = hl7builderPanel.getData();
                         data.put("Variable", "");
                         data.put("Mapping", "");
                         hl7builderPanel.setData(data);
-                        hl7builderPanel.update();
+                        getTableModel().setValueAt("", getSelectedRow(), STEP_NAME_COL);
+                        updateTaskPane();
+                        mapperPanel.setData(null);
+                        jsPanel.setData(null);
                     }
                     stepPanel.showCard(type);
                 }
@@ -627,22 +622,7 @@ public class TransformerPane extends MirthEditorPane
         
         return unique;
     }
-    
-    // returns a unique default var name
-    private String getUniqueName(boolean dontCheckCurrentRow)
-    {
-        String base = "newVar";
-        int i = 0;
         
-        while (true)
-        {
-            String var = base + i;
-            if (isUnique(var, dontCheckCurrentRow))
-                return var;
-            i++;
-        }
-    }
-    
     // sets the data from the previously used panel into the
     // previously selected Step object
     private void saveData(int row)
@@ -803,21 +783,22 @@ public class TransformerPane extends MirthEditorPane
             step.setName("");
             data.put("Variable", step.getName());
             
-            if (1==1)
-            {
-                step.setType(MAPPER_TYPE); // mapper type by default, inbound
-                mapperPanel.setData(data);
-                mapperPanel.update();
-            }
-            else if (1==0)
+            if (tabTemplatePanel.tabPanel.getSelectedComponent() == tabTemplatePanel.outgoingTab)
             {
                 step.setType(HL7MESSAGE_TYPE); // hl7 message type by default, outbound
                 hl7builderPanel.setData(data);
-                hl7builderPanel.update();
+                mapperPanel.setData(null);
+                jsPanel.setData(null);
             }
-            step.setData(data);
-            jsPanel.setData( null );  // for completeness
+            else 
+            {
+                step.setType(MAPPER_TYPE); // mapper type by default, inbound
+                mapperPanel.setData(data);
+                hl7builderPanel.setData(null);
+                jsPanel.setData(null);
+            }
             
+            step.setData(data);            
             setRowData(step, rowCount);
             prevSelRow = rowCount;
             updateStepNumbers();
@@ -1026,6 +1007,21 @@ public class TransformerPane extends MirthEditorPane
                 HashMap map = (HashMap) step.getData();
                 if (step.getType().equals(TransformerPane.MAPPER_TYPE))
                 {
+                    Properties regexes = (Properties) map.get("RegularExpressions");
+                    
+                    StringBuilder regexArray = new StringBuilder();
+                    regexArray.append("new Array(");
+                    
+                    Enumeration<?> propertyKeys = regexes.propertyNames();
+                    while (propertyKeys.hasMoreElements())
+                    {
+                        String key = (String) propertyKeys.nextElement();
+                        regexArray.append("new Array('" + key + "', '" + regexes.get(key) + "')");
+                        if(!propertyKeys.hasMoreElements())
+                            regexArray.append(");");
+                        else
+                            regexArray.append(",");
+                    }
                     
                     StringBuilder script = new StringBuilder();
                     
@@ -1035,7 +1031,7 @@ public class TransformerPane extends MirthEditorPane
                         script.append("localMap.put(");
                     
                     script.append("'" + map.get("Variable") + "', ");
-                    script.append( "validate(" + map.get("Mapping") + "));");
+                    script.append( "validate(" + map.get("Mapping") + ", " + (String)map.get("DefaultValue") + ", " + regexArray.toString() + "));");
                     step.setScript(script.toString());
                 }
                 else if (step.getType().equals(
@@ -1046,26 +1042,37 @@ public class TransformerPane extends MirthEditorPane
                 else if (step.getType().equals(
                         TransformerPane.HL7MESSAGE_TYPE))
                 {
+                    Properties regexes = (Properties) map.get("RegularExpressions");
+                    
+                    StringBuilder regexArray = new StringBuilder();
+                    regexArray.append("new Array(");
+                    
+                    Enumeration<?> propertyKeys = regexes.propertyNames();
+                    while (propertyKeys.hasMoreElements())
+                    {
+                        String key = (String) propertyKeys.nextElement();
+                        regexArray.append("new Array('" + key + "', '" + regexes.get(key) + "')");
+                        if(!propertyKeys.hasMoreElements())
+                            regexArray.append(");");
+                        else
+                            regexArray.append(",");
+                    }
+                    
                     StringBuilder script = new StringBuilder();
                     String variable = (String) map.get("Variable");
                     script.append(variable);
                     script.append(" = ");
-                    String mapping = (String) map.get("Mapping");
-                    if (mapping.startsWith("msg") && mapping.endsWith("]")){
-                    	script.append("validate(" +  mapping + ");");
-                    }else{
-                    	script.append(mapping + ";");
-                    }
+                    script.append("validate(" +  (String) map.get("Mapping") + ", " + (String)map.get("DefaultValue") + ", " + regexArray.toString() + ");");
                     step.setScript(script.toString());
                 }
-                
+
                 list.add(step);
             }
             
             transformer.setSteps(list);
             
-            transformer.setInboundTemplate(tabPanel.getIncomingMessage());
-            transformer.setOutboundTemplate(tabPanel.getOutgoingMessage());
+            transformer.setInboundTemplate(tabTemplatePanel.getIncomingMessage());
+            transformer.setOutboundTemplate(tabTemplatePanel.getOutgoingMessage());
             // reset the task pane and content to channel edit page
             if(returning)
             {
@@ -1167,6 +1174,13 @@ public class TransformerPane extends MirthEditorPane
         return transformerTableModel;
     }
     
+    public void resizePanes()
+    {
+        hSplitPane.setDividerLocation((int)(PlatformUI.MIRTH_FRAME.currentContentPage.getHeight()/2 - PlatformUI.MIRTH_FRAME.currentContentPage.getHeight()/3.5));
+        vSplitPane.setDividerLocation((int)(PlatformUI.MIRTH_FRAME.currentContentPage.getWidth()/2 + PlatformUI.MIRTH_FRAME.currentContentPage.getWidth()/5.5));
+        tabTemplatePanel.resizePanes();
+    }
+    
     // ............................................................................\\
     
     // used to load the pane
@@ -1202,15 +1216,15 @@ public class TransformerPane extends MirthEditorPane
     private boolean invalidVar; // selection control
     
     // panels using CardLayout
-    protected CardPanel stepPanel; // the card holder
+    protected BasePanel stepPanel; // the card holder
     
-    protected BlankPanel blankPanel; // the cards
+    protected BasePanel blankPanel; 
     
-    protected MapperPanel mapperPanel; // \/
+    protected MapperPanel mapperPanel;
     
-    protected HL7MessageBuilder hl7builderPanel; // \/
+    protected HL7MessageBuilder hl7builderPanel;
     
-    protected JavaScriptPanel jsPanel; // \/
+    protected JavaScriptPanel jsPanel;
     
     public static final int NUMBER_OF_COLUMNS = 4;
     

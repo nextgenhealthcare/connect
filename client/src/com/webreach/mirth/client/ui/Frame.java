@@ -36,6 +36,8 @@ import java.awt.Font;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -178,6 +180,33 @@ public class Frame extends JXFrame
         makePaneContainer();
         
         connectionError = false;
+        this.addComponentListener(new ComponentListener()
+        {
+            public void componentResized(ComponentEvent e) 
+            {
+                if(channelEditPanel != null && channelEditPanel.filterPane != null)
+                {
+                    channelEditPanel.filterPane.resizePanes();
+                }
+                if(channelEditPanel != null && channelEditPanel.transformerPane != null)
+                {
+                    channelEditPanel.transformerPane.resizePanes();
+                }
+            }
+            
+            public void componentHidden(ComponentEvent e) 
+            {
+            }
+            
+            public void componentShown(ComponentEvent e) 
+            {
+            }
+            
+            public void componentMoved(ComponentEvent e) 
+            {
+            }
+
+        });
         
         this.addWindowListener(new WindowAdapter()
         {

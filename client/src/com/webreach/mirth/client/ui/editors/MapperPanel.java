@@ -1,265 +1,496 @@
-/* ***** BEGIN LICENSE BLOCK *****
- * Version: MPL 1.1
+/*
+ * MapperPanel.java
  *
- * The contents of this file are subject to the Mozilla Public License Version
- * 1.1 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * http://www.mozilla.org/MPL/
- *
- * Software distributed under the License is distributed on an "AS IS" basis,
- * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
- * for the specific language governing rights and limitations under the
- * License.
- *
- * The Original Code is Mirth.
- *
- * The Initial Developer of the Original Code is
- * WebReach, Inc.
- * Portions created by the Initial Developer are Copyright (C) 2006
- * the Initial Developer. All Rights Reserved.
- *
- * Contributor(s):
- *   Gerald Bortis <geraldb@webreachinc.com>
- *
- * ***** END LICENSE BLOCK ***** */
+ * Created on February 6, 2007, 12:30 PM
+ */
 
 package com.webreach.mirth.client.ui.editors;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Font;
+import com.webreach.mirth.client.ui.Mirth;
+import com.webreach.mirth.client.ui.UIConstants;
+import com.webreach.mirth.client.ui.components.MirthTable;
+import java.awt.Component;
+import java.awt.event.MouseEvent;
+import java.util.EventObject;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
-
-import javax.swing.BorderFactory;
-import javax.swing.JCheckBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
+import java.util.Properties;
+import java.util.prefs.Preferences;
+import javax.swing.AbstractCellEditor;
+import javax.swing.JComponent;
+import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
-import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellEditor;
+import org.jdesktop.swingx.decorator.AlternateRowHighlighter;
+import org.jdesktop.swingx.decorator.HighlighterPipeline;
 import org.syntax.jedit.SyntaxDocument;
-import org.syntax.jedit.tokenmarker.JavaScriptTokenMarker;
 
-import com.webreach.mirth.client.ui.UIConstants;
-import com.webreach.mirth.client.ui.components.MirthSyntaxTextArea;
-import com.webreach.mirth.client.ui.components.MirthTextField;
+/**
+ *
+ * @author  brendanh
+ */
+public class MapperPanel extends BasePanel
+{
+    public boolean updating = false;
+    protected String label;
+    protected static SyntaxDocument mappingDoc;
+    protected MirthEditorPane parent;
+    
+    public final int REGEX_COLUMN = 0;
+    public final int REPLACEWITH_COLUMN = 1;
+    
+    public final String REGEX_COLUMN_NAME = "Regular Expression";
+    public final String REPLACEWITH_COLUMN_NAME = "Replace With";
+    
+    private int lastIndex = -1;
+    
+    /** Creates new form MapperPanel */
+    public MapperPanel(MirthEditorPane p)
+    {
+        parent = p;
+        initComponents();
+        variableTextField.getDocument().addDocumentListener(new DocumentListener() 
+        {
+            public void changedUpdate(DocumentEvent arg0) 
+            {
+            }
+            public void insertUpdate(DocumentEvent arg0) 
+            {
+                updateTable();
+                parent.modified = true;
+            }
+            public void removeUpdate(DocumentEvent arg0) 
+            {
+                updateTable();
+                parent.modified = true;
+            }
+        });
 
+        mappingTextField.getDocument().addDocumentListener(new DocumentListener()
+        {
+            public void changedUpdate(DocumentEvent arg0) 
+            {
+            }
+            public void insertUpdate(DocumentEvent arg0) 
+            {
+                parent.modified = true;
+            }
+            public void removeUpdate(DocumentEvent arg0) 
+            {
+                parent.modified = true;
+            }
+        });
+        
+        regularExpressionsScrollPane.addMouseListener(new java.awt.event.MouseAdapter()
+        {
+            public void mouseClicked(java.awt.event.MouseEvent evt)
+            {
+                deselectRows();
+            }
+        });
+        deleteButton.setEnabled(false);
+    }
+    
+    public void updateTable() 
+    {
+        if (parent.getSelectedRow() != -1 && !parent.getTableModel().getValueAt(parent.getSelectedRow(), parent.STEP_TYPE_COL).toString().equals("JavaScript")) 
+        {
+            SwingUtilities.invokeLater(new Runnable() 
+            {
+                public void run() 
+                {
+                    parent.getTableModel().setValueAt(variableTextField.getText(),parent.getSelectedRow(), parent.STEP_NAME_COL);
+                    parent.updateTaskPane();
+                }
+            });
+        }
+    }
+    
+    public Map<Object, Object> getData() 
+    {
+        Map<Object, Object> m = new HashMap<Object, Object>();
+        m.put("Variable", variableTextField.getText().trim());
+        m.put("Mapping", mappingTextField.getText().trim());
+        m.put("DefaultValue", defaultValueTextField.getText().trim());
+        m.put("RegularExpressions", getRegexProperties());
+        
+        if (addToGlobal.isSelected())
+            m.put("isGlobal", UIConstants.YES_OPTION);
+        else
+            m.put("isGlobal", UIConstants.NO_OPTION);
 
-public class MapperPanel extends CardPanel {
+        return m;
+    }
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+    public void setData(Map<Object, Object> data) 
+    {
+        boolean modified = parent.modified;
 
-	/** Creates new form MapperPanel */
-	public MapperPanel() {
-		initComponents();
-	}
+        if (data != null) 
+        {
+            variableTextField.setText((String) data.get("Variable"));
+            mappingTextField.setText((String) data.get("Mapping"));
+            defaultValueTextField.setText((String) data.get("DefaultValue"));
+            
+            if (data.get("isGlobal") == null || ((String) data.get("isGlobal")).equals(UIConstants.NO_OPTION))
+                addToGlobal.setSelected(false);
+            else
+                addToGlobal.setSelected(true);
+            
+            Properties p = (Properties) data.get("RegularExpressions");
+            if(p != null)
+                setRegexProperties(p);
+            else
+                setRegexProperties(new Properties());
+        } 
+        else 
+        {
+            variableTextField.setText("");
+            mappingTextField.setText("");
+            defaultValueTextField.setText("");
+            setRegexProperties(new Properties());
+        }
 
-	public MapperPanel(MirthEditorPane p) {
-		super();
-		parent = p;
-		initComponents();
-		setBorder(BorderFactory.createEmptyBorder());
-	}
+        parent.modified = modified;
+    }
+    
+    public void setRegexProperties(Properties properties)
+    {
+        Object[][] tableData = new Object[properties.size()][2];
+        
+        regularExpressionsTable = new MirthTable();
+        
+        int j = 0;
+        Iterator i = properties.entrySet().iterator();
+        while (i.hasNext())
+        {
+            Map.Entry entry = (Map.Entry) i.next();
+            tableData[j][REGEX_COLUMN] = (String) entry.getKey();
+            tableData[j][REPLACEWITH_COLUMN] = (String) entry.getValue();
+            j++;
+        }        
 
-	/**
-	 * initialize components and set layout; originally created with NetBeans,
-	 * modified by franciscos
-	 */
-	protected void initComponents() {
-		mappingPanel = new JPanel();
-		labelPanel = new JPanel();
-		mappingLabel = new JLabel("   " + label);
-		mappingTextField = new MirthTextField();
-		mappingScrollPane = new JScrollPane();
+        regularExpressionsTable.setModel(new javax.swing.table.DefaultTableModel(
+        tableData, new String[] { REGEX_COLUMN_NAME, REPLACEWITH_COLUMN_NAME })
+        {
+            boolean[] canEdit = new boolean[] { true, true };
 
-		mappingDoc = new SyntaxDocument();
-		mappingDoc.setTokenMarker(new JavaScriptTokenMarker());
-		mappingTextPane = new MirthSyntaxTextArea(true, true);
-		mappingTextPane.setDocument(mappingDoc);
+            public boolean isCellEditable(int rowIndex, int columnIndex)
+            {
+                return canEdit[columnIndex];
+            }
+        });
+        
+        regularExpressionsTable.getSelectionModel().addListSelectionListener(new ListSelectionListener()
+        {
+            public void valueChanged(ListSelectionEvent evt)
+            {
+                if(getSelectedRow() != -1)
+                {
+                    lastIndex = getSelectedRow();
+                    deleteButton.setEnabled(true);
+                }
+                else
+                    deleteButton.setEnabled(false);
+            }
+        });
+        
+        class RegExTableCellEditor extends AbstractCellEditor implements TableCellEditor
+        {
+            JComponent component = new JTextField();
+            Object originalValue;
+            
+            public RegExTableCellEditor()
+            {
+                super();
+            }
+            
+            public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column)
+            {
+                // 'value' is value contained in the cell located at (rowIndex, vColIndex)
+                originalValue = value;
 
-		labelPanel.setLayout(new BorderLayout());
-		labelPanel.add(mappingLabel, BorderLayout.NORTH);
-		labelPanel.add(new JLabel(" "), BorderLayout.WEST);
-		labelPanel.add(mappingTextField, BorderLayout.CENTER);
-		labelPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 150));
+                if (isSelected)
+                {
+                    // cell (and perhaps other cells) are selected
+                }
 
-		mappingPanel.setBorder(BorderFactory.createEmptyBorder());
-		mappingTextField.setBorder(BorderFactory.createEtchedBorder());
-		mappingTextPane.setBorder(BorderFactory.createEmptyBorder());
-		mappingScrollPane.setBorder(BorderFactory.createTitledBorder(
-				BorderFactory.createEtchedBorder(), "Mapping: ",
-				TitledBorder.LEFT, TitledBorder.ABOVE_TOP, new Font(null,
-						Font.PLAIN, 11), Color.black));
+                // Configure the component with the specified value
+                ((JTextField)component).setText((String)value);
 
-		mappingTextPane.setFont(EditorConstants.DEFAULT_FONT);
+                // Return the configured component
+                return component;
+            }
 
-		mappingTextPanel = new JPanel();
-		mappingTextPanel.setLayout(new BorderLayout());
-		mappingTextPanel.add(mappingTextPane, BorderLayout.CENTER);
-		setAddAsGlobal();
-		mappingScrollPane.setViewportView(mappingTextPanel);
+            public Object getCellEditorValue()
+            {
+                return ((JTextField)component).getText();
+            }
+            
+            public boolean stopCellEditing()
+            {
+                String s = (String)getCellEditorValue();
+                
+                parent.modified = true;
+                
+                deleteButton.setEnabled(true);
+                
+                return super.stopCellEditing();
+            }
+  
+            
+            /**
+             * Enables the editor only for double-clicks.
+             */
+            public boolean isCellEditable(EventObject evt) 
+            {
+                if (evt instanceof MouseEvent && ((MouseEvent)evt).getClickCount() >= 2) 
+                {
+                    deleteButton.setEnabled(false);
+                    return true;
+                }
+                return false;
+            }
+        };
+        
+        // Set the custom cell editor for the Destination Name column.
+        regularExpressionsTable.getColumnModel().getColumn(
+                regularExpressionsTable.getColumnModel().getColumnIndex(
+                REGEX_COLUMN_NAME)).setCellEditor(
+                new RegExTableCellEditor());
+        
+        // Set the custom cell editor for the Destination Name column.
+        regularExpressionsTable.getColumnModel().getColumn(
+                regularExpressionsTable.getColumnModel().getColumnIndex(
+                REPLACEWITH_COLUMN_NAME)).setCellEditor(
+                new RegExTableCellEditor());
+                
+        regularExpressionsTable.setSelectionMode(0);
+        regularExpressionsTable.setRowSelectionAllowed(true);
+        regularExpressionsTable.setRowHeight(UIConstants.ROW_HEIGHT);
+        regularExpressionsTable.setDragEnabled(false);
+        regularExpressionsTable.setOpaque(true);
+        regularExpressionsTable.setSortable(false);
+        regularExpressionsTable.getTableHeader().setReorderingAllowed(false);
+        
+        if (Preferences.systemNodeForPackage(Mirth.class).getBoolean(
+        "highlightRows", true))
+        {
+            HighlighterPipeline highlighter = new HighlighterPipeline();
+            highlighter
+                    .addHighlighter(new AlternateRowHighlighter(
+                    UIConstants.HIGHLIGHTER_COLOR,
+                    UIConstants.BACKGROUND_COLOR,
+                    UIConstants.TITLE_TEXT_COLOR));
+            regularExpressionsTable.setHighlighters(highlighter);
+        }
+        
+        regularExpressionsScrollPane.setViewportView(regularExpressionsTable);
+    }
+    
+    public Properties getRegexProperties()
+    {
+        Properties properties = new Properties();
+       
+        for(int i = 0; i < regularExpressionsTable.getRowCount(); i++)
+            if(((String)regularExpressionsTable.getValueAt(i,REGEX_COLUMN)).length() > 0)
+                properties.put(((String)regularExpressionsTable.getValueAt(i,REGEX_COLUMN)),((String)regularExpressionsTable.getValueAt(i,REPLACEWITH_COLUMN)));
+        
+        return properties;
+    }
+    
+    /** Clears the selection in the table and sets the tasks appropriately */
+    public void deselectRows()
+    {
+        regularExpressionsTable.clearSelection();
+        deleteButton.setEnabled(false);
+    }
+    
+        /** Get the currently selected destination index */
+    public int getSelectedRow()
+    {
+        if (regularExpressionsTable.isEditing())
+            return regularExpressionsTable.getEditingRow();
+        else
+            return regularExpressionsTable.getSelectedRow();
+    }
+    
+    /** This method is called from within the constructor to
+     * initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is
+     * always regenerated by the Form Editor.
+     */
+    // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
+    private void initComponents()
+    {
+        jLabel1 = new javax.swing.JLabel();
+        variableTextField = new com.webreach.mirth.client.ui.components.MirthTextField();
+        jLabel2 = new javax.swing.JLabel();
+        mappingTextField = new com.webreach.mirth.client.ui.components.MirthTextField();
+        addToGlobal = new com.webreach.mirth.client.ui.components.MirthCheckBox();
+        jLabel3 = new javax.swing.JLabel();
+        defaultValueTextField = new com.webreach.mirth.client.ui.components.MirthTextField();
+        regularExpressionsScrollPane = new javax.swing.JScrollPane();
+        regularExpressionsTable = new com.webreach.mirth.client.ui.components.MirthTable();
+        newButton = new javax.swing.JButton();
+        deleteButton = new javax.swing.JButton();
+        jLabel4 = new javax.swing.JLabel();
 
-		mappingPanel.setLayout(new BorderLayout());
-		mappingPanel.add(labelPanel, BorderLayout.NORTH);
-		mappingPanel.add(mappingScrollPane, BorderLayout.CENTER);
+        setBackground(new java.awt.Color(255, 255, 255));
+        jLabel1.setText("Variable:");
 
-		// BGN listeners
-		mappingTextField.getDocument().addDocumentListener(
-				new DocumentListener() {
-					public void changedUpdate(DocumentEvent arg0) {
+        jLabel2.setText("Mapping:");
 
-					}
+        addToGlobal.setBackground(new java.awt.Color(255, 255, 255));
+        addToGlobal.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        addToGlobal.setText("Add this as a global variable");
+        addToGlobal.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-					public void insertUpdate(DocumentEvent arg0) {
-						updateTable();
-						parent.modified = true;
-					}
+        jLabel3.setText("Default Value:");
 
-					public void removeUpdate(DocumentEvent arg0) {
-						updateTable();
-						parent.modified = true;
-					}
+        regularExpressionsTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][]
+            {
 
-				});
+            },
+            new String []
+            {
+                "Property", "Value"
+            }
+        ));
+        regularExpressionsScrollPane.setViewportView(regularExpressionsTable);
 
-		mappingTextPane.getDocument().addDocumentListener(
-				new DocumentListener() {
-					public void changedUpdate(DocumentEvent arg0) {
+        newButton.setText("New");
+        newButton.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                newButtonActionPerformed(evt);
+            }
+        });
 
-					}
+        deleteButton.setText("Delete");
+        deleteButton.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                deleteButtonActionPerformed(evt);
+            }
+        });
 
-					public void insertUpdate(DocumentEvent arg0) {
-						parent.modified = true;
-					}
+        jLabel4.setText("String Replacement:");
 
-					public void removeUpdate(DocumentEvent arg0) {
-						parent.modified = true;
-					}
+        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
+        this.setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(layout.createSequentialGroup()
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(layout.createSequentialGroup()
+                        .add(39, 39, 39)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                            .add(jLabel3)
+                            .add(jLabel2)
+                            .add(jLabel1))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                                .add(regularExpressionsScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 312, Short.MAX_VALUE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                                    .add(newButton)
+                                    .add(deleteButton)))
+                            .add(mappingTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 381, Short.MAX_VALUE)
+                            .add(defaultValueTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 381, Short.MAX_VALUE)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                                .add(variableTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 224, Short.MAX_VALUE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(addToGlobal, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
+                    .add(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .add(jLabel4)))
+                .addContainerGap())
+        );
 
-				});
-		// END listeners
+        layout.linkSize(new java.awt.Component[] {deleteButton, newButton}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
 
-		this.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-		this.setLayout(new BorderLayout());
-		this.add(mappingPanel, BorderLayout.CENTER);
-	}
+        layout.setVerticalGroup(
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(layout.createSequentialGroup()
+                .addContainerGap()
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jLabel1)
+                    .add(addToGlobal, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(variableTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jLabel2)
+                    .add(mappingTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jLabel3)
+                    .add(defaultValueTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(jLabel4)
+                            .add(newButton))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(deleteButton))
+                    .add(regularExpressionsScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 222, Short.MAX_VALUE))
+                .addContainerGap())
+        );
+    }// </editor-fold>//GEN-END:initComponents
 
-	public void updateTable() {
-		if (parent.getSelectedRow() != -1 && !parent.getTableModel().getValueAt(parent.getSelectedRow(), parent.STEP_TYPE_COL).toString().equals("JavaScript")) {
-			SwingUtilities.invokeLater(new Runnable() {
-				public void run() {
-					parent.getTableModel().setValueAt(
-							mappingTextField.getText(),
-							parent.getSelectedRow(), parent.STEP_NAME_COL);
-					parent.updateTaskPane();
-				}
-			});
-		}
-	}
+    private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_deleteButtonActionPerformed
+    {//GEN-HEADEREND:event_deleteButtonActionPerformed
+        if(getSelectedRow() != -1 && !regularExpressionsTable.isEditing())
+        {
+            ((DefaultTableModel)regularExpressionsTable.getModel()).removeRow(getSelectedRow());
+            
+            if(regularExpressionsTable.getRowCount() != 0)
+            {
+                if(lastIndex == 0)
+                    regularExpressionsTable.setRowSelectionInterval(0,0);
+                else if(lastIndex == regularExpressionsTable.getRowCount())
+                    regularExpressionsTable.setRowSelectionInterval(lastIndex-1,lastIndex-1);
+                else
+                    regularExpressionsTable.setRowSelectionInterval(lastIndex,lastIndex);
+            }
+            
+            parent.modified = true;
+        }
+    }//GEN-LAST:event_deleteButtonActionPerformed
 
-	public void setAsJavaScript() {
-		if (parent.getSelectedRow() != -1) {
-			SwingUtilities.invokeLater(new Runnable() {
-				public void run() {
-					parent.getTableModel().setValueAt("New Step",
-							parent.getSelectedRow(), parent.STEP_NAME_COL);
-					parent.updateTaskPane();
-				}
-			});
-		}
-	}
-
-	public void update() {
-		parent.update();
-		mappingLabel.setText("   Variable: ");
-		if (addToGlobal != null)
-			addToGlobal.setSelected(false);
-	}
-
-	public Map<Object, Object> getData() {
-		Map<Object, Object> m = new HashMap<Object, Object>();
-		m.put("Variable", mappingTextField.getText().trim());
-		m.put("Mapping", mappingTextPane.getText().trim());
-		if (addToGlobal != null) {
-			if (addToGlobal.isSelected())
-				m.put("isGlobal", UIConstants.YES_OPTION);
-			else
-				m.put("isGlobal", UIConstants.NO_OPTION);
-		}
-		return m;
-	}
-
-	public void setData(Map<Object, Object> data) {
-		boolean modified = parent.modified;
-
-		if (data != null) {
-			mappingTextField.setText((String) data.get("Variable"));
-			mappingTextPane.setText((String) data.get("Mapping"));
-			if (addToGlobal != null) {
-				if (data.get("isGlobal") == null
-						|| ((String) data.get("isGlobal"))
-								.equals(UIConstants.NO_OPTION))
-					addToGlobal.setSelected(false);
-				else
-					addToGlobal.setSelected(true);
-			}
-		} else {
-			mappingTextField.setText("");
-			mappingTextPane.setText("");
-			setAsJavaScript();
-		}
-
-		parent.modified = modified;
-	}
-
-	public void setAddAsGlobal() {
-		globalPanel = new JPanel();
-		globalPanel.setLayout(new BorderLayout());
-		globalPanel.add(new JLabel("  "), BorderLayout.WEST);
-		addToGlobal = new JCheckBox();
-		addToGlobal.setFocusable(false);
-		addToGlobal.setText("Add as global variable");
-		addToGlobal.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				parent.modified = true;
-			}
-		});
-		globalPanel.add(addToGlobal, BorderLayout.EAST);
-		labelPanel.add(globalPanel, BorderLayout.EAST);
-		labelPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
-
-	}
-
-	public boolean updating = false;
-
-	protected String label;
-
-	protected JPanel mappingTextPanel; // for no linewrap in textpane
-
-	protected MirthSyntaxTextArea mappingTextPane;
-
-	protected static SyntaxDocument mappingDoc;
-
-	protected JLabel mappingLabel;
-
-	protected JPanel labelPanel;
-
-	protected JPanel mappingPanel;
-
-	protected JPanel globalPanel;
-
-	protected MirthTextField mappingTextField;
-
-	protected JScrollPane mappingScrollPane;
-
-	protected MirthEditorPane parent;
-
-	public JCheckBox addToGlobal;
+    private void newButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_newButtonActionPerformed
+    {//GEN-HEADEREND:event_newButtonActionPerformed
+        ((DefaultTableModel)regularExpressionsTable.getModel()).addRow(new Object[]{"",""});
+        regularExpressionsTable.setRowSelectionInterval(regularExpressionsTable.getRowCount()-1,regularExpressionsTable.getRowCount()-1);
+        parent.modified = true;
+    }//GEN-LAST:event_newButtonActionPerformed
+    
+    
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private com.webreach.mirth.client.ui.components.MirthCheckBox addToGlobal;
+    private com.webreach.mirth.client.ui.components.MirthTextField defaultValueTextField;
+    private javax.swing.JButton deleteButton;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private com.webreach.mirth.client.ui.components.MirthTextField mappingTextField;
+    private javax.swing.JButton newButton;
+    private javax.swing.JScrollPane regularExpressionsScrollPane;
+    private com.webreach.mirth.client.ui.components.MirthTable regularExpressionsTable;
+    private com.webreach.mirth.client.ui.components.MirthTextField variableTextField;
+    // End of variables declaration//GEN-END:variables
+    
 }

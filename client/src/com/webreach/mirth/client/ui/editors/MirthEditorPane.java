@@ -64,26 +64,26 @@ public class MirthEditorPane extends JPanel
     public Frame parent = PlatformUI.MIRTH_FRAME;
     public JScrollPane referenceScrollPane;
 	public JPanel refPanel;
-	public TabbedTemplatePanel tabPanel;
+	public TabbedTemplatePanel tabTemplatePanel;
 	
     public MirthEditorPane() {
     	super();
     	
-		tabPanel = new TabbedTemplatePanel();
-		tabPanel.setBorder(BorderFactory.createEmptyBorder());
+		tabTemplatePanel = new TabbedTemplatePanel();
+		tabTemplatePanel.setBorder(BorderFactory.createEmptyBorder());
 		this.setBorder(BorderFactory.createEmptyBorder());
 
     	refPanel = new JPanel();
     	refPanel.setBorder( BorderFactory.createEmptyBorder() );
 		refPanel.setLayout( new BorderLayout() );
-		refPanel.add( tabPanel, BorderLayout.CENTER );
+		refPanel.add( tabTemplatePanel, BorderLayout.CENTER );
 		
 //		let the parent decide how big this should be
     	this.setPreferredSize( new Dimension( 0, 0 ) );
     }
     
     public void update() {
-    	tabPanel.update();
+    	tabTemplatePanel.update();
     }
     
     public void updateTaskPane(){}
