@@ -343,7 +343,7 @@ public class MuleConfigurationBuilder {
 
 			Properties properties = new Properties();
 			properties.put("channelId", channel.getId());
-			properties.put("inboundProtocol", connector.getTransformer().getInboundProtcol());
+			properties.put("inboundProtocol", connector.getTransformer().getInboundProtocol());
 			properties.put("outboundProtocol", connector.getTransformer().getOutboundProtocol());
 			properties.put("encryptData", channel.getProperties().get("encryptData"));
 			properties.put("mode", connector.getTransformer().getMode().toString());
