@@ -242,18 +242,16 @@ public class ChannelSetup extends javax.swing.JPanel
     public void editTransformer()
     {
         if (channelView.getSelectedIndex() == SOURCE_TAB_INDEX)
-            transformerPane.load(currentChannel.getSourceConnector(),
-                    currentChannel.getSourceConnector().getTransformer());
+        {
+            currentChannel.getSourceConnector().getTransformer().setMode(Transformer.Mode.SOURCE);
+            transformerPane.load(currentChannel.getSourceConnector(), currentChannel.getSourceConnector().getTransformer());
+        }
         
         else if (channelView.getSelectedIndex() == DESTINATIONS_TAB_INDEX)
         {
-            int destination = getDestinationConnectorIndex((String) destinationTable
-                    .getValueAt(getSelectedDestinationIndex(),
-                    getColumnNumber(DESTINATION_COLUMN_NAME)));
-            transformerPane.load(currentChannel.getDestinationConnectors()
-            .get(destination), currentChannel
-                    .getDestinationConnectors().get(destination)
-                    .getTransformer());
+            int destination = getDestinationConnectorIndex((String) destinationTable.getValueAt(getSelectedDestinationIndex(), getColumnNumber(DESTINATION_COLUMN_NAME)));
+            currentChannel.getDestinationConnectors().get(destination).getTransformer().setMode(Transformer.Mode.DESTINATION);
+            transformerPane.load(currentChannel.getDestinationConnectors().get(destination), currentChannel.getDestinationConnectors().get(destination).getTransformer());
         }
     }
     
@@ -261,17 +259,16 @@ public class ChannelSetup extends javax.swing.JPanel
     public void editFilter()
     {
         if (channelView.getSelectedIndex() == SOURCE_TAB_INDEX)
-            filterPane.load(currentChannel.getSourceConnector(), currentChannel
-                    .getSourceConnector().getFilter());
+        {
+            currentChannel.getSourceConnector().getFilter().setMode(Filter.Mode.SOURCE);
+            filterPane.load(currentChannel.getSourceConnector(), currentChannel.getSourceConnector().getFilter());
+        }
         
         else if (channelView.getSelectedIndex() == DESTINATIONS_TAB_INDEX)
         {
-            int destination = getDestinationConnectorIndex((String) destinationTable
-                    .getValueAt(getSelectedDestinationIndex(),
-                    getColumnNumber(DESTINATION_COLUMN_NAME)));
-            filterPane.load(currentChannel.getDestinationConnectors().get(
-                    destination), currentChannel.getDestinationConnectors()
-                    .get(destination).getFilter());
+            int destination = getDestinationConnectorIndex((String) destinationTable.getValueAt(getSelectedDestinationIndex(), getColumnNumber(DESTINATION_COLUMN_NAME)));
+            currentChannel.getDestinationConnectors().get(destination).getFilter().setMode(Filter.Mode.DESTINATION);
+            filterPane.load(currentChannel.getDestinationConnectors().get(destination), currentChannel.getDestinationConnectors().get(destination).getFilter());
         }
     }
     
@@ -631,7 +628,7 @@ public class ChannelSetup extends javax.swing.JPanel
         sourceConnector.setTransportName((String) sourceSourceDropdown
                 .getItemAt(0));
         Transformer sourceTransformer = new Transformer();
-        sourceTransformer.setInboundProtcol(Protocol.HL7V2);
+        sourceTransformer.setInboundProtocol(Protocol.HL7V2);
         sourceConnector.setTransformer(sourceTransformer);
         
         currentChannel.setSourceConnector(sourceConnector);
@@ -656,9 +653,9 @@ public class ChannelSetup extends javax.swing.JPanel
         else
             summaryEnabledCheckbox.setSelected(false);
         
-        if(currentChannel.getSourceConnector().getTransformer().getInboundProtcol() != null)
+        if(currentChannel.getSourceConnector().getTransformer().getInboundProtocol() != null)
         {
-            incomingProtocol.setSelectedItem(parent.protocols.get(currentChannel.getSourceConnector().getTransformer().getInboundProtcol()));
+            incomingProtocol.setSelectedItem(parent.protocols.get(currentChannel.getSourceConnector().getTransformer().getInboundProtocol()));
         }
         
         if(currentChannel.getPreprocessingScript() != null)
@@ -673,7 +670,7 @@ public class ChannelSetup extends javax.swing.JPanel
         else
             xmlPreEncoded.setSelected(false);
         
-        if (currentChannel.getSourceConnector().getTransformer().getInboundProtcol() == MessageObject.Protocol.HL7V3) 
+        if (currentChannel.getSourceConnector().getTransformer().getInboundProtocol() == MessageObject.Protocol.HL7V3) 
         {
             xmlPreEncoded.setSelected(true);
             xmlPreEncoded.setEnabled(false);
@@ -698,8 +695,8 @@ public class ChannelSetup extends javax.swing.JPanel
         else
             encryptMessagesCheckBox.setSelected(false);
         
-        if (currentChannel.getSourceConnector().getTransformer().getInboundProtcol() == null)
-            currentChannel.getSourceConnector().getTransformer().setInboundProtcol(MessageObject.Protocol.HL7V2);
+        if (currentChannel.getSourceConnector().getTransformer().getInboundProtocol() == null)
+            currentChannel.getSourceConnector().getTransformer().setInboundProtocol(MessageObject.Protocol.HL7V2);
         
         if ((currentChannel.getProperties().get("store_messages")) != null
                 && ((String) currentChannel.getProperties().get(
@@ -822,7 +819,7 @@ public class ChannelSetup extends javax.swing.JPanel
         {
             if(parent.protocols.get(protocol).equals((String)incomingProtocol.getSelectedItem()))
             {
-                currentChannel.getSourceConnector().getTransformer().setInboundProtcol(protocol);
+                currentChannel.getSourceConnector().getTransformer().setInboundProtocol(protocol);
             }
         }
         
@@ -2085,6 +2082,11 @@ public class ChannelSetup extends javax.swing.JPanel
                 return false;
         }
         return true;
+    }
+    
+    public String getSourceDatatype()
+    {
+        return (String) incomingProtocol.getSelectedItem();
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables

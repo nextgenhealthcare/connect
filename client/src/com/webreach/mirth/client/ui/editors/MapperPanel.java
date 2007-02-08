@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
+import java.util.TreeMap;
 import java.util.prefs.Preferences;
 import javax.swing.AbstractCellEditor;
 import javax.swing.JComponent;
@@ -100,7 +101,7 @@ public class MapperPanel extends BasePanel
     
     public void updateTable() 
     {
-        if (parent.getSelectedRow() != -1 && !parent.getTableModel().getValueAt(parent.getSelectedRow(), parent.STEP_TYPE_COL).toString().equals("JavaScript")) 
+        if (parent.getSelectedRow() != -1) 
         {
             SwingUtilities.invokeLater(new Runnable() 
             {
@@ -144,24 +145,24 @@ public class MapperPanel extends BasePanel
             else
                 addToGlobal.setSelected(true);
             
-            Properties p = (Properties) data.get("RegularExpressions");
+            TreeMap p = (TreeMap) data.get("RegularExpressions");
             if(p != null)
                 setRegexProperties(p);
             else
-                setRegexProperties(new Properties());
+                setRegexProperties(new TreeMap());
         } 
         else 
         {
             variableTextField.setText("");
             mappingTextField.setText("");
             defaultValueTextField.setText("");
-            setRegexProperties(new Properties());
+            setRegexProperties(new TreeMap());
         }
 
         parent.modified = modified;
     }
     
-    public void setRegexProperties(Properties properties)
+    public void setRegexProperties(TreeMap properties)
     {
         Object[][] tableData = new Object[properties.size()][2];
         
@@ -295,9 +296,9 @@ public class MapperPanel extends BasePanel
         regularExpressionsScrollPane.setViewportView(regularExpressionsTable);
     }
     
-    public Properties getRegexProperties()
+    public TreeMap getRegexProperties()
     {
-        Properties properties = new Properties();
+        TreeMap properties = new TreeMap();
        
         for(int i = 0; i < regularExpressionsTable.getRowCount(); i++)
             if(((String)regularExpressionsTable.getValueAt(i,REGEX_COLUMN)).length() > 0)

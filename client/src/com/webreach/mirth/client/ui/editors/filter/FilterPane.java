@@ -28,6 +28,7 @@ package com.webreach.mirth.client.ui.editors.filter;
 
 import com.webreach.mirth.client.ui.editors.EditorTableCellEditor;
 import com.webreach.mirth.client.ui.util.ImportConverter;
+import com.webreach.mirth.model.Channel;
 import java.awt.BorderLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -109,9 +110,12 @@ public class FilterPane extends MirthEditorPane
         prevSelRow = -1;
         filter = f;
         connector = c;
+        channel = PlatformUI.MIRTH_FRAME.channelEditPanel.currentChannel;
         
         if (parent.channelEditTasks.getContentPane().getComponent(0).isVisible())
             modified = true;
+        
+        tabTemplatePanel.setIncomingMessage(filter.getTemplate());
         
         // we need to clear all the old data before we load the new
         makeFilterTable();
@@ -146,9 +150,20 @@ public class FilterPane extends MirthEditorPane
         parent.setCurrentContentPage( this );
         parent.setCurrentTaskPaneContainer( filterTaskPaneContainer );
         
+        if(filter.getMode() == Filter.Mode.SOURCE)
+        {
+            tabTemplatePanel.incomingDataType.setSelectedItem((String)PlatformUI.MIRTH_FRAME.channelEditPanel.getSourceDatatype());
+        }
+        else if(filter.getMode() == Filter.Mode.DESTINATION)
+        {
+            if(channel.getSourceConnector().getTransformer().getOutboundProtocol() != null)
+                tabTemplatePanel.incomingDataType.setSelectedItem((String)PlatformUI.MIRTH_FRAME.protocols.get(channel.getSourceConnector().getTransformer().getOutboundProtocol()));
+            else
+                tabTemplatePanel.incomingDataType.setSelectedItem((String)PlatformUI.MIRTH_FRAME.channelEditPanel.getSourceDatatype());
+        }
+        
         updateRuleNumbers();
         updateTaskPane();
-        
     }
     
     /** This method is called from within the constructor to
@@ -910,5 +925,7 @@ public class FilterPane extends MirthEditorPane
     public static final String JAVASCRIPT_TYPE = "JavaScript";
     private String[] comboBoxValues = new String[] {
         Rule.Operator.AND.toString(), Rule.Operator.OR.toString() };
+
+    private Channel channel;
     
 }

@@ -81,11 +81,7 @@ public class MirthEditorPane extends JPanel
 //		let the parent decide how big this should be
     	this.setPreferredSize( new Dimension( 0, 0 ) );
     }
-    
-    public void update() {
-    	tabTemplatePanel.update();
-    }
-    
+        
     public void updateTaskPane(){}
     
     public int getSelectedRow()

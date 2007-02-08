@@ -7,6 +7,7 @@
 package com.webreach.mirth.client.ui.editors;
 
 import com.webreach.mirth.client.ui.FunctionListBuilder;
+import com.webreach.mirth.client.ui.FunctionListHandler;
 import com.webreach.mirth.client.ui.FunctionListItem;
 import com.webreach.mirth.client.ui.HL7XMLTreePanel;
 import com.webreach.mirth.client.ui.PlatformUI;
@@ -14,10 +15,12 @@ import com.webreach.mirth.client.ui.ReferenceTableHandler;
 import com.webreach.mirth.client.ui.components.MirthSyntaxTextArea;
 import com.webreach.mirth.client.ui.util.SQLParserUtil;
 import com.webreach.mirth.model.Channel;
+import com.webreach.mirth.model.Step;
 import java.awt.BorderLayout;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.util.ArrayList;
+import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import org.syntax.jedit.SyntaxDocument;
@@ -37,58 +40,18 @@ public class TabbedTemplatePanel extends javax.swing.JPanel
     public TabbedTemplatePanel()
     {
         initComponents();
-        variableSplitPane.setDividerLocation((int)(PlatformUI.MIRTH_FRAME.currentContentPage.getHeight()/2));
+        resizePanes();
         ArrayList<FunctionListItem> functionListItems = new FunctionListBuilder().getVariableListItems();
-        globalVarTable = new VariableReferenceTable(functionListItems);
-        dbVarTable = new VariableReferenceTable();
+        variableReferenceTable = new VariableReferenceTable(functionListItems); 
+        variableReferenceTable.setDragEnabled(true);  
+        variableReferenceTable.setTransferHandler(new FunctionListHandler(functionListItems));  
+        variableReferenceScrollPane.setViewportView(variableReferenceTable);
         incomingDataType.setModel(new javax.swing.DefaultComboBoxModel(PlatformUI.MIRTH_FRAME.protocols.values().toArray()));
         outgoingDataType.setModel(new javax.swing.DefaultComboBoxModel(PlatformUI.MIRTH_FRAME.protocols.values().toArray()));
-        variablePanel.addComponentListener(new ComponentListener()
-        {
-            public void componentResized(ComponentEvent arg0)
-            {
-            }
-            
-            public void componentMoved(ComponentEvent arg0)
-            {
-            }
-            
-            public void componentShown(ComponentEvent arg0)
-            {
-                updateSQL();
-            }
-            
-            public void componentHidden(ComponentEvent arg0)
-            {
-                
-            }
-        });
-        
         incoming.setTreePanel("msg", ".toString()");
         outgoing.setTreePanel("tmp", "");
-        
-        updateSQL();
     }
-    
-    public void update()
-    {
-        updateSQL();
-    }
-    
-    private void updateSQL()
-    {
-        Object sqlStatement = PlatformUI.MIRTH_FRAME.channelEditPanel.getSourceConnector().getProperties().get("query");
-        if ((sqlStatement != null) && (!sqlStatement.equals("")))
-        {
-            SQLParserUtil spu = new SQLParserUtil((String) sqlStatement);
-            updateVariables(spu.Parse());
-        }
-        else
-        {
-            updateVariables(new String[] {});
-        }
-    }
-    
+      
     public void resizePanes()
     {
         variableSplitPane.setDividerLocation((int)(PlatformUI.MIRTH_FRAME.currentContentPage.getHeight()/2 - PlatformUI.MIRTH_FRAME.currentContentPage.getHeight()/10));
@@ -96,29 +59,9 @@ public class TabbedTemplatePanel extends javax.swing.JPanel
         outgoing.resizePanes();
     }
     
-    private void updateVariables(String[] variables)
+    public void updateVariables(List<Step> steps)
     {
-        variablePanel.remove(dbVarTable);
-        dbVarTable = new VariableReferenceTable(variables);
-        dbVarTable.setDragEnabled(true);
-        dbVarTable.setTransferHandler(new ReferenceTableHandler());
-        variablePanel.add(dbVarTable, BorderLayout.CENTER);
-        //varPanel = new JPanel();
-        //varPanel.setLayout(new BorderLayout())
-        Channel channel = PlatformUI.MIRTH_FRAME.channelEditPanel.currentChannel;
-        //Now that the db reader is available on inbound, we can show the vars
-        //Chrisl 9/23
-        //  if (channel.getDirection().equals(Channel.Direction.OUTBOUND))
-        // {
-        //varPanel.add(globalVarPanel, BorderLayout.NORTH);
-        //varPanel.add(dbVarPanel, BorderLayout.CENTER);
-        //   }
-        //   else
-        //  {
-        //      varPanel.add(globalVarPanel, BorderLayout.CENTER);
-        //  }
-        //varScrollPane.setViewportView(varPanel);
-        repaint();
+        variablePanel.updateVariables(steps);
     }
     
     public String getIncomingMessage()
@@ -157,8 +100,9 @@ public class TabbedTemplatePanel extends javax.swing.JPanel
         tabPanel = new javax.swing.JTabbedPane();
         variableTab = new javax.swing.JPanel();
         variableSplitPane = new javax.swing.JSplitPane();
-        functionPanel = new javax.swing.JPanel();
-        variablePanel = new javax.swing.JPanel();
+        variableReferenceScrollPane = new javax.swing.JScrollPane();
+        variableReferenceTable = new com.webreach.mirth.client.ui.editors.VariableReferenceTable();
+        variablePanel = new com.webreach.mirth.client.ui.editors.EditorVariableList();
         incomingTab = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         incomingDataType = new com.webreach.mirth.client.ui.components.MirthComboBox();
@@ -170,32 +114,24 @@ public class TabbedTemplatePanel extends javax.swing.JPanel
 
         variableSplitPane.setDividerLocation(84);
         variableSplitPane.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
-        functionPanel.setBackground(new java.awt.Color(255, 255, 255));
-        functionPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Function List Builder", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(0, 0, 0)));
-        org.jdesktop.layout.GroupLayout functionPanelLayout = new org.jdesktop.layout.GroupLayout(functionPanel);
-        functionPanel.setLayout(functionPanelLayout);
-        functionPanelLayout.setHorizontalGroup(
-            functionPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 389, Short.MAX_VALUE)
-        );
-        functionPanelLayout.setVerticalGroup(
-            functionPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 53, Short.MAX_VALUE)
-        );
-        variableSplitPane.setTopComponent(functionPanel);
+        variableReferenceTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][]
+            {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String []
+            {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        variableReferenceScrollPane.setViewportView(variableReferenceTable);
 
-        variablePanel.setBackground(new java.awt.Color(255, 255, 255));
-        variablePanel.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Variables", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(0, 0, 0)));
-        org.jdesktop.layout.GroupLayout variablePanelLayout = new org.jdesktop.layout.GroupLayout(variablePanel);
-        variablePanel.setLayout(variablePanelLayout);
-        variablePanelLayout.setHorizontalGroup(
-            variablePanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 389, Short.MAX_VALUE)
-        );
-        variablePanelLayout.setVerticalGroup(
-            variablePanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 405, Short.MAX_VALUE)
-        );
+        variableSplitPane.setLeftComponent(variableReferenceScrollPane);
+
+        variablePanel.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEmptyBorder(3, 3, 3, 3), "Available Variables", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(0, 0, 0)));
         variableSplitPane.setRightComponent(variablePanel);
 
         org.jdesktop.layout.GroupLayout variableTabLayout = new org.jdesktop.layout.GroupLayout(variableTab);
@@ -283,17 +219,18 @@ public class TabbedTemplatePanel extends javax.swing.JPanel
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JPanel functionPanel;
     private com.webreach.mirth.client.ui.editors.MessageTreeTemplate incoming;
-    private com.webreach.mirth.client.ui.components.MirthComboBox incomingDataType;
+    public com.webreach.mirth.client.ui.components.MirthComboBox incomingDataType;
     public javax.swing.JPanel incomingTab;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel4;
     private com.webreach.mirth.client.ui.editors.MessageTreeTemplate outgoing;
-    private com.webreach.mirth.client.ui.components.MirthComboBox outgoingDataType;
+    public com.webreach.mirth.client.ui.components.MirthComboBox outgoingDataType;
     public javax.swing.JPanel outgoingTab;
     public javax.swing.JTabbedPane tabPanel;
-    private javax.swing.JPanel variablePanel;
+    private com.webreach.mirth.client.ui.editors.EditorVariableList variablePanel;
+    private javax.swing.JScrollPane variableReferenceScrollPane;
+    private com.webreach.mirth.client.ui.editors.VariableReferenceTable variableReferenceTable;
     private javax.swing.JSplitPane variableSplitPane;
     private javax.swing.JPanel variableTab;
     // End of variables declaration//GEN-END:variables

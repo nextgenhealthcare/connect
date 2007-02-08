@@ -88,14 +88,14 @@ public class VariableReferenceTable extends ReferenceTable {
 		}
 		
 		this.setModel( new DefaultTableModel( d,
-				new Object[] {"Variable"} ) {
+				new Object[] {"Common Variables and Functions"} ) {
 			public boolean isCellEditable ( int row, int col ) {
 				return false;
 			}
 		});
 		
-		this.getColumnExt( "Variable" ).setPreferredWidth( 80 );
-		this.getColumnExt( "Variable" ).setHeaderRenderer( PlatformUI.CENTER_COLUMN_HEADER_RENDERER );
+		this.getColumnExt( "Common Variables and Functions" ).setPreferredWidth( 80 );
+		this.getColumnExt( "Common Variables and Functions" ).setHeaderRenderer( PlatformUI.CENTER_COLUMN_HEADER_RENDERER );
 		
 	}
 	

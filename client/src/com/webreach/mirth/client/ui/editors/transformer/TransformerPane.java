@@ -29,6 +29,7 @@ package com.webreach.mirth.client.ui.editors.transformer;
 import com.webreach.mirth.client.ui.editors.EditorTableCellEditor;
 import com.webreach.mirth.client.ui.util.FileUtil;
 import com.webreach.mirth.model.Connector;
+import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import java.awt.BorderLayout;
 import java.awt.Point;
@@ -44,10 +45,12 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Properties;
+import java.util.TreeMap;
 import java.util.prefs.Preferences;
 
 import javax.swing.Action;
@@ -150,10 +153,30 @@ public class TransformerPane extends MirthEditorPane
             stepPanel.showCard(BLANK_TYPE);
             mapperPanel.setData(null);
             jsPanel.setData(null);
-            if (hl7builderPanel != null){
-                hl7builderPanel.setData(null);
-            }
+            hl7builderPanel.setData(null);
         }
+        
+        if(transformer.getMode() == Transformer.Mode.SOURCE)
+        {
+            tabTemplatePanel.incomingDataType.setSelectedItem((String)PlatformUI.MIRTH_FRAME.channelEditPanel.getSourceDatatype());
+        }
+        else if(transformer.getMode() == Transformer.Mode.DESTINATION)
+        {
+            if(channel.getSourceConnector().getTransformer().getOutboundProtocol() != null)
+                tabTemplatePanel.incomingDataType.setSelectedItem((String)PlatformUI.MIRTH_FRAME.protocols.get(channel.getSourceConnector().getTransformer().getOutboundProtocol()));
+            else
+                tabTemplatePanel.incomingDataType.setSelectedItem((String)PlatformUI.MIRTH_FRAME.channelEditPanel.getSourceDatatype());
+        }
+        
+        if(t.getOutboundProtocol() != null)
+        {
+            tabTemplatePanel.outgoingDataType.setSelectedItem((String)PlatformUI.MIRTH_FRAME.protocols.get(t.getOutboundProtocol()));
+        }
+        else
+        {
+            tabTemplatePanel.outgoingDataType.setSelectedItem((String)tabTemplatePanel.incomingDataType.getSelectedItem());
+        }
+
         transformerTable.setBorder(BorderFactory.createEmptyBorder());
         transformerTaskPaneContainer.add(parent.getOtherPane());
         parent.setCurrentContentPage(this);
@@ -376,16 +399,21 @@ public class TransformerPane extends MirthEditorPane
             {
                 if(evt.getStateChange() == evt.SELECTED)
                 {
-                    modified = true;
                     String type = evt.getItem().toString();
+                    int row = getSelectedRow();
                     
+                    if(type.equalsIgnoreCase((String) transformerTable.getValueAt(row,STEP_TYPE_COL)))
+                        return;
+                    
+                    modified = true;
+                                       
                     if(type.equalsIgnoreCase(JAVASCRIPT_TYPE))
                     {
                         jsPanel.setData(null);
-                        getTableModel().setValueAt("New Step", getSelectedRow(), STEP_NAME_COL);
                         updateTaskPane();
                         mapperPanel.setData(null);
                         hl7builderPanel.setData(null);
+                        getTableModel().setValueAt("New Step", row, STEP_NAME_COL);
                     }
                     else if(type.equalsIgnoreCase(MAPPER_TYPE))
                     {
@@ -394,10 +422,10 @@ public class TransformerPane extends MirthEditorPane
                         data.put("Mapping", "");
                         data.put("isGlobal", UIConstants.NO_OPTION);
                         mapperPanel.setData(data);
-                        getTableModel().setValueAt("", getSelectedRow(), STEP_NAME_COL);
                         updateTaskPane();
                         hl7builderPanel.setData(null);
                         jsPanel.setData(null);
+                        getTableModel().setValueAt("", row, STEP_NAME_COL);
                     }
                     else if(type.equalsIgnoreCase(HL7MESSAGE_TYPE))
                     {
@@ -405,10 +433,10 @@ public class TransformerPane extends MirthEditorPane
                         data.put("Variable", "");
                         data.put("Mapping", "");
                         hl7builderPanel.setData(data);
-                        getTableModel().setValueAt("", getSelectedRow(), STEP_NAME_COL);
                         updateTaskPane();
                         mapperPanel.setData(null);
                         jsPanel.setData(null);
+                        getTableModel().setValueAt("", row, STEP_NAME_COL);
                     }
                     stepPanel.showCard(type);
                 }
@@ -672,7 +700,7 @@ public class TransformerPane extends MirthEditorPane
             {
                 data = jsPanel.getData();
             }
-            else if ((hl7builderPanel != null) && (type.equals(HL7MESSAGE_TYPE)))
+            else if (type.equals(HL7MESSAGE_TYPE))
             {
                 data = hl7builderPanel.getData();
                 String var = data.get("Variable").toString();
@@ -716,6 +744,7 @@ public class TransformerPane extends MirthEditorPane
             
             setPanelData(type, data);
             
+            tabTemplatePanel.updateVariables(buildStepList(row));
         }
     }
     
@@ -727,7 +756,7 @@ public class TransformerPane extends MirthEditorPane
         }
         else if (type.equalsIgnoreCase(JAVASCRIPT_TYPE))
             jsPanel.setData(data);
-        else if ((hl7builderPanel != null) && (type.equalsIgnoreCase(HL7MESSAGE_TYPE)))
+        else if (type.equalsIgnoreCase(HL7MESSAGE_TYPE))
             hl7builderPanel.setData(data);
     }
     
@@ -976,6 +1005,86 @@ public class TransformerPane extends MirthEditorPane
         parent.enableSave();
     }
     
+    public List<Step> buildStepList(int endingRow)
+    {
+        List<Step> list = new ArrayList<Step>();
+        for (int i = 0; i < endingRow; i++)
+        {
+            Step step = new Step();
+            step.setSequenceNumber(Integer.parseInt(transformerTable
+                    .getValueAt(i, STEP_NUMBER_COL).toString()));
+            step.setName((String) transformerTableModel.getValueAt(i,
+                    STEP_NAME_COL));
+            step.setType((String) transformerTableModel.getValueAt(i,
+                    STEP_TYPE_COL));
+            step.setData((Map) transformerTableModel.getValueAt(i,
+                    STEP_DATA_COL));
+
+            HashMap map = (HashMap) step.getData();
+            if (step.getType().equals(TransformerPane.MAPPER_TYPE))
+            {
+                TreeMap regexes = (TreeMap) map.get("RegularExpressions");
+
+                StringBuilder regexArray = new StringBuilder();
+                regexArray.append("new Array(");
+
+                Iterator iter = regexes.keySet().iterator();
+                while (iter.hasNext())
+                {
+                    String key = (String) iter.next();
+                    regexArray.append("new Array('" + key + "', '" + regexes.get(key) + "')");
+                    if(!iter.hasNext())
+                        regexArray.append(");");
+                    else
+                        regexArray.append(",");
+                }
+
+                StringBuilder script = new StringBuilder();
+
+                if(map.get("isGlobal") != null && ((String)map.get("isGlobal")).equalsIgnoreCase(UIConstants.YES_OPTION))
+                    script.append("globalMap.put(");
+                else
+                    script.append("localMap.put(");
+
+                script.append("'" + map.get("Variable") + "', ");
+                script.append( "validate(" + map.get("Mapping") + ", " + (String)map.get("DefaultValue") + ", " + regexArray.toString() + "));");
+                step.setScript(script.toString());
+            }
+            else if (step.getType().equals(TransformerPane.JAVASCRIPT_TYPE))
+            {
+                step.setScript(map.get("Script").toString());
+            }
+            else if (step.getType().equals(TransformerPane.HL7MESSAGE_TYPE))
+            {
+                TreeMap regexes = (TreeMap) map.get("RegularExpressions");
+
+                StringBuilder regexArray = new StringBuilder();
+                regexArray.append("new Array(");
+
+                Iterator iter = regexes.keySet().iterator();
+                while (iter.hasNext())
+                {
+                    String key = (String) iter.next();
+                    regexArray.append("new Array('" + key + "', '" + regexes.get(key) + "')");
+                    if(!iter.hasNext())
+                        regexArray.append(");");
+                    else
+                        regexArray.append(",");
+                }
+
+                StringBuilder script = new StringBuilder();
+                String variable = (String) map.get("Variable");
+                script.append(variable);
+                script.append(" = ");
+                script.append("validate(" +  (String) map.get("Mapping") + ", " + (String)map.get("DefaultValue") + ", " + regexArray.toString() + ");");
+                step.setScript(script.toString());
+            }
+
+            list.add(step);
+        }
+        return list;
+    }
+    
     /**
      * void accept(MouseEvent evt) returns a vector of vectors to the caller of
      * this.
@@ -991,85 +1100,21 @@ public class TransformerPane extends MirthEditorPane
         
         if (!invalidVar || transformerTable.getRowCount() == 0)
         {
-            List<Step> list = new ArrayList<Step>();
-            for (int i = 0; i < transformerTable.getRowCount(); i++)
-            {
-                Step step = new Step();
-                step.setSequenceNumber(Integer.parseInt(transformerTable
-                        .getValueAt(i, STEP_NUMBER_COL).toString()));
-                step.setName((String) transformerTableModel.getValueAt(i,
-                        STEP_NAME_COL));
-                step.setType((String) transformerTableModel.getValueAt(i,
-                        STEP_TYPE_COL));
-                step.setData((Map) transformerTableModel.getValueAt(i,
-                        STEP_DATA_COL));
-                
-                HashMap map = (HashMap) step.getData();
-                if (step.getType().equals(TransformerPane.MAPPER_TYPE))
-                {
-                    Properties regexes = (Properties) map.get("RegularExpressions");
-                    
-                    StringBuilder regexArray = new StringBuilder();
-                    regexArray.append("new Array(");
-                    
-                    Enumeration<?> propertyKeys = regexes.propertyNames();
-                    while (propertyKeys.hasMoreElements())
-                    {
-                        String key = (String) propertyKeys.nextElement();
-                        regexArray.append("new Array('" + key + "', '" + regexes.get(key) + "')");
-                        if(!propertyKeys.hasMoreElements())
-                            regexArray.append(");");
-                        else
-                            regexArray.append(",");
-                    }
-                    
-                    StringBuilder script = new StringBuilder();
-                    
-                    if(map.get("isGlobal") != null && ((String)map.get("isGlobal")).equalsIgnoreCase(UIConstants.YES_OPTION))
-                        script.append("globalMap.put(");
-                    else
-                        script.append("localMap.put(");
-                    
-                    script.append("'" + map.get("Variable") + "', ");
-                    script.append( "validate(" + map.get("Mapping") + ", " + (String)map.get("DefaultValue") + ", " + regexArray.toString() + "));");
-                    step.setScript(script.toString());
-                }
-                else if (step.getType().equals(
-                        TransformerPane.JAVASCRIPT_TYPE))
-                {
-                    step.setScript(map.get("Script").toString());
-                }
-                else if (step.getType().equals(
-                        TransformerPane.HL7MESSAGE_TYPE))
-                {
-                    Properties regexes = (Properties) map.get("RegularExpressions");
-                    
-                    StringBuilder regexArray = new StringBuilder();
-                    regexArray.append("new Array(");
-                    
-                    Enumeration<?> propertyKeys = regexes.propertyNames();
-                    while (propertyKeys.hasMoreElements())
-                    {
-                        String key = (String) propertyKeys.nextElement();
-                        regexArray.append("new Array('" + key + "', '" + regexes.get(key) + "')");
-                        if(!propertyKeys.hasMoreElements())
-                            regexArray.append(");");
-                        else
-                            regexArray.append(",");
-                    }
-                    
-                    StringBuilder script = new StringBuilder();
-                    String variable = (String) map.get("Variable");
-                    script.append(variable);
-                    script.append(" = ");
-                    script.append("validate(" +  (String) map.get("Mapping") + ", " + (String)map.get("DefaultValue") + ", " + regexArray.toString() + ");");
-                    step.setScript(script.toString());
-                }
-
-                list.add(step);
-            }
+            List<Step> list = buildStepList(transformerTable.getRowCount());
             
             transformer.setSteps(list);
+            
+            for(MessageObject.Protocol protocol : MessageObject.Protocol.values())
+            {
+                if(PlatformUI.MIRTH_FRAME.protocols.get(protocol).equals((String)tabTemplatePanel.incomingDataType.getSelectedItem()))
+                {
+                    transformer.setInboundProtocol(protocol);
+                }
+                else if(PlatformUI.MIRTH_FRAME.protocols.get(protocol).equals((String)tabTemplatePanel.outgoingDataType.getSelectedItem()))
+                {
+                    transformer.setOutboundProtocol(protocol);
+                }
+            }
             
             transformer.setInboundTemplate(tabTemplatePanel.getIncomingMessage());
             transformer.setOutboundTemplate(tabTemplatePanel.getOutgoingMessage());
