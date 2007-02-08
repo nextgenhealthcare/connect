@@ -29,6 +29,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.webreach.mirth.model.Connector.Mode;
 import com.webreach.mirth.model.MessageObject.Protocol;
 import com.webreach.mirth.util.EqualsUtil;
 
@@ -40,10 +41,6 @@ import com.webreach.mirth.util.EqualsUtil;
  * 
  */
 public class Transformer implements Serializable {
-	public enum Mode {
-		SOURCE, DESTINATION
-	}
-	
 	private List<Step> steps;
 	private String inboundTemplate;
 	private String outboundTemplate;

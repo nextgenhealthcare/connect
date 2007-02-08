@@ -40,6 +40,10 @@ import com.webreach.mirth.util.EqualsUtil;
  * 
  */
 public class Connector implements Serializable {
+	public enum Mode {
+		SOURCE, DESTINATION
+	}
+	
 	private String name;
 	private Properties properties;
 	private Transformer transformer;

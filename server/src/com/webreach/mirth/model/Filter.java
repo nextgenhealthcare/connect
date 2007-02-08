@@ -30,8 +30,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.webreach.mirth.model.MessageObject.Protocol;
-import com.webreach.mirth.model.Transformer.Mode;
+import com.webreach.mirth.model.Connector.Mode;
 import com.webreach.mirth.util.EqualsUtil;
 
 /**
@@ -44,10 +43,6 @@ import com.webreach.mirth.util.EqualsUtil;
 public class Filter implements Serializable {
 	private List<Rule> rules;
 	private String template;
-	public enum Mode {
-		SOURCE, DESTINATION
-
-	}
 	private Mode mode;
 
 	public Filter() {
