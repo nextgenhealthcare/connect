@@ -28,9 +28,6 @@ package com.webreach.mirth.client.ui;
 
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.Image;
-
-import javax.swing.ImageIcon;
 
 
 /**

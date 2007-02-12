@@ -26,11 +26,13 @@
 
 package com.webreach.mirth.client.ui;
 
+import javax.swing.ImageIcon;
+
+import org.jdesktop.swingx.util.SwingWorker;
+
 import com.webreach.mirth.client.core.Client;
 import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.model.Channel;
-import javax.swing.ImageIcon;
-import org.jdesktop.swingx.util.SwingWorker;
 
 /** Creates the new channel wizard dialog */
 public class LoginPanel extends javax.swing.JFrame

@@ -26,10 +26,6 @@
 
 package com.webreach.mirth.client.ui;
 
-import com.webreach.mirth.client.ui.util.HL7Reference;
-import com.webreach.mirth.model.converters.SerializerException;
-import com.webreach.mirth.model.converters.X12Serializer;
-
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.GridLayout;
@@ -49,7 +45,6 @@ import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.log4j.Logger;
 import org.w3c.dom.Attr;
@@ -69,7 +64,10 @@ import ca.uhn.hl7v2.parser.XMLParser;
 import ca.uhn.hl7v2.util.Terser;
 import ca.uhn.hl7v2.validation.impl.NoValidation;
 
+import com.webreach.mirth.client.ui.util.HL7Reference;
 import com.webreach.mirth.model.converters.ER7Serializer;
+import com.webreach.mirth.model.converters.SerializerException;
+import com.webreach.mirth.model.converters.X12Serializer;
 
 public class HL7XMLTreePanel extends JPanel
 {

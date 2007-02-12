@@ -27,38 +27,21 @@
 package com.webreach.mirth.client.ui;
 
 import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.Point;
 import java.awt.event.ComponentEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.util.prefs.Preferences;
 
 import javax.swing.ImageIcon;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JPasswordField;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.plaf.InsetsUIResource;
 
-import org.jdesktop.swingx.JXLoginPanel;
-import org.jdesktop.swingx.auth.LoginEvent;
-import org.jdesktop.swingx.auth.LoginListener;
-import org.jdesktop.swingx.auth.LoginService;
 import org.jdesktop.swingx.plaf.LookAndFeelAddons;
 import org.jdesktop.swingx.plaf.windows.WindowsLookAndFeelAddons;
 
 import com.jgoodies.looks.plastic.PlasticLookAndFeel;
 import com.jgoodies.looks.plastic.PlasticXPLookAndFeel;
-import com.jgoodies.looks.plastic.theme.*;
 import com.webreach.mirth.client.core.Client;
-import com.webreach.mirth.client.core.ClientException;
 
 /**
  * The main mirth class.  Sets up the login and then authenticates

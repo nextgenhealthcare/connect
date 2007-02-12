@@ -26,9 +26,6 @@
 
 package com.webreach.mirth.client.ui;
 
-import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.model.converters.ObjectCloner;
-import com.webreach.mirth.model.converters.ObjectClonerException;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -43,7 +40,6 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,7 +55,6 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
 
@@ -72,7 +67,6 @@ import org.jdesktop.swingx.JXTitledPanel;
 import org.jdesktop.swingx.action.ActionFactory;
 import org.jdesktop.swingx.action.ActionManager;
 import org.jdesktop.swingx.action.BoundAction;
-import org.jdesktop.swingx.border.DropShadowBorder;
 
 import com.webreach.mirth.client.core.Client;
 import com.webreach.mirth.client.core.ClientException;
@@ -86,7 +80,10 @@ import com.webreach.mirth.client.ui.util.ImportConverter;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.ChannelStatus;
 import com.webreach.mirth.model.ChannelSummary;
+import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.User;
+import com.webreach.mirth.model.converters.ObjectCloner;
+import com.webreach.mirth.model.converters.ObjectClonerException;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.model.filters.MessageObjectFilter;
 

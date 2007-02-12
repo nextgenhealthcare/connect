@@ -26,7 +26,6 @@
 
 package com.webreach.mirth.client.ui;
 
-import com.webreach.mirth.client.ui.editors.ReferenceTable;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 
@@ -34,7 +33,8 @@ import javax.swing.JComponent;
 import javax.swing.TransferHandler;
 
 import org.jdesktop.swingx.JXList;
-import org.jdesktop.swingx.JXTable;
+
+import com.webreach.mirth.client.ui.editors.ReferenceTable;
 
 public class VariableListHandler extends TransferHandler
 {

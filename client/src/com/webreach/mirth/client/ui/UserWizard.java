@@ -27,9 +27,6 @@
 package com.webreach.mirth.client.ui;
 
 import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
-import java.awt.Cursor;
-
-import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.model.User;
 
 /**
