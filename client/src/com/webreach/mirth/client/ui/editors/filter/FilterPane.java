@@ -148,11 +148,11 @@ public class FilterPane extends MirthEditorPane
         parent.setCurrentContentPage( this );
         parent.setCurrentTaskPaneContainer( filterTaskPaneContainer );
         
-        if(filter.getMode() == Filter.Mode.SOURCE)
+        if(filter.getMode() == Connector.Mode.SOURCE)
         {
             tabTemplatePanel.incomingDataType.setSelectedItem((String)PlatformUI.MIRTH_FRAME.channelEditPanel.getSourceDatatype());
         }
-        else if(filter.getMode() == Filter.Mode.DESTINATION)
+        else if(filter.getMode() == Connector.Mode.DESTINATION)
         {
             if(channel.getSourceConnector().getTransformer().getOutboundProtocol() != null)
                 tabTemplatePanel.incomingDataType.setSelectedItem((String)PlatformUI.MIRTH_FRAME.protocols.get(channel.getSourceConnector().getTransformer().getOutboundProtocol()));
