@@ -25,12 +25,6 @@
 
 package com.webreach.mirth.client.ui;
 
-import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
-import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.model.MessageObject.Protocol;
-import com.webreach.mirth.model.converters.ObjectCloner;
-import com.webreach.mirth.model.converters.ObjectClonerException;
-import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.KeyEvent;
@@ -55,8 +49,11 @@ import javax.swing.event.ListSelectionListener;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.AlternateRowHighlighter;
 import org.jdesktop.swingx.decorator.HighlighterPipeline;
+import org.syntax.jedit.SyntaxDocument;
+import org.syntax.jedit.tokenmarker.JavaScriptTokenMarker;
 
 import com.webreach.mirth.client.core.ClientException;
+import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
 import com.webreach.mirth.client.ui.connectors.ConnectorClass;
 import com.webreach.mirth.client.ui.connectors.DatabaseReader;
 import com.webreach.mirth.client.ui.connectors.DatabaseWriter;
@@ -78,11 +75,13 @@ import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.Connector;
 import com.webreach.mirth.model.Filter;
+import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.Step;
 import com.webreach.mirth.model.Transformer;
 import com.webreach.mirth.model.Transport;
-import org.syntax.jedit.SyntaxDocument;
-import org.syntax.jedit.tokenmarker.JavaScriptTokenMarker;
+import com.webreach.mirth.model.MessageObject.Protocol;
+import com.webreach.mirth.model.converters.ObjectCloner;
+import com.webreach.mirth.model.converters.ObjectClonerException;
 
 /** The channel editor panel. Majority of the client application */
 public class ChannelSetup extends javax.swing.JPanel
@@ -243,14 +242,14 @@ public class ChannelSetup extends javax.swing.JPanel
     {
         if (channelView.getSelectedIndex() == SOURCE_TAB_INDEX)
         {
-            currentChannel.getSourceConnector().getTransformer().setMode(Transformer.Mode.SOURCE);
+            currentChannel.getSourceConnector().getTransformer().setMode(Connector.Mode.SOURCE);
             transformerPane.load(currentChannel.getSourceConnector(), currentChannel.getSourceConnector().getTransformer());
         }
         
         else if (channelView.getSelectedIndex() == DESTINATIONS_TAB_INDEX)
         {
             int destination = getDestinationConnectorIndex((String) destinationTable.getValueAt(getSelectedDestinationIndex(), getColumnNumber(DESTINATION_COLUMN_NAME)));
-            currentChannel.getDestinationConnectors().get(destination).getTransformer().setMode(Transformer.Mode.DESTINATION);
+            currentChannel.getDestinationConnectors().get(destination).getTransformer().setMode(Connector.Mode.DESTINATION);
             transformerPane.load(currentChannel.getDestinationConnectors().get(destination), currentChannel.getDestinationConnectors().get(destination).getTransformer());
         }
     }
@@ -260,14 +259,14 @@ public class ChannelSetup extends javax.swing.JPanel
     {
         if (channelView.getSelectedIndex() == SOURCE_TAB_INDEX)
         {
-            currentChannel.getSourceConnector().getFilter().setMode(Filter.Mode.SOURCE);
+            currentChannel.getSourceConnector().getFilter().setMode(Connector.Mode.SOURCE);
             filterPane.load(currentChannel.getSourceConnector(), currentChannel.getSourceConnector().getFilter());
         }
         
         else if (channelView.getSelectedIndex() == DESTINATIONS_TAB_INDEX)
         {
             int destination = getDestinationConnectorIndex((String) destinationTable.getValueAt(getSelectedDestinationIndex(), getColumnNumber(DESTINATION_COLUMN_NAME)));
-            currentChannel.getDestinationConnectors().get(destination).getFilter().setMode(Filter.Mode.DESTINATION);
+            currentChannel.getDestinationConnectors().get(destination).getFilter().setMode(Connector.Mode.DESTINATION);
             filterPane.load(currentChannel.getDestinationConnectors().get(destination), currentChannel.getDestinationConnectors().get(destination).getFilter());
         }
     }
