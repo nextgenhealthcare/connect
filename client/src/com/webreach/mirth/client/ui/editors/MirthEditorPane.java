@@ -68,17 +68,14 @@ public class MirthEditorPane extends JPanel
 	
     public MirthEditorPane() {
     	super();
-    	
-		tabTemplatePanel = new TabbedTemplatePanel();
-		tabTemplatePanel.setBorder(BorderFactory.createEmptyBorder());
-		this.setBorder(BorderFactory.createEmptyBorder());
-
+        this.setBorder(BorderFactory.createEmptyBorder());
+        tabTemplatePanel = new TabbedTemplatePanel(this);
+        tabTemplatePanel.setBorder(BorderFactory.createEmptyBorder());
     	refPanel = new JPanel();
     	refPanel.setBorder( BorderFactory.createEmptyBorder() );
 		refPanel.setLayout( new BorderLayout() );
 		refPanel.add( tabTemplatePanel, BorderLayout.CENTER );
-		
-//		let the parent decide how big this should be
+        // let the parent decide how big this should be
     	this.setPreferredSize( new Dimension( 0, 0 ) );
     }
         

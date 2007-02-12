@@ -26,6 +26,7 @@
 
 package com.webreach.mirth.client.ui;
 
+import com.webreach.mirth.client.ui.editors.ReferenceTable;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 
@@ -33,20 +34,43 @@ import javax.swing.JComponent;
 import javax.swing.TransferHandler;
 
 import org.jdesktop.swingx.JXList;
+import org.jdesktop.swingx.JXTable;
 
 public class VariableListHandler extends TransferHandler
 {
+    String prefix, suffix;
     
+    public VariableListHandler (String prefix, String suffix)
+    {
+        this.prefix = prefix;
+        this.suffix = suffix;
+    }
     protected Transferable createTransferable( JComponent c )
     {
         try
         {
-            JXList list = ((JXList)( c ));
-            if ( list == null ) return null;
-            String text = (String)list.getSelectedValue();
+            String text = "";
+            if(c instanceof JXList)
+            {
+                JXList list = ((JXList)( c ));
+                if ( list == null ) return null;
+                text = (String)list.getSelectedValue();
+            }
+            else if(c instanceof ReferenceTable)
+            {
+                ReferenceTable reftable = ((ReferenceTable) (c));
+                if ( reftable == null ) 
+                    return null;
+                        
+                int currRow = reftable.getSelectedRow();
+
+                if (currRow >= 0 && currRow < reftable.getRowCount())
+                    text = (String) reftable.getValueAt(currRow, 0);
+            }
+            
             if (text != null)
             {
-                return new VariableTransferable( text, "${", "}" );
+                return new VariableTransferable( text, prefix, suffix );
             }
             return null;
         }

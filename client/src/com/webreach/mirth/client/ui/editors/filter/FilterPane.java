@@ -27,6 +27,7 @@
 package com.webreach.mirth.client.ui.editors.filter;
 
 import com.webreach.mirth.client.ui.editors.EditorTableCellEditor;
+import com.webreach.mirth.client.ui.editors.TabbedTemplatePanel;
 import com.webreach.mirth.client.ui.util.ImportConverter;
 import com.webreach.mirth.model.Channel;
 import java.awt.BorderLayout;
@@ -112,9 +113,6 @@ public class FilterPane extends MirthEditorPane
         connector = c;
         channel = PlatformUI.MIRTH_FRAME.channelEditPanel.currentChannel;
         
-        if (parent.channelEditTasks.getContentPane().getComponent(0).isVisible())
-            modified = true;
-        
         tabTemplatePanel.setIncomingMessage(filter.getTemplate());
         
         // we need to clear all the old data before we load the new
@@ -164,6 +162,11 @@ public class FilterPane extends MirthEditorPane
         
         updateRuleNumbers();
         updateTaskPane();
+        
+        if (parent.channelEditTasks.getContentPane().getComponent(0).isVisible())
+            modified = true;
+        else
+            modified = false;
     }
     
     /** This method is called from within the constructor to

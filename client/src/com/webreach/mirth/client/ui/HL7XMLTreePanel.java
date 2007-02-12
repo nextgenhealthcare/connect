@@ -71,352 +71,405 @@ import ca.uhn.hl7v2.validation.impl.NoValidation;
 
 import com.webreach.mirth.model.converters.ER7Serializer;
 
-public class HL7XMLTreePanel extends JPanel {
-	private PipeParser parser;
-	private XMLParser xmlParser;
-	private String version;
-	private EncodingCharacters encodingChars;
-	private JTree tree;
-	private Logger logger = Logger.getLogger(this.getClass());
-	private String _dropPrefix;
-	private String _dropSuffix;
-	public HL7XMLTreePanel(String prefix, String suffix) 
-        {
+public class HL7XMLTreePanel extends JPanel
+{
+    private PipeParser parser;
+    private XMLParser xmlParser;
+    private String version;
+    private EncodingCharacters encodingChars;
+    private JTree tree;
+    private Logger logger = Logger.getLogger(this.getClass());
+    private String _dropPrefix;
+    private String _dropSuffix;
+    public HL7XMLTreePanel(String prefix, String suffix)
+    {
         _dropPrefix = prefix;
-		_dropSuffix = suffix;
-		parser = new PipeParser();
-		parser.setValidationContext(new NoValidation());
-		xmlParser = new DefaultXMLParser();
-		encodingChars = new EncodingCharacters('|', null);
-		this.setLayout(new GridLayout(1, 1));
-		this.setBackground( Color.white );
+        _dropSuffix = suffix;
+        parser = new PipeParser();
+        parser.setValidationContext(new NoValidation());
+        xmlParser = new DefaultXMLParser();
+        encodingChars = new EncodingCharacters('|', null);
+        this.setLayout(new GridLayout(1, 1));
+        this.setBackground( Color.white );
+    }
+    /**
+     * Updates the panel with a new Message.
+     */
+    public void setMessage(String source)
+    {
+        Message message = null;
+        Document xmlDoc = null;
+        logger.debug("encoding HL7 message to XML:\n" + message);
+        
+        if (source != null && !source.equals(""))
+        {
+            PlatformUI.MIRTH_FRAME.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+            //This message might come from a system that doesn't use carriage returns
+            //Since hapi requires a CR for the end of segment character
+            //we will force it.
+            source = source.replaceAll("\\n", "\r").trim();
+            try
+            {
+                DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+                DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+                String er7Message = new ER7Serializer().toXML(source);
+                xmlDoc = docBuilder.parse(new InputSource(new StringReader(er7Message)));
+                message = parser.parse(source);
+            }
+            catch (SerializerException e)
+            {
+                //PlatformUI.MIRTH_FRAME.alertWarning( "Encoding not supported.\n" +
+                //"Please check the syntax of your message\n" +
+                //"and try again.");
+            }
+            catch (EncodingNotSupportedException e)
+            {
+                //PlatformUI.MIRTH_FRAME.alertWarning( "Encoding not supported.\n" +
+                //"Please check the syntax of your message\n" +
+                //                      "and try again.");
+            }
+            catch (HL7Exception e)
+            {
+                //PlatformUI.MIRTH_FRAME.alertError( "HL7 Error!\n" +
+                //		"Please check the syntax of your message\n" +
+                //"and try again.");
+            }
+            catch (Exception e)
+            {
+                //PlatformUI.MIRTH_FRAME.alertException(e.getStackTrace(), e.getMessage());
+                e.printStackTrace();
+            }
+            
+            if (xmlDoc != null)
+            {
+                Element el = xmlDoc.getDocumentElement();
+                Terser terser = new Terser(message);
+                String messageName = el.getNodeName();
+                String messageDescription = "";
+                version = message.getVersion();
+                try
+                {
+                    messageName = terser.get("/MSH-9-1") + "-" + terser.get("/MSH-9-2") + " (" + version + ")";
+                    messageDescription = HL7Reference.getInstance().getDescription(terser.get("/MSH-9-1") + terser.get("/MSH-9-2"), version);
+                }
+                catch (HL7Exception e)
+                {
+                    // TODO Auto-generated catch block
+                    logger.error(e);
+                }
+                DefaultMutableTreeNode top;
+                if (messageDescription.length() > 0)
+                    top = new DefaultMutableTreeNode(messageName + " (" + messageDescription + ")");
+                else
+                    top = new DefaultMutableTreeNode(messageName);
+                
+                NodeList children = el.getChildNodes();
+                for (int i = 0; i < children.getLength(); i++)
+                {
+                    processElement(children.item(i), top);
+                }
+                //processElement(xmlDoc.getDocumentElement(), top);
+                //addChildren(message, top);
+                
+                tree = new JTree(top);
+                tree.setDragEnabled( true );
+                tree.setTransferHandler(new TreeTransferHandler());
+                
+                tree.addMouseMotionListener(new MouseMotionAdapter()
+                {
+                    public void mouseDragged(MouseEvent evt)
+                    {
+                        refTableMouseDragged(evt);
+                    }
+                    public void mouseMoved(MouseEvent evt)
+                    {
+                        refTableMouseMoved(evt);
+                    }
+                });
+                tree.addMouseListener(new MouseAdapter()
+                {
+                    public void mouseExited(MouseEvent evt)
+                    {
+                        refTableMouseExited(evt);
+                    }
+                });
+                
+                removeAll();
+                add(tree);
+                revalidate();
+            }
+            
+            
+            PlatformUI.MIRTH_FRAME.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         }
-	/**
-	 * Updates the panel with a new Message.
-	 */
-	public void setMessage(String source) {
-		Message message = null;
-		Document xmlDoc = null;
-		logger.debug("encoding HL7 message to XML:\n" + message);
-		
-		if (source != null && !source.equals("")) {
-			PlatformUI.MIRTH_FRAME.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-			//This message might come from a system that doesn't use carriage returns
-			//Since hapi requires a CR for the end of segment character
-			//we will force it.
-			source = source.replaceAll("\\n", "\r").trim();
-			try {
-				DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-				DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-				String er7Message = new ER7Serializer().toXML(source);
-				xmlDoc = docBuilder.parse(new InputSource(new StringReader(er7Message)));
-				message = parser.parse(source);
-			}
-                        catch (SerializerException e)
-                        {
-                            //PlatformUI.MIRTH_FRAME.alertWarning( "Encoding not supported.\n" +
-						//"Please check the syntax of your message\n" +
-				//"and try again.");
-                        }
-                        catch (EncodingNotSupportedException e) 
-                        {
-                            //PlatformUI.MIRTH_FRAME.alertWarning( "Encoding not supported.\n" +
-						//"Please check the syntax of your message\n" +
-                          //                      "and try again.");
-			} 
-                        catch (HL7Exception e) 
-                        {
-				//PlatformUI.MIRTH_FRAME.alertError( "HL7 Error!\n" +
-				//		"Please check the syntax of your message\n" +
-				//"and try again.");
-			} 
-                        catch (Exception e) 
-                        {
-				//PlatformUI.MIRTH_FRAME.alertException(e.getStackTrace(), e.getMessage());
-				e.printStackTrace();
-			}
-			
-			if (xmlDoc != null) {
-				Element el = xmlDoc.getDocumentElement();
-				Terser terser = new Terser(message);
-				String messageName = el.getNodeName();
-				String messageDescription = "";
-				version = message.getVersion();
-				try {
-					messageName = terser.get("/MSH-9-1") + "-" + terser.get("/MSH-9-2") + " (" + version + ")";
-					messageDescription = HL7Reference.getInstance().getDescription(terser.get("/MSH-9-1") + terser.get("/MSH-9-2"), version);
-				} catch (HL7Exception e) {
-					// TODO Auto-generated catch block
-					logger.error(e);
-				}
-				DefaultMutableTreeNode top;
-				if (messageDescription.length() > 0)
-					top = new DefaultMutableTreeNode(messageName + " (" + messageDescription + ")");
-				else
-					top = new DefaultMutableTreeNode(messageName);
-				
-				NodeList children = el.getChildNodes();
-				for (int i = 0; i < children.getLength(); i++) {
-					processElement(children.item(i), top);
-				}
-				//processElement(xmlDoc.getDocumentElement(), top);
-				//addChildren(message, top);
-				
-				tree = new JTree(top);
-				tree.setDragEnabled( true );
-				tree.setTransferHandler(new TreeTransferHandler());
-				
-				tree.addMouseMotionListener(new MouseMotionAdapter() {
-					public void mouseDragged(MouseEvent evt) {
-						refTableMouseDragged(evt);
-					}
-					public void mouseMoved(MouseEvent evt) {
-						refTableMouseMoved(evt);
-					}
-				});
-				tree.addMouseListener(new MouseAdapter() {
-					public void mouseExited(MouseEvent evt) {
-						refTableMouseExited(evt);
-					}
-				});
-				
-				removeAll();
-				add(tree);
-				revalidate();
-			}
-			
-
-		PlatformUI.MIRTH_FRAME.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-		}
-	}
-	/**
-	 * Updates the panel with a new Message.
-	 */
-	public void setV3Message(Document xmlDoc) {
-		//logger.debug("encoding HL7 message to XML:\n" + message);
-	
-			PlatformUI.MIRTH_FRAME.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-			//This message might come from a system that doesn't use carriage returns
-			//Since hapi requires a CR for the end of segment character
-			//we will force it.
-			if (xmlDoc != null) {
-				Element el = xmlDoc.getDocumentElement();
-				String messageName = el.getNodeName();
-				String messageDescription = "";
-				version = "3.0";
-				messageName = el.getNodeName() + "-" + " (" + version + ")";
-				messageDescription = "";//HL7Reference.getInstance().getDescription(terser.get("/MSH-9-1") + terser.get("/MSH-9-2"), version);
-				
-				DefaultMutableTreeNode top;
-				if (messageDescription.length() > 0)
-					top = new DefaultMutableTreeNode(messageName + " (" + messageDescription + ")");
-				else
-					top = new DefaultMutableTreeNode(messageName);
-				
-				NodeList children = el.getChildNodes();
-				for (int i = 0; i < children.getLength(); i++) {
-					processElement(children.item(i), top);
-				}
-				//processElement(xmlDoc.getDocumentElement(), top);
-				//addChildren(message, top);
-				
-				tree = new JTree(top);
-				tree.setDragEnabled( true );
-				tree.setTransferHandler(new TreeTransferHandler());
-				
-				tree.addMouseMotionListener(new MouseMotionAdapter() {
-					public void mouseDragged(MouseEvent evt) {
-						refTableMouseDragged(evt);
-					}
-					public void mouseMoved(MouseEvent evt) {
-						refTableMouseMoved(evt);
-					}
-				});
-				tree.addMouseListener(new MouseAdapter() {
-					public void mouseExited(MouseEvent evt) {
-						refTableMouseExited(evt);
-					}
-				});
-				
-				removeAll();
-				add(tree);
-				revalidate();
-			}
-			
-
-		PlatformUI.MIRTH_FRAME.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-		
-	}
-	/**
-	 * Updates the panel with a new Message.
-	 */
-	public void setX12Message(String message) {
-		//logger.debug("encoding HL7 message to XML:\n" + message);
-		
-		
-			PlatformUI.MIRTH_FRAME.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-			//This message might come from a system that doesn't use carriage returns
-			//Since hapi requires a CR for the end of segment character
-			//we will force it.
-			
-			DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-			DocumentBuilder docBuilder;
-			Document xmlDoc = null;
-			try {
-				docBuilder = docFactory.newDocumentBuilder();
-				String x12message = new X12Serializer().toXML(message);
-				xmlDoc = docBuilder.parse(new InputSource(new StringReader(x12message)));
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			if (xmlDoc != null) {
-				Element el = xmlDoc.getDocumentElement();
-				String messageName = el.getNodeName();
-				String messageDescription = "";
-				version = "";
-				messageName = el.getNodeName() + "-" + " (" + version + ")";
-				messageDescription = "";//HL7Reference.getInstance().getDescription(terser.get("/MSH-9-1") + terser.get("/MSH-9-2"), version);
-				
-				DefaultMutableTreeNode top;
-				if (messageDescription.length() > 0)
-					top = new DefaultMutableTreeNode(messageName + " (" + messageDescription + ")");
-				else
-					top = new DefaultMutableTreeNode(messageName);
-				
-				NodeList children = el.getChildNodes();
-				for (int i = 0; i < children.getLength(); i++) {
-					processElement(children.item(i), top);
-				}
-				//processElement(xmlDoc.getDocumentElement(), top);
-				//addChildren(message, top);
-				
-				tree = new JTree(top);
-				tree.setDragEnabled( true );
-				tree.setTransferHandler(new TreeTransferHandler());
-				
-				tree.addMouseMotionListener(new MouseMotionAdapter() {
-					public void mouseDragged(MouseEvent evt) {
-						refTableMouseDragged(evt);
-					}
-					public void mouseMoved(MouseEvent evt) {
-						refTableMouseMoved(evt);
-					}
-				});
-				tree.addMouseListener(new MouseAdapter() {
-					public void mouseExited(MouseEvent evt) {
-						refTableMouseExited(evt);
-					}
-				});
-				
-				removeAll();
-				add(tree);
-				revalidate();
-			}
-			
-
-		PlatformUI.MIRTH_FRAME.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-		
-	}
-	private void refTableMouseExited(MouseEvent evt) {
-		tree.clearSelection();
-	}
-	
-	private void refTableMouseDragged(MouseEvent evt) {
-	}
-	
-	private void refTableMouseMoved(MouseEvent evt) {
-		int row = tree.getRowForLocation(evt.getPoint().x, evt.getPoint().y );
-		
-		if ( row >= 0 && row < tree.getRowCount() )				
-			tree.setSelectionRow( row );
-	}
-	
-	
-	private void processElement(Object elo, DefaultMutableTreeNode dmtn) {
-		if (elo instanceof Element) {
-			Element el = (Element)elo;
-			String description = HL7Reference.getInstance().getDescription(el.getNodeName(), version);
-			DefaultMutableTreeNode currentNode ;
-			if (description.length() > 0)
-				currentNode = new DefaultMutableTreeNode(el.getNodeName() + " (" + description + ")");
-			else
-				currentNode = new DefaultMutableTreeNode(el.getNodeName());
-			String text = "";
-			if (el.hasChildNodes()) {
-				text = el.getFirstChild().getNodeValue();
-			}
-			else {
-				text = el.getTextContent();
-			}
-			text = text.trim();
-			if((text != null) && (!text.equals(""))){
-				
-				currentNode.add(new DefaultMutableTreeNode(text));
-			}
-			
-			processAttributes(el, currentNode);
-			
-			NodeList children = el.getChildNodes();
-			for (int i = 0; i < children.getLength(); i++) {
-				processElement(children.item(i), currentNode);
-			}
-			dmtn.add(currentNode);
-		}
-	}
-	
-	private void processAttributes(Element el, DefaultMutableTreeNode dmtn) {
-		NamedNodeMap atts = el.getAttributes();
-		for (int i = 0; i < atts.getLength(); i++) {
-			Attr att = (Attr) atts.item(i);
-			DefaultMutableTreeNode attNode =
-				new DefaultMutableTreeNode("@"+att.getName());
-			attNode.add(new DefaultMutableTreeNode(att.getValue()));
-			dmtn.add(attNode);
-		}
-	}
-	
-	public class TreeTransferHandler extends TransferHandler {
-		
-		protected Transferable createTransferable( JComponent c ) {
-			if ( c != null ) {
-				try {
-					TreePath path = ((JTree)c).getSelectionPath();
-					if (path == null)
-						return null;
-					TreeNode tp = (TreeNode)path.getLastPathComponent();
-					if ( tp == null )
-						return null;
-					if (!tp.isLeaf())
-						return null;
-					String leaf = tp.toString();
-					// if (leaf.equals(DNDConstants.TASK) || leaf.equals(DNDConstants.TYPE))
-					//   return null;
-					return new TreeTransferable( tp, _dropPrefix, _dropSuffix );
-				}
-				catch ( ClassCastException cce ) {
-					return null;
-				}
-			} else return null;
-		}
-		
-		public int getSourceActions( JComponent c ) {
-			return COPY;
-		}
-		
-		public boolean canImport( JComponent c, DataFlavor[] df ) {
-			return false;
-		}
-	}
-	public void clearMessage() {
-		DefaultMutableTreeNode top = new DefaultMutableTreeNode("Paste an HL7 message to view HL7 message tree.");
-		JTree tree = new JTree(top);
-		removeAll();
-		add(tree);
-		revalidate();
-	}
-	
-	
-	
-	
+    }
+    /**
+     * Updates the panel with a new Message.
+     */
+    public void setV3Message(Document xmlDoc)
+    {
+        //logger.debug("encoding HL7 message to XML:\n" + message);
+        
+        PlatformUI.MIRTH_FRAME.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        //This message might come from a system that doesn't use carriage returns
+        //Since hapi requires a CR for the end of segment character
+        //we will force it.
+        if (xmlDoc != null)
+        {
+            Element el = xmlDoc.getDocumentElement();
+            String messageName = el.getNodeName();
+            String messageDescription = "";
+            version = "3.0";
+            messageName = el.getNodeName() + "-" + " (" + version + ")";
+            messageDescription = "";//HL7Reference.getInstance().getDescription(terser.get("/MSH-9-1") + terser.get("/MSH-9-2"), version);
+            
+            DefaultMutableTreeNode top;
+            if (messageDescription.length() > 0)
+                top = new DefaultMutableTreeNode(messageName + " (" + messageDescription + ")");
+            else
+                top = new DefaultMutableTreeNode(messageName);
+            
+            NodeList children = el.getChildNodes();
+            for (int i = 0; i < children.getLength(); i++)
+            {
+                processElement(children.item(i), top);
+            }
+            //processElement(xmlDoc.getDocumentElement(), top);
+            //addChildren(message, top);
+            
+            tree = new JTree(top);
+            tree.setDragEnabled( true );
+            tree.setTransferHandler(new TreeTransferHandler());
+            
+            tree.addMouseMotionListener(new MouseMotionAdapter()
+            {
+                public void mouseDragged(MouseEvent evt)
+                {
+                    refTableMouseDragged(evt);
+                }
+                public void mouseMoved(MouseEvent evt)
+                {
+                    refTableMouseMoved(evt);
+                }
+            });
+            tree.addMouseListener(new MouseAdapter()
+            {
+                public void mouseExited(MouseEvent evt)
+                {
+                    refTableMouseExited(evt);
+                }
+            });
+            
+            removeAll();
+            add(tree);
+            revalidate();
+        }
+        
+        
+        PlatformUI.MIRTH_FRAME.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        
+    }
+    /**
+     * Updates the panel with a new Message.
+     */
+    public void setX12Message(String message)
+    {
+        //logger.debug("encoding HL7 message to XML:\n" + message);
+        
+        
+        PlatformUI.MIRTH_FRAME.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        //This message might come from a system that doesn't use carriage returns
+        //Since hapi requires a CR for the end of segment character
+        //we will force it.
+        
+        DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder docBuilder;
+        Document xmlDoc = null;
+        try
+        {
+            docBuilder = docFactory.newDocumentBuilder();
+            String x12message = new X12Serializer().toXML(message);
+            xmlDoc = docBuilder.parse(new InputSource(new StringReader(x12message)));
+        }
+        catch (Exception e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        if (xmlDoc != null)
+        {
+            Element el = xmlDoc.getDocumentElement();
+            String messageName = el.getNodeName();
+            String messageDescription = "";
+            version = "";
+            messageName = el.getNodeName() + "-" + " (" + version + ")";
+            messageDescription = "";//HL7Reference.getInstance().getDescription(terser.get("/MSH-9-1") + terser.get("/MSH-9-2"), version);
+            
+            DefaultMutableTreeNode top;
+            if (messageDescription.length() > 0)
+                top = new DefaultMutableTreeNode(messageName + " (" + messageDescription + ")");
+            else
+                top = new DefaultMutableTreeNode(messageName);
+            
+            NodeList children = el.getChildNodes();
+            for (int i = 0; i < children.getLength(); i++)
+            {
+                processElement(children.item(i), top);
+            }
+            //processElement(xmlDoc.getDocumentElement(), top);
+            //addChildren(message, top);
+            
+            tree = new JTree(top);
+            tree.setDragEnabled( true );
+            tree.setTransferHandler(new TreeTransferHandler());
+            
+            tree.addMouseMotionListener(new MouseMotionAdapter()
+            {
+                public void mouseDragged(MouseEvent evt)
+                {
+                    refTableMouseDragged(evt);
+                }
+                public void mouseMoved(MouseEvent evt)
+                {
+                    refTableMouseMoved(evt);
+                }
+            });
+            tree.addMouseListener(new MouseAdapter()
+            {
+                public void mouseExited(MouseEvent evt)
+                {
+                    refTableMouseExited(evt);
+                }
+            });
+            
+            removeAll();
+            add(tree);
+            revalidate();
+        }
+        
+        
+        PlatformUI.MIRTH_FRAME.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        
+    }
+    private void refTableMouseExited(MouseEvent evt)
+    {
+        tree.clearSelection();
+    }
+    
+    private void refTableMouseDragged(MouseEvent evt)
+    {
+    }
+    
+    private void refTableMouseMoved(MouseEvent evt)
+    {
+        int row = tree.getRowForLocation(evt.getPoint().x, evt.getPoint().y );
+        
+        if ( row >= 0 && row < tree.getRowCount() )
+            tree.setSelectionRow( row );
+    }
+    
+    
+    private void processElement(Object elo, DefaultMutableTreeNode dmtn)
+    {
+        if (elo instanceof Element)
+        {
+            Element el = (Element)elo;
+            String description = HL7Reference.getInstance().getDescription(el.getNodeName(), version);
+            DefaultMutableTreeNode currentNode ;
+            if (description.length() > 0)
+                currentNode = new DefaultMutableTreeNode(el.getNodeName() + " (" + description + ")");
+            else
+                currentNode = new DefaultMutableTreeNode(el.getNodeName());
+            String text = "";
+            if (el.hasChildNodes())
+            {
+                text = el.getFirstChild().getNodeValue();
+            }
+            else
+            {
+                text = el.getTextContent();
+            }
+            text = text.trim();
+            if((text != null) && (!text.equals("")))
+            {
+                
+                currentNode.add(new DefaultMutableTreeNode(text));
+            }
+            
+            processAttributes(el, currentNode);
+            
+            NodeList children = el.getChildNodes();
+            for (int i = 0; i < children.getLength(); i++)
+            {
+                processElement(children.item(i), currentNode);
+            }
+            dmtn.add(currentNode);
+        }
+    }
+    
+    private void processAttributes(Element el, DefaultMutableTreeNode dmtn)
+    {
+        NamedNodeMap atts = el.getAttributes();
+        for (int i = 0; i < atts.getLength(); i++)
+        {
+            Attr att = (Attr) atts.item(i);
+            DefaultMutableTreeNode attNode =
+                    new DefaultMutableTreeNode("@"+att.getName());
+            attNode.add(new DefaultMutableTreeNode(att.getValue()));
+            dmtn.add(attNode);
+        }
+    }
+    
+    public class TreeTransferHandler extends TransferHandler
+    {
+        
+        protected Transferable createTransferable( JComponent c )
+        {
+            if ( c != null )
+            {
+                try
+                {
+                    TreePath path = ((JTree)c).getSelectionPath();
+                    if (path == null)
+                        return null;
+                    TreeNode tp = (TreeNode)path.getLastPathComponent();
+                    if ( tp == null )
+                        return null;
+                    if (!tp.isLeaf())
+                        return null;
+                    String leaf = tp.toString();
+                    // if (leaf.equals(DNDConstants.TASK) || leaf.equals(DNDConstants.TYPE))
+                    //   return null;
+                    return new TreeTransferable( tp, _dropPrefix, _dropSuffix );
+                }
+                catch ( ClassCastException cce )
+                {
+                    return null;
+                }
+            }
+            else return null;
+        }
+        
+        public int getSourceActions( JComponent c )
+        {
+            return COPY;
+        }
+        
+        public boolean canImport( JComponent c, DataFlavor[] df )
+        {
+            return false;
+        }
+    }
+    public void clearMessage()
+    {
+        DefaultMutableTreeNode top = new DefaultMutableTreeNode("Paste an HL7 message to view HL7 message tree.");
+        JTree tree = new JTree(top);
+        removeAll();
+        add(tree);
+        revalidate();
+    }
+    
+    
+    
+    
 }

@@ -101,7 +101,7 @@ public class MapperPanel extends BasePanel
     
     public void updateTable() 
     {
-        if (parent.getSelectedRow() != -1) 
+        if (parent.getSelectedRow() != -1 && !parent.getTableModel().getValueAt(parent.getSelectedRow(), parent.STEP_TYPE_COL).toString().equals("JavaScript")) 
         {
             SwingUtilities.invokeLater(new Runnable() 
             {
@@ -332,17 +332,17 @@ public class MapperPanel extends BasePanel
     private void initComponents()
     {
         jLabel1 = new javax.swing.JLabel();
-        variableTextField = new com.webreach.mirth.client.ui.components.MirthTextField();
         jLabel2 = new javax.swing.JLabel();
-        mappingTextField = new com.webreach.mirth.client.ui.components.MirthTextField();
         addToGlobal = new com.webreach.mirth.client.ui.components.MirthCheckBox();
         jLabel3 = new javax.swing.JLabel();
-        defaultValueTextField = new com.webreach.mirth.client.ui.components.MirthTextField();
         regularExpressionsScrollPane = new javax.swing.JScrollPane();
         regularExpressionsTable = new com.webreach.mirth.client.ui.components.MirthTable();
         newButton = new javax.swing.JButton();
         deleteButton = new javax.swing.JButton();
         jLabel4 = new javax.swing.JLabel();
+        variableTextField = new javax.swing.JTextField();
+        mappingTextField = new javax.swing.JTextField();
+        defaultValueTextField = new javax.swing.JTextField();
 
         setBackground(new java.awt.Color(255, 255, 255));
         jLabel1.setText("Variable:");
@@ -408,12 +408,12 @@ public class MapperPanel extends BasePanel
                                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
                                     .add(newButton)
                                     .add(deleteButton)))
-                            .add(mappingTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 381, Short.MAX_VALUE)
-                            .add(defaultValueTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 381, Short.MAX_VALUE)
                             .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                                 .add(variableTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 224, Short.MAX_VALUE)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(addToGlobal, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
+                                .add(addToGlobal, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .add(mappingTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 381, Short.MAX_VALUE)
+                            .add(defaultValueTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 381, Short.MAX_VALUE)))
                     .add(layout.createSequentialGroup()
                         .addContainerGap()
                         .add(jLabel4)))
@@ -481,17 +481,17 @@ public class MapperPanel extends BasePanel
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.webreach.mirth.client.ui.components.MirthCheckBox addToGlobal;
-    private com.webreach.mirth.client.ui.components.MirthTextField defaultValueTextField;
+    private javax.swing.JTextField defaultValueTextField;
     private javax.swing.JButton deleteButton;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
-    private com.webreach.mirth.client.ui.components.MirthTextField mappingTextField;
+    private javax.swing.JTextField mappingTextField;
     private javax.swing.JButton newButton;
     private javax.swing.JScrollPane regularExpressionsScrollPane;
     private com.webreach.mirth.client.ui.components.MirthTable regularExpressionsTable;
-    private com.webreach.mirth.client.ui.components.MirthTextField variableTextField;
+    private javax.swing.JTextField variableTextField;
     // End of variables declaration//GEN-END:variables
     
 }

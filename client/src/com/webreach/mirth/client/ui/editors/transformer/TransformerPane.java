@@ -27,6 +27,7 @@
 package com.webreach.mirth.client.ui.editors.transformer;
 
 import com.webreach.mirth.client.ui.editors.EditorTableCellEditor;
+import com.webreach.mirth.client.ui.editors.TabbedTemplatePanel;
 import com.webreach.mirth.client.ui.util.FileUtil;
 import com.webreach.mirth.model.Connector;
 import com.webreach.mirth.model.MessageObject;
@@ -106,7 +107,6 @@ public class TransformerPane extends MirthEditorPane
     {
         prevSelRow = -1;
         modified = false;
-        
         initComponents();
         setBorder(BorderFactory.createEmptyBorder());
     }
@@ -119,10 +119,7 @@ public class TransformerPane extends MirthEditorPane
         prevSelRow = -1;
         connector = c;
         transformer = t;
-        
-        if (parent.channelEditTasks.getContentPane().getComponent(0).isVisible())
-            modified = true;
-        
+               
         tabTemplatePanel.setDefaultComponent();
         tabTemplatePanel.tabPanel.add("Outgoing Data", tabTemplatePanel.outgoingTab);
 
@@ -184,6 +181,11 @@ public class TransformerPane extends MirthEditorPane
         
         updateStepNumbers();
         updateTaskPane();
+        
+        if (parent.channelEditTasks.getContentPane().getComponent(0).isVisible())
+            modified = true;
+        else
+            modified = false;
     }
     
     /**
@@ -406,13 +408,11 @@ public class TransformerPane extends MirthEditorPane
                         return;
                     
                     modified = true;
-                                       
+                    
                     if(type.equalsIgnoreCase(JAVASCRIPT_TYPE))
                     {
                         jsPanel.setData(null);
                         updateTaskPane();
-                        mapperPanel.setData(null);
-                        hl7builderPanel.setData(null);
                         getTableModel().setValueAt("New Step", row, STEP_NAME_COL);
                     }
                     else if(type.equalsIgnoreCase(MAPPER_TYPE))
@@ -423,8 +423,6 @@ public class TransformerPane extends MirthEditorPane
                         data.put("isGlobal", UIConstants.NO_OPTION);
                         mapperPanel.setData(data);
                         updateTaskPane();
-                        hl7builderPanel.setData(null);
-                        jsPanel.setData(null);
                         getTableModel().setValueAt("", row, STEP_NAME_COL);
                     }
                     else if(type.equalsIgnoreCase(HL7MESSAGE_TYPE))
@@ -434,8 +432,6 @@ public class TransformerPane extends MirthEditorPane
                         data.put("Mapping", "");
                         hl7builderPanel.setData(data);
                         updateTaskPane();
-                        mapperPanel.setData(null);
-                        jsPanel.setData(null);
                         getTableModel().setValueAt("", row, STEP_NAME_COL);
                     }
                     stepPanel.showCard(type);

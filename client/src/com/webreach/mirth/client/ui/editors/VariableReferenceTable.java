@@ -26,44 +26,48 @@
 
 package com.webreach.mirth.client.ui.editors;
 
-import java.awt.Component;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Iterator;
-
-import javax.swing.JComponent;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellRenderer;
 
 import com.webreach.mirth.client.ui.PlatformUI;
 import com.webreach.mirth.client.ui.FunctionListItem;
+import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
+import com.webreach.mirth.model.Step;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public class VariableReferenceTable extends ReferenceTable {
 	private Object[] tooltip;
 	private ArrayList<FunctionListItem> _listItems;
+        private String headerName = "blank";
+        
 	public VariableReferenceTable () {
 		super();
 		makeTable( null, null );
 	}
 	
-	public VariableReferenceTable ( Object[] data ) {
+	public VariableReferenceTable ( String headerName, Object[] data ) {
 		super();
-		makeTable( data, null );
+		makeTable( headerName, data, null );
 	}
 	
-	public VariableReferenceTable ( Object[] data, Object[] tooltip ) {
-		super();
-		makeTable( data, tooltip );
+	public VariableReferenceTable ( String headerName, Object[] data, Object[] tooltip ) {
+                super();
+		makeTable( headerName, data, tooltip );
 	}
 	
-	public VariableReferenceTable(ArrayList<FunctionListItem> listItems){
+	public VariableReferenceTable(String headerName, ArrayList<FunctionListItem> listItems){
 		this._listItems = listItems;
-		makeTable(listItems);
+		makeTable(headerName, listItems);
 	}
-	private void makeTable(ArrayList<FunctionListItem> listItems){
-		if (listItems == null) return;
+	private void makeTable(String headerName, ArrayList<FunctionListItem> listItems){
+            if (listItems == null) return;
 		Object[] tooltips = new String[listItems.size()];
 		Object[] names = new String[listItems.size()];
 		Iterator<FunctionListItem> listItemIterator = listItems.iterator();
@@ -74,11 +78,12 @@ public class VariableReferenceTable extends ReferenceTable {
 			tooltips[i] = listItem.getTooltip();    
 			i++;
 		}
-		makeTable(names, tooltips);
+		makeTable(headerName, names, tooltips);
 	}
-	private void makeTable(Object[] data, Object[] tooltip) {
+	private void makeTable(String headerName, Object[] data, Object[] tooltip) {
 		if (data == null) return;
 		
+                this.headerName = headerName;                
 		this.tooltip = tooltip;
 		
 		Object[][] d = new String[data.length][2];
@@ -88,14 +93,14 @@ public class VariableReferenceTable extends ReferenceTable {
 		}
 		
 		this.setModel( new DefaultTableModel( d,
-				new Object[] {"Common Variables and Functions"} ) {
+				new Object[] {headerName} ) {
 			public boolean isCellEditable ( int row, int col ) {
 				return false;
 			}
 		});
 		
-		this.getColumnExt( "Common Variables and Functions" ).setPreferredWidth( 80 );
-		this.getColumnExt( "Common Variables and Functions" ).setHeaderRenderer( PlatformUI.CENTER_COLUMN_HEADER_RENDERER );
+		this.getColumnExt( headerName ).setPreferredWidth( 80 );
+		this.getColumnExt( headerName ).setHeaderRenderer( PlatformUI.CENTER_COLUMN_HEADER_RENDERER );
 		
 	}
 	
@@ -113,4 +118,45 @@ public class VariableReferenceTable extends ReferenceTable {
 		return null;
 	}
 	
+    public void updateVariables(List<Step> steps)
+    {
+        String VAR_PATTERN = "[glob|loc]alMap.put\\(['|\"]([^'|^\"]*)[\"|']";
+        ArrayList<String> variables = new ArrayList<String>();
+        int i = 0;
+        for (Iterator it = steps.iterator(); it.hasNext();)
+        {
+            Step step = (Step) it.next();
+            Map data;
+            data = (Map)step.getData();
+            if(step.getType().equalsIgnoreCase(TransformerPane.MAPPER_TYPE))
+            {
+                variables.add((String)data.get("Variable"));
+                i++;
+            }
+            else if (step.getType().equalsIgnoreCase(TransformerPane.JAVASCRIPT_TYPE))
+            {
+            	Pattern pattern = Pattern.compile(VAR_PATTERN);
+            	Matcher matcher = pattern.matcher(step.getScript());
+                while (matcher.find()) 
+                {
+                        String key = matcher.group(1);
+                        variables.add(key);
+                }
+            }
+        }
+        
+        Object[][] d = new String[variables.toArray().length][2];
+        for ( int j = 0;  j < variables.toArray().length;  j++ ) {
+                d[j][0] = variables.toArray()[j];
+                d[j][1] = null;
+        }
+        
+        this.setModel( new DefaultTableModel( d,
+				new Object[] {headerName} ) {
+			public boolean isCellEditable ( int row, int col ) {
+				return false;
+			}
+		});
+
+    }
 }

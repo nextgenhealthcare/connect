@@ -36,13 +36,13 @@
                                   <Component id="deleteButton" linkSize="1" alignment="1" min="-2" max="-2" attributes="0"/>
                               </Group>
                           </Group>
-                          <Component id="mappingTextField" pref="381" max="32767" attributes="1"/>
-                          <Component id="defaultValueTextField" alignment="0" pref="381" max="32767" attributes="0"/>
                           <Group type="102" alignment="1" attributes="0">
-                              <Component id="variableTextField" pref="224" max="32767" attributes="1"/>
+                              <Component id="variableTextField" pref="224" max="32767" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="addToGlobal" min="-2" max="-2" attributes="0"/>
                           </Group>
+                          <Component id="mappingTextField" alignment="0" pref="381" max="32767" attributes="0"/>
+                          <Component id="defaultValueTextField" alignment="0" pref="381" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
@@ -96,14 +96,10 @@
         <Property name="text" type="java.lang.String" value="Variable:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="variableTextField">
-    </Component>
     <Component class="javax.swing.JLabel" name="jLabel2">
       <Properties>
         <Property name="text" type="java.lang.String" value="Mapping:"/>
       </Properties>
-    </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="mappingTextField">
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthCheckBox" name="addToGlobal">
       <Properties>
@@ -125,8 +121,6 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="Default Value:"/>
       </Properties>
-    </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="defaultValueTextField">
     </Component>
     <Container class="javax.swing.JScrollPane" name="regularExpressionsScrollPane">
       <AuxValues>
@@ -167,6 +161,12 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="String Replacement:"/>
       </Properties>
+    </Component>
+    <Component class="javax.swing.JTextField" name="variableTextField">
+    </Component>
+    <Component class="javax.swing.JTextField" name="mappingTextField">
+    </Component>
+    <Component class="javax.swing.JTextField" name="defaultValueTextField">
     </Component>
   </SubComponents>
 </Form>

@@ -51,10 +51,11 @@ public class FunctionListHandler extends TransferHandler {
 			if (listItems == null)
 				return null;
 			ReferenceTable reftable = ((ReferenceTable) (c));
+                        
+                        if (reftable == null)
+                            return null;
+                        
 			int currRow = reftable.getSelectedRow();
-
-			if (reftable == null)
-				return null;
 
 			String text;
 			if (currRow >= 0 && currRow < reftable.getRowCount() && currRow < listItems.size())

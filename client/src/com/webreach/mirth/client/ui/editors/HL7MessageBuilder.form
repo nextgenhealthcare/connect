@@ -36,8 +36,8 @@
                                   <Component id="newButton" linkSize="1" alignment="0" min="-2" max="-2" attributes="0"/>
                               </Group>
                           </Group>
-                          <Component id="mappingTextField" pref="416" max="32767" attributes="1"/>
-                          <Component id="variableTextField" alignment="0" pref="416" max="32767" attributes="1"/>
+                          <Component id="variableTextField" alignment="0" pref="416" max="32767" attributes="0"/>
+                          <Component id="mappingTextField" alignment="0" pref="416" max="32767" attributes="0"/>
                           <Component id="defaultValueTextField" alignment="0" pref="416" max="32767" attributes="0"/>
                       </Group>
                   </Group>
@@ -91,21 +91,15 @@
         <Property name="text" type="java.lang.String" value="Message Segment:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="variableTextField">
-    </Component>
     <Component class="javax.swing.JLabel" name="jLabel2">
       <Properties>
         <Property name="text" type="java.lang.String" value="Mapping:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="mappingTextField">
-    </Component>
     <Component class="javax.swing.JLabel" name="jLabel3">
       <Properties>
         <Property name="text" type="java.lang.String" value="Default Value:"/>
       </Properties>
-    </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="defaultValueTextField">
     </Component>
     <Container class="javax.swing.JScrollPane" name="regularExpressionsScrollPane">
       <AuxValues>
@@ -146,6 +140,12 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="String Replacement:"/>
       </Properties>
+    </Component>
+    <Component class="javax.swing.JTextField" name="variableTextField">
+    </Component>
+    <Component class="javax.swing.JTextField" name="mappingTextField">
+    </Component>
+    <Component class="javax.swing.JTextField" name="defaultValueTextField">
     </Component>
   </SubComponents>
 </Form>

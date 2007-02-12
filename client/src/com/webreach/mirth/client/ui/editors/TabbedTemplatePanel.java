@@ -12,6 +12,7 @@ import com.webreach.mirth.client.ui.FunctionListItem;
 import com.webreach.mirth.client.ui.HL7XMLTreePanel;
 import com.webreach.mirth.client.ui.PlatformUI;
 import com.webreach.mirth.client.ui.ReferenceTableHandler;
+import com.webreach.mirth.client.ui.VariableListHandler;
 import com.webreach.mirth.client.ui.components.MirthSyntaxTextArea;
 import com.webreach.mirth.client.ui.util.SQLParserUtil;
 import com.webreach.mirth.model.Channel;
@@ -35,17 +36,23 @@ public class TabbedTemplatePanel extends javax.swing.JPanel
     private VariableReferenceTable globalVarTable, dbVarTable;
     private SyntaxDocument incomingHL7Doc, outgoingHL7Doc;
     private HL7XMLTreePanel incomingTreePanel, outgoingTreePanel;
+    private MirthEditorPane parent;
     
     /** Creates new form TabbedTemplatePanel */
-    public TabbedTemplatePanel()
+    public TabbedTemplatePanel(MirthEditorPane p)
     {
+        parent = p;
         initComponents();
         resizePanes();
         ArrayList<FunctionListItem> functionListItems = new FunctionListBuilder().getVariableListItems();
-        variableReferenceTable = new VariableReferenceTable(functionListItems); 
+        variableReferenceTable = new VariableReferenceTable("Common Variables and Functions", functionListItems); 
         variableReferenceTable.setDragEnabled(true);  
         variableReferenceTable.setTransferHandler(new FunctionListHandler(functionListItems));  
         variableReferenceScrollPane.setViewportView(variableReferenceTable);
+        variableTable = new VariableReferenceTable("Available Variables", new String[]{}); 
+        variableTable.setDragEnabled(true);
+        variableTable.setTransferHandler(new VariableListHandler("$(", ")"));
+        variableListScrollPane.setViewportView(variableTable);
         incomingDataType.setModel(new javax.swing.DefaultComboBoxModel(PlatformUI.MIRTH_FRAME.protocols.values().toArray()));
         outgoingDataType.setModel(new javax.swing.DefaultComboBoxModel(PlatformUI.MIRTH_FRAME.protocols.values().toArray()));
         incoming.setTreePanel("msg", ".toString()");
@@ -61,7 +68,7 @@ public class TabbedTemplatePanel extends javax.swing.JPanel
     
     public void updateVariables(List<Step> steps)
     {
-        variablePanel.updateVariables(steps);
+        variableTable.updateVariables(steps);
     }
     
     public String getIncomingMessage()
@@ -102,15 +109,16 @@ public class TabbedTemplatePanel extends javax.swing.JPanel
         variableSplitPane = new javax.swing.JSplitPane();
         variableReferenceScrollPane = new javax.swing.JScrollPane();
         variableReferenceTable = new com.webreach.mirth.client.ui.editors.VariableReferenceTable();
-        variablePanel = new com.webreach.mirth.client.ui.editors.EditorVariableList();
+        variableListScrollPane = new javax.swing.JScrollPane();
+        variableTable = new com.webreach.mirth.client.ui.editors.VariableReferenceTable();
         incomingTab = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
-        incomingDataType = new com.webreach.mirth.client.ui.components.MirthComboBox();
         incoming = new com.webreach.mirth.client.ui.editors.MessageTreeTemplate();
+        incomingDataType = new javax.swing.JComboBox();
         outgoingTab = new javax.swing.JPanel();
         jLabel4 = new javax.swing.JLabel();
-        outgoingDataType = new com.webreach.mirth.client.ui.components.MirthComboBox();
         outgoing = new com.webreach.mirth.client.ui.editors.MessageTreeTemplate();
+        outgoingDataType = new javax.swing.JComboBox();
 
         variableSplitPane.setDividerLocation(84);
         variableSplitPane.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
@@ -131,8 +139,22 @@ public class TabbedTemplatePanel extends javax.swing.JPanel
 
         variableSplitPane.setLeftComponent(variableReferenceScrollPane);
 
-        variablePanel.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEmptyBorder(3, 3, 3, 3), "Available Variables", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(0, 0, 0)));
-        variableSplitPane.setRightComponent(variablePanel);
+        variableTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][]
+            {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String []
+            {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        variableListScrollPane.setViewportView(variableTable);
+
+        variableSplitPane.setRightComponent(variableListScrollPane);
 
         org.jdesktop.layout.GroupLayout variableTabLayout = new org.jdesktop.layout.GroupLayout(variableTab);
         variableTab.setLayout(variableTabLayout);
@@ -151,6 +173,13 @@ public class TabbedTemplatePanel extends javax.swing.JPanel
 
         incomingDataType.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
         incomingDataType.setEnabled(false);
+        incomingDataType.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                incomingDataTypeActionPerformed(evt);
+            }
+        });
 
         org.jdesktop.layout.GroupLayout incomingTabLayout = new org.jdesktop.layout.GroupLayout(incomingTab);
         incomingTab.setLayout(incomingTabLayout);
@@ -160,8 +189,8 @@ public class TabbedTemplatePanel extends javax.swing.JPanel
                 .addContainerGap()
                 .add(jLabel1)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(incomingDataType, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(284, Short.MAX_VALUE))
+                .add(incomingDataType, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 100, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(239, Short.MAX_VALUE))
             .add(incoming, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 407, Short.MAX_VALUE)
         );
         incomingTabLayout.setVerticalGroup(
@@ -180,6 +209,13 @@ public class TabbedTemplatePanel extends javax.swing.JPanel
         jLabel4.setText("Data Type:");
 
         outgoingDataType.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        outgoingDataType.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                outgoingDataTypeActionPerformed(evt);
+            }
+        });
 
         org.jdesktop.layout.GroupLayout outgoingTabLayout = new org.jdesktop.layout.GroupLayout(outgoingTab);
         outgoingTab.setLayout(outgoingTabLayout);
@@ -189,8 +225,8 @@ public class TabbedTemplatePanel extends javax.swing.JPanel
                 .addContainerGap()
                 .add(jLabel4)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(outgoingDataType, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(284, Short.MAX_VALUE))
+                .add(outgoingDataType, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 100, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(239, Short.MAX_VALUE))
             .add(outgoing, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 407, Short.MAX_VALUE)
         );
         outgoingTabLayout.setVerticalGroup(
@@ -216,23 +252,34 @@ public class TabbedTemplatePanel extends javax.swing.JPanel
             .add(tabPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 553, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void outgoingDataTypeActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_outgoingDataTypeActionPerformed
+    {//GEN-HEADEREND:event_outgoingDataTypeActionPerformed
+        parent.modified = true;
+    }//GEN-LAST:event_outgoingDataTypeActionPerformed
+
+    private void incomingDataTypeActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_incomingDataTypeActionPerformed
+    {//GEN-HEADEREND:event_incomingDataTypeActionPerformed
+        parent.modified = true;
+    }//GEN-LAST:event_incomingDataTypeActionPerformed
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.webreach.mirth.client.ui.editors.MessageTreeTemplate incoming;
-    public com.webreach.mirth.client.ui.components.MirthComboBox incomingDataType;
+    public javax.swing.JComboBox incomingDataType;
     public javax.swing.JPanel incomingTab;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel4;
     private com.webreach.mirth.client.ui.editors.MessageTreeTemplate outgoing;
-    public com.webreach.mirth.client.ui.components.MirthComboBox outgoingDataType;
+    public javax.swing.JComboBox outgoingDataType;
     public javax.swing.JPanel outgoingTab;
     public javax.swing.JTabbedPane tabPanel;
-    private com.webreach.mirth.client.ui.editors.EditorVariableList variablePanel;
+    private javax.swing.JScrollPane variableListScrollPane;
     private javax.swing.JScrollPane variableReferenceScrollPane;
     private com.webreach.mirth.client.ui.editors.VariableReferenceTable variableReferenceTable;
     private javax.swing.JSplitPane variableSplitPane;
     private javax.swing.JPanel variableTab;
+    private com.webreach.mirth.client.ui.editors.VariableReferenceTable variableTable;
     // End of variables declaration//GEN-END:variables
     
 }

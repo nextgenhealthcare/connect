@@ -7,6 +7,8 @@
 package com.webreach.mirth.client.ui.editors;
 import com.webreach.mirth.client.ui.HL7XMLTreePanel;
 import com.webreach.mirth.client.ui.PlatformUI;
+import com.webreach.mirth.client.ui.components.MirthComboBox;
+import com.webreach.mirth.model.MessageObject;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.KeyEvent;
@@ -34,9 +36,12 @@ public class MessageTreeTemplate extends javax.swing.JPanel
     public MessageTreeTemplate()
     {
         initComponents();
-        try{
+        try
+        {
             resizePanes();
-        }catch (Exception e){
+        }
+        catch (Exception e)
+        {
           
         }
         HL7Doc = new SyntaxDocument();
@@ -47,26 +52,25 @@ public class MessageTreeTemplate extends javax.swing.JPanel
         //handles updating the tree
         pasteBox.getDocument().addDocumentListener(new DocumentListener(){
 
-        	private void updateText(){
+            private void updateText()
+            {
                 String message = pasteBox.getText();
-                //treePanel.setMessage(message);
-                //treePanel.revalidate();
-                //treePanel.repaint();
-        	}
-			public void changedUpdate(DocumentEvent e) {
-				updateText();
-			}
+                treePanel.setMessage(message);
+                treePanel.revalidate();
+                treePanel.repaint();
+            }
+            public void changedUpdate(DocumentEvent e) {
+                updateText();
+            }
 
-			public void insertUpdate(DocumentEvent e) {
-				updateText();
-			}
+            public void insertUpdate(DocumentEvent e) {
+                updateText();
+            }
 
-			public void removeUpdate(DocumentEvent e) {
-				updateText();
-			}
-				
+            public void removeUpdate(DocumentEvent e) {
+                updateText();
+            }
         });
- 
     }
     
     public void setTreePanel(String prefix, String suffix)

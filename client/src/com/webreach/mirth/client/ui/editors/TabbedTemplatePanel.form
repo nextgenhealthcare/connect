@@ -85,25 +85,32 @@
                     </Component>
                   </SubComponents>
                 </Container>
-                <Component class="com.webreach.mirth.client.ui.editors.EditorVariableList" name="variablePanel">
-                  <Properties>
-                    <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-                      <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
-                        <TitledBorder title="Available Variables">
-                          <Border PropertyName="innerBorder" info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-                            <EmptyBorder bottom="3" left="3" right="3" top="3"/>
-                          </Border>
-                          <Color PropertyName="color" blue="0" green="0" red="0" type="rgb"/>
-                        </TitledBorder>
-                      </Border>
-                    </Property>
-                  </Properties>
+                <Container class="javax.swing.JScrollPane" name="variableListScrollPane">
+                  <AuxValues>
+                    <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
+                  </AuxValues>
                   <Constraints>
                     <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JSplitPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JSplitPaneSupportLayout$JSplitPaneConstraintsDescription">
                       <JSplitPaneConstraints position="right"/>
                     </Constraint>
                   </Constraints>
-                </Component>
+
+                  <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
+                  <SubComponents>
+                    <Component class="com.webreach.mirth.client.ui.editors.VariableReferenceTable" name="variableTable">
+                      <Properties>
+                        <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
+                          <Table columnCount="4" rowCount="4">
+                            <Column editable="true" title="Title 1" type="java.lang.Object"/>
+                            <Column editable="true" title="Title 2" type="java.lang.Object"/>
+                            <Column editable="true" title="Title 3" type="java.lang.Object"/>
+                            <Column editable="true" title="Title 4" type="java.lang.Object"/>
+                          </Table>
+                        </Property>
+                      </Properties>
+                    </Component>
+                  </SubComponents>
+                </Container>
               </SubComponents>
             </Container>
           </SubComponents>
@@ -132,8 +139,8 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="incomingDataType" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="284" max="32767" attributes="0"/>
+                      <Component id="incomingDataType" min="-2" pref="100" max="-2" attributes="0"/>
+                      <EmptySpace pref="239" max="32767" attributes="0"/>
                   </Group>
                   <Component id="incoming" alignment="0" pref="407" max="32767" attributes="0"/>
               </Group>
@@ -158,7 +165,9 @@
                 <Property name="text" type="java.lang.String" value="Data Type:"/>
               </Properties>
             </Component>
-            <Component class="com.webreach.mirth.client.ui.components.MirthComboBox" name="incomingDataType">
+            <Component class="com.webreach.mirth.client.ui.editors.MessageTreeTemplate" name="incoming">
+            </Component>
+            <Component class="javax.swing.JComboBox" name="incomingDataType">
               <Properties>
                 <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
                   <StringArray count="4">
@@ -170,11 +179,12 @@
                 </Property>
                 <Property name="enabled" type="boolean" value="false"/>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="incomingDataTypeActionPerformed"/>
+              </Events>
               <AuxValues>
                 <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>
               </AuxValues>
-            </Component>
-            <Component class="com.webreach.mirth.client.ui.editors.MessageTreeTemplate" name="incoming">
             </Component>
           </SubComponents>
         </Container>
@@ -202,8 +212,8 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jLabel4" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="outgoingDataType" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="284" max="32767" attributes="0"/>
+                      <Component id="outgoingDataType" min="-2" pref="100" max="-2" attributes="0"/>
+                      <EmptySpace pref="239" max="32767" attributes="0"/>
                   </Group>
                   <Component id="outgoing" alignment="0" pref="407" max="32767" attributes="0"/>
               </Group>
@@ -228,7 +238,9 @@
                 <Property name="text" type="java.lang.String" value="Data Type:"/>
               </Properties>
             </Component>
-            <Component class="com.webreach.mirth.client.ui.components.MirthComboBox" name="outgoingDataType">
+            <Component class="com.webreach.mirth.client.ui.editors.MessageTreeTemplate" name="outgoing">
+            </Component>
+            <Component class="javax.swing.JComboBox" name="outgoingDataType">
               <Properties>
                 <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
                   <StringArray count="4">
@@ -239,11 +251,12 @@
                   </StringArray>
                 </Property>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="outgoingDataTypeActionPerformed"/>
+              </Events>
               <AuxValues>
                 <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>
               </AuxValues>
-            </Component>
-            <Component class="com.webreach.mirth.client.ui.editors.MessageTreeTemplate" name="outgoing">
             </Component>
           </SubComponents>
         </Container>
