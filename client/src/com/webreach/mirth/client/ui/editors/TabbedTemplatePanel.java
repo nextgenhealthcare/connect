@@ -113,12 +113,12 @@ public class TabbedTemplatePanel extends javax.swing.JPanel
         variableTable = new com.webreach.mirth.client.ui.editors.VariableReferenceTable();
         incomingTab = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
-        incoming = new com.webreach.mirth.client.ui.editors.MessageTreeTemplate();
         incomingDataType = new javax.swing.JComboBox();
+        incoming = new MessageTreeTemplate(incomingDataType);
         outgoingTab = new javax.swing.JPanel();
         jLabel4 = new javax.swing.JLabel();
-        outgoing = new com.webreach.mirth.client.ui.editors.MessageTreeTemplate();
         outgoingDataType = new javax.swing.JComboBox();
+        outgoing = new MessageTreeTemplate(outgoingDataType);
 
         variableSplitPane.setDividerLocation(84);
         variableSplitPane.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);

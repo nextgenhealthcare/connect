@@ -165,8 +165,6 @@
                 <Property name="text" type="java.lang.String" value="Data Type:"/>
               </Properties>
             </Component>
-            <Component class="com.webreach.mirth.client.ui.editors.MessageTreeTemplate" name="incoming">
-            </Component>
             <Component class="javax.swing.JComboBox" name="incomingDataType">
               <Properties>
                 <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
@@ -184,6 +182,11 @@
               </Events>
               <AuxValues>
                 <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>
+              </AuxValues>
+            </Component>
+            <Component class="com.webreach.mirth.client.ui.editors.MessageTreeTemplate" name="incoming">
+              <AuxValues>
+                <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new MessageTreeTemplate(incomingDataType);"/>
               </AuxValues>
             </Component>
           </SubComponents>
@@ -238,8 +241,6 @@
                 <Property name="text" type="java.lang.String" value="Data Type:"/>
               </Properties>
             </Component>
-            <Component class="com.webreach.mirth.client.ui.editors.MessageTreeTemplate" name="outgoing">
-            </Component>
             <Component class="javax.swing.JComboBox" name="outgoingDataType">
               <Properties>
                 <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
@@ -256,6 +257,11 @@
               </Events>
               <AuxValues>
                 <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>
+              </AuxValues>
+            </Component>
+            <Component class="com.webreach.mirth.client.ui.editors.MessageTreeTemplate" name="outgoing">
+              <AuxValues>
+                <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new MessageTreeTemplate(outgoingDataType);"/>
               </AuxValues>
             </Component>
           </SubComponents>

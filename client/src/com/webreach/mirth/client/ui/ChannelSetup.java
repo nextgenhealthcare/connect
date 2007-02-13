@@ -170,7 +170,7 @@ public class ChannelSetup extends javax.swing.JPanel
         numDays.setDocument(new MirthFieldConstraints(3, false, true));
         
         incomingProtocol.setModel(new javax.swing.DefaultComboBoxModel(parent.protocols.values().toArray()));
-               
+        
         channelView.addMouseListener(new java.awt.event.MouseAdapter()
         {
             public void mousePressed(java.awt.event.MouseEvent evt)
@@ -601,8 +601,8 @@ public class ChannelSetup extends javax.swing.JPanel
         destinationSourceDropdown
                 .setModel(new javax.swing.DefaultComboBoxModel(
                 destinationConnectors.toArray()));
-
-
+        
+        
         loadChannelInfo();
         makeDestinationTable(false);
         setDestinationVariableList();
@@ -632,6 +632,8 @@ public class ChannelSetup extends javax.swing.JPanel
                 .getItemAt(0));
         Transformer sourceTransformer = new Transformer();
         sourceTransformer.setInboundProtocol(Protocol.HL7V2);
+        sourceTransformer.setOutboundProtocol(Protocol.HL7V2);
+        
         sourceConnector.setTransformer(sourceTransformer);
         
         currentChannel.setSourceConnector(sourceConnector);
@@ -650,7 +652,7 @@ public class ChannelSetup extends javax.swing.JPanel
         parent.setPanelName("Edit Channel - " +  currentChannel.getName());
         summaryNameField.setText(currentChannel.getName());
         summaryDescriptionText.setText(currentChannel.getDescription());
-               
+        
         if (currentChannel.isEnabled())
             summaryEnabledCheckbox.setSelected(true);
         else
@@ -673,7 +675,7 @@ public class ChannelSetup extends javax.swing.JPanel
         else
             xmlPreEncoded.setSelected(false);
         
-        if (currentChannel.getSourceConnector().getTransformer().getInboundProtocol() == MessageObject.Protocol.HL7V3) 
+        if (currentChannel.getSourceConnector().getTransformer().getInboundProtocol() == MessageObject.Protocol.HL7V3)
         {
             xmlPreEncoded.setSelected(true);
             xmlPreEncoded.setEnabled(false);
@@ -687,9 +689,9 @@ public class ChannelSetup extends javax.swing.JPanel
             transactionalCheckBox.setSelected(false);
         
         if((currentChannel.getProperties().get("synchronous")) != null && ((String)currentChannel.getProperties().get("synchronous")).equalsIgnoreCase("false"))
-        	synchronousCheckBox.setSelected(false);
+            synchronousCheckBox.setSelected(false);
         else
-        	synchronousCheckBox.setSelected(true);
+            synchronousCheckBox.setSelected(true);
         
         if ((currentChannel.getProperties().get("encryptData")) != null
                 && ((String) currentChannel.getProperties().get("encryptData"))
@@ -795,7 +797,7 @@ public class ChannelSetup extends javax.swing.JPanel
         }
         
         Connector temp;
-
+        
         temp = currentChannel.getDestinationConnectors().get(
                 getDestinationConnectorIndex((String) destinationTable
                 .getValueAt(getSelectedDestinationIndex(),
@@ -805,7 +807,7 @@ public class ChannelSetup extends javax.swing.JPanel
         if (checkAllForms(currentChannel))
         {
             enabled = false;
-
+            
             if (!parent.alertOption("There was a problem with one or more of your connectors.  Please validate all of\nyour connectors to find the problem. Would you still like to save this channel even\nthough you will not be able to enable this channel until you fix the problem(s)?"))
                 return false;
             else
@@ -880,7 +882,7 @@ public class ChannelSetup extends javax.swing.JPanel
         {
             if(!parent.channels.containsKey(currentChannel.getId()))
                 currentChannel.setId(parent.mirthClient.getGuid());
-
+            
             updated = parent.updateChannel(currentChannel);
             currentChannel = parent.channels.get(currentChannel.getId());
             parent.channelPanel.makeChannelTable();
@@ -903,7 +905,7 @@ public class ChannelSetup extends javax.swing.JPanel
     
     public void cloneDestination(int destinationIndex)
     {
-    	parent.doSaveChanges();
+        parent.doSaveChanges();
         List<Connector> destinationConnectors = currentChannel.getDestinationConnectors();
         String destinationName = (String)destinationTable.getValueAt(getSelectedDestinationIndex(), getColumnNumber(DESTINATION_COLUMN_NAME));
         
@@ -917,7 +919,7 @@ public class ChannelSetup extends javax.swing.JPanel
             parent.alertException(e.getStackTrace(), e.getMessage());
             return;
         }
-
+        
         destination.setName(getNewDestinationName(destinationConnectors.size()+1));
         destinationConnectors.add(destination);
         makeDestinationTable(false);
@@ -1467,7 +1469,7 @@ public class ChannelSetup extends javax.swing.JPanel
             .add(channelView, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 532, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
-
+    
     private void summaryNameFieldKeyReleased(java.awt.event.KeyEvent evt)//GEN-FIRST:event_summaryNameFieldKeyReleased
     {//GEN-HEADEREND:event_summaryNameFieldKeyReleased
         currentChannel.setName(summaryNameField.getText());
@@ -1534,7 +1536,7 @@ public class ChannelSetup extends javax.swing.JPanel
     {
         parent.setVisibleTasks(parent.channelEditTasks,
                 parent.channelEditPopupMenu, 1, 1, true);
-
+        
         parent.setVisibleTasks(parent.channelEditTasks,
                 parent.channelEditPopupMenu, 2, 8, true);
         checkVisibleDestinationTasks();
@@ -1702,7 +1704,7 @@ public class ChannelSetup extends javax.swing.JPanel
                     getSelectedDestinationIndex(),
                     getColumnNumber(DESTINATION_COLUMN_NAME))))
                 return;
-
+            
             // if the selected destination is still the same AND the default
             // properties/transformer/filter have
             // not been changed from defaults then ask if the user would
@@ -1809,7 +1811,7 @@ public class ChannelSetup extends javax.swing.JPanel
         destinationConnectorClass.setProperties(destinationConnector
                 .getProperties());
         setDestinationVariableList();
-
+        
         destination.removeAll();
         
         // Reset the generated layout.
@@ -1983,7 +1985,7 @@ public class ChannelSetup extends javax.swing.JPanel
         destinationVariableList.setVariableListInbound(concatenatedSteps);
         // destinationVariableList.setVariableListInbound(currentChannel.getDestinationConnectors().get(destination).getTransformer().getSteps());
         destinationVariableList.setDestinationMappingsLabel();
-
+        
         destinationVariableList.setVariableListInbound(currentChannel
                 .getDestinationConnectors().get(0).getTransformer()
                 .getSteps());
@@ -1999,6 +2001,10 @@ public class ChannelSetup extends javax.swing.JPanel
         Connector c = new Connector();
         Transformer dt = new Transformer();
         Filter df = new Filter();
+        
+        Protocol outgoingSourceProtocol = currentChannel.getSourceConnector().getTransformer().getOutboundProtocol();
+        dt.setInboundProtocol(outgoingSourceProtocol);
+        dt.setOutboundProtocol(outgoingSourceProtocol);
         
         c.setTransformer(dt);
         c.setFilter(df);

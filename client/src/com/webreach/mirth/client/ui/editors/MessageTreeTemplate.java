@@ -15,6 +15,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import javax.swing.JComboBox;
 
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -31,10 +32,12 @@ public class MessageTreeTemplate extends javax.swing.JPanel
     private SyntaxDocument HL7Doc;
     private HL7XMLTreePanel treePanel;
     private String currentMessage = "";
-    
+    private JComboBox data;
     /** Creates new form MessageTreeTemplate */
-    public MessageTreeTemplate()
+    public MessageTreeTemplate(JComboBox dataType)
     {
+        data = dataType;
+        
         initComponents();
         try
         {
@@ -55,7 +58,7 @@ public class MessageTreeTemplate extends javax.swing.JPanel
             private void updateText()
             {
                 String message = pasteBox.getText();
-                treePanel.setMessage(message);
+                treePanel.setMessage((String)data.getSelectedItem(), message);
                 treePanel.revalidate();
                 treePanel.repaint();
             }

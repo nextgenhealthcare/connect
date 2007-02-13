@@ -26,6 +26,7 @@
 
 package com.webreach.mirth.client.ui;
 
+import com.webreach.mirth.model.MessageObject;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.GridLayout;
@@ -35,6 +36,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
+import java.io.IOException;
 import java.io.StringReader;
 
 import javax.swing.JComponent;
@@ -46,6 +48,7 @@ import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.log4j.Logger;
 import org.w3c.dom.Attr;
@@ -69,6 +72,7 @@ import com.webreach.mirth.client.ui.util.HL7Reference;
 import com.webreach.mirth.model.converters.ER7Serializer;
 import com.webreach.mirth.model.converters.SerializerException;
 import com.webreach.mirth.model.converters.X12Serializer;
+import org.xml.sax.SAXException;
 
 public class HL7XMLTreePanel extends JPanel
 {
@@ -91,60 +95,61 @@ public class HL7XMLTreePanel extends JPanel
         this.setLayout(new GridLayout(1, 1));
         this.setBackground( Color.white );
     }
-    /**
-     * Updates the panel with a new Message.
-     */
-    public void setMessage(String source)
+    
+    public void setMessage(String messageType, String source)
     {
-        Message message = null;
         Document xmlDoc = null;
-        logger.debug("encoding HL7 message to XML:\n" + message);
+        String messageName = "";
+        String messageDescription = "";
+                
+        source = source.replaceAll("\\n", "\r").trim();
+        DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder docBuilder;
         
-        if (source != null && !source.equals(""))
+        if(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.HL7V2).equals(messageType))
         {
-            PlatformUI.MIRTH_FRAME.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-            //This message might come from a system that doesn't use carriage returns
-            //Since hapi requires a CR for the end of segment character
-            //we will force it.
-            source = source.replaceAll("\\n", "\r").trim();
-            try
+            Message message = null;
+            logger.debug("encoding HL7 message to XML:\n" + message);
+
+            if (source != null && !source.equals(""))
             {
-                DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-                DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-                String er7Message = new ER7Serializer().toXML(source);
-                xmlDoc = docBuilder.parse(new InputSource(new StringReader(er7Message)));
-                message = parser.parse(source);
+                //This message might come from a system that doesn't use carriage returns
+                //Since hapi requires a CR for the end of segment character
+                //we will force it.
+                try
+                {
+                    docBuilder = docFactory.newDocumentBuilder();
+                    String er7Message = new ER7Serializer().toXML(source);
+                    xmlDoc = docBuilder.parse(new InputSource(new StringReader(er7Message)));
+                    message = parser.parse(source);
+                }
+                catch (SerializerException e)
+                {
+                    //PlatformUI.MIRTH_FRAME.alertWarning( "Encoding not supported.\n" +
+                    //"Please check the syntax of your message\n" +
+                    //"and try again.");
+                }
+                catch (EncodingNotSupportedException e)
+                {
+                    //PlatformUI.MIRTH_FRAME.alertWarning( "Encoding not supported.\n" +
+                    //"Please check the syntax of your message\n" +
+                    //                      "and try again.");
+                }
+                catch (HL7Exception e)
+                {
+                    //PlatformUI.MIRTH_FRAME.alertError( "HL7 Error!\n" +
+                    //		"Please check the syntax of your message\n" +
+                    //"and try again.");
+                }
+                catch (Exception e)
+                {
+                    //PlatformUI.MIRTH_FRAME.alertException(e.getStackTrace(), e.getMessage());
+                    e.printStackTrace();
+                }
             }
-            catch (SerializerException e)
+            if(xmlDoc != null)
             {
-                //PlatformUI.MIRTH_FRAME.alertWarning( "Encoding not supported.\n" +
-                //"Please check the syntax of your message\n" +
-                //"and try again.");
-            }
-            catch (EncodingNotSupportedException e)
-            {
-                //PlatformUI.MIRTH_FRAME.alertWarning( "Encoding not supported.\n" +
-                //"Please check the syntax of your message\n" +
-                //                      "and try again.");
-            }
-            catch (HL7Exception e)
-            {
-                //PlatformUI.MIRTH_FRAME.alertError( "HL7 Error!\n" +
-                //		"Please check the syntax of your message\n" +
-                //"and try again.");
-            }
-            catch (Exception e)
-            {
-                //PlatformUI.MIRTH_FRAME.alertException(e.getStackTrace(), e.getMessage());
-                e.printStackTrace();
-            }
-            
-            if (xmlDoc != null)
-            {
-                Element el = xmlDoc.getDocumentElement();
                 Terser terser = new Terser(message);
-                String messageName = el.getNodeName();
-                String messageDescription = "";
                 version = message.getVersion();
                 try
                 {
@@ -156,201 +161,123 @@ public class HL7XMLTreePanel extends JPanel
                     // TODO Auto-generated catch block
                     logger.error(e);
                 }
-                DefaultMutableTreeNode top;
-                if (messageDescription.length() > 0)
-                    top = new DefaultMutableTreeNode(messageName + " (" + messageDescription + ")");
-                else
-                    top = new DefaultMutableTreeNode(messageName);
-                
-                NodeList children = el.getChildNodes();
-                for (int i = 0; i < children.getLength(); i++)
-                {
-                    processElement(children.item(i), top);
-                }
-                //processElement(xmlDoc.getDocumentElement(), top);
-                //addChildren(message, top);
-                
-                tree = new JTree(top);
-                tree.setDragEnabled( true );
-                tree.setTransferHandler(new TreeTransferHandler());
-                
-                tree.addMouseMotionListener(new MouseMotionAdapter()
-                {
-                    public void mouseDragged(MouseEvent evt)
-                    {
-                        refTableMouseDragged(evt);
-                    }
-                    public void mouseMoved(MouseEvent evt)
-                    {
-                        refTableMouseMoved(evt);
-                    }
-                });
-                tree.addMouseListener(new MouseAdapter()
-                {
-                    public void mouseExited(MouseEvent evt)
-                    {
-                        refTableMouseExited(evt);
-                    }
-                });
-                
-                removeAll();
-                add(tree);
-                revalidate();
+            }
+        }
+        else if(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.HL7V3).equals(messageType))
+        {
+            try
+            {
+                docBuilder = docFactory.newDocumentBuilder();
+                xmlDoc = docBuilder.parse(new InputSource(new StringReader(source)));
+            } 
+            catch (Exception e)
+            {
+                e.printStackTrace();
             }
             
-            
-            PlatformUI.MIRTH_FRAME.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            if (xmlDoc != null)
+            {
+                version = "3.0";
+                messageName = xmlDoc.getDocumentElement().getNodeName() + "-" + " (" + version + ")";
+                messageDescription = "";
+            }
         }
+        else if(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.X12).equals(messageType))
+        {
+            try
+            {
+                docBuilder = docFactory.newDocumentBuilder();
+                String x12message = new X12Serializer().toXML(source);
+                xmlDoc = docBuilder.parse(new InputSource(new StringReader(x12message)));
+            }
+            catch (Exception e)
+            {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            if (xmlDoc != null)
+            {
+                messageDescription = "";
+                version = "";
+                messageName = xmlDoc.getDocumentElement().getNodeName() + "-" + " (" + version + ")";
+                messageDescription = "";//HL7Reference.getInstance().getDescription(terser.get("/MSH-9-1") + terser.get("/MSH-9-2"), version);
+            }
+        }
+        else if(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.XML).equals(messageType))
+        {
+            try
+            {
+                docBuilder = docFactory.newDocumentBuilder();
+                xmlDoc = docBuilder.parse(new InputSource(new StringReader(source)));
+            } 
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            } 
+            if (xmlDoc != null)
+            {
+                version = "";
+                messageDescription = "";
+                messageName = xmlDoc.getDocumentElement().getNodeName();
+            }
+        }
+        
+        if(xmlDoc != null)
+            createTree(xmlDoc, messageName, messageDescription);
     }
+    
     /**
      * Updates the panel with a new Message.
      */
-    public void setV3Message(Document xmlDoc)
+    private void createTree(Document xmlDoc, String messageName, String messageDescription)
     {
-        //logger.debug("encoding HL7 message to XML:\n" + message);
-        
         PlatformUI.MIRTH_FRAME.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-        //This message might come from a system that doesn't use carriage returns
-        //Since hapi requires a CR for the end of segment character
-        //we will force it.
-        if (xmlDoc != null)
+        
+        Element el = xmlDoc.getDocumentElement();
+        DefaultMutableTreeNode top;
+        if (messageDescription.length() > 0)
+            top = new DefaultMutableTreeNode(messageName + " (" + messageDescription + ")");
+        else
+            top = new DefaultMutableTreeNode(messageName);
+
+        NodeList children = el.getChildNodes();
+        for (int i = 0; i < children.getLength(); i++)
         {
-            Element el = xmlDoc.getDocumentElement();
-            String messageName = el.getNodeName();
-            String messageDescription = "";
-            version = "3.0";
-            messageName = el.getNodeName() + "-" + " (" + version + ")";
-            messageDescription = "";//HL7Reference.getInstance().getDescription(terser.get("/MSH-9-1") + terser.get("/MSH-9-2"), version);
-            
-            DefaultMutableTreeNode top;
-            if (messageDescription.length() > 0)
-                top = new DefaultMutableTreeNode(messageName + " (" + messageDescription + ")");
-            else
-                top = new DefaultMutableTreeNode(messageName);
-            
-            NodeList children = el.getChildNodes();
-            for (int i = 0; i < children.getLength(); i++)
+            processElement(children.item(i), top);
+        }
+        //processElement(xmlDoc.getDocumentElement(), top);
+        //addChildren(message, top);
+
+        tree = new JTree(top);
+        tree.setDragEnabled( true );
+        tree.setTransferHandler(new TreeTransferHandler());
+
+        tree.addMouseMotionListener(new MouseMotionAdapter()
+        {
+            public void mouseDragged(MouseEvent evt)
             {
-                processElement(children.item(i), top);
+                refTableMouseDragged(evt);
             }
-            //processElement(xmlDoc.getDocumentElement(), top);
-            //addChildren(message, top);
-            
-            tree = new JTree(top);
-            tree.setDragEnabled( true );
-            tree.setTransferHandler(new TreeTransferHandler());
-            
-            tree.addMouseMotionListener(new MouseMotionAdapter()
+            public void mouseMoved(MouseEvent evt)
             {
-                public void mouseDragged(MouseEvent evt)
-                {
-                    refTableMouseDragged(evt);
-                }
-                public void mouseMoved(MouseEvent evt)
-                {
-                    refTableMouseMoved(evt);
-                }
-            });
-            tree.addMouseListener(new MouseAdapter()
-            {
-                public void mouseExited(MouseEvent evt)
-                {
-                    refTableMouseExited(evt);
-                }
-            });
-            
-            removeAll();
-            add(tree);
-            revalidate();
-        }
-        
-        
-        PlatformUI.MIRTH_FRAME.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-        
-    }
-    /**
-     * Updates the panel with a new Message.
-     */
-    public void setX12Message(String message)
-    {
-        //logger.debug("encoding HL7 message to XML:\n" + message);
-        
-        
-        PlatformUI.MIRTH_FRAME.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-        //This message might come from a system that doesn't use carriage returns
-        //Since hapi requires a CR for the end of segment character
-        //we will force it.
-        
-        DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder docBuilder;
-        Document xmlDoc = null;
-        try
-        {
-            docBuilder = docFactory.newDocumentBuilder();
-            String x12message = new X12Serializer().toXML(message);
-            xmlDoc = docBuilder.parse(new InputSource(new StringReader(x12message)));
-        }
-        catch (Exception e)
-        {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        if (xmlDoc != null)
-        {
-            Element el = xmlDoc.getDocumentElement();
-            String messageName = el.getNodeName();
-            String messageDescription = "";
-            version = "";
-            messageName = el.getNodeName() + "-" + " (" + version + ")";
-            messageDescription = "";//HL7Reference.getInstance().getDescription(terser.get("/MSH-9-1") + terser.get("/MSH-9-2"), version);
-            
-            DefaultMutableTreeNode top;
-            if (messageDescription.length() > 0)
-                top = new DefaultMutableTreeNode(messageName + " (" + messageDescription + ")");
-            else
-                top = new DefaultMutableTreeNode(messageName);
-            
-            NodeList children = el.getChildNodes();
-            for (int i = 0; i < children.getLength(); i++)
-            {
-                processElement(children.item(i), top);
+                refTableMouseMoved(evt);
             }
-            //processElement(xmlDoc.getDocumentElement(), top);
-            //addChildren(message, top);
-            
-            tree = new JTree(top);
-            tree.setDragEnabled( true );
-            tree.setTransferHandler(new TreeTransferHandler());
-            tree.addMouseMotionListener(new MouseMotionAdapter()
+        });
+        tree.addMouseListener(new MouseAdapter()
+        {
+            public void mouseExited(MouseEvent evt)
             {
-                public void mouseDragged(MouseEvent evt)
-                {
-                    //highlight here
-                    refTableMouseDragged(evt);
-                }
-                public void mouseMoved(MouseEvent evt)
-                {
-                    refTableMouseMoved(evt);
-                }
-            });
-            tree.addMouseListener(new MouseAdapter()
-            {
-                public void mouseExited(MouseEvent evt)
-                {
-                    //unhighlight here
-                    refTableMouseExited(evt);
-                }
-            });
-            
-            removeAll();
-            add(tree);
-            revalidate();
-        }
-        
-        
+                refTableMouseExited(evt);
+            }
+        });
+
+        removeAll();
+        add(tree);
+        revalidate();
+
         PlatformUI.MIRTH_FRAME.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-        
     }
+    
     private void refTableMouseExited(MouseEvent evt)
     {
         tree.clearSelection();
