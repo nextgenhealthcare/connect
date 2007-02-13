@@ -294,7 +294,7 @@ public class ChannelSetup extends javax.swing.JPanel
         {
             if (tableSize - 1 == i && addNew)
             {
-                Connector connector = makeNewConnector();
+                Connector connector = makeNewConnector(true);
                 connector.setName(getNewDestinationName(tableSize));
                 connector.setTransportName((String) destinationSourceDropdown
                         .getItemAt(0));
@@ -626,7 +626,7 @@ public class ChannelSetup extends javax.swing.JPanel
                 .setModel(new javax.swing.DefaultComboBoxModel(
                 destinationConnectors.toArray()));
         
-        Connector sourceConnector = makeNewConnector();
+        Connector sourceConnector = makeNewConnector(false);
         sourceConnector.setName("sourceConnector");
         sourceConnector.setTransportName((String) sourceSourceDropdown
                 .getItemAt(0));
@@ -1598,7 +1598,7 @@ public class ChannelSetup extends javax.swing.JPanel
                     .getSelectedItem()))
             {
                 String name = sourceConnector.getName();
-                changeConnectorType(sourceConnector);
+                changeConnectorType(sourceConnector, false);
                 sourceConnector.setName(name);
                 sourceConnectorClass.setProperties(sourceConnectorClass
                         .getDefaults());
@@ -1780,7 +1780,7 @@ public class ChannelSetup extends javax.swing.JPanel
                 .getSelectedItem()))
         {
             String name = destinationConnector.getName();
-            changeConnectorType(destinationConnector);
+            changeConnectorType(destinationConnector, true);
             destinationConnector.setName(name);
             destinationConnectorClass.setProperties(destinationConnectorClass
                     .getDefaults());
@@ -1996,15 +1996,18 @@ public class ChannelSetup extends javax.swing.JPanel
     }
     
     /** Returns a new connector, that has a new transformer and filter */
-    public Connector makeNewConnector()
+    public Connector makeNewConnector(boolean isDestination)
     {
         Connector c = new Connector();
         Transformer dt = new Transformer();
         Filter df = new Filter();
         
-        Protocol outgoingSourceProtocol = currentChannel.getSourceConnector().getTransformer().getOutboundProtocol();
-        dt.setInboundProtocol(outgoingSourceProtocol);
-        dt.setOutboundProtocol(outgoingSourceProtocol);
+        if (isDestination)
+        {   
+            Protocol outgoingSourceProtocol = currentChannel.getSourceConnector().getTransformer().getOutboundProtocol();
+            dt.setInboundProtocol(outgoingSourceProtocol);
+            dt.setOutboundProtocol(outgoingSourceProtocol);
+        }
         
         c.setTransformer(dt);
         c.setFilter(df);
@@ -2012,11 +2015,16 @@ public class ChannelSetup extends javax.swing.JPanel
     }
     
     /** Changes the connector type without clearing filter and transformer */
-    public void changeConnectorType(Connector c)
+    public void changeConnectorType(Connector c, boolean isDestination)
     {
         Transformer oldTransformer = c.getTransformer();
         Filter oldFilter = c.getFilter();
-        c = makeNewConnector();
+        
+        if (isDestination)
+            c = makeNewConnector(true);
+        else
+            c = makeNewConnector(false);
+        
         c.setTransformer(oldTransformer);
         c.setFilter(oldFilter);
     }
