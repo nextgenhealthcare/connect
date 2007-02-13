@@ -246,14 +246,12 @@ public class ChannelSetup extends javax.swing.JPanel
     {
         if (channelView.getSelectedIndex() == SOURCE_TAB_INDEX)
         {
-            currentChannel.getSourceConnector().getTransformer().setMode(Connector.Mode.SOURCE);
             transformerPane.load(currentChannel.getSourceConnector(), currentChannel.getSourceConnector().getTransformer());
         }
         
         else if (channelView.getSelectedIndex() == DESTINATIONS_TAB_INDEX)
         {
             int destination = getDestinationConnectorIndex((String) destinationTable.getValueAt(getSelectedDestinationIndex(), getColumnNumber(DESTINATION_COLUMN_NAME)));
-            currentChannel.getDestinationConnectors().get(destination).getTransformer().setMode(Connector.Mode.DESTINATION);
             transformerPane.load(currentChannel.getDestinationConnectors().get(destination), currentChannel.getDestinationConnectors().get(destination).getTransformer());
         }
     }
@@ -263,14 +261,12 @@ public class ChannelSetup extends javax.swing.JPanel
     {
         if (channelView.getSelectedIndex() == SOURCE_TAB_INDEX)
         {
-            currentChannel.getSourceConnector().getFilter().setMode(Connector.Mode.SOURCE);
             filterPane.load(currentChannel.getSourceConnector(), currentChannel.getSourceConnector().getFilter());
         }
         
         else if (channelView.getSelectedIndex() == DESTINATIONS_TAB_INDEX)
         {
             int destination = getDestinationConnectorIndex((String) destinationTable.getValueAt(getSelectedDestinationIndex(), getColumnNumber(DESTINATION_COLUMN_NAME)));
-            currentChannel.getDestinationConnectors().get(destination).getFilter().setMode(Connector.Mode.DESTINATION);
             filterPane.load(currentChannel.getDestinationConnectors().get(destination), currentChannel.getDestinationConnectors().get(destination).getFilter());
         }
     }
@@ -2004,9 +2000,14 @@ public class ChannelSetup extends javax.swing.JPanel
         
         if (isDestination)
         {   
+            c.setMode(Connector.Mode.DESTINATION);
             Protocol outgoingSourceProtocol = currentChannel.getSourceConnector().getTransformer().getOutboundProtocol();
             dt.setInboundProtocol(outgoingSourceProtocol);
             dt.setOutboundProtocol(outgoingSourceProtocol);
+        }
+        else
+        {
+            c.setMode(Connector.Mode.SOURCE);
         }
         
         c.setTransformer(dt);

@@ -153,11 +153,11 @@ public class TransformerPane extends MirthEditorPane
             hl7builderPanel.setData(null);
         }
         
-        if(transformer.getMode() == Connector.Mode.SOURCE)
+        if(connector.getMode() == Connector.Mode.SOURCE)
         {
             tabTemplatePanel.incomingDataType.setSelectedItem((String)PlatformUI.MIRTH_FRAME.channelEditPanel.getSourceDatatype());
         }
-        else if(transformer.getMode() == Connector.Mode.DESTINATION)
+        else if(connector.getMode() == Connector.Mode.DESTINATION)
         {
             if(channel.getSourceConnector().getTransformer().getOutboundProtocol() != null)
                 tabTemplatePanel.incomingDataType.setSelectedItem((String)PlatformUI.MIRTH_FRAME.protocols.get(channel.getSourceConnector().getTransformer().getOutboundProtocol()));
