@@ -346,7 +346,7 @@ public class MuleConfigurationBuilder {
 			properties.put("inboundProtocol", connector.getTransformer().getInboundProtocol());
 			properties.put("outboundProtocol", connector.getTransformer().getOutboundProtocol());
 			properties.put("encryptData", channel.getProperties().get("encryptData"));
-			properties.put("mode", connector.getTransformer().getMode().toString());
+			properties.put("mode", connector.getMode().toString());
 
 			// put the inbound template in the templates table
 			if (connector.getTransformer().getInboundTemplate() != null) {
@@ -370,7 +370,7 @@ public class MuleConfigurationBuilder {
 			String transformerScriptId = UUIDGenerator.getUUID();
 			scriptController.putScript(transformerScriptId, transformerBuilder.getScript(connector.getTransformer(), channel));
 			properties.put("transformerScriptId", transformerScriptId);
-			properties.put("connectorName", connector.getName() + " " + connector.getTransformer().getMode().toString());
+			properties.put("connectorName", connector.getName() + " " + connector.getMode().toString());
 
 			transformerElement.appendChild(getProperties(document, properties, null));
 

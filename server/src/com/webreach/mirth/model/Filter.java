@@ -43,7 +43,6 @@ import com.webreach.mirth.util.EqualsUtil;
 public class Filter implements Serializable {
 	private List<Rule> rules;
 	private String template;
-	private Mode mode;
 
 	public Filter() {
 		this.rules = new ArrayList<Rule>();
@@ -52,13 +51,7 @@ public class Filter implements Serializable {
 	public String getTemplate() {
 		return template;
 	}
-	public Mode getMode() {
-		return this.mode;
-	}
 
-	public void setMode(Mode mode) {
-		this.mode = mode;
-	}
 	public void setTemplate(String template) {
 		this.template = template;
 	}
@@ -84,7 +77,6 @@ public class Filter implements Serializable {
 		
 		return
 			EqualsUtil.areEqual(this.getRules(), filter.getRules()) &&
-			EqualsUtil.areEqual(this.getTemplate(), filter.getTemplate()) &&
-			EqualsUtil.areEqual(this.getMode(), filter.getMode());
+			EqualsUtil.areEqual(this.getTemplate(), filter.getTemplate());
 	}
 }

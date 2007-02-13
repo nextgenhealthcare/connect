@@ -46,18 +46,9 @@ public class Transformer implements Serializable {
 	private String outboundTemplate;
 	private Protocol inboundProtocol;
 	private Protocol outboundProtocol;
-	private Mode mode;
 
 	public Transformer() {
 		this.steps = new ArrayList<Step>();
-	}
-
-	public Mode getMode() {
-		return this.mode;
-	}
-
-	public void setMode(Mode mode) {
-		this.mode = mode;
 	}
 
 	public Protocol getInboundProtocol() {
@@ -115,7 +106,6 @@ public class Transformer implements Serializable {
 			EqualsUtil.areEqual(this.getSteps(), transformer.getSteps()) &&
 			EqualsUtil.areEqual(this.getInboundTemplate(), transformer.getInboundTemplate()) &&
 			EqualsUtil.areEqual(this.getOutboundTemplate(), transformer.getOutboundTemplate()) &&
-			EqualsUtil.areEqual(this.getMode(), transformer.getMode()) &&
 			EqualsUtil.areEqual(this.getInboundProtocol(), transformer.getInboundProtocol()) &&
 			EqualsUtil.areEqual(this.getOutboundProtocol(), transformer.getOutboundProtocol());
 	}

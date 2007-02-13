@@ -49,6 +49,7 @@ public class Connector implements Serializable {
 	private Transformer transformer;
 	private Filter filter;
 	private String transportName;
+	private Mode mode;
 
 	public Connector() {
 		this.properties = new Properties();
@@ -57,6 +58,14 @@ public class Connector implements Serializable {
 	public Connector(String name) {
 		this.properties = new Properties();
 		this.name = name;
+	}
+	
+	public Mode getMode() {
+		return this.mode;
+	}
+
+	public void setMode(Mode mode) {
+		this.mode = mode;
 	}
 
 	public String getName() {
