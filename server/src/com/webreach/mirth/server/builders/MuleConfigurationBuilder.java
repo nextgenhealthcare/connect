@@ -233,7 +233,13 @@ public class MuleConfigurationBuilder {
 			routerElement.appendChild(filterElement);
 			inboundRouterElement.appendChild(routerElement);
 
-			inboundRouterElement.appendChild(endpointElement);
+			// NOTE: If the user selected the Channel Reader connector, then we
+			// don't to add it since there already exists a VM connector for
+			// every channel.
+			if (!channel.getSourceConnector().getTransportName().equals("Channel Reader")) {
+				inboundRouterElement.appendChild(endpointElement);
+			}
+
 			return inboundRouterElement;
 		} catch (Exception e) {
 			throw new BuilderException(e);

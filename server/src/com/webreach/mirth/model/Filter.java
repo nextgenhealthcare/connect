@@ -30,7 +30,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.webreach.mirth.model.Connector.Mode;
 import com.webreach.mirth.util.EqualsUtil;
 
 /**

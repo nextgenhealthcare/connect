@@ -238,6 +238,8 @@ public class ChannelStatusController {
 						&& objectName.getKeyProperty("type").equals("statistics")
 						&& (objectName.getKeyProperty("name") != null)
 						&& !objectName.getKeyProperty("name").startsWith("_")
+						// NOTE: We don't want the "sink" channel showing up.
+						&& !objectName.getKeyProperty("name").equals("MessageSink")
 						&& (objectName.getKeyProperty("router") == null)) {
 					deployedChannelIdList.add(objectName.getKeyProperty("name"));
 				}
