@@ -266,8 +266,9 @@ public class LLPListener extends ConnectorClass
         properties.put(LLP_ACKMSG_REJECTED, "Message Rejected.");
         properties.put(LLP_ACK_MSH_15, UIConstants.NO_OPTION);
         properties.put(LLP_ACK_NEW_CONNECTION, UIConstants.NO_OPTION);
-        properties.put(LLP_ACK_NEW_CONNECTION_IP, "");
+        properties.put(LLP_ACK_NEW_CONNECTION_IP, "..."); // hack to get around defaults
         properties.put(LLP_ACK_NEW_CONNECTION_PORT, "");
+        
         //ast:encoding        
         properties.put(CONNECTOR_CHARSET_ENCODING, UIConstants.DEFAULT_ENCODING_OPTION);
         return properties;

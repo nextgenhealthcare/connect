@@ -90,7 +90,10 @@ public class ChannelWriter extends ConnectorClass
         channelNames.setModel(new javax.swing.DefaultComboBoxModel(channelNameArray.toArray()));
         
         boolean visible = parent.channelEditTasks.getContentPane().getComponent(0).isVisible();
-        channelNames.setSelectedItem(((String)props.get(channelList.get(CHANNEL_NAME))));
+        
+        if(props.get(CHANNEL_NAME) != null)
+            channelNames.setSelectedItem((String)props.get(CHANNEL_NAME));
+        
         parent.channelEditTasks.getContentPane().getComponent(0).setVisible(visible);
         
         template.setText(((String)props.get(CHANNEL_TEMPLATE)));

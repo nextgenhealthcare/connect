@@ -75,6 +75,7 @@ public class ChannelReader extends ConnectorClass
     public Properties getDefaults()
     {
         Properties properties = new Properties();
+        properties.put(DATATYPE, name);
         return properties;
     }
     
@@ -106,12 +107,15 @@ public class ChannelReader extends ConnectorClass
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .add(URL))
+                .addContainerGap()
+                .add(URL)
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(URL)
+            .add(layout.createSequentialGroup()
+                .add(URL)
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 

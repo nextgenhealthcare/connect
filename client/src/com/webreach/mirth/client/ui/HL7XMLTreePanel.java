@@ -33,6 +33,7 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
 import java.io.StringReader;
 
@@ -320,11 +321,11 @@ public class HL7XMLTreePanel extends JPanel
             tree = new JTree(top);
             tree.setDragEnabled( true );
             tree.setTransferHandler(new TreeTransferHandler());
-            
             tree.addMouseMotionListener(new MouseMotionAdapter()
             {
                 public void mouseDragged(MouseEvent evt)
                 {
+                    //highlight here
                     refTableMouseDragged(evt);
                 }
                 public void mouseMoved(MouseEvent evt)
@@ -336,6 +337,7 @@ public class HL7XMLTreePanel extends JPanel
             {
                 public void mouseExited(MouseEvent evt)
                 {
+                    //unhighlight here
                     refTableMouseExited(evt);
                 }
             });
@@ -356,6 +358,8 @@ public class HL7XMLTreePanel extends JPanel
     
     private void refTableMouseDragged(MouseEvent evt)
     {
+        
+        
     }
     
     private void refTableMouseMoved(MouseEvent evt)
@@ -364,6 +368,8 @@ public class HL7XMLTreePanel extends JPanel
         
         if ( row >= 0 && row < tree.getRowCount() )
             tree.setSelectionRow( row );
+   
+               
     }
     
     

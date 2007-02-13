@@ -25,6 +25,8 @@
 
 package com.webreach.mirth.client.ui;
 
+import com.webreach.mirth.client.ui.connectors.ChannelReader;
+import com.webreach.mirth.client.ui.connectors.ChannelWriter;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.KeyEvent;
@@ -144,6 +146,7 @@ public class ChannelSetup extends javax.swing.JPanel
             parent.sourceConnectors.add(new SFTPReader());
             parent.sourceConnectors.add(new JMSReader());
             parent.sourceConnectors.add(new SOAPListener());
+            parent.sourceConnectors.add(new ChannelReader());
         }
         if(parent.destinationConnectors.size() == 0)
         {
@@ -157,6 +160,7 @@ public class ChannelSetup extends javax.swing.JPanel
             parent.destinationConnectors.add(new PDFWriter());
             parent.destinationConnectors.add(new JMSWriter());
             parent.destinationConnectors.add(new SOAPSender());
+            parent.destinationConnectors.add(new ChannelWriter());
         }
         
         initComponents();
