@@ -43,6 +43,12 @@
 
 	<model name="Mirth">
 	<!-- new descriptors will be added here -->
+	
+	<mule-descriptor name="MessageSink" implementation="org.mule.components.simple.PassThroughComponent">
+		<inbound-router>
+			<endpoint address="vm://sink" />
+		</inbound-router>
+	</mule-descriptor>
 
 	</model>
 </mule-configuration>
