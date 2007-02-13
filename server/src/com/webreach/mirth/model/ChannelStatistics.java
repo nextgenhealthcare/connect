@@ -35,6 +35,7 @@ public class ChannelStatistics implements Serializable {
 	private int sentCount = 0;
 	private int errorCount = 0;
 	private int rejectedCount = 0;
+	
 	public int getRejectedCount() {
 		return rejectedCount;
 	}

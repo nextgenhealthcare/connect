@@ -26,14 +26,11 @@
 package com.webreach.mirth.server.controllers;
 
 import java.sql.SQLException;
-import java.util.Hashtable;
 
 import org.apache.log4j.Logger;
 
 import com.ibatis.sqlmap.client.SqlMapClient;
 import com.webreach.mirth.model.ChannelStatistics;
-import com.webreach.mirth.server.util.JMXConnection;
-import com.webreach.mirth.server.util.JMXConnectionFactory;
 import com.webreach.mirth.server.util.SqlConfig;
 
 /**
@@ -55,7 +52,7 @@ public class ChannelStatisticsController {
 		statistics.setRejectedCount(getRejectedCount(channelId));
 		return statistics;
 	}
-	
+
 	public Integer getReceivedCount(String channelId) throws ControllerException {
 		try {
 			return (Integer) sqlMap.queryForObject("getReceivedCount", channelId);
@@ -63,7 +60,7 @@ public class ChannelStatisticsController {
 			throw new ControllerException(e);
 		}
 	}
-	
+
 	public Integer getSentCount(String channelId) throws ControllerException {
 		try {
 			return (Integer) sqlMap.queryForObject("getSentCount", channelId);
@@ -71,7 +68,7 @@ public class ChannelStatisticsController {
 			throw new ControllerException(e);
 		}
 	}
-	
+
 	public Integer getErrorCount(String channelId) throws ControllerException {
 		try {
 			return (Integer) sqlMap.queryForObject("getErrorCount", channelId);
@@ -79,6 +76,7 @@ public class ChannelStatisticsController {
 			throw new ControllerException(e);
 		}
 	}
+
 	public Integer getRejectedCount(String channelId) throws ControllerException {
 		try {
 			return (Integer) sqlMap.queryForObject("getRejectedCount", channelId);
