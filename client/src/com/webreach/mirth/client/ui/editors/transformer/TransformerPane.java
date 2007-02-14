@@ -114,7 +114,7 @@ public class TransformerPane extends MirthEditorPane
     /**
      * load( Transformer t ) now that the components have been initialized...
      */
-    public void load(Connector c, Transformer t)
+    public void load(Connector c, Transformer t, boolean channelHasBeenChanged)
     {
         prevSelRow = -1;
         connector = c;
@@ -123,8 +123,6 @@ public class TransformerPane extends MirthEditorPane
         tabTemplatePanel.setDefaultComponent();
         tabTemplatePanel.tabPanel.add("Outgoing Data", tabTemplatePanel.outgoingTab);
 
-        tabTemplatePanel.setIncomingMessage(transformer.getInboundTemplate());
-        tabTemplatePanel.setOutgoingMessage(transformer.getOutboundTemplate());
         channel = PlatformUI.MIRTH_FRAME.channelEditPanel.currentChannel;
 
         makeTransformerTable();
@@ -166,15 +164,18 @@ public class TransformerPane extends MirthEditorPane
                 tabTemplatePanel.incomingDataType.setSelectedItem((String)PlatformUI.MIRTH_FRAME.channelEditPanel.getSourceDatatype());
         }
         
-        if(t.getOutboundProtocol() != null)
+        if(transformer.getOutboundProtocol() != null)
         {
-            tabTemplatePanel.outgoingDataType.setSelectedItem((String)PlatformUI.MIRTH_FRAME.protocols.get(t.getOutboundProtocol()));
+            tabTemplatePanel.outgoingDataType.setSelectedItem((String)PlatformUI.MIRTH_FRAME.protocols.get(transformer.getOutboundProtocol()));
         }
         else
         {
             tabTemplatePanel.outgoingDataType.setSelectedItem((String)tabTemplatePanel.incomingDataType.getSelectedItem());
         }
-
+        
+        tabTemplatePanel.setIncomingMessage(transformer.getInboundTemplate());
+        tabTemplatePanel.setOutgoingMessage(transformer.getOutboundTemplate());
+        
         transformerTable.setBorder(BorderFactory.createEmptyBorder());
         transformerTaskPaneContainer.add(parent.getOtherPane());
         parent.setCurrentContentPage(this);
@@ -183,7 +184,7 @@ public class TransformerPane extends MirthEditorPane
         updateStepNumbers();
         updateTaskPane();
         
-        if (parent.channelEditTasks.getContentPane().getComponent(0).isVisible())
+        if (channelHasBeenChanged)
             modified = true;
         else
             modified = false;
@@ -906,7 +907,7 @@ public class TransformerPane extends MirthEditorPane
                 prevSelRow = -1;
                 modified = true;
                 connector.setTransformer(importTransformer);
-                load(connector, importTransformer);
+                load(connector, importTransformer, modified);
             }
             catch (Exception e)
             {
@@ -1129,6 +1130,7 @@ public class TransformerPane extends MirthEditorPane
             
             transformer.setInboundTemplate(tabTemplatePanel.getIncomingMessage());
             transformer.setOutboundTemplate(tabTemplatePanel.getOutgoingMessage());
+            
             // reset the task pane and content to channel edit page
             if(returning)
             {

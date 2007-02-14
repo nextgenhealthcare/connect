@@ -246,30 +246,34 @@ public class ChannelSetup extends javax.swing.JPanel
      */
     public void editTransformer()
     {
+        boolean changed = parent.changesHaveBeenMade();
+        
         if (channelView.getSelectedIndex() == SOURCE_TAB_INDEX)
         {
-            transformerPane.load(currentChannel.getSourceConnector(), currentChannel.getSourceConnector().getTransformer());
+            transformerPane.load(currentChannel.getSourceConnector(), currentChannel.getSourceConnector().getTransformer(), changed);
         }
         
         else if (channelView.getSelectedIndex() == DESTINATIONS_TAB_INDEX)
         {
             int destination = getDestinationConnectorIndex((String) destinationTable.getValueAt(getSelectedDestinationIndex(), getColumnNumber(DESTINATION_COLUMN_NAME)));
-            transformerPane.load(currentChannel.getDestinationConnectors().get(destination), currentChannel.getDestinationConnectors().get(destination).getTransformer());
+            transformerPane.load(currentChannel.getDestinationConnectors().get(destination), currentChannel.getDestinationConnectors().get(destination).getTransformer(), changed);
         }
     }
     
     /** Is called to load the filter pane on either the source or destination */
     public void editFilter()
     {
+        boolean changed = parent.changesHaveBeenMade();
+        
         if (channelView.getSelectedIndex() == SOURCE_TAB_INDEX)
         {
-            filterPane.load(currentChannel.getSourceConnector(), currentChannel.getSourceConnector().getFilter());
+            filterPane.load(currentChannel.getSourceConnector(), currentChannel.getSourceConnector().getFilter(), changed);
         }
         
         else if (channelView.getSelectedIndex() == DESTINATIONS_TAB_INDEX)
         {
             int destination = getDestinationConnectorIndex((String) destinationTable.getValueAt(getSelectedDestinationIndex(), getColumnNumber(DESTINATION_COLUMN_NAME)));
-            filterPane.load(currentChannel.getDestinationConnectors().get(destination), currentChannel.getDestinationConnectors().get(destination).getFilter());
+            filterPane.load(currentChannel.getDestinationConnectors().get(destination), currentChannel.getDestinationConnectors().get(destination).getFilter(), changed);
         }
     }
     
@@ -293,6 +297,8 @@ public class ChannelSetup extends javax.swing.JPanel
             if (tableSize - 1 == i && addNew)
             {
                 Connector connector = makeNewConnector(true);
+                connector.getTransformer().setInboundProtocol(null);
+                connector.getTransformer().setOutboundProtocol(null);
                 connector.setName(getNewDestinationName(tableSize));
                 connector.setTransportName((String) destinationSourceDropdown
                         .getItemAt(0));
@@ -630,8 +636,7 @@ public class ChannelSetup extends javax.swing.JPanel
                 .getItemAt(0));
         Transformer sourceTransformer = new Transformer();
         sourceTransformer.setInboundProtocol(Protocol.HL7V2);
-        sourceTransformer.setOutboundProtocol(Protocol.HL7V2);
-        
+        sourceTransformer.setOutboundProtocol(null);
         sourceConnector.setTransformer(sourceTransformer);
         
         currentChannel.setSourceConnector(sourceConnector);
@@ -819,11 +824,33 @@ public class ChannelSetup extends javax.swing.JPanel
         
         currentChannel.setPreprocessingScript(preprocessor.getText());
         
+        // Set the default protocols if transformers have never been visited
+        
+        Transformer sourceTransformer = currentChannel.getSourceConnector().getTransformer();
+        
         for(MessageObject.Protocol protocol : MessageObject.Protocol.values())
         {
             if(parent.protocols.get(protocol).equals((String)incomingProtocol.getSelectedItem()))
             {
-                currentChannel.getSourceConnector().getTransformer().setInboundProtocol(protocol);
+                sourceTransformer.setInboundProtocol(protocol);
+            }
+        }
+        
+        if(sourceTransformer.getOutboundProtocol() == null)
+            sourceTransformer.setOutboundProtocol(sourceTransformer.getInboundProtocol());
+        
+        for(Connector c : currentChannel.getDestinationConnectors())
+        {
+            Transformer destinationTransformer = c.getTransformer();
+            
+            if(destinationTransformer.getInboundTemplate() == null)
+            {
+                destinationTransformer.setInboundTemplate(sourceTransformer.getOutboundTemplate());               
+            }
+            
+            if(destinationTransformer.getOutboundTemplate() == null)
+            {
+                destinationTransformer.setOutboundTemplate(destinationTransformer.getInboundTemplate());               
             }
         }
         
@@ -2004,16 +2031,9 @@ public class ChannelSetup extends javax.swing.JPanel
         Filter df = new Filter();
         
         if (isDestination)
-        {   
             c.setMode(Connector.Mode.DESTINATION);
-            Protocol outgoingSourceProtocol = currentChannel.getSourceConnector().getTransformer().getOutboundProtocol();
-            dt.setInboundProtocol(outgoingSourceProtocol);
-            dt.setOutboundProtocol(outgoingSourceProtocol);
-        }
         else
-        {
             c.setMode(Connector.Mode.SOURCE);
-        }
         
         c.setTransformer(dt);
         c.setFilter(df);

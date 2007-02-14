@@ -2186,7 +2186,7 @@ public class Frame extends JXFrame
         {
             public Void doInBackground() 
             {        
-            	if (channelEditTasks.getContentPane().getComponent(0).isVisible() || currentContentPage == channelEditPanel.transformerPane || currentContentPage == channelEditPanel.filterPane){
+            	if (changesHaveBeenMade() || currentContentPage == channelEditPanel.transformerPane || currentContentPage == channelEditPanel.filterPane){
 	                if (channelEditPanel.saveChanges()){
 	                    channelEditTasks.getContentPane().getComponent(0).setVisible(false);
 	                    if (currentContentPage == channelEditPanel.transformerPane){
@@ -2208,6 +2208,11 @@ public class Frame extends JXFrame
         };
         
         worker.execute();
+    }
+    
+    public boolean changesHaveBeenMade()
+    {
+        return channelEditTasks.getContentPane().getComponent(0).isVisible();
     }
 
     public void doShowMessages()

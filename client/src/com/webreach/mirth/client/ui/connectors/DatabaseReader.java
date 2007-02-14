@@ -239,14 +239,17 @@ public class DatabaseReader extends ConnectorClass
             document.appendChild(resultElement);
 
             DocumentSerializer docSerializer = new DocumentSerializer();
-            parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().setInboundTemplate(docSerializer.toXML(document));
+            
+            String xml = docSerializer.toXML(document);
+            
+            parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().setInboundTemplate(xml);
             
             if(parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().getOutboundProtocol() == MessageObject.Protocol.XML && parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().getOutboundTemplate().length() == 0)
             {
                 List<Connector> list = parent.channelEditPanel.currentChannel.getDestinationConnectors();
                 for(Connector c : list)
                 {
-                    c.getTransformer().setInboundTemplate(docSerializer.toXML(document));
+                    c.getTransformer().setInboundTemplate(xml);
                 }
             }
         } 

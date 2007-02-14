@@ -106,14 +106,12 @@ public class FilterPane extends MirthEditorPane
     
     /** load( Filter f )
      */
-    public void load(Connector c, Filter f)
+    public void load(Connector c, Filter f, boolean channelHasBeenChanged)
     {
         prevSelRow = -1;
         filter = f;
         connector = c;
         channel = PlatformUI.MIRTH_FRAME.channelEditPanel.currentChannel;
-        
-        tabTemplatePanel.setIncomingMessage(filter.getTemplate());
         
         // we need to clear all the old data before we load the new
         makeFilterTable();
@@ -160,10 +158,12 @@ public class FilterPane extends MirthEditorPane
                 tabTemplatePanel.incomingDataType.setSelectedItem((String)PlatformUI.MIRTH_FRAME.channelEditPanel.getSourceDatatype());
         }
         
+        tabTemplatePanel.setIncomingMessage(filter.getTemplate());
+        
         updateRuleNumbers();
         updateTaskPane();
         
-        if (parent.channelEditTasks.getContentPane().getComponent(0).isVisible())
+        if (channelHasBeenChanged)
             modified = true;
         else
             modified = false;
@@ -688,7 +688,7 @@ public class FilterPane extends MirthEditorPane
                 prevSelRow = -1;
                 modified = true;
                 connector.setFilter(importFilter);
-                load(connector, importFilter);
+                load(connector, importFilter, modified);
             }
             catch (Exception e)
             {
