@@ -14,6 +14,7 @@
 package org.mule.providers.jdbc;
 
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.util.Hashtable;
 import java.util.Map;
 
@@ -22,6 +23,7 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 
+import org.mozilla.javascript.Script;
 import org.mule.config.i18n.Message;
 import org.mule.config.i18n.Messages;
 import org.mule.providers.AbstractServiceEnabledConnector;
@@ -33,14 +35,17 @@ import org.mule.umo.endpoint.UMOEndpoint;
 import org.mule.umo.endpoint.UMOEndpointURI;
 import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.provider.UMOMessageReceiver;
-import java.sql.*; 
+
+import com.webreach.mirth.server.controllers.ScriptController;
+import com.webreach.mirth.server.mule.util.CompiledScriptCache;
 /**
  * @author Guillaume Nodet
  * @version $Revision: 1.7 $
  */
-public class JdbcConnector extends AbstractServiceEnabledConnector
-{
-
+public class JdbcConnector extends AbstractServiceEnabledConnector {
+	private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
+	private ScriptController scriptController = new ScriptController();
+	
     private long pollingFrequency = 5000;
     private DataSource dataSource;
     private String driver;
@@ -55,6 +60,42 @@ public class JdbcConnector extends AbstractServiceEnabledConnector
     private Map providerProperties;
     private Map queries;
 
+    private boolean useScript;
+    private String scriptId;
+
+    // This method gets called when the JDBC connector is initialized. It compiles the JavaScript and adds it to the cache.
+    @Override
+    protected synchronized void initFromServiceDescriptor() throws InitialisationException {
+		try {
+			org.mozilla.javascript.Context context = org.mozilla.javascript.Context.enter();
+			String databaseScript = scriptController.getScript(scriptId);
+			
+			if (databaseScript != null) {
+				String generatedDatabaseScript = generateDatabaseScript(databaseScript);
+				logger.debug("compiling database script");
+				Script compiledDatabaseScript = context.compileString(generatedDatabaseScript, scriptId, 1, null);
+				compiledScriptCache.putCompiledScript(scriptId, compiledDatabaseScript);
+			}
+		} catch (Exception e) {
+			throw new InitialisationException(e, this);
+		} finally {
+			org.mozilla.javascript.Context.exit();
+		}
+    	
+    	super.initFromServiceDescriptor();
+    }
+    
+    // Generates the JavaScript based on the script which the user enters
+    private String generateDatabaseScript(String databaseScript) {
+		logger.debug("generating database script");
+		StringBuilder script = new StringBuilder();
+		//script.append("importPackage(Packages.com.webreach.mirth.server.util);\n");
+		script.append("function doDatabaseScript() {");
+		script.append(databaseScript+ "\n");
+		script.append("doDatabaseScript()\n");
+		return script.toString();
+    }
+    
     /*
      * (non-Javadoc)
      * 
@@ -200,9 +241,15 @@ public class JdbcConnector extends AbstractServiceEnabledConnector
     	return URL;
     }
 
-    
+	public boolean useScript() {
+		return this.useScript;
+	}
 
-    public String getPassword() {
+	public void setUseScript(boolean useScript) {
+		this.useScript = useScript;
+	}
+
+	public String getPassword() {
 		return this.password;
 	}
 
@@ -265,8 +312,16 @@ public class JdbcConnector extends AbstractServiceEnabledConnector
     {
         this.queries = queries;
     }
+    
+	public String getScriptId() {
+		return this.scriptId;
+	}
 
-    /**
+	public void setScriptId(String scriptId) {
+		this.scriptId = scriptId;
+	}
+
+	/**
      * @return Returns the dataSourceJndiName.
      */
     public String getDataSourceJndiName()
