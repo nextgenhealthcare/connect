@@ -29,22 +29,25 @@ package com.webreach.mirth.client.ui.connectors;
 import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.ui.Frame;
 import com.webreach.mirth.client.ui.PlatformUI;
-import com.webreach.mirth.client.ui.ReferenceTableHandler;
 import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
 import com.webreach.mirth.client.ui.util.SQLParserUtil;
+import com.webreach.mirth.model.Connector;
 import com.webreach.mirth.model.DriverInfo;
-import java.awt.Component;
-import java.util.ArrayList;
+import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.model.converters.DocumentSerializer;
 import java.util.List;
 
 import java.util.Properties;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.syntax.jedit.SyntaxDocument;
-import org.syntax.jedit.tokenmarker.SQLTokenMarker;
 import org.syntax.jedit.tokenmarker.TSQLTokenMarker;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  * A form that extends from ConnectorClass.  All methods implemented
@@ -205,14 +208,50 @@ public class DatabaseReader extends ConnectorClass
     private void updateSQL()
     {
         Object sqlStatement = databaseSQLTextPane.getText();
+        String [] data;
+        
         if ((sqlStatement != null) && (!sqlStatement.equals("")))
         {
             SQLParserUtil spu = new SQLParserUtil((String) sqlStatement);
-            dbVarList.setListData(spu.Parse());
+            data = spu.Parse();
+
         }
         else
         {
-            dbVarList.setListData(new String[] {});
+            data = new String[]{};
+        }
+        dbVarList.setListData(data);
+        updateIncomingData(data);
+    }
+    
+    private void updateIncomingData(String[] data)
+    {
+        try
+        {
+            Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+            Element resultElement = document.createElement("result");
+            for(int i = 0; i < data.length; i++)
+            {
+                Element columnElement = document.createElement(data[i]);
+                columnElement.setTextContent("value");
+                resultElement.appendChild(columnElement);
+            }
+            document.appendChild(resultElement);
+
+            DocumentSerializer docSerializer = new DocumentSerializer();
+            parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().setInboundTemplate(docSerializer.toXML(document));
+            
+            if(parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().getOutboundProtocol() == MessageObject.Protocol.XML && parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().getOutboundTemplate().length() == 0)
+            {
+                List<Connector> list = parent.channelEditPanel.currentChannel.getDestinationConnectors();
+                for(Connector c : list)
+                {
+                    c.getTransformer().setInboundTemplate(docSerializer.toXML(document));
+                }
+            }
+        } 
+        catch (ParserConfigurationException ex)
+        {
         }
     }
 

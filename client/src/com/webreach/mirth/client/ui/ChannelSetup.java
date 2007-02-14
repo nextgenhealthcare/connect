@@ -92,6 +92,8 @@ public class ChannelSetup extends javax.swing.JPanel
     
     private static final String SOURCE_DEFAULT = "LLP Listener";
     
+    private static final String DATABASE_READER = "Database Reader";
+    
     private final String DESTINATION_COLUMN_NAME = "Destination";
     
     private final String CONNECTOR_TYPE_COLUMN_NAME = "Connector Type";
@@ -745,6 +747,7 @@ public class ChannelSetup extends javax.swing.JPanel
         
         sourceSourceDropdown.setSelectedItem(currentChannel
                 .getSourceConnector().getTransportName());
+        checkSourceDataType();
         
         if (( currentChannel.getProperties().get("initialState")) != null
                 && ((String) currentChannel.getProperties().get("initialState"))
@@ -1608,6 +1611,8 @@ public class ChannelSetup extends javax.swing.JPanel
             sourceConnectorClass.setProperties(sourceConnector.getProperties());
         }
         
+        checkSourceDataType();
+        
         source.removeAll();
         
         // Reset the generated layout.
@@ -2100,6 +2105,19 @@ public class ChannelSetup extends javax.swing.JPanel
                 return false;
         }
         return true;
+    }
+    
+    public void checkSourceDataType()
+    {
+        if(((String)sourceSourceDropdown.getSelectedItem()).equals(DATABASE_READER))
+        {
+            incomingProtocol.setSelectedItem((String)parent.protocols.get(MessageObject.Protocol.XML));
+            incomingProtocol.setEnabled(false);
+        }
+        else
+        {
+            incomingProtocol.setEnabled(true);
+        }
     }
     
     public String getSourceDatatype()

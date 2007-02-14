@@ -37,7 +37,7 @@ import org.syntax.jedit.SyntaxDocument;
  *
  * @author  brendanh
  */
-public class HL7MessageBuilder extends BasePanel
+public class MessageBuilder extends BasePanel
 {
     public boolean updating = false;
     protected String label;
@@ -53,7 +53,7 @@ public class HL7MessageBuilder extends BasePanel
     private int lastIndex = -1;
     
     /** Creates new form MapperPanel */
-    public HL7MessageBuilder(MirthEditorPane p)
+    public MessageBuilder(MirthEditorPane p)
     {
         parent = p;
         initComponents();

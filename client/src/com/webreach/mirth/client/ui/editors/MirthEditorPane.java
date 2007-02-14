@@ -53,7 +53,7 @@ public class MirthEditorPane extends JPanel
     
     // a list of panels to load
     public static final String BLANK_TYPE = "";   
-    public static final String HL7MESSAGE_TYPE = "HL7 Message Builder";    
+    public static final String MESSAGE_TYPE = "Message Builder";    
     public static final String MAPPER_TYPE = "Mapper";
     public static final String JAVASCRIPT_TYPE = "JavaScript";
     

@@ -83,7 +83,7 @@ import com.webreach.mirth.client.ui.PlatformUI;
 import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.client.ui.editors.BasePanel;
 import com.webreach.mirth.client.ui.editors.EditorConstants;
-import com.webreach.mirth.client.ui.editors.HL7MessageBuilder;
+import com.webreach.mirth.client.ui.editors.MessageBuilder;
 import com.webreach.mirth.client.ui.editors.JavaScriptPanel;
 import com.webreach.mirth.client.ui.editors.MapperPanel;
 import com.webreach.mirth.client.ui.editors.MirthEditorPane;
@@ -150,7 +150,8 @@ public class TransformerPane extends MirthEditorPane
             stepPanel.showCard(BLANK_TYPE);
             mapperPanel.setData(null);
             jsPanel.setData(null);
-            hl7builderPanel.setData(null);
+            builderPanel.setData(null);
+            loadData(-1);
         }
         
         if(connector.getMode() == Connector.Mode.SOURCE)
@@ -197,7 +198,7 @@ public class TransformerPane extends MirthEditorPane
         // the available panels (cards)
         stepPanel = new BasePanel();
         blankPanel = new BasePanel();
-        hl7builderPanel = new HL7MessageBuilder(this);
+        builderPanel = new MessageBuilder(this);
         mapperPanel = new MapperPanel(this);
         jsPanel = new JavaScriptPanel(this);
         
@@ -206,7 +207,7 @@ public class TransformerPane extends MirthEditorPane
         stepPanel.addCard(mapperPanel, MAPPER_TYPE);
         
         stepPanel.addCard(jsPanel, JAVASCRIPT_TYPE);
-        stepPanel.addCard(hl7builderPanel, HL7MESSAGE_TYPE);
+        stepPanel.addCard(builderPanel, MESSAGE_TYPE);
         
         transformerTablePane = new JScrollPane();
         transformerTablePane.setBorder(BorderFactory.createEmptyBorder());
@@ -425,12 +426,12 @@ public class TransformerPane extends MirthEditorPane
                         updateTaskPane();
                         getTableModel().setValueAt("", row, STEP_NAME_COL);
                     }
-                    else if(type.equalsIgnoreCase(HL7MESSAGE_TYPE))
+                    else if(type.equalsIgnoreCase(MESSAGE_TYPE))
                     {
-                        Map<Object, Object> data = hl7builderPanel.getData();
+                        Map<Object, Object> data = builderPanel.getData();
                         data.put("Variable", "");
                         data.put("Mapping", "");
-                        hl7builderPanel.setData(data);
+                        builderPanel.setData(data);
                         updateTaskPane();
                         getTableModel().setValueAt("", row, STEP_NAME_COL);
                     }
@@ -696,9 +697,9 @@ public class TransformerPane extends MirthEditorPane
             {
                 data = jsPanel.getData();
             }
-            else if (type.equals(HL7MESSAGE_TYPE))
+            else if (type.equals(MESSAGE_TYPE))
             {
-                data = hl7builderPanel.getData();
+                data = builderPanel.getData();
                 String var = data.get("Variable").toString();
                 
                 // check for empty variable names
@@ -718,7 +719,7 @@ public class TransformerPane extends MirthEditorPane
                 }
                 else invalidVar = false;
                 
-                data = hl7builderPanel.getData();
+                data = builderPanel.getData();
             }
             transformerTableModel.setValueAt(data, row, STEP_DATA_COL);
         }
@@ -739,9 +740,12 @@ public class TransformerPane extends MirthEditorPane
                     .getValueAt(row, STEP_DATA_COL);
             
             setPanelData(type, data);
-            
-            tabTemplatePanel.updateVariables(buildStepList(row));
         }
+        
+        if(connector.getMode() == Connector.Mode.SOURCE)
+            tabTemplatePanel.updateVariables(buildStepList(new ArrayList<Step>(), row));
+        else
+            tabTemplatePanel.updateVariables(buildStepList(getSourceConnectorSteps(), row));
     }
     
     private void setPanelData(String type, Map<Object, Object> data)
@@ -752,8 +756,8 @@ public class TransformerPane extends MirthEditorPane
         }
         else if (type.equalsIgnoreCase(JAVASCRIPT_TYPE))
             jsPanel.setData(data);
-        else if (type.equalsIgnoreCase(HL7MESSAGE_TYPE))
-            hl7builderPanel.setData(data);
+        else if (type.equalsIgnoreCase(MESSAGE_TYPE))
+            builderPanel.setData(data);
     }
     
     /**
@@ -774,7 +778,7 @@ public class TransformerPane extends MirthEditorPane
         Object[] tableData = new Object[NUMBER_OF_COLUMNS];
         
         tableData[STEP_NUMBER_COL] = step.getSequenceNumber();
-        if(step.getType().equalsIgnoreCase(MAPPER_TYPE) || step.getType().equalsIgnoreCase(HL7MESSAGE_TYPE))
+        if(step.getType().equalsIgnoreCase(MAPPER_TYPE) || step.getType().equalsIgnoreCase(MESSAGE_TYPE))
             tableData[STEP_NAME_COL] = (String)((Map<Object, Object>) step.getData()).get("Variable");
         else
             tableData[STEP_NAME_COL] = step.getName();
@@ -810,8 +814,8 @@ public class TransformerPane extends MirthEditorPane
             
             if (tabTemplatePanel.tabPanel.getSelectedComponent() == tabTemplatePanel.outgoingTab)
             {
-                step.setType(HL7MESSAGE_TYPE); // hl7 message type by default, outbound
-                hl7builderPanel.setData(data);
+                step.setType(MESSAGE_TYPE); // hl7 message type by default, outbound
+                builderPanel.setData(data);
                 mapperPanel.setData(null);
                 jsPanel.setData(null);
             }
@@ -819,7 +823,7 @@ public class TransformerPane extends MirthEditorPane
             {
                 step.setType(MAPPER_TYPE); // mapper type by default, inbound
                 mapperPanel.setData(data);
-                hl7builderPanel.setData(null);
+                builderPanel.setData(null);
                 jsPanel.setData(null);
             }
             
@@ -1000,10 +1004,21 @@ public class TransformerPane extends MirthEditorPane
         updateStepNumbers();
         parent.enableSave();
     }
-    
-    public List<Step> buildStepList(int endingRow)
+    public ArrayList<Step> getSourceConnectorSteps()
     {
-        List<Step> list = new ArrayList<Step>();
+        ArrayList<Step> list = new ArrayList<Step>();
+        List<Step> sourceSteps = channel.getSourceConnector().getTransformer().getSteps();
+        
+        for(Step s: sourceSteps)
+        {
+            list.add(s);
+        }
+        
+        return list;
+    }
+    
+    public List<Step> buildStepList(ArrayList<Step> list, int endingRow)
+    {
         for (int i = 0; i < endingRow; i++)
         {
             Step step = new Step();
@@ -1050,7 +1065,7 @@ public class TransformerPane extends MirthEditorPane
             {
                 step.setScript(map.get("Script").toString());
             }
-            else if (step.getType().equals(TransformerPane.HL7MESSAGE_TYPE))
+            else if (step.getType().equals(TransformerPane.MESSAGE_TYPE))
             {
                 TreeMap regexes = (TreeMap) map.get("RegularExpressions");
 
@@ -1096,7 +1111,7 @@ public class TransformerPane extends MirthEditorPane
         
         if (!invalidVar || transformerTable.getRowCount() == 0)
         {
-            List<Step> list = buildStepList(transformerTable.getRowCount());
+            List<Step> list = buildStepList(new ArrayList<Step>(), transformerTable.getRowCount());
             
             transformer.setSteps(list);
             
@@ -1263,16 +1278,16 @@ public class TransformerPane extends MirthEditorPane
     
     protected MapperPanel mapperPanel;
     
-    protected HL7MessageBuilder hl7builderPanel;
+    protected MessageBuilder builderPanel;
     
     protected JavaScriptPanel jsPanel;
     
     public static final int NUMBER_OF_COLUMNS = 4;
     
-    private String[] defaultComboBoxValues = { MAPPER_TYPE, HL7MESSAGE_TYPE,
+    private String[] defaultComboBoxValues = { MAPPER_TYPE, MESSAGE_TYPE,
     JAVASCRIPT_TYPE };
     
-    private String[] transformerComboBoxValues = { HL7MESSAGE_TYPE, MAPPER_TYPE,
+    private String[] transformerComboBoxValues = { MESSAGE_TYPE, MAPPER_TYPE,
     JAVASCRIPT_TYPE };
    
 }

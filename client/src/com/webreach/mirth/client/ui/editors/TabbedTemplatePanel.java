@@ -9,7 +9,7 @@ package com.webreach.mirth.client.ui.editors;
 import com.webreach.mirth.client.ui.FunctionListBuilder;
 import com.webreach.mirth.client.ui.FunctionListHandler;
 import com.webreach.mirth.client.ui.FunctionListItem;
-import com.webreach.mirth.client.ui.HL7XMLTreePanel;
+import com.webreach.mirth.client.ui.TreePanel;
 import com.webreach.mirth.client.ui.PlatformUI;
 import com.webreach.mirth.client.ui.ReferenceTableHandler;
 import com.webreach.mirth.client.ui.VariableListHandler;
@@ -35,7 +35,7 @@ public class TabbedTemplatePanel extends javax.swing.JPanel
 {
     private VariableReferenceTable globalVarTable, dbVarTable;
     private SyntaxDocument incomingHL7Doc, outgoingHL7Doc;
-    private HL7XMLTreePanel incomingTreePanel, outgoingTreePanel;
+    private TreePanel incomingTreePanel, outgoingTreePanel;
     private MirthEditorPane parent;
     
     /** Creates new form TabbedTemplatePanel */
@@ -256,11 +256,13 @@ public class TabbedTemplatePanel extends javax.swing.JPanel
     private void outgoingDataTypeActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_outgoingDataTypeActionPerformed
     {//GEN-HEADEREND:event_outgoingDataTypeActionPerformed
         parent.modified = true;
+        outgoing.clearMessage();
     }//GEN-LAST:event_outgoingDataTypeActionPerformed
 
     private void incomingDataTypeActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_incomingDataTypeActionPerformed
     {//GEN-HEADEREND:event_incomingDataTypeActionPerformed
         parent.modified = true;
+        incoming.clearMessage();
     }//GEN-LAST:event_incomingDataTypeActionPerformed
     
     

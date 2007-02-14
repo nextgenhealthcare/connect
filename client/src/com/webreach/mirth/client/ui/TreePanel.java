@@ -74,7 +74,7 @@ import com.webreach.mirth.model.converters.SerializerException;
 import com.webreach.mirth.model.converters.X12Serializer;
 import org.xml.sax.SAXException;
 
-public class HL7XMLTreePanel extends JPanel
+public class TreePanel extends JPanel
 {
     private PipeParser parser;
     private XMLParser xmlParser;
@@ -84,7 +84,7 @@ public class HL7XMLTreePanel extends JPanel
     private Logger logger = Logger.getLogger(this.getClass());
     private String _dropPrefix;
     private String _dropSuffix;
-    public HL7XMLTreePanel(String prefix, String suffix)
+    public TreePanel(String prefix, String suffix)
     {
         _dropPrefix = prefix;
         _dropSuffix = suffix;
@@ -96,7 +96,7 @@ public class HL7XMLTreePanel extends JPanel
         this.setBackground( Color.white );
     }
     
-    public void setMessage(String messageType, String source)
+    public void setMessage(String messageType, String source, String ignoreText)
     {
         Document xmlDoc = null;
         String messageName = "";
@@ -106,124 +106,131 @@ public class HL7XMLTreePanel extends JPanel
         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder docBuilder;
         
-        if(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.HL7V2).equals(messageType))
+        if (source.length() > 0 && !source.equals(ignoreText))
         {
-            Message message = null;
-            logger.debug("encoding HL7 message to XML:\n" + message);
-
-            if (source != null && !source.equals(""))
+            if(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.HL7V2).equals(messageType))
             {
-                //This message might come from a system that doesn't use carriage returns
-                //Since hapi requires a CR for the end of segment character
-                //we will force it.
+                Message message = null;
+                logger.debug("encoding HL7 message to XML:\n" + message);
+
+                if (source != null && !source.equals(""))
+                {
+                    //This message might come from a system that doesn't use carriage returns
+                    //Since hapi requires a CR for the end of segment character
+                    //we will force it.
+                    try
+                    {
+                        docBuilder = docFactory.newDocumentBuilder();
+                        String er7Message = new ER7Serializer().toXML(source);
+                        xmlDoc = docBuilder.parse(new InputSource(new StringReader(er7Message)));
+                        message = parser.parse(source);
+                    }
+                    catch (SerializerException e)
+                    {
+                        //PlatformUI.MIRTH_FRAME.alertWarning( "Encoding not supported.\n" +
+                        //"Please check the syntax of your message\n" +
+                        //"and try again.");
+                    }
+                    catch (EncodingNotSupportedException e)
+                    {
+                        //PlatformUI.MIRTH_FRAME.alertWarning( "Encoding not supported.\n" +
+                        //"Please check the syntax of your message\n" +
+                        //                      "and try again.");
+                    }
+                    catch (HL7Exception e)
+                    {
+                        //PlatformUI.MIRTH_FRAME.alertError( "HL7 Error!\n" +
+                        //		"Please check the syntax of your message\n" +
+                        //"and try again.");
+                    }
+                    catch (Exception e)
+                    {
+                        //PlatformUI.MIRTH_FRAME.alertException(e.getStackTrace(), e.getMessage());
+                        e.printStackTrace();
+                    }
+                }
+                if(xmlDoc != null)
+                {
+                    Terser terser = new Terser(message);
+                    version = message.getVersion();
+                    try
+                    {
+                        messageName = terser.get("/MSH-9-1") + "-" + terser.get("/MSH-9-2") + " (" + version + ")";
+                        messageDescription = HL7Reference.getInstance().getDescription(terser.get("/MSH-9-1") + terser.get("/MSH-9-2"), version);
+                    }
+                    catch (HL7Exception e)
+                    {
+                        // TODO Auto-generated catch block
+                        logger.error(e);
+                    }
+                }
+            }
+            else if(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.HL7V3).equals(messageType))
+            {
                 try
                 {
                     docBuilder = docFactory.newDocumentBuilder();
-                    String er7Message = new ER7Serializer().toXML(source);
-                    xmlDoc = docBuilder.parse(new InputSource(new StringReader(er7Message)));
-                    message = parser.parse(source);
-                }
-                catch (SerializerException e)
+                    xmlDoc = docBuilder.parse(new InputSource(new StringReader(source)));
+                } 
+                catch (Exception e)
                 {
-                    //PlatformUI.MIRTH_FRAME.alertWarning( "Encoding not supported.\n" +
-                    //"Please check the syntax of your message\n" +
-                    //"and try again.");
+                    //e.printStackTrace();
                 }
-                catch (EncodingNotSupportedException e)
+
+                if (xmlDoc != null)
                 {
-                    //PlatformUI.MIRTH_FRAME.alertWarning( "Encoding not supported.\n" +
-                    //"Please check the syntax of your message\n" +
-                    //                      "and try again.");
+                    version = "3.0";
+                    messageName = xmlDoc.getDocumentElement().getNodeName() + "-" + " (" + version + ")";
+                    messageDescription = "";
                 }
-                catch (HL7Exception e)
+            }
+            else if(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.X12).equals(messageType))
+            {
+                try
                 {
-                    //PlatformUI.MIRTH_FRAME.alertError( "HL7 Error!\n" +
-                    //		"Please check the syntax of your message\n" +
-                    //"and try again.");
+                    docBuilder = docFactory.newDocumentBuilder();
+                    String x12message = new X12Serializer().toXML(source);
+                    xmlDoc = docBuilder.parse(new InputSource(new StringReader(x12message)));
                 }
                 catch (Exception e)
                 {
-                    //PlatformUI.MIRTH_FRAME.alertException(e.getStackTrace(), e.getMessage());
-                    e.printStackTrace();
+                    // TODO Auto-generated catch block
+                    //e.printStackTrace();
+                }
+                if (xmlDoc != null)
+                {
+                    messageDescription = "";
+                    version = "";
+                    messageName = xmlDoc.getDocumentElement().getNodeName() + "-" + " (" + version + ")";
+                    messageDescription = "";//HL7Reference.getInstance().getDescription(terser.get("/MSH-9-1") + terser.get("/MSH-9-2"), version);
                 }
             }
-            if(xmlDoc != null)
+            else if(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.XML).equals(messageType))
             {
-                Terser terser = new Terser(message);
-                version = message.getVersion();
                 try
                 {
-                    messageName = terser.get("/MSH-9-1") + "-" + terser.get("/MSH-9-2") + " (" + version + ")";
-                    messageDescription = HL7Reference.getInstance().getDescription(terser.get("/MSH-9-1") + terser.get("/MSH-9-2"), version);
-                }
-                catch (HL7Exception e)
+                    docBuilder = docFactory.newDocumentBuilder();
+                    xmlDoc = docBuilder.parse(new InputSource(new StringReader(source)));
+                } 
+                catch (Exception e)
                 {
-                    // TODO Auto-generated catch block
-                    logger.error(e);
+                    //e.printStackTrace();
+                } 
+                if (xmlDoc != null)
+                {
+                    version = "";
+                    messageDescription = "";
+                    messageName = xmlDoc.getDocumentElement().getNodeName();
                 }
-            }
-        }
-        else if(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.HL7V3).equals(messageType))
-        {
-            try
-            {
-                docBuilder = docFactory.newDocumentBuilder();
-                xmlDoc = docBuilder.parse(new InputSource(new StringReader(source)));
-            } 
-            catch (Exception e)
-            {
-                e.printStackTrace();
             }
             
             if (xmlDoc != null)
-            {
-                version = "3.0";
-                messageName = xmlDoc.getDocumentElement().getNodeName() + "-" + " (" + version + ")";
-                messageDescription = "";
-            }
+                createTree(xmlDoc, messageName, messageDescription);
+            else
+                setInvalidMessage(messageType);
         }
-        else if(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.X12).equals(messageType))
-        {
-            try
-            {
-                docBuilder = docFactory.newDocumentBuilder();
-                String x12message = new X12Serializer().toXML(source);
-                xmlDoc = docBuilder.parse(new InputSource(new StringReader(x12message)));
-            }
-            catch (Exception e)
-            {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            if (xmlDoc != null)
-            {
-                messageDescription = "";
-                version = "";
-                messageName = xmlDoc.getDocumentElement().getNodeName() + "-" + " (" + version + ")";
-                messageDescription = "";//HL7Reference.getInstance().getDescription(terser.get("/MSH-9-1") + terser.get("/MSH-9-2"), version);
-            }
-        }
-        else if(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.XML).equals(messageType))
-        {
-            try
-            {
-                docBuilder = docFactory.newDocumentBuilder();
-                xmlDoc = docBuilder.parse(new InputSource(new StringReader(source)));
-            } 
-            catch (Exception e)
-            {
-                e.printStackTrace();
-            } 
-            if (xmlDoc != null)
-            {
-                version = "";
-                messageDescription = "";
-                messageName = xmlDoc.getDocumentElement().getNodeName();
-            }
-        }
-        
-        if(xmlDoc != null)
-            createTree(xmlDoc, messageName, messageDescription);
+        else
+            clearMessage();
     }
     
     /**
@@ -353,7 +360,6 @@ public class HL7XMLTreePanel extends JPanel
     
     public class TreeTransferHandler extends TransferHandler
     {
-        
         protected Transferable createTransferable( JComponent c )
         {
             if ( c != null )
@@ -391,16 +397,22 @@ public class HL7XMLTreePanel extends JPanel
             return false;
         }
     }
+    
     public void clearMessage()
     {
-        DefaultMutableTreeNode top = new DefaultMutableTreeNode("Paste an HL7 message to view HL7 message tree.");
+        DefaultMutableTreeNode top = new DefaultMutableTreeNode("Paste a sample message above to view the message tree.");
         JTree tree = new JTree(top);
         removeAll();
         add(tree);
         revalidate();
     }
     
-    
-    
-    
+    public void setInvalidMessage(String messageType)
+    {
+        DefaultMutableTreeNode top = new DefaultMutableTreeNode("The message pasted above does not appear to be valid " + messageType + ".");
+        JTree tree = new JTree(top);
+        removeAll();
+        add(tree);
+        revalidate();
+    }  
 }
