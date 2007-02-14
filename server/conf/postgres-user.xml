@@ -8,18 +8,18 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 	<parameterMap class="com.webreach.mirth.model.User" id="insert-user-param">
 		<parameter property="username" />
 		<parameter property="password" />
+		<parameter property="fullName" jdbcType="VARCHAR" />
 		<parameter property="email" jdbcType="VARCHAR" />
 		<parameter property="phoneNumber" jdbcType="VARCHAR" />
-		<parameter property="fullName" jdbcType="VARCHAR" />
 		<parameter property="description" jdbcType="VARCHAR" />
 	</parameterMap>
 
 	<parameterMap class="com.webreach.mirth.model.User" id="update-user-param">
 		<parameter property="username" />
 		<parameter property="password" />
+		<parameter property="fullName" jdbcType="VARCHAR" />
 		<parameter property="email" jdbcType="VARCHAR" />
 		<parameter property="phoneNumber" jdbcType="VARCHAR" />
-		<parameter property="fullName" jdbcType="VARCHAR" />
 		<parameter property="description" jdbcType="VARCHAR" />
 		<parameter property="id" jdbcType="INTEGER" />
 	</parameterMap>
@@ -28,9 +28,9 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		<result property="id" column="ID" jdbcType="INTEGER" />
 		<result property="username" column="USERNAME" />
 		<result property="password" column="PASSWORD" />
+		<result property="fullName" column="FULLNAME" />
 		<result property="email" column="EMAIL" />
 		<result property="phoneNumber" column="PHONENUMBER" />
-		<result property="fullName" column="FULLNAME" />
 		<result property="description" column="DESCRIPTION" />
 	</resultMap>
 
