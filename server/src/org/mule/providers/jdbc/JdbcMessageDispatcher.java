@@ -91,7 +91,7 @@ public class JdbcMessageDispatcher extends AbstractMessageDispatcher {
 		
 		try {
 			// execute the database script if selected
-			if (this.connector.useScript()) {
+			if (this.connector.isUseScript()) {
 				Context context = Context.enter();
 				Scriptable scope = new ImporterTopLevel(context);
 

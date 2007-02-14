@@ -240,8 +240,8 @@ public class JdbcConnector extends AbstractServiceEnabledConnector {
     public String getURL(){
     	return URL;
     }
-
-	public boolean useScript() {
+    
+	public boolean isUseScript() {
 		return this.useScript;
 	}
 
