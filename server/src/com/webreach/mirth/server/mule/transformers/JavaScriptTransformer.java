@@ -25,8 +25,6 @@
 
 package com.webreach.mirth.server.mule.transformers;
 
-import java.util.Calendar;
-
 import org.apache.log4j.Logger;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ImporterTopLevel;
@@ -42,10 +40,11 @@ import com.webreach.mirth.model.converters.ER7Serializer;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.controllers.ScriptController;
 import com.webreach.mirth.server.controllers.TemplateController;
+import com.webreach.mirth.server.mule.adaptors.Adaptor;
+import com.webreach.mirth.server.mule.adaptors.AdaptorFactory;
 import com.webreach.mirth.server.mule.util.CompiledScriptCache;
 import com.webreach.mirth.server.mule.util.GlobalVariableStore;
 import com.webreach.mirth.server.util.StackTracePrinter;
-import com.webreach.mirth.server.util.UUIDGenerator;
 
 public class JavaScriptTransformer extends AbstractTransformer {
 	private Logger logger = Logger.getLogger(this.getClass());
@@ -165,7 +164,14 @@ public class JavaScriptTransformer extends AbstractTransformer {
 
 	@Override
 	public Object doTransform(Object source) throws TransformerException {
-		MessageObject messageObject = initializeMessage((String) source);
+		MessageObject messageObject;
+		
+		try {
+			Adaptor adaptor = AdaptorFactory.getAdaptor(Protocol.valueOf(inboundProtocol));
+			messageObject = adaptor.getMessage((String) source, channelId, encryptData);	
+		} catch (Exception e) {
+			messageObject = null;
+		}
 
 		if (evaluateFilterScript(messageObject)) {
 			return evaluateTransformerScript(messageObject);
@@ -276,30 +282,6 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			throw new TransformerException(this, e);
 		} finally {
 			Context.exit();
-		}
-	}
-
-	private MessageObject initializeMessage(String source) {
-		// TODO: This is BAD BAD must fix
-		try {
-			MessageObject messageObject = null;
-			
-			if (inboundProtocol.equals(Protocol.HL7V2)) {
-				messageObject = (MessageObject) (new HL7ToMessageObject()).transform(source);
-			} else if (inboundProtocol.equals(Protocol.HL7V3)) {
-				messageObject = (MessageObject) (new HL7v3ToMessageObject()).transform(source);
-			} else {
-				messageObject = (MessageObject) (new XMLToMessageObject()).transform(source);
-			}
-			
-			messageObject.setId(UUIDGenerator.getUUID());
-			messageObject.setConnectorName(getConnectorName());
-			messageObject.setEncrypted(encryptData);
-			messageObject.setChannelId(channelId);
-			messageObject.setDateCreated(Calendar.getInstance());
-			return messageObject;
-		} catch (Exception e) {
-			return null;
 		}
 	}
 
