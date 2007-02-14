@@ -10,7 +10,7 @@ import com.webreach.mirth.server.util.StackTracePrinter;
 import com.webreach.mirth.server.util.UUIDGenerator;
 
 public abstract class Adaptor {
-	protected Logger logger = Logger.getLogger(this.getClass());
+	private Logger logger = Logger.getLogger(this.getClass());
 	protected MessageObject messageObject;
 	protected String source;
 	private MessageObjectController messageObjectController = new MessageObjectController();
