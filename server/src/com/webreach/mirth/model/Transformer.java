@@ -28,6 +28,7 @@ package com.webreach.mirth.model;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import com.webreach.mirth.model.MessageObject.Protocol;
 import com.webreach.mirth.util.EqualsUtil;
@@ -45,7 +46,9 @@ public class Transformer implements Serializable {
 	private String outboundTemplate;
 	private Protocol inboundProtocol;
 	private Protocol outboundProtocol;
-
+	private Properties inboundProperties;
+	private Properties outboundProperties;
+	
 	public Transformer() {
 		this.steps = new ArrayList<Step>();
 	}

@@ -29,6 +29,7 @@ package com.webreach.mirth.model;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import com.webreach.mirth.util.EqualsUtil;
 
@@ -41,18 +42,9 @@ import com.webreach.mirth.util.EqualsUtil;
  */
 public class Filter implements Serializable {
 	private List<Rule> rules;
-	private String template;
-
+	private Properties properties;
 	public Filter() {
 		this.rules = new ArrayList<Rule>();
-	}
-
-	public String getTemplate() {
-		return template;
-	}
-
-	public void setTemplate(String template) {
-		this.template = template;
 	}
 
 	public List<Rule> getRules() {
@@ -75,7 +67,6 @@ public class Filter implements Serializable {
 		Filter filter = (Filter) that;
 		
 		return
-			EqualsUtil.areEqual(this.getRules(), filter.getRules()) &&
-			EqualsUtil.areEqual(this.getTemplate(), filter.getTemplate());
+			EqualsUtil.areEqual(this.getRules(), filter.getRules());
 	}
 }
