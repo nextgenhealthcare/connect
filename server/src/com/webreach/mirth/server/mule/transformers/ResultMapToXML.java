@@ -23,11 +23,9 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
 package com.webreach.mirth.server.mule.transformers;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -67,43 +65,38 @@ public class ResultMapToXML extends AbstractTransformer {
 				Element child = document.createElement(key);
 				String value = new String();
 				Object objectValue = data.get(key);
-				if (objectValue != null){
-					if (objectValue instanceof byte[]){
-						value = new String((byte[])objectValue);
-					}else if (objectValue instanceof java.sql.Clob){
-						//convert it to a string
-						java.sql.Clob clobValue = (java.sql.Clob)objectValue;
+				if (objectValue != null) {
+					if (objectValue instanceof byte[]) {
+						value = new String((byte[]) objectValue);
+					} else if (objectValue instanceof java.sql.Clob) {
+						// convert it to a string
+						java.sql.Clob clobValue = (java.sql.Clob) objectValue;
 						Reader reader = clobValue.getCharacterStream();
-				        if (reader == null)
-				        {
-				            value = "";
-				        }
-				        StringBuffer sb = new StringBuffer();
-				        try
-				        {
-				            char[] charbuf = new char[(int)clobValue.length()];
-				            for (int i = reader.read(charbuf); i > 0; i = reader.read(charbuf))
-				            {
-				                sb.append(charbuf, 0, i);
-				            }
-				        }
-				        catch (IOException e)
-				        {
-				        	logger.error("Error reading clob value.\n" + StackTracePrinter.stackTraceToString(e));
-				           
-				        }
-				        value = sb.toString();
-					}else if (objectValue instanceof java.sql.Blob){
-						try{
-							java.sql.Blob blobValue = (java.sql.Blob)objectValue;
-							value = new String(blobValue.getBytes(1, (int)blobValue.length()));
-						}catch(Exception ex){
+						if (reader == null) {
+							value = "";
+						}
+						StringBuffer sb = new StringBuffer();
+						try {
+							char[] charbuf = new char[(int) clobValue.length()];
+							for (int i = reader.read(charbuf); i > 0; i = reader.read(charbuf)) {
+								sb.append(charbuf, 0, i);
+							}
+						} catch (IOException e) {
+							logger.error("Error reading clob value.\n" + StackTracePrinter.stackTraceToString(e));
+
+						}
+						value = sb.toString();
+					} else if (objectValue instanceof java.sql.Blob) {
+						try {
+							java.sql.Blob blobValue = (java.sql.Blob) objectValue;
+							value = new String(blobValue.getBytes(1, (int) blobValue.length()));
+						} catch (Exception ex) {
 							logger.error("Error reading blob value.\n" + StackTracePrinter.stackTraceToString(ex));
 						}
-					}else{
+					} else {
 						value = objectValue.toString();
 					}
-				
+
 				}
 				child.appendChild(document.createTextNode(value));
 				root.appendChild(child);
