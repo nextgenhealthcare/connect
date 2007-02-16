@@ -8,6 +8,7 @@ package com.webreach.mirth.client.ui.editors;
 import com.webreach.mirth.client.ui.TreePanel;
 import com.webreach.mirth.client.ui.PlatformUI;
 import com.webreach.mirth.client.ui.UIConstants;
+import com.webreach.mirth.client.ui.beans.EDIProperties;
 import com.webreach.mirth.client.ui.components.MirthComboBox;
 import com.webreach.mirth.model.MessageObject;
 import java.awt.event.ComponentEvent;
@@ -152,7 +153,10 @@ public class MessageTreeTemplate extends javax.swing.JPanel
     
     public void setDataProperties(Properties p)
     {
-        dataProperties = p;
+        if(p != null)
+            dataProperties = p;
+        else
+            dataProperties = new Properties();
     }
     
     public void resizePanes()
@@ -221,11 +225,11 @@ public class MessageTreeTemplate extends javax.swing.JPanel
                 .addContainerGap()
                 .add(jLabel1)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(dataType, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 100, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(dataType, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 70, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(properties)
-                .addContainerGap(101, Short.MAX_VALUE))
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, split, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 356, Short.MAX_VALUE)
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, split, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 235, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -242,12 +246,17 @@ public class MessageTreeTemplate extends javax.swing.JPanel
 
     private void propertiesActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_propertiesActionPerformed
     {//GEN-HEADEREND:event_propertiesActionPerformed
-        new DataTypeProperties(dataProperties);
+        new BoundPropertiesSheetDialog(dataProperties, new EDIProperties());
     }//GEN-LAST:event_propertiesActionPerformed
     
     private void dataTypeActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_dataTypeActionPerformed
     {//GEN-HEADEREND:event_dataTypeActionPerformed
         PlatformUI.MIRTH_FRAME.enableSave();
+        if(((String)dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.X12)))
+            properties.setEnabled(true);
+        else
+            properties.setEnabled(false);
+        dataProperties = new Properties();
     }//GEN-LAST:event_dataTypeActionPerformed
     
     private void pasteBoxFocusLost(java.awt.event.FocusEvent evt)//GEN-FIRST:event_pasteBoxFocusLost

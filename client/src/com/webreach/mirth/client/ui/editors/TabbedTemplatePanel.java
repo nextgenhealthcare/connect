@@ -98,7 +98,7 @@ public class TabbedTemplatePanel extends javax.swing.JPanel
     {
         outgoing.setProtocol(protocol);
     }
-    
+
     public String getIncomingDataType()
     {
         return incoming.getProtocol();
