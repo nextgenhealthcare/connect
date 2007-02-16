@@ -1783,9 +1783,9 @@ public class Frame extends JXFrame
     {
         try
         {
-        	statusUpdateComplete = false;
+            statusUpdateComplete = false;
             status = mirthClient.getChannelStatusList();
-            dashboardPanel.makeStatusTable();
+            dashboardPanel.updateTable();
             statusUpdateComplete = true;
             if(status.size() > 0)
                 setVisibleTasks(statusTasks, statusPopupMenu, 1, 1, true);

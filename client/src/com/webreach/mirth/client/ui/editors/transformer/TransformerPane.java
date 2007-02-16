@@ -119,12 +119,12 @@ public class TransformerPane extends MirthEditorPane
         prevSelRow = -1;
         connector = c;
         transformer = t;
-               
+        
         tabTemplatePanel.setDefaultComponent();
         tabTemplatePanel.tabPanel.add("Outgoing Data", tabTemplatePanel.outgoingTab);
-
+        
         channel = PlatformUI.MIRTH_FRAME.channelEditPanel.currentChannel;
-
+        
         makeTransformerTable();
         
         // add any existing steps to the model
@@ -154,27 +154,30 @@ public class TransformerPane extends MirthEditorPane
         
         if(connector.getMode() == Connector.Mode.SOURCE)
         {
-            tabTemplatePanel.incomingDataType.setSelectedItem((String)PlatformUI.MIRTH_FRAME.channelEditPanel.getSourceDatatype());
+            tabTemplatePanel.setIncomingDataType(PlatformUI.MIRTH_FRAME.channelEditPanel.getSourceDatatype());
         }
         else if(connector.getMode() == Connector.Mode.DESTINATION)
         {
             if(channel.getSourceConnector().getTransformer().getOutboundProtocol() != null)
-                tabTemplatePanel.incomingDataType.setSelectedItem((String)PlatformUI.MIRTH_FRAME.protocols.get(channel.getSourceConnector().getTransformer().getOutboundProtocol()));
+                tabTemplatePanel.setIncomingDataType((String)PlatformUI.MIRTH_FRAME.protocols.get(channel.getSourceConnector().getTransformer().getOutboundProtocol()));
             else
-                tabTemplatePanel.incomingDataType.setSelectedItem((String)PlatformUI.MIRTH_FRAME.channelEditPanel.getSourceDatatype());
+                tabTemplatePanel.setIncomingDataType(PlatformUI.MIRTH_FRAME.channelEditPanel.getSourceDatatype());
         }
         
         if(transformer.getOutboundProtocol() != null)
         {
-            tabTemplatePanel.outgoingDataType.setSelectedItem((String)PlatformUI.MIRTH_FRAME.protocols.get(transformer.getOutboundProtocol()));
+            tabTemplatePanel.setOutgoingDataType(((String)PlatformUI.MIRTH_FRAME.protocols.get(transformer.getOutboundProtocol())));
         }
         else
         {
-            tabTemplatePanel.outgoingDataType.setSelectedItem((String)tabTemplatePanel.incomingDataType.getSelectedItem());
+            tabTemplatePanel.setOutgoingDataType(tabTemplatePanel.getIncomingDataType());
         }
         
         tabTemplatePanel.setIncomingMessage(transformer.getInboundTemplate());
         tabTemplatePanel.setOutgoingMessage(transformer.getOutboundTemplate());
+        
+        tabTemplatePanel.setIncomingDataProperties(transformer.getInboundProperties());
+        tabTemplatePanel.setOutgoingDataProperties(transformer.getOutboundProperties());
         
         transformerTable.setBorder(BorderFactory.createEmptyBorder());
         transformerTaskPaneContainer.add(parent.getOtherPane());
@@ -295,9 +298,9 @@ public class TransformerPane extends MirthEditorPane
         transformerPopupMenu.add(exportTransformer);
         
         transformerTasks.add(initActionCallback("doValidate", ActionFactory
-        .createBoundAction("doValidate", "Validate JavaScript",
-        "V"), new ImageIcon(Frame.class
-        .getResource("images/accept.png"))));
+                .createBoundAction("doValidate", "Validate JavaScript",
+                "V"), new ImageIcon(Frame.class
+                .getResource("images/accept.png"))));
         JMenuItem validateStep = new JMenuItem("Validate JavaScript");
         validateStep.setIcon(new ImageIcon(Frame.class
                 .getResource("images/accept.png")));
@@ -513,7 +516,7 @@ public class TransformerPane extends MirthEditorPane
                 showTransformerPopupMenu(evt, false);
             }
         });
-       
+        
         transformerTable.getSelectionModel().addListSelectionListener(
                 new ListSelectionListener()
         {
@@ -525,25 +528,30 @@ public class TransformerPane extends MirthEditorPane
                 }
             }
         });
-        transformerTable.addKeyListener(new KeyListener(){
-
-			public void keyPressed(KeyEvent e) {
-				// TODO Auto-generated method stub
-				if (e.getKeyCode() == KeyEvent.VK_S && e.isControlDown()){
-					PlatformUI.MIRTH_FRAME.doSaveChanges();
-				}
-			}
-
-			public void keyReleased(KeyEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-
-			public void keyTyped(KeyEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-        	
+        transformerTable.addKeyListener(new KeyListener()
+        {
+            
+            public void keyPressed(KeyEvent e)
+            {
+                // TODO Auto-generated method stub
+                if (e.getKeyCode() == KeyEvent.VK_S && e.isControlDown())
+                {
+                    PlatformUI.MIRTH_FRAME.doSaveChanges();
+                }
+            }
+            
+            public void keyReleased(KeyEvent e)
+            {
+                // TODO Auto-generated method stub
+                
+            }
+            
+            public void keyTyped(KeyEvent e)
+            {
+                // TODO Auto-generated method stub
+                
+            }
+            
         });
     }
     
@@ -648,7 +656,7 @@ public class TransformerPane extends MirthEditorPane
         
         return unique;
     }
-        
+    
     // sets the data from the previously used panel into the
     // previously selected Step object
     private void saveData(int row)
@@ -669,30 +677,31 @@ public class TransformerPane extends MirthEditorPane
             {
                 data = mapperPanel.getData();
                 String var = data.get("Variable").toString();
-          
-                    if (var == null || var.equals("") || !isUnique(var, row, false))
-                    {
-                        invalidVar = true;
-                        String msg = "";
-                        
-                        transformerTable.setRowSelectionInterval(row, row);
-                        
-                        if (var == null || var.equals(""))
-                            msg = "The variable name cannot be blank.";
-                        else
-                            // var is not unique
-                            msg = "'" + data.get("Variable") + "'"
-                                    + " is not unique.";
-                        msg += "\nPlease enter a new variable name.\n";
-                        
-                        parent.alertWarning(msg);
-                    }
-                    else {
-                    	invalidVar = false;
-                    }
+                
+                if (var == null || var.equals("") || !isUnique(var, row, false))
+                {
+                    invalidVar = true;
+                    String msg = "";
+                    
+                    transformerTable.setRowSelectionInterval(row, row);
+                    
+                    if (var == null || var.equals(""))
+                        msg = "The variable name cannot be blank.";
+                    else
+                        // var is not unique
+                        msg = "'" + data.get("Variable") + "'"
+                                + " is not unique.";
+                    msg += "\nPlease enter a new variable name.\n";
+                    
+                    parent.alertWarning(msg);
+                }
+                else
+                {
+                    invalidVar = false;
+                }
                 data = mapperPanel.getData();
                 
-
+                
             }
             else if (type.equals(JAVASCRIPT_TYPE))
             {
@@ -820,7 +829,7 @@ public class TransformerPane extends MirthEditorPane
                 mapperPanel.setData(null);
                 jsPanel.setData(null);
             }
-            else 
+            else
             {
                 step.setType(MAPPER_TYPE); // mapper type by default, inbound
                 mapperPanel.setData(data);
@@ -828,7 +837,7 @@ public class TransformerPane extends MirthEditorPane
                 jsPanel.setData(null);
             }
             
-            step.setData(data);            
+            step.setData(data);
             setRowData(step, rowCount);
             prevSelRow = rowCount;
             updateStepNumbers();
@@ -958,17 +967,17 @@ public class TransformerPane extends MirthEditorPane
      */
     public void doValidate()
     {
-        try 
+        try
         {
             Context context = Context.enter();
             Script compiledFilterScript = context.compileString("function rhinoWrapper() {" + jsPanel.getJavaScript() + "}", null, 1, null);
             parent.alertInformation("JavaScript was successfully validated.");
-        } 
-        catch (EvaluatorException e) 
+        }
+        catch (EvaluatorException e)
         {
             parent.alertInformation("Error on line " + e.lineNumber() + ": " + e.getMessage() + ".");
-        } 
-        finally 
+        }
+        finally
         {
             Context.exit();
         }
@@ -1031,15 +1040,15 @@ public class TransformerPane extends MirthEditorPane
                     STEP_TYPE_COL));
             step.setData((Map) transformerTableModel.getValueAt(i,
                     STEP_DATA_COL));
-
+            
             HashMap map = (HashMap) step.getData();
             if (step.getType().equals(TransformerPane.MAPPER_TYPE))
             {
                 TreeMap regexes = (TreeMap) map.get("RegularExpressions");
-
+                
                 StringBuilder regexArray = new StringBuilder();
                 regexArray.append("new Array(");
-
+                
                 Iterator iter = regexes.keySet().iterator();
                 while (iter.hasNext())
                 {
@@ -1050,14 +1059,14 @@ public class TransformerPane extends MirthEditorPane
                     else
                         regexArray.append(",");
                 }
-
+                
                 StringBuilder script = new StringBuilder();
-
+                
                 if(map.get("isGlobal") != null && ((String)map.get("isGlobal")).equalsIgnoreCase(UIConstants.YES_OPTION))
                     script.append("globalMap.put(");
                 else
                     script.append("localMap.put(");
-
+                
                 script.append("'" + map.get("Variable") + "', ");
                 script.append( "validate(" + map.get("Mapping") + ", " + (String)map.get("DefaultValue") + ", " + regexArray.toString() + "));");
                 step.setScript(script.toString());
@@ -1069,10 +1078,10 @@ public class TransformerPane extends MirthEditorPane
             else if (step.getType().equals(TransformerPane.MESSAGE_TYPE))
             {
                 TreeMap regexes = (TreeMap) map.get("RegularExpressions");
-
+                
                 StringBuilder regexArray = new StringBuilder();
                 regexArray.append("new Array(");
-
+                
                 Iterator iter = regexes.keySet().iterator();
                 while (iter.hasNext())
                 {
@@ -1083,7 +1092,7 @@ public class TransformerPane extends MirthEditorPane
                     else
                         regexArray.append(",");
                 }
-
+                
                 StringBuilder script = new StringBuilder();
                 String variable = (String) map.get("Variable");
                 script.append(variable);
@@ -1091,7 +1100,7 @@ public class TransformerPane extends MirthEditorPane
                 script.append("validate(" +  (String) map.get("Mapping") + ", " + (String)map.get("DefaultValue") + ", " + regexArray.toString() + ");");
                 step.setScript(script.toString());
             }
-
+            
             list.add(step);
         }
         return list;
@@ -1118,11 +1127,11 @@ public class TransformerPane extends MirthEditorPane
             
             for(MessageObject.Protocol protocol : MessageObject.Protocol.values())
             {
-                if(PlatformUI.MIRTH_FRAME.protocols.get(protocol).equals((String)tabTemplatePanel.incomingDataType.getSelectedItem()))
+                if(PlatformUI.MIRTH_FRAME.protocols.get(protocol).equals(tabTemplatePanel.getIncomingDataType()))
                 {
                     transformer.setInboundProtocol(protocol);
                 }
-                else if(PlatformUI.MIRTH_FRAME.protocols.get(protocol).equals((String)tabTemplatePanel.outgoingDataType.getSelectedItem()))
+                if(PlatformUI.MIRTH_FRAME.protocols.get(protocol).equals(tabTemplatePanel.getOutgoingDataType()))
                 {
                     transformer.setOutboundProtocol(protocol);
                 }
@@ -1130,6 +1139,9 @@ public class TransformerPane extends MirthEditorPane
             
             transformer.setInboundTemplate(tabTemplatePanel.getIncomingMessage());
             transformer.setOutboundTemplate(tabTemplatePanel.getOutgoingMessage());
+            
+            transformer.setInboundProperties(tabTemplatePanel.getIncomingDataProperties());
+            transformer.setOutboundProperties(tabTemplatePanel.getOutgoingDataProperties());
             
             // reset the task pane and content to channel edit page
             if(returning)
@@ -1213,8 +1225,9 @@ public class TransformerPane extends MirthEditorPane
         parent.setVisibleTasks(transformerTasks, transformerPopupMenu, 2,3, true);
         String type = null;
         int selectedRow = getSelectedRow();
-        if (selectedRow > -1){
-        	type = (String) transformerTableModel.getValueAt(getSelectedRow(), STEP_TYPE_COL);
+        if (selectedRow > -1)
+        {
+            type = (String) transformerTableModel.getValueAt(getSelectedRow(), STEP_TYPE_COL);
         }
         if(type != null && type.equals(JAVASCRIPT_TYPE))
             parent.setVisibleTasks(transformerTasks, transformerPopupMenu, 4, 4, true);
@@ -1276,7 +1289,7 @@ public class TransformerPane extends MirthEditorPane
     // panels using CardLayout
     protected BasePanel stepPanel; // the card holder
     
-    protected BasePanel blankPanel; 
+    protected BasePanel blankPanel;
     
     protected MapperPanel mapperPanel;
     
@@ -1291,5 +1304,5 @@ public class TransformerPane extends MirthEditorPane
     
     private String[] transformerComboBoxValues = { MESSAGE_TYPE, MAPPER_TYPE,
     JAVASCRIPT_TYPE };
-   
+    
 }

@@ -42,7 +42,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.Document;
 
-/** 
+/**
  * Mirth's implementation of the JPasswordField.  Adds enabling of
  * the save button in parent.  Also adds a trigger button (right click)
  * editor menu with Cut, Copy, Paste, Delete, and Select All.
@@ -57,8 +57,9 @@ public class MirthPasswordField extends javax.swing.JPasswordField implements Mi
     private PasteAction pasteAction;
     private DeleteAction deleteAction;
     private SelectAllAction selectAllAction;
-    public boolean isVisible(){
-    	return visible;
+    public boolean isVisible()
+    {
+        return visible;
     }
     public MirthPasswordField()
     {
@@ -71,14 +72,14 @@ public class MirthPasswordField extends javax.swing.JPasswordField implements Mi
         deleteAction = new DeleteAction(this);
         selectAllAction = new SelectAllAction(this);
         
-        menu = new JPopupMenu(); 
-        menu.add(cutAction); 
-        menu.add(copyAction); 
-        menu.add(pasteAction); 
-        menu.add(deleteAction); 
+        menu = new JPopupMenu();
+        menu.add(cutAction);
+        menu.add(copyAction);
+        menu.add(pasteAction);
+        menu.add(deleteAction);
         menu.addSeparator();
         menu.add(selectAllAction);
-
+        
         this.addMouseListener(new java.awt.event.MouseAdapter()
         {
             public void mousePressed(java.awt.event.MouseEvent evt)
@@ -90,25 +91,30 @@ public class MirthPasswordField extends javax.swing.JPasswordField implements Mi
                 showPopupMenu(evt);
             }
         });
-        this.addKeyListener(new KeyListener(){
-
-			public void keyPressed(KeyEvent e) {
-				// TODO Auto-generated method stub
-				if (e.getKeyCode() == KeyEvent.VK_S && e.isControlDown()){
-					PlatformUI.MIRTH_FRAME.doSaveChanges();
-				}
-			}
-
-			public void keyReleased(KeyEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-
-			public void keyTyped(KeyEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-        	
+        this.addKeyListener(new KeyListener()
+        {
+            
+            public void keyPressed(KeyEvent e)
+            {
+                // TODO Auto-generated method stub
+                if (e.getKeyCode() == KeyEvent.VK_S && e.isControlDown())
+                {
+                    PlatformUI.MIRTH_FRAME.doSaveChanges();
+                }
+            }
+            
+            public void keyReleased(KeyEvent e)
+            {
+                // TODO Auto-generated method stub
+                
+            }
+            
+            public void keyTyped(KeyEvent e)
+            {
+                // TODO Auto-generated method stub
+                
+            }
+            
         });
         visible = true;
     }
@@ -138,13 +144,17 @@ public class MirthPasswordField extends javax.swing.JPasswordField implements Mi
     {
         super.setDocument(doc);
         
-        this.getDocument().addDocumentListener(new DocumentListener() {
-            public void changedUpdate(DocumentEvent e) {
+        this.getDocument().addDocumentListener(new DocumentListener()
+        {
+            public void changedUpdate(DocumentEvent e)
+            {
             }
-            public void removeUpdate(DocumentEvent e) {
+            public void removeUpdate(DocumentEvent e)
+            {
                 parent.enableSave();
             }
-            public void insertUpdate(DocumentEvent e) {
+            public void insertUpdate(DocumentEvent e)
+            {
                 parent.enableSave();
             }
         });

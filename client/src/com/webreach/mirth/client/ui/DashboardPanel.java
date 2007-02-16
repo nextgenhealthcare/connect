@@ -34,6 +34,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JScrollPane;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.table.DefaultTableModel;
 
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.AlternateRowHighlighter;
@@ -46,7 +47,7 @@ import com.webreach.mirth.model.ChannelStatus;
 /**
  * The main dashboard panel.
  */
-public class DashboardPanel extends javax.swing.JPanel 
+public class DashboardPanel extends javax.swing.JPanel
 {
     private final String STATUS_COLUMN_NAME = "Status";
     private final String NAME_COLUMN_NAME = "Name";
@@ -55,14 +56,13 @@ public class DashboardPanel extends javax.swing.JPanel
     private final String ERROR_COLUMN_NAME = "Errors";
     private final String REJECTED_COLUMN_NAME = "Rejected";
     public JXTable statusTable;
-     
+    
     private JScrollPane statusPane;
     private Frame parent;
-    private String lastIndex = null;
     
     /** Creates new form DashboardPanel */
-    public DashboardPanel() 
-    {  
+    public DashboardPanel()
+    {
         this.parent = PlatformUI.MIRTH_FRAME;
         initComponents();
         this.setDoubleBuffered(true);
@@ -77,8 +77,10 @@ public class DashboardPanel extends javax.swing.JPanel
         statusPane = new JScrollPane();
         statusPane.setDoubleBuffered(true);
         statusPane.setBorder(BorderFactory.createEmptyBorder());
+        statusTable = null; 
         makeStatusTable();
-        statusPane.addMouseListener(new java.awt.event.MouseAdapter() {
+        statusPane.addMouseListener(new java.awt.event.MouseAdapter()
+        {
             public void mousePressed(java.awt.event.MouseEvent evt)
             {
                 showStatusPopupMenu(evt, false);
@@ -97,93 +99,43 @@ public class DashboardPanel extends javax.swing.JPanel
         this.setLayout(layout);
         
         layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, statusPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-        );
+                .add(org.jdesktop.layout.GroupLayout.LEADING, statusPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                );
         layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                 .add(statusPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED))
-        );
+                );
     }
     
     /**
      * Makes the status table with all current server information.
      */
     public void makeStatusTable()
-    {
-    	Object[][] tableData = null;
+    {        
+        updateTable();
         
-        if(parent.status != null)
-        {
-            tableData = new Object[parent.status.size()][6];
-            for (int i=0; i < parent.status.size(); i++)
-            {
-                ChannelStatus tempStatus = parent.status.get(i); 
-                try
-                {
-                    ChannelStatistics tempStats = parent.mirthClient.getStatistics(tempStatus.getChannelId());
-                    tableData[i][2] = tempStats.getReceivedCount();
-                    tableData[i][3] = tempStats.getRejectedCount();
-                    tableData[i][4] = tempStats.getSentCount();
-                    tableData[i][5] = tempStats.getErrorCount();
-                } 
-                catch (ClientException ex)
-                {
-                    ex.printStackTrace();
-                }
-
-                if (tempStatus.getState() == ChannelStatus.State.STARTED)
-                    tableData[i][0] = new CellData(new ImageIcon(Frame.class.getResource("images/bullet_green.png")), "Started");
-                else if (tempStatus.getState() == ChannelStatus.State.STOPPED)
-                    tableData[i][0] = new CellData(new ImageIcon(Frame.class.getResource("images/bullet_red.png")), "Stopped");
-                else if (tempStatus.getState() == ChannelStatus.State.PAUSED)
-                    tableData[i][0] = new CellData(new ImageIcon(Frame.class.getResource("images/bullet_yellow.png")), "Paused");
-
-                tableData[i][1] = tempStatus.getName();
-
-            }
-            
-        }
-        if(statusTable != null && statusTable.getSelectedRow() != -1)
-            lastIndex = (String)statusTable.getValueAt(statusTable.getSelectedRow(), getColumnNumber(NAME_COLUMN_NAME));
-        else
-            lastIndex = null;
-        
-        statusTable = new JXTable();
         statusTable.setDoubleBuffered(true);
         statusTable.setBorder(BorderFactory.createEmptyBorder());
         
-        
-        statusTable.setModel(new javax.swing.table.DefaultTableModel(
-            tableData,
-            new String []
-            {
-                STATUS_COLUMN_NAME, NAME_COLUMN_NAME, RECEIVED_COLUMN_NAME, REJECTED_COLUMN_NAME, SENT_COLUMN_NAME, ERROR_COLUMN_NAME
-            }
-        )
-        {
-            boolean[] canEdit = new boolean []
-            {
-                false, false, false, false, false, false, false
-            };
-
-            public boolean isCellEditable(int rowIndex, int columnIndex)
-            {
-                return canEdit [columnIndex];
-            }
-        });
-        
-        statusTable.setSelectionMode(0);  
+        statusTable.setSelectionMode(0);
         
         statusTable.getColumnExt(STATUS_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
         statusTable.getColumnExt(RECEIVED_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
         statusTable.getColumnExt(SENT_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
         statusTable.getColumnExt(ERROR_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
         statusTable.getColumnExt(REJECTED_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
+        
+        statusTable.getColumnExt(STATUS_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
+        statusTable.getColumnExt(RECEIVED_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
+        statusTable.getColumnExt(SENT_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
+        statusTable.getColumnExt(ERROR_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
+        statusTable.getColumnExt(REJECTED_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
+        statusTable.getColumnExt(NAME_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
         
         statusTable.getColumnExt(STATUS_COLUMN_NAME).setCellRenderer(new ImageCellRenderer());
         statusTable.getColumnExt(RECEIVED_COLUMN_NAME).setCellRenderer(new CenterCellRenderer());
@@ -201,6 +153,8 @@ public class DashboardPanel extends javax.swing.JPanel
         statusTable.setRowHeight(UIConstants.ROW_HEIGHT);
         statusTable.setOpaque(true);
         statusTable.setRowSelectionAllowed(true);
+        
+        statusTable.setSortable(false);
         
         if(Preferences.systemNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
         {
@@ -234,16 +188,75 @@ public class DashboardPanel extends javax.swing.JPanel
                     parent.doShowMessages();
             }
         });
-         
-        if(lastIndex != null)
+    }
+
+    public void updateTable()
+    {
+        Object[][] tableData = null;
+        
+        if(parent.status != null)
         {
-            for(int i = 0; i < statusTable.getRowCount(); i++)
+            tableData = new Object[parent.status.size()][6];
+            for (int i=0; i < parent.status.size(); i++)
             {
-                if(lastIndex.equals((String)statusTable.getValueAt(i, getColumnNumber(NAME_COLUMN_NAME))))
-                    statusTable.setRowSelectionInterval(i,i);
+                ChannelStatus tempStatus = parent.status.get(i);
+                try
+                {
+                    ChannelStatistics tempStats = parent.mirthClient.getStatistics(tempStatus.getChannelId());
+                    tableData[i][2] = tempStats.getReceivedCount();
+                    tableData[i][3] = tempStats.getRejectedCount();
+                    tableData[i][4] = tempStats.getSentCount();
+                    tableData[i][5] = tempStats.getErrorCount();
+                }
+                catch (ClientException ex)
+                {
+                    ex.printStackTrace();
+                }
+                
+                if (tempStatus.getState() == ChannelStatus.State.STARTED)
+                    tableData[i][0] = new CellData(new ImageIcon(Frame.class.getResource("images/bullet_green.png")), "Started");
+                else if (tempStatus.getState() == ChannelStatus.State.STOPPED)
+                    tableData[i][0] = new CellData(new ImageIcon(Frame.class.getResource("images/bullet_red.png")), "Stopped");
+                else if (tempStatus.getState() == ChannelStatus.State.PAUSED)
+                    tableData[i][0] = new CellData(new ImageIcon(Frame.class.getResource("images/bullet_yellow.png")), "Paused");
+                
+                tableData[i][1] = tempStatus.getName();
+                
             }
+            
         }
-    }    
+        
+        int row = UIConstants.ERROR_CONSTANT;
+
+        if(statusTable != null)
+        {
+            row = statusTable.getSelectedRow();
+            RefreshTableModel model = (RefreshTableModel)statusTable.getModel();
+            model.refreshDataVector(tableData);
+        }
+        else
+        {
+            statusTable = new JXTable();
+            statusTable.setModel(new RefreshTableModel(tableData,new String []{STATUS_COLUMN_NAME, NAME_COLUMN_NAME, RECEIVED_COLUMN_NAME, REJECTED_COLUMN_NAME, SENT_COLUMN_NAME, ERROR_COLUMN_NAME})
+            {
+                boolean[] canEdit = new boolean []
+                {
+                    false, false, false, false, false, false, false
+                };
+
+                public boolean isCellEditable(int rowIndex, int columnIndex)
+                {
+                    return canEdit [columnIndex];
+                }
+            });
+        }
+        
+        if(row >= 0 && row < statusTable.getRowCount())
+        {
+            System.out.println(row);
+            statusTable.setRowSelectionInterval(row,row);
+        }
+    }
     
     /**
      * Shows the popup menu when the trigger button (right-click) has been pushed.
@@ -267,8 +280,8 @@ public class DashboardPanel extends javax.swing.JPanel
      * Action when something on the status list has been selected.
      * Sets all appropriate tasks visible.
      */
-    private void StatusListSelected(ListSelectionEvent evt) 
-    {           
+    private void StatusListSelected(ListSelectionEvent evt)
+    {
         int row = statusTable.getSelectedRow();
         if(row >= 0)
         {
@@ -277,21 +290,21 @@ public class DashboardPanel extends javax.swing.JPanel
             int columnNumber = getColumnNumber(STATUS_COLUMN_NAME);
             if (((CellData)statusTable.getValueAt(row, columnNumber)).getText().equals("Started"))
             {
-            	parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 4, 4, true);
+                parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 4, 4, true);
                 parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 5, 5, false);
                 parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 6, 6, true);
                 parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 7, 7, true);
             }
             else if (((CellData)statusTable.getValueAt(row, columnNumber)).getText().equals("Paused"))
             {
-            	parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 4, 4, true);
+                parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 4, 4, true);
                 parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 5, 5, true);
                 parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 6, 6, false);
                 parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 7, 7, true);
             }
             else
             {
-            	parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 4, 4, true);
+                parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 4, 4, true);
                 parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 5, 5, true);
                 parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 6, 6, false);
                 parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 7, 7, false);
@@ -308,7 +321,7 @@ public class DashboardPanel extends javax.swing.JPanel
         parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 3, -1, false);
     }
     
-    /** 
+    /**
      * Gets the index of the selected status row.
      */
     public synchronized int getSelectedStatus()

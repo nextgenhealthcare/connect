@@ -80,12 +80,8 @@ public class ChannelWriter extends ConnectorClass
         channelNameArray.add("None");
         for (Channel channel : parent.channels.values())
         {
-            if(channel.isEnabled())
-            {
-                channelList.put(channel.getName(), channel.getId());
-                channelNameArray.add(channel.getName());
-            }
-            
+            channelList.put(channel.getName(), channel.getId());
+            channelNameArray.add(channel.getName());
         }
         channelNames.setModel(new javax.swing.DefaultComboBoxModel(channelNameArray.toArray()));
         

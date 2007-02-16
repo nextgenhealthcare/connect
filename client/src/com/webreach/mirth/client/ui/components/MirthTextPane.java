@@ -52,147 +52,166 @@ import com.webreach.mirth.client.ui.actions.SelectAllAction;
  * parent. Also adds a trigger button (right click) editor menu with Cut, Copy,
  * Paste, Delete, and Select All.
  */
-public class MirthTextPane extends javax.swing.JTextPane implements MirthTextInterface {
-	private Frame parent;
-
-	private JPopupMenu menu;
-
-	private CutAction cutAction;
-
-	private CopyAction copyAction;
-
-	private PasteAction pasteAction;
-
-	private DeleteAction deleteAction;
-
-	private SelectAllAction selectAllAction;
-
-	public MirthTextPane() {
-		super();
-		this.parent = PlatformUI.MIRTH_FRAME;
-
-		cutAction = new CutAction(this);
-		copyAction = new CopyAction(this);
-		pasteAction = new PasteAction(this);
-		deleteAction = new DeleteAction(this);
-		selectAllAction = new SelectAllAction(this);
-
-		menu = new JPopupMenu();
-		menu.add(cutAction);
-		menu.add(copyAction);
-		menu.add(pasteAction);
-		menu.add(deleteAction);
-		menu.addSeparator();
-		menu.add(selectAllAction);
-		this.addKeyListener(new KeyListener(){
-
-			public void keyPressed(KeyEvent e) {
-				// TODO Auto-generated method stub
-				if (e.getKeyCode() == KeyEvent.VK_S && e.isControlDown()){
-					PlatformUI.MIRTH_FRAME.doSaveChanges();
-				}
-			}
-
-			public void keyReleased(KeyEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-
-			public void keyTyped(KeyEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-        	
+public class MirthTextPane extends javax.swing.JTextPane implements MirthTextInterface
+{
+    private Frame parent;
+    
+    private JPopupMenu menu;
+    
+    private CutAction cutAction;
+    
+    private CopyAction copyAction;
+    
+    private PasteAction pasteAction;
+    
+    private DeleteAction deleteAction;
+    
+    private SelectAllAction selectAllAction;
+    
+    public MirthTextPane()
+    {
+        super();
+        this.parent = PlatformUI.MIRTH_FRAME;
+        
+        cutAction = new CutAction(this);
+        copyAction = new CopyAction(this);
+        pasteAction = new PasteAction(this);
+        deleteAction = new DeleteAction(this);
+        selectAllAction = new SelectAllAction(this);
+        
+        menu = new JPopupMenu();
+        menu.add(cutAction);
+        menu.add(copyAction);
+        menu.add(pasteAction);
+        menu.add(deleteAction);
+        menu.addSeparator();
+        menu.add(selectAllAction);
+        this.addKeyListener(new KeyListener()
+        {
+            
+            public void keyPressed(KeyEvent e)
+            {
+                // TODO Auto-generated method stub
+                if (e.getKeyCode() == KeyEvent.VK_S && e.isControlDown())
+                {
+                    PlatformUI.MIRTH_FRAME.doSaveChanges();
+                }
+            }
+            
+            public void keyReleased(KeyEvent e)
+            {
+                // TODO Auto-generated method stub
+                
+            }
+            
+            public void keyTyped(KeyEvent e)
+            {
+                // TODO Auto-generated method stub
+                
+            }
+            
         });
-		this.addMouseListener(new java.awt.event.MouseAdapter() {
-			public void mousePressed(java.awt.event.MouseEvent evt) {
-				showPopupMenu(evt);
-			}
-
-			public void mouseReleased(java.awt.event.MouseEvent evt) {
-				showPopupMenu(evt);
-			}
-		});
-	}
-
-	/**
-	 * Shows the popup menu for the trigger button
-	 */
-	private void showPopupMenu(java.awt.event.MouseEvent evt) {
-		if (evt.isPopupTrigger()) {
-			menu.getComponent(0).setEnabled(cutAction.isEnabled());
-			menu.getComponent(1).setEnabled(copyAction.isEnabled());
-			menu.getComponent(2).setEnabled(pasteAction.isEnabled());
-			menu.getComponent(3).setEnabled(deleteAction.isEnabled());
-			menu.getComponent(5).setEnabled(selectAllAction.isEnabled());
-
-			menu.show(evt.getComponent(), evt.getX(), evt.getY());
-		}
-	}
-
-	/**
-	 * Overrides setDocument(Document doc) so that a document listener is added
-	 * to the current document to listen for changes.
-	 */
-	public void setDocument(Document doc) {
-		super.setDocument(doc);
-
-		this.getDocument().addDocumentListener(new DocumentListener() {
-			public void changedUpdate(DocumentEvent e) {
-			}
-
-			public void removeUpdate(DocumentEvent e) {
-				parent.enableSave();
-			}
-
-			public void insertUpdate(DocumentEvent e) {
-				parent.enableSave();
-			}
-		});
-	}
-
-	/**
-	 * Overrides setText(String t) so that the save button is disabled when
-	 * Mirth sets the text of a field.
-	 */
-	public void setText(String t) {
-		super.setText(t);
-		parent.disableSave();
-	}
-
-	public String getText() {
-		
-		return super.getText();
-		/*
-		StringBuffer sb = new StringBuffer();
-		// Get paragraph element
-		Element paragraph = getDocument().getDefaultRootElement();
-
-		// Get number of content elements
-		int contentCount = paragraph.getElementCount();
-
-		// Get index ranges for each content element.
-		// Each content element represents one line.
-		// Each line includes the terminating newline.
-		for (int i = 0; i < contentCount; i++) {
-			Element e = paragraph.getElement(i);
-			int rangeStart = e.getStartOffset();
-			int rangeEnd = e.getEndOffset();
-			try {
-				String text = getText(rangeStart, rangeEnd - rangeStart);
-				sb.append(text.replaceAll("\\n", ""));
-				sb.append("\r");
-				
-			} catch (BadLocationException ex) {
-			}
-
-		}
-		String retval = sb.toString();
-		if (retval.length() > 0) {
-			retval = retval.substring(0, retval.length() -1);
-		}
-		return retval;
-*/
-	}
-
+        this.addMouseListener(new java.awt.event.MouseAdapter()
+        {
+            public void mousePressed(java.awt.event.MouseEvent evt)
+            {
+                showPopupMenu(evt);
+            }
+            
+            public void mouseReleased(java.awt.event.MouseEvent evt)
+            {
+                showPopupMenu(evt);
+            }
+        });
+    }
+    
+    /**
+     * Shows the popup menu for the trigger button
+     */
+    private void showPopupMenu(java.awt.event.MouseEvent evt)
+    {
+        if (evt.isPopupTrigger())
+        {
+            menu.getComponent(0).setEnabled(cutAction.isEnabled());
+            menu.getComponent(1).setEnabled(copyAction.isEnabled());
+            menu.getComponent(2).setEnabled(pasteAction.isEnabled());
+            menu.getComponent(3).setEnabled(deleteAction.isEnabled());
+            menu.getComponent(5).setEnabled(selectAllAction.isEnabled());
+            
+            menu.show(evt.getComponent(), evt.getX(), evt.getY());
+        }
+    }
+    
+    /**
+     * Overrides setDocument(Document doc) so that a document listener is added
+     * to the current document to listen for changes.
+     */
+    public void setDocument(Document doc)
+    {
+        super.setDocument(doc);
+        
+        this.getDocument().addDocumentListener(new DocumentListener()
+        {
+            public void changedUpdate(DocumentEvent e)
+            {
+            }
+            
+            public void removeUpdate(DocumentEvent e)
+            {
+                parent.enableSave();
+            }
+            
+            public void insertUpdate(DocumentEvent e)
+            {
+                parent.enableSave();
+            }
+        });
+    }
+    
+    /**
+     * Overrides setText(String t) so that the save button is disabled when
+     * Mirth sets the text of a field.
+     */
+    public void setText(String t)
+    {
+        super.setText(t);
+        parent.disableSave();
+    }
+    
+    public String getText()
+    {
+        
+        return super.getText();
+                /*
+                StringBuffer sb = new StringBuffer();
+                // Get paragraph element
+                Element paragraph = getDocument().getDefaultRootElement();
+                 
+                // Get number of content elements
+                int contentCount = paragraph.getElementCount();
+                 
+                // Get index ranges for each content element.
+                // Each content element represents one line.
+                // Each line includes the terminating newline.
+                for (int i = 0; i < contentCount; i++) {
+                        Element e = paragraph.getElement(i);
+                        int rangeStart = e.getStartOffset();
+                        int rangeEnd = e.getEndOffset();
+                        try {
+                                String text = getText(rangeStart, rangeEnd - rangeStart);
+                                sb.append(text.replaceAll("\\n", ""));
+                                sb.append("\r");
+                 
+                        } catch (BadLocationException ex) {
+                        }
+                 
+                }
+                String retval = sb.toString();
+                if (retval.length() > 0) {
+                        retval = retval.substring(0, retval.length() -1);
+                }
+                return retval;
+                 */
+    }
+    
 }

@@ -55,6 +55,7 @@ public class UIConstants
     public static final int ROW_HEIGHT = 20;
     public static final int COL_MARGIN = 10;
     public static final Color GRID_COLOR = new Color(224,224,224);
+    public static final int MIN_WIDTH = 75;
     public static final int MAX_WIDTH = 200;
     public static final Color HIGHLIGHTER_COLOR = new Color(240,240,240);
 
@@ -85,7 +86,7 @@ public class UIConstants
     public static final String MESSAGE_BROWSER_HELP_LOCATION = "messagebrowser";
     public static final String SYSTEM_EVENT_HELP_LOCATION = "systemevents";
     public static final String CONFIGURATION_HELP_LOCATION = "administration";
-
+    
     // for JTrees
     public static final ImageIcon LEAF_ICON = new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_green.png"));
     public static final ImageIcon OPEN_ICON = new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_yellow.png"));
@@ -103,4 +104,8 @@ public class UIConstants
     public static final String UTF16BOM_OPTION = "UTF-16";
     public static final String LATIN1_OPTION = "ISO-8859-1";
     public static final String USASCII_OPTION = "US-ASCII";
+    
+    // for incoming / outgoing
+    public static final String INCOMING_DATA = "Incoming";
+    public static final String OUTGOING_DATA = "Outgoing";
 }

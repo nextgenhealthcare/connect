@@ -27,8 +27,8 @@
 package com.webreach.mirth.client.ui.components;
 import javax.swing.text.*;
 
-/** 
- * Document that can be set with certain field constraints. 
+/**
+ * Document that can be set with certain field constraints.
  */
 public class MirthFieldConstraints extends PlainDocument
 {
@@ -36,7 +36,7 @@ public class MirthFieldConstraints extends PlainDocument
     // optional uppercase conversion
     private boolean toUppercase = false;
     private boolean numbersOnly = false;
-
+    
     /**
      * Constructor that sets a character number limit.
      * Set limit to 0 for no limit.
@@ -58,7 +58,7 @@ public class MirthFieldConstraints extends PlainDocument
         this.toUppercase = toUppercase;
         this.numbersOnly = numbersOnly;
     }
-
+    
     /**
      * Overwritten insertString method to check if the string should
      * actually be inserted based on the constraints.

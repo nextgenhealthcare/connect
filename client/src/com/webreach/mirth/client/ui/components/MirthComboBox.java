@@ -32,41 +32,50 @@ import java.awt.event.KeyListener;
 import com.webreach.mirth.client.ui.Frame;
 import com.webreach.mirth.client.ui.PlatformUI;
 
-/** 
+/**
  * Mirth's implementation of the JComboBox.  Adds enabling of
  * the save button in parent.
  */
-public class MirthComboBox extends javax.swing.JComboBox {
+public class MirthComboBox extends javax.swing.JComboBox
+{
     private Frame parent;
-
-    public MirthComboBox() {
+    
+    public MirthComboBox()
+    {
         super();
         this.setFocusable(false);
         this.parent = PlatformUI.MIRTH_FRAME;
-        this.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        this.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
                 comboBoxChanged(evt);
             }
         });
-        this.addKeyListener(new KeyListener(){
-
-			public void keyPressed(KeyEvent e) {
-				// TODO Auto-generated method stub
-				if (e.getKeyCode() == KeyEvent.VK_S && e.isControlDown()){
-					PlatformUI.MIRTH_FRAME.doSaveChanges();
-				}
-			}
-
-			public void keyReleased(KeyEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-
-			public void keyTyped(KeyEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-        	
+        this.addKeyListener(new KeyListener()
+        {
+            
+            public void keyPressed(KeyEvent e)
+            {
+                // TODO Auto-generated method stub
+                if (e.getKeyCode() == KeyEvent.VK_S && e.isControlDown())
+                {
+                    PlatformUI.MIRTH_FRAME.doSaveChanges();
+                }
+            }
+            
+            public void keyReleased(KeyEvent e)
+            {
+                // TODO Auto-generated method stub
+                
+            }
+            
+            public void keyTyped(KeyEvent e)
+            {
+                // TODO Auto-generated method stub
+                
+            }
+            
         });
     }
     

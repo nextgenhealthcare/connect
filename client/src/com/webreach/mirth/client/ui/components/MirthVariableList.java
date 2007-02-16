@@ -28,9 +28,7 @@ package com.webreach.mirth.client.ui.components;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-
 import org.jdesktop.swingx.JXList;
-
 import com.webreach.mirth.client.ui.PlatformUI;
 import com.webreach.mirth.client.ui.VariableListHandler;
 
@@ -38,7 +36,8 @@ import com.webreach.mirth.client.ui.VariableListHandler;
  * An implementation of JXList that has mouse rollover
  * selection implemented.
  */
-public class MirthVariableList extends JXList {
+public class MirthVariableList extends JXList
+{
     
     /**
      * Creates a new instance of MirthVariableList
@@ -49,55 +48,64 @@ public class MirthVariableList extends JXList {
         this.setDragEnabled(true);
         this.setTransferHandler(new VariableListHandler("${", "}"));
         this.setFocusable(false);
-        this.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
-            public void mouseMoved(java.awt.event.MouseEvent evt) {
+        this.addMouseMotionListener(new java.awt.event.MouseMotionAdapter()
+        {
+            public void mouseMoved(java.awt.event.MouseEvent evt)
+            {
                 mirthListMouseMoved(evt);
             }
         });
-        this.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseExited(java.awt.event.MouseEvent evt) {
+        this.addMouseListener(new java.awt.event.MouseAdapter()
+        {
+            public void mouseExited(java.awt.event.MouseEvent evt)
+            {
                 mirthListMouseExited(evt);
             }
         });
-        this.addKeyListener(new KeyListener(){
-
-			public void keyPressed(KeyEvent e) {
-				// TODO Auto-generated method stub
-				if (e.getKeyCode() == KeyEvent.VK_S && e.isControlDown()){
-					PlatformUI.MIRTH_FRAME.doSaveChanges();
-				}
-			}
-
-			public void keyReleased(KeyEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-
-			public void keyTyped(KeyEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-        	
+        this.addKeyListener(new KeyListener()
+        {
+            
+            public void keyPressed(KeyEvent e)
+            {
+                // TODO Auto-generated method stub
+                if (e.getKeyCode() == KeyEvent.VK_S && e.isControlDown())
+                {
+                    PlatformUI.MIRTH_FRAME.doSaveChanges();
+                }
+            }
+            
+            public void keyReleased(KeyEvent e)
+            {
+                // TODO Auto-generated method stub
+                
+            }
+            
+            public void keyTyped(KeyEvent e)
+            {
+                // TODO Auto-generated method stub
+                
+            }
+            
         });
     }
     
     /**
      * When leaving the variable list, the selection is cleared.
      */
-    private void mirthListMouseExited(java.awt.event.MouseEvent evt) {
+    private void mirthListMouseExited(java.awt.event.MouseEvent evt)
+    {
         this.clearSelection();
     }
-
+    
     /**
      * When moving on the variable list, set the selection to whatever
      * the mouse is over.
      */
-    private void mirthListMouseMoved(java.awt.event.MouseEvent evt) {
+    private void mirthListMouseMoved(java.awt.event.MouseEvent evt)
+    {
         int index = this.locationToIndex(evt.getPoint());
         
         if (index != -1)
             this.setSelectedIndex(index);
-    }
-    
-    
+    }   
 }

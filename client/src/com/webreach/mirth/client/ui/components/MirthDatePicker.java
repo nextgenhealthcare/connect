@@ -33,11 +33,12 @@ import org.jdesktop.swingx.JXDatePicker;
 import com.webreach.mirth.client.ui.Frame;
 import com.webreach.mirth.client.ui.UIConstants;
 
-/** 
- * Mirth's implementation of the JXDatePicker.  Sets the format, 
+/**
+ * Mirth's implementation of the JXDatePicker.  Sets the format,
  * editor font, and button image.
  */
-public class MirthDatePicker extends JXDatePicker {
+public class MirthDatePicker extends JXDatePicker
+{
     
     /**
      * Creates a new instance of MirthDatePicker
@@ -51,5 +52,5 @@ public class MirthDatePicker extends JXDatePicker {
         UIManager.put("JXDatePicker.arrowDown.image", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/calendar_view_month.png")));
         // must call updateUI() so that the first mirthDatePicker uses this button image.
         updateUI();
-    }    
+    }
 }

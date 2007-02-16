@@ -508,8 +508,9 @@ public class MessageBrowser extends javax.swing.JPanel
             if (onTable)
             {
                 int row = eventTable.rowAtPoint(new Point(evt.getX(), evt.getY()));
-                if (row > -1){
-                	eventTable.setRowSelectionInterval(row, row);
+                if (row > -1)
+                {
+                    eventTable.setRowSelectionInterval(row, row);
                 }
             }
             else
@@ -525,9 +526,10 @@ public class MessageBrowser extends javax.swing.JPanel
     {
         parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 4, -1, false);
         parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 5, 5, true);
-        if (eventTable != null){
-        	eventTable.clearSelection();
-        	clearDescription();
+        if (eventTable != null)
+        {
+            eventTable.clearSelection();
+            clearDescription();
         }
     }
     
@@ -554,10 +556,10 @@ public class MessageBrowser extends javax.swing.JPanel
     {
         if (!evt.getValueIsAdjusting())
         {
-        	int row = -1;
-        	if (eventTable.getSelectedRow() > -1)
+            int row = -1;
+            if (eventTable.getSelectedRow() > -1)
             {
-        		row = eventTable.convertRowIndexToModel(eventTable.getSelectedRow());
+                row = eventTable.convertRowIndexToModel(eventTable.getSelectedRow());
             }
             
             if(row >= 0)

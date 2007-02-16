@@ -267,13 +267,13 @@ public class ChannelSetup extends javax.swing.JPanel
         
         if (channelView.getSelectedIndex() == SOURCE_TAB_INDEX)
         {
-            filterPane.load(currentChannel.getSourceConnector(), currentChannel.getSourceConnector().getFilter(), changed);
+            filterPane.load(currentChannel.getSourceConnector(), currentChannel.getSourceConnector().getFilter(), currentChannel.getSourceConnector().getTransformer(), changed);
         }
         
         else if (channelView.getSelectedIndex() == DESTINATIONS_TAB_INDEX)
         {
-            int destination = getDestinationConnectorIndex((String) destinationTable.getValueAt(getSelectedDestinationIndex(), getColumnNumber(DESTINATION_COLUMN_NAME)));
-            filterPane.load(currentChannel.getDestinationConnectors().get(destination), currentChannel.getDestinationConnectors().get(destination).getFilter(), changed);
+            Connector destination = currentChannel.getDestinationConnectors().get(getDestinationConnectorIndex((String) destinationTable.getValueAt(getSelectedDestinationIndex(), getColumnNumber(DESTINATION_COLUMN_NAME))));
+            filterPane.load(destination, destination.getFilter(), destination.getTransformer(), changed);
         }
     }
     
@@ -843,14 +843,14 @@ public class ChannelSetup extends javax.swing.JPanel
         {
             Transformer destinationTransformer = c.getTransformer();
             
-            if(destinationTransformer.getInboundTemplate() == null)
+            if(destinationTransformer.getInboundProtocol() == null)
             {
-                destinationTransformer.setInboundTemplate(sourceTransformer.getOutboundTemplate());               
+                destinationTransformer.setInboundProtocol(sourceTransformer.getOutboundProtocol());               
             }
             
-            if(destinationTransformer.getOutboundTemplate() == null)
+            if(destinationTransformer.getOutboundProtocol() == null)
             {
-                destinationTransformer.setOutboundTemplate(destinationTransformer.getInboundTemplate());               
+                destinationTransformer.setOutboundProtocol(destinationTransformer.getInboundProtocol());               
             }
         }
         

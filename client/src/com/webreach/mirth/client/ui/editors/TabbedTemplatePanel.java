@@ -12,6 +12,7 @@ import com.webreach.mirth.client.ui.FunctionListItem;
 import com.webreach.mirth.client.ui.TreePanel;
 import com.webreach.mirth.client.ui.PlatformUI;
 import com.webreach.mirth.client.ui.ReferenceTableHandler;
+import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.client.ui.VariableListHandler;
 import com.webreach.mirth.client.ui.components.MirthSyntaxTextArea;
 import com.webreach.mirth.client.ui.util.SQLParserUtil;
@@ -22,6 +23,7 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import org.syntax.jedit.SyntaxDocument;
@@ -53,10 +55,6 @@ public class TabbedTemplatePanel extends javax.swing.JPanel
         variableTable.setDragEnabled(true);
         variableTable.setTransferHandler(new VariableListHandler("$(", ")"));
         variableListScrollPane.setViewportView(variableTable);
-        incomingDataType.setModel(new javax.swing.DefaultComboBoxModel(PlatformUI.MIRTH_FRAME.protocols.values().toArray()));
-        outgoingDataType.setModel(new javax.swing.DefaultComboBoxModel(PlatformUI.MIRTH_FRAME.protocols.values().toArray()));
-        incoming.setTreePanel("msg", ".toString()");
-        outgoing.setTreePanel("tmp", "");
     }
       
     public void resizePanes()
@@ -91,6 +89,46 @@ public class TabbedTemplatePanel extends javax.swing.JPanel
         outgoing.setMessage(msg);
     }
     
+    public void setIncomingDataType(String protocol)
+    {
+        incoming.setProtocol(protocol);
+    }
+    
+    public void setOutgoingDataType(String protocol)
+    {
+        outgoing.setProtocol(protocol);
+    }
+    
+    public String getIncomingDataType()
+    {
+        return incoming.getProtocol();
+    }
+    
+    public String getOutgoingDataType()
+    {
+        return outgoing.getProtocol();
+    }
+    
+    public void setIncomingDataProperties(Properties properties)
+    {
+        incoming.setDataProperties(properties);
+    }
+    
+    public void setOutgoingDataProperties(Properties properties)
+    {
+        outgoing.setDataProperties(properties);
+    }
+    
+    public Properties getIncomingDataProperties()
+    {
+        return incoming.getDataProperties();
+    }
+    
+    public Properties getOutgoingDataProperties()
+    {
+        return outgoing.getDataProperties();
+    }
+    
     public void setDefaultComponent()
     {
         tabPanel.setSelectedIndex(0);
@@ -112,13 +150,9 @@ public class TabbedTemplatePanel extends javax.swing.JPanel
         variableListScrollPane = new javax.swing.JScrollPane();
         variableTable = new com.webreach.mirth.client.ui.editors.VariableReferenceTable();
         incomingTab = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
-        incomingDataType = new javax.swing.JComboBox();
-        incoming = new MessageTreeTemplate(incomingDataType);
+        incoming = new MessageTreeTemplate(UIConstants.INCOMING_DATA);
         outgoingTab = new javax.swing.JPanel();
-        jLabel4 = new javax.swing.JLabel();
-        outgoingDataType = new javax.swing.JComboBox();
-        outgoing = new MessageTreeTemplate(outgoingDataType);
+        outgoing = new MessageTreeTemplate(UIConstants.OUTGOING_DATA);
 
         variableSplitPane.setDividerLocation(84);
         variableSplitPane.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
@@ -169,75 +203,30 @@ public class TabbedTemplatePanel extends javax.swing.JPanel
         tabPanel.addTab("Reference", variableTab);
 
         incomingTab.setBackground(new java.awt.Color(255, 255, 255));
-        jLabel1.setText("Data Type:");
-
-        incomingDataType.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-        incomingDataType.setEnabled(false);
-        incomingDataType.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
-                incomingDataTypeActionPerformed(evt);
-            }
-        });
 
         org.jdesktop.layout.GroupLayout incomingTabLayout = new org.jdesktop.layout.GroupLayout(incomingTab);
         incomingTab.setLayout(incomingTabLayout);
         incomingTabLayout.setHorizontalGroup(
             incomingTabLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(incomingTabLayout.createSequentialGroup()
-                .addContainerGap()
-                .add(jLabel1)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(incomingDataType, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 100, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(239, Short.MAX_VALUE))
             .add(incoming, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 407, Short.MAX_VALUE)
         );
         incomingTabLayout.setVerticalGroup(
             incomingTabLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(incomingTabLayout.createSequentialGroup()
-                .addContainerGap()
-                .add(incomingTabLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel1)
-                    .add(incomingDataType, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(incoming, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 486, Short.MAX_VALUE))
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, incoming, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 525, Short.MAX_VALUE)
         );
         tabPanel.addTab("Incoming Data", incomingTab);
 
         outgoingTab.setBackground(new java.awt.Color(255, 255, 255));
-        jLabel4.setText("Data Type:");
-
-        outgoingDataType.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-        outgoingDataType.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
-                outgoingDataTypeActionPerformed(evt);
-            }
-        });
 
         org.jdesktop.layout.GroupLayout outgoingTabLayout = new org.jdesktop.layout.GroupLayout(outgoingTab);
         outgoingTab.setLayout(outgoingTabLayout);
         outgoingTabLayout.setHorizontalGroup(
             outgoingTabLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(outgoingTabLayout.createSequentialGroup()
-                .addContainerGap()
-                .add(jLabel4)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(outgoingDataType, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 100, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(239, Short.MAX_VALUE))
             .add(outgoing, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 407, Short.MAX_VALUE)
         );
         outgoingTabLayout.setVerticalGroup(
             outgoingTabLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(outgoingTabLayout.createSequentialGroup()
-                .addContainerGap()
-                .add(outgoingTabLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel4)
-                    .add(outgoingDataType, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(outgoing, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 486, Short.MAX_VALUE))
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, outgoing, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 525, Short.MAX_VALUE)
         );
         tabPanel.addTab("Outgoing Data", outgoingTab);
 
@@ -252,28 +241,12 @@ public class TabbedTemplatePanel extends javax.swing.JPanel
             .add(tabPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 553, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
-
-    private void outgoingDataTypeActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_outgoingDataTypeActionPerformed
-    {//GEN-HEADEREND:event_outgoingDataTypeActionPerformed
-        parent.modified = true;
-        outgoing.clearMessage();
-    }//GEN-LAST:event_outgoingDataTypeActionPerformed
-
-    private void incomingDataTypeActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_incomingDataTypeActionPerformed
-    {//GEN-HEADEREND:event_incomingDataTypeActionPerformed
-        parent.modified = true;
-        incoming.clearMessage();
-    }//GEN-LAST:event_incomingDataTypeActionPerformed
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.webreach.mirth.client.ui.editors.MessageTreeTemplate incoming;
-    public javax.swing.JComboBox incomingDataType;
     public javax.swing.JPanel incomingTab;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel4;
     private com.webreach.mirth.client.ui.editors.MessageTreeTemplate outgoing;
-    public javax.swing.JComboBox outgoingDataType;
     public javax.swing.JPanel outgoingTab;
     public javax.swing.JTabbedPane tabPanel;
     private javax.swing.JScrollPane variableListScrollPane;

@@ -85,7 +85,7 @@ public class MessageObjectHtmlSerializer
         results+="<td>" + String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS",message.getDateCreated()) + "</td>";
         results+="<td>" + message.getConnectorName() + "</td>";
         results+="<td>" + message.getStatus().name() + "</td>";
-      
+        
         results+="</tr>";
         return results;
     }

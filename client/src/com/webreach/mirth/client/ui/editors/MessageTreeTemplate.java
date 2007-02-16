@@ -7,6 +7,7 @@
 package com.webreach.mirth.client.ui.editors;
 import com.webreach.mirth.client.ui.TreePanel;
 import com.webreach.mirth.client.ui.PlatformUI;
+import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.client.ui.components.MirthComboBox;
 import com.webreach.mirth.model.MessageObject;
 import java.awt.event.ComponentEvent;
@@ -15,11 +16,10 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.Properties;
 import javax.swing.JComboBox;
-
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-
 import org.syntax.jedit.SyntaxDocument;
 import org.syntax.jedit.tokenmarker.HL7TokenMarker;
 
@@ -34,26 +34,44 @@ public class MessageTreeTemplate extends javax.swing.JPanel
     private SyntaxDocument HL7Doc;
     private TreePanel treePanel;
     private String currentMessage = "";
-    private JComboBox data;
+    private String data;
+    private Properties dataProperties;
+    
     /** Creates new form MessageTreeTemplate */
     public MessageTreeTemplate()
     {
         
     }
     
-    public MessageTreeTemplate(JComboBox dataType)
+    public MessageTreeTemplate(String data)
     {
-        data = dataType;
+        this.data = data;
+        this.dataProperties = dataProperties;
         
         initComponents();
+        
         try
         {
             resizePanes();
         }
         catch (Exception e)
         {
-          
+            
         }
+        
+        if (data.equals(UIConstants.INCOMING_DATA))
+        {
+            dataType.setEnabled(false);
+            setTreePanel("msg", ".toString()");
+        }
+        else if (data.equals(UIConstants.OUTGOING_DATA))
+        {
+            dataType.setEnabled(true);
+            setTreePanel("tmp", "");
+        }
+        
+        dataType.setModel(new javax.swing.DefaultComboBoxModel(PlatformUI.MIRTH_FRAME.protocols.values().toArray()));
+        
         HL7Doc = new SyntaxDocument();
         HL7Doc.setTokenMarker(new HL7TokenMarker());
         pasteBox.setDocument(HL7Doc);
@@ -62,15 +80,18 @@ public class MessageTreeTemplate extends javax.swing.JPanel
         //handles updating the tree
         pasteBox.getDocument().addDocumentListener(new DocumentListener()
         {
-            public void changedUpdate(DocumentEvent e) {
+            public void changedUpdate(DocumentEvent e)
+            {
                 updateText();
             }
-
-            public void insertUpdate(DocumentEvent e) {
+            
+            public void insertUpdate(DocumentEvent e)
+            {
                 updateText();
             }
-
-            public void removeUpdate(DocumentEvent e) {
+            
+            public void removeUpdate(DocumentEvent e)
+            {
                 updateText();
             }
         });
@@ -79,7 +100,7 @@ public class MessageTreeTemplate extends javax.swing.JPanel
     private void updateText()
     {
         String message = pasteBox.getText();
-        treePanel.setMessage((String)data.getSelectedItem(), message, DEFAULT_TEXT);
+        treePanel.setMessage(data, message, DEFAULT_TEXT);
         treePanel.revalidate();
         treePanel.repaint();
     }
@@ -89,10 +110,13 @@ public class MessageTreeTemplate extends javax.swing.JPanel
         treePanel = new TreePanel(prefix, suffix);
         treeScrollPane.setViewportView(treePanel);
     }
-
+    
     public String getMessage()
     {
-        return pasteBox.getText().replace('\n', '\r');
+        if(pasteBox.getText().equals(DEFAULT_TEXT))
+            return "";
+        else
+            return pasteBox.getText().replace('\n', '\r');
     }
     
     public void setMessage(String msg)
@@ -111,6 +135,26 @@ public class MessageTreeTemplate extends javax.swing.JPanel
         updateText();
     }
     
+    public void setProtocol(String protocol)
+    {
+        dataType.setSelectedItem(protocol);
+    }
+    
+    public String getProtocol()
+    {
+        return (String) dataType.getSelectedItem();
+    }
+    
+    public Properties getDataProperties()
+    {
+        return dataProperties;
+    }
+    
+    public void setDataProperties(Properties p)
+    {
+        dataProperties = p;
+    }
+    
     public void resizePanes()
     {
         split.setDividerLocation((int)(PlatformUI.MIRTH_FRAME.currentContentPage.getHeight()/2 - PlatformUI.MIRTH_FRAME.currentContentPage.getHeight()/10));
@@ -124,11 +168,25 @@ public class MessageTreeTemplate extends javax.swing.JPanel
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents()
     {
+        jLabel1 = new javax.swing.JLabel();
+        dataType = new javax.swing.JComboBox();
         split = new javax.swing.JSplitPane();
         pasteBox = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea();
         treeScrollPane = new javax.swing.JScrollPane();
+        properties = new javax.swing.JButton();
 
         setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        jLabel1.setText("Data Type:");
+
+        dataType.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        dataType.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                dataTypeActionPerformed(evt);
+            }
+        });
+
         split.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
         pasteBox.addFocusListener(new java.awt.event.FocusAdapter()
         {
@@ -146,18 +204,52 @@ public class MessageTreeTemplate extends javax.swing.JPanel
 
         split.setRightComponent(treeScrollPane);
 
+        properties.setText("Properties");
+        properties.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                propertiesActionPerformed(evt);
+            }
+        });
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, split, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 329, Short.MAX_VALUE)
+            .add(layout.createSequentialGroup()
+                .addContainerGap()
+                .add(jLabel1)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(dataType, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 100, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(properties)
+                .addContainerGap(101, Short.MAX_VALUE))
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, split, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 356, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, split, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 448, Short.MAX_VALUE)
+            .add(layout.createSequentialGroup()
+                .addContainerGap()
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jLabel1)
+                    .add(dataType, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(properties))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(split, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 411, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    private void propertiesActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_propertiesActionPerformed
+    {//GEN-HEADEREND:event_propertiesActionPerformed
+        new DataTypeProperties(dataProperties);
+    }//GEN-LAST:event_propertiesActionPerformed
+    
+    private void dataTypeActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_dataTypeActionPerformed
+    {//GEN-HEADEREND:event_dataTypeActionPerformed
+        PlatformUI.MIRTH_FRAME.enableSave();
+    }//GEN-LAST:event_dataTypeActionPerformed
+    
     private void pasteBoxFocusLost(java.awt.event.FocusEvent evt)//GEN-FIRST:event_pasteBoxFocusLost
     {//GEN-HEADEREND:event_pasteBoxFocusLost
         if(pasteBox.getText().length() == 0)
@@ -165,7 +257,7 @@ public class MessageTreeTemplate extends javax.swing.JPanel
             pasteBox.setText(DEFAULT_TEXT);
         }
     }//GEN-LAST:event_pasteBoxFocusLost
-
+    
     private void pasteBoxFocusGained(java.awt.event.FocusEvent evt)//GEN-FIRST:event_pasteBoxFocusGained
     {//GEN-HEADEREND:event_pasteBoxFocusGained
         if(pasteBox.getText().equals(DEFAULT_TEXT))
@@ -176,7 +268,10 @@ public class MessageTreeTemplate extends javax.swing.JPanel
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JComboBox dataType;
+    private javax.swing.JLabel jLabel1;
     private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea pasteBox;
+    private javax.swing.JButton properties;
     private javax.swing.JSplitPane split;
     private javax.swing.JScrollPane treeScrollPane;
     // End of variables declaration//GEN-END:variables

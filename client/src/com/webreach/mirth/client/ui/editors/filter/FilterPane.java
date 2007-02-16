@@ -30,6 +30,7 @@ import com.webreach.mirth.client.ui.editors.EditorTableCellEditor;
 import com.webreach.mirth.client.ui.editors.TabbedTemplatePanel;
 import com.webreach.mirth.client.ui.util.ImportConverter;
 import com.webreach.mirth.model.Channel;
+import com.webreach.mirth.model.Transformer;
 import java.awt.BorderLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -106,10 +107,11 @@ public class FilterPane extends MirthEditorPane
     
     /** load( Filter f )
      */
-    public void load(Connector c, Filter f, boolean channelHasBeenChanged)
+    public void load(Connector c, Filter f, Transformer t, boolean channelHasBeenChanged)
     {
         prevSelRow = -1;
         filter = f;
+        transformer = t;
         connector = c;
         channel = PlatformUI.MIRTH_FRAME.channelEditPanel.currentChannel;
         
@@ -148,17 +150,19 @@ public class FilterPane extends MirthEditorPane
         
         if(connector.getMode() == Connector.Mode.SOURCE)
         {
-            tabTemplatePanel.incomingDataType.setSelectedItem((String)PlatformUI.MIRTH_FRAME.channelEditPanel.getSourceDatatype());
+            tabTemplatePanel.setIncomingDataType((String)PlatformUI.MIRTH_FRAME.channelEditPanel.getSourceDatatype());
         }
         else if(connector.getMode() == Connector.Mode.DESTINATION)
         {
             if(channel.getSourceConnector().getTransformer().getOutboundProtocol() != null)
-                tabTemplatePanel.incomingDataType.setSelectedItem((String)PlatformUI.MIRTH_FRAME.protocols.get(channel.getSourceConnector().getTransformer().getOutboundProtocol()));
+                tabTemplatePanel.setIncomingDataType((String)PlatformUI.MIRTH_FRAME.protocols.get(channel.getSourceConnector().getTransformer().getOutboundProtocol()));
             else
-                tabTemplatePanel.incomingDataType.setSelectedItem((String)PlatformUI.MIRTH_FRAME.channelEditPanel.getSourceDatatype());
+                tabTemplatePanel.setIncomingDataType((String)PlatformUI.MIRTH_FRAME.channelEditPanel.getSourceDatatype());
         }
         
-        tabTemplatePanel.setIncomingMessage(filter.getTemplate());
+        tabTemplatePanel.setIncomingMessage(transformer.getInboundTemplate());
+        
+        tabTemplatePanel.setIncomingDataProperties(transformer.getInboundProperties());
         
         updateRuleNumbers();
         updateTaskPane();
@@ -688,7 +692,7 @@ public class FilterPane extends MirthEditorPane
                 prevSelRow = -1;
                 modified = true;
                 connector.setFilter(importFilter);
-                load(connector, importFilter, modified);
+                load(connector, importFilter, transformer, modified);
             }
             catch (Exception e)
             {
@@ -788,7 +792,10 @@ public class FilterPane extends MirthEditorPane
         }
         
         filter.setRules( list );
-        filter.setTemplate( tabTemplatePanel.getIncomingMessage() );
+        transformer.setInboundTemplate(tabTemplatePanel.getIncomingMessage());
+        
+        transformer.setInboundProperties(tabTemplatePanel.getIncomingDataProperties());
+        
         // reset the task pane and content to channel edit page
         if(returning)
         {
@@ -899,6 +906,7 @@ public class FilterPane extends MirthEditorPane
     
     // used to load this pane
     private Filter filter;
+    private Transformer transformer;
     
     // fields
     private JXTable filterTable;
