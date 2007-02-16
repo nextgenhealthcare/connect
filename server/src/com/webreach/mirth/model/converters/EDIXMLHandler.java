@@ -1,3 +1,27 @@
+/* ***** BEGIN LICENSE BLOCK *****
+ * Version: MPL 1.1
+ *
+ * The contents of this file are subject to the Mozilla Public License Version
+ * 1.1 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * http://www.mozilla.org/MPL/
+ *
+ * Software distributed under the License is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+ * for the specific language governing rights and limitations under the
+ * License.
+ *
+ * The Original Code is Mirth.
+ *
+ * The Initial Developer of the Original Code is
+ * WebReach, Inc.
+ * Portions created by the Initial Developer are Copyright (C) 2006
+ * the Initial Developer. All Rights Reserved.
+ *
+ * Contributor(s):
+ *   Christopher lang <chrisl@webreachinc.com>
+ *
+ * ***** END LICENSE BLOCK ***** */
 package com.webreach.mirth.model.converters;
 
 import java.io.FileReader;
@@ -9,7 +33,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.helpers.XMLReaderFactory;
 import org.xml.sax.helpers.DefaultHandler;
 
-public class EDIXMLParser extends DefaultHandler {
+public class EDIXMLHandler extends DefaultHandler {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private String segmentDelim;
 	private String elementDelim;
@@ -19,7 +43,7 @@ public class EDIXMLParser extends DefaultHandler {
 	private boolean sawHeader = false;
 	private boolean lastinSubelement = false;
 	private StringBuilder output = new StringBuilder();
-	public EDIXMLParser(String segmentDelim, String elementDelim, String subelementDelim) {
+	public EDIXMLHandler(String segmentDelim, String elementDelim, String subelementDelim) {
 		super();
 		this.segmentDelim = segmentDelim;
 		this.elementDelim = elementDelim;
