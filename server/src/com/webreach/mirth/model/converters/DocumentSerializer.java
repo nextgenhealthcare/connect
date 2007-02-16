@@ -37,15 +37,25 @@ import org.w3c.dom.Document;
 
 public class DocumentSerializer implements IXMLSerializer<Document>{
 	private String[] cDataElements = null;
+	private boolean preserveSpace;
 	
 	public DocumentSerializer() {
-		
+		this.preserveSpace = true;
 	}
 	
 	public DocumentSerializer(String[] cDataElements) {
 		this.cDataElements = cDataElements;
+		this.preserveSpace = true;
 	}
 	
+	public boolean isPreserveSpace() {
+		return this.preserveSpace;
+	}
+
+	public void setPreserveSpace(boolean preserveSpace) {
+		this.preserveSpace = preserveSpace;
+	}
+
 	public String toXML(Document source) {
 		OutputFormat of = new OutputFormat(source);
 
@@ -55,7 +65,7 @@ public class DocumentSerializer implements IXMLSerializer<Document>{
 
 		of.setOmitXMLDeclaration(false);
 		of.setIndenting(true);
-		of.setPreserveSpace(true);
+		of.setPreserveSpace(preserveSpace);
 		of.setLineSeparator("\r\n");
 
 		StringWriter stringWriter = new StringWriter();
