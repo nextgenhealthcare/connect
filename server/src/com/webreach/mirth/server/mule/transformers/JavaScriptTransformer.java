@@ -289,6 +289,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 		logger.debug("generating filter script");
 		StringBuilder script = new StringBuilder();
 		script.append("importPackage(Packages.com.webreach.mirth.server.util);\n	");
+		script.append("function $(string) { if (globalMap.get(string) != null) return globalMap.get(string) else return localMap.get(string) }");
 		script.append("function doFilter() {");
 
 		if (inboundProtocol.equals(Protocol.HL7V2.toString())) {
@@ -306,6 +307,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 		script.append("importPackage(Packages.com.webreach.mirth.server.util);");
 		// script used to check for exitence of segment
 		script.append("function validate(mapping) { result = ''; if (mapping != undefined) result = mapping.toString(); return result; }");
+		script.append("function $(string) { if (globalMap.get(string) != null) return globalMap.get(string) else return localMap.get(string) }");
 		script.append("function doTransform() {");
 
 		// only set the namespace to hl7-org if the message is XML
