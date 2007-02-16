@@ -109,6 +109,28 @@ public class Transformer implements Serializable {
 			EqualsUtil.areEqual(this.getInboundTemplate(), transformer.getInboundTemplate()) &&
 			EqualsUtil.areEqual(this.getOutboundTemplate(), transformer.getOutboundTemplate()) &&
 			EqualsUtil.areEqual(this.getInboundProtocol(), transformer.getInboundProtocol()) &&
-			EqualsUtil.areEqual(this.getOutboundProtocol(), transformer.getOutboundProtocol());
+			EqualsUtil.areEqual(this.getOutboundProtocol(), transformer.getOutboundProtocol()) &&
+			EqualsUtil.areEqual(this.getInboundProperties(), transformer.getInboundProperties()) &&
+			EqualsUtil.areEqual(this.getOutboundProperties(), transformer.getOutboundProperties());
+	}
+
+	public Properties getInboundProperties()
+	{
+		return inboundProperties;
+	}
+
+	public void setInboundProperties(Properties inboundProperties)
+	{
+		this.inboundProperties = inboundProperties;
+	}
+
+	public Properties getOutboundProperties()
+	{
+		return outboundProperties;
+	}
+
+	public void setOutboundProperties(Properties outboundProperties)
+	{
+		this.outboundProperties = outboundProperties;
 	}
 }
