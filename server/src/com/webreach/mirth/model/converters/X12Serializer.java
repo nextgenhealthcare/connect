@@ -1,9 +1,19 @@
 package com.webreach.mirth.model.converters;
 
+import java.util.Properties;
+
 public class X12Serializer extends EDISerializer {
 	private boolean inferX12Delimiters = false;
-	public X12Serializer(String segmentDelim, String elementDelim, String subelementDelim){
-		super(segmentDelim, elementDelim, subelementDelim);
+	public X12Serializer(Properties x12Properties){
+		super(x12Properties);
+		if(x12Properties.get("inferX12Delimiters") != null && ((String)x12Properties.get("inferX12Delimiters")).equals("true"))
+		{
+			this.inferX12Delimiters = true;
+		}
+		else
+		{
+			this.inferX12Delimiters = false;
+		}
 	}
 	public X12Serializer(boolean inferX12Delimiters){
 		super();

@@ -27,6 +27,7 @@ package com.webreach.mirth.model.converters;
 import java.io.ByteArrayOutputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.Properties;
 
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -38,10 +39,19 @@ public class EDISerializer implements IXMLSerializer {
 	private String elementDelim = "*";
 	private String subelementDelim = ":";
 
-	public EDISerializer(String segmentDelim, String elementDelim, String subelementDelim) {
-		this.segmentDelim = segmentDelim;
-		this.elementDelim = elementDelim;
-		this.subelementDelim = subelementDelim;
+	public EDISerializer(Properties ediProperties) {
+		if(ediProperties.get("segmentDelim") != null)
+		{
+			this.segmentDelim = (String) ediProperties.get("segmentDelim");
+		}
+		if(ediProperties.get("elementDelim") != null)
+		{
+			this.elementDelim = (String) ediProperties.get("elementDelim");
+		}
+		if(ediProperties.get("subelementDelim") != null)
+		{
+			this.subelementDelim = (String) ediProperties.get("subelementDelim");
+		}
 		return;
 	}
 	
