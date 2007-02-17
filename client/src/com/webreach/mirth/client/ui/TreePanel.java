@@ -27,6 +27,7 @@
 package com.webreach.mirth.client.ui;
 
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.model.converters.EDISerializer;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.GridLayout;
@@ -38,6 +39,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.Properties;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -96,7 +98,7 @@ public class TreePanel extends JPanel
         this.setBackground( Color.white );
     }
     
-    public void setMessage(String messageType, String source, String ignoreText)
+    public void setMessage(String messageType, String source, String ignoreText, Properties dataProperties)
     {
         Document xmlDoc = null;
         String messageName = "";
@@ -189,7 +191,7 @@ public class TreePanel extends JPanel
                 try
                 {
                     docBuilder = docFactory.newDocumentBuilder();
-                    String x12message = new X12Serializer().toXML(source);
+                    String x12message = new X12Serializer(dataProperties).toXML(source);
                     xmlDoc = docBuilder.parse(new InputSource(new StringReader(x12message)));
                 }
                 catch (Exception e)
@@ -223,6 +225,28 @@ public class TreePanel extends JPanel
                     messageName = xmlDoc.getDocumentElement().getNodeName();
                 }
             }
+            else if(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.EDI).equals(messageType))
+            {
+                try
+                {
+                    docBuilder = docFactory.newDocumentBuilder();
+                    String ediMessage = new EDISerializer(dataProperties).toXML(source);
+                    xmlDoc = docBuilder.parse(new InputSource(new StringReader(ediMessage)));
+                }
+                catch (Exception e)
+                {
+                    // TODO Auto-generated catch block
+                    //e.printStackTrace();
+                }
+                if (xmlDoc != null)
+                {
+                    messageDescription = "";
+                    version = "";
+                    messageName = xmlDoc.getDocumentElement().getNodeName() + "-" + " (" + version + ")";
+                    messageDescription = "";//HL7Reference.getInstance().getDescription(terser.get("/MSH-9-1") + terser.get("/MSH-9-2"), version);
+                }
+            }
+            
             
             if (xmlDoc != null)
                 createTree(xmlDoc, messageName, messageDescription);
@@ -327,7 +351,11 @@ public class TreePanel extends JPanel
             {
                 text = el.getTextContent();
             }
-            text = text.trim();
+            
+            if(text != null)
+            {
+                 text = text.trim();
+            }
             if((text != null) && (!text.equals("")))
             {
                 

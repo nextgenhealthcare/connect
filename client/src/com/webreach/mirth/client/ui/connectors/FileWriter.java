@@ -41,13 +41,12 @@ public class FileWriter extends ConnectorClass
     Frame parent;
 
     /** Creates new form FileWriter */
-    public final String DATATYPE = "DataType";
-    public final String FILE_DIRECTORY = "host";
-    public final String FILE_NAME = "outputPattern";
-    public final String FILE_APPEND = "outputAppend";
-    public final String FILE_CONTENTS = "template";
-    //ast: encodign
-    public final String CONNECTOR_CHARSET_ENCODING = "charsetEncoding";
+    private final String DATATYPE = "DataType";
+    private final String FILE_DIRECTORY = "host";
+    private final String FILE_NAME = "outputPattern";
+    private final String FILE_APPEND = "outputAppend";
+    private final String FILE_CONTENTS = "template";
+    private final String CONNECTOR_CHARSET_ENCODING = "charsetEncoding";
 
     public FileWriter()
     {
@@ -136,7 +135,7 @@ public class FileWriter extends ConnectorClass
         jLabel41 = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(255, 255, 255));
-        setBorder(javax.swing.BorderFactory.createTitledBorder(null, "File Writer", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(0, 0, 0)));
+        setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         jLabel1.setText("Directory:");
 
         jLabel2.setText("File Name:");
@@ -183,7 +182,7 @@ public class FileWriter extends ConnectorClass
                         .add(appendToFileYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(appendToFileNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(fileContentsTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 280, Short.MAX_VALUE)
+                    .add(fileContentsTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 250, Short.MAX_VALUE)
                     .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
                         .add(org.jdesktop.layout.GroupLayout.LEADING, fileNameField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .add(org.jdesktop.layout.GroupLayout.LEADING, directoryField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 250, Short.MAX_VALUE)))
@@ -212,7 +211,7 @@ public class FileWriter extends ConnectorClass
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jLabel3)
-                    .add(fileContentsTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 199, Short.MAX_VALUE))
+                    .add(fileContentsTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 73, Short.MAX_VALUE))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents

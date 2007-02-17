@@ -12,10 +12,8 @@
       <Color blue="ff" green="ff" red="ff" type="rgb"/>
     </Property>
     <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-      <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
-        <TitledBorder title="File Writer">
-          <Color PropertyName="color" blue="0" green="0" red="0" type="rgb"/>
-        </TitledBorder>
+      <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+        <EmptyBorder/>
       </Border>
     </Property>
   </Properties>
@@ -48,7 +46,7 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="appendToFileNo" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Component id="fileContentsTextPane" pref="280" max="32767" attributes="0"/>
+                  <Component id="fileContentsTextPane" pref="250" max="32767" attributes="0"/>
                   <Group type="103" alignment="0" groupAlignment="1" max="-2" attributes="0">
                       <Component id="fileNameField" alignment="0" max="32767" attributes="1"/>
                       <Component id="directoryField" alignment="0" pref="250" max="32767" attributes="1"/>
@@ -86,7 +84,7 @@
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="jLabel3" min="-2" max="-2" attributes="0"/>
-                  <Component id="fileContentsTextPane" pref="199" max="32767" attributes="0"/>
+                  <Component id="fileContentsTextPane" pref="73" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>

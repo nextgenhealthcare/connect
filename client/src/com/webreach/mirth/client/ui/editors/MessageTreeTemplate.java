@@ -101,7 +101,7 @@ public class MessageTreeTemplate extends javax.swing.JPanel
     private void updateText()
     {
         String message = pasteBox.getText();
-        treePanel.setMessage(data, message, DEFAULT_TEXT);
+        treePanel.setMessage((String) dataType.getSelectedItem(), message, DEFAULT_TEXT, dataProperties);
         treePanel.revalidate();
         treePanel.repaint();
     }
@@ -252,7 +252,8 @@ public class MessageTreeTemplate extends javax.swing.JPanel
     private void dataTypeActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_dataTypeActionPerformed
     {//GEN-HEADEREND:event_dataTypeActionPerformed
         PlatformUI.MIRTH_FRAME.enableSave();
-        if(((String)dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.X12)))
+        if(((String)dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.X12)) || 
+                ((String)dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.EDI)))
             properties.setEnabled(true);
         else
             properties.setEnabled(false);

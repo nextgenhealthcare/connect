@@ -41,17 +41,17 @@ public class HTTPListener extends ConnectorClass
 {
     Frame parent;
     /** Creates new form HTTPListener */
-    public final String DATATYPE = "DataType";
-    public final String HTTP_ADDRESS = "host";
-    public final String HTTP_PORT = "port";
-    public final String HTTP_RECEIVE_TIMEOUT = "receiveTimeout";
-    public final String HTTP_BUFFER_SIZE = "bufferSize";
-    public final String HTTP_KEEP_CONNECTION_OPEN = "keepSendSocketOpen";
-    public final String HTTP_START_OF_MESSAGE_CHARACTER = "messageStart";
-    public final String HTTP_END_OF_MESSAGE_CHARACTER = "messageEnd";
-    public final String HTTP_FIELD_SEPARATOR = "fieldSeparator";
-    public final String HTTP_RECORD_SEPARATOR = "recordSeparator";
-    public final String HTTP_SEND_ACK = "sendACK";
+    private final String DATATYPE = "DataType";
+    private final String HTTP_ADDRESS = "host";
+    private final String HTTP_PORT = "port";
+    private final String HTTP_RECEIVE_TIMEOUT = "receiveTimeout";
+    private final String HTTP_BUFFER_SIZE = "bufferSize";
+    private final String HTTP_KEEP_CONNECTION_OPEN = "keepSendSocketOpen";
+    private final String HTTP_START_OF_MESSAGE_CHARACTER = "messageStart";
+    private final String HTTP_END_OF_MESSAGE_CHARACTER = "messageEnd";
+    private final String HTTP_FIELD_SEPARATOR = "fieldSeparator";
+    private final String HTTP_RECORD_SEPARATOR = "recordSeparator";
+    private final String HTTP_SEND_ACK = "sendACK";
 
     public HTTPListener()
     {
@@ -185,7 +185,7 @@ public class HTTPListener extends ConnectorClass
         jLabel8 = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(255, 255, 255));
-        setBorder(javax.swing.BorderFactory.createTitledBorder(null, "HTTP Listener", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(0, 0, 0)));
+        setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         jLabel1.setText("Listener IP Address:");
 
         jLabel2.setText("Listener Port:");
@@ -274,7 +274,7 @@ public class HTTPListener extends ConnectorClass
                         .add(jLabel8)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(listenerIPAddressField3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 31, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(122, Short.MAX_VALUE))
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -325,8 +325,7 @@ public class HTTPListener extends ConnectorClass
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(sendACKCombobox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel38))
-                .addContainerGap(102, Short.MAX_VALUE))
+                    .add(jLabel38)))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -336,12 +335,6 @@ public class HTTPListener extends ConnectorClass
     private com.webreach.mirth.client.ui.components.MirthTextField endOfMessageCharacterField;
     private com.webreach.mirth.client.ui.components.MirthTextField fieldSeparatorField;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel10;
-    private javax.swing.JLabel jLabel11;
-    private javax.swing.JLabel jLabel12;
-    private javax.swing.JLabel jLabel13;
-    private javax.swing.JLabel jLabel14;
-    private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel34;

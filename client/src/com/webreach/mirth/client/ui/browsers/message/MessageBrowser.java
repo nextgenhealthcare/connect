@@ -610,6 +610,8 @@ public class MessageBrowser extends javax.swing.JPanel
                     newDoc.setTokenMarker(new XMLTokenMarker());
                 else if (protocol.equals(MessageObject.Protocol.X12))
                     newDoc.setTokenMarker(new XMLTokenMarker());
+                else if (protocol.equals(MessageObject.Protocol.EDI))
+                    newDoc.setTokenMarker(new XMLTokenMarker());
             }
             
             textPane.setDocument(newDoc);

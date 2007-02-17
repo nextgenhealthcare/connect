@@ -42,14 +42,14 @@ public class SFTPWriter extends ConnectorClass
     Frame parent;
 
     /** Creates new form FTPReader */
-    public final String DATATYPE = "DataType";
-    public final String SFTP_ADDRESS = "host";
-    public final String SFTP_USERNAME = "username";
-    public final String SFTP_PASSWORD = "password";
-    public final String SFTP_POLLING_FREQUENCY = "pollingFrequency";
-    public final String SFTP_FILENAME_PARSER = "filenameParser ";
-    public final String SFTP_OUTPUT_PATTERN = "outputPattern";
-    public final String SFTP_CONTENTS = "template";
+    private final String DATATYPE = "DataType";
+    private final String SFTP_ADDRESS = "host";
+    private final String SFTP_USERNAME = "username";
+    private final String SFTP_PASSWORD = "password";
+    private final String SFTP_POLLING_FREQUENCY = "pollingFrequency";
+    private final String SFTP_FILENAME_PARSER = "filenameParser ";
+    private final String SFTP_OUTPUT_PATTERN = "outputPattern";
+    private final String SFTP_CONTENTS = "template";
     
     public SFTPWriter()
     {
@@ -138,7 +138,7 @@ public class SFTPWriter extends ConnectorClass
         ftpContentsTextPane = new com.webreach.mirth.client.ui.components.MirthTextPane();
 
         setBackground(new java.awt.Color(255, 255, 255));
-        setBorder(javax.swing.BorderFactory.createTitledBorder(null, "SFTP Writer", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(0, 0, 0)));
+        setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         URL.setText("Host:");
 
         jLabel4.setText("Filename Parser:");
@@ -179,7 +179,7 @@ public class SFTPWriter extends ConnectorClass
                     .add(pollingFrequencyField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(filenameParserField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(outputPatternField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 313, Short.MAX_VALUE))
+                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 302, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -214,7 +214,7 @@ public class SFTPWriter extends ConnectorClass
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jLabel3)
-                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 246, Short.MAX_VALUE))
+                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 267, Short.MAX_VALUE))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents

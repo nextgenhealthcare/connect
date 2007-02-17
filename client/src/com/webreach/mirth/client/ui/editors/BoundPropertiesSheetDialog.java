@@ -57,7 +57,7 @@ public class BoundPropertiesSheetDialog extends javax.swing.JDialog
         BeanBinder beanBinder = new BeanBinder(bean, propertySheetPanel, null);
         beanBinder.setWriteEnabled(true);
         this.setLocationRelativeTo(PlatformUI.MIRTH_FRAME);
-        propertySheetPanel.setToolBarVisible(false);
+        //propertySheetPanel.setToolBarVisible(false);
         setVisible(true);
     }
     

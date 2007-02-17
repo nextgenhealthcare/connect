@@ -41,12 +41,12 @@ public class PDFWriter extends ConnectorClass
     Frame parent;
 
     /** Creates new form PDFWriter */
-    public final String DATATYPE = "DataType";
-    public final String FILE_DIRECTORY = "host";
-    public final String FILE_NAME = "outputPattern";
-    public final String PDF_PASSWORD_PROTECTED = "encrypt";
-    public final String PDF_PASSWORD = "password";
-    public final String FILE_CONTENTS = "template";
+    private final String DATATYPE = "DataType";
+    private final String FILE_DIRECTORY = "host";
+    private final String FILE_NAME = "outputPattern";
+    private final String PDF_PASSWORD_PROTECTED = "encrypt";
+    private final String PDF_PASSWORD = "password";
+    private final String FILE_CONTENTS = "template";
 
     public PDFWriter()
     {
@@ -144,7 +144,7 @@ public class PDFWriter extends ConnectorClass
         fileContentsTextPane = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea(false,false);
 
         setBackground(new java.awt.Color(255, 255, 255));
-        setBorder(javax.swing.BorderFactory.createTitledBorder(null, "PDF Writer", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(0, 0, 0)));
+        setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         jLabel1.setText("Directory:");
 
         jLabel2.setText("File Name:");
@@ -206,7 +206,7 @@ public class PDFWriter extends ConnectorClass
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(passwordNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                     .add(passwordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(fileContentsTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 368, Short.MAX_VALUE))
+                    .add(fileContentsTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 382, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -231,7 +231,7 @@ public class PDFWriter extends ConnectorClass
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jLabel3)
-                    .add(fileContentsTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 176, Short.MAX_VALUE))
+                    .add(fileContentsTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 204, Short.MAX_VALUE))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents

@@ -27,7 +27,7 @@ public class EDIProperties extends Object implements Serializable
     /**
      * Holds value of property segmentDelimiter.
      */
-    private String segmentDelimiter;
+    private String segmentDelimiter = "~";
 
     /**
      * Getter for property segmentDelimeter.
@@ -50,7 +50,7 @@ public class EDIProperties extends Object implements Serializable
     /**
      * Holds value of property elementDelimiter.
      */
-    private String elementDelimiter;
+    private String elementDelimiter = "*";
 
     /**
      * Getter for property elementDelimiter.
@@ -73,7 +73,7 @@ public class EDIProperties extends Object implements Serializable
     /**
      * Holds value of property subelementDelimiter.
      */
-    private String subelementDelimiter;
+    private String subelementDelimiter = ":";
 
     /**
      * Getter for property subelementDelimiter.

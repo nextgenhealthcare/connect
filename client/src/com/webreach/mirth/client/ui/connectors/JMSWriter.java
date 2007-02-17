@@ -60,26 +60,26 @@ public class JMSWriter extends ConnectorClass
 {
     Frame parent;
     
-    public final int PROPERTY_COLUMN = 0;
-    public final int VALUE_COLUMN = 1;
+    private final int PROPERTY_COLUMN = 0;
+    private final int VALUE_COLUMN = 1;
     
-    public final String PROPERTY_COLUMN_NAME = "Property";
-    public final String VALUE_COLUMN_NAME = "Value";
+    private final String PROPERTY_COLUMN_NAME = "Property";
+    private final String VALUE_COLUMN_NAME = "Value";
     
     private int lastIndex = -1;
     
     /** Creates new form JMSWriter */
-    public final String DATATYPE = "DataType";
-    public final String JMS_SPECIFICATION = "specification";
-    public final String JMS_DURABLE = "durable";
-    public final String JMS_CLIENT_ID = "clientId";
-    public final String JMS_USERNAME = "username";
-    public final String JMS_PASSWORD = "password";
-    public final String JMS_QUEUE = "host";
-    public final String JMS_URL = "jndiProviderUrl";
-    public final String JMS_INITIAL_FACTORY = "jndiInitialFactory";
-    public final String JMS_CONNECTION_FACTORY = "connectionFactoryJndiName";
-    public final String JMS_ADDITIONAL_PROPERTIES = "connectionFactoryProperties";
+    private final String DATATYPE = "DataType";
+    private final String JMS_SPECIFICATION = "specification";
+    private final String JMS_DURABLE = "durable";
+    private final String JMS_CLIENT_ID = "clientId";
+    private final String JMS_USERNAME = "username";
+    private final String JMS_PASSWORD = "password";
+    private final String JMS_QUEUE = "host";
+    private final String JMS_URL = "jndiProviderUrl";
+    private final String JMS_INITIAL_FACTORY = "jndiInitialFactory";
+    private final String JMS_CONNECTION_FACTORY = "connectionFactoryJndiName";
+    private final String JMS_ADDITIONAL_PROPERTIES = "connectionFactoryProperties";
     
     public JMSWriter()
     {
@@ -427,7 +427,7 @@ public class JMSWriter extends ConnectorClass
         jLabel2 = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(255, 255, 255));
-        setBorder(javax.swing.BorderFactory.createTitledBorder(null, "JMS Writer", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(0, 0, 0)));
+        setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         jLabel3.setText("Specification:");
 
         specDropDown.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
@@ -543,7 +543,7 @@ public class JMSWriter extends ConnectorClass
                     .add(jmsURL, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 300, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(jndiInitialFactory, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 300, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(layout.createSequentialGroup()
-                        .add(propertiesPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 311, Short.MAX_VALUE)
+                        .add(propertiesPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 305, Short.MAX_VALUE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
                             .add(newButton)
@@ -599,7 +599,7 @@ public class JMSWriter extends ConnectorClass
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(deleteButton))
                     .add(jLabel2)
-                    .add(propertiesPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 220, Short.MAX_VALUE))
+                    .add(propertiesPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 249, Short.MAX_VALUE))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents

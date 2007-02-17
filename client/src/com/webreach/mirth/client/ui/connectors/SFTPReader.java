@@ -42,11 +42,11 @@ public class SFTPReader extends ConnectorClass
     Frame parent;
 
     /** Creates new form FTPReader */
-    public final String DATATYPE = "DataType";
-    public final String SFTP_ADDRESS = "host";
-    public final String SFTP_USERNAME = "username";
-    public final String SFTP_PASSWORD = "password";
-    public final String SFTP_POLLING_FREQUENCY = "pollingFrequency";
+    private final String DATATYPE = "DataType";
+    private final String SFTP_ADDRESS = "host";
+    private final String SFTP_USERNAME = "username";
+    private final String SFTP_PASSWORD = "password";
+    private final String SFTP_POLLING_FREQUENCY = "pollingFrequency";
 
     public SFTPReader()
     {
@@ -119,7 +119,7 @@ public class SFTPReader extends ConnectorClass
         pollingFrequencyField = new com.webreach.mirth.client.ui.components.MirthTextField();
 
         setBackground(new java.awt.Color(255, 255, 255));
-        setBorder(javax.swing.BorderFactory.createTitledBorder(null, "SFTP Reader", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(0, 0, 0)));
+        setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         URL.setText("Host:");
 
         FTPUsernameLabel.setText("Username:");
@@ -147,7 +147,7 @@ public class SFTPReader extends ConnectorClass
                     .add(FTPPasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(FTPUsernameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(FTPURLField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 250, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(53, Short.MAX_VALUE))
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -166,8 +166,7 @@ public class SFTPReader extends ConnectorClass
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(pollingFrequencyField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel9))
-                .addContainerGap(125, Short.MAX_VALUE))
+                    .add(jLabel9)))
         );
     }// </editor-fold>//GEN-END:initComponents
 

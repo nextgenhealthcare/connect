@@ -6,15 +6,14 @@
       <Color blue="ff" green="ff" red="ff" type="rgb"/>
     </Property>
     <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-      <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
-        <TitledBorder title="Email Sender">
-          <Color PropertyName="color" blue="0" green="0" red="0" type="rgb"/>
-        </TitledBorder>
+      <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+        <EmptyBorder/>
       </Border>
     </Property>
   </Properties>
   <AuxValues>
     <AuxValue name="FormSettings_generateMnemonicsCode" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_layoutCodeTarget" type="java.lang.Integer" value="2"/>
     <AuxValue name="FormSettings_listenerGenerationStyle" type="java.lang.Integer" value="0"/>
     <AuxValue name="FormSettings_variablesLocal" type="java.lang.Boolean" value="false"/>
     <AuxValue name="FormSettings_variablesModifier" type="java.lang.Integer" value="2"/>
@@ -42,7 +41,7 @@
                   <Component id="emailUsernameField" min="-2" pref="125" max="-2" attributes="1"/>
                   <Component id="emailToField" min="-2" pref="200" max="-2" attributes="1"/>
                   <Component id="emailSubjectField" min="-2" pref="200" max="-2" attributes="1"/>
-                  <Component id="jScrollPane1" pref="335" max="32767" attributes="0"/>
+                  <Component id="jScrollPane1" pref="352" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -83,7 +82,7 @@
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="jLabel7" min="-2" max="-2" attributes="0"/>
-                  <Component id="jScrollPane1" pref="242" max="32767" attributes="0"/>
+                  <Component id="jScrollPane1" pref="265" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>

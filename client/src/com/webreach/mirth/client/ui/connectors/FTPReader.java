@@ -42,15 +42,15 @@ public class FTPReader extends ConnectorClass
     Frame parent;
 
     /** Creates new form FTPReader */
-    public final String DATATYPE = "DataType";
-    public final String FTP_HOST = "host";
-    public final String FTP_ANONYMOUS = "FTPAnonymous";
-    public final String FTP_USERNAME = "username";
-    public final String FTP_PASSWORD = "password";
-    public final String FTP_POLLING_FREQUENCY = "pollingFrequency";
-    public final String FTP_PASSIVE_MODE = "passive";
-    public final String FTP_FILE_TYPE = "binary";
-    public final String FTP_VALIDATE_CONNECTION = "validateConnections";
+    private final String DATATYPE = "DataType";
+    private final String FTP_HOST = "host";
+    private final String FTP_ANONYMOUS = "FTPAnonymous";
+    private final String FTP_USERNAME = "username";
+    private final String FTP_PASSWORD = "password";
+    private final String FTP_POLLING_FREQUENCY = "pollingFrequency";
+    private final String FTP_PASSIVE_MODE = "passive";
+    private final String FTP_FILE_TYPE = "binary";
+    private final String FTP_VALIDATE_CONNECTION = "validateConnections";
 
     public FTPReader()
     {
@@ -194,7 +194,7 @@ public class FTPReader extends ConnectorClass
         anonymousNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
-        setBorder(javax.swing.BorderFactory.createTitledBorder(null, "FTP Reader", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(0, 0, 0)));
+        setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         URL.setText("Host:");
 
         jLabel6.setText("Passive Mode:");
@@ -316,7 +316,7 @@ public class FTPReader extends ConnectorClass
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(anonymousNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                     .add(FTPURLField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 250, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(111, Short.MAX_VALUE))
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -357,7 +357,7 @@ public class FTPReader extends ConnectorClass
                     .add(fileAgeLabel)
                     .add(validateConnectionYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(validateConnectionNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(139, Short.MAX_VALUE))
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 

@@ -27,6 +27,7 @@
 package com.webreach.mirth.client.ui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -41,8 +42,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.prefs.Preferences;
 
 import javax.swing.Action;
@@ -57,6 +60,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
+import javax.swing.border.LineBorder;
 
 import org.apache.log4j.Logger;
 import org.jdesktop.swingworker.SwingWorker;
@@ -115,7 +119,7 @@ public class Frame extends JXFrame
     public StatusBar statusBar;
     public JSplitPane splitPane = new JSplitPane();
     public JScrollPane taskPane = new JScrollPane();
-    public JScrollPane contentPane = new JScrollPane();
+    public JPanel contentPane = new JPanel();
     public Component currentContentPage = null;
     public JXTaskPaneContainer currentTaskPaneContainer = null;
 
@@ -152,7 +156,7 @@ public class Frame extends JXFrame
     private ArrayList<CharsetEncodingInformation>  avaiableCharsetEncodings=null;
     private List<String> charsetEncodings=null;
     
-    public HashMap<MessageObject.Protocol, String> protocols;
+    public LinkedHashMap<MessageObject.Protocol, String> protocols;
     
     public Frame()
     {
@@ -165,10 +169,11 @@ public class Frame extends JXFrame
         sourceConnectors = new ArrayList<ConnectorClass>();
         destinationConnectors = new ArrayList<ConnectorClass>();
         
-        protocols = new HashMap<MessageObject.Protocol, String>();
+        protocols = new LinkedHashMap<MessageObject.Protocol, String>();
         protocols.put(MessageObject.Protocol.HL7V2, "HL7 v2.x");
         protocols.put(MessageObject.Protocol.HL7V3, "HL7 v3.0");
         protocols.put(MessageObject.Protocol.X12, "X12");
+        protocols.put(MessageObject.Protocol.EDI, "EDI");
         protocols.put(MessageObject.Protocol.XML, "XML");
         
         setTitle(UIConstants.TITLE_TEXT);
@@ -334,7 +339,6 @@ public class Frame extends JXFrame
         splitPane.setBorder(BorderFactory.createEmptyBorder());
         
         contentPanel = (JPanel) getContentPane();
-        contentPanel.setBorder(BorderFactory.createEmptyBorder());
         contentPanel.setLayout(new BorderLayout());
         contentPanel.setBorder(BorderFactory.createEmptyBorder());
         taskPane.setBorder(BorderFactory.createEmptyBorder());
@@ -378,13 +382,13 @@ public class Frame extends JXFrame
     /**
      * Builds the content panel with a title bar and settings.
      */
-    private void buildContentPanel(JXTitledPanel container, JScrollPane component, boolean opaque)
+    private void buildContentPanel(JXTitledPanel container, JPanel component, boolean opaque)
     {
         container.getContentContainer().setLayout(new BorderLayout());
-        container.setBorder(null);
         container.setTitleFont(new Font("Tahoma",Font.BOLD, 18));
         container.setTitleForeground(UIConstants.HEADER_TITLE_TEXT_COLOR);
-        container.getContentContainer().add(component);
+        container.setBorder(null);
+        container.add(component);
         if(UIManager.getColor("TaskPaneContainer.backgroundGradientStart") != null)
             container.setTitleDarkBackground(UIManager.getColor("TaskPaneContainer.backgroundGradientStart"));
         else
@@ -443,11 +447,11 @@ public class Frame extends JXFrame
     {
         if (contentPageObject==currentContentPage)
             return;
-
+        
         if (currentContentPage!=null)
-            contentPane.getViewport().remove(currentContentPage);
-
-        contentPane.getViewport().add(contentPageObject);
+            rightContainer.remove(currentContentPage);
+            
+        rightContainer.add(contentPageObject);
         currentContentPage = contentPageObject;
     }
 

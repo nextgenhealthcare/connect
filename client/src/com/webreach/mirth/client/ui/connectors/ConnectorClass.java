@@ -75,6 +75,7 @@ public class ConnectorClass extends javax.swing.JPanel
     {
         return true;
     }
+    
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -95,7 +96,6 @@ public class ConnectorClass extends javax.swing.JPanel
             .add(0, 300, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
-    
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     // End of variables declaration//GEN-END:variables

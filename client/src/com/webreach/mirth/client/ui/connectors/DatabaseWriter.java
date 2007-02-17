@@ -49,16 +49,16 @@ public class DatabaseWriter extends ConnectorClass
 {
     Frame parent;
     /** Creates new form DatabaseWriter */
-    public final String DATATYPE = "DataType";
-    public final String DATABASE_HOST = "host";
-    public final String DATABASE_HOST_VALUE = "query";
-    public final String DATABASE_DRIVER = "driver";
-    public final String DATABASE_URL = "URL";
-    public final String DATABASE_USERNAME = "username";
-    public final String DATABASE_PASSWORD = "password";
-    public final String DATABASE_SQL_STATEMENT = "query";
-    public final String DATABASE_JS_SQL_STATEMENT = "script";
-    public final String DATABASE_USE_JS = "useScript";
+    private final String DATATYPE = "DataType";
+    private final String DATABASE_HOST = "host";
+    private final String DATABASE_HOST_VALUE = "query";
+    private final String DATABASE_DRIVER = "driver";
+    private final String DATABASE_URL = "URL";
+    private final String DATABASE_USERNAME = "username";
+    private final String DATABASE_PASSWORD = "password";
+    private final String DATABASE_SQL_STATEMENT = "query";
+    private final String DATABASE_JS_SQL_STATEMENT = "script";
+    private final String DATABASE_USE_JS = "useScript";
     
     private static SyntaxDocument sqlMappingDoc;
     private static SyntaxDocument jsMappingDoc;
@@ -202,7 +202,7 @@ public class DatabaseWriter extends ConnectorClass
         generateConnection = new javax.swing.JButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
-        setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Database Writer", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(0, 0, 0)));
+        setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         jLabel1.setText("Driver:");
 
         jLabel2.setText("URL:");
@@ -281,11 +281,11 @@ public class DatabaseWriter extends ConnectorClass
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                                 .add(useJavaScriptNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                             .add(databasePasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 153, Short.MAX_VALUE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 185, Short.MAX_VALUE)
                         .add(generateConnection)
                         .addContainerGap())
                     .add(layout.createSequentialGroup()
-                        .add(databaseSQLTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 397, Short.MAX_VALUE)
+                        .add(databaseSQLTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 429, Short.MAX_VALUE)
                         .addContainerGap())))
         );
         layout.setVerticalGroup(
@@ -317,7 +317,7 @@ public class DatabaseWriter extends ConnectorClass
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(sqlLabel)
-                    .add(databaseSQLTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 197, Short.MAX_VALUE))
+                    .add(databaseSQLTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 222, Short.MAX_VALUE))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents

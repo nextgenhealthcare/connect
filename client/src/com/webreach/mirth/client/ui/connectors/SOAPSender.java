@@ -31,6 +31,7 @@ import com.l2fprod.common.propertysheet.Property;
 import com.l2fprod.common.propertysheet.PropertySheetPanel;
 import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.ui.components.MirthTable;
+import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.model.ws.WSDefinition;
 import com.webreach.mirth.model.ws.WSOperation;
@@ -39,6 +40,7 @@ import com.webreach.mirth.model.ws.WSParameter;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.StringWriter;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.ArrayList;
 import java.util.List;
@@ -92,24 +94,24 @@ public class SOAPSender extends ConnectorClass
     private final String SOAP_BODY_HEADER = "<soap:Body soap:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\">\n";
     private final String SOAP_BODY_FOOTER = "</soap:Body>\n";
     private final String SOAP_ENVELOPE_FOOTER = "</soap:Envelope>";
+    private final String DATATYPE = "DataType";
+    private final String SOAP_HOST = "host";
+    private final String SOAP_SERVICE_ENDPOINT = "serviceEndpoint";
+    private final String SOAP_URL = "wsdlUrl";
+    private final String SOAP_METHOD = "method";
+    private final String SOAP_DEFINITION = "definition";
+    private final String SOAP_DEFAULT_DROPDOWN = "Press Get Methods";
+    private final String SOAP_ENVELOPE = "soapEnvelope";
+    private final String SOAP_ACTION_URI = "soapActionURI";
+    private final String CHANNEL_ID = "replyChannelId";
+    private final String CHANNEL_NAME = "channelName";
+    
     Frame parent;
     WSDefinition definition = new WSDefinition();
     ObjectXMLSerializer serializer = new ObjectXMLSerializer();
     private BeanBinder beanBinder;
     private DefaultMutableTreeNode currentNode;
-    
-    /**
-     * Creates new form SOAPListener
-     */
-    public final String DATATYPE = "DataType";
-    public final String SOAP_HOST = "host";
-    public final String SOAP_SERVICE_ENDPOINT = "serviceEndpoint";
-    public final String SOAP_URL = "wsdlUrl";
-    public final String SOAP_METHOD = "method";
-    public final String SOAP_DEFINITION = "definition";
-    public final String SOAP_DEFAULT_DROPDOWN = "Press Get Methods";
-    public final String SOAP_ENVELOPE = "soapEnvelope";
-    public final String SOAP_ACTION_URI = "soapActionURI";
+    private HashMap channelList;
     
     public SOAPSender()
     {
@@ -137,6 +139,8 @@ public class SOAPSender extends ConnectorClass
         properties.put(SOAP_HOST, buildHost());
         
         properties.put(SOAP_ACTION_URI, soapActionURI.getText());
+        properties.put(CHANNEL_ID, channelList.get((String)channelNames.getSelectedItem()));
+        properties.put(CHANNEL_NAME, (String)channelNames.getSelectedItem());        
         return properties;
     }
 
@@ -162,6 +166,24 @@ public class SOAPSender extends ConnectorClass
         }
         else
             setupTable(new ArrayList<WSParameter>());
+        
+        ArrayList<String> channelNameArray = new ArrayList<String>();
+        channelList = new HashMap();
+        channelList.put("None", "sink");
+        channelNameArray.add("None");
+        for (Channel channel : parent.channels.values())
+        {
+            channelList.put(channel.getName(), channel.getId());
+            channelNameArray.add(channel.getName());
+        }
+        channelNames.setModel(new javax.swing.DefaultComboBoxModel(channelNameArray.toArray()));
+        
+        boolean visible = parent.channelEditTasks.getContentPane().getComponent(0).isVisible();
+        
+        if(props.get(CHANNEL_NAME) != null)
+            channelNames.setSelectedItem((String)props.get(CHANNEL_NAME));
+        
+        parent.channelEditTasks.getContentPane().getComponent(0).setVisible(visible);
     }
     
     public Properties getDefaults()
@@ -175,7 +197,8 @@ public class SOAPSender extends ConnectorClass
         properties.put(SOAP_HOST, buildHost());
         properties.put(SOAP_ENVELOPE, "");
         properties.put(SOAP_ACTION_URI, "");
-        
+        properties.put(CHANNEL_ID, "sink");
+        properties.put(CHANNEL_NAME, "None");
         return properties;
     }
     
@@ -302,9 +325,11 @@ public class SOAPSender extends ConnectorClass
         serviceEndpoint = new com.webreach.mirth.client.ui.components.MirthTextField();
         jLabel4 = new javax.swing.JLabel();
         rebuildEnvelope = new javax.swing.JButton();
+        channelNames = new com.webreach.mirth.client.ui.components.MirthComboBox();
+        URL1 = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(255, 255, 255));
-        setBorder(javax.swing.BorderFactory.createTitledBorder(null, "SOAP Sender", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(0, 0, 0)));
+        setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         URL.setText("WSDL URL:");
 
         getMethodsButton.setText("Get Methods");
@@ -357,26 +382,31 @@ public class SOAPSender extends ConnectorClass
             }
         });
 
+        channelNames.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+
+        URL1.setText("Response to Channel:");
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+            .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
                     .add(jLabel2)
                     .add(URL)
                     .add(jLabel3)
                     .add(jLabel1)
-                    .add(jLabel4))
+                    .add(jLabel4)
+                    .add(URL1))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, soapEnvelope, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 449, Short.MAX_VALUE)
-                    .add(layout.createSequentialGroup()
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(soapEnvelope, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 449, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                         .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 257, Short.MAX_VALUE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(propertySheetPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 186, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
+                    .add(layout.createSequentialGroup()
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
                             .add(org.jdesktop.layout.GroupLayout.LEADING, serviceEndpoint, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 350, Short.MAX_VALUE)
                             .add(org.jdesktop.layout.GroupLayout.LEADING, wsdlUrl, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 350, Short.MAX_VALUE)
@@ -386,7 +416,8 @@ public class SOAPSender extends ConnectorClass
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .add(rebuildEnvelope)))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(getMethodsButton)))
+                        .add(getMethodsButton))
+                    .add(channelNames, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 150, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -412,12 +443,15 @@ public class SOAPSender extends ConnectorClass
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jScrollPane1, 0, 0, Short.MAX_VALUE)
-                    .add(propertySheetPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 128, Short.MAX_VALUE))
+                    .add(propertySheetPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 88, Short.MAX_VALUE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(soapEnvelope, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 165, Short.MAX_VALUE)
-                    .add(jLabel4))
-                .addContainerGap())
+                    .add(jLabel4)
+                    .add(soapEnvelope, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 149, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .add(8, 8, 8)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(URL1)
+                    .add(channelNames, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -614,10 +648,12 @@ public class SOAPSender extends ConnectorClass
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel URL;
+    private javax.swing.JLabel URL1;
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.ButtonGroup buttonGroup2;
     private javax.swing.ButtonGroup buttonGroup3;
     private javax.swing.ButtonGroup buttonGroup4;
+    private com.webreach.mirth.client.ui.components.MirthComboBox channelNames;
     private javax.swing.JButton getMethodsButton;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;

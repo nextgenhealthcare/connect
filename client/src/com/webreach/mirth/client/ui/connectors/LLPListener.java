@@ -42,31 +42,31 @@ public class LLPListener extends ConnectorClass
 {
     Frame parent;
     /** Creates new form LLPListener */
-    public final String DATATYPE = "DataType";
-    public final String LLP_PROTOCOL_NAME = "tcpProtocolClassName";
-    public final String LLP_PROTOCOL_NAME_VALUE = "org.mule.providers.tcp.protocols.LlpProtocol";
-    public final String LLP_ADDRESS = "host";
-    public final String LLP_PORT = "port";
-    public final String LLP_RECEIVE_TIMEOUT = "receiveTimeout";
-    public final String LLP_BUFFER_SIZE = "bufferSize";
-    public final String LLP_KEEP_CONNECTION_OPEN = "keepSendSocketOpen";
-    public final String LLP_CHAR_ENCODING = "charEncoding";
-    public final String LLP_START_OF_MESSAGE_CHARACTER = "messageStart";
-    public final String LLP_END_OF_MESSAGE_CHARACTER = "messageEnd";
-    public final String LLP_RECORD_SEPARATOR = "recordSeparator";
-    public final String LLP_SEND_ACK = "sendACK";
-    public final String LLP_SEGMENT_END = "segmentEnd";
-    public final String LLP_ACKCODE_SUCCESSFUL = "ackCodeSuccessful";
-    public final String LLP_ACKMSG_SUCCESSFUL = "ackMsgSuccessful";
-    public final String LLP_ACKCODE_ERROR = "ackCodeError";
-    public final String LLP_ACKMSG_ERROR = "ackMsgError";
-    public final String LLP_ACKCODE_REJECTED = "ackCodeRejected";
-    public final String LLP_ACKMSG_REJECTED = "ackMsgRejected";
-    public final String LLP_ACK_MSH_15= "checkMSH15";
-    public final String LLP_ACK_NEW_CONNECTION = "ackOnNewConnection";
-    public final String LLP_ACK_NEW_CONNECTION_IP = "ackIP";
-    public final String LLP_ACK_NEW_CONNECTION_PORT = "ackPort";
-    public final String CONNECTOR_CHARSET_ENCODING = "charsetEncoding";
+    private final String DATATYPE = "DataType";
+    private final String LLP_PROTOCOL_NAME = "tcpProtocolClassName";
+    private final String LLP_PROTOCOL_NAME_VALUE = "org.mule.providers.tcp.protocols.LlpProtocol";
+    private final String LLP_ADDRESS = "host";
+    private final String LLP_PORT = "port";
+    private final String LLP_RECEIVE_TIMEOUT = "receiveTimeout";
+    private final String LLP_BUFFER_SIZE = "bufferSize";
+    private final String LLP_KEEP_CONNECTION_OPEN = "keepSendSocketOpen";
+    private final String LLP_CHAR_ENCODING = "charEncoding";
+    private final String LLP_START_OF_MESSAGE_CHARACTER = "messageStart";
+    private final String LLP_END_OF_MESSAGE_CHARACTER = "messageEnd";
+    private final String LLP_RECORD_SEPARATOR = "recordSeparator";
+    private final String LLP_SEND_ACK = "sendACK";
+    private final String LLP_SEGMENT_END = "segmentEnd";
+    private final String LLP_ACKCODE_SUCCESSFUL = "ackCodeSuccessful";
+    private final String LLP_ACKMSG_SUCCESSFUL = "ackMsgSuccessful";
+    private final String LLP_ACKCODE_ERROR = "ackCodeError";
+    private final String LLP_ACKMSG_ERROR = "ackMsgError";
+    private final String LLP_ACKCODE_REJECTED = "ackCodeRejected";
+    private final String LLP_ACKMSG_REJECTED = "ackMsgRejected";
+    private final String LLP_ACK_MSH_15= "checkMSH15";
+    private final String LLP_ACK_NEW_CONNECTION = "ackOnNewConnection";
+    private final String LLP_ACK_NEW_CONNECTION_IP = "ackIP";
+    private final String LLP_ACK_NEW_CONNECTION_PORT = "ackPort";
+    private final String CONNECTOR_CHARSET_ENCODING = "charsetEncoding";
     
     public LLPListener()
     {
@@ -363,7 +363,7 @@ public class LLPListener extends ConnectorClass
         ipDot = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(255, 255, 255));
-        setBorder(javax.swing.BorderFactory.createTitledBorder(null, "LLP Listener", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(0, 0, 0)));
+        setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         jLabel1.setText("Listener IP Address:");
 
         jLabel2.setText("Listener Port:");

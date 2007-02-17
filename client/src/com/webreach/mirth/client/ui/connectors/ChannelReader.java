@@ -49,8 +49,7 @@ public class ChannelReader extends ConnectorClass
     Frame parent; 
     
     /** Creates new form ChannelReader */
-    public final String DATATYPE = "DataType";
-
+    private final String DATATYPE = "DataType";
     private HashMap channelList;
     
     public ChannelReader()
@@ -99,7 +98,7 @@ public class ChannelReader extends ConnectorClass
         URL = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(255, 255, 255));
-        setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Channel Reader", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(0, 0, 0)));
+        setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         URL.setText("This connector has no properties.");
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
@@ -113,9 +112,7 @@ public class ChannelReader extends ConnectorClass
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .add(URL)
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .add(URL)
         );
     }// </editor-fold>//GEN-END:initComponents
 

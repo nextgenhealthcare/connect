@@ -42,22 +42,22 @@ public class FileReader extends ConnectorClass
     Frame parent;
 
     /** Creates new form FileWriter */
-    public final String DATATYPE = "DataType";
-    public final String FILE_DIRECTORY = "host";
-    public final String FILE_POLLING_FREQUENCY = "pollingFrequency";
-    public final String FILE_MOVE_TO_PATTERN = "moveToPattern";
-    public final String FILE_MOVE_TO_DIRECTORY = "moveToDirectory";
-    public final String FILE_DELETE_AFTER_READ = "autoDelete";
-    public final String FILE_CHECK_FILE_AGE = "checkFileAge";
-    public final String FILE_FILE_AGE = "fileAge";
-    public final String FILE_SORT_BY = "sortAttribute";
-    public final String FILE_PROCESS_BATCH_FILES = "processBatchFiles";
-    public final String SORT_BY_NAME = "name";
-    public final String SORT_BY_SIZE = "size";
-    public final String SORT_BY_DATE = "date";
-    //ast: encodign
-    public final String CONNECTOR_CHARSET_ENCODING = "charsetEncoding";
-    public final String FILE_FILTER = "fileFilter";
+    private final String DATATYPE = "DataType";
+    private final String FILE_DIRECTORY = "host";
+    private final String FILE_POLLING_FREQUENCY = "pollingFrequency";
+    private final String FILE_MOVE_TO_PATTERN = "moveToPattern";
+    private final String FILE_MOVE_TO_DIRECTORY = "moveToDirectory";
+    private final String FILE_DELETE_AFTER_READ = "autoDelete";
+    private final String FILE_CHECK_FILE_AGE = "checkFileAge";
+    private final String FILE_FILE_AGE = "fileAge";
+    private final String FILE_SORT_BY = "sortAttribute";
+    private final String FILE_PROCESS_BATCH_FILES = "processBatchFiles";
+    private final String SORT_BY_NAME = "name";
+    private final String SORT_BY_SIZE = "size";
+    private final String SORT_BY_DATE = "date";
+    private final String CONNECTOR_CHARSET_ENCODING = "charsetEncoding";
+    private final String FILE_FILTER = "fileFilter";
+    
     public FileReader()
     {
         this.parent = PlatformUI.MIRTH_FRAME;
@@ -217,7 +217,7 @@ public class FileReader extends ConnectorClass
         processBatchFilesNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
-        setBorder(javax.swing.BorderFactory.createTitledBorder(null, "File Reader", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(0, 0, 0)));
+        setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         jLabel1.setText("Directory to read:");
 
         jLabel2.setText("Polling Frequency (ms):");

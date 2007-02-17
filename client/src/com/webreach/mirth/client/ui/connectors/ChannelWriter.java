@@ -49,10 +49,10 @@ public class ChannelWriter extends ConnectorClass
     Frame parent; 
     
     /** Creates new form FTPReader */
-    public final String DATATYPE = "DataType";
-    public final String CHANNEL_ID = "host";
-    public final String CHANNEL_NAME = "channelName";
-    public final String CHANNEL_TEMPLATE= "tempalte";
+    private final String DATATYPE = "DataType";
+    private final String CHANNEL_ID = "host";
+    private final String CHANNEL_NAME = "channelName";
+
     private HashMap channelList;
     
     public ChannelWriter()
@@ -68,7 +68,6 @@ public class ChannelWriter extends ConnectorClass
         properties.put(DATATYPE, name);
         properties.put(CHANNEL_ID, channelList.get((String)channelNames.getSelectedItem()));
         properties.put(CHANNEL_NAME, (String)channelNames.getSelectedItem());
-        properties.put(CHANNEL_TEMPLATE, template.getText());
         return properties;
     }
 
@@ -91,8 +90,6 @@ public class ChannelWriter extends ConnectorClass
             channelNames.setSelectedItem((String)props.get(CHANNEL_NAME));
         
         parent.channelEditTasks.getContentPane().getComponent(0).setVisible(visible);
-        
-        template.setText(((String)props.get(CHANNEL_TEMPLATE)));
     }
     
     public Properties getDefaults()
@@ -101,17 +98,12 @@ public class ChannelWriter extends ConnectorClass
         properties.put(DATATYPE, name);
         properties.put(CHANNEL_ID, "sink");
         properties.put(CHANNEL_NAME, "None");
-        properties.put(CHANNEL_TEMPLATE, "${message.encodedData}");
         return properties;
     }
     
     public boolean checkProperties(Properties props)
     {
-        if (((String)props.get(CHANNEL_TEMPLATE)).length() > 0)
-        {
-                return true;
-        }
-        return false;
+        return true;
     }
     
     /** This method is called from within the constructor to
@@ -128,48 +120,29 @@ public class ChannelWriter extends ConnectorClass
         buttonGroup4 = new javax.swing.ButtonGroup();
         URL = new javax.swing.JLabel();
         channelNames = new com.webreach.mirth.client.ui.components.MirthComboBox();
-        template = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea();
-        jLabel1 = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(255, 255, 255));
-        setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Channel Writer", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(0, 0, 0)));
+        setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         URL.setText("Channel Name:");
 
         channelNames.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-
-        template.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-
-        jLabel1.setText("Template:");
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(layout.createSequentialGroup()
-                        .add(35, 35, 35)
-                        .add(jLabel1)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(template, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 341, Short.MAX_VALUE))
-                    .add(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .add(URL)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(channelNames, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 150, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap())
+                .addContainerGap()
+                .add(URL)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(channelNames, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 150, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(URL)
-                    .add(channelNames, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jLabel1)
-                    .add(template, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 268, Short.MAX_VALUE))
-                .addContainerGap())
+            .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                .add(URL)
+                .add(channelNames, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -181,8 +154,6 @@ public class ChannelWriter extends ConnectorClass
     private javax.swing.ButtonGroup buttonGroup3;
     private javax.swing.ButtonGroup buttonGroup4;
     private com.webreach.mirth.client.ui.components.MirthComboBox channelNames;
-    private javax.swing.JLabel jLabel1;
-    private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea template;
     // End of variables declaration//GEN-END:variables
 
 }

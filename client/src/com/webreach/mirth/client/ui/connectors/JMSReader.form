@@ -14,10 +14,8 @@
       <Color blue="ff" green="ff" red="ff" type="rgb"/>
     </Property>
     <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-      <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
-        <TitledBorder title="JMS Reader">
-          <Color PropertyName="color" blue="0" green="0" red="0" type="rgb"/>
-        </TitledBorder>
+      <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+        <EmptyBorder/>
       </Border>
     </Property>
   </Properties>
@@ -141,7 +139,7 @@
                       <Component id="deleteButton" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Component id="jLabel2" alignment="0" min="-2" max="-2" attributes="0"/>
-                  <Component id="propertiesPane" pref="194" max="32767" attributes="0"/>
+                  <Component id="propertiesPane" pref="222" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>

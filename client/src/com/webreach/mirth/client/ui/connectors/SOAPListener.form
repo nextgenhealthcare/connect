@@ -16,10 +16,8 @@
       <Color blue="ff" green="ff" red="ff" type="rgb"/>
     </Property>
     <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-      <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
-        <TitledBorder title="SOAP Listener">
-          <Color PropertyName="color" blue="0" green="0" red="0" type="rgb"/>
-        </TitledBorder>
+      <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+        <EmptyBorder/>
       </Border>
     </Property>
   </Properties>
@@ -51,7 +49,7 @@
                   <Component id="wsdlURL" alignment="0" min="-2" pref="400" max="-2" attributes="1"/>
                   <Component id="method" min="-2" pref="250" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace pref="30" max="32767" attributes="0"/>
+              <EmptySpace max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -82,7 +80,7 @@
                   <Component id="jLabel2" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="method" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace pref="311" max="32767" attributes="0"/>
+              <EmptySpace max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
