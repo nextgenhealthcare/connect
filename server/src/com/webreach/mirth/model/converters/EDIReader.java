@@ -127,12 +127,11 @@ public class EDIReader extends SAXParser {
 					// System.out.println("EL:" + element);
 					// The naming is SEG.<field number>
 					if (element.equals(elementDelim)) {
-						fieldID++;
 						if (lastsegElement) {
-
 							contentHandler.startElement("", segmentID + "." + fieldID, "", null);
 							contentHandler.endElement("", segmentID + "." + fieldID, "");
 						}
+						fieldID++;
 						lastsegElement = true;
 					} else {
 						lastsegElement = false;
@@ -140,22 +139,23 @@ public class EDIReader extends SAXParser {
 						if (element.indexOf(subelementDelim) > -1) {
 							// check if we have sub-elements, if so add them
 							StringTokenizer subelementTokenizer = new StringTokenizer(element, subelementDelim, true);
-							int subelementID = 0;
+							int subelementID = 1;
 							boolean lastsegSubelement = true;
 							while (subelementTokenizer.hasMoreTokens()) {
 								String subelement = subelementTokenizer.nextToken();
 								
 								if (subelement.equals(subelementDelim)) {
-									subelementID++;
+									
 									String subelementName = segmentID + "." + fieldID + "." + subelementID;
 									if (lastsegSubelement) {
 										contentHandler.startElement("", subelementName, "", null);
 										contentHandler.characters("".toCharArray(), 0, 0);
 										contentHandler.endElement("", subelementName, "");
 									}
-									
+									subelementID++;
 									lastsegSubelement = true;
 								} else {
+									
 									String subelementName = segmentID + "." + fieldID + "." + subelementID;
 									lastsegSubelement = false;
 									// The naming is SEG.<field
