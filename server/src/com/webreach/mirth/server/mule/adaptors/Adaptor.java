@@ -5,6 +5,8 @@ import java.util.Calendar;
 import org.apache.log4j.Logger;
 
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.model.converters.DefaultXMLSerializer;
+import com.webreach.mirth.model.converters.IXMLSerializer;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.util.StackTracePrinter;
 import com.webreach.mirth.server.util.UUIDGenerator;
@@ -47,5 +49,9 @@ public abstract class Adaptor {
 	protected MessageObject doConvertMessage(MessageObject messageObject, String template, String channelId, boolean encryptData) throws AdaptorException{
 		return messageObject;
 	}
+	public IXMLSerializer<String> getSerializer(Map properties){
+		return new DefaultXMLSerializer();
+	}
 	protected abstract void populateMessage() throws AdaptorException;
+	
 }

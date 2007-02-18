@@ -1,6 +1,7 @@
 package com.webreach.mirth.server.mule.adaptors;
 
 import java.io.StringReader;
+import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -9,6 +10,8 @@ import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.model.converters.DefaultXMLSerializer;
+import com.webreach.mirth.model.converters.IXMLSerializer;
 
 public class HL7v3Adaptor extends Adaptor {
 	protected void populateMessage() throws AdaptorException {

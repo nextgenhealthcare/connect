@@ -45,12 +45,11 @@ import com.webreach.mirth.model.Connector;
 import com.webreach.mirth.model.Transformer;
 import com.webreach.mirth.model.Transport;
 import com.webreach.mirth.model.converters.DocumentSerializer;
-import com.webreach.mirth.model.converters.ER7Serializer;
 import com.webreach.mirth.model.converters.IXMLSerializer;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
-import com.webreach.mirth.model.converters.SerializerFactory;
 import com.webreach.mirth.server.controllers.ScriptController;
 import com.webreach.mirth.server.controllers.TemplateController;
+import com.webreach.mirth.server.mule.adaptors.AdaptorFactory;
 import com.webreach.mirth.server.util.UUIDGenerator;
 import com.webreach.mirth.util.PropertyLoader;
 
@@ -361,7 +360,7 @@ public class MuleConfigurationBuilder {
 			// put the outbound template in the templates table
 			if (transformer.getOutboundTemplate() != null) {
 				TemplateController templateController = new TemplateController();
-				IXMLSerializer<String> serializer = SerializerFactory.getSerializer(transformer.getOutboundProtocol(), transformer.getOutboundProperties());
+				IXMLSerializer<String> serializer = AdaptorFactory.getAdaptor(transformer.getOutboundProtocol()).getSerializer( transformer.getOutboundProperties());
 				String templateId = UUIDGenerator.getUUID();
 				if (transformer.getOutboundTemplate().length() > 0) {
 					templateController.putTemplate(templateId, serializer.toXML(transformer.getOutboundTemplate()));

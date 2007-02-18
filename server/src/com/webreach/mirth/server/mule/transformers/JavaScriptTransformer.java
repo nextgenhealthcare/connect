@@ -42,7 +42,6 @@ import com.webreach.mirth.model.Connector.Mode;
 import com.webreach.mirth.model.MessageObject.Protocol;
 import com.webreach.mirth.model.converters.ER7Serializer;
 import com.webreach.mirth.model.converters.IXMLSerializer;
-import com.webreach.mirth.model.converters.SerializerFactory;
 import com.webreach.mirth.server.controllers.ControllerException;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.controllers.ScriptController;
@@ -305,7 +304,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 				// take the now transformed message and convert it back to ER7
 				//TODO: Fix the logic here to set the proper encoded data back
 				if ((messageObject.getTransformedData() != null)) {
-					IXMLSerializer<String> serializer = SerializerFactory.getSerializer(encodedDataProtocol, encodedDataProperties);
+					IXMLSerializer<String> serializer = AdaptorFactory.getAdaptor(encodedDataProtocol).getSerializer(encodedDataProperties);
 					messageObject.setEncodedData(serializer.fromXML(messageObject.getTransformedData()));
 				} 
 			}
