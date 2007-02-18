@@ -253,7 +253,7 @@ public class DashboardPanel extends javax.swing.JPanel
         
         if(row >= 0 && row < statusTable.getRowCount())
         {
-            System.out.println(row);
+            //System.out.println(row);
             statusTable.setRowSelectionInterval(row,row);
         }
     }

@@ -1044,21 +1044,7 @@ public class TransformerPane extends MirthEditorPane
             HashMap map = (HashMap) step.getData();
             if (step.getType().equals(TransformerPane.MAPPER_TYPE))
             {
-                TreeMap regexes = (TreeMap) map.get("RegularExpressions");
-                
-                StringBuilder regexArray = new StringBuilder();
-                regexArray.append("new Array(");
-                
-                Iterator iter = regexes.keySet().iterator();
-                while (iter.hasNext())
-                {
-                    String key = (String) iter.next();
-                    regexArray.append("new Array('" + key + "', '" + regexes.get(key) + "')");
-                    if(!iter.hasNext())
-                        regexArray.append(");");
-                    else
-                        regexArray.append(",");
-                }
+                String regexArray = buildRegexArray(map);
                 
                 StringBuilder script = new StringBuilder();
                 
@@ -1067,8 +1053,18 @@ public class TransformerPane extends MirthEditorPane
                 else
                     script.append("localMap.put(");
                 
+                //default values need to be provided
+                //so we don't cause syntax errors in the JS
                 script.append("'" + map.get("Variable") + "', ");
-                script.append( "validate(" + map.get("Mapping") + ", " + (String)map.get("DefaultValue") + ", " + regexArray.toString() + "));");
+                String defaultValue = (String)map.get("DefaultValue");
+                if (defaultValue.length() == 0){
+                	defaultValue = "''";
+                }
+                String mapping = (String)map.get("Mapping");
+                if (mapping.length() == 0){
+                	mapping = "''";
+                }
+                script.append( "validate(" + mapping + ", " +  defaultValue + ", " + regexArray + "));");
                 step.setScript(script.toString());
             }
             else if (step.getType().equals(TransformerPane.JAVASCRIPT_TYPE))
@@ -1077,27 +1073,20 @@ public class TransformerPane extends MirthEditorPane
             }
             else if (step.getType().equals(TransformerPane.MESSAGE_TYPE))
             {
-                TreeMap regexes = (TreeMap) map.get("RegularExpressions");
-                
-                StringBuilder regexArray = new StringBuilder();
-                regexArray.append("new Array(");
-                
-                Iterator iter = regexes.keySet().iterator();
-                while (iter.hasNext())
-                {
-                    String key = (String) iter.next();
-                    regexArray.append("new Array('" + key + "', '" + regexes.get(key) + "')");
-                    if(!iter.hasNext())
-                        regexArray.append(");");
-                    else
-                        regexArray.append(",");
-                }
-                
+                String regexArray = buildRegexArray(map);
                 StringBuilder script = new StringBuilder();
                 String variable = (String) map.get("Variable");
+                String defaultValue = (String)map.get("DefaultValue");
+                if (defaultValue.length() == 0){
+                	defaultValue = "''";
+                }
+                String mapping = (String)map.get("Mapping");
+                if (mapping.length() == 0){
+                	mapping = "''";
+                }
                 script.append(variable);
                 script.append(" = ");
-                script.append("validate(" +  (String) map.get("Mapping") + ", " + (String)map.get("DefaultValue") + ", " + regexArray.toString() + ");");
+                script.append("validate(" +  mapping + ", " + defaultValue + ", " + regexArray + ");");
                 step.setScript(script.toString());
             }
             
@@ -1105,6 +1094,29 @@ public class TransformerPane extends MirthEditorPane
         }
         return list;
     }
+
+	private String buildRegexArray(HashMap map) {
+		TreeMap regexes = (TreeMap) map.get("RegularExpressions");
+		
+		StringBuilder regexArray = new StringBuilder();
+		regexArray.append("new Array(");
+		
+		Iterator iter = regexes.keySet().iterator();
+		if(iter.hasNext()){
+			while (iter.hasNext())
+			{
+			    String key = (String) iter.next();
+			    regexArray.append("new Array(" + key + ", " + regexes.get(key) + ")");
+			    if(!iter.hasNext())
+			        regexArray.append(")");
+			    else
+			        regexArray.append(",");
+			}
+		}else{
+			regexArray.append(")");
+		}
+		return regexArray.toString();
+	}
     
     /**
      * void accept(MouseEvent evt) returns a vector of vectors to the caller of

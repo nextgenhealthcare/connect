@@ -453,6 +453,7 @@ public class Frame extends JXFrame
             
         rightContainer.add(contentPageObject);
         currentContentPage = contentPageObject;
+        this.repaint();
     }
 
     /**

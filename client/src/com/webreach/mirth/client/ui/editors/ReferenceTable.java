@@ -121,7 +121,9 @@ public class ReferenceTable extends JXTable
     
     private void refTableMouseExited(MouseEvent evt)
     {
-        this.clearSelection();
+        if (!(evt.getModifiersEx() == evt.BUTTON1_DOWN_MASK)){
+        	this.clearSelection();
+        }
     }
     
     private void refTableMouseDragged(MouseEvent evt)

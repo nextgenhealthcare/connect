@@ -53,6 +53,7 @@ import org.jdesktop.swingx.decorator.HighlighterPipeline;
 import org.syntax.jedit.SyntaxDocument;
 import org.syntax.jedit.tokenmarker.HL7TokenMarker;
 import org.syntax.jedit.tokenmarker.XMLTokenMarker;
+import org.w3c.dom.Document;
 
 import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.core.ListHandlerException;
@@ -66,6 +67,7 @@ import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
 import com.webreach.mirth.client.ui.components.MirthSyntaxTextArea;
 import com.webreach.mirth.client.ui.util.FileUtil;
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.model.converters.DocumentSerializer;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.model.filters.MessageObjectFilter;
 
@@ -568,9 +570,12 @@ public class MessageBrowser extends javax.swing.JPanel
                 this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                 
                 MessageObject currentMessage = messageObjectList.get(row);
-                
+                //format the xml
+                DocumentSerializer serializer = new DocumentSerializer();
+                serializer.setPreserveSpace(false);
+                String transformmedXML = serializer.toXML(serializer.fromXML(currentMessage.getTransformedData()));
                 setCorrectDocument(RawMessageTextPane, currentMessage.getRawData(), currentMessage.getRawDataProtocol());
-                setCorrectDocument(TransformedMessageTextPane, currentMessage.getTransformedData(), currentMessage.getTransformedDataProtocol());
+                setCorrectDocument(TransformedMessageTextPane, transformmedXML, currentMessage.getTransformedDataProtocol());
                 setCorrectDocument(EncodedMessageTextPane, currentMessage.getEncodedData(), currentMessage.getEncodedDataProtocol());
                 setCorrectDocument(ErrorsTextPane, currentMessage.getErrors(), null);
                 
