@@ -92,7 +92,7 @@ public class JdbcConnector extends AbstractServiceEnabledConnector {
 		logger.debug("generating database script");
 		StringBuilder script = new StringBuilder();
 		// script.append("importPackage(Packages.com.webreach.mirth.server.util);\n");
-		script.append("function $(string) { if (globalMap.get(string) != null) return globalMap.get(string) else return localMap.get(string) }");
+		script.append("function $(string) { if (globalMap.get(string) != null) { return globalMap.get(string)} else { return localMap.get(string);} }");
 		script.append("function doDatabaseScript() {");
 		script.append(databaseScript + "\n");
 		script.append("doDatabaseScript()\n");

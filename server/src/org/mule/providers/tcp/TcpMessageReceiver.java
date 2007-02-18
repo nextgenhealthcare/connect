@@ -364,6 +364,9 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
 			boolean errorOnly = false;
 			boolean always = false;
 			boolean successOnly = false;
+			if (error == null){
+				error = "";
+			}
 			//Check if we want to send ACKs at all.
 			if (connector.getSendACK()) {
 				//Check if we have to look at MSH15

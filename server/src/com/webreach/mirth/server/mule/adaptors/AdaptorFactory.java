@@ -8,7 +8,9 @@ public class AdaptorFactory {
 			return new HL7v2Adaptor();
 		} else if (protocol.equals(Protocol.HL7V3)) {
 			return new HL7v3Adaptor();
-		} else {
+		} else if (protocol.equals(Protocol.X12)){
+			return new X12Adaptor();
+		}else {
 			return new XMLAdaptor();
 		}
 	}

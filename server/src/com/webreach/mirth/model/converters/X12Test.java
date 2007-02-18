@@ -44,7 +44,7 @@ public class X12Test {
 
 			System.out.println(xmloutput);
 			XMLReader xr = XMLReaderFactory.createXMLReader();
-			EDIXMLHandler handler = new EDIXMLHandler("~\r\n", "*", ":");
+			EDIXMLHandler handler = new EDIXMLHandler("~", "*", ":");
 			xr.setContentHandler(handler);
 			xr.setErrorHandler(handler);
 

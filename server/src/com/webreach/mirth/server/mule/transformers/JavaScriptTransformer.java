@@ -25,6 +25,9 @@
 
 package com.webreach.mirth.server.mule.transformers;
 
+import java.util.Map;
+import java.util.Properties;
+
 import org.apache.log4j.Logger;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ImporterTopLevel;
@@ -35,8 +38,12 @@ import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.transformer.TransformerException;
 
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.model.Connector.Mode;
 import com.webreach.mirth.model.MessageObject.Protocol;
 import com.webreach.mirth.model.converters.ER7Serializer;
+import com.webreach.mirth.model.converters.IXMLSerializer;
+import com.webreach.mirth.model.converters.SerializerFactory;
+import com.webreach.mirth.server.controllers.ControllerException;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.controllers.ScriptController;
 import com.webreach.mirth.server.controllers.TemplateController;
@@ -54,6 +61,8 @@ public class JavaScriptTransformer extends AbstractTransformer {
 
 	private String inboundProtocol;
 	private String outboundProtocol;
+	private Map inboundProperties;
+	private Map outboundProperties;
 	private String channelId;
 	private String connectorName;
 	private boolean encryptData;
@@ -61,7 +70,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 	private String filterScriptId;
 	private String templateId;
 	private String mode;
-
+	private String template;
 	public String getChannelId() {
 		return this.channelId;
 	}
@@ -132,6 +141,12 @@ public class JavaScriptTransformer extends AbstractTransformer {
 
 	public void setTemplateId(String templateId) {
 		this.templateId = templateId;
+		TemplateController templateController = new TemplateController();
+		try {
+			template = templateController.getTemplate(templateId);
+		} catch (ControllerException e) {
+			logger.error("Unable to get template: " + templateId);
+		}
 	}
 
 	@Override
@@ -155,6 +170,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 				Script compiledTransformerScript = context.compileString(generatedTransformerScript, transformerScriptId, 1, null);
 				compiledScriptCache.putCompiledScript(transformerScriptId, compiledTransformerScript);
 			}
+
 		} catch (Exception e) {
 			throw new InitialisationException(e, this);
 		} finally {
@@ -164,17 +180,32 @@ public class JavaScriptTransformer extends AbstractTransformer {
 
 	@Override
 	public Object doTransform(Object source) throws TransformerException {
-		MessageObject messageObject;
+		MessageObject messageObject = null;
 		
-		try {
-			Adaptor adaptor = AdaptorFactory.getAdaptor(Protocol.valueOf(inboundProtocol));
-			messageObject = adaptor.getMessage((String) source, channelId, encryptData);	
-		} catch (Exception e) {
-			messageObject = null;
+		if (this.getMode().equals(Mode.SOURCE.toString())){
+			try {
+				Adaptor adaptor = AdaptorFactory.getAdaptor(Protocol.valueOf(inboundProtocol));
+				messageObject = adaptor.getMessage((String) source, channelId, encryptData, inboundProperties);	
+			} catch (Exception e) {
+				messageObject = null;
+			}
+		}else if (this.getMode().equals(Mode.DESTINATION.toString())){
+			messageObject = (MessageObject)source;
+			messageObject = messageObjectController.cloneMessageObjectForBroadcast(messageObject, this.getConnectorName());
+			try{
+				Adaptor adaptor = AdaptorFactory.getAdaptor(Protocol.valueOf(outboundProtocol));
+				messageObject = adaptor.convertMessage(messageObject, template, channelId, encryptData, outboundProperties);
+			}catch (Exception e){
+				
+			}
+			messageObject.setEncodedDataProtocol(Protocol.valueOf(this.outboundProtocol));		
 		}
-
 		if (evaluateFilterScript(messageObject)) {
-			return evaluateTransformerScript(messageObject);
+			MessageObject transformedMessageObject = evaluateTransformerScript(messageObject);
+			if (this.getMode().equals(Mode.SOURCE.toString())){
+				messageObjectController.updateMessage(transformedMessageObject);
+			}
+			return transformedMessageObject;
 		} else {
 			messageObject.setStatus(MessageObject.Status.REJECTED);
 			return messageObject;
@@ -228,13 +259,9 @@ public class JavaScriptTransformer extends AbstractTransformer {
 
 	private MessageObject evaluateTransformerScript(MessageObject messageObject) throws TransformerException {
 		try {
-			Logger scriptLogger = Logger.getLogger("inbound-transformation");
+			Logger scriptLogger = Logger.getLogger(getMode().toLowerCase() + "-transformation");
 			Context context = Context.enter();
-			TemplateController templateController = new TemplateController();
-			Scriptable scope = new ImporterTopLevel(context);
-
-			String template = templateController.getTemplate(templateId);
-
+			Scriptable scope = new ImporterTopLevel(context);			
 			// load variables in JavaScript scope
 			scope.put("logger", scope, scriptLogger);
 			scope.put("message", scope, messageObject.getTransformedData());
@@ -242,7 +269,9 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			scope.put("localMap", scope, messageObject.getVariableMap());
 			scope.put("globalMap", scope, GlobalVariableStore.getInstance());
 			scope.put("messageObject", scope, messageObject);
-			scope.put("serializer", scope, new ER7Serializer());
+			//TODO: have function list provide all serializers - maybe we import a top level package or create a helper class
+			//TODO: this is going to break backwards compatability
+			//scope.put("serializer", scope, SerializerFactory.getSerializer(Protocol.valueOf(inboundProtocol), this.get));
 
 			// get the script from the cache and execute it
 			Script compiledScript = compiledScriptCache.getCompiledScript(transformerScriptId);
@@ -252,27 +281,34 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			} else {
 				compiledScript.exec(context, scope);
 			}
-
+			
+			//TODO: Check logic here
 			Object transformedData;
-
+			Protocol encodedDataProtocol;
+			Map encodedDataProperties;
 			if (template != null) {
 				transformedData = scope.get("tmp", scope);
+				encodedDataProtocol = Protocol.valueOf(this.getOutboundProtocol());
+				encodedDataProperties = this.getOutboundProperties();
 			} else {
 				transformedData = scope.get("msg", scope);
+				encodedDataProtocol = Protocol.valueOf(this.getInboundProtocol());
+				encodedDataProperties = this.getInboundProperties();
 			}
 
 			if (transformedData != Scriptable.NOT_FOUND) {
 				// set the transformedData to the template
 				messageObject.setTransformedData(Context.toString(transformedData));
 			}
-			// take the now transformed message and convert it back to ER7
-			if ((messageObject.getTransformedData() != null) && (messageObject.getEncodedDataProtocol().equals(MessageObject.Protocol.HL7V2))) {
-				ER7Serializer serializer = new ER7Serializer();
-				messageObject.setEncodedData(serializer.fromXML(messageObject.getTransformedData()));
-			} else if (messageObject.getEncodedDataProtocol().equals(MessageObject.Protocol.HL7V3)) {
-				messageObject.setEncodedData(messageObject.getTransformedData());
+			
+			if(this.getMode().equals(Mode.DESTINATION.toString())){
+				// take the now transformed message and convert it back to ER7
+				//TODO: Fix the logic here to set the proper encoded data back
+				if ((messageObject.getTransformedData() != null)) {
+					IXMLSerializer<String> serializer = SerializerFactory.getSerializer(encodedDataProtocol, encodedDataProperties);
+					messageObject.setEncodedData(serializer.fromXML(messageObject.getTransformedData()));
+				} 
 			}
-
 			messageObject.setStatus(MessageObject.Status.TRANSFORMED);
 			return messageObject;
 		} catch (Exception e) {
@@ -289,11 +325,11 @@ public class JavaScriptTransformer extends AbstractTransformer {
 		logger.debug("generating filter script");
 		StringBuilder script = new StringBuilder();
 		script.append("importPackage(Packages.com.webreach.mirth.server.util);\n	");
-		script.append("function $(string) { if (globalMap.get(string) != null) return globalMap.get(string) else return localMap.get(string) }");
+		script.append("function $(string) { if (globalMap.get(string) != null) { return globalMap.get(string)} else { return localMap.get(string);} }");
 		script.append("function doFilter() {");
 
 		if (inboundProtocol.equals(Protocol.HL7V2.toString())) {
-			script.append("default xml namespace = new Namespace(\"urn:hl7-org:v2xml\");");
+			//script.append("default xml namespace = new Namespace(\"urn:hl7-org:v2xml\");");
 		}
 
 		script.append("var msg = new XML(message);\n " + filterScript + " }\n");
@@ -306,13 +342,13 @@ public class JavaScriptTransformer extends AbstractTransformer {
 		StringBuilder script = new StringBuilder();
 		script.append("importPackage(Packages.com.webreach.mirth.server.util);");
 		// script used to check for exitence of segment
-		script.append("function validate(mapping) { result = ''; if (mapping != undefined) result = mapping.toString(); return result; }");
-		script.append("function $(string) { if (globalMap.get(string) != null) return globalMap.get(string) else return localMap.get(string) }");
+		script.append("function validate(mapping, defaultValue, replacement) { var result = ''; if (mapping != undefined) {result = mapping.toString();} if (result.length == 0){result = defaultValue;} if (replacement != undefined){ for (i = 0; i < replacement.length; i++){ var entry = replacement[0]; result = result.replace(entry[0],entry[1]); \n} }return result; }");
+		script.append("function $(string) { if (globalMap.get(string) != null) { return globalMap.get(string)} else { return localMap.get(string);} }");
 		script.append("function doTransform() {");
 
 		// only set the namespace to hl7-org if the message is XML
 		if (inboundProtocol.equals(Protocol.HL7V2.toString())) {
-			script.append("default xml namespace = new Namespace(\"urn:hl7-org:v2xml\");");
+			//script.append("default xml namespace = new Namespace(\"urn:hl7-org:v2xml\");");
 		}
 
 		// ast: Allow ending whitespaces from the input XML
@@ -320,12 +356,31 @@ public class JavaScriptTransformer extends AbstractTransformer {
 		// ast: Allow ending whitespaces to the output XML
 		script.append("XML.prettyPrinting=false;");
 		// turn the template into an E4X XML object
-		script.append("tmp = new XML(template);");
+
+		if (template != null){
+			script.append("tmp = new XML(template);");
+		}
 		script.append("msg = new XML(message);");
 		script.append(transformerScript);
 		script.append(" }");
 		script.append("doTransform()\n");
 		return script.toString();
+	}
+
+	public Map getInboundProperties() {
+		return inboundProperties;
+	}
+
+	public void setInboundProperties(Map inboundProperties) {
+		this.inboundProperties = inboundProperties;
+	}
+
+	public Map getOutboundProperties() {
+		return outboundProperties;
+	}
+
+	public void setOutboundProperties(Map outboundProperties) {
+		this.outboundProperties = outboundProperties;
 	}
 
 }

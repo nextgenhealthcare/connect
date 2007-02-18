@@ -27,6 +27,7 @@ package com.webreach.mirth.model.converters;
 import java.io.ByteArrayOutputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.Map;
 import java.util.Properties;
 
 import org.xml.sax.InputSource;
@@ -34,32 +35,36 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
-public class EDISerializer implements IXMLSerializer {
+public class EDISerializer implements IXMLSerializer<String> {
 	private String segmentDelim = "~";
 	private String elementDelim = "*";
 	private String subelementDelim = ":";
 
-	public EDISerializer(Properties ediProperties) {
-		if(ediProperties.get("segmentDelim") != null)
+	public EDISerializer(Map ediProperties) {
+		if(ediProperties.get("segmentDelimiter") != null)
 		{
-			this.segmentDelim = (String) ediProperties.get("segmentDelim");
+			this.segmentDelim = convertNonPrintableCharacters((String) ediProperties.get("segmentDelimiter"));
+
 		}
-		if(ediProperties.get("elementDelim") != null)
+		if(ediProperties.get("elementDelimiter") != null)
 		{
-			this.elementDelim = (String) ediProperties.get("elementDelim");
+			this.elementDelim = convertNonPrintableCharacters((String) ediProperties.get("elementDelimiter"));
 		}
-		if(ediProperties.get("subelementDelim") != null)
+		if(ediProperties.get("subelementDelimiter") != null)
 		{
-			this.subelementDelim = (String) ediProperties.get("subelementDelim");
+			this.subelementDelim = convertNonPrintableCharacters((String) ediProperties.get("subelementDelimiter"));
 		}
 		return;
 	}
-	
+	private String convertNonPrintableCharacters(String delimiter){
+		return delimiter.replaceAll("\\\\r", "\r").replaceAll("\\\\n", "\n").replaceAll("\\\\t", "\t");
+		
+	}
 	public EDISerializer() {
 		
 	}
 
-	public Object fromXML(String source) throws SerializerException {
+	public String fromXML(String source) throws SerializerException {
 		XMLReader xr;
 		try {
 			xr = XMLReaderFactory.createXMLReader();
@@ -74,10 +79,10 @@ public class EDISerializer implements IXMLSerializer {
 		} catch (Exception e) {
 			throw new SerializerException(e.getMessage());
 		} 
-		return handler.toString();
+		return handler.getOutput().toString();
 	}
 
-	public String toXML(Object source) throws SerializerException {
+	public String toXML(String source) throws SerializerException {
 		try {
 			
 			EDIReader ediReader = new EDIReader("~", "*", ":");
@@ -86,7 +91,7 @@ public class EDISerializer implements IXMLSerializer {
 			ByteArrayOutputStream os = new ByteArrayOutputStream();
 			try {
 				ediReader.setContentHandler(serializer);
-				ediReader.parse(new InputSource(new StringReader((String)source)));
+				ediReader.parse(new InputSource(new StringReader(source)));
 				os.write(stringWriter.toString().getBytes());
 			} catch (Exception e) {
 				e.printStackTrace();

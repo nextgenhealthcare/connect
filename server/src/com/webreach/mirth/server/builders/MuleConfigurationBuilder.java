@@ -42,10 +42,13 @@ import org.w3c.dom.Element;
 
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.Connector;
+import com.webreach.mirth.model.Transformer;
 import com.webreach.mirth.model.Transport;
 import com.webreach.mirth.model.converters.DocumentSerializer;
 import com.webreach.mirth.model.converters.ER7Serializer;
+import com.webreach.mirth.model.converters.IXMLSerializer;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
+import com.webreach.mirth.model.converters.SerializerFactory;
 import com.webreach.mirth.server.controllers.ScriptController;
 import com.webreach.mirth.server.controllers.TemplateController;
 import com.webreach.mirth.server.util.UUIDGenerator;
@@ -344,24 +347,24 @@ public class MuleConfigurationBuilder {
 		try {
 			Element transformersElement = (Element) configurationElement.getElementsByTagName("transformers").item(0);
 			Element transformerElement = document.createElement("transformer");
+			Transformer transformer = connector.getTransformer();
 			transformerElement.setAttribute("name", name);
 			transformerElement.setAttribute("className", "com.webreach.mirth.server.mule.transformers.JavaScriptTransformer");
 
 			Properties properties = new Properties();
 			properties.put("channelId", channel.getId());
-			properties.put("inboundProtocol", connector.getTransformer().getInboundProtocol());
-			properties.put("outboundProtocol", connector.getTransformer().getOutboundProtocol());
+			properties.put("inboundProtocol", transformer.getInboundProtocol());
+			properties.put("outboundProtocol", transformer.getOutboundProtocol());
 			properties.put("encryptData", channel.getProperties().get("encryptData"));
 			properties.put("mode", connector.getMode().toString());
 
-			// put the inbound template in the templates table
-			if (connector.getTransformer().getInboundTemplate() != null) {
+			// put the outbound template in the templates table
+			if (transformer.getOutboundTemplate() != null) {
 				TemplateController templateController = new TemplateController();
-				ER7Serializer serializer = new ER7Serializer();
+				IXMLSerializer<String> serializer = SerializerFactory.getSerializer(transformer.getOutboundProtocol(), transformer.getOutboundProperties());
 				String templateId = UUIDGenerator.getUUID();
-
-				if ((connector.getTransformer().getInboundTemplate() != null) && connector.getTransformer().getInboundTemplate().length() > 0) {
-					templateController.putTemplate(templateId, serializer.toXML(connector.getTransformer().getInboundTemplate()));
+				if (transformer.getOutboundTemplate().length() > 0) {
+					templateController.putTemplate(templateId, serializer.toXML(transformer.getOutboundTemplate()));
 				}
 
 				properties.put("templateId", templateId);
@@ -374,18 +377,27 @@ public class MuleConfigurationBuilder {
 
 			// put the transformer script in the scripts table
 			String transformerScriptId = UUIDGenerator.getUUID();
-			scriptController.putScript(transformerScriptId, transformerBuilder.getScript(connector.getTransformer(), channel));
+			scriptController.putScript(transformerScriptId, transformerBuilder.getScript(transformer, channel));
 			properties.put("transformerScriptId", transformerScriptId);
-			properties.put("connectorName", connector.getName() + " " + connector.getMode().toString());
-
-			transformerElement.appendChild(getProperties(document, properties, null));
-
+			properties.put("connectorName", connector.getName());
+			Element propertiesElement = getProperties(document, properties, null);
+			
+		
+			if (transformer.getInboundProperties() != null && transformer.getInboundProperties().size() > 0){
+				Element inboundPropertiesElement = getPropertiesMap(document, transformer.getInboundProperties(), null,"inboundProperties");
+				propertiesElement.appendChild(inboundPropertiesElement);
+			}
+		
+			if (transformer.getOutboundProperties() != null && transformer.getOutboundProperties().size() > 0){
+				Element outboundPropertiesElement = getPropertiesMap(document, transformer.getOutboundProperties(), null,"outboundProperties");
+				propertiesElement.appendChild(outboundPropertiesElement);
+			}
+			transformerElement.appendChild(propertiesElement);
 			transformersElement.appendChild(transformerElement);
 		} catch (Exception e) {
 			throw new BuilderException(e);
 		}
 	}
-
 	private void addConnector(Document document, Element configurationElement, Connector connector, String name) throws BuilderException {
 		try {
 			// get the transport associated with this class from the transport
@@ -429,19 +441,9 @@ public class MuleConfigurationBuilder {
 						textPropertyElement.setTextContent(property.getValue().toString());
 						propertiesElement.appendChild(textPropertyElement);
 					} else if (property.getKey().equals("connectionFactoryProperties")) {
-						Element connectionFactoryPropertiesMapElement = document.createElement("map");
-						connectionFactoryPropertiesMapElement.setAttribute("name", "connectionFactoryProperties");
 						ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 						Properties connectionFactoryProperties = (Properties) serializer.fromXML(property.getValue().toString());
-
-						for (Iterator iterator = connectionFactoryProperties.entrySet().iterator(); iterator.hasNext();) {
-							Entry connectionFactoryProperty = (Entry) iterator.next();
-							Element connectionFactoryPropertyElement = document.createElement("property");
-							connectionFactoryPropertyElement.setAttribute("name", connectionFactoryProperty.getKey().toString());
-							connectionFactoryPropertyElement.setAttribute("value", connectionFactoryProperty.getValue().toString());
-							connectionFactoryPropertiesMapElement.appendChild(connectionFactoryPropertyElement);
-						}
-
+						Element connectionFactoryPropertiesMapElement = getPropertiesMap(document, connectionFactoryProperties, null, "connectionFactoryProperties");
 						propertiesElement.appendChild(connectionFactoryPropertiesMapElement);
 					} else {
 						// script is a special property reserved for some connectors
@@ -497,7 +499,40 @@ public class MuleConfigurationBuilder {
 			throw new BuilderException(e);
 		}
 	}
+	/**
+	 * Returns a properties map element given a Properties object and a List of
+	 * properties which should be text-property elements, as well as a name for the map
+	 * 
+	 * @param document
+	 * @param properties
+	 * @param textProperties
+	 * @param name
+	 * @return
+	 */
+	private Element getPropertiesMap(Document document, Properties properties, List<String> textProperties, String name) {
+		Element propertiesElement = document.createElement("map");
+		propertiesElement.setAttribute("name", name);
+		for (Iterator iter = properties.entrySet().iterator(); iter.hasNext();) {
+			Entry property = (Entry) iter.next();
 
+			// only add non-null and non-empty properties to the list
+			if ((property.getValue() != null) && (!property.getValue().equals(""))) {
+				if ((textProperties != null) && textProperties.contains(property.getKey())) {
+					Element textPropertyElement = document.createElement("text-property");
+					textPropertyElement.setAttribute("name", property.getKey().toString());
+					textPropertyElement.setTextContent(property.getValue().toString());
+					propertiesElement.appendChild(textPropertyElement);
+				} else {
+					Element propertyElement = document.createElement("property");
+					propertyElement.setAttribute("name", property.getKey().toString());
+					propertyElement.setAttribute("value", property.getValue().toString());
+					propertiesElement.appendChild(propertyElement);
+				}
+			}
+		}
+
+		return propertiesElement;
+	}
 	/**
 	 * Returns a properties element given a Properties object and a List of
 	 * properties which should be text-property elements.

@@ -190,7 +190,7 @@ public class MessageObjectController {
 		clone.setId(UUIDGenerator.getUUID());
 		clone.setDateCreated(Calendar.getInstance());
 		clone.setCorrelationId(messageObject.getId());
-		clone.setConnectorName(new ChannelController().getDestinationName(connectorName));
+		clone.setConnectorName(connectorName);//new ChannelController().getDestinationName(connectorName));
 		return clone;
 	}
 }
