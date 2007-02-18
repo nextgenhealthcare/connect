@@ -21,6 +21,8 @@ import com.webreach.mirth.model.Step;
 import java.awt.BorderLayout;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -53,7 +55,7 @@ public class TabbedTemplatePanel extends javax.swing.JPanel
         variableReferenceScrollPane.setViewportView(variableReferenceTable);
         variableTable = new VariableReferenceTable("Available Variables", new String[]{}); 
         variableTable.setDragEnabled(true);
-        variableTable.setTransferHandler(new VariableListHandler("$(", ")"));
+        variableTable.setTransferHandler(new VariableListHandler("$('", "')"));
         variableListScrollPane.setViewportView(variableTable);
     }
       
