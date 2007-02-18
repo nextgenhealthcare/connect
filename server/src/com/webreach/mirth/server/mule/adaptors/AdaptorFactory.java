@@ -10,6 +10,8 @@ public class AdaptorFactory {
 			return new HL7v3Adaptor();
 		} else if (protocol.equals(Protocol.X12)){
 			return new X12Adaptor();
+		} else if (protocol.equals(Protocol.EDI)){
+			return new EDIAdaptor();
 		}else {
 			return new XMLAdaptor();
 		}

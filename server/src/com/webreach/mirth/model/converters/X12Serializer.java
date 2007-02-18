@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.Properties;
 
 public class X12Serializer extends EDISerializer {
+
 	private boolean inferX12Delimiters = false;
 	public X12Serializer(Map x12Properties){
 		super(x12Properties);
