@@ -50,6 +50,8 @@ import com.webreach.mirth.server.mule.adaptors.Adaptor;
 import com.webreach.mirth.server.mule.adaptors.AdaptorFactory;
 import com.webreach.mirth.server.mule.util.CompiledScriptCache;
 import com.webreach.mirth.server.mule.util.GlobalVariableStore;
+import com.webreach.mirth.server.mule.util.VMRegistry;
+import com.webreach.mirth.server.mule.util.VMRouter;
 import com.webreach.mirth.server.util.StackTracePrinter;
 
 public class JavaScriptTransformer extends AbstractTransformer {
@@ -268,6 +270,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			scope.put("localMap", scope, messageObject.getVariableMap());
 			scope.put("globalMap", scope, GlobalVariableStore.getInstance());
 			scope.put("messageObject", scope, messageObject);
+			scope.put("router", scope, new VMRouter());
 			//TODO: have function list provide all serializers - maybe we import a top level package or create a helper class
 			//TODO: this is going to break backwards compatability
 			//scope.put("serializer", scope, SerializerFactory.getSerializer(Protocol.valueOf(inboundProtocol), this.get));

@@ -29,6 +29,8 @@ import org.mule.umo.provider.UMOConnector;
 import org.mule.util.queue.Queue;
 import org.mule.util.queue.QueueSession;
 
+import com.webreach.mirth.server.mule.util.VMRegistry;
+
 import java.util.List;
 
 /**
@@ -51,6 +53,7 @@ public class VMMessageReceiver extends TransactedPollingMessageReceiver
         super(connector, component, endpoint, new Long(10));
         this.connector = (VMConnector) connector;
         receiveMessagesInTransaction = endpoint.getTransactionConfig().isTransacted();
+        VMRegistry.getInstance().register(this.getEndpointURI().getAddress(), this);
     }
 
     public void doConnect() throws Exception

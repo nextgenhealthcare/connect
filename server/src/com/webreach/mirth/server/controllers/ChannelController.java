@@ -44,14 +44,19 @@ public class ChannelController {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private SqlMapClient sqlMap = SqlConfig.getSqlMapInstance();
 	private static HashMap<String, Channel> channelCache;
-	
+	private static HashMap<String, String> channelIDLookup;
 	public static void updateChannelCache(List<Channel> channels){
 		channelCache = new HashMap<String, Channel>();
+		channelIDLookup = new HashMap<String, String>();
 		Iterator<Channel> it = channels.iterator();
 		while (it.hasNext()){
 			Channel channel = it.next();
 			channelCache.put(channel.getId(), channel);
+			channelIDLookup.put(channel.getName().toUpperCase(), channel.getId());
 		}
+	}
+	public static String getChannelId(String channelName){
+		return channelIDLookup.get(channelName.toUpperCase());
 	}
 	public static String getDestinationName(String id){
 		//String format: channelid_destination_index

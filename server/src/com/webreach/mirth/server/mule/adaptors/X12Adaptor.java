@@ -86,20 +86,20 @@ public class X12Adaptor extends Adaptor {
 		String sendingFacility = "";
 		if (document.getElementsByTagName("ISA.6") != null){
 			Node sender = document.getElementsByTagName("ISA.6").item(0);
-			sendingFacility = sender.getNodeValue();
+			sendingFacility = sender.getFirstChild().getNodeValue();
 		}else if (document.getElementsByTagName("GS.2") != null){
 			Node sender = document.getElementsByTagName("GS.2").item(0);
-			sendingFacility = sender.getNodeValue();
+			sendingFacility = sender.getFirstChild().getNodeValue();
 		}				
 		String event = "Unknown";
 		if (document.getElementsByTagName("ST.1") != null){
 			Node type = document.getElementsByTagName("ST.1").item(0);
-			event = type.getNodeValue();
+			event = type.getFirstChild().getNodeValue();
 		}
 		String version = "";
 		if(document.getElementsByTagName("GS.8") != null){
 			Node versionNode = document.getElementsByTagName("GS.8").item(0);
-			version = versionNode.getNodeValue();
+			version = versionNode.getFirstChild().getNodeValue();
 		}
 		messageObject.setSource(sendingFacility);
 		messageObject.setType(event);

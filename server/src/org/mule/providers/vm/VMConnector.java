@@ -41,6 +41,8 @@ import org.mule.util.ClassHelper;
 import org.mule.util.queue.QueueManager;
 import org.mule.util.queue.QueueSession;
 
+import com.webreach.mirth.server.mule.util.VMRegistry;
+
 /**
  * <code>VMConnector</code> A simple endpoint wrapper to allow a Mule
  * component to <p/> be accessed from an endpoint
@@ -161,7 +163,7 @@ public class VMConnector extends AbstractServiceEnabledConnector
         return (VMMessageReceiver) getReceiverByEndpoint(endpointUri);
     }
 
-    QueueSession getQueueSession() throws InitialisationException
+    public QueueSession getQueueSession() throws InitialisationException
     {
         QueueManager qm = MuleManager.getInstance().getQueueManager();
         UMOTransaction tx = TransactionCoordination.getInstance().getTransaction();
@@ -198,7 +200,7 @@ public class VMConnector extends AbstractServiceEnabledConnector
 
         UMOMessageReceiver receiver;
         // If we have an exact match, use it
-        receiver = (UMOMessageReceiver) receivers.get(endpointUri.getAddress());
+        receiver = (UMOMessageReceiver) VMRegistry.getInstance().get(endpointUri.getAddress());
         if (receiver != null) {
             if (logger.isDebugEnabled()) {
             	logger.debug("Found exact receiver match on endpointUri: " + endpointUri);

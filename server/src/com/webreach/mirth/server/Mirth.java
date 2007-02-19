@@ -26,6 +26,7 @@
 package com.webreach.mirth.server;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
@@ -37,12 +38,14 @@ import org.mortbay.jetty.Server;
 import org.mule.MuleManager;
 import org.mule.config.ConfigurationException;
 import org.mule.config.builders.MuleXmlConfigurationBuilder;
+import org.mule.providers.vm.VMMessageReceiver;
 
 import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.server.controllers.ChannelController;
 import com.webreach.mirth.server.controllers.ConfigurationController;
 import com.webreach.mirth.server.controllers.ControllerException;
 import com.webreach.mirth.server.controllers.SystemLogger;
+import com.webreach.mirth.server.mule.util.VMRegistry;
 import com.webreach.mirth.server.util.DatabasePruner;
 import com.webreach.mirth.server.util.StackTracePrinter;
 import com.webreach.mirth.util.PropertyLoader;
@@ -69,7 +72,7 @@ public class Mirth extends Thread {
 		Mirth mirth = new Mirth();
 		mirth.run();
 	}
-
+	
 	public MirthManager getManager() {
 		return this.manager;
 	}
@@ -160,6 +163,7 @@ public class Mirth extends Thread {
 
 			// disables validation of Mule configuration files
 			System.setProperty("org.mule.xml.validate", "false");
+			VMRegistry.getInstance().rebuild();
 			MuleXmlConfigurationBuilder builder = new MuleXmlConfigurationBuilder();
 			muleManager = (MuleManager) builder.configure(configurationFilePath);
 		} catch (ConfigurationException e) {
@@ -280,4 +284,5 @@ public class Mirth extends Thread {
 		System.out.println("This product includes software developed by SymphonySoft Limited (http://www.symphonysoft.com) and its contributors.");
 		System.out.println("Running Java " + System.getProperty("java.version") + " on " + System.getProperty("os.name") + " (" + System.getProperty("os.version") + ", " + System.getProperty("os.arch") + ")");
 	}
+
 }

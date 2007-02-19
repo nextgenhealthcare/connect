@@ -35,6 +35,7 @@ import org.mule.transformers.AbstractTransformer;
 import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.transformer.TransformerException;
 
+import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.controllers.ScriptController;
 import com.webreach.mirth.server.mule.util.CompiledScriptCache;
 
@@ -72,7 +73,12 @@ public class JavaScriptPreprocessor extends AbstractTransformer {
 
 	@Override
 	public Object doTransform(Object src) throws TransformerException {
-		String message = (String) src;
+		String message = new String();
+		if (src instanceof MessageObject){
+			message = ((MessageObject)src).getEncodedData();
+		}else if (src instanceof String){
+			message = (String) src;
+		}
 		return doPreprocess(message);
 	}
 
