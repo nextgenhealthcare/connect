@@ -27,8 +27,11 @@ public class VMRouter {
     	routeMessage(channelName, message, true);
     }
     public void routeMessage(String channelName, String message, boolean useQueue){
-    	UMOMessage umoMessage = new MuleMessage(message);
     	String channelId = new ChannelController().getChannelId(channelName);
+    	routeMessageByChannelId(channelId, message, useQueue);
+    }
+    public void routeMessageByChannelId(String channelId, String message, boolean useQueue){
+    	UMOMessage umoMessage = new MuleMessage(message);
     	VMMessageReceiver receiver = VMRegistry.getInstance().get(channelId);
     	UMOEvent event = new MuleEvent(umoMessage, receiver.getEndpoint(), new MuleSession(), false);
     	try {

@@ -34,12 +34,14 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.mule.extras.client.MuleClient;
+import org.mule.impl.MuleMessage;
 import org.mule.umo.UMOException;
 
 import com.ibatis.sqlmap.client.SqlMapClient;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.filters.MessageObjectFilter;
+import com.webreach.mirth.server.mule.util.VMRouter;
 import com.webreach.mirth.server.util.SqlConfig;
 import com.webreach.mirth.server.util.UUIDGenerator;
 
@@ -149,13 +151,13 @@ public class MessageObjectController {
 		List<MessageObject> messages = getMessagesByPage(-1, -1, uid);
 
 		try {
-			MuleClient client = new MuleClient();
+			VMRouter router = new VMRouter();
 
 			for (Iterator iter = messages.iterator(); iter.hasNext();) {
 				MessageObject message = (MessageObject) iter.next();
-				client.dispatch("vm://" + message.getChannelId(), message.getRawData(), null);
+				router.routeMessageByChannelId(message.getChannelId(), message.getRawData(), true);
 			}
-		} catch (UMOException e) {
+		} catch (Exception e) {
 			throw new ControllerException("could not reprocess message", e);
 		}
 	}

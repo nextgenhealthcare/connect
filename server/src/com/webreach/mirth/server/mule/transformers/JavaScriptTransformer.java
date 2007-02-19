@@ -226,6 +226,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			scope.put("localMap", scope, messageObject.getVariableMap());
 			scope.put("globalMap", scope, GlobalVariableStore.getInstance());
 			scope.put("messageObject", scope, messageObject);
+			scope.put("router", scope, new VMRouter());
 			// get the script from the cache and execute it
 			Script compiledScript = compiledScriptCache.getCompiledScript(filterScriptId);
 			Object result = null;
