@@ -573,7 +573,11 @@ public class MessageBrowser extends javax.swing.JPanel
                 //format the xml
                 DocumentSerializer serializer = new DocumentSerializer();
                 serializer.setPreserveSpace(false);
-                String transformmedXML = serializer.toXML(serializer.fromXML(currentMessage.getTransformedData()));
+                String transformedData = currentMessage.getTransformedData();
+                String transformmedXML = new String();
+                if (transformedData != null){
+                	transformmedXML  = serializer.toXML(serializer.fromXML(transformedData));
+                }               
                 setCorrectDocument(RawMessageTextPane, currentMessage.getRawData(), currentMessage.getRawDataProtocol());
                 setCorrectDocument(TransformedMessageTextPane, transformmedXML, currentMessage.getTransformedDataProtocol());
                 setCorrectDocument(EncodedMessageTextPane, currentMessage.getEncodedData(), currentMessage.getEncodedDataProtocol());

@@ -57,6 +57,7 @@ import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
@@ -182,7 +183,7 @@ public class TreePanel extends JPanel
                 if (xmlDoc != null)
                 {
                     version = "3.0";
-                    messageName = xmlDoc.getDocumentElement().getNodeName() + "-" + " (" + version + ")";
+                    messageName = xmlDoc.getDocumentElement().getNodeName() + " -" + " (" + version + ")";
                     messageDescription = "";
                 }
             }
@@ -203,7 +204,19 @@ public class TreePanel extends JPanel
                 {
                     messageDescription = "";
                     version = "";
-                    messageName = xmlDoc.getDocumentElement().getNodeName() + "-" + " (" + version + ")";
+            		String event = "Unknown";
+            		if (xmlDoc.getElementsByTagName("ST.1") != null){
+            			Node type = xmlDoc.getElementsByTagName("ST.1").item(0);
+            			type = type.getFirstChild();
+            			event = type.getNodeValue();
+            		}
+            		String version = "";
+            		if(xmlDoc.getElementsByTagName("GS.8") != null){
+            			Node versionNode = xmlDoc.getElementsByTagName("GS.8").item(0);
+            			versionNode = versionNode.getFirstChild();
+            			version = versionNode.getNodeValue();
+            		}
+                    messageName = xmlDoc.getDocumentElement().getNodeName() + " - " + event + " (" + version + ")";
                     messageDescription = "";//HL7Reference.getInstance().getDescription(terser.get("/MSH-9-1") + terser.get("/MSH-9-2"), version);
                 }
             }
