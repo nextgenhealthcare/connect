@@ -9,6 +9,7 @@ import com.webreach.mirth.client.ui.TreePanel;
 import com.webreach.mirth.client.ui.PlatformUI;
 import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.client.ui.beans.EDIProperties;
+import com.webreach.mirth.client.ui.beans.X12Properties;
 import com.webreach.mirth.client.ui.components.MirthComboBox;
 import com.webreach.mirth.model.MessageObject;
 import java.awt.event.ComponentEvent;
@@ -246,7 +247,11 @@ public class MessageTreeTemplate extends javax.swing.JPanel
 
     private void propertiesActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_propertiesActionPerformed
     {//GEN-HEADEREND:event_propertiesActionPerformed
-        new BoundPropertiesSheetDialog(dataProperties, new EDIProperties());
+        if(((String)dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.EDI)))
+            new BoundPropertiesSheetDialog(dataProperties, new EDIProperties());
+        else if(((String)dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.X12)) )
+            new BoundPropertiesSheetDialog(dataProperties, new X12Properties());
+            
     }//GEN-LAST:event_propertiesActionPerformed
     
     private void dataTypeActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_dataTypeActionPerformed

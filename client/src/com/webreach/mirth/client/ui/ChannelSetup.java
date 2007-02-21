@@ -45,7 +45,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.JOptionPane;
-import javax.swing.JScrollPane;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -1812,8 +1811,8 @@ public class ChannelSetup extends javax.swing.JPanel
         final String VAR_PATTERN = "globalMap.put\\(['|\"]([^'|^\"]*)[\"|']";
         
         List<Step> concatenatedSteps = new ArrayList<Step>();
-        List<Connector> destinationConnectors = currentChannel
-                .getDestinationConnectors();
+        concatenatedSteps.addAll(currentChannel.getSourceConnector().getTransformer().getSteps());
+        List<Connector> destinationConnectors = currentChannel.getDestinationConnectors();
         Iterator<Connector> it = destinationConnectors.iterator();
         boolean seenCurrent = false;
         while (it.hasNext())
@@ -1872,23 +1871,11 @@ public class ChannelSetup extends javax.swing.JPanel
     /** Sets the destination variable list from the transformer steps */
     public void setDestinationVariableList()
     {
-        
-        int destination = getDestinationConnectorIndex((String) destinationTable
-                .getValueAt(getSelectedDestinationIndex(),
-                getColumnNumber(DESTINATION_COLUMN_NAME)));
-        List<Step> concatenatedSteps = getMultipleDestinationSteps(currentChannel
-                .getDestinationConnectors().get(destination));
+        int destination = getDestinationConnectorIndex((String) destinationTable.getValueAt(getSelectedDestinationIndex(), getColumnNumber(DESTINATION_COLUMN_NAME)));
+        List<Step> concatenatedSteps = getMultipleDestinationSteps(currentChannel.getDestinationConnectors().get(destination));
         destinationVariableList.setVariableListInbound(concatenatedSteps);
-        // destinationVariableList.setVariableListInbound(currentChannel.getDestinationConnectors().get(destination).getTransformer().getSteps());
         destinationVariableList.setDestinationMappingsLabel();
-        
-        destinationVariableList.setVariableListInbound(currentChannel
-                .getDestinationConnectors().get(0).getTransformer()
-                .getSteps());
-        destinationVariableList.setDestinationMappingsLabel();
-        
         destinationVariableList.repaint();
-        
     }
     
     /** Returns a new connector, that has a new transformer and filter */

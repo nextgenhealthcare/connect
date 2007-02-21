@@ -35,26 +35,19 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" attributes="0">
-              <EmptySpace min="-2" pref="10" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="0" attributes="0">
+          <Group type="102" alignment="0" attributes="0">
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="1" attributes="0">
+                  <Component id="ackPortLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="ackIPLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="ackOnNewConnectionLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel38" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel39" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel1" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel2" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel3" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel5" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel4" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel6" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel34" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel36" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel39" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel38" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="successACKCodeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="errorACKCodeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="rejectedACKCodeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="mshAckAcceptLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="ackOnNewConnectionLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="ackIPLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="ackPortLabel" alignment="1" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
@@ -65,18 +58,6 @@
                       <Component id="keepConnectionOpenYesRadio" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="keepConnectionOpenNoRadio" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="ascii" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="hex" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="startOfMessageCharacterField" min="-2" pref="50" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jLabel35" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="endOfMessageCharacterField" min="-2" pref="50" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" attributes="0">
                       <Component id="listenerIPAddressField" min="-2" pref="31" max="-2" attributes="0"/>
@@ -93,13 +74,6 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="listenerIPAddressField3" min="-2" pref="31" max="-2" attributes="0"/>
                   </Group>
-                  <Group type="102" attributes="0">
-                      <Component id="recordSeparatorField" min="-2" pref="50" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jLabel37" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="segmentEnd" min="-2" pref="50" max="-2" attributes="0"/>
-                  </Group>
                   <Component id="charsetEncodingCombobox" min="-2" max="-2" attributes="0"/>
                   <Group type="102" attributes="0">
                       <Component id="sendACKYes" min="-2" max="-2" attributes="0"/>
@@ -109,33 +83,11 @@
                       <Component id="sendACKTransformer" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" attributes="0">
-                      <Component id="successACKCode" min="-2" pref="31" max="-2" attributes="0"/>
+                      <Component id="ackOnNewConnectionYes" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="successACKMessageLabel" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="successACKMessage" min="-2" pref="345" max="-2" attributes="0"/>
+                      <Component id="ackOnNewConnectionNo" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" attributes="0">
-                      <Component id="errorACKCode" min="-2" pref="31" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="errorACKMessageLabel" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="errorACKMessage" min="-2" pref="345" max="-2" attributes="0"/>
-                  </Group>
-                  <Group type="102" attributes="0">
-                      <Component id="rejectedACKCode" min="-2" pref="31" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="rejectedACKMessageLabel" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="rejectedACKMessage" min="-2" pref="345" max="-2" attributes="0"/>
-                  </Group>
-                  <Group type="102" attributes="0">
-                      <Component id="mshAckAcceptYes" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="mshAckAcceptNo" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <Component id="ackPortField" min="-2" pref="50" max="-2" attributes="0"/>
-                  <Group type="102" alignment="0" attributes="0">
                       <Component id="ackIPAddressField" min="-2" pref="31" max="-2" attributes="0"/>
                       <EmptySpace min="4" pref="4" max="-2" attributes="0"/>
                       <Component id="ipDot" min="-2" max="-2" attributes="0"/>
@@ -150,11 +102,7 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="ackIPAddressField3" min="-2" pref="31" max="-2" attributes="0"/>
                   </Group>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="ackOnNewConnectionYes" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="ackOnNewConnectionNo" min="-2" max="-2" attributes="0"/>
-                  </Group>
+                  <Component id="ackPortField" min="-2" pref="50" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="32767" attributes="0"/>
           </Group>
@@ -200,26 +148,6 @@
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="hex" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="ascii" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel6" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="jLabel34" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="startOfMessageCharacterField" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="endOfMessageCharacterField" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel35" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="jLabel36" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="recordSeparatorField" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="segmentEnd" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel37" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="jLabel39" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="charsetEncodingCombobox" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
@@ -232,44 +160,15 @@
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="successACKCodeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="successACKCode" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="successACKMessageLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="successACKMessage" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="errorACKCodeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="errorACKCode" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="errorACKMessage" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="errorACKMessageLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="rejectedACKCodeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="rejectedACKCode" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="rejectedACKMessageLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="rejectedACKMessage" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="mshAckAcceptLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="mshAckAcceptYes" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="mshAckAcceptNo" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="ackOnNewConnectionLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="ackOnNewConnectionYes" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="ackOnNewConnectionNo" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="1" attributes="0">
+                  <Component id="ackIPLabel" min="-2" max="-2" attributes="0"/>
                   <Group type="103" alignment="1" groupAlignment="0" attributes="0">
-                      <Group type="103" alignment="0" groupAlignment="3" attributes="0">
-                          <Component id="ackIPAddressField" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="ackIPLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
+                      <Component id="ackIPAddressField" alignment="0" min="-2" max="-2" attributes="0"/>
                       <Group type="102" alignment="1" attributes="0">
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="ipDot" min="-2" max="-2" attributes="0"/>
@@ -317,32 +216,11 @@
         <Property name="text" type="java.lang.String" value="Keep Connection Open:"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="jLabel34">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Start of Message Char:"/>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JLabel" name="jLabel35">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="End of Message Char:"/>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JLabel" name="jLabel36">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Record Separator Char:"/>
-      </Properties>
-    </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="bufferSizeField">
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="receiveTimeoutField">
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="listenerPortField">
-    </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="recordSeparatorField">
-    </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="startOfMessageCharacterField">
-    </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="endOfMessageCharacterField">
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="keepConnectionOpenYesRadio">
       <Properties>
@@ -404,56 +282,6 @@
       </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="listenerIPAddressField">
-    </Component>
-    <Component class="javax.swing.JLabel" name="jLabel6">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="LLP Frame Encoding:"/>
-      </Properties>
-    </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="ascii">
-      <Properties>
-        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-          <Color blue="ff" green="ff" red="ff" type="rgb"/>
-        </Property>
-        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
-          </Border>
-        </Property>
-        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-          <ComponentRef name="buttonGroup1"/>
-        </Property>
-        <Property name="text" type="java.lang.String" value="ASCII"/>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[0, 0, 0, 0]"/>
-        </Property>
-      </Properties>
-    </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="hex">
-      <Properties>
-        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-          <Color blue="ff" green="ff" red="ff" type="rgb"/>
-        </Property>
-        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
-          </Border>
-        </Property>
-        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-          <ComponentRef name="buttonGroup1"/>
-        </Property>
-        <Property name="text" type="java.lang.String" value="Hex"/>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[0, 0, 0, 0]"/>
-        </Property>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JLabel" name="jLabel37">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="End of Segment Char:"/>
-      </Properties>
-    </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="segmentEnd">
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthComboBox" name="charsetEncodingCombobox">
       <Properties>
@@ -523,91 +351,6 @@
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="sendACKNoActionPerformed"/>
       </Events>
-    </Component>
-    <Component class="javax.swing.JLabel" name="successACKCodeLabel">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Successful ACK Code:"/>
-      </Properties>
-    </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="successACKCode">
-    </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="successACKMessage">
-    </Component>
-    <Component class="javax.swing.JLabel" name="successACKMessageLabel">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Message:"/>
-      </Properties>
-    </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="errorACKCode">
-    </Component>
-    <Component class="javax.swing.JLabel" name="errorACKCodeLabel">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Error ACK Code:"/>
-      </Properties>
-    </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="rejectedACKCode">
-    </Component>
-    <Component class="javax.swing.JLabel" name="rejectedACKCodeLabel">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Rejected ACK Code:"/>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JLabel" name="rejectedACKMessageLabel">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Message:"/>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JLabel" name="errorACKMessageLabel">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Message:"/>
-      </Properties>
-    </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="errorACKMessage">
-    </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="rejectedACKMessage">
-    </Component>
-    <Component class="javax.swing.JLabel" name="mshAckAcceptLabel">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="MSH-15 ACK Accept:"/>
-      </Properties>
-    </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="mshAckAcceptYes">
-      <Properties>
-        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-          <Color blue="ff" green="ff" red="ff" type="rgb"/>
-        </Property>
-        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
-          </Border>
-        </Property>
-        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-          <ComponentRef name="buttonGroup3"/>
-        </Property>
-        <Property name="text" type="java.lang.String" value="Yes"/>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[0, 0, 0, 0]"/>
-        </Property>
-      </Properties>
-    </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="mshAckAcceptNo">
-      <Properties>
-        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-          <Color blue="ff" green="ff" red="ff" type="rgb"/>
-        </Property>
-        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
-          </Border>
-        </Property>
-        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-          <ComponentRef name="buttonGroup3"/>
-        </Property>
-        <Property name="text" type="java.lang.String" value="No"/>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[0, 0, 0, 0]"/>
-        </Property>
-      </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="ackOnNewConnectionLabel">
       <Properties>

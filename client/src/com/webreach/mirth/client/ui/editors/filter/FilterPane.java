@@ -52,6 +52,7 @@ import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
+import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
@@ -145,7 +146,7 @@ public class FilterPane extends MirthEditorPane
         }
         
         filterTaskPaneContainer.add(parent.getOtherPane());
-        parent.setCurrentContentPage( this );
+        parent.setCurrentContentPage( (JPanel) this );
         parent.setCurrentTaskPaneContainer( filterTaskPaneContainer );
         
         if(connector.getMode() == Connector.Mode.SOURCE)

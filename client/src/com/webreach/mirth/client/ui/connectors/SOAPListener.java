@@ -52,6 +52,8 @@ public class SOAPListener extends ConnectorClass
     private final String SOAP_SERVICE_NAME = "serviceName";
     private final String SOAP_PORT = "port";
     private final String SOAP_CONTENT_TYPE = "Content-Type";
+    private final String SOAP_RESPONSE_FROM_TRANSFORMER = "responseFromTransformer";
+
     public SOAPListener()
     {
         this.parent = PlatformUI.MIRTH_FRAME;
@@ -70,6 +72,10 @@ public class SOAPListener extends ConnectorClass
         properties.put(SOAP_SERVICE_NAME, serviceName.getText());
         properties.put(SOAP_HOST, buildHost());
         properties.put(SOAP_CONTENT_TYPE, "text/xml");
+        if(responseFromTransformerYes.isSelected())
+            properties.put(SOAP_RESPONSE_FROM_TRANSFORMER, UIConstants.YES_OPTION);
+        else
+            properties.put(SOAP_RESPONSE_FROM_TRANSFORMER, UIConstants.NO_OPTION);    
         return properties;
     }
 
@@ -78,7 +84,10 @@ public class SOAPListener extends ConnectorClass
         listenerAddress.setText((String)props.get(SOAP_LISTENER_ADDRESS));
         port.setText((String)props.getProperty(SOAP_PORT));
         serviceName.setText((String)props.getProperty(SOAP_SERVICE_NAME));
-        
+        if(((String)properties.get(SOAP_RESPONSE_FROM_TRANSFORMER)).equals(UIConstants.YES_OPTION))
+            responseFromTransformerYes.setSelected(true);
+        else
+            responseFromTransformerNo.setSelected(true);
         updateWSDL();
     }
     
@@ -91,6 +100,7 @@ public class SOAPListener extends ConnectorClass
         properties.put(SOAP_PORT, "8081");
         properties.put(SOAP_SERVICE_NAME, "Mirth");
         properties.put(SOAP_CONTENT_TYPE, "text/xml");
+        properties.put(SOAP_RESPONSE_FROM_TRANSFORMER, UIConstants.NO_OPTION);  
         return properties;
     }
     
@@ -124,9 +134,6 @@ public class SOAPListener extends ConnectorClass
     private void initComponents()
     {
         buttonGroup1 = new javax.swing.ButtonGroup();
-        buttonGroup2 = new javax.swing.ButtonGroup();
-        buttonGroup3 = new javax.swing.ButtonGroup();
-        buttonGroup4 = new javax.swing.ButtonGroup();
         URL = new javax.swing.JLabel();
         serviceName = new com.webreach.mirth.client.ui.components.MirthTextField();
         port = new com.webreach.mirth.client.ui.components.MirthTextField();
@@ -137,6 +144,9 @@ public class SOAPListener extends ConnectorClass
         jLabel3 = new javax.swing.JLabel();
         method = new javax.swing.JTextField();
         wsdlURL = new javax.swing.JTextField();
+        jLabel4 = new javax.swing.JLabel();
+        responseFromTransformerYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        responseFromTransformerNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -176,6 +186,20 @@ public class SOAPListener extends ConnectorClass
 
         method.setText("String acceptMessage(String message)");
 
+        jLabel4.setText("Response from Transformer:");
+
+        responseFromTransformerYes.setBackground(new java.awt.Color(255, 255, 255));
+        responseFromTransformerYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        buttonGroup1.add(responseFromTransformerYes);
+        responseFromTransformerYes.setText("Yes");
+        responseFromTransformerYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
+        responseFromTransformerNo.setBackground(new java.awt.Color(255, 255, 255));
+        responseFromTransformerNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        buttonGroup1.add(responseFromTransformerNo);
+        responseFromTransformerNo.setText("No");
+        responseFromTransformerNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -183,6 +207,7 @@ public class SOAPListener extends ConnectorClass
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(jLabel4)
                     .add(jLabel2)
                     .add(URL)
                     .add(jLabel1)
@@ -194,8 +219,12 @@ public class SOAPListener extends ConnectorClass
                     .add(port, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(listenerAddress, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 250, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(wsdlURL, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 400, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(method, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 250, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .add(method, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 250, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(layout.createSequentialGroup()
+                        .add(responseFromTransformerYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(responseFromTransformerNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(27, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -219,6 +248,11 @@ public class SOAPListener extends ConnectorClass
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel2)
                     .add(method, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jLabel4)
+                    .add(responseFromTransformerYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(responseFromTransformerNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -243,15 +277,15 @@ public class SOAPListener extends ConnectorClass
     private javax.swing.JLabel URL;
     private javax.swing.JLabel URL1;
     private javax.swing.ButtonGroup buttonGroup1;
-    private javax.swing.ButtonGroup buttonGroup2;
-    private javax.swing.ButtonGroup buttonGroup3;
-    private javax.swing.ButtonGroup buttonGroup4;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private com.webreach.mirth.client.ui.components.MirthTextField listenerAddress;
     private javax.swing.JTextField method;
     private com.webreach.mirth.client.ui.components.MirthTextField port;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton responseFromTransformerNo;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton responseFromTransformerYes;
     private com.webreach.mirth.client.ui.components.MirthTextField serviceName;
     private javax.swing.JTextField wsdlURL;
     // End of variables declaration//GEN-END:variables

@@ -53,12 +53,15 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.TreeMap;
 import java.util.prefs.Preferences;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JMenuItem;
+import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
@@ -181,7 +184,7 @@ public class TransformerPane extends MirthEditorPane
         
         transformerTable.setBorder(BorderFactory.createEmptyBorder());
         transformerTaskPaneContainer.add(parent.getOtherPane());
-        parent.setCurrentContentPage(this);
+        parent.setCurrentContentPage((JPanel)this);
         parent.setCurrentTaskPaneContainer(transformerTaskPaneContainer);
         
         updateStepNumbers();
@@ -1024,6 +1027,8 @@ public class TransformerPane extends MirthEditorPane
             list.add(s);
         }
         
+        list.addAll(getGlobalMapSteps());
+        
         return list;
     }
     
@@ -1057,12 +1062,14 @@ public class TransformerPane extends MirthEditorPane
                 //so we don't cause syntax errors in the JS
                 script.append("'" + map.get("Variable") + "', ");
                 String defaultValue = (String)map.get("DefaultValue");
-                if (defaultValue.length() == 0){
-                	defaultValue = "''";
+                if (defaultValue.length() == 0)
+                {
+                    defaultValue = "''";
                 }
                 String mapping = (String)map.get("Mapping");
-                if (mapping.length() == 0){
-                	mapping = "''";
+                if (mapping.length() == 0)
+                {
+                    mapping = "''";
                 }
                 script.append( "validate(" + mapping + ", " +  defaultValue + ", " + regexArray + "));");
                 step.setScript(script.toString());
@@ -1077,12 +1084,14 @@ public class TransformerPane extends MirthEditorPane
                 StringBuilder script = new StringBuilder();
                 String variable = (String) map.get("Variable");
                 String defaultValue = (String)map.get("DefaultValue");
-                if (defaultValue.length() == 0){
-                	defaultValue = "''";
+                if (defaultValue.length() == 0)
+                {
+                    defaultValue = "''";
                 }
                 String mapping = (String)map.get("Mapping");
-                if (mapping.length() == 0){
-                	mapping = "''";
+                if (mapping.length() == 0)
+                {
+                    mapping = "''";
                 }
                 script.append(variable);
                 script.append(" = ");
@@ -1094,29 +1103,88 @@ public class TransformerPane extends MirthEditorPane
         }
         return list;
     }
-
-	private String buildRegexArray(HashMap map) {
-		TreeMap regexes = (TreeMap) map.get("RegularExpressions");
-		
-		StringBuilder regexArray = new StringBuilder();
-		regexArray.append("new Array(");
-		
-		Iterator iter = regexes.keySet().iterator();
-		if(iter.hasNext()){
-			while (iter.hasNext())
-			{
-			    String key = (String) iter.next();
-			    regexArray.append("new Array(" + key + ", " + regexes.get(key) + ")");
-			    if(!iter.hasNext())
-			        regexArray.append(")");
-			    else
-			        regexArray.append(",");
-			}
-		}else{
-			regexArray.append(")");
-		}
-		return regexArray.toString();
-	}
+    
+    private List<Step> getGlobalMapSteps()
+    {
+        final String VAR_PATTERN = "globalMap.put\\(['|\"]([^'|^\"]*)[\"|']";
+        
+        List<Step> concatenatedSteps = new ArrayList<Step>();
+        List<Connector> destinationConnectors = channel.getDestinationConnectors();
+        Iterator<Connector> it = destinationConnectors.iterator();
+        boolean seenCurrent = false;
+        while (it.hasNext())
+        {
+            Connector destination = it.next();
+            if (connector == destination)
+            {
+                seenCurrent = true;
+            }
+            else if (!seenCurrent)
+            {
+                // add only the global variables
+                List<Step> destinationSteps = destination.getTransformer().getSteps();
+                Iterator stepIterator = destinationSteps.iterator();
+                while (stepIterator.hasNext())
+                {
+                    Step step = (Step) stepIterator.next();
+                    HashMap map = (HashMap) step.getData();
+                    if (step.getType().equals(TransformerPane.MAPPER_TYPE))
+                    {
+                        // Check if the step is global
+                        if (map.containsKey("isGlobal"))
+                        {
+                            if (((String) map.get("isGlobal"))
+                            .equalsIgnoreCase(UIConstants.YES_OPTION))
+                                concatenatedSteps.add(step);
+                        }
+                    }
+                    else if (step.getType().equals(TransformerPane.JAVASCRIPT_TYPE))
+                    {
+                        Pattern pattern = Pattern.compile(VAR_PATTERN);
+                        Matcher matcher = pattern.matcher(step.getScript());
+                        while (matcher.find())
+                        {
+                            String key = matcher.group(1);
+                            Step tempStep = new Step();
+                            Map tempMap = new HashMap();
+                            tempMap.put("Variable", key);
+                            tempStep.setData(tempMap);
+                            tempStep.setType(TransformerPane.MAPPER_TYPE);
+                            concatenatedSteps.add(tempStep);
+                        }
+                    }
+                }
+            }
+        }
+        return concatenatedSteps;
+    }
+    
+    private String buildRegexArray(HashMap map)
+    {
+        TreeMap regexes = (TreeMap) map.get("RegularExpressions");
+        
+        StringBuilder regexArray = new StringBuilder();
+        regexArray.append("new Array(");
+        
+        Iterator iter = regexes.keySet().iterator();
+        if(iter.hasNext())
+        {
+            while (iter.hasNext())
+            {
+                String key = (String) iter.next();
+                regexArray.append("new Array(" + key + ", " + regexes.get(key) + ")");
+                if(!iter.hasNext())
+                    regexArray.append(")");
+                else
+                    regexArray.append(",");
+            }
+        }
+        else
+        {
+            regexArray.append(")");
+        }
+        return regexArray.toString();
+    }
     
     /**
      * void accept(MouseEvent evt) returns a vector of vectors to the caller of

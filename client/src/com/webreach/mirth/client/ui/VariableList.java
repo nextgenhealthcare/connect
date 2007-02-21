@@ -41,86 +41,89 @@ import com.webreach.mirth.model.Step;
  */
 public class VariableList extends javax.swing.JPanel
 {	private final String VAR_PATTERN = "[glob|loc]alMap.put\\(['|\"]([^'|^\"]*)[\"|']";
-    /** Creates new form VariableList */
-    public VariableList()
-    {
-        initComponents();
-    }
-    
-    /**
-     * Set the variable list from a list of steps.
-     */
-    public void setVariableListInbound(List<Step> steps)
-    {
-        ArrayList<String> variables = new ArrayList<String>();
-        int i = 0;
-        variables.add("Message ID");
-        variables.add("Raw Data");
-        variables.add("Transformed Data");
-        variables.add("Encoded Data");
-        variables.add("Message Source");
-        variables.add("Message Type");
-        variables.add("Message Version");
-        variables.add("Date");
-        variables.add("Formatted Date");
-        variables.add("Timestamp");
-        variables.add("Unique ID");
-        variables.add("Original File Name");
-        variables.add("Count");
-        variables.add("Entity Encoder");
-        for (Iterator it = steps.iterator(); it.hasNext();)
+        /** Creates new form VariableList */
+        public VariableList()
         {
-            Step step = (Step) it.next();
-            Map data;
-            data = (Map)step.getData();
-            if(step.getType().equalsIgnoreCase(TransformerPane.MAPPER_TYPE))
-            {
-                variables.add((String)data.get("Variable"));
-                i++;
-            }else if (step.getType().equalsIgnoreCase(TransformerPane.JAVASCRIPT_TYPE)){
-            	Pattern pattern = Pattern.compile(VAR_PATTERN);
-            	Matcher matcher = pattern.matcher(step.getScript());
-        		while (matcher.find()) {
-        			String key = matcher.group(1);
-        			variables.add(key);
-        		}
-
-            }
+            initComponents();
         }
         
-        mirthVariableList.removeAll();
-        mirthVariableList.setListData(variables.toArray());
+        /**
+         * Set the variable list from a list of steps.
+         */
+        public void setVariableListInbound(List<Step> steps)
+        {
+            ArrayList<String> variables = new ArrayList<String>();
+            int i = 0;
+            variables.add("Message ID");
+            variables.add("Raw Data");
+            variables.add("Transformed Data");
+            variables.add("Encoded Data");
+            variables.add("Message Source");
+            variables.add("Message Type");
+            variables.add("Message Version");
+            variables.add("Date");
+            variables.add("Formatted Date");
+            variables.add("Timestamp");
+            variables.add("Unique ID");
+            variables.add("Original File Name");
+            variables.add("Count");
+            variables.add("Entity Encoder");
+            for (Iterator it = steps.iterator(); it.hasNext();)
+            {
+                Step step = (Step) it.next();
+                Map data;
+                data = (Map)step.getData();
+                if(step.getType().equalsIgnoreCase(TransformerPane.MAPPER_TYPE))
+                {
+                    variables.add((String)data.get("Variable"));
+                    i++;
+                }
+                else if (step.getType().equalsIgnoreCase(TransformerPane.JAVASCRIPT_TYPE))
+                {
+                    Pattern pattern = Pattern.compile(VAR_PATTERN);
+                    Matcher matcher = pattern.matcher(step.getScript());
+                    while (matcher.find())
+                    {
+                        String key = matcher.group(1);
+                        variables.add(key);
+                    }
+                    
+                }
+            }
+            
+            mirthVariableList.removeAll();
+            mirthVariableList.setListData(variables.toArray());
+            
+            jScrollPane1.setViewportView(mirthVariableList);
+        }
         
-        jScrollPane1.setViewportView(mirthVariableList);
-    }
-    
-    public void setVariableListOutbound()
-    {
-        ArrayList<String> variables = new ArrayList<String>();
-        variables.add("Raw Data");
-        variables.add("Transformed Data");
-        variables.add("Encoded Data");
-        mirthVariableList.removeAll();
-        mirthVariableList.setListData(variables.toArray());
+        public void setVariableListOutbound()
+        {
+            ArrayList<String> variables = new ArrayList<String>();
+            variables.add("Raw Data");
+            variables.add("Transformed Data");
+            variables.add("Encoded Data");
+            mirthVariableList.removeAll();
+            mirthVariableList.setListData(variables.toArray());
+            
+            jScrollPane1.setViewportView(mirthVariableList);
+        }
         
-        jScrollPane1.setViewportView(mirthVariableList);
-    }
-    
-    public void setSourceMappingsLabel()
-    {
-        setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Source Mappings", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(0, 0, 0)));
-    }
-    
-    public void setDestinationMappingsLabel()
-    {
-        setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Destination Mappings", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(0, 0, 0)));
-    }
-    
-    /** This method is called from within the constructor to
-     * initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is
-     * always regenerated by the Form Editor.
-     */
+        public void setSourceMappingsLabel()
+        {
+            setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Source Mappings", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(0, 0, 0)));
+        }
+        
+        public void setDestinationMappingsLabel()
+        {
+            setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Destination Mappings", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(0, 0, 0)));
+        }
+        
+        /** This method is called from within the constructor to
+         * initialize the form.
+         * WARNING: Do NOT modify this code. The content of this method is
+         * always regenerated by the Form Editor.
+         */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents()
     {

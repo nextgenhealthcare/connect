@@ -443,14 +443,16 @@ public class Frame extends JXFrame
     /**
      * Sets the current content page to the passed in page.
      */
-    public void setCurrentContentPage(Component contentPageObject)
+    public void setCurrentContentPage(JPanel contentPageObject)
     {
         if (contentPageObject==currentContentPage)
             return;
         
         if (currentContentPage!=null)
             rightContainer.remove(currentContentPage);
-            
+        
+        contentPageObject.setBorder(new LineBorder(Color.GRAY, 1));
+        
         rightContainer.add(contentPageObject);
         currentContentPage = contentPageObject;
         this.repaint();

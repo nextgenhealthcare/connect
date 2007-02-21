@@ -41,36 +41,30 @@ import com.webreach.mirth.client.ui.PlatformUI;
  * A form that extends from ConnectorClass.  All methods implemented
  * are described in ConnectorClass.
  */
-public class LLPSender extends ConnectorClass
+public class TCPSender extends ConnectorClass
 {
     Frame parent;
-    /** Creates new form LLPSender */
+    /** Creates new form TCPSender */
     private final String DATATYPE = "DataType";
-    private final String LLP_PROTOCOL_NAME = "tcpProtocolClassName";
-    private final String LLP_PROTOCOL_NAME_VALUE = "org.mule.providers.tcp.protocols.LlpProtocol";
-    private final String LLP_ADDRESS = "host";
-    private final String LLP_PORT = "port";
-    private final String LLP_SERVER_TIMEOUT = "sendTimeout";
-    private final String LLP_BUFFER_SIZE = "bufferSize";
-    private final String LLP_KEEP_CONNECTION_OPEN = "keepSendSocketOpen";
-    private final String LLP_MAX_RETRY_COUNT = "maxRetryCount";
-    private final String LLP_CHAR_ENCODING = "charEncoding";
-    private final String LLP_START_OF_MESSAGE_CHARACTER = "messageStart";
-    private final String LLP_END_OF_MESSAGE_CHARACTER = "messageEnd";
-    private final String LLP_RECORD_SEPARATOR = "recordSeparator";
-    private final String LLP_SEGMENT_END = "segmentEnd";
-    private final String LLP_TEMPLATE = "template";
-    private final String LLP_USE_PERSISTENT_QUEUES = "usePersistentQueues";
-    private final String LLP_ACK_TIMEOUT = "ackTimeout";
+    private final String TCP_ADDRESS = "host";
+    private final String TCP_PORT = "port";
+    private final String TCP_SERVER_TIMEOUT = "sendTimeout";
+    private final String TCP_BUFFER_SIZE = "bufferSize";
+    private final String TCP_KEEP_CONNECTION_OPEN = "keepSendSocketOpen";
+    private final String TCP_MAX_RETRY_COUNT = "maxRetryCount";
+    private final String TCP_CHAR_ENCODING = "charEncoding";
+    private final String TCP_TEMPLATE = "template";
+    private final String TCP_USE_PERSISTENT_QUEUES = "usePersistentQueues";
+    private final String TCP_ACK_TIMEOUT = "ackTimeout";
     private final String CONNECTOR_CHARSET_ENCODING = "charsetEncoding";
     private final String CHANNEL_ID = "replyChannelId";
     private final String CHANNEL_NAME = "channelName";
     private HashMap channelList;
     
-    public LLPSender()
+    public TCPSender()
     {
         this.parent = PlatformUI.MIRTH_FRAME;
-        name = "LLP Sender";
+        name = "TCP Sender";
         initComponents();
         hostIPAddressField.setDocument(new MirthFieldConstraints(3, false, true));
         hostIPAddressField1.setDocument(new MirthFieldConstraints(3, false, true));
@@ -89,39 +83,28 @@ public class LLPSender extends ConnectorClass
     {
         Properties properties = new Properties();
         properties.put(DATATYPE, name);
-        properties.put(LLP_PROTOCOL_NAME,LLP_PROTOCOL_NAME_VALUE);
         String hostIPAddress = hostIPAddressField.getText() + "." + hostIPAddressField1.getText() + "." + hostIPAddressField2.getText() + "." + hostIPAddressField3.getText();
-        properties.put(LLP_ADDRESS, hostIPAddress);
-        properties.put(LLP_PORT, hostPortField.getText());
-        properties.put(LLP_SERVER_TIMEOUT, serverTimeoutField.getText());
-        properties.put(LLP_BUFFER_SIZE, bufferSizeField.getText());
+        properties.put(TCP_ADDRESS, hostIPAddress);
+        properties.put(TCP_PORT, hostPortField.getText());
+        properties.put(TCP_SERVER_TIMEOUT, serverTimeoutField.getText());
+        properties.put(TCP_BUFFER_SIZE, bufferSizeField.getText());
 
         if (keepConnectionOpenYesRadio.isSelected())
-            properties.put(LLP_KEEP_CONNECTION_OPEN, UIConstants.YES_OPTION);
+            properties.put(TCP_KEEP_CONNECTION_OPEN, UIConstants.YES_OPTION);
         else
-            properties.put(LLP_KEEP_CONNECTION_OPEN, UIConstants.NO_OPTION);
+            properties.put(TCP_KEEP_CONNECTION_OPEN, UIConstants.NO_OPTION);
 
-        properties.put(LLP_MAX_RETRY_COUNT, maximumRetryCountField.getText());
-        properties.put(LLP_START_OF_MESSAGE_CHARACTER, startOfMessageCharacterField.getText());
-        properties.put(LLP_END_OF_MESSAGE_CHARACTER, endOfMessageCharacterField.getText());
+        properties.put(TCP_MAX_RETRY_COUNT, maximumRetryCountField.getText());
         
-        if (ascii.isSelected())
-            properties.put(LLP_CHAR_ENCODING, "ascii");
-        else
-            properties.put(LLP_CHAR_ENCODING, "hex");
-        
-        properties.put(LLP_RECORD_SEPARATOR, recordSeparatorField.getText());
-        
-        properties.put(LLP_SEGMENT_END, segmentEnd.getText());
         //ast: queues
         if (usePersistentQueuesYesRadio.isSelected())
-            properties.put(LLP_USE_PERSISTENT_QUEUES, UIConstants.YES_OPTION);
+            properties.put(TCP_USE_PERSISTENT_QUEUES, UIConstants.YES_OPTION);
         else
-            properties.put(LLP_USE_PERSISTENT_QUEUES, UIConstants.NO_OPTION);
+            properties.put(TCP_USE_PERSISTENT_QUEUES, UIConstants.NO_OPTION);
         
-        properties.put(LLP_ACK_TIMEOUT, ackTimeoutField.getText()); 
+        properties.put(TCP_ACK_TIMEOUT, ackTimeoutField.getText()); 
         properties.put(CONNECTOR_CHARSET_ENCODING,parent.getSelectedEncodingForChannel(charsetEncodingCombobox));
-        properties.put(LLP_TEMPLATE, template.getText());     
+        properties.put(TCP_TEMPLATE, template.getText());     
         properties.put(CHANNEL_ID, channelList.get((String)channelNames.getSelectedItem()));
         properties.put(CHANNEL_NAME, (String)channelNames.getSelectedItem());        
         return properties;
@@ -129,7 +112,7 @@ public class LLPSender extends ConnectorClass
 
     public void setProperties(Properties props)
     {
-        String hostIPAddress = (String)props.get(LLP_ADDRESS);
+        String hostIPAddress = (String)props.get(TCP_ADDRESS);
         StringTokenizer IP = new StringTokenizer(hostIPAddress, ".");
         if (IP.hasMoreTokens())
             hostIPAddressField.setText(IP.nextToken());
@@ -148,35 +131,26 @@ public class LLPSender extends ConnectorClass
         else
             hostIPAddressField3.setText("");
 
-        hostPortField.setText((String)props.get(LLP_PORT));
-        serverTimeoutField.setText((String)props.get(LLP_SERVER_TIMEOUT));
-        bufferSizeField.setText((String)props.get(LLP_BUFFER_SIZE));
+        hostPortField.setText((String)props.get(TCP_PORT));
+        serverTimeoutField.setText((String)props.get(TCP_SERVER_TIMEOUT));
+        bufferSizeField.setText((String)props.get(TCP_BUFFER_SIZE));
 
-        if(((String)props.get(LLP_KEEP_CONNECTION_OPEN)).equals(UIConstants.YES_OPTION))
+        if(((String)props.get(TCP_KEEP_CONNECTION_OPEN)).equals(UIConstants.YES_OPTION))
             keepConnectionOpenYesRadio.setSelected(true);
         else
             keepConnectionOpenNoRadio.setSelected(true);
 
-        maximumRetryCountField.setText((String)props.get(LLP_MAX_RETRY_COUNT));
+        maximumRetryCountField.setText((String)props.get(TCP_MAX_RETRY_COUNT));
         
-        if(((String)props.get(LLP_CHAR_ENCODING)).equals("ascii"))
-            ascii.setSelected(true);
-        else
-            hex.setSelected(true);
-        
-        startOfMessageCharacterField.setText((String)props.get(LLP_START_OF_MESSAGE_CHARACTER));
-        endOfMessageCharacterField.setText((String)props.get(LLP_END_OF_MESSAGE_CHARACTER));
-        recordSeparatorField.setText((String)props.get(LLP_RECORD_SEPARATOR));
-        segmentEnd.setText((String)props.get(LLP_SEGMENT_END));
         //ast:queued
-        if(((String)props.get(LLP_USE_PERSISTENT_QUEUES)).equals(UIConstants.YES_OPTION))
+        if(((String)props.get(TCP_USE_PERSISTENT_QUEUES)).equals(UIConstants.YES_OPTION))
             usePersistentQueuesYesRadio.setSelected(true);
         else
             usePersistentQueuesNoRadio.setSelected(true);        
 
-        ackTimeoutField.setText((String)props.get(LLP_ACK_TIMEOUT));        
+        ackTimeoutField.setText((String)props.get(TCP_ACK_TIMEOUT));        
      
-        template.setText((String)props.get(LLP_TEMPLATE));
+        template.setText((String)props.get(TCP_TEMPLATE));
         parent.sePreviousSelectedEncodingForChannel(charsetEncodingCombobox,(String)props.get(CONNECTOR_CHARSET_ENCODING));
         
         ArrayList<String> channelNameArray = new ArrayList<String>();
@@ -202,22 +176,17 @@ public class LLPSender extends ConnectorClass
     {
         Properties properties = new Properties();
         properties.put(DATATYPE, name);
-        properties.put(LLP_PROTOCOL_NAME,LLP_PROTOCOL_NAME_VALUE);
-        properties.put(LLP_ADDRESS, "127.0.0.1");
-        properties.put(LLP_PORT, "6660");
-        properties.put(LLP_SERVER_TIMEOUT, "5000");
-        properties.put(LLP_BUFFER_SIZE, "65536");
-        properties.put(LLP_KEEP_CONNECTION_OPEN, UIConstants.NO_OPTION);
-        properties.put(LLP_MAX_RETRY_COUNT, "50");
-        properties.put(LLP_CHAR_ENCODING, "hex");
-        properties.put(LLP_START_OF_MESSAGE_CHARACTER, "0x0B");
-        properties.put(LLP_END_OF_MESSAGE_CHARACTER, "0x1C");
-        properties.put(LLP_RECORD_SEPARATOR, "0x0D");
-        properties.put(LLP_SEGMENT_END, "0x0D");
-        properties.put(LLP_USE_PERSISTENT_QUEUES, UIConstants.YES_OPTION);
-        properties.put(LLP_ACK_TIMEOUT, "5000");
+        properties.put(TCP_ADDRESS, "127.0.0.1");
+        properties.put(TCP_PORT, "6660");
+        properties.put(TCP_SERVER_TIMEOUT, "5000");
+        properties.put(TCP_BUFFER_SIZE, "65536");
+        properties.put(TCP_KEEP_CONNECTION_OPEN, UIConstants.NO_OPTION);
+        properties.put(TCP_MAX_RETRY_COUNT, "50");
+        properties.put(TCP_CHAR_ENCODING, "hex");
+        properties.put(TCP_USE_PERSISTENT_QUEUES, UIConstants.YES_OPTION);
+        properties.put(TCP_ACK_TIMEOUT, "5000");
         properties.put(CONNECTOR_CHARSET_ENCODING, UIConstants.DEFAULT_ENCODING_OPTION);
-        properties.put(LLP_TEMPLATE, "${message.encodedData}");
+        properties.put(TCP_TEMPLATE, "${message.encodedData}");
         properties.put(CHANNEL_ID, "sink");
         properties.put(CHANNEL_NAME, "None");
         return properties;
@@ -225,12 +194,9 @@ public class LLPSender extends ConnectorClass
     
     public boolean checkProperties(Properties props)
     {
-         if(((String)props.get(LLP_ADDRESS)).length() > 0 && ((String)props.get(LLP_PORT)).length() > 0 && 
-        ((String)props.get(LLP_SERVER_TIMEOUT)).length() > 0 && ((String)props.get(LLP_BUFFER_SIZE)).length() > 0 &&
-        ((String)props.get(LLP_MAX_RETRY_COUNT)).length() > 0 && ((String)props.get(LLP_END_OF_MESSAGE_CHARACTER)).length() > 0 &&
-        ((String)props.get(LLP_START_OF_MESSAGE_CHARACTER)).length() > 0 && ((String)props.get(LLP_END_OF_MESSAGE_CHARACTER)).length() > 0 &&
-        ((String)props.get(LLP_RECORD_SEPARATOR)).length() > 0 && ((String)props.get(LLP_SEGMENT_END)).length() > 0 && 
-        ((String)props.get(LLP_TEMPLATE)).length() > 0)
+         if(((String)props.get(TCP_ADDRESS)).length() > 0 && ((String)props.get(TCP_PORT)).length() > 0 && 
+        ((String)props.get(TCP_SERVER_TIMEOUT)).length() > 0 && ((String)props.get(TCP_BUFFER_SIZE)).length() > 0 &&
+        ((String)props.get(TCP_MAX_RETRY_COUNT)).length() > 0 && ((String)props.get(TCP_TEMPLATE)).length() > 0)
             return true;
         return false;       
     }    
@@ -252,16 +218,10 @@ public class LLPSender extends ConnectorClass
         jLabel17 = new javax.swing.JLabel();
         jLabel18 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
-        jLabel10 = new javax.swing.JLabel();
-        jLabel11 = new javax.swing.JLabel();
-        jLabel12 = new javax.swing.JLabel();
         hostPortField = new com.webreach.mirth.client.ui.components.MirthTextField();
         serverTimeoutField = new com.webreach.mirth.client.ui.components.MirthTextField();
         bufferSizeField = new com.webreach.mirth.client.ui.components.MirthTextField();
         maximumRetryCountField = new com.webreach.mirth.client.ui.components.MirthTextField();
-        startOfMessageCharacterField = new com.webreach.mirth.client.ui.components.MirthTextField();
-        endOfMessageCharacterField = new com.webreach.mirth.client.ui.components.MirthTextField();
-        recordSeparatorField = new com.webreach.mirth.client.ui.components.MirthTextField();
         keepConnectionOpenYesRadio = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         keepConnectionOpenNoRadio = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         hostIPAddressField3 = new com.webreach.mirth.client.ui.components.MirthTextField();
@@ -271,11 +231,6 @@ public class LLPSender extends ConnectorClass
         hostIPAddressField1 = new com.webreach.mirth.client.ui.components.MirthTextField();
         jLabel9 = new javax.swing.JLabel();
         hostIPAddressField = new com.webreach.mirth.client.ui.components.MirthTextField();
-        jLabel14 = new javax.swing.JLabel();
-        ascii = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        hex = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        segmentEnd = new com.webreach.mirth.client.ui.components.MirthTextField();
-        jLabel37 = new javax.swing.JLabel();
         ackTimeoutField = new com.webreach.mirth.client.ui.components.MirthTextField();
         jLabel19 = new javax.swing.JLabel();
         charsetEncodingCombobox = new com.webreach.mirth.client.ui.components.MirthComboBox();
@@ -302,12 +257,6 @@ public class LLPSender extends ConnectorClass
 
         jLabel8.setText("Maximum Retry Count:");
 
-        jLabel10.setText("Start of Message Char:");
-
-        jLabel11.setText("End of Message Char:");
-
-        jLabel12.setText("Record Sparator Char:");
-
         keepConnectionOpenYesRadio.setBackground(new java.awt.Color(255, 255, 255));
         keepConnectionOpenYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         keepConnectionOpenGroup.add(keepConnectionOpenYesRadio);
@@ -325,22 +274,6 @@ public class LLPSender extends ConnectorClass
         jLabel26.setText(".");
 
         jLabel9.setText(".");
-
-        jLabel14.setText("LLP Frame Encoding:");
-
-        ascii.setBackground(new java.awt.Color(255, 255, 255));
-        ascii.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup1.add(ascii);
-        ascii.setText("ASCII");
-        ascii.setMargin(new java.awt.Insets(0, 0, 0, 0));
-
-        hex.setBackground(new java.awt.Color(255, 255, 255));
-        hex.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup1.add(hex);
-        hex.setText("Hex");
-        hex.setMargin(new java.awt.Insets(0, 0, 0, 0));
-
-        jLabel37.setText("End of Segment Char:");
 
         jLabel19.setText("ACK Timeout (ms):");
 
@@ -391,9 +324,6 @@ public class LLPSender extends ConnectorClass
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel15)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel13)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel8)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel14)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel10)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel12)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel36)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel19)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel20)
@@ -411,18 +341,8 @@ public class LLPSender extends ConnectorClass
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                                 .add(usePersistentQueuesNoRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                             .add(ackTimeoutField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                    .add(layout.createSequentialGroup()
-                        .add(startOfMessageCharacterField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jLabel11)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(endOfMessageCharacterField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                     .add(bufferSizeField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(serverTimeoutField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(layout.createSequentialGroup()
-                        .add(ascii, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(hex, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                     .add(layout.createSequentialGroup()
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
                             .add(org.jdesktop.layout.GroupLayout.LEADING, maximumRetryCountField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -444,12 +364,6 @@ public class LLPSender extends ConnectorClass
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(hostIPAddressField3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 31, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                     .add(hostPortField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(layout.createSequentialGroup()
-                        .add(recordSeparatorField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jLabel37)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(segmentEnd, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                     .add(template, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 325, Short.MAX_VALUE))
                 .addContainerGap())
         );
@@ -493,23 +407,6 @@ public class LLPSender extends ConnectorClass
                     .add(maximumRetryCountField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel14)
-                    .add(ascii, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(hex, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(startOfMessageCharacterField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel10)
-                    .add(endOfMessageCharacterField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel11))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel12)
-                    .add(recordSeparatorField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel37)
-                    .add(segmentEnd, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel36)
                     .add(usePersistentQueuesYesRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(usePersistentQueuesNoRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
@@ -528,7 +425,7 @@ public class LLPSender extends ConnectorClass
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jLabel7)
-                    .add(template, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 205, Short.MAX_VALUE))
+                    .add(template, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 126, Short.MAX_VALUE))
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -541,23 +438,16 @@ public class LLPSender extends ConnectorClass
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel URL;
     private com.webreach.mirth.client.ui.components.MirthTextField ackTimeoutField;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton ascii;
     private com.webreach.mirth.client.ui.components.MirthTextField bufferSizeField;
     private javax.swing.ButtonGroup buttonGroup1;
     private com.webreach.mirth.client.ui.components.MirthComboBox channelNames;
     private com.webreach.mirth.client.ui.components.MirthComboBox charsetEncodingCombobox;
-    private com.webreach.mirth.client.ui.components.MirthTextField endOfMessageCharacterField;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton hex;
     private com.webreach.mirth.client.ui.components.MirthTextField hostIPAddressField;
     private com.webreach.mirth.client.ui.components.MirthTextField hostIPAddressField1;
     private com.webreach.mirth.client.ui.components.MirthTextField hostIPAddressField2;
     private com.webreach.mirth.client.ui.components.MirthTextField hostIPAddressField3;
     private com.webreach.mirth.client.ui.components.MirthTextField hostPortField;
-    private javax.swing.JLabel jLabel10;
-    private javax.swing.JLabel jLabel11;
-    private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
-    private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel16;
     private javax.swing.JLabel jLabel17;
@@ -567,7 +457,6 @@ public class LLPSender extends ConnectorClass
     private javax.swing.JLabel jLabel25;
     private javax.swing.JLabel jLabel26;
     private javax.swing.JLabel jLabel36;
-    private javax.swing.JLabel jLabel37;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
@@ -575,10 +464,7 @@ public class LLPSender extends ConnectorClass
     private com.webreach.mirth.client.ui.components.MirthRadioButton keepConnectionOpenNoRadio;
     private com.webreach.mirth.client.ui.components.MirthRadioButton keepConnectionOpenYesRadio;
     private com.webreach.mirth.client.ui.components.MirthTextField maximumRetryCountField;
-    private com.webreach.mirth.client.ui.components.MirthTextField recordSeparatorField;
-    private com.webreach.mirth.client.ui.components.MirthTextField segmentEnd;
     private com.webreach.mirth.client.ui.components.MirthTextField serverTimeoutField;
-    private com.webreach.mirth.client.ui.components.MirthTextField startOfMessageCharacterField;
     private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea template;
     private javax.swing.ButtonGroup usePersistenceQueuesGroup;
     private com.webreach.mirth.client.ui.components.MirthRadioButton usePersistentQueuesNoRadio;
