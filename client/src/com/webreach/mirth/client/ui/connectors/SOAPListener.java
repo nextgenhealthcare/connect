@@ -84,7 +84,7 @@ public class SOAPListener extends ConnectorClass
         listenerAddress.setText((String)props.get(SOAP_LISTENER_ADDRESS));
         port.setText((String)props.getProperty(SOAP_PORT));
         serviceName.setText((String)props.getProperty(SOAP_SERVICE_NAME));
-        if(((String)properties.get(SOAP_RESPONSE_FROM_TRANSFORMER)).equals(UIConstants.YES_OPTION))
+        if(((String)props.get(SOAP_RESPONSE_FROM_TRANSFORMER)).equals(UIConstants.YES_OPTION))
             responseFromTransformerYes.setSelected(true);
         else
             responseFromTransformerNo.setSelected(true);

@@ -40,7 +40,7 @@ public class UserPanel extends javax.swing.JPanel
         initComponents();
         makeUsersTable();
         usersTable.setBorder(BorderFactory.createEmptyBorder());
-        this.addMouseListener(new java.awt.event.MouseAdapter() 
+        usersPane.addMouseListener(new java.awt.event.MouseAdapter() 
         {
             public void mousePressed(java.awt.event.MouseEvent evt)
             {
@@ -91,7 +91,7 @@ public class UserPanel extends javax.swing.JPanel
             usersTable.setHighlighters(highlighter);
         }
         
-        usersScrollPane.setViewportView(usersTable);
+        usersPane.setViewportView(usersTable);
         
         usersTable.getSelectionModel().addListSelectionListener(new ListSelectionListener()
         {
@@ -285,27 +285,27 @@ public class UserPanel extends javax.swing.JPanel
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents()
     {
-        usersScrollPane = new javax.swing.JScrollPane();
+        usersPane = new javax.swing.JScrollPane();
         usersTable = null;
 
-        usersScrollPane.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        usersScrollPane.setViewportView(usersTable);
+        usersPane.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        usersPane.setViewportView(usersTable);
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(usersScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
+            .add(usersPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(usersScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 300, Short.MAX_VALUE)
+            .add(usersPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 300, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JScrollPane usersScrollPane;
+    private javax.swing.JScrollPane usersPane;
     public com.webreach.mirth.client.ui.components.MirthTable usersTable;
     // End of variables declaration//GEN-END:variables
     

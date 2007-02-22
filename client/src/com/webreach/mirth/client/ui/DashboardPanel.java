@@ -305,6 +305,7 @@ public class DashboardPanel extends javax.swing.JPanel
         statusPane = new javax.swing.JScrollPane();
         statusTable = null;
 
+        statusPane.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         statusPane.setViewportView(statusTable);
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);

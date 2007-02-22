@@ -68,6 +68,7 @@ public class ChannelPanel extends javax.swing.JPanel
         
         // Must set the maximum width on columns that should be packed.
         channelTable.getColumnExt(STATUS_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
+        channelTable.getColumnExt(STATUS_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
         
         channelTable.getColumnExt(STATUS_COLUMN_NAME).setCellRenderer(new ImageCellRenderer());
         channelTable.getColumnExt(ID_COLUMN_NAME).setVisible(false);
@@ -117,8 +118,7 @@ public class ChannelPanel extends javax.swing.JPanel
     public void updateChannelTable()
     {
         Object[][] tableData = null;
-        channelPane.setBorder(BorderFactory.createEmptyBorder());
-        channelTable.setBorder(BorderFactory.createEmptyBorder());
+
         if(parent.channels != null)
         {
             tableData = new Object[parent.channels.size()][3];
