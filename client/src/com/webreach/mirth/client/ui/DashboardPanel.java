@@ -1,51 +1,27 @@
-/* ***** BEGIN LICENSE BLOCK *****
- * Version: MPL 1.1
+/*
+ * DashboardPanel.java
  *
- * The contents of this file are subject to the Mozilla Public License Version
- * 1.1 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * http://www.mozilla.org/MPL/
- *
- * Software distributed under the License is distributed on an "AS IS" basis,
- * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
- * for the specific language governing rights and limitations under the
- * License.
- *
- * The Original Code is Mirth.
- *
- * The Initial Developer of the Original Code is
- * WebReach, Inc.
- * Portions created by the Initial Developer are Copyright (C) 2006
- * the Initial Developer. All Rights Reserved.
- *
- * Contributor(s):
- *   Gerald Bortis <geraldb@webreachinc.com>
- *
- * ***** END LICENSE BLOCK ***** */
-
+ * Created on February 22, 2007, 12:57 PM
+ */
 
 package com.webreach.mirth.client.ui;
 
+import com.webreach.mirth.client.core.ClientException;
+import com.webreach.mirth.client.ui.components.MirthTable;
+import com.webreach.mirth.model.ChannelStatistics;
+import com.webreach.mirth.model.ChannelStatus;
 import java.awt.Point;
 import java.util.prefs.Preferences;
-
-import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
-import javax.swing.JScrollPane;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.table.DefaultTableModel;
-
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.AlternateRowHighlighter;
 import org.jdesktop.swingx.decorator.HighlighterPipeline;
 
-import com.webreach.mirth.client.core.ClientException;
-import com.webreach.mirth.model.ChannelStatistics;
-import com.webreach.mirth.model.ChannelStatus;
-
 /**
- * The main dashboard panel.
+ *
+ * @author  brendanh
  */
 public class DashboardPanel extends javax.swing.JPanel
 {
@@ -56,9 +32,6 @@ public class DashboardPanel extends javax.swing.JPanel
     private final String ERROR_COLUMN_NAME = "Errors";
     private final String REJECTED_COLUMN_NAME = "Rejected";
     private int lastRow;
-    public JXTable statusTable;
-    
-    private JScrollPane statusPane;
     private Frame parent;
     
     /** Creates new form DashboardPanel */
@@ -67,19 +40,7 @@ public class DashboardPanel extends javax.swing.JPanel
         this.parent = PlatformUI.MIRTH_FRAME;
         lastRow = -1;
         initComponents();
-        this.setDoubleBuffered(true);
-        setBorder(BorderFactory.createEmptyBorder());
-    }
-    
-    /**
-     * Initializes the dashboard panel layout, table, and mouse listeners.
-     */
-    private void initComponents()
-    {
-        statusPane = new JScrollPane();
         statusPane.setDoubleBuffered(true);
-        statusPane.setBorder(BorderFactory.createEmptyBorder());
-        statusTable = null; 
         makeStatusTable();
         statusPane.addMouseListener(new java.awt.event.MouseAdapter()
         {
@@ -96,22 +57,7 @@ public class DashboardPanel extends javax.swing.JPanel
                 deselectRows();
             }
         });
-        
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
-        this.setLayout(layout);
-        
-        layout.setHorizontalGroup(
-                layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                .add(org.jdesktop.layout.GroupLayout.LEADING, statusPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                );
-        layout.setVerticalGroup(
-                layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                .add(statusPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED))
-                );
+        this.setDoubleBuffered(true);
     }
     
     /**
@@ -122,8 +68,7 @@ public class DashboardPanel extends javax.swing.JPanel
         updateTable();
         
         statusTable.setDoubleBuffered(true);
-        statusTable.setBorder(BorderFactory.createEmptyBorder());
-        
+     
         statusTable.setSelectionMode(0);
         
         statusTable.getColumnExt(STATUS_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
@@ -239,7 +184,7 @@ public class DashboardPanel extends javax.swing.JPanel
         }
         else
         {
-            statusTable = new JXTable();
+            statusTable = new MirthTable();
             statusTable.setModel(new RefreshTableModel(tableData,new String []{STATUS_COLUMN_NAME, NAME_COLUMN_NAME, RECEIVED_COLUMN_NAME, REJECTED_COLUMN_NAME, SENT_COLUMN_NAME, ERROR_COLUMN_NAME})
             {
                 boolean[] canEdit = new boolean []
@@ -256,8 +201,6 @@ public class DashboardPanel extends javax.swing.JPanel
         
         if(lastRow >= 0 && lastRow < statusTable.getRowCount())
         {
-            System.out.println(lastRow);
-            
             statusTable.setRowSelectionInterval(lastRow,lastRow);
         }
     }
@@ -350,4 +293,36 @@ public class DashboardPanel extends javax.swing.JPanel
         }
         return UIConstants.ERROR_CONSTANT;
     }
+    
+    /** This method is called from within the constructor to
+     * initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is
+     * always regenerated by the Form Editor.
+     */
+    // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
+    private void initComponents()
+    {
+        statusPane = new javax.swing.JScrollPane();
+        statusTable = null;
+
+        statusPane.setViewportView(statusTable);
+
+        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
+        this.setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(statusPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(statusPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 300, Short.MAX_VALUE)
+        );
+    }// </editor-fold>//GEN-END:initComponents
+    
+    
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JScrollPane statusPane;
+    private com.webreach.mirth.client.ui.components.MirthTable statusTable;
+    // End of variables declaration//GEN-END:variables
+    
 }

@@ -110,7 +110,8 @@ public class Frame extends JXFrame
     
     public DashboardPanel dashboardPanel;
     public ChannelPanel channelPanel;
-    public ConfigurationPanel configurationPanel;
+    public SettingsPanel settingsPanel;
+    public UserPanel userPanel;
     public ChannelSetup channelEditPanel;
     public EventBrowser eventBrowser;
     public MessageBrowser messageBrowser;
@@ -191,30 +192,29 @@ public class Frame extends JXFrame
         
         connectionError = false;
         DragSource ds = DragSource.getDefaultDragSource();
-        ds.addDragSourceListener(new DragSourceListener(){
-
-			public void dragEnter(DragSourceDragEvent arg0)
-			{	
-			}
-
-			public void dragOver(DragSourceDragEvent arg0)
-			{
-			}
-
-			public void dropActionChanged(DragSourceDragEvent arg0)
-			{
-			}
-
-			public void dragExit(DragSourceEvent arg0)
-			{		
-			}
-
-			public void dragDropEnd(DragSourceDropEvent arg0)
-			{
-				if (highlightersSet)
-					unsetHighlighters();
-			}
-        	
+        ds.addDragSourceListener(new DragSourceListener()
+        {
+            public void dragEnter(DragSourceDragEvent arg0)
+            {
+            }
+            
+            public void dragOver(DragSourceDragEvent arg0)
+            {
+            }
+            
+            public void dropActionChanged(DragSourceDragEvent arg0)
+            {
+            }
+            
+            public void dragExit(DragSourceEvent arg0)
+            {
+            }
+            
+            public void dragDropEnd(DragSourceDropEvent arg0)
+            {
+                if (highlightersSet)
+                    unsetHighlighters();
+            }
         });
         this.addComponentListener(new ComponentListener()
         {
@@ -392,7 +392,7 @@ public class Frame extends JXFrame
         contentPanel.add(splitPane, java.awt.BorderLayout.CENTER);
         
         setCurrentTaskPaneContainer(taskPaneContainer);
-        doShowDashboardPanel();
+        doShowDashboard();
         channelEditPanel = new ChannelSetup();
         messageBrowser = new MessageBrowser();
         su = new StatusUpdater();
@@ -535,9 +535,10 @@ public class Frame extends JXFrame
         viewPane = new JXTaskPane();
         viewPane.setTitle("Mirth");
         viewPane.setFocusable(false);
-        viewPane.add(initActionCallback("doShowDashboardPanel", "Contains information about your currently deployed channels.", ActionFactory.createBoundAction("showDashboardPanel","Dashboard","H"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/status.png"))));
-        viewPane.add(initActionCallback("doShowChannel", "Contains various operations to perform on your channels.", ActionFactory.createBoundAction("showChannelPannel","Channels","C"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/channel.png"))));
-        viewPane.add(initActionCallback("doShowConfigurationPage", "Contains user and system settings.", ActionFactory.createBoundAction("configurationPage","Configuration","A"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/admin.png"))));
+        viewPane.add(initActionCallback("doShowDashboard", "Contains information about your currently deployed channels.", ActionFactory.createBoundAction("showDashboard","Dashboard","H"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/status.png"))));
+        viewPane.add(initActionCallback("doShowChannel", "Contains various operations to perform on your channels.", ActionFactory.createBoundAction("showChannel","Channels","C"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/channel.png"))));
+        viewPane.add(initActionCallback("doShowUsers", "Contains information on users.", ActionFactory.createBoundAction("showUsers","Users","A"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/admin.png"))));
+        viewPane.add(initActionCallback("doShowSettings", "Contains local and system settings.", ActionFactory.createBoundAction("showSettings","Settings","A"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/settings.png"))));
         setNonFocusable(viewPane);
         taskPaneContainer.add(viewPane);
     }
@@ -1421,14 +1422,14 @@ public class Frame extends JXFrame
             
             channelEditTasks.getContentPane().getComponent(0).setVisible(false);
         }
-        else if (configurationPanel != null && settingsTasks.getContentPane().getComponent(1).isVisible())
+        else if (settingsPanel != null && settingsTasks.getContentPane().getComponent(1).isVisible())
         {
             int option = JOptionPane.showConfirmDialog(this, "Would you like to save the settings?");
             
             if (option == JOptionPane.YES_OPTION)
-                configurationPanel.saveSettings();
+                settingsPanel.saveSettings();
             else if (option == JOptionPane.NO_OPTION)
-                configurationPanel.loadSettings();
+                settingsPanel.loadSettings();
             else if (option == JOptionPane.CANCEL_OPTION || option == JOptionPane.CLOSED_OPTION)
                 return false;
             
@@ -1471,7 +1472,7 @@ public class Frame extends JXFrame
         {
             mirthClient.updateUser(curr);
             users = mirthClient.getUser(null);
-            configurationPanel.userPane.makeUsersTable();
+            userPanel.updateUserTable();
         }
         catch (ClientException e)
         {
@@ -1512,7 +1513,7 @@ public class Frame extends JXFrame
             channelEditPanel.transformerPane.modified = true;
         else if (channelEditPanel != null && currentContentPage == channelEditPanel.filterPane)
             channelEditPanel.filterPane.modified = true;
-        else if (configurationPanel != null && currentContentPage == configurationPanel)
+        else if (settingsPanel != null && currentContentPage == settingsPanel)
             settingsTasks.getContentPane().getComponent(1).setVisible(true);
     }
     
@@ -1523,7 +1524,7 @@ public class Frame extends JXFrame
     {
         if(currentContentPage == channelEditPanel)
             channelEditTasks.getContentPane().getComponent(0).setVisible(false);
-        else if (currentContentPage == configurationPanel)
+        else if (currentContentPage == settingsPanel)
             settingsTasks.getContentPane().getComponent(1).setVisible(false);
     }
     
@@ -1550,7 +1551,7 @@ public class Frame extends JXFrame
         dlg.setVisible(true);
     }
     
-    public void doShowDashboardPanel()
+    public void doShowDashboard()
     {
         if(dashboardPanel == null)
             dashboardPanel = new DashboardPanel();
@@ -1613,11 +1614,11 @@ public class Frame extends JXFrame
         
         worker.execute();
     }
-    
-    public void doShowConfigurationPage()
+        
+    public void doShowUsers()
     {
-        if(configurationPanel == null)
-            configurationPanel = new ConfigurationPanel();
+        if(userPanel == null)
+            userPanel = new UserPanel();
         
         if (!confirmLeave())
             return;
@@ -1629,11 +1630,10 @@ public class Frame extends JXFrame
             public Void doInBackground()
             {
                 setBold(viewPane, 2);
-                setPanelName("Configuration");
-                setCurrentContentPage(configurationPanel);
+                setPanelName("Users");
+                setCurrentContentPage(userPanel);
                 doRefreshUser();
-                configurationPanel.showTasks();
-                configurationPanel.showFirstTab();
+                setFocus(userTasks);
                 return null;
             }
             
@@ -1646,6 +1646,37 @@ public class Frame extends JXFrame
         worker.execute();
     }
     
+    public void doShowSettings()
+    {
+        if(settingsPanel == null)
+            settingsPanel = new SettingsPanel();
+        
+        if (!confirmLeave())
+            return;
+        
+        setWorking(true);
+        
+        SwingWorker worker = new SwingWorker <Void, Void> ()
+        {
+            public Void doInBackground()
+            {
+                setBold(viewPane, 3);
+                setPanelName("Settings");
+                setCurrentContentPage(settingsPanel);
+                doRefreshUser();
+                setFocus(settingsTasks);
+                return null;
+            }
+            
+            public void done()
+            {
+                setWorking(false);
+            }
+        };
+        
+        worker.execute();
+    }
+        
     public void doLogout()
     {
         if (!confirmLeave())
@@ -1858,7 +1889,7 @@ public class Frame extends JXFrame
                 }
             }
             
-            channelPanel.makeChannelTable();
+            channelPanel.updateChannelTable();
             
             if(channels.size() > 0)
             {
@@ -2170,7 +2201,7 @@ public class Frame extends JXFrame
     {
         doRefreshUser();
         
-        int index = configurationPanel.userPane.getUserIndex();
+        int index = userPanel.getUserIndex();
         
         if (index == UIConstants.ERROR_CONSTANT)
             JOptionPane.showMessageDialog(this, "User no longer exists.");
@@ -2205,8 +2236,8 @@ public class Frame extends JXFrame
                     return null;
                 }
                 
-                int userToDelete = configurationPanel.userPane.getUserIndex();
-                String userName = ((CellData)configurationPanel.userPane.usersTable.getValueAt(configurationPanel.userPane.getSelectedRow(), configurationPanel.userPane.getColumnNumber("Username"))).getText();
+                int userToDelete = userPanel.getUserIndex();
+                String userName = ((CellData)userPanel.usersTable.getValueAt(userPanel.getSelectedRow(), userPanel.getColumnNumber("Username"))).getText();
                 
                 setWorking(true);
                 try
@@ -2215,8 +2246,8 @@ public class Frame extends JXFrame
                     {
                         mirthClient.removeUser(users.get(userToDelete));
                         users = mirthClient.getUser(null);
-                        configurationPanel.userPane.makeUsersTable();
-                        configurationPanel.userPane.deselectRows();
+                        userPanel.updateUserTable();
+                        userPanel.deselectRows();
                     }
                 }
                 catch (ClientException e)
@@ -2245,7 +2276,7 @@ public class Frame extends JXFrame
             {
                 User user = null;
                 String userName = null;
-                int index = configurationPanel.userPane.getUserIndex();
+                int index = userPanel.getUserIndex();
                 
                 if(index != UIConstants.ERROR_CONSTANT)
                     user = users.get(index);
@@ -2253,7 +2284,7 @@ public class Frame extends JXFrame
                 try
                 {
                     users = mirthClient.getUser(null);
-                    configurationPanel.userPane.makeUsersTable();
+                    userPanel.updateUserTable();
                     
                     if(user != null)
                     {
@@ -2271,7 +2302,7 @@ public class Frame extends JXFrame
                 
                 // as long as the channel was not deleted
                 if (userName != null)
-                    configurationPanel.userPane.setSelectedUser(userName);
+                    userPanel.setSelectedUser(userName);
                 return null;
             }
             
@@ -2307,7 +2338,7 @@ public class Frame extends JXFrame
             
             public void done()
             {
-                doShowDashboardPanel();
+                doShowDashboard();
                 setWorking(false);
             }
         };
@@ -2445,7 +2476,7 @@ public class Frame extends JXFrame
         {
             public Void doInBackground()
             {
-                configurationPanel.saveSettings();
+                settingsPanel.saveSettings();
                 return null;
             }
             
@@ -2952,7 +2983,7 @@ public class Frame extends JXFrame
         {
             public Void doInBackground()
             {
-                configurationPanel.loadSettings();
+                settingsPanel.loadSettings();
                 return null;
             }
             
@@ -3004,7 +3035,7 @@ public class Frame extends JXFrame
             BareBonesBrowserLaunch.openURL(UIConstants.HELP_LOCATION + UIConstants.MESSAGE_BROWSER_HELP_LOCATION);
         else if(currentContentPage == eventBrowser)
             BareBonesBrowserLaunch.openURL(UIConstants.HELP_LOCATION + UIConstants.SYSTEM_EVENT_HELP_LOCATION);
-        else if(currentContentPage == configurationPanel)
+        else if(currentContentPage == settingsPanel)
             BareBonesBrowserLaunch.openURL(UIConstants.HELP_LOCATION + UIConstants.CONFIGURATION_HELP_LOCATION);
         else if(currentContentPage == channelEditPanel.transformerPane)
             BareBonesBrowserLaunch.openURL(UIConstants.HELP_LOCATION + UIConstants.TRANFORMER_HELP_LOCATION);
@@ -3081,11 +3112,14 @@ public class Frame extends JXFrame
     
     public void setHighlighters()
     {
-    	
-        if(currentContentPage == channelEditPanel.filterPane){
+        
+        if(currentContentPage == channelEditPanel.filterPane)
+        {
             channelEditPanel.filterPane.setHighlighters();
             this.highlightersSet = true;
-        } else if(currentContentPage == channelEditPanel.transformerPane){
+        }
+        else if(currentContentPage == channelEditPanel.transformerPane)
+        {
             channelEditPanel.transformerPane.setHighlighters();
             this.highlightersSet = true;
         }

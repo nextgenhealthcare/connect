@@ -1,47 +1,28 @@
-/* ***** BEGIN LICENSE BLOCK *****
- * Version: MPL 1.1
+/*
+ * ChannelPanel.java
  *
- * The contents of this file are subject to the Mozilla Public License Version
- * 1.1 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * http://www.mozilla.org/MPL/
- *
- * Software distributed under the License is distributed on an "AS IS" basis,
- * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
- * for the specific language governing rights and limitations under the
- * License.
- *
- * The Original Code is Mirth.
- *
- * The Initial Developer of the Original Code is
- * WebReach, Inc.
- * Portions created by the Initial Developer are Copyright (C) 2006
- * the Initial Developer. All Rights Reserved.
- *
- * Contributor(s):
- *   Gerald Bortis <geraldb@webreachinc.com>
- *
- * ***** END LICENSE BLOCK ***** */
-
+ * Created on February 22, 2007, 12:20 PM
+ */
 
 package com.webreach.mirth.client.ui;
 
+import com.webreach.mirth.client.ui.components.MirthTable;
+import com.webreach.mirth.model.Channel;
 import java.awt.Point;
 import java.util.prefs.Preferences;
-
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JScrollPane;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.AlternateRowHighlighter;
 import org.jdesktop.swingx.decorator.HighlighterPipeline;
 
-import com.webreach.mirth.model.Channel;
-
-/** The main channel list panel view. */
+/**
+ *
+ * @author  brendanh
+ */
 public class ChannelPanel extends javax.swing.JPanel
 {
     private final String STATUS_COLUMN_NAME = "Status";
@@ -49,22 +30,15 @@ public class ChannelPanel extends javax.swing.JPanel
     private final String ID_COLUMN_NAME = "Id";
     private final int ID_COLUMN_NUMBER = 2;
     private final String ENABLED_STATUS = "Enabled";
-    
-    private JScrollPane channelPane;
-    private JXTable channelTable;
+    private int lastRow;
     private Frame parent;
     
     /** Creates new form ChannelPanel */
-    public ChannelPanel() {
+    public ChannelPanel()
+    {
         this.parent = PlatformUI.MIRTH_FRAME;
         initComponents();
-    }
-    
-    /** Initializes the pane, makes the table, adds the mouse listeners, and sets the layout */
-    public void initComponents()
-    {
-        channelPane = new JScrollPane();
-        
+        lastRow = -1;
         makeChannelTable();
         
         channelPane.addMouseListener(new java.awt.event.MouseAdapter()
@@ -84,61 +58,12 @@ public class ChannelPanel extends javax.swing.JPanel
         });
         
         channelPane.setComponentPopupMenu(parent.channelPopupMenu);
-        
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-                layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                .add(channelPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, channelTable.getWidth(), Short.MAX_VALUE)
-                );
-        layout.setVerticalGroup(
-                layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                .add(channelPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, channelTable.getHeight(), Short.MAX_VALUE)
-                );
     }
     
     /** Creates the channel table */
     public void makeChannelTable()
     {
-        channelTable = new JXTable();
-        Object[][] tableData = null;
-        channelPane.setBorder(BorderFactory.createEmptyBorder());
-        channelTable.setBorder(BorderFactory.createEmptyBorder());
-        if(parent.channels != null)
-        {
-            tableData = new Object[parent.channels.size()][3];
-            
-            int i = 0;
-            for (Channel channel : parent.channels.values())
-            {
-                if (channel.isEnabled())
-                    tableData[i][0] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_blue.png")),"Enabled");
-                else
-                    tableData[i][0] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_black.png")),"Disabled");
-
-                tableData[i][1] = channel.getName();
-                tableData[i][2] = channel.getId();
-                i++;
-            }
-        }
-            
-        channelTable.setModel(new javax.swing.table.DefaultTableModel(
-            tableData,
-            new String []
-        {
-            STATUS_COLUMN_NAME, NAME_COLUMN_NAME, ID_COLUMN_NAME
-        }
-        ) {
-            boolean[] canEdit = new boolean []
-            {
-                false, false, false
-            };
-
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit [columnIndex];
-            }
-        });
-                
+        updateChannelTable();                
         channelTable.setSelectionMode(0);        
         
         // Must set the maximum width on columns that should be packed.
@@ -189,6 +114,66 @@ public class ChannelPanel extends javax.swing.JPanel
         });
     }
     
+    public void updateChannelTable()
+    {
+        Object[][] tableData = null;
+        channelPane.setBorder(BorderFactory.createEmptyBorder());
+        channelTable.setBorder(BorderFactory.createEmptyBorder());
+        if(parent.channels != null)
+        {
+            tableData = new Object[parent.channels.size()][3];
+            
+            int i = 0;
+            for (Channel channel : parent.channels.values())
+            {
+                if (channel.isEnabled())
+                    tableData[i][0] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_blue.png")),"Enabled");
+                else
+                    tableData[i][0] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_black.png")),"Disabled");
+
+                tableData[i][1] = channel.getName();
+                tableData[i][2] = channel.getId();
+                i++;
+            }
+        }
+        
+        int row = UIConstants.ERROR_CONSTANT;
+
+        if(channelTable != null)
+        {
+            row = channelTable.getSelectedRow();
+            lastRow = row;
+            RefreshTableModel model = (RefreshTableModel)channelTable.getModel();
+            model.refreshDataVector(tableData);
+        }
+        else
+        {
+            channelTable = new MirthTable();
+            channelTable.setModel(new RefreshTableModel(
+                tableData,
+                new String []
+            {
+                STATUS_COLUMN_NAME, NAME_COLUMN_NAME, ID_COLUMN_NAME
+            }
+            ) {
+                boolean[] canEdit = new boolean []
+                {
+                    false, false, false
+                };
+
+                public boolean isCellEditable(int rowIndex, int columnIndex) {
+                    return canEdit [columnIndex];
+                }
+            });
+        }
+        
+        if(lastRow >= 0 && lastRow < channelTable.getRowCount())
+        {
+            channelTable.setRowSelectionInterval(lastRow,lastRow);
+        }
+    }
+
+    
     /** Show the popup menu on trigger button press (right-click).
      *  If it's on the table then the row should be selected, if not
      *  any selected rows should be deselected first.
@@ -213,7 +198,7 @@ public class ChannelPanel extends javax.swing.JPanel
     {
         int row = channelTable.getSelectedRow();
         
-        if(row >= 0)
+        if(row >= 0 && lastRow < channelTable.getRowCount())
         {
             parent.setVisibleTasks(parent.channelTasks, parent.channelPopupMenu, 5, -1, true);
 
@@ -271,4 +256,37 @@ public class ChannelPanel extends javax.swing.JPanel
         }
         return -1;
     }
+    
+    /** This method is called from within the constructor to
+     * initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is
+     * always regenerated by the Form Editor.
+     */
+    // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
+    private void initComponents()
+    {
+        channelPane = new javax.swing.JScrollPane();
+        channelTable = null;
+
+        channelPane.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        channelPane.setViewportView(channelTable);
+
+        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
+        this.setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(channelPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(channelPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 300, Short.MAX_VALUE)
+        );
+    }// </editor-fold>//GEN-END:initComponents
+    
+    
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JScrollPane channelPane;
+    private com.webreach.mirth.client.ui.components.MirthTable channelTable;
+    // End of variables declaration//GEN-END:variables
+    
 }
