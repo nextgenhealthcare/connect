@@ -9,6 +9,7 @@ package com.webreach.mirth.client.ui.editors;
 import com.webreach.mirth.client.ui.Mirth;
 import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.client.ui.components.MirthTable;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.MouseEvent;
 import java.util.EventObject;
@@ -310,6 +311,18 @@ public class MessageBuilder extends BasePanel
             return regularExpressionsTable.getEditingRow();
         else
             return regularExpressionsTable.getSelectedRow();
+    }
+    
+    public void setHighlighters()
+    {
+        mappingTextField.setBackground(UIConstants.DRAG_HIGHLIGHTER_COLOR);
+        defaultValueTextField.setBackground(UIConstants.DRAG_HIGHLIGHTER_COLOR);
+    }
+    
+    public void unsetHighlighters()
+    {
+        mappingTextField.setBackground(UIConstants.BACKGROUND_COLOR);
+        defaultValueTextField.setBackground(UIConstants.BACKGROUND_COLOR);
     }
     
     /** This method is called from within the constructor to

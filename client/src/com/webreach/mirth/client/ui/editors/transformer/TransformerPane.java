@@ -1332,6 +1332,20 @@ public class TransformerPane extends MirthEditorPane
         tabTemplatePanel.resizePanes();
     }
     
+    public void setHighlighters()
+    {
+        jsPanel.setHighlighters();
+        mapperPanel.setHighlighters();
+        builderPanel.setHighlighters();
+    }
+    
+    public void unsetHighlighters()
+    {
+        jsPanel.unsetHighlighters();
+        mapperPanel.unsetHighlighters();
+        builderPanel.unsetHighlighters();
+    }
+    
     // ............................................................................\\
     
     // used to load the pane

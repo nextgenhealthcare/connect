@@ -55,6 +55,7 @@ public class DashboardPanel extends javax.swing.JPanel
     private final String SENT_COLUMN_NAME = "Sent";
     private final String ERROR_COLUMN_NAME = "Errors";
     private final String REJECTED_COLUMN_NAME = "Rejected";
+    private int lastRow;
     public JXTable statusTable;
     
     private JScrollPane statusPane;
@@ -64,6 +65,7 @@ public class DashboardPanel extends javax.swing.JPanel
     public DashboardPanel()
     {
         this.parent = PlatformUI.MIRTH_FRAME;
+        lastRow = -1;
         initComponents();
         this.setDoubleBuffered(true);
         setBorder(BorderFactory.createEmptyBorder());
@@ -154,7 +156,7 @@ public class DashboardPanel extends javax.swing.JPanel
         statusTable.setOpaque(true);
         statusTable.setRowSelectionAllowed(true);
         
-        statusTable.setSortable(false);
+        statusTable.setSortable(true);
         
         if(Preferences.systemNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
         {
@@ -231,6 +233,7 @@ public class DashboardPanel extends javax.swing.JPanel
         if(statusTable != null)
         {
             row = statusTable.getSelectedRow();
+            lastRow = row;
             RefreshTableModel model = (RefreshTableModel)statusTable.getModel();
             model.refreshDataVector(tableData);
         }
@@ -251,10 +254,11 @@ public class DashboardPanel extends javax.swing.JPanel
             });
         }
         
-        if(row >= 0 && row < statusTable.getRowCount())
+        if(lastRow >= 0 && lastRow < statusTable.getRowCount())
         {
-            //System.out.println(row);
-            statusTable.setRowSelectionInterval(row,row);
+            System.out.println(lastRow);
+            
+            statusTable.setRowSelectionInterval(lastRow,lastRow);
         }
     }
     
@@ -283,7 +287,7 @@ public class DashboardPanel extends javax.swing.JPanel
     private void StatusListSelected(ListSelectionEvent evt)
     {
         int row = statusTable.getSelectedRow();
-        if(row >= 0)
+        if(row >= 0 && row < statusTable.getRowCount() && lastRow != row)
         {
             parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 3, -1, true);
             

@@ -86,6 +86,9 @@ public class JEditTextArea extends JComponent {
 	public JEditTextArea() {
 		this(false);
 	}
+	public void setBackground(Color color){
+		painter.setBackground(color);
+	}
 
 	/**
 	 * Creates a new JEditTextArea with the specified settings.

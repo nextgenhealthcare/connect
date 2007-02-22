@@ -52,10 +52,6 @@ public class RefreshTableModel extends DefaultTableModel
      */
     public void refreshDataVector(Vector data)
     {
-        if(this.getRowCount() > 0)
-        {
-            fireTableRowsDeleted(0, getRowCount() - 1);
-        }
         dataVector = data;
         fireTableRowsInserted(0, getRowCount() - 1);
     }
@@ -64,7 +60,6 @@ public class RefreshTableModel extends DefaultTableModel
     {
         refreshDataVector( convertToVector(data) );
     }
-    
     
     // Unit test
     public static void main(String[] args)

@@ -903,6 +903,16 @@ public class FilterPane extends MirthEditorPane
         tabTemplatePanel.resizePanes();
     }
     
+    public void setHighlighters()
+    {
+        jsPanel.setHighlighters();
+    }
+    
+    public void unsetHighlighters()
+    {
+        jsPanel.unsetHighlighters();
+    }
+    
     //	............................................................................\\
     
     // used to load this pane

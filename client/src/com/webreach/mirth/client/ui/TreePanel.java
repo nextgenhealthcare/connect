@@ -33,6 +33,11 @@ import java.awt.Cursor;
 import java.awt.GridLayout;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
+import java.awt.dnd.DragSource;
+import java.awt.dnd.DragSourceDragEvent;
+import java.awt.dnd.DragSourceDropEvent;
+import java.awt.dnd.DragSourceEvent;
+import java.awt.dnd.DragSourceListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -291,17 +296,26 @@ public class TreePanel extends JPanel
         }
         //processElement(xmlDoc.getDocumentElement(), top);
         //addChildren(message, top);
-
+        
+        
         tree = new JTree(top);
         tree.setDragEnabled( true );
         tree.setTransferHandler(new TreeTransferHandler());
-
         tree.addMouseMotionListener(new MouseMotionAdapter()
         {
             public void mouseDragged(MouseEvent evt)
             {
-                refTableMouseDragged(evt);
+            	if (tree.getSelectionPath() != null ){
+            		TreePath tp = tree.getSelectionPath();
+            		TreeNode tn = (TreeNode)tp.getLastPathComponent();
+            		if (tn.isLeaf()){
+            			setHighlighters();
+            			refTableMouseDragged(evt);
+            		}
+            	}
             }
+            
+                    
             public void mouseMoved(MouseEvent evt)
             {
                 refTableMouseMoved(evt);
@@ -312,6 +326,7 @@ public class TreePanel extends JPanel
             public void mouseExited(MouseEvent evt)
             {
                 refTableMouseExited(evt);
+                
             }
         });
 
@@ -321,7 +336,16 @@ public class TreePanel extends JPanel
 
         PlatformUI.MIRTH_FRAME.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }
-    
+
+    private void setHighlighters()
+    {
+        PlatformUI.MIRTH_FRAME.setHighlighters();
+    }
+
+    private void unsetHighlighters()
+    {
+        PlatformUI.MIRTH_FRAME.unsetHighlighters();
+    }
     private void refTableMouseExited(MouseEvent evt)
     {
         tree.clearSelection();
@@ -330,7 +354,6 @@ public class TreePanel extends JPanel
     private void refTableMouseDragged(MouseEvent evt)
     {
         
-        
     }
     
     private void refTableMouseMoved(MouseEvent evt)
@@ -338,9 +361,7 @@ public class TreePanel extends JPanel
         int row = tree.getRowForLocation(evt.getPoint().x, evt.getPoint().y );
         
         if ( row >= 0 && row < tree.getRowCount() )
-            tree.setSelectionRow( row );
-   
-               
+            tree.setSelectionRow( row );          
     }
     
     

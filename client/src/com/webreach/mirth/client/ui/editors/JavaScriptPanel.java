@@ -6,6 +6,8 @@
 
 package com.webreach.mirth.client.ui.editors;
 
+import com.webreach.mirth.client.ui.UIConstants;
+import java.awt.Color;
 import java.util.HashMap;
 import java.util.Map;
 import javax.swing.BorderFactory;
@@ -78,6 +80,16 @@ public class JavaScriptPanel extends BasePanel
     public String getJavaScript()
     {
         return scriptTextPane.getText();
+    }
+    
+    public void setHighlighters()
+    {
+        scriptTextPane.setBackground(UIConstants.DRAG_HIGHLIGHTER_COLOR);
+    }
+    
+    public void unsetHighlighters()
+    {
+        scriptTextPane.setBackground(UIConstants.BACKGROUND_COLOR);
     }
 
     /** This method is called from within the constructor to
