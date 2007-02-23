@@ -27,6 +27,7 @@ package com.webreach.mirth.model.filters;
 
 import java.util.Calendar;
 
+import com.webreach.mirth.model.MessageObject.Protocol;
 import com.webreach.mirth.model.MessageObject.Status;
 
 /**
@@ -44,6 +45,7 @@ public class MessageObjectFilter {
 	private String connectorName;
 	private String source;
 	private String type;
+	private Protocol protocol;
 
 	public String getChannelId() {
 		return this.channelId;
@@ -109,6 +111,14 @@ public class MessageObjectFilter {
 		this.type = type;
 	}
 
+	public Protocol getProtocol() {
+		return this.protocol;
+	}
+
+	public void setProtocol(Protocol protocol) {
+		this.protocol = protocol;
+	}
+
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append(this.getClass().getName() + "[");
@@ -119,6 +129,7 @@ public class MessageObjectFilter {
 		builder.append("startDate=" + String.format("%1$tY-%1$tm-%1$td", getStartDate()) + ", ");
 		builder.append("endDate=" + String.format("%1$tY-%1$tm-%1$td", getEndDate()) + ", ");
 		builder.append("status=" + getStatus() + ", ");
+		builder.append("protocol=" + getProtocol() + ", ");
 		builder.append("connectorName=" + getConnectorName());
 		builder.append("]");
 		return builder.toString();

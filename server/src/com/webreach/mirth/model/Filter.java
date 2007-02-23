@@ -23,13 +23,11 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
 package com.webreach.mirth.model;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 
 import com.webreach.mirth.util.EqualsUtil;
 
@@ -42,7 +40,7 @@ import com.webreach.mirth.util.EqualsUtil;
  */
 public class Filter implements Serializable {
 	private List<Rule> rules;
-	private Properties properties;
+
 	public Filter() {
 		this.rules = new ArrayList<Rule>();
 	}
@@ -54,19 +52,18 @@ public class Filter implements Serializable {
 	public void setRules(List<Rule> rules) {
 		this.rules = rules;
 	}
-	
+
 	public boolean equals(Object that) {
 		if (this == that) {
 			return true;
 		}
-		
+
 		if (!(that instanceof Filter)) {
 			return false;
 		}
-		
+
 		Filter filter = (Filter) that;
-		
-		return
-			EqualsUtil.areEqual(this.getRules(), filter.getRules());
+
+		return EqualsUtil.areEqual(this.getRules(), filter.getRules());
 	}
 }

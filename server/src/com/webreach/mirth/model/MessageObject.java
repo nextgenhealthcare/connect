@@ -59,6 +59,7 @@ public class MessageObject implements Serializable {
 	private String errors;
 	private String version;
 	private String correlationId;
+	
 	public MessageObject() {
 		this.variableMap = new HashMap();
 		this.status = Status.UNKNOWN;
