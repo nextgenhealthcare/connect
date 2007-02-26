@@ -7,6 +7,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 <sqlMap namespace="Alert">
 	<parameterMap class="com.webreach.mirth.model.Alert" id="insert-alert-param">
 		<parameter property="name" />
+		<parameter property="enabled" />
 		<parameter property="expression" />
 		<parameter property="template" />
 		<parameter property="channels" />
@@ -15,6 +16,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 
 	<parameterMap class="com.webreach.mirth.model.Alert" id="update-alert-param">
 		<parameter property="name" />
+		<parameter property="enabled" />		
 		<parameter property="expression" />
 		<parameter property="template" />
 		<parameter property="channels" />
@@ -24,6 +26,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 
 	<resultMap class="com.webreach.mirth.model.Alert" id="get-alert-result">
 		<result property="id" column="ID" jdbcType="INTEGER" />
+		<result property="enabled" column="IS_ENABLED" />
 		<result property="name" column="NAME" />
 		<result property="expression" column="EXPRESSION" />
 		<result property="template" column="TEMPLATE" />
@@ -43,18 +46,19 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 	
 	<insert id="insertAlert" parameterMap="insert-alert-param">
 		INSERT ALERT
-		PERSON (NAME, EXPRESSION, TEMPLATE, CHANNELS, EMAILS)
-		VALUES (?, ?, ?, ?, ?)
+		PERSON (NAME, IS_ENABLED, EXPRESSION, TEMPLATE, CHANNELS, EMAILS)
+		VALUES (#name#, #enabled#, #expression#, #template#, #channels#, #emails#)
 	</insert>
 	
 	<update id="updateAlert" parameterMap="update-alert-param">
 		UPDATE ALERT
-		SET NAME = ?,
-			EXPRESSION = ?,
-			TEMPLATE = ?,
-			CHANNELS = ?,
-			EMAILS = ?,
-		WHERE ID = ?
+		SET NAME = #name#,
+			IS_ENABLED = #enabled,
+			EXPRESSION = #expression#,
+			TEMPLATE = #template#,
+			CHANNELS = #channels#,
+			EMAILS = #emails#
+		WHERE ID = #id#
 	</update>
 	
 	<delete id="deleteAlert" parameterClass="com.webreach.mirth.model.Alert">
