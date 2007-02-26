@@ -33,6 +33,7 @@ import java.util.Properties;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.log4j.Logger;
 
+import com.webreach.mirth.model.Alert;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.ChannelStatistics;
 import com.webreach.mirth.model.ChannelStatus;
@@ -59,6 +60,7 @@ public class Client {
 	public final static String CHANNEL_STATISTICS_SERVLET = "/channelstatistics";
 	public final static String MESSAGE_SERVLET = "/messages";
 	public final static String EVENT_SERVLET = "/events";
+	public final static String ALERT_SERVLET = "/alerts";
 
 	/**
 	 * Instantiates a new Mirth client with a connection to the specified
@@ -209,6 +211,42 @@ public class Client {
 		logger.debug("removing user: " + user);
 		NameValuePair[] params = { new NameValuePair("op", "removeUser"), new NameValuePair("user", serializer.toXML(user)) };
 		serverConnection.executePostMethod(USER_SERVLET, params);
+	}
+
+	/**
+	 * Returns a List of all alerts.
+	 * 
+	 * @return
+	 * @throws ClientException
+	 */
+	public synchronized List<Alert> getAlert(Alert alert) throws ClientException {
+		logger.debug("getting alert: " + alert);
+		NameValuePair[] params = { new NameValuePair("op", "getAlert"), new NameValuePair("alert", serializer.toXML(alert)) };
+		return (List<Alert>) serializer.fromXML(serverConnection.executePostMethod(ALERT_SERVLET, params));
+	}
+
+	/**
+	 * Updates a specified alert.
+	 * 
+	 * @param alert
+	 * @throws ClientException
+	 */
+	public synchronized void updateAlert(Alert alert) throws ClientException {
+		logger.debug("updating alert: " + alert);
+		NameValuePair[] params = { new NameValuePair("op", "updateAlert"), new NameValuePair("alert", serializer.toXML(alert)) };
+		serverConnection.executePostMethod(ALERT_SERVLET, params);
+	}
+
+	/**
+	 * Removes the alert with the specified id.
+	 * 
+	 * @param alertId
+	 * @throws ClientException
+	 */
+	public synchronized void removeAlert(Alert alert) throws ClientException {
+		logger.debug("removing alert: " + alert);
+		NameValuePair[] params = { new NameValuePair("op", "removeAlert"), new NameValuePair("alert", serializer.toXML(alert)) };
+		serverConnection.executePostMethod(ALERT_SERVLET, params);
 	}
 
 	/**

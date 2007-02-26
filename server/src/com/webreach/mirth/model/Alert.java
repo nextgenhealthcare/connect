@@ -7,6 +7,7 @@ public class Alert {
 	private String name;
 	private String expression;
 	private String template;
+	private boolean enabled;
 	private List<String> channels;
 	private List<String> emails;
 
@@ -57,4 +58,13 @@ public class Alert {
 	public void setTemplate(String template) {
 		this.template = template;
 	}
+
+	public boolean isEnabled() {
+		return this.enabled;
+	}
+
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
+
 }
