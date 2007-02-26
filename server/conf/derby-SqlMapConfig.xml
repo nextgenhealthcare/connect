@@ -47,4 +47,5 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map Config 2.0//EN"
 	<sqlMap resource="derby-configuration.xml" />
 	<sqlMap resource="derby-event.xml" />
 	<sqlMap resource="derby-statistic.xml" />
+	<sqlMap resource="derby-alert.xml" />
 </sqlMapConfig>

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap
+PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+"conf/sql-map-2.dtd">
+
+<sqlMap namespace="Alert">
+	<parameterMap class="com.webreach.mirth.model.Alert" id="insert-alert-param">
+		<parameter property="name" />
+		<parameter property="expression" />
+		<parameter property="template" />
+		<parameter property="channels" />
+		<parameter property="emails" />
+	</parameterMap>
+
+	<parameterMap class="com.webreach.mirth.model.Alert" id="update-alert-param">
+		<parameter property="name" />
+		<parameter property="expression" />
+		<parameter property="template" />
+		<parameter property="channels" />
+		<parameter property="emails" />
+		<parameter property="id" />
+	</parameterMap>
+
+	<resultMap class="com.webreach.mirth.model.Alert" id="get-alert-result">
+		<result property="id" column="ID" jdbcType="INTEGER" />
+		<result property="name" column="NAME" />
+		<result property="expression" column="EXPRESSION" />
+		<result property="template" column="TEMPLATE" />
+		<result property="channels" resultMap="CHANNELS" />
+		<result property="emails" resultMap="EMAILS" />
+	</resultMap>
+	
+	<select id="getAlert" parameterClass="com.webreach.mirth.model.Alert" resultMap="get-alert-result">
+		SELECT ID, NAME, EXPRESSION, TEMPLATE, CHANNELS, EMAILS
+		FROM ALERT
+		<dynamic prepend="WHERE">
+			<isNotNull prepend="AND" property="id">
+				ID=#id#
+			</isNotNull>
+		</dynamic>
+	</select>
+	
+	<insert id="insertAlert" parameterMap="insert-alert-param">
+		INSERT ALERT
+		PERSON (NAME, EXPRESSION, TEMPLATE, CHANNELS, EMAILS)
+		VALUES (?, ?, ?, ?, ?)
+	</insert>
+	
+	<update id="updateAlert" parameterMap="update-alert-param">
+		UPDATE ALERT
+		SET NAME = ?,
+			EXPRESSION = ?,
+			TEMPLATE = ?,
+			CHANNELS = ?,
+			EMAILS = ?,
+		WHERE ID = ?
+	</update>
+	
+	<delete id="deleteAlert" parameterClass="com.webreach.mirth.model.Alert">
+		DELETE FROM ALERT
+		<dynamic prepend="WHERE">
+			<isNotNull prepend="AND" property="id">
+				ID=#id#
+			</isNotNull>
+		</dynamic>
+	</delete>
+</sqlMap>
