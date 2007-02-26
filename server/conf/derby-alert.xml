@@ -35,7 +35,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 	</resultMap>
 	
 	<select id="getAlert" parameterClass="com.webreach.mirth.model.Alert" resultMap="get-alert-result">
-		SELECT ID, NAME, EXPRESSION, TEMPLATE, CHANNELS, EMAILS
+		SELECT ID, NAME, IS_ENABLED, EXPRESSION, TEMPLATE, CHANNELS, EMAILS
 		FROM ALERT
 		<dynamic prepend="WHERE">
 			<isNotNull prepend="AND" property="id">
