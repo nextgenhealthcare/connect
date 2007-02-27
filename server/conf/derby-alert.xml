@@ -26,8 +26,8 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 
 	<resultMap class="com.webreach.mirth.model.Alert" id="get-alert-result">
 		<result property="id" column="ID" jdbcType="INTEGER" />
-		<result property="enabled" column="IS_ENABLED" />
 		<result property="name" column="NAME" />
+		<result property="enabled" column="IS_ENABLED" />		
 		<result property="expression" column="EXPRESSION" />
 		<result property="template" column="TEMPLATE" />
 		<result property="channels" resultMap="CHANNELS" />
@@ -53,7 +53,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 	<update id="updateAlert" parameterMap="update-alert-param">
 		UPDATE ALERT
 		SET NAME = #name#,
-			IS_ENABLED = #enabled,
+			IS_ENABLED = #enabled#,
 			EXPRESSION = #expression#,
 			TEMPLATE = #template#,
 			CHANNELS = #channels#,
