@@ -56,7 +56,7 @@ public class AlertServlet extends MirthServlet {
 					alertController.updateAlert(alert);
 				} else if (operation.equals("removeAlert")) {
 					Alert alert = (Alert) serializer.fromXML(request.getParameter("alert"));
-					alertController.removeUser(alert);
+					alertController.removeAlert(alert);
 				}
 			} catch (Exception e) {
 				throw new ServletException(e);

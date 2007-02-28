@@ -6,60 +6,70 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 
 <sqlMap namespace="Alert">
 	<parameterMap class="com.webreach.mirth.model.Alert" id="insert-alert-param">
+		<parameter property="id" />
 		<parameter property="name" />
 		<parameter property="enabled" />
 		<parameter property="expression" />
 		<parameter property="template" />
-		<parameter property="channels" />
-		<parameter property="emails" />
-	</parameterMap>
-
-	<parameterMap class="com.webreach.mirth.model.Alert" id="update-alert-param">
-		<parameter property="name" />
-		<parameter property="enabled" />		
-		<parameter property="expression" />
-		<parameter property="template" />
-		<parameter property="channels" />
-		<parameter property="emails" />
-		<parameter property="id" />
 	</parameterMap>
 
 	<resultMap class="com.webreach.mirth.model.Alert" id="get-alert-result">
-		<result property="id" column="ID" jdbcType="INTEGER" />
+		<result property="id" column="ID" />
 		<result property="name" column="NAME" />
 		<result property="enabled" column="IS_ENABLED" />		
 		<result property="expression" column="EXPRESSION" />
 		<result property="template" column="TEMPLATE" />
-		<result property="channels" resultMap="CHANNELS" />
-		<result property="emails" resultMap="EMAILS" />
 	</resultMap>
 	
 	<select id="getAlert" parameterClass="com.webreach.mirth.model.Alert" resultMap="get-alert-result">
-		SELECT ID, NAME, IS_ENABLED, EXPRESSION, TEMPLATE, CHANNELS, EMAILS
-		FROM ALERT
+		SELECT
+			A.ID, A.NAME, A.IS_ENABLED, A.EXPRESSION, A.TEMPLATE
+		FROM
+			ALERT A
 		<dynamic prepend="WHERE">
 			<isNotNull prepend="AND" property="id">
-				ID=#id#
+				A.ID = #id#
 			</isNotNull>
 		</dynamic>
 	</select>
+
+	<select id="getAlertByChannelId" resultMap="get-alert-result">
+		SELECT
+			A.ID, A.NAME, A.IS_ENABLED, A.EXPRESSION, A.TEMPLATE
+		FROM
+			ALERT A, CHANNEL_ALERT CA
+		WHERE
+			A.ID = CA.ALERT_ID AND
+			A.ID = AE.ALERT_ID AND
+			CA.CHANNEL_ID = $id$
+	</select>
+	
+	<select id="getChannelIdsByAlertId" parameterClass="java.lang.String" resultClass="java.lang.String">
+		SELECT CA.CHANNEL_ID
+		FROM CHANNEL_ALERT CA
+		WHERE CA.ALERT_ID = #id#
+	</select>
+	
+	<select id="getEmailsByAlertId" parameterClass="java.lang.String" resultClass="java.lang.String">
+		SELECT AE.EMAIL
+		FROM ALERT_EMAIL AE
+		WHERE AE.ALERT_ID = #id#
+	</select>
 	
 	<insert id="insertAlert" parameterMap="insert-alert-param">
-		INSERT ALERT
-		PERSON (NAME, IS_ENABLED, EXPRESSION, TEMPLATE, CHANNELS, EMAILS)
-		VALUES (#name#, #enabled#, #expression#, #template#, #channels#, #emails#)
+		INSERT INTO ALERT (ID, NAME, IS_ENABLED, EXPRESSION, TEMPLATE)
+		VALUES (?, ?, ?, ?, ?)
 	</insert>
-	
-	<update id="updateAlert" parameterMap="update-alert-param">
-		UPDATE ALERT
-		SET NAME = #name#,
-			IS_ENABLED = #enabled#,
-			EXPRESSION = #expression#,
-			TEMPLATE = #template#,
-			CHANNELS = #channels#,
-			EMAILS = #emails#
-		WHERE ID = #id#
-	</update>
+
+	<insert id="insertChannelAlert" parameterClass="java.util.Map">
+		INSERT INTO CHANNEL_ALERT (CHANNEL_ID, ALERT_ID)
+		VALUES (#channelId#, #alertId#)
+	</insert>
+
+	<insert id="insertAlertEmail" parameterClass="java.util.Map">
+		INSERT INTO ALERT_EMAIL (ALERT_ID, EMAIL)
+		VALUES (#alertId#, #email#)
+	</insert>
 	
 	<delete id="deleteAlert" parameterClass="com.webreach.mirth.model.Alert">
 		DELETE FROM ALERT

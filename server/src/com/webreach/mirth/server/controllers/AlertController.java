@@ -26,7 +26,10 @@
 package com.webreach.mirth.server.controllers;
 
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -42,7 +45,19 @@ public class AlertController {
 		logger.debug("getting alert: " + alert);
 
 		try {
-			return sqlMap.queryForList("getAlert", alert);
+			List<Alert> alerts = sqlMap.queryForList("getAlert", alert);
+
+			for (Iterator iter = alerts.iterator(); iter.hasNext();) {
+				Alert currentAlert = (Alert) iter.next();
+
+				List<String> channelIds = sqlMap.queryForList("getChannelIdsByAlertId", currentAlert.getId());
+				currentAlert.setChannels(channelIds);
+
+				List<String> emails = sqlMap.queryForList("getEmailsByAlertId", currentAlert.getId());
+				currentAlert.setEmails(emails);
+			}
+
+			return alerts;
 		} catch (SQLException e) {
 			throw new ControllerException(e);
 		}
@@ -50,19 +65,63 @@ public class AlertController {
 
 	public void updateAlert(Alert alert) throws ControllerException {
 		try {
-			if (alert.getId() == null) {
-				logger.debug("adding alert: " + alert);
-				sqlMap.insert("insertAlert", alert);
+			Alert alertFilter = new Alert();
+			alertFilter.setId(alert.getId());
+			
+			if (getAlert(alertFilter).isEmpty()) {
+				try {
+					sqlMap.startTransaction();
+
+					// insert the alert and its properties
+					logger.debug("adding alert: " + alert);
+					
+					System.out.println(alert.getId() + " " + alert.getName());
+					
+					sqlMap.insert("insertAlert", alert);
+					
+					// insert the channel ID list
+					logger.debug("adding channel alerts");
+
+					List<String> channelIds = alert.getChannels();
+
+					for (Iterator iter = channelIds.iterator(); iter.hasNext();) {
+						String channelId = (String) iter.next();
+						Map params = new HashMap();
+						params.put("alertId", alert.getId());
+						params.put("channelId", channelId);
+						System.out.println(params);
+						sqlMap.insert("insertChannelAlert", params);
+					}
+
+					// insert the email address list
+					logger.debug("adding alert emails");
+
+					List<String> emails = alert.getEmails();
+
+					for (Iterator iter = emails.iterator(); iter.hasNext();) {
+						String email = (String) iter.next();
+						Map params = new HashMap();
+						params.put("alertId", alert.getId());
+						params.put("email", email);
+						System.out.println(params);
+						sqlMap.insert("insertAlertEmail", params);
+					}
+
+					sqlMap.commitTransaction();
+				} finally {
+					sqlMap.endTransaction();
+				}
 			} else {
 				logger.debug("updating alert: " + alert);
-				sqlMap.update("updateAlert", alert);
+//				removeAlert(alert);
+//				updateAlert(alert);
 			}
 		} catch (SQLException e) {
 			throw new ControllerException(e);
 		}
 	}
 
-	public void removeUser(Alert alert) throws ControllerException {
+	public void removeAlert(Alert alert) throws ControllerException {
 		logger.debug("removing alert: " + alert);
 
 		try {

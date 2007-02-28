@@ -1,6 +1,9 @@
 package com.webreach.mirth.model;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import com.webreach.mirth.util.EqualsUtil;
 
 public class Alert {
 	private String id;
@@ -11,6 +14,11 @@ public class Alert {
 	private List<String> channels;
 	private List<String> emails;
 
+	public Alert() {
+		channels = new ArrayList<String>();
+		emails = new ArrayList<String>();
+	}
+	
 	public List<String> getChannels() {
 		return this.channels;
 	}
@@ -67,4 +75,23 @@ public class Alert {
 		this.enabled = enabled;
 	}
 
+	public boolean equals(Object that) {
+		if (this == that) {
+			return true;
+		}
+		
+		if (!(that instanceof Alert)) {
+			return false;
+		}
+		
+		Alert alert = (Alert) that;
+		
+		return
+			EqualsUtil.areEqual(this.getId(), alert.getId()) &&
+			EqualsUtil.areEqual(this.isEnabled(), alert.isEnabled()) &&
+			EqualsUtil.areEqual(this.getExpression(), alert.getExpression()) &&
+			EqualsUtil.areEqual(this.getTemplate(), alert.getTemplate()) &&
+			EqualsUtil.areEqual(this.getChannels(), alert.getChannels()) &&
+			EqualsUtil.areEqual(this.getEmails(), alert.getEmails());
+	}
 }

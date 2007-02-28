@@ -47,6 +47,18 @@
 	</servlet-mapping>
 
 	<servlet>
+		<servlet-name>Alerts</servlet-name>
+		<servlet-class>
+			com.webreach.mirth.server.servlets.AlertServlet
+		</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Alert</servlet-name>
+		<url-pattern>/alerts</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
 		<servlet-name>SystemEvent</servlet-name>
 		<servlet-class>
 			com.webreach.mirth.server.servlets.SystemEventServlet
