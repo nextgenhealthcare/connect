@@ -25,7 +25,6 @@ import org.mule.umo.provider.DispatchException;
 import org.mule.umo.provider.UMOConnector;
 
 import javax.mail.*;
-import java.util.HashMap;
 import java.util.Calendar;
 
 /**
@@ -69,17 +68,7 @@ public class SmtpMessageDispatcher extends AbstractMessageDispatcher
         Message msg = null;
 
         try {
-        	//Mirth - modified to get the raw payload
-        	//If our message is a hashmap, we pull the fields out and build a java message
-        	Object data = event.getTransformedMessage();
-        	if (data instanceof HashMap){
-        		MapToMessage mtm = new MapToMessage();
-        		data = mtm.mapToMessage(session, (HashMap) data); //Util function that converts HashMap to message
-        	}else{
-        		//In case we don't have a hashmap, try to transform the message
-        		data = event.getTransformedMessage();
-        	}
-        	
+            Object data = event.getTransformedMessage();
 
             if (!(data instanceof Message)) {
                throw new DispatchException(new org.mule.config.i18n.Message(Messages.TRANSFORM_X_UNEXPECTED_TYPE_X, data.getClass().getName(), Message.class.getName()),

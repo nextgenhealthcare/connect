@@ -34,6 +34,8 @@ public class MapToMessage {
    
    public Message mapToMessage(Session session, Map map)
    throws AddressException, MessagingException, UnsupportedEncodingException {
+	   return null;
+	   /*
        String cc = getField(connector.getCcAddresses(), map);
        String bcc = getField(connector.getBccAddresses(), map);
        String subject = getField(connector.getSubject(), map);
@@ -76,6 +78,7 @@ public class MapToMessage {
     	   msg.setSubject(defaultSubject);
        
        return msg;
+       */
    }
    
    private String getField(String tag, Map map) {

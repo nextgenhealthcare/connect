@@ -83,30 +83,13 @@ public class SmtpConnector extends AbstractServiceEnabledConnector implements Ma
     /**
      * Holds value of default subject
      */
-    private String defaultSubject;
-    
-    private String subject;
+    private String defaultSubject = "[No Subject]";
 
     /**
      * Holds value of the from address.
      */
     private String from;
 
-    /**
-     * Holds value of the to address.
-     */
-    private String to;
-
-    /**
-     * Holds value of the body.
-     */
-    private String body;
-
-    
-    /**
-     * Holds value of the from name.
-     */
-    private String fromName;
     /**
      * Holds value of property SMTP password.
      */
@@ -142,9 +125,8 @@ public class SmtpConnector extends AbstractServiceEnabledConnector implements Ma
 
     public SmtpConnector() throws InitialisationException
     {
-//        initFromServiceDescriptor();
+        initFromServiceDescriptor();
     }
-    
     /*
      * (non-Javadoc)
      * 
@@ -291,21 +273,7 @@ public class SmtpConnector extends AbstractServiceEnabledConnector implements Ma
             logger.error(e.getMessage(), e);
         }
     }
-    /**
-     * @return
-     */
-    public String getFromName()
-    {
-        return fromName;
-    }
-    public String getToAddresses()
-    {
-        return to;
-    }
-    public String getBody()
-    {
-        return body;
-    }
+
     /**
      * @return
      */
@@ -326,13 +294,6 @@ public class SmtpConnector extends AbstractServiceEnabledConnector implements Ma
      * @return
      */
     public String getSubject()
-    {
-        return subject;
-    }
-    /**
-     * @return
-     */
-    public String getDefaultSubject()
     {
         return defaultSubject;
     }
@@ -382,7 +343,7 @@ public class SmtpConnector extends AbstractServiceEnabledConnector implements Ma
      */
     public void setSubject(String string)
     {
-        subject = string;
+        defaultSubject = string;
     }
 
     /**
@@ -393,24 +354,6 @@ public class SmtpConnector extends AbstractServiceEnabledConnector implements Ma
         from = string;
     }
 
-    public void setFromName(String string)
-    {
-        fromName = string;
-    }
-    
-    public void setToAddresses(String string)
-    {
-        to = string;
-    }
-    public void setBody(String string)
-    {
-        body = string;
-    }
-    public void setDefaultSubject(String string)
-    {
-        defaultSubject = string;
-    }
-    
     /**
      * @param string
      */

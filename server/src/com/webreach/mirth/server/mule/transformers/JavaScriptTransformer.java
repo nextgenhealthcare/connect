@@ -146,7 +146,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 		try {
 			template = templateController.getTemplate(templateId);
 		} catch (ControllerException e) {
-			logger.error("Unable to get template: " + templateId);
+			logger.debug("Unable to get template: " + templateId);
 		}
 	}
 

@@ -29,14 +29,14 @@ public class HL7v2Adaptor extends Adaptor {
 				messageObject.setVersion(new String());
 				messageObject.setTransformedData(source);
 			} else {
-				Message message = hapiSerializer.deserialize(source.replaceAll("\n", "\r"));
+				Message message = hapiSerializer.deserialize(source.replaceAll("\n", "\r").trim());
 				Terser terser = new Terser(message);
 				String sendingFacility = terser.get("/MSH-4-1");
 				String event = terser.get("/MSH-9-1") + "-" + terser.get("/MSH-9-2");
 				messageObject.setSource(sendingFacility);
 				messageObject.setType(event);
 				messageObject.setVersion(message.getVersion());
-				messageObject.setTransformedData(xmlSerializer.toXML(source.replaceAll("\n", "\r")));
+				messageObject.setTransformedData(xmlSerializer.toXML(source.replaceAll("\n", "\r").trim()));
 			}
 		} catch (Exception e) {
 			handleException(e);
