@@ -25,9 +25,6 @@
 
 package com.webreach.mirth.client.ui;
 
-import com.webreach.mirth.client.ui.components.MirthTable;
-import com.webreach.mirth.client.ui.connectors.ChannelReader;
-import com.webreach.mirth.client.ui.connectors.ChannelWriter;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.KeyEvent;
@@ -57,13 +54,18 @@ import org.syntax.jedit.tokenmarker.JavaScriptTokenMarker;
 
 import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
+import com.webreach.mirth.client.ui.components.MirthTable;
+import com.webreach.mirth.client.ui.connectors.ChannelReader;
+import com.webreach.mirth.client.ui.connectors.ChannelWriter;
 import com.webreach.mirth.client.ui.connectors.ConnectorClass;
 import com.webreach.mirth.client.ui.connectors.DatabaseReader;
 import com.webreach.mirth.client.ui.connectors.DatabaseWriter;
+import com.webreach.mirth.client.ui.connectors.EmailSender;
 import com.webreach.mirth.client.ui.connectors.FTPReader;
 import com.webreach.mirth.client.ui.connectors.FTPWriter;
 import com.webreach.mirth.client.ui.connectors.FileReader;
 import com.webreach.mirth.client.ui.connectors.FileWriter;
+import com.webreach.mirth.client.ui.connectors.HTTPListener;
 import com.webreach.mirth.client.ui.connectors.JMSReader;
 import com.webreach.mirth.client.ui.connectors.JMSWriter;
 import com.webreach.mirth.client.ui.connectors.LLPListener;
@@ -137,7 +139,7 @@ public class ChannelSetup extends javax.swing.JPanel
         if(parent.sourceConnectors.size() == 0)
         {
             parent.sourceConnectors.add(new DatabaseReader());
-            //parent.sourceConnectors.add(new HTTPListener());
+            parent.sourceConnectors.add(new HTTPListener());
             //parent.sourceConnectors.add(new HTTPSListener());
             parent.sourceConnectors.add(new LLPListener());
             parent.sourceConnectors.add(new FileReader());
@@ -150,7 +152,7 @@ public class ChannelSetup extends javax.swing.JPanel
         if(parent.destinationConnectors.size() == 0)
         {
             parent.destinationConnectors.add(new DatabaseWriter());
-            //parent.destinationConnectors.add(new EmailSender());
+            parent.destinationConnectors.add(new EmailSender());
             parent.destinationConnectors.add(new FileWriter());
             parent.destinationConnectors.add(new LLPSender());
             parent.destinationConnectors.add(new JMSWriter());
@@ -458,7 +460,7 @@ public class ChannelSetup extends javax.swing.JPanel
                 // TODO Auto-generated method stub
                 if (e.getKeyCode() == KeyEvent.VK_S && e.isControlDown())
                 {
-                    PlatformUI.MIRTH_FRAME.doSaveChanges();
+                    PlatformUI.MIRTH_FRAME.doSaveChannel();
                 }
             }
             public void keyReleased(KeyEvent e)
@@ -928,7 +930,7 @@ public class ChannelSetup extends javax.swing.JPanel
     
     public void cloneDestination(int destinationIndex)
     {
-        parent.doSaveChanges();
+        parent.doSaveChannel();
         List<Connector> destinationConnectors = currentChannel.getDestinationConnectors();
         String destinationName = (String)destinationTable.getValueAt(getSelectedDestinationIndex(), getColumnNumber(DESTINATION_COLUMN_NAME));
         

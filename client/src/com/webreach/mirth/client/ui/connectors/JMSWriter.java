@@ -26,20 +26,14 @@
 
 package com.webreach.mirth.client.ui.connectors;
 
-import com.webreach.mirth.client.ui.UIConstants;
-import java.util.Properties;
-
-import com.webreach.mirth.client.ui.Frame;
-import com.webreach.mirth.client.ui.Mirth;
-import com.webreach.mirth.client.ui.PlatformUI;
-import com.webreach.mirth.client.ui.components.MirthTable;
-import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import java.awt.Component;
 import java.awt.event.MouseEvent;
 import java.util.EventObject;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Properties;
 import java.util.prefs.Preferences;
+
 import javax.swing.AbstractCellEditor;
 import javax.swing.JComponent;
 import javax.swing.JTable;
@@ -48,8 +42,16 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
+
 import org.jdesktop.swingx.decorator.AlternateRowHighlighter;
 import org.jdesktop.swingx.decorator.HighlighterPipeline;
+
+import com.webreach.mirth.client.ui.Frame;
+import com.webreach.mirth.client.ui.Mirth;
+import com.webreach.mirth.client.ui.PlatformUI;
+import com.webreach.mirth.client.ui.UIConstants;
+import com.webreach.mirth.client.ui.components.MirthTable;
+import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 
 
 /** 

@@ -41,8 +41,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -52,7 +50,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.prefs.Preferences;
 
 import javax.swing.Action;
@@ -88,6 +85,7 @@ import com.webreach.mirth.client.ui.editors.filter.FilterPane;
 import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
 import com.webreach.mirth.client.ui.util.FileUtil;
 import com.webreach.mirth.client.ui.util.ImportConverter;
+import com.webreach.mirth.model.Alert;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.ChannelStatus;
 import com.webreach.mirth.model.ChannelSummary;
@@ -115,11 +113,13 @@ public class Frame extends JXFrame
     public ChannelSetup channelEditPanel;
     public EventBrowser eventBrowser;
     public MessageBrowser messageBrowser;
+    public AlertPanel alertPanel;
     public JXTaskPaneContainer taskPaneContainer;
-    
+
     public List<ChannelStatus> status = null;
     public Map<String, Channel> channels = null;
     public List<User> users = null;
+    public List<Alert> alerts = null;
     
     public ActionManager manager = ActionManager.getInstance();
     public JPanel contentPanel;
@@ -148,6 +148,8 @@ public class Frame extends JXFrame
     public JPopupMenu channelEditPopupMenu;
     public JXTaskPane userTasks;
     public JPopupMenu userPopupMenu;
+    public JXTaskPane alertTasks;
+    public JPopupMenu alertPopupMenu;
     
     public JXTitledPanel rightContainer;
     public JXTitledPanel leftContainer;
@@ -486,7 +488,7 @@ public class Frame extends JXFrame
         
         if (currentContentPage!=null)
             rightContainer.remove(currentContentPage);
-        
+
         contentPageObject.setBorder(new LineBorder(Color.GRAY, 1));
         
         rightContainer.add(contentPageObject);
@@ -522,6 +524,7 @@ public class Frame extends JXFrame
         createEventPane();
         createMessagePane();
         createUserPane();
+        createAlertPane();
         createOtherPane();
         createDetailsPane();
     }
@@ -539,6 +542,7 @@ public class Frame extends JXFrame
         viewPane.add(initActionCallback("doShowChannel", "Contains various operations to perform on your channels.", ActionFactory.createBoundAction("showChannel","Channels","C"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/channel.png"))));
         viewPane.add(initActionCallback("doShowUsers", "Contains information on users.", ActionFactory.createBoundAction("showUsers","Users","A"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/admin.png"))));
         viewPane.add(initActionCallback("doShowSettings", "Contains local and system settings.", ActionFactory.createBoundAction("showSettings","Settings","A"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/settings.png"))));
+        viewPane.add(initActionCallback("doShowAlerts", "Contains alert settings.", ActionFactory.createBoundAction("showAlerts","Alerts","A"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/alerts.png"))));
         setNonFocusable(viewPane);
         taskPaneContainer.add(viewPane);
     }
@@ -703,26 +707,26 @@ public class Frame extends JXFrame
         });
         channelPopupMenu.add(deleteChannel);
         
-        channelTasks.add(initActionCallback("doEnable", "Enable the currently selected channel.", ActionFactory.createBoundAction("doEnable","Enable Channel", "B"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/start.png"))));
+        channelTasks.add(initActionCallback("doEnableChannel", "Enable the currently selected channel.", ActionFactory.createBoundAction("doEnableChannel","Enable Channel", "B"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/start.png"))));
         JMenuItem enableChannel = new JMenuItem("Enable Channel");
         enableChannel.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/start.png")));
         enableChannel.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent e)
             {
-                doEnable();
+                doEnableChannel();
             }
         });
         channelPopupMenu.add(enableChannel);
         
-        channelTasks.add(initActionCallback("doDisable", "Disable the currently selected channel.", ActionFactory.createBoundAction("doDisable","Disable Channel", "L"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/stop.png"))));
+        channelTasks.add(initActionCallback("doDisableChannel", "Disable the currently selected channel.", ActionFactory.createBoundAction("doDisableChannel","Disable Channel", "L"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/stop.png"))));
         JMenuItem disableChannel = new JMenuItem("Disable Channel");
         disableChannel.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/stop.png")));
         disableChannel.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent e)
             {
-                doDisable();
+                doDisableChannel();
             }
         });
         channelPopupMenu.add(disableChannel);
@@ -744,14 +748,14 @@ public class Frame extends JXFrame
         channelEditTasks.setTitle("Channel Tasks");
         channelEditTasks.setFocusable(false);
         
-        channelEditTasks.add(initActionCallback("doSaveChanges", "Save all changes made to this channel.", ActionFactory.createBoundAction("doSaveChanges","Save Changes", "S"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/save.png"))));
+        channelEditTasks.add(initActionCallback("doSaveChannel", "Save all changes made to this channel.", ActionFactory.createBoundAction("doSaveChannel","Save Channel", "S"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/save.png"))));
         JMenuItem saveChanges = new JMenuItem("Save Changes");
         saveChanges.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/save.png")));
         saveChanges.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent e)
             {
-                doSaveChanges();
+                doSaveChannel();
             }
         });
         channelEditPopupMenu.add(saveChanges);
@@ -1187,6 +1191,98 @@ public class Frame extends JXFrame
         taskPaneContainer.add(userTasks);
     }
     
+        /**
+     * Creates the channel edit task pane.
+     */
+    private void createAlertPane()
+    {
+        // Create Alert Edit Tasks Pane
+        alertTasks = new JXTaskPane();
+        alertPopupMenu = new JPopupMenu();
+        alertTasks.setTitle("Alert Tasks");
+        alertTasks.setFocusable(false);
+        
+        alertTasks.add(initActionCallback("doRefreshAlerts", "Refresh the list of alerts.", ActionFactory.createBoundAction("doRefreshAlerts","Refresh", "R"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png"))));
+        JMenuItem refresh = new JMenuItem("Refresh");
+        refresh.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png")));
+        refresh.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                doRefreshAlerts();
+            }
+        });
+        alertPopupMenu.add(refresh);
+        
+        alertTasks.add(initActionCallback("doSaveAlerts", "Save all changes made to all alerts.", ActionFactory.createBoundAction("doSaveAlerts","Save Alerts", "S"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/save.png"))));
+        JMenuItem saveChanges = new JMenuItem("Save Alerts");
+        saveChanges.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/save.png")));
+        saveChanges.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                doSaveChannel();
+            }
+        });
+        alertPopupMenu.add(saveChanges);
+        
+        alertTasks.add(initActionCallback("doNewAlert", "Create a new alert.", ActionFactory.createBoundAction("doNewAlert","New Alert", "N"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/alert_add.png"))));
+        JMenuItem newAlert = new JMenuItem("New Alert");
+        newAlert.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/alert_add.png")));
+        newAlert.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                doNewAlert();
+            }
+        });
+        alertPopupMenu.add(newAlert);
+        
+        alertTasks.add(initActionCallback("doDeleteAlert", "Delete the currently selected alert.", ActionFactory.createBoundAction("doDeleteAlert","Delete Alert", "D"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/alert_delete.png"))));
+        JMenuItem deleteAlert = new JMenuItem("Delete Alert");
+        deleteAlert.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/alert_delete.png")));
+        deleteAlert.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                doDeleteAlert();
+            }
+        });
+        alertPopupMenu.add(deleteAlert);
+        
+
+        alertTasks.add(initActionCallback("doEnableAlert", "Enable the currently selected alert.", ActionFactory.createBoundAction("doEnableAlert","Enable Alert", "B"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/start.png"))));
+        JMenuItem enableAlert = new JMenuItem("Enable Alert");
+        enableAlert.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/start.png")));
+        enableAlert.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                doEnableAlert();
+            }
+        });
+        alertPopupMenu.add(enableAlert);
+        
+        alertTasks.add(initActionCallback("doDisableAlert", "Disable the currently selected alert.", ActionFactory.createBoundAction("doDisableAlert","Disable Alert", "L"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/stop.png"))));
+        JMenuItem disableAlert = new JMenuItem("Disable Alert");
+        disableAlert.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/stop.png")));
+        disableAlert.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                doDisableAlert();
+            }
+        });
+        alertPopupMenu.add(disableAlert);
+        setVisibleTasks(alertTasks, alertPopupMenu, 0, 0, true);
+        setVisibleTasks(alertTasks, alertPopupMenu, 1, 1, false);
+        setVisibleTasks(alertTasks, alertPopupMenu, 2, 2, true);
+        setVisibleTasks(alertTasks, alertPopupMenu, 3, 5, false);
+        setNonFocusable(alertTasks);
+        taskPaneContainer.add(alertTasks);
+    }
+    
+    
     /**
      * Creates the other task pane.
      */
@@ -1365,6 +1461,7 @@ public class Frame extends JXFrame
         messageTasks.setVisible(false);
         settingsTasks.setVisible(false);
         userTasks.setVisible(false);
+        alertTasks.setVisible(false);
         pane.setVisible(true);
     }
     
@@ -1515,6 +1612,8 @@ public class Frame extends JXFrame
             channelEditPanel.filterPane.modified = true;
         else if (settingsPanel != null && currentContentPage == settingsPanel)
             settingsTasks.getContentPane().getComponent(1).setVisible(true);
+        else if (alertPanel != null && currentContentPage == alertPanel)
+            alertTasks.getContentPane().getComponent(1).setVisible(true);
     }
     
     /**
@@ -1526,6 +1625,8 @@ public class Frame extends JXFrame
             channelEditTasks.getContentPane().getComponent(0).setVisible(false);
         else if (currentContentPage == settingsPanel)
             settingsTasks.getContentPane().getComponent(1).setVisible(false);
+        else if (alertPanel != null && currentContentPage == alertPanel)
+            alertTasks.getContentPane().getComponent(1).setVisible(false);
     }
     
     
@@ -1665,6 +1766,37 @@ public class Frame extends JXFrame
                 setCurrentContentPage(settingsPanel);
                 doRefreshUser();
                 setFocus(settingsTasks);
+                return null;
+            }
+            
+            public void done()
+            {
+                setWorking(false);
+            }
+        };
+        
+        worker.execute();
+    }
+    
+    public void doShowAlerts()
+    {
+        if(alertPanel == null)
+            alertPanel = new AlertPanel();
+        
+        if (!confirmLeave())
+            return;
+        
+        setWorking(true);
+        
+        SwingWorker worker = new SwingWorker <Void, Void> ()
+        {
+            public Void doInBackground()
+            {
+                setBold(viewPane, 4);
+                setPanelName("Alerts");
+                setCurrentContentPage(alertPanel);
+                doRefreshAlerts();
+                setFocus(alertTasks);
                 return null;
             }
             
@@ -2117,7 +2249,7 @@ public class Frame extends JXFrame
         
     }
     
-    public void doEnable()
+    public void doEnableChannel()
     {
         setWorking(true);
         
@@ -2154,7 +2286,7 @@ public class Frame extends JXFrame
         worker.execute();
     }
     
-    public void doDisable()
+    public void doDisableChannel()
     {
         setWorking(true);
         
@@ -2237,7 +2369,7 @@ public class Frame extends JXFrame
                 }
                 
                 int userToDelete = userPanel.getUserIndex();
-                String userName = ((CellData)userPanel.usersTable.getValueAt(userPanel.getSelectedRow(), userPanel.getColumnNumber("Username"))).getText();
+                String userName = ((CellData)userPanel.usersTable.getValueAt(userPanel.getSelectedRow(), userPanel.usersTable.getColumnNumber("Username"))).getText();
                 
                 setWorking(true);
                 try
@@ -2346,7 +2478,7 @@ public class Frame extends JXFrame
         worker.execute();
     }
     
-    public void doSaveChanges()
+    public void doSaveChannel()
     {
         setWorking(true);
         
@@ -2997,6 +3129,111 @@ public class Frame extends JXFrame
         
     }
     
+    public void doRefreshAlerts()
+    {
+        setWorking(true);
+        
+        SwingWorker worker = new SwingWorker <Void, Void> ()
+        {
+            public Void doInBackground()
+            {
+                try
+                {
+                    alerts = mirthClient.getAlert(null);
+                    alertPanel.updateAlertTable(false);
+                }
+                catch (ClientException e)
+                {
+                    alertException(e.getStackTrace(), e.getMessage());
+                }
+                
+                return null;
+            }
+            
+            public void done()
+            {
+                setWorking(false);
+            }
+        };
+        
+        worker.execute();
+    }
+    
+    public void doSaveAlerts()
+    {
+        try
+        {
+            alertPanel.saveAlert();
+            for (Alert curr : alerts)
+            {
+                mirthClient.updateAlert(curr);
+            }
+            
+            alerts = mirthClient.getAlert(null);
+            alertPanel.updateAlertTable(false);
+        }
+        catch (ClientException e)
+        {
+            alertException(e.getStackTrace(), e.getMessage());
+        }
+    }
+    
+    public void doDeleteAlert()
+    {
+        if(!alertOption("Are you sure you want to delete this alert?"))
+            return;
+        
+        setWorking(true);
+        
+        SwingWorker worker = new SwingWorker <Void, Void> ()
+        {
+            public Void doInBackground()
+            {
+                doRefreshAlerts();
+                
+                int alertToDelete = alertPanel.getAlertIndex();
+
+                try
+                {
+                    if(alertToDelete != UIConstants.ERROR_CONSTANT)
+                    {
+                        mirthClient.removeAlert(alerts.get(alertToDelete));
+                        alerts = mirthClient.getAlert(null);
+                        alertPanel.updateAlertTable(false);
+                        alertPanel.setSelectedAlertIndex(UIConstants.ERROR_CONSTANT);
+                    }
+                }
+                catch (ClientException e)
+                {
+                    alertException(e.getStackTrace(), e.getMessage());
+                }
+                return null;
+            }
+            
+            public void done()
+            {
+                setWorking(false);
+            }
+        };
+        
+        worker.execute();
+    }
+    
+    public void doNewAlert()
+    {
+        alertPanel.addAlert();
+    }
+        
+    public void doEnableAlert()
+    {
+        alertPanel.enableAlert();
+    }
+    
+    public void doDisableAlert()
+    {
+        alertPanel.disableAlert();
+    }
+        
     public boolean exportChannelOnError()
     {
         if (channelEditPanel != null && (channelEditTasks.getContentPane().getComponent(0).isVisible() || (channelEditPanel.transformerPane != null && channelEditPanel.transformerPane.modified) || (channelEditPanel.filterPane != null && channelEditPanel.filterPane.modified)))

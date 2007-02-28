@@ -32,12 +32,7 @@ import java.awt.event.KeyListener;
 import javax.swing.JPopupMenu;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
-import javax.swing.text.Element;
-import javax.swing.text.ElementIterator;
-
-import javax.swing.text.StyledDocument;
 
 import com.webreach.mirth.client.ui.Frame;
 import com.webreach.mirth.client.ui.PlatformUI;
@@ -94,7 +89,7 @@ public class MirthTextPane extends javax.swing.JTextPane implements MirthTextInt
                 // TODO Auto-generated method stub
                 if (e.getKeyCode() == KeyEvent.VK_S && e.isControlDown())
                 {
-                    PlatformUI.MIRTH_FRAME.doSaveChanges();
+                    PlatformUI.MIRTH_FRAME.doSaveChannel();
                 }
             }
             

@@ -26,20 +26,18 @@
 
 package com.webreach.mirth.client.ui.connectors;
 
+import java.util.List;
+import java.util.Properties;
+
+import org.syntax.jedit.SyntaxDocument;
+import org.syntax.jedit.tokenmarker.JavaScriptTokenMarker;
+import org.syntax.jedit.tokenmarker.TSQLTokenMarker;
+
 import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.ui.Frame;
 import com.webreach.mirth.client.ui.PlatformUI;
 import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.model.DriverInfo;
-import java.util.ArrayList;
-import java.util.List;
-
-import java.util.Properties;
-import org.jdesktop.swingx.auth.UserNameStore;
-
-import org.syntax.jedit.SyntaxDocument;
-import org.syntax.jedit.tokenmarker.JavaScriptTokenMarker;
-import org.syntax.jedit.tokenmarker.TSQLTokenMarker;
 
 /** 
  * A form that extends from ConnectorClass.  All methods implemented

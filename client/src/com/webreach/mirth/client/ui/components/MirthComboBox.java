@@ -60,7 +60,7 @@ public class MirthComboBox extends javax.swing.JComboBox
                 // TODO Auto-generated method stub
                 if (e.getKeyCode() == KeyEvent.VK_S && e.isControlDown())
                 {
-                    PlatformUI.MIRTH_FRAME.doSaveChanges();
+                    PlatformUI.MIRTH_FRAME.doSaveChannel();
                 }
             }
             

@@ -5,25 +5,20 @@
  */
 
 package com.webreach.mirth.client.ui.editors;
-import com.webreach.mirth.client.ui.TreePanel;
+import java.util.Properties;
+
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+
+import org.syntax.jedit.SyntaxDocument;
+import org.syntax.jedit.tokenmarker.HL7TokenMarker;
+
 import com.webreach.mirth.client.ui.PlatformUI;
+import com.webreach.mirth.client.ui.TreePanel;
 import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.client.ui.beans.EDIProperties;
 import com.webreach.mirth.client.ui.beans.X12Properties;
-import com.webreach.mirth.client.ui.components.MirthComboBox;
 import com.webreach.mirth.model.MessageObject;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.util.Properties;
-import javax.swing.JComboBox;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import org.syntax.jedit.SyntaxDocument;
-import org.syntax.jedit.tokenmarker.HL7TokenMarker;
 
 /**
  *

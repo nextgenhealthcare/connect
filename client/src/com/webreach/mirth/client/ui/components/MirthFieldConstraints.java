@@ -25,7 +25,9 @@
 
 
 package com.webreach.mirth.client.ui.components;
-import javax.swing.text.*;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.PlainDocument;
 
 /**
  * Document that can be set with certain field constraints.

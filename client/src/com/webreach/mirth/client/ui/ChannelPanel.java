@@ -6,18 +6,18 @@
 
 package com.webreach.mirth.client.ui;
 
-import com.webreach.mirth.client.ui.components.MirthTable;
-import com.webreach.mirth.model.Channel;
 import java.awt.Point;
 import java.util.prefs.Preferences;
-import javax.swing.BorderFactory;
+
 import javax.swing.ImageIcon;
-import javax.swing.JScrollPane;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import org.jdesktop.swingx.JXTable;
+
 import org.jdesktop.swingx.decorator.AlternateRowHighlighter;
 import org.jdesktop.swingx.decorator.HighlighterPipeline;
+
+import com.webreach.mirth.client.ui.components.MirthTable;
+import com.webreach.mirth.model.Channel;
 
 /**
  *
@@ -53,7 +53,7 @@ public class ChannelPanel extends javax.swing.JPanel
             }
             public void mouseClicked(java.awt.event.MouseEvent evt)
             {
-                deselectRows();
+                channelTable.deselectRows();
             }
         });
         
@@ -188,7 +188,7 @@ public class ChannelPanel extends javax.swing.JPanel
                 channelTable.setRowSelectionInterval(row, row);
             }
             else
-                deselectRows();
+                channelTable.deselectRows();
             parent.channelPopupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
         }
     }
@@ -202,7 +202,7 @@ public class ChannelPanel extends javax.swing.JPanel
         {
             parent.setVisibleTasks(parent.channelTasks, parent.channelPopupMenu, 5, -1, true);
 
-            int columnNumber = getColumnNumber(STATUS_COLUMN_NAME);
+            int columnNumber = channelTable.getColumnNumber(STATUS_COLUMN_NAME);
             if (((CellData)channelTable.getValueAt(row, columnNumber)).getText().equals(ENABLED_STATUS))
                 parent.setVisibleTasks(parent.channelTasks, parent.channelPopupMenu, 9, 9, false);
             else
@@ -210,12 +210,6 @@ public class ChannelPanel extends javax.swing.JPanel
         }
     }
     
-    /** Clears the selection in the table and sets the tasks appropriately */
-    public void deselectRows()
-    {
-        channelTable.clearSelection();
-        parent.setVisibleTasks(parent.channelTasks, parent.channelPopupMenu, 5, -1, false);
-    }
     
     /** Gets the selected channel index that corresponds to the saved channels list */
     public Channel getSelectedChannel()
@@ -246,15 +240,10 @@ public class ChannelPanel extends javax.swing.JPanel
         return false;
     }
     
-    /** Gets a column index by taking it's name */
-    private int getColumnNumber(String name)
+    public void deselectRows()
     {
-        for (int i = 0; i < channelTable.getColumnCount(); i++)
-        {
-            if (channelTable.getColumnName(i).equalsIgnoreCase(name))
-                return i;
-        }
-        return -1;
+        channelTable.deselectRows();
+        parent.setVisibleTasks(parent.channelTasks, parent.channelPopupMenu, 5, -1, false); 
     }
     
     /** This method is called from within the constructor to

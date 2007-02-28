@@ -26,23 +26,12 @@
 
 package com.webreach.mirth.client.ui.connectors;
 
-import com.l2fprod.common.beans.BaseBeanInfo;
-import com.l2fprod.common.propertysheet.Property;
-import com.l2fprod.common.propertysheet.PropertySheetPanel;
-import com.webreach.mirth.client.core.ClientException;
-import com.webreach.mirth.client.ui.components.MirthTable;
-import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.converters.ObjectXMLSerializer;
-import com.webreach.mirth.model.ws.WSDefinition;
-import com.webreach.mirth.model.ws.WSOperation;
-import com.webreach.mirth.model.ws.WSParameter;
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -60,22 +49,23 @@ import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import com.webreach.mirth.client.ui.BeanBinder;
-import com.webreach.mirth.client.ui.Frame;
-import com.webreach.mirth.client.ui.PlatformUI;
-
-import org.apache.wsif.schema.ComplexType;
-import org.apache.wsif.schema.ElementType;
-import org.apache.wsif.schema.SchemaType;
-import org.apache.wsif.schema.SequenceElement;
-import org.apache.xerces.dom.ElementImpl;
 import org.jdesktop.swingworker.SwingWorker;
 import org.syntax.jedit.SyntaxDocument;
-import org.syntax.jedit.InputHandler.document_end;
 import org.syntax.jedit.tokenmarker.XMLTokenMarker;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+
+import com.l2fprod.common.propertysheet.Property;
+import com.webreach.mirth.client.core.ClientException;
+import com.webreach.mirth.client.ui.BeanBinder;
+import com.webreach.mirth.client.ui.Frame;
+import com.webreach.mirth.client.ui.PlatformUI;
+import com.webreach.mirth.model.Channel;
+import com.webreach.mirth.model.converters.ObjectXMLSerializer;
+import com.webreach.mirth.model.ws.WSDefinition;
+import com.webreach.mirth.model.ws.WSOperation;
+import com.webreach.mirth.model.ws.WSParameter;
 
 /**
  * A form that extends from ConnectorClass.  All methods implemented

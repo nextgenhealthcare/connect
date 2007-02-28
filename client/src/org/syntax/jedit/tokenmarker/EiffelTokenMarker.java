@@ -10,8 +10,9 @@
 
 package org.syntax.jedit.tokenmarker;
 
-import org.syntax.jedit.*;
 import javax.swing.text.Segment;
+
+import org.syntax.jedit.KeywordMap;
 
 /**
  * Eiffel token Marker.

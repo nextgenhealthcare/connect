@@ -26,23 +26,14 @@
 
 package com.webreach.mirth.client.ui;
 
-import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.model.converters.EDISerializer;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.GridLayout;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
-import java.awt.dnd.DragSource;
-import java.awt.dnd.DragSourceDragEvent;
-import java.awt.dnd.DragSourceDropEvent;
-import java.awt.dnd.DragSourceEvent;
-import java.awt.dnd.DragSourceListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
-import java.io.IOException;
 import java.io.StringReader;
 import java.util.Properties;
 
@@ -55,7 +46,6 @@ import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.log4j.Logger;
 import org.w3c.dom.Attr;
@@ -77,10 +67,11 @@ import ca.uhn.hl7v2.util.Terser;
 import ca.uhn.hl7v2.validation.impl.NoValidation;
 
 import com.webreach.mirth.client.ui.util.HL7Reference;
+import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.model.converters.EDISerializer;
 import com.webreach.mirth.model.converters.ER7Serializer;
 import com.webreach.mirth.model.converters.SerializerException;
 import com.webreach.mirth.model.converters.X12Serializer;
-import org.xml.sax.SAXException;
 
 public class TreePanel extends JPanel
 {

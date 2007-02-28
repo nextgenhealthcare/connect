@@ -26,9 +26,6 @@
 
 package com.webreach.mirth.client.ui.connectors;
 
-import com.webreach.mirth.client.ui.UIConstants;
-import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
-import com.webreach.mirth.model.Channel;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Properties;
@@ -36,6 +33,9 @@ import java.util.StringTokenizer;
 
 import com.webreach.mirth.client.ui.Frame;
 import com.webreach.mirth.client.ui.PlatformUI;
+import com.webreach.mirth.client.ui.UIConstants;
+import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
+import com.webreach.mirth.model.Channel;
 
 /**
  * A form that extends from ConnectorClass.  All methods implemented

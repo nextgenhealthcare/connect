@@ -9,9 +9,15 @@
 
 package org.syntax.jedit;
 
-import org.syntax.jedit.tokenmarker.*;
-import javax.swing.text.*;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics;
+
+import javax.swing.text.Segment;
+import javax.swing.text.TabExpander;
+import javax.swing.text.Utilities;
+
+import org.syntax.jedit.tokenmarker.Token;
 
 /**
  * Class with several utility functions used by jEdit's syntax colorizing

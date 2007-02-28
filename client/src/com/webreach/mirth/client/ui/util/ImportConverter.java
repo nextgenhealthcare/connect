@@ -1,15 +1,8 @@
 package com.webreach.mirth.client.ui.util;
 
-import com.webreach.mirth.client.ui.UIConstants;
-import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
-import com.webreach.mirth.model.Rule;
-import java.util.Iterator;
 import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.Connector;
 import com.webreach.mirth.model.Filter;
-import com.webreach.mirth.model.Step;
 import com.webreach.mirth.model.Transformer;
-import java.util.Map;
 
 public class ImportConverter
 {

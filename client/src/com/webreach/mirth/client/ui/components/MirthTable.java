@@ -15,6 +15,7 @@ import java.awt.event.KeyListener;
 import org.jdesktop.swingx.JXTable;
 
 import com.webreach.mirth.client.ui.PlatformUI;
+import com.webreach.mirth.client.ui.UIConstants;
 
 /**
  *
@@ -36,7 +37,7 @@ public class MirthTable extends JXTable
                 // TODO Auto-generated method stub
                 if (e.getKeyCode() == KeyEvent.VK_S && e.isControlDown())
                 {
-                    PlatformUI.MIRTH_FRAME.doSaveChanges();
+                    PlatformUI.MIRTH_FRAME.doSaveChannel();
                 }
             }
             
@@ -55,4 +56,24 @@ public class MirthTable extends JXTable
         });
     }
     
+    /**
+     * Deselects all rows and sets the correct tasks visible.
+     */
+    public void deselectRows()
+    {
+        this.clearSelection();
+    }
+        
+    /**
+     * Gets the index of column with title 'name'.
+     */
+    public int getColumnNumber(String name)
+    {
+        for (int i = 0; i < this.getColumnCount(); i++)
+        {
+            if (this.getColumnName(i).equalsIgnoreCase(name))
+                return i;
+        }
+        return UIConstants.ERROR_CONSTANT;
+    }
 }

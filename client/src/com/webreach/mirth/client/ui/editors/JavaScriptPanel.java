@@ -6,16 +6,16 @@
 
 package com.webreach.mirth.client.ui.editors;
 
-import com.webreach.mirth.client.ui.UIConstants;
-import java.awt.Color;
 import java.util.HashMap;
 import java.util.Map;
-import javax.swing.BorderFactory;
-import javax.swing.JScrollPane;
+
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+
 import org.syntax.jedit.SyntaxDocument;
 import org.syntax.jedit.tokenmarker.JavaScriptTokenMarker;
+
+import com.webreach.mirth.client.ui.UIConstants;
 
 /**
  *

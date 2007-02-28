@@ -25,20 +25,16 @@
 
 package com.webreach.mirth.client.ui.editors;
 
-import com.webreach.mirth.client.ui.BeanBinder;
-import com.webreach.mirth.client.ui.Frame;
-import com.webreach.mirth.client.ui.PlatformUI;
-import com.webreach.mirth.client.ui.beans.EDIProperties;
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Properties;
 
-import javax.swing.Icon;
-import javax.swing.UIManager;
+import com.webreach.mirth.client.ui.BeanBinder;
+import com.webreach.mirth.client.ui.PlatformUI;
+import com.webreach.mirth.client.ui.beans.EDIProperties;
 
 /** Creates the error dialog. */
 public class BoundPropertiesSheetDialog extends javax.swing.JDialog

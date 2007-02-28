@@ -30,6 +30,9 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
 import javax.swing.JPopupMenu;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.text.Document;
 
 import com.webreach.mirth.client.ui.Frame;
 import com.webreach.mirth.client.ui.PlatformUI;
@@ -38,12 +41,6 @@ import com.webreach.mirth.client.ui.actions.CutAction;
 import com.webreach.mirth.client.ui.actions.DeleteAction;
 import com.webreach.mirth.client.ui.actions.PasteAction;
 import com.webreach.mirth.client.ui.actions.SelectAllAction;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.Document;
-import javax.swing.text.Element;
-import javax.swing.text.ElementIterator;
 
 /**
  * Mirth's implementation of the JTextArea. Adds enabling of the save button in
@@ -92,7 +89,7 @@ public class MirthTextArea extends javax.swing.JTextArea implements MirthTextInt
                 // TODO Auto-generated method stub
                 if (e.getKeyCode() == KeyEvent.VK_S && e.isControlDown())
                 {
-                    PlatformUI.MIRTH_FRAME.doSaveChanges();
+                    PlatformUI.MIRTH_FRAME.doSaveChannel();
                 }
             }
             

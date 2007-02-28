@@ -28,7 +28,9 @@ package com.webreach.mirth.client.ui.components;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+
 import org.jdesktop.swingx.JXList;
+
 import com.webreach.mirth.client.ui.PlatformUI;
 import com.webreach.mirth.client.ui.VariableListHandler;
 
@@ -70,7 +72,7 @@ public class MirthVariableList extends JXList
                 // TODO Auto-generated method stub
                 if (e.getKeyCode() == KeyEvent.VK_S && e.isControlDown())
                 {
-                    PlatformUI.MIRTH_FRAME.doSaveChanges();
+                    PlatformUI.MIRTH_FRAME.doSaveChannel();
                 }
             }
             

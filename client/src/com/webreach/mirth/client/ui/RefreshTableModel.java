@@ -10,6 +10,7 @@
 package com.webreach.mirth.client.ui;
 
 import java.util.Vector;
+
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;

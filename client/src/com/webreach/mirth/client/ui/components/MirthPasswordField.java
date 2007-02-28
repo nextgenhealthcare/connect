@@ -30,6 +30,11 @@ package com.webreach.mirth.client.ui.components;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
+import javax.swing.JPopupMenu;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.text.Document;
+
 import com.webreach.mirth.client.ui.Frame;
 import com.webreach.mirth.client.ui.PlatformUI;
 import com.webreach.mirth.client.ui.actions.CopyAction;
@@ -37,10 +42,6 @@ import com.webreach.mirth.client.ui.actions.CutAction;
 import com.webreach.mirth.client.ui.actions.DeleteAction;
 import com.webreach.mirth.client.ui.actions.PasteAction;
 import com.webreach.mirth.client.ui.actions.SelectAllAction;
-import javax.swing.JPopupMenu;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.text.Document;
 
 /**
  * Mirth's implementation of the JPasswordField.  Adds enabling of
@@ -99,7 +100,7 @@ public class MirthPasswordField extends javax.swing.JPasswordField implements Mi
                 // TODO Auto-generated method stub
                 if (e.getKeyCode() == KeyEvent.VK_S && e.isControlDown())
                 {
-                    PlatformUI.MIRTH_FRAME.doSaveChanges();
+                    PlatformUI.MIRTH_FRAME.doSaveChannel();
                 }
             }
             

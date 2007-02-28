@@ -26,15 +26,8 @@
 
 package com.webreach.mirth.client.ui.connectors;
 
-import com.webreach.mirth.client.ui.UIConstants;
-import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
-import com.webreach.mirth.model.Channel;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Properties;
-import javax.swing.JComponent;
-import org.jdesktop.layout.GroupLayout;
-import org.jdesktop.layout.LayoutStyle;
 
 import com.webreach.mirth.client.ui.Frame;
 import com.webreach.mirth.client.ui.PlatformUI;

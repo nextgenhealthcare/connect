@@ -26,6 +26,19 @@
 
 package com.webreach.mirth.client.ui.connectors;
 
+import java.util.List;
+import java.util.Properties;
+
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.syntax.jedit.SyntaxDocument;
+import org.syntax.jedit.tokenmarker.TSQLTokenMarker;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.ui.Frame;
 import com.webreach.mirth.client.ui.PlatformUI;
@@ -36,18 +49,6 @@ import com.webreach.mirth.model.Connector;
 import com.webreach.mirth.model.DriverInfo;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.converters.DocumentSerializer;
-import java.util.List;
-
-import java.util.Properties;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.syntax.jedit.SyntaxDocument;
-import org.syntax.jedit.tokenmarker.TSQLTokenMarker;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 /**
  * A form that extends from ConnectorClass.  All methods implemented

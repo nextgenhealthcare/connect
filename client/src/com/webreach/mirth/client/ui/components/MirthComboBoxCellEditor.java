@@ -24,36 +24,37 @@
  * ***** END LICENSE BLOCK ***** */
 
 
-package com.webreach.mirth.client.ui.editors;
+package com.webreach.mirth.client.ui.components;
 
-import java.awt.Component;
+import java.awt.event.MouseEvent;
+import java.util.EventObject;
+
+import javax.swing.DefaultCellEditor;
+
 import org.jdesktop.swingx.JXComboBox;
-import javax.swing.JTable;
-import javax.swing.table.TableCellRenderer;
 
-public class MyComboBoxRenderer extends JXComboBox implements TableCellRenderer
+import com.webreach.mirth.client.ui.editors.MirthEditorPane;
+
+public class MirthComboBoxCellEditor extends DefaultCellEditor
 {
-    public MyComboBoxRenderer(String[] items)
+    MirthEditorPane parent;
+    
+    public MirthComboBoxCellEditor(String[] items, MirthEditorPane pane)
     {
-        super(items);
+        super(new JXComboBox(items));
+        parent = pane;
     }
     
-    public Component getTableCellRendererComponent(JTable table, Object value,
-            boolean isSelected, boolean hasFocus, int row, int column)
+    /**
+     * Enables the editor only for double-clicks.
+     */
+    public boolean isCellEditable(EventObject evt)
     {
-        if (isSelected)
+        if (evt instanceof MouseEvent)
         {
-            setForeground(table.getSelectionForeground());
-            super.setBackground(table.getSelectionBackground());
-        }
-        else
-        {
-            setForeground(table.getForeground());
-            setBackground(table.getBackground());
+            return ((MouseEvent)evt).getClickCount() >= 2;
         }
         
-        // Select the current value
-        setSelectedItem(value);
-        return this;
+        return false;
     }
 }

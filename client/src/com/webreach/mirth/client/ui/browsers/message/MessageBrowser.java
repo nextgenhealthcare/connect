@@ -53,9 +53,7 @@ import org.jdesktop.swingx.decorator.HighlighterPipeline;
 import org.syntax.jedit.SyntaxDocument;
 import org.syntax.jedit.tokenmarker.HL7TokenMarker;
 import org.syntax.jedit.tokenmarker.XMLTokenMarker;
-import org.w3c.dom.Document;
 
-import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.core.ListHandlerException;
 import com.webreach.mirth.client.core.MessageListHandler;
 import com.webreach.mirth.client.ui.Frame;

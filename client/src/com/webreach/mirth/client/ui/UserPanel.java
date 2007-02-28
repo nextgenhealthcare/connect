@@ -6,17 +6,19 @@
 
 package com.webreach.mirth.client.ui;
 
-import com.webreach.mirth.client.ui.components.MirthTable;
-import com.webreach.mirth.model.User;
 import java.awt.Point;
 import java.util.prefs.Preferences;
+
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import org.jdesktop.swingx.JXTable;
+
 import org.jdesktop.swingx.decorator.AlternateRowHighlighter;
 import org.jdesktop.swingx.decorator.HighlighterPipeline;
+
+import com.webreach.mirth.client.ui.components.MirthTable;
+import com.webreach.mirth.model.User;
 
 /**
  *
@@ -208,15 +210,6 @@ public class UserPanel extends javax.swing.JPanel
     }
     
     /**
-     * Deselects all rows and sets the visible tasks appropriately.
-     */
-    public void deselectRows()
-    {
-        usersTable.clearSelection();
-        parent.setVisibleTasks(parent.userTasks, parent.userPopupMenu, 2, -1, false);
-    }
-    
-    /**
      *  Returns the selected row in the user table.
      */
     public int getSelectedRow()
@@ -229,7 +222,7 @@ public class UserPanel extends javax.swing.JPanel
      */
     public boolean setSelectedUser(String userName)
     {
-        int columnNumber = getColumnNumber(USERNAME_COLUMN_NAME);
+        int columnNumber = usersTable.getColumnNumber(USERNAME_COLUMN_NAME);
         for (int i = 0; i < parent.users.size(); i++)
         {
             if (userName.equals((String)(((CellData)usersTable.getValueAt(i, columnNumber)).getText())))
@@ -247,7 +240,7 @@ public class UserPanel extends javax.swing.JPanel
      */
     public int getUserIndex()
     {
-        int columnNumber = getColumnNumber(USERNAME_COLUMN_NAME);
+        int columnNumber = usersTable.getColumnNumber(USERNAME_COLUMN_NAME);
          
         if (usersTable.getSelectedRow() != -1)
         {
@@ -264,17 +257,10 @@ public class UserPanel extends javax.swing.JPanel
         return UIConstants.ERROR_CONSTANT;
     }
     
-    /**
-     * Gets the column index number of the column titled 'name'.
-     */
-    public int getColumnNumber(String name)
+    public void deselectRows()
     {
-        for (int i = 0; i < usersTable.getColumnCount(); i++)
-        {
-            if (usersTable.getColumnName(i).equalsIgnoreCase(name))
-                return i;
-        }
-        return UIConstants.ERROR_CONSTANT;
+        usersTable.deselectRows();
+        parent.setVisibleTasks(parent.userTasks, parent.userPopupMenu, 2, -1, false);
     }
     
     /** This method is called from within the constructor to

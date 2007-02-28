@@ -9,8 +9,10 @@
 
 package org.syntax.jedit.tokenmarker;
 
-import org.syntax.jedit.*;
 import javax.swing.text.Segment;
+
+import org.syntax.jedit.KeywordMap;
+import org.syntax.jedit.SyntaxUtilities;
 
 /**
  * HTML token marker.

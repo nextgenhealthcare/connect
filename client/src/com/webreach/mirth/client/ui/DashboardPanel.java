@@ -6,18 +6,20 @@
 
 package com.webreach.mirth.client.ui;
 
+import java.awt.Point;
+import java.util.prefs.Preferences;
+
+import javax.swing.ImageIcon;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+
+import org.jdesktop.swingx.decorator.AlternateRowHighlighter;
+import org.jdesktop.swingx.decorator.HighlighterPipeline;
+
 import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.ui.components.MirthTable;
 import com.webreach.mirth.model.ChannelStatistics;
 import com.webreach.mirth.model.ChannelStatus;
-import java.awt.Point;
-import java.util.prefs.Preferences;
-import javax.swing.ImageIcon;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import org.jdesktop.swingx.JXTable;
-import org.jdesktop.swingx.decorator.AlternateRowHighlighter;
-import org.jdesktop.swingx.decorator.HighlighterPipeline;
 
 /**
  *
@@ -54,7 +56,7 @@ public class DashboardPanel extends javax.swing.JPanel
             }
             public void mouseClicked(java.awt.event.MouseEvent evt)
             {
-                deselectRows();
+                statusTable.deselectRows();
             }
         });
         this.setDoubleBuffered(true);
@@ -218,7 +220,7 @@ public class DashboardPanel extends javax.swing.JPanel
                 statusTable.setRowSelectionInterval(row, row);
             }
             else
-                deselectRows();
+                statusTable.deselectRows();
             parent.statusPopupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
         }
     }
@@ -234,7 +236,7 @@ public class DashboardPanel extends javax.swing.JPanel
         {
             parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 3, -1, true);
             
-            int columnNumber = getColumnNumber(STATUS_COLUMN_NAME);
+            int columnNumber = statusTable.getColumnNumber(STATUS_COLUMN_NAME);
             if (((CellData)statusTable.getValueAt(row, columnNumber)).getText().equals("Started"))
             {
                 parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 4, 4, true);
@@ -258,16 +260,7 @@ public class DashboardPanel extends javax.swing.JPanel
             }
         }
     }
-    
-    /**
-     * Deselects all rows and sets the correct tasks visible.
-     */
-    public void deselectRows()
-    {
-        statusTable.clearSelection();
-        parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 3, -1, false);
-    }
-    
+
     /**
      * Gets the index of the selected status row.
      */
@@ -275,23 +268,16 @@ public class DashboardPanel extends javax.swing.JPanel
     {
         for(int i=0; i<parent.status.size(); i++)
         {
-            if(statusTable.getSelectedRow() > -1 && ((String)statusTable.getValueAt(statusTable.getSelectedRow(), getColumnNumber(NAME_COLUMN_NAME))).equalsIgnoreCase(parent.status.get(i).getName()))
+            if(statusTable.getSelectedRow() > -1 && ((String)statusTable.getValueAt(statusTable.getSelectedRow(), statusTable.getColumnNumber(NAME_COLUMN_NAME))).equalsIgnoreCase(parent.status.get(i).getName()))
                 return i;
         }
         return UIConstants.ERROR_CONSTANT;
     }
     
-    /**
-     * Gets the index of column with title 'name'.
-     */
-    public int getColumnNumber(String name)
+    public void deselectRows()
     {
-        for (int i = 0; i < statusTable.getColumnCount(); i++)
-        {
-            if (statusTable.getColumnName(i).equalsIgnoreCase(name))
-                return i;
-        }
-        return UIConstants.ERROR_CONSTANT;
+        statusTable.deselectRows();
+        parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 3, -1, false); 
     }
     
     /** This method is called from within the constructor to

@@ -31,10 +31,13 @@ import java.util.Iterator;
 
 import javax.swing.JMenu;
 import javax.swing.JPopupMenu;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+
+import org.syntax.jedit.JEditTextArea;
+import org.syntax.jedit.SyntaxDocument;
 
 import com.webreach.mirth.client.ui.Frame;
-import com.webreach.mirth.client.ui.FunctionListBuilder;
-import com.webreach.mirth.client.ui.FunctionListItem;
 import com.webreach.mirth.client.ui.PlatformUI;
 import com.webreach.mirth.client.ui.actions.CopyAction;
 import com.webreach.mirth.client.ui.actions.CutAction;
@@ -44,16 +47,8 @@ import com.webreach.mirth.client.ui.actions.RedoAction;
 import com.webreach.mirth.client.ui.actions.SelectAllAction;
 import com.webreach.mirth.client.ui.actions.SnippetAction;
 import com.webreach.mirth.client.ui.actions.UndoAction;
-import com.webreach.mirth.client.ui.CodeSnippetType;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.Document;
-import javax.swing.text.Element;
-import javax.swing.text.ElementIterator;
-
-import org.syntax.jedit.JEditTextArea;
-import org.syntax.jedit.SyntaxDocument;
+import com.webreach.mirth.client.ui.panels.reference.ReferenceListBuilder;
+import com.webreach.mirth.client.ui.panels.reference.ReferenceListItem;
 
 /**
  * Mirth's implementation of the JTextArea. Adds enabling of the save button in
@@ -123,14 +118,13 @@ public class MirthSyntaxTextArea extends JEditTextArea implements
             varlist = new JMenu("Built-in Variables");
             hl7list = new JMenu("HL7 Helpers");
             funclist = new JMenu("Built-in Functions");
-            FunctionListBuilder functionBuilder = new FunctionListBuilder();
-            ArrayList<FunctionListItem> jshelpers = functionBuilder
-                    .getVariableListItems();
-            Iterator<FunctionListItem> it = jshelpers.iterator();
+            ReferenceListBuilder functionBuilder = new ReferenceListBuilder();
+            ArrayList<ReferenceListItem> jshelpers = functionBuilder.getVariableListItems(functionBuilder.FUNCTIONS_AND_VARIABLES);
+            Iterator<ReferenceListItem> it = jshelpers.iterator();
             
             while (it.hasNext())
             {
-                FunctionListItem item = it.next();
+                ReferenceListItem item = it.next();
                 switch (item.getType())
                 {
                     case FUNCTION:

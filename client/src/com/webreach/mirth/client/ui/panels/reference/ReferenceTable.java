@@ -24,7 +24,7 @@
  * ***** END LICENSE BLOCK ***** */
 
 
-package com.webreach.mirth.client.ui.editors;
+package com.webreach.mirth.client.ui.panels.reference;
 
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;

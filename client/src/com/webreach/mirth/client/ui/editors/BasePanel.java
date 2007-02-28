@@ -8,6 +8,7 @@ package com.webreach.mirth.client.ui.editors;
 
 import java.awt.CardLayout;
 import java.util.Map;
+
 import javax.swing.JPanel;
 
 /**

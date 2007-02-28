@@ -6,30 +6,21 @@
 
 package com.webreach.mirth.client.ui.editors;
 
-import com.webreach.mirth.client.ui.FunctionListBuilder;
-import com.webreach.mirth.client.ui.FunctionListHandler;
-import com.webreach.mirth.client.ui.FunctionListItem;
-import com.webreach.mirth.client.ui.TreePanel;
-import com.webreach.mirth.client.ui.PlatformUI;
-import com.webreach.mirth.client.ui.ReferenceTableHandler;
-import com.webreach.mirth.client.ui.UIConstants;
-import com.webreach.mirth.client.ui.VariableListHandler;
-import com.webreach.mirth.client.ui.components.MirthSyntaxTextArea;
-import com.webreach.mirth.client.ui.util.SQLParserUtil;
-import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.Step;
-import java.awt.BorderLayout;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
-import javax.swing.BorderFactory;
+
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JPanel;
+
 import org.syntax.jedit.SyntaxDocument;
-import org.syntax.jedit.tokenmarker.HL7TokenMarker;
+
+import com.webreach.mirth.client.ui.PlatformUI;
+import com.webreach.mirth.client.ui.TreePanel;
+import com.webreach.mirth.client.ui.UIConstants;
+import com.webreach.mirth.client.ui.VariableListHandler;
+import com.webreach.mirth.client.ui.panels.reference.VariableReferenceTable;
+import com.webreach.mirth.model.Step;
 
 /**
  *
@@ -41,6 +32,7 @@ public class TabbedTemplatePanel extends javax.swing.JPanel
     private SyntaxDocument incomingHL7Doc, outgoingHL7Doc;
     private TreePanel incomingTreePanel, outgoingTreePanel;
     private MirthEditorPane parent;
+    private HashMap<String, JPanel> panels;
     
     /** Creates new form TabbedTemplatePanel */
     public TabbedTemplatePanel(MirthEditorPane p)
@@ -48,11 +40,10 @@ public class TabbedTemplatePanel extends javax.swing.JPanel
         parent = p;
         initComponents();
         resizePanes();
-        ArrayList<FunctionListItem> functionListItems = new FunctionListBuilder().getVariableListItems();
-        variableReferenceTable = new VariableReferenceTable("Common Variables and Functions", functionListItems); 
-        variableReferenceTable.setDragEnabled(true);  
-        variableReferenceTable.setTransferHandler(new FunctionListHandler(functionListItems));  
-        variableReferenceScrollPane.setViewportView(variableReferenceTable);
+        
+        panels = new HashMap<String, JPanel>();
+        
+        //ArrayList<ReferenceListItem> functionListItems = new ReferenceListBuilder().getVariableListItems();
         variableTable = new VariableReferenceTable("Available Variables", new String[]{}); 
         variableTable.setDragEnabled(true);
         variableTable.setTransferHandler(new VariableListHandler("$('", "')"));
@@ -136,6 +127,26 @@ public class TabbedTemplatePanel extends javax.swing.JPanel
         tabPanel.setSelectedIndex(0);
     }
     
+    public void addPanel(JPanel panel, String name)
+    {
+        panels.put(name, panel);
+        
+        String[] items = new String[panels.keySet().size()];
+        int i = 0;
+        for(String s : panels.keySet())
+        {
+            items[i] = s;
+            i++;
+        }
+        
+        variableReferenceDropDown.setModel(new DefaultComboBoxModel(items));
+    }
+    
+    public void setReferencePanel()
+    {
+        variableReferenceDropDownActionPerformed(null);
+    }
+    
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -147,10 +158,11 @@ public class TabbedTemplatePanel extends javax.swing.JPanel
         tabPanel = new javax.swing.JTabbedPane();
         variableTab = new javax.swing.JPanel();
         variableSplitPane = new javax.swing.JSplitPane();
-        variableReferenceScrollPane = new javax.swing.JScrollPane();
-        variableReferenceTable = new com.webreach.mirth.client.ui.editors.VariableReferenceTable();
         variableListScrollPane = new javax.swing.JScrollPane();
-        variableTable = new com.webreach.mirth.client.ui.editors.VariableReferenceTable();
+        variableTable = new com.webreach.mirth.client.ui.panels.reference.VariableReferenceTable();
+        variableReferencePane = new javax.swing.JPanel();
+        variableReferenceDropDown = new com.webreach.mirth.client.ui.components.MirthComboBox();
+        variableViewPanel = new javax.swing.JPanel();
         incomingTab = new javax.swing.JPanel();
         incoming = new MessageTreeTemplate(UIConstants.INCOMING_DATA);
         outgoingTab = new javax.swing.JPanel();
@@ -158,39 +170,50 @@ public class TabbedTemplatePanel extends javax.swing.JPanel
 
         variableSplitPane.setDividerLocation(84);
         variableSplitPane.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
-        variableReferenceTable.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][]
-            {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
-            },
-            new String []
-            {
-                "Title 1", "Title 2", "Title 3", "Title 4"
-            }
-        ));
-        variableReferenceScrollPane.setViewportView(variableReferenceTable);
-
-        variableSplitPane.setLeftComponent(variableReferenceScrollPane);
-
-        variableTable.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][]
-            {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
-            },
-            new String []
-            {
-                "Title 1", "Title 2", "Title 3", "Title 4"
-            }
-        ));
         variableListScrollPane.setViewportView(variableTable);
 
         variableSplitPane.setRightComponent(variableListScrollPane);
+
+        variableReferencePane.setBackground(new java.awt.Color(255, 255, 255));
+        variableReferenceDropDown.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                variableReferenceDropDownActionPerformed(evt);
+            }
+        });
+
+        variableViewPanel.setBackground(new java.awt.Color(255, 255, 255));
+        org.jdesktop.layout.GroupLayout variableViewPanelLayout = new org.jdesktop.layout.GroupLayout(variableViewPanel);
+        variableViewPanel.setLayout(variableViewPanelLayout);
+        variableViewPanelLayout.setHorizontalGroup(
+            variableViewPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(0, 405, Short.MAX_VALUE)
+        );
+        variableViewPanelLayout.setVerticalGroup(
+            variableViewPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(0, 44, Short.MAX_VALUE)
+        );
+
+        org.jdesktop.layout.GroupLayout variableReferencePaneLayout = new org.jdesktop.layout.GroupLayout(variableReferencePane);
+        variableReferencePane.setLayout(variableReferencePaneLayout);
+        variableReferencePaneLayout.setHorizontalGroup(
+            variableReferencePaneLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(variableViewPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .add(variableReferencePaneLayout.createSequentialGroup()
+                .add(10, 10, 10)
+                .add(variableReferenceDropDown, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 150, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+        variableReferencePaneLayout.setVerticalGroup(
+            variableReferencePaneLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(variableReferencePaneLayout.createSequentialGroup()
+                .addContainerGap()
+                .add(variableReferenceDropDown, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(variableViewPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        variableSplitPane.setLeftComponent(variableReferencePane);
 
         org.jdesktop.layout.GroupLayout variableTabLayout = new org.jdesktop.layout.GroupLayout(variableTab);
         variableTab.setLayout(variableTabLayout);
@@ -243,6 +266,14 @@ public class TabbedTemplatePanel extends javax.swing.JPanel
             .add(tabPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 553, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void variableReferenceDropDownActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_variableReferenceDropDownActionPerformed
+    {//GEN-HEADEREND:event_variableReferenceDropDownActionPerformed
+        variableViewPanel.removeAll();
+        System.out.println((String)variableReferenceDropDown.getSelectedItem() + " " + panels.get((String)variableReferenceDropDown.getSelectedItem()));
+        variableViewPanel.add(panels.get((String)variableReferenceDropDown.getSelectedItem()));
+        variableViewPanel.repaint();
+    }//GEN-LAST:event_variableReferenceDropDownActionPerformed
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -252,11 +283,12 @@ public class TabbedTemplatePanel extends javax.swing.JPanel
     public javax.swing.JPanel outgoingTab;
     public javax.swing.JTabbedPane tabPanel;
     private javax.swing.JScrollPane variableListScrollPane;
-    private javax.swing.JScrollPane variableReferenceScrollPane;
-    private com.webreach.mirth.client.ui.editors.VariableReferenceTable variableReferenceTable;
+    private com.webreach.mirth.client.ui.components.MirthComboBox variableReferenceDropDown;
+    private javax.swing.JPanel variableReferencePane;
     private javax.swing.JSplitPane variableSplitPane;
     private javax.swing.JPanel variableTab;
-    private com.webreach.mirth.client.ui.editors.VariableReferenceTable variableTable;
+    private com.webreach.mirth.client.ui.panels.reference.VariableReferenceTable variableTable;
+    private javax.swing.JPanel variableViewPanel;
     // End of variables declaration//GEN-END:variables
     
 }

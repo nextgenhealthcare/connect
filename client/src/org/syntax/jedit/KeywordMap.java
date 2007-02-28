@@ -10,8 +10,9 @@
 
 package org.syntax.jedit;
 
-import org.syntax.jedit.tokenmarker.*;
 import javax.swing.text.Segment;
+
+import org.syntax.jedit.tokenmarker.Token;
 
 /**
  * A <code>KeywordMap</code> is similar to a hashtable in that it maps keys

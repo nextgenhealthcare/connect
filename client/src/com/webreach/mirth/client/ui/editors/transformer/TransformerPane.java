@@ -26,12 +26,6 @@
 
 package com.webreach.mirth.client.ui.editors.transformer;
 
-import com.webreach.mirth.client.ui.editors.EditorTableCellEditor;
-import com.webreach.mirth.client.ui.editors.TabbedTemplatePanel;
-import com.webreach.mirth.client.ui.util.FileUtil;
-import com.webreach.mirth.model.Connector;
-import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import java.awt.BorderLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -43,14 +37,13 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
-import java.util.Properties;
 import java.util.TreeMap;
 import java.util.prefs.Preferences;
 import java.util.regex.Matcher;
@@ -77,6 +70,9 @@ import org.jdesktop.swingx.action.ActionFactory;
 import org.jdesktop.swingx.action.BoundAction;
 import org.jdesktop.swingx.decorator.AlternateRowHighlighter;
 import org.jdesktop.swingx.decorator.HighlighterPipeline;
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.EvaluatorException;
+import org.mozilla.javascript.Script;
 
 import com.webreach.mirth.client.ui.CenterCellRenderer;
 import com.webreach.mirth.client.ui.Frame;
@@ -84,21 +80,21 @@ import com.webreach.mirth.client.ui.Mirth;
 import com.webreach.mirth.client.ui.MirthFileFilter;
 import com.webreach.mirth.client.ui.PlatformUI;
 import com.webreach.mirth.client.ui.UIConstants;
+import com.webreach.mirth.client.ui.components.MirthComboBoxCellEditor;
 import com.webreach.mirth.client.ui.editors.BasePanel;
-import com.webreach.mirth.client.ui.editors.EditorConstants;
-import com.webreach.mirth.client.ui.editors.MessageBuilder;
+import com.webreach.mirth.client.ui.editors.EditorTableCellEditor;
 import com.webreach.mirth.client.ui.editors.JavaScriptPanel;
 import com.webreach.mirth.client.ui.editors.MapperPanel;
+import com.webreach.mirth.client.ui.editors.MessageBuilder;
 import com.webreach.mirth.client.ui.editors.MirthEditorPane;
-import com.webreach.mirth.client.ui.editors.MyComboBoxEditor;
+import com.webreach.mirth.client.ui.util.FileUtil;
 import com.webreach.mirth.client.ui.util.ImportConverter;
 import com.webreach.mirth.model.Channel;
+import com.webreach.mirth.model.Connector;
+import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.Step;
 import com.webreach.mirth.model.Transformer;
-import java.io.IOException;
-import org.mozilla.javascript.Context;
-import org.mozilla.javascript.EvaluatorException;
-import org.mozilla.javascript.Script;
+import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 
 public class TransformerPane extends MirthEditorPane
 {
@@ -400,7 +396,7 @@ public class TransformerPane extends MirthEditorPane
         transformerTable.getColumnModel().getColumn(STEP_NAME_COL).setCellEditor(new EditorTableCellEditor(this));
         
         // Set the combobox editor on the type column, and add action listener
-        MyComboBoxEditor comboBox = new MyComboBoxEditor(defaultComboBoxValues, this);
+        MirthComboBoxCellEditor comboBox = new MirthComboBoxCellEditor(defaultComboBoxValues, this);
         
         ((JXComboBox) comboBox.getComponent())
         .addItemListener(new ItemListener()
@@ -539,7 +535,7 @@ public class TransformerPane extends MirthEditorPane
                 // TODO Auto-generated method stub
                 if (e.getKeyCode() == KeyEvent.VK_S && e.isControlDown())
                 {
-                    PlatformUI.MIRTH_FRAME.doSaveChanges();
+                    PlatformUI.MIRTH_FRAME.doSaveChannel();
                 }
             }
             
