@@ -101,6 +101,8 @@ public class SettingsPanel extends javax.swing.JPanel
         jLabel12 = new javax.swing.JLabel();
         requireAuthenticationYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         requireAuthenticationNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        defaultFrom = new com.webreach.mirth.client.ui.components.MirthTextField();
+        jLabel1 = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -152,7 +154,7 @@ public class SettingsPanel extends javax.swing.JPanel
                     .add(rowHighlightYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(rowHighlightNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(jLabel7))
-                .addContainerGap(100, Short.MAX_VALUE))
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         serverSettings.setBackground(new java.awt.Color(255, 255, 255));
@@ -198,6 +200,8 @@ public class SettingsPanel extends javax.swing.JPanel
             }
         });
 
+        jLabel1.setText("Default From Address:");
+
         org.jdesktop.layout.GroupLayout serverSettingsLayout = new org.jdesktop.layout.GroupLayout(serverSettings);
         serverSettings.setLayout(serverSettingsLayout);
         serverSettingsLayout.setHorizontalGroup(
@@ -213,17 +217,20 @@ public class SettingsPanel extends javax.swing.JPanel
                             .add(jLabel10)
                             .add(serverSettingsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                                 .add(passwordLabel)
-                                .add(org.jdesktop.layout.GroupLayout.TRAILING, usernameLabel)))
+                                .add(org.jdesktop.layout.GroupLayout.TRAILING, usernameLabel))
+                            .add(jLabel1))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(serverSettingsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                            .add(smtpPassword, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE)
-                            .add(smtpUsername, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE)
-                            .add(serverSettingsLayout.createSequentialGroup()
-                                .add(requireAuthenticationYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(requireAuthenticationNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                            .add(smtpPort, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 44, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(smtpHost, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 117, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
+                        .add(serverSettingsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(defaultFrom, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .add(serverSettingsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
+                                .add(smtpPassword, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE)
+                                .add(smtpUsername, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE)
+                                .add(serverSettingsLayout.createSequentialGroup()
+                                    .add(requireAuthenticationYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                    .add(requireAuthenticationNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                                .add(smtpPort, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 44, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .add(smtpHost, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE)))))
                 .addContainerGap(271, Short.MAX_VALUE))
         );
         serverSettingsLayout.setVerticalGroup(
@@ -239,7 +246,11 @@ public class SettingsPanel extends javax.swing.JPanel
                 .add(serverSettingsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(smtpPort, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(jLabel11))
-                .add(7, 7, 7)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(serverSettingsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jLabel1)
+                    .add(defaultFrom, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(serverSettingsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel12)
                     .add(requireAuthenticationYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -320,6 +331,11 @@ public class SettingsPanel extends javax.swing.JPanel
                 smtpPort.setText((String)serverProperties.getProperty("smtp.port"));
             else
                 smtpPort.setText("");
+            
+            if(serverProperties.getProperty("smtp.from") != null)
+                defaultFrom.setText((String)serverProperties.getProperty("smtp.from"));
+            else
+                defaultFrom.setText("");
 
             if(serverProperties.getProperty("smtp.requireAuthentication") != null)
             {
@@ -375,6 +391,7 @@ public class SettingsPanel extends javax.swing.JPanel
 
             serverProperties.put("smtp.host", smtpHost.getText());
             serverProperties.put("smtp.port", smtpPort.getText());
+            serverProperties.put("smtp.from", defaultFrom.getText());
             
             if(requireAuthenticationYes.isSelected())
             {
@@ -404,7 +421,9 @@ public class SettingsPanel extends javax.swing.JPanel
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.ButtonGroup buttonGroup2;
     private javax.swing.JPanel clientSettings;
+    private com.webreach.mirth.client.ui.components.MirthTextField defaultFrom;
     private com.webreach.mirth.client.ui.components.MirthTextField intervalTime;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;

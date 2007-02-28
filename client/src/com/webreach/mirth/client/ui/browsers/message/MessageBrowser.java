@@ -85,6 +85,7 @@ public class MessageBrowser extends javax.swing.JPanel
     private final String VALUE_COLUMN_NAME = "Value";
     private final String TYPE_COLUMN_NAME = "Type";
     private final String SOURCE_COLUMN_NAME = "Source";
+    private final String PROTOCOL_COLUMN_NAME = "Protocol";
     private JScrollPane eventPane;
     private JScrollPane mappingsPane;
     private JXTable eventTable;
@@ -132,12 +133,19 @@ public class MessageBrowser extends javax.swing.JPanel
         
         pageSizeField.setDocument(new MirthFieldConstraints(3, false, true));
         
-        String[] values = new String[MessageObject.Status.values().length + 1];
-        values[0] = "ALL";
-        for (int i = 1; i < values.length; i++)
-            values[i] = MessageObject.Status.values()[i-1].toString();
+        String[] statusValues = new String[MessageObject.Status.values().length + 1];
+        statusValues[0] = "ALL";
+        for (int i = 1; i < statusValues.length; i++)
+            statusValues[i] = MessageObject.Status.values()[i-1].toString();
         
-        statusComboBox.setModel(new javax.swing.DefaultComboBoxModel(values));
+        statusComboBox.setModel(new javax.swing.DefaultComboBoxModel(statusValues));
+        
+        String[] protocolValues = new String[MessageObject.Protocol.values().length + 1];
+        protocolValues[0] = "ALL";
+        for (int i = 1; i < protocolValues.length; i++)
+            protocolValues[i] = MessageObject.Protocol.values()[i-1].toString();
+        
+        protocolComboBox.setModel(new javax.swing.DefaultComboBoxModel(protocolValues));
         
         eventPane = new JScrollPane();
         
@@ -184,6 +192,7 @@ public class MessageBrowser extends javax.swing.JPanel
         parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 4, -1, false);
         parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 5, 5, true);
         statusComboBox.setSelectedIndex(0);
+        protocolComboBox.setSelectedIndex(0);
         long currentTime = System.currentTimeMillis();
         mirthDatePicker1.setDateInMillis(currentTime);
         mirthDatePicker2.setDateInMillis(currentTime);
@@ -388,6 +397,7 @@ public class MessageBrowser extends javax.swing.JPanel
                     tableData[i][3] = messageObject.getType();
                     tableData[i][4] = messageObject.getSource();
                     tableData[i][5] = messageObject.getStatus();
+                    tableData[i][6] = messageObject.getRawDataProtocol();
                 }
             }
             else
@@ -404,7 +414,7 @@ public class MessageBrowser extends javax.swing.JPanel
                 tableData,
                 new String []
         {
-            MESSAGE_ID_COLUMN_NAME, DATE_COLUMN_NAME, CONNECTOR_COLUMN_NAME, TYPE_COLUMN_NAME, SOURCE_COLUMN_NAME, STATUS_COLUMN_NAME
+            MESSAGE_ID_COLUMN_NAME, DATE_COLUMN_NAME, CONNECTOR_COLUMN_NAME, TYPE_COLUMN_NAME, SOURCE_COLUMN_NAME, STATUS_COLUMN_NAME, PROTOCOL_COLUMN_NAME
         }
         )
         {
@@ -656,7 +666,8 @@ public class MessageBrowser extends javax.swing.JPanel
     }
     
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
-    private void initComponents() {
+    private void initComponents()
+    {
         filterPanel = new javax.swing.JPanel();
         jLabel3 = new javax.swing.JLabel();
         filterButton = new javax.swing.JButton();
@@ -676,6 +687,8 @@ public class MessageBrowser extends javax.swing.JPanel
         messageTypeField = new com.webreach.mirth.client.ui.components.MirthTextField();
         jLabel7 = new javax.swing.JLabel();
         messageSourceField = new com.webreach.mirth.client.ui.components.MirthTextField();
+        jLabel8 = new javax.swing.JLabel();
+        protocolComboBox = new javax.swing.JComboBox();
         jSplitPane1 = new javax.swing.JSplitPane();
         descriptionPanel = new javax.swing.JPanel();
         descriptionTabbedPane = new javax.swing.JTabbedPane();
@@ -698,8 +711,10 @@ public class MessageBrowser extends javax.swing.JPanel
         jLabel3.setText("Start Date:");
 
         filterButton.setText("Filter");
-        filterButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        filterButton.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
                 filterButtonActionPerformed(evt);
             }
         });
@@ -708,16 +723,20 @@ public class MessageBrowser extends javax.swing.JPanel
 
         jLabel5.setText("Status:");
 
-        previousPageButton.setText("Previous Page");
-        previousPageButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        previousPageButton.setText("<");
+        previousPageButton.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
                 previousPageButtonActionPerformed(evt);
             }
         });
 
-        nextPageButton.setText("Next Page");
-        nextPageButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        nextPageButton.setText(">");
+        nextPageButton.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
                 nextPageButtonActionPerformed(evt);
             }
         });
@@ -733,6 +752,10 @@ public class MessageBrowser extends javax.swing.JPanel
 
         jLabel7.setText("Source:");
 
+        jLabel8.setText("Protocol:");
+
+        protocolComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+
         org.jdesktop.layout.GroupLayout filterPanelLayout = new org.jdesktop.layout.GroupLayout(filterPanel);
         filterPanel.setLayout(filterPanelLayout);
         filterPanelLayout.setHorizontalGroup(
@@ -740,17 +763,19 @@ public class MessageBrowser extends javax.swing.JPanel
             .add(filterPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .add(filterPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(jLabel8)
                     .add(jLabel1)
                     .add(jLabel3)
                     .add(jLabel4))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(filterPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, protocolComboBox, 0, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .add(mirthDatePicker1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .add(messageTypeField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .add(connectorField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .add(10, 10, 10)
                 .add(filterPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(filterPanelLayout.createSequentialGroup()
-                        .add(filterPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                            .add(mirthDatePicker1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .add(messageTypeField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .add(connectorField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .add(10, 10, 10)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, filterPanelLayout.createSequentialGroup()
                         .add(filterPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
                             .add(jLabel2)
                             .add(jLabel7)
@@ -760,8 +785,8 @@ public class MessageBrowser extends javax.swing.JPanel
                             .add(mirthDatePicker2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .add(messageSourceField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .add(statusComboBox, 0, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                    .add(filterButton))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 19, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, filterButton))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 103, Short.MAX_VALUE)
                 .add(filterPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
                     .add(filterPanelLayout.createSequentialGroup()
                         .add(previousPageButton)
@@ -797,17 +822,13 @@ public class MessageBrowser extends javax.swing.JPanel
                 .add(8, 8, 8)
                 .add(filterPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(filterPanelLayout.createSequentialGroup()
-                        .add(filterPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(filterPanelLayout.createSequentialGroup()
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(filterPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                    .add(jLabel3)
-                                    .add(org.jdesktop.layout.GroupLayout.TRAILING, mirthDatePicker1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                            .add(mirthDatePicker2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(filterButton))
+                        .add(filterPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(jLabel3)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, mirthDatePicker1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                    .add(mirthDatePicker2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(jLabel2))
-                .addContainerGap())
+                .add(42, 42, 42))
             .add(org.jdesktop.layout.GroupLayout.TRAILING, filterPanelLayout.createSequentialGroup()
                 .addContainerGap(38, Short.MAX_VALUE)
                 .add(resultsLabel)
@@ -818,7 +839,10 @@ public class MessageBrowser extends javax.swing.JPanel
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(filterPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(nextPageButton)
-                    .add(previousPageButton))
+                    .add(previousPageButton)
+                    .add(filterButton)
+                    .add(jLabel8)
+                    .add(protocolComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .add(13, 13, 13))
         );
 
@@ -951,13 +975,15 @@ public class MessageBrowser extends javax.swing.JPanel
         jScrollPane1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         jTable1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
+            new Object [][]
+            {
                 {null, null, null, null},
                 {null, null, null, null},
                 {null, null, null, null},
                 {null, null, null, null}
             },
-            new String [] {
+            new String []
+            {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
@@ -1064,6 +1090,16 @@ public class MessageBrowser extends javax.swing.JPanel
             }
         }
         
+        if (!((String)protocolComboBox.getSelectedItem()).equalsIgnoreCase("ALL"))
+        {
+            for (int i = 0; i < MessageObject.Protocol.values().length; i++)
+            {
+                if (((String)protocolComboBox.getSelectedItem()).equalsIgnoreCase(MessageObject.Protocol.values()[i].toString()))
+                    messageObjectFilter.setProtocol(MessageObject.Protocol.values()[i]);
+            }
+        }
+        
+        
         if (mirthDatePicker1.getDate() != null)
         {
             Calendar calendarStart = Calendar.getInstance();
@@ -1135,6 +1171,7 @@ public class MessageBrowser extends javax.swing.JPanel
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSplitPane jSplitPane1;
@@ -1146,6 +1183,7 @@ public class MessageBrowser extends javax.swing.JPanel
     private javax.swing.JButton nextPageButton;
     private com.webreach.mirth.client.ui.components.MirthTextField pageSizeField;
     private javax.swing.JButton previousPageButton;
+    private javax.swing.JComboBox protocolComboBox;
     private javax.swing.JLabel resultsLabel;
     private javax.swing.JComboBox statusComboBox;
     // End of variables declaration//GEN-END:variables

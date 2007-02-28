@@ -102,7 +102,7 @@
                       <Component id="rowHighlightNo" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="jLabel7" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <EmptySpace pref="100" max="32767" attributes="0"/>
+                  <EmptySpace max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -191,18 +191,22 @@
                                   <Component id="passwordLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                                   <Component id="usernameLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                               </Group>
+                              <Component id="jLabel1" alignment="1" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <EmptySpace min="-2" max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                              <Component id="smtpPassword" alignment="0" pref="117" max="32767" attributes="1"/>
-                              <Component id="smtpUsername" alignment="0" pref="117" max="32767" attributes="1"/>
-                              <Group type="102" alignment="0" attributes="0">
-                                  <Component id="requireAuthenticationYes" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="requireAuthenticationNo" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="0" attributes="0">
+                              <Component id="defaultFrom" max="32767" attributes="1"/>
+                              <Group type="103" alignment="0" groupAlignment="0" max="-2" attributes="0">
+                                  <Component id="smtpPassword" alignment="0" pref="117" max="32767" attributes="1"/>
+                                  <Component id="smtpUsername" alignment="0" pref="117" max="32767" attributes="1"/>
+                                  <Group type="102" alignment="0" attributes="0">
+                                      <Component id="requireAuthenticationYes" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Component id="requireAuthenticationNo" min="-2" max="-2" attributes="0"/>
+                                  </Group>
+                                  <Component id="smtpPort" alignment="0" min="-2" pref="44" max="-2" attributes="0"/>
+                                  <Component id="smtpHost" alignment="0" pref="117" max="32767" attributes="1"/>
                               </Group>
-                              <Component id="smtpPort" alignment="0" min="-2" pref="44" max="-2" attributes="0"/>
-                              <Component id="smtpHost" alignment="0" min="-2" pref="117" max="-2" attributes="1"/>
                           </Group>
                       </Group>
                   </Group>
@@ -225,7 +229,12 @@
                       <Component id="smtpPort" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="jLabel11" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <EmptySpace min="-2" pref="7" max="-2" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="jLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="defaultFrom" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
                       <Component id="jLabel12" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="requireAuthenticationYes" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -334,6 +343,13 @@
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="requireAuthenticationNoActionPerformed"/>
           </Events>
+        </Component>
+        <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="defaultFrom">
+        </Component>
+        <Component class="javax.swing.JLabel" name="jLabel1">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Default From Address:"/>
+          </Properties>
         </Component>
       </SubComponents>
     </Container>

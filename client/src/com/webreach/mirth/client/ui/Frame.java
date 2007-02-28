@@ -1532,6 +1532,18 @@ public class Frame extends JXFrame
             
             settingsTasks.getContentPane().getComponent(1).setVisible(false);
         }
+        else if (alertPanel != null && alertTasks.getContentPane().getComponent(1).isVisible())
+        {
+            int option = JOptionPane.showConfirmDialog(this, "Would you like to save the alerts?");
+            
+            if (option == JOptionPane.YES_OPTION)
+                doSaveAlerts();
+            else if (option == JOptionPane.CANCEL_OPTION || option == JOptionPane.CLOSED_OPTION)
+                return false;
+            
+            alertTasks.getContentPane().getComponent(1).setVisible(false);
+        }
+        
         return true;
     }
     
@@ -1792,6 +1804,7 @@ public class Frame extends JXFrame
         {
             public Void doInBackground()
             {
+                doRefreshChannels();
                 setBold(viewPane, 4);
                 setPanelName("Alerts");
                 setCurrentContentPage(alertPanel);
@@ -1984,7 +1997,7 @@ public class Frame extends JXFrame
     {
         String channelId = null;
         
-        if(channelPanel.getSelectedChannel() != null)
+        if(currentContentPage == channelPanel && channelPanel.getSelectedChannel() != null)
             channelId = channelPanel.getSelectedChannel().getId();
         
         try
@@ -2020,7 +2033,15 @@ public class Frame extends JXFrame
                     }
                 }
             }
-            
+        }
+        catch (ClientException e)
+        {
+            alertException(e.getStackTrace(), e.getMessage());
+        }
+        
+        // as long as the channel was not deleted
+         if(currentContentPage == channelPanel && channels.containsKey(channelId))
+         {
             channelPanel.updateChannelTable();
             
             if(channels.size() > 0)
@@ -2033,15 +2054,8 @@ public class Frame extends JXFrame
                 setVisibleTasks(channelTasks, channelPopupMenu, 1, 1, false);
                 setVisibleTasks(channelTasks, channelPopupMenu, 4, 4, false);
             }
-        }
-        catch (ClientException e)
-        {
-            alertException(e.getStackTrace(), e.getMessage());
-        }
-        
-        // as long as the channel was not deleted
-        if (channels.containsKey(channelId))
             channelPanel.setSelectedChannel(channelId);
+         }
     }
     
     public Map<String, Integer> getChannelHeaders()
