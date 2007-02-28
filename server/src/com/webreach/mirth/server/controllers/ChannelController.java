@@ -44,33 +44,41 @@ public class ChannelController {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private SqlMapClient sqlMap = SqlConfig.getSqlMapInstance();
 	private static HashMap<String, Channel> channelCache;
-	private static HashMap<String, String> channelIDLookup;
-	public static void updateChannelCache(List<Channel> channels){
+	private static HashMap<String, String> channelIdLookup;
+
+	public static void updateChannelCache(List<Channel> channels) {
 		channelCache = new HashMap<String, Channel>();
-		channelIDLookup = new HashMap<String, String>();
+		channelIdLookup = new HashMap<String, String>();
 		Iterator<Channel> it = channels.iterator();
-		while (it.hasNext()){
+		
+		while (it.hasNext()) {
 			Channel channel = it.next();
 			channelCache.put(channel.getId(), channel);
-			channelIDLookup.put(channel.getName().toUpperCase(), channel.getId());
+			channelIdLookup.put(channel.getName().toUpperCase(), channel.getId());
 		}
 	}
-	public static String getChannelId(String channelName){
-		return channelIDLookup.get(channelName.toUpperCase());
+
+	public static String getChannelId(String channelName) {
+		return channelIdLookup.get(channelName.toUpperCase());
 	}
-	public static String getDestinationName(String id){
-		//String format: channelid_destination_index
-		String destinationName = id; //if we can't parse the name, just use the id
+
+	public static String getDestinationName(String id) {
+		// String format: channelid_destination_index
+		String destinationName = id; // if we can't parse the name, just use
+										// the id
 		String channelId = id.substring(0, id.indexOf('_'));
 		String strIndex = id.substring(id.indexOf("destination_") + 12, id.indexOf("_connector"));
-		int index = Integer.parseInt(strIndex) -1;
+		int index = Integer.parseInt(strIndex) - 1;
 		Channel channel = channelCache.get(channelId);
-		if (channel != null){
+		
+		if (channel != null) {
 			if (index < channel.getDestinationConnectors().size())
 				destinationName = channel.getDestinationConnectors().get(index).getName();
 		}
+		
 		return destinationName;
 	}
+
 	public List<Channel> getChannel(Channel channel) throws ControllerException {
 		logger.debug("getting channel");
 
@@ -193,9 +201,11 @@ public class ChannelController {
 			throw new ControllerException(e);
 		}
 	}
+
 	public static HashMap<String, Channel> getChannelCache() {
 		return channelCache;
 	}
+
 	public static void setChannelCache(HashMap<String, Channel> channelCache) {
 		ChannelController.channelCache = channelCache;
 	}
