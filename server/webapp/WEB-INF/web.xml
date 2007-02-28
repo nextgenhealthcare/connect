@@ -54,7 +54,7 @@
 		<load-on-startup>1</load-on-startup>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>Alert</servlet-name>
+		<servlet-name>Alerts</servlet-name>
 		<url-pattern>/alerts</url-pattern>
 	</servlet-mapping>
 
