@@ -75,6 +75,8 @@ import com.webreach.mirth.client.ui.connectors.SFTPReader;
 import com.webreach.mirth.client.ui.connectors.SFTPWriter;
 import com.webreach.mirth.client.ui.connectors.SOAPListener;
 import com.webreach.mirth.client.ui.connectors.SOAPSender;
+import com.webreach.mirth.client.ui.connectors.TCPListener;
+import com.webreach.mirth.client.ui.connectors.TCPSender;
 import com.webreach.mirth.client.ui.editors.filter.FilterPane;
 import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
 import com.webreach.mirth.model.Channel;
@@ -148,6 +150,7 @@ public class ChannelSetup extends javax.swing.JPanel
             parent.sourceConnectors.add(new JMSReader());
             parent.sourceConnectors.add(new SOAPListener());
             parent.sourceConnectors.add(new ChannelReader());
+            parent.sourceConnectors.add(new TCPListener());
         }
         if(parent.destinationConnectors.size() == 0)
         {
@@ -162,6 +165,7 @@ public class ChannelSetup extends javax.swing.JPanel
             parent.destinationConnectors.add(new JMSWriter());
             parent.destinationConnectors.add(new SOAPSender());
             parent.destinationConnectors.add(new ChannelWriter());
+            parent.destinationConnectors.add(new TCPSender());
         }
         
         initComponents();
