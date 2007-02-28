@@ -38,7 +38,7 @@ public class AlertControllerTest extends TestCase {
 			sampleAlert.setTemplate("template");
 
 			for (int j = 0; j < 10; j++) {
-				sampleAlert.getChannels().add(String.valueOf(j));
+				sampleAlert.getChannels().add("channel" + String.valueOf(j));
 				sampleAlert.getEmails().add("test" + j + "@test.com");
 			}
 			
@@ -56,10 +56,20 @@ public class AlertControllerTest extends TestCase {
 		for (Iterator iter = sampleAlertList.iterator(); iter.hasNext();) {
 			Alert sampleAlert = (Alert) iter.next();
 			List<Alert> testAlertList = alertController.getAlert(sampleAlert);
-			
-			System.out.println(testAlertList);
+
+			Assert.assertFalse(testAlertList.isEmpty());
+		}
+	}
+
+	public void testGetAlertByChannelId() throws ControllerException {
+		insertSampleAlerts();
+		
+		for (Iterator iter = sampleAlertList.iterator(); iter.hasNext();) {
+			Alert sampleAlert = (Alert) iter.next();
+			List<Alert> testAlertList = alertController.getAlertByChannelId("channel0");
 			
 			Assert.assertFalse(testAlertList.isEmpty());
+			Assert.assertEquals(10, testAlertList.size());			
 		}
 	}
 
@@ -89,5 +99,4 @@ public class AlertControllerTest extends TestCase {
 			alertController.updateAlert(sampleAlert);
 		}
 	}
-
 }

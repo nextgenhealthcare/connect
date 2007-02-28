@@ -30,11 +30,14 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
 import com.ibatis.sqlmap.client.SqlMapClient;
 import com.webreach.mirth.model.Alert;
+import com.webreach.mirth.server.util.SMTPConnection;
+import com.webreach.mirth.server.util.SMTPConnectionFactory;
 import com.webreach.mirth.server.util.SqlConfig;
 
 public class AlertController {
@@ -62,6 +65,29 @@ public class AlertController {
 			throw new ControllerException(e);
 		}
 	}
+	
+	public List<Alert> getAlertByChannelId(String channelId) throws ControllerException {
+		logger.debug("getting alert by channel id: " + channelId);
+
+		try {
+			List<Alert> alerts = sqlMap.queryForList("getAlertByChannelId", channelId);
+
+			for (Iterator iter = alerts.iterator(); iter.hasNext();) {
+				Alert currentAlert = (Alert) iter.next();
+
+				List<String> channelIds = sqlMap.queryForList("getChannelIdsByAlertId", currentAlert.getId());
+				currentAlert.setChannels(channelIds);
+
+				List<String> emails = sqlMap.queryForList("getEmailsByAlertId", currentAlert.getId());
+				currentAlert.setEmails(emails);
+			}
+
+			return alerts;
+		} catch (SQLException e) {
+			throw new ControllerException(e);
+		}
+	}
+	
 
 	public void updateAlert(Alert alert) throws ControllerException {
 		try {
@@ -74,9 +100,6 @@ public class AlertController {
 
 					// insert the alert and its properties
 					logger.debug("adding alert: " + alert);
-					
-					System.out.println(alert.getId() + " " + alert.getName());
-					
 					sqlMap.insert("insertAlert", alert);
 					
 					// insert the channel ID list
@@ -89,7 +112,6 @@ public class AlertController {
 						Map params = new HashMap();
 						params.put("alertId", alert.getId());
 						params.put("channelId", channelId);
-						System.out.println(params);
 						sqlMap.insert("insertChannelAlert", params);
 					}
 
@@ -103,7 +125,6 @@ public class AlertController {
 						Map params = new HashMap();
 						params.put("alertId", alert.getId());
 						params.put("email", email);
-						System.out.println(params);
 						sqlMap.insert("insertAlertEmail", params);
 					}
 
@@ -113,8 +134,8 @@ public class AlertController {
 				}
 			} else {
 				logger.debug("updating alert: " + alert);
-//				removeAlert(alert);
-//				updateAlert(alert);
+				removeAlert(alert);
+				updateAlert(alert);
 			}
 		} catch (SQLException e) {
 			throw new ControllerException(e);
@@ -129,5 +150,47 @@ public class AlertController {
 		} catch (SQLException e) {
 			throw new ControllerException(e);
 		}
+	}
+	
+	public void sendAlerts(String channelId, String message) throws ControllerException {
+		List<Alert> alerts = getAlertByChannelId(channelId);
+		
+		if (!alerts.isEmpty()) {
+			for (Iterator iter = alerts.iterator(); iter.hasNext();) {
+				Alert alert = (Alert) iter.next();
+				
+				if (isAlertCondition(alert.getExpression(), message)) {
+					sentAlertEmails(alert.getTemplate(), alert.getEmails());
+				}
+			}
+		}
+	}
+	
+	private boolean isAlertCondition(String expression, String message) {
+		// TODO: is this accurate?
+		return message.contains(expression);
+	}
+	
+	private void sentAlertEmails(String template, List<String> emails) throws ControllerException {
+		try {
+			Properties properties = (new ConfigurationController()).getServerProperties();
+			String fromAddress = properties.getProperty("smtp.from");
+			String toAddressList = generateEmailList(emails);
+			SMTPConnection connection = SMTPConnectionFactory.createSMTPConnection();
+			connection.send(toAddressList, null, fromAddress, "Mirth Alert", template);
+		} catch (Exception e) {
+			throw new ControllerException(e);
+		}
+	}
+	
+	private String generateEmailList(List<String> emails) {
+		StringBuilder emailList = new StringBuilder();
+
+		for (Iterator iter = emails.iterator(); iter.hasNext();) {
+			String email = (String) iter.next();
+			emailList.append(email + ";");
+		}
+		
+		return emailList.toString();
 	}
 }

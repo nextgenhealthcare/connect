@@ -22,10 +22,8 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 	</resultMap>
 	
 	<select id="getAlert" parameterClass="com.webreach.mirth.model.Alert" resultMap="get-alert-result">
-		SELECT
-			A.ID, A.NAME, A.IS_ENABLED, A.EXPRESSION, A.TEMPLATE
-		FROM
-			ALERT A
+		SELECT A.ID, A.NAME, A.IS_ENABLED, A.EXPRESSION, A.TEMPLATE
+		FROM ALERT A
 		<dynamic prepend="WHERE">
 			<isNotNull prepend="AND" property="id">
 				A.ID = #id#
@@ -33,15 +31,10 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		</dynamic>
 	</select>
 
-	<select id="getAlertByChannelId" resultMap="get-alert-result">
-		SELECT
-			A.ID, A.NAME, A.IS_ENABLED, A.EXPRESSION, A.TEMPLATE
-		FROM
-			ALERT A, CHANNEL_ALERT CA
-		WHERE
-			A.ID = CA.ALERT_ID AND
-			A.ID = AE.ALERT_ID AND
-			CA.CHANNEL_ID = $id$
+	<select id="getAlertByChannelId" parameterClass="java.lang.String" resultMap="get-alert-result">
+		SELECT A.ID, A.NAME, A.IS_ENABLED, A.EXPRESSION, A.TEMPLATE
+		FROM ALERT A, CHANNEL_ALERT CA
+		WHERE A.ID = CA.ALERT_ID AND CA.CHANNEL_ID = #id#
 	</select>
 	
 	<select id="getChannelIdsByAlertId" parameterClass="java.lang.String" resultClass="java.lang.String">
