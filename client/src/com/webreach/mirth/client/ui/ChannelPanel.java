@@ -53,8 +53,7 @@ public class ChannelPanel extends javax.swing.JPanel
             }
             public void mouseClicked(java.awt.event.MouseEvent evt)
             {
-                parent.setVisibleTasks(parent.channelTasks, parent.channelPopupMenu, 5, -1, false);
-                channelTable.deselectRows();
+                deselectRows();
             }
         });
         
@@ -189,7 +188,7 @@ public class ChannelPanel extends javax.swing.JPanel
                 channelTable.setRowSelectionInterval(row, row);
             }
             else
-                channelTable.deselectRows();
+                deselectRows();
             parent.channelPopupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
         }
     }
@@ -199,7 +198,7 @@ public class ChannelPanel extends javax.swing.JPanel
     {
         int row = channelTable.getSelectedRow();
         
-        if(row >= 0 && lastRow < channelTable.getRowCount())
+        if(row >= 0 && row < channelTable.getRowCount() && lastRow != row)
         {
             parent.setVisibleTasks(parent.channelTasks, parent.channelPopupMenu, 5, -1, true);
 
