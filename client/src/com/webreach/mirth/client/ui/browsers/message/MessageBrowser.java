@@ -1081,6 +1081,7 @@ public class MessageBrowser extends javax.swing.JPanel
             messageObjectFilter.setSource(messageSourceField.getText());
         if (!messageTypeField.getText().equals(""))
             messageObjectFilter.setType(messageTypeField.getText());
+        
         if (!((String)statusComboBox.getSelectedItem()).equalsIgnoreCase("ALL"))
         {
             for (int i = 0; i < MessageObject.Status.values().length; i++)
@@ -1098,7 +1099,6 @@ public class MessageBrowser extends javax.swing.JPanel
                     messageObjectFilter.setProtocol(MessageObject.Protocol.values()[i]);
             }
         }
-        
         
         if (mirthDatePicker1.getDate() != null)
         {

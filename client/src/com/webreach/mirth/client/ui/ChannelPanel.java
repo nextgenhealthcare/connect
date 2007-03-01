@@ -53,6 +53,7 @@ public class ChannelPanel extends javax.swing.JPanel
             }
             public void mouseClicked(java.awt.event.MouseEvent evt)
             {
+                parent.setVisibleTasks(parent.channelTasks, parent.channelPopupMenu, 5, -1, false);
                 channelTable.deselectRows();
             }
         });

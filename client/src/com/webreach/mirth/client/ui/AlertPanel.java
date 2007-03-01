@@ -26,6 +26,8 @@
 package com.webreach.mirth.client.ui;
 
 import com.webreach.mirth.client.core.ClientException;
+import com.webreach.mirth.client.ui.components.MirthCheckBoxCellEditor;
+import com.webreach.mirth.client.ui.components.MirthCheckBoxCellRenderer;
 import com.webreach.mirth.model.Channel;
 import java.awt.Point;
 import java.awt.event.KeyEvent;
@@ -33,19 +35,16 @@ import java.awt.event.KeyListener;
 import java.util.prefs.Preferences;
 
 import javax.swing.ImageIcon;
-import javax.swing.JTable;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.TableCellRenderer;
 
 import org.jdesktop.swingx.decorator.AlternateRowHighlighter;
 import org.jdesktop.swingx.decorator.HighlighterPipeline;
 
 import com.webreach.mirth.client.ui.components.MirthTable;
 import com.webreach.mirth.model.Alert;
-import java.awt.Component;
-import javax.swing.JCheckBox;
+import java.util.ArrayList;
+import java.util.List;
 
 /** The channel editor panel. Majority of the client application */
 public class AlertPanel extends javax.swing.JPanel
@@ -269,44 +268,19 @@ public class AlertPanel extends javax.swing.JPanel
     {
         updateApplyToChannelsTable(null);
 
-        applyToChannelsTable.getColumnModel().getColumn(applyToChannelsTable.getColumnNumber(APPLY_STATUS_COLUMN_NAME)).setCellRenderer(new DefaultTableCellRenderer()
-        {
-            // the method gives the component  like whome the cell must be rendered
-            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean isFocused, int row, int col)
-            {
-                this.setHorizontalAlignment(CENTER);
-                if (isSelected)
-                {
-                    setForeground(applyToChannelsTable.getSelectionForeground());
-                    setBackground(applyToChannelsTable.getSelectionBackground());
-                }
-                else
-                {
-                    setForeground(applyToChannelsTable.getForeground());
-                    setBackground(applyToChannelsTable.getBackground());
-                }
-        
-                boolean marked = Boolean.valueOf( value.toString() ).booleanValue();
-                JCheckBox rendererComponent = new JCheckBox();
-                if (marked)
-                {
-                    rendererComponent.setSelected(true);
-                }
-                else
-                {
-                    rendererComponent.setSelected(false);
-                }
-                return rendererComponent;
-            }
-        });
+        applyToChannelsTable.getColumnModel().getColumn(applyToChannelsTable.getColumnNumber(APPLY_STATUS_COLUMN_NAME)).setCellRenderer(new MirthCheckBoxCellRenderer());
+        applyToChannelsTable.getColumnModel().getColumn(applyToChannelsTable.getColumnNumber(APPLY_STATUS_COLUMN_NAME)).setCellEditor(new MirthCheckBoxCellEditor());
         
         applyToChannelsTable.setDragEnabled(false);
-        applyToChannelsTable.setSelectionMode(0);
-        applyToChannelsTable.setRowSelectionAllowed(true);
+        applyToChannelsTable.setRowSelectionAllowed(false);
         applyToChannelsTable.setRowHeight(UIConstants.ROW_HEIGHT);
         applyToChannelsTable.setFocusable(false); 
-        applyToChannelsTable.setSortable(true);
         applyToChannelsTable.setOpaque(true);
+        applyToChannelsTable.getTableHeader().setReorderingAllowed(false);
+        applyToChannelsTable.setSortable(false);
+        
+        applyToChannelsTable.getColumnExt(APPLY_STATUS_COLUMN_NAME).setMaxWidth(50);
+        applyToChannelsTable.getColumnExt(APPLY_STATUS_COLUMN_NAME).setMinWidth(50);
         
         if (Preferences.systemNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
         {
@@ -419,7 +393,23 @@ public class AlertPanel extends javax.swing.JPanel
     {
         int alertIndex = getAlertIndex(lastRow);
         Alert current = parent.alerts.get(alertIndex);
+        current.setChannels(getChannels());
         return false;
+    }
+    
+    public List<String> getChannels()
+    {
+        ArrayList<String> channelList = new ArrayList<String>();
+        
+        for(int i = 0; i < applyToChannelsTable.getModel().getRowCount(); i++)
+        {
+            System.out.println(applyToChannelsTable.getModel().getValueAt(i,1));
+            //if(Boolean.valueOf((String)applyToChannelsTable.getModel().getValueAt(i,1)).booleanValue())
+            //{
+            //    channelList.add((String)applyToChannelsTable.getModel().getValueAt(i,0));
+            //}
+        }
+        return channelList;
     }
         
     /** Get the currently selected alert table index */

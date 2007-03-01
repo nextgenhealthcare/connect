@@ -1804,7 +1804,7 @@ public class Frame extends JXFrame
         {
             public Void doInBackground()
             {
-                doRefreshChannels();
+                retrieveChannels();
                 setBold(viewPane, 4);
                 setPanelName("Alerts");
                 setCurrentContentPage(alertPanel);
@@ -1997,9 +1997,31 @@ public class Frame extends JXFrame
     {
         String channelId = null;
         
-        if(currentContentPage == channelPanel && channelPanel.getSelectedChannel() != null)
+        if(channelPanel.getSelectedChannel() != null)
             channelId = channelPanel.getSelectedChannel().getId();
         
+        retrieveChannels();
+        
+        channelPanel.updateChannelTable();
+
+        if(channels.size() > 0)
+        {
+            setVisibleTasks(channelTasks, channelPopupMenu, 1, 1, true);
+            setVisibleTasks(channelTasks, channelPopupMenu, 4, 4, true);
+        }
+        else
+        {
+            setVisibleTasks(channelTasks, channelPopupMenu, 1, 1, false);
+            setVisibleTasks(channelTasks, channelPopupMenu, 4, 4, false);
+        }
+        
+        // as long as the channel was not deleted
+        if (channels.containsKey(channelId))
+            channelPanel.setSelectedChannel(channelId);
+    }
+    
+    public void retrieveChannels()
+    {
         try
         {
             List<ChannelSummary> changedChannels = mirthClient.getChannelSummary(getChannelHeaders());
@@ -2038,24 +2060,6 @@ public class Frame extends JXFrame
         {
             alertException(e.getStackTrace(), e.getMessage());
         }
-        
-        // as long as the channel was not deleted
-         if(currentContentPage == channelPanel && channels.containsKey(channelId))
-         {
-            channelPanel.updateChannelTable();
-            
-            if(channels.size() > 0)
-            {
-                setVisibleTasks(channelTasks, channelPopupMenu, 1, 1, true);
-                setVisibleTasks(channelTasks, channelPopupMenu, 4, 4, true);
-            }
-            else
-            {
-                setVisibleTasks(channelTasks, channelPopupMenu, 1, 1, false);
-                setVisibleTasks(channelTasks, channelPopupMenu, 4, 4, false);
-            }
-            channelPanel.setSelectedChannel(channelId);
-         }
     }
     
     public Map<String, Integer> getChannelHeaders()
