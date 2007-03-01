@@ -26,6 +26,12 @@
 
 package com.webreach.mirth.client.ui.connectors;
 
+import com.webreach.mirth.client.ui.Frame;
+import com.webreach.mirth.client.ui.PlatformUI;
+import com.webreach.mirth.client.ui.editors.MirthEditorPane;
+import com.webreach.mirth.model.Step;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Properties;
 
 /** Used to extend from for all of the Connectors.
@@ -35,10 +41,13 @@ public class ConnectorClass extends javax.swing.JPanel
 {
     String name;
     Properties properties = new Properties();    
+    Frame parent;
+    Step responseStep;
     
     /** Creates new form ConnectorClass */
     public ConnectorClass()
     {
+        this.parent = PlatformUI.MIRTH_FRAME;
         initComponents();
     }
     
@@ -74,6 +83,32 @@ public class ConnectorClass extends javax.swing.JPanel
     public boolean checkProperties(Properties props)
     {
         return true;
+    }
+    
+    public void makeResponseStep()
+    {
+        responseStep = new Step();
+        HashMap<String,String> data = new HashMap<String,String>();
+        data.put( "Script", "var response;\n\n// YOUR CUSTOM RESPONSE CODE GOES HERE\n\nlocalMap.put('ack_response', response);");
+
+        responseStep.setName("Set ACK Response");
+        responseStep.setType(MirthEditorPane.JAVASCRIPT_TYPE);
+        responseStep.setData(data);
+        responseStep.setScript(data.get("Script").toString());
+    }
+    
+    public void setResponseStep()
+    {
+        ArrayList<Step> list = (ArrayList<Step>)parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().getSteps();
+        responseStep.setSequenceNumber(list.size());
+        list.add(responseStep);
+    }
+    
+    public void removeResponseStep()
+    {
+        ArrayList<Step> list = (ArrayList<Step>)parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().getSteps();
+        if(list.contains(responseStep))
+            list.remove(responseStep);
     }
     
     /** This method is called from within the constructor to

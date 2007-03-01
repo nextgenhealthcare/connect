@@ -39,8 +39,6 @@ import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
  */
 public class FTPReader extends ConnectorClass
 {
-    Frame parent;
-
     /** Creates new form FTPReader */
     private final String DATATYPE = "DataType";
     private final String FTP_HOST = "host";
@@ -54,7 +52,6 @@ public class FTPReader extends ConnectorClass
 
     public FTPReader()
     {
-        this.parent = PlatformUI.MIRTH_FRAME;
         name = "FTP Reader";
         initComponents();
         pollingFrequencyField.setDocument(new MirthFieldConstraints(0, false, true));

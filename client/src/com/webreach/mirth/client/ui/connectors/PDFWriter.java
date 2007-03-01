@@ -38,8 +38,6 @@ import com.webreach.mirth.client.ui.UIConstants;
  */
 public class PDFWriter extends ConnectorClass
 {
-    Frame parent;
-
     /** Creates new form PDFWriter */
     private final String DATATYPE = "DataType";
     private final String FILE_DIRECTORY = "host";
@@ -50,7 +48,6 @@ public class PDFWriter extends ConnectorClass
 
     public PDFWriter()
     {
-        this.parent = PlatformUI.MIRTH_FRAME;
         name = "PDF Writer";
         initComponents();
     }

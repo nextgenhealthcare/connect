@@ -39,8 +39,6 @@ import com.webreach.mirth.client.ui.UIConstants;
  */
 public class FTPWriter extends ConnectorClass
 {
-    Frame parent;
-
     /** Creates new form FTPReader */
     private final String DATATYPE = "DataType";
     private final String FTP_URL = "host";
@@ -56,7 +54,6 @@ public class FTPWriter extends ConnectorClass
 
     public FTPWriter()
     {
-        this.parent = PlatformUI.MIRTH_FRAME;
         name = "FTP Writer";
         initComponents();
     }

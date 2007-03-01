@@ -38,7 +38,6 @@ import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
  */
 public class EmailSender extends ConnectorClass
 {
-    Frame parent;
     /** Creates new form EmailSender */
     private final String DATATYPE = "DataType";
     private final String EMAIL_ADDRESS = "hostname";
@@ -51,7 +50,6 @@ public class EmailSender extends ConnectorClass
         
     public EmailSender()
     {
-        this.parent = PlatformUI.MIRTH_FRAME;
         name = "Email Sender";
         initComponents();
         SMTPServerPortField.setDocument(new MirthFieldConstraints(5, false, true));

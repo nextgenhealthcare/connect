@@ -198,7 +198,7 @@ public class ChannelPanel extends javax.swing.JPanel
     {
         int row = channelTable.getSelectedRow();
         
-        if(row >= 0 && row < channelTable.getRowCount() && lastRow != row)
+        if(row >= 0 && row < channelTable.getRowCount())
         {
             parent.setVisibleTasks(parent.channelTasks, parent.channelPopupMenu, 5, -1, true);
 

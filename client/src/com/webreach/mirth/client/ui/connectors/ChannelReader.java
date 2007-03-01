@@ -39,15 +39,12 @@ import com.webreach.mirth.client.ui.PlatformUI;
  */
 public class ChannelReader extends ConnectorClass
 {
-    Frame parent; 
-    
     /** Creates new form ChannelReader */
     private final String DATATYPE = "DataType";
     private HashMap channelList;
     
     public ChannelReader()
     {
-        this.parent = PlatformUI.MIRTH_FRAME;
         name = "Channel Reader";
         initComponents();
     }

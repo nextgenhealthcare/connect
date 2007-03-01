@@ -38,8 +38,6 @@ import com.webreach.mirth.client.ui.UIConstants;
  */
 public class FileWriter extends ConnectorClass
 {
-    Frame parent;
-
     /** Creates new form FileWriter */
     private final String DATATYPE = "DataType";
     private final String FILE_DIRECTORY = "host";
@@ -50,7 +48,6 @@ public class FileWriter extends ConnectorClass
 
     public FileWriter()
     {
-        this.parent = PlatformUI.MIRTH_FRAME;
         name = "File Writer";
         initComponents();
         //ast:encoding activation

@@ -56,7 +56,6 @@ import com.webreach.mirth.model.converters.DocumentSerializer;
  */
 public class DatabaseReader extends ConnectorClass
 {
-    Frame parent;
     /** Creates new form DatabaseWriter */
     private final String DATATYPE = "DataType";
     private final String DATABASE_HOST = "host";
@@ -76,7 +75,6 @@ public class DatabaseReader extends ConnectorClass
     
     public DatabaseReader()
     {
-        this.parent = PlatformUI.MIRTH_FRAME;
         name = "Database Reader";
         
         try

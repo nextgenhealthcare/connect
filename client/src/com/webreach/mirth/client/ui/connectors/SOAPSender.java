@@ -95,8 +95,7 @@ public class SOAPSender extends ConnectorClass
     private final String SOAP_ACTION_URI = "soapActionURI";
     private final String CHANNEL_ID = "replyChannelId";
     private final String CHANNEL_NAME = "channelName";
-    
-    Frame parent;
+
     WSDefinition definition = new WSDefinition();
     ObjectXMLSerializer serializer = new ObjectXMLSerializer();
     private BeanBinder beanBinder;
@@ -105,7 +104,6 @@ public class SOAPSender extends ConnectorClass
     
     public SOAPSender()
     {
-        this.parent = PlatformUI.MIRTH_FRAME;
         name = "SOAP Sender";
         initComponents();
         propertySheetPanel1.setRestoreToggleStates(true);

@@ -40,9 +40,7 @@ import com.webreach.mirth.model.Channel;
  * are described in ConnectorClass.
  */
 public class ChannelWriter extends ConnectorClass
-{
-    Frame parent; 
-    
+{   
     /** Creates new form FTPReader */
     private final String DATATYPE = "DataType";
     private final String CHANNEL_ID = "host";
@@ -52,7 +50,6 @@ public class ChannelWriter extends ConnectorClass
     
     public ChannelWriter()
     {
-        this.parent = PlatformUI.MIRTH_FRAME;
         name = "Channel Writer";
         initComponents();
     }

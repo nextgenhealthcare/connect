@@ -69,6 +69,7 @@ public class TCPListener extends ConnectorClass
         bufferSizeField.setDocument(new MirthFieldConstraints(0, false, true));
         //ast:encoding activation
         parent.setupCharsetEncodingForChannel(charsetEncodingCombobox);
+        makeResponseStep();
     }
 
     public Properties getProperties()
@@ -550,6 +551,7 @@ public class TCPListener extends ConnectorClass
             ackIPLabel.setEnabled(true);
             ackPortLabel.setEnabled(true);
         }
+        setResponseStep();
     }//GEN-LAST:event_sendACKTransformerActionPerformed
 
     private void ackOnNewConnectionNoActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_ackOnNewConnectionNoActionPerformed
@@ -607,6 +609,7 @@ public class TCPListener extends ConnectorClass
             ipDot2.setEnabled(true);
             ackIPLabel.setEnabled(true);
             ackPortLabel.setEnabled(true);
+            removeResponseStep();
         }
     }//GEN-LAST:event_sendACKYesActionPerformed
 
@@ -627,6 +630,7 @@ public class TCPListener extends ConnectorClass
         ackOnNewConnectionNo.setEnabled(false);
         ackOnNewConnectionYes.setEnabled(false);
         ackOnNewConnectionLabel.setEnabled(false);
+        removeResponseStep();
     }//GEN-LAST:event_sendACKNoActionPerformed
 
 

@@ -39,7 +39,6 @@ import com.webreach.mirth.client.ui.UIConstants;
  */
 public class HTTPSListener extends ConnectorClass
 {
-    Frame parent;
     /** Creates new form HTTPSListener */
     private final String DATATYPE = "DataType";
     private final String HTTPS_ADDRESS = "host";
@@ -68,7 +67,6 @@ public class HTTPSListener extends ConnectorClass
 
     public HTTPSListener()
     {
-        this.parent = PlatformUI.MIRTH_FRAME;
         name = "HTTPS Listener";
         initComponents();
     }

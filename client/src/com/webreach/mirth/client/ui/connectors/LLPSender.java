@@ -43,7 +43,6 @@ import com.webreach.mirth.model.Channel;
  */
 public class LLPSender extends ConnectorClass
 {
-    Frame parent;
     /** Creates new form LLPSender */
     private final String DATATYPE = "DataType";
     private final String LLP_PROTOCOL_NAME = "tcpProtocolClassName";
@@ -69,7 +68,6 @@ public class LLPSender extends ConnectorClass
     
     public LLPSender()
     {
-        this.parent = PlatformUI.MIRTH_FRAME;
         name = "LLP Sender";
         initComponents();
         hostIPAddressField.setDocument(new MirthFieldConstraints(3, false, true));

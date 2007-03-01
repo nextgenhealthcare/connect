@@ -39,8 +39,6 @@ import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
  */
 public class FileReader extends ConnectorClass
 {
-    Frame parent;
-
     /** Creates new form FileWriter */
     private final String DATATYPE = "DataType";
     private final String FILE_DIRECTORY = "host";
@@ -60,7 +58,6 @@ public class FileReader extends ConnectorClass
     
     public FileReader()
     {
-        this.parent = PlatformUI.MIRTH_FRAME;
         name = "File Reader";
         initComponents();
         pollingFreq.setDocument(new MirthFieldConstraints(0, false, true));

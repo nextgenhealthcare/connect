@@ -38,8 +38,6 @@ import com.webreach.mirth.client.ui.UIConstants;
  */
 public class SOAPListener extends ConnectorClass
 {
-    Frame parent;
-
     /**
      * Creates new form SOAPListener
      */
@@ -53,11 +51,11 @@ public class SOAPListener extends ConnectorClass
 
     public SOAPListener()
     {
-        this.parent = PlatformUI.MIRTH_FRAME;
         name = "SOAP Listener";
         initComponents();
         wsdlURL.setEditable(false);
         method.setEditable(false);
+        makeResponseStep();
     }
 
     public Properties getProperties()
@@ -190,12 +188,26 @@ public class SOAPListener extends ConnectorClass
         buttonGroup1.add(responseFromTransformerYes);
         responseFromTransformerYes.setText("Yes");
         responseFromTransformerYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        responseFromTransformerYes.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                responseFromTransformerYesActionPerformed(evt);
+            }
+        });
 
         responseFromTransformerNo.setBackground(new java.awt.Color(255, 255, 255));
         responseFromTransformerNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         buttonGroup1.add(responseFromTransformerNo);
         responseFromTransformerNo.setText("No");
         responseFromTransformerNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        responseFromTransformerNo.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                responseFromTransformerNoActionPerformed(evt);
+            }
+        });
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
@@ -253,6 +265,16 @@ public class SOAPListener extends ConnectorClass
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void responseFromTransformerYesActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_responseFromTransformerYesActionPerformed
+    {//GEN-HEADEREND:event_responseFromTransformerYesActionPerformed
+        setResponseStep();
+    }//GEN-LAST:event_responseFromTransformerYesActionPerformed
+
+    private void responseFromTransformerNoActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_responseFromTransformerNoActionPerformed
+    {//GEN-HEADEREND:event_responseFromTransformerNoActionPerformed
+        removeResponseStep();
+    }//GEN-LAST:event_responseFromTransformerNoActionPerformed
 
     private void serviceNameKeyReleased(java.awt.event.KeyEvent evt)//GEN-FIRST:event_serviceNameKeyReleased
     {//GEN-HEADEREND:event_serviceNameKeyReleased

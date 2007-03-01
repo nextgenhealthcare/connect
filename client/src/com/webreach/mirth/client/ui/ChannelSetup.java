@@ -1632,6 +1632,8 @@ public class ChannelSetup extends javax.swing.JPanel
             }
         }
         
+        sourceConnectorClass.removeResponseStep();
+        
         // Get the selected source connector and set it.
         for (int i = 0; i < parent.sourceConnectors.size(); i++)
         {

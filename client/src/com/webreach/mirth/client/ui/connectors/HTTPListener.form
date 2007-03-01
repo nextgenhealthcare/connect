@@ -29,16 +29,12 @@
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="1" attributes="0">
+                  <Component id="jLabel38" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel2" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel1" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel3" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel4" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel5" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel34" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel35" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel37" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel36" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel38" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
@@ -49,11 +45,6 @@
                   </Group>
                   <Component id="receiveTimeoutField" min="-2" pref="75" max="-2" attributes="0"/>
                   <Component id="listenerPortField" min="-2" pref="50" max="-2" attributes="0"/>
-                  <Component id="sendACKCombobox" min="-2" max="-2" attributes="0"/>
-                  <Component id="startOfMessageCharacterField" min="-2" pref="40" max="-2" attributes="0"/>
-                  <Component id="endOfMessageCharacterField" min="-2" pref="40" max="-2" attributes="0"/>
-                  <Component id="fieldSeparatorField" min="-2" pref="75" max="-2" attributes="0"/>
-                  <Component id="recordSeparatorField" min="-2" pref="75" max="-2" attributes="0"/>
                   <Component id="bufferSizeField" min="-2" pref="75" max="-2" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="listenerIPAddressField" min="-2" pref="31" max="-2" attributes="0"/>
@@ -69,6 +60,11 @@
                       <Component id="jLabel8" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="listenerIPAddressField3" min="-2" pref="31" max="-2" attributes="0"/>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="responseFromTransformerYes" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="responseFromTransformerNo" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
               <EmptySpace max="32767" attributes="0"/>
@@ -113,29 +109,11 @@
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="startOfMessageCharacterField" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel34" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="endOfMessageCharacterField" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel35" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="fieldSeparatorField" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel37" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="recordSeparatorField" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel36" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="sendACKCombobox" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel38" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="responseFromTransformerYes" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="responseFromTransformerNo" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
+              <EmptySpace max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -166,42 +144,6 @@
         <Property name="text" type="java.lang.String" value="Keep Connection Open:"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="jLabel34">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Start of Message Character:"/>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JLabel" name="jLabel35">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="End of Message Character:"/>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JLabel" name="jLabel36">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Record Sparator:"/>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JLabel" name="jLabel37">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Field Separator:"/>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JLabel" name="jLabel38">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Send ACK:"/>
-      </Properties>
-    </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthComboBox" name="sendACKCombobox">
-      <Properties>
-        <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-          <StringArray count="3">
-            <StringItem index="0" value="Auto"/>
-            <StringItem index="1" value="Yes"/>
-            <StringItem index="2" value="No"/>
-          </StringArray>
-        </Property>
-      </Properties>
-    </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="bufferSizeField">
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="receiveTimeoutField">
@@ -209,14 +151,6 @@
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="listenerIPAddressField">
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="listenerPortField">
-    </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="recordSeparatorField">
-    </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="startOfMessageCharacterField">
-    </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="endOfMessageCharacterField">
-    </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="fieldSeparatorField">
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="keepConnectionOpenYesRadio">
       <Properties>
@@ -284,6 +218,49 @@
           <Font name="Tahoma" size="11" style="1"/>
         </Property>
         <Property name="text" type="java.lang.String" value="."/>
+      </Properties>
+    </Component>
+    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="responseFromTransformerNo">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
+        <Property name="text" type="java.lang.String" value="No"/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="responseFromTransformerNoActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="responseFromTransformerYes">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
+        <Property name="text" type="java.lang.String" value="Yes"/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="responseFromTransformerYesActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JLabel" name="jLabel38">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Response from Transformer"/>
       </Properties>
     </Component>
   </SubComponents>

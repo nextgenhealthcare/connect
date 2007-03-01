@@ -646,11 +646,15 @@ public class AlertPanel extends javax.swing.JPanel
         {
             RefreshTableModel model = (RefreshTableModel)emailsTable.getModel();
             model.refreshDataVector(tableData);
+            if(alert.getEmails().size() == 0)
+            {
+                deselectRows();
+            }
         }
         else
         {
             emailsTable = new MirthTable();
-            emailsTable.setModel(new javax.swing.table.DefaultTableModel(
+            emailsTable.setModel(new RefreshTableModel(
             tableData, new String[] { EMAIL_COLUMN_NAME })
             {
                 boolean[] canEdit = new boolean[] { true };

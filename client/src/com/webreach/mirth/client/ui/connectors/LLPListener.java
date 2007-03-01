@@ -40,7 +40,6 @@ import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
  */
 public class LLPListener extends ConnectorClass
 {
-    Frame parent;
     /** Creates new form LLPListener */
     private final String DATATYPE = "DataType";
     private final String LLP_PROTOCOL_NAME = "tcpProtocolClassName";
@@ -71,7 +70,6 @@ public class LLPListener extends ConnectorClass
     
     public LLPListener()
     {
-        this.parent = PlatformUI.MIRTH_FRAME;
         name = "LLP Listener";
         initComponents();
         listenerIPAddressField.setDocument(new MirthFieldConstraints(3, false, true));
@@ -80,8 +78,8 @@ public class LLPListener extends ConnectorClass
         listenerPortField.setDocument(new MirthFieldConstraints(5, false, true));
         receiveTimeoutField.setDocument(new MirthFieldConstraints(0, false, true));
         bufferSizeField.setDocument(new MirthFieldConstraints(0, false, true));
-        //ast:encoding activation
         parent.setupCharsetEncodingForChannel(charsetEncodingCombobox);
+        makeResponseStep();
     }
 
     public Properties getProperties()
@@ -801,6 +799,7 @@ public class LLPListener extends ConnectorClass
             ackIPLabel.setEnabled(true);
             ackPortLabel.setEnabled(true);
         }
+        setResponseStep();
     }//GEN-LAST:event_sendACKTransformerActionPerformed
 
     private void ackOnNewConnectionNoActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_ackOnNewConnectionNoActionPerformed
@@ -876,6 +875,8 @@ public class LLPListener extends ConnectorClass
             ackIPLabel.setEnabled(true);
             ackPortLabel.setEnabled(true);
         }
+        
+        removeResponseStep();
     }//GEN-LAST:event_sendACKYesActionPerformed
 
     private void sendACKNoActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_sendACKNoActionPerformed
@@ -912,6 +913,8 @@ public class LLPListener extends ConnectorClass
         mshAckAcceptNo.setEnabled(false);
         mshAckAcceptYes.setEnabled(false);
         mshAckAcceptLabel.setEnabled(false);
+        
+        removeResponseStep();
     }//GEN-LAST:event_sendACKNoActionPerformed
 
 

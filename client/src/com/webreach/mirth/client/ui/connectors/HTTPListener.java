@@ -39,7 +39,6 @@ import com.webreach.mirth.client.ui.UIConstants;
  */
 public class HTTPListener extends ConnectorClass
 {
-    Frame parent;
     /** Creates new form HTTPListener */
     private final String DATATYPE = "DataType";
     private final String HTTP_ADDRESS = "host";
@@ -47,17 +46,13 @@ public class HTTPListener extends ConnectorClass
     private final String HTTP_RECEIVE_TIMEOUT = "receiveTimeout";
     private final String HTTP_BUFFER_SIZE = "bufferSize";
     private final String HTTP_KEEP_CONNECTION_OPEN = "keepSendSocketOpen";
-    private final String HTTP_START_OF_MESSAGE_CHARACTER = "messageStart";
-    private final String HTTP_END_OF_MESSAGE_CHARACTER = "messageEnd";
-    private final String HTTP_FIELD_SEPARATOR = "fieldSeparator";
-    private final String HTTP_RECORD_SEPARATOR = "recordSeparator";
-    private final String HTTP_SEND_ACK = "sendACK";
+    private final String HTTP_RESPONSE_FROM_TRANSFORMER = "responseFromTransformer";
 
     public HTTPListener()
     {
-        this.parent = PlatformUI.MIRTH_FRAME;
         name = "HTTP Listener";
         initComponents();
+        makeResponseStep();
     }
 
     public Properties getProperties()
@@ -75,11 +70,11 @@ public class HTTPListener extends ConnectorClass
         else
             properties.put(HTTP_KEEP_CONNECTION_OPEN, UIConstants.NO_OPTION);
 
-        properties.put(HTTP_START_OF_MESSAGE_CHARACTER, startOfMessageCharacterField.getText());
-        properties.put(HTTP_END_OF_MESSAGE_CHARACTER, endOfMessageCharacterField.getText());
-        properties.put(HTTP_FIELD_SEPARATOR, fieldSeparatorField.getText());
-        properties.put(HTTP_RECORD_SEPARATOR, recordSeparatorField.getText());
-        properties.put(HTTP_SEND_ACK, sendACKCombobox.getSelectedItem());
+        if(responseFromTransformerYes.isSelected())
+            properties.put(HTTP_RESPONSE_FROM_TRANSFORMER, UIConstants.YES_OPTION);
+        else
+            properties.put(HTTP_RESPONSE_FROM_TRANSFORMER, UIConstants.NO_OPTION);    
+        
         return properties;
     }
 
@@ -113,11 +108,10 @@ public class HTTPListener extends ConnectorClass
         else
             keepConnectionOpenNoRadio.setSelected(true);
 
-        startOfMessageCharacterField.setText((String)props.get(HTTP_START_OF_MESSAGE_CHARACTER));
-        endOfMessageCharacterField.setText((String)props.get(HTTP_END_OF_MESSAGE_CHARACTER));
-        fieldSeparatorField.setText((String)props.get(HTTP_FIELD_SEPARATOR));
-        recordSeparatorField.setText((String)props.get(HTTP_RECORD_SEPARATOR));
-        sendACKCombobox.setSelectedItem(props.get(HTTP_SEND_ACK));
+        if(((String)props.get(HTTP_RESPONSE_FROM_TRANSFORMER)).equals(UIConstants.YES_OPTION))
+            responseFromTransformerYes.setSelected(true);
+        else
+            responseFromTransformerNo.setSelected(true);
     }
 
     public Properties getDefaults()
@@ -129,20 +123,14 @@ public class HTTPListener extends ConnectorClass
         properties.put(HTTP_RECEIVE_TIMEOUT, "5000");
         properties.put(HTTP_BUFFER_SIZE, "65536");
         properties.put(HTTP_KEEP_CONNECTION_OPEN, UIConstants.NO_OPTION);
-        properties.put(HTTP_START_OF_MESSAGE_CHARACTER, "0x0B");
-        properties.put(HTTP_END_OF_MESSAGE_CHARACTER, "0x1C");
-        properties.put(HTTP_FIELD_SEPARATOR, "0x7C");
-        properties.put(HTTP_RECORD_SEPARATOR, "0x0D");
-        properties.put(HTTP_SEND_ACK, sendACKCombobox.getItemAt(0));
+        properties.put(HTTP_RESPONSE_FROM_TRANSFORMER, UIConstants.NO_OPTION);  
         return properties;
     }
     
     public boolean checkProperties(Properties props)
     {
          if(((String)props.get(HTTP_ADDRESS)).length() > 0 && ((String)props.get(HTTP_PORT)).length() > 0 && 
-        ((String)props.get(HTTP_RECEIVE_TIMEOUT)).length() > 0 && ((String)props.get(HTTP_BUFFER_SIZE)).length() > 0 &&
-        ((String)props.get(HTTP_START_OF_MESSAGE_CHARACTER)).length() > 0 && ((String)props.get(HTTP_END_OF_MESSAGE_CHARACTER)).length() > 0 &&
-         ((String)props.get(HTTP_FIELD_SEPARATOR)).length() > 0 && ((String)props.get(HTTP_RECORD_SEPARATOR)).length() > 0)
+        ((String)props.get(HTTP_RECEIVE_TIMEOUT)).length() > 0 && ((String)props.get(HTTP_BUFFER_SIZE)).length() > 0)
             return true;
         return false;       
     }
@@ -161,20 +149,10 @@ public class HTTPListener extends ConnectorClass
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
-        jLabel34 = new javax.swing.JLabel();
-        jLabel35 = new javax.swing.JLabel();
-        jLabel36 = new javax.swing.JLabel();
-        jLabel37 = new javax.swing.JLabel();
-        jLabel38 = new javax.swing.JLabel();
-        sendACKCombobox = new com.webreach.mirth.client.ui.components.MirthComboBox();
         bufferSizeField = new com.webreach.mirth.client.ui.components.MirthTextField();
         receiveTimeoutField = new com.webreach.mirth.client.ui.components.MirthTextField();
         listenerIPAddressField = new com.webreach.mirth.client.ui.components.MirthTextField();
         listenerPortField = new com.webreach.mirth.client.ui.components.MirthTextField();
-        recordSeparatorField = new com.webreach.mirth.client.ui.components.MirthTextField();
-        startOfMessageCharacterField = new com.webreach.mirth.client.ui.components.MirthTextField();
-        endOfMessageCharacterField = new com.webreach.mirth.client.ui.components.MirthTextField();
-        fieldSeparatorField = new com.webreach.mirth.client.ui.components.MirthTextField();
         keepConnectionOpenYesRadio = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         keepConnectionOpenNoRadio = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         listenerIPAddressField1 = new com.webreach.mirth.client.ui.components.MirthTextField();
@@ -183,6 +161,9 @@ public class HTTPListener extends ConnectorClass
         jLabel6 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
+        responseFromTransformerNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        responseFromTransformerYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        jLabel38 = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -195,18 +176,6 @@ public class HTTPListener extends ConnectorClass
         jLabel4.setText("Buffer Size:");
 
         jLabel5.setText("Keep Connection Open:");
-
-        jLabel34.setText("Start of Message Character:");
-
-        jLabel35.setText("End of Message Character:");
-
-        jLabel36.setText("Record Sparator:");
-
-        jLabel37.setText("Field Separator:");
-
-        jLabel38.setText("Send ACK:");
-
-        sendACKCombobox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Auto", "Yes", "No" }));
 
         keepConnectionOpenYesRadio.setBackground(new java.awt.Color(255, 255, 255));
         keepConnectionOpenYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -229,6 +198,32 @@ public class HTTPListener extends ConnectorClass
         jLabel8.setFont(new java.awt.Font("Tahoma", 1, 11));
         jLabel8.setText(".");
 
+        responseFromTransformerNo.setBackground(new java.awt.Color(255, 255, 255));
+        responseFromTransformerNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        responseFromTransformerNo.setText("No");
+        responseFromTransformerNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        responseFromTransformerNo.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                responseFromTransformerNoActionPerformed(evt);
+            }
+        });
+
+        responseFromTransformerYes.setBackground(new java.awt.Color(255, 255, 255));
+        responseFromTransformerYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        responseFromTransformerYes.setText("Yes");
+        responseFromTransformerYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        responseFromTransformerYes.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                responseFromTransformerYesActionPerformed(evt);
+            }
+        });
+
+        jLabel38.setText("Response from Transformer");
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -236,16 +231,12 @@ public class HTTPListener extends ConnectorClass
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(jLabel38)
                     .add(jLabel2)
                     .add(jLabel1)
                     .add(jLabel3)
                     .add(jLabel4)
-                    .add(jLabel5)
-                    .add(jLabel34)
-                    .add(jLabel35)
-                    .add(jLabel37)
-                    .add(jLabel36)
-                    .add(jLabel38))
+                    .add(jLabel5))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
@@ -254,11 +245,6 @@ public class HTTPListener extends ConnectorClass
                         .add(keepConnectionOpenNoRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                     .add(receiveTimeoutField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(listenerPortField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(sendACKCombobox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(startOfMessageCharacterField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 40, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(endOfMessageCharacterField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 40, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(fieldSeparatorField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(recordSeparatorField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(bufferSizeField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(layout.createSequentialGroup()
                         .add(listenerIPAddressField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 31, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -273,7 +259,11 @@ public class HTTPListener extends ConnectorClass
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(jLabel8)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(listenerIPAddressField3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 31, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                        .add(listenerIPAddressField3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 31, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(layout.createSequentialGroup()
+                        .add(responseFromTransformerYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(responseFromTransformerNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -308,39 +298,29 @@ public class HTTPListener extends ConnectorClass
                     .add(jLabel5))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(startOfMessageCharacterField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel34))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(endOfMessageCharacterField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel35))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(fieldSeparatorField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel37))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(recordSeparatorField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel36))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(sendACKCombobox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel38)))
+                    .add(jLabel38)
+                    .add(responseFromTransformerYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(responseFromTransformerNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void responseFromTransformerYesActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_responseFromTransformerYesActionPerformed
+    {//GEN-HEADEREND:event_responseFromTransformerYesActionPerformed
+        setResponseStep();
+    }//GEN-LAST:event_responseFromTransformerYesActionPerformed
+
+    private void responseFromTransformerNoActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_responseFromTransformerNoActionPerformed
+    {//GEN-HEADEREND:event_responseFromTransformerNoActionPerformed
+        removeResponseStep();
+    }//GEN-LAST:event_responseFromTransformerNoActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.webreach.mirth.client.ui.components.MirthTextField bufferSizeField;
-    private com.webreach.mirth.client.ui.components.MirthTextField endOfMessageCharacterField;
-    private com.webreach.mirth.client.ui.components.MirthTextField fieldSeparatorField;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel34;
-    private javax.swing.JLabel jLabel35;
-    private javax.swing.JLabel jLabel36;
-    private javax.swing.JLabel jLabel37;
     private javax.swing.JLabel jLabel38;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
@@ -356,9 +336,8 @@ public class HTTPListener extends ConnectorClass
     private com.webreach.mirth.client.ui.components.MirthTextField listenerIPAddressField3;
     private com.webreach.mirth.client.ui.components.MirthTextField listenerPortField;
     private com.webreach.mirth.client.ui.components.MirthTextField receiveTimeoutField;
-    private com.webreach.mirth.client.ui.components.MirthTextField recordSeparatorField;
-    private com.webreach.mirth.client.ui.components.MirthComboBox sendACKCombobox;
-    private com.webreach.mirth.client.ui.components.MirthTextField startOfMessageCharacterField;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton responseFromTransformerNo;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton responseFromTransformerYes;
     // End of variables declaration//GEN-END:variables
 
 }

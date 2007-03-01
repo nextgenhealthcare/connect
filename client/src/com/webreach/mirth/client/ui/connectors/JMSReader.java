@@ -59,8 +59,6 @@ import com.webreach.mirth.model.converters.ObjectXMLSerializer;
  */
 public class JMSReader extends ConnectorClass
 {
-    Frame parent;
-    
     private final int PROPERTY_COLUMN = 0;
     private final int VALUE_COLUMN = 1;
     
@@ -85,7 +83,6 @@ public class JMSReader extends ConnectorClass
         
     public JMSReader()
     {
-        this.parent = PlatformUI.MIRTH_FRAME;
         name = "JMS Reader";
         initComponents();
         specDropDown.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "1.1", "1.0.2b"}));

@@ -162,6 +162,9 @@
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="responseFromTransformerYesActionPerformed"/>
+      </Events>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="responseFromTransformerNo">
       <Properties>
@@ -181,6 +184,9 @@
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="responseFromTransformerNoActionPerformed"/>
+      </Events>
     </Component>
   </SubComponents>
 </Form>

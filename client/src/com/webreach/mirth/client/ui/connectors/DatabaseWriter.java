@@ -45,7 +45,6 @@ import com.webreach.mirth.model.DriverInfo;
  */
 public class DatabaseWriter extends ConnectorClass
 {
-    Frame parent;
     /** Creates new form DatabaseWriter */
     private final String DATATYPE = "DataType";
     private final String DATABASE_HOST = "host";
@@ -64,7 +63,6 @@ public class DatabaseWriter extends ConnectorClass
     
     public DatabaseWriter()
     {
-        this.parent = PlatformUI.MIRTH_FRAME;
         name = "Database Writer";
         
         try

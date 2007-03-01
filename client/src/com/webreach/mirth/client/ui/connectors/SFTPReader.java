@@ -38,8 +38,6 @@ import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
  */
 public class SFTPReader extends ConnectorClass
 {
-    Frame parent;
-
     /** Creates new form FTPReader */
     private final String DATATYPE = "DataType";
     private final String SFTP_ADDRESS = "host";
@@ -49,7 +47,6 @@ public class SFTPReader extends ConnectorClass
 
     public SFTPReader()
     {
-        this.parent = PlatformUI.MIRTH_FRAME;
         name = "SFTP Reader";
         initComponents();
         pollingFrequencyField.setDocument(new MirthFieldConstraints(0, false, true));
