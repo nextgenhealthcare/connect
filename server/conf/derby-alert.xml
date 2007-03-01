@@ -9,8 +9,8 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		<parameter property="id" />
 		<parameter property="name" />
 		<parameter property="enabled" />
-		<parameter property="expression" />
-		<parameter property="template" />
+		<parameter property="expression" jdbcType="CLOB" />
+		<parameter property="template" jdbcType="CLOB" />
 	</parameterMap>
 
 	<resultMap class="com.webreach.mirth.model.Alert" id="get-alert-result">

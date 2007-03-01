@@ -152,17 +152,21 @@ public class AlertController {
 		}
 	}
 	
-	public void sendAlerts(String channelId, String message) throws ControllerException {
-		List<Alert> alerts = getAlertByChannelId(channelId);
-		
-		if (!alerts.isEmpty()) {
-			for (Iterator iter = alerts.iterator(); iter.hasNext();) {
-				Alert alert = (Alert) iter.next();
-				
-				if (isAlertCondition(alert.getExpression(), message)) {
-					sentAlertEmails(alert.getTemplate(), alert.getEmails());
+	public void sendAlerts(String channelId, String message) {
+		try {
+			List<Alert> alerts = getAlertByChannelId(channelId);
+			
+			if (!alerts.isEmpty()) {
+				for (Iterator iter = alerts.iterator(); iter.hasNext();) {
+					Alert alert = (Alert) iter.next();
+					
+					if (isAlertCondition(alert.getExpression(), message)) {
+						sentAlertEmails(alert.getTemplate(), alert.getEmails());
+					}
 				}
 			}
+		} catch (ControllerException e) {
+			logger.error(e);
 		}
 	}
 	

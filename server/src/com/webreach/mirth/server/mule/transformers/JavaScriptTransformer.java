@@ -26,7 +26,6 @@
 package com.webreach.mirth.server.mule.transformers;
 
 import java.util.Map;
-import java.util.Properties;
 
 import org.apache.log4j.Logger;
 import org.mozilla.javascript.Context;
@@ -40,8 +39,9 @@ import org.mule.umo.transformer.TransformerException;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.Connector.Mode;
 import com.webreach.mirth.model.MessageObject.Protocol;
-import com.webreach.mirth.model.converters.ER7Serializer;
 import com.webreach.mirth.model.converters.IXMLSerializer;
+import com.webreach.mirth.server.Constants;
+import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.ControllerException;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.controllers.ScriptController;
@@ -50,13 +50,13 @@ import com.webreach.mirth.server.mule.adaptors.Adaptor;
 import com.webreach.mirth.server.mule.adaptors.AdaptorFactory;
 import com.webreach.mirth.server.mule.util.CompiledScriptCache;
 import com.webreach.mirth.server.mule.util.GlobalVariableStore;
-import com.webreach.mirth.server.mule.util.VMRegistry;
 import com.webreach.mirth.server.mule.util.VMRouter;
 import com.webreach.mirth.server.util.StackTracePrinter;
 
 public class JavaScriptTransformer extends AbstractTransformer {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private MessageObjectController messageObjectController = new MessageObjectController();
+	private AlertController alertController = new AlertController();
 	private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
 	private ScriptController scriptController = new ScriptController();
 
@@ -251,8 +251,11 @@ public class JavaScriptTransformer extends AbstractTransformer {
 		} catch (Exception e) {
 			logger.error("error ocurred in filter", e);
 			messageObject.setStatus(MessageObject.Status.ERROR);
-			messageObject.setErrors(messageObject.getErrors() != null ? messageObject.getErrors() + '\n' : "" + StackTracePrinter.stackTraceToString(e));
+			messageObject.setErrors(messageObject.getErrors() != null ? messageObject.getErrors() + '\n' : Constants.ERROR_200 + StackTracePrinter.stackTraceToString(e));
 			messageObjectController.updateMessage(messageObject);
+
+			alertController.sendAlerts(channelId, messageObject.getErrors());
+			
 			return false;
 		} finally {
 			Context.exit();
@@ -316,8 +319,11 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			return messageObject;
 		} catch (Exception e) {
 			messageObject.setStatus(MessageObject.Status.ERROR);
-			messageObject.setErrors(messageObject.getErrors() != null ? messageObject.getErrors() + '\n' : "" + StackTracePrinter.stackTraceToString(e));
+			messageObject.setErrors(messageObject.getErrors() != null ? messageObject.getErrors() + '\n' : Constants.ERROR_300 + StackTracePrinter.stackTraceToString(e));
 			messageObjectController.updateMessage(messageObject);
+			
+			alertController.sendAlerts(channelId, messageObject.getErrors());
+			
 			throw new TransformerException(this, e);
 		} finally {
 			Context.exit();
