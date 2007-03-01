@@ -17,12 +17,12 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Component id="variableReferenceScrollPane" alignment="0" pref="262" max="32767" attributes="0"/>
+          <Component id="variableReferenceScrollPane" alignment="0" pref="12" max="32767" attributes="0"/>
       </Group>
     </DimensionLayout>
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Component id="variableReferenceScrollPane" alignment="0" pref="315" max="32767" attributes="0"/>
+          <Component id="variableReferenceScrollPane" alignment="0" pref="12" max="32767" attributes="0"/>
       </Group>
     </DimensionLayout>
   </Layout>
@@ -31,6 +31,9 @@
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+          <Dimension value="[0, 0]"/>
         </Property>
       </Properties>
       <AuxValues>
