@@ -33,9 +33,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
-import org.mule.extras.client.MuleClient;
-import org.mule.impl.MuleMessage;
-import org.mule.umo.UMOException;
 
 import com.ibatis.sqlmap.client.SqlMapClient;
 import com.webreach.mirth.model.Channel;
