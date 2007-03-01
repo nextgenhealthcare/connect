@@ -175,6 +175,7 @@ public class MessageTreeTemplate extends javax.swing.JPanel
         treeScrollPane = new javax.swing.JScrollPane();
         properties = new javax.swing.JButton();
 
+        setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         jLabel1.setText("Data Type:");
 
