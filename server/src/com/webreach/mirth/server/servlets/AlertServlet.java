@@ -27,6 +27,7 @@ package com.webreach.mirth.server.servlets;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -54,6 +55,9 @@ public class AlertServlet extends MirthServlet {
 				} else if (operation.equals("updateAlert")) {
 					Alert alert = (Alert) serializer.fromXML(request.getParameter("alert"));
 					alertController.updateAlert(alert);
+				} else if (operation.equals("updateAlerts")) {
+					List<Alert> alerts = (List<Alert>) serializer.fromXML(request.getParameter("alerts"));
+					alertController.updateAlerts(alerts);
 				} else if (operation.equals("removeAlert")) {
 					Alert alert = (Alert) serializer.fromXML(request.getParameter("alert"));
 					alertController.removeAlert(alert);

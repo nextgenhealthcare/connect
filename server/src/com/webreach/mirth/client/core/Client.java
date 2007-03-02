@@ -238,6 +238,18 @@ public class Client {
 	}
 
 	/**
+	 * Updates a list of alerts.
+	 * 
+	 * @param alert
+	 * @throws ClientException
+	 */
+	public synchronized void updateAlerts(List<Alert> alerts) throws ClientException {
+		logger.debug("updating alerts: " + alerts);
+		NameValuePair[] params = { new NameValuePair("op", "updateAlerts"), new NameValuePair("alert", serializer.toXML(alerts)) };
+		serverConnection.executePostMethod(ALERT_SERVLET, params);
+	}
+
+	/**
 	 * Removes the alert with the specified id.
 	 * 
 	 * @param alertId

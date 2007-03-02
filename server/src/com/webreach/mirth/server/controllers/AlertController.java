@@ -88,6 +88,12 @@ public class AlertController {
 		}
 	}
 	
+	public void updateAlerts(List<Alert> alerts) throws ControllerException {
+		for (Iterator iter = alerts.iterator(); iter.hasNext();) {
+			Alert alert = (Alert) iter.next();
+			updateAlert(alert);
+		}
+	}
 
 	public void updateAlert(Alert alert) throws ControllerException {
 		try {
