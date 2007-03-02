@@ -167,7 +167,7 @@ public class Frame extends JXFrame
     private ArrayList<CharsetEncodingInformation>  avaiableCharsetEncodings=null;
     private List<String> charsetEncodings=null;
     private boolean highlightersSet = false;
-    
+    private boolean isEditingChannel = false;
     public LinkedHashMap<MessageObject.Protocol, String> protocols;
     
     public Frame()
@@ -1897,6 +1897,10 @@ public class Frame extends JXFrame
     
     public void doEditChannel()
     {
+    	if (isEditingChannel)
+    		return;
+    	else
+    		isEditingChannel = true;
         setWorking(true);
         
         SwingWorker worker = new SwingWorker <Void, Void> ()
@@ -1922,6 +1926,7 @@ public class Frame extends JXFrame
                         e.printStackTrace();
                     }
                 setWorking(false);
+                isEditingChannel = false;
             }
         };
         

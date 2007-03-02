@@ -381,7 +381,7 @@ public class MessageBrowser extends javax.swing.JPanel
             {
                 
                 
-                tableData = new Object[messageObjectList.size()][6];
+                tableData = new Object[messageObjectList.size()][7];
                 
                 for (int i=0; i < messageObjectList.size(); i++)
                 {

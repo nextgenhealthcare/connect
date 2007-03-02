@@ -54,6 +54,7 @@ public class TCPListener extends ConnectorClass
     private final String TCP_ACK_NEW_CONNECTION_PORT = "ackPort";
     private final String TCP_RESPONSE_FROM_TRANSFORMER = "responseFromTransformer";
     private final String CONNECTOR_CHARSET_ENCODING = "charsetEncoding";
+
     
     public TCPListener()
     {

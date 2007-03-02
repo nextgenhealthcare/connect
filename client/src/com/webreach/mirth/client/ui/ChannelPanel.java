@@ -214,9 +214,10 @@ public class ChannelPanel extends javax.swing.JPanel
     /** Gets the selected channel index that corresponds to the saved channels list */
     public Channel getSelectedChannel()
     {
-        if (channelTable.getSelectedRow() != -1)
+    	int selectedRow = channelTable.getSelectedRow();
+        if (selectedRow != -1)
         {
-            String channelId = (String) channelTable.getModel().getValueAt(channelTable.convertRowIndexToModel(channelTable.getSelectedRow()), ID_COLUMN_NUMBER);
+            String channelId = (String) channelTable.getModel().getValueAt(channelTable.convertRowIndexToModel(selectedRow), ID_COLUMN_NUMBER);
             return parent.channels.get(channelId);
         }
         
