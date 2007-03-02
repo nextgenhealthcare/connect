@@ -52,15 +52,12 @@ public class AlertServlet extends MirthServlet {
 					response.setContentType("application/xml");
 					Alert alert = (Alert) serializer.fromXML(request.getParameter("alert"));
 					out.println(serializer.toXML(alertController.getAlert(alert)));
-				} else if (operation.equals("updateAlert")) {
-					Alert alert = (Alert) serializer.fromXML(request.getParameter("alert"));
-					alertController.updateAlert(alert);
 				} else if (operation.equals("updateAlerts")) {
 					List<Alert> alerts = (List<Alert>) serializer.fromXML(request.getParameter("alerts"));
 					alertController.updateAlerts(alerts);
 				} else if (operation.equals("removeAlert")) {
 					Alert alert = (Alert) serializer.fromXML(request.getParameter("alert"));
-					alertController.removeAlert(alert);
+					alertController.removeAlertById(alert.getId());
 				}
 			} catch (Exception e) {
 				throw new ServletException(e);

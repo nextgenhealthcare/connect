@@ -64,12 +64,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		VALUES (#alertId#, #email#)
 	</insert>
 	
-	<delete id="deleteAlert" parameterClass="com.webreach.mirth.model.Alert">
-		DELETE FROM ALERT
-		<dynamic prepend="WHERE">
-			<isNotNull prepend="AND" property="id">
-				ID=#id#
-			</isNotNull>
-		</dynamic>
+	<delete id="deleteAlertById" parameterClass="java.lang.String">
+		DELETE FROM ALERT WHERE ID=#id#
 	</delete>
 </sqlMap>

@@ -74,29 +74,24 @@ public class AlertControllerTest extends TestCase {
 	}
 
 	public void testUpdateAlert() throws ControllerException {
-		Alert sampleAlert = sampleAlertList.get(0);
-		alertController.updateAlert(sampleAlert);
-		List<Alert> testAlertList = alertController.getAlert(sampleAlert);
-		Alert testAlert = testAlertList.get(0);
+		insertSampleAlerts();
 		
-		Assert.assertEquals(1, testAlertList.size());
-		Assert.assertEquals(sampleAlert, testAlert);
+		List<Alert> testAlertList = alertController.getAlert(null);
+		
+		Assert.assertEquals(10, testAlertList.size());
 	}
 	
 	public void testRemoveAlert() throws ControllerException {
 		insertSampleAlerts();
 		
 		Alert sampleAlert = sampleAlertList.get(0);
-		alertController.removeAlert(sampleAlert);
+		alertController.removeAlertById(sampleAlert.getId());
 		List<Alert> testAlertList = alertController.getAlert(null);
 
 		Assert.assertFalse(testAlertList.contains(sampleAlert));
 	}
 	
 	public void insertSampleAlerts() throws ControllerException {
-		for (Iterator iter = sampleAlertList.iterator(); iter.hasNext();) {
-			Alert sampleAlert = (Alert) iter.next();
-			alertController.updateAlert(sampleAlert);
-		}
+		alertController.updateAlerts(sampleAlertList);
 	}
 }
