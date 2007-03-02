@@ -85,12 +85,21 @@ public class AlertControllerTest extends TestCase {
 		insertSampleAlerts();
 		
 		Alert sampleAlert = sampleAlertList.get(0);
-		alertController.removeAlertById(sampleAlert.getId());
+		alertController.removeAlert(sampleAlert);
 		List<Alert> testAlertList = alertController.getAlert(null);
 
 		Assert.assertFalse(testAlertList.contains(sampleAlert));
 	}
-	
+
+	public void testRemoveAllAlerts() throws ControllerException {
+		insertSampleAlerts();
+		
+		alertController.removeAlert(null);
+		List<Alert> testAlertList = alertController.getAlert(null);
+
+		Assert.assertTrue(testAlertList.isEmpty());
+	}
+
 	public void insertSampleAlerts() throws ControllerException {
 		alertController.updateAlerts(sampleAlertList);
 	}

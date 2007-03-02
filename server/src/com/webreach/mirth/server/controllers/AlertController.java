@@ -89,9 +89,11 @@ public class AlertController {
 	}
 
 	public void updateAlerts(List<Alert> alerts) throws ControllerException {
+		// remove all alerts
+		removeAlert(null);
+
 		for (Iterator iter = alerts.iterator(); iter.hasNext();) {
 			Alert alert = (Alert) iter.next();
-			removeAlertById(alert.getId());
 			insertAlert(alert);
 		}
 	}
@@ -143,11 +145,11 @@ public class AlertController {
 		}
 	}
 
-	public void removeAlertById(String alertId) throws ControllerException {
-		logger.debug("removing alert by id: " + alertId);
+	public void removeAlert(Alert alert) throws ControllerException {
+		logger.debug("removing alert: " + alert);
 
 		try {
-			sqlMap.delete("deleteAlertById", alertId);
+			sqlMap.delete("deleteAlert", alert);
 		} catch (SQLException e) {
 			throw new ControllerException(e);
 		}
