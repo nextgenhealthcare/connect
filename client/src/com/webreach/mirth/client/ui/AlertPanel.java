@@ -446,6 +446,7 @@ public class AlertPanel extends javax.swing.JPanel
         updateApplyToChannelsTable(current);
         updateEmailsTable(current);
         errorField.setText(current.getExpression());
+        template.setText(current.getTemplate());
         
         split.setRightComponent(bottomPane);
         split.setDividerLocation(150);
@@ -461,6 +462,7 @@ public class AlertPanel extends javax.swing.JPanel
         current.setChannels(getChannels());
         current.setExpression(errorField.getText());
         current.setEmails(getEmails());
+        current.setTemplate(template.getText());
         
         return true;
     }

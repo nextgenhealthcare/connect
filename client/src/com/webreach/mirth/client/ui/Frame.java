@@ -127,9 +127,10 @@ public class Frame extends JXFrame
     public StatusBar statusBar;
     public JSplitPane splitPane = new JSplitPane();
     public JScrollPane taskPane = new JScrollPane();
-    public JPanel contentPane = new JPanel();
+    public JScrollPane contentPane = new JScrollPane();
     public Component currentContentPage = null;
     public JXTaskPaneContainer currentTaskPaneContainer = null;
+    public JScrollPane container;
     
     public JXTaskPane viewPane;
     public JXTaskPane otherPane;
@@ -383,6 +384,8 @@ public class Frame extends JXFrame
         
         statusBar = new StatusBar();
         statusBar.setBorder(BorderFactory.createEmptyBorder());
+        contentPane.setBorder(BorderFactory.createEmptyBorder());
+        
         buildContentPanel(rightContainer, contentPane, false);
         
         splitPane.add(rightContainer, JSplitPane.RIGHT);
@@ -420,13 +423,19 @@ public class Frame extends JXFrame
     /**
      * Builds the content panel with a title bar and settings.
      */
-    private void buildContentPanel(JXTitledPanel container, JPanel component, boolean opaque)
+    private void buildContentPanel(JXTitledPanel container, JScrollPane component, boolean opaque)
     {
         container.getContentContainer().setLayout(new BorderLayout());
+        container.setBorder(null);
         container.setTitleFont(new Font("Tahoma",Font.BOLD, 18));
         container.setTitleForeground(UIConstants.HEADER_TITLE_TEXT_COLOR);
-        container.setBorder(null);
-        container.add(component);
+        
+        component.setBorder(new LineBorder(Color.GRAY, 1));
+        component.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        component.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+        
+        container.getContentContainer().add(component);
+        
         if(UIManager.getColor("TaskPaneContainer.backgroundGradientStart") != null)
             container.setTitleDarkBackground(UIManager.getColor("TaskPaneContainer.backgroundGradientStart"));
         else
@@ -481,18 +490,18 @@ public class Frame extends JXFrame
     /**
      * Sets the current content page to the passed in page.
      */
-    public void setCurrentContentPage(JPanel contentPageObject)
+    public void setCurrentContentPage(Component contentPageObject)
     {
         if (contentPageObject==currentContentPage)
             return;
         
         if (currentContentPage!=null)
-            rightContainer.remove(currentContentPage);
-
-        contentPageObject.setBorder(new LineBorder(Color.GRAY, 1));
+            contentPane.getViewport().remove(currentContentPage);
         
-        rightContainer.add(contentPageObject);
+        contentPane.getViewport().add(contentPageObject);
         currentContentPage = contentPageObject;
+        
+
         this.repaint();
     }
     

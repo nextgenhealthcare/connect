@@ -148,7 +148,7 @@
                 </DimensionLayout>
                 <DimensionLayout dim="1">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="applyToChannelsScrollPane" alignment="1" pref="117" max="32767" attributes="0"/>
+                      <Component id="applyToChannelsScrollPane" alignment="1" pref="84" max="32767" attributes="0"/>
                   </Group>
                 </DimensionLayout>
               </Layout>
@@ -194,7 +194,7 @@
                 </DimensionLayout>
                 <DimensionLayout dim="1">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="errorField" alignment="0" pref="141" max="32767" attributes="0"/>
+                      <Component id="errorField" alignment="0" pref="107" max="32767" attributes="0"/>
                   </Group>
                 </DimensionLayout>
               </Layout>
@@ -246,9 +246,9 @@
                           <Component id="addButton" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="removeButton" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace pref="65" max="32767" attributes="0"/>
+                          <EmptySpace pref="32" max="32767" attributes="0"/>
                       </Group>
-                      <Component id="emailsScrollPane" alignment="0" pref="117" max="32767" attributes="0"/>
+                      <Component id="emailsScrollPane" alignment="0" pref="84" max="32767" attributes="0"/>
                   </Group>
                 </DimensionLayout>
               </Layout>
@@ -310,7 +310,7 @@
                 </DimensionLayout>
                 <DimensionLayout dim="1">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="errorCodeScrollPane" alignment="0" pref="141" max="32767" attributes="0"/>
+                      <Component id="errorCodeScrollPane" alignment="0" pref="107" max="32767" attributes="0"/>
                   </Group>
                 </DimensionLayout>
               </Layout>
@@ -376,7 +376,7 @@
                 </DimensionLayout>
                 <DimensionLayout dim="1">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="template" alignment="0" pref="124" max="32767" attributes="0"/>
+                      <Component id="template" alignment="0" pref="91" max="32767" attributes="0"/>
                   </Group>
                 </DimensionLayout>
               </Layout>
