@@ -245,7 +245,7 @@ public class Client {
 	 */
 	public synchronized void updateAlerts(List<Alert> alerts) throws ClientException {
 		logger.debug("updating alerts: " + alerts);
-		NameValuePair[] params = { new NameValuePair("op", "updateAlerts"), new NameValuePair("alert", serializer.toXML(alerts)) };
+		NameValuePair[] params = { new NameValuePair("op", "updateAlerts"), new NameValuePair("alerts", serializer.toXML(alerts)) };
 		serverConnection.executePostMethod(ALERT_SERVLET, params);
 	}
 
