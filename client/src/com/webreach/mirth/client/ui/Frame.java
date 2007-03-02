@@ -1808,7 +1808,8 @@ public class Frame extends JXFrame
                 setBold(viewPane, 4);
                 setPanelName("Alerts");
                 setCurrentContentPage(alertPanel);
-                doRefreshAlerts();
+                refreshAlerts();
+                alertPanel.setDefaultAlert();
                 setFocus(alertTasks);
                 return null;
             }
@@ -1819,7 +1820,7 @@ public class Frame extends JXFrame
             }
         };
         
-        worker.execute();
+        worker.execute();    
     }
         
     public void doLogout()
@@ -3155,16 +3156,7 @@ public class Frame extends JXFrame
         {
             public Void doInBackground()
             {
-                try
-                {
-                    alerts = mirthClient.getAlert(null);
-                    alertPanel.updateAlertTable(false);
-                }
-                catch (ClientException e)
-                {
-                    alertException(e.getStackTrace(), e.getMessage());
-                }
-                
+                refreshAlerts();
                 return null;
             }
             
@@ -3177,16 +3169,10 @@ public class Frame extends JXFrame
         worker.execute();
     }
     
-    public void doSaveAlerts()
+    public void refreshAlerts()
     {
         try
         {
-            alertPanel.saveAlert();
-            for (Alert curr : alerts)
-            {
-                mirthClient.updateAlert(curr);
-            }
-            
             alerts = mirthClient.getAlert(null);
             alertPanel.updateAlertTable(false);
         }
@@ -3196,45 +3182,23 @@ public class Frame extends JXFrame
         }
     }
     
+    public void doSaveAlerts()
+    {
+        try
+        {
+            mirthClient.updateAlerts(alerts);
+            alertPanel.updateAlertTable(false);
+            disableSave();
+        }
+        catch (ClientException e)
+        {
+            alertException(e.getStackTrace(), e.getMessage());
+        }
+    }
+    
     public void doDeleteAlert()
     {
-        if(!alertOption("Are you sure you want to delete this alert?"))
-            return;
-        
-        setWorking(true);
-        
-        SwingWorker worker = new SwingWorker <Void, Void> ()
-        {
-            public Void doInBackground()
-            {
-                doRefreshAlerts();
-                
-                int alertToDelete = alertPanel.getAlertIndex();
-
-                try
-                {
-                    if(alertToDelete != UIConstants.ERROR_CONSTANT)
-                    {
-                        mirthClient.removeAlert(alerts.get(alertToDelete));
-                        alerts = mirthClient.getAlert(null);
-                        alertPanel.updateAlertTable(false);
-                        alertPanel.setSelectedAlertIndex(UIConstants.ERROR_CONSTANT);
-                    }
-                }
-                catch (ClientException e)
-                {
-                    alertException(e.getStackTrace(), e.getMessage());
-                }
-                return null;
-            }
-            
-            public void done()
-            {
-                setWorking(false);
-            }
-        };
-        
-        worker.execute();
+        alertPanel.deleteAlert();
     }
     
     public void doNewAlert()

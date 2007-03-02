@@ -609,7 +609,6 @@ public class ChannelSetup extends javax.swing.JPanel
                 .setModel(new javax.swing.DefaultComboBoxModel(
                 destinationConnectors.toArray()));
         
-        
         loadChannelInfo();
         makeDestinationTable(false);
         setDestinationVariableList();

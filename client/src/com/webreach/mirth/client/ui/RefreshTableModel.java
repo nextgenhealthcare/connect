@@ -53,8 +53,11 @@ public class RefreshTableModel extends DefaultTableModel
      */
     public void refreshDataVector(Vector data)
     {
+        if(getRowCount() > 0)    
+            fireTableRowsDeleted(0, getRowCount() - 1);
         dataVector = data;
-        fireTableRowsInserted(0, getRowCount() - 1);
+        if(getRowCount() > 0)
+            fireTableRowsInserted(0, getRowCount() - 1);
     }
  
     public void refreshDataVector(Object[][] data)

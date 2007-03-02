@@ -96,10 +96,10 @@ public class EmailSender extends ConnectorClass
     
     public boolean checkProperties(Properties props)
     {
-        /*if()
-        {
+        if(((String)props.get(EMAIL_ADDRESS)).length() > 0 && ((String)props.get(EMAIL_PORT)).length() > 0 && 
+        ((String)props.get(EMAIL_TO)).length() > 0 && ((String)props.get(EMAIL_SUBJECT)).length() > 0 && 
+        ((String)props.get(EMAIL_BODY)).length() > 0)
             return true;
-        }*/
         return false;
     }
     
@@ -169,7 +169,7 @@ public class EmailSender extends ConnectorClass
                     .add(emailUsernameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(emailToField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(emailSubjectField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 352, Short.MAX_VALUE))
+                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 232, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -201,7 +201,7 @@ public class EmailSender extends ConnectorClass
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jLabel7)
-                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 265, Short.MAX_VALUE))
+                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 81, Short.MAX_VALUE))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
