@@ -311,30 +311,47 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 				UMOMessageAdapter adapter = connector.getMessageAdapter(new String(data,charset));
 				os = new ResponseOutputStream(socket.getOutputStream(), socket);
 				try{
-				returnMessage = routeMessage(new MuleMessage(adapter), endpoint
-						.isSynchronous(), os);
-				//We need to check the message status
-				if (returnMessage != null && returnMessage instanceof MuleMessage){
-					Object payload = returnMessage.getPayload();
-					if (payload instanceof MessageObject){
-						MessageObject messageObjectResponse = (MessageObject)payload;
-						String errorString = "";
-						//we only want the first line
-						if (messageObjectResponse.getStatus().equals(MessageObject.Status.ERROR) && messageObjectResponse.getErrors() != null){
-							if (messageObjectResponse.getErrors().indexOf('\n') > -1){
-								errorString = messageObjectResponse.getErrors().substring(0,messageObjectResponse.getErrors().indexOf('\n'));
+					returnMessage = routeMessage(new MuleMessage(adapter), endpoint
+							.isSynchronous(), os);
+					//We need to check the message status
+					if (returnMessage != null && returnMessage instanceof MuleMessage){
+						Object payload = returnMessage.getPayload();
+						if (payload instanceof MessageObject){
+							MessageObject messageObjectResponse = (MessageObject)payload;
+							String errorString = "";
+							if (connector.isResponseFromTransformer()){
+								if (connector.isAckOnNewConnection()){
+									String endpointURI = connector.getAckIP() + ":" + connector.getAckPort();
+									Socket socket = initSocket("mllp://" + endpointURI);
+									BufferedOutputStream bos = new BufferedOutputStream(socket.getOutputStream());
+									protocol.write(bos, ((String)messageObjectResponse.getVariableMap().get("ack_response")).getBytes(connector.getCharsetEncoding()));
+									bos.flush();
+									bos.close();
+								}else{
+									protocol.write(os,((String)messageObjectResponse.getVariableMap().get("ack_response")).getBytes(connector.getCharsetEncoding()));
+									
+								}
 							}else{
-								errorString = messageObjectResponse.getErrors();
+								//we only want the first line
+								if (messageObjectResponse.getStatus().equals(MessageObject.Status.ERROR) && messageObjectResponse.getErrors() != null){
+									if (messageObjectResponse.getErrors().indexOf('\n') > -1){
+										errorString = messageObjectResponse.getErrors().substring(0,messageObjectResponse.getErrors().indexOf('\n'));
+									}else{
+										errorString = messageObjectResponse.getErrors();
+									}
+								}
+								generateACK(new String(data,charset), os, messageObjectResponse.getStatus(), errorString);
 							}
 						}
-						generateACK(new String(data,charset), os, messageObjectResponse.getStatus(), errorString);
+					}else{
+						generateACK(new String(data,charset), os, MessageObject.Status.RECEIVED, new String());		
 					}
-				}else{
-					generateACK(new String(data,charset), os, MessageObject.Status.RECEIVED, new String());		
-				}
 				}catch(Exception e){
 					generateACK(new String(data,charset), os, MessageObject.Status.ERROR, e.getMessage());		
 					throw e;
+				}finally{
+					if (os != null)
+						os.close();
 				}
 			}
 			//The return message is always the last message routed if in a batch

@@ -14,8 +14,8 @@ import java.net.SocketTimeoutException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.mule.providers.mllp.MllpConnector;
-import org.mule.providers.tcp.TcpConnector;
-import org.mule.providers.tcp.TcpProtocol;
+import org.mule.providers.mllp.MllpConnector;
+import org.mule.providers.mllp.TcpProtocol;
 
 /**
  * The LLP Protocol is suitable for sending and receiving HL7 formatted

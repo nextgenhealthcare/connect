@@ -92,7 +92,6 @@ public class PdfMessageDispatcher extends AbstractMessageDispatcher {
 
 		try {
 			PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(file));
-
 			if (connector.isEncrypted() && (connector.getPassword() != null)) {
 				writer.setEncryption(PdfWriter.STRENGTH128BITS, connector.getPassword(), null, PdfWriter.AllowCopy | PdfWriter.AllowPrinting | PdfWriter.AllowFillIn);
 			}
