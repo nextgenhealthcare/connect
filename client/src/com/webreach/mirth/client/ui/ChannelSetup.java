@@ -1678,6 +1678,7 @@ public class ChannelSetup extends javax.swing.JPanel
         
         ((TitledBorder)sourceConnectorPane.getBorder()).setTitle(sourceConnectorClass.getName());
         sourceConnectorPane.setViewportView(sourceConnectorClass);
+        sourceConnectorPane.validate();
     }
     
     /**
@@ -1813,6 +1814,7 @@ public class ChannelSetup extends javax.swing.JPanel
         
         ((TitledBorder)destinationConnectorPane.getBorder()).setTitle(destinationConnectorClass.getName());
         destinationConnectorPane.setViewportView(destinationConnectorClass);
+        destinationConnectorPane.validate();
     }
     
     private List<Step> getMultipleDestinationSteps(Connector currentDestination)
