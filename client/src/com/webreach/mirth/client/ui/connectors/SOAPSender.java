@@ -95,7 +95,7 @@ public class SOAPSender extends ConnectorClass
     private final String SOAP_ACTION_URI = "soapActionURI";
     private final String CHANNEL_ID = "replyChannelId";
     private final String CHANNEL_NAME = "channelName";
-
+    
     WSDefinition definition = new WSDefinition();
     ObjectXMLSerializer serializer = new ObjectXMLSerializer();
     private BeanBinder beanBinder;
@@ -111,7 +111,7 @@ public class SOAPSender extends ConnectorClass
         document.setTokenMarker(new XMLTokenMarker());
         soapEnvelope.setDocument(document);
     }
-
+    
     public Properties getProperties()
     {
         Properties properties = new Properties();
@@ -120,20 +120,20 @@ public class SOAPSender extends ConnectorClass
         properties.put(SOAP_URL, wsdlUrl.getText());
         properties.put(SOAP_SERVICE_ENDPOINT, serviceEndpoint.getText());
         if (method.getSelectedIndex() != -1)
-        	properties.put(SOAP_METHOD, (String)method.getSelectedItem());
+            properties.put(SOAP_METHOD, (String)method.getSelectedItem());
         if (definition == null)
-        	definition = new WSDefinition();
+            definition = new WSDefinition();
         properties.put(SOAP_DEFINITION, (String)serializer.toXML(definition));//getParameters());
         properties.put(SOAP_HOST, buildHost());
         
         properties.put(SOAP_ACTION_URI, soapActionURI.getText());
         properties.put(CHANNEL_ID, channelList.get((String)channelNames.getSelectedItem()));
-        properties.put(CHANNEL_NAME, (String)channelNames.getSelectedItem());        
+        properties.put(CHANNEL_NAME, (String)channelNames.getSelectedItem());
         return properties;
     }
-
+    
     public void setProperties(Properties props)
-    {        
+    {
         definition = (WSDefinition)(serializer.fromXML(props.getProperty(SOAP_DEFINITION)));
         
         wsdlUrl.setText((String)props.get(SOAP_URL));
@@ -142,14 +142,15 @@ public class SOAPSender extends ConnectorClass
         soapActionURI.setText((String)props.getProperty(SOAP_ACTION_URI));
         
         if(props.getProperty(SOAP_METHOD) != null)
-        {    
+        {
             method.setModel(new javax.swing.DefaultComboBoxModel(new String[] { (String)props.getProperty(SOAP_METHOD) }));
         }
         
-        if(props.get(SOAP_DEFINITION) != null){
-        	WSOperation operation = definition.getOperation((String)props.getProperty(SOAP_METHOD));
-        	if (operation != null)
-        		setupTable(operation.getParameters());
+        if(props.get(SOAP_DEFINITION) != null)
+        {
+            WSOperation operation = definition.getOperation((String)props.getProperty(SOAP_METHOD));
+            if (operation != null)
+                setupTable(operation.getParameters());
             
         }
         else
@@ -192,7 +193,7 @@ public class SOAPSender extends ConnectorClass
     
     public boolean checkProperties(Properties props)
     {
-        if(!((String)props.getProperty(SOAP_METHOD)).equals(SOAP_DEFAULT_DROPDOWN) && 
+        if(!((String)props.getProperty(SOAP_METHOD)).equals(SOAP_DEFAULT_DROPDOWN) &&
                 ((String)props.getProperty(SOAP_URL)).length() > 0 &&
                 ((String)props.getProperty(SOAP_SERVICE_ENDPOINT)).length() > 0 &&
                 ((String)props.getProperty(SOAP_ENVELOPE)).length() > 0)
@@ -207,7 +208,7 @@ public class SOAPSender extends ConnectorClass
     
     public List getParameters()
     {
-    	return null;
+        return null;
        /* ArrayList parameters = new ArrayList();
         
         for(int i = 0; i < paramTable.getRowCount(); i++)
@@ -225,67 +226,78 @@ public class SOAPSender extends ConnectorClass
     
     public void setupTable(List<WSParameter> parameters)
     {
-    	
-    	DefaultMutableTreeNode root = new DefaultMutableTreeNode(method.getSelectedItem());
-    	DefaultMutableTreeNode headers = new DefaultMutableTreeNode("Headers");
-    	DefaultMutableTreeNode body = new DefaultMutableTreeNode("Body");
-    	//root.add(headers);
-    	//TODO: Build editor for headers
-    	root.add(body);
-    	Iterator<WSParameter> paramIterator = parameters.iterator();
-    	DefaultMutableTreeNode currentNode = body;
-    	while (paramIterator.hasNext()){
-    		WSParameter parameter = paramIterator.next();
-    		buildParams(body,parameter);
-    	}
-    	propertySheetPanel1.setProperties(new Property[]{});
-    	jTree1 = new JTree(root);
-    	jTree1.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() {
-            public void valueChanged(javax.swing.event.TreeSelectionEvent evt) {
+        
+        DefaultMutableTreeNode root = new DefaultMutableTreeNode(method.getSelectedItem());
+        DefaultMutableTreeNode headers = new DefaultMutableTreeNode("Headers");
+        DefaultMutableTreeNode body = new DefaultMutableTreeNode("Body");
+        //root.add(headers);
+        //TODO: Build editor for headers
+        root.add(body);
+        Iterator<WSParameter> paramIterator = parameters.iterator();
+        DefaultMutableTreeNode currentNode = body;
+        while (paramIterator.hasNext())
+        {
+            WSParameter parameter = paramIterator.next();
+            buildParams(body,parameter);
+        }
+        propertySheetPanel1.setProperties(new Property[]{});
+        jTree1 = new JTree(root);
+        jTree1.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener()
+        {
+            public void valueChanged(javax.swing.event.TreeSelectionEvent evt)
+            {
                 jTree1ValueChanged(evt);
             }
         });
-
-    	jScrollPane1.setViewportView(jTree1);
-    	if (!(soapEnvelope.getText().length() > 0))
-    		buildSoapEnvelope();
-    }
-    private void buildParams(DefaultMutableTreeNode parentNode, WSParameter parameter) {
-
-		//If this is a complex type, we need to add the sub nodes
-		if (parameter.isComplex()){
-			//loop through each param of the complex type
-					DefaultMutableTreeNode pNode;
-					if (!parameter.getName().equals("parameters"))
-						pNode = new DefaultMutableTreeNode(parameter);
-					else
-						pNode = parentNode;
-					Iterator<WSParameter> paramIter = parameter.getChildParameters().iterator();
-					while(paramIter.hasNext()){
-						WSParameter child = paramIter.next();
-						DefaultMutableTreeNode subNode = new DefaultMutableTreeNode(child);
-						if (child.isComplex()){
-							buildParams(subNode, child);
-							if (subNode.getChildCount() > 0)
-								pNode.add((DefaultMutableTreeNode)subNode.getFirstChild());
-							else
-								pNode.add(subNode);
-						}else{
-							pNode.add(subNode);
-						}
-					}
-					if (parentNode != pNode)
-						parentNode.add(pNode);
-
-		}else{
-			
-			DefaultMutableTreeNode pNode = new DefaultMutableTreeNode(parameter);
-			parentNode.add(pNode);
-			return;
-		}
-	}
-	
         
+        jScrollPane1.setViewportView(jTree1);
+        if (!(soapEnvelope.getText().length() > 0))
+            buildSoapEnvelope();
+    }
+    private void buildParams(DefaultMutableTreeNode parentNode, WSParameter parameter)
+    {
+        
+        //If this is a complex type, we need to add the sub nodes
+        if (parameter.isComplex())
+        {
+            //loop through each param of the complex type
+            DefaultMutableTreeNode pNode;
+            if (!parameter.getName().equals("parameters"))
+                pNode = new DefaultMutableTreeNode(parameter);
+            else
+                pNode = parentNode;
+            Iterator<WSParameter> paramIter = parameter.getChildParameters().iterator();
+            while(paramIter.hasNext())
+            {
+                WSParameter child = paramIter.next();
+                DefaultMutableTreeNode subNode = new DefaultMutableTreeNode(child);
+                if (child.isComplex())
+                {
+                    buildParams(subNode, child);
+                    if (subNode.getChildCount() > 0)
+                        pNode.add((DefaultMutableTreeNode)subNode.getFirstChild());
+                    else
+                        pNode.add(subNode);
+                }
+                else
+                {
+                    pNode.add(subNode);
+                }
+            }
+            if (parentNode != pNode)
+                parentNode.add(pNode);
+            
+        }
+        else
+        {
+            
+            DefaultMutableTreeNode pNode = new DefaultMutableTreeNode(parameter);
+            parentNode.add(pNode);
+            return;
+        }
+    }
+    
+    
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -446,128 +458,158 @@ public class SOAPSender extends ConnectorClass
                         .addContainerGap())))
         );
     }// </editor-fold>//GEN-END:initComponents
-
+    
     private void rebuildEnvelopeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rebuildEnvelopeActionPerformed
         buildSoapEnvelope();
     }//GEN-LAST:event_rebuildEnvelopeActionPerformed
-
-
+    
+    
     private void jTree1ValueChanged(javax.swing.event.TreeSelectionEvent evt) {//GEN-FIRST:event_jTree1ValueChanged
-    	//if (currentNode != null)
-    		//((DefaultTreeModel)jTree1.getModel()).nodeChanged(currentNode);
-    	if (beanBinder != null){
-    		beanBinder.setWriteEnabled(false);
-			beanBinder.unbind();
-    	}
-
-    	DefaultMutableTreeNode nodeSelected = (DefaultMutableTreeNode)jTree1.getLastSelectedPathComponent();
-    	if (nodeSelected != null && nodeSelected.getUserObject() != null && nodeSelected.getUserObject() instanceof WSParameter){
-    		currentNode = nodeSelected;
-    		ActionListener updateListener = new ActionListener() {
-			
-				public void actionPerformed(ActionEvent e) {
-					((DefaultTreeModel)jTree1.getModel()).nodeChanged(currentNode);
-					buildSoapEnvelope();
-				}
-			
-			};
-    		beanBinder = new BeanBinder((WSParameter)nodeSelected.getUserObject(), propertySheetPanel1, updateListener);
-    		beanBinder.setWriteEnabled(true);
-    		if (((WSParameter)nodeSelected.getUserObject()).isComplex())
-    			propertySheetPanel1.removeProperty(propertySheetPanel1.getProperties()[2]);
-    	}
+        //if (currentNode != null)
+        //((DefaultTreeModel)jTree1.getModel()).nodeChanged(currentNode);
+        if (beanBinder != null)
+        {
+            beanBinder.setWriteEnabled(false);
+            beanBinder.unbind();
+        }
+        
+        DefaultMutableTreeNode nodeSelected = (DefaultMutableTreeNode)jTree1.getLastSelectedPathComponent();
+        if (nodeSelected != null && nodeSelected.getUserObject() != null && nodeSelected.getUserObject() instanceof WSParameter)
+        {
+            currentNode = nodeSelected;
+            ActionListener updateListener = new ActionListener()
+            {
+                
+                public void actionPerformed(ActionEvent e)
+                {
+                    ((DefaultTreeModel)jTree1.getModel()).nodeChanged(currentNode);
+                    buildSoapEnvelope();
+                }
+                
+            };
+            beanBinder = new BeanBinder((WSParameter)nodeSelected.getUserObject(), propertySheetPanel1, updateListener);
+            beanBinder.setWriteEnabled(true);
+            if (((WSParameter)nodeSelected.getUserObject()).isComplex())
+                propertySheetPanel1.removeProperty(propertySheetPanel1.getProperties()[2]);
+        }
     }//GEN-LAST:event_jTree1ValueChanged
-    private void buildSoapEnvelope(){
-    	StringBuilder soapEnvelopeString = new StringBuilder();
-    	soapEnvelopeString.append(SOAP_ENVELOPE_HEADER);
-    	//TODO: Grab header parameters
-    	soapEnvelopeString.append(SOAP_BODY_HEADER);
-    	WSOperation operation = definition.getOperation(method.getSelectedItem().toString());
-    	if (operation != null){
-    		Document document= null;
-			try {
-				document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-				Element operationEl = document.createElement(operation.getName());
-				operationEl.setAttribute("xmlns", operation.getNamespace());
-				//add each parameter and sub params
-				Iterator<WSParameter> iterator = operation.getParameters().iterator();
-				while (iterator.hasNext()){
-					WSParameter param = iterator.next();
-					if (param.getName().equals("parameters") && param.isComplex()){
-						buildSoapEnvelope(document, operationEl, param);
-					}else{
-						Element paramEl = document.createElement(param.getName());
-						if (param.isComplex()){
-							if (param.getSchemaType() != null){
-								paramEl.setAttribute("xmlns", param.getSchemaType().getTypeName().getNamespaceURI());
-							}
-							buildSoapEnvelope(document, paramEl, param);
-						}else{
-							paramEl.appendChild(document.createTextNode(param.getValue()));
-							//paramEl.setNodeValue(param.getValue());
-						}
-						operationEl.appendChild(paramEl);
-					}
-					
-				}
-				document.appendChild(operationEl);
-				document.getDocumentElement().normalize();
-				StringWriter output = new StringWriter();
-				try {
-					TransformerFactory tf = TransformerFactory.newInstance();
-					tf.setAttribute("indent-number", new Integer(2));
-					Transformer t = tf.newTransformer();
-
-					t.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-					t.setOutputProperty(OutputKeys.INDENT, "yes");
-					//t.setOutputProperty(OutputKeys.METHOD, "xml"); // xml,
-																	// html,
-																	// text
-					 t.setOutputProperty("{http://xml.apache.org/xslt}indent-amount",
-					 "2");
-					t.transform(new DOMSource(document), new StreamResult(
-							output));
-				} catch (TransformerConfigurationException e) {
-					e.printStackTrace();
-				} catch (TransformerException e) {
-					e.printStackTrace();
-				} catch (TransformerFactoryConfigurationError e) {
-					e.printStackTrace();
-				}
-		
-				soapEnvelopeString.append(output.toString());
-			} catch (ParserConfigurationException e) {
-				e.printStackTrace();
-			}
-			
-    	}
-    	soapEnvelopeString.append(SOAP_BODY_FOOTER);
-    	soapEnvelopeString.append(SOAP_ENVELOPE_FOOTER);
-    	soapEnvelope.setText(soapEnvelopeString.toString());
-    	parent.enableSave();
+    private void buildSoapEnvelope()
+    {
+        StringBuilder soapEnvelopeString = new StringBuilder();
+        soapEnvelopeString.append(SOAP_ENVELOPE_HEADER);
+        //TODO: Grab header parameters
+        soapEnvelopeString.append(SOAP_BODY_HEADER);
+        WSOperation operation = definition.getOperation(method.getSelectedItem().toString());
+        if (operation != null)
+        {
+            Document document= null;
+            try
+            {
+                document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+                Element operationEl = document.createElement(operation.getName());
+                operationEl.setAttribute("xmlns", operation.getNamespace());
+                //add each parameter and sub params
+                Iterator<WSParameter> iterator = operation.getParameters().iterator();
+                while (iterator.hasNext())
+                {
+                    WSParameter param = iterator.next();
+                    if (param.getName().equals("parameters") && param.isComplex())
+                    {
+                        buildSoapEnvelope(document, operationEl, param);
+                    }
+                    else
+                    {
+                        Element paramEl = document.createElement(param.getName());
+                        if (param.isComplex())
+                        {
+                            if (param.getSchemaType() != null)
+                            {
+                                paramEl.setAttribute("xmlns", param.getSchemaType().getTypeName().getNamespaceURI());
+                            }
+                            buildSoapEnvelope(document, paramEl, param);
+                        }
+                        else
+                        {
+                            paramEl.appendChild(document.createTextNode(param.getValue()));
+                            //paramEl.setNodeValue(param.getValue());
+                        }
+                        operationEl.appendChild(paramEl);
+                    }
+                    
+                }
+                document.appendChild(operationEl);
+                document.getDocumentElement().normalize();
+                StringWriter output = new StringWriter();
+                try
+                {
+                    TransformerFactory tf = TransformerFactory.newInstance();
+                    tf.setAttribute("indent-number", new Integer(2));
+                    Transformer t = tf.newTransformer();
+                    
+                    t.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+                    t.setOutputProperty(OutputKeys.INDENT, "yes");
+                    //t.setOutputProperty(OutputKeys.METHOD, "xml"); // xml,
+                    // html,
+                    // text
+                    t.setOutputProperty("{http://xml.apache.org/xslt}indent-amount",
+                            "2");
+                    t.transform(new DOMSource(document), new StreamResult(
+                            output));
+                }
+                catch (TransformerConfigurationException e)
+                {
+                    e.printStackTrace();
+                }
+                catch (TransformerException e)
+                {
+                    e.printStackTrace();
+                }
+                catch (TransformerFactoryConfigurationError e)
+                {
+                    e.printStackTrace();
+                }
+                
+                soapEnvelopeString.append(output.toString());
+            }
+            catch (ParserConfigurationException e)
+            {
+                e.printStackTrace();
+            }
+            
+        }
+        soapEnvelopeString.append(SOAP_BODY_FOOTER);
+        soapEnvelopeString.append(SOAP_ENVELOPE_FOOTER);
+        soapEnvelope.setText(soapEnvelopeString.toString());
+        parent.enableSave();
     }
-    private void buildSoapEnvelope(Document document, Element parent, WSParameter parameter){
-		Iterator<WSParameter> iterator = parameter.getChildParameters().iterator();
-		while (iterator.hasNext()){
-			WSParameter param = iterator.next();
-			Element paramEl = document.createElement(param.getName());	
-			
-			if (param.isComplex()){
-					if (param.getSchemaType() != null){
-						//paramEl.setAttribute("xmlns", param.getSchemaType().getTypeName().getNamespaceURI());
-						Attr atr = document.createAttribute("xmlns");
-						atr.setValue("");
-						paramEl.setAttributeNodeNS(atr);
-					}
-				//only add co
-					buildSoapEnvelope(document, paramEl, param);
-			}else{
-				paramEl.appendChild(document.createTextNode(param.getValue()));
-			}
-			if (parent != paramEl)
-				parent.appendChild(paramEl);
-		}
-		
+    private void buildSoapEnvelope(Document document, Element parent, WSParameter parameter)
+    {
+        Iterator<WSParameter> iterator = parameter.getChildParameters().iterator();
+        while (iterator.hasNext())
+        {
+            WSParameter param = iterator.next();
+            Element paramEl = document.createElement(param.getName());
+            
+            if (param.isComplex())
+            {
+                if (param.getSchemaType() != null)
+                {
+                    //paramEl.setAttribute("xmlns", param.getSchemaType().getTypeName().getNamespaceURI());
+                    Attr atr = document.createAttribute("xmlns");
+                    atr.setValue("");
+                    paramEl.setAttributeNodeNS(atr);
+                }
+                //only add co
+                buildSoapEnvelope(document, paramEl, param);
+            }
+            else
+            {
+                paramEl.appendChild(document.createTextNode(param.getValue()));
+            }
+            if (parent != paramEl)
+                parent.appendChild(paramEl);
+        }
+        
     }
     private void methodItemStateChanged(java.awt.event.ItemEvent evt)//GEN-FIRST:event_methodItemStateChanged
     {//GEN-HEADEREND:event_methodItemStateChanged
@@ -578,35 +620,36 @@ public class SOAPSender extends ConnectorClass
                 String item = evt.getItem().toString();
                 if(item.equals(SOAP_DEFAULT_DROPDOWN))
                     return;
-                else{
-                	soapActionURI.setText(definition.getOperations().get(method.getSelectedItem()).getSoapActionURI());
+                else
+                {
+                    soapActionURI.setText(definition.getOperations().get(method.getSelectedItem()).getSoapActionURI());
                     setupTable(definition.getOperations().get(method.getSelectedItem()).getParameters());
                     buildSoapEnvelope();
                 }
             }
         }
     }//GEN-LAST:event_methodItemStateChanged
-
+    
     private void getMethodsButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_getMethodsButtonActionPerformed
     {//GEN-HEADEREND:event_getMethodsButtonActionPerformed
-    	
-    	parent.setWorking(true);
+        
+        parent.setWorking(true);
         
         SwingWorker worker = new SwingWorker <Void, Void> ()
         {
-            public Void doInBackground() 
-            {        
-            	
+            public Void doInBackground()
+            {
+                
                 try
                 {
                     definition = parent.mirthClient.getWebServiceDefinition(wsdlUrl.getText().trim());
                     if (definition == null)
-                    	throw new ClientException("No WSDL Methods Found.");
+                        throw new ClientException("No WSDL Methods Found.");
                     return null;
                 }
                 catch(ClientException e)
                 {
-                	
+                    
                     parent.alertError("No methods found.  Check the WSDL URL and try again.");
                     return null;
                 }
@@ -623,21 +666,21 @@ public class SOAPSender extends ConnectorClass
                 {
                     methodNames[i] = opIterator.next().getName();
                 }
-
+                
                 method.setModel(new javax.swing.DefaultComboBoxModel(methodNames));
                 method.setSelectedIndex(0);
                 serviceEndpoint.setText(definition.getServiceEndpointURI());
                 soapActionURI.setText(definition.getOperations().get(method.getSelectedItem()).getSoapActionURI());
-                setupTable( definition.getOperations().get(method.getSelectedItem()).getParameters() ); 
+                setupTable( definition.getOperations().get(method.getSelectedItem()).getParameters() );
                 buildSoapEnvelope();
-            	parent.setWorking(false);
+                parent.setWorking(false);
             }
             
         };
         worker.execute();
     }//GEN-LAST:event_getMethodsButtonActionPerformed
-
-
+    
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel URL;
     private javax.swing.JLabel URL1;
@@ -661,5 +704,5 @@ public class SOAPSender extends ConnectorClass
     private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea soapEnvelope;
     private com.webreach.mirth.client.ui.components.MirthTextField wsdlUrl;
     // End of variables declaration//GEN-END:variables
-
+    
 }

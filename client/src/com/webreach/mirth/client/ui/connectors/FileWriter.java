@@ -45,6 +45,7 @@ public class FileWriter extends ConnectorClass
     private final String FILE_APPEND = "outputAppend";
     private final String FILE_CONTENTS = "template";
     private final String CONNECTOR_CHARSET_ENCODING = "charsetEncoding";
+    private final String FILE_TYPE = "binary";
 
     public FileWriter()
     {
@@ -70,6 +71,12 @@ public class FileWriter extends ConnectorClass
         //ast:encoding        
         properties.put(CONNECTOR_CHARSET_ENCODING,parent.
                         getSelectedEncodingForChannel(charsetEncodingCombobox));
+        
+        if (fileTypeBinary.isSelected())
+            properties.put(FILE_TYPE, UIConstants.YES_OPTION);
+        else
+            properties.put(FILE_TYPE, UIConstants.NO_OPTION);     
+        
         return properties;
     }
 
@@ -87,6 +94,11 @@ public class FileWriter extends ConnectorClass
         parent.sePreviousSelectedEncodingForChannel(charsetEncodingCombobox,
                         (String)props.get(CONNECTOR_CHARSET_ENCODING));
         fileContentsTextPane.setText((String)props.get(FILE_CONTENTS));
+        
+        if(((String)props.get(FILE_TYPE)).equalsIgnoreCase(UIConstants.YES_OPTION))
+            fileTypeBinary.setSelected(true);
+        else
+            fileTypeASCII.setSelected(true);
     }
 
     public Properties getDefaults()
@@ -97,6 +109,7 @@ public class FileWriter extends ConnectorClass
         properties.put(FILE_NAME, "");
         properties.put(FILE_APPEND, UIConstants.YES_OPTION);
         properties.put(FILE_CONTENTS, "");
+        properties.put(FILE_TYPE, UIConstants.NO_OPTION);
         //ast:encoding
         properties.put(CONNECTOR_CHARSET_ENCODING, UIConstants.DEFAULT_ENCODING_OPTION);
         return properties;
@@ -119,6 +132,7 @@ public class FileWriter extends ConnectorClass
     {
         buttonGroup1 = new javax.swing.ButtonGroup();
         buttonGroup2 = new javax.swing.ButtonGroup();
+        buttonGroup3 = new javax.swing.ButtonGroup();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
@@ -130,6 +144,9 @@ public class FileWriter extends ConnectorClass
         fileContentsTextPane = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea(false,false);
         charsetEncodingCombobox = new com.webreach.mirth.client.ui.components.MirthComboBox();
         jLabel41 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
+        fileTypeBinary = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        fileTypeASCII = new com.webreach.mirth.client.ui.components.MirthRadioButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -160,6 +177,21 @@ public class FileWriter extends ConnectorClass
 
         jLabel41.setText("Encoding:");
 
+        jLabel5.setText("File Type:");
+
+        fileTypeBinary.setBackground(new java.awt.Color(255, 255, 255));
+        fileTypeBinary.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        buttonGroup3.add(fileTypeBinary);
+        fileTypeBinary.setText("Binary");
+        fileTypeBinary.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
+        fileTypeASCII.setBackground(new java.awt.Color(255, 255, 255));
+        fileTypeASCII.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        buttonGroup3.add(fileTypeASCII);
+        fileTypeASCII.setSelected(true);
+        fileTypeASCII.setText("ASCII");
+        fileTypeASCII.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -167,11 +199,12 @@ public class FileWriter extends ConnectorClass
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(jLabel3)
                     .add(jLabel4)
                     .add(jLabel2)
                     .add(jLabel1)
-                    .add(jLabel41)
-                    .add(jLabel3))
+                    .add(jLabel5)
+                    .add(jLabel41))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
                     .add(org.jdesktop.layout.GroupLayout.LEADING, charsetEncodingCombobox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -179,10 +212,14 @@ public class FileWriter extends ConnectorClass
                         .add(appendToFileYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(appendToFileNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(fileContentsTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 250, Short.MAX_VALUE)
                     .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
                         .add(org.jdesktop.layout.GroupLayout.LEADING, fileNameField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .add(org.jdesktop.layout.GroupLayout.LEADING, directoryField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 250, Short.MAX_VALUE)))
+                        .add(org.jdesktop.layout.GroupLayout.LEADING, directoryField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 250, Short.MAX_VALUE))
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
+                        .add(fileTypeBinary, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(fileTypeASCII, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(fileContentsTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 250, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -197,7 +234,13 @@ public class FileWriter extends ConnectorClass
                     .add(fileNameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jLabel4)
+                    .add(layout.createSequentialGroup()
+                        .add(jLabel4)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                            .add(jLabel5)
+                            .add(fileTypeBinary, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(fileTypeASCII, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
                     .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                         .add(appendToFileYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .add(appendToFileNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
@@ -206,9 +249,9 @@ public class FileWriter extends ConnectorClass
                     .add(charsetEncodingCombobox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(jLabel41))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jLabel3)
-                    .add(fileContentsTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 73, Short.MAX_VALUE))
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, jLabel3)
+                    .add(fileContentsTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 61, Short.MAX_VALUE))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -219,15 +262,19 @@ public class FileWriter extends ConnectorClass
     private com.webreach.mirth.client.ui.components.MirthRadioButton appendToFileYes;
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.ButtonGroup buttonGroup2;
+    private javax.swing.ButtonGroup buttonGroup3;
     private com.webreach.mirth.client.ui.components.MirthComboBox charsetEncodingCombobox;
     private com.webreach.mirth.client.ui.components.MirthTextField directoryField;
     private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea fileContentsTextPane;
     private com.webreach.mirth.client.ui.components.MirthTextField fileNameField;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton fileTypeASCII;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton fileTypeBinary;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel41;
+    private javax.swing.JLabel jLabel5;
     // End of variables declaration//GEN-END:variables
 
 }

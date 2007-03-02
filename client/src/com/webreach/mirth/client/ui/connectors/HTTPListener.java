@@ -119,7 +119,7 @@ public class HTTPListener extends ConnectorClass
         Properties properties = new Properties();
         properties.put(DATATYPE, name);
         properties.put(HTTP_ADDRESS, "127.0.0.1");
-        properties.put(HTTP_PORT, "6660");
+        properties.put(HTTP_PORT, "80");
         properties.put(HTTP_RECEIVE_TIMEOUT, "5000");
         properties.put(HTTP_BUFFER_SIZE, "65536");
         properties.put(HTTP_KEEP_CONNECTION_OPEN, UIConstants.NO_OPTION);

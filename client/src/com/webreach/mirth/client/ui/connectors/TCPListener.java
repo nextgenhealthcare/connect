@@ -49,7 +49,6 @@ public class TCPListener extends ConnectorClass
     private final String TCP_BUFFER_SIZE = "bufferSize";
     private final String TCP_KEEP_CONNECTION_OPEN = "keepSendSocketOpen";
     private final String TCP_CHAR_ENCODING = "charEncoding";
-    private final String TCP_SEND_ACK = "sendACK";
     private final String TCP_ACK_NEW_CONNECTION = "ackOnNewConnection";
     private final String TCP_ACK_NEW_CONNECTION_IP = "ackIP";
     private final String TCP_ACK_NEW_CONNECTION_PORT = "ackPort";
@@ -87,21 +86,10 @@ public class TCPListener extends ConnectorClass
         else
             properties.put(TCP_KEEP_CONNECTION_OPEN, UIConstants.NO_OPTION);
       
-        if(sendACKYes.isSelected())
-        {
-            properties.put(TCP_SEND_ACK, UIConstants.YES_OPTION);
-            properties.put(TCP_RESPONSE_FROM_TRANSFORMER, UIConstants.NO_OPTION);
-        }
-        else if(sendACKNo.isSelected())
-        {
-            properties.put(TCP_SEND_ACK, UIConstants.NO_OPTION);
-            properties.put(TCP_RESPONSE_FROM_TRANSFORMER, UIConstants.NO_OPTION);
-        }
-        else if(sendACKTransformer.isSelected())
-        {
+        if(responseFromTransformerYes.isSelected())
             properties.put(TCP_RESPONSE_FROM_TRANSFORMER, UIConstants.YES_OPTION);
-            properties.put(TCP_SEND_ACK, UIConstants.NO_OPTION);
-        }
+        else
+            properties.put(TCP_RESPONSE_FROM_TRANSFORMER, UIConstants.NO_OPTION);
         
         //ast:encoding        
         properties.put(CONNECTOR_CHARSET_ENCODING,parent.getSelectedEncodingForChannel(charsetEncodingCombobox));
@@ -148,23 +136,11 @@ public class TCPListener extends ConnectorClass
             keepConnectionOpenNoRadio.setSelected(true);
         
         boolean visible = parent.channelEditTasks.getContentPane().getComponent(0).isVisible();
-
-        if(((String)props.get(TCP_SEND_ACK)).equals(UIConstants.YES_OPTION))
-        {
-            sendACKYesActionPerformed(null);
-            sendACKYes.setSelected(true);
-        }
-        else if(((String)props.get(TCP_SEND_ACK)).equals(UIConstants.NO_OPTION))
-        {
-            sendACKNoActionPerformed(null);
-            sendACKNo.setSelected(true);
-        }
         
-        if(((String)props.get(TCP_RESPONSE_FROM_TRANSFORMER)).equals(UIConstants.NO_OPTION))
-        {
-            sendACKTransformerActionPerformed(null);
-            sendACKTransformer.setSelected(true);
-        }
+        if(((String)props.get(TCP_RESPONSE_FROM_TRANSFORMER)).equals(UIConstants.YES_OPTION))
+            responseFromTransformerYes.setSelected(true);
+        else
+            responseFromTransformerNo.setSelected(true);
         
         //ast:encoding        
         parent.sePreviousSelectedEncodingForChannel(charsetEncodingCombobox,(String)props.get(CONNECTOR_CHARSET_ENCODING));
@@ -246,6 +222,7 @@ public class TCPListener extends ConnectorClass
         buttonGroup2 = new javax.swing.ButtonGroup();
         buttonGroup3 = new javax.swing.ButtonGroup();
         buttonGroup4 = new javax.swing.ButtonGroup();
+        buttonGroup5 = new javax.swing.ButtonGroup();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
@@ -265,9 +242,6 @@ public class TCPListener extends ConnectorClass
         listenerIPAddressField = new com.webreach.mirth.client.ui.components.MirthTextField();
         charsetEncodingCombobox = new com.webreach.mirth.client.ui.components.MirthComboBox();
         jLabel39 = new javax.swing.JLabel();
-        jLabel38 = new javax.swing.JLabel();
-        sendACKYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        sendACKNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         ackOnNewConnectionLabel = new javax.swing.JLabel();
         ackOnNewConnectionYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         ackOnNewConnectionNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
@@ -281,7 +255,9 @@ public class TCPListener extends ConnectorClass
         ackIPAddressField = new com.webreach.mirth.client.ui.components.MirthTextField();
         ackIPAddressField2 = new com.webreach.mirth.client.ui.components.MirthTextField();
         ipDot = new javax.swing.JLabel();
-        sendACKTransformer = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        jLabel6 = new javax.swing.JLabel();
+        responseFromTransformerYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        responseFromTransformerNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -317,35 +293,7 @@ public class TCPListener extends ConnectorClass
 
         jLabel39.setText("Encoding:");
 
-        jLabel38.setText("Send ACK:");
-
-        sendACKYes.setBackground(new java.awt.Color(255, 255, 255));
-        sendACKYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup2.add(sendACKYes);
-        sendACKYes.setText("Yes");
-        sendACKYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        sendACKYes.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
-                sendACKYesActionPerformed(evt);
-            }
-        });
-
-        sendACKNo.setBackground(new java.awt.Color(255, 255, 255));
-        sendACKNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup2.add(sendACKNo);
-        sendACKNo.setText("No");
-        sendACKNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        sendACKNo.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
-                sendACKNoActionPerformed(evt);
-            }
-        });
-
-        ackOnNewConnectionLabel.setText("ACK on New Connection:");
+        ackOnNewConnectionLabel.setText("Response on New Connection:");
 
         ackOnNewConnectionYes.setBackground(new java.awt.Color(255, 255, 255));
         ackOnNewConnectionYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -373,9 +321,9 @@ public class TCPListener extends ConnectorClass
             }
         });
 
-        ackIPLabel.setText("ACK IP Address:");
+        ackIPLabel.setText("Response IP Address:");
 
-        ackPortLabel.setText("ACK Port:");
+        ackPortLabel.setText("Response Port:");
 
         ipDot1.setText(".");
 
@@ -383,16 +331,31 @@ public class TCPListener extends ConnectorClass
 
         ipDot.setText(".");
 
-        sendACKTransformer.setBackground(new java.awt.Color(255, 255, 255));
-        sendACKTransformer.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup2.add(sendACKTransformer);
-        sendACKTransformer.setText("Response from Transformer");
-        sendACKTransformer.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        sendACKTransformer.addActionListener(new java.awt.event.ActionListener()
+        jLabel6.setText("Response from Transformer:");
+
+        responseFromTransformerYes.setBackground(new java.awt.Color(255, 255, 255));
+        responseFromTransformerYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        buttonGroup5.add(responseFromTransformerYes);
+        responseFromTransformerYes.setText("Yes");
+        responseFromTransformerYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        responseFromTransformerYes.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
             {
-                sendACKTransformerActionPerformed(evt);
+                responseFromTransformerYesActionPerformed(evt);
+            }
+        });
+
+        responseFromTransformerNo.setBackground(new java.awt.Color(255, 255, 255));
+        responseFromTransformerNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        buttonGroup5.add(responseFromTransformerNo);
+        responseFromTransformerNo.setText("No");
+        responseFromTransformerNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        responseFromTransformerNo.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                responseFromTransformerNoActionPerformed(evt);
             }
         });
 
@@ -406,13 +369,13 @@ public class TCPListener extends ConnectorClass
                     .add(ackPortLabel)
                     .add(ackIPLabel)
                     .add(ackOnNewConnectionLabel)
-                    .add(jLabel38)
                     .add(jLabel39)
                     .add(jLabel1)
                     .add(jLabel2)
                     .add(jLabel3)
                     .add(jLabel5)
-                    .add(jLabel4))
+                    .add(jLabel4)
+                    .add(jLabel6))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(listenerPortField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -438,16 +401,6 @@ public class TCPListener extends ConnectorClass
                         .add(listenerIPAddressField3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 31, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                     .add(charsetEncodingCombobox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(layout.createSequentialGroup()
-                        .add(sendACKYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(sendACKNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(sendACKTransformer, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(layout.createSequentialGroup()
-                        .add(ackOnNewConnectionYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(ackOnNewConnectionNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(layout.createSequentialGroup()
                         .add(ackIPAddressField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 31, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .add(4, 4, 4)
                         .add(ipDot)
@@ -461,8 +414,16 @@ public class TCPListener extends ConnectorClass
                         .add(ipDot2)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(ackIPAddressField3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 31, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(ackPortField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .add(ackPortField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(layout.createSequentialGroup()
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(ackOnNewConnectionYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(responseFromTransformerYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(responseFromTransformerNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(ackOnNewConnectionNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
+                .addContainerGap(52, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -501,10 +462,9 @@ public class TCPListener extends ConnectorClass
                     .add(charsetEncodingCombobox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel38)
-                    .add(sendACKYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(sendACKNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(sendACKTransformer, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(jLabel6)
+                    .add(responseFromTransformerYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(responseFromTransformerNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(ackOnNewConnectionLabel)
@@ -531,28 +491,15 @@ public class TCPListener extends ConnectorClass
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void sendACKTransformerActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_sendACKTransformerActionPerformed
-    {//GEN-HEADEREND:event_sendACKTransformerActionPerformed
-        ackOnNewConnectionNo.setEnabled(true);
-        ackOnNewConnectionYes.setEnabled(true);
-        ackOnNewConnectionLabel.setEnabled(true);
-        
-        if(ackOnNewConnectionYes.isSelected())
-        {
-            ackIPAddressField.setEnabled(true);
-            ackIPAddressField1.setEnabled(true);
-            ackIPAddressField2.setEnabled(true);
-            ackIPAddressField3.setEnabled(true);
-            ackPortField.setEnabled(true);
+    private void responseFromTransformerNoActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_responseFromTransformerNoActionPerformed
+    {//GEN-HEADEREND:event_responseFromTransformerNoActionPerformed
+        removeResponseStep();
+    }//GEN-LAST:event_responseFromTransformerNoActionPerformed
 
-            ipDot.setEnabled(true);
-            ipDot1.setEnabled(true);
-            ipDot2.setEnabled(true);
-            ackIPLabel.setEnabled(true);
-            ackPortLabel.setEnabled(true);
-        }
+    private void responseFromTransformerYesActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_responseFromTransformerYesActionPerformed
+    {//GEN-HEADEREND:event_responseFromTransformerYesActionPerformed
         setResponseStep();
-    }//GEN-LAST:event_sendACKTransformerActionPerformed
+    }//GEN-LAST:event_responseFromTransformerYesActionPerformed
 
     private void ackOnNewConnectionNoActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_ackOnNewConnectionNoActionPerformed
     {//GEN-HEADEREND:event_ackOnNewConnectionNoActionPerformed
@@ -584,55 +531,6 @@ public class TCPListener extends ConnectorClass
         ackPortLabel.setEnabled(true);
     }//GEN-LAST:event_ackOnNewConnectionYesActionPerformed
 
-    private void sendACKYesActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_sendACKYesActionPerformed
-    {//GEN-HEADEREND:event_sendACKYesActionPerformed
-        if(evt != null && !PlatformUI.MIRTH_FRAME.channelEditPanel.synchronousCheckBox.isSelected())
-        {
-            PlatformUI.MIRTH_FRAME.alertInformation("The synchronize source connector setting has been enabled since it is required to use this feature.");
-            PlatformUI.MIRTH_FRAME.channelEditPanel.synchronousCheckBox.setSelected(true);
-        }
-        
-        ackOnNewConnectionNo.setEnabled(true);
-        ackOnNewConnectionYes.setEnabled(true);
-        ackOnNewConnectionLabel.setEnabled(true);
-
-        if(ackOnNewConnectionYes.isSelected())
-        {
-            ackIPAddressField.setEnabled(true);
-            ackIPAddressField1.setEnabled(true);
-            ackIPAddressField2.setEnabled(true);
-            ackIPAddressField3.setEnabled(true);
-            ackPortField.setEnabled(true);
-
-            ipDot.setEnabled(true);
-            ipDot1.setEnabled(true);
-            ipDot2.setEnabled(true);
-            ackIPLabel.setEnabled(true);
-            ackPortLabel.setEnabled(true);
-            removeResponseStep();
-        }
-    }//GEN-LAST:event_sendACKYesActionPerformed
-
-    private void sendACKNoActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_sendACKNoActionPerformed
-    {//GEN-HEADEREND:event_sendACKNoActionPerformed
-        ackIPAddressField.setEnabled(false);
-        ackIPAddressField1.setEnabled(false);
-        ackIPAddressField2.setEnabled(false);
-        ackIPAddressField3.setEnabled(false);
-        ackPortField.setEnabled(false);
-
-        ipDot.setEnabled(false);
-        ipDot1.setEnabled(false);
-        ipDot2.setEnabled(false);
-        ackIPLabel.setEnabled(false);
-        ackPortLabel.setEnabled(false);
-
-        ackOnNewConnectionNo.setEnabled(false);
-        ackOnNewConnectionYes.setEnabled(false);
-        ackOnNewConnectionLabel.setEnabled(false);
-        removeResponseStep();
-    }//GEN-LAST:event_sendACKNoActionPerformed
-
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.webreach.mirth.client.ui.components.MirthTextField ackIPAddressField;
@@ -650,6 +548,7 @@ public class TCPListener extends ConnectorClass
     private javax.swing.ButtonGroup buttonGroup2;
     private javax.swing.ButtonGroup buttonGroup3;
     private javax.swing.ButtonGroup buttonGroup4;
+    private javax.swing.ButtonGroup buttonGroup5;
     private com.webreach.mirth.client.ui.components.MirthComboBox charsetEncodingCombobox;
     private javax.swing.JLabel ipDot;
     private javax.swing.JLabel ipDot1;
@@ -659,10 +558,10 @@ public class TCPListener extends ConnectorClass
     private javax.swing.JLabel jLabel25;
     private javax.swing.JLabel jLabel26;
     private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel38;
     private javax.swing.JLabel jLabel39;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel9;
     private javax.swing.ButtonGroup keepConnectionOpenGroup;
     private com.webreach.mirth.client.ui.components.MirthRadioButton keepConnectionOpenNoRadio;
@@ -673,9 +572,8 @@ public class TCPListener extends ConnectorClass
     private com.webreach.mirth.client.ui.components.MirthTextField listenerIPAddressField3;
     private com.webreach.mirth.client.ui.components.MirthTextField listenerPortField;
     private com.webreach.mirth.client.ui.components.MirthTextField receiveTimeoutField;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton sendACKNo;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton sendACKTransformer;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton sendACKYes;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton responseFromTransformerNo;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton responseFromTransformerYes;
     // End of variables declaration//GEN-END:variables
 
 }

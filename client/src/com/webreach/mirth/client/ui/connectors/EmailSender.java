@@ -45,6 +45,7 @@ public class EmailSender extends ConnectorClass
     private final String EMAIL_USERNAME = "username";
     private final String EMAIL_PASSWORD = "password";
     private final String EMAIL_TO = "to";
+    private final String EMAIL_FROM = "from";
     private final String EMAIL_SUBJECT = "subject";
     private final String EMAIL_BODY = "body";
         
@@ -64,6 +65,7 @@ public class EmailSender extends ConnectorClass
         properties.put(EMAIL_USERNAME, emailUsernameField.getText());
         properties.put(EMAIL_PASSWORD, new String(emailPasswordField.getPassword()));
         properties.put(EMAIL_TO, emailToField.getText());
+        properties.put(EMAIL_FROM, emailFromField.getText());
         properties.put(EMAIL_SUBJECT, emailSubjectField.getText());
         properties.put(EMAIL_BODY, emailBodyTextPane.getText());
         return properties;
@@ -76,6 +78,7 @@ public class EmailSender extends ConnectorClass
         emailUsernameField.setText((String)props.get(EMAIL_USERNAME));
         emailPasswordField.setText((String)props.get(EMAIL_PASSWORD));
         emailToField.setText((String)props.get(EMAIL_TO));
+        emailFromField.setText((String)props.get(EMAIL_FROM));
         emailSubjectField.setText((String)props.get(EMAIL_SUBJECT));
         emailBodyTextPane.setText((String)props.get(EMAIL_BODY));
     }
@@ -88,17 +91,17 @@ public class EmailSender extends ConnectorClass
         properties.put(EMAIL_PORT, "");
         properties.put(EMAIL_USERNAME, "");
         properties.put(EMAIL_PASSWORD, "");
-        properties.put(EMAIL_TO, "user@domain.com");
-        properties.put(EMAIL_SUBJECT, "Test");
-        properties.put(EMAIL_BODY, "Test email.");
+        properties.put(EMAIL_TO, "");
+        properties.put(EMAIL_FROM, "");
+        properties.put(EMAIL_SUBJECT, "");
+        properties.put(EMAIL_BODY, "");
         return properties;
     }
     
     public boolean checkProperties(Properties props)
     {
         if(((String)props.get(EMAIL_ADDRESS)).length() > 0 && ((String)props.get(EMAIL_PORT)).length() > 0 && 
-        ((String)props.get(EMAIL_TO)).length() > 0 && ((String)props.get(EMAIL_SUBJECT)).length() > 0 && 
-        ((String)props.get(EMAIL_BODY)).length() > 0)
+        ((String)props.get(EMAIL_TO)).length() > 0)
             return true;
         return false;
     }
@@ -126,6 +129,8 @@ public class EmailSender extends ConnectorClass
         emailPasswordField = new com.webreach.mirth.client.ui.components.MirthPasswordField();
         jScrollPane1 = new javax.swing.JScrollPane();
         emailBodyTextPane = new com.webreach.mirth.client.ui.components.MirthTextPane();
+        jLabel8 = new javax.swing.JLabel();
+        emailFromField = new com.webreach.mirth.client.ui.components.MirthTextField();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -147,6 +152,8 @@ public class EmailSender extends ConnectorClass
 
         jScrollPane1.setViewportView(emailBodyTextPane);
 
+        jLabel8.setText("From:");
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -154,6 +161,7 @@ public class EmailSender extends ConnectorClass
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(jLabel8)
                     .add(jLabel2)
                     .add(jLabel1)
                     .add(jLabel3)
@@ -168,8 +176,10 @@ public class EmailSender extends ConnectorClass
                     .add(SMTPServerPortField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(emailUsernameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(emailToField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(emailSubjectField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 232, Short.MAX_VALUE))
+                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 239, Short.MAX_VALUE)
+                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
+                        .add(org.jdesktop.layout.GroupLayout.LEADING, emailFromField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .add(org.jdesktop.layout.GroupLayout.LEADING, emailSubjectField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -196,12 +206,16 @@ public class EmailSender extends ConnectorClass
                     .add(emailToField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jLabel8)
+                    .add(emailFromField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel6)
                     .add(emailSubjectField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jLabel7)
-                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 81, Short.MAX_VALUE))
+                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 75, Short.MAX_VALUE))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -211,6 +225,7 @@ public class EmailSender extends ConnectorClass
     private com.webreach.mirth.client.ui.components.MirthTextField SMTPServerHostField;
     private com.webreach.mirth.client.ui.components.MirthTextField SMTPServerPortField;
     private com.webreach.mirth.client.ui.components.MirthTextPane emailBodyTextPane;
+    private com.webreach.mirth.client.ui.components.MirthTextField emailFromField;
     private com.webreach.mirth.client.ui.components.MirthPasswordField emailPasswordField;
     private com.webreach.mirth.client.ui.components.MirthTextField emailSubjectField;
     private com.webreach.mirth.client.ui.components.MirthTextField emailToField;
@@ -222,6 +237,7 @@ public class EmailSender extends ConnectorClass
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
     private javax.swing.JScrollPane jScrollPane1;
     // End of variables declaration//GEN-END:variables
 

@@ -70,7 +70,8 @@ import com.webreach.mirth.client.ui.connectors.JMSReader;
 import com.webreach.mirth.client.ui.connectors.JMSWriter;
 import com.webreach.mirth.client.ui.connectors.LLPListener;
 import com.webreach.mirth.client.ui.connectors.LLPSender;
-import com.webreach.mirth.client.ui.connectors.PDFWriter;
+import com.webreach.mirth.client.ui.connectors.DocumentWriter;
+import com.webreach.mirth.client.ui.connectors.HTTPSender;
 import com.webreach.mirth.client.ui.connectors.SFTPReader;
 import com.webreach.mirth.client.ui.connectors.SFTPWriter;
 import com.webreach.mirth.client.ui.connectors.SOAPListener;
@@ -161,11 +162,12 @@ public class ChannelSetup extends javax.swing.JPanel
             parent.destinationConnectors.add(new JMSWriter());
             parent.destinationConnectors.add(new FTPWriter());
             parent.destinationConnectors.add(new SFTPWriter());
-            parent.destinationConnectors.add(new PDFWriter());
+            parent.destinationConnectors.add(new DocumentWriter());
             parent.destinationConnectors.add(new JMSWriter());
             parent.destinationConnectors.add(new SOAPSender());
             parent.destinationConnectors.add(new ChannelWriter());
             parent.destinationConnectors.add(new TCPSender());
+            parent.destinationConnectors.add(new HTTPSender());
         }
         
         initComponents();
