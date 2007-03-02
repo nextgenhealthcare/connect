@@ -1283,7 +1283,7 @@ public class Frame extends JXFrame
             }
         });
         alertPopupMenu.add(disableAlert);
-        setVisibleTasks(alertTasks, alertPopupMenu, 0, 0, true);
+        setVisibleTasks(alertTasks, alertPopupMenu, 0, 0, false);
         setVisibleTasks(alertTasks, alertPopupMenu, 1, 1, false);
         setVisibleTasks(alertTasks, alertPopupMenu, 2, 2, true);
         setVisibleTasks(alertTasks, alertPopupMenu, 3, 5, false);
@@ -1644,6 +1644,10 @@ public class Frame extends JXFrame
     {
         if(currentContentPage == channelEditPanel)
             channelEditTasks.getContentPane().getComponent(0).setVisible(false);
+        else if (channelEditPanel != null && currentContentPage == channelEditPanel.transformerPane)
+            channelEditPanel.transformerPane.modified = false;
+        else if (channelEditPanel != null && currentContentPage == channelEditPanel.filterPane)
+            channelEditPanel.filterPane.modified = false;
         else if (currentContentPage == settingsPanel)
             settingsTasks.getContentPane().getComponent(1).setVisible(false);
         else if (alertPanel != null && currentContentPage == alertPanel)
@@ -1816,10 +1820,10 @@ public class Frame extends JXFrame
                 retrieveChannels();
                 setBold(viewPane, 4);
                 setPanelName("Alerts");
-                setCurrentContentPage(alertPanel);
                 refreshAlerts();
                 alertPanel.setDefaultAlert();
                 setFocus(alertTasks);
+                setCurrentContentPage(alertPanel);
                 return null;
             }
             
@@ -2547,7 +2551,18 @@ public class Frame extends JXFrame
     
     public boolean changesHaveBeenMade()
     {
-        return channelEditTasks.getContentPane().getComponent(0).isVisible();
+        if(channelEditPanel != null && currentContentPage == channelEditPanel)
+            return channelEditTasks.getContentPane().getComponent(0).isVisible();
+        else if (channelEditPanel != null && currentContentPage == channelEditPanel.transformerPane)
+            return channelEditPanel.transformerPane.modified;
+        else if (channelEditPanel != null && currentContentPage == channelEditPanel.filterPane)
+            return channelEditPanel.filterPane.modified;
+        else if (settingsPanel != null && currentContentPage == settingsPanel)
+            return settingsTasks.getContentPane().getComponent(1).isVisible();
+        else if (alertPanel != null && currentContentPage == alertPanel)
+            return alertTasks.getContentPane().getComponent(1).isVisible();
+        else
+            return false;
     }
     
     public void doShowMessages()

@@ -72,6 +72,16 @@ public class VariableTransferable implements Transferable {
           this.data = "date.get('yyyy-M-d H:m:s')";
       else if(data.equals("Entity Encoder"))
           this.data = "encoder.encode()";
+      else if(data.equals("ERROR-000 (Server error)"))
+          this.data = "ERROR-000";
+      else if(data.equals("ERROR-100 (Client error)"))
+          this.data = "ERROR-100";
+      else if(data.equals("ERROR-200 (Filter error)"))
+          this.data = "ERROR-200";
+      else if(data.equals("ERROR-300 (Transformer error)"))
+          this.data = "ERROR-300";
+      else if(data.equals("ERROR-400 (Connector error)"))
+          this.data = "ERROR-400";
       else
           this.data = data;
       _prefix = prefix;

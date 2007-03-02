@@ -26,6 +26,7 @@
 
 package com.webreach.mirth.client.ui.connectors;
 
+import com.webreach.mirth.client.ui.components.MirthVariableList;
 import java.util.List;
 import java.util.Properties;
 

@@ -26,6 +26,7 @@
 
 package com.webreach.mirth.client.ui;
 
+import com.webreach.mirth.client.ui.components.MirthVariableList;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -41,6 +42,7 @@ import com.webreach.mirth.model.Step;
  */
 public class VariableList extends javax.swing.JPanel
 {	private final String VAR_PATTERN = "[glob|loc]alMap.put\\(['|\"]([^'|^\"]*)[\"|']";
+        
         /** Creates new form VariableList */
         public VariableList()
         {
@@ -105,7 +107,6 @@ public class VariableList extends javax.swing.JPanel
             variables.add("Encoded Data");
             mirthVariableList.removeAll();
             mirthVariableList.setListData(variables.toArray());
-            
             jScrollPane1.setViewportView(mirthVariableList);
         }
         
