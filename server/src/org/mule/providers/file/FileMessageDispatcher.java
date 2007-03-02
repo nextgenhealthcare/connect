@@ -19,7 +19,6 @@ import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URLDecoder;
-import java.util.Calendar;
 
 import org.mule.MuleException;
 import org.mule.MuleManager;
@@ -36,11 +35,8 @@ import org.mule.umo.endpoint.UMOEndpointURI;
 import org.mule.util.Utility;
 
 import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.server.controllers.ChannelController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
-import com.webreach.mirth.server.mule.components.Channel;
 import com.webreach.mirth.server.util.StackTracePrinter;
-import com.webreach.mirth.server.util.UUIDGenerator;
 
 /**
  * <code>FileMessageDispatcher</code> is used to read/write files to the
@@ -83,9 +79,11 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
 				if (messageObject.getStatus().equals(MessageObject.Status.REJECTED)) {
 					return;
 				}
-				if (messageObject.getCorrelationId() == null){
-					//If we have no correlation id, this means this is the original message
-					//so let's copy it and assign a new id and set the proper correlationid
+				if (messageObject.getCorrelationId() == null) {
+					// If we have no correlation id, this means this is the
+					// original message
+					// so let's copy it and assign a new id and set the proper
+					// correlationid
 					messageObject = messageObjectController.cloneMessageObjectForBroadcast(messageObject, this.getConnector().getName());
 				}
 				String filename = (String) event.getProperty(FileConnector.PROPERTY_FILENAME);
@@ -106,27 +104,28 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
 
 				String template = replacer.replaceValues(connector.getTemplate(), messageObject, filename);
 				File file = Utility.createFile(uri.getAddress() + "/" + filename);
-                                
-                                //ast: change the output method to allow encoding election
-				//if (connector.isOutputAppend()) template+=System.getProperty("line.separator");
-				//don't automatically include line break
-				byte[] buffer= template.getBytes(connector.getCharsetEncoding());
+
+				// ast: change the output method to allow encoding election
+				// if (connector.isOutputAppend())
+				// template+=System.getProperty("line.separator");
+				// don't automatically include line break
+				byte[] buffer = template.getBytes(connector.getCharsetEncoding());
 
 				logger.info("Writing file to: " + file.getAbsolutePath());
 				fos = new FileOutputStream(file, connector.isOutputAppend());
 				fos.write(buffer);
 
 				// update the message status to sent
-				
+
 				messageObject.setStatus(MessageObject.Status.SENT);
 				messageObjectController.updateMessage(messageObject);
 			} else {
 				logger.warn("received data is not of expected type");
 			}
 		} catch (Exception e) {
-			if (messageObject != null){
+			if (messageObject != null) {
 				messageObject.setStatus(MessageObject.Status.ERROR);
-				messageObject.setErrors(messageObject.getErrors() != null ? messageObject.getErrors() + '\n' : "" +  "Error writing the file\n" +  StackTracePrinter.stackTraceToString(e));
+				messageObject.setErrors(messageObject.getErrors() != null ? messageObject.getErrors() + '\n' : "" + "Error writing the file\n" + StackTracePrinter.stackTraceToString(e));
 				messageObjectController.updateMessage(messageObject);
 			}
 			connector.handleException(e);
