@@ -36,6 +36,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.syntax.jedit.SyntaxDocument;
+import org.syntax.jedit.tokenmarker.JavaScriptTokenMarker;
 import org.syntax.jedit.tokenmarker.TSQLTokenMarker;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -67,11 +68,16 @@ public class DatabaseReader extends ConnectorClass
     private final String DATABASE_PASSWORD = "password";
     private final String DATABASE_POLLING_FREQUENCY = "pollingFrequency";
     private final String DATABASE_SQL_STATEMENT = "query";
+    private final String DATABASE_JS_SQL_STATEMENT = "script";
+    private final String DATABASE_USE_JS = "useScript";
     private final String DATABASE_USE_ACK = "useAck";
     private final String DATABASE_ACK = "ack";
+    private final String DATABASE_JS_ACK = "ackScript";
 
-    private static SyntaxDocument mappingDoc;
-    private static SyntaxDocument mappingDoc2;
+    private static SyntaxDocument sqlMappingDoc;
+    private static SyntaxDocument sqlUpdateMappingDoc;
+    private static SyntaxDocument jsMappingDoc;
+    private static SyntaxDocument jsUpdateMappingDoc;
     private List <DriverInfo> drivers;
     
     public DatabaseReader()
@@ -95,12 +101,17 @@ public class DatabaseReader extends ConnectorClass
         }
         
         databaseDriverCombobox.setModel(new javax.swing.DefaultComboBoxModel(driverNames));        
-        mappingDoc = new SyntaxDocument();
-        mappingDoc.setTokenMarker(new TSQLTokenMarker());
-        mappingDoc2 = new SyntaxDocument();
-        mappingDoc2.setTokenMarker(new TSQLTokenMarker());
-        databaseSQLTextPane.setDocument(mappingDoc);
-        databaseUpdateSQLTextPane.setDocument(mappingDoc2);
+        sqlMappingDoc = new SyntaxDocument();
+        sqlMappingDoc.setTokenMarker(new TSQLTokenMarker());
+        sqlUpdateMappingDoc = new SyntaxDocument();
+        sqlUpdateMappingDoc.setTokenMarker(new TSQLTokenMarker());
+        jsMappingDoc = new SyntaxDocument();
+        jsMappingDoc.setTokenMarker(new JavaScriptTokenMarker());
+        jsUpdateMappingDoc = new SyntaxDocument();
+        jsUpdateMappingDoc.setTokenMarker(new JavaScriptTokenMarker());
+        
+        databaseSQLTextPane.setDocument(sqlMappingDoc);
+        databaseUpdateSQLTextPane.setDocument(sqlUpdateMappingDoc);
         
         databaseSQLTextPane.getDocument().addDocumentListener(new DocumentListener() {
             public void changedUpdate(DocumentEvent e) {
@@ -133,14 +144,29 @@ public class DatabaseReader extends ConnectorClass
         properties.put(DATABASE_USERNAME, databaseUsernameField.getText());
         properties.put(DATABASE_PASSWORD, new String(databasePasswordField.getPassword()));
         properties.put(DATABASE_POLLING_FREQUENCY, pollingFreq.getText());
-        properties.put(DATABASE_SQL_STATEMENT, databaseSQLTextPane.getText());
-
+        
+        if(useJavaScriptYes.isSelected())
+        {
+            properties.put(DATABASE_USE_JS, UIConstants.YES_OPTION);
+            properties.put(DATABASE_JS_SQL_STATEMENT, databaseSQLTextPane.getText());
+            properties.put(DATABASE_JS_ACK, databaseUpdateSQLTextPane.getText());
+            properties.put(DATABASE_SQL_STATEMENT, "");
+            properties.put(DATABASE_ACK, "");
+        }
+        else
+        {
+            properties.put(DATABASE_USE_JS, UIConstants.NO_OPTION);
+            properties.put(DATABASE_SQL_STATEMENT, databaseSQLTextPane.getText());
+            properties.put(DATABASE_ACK, databaseUpdateSQLTextPane.getText());
+            properties.put(DATABASE_JS_SQL_STATEMENT, "");
+            properties.put(DATABASE_JS_ACK, "");
+        }
+        
         if (readOnUpdateYes.isSelected())
             properties.put(DATABASE_USE_ACK, UIConstants.YES_OPTION);
         else
             properties.put(DATABASE_USE_ACK, UIConstants.NO_OPTION);
 
-        properties.put(DATABASE_ACK, databaseUpdateSQLTextPane.getText());
         return properties;
     }
 
@@ -161,7 +187,22 @@ public class DatabaseReader extends ConnectorClass
         databasePasswordField.setText((String)props.get(DATABASE_PASSWORD));
         pollingFreq.setText((String)props.get(DATABASE_POLLING_FREQUENCY));
         databaseSQLTextPane.setText((String)props.get(DATABASE_SQL_STATEMENT));
-
+        
+        if(((String)props.get(DATABASE_USE_JS)).equals(UIConstants.YES_OPTION))
+        {
+            useJavaScriptYes.setSelected(true);
+            useJavaScriptYesActionPerformed(null);
+            databaseSQLTextPane.setText((String)props.get(DATABASE_JS_SQL_STATEMENT));
+            databaseUpdateSQLTextPane.setText((String)props.get(DATABASE_JS_ACK));
+        }
+        else
+        {
+            useJavaScriptNo.setSelected(true);
+            useJavaScriptNoActionPerformed(null);
+            databaseSQLTextPane.setText((String)props.get(DATABASE_SQL_STATEMENT));
+            databaseUpdateSQLTextPane.setText((String)props.get(DATABASE_ACK));
+        }
+        
         if(((String)props.get(DATABASE_USE_ACK)).equalsIgnoreCase(UIConstants.YES_OPTION))
         {
             readOnUpdateYes.setSelected(true);
@@ -172,9 +213,6 @@ public class DatabaseReader extends ConnectorClass
             readOnUpdateNo.setSelected(true);
             readOnUpdateNoActionPerformed(null);
         }
-
-        databaseUpdateSQLTextPane.setText((String)props.get(DATABASE_ACK));
-
     }
 
     public Properties getDefaults()
@@ -188,8 +226,11 @@ public class DatabaseReader extends ConnectorClass
         properties.put(DATABASE_PASSWORD, "");
         properties.put(DATABASE_POLLING_FREQUENCY, "5000");
         properties.put(DATABASE_SQL_STATEMENT, "SELECT FROM");
+        properties.put(DATABASE_USE_JS, UIConstants.NO_OPTION);
+        properties.put(DATABASE_JS_SQL_STATEMENT, "");
         properties.put(DATABASE_USE_ACK, UIConstants.NO_OPTION);
         properties.put(DATABASE_ACK, "UPDATE");
+        properties.put(DATABASE_JS_ACK, "");
         return properties;
     }
     
@@ -267,11 +308,12 @@ public class DatabaseReader extends ConnectorClass
     private void initComponents()
     {
         buttonGroup1 = new javax.swing.ButtonGroup();
+        buttonGroup2 = new javax.swing.ButtonGroup();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
-        jLabel5 = new javax.swing.JLabel();
+        sqlLabel = new javax.swing.JLabel();
         databaseDriverCombobox = new com.webreach.mirth.client.ui.components.MirthComboBox();
         databaseURLField = new com.webreach.mirth.client.ui.components.MirthTextField();
         databaseUsernameField = new com.webreach.mirth.client.ui.components.MirthTextField();
@@ -286,6 +328,10 @@ public class DatabaseReader extends ConnectorClass
         dbVarList = new com.webreach.mirth.client.ui.components.MirthVariableList();
         databaseSQLTextPane = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea(true,false);
         databaseUpdateSQLTextPane = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea(true,false);
+        jLabel6 = new javax.swing.JLabel();
+        useJavaScriptYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        useJavaScriptNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        generateConnection = new javax.swing.JButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -297,13 +343,13 @@ public class DatabaseReader extends ConnectorClass
 
         jLabel4.setText("Password:");
 
-        jLabel5.setText("SQL Statement:");
+        sqlLabel.setText("SQL:");
 
         databaseDriverCombobox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Sun JDBC-ODBC Bridge", "ODBC - MySQL", "ODBC - PostgresSQL", "ODBC - SQL Server/Sybase", "ODBC - Oracle 10g Release 2" }));
 
         databasePasswordField.setFont(new java.awt.Font("Tahoma", 0, 11));
 
-        onUpdateLabel.setText("On-Update Statement:");
+        onUpdateLabel.setText("On-Update SQL:");
 
         jLabel7.setText("Polling Frequency (ms):");
 
@@ -334,7 +380,7 @@ public class DatabaseReader extends ConnectorClass
             }
         });
 
-        jLabel8.setText("Run On-Update SQL:");
+        jLabel8.setText("Run On-Update Statment:");
 
         jScrollPane1.setViewportView(dbVarList);
 
@@ -342,67 +388,124 @@ public class DatabaseReader extends ConnectorClass
 
         databaseUpdateSQLTextPane.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
+        jLabel6.setText("Use JavaScript");
+
+        useJavaScriptYes.setBackground(new java.awt.Color(255, 255, 255));
+        useJavaScriptYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        buttonGroup2.add(useJavaScriptYes);
+        useJavaScriptYes.setText("Yes");
+        useJavaScriptYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        useJavaScriptYes.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                useJavaScriptYesActionPerformed(evt);
+            }
+        });
+
+        useJavaScriptNo.setBackground(new java.awt.Color(255, 255, 255));
+        useJavaScriptNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        buttonGroup2.add(useJavaScriptNo);
+        useJavaScriptNo.setText("No");
+        useJavaScriptNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        useJavaScriptNo.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                useJavaScriptNoActionPerformed(evt);
+            }
+        });
+
+        generateConnection.setText("Insert Connections");
+        generateConnection.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                generateConnectionActionPerformed(evt);
+            }
+        });
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel5)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel1)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel2)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel3)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel4)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel7)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel8)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, onUpdateLabel))
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(sqlLabel)
+                    .add(jLabel1)
+                    .add(jLabel2)
+                    .add(jLabel3)
+                    .add(jLabel4)
+                    .add(jLabel7)
+                    .add(jLabel8)
+                    .add(onUpdateLabel)
+                    .add(jLabel6))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(layout.createSequentialGroup()
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(layout.createSequentialGroup()
+                                .add(readOnUpdateYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(readOnUpdateNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .add(layout.createSequentialGroup()
+                                .add(databaseUpdateSQLTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 273, Short.MAX_VALUE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(jScrollPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 95, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .add(databaseUsernameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(databaseURLField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 250, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(databaseDriverCombobox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(layout.createSequentialGroup()
+                                .add(databaseSQLTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 374, Short.MAX_VALUE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)))
+                        .addContainerGap())
                     .add(databasePasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(pollingFreq, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(layout.createSequentialGroup()
-                        .add(readOnUpdateYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(readOnUpdateNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(layout.createSequentialGroup()
-                        .add(databaseUpdateSQLTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 269, Short.MAX_VALUE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jScrollPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 95, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(databaseUsernameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(databaseURLField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 250, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(databaseDriverCombobox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(layout.createSequentialGroup()
-                        .add(databaseSQLTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 370, Short.MAX_VALUE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)))
-                .addContainerGap())
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(layout.createSequentialGroup()
+                                .add(useJavaScriptYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(useJavaScriptNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .add(pollingFreq, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 176, Short.MAX_VALUE)
+                        .add(generateConnection)
+                        .addContainerGap())))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(databaseDriverCombobox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel1))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(databaseURLField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel2))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(databaseUsernameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel3))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(databasePasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel4))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(pollingFreq, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel7))
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(layout.createSequentialGroup()
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                            .add(databaseDriverCombobox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(jLabel1))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                            .add(databaseURLField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(jLabel2))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                            .add(databaseUsernameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(jLabel3))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                            .add(databasePasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(jLabel4))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                            .add(pollingFreq, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(jLabel7))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                            .add(useJavaScriptYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(jLabel6)
+                            .add(useJavaScriptNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                    .add(generateConnection))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jLabel5)
-                    .add(databaseSQLTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 118, Short.MAX_VALUE))
+                    .add(sqlLabel)
+                    .add(databaseSQLTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 109, Short.MAX_VALUE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel8)
@@ -411,11 +514,68 @@ public class DatabaseReader extends ConnectorClass
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(onUpdateLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 14, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(databaseUpdateSQLTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 119, Short.MAX_VALUE)
-                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 119, Short.MAX_VALUE))
+                    .add(databaseUpdateSQLTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 109, Short.MAX_VALUE)
+                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 109, Short.MAX_VALUE))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void generateConnectionActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_generateConnectionActionPerformed
+    {//GEN-HEADEREND:event_generateConnectionActionPerformed
+       
+        String driver = "";
+        
+        for(int i = 0; i < drivers.size(); i++)
+        {
+            DriverInfo driverInfo = drivers.get(i);
+            if(driverInfo.getName().equalsIgnoreCase(((String)databaseDriverCombobox.getSelectedItem())))
+                driver = driverInfo.getClassName();
+        }
+        
+        String connectionText = "Class.forName(\"" + driver + "\");\n" +
+                "Properties info = new Properties();\n" +
+                "info.setProperty(\"user\", \"" + databaseUsernameField.getText() + "\");\n" +
+                "info.setProperty(\"password\", \"" + new String(databasePasswordField.getPassword()) +  "\");\n" +
+                "Connection dbConn = DriverManager.getConnection(\"" + databaseURLField.getText() + "\", info);\n\n" +
+                "// YOUR CODE GOES HERE\n\n" +
+                "dbConn.close();";
+        
+        String updateText = "Class.forName(\"" + driver + "\");\n" +
+                "Properties info = new Properties();\n" +
+                "info.setProperty(\"user\", \"" + databaseUsernameField.getText() + "\");\n" +
+                "info.setProperty(\"password\", \"" + new String(databasePasswordField.getPassword()) +  "\");\n" +
+                "Connection dbConn = DriverManager.getConnection(\"" + databaseURLField.getText() + "\", info);\n\n" +
+                "// YOUR CODE GOES HERE\n\n" +
+                "dbConn.close();";
+        
+        databaseSQLTextPane.setText(connectionText + "\n\n" + databaseSQLTextPane.getText());
+        databaseUpdateSQLTextPane.setText(updateText + "\n\n" + databaseUpdateSQLTextPane.getText());
+        
+        parent.enableSave();
+    }//GEN-LAST:event_generateConnectionActionPerformed
+
+    private void useJavaScriptNoActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_useJavaScriptNoActionPerformed
+    {//GEN-HEADEREND:event_useJavaScriptNoActionPerformed
+        sqlLabel.setText("SQL:");
+        onUpdateLabel.setText("On-Update SQL:");
+        databaseSQLTextPane.setDocument(sqlMappingDoc);
+        databaseUpdateSQLTextPane.setDocument(sqlUpdateMappingDoc);
+        databaseSQLTextPane.setText("SELECT FROM");
+        generateConnection.setEnabled(false);
+        dbVarList.setEnabled(true);
+        updateSQL();
+    }//GEN-LAST:event_useJavaScriptNoActionPerformed
+
+    private void useJavaScriptYesActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_useJavaScriptYesActionPerformed
+    {//GEN-HEADEREND:event_useJavaScriptYesActionPerformed
+        sqlLabel.setText("JavaScript:");
+        onUpdateLabel.setText("On-Update JavaScript:");
+        databaseSQLTextPane.setDocument(jsMappingDoc);
+        databaseUpdateSQLTextPane.setDocument(jsUpdateMappingDoc);
+        generateConnection.setEnabled(true);
+        dbVarList.setEnabled(false);
+        updateSQL();
+    }//GEN-LAST:event_useJavaScriptYesActionPerformed
 
     private void readOnUpdateNoActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_readOnUpdateNoActionPerformed
     {//GEN-HEADEREND:event_readOnUpdateNoActionPerformed
@@ -432,6 +592,7 @@ public class DatabaseReader extends ConnectorClass
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup buttonGroup1;
+    private javax.swing.ButtonGroup buttonGroup2;
     private com.webreach.mirth.client.ui.components.MirthComboBox databaseDriverCombobox;
     private com.webreach.mirth.client.ui.components.MirthPasswordField databasePasswordField;
     private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea databaseSQLTextPane;
@@ -439,11 +600,12 @@ public class DatabaseReader extends ConnectorClass
     private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea databaseUpdateSQLTextPane;
     private com.webreach.mirth.client.ui.components.MirthTextField databaseUsernameField;
     private com.webreach.mirth.client.ui.components.MirthVariableList dbVarList;
+    private javax.swing.JButton generateConnection;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JScrollPane jScrollPane1;
@@ -451,6 +613,9 @@ public class DatabaseReader extends ConnectorClass
     private com.webreach.mirth.client.ui.components.MirthTextField pollingFreq;
     private com.webreach.mirth.client.ui.components.MirthRadioButton readOnUpdateNo;
     private com.webreach.mirth.client.ui.components.MirthRadioButton readOnUpdateYes;
+    private javax.swing.JLabel sqlLabel;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton useJavaScriptNo;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton useJavaScriptYes;
     // End of variables declaration//GEN-END:variables
 
 }

@@ -241,7 +241,7 @@ public class DatabaseWriter extends ConnectorClass
             }
         });
 
-        jLabel6.setText("Use JavaScript");
+        jLabel6.setText("Use JavaScript:");
 
         generateConnection.setText("Insert Connection");
         generateConnection.addActionListener(new java.awt.event.ActionListener()
@@ -277,11 +277,11 @@ public class DatabaseWriter extends ConnectorClass
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                                 .add(useJavaScriptNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                             .add(databasePasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 66, Short.MAX_VALUE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 62, Short.MAX_VALUE)
                         .add(generateConnection)
                         .addContainerGap())
                     .add(layout.createSequentialGroup()
-                        .add(databaseSQLTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 310, Short.MAX_VALUE)
+                        .add(databaseSQLTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 306, Short.MAX_VALUE)
                         .addContainerGap())))
         );
         layout.setVerticalGroup(
@@ -320,8 +320,6 @@ public class DatabaseWriter extends ConnectorClass
 
     private void generateConnectionActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_generateConnectionActionPerformed
     {//GEN-HEADEREND:event_generateConnectionActionPerformed
-        parent.enableSave();
-        
         String driver = "";
         
         for(int i = 0; i < drivers.size(); i++)
@@ -339,7 +337,9 @@ public class DatabaseWriter extends ConnectorClass
         "// YOUR CODE GOES HERE\n\n" + 
         "dbConn.close();";
         
-        databaseSQLTextPane.setText(connectionText);
+        databaseSQLTextPane.setText(connectionText + "\n\n" + databaseSQLTextPane.getText());
+        
+        parent.enableSave();
     }//GEN-LAST:event_generateConnectionActionPerformed
 
     private void useJavaScriptYesActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_useJavaScriptYesActionPerformed

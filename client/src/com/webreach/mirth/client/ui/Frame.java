@@ -630,9 +630,9 @@ public class Frame extends JXFrame
         });
         channelPopupMenu.add(deployAll);
         
-        channelTasks.add(initActionCallback("doNewChannel", "Create a new channel.", ActionFactory.createBoundAction("doNewChannel","New Channel", "N"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/add.png"))));
+        channelTasks.add(initActionCallback("doNewChannel", "Create a new channel.", ActionFactory.createBoundAction("doNewChannel","New Channel", "N"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/channel_add.png"))));
         JMenuItem newChannel = new JMenuItem("New Channel");
-        newChannel.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/add.png")));
+        newChannel.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/channel_add.png")));
         newChannel.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent e)
@@ -690,9 +690,9 @@ public class Frame extends JXFrame
         });
         channelPopupMenu.add(cloneChannel);
         
-        channelTasks.add(initActionCallback("doEditChannel", "Edit the currently selected channel.", ActionFactory.createBoundAction("doEditChannel","Edit Channel", "E"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/edit.png"))));
+        channelTasks.add(initActionCallback("doEditChannel", "Edit the currently selected channel.", ActionFactory.createBoundAction("doEditChannel","Edit Channel", "E"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/channel_edit.png"))));
         JMenuItem editChannel = new JMenuItem("Edit Channel");
-        editChannel.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/edit.png")));
+        editChannel.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/channel_edit.png")));
         editChannel.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent e)
@@ -702,9 +702,9 @@ public class Frame extends JXFrame
         });
         channelPopupMenu.add(editChannel);
         
-        channelTasks.add(initActionCallback("doDeleteChannel", "Delete the currently selected channel.", ActionFactory.createBoundAction("doDeleteChannel","Delete Channel","D"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png"))));
+        channelTasks.add(initActionCallback("doDeleteChannel", "Delete the currently selected channel.", ActionFactory.createBoundAction("doDeleteChannel","Delete Channel","D"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/channel_delete.png"))));
         JMenuItem deleteChannel = new JMenuItem("Delete Channel");
-        deleteChannel.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png")));
+        deleteChannel.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/channel_delete.png")));
         deleteChannel.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent e)
@@ -1157,9 +1157,9 @@ public class Frame extends JXFrame
         });
         userPopupMenu.add(refresh);
         
-        userTasks.add(initActionCallback("doNewUser", "Create a new user.", ActionFactory.createBoundAction("doNewChannel","New User", "N"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/add.png"))));
+        userTasks.add(initActionCallback("doNewUser", "Create a new user.", ActionFactory.createBoundAction("doNewChannel","New User", "N"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/user_add.png"))));
         JMenuItem newUser = new JMenuItem("New User");
-        newUser.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/add.png")));
+        newUser.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/user_add.png")));
         newUser.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent e)
@@ -1169,9 +1169,9 @@ public class Frame extends JXFrame
         });
         userPopupMenu.add(newUser);
         
-        userTasks.add(initActionCallback("doEditUser", "Edit the currently selected user.", ActionFactory.createBoundAction("doEditChannel","Edit User", "E"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/edit.png"))));
+        userTasks.add(initActionCallback("doEditUser", "Edit the currently selected user.", ActionFactory.createBoundAction("doEditChannel","Edit User", "E"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/user_edit.png"))));
         JMenuItem editUser = new JMenuItem("Edit User");
-        editUser.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/edit.png")));
+        editUser.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/user_edit.png")));
         editUser.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent e)
@@ -1181,9 +1181,9 @@ public class Frame extends JXFrame
         });
         userPopupMenu.add(editUser);
         
-        userTasks.add(initActionCallback("doDeleteUser", "Delete the currently selected user.", ActionFactory.createBoundAction("doDeleteChannel","Delete User","D"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png"))));
+        userTasks.add(initActionCallback("doDeleteUser", "Delete the currently selected user.", ActionFactory.createBoundAction("doDeleteChannel","Delete User","D"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/user_delete.png"))));
         JMenuItem deleteUser = new JMenuItem("Delete User");
-        deleteUser.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png")));
+        deleteUser.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/user_delete.png")));
         deleteUser.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent e)
@@ -1821,12 +1821,12 @@ public class Frame extends JXFrame
                 refreshAlerts();
                 alertPanel.setDefaultAlert();
                 setFocus(alertTasks);
-                setCurrentContentPage(alertPanel);
                 return null;
             }
             
             public void done()
             {
+                setCurrentContentPage(alertPanel);
                 setWorking(false);
             }
         };

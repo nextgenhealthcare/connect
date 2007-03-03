@@ -286,6 +286,9 @@ public class AlertPanel extends javax.swing.JPanel
     
     public void setDefaultAlert()
     {
+        lastAlertRow = -1;
+        lastEmailRow = -1;
+        
         if(parent.alerts.size() > 0)
         {
             alertTable.setRowSelectionInterval(0,0);

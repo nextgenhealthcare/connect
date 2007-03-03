@@ -50,12 +50,12 @@
                           </Group>
                           <Component id="databasePasswordField" alignment="0" min="-2" pref="125" max="-2" attributes="1"/>
                       </Group>
-                      <EmptySpace pref="66" max="32767" attributes="0"/>
+                      <EmptySpace pref="62" max="32767" attributes="0"/>
                       <Component id="generateConnection" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
-                      <Component id="databaseSQLTextPane" pref="310" max="32767" attributes="0"/>
+                      <Component id="databaseSQLTextPane" pref="306" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
@@ -213,7 +213,7 @@
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel6">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Use JavaScript"/>
+        <Property name="text" type="java.lang.String" value="Use JavaScript:"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JButton" name="generateConnection">
