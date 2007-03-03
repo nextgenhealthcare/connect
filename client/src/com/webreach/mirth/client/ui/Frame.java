@@ -500,9 +500,7 @@ public class Frame extends JXFrame
         
         contentPane.getViewport().add(contentPageObject);
         currentContentPage = contentPageObject;
-        
-
-        this.repaint();
+        contentPane.repaint();
     }
     
     /**

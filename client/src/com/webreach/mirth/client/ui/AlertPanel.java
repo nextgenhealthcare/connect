@@ -131,16 +131,17 @@ public class AlertPanel extends javax.swing.JPanel
             {
                 if (!evt.getValueIsAdjusting())
                 {
-                    if (lastAlertRow >= 0 && lastAlertRow < alertTable.getRowCount() && !isDeleting)
+                    if (lastAlertRow != -1 && lastAlertRow < alertTable.getRowCount() && !isDeleting)
                     {
                         saveAlert();
                     }
                     
                     if (!loadAlert())
                     {
-                        if (lastAlertRow == alertTable.getRowCount())
+                    	int rowCount = alertTable.getRowCount();
+                        if (lastAlertRow == rowCount)
                             alertTable.setRowSelectionInterval(lastAlertRow - 1, lastAlertRow - 1);
-                        else
+                        else if (lastAlertRow != -1 && lastAlertRow < rowCount)
                             alertTable.setRowSelectionInterval(lastAlertRow, lastAlertRow);
                     }
                     else
