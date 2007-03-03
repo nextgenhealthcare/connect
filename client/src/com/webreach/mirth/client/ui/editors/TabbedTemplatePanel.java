@@ -263,7 +263,6 @@ public class TabbedTemplatePanel extends javax.swing.JPanel
     private void variableReferenceDropDownActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_variableReferenceDropDownActionPerformed
     {//GEN-HEADEREND:event_variableReferenceDropDownActionPerformed
        // variableViewPanel.removeAll();
-        System.out.println((String)variableReferenceDropDown.getSelectedItem() + " " + panels.get((String)variableReferenceDropDown.getSelectedItem()));
         variableScrollPane.setViewportView((panels.get((String)variableReferenceDropDown.getSelectedItem())));
         //variableViewPanel.repaint();
     }//GEN-LAST:event_variableReferenceDropDownActionPerformed

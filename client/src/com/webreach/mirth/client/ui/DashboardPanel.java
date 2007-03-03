@@ -232,7 +232,7 @@ public class DashboardPanel extends javax.swing.JPanel
     private void StatusListSelected(ListSelectionEvent evt)
     {
         int row = statusTable.getSelectedRow();
-        if(row >= 0 && row < statusTable.getRowCount() && lastRow != row)
+        if(row >= 0 && row < statusTable.getRowCount())
         {
             parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 3, -1, true);
             

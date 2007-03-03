@@ -75,7 +75,6 @@ public class MirthEditorPane extends JPanel
         ReferenceListBuilder builder = new ReferenceListBuilder();
         tabTemplatePanel = new TabbedTemplatePanel(this);
         tabTemplatePanel.addPanel(new ReferenceListPanel("Functions and Variables", builder.getVariableListItems(builder.FUNCTIONS_AND_VARIABLES)), "Functions and Variables");
-        tabTemplatePanel.addPanel(new MapperPanel(this), "Mapper Panel");
         tabTemplatePanel.addPanel(new ReferenceListPanel("Functions and Variables", builder.getVariableListItems(builder.FUNCTIONS_AND_VARIABLES)), "Another List");
         
         tabTemplatePanel.setReferencePanel();
