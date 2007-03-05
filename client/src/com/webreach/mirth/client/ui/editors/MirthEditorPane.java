@@ -36,8 +36,9 @@ import javax.swing.table.DefaultTableModel;
 
 import com.webreach.mirth.client.ui.Frame;
 import com.webreach.mirth.client.ui.PlatformUI;
-import com.webreach.mirth.client.ui.panels.reference.ReferenceListBuilder;
+import com.webreach.mirth.client.ui.panels.reference.ReferenceListFactory;
 import com.webreach.mirth.client.ui.panels.reference.ReferenceListPanel;
+import com.webreach.mirth.client.ui.panels.reference.ReferenceListFactory.ListType;
 
 public class MirthEditorPane extends JPanel
 {
@@ -72,10 +73,10 @@ public class MirthEditorPane extends JPanel
     {
         super();
         this.setBorder(BorderFactory.createEmptyBorder());
-        ReferenceListBuilder builder = new ReferenceListBuilder();
+        ReferenceListFactory builder = new ReferenceListFactory();
         tabTemplatePanel = new TabbedTemplatePanel(this);
-        tabTemplatePanel.addPanel(new ReferenceListPanel("Functions and Variables", builder.getVariableListItems(builder.FUNCTIONS_AND_VARIABLES)), "Functions and Variables");
-        tabTemplatePanel.addPanel(new ReferenceListPanel("Functions and Variables", builder.getVariableListItems(builder.FUNCTIONS_AND_VARIABLES)), "Another List");
+        tabTemplatePanel.addPanel(new ReferenceListPanel("Conversion Functions", builder.getVariableListItems(ListType.CONVERSION)), "Conversion Functions");
+        tabTemplatePanel.addPanel(new ReferenceListPanel("Database Functions", builder.getVariableListItems(ListType.DATABASE)), "Database Functions");
         
         tabTemplatePanel.setReferencePanel();
         tabTemplatePanel.setBorder(BorderFactory.createEmptyBorder());

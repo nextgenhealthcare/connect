@@ -4,18 +4,83 @@ import java.util.ArrayList;
 
 import com.webreach.mirth.client.ui.CodeSnippetType;
 
-public class ReferenceListBuilder
+public class ReferenceListFactory
 {
-    public final String FUNCTIONS_AND_VARIABLES = "functionsAndVariables"; 
+    public enum ListType {CONVERSION, LOGGING, DATABASE, MESSAGE, XML, HL7};
     
-    public ArrayList<ReferenceListItem> getVariableListItems(String itemName)
+    
+    public ArrayList<ReferenceListItem> getVariableListItems(ListType itemName)
     {
-        if(itemName.equals(FUNCTIONS_AND_VARIABLES))
-            return getFunctionsAndVariablesItems();
-        else
-            return null;
+    	switch (itemName){
+    		case CONVERSION:
+    		 return getConversionItems();
+    		case LOGGING:
+    			return getLoggingItems();
+    		case DATABASE:
+    			return getDatabaseItems();
+    		case MESSAGE:
+    			return getMessageItems();
+    		case XML:
+    			return getXMLItems();
+    		case HL7:
+    			return getHL7Items();
+    	}
+    	return null;
     }
-    
+    private ArrayList<ReferenceListItem> getConversionItems()
+    {
+        ArrayList<ReferenceListItem> variablelistItems = new ArrayList<ReferenceListItem>();
+        variablelistItems.add(new ReferenceListItem("Local Variable Map",
+                "The local variable map that will be sent to the connector.",
+                "localMap.get('')", CodeSnippetType.VARIABLE));
+        
+        return variablelistItems;
+    }
+    private ArrayList<ReferenceListItem> getLoggingItems()
+    {
+        ArrayList<ReferenceListItem> variablelistItems = new ArrayList<ReferenceListItem>();
+        variablelistItems.add(new ReferenceListItem("Local Variable Map",
+                "The local variable map that will be sent to the connector.",
+                "localMap.get('')", CodeSnippetType.VARIABLE));
+        
+        return variablelistItems;
+    }
+    private ArrayList<ReferenceListItem> getDatabaseItems()
+    {
+        ArrayList<ReferenceListItem> variablelistItems = new ArrayList<ReferenceListItem>();
+        variablelistItems.add(new ReferenceListItem("Local Variable Map",
+                "The local variable map that will be sent to the connector.",
+                "localMap.get('')", CodeSnippetType.VARIABLE));
+        
+        return variablelistItems;
+    }
+    private ArrayList<ReferenceListItem> getMessageItems()
+    {
+        ArrayList<ReferenceListItem> variablelistItems = new ArrayList<ReferenceListItem>();
+        variablelistItems.add(new ReferenceListItem("Local Variable Map",
+                "The local variable map that will be sent to the connector.",
+                "localMap.get('')", CodeSnippetType.VARIABLE));
+        
+        return variablelistItems;
+    }
+    private ArrayList<ReferenceListItem> getXMLItems()
+    {
+        ArrayList<ReferenceListItem> variablelistItems = new ArrayList<ReferenceListItem>();
+        variablelistItems.add(new ReferenceListItem("Local Variable Map",
+                "The local variable map that will be sent to the connector.",
+                "localMap.get('')", CodeSnippetType.VARIABLE));
+        
+        return variablelistItems;
+    }
+    private ArrayList<ReferenceListItem> getHL7Items()
+    {
+        ArrayList<ReferenceListItem> variablelistItems = new ArrayList<ReferenceListItem>();
+        variablelistItems.add(new ReferenceListItem("Local Variable Map",
+                "The local variable map that will be sent to the connector.",
+                "localMap.get('')", CodeSnippetType.VARIABLE));
+        
+        return variablelistItems;
+    }
     private ArrayList<ReferenceListItem> getFunctionsAndVariablesItems()
     {
         ArrayList<ReferenceListItem> variablelistItems = new ArrayList<ReferenceListItem>();

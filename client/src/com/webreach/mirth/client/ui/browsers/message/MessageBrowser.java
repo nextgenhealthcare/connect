@@ -583,7 +583,7 @@ public class MessageBrowser extends javax.swing.JPanel
                 serializer.setPreserveSpace(false);
                 String transformedData = currentMessage.getTransformedData();
                 String transformmedXML = new String();
-                if (transformedData != null){
+                if (transformedData != null && transformedData.length() > 0){
                 	transformmedXML  = serializer.toXML(serializer.fromXML(transformedData));
                 }               
                 setCorrectDocument(RawMessageTextPane, currentMessage.getRawData(), currentMessage.getRawDataProtocol());

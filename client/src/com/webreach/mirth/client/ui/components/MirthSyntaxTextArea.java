@@ -47,8 +47,9 @@ import com.webreach.mirth.client.ui.actions.RedoAction;
 import com.webreach.mirth.client.ui.actions.SelectAllAction;
 import com.webreach.mirth.client.ui.actions.SnippetAction;
 import com.webreach.mirth.client.ui.actions.UndoAction;
-import com.webreach.mirth.client.ui.panels.reference.ReferenceListBuilder;
+import com.webreach.mirth.client.ui.panels.reference.ReferenceListFactory;
 import com.webreach.mirth.client.ui.panels.reference.ReferenceListItem;
+import com.webreach.mirth.client.ui.panels.reference.ReferenceListFactory.ListType;
 
 /**
  * Mirth's implementation of the JTextArea. Adds enabling of the save button in
@@ -118,8 +119,8 @@ public class MirthSyntaxTextArea extends JEditTextArea implements
             varlist = new JMenu("Built-in Variables");
             hl7list = new JMenu("HL7 Helpers");
             funclist = new JMenu("Built-in Functions");
-            ReferenceListBuilder functionBuilder = new ReferenceListBuilder();
-            ArrayList<ReferenceListItem> jshelpers = functionBuilder.getVariableListItems(functionBuilder.FUNCTIONS_AND_VARIABLES);
+            ReferenceListFactory functionBuilder = new ReferenceListFactory();
+            ArrayList<ReferenceListItem> jshelpers = functionBuilder.getVariableListItems(ListType.MESSAGE);
             Iterator<ReferenceListItem> it = jshelpers.iterator();
             
             while (it.hasNext())
