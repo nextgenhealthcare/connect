@@ -28,6 +28,7 @@ package com.webreach.mirth.client.ui.connectors;
 
 import java.awt.Component;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -46,12 +47,12 @@ import javax.swing.table.TableCellEditor;
 
 import org.jdesktop.swingx.decorator.AlternateRowHighlighter;
 import org.jdesktop.swingx.decorator.HighlighterPipeline;
+
 import com.webreach.mirth.client.ui.Mirth;
 import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.client.ui.components.MirthTable;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
-import java.util.ArrayList;
 
 
 /** 

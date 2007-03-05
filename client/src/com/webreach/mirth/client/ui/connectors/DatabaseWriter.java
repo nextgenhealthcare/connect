@@ -34,8 +34,6 @@ import org.syntax.jedit.tokenmarker.JavaScriptTokenMarker;
 import org.syntax.jedit.tokenmarker.TSQLTokenMarker;
 
 import com.webreach.mirth.client.core.ClientException;
-import com.webreach.mirth.client.ui.Frame;
-import com.webreach.mirth.client.ui.PlatformUI;
 import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.model.DriverInfo;
 
@@ -353,7 +351,7 @@ public class DatabaseWriter extends ConnectorClass
     {//GEN-HEADEREND:event_useJavaScriptNoActionPerformed
         sqlLabel.setText("SQL:");
         databaseSQLTextPane.setDocument(sqlMappingDoc);
-        databaseSQLTextPane.setText("SELECT FROM");
+        //databaseSQLTextPane.setText("SELECT FROM");
         generateConnection.setEnabled(false);
     }//GEN-LAST:event_useJavaScriptNoActionPerformed
 

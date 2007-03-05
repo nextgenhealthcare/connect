@@ -25,36 +25,35 @@
 
 package com.webreach.mirth.client.ui;
 
-import com.webreach.mirth.client.core.ClientException;
-import com.webreach.mirth.client.ui.components.MirthVariableList;
-import com.webreach.mirth.model.Channel;
+import java.awt.Component;
 import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.util.prefs.Preferences;
-
-import javax.swing.ImageIcon;
-import javax.swing.JPanel;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-
-import org.jdesktop.swingx.decorator.AlternateRowHighlighter;
-import org.jdesktop.swingx.decorator.HighlighterPipeline;
-
-import com.webreach.mirth.client.ui.components.MirthTable;
-import com.webreach.mirth.model.Alert;
-import java.awt.Component;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.List;
-import java.util.Properties;
+import java.util.prefs.Preferences;
+
 import javax.swing.AbstractCellEditor;
+import javax.swing.ImageIcon;
 import javax.swing.JComponent;
+import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
+
+import org.jdesktop.swingx.decorator.AlternateRowHighlighter;
+import org.jdesktop.swingx.decorator.HighlighterPipeline;
+
+import com.webreach.mirth.client.core.ClientException;
+import com.webreach.mirth.client.ui.components.MirthTable;
+import com.webreach.mirth.client.ui.components.MirthVariableList;
+import com.webreach.mirth.model.Alert;
+import com.webreach.mirth.model.Channel;
 
 /** The channel editor panel. Majority of the client application */
 public class AlertPanel extends javax.swing.JPanel
@@ -139,7 +138,7 @@ public class AlertPanel extends javax.swing.JPanel
                     if (!loadAlert())
                     {
                     	int rowCount = alertTable.getRowCount();
-                        if (lastAlertRow == rowCount)
+                        if (rowCount > 0 && lastAlertRow == rowCount)
                             alertTable.setRowSelectionInterval(lastAlertRow - 1, lastAlertRow - 1);
                         else if (lastAlertRow != -1 && lastAlertRow < rowCount)
                             alertTable.setRowSelectionInterval(lastAlertRow, lastAlertRow);
@@ -280,7 +279,7 @@ public class AlertPanel extends javax.swing.JPanel
         }
         else if(lastAlertRow >= 0 && lastAlertRow < alertTable.getRowCount())
         {
-            alertTable.setRowSelectionInterval(lastAlertRow,lastAlertRow);
+            //alertTable.setRowSelectionInterval(lastAlertRow,lastAlertRow);
         }
     }
     
@@ -354,6 +353,14 @@ public class AlertPanel extends javax.swing.JPanel
             highlighter.addHighlighter(new AlternateRowHighlighter(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR, UIConstants.TITLE_TEXT_COLOR));
             applyToChannelsTable.setHighlighters(highlighter);
         }
+        
+        applyToChannelsTable.getSelectionModel().addListSelectionListener(new ListSelectionListener()
+        {
+            public void valueChanged(ListSelectionEvent evt)
+            {
+               parent.enableSave();
+            }
+        });
         
         // Mouse listener for trigger-button popup on the table.
         applyToChannelsTable.addMouseListener(new java.awt.event.MouseAdapter()
@@ -459,7 +466,7 @@ public class AlertPanel extends javax.swing.JPanel
         if(getAlertIndex() == UIConstants.ERROR_CONSTANT)
             return false;
         
-        boolean changed = parent.changesHaveBeenMade();
+        boolean changed = parent.alertTasks.getContentPane().getComponent(1).isVisible();
         
         Alert current = parent.alerts.get(getAlertIndex());
         updateApplyToChannelsTable(current);
@@ -471,8 +478,7 @@ public class AlertPanel extends javax.swing.JPanel
         split.setRightComponent(bottomPane);
         split.setDividerLocation(dividerLocation);
         
-        if(changed)
-            parent.enableSave();
+        parent.alertTasks.getContentPane().getComponent(1).setVisible(changed);
         
         return true;
     }
@@ -482,13 +488,20 @@ public class AlertPanel extends javax.swing.JPanel
         if(getAlertIndex() == UIConstants.ERROR_CONSTANT)
             return false;
         
+        boolean changed = parent.alertTasks.getContentPane().getComponent(1).isVisible();
+        
         Alert current = parent.alerts.get(getAlertIndex(lastAlertRow));
         current.setChannels(getChannels());
         current.setExpression(errorField.getText());
-        emailsTable.getColumnModel().getColumn(emailsTable.getColumnModel().getColumnIndex(EMAIL_COLUMN_NAME)).getCellEditor().stopCellEditing();
+        
+        if(emailsTable.isEditing())
+            emailsTable.getColumnModel().getColumn(emailsTable.getColumnModel().getColumnIndex(EMAIL_COLUMN_NAME)).getCellEditor().stopCellEditing();
+        
         current.setEmails(getEmails());
         current.setTemplate(template.getText());
-
+        
+        parent.alertTasks.getContentPane().getComponent(1).setVisible(changed);
+        
         return true;
     }
     
@@ -594,6 +607,9 @@ public class AlertPanel extends javax.swing.JPanel
     /** Adds a new alert. */
     public void addAlert()
     {
+        if(alertTable.isEditing())
+            alertTable.getColumnModel().getColumn(alertTable.getColumnModel().getColumnIndex(ALERT_NAME_COLUMN_NAME)).getCellEditor().stopCellEditing();
+        
         updateAlertTable(true);
         alertPane.getViewport().setViewPosition(new Point(0, alertTable.getRowHeight()*alertTable.getRowCount()));
         parent.enableSave();
@@ -601,6 +617,9 @@ public class AlertPanel extends javax.swing.JPanel
     
     public void enableAlert()
     {
+        if(alertTable.isEditing())
+            alertTable.getColumnModel().getColumn(alertTable.getColumnModel().getColumnIndex(ALERT_NAME_COLUMN_NAME)).getCellEditor().stopCellEditing();
+        
         parent.alerts.get(getAlertIndex()).setEnabled(true);
         updateAlertTable(false);
         parent.enableSave();
@@ -608,6 +627,9 @@ public class AlertPanel extends javax.swing.JPanel
     
     public void disableAlert()
     {
+        if(alertTable.isEditing())
+            alertTable.getColumnModel().getColumn(alertTable.getColumnModel().getColumnIndex(ALERT_NAME_COLUMN_NAME)).getCellEditor().stopCellEditing();
+        
         parent.alerts.get(getAlertIndex()).setEnabled(false);
         updateAlertTable(false);
         parent.enableSave();
@@ -618,6 +640,10 @@ public class AlertPanel extends javax.swing.JPanel
         if(!parent.alertOption("Are you sure you want to delete this alert?"))
             return;
         isDeleting = true;
+        
+        if(alertTable.isEditing())
+            alertTable.getColumnModel().getColumn(alertTable.getColumnModel().getColumnIndex(ALERT_NAME_COLUMN_NAME)).getCellEditor().stopCellEditing();
+        
         parent.alerts.remove(getAlertIndex());
         updateAlertTable(false);
         parent.enableSave();
@@ -659,11 +685,6 @@ public class AlertPanel extends javax.swing.JPanel
             {
                 // 'value' is value contained in the cell located at (rowIndex, vColIndex)
                 originalValue = value;
-
-                if (isSelected)
-                {
-                    // cell (and perhaps other cells) are selected
-                }
 
                 // Configure the component with the specified value
                 ((JTextField)component).setText((String)value);

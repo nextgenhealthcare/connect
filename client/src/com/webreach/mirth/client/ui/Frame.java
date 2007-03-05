@@ -1603,10 +1603,10 @@ public class Frame extends JXFrame
     {
         if (name.equals(""))
         {
-            alertWarning("Channel name cannot be blank.");
+            alertWarning("Channel name cannot be empty.");
             return false;
         }
-        
+
         for (Channel channel : channels.values())
         {
             if (channel.getName().equalsIgnoreCase(name))

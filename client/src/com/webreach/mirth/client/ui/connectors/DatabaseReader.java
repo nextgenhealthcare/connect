@@ -26,7 +26,6 @@
 
 package com.webreach.mirth.client.ui.connectors;
 
-import com.webreach.mirth.client.ui.components.MirthVariableList;
 import java.util.List;
 import java.util.Properties;
 
@@ -42,8 +41,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.webreach.mirth.client.core.ClientException;
-import com.webreach.mirth.client.ui.Frame;
-import com.webreach.mirth.client.ui.PlatformUI;
 import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
 import com.webreach.mirth.client.ui.util.SQLParserUtil;
@@ -560,7 +557,7 @@ public class DatabaseReader extends ConnectorClass
         onUpdateLabel.setText("On-Update SQL:");
         databaseSQLTextPane.setDocument(sqlMappingDoc);
         databaseUpdateSQLTextPane.setDocument(sqlUpdateMappingDoc);
-        databaseSQLTextPane.setText("SELECT FROM");
+        //databaseSQLTextPane.setText("SELECT FROM");
         generateConnection.setEnabled(false);
         dbVarList.setEnabled(true);
         updateSQL();

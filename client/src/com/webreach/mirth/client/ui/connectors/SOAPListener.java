@@ -28,8 +28,6 @@ package com.webreach.mirth.client.ui.connectors;
 
 import java.util.Properties;
 
-import com.webreach.mirth.client.ui.Frame;
-import com.webreach.mirth.client.ui.PlatformUI;
 import com.webreach.mirth.client.ui.UIConstants;
 
 /**

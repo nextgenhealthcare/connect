@@ -26,7 +26,6 @@
 
 package com.webreach.mirth.client.ui;
 
-import com.webreach.mirth.client.ui.components.MirthVariableList;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;

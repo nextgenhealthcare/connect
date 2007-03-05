@@ -26,13 +26,14 @@
 
 package com.webreach.mirth.client.ui.connectors;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Properties;
+
 import com.webreach.mirth.client.ui.Frame;
 import com.webreach.mirth.client.ui.PlatformUI;
 import com.webreach.mirth.client.ui.editors.MirthEditorPane;
 import com.webreach.mirth.model.Step;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Properties;
 
 /** Used to extend from for all of the Connectors.
  *  Each method is re-implemented in each Connector.

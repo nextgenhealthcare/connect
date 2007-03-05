@@ -29,8 +29,6 @@ package com.webreach.mirth.client.ui.connectors;
 import java.util.Properties;
 import java.util.StringTokenizer;
 
-import com.webreach.mirth.client.ui.Frame;
-import com.webreach.mirth.client.ui.PlatformUI;
 import com.webreach.mirth.client.ui.UIConstants;
 
 /**
@@ -144,6 +142,7 @@ public class HTTPListener extends ConnectorClass
     private void initComponents()
     {
         keepConnectionOpenGroup = new javax.swing.ButtonGroup();
+        buttonGroup1 = new javax.swing.ButtonGroup();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
@@ -200,6 +199,7 @@ public class HTTPListener extends ConnectorClass
 
         responseFromTransformerNo.setBackground(new java.awt.Color(255, 255, 255));
         responseFromTransformerNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        buttonGroup1.add(responseFromTransformerNo);
         responseFromTransformerNo.setText("No");
         responseFromTransformerNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
         responseFromTransformerNo.addActionListener(new java.awt.event.ActionListener()
@@ -212,6 +212,7 @@ public class HTTPListener extends ConnectorClass
 
         responseFromTransformerYes.setBackground(new java.awt.Color(255, 255, 255));
         responseFromTransformerYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        buttonGroup1.add(responseFromTransformerYes);
         responseFromTransformerYes.setText("Yes");
         responseFromTransformerYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
         responseFromTransformerYes.addActionListener(new java.awt.event.ActionListener()
@@ -318,6 +319,7 @@ public class HTTPListener extends ConnectorClass
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.webreach.mirth.client.ui.components.MirthTextField bufferSizeField;
+    private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;

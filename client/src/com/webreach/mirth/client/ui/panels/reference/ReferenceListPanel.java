@@ -7,8 +7,6 @@
 package com.webreach.mirth.client.ui.panels.reference;
 
 import java.util.ArrayList;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
 
 /**
  *

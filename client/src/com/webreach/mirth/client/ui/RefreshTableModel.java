@@ -13,8 +13,9 @@ import java.util.Vector;
 
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
+
+import org.jdesktop.swingx.JXTable;
  
 public class RefreshTableModel extends DefaultTableModel
 {
@@ -53,11 +54,15 @@ public class RefreshTableModel extends DefaultTableModel
      */
     public void refreshDataVector(Vector data)
     {
-        //if(dataVector != null && dataVector.size() > 0)    
-        //    fireTableRowsDeleted(0, dataVector.size() - 1);
+        /*if(dataVector != null && dataVector.size() > 0)    
+           fireTableRowsDeleted(0, dataVector.size() - 1);
+        
+        if(data.size() > 0)
+            fireTableRowsInserted(0, data.size() - 1);*/
+        
         dataVector = data;
-        if(dataVector.size() > 0)
-            fireTableRowsInserted(0, dataVector.size() - 1);
+        
+        fireTableDataChanged();
     }
  
     public void refreshDataVector(Object[][] data)
@@ -71,7 +76,8 @@ public class RefreshTableModel extends DefaultTableModel
         Object[][] data = { {"four", "A"}, {"three", "B"}, {"two", "C"}, {"one", "D"} };
         String[] columnNames = {"Number", "Letter"};
         RefreshTableModel model = new RefreshTableModel(data, columnNames);
-        JTable table = new JTable(model);
+        JXTable table = new JXTable(model);
+        table.setSortable(true);
         table.getColumnModel().getColumn(0).setPreferredWidth(100);
         table.getColumnModel().getColumn(1).setPreferredWidth(200);
         JScrollPane scrollPane = new JScrollPane( table );
