@@ -23,7 +23,6 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
 package com.webreach.mirth.client.ui.actions;
 
 import java.awt.event.ActionEvent;
@@ -36,22 +35,21 @@ import com.webreach.mirth.client.ui.components.MirthSyntaxTextArea;
 public class RedoAction extends AbstractAction
 {
 	MirthSyntaxTextArea comp;
-    
-    public RedoAction(MirthSyntaxTextArea comp)
-    { 
-        super("Redo"); 
-        this.comp = comp; 
-    } 
- 
-    public void actionPerformed(ActionEvent e)
-    { 
-        comp.redo();
-    } 
- 
-    public boolean isEnabled()
-    { 
-        return comp.isEnabled() 
-                && comp.canRedo(); 
-    } 
+
+	public RedoAction(MirthSyntaxTextArea comp)
+	{
+		super("Redo");
+		this.comp = comp;
+	}
+
+	public void actionPerformed(ActionEvent e)
+	{
+		comp.redo();
+	}
+
+	public boolean isEnabled()
+	{
+		return comp.isEnabled() && comp.canRedo();
+	}
 
 }

@@ -8,17 +8,25 @@ import java.util.Map;
 
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 
-public class HL7Reference {
-	
-	private Map<String,String> mapv25 = new HashMap<String, String>();
-	private Map<String,String> mapv24 = new HashMap<String, String>();
-	private Map<String,String> mapv231 = new HashMap<String, String>();
-	private Map<String,String> mapv23 = new HashMap<String, String>();
-	private Map<String,String> mapv22 = new HashMap<String, String>();
-	private Map<String,String> mapv21 = new HashMap<String, String>();
+public class HL7Reference
+{
+
+	private Map<String, String> mapv25 = new HashMap<String, String>();
+
+	private Map<String, String> mapv24 = new HashMap<String, String>();
+
+	private Map<String, String> mapv231 = new HashMap<String, String>();
+
+	private Map<String, String> mapv23 = new HashMap<String, String>();
+
+	private Map<String, String> mapv22 = new HashMap<String, String>();
+
+	private Map<String, String> mapv21 = new HashMap<String, String>();
+
 	private static HL7Reference instance = null;
 
-	private HL7Reference() {
+	private HL7Reference()
+	{
 		populate21Map(mapv21);
 		populate22Map(mapv22);
 		populate23Map(mapv23);
@@ -26,65 +34,92 @@ public class HL7Reference {
 		populate24Map(mapv24);
 		populate25Map(mapv25);
 	}
-	public static void main(String[] args) {
-		//Generate XML files from the contents of the map
+
+	public static void main(String[] args)
+	{
+		// Generate XML files from the contents of the map
 		ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 		HL7Reference reference = HL7Reference.getInstance();
 		String outbound = args[0];
-		try {
-	        BufferedWriter out = new BufferedWriter(new FileWriter(outbound   + "\\hl7v21.xml"));
-	        out.write(serializer.toXML(reference.getMapv21()));
-	        out.close();
-	        out = new BufferedWriter(new FileWriter(outbound  + "\\hl7v22.xml"));
-	        out.write(serializer.toXML(reference.getMapv22()));
-	        out.close();
-	        out = new BufferedWriter(new FileWriter(outbound   + "\\hl7v23.xml"));
-	        out.write(serializer.toXML(reference.getMapv23()));
-	        out.close();
-	        out = new BufferedWriter(new FileWriter(outbound   + "\\hl7v231.xml"));
-	        out.write(serializer.toXML(reference.getMapv231()));
-	        out.close();
-	        out = new BufferedWriter(new FileWriter(outbound   + "\\hl7v24.xml"));
-	        out.write(serializer.toXML(reference.getMapv24()));
-	        out.close();
-	        out = new BufferedWriter(new FileWriter(outbound   + "\\hl7v25.xml"));
-	        out.write(serializer.toXML(reference.getMapv25()));
-	        out.close();
-	    } catch (IOException e) {
-	    	e.printStackTrace();
-	    }
+		try
+		{
+			BufferedWriter out = new BufferedWriter(new FileWriter(outbound + "\\hl7v21.xml"));
+			out.write(serializer.toXML(reference.getMapv21()));
+			out.close();
+			out = new BufferedWriter(new FileWriter(outbound + "\\hl7v22.xml"));
+			out.write(serializer.toXML(reference.getMapv22()));
+			out.close();
+			out = new BufferedWriter(new FileWriter(outbound + "\\hl7v23.xml"));
+			out.write(serializer.toXML(reference.getMapv23()));
+			out.close();
+			out = new BufferedWriter(new FileWriter(outbound + "\\hl7v231.xml"));
+			out.write(serializer.toXML(reference.getMapv231()));
+			out.close();
+			out = new BufferedWriter(new FileWriter(outbound + "\\hl7v24.xml"));
+			out.write(serializer.toXML(reference.getMapv24()));
+			out.close();
+			out = new BufferedWriter(new FileWriter(outbound + "\\hl7v25.xml"));
+			out.write(serializer.toXML(reference.getMapv25()));
+			out.close();
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
 	}
-	public static HL7Reference getInstance() {
-		synchronized (HL7Reference.class) {
+
+	public static HL7Reference getInstance()
+	{
+		synchronized (HL7Reference.class)
+		{
 			if (instance == null)
 				instance = new HL7Reference();
 			return instance;
 		}
 	}
-	public String getDescription(String key, String version){
-		if (version.equals("2.5")){
+
+	public String getDescription(String key, String version)
+	{
+		if (version.equals("2.5"))
+		{
 			return getDescription(key, mapv25);
-		}else if (version.equals("2.4")){
+		}
+		else if (version.equals("2.4"))
+		{
 			return getDescription(key, mapv24);
-		}else if (version.equals("2.3.1")){
+		}
+		else if (version.equals("2.3.1"))
+		{
 			return getDescription(key, mapv231);
-		}else if (version.equals("2.3")){
+		}
+		else if (version.equals("2.3"))
+		{
 			return getDescription(key, mapv23);
-		}else if (version.equals("2.2")){
+		}
+		else if (version.equals("2.2"))
+		{
 			return getDescription(key, mapv22);
-		}else if (version.equals("2.1")){
+		}
+		else if (version.equals("2.1"))
+		{
 			return getDescription(key, mapv21);
-		}else{
+		}
+		else
+		{
 			return new String();
 		}
 	}
-	private String getDescription(String key, Map<String,String> map){
+
+	private String getDescription(String key, Map<String, String> map)
+	{
 		if (map.containsKey(key))
-			return map.get(key);		
+			return map.get(key);
 		else
 			return new String();
 	}
-	private void populate25Map(Map<String,String> map){
+
+	private void populate25Map(Map<String, String> map)
+	{
 		map.put("AD", "Address");
 		map.put("AD.1", "Street Address");
 		map.put("AD.2", "Other Designation");
@@ -3170,7 +3205,9 @@ public class HL7Reference {
 		map.put("VTQ.5", "Selection Criteria");
 
 	}
-	private void populate21Map(Map<String,String> map){
+
+	private void populate21Map(Map<String, String> map)
+	{
 		map.put("AD", "Address");
 		map.put("AD.1", "Street Address");
 		map.put("AD.2", "Other designation");
@@ -3710,7 +3747,9 @@ public class HL7Reference {
 		map.put("URS.4", "R/U What User Qualifier");
 		map.put("URS.5", "R/U Oth Results Def.");
 	}
-	private void populate22Map(Map<String,String> map){
+
+	private void populate22Map(Map<String, String> map)
+	{
 		map.put("AD", "Address");
 		map.put("AD.1", "Street Address");
 		map.put("AD.2", "Other Designation");
@@ -4396,7 +4435,9 @@ public class HL7Reference {
 		map.put("URS.8", "Date/Time Selection Qualifier");
 
 	}
-	private void populate23Map(Map<String,String> map){
+
+	private void populate23Map(Map<String, String> map)
+	{
 		map.put("AD", "Address");
 		map.put("AD.1", "Street Address");
 		map.put("AD.2", "Other Designation");
@@ -6788,7 +6829,9 @@ public class HL7Reference {
 		map.put("VTQ.5", "Selection Criteria");
 
 	}
-	private void populate231Map(Map<String,String> map){
+
+	private void populate231Map(Map<String, String> map)
+	{
 		map.put("AD", "Address");
 		map.put("AD.1", "Street Address");
 		map.put("AD.2", "Other Designation");
@@ -8999,7 +9042,9 @@ public class HL7Reference {
 		map.put("VTQ.4", "Virtual Table Name");
 		map.put("VTQ.5", "Selection Criteria");
 	}
-	private void populate24Map(Map<String,String> map){
+
+	private void populate24Map(Map<String, String> map)
+	{
 		map.put("AD", "Address");
 		map.put("AD.1", "Street Address (ST)");
 		map.put("AD.2", "Other Designation");
@@ -11717,40 +11762,64 @@ public class HL7Reference {
 		map.put("VTQ.4", "Virtual Table Name");
 		map.put("VTQ.5", "Selection Criteria");
 	}
-	public Map<String, String> getMapv21() {
+
+	public Map<String, String> getMapv21()
+	{
 		return mapv21;
 	}
-	public void setMapv21(Map<String, String> mapv21) {
+
+	public void setMapv21(Map<String, String> mapv21)
+	{
 		this.mapv21 = mapv21;
 	}
-	public Map<String, String> getMapv22() {
+
+	public Map<String, String> getMapv22()
+	{
 		return mapv22;
 	}
-	public void setMapv22(Map<String, String> mapv22) {
+
+	public void setMapv22(Map<String, String> mapv22)
+	{
 		this.mapv22 = mapv22;
 	}
-	public Map<String, String> getMapv23() {
+
+	public Map<String, String> getMapv23()
+	{
 		return mapv23;
 	}
-	public void setMapv23(Map<String, String> mapv23) {
+
+	public void setMapv23(Map<String, String> mapv23)
+	{
 		this.mapv23 = mapv23;
 	}
-	public Map<String, String> getMapv231() {
+
+	public Map<String, String> getMapv231()
+	{
 		return mapv231;
 	}
-	public void setMapv231(Map<String, String> mapv231) {
+
+	public void setMapv231(Map<String, String> mapv231)
+	{
 		this.mapv231 = mapv231;
 	}
-	public Map<String, String> getMapv24() {
+
+	public Map<String, String> getMapv24()
+	{
 		return mapv24;
 	}
-	public void setMapv24(Map<String, String> mapv24) {
+
+	public void setMapv24(Map<String, String> mapv24)
+	{
 		this.mapv24 = mapv24;
 	}
-	public Map<String, String> getMapv25() {
+
+	public Map<String, String> getMapv25()
+	{
 		return mapv25;
 	}
-	public void setMapv25(Map<String, String> mapv25) {
+
+	public void setMapv25(Map<String, String> mapv25)
+	{
 		this.mapv25 = mapv25;
 	}
 }

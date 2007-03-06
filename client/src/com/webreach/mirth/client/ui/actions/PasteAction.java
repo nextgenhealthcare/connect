@@ -23,7 +23,6 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
 package com.webreach.mirth.client.ui.actions;
 
 import java.awt.Toolkit;
@@ -39,27 +38,27 @@ import com.webreach.mirth.client.ui.components.MirthTextInterface;
 public class PasteAction extends AbstractAction
 {
 	MirthTextInterface comp;
-    
-    public PasteAction(MirthTextInterface comp)
-    { 
-        super("Paste"); 
-        this.comp = comp; 
-    } 
- 
-    public void actionPerformed(ActionEvent e)
-    { 
-        comp.paste(); 
-    } 
- 
-    public boolean isEnabled()
-    { 
-        if (comp.isVisible() && comp.isEditable() && comp.isEnabled())
-        { 
-            Transferable contents = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(this); 
-            return contents.isDataFlavorSupported(DataFlavor.stringFlavor); 
-        }
-        else 
-            return false; 
-    } 
+
+	public PasteAction(MirthTextInterface comp)
+	{
+		super("Paste");
+		this.comp = comp;
+	}
+
+	public void actionPerformed(ActionEvent e)
+	{
+		comp.paste();
+	}
+
+	public boolean isEnabled()
+	{
+		if (comp.isVisible() && comp.isEditable() && comp.isEnabled())
+		{
+			Transferable contents = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(this);
+			return contents.isDataFlavorSupported(DataFlavor.stringFlavor);
+		}
+		else
+			return false;
+	}
 
 }

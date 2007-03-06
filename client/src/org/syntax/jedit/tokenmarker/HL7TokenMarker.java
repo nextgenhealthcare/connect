@@ -13,7 +13,7 @@ import org.syntax.jedit.KeywordMap;
 
 /**
  * C++ token marker.
- *
+ * 
  * @author Slava Pestov
  * @version $Id: CCTokenMarker.java,v 1.6 1999/12/13 03:40:29 sp Exp $
  */
@@ -21,12 +21,12 @@ public class HL7TokenMarker extends CTokenMarker
 {
 	public HL7TokenMarker()
 	{
-		super(true,getKeywords());
+		super(true, getKeywords());
 	}
 
 	public static KeywordMap getKeywords()
 	{
-		if(ccKeywords == null)
+		if (ccKeywords == null)
 		{
 			ccKeywords = new KeywordMap(false);
 

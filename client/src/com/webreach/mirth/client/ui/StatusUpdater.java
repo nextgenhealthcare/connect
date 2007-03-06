@@ -23,55 +23,59 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
 package com.webreach.mirth.client.ui;
+
 import java.util.prefs.Preferences;
 
 /**
- * The status updater class has a thread that updates the status
- * panel every specified interval if the status panel is being viewed.
+ * The status updater class has a thread that updates the status panel every
+ * specified interval if the status panel is being viewed.
  */
 public class StatusUpdater implements Runnable
 {
-    private final int DEFAULT_INTERVAL_TIME = 20;
-    private static Preferences userPreferences; 
-    Frame parent;
-    int refreshRate;
-    boolean interrupted;
-    
-    public StatusUpdater()
-    {
-        this.parent = PlatformUI.MIRTH_FRAME;
-        userPreferences = Preferences.systemNodeForPackage(Mirth.class);
-        interrupted = false;
-    }
-    
-    public void run()
-    {
-        try
-        {
-            while(!interrupted)
-            {
-                refreshRate = userPreferences.getInt("intervalTime", DEFAULT_INTERVAL_TIME) * 1000;
-                Thread.sleep(refreshRate);
-                
-                if(interrupted)
-                    return;
-                
-                if(parent.currentContentPage != null && parent.currentContentPage == parent.dashboardPanel && parent.isStatusUpdateComplete())
-                {
-                    parent.refreshStatuses();
-                }
-            }
-        }
-        catch(InterruptedException e)
-        {
-            // should happen when closed.
-        }
-    }
-    
-    public void interruptThread()
-    {
-        interrupted = true;
-    }
+	private final int DEFAULT_INTERVAL_TIME = 20;
+
+	private static Preferences userPreferences;
+
+	Frame parent;
+
+	int refreshRate;
+
+	boolean interrupted;
+
+	public StatusUpdater()
+	{
+		this.parent = PlatformUI.MIRTH_FRAME;
+		userPreferences = Preferences.systemNodeForPackage(Mirth.class);
+		interrupted = false;
+	}
+
+	public void run()
+	{
+		try
+		{
+			while (!interrupted)
+			{
+				refreshRate = userPreferences.getInt("intervalTime", DEFAULT_INTERVAL_TIME) * 1000;
+				Thread.sleep(refreshRate);
+
+				if (interrupted)
+					return;
+
+				if (parent.currentContentPage != null && parent.currentContentPage == parent.dashboardPanel && parent.isStatusUpdateComplete())
+				{
+					parent.refreshStatuses();
+				}
+			}
+		}
+		catch (InterruptedException e)
+		{
+			// should happen when closed.
+		}
+	}
+
+	public void interruptThread()
+	{
+		interrupted = true;
+	}
 }

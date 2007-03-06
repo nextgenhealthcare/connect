@@ -36,53 +36,53 @@ import com.webreach.mirth.client.ui.VariableTransferable;
 
 public class ReferenceListHandler extends TransferHandler
 {
-    private ArrayList<ReferenceListItem> listItems;
-    
-    public ReferenceListHandler(ArrayList<ReferenceListItem> listItems)
-    {
-        super();
-        this.listItems = listItems;
-    }
-    
-    public void setListItems(ArrayList<ReferenceListItem> listItems)
-    {
-        this.listItems = listItems;
-    }
-    
-    protected Transferable createTransferable(JComponent c)
-    {
-        try
-        {
-            if (listItems == null)
-                return null;
-            ReferenceTable reftable = ((ReferenceTable) (c));
-            
-            if (reftable == null)
-                return null;
-            
-            int currRow = reftable.getSelectedRow();
-            
-            String text;
-            if (currRow >= 0 && currRow < reftable.getRowCount() && currRow < listItems.size())
-                text = listItems.get(currRow).getCode();
-            else
-                text = "";
-            
-            return new VariableTransferable(text, "", "");
-        }
-        catch (ClassCastException cce)
-        {
-            return null;
-        }
-    }
-    
-    public int getSourceActions(JComponent c)
-    {
-        return COPY;
-    }
-    
-    public boolean canImport(JComponent c, DataFlavor[] df)
-    {
-        return false;
-    }
+	private ArrayList<ReferenceListItem> listItems;
+
+	public ReferenceListHandler(ArrayList<ReferenceListItem> listItems)
+	{
+		super();
+		this.listItems = listItems;
+	}
+
+	public void setListItems(ArrayList<ReferenceListItem> listItems)
+	{
+		this.listItems = listItems;
+	}
+
+	protected Transferable createTransferable(JComponent c)
+	{
+		try
+		{
+			if (listItems == null)
+				return null;
+			ReferenceTable reftable = ((ReferenceTable) (c));
+
+			if (reftable == null)
+				return null;
+
+			int currRow = reftable.getSelectedRow();
+
+			String text;
+			if (currRow >= 0 && currRow < reftable.getRowCount() && currRow < listItems.size())
+				text = listItems.get(currRow).getCode();
+			else
+				text = "";
+
+			return new VariableTransferable(text, "", "");
+		}
+		catch (ClassCastException cce)
+		{
+			return null;
+		}
+	}
+
+	public int getSourceActions(JComponent c)
+	{
+		return COPY;
+	}
+
+	public boolean canImport(JComponent c, DataFlavor[] df)
+	{
+		return false;
+	}
 }

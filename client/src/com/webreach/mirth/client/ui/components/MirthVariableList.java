@@ -23,7 +23,6 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
 package com.webreach.mirth.client.ui.components;
 
 import java.awt.event.KeyEvent;
@@ -35,84 +34,83 @@ import com.webreach.mirth.client.ui.PlatformUI;
 import com.webreach.mirth.client.ui.VariableListHandler;
 
 /**
- * An implementation of JXList that has mouse rollover
- * selection implemented.
+ * An implementation of JXList that has mouse rollover selection implemented.
  */
 public class MirthVariableList extends JXList
 {
-    
-    public MirthVariableList()
-    {
-        this("${", "}");
-    }
-    
-    /**
-     * Creates a new instance of MirthVariableList
-     */
-    public MirthVariableList(String prefix, String suffix)
-    {
-        super();
-        this.setDragEnabled(true);
-        this.setTransferHandler(new VariableListHandler(prefix, suffix));
-        this.setFocusable(false);
-        this.addMouseMotionListener(new java.awt.event.MouseMotionAdapter()
-        {
-            public void mouseMoved(java.awt.event.MouseEvent evt)
-            {
-                mirthListMouseMoved(evt);
-            }
-        });
-        this.addMouseListener(new java.awt.event.MouseAdapter()
-        {
-            public void mouseExited(java.awt.event.MouseEvent evt)
-            {
-                mirthListMouseExited(evt);
-            }
-        });
-        this.addKeyListener(new KeyListener()
-        {
-            
-            public void keyPressed(KeyEvent e)
-            {
-                // TODO Auto-generated method stub
-                if (e.getKeyCode() == KeyEvent.VK_S && e.isControlDown())
-                {
-                    PlatformUI.MIRTH_FRAME.doSaveChannel();
-                }
-            }
-            
-            public void keyReleased(KeyEvent e)
-            {
-                // TODO Auto-generated method stub
-                
-            }
-            
-            public void keyTyped(KeyEvent e)
-            {
-                // TODO Auto-generated method stub
-                
-            }
-            
-        });
-    }
-    
-    /**
-     * When leaving the variable list, the selection is cleared.
-     */
-    private void mirthListMouseExited(java.awt.event.MouseEvent evt)
-    {
-        this.clearSelection();
-    }
-    
-    /**
-     * When moving on the variable list, set the selection to whatever
-     * the mouse is over.
-     */
-    private void mirthListMouseMoved(java.awt.event.MouseEvent evt)
-    {
-        int index = this.locationToIndex(evt.getPoint());
-        
-        if (index != -1)
-            this.setSelectedIndex(index);
-    }   
+
+	public MirthVariableList()
+	{
+		this("${", "}");
+	}
+
+	/**
+	 * Creates a new instance of MirthVariableList
+	 */
+	public MirthVariableList(String prefix, String suffix)
+	{
+		super();
+		this.setDragEnabled(true);
+		this.setTransferHandler(new VariableListHandler(prefix, suffix));
+		this.setFocusable(false);
+		this.addMouseMotionListener(new java.awt.event.MouseMotionAdapter()
+		{
+			public void mouseMoved(java.awt.event.MouseEvent evt)
+			{
+				mirthListMouseMoved(evt);
+			}
+		});
+		this.addMouseListener(new java.awt.event.MouseAdapter()
+		{
+			public void mouseExited(java.awt.event.MouseEvent evt)
+			{
+				mirthListMouseExited(evt);
+			}
+		});
+		this.addKeyListener(new KeyListener()
+		{
+
+			public void keyPressed(KeyEvent e)
+			{
+				// TODO Auto-generated method stub
+				if (e.getKeyCode() == KeyEvent.VK_S && e.isControlDown())
+				{
+					PlatformUI.MIRTH_FRAME.doSaveChannel();
+				}
+			}
+
+			public void keyReleased(KeyEvent e)
+			{
+				// TODO Auto-generated method stub
+
+			}
+
+			public void keyTyped(KeyEvent e)
+			{
+				// TODO Auto-generated method stub
+
+			}
+
+		});
+	}
+
+	/**
+	 * When leaving the variable list, the selection is cleared.
+	 */
+	private void mirthListMouseExited(java.awt.event.MouseEvent evt)
+	{
+		this.clearSelection();
+	}
+
+	/**
+	 * When moving on the variable list, set the selection to whatever the mouse
+	 * is over.
+	 */
+	private void mirthListMouseMoved(java.awt.event.MouseEvent evt)
+	{
+		int index = this.locationToIndex(evt.getPoint());
+
+		if (index != -1)
+			this.setSelectedIndex(index);
+	}
 }

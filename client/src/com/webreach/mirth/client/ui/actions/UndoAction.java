@@ -23,7 +23,6 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
 package com.webreach.mirth.client.ui.actions;
 
 import java.awt.event.ActionEvent;
@@ -36,22 +35,21 @@ import com.webreach.mirth.client.ui.components.MirthSyntaxTextArea;
 public class UndoAction extends AbstractAction
 {
 	MirthSyntaxTextArea comp;
-    
-    public UndoAction(MirthSyntaxTextArea comp)
-    { 
-        super("Undo"); 
-        this.comp = comp; 
-    } 
- 
-    public void actionPerformed(ActionEvent e)
-    { 
-        comp.undo();
-    } 
- 
-    public boolean isEnabled()
-    { 
-        return comp.isEnabled() 
-                && comp.canUndo(); 
-    } 
+
+	public UndoAction(MirthSyntaxTextArea comp)
+	{
+		super("Undo");
+		this.comp = comp;
+	}
+
+	public void actionPerformed(ActionEvent e)
+	{
+		comp.undo();
+	}
+
+	public boolean isEnabled()
+	{
+		return comp.isEnabled() && comp.canUndo();
+	}
 
 }

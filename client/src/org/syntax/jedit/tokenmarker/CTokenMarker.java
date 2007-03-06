@@ -15,7 +15,7 @@ import org.syntax.jedit.KeywordMap;
 
 /**
  * C token marker.
- *
+ * 
  * @author Slava Pestov
  * @version $Id: CTokenMarker.java,v 1.34 1999/12/13 03:40:29 sp Exp $
  */
@@ -23,7 +23,7 @@ public class CTokenMarker extends TokenMarker
 {
 	public CTokenMarker()
 	{
-		this(true,getKeywords());
+		this(true, getKeywords());
 	}
 
 	public CTokenMarker(boolean cpp, KeywordMap keywords)
@@ -40,97 +40,107 @@ public class CTokenMarker extends TokenMarker
 		lastKeyword = offset;
 		int length = line.count + offset;
 		boolean backslash = false;
-		if (token == Token.DIGIT){
+		if (token == Token.DIGIT)
+		{
 			token = Token.NULL;
 		}
-loop:		for(int i = offset; i < length; i++)
+		loop: for (int i = offset; i < length; i++)
 		{
-			int i1 = (i+1);
+			int i1 = (i + 1);
 
 			char c = array[i];
-			if(c == '\\')
+			if (c == '\\')
 			{
 				backslash = !backslash;
 				continue;
 			}
 
-			switch(token)
+			switch (token)
 			{
 			case Token.NULL:
-				switch(c)
+				switch (c)
 				{
 				case '#':
-					if(backslash)
+					if (backslash)
 						backslash = false;
-					else if(cpp)
+					else if (cpp)
 					{
-						if(doKeyword(line,i,c))
+						if (doKeyword(line, i, c))
 							break;
-						addToken(i - lastOffset,token);
-						addToken(length - i,Token.KEYWORD2);
+						addToken(i - lastOffset, token);
+						addToken(length - i, Token.KEYWORD2);
 						lastOffset = lastKeyword = length;
 						break loop;
 					}
 					break;
 				case '"':
-					doKeyword(line,i,c);
-					if(backslash)
+					doKeyword(line, i, c);
+					if (backslash)
 						backslash = false;
 					else
 					{
-						addToken(i - lastOffset,token);
+						addToken(i - lastOffset, token);
 						token = Token.LITERAL1;
 						lastOffset = lastKeyword = i;
 					}
 					break;
 				case '\'':
-					doKeyword(line,i,c);
-					if(backslash)
+					doKeyword(line, i, c);
+					if (backslash)
 						backslash = false;
 					else
 					{
-						addToken(i - lastOffset,token);
+						addToken(i - lastOffset, token);
 						token = Token.LITERAL2;
 						lastOffset = lastKeyword = i;
 					}
 					break;
-				case '-': case '&': case '+': case '=': case '*': case '<':case '>':case '%':case '^':case '|':
-					doKeyword(line,i,c);
-						addToken(i - lastOffset, token);
-						addToken(1,Token.OPERATOR);
-							//token = Token.OPERATOR;
-							lastOffset = lastKeyword = i1;
+				case '-':
+				case '&':
+				case '+':
+				case '=':
+				case '*':
+				case '<':
+				case '>':
+				case '%':
+				case '^':
+				case '|':
+					doKeyword(line, i, c);
+					addToken(i - lastOffset, token);
+					addToken(1, Token.OPERATOR);
+					// token = Token.OPERATOR;
+					lastOffset = lastKeyword = i1;
 					break;
 				case ':':
-					if(lastKeyword == offset)
+					if (lastKeyword == offset)
 					{
-						if(doKeyword(line,i,c))
+						if (doKeyword(line, i, c))
 							break;
 						backslash = false;
-						addToken(i1 - lastOffset,Token.LABEL);
+						addToken(i1 - lastOffset, Token.LABEL);
 						lastOffset = lastKeyword = i1;
 					}
-					else if(doKeyword(line,i,c))
+					else if (doKeyword(line, i, c))
 						break;
 					break;
 				case '/':
 					backslash = false;
-					doKeyword(line,i,c);
-					if(length - i > 1)
+					doKeyword(line, i, c);
+					if (length - i > 1)
 					{
-						switch(array[i1])
+						switch (array[i1])
 						{
 						case '*':
-							addToken(i - lastOffset,token);
+							addToken(i - lastOffset, token);
 							lastOffset = lastKeyword = i;
-							if(length - i > 2 && array[i+2] == '*')
+							if (length - i > 2 && array[i + 2] == '*')
 								token = Token.COMMENT2;
 							else
 								token = Token.COMMENT1;
 							break;
 						case '/':
-							addToken(i - lastOffset,token);
-							addToken(length - i,Token.COMMENT1);
+							addToken(i - lastOffset, token);
+							addToken(length - i, Token.COMMENT1);
 							lastOffset = lastKeyword = length;
 							break loop;
 						}
@@ -138,17 +148,21 @@ loop:		for(int i = offset; i < length; i++)
 					break;
 				default:
 					backslash = false;
-				    //doKeyword(line,i+1,c);
-					if (Character.isDigit(c) && i > 0){
-						//doKeyword(line,i,c);
-						if (!Character.isLetterOrDigit(array[i-1])){
-							addToken(i - lastOffset,token);
-							//addToken(1,Token.DIGIT);
+					// doKeyword(line,i+1,c);
+					if (Character.isDigit(c) && i > 0)
+					{
+						// doKeyword(line,i,c);
+						if (!Character.isLetterOrDigit(array[i - 1]))
+						{
+							addToken(i - lastOffset, token);
+							// addToken(1,Token.DIGIT);
 							token = Token.DIGIT;
 							lastOffset = lastKeyword = i;
 						}
-					}else if(!Character.isLetterOrDigit(c) && c != '_'){
-						doKeyword(line,i,c);
+					}
+					else if (!Character.isLetterOrDigit(c) && c != '_')
+					{
+						doKeyword(line, i, c);
 					}
 					break;
 				}
@@ -156,84 +170,94 @@ loop:		for(int i = offset; i < length; i++)
 			case Token.COMMENT1:
 			case Token.COMMENT2:
 				backslash = false;
-				if(c == '*' && length - i > 1)
+				if (c == '*' && length - i > 1)
 				{
-					if(array[i1] == '/')
+					if (array[i1] == '/')
 					{
 						i++;
-						addToken((i+1) - lastOffset,token);
+						addToken((i + 1) - lastOffset, token);
 						token = Token.NULL;
-						lastOffset = lastKeyword = i+1;
+						lastOffset = lastKeyword = i + 1;
 					}
 				}
 				break;
 			case Token.LITERAL1:
-				if(backslash)
+				if (backslash)
 					backslash = false;
-				else if(c == '"')
+				else if (c == '"')
 				{
-					addToken(i1 - lastOffset,token);
+					addToken(i1 - lastOffset, token);
 					token = Token.NULL;
 					lastOffset = lastKeyword = i1;
 				}
 				break;
 			case Token.DIGIT:
-				if(backslash)
+				if (backslash)
 					backslash = false;
-				if(!Character.isLetterOrDigit(c))
+				if (!Character.isLetterOrDigit(c))
 				{
-					addToken(i - lastOffset,Token.DIGIT);
-					switch (c){
-						case '-': case '&': case '+': case '=': case '*': case '<':case '>':case '%':case '^':case '|':
-							addToken(1,Token.OPERATOR); //TODO: Check this out again
-							break;
-						default:
-							addToken(1,Token.NULL); //TODO: Check this out again
+					addToken(i - lastOffset, Token.DIGIT);
+					switch (c)
+					{
+					case '-':
+					case '&':
+					case '+':
+					case '=':
+					case '*':
+					case '<':
+					case '>':
+					case '%':
+					case '^':
+					case '|':
+						addToken(1, Token.OPERATOR); // TODO: Check this out
+						// again
+						break;
+					default:
+						addToken(1, Token.NULL); // TODO: Check this out
+					// again
 					}
-					
+
 					token = Token.NULL;
 					lastOffset = lastKeyword = i1;
 				}
 				break;
 
 			case Token.LITERAL2:
-				if(backslash)
+				if (backslash)
 					backslash = false;
-				else if(c == '\'')
+				else if (c == '\'')
 				{
-					addToken(i1 - lastOffset,Token.LITERAL2);
+					addToken(i1 - lastOffset, Token.LITERAL2);
 					token = Token.NULL;
 					lastOffset = lastKeyword = i1;
 				}
-				/*else if(!Character.isLetterOrDigit(c))
-				{
-					addToken(i - lastOffset,Token.LITERAL2);
-					token = Token.NULL;
-					lastOffset = lastKeyword = i;
-				}*/
+				/*
+				 * else if(!Character.isLetterOrDigit(c)) { addToken(i -
+				 * lastOffset,Token.LITERAL2); token = Token.NULL; lastOffset =
+				 * lastKeyword = i; }
+				 */
 				break;
 			default:
-				throw new InternalError("Invalid state: "
-					+ token);
+				throw new InternalError("Invalid state: " + token);
 			}
 		}
 
-		if(token == Token.NULL)
-			doKeyword(line,length,'\0');
+		if (token == Token.NULL)
+			doKeyword(line, length, '\0');
 
-		switch(token)
+		switch (token)
 		{
 		case Token.LITERAL1:
 		case Token.LITERAL2:
-			addToken(length - lastOffset,Token.INVALID);
+			addToken(length - lastOffset, Token.INVALID);
 			token = Token.NULL;
 			break;
 		case Token.KEYWORD2:
-			addToken(length - lastOffset,token);
-			if(!backslash)
+			addToken(length - lastOffset, token);
+			if (!backslash)
 				token = Token.NULL;
 		default:
-			addToken(length - lastOffset,token);
+			addToken(length - lastOffset, token);
 			break;
 		}
 
@@ -242,52 +266,52 @@ loop:		for(int i = offset; i < length; i++)
 
 	public static KeywordMap getKeywords()
 	{
-		if(cKeywords == null)
+		if (cKeywords == null)
 		{
 			cKeywords = new KeywordMap(false);
 
-			cKeywords.add("char",Token.KEYWORD3);
-			cKeywords.add("double",Token.KEYWORD3);
-			cKeywords.add("enum",Token.KEYWORD3);
-			cKeywords.add("float",Token.KEYWORD3);
-			cKeywords.add("int",Token.KEYWORD3);
-			cKeywords.add("long",Token.KEYWORD3);
-			cKeywords.add("short",Token.KEYWORD3);
-			cKeywords.add("signed",Token.KEYWORD3);
-			cKeywords.add("struct",Token.KEYWORD3);
-			cKeywords.add("typedef",Token.KEYWORD3);
-			cKeywords.add("union",Token.KEYWORD3);
-			cKeywords.add("unsigned",Token.KEYWORD3);
-			cKeywords.add("void",Token.KEYWORD3);
-			cKeywords.add("auto",Token.KEYWORD1);
-			cKeywords.add("const",Token.KEYWORD1);
-			cKeywords.add("extern",Token.KEYWORD1);
-			cKeywords.add("register",Token.KEYWORD1);
-			cKeywords.add("static",Token.KEYWORD1);
-			cKeywords.add("volatile",Token.KEYWORD1);
-			cKeywords.add("break",Token.KEYWORD1);
-			cKeywords.add("case",Token.KEYWORD1);
-			cKeywords.add("continue",Token.KEYWORD1);
-			cKeywords.add("default",Token.KEYWORD1);
-			cKeywords.add("do",Token.KEYWORD1);
-			cKeywords.add("else",Token.KEYWORD1);
-			cKeywords.add("for",Token.KEYWORD1);
-			cKeywords.add("goto",Token.KEYWORD1);
-			cKeywords.add("if",Token.KEYWORD1);
-			cKeywords.add("return",Token.KEYWORD1);
-			cKeywords.add("sizeof",Token.KEYWORD1);
-			cKeywords.add("switch",Token.KEYWORD1);
-			cKeywords.add("while",Token.KEYWORD1);
-			cKeywords.add("asm",Token.KEYWORD2);
-			cKeywords.add("asmlinkage",Token.KEYWORD2);
-			cKeywords.add("far",Token.KEYWORD2);
-			cKeywords.add("huge",Token.KEYWORD2);
-			cKeywords.add("inline",Token.KEYWORD2);
-			cKeywords.add("near",Token.KEYWORD2);
-			cKeywords.add("pascal",Token.KEYWORD2);
-			cKeywords.add("true",Token.LITERAL2);
-			cKeywords.add("false",Token.LITERAL2);
-			cKeywords.add("NULL",Token.LITERAL2);
+			cKeywords.add("char", Token.KEYWORD3);
+			cKeywords.add("double", Token.KEYWORD3);
+			cKeywords.add("enum", Token.KEYWORD3);
+			cKeywords.add("float", Token.KEYWORD3);
+			cKeywords.add("int", Token.KEYWORD3);
+			cKeywords.add("long", Token.KEYWORD3);
+			cKeywords.add("short", Token.KEYWORD3);
+			cKeywords.add("signed", Token.KEYWORD3);
+			cKeywords.add("struct", Token.KEYWORD3);
+			cKeywords.add("typedef", Token.KEYWORD3);
+			cKeywords.add("union", Token.KEYWORD3);
+			cKeywords.add("unsigned", Token.KEYWORD3);
+			cKeywords.add("void", Token.KEYWORD3);
+			cKeywords.add("auto", Token.KEYWORD1);
+			cKeywords.add("const", Token.KEYWORD1);
+			cKeywords.add("extern", Token.KEYWORD1);
+			cKeywords.add("register", Token.KEYWORD1);
+			cKeywords.add("static", Token.KEYWORD1);
+			cKeywords.add("volatile", Token.KEYWORD1);
+			cKeywords.add("break", Token.KEYWORD1);
+			cKeywords.add("case", Token.KEYWORD1);
+			cKeywords.add("continue", Token.KEYWORD1);
+			cKeywords.add("default", Token.KEYWORD1);
+			cKeywords.add("do", Token.KEYWORD1);
+			cKeywords.add("else", Token.KEYWORD1);
+			cKeywords.add("for", Token.KEYWORD1);
+			cKeywords.add("goto", Token.KEYWORD1);
+			cKeywords.add("if", Token.KEYWORD1);
+			cKeywords.add("return", Token.KEYWORD1);
+			cKeywords.add("sizeof", Token.KEYWORD1);
+			cKeywords.add("switch", Token.KEYWORD1);
+			cKeywords.add("while", Token.KEYWORD1);
+			cKeywords.add("asm", Token.KEYWORD2);
+			cKeywords.add("asmlinkage", Token.KEYWORD2);
+			cKeywords.add("far", Token.KEYWORD2);
+			cKeywords.add("huge", Token.KEYWORD2);
+			cKeywords.add("inline", Token.KEYWORD2);
+			cKeywords.add("near", Token.KEYWORD2);
+			cKeywords.add("pascal", Token.KEYWORD2);
+			cKeywords.add("true", Token.LITERAL2);
+			cKeywords.add("false", Token.LITERAL2);
+			cKeywords.add("NULL", Token.LITERAL2);
 		}
 		return cKeywords;
 	}
@@ -296,21 +320,24 @@ loop:		for(int i = offset; i < length; i++)
 	private static KeywordMap cKeywords;
 
 	private boolean cpp;
+
 	private KeywordMap keywords;
+
 	private int lastOffset;
+
 	private int lastKeyword;
 
 	private boolean doKeyword(Segment line, int i, char c)
 	{
-		int i1 = i+1;
+		int i1 = i + 1;
 
 		int len = i - lastKeyword;
-		byte id = keywords.lookup(line,lastKeyword,len);
-		if(id != Token.NULL)
+		byte id = keywords.lookup(line, lastKeyword, len);
+		if (id != Token.NULL)
 		{
-			if(lastKeyword != lastOffset)
-				addToken(lastKeyword - lastOffset,Token.NULL);
-			addToken(len,id);
+			if (lastKeyword != lastOffset)
+				addToken(lastKeyword - lastOffset, Token.NULL);
+			addToken(len, id);
 			lastOffset = i;
 		}
 		lastKeyword = i1;

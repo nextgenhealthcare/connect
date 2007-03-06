@@ -23,7 +23,6 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
 package com.webreach.mirth.client.ui.connectors;
 
 import java.util.Properties;
@@ -32,370 +31,325 @@ import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
 
 /**
- * A form that extends from ConnectorClass.  All methods implemented
- * are described in ConnectorClass.
+ * A form that extends from ConnectorClass. All methods implemented are
+ * described in ConnectorClass.
  */
 public class FTPReader extends ConnectorClass
 {
-    /** Creates new form FTPReader */
-    private final String DATATYPE = "DataType";
-    private final String FTP_HOST = "host";
-    private final String FTP_ANONYMOUS = "FTPAnonymous";
-    private final String FTP_USERNAME = "username";
-    private final String FTP_PASSWORD = "password";
-    private final String FTP_POLLING_FREQUENCY = "pollingFrequency";
-    private final String FTP_PASSIVE_MODE = "passive";
-    private final String FTP_FILE_TYPE = "binary";
-    private final String FTP_VALIDATE_CONNECTION = "validateConnections";
+	/** Creates new form FTPReader */
+	private final String DATATYPE = "DataType";
 
-    public FTPReader()
-    {
-        name = "FTP Reader";
-        initComponents();
-        pollingFrequencyField.setDocument(new MirthFieldConstraints(0, false, true));
-    }
+	private final String FTP_HOST = "host";
 
-    public Properties getProperties()
-    {
-        Properties properties = new Properties();
-        properties.put(DATATYPE, name);
-        properties.put(FTP_HOST, FTPURLField.getText());
-        
-        if (anonymousYes.isSelected())
-            properties.put(FTP_ANONYMOUS, UIConstants.YES_OPTION);
-        else
-            properties.put(FTP_ANONYMOUS, UIConstants.NO_OPTION);
-        
-        properties.put(FTP_USERNAME, FTPUsernameField.getText());
-        properties.put(FTP_PASSWORD, new String(FTPPasswordField.getPassword()));
-        properties.put(FTP_POLLING_FREQUENCY, pollingFrequencyField.getText());
+	private final String FTP_ANONYMOUS = "FTPAnonymous";
 
-        if (passiveModeYes.isSelected())
-            properties.put(FTP_PASSIVE_MODE, UIConstants.YES_OPTION);
-        else
-            properties.put(FTP_PASSIVE_MODE, UIConstants.NO_OPTION);
+	private final String FTP_USERNAME = "username";
 
-        if (fileTypeBinary.isSelected())
-            properties.put(FTP_FILE_TYPE, UIConstants.YES_OPTION);
-        else
-            properties.put(FTP_FILE_TYPE, UIConstants.NO_OPTION);
-        
-        if (validateConnectionYes.isSelected())
-            properties.put(FTP_VALIDATE_CONNECTION, UIConstants.YES_OPTION);
-        else
-            properties.put(FTP_VALIDATE_CONNECTION, UIConstants.NO_OPTION);
+	private final String FTP_PASSWORD = "password";
 
-        return properties;
-    }
+	private final String FTP_POLLING_FREQUENCY = "pollingFrequency";
 
-    public void setProperties(Properties props)
-    {
-        FTPURLField.setText((String)props.get(FTP_HOST));
-        
-        if(((String)props.get(FTP_ANONYMOUS)).equalsIgnoreCase(UIConstants.YES_OPTION))
-        {
-            anonymousYes.setSelected(true);
-            anonymousYesActionPerformed(null);
-        }
-        else
-        {
-            anonymousNo.setSelected(true);
-            anonymousNoActionPerformed(null);
-        }
-        
-        FTPUsernameField.setText((String)props.get(FTP_USERNAME));
-        FTPPasswordField.setText((String)props.get(FTP_PASSWORD));
-        pollingFrequencyField.setText((String)props.get(FTP_POLLING_FREQUENCY));
-        
-        if(((String)props.get(FTP_PASSIVE_MODE)).equalsIgnoreCase(UIConstants.YES_OPTION))
-            passiveModeYes.setSelected(true);
-        else
-            passiveModeNo.setSelected(true);
-        
-        if(((String)props.get(FTP_FILE_TYPE)).equalsIgnoreCase(UIConstants.YES_OPTION))
-            fileTypeBinary.setSelected(true);
-        else
-            fileTypeASCII.setSelected(true);
-        
-        if(((String)props.get(FTP_VALIDATE_CONNECTION)).equalsIgnoreCase(UIConstants.YES_OPTION))
-            validateConnectionYes.setSelected(true);
-        else
-            validateConnectionNo.setSelected(true);
-    }
-    
-    public Properties getDefaults()
-    {
-        Properties properties = new Properties();
-        properties.put(DATATYPE, name);
-        properties.put(FTP_HOST, "");
-        properties.put(FTP_ANONYMOUS, UIConstants.YES_OPTION);
-        properties.put(FTP_USERNAME, "");
-        properties.put(FTP_PASSWORD, "");
-        properties.put(FTP_POLLING_FREQUENCY, "1000");
-        properties.put(FTP_PASSIVE_MODE, UIConstants.YES_OPTION);
-        properties.put(FTP_FILE_TYPE, UIConstants.YES_OPTION);
-        properties.put(FTP_VALIDATE_CONNECTION, UIConstants.YES_OPTION);
-        return properties;
-    }
-    
-    public boolean checkProperties(Properties props)
-    {
-        if (((String)props.get(FTP_ANONYMOUS)).equals(UIConstants.YES_OPTION))
-        {
-            if(((String)props.get(FTP_HOST)).length() > 0 && ((String)props.get(FTP_POLLING_FREQUENCY)).length() > 0)
-                return true;
-        }
-        else
-        {
-            if(((String)props.get(FTP_HOST)).length() > 0 && ((String)props.get(FTP_USERNAME)).length() > 0 && 
-               ((String)props.get(FTP_PASSWORD)).length() > 0 && ((String)props.get(FTP_POLLING_FREQUENCY)).length() > 0)
-                return true;
-        }
-        return false;
-    }
+	private final String FTP_PASSIVE_MODE = "passive";
 
-    
-    /** This method is called from within the constructor to
-     * initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is
-     * always regenerated by the Form Editor.
-     */
-    // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
-    private void initComponents()
-    {
-        buttonGroup1 = new javax.swing.ButtonGroup();
-        buttonGroup2 = new javax.swing.ButtonGroup();
-        buttonGroup3 = new javax.swing.ButtonGroup();
-        buttonGroup4 = new javax.swing.ButtonGroup();
-        URL = new javax.swing.JLabel();
-        FTPURLField = new com.webreach.mirth.client.ui.components.MirthTextField();
-        jLabel6 = new javax.swing.JLabel();
-        jLabel7 = new javax.swing.JLabel();
-        fileAgeLabel = new javax.swing.JLabel();
-        passiveModeYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        passiveModeNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        fileTypeBinary = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        fileTypeASCII = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        FTPUsernameLabel = new javax.swing.JLabel();
-        FTPUsernameField = new com.webreach.mirth.client.ui.components.MirthTextField();
-        FTPPasswordField = new com.webreach.mirth.client.ui.components.MirthPasswordField();
-        FTPPasswordLabel = new javax.swing.JLabel();
-        jLabel9 = new javax.swing.JLabel();
-        pollingFrequencyField = new com.webreach.mirth.client.ui.components.MirthTextField();
-        validateConnectionYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        validateConnectionNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        anonymousYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        jLabel10 = new javax.swing.JLabel();
-        anonymousNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+	private final String FTP_FILE_TYPE = "binary";
 
-        setBackground(new java.awt.Color(255, 255, 255));
-        setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
-        URL.setText("Host:");
+	private final String FTP_VALIDATE_CONNECTION = "validateConnections";
 
-        jLabel6.setText("Passive Mode:");
+	public FTPReader()
+	{
+		name = "FTP Reader";
+		initComponents();
+		pollingFrequencyField.setDocument(new MirthFieldConstraints(0, false, true));
+	}
 
-        jLabel7.setText("File Type:");
+	public Properties getProperties()
+	{
+		Properties properties = new Properties();
+		properties.put(DATATYPE, name);
+		properties.put(FTP_HOST, FTPURLField.getText());
 
-        fileAgeLabel.setText("Validate Connection:");
+		if (anonymousYes.isSelected())
+			properties.put(FTP_ANONYMOUS, UIConstants.YES_OPTION);
+		else
+			properties.put(FTP_ANONYMOUS, UIConstants.NO_OPTION);
 
-        passiveModeYes.setBackground(new java.awt.Color(255, 255, 255));
-        passiveModeYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup1.add(passiveModeYes);
-        passiveModeYes.setText("Yes");
-        passiveModeYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
+		properties.put(FTP_USERNAME, FTPUsernameField.getText());
+		properties.put(FTP_PASSWORD, new String(FTPPasswordField.getPassword()));
+		properties.put(FTP_POLLING_FREQUENCY, pollingFrequencyField.getText());
 
-        passiveModeNo.setBackground(new java.awt.Color(255, 255, 255));
-        passiveModeNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup1.add(passiveModeNo);
-        passiveModeNo.setSelected(true);
-        passiveModeNo.setText("No");
-        passiveModeNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
+		if (passiveModeYes.isSelected())
+			properties.put(FTP_PASSIVE_MODE, UIConstants.YES_OPTION);
+		else
+			properties.put(FTP_PASSIVE_MODE, UIConstants.NO_OPTION);
 
-        fileTypeBinary.setBackground(new java.awt.Color(255, 255, 255));
-        fileTypeBinary.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup2.add(fileTypeBinary);
-        fileTypeBinary.setText("Binary");
-        fileTypeBinary.setMargin(new java.awt.Insets(0, 0, 0, 0));
+		if (fileTypeBinary.isSelected())
+			properties.put(FTP_FILE_TYPE, UIConstants.YES_OPTION);
+		else
+			properties.put(FTP_FILE_TYPE, UIConstants.NO_OPTION);
 
-        fileTypeASCII.setBackground(new java.awt.Color(255, 255, 255));
-        fileTypeASCII.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup2.add(fileTypeASCII);
-        fileTypeASCII.setSelected(true);
-        fileTypeASCII.setText("ASCII");
-        fileTypeASCII.setMargin(new java.awt.Insets(0, 0, 0, 0));
+		if (validateConnectionYes.isSelected())
+			properties.put(FTP_VALIDATE_CONNECTION, UIConstants.YES_OPTION);
+		else
+			properties.put(FTP_VALIDATE_CONNECTION, UIConstants.NO_OPTION);
 
-        FTPUsernameLabel.setText("Username:");
+		return properties;
+	}
 
-        FTPPasswordField.setFont(new java.awt.Font("Tahoma", 0, 11));
+	public void setProperties(Properties props)
+	{
+		FTPURLField.setText((String) props.get(FTP_HOST));
 
-        FTPPasswordLabel.setText("Password:");
+		if (((String) props.get(FTP_ANONYMOUS)).equalsIgnoreCase(UIConstants.YES_OPTION))
+		{
+			anonymousYes.setSelected(true);
+			anonymousYesActionPerformed(null);
+		}
+		else
+		{
+			anonymousNo.setSelected(true);
+			anonymousNoActionPerformed(null);
+		}
 
-        jLabel9.setText("Polling Frequency (ms):");
+		FTPUsernameField.setText((String) props.get(FTP_USERNAME));
+		FTPPasswordField.setText((String) props.get(FTP_PASSWORD));
+		pollingFrequencyField.setText((String) props.get(FTP_POLLING_FREQUENCY));
 
-        validateConnectionYes.setBackground(new java.awt.Color(255, 255, 255));
-        validateConnectionYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup3.add(validateConnectionYes);
-        validateConnectionYes.setText("Yes");
-        validateConnectionYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
+		if (((String) props.get(FTP_PASSIVE_MODE)).equalsIgnoreCase(UIConstants.YES_OPTION))
+			passiveModeYes.setSelected(true);
+		else
+			passiveModeNo.setSelected(true);
 
-        validateConnectionNo.setBackground(new java.awt.Color(255, 255, 255));
-        validateConnectionNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup3.add(validateConnectionNo);
-        validateConnectionNo.setSelected(true);
-        validateConnectionNo.setText("No");
-        validateConnectionNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
+		if (((String) props.get(FTP_FILE_TYPE)).equalsIgnoreCase(UIConstants.YES_OPTION))
+			fileTypeBinary.setSelected(true);
+		else
+			fileTypeASCII.setSelected(true);
 
-        anonymousYes.setBackground(new java.awt.Color(255, 255, 255));
-        anonymousYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup4.add(anonymousYes);
-        anonymousYes.setText("Yes");
-        anonymousYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        anonymousYes.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
-                anonymousYesActionPerformed(evt);
-            }
-        });
+		if (((String) props.get(FTP_VALIDATE_CONNECTION)).equalsIgnoreCase(UIConstants.YES_OPTION))
+			validateConnectionYes.setSelected(true);
+		else
+			validateConnectionNo.setSelected(true);
+	}
 
-        jLabel10.setText("Anonymous:");
+	public Properties getDefaults()
+	{
+		Properties properties = new Properties();
+		properties.put(DATATYPE, name);
+		properties.put(FTP_HOST, "");
+		properties.put(FTP_ANONYMOUS, UIConstants.YES_OPTION);
+		properties.put(FTP_USERNAME, "");
+		properties.put(FTP_PASSWORD, "");
+		properties.put(FTP_POLLING_FREQUENCY, "1000");
+		properties.put(FTP_PASSIVE_MODE, UIConstants.YES_OPTION);
+		properties.put(FTP_FILE_TYPE, UIConstants.YES_OPTION);
+		properties.put(FTP_VALIDATE_CONNECTION, UIConstants.YES_OPTION);
+		return properties;
+	}
 
-        anonymousNo.setBackground(new java.awt.Color(255, 255, 255));
-        anonymousNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup4.add(anonymousNo);
-        anonymousNo.setSelected(true);
-        anonymousNo.setText("No");
-        anonymousNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        anonymousNo.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
-                anonymousNoActionPerformed(evt);
-            }
-        });
+	public boolean checkProperties(Properties props)
+	{
+		if (((String) props.get(FTP_ANONYMOUS)).equals(UIConstants.YES_OPTION))
+		{
+			if (((String) props.get(FTP_HOST)).length() > 0 && ((String) props.get(FTP_POLLING_FREQUENCY)).length() > 0)
+				return true;
+		}
+		else
+		{
+			if (((String) props.get(FTP_HOST)).length() > 0 && ((String) props.get(FTP_USERNAME)).length() > 0 && ((String) props.get(FTP_PASSWORD)).length() > 0 && ((String) props.get(FTP_POLLING_FREQUENCY)).length() > 0)
+				return true;
+		}
+		return false;
+	}
 
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, fileAgeLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel7)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel6)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel9)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, FTPPasswordLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, FTPUsernameLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel10)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, URL))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(layout.createSequentialGroup()
-                        .add(validateConnectionYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(validateConnectionNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(layout.createSequentialGroup()
-                        .add(fileTypeBinary, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(fileTypeASCII, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(layout.createSequentialGroup()
-                        .add(passiveModeYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(passiveModeNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(pollingFrequencyField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(FTPPasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(FTPUsernameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(layout.createSequentialGroup()
-                        .add(anonymousYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(anonymousNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(FTPURLField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 250, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(URL)
-                    .add(FTPURLField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(anonymousNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel10)
-                    .add(anonymousYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(FTPUsernameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(FTPUsernameLabel))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(FTPPasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(FTPPasswordLabel))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(pollingFrequencyField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel9))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(jLabel6)
-                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                        .add(passiveModeYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(passiveModeNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel7)
-                    .add(fileTypeBinary, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(fileTypeASCII, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(fileAgeLabel)
-                    .add(validateConnectionYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(validateConnectionNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-    }// </editor-fold>//GEN-END:initComponents
+	/**
+	 * This method is called from within the constructor to initialize the form.
+	 * WARNING: Do NOT modify this code. The content of this method is always
+	 * regenerated by the Form Editor.
+	 */
+	// <editor-fold defaultstate="collapsed" desc=" Generated Code
+	// ">//GEN-BEGIN:initComponents
+	private void initComponents()
+	{
+		buttonGroup1 = new javax.swing.ButtonGroup();
+		buttonGroup2 = new javax.swing.ButtonGroup();
+		buttonGroup3 = new javax.swing.ButtonGroup();
+		buttonGroup4 = new javax.swing.ButtonGroup();
+		URL = new javax.swing.JLabel();
+		FTPURLField = new com.webreach.mirth.client.ui.components.MirthTextField();
+		jLabel6 = new javax.swing.JLabel();
+		jLabel7 = new javax.swing.JLabel();
+		fileAgeLabel = new javax.swing.JLabel();
+		passiveModeYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+		passiveModeNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+		fileTypeBinary = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+		fileTypeASCII = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+		FTPUsernameLabel = new javax.swing.JLabel();
+		FTPUsernameField = new com.webreach.mirth.client.ui.components.MirthTextField();
+		FTPPasswordField = new com.webreach.mirth.client.ui.components.MirthPasswordField();
+		FTPPasswordLabel = new javax.swing.JLabel();
+		jLabel9 = new javax.swing.JLabel();
+		pollingFrequencyField = new com.webreach.mirth.client.ui.components.MirthTextField();
+		validateConnectionYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+		validateConnectionNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+		anonymousYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+		jLabel10 = new javax.swing.JLabel();
+		anonymousNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
 
-    private void anonymousNoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_anonymousNoActionPerformed
-        FTPUsernameLabel.setEnabled(true);
-        FTPUsernameField.setEnabled(true);
-        FTPPasswordLabel.setEnabled(true);
-        FTPPasswordField.setEnabled(true);
-    }//GEN-LAST:event_anonymousNoActionPerformed
+		setBackground(new java.awt.Color(255, 255, 255));
+		setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+		URL.setText("Host:");
 
-    private void anonymousYesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_anonymousYesActionPerformed
-        FTPUsernameLabel.setEnabled(false);
-        FTPUsernameField.setEnabled(false);
-        FTPPasswordLabel.setEnabled(false);
-        FTPPasswordField.setEnabled(false);
-    }//GEN-LAST:event_anonymousYesActionPerformed
+		jLabel6.setText("Passive Mode:");
 
+		jLabel7.setText("File Type:");
 
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private com.webreach.mirth.client.ui.components.MirthPasswordField FTPPasswordField;
-    private javax.swing.JLabel FTPPasswordLabel;
-    private com.webreach.mirth.client.ui.components.MirthTextField FTPURLField;
-    private com.webreach.mirth.client.ui.components.MirthTextField FTPUsernameField;
-    private javax.swing.JLabel FTPUsernameLabel;
-    private javax.swing.JLabel URL;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton anonymousNo;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton anonymousYes;
-    private javax.swing.ButtonGroup buttonGroup1;
-    private javax.swing.ButtonGroup buttonGroup2;
-    private javax.swing.ButtonGroup buttonGroup3;
-    private javax.swing.ButtonGroup buttonGroup4;
-    private javax.swing.JLabel fileAgeLabel;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton fileTypeASCII;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton fileTypeBinary;
-    private javax.swing.JLabel jLabel10;
-    private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel7;
-    private javax.swing.JLabel jLabel9;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton passiveModeNo;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton passiveModeYes;
-    private com.webreach.mirth.client.ui.components.MirthTextField pollingFrequencyField;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton validateConnectionNo;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton validateConnectionYes;
-    // End of variables declaration//GEN-END:variables
+		fileAgeLabel.setText("Validate Connection:");
+
+		passiveModeYes.setBackground(new java.awt.Color(255, 255, 255));
+		passiveModeYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+		buttonGroup1.add(passiveModeYes);
+		passiveModeYes.setText("Yes");
+		passiveModeYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
+		passiveModeNo.setBackground(new java.awt.Color(255, 255, 255));
+		passiveModeNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+		buttonGroup1.add(passiveModeNo);
+		passiveModeNo.setSelected(true);
+		passiveModeNo.setText("No");
+		passiveModeNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
+		fileTypeBinary.setBackground(new java.awt.Color(255, 255, 255));
+		fileTypeBinary.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+		buttonGroup2.add(fileTypeBinary);
+		fileTypeBinary.setText("Binary");
+		fileTypeBinary.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
+		fileTypeASCII.setBackground(new java.awt.Color(255, 255, 255));
+		fileTypeASCII.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+		buttonGroup2.add(fileTypeASCII);
+		fileTypeASCII.setSelected(true);
+		fileTypeASCII.setText("ASCII");
+		fileTypeASCII.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
+		FTPUsernameLabel.setText("Username:");
+
+		FTPPasswordField.setFont(new java.awt.Font("Tahoma", 0, 11));
+
+		FTPPasswordLabel.setText("Password:");
+
+		jLabel9.setText("Polling Frequency (ms):");
+
+		validateConnectionYes.setBackground(new java.awt.Color(255, 255, 255));
+		validateConnectionYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+		buttonGroup3.add(validateConnectionYes);
+		validateConnectionYes.setText("Yes");
+		validateConnectionYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
+		validateConnectionNo.setBackground(new java.awt.Color(255, 255, 255));
+		validateConnectionNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+		buttonGroup3.add(validateConnectionNo);
+		validateConnectionNo.setSelected(true);
+		validateConnectionNo.setText("No");
+		validateConnectionNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
+		anonymousYes.setBackground(new java.awt.Color(255, 255, 255));
+		anonymousYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+		buttonGroup4.add(anonymousYes);
+		anonymousYes.setText("Yes");
+		anonymousYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
+		anonymousYes.addActionListener(new java.awt.event.ActionListener()
+		{
+			public void actionPerformed(java.awt.event.ActionEvent evt)
+			{
+				anonymousYesActionPerformed(evt);
+			}
+		});
+
+		jLabel10.setText("Anonymous:");
+
+		anonymousNo.setBackground(new java.awt.Color(255, 255, 255));
+		anonymousNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+		buttonGroup4.add(anonymousNo);
+		anonymousNo.setSelected(true);
+		anonymousNo.setText("No");
+		anonymousNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
+		anonymousNo.addActionListener(new java.awt.event.ActionListener()
+		{
+			public void actionPerformed(java.awt.event.ActionEvent evt)
+			{
+				anonymousNoActionPerformed(evt);
+			}
+		});
+
+		org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
+		this.setLayout(layout);
+		layout.setHorizontalGroup(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(layout.createSequentialGroup().addContainerGap().add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(org.jdesktop.layout.GroupLayout.TRAILING, fileAgeLabel).add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel7).add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel6).add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel9).add(org.jdesktop.layout.GroupLayout.TRAILING, FTPPasswordLabel).add(org.jdesktop.layout.GroupLayout.TRAILING, FTPUsernameLabel).add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel10).add(org.jdesktop.layout.GroupLayout.TRAILING, URL)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(layout.createSequentialGroup().add(validateConnectionYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(validateConnectionNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).add(layout.createSequentialGroup().add(fileTypeBinary, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(fileTypeASCII, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).add(layout.createSequentialGroup().add(passiveModeYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(passiveModeNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).add(pollingFrequencyField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(FTPPasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(FTPUsernameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(layout.createSequentialGroup().add(anonymousYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(anonymousNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).add(FTPURLField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 250, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)));
+		layout.setVerticalGroup(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(layout.createSequentialGroup().add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(URL).add(FTPURLField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(anonymousNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(jLabel10).add(anonymousYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(FTPUsernameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(FTPUsernameLabel)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(FTPPasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(FTPPasswordLabel)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(pollingFrequencyField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(jLabel9)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING).add(jLabel6).add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(passiveModeYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(passiveModeNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(jLabel7).add(fileTypeBinary, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(fileTypeASCII, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(fileAgeLabel).add(validateConnectionYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(validateConnectionNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)));
+	}// </editor-fold>//GEN-END:initComponents
+
+	private void anonymousNoActionPerformed(java.awt.event.ActionEvent evt)
+	{// GEN-FIRST:event_anonymousNoActionPerformed
+		FTPUsernameLabel.setEnabled(true);
+		FTPUsernameField.setEnabled(true);
+		FTPPasswordLabel.setEnabled(true);
+		FTPPasswordField.setEnabled(true);
+	}// GEN-LAST:event_anonymousNoActionPerformed
+
+	private void anonymousYesActionPerformed(java.awt.event.ActionEvent evt)
+	{// GEN-FIRST:event_anonymousYesActionPerformed
+		FTPUsernameLabel.setEnabled(false);
+		FTPUsernameField.setEnabled(false);
+		FTPPasswordLabel.setEnabled(false);
+		FTPPasswordField.setEnabled(false);
+	}// GEN-LAST:event_anonymousYesActionPerformed
+
+	// Variables declaration - do not modify//GEN-BEGIN:variables
+	private com.webreach.mirth.client.ui.components.MirthPasswordField FTPPasswordField;
+
+	private javax.swing.JLabel FTPPasswordLabel;
+
+	private com.webreach.mirth.client.ui.components.MirthTextField FTPURLField;
+
+	private com.webreach.mirth.client.ui.components.MirthTextField FTPUsernameField;
+
+	private javax.swing.JLabel FTPUsernameLabel;
+
+	private javax.swing.JLabel URL;
+
+	private com.webreach.mirth.client.ui.components.MirthRadioButton anonymousNo;
+
+	private com.webreach.mirth.client.ui.components.MirthRadioButton anonymousYes;
+
+	private javax.swing.ButtonGroup buttonGroup1;
+
+	private javax.swing.ButtonGroup buttonGroup2;
+
+	private javax.swing.ButtonGroup buttonGroup3;
+
+	private javax.swing.ButtonGroup buttonGroup4;
+
+	private javax.swing.JLabel fileAgeLabel;
+
+	private com.webreach.mirth.client.ui.components.MirthRadioButton fileTypeASCII;
+
+	private com.webreach.mirth.client.ui.components.MirthRadioButton fileTypeBinary;
+
+	private javax.swing.JLabel jLabel10;
+
+	private javax.swing.JLabel jLabel6;
+
+	private javax.swing.JLabel jLabel7;
+
+	private javax.swing.JLabel jLabel9;
+
+	private com.webreach.mirth.client.ui.components.MirthRadioButton passiveModeNo;
+
+	private com.webreach.mirth.client.ui.components.MirthRadioButton passiveModeYes;
+
+	private com.webreach.mirth.client.ui.components.MirthTextField pollingFrequencyField;
+
+	private com.webreach.mirth.client.ui.components.MirthRadioButton validateConnectionNo;
+
+	private com.webreach.mirth.client.ui.components.MirthRadioButton validateConnectionYes;
+	// End of variables declaration//GEN-END:variables
 
 }

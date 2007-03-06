@@ -23,8 +23,8 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
 package com.webreach.mirth.client.ui.components;
+
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
@@ -34,58 +34,60 @@ import javax.swing.text.PlainDocument;
  */
 public class MirthFieldConstraints extends PlainDocument
 {
-    private int limit;
-    // optional uppercase conversion
-    private boolean toUppercase = false;
-    private boolean numbersOnly = false;
-    
-    /**
-     * Constructor that sets a character number limit.
-     * Set limit to 0 for no limit.
-     */
-    public MirthFieldConstraints(int limit)
-    {
-        super();
-        this.limit = limit;
-    }
-    
-    /**
-     * Constructor that sets a character number limit, uppercase conversion, and numbers only.
-     * Set limit to 0 for no limit.
-     */
-    public MirthFieldConstraints(int limit, boolean toUppercase, boolean numbersOnly)
-    {
-        super();
-        this.limit = limit;
-        this.toUppercase = toUppercase;
-        this.numbersOnly = numbersOnly;
-    }
-    
-    /**
-     * Overwritten insertString method to check if the string should
-     * actually be inserted based on the constraints.
-     */
-    public void insertString(int offset, String  str, AttributeSet attr) throws BadLocationException
-    {
-        if (str == null)
-            return;
-        if ((getLength() + str.length()) <= limit || limit == 0)
-        {
-            if (toUppercase)
-                str = str.toUpperCase();
-            if (numbersOnly)
-            {
-                try
-                {
-                    if (Double.isNaN(Double.parseDouble(str)))
-                        return;
-                }
-                catch(Exception e)
-                {
-                    return;
-                }
-            }
-            super.insertString(offset, str, attr);
-        }
-    }
+	private int limit;
+
+	// optional uppercase conversion
+	private boolean toUppercase = false;
+
+	private boolean numbersOnly = false;
+
+	/**
+	 * Constructor that sets a character number limit. Set limit to 0 for no
+	 * limit.
+	 */
+	public MirthFieldConstraints(int limit)
+	{
+		super();
+		this.limit = limit;
+	}
+
+	/**
+	 * Constructor that sets a character number limit, uppercase conversion, and
+	 * numbers only. Set limit to 0 for no limit.
+	 */
+	public MirthFieldConstraints(int limit, boolean toUppercase, boolean numbersOnly)
+	{
+		super();
+		this.limit = limit;
+		this.toUppercase = toUppercase;
+		this.numbersOnly = numbersOnly;
+	}
+
+	/**
+	 * Overwritten insertString method to check if the string should actually be
+	 * inserted based on the constraints.
+	 */
+	public void insertString(int offset, String str, AttributeSet attr) throws BadLocationException
+	{
+		if (str == null)
+			return;
+		if ((getLength() + str.length()) <= limit || limit == 0)
+		{
+			if (toUppercase)
+				str = str.toUpperCase();
+			if (numbersOnly)
+			{
+				try
+				{
+					if (Double.isNaN(Double.parseDouble(str)))
+						return;
+				}
+				catch (Exception e)
+				{
+					return;
+				}
+			}
+			super.insertString(offset, str, attr);
+		}
+	}
 }

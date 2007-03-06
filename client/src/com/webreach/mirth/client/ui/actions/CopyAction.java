@@ -23,7 +23,6 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
 package com.webreach.mirth.client.ui.actions;
 
 import java.awt.event.ActionEvent;
@@ -36,22 +35,21 @@ import com.webreach.mirth.client.ui.components.MirthTextInterface;
 public class CopyAction extends AbstractAction
 {
 	MirthTextInterface comp;
-    
-    public CopyAction(MirthTextInterface comp)
-    { 
-        super("Copy"); 
-        this.comp = comp; 
-    } 
- 
-    public void actionPerformed(ActionEvent e)
-    { 
-        comp.copy(); 
-    } 
- 
-    public boolean isEnabled()
-    { 
-        return comp.isEnabled() 
-                && comp.getSelectedText() != null; 
-    } 
+
+	public CopyAction(MirthTextInterface comp)
+	{
+		super("Copy");
+		this.comp = comp;
+	}
+
+	public void actionPerformed(ActionEvent e)
+	{
+		comp.copy();
+	}
+
+	public boolean isEnabled()
+	{
+		return comp.isEnabled() && comp.getSelectedText() != null;
+	}
 
 }

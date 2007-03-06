@@ -23,7 +23,6 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
 package com.webreach.mirth.client.ui;
 
 import java.awt.datatransfer.DataFlavor;
@@ -32,115 +31,131 @@ import java.awt.datatransfer.Transferable;
 /**
  * Package Database Variables for movement.
  */
-public class VariableTransferable implements Transferable {
+public class VariableTransferable implements Transferable
+{
 
-   private static DataFlavor[] flavors = null;
-   private String data = null;
-   private String _prefix = "msg['";
-   private String _suffix = "']";
+	private static DataFlavor[] flavors = null;
 
-   /**
-    * @param data the type of Ant element being transferred, e.g., target, task,
-    * type, etc.
-    */
-   public VariableTransferable( String data, String prefix, String suffix ) {
-      if(data.equals("Raw Data"))
-          this.data = "message.rawData";
-      else if(data.equals("Transformed Data"))
-          this.data = "message.transformedData";
-      else if(data.equals("Message Type"))
-          this.data = "message.type";
-      else if(data.equals("Message Version"))
-          this.data = "message.version";
-      else if(data.equals("Message Source"))
-          this.data = "message.source";
-      else if(data.equals("Message ID"))
-          this.data = "message.id";
-      else if(data.equals("Encoded Data"))
-          this.data = "message.encodedData";
-      else if(data.equals("Timestamp"))
-          this.data = "SYSTIME";
-      else if(data.equals("Unique ID"))
-          this.data = "UUID";
-      else if(data.equals("Date"))
-          this.data = "DATE";
-      else if(data.equals("Original File Name"))
-          this.data = "ORIGINALNAME";
-      else if(data.equals("Count"))
-          this.data = "COUNT";
-      else if(data.equals("Formatted Date"))
-          this.data = "date.get('yyyy-M-d H:m:s')";
-      else if(data.equals("Entity Encoder"))
-          this.data = "encoder.encode()";
-      else if(data.equals("ERROR-000 (Server error)"))
-          this.data = "ERROR-000";
-      else if(data.equals("ERROR-100 (Client error)"))
-          this.data = "ERROR-100";
-      else if(data.equals("ERROR-200 (Filter error)"))
-          this.data = "ERROR-200";
-      else if(data.equals("ERROR-300 (Transformer error)"))
-          this.data = "ERROR-300";
-      else if(data.equals("ERROR-400 (Connector error)"))
-          this.data = "ERROR-400";
-      else
-          this.data = data;
-      _prefix = prefix;
-      _suffix = suffix;
-      init();
-   }
+	private String data = null;
 
-   /**
-    * Set up the supported flavors: DataFlavor.stringFlavor for a raw string containing
-    * an Ant element name (e.g. task, target, etc), or an ElementFlavor containing
-    * an ElementPanel.
-    */
-   private void init() {
-      try {
-         flavors = new DataFlavor[ 1 ];
-         flavors[ 0 ] = DataFlavor.stringFlavor;
-      }
-      catch ( Exception e ) {
-         e.printStackTrace();
-      }
-   }
+	private String _prefix = "msg['";
 
-   /**
-    * @param df the flavor type desired for the data. Acceptable value is
-    * DataFlavor.stringFlavor.
-    * @return if df is DataFlavor.stringFlavor, returns a raw string containing
-    * an Ant element name.
-    */
-   public Object getTransferData( DataFlavor df ) {
-      if ( df == null )
-         return null;
-   
-      if ( data != null ){
-        
+	private String _suffix = "']";
 
-         return _prefix + data + _suffix;
-      }
-      return null;
-   }
+	/**
+	 * @param data
+	 *            the type of Ant element being transferred, e.g., target, task,
+	 *            type, etc.
+	 */
+	public VariableTransferable(String data, String prefix, String suffix)
+	{
+		if (data.equals("Raw Data"))
+			this.data = "message.rawData";
+		else if (data.equals("Transformed Data"))
+			this.data = "message.transformedData";
+		else if (data.equals("Message Type"))
+			this.data = "message.type";
+		else if (data.equals("Message Version"))
+			this.data = "message.version";
+		else if (data.equals("Message Source"))
+			this.data = "message.source";
+		else if (data.equals("Message ID"))
+			this.data = "message.id";
+		else if (data.equals("Encoded Data"))
+			this.data = "message.encodedData";
+		else if (data.equals("Timestamp"))
+			this.data = "SYSTIME";
+		else if (data.equals("Unique ID"))
+			this.data = "UUID";
+		else if (data.equals("Date"))
+			this.data = "DATE";
+		else if (data.equals("Original File Name"))
+			this.data = "ORIGINALNAME";
+		else if (data.equals("Count"))
+			this.data = "COUNT";
+		else if (data.equals("Formatted Date"))
+			this.data = "date.get('yyyy-M-d H:m:s')";
+		else if (data.equals("Entity Encoder"))
+			this.data = "encoder.encode()";
+		else if (data.equals("ERROR-000 (Server error)"))
+			this.data = "ERROR-000";
+		else if (data.equals("ERROR-100 (Client error)"))
+			this.data = "ERROR-100";
+		else if (data.equals("ERROR-200 (Filter error)"))
+			this.data = "ERROR-200";
+		else if (data.equals("ERROR-300 (Transformer error)"))
+			this.data = "ERROR-300";
+		else if (data.equals("ERROR-400 (Connector error)"))
+			this.data = "ERROR-400";
+		else
+			this.data = data;
+		_prefix = prefix;
+		_suffix = suffix;
+		init();
+	}
 
-   /**
-    * @return an array containing a single ElementFlavor.   
-    */
-   public DataFlavor[] getTransferDataFlavors() {
-      return flavors;
-   }
+	/**
+	 * Set up the supported flavors: DataFlavor.stringFlavor for a raw string
+	 * containing an Ant element name (e.g. task, target, etc), or an
+	 * ElementFlavor containing an ElementPanel.
+	 */
+	private void init()
+	{
+		try
+		{
+			flavors = new DataFlavor[1];
+			flavors[0] = DataFlavor.stringFlavor;
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
 
-   /**
-    * @param df the flavor to check
-    * @return true if df is an ElementFlavor
-    */
-   public boolean isDataFlavorSupported( DataFlavor df ) {
-      if ( df == null )
-         return false;
-      for ( int i = 0; i < flavors.length; i++ ) {
-         if ( df.equals( flavors[ i ] ) ) {
-            return true;
-         }
-      }
-      return false;
-   }
+	/**
+	 * @param df
+	 *            the flavor type desired for the data. Acceptable value is
+	 *            DataFlavor.stringFlavor.
+	 * @return if df is DataFlavor.stringFlavor, returns a raw string containing
+	 *         an Ant element name.
+	 */
+	public Object getTransferData(DataFlavor df)
+	{
+		if (df == null)
+			return null;
+
+		if (data != null)
+		{
+
+			return _prefix + data + _suffix;
+		}
+		return null;
+	}
+
+	/**
+	 * @return an array containing a single ElementFlavor.
+	 */
+	public DataFlavor[] getTransferDataFlavors()
+	{
+		return flavors;
+	}
+
+	/**
+	 * @param df
+	 *            the flavor to check
+	 * @return true if df is an ElementFlavor
+	 */
+	public boolean isDataFlavorSupported(DataFlavor df)
+	{
+		if (df == null)
+			return false;
+		for (int i = 0; i < flavors.length; i++)
+		{
+			if (df.equals(flavors[i]))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
 }

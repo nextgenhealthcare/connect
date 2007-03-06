@@ -23,7 +23,6 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
 package com.webreach.mirth.client.ui.editors;
 
 import java.awt.BorderLayout;
@@ -42,63 +41,77 @@ import com.webreach.mirth.client.ui.panels.reference.ReferenceListFactory.ListTy
 
 public class MirthEditorPane extends JPanel
 {
-    // transformer constants
-    public static final int STEP_NUMBER_COL = 0;
-    public static final int STEP_NAME_COL = 1;
-    public static final int STEP_TYPE_COL = 2;
-    public static final int STEP_DATA_COL = 3;
-    
-    // filter constants
-    public static final int RULE_NUMBER_COL  = 0;
-    public static final int RULE_OP_COL  = 1;
-    public static final int RULE_NAME_COL  = 2;
-    public static final int RULE_SCRIPT_COL  = 3;
-    
-    // a list of panels to load
-    public static final String BLANK_TYPE = "";
-    public static final String MESSAGE_TYPE = "Message Builder";
-    public static final String MAPPER_TYPE = "Mapper";
-    public static final String JAVASCRIPT_TYPE = "JavaScript";
-    
-    public int prevSelRow = -1;
-    
-    public boolean updating = false;
-    public boolean modified = false;
-    public Frame parent = PlatformUI.MIRTH_FRAME;
-    public JScrollPane referenceScrollPane;
-    public JPanel refPanel;
-    public TabbedTemplatePanel tabTemplatePanel;
-    
-    public MirthEditorPane()
-    {
-        super();
-        this.setBorder(BorderFactory.createEmptyBorder());
-        ReferenceListFactory builder = new ReferenceListFactory();
-        tabTemplatePanel = new TabbedTemplatePanel(this);
-        tabTemplatePanel.addPanel(new ReferenceListPanel("Conversion Functions", builder.getVariableListItems(ListType.CONVERSION)), "Conversion Functions");
-        tabTemplatePanel.addPanel(new ReferenceListPanel("Database Functions", builder.getVariableListItems(ListType.DATABASE)), "Database Functions");
-        
-        tabTemplatePanel.setReferencePanel();
-        tabTemplatePanel.setBorder(BorderFactory.createEmptyBorder());
-        refPanel = new JPanel();
-        refPanel.setBorder( BorderFactory.createEmptyBorder() );
-        refPanel.setLayout( new BorderLayout() );
-        refPanel.add( tabTemplatePanel, BorderLayout.CENTER );
-        // let the parent decide how big this should be
-        this.setPreferredSize( new Dimension( 0, 0 ) );
-    }
-    
-    public void updateTaskPane()
-    {
-    }
-    
-    public int getSelectedRow()
-    {
-        return 0;
-    }
-    
-    public DefaultTableModel getTableModel()
-    {
-        return null;
-    }
+	// transformer constants
+	public static final int STEP_NUMBER_COL = 0;
+
+	public static final int STEP_NAME_COL = 1;
+
+	public static final int STEP_TYPE_COL = 2;
+
+	public static final int STEP_DATA_COL = 3;
+
+	// filter constants
+	public static final int RULE_NUMBER_COL = 0;
+
+	public static final int RULE_OP_COL = 1;
+
+	public static final int RULE_NAME_COL = 2;
+
+	public static final int RULE_SCRIPT_COL = 3;
+
+	// a list of panels to load
+	public static final String BLANK_TYPE = "";
+
+	public static final String MESSAGE_TYPE = "Message Builder";
+
+	public static final String MAPPER_TYPE = "Mapper";
+
+	public static final String JAVASCRIPT_TYPE = "JavaScript";
+
+	public int prevSelRow = -1;
+
+	public boolean updating = false;
+
+	public boolean modified = false;
+
+	public Frame parent = PlatformUI.MIRTH_FRAME;
+
+	public JScrollPane referenceScrollPane;
+
+	public JPanel refPanel;
+
+	public TabbedTemplatePanel tabTemplatePanel;
+
+	public MirthEditorPane()
+	{
+		super();
+		this.setBorder(BorderFactory.createEmptyBorder());
+		ReferenceListFactory builder = new ReferenceListFactory();
+		tabTemplatePanel = new TabbedTemplatePanel(this);
+		tabTemplatePanel.addPanel(new ReferenceListPanel("Conversion Functions", builder.getVariableListItems(ListType.CONVERSION)), "Conversion Functions");
+		tabTemplatePanel.addPanel(new ReferenceListPanel("Database Functions", builder.getVariableListItems(ListType.DATABASE)), "Database Functions");
+
+		tabTemplatePanel.setReferencePanel();
+		tabTemplatePanel.setBorder(BorderFactory.createEmptyBorder());
+		refPanel = new JPanel();
+		refPanel.setBorder(BorderFactory.createEmptyBorder());
+		refPanel.setLayout(new BorderLayout());
+		refPanel.add(tabTemplatePanel, BorderLayout.CENTER);
+		// let the parent decide how big this should be
+		this.setPreferredSize(new Dimension(0, 0));
+	}
+
+	public void updateTaskPane()
+	{
+	}
+
+	public int getSelectedRow()
+	{
+		return 0;
+	}
+
+	public DefaultTableModel getTableModel()
+	{
+		return null;
+	}
 }
