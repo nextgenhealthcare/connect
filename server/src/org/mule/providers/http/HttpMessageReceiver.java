@@ -35,8 +35,10 @@ import javax.resource.spi.work.Work;
 import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.Iterator;
 import java.util.Properties;
 import java.util.StringTokenizer;
+import java.util.Map.Entry;
 
 /**
  * <code>HttpMessageReceiver</code> is a simple http server that can be used
@@ -252,9 +254,19 @@ public class HttpMessageReceiver extends TcpMessageReceiver {
 
         // Read headers from the request as set them as properties on the event
         readHeaders(req, p);
-
+        StringBuilder propertyString = new StringBuilder();
+        for (Iterator<Entry<Object,Object>> iter = p.entrySet().iterator(); iter.hasNext();) {
+			Entry<Object,Object> element = iter.next();
+			propertyString.append(element.getKey().toString());
+			propertyString.append("=");
+			propertyString.append(element.getValue());
+			if (iter.hasNext()){
+				propertyString.append("&");
+			}
+		}
         if (method.equals(HttpConstants.METHOD_GET)) {
-            payload = request.getBytes();
+           // payload = request.getBytes();
+        	return propertyString.toString().getBytes();
         } else {
             boolean multipart = p.getProperty(HttpConstants.HEADER_CONTENT_TYPE, "").indexOf("multipart/related") > -1;
             String contentLengthHeader = p.getProperty(HttpConstants.HEADER_CONTENT_LENGTH, null);
@@ -318,6 +330,12 @@ public class HttpMessageReceiver extends TcpMessageReceiver {
                 }
             }
         }
+        if (payload != null && payload instanceof byte[]){
+        	propertyString.append("&");
+        	propertyString.append(new String((byte[])payload));
+        	payload = propertyString.toString().getBytes();
+        }
+        
         return payload;
     }
 

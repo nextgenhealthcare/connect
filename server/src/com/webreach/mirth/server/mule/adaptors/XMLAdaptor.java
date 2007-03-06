@@ -8,5 +8,6 @@ public class XMLAdaptor extends Adaptor {
 		messageObject.setTransformedDataProtocol(MessageObject.Protocol.XML);
 		messageObject.setEncodedDataProtocol(MessageObject.Protocol.XML);
 		messageObject.setType("XML");
+		messageObject.setTransformedData(source);
 	}
 }

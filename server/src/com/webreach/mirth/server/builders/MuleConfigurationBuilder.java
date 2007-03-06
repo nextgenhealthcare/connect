@@ -439,10 +439,10 @@ public class MuleConfigurationBuilder {
 						textPropertyElement.setAttribute("name", "template");
 						textPropertyElement.setTextContent(property.getValue().toString());
 						propertiesElement.appendChild(textPropertyElement);
-					} else if (property.getKey().equals("connectionFactoryProperties")) {
+					} else if (property.getKey().equals("connectionFactoryProperties") || property.getKey().equals("requestVariables") ) {
 						ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 						Properties connectionFactoryProperties = (Properties) serializer.fromXML(property.getValue().toString());
-						Element connectionFactoryPropertiesMapElement = getPropertiesMap(document, connectionFactoryProperties, null, "connectionFactoryProperties");
+						Element connectionFactoryPropertiesMapElement = getPropertiesMap(document, connectionFactoryProperties, null, property.getKey().toString());
 						propertiesElement.appendChild(connectionFactoryPropertiesMapElement);
 					} else {
 						// script is a special property reserved for some connectors
@@ -570,7 +570,7 @@ public class MuleConfigurationBuilder {
 	// The format is: protocol://host|hostname|emtpy:port
 	private String getEndpointUri(Connector connector) {
 		// TODO: This is a hack.
-		if (connector.getProperties().getProperty("host") != null && connector.getProperties().getProperty("host").startsWith("axis:http")) {
+		if (connector.getProperties().getProperty("host") != null && (connector.getProperties().getProperty("host").startsWith("axis:http") || connector.getProperties().getProperty("host").startsWith("http"))) {
 			return connector.getProperties().getProperty("host");
 		}
 		StringBuilder builder = new StringBuilder();

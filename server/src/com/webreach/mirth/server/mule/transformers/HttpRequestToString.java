@@ -51,14 +51,14 @@ public class HttpRequestToString extends AbstractTransformer {
 			param = src.toString();
 		}
 		
-		int splitIndex = param.indexOf("=");
+		//int splitIndex = param.indexOf("=");
 	
-		if (splitIndex > -1) {
+		//if (splitIndex > -1) {
 			// remove the question mark from a GET
-			return param.substring(splitIndex + 1);
-		} else {
+			return param;//.substring(splitIndex + 1);
+		//} else {
 			// throw new TransformerException(org.mule.config.i18n.Message.createStaticMessage("Failed to parse HTTP string: " + param), this);
-			return param;
-		}
+			//return param;
+	//	}
     }
 }

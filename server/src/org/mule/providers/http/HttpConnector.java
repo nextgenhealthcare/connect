@@ -64,7 +64,12 @@ public class HttpConnector extends TcpConnector
 
     public static final int DEFAULT_PORT = 80;
     public static String DEFAULT_HTTP_VERSION = HttpConstants.HTTP11;
-
+    public static final String PROPERTY_TRANSFORMER_ACK = "responseFromTransformer";
+    public static final String PROPERTY_REQUEST_VARIABLES = "requestVariables";
+    public static final String PROPERTY_METHOD = "method";
+    public static final String PROPERTY_REPLY_CHANNEL_ID = "replyChannelId";
+    
+    
     private String proxyHostname = null;
 
     private int proxyPort = DEFAULT_PORT;
@@ -77,7 +82,38 @@ public class HttpConnector extends TcpConnector
 
     private boolean keepAlive = false;
 
-    /**
+    private boolean responseFromTransformer;
+    
+    private Map requestVariables;
+    
+    private String method;
+    
+    private String replyChannelId;
+    public String getMethod() {
+		return method;
+	}
+
+	public void setMethod(String method) {
+		this.method = method;
+	}
+
+	public String getReplyChannelId() {
+		return replyChannelId;
+	}
+
+	public void setReplyChannelId(String replyChannelId) {
+		this.replyChannelId = replyChannelId;
+	}
+
+	public Map getRequestVariables() {
+		return requestVariables;
+	}
+
+	public void setRequestVariables(Map requestVariables) {
+		this.requestVariables = requestVariables;
+	}
+
+	/**
      * @see UMOConnector#registerListener(UMOComponent, UMOEndpoint)
      */
     public UMOMessageReceiver registerListener(UMOComponent component, UMOEndpoint endpoint) throws Exception {
@@ -199,4 +235,12 @@ public class HttpConnector extends TcpConnector
     public Map getReceivers() {
         return this.receivers;
     }
+
+	public boolean isResponseFromTransformer() {
+		return responseFromTransformer;
+	}
+
+	public void setResponseFromTransformer(boolean responseFromTransformer) {
+		this.responseFromTransformer = responseFromTransformer;
+	}
 }

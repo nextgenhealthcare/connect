@@ -26,6 +26,8 @@ import org.mule.umo.UMOMessage;
 import org.mule.umo.transformer.TransformerException;
 import org.mule.util.Utility;
 
+import com.webreach.mirth.model.MessageObject;
+
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -71,7 +73,26 @@ public class UMOMessageToHttpResponse extends AbstractEventAwareTransformer
         byte[] response = null;
         String contentType = (String) context.getProperty(HttpConstants.HEADER_CONTENT_TYPE, HttpConnector.DEFAULT_CONTENT_TYPE);
 
-        if (src instanceof byte[]) {
+        if (src instanceof MessageObject){
+        	MessageObject messageObject = (MessageObject)src;
+        	HttpConnector connector = (HttpConnector) this.getEndpoint().getConnector();
+        	if (connector.isResponseFromTransformer()){
+        		Object ackResponse = messageObject.getVariableMap().get("ack_response");
+        		Object contentTrans = messageObject.getVariableMap().get("http.contenttype");
+        		Object statusTrans = messageObject.getVariableMap().get("http.status");
+        		if (statusTrans != null){
+        			status = (int)Float.parseFloat((String)statusTrans);
+        		}
+        		contentType = "text/html";
+        		if (contentTrans != null ){
+        			contentType = (String)contentTrans;
+        		}
+        		if (ackResponse != null){
+        			response = ((String)ackResponse).getBytes();
+        			
+        		}
+        	}
+        }else if (src instanceof byte[]) {
             response = (byte[]) src;
         } else if (contentType.startsWith("text/")) {
             response = src.toString().getBytes();

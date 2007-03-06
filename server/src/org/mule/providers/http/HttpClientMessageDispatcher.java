@@ -26,6 +26,7 @@ import org.mule.impl.MuleMessage;
 import org.mule.impl.message.ExceptionPayload;
 import org.mule.providers.AbstractMessageDispatcher;
 import org.mule.providers.NullPayload;
+import org.mule.providers.TemplateValueReplacer;
 import org.mule.providers.http.transformers.HttpClientMethodResponseToObject;
 import org.mule.providers.http.transformers.ObjectToHttpClientMethodRequest;
 import org.mule.umo.UMOEvent;
@@ -36,11 +37,22 @@ import org.mule.umo.provider.DispatchException;
 import org.mule.umo.provider.ReceiveException;
 import org.mule.umo.provider.UMOConnector;
 import org.mule.umo.transformer.UMOTransformer;
+
+import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.server.controllers.MessageObjectController;
+import com.webreach.mirth.server.mule.util.VMRouter;
+
 import sun.misc.BASE64Encoder;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.OutputStream;
 import java.net.BindException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -55,7 +67,7 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher
     private HttpConnector connector;
     private HttpState state;
     private UMOTransformer receiveTransformer;
-
+    private MessageObjectController messageObjectController = new MessageObjectController();
     public HttpClientMessageDispatcher(HttpConnector connector)
     {
         super(connector);
@@ -157,11 +169,51 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher
 
     protected HttpMethod execute(UMOEvent event, boolean closeConnection) throws Exception
     {
+    	TemplateValueReplacer replacer = new TemplateValueReplacer();
+    	MessageObject messageObject = null;
         String method = (String) event.getProperty(HttpConnector.HTTP_METHOD_PROPERTY, HttpConstants.METHOD_POST);
         URI uri = event.getEndpoint().getEndpointURI().getUri();
         HttpMethod httpMethod = null;
         Object body = event.getTransformedMessage();
-        if (body instanceof HttpMethod) {
+        if (body instanceof MessageObject){
+        	messageObject = (MessageObject) body;
+        	Map requestVariables = connector.getRequestVariables();
+        	if (connector.getMethod().equals("post")){
+        		//We add all the paramerters from the connector to the post
+        		PostMethod postMethod = new PostMethod(uri.toString());
+            	for (Iterator iter = requestVariables.keySet().iterator(); iter.hasNext();) {
+    				String key = (String) iter.next();
+    				postMethod.addParameter(key, replacer.replaceValues((String)requestVariables.get(key), messageObject, "http"));
+    			}
+        		httpMethod = postMethod;
+        	}else if (connector.getMethod().equals("get")){
+        		//We need to add all the parameters to the get request
+        		String url = uri.toString();
+        		StringBuilder urlBuilder = new StringBuilder();
+        		urlBuilder.append(url);
+        		if (url.indexOf('?') > -1){
+        			urlBuilder.append("&");
+        		}else{
+        			urlBuilder.append("?");
+        		}
+        		for (Iterator iter = requestVariables.keySet().iterator(); iter.hasNext();) {
+    				String key = (String) iter.next();
+    				urlBuilder.append(key);
+    				urlBuilder.append("=");
+    				urlBuilder.append(replacer.replaceValues((String)requestVariables.get(key), messageObject, "http"));
+    				if (iter.hasNext()){
+    					urlBuilder.append("&");
+    				}
+        		}
+        		httpMethod = new GetMethod(urlBuilder.toString());
+
+        	}else{
+        		throw new Exception("Invalid HTTP Method: " + connector.getMethod());
+        	}
+        	
+
+        
+        } else if (body instanceof HttpMethod) {
             httpMethod = (HttpMethod) body;
         } else if ("GET".equalsIgnoreCase(method) || body instanceof NullPayload) {
             httpMethod = new GetMethod(uri.toString());
@@ -181,7 +233,6 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher
             }
 
         }
-
         HttpConnection connection = null;
         try {
             connection = getConnection(uri);
@@ -202,23 +253,46 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher
 
             try {
                 httpMethod.execute(state, connection);
+                
+                
             } catch (BindException e) {
                 //retry
                 Thread.sleep(100);
                 httpMethod.execute(state, connection);
             } catch(HttpException e) {
                 logger.error(e, e);
+				if (messageObject != null) {
+					// NACK
+					messageObject.setStatus(MessageObject.Status.ERROR);
+					messageObject.setErrors(messageObject.getErrors() != null ? messageObject.getErrors() + '\n' : "" + e.getMessage());
+					messageObjectController.updateMessage(messageObject);
+					connector.incErrorStatistics();
+				}
             }
+            
+            if (messageObject != null) {
+				messageObject.setStatus(MessageObject.Status.SENT);
+				messageObjectController.updateMessage(messageObject);
+			}
             return httpMethod;
         } catch (Exception e) {
             if (httpMethod != null)
                 httpMethod.releaseConnection();
                 connection.close();
+    			if (messageObject != null) {
+					messageObject.setStatus(MessageObject.Status.ERROR);
+					messageObject.setErrors(messageObject.getErrors() != null ? messageObject.getErrors() + '\n' : "" + e.getMessage());
+					messageObjectController.updateMessage(messageObject);
+					connector.incErrorStatistics();
+				}
             throw new DispatchException(event.getMessage(), event.getEndpoint(), e);
         } finally {
             if(connection!=null && closeConnection) {
                 connection.close();
             }
+            //if (bis != null){
+           // 	bis.close();
+           // }
         }
     }
     /*
@@ -229,6 +303,11 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher
     public UMOMessage doSend(UMOEvent event) throws Exception
     {
         HttpMethod httpMethod = execute(event, false);
+        Object data = event.getMessage();
+        MessageObject messageObject = null;
+        if (data instanceof MessageObject){
+        	messageObject = (MessageObject)event.getMessage();
+        }
         try {
             Properties h = new Properties();
             Header[] headers = httpMethod.getRequestHeaders();
@@ -242,8 +321,14 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher
             ExceptionPayload ep = null;
             if(httpMethod.getStatusCode() >= 400 ) {
                 logger.error(httpMethod.getResponseBodyAsString());
+                String exceptionText = "Http call returned a status of: " + httpMethod.getStatusCode() + " " + httpMethod.getStatusText();
                 ep = new ExceptionPayload(new DispatchException(event.getMessage(), event.getEndpoint(),
-                        new Exception("Http call returned a status of: " + httpMethod.getStatusCode() + " " + httpMethod.getStatusText())));
+                        new Exception(exceptionText)));
+    			if (messageObject != null) {
+					messageObject.setStatus(MessageObject.Status.ERROR);
+					messageObject.setErrors(messageObject.getErrors() != null ? messageObject.getErrors() + '\n' : "" + exceptionText);
+					messageObjectController.updateMessage(messageObject);
+				}
             }
             UMOMessage m = null;
             // text or binary content?
@@ -252,7 +337,14 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher
             } else {
                 m = new MuleMessage(httpMethod.getResponseBody(), h);
             }
+//          handle reply to
+            if (connector.getReplyChannelId() != null){
+                VMRouter router = new VMRouter();
+                router.routeMessageByChannelId(connector.getReplyChannelId(), m.getPayload(), true);
+            }
+            
             m.setExceptionPayload(ep);
+            
             return m;
         } catch (Exception e) {
             throw new DispatchException(event.getMessage(), event.getEndpoint(), e);

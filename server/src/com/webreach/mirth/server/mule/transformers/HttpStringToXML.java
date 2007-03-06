@@ -71,12 +71,19 @@ public class HttpStringToXML extends AbstractTransformer {
 
 	public Object doTransform(Object src) {
 		String request = src.toString();
+		request = request.replace('?', '&');
 		String[] fields = request.split("&");
 		HashMap<String, String> data = new HashMap<String, String>();
 
 		for (int i = 0; i < fields.length; i++) {
-			String[] field = fields[i].split("=");
-			data.put(field[0], field[1]);
+			if (fields[i].indexOf('=') > -1){
+				String[] field = fields[i].split("=");
+				if (field.length > 1){
+					data.put(field[0], field[1]);
+				}else{
+					data.put(field[0], "");
+				}
+			}
 		}
 		
 		try {
