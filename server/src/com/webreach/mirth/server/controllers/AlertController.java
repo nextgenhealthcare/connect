@@ -195,7 +195,7 @@ public class AlertController {
 
 		for (Iterator iter = emails.iterator(); iter.hasNext();) {
 			String email = (String) iter.next();
-			emailList.append(email + ";");
+			emailList.append(email + ",");
 		}
 
 		return emailList.toString();
