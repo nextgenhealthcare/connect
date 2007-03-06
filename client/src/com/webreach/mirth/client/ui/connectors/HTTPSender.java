@@ -73,7 +73,7 @@ public class HTTPSender extends ConnectorClass
     private final String DATATYPE = "DataType";
     private final String HTTP_URL = "host";
     private final String HTTP_METHOD = "method";
-    private final String HTTP_ADDITIONAL_PROPERTIES = "connectionFactoryProperties";
+    private final String HTTP_ADDITIONAL_PROPERTIES = "requestVariables";
     private final String CHANNEL_ID = "replyChannelId";
     private final String CHANNEL_NAME = "channelName";
     

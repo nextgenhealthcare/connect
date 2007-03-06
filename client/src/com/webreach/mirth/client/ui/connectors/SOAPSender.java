@@ -666,11 +666,13 @@ public class SOAPSender extends ConnectorClass
                 }
                 
                 method.setModel(new javax.swing.DefaultComboBoxModel(methodNames));
-                method.setSelectedIndex(0);
-                serviceEndpoint.setText(definition.getServiceEndpointURI());
-                soapActionURI.setText(definition.getOperations().get(method.getSelectedItem()).getSoapActionURI());
-                setupTable( definition.getOperations().get(method.getSelectedItem()).getParameters() );
-                buildSoapEnvelope();
+                if (methodNames.length > 0){
+	                method.setSelectedIndex(0);
+	                serviceEndpoint.setText(definition.getServiceEndpointURI());
+	                soapActionURI.setText(definition.getOperations().get(method.getSelectedItem()).getSoapActionURI());
+	                setupTable( definition.getOperations().get(method.getSelectedItem()).getParameters() );
+	                buildSoapEnvelope();
+                }
                 parent.setWorking(false);
             }
             
