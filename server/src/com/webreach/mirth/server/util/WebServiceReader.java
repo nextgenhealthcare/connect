@@ -212,7 +212,13 @@ public class WebServiceReader {
 				WSParameter newParam = new WSParameter();
 				// if we have a complex type, set the param name
 				newParam.setName(seqElement.getTypeName().getLocalPart());
-				newParam.setType(seqElement.getElementType().getLocalPart());
+				//patch ast:
+				if (seqElement.getElementType()==null) {
+					newParam.setType("anyType");
+				}
+				else {
+					newParam.setType(seqElement.getElementType().getLocalPart());
+				}
 				// Can we have multiple?
 				QName maxOccurs = seqElement.getXMLAttribute("maxOccurs");
 				if (maxOccurs != null)
