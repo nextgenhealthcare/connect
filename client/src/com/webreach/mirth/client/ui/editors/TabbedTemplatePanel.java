@@ -163,6 +163,7 @@ public class TabbedTemplatePanel extends javax.swing.JPanel
         variableReferencePane = new javax.swing.JPanel();
         variableReferenceDropDown = new com.webreach.mirth.client.ui.components.MirthComboBox();
         variableScrollPane = new javax.swing.JScrollPane();
+        jLabel1 = new javax.swing.JLabel();
         incomingTab = new javax.swing.JPanel();
         incoming = new MessageTreeTemplate(UIConstants.INCOMING_DATA);
         outgoingTab = new javax.swing.JPanel();
@@ -188,21 +189,27 @@ public class TabbedTemplatePanel extends javax.swing.JPanel
         variableScrollPane.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         variableScrollPane.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
 
+        jLabel1.setText("Filter:");
+
         org.jdesktop.layout.GroupLayout variableReferencePaneLayout = new org.jdesktop.layout.GroupLayout(variableReferencePane);
         variableReferencePane.setLayout(variableReferencePaneLayout);
         variableReferencePaneLayout.setHorizontalGroup(
             variableReferencePaneLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(variableReferencePaneLayout.createSequentialGroup()
-                .add(10, 10, 10)
-                .add(variableReferenceDropDown, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(103, Short.MAX_VALUE))
             .add(variableScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 238, Short.MAX_VALUE)
+            .add(variableReferencePaneLayout.createSequentialGroup()
+                .addContainerGap()
+                .add(jLabel1)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(variableReferenceDropDown, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(71, Short.MAX_VALUE))
         );
         variableReferencePaneLayout.setVerticalGroup(
             variableReferencePaneLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(variableReferencePaneLayout.createSequentialGroup()
                 .addContainerGap()
-                .add(variableReferenceDropDown, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 22, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(variableReferencePaneLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jLabel1)
+                    .add(variableReferenceDropDown, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 22, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(variableScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 44, Short.MAX_VALUE))
         );
@@ -271,6 +278,7 @@ public class TabbedTemplatePanel extends javax.swing.JPanel
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.webreach.mirth.client.ui.editors.MessageTreeTemplate incoming;
     public javax.swing.JPanel incomingTab;
+    private javax.swing.JLabel jLabel1;
     private com.webreach.mirth.client.ui.editors.MessageTreeTemplate outgoing;
     public javax.swing.JPanel outgoingTab;
     public javax.swing.JTabbedPane tabPanel;
