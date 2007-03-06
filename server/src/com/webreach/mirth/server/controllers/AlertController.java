@@ -184,7 +184,7 @@ public class AlertController {
 			String fromAddress = properties.getProperty("smtp.from");
 			String toAddressList = generateEmailList(emails);
 			SMTPConnection connection = SMTPConnectionFactory.createSMTPConnection();
-			connection.send(toAddressList, null, fromAddress, "Mirth Alert", template);
+			connection.send(toAddressList, null, fromAddress, "Alert: Mirth Notification", template);
 		} catch (Exception e) {
 			throw new ControllerException(e);
 		}

@@ -29,6 +29,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.mozilla.javascript.Context;
+import org.mozilla.javascript.EcmaError;
 import org.mozilla.javascript.ImporterTopLevel;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
@@ -203,6 +204,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			}
 			messageObject.setEncodedDataProtocol(Protocol.valueOf(this.outboundProtocol));
 		}
+
 		if (evaluateFilterScript(messageObject)) {
 			MessageObject transformedMessageObject = evaluateTransformerScript(messageObject);
 			if (this.getMode().equals(Mode.SOURCE.toString())) {
@@ -299,7 +301,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			Object transformedData;
 			Protocol encodedDataProtocol;
 			Map encodedDataProperties;
-			
+
 			if (template != null) {
 				transformedData = scope.get("tmp", scope);
 				encodedDataProtocol = Protocol.valueOf(this.getOutboundProtocol());
@@ -327,8 +329,18 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			messageObject.setStatus(MessageObject.Status.TRANSFORMED);
 			return messageObject;
 		} catch (Exception e) {
+			// error line is initialized to blank
+			String lineSource = new String();
+
+			// if the exception occured during execution of the script, get the
+			// line of code that caused the error
+			if (e instanceof EcmaError) {
+				EcmaError ee = (EcmaError) e;
+				lineSource = ee.lineSource();
+			}
+
 			messageObject.setStatus(MessageObject.Status.ERROR);
-			messageObject.setErrors(messageObject.getErrors() != null ? messageObject.getErrors() + '\n' : Constants.ERROR_300 + StackTracePrinter.stackTraceToString(e));
+			messageObject.setErrors(messageObject.getErrors() != null ? messageObject.getErrors() + '\n' : Constants.ERROR_300 + "\n" + lineSource + "\n" + StackTracePrinter.stackTraceToString(e));
 			messageObjectController.updateMessage(messageObject);
 
 			alertController.sendAlerts(channelId, messageObject.getErrors());
