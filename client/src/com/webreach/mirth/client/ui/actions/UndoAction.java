@@ -34,22 +34,22 @@ import com.webreach.mirth.client.ui.components.MirthSyntaxTextArea;
 /** Allows for Copying in text components. */
 public class UndoAction extends AbstractAction
 {
-	MirthSyntaxTextArea comp;
+    MirthSyntaxTextArea comp;
 
-	public UndoAction(MirthSyntaxTextArea comp)
-	{
-		super("Undo");
-		this.comp = comp;
-	}
+    public UndoAction(MirthSyntaxTextArea comp)
+    {
+        super("Undo");
+        this.comp = comp;
+    }
 
-	public void actionPerformed(ActionEvent e)
-	{
-		comp.undo();
-	}
+    public void actionPerformed(ActionEvent e)
+    {
+        comp.undo();
+    }
 
-	public boolean isEnabled()
-	{
-		return comp.isEnabled() && comp.canUndo();
-	}
+    public boolean isEnabled()
+    {
+        return comp.isEnabled() && comp.canUndo();
+    }
 
 }

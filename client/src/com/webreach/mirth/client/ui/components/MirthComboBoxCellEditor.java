@@ -36,24 +36,24 @@ import com.webreach.mirth.client.ui.editors.MirthEditorPane;
 
 public class MirthComboBoxCellEditor extends DefaultCellEditor
 {
-	MirthEditorPane parent;
+    MirthEditorPane parent;
 
-	public MirthComboBoxCellEditor(String[] items, MirthEditorPane pane)
-	{
-		super(new JXComboBox(items));
-		parent = pane;
-	}
+    public MirthComboBoxCellEditor(String[] items, MirthEditorPane pane)
+    {
+        super(new JXComboBox(items));
+        parent = pane;
+    }
 
-	/**
-	 * Enables the editor only for double-clicks.
-	 */
-	public boolean isCellEditable(EventObject evt)
-	{
-		if (evt instanceof MouseEvent)
-		{
-			return ((MouseEvent) evt).getClickCount() >= 2;
-		}
+    /**
+     * Enables the editor only for double-clicks.
+     */
+    public boolean isCellEditable(EventObject evt)
+    {
+        if (evt instanceof MouseEvent)
+        {
+            return ((MouseEvent) evt).getClickCount() >= 2;
+        }
 
-		return false;
-	}
+        return false;
+    }
 }

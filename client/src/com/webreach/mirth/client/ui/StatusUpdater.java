@@ -33,49 +33,45 @@ import java.util.prefs.Preferences;
  */
 public class StatusUpdater implements Runnable
 {
-	private final int DEFAULT_INTERVAL_TIME = 20;
+    private final int DEFAULT_INTERVAL_TIME = 20;
+    private static Preferences userPreferences;
+    Frame parent;
+    int refreshRate;
+    boolean interrupted;
 
-	private static Preferences userPreferences;
+    public StatusUpdater()
+    {
+        this.parent = PlatformUI.MIRTH_FRAME;
+        userPreferences = Preferences.systemNodeForPackage(Mirth.class);
+        interrupted = false;
+    }
 
-	Frame parent;
+    public void run()
+    {
+        try
+        {
+            while (!interrupted)
+            {
+                refreshRate = userPreferences.getInt("intervalTime", DEFAULT_INTERVAL_TIME) * 1000;
+                Thread.sleep(refreshRate);
 
-	int refreshRate;
+                if (interrupted)
+                    return;
 
-	boolean interrupted;
+                if (parent.currentContentPage != null && parent.currentContentPage == parent.dashboardPanel && parent.isStatusUpdateComplete())
+                {
+                    parent.refreshStatuses();
+                }
+            }
+        }
+        catch (InterruptedException e)
+        {
+            // should happen when closed.
+        }
+    }
 
-	public StatusUpdater()
-	{
-		this.parent = PlatformUI.MIRTH_FRAME;
-		userPreferences = Preferences.systemNodeForPackage(Mirth.class);
-		interrupted = false;
-	}
-
-	public void run()
-	{
-		try
-		{
-			while (!interrupted)
-			{
-				refreshRate = userPreferences.getInt("intervalTime", DEFAULT_INTERVAL_TIME) * 1000;
-				Thread.sleep(refreshRate);
-
-				if (interrupted)
-					return;
-
-				if (parent.currentContentPage != null && parent.currentContentPage == parent.dashboardPanel && parent.isStatusUpdateComplete())
-				{
-					parent.refreshStatuses();
-				}
-			}
-		}
-		catch (InterruptedException e)
-		{
-			// should happen when closed.
-		}
-	}
-
-	public void interruptThread()
-	{
-		interrupted = true;
-	}
+    public void interruptThread()
+    {
+        interrupted = true;
+    }
 }

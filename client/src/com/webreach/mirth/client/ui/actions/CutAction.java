@@ -34,21 +34,21 @@ import com.webreach.mirth.client.ui.components.MirthTextInterface;
 /** Allows for Cutting in text components. */
 public class CutAction extends AbstractAction
 {
-	MirthTextInterface comp;
+    MirthTextInterface comp;
 
-	public CutAction(MirthTextInterface comp)
-	{
-		super("Cut");
-		this.comp = comp;
-	}
+    public CutAction(MirthTextInterface comp)
+    {
+        super("Cut");
+        this.comp = comp;
+    }
 
-	public void actionPerformed(ActionEvent e)
-	{
-		comp.cut();
-	}
+    public void actionPerformed(ActionEvent e)
+    {
+        comp.cut();
+    }
 
-	public boolean isEnabled()
-	{
-		return comp.isEditable() && comp.isEnabled() && comp.getSelectedText() != null;
-	}
+    public boolean isEnabled()
+    {
+        return comp.isEditable() && comp.isEnabled() && comp.getSelectedText() != null;
+    }
 }

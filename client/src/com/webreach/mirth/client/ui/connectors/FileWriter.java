@@ -35,205 +35,205 @@ import com.webreach.mirth.client.ui.UIConstants;
  */
 public class FileWriter extends ConnectorClass
 {
-	/** Creates new form FileWriter */
-	private final String DATATYPE = "DataType";
+    /** Creates new form FileWriter */
+    private final String DATATYPE = "DataType";
 
-	private final String FILE_DIRECTORY = "host";
+    private final String FILE_DIRECTORY = "host";
 
-	private final String FILE_NAME = "outputPattern";
+    private final String FILE_NAME = "outputPattern";
 
-	private final String FILE_APPEND = "outputAppend";
+    private final String FILE_APPEND = "outputAppend";
 
-	private final String FILE_CONTENTS = "template";
+    private final String FILE_CONTENTS = "template";
 
-	private final String CONNECTOR_CHARSET_ENCODING = "charsetEncoding";
+    private final String CONNECTOR_CHARSET_ENCODING = "charsetEncoding";
 
-	private final String FILE_TYPE = "binary";
+    private final String FILE_TYPE = "binary";
 
-	public FileWriter()
-	{
-		name = "File Writer";
-		initComponents();
-		// ast:encoding activation
-		parent.setupCharsetEncodingForChannel(charsetEncodingCombobox);
-	}
+    public FileWriter()
+    {
+        name = "File Writer";
+        initComponents();
+        // ast:encoding activation
+        parent.setupCharsetEncodingForChannel(charsetEncodingCombobox);
+    }
 
-	public Properties getProperties()
-	{
-		Properties properties = new Properties();
-		properties.put(DATATYPE, name);
-		properties.put(FILE_DIRECTORY, directoryField.getText().replace('\\', '/'));
-		properties.put(FILE_NAME, fileNameField.getText());
+    public Properties getProperties()
+    {
+        Properties properties = new Properties();
+        properties.put(DATATYPE, name);
+        properties.put(FILE_DIRECTORY, directoryField.getText().replace('\\', '/'));
+        properties.put(FILE_NAME, fileNameField.getText());
 
-		if (appendToFileYes.isSelected())
-			properties.put(FILE_APPEND, UIConstants.YES_OPTION);
-		else
-			properties.put(FILE_APPEND, UIConstants.NO_OPTION);
+        if (appendToFileYes.isSelected())
+            properties.put(FILE_APPEND, UIConstants.YES_OPTION);
+        else
+            properties.put(FILE_APPEND, UIConstants.NO_OPTION);
 
-		properties.put(FILE_CONTENTS, fileContentsTextPane.getText());
-		// ast:encoding
-		properties.put(CONNECTOR_CHARSET_ENCODING, parent.getSelectedEncodingForChannel(charsetEncodingCombobox));
+        properties.put(FILE_CONTENTS, fileContentsTextPane.getText());
+        // ast:encoding
+        properties.put(CONNECTOR_CHARSET_ENCODING, parent.getSelectedEncodingForChannel(charsetEncodingCombobox));
 
-		if (fileTypeBinary.isSelected())
-			properties.put(FILE_TYPE, UIConstants.YES_OPTION);
-		else
-			properties.put(FILE_TYPE, UIConstants.NO_OPTION);
+        if (fileTypeBinary.isSelected())
+            properties.put(FILE_TYPE, UIConstants.YES_OPTION);
+        else
+            properties.put(FILE_TYPE, UIConstants.NO_OPTION);
 
-		return properties;
-	}
+        return properties;
+    }
 
-	public void setProperties(Properties props)
-	{
-		directoryField.setText((String) props.get(FILE_DIRECTORY));
-		fileNameField.setText((String) props.get(FILE_NAME));
+    public void setProperties(Properties props)
+    {
+        directoryField.setText((String) props.get(FILE_DIRECTORY));
+        fileNameField.setText((String) props.get(FILE_NAME));
 
-		if (((String) props.get(FILE_APPEND)).equalsIgnoreCase(UIConstants.YES_OPTION))
-			appendToFileYes.setSelected(true);
-		else
-			appendToFileNo.setSelected(true);
+        if (((String) props.get(FILE_APPEND)).equalsIgnoreCase(UIConstants.YES_OPTION))
+            appendToFileYes.setSelected(true);
+        else
+            appendToFileNo.setSelected(true);
 
-		// ast:encoding
-		parent.sePreviousSelectedEncodingForChannel(charsetEncodingCombobox, (String) props.get(CONNECTOR_CHARSET_ENCODING));
-		fileContentsTextPane.setText((String) props.get(FILE_CONTENTS));
+        // ast:encoding
+        parent.sePreviousSelectedEncodingForChannel(charsetEncodingCombobox, (String) props.get(CONNECTOR_CHARSET_ENCODING));
+        fileContentsTextPane.setText((String) props.get(FILE_CONTENTS));
 
-		if (((String) props.get(FILE_TYPE)).equalsIgnoreCase(UIConstants.YES_OPTION))
-			fileTypeBinary.setSelected(true);
-		else
-			fileTypeASCII.setSelected(true);
-	}
+        if (((String) props.get(FILE_TYPE)).equalsIgnoreCase(UIConstants.YES_OPTION))
+            fileTypeBinary.setSelected(true);
+        else
+            fileTypeASCII.setSelected(true);
+    }
 
-	public Properties getDefaults()
-	{
-		Properties properties = new Properties();
-		properties.put(DATATYPE, name);
-		properties.put(FILE_DIRECTORY, "");
-		properties.put(FILE_NAME, "");
-		properties.put(FILE_APPEND, UIConstants.YES_OPTION);
-		properties.put(FILE_CONTENTS, "");
-		properties.put(FILE_TYPE, UIConstants.NO_OPTION);
-		// ast:encoding
-		properties.put(CONNECTOR_CHARSET_ENCODING, UIConstants.DEFAULT_ENCODING_OPTION);
-		return properties;
-	}
+    public Properties getDefaults()
+    {
+        Properties properties = new Properties();
+        properties.put(DATATYPE, name);
+        properties.put(FILE_DIRECTORY, "");
+        properties.put(FILE_NAME, "");
+        properties.put(FILE_APPEND, UIConstants.YES_OPTION);
+        properties.put(FILE_CONTENTS, "");
+        properties.put(FILE_TYPE, UIConstants.NO_OPTION);
+        // ast:encoding
+        properties.put(CONNECTOR_CHARSET_ENCODING, UIConstants.DEFAULT_ENCODING_OPTION);
+        return properties;
+    }
 
-	public boolean checkProperties(Properties props)
-	{
-		if (((String) props.get(FILE_DIRECTORY)).length() > 0 && ((String) props.get(FILE_NAME)).length() > 0 && ((String) props.get(FILE_CONTENTS)).length() > 0)
-			return true;
-		return false;
-	}
+    public boolean checkProperties(Properties props)
+    {
+        if (((String) props.get(FILE_DIRECTORY)).length() > 0 && ((String) props.get(FILE_NAME)).length() > 0 && ((String) props.get(FILE_CONTENTS)).length() > 0)
+            return true;
+        return false;
+    }
 
-	/**
-	 * This method is called from within the constructor to initialize the form.
-	 * WARNING: Do NOT modify this code. The content of this method is always
-	 * regenerated by the Form Editor.
-	 */
-	// <editor-fold defaultstate="collapsed" desc=" Generated Code
-	// ">//GEN-BEGIN:initComponents
-	private void initComponents()
-	{
-		buttonGroup1 = new javax.swing.ButtonGroup();
-		buttonGroup2 = new javax.swing.ButtonGroup();
-		buttonGroup3 = new javax.swing.ButtonGroup();
-		jLabel1 = new javax.swing.JLabel();
-		jLabel2 = new javax.swing.JLabel();
-		jLabel3 = new javax.swing.JLabel();
-		directoryField = new com.webreach.mirth.client.ui.components.MirthTextField();
-		fileNameField = new com.webreach.mirth.client.ui.components.MirthTextField();
-		jLabel4 = new javax.swing.JLabel();
-		appendToFileYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-		appendToFileNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-		fileContentsTextPane = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea(false, false);
-		charsetEncodingCombobox = new com.webreach.mirth.client.ui.components.MirthComboBox();
-		jLabel41 = new javax.swing.JLabel();
-		jLabel5 = new javax.swing.JLabel();
-		fileTypeBinary = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-		fileTypeASCII = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    // <editor-fold defaultstate="collapsed" desc=" Generated Code
+    // ">//GEN-BEGIN:initComponents
+    private void initComponents()
+    {
+        buttonGroup1 = new javax.swing.ButtonGroup();
+        buttonGroup2 = new javax.swing.ButtonGroup();
+        buttonGroup3 = new javax.swing.ButtonGroup();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        directoryField = new com.webreach.mirth.client.ui.components.MirthTextField();
+        fileNameField = new com.webreach.mirth.client.ui.components.MirthTextField();
+        jLabel4 = new javax.swing.JLabel();
+        appendToFileYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        appendToFileNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        fileContentsTextPane = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea(false, false);
+        charsetEncodingCombobox = new com.webreach.mirth.client.ui.components.MirthComboBox();
+        jLabel41 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
+        fileTypeBinary = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        fileTypeASCII = new com.webreach.mirth.client.ui.components.MirthRadioButton();
 
-		setBackground(new java.awt.Color(255, 255, 255));
-		setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
-		jLabel1.setText("Directory:");
+        setBackground(new java.awt.Color(255, 255, 255));
+        setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        jLabel1.setText("Directory:");
 
-		jLabel2.setText("File Name:");
+        jLabel2.setText("File Name:");
 
-		jLabel3.setText("Template:");
+        jLabel3.setText("Template:");
 
-		jLabel4.setText("Append to file:");
+        jLabel4.setText("Append to file:");
 
-		appendToFileYes.setBackground(new java.awt.Color(255, 255, 255));
-		appendToFileYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-		buttonGroup1.add(appendToFileYes);
-		appendToFileYes.setText("Yes");
-		appendToFileYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        appendToFileYes.setBackground(new java.awt.Color(255, 255, 255));
+        appendToFileYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        buttonGroup1.add(appendToFileYes);
+        appendToFileYes.setText("Yes");
+        appendToFileYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-		appendToFileNo.setBackground(new java.awt.Color(255, 255, 255));
-		appendToFileNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-		buttonGroup1.add(appendToFileNo);
-		appendToFileNo.setSelected(true);
-		appendToFileNo.setText("No");
-		appendToFileNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        appendToFileNo.setBackground(new java.awt.Color(255, 255, 255));
+        appendToFileNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        buttonGroup1.add(appendToFileNo);
+        appendToFileNo.setSelected(true);
+        appendToFileNo.setText("No");
+        appendToFileNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-		fileContentsTextPane.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        fileContentsTextPane.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
-		charsetEncodingCombobox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "default", "utf-8", "iso-8859-1", "utf-16 (le)", "utf-16 (be)", "utf-16 (bom)", "us-ascii" }));
+        charsetEncodingCombobox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "default", "utf-8", "iso-8859-1", "utf-16 (le)", "utf-16 (be)", "utf-16 (bom)", "us-ascii" }));
 
-		jLabel41.setText("Encoding:");
+        jLabel41.setText("Encoding:");
 
-		jLabel5.setText("File Type:");
+        jLabel5.setText("File Type:");
 
-		fileTypeBinary.setBackground(new java.awt.Color(255, 255, 255));
-		fileTypeBinary.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-		buttonGroup3.add(fileTypeBinary);
-		fileTypeBinary.setText("Binary");
-		fileTypeBinary.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        fileTypeBinary.setBackground(new java.awt.Color(255, 255, 255));
+        fileTypeBinary.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        buttonGroup3.add(fileTypeBinary);
+        fileTypeBinary.setText("Binary");
+        fileTypeBinary.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-		fileTypeASCII.setBackground(new java.awt.Color(255, 255, 255));
-		fileTypeASCII.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-		buttonGroup3.add(fileTypeASCII);
-		fileTypeASCII.setSelected(true);
-		fileTypeASCII.setText("ASCII");
-		fileTypeASCII.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        fileTypeASCII.setBackground(new java.awt.Color(255, 255, 255));
+        fileTypeASCII.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        buttonGroup3.add(fileTypeASCII);
+        fileTypeASCII.setSelected(true);
+        fileTypeASCII.setText("ASCII");
+        fileTypeASCII.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-		org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
-		this.setLayout(layout);
-		layout.setHorizontalGroup(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(layout.createSequentialGroup().addContainerGap().add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING).add(jLabel3).add(jLabel4).add(jLabel2).add(jLabel1).add(jLabel5).add(jLabel41)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING).add(org.jdesktop.layout.GroupLayout.LEADING, charsetEncodingCombobox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup().add(appendToFileYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(appendToFileNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).add(org.jdesktop.layout.GroupLayout.LEADING, layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false).add(org.jdesktop.layout.GroupLayout.LEADING, fileNameField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE).add(org.jdesktop.layout.GroupLayout.LEADING, directoryField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 250, Short.MAX_VALUE)).add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup().add(fileTypeBinary, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(fileTypeASCII, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).add(fileContentsTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 250, Short.MAX_VALUE)).addContainerGap()));
-		layout.setVerticalGroup(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(layout.createSequentialGroup().add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(jLabel1).add(directoryField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(jLabel2).add(fileNameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(layout.createSequentialGroup().add(jLabel4).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(jLabel5).add(fileTypeBinary, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(fileTypeASCII, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))).add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(appendToFileYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(appendToFileNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(charsetEncodingCombobox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(jLabel41)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING).add(org.jdesktop.layout.GroupLayout.LEADING, jLabel3).add(fileContentsTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 61, Short.MAX_VALUE)).addContainerGap()));
-	}// </editor-fold>//GEN-END:initComponents
+        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
+        this.setLayout(layout);
+        layout.setHorizontalGroup(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(layout.createSequentialGroup().addContainerGap().add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING).add(jLabel3).add(jLabel4).add(jLabel2).add(jLabel1).add(jLabel5).add(jLabel41)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING).add(org.jdesktop.layout.GroupLayout.LEADING, charsetEncodingCombobox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup().add(appendToFileYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(appendToFileNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).add(org.jdesktop.layout.GroupLayout.LEADING, layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false).add(org.jdesktop.layout.GroupLayout.LEADING, fileNameField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE).add(org.jdesktop.layout.GroupLayout.LEADING, directoryField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 250, Short.MAX_VALUE)).add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup().add(fileTypeBinary, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(fileTypeASCII, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).add(fileContentsTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 250, Short.MAX_VALUE)).addContainerGap()));
+        layout.setVerticalGroup(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(layout.createSequentialGroup().add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(jLabel1).add(directoryField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(jLabel2).add(fileNameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(layout.createSequentialGroup().add(jLabel4).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(jLabel5).add(fileTypeBinary, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(fileTypeASCII, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))).add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(appendToFileYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(appendToFileNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(charsetEncodingCombobox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(jLabel41)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING).add(org.jdesktop.layout.GroupLayout.LEADING, jLabel3).add(fileContentsTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 61, Short.MAX_VALUE)).addContainerGap()));
+    }// </editor-fold>//GEN-END:initComponents
 
-	// Variables declaration - do not modify//GEN-BEGIN:variables
-	private com.webreach.mirth.client.ui.components.MirthRadioButton appendToFileNo;
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private com.webreach.mirth.client.ui.components.MirthRadioButton appendToFileNo;
 
-	private com.webreach.mirth.client.ui.components.MirthRadioButton appendToFileYes;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton appendToFileYes;
 
-	private javax.swing.ButtonGroup buttonGroup1;
+    private javax.swing.ButtonGroup buttonGroup1;
 
-	private javax.swing.ButtonGroup buttonGroup2;
+    private javax.swing.ButtonGroup buttonGroup2;
 
-	private javax.swing.ButtonGroup buttonGroup3;
+    private javax.swing.ButtonGroup buttonGroup3;
 
-	private com.webreach.mirth.client.ui.components.MirthComboBox charsetEncodingCombobox;
+    private com.webreach.mirth.client.ui.components.MirthComboBox charsetEncodingCombobox;
 
-	private com.webreach.mirth.client.ui.components.MirthTextField directoryField;
+    private com.webreach.mirth.client.ui.components.MirthTextField directoryField;
 
-	private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea fileContentsTextPane;
+    private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea fileContentsTextPane;
 
-	private com.webreach.mirth.client.ui.components.MirthTextField fileNameField;
+    private com.webreach.mirth.client.ui.components.MirthTextField fileNameField;
 
-	private com.webreach.mirth.client.ui.components.MirthRadioButton fileTypeASCII;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton fileTypeASCII;
 
-	private com.webreach.mirth.client.ui.components.MirthRadioButton fileTypeBinary;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton fileTypeBinary;
 
-	private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel1;
 
-	private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel2;
 
-	private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel3;
 
-	private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel4;
 
-	private javax.swing.JLabel jLabel41;
+    private javax.swing.JLabel jLabel41;
 
-	private javax.swing.JLabel jLabel5;
-	// End of variables declaration//GEN-END:variables
+    private javax.swing.JLabel jLabel5;
+    // End of variables declaration//GEN-END:variables
 
 }

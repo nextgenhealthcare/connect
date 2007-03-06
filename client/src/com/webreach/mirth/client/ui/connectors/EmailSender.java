@@ -35,170 +35,170 @@ import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
  */
 public class EmailSender extends ConnectorClass
 {
-	/** Creates new form EmailSender */
-	private final String DATATYPE = "DataType";
+    /** Creates new form EmailSender */
+    private final String DATATYPE = "DataType";
 
-	private final String EMAIL_ADDRESS = "hostname";
+    private final String EMAIL_ADDRESS = "hostname";
 
-	private final String EMAIL_PORT = "port";
+    private final String EMAIL_PORT = "port";
 
-	private final String EMAIL_USERNAME = "username";
+    private final String EMAIL_USERNAME = "username";
 
-	private final String EMAIL_PASSWORD = "password";
+    private final String EMAIL_PASSWORD = "password";
 
-	private final String EMAIL_TO = "to";
+    private final String EMAIL_TO = "to";
 
-	private final String EMAIL_FROM = "from";
+    private final String EMAIL_FROM = "from";
 
-	private final String EMAIL_SUBJECT = "subject";
+    private final String EMAIL_SUBJECT = "subject";
 
-	private final String EMAIL_BODY = "body";
+    private final String EMAIL_BODY = "body";
 
-	public EmailSender()
-	{
-		name = "Email Sender";
-		initComponents();
-		SMTPServerPortField.setDocument(new MirthFieldConstraints(5, false, true));
-	}
+    public EmailSender()
+    {
+        name = "Email Sender";
+        initComponents();
+        SMTPServerPortField.setDocument(new MirthFieldConstraints(5, false, true));
+    }
 
-	public Properties getProperties()
-	{
-		Properties properties = new Properties();
-		properties.put(DATATYPE, name);
-		properties.put(EMAIL_ADDRESS, SMTPServerHostField.getText());
-		properties.put(EMAIL_PORT, SMTPServerPortField.getText());
-		properties.put(EMAIL_USERNAME, emailUsernameField.getText());
-		properties.put(EMAIL_PASSWORD, new String(emailPasswordField.getPassword()));
-		properties.put(EMAIL_TO, emailToField.getText());
-		properties.put(EMAIL_FROM, emailFromField.getText());
-		properties.put(EMAIL_SUBJECT, emailSubjectField.getText());
-		properties.put(EMAIL_BODY, emailBodyTextPane.getText());
-		return properties;
-	}
+    public Properties getProperties()
+    {
+        Properties properties = new Properties();
+        properties.put(DATATYPE, name);
+        properties.put(EMAIL_ADDRESS, SMTPServerHostField.getText());
+        properties.put(EMAIL_PORT, SMTPServerPortField.getText());
+        properties.put(EMAIL_USERNAME, emailUsernameField.getText());
+        properties.put(EMAIL_PASSWORD, new String(emailPasswordField.getPassword()));
+        properties.put(EMAIL_TO, emailToField.getText());
+        properties.put(EMAIL_FROM, emailFromField.getText());
+        properties.put(EMAIL_SUBJECT, emailSubjectField.getText());
+        properties.put(EMAIL_BODY, emailBodyTextPane.getText());
+        return properties;
+    }
 
-	public void setProperties(Properties props)
-	{
-		SMTPServerHostField.setText((String) props.get(EMAIL_ADDRESS));
-		SMTPServerPortField.setText((String) props.get(EMAIL_PORT));
-		emailUsernameField.setText((String) props.get(EMAIL_USERNAME));
-		emailPasswordField.setText((String) props.get(EMAIL_PASSWORD));
-		emailToField.setText((String) props.get(EMAIL_TO));
-		emailFromField.setText((String) props.get(EMAIL_FROM));
-		emailSubjectField.setText((String) props.get(EMAIL_SUBJECT));
-		emailBodyTextPane.setText((String) props.get(EMAIL_BODY));
-	}
+    public void setProperties(Properties props)
+    {
+        SMTPServerHostField.setText((String) props.get(EMAIL_ADDRESS));
+        SMTPServerPortField.setText((String) props.get(EMAIL_PORT));
+        emailUsernameField.setText((String) props.get(EMAIL_USERNAME));
+        emailPasswordField.setText((String) props.get(EMAIL_PASSWORD));
+        emailToField.setText((String) props.get(EMAIL_TO));
+        emailFromField.setText((String) props.get(EMAIL_FROM));
+        emailSubjectField.setText((String) props.get(EMAIL_SUBJECT));
+        emailBodyTextPane.setText((String) props.get(EMAIL_BODY));
+    }
 
-	public Properties getDefaults()
-	{
-		Properties properties = new Properties();
-		properties.put(DATATYPE, name);
-		properties.put(EMAIL_ADDRESS, "");
-		properties.put(EMAIL_PORT, "");
-		properties.put(EMAIL_USERNAME, "");
-		properties.put(EMAIL_PASSWORD, "");
-		properties.put(EMAIL_TO, "");
-		properties.put(EMAIL_FROM, "");
-		properties.put(EMAIL_SUBJECT, "");
-		properties.put(EMAIL_BODY, "");
-		return properties;
-	}
+    public Properties getDefaults()
+    {
+        Properties properties = new Properties();
+        properties.put(DATATYPE, name);
+        properties.put(EMAIL_ADDRESS, "");
+        properties.put(EMAIL_PORT, "");
+        properties.put(EMAIL_USERNAME, "");
+        properties.put(EMAIL_PASSWORD, "");
+        properties.put(EMAIL_TO, "");
+        properties.put(EMAIL_FROM, "");
+        properties.put(EMAIL_SUBJECT, "");
+        properties.put(EMAIL_BODY, "");
+        return properties;
+    }
 
-	public boolean checkProperties(Properties props)
-	{
-		if (((String) props.get(EMAIL_ADDRESS)).length() > 0 && ((String) props.get(EMAIL_PORT)).length() > 0 && ((String) props.get(EMAIL_TO)).length() > 0)
-			return true;
-		return false;
-	}
+    public boolean checkProperties(Properties props)
+    {
+        if (((String) props.get(EMAIL_ADDRESS)).length() > 0 && ((String) props.get(EMAIL_PORT)).length() > 0 && ((String) props.get(EMAIL_TO)).length() > 0)
+            return true;
+        return false;
+    }
 
-	/**
-	 * This method is called from within the constructor to initialize the form.
-	 * WARNING: Do NOT modify this code. The content of this method is always
-	 * regenerated by the Form Editor.
-	 */
-	// <editor-fold defaultstate="collapsed" desc=" Generated Code
-	// ">//GEN-BEGIN:initComponents
-	private void initComponents()
-	{
-		jLabel1 = new javax.swing.JLabel();
-		jLabel2 = new javax.swing.JLabel();
-		jLabel3 = new javax.swing.JLabel();
-		jLabel4 = new javax.swing.JLabel();
-		jLabel5 = new javax.swing.JLabel();
-		jLabel6 = new javax.swing.JLabel();
-		jLabel7 = new javax.swing.JLabel();
-		emailUsernameField = new com.webreach.mirth.client.ui.components.MirthTextField();
-		SMTPServerPortField = new com.webreach.mirth.client.ui.components.MirthTextField();
-		SMTPServerHostField = new com.webreach.mirth.client.ui.components.MirthTextField();
-		emailToField = new com.webreach.mirth.client.ui.components.MirthTextField();
-		emailSubjectField = new com.webreach.mirth.client.ui.components.MirthTextField();
-		emailPasswordField = new com.webreach.mirth.client.ui.components.MirthPasswordField();
-		jScrollPane1 = new javax.swing.JScrollPane();
-		emailBodyTextPane = new com.webreach.mirth.client.ui.components.MirthTextPane();
-		jLabel8 = new javax.swing.JLabel();
-		emailFromField = new com.webreach.mirth.client.ui.components.MirthTextField();
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    // <editor-fold defaultstate="collapsed" desc=" Generated Code
+    // ">//GEN-BEGIN:initComponents
+    private void initComponents()
+    {
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
+        jLabel7 = new javax.swing.JLabel();
+        emailUsernameField = new com.webreach.mirth.client.ui.components.MirthTextField();
+        SMTPServerPortField = new com.webreach.mirth.client.ui.components.MirthTextField();
+        SMTPServerHostField = new com.webreach.mirth.client.ui.components.MirthTextField();
+        emailToField = new com.webreach.mirth.client.ui.components.MirthTextField();
+        emailSubjectField = new com.webreach.mirth.client.ui.components.MirthTextField();
+        emailPasswordField = new com.webreach.mirth.client.ui.components.MirthPasswordField();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        emailBodyTextPane = new com.webreach.mirth.client.ui.components.MirthTextPane();
+        jLabel8 = new javax.swing.JLabel();
+        emailFromField = new com.webreach.mirth.client.ui.components.MirthTextField();
 
-		setBackground(new java.awt.Color(255, 255, 255));
-		setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
-		jLabel1.setText("SMTP Server Host:");
+        setBackground(new java.awt.Color(255, 255, 255));
+        setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        jLabel1.setText("SMTP Server Host:");
 
-		jLabel2.setText("SMTP Server Port:");
+        jLabel2.setText("SMTP Server Port:");
 
-		jLabel3.setText("Username:");
+        jLabel3.setText("Username:");
 
-		jLabel4.setText("Password:");
+        jLabel4.setText("Password:");
 
-		jLabel5.setText("To:");
+        jLabel5.setText("To:");
 
-		jLabel6.setText("Subject:");
+        jLabel6.setText("Subject:");
 
-		jLabel7.setText("Body:");
+        jLabel7.setText("Body:");
 
-		emailPasswordField.setFont(new java.awt.Font("Tahoma", 0, 11));
+        emailPasswordField.setFont(new java.awt.Font("Tahoma", 0, 11));
 
-		jScrollPane1.setViewportView(emailBodyTextPane);
+        jScrollPane1.setViewportView(emailBodyTextPane);
 
-		jLabel8.setText("From:");
+        jLabel8.setText("From:");
 
-		org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
-		this.setLayout(layout);
-		layout.setHorizontalGroup(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(layout.createSequentialGroup().addContainerGap().add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING).add(jLabel8).add(jLabel2).add(jLabel1).add(jLabel3).add(jLabel4).add(jLabel5).add(jLabel6).add(jLabel7)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(emailPasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(SMTPServerHostField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(SMTPServerPortField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(emailUsernameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(emailToField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 239, Short.MAX_VALUE).add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false).add(org.jdesktop.layout.GroupLayout.LEADING, emailFromField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE).add(org.jdesktop.layout.GroupLayout.LEADING, emailSubjectField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE))).addContainerGap()));
-		layout.setVerticalGroup(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(layout.createSequentialGroup().add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(SMTPServerHostField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(jLabel1)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(jLabel2).add(SMTPServerPortField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(jLabel3).add(emailUsernameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(emailPasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(jLabel4)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(jLabel5).add(emailToField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(jLabel8).add(emailFromField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(jLabel6).add(emailSubjectField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(jLabel7).add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 75, Short.MAX_VALUE)).addContainerGap()));
-	}// </editor-fold>//GEN-END:initComponents
+        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
+        this.setLayout(layout);
+        layout.setHorizontalGroup(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(layout.createSequentialGroup().addContainerGap().add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING).add(jLabel8).add(jLabel2).add(jLabel1).add(jLabel3).add(jLabel4).add(jLabel5).add(jLabel6).add(jLabel7)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(emailPasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(SMTPServerHostField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(SMTPServerPortField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(emailUsernameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(emailToField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 239, Short.MAX_VALUE).add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false).add(org.jdesktop.layout.GroupLayout.LEADING, emailFromField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE).add(org.jdesktop.layout.GroupLayout.LEADING, emailSubjectField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE))).addContainerGap()));
+        layout.setVerticalGroup(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(layout.createSequentialGroup().add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(SMTPServerHostField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(jLabel1)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(jLabel2).add(SMTPServerPortField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(jLabel3).add(emailUsernameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(emailPasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(jLabel4)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(jLabel5).add(emailToField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(jLabel8).add(emailFromField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(jLabel6).add(emailSubjectField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(jLabel7).add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 75, Short.MAX_VALUE)).addContainerGap()));
+    }// </editor-fold>//GEN-END:initComponents
 
-	// Variables declaration - do not modify//GEN-BEGIN:variables
-	private com.webreach.mirth.client.ui.components.MirthTextField SMTPServerHostField;
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private com.webreach.mirth.client.ui.components.MirthTextField SMTPServerHostField;
 
-	private com.webreach.mirth.client.ui.components.MirthTextField SMTPServerPortField;
+    private com.webreach.mirth.client.ui.components.MirthTextField SMTPServerPortField;
 
-	private com.webreach.mirth.client.ui.components.MirthTextPane emailBodyTextPane;
+    private com.webreach.mirth.client.ui.components.MirthTextPane emailBodyTextPane;
 
-	private com.webreach.mirth.client.ui.components.MirthTextField emailFromField;
+    private com.webreach.mirth.client.ui.components.MirthTextField emailFromField;
 
-	private com.webreach.mirth.client.ui.components.MirthPasswordField emailPasswordField;
+    private com.webreach.mirth.client.ui.components.MirthPasswordField emailPasswordField;
 
-	private com.webreach.mirth.client.ui.components.MirthTextField emailSubjectField;
+    private com.webreach.mirth.client.ui.components.MirthTextField emailSubjectField;
 
-	private com.webreach.mirth.client.ui.components.MirthTextField emailToField;
+    private com.webreach.mirth.client.ui.components.MirthTextField emailToField;
 
-	private com.webreach.mirth.client.ui.components.MirthTextField emailUsernameField;
+    private com.webreach.mirth.client.ui.components.MirthTextField emailUsernameField;
 
-	private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel1;
 
-	private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel2;
 
-	private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel3;
 
-	private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel4;
 
-	private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel5;
 
-	private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel6;
 
-	private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel7;
 
-	private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel8;
 
-	private javax.swing.JScrollPane jScrollPane1;
-	// End of variables declaration//GEN-END:variables
+    private javax.swing.JScrollPane jScrollPane1;
+    // End of variables declaration//GEN-END:variables
 
 }

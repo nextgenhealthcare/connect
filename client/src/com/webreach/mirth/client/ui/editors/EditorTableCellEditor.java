@@ -40,81 +40,81 @@ import javax.swing.table.TableCellEditor;
  */
 public class EditorTableCellEditor extends AbstractCellEditor implements TableCellEditor
 {
-	// This is the component that will handle the editing of the cell value
-	JComponent component = new JTextField();
+    // This is the component that will handle the editing of the cell value
+    JComponent component = new JTextField();
 
-	MirthEditorPane parent;
+    MirthEditorPane parent;
 
-	Object originalValue;
+    Object originalValue;
 
-	public EditorTableCellEditor(MirthEditorPane pane)
-	{
-		super();
-		parent = pane;
-	}
+    public EditorTableCellEditor(MirthEditorPane pane)
+    {
+        super();
+        parent = pane;
+    }
 
-	/**
-	 * This method is called just before the cell value is saved. If the value
-	 * is not valid, false should be returned.
-	 */
-	public boolean stopCellEditing()
-	{
-		String s = (String) getCellEditorValue();
+    /**
+     * This method is called just before the cell value is saved. If the value
+     * is not valid, false should be returned.
+     */
+    public boolean stopCellEditing()
+    {
+        String s = (String) getCellEditorValue();
 
-		if (!valueChanged(s))
-			super.cancelCellEditing();
-		return super.stopCellEditing();
-	}
+        if (!valueChanged(s))
+            super.cancelCellEditing();
+        return super.stopCellEditing();
+    }
 
-	/**
-	 * This method is called when editing is completed. It must return the new
-	 * value to be stored in the cell.
-	 */
-	public Object getCellEditorValue()
-	{
-		return ((JTextField) component).getText();
-	}
+    /**
+     * This method is called when editing is completed. It must return the new
+     * value to be stored in the cell.
+     */
+    public Object getCellEditorValue()
+    {
+        return ((JTextField) component).getText();
+    }
 
-	/**
-	 * This method is called when a cell value is edited by the user.
-	 */
-	public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column)
-	{
-		// 'value' is value contained in the cell located at (rowIndex,
-		// vColIndex)
-		originalValue = value;
+    /**
+     * This method is called when a cell value is edited by the user.
+     */
+    public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column)
+    {
+        // 'value' is value contained in the cell located at (rowIndex,
+        // vColIndex)
+        originalValue = value;
 
-		if (isSelected)
-		{
-			// cell (and perhaps other cells) are selected
-		}
+        if (isSelected)
+        {
+            // cell (and perhaps other cells) are selected
+        }
 
-		// Configure the component with the specified value
-		((JTextField) component).setText((String) value);
+        // Configure the component with the specified value
+        ((JTextField) component).setText((String) value);
 
-		// Return the configured component
-		return component;
-	}
+        // Return the configured component
+        return component;
+    }
 
-	/**
-	 * Checks whether or not the value change is valid.
-	 */
-	private boolean valueChanged(String s)
-	{
-		parent.modified = true;
-		return true;
-	}
+    /**
+     * Checks whether or not the value change is valid.
+     */
+    private boolean valueChanged(String s)
+    {
+        parent.modified = true;
+        return true;
+    }
 
-	/**
-	 * Enables the editor only for double-clicks.
-	 */
-	public boolean isCellEditable(EventObject evt)
-	{
-		if (evt instanceof MouseEvent)
-		{
-			return ((MouseEvent) evt).getClickCount() >= 2;
-		}
-		return true;
-	}
+    /**
+     * Enables the editor only for double-clicks.
+     */
+    public boolean isCellEditable(EventObject evt)
+    {
+        if (evt instanceof MouseEvent)
+        {
+            return ((MouseEvent) evt).getClickCount() >= 2;
+        }
+        return true;
+    }
 
 }

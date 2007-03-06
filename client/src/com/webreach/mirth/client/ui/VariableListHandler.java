@@ -37,57 +37,57 @@ import com.webreach.mirth.client.ui.panels.reference.ReferenceTable;
 
 public class VariableListHandler extends TransferHandler
 {
-	String prefix, suffix;
+    String prefix, suffix;
 
-	public VariableListHandler(String prefix, String suffix)
-	{
-		this.prefix = prefix;
-		this.suffix = suffix;
-	}
+    public VariableListHandler(String prefix, String suffix)
+    {
+        this.prefix = prefix;
+        this.suffix = suffix;
+    }
 
-	protected Transferable createTransferable(JComponent c)
-	{
-		try
-		{
-			String text = "";
-			if (c instanceof JXList)
-			{
-				JXList list = ((JXList) (c));
-				if (list == null)
-					return null;
-				text = (String) list.getSelectedValue();
-			}
-			else if (c instanceof ReferenceTable)
-			{
-				ReferenceTable reftable = ((ReferenceTable) (c));
-				if (reftable == null)
-					return null;
+    protected Transferable createTransferable(JComponent c)
+    {
+        try
+        {
+            String text = "";
+            if (c instanceof JXList)
+            {
+                JXList list = ((JXList) (c));
+                if (list == null)
+                    return null;
+                text = (String) list.getSelectedValue();
+            }
+            else if (c instanceof ReferenceTable)
+            {
+                ReferenceTable reftable = ((ReferenceTable) (c));
+                if (reftable == null)
+                    return null;
 
-				int currRow = reftable.getSelectedRow();
+                int currRow = reftable.getSelectedRow();
 
-				if (currRow >= 0 && currRow < reftable.getRowCount())
-					text = (String) reftable.getValueAt(currRow, 0);
-			}
+                if (currRow >= 0 && currRow < reftable.getRowCount())
+                    text = (String) reftable.getValueAt(currRow, 0);
+            }
 
-			if (text != null)
-			{
-				return new VariableTransferable(text, prefix, suffix);
-			}
-			return null;
-		}
-		catch (ClassCastException cce)
-		{
-			return null;
-		}
-	}
+            if (text != null)
+            {
+                return new VariableTransferable(text, prefix, suffix);
+            }
+            return null;
+        }
+        catch (ClassCastException cce)
+        {
+            return null;
+        }
+    }
 
-	public int getSourceActions(JComponent c)
-	{
-		return COPY;
-	}
+    public int getSourceActions(JComponent c)
+    {
+        return COPY;
+    }
 
-	public boolean canImport(JComponent c, DataFlavor[] df)
-	{
-		return false;
-	}
+    public boolean canImport(JComponent c, DataFlavor[] df)
+    {
+        return false;
+    }
 }

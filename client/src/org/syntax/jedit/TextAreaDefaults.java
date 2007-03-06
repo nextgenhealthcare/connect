@@ -23,109 +23,109 @@ import javax.swing.JPopupMenu;
 public class TextAreaDefaults
 {
 
-	// public String STYLE = "RUBY BLUE";//based on
-	// http://wiseheartdesign.com/articles/2006/03/11/ruby-blue-textmate-theme
-	public String STYLE = "Default";
+    // public String STYLE = "RUBY BLUE";//based on
+    // http://wiseheartdesign.com/articles/2006/03/11/ruby-blue-textmate-theme
+    public String STYLE = "Default";
 
-	public InputHandler inputHandler;
+    public InputHandler inputHandler;
 
-	public SyntaxDocument document;
+    public SyntaxDocument document;
 
-	public boolean editable;
+    public boolean editable;
 
-	public boolean caretVisible;
+    public boolean caretVisible;
 
-	public boolean caretBlinks;
+    public boolean caretBlinks;
 
-	public boolean blockCaret;
+    public boolean blockCaret;
 
-	public int electricScroll;
+    public int electricScroll;
 
-	public int cols;
+    public int cols;
 
-	public int rows;
+    public int rows;
 
-	public SyntaxStyle[] styles;
+    public SyntaxStyle[] styles;
 
-	public Color caretColor;
+    public Color caretColor;
 
-	public Color selectionColor;
+    public Color selectionColor;
 
-	public Color lineHighlightColor;
+    public Color lineHighlightColor;
 
-	public Color foreground;
+    public Color foreground;
 
-	public Color background;
+    public Color background;
 
-	public boolean lineHighlight;
+    public boolean lineHighlight;
 
-	public Color bracketHighlightColor;
+    public Color bracketHighlightColor;
 
-	public boolean bracketHighlight;
+    public boolean bracketHighlight;
 
-	public Color eolMarkerColor;
+    public Color eolMarkerColor;
 
-	public boolean eolMarkers;
+    public boolean eolMarkers;
 
-	public boolean paintInvalid;
+    public boolean paintInvalid;
 
-	public Font font;
+    public Font font;
 
-	public JPopupMenu popup;
+    public JPopupMenu popup;
 
-	/**
-	 * Returns a new TextAreaDefaults object with the default values filled in.
-	 */
-	public TextAreaDefaults()
-	{
+    /**
+     * Returns a new TextAreaDefaults object with the default values filled in.
+     */
+    public TextAreaDefaults()
+    {
 
-		this.inputHandler = new DefaultInputHandler();
-		this.inputHandler.addDefaultKeyBindings();
-		this.document = new SyntaxDocument();
-		this.editable = true;
+        this.inputHandler = new DefaultInputHandler();
+        this.inputHandler.addDefaultKeyBindings();
+        this.document = new SyntaxDocument();
+        this.editable = true;
 
-		this.blockCaret = false;
-		this.caretVisible = true;
-		this.caretBlinks = true;
-		this.electricScroll = 1;
+        this.blockCaret = false;
+        this.caretVisible = true;
+        this.caretBlinks = true;
+        this.electricScroll = 1;
 
-		this.cols = 1;
-		this.rows = 1;
-		// TODO: Make this dynamic via properties file
-		if (STYLE.equals("RUBY BLUE"))
-		{
-			this.styles = SyntaxUtilities.getSyntaxStyles(STYLE);
+        this.cols = 1;
+        this.rows = 1;
+        // TODO: Make this dynamic via properties file
+        if (STYLE.equals("RUBY BLUE"))
+        {
+            this.styles = SyntaxUtilities.getSyntaxStyles(STYLE);
 
-			this.caretColor = Color.white; // Color.red;
-			this.background = new Color(0x121E31);
-			this.foreground = Color.white;
-			this.selectionColor = new Color(0x38566F);
-			this.lineHighlightColor = new Color(0x253E5A);
-			this.lineHighlight = true;
-			this.bracketHighlightColor = new Color(0x38566F);
-			this.bracketHighlight = true;
-			this.eolMarkerColor = new Color(0x009999);
-			this.eolMarkers = false; // true;
-			this.paintInvalid = false; // true;
-			this.font = new Font("Courier", Font.PLAIN, 14);
-		}
-		else
-		{
-			this.styles = SyntaxUtilities.getSyntaxStyles(STYLE);
-			this.caretColor = Color.black; // Color.red;
-			this.background = Color.white;
-			this.foreground = Color.black;
-			this.selectionColor = Color.lightGray;
-			this.lineHighlightColor = new Color(0x253E5A);
-			this.lineHighlight = false;
-			this.bracketHighlightColor = Color.darkGray;
-			this.bracketHighlight = true;
-			this.eolMarkerColor = new Color(0x009999);
-			this.eolMarkers = false; // true;
-			this.paintInvalid = false; // true;
-			this.font = new Font("Courier", Font.PLAIN, 12);
+            this.caretColor = Color.white; // Color.red;
+            this.background = new Color(0x121E31);
+            this.foreground = Color.white;
+            this.selectionColor = new Color(0x38566F);
+            this.lineHighlightColor = new Color(0x253E5A);
+            this.lineHighlight = true;
+            this.bracketHighlightColor = new Color(0x38566F);
+            this.bracketHighlight = true;
+            this.eolMarkerColor = new Color(0x009999);
+            this.eolMarkers = false; // true;
+            this.paintInvalid = false; // true;
+            this.font = new Font("Courier", Font.PLAIN, 14);
+        }
+        else
+        {
+            this.styles = SyntaxUtilities.getSyntaxStyles(STYLE);
+            this.caretColor = Color.black; // Color.red;
+            this.background = Color.white;
+            this.foreground = Color.black;
+            this.selectionColor = Color.lightGray;
+            this.lineHighlightColor = new Color(0x253E5A);
+            this.lineHighlight = false;
+            this.bracketHighlightColor = Color.darkGray;
+            this.bracketHighlight = true;
+            this.eolMarkerColor = new Color(0x009999);
+            this.eolMarkers = false; // true;
+            this.paintInvalid = false; // true;
+            this.font = new Font("Courier", Font.PLAIN, 12);
 
-		}
+        }
 
-	}
+    }
 }

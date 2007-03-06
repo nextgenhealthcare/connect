@@ -34,25 +34,25 @@ import com.webreach.mirth.client.ui.components.MirthSyntaxTextArea;
 /** Allows for snippet insertion in code components. */
 public class SnippetAction extends AbstractAction
 {
-	MirthSyntaxTextArea comp;
+    MirthSyntaxTextArea comp;
 
-	String snippet;
+    String snippet;
 
-	public SnippetAction(MirthSyntaxTextArea comp, String label, String snippet)
-	{
-		super(label);
-		this.comp = comp;
-		this.snippet = snippet;
-	}
+    public SnippetAction(MirthSyntaxTextArea comp, String label, String snippet)
+    {
+        super(label);
+        this.comp = comp;
+        this.snippet = snippet;
+    }
 
-	public void actionPerformed(ActionEvent e)
-	{
-		comp.setSelectedText(snippet);
-	}
+    public void actionPerformed(ActionEvent e)
+    {
+        comp.setSelectedText(snippet);
+    }
 
-	public boolean isEnabled()
-	{
-		return comp.isEnabled() && comp.isEditable();
-	}
+    public boolean isEnabled()
+    {
+        return comp.isEnabled() && comp.isEditable();
+    }
 
 }

@@ -38,75 +38,71 @@ import com.l2fprod.common.propertysheet.PropertySheetPanel;
 public class BeanBinder
 {
 
-	private final Object bean;
+    private final Object bean;
+    private final PropertySheetPanel sheet;
+    private PropertyChangeListener listener = null;
+    private ActionListener updateListener;
+    private boolean writeEnabled;
 
-	private final PropertySheetPanel sheet;
+    public BeanBinder(Object bean, PropertySheetPanel sheet, ActionListener updateListener)
+    {
+        this(bean, sheet, new DefaultBeanInfoResolver().getBeanInfo(bean), updateListener);
+    }
 
-	private PropertyChangeListener listener = null;
+    public BeanBinder(Object bean, PropertySheetPanel sheet, BeanInfo beanInfo, ActionListener updateListener)
+    {
+        this.bean = bean;
+        this.sheet = sheet;
+        this.updateListener = updateListener;
+        sheet.setProperties(beanInfo.getPropertyDescriptors());
+        sheet.readFromObject(bean);
 
-	private ActionListener updateListener;
+        // everytime a property change, update the button with it
+        listener = new PropertyChangeListener()
+        {
+            public void propertyChange(PropertyChangeEvent evt)
+            {
+                if (writeEnabled)
+                {
+                    Property prop = (Property) evt.getSource();
 
-	private boolean writeEnabled;
+                    try
+                    {
+                        prop.writeToObject(BeanBinder.this.bean);
+                        BeanBinder.this.updateListener.actionPerformed(new ActionEvent(evt, 0, ""));
+                    }
+                    catch (RuntimeException e)
+                    {
+                        // handle PropertyVetoException and restore previous
+                        // value
+                        if (e.getCause() instanceof PropertyVetoException)
+                        {
+                            UIManager.getLookAndFeel().provideErrorFeedback(BeanBinder.this.sheet);
+                            prop.setValue(evt.getOldValue());
+                        }
+                    }
+                }
+            }
+        };
 
-	public BeanBinder(Object bean, PropertySheetPanel sheet, ActionListener updateListener)
-	{
-		this(bean, sheet, new DefaultBeanInfoResolver().getBeanInfo(bean), updateListener);
-	}
+        sheet.addPropertySheetChangeListener(listener);
+    }
 
-	public BeanBinder(Object bean, PropertySheetPanel sheet, BeanInfo beanInfo, ActionListener updateListener)
-	{
-		this.bean = bean;
-		this.sheet = sheet;
-		this.updateListener = updateListener;
-		sheet.setProperties(beanInfo.getPropertyDescriptors());
-		sheet.readFromObject(bean);
+    public void unbind()
+    {
+        sheet.removePropertyChangeListener(listener);
+        sheet.setProperties(new Property[0]);
 
-		// everytime a property change, update the button with it
-		listener = new PropertyChangeListener()
-		{
-			public void propertyChange(PropertyChangeEvent evt)
-			{
-				if (writeEnabled)
-				{
-					Property prop = (Property) evt.getSource();
+    }
 
-					try
-					{
-						prop.writeToObject(BeanBinder.this.bean);
-						BeanBinder.this.updateListener.actionPerformed(new ActionEvent(evt, 0, ""));
-					}
-					catch (RuntimeException e)
-					{
-						// handle PropertyVetoException and restore previous
-						// value
-						if (e.getCause() instanceof PropertyVetoException)
-						{
-							UIManager.getLookAndFeel().provideErrorFeedback(BeanBinder.this.sheet);
-							prop.setValue(evt.getOldValue());
-						}
-					}
-				}
-			}
-		};
+    public boolean isWriteEnabled()
+    {
+        return writeEnabled;
+    }
 
-		sheet.addPropertySheetChangeListener(listener);
-	}
-
-	public void unbind()
-	{
-		sheet.removePropertyChangeListener(listener);
-		sheet.setProperties(new Property[0]);
-
-	}
-
-	public boolean isWriteEnabled()
-	{
-		return writeEnabled;
-	}
-
-	public void setWriteEnabled(boolean writeEnabled)
-	{
-		this.writeEnabled = writeEnabled;
-	}
+    public void setWriteEnabled(boolean writeEnabled)
+    {
+        this.writeEnabled = writeEnabled;
+    }
 
 }

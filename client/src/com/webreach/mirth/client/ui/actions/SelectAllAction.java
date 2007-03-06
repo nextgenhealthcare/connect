@@ -34,22 +34,22 @@ import com.webreach.mirth.client.ui.components.MirthTextInterface;
 /** Allows for Selecting All in text components. */
 public class SelectAllAction extends AbstractAction
 {
-	MirthTextInterface comp;
+    MirthTextInterface comp;
 
-	public SelectAllAction(MirthTextInterface comp)
-	{
-		super("Select All");
-		this.comp = comp;
-	}
+    public SelectAllAction(MirthTextInterface comp)
+    {
+        super("Select All");
+        this.comp = comp;
+    }
 
-	public void actionPerformed(ActionEvent e)
-	{
-		comp.selectAll();
-	}
+    public void actionPerformed(ActionEvent e)
+    {
+        comp.selectAll();
+    }
 
-	public boolean isEnabled()
-	{
-		return comp.isEnabled() && comp.getText().length() > 0;
-	}
+    public boolean isEnabled()
+    {
+        return comp.isEnabled() && comp.getText().length() > 0;
+    }
 
 }

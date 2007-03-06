@@ -37,28 +37,28 @@ import com.webreach.mirth.client.ui.components.MirthTextInterface;
 /** Allows for Pasting in text components. */
 public class PasteAction extends AbstractAction
 {
-	MirthTextInterface comp;
+    MirthTextInterface comp;
 
-	public PasteAction(MirthTextInterface comp)
-	{
-		super("Paste");
-		this.comp = comp;
-	}
+    public PasteAction(MirthTextInterface comp)
+    {
+        super("Paste");
+        this.comp = comp;
+    }
 
-	public void actionPerformed(ActionEvent e)
-	{
-		comp.paste();
-	}
+    public void actionPerformed(ActionEvent e)
+    {
+        comp.paste();
+    }
 
-	public boolean isEnabled()
-	{
-		if (comp.isVisible() && comp.isEditable() && comp.isEnabled())
-		{
-			Transferable contents = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(this);
-			return contents.isDataFlavorSupported(DataFlavor.stringFlavor);
-		}
-		else
-			return false;
-	}
+    public boolean isEnabled()
+    {
+        if (comp.isVisible() && comp.isEditable() && comp.isEnabled())
+        {
+            Transferable contents = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(this);
+            return contents.isDataFlavorSupported(DataFlavor.stringFlavor);
+        }
+        else
+            return false;
+    }
 
 }

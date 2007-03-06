@@ -34,24 +34,24 @@ import com.webreach.mirth.client.ui.PlatformUI;
  */
 public class MirthCheckBox extends javax.swing.JCheckBox
 {
-	private Frame parent;
+    private Frame parent;
 
-	public MirthCheckBox()
-	{
-		super();
-		this.setFocusable(false);
-		this.parent = PlatformUI.MIRTH_FRAME;
-		this.addActionListener(new java.awt.event.ActionListener()
-		{
-			public void actionPerformed(java.awt.event.ActionEvent evt)
-			{
-				checkBoxChanged(evt);
-			}
-		});
-	}
+    public MirthCheckBox()
+    {
+        super();
+        this.setFocusable(false);
+        this.parent = PlatformUI.MIRTH_FRAME;
+        this.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                checkBoxChanged(evt);
+            }
+        });
+    }
 
-	public void checkBoxChanged(java.awt.event.ActionEvent evt)
-	{
-		parent.enableSave();
-	}
+    public void checkBoxChanged(java.awt.event.ActionEvent evt)
+    {
+        parent.enableSave();
+    }
 }

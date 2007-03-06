@@ -34,22 +34,22 @@ import com.webreach.mirth.client.ui.components.MirthSyntaxTextArea;
 /** Allows for Copying in text components. */
 public class RedoAction extends AbstractAction
 {
-	MirthSyntaxTextArea comp;
+    MirthSyntaxTextArea comp;
 
-	public RedoAction(MirthSyntaxTextArea comp)
-	{
-		super("Redo");
-		this.comp = comp;
-	}
+    public RedoAction(MirthSyntaxTextArea comp)
+    {
+        super("Redo");
+        this.comp = comp;
+    }
 
-	public void actionPerformed(ActionEvent e)
-	{
-		comp.redo();
-	}
+    public void actionPerformed(ActionEvent e)
+    {
+        comp.redo();
+    }
 
-	public boolean isEnabled()
-	{
-		return comp.isEnabled() && comp.canRedo();
-	}
+    public boolean isEnabled()
+    {
+        return comp.isEnabled() && comp.canRedo();
+    }
 
 }

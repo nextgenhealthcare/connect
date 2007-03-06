@@ -43,97 +43,95 @@ import com.webreach.mirth.model.Alert;
  */
 public class AlertTableCellEditor extends AbstractCellEditor implements TableCellEditor
 {
-	// This is the component that will handle the editing of the cell value
-	JComponent component = new JTextField();
+    // This is the component that will handle the editing of the cell value
+    JComponent component = new JTextField();
+    Frame parent;
+    Object originalValue;
 
-	Frame parent;
+    public AlertTableCellEditor()
+    {
+        super();
+        this.parent = PlatformUI.MIRTH_FRAME;
+    }
 
-	Object originalValue;
+    /**
+     * This method is called just before the cell value is saved. If the value
+     * is not valid, false should be returned.
+     */
+    public boolean stopCellEditing()
+    {
+        String s = (String) getCellEditorValue();
 
-	public AlertTableCellEditor()
-	{
-		super();
-		this.parent = PlatformUI.MIRTH_FRAME;
-	}
+        if (!valueChanged(s))
+            super.cancelCellEditing();
+        return super.stopCellEditing();
+    }
 
-	/**
-	 * This method is called just before the cell value is saved. If the value
-	 * is not valid, false should be returned.
-	 */
-	public boolean stopCellEditing()
-	{
-		String s = (String) getCellEditorValue();
+    /**
+     * This method is called when editing is completed. It must return the new
+     * value to be stored in the cell.
+     */
+    public Object getCellEditorValue()
+    {
+        return ((JTextField) component).getText();
+    }
 
-		if (!valueChanged(s))
-			super.cancelCellEditing();
-		return super.stopCellEditing();
-	}
+    /**
+     * This method is called when a cell value is edited by the user.
+     */
+    public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column)
+    {
+        // 'value' is value contained in the cell located at (rowIndex,
+        // vColIndex)
+        originalValue = value;
 
-	/**
-	 * This method is called when editing is completed. It must return the new
-	 * value to be stored in the cell.
-	 */
-	public Object getCellEditorValue()
-	{
-		return ((JTextField) component).getText();
-	}
+        if (isSelected)
+        {
+            // cell (and perhaps other cells) are selected
+        }
 
-	/**
-	 * This method is called when a cell value is edited by the user.
-	 */
-	public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column)
-	{
-		// 'value' is value contained in the cell located at (rowIndex,
-		// vColIndex)
-		originalValue = value;
+        // Configure the component with the specified value
+        ((JTextField) component).setText((String) value);
 
-		if (isSelected)
-		{
-			// cell (and perhaps other cells) are selected
-		}
+        // Return the configured component
+        return component;
+    }
 
-		// Configure the component with the specified value
-		((JTextField) component).setText((String) value);
+    /**
+     * Checks whether or not the value change is valid.
+     */
+    private boolean valueChanged(String s)
+    {
+        List<Alert> alerts = parent.alerts;
 
-		// Return the configured component
-		return component;
-	}
+        // make sure the name doesn't already exist
+        for (int i = 0; i < alerts.size(); i++)
+        {
+            if (alerts.get(i).getName().equalsIgnoreCase(s))
+                return false;
+        }
 
-	/**
-	 * Checks whether or not the value change is valid.
-	 */
-	private boolean valueChanged(String s)
-	{
-		List<Alert> alerts = parent.alerts;
+        parent.enableSave();
+        // set the name to the new name.
+        for (int i = 0; i < alerts.size(); i++)
+        {
+            if (alerts.get(i).getName().equalsIgnoreCase((String) originalValue))
+                alerts.get(i).setName(s);
+        }
 
-		// make sure the name doesn't already exist
-		for (int i = 0; i < alerts.size(); i++)
-		{
-			if (alerts.get(i).getName().equalsIgnoreCase(s))
-				return false;
-		}
+        return true;
+    }
 
-		parent.enableSave();
-		// set the name to the new name.
-		for (int i = 0; i < alerts.size(); i++)
-		{
-			if (alerts.get(i).getName().equalsIgnoreCase((String) originalValue))
-				alerts.get(i).setName(s);
-		}
-
-		return true;
-	}
-
-	/**
-	 * Enables the editor only for double-clicks.
-	 */
-	public boolean isCellEditable(EventObject evt)
-	{
-		if (evt instanceof MouseEvent)
-		{
-			return ((MouseEvent) evt).getClickCount() >= 2;
-		}
-		return true;
-	}
+    /**
+     * Enables the editor only for double-clicks.
+     */
+    public boolean isCellEditable(EventObject evt)
+    {
+        if (evt instanceof MouseEvent)
+        {
+            return ((MouseEvent) evt).getClickCount() >= 2;
+        }
+        return true;
+    }
 
 }

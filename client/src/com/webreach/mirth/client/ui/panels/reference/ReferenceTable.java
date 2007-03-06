@@ -51,95 +51,95 @@ import com.webreach.mirth.client.ui.UIConstants;
 public class ReferenceTable extends JXTable
 {
 
-	public class TableTransferHandler extends TransferHandler
-	{
-		int row = -1;
+    public class TableTransferHandler extends TransferHandler
+    {
+        int row = -1;
 
-		protected String exportString(JComponent c)
-		{
-			JXTable table = (JXTable) c;
-			row = table.getSelectedRow();
+        protected String exportString(JComponent c)
+        {
+            JXTable table = (JXTable) c;
+            row = table.getSelectedRow();
 
-			if (row >= 0 && row < table.getRowCount())
-				return table.getValueAt(row, 0).toString();
-			else
-				return "";
-		}
+            if (row >= 0 && row < table.getRowCount())
+                return table.getValueAt(row, 0).toString();
+            else
+                return "";
+        }
 
-		protected Transferable createTransferable(JComponent c)
-		{
-			return new StringSelection(exportString(c));
-		}
+        protected Transferable createTransferable(JComponent c)
+        {
+            return new StringSelection(exportString(c));
+        }
 
-		protected void exportDone(JComponent c, Transferable data, int action)
-		{
-		}
+        protected void exportDone(JComponent c, Transferable data, int action)
+        {
+        }
 
-		public int getSourceActions(JComponent c)
-		{
-			return COPY;
-		}
+        public int getSourceActions(JComponent c)
+        {
+            return COPY;
+        }
 
-	}
+    }
 
-	public ReferenceTable()
-	{
-		super();
+    public ReferenceTable()
+    {
+        super();
 
-		this.setTransferHandler(new TableTransferHandler());
-		this.setDragEnabled(true);
-		this.setFocusable(false);
-		this.setOpaque(true);
-		this.setRowSelectionAllowed(true);
-		this.setSelectionMode(0);
-		this.setRowHeight(UIConstants.ROW_HEIGHT);
-		this.packTable(UIConstants.COL_MARGIN);
-		this.setShowVerticalLines(false);
-		this.setBorder(BorderFactory.createEmptyBorder());
+        this.setTransferHandler(new TableTransferHandler());
+        this.setDragEnabled(true);
+        this.setFocusable(false);
+        this.setOpaque(true);
+        this.setRowSelectionAllowed(true);
+        this.setSelectionMode(0);
+        this.setRowHeight(UIConstants.ROW_HEIGHT);
+        this.packTable(UIConstants.COL_MARGIN);
+        this.setShowVerticalLines(false);
+        this.setBorder(BorderFactory.createEmptyBorder());
 
-		this.addMouseMotionListener(new MouseMotionAdapter()
-		{
-			public void mouseDragged(MouseEvent evt)
-			{
-				refTableMouseDragged(evt);
-			}
+        this.addMouseMotionListener(new MouseMotionAdapter()
+        {
+            public void mouseDragged(MouseEvent evt)
+            {
+                refTableMouseDragged(evt);
+            }
 
-			public void mouseMoved(MouseEvent evt)
-			{
-				refTableMouseMoved(evt);
-			}
-		});
+            public void mouseMoved(MouseEvent evt)
+            {
+                refTableMouseMoved(evt);
+            }
+        });
 
-		this.addMouseListener(new MouseAdapter()
-		{
-			public void mouseExited(MouseEvent evt)
-			{
-				refTableMouseExited(evt);
-			}
-		});
-	}
+        this.addMouseListener(new MouseAdapter()
+        {
+            public void mouseExited(MouseEvent evt)
+            {
+                refTableMouseExited(evt);
+            }
+        });
+    }
 
-	private void refTableMouseExited(MouseEvent evt)
-	{
-		if (!(evt.getModifiersEx() == evt.BUTTON1_DOWN_MASK))
-		{
-			this.clearSelection();
-		}
-	}
+    private void refTableMouseExited(MouseEvent evt)
+    {
+        if (!(evt.getModifiersEx() == evt.BUTTON1_DOWN_MASK))
+        {
+            this.clearSelection();
+        }
+    }
 
-	private void refTableMouseDragged(MouseEvent evt)
-	{
-	}
+    private void refTableMouseDragged(MouseEvent evt)
+    {
+    }
 
-	private void refTableMouseMoved(MouseEvent evt)
-	{
-		int row = this.rowAtPoint(evt.getPoint());
-		int col = this.columnAtPoint(evt.getPoint());
+    private void refTableMouseMoved(MouseEvent evt)
+    {
+        int row = this.rowAtPoint(evt.getPoint());
+        int col = this.columnAtPoint(evt.getPoint());
 
-		if (row >= 0 && row < this.getModel().getRowCount() && col >= 0 && col < this.getModel().getColumnCount())
-			this.setRowSelectionInterval(row, row);
-	}
+        if (row >= 0 && row < this.getModel().getRowCount() && col >= 0 && col < this.getModel().getColumnCount())
+            this.setRowSelectionInterval(row, row);
+    }
 
-	protected Frame parent = PlatformUI.MIRTH_FRAME;
+    protected Frame parent = PlatformUI.MIRTH_FRAME;
 
 }

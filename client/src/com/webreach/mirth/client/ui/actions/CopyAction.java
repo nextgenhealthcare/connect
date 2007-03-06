@@ -34,22 +34,22 @@ import com.webreach.mirth.client.ui.components.MirthTextInterface;
 /** Allows for Copying in text components. */
 public class CopyAction extends AbstractAction
 {
-	MirthTextInterface comp;
+    MirthTextInterface comp;
 
-	public CopyAction(MirthTextInterface comp)
-	{
-		super("Copy");
-		this.comp = comp;
-	}
+    public CopyAction(MirthTextInterface comp)
+    {
+        super("Copy");
+        this.comp = comp;
+    }
 
-	public void actionPerformed(ActionEvent e)
-	{
-		comp.copy();
-	}
+    public void actionPerformed(ActionEvent e)
+    {
+        comp.copy();
+    }
 
-	public boolean isEnabled()
-	{
-		return comp.isEnabled() && comp.getSelectedText() != null;
-	}
+    public boolean isEnabled()
+    {
+        return comp.isEnabled() && comp.getSelectedText() != null;
+    }
 
 }

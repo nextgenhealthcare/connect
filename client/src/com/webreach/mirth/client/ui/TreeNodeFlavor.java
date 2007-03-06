@@ -30,9 +30,9 @@ import java.awt.datatransfer.DataFlavor;
 public class TreeNodeFlavor extends DataFlavor
 {
 
-	public TreeNodeFlavor()
-	{
-		super(javax.swing.tree.TreeNode.class, "TreeNode");
-	}
+    public TreeNodeFlavor()
+    {
+        super(javax.swing.tree.TreeNode.class, "TreeNode");
+    }
 
 }

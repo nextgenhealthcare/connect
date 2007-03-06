@@ -58,219 +58,219 @@ import com.webreach.mirth.client.ui.panels.reference.ReferenceListFactory.ListTy
  */
 public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInterface
 {
-	private Frame parent;
+    private Frame parent;
 
-	// private JPopupMenu menu;
+    // private JPopupMenu menu;
 
-	private CutAction cutAction;
+    private CutAction cutAction;
 
-	private CopyAction copyAction;
+    private CopyAction copyAction;
 
-	private PasteAction pasteAction;
+    private PasteAction pasteAction;
 
-	private DeleteAction deleteAction;
+    private DeleteAction deleteAction;
 
-	private SelectAllAction selectAllAction;
+    private SelectAllAction selectAllAction;
 
-	private UndoAction undoAction;
+    private UndoAction undoAction;
 
-	private RedoAction redoAction;
+    private RedoAction redoAction;
 
-	private JMenu varlist;
+    private JMenu varlist;
 
-	private JMenu hl7list;
+    private JMenu hl7list;
 
-	private JMenu funclist;
+    private JMenu funclist;
 
-	protected boolean showSnippets;
+    protected boolean showSnippets;
 
-	public MirthSyntaxTextArea()
-	{
-		initialize(false, false);
-	}
+    public MirthSyntaxTextArea()
+    {
+        initialize(false, false);
+    }
 
-	private void initialize(boolean lineNumbers, final boolean showSnippets)
-	{
-		this.parent = PlatformUI.MIRTH_FRAME;
-		this.showSnippets = showSnippets;
-		this.setCaretVisible(false);
-		// Setup menu actions
-		cutAction = new CutAction(this);
-		copyAction = new CopyAction(this);
-		pasteAction = new PasteAction(this);
-		deleteAction = new DeleteAction(this);
-		selectAllAction = new SelectAllAction(this);
-		undoAction = new UndoAction(this);
-		redoAction = new RedoAction(this);
-		popup = new JPopupMenu();
+    private void initialize(boolean lineNumbers, final boolean showSnippets)
+    {
+        this.parent = PlatformUI.MIRTH_FRAME;
+        this.showSnippets = showSnippets;
+        this.setCaretVisible(false);
+        // Setup menu actions
+        cutAction = new CutAction(this);
+        copyAction = new CopyAction(this);
+        pasteAction = new PasteAction(this);
+        deleteAction = new DeleteAction(this);
+        selectAllAction = new SelectAllAction(this);
+        undoAction = new UndoAction(this);
+        redoAction = new RedoAction(this);
+        popup = new JPopupMenu();
 
-		popup.add(undoAction);
-		popup.add(redoAction);
-		popup.addSeparator();
-		popup.add(cutAction);
-		popup.add(copyAction);
-		popup.add(pasteAction);
-		popup.addSeparator();
-		popup.add(deleteAction);
-		popup.addSeparator();
-		popup.add(selectAllAction);
+        popup.add(undoAction);
+        popup.add(redoAction);
+        popup.addSeparator();
+        popup.add(cutAction);
+        popup.add(copyAction);
+        popup.add(pasteAction);
+        popup.addSeparator();
+        popup.add(deleteAction);
+        popup.addSeparator();
+        popup.add(selectAllAction);
 
-		if (showSnippets)
-		{
-			varlist = new JMenu("Built-in Variables");
-			hl7list = new JMenu("HL7 Helpers");
-			funclist = new JMenu("Built-in Functions");
-			ReferenceListFactory functionBuilder = new ReferenceListFactory();
-			ArrayList<ReferenceListItem> jshelpers = functionBuilder.getVariableListItems(ListType.MESSAGE);
-			Iterator<ReferenceListItem> it = jshelpers.iterator();
+        if (showSnippets)
+        {
+            varlist = new JMenu("Built-in Variables");
+            hl7list = new JMenu("HL7 Helpers");
+            funclist = new JMenu("Built-in Functions");
+            ReferenceListFactory functionBuilder = new ReferenceListFactory();
+            ArrayList<ReferenceListItem> jshelpers = functionBuilder.getVariableListItems(ListType.MESSAGE);
+            Iterator<ReferenceListItem> it = jshelpers.iterator();
 
-			while (it.hasNext())
-			{
-				ReferenceListItem item = it.next();
-				switch (item.getType())
-				{
-				case FUNCTION:
-					funclist.add(new SnippetAction(this, item.getName(), item.getCode()));
-					break;
-				case HL7HELPER:
-					hl7list.add(new SnippetAction(this, item.getName(), item.getCode()));
-					break;
-				case VARIABLE:
-					varlist.add(new SnippetAction(this, item.getName(), item.getCode()));
-					break;
-				}
-			}
-			popup.addSeparator();
-			popup.add(varlist);
-			popup.add(funclist);
-			// popup.add(hl7list);
-		}
+            while (it.hasNext())
+            {
+                ReferenceListItem item = it.next();
+                switch (item.getType())
+                {
+                case FUNCTION:
+                    funclist.add(new SnippetAction(this, item.getName(), item.getCode()));
+                    break;
+                case HL7HELPER:
+                    hl7list.add(new SnippetAction(this, item.getName(), item.getCode()));
+                    break;
+                case VARIABLE:
+                    varlist.add(new SnippetAction(this, item.getName(), item.getCode()));
+                    break;
+                }
+            }
+            popup.addSeparator();
+            popup.add(varlist);
+            popup.add(funclist);
+            // popup.add(hl7list);
+        }
 
-		this.popupHandler = new PopUpHandler()
-		{
+        this.popupHandler = new PopUpHandler()
+        {
 
-			public void showPopupMenu(JPopupMenu menu, MouseEvent evt)
-			{
-				menu.getComponent(0).setEnabled(undoAction.isEnabled());
-				menu.getComponent(1).setEnabled(redoAction.isEnabled());
-				menu.getComponent(3).setEnabled(cutAction.isEnabled());
-				menu.getComponent(4).setEnabled(copyAction.isEnabled());
-				menu.getComponent(5).setEnabled(pasteAction.isEnabled());
-				menu.getComponent(7).setEnabled(deleteAction.isEnabled());
-				menu.getComponent(9).setEnabled(selectAllAction.isEnabled());
-				if (showSnippets)
-				{
-					menu.getComponent(11).setEnabled(varlist.isEnabled());
-					menu.getComponent(12).setEnabled(funclist.isEnabled());
-					// menu.getComponent(13).setEnabled(hl7list.isEnabled());
-				}
-				menu.show(evt.getComponent(), evt.getX(), evt.getY());
-			}
+            public void showPopupMenu(JPopupMenu menu, MouseEvent evt)
+            {
+                menu.getComponent(0).setEnabled(undoAction.isEnabled());
+                menu.getComponent(1).setEnabled(redoAction.isEnabled());
+                menu.getComponent(3).setEnabled(cutAction.isEnabled());
+                menu.getComponent(4).setEnabled(copyAction.isEnabled());
+                menu.getComponent(5).setEnabled(pasteAction.isEnabled());
+                menu.getComponent(7).setEnabled(deleteAction.isEnabled());
+                menu.getComponent(9).setEnabled(selectAllAction.isEnabled());
+                if (showSnippets)
+                {
+                    menu.getComponent(11).setEnabled(varlist.isEnabled());
+                    menu.getComponent(12).setEnabled(funclist.isEnabled());
+                    // menu.getComponent(13).setEnabled(hl7list.isEnabled());
+                }
+                menu.show(evt.getComponent(), evt.getX(), evt.getY());
+            }
 
-		};
+        };
 
-	}
+    }
 
-	public MirthSyntaxTextArea(boolean lineNumbers, final boolean showSnippets)
-	{
-		super(lineNumbers);
-		initialize(lineNumbers, showSnippets);
-	}
+    public MirthSyntaxTextArea(boolean lineNumbers, final boolean showSnippets)
+    {
+        super(lineNumbers);
+        initialize(lineNumbers, showSnippets);
+    }
 
-	/*
-	 * Support for undo and redo
-	 * 
-	 */
-	public void undo()
-	{
-		if (this.undo.canUndo())
-		{
-			this.undo.undo();
-		}
-	}
+    /*
+     * Support for undo and redo
+     * 
+     */
+    public void undo()
+    {
+        if (this.undo.canUndo())
+        {
+            this.undo.undo();
+        }
+    }
 
-	public void redo()
-	{
-		if (this.undo.canRedo())
-		{
-			this.undo.redo();
-		}
-	}
+    public void redo()
+    {
+        if (this.undo.canRedo())
+        {
+            this.undo.redo();
+        }
+    }
 
-	public boolean canRedo()
-	{
-		return this.undo.canRedo();
-	}
+    public boolean canRedo()
+    {
+        return this.undo.canRedo();
+    }
 
-	public boolean canUndo()
-	{
-		return this.undo.canUndo();
-	}
+    public boolean canUndo()
+    {
+        return this.undo.canUndo();
+    }
 
-	/**
-	 * Overrides setDocument(Document doc) so that a document listener is added
-	 * to the current document to listen for changes.
-	 */
-	public void setDocument(SyntaxDocument doc)
-	{
+    /**
+     * Overrides setDocument(Document doc) so that a document listener is added
+     * to the current document to listen for changes.
+     */
+    public void setDocument(SyntaxDocument doc)
+    {
 
-		super.setDocument(doc);
-		this.getDocument().addDocumentListener(new DocumentListener()
-		{
-			public void changedUpdate(DocumentEvent e)
-			{
-				parent.enableSave();
-			}
+        super.setDocument(doc);
+        this.getDocument().addDocumentListener(new DocumentListener()
+        {
+            public void changedUpdate(DocumentEvent e)
+            {
+                parent.enableSave();
+            }
 
-			public void removeUpdate(DocumentEvent e)
-			{
-				parent.enableSave();
-			}
+            public void removeUpdate(DocumentEvent e)
+            {
+                parent.enableSave();
+            }
 
-			public void insertUpdate(DocumentEvent e)
-			{
-				parent.enableSave();
-			}
-		});
+            public void insertUpdate(DocumentEvent e)
+            {
+                parent.enableSave();
+            }
+        });
 
-	}
+    }
 
-	/**
-	 * Overrides setText(String t) so that the save button is disabled when
-	 * Mirth sets the text of a field.
-	 */
-	public void setText(String t)
-	{
-		// if (t != null)
-		// t = t.replaceAll("\r", "\n");
-		super.setText(t);
+    /**
+     * Overrides setText(String t) so that the save button is disabled when
+     * Mirth sets the text of a field.
+     */
+    public void setText(String t)
+    {
+        // if (t != null)
+        // t = t.replaceAll("\r", "\n");
+        super.setText(t);
 
-		parent.disableSave();
-	}
+        parent.disableSave();
+    }
 
-	public String getText()
-	{
-		return super.getText();
-		/*
-		 * StringBuffer sb = new StringBuffer(); // Get paragraph element
-		 * Element paragraph = getDocument().getDefaultRootElement(); // Get
-		 * number of content elements int contentCount =
-		 * paragraph.getElementCount(); // Get index ranges for each content
-		 * element. // Each content element represents one line. // Each line
-		 * includes the terminating newline. for (int i = 0; i < contentCount;
-		 * i++) { Element e = paragraph.getElement(i); int rangeStart =
-		 * e.getStartOffset(); int rangeEnd = e.getEndOffset(); try { String
-		 * text = getText(rangeStart, rangeEnd - rangeStart);
-		 * sb.append(text.replaceAll("\\n", "").replaceAll("\\r", ""));
-		 * sb.append(System.getProperty("line.separator")); } catch (Exception
-		 * ex) { } } String retval = sb.toString(); if (retval.length() > 0) {
-		 * retval = retval.substring(0, retval.length() - 1); } return retval;
-		 */
-	}
+    public String getText()
+    {
+        return super.getText();
+        /*
+         * StringBuffer sb = new StringBuffer(); // Get paragraph element
+         * Element paragraph = getDocument().getDefaultRootElement(); // Get
+         * number of content elements int contentCount =
+         * paragraph.getElementCount(); // Get index ranges for each content
+         * element. // Each content element represents one line. // Each line
+         * includes the terminating newline. for (int i = 0; i < contentCount;
+         * i++) { Element e = paragraph.getElement(i); int rangeStart =
+         * e.getStartOffset(); int rangeEnd = e.getEndOffset(); try { String
+         * text = getText(rangeStart, rangeEnd - rangeStart);
+         * sb.append(text.replaceAll("\\n", "").replaceAll("\\r", ""));
+         * sb.append(System.getProperty("line.separator")); } catch (Exception
+         * ex) { } } String retval = sb.toString(); if (retval.length() > 0) {
+         * retval = retval.substring(0, retval.length() - 1); } return retval;
+         */
+    }
 
-	public void replaceSelection(String text)
-	{
-		setSelectedText(text);
+    public void replaceSelection(String text)
+    {
+        setSelectedText(text);
 
-	}
+    }
 }

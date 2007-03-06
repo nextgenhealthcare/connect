@@ -37,49 +37,49 @@ import com.webreach.mirth.client.ui.PlatformUI;
  */
 public class MirthComboBox extends javax.swing.JComboBox
 {
-	private Frame parent;
+    private Frame parent;
 
-	public MirthComboBox()
-	{
-		super();
-		this.setFocusable(false);
-		this.parent = PlatformUI.MIRTH_FRAME;
-		this.addActionListener(new java.awt.event.ActionListener()
-		{
-			public void actionPerformed(java.awt.event.ActionEvent evt)
-			{
-				comboBoxChanged(evt);
-			}
-		});
-		this.addKeyListener(new KeyListener()
-		{
+    public MirthComboBox()
+    {
+        super();
+        this.setFocusable(false);
+        this.parent = PlatformUI.MIRTH_FRAME;
+        this.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                comboBoxChanged(evt);
+            }
+        });
+        this.addKeyListener(new KeyListener()
+        {
 
-			public void keyPressed(KeyEvent e)
-			{
-				// TODO Auto-generated method stub
-				if (e.getKeyCode() == KeyEvent.VK_S && e.isControlDown())
-				{
-					PlatformUI.MIRTH_FRAME.doSaveChannel();
-				}
-			}
+            public void keyPressed(KeyEvent e)
+            {
+                // TODO Auto-generated method stub
+                if (e.getKeyCode() == KeyEvent.VK_S && e.isControlDown())
+                {
+                    PlatformUI.MIRTH_FRAME.doSaveChannel();
+                }
+            }
 
-			public void keyReleased(KeyEvent e)
-			{
-				// TODO Auto-generated method stub
+            public void keyReleased(KeyEvent e)
+            {
+                // TODO Auto-generated method stub
 
-			}
+            }
 
-			public void keyTyped(KeyEvent e)
-			{
-				// TODO Auto-generated method stub
+            public void keyTyped(KeyEvent e)
+            {
+                // TODO Auto-generated method stub
 
-			}
+            }
 
-		});
-	}
+        });
+    }
 
-	public void comboBoxChanged(java.awt.event.ActionEvent evt)
-	{
-		parent.enableSave();
-	}
+    public void comboBoxChanged(java.awt.event.ActionEvent evt)
+    {
+        parent.enableSave();
+    }
 }

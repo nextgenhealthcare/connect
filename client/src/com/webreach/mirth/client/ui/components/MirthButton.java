@@ -34,23 +34,23 @@ import com.webreach.mirth.client.ui.PlatformUI;
  */
 public class MirthButton extends javax.swing.JButton
 {
-	private Frame parent;
+    private Frame parent;
 
-	public MirthButton()
-	{
-		super();
-		this.parent = PlatformUI.MIRTH_FRAME;
-		this.addActionListener(new java.awt.event.ActionListener()
-		{
-			public void actionPerformed(java.awt.event.ActionEvent evt)
-			{
-				buttonPressed(evt);
-			}
-		});
-	}
+    public MirthButton()
+    {
+        super();
+        this.parent = PlatformUI.MIRTH_FRAME;
+        this.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                buttonPressed(evt);
+            }
+        });
+    }
 
-	public void buttonPressed(java.awt.event.ActionEvent evt)
-	{
-		parent.enableSave();
-	}
+    public void buttonPressed(java.awt.event.ActionEvent evt)
+    {
+        parent.enableSave();
+    }
 }
