@@ -708,8 +708,8 @@ public class ChannelSetup extends javax.swing.JPanel
      */
     public boolean saveChanges()
     {
-        if (!parent.checkChannelName(summaryNameField.getText()))
-                return false;
+        if (!parent.checkChannelName(summaryNameField.getText(), currentChannel.getId()))
+            return false;
         
         boolean enabled = summaryEnabledCheckbox.isSelected();
         

@@ -1599,7 +1599,7 @@ public class Frame extends JXFrame
     /**
      * Checks to see if the passed in channel name already exists
      */
-    public boolean checkChannelName(String name)
+    public boolean checkChannelName(String name, String id)
     {
         if (name.equals(""))
         {
@@ -1609,7 +1609,7 @@ public class Frame extends JXFrame
 
         for (Channel channel : channels.values())
         {
-            if (channel.getName().equalsIgnoreCase(name))
+            if (channel.getName().equalsIgnoreCase(name) && !channel.getId().equals(id))
             {
                 alertWarning("Channel name already exists. Please choose a unique name.");
                 return false;
@@ -2743,7 +2743,7 @@ public class Frame extends JXFrame
                 return;
             
             String channelName = importChannel.getName();
-            while(!checkChannelName(channelName))
+            while(!checkChannelName(channelName, importChannel.getId()))
             {
                 channelName = JOptionPane.showInputDialog(this, "Please enter a new name for the channel.");
                 if (channelName == null)
@@ -2902,7 +2902,7 @@ public class Frame extends JXFrame
             channelName = JOptionPane.showInputDialog(this, "Please enter a new name for the channel.");
             if (channelName == null)
                 return;
-        } while(!checkChannelName(channelName));
+        } while(!checkChannelName(channelName, channel.getId()));
         
         channel.setName(channelName);
         

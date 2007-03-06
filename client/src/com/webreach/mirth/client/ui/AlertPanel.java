@@ -465,7 +465,7 @@ public class AlertPanel extends javax.swing.JPanel
     {
         if(getAlertIndex() == UIConstants.ERROR_CONSTANT)
             return false;
-        
+        System.out.println(parent.alerts.toString());
         boolean changed = parent.alertTasks.getContentPane().getComponent(1).isVisible();
         
         Alert current = parent.alerts.get(getAlertIndex());
@@ -494,8 +494,7 @@ public class AlertPanel extends javax.swing.JPanel
         current.setChannels(getChannels());
         current.setExpression(errorField.getText());
         
-        if(emailsTable.isEditing())
-            emailsTable.getColumnModel().getColumn(emailsTable.getColumnModel().getColumnIndex(EMAIL_COLUMN_NAME)).getCellEditor().stopCellEditing();
+        stopEmailEditing();
         
         current.setEmails(getEmails());
         current.setTemplate(template.getText());
@@ -607,9 +606,7 @@ public class AlertPanel extends javax.swing.JPanel
     /** Adds a new alert. */
     public void addAlert()
     {
-        if(alertTable.isEditing())
-            alertTable.getColumnModel().getColumn(alertTable.getColumnModel().getColumnIndex(ALERT_NAME_COLUMN_NAME)).getCellEditor().stopCellEditing();
-        
+        stopAlertEditing();
         updateAlertTable(true);
         alertPane.getViewport().setViewPosition(new Point(0, alertTable.getRowHeight()*alertTable.getRowCount()));
         parent.enableSave();
@@ -617,9 +614,7 @@ public class AlertPanel extends javax.swing.JPanel
     
     public void enableAlert()
     {
-        if(alertTable.isEditing())
-            alertTable.getColumnModel().getColumn(alertTable.getColumnModel().getColumnIndex(ALERT_NAME_COLUMN_NAME)).getCellEditor().stopCellEditing();
-        
+        stopAlertEditing();
         parent.alerts.get(getAlertIndex()).setEnabled(true);
         updateAlertTable(false);
         parent.enableSave();
@@ -627,9 +622,7 @@ public class AlertPanel extends javax.swing.JPanel
     
     public void disableAlert()
     {
-        if(alertTable.isEditing())
-            alertTable.getColumnModel().getColumn(alertTable.getColumnModel().getColumnIndex(ALERT_NAME_COLUMN_NAME)).getCellEditor().stopCellEditing();
-        
+        stopAlertEditing();
         parent.alerts.get(getAlertIndex()).setEnabled(false);
         updateAlertTable(false);
         parent.enableSave();
@@ -641,9 +634,7 @@ public class AlertPanel extends javax.swing.JPanel
             return;
         isDeleting = true;
         
-        if(alertTable.isEditing())
-            alertTable.getColumnModel().getColumn(alertTable.getColumnModel().getColumnIndex(ALERT_NAME_COLUMN_NAME)).getCellEditor().stopCellEditing();
-        
+        stopAlertEditing();
         parent.alerts.remove(getAlertIndex());
         updateAlertTable(false);
         parent.enableSave();
@@ -713,7 +704,6 @@ public class AlertPanel extends javax.swing.JPanel
             {
                 if (evt instanceof MouseEvent && ((MouseEvent)evt).getClickCount() >= 2) 
                 {
-                    removeButton.setEnabled(false);
                     return true;
                 }
                 return false;
@@ -816,6 +806,18 @@ public class AlertPanel extends javax.swing.JPanel
         int dividerLocation = split.getDividerLocation();
         split.setRightComponent(blankPanel);
         split.setDividerLocation(dividerLocation);
+    }
+    
+    public void stopAlertEditing()
+    {
+        if(alertTable.isEditing())
+            alertTable.getColumnModel().getColumn(alertTable.getColumnModel().getColumnIndex(ALERT_NAME_COLUMN_NAME)).getCellEditor().stopCellEditing();
+    }
+    
+    public void stopEmailEditing()
+    {
+        if(emailsTable.isEditing())
+            emailsTable.getColumnModel().getColumn(emailsTable.getColumnModel().getColumnIndex(EMAIL_COLUMN_NAME)).getCellEditor().stopCellEditing();   
     }
     
     /** Get the currently selected destination index */
@@ -1018,6 +1020,7 @@ public class AlertPanel extends javax.swing.JPanel
 
     private void removeButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_removeButtonActionPerformed
     {//GEN-HEADEREND:event_removeButtonActionPerformed
+        stopEmailEditing();
         if(getSelectedEmailRow() != -1 && !emailsTable.isEditing())
         {            
             ((DefaultTableModel)emailsTable.getModel()).removeRow(getSelectedEmailRow());
@@ -1038,6 +1041,7 @@ public class AlertPanel extends javax.swing.JPanel
 
     private void addButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_addButtonActionPerformed
     {//GEN-HEADEREND:event_addButtonActionPerformed
+        stopEmailEditing();
         ((DefaultTableModel)emailsTable.getModel()).addRow(new Object[]{""});
         emailsTable.setRowSelectionInterval(emailsTable.getRowCount()-1,emailsTable.getRowCount()-1);
         parent.enableSave();
