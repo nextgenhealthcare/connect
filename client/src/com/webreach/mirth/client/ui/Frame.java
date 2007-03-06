@@ -3213,6 +3213,7 @@ public class Frame extends JXFrame
     {
         try
         {
+            alertPanel.saveAlert();
             mirthClient.updateAlerts(alerts);
             alertPanel.updateAlertTable(false);
             disableSave();

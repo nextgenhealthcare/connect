@@ -463,12 +463,14 @@ public class AlertPanel extends javax.swing.JPanel
     /** Loads a selected connector and returns true on success. */
     public boolean loadAlert()
     {
-        if(getAlertIndex() == UIConstants.ERROR_CONSTANT)
+        int index = getAlertIndex();
+        
+        if(index == UIConstants.ERROR_CONSTANT)
             return false;
-        System.out.println(parent.alerts.toString());
+
         boolean changed = parent.alertTasks.getContentPane().getComponent(1).isVisible();
         
-        Alert current = parent.alerts.get(getAlertIndex());
+        Alert current = parent.alerts.get(index);
         updateApplyToChannelsTable(current);
         updateEmailsTable(current);
         errorField.setText(current.getExpression());
@@ -485,15 +487,18 @@ public class AlertPanel extends javax.swing.JPanel
     
     public boolean saveAlert()
     {
-        if(getAlertIndex() == UIConstants.ERROR_CONSTANT)
+        int index = getAlertIndex();
+        
+        if(index == UIConstants.ERROR_CONSTANT)
             return false;
         
         boolean changed = parent.alertTasks.getContentPane().getComponent(1).isVisible();
         
-        Alert current = parent.alerts.get(getAlertIndex(lastAlertRow));
+        Alert current = parent.alerts.get(index);
         current.setChannels(getChannels());
         current.setExpression(errorField.getText());
         
+        stopAlertEditing();
         stopEmailEditing();
         
         current.setEmails(getEmails());
@@ -542,17 +547,8 @@ public class AlertPanel extends javax.swing.JPanel
     /** Get the index of the currently selected alert. */
     public int getAlertIndex()
     {
-        int columnNumber = alertTable.getColumnNumber(ALERT_NAME_COLUMN_NAME);
-         
         if (alertTable.getSelectedRow() >= 0 && alertTable.getSelectedRow() < alertTable.getRowCount())
-        {
-            String alertName = (String) alertTable.getValueAt(alertTable.getSelectedRow(), columnNumber);
-            for (int i = 0; i < parent.alerts.size(); i++)
-            {
-                if (parent.alerts.get(i).getName().equalsIgnoreCase(alertName))
-                    return i;
-            }
-        }
+            return getAlertIndex(alertTable.getSelectedRow());
         return UIConstants.ERROR_CONSTANT;
     }
     

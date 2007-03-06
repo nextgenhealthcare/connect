@@ -374,7 +374,8 @@ public class TreePanel extends JPanel
             }
             else
             {
-                text = el.getTextContent();
+                return;
+                //text = el.getTextContent();
             }
             
             if(text != null)
