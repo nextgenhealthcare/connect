@@ -29,8 +29,8 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.mozilla.javascript.Context;
-import org.mozilla.javascript.EcmaError;
 import org.mozilla.javascript.ImporterTopLevel;
+import org.mozilla.javascript.RhinoException;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
 import org.mule.transformers.AbstractTransformer;
@@ -157,8 +157,8 @@ public class JavaScriptTransformer extends AbstractTransformer {
 	public void initialise() throws InitialisationException {
 		try {
 			Context context = Context.enter();
-
 			String filterScript = scriptController.getScript(filterScriptId);
+
 			if (filterScript != null) {
 				String generatedFilterScript = generateFilterScript(filterScript);
 				logger.debug("compiling filter script");
@@ -174,7 +174,6 @@ public class JavaScriptTransformer extends AbstractTransformer {
 				Script compiledTransformerScript = context.compileString(generatedTransformerScript, transformerScriptId, 1, null);
 				compiledScriptCache.putCompiledScript(transformerScriptId, compiledTransformerScript);
 			}
-
 		} catch (Exception e) {
 			throw new InitialisationException(e, this);
 		} finally {
@@ -196,24 +195,35 @@ public class JavaScriptTransformer extends AbstractTransformer {
 		} else if (this.getMode().equals(Mode.DESTINATION.toString())) {
 			messageObject = (MessageObject) source;
 			messageObject = messageObjectController.cloneMessageObjectForBroadcast(messageObject, this.getConnectorName());
+
 			try {
 				Adaptor adaptor = AdaptorFactory.getAdaptor(Protocol.valueOf(outboundProtocol));
 				messageObject = adaptor.convertMessage(messageObject, template, channelId, encryptData, outboundProperties);
 			} catch (Exception e) {
 
 			}
+
 			messageObject.setEncodedDataProtocol(Protocol.valueOf(this.outboundProtocol));
 		}
 
-		if (evaluateFilterScript(messageObject)) {
-			MessageObject transformedMessageObject = evaluateTransformerScript(messageObject);
-			if (this.getMode().equals(Mode.SOURCE.toString())) {
-				messageObjectController.updateMessage(transformedMessageObject);
+		try {
+			// if the message passes the filter, run the transformation script
+			if (evaluateFilterScript(messageObject)) {
+				MessageObject transformedMessageObject = evaluateTransformerScript(messageObject);
+
+				if (this.getMode().equals(Mode.SOURCE.toString())) {
+					messageObjectController.updateMessage(transformedMessageObject);
+				}
+
+				return transformedMessageObject;
+			} else {
+				messageObject.setStatus(MessageObject.Status.REJECTED);
+				return messageObject;
 			}
-			return transformedMessageObject;
-		} else {
-			messageObject.setStatus(MessageObject.Status.REJECTED);
-			return messageObject;
+		} catch (TransformerException te) {
+			// only send alert after entire filter/transform process is done
+			alertController.sendAlerts(channelId, messageObject.getErrors(), messageObject);
+			throw te;
 		}
 	}
 
@@ -254,13 +264,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 
 			return messageAccepted;
 		} catch (Exception e) {
-			logger.error("error ocurred in filter", e);
-			messageObject.setStatus(MessageObject.Status.ERROR);
-			messageObject.setErrors(messageObject.getErrors() != null ? messageObject.getErrors() + '\n' : Constants.ERROR_200 + StackTracePrinter.stackTraceToString(e));
-			messageObjectController.updateMessage(messageObject);
-
-			alertController.sendAlerts(channelId, messageObject.getErrors());
-
+			handleError(Constants.ERROR_200, e, messageObject);
 			return false;
 		} finally {
 			Context.exit();
@@ -329,30 +333,45 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			messageObject.setStatus(MessageObject.Status.TRANSFORMED);
 			return messageObject;
 		} catch (Exception e) {
-			// error line is initialized to blank
-			String lineSource = new String();
-
-			// if the exception occured during execution of the script, get the
-			// line of code that caused the error
-			if (e instanceof EcmaError) {
-				EcmaError ee = (EcmaError) e;
-				lineSource = ee.lineSource();
-			}
-
-			messageObject.setStatus(MessageObject.Status.ERROR);
-			messageObject.setErrors(messageObject.getErrors() != null ? messageObject.getErrors() + '\n' : Constants.ERROR_300 + "\n" + lineSource + "\n" + StackTracePrinter.stackTraceToString(e));
-			messageObjectController.updateMessage(messageObject);
-
-			alertController.sendAlerts(channelId, messageObject.getErrors());
-
+			handleError(Constants.ERROR_300, e, messageObject);
 			throw new TransformerException(this, e);
 		} finally {
 			Context.exit();
 		}
 	}
 
+	private void handleError(String errorType, Throwable e, MessageObject mo) {
+		// error source is initialized to blank
+		String lineSource = new String();
+
+		// if the exception occured during execution of the script, get the
+		// line of code that caused the error
+		if (e instanceof RhinoException) {
+			RhinoException re = (RhinoException) e;
+			lineSource = re.lineSource();
+		}
+
+		// construct the error message
+		StringBuilder errorMessage = new StringBuilder();
+		String lineSeperator = System.getProperty("line.separator");
+		errorMessage.append("ERROR TYPE: " + errorType + lineSeperator);
+		errorMessage.append("ERROR SOURCE: " + lineSource + lineSeperator);
+		errorMessage.append("ERROR MESSAGE: " + StackTracePrinter.stackTraceToString(e) + lineSeperator);
+
+		if (mo.getErrors() == null) {
+			mo.setErrors(errorMessage.toString());
+		} else {
+			// append to existing errors if any
+			mo.setErrors(mo.getErrors() + lineSeperator + lineSeperator + errorMessage.toString());
+		}
+
+		mo.setStatus(MessageObject.Status.ERROR);
+		messageObjectController.updateMessage(mo);
+	}
+
 	private String generateFilterScript(String filterScript) {
 		logger.debug("generating filter script");
+
 		StringBuilder script = new StringBuilder();
 		script.append("importPackage(Packages.com.webreach.mirth.server.util);\n	");
 		script.append("function $(string) { if (globalMap.get(string) != null) { return globalMap.get(string)} else { return localMap.get(string);} }");
@@ -370,6 +389,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 
 	private String generateTransformerScript(String transformerScript) {
 		logger.debug("generator transformer script");
+
 		StringBuilder script = new StringBuilder();
 		script.append("importPackage(Packages.com.webreach.mirth.server.util);");
 		// script used to check for exitence of segment

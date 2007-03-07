@@ -33,9 +33,11 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
+import org.mule.providers.TemplateValueReplacer;
 
 import com.ibatis.sqlmap.client.SqlMapClient;
 import com.webreach.mirth.model.Alert;
+import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.util.SMTPConnection;
 import com.webreach.mirth.server.util.SMTPConnectionFactory;
 import com.webreach.mirth.server.util.SqlConfig;
@@ -43,6 +45,7 @@ import com.webreach.mirth.server.util.SqlConfig;
 public class AlertController {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private SqlMapClient sqlMap = SqlConfig.getSqlMapInstance();
+	private TemplateValueReplacer replacer = new TemplateValueReplacer();
 
 	public List<Alert> getAlert(Alert alert) throws ControllerException {
 		logger.debug("getting alert: " + alert);
@@ -155,7 +158,7 @@ public class AlertController {
 		}
 	}
 
-	public void sendAlerts(String channelId, String message) {
+	public void sendAlerts(String channelId, String errorMessage, MessageObject mo) {
 		try {
 			List<Alert> alerts = getAlertByChannelId(channelId);
 
@@ -163,8 +166,8 @@ public class AlertController {
 				for (Iterator iter = alerts.iterator(); iter.hasNext();) {
 					Alert alert = (Alert) iter.next();
 
-					if (isAlertCondition(alert.getExpression(), message)) {
-						sentAlertEmails(alert.getTemplate(), alert.getEmails());
+					if (isAlertCondition(alert.getExpression(), errorMessage)) {
+						sentAlertEmails(alert.getEmails(), alert.getTemplate(), mo);
 					}
 				}
 			}
@@ -173,31 +176,43 @@ public class AlertController {
 		}
 	}
 
-	private boolean isAlertCondition(String expression, String message) {
+	private boolean isAlertCondition(String expression, String errorMessage) {
 		// TODO: is this accurate?
-		return message.contains(expression);
+		return errorMessage.contains(expression);
 	}
 
-	private void sentAlertEmails(String template, List<String> emails) throws ControllerException {
+	private void sentAlertEmails(List<String> emails, String template, MessageObject mo) throws ControllerException {
 		try {
 			Properties properties = (new ConfigurationController()).getServerProperties();
 			String fromAddress = properties.getProperty("smtp.from");
 			String toAddressList = generateEmailList(emails);
+
+			String body;
+
+			// if the alert is being send from within the context of a component
+			// which has access to the message object, go ahead and run the
+			// replacer on it, otherwise just use the template
+			if (mo != null) {
+				body = replacer.replaceValues(template, mo, null);
+			} else {
+				body = template;
+			}
+
 			SMTPConnection connection = SMTPConnectionFactory.createSMTPConnection();
-			connection.send(toAddressList, null, fromAddress, "Alert: Mirth Notification", template);
+			connection.send(toAddressList, null, fromAddress, "Mirth Alert", body);
 		} catch (Exception e) {
 			throw new ControllerException(e);
 		}
 	}
 
 	private String generateEmailList(List<String> emails) {
-		StringBuilder emailList = new StringBuilder();
+		StringBuilder emailAddressList = new StringBuilder();
 
 		for (Iterator iter = emails.iterator(); iter.hasNext();) {
 			String email = (String) iter.next();
-			emailList.append(email + ",");
+			emailAddressList.append(email + ",");
 		}
 
-		return emailList.toString();
+		return emailAddressList.toString();
 	}
 }

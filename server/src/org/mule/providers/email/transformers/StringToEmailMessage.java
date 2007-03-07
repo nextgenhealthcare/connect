@@ -17,6 +17,7 @@ package org.mule.providers.email.transformers;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.mule.MuleManager;
+import org.mule.providers.TemplateValueReplacer;
 import org.mule.providers.email.MailProperties;
 import org.mule.providers.email.MailUtils;
 import org.mule.providers.email.SmtpConnector;
@@ -26,6 +27,8 @@ import org.mule.umo.transformer.TransformerException;
 import org.mule.util.PropertiesHelper;
 import org.mule.util.TemplateParser;
 import org.mule.util.Utility;
+
+import com.webreach.mirth.model.MessageObject;
 
 import javax.mail.Message;
 import javax.mail.Session;
@@ -44,104 +47,115 @@ import java.util.Properties;
  * @author <a href="mailto:ross.mason@symphonysoft.com">Ross Mason</a>
  * @version $Revision: 1.8 $
  */
-public class StringToEmailMessage extends AbstractEventAwareTransformer
-{
-    /**
-     * logger used by this class
-     */
-    protected final transient Log logger = LogFactory.getLog(getClass());
+public class StringToEmailMessage extends AbstractEventAwareTransformer {
+	/**
+	 * logger used by this class
+	 */
+	protected final transient Log logger = LogFactory.getLog(getClass());
+	protected TemplateParser templateParser = TemplateParser.createAntStyleParser();
+	protected TemplateValueReplacer replacer = new TemplateValueReplacer();
 
-    protected TemplateParser templateParser = TemplateParser.createAntStyleParser();
+	public StringToEmailMessage() {
+		registerSourceType(String.class);
+		setReturnClass(Message.class);
+	}
 
-    public StringToEmailMessage()
-    {
-        registerSourceType(String.class);
-        setReturnClass(Message.class);
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.mule.transformers.AbstractTransformer#doTransform(java.lang.Object)
+	 */
+	public Object transform(Object src, UMOEventContext context) throws TransformerException {
+		String endpointAddress = endpoint.getEndpointURI().getAddress();
+		SmtpConnector connector = (SmtpConnector) endpoint.getConnector();
+		MessageObject messageObject = (MessageObject) context.getMessage();
+		
+		// replace values
+		String to = context.getStringProperty(MailProperties.TO_ADDRESSES_PROPERTY, endpointAddress);
+		to = replacer.replaceValues(to, messageObject, null);
+		
+		String cc = context.getStringProperty(MailProperties.CC_ADDRESSES_PROPERTY, connector.getCcAddresses());
+		String bcc = context.getStringProperty(MailProperties.BCC_ADDRESSES_PROPERTY, connector.getBccAddresses());
+		String from = context.getStringProperty(MailProperties.FROM_ADDRESS_PROPERTY, connector.getFromAddress());
+		String replyTo = context.getStringProperty(MailProperties.REPLY_TO_ADDRESSES_PROPERTY, connector.getReplyToAddresses());
+		
+		// replace values
+		String subject = context.getStringProperty(MailProperties.SUBJECT_PROPERTY, connector.getSubject());
+		subject = replacer.replaceValues(subject, messageObject, null);
+		
+		String contentType = context.getStringProperty(MailProperties.CONTENT_TYPE_PROPERTY, connector.getContentType());
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.mule.transformers.AbstractTransformer#doTransform(java.lang.Object)
-     */
-    public Object transform(Object src, UMOEventContext context) throws TransformerException
-    {
-        String endpointAddress = endpoint.getEndpointURI().getAddress();
-        SmtpConnector connector = (SmtpConnector)endpoint.getConnector();
-        String to = context.getStringProperty(MailProperties.TO_ADDRESSES_PROPERTY, endpointAddress);
-        String cc = context.getStringProperty(MailProperties.CC_ADDRESSES_PROPERTY, connector.getCcAddresses());
-        String bcc = context.getStringProperty(MailProperties.BCC_ADDRESSES_PROPERTY, connector.getBccAddresses());
-        String from = context.getStringProperty(MailProperties.FROM_ADDRESS_PROPERTY, connector.getFromAddress());
-        String replyTo = context.getStringProperty(MailProperties.REPLY_TO_ADDRESSES_PROPERTY, connector.getReplyToAddresses());
-        String subject = context.getStringProperty(MailProperties.SUBJECT_PROPERTY, connector.getSubject());
+		Properties headers = new Properties();
+		
+		if (connector.getCustomHeaders() != null) {
+			headers.putAll(connector.getCustomHeaders());
+		}
+		
+		Properties otherHeaders = (Properties) context.getProperty(MailProperties.CUSTOM_HEADERS_MAP_PROPERTY);
+		
+		if (otherHeaders != null) {
+			Map props = new HashMap(MuleManager.getInstance().getProperties());
+			props.putAll(context.getProperties());
+			headers.putAll(templateParser.parse(props, otherHeaders));
+		}
 
-        String contentType = context.getStringProperty(MailProperties.CONTENT_TYPE_PROPERTY, connector.getContentType());
+		if (logger.isDebugEnabled()) {
+			StringBuffer buf = new StringBuffer();
+			buf.append("Constucting email using:\n");
+			buf.append("To: ").append(to);
+			buf.append("From: ").append(from);
+			buf.append("CC: ").append(cc);
+			buf.append("BCC: ").append(bcc);
+			buf.append("Subject: ").append(subject);
+			buf.append("ReplyTo: ").append(replyTo);
+			buf.append("Content type: ").append(contentType);
+			buf.append("Payload type: ").append(src.getClass().getName());
+			buf.append("Custom Headers: ").append(PropertiesHelper.propertiesToString(headers, false));
+			logger.debug(buf.toString());
+		}
 
-        Properties headers = new Properties();
-        if(connector.getCustomHeaders()!=null) headers.putAll(connector.getCustomHeaders());
-        Properties otherHeaders = (Properties)context.getProperty(MailProperties.CUSTOM_HEADERS_MAP_PROPERTY);
-        if(otherHeaders!=null) {
-            Map props = new HashMap(MuleManager.getInstance().getProperties());
-            props.putAll(context.getProperties());
-            headers.putAll(templateParser.parse(props, otherHeaders));
-        }
+		try {
+			Message msg = new MimeMessage((Session) endpoint.getConnector().getDispatcher(endpointAddress).getDelegateSession());
 
-        if(logger.isDebugEnabled()) {
-            StringBuffer buf = new StringBuffer();
-            buf.append("Constucting email using:\n");
-            buf.append("To: ").append(to);
-            buf.append("From: ").append(from);
-            buf.append("CC: ").append(cc);
-            buf.append("BCC: ").append(bcc);
-            buf.append("Subject: ").append(subject);
-            buf.append("ReplyTo: ").append(replyTo);
-            buf.append("Content type: ").append(contentType);
-            buf.append("Payload type: ").append(src.getClass().getName());
-            buf.append("Custom Headers: ").append(PropertiesHelper.propertiesToString(headers, false));
-            logger.debug(buf.toString());
-        }
+			msg.setRecipients(Message.RecipientType.TO, MailUtils.StringToInternetAddresses(to));
 
-        try {
-            Message msg = new MimeMessage((Session) endpoint.getConnector().getDispatcher(endpointAddress).getDelegateSession());
+			// sent date
+			msg.setSentDate(Calendar.getInstance().getTime());
 
-            msg.setRecipients(Message.RecipientType.TO, MailUtils.StringToInternetAddresses(to));
+			if (from != null && !Utility.EMPTY_STRING.equals(from)) {
+				msg.setFrom(MailUtils.StringToInternetAddresses(from)[0]);
+			}
 
-            // sent date
-            msg.setSentDate(Calendar.getInstance().getTime());
+			if (cc != null && !Utility.EMPTY_STRING.equals(cc)) {
+				msg.setRecipients(Message.RecipientType.CC, MailUtils.StringToInternetAddresses(cc));
+			}
 
-            if (from != null && !Utility.EMPTY_STRING.equals(from)) {
-                msg.setFrom(MailUtils.StringToInternetAddresses(from)[0]);
-            }
+			if (bcc != null && !Utility.EMPTY_STRING.equals(bcc)) {
+				msg.setRecipients(Message.RecipientType.BCC, MailUtils.StringToInternetAddresses(bcc));
+			}
 
-            if (cc != null && !Utility.EMPTY_STRING.equals(cc)) {
-                msg.setRecipients(Message.RecipientType.CC, MailUtils.StringToInternetAddresses(cc));
-            }
+			if (replyTo != null && !Utility.EMPTY_STRING.equals(replyTo)) {
+				msg.setReplyTo(MailUtils.StringToInternetAddresses(replyTo));
+			}
 
-            if (bcc != null && !Utility.EMPTY_STRING.equals(bcc)) {
-                msg.setRecipients(Message.RecipientType.BCC, MailUtils.StringToInternetAddresses(bcc));
-            }
+			msg.setSubject(subject);
 
-            if (replyTo != null && !Utility.EMPTY_STRING.equals(replyTo)) {
-                msg.setReplyTo(MailUtils.StringToInternetAddresses(replyTo));
-            }
+			Map.Entry entry;
+			for (Iterator iterator = headers.entrySet().iterator(); iterator.hasNext();) {
+				entry = (Map.Entry) iterator.next();
+				msg.setHeader(entry.getKey().toString(), entry.getValue().toString());
+			}
 
-            msg.setSubject(subject);
+			setContent(src, msg, contentType, context);
 
-            Map.Entry entry;
-            for (Iterator iterator = headers.entrySet().iterator(); iterator.hasNext();) {
-                entry = (Map.Entry)iterator.next();
-                msg.setHeader(entry.getKey().toString(), entry.getValue().toString());
-            }
+			return msg;
+		} catch (Exception e) {
+			throw new TransformerException(this, e);
+		}
+	}
 
-            setContent(src, msg, contentType, context);
-
-            return msg;
-        } catch (Exception e) {
-            throw new TransformerException(this, e);
-        }
-    }
-
-    protected void setContent(Object payload, Message msg, String contentType, UMOEventContext context) throws Exception {
-        msg.setContent(payload, contentType);
-    }
+	protected void setContent(Object payload, Message msg, String contentType, UMOEventContext context) throws Exception {
+		String body = replacer.replaceValues((String) payload, (MessageObject) context.getMessage(), null); 
+		msg.setContent(body, contentType);
+	}
 }
