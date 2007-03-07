@@ -411,17 +411,17 @@ public class MessageBrowser extends javax.swing.JPanel
             }
             else
             {
-                tableData = new Object[0][6];
+                tableData = new Object[0][7];
             }
         }
         else
         {
-            tableData = new Object[0][6];
+            tableData = new Object[0][7];
         }
 
         eventTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[] { MESSAGE_ID_COLUMN_NAME, DATE_COLUMN_NAME, CONNECTOR_COLUMN_NAME, TYPE_COLUMN_NAME, SOURCE_COLUMN_NAME, STATUS_COLUMN_NAME, PROTOCOL_COLUMN_NAME })
         {
-            boolean[] canEdit = new boolean[] { false, false, false, false, false, false };
+            boolean[] canEdit = new boolean[] { false, false, false, false, false, false, false };
 
             public boolean isCellEditable(int rowIndex, int columnIndex)
             {
