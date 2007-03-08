@@ -12,15 +12,12 @@
  * the LICENSE.txt file. 
  *
  */
-package org.mule.providers.email.transformers;
+package com.webreach.mirth.server.mule.providers.email.transformers;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.mule.MuleManager;
 import org.mule.providers.TemplateValueReplacer;
-import org.mule.providers.email.MailProperties;
-import org.mule.providers.email.MailUtils;
-import org.mule.providers.email.SmtpConnector;
 import org.mule.transformers.AbstractEventAwareTransformer;
 import org.mule.umo.UMOEventContext;
 import org.mule.umo.transformer.TransformerException;
@@ -29,6 +26,9 @@ import org.mule.util.TemplateParser;
 import org.mule.util.Utility;
 
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.server.mule.providers.email.MailProperties;
+import com.webreach.mirth.server.mule.providers.email.MailUtils;
+import com.webreach.mirth.server.mule.providers.email.SmtpConnector;
 
 import javax.mail.Message;
 import javax.mail.Session;
@@ -47,7 +47,7 @@ import java.util.Properties;
  * @author <a href="mailto:ross.mason@symphonysoft.com">Ross Mason</a>
  * @version $Revision: 1.8 $
  */
-public class StringToEmailMessage extends AbstractEventAwareTransformer {
+public class MessageObjectToEmailMessage extends AbstractEventAwareTransformer {
 	/**
 	 * logger used by this class
 	 */
@@ -55,8 +55,8 @@ public class StringToEmailMessage extends AbstractEventAwareTransformer {
 	protected TemplateParser templateParser = TemplateParser.createAntStyleParser();
 	protected TemplateValueReplacer replacer = new TemplateValueReplacer();
 
-	public StringToEmailMessage() {
-		registerSourceType(String.class);
+	public MessageObjectToEmailMessage() {
+		registerSourceType(MessageObject.class);
 		setReturnClass(Message.class);
 	}
 
@@ -68,7 +68,7 @@ public class StringToEmailMessage extends AbstractEventAwareTransformer {
 	public Object transform(Object src, UMOEventContext context) throws TransformerException {
 		String endpointAddress = endpoint.getEndpointURI().getAddress();
 		SmtpConnector connector = (SmtpConnector) endpoint.getConnector();
-		MessageObject messageObject = (MessageObject) context.getMessage();
+		MessageObject messageObject = (MessageObject) src;
 		
 		// replace values
 		String to = context.getStringProperty(MailProperties.TO_ADDRESSES_PROPERTY, endpointAddress);
