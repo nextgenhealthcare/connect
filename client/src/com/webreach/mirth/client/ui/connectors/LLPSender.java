@@ -45,7 +45,7 @@ public class LLPSender extends ConnectorClass
 
     private final String LLP_PROTOCOL_NAME = "tcpProtocolClassName";
 
-    private final String LLP_PROTOCOL_NAME_VALUE = "org.mule.providers.tcp.protocols.LlpProtocol";
+    private final String LLP_PROTOCOL_NAME_VALUE = "org.mule.providers.tcp.protocols.TcpProtocol";
 
     private final String LLP_ADDRESS = "host";
 

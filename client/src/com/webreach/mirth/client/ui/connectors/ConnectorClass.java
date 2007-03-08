@@ -32,6 +32,7 @@ import java.util.Properties;
 import com.webreach.mirth.client.ui.Frame;
 import com.webreach.mirth.client.ui.PlatformUI;
 import com.webreach.mirth.client.ui.editors.MirthEditorPane;
+import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.Step;
 
 /**
@@ -96,7 +97,7 @@ public class ConnectorClass extends javax.swing.JPanel
     {
         responseStep = new Step();
         HashMap<String, String> data = new HashMap<String, String>();
-        data.put("Script", "var response;\n\n// YOUR CUSTOM RESPONSE CODE GOES HERE\n\nlocalMap.put('ack_response', response);");
+        data.put("Script", "var response;\n\n// YOUR CUSTOM RESPONSE CODE GOES HERE\n\nlocalMap.put('" + MessageObject.RESPONSE_VARIABLE + "', response);");
 
         responseStep.setName("Set ACK Response");
         responseStep.setType(MirthEditorPane.JAVASCRIPT_TYPE);

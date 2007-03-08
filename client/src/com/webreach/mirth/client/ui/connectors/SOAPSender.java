@@ -137,6 +137,7 @@ public class SOAPSender extends ConnectorClass
         Properties properties = new Properties();
         properties.put(SOAP_ENVELOPE, soapEnvelope.getText());
         properties.put(DATATYPE, name);
+        //TODO: This won't work for HTTPS. WARNING.
         properties.put(SOAP_URL, wsdlUrl.getText());
         properties.put(SOAP_SERVICE_ENDPOINT, serviceEndpoint.getText());
         if (method.getSelectedIndex() != -1)

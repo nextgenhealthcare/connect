@@ -50,7 +50,8 @@ public class HTTPListener extends ConnectorClass
     private final String HTTP_KEEP_CONNECTION_OPEN = "keepSendSocketOpen";
 
     private final String HTTP_RESPONSE_FROM_TRANSFORMER = "responseFromTransformer";
-
+    
+    private final String HTTP_EXTENDED_PAYLOAD = "extendedPayload";
     public HTTPListener()
     {
         name = "HTTP Listener";
@@ -67,7 +68,7 @@ public class HTTPListener extends ConnectorClass
         properties.put(HTTP_PORT, listenerPortField.getText());
         properties.put(HTTP_RECEIVE_TIMEOUT, receiveTimeoutField.getText());
         properties.put(HTTP_BUFFER_SIZE, bufferSizeField.getText());
-
+        properties.put(HTTP_EXTENDED_PAYLOAD, UIConstants.YES_OPTION);
         if (keepConnectionOpenYesRadio.isSelected())
             properties.put(HTTP_KEEP_CONNECTION_OPEN, UIConstants.YES_OPTION);
         else
@@ -127,6 +128,7 @@ public class HTTPListener extends ConnectorClass
         properties.put(HTTP_BUFFER_SIZE, "65536");
         properties.put(HTTP_KEEP_CONNECTION_OPEN, UIConstants.NO_OPTION);
         properties.put(HTTP_RESPONSE_FROM_TRANSFORMER, UIConstants.NO_OPTION);
+        properties.put(HTTP_EXTENDED_PAYLOAD, UIConstants.YES_OPTION); //always yes
         return properties;
     }
 

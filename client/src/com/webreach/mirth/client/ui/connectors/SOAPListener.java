@@ -93,7 +93,7 @@ public class SOAPListener extends ConnectorClass
     {
         Properties properties = new Properties();
         properties.put(DATATYPE, name);
-        properties.put(SOAP_HOST, "axis:http://localhost:8081/services");
+        properties.put(SOAP_HOST, "axis:soap://localhost:8081/services");
         properties.put(SOAP_LISTENER_ADDRESS, "localhost");
         properties.put(SOAP_PORT, "8081");
         properties.put(SOAP_SERVICE_NAME, "Mirth");
@@ -104,7 +104,7 @@ public class SOAPListener extends ConnectorClass
 
     public String buildHost()
     {
-        return "axis:http://" + listenerAddress.getText() + ":" + port.getText() + "/services";
+        return "axis:soap://" + listenerAddress.getText() + ":" + port.getText() + "/services";
     }
 
     public void updateWSDL()

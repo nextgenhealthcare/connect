@@ -52,6 +52,7 @@ import org.jdesktop.swingx.decorator.HighlighterPipeline;
 import org.syntax.jedit.SyntaxDocument;
 import org.syntax.jedit.tokenmarker.HL7TokenMarker;
 import org.syntax.jedit.tokenmarker.XMLTokenMarker;
+import org.w3c.dom.Document;
 
 import com.webreach.mirth.client.core.ListHandlerException;
 import com.webreach.mirth.client.core.MessageListHandler;
@@ -576,7 +577,12 @@ public class MessageBrowser extends javax.swing.JPanel
                 String transformmedXML = new String();
                 if (transformedData != null && transformedData.length() > 0)
                 {
-                    transformmedXML = serializer.toXML(serializer.fromXML(transformedData));
+                	try{
+                		Document doc = serializer.fromXML(transformedData);
+                		transformmedXML = serializer.toXML(doc);
+                	}catch(Exception e){
+                		transformmedXML = transformedData;
+                	}
                 }
                 setCorrectDocument(RawMessageTextPane, currentMessage.getRawData(), currentMessage.getRawDataProtocol());
                 setCorrectDocument(TransformedMessageTextPane, transformmedXML, currentMessage.getTransformedDataProtocol());
