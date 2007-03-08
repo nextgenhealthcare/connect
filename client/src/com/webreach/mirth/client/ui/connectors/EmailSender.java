@@ -46,13 +46,15 @@ public class EmailSender extends ConnectorClass
 
     private final String EMAIL_PASSWORD = "password";
 
-    private final String EMAIL_TO = "to";
+    private final String EMAIL_TO = "toAddresses";
 
-    private final String EMAIL_FROM = "from";
+    private final String EMAIL_FROM = "fromAddress";
 
     private final String EMAIL_SUBJECT = "subject";
 
     private final String EMAIL_BODY = "body";
+    
+    private final String EMAIL_REPLY_TO = "replyToAddresses"; //TODO: Add field for this
 
     public EmailSender()
     {
