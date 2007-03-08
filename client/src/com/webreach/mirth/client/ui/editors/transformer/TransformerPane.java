@@ -117,7 +117,7 @@ public class TransformerPane extends MirthEditorPane
         prevSelRow = -1;
         connector = c;
         transformer = t;
-
+        
         tabTemplatePanel.setDefaultComponent();
         tabTemplatePanel.tabPanel.add("Outgoing Data", tabTemplatePanel.outgoingTab);
 
@@ -618,7 +618,7 @@ public class TransformerPane extends MirthEditorPane
         if (transformerTable.isEditing())
             transformerTable.getCellEditor(transformerTable.getEditingRow(), transformerTable.getEditingColumn()).stopCellEditing();
 
-        updating = true;
+        //updating = true;
 
         if (isValid(row))
         {
@@ -685,7 +685,7 @@ public class TransformerPane extends MirthEditorPane
             transformerTableModel.setValueAt(data, row, STEP_DATA_COL);
         }
 
-        updating = false;
+        //updating = false;
     }
 
     /**
@@ -843,7 +843,7 @@ public class TransformerPane extends MirthEditorPane
             importFile = importFileChooser.getSelectedFile();
             String transformerXML = "";
 
-            try
+            /*try
             {
                 transformerXML = FileUtil.read(importFile);
             }
@@ -851,14 +851,27 @@ public class TransformerPane extends MirthEditorPane
             {
                 parent.alertError("File could not be read.");
                 return;
+            }*/
+            
+            MessageObject.Protocol incomingProtocol = null, outgoingProtocol = null;
+            
+            for (MessageObject.Protocol protocol : MessageObject.Protocol.values())
+            {
+                if (PlatformUI.MIRTH_FRAME.protocols.get(protocol).equals(tabTemplatePanel.getIncomingDataType()))
+                {
+                    incomingProtocol = protocol;
+                }
+                if (PlatformUI.MIRTH_FRAME.protocols.get(protocol).equals(tabTemplatePanel.getOutgoingDataType()))
+                {
+                    outgoingProtocol = protocol;
+                }
             }
 
             ObjectXMLSerializer serializer = new ObjectXMLSerializer();
             try
             {
+                transformerXML = ImportConverter.convertTransformer(importFile, incomingProtocol, outgoingProtocol);
                 Transformer importTransformer = (Transformer) serializer.fromXML(transformerXML);
-                ImportConverter converter = new ImportConverter();
-                importTransformer = converter.convertTransformer(importTransformer);
                 prevSelRow = -1;
                 modified = true;
                 connector.setTransformer(importTransformer);
@@ -1167,6 +1180,7 @@ public class TransformerPane extends MirthEditorPane
             if (returning)
             {
                 parent.channelEditPanel.setDestinationVariableList();
+                parent.channelEditPanel.updateComponentShown();
                 parent.taskPaneContainer.add(parent.getOtherPane());
                 parent.setCurrentContentPage(parent.channelEditPanel);
                 parent.setCurrentTaskPaneContainer(parent.taskPaneContainer);

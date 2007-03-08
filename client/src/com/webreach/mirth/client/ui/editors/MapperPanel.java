@@ -326,13 +326,11 @@ public class MapperPanel extends BasePanel
     public void setHighlighters()
     {
         mappingTextField.setBackground(UIConstants.DRAG_HIGHLIGHTER_COLOR);
-        defaultValueTextField.setBackground(UIConstants.DRAG_HIGHLIGHTER_COLOR);
     }
 
     public void unsetHighlighters()
     {
         mappingTextField.setBackground(UIConstants.BACKGROUND_COLOR);
-        defaultValueTextField.setBackground(UIConstants.BACKGROUND_COLOR);
     }
 
     /**

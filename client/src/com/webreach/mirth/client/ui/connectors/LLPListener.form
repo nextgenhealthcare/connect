@@ -107,6 +107,8 @@
                       <Component id="sendACKNo" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="sendACKTransformer" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="responseFromTransformer" min="-2" pref="150" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" attributes="0">
                       <Component id="successACKCode" min="-2" pref="31" max="-2" attributes="0"/>
@@ -229,6 +231,7 @@
                   <Component id="sendACKYes" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="sendACKNo" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="sendACKTransformer" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="responseFromTransformer" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
@@ -706,7 +709,7 @@
         <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
           <ComponentRef name="buttonGroup2"/>
         </Property>
-        <Property name="text" type="java.lang.String" value="Response from Transformer"/>
+        <Property name="text" type="java.lang.String" value="Response from"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -714,6 +717,18 @@
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="sendACKTransformerActionPerformed"/>
       </Events>
+    </Component>
+    <Component class="com.webreach.mirth.client.ui.components.MirthComboBox" name="responseFromTransformer">
+      <Properties>
+        <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
+          <StringArray count="4">
+            <StringItem index="0" value="Item 1"/>
+            <StringItem index="1" value="Item 2"/>
+            <StringItem index="2" value="Item 3"/>
+            <StringItem index="3" value="Item 4"/>
+          </StringArray>
+        </Property>
+      </Properties>
     </Component>
   </SubComponents>
 </Form>

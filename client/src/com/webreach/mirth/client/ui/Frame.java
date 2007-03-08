@@ -531,12 +531,12 @@ public class Frame extends JXFrame
         viewPane = new JXTaskPane();
         viewPane.setTitle("Mirth");
         viewPane.setFocusable(false);
-        viewPane.add(initActionCallback("doShowDashboard", "Contains information about your currently deployed channels.", ActionFactory.createBoundAction("showDashboard", "Dashboard", "H"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/status.png"))));
+        viewPane.add(initActionCallback("doShowDashboard", "Contains information about your currently deployed channels.", ActionFactory.createBoundAction("showDashboard", "Dashboard", "D"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/status.png"))));
         viewPane.add(initActionCallback("doShowChannel", "Contains various operations to perform on your channels.", ActionFactory.createBoundAction("showChannel", "Channels", "C"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/channel.png"))));
-        viewPane.add(initActionCallback("doShowUsers", "Contains information on users.", ActionFactory.createBoundAction("showUsers", "Users", "A"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/admin.png"))));
-        viewPane.add(initActionCallback("doShowSettings", "Contains local and system settings.", ActionFactory.createBoundAction("showSettings", "Settings", "A"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/settings.png"))));
+        viewPane.add(initActionCallback("doShowUsers", "Contains information on users.", ActionFactory.createBoundAction("showUsers", "Users", "U"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/admin.png"))));
+        viewPane.add(initActionCallback("doShowSettings", "Contains local and system settings.", ActionFactory.createBoundAction("showSettings", "Settings", "S"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/settings.png"))));
         viewPane.add(initActionCallback("doShowAlerts", "Contains alert settings.", ActionFactory.createBoundAction("showAlerts", "Alerts", "A"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/alerts.png"))));
-        viewPane.add(initActionCallback("doShowEvents", "Show the event logs for the system.", ActionFactory.createBoundAction("doShowEvents", "System Events", "Y"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/logs.png"))));
+        viewPane.add(initActionCallback("doShowEvents", "Show the event logs for the system.", ActionFactory.createBoundAction("doShowEvents", "Events", "E"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/logs.png"))));
         setNonFocusable(viewPane);
         taskPaneContainer.add(viewPane);
     }
@@ -552,7 +552,7 @@ public class Frame extends JXFrame
         settingsTasks.setTitle("Settings Tasks");
         settingsTasks.setFocusable(false);
 
-        settingsTasks.add(initActionCallback("doRefreshSettings", "Refresh settings.", ActionFactory.createBoundAction("doRefreshSettings", "Refresh", "R"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png"))));
+        settingsTasks.add(initActionCallback("doRefreshSettings", "Refresh settings.", ActionFactory.createBoundAction("doRefreshSettings", "Refresh", ""), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png"))));
         JMenuItem refresh = new JMenuItem("Refresh");
         refresh.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png")));
         refresh.addActionListener(new ActionListener()
@@ -564,7 +564,7 @@ public class Frame extends JXFrame
         });
         settingsPopupMenu.add(refresh);
 
-        settingsTasks.add(initActionCallback("doSaveSettings", "Save settings.", ActionFactory.createBoundAction("doSaveSettings", "Save Settings", "S"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/save.png"))));
+        settingsTasks.add(initActionCallback("doSaveSettings", "Save settings.", ActionFactory.createBoundAction("doSaveSettings", "Save Settings", ""), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/save.png"))));
         JMenuItem saveSettings = new JMenuItem("Save Settings");
         saveSettings.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/save.png")));
         saveSettings.addActionListener(new ActionListener()
@@ -593,7 +593,7 @@ public class Frame extends JXFrame
         channelTasks.setTitle("Channel Tasks");
         channelTasks.setFocusable(false);
 
-        channelTasks.add(initActionCallback("doRefreshChannels", "Refresh the list of channels.", ActionFactory.createBoundAction("doRefreshChannels", "Refresh", "R"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png"))));
+        channelTasks.add(initActionCallback("doRefreshChannels", "Refresh the list of channels.", ActionFactory.createBoundAction("doRefreshChannels", "Refresh", ""), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png"))));
         JMenuItem refresh = new JMenuItem("Refresh");
         refresh.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png")));
         refresh.addActionListener(new ActionListener()
@@ -605,7 +605,7 @@ public class Frame extends JXFrame
         });
         channelPopupMenu.add(refresh);
 
-        channelTasks.add(initActionCallback("doDeployAll", "Deploy all currently enabled channels.", ActionFactory.createBoundAction("doDeployAll", "Deploy All", "P"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/deployall.png"))));
+        channelTasks.add(initActionCallback("doDeployAll", "Deploy all currently enabled channels.", ActionFactory.createBoundAction("doDeployAll", "Deploy All", "A"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/deployall.png"))));
         JMenuItem deployAll = new JMenuItem("Deploy All");
         deployAll.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/deployall.png")));
         deployAll.addActionListener(new ActionListener()
@@ -629,7 +629,7 @@ public class Frame extends JXFrame
         });
         channelPopupMenu.add(newChannel);
 
-        channelTasks.add(initActionCallback("doImport", "Import a channel from an XML file.", ActionFactory.createBoundAction("doImport", "Import Channel", "I"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/import.png"))));
+        channelTasks.add(initActionCallback("doImport", "Import a channel from an XML file.", ActionFactory.createBoundAction("doImport", "Import Channel", ""), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/import.png"))));
         JMenuItem importChannel = new JMenuItem("Import Channel");
         importChannel.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/import.png")));
         importChannel.addActionListener(new ActionListener()
@@ -641,7 +641,7 @@ public class Frame extends JXFrame
         });
         channelPopupMenu.add(importChannel);
 
-        channelTasks.add(initActionCallback("doExportAll", "Export all of the channels to XML files.", ActionFactory.createBoundAction("doExportAll", "Export All Channels", "O"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/export.png"))));
+        channelTasks.add(initActionCallback("doExportAll", "Export all of the channels to XML files.", ActionFactory.createBoundAction("doExportAll", "Export All Channels", ""), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/export.png"))));
         JMenuItem exportAllChannels = new JMenuItem("Export All Channels");
         exportAllChannels.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/export.png")));
         exportAllChannels.addActionListener(new ActionListener()
@@ -653,7 +653,7 @@ public class Frame extends JXFrame
         });
         channelPopupMenu.add(exportAllChannels);
 
-        channelTasks.add(initActionCallback("doExport", "Export the currently selected channel to an XML file.", ActionFactory.createBoundAction("doExport", "Export Channel", "X"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/export.png"))));
+        channelTasks.add(initActionCallback("doExport", "Export the currently selected channel to an XML file.", ActionFactory.createBoundAction("doExport", "Export Channel", ""), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/export.png"))));
         JMenuItem exportChannel = new JMenuItem("Export Channel");
         exportChannel.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/export.png")));
         exportChannel.addActionListener(new ActionListener()
@@ -665,7 +665,7 @@ public class Frame extends JXFrame
         });
         channelPopupMenu.add(exportChannel);
 
-        channelTasks.add(initActionCallback("doCloneChannel", "Clone the currently selected channel.", ActionFactory.createBoundAction("doCloneChannel", "Clone Channel", "L"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/clone.png"))));
+        channelTasks.add(initActionCallback("doCloneChannel", "Clone the currently selected channel.", ActionFactory.createBoundAction("doCloneChannel", "Clone Channel", ""), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/clone.png"))));
         JMenuItem cloneChannel = new JMenuItem("Clone Channel");
         cloneChannel.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/clone.png")));
         cloneChannel.addActionListener(new ActionListener()
@@ -677,7 +677,7 @@ public class Frame extends JXFrame
         });
         channelPopupMenu.add(cloneChannel);
 
-        channelTasks.add(initActionCallback("doEditChannel", "Edit the currently selected channel.", ActionFactory.createBoundAction("doEditChannel", "Edit Channel", "E"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/channel_edit.png"))));
+        channelTasks.add(initActionCallback("doEditChannel", "Edit the currently selected channel.", ActionFactory.createBoundAction("doEditChannel", "Edit Channel", "I"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/channel_edit.png"))));
         JMenuItem editChannel = new JMenuItem("Edit Channel");
         editChannel.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/channel_edit.png")));
         editChannel.addActionListener(new ActionListener()
@@ -689,7 +689,7 @@ public class Frame extends JXFrame
         });
         channelPopupMenu.add(editChannel);
 
-        channelTasks.add(initActionCallback("doDeleteChannel", "Delete the currently selected channel.", ActionFactory.createBoundAction("doDeleteChannel", "Delete Channel", "D"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/channel_delete.png"))));
+        channelTasks.add(initActionCallback("doDeleteChannel", "Delete the currently selected channel.", ActionFactory.createBoundAction("doDeleteChannel", "Delete Channel", "L"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/channel_delete.png"))));
         JMenuItem deleteChannel = new JMenuItem("Delete Channel");
         deleteChannel.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/channel_delete.png")));
         deleteChannel.addActionListener(new ActionListener()
@@ -701,7 +701,7 @@ public class Frame extends JXFrame
         });
         channelPopupMenu.add(deleteChannel);
 
-        channelTasks.add(initActionCallback("doEnableChannel", "Enable the currently selected channel.", ActionFactory.createBoundAction("doEnableChannel", "Enable Channel", "B"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/start.png"))));
+        channelTasks.add(initActionCallback("doEnableChannel", "Enable the currently selected channel.", ActionFactory.createBoundAction("doEnableChannel", "Enable Channel", ""), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/start.png"))));
         JMenuItem enableChannel = new JMenuItem("Enable Channel");
         enableChannel.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/start.png")));
         enableChannel.addActionListener(new ActionListener()
@@ -713,7 +713,7 @@ public class Frame extends JXFrame
         });
         channelPopupMenu.add(enableChannel);
 
-        channelTasks.add(initActionCallback("doDisableChannel", "Disable the currently selected channel.", ActionFactory.createBoundAction("doDisableChannel", "Disable Channel", "L"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/stop.png"))));
+        channelTasks.add(initActionCallback("doDisableChannel", "Disable the currently selected channel.", ActionFactory.createBoundAction("doDisableChannel", "Disable Channel", ""), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/stop.png"))));
         JMenuItem disableChannel = new JMenuItem("Disable Channel");
         disableChannel.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/stop.png")));
         disableChannel.addActionListener(new ActionListener()
@@ -754,7 +754,7 @@ public class Frame extends JXFrame
         });
         channelEditPopupMenu.add(saveChanges);
 
-        channelEditTasks.add(initActionCallback("doValidate", "Validate the currently visible form.", ActionFactory.createBoundAction("doValidate", "Validate Form", "V"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/accept.png"))));
+        channelEditTasks.add(initActionCallback("doValidate", "Validate the currently visible form.", ActionFactory.createBoundAction("doValidate", "Validate Form", ""), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/accept.png"))));
         JMenuItem validateForm = new JMenuItem("Validate Form");
         validateForm.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/accept.png")));
         validateForm.addActionListener(new ActionListener()
@@ -778,7 +778,7 @@ public class Frame extends JXFrame
         });
         channelEditPopupMenu.add(newDestination);
 
-        channelEditTasks.add(initActionCallback("doDeleteDestination", "Delete the currently selected destination.", ActionFactory.createBoundAction("doDeleteDestination", "Delete Destination", "D"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png"))));
+        channelEditTasks.add(initActionCallback("doDeleteDestination", "Delete the currently selected destination.", ActionFactory.createBoundAction("doDeleteDestination", "Delete Destination", "L"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png"))));
         JMenuItem deleteDestination = new JMenuItem("Delete Destination");
         deleteDestination.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png")));
         deleteDestination.addActionListener(new ActionListener()
@@ -790,7 +790,7 @@ public class Frame extends JXFrame
         });
         channelEditPopupMenu.add(deleteDestination);
 
-        channelEditTasks.add(initActionCallback("doCloneDestination", "Clones the currently selected destination.", ActionFactory.createBoundAction("doCloneDestination", "Clone Destination", "D"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/clone.png"))));
+        channelEditTasks.add(initActionCallback("doCloneDestination", "Clones the currently selected destination.", ActionFactory.createBoundAction("doCloneDestination", "Clone Destination", ""), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/clone.png"))));
         JMenuItem cloneDestination = new JMenuItem("Clone Destination");
         cloneDestination.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/clone.png")));
         cloneDestination.addActionListener(new ActionListener()
@@ -802,7 +802,7 @@ public class Frame extends JXFrame
         });
         channelEditPopupMenu.add(cloneDestination);
 
-        channelEditTasks.add(initActionCallback("doMoveDestinationUp", "Move the currently selected destination up.", ActionFactory.createBoundAction("doMoveDestinationUp", "Move Dest. Up", "P"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/arrow_up.png"))));
+        channelEditTasks.add(initActionCallback("doMoveDestinationUp", "Move the currently selected destination up.", ActionFactory.createBoundAction("doMoveDestinationUp", "Move Dest. Up", ""), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/arrow_up.png"))));
         JMenuItem moveDestinationUp = new JMenuItem("Move Destination Up");
         moveDestinationUp.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/arrow_up.png")));
         moveDestinationUp.addActionListener(new ActionListener()
@@ -814,7 +814,7 @@ public class Frame extends JXFrame
         });
         channelEditPopupMenu.add(moveDestinationUp);
 
-        channelEditTasks.add(initActionCallback("doMoveDestinationDown", "Move the currently selected destination down.", ActionFactory.createBoundAction("doMoveDestinationDown", "Move Dest. Down", "W"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/arrow_down.png"))));
+        channelEditTasks.add(initActionCallback("doMoveDestinationDown", "Move the currently selected destination down.", ActionFactory.createBoundAction("doMoveDestinationDown", "Move Dest. Down", ""), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/arrow_down.png"))));
         JMenuItem moveDestinationDown = new JMenuItem("Move Destination Down");
         moveDestinationDown.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/arrow_down.png")));
         moveDestinationDown.addActionListener(new ActionListener()
@@ -850,7 +850,7 @@ public class Frame extends JXFrame
         });
         channelEditPopupMenu.add(editTransformer);
 
-        channelEditTasks.add(initActionCallback("doExport", "Export the currently selected channel to an XML file.", ActionFactory.createBoundAction("doExport", "Export Channel", "X"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/export.png"))));
+        channelEditTasks.add(initActionCallback("doExport", "Export the currently selected channel to an XML file.", ActionFactory.createBoundAction("doExport", "Export Channel", ""), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/export.png"))));
         JMenuItem exportChannel = new JMenuItem("Export Channel");
         exportChannel.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/export.png")));
         exportChannel.addActionListener(new ActionListener()
@@ -879,7 +879,7 @@ public class Frame extends JXFrame
         statusTasks.setTitle("Status Tasks");
         statusTasks.setFocusable(false);
 
-        statusTasks.add(initActionCallback("doRefreshStatuses", "Refresh the list of statuses.", ActionFactory.createBoundAction("doRefresh", "Refresh", "R"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png"))));
+        statusTasks.add(initActionCallback("doRefreshStatuses", "Refresh the list of statuses.", ActionFactory.createBoundAction("doRefresh", "Refresh", ""), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png"))));
         JMenuItem refresh = new JMenuItem("Refresh");
         refresh.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png")));
         refresh.addActionListener(new ActionListener()
@@ -891,7 +891,7 @@ public class Frame extends JXFrame
         });
         statusPopupMenu.add(refresh);
 
-        statusTasks.add(initActionCallback("doStartAll", "Start all channels that are currently deployed.", ActionFactory.createBoundAction("doStartAll", "Start All Channels", "T"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/start1.png"))));
+        statusTasks.add(initActionCallback("doStartAll", "Start all channels that are currently deployed.", ActionFactory.createBoundAction("doStartAll", "Start All Channels", ""), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/start1.png"))));
         JMenuItem startAllChannels = new JMenuItem("Start All Channels");
         startAllChannels.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/start1.png")));
         startAllChannels.addActionListener(new ActionListener()
@@ -903,7 +903,7 @@ public class Frame extends JXFrame
         });
         statusPopupMenu.add(startAllChannels);
 
-        statusTasks.add(initActionCallback("doShowMessages", "Show the messages for the currently selected channel.", ActionFactory.createBoundAction("doShowMessages", "View Messages", "M"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/messages.png"))));
+        statusTasks.add(initActionCallback("doShowMessages", "Show the messages for the currently selected channel.", ActionFactory.createBoundAction("doShowMessages", "View Messages", ""), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/messages.png"))));
         JMenuItem showMessages = new JMenuItem("View Messages");
         showMessages.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/messages.png")));
         showMessages.addActionListener(new ActionListener()
@@ -915,7 +915,7 @@ public class Frame extends JXFrame
         });
         statusPopupMenu.add(showMessages);
 
-        statusTasks.add(initActionCallback("doRemoveAllMessages", "Remove all Message Events in this channel.", ActionFactory.createBoundAction("doRemoveAllMessages", "Remove All Messages", "L"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png"))));
+        statusTasks.add(initActionCallback("doRemoveAllMessages", "Remove all Message Events in this channel.", ActionFactory.createBoundAction("doRemoveAllMessages", "Remove All Messages", ""), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png"))));
         JMenuItem removeAllMessages = new JMenuItem("Remove All Messages");
         removeAllMessages.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png")));
         removeAllMessages.addActionListener(new ActionListener()
@@ -927,7 +927,7 @@ public class Frame extends JXFrame
         });
         statusPopupMenu.add(removeAllMessages);
 
-        statusTasks.add(initActionCallback("doStart", "Start the currently selected channel.", ActionFactory.createBoundAction("doStart", "Start Channel", "N"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/start.png"))));
+        statusTasks.add(initActionCallback("doStart", "Start the currently selected channel.", ActionFactory.createBoundAction("doStart", "Start Channel", ""), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/start.png"))));
         JMenuItem startChannel = new JMenuItem("Start Channel");
         startChannel.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/start.png")));
         startChannel.addActionListener(new ActionListener()
@@ -939,7 +939,7 @@ public class Frame extends JXFrame
         });
         statusPopupMenu.add(startChannel);
 
-        statusTasks.add(initActionCallback("doPause", "Pause the currently selected channel.", ActionFactory.createBoundAction("doPause", "Pause Channel", "P"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/pause.png"))));
+        statusTasks.add(initActionCallback("doPause", "Pause the currently selected channel.", ActionFactory.createBoundAction("doPause", "Pause Channel", ""), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/pause.png"))));
         JMenuItem pauseChannel = new JMenuItem("Pause Channel");
         pauseChannel.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/pause.png")));
         pauseChannel.addActionListener(new ActionListener()
@@ -951,7 +951,7 @@ public class Frame extends JXFrame
         });
         statusPopupMenu.add(pauseChannel);
 
-        statusTasks.add(initActionCallback("doStop", "Stop the currently selected channel.", ActionFactory.createBoundAction("doStop", "Stop Channel", "O"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/stop.png"))));
+        statusTasks.add(initActionCallback("doStop", "Stop the currently selected channel.", ActionFactory.createBoundAction("doStop", "Stop Channel", ""), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/stop.png"))));
         JMenuItem stopChannel = new JMenuItem("Stop Channel");
         stopChannel.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/stop.png")));
         stopChannel.addActionListener(new ActionListener()
@@ -980,7 +980,7 @@ public class Frame extends JXFrame
         eventTasks.setTitle("Event Tasks");
         eventTasks.setFocusable(false);
 
-        eventTasks.add(initActionCallback("doRefreshEvents", "Refresh the list of events with the given filter.", ActionFactory.createBoundAction("doRefreshEvents", "Refresh", "R"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png"))));
+        eventTasks.add(initActionCallback("doRefreshEvents", "Refresh the list of events with the given filter.", ActionFactory.createBoundAction("doRefreshEvents", "Refresh", ""), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png"))));
         JMenuItem refresh = new JMenuItem("Refresh");
         refresh.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png")));
         refresh.addActionListener(new ActionListener()
@@ -992,7 +992,7 @@ public class Frame extends JXFrame
         });
         eventPopupMenu.add(refresh);
 
-        eventTasks.add(initActionCallback("doClearEvents", "Clear the System Events.", ActionFactory.createBoundAction("doClearEvents", "Clear Events", "L"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png"))));
+        eventTasks.add(initActionCallback("doClearEvents", "Clear the System Events.", ActionFactory.createBoundAction("doClearEvents", "Clear Events", ""), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png"))));
         JMenuItem clearEvents = new JMenuItem("Clear Events");
         clearEvents.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png")));
         clearEvents.addActionListener(new ActionListener()
@@ -1019,7 +1019,7 @@ public class Frame extends JXFrame
         messageTasks.setTitle("Message Tasks");
         messageTasks.setFocusable(false);
 
-        messageTasks.add(initActionCallback("doRefreshMessages", "Refresh the list of messages with the given filter.", ActionFactory.createBoundAction("doRefreshMessages", "Refresh", "R"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png"))));
+        messageTasks.add(initActionCallback("doRefreshMessages", "Refresh the list of messages with the given filter.", ActionFactory.createBoundAction("doRefreshMessages", "Refresh", ""), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png"))));
         JMenuItem refresh = new JMenuItem("Refresh");
         refresh.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png")));
         refresh.addActionListener(new ActionListener()
@@ -1031,7 +1031,7 @@ public class Frame extends JXFrame
         });
         messagePopupMenu.add(refresh);
 
-        messageTasks.add(initActionCallback("doExportMessages", "Export all currently viewed messages.", ActionFactory.createBoundAction("doExportMessages", "Export Messages", "X"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/export.png"))));
+        messageTasks.add(initActionCallback("doExportMessages", "Export all currently viewed messages.", ActionFactory.createBoundAction("doExportMessages", "Export Messages", ""), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/export.png"))));
         JMenuItem exportMessages = new JMenuItem("Export Messages");
         exportMessages.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/export.png")));
         exportMessages.addActionListener(new ActionListener()
@@ -1043,7 +1043,7 @@ public class Frame extends JXFrame
         });
         messagePopupMenu.add(exportMessages);
 
-        messageTasks.add(initActionCallback("doRemoveAllMessages", "Remove all Message Events in this channel.", ActionFactory.createBoundAction("doRemoveAllMessages", "Remove All Messages", "L"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png"))));
+        messageTasks.add(initActionCallback("doRemoveAllMessages", "Remove all Message Events in this channel.", ActionFactory.createBoundAction("doRemoveAllMessages", "Remove All Messages", ""), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png"))));
         JMenuItem removeAllMessages = new JMenuItem("Remove All Messages");
         removeAllMessages.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png")));
         removeAllMessages.addActionListener(new ActionListener()
@@ -1055,7 +1055,7 @@ public class Frame extends JXFrame
         });
         messagePopupMenu.add(removeAllMessages);
 
-        messageTasks.add(initActionCallback("doRemoveFilteredMessages", "Remove all Message Events in the current filter.", ActionFactory.createBoundAction("doRemoveFilteredMessages", "Remove Filtered Messages", "F"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png"))));
+        messageTasks.add(initActionCallback("doRemoveFilteredMessages", "Remove all Message Events in the current filter.", ActionFactory.createBoundAction("doRemoveFilteredMessages", "Remove Filtered Messages", ""), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png"))));
         JMenuItem removeFilteredMessages = new JMenuItem("Remove Filtered Messages");
         removeFilteredMessages.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png")));
         removeFilteredMessages.addActionListener(new ActionListener()
@@ -1067,7 +1067,7 @@ public class Frame extends JXFrame
         });
         messagePopupMenu.add(removeFilteredMessages);
 
-        messageTasks.add(initActionCallback("doRemoveMessage", "Remove the selected Message Event.", ActionFactory.createBoundAction("doRemoveMessage", "Remove Message", "E"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png"))));
+        messageTasks.add(initActionCallback("doRemoveMessage", "Remove the selected Message Event.", ActionFactory.createBoundAction("doRemoveMessage", "Remove Message", ""), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png"))));
         JMenuItem removeMessage = new JMenuItem("Remove Message");
         removeMessage.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png")));
         removeMessage.addActionListener(new ActionListener()
@@ -1079,7 +1079,7 @@ public class Frame extends JXFrame
         });
         messagePopupMenu.add(removeMessage);
 
-        messageTasks.add(initActionCallback("doReprocessFilteredMessages", "Reprocess all Message Events in the current filter.", ActionFactory.createBoundAction("doReprocessFilteredMessages", "Reprocess Filtered Messages", "G"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/deployall.png"))));
+        messageTasks.add(initActionCallback("doReprocessFilteredMessages", "Reprocess all Message Events in the current filter.", ActionFactory.createBoundAction("doReprocessFilteredMessages", "Reprocess Filtered Messages", ""), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/deployall.png"))));
         JMenuItem reprocessFilteredMessages = new JMenuItem("Reprocess Filtered Messages");
         reprocessFilteredMessages.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/deployall.png")));
         reprocessFilteredMessages.addActionListener(new ActionListener()
@@ -1091,7 +1091,7 @@ public class Frame extends JXFrame
         });
         messagePopupMenu.add(reprocessFilteredMessages);
 
-        messageTasks.add(initActionCallback("doReprocessMessage", "Reprocess the selected Message.", ActionFactory.createBoundAction("doReprocessMessage", "Reprocess Message", "C"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/deploy.png"))));
+        messageTasks.add(initActionCallback("doReprocessMessage", "Reprocess the selected Message.", ActionFactory.createBoundAction("doReprocessMessage", "Reprocess Message", ""), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/deploy.png"))));
         JMenuItem reprocessMessage = new JMenuItem("Reprocess Message");
         reprocessMessage.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/deploy.png")));
         reprocessMessage.addActionListener(new ActionListener()
@@ -1120,7 +1120,7 @@ public class Frame extends JXFrame
         userTasks.setTitle("User Tasks");
         userTasks.setFocusable(false);
 
-        userTasks.add(initActionCallback("doRefreshUser", "Refresh the list of users.", ActionFactory.createBoundAction("doRefreshUser", "Refresh", "R"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png"))));
+        userTasks.add(initActionCallback("doRefreshUser", "Refresh the list of users.", ActionFactory.createBoundAction("doRefreshUser", "Refresh", ""), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png"))));
         JMenuItem refresh = new JMenuItem("Refresh");
         refresh.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png")));
         refresh.addActionListener(new ActionListener()
@@ -1144,7 +1144,7 @@ public class Frame extends JXFrame
         });
         userPopupMenu.add(newUser);
 
-        userTasks.add(initActionCallback("doEditUser", "Edit the currently selected user.", ActionFactory.createBoundAction("doEditChannel", "Edit User", "E"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/user_edit.png"))));
+        userTasks.add(initActionCallback("doEditUser", "Edit the currently selected user.", ActionFactory.createBoundAction("doEditChannel", "Edit User", "I"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/user_edit.png"))));
         JMenuItem editUser = new JMenuItem("Edit User");
         editUser.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/user_edit.png")));
         editUser.addActionListener(new ActionListener()
@@ -1156,7 +1156,7 @@ public class Frame extends JXFrame
         });
         userPopupMenu.add(editUser);
 
-        userTasks.add(initActionCallback("doDeleteUser", "Delete the currently selected user.", ActionFactory.createBoundAction("doDeleteChannel", "Delete User", "D"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/user_delete.png"))));
+        userTasks.add(initActionCallback("doDeleteUser", "Delete the currently selected user.", ActionFactory.createBoundAction("doDeleteChannel", "Delete User", "L"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/user_delete.png"))));
         JMenuItem deleteUser = new JMenuItem("Delete User");
         deleteUser.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/user_delete.png")));
         deleteUser.addActionListener(new ActionListener()
@@ -1184,7 +1184,7 @@ public class Frame extends JXFrame
         alertTasks.setTitle("Alert Tasks");
         alertTasks.setFocusable(false);
 
-        alertTasks.add(initActionCallback("doRefreshAlerts", "Refresh the list of alerts.", ActionFactory.createBoundAction("doRefreshAlerts", "Refresh", "R"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png"))));
+        alertTasks.add(initActionCallback("doRefreshAlerts", "Refresh the list of alerts.", ActionFactory.createBoundAction("doRefreshAlerts", "Refresh", ""), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png"))));
         JMenuItem refresh = new JMenuItem("Refresh");
         refresh.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png")));
         refresh.addActionListener(new ActionListener()
@@ -1196,7 +1196,7 @@ public class Frame extends JXFrame
         });
         alertPopupMenu.add(refresh);
 
-        alertTasks.add(initActionCallback("doSaveAlerts", "Save all changes made to all alerts.", ActionFactory.createBoundAction("doSaveAlerts", "Save Alerts", "S"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/save.png"))));
+        alertTasks.add(initActionCallback("doSaveAlerts", "Save all changes made to all alerts.", ActionFactory.createBoundAction("doSaveAlerts", "Save Alerts", ""), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/save.png"))));
         JMenuItem saveChanges = new JMenuItem("Save Alerts");
         saveChanges.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/save.png")));
         saveChanges.addActionListener(new ActionListener()
@@ -1220,7 +1220,7 @@ public class Frame extends JXFrame
         });
         alertPopupMenu.add(newAlert);
 
-        alertTasks.add(initActionCallback("doDeleteAlert", "Delete the currently selected alert.", ActionFactory.createBoundAction("doDeleteAlert", "Delete Alert", "D"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/alert_delete.png"))));
+        alertTasks.add(initActionCallback("doDeleteAlert", "Delete the currently selected alert.", ActionFactory.createBoundAction("doDeleteAlert", "Delete Alert", "L"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/alert_delete.png"))));
         JMenuItem deleteAlert = new JMenuItem("Delete Alert");
         deleteAlert.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/alert_delete.png")));
         deleteAlert.addActionListener(new ActionListener()
@@ -1232,7 +1232,7 @@ public class Frame extends JXFrame
         });
         alertPopupMenu.add(deleteAlert);
 
-        alertTasks.add(initActionCallback("doEnableAlert", "Enable the currently selected alert.", ActionFactory.createBoundAction("doEnableAlert", "Enable Alert", "B"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/start.png"))));
+        alertTasks.add(initActionCallback("doEnableAlert", "Enable the currently selected alert.", ActionFactory.createBoundAction("doEnableAlert", "Enable Alert", ""), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/start.png"))));
         JMenuItem enableAlert = new JMenuItem("Enable Alert");
         enableAlert.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/start.png")));
         enableAlert.addActionListener(new ActionListener()
@@ -1244,7 +1244,7 @@ public class Frame extends JXFrame
         });
         alertPopupMenu.add(enableAlert);
 
-        alertTasks.add(initActionCallback("doDisableAlert", "Disable the currently selected alert.", ActionFactory.createBoundAction("doDisableAlert", "Disable Alert", "L"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/stop.png"))));
+        alertTasks.add(initActionCallback("doDisableAlert", "Disable the currently selected alert.", ActionFactory.createBoundAction("doDisableAlert", "Disable Alert", ""), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/stop.png"))));
         JMenuItem disableAlert = new JMenuItem("Disable Alert");
         disableAlert.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/stop.png")));
         disableAlert.addActionListener(new ActionListener()
@@ -1272,10 +1272,10 @@ public class Frame extends JXFrame
         otherPane = new JXTaskPane();
         otherPane.setTitle("Other");
         otherPane.setFocusable(false);
-        otherPane.add(initActionCallback("doHelp", "Open browser for help on this topic.", ActionFactory.createBoundAction("doHelp", "Help on this topic", "H"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/help.png"))));
-        otherPane.add(initActionCallback("goToAbout", "View the about page for Mirth.", ActionFactory.createBoundAction("goToAbout", "About Mirth", "M"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/about.png"))));
-        otherPane.add(initActionCallback("goToMirth", "View Mirth's homepage.", ActionFactory.createBoundAction("goToMirth", "Visit MirthProject.org", "V"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/home.png"))));
-        otherPane.add(initActionCallback("doLogout", "Logout and return to the login screen.", ActionFactory.createBoundAction("doLogout", "Logout", "G"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/disconnect.png"))));
+        otherPane.add(initActionCallback("doHelp", "Open browser for help on this topic.", ActionFactory.createBoundAction("doHelp", "Help on this topic", ""), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/help.png"))));
+        otherPane.add(initActionCallback("goToAbout", "View the about page for Mirth.", ActionFactory.createBoundAction("goToAbout", "About Mirth", ""), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/about.png"))));
+        otherPane.add(initActionCallback("goToMirth", "View Mirth's homepage.", ActionFactory.createBoundAction("goToMirth", "Visit MirthProject.org", ""), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/home.png"))));
+        otherPane.add(initActionCallback("doLogout", "Logout and return to the login screen.", ActionFactory.createBoundAction("doLogout", "Logout", ""), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/disconnect.png"))));
         setNonFocusable(otherPane);
         taskPaneContainer.add(otherPane);
     }
@@ -2651,17 +2651,19 @@ public class Frame extends JXFrame
         {
             importFile = importFileChooser.getSelectedFile();
             String channelXML = "";
+            
+            channelXML = ImportConverter.convertChannel(importFile);
 
-            try
-            {
-                channelXML = FileUtil.read(importFile);
-            }
-            catch (IOException e)
-            {
-                alertError("File could not be read.");
-                return;
-            }
-
+//            try
+//            {
+//                channelXML = FileUtil.read(importFile);
+//            }
+//            catch (IOException e)
+//            {
+//                alertError("File could not be read.");
+//                return;
+//            }
+//
             ObjectXMLSerializer serializer = new ObjectXMLSerializer();
             Channel importChannel;
 
@@ -2674,52 +2676,55 @@ public class Frame extends JXFrame
                 alertError("Invalid channel file.");
                 return;
             }
-
-            /**
-             * Checks to see if the passed in channel version is current, and
-             * prompts the user if it is not.
-             */
-            int option;
-
-            try
-            {
-                option = JOptionPane.YES_OPTION;
-                if (importChannel.getVersion() == null)
-                {
-                    option = JOptionPane.showConfirmDialog(this, "The channel being imported is from an unknown version of Mirth." + "\nSome channel properties may not be the same.  Would you like to automatically convert the properties?", "Select an Option", JOptionPane.YES_NO_CANCEL_OPTION);
-                }
-                else if (!importChannel.getVersion().equals(mirthClient.getVersion()))
-                {
-                    option = JOptionPane.showConfirmDialog(this, "The channel being imported is from Mirth version " + importChannel.getVersion() + ". You are using Mirth version " + mirthClient.getVersion() + ".\nSome channel properties may not be the same.  Would you like to automatically convert the properties?", "Select an Option", JOptionPane.YES_NO_CANCEL_OPTION);
-                }
-            }
-            catch (ClientException e)
-            {
-                alertError("Could not get the clients version.");
-                return;
-            }
-
-            if (option == JOptionPane.YES_OPTION)
-            {
-                ImportConverter converter = new ImportConverter();
-                importChannel = converter.convertChannel(importChannel);
-            }
-            else if (option != JOptionPane.NO_OPTION)
-                return;
-
-            String channelName = importChannel.getName();
-            while (!checkChannelName(channelName, importChannel.getId()))
-            {
-                channelName = JOptionPane.showInputDialog(this, "Please enter a new name for the channel.");
-                if (channelName == null)
-                    return;
-            }
-            importChannel.setName(channelName);
+//
+//            /**
+//             * Checks to see if the passed in channel version is current, and
+//             * prompts the user if it is not.
+//             */
+//            int option;
+//
+//            try
+//            {
+//                option = JOptionPane.YES_OPTION;
+//                if (importChannel.getVersion() == null)
+//                {
+//                    option = JOptionPane.showConfirmDialog(this, "The channel being imported is from an unknown version of Mirth." + "\nSome channel properties may not be the same.  Would you like to automatically convert the properties?", "Select an Option", JOptionPane.YES_NO_CANCEL_OPTION);
+//                }
+//                else if (!importChannel.getVersion().equals(mirthClient.getVersion()))
+//                {
+//                    option = JOptionPane.showConfirmDialog(this, "The channel being imported is from Mirth version " + importChannel.getVersion() + ". You are using Mirth version " + mirthClient.getVersion() + ".\nSome channel properties may not be the same.  Would you like to automatically convert the properties?", "Select an Option", JOptionPane.YES_NO_CANCEL_OPTION);
+//                }
+//            }
+//            catch (ClientException e)
+//            {
+//                alertError("Could not get the clients version.");
+//                return;
+//            }
+//
+//            if (option == JOptionPane.YES_OPTION)
+//            {
+//
+//                importChannel = converter.convertChannel(importChannel);
+//            }
+//            else if (option != JOptionPane.NO_OPTION)
+//                return;
 
             try
             {
                 importChannel.setRevision(0);
                 importChannel.setId(mirthClient.getGuid());
+                
+                String channelName = importChannel.getName();
+                while (!checkChannelName(channelName, importChannel.getId()))
+                {
+                    channelName = JOptionPane.showInputDialog(this, "Please enter a new name for the channel.");
+                    if (channelName == null)
+                        return;
+                }
+                
+                importChannel.setName(channelName);
+                
+                importChannel.setVersion(mirthClient.getVersion());
                 channels.put(importChannel.getId(), importChannel);
             }
             catch (ClientException e)

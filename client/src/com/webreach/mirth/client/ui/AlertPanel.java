@@ -41,10 +41,9 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.JTextField;
-import javax.swing.event.CellEditorListener;
-import javax.swing.event.ChangeEvent;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 
@@ -350,12 +349,15 @@ public class AlertPanel extends javax.swing.JPanel
             highlighter.addHighlighter(new AlternateRowHighlighter(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR, UIConstants.TITLE_TEXT_COLOR));
             applyToChannelsTable.setHighlighters(highlighter);
         }
-        
+
         applyToChannelsTable.getSelectionModel().addListSelectionListener(new ListSelectionListener()
         {
-            public void valueChanged(ListSelectionEvent evt)
+            public void valueChanged(ListSelectionEvent e)
             {
-                parent.enableSave();
+                if (applyToChannelsTable.getSelectedColumn() == 1)
+                {
+                    parent.enableSave();
+                }
             }
         });
 

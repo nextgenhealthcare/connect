@@ -47,8 +47,8 @@ public class ConnectorClass extends javax.swing.JPanel
 
     Frame parent;
 
-    Step responseStep;
-
+    final String RESULT_PATTERN = "resultMap.put\\(['|\"]([^'|^\"]*)[\"|']";
+    
     /** Creates new form ConnectorClass */
     public ConnectorClass()
     {
@@ -92,7 +92,7 @@ public class ConnectorClass extends javax.swing.JPanel
     {
         return true;
     }
-
+    /*
     public void makeResponseStep()
     {
         responseStep = new Step();
@@ -117,8 +117,12 @@ public class ConnectorClass extends javax.swing.JPanel
         ArrayList<Step> list = (ArrayList<Step>) parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().getSteps();
         if (list.contains(responseStep))
             list.remove(responseStep);
+    }*/
+    
+    public void updateResponseDropDown()
+    {
     }
-
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always

@@ -40,18 +40,15 @@ import java.util.Map.Entry;
 import java.util.prefs.Preferences;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import javax.swing.JOptionPane;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.AlternateRowHighlighter;
 import org.jdesktop.swingx.decorator.HighlighterPipeline;
 import org.syntax.jedit.SyntaxDocument;
 import org.syntax.jedit.tokenmarker.JavaScriptTokenMarker;
-
 import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
 import com.webreach.mirth.client.ui.components.MirthTable;
@@ -158,7 +155,7 @@ public class ChannelSetup extends javax.swing.JPanel
         preprocessorDoc.setTokenMarker(new JavaScriptTokenMarker());
         preprocessor.setDocument(preprocessorDoc);
         numDays.setDocument(new MirthFieldConstraints(3, false, true));
-
+        
         incomingProtocol.setModel(new javax.swing.DefaultComboBoxModel(parent.protocols.values().toArray()));
 
         channelView.addMouseListener(new java.awt.event.MouseAdapter()
@@ -1289,6 +1286,7 @@ public class ChannelSetup extends javax.swing.JPanel
         parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 1, 1, true);
         parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 2, 6, false);
         parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 7, 8, true);
+        sourceConnectorClass.updateResponseDropDown();
     }
 
     /** Action when the destinations tab is shown. */
@@ -1321,8 +1319,6 @@ public class ChannelSetup extends javax.swing.JPanel
                 }
             }
         }
-
-        sourceConnectorClass.removeResponseStep();
 
         // Get the selected source connector and set it.
         for (int i = 0; i < parent.sourceConnectors.size(); i++)
@@ -1632,7 +1628,19 @@ public class ChannelSetup extends javax.swing.JPanel
             incomingProtocol.setEnabled(true);
         }
     }
-
+    
+    public void updateComponentShown()
+    {
+        if (channelView.getSelectedIndex() == SOURCE_TAB_INDEX)
+        {
+            sourceComponentShown(null);
+        }
+        else if (channelView.getSelectedIndex() == DESTINATIONS_TAB_INDEX)
+        {
+            destinationComponentShown(null);
+        }
+    }
+    
     public String getSourceDatatype()
     {
         return (String) incomingProtocol.getSelectedItem();

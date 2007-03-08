@@ -655,7 +655,7 @@ public class FilterPane extends MirthEditorPane
         {
             importFile = importFileChooser.getSelectedFile();
             String filterXML = "";
-
+            /*
             try
             {
                 filterXML = FileUtil.read(importFile);
@@ -664,14 +664,13 @@ public class FilterPane extends MirthEditorPane
             {
                 parent.alertError("File could not be read.");
                 return;
-            }
+            }*/
 
             ObjectXMLSerializer serializer = new ObjectXMLSerializer();
             try
             {
+                filterXML = ImportConverter.convertFilter(importFile);
                 Filter importFilter = (Filter) serializer.fromXML(filterXML);
-                ImportConverter converter = new ImportConverter();
-                importFilter = converter.convertFilter(importFilter);
                 prevSelRow = -1;
                 modified = true;
                 connector.setFilter(importFilter);
@@ -679,6 +678,7 @@ public class FilterPane extends MirthEditorPane
             }
             catch (Exception e)
             {
+                e.printStackTrace();
                 parent.alertError("Invalid filter file.");
             }
         }
@@ -781,6 +781,7 @@ public class FilterPane extends MirthEditorPane
         if (returning)
         {
             parent.channelEditPanel.setDestinationVariableList();
+            parent.channelEditPanel.updateComponentShown();
             parent.taskPaneContainer.add(parent.getOtherPane());
             parent.setCurrentContentPage(parent.channelEditPanel);
             parent.setCurrentTaskPaneContainer(parent.taskPaneContainer);
