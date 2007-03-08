@@ -13,7 +13,7 @@
  *
  */
 
-package org.mule.providers.email.transformers;
+package com.webreach.mirth.server.mule.providers.email.transformers;
 
 import javax.mail.Address;
 import javax.mail.Message;

@@ -92,7 +92,6 @@ public class ChannelController {
 	public List<ChannelSummary> getChannelSummary(Map<String, Integer> cachedChannels) throws ControllerException {
 		logger.debug("getting channel summary");
 		List<ChannelSummary> channelSummaries = new ArrayList<ChannelSummary>();
-
 		try {
 			Map<String, Integer> serverChannels = sqlMap.queryForMap("getChannelRevision", null, "id", "revision");
 

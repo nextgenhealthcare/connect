@@ -12,8 +12,9 @@
 * the LICENSE.txt file. 
 *
 */
-package org.mule.providers.email.transformers;
+package com.webreach.mirth.server.mule.providers.email.transformers;
 
+import org.mule.providers.email.transformers.StringToEmailMessage;
 import org.mule.transformers.simple.SerializableToByteArray;
 import org.mule.umo.UMOEventContext;
 import org.mule.umo.transformer.TransformerException;

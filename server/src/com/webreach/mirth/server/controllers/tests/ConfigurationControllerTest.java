@@ -29,7 +29,7 @@ public class ConfigurationControllerTest extends TestCase {
 	public void testGetTransports() throws ControllerException {
 		Transport sampleTransport = new Transport();
 		sampleTransport.setName("FTP Reader");
-		sampleTransport.setClassName("org.mule.providers.ftp.FtpConnector");
+		sampleTransport.setClassName("com.webreach.mirth.server.mule.providers.ftp.FtpConnector");
 		sampleTransport.setProtocol("ftp");
 		sampleTransport.setTransformers("ByteArrayToString");
 		sampleTransport.setType(Transport.Type.LISTENER);

@@ -85,7 +85,8 @@ public class ServerConnection {
 		} catch (Exception e) {
 			throw new ClientException(e);
 		} finally {
-			post.releaseConnection();
+			if (post != null)
+				post.releaseConnection();
 		}
 	}
 

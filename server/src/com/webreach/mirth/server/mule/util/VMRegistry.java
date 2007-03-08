@@ -30,7 +30,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.mule.providers.vm.VMMessageReceiver;
+import com.webreach.mirth.server.mule.providers.vm.VMMessageReceiver;
 
 public class VMRegistry {
 	public Map<String, VMMessageReceiver> vmRegistry = Collections.synchronizedMap(new HashMap<String, VMMessageReceiver>());

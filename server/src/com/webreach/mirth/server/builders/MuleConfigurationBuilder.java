@@ -315,7 +315,7 @@ public class MuleConfigurationBuilder {
 				String factory = new String();
 
 				if (protocol.equals("jdbc")) {
-					factory = "org.mule.providers.jdbc.JdbcTransactionFactory";
+					factory = "com.webreach.mirth.server.mule.providers.jdbc.JdbcTransactionFactory";
 				}
 
 				Element transactionElement = document.createElement("transaction");

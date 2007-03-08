@@ -1,0 +1,10 @@
+connector=com.webreach.mirth.server.mule.providers.jms.JmsConnector
+dispatcher.factory=com.webreach.mirth.server.mule.providers.jms.JmsMessageDispatcherFactory
+message.receiver=com.webreach.mirth.server.mule.providers.jms.JmsMessageReceiver
+transacted.message.receiver=com.webreach.mirth.server.mule.providers.jms.TransactedJmsMessageReceiver
+message.adapter=com.webreach.mirth.server.mule.providers.jms.JmsMessageAdapter
+inbound.transformer=com.webreach.mirth.server.mule.providers.jms.transformers.JMSMessageToObject
+response.transformer=com.webreach.mirth.server.mule.providers.jms.transformers.JMSMessageToObject
+outbound.transformer=com.webreach.mirth.server.mule.providers.jms.transformers.ObjectToJMSMessage
+#service.error=Cannot create Jms connector using current service descriptor
+endpoint.builder=org.mule.impl.endpoint.ResourceNameEndpointBuilder

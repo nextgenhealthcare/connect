@@ -7,8 +7,6 @@ import org.mule.config.i18n.Messages;
 import org.mule.impl.MuleEvent;
 import org.mule.impl.MuleMessage;
 import org.mule.impl.MuleSession;
-import org.mule.providers.vm.VMConnector;
-import org.mule.providers.vm.VMMessageReceiver;
 import org.mule.umo.UMOEvent;
 import org.mule.umo.UMOMessage;
 import org.mule.umo.endpoint.UMOEndpointURI;
@@ -17,6 +15,8 @@ import org.mule.util.queue.Queue;
 import org.mule.util.queue.QueueSession;
 
 import com.webreach.mirth.server.controllers.ChannelController;
+import com.webreach.mirth.server.mule.providers.vm.VMConnector;
+import com.webreach.mirth.server.mule.providers.vm.VMMessageReceiver;
 
 public class VMRouter {
     /**

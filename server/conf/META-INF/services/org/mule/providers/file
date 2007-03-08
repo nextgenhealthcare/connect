@@ -1,0 +1,6 @@
+connector=com.webreach.mirth.server.mule.providers.file.FileConnector
+dispatcher.factory=com.webreach.mirth.server.mule.providers.file.FileMessageDispatcherFactory
+message.receiver=com.webreach.mirth.server.mule.providers.file.FileMessageReceiver
+message.adapter=com.webreach.mirth.server.mule.providers.file.FileContentsMessageAdapter
+endpoint.builder=com.webreach.mirth.server.mule.providers.file.FileEndpointBuilder
+inbound.transformer=com.webreach.mirth.server.mule.providers.file.transformers.FileToString

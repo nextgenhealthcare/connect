@@ -24,8 +24,8 @@
 
 	<transformers>
 		<transformer name="ByteArrayToString" className="org.mule.transformers.simple.ByteArrayToString" />
-		<transformer name="JMSMessageToObject" className="org.mule.providers.jms.transformers.JMSMessageToObject" returnClass="java.lang.String" />
-		<transformer name="MessageObjectToJMSMessage" className="org.mule.providers.jms.transformers.MessageObjectToJMSMessage" />
+		<transformer name="JMSMessageToObject" className="com.webreach.mirth.server.mule.providers.jms.transformers.JMSMessageToObject" returnClass="java.lang.String" />
+		<transformer name="MessageObjectToJMSMessage" className="com.webreach.mirth.server.mule.providers.jms.transformers.MessageObjectToJMSMessage" />
 		<transformer name="StringToByteArray" className="org.mule.transformers.simple.StringToByteArray" />
 		<transformer name="SOAPRequestToString" className="com.webreach.mirth.server.mule.providers.soap.transformers.SOAPRequestToString" />
 		<transformer name="ResultMapToXML" className="com.webreach.mirth.server.mule.transformers.ResultMapToXML" />
@@ -33,6 +33,8 @@
 		<transformer name="NoActionTransformer" className="org.mule.transformers.NoActionTransformer"/>
 		<transformer name="HttpStringToXML" className="com.webreach.mirth.server.mule.transformers.HttpStringToXML"/>
 		<transformer name="HttpRequestToString" className="com.webreach.mirth.server.mule.transformers.HttpRequestToString"/>
+		<transformer name="MessageObjectToEmailMessage" className="com.webreach.mirth.server.mule.providers.email.transformers.MessageObjectToEmailMessage"/>
+	
 	</transformers>
 
 	<interceptor-stack name="default">

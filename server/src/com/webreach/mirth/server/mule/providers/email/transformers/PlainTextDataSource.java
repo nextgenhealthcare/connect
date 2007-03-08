@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.mule.providers.email.transformers;
+package com.webreach.mirth.server.mule.providers.email.transformers;
 
 import javax.activation.DataSource;
 import java.io.ByteArrayInputStream;
