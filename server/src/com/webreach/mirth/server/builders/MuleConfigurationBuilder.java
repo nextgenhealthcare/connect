@@ -570,7 +570,10 @@ public class MuleConfigurationBuilder {
 	// The format is: protocol://host|hostname|emtpy:port
 	private String getEndpointUri(Connector connector) {
 		// TODO: This is a hack.
-		if (connector.getProperties().getProperty("host") != null && (connector.getProperties().getProperty("host").startsWith("axis:http") || connector.getProperties().getProperty("host").startsWith("http"))) {
+		if (connector.getProperties().getProperty("host") != null && 
+				(connector.getProperties().getProperty("host").startsWith("axis:http")
+						||connector.getProperties().getProperty("host").startsWith("axis:soap") 
+						|| connector.getProperties().getProperty("host").startsWith("http"))) {
 			return connector.getProperties().getProperty("host");
 		}
 		StringBuilder builder = new StringBuilder();

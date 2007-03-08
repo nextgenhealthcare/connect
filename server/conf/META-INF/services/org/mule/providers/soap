@@ -1,0 +1,6 @@
+connector=com.webreach.mirth.server.mule.providers.soap.axis.transport.http.SoapConnector
+dispatcher.factory=org.mule.providers.http.HttpClientMessageDispatcherFactory
+message.receiver=org.mule.providers.http.HttpMessageReceiver
+message.adapter=org.mule.providers.http.HttpMessageAdapter
+outbound.transformer=org.mule.providers.http.transformers.ObjectToHttpClientMethodRequest
+response.transformer=com.webreach.mirth.server.mule.providers.soap.axis.transport.http.transformers.UMOMessageToHttpResponse

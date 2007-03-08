@@ -40,7 +40,7 @@ public class MessageObject implements Serializable {
 	public enum Status {
 		UNKNOWN, RECEIVED, ACCEPTED, REJECTED, TRANSFORMED, ERROR, SENT, QUEUED
 	}
-
+	public final static String RESPONSE_VARIABLE = "response";
 	private String id;
 	private String channelId;
 	private String source;
@@ -262,5 +262,48 @@ public class MessageObject implements Serializable {
 
 	public void setCorrelationId(String correlationId) {
 		this.correlationId = correlationId;
+	}
+	public String toString(){
+		StringBuilder sb = new StringBuilder();
+		sb.append("id: ");
+		sb.append(this.getId());
+		sb.append("\r\n");
+		sb.append("channel id: ");
+		sb.append(this.getChannelId());
+		sb.append("\r\n");
+		sb.append("type: ");
+		sb.append(this.getType());
+		sb.append("\r\n");
+		sb.append("status: ");
+		sb.append(this.getStatus().toString());
+		sb.append("\r\n");
+		sb.append("date-created: ");
+		sb.append(this.getDateCreated().getTime().toLocaleString());
+		sb.append("\r\n");
+		sb.append("version: ");
+		sb.append(this.getVersion());
+		sb.append("\r\n");
+		sb.append("raw-data protocol: ");
+		sb.append(this.getRawDataProtocol());
+		sb.append("\r\n");
+		sb.append("raw-data: ");
+		sb.append(this.getRawData());
+		sb.append("\r\n");
+		sb.append("transformed-data protocol: ");
+		sb.append(this.getTransformedDataProtocol());
+		sb.append("\r\n");
+		sb.append("transformed-data: ");
+		sb.append(this.getTransformedData());
+		sb.append("\r\n");
+		sb.append("encoded-data protocol: ");
+		sb.append(this.getEncodedDataProtocol());
+		sb.append("\r\n");
+		sb.append("encoded-data: ");
+		sb.append(this.getEncodedData());
+		sb.append("\r\n");
+		sb.append("errors: ");
+		sb.append(this.getErrors());
+		return sb.toString();
+		
 	}
 }

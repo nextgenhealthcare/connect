@@ -37,7 +37,7 @@ public class SoapChannel implements Callable, SoapService {
 		return eventContext.getTransformedMessage();
 	}
 
-	public String acceptMessage(String message) {
+	public String acceptMessage(java.lang.String message) {
 		/*
 		MessageObject mo = (MessageObject)message;
 	

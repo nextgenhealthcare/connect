@@ -516,6 +516,9 @@ public abstract class AbstractMessageReceiver implements UMOMessageReceiver {
 		}
 
 		if (transformer.isSourceTypeSupported(returnMessage.getPayload().getClass())) {
+			//MULE-549 
+			//Fixes bug where SOAP result doesn't include proper Content-Type - CL
+			RequestContext.rewriteEvent(returnMessage);
 			Object result = transformer.transform(returnMessage.getPayload());
 			if (result instanceof UMOMessage) {
 				returnMessage = (UMOMessage) result;

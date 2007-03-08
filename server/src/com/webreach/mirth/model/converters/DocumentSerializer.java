@@ -32,15 +32,16 @@ import java.io.StringWriter;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.apache.log4j.Logger;
 import org.apache.xml.serialize.OutputFormat;
 import org.apache.xml.serialize.XMLSerializer;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
 public class DocumentSerializer implements IXMLSerializer<Document>{
+	private Logger logger = Logger.getLogger(this.getClass());
 	private String[] cDataElements = null;
 	private boolean preserveSpace;
-	
 	public DocumentSerializer() {
 		this.preserveSpace = true;
 	}
@@ -78,7 +79,7 @@ public class DocumentSerializer implements IXMLSerializer<Document>{
 			serializer.serialize(source);
 			os.write(stringWriter.toString().getBytes());
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 
 		return os.toString();
@@ -90,7 +91,7 @@ public class DocumentSerializer implements IXMLSerializer<Document>{
 		try {
 			document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(new StringReader(source)));
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 		
 		return document;
