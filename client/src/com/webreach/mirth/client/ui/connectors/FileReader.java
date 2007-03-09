@@ -73,8 +73,8 @@ public class FileReader extends ConnectorClass
     {
         name = "File Reader";
         initComponents();
-        pollingFreq.setDocument(new MirthFieldConstraints(0, false, true));
-        fileAge.setDocument(new MirthFieldConstraints(0, false, true));
+        pollingFreq.setDocument(new MirthFieldConstraints(0, false, false, true));
+        fileAge.setDocument(new MirthFieldConstraints(0, false, false, true));
         // ast:encoding activation
         parent.setupCharsetEncodingForChannel(charsetEncodingCombobox);
     }

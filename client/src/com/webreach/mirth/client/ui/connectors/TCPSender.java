@@ -80,15 +80,15 @@ public class TCPSender extends ConnectorClass
         this.parent = PlatformUI.MIRTH_FRAME;
         name = "TCP Sender";
         initComponents();
-        hostIPAddressField.setDocument(new MirthFieldConstraints(3, false, true));
-        hostIPAddressField1.setDocument(new MirthFieldConstraints(3, false, true));
-        hostIPAddressField2.setDocument(new MirthFieldConstraints(3, false, true));
-        hostPortField.setDocument(new MirthFieldConstraints(5, false, true));
-        serverTimeoutField.setDocument(new MirthFieldConstraints(0, false, true));
-        bufferSizeField.setDocument(new MirthFieldConstraints(0, false, true));
-        maximumRetryCountField.setDocument(new MirthFieldConstraints(2, false, true));
+        hostIPAddressField.setDocument(new MirthFieldConstraints(3, false, false, true));
+        hostIPAddressField1.setDocument(new MirthFieldConstraints(3, false, false, true));
+        hostIPAddressField2.setDocument(new MirthFieldConstraints(3, false, false, true));
+        hostPortField.setDocument(new MirthFieldConstraints(5, false, false, true));
+        serverTimeoutField.setDocument(new MirthFieldConstraints(0, false, false, true));
+        bufferSizeField.setDocument(new MirthFieldConstraints(0, false, false, true));
+        maximumRetryCountField.setDocument(new MirthFieldConstraints(2, false, false, true));
         // ast: Acktimeout constrain
-        ackTimeoutField.setDocument(new MirthFieldConstraints(0, false, true));
+        ackTimeoutField.setDocument(new MirthFieldConstraints(0, false, false, true));
         // ast:encoding activation
         parent.setupCharsetEncodingForChannel(charsetEncodingCombobox);
     }

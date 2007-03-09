@@ -82,12 +82,12 @@ public class TCPListener extends ConnectorClass
         this.parent = PlatformUI.MIRTH_FRAME;
         name = "TCP Listener";
         initComponents();
-        listenerIPAddressField.setDocument(new MirthFieldConstraints(3, false, true));
-        listenerIPAddressField1.setDocument(new MirthFieldConstraints(3, false, true));
-        listenerIPAddressField2.setDocument(new MirthFieldConstraints(3, false, true));
-        listenerPortField.setDocument(new MirthFieldConstraints(5, false, true));
-        receiveTimeoutField.setDocument(new MirthFieldConstraints(0, false, true));
-        bufferSizeField.setDocument(new MirthFieldConstraints(0, false, true));
+        listenerIPAddressField.setDocument(new MirthFieldConstraints(3, false, false, true));
+        listenerIPAddressField1.setDocument(new MirthFieldConstraints(3, false, false, true));
+        listenerIPAddressField2.setDocument(new MirthFieldConstraints(3, false, false, true));
+        listenerPortField.setDocument(new MirthFieldConstraints(5, false, false, true));
+        receiveTimeoutField.setDocument(new MirthFieldConstraints(0, false, false, true));
+        bufferSizeField.setDocument(new MirthFieldConstraints(0, false, false, true));
         // ast:encoding activation
         parent.setupCharsetEncodingForChannel(charsetEncodingCombobox);
     }

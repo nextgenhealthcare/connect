@@ -60,7 +60,7 @@ public class EmailSender extends ConnectorClass
     {
         name = "Email Sender";
         initComponents();
-        SMTPServerPortField.setDocument(new MirthFieldConstraints(5, false, true));
+        SMTPServerPortField.setDocument(new MirthFieldConstraints(5, false, false, true));
     }
 
     public Properties getProperties()

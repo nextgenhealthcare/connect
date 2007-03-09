@@ -50,7 +50,7 @@ public class SFTPReader extends ConnectorClass
     {
         name = "SFTP Reader";
         initComponents();
-        pollingFrequencyField.setDocument(new MirthFieldConstraints(0, false, true));
+        pollingFrequencyField.setDocument(new MirthFieldConstraints(0, false, false, true));
     }
 
     public Properties getProperties()

@@ -56,7 +56,7 @@ public class SFTPWriter extends ConnectorClass
     {
         name = "SFTP Writer";
         initComponents();
-        pollingFrequencyField.setDocument(new MirthFieldConstraints(0, false, true));
+        pollingFrequencyField.setDocument(new MirthFieldConstraints(0, false, false, true));
     }
 
     public Properties getProperties()

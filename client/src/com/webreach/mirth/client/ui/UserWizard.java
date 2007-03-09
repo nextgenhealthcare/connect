@@ -45,14 +45,14 @@ public class UserWizard extends javax.swing.JDialog
         initComponents();
         finishButton.setEnabled(false);
         index = row;
-        description.setDocument(new MirthFieldConstraints(200, false, false));
-        username.setDocument(new MirthFieldConstraints(40, false, false));
-        password1.setDocument(new MirthFieldConstraints(40, false, false));
-        password2.setDocument(new MirthFieldConstraints(40, false, false));
-        fullName.setDocument(new MirthFieldConstraints(40, false, false));
-        email.setDocument(new MirthFieldConstraints(255, false, false));
-        phoneNumber.setDocument(new MirthFieldConstraints(40, false, false));
-        description.setDocument(new MirthFieldConstraints(200, false, false));
+        description.setDocument(new MirthFieldConstraints(200, false, false, false));
+        username.setDocument(new MirthFieldConstraints(40, false, false, false));
+        password1.setDocument(new MirthFieldConstraints(40, false, false, false));
+        password2.setDocument(new MirthFieldConstraints(40, false, false, false));
+        fullName.setDocument(new MirthFieldConstraints(40, false, false, false));
+        email.setDocument(new MirthFieldConstraints(255, false, false, false));
+        phoneNumber.setDocument(new MirthFieldConstraints(40, false, false, false));
+        description.setDocument(new MirthFieldConstraints(200, false, false, false));
 
         if (index != -1)
         {

@@ -154,7 +154,8 @@ public class ChannelSetup extends javax.swing.JPanel
         preprocessorDoc = new SyntaxDocument();
         preprocessorDoc.setTokenMarker(new JavaScriptTokenMarker());
         preprocessor.setDocument(preprocessorDoc);
-        numDays.setDocument(new MirthFieldConstraints(3, false, true));
+        numDays.setDocument(new MirthFieldConstraints(3, false, false, true));
+        summaryNameField.setDocument(new MirthFieldConstraints(40, false, true, true));
         
         incomingProtocol.setModel(new javax.swing.DefaultComboBoxModel(parent.protocols.values().toArray()));
 

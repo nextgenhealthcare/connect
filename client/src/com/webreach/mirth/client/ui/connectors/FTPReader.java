@@ -59,7 +59,7 @@ public class FTPReader extends ConnectorClass
     {
         name = "FTP Reader";
         initComponents();
-        pollingFrequencyField.setDocument(new MirthFieldConstraints(0, false, true));
+        pollingFrequencyField.setDocument(new MirthFieldConstraints(0, false, false, true));
     }
 
     public Properties getProperties()

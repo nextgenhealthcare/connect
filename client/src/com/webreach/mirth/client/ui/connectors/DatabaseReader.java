@@ -143,7 +143,7 @@ public class DatabaseReader extends ConnectorClass
             }
         });
 
-        pollingFreq.setDocument(new MirthFieldConstraints(0, false, true));
+        pollingFreq.setDocument(new MirthFieldConstraints(0, false, false, true));
     }
 
     public Properties getProperties()

@@ -36,9 +36,9 @@ public class MirthFieldConstraints extends PlainDocument
 {
     private int limit;
 
-    // optional uppercase conversion
+    // optional uppercase conversion, letters only, and numbers only.
     private boolean toUppercase = false;
-
+    private boolean lettersOnly = false;
     private boolean numbersOnly = false;
 
     /**
@@ -52,14 +52,15 @@ public class MirthFieldConstraints extends PlainDocument
     }
 
     /**
-     * Constructor that sets a character number limit, uppercase conversion, and
+     * Constructor that sets a character number limit, uppercase conversion, letters only, and
      * numbers only. Set limit to 0 for no limit.
      */
-    public MirthFieldConstraints(int limit, boolean toUppercase, boolean numbersOnly)
+    public MirthFieldConstraints(int limit, boolean toUppercase, boolean lettersOnly, boolean numbersOnly)
     {
         super();
         this.limit = limit;
         this.toUppercase = toUppercase;
+        this.lettersOnly = lettersOnly;
         this.numbersOnly = numbersOnly;
     }
 
@@ -75,7 +76,38 @@ public class MirthFieldConstraints extends PlainDocument
         {
             if (toUppercase)
                 str = str.toUpperCase();
-            if (numbersOnly)
+            if (lettersOnly && numbersOnly)
+            {
+                char[] chars = str.toCharArray();
+                
+                for (char c : chars)
+                {
+                    int cVal = (int)c;
+                    if ((cVal < 65 || cVal > 90) && (cVal < 97 || cVal > 122))
+                    {
+                        try
+                        {
+                            if (Double.isNaN(Double.parseDouble(c + "")))
+                                return;
+                        }
+                        catch (Exception e)
+                        {
+                            return;
+                        }
+                    }
+                }
+            }
+            else if (lettersOnly)
+            {
+                char[] chars = str.toCharArray();
+                
+                for (char c : chars)
+                {
+                    if ((c < 65 || c > 90) && (c < 97 && c > 122))
+                        return;
+                }
+            }
+            else if (numbersOnly)
             {
                 try
                 {
@@ -87,6 +119,7 @@ public class MirthFieldConstraints extends PlainDocument
                     return;
                 }
             }
+
             super.insertString(offset, str, attr);
         }
     }

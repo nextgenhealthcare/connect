@@ -146,7 +146,7 @@ public class MessageBrowser extends javax.swing.JPanel
             }
         });
 
-        pageSizeField.setDocument(new MirthFieldConstraints(3, false, true));
+        pageSizeField.setDocument(new MirthFieldConstraints(3, false, false, true));
 
         String[] statusValues = new String[MessageObject.Status.values().length + 1];
         statusValues[0] = "ALL";
