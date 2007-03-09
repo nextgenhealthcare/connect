@@ -83,7 +83,7 @@ public class MirthFieldConstraints extends PlainDocument
                 for (char c : chars)
                 {
                     int cVal = (int)c;
-                    if ((cVal < 65 || cVal > 90) && (cVal < 97 || cVal > 122))
+                    if ((cVal < 65 || cVal > 90) && (cVal < 97 || cVal > 122) && (cVal != 32) && (cVal != 45) && (cVal != 95))
                     {
                         try
                         {
