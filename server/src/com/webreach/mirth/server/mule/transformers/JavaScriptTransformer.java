@@ -220,10 +220,15 @@ public class JavaScriptTransformer extends AbstractTransformer {
 				messageObject.setStatus(MessageObject.Status.REJECTED);
 				return messageObject;
 			}
-		} catch (TransformerException te) {
+		} catch (Exception e) {
 			// only send alert after entire filter/transform process is done
 			alertController.sendAlerts(channelId, messageObject.getErrors(), messageObject);
-			throw te;
+			
+			if (e instanceof TransformerException) {
+				throw (TransformerException) e;	
+			} else {
+				throw new TransformerException(this, e);
+			}
 		}
 	}
 
@@ -340,9 +345,9 @@ public class JavaScriptTransformer extends AbstractTransformer {
 		}
 	}
 
-	private void handleError(String errorType, Throwable e, MessageObject mo) {
+	private void handleError(String errorType, Throwable e, MessageObject messageObject) {
 		// error source is initialized to blank
-		String lineSource = new String();
+		String lineSource = null;
 
 		// if the exception occured during execution of the script, get the
 		// line of code that caused the error
@@ -354,19 +359,23 @@ public class JavaScriptTransformer extends AbstractTransformer {
 		// construct the error message
 		StringBuilder errorMessage = new StringBuilder();
 		String lineSeperator = System.getProperty("line.separator");
-		errorMessage.append("ERROR TYPE: " + errorType + lineSeperator);
-		errorMessage.append("ERROR SOURCE: " + lineSource + lineSeperator);
-		errorMessage.append("ERROR MESSAGE: " + StackTracePrinter.stackTraceToString(e) + lineSeperator);
+		errorMessage.append(errorType + lineSeperator);
+		
+		if (lineSource != null) {
+			errorMessage.append("ERROR SOURCE:\t" + lineSource + lineSeperator);	
+		}
+		
+		errorMessage.append("ERROR MESSAGE:\t" + StackTracePrinter.stackTraceToString(e) + lineSeperator);
 
-		if (mo.getErrors() == null) {
-			mo.setErrors(errorMessage.toString());
+		if (messageObject.getErrors() == null) {
+			messageObject.setErrors(errorMessage.toString());
 		} else {
 			// append to existing errors if any
-			mo.setErrors(mo.getErrors() + lineSeperator + lineSeperator + errorMessage.toString());
+			messageObject.setErrors(messageObject.getErrors() + lineSeperator + lineSeperator + errorMessage.toString());
 		}
 
-		mo.setStatus(MessageObject.Status.ERROR);
-		messageObjectController.updateMessage(mo);
+		messageObject.setStatus(MessageObject.Status.ERROR);
+		messageObjectController.updateMessage(messageObject);
 	}
 
 	private String generateFilterScript(String filterScript) {
