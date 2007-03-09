@@ -18,6 +18,7 @@ import org.mule.MuleException;
 import org.mule.config.i18n.Messages;
 import org.mule.providers.AbstractMessageDispatcher;
 import org.mule.umo.UMOEvent;
+import org.mule.umo.UMOEventContext;
 import org.mule.umo.UMOException;
 import org.mule.umo.UMOMessage;
 import org.mule.umo.endpoint.UMOEndpointURI;
@@ -25,7 +26,9 @@ import org.mule.umo.provider.DispatchException;
 import org.mule.umo.provider.UMOConnector;
 
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.model.Response;
 import com.webreach.mirth.server.controllers.MessageObjectController;
+import com.webreach.mirth.server.mule.providers.email.transformers.MessageObjectToEmailMessage;
 import com.webreach.mirth.server.util.StackTracePrinter;
 
 import javax.mail.*;
@@ -59,11 +62,24 @@ public class SmtpMessageDispatcher extends AbstractMessageDispatcher {
 	 *      org.mule.providers.MuleEndpoint)
 	 */
 	public void doDispatch(UMOEvent event) {
-
+		
 		Message msg = null;
-		MessageObject messageObject = (MessageObject)event.getMessage().getPayload();
+		
+		MessageObject originalMessageObject = (MessageObject)event.getMessage().getPayload();
+		MessageObject messageObject = null;
 		try {
-			Object data = event.getTransformedMessage();
+			Object incomingData = event.getTransformedMessage();
+			if (incomingData == null && !(incomingData instanceof MessageObject) ){
+				return;
+			}
+			messageObject = (MessageObject)incomingData;
+			if (messageObject.getStatus().equals(MessageObject.Status.REJECTED)) {
+				return;
+			}
+			MessageObjectToEmailMessage motoEmail = new MessageObjectToEmailMessage();
+			motoEmail.setEndpoint(event.getEndpoint());
+			
+			Object data = motoEmail.transform(messageObject);
 
 			if (!(data instanceof Message)) {
 				throw new DispatchException(new org.mule.config.i18n.Message(Messages.TRANSFORM_X_UNEXPECTED_TYPE_X, data.getClass().getName(), Message.class.getName()), event.getMessage(), event.getEndpoint());
@@ -76,12 +92,17 @@ public class SmtpMessageDispatcher extends AbstractMessageDispatcher {
 			
 			messageObject.setStatus(MessageObject.Status.SENT);
 			messageObjectController.updateMessage(messageObject);
-		
+			Response response = new Response(Response.Status.SUCCESS, "Email successfully sent.");
+			originalMessageObject.getResponseMap().put(messageObject.getConnectorName(), response);
 		} catch (Exception e) {
 			if (messageObject != null) {
 				messageObject.setStatus(MessageObject.Status.ERROR);
 				messageObject.setErrors(messageObject.getErrors() != null ? messageObject.getErrors() + '\n' : "" + "Error sending email\n" + StackTracePrinter.stackTraceToString(e));
 				messageObjectController.updateMessage(messageObject);
+			}
+			if (originalMessageObject != null){
+				Response response = new Response(Response.Status.SUCCESS, "Email successfully sent.");
+				originalMessageObject.getResponseMap().put(messageObject.getConnectorName(), response);
 			}
 			connector.handleException(e);
 		}
