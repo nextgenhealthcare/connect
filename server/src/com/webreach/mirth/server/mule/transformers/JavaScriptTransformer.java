@@ -222,7 +222,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			}
 		} catch (Exception e) {
 			// only send alert after entire filter/transform process is done
-			alertController.sendAlerts(channelId, messageObject.getErrors(), messageObject);
+			alertController.sendAlerts(channelId, messageObject.getErrors());
 			
 			if (e instanceof TransformerException) {
 				throw (TransformerException) e;	

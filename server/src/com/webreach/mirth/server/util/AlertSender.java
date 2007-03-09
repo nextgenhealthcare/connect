@@ -10,7 +10,7 @@ public class AlertSender {
 		this.channelId = channelId;
 	}
 	
-	public void sendAlert(String message) {
-		alertController.sendAlerts(channelId, message, null);
+	public void sendAlert(String errorMessage) {
+		alertController.sendAlerts(channelId, errorMessage);
 	}
 }
