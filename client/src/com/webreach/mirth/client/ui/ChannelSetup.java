@@ -337,7 +337,12 @@ public class ChannelSetup extends javax.swing.JPanel
             {
                 if (!evt.getValueIsAdjusting())
                 {
+                    // if it's currently editing, make sure to reset the last index to the new value
+                    if (destinationTable.isEditing())
+                        lastIndex = (String) destinationTable.getValueAt(getSelectedDestinationIndex(), getColumnNumber(DESTINATION_COLUMN_NAME));
+                    
                     int last = getDestinationIndex(lastIndex);
+                    
                     if (last != -1 && last != destinationTable.getRowCount() && !isDeleting)
                     {
                         int connectorIndex = getDestinationConnectorIndex((String) destinationTable.getValueAt(last, getColumnNumber(DESTINATION_COLUMN_NAME)));

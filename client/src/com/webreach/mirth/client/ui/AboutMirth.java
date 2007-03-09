@@ -59,7 +59,7 @@ public class AboutMirth extends javax.swing.JDialog
         {
             parent.alertException(e.getStackTrace(), e.getMessage());
         }
-        content.append("Developed by Gerald Bortis (geraldb@webreachinc.com), Chris Lang (chrisl@webreachinc.com), and Brendan Haverlock (brendanh@webreachinc.com).\n\n");
+        content.append("Developed by Gerald Bortis (geraldb@webreachinc.com), Chris Lang (chrisl@webreachinc.com), Brendan Haverlock (brendanh@webreachinc.com), and Jacob Brauer (jacobb@webreachinc.com).\n\n");
         content.append("(c) Copyright Mirth contributors and other 2005, 2006. All rights reserved. Visit http://www.mirthproject.org\n\n");
         content.append("This product includes software developed by SymphonySoft Limited (http://www.symphonysoft.com) and its contributors.\n\n");
         content.append("This product includes software developed by the Apache Software Foundation (http://www.apache.org/).\n\n");
