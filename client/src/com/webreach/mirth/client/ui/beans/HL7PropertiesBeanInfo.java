@@ -1,7 +1,7 @@
 /*
- * X12PropertiesBeanInfo.java
+ * HL7PropertiesBeanInfo.java
  *
- * Created on February 16, 2007, 4:24 PM
+ * Created on March 8, 2007, 4:33 PM
  */
 
 package com.webreach.mirth.client.ui.beans;
@@ -11,13 +11,13 @@ import java.beans.*;
 /**
  * @author brendanh
  */
-public class X12PropertiesBeanInfo extends EDIPropertiesBeanInfo
+public class HL7PropertiesBeanInfo extends SimpleBeanInfo
 {
     
     // Bean descriptor//GEN-FIRST:BeanDescriptor
     /*lazy BeanDescriptor*/
     private static BeanDescriptor getBdescriptor(){
-        BeanDescriptor beanDescriptor = new BeanDescriptor  ( com.webreach.mirth.client.ui.beans.X12Properties.class , null ); // NOI18N//GEN-HEADEREND:BeanDescriptor
+        BeanDescriptor beanDescriptor = new BeanDescriptor  ( com.webreach.mirth.client.ui.beans.HL7Properties.class , null ); // NOI18N//GEN-HEADEREND:BeanDescriptor
         
         // Here you can add code for customizing the BeanDescriptor.
         
@@ -25,32 +25,15 @@ public class X12PropertiesBeanInfo extends EDIPropertiesBeanInfo
     
     
     // Property identifiers//GEN-FIRST:Properties
-    private static final int PROPERTY_elementDelimiter = 0;
-    private static final int PROPERTY_inferX12Delimiters = 1;
-    private static final int PROPERTY_segmentDelimiter = 2;
-    private static final int PROPERTY_subelementDelimiter = 3;
-    private static final int PROPERTY_validateMessage = 4;
+    private static final int PROPERTY_validateMessage = 0;
 
     // Property array 
     /*lazy PropertyDescriptor*/
     private static PropertyDescriptor[] getPdescriptor(){
-        PropertyDescriptor[] properties = new PropertyDescriptor[5];
+        PropertyDescriptor[] properties = new PropertyDescriptor[1];
     
         try {
-            properties[PROPERTY_elementDelimiter] = new PropertyDescriptor ( "elementDelimiter", com.webreach.mirth.client.ui.beans.X12Properties.class, "getElementDelimiter", "setElementDelimiter" ); // NOI18N
-            properties[PROPERTY_elementDelimiter].setDisplayName ( "Element Delimiter" );
-            properties[PROPERTY_elementDelimiter].setBound ( true );
-            properties[PROPERTY_inferX12Delimiters] = new PropertyDescriptor ( "inferX12Delimiters", com.webreach.mirth.client.ui.beans.X12Properties.class, "isInferX12Delimiters", "setInferX12Delimiters" ); // NOI18N
-            properties[PROPERTY_inferX12Delimiters].setDisplayName ( "Infer X12 Delimiters" );
-            properties[PROPERTY_inferX12Delimiters].setShortDescription ( "Infer the standard X12 delimiters." );
-            properties[PROPERTY_inferX12Delimiters].setBound ( true );
-            properties[PROPERTY_segmentDelimiter] = new PropertyDescriptor ( "segmentDelimiter", com.webreach.mirth.client.ui.beans.X12Properties.class, "getSegmentDelimiter", "setSegmentDelimiter" ); // NOI18N
-            properties[PROPERTY_segmentDelimiter].setDisplayName ( "Segment Delimiter" );
-            properties[PROPERTY_segmentDelimiter].setBound ( true );
-            properties[PROPERTY_subelementDelimiter] = new PropertyDescriptor ( "subelementDelimiter", com.webreach.mirth.client.ui.beans.X12Properties.class, "getSubelementDelimiter", "setSubelementDelimiter" ); // NOI18N
-            properties[PROPERTY_subelementDelimiter].setDisplayName ( "Subelement Delimiter" );
-            properties[PROPERTY_subelementDelimiter].setBound ( true );
-            properties[PROPERTY_validateMessage] = new PropertyDescriptor ( "validateMessage", com.webreach.mirth.client.ui.beans.X12Properties.class, "isValidateMessage", "setValidateMessage" ); // NOI18N
+            properties[PROPERTY_validateMessage] = new PropertyDescriptor ( "validateMessage", com.webreach.mirth.client.ui.beans.HL7Properties.class, "isValidateMessage", "setValidateMessage" ); // NOI18N
             properties[PROPERTY_validateMessage].setDisplayName ( "Validate Message" );
             properties[PROPERTY_validateMessage].setShortDescription ( "Validate messages based upon message specifications." );
             properties[PROPERTY_validateMessage].setBound ( true );

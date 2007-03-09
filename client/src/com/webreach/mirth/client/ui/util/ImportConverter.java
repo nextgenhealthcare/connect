@@ -178,37 +178,56 @@ public class ImportConverter
         Element outboundTemplateElement = document.createElement("outboundTemplate");
         Element inboundProtocolElement = document.createElement("inboundProtocol");
         Element outboundProtocolElement = document.createElement("outboundProtocol");
-        Element inboundPropertiesElement = document.createElement("inboundProperties");
-        Element outboundPropertiesElement = document.createElement("outboundProperties");
+
         Element modeElement = document.createElement("mode");
         
-        if(direction == Direction.OUTBOUND)
+        if(direction == Direction.OUTBOUND && connector.getTagName().equals("sourceConnector"))
         {
-            inboundProtocolElement.setTextContent("XML");
-            outboundProtocolElement.setTextContent("XML");
+            inboundProtocolElement.setTextContent(MessageObject.Protocol.XML.toString());
+            outboundProtocolElement.setTextContent(MessageObject.Protocol.XML.toString());
+        }
+        else if(direction == Direction.OUTBOUND && connector.getTagName().equals("com.webreach.mirth.model.Connector"))
+        {
+            inboundProtocolElement.setTextContent(MessageObject.Protocol.XML.toString());
+            outboundProtocolElement.setTextContent(MessageObject.Protocol.HL7V2.toString());
             if(template != null)
                 outboundTemplateElement.setTextContent(template);
         }
-        else
+        else if(direction == Direction.INBOUND)
         {
-            inboundProtocolElement.setTextContent("HL7V2");
-            outboundProtocolElement.setTextContent("HL7V2");
+            inboundProtocolElement.setTextContent(MessageObject.Protocol.HL7V2.toString());
+            outboundProtocolElement.setTextContent(MessageObject.Protocol.HL7V2.toString());
             if(template != null)
                 inboundTemplateElement.setTextContent(template);
         }
         
-        if(connector.equals("sourceConnector"))
-            modeElement.setTextContent("SOURCE");
+        if(connector.getTagName().equals("sourceConnector"))
+            modeElement.setTextContent(Connector.Mode.SOURCE.toString());
         else
-            modeElement.setTextContent("DESTINATION");
+            modeElement.setTextContent(Connector.Mode.DESTINATION.toString());
         
         transformerElement.appendChild(inboundTemplateElement);
         transformerElement.appendChild(outboundTemplateElement);
         transformerElement.appendChild(inboundProtocolElement);
         transformerElement.appendChild(outboundProtocolElement);
-        transformerElement.appendChild(inboundPropertiesElement);
-        transformerElement.appendChild(outboundPropertiesElement);
         
+        // replace HL7 Message builder with Message Builder
+        NodeList steps = transformerElement.getElementsByTagName("com.webreach.mirth.model.Step");
+        
+        for(int i = 0; i < steps.getLength(); i++)
+        {
+            Element step = (Element) steps.item(i);
+            NodeList stepTypesList = step.getElementsByTagName("type");
+            if(stepTypesList.getLength() > 0)
+            {
+                Element stepType = (Element) stepTypesList.item(0);
+                if(stepType.getTextContent().equals("HL7 Message Builder"))
+                {
+                    stepType.setTextContent("Message Builder");
+                }
+            }  
+        }
+                
         if(transformerTemplate != null)
             transformerElement.removeChild((Node)transformerTemplate);
         
@@ -247,10 +266,6 @@ public class ImportConverter
                     inboundProtocolElement = document.createElement("inboundProtocol");
                 if(transformerRoot.getElementsByTagName("outboundProtocol").getLength() == 0)
                     outboundProtocolElement = document.createElement("outboundProtocol");
-                if(transformerRoot.getElementsByTagName("inboundProperties").getLength() == 0)
-                    inboundPropertiesElement = document.createElement("inboundProperties");
-                if(transformerRoot.getElementsByTagName("outboundProperties").getLength() == 0)
-                    outboundPropertiesElement = document.createElement("outboundProperties");
                 
                 if(transformerTemplate != null)
                 {
@@ -275,10 +290,23 @@ public class ImportConverter
                     transformerRoot.appendChild(inboundProtocolElement);
                 if(transformerRoot.getElementsByTagName("outboundProtocol").getLength() == 0)
                     transformerRoot.appendChild(outboundProtocolElement);
-                if(transformerRoot.getElementsByTagName("inboundProperties").getLength() == 0)
-                    transformerRoot.appendChild(inboundPropertiesElement);
-                if(transformerRoot.getElementsByTagName("outboundProperties").getLength() == 0)
-                    transformerRoot.appendChild(outboundPropertiesElement);
+                
+                // replace HL7 Message builder with Message Builder
+                NodeList steps = transformerRoot.getElementsByTagName("com.webreach.mirth.model.Step");
+                
+                for(int i = 0; i < steps.getLength(); i++)
+                {
+                    Element step = (Element) steps.item(i);
+                    NodeList stepTypesList = step.getElementsByTagName("type");
+                    if(stepTypesList.getLength() > 0)
+                    {
+                        Element stepType = (Element) stepTypesList.item(0);
+                        if(stepType.getTextContent().equals("HL7 Message Builder"))
+                        {
+                            stepType.setTextContent("Message Builder");
+                        }
+                    }
+                }                
                 
                 if(transformerTemplate != null)
                     transformerRoot.removeChild((Node)transformerTemplate);

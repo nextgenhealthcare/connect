@@ -54,7 +54,6 @@ public class BoundPropertiesSheetDialog extends javax.swing.JDialog
         BeanBinder beanBinder = new BeanBinder(bean, propertySheetPanel, null);
         beanBinder.setWriteEnabled(true);
         this.setLocationRelativeTo(PlatformUI.MIRTH_FRAME);
-        // propertySheetPanel.setToolBarVisible(false);
         setVisible(true);
     }
 
@@ -76,11 +75,11 @@ public class BoundPropertiesSheetDialog extends javax.swing.JDialog
             {
                 try
                 {
-                    String value;
+                    Object value;
                     if (properties.get(pd.getName()) != null)
-                        value = (String) properties.get(pd.getName());
+                        value = properties.get(pd.getName());
                     else
-                        value = "";
+                        value = pd.getReadMethod().invoke(bean, new Object[] {});
 
                     pd.getWriteMethod().invoke(bean, new Object[] { value });
                 }
@@ -105,7 +104,7 @@ public class BoundPropertiesSheetDialog extends javax.swing.JDialog
         BeanInfo info = null;
         try
         {
-            info = Introspector.getBeanInfo(EDIProperties.class);
+            info = Introspector.getBeanInfo(bean.getClass());
         }
         catch (IntrospectionException ex)
         {

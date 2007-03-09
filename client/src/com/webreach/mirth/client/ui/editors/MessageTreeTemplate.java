@@ -6,6 +6,7 @@
 
 package com.webreach.mirth.client.ui.editors;
 
+import com.webreach.mirth.client.ui.beans.HL7Properties;
 import java.util.Properties;
 
 import javax.swing.event.DocumentEvent;
@@ -226,35 +227,40 @@ public class MessageTreeTemplate extends javax.swing.JPanel
         layout.setHorizontalGroup(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(layout.createSequentialGroup().addContainerGap().add(jLabel1).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(dataType, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 70, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(properties).addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)).add(org.jdesktop.layout.GroupLayout.TRAILING, split, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 235, Short.MAX_VALUE));
         layout.setVerticalGroup(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(layout.createSequentialGroup().addContainerGap().add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(jLabel1).add(dataType, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(properties)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(split, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 411, Short.MAX_VALUE)));
     }// </editor-fold>//GEN-END:initComponents
-
-    private void propertiesActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_propertiesActionPerformed
+    
+    // GEN-FIRST:event_propertiesActionPerformed
+    private void propertiesActionPerformed(java.awt.event.ActionEvent evt)
     {// GEN-HEADEREND:event_propertiesActionPerformed
         if (((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.EDI)))
             new BoundPropertiesSheetDialog(dataProperties, new EDIProperties());
         else if (((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.X12)))
             new BoundPropertiesSheetDialog(dataProperties, new X12Properties());
-
+        else if (((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.HL7V2)))
+            new BoundPropertiesSheetDialog(dataProperties, new HL7Properties());
     }// GEN-LAST:event_propertiesActionPerformed
-
-    private void dataTypeActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_dataTypeActionPerformed
+    
+    // GEN-FIRST:event_dataTypeActionPerformed
+    private void dataTypeActionPerformed(java.awt.event.ActionEvent evt)
     {// GEN-HEADEREND:event_dataTypeActionPerformed
         PlatformUI.MIRTH_FRAME.enableSave();
-        if (((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.X12)) || ((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.EDI)))
+        if (((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.X12)) || ((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.EDI)) || ((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.HL7V2)))
             properties.setEnabled(true);
         else
             properties.setEnabled(false);
         dataProperties = new Properties();
     }// GEN-LAST:event_dataTypeActionPerformed
-
-    private void pasteBoxFocusLost(java.awt.event.FocusEvent evt)// GEN-FIRST:event_pasteBoxFocusLost
+    
+    // GEN-FIRST:event_pasteBoxFocusLost
+    private void pasteBoxFocusLost(java.awt.event.FocusEvent evt)
     {// GEN-HEADEREND:event_pasteBoxFocusLost
         if (pasteBox.getText().length() == 0)
         {
             pasteBox.setText(DEFAULT_TEXT);
         }
     }// GEN-LAST:event_pasteBoxFocusLost
-
-    private void pasteBoxFocusGained(java.awt.event.FocusEvent evt)// GEN-FIRST:event_pasteBoxFocusGained
+    
+    // GEN-FIRST:event_pasteBoxFocusGained
+    private void pasteBoxFocusGained(java.awt.event.FocusEvent evt)
     {// GEN-HEADEREND:event_pasteBoxFocusGained
         if (pasteBox.getText().equals(DEFAULT_TEXT))
         {

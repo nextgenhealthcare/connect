@@ -1129,6 +1129,7 @@ public class TransformerPane extends MirthEditorPane
         TreeMap regexes = (TreeMap) map.get("RegularExpressions");
 
         StringBuilder regexArray = new StringBuilder();
+
         regexArray.append("new Array(");
 
         Iterator iter = regexes.keySet().iterator();
@@ -1148,6 +1149,7 @@ public class TransformerPane extends MirthEditorPane
         {
             regexArray.append(")");
         }
+
         return regexArray.toString();
     }
 
