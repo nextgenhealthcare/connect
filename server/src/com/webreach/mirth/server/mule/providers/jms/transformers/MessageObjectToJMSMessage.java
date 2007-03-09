@@ -22,12 +22,6 @@ public class MessageObjectToJMSMessage extends AbstractJmsTransformer {
 			if (messageObject.getStatus().equals(MessageObject.Status.REJECTED)){
 				return null;
 			}
-			if (messageObject.getCorrelationId() == null){
-				//If we have no correlation id, this means this is the original message
-				//so let's copy it and assign a new id and set the proper correlationid
-				messageObject = messageObjectController.cloneMessageObjectForBroadcast(messageObject, this.getEndpoint().getConnector().getName());
-			}
-			
 			try{
 				Message message = transformToMessage(messageObject.getEncodedData());
 				
