@@ -2644,11 +2644,17 @@ public class Frame extends JXFrame
     {
         JFileChooser importFileChooser = new JFileChooser();
         importFileChooser.setFileFilter(new MirthFileFilter("XML"));
+        
+        File currentDir = new File(userPreferences.get("currentDirectory", ""));
+        if (currentDir.exists())
+            importFileChooser.setCurrentDirectory(currentDir);
+        
         int returnVal = importFileChooser.showOpenDialog(this);
         File importFile = null;
 
         if (returnVal == JFileChooser.APPROVE_OPTION)
         {
+            userPreferences.put("currentDirectory", importFileChooser.getCurrentDirectory().getPath());
             importFile = importFileChooser.getSelectedFile();
             String channelXML = "";
             
@@ -2771,11 +2777,17 @@ public class Frame extends JXFrame
         JFileChooser exportFileChooser = new JFileChooser();
         exportFileChooser.setSelectedFile(new File(channel.getName()));
         exportFileChooser.setFileFilter(new MirthFileFilter("XML"));
+        
+        File currentDir = new File(userPreferences.get("currentDirectory", ""));
+        if (currentDir.exists())
+            exportFileChooser.setCurrentDirectory(currentDir);
+        
         int returnVal = exportFileChooser.showSaveDialog(this);
         File exportFile = null;
 
         if (returnVal == JFileChooser.APPROVE_OPTION)
         {
+            userPreferences.put("currentDirectory", exportFileChooser.getCurrentDirectory().getPath());
             ObjectXMLSerializer serializer = new ObjectXMLSerializer();
             String channelXML = serializer.toXML(channel);
             exportFile = exportFileChooser.getSelectedFile();
@@ -2810,12 +2822,19 @@ public class Frame extends JXFrame
     {
         JFileChooser exportFileChooser = new JFileChooser();
         exportFileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        
+        File currentDir = new File(userPreferences.get("currentDirectory", ""));
+        if (currentDir.exists())
+            exportFileChooser.setCurrentDirectory(currentDir);
+        
         int returnVal = exportFileChooser.showSaveDialog(this);
         File exportFile = null;
         File exportDirectory = null;
 
         if (returnVal == JFileChooser.APPROVE_OPTION)
         {
+            
+            userPreferences.put("currentDirectory", exportFileChooser.getCurrentDirectory().getPath());
             try
             {
                 exportDirectory = exportFileChooser.getSelectedFile();

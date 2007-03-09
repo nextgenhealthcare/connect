@@ -835,11 +835,17 @@ public class TransformerPane extends MirthEditorPane
     {
         JFileChooser importFileChooser = new JFileChooser();
         importFileChooser.setFileFilter(new MirthFileFilter("XML"));
+        
+        File currentDir = new File(Preferences.systemNodeForPackage(Mirth.class).get("currentDirectory", ""));
+        if (currentDir.exists())
+            importFileChooser.setCurrentDirectory(currentDir);
+        
         int returnVal = importFileChooser.showOpenDialog(this);
         File importFile = null;
 
         if (returnVal == JFileChooser.APPROVE_OPTION)
         {
+            Preferences.systemNodeForPackage(Mirth.class).put("currentDirectory", importFileChooser.getCurrentDirectory().getPath());
             importFile = importFileChooser.getSelectedFile();
             String transformerXML = "";
 
@@ -892,11 +898,17 @@ public class TransformerPane extends MirthEditorPane
         accept(false);
         JFileChooser exportFileChooser = new JFileChooser();
         exportFileChooser.setFileFilter(new MirthFileFilter("XML"));
+        
+        File currentDir = new File(Preferences.systemNodeForPackage(Mirth.class).get("currentDirectory", ""));
+        if (currentDir.exists())
+            exportFileChooser.setCurrentDirectory(currentDir);
+        
         int returnVal = exportFileChooser.showSaveDialog(this);
         File exportFile = null;
 
         if (returnVal == JFileChooser.APPROVE_OPTION)
         {
+            Preferences.systemNodeForPackage(Mirth.class).put("currentDirectory", exportFileChooser.getCurrentDirectory().getPath());
             ObjectXMLSerializer serializer = new ObjectXMLSerializer();
             String transformerXML = serializer.toXML(transformer);
             exportFile = exportFileChooser.getSelectedFile();
