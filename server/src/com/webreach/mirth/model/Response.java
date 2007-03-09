@@ -1,6 +1,10 @@
 package com.webreach.mirth.model;
 
-public class Response {
+import java.io.Serializable;
+
+public class Response implements Serializable{
+
+	private static final long serialVersionUID = 99766081218628503L;
 	public enum Status {
 		SUCCESS, FAIL, UKNOWN
 	}

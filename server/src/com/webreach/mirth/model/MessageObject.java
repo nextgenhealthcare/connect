@@ -59,9 +59,12 @@ public class MessageObject implements Serializable {
 	private String errors;
 	private String version;
 	private String correlationId;
-	
+	private Map responseMap;
+	private Map contextMap;
 	public MessageObject() {
 		this.variableMap = new HashMap();
+		this.responseMap = new HashMap();
+		this.contextMap = new HashMap();
 		this.status = Status.UNKNOWN;
 	}
 
@@ -221,6 +224,8 @@ public class MessageObject implements Serializable {
 		messageObject.setVariableMap(this.getVariableMap());
 		messageObject.setVersion(this.getVersion());
 		messageObject.setCorrelationId(this.getCorrelationId());
+		messageObject.setResponseMap(this.getResponseMap());
+		messageObject.setContextMap(this.getContextMap());
 		return messageObject;
 	}
 
@@ -253,7 +258,9 @@ public class MessageObject implements Serializable {
 			EqualsUtil.areEqual(this.isEncrypted(), messageObject.isEncrypted()) &&
 			EqualsUtil.areEqual(this.getErrors(), messageObject.getErrors()) &&
 			EqualsUtil.areEqual(this.getVersion(), messageObject.getVersion())&&
-			EqualsUtil.areEqual(this.getCorrelationId(), messageObject.getCorrelationId());
+			EqualsUtil.areEqual(this.getCorrelationId(), messageObject.getCorrelationId())&&
+			EqualsUtil.areEqual(this.getResponseMap(), messageObject.getResponseMap())&&
+			EqualsUtil.areEqual(this.getContextMap(), messageObject.getContextMap());
 	}
 
 	public String getCorrelationId() {
@@ -307,5 +314,21 @@ public class MessageObject implements Serializable {
 		sb.append("]");
 		return sb.toString();
 		
+	}
+
+	public Map getResponseMap() {
+		return responseMap;
+	}
+
+	public void setResponseMap(Map responseMap) {
+		this.responseMap = responseMap;
+	}
+
+	public Map getContextMap() {
+		return contextMap;
+	}
+
+	public void setContextMap(Map contextMap) {
+		this.contextMap = contextMap;
 	}
 }
