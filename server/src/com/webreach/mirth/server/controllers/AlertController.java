@@ -166,7 +166,7 @@ public class AlertController {
 				for (Iterator iter = alerts.iterator(); iter.hasNext();) {
 					Alert alert = (Alert) iter.next();
 
-					if (isAlertCondition(alert.getExpression(), errorMessage)) {
+					if (alert.isEnabled() && isAlertCondition(alert.getExpression(), errorMessage)) {
 						sentAlertEmails(alert.getEmails(), alert.getTemplate(), mo);
 					}
 				}
