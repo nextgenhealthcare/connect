@@ -274,7 +274,8 @@ public class Shell {
 							e.printStackTrace();
 						}
 						List<ChannelStatus> channelStatus = client.getChannelStatusList();
-						while (channelStatus.size() == 0){
+						int limit = 20; //10 second limit
+						while (channelStatus.size() == 0 && limit > 0){
 							try {
 								Thread.sleep(500);
 							} catch (InterruptedException e) {
@@ -282,9 +283,16 @@ public class Shell {
 								e.printStackTrace();
 							}
 							channelStatus = client.getChannelStatusList();
+							limit--;
+						}if (limit >  0){
+							System.out.println("Channels Deployed");
+						}else{
+							System.out.println("Deployment Timed out");
 						}
+					}else{
+						System.out.println("No Channels to Deploy");
 					}
-					System.out.println("Channels Deployed");
+					
 				}else if (arg1.equalsIgnoreCase("import")) {
 					String path = arguments[1];
 					File fXml = new File(path);

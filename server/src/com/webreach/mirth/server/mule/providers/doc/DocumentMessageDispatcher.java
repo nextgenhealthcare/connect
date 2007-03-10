@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.List;
 
 import org.mule.providers.AbstractMessageDispatcher;
 import org.mule.providers.TemplateValueReplacer;
@@ -36,26 +37,17 @@ public class DocumentMessageDispatcher extends AbstractMessageDispatcher {
 	public void doDispatch(UMOEvent event) throws Exception {
 		TemplateValueReplacer replacer = new TemplateValueReplacer();
 		String endpoint = event.getEndpoint().getEndpointURI().getAddress();
-		MessageObject messageObject = null;
+		MessageObject messageObject, originalMessageObject = null;
+		List<MessageObject> objects = messageObjectController.getMessageObjectsFromEvent(event);
+		if (objects == null) {
+			return;
+		} else {
+			messageObject = objects.get(0);
+			originalMessageObject = objects.get(1);
+		}
 
 		try {
-			Object data = event.getTransformedMessage();
-			if (data == null) {
-				return;
-			} else if (data instanceof MessageObject) {
-				messageObject = (MessageObject) data;
-
-				if (messageObject.getStatus().equals(MessageObject.Status.FILTERED)) {
-					return;
-				}
-				if (messageObject.getCorrelationId() == null) {
-					// If we have no correlation id, this means this is the
-					// original message
-					// so let's copy it and assign a new id and set the proper
-					// correlationid
-					messageObject = messageObjectController.cloneMessageObjectForBroadcast(messageObject, this.getConnector().getName());
-				}
-				
+		
 				String filename = (String) event.getProperty(DocumentConnector.PROPERTY_FILENAME);
 
 				if (filename == null) {
@@ -75,34 +67,29 @@ public class DocumentMessageDispatcher extends AbstractMessageDispatcher {
 				String template = replacer.replaceValues(connector.getTemplate(), messageObject, filename);
 				File file = Utility.createFile(endpoint + "/" + filename);
 				logger.info("Writing document to: " + file.getAbsolutePath());
-				writeDocument(template, file, messageObject);
+				writeDocument(template, file, messageObject, originalMessageObject);
 
-				// update the message status to sent
-				messageObject.setStatus(MessageObject.Status.SENT);
-				messageObjectController.updateMessage(messageObject);
-			} else {
-				logger.warn("received data is not of expected type");
-			}
+				//update the message status to sent
+				messageObjectController.setSuccess(messageObject, originalMessageObject, "File written to " + filename);
+			
 		} catch (Exception e) {
-			if (messageObject != null) {
-				messageObject.setStatus(MessageObject.Status.ERROR);
-				messageObject.setErrors(messageObject.getErrors() != null ? messageObject.getErrors() + '\n' : "" + "Error writing document\n" + StackTracePrinter.stackTraceToString(e));
-				messageObjectController.updateMessage(messageObject);
-			}
+			messageObjectController.setError(messageObject, originalMessageObject, "Error writing document.", e);
 			connector.handleException(e);
 		}
 	}
 
-	private void writeDocument(String template, File file, MessageObject messageObject) throws Exception {
+	private void writeDocument(String template, File file, MessageObject messageObject, MessageObject originalMessageObject) throws Exception {
 		Document document = new Document();
-
+		ByteArrayInputStream bais = null;
 		try {
 			if (connector.getDocumentType().equals("pdf")) {
 				PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(file));
 				if (connector.isEncrypted() && (connector.getPassword() != null)) {
 					writer.setEncryption(PdfWriter.STRENGTH128BITS, connector.getPassword(), null, PdfWriter.AllowCopy | PdfWriter.AllowPrinting | PdfWriter.AllowFillIn);
 				}
-
+			} else if (connector.getDocumentType().equals("rtf")) {
+	            RtfWriter2.getInstance(document, new FileOutputStream(file));
+			}
 				// add tags to the template to create a valid HTML document
 				StringBuilder contents = new StringBuilder();
 				contents.append("<html>");
@@ -111,26 +98,25 @@ public class DocumentMessageDispatcher extends AbstractMessageDispatcher {
 				contents.append("</body>");
 				contents.append("</html>");
 
-				ByteArrayInputStream bais = new ByteArrayInputStream(contents.toString().getBytes());
+				bais = new ByteArrayInputStream(contents.toString().getBytes());
 				document.open();
 				HtmlParser parser = new HtmlParser();
-
 				parser.go(document, bais);
-			} else if (connector.getDocumentType().equals("rtf")) {
-	            RtfWriter2.getInstance(document, new FileOutputStream(file));
-	            document.open();
-	            document.add(new Paragraph(template));
-	            document.close();
-			}
+				
+	            //document.open();
+	           // document.add(new Paragraph(template));
+	            //document.close();
+			
 		} catch (Exception e) {
-			if (messageObject != null) {
-				messageObject.setStatus(MessageObject.Status.ERROR);
-				messageObject.setErrors(messageObject.getErrors() != null ? messageObject.getErrors() + '\n' : "" + "Error writing PDF\n" + StackTracePrinter.stackTraceToString(e));
-				messageObjectController.updateMessage(messageObject);
-			}
+			messageObjectController.setError(messageObject, originalMessageObject, "Error writing document.", e);
 			connector.handleException(e);
 		} finally {
-			document.close();
+			try{
+				bais.close();
+				document.close();
+			}catch (Exception e){
+				logger.error(e.getMessage());
+			}
 		}
 	}
 
