@@ -23,7 +23,6 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
 package com.webreach.mirth.client.core;
 
 import java.util.List;
@@ -40,6 +39,7 @@ import com.webreach.mirth.model.ChannelStatus;
 import com.webreach.mirth.model.ChannelSummary;
 import com.webreach.mirth.model.DriverInfo;
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.model.ServerConfiguration;
 import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.model.Transport;
 import com.webreach.mirth.model.User;
@@ -52,7 +52,7 @@ public class Client {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 	private ServerConnection serverConnection;
-	
+
 	public final static String USER_SERVLET = "/users";
 	public final static String CHANNEL_SERVLET = "/channels";
 	public final static String CONFIGURATION_SERVLET = "/configuration";
@@ -71,7 +71,7 @@ public class Client {
 	public Client(String address) {
 		serverConnection = ServerConnectionFactory.createServerConnection(address);
 	}
-	
+
 	/**
 	 * Logs a user in to the Mirth server using the specified name and password.
 	 * 
@@ -108,6 +108,22 @@ public class Client {
 		logger.debug("checking if logged in");
 		NameValuePair[] params = { new NameValuePair("op", "isLoggedIn") };
 		return Boolean.valueOf(serverConnection.executePostMethod(USER_SERVLET, params));
+	}
+
+	/**
+	 * Returns a ServerConfiguration object which contains all of the channels,
+	 * users, alerts and properties stored on the Mirth server.
+	 * 
+	 * @return
+	 * @throws ClientException
+	 */
+	public synchronized ServerConfiguration getServerConfiguration() throws ClientException {
+		ServerConfiguration serverConfig = new ServerConfiguration();
+		serverConfig.setChannels(getChannel(null));
+		serverConfig.setAlerts(getAlert(null));
+		serverConfig.setUsers(getUser(null));
+		serverConfig.setProperties(getServerProperties());
+		return serverConfig;
 	}
 
 	/**
@@ -164,19 +180,20 @@ public class Client {
 		return (Map<String, Transport>) serializer.fromXML(serverConnection.executePostMethod(CONFIGURATION_SERVLET, params));
 	}
 
-        /**
+	/**
 	 * Returns a List of all of the encodings supported by the server
 	 * 
 	 * @return
 	 * @throws ClientException
 	 */
-        //ast: The avaiable charset encodings depends on the JVM in which the server is running
+	// ast: The avaiable charset encodings depends on the JVM in which the
+	// server is running
 	public synchronized List<String> getAvaiableCharsetEncodings() throws ClientException {
 		logger.debug("retrieving the server supported charset encoging list");
 		NameValuePair[] params = { new NameValuePair("op", "getAvaiableCharsetEncodings") };
 		return (List<String>) serializer.fromXML(serverConnection.executePostMethod(CONFIGURATION_SERVLET, params));
 	}
-        
+
 	/**
 	 * Returns a List of all users.
 	 * 
@@ -329,7 +346,8 @@ public class Client {
 	public synchronized void stopChannel(String channelId) throws ClientException {
 		logger.debug("stopping channel: channelId=" + channelId);
 		NameValuePair[] params = { new NameValuePair("op", "stopChannel"), new NameValuePair("id", channelId) };
-		serverConnection.executePostMethod(CHANNEL_STATUS_SERVLET, params);	}
+		serverConnection.executePostMethod(CHANNEL_STATUS_SERVLET, params);
+	}
 
 	/**
 	 * Pauses the channel with the specified id.
@@ -340,7 +358,8 @@ public class Client {
 	public synchronized void pauseChannel(String channelId) throws ClientException {
 		logger.debug("pausing channel: channelId=" + channelId);
 		NameValuePair[] params = { new NameValuePair("op", "pauseChannel"), new NameValuePair("id", channelId) };
-		serverConnection.executePostMethod(CHANNEL_STATUS_SERVLET, params);	}
+		serverConnection.executePostMethod(CHANNEL_STATUS_SERVLET, params);
+	}
 
 	/**
 	 * Resumes the channel with the specified id.
@@ -351,7 +370,8 @@ public class Client {
 	public synchronized void resumeChannel(String channelId) throws ClientException {
 		logger.debug("resuming channel: channelId=" + channelId);
 		NameValuePair[] params = { new NameValuePair("op", "resumeChannel"), new NameValuePair("id", channelId) };
-		serverConnection.executePostMethod(CHANNEL_STATUS_SERVLET, params);	}
+		serverConnection.executePostMethod(CHANNEL_STATUS_SERVLET, params);
+	}
 
 	/**
 	 * Returns the Statistics for the channel with the specified id.
@@ -429,7 +449,7 @@ public class Client {
 	public MessageListHandler getMessageListHandler(MessageObjectFilter filter, int pageSize) {
 		return new MessageListHandler(filter, pageSize, serverConnection);
 	}
-	
+
 	/**
 	 * Returns the channel status list.
 	 * 
@@ -477,30 +497,30 @@ public class Client {
 		NameValuePair[] params = { new NameValuePair("op", "getBuildDate") };
 		return serverConnection.executePostMethod(CONFIGURATION_SERVLET, params);
 	}
-	
+
 	/**
 	 * Submits an error message to the Mirth Project.
 	 * 
 	 * @param message
 	 */
 	public synchronized void submitError(String message) {
-        Error error = new Error();
-        error.setJavaVersion(System.getProperty("java.version"));
-        error.setOsArchitecture(System.getProperty("os.arch"));
-        error.setOsName(System.getProperty("os.name"));
-        error.setOsVersion(System.getProperty("os.version"));
-        error.setStackTrace(message);
-        error.setDate(new ErrorDate());
+		Error error = new Error();
+		error.setJavaVersion(System.getProperty("java.version"));
+		error.setOsArchitecture(System.getProperty("os.arch"));
+		error.setOsName(System.getProperty("os.name"));
+		error.setOsVersion(System.getProperty("os.version"));
+		error.setStackTrace(message);
+		error.setDate(new ErrorDate());
 
-        ServerConnection errorServerConnection = new ServerConnection("http://www.mirthproject.org:8083/errors");
-        
-        try {
+		ServerConnection errorServerConnection = new ServerConnection("http://www.mirthproject.org:8083/errors");
+
+		try {
 			errorServerConnection.executePostMethod("/create", error.getAsParams());
 		} catch (ClientException e) {
 			logger.error("could not submit error", e);
 		}
 	}
-	
+
 	public WSDefinition getWebServiceDefinition(String address) throws ClientException {
 		logger.debug("retrieving web service definition for address: " + address);
 		NameValuePair[] params = { new NameValuePair("op", "getWebServiceDefinition"), new NameValuePair("address", address) };
