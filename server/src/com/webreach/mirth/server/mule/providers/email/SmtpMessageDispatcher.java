@@ -65,13 +65,16 @@ public class SmtpMessageDispatcher extends AbstractMessageDispatcher {
 		
 		Message msg = null;
 		
-		MessageObject originalMessageObject = (MessageObject)event.getMessage().getPayload();
+		MessageObject originalMessageObject = null;
 		MessageObject messageObject = null;
 		try {
+			
 			Object incomingData = event.getTransformedMessage();
-			if (incomingData == null && !(incomingData instanceof MessageObject) ){
+			if (incomingData == null || !(incomingData instanceof MessageObject) ){
+				logger.warn("received data is not of expected type");
 				return;
 			}
+			originalMessageObject = (MessageObject)event.getMessage().getPayload();
 			messageObject = (MessageObject)incomingData;
 			if (messageObject.getStatus().equals(MessageObject.Status.REJECTED)) {
 				return;
@@ -101,9 +104,10 @@ public class SmtpMessageDispatcher extends AbstractMessageDispatcher {
 				messageObjectController.updateMessage(messageObject);
 			}
 			if (originalMessageObject != null){
-				Response response = new Response(Response.Status.SUCCESS, "Email successfully sent.");
+				Response response = new Response(Response.Status.FAIL, "Error sending Email. " + e.getMessage());
 				originalMessageObject.getResponseMap().put(messageObject.getConnectorName(), response);
 			}
+			
 			connector.handleException(e);
 		}
 	}

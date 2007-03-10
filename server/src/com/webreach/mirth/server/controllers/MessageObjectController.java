@@ -26,6 +26,7 @@
 package com.webreach.mirth.server.controllers;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -33,13 +34,20 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.mule.umo.UMOEvent;
+
+import ca.uhn.hl7v2.util.DeepCopy;
 
 import com.ibatis.sqlmap.client.SqlMapClient;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.model.Response;
+import com.webreach.mirth.model.converters.ObjectCloner;
+import com.webreach.mirth.model.converters.ObjectClonerException;
 import com.webreach.mirth.model.filters.MessageObjectFilter;
 import com.webreach.mirth.server.mule.util.VMRouter;
 import com.webreach.mirth.server.util.SqlConfig;
+import com.webreach.mirth.server.util.StackTracePrinter;
 import com.webreach.mirth.server.util.UUIDGenerator;
 
 public class MessageObjectController {
@@ -184,12 +192,57 @@ public class MessageObjectController {
 		return parameterMap;
 	}
 	
-	public MessageObject cloneMessageObjectForBroadcast(MessageObject messageObject, String connectorName){
-		MessageObject clone = (MessageObject) messageObject.clone();
+	public MessageObject cloneMessageObjectForBroadcast(MessageObject messageObject, String connectorName) throws ObjectClonerException{
+		MessageObject clone = (MessageObject) ObjectCloner.deepCopy(messageObject);
 		clone.setId(UUIDGenerator.getUUID());
 		clone.setDateCreated(Calendar.getInstance());
 		clone.setCorrelationId(messageObject.getId());
 		clone.setConnectorName(connectorName);//new ChannelController().getDestinationName(connectorName));
+		//We don't want to clone the maps from the original message
+		clone.setVariableMap(new HashMap());
+		clone.setResponseMap(new HashMap()); //maybe null???
+		clone.setContextMap(messageObject.getContextMap());
 		return clone;
+	}
+	public List<MessageObject> getMessageObjectsFromEvent(UMOEvent event) throws Exception{
+		MessageObject messageObject = null;
+		MessageObject originalMessageObject = null;
+		Object incomingData = incomingData = event.getTransformedMessage();
+		List<MessageObject> returnList = new ArrayList<MessageObject>(2);
+		if (incomingData == null || !(incomingData instanceof MessageObject)) {
+			logger.warn("received data is not of expected type");
+			return null;
+		}
+		messageObject = (MessageObject) incomingData;
+		if (messageObject.getStatus().equals(MessageObject.Status.REJECTED)) {
+			return null;
+		}
+		returnList.add(0, messageObject);
+		originalMessageObject = (MessageObject) event.getMessage().getPayload();
+		returnList.add(1, originalMessageObject);
+		return returnList;
+	}
+	public void setError(MessageObject messageObject, MessageObject originalMessageObject, String errorMessage, Throwable t){
+		if (messageObject != null) {
+			messageObject.setStatus(MessageObject.Status.ERROR);
+			if (t != null){
+				messageObject.setErrors(messageObject.getErrors() != null ? messageObject.getErrors() + '\n' + errorMessage + "\n" + StackTracePrinter.stackTraceToString(t) : errorMessage + "\n" + StackTracePrinter.stackTraceToString(t));
+			}
+			updateMessage(messageObject);
+		}
+		if (originalMessageObject != null) {
+			Response response = new Response(Response.Status.FAIL, errorMessage + " " + t.getMessage());
+			originalMessageObject.getResponseMap().put(messageObject.getConnectorName(), response);
+		}
+	}
+	public void setSuccess(MessageObject messageObject, MessageObject originalMessageObject, String responseMessage){
+		if (messageObject != null) {
+			messageObject.setStatus(MessageObject.Status.SENT);
+			updateMessage(messageObject);
+		}
+		if (originalMessageObject != null) {
+			Response response = new Response(Response.Status.SUCCESS, responseMessage);
+			originalMessageObject.getResponseMap().put(messageObject.getConnectorName(), response);
+		}
 	}
 }

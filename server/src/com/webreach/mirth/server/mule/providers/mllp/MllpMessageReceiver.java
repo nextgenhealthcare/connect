@@ -320,6 +320,7 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 						if (payload instanceof MessageObject){
 							MessageObject messageObjectResponse = (MessageObject)payload;
 							String errorString = "";
+							
 							if (connector.isResponseFromTransformer()){
 								if (connector.isAckOnNewConnection()){
 									String endpointURI = connector.getAckIP() + ":" + connector.getAckPort();

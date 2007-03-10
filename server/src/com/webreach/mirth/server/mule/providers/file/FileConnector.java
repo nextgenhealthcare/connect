@@ -77,6 +77,7 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 	public static final String PROPERTY_TEMPLATE = "template";
 	public static final String PROPERTY_SORT_ATTRIBUTE = "sortAttribute";
 	public static final String PROPERTY_BATCH_PROCESS = "processBatchFiles";
+	public static final String PROPERTY_BINARY = "binary";
 	
 	public static final String SORT_NAME = "name";
 	public static final String SORT_DATE = "date";
@@ -110,8 +111,9 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 	public FilenameParser filenameParser = new VariableFilenameParser();
 	private UMOMessageReceiver receiver = null;
 	private boolean processBatchFiles = true;
-        //ast: encoding charset
-        private String charsetEncoding = DEFAULT_CHARSET_ENCODING;
+    //ast: encoding charset
+    private String charsetEncoding = DEFAULT_CHARSET_ENCODING;
+    private boolean binary = false;
 
 	/*
 	 * (non-Javadoc)
@@ -455,5 +457,13 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 
 		public void setProcessBatchFiles(boolean processBatchFiles) {
 			this.processBatchFiles = processBatchFiles;
+		}
+
+		public boolean isBinary() {
+			return binary;
+		}
+
+		public void setBinary(boolean binary) {
+			this.binary = binary;
 		}
 }

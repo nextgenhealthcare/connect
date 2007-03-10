@@ -33,7 +33,11 @@ import org.mule.umo.UMOMessage;
 import org.mule.umo.endpoint.UMOEndpointURI;
 import org.mule.util.Utility;
 
+import sun.misc.BASE64Decoder;
+import sun.misc.BASE64Encoder;
+
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.model.Response;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.mule.providers.file.filters.FilenameWildcardFilter;
 import com.webreach.mirth.server.util.StackTracePrinter;
@@ -48,6 +52,7 @@ import com.webreach.mirth.server.util.StackTracePrinter;
  */
 public class FileMessageDispatcher extends AbstractMessageDispatcher {
 	private FileConnector connector;
+
 	private MessageObjectController messageObjectController = new MessageObjectController();
 
 	public FileMessageDispatcher(FileConnector connector) {
@@ -66,6 +71,7 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
 		FileOutputStream fos = null;
 		Object data = null;
 		MessageObject messageObject = null;
+		MessageObject originalMessageObject = null;
 		try {
 			data = event.getTransformedMessage();
 		} catch (Exception ext) {
@@ -73,60 +79,65 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
 			connector.handleException(ext);
 		}
 		try {
-			if (data instanceof MessageObject) {
-				messageObject = (MessageObject) data;
-
-				if (messageObject.getStatus().equals(MessageObject.Status.REJECTED)) {
-					return;
-				}
-				if (messageObject.getCorrelationId() == null) {
-					// If we have no correlation id, this means this is the
-					// original message
-					// so let's copy it and assign a new id and set the proper
-					// correlationid
-					messageObject = messageObjectController.cloneMessageObjectForBroadcast(messageObject, this.getConnector().getName());
-				}
-				String filename = (String) event.getProperty(FileConnector.PROPERTY_FILENAME);
-
-				if (filename == null) {
-					String pattern = (String) event.getProperty(FileConnector.PROPERTY_OUTPUT_PATTERN);
-
-					if (pattern == null) {
-						pattern = connector.getOutputPattern();
-					}
-
-					filename = generateFilename(event, pattern, messageObject);
-				}
-
-				if (filename == null) {
-					throw new IOException("Filename is null");
-				}
-
-				String template = replacer.replaceValues(connector.getTemplate(), messageObject, filename);
-				File file = Utility.createFile(uri.getAddress() + "/" + filename);
-
-				// ast: change the output method to allow encoding election
-				// if (connector.isOutputAppend())
-				// template+=System.getProperty("line.separator");
-				// don't automatically include line break
-				byte[] buffer = template.getBytes(connector.getCharsetEncoding());
-
-				logger.info("Writing file to: " + file.getAbsolutePath());
-				fos = new FileOutputStream(file, connector.isOutputAppend());
-				fos.write(buffer);
-
-				// update the message status to sent
-
-				messageObject.setStatus(MessageObject.Status.SENT);
-				messageObjectController.updateMessage(messageObject);
-			} else {
+			Object incomingData = event.getTransformedMessage();
+			if (incomingData == null || !(incomingData instanceof MessageObject)) {
 				logger.warn("received data is not of expected type");
+				return;
 			}
+			originalMessageObject = (MessageObject) event.getMessage().getPayload();
+			messageObject = (MessageObject) incomingData;
+			if (messageObject.getStatus().equals(MessageObject.Status.REJECTED)) {
+				return;
+			}
+			String filename = (String) event.getProperty(FileConnector.PROPERTY_FILENAME);
+
+			if (filename == null) {
+				String pattern = (String) event.getProperty(FileConnector.PROPERTY_OUTPUT_PATTERN);
+
+				if (pattern == null) {
+					pattern = connector.getOutputPattern();
+				}
+
+				filename = generateFilename(event, pattern, messageObject);
+			}
+
+			if (filename == null) {
+				throw new IOException("Filename is null");
+			}
+
+			String template = replacer.replaceValues(connector.getTemplate(), messageObject, filename);
+			File file = Utility.createFile(uri.getAddress() + "/" + filename);
+
+			// ast: change the output method to allow encoding election
+			// if (connector.isOutputAppend())
+			// template+=System.getProperty("line.separator");
+			// don't automatically include line break
+			byte[] buffer = null;
+			if (connector.isBinary()) {
+				BASE64Decoder base64 = new BASE64Decoder();
+				buffer = base64.decodeBuffer(template);
+			} else {
+				buffer = template.getBytes(connector.getCharsetEncoding());
+			}
+			logger.info("Writing file to: " + file.getAbsolutePath());
+			fos = new FileOutputStream(file, connector.isOutputAppend());
+			fos.write(buffer);
+
+			// update the message status to sent
+			messageObject.setStatus(MessageObject.Status.SENT);
+			messageObjectController.updateMessage(messageObject);
+			Response response = new Response(Response.Status.SUCCESS, "File successfully written: " + filename);
+			originalMessageObject.getResponseMap().put(messageObject.getConnectorName(), response);
+
 		} catch (Exception e) {
 			if (messageObject != null) {
 				messageObject.setStatus(MessageObject.Status.ERROR);
-				messageObject.setErrors(messageObject.getErrors() != null ? messageObject.getErrors() + '\n' : "" + "Error writing the file\n" + StackTracePrinter.stackTraceToString(e));
+				messageObject.setErrors(messageObject.getErrors() != null ? messageObject.getErrors() + '\n' : "" + "Error writing file\n" + StackTracePrinter.stackTraceToString(e));
 				messageObjectController.updateMessage(messageObject);
+			}
+			if (originalMessageObject != null) {
+				Response response = new Response(Response.Status.FAIL, "Error writing file. " + e.getMessage());
+				originalMessageObject.getResponseMap().put(messageObject.getConnectorName(), response);
 			}
 			connector.handleException(e);
 		} finally {
@@ -224,7 +235,8 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
 		return null;
 	}
 
-	public void doDispose() {}
+	public void doDispose() {
+	}
 
 	private String generateFilename(UMOEvent event, String pattern, MessageObject messageObject) {
 		if (connector.getFilenameParser() instanceof VariableFilenameParser) {

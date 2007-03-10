@@ -27,6 +27,8 @@ package com.webreach.mirth.server.mule.transformers;
 
 import java.util.Map;
 
+import javax.mail.Message;
+
 import org.apache.log4j.Logger;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ImporterTopLevel;
@@ -41,6 +43,7 @@ import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.Connector.Mode;
 import com.webreach.mirth.model.MessageObject.Protocol;
 import com.webreach.mirth.model.converters.IXMLSerializer;
+import com.webreach.mirth.model.converters.ObjectClonerException;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.ControllerException;
@@ -194,7 +197,11 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			}
 		} else if (this.getMode().equals(Mode.DESTINATION.toString())) {
 			messageObject = (MessageObject) source;
-			messageObject = messageObjectController.cloneMessageObjectForBroadcast(messageObject, this.getConnectorName());
+			try {
+				messageObject = messageObjectController.cloneMessageObjectForBroadcast(messageObject, this.getConnectorName());
+			} catch (ObjectClonerException e1) {
+				logger.error("Unable to Clone Message Object");
+			}
 
 			try {
 				Adaptor adaptor = AdaptorFactory.getAdaptor(Protocol.valueOf(outboundProtocol));
@@ -202,7 +209,6 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			} catch (Exception e) {
 
 			}
-
 			messageObject.setEncodedDataProtocol(Protocol.valueOf(this.outboundProtocol));
 		}
 

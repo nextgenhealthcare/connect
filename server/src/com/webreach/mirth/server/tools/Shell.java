@@ -28,14 +28,21 @@ package com.webreach.mirth.server.tools;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+
+import javax.swing.JOptionPane;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -50,8 +57,14 @@ import com.webreach.mirth.client.core.Client;
 import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.ChannelStatistics;
+import com.webreach.mirth.model.ChannelStatus;
+import com.webreach.mirth.model.ChannelSummary;
 import com.webreach.mirth.model.SystemEvent;
+import com.webreach.mirth.model.ChannelStatus.State;
+import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.model.filters.SystemEventFilter;
+import com.webreach.mirth.model.util.ImportConverter;
+import com.webreach.mirth.server.controllers.ChannelController;
 
 public class Shell {
 	private Client client;
@@ -81,33 +94,38 @@ public class Shell {
 		try {
 			CommandLine line = parser.parse(options, args);
 
-			if (line.hasOption("a") && line.hasOption("u") && line.hasOption("p") && line.hasOption("s")) {
+			if (line.hasOption("a") && line.hasOption("u") && line.hasOption("p")) {
 				String server = line.getOptionValue("a");
 				String user = line.getOptionValue("u");
 				String password = line.getOptionValue("p");
-				String script = line.getOptionValue("s");
+				
 
 				try {
 					client = new Client(server);
+					if (line.hasOption("s")){
+						runScript(line, server, user, password);
+					}else{
+						if (client.login(user, password)) {
+							System.out.println("Connected to Mirth server @ " + server + " (" + client.getVersion() + ")");
+							BufferedReader reader = new BufferedReader(new InputStreamReader( System.in ));
+							
+							String statement = null;
 
-					if (client.login(user, password)) {
-						System.out.println("Connected to Mirth server @ " + server + " (" + client.getVersion() + ")");
-
-						BufferedReader reader = new BufferedReader(new FileReader(script));
-						String statement = null;
-
-						try {
-							while ((statement = reader.readLine()) != null) {
-								System.out.println("Executing statement: " + statement);
-								executeStatement(statement);
+							try {
+								while (!(statement = reader.readLine()).equalsIgnoreCase("quit")) {
+									try{
+										executeStatement(statement);
+									}catch (Exception e){
+										System.out.println("Invalid statment. Use \"help\" for list of valid statements");
+									}
+								}
+							} finally {
+								reader.close();
 							}
-						} finally {
-							reader.close();
+						} else {
+							System.out.println("Error: Could not login to server.");
 						}
-					} else {
-						System.out.println("Error: Could not login to server.");
 					}
-
 					client.logout();
 					System.out.println("Disconnected from server.");
 				} catch (ClientException ce) {
@@ -124,26 +142,328 @@ public class Shell {
 		}
 	}
 
+	private void runScript(CommandLine line, String server, String user, String password) throws ClientException, FileNotFoundException, IOException {
+		String script = line.getOptionValue("s");
+		if (client.login(user, password)) {
+			System.out.println("Connected to Mirth server @ " + server + " (" + client.getVersion() + ")");
+
+			BufferedReader reader = new BufferedReader(new FileReader(script));
+			String statement = null;
+
+			try {
+				while ((statement = reader.readLine()) != null) {
+					System.out.println("Executing statement: " + statement);
+					executeStatement(statement);
+				}
+			} finally {
+				reader.close();
+			}
+		} else {
+			System.out.println("Error: Could not login to server.");
+		}
+	}
+
 	private void executeStatement(String command) {
 		try {
+			if (command.startsWith("#")){
+				//Comments
+				return;
+			}
 			String[] arguments = command.split(" ");
+			ArrayList<String> newArgs = new ArrayList<String>();
+			StringBuilder quotedString = new StringBuilder();
+			boolean sawQuote = false;
+			for (int i = 0; i < arguments.length; i++) {
+				if (arguments[i].indexOf('\"') > -1){
+					if (sawQuote){
+						//close the quotes
+						sawQuote = false;
+						quotedString.append(" ");
+						quotedString.append(arguments[i].replace("\"", ""));
+						newArgs.add(quotedString.toString());
+					}else{
+						quotedString = new StringBuilder();
+						String arg = arguments[i].replaceFirst("\"", "");
+						if (arg.indexOf('\"') > -1){
+							newArgs.add(arg.replaceAll("\"", ""));
+							sawQuote = false;
+						}else{
+							sawQuote = true;
+							quotedString.append(arg);
+						}
+						
+						
+					}
+				}else{
+					if (sawQuote){
+						quotedString.append(" ");
+						quotedString.append(arguments[i]);
+					}else{
+						newArgs.add(arguments[i]);
+					}
+				}
+			}
 			
+			arguments = new String[newArgs.size()];
+			newArgs.toArray(arguments);
 			if (arguments.length >= 1) {
 				String arg1 = arguments[0];
+				if (arg1.equals("help")){
+					System.out.println("Available Commands:");
+					System.out.println("status\t\t\t\t\t\tReturns status of deployed channels");
+					System.out.println("start\t\t\t\t\t\tStarts all Channels");
+					System.out.println("stop\t\t\t\t\t\tStops all Channels");
+					System.out.println("pause\t\t\t\t\t\tPauses all Channels");
+					System.out.println("resume\t\t\t\t\t\tResumes all Channels");
+					System.out.println("deploy\t\t\t\t\t\tDeploys all Channels");
+					System.out.println("import \"path\"\t\t\t\t\tImports channel specified by <path>");
+					System.out.println("export id|\"name\"|* \"path\"\t\t\tExports the specified channel to <path>");
+					System.out.println("channel start|stop|pause|resume|* id|\"name\"\tPerforms specified channel action");
+					System.out.println("channel stats|export|* id|\"name\"\t\t\tPerforms specified channel action");
+					System.out.println("channel remove|enable|disable|* id|\"name\"\t\tRemove, enable or disable specified channel");
+					System.out.println("channel list\t\t\t\t\tLists all Channels");
+					System.out.println("clear\t\t\t\t\t\tRemoves all messages from all Channels");
+					System.out.println("dump stats|events \"path\"\t\t\tDumps stats or events to specified file");
+					System.out.println("quit\t\t\t\t\t\tQuits Mirth Shell");
+					return;
+				}
+				else if (arg1.equalsIgnoreCase("start") || arg1.equalsIgnoreCase("stop")|| arg1.equalsIgnoreCase("pause") || arg1.equalsIgnoreCase("resume")) {
+					List<ChannelStatus> channels = client.getChannelStatusList();
 
-				if (arg1.equalsIgnoreCase("start") || arg1.equalsIgnoreCase("stop")) {
-					List<Channel> channels = client.getChannel(null);
+					for (Iterator<ChannelStatus> iter = channels.iterator(); iter.hasNext();) {
+						ChannelStatus channel = iter.next();
 
-					for (Iterator iter = channels.iterator(); iter.hasNext();) {
-						Channel channel = (Channel) iter.next();
-
-						if (arg1.equals("start")) {
-							client.startChannel(channel.getId());
-						} else if (arg1.equals("stop")) {
-							client.stopChannel(channel.getId());
+						if (arg1.equals("start") && (channel.getState().equals(State.STOPPED) || channel.getState().equals(State.PAUSED))) {
+							if (channel.getState().equals(State.PAUSED)){
+								client.resumeChannel(channel.getChannelId());
+								System.out.println("Channel " + channel.getName() + " Resumed");
+							}else{
+								client.startChannel(channel.getChannelId());
+								System.out.println("Channel " + channel.getName() + " Started");
+							}
+							
+						} else if (arg1.equals("stop") && (channel.getState().equals(State.STARTED) || channel.getState().equals(State.PAUSED))) {
+							client.stopChannel(channel.getChannelId());
+							System.out.println("Channel " + channel.getName() + " Stopped");
+						}else if (arg1.equals("pause") && channel.getState().equals(State.STARTED)) {
+							client.pauseChannel(channel.getChannelId());
+							System.out.println("Channel " + channel.getName() + " Paused");
+						}else if (arg1.equals("resume") && channel.getState().equals(State.PAUSED)) {
+							client.resumeChannel(channel.getChannelId());
+							System.out.println("Channel " + channel.getName() + " Resumed");
 						}
 					}
-				} else if (arg1.equalsIgnoreCase("clear")) {
+				} else if(arg1.equalsIgnoreCase("deploy")){
+					System.out.println("Deploying Channels");
+					List<Channel> channels = client.getChannel(null);
+					
+					boolean hasChannels = false;
+					for (Iterator iter = channels.iterator(); iter.hasNext();) {
+						Channel channel = (Channel) iter.next();
+						if (channel.isEnabled()){
+							hasChannels = true;
+							break;
+						}
+					}
+					client.deployChannels();
+					if (hasChannels){
+						try {
+							Thread.sleep(500);
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						List<ChannelStatus> channelStatus = client.getChannelStatusList();
+						while (channelStatus.size() == 0){
+							try {
+								Thread.sleep(500);
+							} catch (InterruptedException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							channelStatus = client.getChannelStatusList();
+						}
+					}
+					System.out.println("Channels Deployed");
+				}else if (arg1.equalsIgnoreCase("import")) {
+					String path = arguments[1];
+					File fXml = new File(path);
+					if (!fXml.exists()){
+						System.out.println(path + " not found");
+						return;
+					}else if (!fXml.canRead()){
+						System.out.println("Can not read " + path);
+						return;
+					}else{
+						doImportChannel(fXml);
+					}
+					
+				} else if (arg1.equalsIgnoreCase("status")){
+					
+					System.out.println("ID\t\t\t\t\tStatus\t\tName");
+					List<ChannelStatus> channels = client.getChannelStatusList();
+					for (Iterator<ChannelStatus> iter = channels.iterator(); iter.hasNext();) {
+						ChannelStatus channel = iter.next();
+						
+						System.out.println(channel.getChannelId() + "\t"  + channel.getState().toString() + "\t\t" + channel.getName());
+					}
+					return;
+				}else if (arg1.equalsIgnoreCase("export")) {
+					if (arguments.length < 3){
+						System.out.println("Invalid number of arguments. Syntax is: export id|name|all \"path\"");
+						return;
+					}
+					
+					String key = arguments[1];
+					String path = arguments[2];
+					ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+					List<Channel> channels = client.getChannel(null);
+					if (key.equalsIgnoreCase("*")){
+						for (Iterator iter = channels.iterator(); iter.hasNext();) {
+							try {
+								Channel channel = (Channel) iter.next();
+								File fXml = new File(path + channel.getName() + ".xml");
+								System.out.println("Exporting " + channel.getName());
+								String channelXML = serializer.toXML(channel);
+								writeFile(fXml, channelXML);
+							} catch (IOException e) {
+								System.out.println("Error Writing File " + path);
+							}
+						}
+						System.out.println("Export Complete.");
+						return;
+					}else{
+						File fXml = new File(path);
+						
+						for (Iterator iter = channels.iterator(); iter.hasNext();) {
+							Channel channel = (Channel) iter.next();
+							if (channel.getName().equalsIgnoreCase(key) != channel.getId().equalsIgnoreCase(key)){
+								System.out.println("Exporting " + channel.getName());
+								String channelXML = serializer.toXML(channel);
+								try {
+									writeFile(fXml, channelXML);
+								} catch (IOException e) {
+									System.out.println("Error Writing File " + path);
+								}
+								System.out.println("Export Complete.");
+								return;
+							}
+						}
+					}
+					
+					
+			        
+					
+				}  else if (arg1.equalsIgnoreCase("channel")) {
+					if (arguments.length < 2){
+						System.out.println("Invalid number of arguments. Syntax is: channel start|stop|pause|resume|stats|remove|enable|disable|export|list id|\"name\"");
+						return;
+					}else if (arguments.length < 3 && !arguments[1].equalsIgnoreCase("list") && !arguments[1].equalsIgnoreCase("stats")){
+						System.out.println("Invalid number of arguments. Syntax is: channel start|stop|pause|resume|stats|remove|enable|disable|export|list id|\"name\"");
+						return;
+					}
+					
+					String comm = arguments[1];
+					
+
+					if (comm.equalsIgnoreCase("stats") && arguments.length < 3){
+						//System.out.println("Mirth Channel Statistics Dump: " + (new Date()).toString() + "\n");
+						System.out.println("Received\tFiltered\tSent\t\tError\t\tName");
+
+						List<Channel> channels = client.getChannel(null);
+					
+						for (Iterator iter = channels.iterator(); iter.hasNext();) {
+							Channel channel = (Channel) iter.next();
+							ChannelStatistics stats = client.getStatistics(channel.getId());
+							System.out.println(stats.getReceivedCount() + "\t\t" + stats.getRejectedCount() + "\t\t"+ stats.getSentCount() + "\t\t" + stats.getErrorCount() + "\t\t" + channel.getName());
+						}
+						return;
+					}
+					if (comm.equalsIgnoreCase("list")){
+						List<Channel> allChannels = client.getChannel(null);
+						System.out.println("ID\t\t\t\t\tEnabled\t\tName");
+						String enable = "";
+						for (Iterator<Channel> iter = allChannels.iterator(); iter.hasNext();) {
+							Channel channel = iter.next();
+							if (channel.isEnabled()){
+								enable = "ENABLED";
+							}else{
+								enable = "DISABLED";
+							}
+							System.out.println(channel.getId() + "\t" + enable + "\t\t" + channel.getName() );
+						}
+						return;
+					}
+					if (comm.equalsIgnoreCase("disable") || comm.equalsIgnoreCase("enable") || comm.equalsIgnoreCase("remove")){
+						List<Channel> channels = client.getChannel(null);
+						String key = arguments[2];
+						
+						for (Iterator<Channel> iter = channels.iterator(); iter.hasNext();) {
+							Channel channel = iter.next();
+							if (key.equalsIgnoreCase("*") || channel.getName().equalsIgnoreCase(key) || channel.getId().equalsIgnoreCase(key)){
+								if (comm.equalsIgnoreCase("disable") && channel.isEnabled()){
+									channel.setEnabled(false);
+									client.updateChannel(channel, true);
+									System.out.println("Channel '" + channel.getName() + "' Disabled");
+								}else if (comm.equalsIgnoreCase("enable") && !channel.isEnabled()){
+									channel.setEnabled(true);
+									client.updateChannel(channel, true);
+									System.out.println("Channel '" + channel.getName() + "' Enabled");
+								}else if (comm.equalsIgnoreCase("remove")){
+									if (channel.isEnabled()){
+										channel.setEnabled(false);
+									}
+									client.removeChannel(channel);
+									System.out.println("Channel '" + channel.getName() + "' Removed");
+								}
+								if (!key.equalsIgnoreCase("*"))
+									return;
+							}
+						}
+						
+					}
+					
+					List<ChannelStatus> channels = client.getChannelStatusList();
+					String key = arguments[2];
+					
+							
+					for (Iterator<ChannelStatus> iter = channels.iterator(); iter.hasNext();) {
+						ChannelStatus channel = iter.next();
+					
+						if (key.equalsIgnoreCase("*") || channel.getName().equalsIgnoreCase(key) || channel.getChannelId().equalsIgnoreCase(key)){
+							if (comm.equalsIgnoreCase("start") && (channel.getState().equals(State.PAUSED) || channel.getState().equals(State.STOPPED))){
+								if (channel.getState().equals(State.PAUSED)){
+									client.resumeChannel(channel.getChannelId());
+									System.out.println("Channel '" + channel.getName() + "' Resumed");
+								}else{
+									client.startChannel(channel.getChannelId());
+									System.out.println("Channel '" + channel.getName() + "' Started");
+								}
+							} else if (comm.equalsIgnoreCase("stop") && (channel.getState().equals(State.PAUSED) || channel.getState().equals(State.STARTED))){
+								client.stopChannel(channel.getChannelId());
+								System.out.println("Channel '" + channel.getName() + "' Stopped");
+							}else if (comm.equalsIgnoreCase("pause") && channel.getState().equals(State.STARTED)){
+								client.pauseChannel(channel.getChannelId());
+								System.out.println("Channel '" + channel.getName() + "' Paused");
+							}else if (comm.equalsIgnoreCase("resume") && channel.getState().equals(State.PAUSED)){
+								client.resumeChannel(channel.getChannelId());
+								System.out.println("Channel '" + channel.getName() + "' Resumed");
+							}else if (comm.equalsIgnoreCase("stats")){
+								ChannelStatistics stats = client.getStatistics(channel.getChannelId());
+								System.out.println("Channel Stats for " + channel.getName());
+								System.out.println("Received: " + stats.getReceivedCount());
+								System.out.println("Filtered: " + stats.getRejectedCount());
+								System.out.println("Sent: " + stats.getSentCount());
+								System.out.println("Error: " + stats.getErrorCount());
+							}
+							if (!key.equalsIgnoreCase("*"))
+								return;
+						}
+					}
+				} 
+				
+				else if (arg1.equalsIgnoreCase("clear")) {
+				
 					List<Channel> channels = client.getChannel(null);
 
 					for (Iterator iter = channels.iterator(); iter.hasNext();) {
@@ -160,20 +480,21 @@ public class Shell {
 
 							StringBuilder builder = new StringBuilder();
 							builder.append("Mirth Channel Statistics Dump: " + (new Date()).toString() + "\n");
-							builder.append("Name, Received, Sent, Error\n");
+							builder.append("Name, Received, Filtered, Sent, Error\n");
 
 							List<Channel> channels = client.getChannel(null);
 							
 							for (Iterator iter = channels.iterator(); iter.hasNext();) {
 								Channel channel = (Channel) iter.next();
 								ChannelStatistics stats = client.getStatistics(channel.getId());
-								builder.append(channel.getName() + ", " + stats.getReceivedCount() + ", " + stats.getSentCount() + ", " + stats.getErrorCount());
+								builder.append(channel.getName() + ", " + stats.getReceivedCount() + ", " + stats.getRejectedCount() + ", "+ stats.getSentCount() + ", " + stats.getErrorCount() +"\n");
 							}
 
 							File dumpFile = new File(dumpFilename);
 
 							try {
 								writeFile(dumpFile, builder.toString());	
+								System.out.println("Stats written to " + dumpFilename);
 							} catch (IOException e) {
 								System.out.println("Error: Could not write file: " + dumpFile.getAbsolutePath());
 							}
@@ -196,6 +517,7 @@ public class Shell {
 
 							try {
 								writeFile(dumpFile, builder.toString());	
+								System.out.println("Events written to " + dumpFilename);
 							} catch (IOException e) {
 								System.out.println("Error: Could not write file: " + dumpFile.getAbsolutePath());
 							}
@@ -213,7 +535,95 @@ public class Shell {
 			e.printStackTrace();
 		}
 	}
-	
+	 public static String readFile(File file) throws IOException
+	    {
+	        BufferedReader reader = new BufferedReader(new FileReader(file));
+	        StringBuilder contents = new StringBuilder();
+	        String line = null;
+
+	        try
+	        {
+	            while ((line = reader.readLine()) != null)
+	            {
+	                contents.append(line + "\n");
+	            }
+	        }
+	        finally
+	        {
+	            reader.close();
+	        }
+
+	        return contents.toString();
+	    }
+	private void doImportChannel(File importFile) throws ClientException{
+		String channelXML = "";
+
+        try
+        {
+            channelXML = readFile(importFile);
+        }
+        catch (IOException e)
+        {
+           System.out.println("File could not be read.");
+           return;
+        }
+
+        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+        Channel importChannel;
+
+        try
+        {
+            importChannel = (Channel) serializer.fromXML(channelXML.replaceAll("\\&\\#x0D;\\n", "\n").replaceAll("\\&\\#x0D;", "\n"));
+        }
+        catch (Exception e)
+        {
+        	System.out.println("Invalid channel file.");
+            return;
+        }
+
+       
+
+        if (importChannel.getVersion() != null && !importChannel.getVersion().equals(client.getVersion()))
+        {
+            ImportConverter converter = new ImportConverter();
+            importChannel = converter.convertChannel(importChannel);
+        }
+        String channelName = importChannel.getName();
+        if (!checkChannelName(channelName, importChannel.getId()))
+        {
+            channelName = client.getGuid();
+        }
+        importChannel.setName(channelName);
+
+        importChannel.setRevision(0);
+        importChannel.setId(client.getGuid());
+        client.updateChannel(importChannel, true);
+        System.out.println("Channel '" + channelName + "' imported successfully." );
+        
+	}
+
+    /**
+     * Checks to see if the passed in channel name already exists
+     * @throws ClientException 
+     */
+    public boolean checkChannelName(String name, String id) throws ClientException
+    {
+        if (name.equals(""))
+        {
+            
+            return false;
+        }
+
+        for (Channel channel : client.getChannel(null))
+        {
+            if (channel.getName().equalsIgnoreCase(name) && !channel.getId().equals(id))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
 	private String replaceValues(String source) {
 		source = source.replaceAll("\\$\\{date\\}", getTimeStamp());
 		return source;

@@ -38,13 +38,13 @@ import org.mortbay.jetty.Server;
 import org.mule.MuleManager;
 import org.mule.config.ConfigurationException;
 import org.mule.config.builders.MuleXmlConfigurationBuilder;
-import org.mule.providers.vm.VMMessageReceiver;
 
 import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.server.controllers.ChannelController;
 import com.webreach.mirth.server.controllers.ConfigurationController;
 import com.webreach.mirth.server.controllers.ControllerException;
 import com.webreach.mirth.server.controllers.SystemLogger;
+import com.webreach.mirth.server.mule.providers.vm.VMMessageReceiver;
 import com.webreach.mirth.server.mule.util.VMRegistry;
 import com.webreach.mirth.server.util.DatabasePruner;
 import com.webreach.mirth.server.util.StackTracePrinter;
