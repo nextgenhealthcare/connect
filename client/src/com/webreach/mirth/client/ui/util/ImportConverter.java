@@ -84,6 +84,31 @@ public class ImportConverter
                     channelRoot.removeChild(channelProtocol);
                 }
                 
+                NodeList transportNames = channelRoot.getElementsByTagName("transportName");
+                for(int i = 0; i < transportNames.getLength(); i++)
+                {
+                    if(transportNames.item(i).getTextContent().equals("PDF Writer"))
+                    {
+                        transportNames.item(i).setTextContent("Document Writer");
+                    }
+                }
+                
+                NodeList properyNames = channelRoot.getElementsByTagName("property");
+                for(int i = 0; i < properyNames.getLength(); i++)
+                {
+                    Node nameAttribute = properyNames.item(i).getAttributes().getNamedItem("name");
+                    if(properyNames.item(i).getAttributes().getLength() > 0 && nameAttribute != null)
+                    {
+                        if(nameAttribute.getNodeValue().equals("DataType"))
+                        {
+                            if(properyNames.item(i).getTextContent().equals("PDF Writer"))
+                            {
+                                properyNames.item(i).setTextContent("Document Writer");
+                            }
+                        }
+                    }
+                }
+                
                 if(direction == Direction.OUTBOUND)
                 {
                     Element sourceConnectorRoot = (Element) document.getDocumentElement().getElementsByTagName("sourceConnector").item(0);
@@ -145,7 +170,8 @@ public class ImportConverter
         {
                 e.printStackTrace();
         }
-        return channelXML;
+
+        return updateLocalAndGlobalVariables(channelXML);
     }
     
     /*
@@ -225,14 +251,36 @@ public class ImportConverter
                 {
                     stepType.setTextContent("Message Builder");
                 }
-            }  
+                
+                if(stepType.getTextContent().equals("Message Builder") || stepType.getTextContent().equals("Mapper"))
+                {
+                    boolean foundRegex = false, foundDefaultValue = false;
+                    Element data = (Element) step.getElementsByTagName("data").item(0);
+                    NodeList entries = data.getElementsByTagName("entry");
+                    for(int j = 0; j < entries.getLength(); j++)
+                    {
+                        if(((Element)entries.item(j)).getElementsByTagName("string").getLength() > 0)
+                        {
+                            if(((Element)entries.item(j)).getElementsByTagName("string").item(0).getTextContent().equals("RegularExpressions"))
+                                foundRegex = true;
+                            else if (((Element)entries.item(j)).getElementsByTagName("string").item(0).getTextContent().equals("DefaultValue"))
+                                foundDefaultValue = true;
+                        }
+                    }
+                    
+                    if(!foundRegex)
+                        data.appendChild(createRegexElement(document));
+                    if(!foundDefaultValue)
+                        data.appendChild(createDefaultValueElement(document));
+                }
+            } 
         }
                 
         if(transformerTemplate != null)
             transformerElement.removeChild((Node)transformerTemplate);
         
         connector.appendChild(modeElement);
-
+        
         return document;
     }
     
@@ -305,8 +353,30 @@ public class ImportConverter
                         {
                             stepType.setTextContent("Message Builder");
                         }
-                    }
-                }                
+                        
+                        if(stepType.getTextContent().equals("Message Builder") || stepType.getTextContent().equals("Mapper"))
+                        {
+                            boolean foundRegex = false, foundDefaultValue = false;
+                            Element data = (Element) step.getElementsByTagName("data").item(0);
+                            NodeList entries = data.getElementsByTagName("entry");
+                            for(int j = 0; j < entries.getLength(); j++)
+                            {
+                                if(((Element)entries.item(j)).getElementsByTagName("string").getLength() > 0)
+                                {
+                                    if(((Element)entries.item(j)).getElementsByTagName("string").item(0).getTextContent().equals("RegularExpressions"))
+                                        foundRegex = true;
+                                    else if (((Element)entries.item(j)).getElementsByTagName("string").item(0).getTextContent().equals("DefaultValue"))
+                                        foundDefaultValue = true;
+                                }
+                            }
+                            
+                            if(!foundRegex)
+                                data.appendChild(createRegexElement(document));
+                            if(!foundDefaultValue)
+                                data.appendChild(createDefaultValueElement(document));
+                        }
+                    } 
+                }
                 
                 if(transformerTemplate != null)
                     transformerRoot.removeChild((Node)transformerTemplate);
@@ -326,7 +396,7 @@ public class ImportConverter
         {
                 e.printStackTrace();
         }                        
-        return transformerXML;
+        return updateLocalAndGlobalVariables(transformerXML);
     }
 
     public static String convertFilter(File filter)
@@ -364,6 +434,46 @@ public class ImportConverter
         {
                 e.printStackTrace();
         }                        
-        return filterXML;
+        return updateLocalAndGlobalVariables(filterXML);
+    }
+    
+    public static Element createRegexElement(Document document)
+    {
+        Element entryElement = document.createElement("entry");
+        Element regexElement = document.createElement("string");
+        Element treeElement = document.createElement("tree-map");
+        Element comparatorElement = document.createElement("no-comparator");
+        
+        regexElement.setTextContent("RegularExpressions");
+        
+        treeElement.appendChild(comparatorElement);
+        
+        entryElement.appendChild(regexElement);
+        entryElement.appendChild(treeElement);
+        
+        return entryElement;
+    }
+    
+    public static Element createDefaultValueElement(Document document)
+    {
+        Element entryElement = document.createElement("entry");
+        Element defaultValueElement = document.createElement("string");
+        Element defaultValueValueElement = document.createElement("string");
+        
+        defaultValueElement.setTextContent("DefaultValue");
+        
+        entryElement.appendChild(defaultValueElement);
+        entryElement.appendChild(defaultValueValueElement);
+        
+        return entryElement;
+    }
+    
+    public static String updateLocalAndGlobalVariables(String xml)
+    {
+        xml = xml.replaceAll("localMap.put", "channelContextMap.put");
+        xml = xml.replaceAll("localMap.get", "channelContextMap.get");
+        xml = xml.replaceAll("globalMap.put", "globalContextMap.put");
+        xml = xml.replaceAll("globalMap.put", "globalContextMap.put");
+        return xml;
     }
 }
