@@ -57,7 +57,7 @@ public class DocumentConnector extends AbstractServiceEnabledConnector {
 	}
 
 	public String getProtocol() {
-		return "pdf";
+		return "doc";
 	}
 
 }

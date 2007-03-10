@@ -128,7 +128,7 @@ INSERT INTO TRANSPORT (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE) VALUES ('
 INSERT INTO TRANSPORT (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE) VALUES ('FTP Writer', 'com.webreach.mirth.server.mule.providers.ftp.FtpConnector', 'ftp', '', 'SENDER');
 INSERT INTO TRANSPORT (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE) VALUES ('JMS Writer', 'com.webreach.mirth.server.mule.providers.jms.JmsConnector', 'jms', 'MessageObjectToJMSMessage', 'SENDER');
 INSERT INTO TRANSPORT (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE) VALUES ('SOAP Sender', 'com.webreach.mirth.server.mule.providers.soap.axis.AxisConnector', 'axis', '', 'SENDER');
-INSERT INTO TRANSPORT (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE) VALUES ('Document Writer', 'com.webreach.mirth.server.mule.providers.pdf.PdfConnector', 'pdf', '', 'SENDER');
+INSERT INTO TRANSPORT (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE) VALUES ('Document Writer', 'com.webreach.mirth.server.mule.providers.doc.DocumentConnector', 'doc', '', 'SENDER');
 INSERT INTO TRANSPORT (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE) VALUES ('File Writer', 'com.webreach.mirth.server.mule.providers.file.FileConnector', 'file', '', 'SENDER');
 INSERT INTO TRANSPORT (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE) VALUES ('Database Writer', 'com.webreach.mirth.server.mule.providers.jdbc.JdbcConnector', 'jdbc', '', 'SENDER');
 INSERT INTO TRANSPORT (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE) VALUES ('LLP Sender', 'com.webreach.mirth.server.mule.providers.mllp.MllpConnector', 'mllp', '', 'SENDER');
