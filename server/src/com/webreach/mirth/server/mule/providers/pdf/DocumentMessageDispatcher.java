@@ -21,12 +21,12 @@ import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.util.StackTracePrinter;
 
-public class PdfMessageDispatcher extends AbstractMessageDispatcher {
-	private PdfConnector connector;
+public class DocumentMessageDispatcher extends AbstractMessageDispatcher {
+	private DocumentConnector connector;
 
 	private MessageObjectController messageObjectController = new MessageObjectController();
 
-	public PdfMessageDispatcher(PdfConnector connector) {
+	public DocumentMessageDispatcher(DocumentConnector connector) {
 		super(connector);
 		this.connector = connector;
 	}
@@ -50,10 +50,10 @@ public class PdfMessageDispatcher extends AbstractMessageDispatcher {
 					//so let's copy it and assign a new id and set the proper correlationid
 					messageObject = messageObjectController.cloneMessageObjectForBroadcast(messageObject, this.getConnector().getName());
 				}
-				String filename = (String) event.getProperty(PdfConnector.PROPERTY_FILENAME);
+				String filename = (String) event.getProperty(DocumentConnector.PROPERTY_FILENAME);
 
 				if (filename == null) {
-					String pattern = (String) event.getProperty(PdfConnector.PROPERTY_OUTPUT_PATTERN);
+					String pattern = (String) event.getProperty(DocumentConnector.PROPERTY_OUTPUT_PATTERN);
 
 					if (pattern == null) {
 						pattern = connector.getOutputPattern();

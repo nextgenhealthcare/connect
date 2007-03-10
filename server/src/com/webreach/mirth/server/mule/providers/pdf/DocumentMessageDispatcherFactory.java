@@ -5,10 +5,10 @@ import org.mule.umo.provider.UMOConnector;
 import org.mule.umo.provider.UMOMessageDispatcher;
 import org.mule.umo.provider.UMOMessageDispatcherFactory;
 
-public class PdfMessageDispatcherFactory implements UMOMessageDispatcherFactory {
+public class DocumentMessageDispatcherFactory implements UMOMessageDispatcherFactory {
 
 	public UMOMessageDispatcher create(UMOConnector connector) throws UMOException {
-		return new PdfMessageDispatcher((PdfConnector) connector);
+		return new DocumentMessageDispatcher((DocumentConnector) connector);
 	}
 
 }

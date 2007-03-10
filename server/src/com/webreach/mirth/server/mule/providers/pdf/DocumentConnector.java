@@ -5,7 +5,7 @@ import org.mule.providers.VariableFilenameParser;
 
 import com.webreach.mirth.server.mule.providers.file.FilenameParser;
 
-public class PdfConnector extends AbstractServiceEnabledConnector {
+public class DocumentConnector extends AbstractServiceEnabledConnector {
 	public static final String PROPERTY_FILENAME = "filename";
 	public static final String PROPERTY_TEMPLATE = "template";
 	public static final String PROPERTY_OUTPUT_PATTERN = "outputPattern";
