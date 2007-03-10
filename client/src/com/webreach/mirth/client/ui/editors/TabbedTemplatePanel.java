@@ -6,7 +6,6 @@
 
 package com.webreach.mirth.client.ui.editors;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 
@@ -21,6 +20,7 @@ import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.client.ui.VariableListHandler;
 import com.webreach.mirth.client.ui.panels.reference.VariableReferenceTable;
 import com.webreach.mirth.model.Step;
+import java.util.LinkedHashMap;
 
 /**
  * 
@@ -36,7 +36,7 @@ public class TabbedTemplatePanel extends javax.swing.JPanel
 
     private MirthEditorPane parent;
 
-    private HashMap<String, JPanel> panels;
+    private LinkedHashMap<String, JPanel> panels;
 
     /** Creates new form TabbedTemplatePanel */
     public TabbedTemplatePanel(MirthEditorPane p)
@@ -45,7 +45,7 @@ public class TabbedTemplatePanel extends javax.swing.JPanel
         initComponents();
         resizePanes();
 
-        panels = new HashMap<String, JPanel>();
+        panels = new LinkedHashMap<String, JPanel>();
 
         // ArrayList<ReferenceListItem> functionListItems = new
         // ReferenceListBuilder().getVariableListItems();
