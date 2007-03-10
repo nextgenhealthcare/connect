@@ -1,4 +1,4 @@
-package com.webreach.mirth.server.mule.providers.pdf;
+package com.webreach.mirth.server.mule.providers.doc;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
