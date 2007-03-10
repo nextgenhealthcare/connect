@@ -134,7 +134,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 			payload = event.getTransformedMessage();
 			if (payload instanceof MessageObject) {
 				messageObject = (MessageObject) payload;
-				if (messageObject.getStatus().equals(MessageObject.Status.REJECTED)) {
+				if (messageObject.getStatus().equals(MessageObject.Status.FILTERED)) {
 					return;
 				}
 				if (messageObject.getCorrelationId() == null) {
@@ -239,7 +239,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 			} else if (data instanceof MessageObject) {
 				MessageObject messageObject = (MessageObject) data;
 
-				if (messageObject.getStatus().equals(MessageObject.Status.REJECTED)) {
+				if (messageObject.getStatus().equals(MessageObject.Status.FILTERED)) {
 					logger.warn("message marked as rejected");
 					return;
 				}
@@ -286,7 +286,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 			return null;
 		if (data instanceof MessageObject) {
 			messageObject = (MessageObject) data;
-			if (messageObject.getStatus().equals(MessageObject.Status.REJECTED)) {
+			if (messageObject.getStatus().equals(MessageObject.Status.FILTERED)) {
 				return null;
 			}
 			if (messageObject.getCorrelationId() == null) {

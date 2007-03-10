@@ -223,7 +223,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 
 				return transformedMessageObject;
 			} else {
-				messageObject.setStatus(MessageObject.Status.REJECTED);
+				messageObject.setStatus(MessageObject.Status.FILTERED);
 				return messageObject;
 			}
 		} catch (Exception e) {
@@ -267,7 +267,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			}
 
 			if (!messageAccepted) {
-				messageObject.setStatus(MessageObject.Status.REJECTED);
+				messageObject.setStatus(MessageObject.Status.FILTERED);
 				messageObjectController.updateMessage(messageObject);
 			} else {
 				messageObject.setStatus(MessageObject.Status.ACCEPTED);

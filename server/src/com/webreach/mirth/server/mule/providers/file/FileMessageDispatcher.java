@@ -86,7 +86,7 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
 			}
 			originalMessageObject = (MessageObject) event.getMessage().getPayload();
 			messageObject = (MessageObject) incomingData;
-			if (messageObject.getStatus().equals(MessageObject.Status.REJECTED)) {
+			if (messageObject.getStatus().equals(MessageObject.Status.FILTERED)) {
 				return;
 			}
 			String filename = (String) event.getProperty(FileConnector.PROPERTY_FILENAME);

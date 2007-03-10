@@ -19,7 +19,7 @@ public class MessageObjectToJMSMessage extends AbstractJmsTransformer {
 		
 		if (src instanceof MessageObject) {
 			MessageObject messageObject = (MessageObject) src;
-			if (messageObject.getStatus().equals(MessageObject.Status.REJECTED)){
+			if (messageObject.getStatus().equals(MessageObject.Status.FILTERED)){
 				return null;
 			}
 			try{

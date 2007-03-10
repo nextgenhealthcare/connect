@@ -425,7 +425,7 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 					ackCode = connector.getAckCodeError();
 					String conError = connector.getAckMsgError();
 					textMessage = conError.replaceFirst("\\$\\{ERROR\\}", error);
-				}else if(status.equals(MessageObject.Status.REJECTED)){
+				}else if(status.equals(MessageObject.Status.FILTERED)){
 					if (successOnly){
 						return;
 					}

@@ -76,7 +76,7 @@ public class SmtpMessageDispatcher extends AbstractMessageDispatcher {
 			}
 			originalMessageObject = (MessageObject)event.getMessage().getPayload();
 			messageObject = (MessageObject)incomingData;
-			if (messageObject.getStatus().equals(MessageObject.Status.REJECTED)) {
+			if (messageObject.getStatus().equals(MessageObject.Status.FILTERED)) {
 				return;
 			}
 			MessageObjectToEmailMessage motoEmail = new MessageObjectToEmailMessage();

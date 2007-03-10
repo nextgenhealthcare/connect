@@ -214,7 +214,7 @@ public class MessageObjectController {
 			return null;
 		}
 		messageObject = (MessageObject) incomingData;
-		if (messageObject.getStatus().equals(MessageObject.Status.REJECTED)) {
+		if (messageObject.getStatus().equals(MessageObject.Status.FILTERED)) {
 			return null;
 		}
 		returnList.add(0, messageObject);

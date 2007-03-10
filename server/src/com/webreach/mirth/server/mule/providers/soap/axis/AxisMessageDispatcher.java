@@ -199,7 +199,7 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher {
 		} else if (data instanceof MessageObject) {
 			MessageObject messageObject = (MessageObject) data;
 			
-			if (messageObject.getStatus().equals(MessageObject.Status.REJECTED)){
+			if (messageObject.getStatus().equals(MessageObject.Status.FILTERED)){
 				return;
 			}
 			if (messageObject.getCorrelationId() == null){
@@ -272,7 +272,7 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher {
 		} else if (data instanceof MessageObject) {
 			MessageObject messageObject = (MessageObject) data;
 			
-			if (messageObject.getStatus().equals(MessageObject.Status.REJECTED)){
+			if (messageObject.getStatus().equals(MessageObject.Status.FILTERED)){
 				return null;
 			}
 			if (messageObject.getCorrelationId() == null){

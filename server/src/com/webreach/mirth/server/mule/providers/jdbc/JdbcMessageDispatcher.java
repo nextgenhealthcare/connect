@@ -76,7 +76,7 @@ public class JdbcMessageDispatcher extends AbstractMessageDispatcher {
 		
 		if (data instanceof MessageObject) {
 			messageObject = (MessageObject) data;
-			if (messageObject.getStatus().equals(MessageObject.Status.REJECTED)) {
+			if (messageObject.getStatus().equals(MessageObject.Status.FILTERED)) {
 				// TODO: Check if this should be here
 				return;
 			}

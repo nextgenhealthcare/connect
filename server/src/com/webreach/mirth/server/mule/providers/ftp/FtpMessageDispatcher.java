@@ -70,7 +70,7 @@ public class FtpMessageDispatcher extends AbstractMessageDispatcher {
 			} else if (data instanceof MessageObject) {
 				messageObject = (MessageObject) data;
 				
-				if (messageObject.getStatus().equals(MessageObject.Status.REJECTED)){
+				if (messageObject.getStatus().equals(MessageObject.Status.FILTERED)){
 					return;
 				}
 				if (messageObject.getCorrelationId() == null){
