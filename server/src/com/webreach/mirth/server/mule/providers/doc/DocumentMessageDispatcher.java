@@ -15,8 +15,10 @@ import org.mule.umo.endpoint.UMOEndpointURI;
 import org.mule.util.Utility;
 
 import com.lowagie.text.Document;
+import com.lowagie.text.Paragraph;
 import com.lowagie.text.html.HtmlParser;
 import com.lowagie.text.pdf.PdfWriter;
+import com.lowagie.text.rtf.RtfWriter2;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.util.StackTracePrinter;
@@ -35,21 +37,25 @@ public class DocumentMessageDispatcher extends AbstractMessageDispatcher {
 		TemplateValueReplacer replacer = new TemplateValueReplacer();
 		String endpoint = event.getEndpoint().getEndpointURI().getAddress();
 		MessageObject messageObject = null;
+
 		try {
 			Object data = event.getTransformedMessage();
 			if (data == null) {
 				return;
 			} else if (data instanceof MessageObject) {
 				messageObject = (MessageObject) data;
-				
-				if (messageObject.getStatus().equals(MessageObject.Status.FILTERED)){
+
+				if (messageObject.getStatus().equals(MessageObject.Status.FILTERED)) {
 					return;
 				}
-				if (messageObject.getCorrelationId() == null){
-					//If we have no correlation id, this means this is the original message
-					//so let's copy it and assign a new id and set the proper correlationid
+				if (messageObject.getCorrelationId() == null) {
+					// If we have no correlation id, this means this is the
+					// original message
+					// so let's copy it and assign a new id and set the proper
+					// correlationid
 					messageObject = messageObjectController.cloneMessageObjectForBroadcast(messageObject, this.getConnector().getName());
 				}
+				
 				String filename = (String) event.getProperty(DocumentConnector.PROPERTY_FILENAME);
 
 				if (filename == null) {
@@ -68,7 +74,7 @@ public class DocumentMessageDispatcher extends AbstractMessageDispatcher {
 
 				String template = replacer.replaceValues(connector.getTemplate(), messageObject, filename);
 				File file = Utility.createFile(endpoint + "/" + filename);
-				logger.info("Writing PDF to: " + file.getAbsolutePath());
+				logger.info("Writing document to: " + file.getAbsolutePath());
 				writeDocument(template, file, messageObject);
 
 				// update the message status to sent
@@ -78,9 +84,9 @@ public class DocumentMessageDispatcher extends AbstractMessageDispatcher {
 				logger.warn("received data is not of expected type");
 			}
 		} catch (Exception e) {
-			if (messageObject != null){
+			if (messageObject != null) {
 				messageObject.setStatus(MessageObject.Status.ERROR);
-				messageObject.setErrors(messageObject.getErrors() != null ? messageObject.getErrors() + '\n' : "" + "Error writing PDF\n" +  StackTracePrinter.stackTraceToString(e));
+				messageObject.setErrors(messageObject.getErrors() != null ? messageObject.getErrors() + '\n' : "" + "Error writing document\n" + StackTracePrinter.stackTraceToString(e));
 				messageObjectController.updateMessage(messageObject);
 			}
 			connector.handleException(e);
@@ -91,28 +97,35 @@ public class DocumentMessageDispatcher extends AbstractMessageDispatcher {
 		Document document = new Document();
 
 		try {
-			PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(file));
-			if (connector.isEncrypted() && (connector.getPassword() != null)) {
-				writer.setEncryption(PdfWriter.STRENGTH128BITS, connector.getPassword(), null, PdfWriter.AllowCopy | PdfWriter.AllowPrinting | PdfWriter.AllowFillIn);
+			if (connector.getDocumentType().equals("pdf")) {
+				PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(file));
+				if (connector.isEncrypted() && (connector.getPassword() != null)) {
+					writer.setEncryption(PdfWriter.STRENGTH128BITS, connector.getPassword(), null, PdfWriter.AllowCopy | PdfWriter.AllowPrinting | PdfWriter.AllowFillIn);
+				}
+
+				// add tags to the template to create a valid HTML document
+				StringBuilder contents = new StringBuilder();
+				contents.append("<html>");
+				contents.append("<body>");
+				contents.append(template);
+				contents.append("</body>");
+				contents.append("</html>");
+
+				ByteArrayInputStream bais = new ByteArrayInputStream(contents.toString().getBytes());
+				document.open();
+				HtmlParser parser = new HtmlParser();
+
+				parser.go(document, bais);
+			} else if (connector.getDocumentType().equals("rtf")) {
+	            RtfWriter2.getInstance(document, new FileOutputStream(file));
+	            document.open();
+	            document.add(new Paragraph(template));
+	            document.close();
 			}
-
-			// add tags to the template to create a valid HTML document
-			StringBuilder contents = new StringBuilder();
-			contents.append("<html>");
-			contents.append("<body>");
-			contents.append(template);
-			contents.append("</body>");
-			contents.append("</html>");
-
-			ByteArrayInputStream bais = new ByteArrayInputStream(contents.toString().getBytes());
-			document.open();
-			HtmlParser parser = new HtmlParser();
-			
-			parser.go(document, bais);
 		} catch (Exception e) {
-			if (messageObject != null){
+			if (messageObject != null) {
 				messageObject.setStatus(MessageObject.Status.ERROR);
-				messageObject.setErrors(messageObject.getErrors() != null ? messageObject.getErrors() + '\n' : "" + "Error writing PDF\n" +  StackTracePrinter.stackTraceToString(e));
+				messageObject.setErrors(messageObject.getErrors() != null ? messageObject.getErrors() + '\n' : "" + "Error writing PDF\n" + StackTracePrinter.stackTraceToString(e));
 				messageObjectController.updateMessage(messageObject);
 			}
 			connector.handleException(e);
@@ -145,5 +158,6 @@ public class DocumentMessageDispatcher extends AbstractMessageDispatcher {
 	}
 
 	public void doDispose() {
+		
 	}
 }

@@ -15,6 +15,7 @@ public class DocumentConnector extends AbstractServiceEnabledConnector {
 	private String outputPattern;
 	private boolean encrypted;
 	private String password;
+	private String documentType;
 
 	public String getTemplate() {
 		return this.template;
@@ -54,6 +55,14 @@ public class DocumentConnector extends AbstractServiceEnabledConnector {
 
 	public void setPassword(String password) {
 		this.password = password;
+	}
+
+	public String getDocumentType() {
+		return this.documentType;
+	}
+
+	public void setDocumentType(String documentType) {
+		this.documentType = documentType;
 	}
 
 	public String getProtocol() {
