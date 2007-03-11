@@ -176,7 +176,7 @@ public class DatabaseWriter extends ConnectorClass
 
     public boolean checkProperties(Properties props)
     {
-        if (((String) props.get(DATABASE_URL)).length() > 0 && ((String) props.get(DATABASE_SQL_STATEMENT)).length() > 0)
+        if (((String) props.get(DATABASE_URL)).length() > 0 && (((String) props.get(DATABASE_SQL_STATEMENT)).length() > 0 || ((String) props.get(DATABASE_JS_SQL_STATEMENT)).length() > 0))
             return true;
         return false;
     }
@@ -277,10 +277,15 @@ public class DatabaseWriter extends ConnectorClass
             if (driverInfo.getName().equalsIgnoreCase(((String) databaseDriverCombobox.getSelectedItem())))
                 driver = driverInfo.getClassName();
         }
-
-        String connectionText = "Class.forName(\"" + driver + "\");\n" + "Properties info = new Properties();\n" + "info.setProperty(\"user\", \"" + databaseUsernameField.getText() + "\");\n" + "info.setProperty(\"password\", \"" + new String(databasePasswordField.getPassword()) + "\");\n" + "Connection dbConn = DriverManager.getConnection(\"" + databaseURLField.getText() + "\", info);\n\n" + "// YOUR CODE GOES HERE\n\n" + "dbConn.close();";
-
-        databaseSQLTextPane.setText(connectionText + "\n\n" + databaseSQLTextPane.getText());
+        StringBuilder connectionString = new StringBuilder();
+        connectionString.append("var dbConn = DatabaseConnectionFactory.createDatabaseConnection('");
+        connectionString.append(driver + "','" + databaseURLField.getText() + "','");
+        connectionString.append(databaseUsernameField.getText() + "','" +  new String(databasePasswordField.getPassword()) + "\');\n");
+        
+        connectionString.append("var result = dbConn.executeCachedQuery('");
+        connectionString.append( "expression");
+        connectionString.append("');\ndbConn.close();");
+        databaseSQLTextPane.setText(connectionString.toString() +"\n\n" + databaseSQLTextPane.getText());
 
         parent.enableSave();
     }// GEN-LAST:event_generateConnectionActionPerformed

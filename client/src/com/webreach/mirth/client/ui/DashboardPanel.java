@@ -32,7 +32,7 @@ public class DashboardPanel extends javax.swing.JPanel
     private final String RECEIVED_COLUMN_NAME = "Received";
     private final String SENT_COLUMN_NAME = "Sent";
     private final String ERROR_COLUMN_NAME = "Errors";
-    private final String REJECTED_COLUMN_NAME = "Rejected";
+    private final String FILTERED_COLUMN_NAME = "Filtered";
     private int lastRow;
     private Frame parent;
 
@@ -79,25 +79,25 @@ public class DashboardPanel extends javax.swing.JPanel
         statusTable.getColumnExt(RECEIVED_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
         statusTable.getColumnExt(SENT_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
         statusTable.getColumnExt(ERROR_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
-        statusTable.getColumnExt(REJECTED_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
+        statusTable.getColumnExt(FILTERED_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
 
         statusTable.getColumnExt(STATUS_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
         statusTable.getColumnExt(RECEIVED_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
         statusTable.getColumnExt(SENT_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
         statusTable.getColumnExt(ERROR_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
-        statusTable.getColumnExt(REJECTED_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
+        statusTable.getColumnExt(FILTERED_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
         statusTable.getColumnExt(NAME_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
 
         statusTable.getColumnExt(STATUS_COLUMN_NAME).setCellRenderer(new ImageCellRenderer());
         statusTable.getColumnExt(RECEIVED_COLUMN_NAME).setCellRenderer(new CenterCellRenderer());
         statusTable.getColumnExt(SENT_COLUMN_NAME).setCellRenderer(new CenterCellRenderer());
         statusTable.getColumnExt(ERROR_COLUMN_NAME).setCellRenderer(new CenterCellRenderer());
-        statusTable.getColumnExt(REJECTED_COLUMN_NAME).setCellRenderer(new CenterCellRenderer());
+        statusTable.getColumnExt(FILTERED_COLUMN_NAME).setCellRenderer(new CenterCellRenderer());
 
         statusTable.getColumnExt(RECEIVED_COLUMN_NAME).setHeaderRenderer(PlatformUI.CENTER_COLUMN_HEADER_RENDERER);
         statusTable.getColumnExt(SENT_COLUMN_NAME).setHeaderRenderer(PlatformUI.CENTER_COLUMN_HEADER_RENDERER);
         statusTable.getColumnExt(ERROR_COLUMN_NAME).setHeaderRenderer(PlatformUI.CENTER_COLUMN_HEADER_RENDERER);
-        statusTable.getColumnExt(REJECTED_COLUMN_NAME).setHeaderRenderer(PlatformUI.CENTER_COLUMN_HEADER_RENDERER);
+        statusTable.getColumnExt(FILTERED_COLUMN_NAME).setHeaderRenderer(PlatformUI.CENTER_COLUMN_HEADER_RENDERER);
 
         statusTable.packTable(UIConstants.COL_MARGIN);
 
@@ -157,7 +157,7 @@ public class DashboardPanel extends javax.swing.JPanel
                 {
                     ChannelStatistics tempStats = parent.mirthClient.getStatistics(tempStatus.getChannelId());
                     tableData[i][2] = tempStats.getReceivedCount();
-                    tableData[i][3] = tempStats.getRejectedCount();
+                    tableData[i][3] = tempStats.getFilteredCount();
                     tableData[i][4] = tempStats.getSentCount();
                     tableData[i][5] = tempStats.getErrorCount();
                 }
@@ -191,7 +191,7 @@ public class DashboardPanel extends javax.swing.JPanel
         else
         {
             statusTable = new MirthTable();
-            statusTable.setModel(new RefreshTableModel(tableData, new String[] { STATUS_COLUMN_NAME, NAME_COLUMN_NAME, RECEIVED_COLUMN_NAME, REJECTED_COLUMN_NAME, SENT_COLUMN_NAME, ERROR_COLUMN_NAME })
+            statusTable.setModel(new RefreshTableModel(tableData, new String[] { STATUS_COLUMN_NAME, NAME_COLUMN_NAME, RECEIVED_COLUMN_NAME, FILTERED_COLUMN_NAME, SENT_COLUMN_NAME, ERROR_COLUMN_NAME })
             {
                 boolean[] canEdit = new boolean[] { false, false, false, false, false, false, false };
 

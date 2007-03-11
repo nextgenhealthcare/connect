@@ -83,7 +83,7 @@ import com.webreach.mirth.client.ui.connectors.ConnectorClass;
 import com.webreach.mirth.client.ui.editors.filter.FilterPane;
 import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
 import com.webreach.mirth.client.ui.util.FileUtil;
-import com.webreach.mirth.client.ui.util.ImportConverter;
+import com.webreach.mirth.model.util.ImportConverter;
 import com.webreach.mirth.model.Alert;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.ChannelStatus;
@@ -2658,7 +2658,11 @@ public class Frame extends JXFrame
             importFile = importFileChooser.getSelectedFile();
             String channelXML = "";
             
-            channelXML = ImportConverter.convertChannel(importFile);
+            try {
+				channelXML = ImportConverter.convertChannel(importFile);
+			} catch (Exception e1) {
+				alertException(e1.getStackTrace(),"Invalid channel file. " + e1.getMessage());
+			}
 
 //            try
 //            {
@@ -2679,7 +2683,7 @@ public class Frame extends JXFrame
             }
             catch (Exception e)
             {
-                alertError("Invalid channel file.");
+            	alertException(e.getStackTrace(),"Invalid channel file. " + e.getMessage());
                 return;
             }
 //
@@ -2750,6 +2754,7 @@ public class Frame extends JXFrame
                 channelEditPanel = new ChannelSetup();
                 this.doShowChannel();
             }
+
         }
     }
 

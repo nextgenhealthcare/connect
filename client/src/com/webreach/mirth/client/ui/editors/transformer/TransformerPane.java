@@ -87,7 +87,7 @@ import com.webreach.mirth.client.ui.editors.MapperPanel;
 import com.webreach.mirth.client.ui.editors.MessageBuilder;
 import com.webreach.mirth.client.ui.editors.MirthEditorPane;
 import com.webreach.mirth.client.ui.util.FileUtil;
-import com.webreach.mirth.client.ui.util.ImportConverter;
+import com.webreach.mirth.model.util.ImportConverter;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.Connector;
 import com.webreach.mirth.model.MessageObject;
