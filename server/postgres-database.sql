@@ -98,7 +98,8 @@ CREATE TABLE CONFIGURATION
 DROP TABLE ENCRYPTION_KEY;
 CREATE TABLE ENCRYPTION_KEY
 	(DATA TEXT NOT NULL);
-	
+
+INSERT INTO PERSON (USERNAME, PASSWORD) VALUES('admin', 'admin');
 INSERT INTO TRANSPORT (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE) VALUES ('FTP Reader', 'com.webreach.mirth.server.mule.providers.ftp.FtpConnector', 'ftp', 'ByteArrayToString', 'LISTENER');
 INSERT INTO TRANSPORT (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE) VALUES ('SFTP Reader', 'com.webreach.mirth.server.mule.providers.sftp.SftpConnector', 'sftp', 'ByteArrayToString', 'LISTENER');
 INSERT INTO TRANSPORT (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE) VALUES ('JMS Reader', 'com.webreach.mirth.server.mule.providers.jms.JmsConnector', 'jms', 'JMSMessageToObject ObjectToString', 'LISTENER');
