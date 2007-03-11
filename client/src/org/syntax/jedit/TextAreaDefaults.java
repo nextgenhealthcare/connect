@@ -115,7 +115,7 @@ public class TextAreaDefaults
             this.caretColor = Color.black; // Color.red;
             this.background = Color.white;
             this.foreground = Color.black;
-            this.selectionColor = Color.lightGray;
+            this.selectionColor = new Color(0xc6d3de);
             this.lineHighlightColor = new Color(0x253E5A);
             this.lineHighlight = false;
             this.bracketHighlightColor = Color.darkGray;
