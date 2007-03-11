@@ -49,7 +49,7 @@ import org.mule.umo.routing.RoutingException;
 import org.mule.util.Utility;
 
 import com.webreach.mirth.server.mule.providers.file.filters.FilenameWildcardFilter;
-import com.webreach.mirth.server.mule.util.BatchMessageProcessor;
+import com.webreach.mirth.server.util.BatchMessageProcessor;
 import com.webreach.mirth.server.util.StackTracePrinter;
 
 /**

@@ -21,6 +21,8 @@ import org.mule.umo.UMOException;
 import org.mule.umo.UMOMessage;
 import org.mule.umo.endpoint.UMOEndpointURI;
 
+import sun.misc.BASE64Decoder;
+
 import com.jcraft.jsch.ChannelSftp;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.controllers.ChannelController;
@@ -42,59 +44,42 @@ public class SftpMessageDispatcher extends AbstractMessageDispatcher {
 		TemplateValueReplacer replacer = new TemplateValueReplacer();
 		UMOEndpointURI uri = event.getEndpoint().getEndpointURI();
 		ChannelSftp client = null;
-		MessageObject messageObject = null;
-		try {
-			Object data = event.getTransformedMessage();
-			if (data == null) {
-				return;
-			} else if (data instanceof MessageObject) {
-				messageObject = (MessageObject) data;
-				
-				if (messageObject.getStatus().equals(MessageObject.Status.FILTERED)){
-					return;
-				}
-				if (messageObject.getCorrelationId() == null){
-					//If we have no correlation id, this means this is the original message
-					//so let's copy it and assign a new id and set the proper correlationid
-					messageObject = messageObjectController.cloneMessageObjectForBroadcast(messageObject, this.getConnector().getName());
-				}
+		MessageObject messageObject = messageObjectController.getMessageObjectFromEvent(event);
+		if (messageObject == null) {
+			return;
+		}
+		try{
 				String filename = (String) event.getProperty(SftpConnector.PROPERTY_FILENAME);
 
 				if (filename == null) {
 					String pattern = (String) event.getProperty(SftpConnector.PROPERTY_OUTPUT_PATTERN);
-
 					if (pattern == null) {
 						pattern = connector.getOutputPattern();
 					}
-
 					filename = generateFilename(event, pattern, messageObject);
 				}
-
 				if (filename == null) {
 					throw new IOException("Filename is null");
 				}
 
 				String template = replacer.replaceValues(connector.getTemplate(), messageObject, filename);
-				byte[] buffer = template.getBytes();
-				client = connector.getClient(uri);
-				
+				byte[] buffer = null;
+				if (connector.isBinary()) {
+					BASE64Decoder base64 = new BASE64Decoder();
+					buffer = base64.decodeBuffer(template);
+				} else {
+					buffer = template.getBytes();
+					//TODO: Add support for Charset encodings in 1.4.1
+				}
 				// TODO: have this mode be set by the connector
 				int mode = ChannelSftp.OVERWRITE;
 				
 				client.put(new ByteArrayInputStream(buffer), ".", mode);
 				
-				// update the message status to sent
-				messageObject.setStatus(MessageObject.Status.SENT);
-				messageObjectController.updateMessage(messageObject);
-			} else {
-				logger.warn("received data is not of expected type");
-			}
+				//update the message status to sent
+				messageObjectController.setSuccess(messageObject, "File successfully written: " + filename);
 		} catch (Exception e) {
-			if (messageObject != null){
-				messageObject.setStatus(MessageObject.Status.ERROR);
-				messageObject.setErrors(messageObject.getErrors() != null ? messageObject.getErrors() + '\n' : "" + "Error writing to SFTP server\n" +  StackTracePrinter.stackTraceToString(e));
-				messageObjectController.updateMessage(messageObject);
-			}
+			messageObjectController.setError(messageObject, "Error writing to SFTP: ", e);
 			connector.handleException(e);
 		} finally {
 			connector.releaseClient(uri, client);

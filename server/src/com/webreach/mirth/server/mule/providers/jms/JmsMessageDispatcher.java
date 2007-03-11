@@ -29,6 +29,10 @@ import org.mule.umo.provider.UMOConnector;
 import org.mule.util.PropertiesHelper;
 import org.mule.util.concurrent.Latch;
 
+import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.server.controllers.MessageObjectController;
+import com.webreach.mirth.server.mule.providers.jms.transformers.MessageObjectToJMSMessage;
+
 import javax.jms.DeliveryMode;
 import javax.jms.Destination;
 import javax.jms.Message;
@@ -51,6 +55,7 @@ public class JmsMessageDispatcher extends AbstractMessageDispatcher {
 
     private JmsConnector connector;
     private Session delegateSession;
+	private MessageObjectController messageObjectController = new MessageObjectController();
 
     public JmsMessageDispatcher(JmsConnector connector) {
         super(connector);
@@ -68,6 +73,11 @@ public class JmsMessageDispatcher extends AbstractMessageDispatcher {
     }
 
     private UMOMessage dispatchMessage(UMOEvent event) throws Exception {
+    	MessageObject messageObject = messageObjectController.getMessageObjectFromEvent(event);
+		if (messageObject == null) {
+			return null;
+		}
+
         if (logger.isDebugEnabled()) {
             logger.debug("dispatching on endpoint: " + event.getEndpoint().getEndpointURI() + ". Event id is: "
                     + event.getId());
@@ -104,7 +114,7 @@ public class JmsMessageDispatcher extends AbstractMessageDispatcher {
             Destination dest = connector.getJmsSupport().createDestination(session, endpointUri.getAddress(), topic);
             producer = connector.getJmsSupport().createProducer(session, dest);
 
-            Object message = event.getTransformedMessage();
+            Object message = new MessageObjectToJMSMessage().doTransform(messageObject);
             if (!(message instanceof Message)) {
                 throw new DispatchException(new org.mule.config.i18n.Message(Messages.MESSAGE_NOT_X_IT_IS_TYPE_X_CHECK_TRANSFORMER_ON_X,
                         "JMS message",
@@ -184,10 +194,12 @@ public class JmsMessageDispatcher extends AbstractMessageDispatcher {
                 listener.release();
                 Message result = listener.getMessage();
                 if (result == null) {
+                	messageObjectController.setSuccess(messageObject, "JMS message sent");
                     logger.debug("No message was returned via replyTo destination");
                     return null;
                 } else {
                     Object resultObject = JmsMessageUtils.getObjectForMessage(result);
+                    messageObjectController.setSuccess(messageObject, resultObject.toString());
                     return new MuleMessage(resultObject);
                 }
             } else {
@@ -197,15 +209,20 @@ public class JmsMessageDispatcher extends AbstractMessageDispatcher {
                     logger.debug("Waiting for return event for: " + timeout + " ms on " + replyTo);
                     Message result = consumer.receive(timeout);
                     if (result == null) {
+                    	messageObjectController.setSuccess(messageObject, "JMS message sent");
                         logger.debug("No message was returned via replyTo destination");
                         return null;
                     } else {
                         Object resultObject = JmsMessageUtils.getObjectForMessage(result);
+                        messageObjectController.setSuccess(messageObject, resultObject.toString());
                         return new MuleMessage(resultObject);
                     }
                 }
             }
             return null;
+        } catch (Exception e){
+        	messageObjectController.setError(messageObject, "JMS Error: ", e);
+        	connector.handleException(e);
         } finally {
             JmsUtils.closeQuietly(consumer);
             JmsUtils.closeQuietly(producer);
@@ -213,6 +230,7 @@ public class JmsMessageDispatcher extends AbstractMessageDispatcher {
                 JmsUtils.closeQuietly(session);
             }
         }
+		return null;
     }
 
     /*

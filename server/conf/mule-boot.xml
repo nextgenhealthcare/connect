@@ -33,8 +33,6 @@
 		<transformer name="NoActionTransformer" className="org.mule.transformers.NoActionTransformer"/>
 		<transformer name="HttpStringToXML" className="com.webreach.mirth.server.mule.transformers.HttpStringToXML"/>
 		<transformer name="HttpRequestToString" className="com.webreach.mirth.server.mule.transformers.HttpRequestToString"/>
-		<transformer name="MessageObjectToEmailMessage" className="com.webreach.mirth.server.mule.providers.email.transformers.MessageObjectToEmailMessage"/>
-	
 	</transformers>
 
 	<interceptor-stack name="default">

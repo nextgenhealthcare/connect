@@ -27,6 +27,7 @@ public class SftpConnector extends AbstractServiceEnabledConnector {
 	public static final String PROPERTY_FILENAME = "filename";
 	public static final String PROPERTY_OUTPUT_PATTERN = "outputPattern";
 	public static final String PROPERTY_TEMPLATE = "template";
+	public static final String PROPERTY_BINARY = "binary";
 	
 	private String username;
 	private String password;
@@ -35,6 +36,7 @@ public class SftpConnector extends AbstractServiceEnabledConnector {
 	private String template = null;
 	private FilenameParser filenameParser = new VariableFilenameParser();
 	private Map pools = new HashMap();
+	private boolean binary;
 
 	public UMOMessageReceiver createReceiver(UMOComponent component, UMOEndpoint endpoint) throws Exception {
 		long polling = pollingFrequency;
@@ -154,6 +156,14 @@ public class SftpConnector extends AbstractServiceEnabledConnector {
 
 	public void setUsername(String username) {
 		this.username = username;
+	}
+
+	public boolean isBinary() {
+		return binary;
+	}
+
+	public void setBinary(boolean binary) {
+		this.binary = binary;
 	}
 
 	

@@ -24,46 +24,40 @@
  * ***** END LICENSE BLOCK ***** */
 
 
-package com.webreach.mirth.server.mule.util;
+package com.webreach.mirth.server.util;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public class GlobalVariableStore {
-	public Map<String, Object> globalVariableMap = Collections.synchronizedMap(new HashMap<String, Object>());
-	private static GlobalVariableStore instance = null;
+import org.apache.log4j.Logger;
+import org.mozilla.javascript.Script;
 
-	private GlobalVariableStore() {
+public class CompiledScriptCache {
+	private Logger logger = Logger.getLogger(this.getClass());
+	private Map<String, Script> compiledScripts = new HashMap<String, Script>();
 
+	// singleton pattern
+	private static CompiledScriptCache instance = null;
+
+	private CompiledScriptCache() {
+		
 	}
 
-	public static GlobalVariableStore getInstance() {
-		synchronized (GlobalVariableStore.class) {
+	public static CompiledScriptCache getInstance() {
+		synchronized (CompiledScriptCache.class) {
 			if (instance == null)
-				instance = new GlobalVariableStore();
+				instance = new CompiledScriptCache();
 
 			return instance;
 		}
 	}
 
-	public boolean containsKey(String key) {
-		return globalVariableMap.containsKey(key);
+	public Script getCompiledScript(String id) {
+		return compiledScripts.get(id);
 	}
-	
-	public synchronized void remove(String key) {
-		globalVariableMap.remove(key);
-	}
-	
-	public Object get(String key) {
-		return globalVariableMap.get(key);
-	}
-	
-	public synchronized void put(String key, Object value) {
-		globalVariableMap.put(key, value);
-	}
-	
-	public Map<String, Object> getVariables() {
-		return Collections.unmodifiableMap(globalVariableMap);
+
+	public void putCompiledScript(String id, Script compiledScript) {
+		logger.debug("adding script to cache");
+		compiledScripts.put(id, compiledScript);
 	}
 }

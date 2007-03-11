@@ -3,7 +3,7 @@ package org.mule.providers;
 import java.util.Map;
 
 import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.server.mule.util.GlobalVariableStore;
+import com.webreach.mirth.server.util.GlobalVariableStore;
 
 public class ParameterValueReplacer {
 	public Object getValue(String template, MessageObject messageObject) {

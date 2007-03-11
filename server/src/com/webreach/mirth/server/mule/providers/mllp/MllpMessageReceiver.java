@@ -30,6 +30,7 @@ import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Iterator;
+import java.util.Map;
 
 import javax.resource.spi.work.Work;
 import javax.resource.spi.work.WorkException;
@@ -55,11 +56,12 @@ import ca.uhn.hl7v2.parser.PipeParser;
 import ca.uhn.hl7v2.util.Terser;
 import ca.uhn.hl7v2.validation.impl.NoValidation;
 
+import com.lowagie.text.pdf.events.IndexEvents.Entry;
 import com.webreach.mirth.model.MessageObject;
 import org.mule.providers.tcp.protocols.*;
 
 import com.webreach.mirth.server.mule.providers.mllp.protocols.LlpProtocol;
-import com.webreach.mirth.server.mule.util.BatchMessageProcessor;
+import com.webreach.mirth.server.util.BatchMessageProcessor;
 import com.webreach.mirth.server.util.StackTracePrinter;
 import com.webreach.mirth.util.ACKGenerator;
 
@@ -316,9 +318,17 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 							.isSynchronous(), os);
 					//We need to check the message status
 					if (returnMessage != null && returnMessage instanceof MuleMessage){
+						
 						Object payload = returnMessage.getPayload();
 						if (payload instanceof MessageObject){
 							MessageObject messageObjectResponse = (MessageObject)payload;
+							//DEBUG ONLY!!!
+							Map responseMap = messageObjectResponse.getResponseMap();
+							for (Iterator iter = responseMap.entrySet().iterator(); iter.hasNext();) {
+								java.util.Map.Entry element = (java.util.Map.Entry) iter.next();
+								System.out.println(element.getKey() + ": " + element.getValue());
+							}
+							//DEBUG ONLY END
 							String errorString = "";
 							
 							if (connector.isResponseFromTransformer()){

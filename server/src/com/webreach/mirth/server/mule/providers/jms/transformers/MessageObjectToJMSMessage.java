@@ -22,27 +22,17 @@ public class MessageObjectToJMSMessage extends AbstractJmsTransformer {
 			if (messageObject.getStatus().equals(MessageObject.Status.FILTERED)){
 				return null;
 			}
-			try{
-				Message message = transformToMessage(messageObject.getEncodedData());
-				
-                try {
-                	message.setStringProperty("MIRTH_MESSAGE_ID", messageObject.getId());
-                } catch (JMSException e) {
-                    //Various Jms servers have slightly different rules to what can be set as an object property on the message
-                    //As such we have to take a hit n' hope approach
-                    if(logger.isDebugEnabled()) logger.debug("Unable to set property '" + encodeHeader("MIRTH_MESSAGE_ID") + "': " + e.getMessage());
-                }
-                //update the message status to sent
-				messageObject.setStatus(MessageObject.Status.SENT);
-				messageObjectController.updateMessage(messageObject);
-				return message;
-			}catch (TransformerException tex){
-				messageObject.setStatus(MessageObject.Status.ERROR);
-				messageObject.setErrors(messageObject.getErrors() != null ? messageObject.getErrors() + '\n' : "" +  "Error creating JMS message\n" +  StackTracePrinter.stackTraceToString(tex));
-				messageObjectController.updateMessage(messageObject);
-			}
+		
+			Message message = transformToMessage(messageObject.getEncodedData());
+            try {
+            	message.setStringProperty("MIRTH_MESSAGE_ID", messageObject.getId());
+            } catch (JMSException e) {
+                //Various Jms servers have slightly different rules to what can be set as an object property on the message
+                //As such we have to take a hit n' hope approach
+                if(logger.isDebugEnabled()) logger.debug("Unable to set property '" + encodeHeader("MIRTH_MESSAGE_ID") + "': " + e.getMessage());
+            }
+			return message;
 		}	
-
 		return null;
 	}
 }

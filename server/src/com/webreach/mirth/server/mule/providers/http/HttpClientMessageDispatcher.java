@@ -43,8 +43,8 @@ import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.Response;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 
-import com.webreach.mirth.server.mule.util.VMRouter;
 import com.webreach.mirth.server.util.StackTracePrinter;
+import com.webreach.mirth.server.util.VMRouter;
 
 import sun.misc.BASE64Encoder;
 
@@ -93,24 +93,21 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher {
 	 * @see org.mule.providers.AbstractConnectorSession#doDispatch(org.mule.umo.UMOEvent)
 	 */
 	public void doDispatch(UMOEvent event) throws Exception {
-		MessageObject messageObject, originalMessageObject = null;
-		List<MessageObject> objects = messageObjectController.getMessageObjectsFromEvent(event);
-		if (objects == null) {
+		MessageObject messageObject = messageObjectController.getMessageObjectFromEvent(event);
+		if (messageObject == null) {
 			return;
-		} else {
-			messageObject = objects.get(0);
-			originalMessageObject = objects.get(1);
 		}
-		HttpMethod httpMethod = execute(event, true, messageObject, originalMessageObject);
+
+		HttpMethod httpMethod = execute(event, true, messageObject);
 		if (httpMethod != null) {
 			httpMethod.releaseConnection();
 			if (httpMethod.getStatusCode() >= 400) {
 				logger.error(httpMethod.getResponseBodyAsString());
-				Exception exception = new DispatchException(event.getMessage(), event.getEndpoint(), new Exception("Http call returned a status of: " + httpMethod.getStatusCode() + " " + httpMethod.getStatusText()));
-				messageObjectController.setError(messageObject, originalMessageObject, httpMethod.getResponseBodyAsString(), exception);
+				Exception exception = new DispatchException(event.getMessage(), event.getEndpoint(), new Exception("HTTP call returned a status of: " + httpMethod.getStatusCode() + " " + httpMethod.getStatusText()));
+				messageObjectController.setError(messageObject, httpMethod.getResponseBodyAsString(), exception);
 				throw exception;
 			} else {
-				messageObjectController.setSuccess(messageObject, originalMessageObject, httpMethod.getResponseBodyAsString());
+				messageObjectController.setSuccess(messageObject, httpMethod.getResponseBodyAsString());
 			}
 		}
 
@@ -179,7 +176,7 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher {
 		}
 	}
 
-	protected HttpMethod execute(UMOEvent event, boolean closeConnection, MessageObject messageObject, MessageObject originalMessageObject) throws Exception {
+	protected HttpMethod execute(UMOEvent event, boolean closeConnection, MessageObject messageObject) throws Exception {
 		TemplateValueReplacer replacer = new TemplateValueReplacer();
 		String method = (String) event.getProperty(HttpConnector.HTTP_METHOD_PROPERTY, HttpConstants.METHOD_POST);
 		URI uri = event.getEndpoint().getEndpointURI().getUri();
@@ -259,14 +256,14 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher {
 				httpMethod.execute(state, connection);
 			} catch (HttpException e) {
 				logger.error(e, e);
-				messageObjectController.setError(messageObject, originalMessageObject, "HTTP Error", e);
+				messageObjectController.setError(messageObject, "HTTP Error: ", e);
 			}
 			return httpMethod;
 		} catch (Exception e) {
 			if (httpMethod != null)
 				httpMethod.releaseConnection();
 			connection.close();
-			messageObjectController.setError(messageObject, originalMessageObject, "HTTP Error", e);
+			messageObjectController.setError(messageObject, "HTTP Error: ", e);
 			throw new DispatchException(event.getMessage(), event.getEndpoint(), e);
 		} finally {
 			if (connection != null && closeConnection) {
@@ -281,15 +278,11 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher {
 	 * @see org.mule.umo.provider.UMOConnector#send(org.mule.umo.UMOEvent)
 	 */
 	public UMOMessage doSend(UMOEvent event) throws Exception {
-		MessageObject messageObject, originalMessageObject = null;
-		List<MessageObject> objects = messageObjectController.getMessageObjectsFromEvent(event);
-		if (objects == null) {
+		MessageObject messageObject = messageObjectController.getMessageObjectFromEvent(event);
+		if (messageObject == null) {
 			return null;
-		} else {
-			messageObject = objects.get(0);
-			originalMessageObject = objects.get(1);
 		}
-		HttpMethod httpMethod = execute(event, false, messageObject, originalMessageObject);
+		HttpMethod httpMethod = execute(event, false, messageObject);
 		try {
 
 			if (httpMethod == null) {
@@ -310,7 +303,7 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher {
 				logger.error(httpMethod.getResponseBodyAsString());
 				String exceptionText = "Http call returned a status of: " + httpMethod.getStatusCode() + " " + httpMethod.getStatusText();
 				ep = new ExceptionPayload(new DispatchException(event.getMessage(), event.getEndpoint(), new Exception(exceptionText)));
-				messageObjectController.setError(messageObject, originalMessageObject, "HTTP Error", ep.getException());
+				messageObjectController.setError(messageObject, "HTTP Error: ", ep.getException());
 			}
 			UMOMessage m = null;
 			// text or binary content?
@@ -321,7 +314,10 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher {
 			}
 
 			// update the message status to sent
-			messageObjectController.setSuccess(messageObject, originalMessageObject, m.getPayloadAsString());
+			if (ep == null){
+				//if we didn't have an exception
+				messageObjectController.setSuccess(messageObject, m.getPayloadAsString());
+			}
 			// handle reply to
 			if (connector.getReplyChannelId() != null) {
 				VMRouter router = new VMRouter();
@@ -332,7 +328,7 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher {
 
 			return m;
 		} catch (Exception e) {
-			messageObjectController.setError(messageObject, originalMessageObject, "HTTP Error", e);
+			messageObjectController.setError(messageObject, "HTTP Error: ", e);
 			throw new DispatchException(event.getMessage(), event.getEndpoint(), e);
 		} finally {
 			if (httpMethod != null)

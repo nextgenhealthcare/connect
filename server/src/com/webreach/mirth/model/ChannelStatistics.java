@@ -34,14 +34,14 @@ public class ChannelStatistics implements Serializable {
 	private int receivedCount = 0;
 	private int sentCount = 0;
 	private int errorCount = 0;
-	private int rejectedCount = 0;
+	private int filteredCount = 0;
 	
-	public int getRejectedCount() {
-		return rejectedCount;
+	public int getFilteredCount() {
+		return filteredCount;
 	}
 
-	public void setRejectedCount(int rejectedCount) {
-		this.rejectedCount = rejectedCount;
+	public void setFilteredCount(int filteredCount) {
+		this.filteredCount = filteredCount;
 	}
 
 	public String getChannelId() {
@@ -91,7 +91,8 @@ public class ChannelStatistics implements Serializable {
 			EqualsUtil.areEqual(this.getChannelId(), statistic.getChannelId()) &&
 			EqualsUtil.areEqual(this.getReceivedCount(), statistic.getReceivedCount()) &&
 			EqualsUtil.areEqual(this.getSentCount(), statistic.getSentCount()) &&
-			EqualsUtil.areEqual(this.getErrorCount(), statistic.getErrorCount());
+			EqualsUtil.areEqual(this.getErrorCount(), statistic.getErrorCount())&&
+			EqualsUtil.areEqual(this.getFilteredCount(), statistic.getReceivedCount());
 	}	
 
 	public String toString() {

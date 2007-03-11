@@ -44,10 +44,10 @@ import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.controllers.ChannelController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.mule.providers.mllp.protocols.LlpProtocol;
-import com.webreach.mirth.server.mule.util.BatchMessageProcessor;
-import com.webreach.mirth.server.mule.util.VMRouter;
+import com.webreach.mirth.server.util.BatchMessageProcessor;
 import com.webreach.mirth.server.util.StackTracePrinter;
 import com.webreach.mirth.server.util.UUIDGenerator;
+import com.webreach.mirth.server.util.VMRouter;
 
 /**
  * f <code>TcpMessageDispatcher</code> will send transformed mule events over
@@ -68,6 +68,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher {
 
 	// ast:queue variables
 	protected Queue queue = null;
+
 	protected Queue errorQueue = null;
 
 	// ///////////////////////////////////////////////////////////////
@@ -79,7 +80,9 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher {
 	private MllpConnector connector;
 
 	private MessageObjectController messageObjectController = new MessageObjectController();
+
 	private TemplateValueReplacer replacer = new TemplateValueReplacer();
+
 	public MllpMessageDispatcher(MllpConnector connector) {
 		super(connector);
 		this.connector = connector;
@@ -119,58 +122,33 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher {
 	 * method
 	 */
 	public void doDispatch(UMOEvent event) throws Exception {
-
 		Socket socket = null;
 		Object payload = null;
 		boolean success = false;
 		Exception exceptionWriting = null;
-		MessageObject messageObject = null;
-
-		this.setQueues(event.getEndpoint());
-		try {
-			payload = event.getTransformedMessage();
-			if (payload instanceof MessageObject){
-				messageObject = (MessageObject) payload;
-				if (messageObject.getStatus().equals(MessageObject.Status.FILTERED)){
-					return;
-				}
-				if (messageObject.getCorrelationId() == null){
-					//If we have no correlation id, this means this is the original message
-					//so let's copy it and assign a new id and set the proper correlationid
-					messageObject = messageObjectController.cloneMessageObjectForBroadcast(messageObject, this.getConnector().getName());
-				}
-				//we only want the encoded data
-				//payload = messageObject.getEncodedData();
-			}
-		} catch (Exception et) {
-			logger.error("Error in transformation " + et);
-			payload = null;
-			throw et;
-		}
-
-		// ast: now, the stuff for queueing (and re-try)
-		if (messageObject == null)
+		String exceptionMessage = "";
+		MessageObject messageObject = messageObjectController.getMessageObjectFromEvent(event);
+		if (messageObject == null) {
 			return;
+		}
+		this.setQueues(event.getEndpoint());
+		// ast: now, the stuff for queueing (and re-try)
 		try {
-			//The status should be queued, even if we are retrying
-			if (messageObject != null) {
-				messageObject.setStatus(MessageObject.Status.QUEUED);
-				messageObjectController.updateMessage(messageObject);
-			}
 			if (queue != null) {
 				try {
-
+					// The status should be queued, even if we are retrying
+					messageObjectController.setQueued(messageObject, "Message is queued");
 					queue.put(messageObject);
 					return;
 				} catch (Exception exq) {
-					logger.error("Cant save payload to the queue\r\n\t " + exq);
+					exceptionMessage = "Can't save payload to queue";
+					logger.error("Can't save payload to queue\r\n\t " + exq);
 					exceptionWriting = exq;
 					success = false;
 				}
 			} else {
 				int retryCount = -1;
 				int maxRetries = connector.getMaxRetryCount();
-
 				while (!success && !disposed && (retryCount < maxRetries)) {
 					retryCount++;
 					try {
@@ -183,142 +161,65 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher {
 							try {
 								Thread.sleep(connector.getReconnectMillisecs());
 							} catch (Throwable t) {
+								exceptionMessage = "Unable to send message. Too many retries";
 								logger.error("Sending interrupption. Payload not sent");
 								retryCount = maxRetries + 1;
 								exceptionWriting = exs;
 							}
 						} else {
+							exceptionMessage = "Unable to connect to destination";
 							logger.error("Can't connect to the endopint: payload not sent");
 							exceptionWriting = exs;
-							
+
 						}
 					}
 				}
 			}
 		} catch (Exception exu) {
+			exceptionMessage = exu.getMessage();
 			logger.error("Unknown exception dispatching " + exu);
 			exceptionWriting = exu;
-		}
+		} 
 		if (!success) {
-			if (messageObject != null) {
-				messageObject.setStatus(MessageObject.Status.ERROR);
-				messageObject.setErrors(messageObject.getErrors() != null ? messageObject.getErrors() + '\n' : "" +  "Can't connect to the endpoint\n" + StackTracePrinter.stackTraceToString(exceptionWriting));
-				messageObjectController.updateMessage(messageObject);
-				connector.incErrorStatistics(event.getComponent());
-			}
+			messageObjectController.setError(messageObject, exceptionMessage, exceptionWriting);
 		}
 		if (success && (exceptionWriting == null)) {
 			manageResponseAck(socket, event.getEndpoint(), messageObject);
 		}
-		if (socket != null && !socket.isClosed()) {
-			socket.close();
-		}
-		// if (exceptionWriting!=null) throw exceptionWriting;
 	}
 
 	protected Socket createSocket(int port, InetAddress inetAddress) throws IOException {
 		return new Socket(inetAddress, port);
 	}
 
-	protected void write(Socket socket, Object data) throws IOException {
-
+	protected void write(Socket socket, byte[] data) throws IOException {
 		LlpProtocol protocol = connector.getLlpProtocol();
-		byte[] binaryData;
-
-		if (data instanceof String) {
-			//ast: encode using the selected encoding
-			binaryData = ((String)data).getBytes(connector.getCharsetEncoding());
-		} else if (data instanceof byte[]) {
-			binaryData = (byte[]) data;
-		} else if (data instanceof MessageObject) {
-			MessageObject messageObject = (MessageObject) data;
-
-			if (messageObject.getStatus().equals(MessageObject.Status.FILTERED)) {
-				logger.warn("message marked as rejected");
-				return;
-			}
-			//ast: encode using the selected encoding
-			binaryData = messageObject.getEncodedData().getBytes(connector.getCharsetEncoding());
-		} else {
-			binaryData = Utility.objectToByteArray(data);
-		}
-
 		BufferedOutputStream bos = new BufferedOutputStream(socket.getOutputStream());
-		protocol.write(bos, binaryData);
+		protocol.write(bos, data);
 		bos.flush();
-		
-		// update the message status to sent
-		if (data instanceof MessageObject) {
-			MessageObject messageObject = (MessageObject) data;
-			messageObject.setStatus(MessageObject.Status.SENT);
-			messageObjectController.updateMessage(messageObject);
-		}
+	}
 
+	protected void write(Socket socket, MessageObject messageObject) throws Exception {
+		byte[] data = messageObject.getEncodedData().getBytes(connector.getCharsetEncoding());
+		LlpProtocol protocol = connector.getLlpProtocol();
+		BufferedOutputStream bos = new BufferedOutputStream(socket.getOutputStream());
+		protocol.write(bos, data);
+		bos.flush();
+	}
+
+	protected void write(Socket socket, String data) throws Exception {
+		LlpProtocol protocol = connector.getLlpProtocol();
+		BufferedOutputStream bos = new BufferedOutputStream(socket.getOutputStream());
+		protocol.write(bos, data.getBytes(connector.getCharsetEncoding()));
+		bos.flush();
 	}
 
 	// ast: split the doSend code into three functions: sendPayload (sending)
 	// and doTheRemoteSyncStuff (for remote-sync)
 
 	public UMOMessage doSend(UMOEvent event) throws Exception {
-		Object data = null;
-		MessageObject messageObject = null;
-		this.setQueues(event.getEndpoint());
-		try {
-			data = event.getTransformedMessage();
-			if (!connector.isKeepSendSocketOpen())
-				doDispose();
-		} catch (Exception e) {
-			logger.error("Error at transformation: " + e);
-			throw e;
-		}
-		if (data == null)
-			return null;
-		if (data instanceof MessageObject) {
-			messageObject = (MessageObject) data;
-			if (messageObject.getStatus().equals(MessageObject.Status.FILTERED)){
-				return null;
-			}
-			if (messageObject.getCorrelationId() == null){
-				//If we have no correlation id, this means this is the original message
-				//so let's copy it and assign a new id and set the proper correlationid
-				MessageObject clone = (MessageObject) messageObject.clone();
-				clone.setId(UUIDGenerator.getUUID());
-				clone.setDateCreated(Calendar.getInstance());
-				clone.setCorrelationId(messageObject.getId());
-				messageObject = clone;
-			}
-			//We don't want to send the actual MO, just the encoded data
-			//data = messageObject.getEncodedData();
-		}
-		
-
-		try {
-			if (queue != null) {
-				queue.put(messageObject);
-			} else {
-				sendPayload(messageObject, event.getEndpoint());
-			}
-		} catch (Exception e) {
-			logger.error("Error sending: " + e);
-			if (messageObject != null) {
-				messageObject.setStatus(MessageObject.Status.ERROR);
-				messageObject.setErrors(messageObject.getErrors() != null ? messageObject.getErrors() + '\n' : "" +  "Can't connect to the endpoint " + e);
-				messageObjectController.updateMessage(messageObject);
-			}
-			throw e;
-		}
-		// update the message status to sent
-		if (messageObject != null) {
-			messageObject.setStatus(MessageObject.Status.SENT);
-			messageObjectController.updateMessage(messageObject);
-		}
-
-		if (useRemoteSync(event)) {
-			return doTheRemoteSyncStuff(connectedSocket, event.getEndpoint());
-		} else {
-			return event.getMessage();
-		}
-
+		doDispatch(event);
+		return event.getMessage();
 	}
 
 	// ast: sendPayload is called from the doSend method, or from
@@ -341,7 +242,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher {
 			if (!result)
 				return result;
 			try {
-				//Send the templated data
+				// Send the templated data
 				writeTemplatedData(connectedSocket, data);
 				result = true;
 				// If we're doing sync receive try and read return info from
@@ -360,15 +261,17 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher {
 				}
 			}
 		} catch (Exception e) {
+			messageObjectController.setError(data, "Socket write exception: ", e);
 			logger.warn("Write raised exception: '" + e.getMessage() + "' desisting reconnecting.");
 			sendException = e;
 		}
 		if ((result == false) || (sendException != null)) {
-			if (sendException != null)
+			if (sendException != null) {
+				messageObjectController.setError(data, "Socket write exception: ", sendException);
 				throw sendException;
+			}
 			return result;
 		}
-
 		// If we have reached this point, the conections has been fine
 		manageResponseAck(connectedSocket, endpoint, data);
 		if (!connector.isKeepSendSocketOpen()) {
@@ -377,11 +280,11 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher {
 		return result;
 	}
 
-	private void writeTemplatedData(Socket socket, MessageObject data) throws IOException {
-		if (connector.getTemplate() != ""){
+	private void writeTemplatedData(Socket socket, MessageObject data) throws Exception {
+		if (connector.getTemplate() != "") {
 			String template = replacer.replaceValues(connector.getTemplate(), data, "llp");
 			write(socket, template);
-		}else{
+		} else {
 			write(socket, data.getEncodedData());
 		}
 	}
@@ -392,78 +295,52 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher {
 	}
 
 	public void manageResponseAck(Socket socket, UMOEndpoint endpoint, MessageObject messageObject) {
-
 		int maxTime = connector.getAckTimeout();
-		if (maxTime <= 0){
-			messageObject.setStatus(MessageObject.Status.SENT);
-			messageObjectController.updateMessage(messageObject);
+		if (maxTime <= 0) { // TODO: Either make a UI setting to "not check for
+			// ACK" or document this
+			// We aren't waiting for an ACK
+			messageObjectController.setSuccess(messageObject, "Message successfully sent");
+			return;
 		}
 		byte[] theAck = getAck(socket, endpoint);
-		if (connector.getReplyChannelId() != null & connector.getReplyChannelId() != ""){
-			//reply back to channel
-			VMRouter router = new VMRouter();
-			try {
-				router.routeMessageByChannelId(connector.getReplyChannelId(), new String(theAck, connector.getCharsetEncoding()), true);
-				if (messageObject != null) {
-					messageObject.setStatus(MessageObject.Status.SENT);
-					messageObjectController.updateMessage(messageObject);
-				}
-			} catch (UnsupportedEncodingException e) {
-				logger.error(e.getMessage());
-				messageObject.setStatus(MessageObject.Status.ERROR);
-				messageObject.setErrors(messageObject.getErrors() != null ? messageObject.getErrors() + '\n' : "" + "Error Setting encoding");
-				messageObjectController.updateMessage(messageObject);
-				connector.incErrorStatistics();
+
+		if (theAck == null) {
+			// NACK
+			messageObjectController.setError(messageObject, "Timeout waiting for ACK", null);
+			return;
+		}
+		try {
+			String ackString = new String(theAck, connector.getCharsetEncoding());
+			if (connector.getReplyChannelId() != null & connector.getReplyChannelId() != "") {
+				// reply back to channel
+				VMRouter router = new VMRouter();
+				router.routeMessageByChannelId(connector.getReplyChannelId(), ackString, true);
 			}
-		}else{
-			if (theAck == null) {
-				if (messageObject != null) {
-					// NACK
-					messageObject.setStatus(MessageObject.Status.ERROR);
-					messageObject.setErrors(messageObject.getErrors() != null ? messageObject.getErrors() + '\n' : "" + "Timeout waiting for the ACK");
-					messageObjectController.updateMessage(messageObject);
-					connector.incErrorStatistics();
-				}
-				return;
-			}
-			String ackString = null;
-			try {
-				ackString = processResponseData(theAck);
-	
-			} catch (Throwable t) {
-				logger.error("Error processing the Ack" + t);
-			}
-			if (ackString == null) {
-				if (messageObject != null) {
-					// //NACK
-					messageObject.setStatus(MessageObject.Status.ERROR);
-					messageObject.setErrors(messageObject.getErrors() != null ? messageObject.getErrors() + '\n' : "" +  "ACK message violates LLP protocol");
-					messageObjectController.updateMessage(messageObject);
-					connector.incErrorStatistics();
-				}
-				return;
-			}
-			ResponseAck rack = new ResponseAck(ackString);
-	
-			if (rack.getTypeOfAck()) {// Ack Ok
-				if (messageObject != null) {
-					messageObject.setStatus(MessageObject.Status.SENT);
-					messageObjectController.updateMessage(messageObject);
-				}
-			} else {
-				if (messageObject != null) {
-					// NACK
-					messageObject.setStatus(MessageObject.Status.ERROR);
-					messageObject.setErrors(messageObject.getErrors() != null ? messageObject.getErrors() + '\n' : "" +   "NACK sent from the receiver:\n" + rack.getErrorDescription());
-					messageObjectController.updateMessage(messageObject);
-					connector.incErrorStatistics();
-				}
-			}
+		} catch (UnsupportedEncodingException e) {
+			logger.error(e.getMessage());
+			messageObjectController.setError(messageObject, "Error setting encoding: " + connector.getCharsetEncoding(), e);
+		}
+		String ackString = null;
+		try {
+			ackString = processResponseData(theAck);
+		} catch (Throwable t) {
+			logger.error("Error processing the Ack" + t);
+		}
+		if (ackString == null) {
+			// NACK
+			messageObjectController.setError(messageObject, "ACK message violates LLP protocol", null);
+			return;
+		}
+		ResponseAck rack = new ResponseAck(ackString);
+		if (rack.getTypeOfAck()) {// Ack Ok
+			messageObjectController.setSuccess(messageObject, ackString);
+		} else {
+			messageObjectController.setError(messageObject, "NACK sent from receiver: " + rack.getErrorDescription() + ": " + ackString, null);
+		
 		}
 	}
 
 	public byte[] getAck(Socket socket, UMOEndpoint endpoint) {
-
 		int maxTime = endpoint.getRemoteSyncTimeout();
 		if (maxTime == 0)
 			return null;
@@ -503,47 +380,45 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher {
 
 	// Function similar to the Receiver
 	protected String processResponseData(byte[] data) throws Exception {
-		
-			char START_MESSAGE, END_MESSAGE, END_OF_RECORD, END_OF_SEGMENT;
-	
-			if (connector.getCharEncoding().equals("hex")) {
-				START_MESSAGE = (char) Integer.decode(connector.getMessageStart()).intValue();
-				END_MESSAGE = (char) Integer.decode(connector.getMessageEnd()).intValue();
-				END_OF_RECORD = (char) Integer.decode(connector.getRecordSeparator()).intValue();
-				END_OF_SEGMENT = (char) Integer.decode(connector.getSegmentEnd()).intValue();
-			} else {
-				START_MESSAGE = connector.getMessageStart().charAt(0);
-				END_MESSAGE = connector.getMessageEnd().charAt(0);
-				END_OF_RECORD = connector.getRecordSeparator().charAt(0);
-				END_OF_SEGMENT = connector.getSegmentEnd().charAt(0);
+
+		char START_MESSAGE, END_MESSAGE, END_OF_RECORD, END_OF_SEGMENT;
+
+		if (connector.getCharEncoding().equals("hex")) {
+			START_MESSAGE = (char) Integer.decode(connector.getMessageStart()).intValue();
+			END_MESSAGE = (char) Integer.decode(connector.getMessageEnd()).intValue();
+			END_OF_RECORD = (char) Integer.decode(connector.getRecordSeparator()).intValue();
+			END_OF_SEGMENT = (char) Integer.decode(connector.getSegmentEnd()).intValue();
+		} else {
+			START_MESSAGE = connector.getMessageStart().charAt(0);
+			END_MESSAGE = connector.getMessageEnd().charAt(0);
+			END_OF_RECORD = connector.getRecordSeparator().charAt(0);
+			END_OF_SEGMENT = connector.getSegmentEnd().charAt(0);
+		}
+
+		// The next lines, removes any '\n' (decimal code 10 or 0x0A) in the
+		// message
+		byte[] bites = data;
+		int destPointer = 0, srcPointer = 0;
+		for (destPointer = 0, srcPointer = 0; srcPointer < bites.length; srcPointer++) {
+			if (bites[srcPointer] != 10) {
+				bites[destPointer] = bites[srcPointer];
+				destPointer++;
 			}
-	
-			// The next lines, removes any '\n' (decimal code 10 or 0x0A) in the
-			// message
-			byte[] bites = data;
-			int destPointer = 0, srcPointer = 0;
-			for (destPointer = 0, srcPointer = 0; srcPointer < bites.length; srcPointer++) {
-				if (bites[srcPointer] != 10) {
-					bites[destPointer] = bites[srcPointer];
-					destPointer++;
-				}
-			}
-			data = bites;
-	                //ast: use the user's encoding
-			String str_data = new String(data, 0, destPointer,connector.getCharsetEncoding());
-	
-			BatchMessageProcessor batchProcessor = new BatchMessageProcessor();
-			batchProcessor.setEndOfMessage((byte) END_MESSAGE);
-			batchProcessor.setStartOfMessage((byte) START_MESSAGE);
-			batchProcessor.setEndOfRecord((byte) END_OF_RECORD);
-			Iterator<String> it = batchProcessor.processHL7Messages(str_data).iterator();
-			UMOMessage returnMessage = null;
-			if (it.hasNext()) {
-				data = (it.next()).getBytes();
-				return new String(data);
-			}
-			return null;
-		
+		}
+		data = bites;
+		// ast: use the user's encoding
+		String str_data = new String(data, 0, destPointer, connector.getCharsetEncoding());
+
+		BatchMessageProcessor batchProcessor = new BatchMessageProcessor();
+		batchProcessor.setEndOfMessage((byte) END_MESSAGE);
+		batchProcessor.setStartOfMessage((byte) START_MESSAGE);
+		batchProcessor.setEndOfRecord((byte) END_OF_RECORD);
+		Iterator<String> it = batchProcessor.processHL7Messages(str_data).iterator();
+		if (it.hasNext()) {
+			data = (it.next()).getBytes();
+			return new String(data);
+		}
+		return null;
 	}
 
 	protected byte[] receive(Socket socket, int timeout) throws IOException {
@@ -599,7 +474,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher {
 
 	// ///////////////////////////////////////////////////////////////
 	// New keepSocketOpen option methods by P.Oikari
-	// ///////////////////////////////////////////////////////////////	
+	// ///////////////////////////////////////////////////////////////
 	public boolean reconnect(UMOEndpoint endpoint, int maxRetries) throws Exception {
 		if (null != connectedSocket) {
 			// We already have a connected socket

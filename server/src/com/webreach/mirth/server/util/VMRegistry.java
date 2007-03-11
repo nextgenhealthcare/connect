@@ -24,40 +24,48 @@
  * ***** END LICENSE BLOCK ***** */
 
 
-package com.webreach.mirth.server.mule.util;
+package com.webreach.mirth.server.util;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
-import org.mozilla.javascript.Script;
+import com.webreach.mirth.server.mule.providers.vm.VMMessageReceiver;
 
-public class CompiledScriptCache {
-	private Logger logger = Logger.getLogger(this.getClass());
-	private Map<String, Script> compiledScripts = new HashMap<String, Script>();
+public class VMRegistry {
+	public Map<String, VMMessageReceiver> vmRegistry = Collections.synchronizedMap(new HashMap<String, VMMessageReceiver>());
+	private static VMRegistry instance = null;
 
-	// singleton pattern
-	private static CompiledScriptCache instance = null;
+	private VMRegistry() {
 
-	private CompiledScriptCache() {
-		
 	}
-
-	public static CompiledScriptCache getInstance() {
-		synchronized (CompiledScriptCache.class) {
+	public static VMRegistry getInstance() {
+		synchronized (VMRegistry.class) {
 			if (instance == null)
-				instance = new CompiledScriptCache();
+				instance = new VMRegistry();
 
 			return instance;
 		}
 	}
-
-	public Script getCompiledScript(String id) {
-		return compiledScripts.get(id);
+	
+	public boolean containsKey(String key) {
+		return vmRegistry.containsKey(key);
 	}
-
-	public void putCompiledScript(String id, Script compiledScript) {
-		logger.debug("adding script to cache");
-		compiledScripts.put(id, compiledScript);
+	
+	public synchronized void remove(String key) {
+		vmRegistry.remove(key);
 	}
+	
+	public VMMessageReceiver get(String key) {
+		return vmRegistry.get(key);
+	}
+	
+	public synchronized void register(String key, VMMessageReceiver value) {
+		vmRegistry.put(key, value);
+	}
+	public synchronized void rebuild(){
+		vmRegistry = Collections.synchronizedMap(new HashMap<String, VMMessageReceiver>());
+	}
+	
+
 }

@@ -24,48 +24,46 @@
  * ***** END LICENSE BLOCK ***** */
 
 
-package com.webreach.mirth.server.mule.util;
+package com.webreach.mirth.server.util;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.webreach.mirth.server.mule.providers.vm.VMMessageReceiver;
+public class GlobalVariableStore {
+	public Map<String, Object> globalVariableMap = Collections.synchronizedMap(new HashMap<String, Object>());
+	private static GlobalVariableStore instance = null;
 
-public class VMRegistry {
-	public Map<String, VMMessageReceiver> vmRegistry = Collections.synchronizedMap(new HashMap<String, VMMessageReceiver>());
-	private static VMRegistry instance = null;
-
-	private VMRegistry() {
+	private GlobalVariableStore() {
 
 	}
-	public static VMRegistry getInstance() {
-		synchronized (VMRegistry.class) {
+
+	public static GlobalVariableStore getInstance() {
+		synchronized (GlobalVariableStore.class) {
 			if (instance == null)
-				instance = new VMRegistry();
+				instance = new GlobalVariableStore();
 
 			return instance;
 		}
 	}
-	
+
 	public boolean containsKey(String key) {
-		return vmRegistry.containsKey(key);
+		return globalVariableMap.containsKey(key);
 	}
 	
 	public synchronized void remove(String key) {
-		vmRegistry.remove(key);
+		globalVariableMap.remove(key);
 	}
 	
-	public VMMessageReceiver get(String key) {
-		return vmRegistry.get(key);
+	public Object get(String key) {
+		return globalVariableMap.get(key);
 	}
 	
-	public synchronized void register(String key, VMMessageReceiver value) {
-		vmRegistry.put(key, value);
-	}
-	public synchronized void rebuild(){
-		vmRegistry = Collections.synchronizedMap(new HashMap<String, VMMessageReceiver>());
+	public synchronized void put(String key, Object value) {
+		globalVariableMap.put(key, value);
 	}
 	
-
+	public Map<String, Object> getVariables() {
+		return Collections.unmodifiableMap(globalVariableMap);
+	}
 }

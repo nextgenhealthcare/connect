@@ -39,8 +39,9 @@ import org.mule.umo.provider.UMOMessageAdapter;
 
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.controllers.MessageObjectController;
-import com.webreach.mirth.server.mule.util.CompiledScriptCache;
-import com.webreach.mirth.server.mule.util.GlobalVariableStore;
+import com.webreach.mirth.server.util.CompiledScriptCache;
+import com.webreach.mirth.server.util.GlobalVariableStore;
+import com.webreach.mirth.server.util.JavaScriptScopeFactory;
 import com.webreach.mirth.server.util.StackTracePrinter;
 
 public class JdbcMessageDispatcher extends AbstractMessageDispatcher {
@@ -63,32 +64,13 @@ public class JdbcMessageDispatcher extends AbstractMessageDispatcher {
 		}
 
 		Object data = null;
-		MessageObject messageObject = null;
 		UMOTransaction tx = null;
 		Connection con = null;
-		
-		try {
-			data = event.getTransformedMessage();
-		} catch (Exception ext) {
-			logger.error("Error at tranformer" + ext);
-			throw ext;
+		MessageObject messageObject = messageObjectController.getMessageObjectFromEvent(event);
+		if (messageObject == null) {
+			return;
 		}
-		
-		if (data instanceof MessageObject) {
-			messageObject = (MessageObject) data;
-			if (messageObject.getStatus().equals(MessageObject.Status.FILTERED)) {
-				// TODO: Check if this should be here
-				return;
-			}
-			if (messageObject.getCorrelationId() == null) {
-				// If we have no correlation id, this means this is the original
-				// message
-				// so let's copy it and assign a new id and set the proper
-				// correlationid
-				messageObject = messageObjectController.cloneMessageObjectForBroadcast(messageObject, this.getConnector().getName());
-			}
-		}
-		
+
 		try {
 			// execute the database script if selected
 			if (this.connector.isUseScript()) {
@@ -96,18 +78,23 @@ public class JdbcMessageDispatcher extends AbstractMessageDispatcher {
 				Scriptable scope = new ImporterTopLevel(context);
 
 				// load variables in JavaScript scope
-				scope.put("message", scope, messageObject.getTransformedData());
-				scope.put("localMap", scope, messageObject.getVariableMap());
-				scope.put("globalMap", scope, GlobalVariableStore.getInstance());
-				scope.put("messageObject", scope, messageObject);
+				new JavaScriptScopeFactory().buildScope(scope, messageObject, logger);
 
 				// get the script from the cache and execute it
 				Script compiledScript = compiledScriptCache.getCompiledScript(this.connector.getScriptId());
 
 				if (compiledScript == null) {
 					logger.warn("database script could not be found in cache");
+					messageObjectController.setError(messageObject, "Database script not found in cache", null);
 				} else {
 					compiledScript.exec(context, scope);
+					String response = "Database write success";
+					//the user could write Javascript that sets the response for this connector
+					//if that's the case, then let's save it
+					if (messageObject.getResponseMap().containsKey(messageObject.getConnectorName())){
+						response = (String)messageObject.getResponseMap().get(messageObject.getConnectorName());
+					}
+					messageObjectController.setSuccess(messageObject, response);
 				}
 			} else {
 				// otherwise run the SQL insert/update/delete statement
@@ -139,11 +126,7 @@ public class JdbcMessageDispatcher extends AbstractMessageDispatcher {
 				if (tx == null) {
 					JdbcUtils.commitAndClose(con);
 				}
-				if (messageObject != null) {
-					messageObject.setStatus(MessageObject.Status.SENT);
-					messageObjectController.updateMessage(messageObject);
-				}
-
+				messageObjectController.setSuccess(messageObject, "Database write sucess, " + nbRows + " rows updated");
 				logger.debug("Event dispatched succesfuly");
 			}
 		} catch (Exception e) {
@@ -152,11 +135,7 @@ public class JdbcMessageDispatcher extends AbstractMessageDispatcher {
 			if (tx == null) {
 				JdbcUtils.rollbackAndClose(con);
 			}
-			if (messageObject != null) {
-				messageObject.setStatus(MessageObject.Status.ERROR);
-				messageObject.setErrors(messageObject.getErrors() != null ? messageObject.getErrors() + '\n' : "" + "Error writing to the database\n" + StackTracePrinter.stackTraceToString(e));
-				messageObjectController.updateMessage(messageObject);
-			}
+			messageObjectController.setError(messageObject, "Error writing to database: ", e);
 			connector.handleException(e);
 		}
 

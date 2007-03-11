@@ -36,6 +36,8 @@ import org.mule.umo.UMOException;
 import org.mule.umo.UMOMessage;
 import org.mule.umo.endpoint.UMOEndpointURI;
 
+import sun.misc.BASE64Decoder;
+
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.controllers.ChannelController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
@@ -62,22 +64,12 @@ public class FtpMessageDispatcher extends AbstractMessageDispatcher {
 		UMOEndpointURI uri = event.getEndpoint().getEndpointURI();
 		TemplateValueReplacer replacer = new TemplateValueReplacer();
 		FTPClient client = null;
-		MessageObject messageObject = null;
+		MessageObject messageObject = messageObjectController.getMessageObjectFromEvent(event);
+		if (messageObject == null) {
+			return;
+		}
+
 		try {
-			Object data = event.getTransformedMessage();
-			if (data == null) {
-				return;
-			} else if (data instanceof MessageObject) {
-				messageObject = (MessageObject) data;
-				
-				if (messageObject.getStatus().equals(MessageObject.Status.FILTERED)){
-					return;
-				}
-				if (messageObject.getCorrelationId() == null){
-					//If we have no correlation id, this means this is the original message
-					//so let's copy it and assign a new id and set the proper correlationid
-					messageObject = messageObjectController.cloneMessageObjectForBroadcast(messageObject, this.getConnector().getName());
-				}
 				String filename = (String) event.getProperty(FtpConnector.PROPERTY_FILENAME);
 
 				if (filename == null) {
@@ -95,9 +87,15 @@ public class FtpMessageDispatcher extends AbstractMessageDispatcher {
 				}
 
 				String template = replacer.replaceValues(connector.getTemplate(), messageObject, filename);
-				byte[] buffer = template.getBytes();
+				byte[] buffer = null;
+				if (connector.isBinary()) {
+					BASE64Decoder base64 = new BASE64Decoder();
+					buffer = base64.decodeBuffer(template);
+				} else {
+					buffer = template.getBytes();
+					//TODO: Add support for Charset encodings in 1.4.1
+				}
 				client = connector.getFtp(uri);
-
 				if (!client.changeWorkingDirectory(uri.getPath())) {
 					throw new IOException("Ftp error: " + client.getReplyCode());
 				}
@@ -107,17 +105,10 @@ public class FtpMessageDispatcher extends AbstractMessageDispatcher {
 				}
 
 				// update the message status to sent
-				messageObject.setStatus(MessageObject.Status.SENT);
-				messageObjectController.updateMessage(messageObject);
-			} else {
-				logger.warn("received data is not of expected type");
-			}
+				messageObjectController.setSuccess(messageObject, "File successfully written: " + filename);
+			
 		} catch (Exception e) {
-			if (messageObject != null){
-				messageObject.setStatus(MessageObject.Status.ERROR);
-				messageObject.setErrors(messageObject.getErrors() != null ? messageObject.getErrors() + '\n' : "" +  "Error writing to FTP\n" + StackTracePrinter.stackTraceToString(e));
-				messageObjectController.updateMessage(messageObject);
-			}
+			messageObjectController.setError(messageObject, "Error writing to FTP: ", e);
 			connector.handleException(e);
 		} finally {
 			connector.releaseFtp(uri, client);

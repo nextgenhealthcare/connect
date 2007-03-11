@@ -158,6 +158,7 @@ public class WSParameter {
 			try {
 				setMinOccurs(Integer.parseInt(minOccurs));
 			} catch (Exception e) {
+				System.out.println(e.getMessage());
 			}
 		}
 	}

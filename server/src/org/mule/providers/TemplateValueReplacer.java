@@ -14,7 +14,7 @@ import org.mule.util.UUID;
 import org.mule.util.Utility;
 
 import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.server.mule.util.GlobalVariableStore;
+import com.webreach.mirth.server.util.GlobalVariableStore;
 import com.webreach.mirth.util.Entities;
 
 public class TemplateValueReplacer {

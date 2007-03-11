@@ -103,7 +103,7 @@ public class SmtpConnector extends AbstractServiceEnabledConnector implements Ma
     /**
      * Holds value of property hostname for the smtp server.
      */
-    private String hostname = "localhost";
+    private String hostname = "";
 
     /**
      * Holds value of property port for the smtp server.

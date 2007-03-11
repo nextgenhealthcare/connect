@@ -110,7 +110,7 @@ public class Shell {
 							BufferedReader reader = new BufferedReader(new InputStreamReader( System.in ));
 							
 							String statement = null;
-
+							System.out.print("$");
 							try {
 								while (!(statement = reader.readLine()).equalsIgnoreCase("quit")) {
 									try{
@@ -118,6 +118,7 @@ public class Shell {
 									}catch (Exception e){
 										System.out.println("Invalid statment. Use \"help\" for list of valid statements");
 									}
+									System.out.print("$");
 								}
 							} finally {
 								reader.close();
@@ -152,8 +153,10 @@ public class Shell {
 
 			try {
 				while ((statement = reader.readLine()) != null) {
-					System.out.println("Executing statement: " + statement);
-					executeStatement(statement);
+					if (!statement.startsWith("#")){
+						System.out.println("Executing statement: " + statement);
+						executeStatement(statement);
+					}
 				}
 			} finally {
 				reader.close();
@@ -219,8 +222,8 @@ public class Shell {
 					System.out.println("import \"path\"\t\t\t\t\tImports channel specified by <path>");
 					System.out.println("export id|\"name\"|* \"path\"\t\t\tExports the specified channel to <path>");
 					System.out.println("channel start|stop|pause|resume|* id|\"name\"\tPerforms specified channel action");
-					System.out.println("channel stats|export|* id|\"name\"\t\t\tPerforms specified channel action");
-					System.out.println("channel remove|enable|disable|* id|\"name\"\t\tRemove, enable or disable specified channel");
+					System.out.println("channel stats|export|* id|\"name\"\t\tPerforms specified channel action");
+					System.out.println("channel remove|enable|disable|* id|\"name\"\tRemove, enable or disable specified channel");
 					System.out.println("channel list\t\t\t\t\tLists all Channels");
 					System.out.println("clear\t\t\t\t\t\tRemoves all messages from all Channels");
 					System.out.println("dump stats|events \"path\"\t\t\tDumps stats or events to specified file");
@@ -383,7 +386,7 @@ public class Shell {
 						for (Iterator iter = channels.iterator(); iter.hasNext();) {
 							Channel channel = (Channel) iter.next();
 							ChannelStatistics stats = client.getStatistics(channel.getId());
-							System.out.println(stats.getReceivedCount() + "\t\t" + stats.getRejectedCount() + "\t\t"+ stats.getSentCount() + "\t\t" + stats.getErrorCount() + "\t\t" + channel.getName());
+							System.out.println(stats.getReceivedCount() + "\t\t" + stats.getFilteredCount() + "\t\t"+ stats.getSentCount() + "\t\t" + stats.getErrorCount() + "\t\t" + channel.getName());
 						}
 						return;
 					}
@@ -460,7 +463,7 @@ public class Shell {
 								ChannelStatistics stats = client.getStatistics(channel.getChannelId());
 								System.out.println("Channel Stats for " + channel.getName());
 								System.out.println("Received: " + stats.getReceivedCount());
-								System.out.println("Filtered: " + stats.getRejectedCount());
+								System.out.println("Filtered: " + stats.getFilteredCount());
 								System.out.println("Sent: " + stats.getSentCount());
 								System.out.println("Error: " + stats.getErrorCount());
 							}
@@ -495,7 +498,7 @@ public class Shell {
 							for (Iterator iter = channels.iterator(); iter.hasNext();) {
 								Channel channel = (Channel) iter.next();
 								ChannelStatistics stats = client.getStatistics(channel.getId());
-								builder.append(channel.getName() + ", " + stats.getReceivedCount() + ", " + stats.getRejectedCount() + ", "+ stats.getSentCount() + ", " + stats.getErrorCount() +"\n");
+								builder.append(channel.getName() + ", " + stats.getReceivedCount() + ", " + stats.getFilteredCount() + ", "+ stats.getSentCount() + ", " + stats.getErrorCount() +"\n");
 							}
 
 							File dumpFile = new File(dumpFilename);
@@ -566,15 +569,13 @@ public class Shell {
 	private void doImportChannel(File importFile) throws ClientException{
 		String channelXML = "";
 
-        try
-        {
-            channelXML = readFile(importFile);
-        }
-        catch (IOException e)
-        {
-           System.out.println("File could not be read.");
-           return;
-        }
+        try {
+			channelXML = ImportConverter.convertChannel(importFile);
+		} catch (Exception e1) {
+			System.out.println("Invalid channel file.");
+            return;
+		}
+       
 
         ObjectXMLSerializer serializer = new ObjectXMLSerializer();
         Channel importChannel;
@@ -589,13 +590,6 @@ public class Shell {
             return;
         }
 
-       
-
-        if (importChannel.getVersion() != null && !importChannel.getVersion().equals(client.getVersion()))
-        {
-            ImportConverter converter = new ImportConverter();
-            importChannel = converter.convertChannel(importChannel);
-        }
         String channelName = importChannel.getName();
         if (!checkChannelName(channelName, importChannel.getId()))
         {

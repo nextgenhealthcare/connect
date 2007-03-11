@@ -30,11 +30,11 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 			STATUS='ERROR'
 	</select>
 	
-	<select id="getRejectedCount" parameterClass="java.lang.String" resultClass="java.lang.Integer">
+	<select id="getFilteredCount" parameterClass="java.lang.String" resultClass="java.lang.Integer">
 		SELECT COUNT(*)
 		FROM MESSAGE
 		WHERE
 			CHANNEL_ID = #channelId# AND
-			STATUS='REJECTED'
+			STATUS='FILTERED'
 	</select>
 </sqlMap>

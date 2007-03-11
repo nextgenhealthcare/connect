@@ -41,7 +41,7 @@ import org.mule.util.ClassHelper;
 import org.mule.util.queue.QueueManager;
 import org.mule.util.queue.QueueSession;
 
-import com.webreach.mirth.server.mule.util.VMRegistry;
+import com.webreach.mirth.server.util.VMRegistry;
 
 /**
  * <code>VMConnector</code> A simple endpoint wrapper to allow a Mule

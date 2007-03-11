@@ -45,10 +45,10 @@ import com.webreach.mirth.model.Response;
 import com.webreach.mirth.model.converters.ObjectCloner;
 import com.webreach.mirth.model.converters.ObjectClonerException;
 import com.webreach.mirth.model.filters.MessageObjectFilter;
-import com.webreach.mirth.server.mule.util.VMRouter;
 import com.webreach.mirth.server.util.SqlConfig;
 import com.webreach.mirth.server.util.StackTracePrinter;
 import com.webreach.mirth.server.util.UUIDGenerator;
+import com.webreach.mirth.server.util.VMRouter;
 
 public class MessageObjectController {
 	private Logger logger = Logger.getLogger(this.getClass());
@@ -193,22 +193,26 @@ public class MessageObjectController {
 	}
 	
 	public MessageObject cloneMessageObjectForBroadcast(MessageObject messageObject, String connectorName) throws ObjectClonerException{
-		MessageObject clone = (MessageObject) ObjectCloner.deepCopy(messageObject);
+		MessageObject clone = (MessageObject) messageObject.clone(); //We could use deep copy here, but see the notes below
 		clone.setId(UUIDGenerator.getUUID());
 		clone.setDateCreated(Calendar.getInstance());
 		clone.setCorrelationId(messageObject.getId());
-		clone.setConnectorName(connectorName);//new ChannelController().getDestinationName(connectorName));
-		//We don't want to clone the maps from the original message
-		clone.setVariableMap(new HashMap());
-		clone.setResponseMap(new HashMap()); //maybe null???
-		clone.setContextMap(messageObject.getContextMap());
+		clone.setConnectorName(connectorName);
+		//We don't want to clone the maps from the original message...
+		clone.setVariableMap(new HashMap()); //the var map is local
+		//...or do we?
+		//This works depending on clone or deepCopy.
+		//If we deep copy, we need to set the response and context maps
+		//If we clone, the clone is just setting references for us
+		//Some might call that a bug, but we use it as a feature...
+		//At least we're documenting it here.
+		//clone.setResponseMap(new HashMap()); //maybe null???
+		//clone.setContextMap(messageObject.getContextMap());
 		return clone;
 	}
-	public List<MessageObject> getMessageObjectsFromEvent(UMOEvent event) throws Exception{
+	public MessageObject getMessageObjectFromEvent(UMOEvent event) throws Exception{
 		MessageObject messageObject = null;
-		MessageObject originalMessageObject = null;
 		Object incomingData = incomingData = event.getTransformedMessage();
-		List<MessageObject> returnList = new ArrayList<MessageObject>(2);
 		if (incomingData == null || !(incomingData instanceof MessageObject)) {
 			logger.warn("received data is not of expected type");
 			return null;
@@ -217,32 +221,46 @@ public class MessageObjectController {
 		if (messageObject.getStatus().equals(MessageObject.Status.FILTERED)) {
 			return null;
 		}
-		returnList.add(0, messageObject);
-		originalMessageObject = (MessageObject) event.getMessage().getPayload();
-		returnList.add(1, originalMessageObject);
-		return returnList;
+		return messageObject;
 	}
-	public void setError(MessageObject messageObject, MessageObject originalMessageObject, String errorMessage, Throwable t){
+	public void setError(MessageObject messageObject, String errorMessage, Throwable e){
 		if (messageObject != null) {
 			messageObject.setStatus(MessageObject.Status.ERROR);
-			if (t != null){
-				messageObject.setErrors(messageObject.getErrors() != null ? messageObject.getErrors() + '\n' + errorMessage + "\n" + StackTracePrinter.stackTraceToString(t) : errorMessage + "\n" + StackTracePrinter.stackTraceToString(t));
+			String exception = new String();
+			if (e != null){
+				exception = StackTracePrinter.stackTraceToString(e);
 			}
+			messageObject.setErrors(messageObject.getErrors() != null ? messageObject.getErrors() + '\n' + errorMessage + "\n" + exception: errorMessage + "\n" + exception);
+			
 			updateMessage(messageObject);
 		}
-		if (originalMessageObject != null) {
-			Response response = new Response(Response.Status.FAIL, errorMessage + " " + t.getMessage());
-			originalMessageObject.getResponseMap().put(messageObject.getConnectorName(), response);
+		if (messageObject.getResponseMap() != null) {
+			String exception = new String();
+			if (e != null){
+				exception = " " + e.getClass().getSimpleName() + ": " + e.getMessage();
+ 			}
+			Response response = new Response(Response.Status.FAILURE, errorMessage + exception);
+			messageObject.getResponseMap().put(messageObject.getConnectorName(), response);
 		}
 	}
-	public void setSuccess(MessageObject messageObject, MessageObject originalMessageObject, String responseMessage){
+	public void setSuccess(MessageObject messageObject, String responseMessage){
 		if (messageObject != null) {
 			messageObject.setStatus(MessageObject.Status.SENT);
 			updateMessage(messageObject);
 		}
-		if (originalMessageObject != null) {
+		if (messageObject.getResponseMap() != null) {
 			Response response = new Response(Response.Status.SUCCESS, responseMessage);
-			originalMessageObject.getResponseMap().put(messageObject.getConnectorName(), response);
+			messageObject.getResponseMap().put(messageObject.getConnectorName(), response);
+		}
+	}
+	public void setQueued(MessageObject messageObject, String responseMessage){
+		if (messageObject != null) {
+			messageObject.setStatus(MessageObject.Status.QUEUED);
+			updateMessage(messageObject);
+		}
+		if (messageObject.getResponseMap() != null) {
+			Response response = new Response(Response.Status.QUEUED, responseMessage);
+			messageObject.getResponseMap().put(messageObject.getConnectorName(), response);
 		}
 	}
 }

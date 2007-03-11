@@ -6,12 +6,16 @@ public class Response implements Serializable{
 
 	private static final long serialVersionUID = 99766081218628503L;
 	public enum Status {
-		SUCCESS, FAIL, UKNOWN
+		SUCCESS, FAILURE, FILTERED, QUEUED, UNKNOWN
 	}
-	private Status status;
-	private String message;
+	
+	private Status status = Status.UNKNOWN;
+	private String message = new String();
 	public Response(Status status, String message){
 		this.status = status;
+		this.message = message;
+	}
+	public Response(String message){
 		this.message = message;
 	}
 	public String getMessage() {
@@ -25,6 +29,9 @@ public class Response implements Serializable{
 	}
 	public void setStatus(Status status) {
 		this.status = status;
+	}
+	public String toString(){
+		return this.status.toString() + ": " + this.getMessage();
 	}
 
 }

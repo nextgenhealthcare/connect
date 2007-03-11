@@ -21,7 +21,7 @@ import org.mule.umo.endpoint.UMOEndpointURI;
 import org.mule.util.TemplateParser;
 
 import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.server.mule.util.GlobalVariableStore;
+import com.webreach.mirth.server.util.GlobalVariableStore;
 
 import java.sql.Connection;
 import java.sql.SQLException;

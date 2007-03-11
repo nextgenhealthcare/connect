@@ -49,6 +49,7 @@ public class FtpConnector extends AbstractServiceEnabledConnector {
 	public static final String PROPERTY_FILENAME = "filename";
 	public static final String PROPERTY_OUTPUT_PATTERN = "outputPattern";
 	public static final String PROPERTY_TEMPLATE = "template";
+	public static final String PROPERTY_BINARY = "binary";
 
 	/**
 	 * Time in milliseconds to poll. On each poll the poll() method is called
@@ -60,7 +61,7 @@ public class FtpConnector extends AbstractServiceEnabledConnector {
 	private Map pools = new HashMap();
 	private String username;
 	private String password;
-
+	private boolean binary;
 	public String getProtocol() {
 		return "ftp";
 	}
@@ -261,5 +262,13 @@ public class FtpConnector extends AbstractServiceEnabledConnector {
 
 	public void setTemplate(String template) {
 		this.template = template;
+	}
+
+	public boolean isBinary() {
+		return binary;
+	}
+
+	public void setBinary(boolean binary) {
+		this.binary = binary;
 	}
 }

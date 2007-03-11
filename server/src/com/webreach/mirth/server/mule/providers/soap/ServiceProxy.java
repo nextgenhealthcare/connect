@@ -163,7 +163,7 @@ public class ServiceProxy {
 	            		}else if (messageObject.getStatus().equals(Status.ERROR)){
 	            			return messageObject.getErrors();
 	            		}else if (messageObject.getStatus().equals(Status.FILTERED)){
-	            			return "Message: " + messageObject.getId() + " has been rejected";
+	            			return "Message: " + messageObject.getId() + " has been filtered";
 	            		}else if (messageObject.getStatus().equals(Status.TRANSFORMED) || messageObject.getStatus().equals(Status.RECEIVED)){
 	            			return "Message: " + messageObject.getId() + " has been successfully received";
 	            		}else{

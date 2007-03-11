@@ -37,7 +37,7 @@ import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.provider.UMOMessageReceiver;
 
 import com.webreach.mirth.server.controllers.ScriptController;
-import com.webreach.mirth.server.mule.util.CompiledScriptCache;
+import com.webreach.mirth.server.util.CompiledScriptCache;
 
 /**
  * @author Guillaume Nodet
@@ -91,10 +91,11 @@ public class JdbcConnector extends AbstractServiceEnabledConnector {
 	private String generateDatabaseScript(String databaseScript) {
 		logger.debug("generating database script");
 		StringBuilder script = new StringBuilder();
-		// script.append("importPackage(Packages.com.webreach.mirth.server.util);\n");
-		script.append("function $(string) { if (globalMap.get(string) != null) { return globalMap.get(string)} else { return localMap.get(string);} }");
+		script.append("importPackage(Packages.com.webreach.mirth.server.util);\n");
+		//TODO: FIX THIS - the scope lookup should be connector->channel->global
+		script.append("function $(string) { if (globalContextMap.get(string) != null) { return globalContextMap.get(string)} else { return localMap.get(string);} }");
 		script.append("function doDatabaseScript() {");
-		script.append(databaseScript + "\n");
+		script.append(databaseScript + "}\n");
 		script.append("doDatabaseScript()\n");
 		return script.toString();
 	}

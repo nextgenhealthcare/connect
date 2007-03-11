@@ -26,6 +26,8 @@
 
 package com.webreach.mirth.server.util;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 
@@ -60,5 +62,18 @@ public class DatabaseConnectionFactory {
 		info.setProperty("shutdown", "true");
 
 		return new DatabaseConnection(address, info);
+	}
+	public static Connection createConnection(String driver, String address, String username, String password) throws SQLException {
+		try {
+			Class.forName(driver);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		Properties info = new Properties();
+		info.setProperty("user", username);
+		info.setProperty("password", password);
+		info.setProperty("shutdown", "true");
+		return DriverManager.getConnection(address, info);
 	}
 }

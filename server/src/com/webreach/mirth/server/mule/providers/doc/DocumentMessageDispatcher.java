@@ -37,85 +37,77 @@ public class DocumentMessageDispatcher extends AbstractMessageDispatcher {
 	public void doDispatch(UMOEvent event) throws Exception {
 		TemplateValueReplacer replacer = new TemplateValueReplacer();
 		String endpoint = event.getEndpoint().getEndpointURI().getAddress();
-		MessageObject messageObject, originalMessageObject = null;
-		List<MessageObject> objects = messageObjectController.getMessageObjectsFromEvent(event);
-		if (objects == null) {
+		MessageObject messageObject = messageObjectController.getMessageObjectFromEvent(event);
+		if (messageObject == null) {
 			return;
-		} else {
-			messageObject = objects.get(0);
-			originalMessageObject = objects.get(1);
 		}
 
 		try {
-		
-				String filename = (String) event.getProperty(DocumentConnector.PROPERTY_FILENAME);
 
-				if (filename == null) {
-					String pattern = (String) event.getProperty(DocumentConnector.PROPERTY_OUTPUT_PATTERN);
+			String filename = (String) event.getProperty(DocumentConnector.PROPERTY_FILENAME);
 
-					if (pattern == null) {
-						pattern = connector.getOutputPattern();
-					}
+			if (filename == null) {
+				String pattern = (String) event.getProperty(DocumentConnector.PROPERTY_OUTPUT_PATTERN);
 
-					filename = generateFilename(event, pattern, messageObject);
+				if (pattern == null) {
+					pattern = connector.getOutputPattern();
 				}
 
-				if (filename == null) {
-					throw new IOException("Filename is null");
-				}
+				filename = generateFilename(event, pattern, messageObject);
+			}
 
-				String template = replacer.replaceValues(connector.getTemplate(), messageObject, filename);
-				File file = Utility.createFile(endpoint + "/" + filename);
-				logger.info("Writing document to: " + file.getAbsolutePath());
-				writeDocument(template, file, messageObject, originalMessageObject);
+			if (filename == null) {
+				throw new IOException("Filename is null");
+			}
 
-				//update the message status to sent
-				messageObjectController.setSuccess(messageObject, originalMessageObject, "File written to " + filename);
-			
+			String template = replacer.replaceValues(connector.getTemplate(), messageObject, filename);
+			File file = Utility.createFile(endpoint + "/" + filename);
+			logger.info("Writing document to: " + file.getAbsolutePath());
+			writeDocument(template, file, messageObject);
+
+			// update the message status to sent
+			messageObjectController.setSuccess(messageObject, "Document successfully written: " + filename);
+
 		} catch (Exception e) {
-			messageObjectController.setError(messageObject, originalMessageObject, "Error writing document.", e);
+			messageObjectController.setError(messageObject, "Error writing document: ", e);
 			connector.handleException(e);
 		}
 	}
 
-	private void writeDocument(String template, File file, MessageObject messageObject, MessageObject originalMessageObject) throws Exception {
+	private void writeDocument(String template, File file, MessageObject messageObject) throws Exception {
 		Document document = new Document();
 		ByteArrayInputStream bais = null;
-		try {
+		try{
 			if (connector.getDocumentType().equals("pdf")) {
 				PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(file));
 				if (connector.isEncrypted() && (connector.getPassword() != null)) {
 					writer.setEncryption(PdfWriter.STRENGTH128BITS, connector.getPassword(), null, PdfWriter.AllowCopy | PdfWriter.AllowPrinting | PdfWriter.AllowFillIn);
 				}
 			} else if (connector.getDocumentType().equals("rtf")) {
-	            RtfWriter2.getInstance(document, new FileOutputStream(file));
+				RtfWriter2.getInstance(document, new FileOutputStream(file));
 			}
-				// add tags to the template to create a valid HTML document
-				StringBuilder contents = new StringBuilder();
-				contents.append("<html>");
-				contents.append("<body>");
-				contents.append(template);
-				contents.append("</body>");
-				contents.append("</html>");
+			// add tags to the template to create a valid HTML document
+			StringBuilder contents = new StringBuilder();
+			contents.append("<html>");
+			contents.append("<body>");
+			contents.append(template);
+			contents.append("</body>");
+			contents.append("</html>");
 
-				bais = new ByteArrayInputStream(contents.toString().getBytes());
-				document.open();
-				HtmlParser parser = new HtmlParser();
-				parser.go(document, bais);
-				
-	            //document.open();
-	           // document.add(new Paragraph(template));
-	            //document.close();
-			
-		} catch (Exception e) {
-			messageObjectController.setError(messageObject, originalMessageObject, "Error writing document.", e);
-			connector.handleException(e);
+			bais = new ByteArrayInputStream(contents.toString().getBytes());
+			document.open();
+			HtmlParser parser = new HtmlParser();
+			parser.go(document, bais);
+
+			// document.open();
+			// document.add(new Paragraph(template));
+			// document.close();
+
 		} finally {
 			try{
-				bais.close();
 				document.close();
-			}catch (Exception e){
-				logger.error(e.getMessage());
+			}catch(Exception e){
+				
 			}
 		}
 	}
@@ -144,6 +136,6 @@ public class DocumentMessageDispatcher extends AbstractMessageDispatcher {
 	}
 
 	public void doDispose() {
-		
+
 	}
 }

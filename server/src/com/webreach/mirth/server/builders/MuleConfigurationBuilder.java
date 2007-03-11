@@ -426,7 +426,7 @@ public class MuleConfigurationBuilder {
 				// connector
 				ArrayList<String> nonConnectorProperties = new ArrayList<String>();
 				nonConnectorProperties.add("host");
-				nonConnectorProperties.add("hostname");
+				//nonConnectorProperties.add("hostname"); //Hostname SHOULd be a property - CL (see SMTP Connector)
 				nonConnectorProperties.add("port");
 				nonConnectorProperties.add("DataType");
 
@@ -450,16 +450,21 @@ public class MuleConfigurationBuilder {
 							// put the script in the scripts table
 							String databaseScriptId = UUIDGenerator.getUUID();
 							scriptController.putScript(databaseScriptId, property.getValue().toString());
-						}
-						
-						Element propertyElement = document.createElement("property");
-						propertyElement.setAttribute("name", property.getKey().toString());
-						propertyElement.setAttribute("value", property.getValue().toString());
-
-						if (property.getKey().equals("query") || property.getKey().equals("statement") || property.getKey().equals("ack")) {
-							mapElement.appendChild(propertyElement);
-						} else {
+							Element propertyElement = document.createElement("property");
+							propertyElement.setAttribute("name", "scriptId");
+							propertyElement.setAttribute("value", databaseScriptId);
 							propertiesElement.appendChild(propertyElement);
+						}else{
+						
+							Element propertyElement = document.createElement("property");
+							propertyElement.setAttribute("name", property.getKey().toString());
+							propertyElement.setAttribute("value", property.getValue().toString());
+	
+							if (property.getKey().equals("query") || property.getKey().equals("statement") || property.getKey().equals("ack")) {
+								mapElement.appendChild(propertyElement);
+							} else {
+								propertiesElement.appendChild(propertyElement);
+							}
 						}
 					}
 				}

@@ -76,10 +76,10 @@ import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.ws.WSParameter;
 import com.webreach.mirth.server.controllers.ChannelController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
-import com.webreach.mirth.server.mule.util.GlobalVariableStore;
-import com.webreach.mirth.server.mule.util.VMRouter;
+import com.webreach.mirth.server.util.GlobalVariableStore;
 import com.webreach.mirth.server.util.StackTracePrinter;
 import com.webreach.mirth.server.util.UUIDGenerator;
+import com.webreach.mirth.server.util.VMRouter;
 
 /**
  * <code>AxisMessageDispatcher</code> is used to make soap requests via the
@@ -193,22 +193,11 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher {
 	}
 
 	public void doDispatch(UMOEvent event) throws Exception {
-		Object data = event.getTransformedMessage();
-		if (data == null) {
+		MessageObject messageObject = messageObjectController.getMessageObjectFromEvent(event);
+		if (messageObject == null) {
 			return;
-		} else if (data instanceof MessageObject) {
-			MessageObject messageObject = (MessageObject) data;
-			
-			if (messageObject.getStatus().equals(MessageObject.Status.FILTERED)){
-				return;
-			}
-			if (messageObject.getCorrelationId() == null){
-				//If we have no correlation id, this means this is the original message
-				//so let's copy it and assign a new id and set the proper correlationid
-				messageObject = messageObjectController.cloneMessageObjectForBroadcast(messageObject, this.getConnector().getName());
-			}
-			invokeWebService(event, messageObject);	
 		}
+		invokeWebService(event, messageObject);	
 	}
 
 	private Object[] invokeWebService(UMOEvent event, MessageObject messageObject) throws Exception {
@@ -245,18 +234,14 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher {
 			router.routeMessageByChannelId(axisConnector.getReplyChannelId(), result.toString(), true);
 		}
 		// update the message status to sent
-		messageObject.setStatus(MessageObject.Status.SENT);
-		messageObjectController.updateMessage(messageObject);
+		
+		messageObjectController.setSuccess(messageObject, result.toString());
 		Object[] retVal = new Object[2];
 		retVal[0] = result;
 		retVal[1] = call.getMessageContext();
 		return retVal;
 		}catch(Exception e){
-			if (messageObject != null){
-				messageObject.setStatus(MessageObject.Status.ERROR);
-				messageObject.setErrors(messageObject.getErrors() != null ? messageObject.getErrors() + '\n' : "" +  "Error invoking Web Service\n" +  StackTracePrinter.stackTraceToString(e));
-				messageObjectController.updateMessage(messageObject);
-			}
+			messageObjectController.setError(messageObject, "Error invoking WebService: ", e);
 			connector.handleException(e);
 			return null;
 		}
@@ -264,28 +249,13 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher {
 	}
 
 	public UMOMessage doSend(UMOEvent event) throws Exception {
-
 		Object[] results = null;
-		Object data = event.getTransformedMessage();
-		if (data == null) {
+		MessageObject messageObject = messageObjectController.getMessageObjectFromEvent(event);
+		if (messageObject == null) {
 			return null;
-		} else if (data instanceof MessageObject) {
-			MessageObject messageObject = (MessageObject) data;
-			
-			if (messageObject.getStatus().equals(MessageObject.Status.FILTERED)){
-				return null;
-			}
-			if (messageObject.getCorrelationId() == null){
-				//If we have no correlation id, this means this is the original message
-				//so let's copy it and assign a new id and set the proper correlationid
-				MessageObject clone = (MessageObject) messageObject.clone();
-				clone.setId(UUIDGenerator.getUUID());
-				clone.setDateCreated(Calendar.getInstance());
-				clone.setCorrelationId(messageObject.getId());
-				messageObject = clone;
-			}
-			results = invokeWebService(event, messageObject);	
 		}
+		results = invokeWebService(event, messageObject);	
+		
 		Object result = null;
 		if (results != null){
 			result = results[0];

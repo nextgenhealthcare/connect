@@ -19,6 +19,7 @@ import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URLDecoder;
+import java.util.List;
 
 import org.mule.MuleException;
 import org.mule.MuleManager;
@@ -70,27 +71,13 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
 		UMOEndpointURI uri = event.getEndpoint().getEndpointURI();
 		FileOutputStream fos = null;
 		Object data = null;
-		MessageObject messageObject = null;
-		MessageObject originalMessageObject = null;
-		try {
-			data = event.getTransformedMessage();
-		} catch (Exception ext) {
-			logger.error("Error at tranformer" + ext);
-			connector.handleException(ext);
+		MessageObject messageObject = messageObjectController.getMessageObjectFromEvent(event);
+		if (messageObject == null) {
+			return;
 		}
-		try {
-			Object incomingData = event.getTransformedMessage();
-			if (incomingData == null || !(incomingData instanceof MessageObject)) {
-				logger.warn("received data is not of expected type");
-				return;
-			}
-			originalMessageObject = (MessageObject) event.getMessage().getPayload();
-			messageObject = (MessageObject) incomingData;
-			if (messageObject.getStatus().equals(MessageObject.Status.FILTERED)) {
-				return;
-			}
-			String filename = (String) event.getProperty(FileConnector.PROPERTY_FILENAME);
 
+		try {
+			String filename = (String) event.getProperty(FileConnector.PROPERTY_FILENAME);
 			if (filename == null) {
 				String pattern = (String) event.getProperty(FileConnector.PROPERTY_OUTPUT_PATTERN);
 
@@ -102,6 +89,7 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
 			}
 
 			if (filename == null) {
+				messageObjectController.setError(messageObject, "Filename is null", null);
 				throw new IOException("Filename is null");
 			}
 
@@ -124,21 +112,9 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
 			fos.write(buffer);
 
 			// update the message status to sent
-			messageObject.setStatus(MessageObject.Status.SENT);
-			messageObjectController.updateMessage(messageObject);
-			Response response = new Response(Response.Status.SUCCESS, "File successfully written: " + filename);
-			originalMessageObject.getResponseMap().put(messageObject.getConnectorName(), response);
-
+			messageObjectController.setSuccess(messageObject, "File successfully written: " + filename);
 		} catch (Exception e) {
-			if (messageObject != null) {
-				messageObject.setStatus(MessageObject.Status.ERROR);
-				messageObject.setErrors(messageObject.getErrors() != null ? messageObject.getErrors() + '\n' : "" + "Error writing file\n" + StackTracePrinter.stackTraceToString(e));
-				messageObjectController.updateMessage(messageObject);
-			}
-			if (originalMessageObject != null) {
-				Response response = new Response(Response.Status.FAIL, "Error writing file. " + e.getMessage());
-				originalMessageObject.getResponseMap().put(messageObject.getConnectorName(), response);
-			}
+			messageObjectController.setError(messageObject, "Error writing file: ", e);
 			connector.handleException(e);
 		} finally {
 			if (fos != null) {

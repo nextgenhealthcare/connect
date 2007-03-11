@@ -52,11 +52,13 @@ import com.webreach.mirth.server.controllers.ScriptController;
 import com.webreach.mirth.server.controllers.TemplateController;
 import com.webreach.mirth.server.mule.adaptors.Adaptor;
 import com.webreach.mirth.server.mule.adaptors.AdaptorFactory;
-import com.webreach.mirth.server.mule.util.CompiledScriptCache;
-import com.webreach.mirth.server.mule.util.GlobalVariableStore;
-import com.webreach.mirth.server.mule.util.VMRouter;
 import com.webreach.mirth.server.util.AlertSender;
+import com.webreach.mirth.server.util.CompiledScriptCache;
+import com.webreach.mirth.server.util.GlobalVariableStore;
+import com.webreach.mirth.server.util.JavaScriptScopeFactory;
+import com.webreach.mirth.server.util.ResponseFactory;
 import com.webreach.mirth.server.util.StackTracePrinter;
+import com.webreach.mirth.server.util.VMRouter;
 
 public class JavaScriptTransformer extends AbstractTransformer {
 	private Logger logger = Logger.getLogger(this.getClass());
@@ -64,7 +66,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 	private AlertController alertController = new AlertController();
 	private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
 	private ScriptController scriptController = new ScriptController();
-
+	private JavaScriptScopeFactory scopeFactory = new JavaScriptScopeFactory();
 	private String inboundProtocol;
 	private String outboundProtocol;
 	private Map inboundProperties;
@@ -77,7 +79,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 	private String templateId;
 	private String mode;
 	private String template;
-
+	
 	public String getChannelId() {
 		return this.channelId;
 	}
@@ -224,6 +226,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 				return transformedMessageObject;
 			} else {
 				messageObject.setStatus(MessageObject.Status.FILTERED);
+				messageObjectController.updateMessage(messageObject);
 				return messageObject;
 			}
 		} catch (Exception e) {
@@ -253,6 +256,9 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			scope.put("globalMap", scope, GlobalVariableStore.getInstance());
 			scope.put("messageObject", scope, messageObject);
 			scope.put("router", scope, new VMRouter());
+			scope.put("connector", scope, connectorName);
+			scope.put("responseContextMap", scope, messageObject.getResponseMap());
+			scope.put("response", scope, new ResponseFactory());
 			// get the script from the cache and execute it
 			Script compiledScript = compiledScriptCache.getCompiledScript(filterScriptId);
 			Object result = null;
@@ -288,14 +294,9 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			Context context = Context.enter();
 			Scriptable scope = new ImporterTopLevel(context);
 			// load variables in JavaScript scope
-			scope.put("alert", scope, new AlertSender(messageObject.getChannelId()));
-			scope.put("logger", scope, scriptLogger);
-			scope.put("message", scope, messageObject.getTransformedData());
+			scopeFactory.buildScope(scope, messageObject, scriptLogger);
 			scope.put("template", scope, template);
-			scope.put("localMap", scope, messageObject.getVariableMap());
-			scope.put("globalMap", scope, GlobalVariableStore.getInstance());
-			scope.put("messageObject", scope, messageObject);
-			scope.put("router", scope, new VMRouter());
+
 			// TODO: have function list provide all serializers - maybe we
 			// import a top level package or create a helper class
 			// TODO: this is going to break backwards compatability
@@ -406,7 +407,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 		logger.debug("generator transformer script");
 
 		StringBuilder script = new StringBuilder();
-		script.append("importPackage(Packages.com.webreach.mirth.server.util);");
+		script.append("importPackage(Packages.com.webreach.mirth.server.util);\n");
 		// script used to check for exitence of segment
 		script.append("function validate(mapping, defaultValue, replacement) { var result = ''; if (mapping != undefined) {result = mapping.toString();} if (result.length == 0) {result = defaultValue;} if (replacement != undefined) { for (i = 0; i < replacement.length; i++) { var entry = replacement[0]; result = result.replace(entry[0],entry[1]); \n} } return result; }");
 		script.append("function $(string) { if (globalMap.get(string) != null) { return globalMap.get(string) } else { return localMap.get(string);} }");

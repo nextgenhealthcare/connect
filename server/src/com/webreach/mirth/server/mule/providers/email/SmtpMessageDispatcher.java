@@ -33,6 +33,7 @@ import com.webreach.mirth.server.util.StackTracePrinter;
 
 import javax.mail.*;
 import java.util.Calendar;
+import java.util.List;
 
 /**
  * @author Ross Mason
@@ -61,24 +62,13 @@ public class SmtpMessageDispatcher extends AbstractMessageDispatcher {
 	 * @see org.mule.providers.UMOConnector#dispatch(java.lang.Object,
 	 *      org.mule.providers.MuleEndpoint)
 	 */
-	public void doDispatch(UMOEvent event) {
-		
+	public void doDispatch(UMOEvent event) throws Exception {
 		Message msg = null;
-		
-		MessageObject originalMessageObject = null;
-		MessageObject messageObject = null;
-		try {
-			
-			Object incomingData = event.getTransformedMessage();
-			if (incomingData == null || !(incomingData instanceof MessageObject) ){
-				logger.warn("received data is not of expected type");
-				return;
-			}
-			originalMessageObject = (MessageObject)event.getMessage().getPayload();
-			messageObject = (MessageObject)incomingData;
-			if (messageObject.getStatus().equals(MessageObject.Status.FILTERED)) {
-				return;
-			}
+		MessageObject messageObject = messageObjectController.getMessageObjectFromEvent(event);
+		if (messageObject == null) {
+			return;
+		}
+		try{
 			MessageObjectToEmailMessage motoEmail = new MessageObjectToEmailMessage();
 			motoEmail.setEndpoint(event.getEndpoint());
 			
@@ -92,22 +82,9 @@ public class SmtpMessageDispatcher extends AbstractMessageDispatcher {
 			}
 
 			sendMailMessage(msg);
-			
-			messageObject.setStatus(MessageObject.Status.SENT);
-			messageObjectController.updateMessage(messageObject);
-			Response response = new Response(Response.Status.SUCCESS, "Email successfully sent.");
-			originalMessageObject.getResponseMap().put(messageObject.getConnectorName(), response);
+			messageObjectController.setSuccess(messageObject, "Email successfully sent: " + connector.getToAddresses());
 		} catch (Exception e) {
-			if (messageObject != null) {
-				messageObject.setStatus(MessageObject.Status.ERROR);
-				messageObject.setErrors(messageObject.getErrors() != null ? messageObject.getErrors() + '\n' : "" + "Error sending email\n" + StackTracePrinter.stackTraceToString(e));
-				messageObjectController.updateMessage(messageObject);
-			}
-			if (originalMessageObject != null){
-				Response response = new Response(Response.Status.FAIL, "Error sending Email. " + e.getMessage());
-				originalMessageObject.getResponseMap().put(messageObject.getConnectorName(), response);
-			}
-			
+			messageObjectController.setError(messageObject, "Error sending email: ", e);
 			connector.handleException(e);
 		}
 	}

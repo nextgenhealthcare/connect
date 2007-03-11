@@ -1,4 +1,4 @@
-package com.webreach.mirth.server.mule.util;
+package com.webreach.mirth.server.util;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

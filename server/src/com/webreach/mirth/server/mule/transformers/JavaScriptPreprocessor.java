@@ -37,7 +37,7 @@ import org.mule.umo.transformer.TransformerException;
 
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.controllers.ScriptController;
-import com.webreach.mirth.server.mule.util.CompiledScriptCache;
+import com.webreach.mirth.server.util.CompiledScriptCache;
 
 public class JavaScriptPreprocessor extends AbstractTransformer {
 	private String preprocessingScriptId;

@@ -29,7 +29,7 @@ import org.mule.umo.provider.UMOConnector;
 import org.mule.util.queue.Queue;
 import org.mule.util.queue.QueueSession;
 
-import com.webreach.mirth.server.mule.util.VMRegistry;
+import com.webreach.mirth.server.util.VMRegistry;
 
 import java.util.List;
 

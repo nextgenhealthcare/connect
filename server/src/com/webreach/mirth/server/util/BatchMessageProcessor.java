@@ -23,7 +23,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-package com.webreach.mirth.server.mule.util;
+package com.webreach.mirth.server.util;
 
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -59,9 +59,7 @@ public class BatchMessageProcessor {
 	private List<String> processHL7Messages(Scanner scanner) {
 		ArrayList<String> messages = new ArrayList<String>();
 		StringBuilder message = new StringBuilder();
-
 		char data[] = { (char) startOfMessage, (char) endOfMessage };
-
 		while (scanner.hasNextLine()) {
 			String line = scanner.nextLine().replaceAll(new String(data, 0, 1), "").replaceAll(new String(data, 1, 1), "");
 
