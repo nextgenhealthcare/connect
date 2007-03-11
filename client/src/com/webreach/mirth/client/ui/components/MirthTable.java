@@ -57,15 +57,7 @@ public class MirthTable extends JXTable
             }
 
         });
-        this.addMouseWheelListener(new MouseWheelListener(){
-
-			public void mouseWheelMoved(MouseWheelEvent e) {
-				Rectangle rO = getVisibleRect();
-				Rectangle r = new Rectangle((int)rO.getX(), (int)rO.getY() + (e.getWheelRotation() * e.getScrollAmount()), (int)rO.getWidth(), (int)rO.getHeight());
-		        scrollRectToVisible(r);
-			}
-        	
-        });
+    
     }
 
 

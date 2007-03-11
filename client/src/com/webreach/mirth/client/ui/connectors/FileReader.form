@@ -53,9 +53,9 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="fileAge" min="-2" pref="75" max="-2" attributes="1"/>
                   <Group type="102" attributes="0">
-                      <Component id="fileTypeBinary" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
                       <Component id="fileTypeASCII" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="fileTypeBinary" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" attributes="0">
                       <Component id="processBatchFilesYes" min="-2" max="-2" attributes="0"/>
@@ -154,8 +154,8 @@
               <EmptySpace min="-2" pref="5" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="jLabel10" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="fileTypeBinary" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="fileTypeASCII" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="fileTypeBinary" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
