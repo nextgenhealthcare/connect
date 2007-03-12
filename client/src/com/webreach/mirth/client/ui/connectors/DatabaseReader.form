@@ -45,22 +45,26 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="readOnUpdateYes" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="readOnUpdateNo" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="databaseUpdateSQLTextPane" pref="273" max="32767" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="jScrollPane1" min="-2" pref="95" max="-2" attributes="0"/>
-                          </Group>
                           <Component id="databaseUsernameField" alignment="0" min="-2" pref="125" max="-2" attributes="1"/>
                           <Component id="databaseURLField" alignment="0" min="-2" pref="250" max="-2" attributes="1"/>
                           <Component id="databaseDriverCombobox" alignment="0" min="-2" max="-2" attributes="1"/>
                           <Group type="102" alignment="0" attributes="0">
                               <Component id="databaseSQLTextPane" pref="374" max="32767" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
+                          </Group>
+                          <Group type="102" alignment="1" attributes="0">
+                              <Group type="103" groupAlignment="1" attributes="0">
+                                  <Group type="102" alignment="0" attributes="0">
+                                      <Component id="readOnUpdateYes" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Component id="readOnUpdateNo" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace pref="78" max="32767" attributes="0"/>
+                                      <Component id="insertUpdateConnections" min="-2" max="-2" attributes="0"/>
+                                  </Group>
+                                  <Component id="databaseUpdateSQLTextPane" alignment="1" pref="273" max="32767" attributes="0"/>
+                              </Group>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="jScrollPane1" min="-2" pref="95" max="-2" attributes="0"/>
                           </Group>
                       </Group>
                       <EmptySpace min="-2" max="-2" attributes="0"/>
@@ -124,19 +128,20 @@
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="sqlLabel" min="-2" max="-2" attributes="0"/>
-                  <Component id="databaseSQLTextPane" pref="109" max="32767" attributes="0"/>
+                  <Component id="databaseSQLTextPane" pref="105" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="jLabel8" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="readOnUpdateYes" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="readOnUpdateNo" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="insertUpdateConnections" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="onUpdateLabel" min="-2" pref="14" max="-2" attributes="0"/>
-                  <Component id="databaseUpdateSQLTextPane" pref="109" max="32767" attributes="0"/>
-                  <Component id="jScrollPane1" pref="109" max="32767" attributes="0"/>
+                  <Component id="databaseUpdateSQLTextPane" pref="105" max="32767" attributes="0"/>
+                  <Component id="jScrollPane1" pref="105" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -350,6 +355,14 @@
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="generateConnectionActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JButton" name="insertUpdateConnections">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Insert Connections"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="insertUpdateConnectionsActionPerformed"/>
       </Events>
     </Component>
   </SubComponents>
