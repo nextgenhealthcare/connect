@@ -206,7 +206,7 @@ public class ConfigurationController {
 			// add the newly generated configuration to the database
 			addConfiguration(builder.getConfiguration());
 			// update the storeMessages reference
-			ChannelController.updateChannelCache(channels);
+			channelController.updateChannelCache(channels);
 			// restart the mule engine which will grab the latest configuration
 			// from the database
 

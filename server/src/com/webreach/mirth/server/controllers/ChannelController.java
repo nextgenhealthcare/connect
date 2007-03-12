@@ -46,11 +46,19 @@ public class ChannelController {
 	private static HashMap<String, Channel> channelCache;
 	private static HashMap<String, String> channelIdLookup;
 
-	public static void updateChannelCache(List<Channel> channels) {
+	public void initialize() {
+		try {
+			updateChannelCache(getChannel(null));
+		} catch (Exception e) {
+			logger.warn(e);
+		}
+	}
+
+	public void updateChannelCache(List<Channel> channels) throws ControllerException {
 		channelCache = new HashMap<String, Channel>();
 		channelIdLookup = new HashMap<String, String>();
 		Iterator<Channel> it = channels.iterator();
-		
+
 		while (it.hasNext()) {
 			Channel channel = it.next();
 			channelCache.put(channel.getId(), channel);
@@ -65,17 +73,17 @@ public class ChannelController {
 	public static String getDestinationName(String id) {
 		// String format: channelid_destination_index
 		String destinationName = id; // if we can't parse the name, just use
-										// the id
+		// the id
 		String channelId = id.substring(0, id.indexOf('_'));
 		String strIndex = id.substring(id.indexOf("destination_") + 12, id.indexOf("_connector"));
 		int index = Integer.parseInt(strIndex) - 1;
 		Channel channel = channelCache.get(channelId);
-		
+
 		if (channel != null) {
 			if (index < channel.getDestinationConnectors().size())
 				destinationName = channel.getDestinationConnectors().get(index).getName();
 		}
-		
+
 		return destinationName;
 	}
 

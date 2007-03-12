@@ -66,13 +66,14 @@ public class Mirth extends Thread {
 	private SystemLogger systemLogger = new SystemLogger();
 	private MirthManager manager = new MirthManager();
 	private ConfigurationController configurationController = new ConfigurationController();
+	private ChannelController channelController = new ChannelController();
 	private DatabasePruner pruner = new DatabasePruner();
 
 	public static void main(String[] args) {
 		Mirth mirth = new Mirth();
 		mirth.run();
 	}
-	
+
 	public MirthManager getManager() {
 		return this.manager;
 	}
@@ -83,11 +84,7 @@ public class Mirth extends Thread {
 			running = true;
 			startWebServer();
 			configurationController.initialize();
-			try {
-				ChannelController.updateChannelCache(new ChannelController().getChannel(null));
-			} catch (ControllerException e) {
-				logger.warn("could not update channel cache\n" + StackTracePrinter.stackTraceToString(e));
-			}
+			channelController.initialize();
 			pruner.start();
 			commandQueue.addCommand(new Command(Command.Operation.START));
 
