@@ -136,7 +136,7 @@
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel4">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Response from Transformer:"/>
+        <Property name="text" type="java.lang.String" value="Respond from:"/>
       </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthComboBox" name="responseFromTransformer">

@@ -63,6 +63,7 @@ import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.model.ws.WSDefinition;
 import com.webreach.mirth.model.ws.WSOperation;
 import com.webreach.mirth.model.ws.WSParameter;
+import com.webreach.mirth.server.util.StackTracePrinter;
 
 /**
  * A form that extends from ConnectorClass. All methods implemented are
@@ -591,34 +592,41 @@ public class SOAPSender extends ConnectorClass
 
     private void buildSoapEnvelope(Document document, Element parent, WSParameter parameter)
     {
-        Iterator<WSParameter> iterator = parameter.getChildParameters().iterator();
-        while (iterator.hasNext())
-        {
-            WSParameter param = iterator.next();
-            Element paramEl = document.createElement(param.getName());
-
-            if (param.isComplex())
-            {
-                if (param.getSchemaType() != null)
-                {
-                    // paramEl.setAttribute("xmlns",
-                    // param.getSchemaType().getTypeName().getNamespaceURI());
-                    Attr atr = document.createAttribute("xmlns");
-                    atr.setValue("");
-                    paramEl.setAttributeNodeNS(atr);
-                }
-                // only add co
-                buildSoapEnvelope(document, paramEl, param);
-            }
-            else
-            {
-                paramEl.appendChild(document.createTextNode(param.getValue()));
-            }
-            if (parent != paramEl)
-                parent.appendChild(paramEl);
+    	try{
+	        Iterator<WSParameter> iterator = parameter.getChildParameters().iterator();
+	        while (iterator.hasNext())
+	        {
+	            WSParameter param = iterator.next();
+	            Element paramEl = document.createElement(param.getName());
+	
+	            if (param.isComplex())
+	            {
+	                if (param.getSchemaType() != null)
+	                {
+	                    // paramEl.setAttribute("xmlns",
+	                    // param.getSchemaType().getTypeName().getNamespaceURI());
+	                    Attr atr = document.createAttribute("xmlns");
+	                    atr.setValue("");
+	                    paramEl.setAttributeNodeNS(atr);
+	                }
+	                // only add co
+	                buildSoapEnvelope(document, paramEl, param);
+	            }
+	            else
+	            {
+	                paramEl.appendChild(document.createTextNode(param.getValue()));
+	            }
+	            if (parent != paramEl){
+	                parent.appendChild(paramEl);
+	            }
+	        }
+        }catch (Exception e){
+        	
         }
+      }
+    	
 
-    }
+   
 
     private void methodItemStateChanged(java.awt.event.ItemEvent evt)// GEN-FIRST:event_methodItemStateChanged
     {// GEN-HEADEREND:event_methodItemStateChanged

@@ -130,8 +130,7 @@ public class SOAPListener extends ConnectorClass
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
-    private void initComponents()
-    {
+    private void initComponents() {
         buttonGroup1 = new javax.swing.ButtonGroup();
         URL = new javax.swing.JLabel();
         serviceName = new com.webreach.mirth.client.ui.components.MirthTextField();
@@ -150,18 +149,14 @@ public class SOAPListener extends ConnectorClass
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         URL.setText("Service Name:");
 
-        serviceName.addKeyListener(new java.awt.event.KeyAdapter()
-        {
-            public void keyReleased(java.awt.event.KeyEvent evt)
-            {
+        serviceName.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
                 serviceNameKeyReleased(evt);
             }
         });
 
-        port.addKeyListener(new java.awt.event.KeyAdapter()
-        {
-            public void keyReleased(java.awt.event.KeyEvent evt)
-            {
+        port.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
                 portKeyReleased(evt);
             }
         });
@@ -172,10 +167,8 @@ public class SOAPListener extends ConnectorClass
 
         URL1.setText("WSDL URL:");
 
-        listenerAddress.addKeyListener(new java.awt.event.KeyAdapter()
-        {
-            public void keyReleased(java.awt.event.KeyEvent evt)
-            {
+        listenerAddress.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
                 listenerAddressKeyReleased(evt);
             }
         });
@@ -184,7 +177,7 @@ public class SOAPListener extends ConnectorClass
 
         method.setText("String acceptMessage(String message)");
 
-        jLabel4.setText("Response from Transformer:");
+        jLabel4.setText("Respond from:");
 
         responseFromTransformer.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
