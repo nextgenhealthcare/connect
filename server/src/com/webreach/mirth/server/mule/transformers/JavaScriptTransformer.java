@@ -25,10 +25,7 @@
 
 package com.webreach.mirth.server.mule.transformers;
 
-import java.util.Iterator;
 import java.util.Map;
-
-import javax.mail.Message;
 
 import org.apache.log4j.Logger;
 import org.mozilla.javascript.Context;
@@ -37,7 +34,6 @@ import org.mozilla.javascript.RhinoException;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
 import org.mule.transformers.AbstractEventAwareTransformer;
-import org.mule.transformers.AbstractTransformer;
 import org.mule.umo.UMOEventContext;
 import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.transformer.TransformerException;
@@ -49,24 +45,20 @@ import com.webreach.mirth.model.converters.IXMLSerializer;
 import com.webreach.mirth.model.converters.ObjectClonerException;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
-import com.webreach.mirth.server.controllers.ControllerException;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.controllers.ScriptController;
 import com.webreach.mirth.server.controllers.TemplateController;
 import com.webreach.mirth.server.mule.adaptors.Adaptor;
 import com.webreach.mirth.server.mule.adaptors.AdaptorFactory;
-import com.webreach.mirth.server.util.AlertSender;
 import com.webreach.mirth.server.util.CompiledScriptCache;
-import com.webreach.mirth.server.util.GlobalVariableStore;
 import com.webreach.mirth.server.util.JavaScriptScopeFactory;
-import com.webreach.mirth.server.util.ResponseFactory;
 import com.webreach.mirth.server.util.StackTracePrinter;
-import com.webreach.mirth.server.util.VMRouter;
 
 public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private MessageObjectController messageObjectController = new MessageObjectController();
 	private AlertController alertController = new AlertController();
+	private TemplateController templateController = new TemplateController();
 	private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
 	private ScriptController scriptController = new ScriptController();
 	private JavaScriptScopeFactory scopeFactory = new JavaScriptScopeFactory();
@@ -82,7 +74,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 	private String templateId;
 	private String mode;
 	private String template;
-	
+
 	public String getChannelId() {
 		return this.channelId;
 	}
@@ -153,17 +145,14 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 
 	public void setTemplateId(String templateId) {
 		this.templateId = templateId;
-		TemplateController templateController = new TemplateController();
-		try {
-			template = templateController.getTemplate(templateId);
-		} catch (ControllerException e) {
-			logger.debug("Unable to get template: " + templateId);
-		}
 	}
 
 	@Override
 	public void initialise() throws InitialisationException {
 		try {
+			// grab the template
+			this.template = templateController.getTemplate(templateId);
+
 			Context context = Context.enter();
 			String filterScript = scriptController.getScript(filterScriptId);
 
@@ -192,24 +181,31 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 	@Override
 	public Object transform(Object source, UMOEventContext context) throws TransformerException {
 		MessageObject messageObject = null;
-		//If we get a messageObject in, then let's treat it as a dispatch to the destionations
-		//This occurs when we recieve routing events from the VM
-		//If we get a string, then let's handle it as normal
-		if ((!(source instanceof MessageObject)) && (this.getMode().equals(Mode.SOURCE.toString()))) {
+		
+		// ---- Begin MO checks -----
+		// If we get a MO, then let's treat it as a dispatch to the
+		// destionations. This occurs when we recieve routing events from the VM
+		// if we get a string, then let's handle it as normal
+		
+		boolean isMessageObject = source instanceof MessageObject;
+		
+		if (!isMessageObject && (this.getMode().equals(Mode.SOURCE.toString()))) {
 			try {
 				Adaptor adaptor = AdaptorFactory.getAdaptor(Protocol.valueOf(inboundProtocol));
 				messageObject = adaptor.getMessage((String) source, channelId, encryptData, inboundProperties);
-				//Load properties from the context to the messageObject
+				
+				// Load properties from the context to the messageObject
 				messageObject.getChannelMap().putAll(context.getProperties());
 			} catch (Exception e) {
 				messageObject = null;
 			}
-		} else if ((source instanceof MessageObject) || this.getMode().equals(Mode.DESTINATION.toString())) {
+		} else if (isMessageObject || this.getMode().equals(Mode.DESTINATION.toString())) {
 			messageObject = (MessageObject) source;
+			
 			try {
 				messageObject = messageObjectController.cloneMessageObjectForBroadcast(messageObject, this.getConnectorName());
-			} catch (ObjectClonerException e1) {
-				logger.error("Unable to Clone Message Object");
+			} catch (ObjectClonerException oce) {
+				logger.error("unable to clone message object", oce);
 			}
 
 			try {
@@ -221,6 +217,8 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 			messageObject.setEncodedDataProtocol(Protocol.valueOf(this.outboundProtocol));
 		}
 
+		// ---- End MO checks -----
+		
 		try {
 			// if the message passes the filter, run the transformation script
 			if (evaluateFilterScript(messageObject)) {
@@ -239,9 +237,9 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 		} catch (Exception e) {
 			// only send alert after entire filter/transform process is done
 			alertController.sendAlerts(channelId, messageObject.getErrors());
-			
+
 			if (e instanceof TransformerException) {
-				throw (TransformerException) e;	
+				throw (TransformerException) e;
 			} else {
 				throw new TransformerException(this, e);
 			}
@@ -257,6 +255,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 
 			// load variables in JavaScript scope
 			scopeFactory.buildScope(scope, messageObject, scriptLogger);
+			
 			// get the script from the cache and execute it
 			Script compiledScript = compiledScriptCache.getCompiledScript(filterScriptId);
 			Object result = null;
@@ -291,6 +290,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 			Logger scriptLogger = Logger.getLogger(getMode().toLowerCase() + "-transformation");
 			Context context = Context.enter();
 			Scriptable scope = new ImporterTopLevel(context);
+			
 			// load variables in JavaScript scope
 			scopeFactory.buildScope(scope, messageObject, scriptLogger);
 			scope.put("template", scope, template);
@@ -331,12 +331,10 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 				messageObject.setTransformedData(Context.toString(transformedData));
 			}
 
-		
 			if ((messageObject.getTransformedData() != null)) {
 				IXMLSerializer<String> serializer = AdaptorFactory.getAdaptor(encodedDataProtocol).getSerializer(encodedDataProperties);
 				messageObject.setEncodedData(serializer.fromXML(messageObject.getTransformedData()));
 			}
-			
 
 			messageObject.setStatus(MessageObject.Status.TRANSFORMED);
 			return messageObject;
@@ -363,11 +361,11 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 		StringBuilder errorMessage = new StringBuilder();
 		String lineSeperator = System.getProperty("line.separator");
 		errorMessage.append(errorType + lineSeperator);
-		
+
 		if (lineSource != null) {
-			errorMessage.append("ERROR SOURCE:\t" + lineSource + lineSeperator);	
+			errorMessage.append("ERROR SOURCE:\t" + lineSource + lineSeperator);
 		}
-		
+
 		errorMessage.append("ERROR MESSAGE:\t" + StackTracePrinter.stackTraceToString(e) + lineSeperator);
 
 		if (messageObject.getErrors() == null) {
@@ -446,7 +444,5 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 	public void setOutboundProperties(Map outboundProperties) {
 		this.outboundProperties = outboundProperties;
 	}
-
-
 
 }
