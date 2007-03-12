@@ -104,7 +104,7 @@ public class AlertPanel extends javax.swing.JPanel
         alertTable.setSelectionMode(0);
         alertTable.setRowSelectionAllowed(true);
         alertTable.setRowHeight(UIConstants.ROW_HEIGHT);
-        alertTable.setFocusable(false);
+        alertTable.setFocusable(true);
         alertTable.setSortable(true);
         alertTable.setOpaque(true);
         alertTable.setDragEnabled(false);

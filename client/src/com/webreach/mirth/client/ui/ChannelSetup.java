@@ -318,11 +318,7 @@ public class ChannelSetup extends javax.swing.JPanel
         destinationTable.setRowSelectionAllowed(true);
         destinationTable.setRowHeight(UIConstants.ROW_HEIGHT);
        
-        //destinationTable.setFocusable(false); 
-        // Need to figure a way to make
-        // the arrow keys work here
-        // because the pane that shows
-        // up steals the focus
+        destinationTable.setFocusable(true); 
         destinationTable.setSortable(false);
 
         destinationTable.setOpaque(true);
