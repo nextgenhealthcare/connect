@@ -106,8 +106,9 @@ public class FileReader extends ConnectorClass
             properties.put(FILE_SORT_BY, SORT_BY_SIZE);
         else if (((String) sortBy.getSelectedItem()).equals("Date"))
             properties.put(FILE_SORT_BY, SORT_BY_DATE);
-        // ast:encoding
+
         properties.put(CONNECTOR_CHARSET_ENCODING, parent.getSelectedEncodingForChannel(charsetEncodingCombobox));
+        
         properties.put(FILE_FILTER, fileNameFilter.getText());
 
         if (processBatchFilesYes.isSelected())
@@ -152,8 +153,9 @@ public class FileReader extends ConnectorClass
             sortBy.setSelectedItem("Size");
         else if (props.get(FILE_SORT_BY).equals(SORT_BY_DATE))
             sortBy.setSelectedItem("Date");
-        // ast:encoding
+
         parent.sePreviousSelectedEncodingForChannel(charsetEncodingCombobox, (String) props.get(CONNECTOR_CHARSET_ENCODING));
+        
         fileNameFilter.setText((String) props.get(FILE_FILTER));
 
         if (((String) props.get(FILE_PROCESS_BATCH_FILES)).equalsIgnoreCase(UIConstants.YES_OPTION))
@@ -162,9 +164,15 @@ public class FileReader extends ConnectorClass
             processBatchFilesNo.setSelected(true);
 
         if (((String) props.get(FILE_TYPE)).equalsIgnoreCase(UIConstants.YES_OPTION))
+        {
             fileTypeBinary.setSelected(true);
+            fileTypeBinaryActionPerformed(null);
+        }
         else
+        {
             fileTypeASCII.setSelected(true);
+            fileTypeASCIIActionPerformed(null);
+        }
     }
 
     public Properties getDefaults()
@@ -180,7 +188,6 @@ public class FileReader extends ConnectorClass
         properties.put(FILE_FILE_AGE, "0");
         properties.put(FILE_SORT_BY, SORT_BY_DATE);
         properties.put(FILE_TYPE, UIConstants.NO_OPTION);
-        // ast: encoding
         properties.put(CONNECTOR_CHARSET_ENCODING, UIConstants.DEFAULT_ENCODING_OPTION);
         properties.put(FILE_FILTER, "*.*");
         properties.put(FILE_PROCESS_BATCH_FILES, UIConstants.YES_OPTION);
@@ -201,7 +208,8 @@ public class FileReader extends ConnectorClass
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
-    private void initComponents() {
+    private void initComponents()
+    {
         buttonGroup1 = new javax.swing.ButtonGroup();
         buttonGroup2 = new javax.swing.ButtonGroup();
         buttonGroup3 = new javax.swing.ButtonGroup();
@@ -225,7 +233,7 @@ public class FileReader extends ConnectorClass
         jLabel3 = new javax.swing.JLabel();
         sortBy = new com.webreach.mirth.client.ui.components.MirthComboBox();
         charsetEncodingCombobox = new com.webreach.mirth.client.ui.components.MirthComboBox();
-        jLabel41 = new javax.swing.JLabel();
+        encodingLabel = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
         mirthVariableList1 = new com.webreach.mirth.client.ui.components.MirthVariableList();
         jLabel8 = new javax.swing.JLabel();
@@ -271,8 +279,10 @@ public class FileReader extends ConnectorClass
         buttonGroup2.add(checkFileAgeYes);
         checkFileAgeYes.setText("Yes");
         checkFileAgeYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        checkFileAgeYes.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        checkFileAgeYes.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
                 checkFileAgeYesActionPerformed(evt);
             }
         });
@@ -283,8 +293,10 @@ public class FileReader extends ConnectorClass
         checkFileAgeNo.setSelected(true);
         checkFileAgeNo.setText("No");
         checkFileAgeNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        checkFileAgeNo.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        checkFileAgeNo.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
                 checkFileAgeNoActionPerformed(evt);
             }
         });
@@ -294,15 +306,18 @@ public class FileReader extends ConnectorClass
         sortBy.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Date", "Name", "Size" }));
 
         charsetEncodingCombobox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Default", "UTF-8", "ISO-8859-1", "UTF-16 (le)", "UTF-16 (be)", "UTF-16 (bom)", "US-ASCII" }));
-        charsetEncodingCombobox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        charsetEncodingCombobox.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
                 charsetEncodingComboboxActionPerformed(evt);
             }
         });
 
-        jLabel41.setText("Encoding:");
+        encodingLabel.setText("Encoding:");
 
-        mirthVariableList1.setModel(new javax.swing.AbstractListModel() {
+        mirthVariableList1.setModel(new javax.swing.AbstractListModel()
+        {
             String[] strings = { "DATE", "COUNT", "UUID", "SYSTIME", "ORIGINALNAME" };
             public int getSize() { return strings.length; }
             public Object getElementAt(int i) { return strings[i]; }
@@ -325,8 +340,10 @@ public class FileReader extends ConnectorClass
         processBatchFilesNo.setSelected(true);
         processBatchFilesNo.setText("No");
         processBatchFilesNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        processBatchFilesNo.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        processBatchFilesNo.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
                 processBatchFilesNoActionPerformed(evt);
             }
         });
@@ -337,12 +354,26 @@ public class FileReader extends ConnectorClass
         fileTypeASCII.setSelected(true);
         fileTypeASCII.setText("ASCII");
         fileTypeASCII.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        fileTypeASCII.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                fileTypeASCIIActionPerformed(evt);
+            }
+        });
 
         fileTypeBinary.setBackground(new java.awt.Color(255, 255, 255));
         fileTypeBinary.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         buttonGroup4.add(fileTypeBinary);
         fileTypeBinary.setText("Binary");
         fileTypeBinary.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        fileTypeBinary.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                fileTypeBinaryActionPerformed(evt);
+            }
+        });
 
         jLabel10.setText("File Type:");
 
@@ -352,21 +383,30 @@ public class FileReader extends ConnectorClass
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(fileAgeLabel)
-                    .add(jLabel1)
-                    .add(jLabel8)
-                    .add(jLabel2)
-                    .add(jLabel5)
-                    .add(jLabel4)
-                    .add(jLabel6)
-                    .add(jLabel7)
-                    .add(jLabel41)
-                    .add(jLabel10)
-                    .add(jLabel9)
-                    .add(jLabel3))
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel1)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel8)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel2)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel5)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel4)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel6)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel7)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel9)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel10)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel3)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, encodingLabel)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, fileAgeLabel))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(fileAge, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(layout.createSequentialGroup()
+                        .add(fileTypeBinary, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(fileTypeASCII, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(layout.createSequentialGroup()
+                        .add(processBatchFilesYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(processBatchFilesNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                     .add(layout.createSequentialGroup()
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(fileNameFilter, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 250, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -384,18 +424,8 @@ public class FileReader extends ConnectorClass
                                     .add(deleteAfterReadNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(jScrollPane2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 84, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(charsetEncodingCombobox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(fileAge, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(layout.createSequentialGroup()
-                        .add(fileTypeASCII, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(fileTypeBinary, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(layout.createSequentialGroup()
-                        .add(processBatchFilesYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(processBatchFilesNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED))
-                    .add(sortBy, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(sortBy, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(charsetEncodingCombobox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
 
@@ -442,31 +472,44 @@ public class FileReader extends ConnectorClass
                     .add(layout.createSequentialGroup()
                         .add(76, 76, 76)
                         .add(jScrollPane2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 84, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                .add(6, 6, 6)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(fileAgeLabel)
-                    .add(fileAge, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel10)
-                    .add(fileTypeASCII, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(fileTypeBinary, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .add(7, 7, 7)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel9)
                     .add(processBatchFilesYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(processBatchFilesNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .add(5, 5, 5)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jLabel10)
+                    .add(fileTypeBinary, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(fileTypeASCII, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(fileAgeLabel)
+                    .add(fileAge, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel3)
                     .add(sortBy, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel41)
+                    .add(encodingLabel)
                     .add(charsetEncodingCombobox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void fileTypeASCIIActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_fileTypeASCIIActionPerformed
+    {//GEN-HEADEREND:event_fileTypeASCIIActionPerformed
+        encodingLabel.setEnabled(true);
+        charsetEncodingCombobox.setEnabled(true);
+    }//GEN-LAST:event_fileTypeASCIIActionPerformed
+
+    private void fileTypeBinaryActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_fileTypeBinaryActionPerformed
+    {//GEN-HEADEREND:event_fileTypeBinaryActionPerformed
+        encodingLabel.setEnabled(false);
+        charsetEncodingCombobox.setEnabled(false);
+        charsetEncodingCombobox.setSelectedIndex(0);
+    }//GEN-LAST:event_fileTypeBinaryActionPerformed
 
     private void processBatchFilesNoActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_processBatchFilesNoActionPerformed
     {// GEN-HEADEREND:event_processBatchFilesNoActionPerformed
@@ -501,6 +544,7 @@ public class FileReader extends ConnectorClass
     private com.webreach.mirth.client.ui.components.MirthRadioButton deleteAfterReadNo;
     private com.webreach.mirth.client.ui.components.MirthRadioButton deleteAfterReadYes;
     private com.webreach.mirth.client.ui.components.MirthTextField directoryField;
+    private javax.swing.JLabel encodingLabel;
     private com.webreach.mirth.client.ui.components.MirthTextField fileAge;
     private javax.swing.JLabel fileAgeLabel;
     private com.webreach.mirth.client.ui.components.MirthTextField fileNameFilter;
@@ -511,7 +555,6 @@ public class FileReader extends ConnectorClass
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel41;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
