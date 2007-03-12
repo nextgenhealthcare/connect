@@ -43,7 +43,7 @@
                   <Component id="jLabel4" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel6" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel7" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel9" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="processBatchFilesLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel10" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel3" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="encodingLabel" alignment="1" min="-2" max="-2" attributes="0"/>
@@ -147,7 +147,7 @@
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="jLabel9" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="processBatchFilesLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="processBatchFilesYes" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="processBatchFilesNo" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
@@ -375,7 +375,7 @@
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="fileNameFilter">
     </Component>
-    <Component class="javax.swing.JLabel" name="jLabel9">
+    <Component class="javax.swing.JLabel" name="processBatchFilesLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Process Batch Files:"/>
       </Properties>

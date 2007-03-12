@@ -238,7 +238,7 @@ public class FileReader extends ConnectorClass
         mirthVariableList1 = new com.webreach.mirth.client.ui.components.MirthVariableList();
         jLabel8 = new javax.swing.JLabel();
         fileNameFilter = new com.webreach.mirth.client.ui.components.MirthTextField();
-        jLabel9 = new javax.swing.JLabel();
+        processBatchFilesLabel = new javax.swing.JLabel();
         processBatchFilesYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         processBatchFilesNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         fileTypeASCII = new com.webreach.mirth.client.ui.components.MirthRadioButton();
@@ -326,7 +326,7 @@ public class FileReader extends ConnectorClass
 
         jLabel8.setText("Filename Filter Pattern:");
 
-        jLabel9.setText("Process Batch Files:");
+        processBatchFilesLabel.setText("Process Batch Files:");
 
         processBatchFilesYes.setBackground(new java.awt.Color(255, 255, 255));
         processBatchFilesYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -391,7 +391,7 @@ public class FileReader extends ConnectorClass
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel4)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel6)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel7)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel9)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, processBatchFilesLabel)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel10)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel3)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, encodingLabel)
@@ -474,7 +474,7 @@ public class FileReader extends ConnectorClass
                         .add(jScrollPane2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 84, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel9)
+                    .add(processBatchFilesLabel)
                     .add(processBatchFilesYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(processBatchFilesNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .add(5, 5, 5)
@@ -502,6 +502,11 @@ public class FileReader extends ConnectorClass
     {//GEN-HEADEREND:event_fileTypeASCIIActionPerformed
         encodingLabel.setEnabled(true);
         charsetEncodingCombobox.setEnabled(true);
+        
+        processBatchFilesLabel.setEnabled(true);
+        processBatchFilesYes.setSelected(true);
+        processBatchFilesNo.setEnabled(true);
+        processBatchFilesYes.setEnabled(true);
     }//GEN-LAST:event_fileTypeASCIIActionPerformed
 
     private void fileTypeBinaryActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_fileTypeBinaryActionPerformed
@@ -509,6 +514,11 @@ public class FileReader extends ConnectorClass
         encodingLabel.setEnabled(false);
         charsetEncodingCombobox.setEnabled(false);
         charsetEncodingCombobox.setSelectedIndex(0);
+        
+        processBatchFilesLabel.setEnabled(false);
+        processBatchFilesNo.setSelected(true);
+        processBatchFilesNo.setEnabled(false);
+        processBatchFilesYes.setEnabled(false);
     }//GEN-LAST:event_fileTypeBinaryActionPerformed
 
     private void processBatchFilesNoActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_processBatchFilesNoActionPerformed
@@ -559,12 +569,12 @@ public class FileReader extends ConnectorClass
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
-    private javax.swing.JLabel jLabel9;
     private javax.swing.JScrollPane jScrollPane2;
     private com.webreach.mirth.client.ui.components.MirthVariableList mirthVariableList1;
     private com.webreach.mirth.client.ui.components.MirthTextField moveToDirectory;
     private com.webreach.mirth.client.ui.components.MirthTextField moveToPattern;
     private com.webreach.mirth.client.ui.components.MirthTextField pollingFreq;
+    private javax.swing.JLabel processBatchFilesLabel;
     private com.webreach.mirth.client.ui.components.MirthRadioButton processBatchFilesNo;
     private com.webreach.mirth.client.ui.components.MirthRadioButton processBatchFilesYes;
     private com.webreach.mirth.client.ui.components.MirthComboBox sortBy;
