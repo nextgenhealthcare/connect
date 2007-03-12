@@ -87,7 +87,7 @@ public class MessageObjectControllerTest extends TestCase {
 			Map<String, String> sampleVariableMap = new HashMap<String, String>();
 			sampleVariableMap.put("testVariable", "testValue");
 
-			sampleMessageObject.setVariableMap(sampleVariableMap);
+			sampleMessageObject.setConnectorMap(sampleVariableMap);
 			sampleMessageObject.setErrors("invalid header");
 			
 			sampleMessageObjectList.add(sampleMessageObject);

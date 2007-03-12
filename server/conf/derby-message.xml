@@ -20,10 +20,12 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		<parameter property="transformedDataProtocol" jdbcType="VARCHAR" />
 		<parameter property="encodedData" jdbcType="CLOB" />
 		<parameter property="encodedDataProtocol" jdbcType="VARCHAR" />
-		<parameter property="variableMap" jdbcType="CLOB" />
 		<parameter property="connectorName" jdbcType="VARCHAR" />
 		<parameter property="errors" jdbcType="CLOB" />
 		<parameter property="correlationId" jdbcType="VARCHAR" />
+		<parameter property="connectorMap" jdbcType="CLOB" />
+		<parameter property="channelMap" jdbcType="CLOB" />
+		<parameter property="responseMap" jdbcType="CLOB" />
 	</parameterMap>
 
 	<parameterMap class="com.webreach.mirth.model.MessageObject" id="update-message-param">
@@ -31,10 +33,12 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		<parameter property="rawData" jdbcType="CLOB" />
 		<parameter property="transformedData" jdbcType="CLOB" />
 		<parameter property="encodedData" jdbcType="CLOB" />
-		<parameter property="variableMap" jdbcType="CLOB" />
 		<parameter property="errors" jdbcType="CLOB" />
 		<parameter property="correlationId" jdbcType="VARCHAR" />
 		<parameter property="id" jdbcType="VARCHAR" />
+		<parameter property="connectorMap" jdbcType="CLOB" />
+		<parameter property="channelMap" jdbcType="CLOB" />
+		<parameter property="responseMap" jdbcType="CLOB" />		
 	</parameterMap>
 
 	<resultMap class="com.webreach.mirth.model.MessageObject" id="get-message-result">
@@ -52,10 +56,12 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		<result property="transformedDataProtocol" column="TRANSFORMED_DATA_PROTOCOL" />
 		<result property="encodedData" column="ENCODED_DATA" />
 		<result property="encodedDataProtocol" column="ENCODED_DATA_PROTOCOL" />
-		<result property="variableMap" column="VARIABLE_MAP" />
 		<result property="connectorName" column="CONNECTOR_NAME" />
 		<result property="errors" column="ERRORS" />
 		<result property="correlationId" column="CORRELATION_ID" />
+		<result property="connectorMap" column="VARIABLE_MAP" />
+		<result property="channelMap" column="VARIABLE_MAP" />
+		<result property="responseMap" column="VARIABLE_MAP" />
 	</resultMap>
 
 	<sql id="messageFilterCriteria">
@@ -136,7 +142,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 	
 	<insert id="insertMessage" parameterMap="insert-message-param">
 		INSERT INTO
-		MESSAGE (ID, CHANNEL_ID, SOURCE, TYPE, DATE_CREATED, VERSION, IS_ENCRYPTED, STATUS, RAW_DATA, RAW_DATA_PROTOCOL, TRANSFORMED_DATA, TRANSFORMED_DATA_PROTOCOL, ENCODED_DATA, ENCODED_DATA_PROTOCOL, VARIABLE_MAP, CONNECTOR_NAME, ERRORS, CORRELATION_ID)
+		MESSAGE (ID, CHANNEL_ID, SOURCE, TYPE, DATE_CREATED, VERSION, IS_ENCRYPTED, STATUS, RAW_DATA, RAW_DATA_PROTOCOL, TRANSFORMED_DATA, TRANSFORMED_DATA_PROTOCOL, ENCODED_DATA, ENCODED_DATA_PROTOCOL, CONNECTOR_MAP, CHANNEL_MAP, RESPONSE_MAP, CONNECTOR_NAME, ERRORS, CORRELATION_ID)
 		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	</insert>
 	
@@ -146,7 +152,9 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 			RAW_DATA = ?,
 			TRANSFORMED_DATA = ?,
 			ENCODED_DATA = ?,
-			VARIABLE_MAP = ?,
+			CONNECTOR_MAP = ?,
+			CHANNEL_MAP = ?,
+			RESPONSE_MAP = ?,
 			ERRORS = ?,
 			CORRELATION_ID = ?
 		WHERE ID = ?

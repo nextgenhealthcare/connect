@@ -57,7 +57,7 @@ public class TemplateValueReplacer {
 			}
 
 			// load variables from local map
-			for (Iterator iter = messageObject.getVariableMap().entrySet().iterator(); iter.hasNext();) {
+			for (Iterator iter = messageObject.getConnectorMap().entrySet().iterator(); iter.hasNext();) {
 				Entry entry = (Entry) iter.next();
 				context.put(entry.getKey().toString(), entry.getValue());
 			}

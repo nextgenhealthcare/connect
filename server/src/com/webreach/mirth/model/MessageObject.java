@@ -41,7 +41,6 @@ public class MessageObject implements Serializable {
 		UNKNOWN, RECEIVED, ACCEPTED, FILTERED, TRANSFORMED, ERROR, SENT, QUEUED
 	}
 
-	public final static String RESPONSE_VARIABLE = "response";
 	private String id;
 	private String channelId;
 	private String source;
@@ -54,17 +53,18 @@ public class MessageObject implements Serializable {
 	private Protocol transformedDataProtocol;
 	private String encodedData;
 	private Protocol encodedDataProtocol;
-	private Map variableMap;
 	private String connectorName;
 	private boolean encrypted;
 	private String errors;
 	private String version;
 	private String correlationId;
+
+	private Map connectorMap;
 	private Map responseMap;
 	private Map channelMap;
 
 	public MessageObject() {
-		this.variableMap = new HashMap();
+		this.connectorMap = new HashMap();
 		this.responseMap = new HashMap();
 		this.channelMap = new HashMap();
 		this.status = Status.UNKNOWN;
@@ -174,12 +174,12 @@ public class MessageObject implements Serializable {
 		this.transformedDataProtocol = transformedDataProtocol;
 	}
 
-	public Map getVariableMap() {
-		return this.variableMap;
+	public Map getConnectorMap() {
+		return this.connectorMap;
 	}
 
-	public void setVariableMap(Map variableMap) {
-		this.variableMap = variableMap;
+	public void setConnectorMap(Map variableMap) {
+		this.connectorMap = variableMap;
 	}
 
 	public boolean isEncrypted() {
@@ -223,9 +223,9 @@ public class MessageObject implements Serializable {
 		messageObject.setStatus(this.getStatus());
 		messageObject.setTransformedData(this.getTransformedData());
 		messageObject.setTransformedDataProtocol(this.getTransformedDataProtocol());
-		messageObject.setVariableMap(this.getVariableMap());
 		messageObject.setVersion(this.getVersion());
 		messageObject.setCorrelationId(this.getCorrelationId());
+		messageObject.setConnectorMap(this.getConnectorMap());
 		messageObject.setResponseMap(this.getResponseMap());
 		messageObject.setChannelMap(this.getChannelMap());
 		return messageObject;
@@ -242,7 +242,27 @@ public class MessageObject implements Serializable {
 
 		MessageObject messageObject = (MessageObject) that;
 
-		return EqualsUtil.areEqual(this.getId(), messageObject.getId()) && EqualsUtil.areEqual(this.getChannelId(), messageObject.getChannelId()) && EqualsUtil.areEqual(this.getSource(), messageObject.getSource()) && EqualsUtil.areEqual(this.getType(), messageObject.getType()) && EqualsUtil.areEqual(this.getStatus(), messageObject.getStatus()) && EqualsUtil.areEqual(this.getDateCreated(), messageObject.getDateCreated()) && EqualsUtil.areEqual(this.getRawData(), messageObject.getRawData()) && EqualsUtil.areEqual(this.getRawDataProtocol(), messageObject.getRawDataProtocol()) && EqualsUtil.areEqual(this.getTransformedData(), messageObject.getTransformedData()) && EqualsUtil.areEqual(this.getTransformedDataProtocol(), messageObject.getTransformedDataProtocol()) && EqualsUtil.areEqual(this.getEncodedData(), messageObject.getEncodedData()) && EqualsUtil.areEqual(this.getEncodedDataProtocol(), messageObject.getEncodedDataProtocol()) && EqualsUtil.areEqual(this.getVariableMap(), messageObject.getVariableMap()) && EqualsUtil.areEqual(this.getConnectorName(), messageObject.getConnectorName()) && EqualsUtil.areEqual(this.isEncrypted(), messageObject.isEncrypted()) && EqualsUtil.areEqual(this.getErrors(), messageObject.getErrors()) && EqualsUtil.areEqual(this.getVersion(), messageObject.getVersion()) && EqualsUtil.areEqual(this.getCorrelationId(), messageObject.getCorrelationId()) && EqualsUtil.areEqual(this.getResponseMap(), messageObject.getResponseMap()) && EqualsUtil.areEqual(this.getChannelMap(), messageObject.getChannelMap());
+		return
+			EqualsUtil.areEqual(this.getId(), messageObject.getId()) &&
+			EqualsUtil.areEqual(this.getChannelId(), messageObject.getChannelId()) &&
+			EqualsUtil.areEqual(this.getSource(), messageObject.getSource()) &&
+			EqualsUtil.areEqual(this.getType(), messageObject.getType()) &&
+			EqualsUtil.areEqual(this.getStatus(), messageObject.getStatus()) &&
+			EqualsUtil.areEqual(this.getDateCreated(), messageObject.getDateCreated()) &&
+			EqualsUtil.areEqual(this.getRawData(), messageObject.getRawData()) &&
+			EqualsUtil.areEqual(this.getRawDataProtocol(), messageObject.getRawDataProtocol()) &&
+			EqualsUtil.areEqual(this.getTransformedData(), messageObject.getTransformedData()) &&
+			EqualsUtil.areEqual(this.getTransformedDataProtocol(), messageObject.getTransformedDataProtocol()) &&
+			EqualsUtil.areEqual(this.getEncodedData(), messageObject.getEncodedData()) &&
+			EqualsUtil.areEqual(this.getEncodedDataProtocol(), messageObject.getEncodedDataProtocol()) &&
+			EqualsUtil.areEqual(this.getConnectorName(), messageObject.getConnectorName()) &&
+			EqualsUtil.areEqual(this.isEncrypted(), messageObject.isEncrypted()) &&
+			EqualsUtil.areEqual(this.getErrors(), messageObject.getErrors()) &&
+			EqualsUtil.areEqual(this.getVersion(), messageObject.getVersion()) &&
+			EqualsUtil.areEqual(this.getCorrelationId(), messageObject.getCorrelationId()) &&
+			EqualsUtil.areEqual(this.getConnectorMap(), messageObject.getConnectorMap()) &&
+			EqualsUtil.areEqual(this.getResponseMap(), messageObject.getResponseMap()) &&
+			EqualsUtil.areEqual(this.getChannelMap(), messageObject.getChannelMap());
 	}
 
 	public String getCorrelationId() {

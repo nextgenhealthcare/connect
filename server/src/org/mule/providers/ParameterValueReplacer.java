@@ -13,7 +13,7 @@ public class ParameterValueReplacer {
 		Map variableMap = null;
 		
 		if (messageObject != null) {
-			variableMap = messageObject.getVariableMap();
+			variableMap = messageObject.getConnectorMap();
 		}
 		
 		if ((variableMap != null) && variableMap.containsKey(key)) {

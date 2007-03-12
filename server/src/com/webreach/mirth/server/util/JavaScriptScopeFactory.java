@@ -12,7 +12,7 @@ public class JavaScriptScopeFactory {
 		buildScope(scope, messageObject.getChannelId());
 		scope.put("messageObject", scope, messageObject);
 		scope.put("message", scope, messageObject.getTransformedData());
-		scope.put("connectorMap", scope, messageObject.getVariableMap());
+		scope.put("connectorMap", scope, messageObject.getConnectorMap());
 		scope.put("channelMap", scope, messageObject.getChannelMap());
 		scope.put("responseMap", scope, messageObject.getResponseMap());
 		scope.put("connector", scope, messageObject.getConnectorName());

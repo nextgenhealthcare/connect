@@ -71,7 +71,7 @@ public class MessageObjectController {
 						messageObject.setRawData(MESSAGE_NO_DATA_STORE);
 						messageObject.setEncodedData(MESSAGE_NO_DATA_STORE);
 						messageObject.setTransformedData(MESSAGE_NO_DATA_STORE);
-						messageObject.setVariableMap(new HashMap());
+						messageObject.setConnectorMap(new HashMap());
 					}
 				}
 			}
@@ -199,7 +199,7 @@ public class MessageObjectController {
 		clone.setCorrelationId(messageObject.getId());
 		clone.setConnectorName(connectorName);
 		//We don't want to clone the maps from the original message...
-		clone.setVariableMap(new HashMap()); //the var map is local
+		clone.setConnectorMap(new HashMap()); //the var map is local
 		//...or do we?
 		//This works depending on clone or deepCopy.
 		//If we deep copy, we need to set the response and context maps
