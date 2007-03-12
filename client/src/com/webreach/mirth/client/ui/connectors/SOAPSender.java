@@ -63,7 +63,6 @@ import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.model.ws.WSDefinition;
 import com.webreach.mirth.model.ws.WSOperation;
 import com.webreach.mirth.model.ws.WSParameter;
-import com.webreach.mirth.server.util.StackTracePrinter;
 
 /**
  * A form that extends from ConnectorClass. All methods implemented are
