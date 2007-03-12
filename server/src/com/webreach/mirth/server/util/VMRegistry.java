@@ -23,7 +23,6 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
 package com.webreach.mirth.server.util;
 
 import java.util.Collections;
@@ -39,6 +38,7 @@ public class VMRegistry {
 	private VMRegistry() {
 
 	}
+
 	public static VMRegistry getInstance() {
 		synchronized (VMRegistry.class) {
 			if (instance == null)
@@ -47,25 +47,25 @@ public class VMRegistry {
 			return instance;
 		}
 	}
-	
+
 	public boolean containsKey(String key) {
 		return vmRegistry.containsKey(key);
 	}
-	
+
 	public synchronized void remove(String key) {
 		vmRegistry.remove(key);
 	}
-	
+
 	public VMMessageReceiver get(String key) {
 		return vmRegistry.get(key);
 	}
-	
+
 	public synchronized void register(String key, VMMessageReceiver value) {
 		vmRegistry.put(key, value);
 	}
-	public synchronized void rebuild(){
+
+	public synchronized void rebuild() {
 		vmRegistry = Collections.synchronizedMap(new HashMap<String, VMMessageReceiver>());
 	}
-	
 
 }
