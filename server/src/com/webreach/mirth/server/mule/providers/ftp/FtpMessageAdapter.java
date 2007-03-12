@@ -14,6 +14,7 @@
  */
 package com.webreach.mirth.server.mule.providers.ftp;
 
+import org.apache.commons.net.ftp.FTPFile;
 import org.mule.providers.AbstractMessageAdapter;
 import org.mule.umo.MessagingException;
 import org.mule.umo.provider.MessageTypeNotSupportedException;
@@ -31,6 +32,9 @@ public class FtpMessageAdapter extends AbstractMessageAdapter
     {
         if (message instanceof byte[])
             this.message = (byte[]) message;
+        else if (message instanceof FTPFile)
+        	this.message = ((FTPFile)message).getName().getBytes();
+        
         else
             throw new MessageTypeNotSupportedException(message, getClass());
     }

@@ -17,6 +17,7 @@ import org.mule.MuleManager;
 import org.mule.config.MuleProperties;
 import org.mule.config.i18n.Message;
 import org.mule.config.i18n.Messages;
+import org.mule.impl.MuleMessage;
 import org.mule.impl.RequestContext;
 import org.mule.providers.NullPayload;
 import org.mule.transformers.AbstractEventAwareTransformer;
@@ -26,6 +27,7 @@ import org.mule.umo.transformer.TransformerException;
 import org.mule.util.Utility;
 
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.model.Response;
 import com.webreach.mirth.server.mule.providers.http.HttpConnector;
 import org.mule.providers.http.HttpConstants;
 
@@ -78,19 +80,28 @@ public class UMOMessageToHttpResponse extends AbstractEventAwareTransformer
         if (src instanceof MessageObject){
         	MessageObject messageObject = (MessageObject)src;
         	HttpConnector connector = (HttpConnector) this.getEndpoint().getConnector();
-        	if (connector.isResponseFromTransformer()){
-        		Object ackResponse = messageObject.getVariableMap().get(MessageObject.RESPONSE_VARIABLE);
-        		Object contentTrans = messageObject.getVariableMap().get("http.contenttype");
-        		Object statusTrans = messageObject.getVariableMap().get("http.status");
+     
+             String respondFrom = connector.getResponseValue();
+              
+ 
+        	if (respondFrom != null && !respondFrom.equalsIgnoreCase("None")){
+        		Response ackResponse = (Response)messageObject.getResponseMap().get(respondFrom);
+        		Object contentTrans = messageObject.getResponseMap().get("http.contenttype");
+        		Object statusTrans = messageObject.getResponseMap().get("http.status");
         		if (statusTrans != null){
         			status = (int)Float.parseFloat((String)statusTrans);
+        		}else{
+        			//Maybe we don't want to do this?
+        			if (ackResponse.getStatus().equals(Response.Status.FAILURE)){
+        				status = context.getIntProperty(HttpConnector.HTTP_STATUS_PROPERTY, HttpConstants.SC_METHOD_FAILURE);
+        			}
         		}
         		contentType = "text/html";
         		if (contentTrans != null ){
         			contentType = (String)contentTrans;
         		}
         		if (ackResponse != null){
-        			response = ((String)ackResponse).getBytes();
+        			response = ackResponse.getMessage().getBytes();
         			
         		}
         	}

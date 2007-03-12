@@ -299,7 +299,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 
 		if (theAck == null) {
 			// NACK
-			messageObjectController.setError(messageObject, "Timeout waiting for Response", null);
+			messageObjectController.setSuccess(messageObject, "Empty Response");
 			return;
 		}
 		try {

@@ -25,6 +25,7 @@
 
 package com.webreach.mirth.server.mule.transformers;
 
+import java.util.Iterator;
 import java.util.Map;
 
 import javax.mail.Message;
@@ -35,7 +36,9 @@ import org.mozilla.javascript.ImporterTopLevel;
 import org.mozilla.javascript.RhinoException;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
+import org.mule.transformers.AbstractEventAwareTransformer;
 import org.mule.transformers.AbstractTransformer;
+import org.mule.umo.UMOEventContext;
 import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.transformer.TransformerException;
 
@@ -60,7 +63,7 @@ import com.webreach.mirth.server.util.ResponseFactory;
 import com.webreach.mirth.server.util.StackTracePrinter;
 import com.webreach.mirth.server.util.VMRouter;
 
-public class JavaScriptTransformer extends AbstractTransformer {
+public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private MessageObjectController messageObjectController = new MessageObjectController();
 	private AlertController alertController = new AlertController();
@@ -187,17 +190,21 @@ public class JavaScriptTransformer extends AbstractTransformer {
 	}
 
 	@Override
-	public Object doTransform(Object source) throws TransformerException {
+	public Object transform(Object source, UMOEventContext context) throws TransformerException {
 		MessageObject messageObject = null;
-
-		if (this.getMode().equals(Mode.SOURCE.toString())) {
+		//If we get a messageObject in, then let's treat it as a dispatch to the destionations
+		//This occurs when we recieve routing events from the VM
+		//If we get a string, then let's handle it as normal
+		if ((!(source instanceof MessageObject)) && (this.getMode().equals(Mode.SOURCE.toString()))) {
 			try {
 				Adaptor adaptor = AdaptorFactory.getAdaptor(Protocol.valueOf(inboundProtocol));
 				messageObject = adaptor.getMessage((String) source, channelId, encryptData, inboundProperties);
+				//Load properties from the context to the messageObject
+				messageObject.getChannelMap().putAll(context.getProperties());
 			} catch (Exception e) {
 				messageObject = null;
 			}
-		} else if (this.getMode().equals(Mode.DESTINATION.toString())) {
+		} else if ((source instanceof MessageObject) || this.getMode().equals(Mode.DESTINATION.toString())) {
 			messageObject = (MessageObject) source;
 			try {
 				messageObject = messageObjectController.cloneMessageObjectForBroadcast(messageObject, this.getConnectorName());
@@ -249,16 +256,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 			Scriptable scope = new ImporterTopLevel(context);
 
 			// load variables in JavaScript scope
-			scope.put("alert", scope, new AlertSender(messageObject.getChannelId()));
-			scope.put("logger", scope, scriptLogger);
-			scope.put("message", scope, messageObject.getTransformedData());
-			scope.put("localMap", scope, messageObject.getVariableMap());
-			scope.put("globalMap", scope, GlobalVariableStore.getInstance());
-			scope.put("messageObject", scope, messageObject);
-			scope.put("router", scope, new VMRouter());
-			scope.put("connector", scope, connectorName);
-			scope.put("responseContextMap", scope, messageObject.getResponseMap());
-			scope.put("response", scope, new ResponseFactory());
+			scopeFactory.buildScope(scope, messageObject, scriptLogger);
 			// get the script from the cache and execute it
 			Script compiledScript = compiledScriptCache.getCompiledScript(filterScriptId);
 			Object result = null;
@@ -333,14 +331,12 @@ public class JavaScriptTransformer extends AbstractTransformer {
 				messageObject.setTransformedData(Context.toString(transformedData));
 			}
 
-			if (this.getMode().equals(Mode.DESTINATION.toString())) {
-				// take the now transformed message and convert it back to ER7
-				// TODO: Fix the logic here to set the proper encoded data back
-				if ((messageObject.getTransformedData() != null)) {
-					IXMLSerializer<String> serializer = AdaptorFactory.getAdaptor(encodedDataProtocol).getSerializer(encodedDataProperties);
-					messageObject.setEncodedData(serializer.fromXML(messageObject.getTransformedData()));
-				}
+		
+			if ((messageObject.getTransformedData() != null)) {
+				IXMLSerializer<String> serializer = AdaptorFactory.getAdaptor(encodedDataProtocol).getSerializer(encodedDataProperties);
+				messageObject.setEncodedData(serializer.fromXML(messageObject.getTransformedData()));
 			}
+			
 
 			messageObject.setStatus(MessageObject.Status.TRANSFORMED);
 			return messageObject;
@@ -450,5 +446,7 @@ public class JavaScriptTransformer extends AbstractTransformer {
 	public void setOutboundProperties(Map outboundProperties) {
 		this.outboundProperties = outboundProperties;
 	}
+
+
 
 }

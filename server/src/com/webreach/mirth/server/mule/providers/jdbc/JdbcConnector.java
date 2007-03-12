@@ -63,7 +63,7 @@ public class JdbcConnector extends AbstractServiceEnabledConnector {
 
 	private boolean useScript;
 	private String scriptId;
-
+	private String ackScriptId;
 	// This method gets called when the JDBC connector is initialized. It
 	// compiles the JavaScript and adds it to the cache.
 	@Override
@@ -71,15 +71,28 @@ public class JdbcConnector extends AbstractServiceEnabledConnector {
 		super.initFromServiceDescriptor();
 
 		try {
-			org.mozilla.javascript.Context context = org.mozilla.javascript.Context.enter();
-			String databaseScript = scriptController.getScript(scriptId);
-
-			if (databaseScript != null) {
-				String generatedDatabaseScript = generateDatabaseScript(databaseScript);
-				logger.debug("compiling database script");
-				Script compiledDatabaseScript = context.compileString(generatedDatabaseScript, scriptId, 1, null);
-				compiledScriptCache.putCompiledScript(scriptId, compiledDatabaseScript);
+			if (scriptId != null){
+				org.mozilla.javascript.Context context = org.mozilla.javascript.Context.enter();
+				String databaseScript = scriptController.getScript(scriptId);
+	
+				if (databaseScript != null) {
+					String generatedDatabaseScript = generateDatabaseScript(databaseScript, false);
+					logger.debug("compiling database script");
+					Script compiledDatabaseScript = context.compileString(generatedDatabaseScript, scriptId, 1, null);
+					compiledScriptCache.putCompiledScript(scriptId, compiledDatabaseScript);
+				}
 			}
+			if (ackScriptId != null){
+				org.mozilla.javascript.Context context = org.mozilla.javascript.Context.enter();
+				String ackScript = scriptController.getScript(ackScriptId);
+				if (ackScript != null) {
+					String generatedDatabaseScript = generateDatabaseScript(ackScript, true);
+					logger.debug("compiling database ack script");
+					Script compiledDatabaseScript = context.compileString(generatedDatabaseScript, ackScriptId, 1, null);
+					compiledScriptCache.putCompiledScript(ackScriptId, compiledDatabaseScript);
+				}
+			}
+			
 		} catch (Exception e) {
 			throw new InitialisationException(e, this);
 		} finally {
@@ -88,12 +101,24 @@ public class JdbcConnector extends AbstractServiceEnabledConnector {
 	}
 
 	// Generates the JavaScript based on the script which the user enters
-	private String generateDatabaseScript(String databaseScript) {
+	private String generateDatabaseScript(String databaseScript, boolean ack) {
 		logger.debug("generating database script");
 		StringBuilder script = new StringBuilder();
 		script.append("importPackage(Packages.com.webreach.mirth.server.util);\n");
+		
+		
 		//TODO: FIX THIS - the scope lookup should be connector->channel->global
-		script.append("function $(string) { if (globalContextMap.get(string) != null) { return globalContextMap.get(string)} else { return localMap.get(string);} }");
+		script.append("function $(string) { ");
+		if (ack){
+			
+			script.append("if (result.get(string) != null) { return result.get(string) } else ");
+		}
+		script.append("if (connectorMap.get(string) != null) { return connectorMap.get(string)} else ");
+		script.append("if (channelMap.get(string) != null) { return channelMap.get(string)} else ");
+		script.append("if (globalMap.get(string) != null) { return globalMap.get(string)} else ");
+		script.append("{ return ''; }}");
+			
+		
 		script.append("function doDatabaseScript() {");
 		script.append(databaseScript + "}\n");
 		script.append("doDatabaseScript()\n");
@@ -110,7 +135,10 @@ public class JdbcConnector extends AbstractServiceEnabledConnector {
 	}
 
 	public UMOMessageReceiver createReceiver(UMOComponent component, UMOEndpoint endpoint) throws Exception {
-		String[] params = getReadAndAckStatements(endpoint.getEndpointURI(), endpoint);
+		String[] params = {};
+		if (!this.useScript){
+			params = getReadAndAckStatements(endpoint.getEndpointURI(), endpoint);
+		}
 		return getServiceDescriptor().createMessageReceiver(this, component, endpoint, params);
 	}
 
@@ -435,6 +463,14 @@ public class JdbcConnector extends AbstractServiceEnabledConnector {
 
 	public void setUseAck(boolean useAck) {
 		this.useAck = useAck;
+	}
+
+	public String getAckScriptId() {
+		return ackScriptId;
+	}
+
+	public void setAckScriptId(String ackScriptId) {
+		this.ackScriptId = ackScriptId;
 	}
 
 }

@@ -73,8 +73,8 @@ public class SftpMessageDispatcher extends AbstractMessageDispatcher {
 				}
 				// TODO: have this mode be set by the connector
 				int mode = ChannelSftp.OVERWRITE;
-				
-				client.put(new ByteArrayInputStream(buffer), ".", mode);
+				client = connector.getClient(uri);
+				client.put(new ByteArrayInputStream(buffer), filename, mode);
 				
 				//update the message status to sent
 				messageObjectController.setSuccess(messageObject, "File successfully written: " + filename);

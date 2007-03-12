@@ -163,7 +163,7 @@ public class TcpConnector extends AbstractServiceEnabledConnector {
 				tcpProtocol = new DefaultProtocol();
 				
 			} catch (Exception e) {
-				throw new InitialisationException(new Message("mllp", 3), e);
+				throw new InitialisationException(new Message("tcp", 3), e);
 			}
 		}
 		// ast: configure the queue (if selected)
@@ -173,7 +173,7 @@ public class TcpConnector extends AbstractServiceEnabledConnector {
 	}
 
 	public String getProtocol() {
-		return "MLLP";
+		return "TCP";
 	}
 
 	/**

@@ -14,6 +14,7 @@
  */
 package com.webreach.mirth.server.mule.providers.ftp;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -50,7 +51,23 @@ public class FtpConnector extends AbstractServiceEnabledConnector {
 	public static final String PROPERTY_OUTPUT_PATTERN = "outputPattern";
 	public static final String PROPERTY_TEMPLATE = "template";
 	public static final String PROPERTY_BINARY = "binary";
-
+	public static final String PROPERTY_FILE_AGE = "fileAge";
+	public static final String PROPERTY_FILE_FILTER = "fileFilter";
+	public static final String PROPERTY_MOVE_TO_PATTERN = "moveToPattern";
+	public static final String PROPERTY_MOVE_TO_DIRECTORY = "moveToDirectory";
+	public static final String PROPERTY_DELETE_ON_READ = "autoDelete";
+	public static final String PROPERTY_DIRECTORY = "directory";
+	public static final String PROPERTY_SORT_ATTRIBUTE = "sortAttribute";
+	public static final String PROPERTY_BATCH_PROCESS = "processBatchFiles";
+	public static final String SORT_NAME = "name";;
+	public static final String SORT_DATE = "date";
+	public static final String SORT_SIZE = "size";
+	public static final long DEFAULT_POLLING_FREQUENCY = 1000;
+    //ast: encoding Charset
+    public static final String PROPERTY_CHARSET_ENCODING = "charsetEncoding";
+    public static final String CHARSET_KEY = "ca.uhn.hl7v2.llp.charset";
+    public static final String DEFAULT_CHARSET_ENCODING =System.getProperty(CHARSET_KEY, java.nio.charset.Charset.defaultCharset().name());
+    
 	/**
 	 * Time in milliseconds to poll. On each poll the poll() method is called
 	 */
@@ -62,6 +79,119 @@ public class FtpConnector extends AbstractServiceEnabledConnector {
 	private String username;
 	private String password;
 	private boolean binary;
+	private String moveToPattern = null;
+	private String writeToDirectoryName = null;
+	private String moveToDirectory= null;
+	private String sortAttribute = SORT_NAME;
+	private boolean outputAppend = false;
+	private boolean autoDelete = true;
+	private boolean checkFileAge = false;
+	private String fileFilter = "*.*";
+	private long fileAge = 0;
+	private FileOutputStream outputStream = null;
+	private boolean serialiseObjects = false;
+	private UMOMessageReceiver receiver = null;
+	private boolean processBatchFiles = true;
+    //ast: encoding charset
+    private String charsetEncoding = DEFAULT_CHARSET_ENCODING;
+
+	
+	public boolean isAutoDelete() {
+		return autoDelete;
+	}
+
+	public void setAutoDelete(boolean autoDelete) {
+		this.autoDelete = autoDelete;
+	}
+
+	public String getCharsetEncoding() {
+		return charsetEncoding;
+	}
+
+	public void setCharsetEncoding(String charsetEncoding) {
+		this.charsetEncoding = charsetEncoding;
+	}
+
+	public boolean isCheckFileAge() {
+		return checkFileAge;
+	}
+
+	public void setCheckFileAge(boolean checkFileAge) {
+		this.checkFileAge = checkFileAge;
+	}
+
+	public long getFileAge() {
+		return fileAge;
+	}
+
+	public void setFileAge(long fileAge) {
+		this.fileAge = fileAge;
+	}
+
+	public String getFileFilter() {
+		return fileFilter;
+	}
+
+	public void setFileFilter(String fileFilter) {
+		this.fileFilter = fileFilter;
+	}
+
+	public String getMoveToDirectory() {
+		return moveToDirectory;
+	}
+
+	public void setMoveToDirectory(String moveToDirectoryName) {
+		this.moveToDirectory = moveToDirectoryName;
+	}
+
+	public String getMoveToPattern() {
+		return moveToPattern;
+	}
+
+	public void setMoveToPattern(String moveToPattern) {
+		this.moveToPattern = moveToPattern;
+	}
+
+	public boolean isOutputAppend() {
+		return outputAppend;
+	}
+
+	public void setOutputAppend(boolean outputAppend) {
+		this.outputAppend = outputAppend;
+	}
+
+	public FileOutputStream getOutputStream() {
+		return outputStream;
+	}
+
+	public void setOutputStream(FileOutputStream outputStream) {
+		this.outputStream = outputStream;
+	}
+
+	public boolean isProcessBatchFiles() {
+		return processBatchFiles;
+	}
+
+	public void setProcessBatchFiles(boolean processBatchFiles) {
+		this.processBatchFiles = processBatchFiles;
+	}
+
+	public String getSortAttribute() {
+		return sortAttribute;
+	}
+
+	public void setSortAttribute(String sortAttribute) {
+		this.sortAttribute = sortAttribute;
+	}
+
+	public String getWriteToDirectoryName() {
+		return writeToDirectoryName;
+	}
+
+	public void setWriteToDirectoryName(String writeToDirectoryName) {
+		this.writeToDirectoryName = writeToDirectoryName;
+	}
+
 	public String getProtocol() {
 		return "ftp";
 	}

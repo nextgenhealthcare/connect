@@ -19,6 +19,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.mule.config.i18n.Message;
 import org.mule.config.i18n.Messages;
+import org.mule.impl.MuleEvent;
+import org.mule.impl.MuleMessage;
 import org.mule.providers.AbstractMessageDispatcher;
 import org.mule.umo.UMOEvent;
 import org.mule.umo.UMOException;
@@ -29,6 +31,9 @@ import org.mule.umo.provider.NoReceiverForEndpointException;
 import org.mule.umo.provider.UMOConnector;
 import org.mule.util.queue.Queue;
 import org.mule.util.queue.QueueSession;
+
+import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.server.controllers.MessageObjectController;
 
 /**
  * <code>VMMessageDispatcher</code> is used for providing in memory interaction between
@@ -46,7 +51,7 @@ public class VMMessageDispatcher extends AbstractMessageDispatcher
     private static transient Log logger = LogFactory.getLog(VMMessageDispatcher.class);
 
     private VMConnector connector;
-
+    private MessageObjectController messageObjectController= new MessageObjectController();
     public VMMessageDispatcher(VMConnector connector)
     {
         super(connector);
@@ -117,28 +122,39 @@ public class VMMessageDispatcher extends AbstractMessageDispatcher
      */
     public void doDispatch(UMOEvent event) throws Exception
     {
-        UMOEndpointURI endpointUri = event.getEndpoint().getEndpointURI();
-
-        if (endpointUri == null) {
-            throw new DispatchException(new Message(Messages.X_IS_NULL, "Endpoint"),
-                                        event.getMessage(),
-                                        event.getEndpoint());
-        }
-        if (connector.isQueueEvents()) {
-            QueueSession session = connector.getQueueSession();
-            Queue queue = session.getQueue(endpointUri.getAddress());
-            queue.put(event);
-        } else {
-            VMMessageReceiver receiver = connector.getReceiver(event.getEndpoint().getEndpointURI());
-            if (receiver == null) {
-                logger.warn("No receiver for endpointUri: " + event.getEndpoint().getEndpointURI());
-                return;
-            }
-            receiver.onEvent(event);
-        }
-        if (logger.isDebugEnabled()) {
-            logger.debug("dispatched Event on endpointUri: " + endpointUri);
-        }
+    	MessageObject messageObject = messageObjectController.getMessageObjectFromEvent(event);
+		if (messageObject == null) {
+			return;
+		}
+		try{
+	        UMOEndpointURI endpointUri = event.getEndpoint().getEndpointURI();
+	
+	        if (endpointUri == null) {
+	            throw new DispatchException(new Message(Messages.X_IS_NULL, "Endpoint"),
+	                                        event.getMessage(),
+	                                        event.getEndpoint());
+	        }
+	        if (connector.isQueueEvents()) {
+	            QueueSession session = connector.getQueueSession();
+	            Queue queue = session.getQueue(endpointUri.getAddress());
+	            queue.put(event);
+	        } else {
+	            VMMessageReceiver receiver = connector.getReceiver(event.getEndpoint().getEndpointURI());
+	            if (receiver == null) {
+	                logger.warn("No receiver for endpointUri: " + event.getEndpoint().getEndpointURI());
+	                return;
+	            }
+	            MuleEvent newEvent = new MuleEvent(new MuleMessage(messageObject.getEncodedData()),event);
+	            receiver.onEvent(newEvent);
+	            messageObjectController.setSuccess(messageObject, "Message routed successfully");
+	        }
+	        if (logger.isDebugEnabled()) {
+	            logger.debug("dispatched Event on endpointUri: " + endpointUri);
+	        }
+		}catch(Exception e){
+			messageObjectController.setError(messageObject, "Error routing message: ", e);
+			throw(e);
+		}
     }
 
     /*
@@ -148,6 +164,7 @@ public class VMMessageDispatcher extends AbstractMessageDispatcher
      */
     public UMOMessage doSend(UMOEvent event) throws Exception
     {
+    	
         UMOMessage retMessage = null;
         UMOEndpointURI endpointUri = event.getEndpoint().getEndpointURI();
         VMMessageReceiver receiver = connector.getReceiver(endpointUri);
@@ -165,8 +182,18 @@ public class VMMessageDispatcher extends AbstractMessageDispatcher
                                                                      event.getEndpoint().getEndpointURI()));
             }
         }
-        retMessage = (UMOMessage) receiver.onCall(event);
-        logger.debug("sent event on endpointUri: " + event.getEndpoint().getEndpointURI());
+        MessageObject messageObject = messageObjectController.getMessageObjectFromEvent(event);
+		if (messageObject == null) {
+			return null;
+		}try{
+			MuleEvent newEvent = new MuleEvent(new MuleMessage(messageObject),event);
+	        retMessage = (UMOMessage) receiver.onCall(newEvent);
+	        messageObjectController.setSuccess(messageObject, "Message routed successfully");
+	        logger.debug("sent event on endpointUri: " + event.getEndpoint().getEndpointURI());
+		}catch (Exception e){
+			messageObjectController.setError(messageObject, "Error routing message: ", e);
+			throw(e);
+		}
         return retMessage;
     }
 

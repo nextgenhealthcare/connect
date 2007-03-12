@@ -446,12 +446,12 @@ public class MuleConfigurationBuilder {
 						propertiesElement.appendChild(connectionFactoryPropertiesMapElement);
 					} else {
 						// script is a special property reserved for some connectors
-						if (property.getKey().equals("script")) {
+						if (property.getKey().equals("script") || property.getKey().equals("ackScript")) {
 							// put the script in the scripts table
 							String databaseScriptId = UUIDGenerator.getUUID();
 							scriptController.putScript(databaseScriptId, property.getValue().toString());
 							Element propertyElement = document.createElement("property");
-							propertyElement.setAttribute("name", "scriptId");
+							propertyElement.setAttribute("name", property.getKey() + "Id");
 							propertyElement.setAttribute("value", databaseScriptId);
 							propertiesElement.appendChild(propertyElement);
 						}else{

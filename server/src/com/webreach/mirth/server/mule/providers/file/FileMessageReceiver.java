@@ -48,6 +48,8 @@ import org.mule.umo.provider.UMOMessageAdapter;
 import org.mule.umo.routing.RoutingException;
 import org.mule.util.Utility;
 
+import sun.misc.BASE64Encoder;
+
 import com.webreach.mirth.server.mule.providers.file.filters.FilenameWildcardFilter;
 import com.webreach.mirth.server.util.BatchMessageProcessor;
 import com.webreach.mirth.server.util.StackTracePrinter;
@@ -152,11 +154,11 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 			if ((now - lastMod) < fileAge)
 				return;
 		}
-
+		FileConnector connector = (FileConnector)this.connector;
 		File destinationFile = null;
-		String orginalFilename = file.getName();
+		String originalFilename = file.getName();
 		UMOMessageAdapter adapter = connector.getMessageAdapter(file);
-		adapter.setProperty(FileConnector.PROPERTY_ORIGINAL_FILENAME, orginalFilename);
+		adapter.setProperty(FileConnector.PROPERTY_ORIGINAL_FILENAME, originalFilename);
 		if (moveDir != null) {
 			String fileName = file.getName();
 			if (moveToPattern != null) {
@@ -178,10 +180,10 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 				try {
                                         //ast: use the user-selected encoding
 					
-					if (((FileConnector)connector).isProcessBatchFiles()){
+					if (connector.isProcessBatchFiles()){
 						List<String> messages = new BatchMessageProcessor()
 								.processHL7Messages(new InputStreamReader(
-	                                                        new FileInputStream(file),((FileConnector)connector).
+	                                                        new FileInputStream(file),connector.
 	                                                        getCharsetEncoding()));
 	
 						for (Iterator iter = messages.iterator(); iter.hasNext() && (fileProcesedException == null);) {
@@ -191,12 +193,21 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 					}else{
 						
 					       byte[] contents = getBytesFromFile(file);
-					       String message = new String(contents, ((FileConnector)connector).getCharsetEncoding());
-					        routeMessage(new MuleMessage(connector.getMessageAdapter(message)), endpoint.isSynchronous());
+					       String message = "";
+					       if (connector.isBinary()){
+					    	   BASE64Encoder encoder = new BASE64Encoder();
+					    	   message = encoder.encode(contents);
+					       }else{
+					    	   message = new String(contents, connector.getCharsetEncoding());
+					       }
+					       adapter = connector.getMessageAdapter(message);
+					       adapter.setProperty(FileConnector.PROPERTY_ORIGINAL_FILENAME, originalFilename);
+					       routeMessage(new MuleMessage(adapter), endpoint.isSynchronous());
 					}
 				}catch (RoutingException e){
 					logger.error("Unable to route. Stopping Connector: " + StackTracePrinter.stackTraceToString(e));
-					//connector.stopConnector();
+					connector.stopConnector();
+					//TODO: This was commented out (above). Do we need it?
 					routingError = true;
 				}
 				catch (Exception e) {
@@ -219,7 +230,7 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 
 				}
 
-				if (((FileConnector) connector).isAutoDelete()) {
+				if (connector.isAutoDelete()) {
 					adapter.getPayloadAsBytes();
 
 					// no moveTo directory

@@ -107,7 +107,7 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
 			} else {
 				buffer = template.getBytes(connector.getCharsetEncoding());
 			}
-			logger.info("Writing file to: " + file.getAbsolutePath());
+			//logger.info("Writing file to: " + file.getAbsolutePath());
 			fos = new FileOutputStream(file, connector.isOutputAppend());
 			fos.write(buffer);
 

@@ -61,12 +61,12 @@ public class MessageObject implements Serializable {
 	private String version;
 	private String correlationId;
 	private Map responseMap;
-	private Map contextMap;
+	private Map channelMap;
 
 	public MessageObject() {
 		this.variableMap = new HashMap();
 		this.responseMap = new HashMap();
-		this.contextMap = new HashMap();
+		this.channelMap = new HashMap();
 		this.status = Status.UNKNOWN;
 	}
 
@@ -227,7 +227,7 @@ public class MessageObject implements Serializable {
 		messageObject.setVersion(this.getVersion());
 		messageObject.setCorrelationId(this.getCorrelationId());
 		messageObject.setResponseMap(this.getResponseMap());
-		messageObject.setContextMap(this.getContextMap());
+		messageObject.setChannelMap(this.getChannelMap());
 		return messageObject;
 	}
 
@@ -242,7 +242,7 @@ public class MessageObject implements Serializable {
 
 		MessageObject messageObject = (MessageObject) that;
 
-		return EqualsUtil.areEqual(this.getId(), messageObject.getId()) && EqualsUtil.areEqual(this.getChannelId(), messageObject.getChannelId()) && EqualsUtil.areEqual(this.getSource(), messageObject.getSource()) && EqualsUtil.areEqual(this.getType(), messageObject.getType()) && EqualsUtil.areEqual(this.getStatus(), messageObject.getStatus()) && EqualsUtil.areEqual(this.getDateCreated(), messageObject.getDateCreated()) && EqualsUtil.areEqual(this.getRawData(), messageObject.getRawData()) && EqualsUtil.areEqual(this.getRawDataProtocol(), messageObject.getRawDataProtocol()) && EqualsUtil.areEqual(this.getTransformedData(), messageObject.getTransformedData()) && EqualsUtil.areEqual(this.getTransformedDataProtocol(), messageObject.getTransformedDataProtocol()) && EqualsUtil.areEqual(this.getEncodedData(), messageObject.getEncodedData()) && EqualsUtil.areEqual(this.getEncodedDataProtocol(), messageObject.getEncodedDataProtocol()) && EqualsUtil.areEqual(this.getVariableMap(), messageObject.getVariableMap()) && EqualsUtil.areEqual(this.getConnectorName(), messageObject.getConnectorName()) && EqualsUtil.areEqual(this.isEncrypted(), messageObject.isEncrypted()) && EqualsUtil.areEqual(this.getErrors(), messageObject.getErrors()) && EqualsUtil.areEqual(this.getVersion(), messageObject.getVersion()) && EqualsUtil.areEqual(this.getCorrelationId(), messageObject.getCorrelationId()) && EqualsUtil.areEqual(this.getResponseMap(), messageObject.getResponseMap()) && EqualsUtil.areEqual(this.getContextMap(), messageObject.getContextMap());
+		return EqualsUtil.areEqual(this.getId(), messageObject.getId()) && EqualsUtil.areEqual(this.getChannelId(), messageObject.getChannelId()) && EqualsUtil.areEqual(this.getSource(), messageObject.getSource()) && EqualsUtil.areEqual(this.getType(), messageObject.getType()) && EqualsUtil.areEqual(this.getStatus(), messageObject.getStatus()) && EqualsUtil.areEqual(this.getDateCreated(), messageObject.getDateCreated()) && EqualsUtil.areEqual(this.getRawData(), messageObject.getRawData()) && EqualsUtil.areEqual(this.getRawDataProtocol(), messageObject.getRawDataProtocol()) && EqualsUtil.areEqual(this.getTransformedData(), messageObject.getTransformedData()) && EqualsUtil.areEqual(this.getTransformedDataProtocol(), messageObject.getTransformedDataProtocol()) && EqualsUtil.areEqual(this.getEncodedData(), messageObject.getEncodedData()) && EqualsUtil.areEqual(this.getEncodedDataProtocol(), messageObject.getEncodedDataProtocol()) && EqualsUtil.areEqual(this.getVariableMap(), messageObject.getVariableMap()) && EqualsUtil.areEqual(this.getConnectorName(), messageObject.getConnectorName()) && EqualsUtil.areEqual(this.isEncrypted(), messageObject.isEncrypted()) && EqualsUtil.areEqual(this.getErrors(), messageObject.getErrors()) && EqualsUtil.areEqual(this.getVersion(), messageObject.getVersion()) && EqualsUtil.areEqual(this.getCorrelationId(), messageObject.getCorrelationId()) && EqualsUtil.areEqual(this.getResponseMap(), messageObject.getResponseMap()) && EqualsUtil.areEqual(this.getChannelMap(), messageObject.getChannelMap());
 	}
 
 	public String getCorrelationId() {
@@ -307,11 +307,11 @@ public class MessageObject implements Serializable {
 		this.responseMap = responseMap;
 	}
 
-	public Map getContextMap() {
-		return contextMap;
+	public Map getChannelMap() {
+		return channelMap;
 	}
 
-	public void setContextMap(Map contextMap) {
-		this.contextMap = contextMap;
+	public void setChannelMap(Map contextMap) {
+		this.channelMap = contextMap;
 	}
 }

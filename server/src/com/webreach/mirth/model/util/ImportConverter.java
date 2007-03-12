@@ -383,10 +383,10 @@ public class ImportConverter {
 	}
 
 	public static String updateLocalAndGlobalVariables(String xml) throws Exception {
-		xml = xml.replaceAll("localMap.put", "channelContextMap.put");
-		xml = xml.replaceAll("localMap.get", "channelContextMap.get");
-		xml = xml.replaceAll("globalMap.put", "globalContextMap.put");
-		xml = xml.replaceAll("globalMap.get", "globalContextMap.get");
+		xml = xml.replaceAll("localMap.put", "channelMap.put");
+		xml = xml.replaceAll("localMap.get", "channelMap.get");
+		//xml = xml.replaceAll("globalMap.put", "globaltMap.put");
+		//xml = xml.replaceAll("globalMap.get", "globalMap.get");
 		return xml;
 	}
 }

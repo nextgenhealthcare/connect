@@ -75,7 +75,8 @@ public class JavaScriptPreprocessor extends AbstractTransformer {
 	public Object doTransform(Object src) throws TransformerException {
 		String message = new String();
 		if (src instanceof MessageObject){
-			message = ((MessageObject)src).getEncodedData();
+			//message = ((MessageObject)src).getEncodedData();
+			return src;
 		}else if (src instanceof String){
 			message = (String) src;
 		}

@@ -65,11 +65,12 @@ public class HttpConnector extends TcpConnector
 
     public static final int DEFAULT_PORT = 80;
     public static String DEFAULT_HTTP_VERSION = HttpConstants.HTTP11;
-    public static final String PROPERTY_TRANSFORMER_ACK = "responseFromTransformer";
+    public static final String PROPERTY_RESPONSE_VALUE = "responseValue";
     public static final String PROPERTY_REQUEST_VARIABLES = "requestVariables";
     public static final String PROPERTY_METHOD = "method";
     public static final String PROPERTY_REPLY_CHANNEL_ID = "replyChannelId";
     public static final String PROPERTY_EXTENDED_PAYLOAD = "extendedPayload";
+    
     
     private String proxyHostname = null;
 
@@ -85,7 +86,7 @@ public class HttpConnector extends TcpConnector
     
     private boolean extendedPayload = false;
 
-    private boolean responseFromTransformer;
+    private String responseValue;
     
     private Map requestVariables;
     
@@ -239,13 +240,7 @@ public class HttpConnector extends TcpConnector
         return this.receivers;
     }
 
-	public boolean isResponseFromTransformer() {
-		return responseFromTransformer;
-	}
 
-	public void setResponseFromTransformer(boolean responseFromTransformer) {
-		this.responseFromTransformer = responseFromTransformer;
-	}
 
 	public boolean isExtendedPayload() {
 		return extendedPayload;
@@ -253,5 +248,13 @@ public class HttpConnector extends TcpConnector
 
 	public void setExtendedPayload(boolean extendedPayload) {
 		this.extendedPayload = extendedPayload;
+	}
+
+	public String getResponseValue() {
+		return responseValue;
+	}
+
+	public void setResponseValue(String responseValue) {
+		this.responseValue = responseValue;
 	}
 }
