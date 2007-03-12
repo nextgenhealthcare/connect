@@ -45,9 +45,9 @@ import com.webreach.mirth.server.controllers.ConfigurationController;
 import com.webreach.mirth.server.controllers.ControllerException;
 import com.webreach.mirth.server.controllers.SystemLogger;
 import com.webreach.mirth.server.mule.providers.vm.VMMessageReceiver;
-import com.webreach.mirth.server.mule.util.VMRegistry;
 import com.webreach.mirth.server.util.DatabasePruner;
 import com.webreach.mirth.server.util.StackTracePrinter;
+import com.webreach.mirth.server.util.VMRegistry;
 import com.webreach.mirth.util.PropertyLoader;
 
 /**
