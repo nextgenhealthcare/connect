@@ -51,15 +51,42 @@ public class FTPReader extends ConnectorClass
 
     private final String FTP_PASSIVE_MODE = "passive";
 
-    private final String FTP_FILE_TYPE = "binary";
-
     private final String FTP_VALIDATE_CONNECTION = "validateConnections";
+    
+    private final String FILE_MOVE_TO_PATTERN = "moveToPattern";
+
+    private final String FILE_MOVE_TO_DIRECTORY = "moveToDirectory";
+
+    private final String FILE_DELETE_AFTER_READ = "autoDelete";
+
+    private final String FILE_CHECK_FILE_AGE = "checkFileAge";
+
+    private final String FILE_FILE_AGE = "fileAge";
+
+    private final String FILE_SORT_BY = "sortAttribute";
+
+    private final String FILE_PROCESS_BATCH_FILES = "processBatchFiles";
+
+    private final String SORT_BY_NAME = "name";
+
+    private final String SORT_BY_SIZE = "size";
+
+    private final String SORT_BY_DATE = "date";
+
+    private final String CONNECTOR_CHARSET_ENCODING = "charsetEncoding";
+
+    private final String FILE_FILTER = "fileFilter";
+
+    private final String FILE_TYPE = "binary";
 
     public FTPReader()
     {
         name = "FTP Reader";
         initComponents();
         pollingFrequencyField.setDocument(new MirthFieldConstraints(0, false, false, true));
+        fileAge.setDocument(new MirthFieldConstraints(0, false, false, true));
+        // ast:encoding activation
+        parent.setupCharsetEncodingForChannel(charsetEncodingCombobox);
     }
 
     public Properties getProperties()
@@ -67,7 +94,6 @@ public class FTPReader extends ConnectorClass
         Properties properties = new Properties();
         properties.put(DATATYPE, name);
         properties.put(FTP_HOST, FTPURLField.getText());
-
         if (anonymousYes.isSelected())
             properties.put(FTP_ANONYMOUS, UIConstants.YES_OPTION);
         else
@@ -81,17 +107,48 @@ public class FTPReader extends ConnectorClass
             properties.put(FTP_PASSIVE_MODE, UIConstants.YES_OPTION);
         else
             properties.put(FTP_PASSIVE_MODE, UIConstants.NO_OPTION);
-
-        if (fileTypeBinary.isSelected())
-            properties.put(FTP_FILE_TYPE, UIConstants.YES_OPTION);
-        else
-            properties.put(FTP_FILE_TYPE, UIConstants.NO_OPTION);
-
+        
         if (validateConnectionYes.isSelected())
             properties.put(FTP_VALIDATE_CONNECTION, UIConstants.YES_OPTION);
         else
             properties.put(FTP_VALIDATE_CONNECTION, UIConstants.NO_OPTION);
+        
+        //common file properties
+        properties.put(FILE_MOVE_TO_PATTERN, moveToPattern.getText());
+        properties.put(FILE_MOVE_TO_DIRECTORY, moveToDirectory.getText().replace('\\', '/'));
 
+        if (deleteAfterReadYes.isSelected())
+            properties.put(FILE_DELETE_AFTER_READ, UIConstants.YES_OPTION);
+        else
+            properties.put(FILE_DELETE_AFTER_READ, UIConstants.NO_OPTION);
+
+        if (checkFileAgeYes.isSelected())
+            properties.put(FILE_CHECK_FILE_AGE, UIConstants.YES_OPTION);
+        else
+            properties.put(FILE_CHECK_FILE_AGE, UIConstants.NO_OPTION);
+
+        properties.put(FILE_FILE_AGE, fileAge.getText());
+
+        if (((String) sortBy.getSelectedItem()).equals("Name"))
+            properties.put(FILE_SORT_BY, SORT_BY_NAME);
+        else if (((String) sortBy.getSelectedItem()).equals("Size"))
+            properties.put(FILE_SORT_BY, SORT_BY_SIZE);
+        else if (((String) sortBy.getSelectedItem()).equals("Date"))
+            properties.put(FILE_SORT_BY, SORT_BY_DATE);
+        // ast:encoding
+        properties.put(CONNECTOR_CHARSET_ENCODING, parent.getSelectedEncodingForChannel(charsetEncodingCombobox));
+        properties.put(FILE_FILTER, fileNameFilter.getText());
+
+        if (processBatchFilesYes.isSelected())
+            properties.put(FILE_PROCESS_BATCH_FILES, UIConstants.YES_OPTION);
+        else
+            properties.put(FILE_PROCESS_BATCH_FILES, UIConstants.NO_OPTION);
+
+        if (fileTypeBinary.isSelected())
+            properties.put(FILE_TYPE, UIConstants.YES_OPTION);
+        else
+            properties.put(FILE_TYPE, UIConstants.NO_OPTION);
+       
         return properties;
     }
 
@@ -119,15 +176,50 @@ public class FTPReader extends ConnectorClass
         else
             passiveModeNo.setSelected(true);
 
-        if (((String) props.get(FTP_FILE_TYPE)).equalsIgnoreCase(UIConstants.YES_OPTION))
-            fileTypeBinary.setSelected(true);
-        else
-            fileTypeASCII.setSelected(true);
-
         if (((String) props.get(FTP_VALIDATE_CONNECTION)).equalsIgnoreCase(UIConstants.YES_OPTION))
             validateConnectionYes.setSelected(true);
         else
             validateConnectionNo.setSelected(true);
+        
+        //common file properties
+        moveToPattern.setText((String) props.get(FILE_MOVE_TO_PATTERN));
+        moveToDirectory.setText((String) props.get(FILE_MOVE_TO_DIRECTORY));
+        if (((String) props.get(FILE_DELETE_AFTER_READ)).equalsIgnoreCase(UIConstants.YES_OPTION))
+            deleteAfterReadYes.setSelected(true);
+        else
+            deleteAfterReadNo.setSelected(true);
+        if (((String) props.get(FILE_CHECK_FILE_AGE)).equalsIgnoreCase(UIConstants.YES_OPTION))
+        {
+            checkFileAgeYes.setSelected(true);
+            checkFileAgeYesActionPerformed(null);
+        }
+        else
+        {
+            checkFileAgeNo.setSelected(true);
+            checkFileAgeNoActionPerformed(null);
+        }
+
+        fileAge.setText((String) props.get(FILE_FILE_AGE));
+
+        if (props.get(FILE_SORT_BY).equals(SORT_BY_NAME))
+            sortBy.setSelectedItem("Name");
+        else if (props.get(FILE_SORT_BY).equals(SORT_BY_SIZE))
+            sortBy.setSelectedItem("Size");
+        else if (props.get(FILE_SORT_BY).equals(SORT_BY_DATE))
+            sortBy.setSelectedItem("Date");
+        // ast:encoding
+        parent.sePreviousSelectedEncodingForChannel(charsetEncodingCombobox, (String) props.get(CONNECTOR_CHARSET_ENCODING));
+        fileNameFilter.setText((String) props.get(FILE_FILTER));
+
+        if (((String) props.get(FILE_PROCESS_BATCH_FILES)).equalsIgnoreCase(UIConstants.YES_OPTION))
+            processBatchFilesYes.setSelected(true);
+        else
+            processBatchFilesNo.setSelected(true);
+
+        if (((String) props.get(FILE_TYPE)).equalsIgnoreCase(UIConstants.YES_OPTION))
+            fileTypeBinary.setSelected(true);
+        else
+            fileTypeASCII.setSelected(true);
     }
 
     public Properties getDefaults()
@@ -140,8 +232,20 @@ public class FTPReader extends ConnectorClass
         properties.put(FTP_PASSWORD, "");
         properties.put(FTP_POLLING_FREQUENCY, "1000");
         properties.put(FTP_PASSIVE_MODE, UIConstants.YES_OPTION);
-        properties.put(FTP_FILE_TYPE, UIConstants.YES_OPTION);
         properties.put(FTP_VALIDATE_CONNECTION, UIConstants.YES_OPTION);
+        
+        //common file properties
+        properties.put(FILE_MOVE_TO_PATTERN, "");
+        properties.put(FILE_MOVE_TO_DIRECTORY, "");
+        properties.put(FILE_DELETE_AFTER_READ, UIConstants.NO_OPTION);
+        properties.put(FILE_CHECK_FILE_AGE, UIConstants.NO_OPTION);
+        properties.put(FILE_FILE_AGE, "0");
+        properties.put(FILE_SORT_BY, SORT_BY_DATE);
+        properties.put(FILE_TYPE, UIConstants.NO_OPTION);
+        // ast: encoding
+        properties.put(CONNECTOR_CHARSET_ENCODING, UIConstants.DEFAULT_ENCODING_OPTION);
+        properties.put(FILE_FILTER, "*.*");
+        properties.put(FILE_PROCESS_BATCH_FILES, UIConstants.YES_OPTION);
         return properties;
     }
 
@@ -172,6 +276,9 @@ public class FTPReader extends ConnectorClass
         buttonGroup2 = new javax.swing.ButtonGroup();
         buttonGroup3 = new javax.swing.ButtonGroup();
         buttonGroup4 = new javax.swing.ButtonGroup();
+        buttonGroup5 = new javax.swing.ButtonGroup();
+        buttonGroup6 = new javax.swing.ButtonGroup();
+        buttonGroup7 = new javax.swing.ButtonGroup();
         URL = new javax.swing.JLabel();
         FTPURLField = new com.webreach.mirth.client.ui.components.MirthTextField();
         jLabel6 = new javax.swing.JLabel();
@@ -192,9 +299,32 @@ public class FTPReader extends ConnectorClass
         anonymousYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         jLabel10 = new javax.swing.JLabel();
         anonymousNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        jLabel8 = new javax.swing.JLabel();
+        fileNameFilter = new com.webreach.mirth.client.ui.components.MirthTextField();
+        jLabel5 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
+        moveToPattern = new com.webreach.mirth.client.ui.components.MirthTextField();
+        moveToDirectory = new com.webreach.mirth.client.ui.components.MirthTextField();
+        jLabel11 = new javax.swing.JLabel();
+        deleteAfterReadYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        deleteAfterReadNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        checkFileAgeNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        checkFileAgeYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        jLabel12 = new javax.swing.JLabel();
+        fileAgeLabel1 = new javax.swing.JLabel();
+        fileAge = new com.webreach.mirth.client.ui.components.MirthTextField();
+        processBatchFilesNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        processBatchFilesYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        jLabel14 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        sortBy = new com.webreach.mirth.client.ui.components.MirthComboBox();
+        charsetEncodingCombobox = new com.webreach.mirth.client.ui.components.MirthComboBox();
+        jLabel41 = new javax.swing.JLabel();
+        mirthVariableList1 = new com.webreach.mirth.client.ui.components.MirthVariableList();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        setMinimumSize(new java.awt.Dimension(200, 200));
         URL.setText("Host:");
 
         jLabel6.setText("Passive Mode:");
@@ -275,44 +405,173 @@ public class FTPReader extends ConnectorClass
             }
         });
 
+        jLabel8.setText("Filename Filter Pattern:");
+
+        jLabel5.setText("Move-to Directory:");
+
+        jLabel4.setText("Move-to File Name:");
+
+        jLabel11.setText("Delete File After Read:");
+
+        deleteAfterReadYes.setBackground(new java.awt.Color(255, 255, 255));
+        deleteAfterReadYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        buttonGroup5.add(deleteAfterReadYes);
+        deleteAfterReadYes.setText("Yes");
+        deleteAfterReadYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
+        deleteAfterReadNo.setBackground(new java.awt.Color(255, 255, 255));
+        deleteAfterReadNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        buttonGroup5.add(deleteAfterReadNo);
+        deleteAfterReadNo.setSelected(true);
+        deleteAfterReadNo.setText("No");
+        deleteAfterReadNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
+        checkFileAgeNo.setBackground(new java.awt.Color(255, 255, 255));
+        checkFileAgeNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        buttonGroup6.add(checkFileAgeNo);
+        checkFileAgeNo.setSelected(true);
+        checkFileAgeNo.setText("No");
+        checkFileAgeNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        checkFileAgeNo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                checkFileAgeNoActionPerformed(evt);
+            }
+        });
+
+        checkFileAgeYes.setBackground(new java.awt.Color(255, 255, 255));
+        checkFileAgeYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        buttonGroup6.add(checkFileAgeYes);
+        checkFileAgeYes.setText("Yes");
+        checkFileAgeYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        checkFileAgeYes.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                checkFileAgeYesActionPerformed(evt);
+            }
+        });
+
+        jLabel12.setText("Check File Age:");
+
+        fileAgeLabel1.setText("File Age (ms):");
+
+        processBatchFilesNo.setBackground(new java.awt.Color(255, 255, 255));
+        processBatchFilesNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        buttonGroup7.add(processBatchFilesNo);
+        processBatchFilesNo.setSelected(true);
+        processBatchFilesNo.setText("No");
+        processBatchFilesNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        processBatchFilesNo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                processBatchFilesNoActionPerformed(evt);
+            }
+        });
+
+        processBatchFilesYes.setBackground(new java.awt.Color(255, 255, 255));
+        processBatchFilesYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        buttonGroup7.add(processBatchFilesYes);
+        processBatchFilesYes.setText("Yes");
+        processBatchFilesYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
+        jLabel14.setText("Process Batch Files:");
+
+        jLabel3.setText("Sort Files By:");
+
+        sortBy.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Date", "Name", "Size" }));
+
+        charsetEncodingCombobox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Default", "UTF-8", "ISO-8859-1", "UTF-16 (le)", "UTF-16 (be)", "UTF-16 (bom)", "US-ASCII" }));
+        charsetEncodingCombobox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                charsetEncodingComboboxActionPerformed(evt);
+            }
+        });
+
+        jLabel41.setText("Encoding:");
+
+        mirthVariableList1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        mirthVariableList1.setModel(new javax.swing.AbstractListModel() {
+            String[] strings = { "DATE", "COUNT", "UUID", "SYSTIME", "ORIGINALNAME" };
+            public int getSize() { return strings.length; }
+            public Object getElementAt(int i) { return strings[i]; }
+        });
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, fileAgeLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel7)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel6)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel9)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, FTPPasswordLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, FTPUsernameLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel10)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, URL))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
-                        .add(validateConnectionYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(23, 23, 23)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                            .add(jLabel6)
+                            .add(FTPPasswordLabel)
+                            .add(FTPUsernameLabel)
+                            .add(jLabel10)
+                            .add(URL)
+                            .add(fileAgeLabel))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(validateConnectionNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(layout.createSequentialGroup()
+                                .add(passiveModeYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(passiveModeNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .add(layout.createSequentialGroup()
+                                .add(validateConnectionYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(validateConnectionNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .add(FTPPasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(FTPUsernameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(layout.createSequentialGroup()
+                                .add(anonymousYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(anonymousNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .add(FTPURLField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 250, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
                     .add(layout.createSequentialGroup()
-                        .add(fileTypeASCII, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap()
+                        .add(jLabel8)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(fileTypeBinary, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .add(fileNameFilter, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 250, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                     .add(layout.createSequentialGroup()
-                        .add(passiveModeYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap()
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                            .add(jLabel12)
+                            .add(jLabel11)
+                            .add(jLabel5)
+                            .add(jLabel9)
+                            .add(jLabel4)
+                            .add(jLabel7)
+                            .add(jLabel41)
+                            .add(jLabel3)
+                            .add(fileAgeLabel1)
+                            .add(jLabel14))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(passiveModeNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(pollingFrequencyField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(FTPPasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(FTPUsernameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(layout.createSequentialGroup()
-                        .add(anonymousYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(anonymousNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(FTPURLField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 250, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(layout.createSequentialGroup()
+                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                    .add(layout.createSequentialGroup()
+                                        .add(deleteAfterReadYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                        .add(deleteAfterReadNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                                    .add(moveToPattern, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 250, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                    .add(moveToDirectory, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 250, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                    .add(layout.createSequentialGroup()
+                                        .add(checkFileAgeYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                        .add(checkFileAgeNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                                .add(5, 5, 5)
+                                .add(mirthVariableList1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .add(pollingFrequencyField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(fileAge, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(sortBy, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(layout.createSequentialGroup()
+                                .add(processBatchFilesYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(processBatchFilesNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .add(layout.createSequentialGroup()
+                                .add(fileTypeASCII, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(fileTypeBinary, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .add(charsetEncodingCombobox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -333,29 +592,88 @@ public class FTPReader extends ConnectorClass
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(FTPPasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(FTPPasswordLabel))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(pollingFrequencyField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel9))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(jLabel6)
-                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                        .add(passiveModeYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(passiveModeNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel7)
-                    .add(fileTypeASCII, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(fileTypeBinary, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(6, 6, 6)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(fileAgeLabel)
                     .add(validateConnectionYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(validateConnectionNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jLabel6)
+                    .add(passiveModeYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(passiveModeNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jLabel8)
+                    .add(fileNameFilter, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jLabel9)
+                    .add(pollingFrequencyField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jLabel5)
+                    .add(moveToDirectory, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jLabel4)
+                    .add(moveToPattern, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .add(6, 6, 6)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jLabel11)
+                    .add(deleteAfterReadYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(deleteAfterReadNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .add(6, 6, 6)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(jLabel12)
+                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                        .add(checkFileAgeYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(checkFileAgeNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(fileAge, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(fileAgeLabel1))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(fileTypeASCII, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(fileTypeBinary, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jLabel7))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jLabel14)
+                    .add(processBatchFilesYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(processBatchFilesNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(sortBy, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jLabel3))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(charsetEncodingCombobox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jLabel41))
+                .addContainerGap())
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                .add(187, 187, 187)
+                .add(mirthVariableList1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(137, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void charsetEncodingComboboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_charsetEncodingComboboxActionPerformed
+// TODO add your handling code here:
+    }//GEN-LAST:event_charsetEncodingComboboxActionPerformed
+
+    private void processBatchFilesNoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_processBatchFilesNoActionPerformed
+// TODO add your handling code here:
+    }//GEN-LAST:event_processBatchFilesNoActionPerformed
+
+    private void checkFileAgeYesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkFileAgeYesActionPerformed
+// TODO add your handling code here:
+    }//GEN-LAST:event_checkFileAgeYesActionPerformed
+
+    private void checkFileAgeNoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkFileAgeNoActionPerformed
+// TODO add your handling code here:
+    }//GEN-LAST:event_checkFileAgeNoActionPerformed
 
     private void anonymousNoActionPerformed(java.awt.event.ActionEvent evt)
     {// GEN-FIRST:event_anonymousNoActionPerformed
@@ -386,16 +704,41 @@ public class FTPReader extends ConnectorClass
     private javax.swing.ButtonGroup buttonGroup2;
     private javax.swing.ButtonGroup buttonGroup3;
     private javax.swing.ButtonGroup buttonGroup4;
+    private javax.swing.ButtonGroup buttonGroup5;
+    private javax.swing.ButtonGroup buttonGroup6;
+    private javax.swing.ButtonGroup buttonGroup7;
+    private com.webreach.mirth.client.ui.components.MirthComboBox charsetEncodingCombobox;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton checkFileAgeNo;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton checkFileAgeYes;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton deleteAfterReadNo;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton deleteAfterReadYes;
+    private com.webreach.mirth.client.ui.components.MirthTextField fileAge;
     private javax.swing.JLabel fileAgeLabel;
+    private javax.swing.JLabel fileAgeLabel1;
+    private com.webreach.mirth.client.ui.components.MirthTextField fileNameFilter;
     private com.webreach.mirth.client.ui.components.MirthRadioButton fileTypeASCII;
     private com.webreach.mirth.client.ui.components.MirthRadioButton fileTypeBinary;
     private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel14;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel41;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
+    private com.webreach.mirth.client.ui.components.MirthVariableList mirthVariableList1;
+    private com.webreach.mirth.client.ui.components.MirthTextField moveToDirectory;
+    private com.webreach.mirth.client.ui.components.MirthTextField moveToPattern;
     private com.webreach.mirth.client.ui.components.MirthRadioButton passiveModeNo;
     private com.webreach.mirth.client.ui.components.MirthRadioButton passiveModeYes;
     private com.webreach.mirth.client.ui.components.MirthTextField pollingFrequencyField;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton processBatchFilesNo;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton processBatchFilesYes;
+    private com.webreach.mirth.client.ui.components.MirthComboBox sortBy;
     private com.webreach.mirth.client.ui.components.MirthRadioButton validateConnectionNo;
     private com.webreach.mirth.client.ui.components.MirthRadioButton validateConnectionYes;
     // End of variables declaration//GEN-END:variables

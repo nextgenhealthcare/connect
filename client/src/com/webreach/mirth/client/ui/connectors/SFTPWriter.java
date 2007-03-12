@@ -128,11 +128,10 @@ public class SFTPWriter extends ConnectorClass
         FTPPasswordField = new com.webreach.mirth.client.ui.components.MirthPasswordField();
         FTPPasswordLabel = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        ftpContentsTextPane = new com.webreach.mirth.client.ui.components.MirthTextPane();
         fileTypeASCII = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         fileTypeBinary = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         jLabel7 = new javax.swing.JLabel();
+        ftpContentsTextPane = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -148,8 +147,6 @@ public class SFTPWriter extends ConnectorClass
 
         jLabel3.setText("Template:");
 
-        jScrollPane1.setViewportView(ftpContentsTextPane);
-
         fileTypeASCII.setBackground(new java.awt.Color(255, 255, 255));
         fileTypeASCII.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         buttonGroup1.add(fileTypeASCII);
@@ -164,6 +161,8 @@ public class SFTPWriter extends ConnectorClass
         fileTypeBinary.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         jLabel7.setText("File Type:");
+
+        ftpContentsTextPane.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
@@ -194,12 +193,12 @@ public class SFTPWriter extends ConnectorClass
                             .add(layout.createSequentialGroup()
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 292, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                    .add(ftpContentsTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 249, Short.MAX_VALUE)
                                     .add(layout.createSequentialGroup()
                                         .add(fileTypeASCII, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                        .add(fileTypeBinary, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))))))
-                .addContainerGap())
+                                        .add(fileTypeBinary, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))))
+                        .addContainerGap())))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -227,7 +226,7 @@ public class SFTPWriter extends ConnectorClass
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jLabel3)
-                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 47, Short.MAX_VALUE))
+                    .add(ftpContentsTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 47, Short.MAX_VALUE))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -245,11 +244,10 @@ public class SFTPWriter extends ConnectorClass
     private javax.swing.ButtonGroup buttonGroup4;
     private com.webreach.mirth.client.ui.components.MirthRadioButton fileTypeASCII;
     private com.webreach.mirth.client.ui.components.MirthRadioButton fileTypeBinary;
-    private com.webreach.mirth.client.ui.components.MirthTextPane ftpContentsTextPane;
+    private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea ftpContentsTextPane;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel7;
-    private javax.swing.JScrollPane jScrollPane1;
     private com.webreach.mirth.client.ui.components.MirthTextField outputPatternField;
     // End of variables declaration//GEN-END:variables
 

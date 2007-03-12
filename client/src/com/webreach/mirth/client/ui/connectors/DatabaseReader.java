@@ -255,9 +255,9 @@ public class DatabaseReader extends ConnectorClass
 
     public boolean checkProperties(Properties props)
     {
-        if (((String) props.get(DATABASE_URL)).length() > 0 && ((String) props.get(DATABASE_POLLING_FREQUENCY)).length() > 0 && ((String) props.get(DATABASE_SQL_STATEMENT)).length() > 0)
+        if (((String) props.get(DATABASE_URL)).length() > 0 && ((String) props.get(DATABASE_POLLING_FREQUENCY)).length() > 0 && ( (((String) props.get(DATABASE_SQL_STATEMENT)).length() > 0) || (((String) props.get(DATABASE_JS_SQL_STATEMENT)).length() > 0) ))
         {
-            if (((String) props.get(DATABASE_USE_ACK)).equalsIgnoreCase(UIConstants.YES_OPTION) && ((String) props.get(DATABASE_ACK)).length() > 0)
+            if ( ((String) props.get(DATABASE_USE_ACK)).equalsIgnoreCase(UIConstants.YES_OPTION) && ( (((String) props.get(DATABASE_JS_ACK)).length() > 0) || ( ((String) props.get(DATABASE_ACK)).length() > 0)))
                 return true;
             else if (((String) props.get(DATABASE_USE_ACK)).equalsIgnoreCase(UIConstants.NO_OPTION))
                 return true;
@@ -304,7 +304,9 @@ public class DatabaseReader extends ConnectorClass
 
             parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().setInboundTemplate(xml);
 
-            if (parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().getOutboundProtocol() == MessageObject.Protocol.XML && parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().getOutboundTemplate().length() == 0)
+            if (parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().getOutboundProtocol() == MessageObject.Protocol.XML 
+            		&& parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().getOutboundTemplate() != null
+            		&& parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().getOutboundTemplate().length() == 0)
             {
                 List<Connector> list = parent.channelEditPanel.currentChannel.getDestinationConnectors();
                 for (Connector c : list)
@@ -462,13 +464,16 @@ public class DatabaseReader extends ConnectorClass
             if (driverInfo.getName().equalsIgnoreCase(((String) databaseDriverCombobox.getSelectedItem())))
                 driver = driverInfo.getClassName();
         }
-
-        String connectionText = "Class.forName(\"" + driver + "\");\n" + "Properties info = new Properties();\n" + "info.setProperty(\"user\", \"" + databaseUsernameField.getText() + "\");\n" + "info.setProperty(\"password\", \"" + new String(databasePasswordField.getPassword()) + "\");\n" + "Connection dbConn = DriverManager.getConnection(\"" + databaseURLField.getText() + "\", info);\n\n" + "// YOUR CODE GOES HERE\n\n" + "dbConn.close();";
-
-        String updateText = "Class.forName(\"" + driver + "\");\n" + "Properties info = new Properties();\n" + "info.setProperty(\"user\", \"" + databaseUsernameField.getText() + "\");\n" + "info.setProperty(\"password\", \"" + new String(databasePasswordField.getPassword()) + "\");\n" + "Connection dbConn = DriverManager.getConnection(\"" + databaseURLField.getText() + "\", info);\n\n" + "// YOUR CODE GOES HERE\n\n" + "dbConn.close();";
-
-        databaseSQLTextPane.setText(connectionText + "\n\n" + databaseSQLTextPane.getText());
-        databaseUpdateSQLTextPane.setText(updateText + "\n\n" + databaseUpdateSQLTextPane.getText());
+        StringBuilder connectionString = new StringBuilder();
+        connectionString.append("var dbConn = DatabaseConnectionFactory.createDatabaseConnection('");
+        connectionString.append(driver + "','" + databaseURLField.getText() + "','");
+        connectionString.append(databaseUsernameField.getText() + "','" +  new String(databasePasswordField.getPassword()) + "\');\n");
+        
+        connectionString.append("var result = dbConn.executeCachedQuery(\"");
+        connectionString.append( "expression");
+        connectionString.append("\");\ndbConn.close();\n");
+        connectionString.append("return result;");
+        databaseSQLTextPane.setText(connectionString.toString() +"\n\n" + databaseSQLTextPane.getText());
 
         parent.enableSave();
     }// GEN-LAST:event_generateConnectionActionPerformed

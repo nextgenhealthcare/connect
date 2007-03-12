@@ -65,7 +65,7 @@
                   </Group>
                   <Component id="responseFromTransformer" min="-2" pref="150" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="32767" attributes="0"/>
+              <EmptySpace pref="30" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -219,7 +219,7 @@
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel38">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Response from Transformer"/>
+        <Property name="text" type="java.lang.String" value="Respond from:"/>
       </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthComboBox" name="responseFromTransformer">

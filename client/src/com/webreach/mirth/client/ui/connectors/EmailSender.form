@@ -35,17 +35,17 @@
                   <Component id="jLabel7" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="emailPasswordField" alignment="0" min="-2" pref="125" max="-2" attributes="1"/>
-                  <Component id="SMTPServerHostField" alignment="0" min="-2" pref="200" max="-2" attributes="1"/>
-                  <Component id="SMTPServerPortField" min="-2" pref="50" max="-2" attributes="1"/>
-                  <Component id="emailUsernameField" min="-2" pref="125" max="-2" attributes="1"/>
-                  <Component id="emailToField" min="-2" pref="200" max="-2" attributes="1"/>
-                  <Component id="jScrollPane1" pref="239" max="32767" attributes="0"/>
-                  <Group type="103" alignment="0" groupAlignment="1" max="-2" attributes="0">
+              <Group type="103" groupAlignment="1" attributes="0">
+                  <Group type="103" alignment="0" groupAlignment="0" max="-2" attributes="0">
+                      <Component id="emailPasswordField" alignment="0" min="-2" pref="125" max="-2" attributes="1"/>
+                      <Component id="SMTPServerHostField" alignment="0" pref="200" max="32767" attributes="1"/>
+                      <Component id="SMTPServerPortField" min="-2" pref="50" max="-2" attributes="1"/>
+                      <Component id="emailUsernameField" min="-2" pref="125" max="-2" attributes="1"/>
+                      <Component id="emailToField" alignment="0" pref="200" max="32767" attributes="1"/>
                       <Component id="emailFromField" alignment="0" max="32767" attributes="1"/>
                       <Component id="emailSubjectField" alignment="0" pref="200" max="32767" attributes="1"/>
                   </Group>
+                  <Component id="emailBodyTextPane" alignment="1" pref="217" max="32767" attributes="1"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -91,7 +91,7 @@
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="jLabel7" min="-2" max="-2" attributes="0"/>
-                  <Component id="jScrollPane1" pref="75" max="32767" attributes="0"/>
+                  <Component id="emailBodyTextPane" pref="64" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -151,23 +151,21 @@
         </Property>
       </Properties>
     </Component>
-    <Container class="javax.swing.JScrollPane" name="jScrollPane1">
-      <AuxValues>
-        <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
-      </AuxValues>
-
-      <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
-      <SubComponents>
-        <Component class="com.webreach.mirth.client.ui.components.MirthTextPane" name="emailBodyTextPane">
-        </Component>
-      </SubComponents>
-    </Container>
     <Component class="javax.swing.JLabel" name="jLabel8">
       <Properties>
         <Property name="text" type="java.lang.String" value="From:"/>
       </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="emailFromField">
+    </Component>
+    <Component class="com.webreach.mirth.client.ui.components.MirthSyntaxTextArea" name="emailBodyTextPane">
+      <Properties>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EtchedBorderInfo">
+            <EtchetBorder/>
+          </Border>
+        </Property>
+      </Properties>
     </Component>
   </SubComponents>
 </Form>

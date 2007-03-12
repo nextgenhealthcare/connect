@@ -282,9 +282,9 @@ public class DatabaseWriter extends ConnectorClass
         connectionString.append(driver + "','" + databaseURLField.getText() + "','");
         connectionString.append(databaseUsernameField.getText() + "','" +  new String(databasePasswordField.getPassword()) + "\');\n");
         
-        connectionString.append("var result = dbConn.executeCachedQuery('");
+        connectionString.append("var result = dbConn.executeUpdate(\"");
         connectionString.append( "expression");
-        connectionString.append("');\ndbConn.close();");
+        connectionString.append("\");\ndbConn.close();");
         databaseSQLTextPane.setText(connectionString.toString() +"\n\n" + databaseSQLTextPane.getText());
 
         parent.enableSave();

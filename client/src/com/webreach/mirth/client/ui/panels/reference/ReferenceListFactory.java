@@ -110,10 +110,10 @@ public class ReferenceListFactory
     private ArrayList<ReferenceListItem> getMapItems()
     {
         ArrayList<ReferenceListItem> variablelistItems = new ArrayList<ReferenceListItem>();
-        variablelistItems.add(new ReferenceListItem("Connector Variable Map", "The variable map that will be sent to the connector.", "connectorContextMap.get('')", CodeSnippetType.VARIABLE));
-        variablelistItems.add(new ReferenceListItem("Channel Variable Map", "The variable map that can be used anywhere in the channel.", "channelContextMap.get('')", CodeSnippetType.VARIABLE));
-        variablelistItems.add(new ReferenceListItem("Global Variable Map", "The variable map that persists values between channels.", "globalContextMap.get('')", CodeSnippetType.VARIABLE));
-        variablelistItems.add(new ReferenceListItem("Response Variable Map", "The variable map that stores responses.", "responseContextMap.get('')", CodeSnippetType.VARIABLE));
+        variablelistItems.add(new ReferenceListItem("Connector Variable Map", "The variable map that will be sent to the connector.", "connectorMap.get('')", CodeSnippetType.VARIABLE));
+        variablelistItems.add(new ReferenceListItem("Channel Variable Map", "The variable map that can be used anywhere in the channel.", "channelMap.get('')", CodeSnippetType.VARIABLE));
+        variablelistItems.add(new ReferenceListItem("Global Variable Map", "The variable map that persists values between channels.", "globalMap.get('')", CodeSnippetType.VARIABLE));
+        variablelistItems.add(new ReferenceListItem("Response Variable Map", "The variable map that stores responses.", "responseMap.get('')", CodeSnippetType.VARIABLE));
         
         
         return variablelistItems;
