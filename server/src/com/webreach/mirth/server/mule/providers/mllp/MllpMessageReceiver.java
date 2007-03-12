@@ -58,6 +58,8 @@ import ca.uhn.hl7v2.validation.impl.NoValidation;
 
 import com.lowagie.text.pdf.events.IndexEvents.Entry;
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.model.Response;
+
 import org.mule.providers.tcp.protocols.*;
 
 import com.webreach.mirth.server.mule.providers.mllp.protocols.LlpProtocol;
@@ -324,23 +326,23 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 							MessageObject messageObjectResponse = (MessageObject)payload;
 							//DEBUG ONLY!!!
 							Map responseMap = messageObjectResponse.getResponseMap();
-							for (Iterator iter = responseMap.entrySet().iterator(); iter.hasNext();) {
-								java.util.Map.Entry element = (java.util.Map.Entry) iter.next();
-								System.out.println(element.getKey() + ": " + element.getValue());
-							}
+							//for (Iterator iter = responseMap.entrySet().iterator(); iter.hasNext();) {
+							//	java.util.Map.Entry element = (java.util.Map.Entry) iter.next();
+							//	System.out.println(element.getKey() + ": " + element.getValue());
+							//}
 							//DEBUG ONLY END
 							String errorString = "";
 							
-							if (connector.isResponseFromTransformer()){
+							if (connector.isResponseFromTransformer() && !connector.getResponseValue().equalsIgnoreCase("None")){
 								if (connector.isAckOnNewConnection()){
 									String endpointURI = connector.getAckIP() + ":" + connector.getAckPort();
 									Socket socket = initSocket("mllp://" + endpointURI);
 									BufferedOutputStream bos = new BufferedOutputStream(socket.getOutputStream());
-									protocol.write(bos, ((String)messageObjectResponse.getVariableMap().get(MessageObject.RESPONSE_VARIABLE)).getBytes(connector.getCharsetEncoding()));
+									protocol.write(bos, ((Response)responseMap.get(connector.getResponseValue())).getMessage().getBytes(connector.getCharsetEncoding()));
 									bos.flush();
 									bos.close();
 								}else{
-									protocol.write(os,((String)messageObjectResponse.getVariableMap().get(MessageObject.RESPONSE_VARIABLE)).getBytes(connector.getCharsetEncoding()));
+									protocol.write(os,((Response)responseMap.get(connector.getResponseValue())).getMessage().getBytes(connector.getCharsetEncoding()));
 									
 								}
 							}else{

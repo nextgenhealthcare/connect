@@ -92,6 +92,7 @@ public class AxisConnector extends AbstractServiceEnabledConnector implements Mo
     public final String PARAMETERS_PROPERTY = "parameters";
     public static final String PROPERTY_TRANSFORMER_RESPONSE = "responseFromTransformer";
     public static final String PROPERTY_REPLY_CHANNELID = "replyChannelId";
+    public static final String PROPERTY_RESPONSE_VALUE = "responseValue";
     private boolean responseFromTransformer = false;
     private String contentType = "text/xml";
     private String serverConfig;
@@ -115,6 +116,7 @@ public class AxisConnector extends AbstractServiceEnabledConnector implements Mo
     private String method = "";
     private List parameters;
     private String soapEnvelope;
+    private String responseValue = "None";
     /**
      * These protocols will be set on client invocations.  by default Mule uses it's own transports
      * rather that Axis's.  This is only because it gives us more flexibility inside Mule and
@@ -644,5 +646,13 @@ public class AxisConnector extends AbstractServiceEnabledConnector implements Mo
 
 	public void setReplyChannelId(String replyChannelId) {
 		this.replyChannelId = replyChannelId;
+	}
+
+	public String getResponseValue() {
+		return responseValue;
+	}
+
+	public void setResponseValue(String responseValue) {
+		this.responseValue = responseValue;
 	}
 }

@@ -30,6 +30,7 @@ import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Iterator;
+import java.util.Map;
 
 import javax.resource.spi.work.Work;
 import javax.resource.spi.work.WorkException;
@@ -58,6 +59,7 @@ import ca.uhn.hl7v2.util.Terser;
 import ca.uhn.hl7v2.validation.impl.NoValidation;
 
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.model.Response;
 import com.webreach.mirth.server.util.BatchMessageProcessor;
 import com.webreach.mirth.server.util.StackTracePrinter;
 import com.webreach.mirth.util.ACKGenerator;
@@ -280,17 +282,25 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
 					Object payload = returnMessage.getPayload();
 					if (payload instanceof MessageObject) {
 						MessageObject messageObjectResponse = (MessageObject) payload;
-						if (connector.isResponseFromTransformer()) {
-							if (connector.isAckOnNewConnection()) {
+						Map responseMap = messageObjectResponse.getResponseMap();
+						//for (Iterator iter = responseMap.entrySet().iterator(); iter.hasNext();) {
+						//	java.util.Map.Entry element = (java.util.Map.Entry) iter.next();
+						//	System.out.println(element.getKey() + ": " + element.getValue());
+						//}
+						//DEBUG ONLY END
+						String errorString = "";
+						
+						if (connector.isResponseFromTransformer() && !connector.getResponseValue().equalsIgnoreCase("None")){
+							if (connector.isAckOnNewConnection()){
 								String endpointURI = connector.getAckIP() + ":" + connector.getAckPort();
 								Socket socket = initSocket("tcp://" + endpointURI);
 								BufferedOutputStream bos = new BufferedOutputStream(socket.getOutputStream());
-								protocol.write(bos, ((String) messageObjectResponse.getVariableMap().get(MessageObject.RESPONSE_VARIABLE)).getBytes(connector.getCharsetEncoding()));
+								protocol.write(bos, ((Response)responseMap.get(connector.getResponseValue())).getMessage().getBytes(connector.getCharsetEncoding()));
 								bos.flush();
 								bos.close();
-							} else {
-								protocol.write(os, ((String) messageObjectResponse.getVariableMap().get(MessageObject.RESPONSE_VARIABLE)).getBytes(connector.getCharsetEncoding()));
-
+							}else{
+								protocol.write(os,((Response)responseMap.get(connector.getResponseValue())).getMessage().getBytes(connector.getCharsetEncoding()));
+								
 							}
 						}
 					}

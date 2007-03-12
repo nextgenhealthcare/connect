@@ -58,6 +58,7 @@ public class MllpConnector extends AbstractServiceEnabledConnector {
     public static final String PROPERTY_REPLY_CHANNEL_ID = "replyChannelId";
     
     public static final String PROPERTY_TRANSFORMER_ACK = "responseFromTransformer";
+    public static final String PROPERTY_RESPONSE_VALUE= "responseValue";
 	// custom properties
 	private String charEncoding = "hex";
 	private String messageStart = "0x1C";
@@ -71,6 +72,7 @@ public class MllpConnector extends AbstractServiceEnabledConnector {
 	private String ackPort = "";
 	private String replyChannelId = "";
 	private boolean responseFromTransformer = false;
+	private String responseValue = "None";
 	// ack properties
 	public static final String PROPERTY_ACKCODE_SUCCESSFUL = "ackCodeSuccessful";
 	public static final String PROPERTY_ACKMSG_SUCCESSFUL = "ackMsgSuccessful";
@@ -647,5 +649,13 @@ public class MllpConnector extends AbstractServiceEnabledConnector {
 
 	public void setResponseFromTransformer(boolean responseFromTransformer) {
 		this.responseFromTransformer = responseFromTransformer;
+	}
+
+	public String getResponseValue() {
+		return responseValue;
+	}
+
+	public void setResponseValue(String responseValue) {
+		this.responseValue = responseValue;
 	}
 }

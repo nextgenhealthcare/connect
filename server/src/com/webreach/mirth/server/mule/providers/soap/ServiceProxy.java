@@ -13,12 +13,15 @@
  */
 package com.webreach.mirth.server.mule.providers.soap;
 
+import java.io.BufferedOutputStream;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.axis.message.SOAPEnvelope;
 import org.apache.commons.logging.Log;
@@ -34,6 +37,7 @@ import org.mule.umo.provider.UMOMessageAdapter;
 import org.mule.util.ClassHelper;
 
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.model.Response;
 import com.webreach.mirth.model.MessageObject.Status;
 import com.webreach.mirth.server.mule.providers.soap.axis.AxisConnector;
 import com.webreach.mirth.server.util.StackTracePrinter;
@@ -145,8 +149,8 @@ public class ServiceProxy {
 		public Object invoke(Object proxy, Method method, Object[] args)
 				throws Throwable {
 			try{
-				UMOMessageAdapter messageAdapter = receiver.getConnector()
-						.getMessageAdapter(args);
+				AxisConnector connector = (AxisConnector)receiver.getConnector();
+				UMOMessageAdapter messageAdapter = connector.getMessageAdapter(args);
 				// messageAdapter.setProperty(MuleProperties.MULE_METHOD_PROPERTY,
 				// method);
 	
@@ -155,12 +159,14 @@ public class ServiceProxy {
 	            	Object data = message.getPayload();
 	            	if (data instanceof MessageObject){
 	            		MessageObject messageObject = (MessageObject)data;
-	            		if (((AxisConnector)receiver.getConnector()).isResponseFromTransformer()){
-	            	   		Object ackResponse = messageObject.getVariableMap().get(MessageObject.RESPONSE_VARIABLE);        		
-	                		if (ackResponse != null){
-	                			return ((String)ackResponse);
-	                		}
-	            		}else if (messageObject.getStatus().equals(Status.ERROR)){
+	            		
+	            		Map responseMap = messageObject.getResponseMap();
+						
+						String errorString = "";
+						
+						if (!connector.getResponseValue().equalsIgnoreCase("None")){
+								return ((Response)responseMap.get(connector.getResponseValue())).getMessage();
+						}else if (messageObject.getStatus().equals(Status.ERROR)){
 	            			return messageObject.getErrors();
 	            		}else if (messageObject.getStatus().equals(Status.FILTERED)){
 	            			return "Message: " + messageObject.getId() + " has been filtered";
@@ -176,7 +182,6 @@ public class ServiceProxy {
 	            	}else{
 	            		return null;
 	            	}
-	            	return null;
 	            } else {
 	                return null;
 	            }

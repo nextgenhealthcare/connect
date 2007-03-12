@@ -59,6 +59,7 @@ public class TcpConnector extends AbstractServiceEnabledConnector {
     
     public static final String PROPERTY_TRANSFORMER_ACK = "responseFromTransformer";
     public static final String PROPERTY_RECEIVE_BINARY = "receiveBinary";
+    public static final String PROPERTY_RESPONSE_VALUE= "responseValue";
 	// custom properties
 	
 	private String template = "message.encodedData";
@@ -69,7 +70,7 @@ public class TcpConnector extends AbstractServiceEnabledConnector {
 	private String replyChannelId = "";
 	private boolean responseFromTransformer = false;
 	private boolean receiveBinary = false;
-
+	private String responseValue ="None";
 
 	
 	public static final int DEFAULT_SOCKET_TIMEOUT = 5000;
@@ -554,5 +555,13 @@ public class TcpConnector extends AbstractServiceEnabledConnector {
 
 	public void setReceiveBinary(boolean receiveBinary) {
 		this.receiveBinary = receiveBinary;
+	}
+
+	public String getResponseValue() {
+		return responseValue;
+	}
+
+	public void setResponseValue(String responseValue) {
+		this.responseValue = responseValue;
 	}
 }
