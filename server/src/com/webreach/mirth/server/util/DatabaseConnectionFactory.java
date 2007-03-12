@@ -23,7 +23,6 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
 package com.webreach.mirth.server.util;
 
 import java.sql.Connection;
@@ -36,7 +35,7 @@ import com.webreach.mirth.util.PropertyLoader;
 public class DatabaseConnectionFactory {
 	public static DatabaseConnection createDatabaseConnection() throws SQLException {
 		Properties properties = PropertyLoader.loadProperties("mirth");
-		
+
 		try {
 			Class.forName(properties.getProperty("database.driver"));
 		} catch (Exception e) {
@@ -59,10 +58,13 @@ public class DatabaseConnectionFactory {
 		Properties info = new Properties();
 		info.setProperty("user", username);
 		info.setProperty("password", password);
+		
+		// this property should only be set if it's for embedded database
 		info.setProperty("shutdown", "true");
 
 		return new DatabaseConnection(address, info);
 	}
+
 	public static Connection createConnection(String driver, String address, String username, String password) throws SQLException {
 		try {
 			Class.forName(driver);
@@ -73,7 +75,10 @@ public class DatabaseConnectionFactory {
 		Properties info = new Properties();
 		info.setProperty("user", username);
 		info.setProperty("password", password);
+		
+		// this property should only be set if it's for embedded database
 		info.setProperty("shutdown", "true");
+		
 		return DriverManager.getConnection(address, info);
 	}
 }
