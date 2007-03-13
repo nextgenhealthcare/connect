@@ -8,7 +8,7 @@ public class ReferenceListFactory
 {
     public enum ListType
     {
-        ALL, CONVERSION, LOGGING_AND_ALERTS, DATABASE, MESSAGE, XML, HL7, UTILITY
+        ALL, CONVERSION, LOGGING_AND_ALERTS, DATABASE, MESSAGE, XML, HL7, MAP, UTILITY
     };
 
     public ArrayList<ReferenceListItem> getVariableListItems(ListType itemName)
@@ -29,6 +29,8 @@ public class ReferenceListFactory
             return getXMLItems();
         case HL7:
             return getHL7Items();
+        case MAP:
+            return getMapItems();
         case UTILITY:
             return getUtilityItems();
         }
@@ -44,6 +46,7 @@ public class ReferenceListFactory
         variablelistItems.addAll(getMessageItems());
         variablelistItems.addAll(getXMLItems());
         variablelistItems.addAll(getHL7Items());
+        variablelistItems.addAll(getMapItems());
         variablelistItems.addAll(getUtilityItems());
 
         return variablelistItems;
@@ -110,12 +113,15 @@ public class ReferenceListFactory
     private ArrayList<ReferenceListItem> getMapItems()
     {
         ArrayList<ReferenceListItem> variablelistItems = new ArrayList<ReferenceListItem>();
-        variablelistItems.add(new ReferenceListItem("Connector Variable Map", "The variable map that will be sent to the connector.", "connectorMap.get('')", CodeSnippetType.VARIABLE));
-        variablelistItems.add(new ReferenceListItem("Channel Variable Map", "The variable map that can be used anywhere in the channel.", "channelMap.get('')", CodeSnippetType.VARIABLE));
-        variablelistItems.add(new ReferenceListItem("Global Variable Map", "The variable map that persists values between channels.", "globalMap.get('')", CodeSnippetType.VARIABLE));
-        variablelistItems.add(new ReferenceListItem("Response Variable Map", "The variable map that stores responses.", "responseMap.get('')", CodeSnippetType.VARIABLE));
-        
-        
+        variablelistItems.add(new ReferenceListItem("Get Connector Variable Map", "The variable map that will be sent to the connector.", "connectorMap.get('')", CodeSnippetType.VARIABLE));
+        variablelistItems.add(new ReferenceListItem("Get Channel Variable Map", "The variable map that can be used anywhere in the channel.", "channelMap.get('')", CodeSnippetType.VARIABLE));
+        variablelistItems.add(new ReferenceListItem("Get Global Variable Map", "The variable map that persists values between channels.", "globalMap.get('')", CodeSnippetType.VARIABLE));
+        variablelistItems.add(new ReferenceListItem("Get Response Variable Map", "The variable map that stores responses.", "responseMap.get('')", CodeSnippetType.VARIABLE));
+        variablelistItems.add(new ReferenceListItem("Put Connector Variable Map", "The variable map that will be sent to the connector.", "connectorMap.put('','')", CodeSnippetType.VARIABLE));
+        variablelistItems.add(new ReferenceListItem("Put Channel Variable Map", "The variable map that can be used anywhere in the channel.", "channelMap.put('','')", CodeSnippetType.VARIABLE));
+        variablelistItems.add(new ReferenceListItem("Put Global Variable Map", "The variable map that persists values between channels.", "globalMap.put('','')", CodeSnippetType.VARIABLE));
+        variablelistItems.add(new ReferenceListItem("Put Response Variable Map", "The variable map that stores responses.", "responseMap.put('','')", CodeSnippetType.VARIABLE));
+                
         return variablelistItems;
     }
     

@@ -95,6 +95,7 @@ public class MirthEditorPane extends JPanel
         tabTemplatePanel.addPanel(new ReferenceListPanel("Message Functions", builder.getVariableListItems(ListType.MESSAGE)), "Message Functions");
         tabTemplatePanel.addPanel(new ReferenceListPanel("XML Functions", builder.getVariableListItems(ListType.XML)), "XML Functions");
         tabTemplatePanel.addPanel(new ReferenceListPanel("HL7 Functions", builder.getVariableListItems(ListType.HL7)), "HL7 Functions");
+        tabTemplatePanel.addPanel(new ReferenceListPanel("Map Functions", builder.getVariableListItems(ListType.MAP)), "Map Functions");
         tabTemplatePanel.addPanel(new ReferenceListPanel("Utility Functions", builder.getVariableListItems(ListType.UTILITY)), "Utility Functions");
 
         tabTemplatePanel.setReferencePanel();
