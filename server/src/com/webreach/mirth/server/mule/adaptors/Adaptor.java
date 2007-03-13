@@ -1,6 +1,7 @@
 package com.webreach.mirth.server.mule.adaptors;
 
 import java.util.Calendar;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -9,9 +10,7 @@ import com.webreach.mirth.model.converters.DefaultXMLSerializer;
 import com.webreach.mirth.model.converters.IXMLSerializer;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.MessageObjectController;
-import com.webreach.mirth.server.util.StackTracePrinter;
 import com.webreach.mirth.server.util.UUIDGenerator;
-import java.util.Map;
 
 public abstract class Adaptor {
 	private Logger logger = Logger.getLogger(this.getClass());
