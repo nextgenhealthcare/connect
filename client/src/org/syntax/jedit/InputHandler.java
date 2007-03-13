@@ -785,7 +785,7 @@ public abstract class InputHandler extends KeyAdapter
                 return;
             }
 
-            textArea.setSelectedText(System.getProperty("line.separator"));
+            textArea.setSelectedText("\n");
         }
     }
 
