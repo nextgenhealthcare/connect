@@ -640,6 +640,7 @@ public class ChannelSetup extends javax.swing.JPanel
             storeMessagesAll.setSelected(true);
             storeMessagesDays.setEnabled(false);
             storeMessagesErrors.setEnabled(false);
+            storeFiltered.setEnabled(false);
             numDays.setText("");
             numDays.setEnabled(false);
             days.setEnabled(false);
@@ -652,7 +653,14 @@ public class ChannelSetup extends javax.swing.JPanel
                 storeMessagesErrors.setSelected(true);
             else
                 storeMessagesErrors.setSelected(false);
-
+            
+            storeFiltered.setEnabled(true);
+            
+            if ((currentChannel.getProperties().get("storeFiltered")) != null && ((String) currentChannel.getProperties().get("storeFiltered")).equalsIgnoreCase("true"))
+                storeFiltered.setSelected(true);
+            else
+                storeFiltered.setSelected(false);
+            
             if (currentChannel.getProperties().get("max_message_age") != null && !((String) currentChannel.getProperties().get("max_message_age")).equalsIgnoreCase("-1"))
             {
                 numDays.setText((String) currentChannel.getProperties().get("max_message_age"));
@@ -771,7 +779,12 @@ public class ChannelSetup extends javax.swing.JPanel
             currentChannel.getProperties().put("encryptData", "true");
         else
             currentChannel.getProperties().put("encryptData", "false");
-
+        
+        if(storeFiltered.isSelected())
+            currentChannel.getProperties().put("storeFiltered", "true");
+        else
+            currentChannel.getProperties().put("storeFiltered", "false");
+        
         if (storeMessages.isSelected())
         {
             currentChannel.getProperties().put("store_messages", "true");
@@ -1001,6 +1014,7 @@ public class ChannelSetup extends javax.swing.JPanel
         jLabel2 = new javax.swing.JLabel();
         synchronousCheckBox = new com.webreach.mirth.client.ui.components.MirthCheckBox();
         incomingProtocol = new com.webreach.mirth.client.ui.components.MirthComboBox();
+        storeFiltered = new com.webreach.mirth.client.ui.components.MirthCheckBox();
         source = new javax.swing.JPanel();
         sourceSourceDropdown = new com.webreach.mirth.client.ui.components.MirthComboBox();
         sourceSourceLabel = new javax.swing.JLabel();
@@ -1130,6 +1144,11 @@ public class ChannelSetup extends javax.swing.JPanel
 
         incomingProtocol.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
+        storeFiltered.setBackground(new java.awt.Color(255, 255, 255));
+        storeFiltered.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        storeFiltered.setText("Don't store filtered messages");
+        storeFiltered.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
         org.jdesktop.layout.GroupLayout summaryLayout = new org.jdesktop.layout.GroupLayout(summary);
         summary.setLayout(summaryLayout);
         summaryLayout.setHorizontalGroup(
@@ -1156,7 +1175,8 @@ public class ChannelSetup extends javax.swing.JPanel
                                 .add(numDays, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 30, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                                 .add(days))
-                            .add(storeMessagesErrors, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                            .add(storeMessagesErrors, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(storeFiltered, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
                     .add(summaryLayout.createSequentialGroup()
                         .add(summaryLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(encryptMessagesCheckBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -1199,7 +1219,9 @@ public class ChannelSetup extends javax.swing.JPanel
                             .add(encryptMessagesCheckBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(storeMessages, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(5, 5, 5)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(storeFiltered, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(storeMessagesErrors, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(storeMessagesAll, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -1217,11 +1239,11 @@ public class ChannelSetup extends javax.swing.JPanel
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(summaryLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(summaryDescriptionLabel)
-                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 145, Short.MAX_VALUE))
+                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 134, Short.MAX_VALUE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(summaryLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jLabel2)
-                    .add(preprocessor, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 147, Short.MAX_VALUE))
+                    .add(preprocessor, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 136, Short.MAX_VALUE))
                 .addContainerGap())
         );
         channelView.addTab("Summary", summary);
@@ -1827,6 +1849,7 @@ public class ChannelSetup extends javax.swing.JPanel
     private javax.swing.JScrollPane sourceConnectorPane;
     private com.webreach.mirth.client.ui.components.MirthComboBox sourceSourceDropdown;
     private javax.swing.JLabel sourceSourceLabel;
+    private com.webreach.mirth.client.ui.components.MirthCheckBox storeFiltered;
     private com.webreach.mirth.client.ui.components.MirthCheckBox storeMessages;
     private com.webreach.mirth.client.ui.components.MirthRadioButton storeMessagesAll;
     private com.webreach.mirth.client.ui.components.MirthRadioButton storeMessagesDays;
