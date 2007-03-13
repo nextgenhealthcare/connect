@@ -284,7 +284,7 @@ public class DatabaseWriter extends ConnectorClass
         
         connectionString.append("var result = dbConn.executeUpdate(\"");
         connectionString.append( "expression");
-        connectionString.append("\");\ndbConn.close();");
+        connectionString.append("\");\n\n// YOUR CODE GOES HERE \n\ndbConn.close();");
         databaseSQLTextPane.setText(connectionString.toString() +"\n\n" + databaseSQLTextPane.getText());
 
         parent.enableSave();

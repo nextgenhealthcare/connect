@@ -573,7 +573,7 @@ public class DatabaseReader extends ConnectorClass
         
         connectionString.append("var result = dbConn.executeUpdate(\"");
         connectionString.append( "expression");
-        connectionString.append("\");\ndbConn.close();");
+        connectionString.append("\");\n\n// YOUR CODE GOES HERE \n\ndbConn.close();");
         databaseUpdateSQLTextPane.setText(connectionString.toString() +"\n\n" + databaseUpdateSQLTextPane.getText());
 
         parent.enableSave();
@@ -597,8 +597,8 @@ public class DatabaseReader extends ConnectorClass
         
         connectionString.append("var result = dbConn.executeCachedQuery(\"");
         connectionString.append( "expression");
-        connectionString.append("\");\ndbConn.close();\n");
-        connectionString.append("return result;");
+        connectionString.append("\");\n\n// YOUR CODE GOES HERE \n\ndbConn.close();\n");
+        connectionString.append("return result;\n\n// You may access this result with $(result)");
         databaseSQLTextPane.setText(connectionString.toString() +"\n\n" + databaseSQLTextPane.getText());
 
         parent.enableSave();
