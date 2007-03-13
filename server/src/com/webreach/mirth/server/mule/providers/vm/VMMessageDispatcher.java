@@ -168,6 +168,10 @@ public class VMMessageDispatcher extends AbstractMessageDispatcher
     	
         UMOMessage retMessage = null;
         UMOEndpointURI endpointUri = event.getEndpoint().getEndpointURI();
+        MessageObject messageObject = messageObjectController.getMessageObjectFromEvent(event);
+		if (messageObject == null) {
+			return null;
+		}try{
         VMMessageReceiver receiver = connector.getReceiver(endpointUri);
         if (receiver == null) {
             if (connector.isQueueEvents()) {
@@ -183,10 +187,7 @@ public class VMMessageDispatcher extends AbstractMessageDispatcher
                                                                      event.getEndpoint().getEndpointURI()));
             }
         }
-        MessageObject messageObject = messageObjectController.getMessageObjectFromEvent(event);
-		if (messageObject == null) {
-			return null;
-		}try{
+        
 			MuleEvent newEvent = new MuleEvent(new MuleMessage(messageObject),event);
 	        retMessage = (UMOMessage) receiver.onCall(newEvent);
 	        messageObjectController.setSuccess(messageObject, "Message routed successfully");
