@@ -26,6 +26,7 @@
 
 package com.webreach.mirth.model.converters;
 
+import java.io.StringReader;
 import java.io.StringWriter;
 
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -38,6 +39,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSOutput;
 import org.w3c.dom.ls.LSSerializer;
+import org.xml.sax.InputSource;
 
 public class DocumentSerializer implements IXMLSerializer<Document>{
 	private Logger logger = Logger.getLogger(this.getClass());
@@ -99,7 +101,7 @@ public class DocumentSerializer implements IXMLSerializer<Document>{
 		Document document = null;
 		
 		try {
-			document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(source);
+			document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(new StringReader(source)));
 		} catch (Exception e) {
 			 logger.error(e.getMessage());
 		}
