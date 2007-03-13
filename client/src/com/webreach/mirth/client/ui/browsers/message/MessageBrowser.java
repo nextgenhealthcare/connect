@@ -589,7 +589,7 @@ public class MessageBrowser extends javax.swing.JPanel
                 setCorrectDocument(EncodedMessageTextPane, currentMessage.getEncodedData(), currentMessage.getEncodedDataProtocol());
                 setCorrectDocument(ErrorsTextPane, currentMessage.getErrors(), null);
 
-                Map variableMap = currentMessage.getVariableMap();
+                Map variableMap = currentMessage.getConnectorMap();
                 Iterator variableMapSetIterator = variableMap.entrySet().iterator();
                 String[][] tableData = new String[variableMap.size()][2];
                 for (int i = 0; variableMapSetIterator.hasNext(); i++)
