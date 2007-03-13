@@ -33,6 +33,8 @@ import org.mule.providers.service.ConnectorFactory;
 import org.mule.providers.soap.axis.extensions.MuleConfigProvider;
 import org.mule.providers.soap.axis.extensions.MuleTransport;
 import com.webreach.mirth.server.mule.providers.soap.axis.extensions.WSDDJavaMuleProvider;
+import com.webreach.mirth.server.util.UUIDGenerator;
+
 import org.mule.umo.UMOComponent;
 import org.mule.umo.UMOException;
 import org.mule.umo.endpoint.UMOEndpoint;
@@ -117,6 +119,7 @@ public class AxisConnector extends AbstractServiceEnabledConnector implements Mo
     private List parameters;
     private String soapEnvelope;
     private String responseValue = "None";
+    private String currentDescriptorName = null;
     /**
      * These protocols will be set on client invocations.  by default Mule uses it's own transports
      * rather that Axis's.  This is only because it gives us more flexibility inside Mule and
@@ -154,6 +157,7 @@ public class AxisConnector extends AbstractServiceEnabledConnector implements Mo
             String s = (String) iterator.next();
             registerSupportedProtocol(s);
         }
+        currentDescriptorName = "_axis" + UUIDGenerator.getUUID();
 
     }
 
@@ -332,7 +336,7 @@ public class AxisConnector extends AbstractServiceEnabledConnector implements Mo
             // the threadpool
             axisDescriptor = (MuleDescriptor) MuleManager.getInstance()
                     .getModel()
-                    .getDescriptor(AXIS_SERVICE_COMPONENT_NAME);
+                    .getDescriptor(currentDescriptorName);
             if (axisDescriptor == null) {
                 axisDescriptor = createAxisDescriptor();
             } else {
@@ -415,12 +419,16 @@ public class AxisConnector extends AbstractServiceEnabledConnector implements Mo
 
     protected MuleDescriptor createAxisDescriptor() {
         MuleDescriptor axisDescriptor = (MuleDescriptor) MuleManager.getInstance()
-                    .getModel().getDescriptor(AXIS_SERVICE_COMPONENT_NAME);
+                    .getModel().getDescriptor(currentDescriptorName);
         if (axisDescriptor == null) {
-            axisDescriptor = new MuleDescriptor(AXIS_SERVICE_COMPONENT_NAME);
+            axisDescriptor = new MuleDescriptor(currentDescriptorName);
             axisDescriptor.setImplementation(AxisServiceComponent.class.getName());
+            return axisDescriptor;
+        }else{
+        	currentDescriptorName = "_axis" + UUIDGenerator.getUUID();
+        	return createAxisDescriptor();
         }
-        return axisDescriptor;
+        
     }
 
     /**
@@ -472,7 +480,7 @@ public class AxisConnector extends AbstractServiceEnabledConnector implements Mo
             // The implication of this is that to add a new service and a
             // different http port the
             // model needs to be restarted before the listener is available
-            if (!MuleManager.getInstance().getModel().isComponentRegistered(AXIS_SERVICE_COMPONENT_NAME)) {
+            if (!MuleManager.getInstance().getModel().isComponentRegistered(currentDescriptorName)) {
                 try {
                     //Descriptor might be null if no inbound endpoints have been register for the Axis connector
                     if(axisDescriptor==null) axisDescriptor = createAxisDescriptor();
