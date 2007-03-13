@@ -30,14 +30,12 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.swing.table.DefaultTableModel;
 
 import com.webreach.mirth.client.ui.PlatformUI;
-import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
+import com.webreach.mirth.client.ui.util.VariableListUtil;
+import com.webreach.mirth.model.Rule;
 import com.webreach.mirth.model.Step;
 
 public class VariableReferenceTable extends ReferenceTable
@@ -132,32 +130,15 @@ public class VariableReferenceTable extends ReferenceTable
         return null;
     }
 
-    public void updateVariables(List<Step> steps)
+    public void updateVariables(List<Rule> rules, List<Step> steps)
     {
-        String VAR_PATTERN = "[glob|loc]alMap.put\\(['|\"]([^'|^\"]*)[\"|']";
         ArrayList<String> variables = new ArrayList<String>();
-        int i = 0;
-        for (Iterator it = steps.iterator(); it.hasNext();)
-        {
-            Step step = (Step) it.next();
-            Map data;
-            data = (Map) step.getData();
-            if (step.getType().equalsIgnoreCase(TransformerPane.MAPPER_TYPE))
-            {
-                variables.add((String) data.get("Variable"));
-                i++;
-            }
-            else if (step.getType().equalsIgnoreCase(TransformerPane.JAVASCRIPT_TYPE))
-            {
-                Pattern pattern = Pattern.compile(VAR_PATTERN);
-                Matcher matcher = pattern.matcher(step.getScript());
-                while (matcher.find())
-                {
-                    String key = matcher.group(1);
-                    variables.add(key);
-                }
-            }
-        }
+        
+        if(rules != null)
+            variables.addAll(VariableListUtil.getRuleVariables(rules));
+        
+        if(steps != null)
+            variables.addAll(VariableListUtil.getStepVariables(steps));
 
         Object[][] d = new String[variables.toArray().length][2];
         for (int j = 0; j < variables.toArray().length; j++)

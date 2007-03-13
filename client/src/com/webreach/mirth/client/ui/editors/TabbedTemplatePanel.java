@@ -6,6 +6,7 @@
 
 package com.webreach.mirth.client.ui.editors;
 
+import com.webreach.mirth.model.Rule;
 import java.util.List;
 import java.util.Properties;
 
@@ -62,9 +63,9 @@ public class TabbedTemplatePanel extends javax.swing.JPanel
         outgoing.resizePanes();
     }
 
-    public void updateVariables(List<Step> steps)
+    public void updateVariables(List<Rule> rules, List<Step> steps)
     {
-        variableTable.updateVariables(steps);
+        variableTable.updateVariables(rules, steps);
     }
 
     public String getIncomingMessage()

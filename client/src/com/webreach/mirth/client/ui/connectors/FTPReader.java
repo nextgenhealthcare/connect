@@ -242,7 +242,6 @@ public class FTPReader extends ConnectorClass
         properties.put(FILE_FILE_AGE, "0");
         properties.put(FILE_SORT_BY, SORT_BY_DATE);
         properties.put(FILE_TYPE, UIConstants.NO_OPTION);
-        // ast: encoding
         properties.put(CONNECTOR_CHARSET_ENCODING, UIConstants.DEFAULT_ENCODING_OPTION);
         properties.put(FILE_FILTER, "*.*");
         properties.put(FILE_PROCESS_BATCH_FILES, UIConstants.YES_OPTION);

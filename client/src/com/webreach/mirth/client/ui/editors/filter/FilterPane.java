@@ -81,13 +81,16 @@ import com.webreach.mirth.client.ui.editors.EditorTableCellEditor;
 import com.webreach.mirth.client.ui.editors.JavaScriptPanel;
 import com.webreach.mirth.client.ui.editors.MirthEditorPane;
 import com.webreach.mirth.client.ui.util.FileUtil;
+import com.webreach.mirth.client.ui.util.VariableListUtil;
 import com.webreach.mirth.model.util.ImportConverter;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.Connector;
 import com.webreach.mirth.model.Filter;
 import com.webreach.mirth.model.Rule;
+import com.webreach.mirth.model.Step;
 import com.webreach.mirth.model.Transformer;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
+import java.util.Iterator;
 
 public class FilterPane extends MirthEditorPane
 {
@@ -530,6 +533,11 @@ public class FilterPane extends MirthEditorPane
             m.put("Script", filterTableModel.getValueAt(row, RULE_SCRIPT_COL));
             jsPanel.setData(m);
         }
+        
+        if (connector.getMode() == Connector.Mode.SOURCE)
+            tabTemplatePanel.updateVariables(buildRuleList(new ArrayList<Rule>(), row), null);
+        else
+            tabTemplatePanel.updateVariables(buildRuleList(getGlobalRuleVariables(), row), getGlobalStepVariables());
     }
 
     // display a rule in the table
@@ -754,22 +762,10 @@ public class FilterPane extends MirthEditorPane
             Context.exit();
         }
     }
-
-    /**
-     * void accept(MouseEvent evt) returns a vector of vectors to the caller of
-     * this.
-     */
-    public void accept()
+    
+    public List<Rule> buildRuleList(List<Rule> list, int endingRow)
     {
-        accept(true);
-    }
-
-    public void accept(boolean returning)
-    {
-        saveData(filterTable.getSelectedRow());
-
-        List<Rule> list = new ArrayList<Rule>();
-        for (int i = 0; i < filterTable.getRowCount(); i++)
+        for (int i = 0; i < endingRow; i++)
         {
             Rule rule = new Rule();
             rule.setSequenceNumber(Integer.parseInt(filterTable.getValueAt(i, RULE_NUMBER_COL).toString()));
@@ -783,6 +779,69 @@ public class FilterPane extends MirthEditorPane
             rule.setName((String) filterTableModel.getValueAt(i, RULE_NAME_COL));
             list.add(rule);
         }
+        return list;
+    }
+    
+    private List<Rule> getGlobalRuleVariables()
+    {
+        List<Rule> concatenatedRules = new ArrayList<Rule>();
+        VariableListUtil.getRuleGlobalVariables(concatenatedRules, channel.getSourceConnector());
+        
+        List<Connector> destinationConnectors = channel.getDestinationConnectors();
+        Iterator<Connector> it = destinationConnectors.iterator();
+        boolean seenCurrent = false;
+        while (it.hasNext())
+        {
+            Connector destination = it.next();
+            if (connector == destination)
+            {
+                seenCurrent = true;
+            }
+            else if (!seenCurrent)
+            {
+                VariableListUtil.getRuleGlobalVariables(concatenatedRules, destination);
+            }
+        }
+        return concatenatedRules;
+    }
+    
+    private List<Step> getGlobalStepVariables()
+    {
+        List<Step> concatenatedSteps = new ArrayList<Step>();
+        VariableListUtil.getStepGlobalVariables(concatenatedSteps, channel.getSourceConnector());
+        
+        List<Connector> destinationConnectors = channel.getDestinationConnectors();
+        Iterator<Connector> it = destinationConnectors.iterator();
+        boolean seenCurrent = false;
+        while (it.hasNext())
+        {
+            Connector destination = it.next();
+            if (connector == destination)
+            {
+                seenCurrent = true;
+            }
+            else if (!seenCurrent)
+            {
+                VariableListUtil.getStepGlobalVariables(concatenatedSteps, destination);
+            }
+        }
+        return concatenatedSteps;
+    }
+    
+    /**
+     * void accept(MouseEvent evt) returns a vector of vectors to the caller of
+     * this.
+     */
+    public void accept()
+    {
+        accept(true);
+    }
+
+    public void accept(boolean returning)
+    {
+        saveData(filterTable.getSelectedRow());
+
+        List<Rule> list =  buildRuleList(new ArrayList<Rule>(), filterTable.getRowCount());
 
         filter.setRules(list);
         transformer.setInboundTemplate(tabTemplatePanel.getIncomingMessage());

@@ -51,7 +51,7 @@ public class X12PropertiesBeanInfo extends EDIPropertiesBeanInfo
             properties[PROPERTY_subelementDelimiter].setDisplayName ( "Subelement Delimiter" );
             properties[PROPERTY_subelementDelimiter].setBound ( true );
             properties[PROPERTY_validateMessage] = new PropertyDescriptor ( "validateMessage", com.webreach.mirth.client.ui.beans.X12Properties.class, "isValidateMessage", "setValidateMessage" ); // NOI18N
-            properties[PROPERTY_validateMessage].setDisplayName ( "Validate Message" );
+            properties[PROPERTY_validateMessage].setDisplayName ( "Strict Parser" );
             properties[PROPERTY_validateMessage].setShortDescription ( "Validate messages based upon message specifications." );
             properties[PROPERTY_validateMessage].setBound ( true );
         }

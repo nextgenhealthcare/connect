@@ -780,6 +780,8 @@ public class LLPListener extends ConnectorClass
     
     public void updateResponseDropDown()
     {
+        boolean visible = parent.channelEditTasks.getContentPane().getComponent(0).isVisible();
+        
         String selectedItem = (String) responseFromTransformer.getSelectedItem();
         
         Channel channel = parent.channelEditPanel.currentChannel;
@@ -788,7 +790,8 @@ public class LLPListener extends ConnectorClass
         
         variables.add("None");
         
-        List<Step> stepsToCheck = channel.getSourceConnector().getTransformer().getSteps();      
+        List<Step> stepsToCheck = new ArrayList<Step>();
+        stepsToCheck.addAll(channel.getSourceConnector().getTransformer().getSteps());      
         
         for(Connector connector : channel.getDestinationConnectors())
         {
@@ -813,6 +816,14 @@ public class LLPListener extends ConnectorClass
                     variables.add(key);
                 }
             }
+            else if (step.getType().equalsIgnoreCase(TransformerPane.MAPPER_TYPE))
+            {
+                if(data.containsKey(UIConstants.IS_GLOBAL))
+                {
+                    if (((String) data.get(UIConstants.IS_GLOBAL)).equalsIgnoreCase(UIConstants.IS_GLOBAL_RESPONSE))
+                        variables.add((String)data.get("Variable"));
+                }
+            }
         }
         
         responseFromTransformer.setModel(new DefaultComboBoxModel(variables.toArray()));
@@ -821,6 +832,8 @@ public class LLPListener extends ConnectorClass
             responseFromTransformer.setSelectedItem(selectedItem);
         else
             responseFromTransformer.setSelectedIndex(0);
+        
+        parent.channelEditTasks.getContentPane().getComponent(0).setVisible(visible);
     }
     
     private void sendACKTransformerActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_sendACKTransformerActionPerformed

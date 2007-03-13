@@ -25,14 +25,10 @@
 
 package com.webreach.mirth.client.ui;
 
+import com.webreach.mirth.client.ui.util.VariableListUtil;
+import com.webreach.mirth.model.Rule;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
 import com.webreach.mirth.model.Step;
 
 /**
@@ -40,7 +36,7 @@ import com.webreach.mirth.model.Step;
  */
 public class VariableList extends javax.swing.JPanel
 {
-    private final String VAR_PATTERN = "[glob|loc]alMap.put\\(['|\"]([^'|^\"]*)[\"|']";
+    private final String VAR_PATTERN = "[connector][channel][global][local]Map.put\\(['|\"]([^'|^\"]*)[\"|']";
 
     /** Creates new form VariableList */
     public VariableList()
@@ -51,7 +47,7 @@ public class VariableList extends javax.swing.JPanel
     /**
      * Set the variable list from a list of steps.
      */
-    public void setVariableListInbound(List<Step> steps)
+    public void setVariableListInbound(List<Rule> rules, List<Step> steps)
     {
         ArrayList<String> variables = new ArrayList<String>();
         int i = 0;
@@ -69,28 +65,8 @@ public class VariableList extends javax.swing.JPanel
         variables.add("Original File Name");
         variables.add("Count");
         variables.add("Entity Encoder");
-        for (Iterator it = steps.iterator(); it.hasNext();)
-        {
-            Step step = (Step) it.next();
-            Map data;
-            data = (Map) step.getData();
-            if (step.getType().equalsIgnoreCase(TransformerPane.MAPPER_TYPE))
-            {
-                variables.add((String) data.get("Variable"));
-                i++;
-            }
-            else if (step.getType().equalsIgnoreCase(TransformerPane.JAVASCRIPT_TYPE))
-            {
-                Pattern pattern = Pattern.compile(VAR_PATTERN);
-                Matcher matcher = pattern.matcher(step.getScript());
-                while (matcher.find())
-                {
-                    String key = matcher.group(1);
-                    variables.add(key);
-                }
-
-            }
-        }
+        variables.addAll(VariableListUtil.getRuleVariables(rules));
+        variables.addAll(VariableListUtil.getStepVariables(steps));
 
         mirthVariableList.removeAll();
         mirthVariableList.setListData(variables.toArray());

@@ -25,24 +25,21 @@
 
 package com.webreach.mirth.client.ui;
 
+import com.webreach.mirth.model.Rule;
 import java.awt.Dimension;
 import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Map.Entry;
 import java.util.prefs.Preferences;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import javax.swing.JOptionPane;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
@@ -80,6 +77,7 @@ import com.webreach.mirth.client.ui.connectors.TCPListener;
 import com.webreach.mirth.client.ui.connectors.TCPSender;
 import com.webreach.mirth.client.ui.editors.filter.FilterPane;
 import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
+import com.webreach.mirth.client.ui.util.VariableListUtil;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.Connector;
 import com.webreach.mirth.model.Filter;
@@ -617,19 +615,6 @@ public class ChannelSetup extends javax.swing.JPanel
         else
             preprocessor.setText("// Modify the message variable below to pre process data\r\nreturn message;");
 
-        if (((String) currentChannel.getProperties().get("recv_xml_encoded")) != null && ((String) currentChannel.getProperties().get("recv_xml_encoded")).equalsIgnoreCase("true"))
-            xmlPreEncoded.setSelected(true);
-        else
-            xmlPreEncoded.setSelected(false);
-
-        if (currentChannel.getSourceConnector().getTransformer().getInboundProtocol() == MessageObject.Protocol.HL7V3)
-        {
-            xmlPreEncoded.setSelected(true);
-            xmlPreEncoded.setEnabled(false);
-        }
-        else
-            xmlPreEncoded.setEnabled(true);
-
         if ((currentChannel.getProperties().get("transactional")) != null && ((String) currentChannel.getProperties().get("transactional")).equalsIgnoreCase("true"))
             transactionalCheckBox.setSelected(true);
         else
@@ -771,11 +756,6 @@ public class ChannelSetup extends javax.swing.JPanel
                 destinationTransformer.setOutboundProtocol(destinationTransformer.getInboundProtocol());
             }
         }
-
-        if (xmlPreEncoded.isSelected())
-            currentChannel.getProperties().put("recv_xml_encoded", "true");
-        else
-            currentChannel.getProperties().put("recv_xml_encoded", "false");
 
         if (transactionalCheckBox.isSelected())
             currentChannel.getProperties().put("transactional", "true");
@@ -992,7 +972,8 @@ public class ChannelSetup extends javax.swing.JPanel
 
     // <editor-fold defaultstate="collapsed" desc=" Generated Code
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
-    private void initComponents() {
+    private void initComponents()
+    {
         filterButtonGroup = new javax.swing.ButtonGroup();
         validationButtonGroup = new javax.swing.ButtonGroup();
         buttonGroup1 = new javax.swing.ButtonGroup();
@@ -1003,7 +984,6 @@ public class ChannelSetup extends javax.swing.JPanel
         summaryNameField = new com.webreach.mirth.client.ui.components.MirthTextField();
         summaryPatternLabel1 = new javax.swing.JLabel();
         summaryEnabledCheckbox = new com.webreach.mirth.client.ui.components.MirthCheckBox();
-        xmlPreEncoded = new com.webreach.mirth.client.ui.components.MirthCheckBox();
         jScrollPane1 = new javax.swing.JScrollPane();
         summaryDescriptionText = new com.webreach.mirth.client.ui.components.MirthTextPane();
         jLabel1 = new javax.swing.JLabel();
@@ -1041,8 +1021,10 @@ public class ChannelSetup extends javax.swing.JPanel
         summary.setBackground(new java.awt.Color(255, 255, 255));
         summary.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         summary.setFocusable(false);
-        summary.addComponentListener(new java.awt.event.ComponentAdapter() {
-            public void componentShown(java.awt.event.ComponentEvent evt) {
+        summary.addComponentListener(new java.awt.event.ComponentAdapter()
+        {
+            public void componentShown(java.awt.event.ComponentEvent evt)
+            {
                 summaryComponentShown(evt);
             }
         });
@@ -1051,8 +1033,10 @@ public class ChannelSetup extends javax.swing.JPanel
 
         summaryDescriptionLabel.setText("Description:");
 
-        summaryNameField.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyReleased(java.awt.event.KeyEvent evt) {
+        summaryNameField.addKeyListener(new java.awt.event.KeyAdapter()
+        {
+            public void keyReleased(java.awt.event.KeyEvent evt)
+            {
                 summaryNameFieldKeyReleased(evt);
             }
         });
@@ -1064,11 +1048,6 @@ public class ChannelSetup extends javax.swing.JPanel
         summaryEnabledCheckbox.setSelected(true);
         summaryEnabledCheckbox.setText("Enabled");
         summaryEnabledCheckbox.setMargin(new java.awt.Insets(0, 0, 0, 0));
-
-        xmlPreEncoded.setBackground(new java.awt.Color(255, 255, 255));
-        xmlPreEncoded.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        xmlPreEncoded.setText("Channel will receive XML pre-encoded messages");
-        xmlPreEncoded.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         jScrollPane1.setViewportView(summaryDescriptionText);
 
@@ -1085,8 +1064,10 @@ public class ChannelSetup extends javax.swing.JPanel
         storeMessages.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         storeMessages.setText("Store message data");
         storeMessages.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        storeMessages.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        storeMessages.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
                 storeMessagesActionPerformed(evt);
             }
         });
@@ -1096,8 +1077,10 @@ public class ChannelSetup extends javax.swing.JPanel
         buttonGroup1.add(storeMessagesAll);
         storeMessagesAll.setText("Store indefinitely");
         storeMessagesAll.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        storeMessagesAll.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        storeMessagesAll.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
                 storeMessagesAllActionPerformed(evt);
             }
         });
@@ -1107,8 +1090,10 @@ public class ChannelSetup extends javax.swing.JPanel
         buttonGroup1.add(storeMessagesDays);
         storeMessagesDays.setText("Store for ");
         storeMessagesDays.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        storeMessagesDays.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        storeMessagesDays.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
                 storeMessagesDaysActionPerformed(evt);
             }
         });
@@ -1121,8 +1106,10 @@ public class ChannelSetup extends javax.swing.JPanel
         storeMessagesErrors.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         storeMessagesErrors.setText("With errors only");
         storeMessagesErrors.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        storeMessagesErrors.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        storeMessagesErrors.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
                 storeMessagesErrorsActionPerformed(evt);
             }
         });
@@ -1179,9 +1166,8 @@ public class ChannelSetup extends javax.swing.JPanel
                             .add(summaryNameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(summaryLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(transactionalCheckBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(summaryEnabledCheckbox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(xmlPreEncoded, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(transactionalCheckBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(synchronousCheckBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                         .add(3, 3, 3))
                     .add(preprocessor, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 547, Short.MAX_VALUE)
@@ -1225,8 +1211,6 @@ public class ChannelSetup extends javax.swing.JPanel
                     .add(summaryLayout.createSequentialGroup()
                         .add(summaryEnabledCheckbox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(xmlPreEncoded, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(transactionalCheckBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(synchronousCheckBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
@@ -1245,15 +1229,19 @@ public class ChannelSetup extends javax.swing.JPanel
         source.setBackground(new java.awt.Color(255, 255, 255));
         source.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         source.setFocusable(false);
-        source.addComponentListener(new java.awt.event.ComponentAdapter() {
-            public void componentShown(java.awt.event.ComponentEvent evt) {
+        source.addComponentListener(new java.awt.event.ComponentAdapter()
+        {
+            public void componentShown(java.awt.event.ComponentEvent evt)
+            {
                 sourceComponentShown(evt);
             }
         });
 
         sourceSourceDropdown.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "TCP/IP", "Database", "Email" }));
-        sourceSourceDropdown.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        sourceSourceDropdown.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
                 sourceSourceDropdownActionPerformed(evt);
             }
         });
@@ -1305,15 +1293,19 @@ public class ChannelSetup extends javax.swing.JPanel
         destination.setBackground(new java.awt.Color(255, 255, 255));
         destination.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         destination.setFocusable(false);
-        destination.addComponentListener(new java.awt.event.ComponentAdapter() {
-            public void componentShown(java.awt.event.ComponentEvent evt) {
+        destination.addComponentListener(new java.awt.event.ComponentAdapter()
+        {
+            public void componentShown(java.awt.event.ComponentEvent evt)
+            {
                 destinationComponentShown(evt);
             }
         });
 
         destinationSourceDropdown.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "TCP/IP", "Database", "Email" }));
-        destinationSourceDropdown.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        destinationSourceDropdown.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
                 destinationSourceDropdownActionPerformed(evt);
             }
         });
@@ -1336,13 +1328,15 @@ public class ChannelSetup extends javax.swing.JPanel
         destinationConnectorPane.setViewportView(destinationConnectorClass);
 
         destinationTable.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
+            new Object [][]
+            {
                 {null, null, null, null},
                 {null, null, null, null},
                 {null, null, null, null},
                 {null, null, null, null}
             },
-            new String [] {
+            new String []
+            {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
@@ -1607,13 +1601,13 @@ public class ChannelSetup extends javax.swing.JPanel
         ((TitledBorder) destinationConnectorPane.getBorder()).setTitle(destinationConnectorClass.getName());
         destinationConnectorPane.repaint();
     }
-
-    private List<Step> getMultipleDestinationSteps(Connector currentDestination)
+    
+    private List<Rule> getMultipleDestinationRules(Connector currentDestination)
     {
-        final String VAR_PATTERN = "globalMap.put\\(['|\"]([^'|^\"]*)[\"|']";
-
-        List<Step> concatenatedSteps = new ArrayList<Step>();
-        concatenatedSteps.addAll(currentChannel.getSourceConnector().getTransformer().getSteps());
+        List<Rule> concatenatedRules = new ArrayList<Rule>();
+        VariableListUtil.getRuleGlobalVariables(concatenatedRules, currentChannel.getSourceConnector());
+        
+        // add only the global variables
         List<Connector> destinationConnectors = currentChannel.getDestinationConnectors();
         Iterator<Connector> it = destinationConnectors.iterator();
         boolean seenCurrent = false;
@@ -1624,44 +1618,39 @@ public class ChannelSetup extends javax.swing.JPanel
             {
                 seenCurrent = true;
                 // add all the variables
-                List<Step> destinationSteps = destination.getTransformer().getSteps();
-                concatenatedSteps.addAll(destinationSteps);
-
+                concatenatedRules.addAll(destination.getFilter().getRules());
             }
             else if (!seenCurrent)
             {
                 // add only the global variables
-                List<Step> destinationSteps = destination.getTransformer().getSteps();
-                Iterator stepIterator = destinationSteps.iterator();
-                while (stepIterator.hasNext())
-                {
-                    Step step = (Step) stepIterator.next();
-                    HashMap map = (HashMap) step.getData();
-                    if (step.getType().equals(TransformerPane.MAPPER_TYPE))
-                    {
-                        // Check if the step is global
-                        if (map.containsKey("isGlobal"))
-                        {
-                            if (((String) map.get("isGlobal")).equalsIgnoreCase(UIConstants.YES_OPTION))
-                                concatenatedSteps.add(step);
-                        }
-                    }
-                    else if (step.getType().equals(TransformerPane.JAVASCRIPT_TYPE))
-                    {
-                        Pattern pattern = Pattern.compile(VAR_PATTERN);
-                        Matcher matcher = pattern.matcher(step.getScript());
-                        while (matcher.find())
-                        {
-                            String key = matcher.group(1);
-                            Step tempStep = new Step();
-                            Map tempMap = new HashMap();
-                            tempMap.put("Variable", key);
-                            tempStep.setData(tempMap);
-                            tempStep.setType(TransformerPane.MAPPER_TYPE);
-                            concatenatedSteps.add(tempStep);
-                        }
-                    }
-                }
+                VariableListUtil.getRuleGlobalVariables(concatenatedRules, destination);
+            }
+        }
+        return concatenatedRules;
+    }
+
+    private List<Step> getMultipleDestinationSteps(Connector currentDestination)
+    {
+        List<Step> concatenatedSteps = new ArrayList<Step>();
+        VariableListUtil.getStepGlobalVariables(concatenatedSteps, currentChannel.getSourceConnector());
+        
+        // add only the global variables
+        List<Connector> destinationConnectors = currentChannel.getDestinationConnectors();
+        Iterator<Connector> it = destinationConnectors.iterator();
+        boolean seenCurrent = false;
+        while (it.hasNext())
+        {
+            Connector destination = it.next();
+            if (currentDestination == destination)
+            {
+                seenCurrent = true;
+                // add all the variables
+                concatenatedSteps.addAll(destination.getTransformer().getSteps());
+            }
+            else if (!seenCurrent)
+            {
+                // add only the global variables
+                VariableListUtil.getStepGlobalVariables(concatenatedSteps, destination);
             }
         }
         return concatenatedSteps;
@@ -1671,8 +1660,9 @@ public class ChannelSetup extends javax.swing.JPanel
     public void setDestinationVariableList()
     {
         int destination = getDestinationConnectorIndex((String) destinationTable.getValueAt(getSelectedDestinationIndex(), getColumnNumber(DESTINATION_COLUMN_NAME)));
+        List<Rule> concatenatedRules = getMultipleDestinationRules(currentChannel.getDestinationConnectors().get(destination));
         List<Step> concatenatedSteps = getMultipleDestinationSteps(currentChannel.getDestinationConnectors().get(destination));
-        destinationVariableList.setVariableListInbound(concatenatedSteps);
+        destinationVariableList.setVariableListInbound(concatenatedRules, concatenatedSteps);
         destinationVariableList.setDestinationMappingsLabel();
         destinationVariableList.repaint();
     }
@@ -1851,7 +1841,6 @@ public class ChannelSetup extends javax.swing.JPanel
     public com.webreach.mirth.client.ui.components.MirthCheckBox synchronousCheckBox;
     private com.webreach.mirth.client.ui.components.MirthCheckBox transactionalCheckBox;
     private javax.swing.ButtonGroup validationButtonGroup;
-    private com.webreach.mirth.client.ui.components.MirthCheckBox xmlPreEncoded;
     // End of variables declaration//GEN-END:variables
 
 }

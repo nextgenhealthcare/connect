@@ -25,6 +25,8 @@
 
 package com.webreach.mirth.client.ui.editors.transformer;
 
+import com.webreach.mirth.client.ui.util.VariableListUtil;
+import com.webreach.mirth.model.Rule;
 import java.awt.BorderLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -393,7 +395,7 @@ public class TransformerPane extends MirthEditorPane
                         Map<Object, Object> data = mapperPanel.getData();
                         data.put("Variable", "");
                         data.put("Mapping", "");
-                        data.put("isGlobal", UIConstants.NO_OPTION);
+                        data.put(UIConstants.IS_GLOBAL, UIConstants.IS_GLOBAL_CONNECTOR);
                         mapperPanel.setData(data);
                         updateTaskPane();
                         getTableModel().setValueAt("", row, STEP_NAME_COL);
@@ -702,9 +704,9 @@ public class TransformerPane extends MirthEditorPane
         }
 
         if (connector.getMode() == Connector.Mode.SOURCE)
-            tabTemplatePanel.updateVariables(buildStepList(new ArrayList<Step>(), row));
+            tabTemplatePanel.updateVariables(connector.getFilter().getRules(), buildStepList(new ArrayList<Step>(), row));
         else
-            tabTemplatePanel.updateVariables(buildStepList(getSourceConnectorSteps(), row));
+            tabTemplatePanel.updateVariables(getGlobalRuleVariables(), buildStepList(getGlobalStepVariables(), row));
     }
 
     private void setPanelData(String type, Map<Object, Object> data)
@@ -987,22 +989,7 @@ public class TransformerPane extends MirthEditorPane
         parent.enableSave();
     }
 
-    public ArrayList<Step> getSourceConnectorSteps()
-    {
-        ArrayList<Step> list = new ArrayList<Step>();
-        List<Step> sourceSteps = channel.getSourceConnector().getTransformer().getSteps();
-
-        for (Step s : sourceSteps)
-        {
-            list.add(s);
-        }
-
-        list.addAll(getGlobalMapSteps());
-
-        return list;
-    }
-
-    public List<Step> buildStepList(ArrayList<Step> list, int endingRow)
+    public List<Step> buildStepList(List<Step> list, int endingRow)
     {
         for (int i = 0; i < endingRow; i++)
         {
@@ -1019,10 +1006,10 @@ public class TransformerPane extends MirthEditorPane
 
                 StringBuilder script = new StringBuilder();
 
-                if (map.get("isGlobal") != null && ((String) map.get("isGlobal")).equalsIgnoreCase(UIConstants.YES_OPTION))
-                    script.append("globalMap.put(");
+                if (map.get(UIConstants.IS_GLOBAL) != null)
+                    script.append((String)map.get(UIConstants.IS_GLOBAL) + "Map.put(");
                 else
-                    script.append("localMap.put(");
+                    script.append(UIConstants.IS_GLOBAL_CONNECTOR + "Map.put(");
 
                 // default values need to be provided
                 // so we don't cause syntax errors in the JS
@@ -1069,12 +1056,36 @@ public class TransformerPane extends MirthEditorPane
         }
         return list;
     }
-
-    private List<Step> getGlobalMapSteps()
+    
+    private List<Rule> getGlobalRuleVariables()
     {
-        final String VAR_PATTERN = "globalMap.put\\(['|\"]([^'|^\"]*)[\"|']";
-
+        List<Rule> concatenatedRules = new ArrayList<Rule>();
+        VariableListUtil.getRuleGlobalVariables(concatenatedRules, channel.getSourceConnector());
+        
+        List<Connector> destinationConnectors = channel.getDestinationConnectors();
+        Iterator<Connector> it = destinationConnectors.iterator();
+        boolean seenCurrent = false;
+        while (it.hasNext())
+        {
+            Connector destination = it.next();
+            if (connector == destination)
+            {
+                VariableListUtil.getRuleGlobalVariables(concatenatedRules, destination);
+                seenCurrent = true;
+            }
+            else if (!seenCurrent)
+            {
+                VariableListUtil.getRuleGlobalVariables(concatenatedRules, destination);
+            }
+        }
+        return concatenatedRules;
+    }
+    
+    private List<Step> getGlobalStepVariables()
+    {
         List<Step> concatenatedSteps = new ArrayList<Step>();
+        VariableListUtil.getStepGlobalVariables(concatenatedSteps, channel.getSourceConnector());
+        
         List<Connector> destinationConnectors = channel.getDestinationConnectors();
         Iterator<Connector> it = destinationConnectors.iterator();
         boolean seenCurrent = false;
@@ -1087,38 +1098,7 @@ public class TransformerPane extends MirthEditorPane
             }
             else if (!seenCurrent)
             {
-                // add only the global variables
-                List<Step> destinationSteps = destination.getTransformer().getSteps();
-                Iterator stepIterator = destinationSteps.iterator();
-                while (stepIterator.hasNext())
-                {
-                    Step step = (Step) stepIterator.next();
-                    HashMap map = (HashMap) step.getData();
-                    if (step.getType().equals(TransformerPane.MAPPER_TYPE))
-                    {
-                        // Check if the step is global
-                        if (map.containsKey("isGlobal"))
-                        {
-                            if (((String) map.get("isGlobal")).equalsIgnoreCase(UIConstants.YES_OPTION))
-                                concatenatedSteps.add(step);
-                        }
-                    }
-                    else if (step.getType().equals(TransformerPane.JAVASCRIPT_TYPE))
-                    {
-                        Pattern pattern = Pattern.compile(VAR_PATTERN);
-                        Matcher matcher = pattern.matcher(step.getScript());
-                        while (matcher.find())
-                        {
-                            String key = matcher.group(1);
-                            Step tempStep = new Step();
-                            Map tempMap = new HashMap();
-                            tempMap.put("Variable", key);
-                            tempStep.setData(tempMap);
-                            tempStep.setType(TransformerPane.MAPPER_TYPE);
-                            concatenatedSteps.add(tempStep);
-                        }
-                    }
-                }
+                VariableListUtil.getStepGlobalVariables(concatenatedSteps, destination);
             }
         }
         return concatenatedSteps;
