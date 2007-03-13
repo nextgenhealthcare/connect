@@ -134,9 +134,8 @@ public class VariableListUtil
             Rule rule = (Rule) ruleIterator.next();
             Pattern pattern = Pattern.compile(GLOBAL_VAR_PATTERN);
             Matcher matcher = pattern.matcher(rule.getScript());
-            while (matcher.find())
+            if (matcher.find())
             {
-                String key = matcher.group(1);
                 addToList.add(rule);
             }
         }
