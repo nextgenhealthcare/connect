@@ -104,7 +104,7 @@ public class AlertPanel extends javax.swing.JPanel
         alertTable.setSelectionMode(0);
         alertTable.setRowSelectionAllowed(true);
         alertTable.setRowHeight(UIConstants.ROW_HEIGHT);
-        alertTable.setFocusable(true);
+        alertTable.setFocusable(false);
         alertTable.setSortable(true);
         alertTable.setOpaque(true);
         alertTable.setDragEnabled(false);
@@ -127,7 +127,7 @@ public class AlertPanel extends javax.swing.JPanel
             {
                 if (!evt.getValueIsAdjusting())
                 {
-                    if (lastAlertRow != -1 && lastAlertRow < alertTable.getRowCount() && !isDeleting)
+                    if (lastAlertRow != -1 && lastAlertRow != alertTable.getSelectedRow() && lastAlertRow < alertTable.getRowCount() && !isDeleting)
                     {
                         saveAlert();
                     }
@@ -485,7 +485,7 @@ public class AlertPanel extends javax.swing.JPanel
 
     public boolean saveAlert()
     {
-        int index = getAlertIndex();
+        int index = getAlertIndex(lastAlertRow);
 
         if (index == UIConstants.ERROR_CONSTANT)
             return false;
