@@ -27,7 +27,7 @@ public class VMRouter {
     	routeMessage(channelName, message, true);
     }
     public void routeMessage(String channelName, String message, boolean useQueue){
-    	String channelId = new ChannelController().getChannelId(channelName);
+    	String channelId = ChannelController.getChannelId(channelName);
     	routeMessageByChannelId(channelId, message, useQueue);
     }
     public void routeMessageByChannelId(String channelId, Object message, boolean useQueue){
