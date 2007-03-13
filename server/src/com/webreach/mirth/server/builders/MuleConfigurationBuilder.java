@@ -360,7 +360,7 @@ public class MuleConfigurationBuilder {
 			// put the outbound template in the templates table
 			if (transformer.getOutboundTemplate() != null) {
 				TemplateController templateController = new TemplateController();
-				IXMLSerializer<String> serializer = AdaptorFactory.getAdaptor(transformer.getOutboundProtocol()).getSerializer( transformer.getOutboundProperties());
+				IXMLSerializer<String> serializer = AdaptorFactory.getAdaptor(transformer.getOutboundProtocol()).getSerializer(transformer.getOutboundProperties());
 				String templateId = UUIDGenerator.getUUID();
 				if (transformer.getOutboundTemplate().length() > 0) {
 					templateController.putTemplate(templateId, serializer.toXML(transformer.getOutboundTemplate()));
@@ -380,15 +380,14 @@ public class MuleConfigurationBuilder {
 			properties.put("transformerScriptId", transformerScriptId);
 			properties.put("connectorName", connector.getName());
 			Element propertiesElement = getProperties(document, properties, null);
-			
-		
-			if (transformer.getInboundProperties() != null && transformer.getInboundProperties().size() > 0){
-				Element inboundPropertiesElement = getPropertiesMap(document, transformer.getInboundProperties(), null,"inboundProperties");
+
+			if (transformer.getInboundProperties() != null && transformer.getInboundProperties().size() > 0) {
+				Element inboundPropertiesElement = getPropertiesMap(document, transformer.getInboundProperties(), null, "inboundProperties");
 				propertiesElement.appendChild(inboundPropertiesElement);
 			}
-		
-			if (transformer.getOutboundProperties() != null && transformer.getOutboundProperties().size() > 0){
-				Element outboundPropertiesElement = getPropertiesMap(document, transformer.getOutboundProperties(), null,"outboundProperties");
+
+			if (transformer.getOutboundProperties() != null && transformer.getOutboundProperties().size() > 0) {
+				Element outboundPropertiesElement = getPropertiesMap(document, transformer.getOutboundProperties(), null, "outboundProperties");
 				propertiesElement.appendChild(outboundPropertiesElement);
 			}
 			transformerElement.appendChild(propertiesElement);
@@ -397,6 +396,7 @@ public class MuleConfigurationBuilder {
 			throw new BuilderException(e);
 		}
 	}
+
 	private void addConnector(Document document, Element configurationElement, Connector connector, String name) throws BuilderException {
 		try {
 			// get the transport associated with this class from the transport
@@ -426,7 +426,8 @@ public class MuleConfigurationBuilder {
 				// connector
 				ArrayList<String> nonConnectorProperties = new ArrayList<String>();
 				nonConnectorProperties.add("host");
-				//nonConnectorProperties.add("hostname"); //Hostname SHOULd be a property - CL (see SMTP Connector)
+				// nonConnectorProperties.add("hostname"); //Hostname SHOULd be
+				// a property - CL (see SMTP Connector)
 				nonConnectorProperties.add("port");
 				nonConnectorProperties.add("DataType");
 
@@ -439,13 +440,14 @@ public class MuleConfigurationBuilder {
 						textPropertyElement.setAttribute("name", "template");
 						textPropertyElement.setTextContent(property.getValue().toString());
 						propertiesElement.appendChild(textPropertyElement);
-					} else if (property.getKey().equals("connectionFactoryProperties") || property.getKey().equals("requestVariables") ) {
+					} else if (property.getKey().equals("connectionFactoryProperties") || property.getKey().equals("requestVariables")) {
 						ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 						Properties connectionFactoryProperties = (Properties) serializer.fromXML(property.getValue().toString());
 						Element connectionFactoryPropertiesMapElement = getPropertiesMap(document, connectionFactoryProperties, null, property.getKey().toString());
 						propertiesElement.appendChild(connectionFactoryPropertiesMapElement);
 					} else {
-						// script is a special property reserved for some connectors
+						// script is a special property reserved for some
+						// connectors
 						if (property.getKey().equals("script") || property.getKey().equals("ackScript")) {
 							// put the script in the scripts table
 							String databaseScriptId = UUIDGenerator.getUUID();
@@ -454,12 +456,12 @@ public class MuleConfigurationBuilder {
 							propertyElement.setAttribute("name", property.getKey() + "Id");
 							propertyElement.setAttribute("value", databaseScriptId);
 							propertiesElement.appendChild(propertyElement);
-						}else{
-						
+						} else {
+
 							Element propertyElement = document.createElement("property");
 							propertyElement.setAttribute("name", property.getKey().toString());
 							propertyElement.setAttribute("value", property.getValue().toString());
-	
+
 							if (property.getKey().equals("query") || property.getKey().equals("statement") || property.getKey().equals("ack")) {
 								mapElement.appendChild(propertyElement);
 							} else {
@@ -503,9 +505,11 @@ public class MuleConfigurationBuilder {
 			throw new BuilderException(e);
 		}
 	}
+
 	/**
 	 * Returns a properties map element given a Properties object and a List of
-	 * properties which should be text-property elements, as well as a name for the map
+	 * properties which should be text-property elements, as well as a name for
+	 * the map
 	 * 
 	 * @param document
 	 * @param properties
@@ -537,6 +541,7 @@ public class MuleConfigurationBuilder {
 
 		return propertiesElement;
 	}
+
 	/**
 	 * Returns a properties element given a Properties object and a List of
 	 * properties which should be text-property elements.
@@ -575,10 +580,7 @@ public class MuleConfigurationBuilder {
 	// The format is: protocol://host|hostname|emtpy:port
 	private String getEndpointUri(Connector connector) {
 		// TODO: This is a hack.
-		if (connector.getProperties().getProperty("host") != null && 
-				(connector.getProperties().getProperty("host").startsWith("axis:http")
-						||connector.getProperties().getProperty("host").startsWith("axis:soap") 
-						|| connector.getProperties().getProperty("host").startsWith("http"))) {
+		if (connector.getProperties().getProperty("host") != null && (connector.getProperties().getProperty("host").startsWith("axis:http") || connector.getProperties().getProperty("host").startsWith("axis:soap") || connector.getProperties().getProperty("host").startsWith("http"))) {
 			return connector.getProperties().getProperty("host");
 		}
 		StringBuilder builder = new StringBuilder();
