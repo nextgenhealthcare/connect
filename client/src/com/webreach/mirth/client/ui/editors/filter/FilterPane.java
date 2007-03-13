@@ -143,6 +143,7 @@ public class FilterPane extends MirthEditorPane
         {
             rulePanel.showCard(BLANK_TYPE);
             jsPanel.setData(null);
+            loadData(-1);
         }
 
         filterTaskPaneContainer.add(parent.getOtherPane());

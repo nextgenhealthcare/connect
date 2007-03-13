@@ -198,7 +198,7 @@ public class UserPanel extends javax.swing.JPanel
     private void UsersListSelected(ListSelectionEvent evt)
     {
         int row = usersTable.getSelectedRow();
-        if (row >= 0 && row < usersTable.getRowCount() && lastRow != row)
+        if (row >= 0 && row < usersTable.getRowCount())
         {
             parent.setVisibleTasks(parent.userTasks, parent.userPopupMenu, 2, -1, true);
         }
