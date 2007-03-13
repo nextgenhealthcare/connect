@@ -28,13 +28,15 @@ import java.util.regex.Pattern;
  */
 public class VariableListUtil
 {
-    final static String GLOBAL_VAR_PATTERN = "[channel][global][response]Map.put\\(['|\"]([^'|^\"]*)[\"|']";
-    final static String VAR_PATTERN = "[connector][channel][global][response]Map.put\\(['|\"]([^'|^\"]*)[\"|']";
+    final static String GLOBAL_VAR_PATTERN = "[channel|global|response]Map.put\\(['|\"]([^'|^\"]*)[\"|']";
+    final static String VAR_PATTERN = "[connector|channel|global|response]Map.put\\(['|\"]([^'|^\"]*)[\"|']";
     
+    /* 
+     * Extract variables from a list of steps
+     */
     public static ArrayList<String> getStepVariables(List<Step> addToList)
     {
         ArrayList<String> variables = new ArrayList<String>();
-        int i = 0;
         for (Iterator it = addToList.iterator(); it.hasNext();)
         {
             Step step = (Step) it.next();
@@ -43,7 +45,6 @@ public class VariableListUtil
             if (step.getType().equalsIgnoreCase(TransformerPane.MAPPER_TYPE))
             {
                 variables.add((String) data.get("Variable"));
-                i++;
             }
             else if (step.getType().equalsIgnoreCase(TransformerPane.JAVASCRIPT_TYPE))
             {
@@ -59,10 +60,12 @@ public class VariableListUtil
         return variables;
     }
     
+    /* 
+     * Extract variables from a list of rules
+     */
     public static ArrayList<String> getRuleVariables(List<Rule> addToList)
     {
         ArrayList<String> variables = new ArrayList<String>();
-        int i = 0;
         for (Iterator it = addToList.iterator(); it.hasNext();)
         {
             Rule rule = (Rule) it.next();
@@ -77,6 +80,9 @@ public class VariableListUtil
         return variables;
     }
     
+    /* 
+     * Gets all steps that have variables that should show up in the global variable list
+     */
     public static void getStepGlobalVariables(List<Step> addToList, Connector connector)
     {
         
@@ -114,6 +120,9 @@ public class VariableListUtil
         }
     }
     
+    /* 
+     * Gets all rules that have variables that should show up in the global variable list
+     */
     public static void getRuleGlobalVariables(List<Rule> addToList, Connector connector)
     {
         
