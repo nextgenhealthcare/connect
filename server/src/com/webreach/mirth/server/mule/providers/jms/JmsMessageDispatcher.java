@@ -30,6 +30,7 @@ import org.mule.util.PropertiesHelper;
 import org.mule.util.concurrent.Latch;
 
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.mule.providers.jms.transformers.MessageObjectToJMSMessage;
 
@@ -114,7 +115,7 @@ public class JmsMessageDispatcher extends AbstractMessageDispatcher {
             Destination dest = connector.getJmsSupport().createDestination(session, endpointUri.getAddress(), topic);
             producer = connector.getJmsSupport().createProducer(session, dest);
 
-            Object message = new MessageObjectToJMSMessage().doTransform(messageObject);
+            Object message = new MessageObjectToJMSMessage(this.connector).doTransform(messageObject);
             if (!(message instanceof Message)) {
                 throw new DispatchException(new org.mule.config.i18n.Message(Messages.MESSAGE_NOT_X_IT_IS_TYPE_X_CHECK_TRANSFORMER_ON_X,
                         "JMS message",
@@ -194,7 +195,7 @@ public class JmsMessageDispatcher extends AbstractMessageDispatcher {
                 listener.release();
                 Message result = listener.getMessage();
                 if (result == null) {
-                	messageObjectController.setSuccess(messageObject, "JMS message sent");
+                	messageObjectController.setSuccess(messageObject, "Jms message sent");
                     logger.debug("No message was returned via replyTo destination");
                     return null;
                 } else {
@@ -209,7 +210,7 @@ public class JmsMessageDispatcher extends AbstractMessageDispatcher {
                     logger.debug("Waiting for return event for: " + timeout + " ms on " + replyTo);
                     Message result = consumer.receive(timeout);
                     if (result == null) {
-                    	messageObjectController.setSuccess(messageObject, "JMS message sent");
+                    	messageObjectController.setSuccess(messageObject, "Jms message sent");
                         logger.debug("No message was returned via replyTo destination");
                         return null;
                     } else {
@@ -221,7 +222,7 @@ public class JmsMessageDispatcher extends AbstractMessageDispatcher {
             }
             return null;
         } catch (Exception e){
-        	messageObjectController.setError(messageObject, "JMS Error: ", e);
+        	messageObjectController.setError(messageObject, Constants.ERROR_407, "Jms Error", e);
         	connector.handleException(e);
         } finally {
             JmsUtils.closeQuietly(consumer);

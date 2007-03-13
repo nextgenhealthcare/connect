@@ -103,6 +103,8 @@ public class JmsConnector extends AbstractServiceEnabledConnector implements Con
     public String password = null;
 
     private int maxRedelivery = 0;
+    
+    private String template;
 
     private String redeliveryHandler = DefaultRedeliveryHandler.class.getName();
 
@@ -630,4 +632,12 @@ public class JmsConnector extends AbstractServiceEnabledConnector implements Con
             disposeDispatchers();
         }
     }
+
+	public String getTemplate() {
+		return template;
+	}
+
+	public void setTemplate(String template) {
+		this.template = template;
+	}
 }

@@ -7,6 +7,7 @@ import org.apache.log4j.Logger;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.converters.DefaultXMLSerializer;
 import com.webreach.mirth.model.converters.IXMLSerializer;
+import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.util.StackTracePrinter;
 import com.webreach.mirth.server.util.UUIDGenerator;
@@ -43,9 +44,7 @@ public abstract class Adaptor {
 
 	protected void handleException(Throwable e) throws AdaptorException {
 		logger.warn("error adapting message", e);
-		messageObject.setErrors(messageObject.getErrors() != null ? messageObject.getErrors() + '\n' : "" + StackTracePrinter.stackTraceToString(e));
-		messageObject.setStatus(MessageObject.Status.ERROR);
-		messageObjectController.updateMessage(messageObject);
+		messageObjectController.setError(messageObject, Constants.ERROR_301, "Error adapting message", e);
 		throw new AdaptorException(e);
 	}
 

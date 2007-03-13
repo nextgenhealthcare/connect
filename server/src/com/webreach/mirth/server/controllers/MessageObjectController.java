@@ -41,6 +41,7 @@ import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.Response;
 import com.webreach.mirth.model.converters.ObjectClonerException;
 import com.webreach.mirth.model.filters.MessageObjectFilter;
+import com.webreach.mirth.server.builders.ErrorBuilder;
 import com.webreach.mirth.server.util.SqlConfig;
 import com.webreach.mirth.server.util.StackTracePrinter;
 import com.webreach.mirth.server.util.UUIDGenerator;
@@ -52,7 +53,8 @@ public class MessageObjectController {
 	private SqlMapClient sqlMap = SqlConfig.getSqlMapInstance();
 	private static final String MESSAGE_NO_DATA_STORE = "No data stored for this channel.";
 	private ConfigurationController configurationController = new ConfigurationController();
-
+	private String lineSeperator = System.getProperty("line.separator");
+	private ErrorBuilder errorBuilder = new ErrorBuilder();
 	public void updateMessage(MessageObject messageObject) {
 		try {
 			String channelId = messageObject.getChannelId();
@@ -230,90 +232,70 @@ public class MessageObjectController {
 		return parameterMap;
 	}
 
-	public MessageObject cloneMessageObjectForBroadcast(MessageObject messageObject, String connectorName) throws ObjectClonerException {
-		// We could use deep copy here, but see the notes below
-		MessageObject clone = (MessageObject) messageObject.clone();
+	public MessageObject cloneMessageObjectForBroadcast(MessageObject messageObject, String connectorName) throws ObjectClonerException{
+		MessageObject clone = (MessageObject) messageObject.clone(); //We could use deep copy here, but see the notes below
 		clone.setId(UUIDGenerator.getUUID());
 		clone.setDateCreated(Calendar.getInstance());
 		clone.setCorrelationId(messageObject.getId());
 		clone.setConnectorName(connectorName);
-		// We don't want to clone the maps from the original message...
-		clone.setConnectorMap(new HashMap());
-		// the var map is local
-		// ...or do we?
-		// This works depending on clone or deepCopy.
-		// If we deep copy, we need to set the response and context maps
-		// If we clone, the clone is just setting references for us
-		// Some might call that a bug, but we use it as a feature...
-		// At least we're documenting it here.
-		// clone.setResponseMap(new HashMap()); //maybe null???
-		// clone.setContextMap(messageObject.getContextMap());
+		//We don't want to clone the maps from the original message...
+		clone.setConnectorMap(new HashMap()); //the var map is local
+		//...or do we?
+		//This works depending on clone or deepCopy.
+		//If we deep copy, we need to set the response and context maps
+		//If we clone, the clone is just setting references for us
+		//Some might call that a bug, but we use it as a feature...
+		//At least we're documenting it here.
+		//clone.setResponseMap(new HashMap()); //maybe null???
+		//clone.setContextMap(messageObject.getContextMap());
 		return clone;
 	}
-
-	public MessageObject getMessageObjectFromEvent(UMOEvent event) throws Exception {
+	public MessageObject getMessageObjectFromEvent(UMOEvent event) throws Exception{
 		MessageObject messageObject = null;
 		Object incomingData = incomingData = event.getTransformedMessage();
-
 		if (incomingData == null || !(incomingData instanceof MessageObject)) {
 			logger.warn("received data is not of expected type");
 			return null;
 		}
-
 		messageObject = (MessageObject) incomingData;
-
 		if (messageObject.getStatus().equals(MessageObject.Status.FILTERED)) {
 			return null;
 		}
-
 		return messageObject;
 	}
 
-	public void setError(MessageObject messageObject, String errorMessage, Throwable e) {
-		if (messageObject != null) {
-			messageObject.setStatus(MessageObject.Status.ERROR);
-			String exception = new String();
-
-			if (e != null) {
-				exception = StackTracePrinter.stackTraceToString(e);
-			}
-
-			messageObject.setErrors(messageObject.getErrors() != null ? messageObject.getErrors() + '\n' + errorMessage + "\n" + exception : errorMessage + "\n" + exception);
-			updateMessage(messageObject);
+	public void setError(MessageObject messageObject, String errorType, String errorMessage, Throwable e){
+		String fullErrorMessage = errorBuilder.getErrorString(errorType, errorMessage, e);
+		//send alert
+		
+		//Set the errors on the MO
+		if (messageObject != null){
+			messageObject.setErrors(messageObject.getErrors() != null ? messageObject.getErrors() + lineSeperator + lineSeperator + fullErrorMessage : fullErrorMessage);
 		}
-
-		if (messageObject.getResponseMap() != null) {
-			String exception = new String();
-
-			if (e != null) {
-				exception = " " + e.getClass().getSimpleName() + ": " + e.getMessage();
-			}
-
-			Response response = new Response(Response.Status.FAILURE, errorMessage + exception);
-			messageObject.getResponseMap().put(messageObject.getConnectorName(), response);
+		//Set the response error
+		String responseException = new String();
+		if (e != null){
+			responseException = "\t" + e.getClass().getSimpleName() + "\t" + e.getMessage();
 		}
+		setStatus(messageObject,MessageObject.Status.ERROR,Response.Status.FAILURE, errorMessage + responseException);
 	}
-
-	public void setSuccess(MessageObject messageObject, String responseMessage) {
-		if (messageObject != null) {
-			messageObject.setStatus(MessageObject.Status.SENT);
-			updateMessage(messageObject);
-		}
-
-		if (messageObject.getResponseMap() != null) {
-			Response response = new Response(Response.Status.SUCCESS, responseMessage);
-			messageObject.getResponseMap().put(messageObject.getConnectorName(), response);
-		}
+	
+	public void setSuccess(MessageObject messageObject, String responseMessage){
+		setStatus(messageObject,MessageObject.Status.SENT,Response.Status.SUCCESS, responseMessage);
 	}
-
-	public void setQueued(MessageObject messageObject, String responseMessage) {
+	public void setQueued(MessageObject messageObject, String responseMessage){
+		setStatus(messageObject,MessageObject.Status.QUEUED,Response.Status.QUEUED, responseMessage);
+	}
+	public void setFiltered(MessageObject messageObject, String responseMessage){
+		setStatus(messageObject,MessageObject.Status.FILTERED,Response.Status.FILTERED, responseMessage);
+	}
+	private void setStatus(MessageObject messageObject, MessageObject.Status status, Response.Status responseStatus, String responseMessage){
 		if (messageObject != null) {
-			messageObject.setStatus(MessageObject.Status.QUEUED);
+			messageObject.setStatus(status);
 			updateMessage(messageObject);
 		}
-
 		if (messageObject.getResponseMap() != null) {
-			Response response = new Response(Response.Status.QUEUED, responseMessage);
+			Response response = new Response(responseStatus, responseMessage);
 			messageObject.getResponseMap().put(messageObject.getConnectorName(), response);
 		}
 	}

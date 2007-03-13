@@ -192,7 +192,7 @@ public class MuleConfigurationBuilder {
 			String connectorReference = channel.getId() + "_source";
 
 			// add the source connector
-			addConnector(document, configurationElement, channel.getSourceConnector(), connectorReference + "_connector");
+			addConnector(document, configurationElement, channel.getSourceConnector(), connectorReference + "_connector", channel.getId());
 			endpointElement.setAttribute("connector", connectorReference + "_connector");
 			// if the channel is snychronous
 			if ((channel.getProperties().get("synchronous")) != null && ((String) channel.getProperties().get("synchronous")).equalsIgnoreCase("true")) {
@@ -277,7 +277,7 @@ public class MuleConfigurationBuilder {
 				// add the destination connector
 				// ast: changes to get the same name for the connector and
 				String connectorName = getConnectorNameForOutputRouter(connectorReference);
-				addConnector(document, configurationElement, connector, connectorName);
+				addConnector(document, configurationElement, connector, connectorName, channel.getId());
 				endpointElement.setAttribute("connector", connectorName);
 
 				StringBuilder transformers = new StringBuilder();
@@ -397,7 +397,7 @@ public class MuleConfigurationBuilder {
 		}
 	}
 
-	private void addConnector(Document document, Element configurationElement, Connector connector, String name) throws BuilderException {
+	private void addConnector(Document document, Element configurationElement, Connector connector, String name, String channelId) throws BuilderException {
 		try {
 			// get the transport associated with this class from the transport
 			// map
@@ -415,6 +415,9 @@ public class MuleConfigurationBuilder {
 			// name, value, and isMuleProperty attribute
 			// then only add the properties that have isMuleProperty set to true
 			Properties connectorProperties = connector.getProperties();
+			// The connector needs it's channel id (so it doesn't have to parse the name)
+			// for alerts
+			connectorProperties.put("channelId", channelId); 
 			Element propertiesElement = document.createElement("properties");
 			Element mapElement = document.createElement("map");
 			mapElement.setAttribute("name", "queries");

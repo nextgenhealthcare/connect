@@ -25,12 +25,12 @@
 
 package com.webreach.mirth.server.mule.transformers;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ImporterTopLevel;
-import org.mozilla.javascript.RhinoException;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
 import org.mule.transformers.AbstractEventAwareTransformer;
@@ -42,8 +42,8 @@ import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.Connector.Mode;
 import com.webreach.mirth.model.MessageObject.Protocol;
 import com.webreach.mirth.model.converters.IXMLSerializer;
-import com.webreach.mirth.model.converters.ObjectClonerException;
 import com.webreach.mirth.server.Constants;
+import com.webreach.mirth.server.builders.ErrorBuilder;
 import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.controllers.ScriptController;
@@ -52,10 +52,10 @@ import com.webreach.mirth.server.mule.adaptors.Adaptor;
 import com.webreach.mirth.server.mule.adaptors.AdaptorFactory;
 import com.webreach.mirth.server.util.CompiledScriptCache;
 import com.webreach.mirth.server.util.JavaScriptScopeFactory;
-import com.webreach.mirth.server.util.StackTracePrinter;
 
 public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 	private Logger logger = Logger.getLogger(this.getClass());
+	private ErrorBuilder errorBuilder = new ErrorBuilder();
 	private MessageObjectController messageObjectController = new MessageObjectController();
 	private AlertController alertController = new AlertController();
 	private TemplateController templateController = new TemplateController();
@@ -149,11 +149,12 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 
 	@Override
 	public void initialise() throws InitialisationException {
+		Context context = Context.enter();
 		try {
 			// grab the template
-			this.template = templateController.getTemplate(templateId);
-
-			Context context = Context.enter();
+			if (templateId != null) {
+				this.template = templateController.getTemplate(templateId);
+			}
 			String filterScript = scriptController.getScript(filterScriptId);
 
 			if (filterScript != null) {
@@ -181,63 +182,75 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 	@Override
 	public Object transform(Object source, UMOEventContext context) throws TransformerException {
 		MessageObject messageObject = null;
-		
-		// ---- Begin MO checks -----
-		// If we get a MO, then let's treat it as a dispatch to the
-		// destionations. This occurs when we recieve routing events from the VM
-		// if we get a string, then let's handle it as normal
-		
-		boolean isMessageObject = source instanceof MessageObject;
-		
-		if (!isMessageObject && (this.getMode().equals(Mode.SOURCE.toString()))) {
-			try {
+		try {
+			// ---- Begin MO checks -----
+			// If we get a MO, then let's treat it as a dispatch to the
+			// destionations. This occurs when we recieve routing events from
+			// the VM
+			// if we get a string, then let's handle it as normal
+			boolean isMessageObject = source instanceof MessageObject;
+			if (!isMessageObject && (this.getMode().equals(Mode.SOURCE.toString()))) {
+
 				Adaptor adaptor = AdaptorFactory.getAdaptor(Protocol.valueOf(inboundProtocol));
 				messageObject = adaptor.getMessage((String) source, channelId, encryptData, inboundProperties);
-				
+
 				// Load properties from the context to the messageObject
 				messageObject.getChannelMap().putAll(context.getProperties());
-			} catch (Exception e) {
-				messageObject = null;
-			}
-		} else if (isMessageObject || this.getMode().equals(Mode.DESTINATION.toString())) {
-			messageObject = (MessageObject) source;
-			
-			try {
-				messageObject = messageObjectController.cloneMessageObjectForBroadcast(messageObject, this.getConnectorName());
-			} catch (ObjectClonerException oce) {
-				logger.error("unable to clone message object", oce);
-			}
 
-			try {
+			} else if (isMessageObject || this.getMode().equals(Mode.DESTINATION.toString())) {
+				MessageObject incomingMessageObject = (MessageObject) source;
+				messageObject = messageObjectController.cloneMessageObjectForBroadcast(incomingMessageObject, this.getConnectorName());
+				// if this is a message object, it is a dispatch
+				// in order to make sure we don't have thread issues
+				// clone the two reference maps
+				if (isMessageObject && (this.getMode().equals(Mode.SOURCE.toString()))){
+					Map responseMap = new HashMap();
+					Map channelMap = new HashMap();
+					// TODO: Ensure this is needed
+					synchronized (this){
+						responseMap.putAll(incomingMessageObject.getResponseMap());
+						channelMap.putAll(incomingMessageObject.getChannelMap());
+					}
+					messageObject.setResponseMap(responseMap);
+					messageObject.setChannelMap(channelMap);
+				}
 				Adaptor adaptor = AdaptorFactory.getAdaptor(Protocol.valueOf(outboundProtocol));
 				messageObject = adaptor.convertMessage(messageObject, template, channelId, encryptData, outboundProperties);
-			} catch (Exception e) {
-
+				messageObject.setEncodedDataProtocol(Protocol.valueOf(this.outboundProtocol));
 			}
-			messageObject.setEncodedDataProtocol(Protocol.valueOf(this.outboundProtocol));
+		} catch (Exception e) {
+			alertController.sendAlerts(channelId, errorBuilder.getErrorString(Constants.ERROR_301, e));
+			throw new TransformerException(this, e);
 		}
-
 		// ---- End MO checks -----
+		
+		boolean filterResult = false;
 		
 		try {
 			// if the message passes the filter, run the transformation script
-			if (evaluateFilterScript(messageObject)) {
+			filterResult = evaluateFilterScript(messageObject);
+		} catch (Exception e) {
+			alertController.sendAlerts(channelId, errorBuilder.getErrorString(Constants.ERROR_200, e));
+			throw new TransformerException(this, e);
+		}
+		
+		try {
+			if (filterResult) {
 				MessageObject transformedMessageObject = evaluateTransformerScript(messageObject);
-
+				
 				if (this.getMode().equals(Mode.SOURCE.toString())) {
+					// only update on the source - it doesn't matter on each destination
 					messageObjectController.updateMessage(transformedMessageObject);
 				}
-
 				return transformedMessageObject;
+				
 			} else {
-				messageObject.setStatus(MessageObject.Status.FILTERED);
-				messageObjectController.updateMessage(messageObject);
+				messageObjectController.setFiltered(messageObject, "Message has been filtered");
 				return messageObject;
 			}
 		} catch (Exception e) {
-			// only send alert after entire filter/transform process is done
-			alertController.sendAlerts(channelId, messageObject.getErrors());
-
+			// send alert if the transformation process fails
+			alertController.sendAlerts(channelId, errorBuilder.getErrorString(Constants.ERROR_300, e));
 			if (e instanceof TransformerException) {
 				throw (TransformerException) e;
 			} else {
@@ -246,7 +259,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 		}
 	}
 
-	private boolean evaluateFilterScript(MessageObject messageObject) {
+	private boolean evaluateFilterScript(MessageObject messageObject) throws TransformerException {
 		try {
 			Logger scriptLogger = Logger.getLogger("filter");
 
@@ -255,7 +268,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 
 			// load variables in JavaScript scope
 			scopeFactory.buildScope(scope, messageObject, scriptLogger);
-			
+
 			// get the script from the cache and execute it
 			Script compiledScript = compiledScriptCache.getCompiledScript(filterScriptId);
 			Object result = null;
@@ -269,17 +282,14 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 				messageAccepted = ((Boolean) Context.jsToJava(result, java.lang.Boolean.class)).booleanValue();
 			}
 
-			if (!messageAccepted) {
-				messageObject.setStatus(MessageObject.Status.FILTERED);
-				messageObjectController.updateMessage(messageObject);
-			} else {
+			if (messageAccepted) {
 				messageObject.setStatus(MessageObject.Status.ACCEPTED);
 			}
 
 			return messageAccepted;
 		} catch (Exception e) {
-			handleError(Constants.ERROR_200, e, messageObject);
-			return false;
+			messageObjectController.setError(messageObject, Constants.ERROR_200, "Error evaluating filter", e);
+			throw new TransformerException(this, e);
 		} finally {
 			Context.exit();
 		}
@@ -290,7 +300,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 			Logger scriptLogger = Logger.getLogger(getMode().toLowerCase() + "-transformation");
 			Context context = Context.enter();
 			Scriptable scope = new ImporterTopLevel(context);
-			
+
 			// load variables in JavaScript scope
 			scopeFactory.buildScope(scope, messageObject, scriptLogger);
 			scope.put("template", scope, template);
@@ -339,45 +349,13 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 			messageObject.setStatus(MessageObject.Status.TRANSFORMED);
 			return messageObject;
 		} catch (Exception e) {
-			handleError(Constants.ERROR_300, e, messageObject);
+			messageObjectController.setError(messageObject, Constants.ERROR_300, "Error evaluating transformer", e);
 			throw new TransformerException(this, e);
 		} finally {
 			Context.exit();
 		}
 	}
 
-	private void handleError(String errorType, Throwable e, MessageObject messageObject) {
-		// error source is initialized to blank
-		String lineSource = null;
-
-		// if the exception occured during execution of the script, get the
-		// line of code that caused the error
-		if (e instanceof RhinoException) {
-			RhinoException re = (RhinoException) e;
-			lineSource = re.lineSource();
-		}
-
-		// construct the error message
-		StringBuilder errorMessage = new StringBuilder();
-		String lineSeperator = System.getProperty("line.separator");
-		errorMessage.append(errorType + lineSeperator);
-
-		if (lineSource != null) {
-			errorMessage.append("ERROR SOURCE:\t" + lineSource + lineSeperator);
-		}
-
-		errorMessage.append("ERROR MESSAGE:\t" + StackTracePrinter.stackTraceToString(e) + lineSeperator);
-
-		if (messageObject.getErrors() == null) {
-			messageObject.setErrors(errorMessage.toString());
-		} else {
-			// append to existing errors if any
-			messageObject.setErrors(messageObject.getErrors() + lineSeperator + lineSeperator + errorMessage.toString());
-		}
-
-		messageObject.setStatus(MessageObject.Status.ERROR);
-		messageObjectController.updateMessage(messageObject);
-	}
 
 	private String generateFilterScript(String filterScript) {
 		logger.debug("generating filter script");

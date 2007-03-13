@@ -39,6 +39,7 @@ import org.mule.umo.provider.UMOConnector;
 import org.mule.util.queue.Queue;
 
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.util.VMRouter;
 
@@ -174,7 +175,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 			exceptionWriting = exu;
 		}
 		if (!success) {
-			messageObjectController.setError(messageObject, exceptionMessage, exceptionWriting);
+			messageObjectController.setError(messageObject, Constants.ERROR_411, exceptionMessage, exceptionWriting);
 		}
 		if (success && (exceptionWriting == null)) {
 			manageResponseAck(socket, event.getEndpoint(), messageObject);
@@ -254,13 +255,13 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 				}
 			}
 		} catch (Exception e) {
-			messageObjectController.setError(data, "Socket write exception: ", e);
+			messageObjectController.setError(data, Constants.ERROR_411, "Socket write exception", e);
 			logger.warn("Write raised exception: '" + e.getMessage() + "' desisting reconnecting.");
 			sendException = e;
 		}
 		if ((result == false) || (sendException != null)) {
 			if (sendException != null) {
-				messageObjectController.setError(data, "Socket write exception: ", sendException);
+				messageObjectController.setError(data, Constants.ERROR_411, "Socket write exception", sendException);
 				throw sendException;
 			}
 			return result;
@@ -312,7 +313,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 			messageObjectController.setSuccess(messageObject, ackString);
 		} catch (UnsupportedEncodingException e) {
 			logger.error(e.getMessage());
-			messageObjectController.setError(messageObject, "Error setting encoding: " + connector.getCharsetEncoding(), e);
+			messageObjectController.setError(messageObject, Constants.ERROR_411, "Error setting encoding: " + connector.getCharsetEncoding(), e);
 		}
 	}
 

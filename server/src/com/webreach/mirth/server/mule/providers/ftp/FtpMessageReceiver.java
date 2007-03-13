@@ -15,6 +15,7 @@
 package com.webreach.mirth.server.mule.providers.ftp;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -179,8 +180,8 @@ public class FtpMessageReceiver extends PollingMessageReceiver {
     			if (connector.getMoveToPattern() != null) {
     				destinationFile = connector.getFilenameParser().getFilename(adapter, connector.getMoveToPattern());
     			}
-    			destinationFile = moveDir + "/" + fileName;
-    			destinationFile = destinationFile.replaceAll("//", "/");
+    			destinationFile = moveDir + "/" + destinationFile;
+    			destinationFile = destinationFile.replaceAll("//", "/");   			 			
     		}
             if (!client.changeWorkingDirectory(endpoint.getEndpointURI().getPath())) {
                 throw new IOException("Ftp error: " + client.getReplyCode());
@@ -213,12 +214,12 @@ public class FtpMessageReceiver extends PollingMessageReceiver {
 			       adapter.setProperty(FileConnector.PROPERTY_ORIGINAL_FILENAME, originalFilename);
 			       routeMessage(new MuleMessage(adapter), endpoint.isSynchronous());
 			}
-//          move the file if needed
+            //move the file if needed
 			if (destinationFile != null) {
 				try {
 					client.deleteFile(destinationFile);
 				} catch (Exception e) {
-
+					logger.info("Unable to delete destination file");
 				}
 				
 				resultOfFileMoveOperation = client.rename(file.getName(), destinationFile);

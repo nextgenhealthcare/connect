@@ -39,6 +39,7 @@ import sun.misc.BASE64Encoder;
 
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.Response;
+import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.mule.providers.file.filters.FilenameWildcardFilter;
 import com.webreach.mirth.server.util.StackTracePrinter;
@@ -89,7 +90,7 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
 			}
 
 			if (filename == null) {
-				messageObjectController.setError(messageObject, "Filename is null", null);
+				messageObjectController.setError(messageObject, Constants.ERROR_403, "Filename is null", null);
 				throw new IOException("Filename is null");
 			}
 
@@ -114,7 +115,7 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
 			// update the message status to sent
 			messageObjectController.setSuccess(messageObject, "File successfully written: " + filename);
 		} catch (Exception e) {
-			messageObjectController.setError(messageObject, "Error writing file: ", e);
+			messageObjectController.setError(messageObject, Constants.ERROR_403, "Error writing file", e);
 			connector.handleException(e);
 		} finally {
 			if (fos != null) {

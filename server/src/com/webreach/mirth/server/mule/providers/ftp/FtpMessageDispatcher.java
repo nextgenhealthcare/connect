@@ -39,6 +39,7 @@ import org.mule.umo.endpoint.UMOEndpointURI;
 import sun.misc.BASE64Decoder;
 
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.ChannelController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.mule.providers.file.filters.FilenameWildcardFilter;
@@ -108,7 +109,7 @@ public class FtpMessageDispatcher extends AbstractMessageDispatcher {
 				messageObjectController.setSuccess(messageObject, "File successfully written: " + filename);
 			
 		} catch (Exception e) {
-			messageObjectController.setError(messageObject, "Error writing to FTP: ", e);
+			messageObjectController.setError(messageObject, Constants.ERROR_405, "Error writing to FTP", e);
 			connector.handleException(e);
 		} finally {
 			connector.releaseFtp(uri, client);

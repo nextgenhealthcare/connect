@@ -61,9 +61,22 @@ public class TemplateValueReplacer {
 				Entry entry = (Entry) iter.next();
 				context.put(entry.getKey().toString(), entry.getValue());
 			}
+			// load variabls from the channelMap
+			Map channelMap = messageObject.getChannelMap();
+			Object[] channelKeys = {};
+			channelKeys = channelMap.keySet().toArray(channelKeys);
+
+			for (int i = 0; i < channelKeys.length; i++) {
+				context.put(channelKeys[i].toString(),channelMap.get(channelKeys[i]));
+			}
 		}
 
-		// default filename
+		
+		//we might have the originalfilename in the context
+		if (context.get("originalFilename") != null){
+			originalFilename = (String)context.get("originalFilename");
+		}
+		//default filename
 		if (originalFilename == null) {
 			originalFilename = System.currentTimeMillis() + ".dat";
 		}

@@ -162,7 +162,7 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 		if (moveDir != null) {
 			String fileName = file.getName();
 			if (moveToPattern != null) {
-				fileName = ((FileConnector) connector).getFilenameParser().getFilename(adapter, moveToPattern);
+				fileName = connector.getFilenameParser().getFilename(adapter, moveToPattern);
 			}
 			destinationFile = new File(moveDir, fileName);
 		}
@@ -220,7 +220,7 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 					try {
 						destinationFile.delete();
 					} catch (Exception e) {
-
+						logger.info("Unable to delete destination file");
 					}
 
 					resultOfFileMoveOperation = file.renameTo(destinationFile);

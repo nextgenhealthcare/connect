@@ -41,6 +41,7 @@ import org.mule.util.Utility;
 import org.mule.util.queue.Queue;
 
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.ChannelController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.mule.providers.mllp.protocols.LlpProtocol;
@@ -181,7 +182,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher {
 			exceptionWriting = exu;
 		} 
 		if (!success) {
-			messageObjectController.setError(messageObject, exceptionMessage, exceptionWriting);
+			messageObjectController.setError(messageObject, Constants.ERROR_408, exceptionMessage, exceptionWriting);
 		}
 		if (success && (exceptionWriting == null)) {
 			manageResponseAck(socket, event.getEndpoint(), messageObject);
@@ -261,13 +262,13 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher {
 				}
 			}
 		} catch (Exception e) {
-			messageObjectController.setError(data, "Socket write exception: ", e);
+			messageObjectController.setError(data, Constants.ERROR_408, "Socket write exception", e);
 			logger.warn("Write raised exception: '" + e.getMessage() + "' desisting reconnecting.");
 			sendException = e;
 		}
 		if ((result == false) || (sendException != null)) {
 			if (sendException != null) {
-				messageObjectController.setError(data, "Socket write exception: ", sendException);
+				messageObjectController.setError(data, Constants.ERROR_408, "Socket write exception", sendException);
 				throw sendException;
 			}
 			return result;
@@ -306,7 +307,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher {
 
 		if (theAck == null) {
 			// NACK
-			messageObjectController.setError(messageObject, "Timeout waiting for ACK", null);
+			messageObjectController.setError(messageObject,Constants.ERROR_408,  "Timeout waiting for ACK", null);
 			return;
 		}
 		try {
@@ -318,7 +319,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher {
 			}
 		} catch (UnsupportedEncodingException e) {
 			logger.error(e.getMessage());
-			messageObjectController.setError(messageObject, "Error setting encoding: " + connector.getCharsetEncoding(), e);
+			messageObjectController.setError(messageObject,Constants.ERROR_408,  "Error setting encoding: " + connector.getCharsetEncoding(), e);
 		}
 		String ackString = null;
 		try {
@@ -328,14 +329,14 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher {
 		}
 		if (ackString == null) {
 			// NACK
-			messageObjectController.setError(messageObject, "ACK message violates LLP protocol", null);
+			messageObjectController.setError(messageObject, Constants.ERROR_408, "ACK message violates LLP protocol", null);
 			return;
 		}
 		ResponseAck rack = new ResponseAck(ackString);
 		if (rack.getTypeOfAck()) {// Ack Ok
 			messageObjectController.setSuccess(messageObject, ackString);
 		} else {
-			messageObjectController.setError(messageObject, "NACK sent from receiver: " + rack.getErrorDescription() + ": " + ackString, null);
+			messageObjectController.setError(messageObject, Constants.ERROR_408, "NACK sent from receiver: " + rack.getErrorDescription() + ": " + ackString, null);
 		
 		}
 	}

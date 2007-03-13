@@ -27,6 +27,7 @@ import org.mule.umo.provider.UMOConnector;
 
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.Response;
+import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.mule.providers.email.transformers.MessageObjectToEmailMessage;
 import com.webreach.mirth.server.util.StackTracePrinter;
@@ -84,7 +85,7 @@ public class SmtpMessageDispatcher extends AbstractMessageDispatcher {
 			sendMailMessage(msg);
 			messageObjectController.setSuccess(messageObject, "Email successfully sent: " + connector.getToAddresses());
 		} catch (Exception e) {
-			messageObjectController.setError(messageObject, "Error sending email: ", e);
+			messageObjectController.setError(messageObject, Constants.ERROR_402, "Error sending email", e);
 			connector.handleException(e);
 		}
 	}

@@ -36,6 +36,7 @@ import org.apache.log4j.Logger;
 
 import com.ibatis.sqlmap.client.SqlMapClient;
 import com.webreach.mirth.model.Alert;
+import com.webreach.mirth.server.builders.ErrorBuilder;
 import com.webreach.mirth.server.util.SMTPConnection;
 import com.webreach.mirth.server.util.SMTPConnectionFactory;
 import com.webreach.mirth.server.util.SqlConfig;
@@ -44,7 +45,7 @@ import com.webreach.mirth.server.util.TemplateEvaluator;
 public class AlertController {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private SqlMapClient sqlMap = SqlConfig.getSqlMapInstance();
-
+	private ErrorBuilder errorBuilder = new ErrorBuilder();
 	public List<Alert> getAlert(Alert alert) throws ControllerException {
 		logger.debug("getting alert: " + alert);
 
@@ -171,7 +172,10 @@ public class AlertController {
 			logger.error(e);
 		}
 	}
-
+	public void sendAlerts(String channelId, String errorType, String customMessage, Throwable e) {
+		String errorMessage = errorBuilder.getErrorString(errorType, customMessage, e);
+		sendAlerts(channelId, errorMessage);
+	}
 	private boolean isAlertCondition(String expression, String errorMessage) {
 		// TODO: is this accurate?
 		return errorMessage.contains(expression);

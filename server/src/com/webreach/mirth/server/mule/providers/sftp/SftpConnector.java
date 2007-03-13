@@ -1,5 +1,6 @@
 package com.webreach.mirth.server.mule.providers.sftp;
 
+import java.io.FileOutputStream;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -28,7 +29,24 @@ public class SftpConnector extends AbstractServiceEnabledConnector {
 	public static final String PROPERTY_OUTPUT_PATTERN = "outputPattern";
 	public static final String PROPERTY_TEMPLATE = "template";
 	public static final String PROPERTY_BINARY = "binary";
+	public static final String PROPERTY_FILE_AGE = "fileAge";
+	public static final String PROPERTY_FILE_FILTER = "fileFilter";
+	public static final String PROPERTY_MOVE_TO_PATTERN = "moveToPattern";
+	public static final String PROPERTY_MOVE_TO_DIRECTORY = "moveToDirectory";
+	public static final String PROPERTY_DELETE_ON_READ = "autoDelete";
+	public static final String PROPERTY_DIRECTORY = "directory";
+	public static final String PROPERTY_SORT_ATTRIBUTE = "sortAttribute";
+	public static final String PROPERTY_BATCH_PROCESS = "processBatchFiles";
+	public static final String PROPERTY_CHANNEL_ID = "channelId";
+	public static final String SORT_NAME = "name";;
+	public static final String SORT_DATE = "date";
+	public static final String SORT_SIZE = "size";
 	
+    //ast: encoding Charset
+    public static final String PROPERTY_CHARSET_ENCODING = "charsetEncoding";
+    public static final String CHARSET_KEY = "ca.uhn.hl7v2.llp.charset";
+    public static final String DEFAULT_CHARSET_ENCODING =System.getProperty(CHARSET_KEY, java.nio.charset.Charset.defaultCharset().name());
+    
 	private String username;
 	private String password;
 	private long pollingFrequency = 0;
@@ -37,7 +55,18 @@ public class SftpConnector extends AbstractServiceEnabledConnector {
 	private FilenameParser filenameParser = new VariableFilenameParser();
 	private Map pools = new HashMap();
 	private boolean binary;
-
+	private String moveToPattern = null;
+	private String writeToDirectoryName = null;
+	private String moveToDirectory= null;
+	private String sortAttribute = SORT_NAME;
+	private boolean outputAppend = false;
+	private boolean autoDelete = true;
+	private boolean checkFileAge = false;
+	private String fileFilter = "*.*";
+	private long fileAge = 0;
+	private boolean processBatchFiles = true;
+	private String channelId;
+	private String charsetEncoding = DEFAULT_CHARSET_ENCODING;
 	public UMOMessageReceiver createReceiver(UMOComponent component, UMOEndpoint endpoint) throws Exception {
 		long polling = pollingFrequency;
 		Map props = endpoint.getProperties();
@@ -164,6 +193,102 @@ public class SftpConnector extends AbstractServiceEnabledConnector {
 
 	public void setBinary(boolean binary) {
 		this.binary = binary;
+	}
+
+	public boolean isAutoDelete() {
+		return autoDelete;
+	}
+
+	public void setAutoDelete(boolean autoDelete) {
+		this.autoDelete = autoDelete;
+	}
+
+	public boolean isCheckFileAge() {
+		return checkFileAge;
+	}
+
+	public void setCheckFileAge(boolean checkFileAge) {
+		this.checkFileAge = checkFileAge;
+	}
+
+	public long getFileAge() {
+		return fileAge;
+	}
+
+	public void setFileAge(long fileAge) {
+		this.fileAge = fileAge;
+	}
+
+	public String getMoveToDirectory() {
+		return moveToDirectory;
+	}
+
+	public void setMoveToDirectory(String moveToDirectory) {
+		this.moveToDirectory = moveToDirectory;
+	}
+
+	public String getMoveToPattern() {
+		return moveToPattern;
+	}
+
+	public void setMoveToPattern(String moveToPattern) {
+		this.moveToPattern = moveToPattern;
+	}
+
+	public boolean isProcessBatchFiles() {
+		return processBatchFiles;
+	}
+
+	public void setProcessBatchFiles(boolean processBatchFiles) {
+		this.processBatchFiles = processBatchFiles;
+	}
+
+	public String getSortAttribute() {
+		return sortAttribute;
+	}
+
+	public void setSortAttribute(String sortAttribute) {
+		this.sortAttribute = sortAttribute;
+	}
+
+	public String getWriteToDirectoryName() {
+		return writeToDirectoryName;
+	}
+
+	public void setWriteToDirectoryName(String writeToDirectoryName) {
+		this.writeToDirectoryName = writeToDirectoryName;
+	}
+
+	public String getFileFilter() {
+		return fileFilter;
+	}
+
+	public void setFileFilter(String fileFilter) {
+		this.fileFilter = fileFilter;
+	}
+
+	public boolean isOutputAppend() {
+		return outputAppend;
+	}
+
+	public void setOutputAppend(boolean outputAppend) {
+		this.outputAppend = outputAppend;
+	}
+
+	public String getCharsetEncoding() {
+		return charsetEncoding;
+	}
+
+	public void setCharsetEncoding(String charsetEncoding) {
+		this.charsetEncoding = charsetEncoding;
+	}
+
+	public String getChannelId() {
+		return channelId;
+	}
+
+	public void setChannelId(String channelId) {
+		this.channelId = channelId;
 	}
 
 	

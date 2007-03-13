@@ -21,6 +21,7 @@ import com.lowagie.text.html.HtmlParser;
 import com.lowagie.text.pdf.PdfWriter;
 import com.lowagie.text.rtf.RtfWriter2;
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.util.StackTracePrinter;
 
@@ -69,7 +70,7 @@ public class DocumentMessageDispatcher extends AbstractMessageDispatcher {
 			messageObjectController.setSuccess(messageObject, "Document successfully written: " + filename);
 
 		} catch (Exception e) {
-			messageObjectController.setError(messageObject, "Error writing document: ", e);
+			messageObjectController.setError(messageObject, Constants.ERROR_401, "Error writing document", e);
 			connector.handleException(e);
 		}
 	}

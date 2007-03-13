@@ -29,9 +29,10 @@ package com.webreach.mirth.server.util;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class GlobalVariableStore {
-	public Map<String, Object> globalVariableMap = Collections.synchronizedMap(new HashMap<String, Object>());
+	public Map<String, Object> globalVariableMap = new ConcurrentHashMap<String, Object>();
 	private static GlobalVariableStore instance = null;
 
 	private GlobalVariableStore() {

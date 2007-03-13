@@ -5,16 +5,22 @@ import javax.jms.Message;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.mule.providers.TemplateValueReplacer;
 import org.mule.umo.transformer.TransformerException;
 
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.controllers.MessageObjectController;
+import com.webreach.mirth.server.mule.providers.jms.JmsConnector;
 import com.webreach.mirth.server.util.StackTracePrinter;
 
 public class MessageObjectToJMSMessage extends AbstractJmsTransformer {
 	private MessageObjectController messageObjectController = new MessageObjectController();
     private static transient Log logger = LogFactory.getLog(MessageObjectToJMSMessage.class);
-
+    private JmsConnector connector;
+    private TemplateValueReplacer replacer = new TemplateValueReplacer();
+    public MessageObjectToJMSMessage(JmsConnector connector){
+    	this.connector = connector;
+    }
 	public Object doTransform(Object src) throws TransformerException {
 		
 		if (src instanceof MessageObject) {
@@ -22,8 +28,8 @@ public class MessageObjectToJMSMessage extends AbstractJmsTransformer {
 			if (messageObject.getStatus().equals(MessageObject.Status.FILTERED)){
 				return null;
 			}
-		
-			Message message = transformToMessage(messageObject.getEncodedData());
+			String template = replacer.replaceValues(connector.getTemplate(), messageObject, null);
+			Message message = transformToMessage(template);
             try {
             	message.setStringProperty("MIRTH_MESSAGE_ID", messageObject.getId());
             } catch (JMSException e) {

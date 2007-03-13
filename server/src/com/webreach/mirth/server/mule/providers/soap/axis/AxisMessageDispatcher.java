@@ -74,6 +74,7 @@ import org.mule.util.TemplateParser;
 
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.ws.WSParameter;
+import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.ChannelController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.util.GlobalVariableStore;
@@ -241,7 +242,7 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher {
 		retVal[1] = call.getMessageContext();
 		return retVal;
 		}catch(Exception e){
-			messageObjectController.setError(messageObject, "Error invoking WebService: ", e);
+			messageObjectController.setError(messageObject, Constants.ERROR_410, "Error invoking WebService", e);
 			connector.handleException(e);
 			return null;
 		}
@@ -259,11 +260,13 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher {
 		Object result = null;
 		if (results != null){
 			result = results[0];
+			
 		}
 		if (result == null) {
 			return null;
 		} else {
-			UMOMessage resultMessage = new MuleMessage(result, event.getProperties());
+			//Return the messageObject here
+			UMOMessage resultMessage = new MuleMessage(messageObject, event.getProperties());
 			setMessageContextProperties(resultMessage, (MessageContext) results[1]);
 			return resultMessage;
 		}

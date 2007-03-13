@@ -33,6 +33,7 @@ import org.mule.util.queue.Queue;
 import org.mule.util.queue.QueueSession;
 
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 
 /**
@@ -152,7 +153,7 @@ public class VMMessageDispatcher extends AbstractMessageDispatcher
 	            logger.debug("dispatched Event on endpointUri: " + endpointUri);
 	        }
 		}catch(Exception e){
-			messageObjectController.setError(messageObject, "Error routing message: ", e);
+			messageObjectController.setError(messageObject, Constants.ERROR_412, "Error routing message", e);
 			throw(e);
 		}
     }
@@ -191,7 +192,7 @@ public class VMMessageDispatcher extends AbstractMessageDispatcher
 	        messageObjectController.setSuccess(messageObject, "Message routed successfully");
 	        logger.debug("sent event on endpointUri: " + event.getEndpoint().getEndpointURI());
 		}catch (Exception e){
-			messageObjectController.setError(messageObject, "Error routing message: ", e);
+			messageObjectController.setError(messageObject, Constants.ERROR_412, "Error routing message", e);
 			throw(e);
 		}
         return retMessage;

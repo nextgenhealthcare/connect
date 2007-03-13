@@ -38,6 +38,7 @@ import org.mule.umo.provider.ConnectorException;
 import org.mule.umo.provider.UMOMessageAdapter;
 
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.util.CompiledScriptCache;
 import com.webreach.mirth.server.util.GlobalVariableStore;
@@ -85,7 +86,7 @@ public class JdbcMessageDispatcher extends AbstractMessageDispatcher {
 
 				if (compiledScript == null) {
 					logger.warn("database script could not be found in cache");
-					messageObjectController.setError(messageObject, "Database script not found in cache", null);
+					messageObjectController.setError(messageObject, Constants.ERROR_406, "Database script not found in cache", null);
 				} else {
 					compiledScript.exec(context, scope);
 					String response = "Database write success";
@@ -135,7 +136,7 @@ public class JdbcMessageDispatcher extends AbstractMessageDispatcher {
 			if (tx == null) {
 				JdbcUtils.rollbackAndClose(con);
 			}
-			messageObjectController.setError(messageObject, "Error writing to database: ", e);
+			messageObjectController.setError(messageObject, Constants.ERROR_406, "Error writing to database: ", e);
 			connector.handleException(e);
 		}
 

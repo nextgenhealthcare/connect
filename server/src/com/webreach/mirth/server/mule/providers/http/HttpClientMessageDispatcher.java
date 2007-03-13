@@ -41,6 +41,7 @@ import org.mule.umo.transformer.UMOTransformer;
 
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.Response;
+import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 
 import com.webreach.mirth.server.util.StackTracePrinter;
@@ -104,7 +105,7 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher {
 			if (httpMethod.getStatusCode() >= 400) {
 				logger.error(httpMethod.getResponseBodyAsString());
 				Exception exception = new DispatchException(event.getMessage(), event.getEndpoint(), new Exception("HTTP call returned a status of: " + httpMethod.getStatusCode() + " " + httpMethod.getStatusText()));
-				messageObjectController.setError(messageObject, httpMethod.getResponseBodyAsString(), exception);
+				messageObjectController.setError(messageObject, Constants.ERROR_404, httpMethod.getResponseBodyAsString(), exception);
 				throw exception;
 			} else {
 				messageObjectController.setSuccess(messageObject, httpMethod.getResponseBodyAsString());
@@ -256,14 +257,14 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher {
 				httpMethod.execute(state, connection);
 			} catch (HttpException e) {
 				logger.error(e, e);
-				messageObjectController.setError(messageObject, "HTTP Error: ", e);
+				messageObjectController.setError(messageObject, Constants.ERROR_404, "HTTP Error", e);
 			}
 			return httpMethod;
 		} catch (Exception e) {
 			if (httpMethod != null)
 				httpMethod.releaseConnection();
 			connection.close();
-			messageObjectController.setError(messageObject, "HTTP Error: ", e);
+			messageObjectController.setError(messageObject, Constants.ERROR_404, "HTTP Error", e);
 			throw new DispatchException(event.getMessage(), event.getEndpoint(), e);
 		} finally {
 			if (connection != null && closeConnection) {
@@ -303,7 +304,7 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher {
 				logger.error(httpMethod.getResponseBodyAsString());
 				String exceptionText = "Http call returned a status of: " + httpMethod.getStatusCode() + " " + httpMethod.getStatusText();
 				ep = new ExceptionPayload(new DispatchException(event.getMessage(), event.getEndpoint(), new Exception(exceptionText)));
-				messageObjectController.setError(messageObject, "HTTP Error: ", ep.getException());
+				messageObjectController.setError(messageObject, Constants.ERROR_404, "HTTP Error", ep.getException());
 			}
 			UMOMessage m = null;
 			// text or binary content?
@@ -328,7 +329,7 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher {
 
 			return m;
 		} catch (Exception e) {
-			messageObjectController.setError(messageObject, "HTTP Error: ", e);
+			messageObjectController.setError(messageObject,Constants.ERROR_404, "HTTP Error", e);
 			throw new DispatchException(event.getMessage(), event.getEndpoint(), e);
 		} finally {
 			if (httpMethod != null)
