@@ -32,13 +32,17 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.UUID;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
+import com.webreach.mirth.model.Channel;
+import com.webreach.mirth.model.Connector;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.filters.MessageObjectFilter;
+import com.webreach.mirth.server.controllers.ChannelController;
 import com.webreach.mirth.server.controllers.ConfigurationController;
 import com.webreach.mirth.server.controllers.ControllerException;
 import com.webreach.mirth.server.controllers.MessageObjectController;
@@ -47,6 +51,7 @@ import com.webreach.mirth.server.tools.ScriptRunner;
 public class MessageObjectControllerTest extends TestCase {
 	private MessageObjectController messageObjectController = new MessageObjectController();
 	private ConfigurationController configurationController = new ConfigurationController();
+	private ChannelController channelController = new ChannelController();
 	private List<MessageObject> sampleMessageObjectList;
 	private String channelId;
 	
@@ -60,6 +65,22 @@ public class MessageObjectControllerTest extends TestCase {
 
 		sampleMessageObjectList = new ArrayList<MessageObject>();
 		channelId = UUID.randomUUID().toString();
+		
+		Channel sampleChannel = new Channel();
+		sampleChannel.setId(channelId);
+		sampleChannel.setName("Sample Channel");
+		sampleChannel.setDescription("This is a sample channel");
+		sampleChannel.setEnabled(true);
+		sampleChannel.setVersion(configurationController.getVersion());
+		sampleChannel.setRevision(0);
+		sampleChannel.setSourceConnector(new Connector());
+		sampleChannel.setPreprocessingScript("return 1;");
+		
+		Properties sampleProperties = new Properties();
+		sampleProperties.setProperty("testProperty", "true");
+		sampleChannel.setProperties(sampleProperties);
+		
+		channelController.updateChannel(sampleChannel, true);
 		
 		for (int i = 0; i < 10; i++) {
 			MessageObject sampleMessageObject = new MessageObject();

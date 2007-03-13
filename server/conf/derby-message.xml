@@ -59,9 +59,9 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		<result property="connectorName" column="CONNECTOR_NAME" />
 		<result property="errors" column="ERRORS" />
 		<result property="correlationId" column="CORRELATION_ID" />
-		<result property="connectorMap" column="VARIABLE_MAP" />
-		<result property="channelMap" column="VARIABLE_MAP" />
-		<result property="responseMap" column="VARIABLE_MAP" />
+		<result property="connectorMap" column="CONNECTOR_MAP" />
+		<result property="channelMap" column="CHANNEL_MAP" />
+		<result property="responseMap" column="RESPONSE_MAP" />
 	</resultMap>
 
 	<sql id="messageFilterCriteria">
@@ -142,8 +142,8 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 	
 	<insert id="insertMessage" parameterMap="insert-message-param">
 		INSERT INTO
-		MESSAGE (ID, CHANNEL_ID, SOURCE, TYPE, DATE_CREATED, VERSION, IS_ENCRYPTED, STATUS, RAW_DATA, RAW_DATA_PROTOCOL, TRANSFORMED_DATA, TRANSFORMED_DATA_PROTOCOL, ENCODED_DATA, ENCODED_DATA_PROTOCOL, CONNECTOR_MAP, CHANNEL_MAP, RESPONSE_MAP, CONNECTOR_NAME, ERRORS, CORRELATION_ID)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		MESSAGE (ID, CHANNEL_ID, SOURCE, TYPE, DATE_CREATED, VERSION, IS_ENCRYPTED, STATUS, RAW_DATA, RAW_DATA_PROTOCOL, TRANSFORMED_DATA, TRANSFORMED_DATA_PROTOCOL, ENCODED_DATA, ENCODED_DATA_PROTOCOL, CONNECTOR_NAME, ERRORS, CORRELATION_ID, CONNECTOR_MAP, CHANNEL_MAP, RESPONSE_MAP)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	</insert>
 	
 	<update id="updateMessage" parameterMap="update-message-param">
@@ -152,11 +152,11 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 			RAW_DATA = ?,
 			TRANSFORMED_DATA = ?,
 			ENCODED_DATA = ?,
+			ERRORS = ?,
+			CORRELATION_ID = ?,
 			CONNECTOR_MAP = ?,
 			CHANNEL_MAP = ?,
-			RESPONSE_MAP = ?,
-			ERRORS = ?,
-			CORRELATION_ID = ?
+			RESPONSE_MAP = ?
 		WHERE ID = ?
 	</update>
 	
