@@ -15,21 +15,32 @@
 
 package com.webreach.mirth.server.mule.providers.http;
 
-import org.apache.commons.httpclient.*;
+import java.net.BindException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Properties;
+
+import org.apache.commons.httpclient.ConnectMethod;
+import org.apache.commons.httpclient.Header;
+import org.apache.commons.httpclient.HttpConnection;
+import org.apache.commons.httpclient.HttpException;
+import org.apache.commons.httpclient.HttpMethod;
+import org.apache.commons.httpclient.HttpState;
+import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.ByteArrayRequestEntity;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.mule.config.i18n.Message;
 import org.mule.impl.MuleMessage;
 import org.mule.impl.message.ExceptionPayload;
-import org.mule.providers.http.HttpConstants;
 import org.mule.providers.AbstractMessageDispatcher;
-import org.mule.providers.NullPayload;
 import org.mule.providers.TemplateValueReplacer;
+import org.mule.providers.http.HttpConstants;
 import org.mule.providers.http.transformers.HttpClientMethodResponseToObject;
-import org.mule.providers.http.transformers.ObjectToHttpClientMethodRequest;
 import org.mule.umo.UMOEvent;
 import org.mule.umo.UMOException;
 import org.mule.umo.UMOMessage;
@@ -39,27 +50,12 @@ import org.mule.umo.provider.ReceiveException;
 import org.mule.umo.provider.UMOConnector;
 import org.mule.umo.transformer.UMOTransformer;
 
-import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.model.Response;
-import com.webreach.mirth.server.Constants;
-import com.webreach.mirth.server.controllers.MessageObjectController;
-
-import com.webreach.mirth.server.util.StackTracePrinter;
-import com.webreach.mirth.server.util.VMRouter;
-
 import sun.misc.BASE64Encoder;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.OutputStream;
-import java.net.BindException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.server.Constants;
+import com.webreach.mirth.server.controllers.MessageObjectController;
+import com.webreach.mirth.server.util.VMRouter;
 
 /**
  * <p>

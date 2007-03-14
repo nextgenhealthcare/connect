@@ -52,13 +52,13 @@ public class MllpConnector extends AbstractServiceEnabledConnector {
 	public static final String PROPERTY_END_OF_SEGMENT = "segmentEnd";
 	public static final String PROPERTY_TEMPLATE = "template";
 	public static final String PROPERTY_CHECKMSH15 = "checkMSH15";
-    public static final String PROPERTY_ACK_NEW_CONNECTION = "ackOnNewConnection";
-    public static final String PROPERTY_ACK_NEW_CONNECTION_IP = "ackIP";
-    public static final String PROPERTY_ACK_NEW_CONNECTION_PORT = "ackPort";
-    public static final String PROPERTY_REPLY_CHANNEL_ID = "replyChannelId";
-    
-    public static final String PROPERTY_TRANSFORMER_ACK = "responseFromTransformer";
-    public static final String PROPERTY_RESPONSE_VALUE= "responseValue";
+	public static final String PROPERTY_ACK_NEW_CONNECTION = "ackOnNewConnection";
+	public static final String PROPERTY_ACK_NEW_CONNECTION_IP = "ackIP";
+	public static final String PROPERTY_ACK_NEW_CONNECTION_PORT = "ackPort";
+	public static final String PROPERTY_REPLY_CHANNEL_ID = "replyChannelId";
+
+	public static final String PROPERTY_TRANSFORMER_ACK = "responseFromTransformer";
+	public static final String PROPERTY_RESPONSE_VALUE = "responseValue";
 	// custom properties
 	private String charEncoding = "hex";
 	private String messageStart = "0x1C";
@@ -73,23 +73,25 @@ public class MllpConnector extends AbstractServiceEnabledConnector {
 	private String replyChannelId = "";
 	private boolean responseFromTransformer = false;
 	private String responseValue = "None";
+	private String channelId;
+
 	// ack properties
 	public static final String PROPERTY_ACKCODE_SUCCESSFUL = "ackCodeSuccessful";
 	public static final String PROPERTY_ACKMSG_SUCCESSFUL = "ackMsgSuccessful";
-	
+
 	public static final String PROPERTY_ACKCODE_ERROR = "ackCodeError";
 	public static final String PROPERTY_ACKMSG_ERROR = "ackMsgError";
-	
+
 	public static final String PROPERTY_ACKCODE_REJECTED = "ackCodeRejected";
 	public static final String PROPERTY_ACKMSG_REJECTED = "ackMsgRejected";
-	
+
 	private String ackCodeSuccessful = "AA";
 	private String ackMsgSuccessful = "";
 	private String ackCodeError = "AE";
 	private String ackMsgError = "Error Processing Message";
 	private String ackCodeRejected = "AR";
 	private String ackMsgRejected = "Message Rejected";
-	
+
 	public static final int DEFAULT_SOCKET_TIMEOUT = 5000;
 	public static final int DEFAULT_ACK_TIMEOUT = 5000;
 	public static final int DEFAULT_BUFFER_SIZE = 64 * 1024;
@@ -109,11 +111,11 @@ public class MllpConnector extends AbstractServiceEnabledConnector {
 	private QueueProfile queueProfile;
 	private UMOComponent component = null;
 	private int ackTimeout = DEFAULT_ACK_TIMEOUT;
-        //ast: encoding Charset
-        public static final String PROPERTY_CHARSET_ENCODING = "charsetEncoding";
-        public static final String CHARSET_KEY = "ca.uhn.hl7v2.llp.charset";
-        public static final String DEFAULT_CHARSET_ENCODING =System.getProperty(CHARSET_KEY, java.nio.charset.Charset.defaultCharset().name());
-        private String charsetEncoding = DEFAULT_CHARSET_ENCODING;
+	// ast: encoding Charset
+	public static final String PROPERTY_CHARSET_ENCODING = "charsetEncoding";
+	public static final String CHARSET_KEY = "ca.uhn.hl7v2.llp.charset";
+	public static final String DEFAULT_CHARSET_ENCODING = System.getProperty(CHARSET_KEY, java.nio.charset.Charset.defaultCharset().name());
+	private String charsetEncoding = DEFAULT_CHARSET_ENCODING;
 
 	// /////////////////////////////////////////////
 	// Does this protocol have any connected sockets?
@@ -135,13 +137,21 @@ public class MllpConnector extends AbstractServiceEnabledConnector {
 	private int maxRetryCount = DEFAULT_RETRY_TIMES;
 	private boolean keepAlive = true;
 
-        //ast: overload of the creator, to allow the test of the charset Encoding
-        public MllpConnector(){
-            super();
-            ////ast: try to set the default encoding
-            this.setCharsetEncoding(DEFAULT_CHARSET_ENCODING);            
-        }
-        
+	public String getChannelId() {
+		return this.channelId;
+	}
+
+	public void setChannelId(String channelId) {
+		this.channelId = channelId;
+	}
+
+	// ast: overload of the creator, to allow the test of the charset Encoding
+	public MllpConnector() {
+		super();
+		// //ast: try to set the default encoding
+		this.setCharsetEncoding(DEFAULT_CHARSET_ENCODING);
+	}
+
 	public boolean isKeepSendSocketOpen() {
 		return keepSendSocketOpen;
 	}
@@ -350,33 +360,36 @@ public class MllpConnector extends AbstractServiceEnabledConnector {
 		this.keepAlive = keepAlive;
 	}
 
-        //ast: set the charset Encoding
-        public void setCharsetEncoding(String charsetEncoding) {                
-                if ((charsetEncoding==null) || (charsetEncoding=="") || (charsetEncoding.equalsIgnoreCase("DEFAULT_ENCODING"))) charsetEncoding=DEFAULT_CHARSET_ENCODING;
-                logger.debug("FileConnector: trying to set the encoding to "+charsetEncoding);                
-		try{
-                    byte b[]={20,21,22,23};
-                    String k=new String(b,charsetEncoding);
-                    this.charsetEncoding = charsetEncoding;
-                }catch(Exception e){
-                    //set the encoding to the default one: this charset can't launch an exception
-                    this.charsetEncoding=java.nio.charset.Charset.defaultCharset().name();
-                    logger.error("Impossible to use ["+charsetEncoding+"] as the Charset Encoding: changing to the platform default ["+this.charsetEncoding+"]");
-                    SystemLogger systemLogger = new SystemLogger();                  
-                    SystemEvent event = new SystemEvent("Exception occured in channel.");
-                    event.setDescription("Impossible to use ["+charsetEncoding+"] as the Charset Encoding: changing to the platform default ["+this.charsetEncoding+"]");
-                    systemLogger.logSystemEvent(event);
-                }
+	// ast: set the charset Encoding
+	public void setCharsetEncoding(String charsetEncoding) {
+		if ((charsetEncoding == null) || (charsetEncoding == "") || (charsetEncoding.equalsIgnoreCase("DEFAULT_ENCODING")))
+			charsetEncoding = DEFAULT_CHARSET_ENCODING;
+		logger.debug("FileConnector: trying to set the encoding to " + charsetEncoding);
+		try {
+			byte b[] = { 20, 21, 22, 23 };
+			String k = new String(b, charsetEncoding);
+			this.charsetEncoding = charsetEncoding;
+		} catch (Exception e) {
+			// set the encoding to the default one: this charset can't launch an
+			// exception
+			this.charsetEncoding = java.nio.charset.Charset.defaultCharset().name();
+			logger.error("Impossible to use [" + charsetEncoding + "] as the Charset Encoding: changing to the platform default [" + this.charsetEncoding + "]");
+			SystemLogger systemLogger = new SystemLogger();
+			SystemEvent event = new SystemEvent("Exception occured in channel.");
+			event.setDescription("Impossible to use [" + charsetEncoding + "] as the Charset Encoding: changing to the platform default [" + this.charsetEncoding + "]");
+			systemLogger.logSystemEvent(event);
+		}
 	}
-        //ast: get the charset Encoding
-        public String getCharsetEncoding() {
-            if ((this.charsetEncoding==null) || (this.charsetEncoding =="") || (this.charsetEncoding.equalsIgnoreCase("DEFAULT_ENCODING"))){
-                //Default Charset
-                return DEFAULT_CHARSET_ENCODING;
-            } 
-		return(this.charsetEncoding);
+
+	// ast: get the charset Encoding
+	public String getCharsetEncoding() {
+		if ((this.charsetEncoding == null) || (this.charsetEncoding == "") || (this.charsetEncoding.equalsIgnoreCase("DEFAULT_ENCODING"))) {
+			// Default Charset
+			return DEFAULT_CHARSET_ENCODING;
+		}
+		return (this.charsetEncoding);
 	}
-        
+
 	/***************************************************************************
 	 * ***************ast: Queue functions**********************
 	 **************************************************************************/
@@ -433,7 +446,7 @@ public class MllpConnector extends AbstractServiceEnabledConnector {
 		String adr = "dummy";
 		String adr_securefile;
 		try {
-			//adr = endpoint.getEndpointURI().getAddress();
+			// adr = endpoint.getEndpointURI().getAddress();
 			adr = this.getName();
 		} catch (Throwable t) {
 		}
@@ -524,18 +537,18 @@ public class MllpConnector extends AbstractServiceEnabledConnector {
 
 	public void incErrorStatistics(UMOComponent umoComponent) {
 		ComponentStatistics statistics = null;
-		
+
 		if (umoComponent != null)
 			component = umoComponent;
 
 		if (component == null) {
 			return;
 		}
-		
+
 		if (!(component instanceof AbstractComponent)) {
 			return;
 		}
-			
+
 		try {
 			statistics = ((AbstractComponent) component).getStatistics();
 			if (statistics == null) {

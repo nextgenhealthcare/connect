@@ -50,30 +50,36 @@ public class SftpMessageReceiver extends PollingMessageReceiver {
 		filenameFilter = new FilenameWildcardFilter(this.connector.getFileFilter());
 	}
 
-	public void poll() throws Exception {
-		List files = listFiles();
-		sortFiles(files);
-		for (Iterator iter = files.iterator(); iter.hasNext();) {
-			final ChannelSftp.LsEntry entry = (ChannelSftp.LsEntry) iter.next();
+	public void poll() {
+		try {
+			List files = listFiles();
+			sortFiles(files);
+			
+			for (Iterator iter = files.iterator(); iter.hasNext();) {
+				final ChannelSftp.LsEntry entry = (ChannelSftp.LsEntry) iter.next();
 
-			if (!currentFiles.contains(entry.getFilename())) {
-				getWorkManager().scheduleWork(new Work() {
-					public void run() {
-						try {
-							currentFiles.add(entry.getFilename());
-							if (!routingError)
-								processFile(entry);
-						} catch (Exception e) {
-							alertController.sendAlerts(connector.getChannelId(), Constants.ERROR_409, "", e);
-							connector.handleException(e);
-						} finally {
-							currentFiles.remove(entry.getFilename());
+				if (!currentFiles.contains(entry.getFilename())) {
+					getWorkManager().scheduleWork(new Work() {
+						public void run() {
+							try {
+								currentFiles.add(entry.getFilename());
+								if (!routingError)
+									processFile(entry);
+							} catch (Exception e) {
+								alertController.sendAlerts(((SftpConnector) connector).getChannelId(), Constants.ERROR_409, null, e);
+								connector.handleException(e);
+							} finally {
+								currentFiles.remove(entry.getFilename());
+							}
 						}
-					}
 
-					public void release() {}
-				});
+						public void release() {}
+					});
+				}
 			}
+		} catch (Exception e) {
+			alertController.sendAlerts(((SftpConnector) connector).getChannelId(), Constants.ERROR_409, null, e);
+			handleException(e);
 		}
 	}
 

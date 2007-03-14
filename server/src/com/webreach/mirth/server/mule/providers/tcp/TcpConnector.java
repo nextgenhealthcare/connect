@@ -13,26 +13,24 @@
  */
 package com.webreach.mirth.server.mule.providers.tcp;
 
+import org.mule.MuleManager;
+import org.mule.config.QueueProfile;
 import org.mule.config.i18n.Message;
+import org.mule.impl.model.AbstractComponent;
 import org.mule.management.stats.ComponentStatistics;
 import org.mule.providers.AbstractServiceEnabledConnector;
-import org.mule.umo.lifecycle.InitialisationException;
-import org.mule.util.ClassHelper;
-
-import org.mule.MuleManager;
+import org.mule.providers.tcp.TcpProtocol;
+import org.mule.providers.tcp.protocols.DefaultProtocol;
+import org.mule.umo.UMOComponent;
 import org.mule.umo.endpoint.UMOEndpoint;
-import org.mule.config.QueueProfile;
-import org.mule.impl.model.AbstractComponent;
+import org.mule.umo.lifecycle.InitialisationException;
+import org.mule.umo.provider.UMOMessageReceiver;
 import org.mule.util.queue.Queue;
 import org.mule.util.queue.QueueManager;
 import org.mule.util.queue.QueueSession;
-import org.mule.umo.UMOComponent;
-import org.mule.umo.provider.UMOMessageReceiver;
+
 import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.server.controllers.SystemLogger;
-
-import org.mule.providers.tcp.TcpProtocol;
-import org.mule.providers.tcp.protocols.DefaultProtocol;
 
 /**
  * <code>TcpConnector</code> can bind or sent to a given tcp port on a given
@@ -52,16 +50,16 @@ public class TcpConnector extends AbstractServiceEnabledConnector {
 	public static final String PROPERTY_END_OF_SEGMENT = "segmentEnd";
 	public static final String PROPERTY_TEMPLATE = "template";
 	public static final String PROPERTY_CHECKMSH15 = "checkMSH15";
-    public static final String PROPERTY_ACK_NEW_CONNECTION = "ackOnNewConnection";
-    public static final String PROPERTY_ACK_NEW_CONNECTION_IP = "ackIP";
-    public static final String PROPERTY_ACK_NEW_CONNECTION_PORT = "ackPort";
-    public static final String PROPERTY_REPLY_CHANNEL_ID = "replyChannelId";
-    
-    public static final String PROPERTY_TRANSFORMER_ACK = "responseFromTransformer";
-    public static final String PROPERTY_RECEIVE_BINARY = "receiveBinary";
-    public static final String PROPERTY_RESPONSE_VALUE= "responseValue";
+	public static final String PROPERTY_ACK_NEW_CONNECTION = "ackOnNewConnection";
+	public static final String PROPERTY_ACK_NEW_CONNECTION_IP = "ackIP";
+	public static final String PROPERTY_ACK_NEW_CONNECTION_PORT = "ackPort";
+	public static final String PROPERTY_REPLY_CHANNEL_ID = "replyChannelId";
+
+	public static final String PROPERTY_TRANSFORMER_ACK = "responseFromTransformer";
+	public static final String PROPERTY_RECEIVE_BINARY = "receiveBinary";
+	public static final String PROPERTY_RESPONSE_VALUE = "responseValue";
 	// custom properties
-	
+
 	private String template = "message.encodedData";
 	private boolean checkMSH15 = false;
 	private boolean ackOnNewConnection = false;
@@ -70,9 +68,8 @@ public class TcpConnector extends AbstractServiceEnabledConnector {
 	private String replyChannelId = "";
 	private boolean responseFromTransformer = false;
 	private boolean receiveBinary = false;
-	private String responseValue ="None";
+	private String responseValue = "None";
 
-	
 	public static final int DEFAULT_SOCKET_TIMEOUT = 5000;
 	public static final int DEFAULT_ACK_TIMEOUT = 5000;
 	public static final int DEFAULT_BUFFER_SIZE = 64 * 1024;
@@ -92,11 +89,11 @@ public class TcpConnector extends AbstractServiceEnabledConnector {
 	private QueueProfile queueProfile;
 	private UMOComponent component = null;
 	private int ackTimeout = DEFAULT_ACK_TIMEOUT;
-        //ast: encoding Charset
-        public static final String PROPERTY_CHARSET_ENCODING = "charsetEncoding";
-        public static final String CHARSET_KEY = "ca.uhn.hl7v2.llp.charset";
-        public static final String DEFAULT_CHARSET_ENCODING =System.getProperty(CHARSET_KEY, java.nio.charset.Charset.defaultCharset().name());
-        private String charsetEncoding = DEFAULT_CHARSET_ENCODING;
+	// ast: encoding Charset
+	public static final String PROPERTY_CHARSET_ENCODING = "charsetEncoding";
+	public static final String CHARSET_KEY = "ca.uhn.hl7v2.llp.charset";
+	public static final String DEFAULT_CHARSET_ENCODING = System.getProperty(CHARSET_KEY, java.nio.charset.Charset.defaultCharset().name());
+	private String charsetEncoding = DEFAULT_CHARSET_ENCODING;
 
 	// /////////////////////////////////////////////
 	// Does this protocol have any connected sockets?
@@ -117,14 +114,23 @@ public class TcpConnector extends AbstractServiceEnabledConnector {
 	// -1 try to reconnect forever
 	private int maxRetryCount = DEFAULT_RETRY_TIMES;
 	private boolean keepAlive = true;
+	private String channelId;
 
-        //ast: overload of the creator, to allow the test of the charset Encoding
-        public TcpConnector(){
-            super();
-            ////ast: try to set the default encoding
-            this.setCharsetEncoding(DEFAULT_CHARSET_ENCODING);            
-        }
-        
+	public String getChannelId() {
+		return this.channelId;
+	}
+
+	public void setChannelId(String channelId) {
+		this.channelId = channelId;
+	}
+
+	// ast: overload of the creator, to allow the test of the charset Encoding
+	public TcpConnector() {
+		super();
+		// //ast: try to set the default encoding
+		this.setCharsetEncoding(DEFAULT_CHARSET_ENCODING);
+	}
+
 	public boolean isKeepSendSocketOpen() {
 		return keepSendSocketOpen;
 	}
@@ -162,7 +168,7 @@ public class TcpConnector extends AbstractServiceEnabledConnector {
 		if (tcpProtocol == null) {
 			try {
 				tcpProtocol = new DefaultProtocol();
-				
+
 			} catch (Exception e) {
 				throw new InitialisationException(new Message("tcp", 3), e);
 			}
@@ -281,7 +287,6 @@ public class TcpConnector extends AbstractServiceEnabledConnector {
 		return true;
 	}
 
-
 	public char stringToChar(String source) {
 		return source.charAt(0);
 	}
@@ -294,33 +299,36 @@ public class TcpConnector extends AbstractServiceEnabledConnector {
 		this.keepAlive = keepAlive;
 	}
 
-        //ast: set the charset Encoding
-        public void setCharsetEncoding(String charsetEncoding) {                
-                if ((charsetEncoding==null) || (charsetEncoding=="") || (charsetEncoding.equalsIgnoreCase("DEFAULT_ENCODING"))) charsetEncoding=DEFAULT_CHARSET_ENCODING;
-                logger.debug("FileConnector: trying to set the encoding to "+charsetEncoding);                
-		try{
-                    byte b[]={20,21,22,23};
-                    String k=new String(b,charsetEncoding);
-                    this.charsetEncoding = charsetEncoding;
-                }catch(Exception e){
-                    //set the encoding to the default one: this charset can't launch an exception
-                    this.charsetEncoding=java.nio.charset.Charset.defaultCharset().name();
-                    logger.error("Impossible to use ["+charsetEncoding+"] as the Charset Encoding: changing to the platform default ["+this.charsetEncoding+"]");
-                    SystemLogger systemLogger = new SystemLogger();                  
-                    SystemEvent event = new SystemEvent("Exception occured in channel.");
-                    event.setDescription("Impossible to use ["+charsetEncoding+"] as the Charset Encoding: changing to the platform default ["+this.charsetEncoding+"]");
-                    systemLogger.logSystemEvent(event);
-                }
+	// ast: set the charset Encoding
+	public void setCharsetEncoding(String charsetEncoding) {
+		if ((charsetEncoding == null) || (charsetEncoding == "") || (charsetEncoding.equalsIgnoreCase("DEFAULT_ENCODING")))
+			charsetEncoding = DEFAULT_CHARSET_ENCODING;
+		logger.debug("FileConnector: trying to set the encoding to " + charsetEncoding);
+		try {
+			byte b[] = { 20, 21, 22, 23 };
+			String k = new String(b, charsetEncoding);
+			this.charsetEncoding = charsetEncoding;
+		} catch (Exception e) {
+			// set the encoding to the default one: this charset can't launch an
+			// exception
+			this.charsetEncoding = java.nio.charset.Charset.defaultCharset().name();
+			logger.error("Impossible to use [" + charsetEncoding + "] as the Charset Encoding: changing to the platform default [" + this.charsetEncoding + "]");
+			SystemLogger systemLogger = new SystemLogger();
+			SystemEvent event = new SystemEvent("Exception occured in channel.");
+			event.setDescription("Impossible to use [" + charsetEncoding + "] as the Charset Encoding: changing to the platform default [" + this.charsetEncoding + "]");
+			systemLogger.logSystemEvent(event);
+		}
 	}
-        //ast: get the charset Encoding
-        public String getCharsetEncoding() {
-            if ((this.charsetEncoding==null) || (this.charsetEncoding =="") || (this.charsetEncoding.equalsIgnoreCase("DEFAULT_ENCODING"))){
-                //Default Charset
-                return DEFAULT_CHARSET_ENCODING;
-            } 
-		return(this.charsetEncoding);
+
+	// ast: get the charset Encoding
+	public String getCharsetEncoding() {
+		if ((this.charsetEncoding == null) || (this.charsetEncoding == "") || (this.charsetEncoding.equalsIgnoreCase("DEFAULT_ENCODING"))) {
+			// Default Charset
+			return DEFAULT_CHARSET_ENCODING;
+		}
+		return (this.charsetEncoding);
 	}
-        
+
 	/***************************************************************************
 	 * ***************ast: Queue functions**********************
 	 **************************************************************************/
@@ -377,7 +385,7 @@ public class TcpConnector extends AbstractServiceEnabledConnector {
 		String adr = "dummy";
 		String adr_securefile;
 		try {
-			//adr = endpoint.getEndpointURI().getAddress();
+			// adr = endpoint.getEndpointURI().getAddress();
 			adr = this.getName();
 		} catch (Throwable t) {
 		}
@@ -468,18 +476,18 @@ public class TcpConnector extends AbstractServiceEnabledConnector {
 
 	public void incErrorStatistics(UMOComponent umoComponent) {
 		ComponentStatistics statistics = null;
-		
+
 		if (umoComponent != null)
 			component = umoComponent;
 
 		if (component == null) {
 			return;
 		}
-		
+
 		if (!(component instanceof AbstractComponent)) {
 			return;
 		}
-			
+
 		try {
 			statistics = ((AbstractComponent) component).getStatistics();
 			if (statistics == null) {
@@ -490,8 +498,6 @@ public class TcpConnector extends AbstractServiceEnabledConnector {
 			logger.error("Error setting statistics ");
 		}
 	}
-
-	
 
 	public String getTemplate() {
 		return template;

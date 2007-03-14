@@ -73,27 +73,27 @@ public class HttpConnector extends TcpConnector
     
     
     private String proxyHostname = null;
-
     private int proxyPort = DEFAULT_PORT;
-
     private String proxyUsername = null;
-
     private String proxyPassword = null;
-
     private int keepAliveTimeout = 1000;
-
     private boolean keepAlive = false;
-    
     private boolean extendedPayload = false;
-
     private String responseValue;
-    
     private Map requestVariables;
-    
     private String method;
-    
     private String replyChannelId;
-    public String getMethod() {
+    private String channelId;
+    
+    public String getChannelId() {
+		return this.channelId;
+	}
+
+	public void setChannelId(String channelId) {
+		this.channelId = channelId;
+	}
+
+	public String getMethod() {
 		return method;
 	}
 

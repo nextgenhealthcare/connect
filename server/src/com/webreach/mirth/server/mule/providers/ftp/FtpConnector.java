@@ -94,8 +94,16 @@ public class FtpConnector extends AbstractServiceEnabledConnector {
 	private boolean processBatchFiles = true;
     //ast: encoding charset
     private String charsetEncoding = DEFAULT_CHARSET_ENCODING;
-
+    private String channelId;
 	
+	public String getChannelId() {
+		return this.channelId;
+	}
+
+	public void setChannelId(String channelId) {
+		this.channelId = channelId;
+	}
+
 	public boolean isAutoDelete() {
 		return autoDelete;
 	}

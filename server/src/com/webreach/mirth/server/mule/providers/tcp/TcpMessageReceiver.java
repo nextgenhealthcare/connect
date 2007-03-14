@@ -51,6 +51,8 @@ import org.mule.umo.provider.UMOMessageAdapter;
 
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.Response;
+import com.webreach.mirth.server.Constants;
+import com.webreach.mirth.server.controllers.AlertController;
 
 import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicBoolean;
 
@@ -65,8 +67,8 @@ import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicBoolean;
  */
 public class TcpMessageReceiver extends AbstractMessageReceiver implements Work {
 	protected ServerSocket serverSocket = null;
-
 	protected TcpConnector connector;
+	private AlertController alertController = new AlertController();
 
 	public TcpMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint) throws InitialisationException {
 		super(connector, component, endpoint);
@@ -147,6 +149,7 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
 							logger.error("Tcp Server receiver Work was not processed: " + e.getMessage(), e);
 						}
 					} catch (SocketException e) {
+						alertController.sendAlerts(((TcpConnector) connector).getChannelId(), Constants.ERROR_411, null, e);
 						handleException(e);
 					}
 

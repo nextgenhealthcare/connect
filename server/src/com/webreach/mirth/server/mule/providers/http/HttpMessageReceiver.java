@@ -33,6 +33,10 @@ import org.mule.umo.provider.UMOMessageAdapter;
 import org.mule.util.PropertiesHelper;
 import org.mule.util.monitor.Expirable;
 
+import com.webreach.mirth.server.Constants;
+import com.webreach.mirth.server.controllers.AlertController;
+import com.webreach.mirth.server.mule.providers.ftp.FtpConnector;
+
 import javax.resource.spi.work.Work;
 import java.io.*;
 import java.net.Socket;
@@ -51,7 +55,8 @@ import java.util.Map.Entry;
  */
 public class HttpMessageReceiver extends TcpMessageReceiver {
     //private ExpiryMonitor keepAliveMonitor;
-
+	private AlertController alertController = new AlertController();
+	
     public HttpMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint)
             throws InitialisationException {
         super(connector, component, endpoint);
@@ -185,6 +190,7 @@ public class HttpMessageReceiver extends TcpMessageReceiver {
                     logger.debug("Peer closed connection");
                 }
             } catch (Exception e) {
+            	alertController.sendAlerts(((HttpConnector) connector).getChannelId(), Constants.ERROR_404, null, e);
                 handleException(e);
             } finally {
 //                if (keepAliveMonitor != null) {

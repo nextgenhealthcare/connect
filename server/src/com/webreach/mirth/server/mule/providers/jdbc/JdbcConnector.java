@@ -64,6 +64,16 @@ public class JdbcConnector extends AbstractServiceEnabledConnector {
 	private boolean useScript;
 	private String scriptId;
 	private String ackScriptId;
+	private String channelId;
+	
+	public String getChannelId() {
+		return this.channelId;
+	}
+
+	public void setChannelId(String channelId) {
+		this.channelId = channelId;
+	}
+
 	// This method gets called when the JDBC connector is initialized. It
 	// compiles the JavaScript and adds it to the cache.
 	@Override
@@ -82,9 +92,11 @@ public class JdbcConnector extends AbstractServiceEnabledConnector {
 					compiledScriptCache.putCompiledScript(scriptId, compiledDatabaseScript);
 				}
 			}
+			
 			if (ackScriptId != null){
 				org.mozilla.javascript.Context context = org.mozilla.javascript.Context.enter();
 				String ackScript = scriptController.getScript(ackScriptId);
+				
 				if (ackScript != null) {
 					String generatedDatabaseScript = generateDatabaseScript(ackScript, true);
 					logger.debug("compiling database ack script");

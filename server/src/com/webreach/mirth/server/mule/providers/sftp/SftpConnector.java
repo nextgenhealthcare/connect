@@ -41,12 +41,12 @@ public class SftpConnector extends AbstractServiceEnabledConnector {
 	public static final String SORT_NAME = "name";;
 	public static final String SORT_DATE = "date";
 	public static final String SORT_SIZE = "size";
-	
-    //ast: encoding Charset
-    public static final String PROPERTY_CHARSET_ENCODING = "charsetEncoding";
-    public static final String CHARSET_KEY = "ca.uhn.hl7v2.llp.charset";
-    public static final String DEFAULT_CHARSET_ENCODING =System.getProperty(CHARSET_KEY, java.nio.charset.Charset.defaultCharset().name());
-    
+
+	// ast: encoding Charset
+	public static final String PROPERTY_CHARSET_ENCODING = "charsetEncoding";
+	public static final String CHARSET_KEY = "ca.uhn.hl7v2.llp.charset";
+	public static final String DEFAULT_CHARSET_ENCODING = System.getProperty(CHARSET_KEY, java.nio.charset.Charset.defaultCharset().name());
+
 	private String username;
 	private String password;
 	private long pollingFrequency = 0;
@@ -57,7 +57,7 @@ public class SftpConnector extends AbstractServiceEnabledConnector {
 	private boolean binary;
 	private String moveToPattern = null;
 	private String writeToDirectoryName = null;
-	private String moveToDirectory= null;
+	private String moveToDirectory = null;
 	private String sortAttribute = SORT_NAME;
 	private boolean outputAppend = false;
 	private boolean autoDelete = true;
@@ -67,6 +67,7 @@ public class SftpConnector extends AbstractServiceEnabledConnector {
 	private boolean processBatchFiles = true;
 	private String channelId;
 	private String charsetEncoding = DEFAULT_CHARSET_ENCODING;
+
 	public UMOMessageReceiver createReceiver(UMOComponent component, UMOEndpoint endpoint) throws Exception {
 		long polling = pollingFrequency;
 		Map props = endpoint.getProperties();
@@ -115,12 +116,12 @@ public class SftpConnector extends AbstractServiceEnabledConnector {
 	protected synchronized ObjectPool getClientPool(UMOEndpointURI uri) {
 		String key = uri.getUsername() + ":" + uri.getPassword() + "@" + uri.getHost() + ":" + uri.getPort();
 		ObjectPool pool = (ObjectPool) pools.get(key);
-		
+
 		if (pool == null) {
 			pool = new GenericObjectPool(new SftpConnectionFactory(uri, username, password));
 			pools.put(key, pool);
 		}
-		
+
 		return pool;
 	}
 
@@ -291,5 +292,4 @@ public class SftpConnector extends AbstractServiceEnabledConnector {
 		this.channelId = channelId;
 	}
 
-	
 }

@@ -55,6 +55,9 @@ import ca.uhn.hl7v2.validation.impl.NoValidation;
 
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.Response;
+import com.webreach.mirth.server.Constants;
+import com.webreach.mirth.server.controllers.AlertController;
+import com.webreach.mirth.server.mule.providers.ftp.FtpConnector;
 import com.webreach.mirth.server.mule.providers.mllp.protocols.LlpProtocol;
 import com.webreach.mirth.server.util.BatchMessageProcessor;
 import com.webreach.mirth.server.util.StackTracePrinter;
@@ -79,6 +82,7 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 	private char END_OF_SEGMENT = 0x0D; // character sent between hl7 segments
 	// (usually same as end of record)
 	private MllpConnector connector;
+	private AlertController alertController = new AlertController();
 
 	public MllpMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint) throws InitialisationException {
 		super(connector, component, endpoint);
@@ -171,6 +175,7 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 							logger.error("Tcp Server receiver Work was not processed: " + e.getMessage(), e);
 						}
 					} catch (SocketException e) {
+						alertController.sendAlerts(((MllpConnector) connector).getChannelId(), Constants.ERROR_408, null, e);
 						handleException(e);
 					}
 

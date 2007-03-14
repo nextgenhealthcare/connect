@@ -43,6 +43,8 @@ import org.mule.umo.routing.RoutingException;
 
 import sun.misc.BASE64Encoder;
 
+import com.webreach.mirth.server.Constants;
+import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.mule.providers.file.FileConnector;
 import com.webreach.mirth.server.mule.providers.file.filters.FilenameWildcardFilter;
 import com.webreach.mirth.server.util.BatchMessageProcessor;
@@ -53,43 +55,47 @@ import com.webreach.mirth.server.util.StackTracePrinter;
  * @version $Revision: 1.10 $
  */
 public class FtpMessageReceiver extends PollingMessageReceiver {
-
 	protected Set currentFiles = Collections.synchronizedSet(new HashSet());
-
 	protected FtpConnector connector;
-
 	private FilenameFilter filenameFilter = null;
 	private boolean routingError = false;
-
+	private AlertController alertController = new AlertController();
+	
 	public FtpMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint, Long frequency) throws InitialisationException {
 		super(connector, component, endpoint, frequency);
 		this.connector = (FtpConnector) connector;
 		filenameFilter = new FilenameWildcardFilter(this.connector.getFileFilter());
 	}
 
-	public void poll() throws Exception {
-		FTPFile[] files = listFiles();
-		sortFiles(files);
+	public void poll() {
+		try {
+			FTPFile[] files = listFiles();
+			sortFiles(files);
 
-		for (int i = 0; i < files.length; i++) {
-			final FTPFile file = files[i];
-			if (!currentFiles.contains(file.getName())) {
-				getWorkManager().scheduleWork(new Work() {
-					public void run() {
-						try {
-							currentFiles.add(file.getName());
-							if (!routingError)
-								processFile(file);
-						} catch (Exception e) {
-							connector.handleException(e);
-						} finally {
-							currentFiles.remove(file.getName());
+			for (int i = 0; i < files.length; i++) {
+				final FTPFile file = files[i];
+				if (!currentFiles.contains(file.getName())) {
+					getWorkManager().scheduleWork(new Work() {
+						public void run() {
+							try {
+								currentFiles.add(file.getName());
+								if (!routingError)
+									processFile(file);
+							} catch (Exception e) {
+								alertController.sendAlerts(((FtpConnector) connector).getChannelId(), Constants.ERROR_405, null, e);
+								connector.handleException(e);
+							} finally {
+								currentFiles.remove(file.getName());
+							}
 						}
-					}
 
-					public void release() {}
-				});
+						public void release() {}
+					});
+				}
 			}
+		} catch (Exception e) {
+			alertController.sendAlerts(((FtpConnector) connector).getChannelId(), Constants.ERROR_405, null, e);
+			handleException(e);
 		}
 	}
 

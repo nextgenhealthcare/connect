@@ -114,7 +114,7 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 					processFile(files[i]);
 			}
 		} catch (Exception e) {
-			alertController.sendAlerts(((FileConnector) connector).getChannelId(), Constants.ERROR_403, "", e);
+			alertController.sendAlerts(((FileConnector) connector).getChannelId(), Constants.ERROR_403, null, e);
 			handleException(e);
 		}
 	}
