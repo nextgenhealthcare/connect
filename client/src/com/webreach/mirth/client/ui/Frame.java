@@ -2592,7 +2592,7 @@ public class Frame extends JXFrame
 
     public void doShowEvents()
     {
-        //setWorking(true);
+        setWorking(true);
 
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
@@ -2600,17 +2600,19 @@ public class Frame extends JXFrame
             {
                 if (eventBrowser == null)
                     eventBrowser = new EventBrowser();
+                eventBrowser.makeEventTable(null);
+                setBold(viewPane, 5);
+                setPanelName("System Events");
+                setCurrentContentPage(eventBrowser);
+                setFocus(eventTasks);
+                setWorking(false);
                 eventBrowser.loadNew();
                 return null;
             }
 
             public void done()
             {
-                setBold(viewPane, 5);
-                setPanelName("System Events");
-                setCurrentContentPage(eventBrowser);
-                setFocus(eventTasks);
-                setWorking(false);
+                
             }
         };
 

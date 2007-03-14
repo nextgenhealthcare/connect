@@ -35,6 +35,7 @@ import javax.swing.JScrollPane;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import org.jdesktop.swingworker.SwingWorker;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.AlternateRowHighlighter;
 import org.jdesktop.swingx.decorator.HighlighterPipeline;
@@ -68,6 +69,8 @@ public class EventBrowser extends javax.swing.JPanel
     private Frame parent;
 
     private List<SystemEvent> systemEventList;
+    
+    private SystemEventFilter filter;
 
     /**
      * Constructs the new event browser and sets up its default
@@ -162,34 +165,40 @@ public class EventBrowser extends javax.swing.JPanel
      */
     public void makeEventTable(SystemEventFilter filter)
     {
+        Object[][] tableData = null;
+        
         eventTable = new JXTable();
-        try
+
+        if (filter != null)
         {
-            systemEventList = parent.mirthClient.getSystemEvents(filter);
-        }
-        catch (ClientException e)
-        {
-            systemEventList = null;
-            parent.alertException(e.getStackTrace(), e.getMessage());
-        }
-
-        if (systemEventList == null)
-            return;
-
-        Object[][] tableData = new Object[systemEventList.size()][4];
-
-        for (int i = 0; i < systemEventList.size(); i++)
-        {
-            SystemEvent systemEvent = systemEventList.get(i);
-
-            tableData[i][0] = systemEvent.getId();
-
-            Calendar calendar = systemEvent.getDate();
-
-            tableData[i][1] = String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS", calendar);
-
-            tableData[i][2] = systemEvent.getLevel().toString();
-            tableData[i][3] = systemEvent.getEvent();
+            try
+            {
+                systemEventList = parent.mirthClient.getSystemEvents(filter);
+            }
+            catch (ClientException e)
+            {
+                systemEventList = null;
+                parent.alertException(e.getStackTrace(), e.getMessage());
+            }
+            
+            if(systemEventList != null)
+            {
+                tableData = new Object[systemEventList.size()][4];
+        
+                for (int i = 0; i < systemEventList.size(); i++)
+                {
+                    SystemEvent systemEvent = systemEventList.get(i);
+        
+                    tableData[i][0] = systemEvent.getId();
+        
+                    Calendar calendar = systemEvent.getDate();
+        
+                    tableData[i][1] = String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS", calendar);
+        
+                    tableData[i][2] = systemEvent.getLevel().toString();
+                    tableData[i][3] = systemEvent.getEvent();
+                }
+            }
         }
 
         eventTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[] { EVENT_ID_COLUMN_NAME, DATE_COLUMN_NAME, LEVEL_COLUMN_NAME, EVENT_COLUMN_NAME })
@@ -390,7 +399,7 @@ public class EventBrowser extends javax.swing.JPanel
             }
         }
 
-        SystemEventFilter filter = new SystemEventFilter();
+        filter = new SystemEventFilter();
         if (!eventField.getText().equals(""))
             filter.setEvent(eventField.getText());
 
@@ -415,8 +424,23 @@ public class EventBrowser extends javax.swing.JPanel
             calendarEnd.setTimeInMillis(mirthDatePicker2.getDateInMillis());
             filter.setEndDate(calendarEnd);
         }
+        
+        class EventWorker extends SwingWorker<Void, Void>
+        {
+            public Void doInBackground()
+            {
+                makeEventTable(filter);
+                return null;
+            }
 
-        makeEventTable(filter);
+            public void done()
+            {
+                parent.setWorking(false);
+            }
+        };
+        EventWorker worker = new EventWorker();
+        worker.execute();
+        
     }// GEN-LAST:event_filterButtonActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

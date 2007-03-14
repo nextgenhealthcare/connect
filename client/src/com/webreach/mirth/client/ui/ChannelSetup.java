@@ -656,7 +656,7 @@ public class ChannelSetup extends javax.swing.JPanel
             
             storeFiltered.setEnabled(true);
             
-            if ((currentChannel.getProperties().get("storeFiltered")) != null && ((String) currentChannel.getProperties().get("storeFiltered")).equalsIgnoreCase("true"))
+            if ((currentChannel.getProperties().get("dont_store_filtered")) != null && ((String) currentChannel.getProperties().get("dont_store_filtered")).equalsIgnoreCase("true"))
                 storeFiltered.setSelected(true);
             else
                 storeFiltered.setSelected(false);
@@ -781,9 +781,9 @@ public class ChannelSetup extends javax.swing.JPanel
             currentChannel.getProperties().put("encryptData", "false");
         
         if(storeFiltered.isSelected())
-            currentChannel.getProperties().put("storeFiltered", "true");
+            currentChannel.getProperties().put("dont_store_filtered", "true");
         else
-            currentChannel.getProperties().put("storeFiltered", "false");
+            currentChannel.getProperties().put("dont_store_filtered", "false");
         
         if (storeMessages.isSelected())
         {
@@ -1441,6 +1441,7 @@ public class ChannelSetup extends javax.swing.JPanel
             storeMessagesAll.setEnabled(true);
             storeMessagesDays.setEnabled(true);
             storeMessagesErrors.setEnabled(true);
+            storeFiltered.setEnabled(true);
             days.setEnabled(true);
         }
         else
@@ -1448,6 +1449,7 @@ public class ChannelSetup extends javax.swing.JPanel
             storeMessagesAll.setEnabled(false);
             storeMessagesDays.setEnabled(false);
             storeMessagesErrors.setEnabled(false);
+            storeFiltered.setEnabled(false);
             days.setEnabled(false);
             numDays.setText("");
             numDays.setEnabled(false);

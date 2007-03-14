@@ -967,7 +967,6 @@ public class MessageBrowser extends javax.swing.JPanel
                 public Void doInBackground()
                 {
                     messageListHandler = parent.mirthClient.getMessageListHandler(messageObjectFilter, pageSize);
-
                     return null;
                 }
 
