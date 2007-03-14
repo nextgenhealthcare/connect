@@ -43,7 +43,6 @@ import com.webreach.mirth.model.converters.ObjectClonerException;
 import com.webreach.mirth.model.filters.MessageObjectFilter;
 import com.webreach.mirth.server.builders.ErrorMessageBuilder;
 import com.webreach.mirth.server.util.SqlConfig;
-import com.webreach.mirth.server.util.StackTracePrinter;
 import com.webreach.mirth.server.util.UUIDGenerator;
 import com.webreach.mirth.server.util.VMRouter;
 import com.webreach.mirth.util.Encrypter;
@@ -55,6 +54,7 @@ public class MessageObjectController {
 	private ConfigurationController configurationController = new ConfigurationController();
 	private String lineSeperator = System.getProperty("line.separator");
 	private ErrorMessageBuilder errorBuilder = new ErrorMessageBuilder();
+
 	public void updateMessage(MessageObject messageObject) {
 		try {
 			String channelId = messageObject.getChannelId();
@@ -65,9 +65,7 @@ public class MessageObjectController {
 				Channel channel = channelCache.get(channelId);
 
 				if (channel.getProperties().containsKey("store_messages")) {
-					if (channel.getProperties().get("store_messages").equals("false") ||
-							(channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("error_messages_only").equals("true") && !messageObject.getStatus().equals(MessageObject.Status.ERROR)) ||
-							(channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("dont_store_filtered").equals("true") && messageObject.getStatus().equals(MessageObject.Status.FILTERED))) {
+					if (channel.getProperties().get("store_messages").equals("false") || (channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("error_messages_only").equals("true") && !messageObject.getStatus().equals(MessageObject.Status.ERROR)) || (channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("dont_store_filtered").equals("true") && messageObject.getStatus().equals(MessageObject.Status.FILTERED))) {
 						// If we don't want to store messages, then lets
 						// sanitize the data in a clone
 						// TODO: Check if pass by value
@@ -107,7 +105,7 @@ public class MessageObjectController {
 		messageObject.setRawData(encryptedRawData);
 		messageObject.setTransformedData(encryptedTransformedData);
 		messageObject.setEncodedData(encryptedEncodedData);
-		
+
 		messageObject.setEncrypted(true);
 	}
 
@@ -234,68 +232,78 @@ public class MessageObjectController {
 		return parameterMap;
 	}
 
-	public MessageObject cloneMessageObjectForBroadcast(MessageObject messageObject, String connectorName) throws ObjectClonerException{
-		MessageObject clone = (MessageObject) messageObject.clone(); //We could use deep copy here, but see the notes below
+	public MessageObject cloneMessageObjectForBroadcast(MessageObject messageObject, String connectorName) throws ObjectClonerException {
+		MessageObject clone = (MessageObject) messageObject.clone();
+		// We could use deep copy here, but see the notes below
 		clone.setId(UUIDGenerator.getUUID());
 		clone.setDateCreated(Calendar.getInstance());
 		clone.setCorrelationId(messageObject.getId());
 		clone.setConnectorName(connectorName);
-		//We don't want to clone the maps from the original message...
-		clone.setConnectorMap(new HashMap()); //the var map is local
-		//...or do we?
-		//This works depending on clone or deepCopy.
-		//If we deep copy, we need to set the response and context maps
-		//If we clone, the clone is just setting references for us
-		//Some might call that a bug, but we use it as a feature...
-		//At least we're documenting it here.
-		//clone.setResponseMap(new HashMap()); //maybe null???
-		//clone.setContextMap(messageObject.getContextMap());
+		// We don't want to clone the maps from the original message...
+		clone.setConnectorMap(new HashMap()); // the var map is local
+		// ...or do we?
+		// This works depending on clone or deepCopy.
+		// If we deep copy, we need to set the response and context maps
+		// If we clone, the clone is just setting references for us
+		// Some might call that a bug, but we use it as a feature...
+		// At least we're documenting it here.
+		// clone.setResponseMap(new HashMap()); //maybe null???
+		// clone.setContextMap(messageObject.getContextMap());
 		return clone;
 	}
-	public MessageObject getMessageObjectFromEvent(UMOEvent event) throws Exception{
+
+	public MessageObject getMessageObjectFromEvent(UMOEvent event) throws Exception {
 		MessageObject messageObject = null;
 		Object incomingData = incomingData = event.getTransformedMessage();
+		
 		if (incomingData == null || !(incomingData instanceof MessageObject)) {
 			logger.warn("received data is not of expected type");
 			return null;
 		}
+		
 		messageObject = (MessageObject) incomingData;
+		
 		if (messageObject.getStatus().equals(MessageObject.Status.FILTERED)) {
 			return null;
 		}
+		
 		return messageObject;
 	}
 
-	public void setError(MessageObject messageObject, String errorType, String errorMessage, Throwable e){
+	public void setError(MessageObject messageObject, String errorType, String errorMessage, Throwable e) {
 		String fullErrorMessage = errorBuilder.buildErrorMessage(errorType, errorMessage, e);
-		//send alert
-		
-		//Set the errors on the MO
-		if (messageObject != null){
+		// send alert
+
+		// Set the errors on the MO
+		if (messageObject != null) {
 			messageObject.setErrors(messageObject.getErrors() != null ? messageObject.getErrors() + lineSeperator + lineSeperator + fullErrorMessage : fullErrorMessage);
 		}
-		//Set the response error
+		// Set the response error
 		String responseException = new String();
-		if (e != null){
+		if (e != null) {
 			responseException = "\t" + e.getClass().getSimpleName() + "\t" + e.getMessage();
 		}
-		setStatus(messageObject,MessageObject.Status.ERROR,Response.Status.FAILURE, errorMessage + responseException);
+		setStatus(messageObject, MessageObject.Status.ERROR, Response.Status.FAILURE, errorMessage + responseException);
 	}
-	
-	public void setSuccess(MessageObject messageObject, String responseMessage){
-		setStatus(messageObject,MessageObject.Status.SENT,Response.Status.SUCCESS, responseMessage);
+
+	public void setSuccess(MessageObject messageObject, String responseMessage) {
+		setStatus(messageObject, MessageObject.Status.SENT, Response.Status.SUCCESS, responseMessage);
 	}
-	public void setQueued(MessageObject messageObject, String responseMessage){
-		setStatus(messageObject,MessageObject.Status.QUEUED,Response.Status.QUEUED, responseMessage);
+
+	public void setQueued(MessageObject messageObject, String responseMessage) {
+		setStatus(messageObject, MessageObject.Status.QUEUED, Response.Status.QUEUED, responseMessage);
 	}
-	public void setFiltered(MessageObject messageObject, String responseMessage){
-		setStatus(messageObject,MessageObject.Status.FILTERED,Response.Status.FILTERED, responseMessage);
+
+	public void setFiltered(MessageObject messageObject, String responseMessage) {
+		setStatus(messageObject, MessageObject.Status.FILTERED, Response.Status.FILTERED, responseMessage);
 	}
-	private void setStatus(MessageObject messageObject, MessageObject.Status status, Response.Status responseStatus, String responseMessage){
+
+	private void setStatus(MessageObject messageObject, MessageObject.Status status, Response.Status responseStatus, String responseMessage) {
 		if (messageObject != null) {
 			messageObject.setStatus(status);
 			updateMessage(messageObject);
 		}
+		
 		if (messageObject.getResponseMap() != null) {
 			Response response = new Response(responseStatus, responseMessage);
 			messageObject.getResponseMap().put(messageObject.getConnectorName(), response);
