@@ -25,7 +25,6 @@
 
 package com.webreach.mirth.server.mule.transformers;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -43,7 +42,7 @@ import com.webreach.mirth.model.Connector.Mode;
 import com.webreach.mirth.model.MessageObject.Protocol;
 import com.webreach.mirth.model.converters.IXMLSerializer;
 import com.webreach.mirth.server.Constants;
-import com.webreach.mirth.server.builders.ErrorMessageBuilder;
+import com.webreach.mirth.server.builders.ErrorBuilder;
 import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.controllers.ScriptController;
@@ -55,6 +54,7 @@ import com.webreach.mirth.server.util.JavaScriptScopeFactory;
 
 public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 	private Logger logger = Logger.getLogger(this.getClass());
+	private ErrorBuilder errorBuilder = new ErrorBuilder();
 	private MessageObjectController messageObjectController = new MessageObjectController();
 	private AlertController alertController = new AlertController();
 	private TemplateController templateController = new TemplateController();
@@ -181,80 +181,63 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 	@Override
 	public Object transform(Object source, UMOEventContext context) throws TransformerException {
 		MessageObject messageObject = null;
-		
 		try {
 			// ---- Begin MO checks -----
-			// If we get a MO, then let's treat it as a dispatch to the
-			// destionations. This occurs when we recieve routing events from
-			// the VM
-			// if we get a string, then let's handle it as normal
-			boolean isMessageObject = source instanceof MessageObject;
-			
-			if (!isMessageObject && (this.getMode().equals(Mode.SOURCE.toString()))) {
+
+			if (this.getMode().equals(Mode.SOURCE.toString())) {
 
 				Adaptor adaptor = AdaptorFactory.getAdaptor(Protocol.valueOf(inboundProtocol));
 				messageObject = adaptor.getMessage((String) source, channelId, encryptData, inboundProperties);
-
 				// Load properties from the context to the messageObject
 				messageObject.getChannelMap().putAll(context.getProperties());
-			} else if (isMessageObject || this.getMode().equals(Mode.DESTINATION.toString())) {
+
+			} else if (this.getMode().equals(Mode.DESTINATION.toString())) {
 				MessageObject incomingMessageObject = (MessageObject) source;
 				messageObject = messageObjectController.cloneMessageObjectForBroadcast(incomingMessageObject, this.getConnectorName());
-				// if this is a message object, it is a dispatch
-				// in order to make sure we don't have thread issues
-				// clone the two reference maps
-				if (isMessageObject && (this.getMode().equals(Mode.SOURCE.toString()))){
-					Map responseMap = new HashMap();
-					Map channelMap = new HashMap();
-					
-					// TODO: Ensure this is needed
-					synchronized (this){
-						responseMap.putAll(incomingMessageObject.getResponseMap());
-						channelMap.putAll(incomingMessageObject.getChannelMap());
-					}
-					
-					messageObject.setResponseMap(responseMap);
-					messageObject.setChannelMap(channelMap);
-				}
-				
+
 				Adaptor adaptor = AdaptorFactory.getAdaptor(Protocol.valueOf(outboundProtocol));
 				messageObject = adaptor.convertMessage(messageObject, template, channelId, encryptData, outboundProperties);
 				messageObject.setEncodedDataProtocol(Protocol.valueOf(this.outboundProtocol));
 			}
 		} catch (Exception e) {
-			alertController.sendAlerts(channelId, Constants.ERROR_301, null, e);
+			alertController.sendAlerts(channelId, errorBuilder.getErrorString(Constants.ERROR_301, e));
 			throw new TransformerException(this, e);
 		}
 		// ---- End MO checks -----
-		
-		boolean messageAccepted = false;
-		
+
+		boolean filterResult = false;
+
 		try {
 			// if the message passes the filter, run the transformation script
-			messageAccepted = evaluateFilterScript(messageObject);
+			filterResult = evaluateFilterScript(messageObject);
 		} catch (Exception e) {
-			alertController.sendAlerts(channelId, Constants.ERROR_200, null, e);
+			alertController.sendAlerts(channelId, errorBuilder.getErrorString(Constants.ERROR_200, e));
 			throw new TransformerException(this, e);
 		}
-		
+
 		try {
-			if (messageAccepted) {
+			if (filterResult) {
 				MessageObject transformedMessageObject = evaluateTransformerScript(messageObject);
-				
+
 				if (this.getMode().equals(Mode.SOURCE.toString())) {
-					// only update on the source - it doesn't matter on each destination
+					// only update on the source - it doesn't matter on each
+					// destination
 					messageObjectController.updateMessage(transformedMessageObject);
 				}
-				
 				return transformedMessageObject;
+
 			} else {
 				messageObjectController.setFiltered(messageObject, "Message has been filtered");
 				return messageObject;
 			}
 		} catch (Exception e) {
 			// send alert if the transformation process fails
-			alertController.sendAlerts(channelId, Constants.ERROR_300, null, e);
-			throw new TransformerException(this, e);
+			alertController.sendAlerts(channelId, errorBuilder.getErrorString(Constants.ERROR_300, e));
+			if (e instanceof TransformerException) {
+				throw (TransformerException) e;
+			} else {
+				throw new TransformerException(this, e);
+			}
 		}
 	}
 
@@ -354,7 +337,6 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 			Context.exit();
 		}
 	}
-
 
 	private String generateFilterScript(String filterScript) {
 		logger.debug("generating filter script");

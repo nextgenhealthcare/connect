@@ -15,23 +15,16 @@
 
 package com.webreach.mirth.server.mule.providers.file;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.DataInputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.FileInputStream;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Scanner;
-import java.util.Vector;
 
 import org.mule.MuleException;
 import org.mule.config.i18n.Message;
@@ -50,6 +43,8 @@ import org.mule.util.Utility;
 
 import sun.misc.BASE64Encoder;
 
+import com.webreach.mirth.server.Constants;
+import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.mule.providers.file.filters.FilenameWildcardFilter;
 import com.webreach.mirth.server.util.BatchMessageProcessor;
 import com.webreach.mirth.server.util.StackTracePrinter;
@@ -73,12 +68,14 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 	private String moveToPattern = null;
 	private FilenameFilter filenameFilter = null;
 	private boolean routingError = false;
+	private AlertController alertController = new AlertController();
+
 	public FileMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint, String readDir, String moveDir, String moveToPattern, Long frequency) throws InitialisationException {
 		super(connector, component, endpoint, frequency);
 		this.readDir = readDir;
 		this.moveDir = moveDir;
 		this.moveToPattern = moveToPattern;
-		filenameFilter = new FilenameWildcardFilter(((FileConnector)connector).getFileFilter());
+		filenameFilter = new FilenameWildcardFilter(((FileConnector) connector).getFileFilter());
 	}
 
 	public void doConnect() throws Exception {
@@ -90,7 +87,7 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 				logger.debug("Listening on endpointUri: " + readDirectory.getAbsolutePath());
 			}
 		}
-		
+
 		if (moveDir != null) {
 			moveDirectory = Utility.openDirectory((moveDir));
 			if (!(moveDirectory.canRead()) || !moveDirectory.canWrite()) {
@@ -117,6 +114,7 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 					processFile(files[i]);
 			}
 		} catch (Exception e) {
+			alertController.sendAlerts(((FileConnector) connector).getChannelId(), Constants.ERROR_403, "", e);
 			handleException(e);
 		}
 	}
@@ -154,7 +152,7 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 			if ((now - lastMod) < fileAge)
 				return;
 		}
-		FileConnector connector = (FileConnector)this.connector;
+		FileConnector connector = (FileConnector) this.connector;
 		File destinationFile = null;
 		String originalFilename = file.getName();
 		UMOMessageAdapter adapter = connector.getMessageAdapter(file);
@@ -166,54 +164,50 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 			}
 			destinationFile = new File(moveDir, fileName);
 		}
-		
+
 		boolean resultOfFileMoveOperation = false;
-		
+
 		try {
 			// Perform some quick checks to make sure file can be processed
 			if (file.isDirectory()) {
 				// ignore directories
 			} else if (!(file.canRead() && file.exists() && file.isFile())) {
 				throw new MuleException(new Message(Messages.FILE_X_DOES_NOT_EXIST, file.getName()));
-			} else {				
+			} else {
 				Exception fileProcesedException = null;
 				try {
-                                        //ast: use the user-selected encoding
-					
-					if (connector.isProcessBatchFiles()){
-						List<String> messages = new BatchMessageProcessor()
-								.processHL7Messages(new InputStreamReader(
-	                                                        new FileInputStream(file),connector.
-	                                                        getCharsetEncoding()));
-	
+					// ast: use the user-selected encoding
+
+					if (connector.isProcessBatchFiles()) {
+						List<String> messages = new BatchMessageProcessor().processHL7Messages(new InputStreamReader(new FileInputStream(file), connector.getCharsetEncoding()));
+
 						for (Iterator iter = messages.iterator(); iter.hasNext() && (fileProcesedException == null);) {
 							String message = (String) iter.next();
 							routeMessage(new MuleMessage(connector.getMessageAdapter(message)), endpoint.isSynchronous());
 						}
-					}else{
-						
-					       byte[] contents = getBytesFromFile(file);
-					       String message = "";
-					       if (connector.isBinary()){
-					    	   BASE64Encoder encoder = new BASE64Encoder();
-					    	   message = encoder.encode(contents);
-					       }else{
-					    	   message = new String(contents, connector.getCharsetEncoding());
-					       }
-					       adapter = connector.getMessageAdapter(message);
-					       adapter.setProperty(FileConnector.PROPERTY_ORIGINAL_FILENAME, originalFilename);
-					       routeMessage(new MuleMessage(adapter), endpoint.isSynchronous());
+					} else {
+
+						byte[] contents = getBytesFromFile(file);
+						String message = "";
+						if (connector.isBinary()) {
+							BASE64Encoder encoder = new BASE64Encoder();
+							message = encoder.encode(contents);
+						} else {
+							message = new String(contents, connector.getCharsetEncoding());
+						}
+						adapter = connector.getMessageAdapter(message);
+						adapter.setProperty(FileConnector.PROPERTY_ORIGINAL_FILENAME, originalFilename);
+						routeMessage(new MuleMessage(adapter), endpoint.isSynchronous());
 					}
-				}catch (RoutingException e){
+				} catch (RoutingException e) {
 					logger.error("Unable to route. Stopping Connector: " + StackTracePrinter.stackTraceToString(e));
 					connector.stopConnector();
-					//TODO: This was commented out (above). Do we need it?
+					// TODO: This was commented out (above). Do we need it?
 					routingError = true;
-				}
-				catch (Exception e) {
+				} catch (Exception e) {
 					logger.error(e.getMessage());
 					fileProcesedException = new MuleException(new Message(Messages.FAILED_TO_READ_PAYLOAD, file.getName()));
-					
+
 				}
 				// move the file if needed
 				if (destinationFile != null) {
@@ -254,46 +248,45 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 			 * .getName(), (resultOfRollbackFileMove ? "successful" :
 			 * "unsuccessful")), e); handleException(ex);
 			 */
+			alertController.sendAlerts(((FileConnector) connector).getChannelId(), Constants.ERROR_403, "", e);
 			handleException(e);
 		}
 	}
 
-    // Returns the contents of the file in a byte array.
-    private byte[] getBytesFromFile(File file) throws IOException {
-        InputStream is = new FileInputStream(file);
-    
-        // Get the size of the file
-        long length = file.length();
-    
-        // You cannot create an array using a long type.
-        // It needs to be an int type.
-        // Before converting to an int type, check
-        // to ensure that file is not larger than Integer.MAX_VALUE.
-        if (length > Integer.MAX_VALUE) {
-            // File is too large
-        }
-    
-        // Create the byte array to hold the data
-        byte[] bytes = new byte[(int)length];
-    
-        // Read in the bytes
-        int offset = 0;
-        int numRead = 0;
-        while (offset < bytes.length
-               && (numRead=is.read(bytes, offset, bytes.length-offset)) >= 0) {
-            offset += numRead;
-        }
-    
-        // Ensure all the bytes have been read in
-        if (offset < bytes.length) {
-            throw new IOException("Could not completely read file "+file.getName());
-        }
-    
-        // Close the input stream and return bytes
-        is.close();
-        return bytes;
-    }
+	// Returns the contents of the file in a byte array.
+	private byte[] getBytesFromFile(File file) throws IOException {
+		InputStream is = new FileInputStream(file);
 
+		// Get the size of the file
+		long length = file.length();
+
+		// You cannot create an array using a long type.
+		// It needs to be an int type.
+		// Before converting to an int type, check
+		// to ensure that file is not larger than Integer.MAX_VALUE.
+		if (length > Integer.MAX_VALUE) {
+			// File is too large
+		}
+
+		// Create the byte array to hold the data
+		byte[] bytes = new byte[(int) length];
+
+		// Read in the bytes
+		int offset = 0;
+		int numRead = 0;
+		while (offset < bytes.length && (numRead = is.read(bytes, offset, bytes.length - offset)) >= 0) {
+			offset += numRead;
+		}
+
+		// Ensure all the bytes have been read in
+		if (offset < bytes.length) {
+			throw new IOException("Could not completely read file " + file.getName());
+		}
+
+		// Close the input stream and return bytes
+		is.close();
+		return bytes;
+	}
 
 	/**
 	 * Exception tolerant roll back method

@@ -28,11 +28,12 @@ package com.webreach.mirth.server.util;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.webreach.mirth.server.mule.providers.vm.VMMessageReceiver;
 
 public class VMRegistry {
-	public Map<String, VMMessageReceiver> vmRegistry = Collections.synchronizedMap(new HashMap<String, VMMessageReceiver>());
+	public Map<String, VMMessageReceiver> vmRegistry = new ConcurrentHashMap<String, VMMessageReceiver>();
 	private static VMRegistry instance = null;
 
 	private VMRegistry() {

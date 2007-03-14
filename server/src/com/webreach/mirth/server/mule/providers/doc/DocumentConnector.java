@@ -16,6 +16,7 @@ public class DocumentConnector extends AbstractServiceEnabledConnector {
 	private boolean encrypted;
 	private String password;
 	private String documentType;
+	private String channelId;
 
 	public String getTemplate() {
 		return this.template;
@@ -67,6 +68,14 @@ public class DocumentConnector extends AbstractServiceEnabledConnector {
 
 	public String getProtocol() {
 		return "doc";
+	}
+
+	public String getChannelId() {
+		return channelId;
+	}
+
+	public void setChannelId(String channelId) {
+		this.channelId = channelId;
 	}
 
 }

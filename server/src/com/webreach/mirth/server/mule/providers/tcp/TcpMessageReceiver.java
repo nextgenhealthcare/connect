@@ -14,8 +14,6 @@
  */
 package com.webreach.mirth.server.mule.providers.tcp;
 
-import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicBoolean;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
@@ -29,7 +27,6 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Iterator;
 import java.util.Map;
 
 import javax.resource.spi.work.Work;
@@ -52,17 +49,10 @@ import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.provider.UMOConnector;
 import org.mule.umo.provider.UMOMessageAdapter;
 
-
-import ca.uhn.hl7v2.parser.EncodingCharacters;
-import ca.uhn.hl7v2.parser.PipeParser;
-import ca.uhn.hl7v2.util.Terser;
-import ca.uhn.hl7v2.validation.impl.NoValidation;
-
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.Response;
-import com.webreach.mirth.server.util.BatchMessageProcessor;
-import com.webreach.mirth.server.util.StackTracePrinter;
-import com.webreach.mirth.util.ACKGenerator;
+
+import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * <code>TcpMessageReceiver</code> acts like a tcp server to receive socket
@@ -165,8 +155,7 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
 		}
 	}
 
-	public void release() {
-	}
+	public void release() {}
 
 	public void doDispose() {
 		try {
@@ -249,7 +238,9 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
 						b = protocol.read(dataIn);
 						// end of stream
 						if (b == null) {
-							break;
+							if (!connector.isKeepSendSocketOpen()) {
+								break;
+							}
 						}
 						processData(b);
 						dataOut.flush();
@@ -283,24 +274,27 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
 					if (payload instanceof MessageObject) {
 						MessageObject messageObjectResponse = (MessageObject) payload;
 						Map responseMap = messageObjectResponse.getResponseMap();
-						//for (Iterator iter = responseMap.entrySet().iterator(); iter.hasNext();) {
-						//	java.util.Map.Entry element = (java.util.Map.Entry) iter.next();
-						//	System.out.println(element.getKey() + ": " + element.getValue());
-						//}
-						//DEBUG ONLY END
+						// for (Iterator iter =
+						// responseMap.entrySet().iterator(); iter.hasNext();) {
+						// java.util.Map.Entry element = (java.util.Map.Entry)
+						// iter.next();
+						// System.out.println(element.getKey() + ": " +
+						// element.getValue());
+						// }
+						// DEBUG ONLY END
 						String errorString = "";
-						
-						if (connector.isResponseFromTransformer() && !connector.getResponseValue().equalsIgnoreCase("None")){
-							if (connector.isAckOnNewConnection()){
+
+						if (connector.isResponseFromTransformer() && !connector.getResponseValue().equalsIgnoreCase("None")) {
+							if (connector.isAckOnNewConnection()) {
 								String endpointURI = connector.getAckIP() + ":" + connector.getAckPort();
 								Socket socket = initSocket("tcp://" + endpointURI);
 								BufferedOutputStream bos = new BufferedOutputStream(socket.getOutputStream());
-								protocol.write(bos, ((Response)responseMap.get(connector.getResponseValue())).getMessage().getBytes(connector.getCharsetEncoding()));
+								protocol.write(bos, ((Response) responseMap.get(connector.getResponseValue())).getMessage().getBytes(connector.getCharsetEncoding()));
 								bos.flush();
 								bos.close();
-							}else{
-								protocol.write(os,((Response)responseMap.get(connector.getResponseValue())).getMessage().getBytes(connector.getCharsetEncoding()));
-								
+							} else {
+								protocol.write(os, ((Response) responseMap.get(connector.getResponseValue())).getMessage().getBytes(connector.getCharsetEncoding()));
+
 							}
 						}
 					}
@@ -308,8 +302,7 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
 			} catch (Exception e) {
 				throw e;
 			} finally {
-				if (os != null)
-					os.close();
+				// Let the dispose take care of closing the socket
 			}
 
 			// The return message is always the last message routed if in a

@@ -43,6 +43,7 @@ import org.mule.umo.endpoint.UMOEndpoint;
 import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.provider.UMOMessageReceiver;
 import org.mule.util.Utility;
+
 import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.server.controllers.SystemLogger;
 
@@ -63,7 +64,7 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 
 	// These are properties that can be overridden on the Receiver by the
 	// endpoint
-	// declaration
+	// declarations
 	public static final String PROPERTY_POLLING_FREQUENCY = "pollingFrequency";
 	public static final String PROPERTY_FILE_AGE = "fileAge";
 	public static final String PROPERTY_FILE_FILTER = "fileFilter";
@@ -78,18 +79,17 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 	public static final String PROPERTY_SORT_ATTRIBUTE = "sortAttribute";
 	public static final String PROPERTY_BATCH_PROCESS = "processBatchFiles";
 	public static final String PROPERTY_BINARY = "binary";
-	
+
 	public static final String SORT_NAME = "name";
 	public static final String SORT_DATE = "date";
 	public static final String SORT_SIZE = "size";
-	
+
 	public static final long DEFAULT_POLLING_FREQUENCY = 1000;
-        
-        //ast: encoding Charset
-        public static final String PROPERTY_CHARSET_ENCODING = "charsetEncoding";
-        public static final String CHARSET_KEY = "ca.uhn.hl7v2.llp.charset";
-        public static final String DEFAULT_CHARSET_ENCODING =System.getProperty(CHARSET_KEY, java.nio.charset.Charset.defaultCharset().name());
-        
+
+	// ast: encoding Charset
+	public static final String PROPERTY_CHARSET_ENCODING = "charsetEncoding";
+	public static final String CHARSET_KEY = "ca.uhn.hl7v2.llp.charset";
+	public static final String DEFAULT_CHARSET_ENCODING = System.getProperty(CHARSET_KEY, java.nio.charset.Charset.defaultCharset().name());
 
 	/**
 	 * Time in milliseconds to poll. On each poll the poll() method is called
@@ -111,9 +111,10 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 	public FilenameParser filenameParser = new VariableFilenameParser();
 	private UMOMessageReceiver receiver = null;
 	private boolean processBatchFiles = true;
-    //ast: encoding charset
-    private String charsetEncoding = DEFAULT_CHARSET_ENCODING;
-    private boolean binary = false;
+	// ast: encoding charset
+	private String charsetEncoding = DEFAULT_CHARSET_ENCODING;
+	private boolean binary = false;
+	private String channelId;
 
 	/*
 	 * (non-Javadoc)
@@ -122,8 +123,8 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 	 */
 	public FileConnector() {
 		filenameParser = new VariableFilenameParser();
-                //ast: try to set the default encoding
-                 this.setCharsetEncoding(DEFAULT_CHARSET_ENCODING);                
+		// ast: try to set the default encoding
+		this.setCharsetEncoding(DEFAULT_CHARSET_ENCODING);
 	}
 
 	protected Object getReceiverKey(UMOComponent component, UMOEndpoint endpoint) {
@@ -194,18 +195,17 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 			}
 		}
 	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see org.mule.providers.UMOConnector#stop()
 	 */
 	protected synchronized void doStart() throws UMOException {
-		if (receiver != null){
-			((FileMessageReceiver)receiver).setRoutingError(false);
+		if (receiver != null) {
+			((FileMessageReceiver) receiver).setRoutingError(false);
 		}
 	}
-	
-
 
 	/*
 	 * (non-Javadoc)
@@ -223,8 +223,6 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 	public void setFilenameParser(FilenameParser filenameParser) {
 		this.filenameParser = filenameParser;
 	}
-	
-
 
 	/*
 	 * (non-Javadoc)
@@ -416,54 +414,66 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 	public void setSortAttribute(String sortAttribute) {
 		this.sortAttribute = sortAttribute;
 	}
-        //ast: set the charset Encoding
-        public void setCharsetEncoding(String charsetEncoding) {                
-                if ((charsetEncoding==null) || (charsetEncoding=="") || (charsetEncoding.equalsIgnoreCase("DEFAULT_ENCODING"))) charsetEncoding=DEFAULT_CHARSET_ENCODING;
-                logger.debug("FileConnector: trying to set the encoding to "+charsetEncoding);                
-		try{
-                    byte b[]={20,21,22,23};
-                    String k=new String(b,charsetEncoding);
-                    this.charsetEncoding = charsetEncoding;
-                }catch(Exception e){
-                    //set the encoding to the default one: this charset can't launch an exception
-                    this.charsetEncoding=java.nio.charset.Charset.defaultCharset().name();
-                    logger.error("Impossible to use ["+charsetEncoding+"] as the Charset Encoding: changing to the platform default ["+this.charsetEncoding+"]");
-                    SystemLogger systemLogger = new SystemLogger();                  
-                    SystemEvent event = new SystemEvent("Exception occured in channel.");
-                    event.setDescription("Impossible to use ["+charsetEncoding+"] as the Charset Encoding: changing to the platform default ["+this.charsetEncoding+"]");
-                    systemLogger.logSystemEvent(event);
-                }
+
+	// ast: set the charset Encoding
+	public void setCharsetEncoding(String charsetEncoding) {
+		if ((charsetEncoding == null) || (charsetEncoding == "") || (charsetEncoding.equalsIgnoreCase("DEFAULT_ENCODING")))
+			charsetEncoding = DEFAULT_CHARSET_ENCODING;
+		logger.debug("FileConnector: trying to set the encoding to " + charsetEncoding);
+		try {
+			byte b[] = { 20, 21, 22, 23 };
+			String k = new String(b, charsetEncoding);
+			this.charsetEncoding = charsetEncoding;
+		} catch (Exception e) {
+			// set the encoding to the default one: this charset can't launch an
+			// exception
+			this.charsetEncoding = java.nio.charset.Charset.defaultCharset().name();
+			logger.error("Impossible to use [" + charsetEncoding + "] as the Charset Encoding: changing to the platform default [" + this.charsetEncoding + "]");
+			SystemLogger systemLogger = new SystemLogger();
+			SystemEvent event = new SystemEvent("Exception occured in channel.");
+			event.setDescription("Impossible to use [" + charsetEncoding + "] as the Charset Encoding: changing to the platform default [" + this.charsetEncoding + "]");
+			systemLogger.logSystemEvent(event);
+		}
 	}
-        // ast: get the charset encoding
-        public String getCharsetEncoding() {
-            if ((this.charsetEncoding==null) || (this.charsetEncoding =="") || (this.charsetEncoding.equalsIgnoreCase("DEFAULT_ENCODING"))){
-                //Default Charset
-                return DEFAULT_CHARSET_ENCODING;
-            }                 
-		return(this.charsetEncoding);
-	 }
 
-		public String getFileFilter() {
-			return fileFilter;
+	// ast: get the charset encoding
+	public String getCharsetEncoding() {
+		if ((this.charsetEncoding == null) || (this.charsetEncoding == "") || (this.charsetEncoding.equalsIgnoreCase("DEFAULT_ENCODING"))) {
+			// Default Charset
+			return DEFAULT_CHARSET_ENCODING;
 		}
+		return (this.charsetEncoding);
+	}
 
-		public void setFileFilter(String fileFilter) {
-			this.fileFilter = fileFilter;
-		}
+	public String getFileFilter() {
+		return fileFilter;
+	}
 
-		public boolean isProcessBatchFiles() {
-			return processBatchFiles;
-		}
+	public void setFileFilter(String fileFilter) {
+		this.fileFilter = fileFilter;
+	}
 
-		public void setProcessBatchFiles(boolean processBatchFiles) {
-			this.processBatchFiles = processBatchFiles;
-		}
+	public boolean isProcessBatchFiles() {
+		return processBatchFiles;
+	}
 
-		public boolean isBinary() {
-			return binary;
-		}
+	public void setProcessBatchFiles(boolean processBatchFiles) {
+		this.processBatchFiles = processBatchFiles;
+	}
 
-		public void setBinary(boolean binary) {
-			this.binary = binary;
-		}
+	public boolean isBinary() {
+		return binary;
+	}
+
+	public void setBinary(boolean binary) {
+		this.binary = binary;
+	}
+
+	public String getChannelId() {
+		return channelId;
+	}
+
+	public void setChannelId(String channelId) {
+		this.channelId = channelId;
+	}
 }

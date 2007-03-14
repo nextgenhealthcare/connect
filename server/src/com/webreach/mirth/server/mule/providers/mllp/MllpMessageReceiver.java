@@ -14,8 +14,6 @@
  */
 package com.webreach.mirth.server.mule.providers.mllp;
 
-import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicBoolean;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
@@ -51,21 +49,18 @@ import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.provider.UMOConnector;
 import org.mule.umo.provider.UMOMessageAdapter;
 
-import ca.uhn.hl7v2.parser.EncodingCharacters;
 import ca.uhn.hl7v2.parser.PipeParser;
 import ca.uhn.hl7v2.util.Terser;
 import ca.uhn.hl7v2.validation.impl.NoValidation;
 
-import com.lowagie.text.pdf.events.IndexEvents.Entry;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.Response;
-
-import org.mule.providers.tcp.protocols.*;
-
 import com.webreach.mirth.server.mule.providers.mllp.protocols.LlpProtocol;
 import com.webreach.mirth.server.util.BatchMessageProcessor;
 import com.webreach.mirth.server.util.StackTracePrinter;
 import com.webreach.mirth.util.ACKGenerator;
+
+import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * <code>TcpMessageReceiver</code> acts like a tcp server to receive socket
@@ -78,23 +73,24 @@ import com.webreach.mirth.util.ACKGenerator;
  */
 public class MllpMessageReceiver extends AbstractMessageReceiver implements Work {
 	protected ServerSocket serverSocket = null;
-	private char END_MESSAGE = 0x1C;    // character indicating end of message
-	private char START_MESSAGE = 0x0B;  // first character of a new message
+	private char END_MESSAGE = 0x1C; // character indicating end of message
+	private char START_MESSAGE = 0x0B; // first character of a new message
 	private char END_OF_RECORD = 0x0D; // character sent between messages
-	private char END_OF_SEGMENT = 0x0D; // character sent between hl7 segments (usually same as end of record)
+	private char END_OF_SEGMENT = 0x0D; // character sent between hl7 segments
+	// (usually same as end of record)
 	private MllpConnector connector;
-	public MllpMessageReceiver(UMOConnector connector, UMOComponent component,
-			UMOEndpoint endpoint) throws InitialisationException {
+
+	public MllpMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint) throws InitialisationException {
 		super(connector, component, endpoint);
-		MllpConnector tcpConnector = (MllpConnector)connector;
+		MllpConnector tcpConnector = (MllpConnector) connector;
 		this.connector = tcpConnector;
-		if (tcpConnector.getCharEncoding().equals("hex")){
-			START_MESSAGE = (char)Integer.decode(tcpConnector.getMessageStart()).intValue();
-			END_MESSAGE = (char)Integer.decode(tcpConnector.getMessageEnd()).intValue();
-			END_OF_RECORD = (char)Integer.decode(tcpConnector.getRecordSeparator()).intValue();
-			END_OF_SEGMENT = (char)Integer.decode(tcpConnector.getSegmentEnd()).intValue();
-		}else{
-			//TODO: Ensure this is unit-tested
+		if (tcpConnector.getCharEncoding().equals("hex")) {
+			START_MESSAGE = (char) Integer.decode(tcpConnector.getMessageStart()).intValue();
+			END_MESSAGE = (char) Integer.decode(tcpConnector.getMessageEnd()).intValue();
+			END_OF_RECORD = (char) Integer.decode(tcpConnector.getRecordSeparator()).intValue();
+			END_OF_SEGMENT = (char) Integer.decode(tcpConnector.getSegmentEnd()).intValue();
+		} else {
+			// TODO: Ensure this is unit-tested
 			START_MESSAGE = tcpConnector.getMessageStart().charAt(0);
 			END_MESSAGE = tcpConnector.getMessageEnd().charAt(0);
 			END_OF_RECORD = tcpConnector.getRecordSeparator().charAt(0);
@@ -108,16 +104,13 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 		try {
 			serverSocket = createSocket(uri);
 		} catch (Exception e) {
-			throw new org.mule.providers.ConnectException(new Message("tcp", 1,
-					uri), e, this);
+			throw new org.mule.providers.ConnectException(new Message("tcp", 1, uri), e, this);
 		}
 
 		try {
-			getWorkManager().scheduleWork(this, WorkManager.INDEFINITE, null,
-					null);
+			getWorkManager().scheduleWork(this, WorkManager.INDEFINITE, null, null);
 		} catch (WorkException e) {
-			throw new ConnectException(new Message(
-					Messages.FAILED_TO_SCHEDULE_WORK), e, this);
+			throw new ConnectException(new Message(Messages.FAILED_TO_SCHEDULE_WORK), e, this);
 		}
 	}
 
@@ -140,9 +133,7 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 			host = "localhost";
 		}
 		InetAddress inetAddress = InetAddress.getByName(host);
-		if (inetAddress.equals(InetAddress.getLocalHost())
-				|| inetAddress.isLoopbackAddress()
-				|| host.trim().equals("localhost")) {
+		if (inetAddress.equals(InetAddress.getLocalHost()) || inetAddress.isLoopbackAddress() || host.trim().equals("localhost")) {
 			return new ServerSocket(uri.getPort(), backlog);
 		} else {
 			return new ServerSocket(uri.getPort(), backlog, inetAddress);
@@ -162,11 +153,9 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 				Socket socket = null;
 				try {
 					socket = serverSocket.accept();
-					logger.trace("Server socket Accepted on: "
-							+ serverSocket.getLocalPort());
+					logger.trace("Server socket Accepted on: " + serverSocket.getLocalPort());
 				} catch (java.io.InterruptedIOException iie) {
-					logger.debug("Interupted IO doing serverSocket.accept: "
-							+ iie.getMessage());
+					logger.debug("Interupted IO doing serverSocket.accept: " + iie.getMessage());
 				} catch (Exception e) {
 					if (!connector.isDisposed() && !disposing.get()) {
 						logger.warn("Accept failed on socket: " + e, e);
@@ -177,12 +166,9 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 					try {
 						Work work = createWork(socket);
 						try {
-							getWorkManager().scheduleWork(work,
-									WorkManager.IMMEDIATE, null, null);
+							getWorkManager().scheduleWork(work, WorkManager.IMMEDIATE, null, null);
 						} catch (WorkException e) {
-							logger.error(
-									"Tcp Server receiver Work was not processed: "
-											+ e.getMessage(), e);
+							logger.error("Tcp Server receiver Work was not processed: " + e.getMessage(), e);
 						}
 					} catch (SocketException e) {
 						handleException(e);
@@ -193,8 +179,7 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 		}
 	}
 
-	public void release() {
-	}
+	public void release() {}
 
 	public void doDispose() {
 		try {
@@ -236,13 +221,10 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 				socket.setTcpNoDelay(true);
 				socket.setKeepAlive(tcpConnector.isKeepAlive());
 			} catch (SocketException e) {
-				logger.error("Failed to set Socket properties: "
-						+ e.getMessage(), e);
+				logger.error("Failed to set Socket properties: " + e.getMessage(), e);
 			}
 
-			logger.info("TCP connection from "
-					+ socket.getRemoteSocketAddress().toString() + " on port "
-					+ socket.getLocalPort());
+			logger.info("TCP connection from " + socket.getRemoteSocketAddress().toString() + " on port " + socket.getLocalPort());
 		}
 
 		public void release() {
@@ -253,8 +235,7 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 			closed.set(true);
 			try {
 				if (socket != null && !socket.isClosed()) {
-					logger.debug("Closing listener: "
-							+ socket.getLocalSocketAddress().toString());
+					logger.debug("Closing listener: " + socket.getLocalSocketAddress().toString());
 					// socket.shutdownInput();
 					// socket.shutdownOutput();
 					socket.close();
@@ -271,10 +252,8 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 		 */
 		public void run() {
 			try {
-				dataIn = new DataInputStream(new BufferedInputStream(socket
-						.getInputStream()));
-				dataOut = new DataOutputStream(new BufferedOutputStream(socket
-						.getOutputStream()));
+				dataIn = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
+				dataOut = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
 
 				while (!socket.isClosed() && !disposing.get()) {
 
@@ -283,11 +262,14 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 						b = protocol.read(dataIn);
 						// end of stream
 						if (b == null) {
-							break;
-						}
+							if (!connector.isKeepSendSocketOpen()) {
+								break;
+							}
+						} else {
 
-						processData(b);
-						dataOut.flush();
+							processData(b);
+							dataOut.flush();
+						}
 					} catch (SocketTimeoutException e) {
 						if (!socket.getKeepAlive()) {
 							break;
@@ -302,82 +284,85 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 		}
 
 		protected byte[] processData(byte[] data) throws Exception {
-			String charset=connector.getCharsetEncoding();
-			String str_data = new String(data,charset);
+			String charset = connector.getCharsetEncoding();
+			String str_data = new String(data, charset);
 			BatchMessageProcessor batchProcessor = new BatchMessageProcessor();
-			batchProcessor.setEndOfMessage((byte)END_MESSAGE);
-			batchProcessor.setStartOfMessage((byte)START_MESSAGE);
-			batchProcessor.setEndOfRecord((byte)END_OF_RECORD);
+			batchProcessor.setEndOfMessage((byte) END_MESSAGE);
+			batchProcessor.setStartOfMessage((byte) START_MESSAGE);
+			batchProcessor.setEndOfRecord((byte) END_OF_RECORD);
 			Iterator<String> it = batchProcessor.processHL7Messages(str_data).iterator();
 			UMOMessage returnMessage = null;
 			OutputStream os;
 			while (it.hasNext()) {
 				data = (it.next()).getBytes(charset);
-				UMOMessageAdapter adapter = connector.getMessageAdapter(new String(data,charset));
+				UMOMessageAdapter adapter = connector.getMessageAdapter(new String(data, charset));
 				os = new ResponseOutputStream(socket.getOutputStream(), socket);
-				try{
-					returnMessage = routeMessage(new MuleMessage(adapter), endpoint
-							.isSynchronous(), os);
-					//We need to check the message status
-					if (returnMessage != null && returnMessage instanceof MuleMessage){
-						
+				try {
+					returnMessage = routeMessage(new MuleMessage(adapter), endpoint.isSynchronous(), os);
+					// We need to check the message status
+					if (returnMessage != null && returnMessage instanceof MuleMessage) {
+
 						Object payload = returnMessage.getPayload();
-						if (payload instanceof MessageObject){
-							MessageObject messageObjectResponse = (MessageObject)payload;
-							//DEBUG ONLY!!!
+						if (payload instanceof MessageObject) {
+							MessageObject messageObjectResponse = (MessageObject) payload;
+							// DEBUG ONLY!!!
 							Map responseMap = messageObjectResponse.getResponseMap();
-							//for (Iterator iter = responseMap.entrySet().iterator(); iter.hasNext();) {
-							//	java.util.Map.Entry element = (java.util.Map.Entry) iter.next();
-							//	System.out.println(element.getKey() + ": " + element.getValue());
-							//}
-							//DEBUG ONLY END
+							// for (Iterator iter =
+							// responseMap.entrySet().iterator();
+							// iter.hasNext();) {
+							// java.util.Map.Entry element =
+							// (java.util.Map.Entry) iter.next();
+							// System.out.println(element.getKey() + ": " +
+							// element.getValue());
+							// }
+							// DEBUG ONLY END
 							String errorString = "";
-							
-							if (connector.isResponseFromTransformer() && !connector.getResponseValue().equalsIgnoreCase("None")){
-								if (connector.isAckOnNewConnection()){
+
+							if (connector.isResponseFromTransformer() && !connector.getResponseValue().equalsIgnoreCase("None")) {
+								if (connector.isAckOnNewConnection()) {
 									String endpointURI = connector.getAckIP() + ":" + connector.getAckPort();
 									Socket socket = initSocket("mllp://" + endpointURI);
 									BufferedOutputStream bos = new BufferedOutputStream(socket.getOutputStream());
-									protocol.write(bos, ((Response)responseMap.get(connector.getResponseValue())).getMessage().getBytes(connector.getCharsetEncoding()));
+									protocol.write(bos, ((Response) responseMap.get(connector.getResponseValue())).getMessage().getBytes(connector.getCharsetEncoding()));
 									bos.flush();
 									bos.close();
-								}else{
-									protocol.write(os,((Response)responseMap.get(connector.getResponseValue())).getMessage().getBytes(connector.getCharsetEncoding()));
-									
+								} else {
+									protocol.write(os, ((Response) responseMap.get(connector.getResponseValue())).getMessage().getBytes(connector.getCharsetEncoding()));
+
 								}
-							}else{
-								//we only want the first line
-								if (messageObjectResponse.getStatus().equals(MessageObject.Status.ERROR) && messageObjectResponse.getErrors() != null){
-									if (messageObjectResponse.getErrors().indexOf('\n') > -1){
-										errorString = messageObjectResponse.getErrors().substring(0,messageObjectResponse.getErrors().indexOf('\n'));
-									}else{
+							} else {
+								// we only want the first line
+								if (messageObjectResponse.getStatus().equals(MessageObject.Status.ERROR) && messageObjectResponse.getErrors() != null) {
+									if (messageObjectResponse.getErrors().indexOf('\n') > -1) {
+										errorString = messageObjectResponse.getErrors().substring(0, messageObjectResponse.getErrors().indexOf('\n'));
+									} else {
 										errorString = messageObjectResponse.getErrors();
 									}
 								}
-								generateACK(new String(data,charset), os, messageObjectResponse.getStatus(), errorString);
+								generateACK(new String(data, charset), os, messageObjectResponse.getStatus(), errorString);
 							}
 						}
-					}else{
-						generateACK(new String(data,charset), os, MessageObject.Status.RECEIVED, new String());		
+					} else {
+						generateACK(new String(data, charset), os, MessageObject.Status.RECEIVED, new String());
 					}
-				}catch(Exception e){
-					generateACK(new String(data,charset), os, MessageObject.Status.ERROR, e.getMessage());		
+				} catch (Exception e) {
+					generateACK(new String(data, charset), os, MessageObject.Status.ERROR, e.getMessage());
 					throw e;
-				}finally{
-					//The dispose method will handle closing the OS, don't worry about it here
-					//if (!connector.isKeepSendSocketOpen() && os != null){
-						//os.close();
-					//}
+				} finally {
+					// Let the dispatcher take care of closing the socket +
+					// stream
 				}
 			}
-			//The return message is always the last message routed if in a batch
-			//TODO: Check this for 1.2.1
+			// The return message is always the last message routed if in a
+			// batch
+			// TODO: Check this for 1.2.1
 			if (returnMessage != null) {
 				return returnMessage.getPayloadAsBytes();
 			} else {
 				return null;
 			}
 		}
+
 		protected Socket initSocket(String endpoint) throws IOException, URISyntaxException {
 			URI uri = new URI(endpoint);
 			int port = uri.getPort();
@@ -389,64 +374,64 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 			socket.setSoTimeout(connector.getSendTimeout());
 			return socket;
 		}
+
 		protected Socket createSocket(int port, InetAddress inetAddress) throws IOException {
 			return new Socket(inetAddress, port);
 		}
 
-		private void generateACK(String message, OutputStream os, MessageObject.Status status, String error)
-				throws Exception, IOException {
+		private void generateACK(String message, OutputStream os, MessageObject.Status status, String error) throws Exception, IOException {
 			boolean errorOnly = false;
 			boolean always = false;
 			boolean successOnly = false;
-			if (error == null){
+			if (error == null) {
 				error = "";
 			}
-			//Check if we want to send ACKs at all.
+			// Check if we want to send ACKs at all.
 			if (connector.getSendACK()) {
-				//Check if we have to look at MSH15
-				if (connector.isCheckMSH15()){
-					//MSH15 Dictionary:
-					//AL: Always
-					//NE: Never
-					//ER: Error / Reject condition
-					//SU: Successful completion only
+				// Check if we have to look at MSH15
+				if (connector.isCheckMSH15()) {
+					// MSH15 Dictionary:
+					// AL: Always
+					// NE: Never
+					// ER: Error / Reject condition
+					// SU: Successful completion only
 					PipeParser parser = new PipeParser();
 					parser.setValidationContext(new NoValidation());
 					ca.uhn.hl7v2.model.Message hl7message = parser.parse(message.trim());
 					Terser terser = new Terser(hl7message);
-					String msh15 =  terser.get("/MSH-15-1");
-					if (msh15 != null && !msh15.equals("")){
-						if (msh15.equalsIgnoreCase("AL")){
+					String msh15 = terser.get("/MSH-15-1");
+					if (msh15 != null && !msh15.equals("")) {
+						if (msh15.equalsIgnoreCase("AL")) {
 							always = true;
-						}else if(msh15.equalsIgnoreCase("NE")){
+						} else if (msh15.equalsIgnoreCase("NE")) {
 							logger.debug("MSH15 is NE, Skipping ACK");
 							return;
-						}else if(msh15.equalsIgnoreCase("ER")){
+						} else if (msh15.equalsIgnoreCase("ER")) {
 							errorOnly = true;
 
-						}else if(msh15.equalsIgnoreCase("SU")){
+						} else if (msh15.equalsIgnoreCase("SU")) {
 							successOnly = true;
 						}
 					}
 				}
 				String ackCode = "AA";
 				String textMessage = "";
-				if (status.equals(MessageObject.Status.ERROR)){
-					if (successOnly){
-						//we only send an ACK on success
+				if (status.equals(MessageObject.Status.ERROR)) {
+					if (successOnly) {
+						// we only send an ACK on success
 						return;
 					}
 					ackCode = connector.getAckCodeError();
 					String conError = connector.getAckMsgError();
 					textMessage = conError.replaceFirst("\\$\\{ERROR\\}", error);
-				}else if(status.equals(MessageObject.Status.FILTERED)){
-					if (successOnly){
+				} else if (status.equals(MessageObject.Status.FILTERED)) {
+					if (successOnly) {
 						return;
 					}
 					ackCode = connector.getAckCodeRejected();
 					textMessage = connector.getAckMsgRejected();
-				}else{
-					if (errorOnly){
+				} else {
+					if (errorOnly) {
 						return;
 					}
 					ackCode = connector.getAckCodeSuccessful();
@@ -455,17 +440,17 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 				String ACK = new ACKGenerator().generateAckResponse(message.trim(), ackCode, textMessage);
 
 				logger.debug("Sending ACK: " + ACK);
-				try{
-					if (connector.isAckOnNewConnection()){
+				try {
+					if (connector.isAckOnNewConnection()) {
 						String endpointURI = connector.getAckIP() + ":" + connector.getAckPort();
 						Socket socket = initSocket("mllp://" + endpointURI);
 						BufferedOutputStream bos = new BufferedOutputStream(socket.getOutputStream());
 						protocol.write(bos, ACK.getBytes((connector).getCharsetEncoding()));
 						bos.flush();
-					}else{
-						protocol.write(os,ACK.getBytes((connector).getCharsetEncoding()));
+					} else {
+						protocol.write(os, ACK.getBytes((connector).getCharsetEncoding()));
 					}
-				}catch(Throwable t){
+				} catch (Throwable t) {
 					logger.error("Can't write ACK to the sender\n" + StackTracePrinter.stackTraceToString(t));
 				}
 			}
