@@ -222,7 +222,7 @@ public class SftpMessageReceiver extends PollingMessageReceiver {
 			}
 		} catch (RoutingException e) {
 			logger.error("Unable to route. Stopping Connector: " + StackTracePrinter.stackTraceToString(e));
-			connector.stopConnector();
+			// connector.stopConnector();
 			// TODO: This was commented out (above). Do we need it?
 			routingError = true;
 		} finally {
