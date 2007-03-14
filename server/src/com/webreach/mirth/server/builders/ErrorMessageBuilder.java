@@ -4,14 +4,10 @@ import org.mozilla.javascript.RhinoException;
 
 import com.webreach.mirth.server.util.StackTracePrinter;
 
-public class ErrorBuilder {
+public class ErrorMessageBuilder {
 	private String lineSeperator = System.getProperty("line.separator");
 
-	public String getErrorString(String errorType, Throwable e) {
-		return getErrorString(errorType, null, e);
-	}
-
-	public String getErrorString(String errorType, String customMessage, Throwable e) {
+	public String buildErrorMessage(String errorType, String customMessage, Throwable e) {
 		// error source is initialized to blank
 		String lineSource = null;
 

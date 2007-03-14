@@ -41,7 +41,7 @@ import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.Response;
 import com.webreach.mirth.model.converters.ObjectClonerException;
 import com.webreach.mirth.model.filters.MessageObjectFilter;
-import com.webreach.mirth.server.builders.ErrorBuilder;
+import com.webreach.mirth.server.builders.ErrorMessageBuilder;
 import com.webreach.mirth.server.util.SqlConfig;
 import com.webreach.mirth.server.util.StackTracePrinter;
 import com.webreach.mirth.server.util.UUIDGenerator;
@@ -54,7 +54,7 @@ public class MessageObjectController {
 	private static final String MESSAGE_NO_DATA_STORE = "No data stored for this channel.";
 	private ConfigurationController configurationController = new ConfigurationController();
 	private String lineSeperator = System.getProperty("line.separator");
-	private ErrorBuilder errorBuilder = new ErrorBuilder();
+	private ErrorMessageBuilder errorBuilder = new ErrorMessageBuilder();
 	public void updateMessage(MessageObject messageObject) {
 		try {
 			String channelId = messageObject.getChannelId();
@@ -265,7 +265,7 @@ public class MessageObjectController {
 	}
 
 	public void setError(MessageObject messageObject, String errorType, String errorMessage, Throwable e){
-		String fullErrorMessage = errorBuilder.getErrorString(errorType, errorMessage, e);
+		String fullErrorMessage = errorBuilder.buildErrorMessage(errorType, errorMessage, e);
 		//send alert
 		
 		//Set the errors on the MO

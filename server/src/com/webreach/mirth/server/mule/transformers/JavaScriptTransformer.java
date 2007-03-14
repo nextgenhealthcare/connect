@@ -43,7 +43,7 @@ import com.webreach.mirth.model.Connector.Mode;
 import com.webreach.mirth.model.MessageObject.Protocol;
 import com.webreach.mirth.model.converters.IXMLSerializer;
 import com.webreach.mirth.server.Constants;
-import com.webreach.mirth.server.builders.ErrorBuilder;
+import com.webreach.mirth.server.builders.ErrorMessageBuilder;
 import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.controllers.ScriptController;
@@ -55,7 +55,6 @@ import com.webreach.mirth.server.util.JavaScriptScopeFactory;
 
 public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 	private Logger logger = Logger.getLogger(this.getClass());
-	private ErrorBuilder errorBuilder = new ErrorBuilder();
 	private MessageObjectController messageObjectController = new MessageObjectController();
 	private AlertController alertController = new AlertController();
 	private TemplateController templateController = new TemplateController();
