@@ -63,57 +63,44 @@ import java.util.Map;
 
 public class JmsConnector extends AbstractServiceEnabledConnector implements ConnectionEventListener
 {
-
     private String connectionFactoryJndiName;
-
     private ConnectionFactory connectionFactory;
-
     private String jndiInitialFactory;
-
     private String jndiProviderUrl;
-
     private int acknowledgementMode = Session.AUTO_ACKNOWLEDGE;
-
     private String clientId;
-
     private boolean durable;
-
     private boolean noLocal;
-
     private boolean persistentDelivery;
-
     private Map jndiProviderProperties;
-
     private Map connectionFactoryProperties;
-
     private Connection connection;
-
     private String specification = JmsConstants.JMS_SPECIFICATION_102B;
-
     private JmsSupport jmsSupport;
-
     private Context jndiContext;
-
     private boolean jndiDestinations = false;
-
     private boolean forceJndiDestinations = false;
-
     public String username = null;
-
     public String password = null;
-
     private int maxRedelivery = 0;
-    
     private String template;
-
     private String redeliveryHandler = DefaultRedeliveryHandler.class.getName();
-
+    private String channelId;
+    
     public JmsConnector()
     {
         receivers = new ConcurrentHashMap();
     }
+    
+    public String getChannelId() {
+		return this.channelId;
+	}
 
-    /*
+	public void setChannelId(String channelId) {
+		this.channelId = channelId;
+	}
+
+	/*
      * (non-Javadoc)
      * 
      * @see org.mule.providers.UMOConnector#create(java.util.HashMap)

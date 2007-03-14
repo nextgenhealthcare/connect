@@ -26,6 +26,9 @@ import org.mule.umo.provider.UMOConnector;
 import org.mule.umo.provider.UMOMessageAdapter;
 import org.mule.util.PropertiesHelper;
 
+import com.webreach.mirth.server.Constants;
+import com.webreach.mirth.server.controllers.AlertController;
+import com.webreach.mirth.server.mule.providers.ftp.FtpConnector;
 import com.webreach.mirth.server.mule.providers.jms.filters.JmsSelectorFilter;
 
 import javax.jms.Destination;
@@ -44,12 +47,11 @@ import javax.jms.Topic;
  */
 public class JmsMessageReceiver extends AbstractMessageReceiver implements MessageListener
 {
-
     protected JmsConnector connector;
     protected RedeliveryHandler redeliveryHandler;
     protected MessageConsumer consumer;
     protected Session session;
-
+    private AlertController alertController = new AlertController();
 
     public JmsMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint)
             throws InitialisationException
@@ -101,6 +103,7 @@ public class JmsMessageReceiver extends AbstractMessageReceiver implements Messa
             UMOMessageAdapter adapter = connector.getMessageAdapter(message);
             routeMessage(new MuleMessage(adapter));
         } catch (Exception e) {
+        	alertController.sendAlerts(((JmsConnector) connector).getChannelId(), Constants.ERROR_407, null, e);
             handleException(e);
         }
     }
