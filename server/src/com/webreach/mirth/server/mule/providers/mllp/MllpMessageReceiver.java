@@ -364,8 +364,10 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 					generateACK(new String(data,charset), os, MessageObject.Status.ERROR, e.getMessage());		
 					throw e;
 				}finally{
-					if (os != null)
-						os.close();
+					//The dispose method will handle closing the OS, don't worry about it here
+					//if (!connector.isKeepSendSocketOpen() && os != null){
+						//os.close();
+					//}
 				}
 			}
 			//The return message is always the last message routed if in a batch
