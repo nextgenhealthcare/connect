@@ -1578,6 +1578,12 @@ public class Frame extends JXFrame
             return false;
         }
         
+        if(name.length() > 40)
+        {
+            alertWarning("Channel name cannot be longer than 40 characters.");
+            return false;
+        }
+        
         // Following code copied from MirthFieldConstaints, must be the same to check for valid channel names the same way.
         char[] chars = name.toCharArray();
         for (char c : chars)
@@ -1588,8 +1594,10 @@ public class Frame extends JXFrame
                 try
                 {
                     if (Double.isNaN(Double.parseDouble(c + "")))
+                    {
                         alertWarning("Channel name cannot have special characters besides hyphen, underscore, and space.");
                         return false;
+                    }
                 }
                 catch (Exception e)
                 {

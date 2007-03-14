@@ -48,26 +48,26 @@ public class X12Properties extends EDIProperties implements Serializable
     }
 
     /**
-     * Holds value of property validateMessage.
+     * Holds value of property useStrictParser.
      */
-    private boolean validateMessage = true;
+    private boolean useStrictParser = true;
 
     /**
      * Getter for property validateMessage.
      * @return Value of property validateMessage.
      */
-    public boolean isValidateMessage()
+    public boolean isUseStrictParser()
     {
-        return this.validateMessage;
+        return this.useStrictParser;
     }
 
     /**
      * Setter for property validateMessage.
      * @param validateMessage New value of property validateMessage.
      */
-    public void setValidateMessage(boolean validateMessage)
+    public void setUseStrictParser(boolean useStrictParser)
     {
-        this.validateMessage = validateMessage;
+        this.useStrictParser = useStrictParser;
     }
 
     
