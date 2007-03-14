@@ -340,10 +340,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 		script.append("function $(string) { if (globalMap.get(string) != null) { return globalMap.get(string)} else { return localMap.get(string);} }");
 		script.append("function doFilter() {");
 
-		if (inboundProtocol.equals(Protocol.HL7V2.toString())) {
-			// script.append("default xml namespace = new
-			// Namespace(\"urn:hl7-org:v2xml\");");
-		}
+        script.append("default xml namespace = new Namespace(\"urn:hl7-org:v2xml\");");
 
 		script.append("var msg = new XML(message);\n " + filterScript + " }\n");
 		script.append("doFilter()\n");
@@ -373,7 +370,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 		if (template != null) {
 			script.append("tmp = new XML(template);");
 		}
-		script.append("var msg = new XML(message);");
+		script.append("msg = new XML(message);");
 		script.append(transformerScript);
 		script.append(" }");
 		script.append("doTransform()\n");
