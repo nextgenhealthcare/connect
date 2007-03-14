@@ -12,6 +12,6 @@ public class AlertSender {
 	}
 	
 	public void sendAlert(String errorMessage) {
-		alertController.sendAlerts(channelId, errorMessage);
+		alertController.sendAlerts(channelId, Constants.ERROR_302, errorMessage, null);
 	}
 }

@@ -42,7 +42,6 @@ import com.webreach.mirth.model.Connector.Mode;
 import com.webreach.mirth.model.MessageObject.Protocol;
 import com.webreach.mirth.model.converters.IXMLSerializer;
 import com.webreach.mirth.server.Constants;
-import com.webreach.mirth.server.builders.ErrorBuilder;
 import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.controllers.ScriptController;
@@ -54,7 +53,6 @@ import com.webreach.mirth.server.util.JavaScriptScopeFactory;
 
 public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 	private Logger logger = Logger.getLogger(this.getClass());
-	private ErrorBuilder errorBuilder = new ErrorBuilder();
 	private MessageObjectController messageObjectController = new MessageObjectController();
 	private AlertController alertController = new AlertController();
 	private TemplateController templateController = new TemplateController();
@@ -172,7 +170,6 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 				compiledScriptCache.putCompiledScript(transformerScriptId, compiledTransformerScript);
 			}
 		} catch (Exception e) {
-			logger.error(errorBuilder.getErrorString(Constants.ERROR_300, e));
 			throw new InitialisationException(e, this);
 		} finally {
 			Context.exit();
@@ -201,23 +198,23 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 				messageObject.setEncodedDataProtocol(Protocol.valueOf(this.outboundProtocol));
 			}
 		} catch (Exception e) {
-			alertController.sendAlerts(channelId, errorBuilder.getErrorString(Constants.ERROR_301, e));
+			alertController.sendAlerts(channelId, Constants.ERROR_301, null, e);
 			throw new TransformerException(this, e);
 		}
 		// ---- End MO checks -----
 
-		boolean filterResult = false;
+		boolean messageAccepted = false;
 
 		try {
 			// if the message passes the filter, run the transformation script
-			filterResult = evaluateFilterScript(messageObject);
+			messageAccepted = evaluateFilterScript(messageObject);
 		} catch (Exception e) {
-			alertController.sendAlerts(channelId, errorBuilder.getErrorString(Constants.ERROR_200, e));
+			alertController.sendAlerts(channelId, Constants.ERROR_200, null, e);
 			throw new TransformerException(this, e);
 		}
 
 		try {
-			if (filterResult) {
+			if (messageAccepted) {
 				MessageObject transformedMessageObject = evaluateTransformerScript(messageObject);
 
 				if (this.getMode().equals(Mode.SOURCE.toString())) {
@@ -233,12 +230,8 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 			}
 		} catch (Exception e) {
 			// send alert if the transformation process fails
-			alertController.sendAlerts(channelId, errorBuilder.getErrorString(Constants.ERROR_300, e));
-			if (e instanceof TransformerException) {
-				throw (TransformerException) e;
-			} else {
-				throw new TransformerException(this, e);
-			}
+			alertController.sendAlerts(channelId, Constants.ERROR_300, null, e);
+			throw new TransformerException(this, e);
 		}
 	}
 
@@ -332,7 +325,6 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 			messageObject.setStatus(MessageObject.Status.TRANSFORMED);
 			return messageObject;
 		} catch (Exception e) {
-			logger.error(errorBuilder.getErrorString(Constants.ERROR_300, e));
 			messageObjectController.setError(messageObject, Constants.ERROR_300, "Error evaluating transformer", e);
 			throw new TransformerException(this, e);
 		} finally {

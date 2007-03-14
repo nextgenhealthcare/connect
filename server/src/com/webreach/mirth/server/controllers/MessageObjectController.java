@@ -67,7 +67,7 @@ public class MessageObjectController {
 				if (channel.getProperties().containsKey("store_messages")) {
 					if (channel.getProperties().get("store_messages").equals("false") ||
 							(channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("error_messages_only").equals("true") && !messageObject.getStatus().equals(MessageObject.Status.ERROR)) ||
-							(channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("storeFiltered").equals("true") && messageObject.getStatus().equals(MessageObject.Status.FILTERED))) {
+							(channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("dont_store_filtered").equals("true") && messageObject.getStatus().equals(MessageObject.Status.FILTERED))) {
 						// If we don't want to store messages, then lets
 						// sanitize the data in a clone
 						// TODO: Check if pass by value
