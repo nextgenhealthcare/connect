@@ -58,8 +58,17 @@ public class VMConnector extends AbstractServiceEnabledConnector
     private int maxQueues = 16;
     private QueueProfile queueProfile;
     private Class adapterClass = null;
+    private String channelId;
 
-    /*
+    public String getChannelId() {
+		return this.channelId;
+	}
+
+	public void setChannelId(String channelId) {
+		this.channelId = channelId;
+	}
+
+	/*
      * (non-Javadoc)
      * 
      * @see org.mule.providers.AbstractConnector#create()

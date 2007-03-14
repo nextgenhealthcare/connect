@@ -14,6 +14,22 @@
  */
 package com.webreach.mirth.server.mule.providers.email;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+
+import javax.mail.Flags;
+import javax.mail.Folder;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.Store;
+import javax.mail.URLName;
+import javax.mail.event.MessageCountEvent;
+import javax.mail.event.MessageCountListener;
+import javax.mail.internet.MimeMessage;
+
 import org.mule.MuleManager;
 import org.mule.config.i18n.Messages;
 import org.mule.impl.MuleMessage;
@@ -32,22 +48,6 @@ import org.mule.util.Utility;
 
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
-import com.webreach.mirth.server.mule.providers.ftp.FtpConnector;
-
-import javax.mail.Flags;
-import javax.mail.Folder;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Session;
-import javax.mail.Store;
-import javax.mail.URLName;
-import javax.mail.event.MessageCountEvent;
-import javax.mail.event.MessageCountListener;
-import javax.mail.internet.MimeMessage;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 
 /**
  * <code>Pop3MessageReceiver</code> polls a pop3 mailbox for messages removes

@@ -13,18 +13,15 @@
  */
 package com.webreach.mirth.server.mule.providers.soap.axis;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 
 import org.apache.axis.AxisProperties;
 import org.apache.axis.constants.Style;
 import org.apache.axis.constants.Use;
-import org.apache.axis.encoding.TypeMappingImpl;
 import org.apache.axis.encoding.TypeMappingRegistryImpl;
 import org.apache.axis.encoding.ser.BeanDeserializerFactory;
 import org.apache.axis.encoding.ser.BeanSerializerFactory;

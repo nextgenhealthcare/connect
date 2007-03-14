@@ -29,6 +29,9 @@ import org.mule.umo.provider.UMOConnector;
 import org.mule.util.queue.Queue;
 import org.mule.util.queue.QueueSession;
 
+import com.webreach.mirth.server.Constants;
+import com.webreach.mirth.server.controllers.AlertController;
+import com.webreach.mirth.server.mule.providers.jdbc.JdbcConnector;
 import com.webreach.mirth.server.util.VMRegistry;
 
 import java.util.List;
@@ -46,6 +49,7 @@ public class VMMessageReceiver extends TransactedPollingMessageReceiver
 {
     private VMConnector connector;
     private Object lock = new Object();
+    private AlertController alertController = new AlertController();
 
     public VMMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint)
             throws InitialisationException
@@ -105,10 +109,16 @@ public class VMMessageReceiver extends TransactedPollingMessageReceiver
 
     protected List getMessages() throws Exception
     {
-        QueueSession qs = connector.getQueueSession();
-        Queue queue = qs.getQueue(endpoint.getEndpointURI().getAddress());
-        UMOEvent event = (UMOEvent) queue.take();
-        routeMessage(new MuleMessage(event.getTransformedMessage(), event.getProperties()));
+    	try {
+            QueueSession qs = connector.getQueueSession();
+            Queue queue = qs.getQueue(endpoint.getEndpointURI().getAddress());
+            UMOEvent event = (UMOEvent) queue.take();
+            routeMessage(new MuleMessage(event.getTransformedMessage(), event.getProperties()));
+    	} catch (Exception e) {
+    		alertController.sendAlerts(((VMConnector) connector).getChannelId(), Constants.ERROR_412, null, e);
+    		throw e;
+    	}
+    	
         return null;
     }
 

@@ -46,7 +46,6 @@ import org.mule.umo.provider.UMOMessageAdapter;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
-import com.webreach.mirth.server.mule.providers.tcp.TcpConnector;
 import com.webreach.mirth.server.util.CompiledScriptCache;
 import com.webreach.mirth.server.util.JavaScriptScopeFactory;
 
