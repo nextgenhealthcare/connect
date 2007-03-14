@@ -4,7 +4,6 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.List;
 
 import org.mule.providers.AbstractMessageDispatcher;
 import org.mule.providers.TemplateValueReplacer;
@@ -16,14 +15,12 @@ import org.mule.umo.endpoint.UMOEndpointURI;
 import org.mule.util.Utility;
 
 import com.lowagie.text.Document;
-import com.lowagie.text.Paragraph;
 import com.lowagie.text.html.HtmlParser;
 import com.lowagie.text.pdf.PdfWriter;
 import com.lowagie.text.rtf.RtfWriter2;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.MessageObjectController;
-import com.webreach.mirth.server.util.StackTracePrinter;
 
 public class DocumentMessageDispatcher extends AbstractMessageDispatcher {
 	private DocumentConnector connector;
@@ -39,12 +36,12 @@ public class DocumentMessageDispatcher extends AbstractMessageDispatcher {
 		TemplateValueReplacer replacer = new TemplateValueReplacer();
 		String endpoint = event.getEndpoint().getEndpointURI().getAddress();
 		MessageObject messageObject = messageObjectController.getMessageObjectFromEvent(event);
+
 		if (messageObject == null) {
 			return;
 		}
 
 		try {
-
 			String filename = (String) event.getProperty(DocumentConnector.PROPERTY_FILENAME);
 
 			if (filename == null) {
@@ -68,7 +65,6 @@ public class DocumentMessageDispatcher extends AbstractMessageDispatcher {
 
 			// update the message status to sent
 			messageObjectController.setSuccess(messageObject, "Document successfully written: " + filename);
-
 		} catch (Exception e) {
 			messageObjectController.setError(messageObject, Constants.ERROR_401, "Error writing document", e);
 			connector.handleException(e);
@@ -78,15 +74,18 @@ public class DocumentMessageDispatcher extends AbstractMessageDispatcher {
 	private void writeDocument(String template, File file, MessageObject messageObject) throws Exception {
 		Document document = new Document();
 		ByteArrayInputStream bais = null;
-		try{
+		
+		try {
 			if (connector.getDocumentType().equals("pdf")) {
 				PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(file));
+				
 				if (connector.isEncrypted() && (connector.getPassword() != null)) {
 					writer.setEncryption(PdfWriter.STRENGTH128BITS, connector.getPassword(), null, PdfWriter.AllowCopy | PdfWriter.AllowPrinting | PdfWriter.AllowFillIn);
 				}
 			} else if (connector.getDocumentType().equals("rtf")) {
 				RtfWriter2.getInstance(document, new FileOutputStream(file));
 			}
+
 			// add tags to the template to create a valid HTML document
 			StringBuilder contents = new StringBuilder();
 			contents.append("<html>");
@@ -99,16 +98,11 @@ public class DocumentMessageDispatcher extends AbstractMessageDispatcher {
 			document.open();
 			HtmlParser parser = new HtmlParser();
 			parser.go(document, bais);
-
-			// document.open();
-			// document.add(new Paragraph(template));
-			// document.close();
-
 		} finally {
-			try{
+			try {
 				document.close();
-			}catch(Exception e){
-				
+			} catch (Exception e) {
+				logger.warn("could not close document", e);
 			}
 		}
 	}
