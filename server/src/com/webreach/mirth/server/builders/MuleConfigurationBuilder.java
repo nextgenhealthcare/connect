@@ -61,7 +61,6 @@ import com.webreach.mirth.util.PropertyLoader;
  * 
  */
 public class MuleConfigurationBuilder {
-	public static final String[] cDataElements = null;
 	private Logger logger = Logger.getLogger(this.getClass());
 	private List<Channel> channels = null;
 	private Map<String, Transport> transports = null;
@@ -75,7 +74,7 @@ public class MuleConfigurationBuilder {
 	}
 
 	public String getConfiguration() throws BuilderException {
-		DocumentSerializer docSerializer = new DocumentSerializer(cDataElements);
+		DocumentSerializer docSerializer = new DocumentSerializer();
 		return docSerializer.toXML(getConfigurationDocument());
 	}
 
@@ -415,9 +414,10 @@ public class MuleConfigurationBuilder {
 			// name, value, and isMuleProperty attribute
 			// then only add the properties that have isMuleProperty set to true
 			Properties connectorProperties = connector.getProperties();
-			// The connector needs it's channel id (so it doesn't have to parse the name)
+			// The connector needs it's channel id (so it doesn't have to parse
+			// the name)
 			// for alerts
-			connectorProperties.put("channelId", channelId); 
+			connectorProperties.put("channelId", channelId);
 			Element propertiesElement = document.createElement("properties");
 			Element mapElement = document.createElement("map");
 			mapElement.setAttribute("name", "queries");
