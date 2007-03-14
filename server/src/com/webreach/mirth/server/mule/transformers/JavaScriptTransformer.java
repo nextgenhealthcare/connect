@@ -172,6 +172,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 				compiledScriptCache.putCompiledScript(transformerScriptId, compiledTransformerScript);
 			}
 		} catch (Exception e) {
+			logger.error(errorBuilder.getErrorString(Constants.ERROR_300, e));
 			throw new InitialisationException(e, this);
 		} finally {
 			Context.exit();
@@ -331,6 +332,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 			messageObject.setStatus(MessageObject.Status.TRANSFORMED);
 			return messageObject;
 		} catch (Exception e) {
+			logger.error(errorBuilder.getErrorString(Constants.ERROR_300, e));
 			messageObjectController.setError(messageObject, Constants.ERROR_300, "Error evaluating transformer", e);
 			throw new TransformerException(this, e);
 		} finally {
@@ -366,11 +368,9 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 		script.append("function $(string) { if (globalMap.get(string) != null) { return globalMap.get(string) } else { return localMap.get(string);} }");
 		script.append("function doTransform() {");
 
-		// only set the namespace to hl7-org if the message is XML
-		if (inboundProtocol.equals(Protocol.HL7V2.toString())) {
-			// script.append("default xml namespace = new
-			// Namespace(\"urn:hl7-org:v2xml\");");
-		}
+		// RHINO seems to need this in order to function properly.
+		// TODO: Figure out why.
+		script.append("default xml namespace = new Namespace(\"urn:hl7-org:v2xml\");");
 
 		// ast: Allow ending whitespaces from the input XML
 		script.append("XML.ignoreWhitespace=false;");
@@ -381,7 +381,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 		if (template != null) {
 			script.append("tmp = new XML(template);");
 		}
-		script.append("msg = new XML(message);");
+		script.append("var msg = new XML(message);");
 		script.append(transformerScript);
 		script.append(" }");
 		script.append("doTransform()\n");

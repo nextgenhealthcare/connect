@@ -201,7 +201,7 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 					}
 				} catch (RoutingException e) {
 					logger.error("Unable to route. Stopping Connector: " + StackTracePrinter.stackTraceToString(e));
-					connector.stopConnector();
+					// connector.stopConnector();
 					// TODO: This was commented out (above). Do we need it?
 					routingError = true;
 				} catch (Exception e) {
@@ -221,9 +221,7 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 					if (!resultOfFileMoveOperation) {
 						throw new MuleException(new Message("file", 4, file.getAbsolutePath(), destinationFile.getAbsolutePath()));
 					}
-
 				}
-
 				if (connector.isAutoDelete()) {
 					adapter.getPayloadAsBytes();
 
