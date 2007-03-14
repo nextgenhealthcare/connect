@@ -2679,22 +2679,15 @@ public class Frame extends JXFrame
             importFile = importFileChooser.getSelectedFile();
             String channelXML = "";
             
-            try {
-				channelXML = ImportConverter.convertChannel(importFile);
-			} catch (Exception e1) {
-				alertException(e1.getStackTrace(),"Invalid channel file. " + e1.getMessage());
-			}
+            try
+            {
+                channelXML = ImportConverter.convertChannel(importFile);
+            }
+            catch (Exception e1)
+            {
+                alertException(e1.getStackTrace(),"Invalid channel file. " + e1.getMessage());
+            }
 
-//            try
-//            {
-//                channelXML = FileUtil.read(importFile);
-//            }
-//            catch (IOException e)
-//            {
-//                alertError("File could not be read.");
-//                return;
-//            }
-//
             ObjectXMLSerializer serializer = new ObjectXMLSerializer();
             Channel importChannel;
 
@@ -2707,38 +2700,30 @@ public class Frame extends JXFrame
             	alertException(e.getStackTrace(),"Invalid channel file. " + e.getMessage());
                 return;
             }
-//
-//            /**
-//             * Checks to see if the passed in channel version is current, and
-//             * prompts the user if it is not.
-//             */
-//            int option;
-//
-//            try
-//            {
-//                option = JOptionPane.YES_OPTION;
-//                if (importChannel.getVersion() == null)
-//                {
-//                    option = JOptionPane.showConfirmDialog(this, "The channel being imported is from an unknown version of Mirth." + "\nSome channel properties may not be the same.  Would you like to automatically convert the properties?", "Select an Option", JOptionPane.YES_NO_CANCEL_OPTION);
-//                }
-//                else if (!importChannel.getVersion().equals(mirthClient.getVersion()))
-//                {
-//                    option = JOptionPane.showConfirmDialog(this, "The channel being imported is from Mirth version " + importChannel.getVersion() + ". You are using Mirth version " + mirthClient.getVersion() + ".\nSome channel properties may not be the same.  Would you like to automatically convert the properties?", "Select an Option", JOptionPane.YES_NO_CANCEL_OPTION);
-//                }
-//            }
-//            catch (ClientException e)
-//            {
-//                alertError("Could not get the clients version.");
-//                return;
-//            }
-//
-//            if (option == JOptionPane.YES_OPTION)
-//            {
-//
-//                importChannel = converter.convertChannel(importChannel);
-//            }
-//            else if (option != JOptionPane.NO_OPTION)
-//                return;
+
+           /**
+             * Checks to see if the passed in channel version is current, and
+             * prompts the user if it is not.
+             */
+            int option;
+
+            try
+            {
+                option = JOptionPane.YES_OPTION;
+                if (importChannel.getVersion() == null)
+                {
+                    option = JOptionPane.showConfirmDialog(this, "The channel being imported is from an unknown version of Mirth." + "\nSome channel properties may not be the same.  Would you like to automatically convert the properties?", "Select an Option", JOptionPane.YES_NO_CANCEL_OPTION);
+                }
+                else if (!importChannel.getVersion().equals(mirthClient.getVersion()))
+                {
+                    option = JOptionPane.showConfirmDialog(this, "The channel being imported is from Mirth version " + importChannel.getVersion() + ". You are using Mirth version " + mirthClient.getVersion() + ".\nSome channel properties may not be the same.  Would you like to automatically convert the properties?", "Select an Option", JOptionPane.YES_NO_CANCEL_OPTION);
+                }
+            }
+            catch (ClientException e)
+            {
+                alertError("Could not get the clients version.");
+                return;
+            }
 
             try
             {

@@ -467,7 +467,8 @@ public class SOAPSender extends ConnectorClass
 
     private void rebuildEnvelopeActionPerformed(java.awt.event.ActionEvent evt)
     {// GEN-FIRST:event_rebuildEnvelopeActionPerformed
-        buildSoapEnvelope();
+        if(definition != null)
+            buildSoapEnvelope();
     }// GEN-LAST:event_rebuildEnvelopeActionPerformed
 
     private void jTree1ValueChanged(javax.swing.event.TreeSelectionEvent evt)
@@ -673,25 +674,27 @@ public class SOAPSender extends ConnectorClass
 
             public void done()
             {
-
-                String[] methodNames = new String[definition.getOperations().size()];
-                Iterator<WSOperation> opIterator = definition.getOperations().values().iterator();
-
-                for (int i = 0; i < definition.getOperations().size(); i++)
-                {
-                    methodNames[i] = opIterator.next().getName();
-                }
-
-                method.setModel(new javax.swing.DefaultComboBoxModel(methodNames));
-                if (methodNames.length > 0)
-                {
-                    method.setSelectedIndex(0);
-                    serviceEndpoint.setText(definition.getServiceEndpointURI());
-                    soapActionURI.setText(definition.getOperations().get(method.getSelectedItem()).getSoapActionURI());
-                    setupTable(definition.getOperations().get(method.getSelectedItem()).getParameters());
-                    buildSoapEnvelope();
-                }
                 parent.setWorking(false);
+                if(definition != null)
+                {
+                    String[] methodNames = new String[definition.getOperations().size()];
+                    Iterator<WSOperation> opIterator = definition.getOperations().values().iterator();
+                    
+                    for (int i = 0; i < definition.getOperations().size(); i++)
+                    {
+                        methodNames[i] = opIterator.next().getName();
+                    }
+    
+                    method.setModel(new javax.swing.DefaultComboBoxModel(methodNames));
+                    if (methodNames.length > 0)
+                    {
+                        method.setSelectedIndex(0);
+                        serviceEndpoint.setText(definition.getServiceEndpointURI());
+                        soapActionURI.setText(definition.getOperations().get(method.getSelectedItem()).getSoapActionURI());
+                        setupTable(definition.getOperations().get(method.getSelectedItem()).getParameters());
+                        buildSoapEnvelope();
+                    }
+                }
             }
 
         };

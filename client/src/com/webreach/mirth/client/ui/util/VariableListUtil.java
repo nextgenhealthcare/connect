@@ -14,9 +14,9 @@ import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
 import com.webreach.mirth.model.Connector;
 import com.webreach.mirth.model.Rule;
 import com.webreach.mirth.model.Step;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -34,9 +34,9 @@ public class VariableListUtil
     /* 
      * Extract variables from a list of steps
      */
-    public static ArrayList<String> getStepVariables(List<Step> addToList)
+    public static LinkedHashSet<String> getStepVariables(List<Step> addToList)
     {
-        ArrayList<String> variables = new ArrayList<String>();
+        LinkedHashSet<String> variables = new LinkedHashSet<String>();
         for (Iterator it = addToList.iterator(); it.hasNext();)
         {
             Step step = (Step) it.next();
@@ -63,9 +63,9 @@ public class VariableListUtil
     /* 
      * Extract variables from a list of rules
      */
-    public static ArrayList<String> getRuleVariables(List<Rule> addToList)
+    public static LinkedHashSet<String> getRuleVariables(List<Rule> addToList)
     {
-        ArrayList<String> variables = new ArrayList<String>();
+        LinkedHashSet<String> variables = new LinkedHashSet<String>();
         for (Iterator it = addToList.iterator(); it.hasNext();)
         {
             Rule rule = (Rule) it.next();

@@ -35,11 +35,11 @@ public class HL7PropertiesBeanInfo extends SimpleBeanInfo
     
         try {
             properties[PROPERTY_receiveXML] = new PropertyDescriptor ( "receiveXML", com.webreach.mirth.client.ui.beans.HL7Properties.class, "isReceiveXML", "setReceiveXML" ); // NOI18N
-            properties[PROPERTY_receiveXML].setDisplayName ( "Receive pre-encoded XML" );
+            properties[PROPERTY_receiveXML].setDisplayName ( "Receive Pre-encoded XML" );
             properties[PROPERTY_receiveXML].setShortDescription ( "Receive HL7 already encoded into XML." );
             properties[PROPERTY_receiveXML].setBound ( true );
             properties[PROPERTY_validateMessage] = new PropertyDescriptor ( "validateMessage", com.webreach.mirth.client.ui.beans.HL7Properties.class, "isValidateMessage", "setValidateMessage" ); // NOI18N
-            properties[PROPERTY_validateMessage].setDisplayName ( "Strict Parser" );
+            properties[PROPERTY_validateMessage].setDisplayName ( "Use Strict Parser" );
             properties[PROPERTY_validateMessage].setShortDescription ( "Validate messages based upon message specifications." );
             properties[PROPERTY_validateMessage].setBound ( true );
         }

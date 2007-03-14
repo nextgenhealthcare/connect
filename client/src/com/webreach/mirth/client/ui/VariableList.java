@@ -30,6 +30,7 @@ import com.webreach.mirth.model.Rule;
 import java.util.ArrayList;
 import java.util.List;
 import com.webreach.mirth.model.Step;
+import java.util.LinkedHashSet;
 
 /**
  * A panel that contains the MirthVariableList.
@@ -49,7 +50,7 @@ public class VariableList extends javax.swing.JPanel
      */
     public void setVariableListInbound(List<Rule> rules, List<Step> steps)
     {
-        ArrayList<String> variables = new ArrayList<String>();
+        LinkedHashSet<String> variables = new LinkedHashSet<String>();
         int i = 0;
         variables.add("Message ID");
         variables.add("Raw Data");

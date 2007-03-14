@@ -37,6 +37,7 @@ import com.webreach.mirth.client.ui.PlatformUI;
 import com.webreach.mirth.client.ui.util.VariableListUtil;
 import com.webreach.mirth.model.Rule;
 import com.webreach.mirth.model.Step;
+import java.util.LinkedHashSet;
 
 public class VariableReferenceTable extends ReferenceTable
 {
@@ -132,7 +133,7 @@ public class VariableReferenceTable extends ReferenceTable
 
     public void updateVariables(List<Rule> rules, List<Step> steps)
     {
-        ArrayList<String> variables = new ArrayList<String>();
+        LinkedHashSet<String> variables = new LinkedHashSet<String>();
         
         if(rules != null)
             variables.addAll(VariableListUtil.getRuleVariables(rules));

@@ -12,6 +12,7 @@ import java.util.Properties;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JPanel;
+import javax.swing.JComboBox;
 
 import org.syntax.jedit.SyntaxDocument;
 
@@ -168,7 +169,7 @@ public class TabbedTemplatePanel extends javax.swing.JPanel
         variableListScrollPane = new javax.swing.JScrollPane();
         variableTable = new com.webreach.mirth.client.ui.panels.reference.VariableReferenceTable();
         variableReferencePane = new javax.swing.JPanel();
-        variableReferenceDropDown = new com.webreach.mirth.client.ui.components.MirthComboBox();
+        variableReferenceDropDown = new javax.swing.JComboBox();
         variableScrollPane = new javax.swing.JScrollPane();
         jLabel1 = new javax.swing.JLabel();
         incomingTab = new javax.swing.JPanel();
@@ -254,7 +255,7 @@ public class TabbedTemplatePanel extends javax.swing.JPanel
 
     private javax.swing.JScrollPane variableListScrollPane;
 
-    private com.webreach.mirth.client.ui.components.MirthComboBox variableReferenceDropDown;
+    private javax.swing.JComboBox variableReferenceDropDown;
 
     private javax.swing.JPanel variableReferencePane;
 

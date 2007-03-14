@@ -853,13 +853,14 @@ public class FilterPane extends MirthEditorPane
         if (returning)
         {
             parent.channelEditPanel.setDestinationVariableList();
-            parent.channelEditPanel.updateComponentShown();
             parent.taskPaneContainer.add(parent.getOtherPane());
             parent.setCurrentContentPage(parent.channelEditPanel);
             parent.setCurrentTaskPaneContainer(parent.taskPaneContainer);
             parent.setPanelName("Edit Channel - " + parent.channelEditPanel.currentChannel.getName());
             if (modified)
                 parent.enableSave();
+            
+            parent.channelEditPanel.updateComponentShown();
             modified = false;
         }
     }
