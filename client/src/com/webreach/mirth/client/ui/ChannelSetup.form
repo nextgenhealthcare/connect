@@ -410,7 +410,7 @@
                     <EmptyBorder bottom="0" left="0" right="0" top="0"/>
                   </Border>
                 </Property>
-                <Property name="text" type="java.lang.String" value="Synchronize source connector (may decrease performance)"/>
+                <Property name="text" type="java.lang.String" value="Synchronize channel"/>
                 <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
                   <Insets value="[0, 0, 0, 0]"/>
                 </Property>
@@ -441,7 +441,7 @@
                     <EmptyBorder bottom="0" left="0" right="0" top="0"/>
                   </Border>
                 </Property>
-                <Property name="text" type="java.lang.String" value="Don&apos;t store filtered messages"/>
+                <Property name="text" type="java.lang.String" value="Do not store filtered messages"/>
                 <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
                   <Insets value="[0, 0, 0, 0]"/>
                 </Property>

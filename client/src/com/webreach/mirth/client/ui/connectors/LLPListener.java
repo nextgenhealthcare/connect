@@ -553,6 +553,13 @@ public class LLPListener extends ConnectorClass
         });
 
         responseFromTransformer.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        responseFromTransformer.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                responseFromTransformerActionPerformed(evt);
+            }
+        });
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
@@ -777,6 +784,15 @@ public class LLPListener extends ConnectorClass
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void responseFromTransformerActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_responseFromTransformerActionPerformed
+    {//GEN-HEADEREND:event_responseFromTransformerActionPerformed
+        if (responseFromTransformer.getSelectedIndex() != 0 && !parent.channelEditPanel.synchronousCheckBox.isSelected())
+        {
+            parent.alertInformation("The synchronize source connector setting has been enabled since it is required to use this feature.");
+            parent.channelEditPanel.synchronousCheckBox.setSelected(true);
+        }
+    }//GEN-LAST:event_responseFromTransformerActionPerformed
     
     public void updateResponseDropDown()
     {
@@ -837,7 +853,7 @@ public class LLPListener extends ConnectorClass
     }
     
     private void sendACKTransformerActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_sendACKTransformerActionPerformed
-    {// GEN-HEADEREND:event_sendACKTransformerActionPerformed
+    {// GEN-HEADEREND:event_sendACKTransformerActionPerformed       
         successACKCode.setEnabled(false);
         successACKMessage.setEnabled(false);
         errorACKCode.setEnabled(false);
@@ -909,10 +925,10 @@ public class LLPListener extends ConnectorClass
 
     private void sendACKYesActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_sendACKYesActionPerformed
     {// GEN-HEADEREND:event_sendACKYesActionPerformed
-        if (evt != null && !PlatformUI.MIRTH_FRAME.channelEditPanel.synchronousCheckBox.isSelected())
+        if (evt != null && !parent.channelEditPanel.synchronousCheckBox.isSelected())
         {
-            PlatformUI.MIRTH_FRAME.alertInformation("The synchronize source connector setting has been enabled since it is required to use this feature.");
-            PlatformUI.MIRTH_FRAME.channelEditPanel.synchronousCheckBox.setSelected(true);
+            parent.alertInformation("The synchronize source connector setting has been enabled since it is required to use this feature.");
+            parent.channelEditPanel.synchronousCheckBox.setSelected(true);
         }
 
         successACKCode.setEnabled(true);

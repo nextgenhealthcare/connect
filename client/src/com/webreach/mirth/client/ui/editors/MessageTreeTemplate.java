@@ -103,7 +103,7 @@ public class MessageTreeTemplate extends javax.swing.JPanel
     private void updateText()
     {
         String message = pasteBox.getText();
-        treePanel.setMessage((String) dataType.getSelectedItem(), message, DEFAULT_TEXT, dataProperties);
+        treePanel.setMessage(dataProperties, (String) dataType.getSelectedItem(), message, DEFAULT_TEXT, dataProperties);
         treePanel.revalidate();
         treePanel.repaint();
     }

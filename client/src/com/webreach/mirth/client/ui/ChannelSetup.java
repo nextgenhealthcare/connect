@@ -1139,14 +1139,14 @@ public class ChannelSetup extends javax.swing.JPanel
 
         synchronousCheckBox.setBackground(new java.awt.Color(255, 255, 255));
         synchronousCheckBox.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        synchronousCheckBox.setText("Synchronize source connector (may decrease performance)");
+        synchronousCheckBox.setText("Synchronize channel");
         synchronousCheckBox.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         incomingProtocol.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
         storeFiltered.setBackground(new java.awt.Color(255, 255, 255));
         storeFiltered.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        storeFiltered.setText("Don't store filtered messages");
+        storeFiltered.setText("Do not store filtered messages");
         storeFiltered.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         org.jdesktop.layout.GroupLayout summaryLayout = new org.jdesktop.layout.GroupLayout(summary);

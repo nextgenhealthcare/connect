@@ -131,7 +131,8 @@ public class SOAPListener extends ConnectorClass
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
-    private void initComponents() {
+    private void initComponents()
+    {
         buttonGroup1 = new javax.swing.ButtonGroup();
         URL = new javax.swing.JLabel();
         serviceName = new com.webreach.mirth.client.ui.components.MirthTextField();
@@ -150,14 +151,18 @@ public class SOAPListener extends ConnectorClass
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         URL.setText("Service Name:");
 
-        serviceName.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyReleased(java.awt.event.KeyEvent evt) {
+        serviceName.addKeyListener(new java.awt.event.KeyAdapter()
+        {
+            public void keyReleased(java.awt.event.KeyEvent evt)
+            {
                 serviceNameKeyReleased(evt);
             }
         });
 
-        port.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyReleased(java.awt.event.KeyEvent evt) {
+        port.addKeyListener(new java.awt.event.KeyAdapter()
+        {
+            public void keyReleased(java.awt.event.KeyEvent evt)
+            {
                 portKeyReleased(evt);
             }
         });
@@ -168,8 +173,10 @@ public class SOAPListener extends ConnectorClass
 
         URL1.setText("WSDL URL:");
 
-        listenerAddress.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyReleased(java.awt.event.KeyEvent evt) {
+        listenerAddress.addKeyListener(new java.awt.event.KeyAdapter()
+        {
+            public void keyReleased(java.awt.event.KeyEvent evt)
+            {
                 listenerAddressKeyReleased(evt);
             }
         });
@@ -181,6 +188,13 @@ public class SOAPListener extends ConnectorClass
         jLabel4.setText("Respond from:");
 
         responseFromTransformer.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        responseFromTransformer.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                responseFromTransformerActionPerformed(evt);
+            }
+        });
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
@@ -234,6 +248,15 @@ public class SOAPListener extends ConnectorClass
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void responseFromTransformerActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_responseFromTransformerActionPerformed
+    {//GEN-HEADEREND:event_responseFromTransformerActionPerformed
+        if (responseFromTransformer.getSelectedIndex() != 0 && !parent.channelEditPanel.synchronousCheckBox.isSelected())
+        {
+            parent.alertInformation("The synchronize source connector setting has been enabled since it is required to use this feature.");
+            parent.channelEditPanel.synchronousCheckBox.setSelected(true);
+        }
+    }//GEN-LAST:event_responseFromTransformerActionPerformed
     
     public void updateResponseDropDown()
     {

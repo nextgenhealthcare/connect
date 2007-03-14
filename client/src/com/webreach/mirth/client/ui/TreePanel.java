@@ -95,7 +95,7 @@ public class TreePanel extends JPanel
         this.setBackground(Color.white);
     }
 
-    public void setMessage(String messageType, String source, String ignoreText, Properties dataProperties)
+    public void setMessage(Properties protocolProperties, String messageType, String source, String ignoreText, Properties dataProperties)
     {
         Document xmlDoc = null;
         String messageName = "";

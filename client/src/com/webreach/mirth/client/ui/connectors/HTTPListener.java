@@ -151,7 +151,8 @@ public class HTTPListener extends ConnectorClass
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
-    private void initComponents() {
+    private void initComponents()
+    {
         keepConnectionOpenGroup = new javax.swing.ButtonGroup();
         buttonGroup1 = new javax.swing.ButtonGroup();
         jLabel1 = new javax.swing.JLabel();
@@ -210,6 +211,13 @@ public class HTTPListener extends ConnectorClass
         jLabel38.setText("Respond from:");
 
         responseFromTransformer.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        responseFromTransformer.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                responseFromTransformerActionPerformed(evt);
+            }
+        });
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
@@ -287,6 +295,15 @@ public class HTTPListener extends ConnectorClass
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void responseFromTransformerActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_responseFromTransformerActionPerformed
+    {//GEN-HEADEREND:event_responseFromTransformerActionPerformed
+        if (responseFromTransformer.getSelectedIndex() != 0 && !parent.channelEditPanel.synchronousCheckBox.isSelected())
+        {
+            parent.alertInformation("The synchronize source connector setting has been enabled since it is required to use this feature.");
+            parent.channelEditPanel.synchronousCheckBox.setSelected(true);
+        }
+    }//GEN-LAST:event_responseFromTransformerActionPerformed
     
     public void updateResponseDropDown()
     {               
