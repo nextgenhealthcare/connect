@@ -21,6 +21,7 @@ public abstract class Adaptor {
 
 	public MessageObject getMessage(String source, String channelId, boolean encryptData, Map properties) throws AdaptorException {
 		this.source = source;
+        this.properties = properties;
 		messageObject = new MessageObject();
 		messageObject.setId(UUIDGenerator.getUUID());
 		messageObject.setChannelId(channelId);

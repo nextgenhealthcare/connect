@@ -13,10 +13,11 @@ import com.webreach.mirth.model.converters.IXMLSerializer;
 import com.webreach.mirth.server.controllers.ChannelController;
 
 public class HL7v2Adaptor extends Adaptor {
-	private ER7Serializer xmlSerializer = new ER7Serializer();
+	private IXMLSerializer<String> xmlSerializer;
 	private HAPIMessageSerializer hapiSerializer = new HAPIMessageSerializer();
 
 	protected void populateMessage() throws AdaptorException {
+        xmlSerializer = getSerializer(this.properties);
 		messageObject.setRawDataProtocol(MessageObject.Protocol.HL7V2);
 		messageObject.setTransformedDataProtocol(MessageObject.Protocol.XML);
 		messageObject.setEncodedDataProtocol(MessageObject.Protocol.HL7V2);
@@ -45,6 +46,6 @@ public class HL7v2Adaptor extends Adaptor {
 
 	@Override
 	public IXMLSerializer<String> getSerializer(Map properties) {
-		return new ER7Serializer();
+		return new ER7Serializer(properties);
 	}
 }
