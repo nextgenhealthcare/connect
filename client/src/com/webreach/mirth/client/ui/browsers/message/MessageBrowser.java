@@ -88,7 +88,9 @@ public class MessageBrowser extends javax.swing.JPanel
 
     private final String STATUS_COLUMN_NAME = "Status";
 
-    private final String KEY_COLUMN_NAME = "Key";
+    private final String SCORE_COLUMN_NAME = "Scope";
+    
+    private final String KEY_COLUMN_NAME = "Variable";
 
     private final String VALUE_COLUMN_NAME = "Value";
 
@@ -476,18 +478,19 @@ public class MessageBrowser extends javax.swing.JPanel
     {
         if (tableData.length == 0)
         {
-            tableData = new String[1][2];
+            tableData = new String[1][3];
             if (cleared)
-                tableData[0][0] = "Please select a message to view mappings.";
+                tableData[0][1] = "Please select a message to view mappings.";
             else
-                tableData[0][0] = "There are no mappings present.";
-            tableData[0][1] = "";
+                tableData[0][1] = "There are no mappings present.";
+            tableData[0][0] = "";
+            tableData[0][2] = "";
         }
         JXTable mappingsTable = new JXTable();
 
-        mappingsTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[] { KEY_COLUMN_NAME, VALUE_COLUMN_NAME })
+        mappingsTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[] { SCORE_COLUMN_NAME, KEY_COLUMN_NAME, VALUE_COLUMN_NAME })
         {
-            boolean[] canEdit = new boolean[] { false, false };
+            boolean[] canEdit = new boolean[] { false, false, false };
 
             public boolean isCellEditable(int rowIndex, int columnIndex)
             {
@@ -496,7 +499,8 @@ public class MessageBrowser extends javax.swing.JPanel
         });
 
         mappingsTable.setSelectionMode(0);
-
+        mappingsTable.getColumnExt(SCORE_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
+        mappingsTable.getColumnExt(SCORE_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
         mappingsPane.setViewportView(mappingsTable);
     }
 
@@ -588,16 +592,42 @@ public class MessageBrowser extends javax.swing.JPanel
                 setCorrectDocument(TransformedMessageTextPane, transformmedXML, currentMessage.getTransformedDataProtocol());
                 setCorrectDocument(EncodedMessageTextPane, currentMessage.getEncodedData(), currentMessage.getEncodedDataProtocol());
                 setCorrectDocument(ErrorsTextPane, currentMessage.getErrors(), null);
+                
+                Map connectorMap = currentMessage.getConnectorMap();
+                Map channelMap = currentMessage.getChannelMap();
+                Map responseMap = currentMessage.getResponseMap();
 
-                Map variableMap = currentMessage.getConnectorMap();
-                Iterator variableMapSetIterator = variableMap.entrySet().iterator();
-                String[][] tableData = new String[variableMap.size()][2];
-                for (int i = 0; variableMapSetIterator.hasNext(); i++)
+                String[][] tableData = new String[connectorMap.size() + channelMap.size() + responseMap.size()][3];
+                int i = 0;
+                
+                Iterator connectorMapSetIterator = connectorMap.entrySet().iterator();
+                for (; connectorMapSetIterator.hasNext(); i++)
                 {
-                    Entry variableMapEntry = (Entry) variableMapSetIterator.next();
-                    tableData[i][0] = variableMapEntry.getKey().toString();
-                    tableData[i][1] = variableMapEntry.getValue().toString();
+                    Entry variableMapEntry = (Entry) connectorMapSetIterator.next();
+                    tableData[i][0] = "Connector";
+                    tableData[i][1] = variableMapEntry.getKey().toString();
+                    tableData[i][2] = variableMapEntry.getValue().toString();
                 }
+                
+                Iterator channelMapSetIterator = channelMap.entrySet().iterator();
+                for (; channelMapSetIterator.hasNext(); i++)
+                {
+                    Entry variableMapEntry = (Entry) channelMapSetIterator.next();
+                    tableData[i][0] = "Channel";
+                    tableData[i][1] = variableMapEntry.getKey().toString();
+                    tableData[i][2] = variableMapEntry.getValue().toString();
+                }
+                
+                Iterator responseMapSetIterator = responseMap.entrySet().iterator();
+                for (; responseMapSetIterator.hasNext(); i++)
+                {
+                    Entry variableMapEntry = (Entry) responseMapSetIterator.next();
+                    tableData[i][0] = "Response";
+                    tableData[i][1] = variableMapEntry.getKey().toString();
+                    tableData[i][2] = variableMapEntry.getValue().toString();
+                }
+                
+                
                 makeMappingsTable(tableData, false);
 
                 this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
