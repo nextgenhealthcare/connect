@@ -35,6 +35,7 @@ public class ChannelStatistics implements Serializable {
 	private int sentCount = 0;
 	private int errorCount = 0;
 	private int filteredCount = 0;
+	private int queuedCount = 0;
 	
 	public int getFilteredCount() {
 		return filteredCount;
@@ -76,6 +77,14 @@ public class ChannelStatistics implements Serializable {
 		this.sentCount = sentCount;
 	}
 	
+	public int getQueuedCount() {
+		return this.queuedCount;
+	}
+
+	public void setQueuedCount(int queuedCount) {
+		this.queuedCount = queuedCount;
+	}
+
 	public boolean equals(Object that) {
 		if (this == that) {
 			return true;
@@ -91,8 +100,9 @@ public class ChannelStatistics implements Serializable {
 			EqualsUtil.areEqual(this.getChannelId(), statistic.getChannelId()) &&
 			EqualsUtil.areEqual(this.getReceivedCount(), statistic.getReceivedCount()) &&
 			EqualsUtil.areEqual(this.getSentCount(), statistic.getSentCount()) &&
-			EqualsUtil.areEqual(this.getErrorCount(), statistic.getErrorCount())&&
-			EqualsUtil.areEqual(this.getFilteredCount(), statistic.getReceivedCount());
+			EqualsUtil.areEqual(this.getErrorCount(), statistic.getErrorCount()) &&
+			EqualsUtil.areEqual(this.getFilteredCount(), statistic.getReceivedCount()) &&
+			EqualsUtil.areEqual(this.getQueuedCount(), statistic.getQueuedCount());
 	}	
 
 	public String toString() {
@@ -101,6 +111,7 @@ public class ChannelStatistics implements Serializable {
 		builder.append("channelId=" + getChannelId() + ", ");
 		builder.append("receivedCount=" + getReceivedCount() + ", ");
 		builder.append("sentCount=" + getSentCount() + ", ");
+		builder.append("queuedCount=" + getQueuedCount() + ", ");
 		builder.append("errorCount=" + getErrorCount());
 		builder.append("]");
 		return builder.toString();

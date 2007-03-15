@@ -50,6 +50,7 @@ public class ChannelStatisticsController {
 		statistics.setSentCount(getSentCount(channelId));
 		statistics.setErrorCount(getErrorCount(channelId));
 		statistics.setFilteredCount(getFilteredCount(channelId));
+		statistics.setQueuedCount(getQueuedCount(channelId));
 		return statistics;
 	}
 
@@ -80,6 +81,14 @@ public class ChannelStatisticsController {
 	public Integer getFilteredCount(String channelId) throws ControllerException {
 		try {
 			return (Integer) sqlMap.queryForObject("getFilteredCount", channelId);
+		} catch (SQLException e) {
+			throw new ControllerException(e);
+		}
+	}
+	
+	public Integer getQueuedCount(String channelId) throws ControllerException {
+		try {
+			return (Integer) sqlMap.queryForObject("getQueuedCount", channelId);
 		} catch (SQLException e) {
 			throw new ControllerException(e);
 		}
