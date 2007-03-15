@@ -287,6 +287,7 @@ public class AlertPanel extends javax.swing.JPanel
         if (parent.alerts.size() > 0)
         {
             alertTable.setRowSelectionInterval(0, 0);
+            lastAlertRow = 0;
         }
         else
         {
@@ -485,11 +486,11 @@ public class AlertPanel extends javax.swing.JPanel
 
     public boolean saveAlert()
     {
-        int index = getAlertIndex(lastAlertRow);
-
-        if (index == UIConstants.ERROR_CONSTANT)
+        if (lastAlertRow == UIConstants.ERROR_CONSTANT)
             return false;
-
+        
+        int index = getAlertIndex(lastAlertRow);
+        
         boolean changed = parent.alertTasks.getContentPane().getComponent(1).isVisible();
 
         Alert current = parent.alerts.get(index);

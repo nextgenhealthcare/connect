@@ -49,6 +49,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.prefs.Preferences;
 
 import javax.swing.Action;
@@ -3223,6 +3224,10 @@ public class Frame extends JXFrame
     {
         try
         {
+            Properties serverProperties = mirthClient.getServerProperties();
+            if(!(serverProperties.getProperty("smtp.host") != null && ((String)serverProperties.getProperty("smtp.host")).length() > 0) || !(serverProperties.getProperty("smtp.port") != null && ((String)serverProperties.getProperty("smtp.port")).length() > 0))
+                alertWarning("The SMTP server on the settings page is not specified or is incomplete.  An SMTP server is required to send alerts.");
+            
             alertPanel.saveAlert();
             mirthClient.updateAlerts(alerts);
             alertPanel.updateAlertTable(false);
