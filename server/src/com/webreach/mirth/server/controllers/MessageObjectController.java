@@ -220,6 +220,7 @@ public class MessageObjectController {
 		parameterMap.put("type", filter.getType());
 		parameterMap.put("status", filter.getStatus());
 		parameterMap.put("connectorName", filter.getConnectorName());
+		parameterMap.put("protocol", filter.getProtocol());
 
 		if (filter.getStartDate() != null) {
 			parameterMap.put("startDate", String.format("%1$tY-%1$tm-%1$td 00:00:00", filter.getStartDate()));
