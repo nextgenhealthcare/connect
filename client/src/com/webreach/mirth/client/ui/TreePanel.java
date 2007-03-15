@@ -169,7 +169,7 @@ public class TreePanel extends JPanel
                     {
                         // PlatformUI.MIRTH_FRAME.alertException(e.getStackTrace(),
                         // e.getMessage());
-                        e.printStackTrace();
+                        //e.printStackTrace();
                     }
                 }
              

@@ -145,12 +145,9 @@ public class ChannelPanel extends javax.swing.JPanel
             }
         }
 
-        int row = UIConstants.ERROR_CONSTANT;
-
         if (channelTable != null)
         {
-            row = channelTable.getSelectedRow();
-            lastRow = row;
+            lastRow = channelTable.getSelectedRow();
             RefreshTableModel model = (RefreshTableModel) channelTable.getModel();
             model.refreshDataVector(tableData);
         }
@@ -169,9 +166,9 @@ public class ChannelPanel extends javax.swing.JPanel
         }
 
         if (lastRow >= 0 && lastRow < channelTable.getRowCount())
-        {
             channelTable.setRowSelectionInterval(lastRow, lastRow);
-        }
+        else
+            lastRow = UIConstants.ERROR_CONSTANT;
     }
 
     /**

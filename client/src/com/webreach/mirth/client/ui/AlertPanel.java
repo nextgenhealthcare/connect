@@ -139,6 +139,8 @@ public class AlertPanel extends javax.swing.JPanel
                             alertTable.setRowSelectionInterval(lastAlertRow - 1, lastAlertRow - 1);
                         else if (lastAlertRow != -1 && lastAlertRow < rowCount)
                             alertTable.setRowSelectionInterval(lastAlertRow, lastAlertRow);
+                        
+                        lastAlertRow = alertTable.getSelectedRow();
                     }
                     else
                     {
@@ -251,8 +253,6 @@ public class AlertPanel extends javax.swing.JPanel
 
         if (alertTable != null)
         {
-            row = alertTable.getSelectedRow();
-            lastAlertRow = row;
             RefreshTableModel model = (RefreshTableModel) alertTable.getModel();
             model.refreshDataVector(tableData);
         }
@@ -273,10 +273,9 @@ public class AlertPanel extends javax.swing.JPanel
         {
             alertTable.setRowSelectionInterval(alertTable.getRowCount() - 1, alertTable.getRowCount() - 1);
         }
-        else if (lastAlertRow >= 0 && lastAlertRow < alertTable.getRowCount())
-        {
-            // alertTable.setRowSelectionInterval(lastAlertRow,lastAlertRow);
-        }
+        
+        row = alertTable.getSelectedRow();
+        lastAlertRow = row;
     }
 
     public void setDefaultAlert()

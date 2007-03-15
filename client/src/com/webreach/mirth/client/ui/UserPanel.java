@@ -144,12 +144,9 @@ public class UserPanel extends javax.swing.JPanel
             }
         }
 
-        int row = UIConstants.ERROR_CONSTANT;
-
         if (usersTable != null)
         {
-            row = usersTable.getSelectedRow();
-            lastRow = row;
+            lastRow = usersTable.getSelectedRow();
             RefreshTableModel model = (RefreshTableModel) usersTable.getModel();
             model.refreshDataVector(tableData);
         }
@@ -168,9 +165,9 @@ public class UserPanel extends javax.swing.JPanel
         }
 
         if (lastRow >= 0 && lastRow < usersTable.getRowCount())
-        {
             usersTable.setRowSelectionInterval(lastRow, lastRow);
-        }
+        else
+            lastRow = UIConstants.ERROR_CONSTANT;
     }
 
     /**

@@ -30,6 +30,7 @@ public class DashboardPanel extends javax.swing.JPanel
     private final String STATUS_COLUMN_NAME = "Status";
     private final String NAME_COLUMN_NAME = "Name";
     private final String RECEIVED_COLUMN_NAME = "Received";
+    private final String QUEUED_COLUMN_NAME = "Queued";
     private final String SENT_COLUMN_NAME = "Sent";
     private final String ERROR_COLUMN_NAME = "Errors";
     private final String FILTERED_COLUMN_NAME = "Filtered";
@@ -80,12 +81,14 @@ public class DashboardPanel extends javax.swing.JPanel
         statusTable.getColumnExt(SENT_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
         statusTable.getColumnExt(ERROR_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
         statusTable.getColumnExt(FILTERED_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
+        statusTable.getColumnExt(QUEUED_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
 
         statusTable.getColumnExt(STATUS_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
         statusTable.getColumnExt(RECEIVED_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
         statusTable.getColumnExt(SENT_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
         statusTable.getColumnExt(ERROR_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
         statusTable.getColumnExt(FILTERED_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
+        statusTable.getColumnExt(QUEUED_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
         statusTable.getColumnExt(NAME_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
 
         statusTable.getColumnExt(STATUS_COLUMN_NAME).setCellRenderer(new ImageCellRenderer());
@@ -93,11 +96,13 @@ public class DashboardPanel extends javax.swing.JPanel
         statusTable.getColumnExt(SENT_COLUMN_NAME).setCellRenderer(new CenterCellRenderer());
         statusTable.getColumnExt(ERROR_COLUMN_NAME).setCellRenderer(new CenterCellRenderer());
         statusTable.getColumnExt(FILTERED_COLUMN_NAME).setCellRenderer(new CenterCellRenderer());
+        statusTable.getColumnExt(QUEUED_COLUMN_NAME).setCellRenderer(new CenterCellRenderer());
 
         statusTable.getColumnExt(RECEIVED_COLUMN_NAME).setHeaderRenderer(PlatformUI.CENTER_COLUMN_HEADER_RENDERER);
         statusTable.getColumnExt(SENT_COLUMN_NAME).setHeaderRenderer(PlatformUI.CENTER_COLUMN_HEADER_RENDERER);
         statusTable.getColumnExt(ERROR_COLUMN_NAME).setHeaderRenderer(PlatformUI.CENTER_COLUMN_HEADER_RENDERER);
         statusTable.getColumnExt(FILTERED_COLUMN_NAME).setHeaderRenderer(PlatformUI.CENTER_COLUMN_HEADER_RENDERER);
+        statusTable.getColumnExt(QUEUED_COLUMN_NAME).setHeaderRenderer(PlatformUI.CENTER_COLUMN_HEADER_RENDERER);
 
         statusTable.packTable(UIConstants.COL_MARGIN);
 
@@ -149,7 +154,7 @@ public class DashboardPanel extends javax.swing.JPanel
 
         if (parent.status != null)
         {
-            tableData = new Object[parent.status.size()][6];
+            tableData = new Object[parent.status.size()][7];
             for (int i = 0; i < parent.status.size(); i++)
             {
                 ChannelStatus tempStatus = parent.status.get(i);
@@ -158,8 +163,9 @@ public class DashboardPanel extends javax.swing.JPanel
                     ChannelStatistics tempStats = parent.mirthClient.getStatistics(tempStatus.getChannelId());
                     tableData[i][2] = tempStats.getReceivedCount();
                     tableData[i][3] = tempStats.getFilteredCount();
-                    tableData[i][4] = tempStats.getSentCount();
-                    tableData[i][5] = tempStats.getErrorCount();
+                    tableData[i][4] = tempStats.getQueuedCount();
+                    tableData[i][5] = tempStats.getSentCount();
+                    tableData[i][6] = tempStats.getErrorCount();
                 }
                 catch (ClientException ex)
                 {
@@ -179,21 +185,18 @@ public class DashboardPanel extends javax.swing.JPanel
 
         }
 
-        int row = UIConstants.ERROR_CONSTANT;
-
         if (statusTable != null)
         {
-            row = statusTable.getSelectedRow();
-            lastRow = row;
+            lastRow = statusTable.getSelectedRow();
             RefreshTableModel model = (RefreshTableModel) statusTable.getModel();
             model.refreshDataVector(tableData);
         }
         else
         {
             statusTable = new MirthTable();
-            statusTable.setModel(new RefreshTableModel(tableData, new String[] { STATUS_COLUMN_NAME, NAME_COLUMN_NAME, RECEIVED_COLUMN_NAME, FILTERED_COLUMN_NAME, SENT_COLUMN_NAME, ERROR_COLUMN_NAME })
+            statusTable.setModel(new RefreshTableModel(tableData, new String[] { STATUS_COLUMN_NAME, NAME_COLUMN_NAME, RECEIVED_COLUMN_NAME, FILTERED_COLUMN_NAME, QUEUED_COLUMN_NAME, SENT_COLUMN_NAME, ERROR_COLUMN_NAME })
             {
-                boolean[] canEdit = new boolean[] { false, false, false, false, false, false, false };
+                boolean[] canEdit = new boolean[] { false, false, false, false, false, false, false, false };
 
                 public boolean isCellEditable(int rowIndex, int columnIndex)
                 {
@@ -203,9 +206,9 @@ public class DashboardPanel extends javax.swing.JPanel
         }
 
         if (lastRow >= 0 && lastRow < statusTable.getRowCount())
-        {
             statusTable.setRowSelectionInterval(lastRow, lastRow);
-        }
+        else
+            lastRow = UIConstants.ERROR_CONSTANT;
     }
 
     /**
