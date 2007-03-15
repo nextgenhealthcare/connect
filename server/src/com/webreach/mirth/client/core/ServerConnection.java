@@ -29,6 +29,7 @@ package com.webreach.mirth.client.core;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
+import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.NameValuePair;
@@ -63,6 +64,8 @@ public class ServerConnection {
 
 		try {
 			post = new PostMethod(address + servletName);
+			post.addResponseFooter(new Header("Content-Encoding", "gzip"));
+			post.addResponseFooter(new Header("Accept-Encoding", "gzip,deflate"));
 			post.setRequestBody(params);
 
 			int statusCode = client.executeMethod(post);
