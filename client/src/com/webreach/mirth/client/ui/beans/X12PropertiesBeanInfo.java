@@ -29,7 +29,7 @@ public class X12PropertiesBeanInfo extends EDIPropertiesBeanInfo
     private static final int PROPERTY_inferX12Delimiters = 1;
     private static final int PROPERTY_segmentDelimiter = 2;
     private static final int PROPERTY_subelementDelimiter = 3;
-    private static final int PROPERTY_validateMessage = 4;
+    private static final int PROPERTY_useStrictParser = 4;
 
     // Property array 
     /*lazy PropertyDescriptor*/
@@ -50,10 +50,10 @@ public class X12PropertiesBeanInfo extends EDIPropertiesBeanInfo
             properties[PROPERTY_subelementDelimiter] = new PropertyDescriptor ( "subelementDelimiter", com.webreach.mirth.client.ui.beans.X12Properties.class, "getSubelementDelimiter", "setSubelementDelimiter" ); // NOI18N
             properties[PROPERTY_subelementDelimiter].setDisplayName ( "Subelement Delimiter" );
             properties[PROPERTY_subelementDelimiter].setBound ( true );
-            properties[PROPERTY_validateMessage] = new PropertyDescriptor ( "validateMessage", com.webreach.mirth.client.ui.beans.X12Properties.class, "isValidateMessage", "setValidateMessage" ); // NOI18N
-            properties[PROPERTY_validateMessage].setDisplayName ( "Strict Parser" );
-            properties[PROPERTY_validateMessage].setShortDescription ( "Validate messages based upon message specifications." );
-            properties[PROPERTY_validateMessage].setBound ( true );
+            properties[PROPERTY_useStrictParser] = new PropertyDescriptor ( "useStrictParser", com.webreach.mirth.client.ui.beans.X12Properties.class, "isUseStrictParser", "setUseStrictParser" ); // NOI18N
+            properties[PROPERTY_useStrictParser].setDisplayName ( "Use Strict Parser" );
+            properties[PROPERTY_useStrictParser].setShortDescription ( "Validate messages based upon message specifications." );
+            properties[PROPERTY_useStrictParser].setBound ( true );
         }
         catch(IntrospectionException e) {
             e.printStackTrace();
