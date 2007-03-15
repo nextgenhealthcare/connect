@@ -75,13 +75,25 @@ public class BoundPropertiesSheetDialog extends javax.swing.JDialog
             {
                 try
                 {
-                    Object value;
+                    Object value = null;
                     if (properties.get(pd.getName()) != null)
+                    {
                         value = properties.get(pd.getName());
+                        if (value.equals("false") || value.equals("true"))
+                        {
+                            boolean booleanValue = Boolean.getBoolean((String) value);
+                            pd.getWriteMethod().invoke(bean, new Object[] { booleanValue });
+                        }
+                        else
+                        {
+                            pd.getWriteMethod().invoke(bean, new Object[] { value });
+                        }
+                    }
                     else
+                    {
                         value = pd.getReadMethod().invoke(bean, new Object[] {});
-
-                    pd.getWriteMethod().invoke(bean, new Object[] { value });
+                        pd.getWriteMethod().invoke(bean, new Object[] { value });
+                    }
                 }
                 catch (IllegalArgumentException ex)
                 {

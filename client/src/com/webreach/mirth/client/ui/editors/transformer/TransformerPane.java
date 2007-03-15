@@ -172,12 +172,12 @@ public class TransformerPane extends MirthEditorPane
         {
             tabTemplatePanel.setOutgoingDataType(tabTemplatePanel.getIncomingDataType());
         }
-
-        tabTemplatePanel.setIncomingMessage(transformer.getInboundTemplate());
-        tabTemplatePanel.setOutgoingMessage(transformer.getOutboundTemplate());
-
+        
         tabTemplatePanel.setIncomingDataProperties(transformer.getInboundProperties());
         tabTemplatePanel.setOutgoingDataProperties(transformer.getOutboundProperties());
+        
+        tabTemplatePanel.setIncomingMessage(transformer.getInboundTemplate());
+        tabTemplatePanel.setOutgoingMessage(transformer.getOutboundTemplate());
 
         transformerTable.setBorder(BorderFactory.createEmptyBorder());
         transformerTaskPaneContainer.add(parent.getOtherPane());

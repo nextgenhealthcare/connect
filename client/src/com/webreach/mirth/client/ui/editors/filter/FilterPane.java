@@ -162,9 +162,9 @@ public class FilterPane extends MirthEditorPane
                 tabTemplatePanel.setIncomingDataType((String) PlatformUI.MIRTH_FRAME.channelEditPanel.getSourceDatatype());
         }
 
-        tabTemplatePanel.setIncomingMessage(transformer.getInboundTemplate());
-
         tabTemplatePanel.setIncomingDataProperties(transformer.getInboundProperties());
+        
+        tabTemplatePanel.setIncomingMessage(transformer.getInboundTemplate());
 
         updateRuleNumbers();
         updateTaskPane();

@@ -77,7 +77,7 @@ import com.webreach.mirth.model.converters.X12Serializer;
 
 public class TreePanel extends JPanel
 {
-    private String version;
+    private String version = "";
     private JTree tree;
     private Logger logger = Logger.getLogger(this.getClass());
     private String _dropPrefix;
@@ -114,7 +114,7 @@ public class TreePanel extends JPanel
                 if (source != null && !source.equals(""))
                 {
                 	if (protocolProperties != null && protocolProperties.get("useStrictParser") != null){
-                		useStrictParser = ((Boolean)protocolProperties.get("useStrictParser")).booleanValue();
+                		useStrictParser = Boolean.getBoolean(protocolProperties.get("useStrictParser").toString());
                 	}
                     // This message might come from a system that doesn't use
                     // carriage returns
@@ -217,7 +217,7 @@ public class TreePanel extends JPanel
                         type = type.getFirstChild();
                         event = type.getNodeValue();
                     }
-                    String version = "";
+                    version = "";
                     if (xmlDoc.getElementsByTagName("GS.8") != null)
                     {
                         Node versionNode = xmlDoc.getElementsByTagName("GS.8").item(0);
