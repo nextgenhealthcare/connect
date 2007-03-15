@@ -45,92 +45,75 @@ import java.util.List;
  * @author <a href="mailto:gnt@codehaus.org">Guillaume Nodet</a>
  * @version $Revision: 1.19 $
  */
-public class VMMessageReceiver extends TransactedPollingMessageReceiver
-{
-    private VMConnector connector;
-    private Object lock = new Object();
-    private AlertController alertController = new AlertController();
+public class VMMessageReceiver extends TransactedPollingMessageReceiver {
+	private VMConnector connector;
+	private Object lock = new Object();
+	private AlertController alertController = new AlertController();
 
-    public VMMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint)
-            throws InitialisationException
-    {
-        super(connector, component, endpoint, new Long(10));
-        this.connector = (VMConnector) connector;
-        receiveMessagesInTransaction = endpoint.getTransactionConfig().isTransacted();
-        VMRegistry.getInstance().register(this.getEndpointURI().getAddress(), this);
-    }
+	public VMMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint) throws InitialisationException {
+		super(connector, component, endpoint, new Long(10));
+		this.connector = (VMConnector) connector;
+		receiveMessagesInTransaction = endpoint.getTransactionConfig().isTransacted();
+		VMRegistry.getInstance().register(this.getEndpointURI().getAddress(), this);
+	}
 
-    public void doConnect() throws Exception
-    {
-        if (connector.isQueueEvents()) {
-            // Ensure we can create a vm queue
-            QueueSession queueSession = connector.getQueueSession();
-            queueSession.getQueue(endpoint.getEndpointURI().getAddress());
-        }
-    }
+	public void doConnect() throws Exception {
+		if (connector.isQueueEvents()) {
+			// Ensure we can create a vm queue
+			QueueSession queueSession = connector.getQueueSession();
+			queueSession.getQueue(endpoint.getEndpointURI().getAddress());
+		}
+	}
 
-    public void doDisconnect() throws Exception
-    {
-    }
+	public void doDisconnect() throws Exception {}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.mule.umo.UMOEventListener#onEvent(org.mule.umo.UMOEvent)
-     */
-    public void onEvent(UMOEvent event) throws UMOException
-    {
-        if (connector.isQueueEvents()) {
-            QueueSession queueSession = connector.getQueueSession();
-            Queue queue = queueSession.getQueue(endpoint.getEndpointURI().getAddress());
-            try {
-                queue.put(event);
-            } catch (InterruptedException e) {
-                throw new MuleException(new Message(Messages.INTERRUPTED_QUEUING_EVENT_FOR_X,
-                                                    this.endpoint.getEndpointURI()), e);
-            }
-        } else {
-            UMOMessage msg = new MuleMessage(event.getTransformedMessage(), event.getProperties());
-            synchronized(lock) {
-                routeMessage(msg);
-            }
-        }
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.mule.umo.UMOEventListener#onEvent(org.mule.umo.UMOEvent)
+	 */
+	public void onEvent(UMOEvent event) throws UMOException {
+		if (connector.isQueueEvents()) {
+			QueueSession queueSession = connector.getQueueSession();
+			Queue queue = queueSession.getQueue(endpoint.getEndpointURI().getAddress());
+			try {
+				queue.put(event);
+			} catch (InterruptedException e) {
+				throw new MuleException(new Message(Messages.INTERRUPTED_QUEUING_EVENT_FOR_X, this.endpoint.getEndpointURI()), e);
+			}
+		} else {
+			UMOMessage msg = new MuleMessage(event.getTransformedMessage(), event.getProperties());
+			synchronized (lock) {
+				routeMessage(msg);
+			}
+		}
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.mule.umo.UMOSyncChainSupport#onCall(org.mule.umo.UMOEvent)
-     */
-    public Object onCall(UMOEvent event) throws UMOException
-    {
-        return routeMessage(new MuleMessage(event.getTransformedMessage(), event.getProperties(), event.getMessage()), event.isSynchronous());
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.mule.umo.UMOSyncChainSupport#onCall(org.mule.umo.UMOEvent)
+	 */
+	public Object onCall(UMOEvent event) throws UMOException {
+		return routeMessage(new MuleMessage(event.getTransformedMessage(), event.getProperties(), event.getMessage()), event.isSynchronous());
+	}
 
-    protected List getMessages() throws Exception
-    {
-    	try {
-            QueueSession qs = connector.getQueueSession();
-            Queue queue = qs.getQueue(endpoint.getEndpointURI().getAddress());
-            UMOEvent event = (UMOEvent) queue.take();
-            routeMessage(new MuleMessage(event.getTransformedMessage(), event.getProperties()));
-    	} catch (Exception e) {
-    		alertController.sendAlerts(((VMConnector) connector).getChannelId(), Constants.ERROR_412, null, e);
-    		throw e;
-    	}
-    	
-        return null;
-    }
+	protected List getMessages() throws Exception {
+		QueueSession qs = connector.getQueueSession();
+		Queue queue = qs.getQueue(endpoint.getEndpointURI().getAddress());
+		UMOEvent event = (UMOEvent) queue.take();
+		routeMessage(new MuleMessage(event.getTransformedMessage(), event.getProperties()));
+		return null;
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.mule.providers.TransactionEnabledPollingMessageReceiver#processMessage(java.lang.Object)
-     */
-    protected void processMessage(Object msg) throws Exception
-    {
-        // This method is never called as the
-        // message is processed when received
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.mule.providers.TransactionEnabledPollingMessageReceiver#processMessage(java.lang.Object)
+	 */
+	protected void processMessage(Object msg) throws Exception {
+	// This method is never called as the
+	// message is processed when received
+	}
 
 }
