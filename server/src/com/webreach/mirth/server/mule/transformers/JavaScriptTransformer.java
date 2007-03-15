@@ -59,6 +59,8 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 	private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
 	private ScriptController scriptController = new ScriptController();
 	private JavaScriptScopeFactory scopeFactory = new JavaScriptScopeFactory();
+	private ErrorMessageBuilder errorBuilder = new ErrorMessageBuilder();
+	
 	private String inboundProtocol;
 	private String outboundProtocol;
 	private Map inboundProperties;
@@ -170,6 +172,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 				compiledScriptCache.putCompiledScript(transformerScriptId, compiledTransformerScript);
 			}
 		} catch (Exception e) {
+			logger.error(errorBuilder.buildErrorMessage(Constants.ERROR_300, null, e));
 			throw new InitialisationException(e, this);
 		} finally {
 			Context.exit();

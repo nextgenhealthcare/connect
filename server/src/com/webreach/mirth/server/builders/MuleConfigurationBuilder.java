@@ -429,8 +429,6 @@ public class MuleConfigurationBuilder {
 				// connector
 				ArrayList<String> nonConnectorProperties = new ArrayList<String>();
 				nonConnectorProperties.add("host");
-				// nonConnectorProperties.add("hostname"); //Hostname SHOULd be
-				// a property - CL (see SMTP Connector)
 				nonConnectorProperties.add("port");
 				nonConnectorProperties.add("DataType");
 
@@ -460,7 +458,6 @@ public class MuleConfigurationBuilder {
 							propertyElement.setAttribute("value", databaseScriptId);
 							propertiesElement.appendChild(propertyElement);
 						} else {
-
 							Element propertyElement = document.createElement("property");
 							propertyElement.setAttribute("name", property.getKey().toString());
 							propertyElement.setAttribute("value", property.getValue().toString());

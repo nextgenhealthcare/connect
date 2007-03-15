@@ -177,8 +177,11 @@ public class AlertController {
 	}
 
 	private boolean isAlertCondition(String expression, String errorMessage) {
-		// TODO: is this accurate?
-		return errorMessage.contains(expression);
+		if ((expression == null) || !(expression.length() > 0)) {
+			return false;
+		} else {
+			return errorMessage.contains(expression);
+		}
 	}
 
 	private void sentAlertEmails(List<String> emails, String template, String errorMessage) throws ControllerException {
