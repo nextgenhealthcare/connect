@@ -58,7 +58,7 @@ public class DocumentMessageDispatcher extends AbstractMessageDispatcher {
 				throw new IOException("Filename is null");
 			}
 
-			String template = replacer.replaceValues(connector.getTemplate(), messageObject, filename);
+			String template = replacer.replaceValues(connector.getTemplate(), messageObject);
 			File file = Utility.createFile(endpoint + "/" + filename);
 			logger.info("Writing document to: " + file.getAbsolutePath());
 			writeDocument(template, file, messageObject);

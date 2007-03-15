@@ -185,7 +185,7 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher {
 			PostMethod postMethod = new PostMethod(uri.toString());
 			for (Iterator iter = requestVariables.keySet().iterator(); iter.hasNext();) {
 				String key = (String) iter.next();
-				postMethod.addParameter(key, replacer.replaceValues((String) requestVariables.get(key), messageObject, "http"));
+				postMethod.addParameter(key, replacer.replaceValues((String) requestVariables.get(key), messageObject));
 			}
 			httpMethod = postMethod;
 		} else if (connector.getMethod().equals("get")) {
@@ -202,7 +202,7 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher {
 				String key = (String) iter.next();
 				urlBuilder.append(key);
 				urlBuilder.append("=");
-				urlBuilder.append(replacer.replaceValues((String) requestVariables.get(key), messageObject, "http"));
+				urlBuilder.append(replacer.replaceValues((String) requestVariables.get(key), messageObject));
 				if (iter.hasNext()) {
 					urlBuilder.append("&");
 				}

@@ -210,7 +210,7 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher {
 		String requestMessage = ((AxisConnector) connector).getSoapEnvelope();
 		// Run the template replacer on the xml
 		TemplateValueReplacer replacer = new TemplateValueReplacer();
-		requestMessage = replacer.replaceValues(requestMessage, messageObject, null);
+		requestMessage = replacer.replaceValues(requestMessage, messageObject);
 		Message reqMessage = new Message(requestMessage);
 		// Only set the actionURI if we have one explicitly defined
 		if (((AxisConnector) connector).getSoapActionURI() != null && ((AxisConnector) connector).getSoapActionURI().length() > 0)

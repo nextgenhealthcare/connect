@@ -283,7 +283,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher {
 
 	private void writeTemplatedData(Socket socket, MessageObject data) throws Exception {
 		if (connector.getTemplate() != "") {
-			String template = replacer.replaceValues(connector.getTemplate(), data, "llp");
+			String template = replacer.replaceValues(connector.getTemplate(), data);
 			write(socket, template);
 		} else {
 			write(socket, data.getEncodedData());

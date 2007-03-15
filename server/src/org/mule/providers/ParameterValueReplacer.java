@@ -22,7 +22,7 @@ public class ParameterValueReplacer {
 			return GlobalVariableStore.getInstance().get(key);
 		} else {
 			TemplateValueReplacer replacer = new TemplateValueReplacer();
-			return replacer.replaceValues(template, messageObject, null);
+			return replacer.replaceValues(template, messageObject);
 		}
 	}
 }

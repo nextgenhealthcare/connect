@@ -28,7 +28,7 @@ public class MessageObjectToJMSMessage extends AbstractJmsTransformer {
 			if (messageObject.getStatus().equals(MessageObject.Status.FILTERED)){
 				return null;
 			}
-			String template = replacer.replaceValues(connector.getTemplate(), messageObject, null);
+			String template = replacer.replaceValues(connector.getTemplate(), messageObject);
 			Message message = transformToMessage(template);
             try {
             	message.setStringProperty("MIRTH_MESSAGE_ID", messageObject.getId());

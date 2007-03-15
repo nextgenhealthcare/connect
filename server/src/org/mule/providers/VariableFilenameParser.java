@@ -20,7 +20,7 @@ public class VariableFilenameParser implements FilenameParser {
 
 	public String getFilename(UMOMessageAdapter adaptor, String pattern) {
 		String originalFilename = (String) adaptor.getProperty(PROPERTY_ORIGINAL_FILENAME);
-		return replacer.replaceValues(pattern, messageObject, originalFilename);
+		return replacer.replaceValues(pattern, messageObject);
 	}
 
 }

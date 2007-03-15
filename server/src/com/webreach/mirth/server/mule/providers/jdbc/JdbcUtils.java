@@ -103,7 +103,7 @@ public abstract class JdbcUtils
 				value = new Timestamp(Calendar.getInstance().getTimeInMillis());
 			} else if (root instanceof MessageObject){
 				TemplateValueReplacer parser = new TemplateValueReplacer();
-				value = parser.replaceValues(param, (MessageObject)root, null);
+				value = parser.replaceValues(param, (MessageObject)root);
 				/*
 				value = parser.
 				//If we have a hashmap cast our root object to a HashMap

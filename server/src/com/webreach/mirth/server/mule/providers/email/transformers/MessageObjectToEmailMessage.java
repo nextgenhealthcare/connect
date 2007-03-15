@@ -72,7 +72,7 @@ public class MessageObjectToEmailMessage extends AbstractEventAwareTransformer {
 		
 		// replace values
 		String to = context.getStringProperty(MailProperties.TO_ADDRESSES_PROPERTY, connector.getToAddresses());
-		to = replacer.replaceValues(to, messageObject, null);
+		to = replacer.replaceValues(to, messageObject);
 		
 		String cc = context.getStringProperty(MailProperties.CC_ADDRESSES_PROPERTY, connector.getCcAddresses());
 		String bcc = context.getStringProperty(MailProperties.BCC_ADDRESSES_PROPERTY, connector.getBccAddresses());
@@ -81,7 +81,7 @@ public class MessageObjectToEmailMessage extends AbstractEventAwareTransformer {
 		
 		// replace values
 		String subject = context.getStringProperty(MailProperties.SUBJECT_PROPERTY, connector.getSubject());
-		subject = replacer.replaceValues(subject, messageObject, null);
+		subject = replacer.replaceValues(subject, messageObject);
 		
 		String contentType = context.getStringProperty(MailProperties.CONTENT_TYPE_PROPERTY, connector.getContentType());
 
@@ -155,7 +155,7 @@ public class MessageObjectToEmailMessage extends AbstractEventAwareTransformer {
 	}
 
 	protected void setContent(Object payload, Message msg, String contentType, UMOEventContext context) throws Exception {
-		String body = replacer.replaceValues(((SmtpConnector)endpoint.getConnector()).getBody(), (MessageObject) payload, null); 
+		String body = replacer.replaceValues(((SmtpConnector)endpoint.getConnector()).getBody(), (MessageObject) payload); 
 		msg.setContent(body, contentType);
 	}
 }

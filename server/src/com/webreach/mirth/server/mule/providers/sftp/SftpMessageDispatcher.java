@@ -63,7 +63,7 @@ public class SftpMessageDispatcher extends AbstractMessageDispatcher {
 					throw new IOException("Filename is null");
 				}
 
-				String template = replacer.replaceValues(connector.getTemplate(), messageObject, filename);
+				String template = replacer.replaceValues(connector.getTemplate(), messageObject);
 				byte[] buffer = null;
 				if (connector.isBinary()) {
 					BASE64Decoder base64 = new BASE64Decoder();
