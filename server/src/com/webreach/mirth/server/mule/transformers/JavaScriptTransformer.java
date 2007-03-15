@@ -341,7 +341,12 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 
 		StringBuilder script = new StringBuilder();
 		script.append("importPackage(Packages.com.webreach.mirth.server.util);\n	");
-		script.append("function $(string) { if (globalMap.get(string) != null) { return globalMap.get(string)} else { return localMap.get(string);} }");
+		script.append("function $(string) { ");
+		script.append("if (connectorMap.get(string) != null) { return connectorMap.get(string)} else ");
+		script.append("if (channelMap.get(string) != null) { return channelMap.get(string)} else ");
+		script.append("if (globalMap.get(string) != null) { return globalMap.get(string)} else ");
+		script.append("{ return ''; }}");
+			
 		script.append("function doFilter() {");
 
         script.append("default xml namespace = new Namespace(\"urn:hl7-org:v2xml\");");
@@ -358,7 +363,12 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 		script.append("importPackage(Packages.com.webreach.mirth.server.util);\n");
 		// script used to check for exitence of segment
 		script.append("function validate(mapping, defaultValue, replacement) { var result = ''; if (mapping != undefined) {result = mapping.toString();} if (result.length == 0) {result = defaultValue;} if (replacement != undefined) { for (i = 0; i < replacement.length; i++) { var entry = replacement[0]; result = result.replace(entry[0],entry[1]); \n} } return result; }");
-		script.append("function $(string) { if (globalMap.get(string) != null) { return globalMap.get(string) } else { return localMap.get(string);} }");
+		script.append("function $(string) { ");
+		script.append("if (connectorMap.get(string) != null) { return connectorMap.get(string)} else ");
+		script.append("if (channelMap.get(string) != null) { return channelMap.get(string)} else ");
+		script.append("if (globalMap.get(string) != null) { return globalMap.get(string)} else ");
+		script.append("{ return ''; }}");
+			
 		script.append("function doTransform() {");
 
 		// RHINO seems to need this in order to function properly.
