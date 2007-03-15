@@ -76,20 +76,21 @@ public class ER7XMLHandler extends DefaultHandler {
 			sawHeader = true;
 		}else{
 			if (name.equals("MSH.1") || name.equals("BHS.1") || name.equals("FHS.1")){
-				lastinSubelement = true;
+				lastinSubelement = false;
 			}else if (currentLocation.equals(Location.DOCUMENT)){
 				output.append(name);
 				currentLocation = Location.SEGMENT;
 				lastinSubelement = false;
 			}else if (currentLocation.equals(Location.SEGMENT)){
-				if (lastinSubelement){
-					output.deleteCharAt(output.length()-1);
-				}
-				lastinSubelement = false;
 				output.append(fieldDelim);
 				currentLocation = Location.ELEMENT;
+				lastinSubelement = false;
 			}else if (currentLocation.equals(Location.ELEMENT)){
+				if (lastinSubelement){
+					output.append(componentDelim);
+				}
 				currentLocation = Location.SUBELEMENT;
+				lastinSubelement = true;
 			}
 		}
 	}
@@ -98,26 +99,19 @@ public class ER7XMLHandler extends DefaultHandler {
 		if (name.equals("MSH.1") || name.equals("BHS.1") || name.equals("FHS.1")){
 			//output.append("|");
 			//currentLocation = Location.DOCUMENT;
+			output.deleteCharAt(output.length() - 1);
 		}else if (currentLocation.equals(Location.SEGMENT)){
+			//output.deleteCharAt(output.length() - 1);
 			output.append(segmentDelim);
 			currentLocation = Location.DOCUMENT;
 		}else if (currentLocation.equals(Location.ELEMENT)){
-			//output.append(fieldDelim);
-			if (lastinSubelement){
-				output.deleteCharAt(output.length()-1);
-			}
-			lastinSubelement = false;
+			
 			currentLocation = Location.SEGMENT;
 		}else if (currentLocation.equals(Location.SUBELEMENT)){
 			
-			output.append(componentDelim);
-			lastinSubelement = true;
 			currentLocation = Location.ELEMENT;
 		}else if (currentLocation.equals(Location.DOCUMENT)){
-			if (lastinSubelement){
-				output.deleteCharAt(output.length()-2);
-			}
-			lastinSubelement = false;
+			
 		}
 		
 	}

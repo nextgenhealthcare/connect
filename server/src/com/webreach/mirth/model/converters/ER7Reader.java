@@ -192,13 +192,20 @@ public class ER7Reader extends SAXParser {
 							contentHandler.endElement("", segmentID + "." + (fieldID), null);
 						} else {
 							contentHandler.startElement("", segmentID + "." + fieldID, "", null);
+							contentHandler.startElement("", segmentID + "." + fieldID + ".1", "", null);
+							
 							// Set the text contents to the value
 							contentHandler.characters(element.toCharArray(), 0, element.length());
+							contentHandler.endElement("", segmentID + "." + (fieldID) + ".1", null);
 							contentHandler.endElement("", segmentID + "." + (fieldID), null);
 						}
 						
 					}
-
+					
+				}
+				if (lastsegElement) {
+					contentHandler.startElement("", segmentID + "." + fieldID, "", null);
+					contentHandler.endElement("", segmentID + "." + fieldID, "");
 				}
 				contentHandler.endElement("", segmentID, "");
 
