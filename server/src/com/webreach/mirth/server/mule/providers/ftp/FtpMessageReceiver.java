@@ -60,21 +60,15 @@ public class FtpMessageReceiver extends PollingMessageReceiver {
 	private FilenameFilter filenameFilter = null;
 	private boolean routingError = false;
 	private AlertController alertController = new AlertController();
-	private FTPClient client = null;
-	private UMOEndpointURI uri = null;
 	
 	public FtpMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint, Long frequency) throws InitialisationException {
 		super(connector, component, endpoint, frequency);
 		this.connector = (FtpConnector) connector;
-		this.uri = endpoint.getEndpointURI();
 		filenameFilter = new FilenameWildcardFilter(this.connector.getFileFilter());
 	}
 
 	public void poll() {
 		try {
-			if (this.client == null || !this.client.isConnected()){
-				client = this.connector.getFtp(uri);
-			}
 			FTPFile[] files = listFiles();
 			sortFiles(files);
 
@@ -101,12 +95,6 @@ public class FtpMessageReceiver extends PollingMessageReceiver {
 			}
 		} catch (Exception e) {
 			alertController.sendAlerts(((FtpConnector) connector).getChannelId(), Constants.ERROR_405, null, e);
-			try {
-				connector.releaseFtp(uri, client);
-			} catch (Exception e1) {
-				// TODO Auto-generated catch block
-				logger.error(e1);
-			}
 			handleException(e);
 		}
 	}
@@ -136,10 +124,10 @@ public class FtpMessageReceiver extends PollingMessageReceiver {
 	}
 
 	protected FTPFile[] listFiles() throws Exception {
-	
-			if (this.client == null || !this.client.isConnected()){
-				client = this.connector.getFtp(uri);
-			}
+		FTPClient client = null;
+		UMOEndpointURI uri = endpoint.getEndpointURI();
+		try {
+			client = connector.getFtp(uri);
 			if (!client.changeWorkingDirectory(uri.getPath())) {
 				throw new IOException("Ftp error: " + client.getReplyCode());
 			}
@@ -160,7 +148,9 @@ public class FtpMessageReceiver extends PollingMessageReceiver {
 			}
 			return (FTPFile[]) v.toArray(new FTPFile[v.size()]);
 
-		
+		} finally {
+			connector.releaseFtp(uri, client);
+		}
 	}
 
 	protected void processFile(FTPFile file) throws Exception {
@@ -178,13 +168,12 @@ public class FtpMessageReceiver extends PollingMessageReceiver {
 		adapter.setProperty(FileConnector.PROPERTY_ORIGINAL_FILENAME, originalFilename);
 		String destinationFile = null;
 		boolean resultOfFileMoveOperation = false;
+		FTPClient client = null;
 		String moveDir = connector.getMoveToDirectory();
 
 		try {
 
-			if (this.client == null || !this.client.isConnected()){
-				client = this.connector.getFtp(uri);
-			}
+			client = connector.getFtp(uri);
 			if (moveDir != null) {
 
 				String fileName = file.getName();
@@ -277,11 +266,15 @@ public class FtpMessageReceiver extends PollingMessageReceiver {
 			// connector.stopConnector();
 			// TODO: This was commented out (above). Do we need it?
 			routingError = true;
-		} 
+		} finally {
+			connector.releaseFtp(uri, client);
+		}
 	}
 
 	public void doConnect() throws Exception {
-		client = connector.getFtp(getEndpointURI());
+		FTPClient client = connector.getFtp(getEndpointURI());
+		connector.releaseFtp(getEndpointURI(), client);
+
 	}
 
 	public void doDisconnect() throws Exception {
