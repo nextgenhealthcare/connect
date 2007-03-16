@@ -227,12 +227,14 @@ public class ChannelSetup extends javax.swing.JPanel
      * Is called to load the transformer pane on either the source or
      * destination
      */
-    public void editTransformer()
+    public String editTransformer()
     {
+        String name = "";
         boolean changed = parent.changesHaveBeenMade();
 
         if (channelView.getSelectedIndex() == SOURCE_TAB_INDEX)
         {
+            name = "Source";
             transformerPane.load(currentChannel.getSourceConnector(), currentChannel.getSourceConnector().getTransformer(), changed);
         }
 
@@ -240,16 +242,20 @@ public class ChannelSetup extends javax.swing.JPanel
         {
             int destination = getDestinationConnectorIndex((String) destinationTable.getValueAt(getSelectedDestinationIndex(), getColumnNumber(DESTINATION_COLUMN_NAME)));
             transformerPane.load(currentChannel.getDestinationConnectors().get(destination), currentChannel.getDestinationConnectors().get(destination).getTransformer(), changed);
+            name = currentChannel.getDestinationConnectors().get(destination).getName();
         }
+        return name; 
     }
 
     /** Is called to load the filter pane on either the source or destination */
-    public void editFilter()
+    public String editFilter()
     {
+        String name = "";
         boolean changed = parent.changesHaveBeenMade();
 
         if (channelView.getSelectedIndex() == SOURCE_TAB_INDEX)
         {
+            name = "Source";
             filterPane.load(currentChannel.getSourceConnector(), currentChannel.getSourceConnector().getFilter(), currentChannel.getSourceConnector().getTransformer(), changed);
         }
 
@@ -257,7 +263,10 @@ public class ChannelSetup extends javax.swing.JPanel
         {
             Connector destination = currentChannel.getDestinationConnectors().get(getDestinationConnectorIndex((String) destinationTable.getValueAt(getSelectedDestinationIndex(), getColumnNumber(DESTINATION_COLUMN_NAME))));
             filterPane.load(destination, destination.getFilter(), destination.getTransformer(), changed);
+            name = destination.getName();
         }
+        
+        return name;
     }
 
     /**

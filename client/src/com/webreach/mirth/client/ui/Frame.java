@@ -2633,8 +2633,8 @@ public class Frame extends JXFrame
         if (channelEditPanel.transformerPane == null)
             channelEditPanel.transformerPane = new TransformerPane();
 
-        setPanelName("Edit Channel - " + channelEditPanel.currentChannel.getName() + " - Edit Transformer");
-        channelEditPanel.editTransformer();
+        String name = channelEditPanel.editTransformer();
+        setPanelName("Edit Channel - " + channelEditPanel.currentChannel.getName() + " - " + name + " Transformer");
     }
 
     public void doEditFilter()
@@ -2642,8 +2642,8 @@ public class Frame extends JXFrame
         if (channelEditPanel.filterPane == null)
             channelEditPanel.filterPane = new FilterPane();
 
-        setPanelName("Edit Channel - " + channelEditPanel.currentChannel.getName() + " - Edit Filter");
-        channelEditPanel.editFilter();
+        String name = channelEditPanel.editFilter();
+        setPanelName("Edit Channel - " + channelEditPanel.currentChannel.getName() + " - " + name + " Filter");
     }
 
     public void doSaveSettings()
