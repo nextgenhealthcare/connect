@@ -309,9 +309,16 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 				encodedDataProtocol = Protocol.valueOf(this.getOutboundProtocol());
 				encodedDataProperties = this.getOutboundProperties();
 			} else {
-				transformedData = scope.get("msg", scope);
-				encodedDataProtocol = Protocol.valueOf(this.getInboundProtocol());
-				encodedDataProperties = this.getInboundProperties();
+				if (this.getInboundProtocol().equals(Protocol.XML) && !this.getOutboundProtocol().equals(Protocol.XML)){
+					//we don't have a template and we have XML coming in, let's convert it
+					transformedData = scope.get("msg", scope);
+					encodedDataProtocol = Protocol.valueOf(this.getOutboundProtocol());
+					encodedDataProperties = this.getOutboundProperties();
+				}else{
+					transformedData = scope.get("msg", scope);
+					encodedDataProtocol = Protocol.valueOf(this.getInboundProtocol());
+					encodedDataProperties = this.getInboundProperties();
+				}
 			}
 
 			if (transformedData != Scriptable.NOT_FOUND) {
