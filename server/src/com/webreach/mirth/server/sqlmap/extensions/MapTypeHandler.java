@@ -1,6 +1,7 @@
 package com.webreach.mirth.server.sqlmap.extensions;
 
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -14,12 +15,13 @@ public class MapTypeHandler implements TypeHandlerCallback {
 	private ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 
 	public void setParameter(ParameterSetter setter, Object parameter) throws SQLException {
-		Map map = (Map) parameter;
+		Map parameterMap = (Map) parameter;
+		Map map = new HashMap();
 		
 		// convert the values in the variable map to strings
-		for (Iterator iter = map.entrySet().iterator(); iter.hasNext();) {
+		for (Iterator iter = parameterMap.entrySet().iterator(); iter.hasNext();) {
 			Entry entry = (Entry) iter.next();
-			entry.setValue(entry.getValue().toString());
+			map.put(entry.getKey(), entry.getValue().toString());
 		}
 
 		setter.setString(serializer.toXML(map));
