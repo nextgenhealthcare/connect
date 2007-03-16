@@ -65,6 +65,7 @@ import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
 import com.webreach.mirth.client.ui.components.MirthSyntaxTextArea;
 import com.webreach.mirth.client.ui.util.FileUtil;
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.model.MessageObject.Protocol;
 import com.webreach.mirth.model.converters.DocumentSerializer;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.model.filters.MessageObjectFilter;
@@ -574,22 +575,9 @@ public class MessageBrowser extends javax.swing.JPanel
                 this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
                 MessageObject currentMessage = messageObjectList.get(row);
-                // format the xml
-                DocumentSerializer serializer = new DocumentSerializer();
-                serializer.setPreserveSpace(false);
-                String transformedData = currentMessage.getTransformedData();
-                String transformmedXML = new String();
-                if (transformedData != null && transformedData.length() > 0)
-                {
-                	try{
-                		Document doc = serializer.fromXML(transformedData);
-                		transformmedXML = serializer.toXML(doc);
-                	}catch(Exception e){
-                		transformmedXML = transformedData;
-                	}
-                }
+                
                 setCorrectDocument(RawMessageTextPane, currentMessage.getRawData(), currentMessage.getRawDataProtocol());
-                setCorrectDocument(TransformedMessageTextPane, transformmedXML, currentMessage.getTransformedDataProtocol());
+                setCorrectDocument(TransformedMessageTextPane, currentMessage.getTransformedData(), currentMessage.getTransformedDataProtocol());
                 setCorrectDocument(EncodedMessageTextPane, currentMessage.getEncodedData(), currentMessage.getEncodedDataProtocol());
                 setCorrectDocument(ErrorsTextPane, currentMessage.getErrors(), null);
                 
@@ -652,16 +640,27 @@ public class MessageBrowser extends javax.swing.JPanel
                     // The syntax editor box only recognizes \n
                     // Add \n to make things look normal
                 }
-                else if (protocol.equals(MessageObject.Protocol.XML))
+                else if (protocol.equals(MessageObject.Protocol.XML) || protocol.equals(Protocol.HL7V3)){
                     newDoc.setTokenMarker(new XMLTokenMarker());
-                else if (protocol.equals(MessageObject.Protocol.X12))
+                    DocumentSerializer serializer = new DocumentSerializer();
+                    serializer.setPreserveSpace(false);
+                    if (protocol.equals(Protocol.XML)){
+                    	try{
+                    		Document doc = serializer.fromXML(message);
+                    		message = serializer.toXML(doc);
+                    	}catch(Exception e){
+                    		System.out.println(e.getMessage());
+                    	}
+                    }
+                }else if (protocol.equals(MessageObject.Protocol.X12)){
                     newDoc.setTokenMarker(new XMLTokenMarker());
-                else if (protocol.equals(MessageObject.Protocol.EDI))
+                }else if (protocol.equals(MessageObject.Protocol.EDI)){
                     newDoc.setTokenMarker(new XMLTokenMarker());
+            	}
             }
 
             textPane.setDocument(newDoc);
-            textPane.setText(message); // TODO: Check newlines
+            textPane.setText(message); 
         }
         else
         {
