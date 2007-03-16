@@ -80,4 +80,14 @@ public class ScriptController {
 			throw new ControllerException(e);
 		}
 	}
+	
+	public void clearScripts() throws ControllerException {
+		logger.debug("clearing scripts table");
+		
+		try {
+			sqlMap.delete("deleteScript", null);
+		} catch (SQLException e) {
+			throw new ControllerException("error clearing scripts", e);
+		}
+	}
 }

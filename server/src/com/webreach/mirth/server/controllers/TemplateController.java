@@ -80,4 +80,14 @@ public class TemplateController {
 			throw new ControllerException(e);
 		}
 	}
+	
+	public void clearTemplates() throws ControllerException {
+		logger.debug("clearing templates table");
+		
+		try {
+			sqlMap.delete("deleteTemplate", null);
+		} catch (SQLException e) {
+			throw new ControllerException("error clearing templates", e);
+		}
+	}
 }

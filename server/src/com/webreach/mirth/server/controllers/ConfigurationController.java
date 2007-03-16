@@ -194,11 +194,16 @@ public class ConfigurationController {
 	public void deployChannels() throws ControllerException {
 		logger.debug("deploying channels");
 
+		ScriptController scriptController = new ScriptController();
+		TemplateController templateController = new TemplateController();
+
+		stopAllChannels();
+		scriptController.clearScripts();
+		templateController.clearTemplates();
+
 		try {
 			ChannelController channelController = new ChannelController();
-			ChannelStatusController channelStatusController = new ChannelStatusController();
-			CommandQueue queue = CommandQueue.getInstance();
-
+			
 			// instantiate a new configuration builder given the current channel
 			// and transport list
 			List<Channel> channels = channelController.getChannel(null);
@@ -207,23 +212,26 @@ public class ConfigurationController {
 			addConfiguration(builder.getConfiguration());
 			// update the storeMessages reference
 			channelController.updateChannelCache(channels);
+
 			// restart the mule engine which will grab the latest configuration
 			// from the database
-
-			// stop all current running channels
-			List<ChannelStatus> deployedChannels = channelStatusController.getChannelStatusList();
-			
-			for (Iterator iter = deployedChannels.iterator(); iter.hasNext();) {
-				ChannelStatus status = (ChannelStatus) iter.next();
-				channelStatusController.stopChannel(status.getChannelId());
-			}
-			
+			CommandQueue queue = CommandQueue.getInstance();
 			queue.addCommand(new Command(Command.Operation.RESTART));
 		} catch (Exception e) {
 			throw new ControllerException(e);
 		}
 
 		systemLogger.logSystemEvent(new SystemEvent("Channels deployed."));
+	}
+	
+	private void stopAllChannels() throws ControllerException {
+		ChannelStatusController channelStatusController = new ChannelStatusController();
+		List<ChannelStatus> deployedChannels = channelStatusController.getChannelStatusList();
+		
+		for (Iterator iter = deployedChannels.iterator(); iter.hasNext();) {
+			ChannelStatus status = (ChannelStatus) iter.next();
+			channelStatusController.stopChannel(status.getChannelId());
+		}
 	}
 
 	/**

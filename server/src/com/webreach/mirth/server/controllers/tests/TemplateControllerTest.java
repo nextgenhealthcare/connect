@@ -25,7 +25,7 @@ public class TemplateControllerTest extends TestCase {
 		super.tearDown();
 	}
 
-	public void testPutScript() throws ControllerException {
+	public void testPutTemplate() throws ControllerException {
 		String id = configurationController.getGuid();
 		String template = "<sample><test>hello world</test></sample>";
 		templateController.putTemplate(id, template);
@@ -33,11 +33,21 @@ public class TemplateControllerTest extends TestCase {
 		Assert.assertEquals(template, templateController.getTemplate(id));
 	}
 
-	public void testGetScript() throws ControllerException {
+	public void testGetTemplate() throws ControllerException {
 		String id = configurationController.getGuid();
 		String template = "<sample><test>hello world</test></sample>";
 		templateController.putTemplate(id, template);
 
 		Assert.assertEquals(template, templateController.getTemplate(id));
 	}
+	
+	public void testClearTemplates() throws ControllerException {
+		String id = configurationController.getGuid();
+		String template = "<sample><test>hello world</test></sample>";
+		templateController.putTemplate(id, template);
+		templateController.clearTemplates();
+		
+		Assert.assertNull(templateController.getTemplate(id));
+	}
+
 }

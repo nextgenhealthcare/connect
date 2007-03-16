@@ -40,4 +40,14 @@ public class ScriptControllerTest extends TestCase {
 
 		Assert.assertEquals(script, scriptController.getScript(id));
 	}
+	
+	public void testClearScripts() throws ControllerException {
+		String id = configurationController.getGuid();
+		String script = "return true;";
+		scriptController.putScript(id, script);
+		scriptController.clearScripts();
+		
+		Assert.assertNull(scriptController.getScript(id));
+	}
+
 }
