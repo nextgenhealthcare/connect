@@ -74,16 +74,46 @@ public class VariableTransferable implements Transferable
             this.data = "date.get('yyyy-M-d H:m:s')";
         else if (data.equals("Entity Encoder"))
             this.data = "encoder.encode()";
-        else if (data.equals("ERROR-000 (Server error)"))
+        else if (data.equals("Server error"))
             this.data = "ERROR-000";
-        else if (data.equals("ERROR-100 (Client error)"))
+        else if (data.equals("Client error"))
             this.data = "ERROR-100";
-        else if (data.equals("ERROR-200 (Filter error)"))
+        else if (data.equals("Filter error"))
             this.data = "ERROR-200";
-        else if (data.equals("ERROR-300 (Transformer error)"))
+        else if (data.equals("Transformer error"))
             this.data = "ERROR-300";
-        else if (data.equals("ERROR-400 (Connector error)"))
+        else if (data.equals("Transformer conversion error"))
+            this.data = "ERROR-301";
+        else if (data.equals("Custom transformer error"))
+            this.data = "ERROR-302";
+        else if (data.equals("Connector error"))
             this.data = "ERROR-400";
+        else if (data.equals("Document connector error"))
+            this.data = "ERROR-401";
+        else if (data.equals("SMTP connector error"))
+            this.data = "ERROR-402";
+        else if (data.equals("File connector error"))
+            this.data = "ERROR-403";
+        else if (data.equals("HTTP connector error"))
+            this.data = "ERROR-404";
+        else if (data.equals("FTP connector error"))
+            this.data = "ERROR-405";
+        else if (data.equals("JDBC Connector error"))
+            this.data = "ERROR-406";
+        else if (data.equals("JMS Connector error"))
+            this.data = "ERROR-407";
+        else if (data.equals("MLLP Connector error"))
+            this.data = "ERROR-408";
+        else if (data.equals("SFTP Connector error"))
+            this.data = "ERROR-409";
+        else if (data.equals("SOAP Connector error"))
+            this.data = "ERROR-410";
+        else if (data.equals("TCP Connector error"))
+            this.data = "ERROR-411";
+        else if (data.equals("VM Connector error"))
+            this.data = "ERROR-412";
+        else if (data.equals("Email Connector error"))
+            this.data = "ERROR-413";        
         else
             this.data = data;
         _prefix = prefix;

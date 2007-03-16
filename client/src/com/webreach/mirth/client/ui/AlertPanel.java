@@ -448,11 +448,26 @@ public class AlertPanel extends javax.swing.JPanel
     public void setAlertErrorList()
     {
         ArrayList<String> variables = new ArrayList<String>();
-        variables.add("ERROR-000 (Server error)");
-        variables.add("ERROR-100 (Client error)");
-        variables.add("ERROR-200 (Filter error)");
-        variables.add("ERROR-300 (Transformer error)");
-        variables.add("ERROR-400 (Connector error)");
+        variables.add("Server error");
+        variables.add("Client error");
+        variables.add("Filter error");
+        variables.add("Transformer error");
+        variables.add("Transformer conversion error");
+        variables.add("Custom transformer error");
+        variables.add("Connector error");
+        variables.add("Document connector error");
+        variables.add("SMTP connector error");
+        variables.add("File connector error");
+        variables.add("HTTP connector error");
+        variables.add("FTP connector error");
+        variables.add("JDBC Connector error");
+        variables.add("JMS Connector error");
+        variables.add("MLLP Connector error");
+        variables.add("SFTP Connector error");
+        variables.add("SOAP Connector error");
+        variables.add("TCP Connector error");
+        variables.add("VM Connector error");
+        variables.add("Email Connector error");
         errorList.removeAll();
         errorList.setListData(variables.toArray());
         errorScrollPane.setViewportView(errorList);

@@ -115,9 +115,11 @@ public class FilterPane extends MirthEditorPane
         transformer = t;
         connector = c;
         channel = PlatformUI.MIRTH_FRAME.channelEditPanel.currentChannel;
-
+        
         // we need to clear all the old data before we load the new
         makeFilterTable();
+        
+        parent.setCurrentContentPage((JPanel) this);
 
         // add any existing steps to the model
         List<Rule> list = filter.getRules();
@@ -147,7 +149,6 @@ public class FilterPane extends MirthEditorPane
         }
 
         filterTaskPaneContainer.add(parent.getOtherPane());
-        parent.setCurrentContentPage((JPanel) this);
         parent.setCurrentTaskPaneContainer(filterTaskPaneContainer);
 
         if (connector.getMode() == Connector.Mode.SOURCE)

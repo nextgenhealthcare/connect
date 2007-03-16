@@ -231,6 +231,7 @@ public class MessageTreeTemplate extends javax.swing.JPanel
     // GEN-FIRST:event_propertiesActionPerformed
     private void propertiesActionPerformed(java.awt.event.ActionEvent evt)
     {// GEN-HEADEREND:event_propertiesActionPerformed
+        PlatformUI.MIRTH_FRAME.enableSave();
         if (((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.EDI)))
             new BoundPropertiesSheetDialog(dataProperties, new EDIProperties());
         else if (((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.X12)))

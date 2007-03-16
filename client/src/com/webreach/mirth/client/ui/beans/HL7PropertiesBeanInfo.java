@@ -25,19 +25,14 @@ public class HL7PropertiesBeanInfo extends SimpleBeanInfo
     
     
     // Property identifiers//GEN-FIRST:Properties
-    private static final int PROPERTY_receiveXML = 0;
-    private static final int PROPERTY_useStrictParser = 1;
+    private static final int PROPERTY_useStrictParser = 0;
 
     // Property array 
     /*lazy PropertyDescriptor*/
     private static PropertyDescriptor[] getPdescriptor(){
-        PropertyDescriptor[] properties = new PropertyDescriptor[2];
+        PropertyDescriptor[] properties = new PropertyDescriptor[1];
     
         try {
-            properties[PROPERTY_receiveXML] = new PropertyDescriptor ( "receiveXML", com.webreach.mirth.client.ui.beans.HL7Properties.class, "isReceiveXML", "setReceiveXML" ); // NOI18N
-            properties[PROPERTY_receiveXML].setDisplayName ( "Receive Pre-encoded XML" );
-            properties[PROPERTY_receiveXML].setShortDescription ( "Receive HL7 already encoded into XML." );
-            properties[PROPERTY_receiveXML].setBound ( true );
             properties[PROPERTY_useStrictParser] = new PropertyDescriptor ( "useStrictParser", com.webreach.mirth.client.ui.beans.HL7Properties.class, "isUseStrictParser", "setUseStrictParser" ); // NOI18N
             properties[PROPERTY_useStrictParser].setDisplayName ( "Use Strict Parser" );
             properties[PROPERTY_useStrictParser].setShortDescription ( "Validate messages based upon message specifications." );

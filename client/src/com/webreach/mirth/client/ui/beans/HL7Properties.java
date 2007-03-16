@@ -47,26 +47,4 @@ public class HL7Properties implements Serializable
         this.useStrictParser = useStrictParser;
     }
 
-    /**
-     * Holds value of property receiveXML.
-     */
-    private boolean receiveXML = false;
-
-    /**
-     * Getter for property receiveXML.
-     * @return Value of property receiveXML.
-     */
-    public boolean isReceiveXML()
-    {
-        return this.receiveXML;
-    }
-
-    /**
-     * Setter for property receiveXML.
-     * @param receiveXML New value of property receiveXML.
-     */
-    public void setReceiveXML(boolean receiveXML)
-    {
-        this.receiveXML = receiveXML;
-    }   
 }

@@ -119,13 +119,14 @@ public class TransformerPane extends MirthEditorPane
         prevSelRow = -1;
         connector = c;
         transformer = t;
+        channel = PlatformUI.MIRTH_FRAME.channelEditPanel.currentChannel;
+        
+        makeTransformerTable();
+        
+        parent.setCurrentContentPage((JPanel) this);
         
         tabTemplatePanel.setDefaultComponent();
         tabTemplatePanel.tabPanel.add("Outgoing Data", tabTemplatePanel.outgoingTab);
-
-        channel = PlatformUI.MIRTH_FRAME.channelEditPanel.currentChannel;
-
-        makeTransformerTable();
 
         // add any existing steps to the model
         List<Step> list = transformer.getSteps();
@@ -151,7 +152,7 @@ public class TransformerPane extends MirthEditorPane
             builderPanel.setData(null);
             loadData(-1);
         }
-
+        
         if (connector.getMode() == Connector.Mode.SOURCE)
         {
             tabTemplatePanel.setIncomingDataType(PlatformUI.MIRTH_FRAME.channelEditPanel.getSourceDatatype());
@@ -181,12 +182,12 @@ public class TransformerPane extends MirthEditorPane
 
         transformerTable.setBorder(BorderFactory.createEmptyBorder());
         transformerTaskPaneContainer.add(parent.getOtherPane());
-        parent.setCurrentContentPage((JPanel) this);
+        
         parent.setCurrentTaskPaneContainer(transformerTaskPaneContainer);
 
         updateStepNumbers();
         updateTaskPane();
-
+        
         if (channelHasBeenChanged)
             modified = true;
         else
