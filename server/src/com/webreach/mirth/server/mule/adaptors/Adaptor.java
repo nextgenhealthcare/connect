@@ -47,10 +47,10 @@ public abstract class Adaptor {
 	 * Converts a message for destination transformers
 	 * @throws  
 	 */
-	public MessageObject convertMessage(MessageObject messageObject, String connectorName, String channelId, boolean encryptData, Map properties) throws AdaptorException {
+	public MessageObject convertMessage(MessageObject incomingMessageObject, String connectorName, String channelId, boolean encryptData, Map properties) throws AdaptorException {
 		//The source is the encoded data
-		this.messageObject = messageObjectController.cloneMessageObjectForBroadcast(messageObject, connectorName);
-		this.source = messageObject.getRawData();
+		this.messageObject = messageObjectController.cloneMessageObjectForBroadcast(incomingMessageObject, connectorName);
+		this.source = this.messageObject.getRawData();
         this.properties = properties;
         this.serializer = getSerializer(properties);
 		populateMessage();

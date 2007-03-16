@@ -309,7 +309,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 				encodedDataProtocol = Protocol.valueOf(this.getOutboundProtocol());
 				encodedDataProperties = this.getOutboundProperties();
 			} else {
-				if (this.getInboundProtocol().equals(Protocol.XML) && !this.getOutboundProtocol().equals(Protocol.XML)){
+				if (this.getInboundProtocol().equals(Protocol.XML.toString()) && !this.getOutboundProtocol().equals(Protocol.XML.toString())){
 					//we don't have a template and we have XML coming in, let's convert it
 					transformedData = scope.get("msg", scope);
 					encodedDataProtocol = Protocol.valueOf(this.getOutboundProtocol());
@@ -329,6 +329,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 			if ((messageObject.getTransformedData() != null)) {
 				IXMLSerializer<String> serializer = AdaptorFactory.getAdaptor(encodedDataProtocol).getSerializer(encodedDataProperties);
 				messageObject.setEncodedData(serializer.fromXML(messageObject.getTransformedData()));
+				messageObject.setEncodedDataProtocol(encodedDataProtocol);
 			}
 
 			messageObject.setStatus(MessageObject.Status.TRANSFORMED);
