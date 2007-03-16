@@ -8,11 +8,6 @@
 		<filter-name>2WayFilter</filter-name>
 		<filter-class>com.osmoticweb.gzipfilter.GZIP2WayFilter</filter-class>
     </filter>
-    
-	<filter-mapping>
-		<filter-name>2WayFilter</filter-name>
-		<url-pattern>/*</url-pattern>
-	</filter-mapping>
 
 	<display-name>Mirth Server</display-name>
 
@@ -31,6 +26,10 @@
 		<servlet-name>Channels</servlet-name>
 		<url-pattern>/channels</url-pattern>
 	</servlet-mapping>
+	<filter-mapping>
+		<filter-name>2WayFilter</filter-name>
+		<url-pattern>/channels</url-pattern>
+	</filter-mapping>
 
 	<servlet>
 		<servlet-name>Configuration</servlet-name>
@@ -43,6 +42,10 @@
 		<servlet-name>Configuration</servlet-name>
 		<url-pattern>/configuration</url-pattern>
 	</servlet-mapping>
+	<filter-mapping>
+		<filter-name>2WayFilter</filter-name>
+		<url-pattern>/configuration</url-pattern>
+	</filter-mapping>
 
 	<servlet>
 		<servlet-name>Users</servlet-name>
@@ -55,6 +58,10 @@
 		<servlet-name>Users</servlet-name>
 		<url-pattern>/users</url-pattern>
 	</servlet-mapping>
+	<filter-mapping>
+		<filter-name>2WayFilter</filter-name>
+		<url-pattern>/users</url-pattern>
+	</filter-mapping>
 
 	<servlet>
 		<servlet-name>Alerts</servlet-name>
@@ -67,6 +74,10 @@
 		<servlet-name>Alerts</servlet-name>
 		<url-pattern>/alerts</url-pattern>
 	</servlet-mapping>
+	<filter-mapping>
+		<filter-name>2WayFilter</filter-name>
+		<url-pattern>/alerts</url-pattern>
+	</filter-mapping>
 
 	<servlet>
 		<servlet-name>SystemEvent</servlet-name>
@@ -79,6 +90,10 @@
 		<servlet-name>SystemEvent</servlet-name>
 		<url-pattern>/events</url-pattern>
 	</servlet-mapping>
+	<filter-mapping>
+		<filter-name>2WayFilter</filter-name>
+		<url-pattern>/events</url-pattern>
+	</filter-mapping>
 
 	<servlet>
 		<servlet-name>MessageObject</servlet-name>
@@ -91,6 +106,10 @@
 		<servlet-name>MessageObject</servlet-name>
 		<url-pattern>/messages</url-pattern>
 	</servlet-mapping>
+	<filter-mapping>
+		<filter-name>2WayFilter</filter-name>
+		<url-pattern>/messages</url-pattern>
+	</filter-mapping>
 
 	<servlet>
 		<servlet-name>ChannelStatus</servlet-name>
@@ -103,6 +122,10 @@
 		<servlet-name>ChannelStatus</servlet-name>
 		<url-pattern>/channelstatus</url-pattern>
 	</servlet-mapping>
+	<filter-mapping>
+		<filter-name>2WayFilter</filter-name>
+		<url-pattern>/channelstatus</url-pattern>
+	</filter-mapping>
 
 	<servlet>
 		<servlet-name>ChannelStatistics</servlet-name>
@@ -115,6 +138,10 @@
 		<servlet-name>ChannelStatistics</servlet-name>
 		<url-pattern>/channelstatistics</url-pattern>
 	</servlet-mapping>
+	<filter-mapping>
+		<filter-name>2WayFilter</filter-name>
+		<url-pattern>/channelstatistics</url-pattern>
+	</filter-mapping>
 
 	<servlet>
 		<servlet-name>WebStart</servlet-name>
