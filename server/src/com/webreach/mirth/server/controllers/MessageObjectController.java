@@ -39,6 +39,7 @@ import com.ibatis.sqlmap.client.SqlMapClient;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.Response;
+import com.webreach.mirth.model.converters.ObjectCloner;
 import com.webreach.mirth.model.converters.ObjectClonerException;
 import com.webreach.mirth.model.filters.MessageObjectFilter;
 import com.webreach.mirth.server.builders.ErrorMessageBuilder;
@@ -57,6 +58,7 @@ public class MessageObjectController {
 
 	public void updateMessage(MessageObject messageObject) {
 		try {
+			//MessageObject messageObject = (MessageObject)ObjectCloner.deepCopy(incomingMessageObject);
 			String channelId = messageObject.getChannelId();
 			HashMap<String, Channel> channelCache = ChannelController.getChannelCache();
 
@@ -69,7 +71,7 @@ public class MessageObjectController {
 						// If we don't want to store messages, then lets
 						// sanitize the data in a clone
 						// TODO: Check if pass by value
-						messageObject = (MessageObject) messageObject.clone();
+						//messageObject = (MessageObject) messageObject.clone();
 						messageObject.setRawData(MESSAGE_NO_DATA_STORE);
 						messageObject.setEncodedData(MESSAGE_NO_DATA_STORE);
 						messageObject.setTransformedData(MESSAGE_NO_DATA_STORE);
@@ -233,23 +235,17 @@ public class MessageObjectController {
 		return parameterMap;
 	}
 
-	public MessageObject cloneMessageObjectForBroadcast(MessageObject messageObject, String connectorName) throws ObjectClonerException {
-		MessageObject clone = (MessageObject) messageObject.clone();
+	public MessageObject cloneMessageObjectForBroadcast(MessageObject messageObject, String connectorName)  {
+		MessageObject clone = new MessageObject();
 		// We could use deep copy here, but see the notes below
 		clone.setId(UUIDGenerator.getUUID());
 		clone.setDateCreated(Calendar.getInstance());
 		clone.setCorrelationId(messageObject.getId());
 		clone.setConnectorName(connectorName);
-		// We don't want to clone the maps from the original message...
-		clone.setConnectorMap(new HashMap()); // the var map is local
-		// ...or do we?
-		// This works depending on clone or deepCopy.
-		// If we deep copy, we need to set the response and context maps
-		// If we clone, the clone is just setting references for us
-		// Some might call that a bug, but we use it as a feature...
-		// At least we're documenting it here.
-		// clone.setResponseMap(new HashMap()); //maybe null???
-		// clone.setContextMap(messageObject.getContextMap());
+		clone.setRawData(messageObject.getEncodedData());
+		clone.setResponseMap(messageObject.getResponseMap());
+		clone.setChannelMap(messageObject.getChannelMap());
+		clone.setChannelId(messageObject.getChannelId());
 		return clone;
 	}
 

@@ -195,10 +195,8 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 
 			} else if (this.getMode().equals(Mode.DESTINATION.toString())) {
 				MessageObject incomingMessageObject = (MessageObject) source;
-				messageObject = messageObjectController.cloneMessageObjectForBroadcast(incomingMessageObject, this.getConnectorName());
-
-				Adaptor adaptor = AdaptorFactory.getAdaptor(Protocol.valueOf(outboundProtocol));
-				messageObject = adaptor.convertMessage(messageObject, template, channelId, encryptData, outboundProperties);
+				Adaptor adaptor = AdaptorFactory.getAdaptor(Protocol.valueOf(inboundProtocol));
+				messageObject = adaptor.convertMessage(incomingMessageObject, this.getConnectorName(), channelId, encryptData, inboundProperties);
 				messageObject.setEncodedDataProtocol(Protocol.valueOf(this.outboundProtocol));
 			}
 		} catch (Exception e) {
@@ -306,7 +304,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 			Protocol encodedDataProtocol;
 			Map encodedDataProperties;
 
-			if (template != null) {
+			if (template != null && template.length() > 0) {
 				transformedData = scope.get("tmp", scope);
 				encodedDataProtocol = Protocol.valueOf(this.getOutboundProtocol());
 				encodedDataProperties = this.getOutboundProperties();
@@ -342,9 +340,9 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 		StringBuilder script = new StringBuilder();
 		script.append("importPackage(Packages.com.webreach.mirth.server.util);\n	");
 		script.append("function $(string) { ");
-		script.append("if (connectorMap.get(string) != null) { return connectorMap.get(string)} else ");
-		script.append("if (channelMap.get(string) != null) { return channelMap.get(string)} else ");
-		script.append("if (globalMap.get(string) != null) { return globalMap.get(string)} else ");
+		script.append("if (connectorMap.get(string) != null) { return connectorMap.get(string).toString()} else ");
+		script.append("if (channelMap.get(string) != null) { return channelMap.get(string).toString()} else ");
+		script.append("if (globalMap.get(string) != null) { return globalMap.get(string).toString()} else ");
 		script.append("{ return ''; }}");
 			
 		script.append("function doFilter() {");

@@ -31,71 +31,22 @@ public class EDIAdaptor extends Adaptor {
 	UNZ+1+1’
  */
 	
-	private EDISerializer ediSerializer;
 
 	protected void populateMessage() throws AdaptorException {
-		ediSerializer = new EDISerializer(properties);
+		
 		messageObject.setRawDataProtocol(MessageObject.Protocol.EDI);
 		messageObject.setTransformedDataProtocol(MessageObject.Protocol.XML);
 		messageObject.setEncodedDataProtocol(MessageObject.Protocol.EDI);
-		Channel channel = ChannelController.getChannelCache().get(messageObject.getChannelId());
 
 		try {
-			if (channel.getProperties().getProperty("recv_xml_encoded") != null && channel.getProperties().getProperty("recv_xml_encoded").equalsIgnoreCase("true")) {
-				messageObject.setSource(new String());
-				messageObject.setType(new String());
-				messageObject.setVersion(new String());
-				messageObject.setTransformedData(source);
-			} else {
-				String message = ediSerializer.toXML(source);
-				messageObject = populateMetadata(messageObject, message);
-				messageObject.setTransformedData(message);
-			}
+			String message = serializer.toXML(source);
+			messageObject.setTransformedData(message);
+			populateMetadata(message);
 		} catch (Exception e) {
 			handleException(e);
 		}
 	}
 
-	// TODO: This should probably be an abstract method...
-	private MessageObject populateMetadata(MessageObject messageObject, String xmlMessage) {
-		DocumentSerializer docSerializer = new DocumentSerializer();
-		docSerializer.setPreserveSpace(true);
-		Document document = docSerializer.fromXML(xmlMessage);
-		String sendingFacility = "";
-		if (document.getElementsByTagName("ISA.6") != null) {
-			Node sender = document.getElementsByTagName("ISA.6").item(0);
-			sendingFacility = sender.getNodeValue();
-		} else if (document.getElementsByTagName("GS.2") != null) {
-			Node sender = document.getElementsByTagName("GS.2").item(0);
-			sendingFacility = sender.getNodeValue();
-		}
-		String event = "Unknown";
-		if (document.getElementsByTagName("ST.1") != null) {
-			Node type = document.getElementsByTagName("ST.1").item(0);
-			event = type.getNodeValue();
-		}
-		String version = "";
-		if (document.getElementsByTagName("GS.8") != null) {
-			Node versionNode = document.getElementsByTagName("GS.8").item(0);
-			version = versionNode.getNodeValue();
-		}
-		messageObject.setSource(sendingFacility);
-		messageObject.setType(event);
-		messageObject.setVersion(version);
-		return messageObject;
-	}
-
-	protected MessageObject doConvertMessage(MessageObject messageObject, String template, String channelId, boolean encryptData) throws AdaptorException {
-		try {
-			if (template != null) {
-				messageObject = populateMetadata(messageObject, template);
-				messageObject.setTransformedData(template);
-			}
-		} catch (Exception e) {
-			handleException(e);
-		}
-		return messageObject;
-	}
 
 	@Override
 	public IXMLSerializer<String> getSerializer(Map properties) {

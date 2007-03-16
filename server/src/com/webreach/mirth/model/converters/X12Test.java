@@ -12,6 +12,7 @@ import java.io.StringWriter;
 
 import org.apache.xml.serialize.OutputFormat;
 import org.apache.xml.serialize.XMLSerializer;
+import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
@@ -26,8 +27,7 @@ public class X12Test {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
-		try {
+		}try {
 
 			EDIReader ediReader = new EDIReader("~", "*", ":");
 			StringWriter stringWriter = new StringWriter();
@@ -42,17 +42,36 @@ public class X12Test {
 			}
 			String xmloutput = os.toString();
 
-			System.out.println(xmloutput);
+			//System.out.println(xmloutput);
+			DocumentSerializer docser = new DocumentSerializer();
+			docser.setPreserveSpace(false);
+			Document doc = docser.fromXML(xmloutput);
+			
+			System.out.println(docser.toXML(doc)); //handler.getOutput());
+			
 			XMLReader xr = XMLReaderFactory.createXMLReader();
 			EDIXMLHandler handler = new EDIXMLHandler("~", "*", ":");
 			xr.setContentHandler(handler);
 			xr.setErrorHandler(handler);
-
 			xr.parse(new InputSource(new StringReader(xmloutput)));
 			System.out.println(handler.getOutput());
-			if (handler.getOutput().toString().trim().equals(testMessage.trim())) {
+			if (handler.getOutput().toString().replace('\n', '\r').trim().equals(testMessage.replaceAll("\\r\\n", "\r").trim())) {
 				System.out.println("Test Successful!");
 			} else {
+				String original = testMessage.replaceAll("\\r\\n", "\r").trim();
+				String newm = handler.getOutput().toString().replace('\n', '\r').trim();
+				for (int i = 0; i < original.length(); i++){
+					if (original.charAt(i) == newm.charAt(i)){
+						System.out.print(newm.charAt(i));
+					}else{
+						System.out.println("");
+						System.out.print("Saw: ");
+						System.out.println(newm.charAt(i));
+						System.out.print("Expected: ");
+						System.out.print(original.charAt(i));
+						break;
+					}
+				}
 				System.out.println("Test Failed!");
 			}
 		}
@@ -60,12 +79,13 @@ public class X12Test {
 		catch (SAXException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (IOException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
 	}
+	
+
 
 	// Returns the contents of the file in a byte array.
 	private static byte[] getBytesFromFile(File file) throws IOException {

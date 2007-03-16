@@ -8,6 +8,8 @@ import org.apache.log4j.Logger;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.converters.DefaultXMLSerializer;
 import com.webreach.mirth.model.converters.IXMLSerializer;
+import com.webreach.mirth.model.converters.ObjectClonerException;
+import com.webreach.mirth.model.converters.SerializerException;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.util.UUIDGenerator;
@@ -17,11 +19,15 @@ public abstract class Adaptor {
 	protected MessageObject messageObject;
 	protected String source;
 	protected Map properties;
+	protected IXMLSerializer<String> serializer;
 	private MessageObjectController messageObjectController = new MessageObjectController();
 
 	public MessageObject getMessage(String source, String channelId, boolean encryptData, Map properties) throws AdaptorException {
 		this.source = source;
         this.properties = properties;
+        this.messageObject = messageObject;
+        this.serializer = getSerializer(properties);
+        
 		messageObject = new MessageObject();
 		messageObject.setId(UUIDGenerator.getUUID());
 		messageObject.setChannelId(channelId);
@@ -37,9 +43,20 @@ public abstract class Adaptor {
 		return messageObject;
 	}
 
-	public MessageObject convertMessage(MessageObject messageObject, String template, String channelId, boolean encryptData, Map properties) throws AdaptorException {
-		this.properties = properties;
-		return doConvertMessage(messageObject, template, channelId, encryptData);
+	/**
+	 * Converts a message for destination transformers
+	 * @throws  
+	 */
+	public MessageObject convertMessage(MessageObject messageObject, String connectorName, String channelId, boolean encryptData, Map properties) throws AdaptorException {
+		//The source is the encoded data
+		this.messageObject = messageObjectController.cloneMessageObjectForBroadcast(messageObject, connectorName);
+		this.source = messageObject.getRawData();
+        this.properties = properties;
+        this.serializer = getSerializer(properties);
+		populateMessage();
+		doConvertMessage();
+		this.messageObject.setStatus(MessageObject.Status.RECEIVED);
+		return this.messageObject;
 	}
 
 	protected void handleException(Throwable e) throws AdaptorException {
@@ -47,8 +64,13 @@ public abstract class Adaptor {
 		messageObjectController.setError(messageObject, Constants.ERROR_301, "Error adapting message", e);
 		throw new AdaptorException(e);
 	}
-
-	protected MessageObject doConvertMessage(MessageObject messageObject, String template, String channelId, boolean encryptData) throws AdaptorException {
+	protected void populateMetadata(String source) throws SerializerException{
+		Map<String, String> metadata = serializer.getMetadata();
+		messageObject.setType(metadata.get("type"));
+		messageObject.setVersion(metadata.get("version"));
+		messageObject.setSource(metadata.get("source"));
+	}
+	protected MessageObject doConvertMessage() throws AdaptorException {
 		return messageObject;
 	}
 

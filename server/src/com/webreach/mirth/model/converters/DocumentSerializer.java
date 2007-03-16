@@ -27,6 +27,7 @@ package com.webreach.mirth.model.converters;
 
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -103,4 +104,9 @@ public class DocumentSerializer implements IXMLSerializer<Document> {
 
 		return document;
 	}
+
+	public Map<String, String> getMetadata() {
+		return null;
+	}
+
 }

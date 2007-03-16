@@ -26,6 +26,11 @@
 
 package com.webreach.mirth.model.converters;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.w3c.dom.Document;
+
 
 public class DefaultXMLSerializer implements IXMLSerializer<String> {
 
@@ -46,5 +51,14 @@ public class DefaultXMLSerializer implements IXMLSerializer<String> {
 	// cleans up the XML
 	public String sanitize(String source) {
 		return source;
+	}
+
+
+	public Map<String, String> getMetadata() throws SerializerException {
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("version", "1.0");
+		map.put("type", "XML-Message");
+		map.put("source", "");
+		return map;
 	}
 }

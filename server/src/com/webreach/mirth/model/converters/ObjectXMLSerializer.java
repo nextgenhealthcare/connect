@@ -26,6 +26,10 @@
 
 package com.webreach.mirth.model.converters;
 
+import java.util.Map;
+
+import org.w3c.dom.Document;
+
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.XppDriver;
 
@@ -44,4 +48,10 @@ public class ObjectXMLSerializer implements IXMLSerializer<Object>{
 	public Object fromXML(String source) {
 		return xstream.fromXML(source);
 	}
+
+	public Map<String, String> getMetadata() throws SerializerException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
 }
