@@ -23,8 +23,10 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
+
 package com.webreach.mirth.model.converters;
 
+import java.io.ByteArrayOutputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Map;
@@ -32,18 +34,24 @@ import java.util.Map;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.log4j.Logger;
-import org.w3c.dom.DOMConfiguration;
-import org.w3c.dom.DOMImplementation;
+import org.apache.xml.serialize.OutputFormat;
+import org.apache.xml.serialize.XMLSerializer;
 import org.w3c.dom.Document;
-import org.w3c.dom.ls.DOMImplementationLS;
-import org.w3c.dom.ls.LSOutput;
-import org.w3c.dom.ls.LSSerializer;
 import org.xml.sax.InputSource;
 
-public class DocumentSerializer implements IXMLSerializer<Document> {
+public class DocumentSerializer implements IXMLSerializer<Document>{
 	private Logger logger = Logger.getLogger(this.getClass());
+	private String[] cDataElements = null;
 	private boolean preserveSpace;
-
+	public DocumentSerializer() {
+		this.preserveSpace = true;
+	}
+	
+	public DocumentSerializer(String[] cDataElements) {
+		this.cDataElements = cDataElements;
+		this.preserveSpace = true;
+	}
+	
 	public boolean isPreserveSpace() {
 		return this.preserveSpace;
 	}
@@ -52,61 +60,46 @@ public class DocumentSerializer implements IXMLSerializer<Document> {
 		this.preserveSpace = preserveSpace;
 	}
 
-	// ast: Change the serialize function to use the DOM3 API
 	public String toXML(Document source) {
-		// OutputFormat of = new OutputFormat(source);
-		String subscrXML = null;
-		StringWriter stringWriter = new StringWriter();
-		try {
-			// Get the implementations
-			DOMImplementation imp = DocumentBuilderFactory.newInstance().newDocumentBuilder().getDOMImplementation();
-			DOMImplementationLS impls = (DOMImplementationLS) imp;
-			// Prepare the output
-			LSOutput domOutput = impls.createLSOutput();
-			domOutput.setEncoding(java.nio.charset.Charset.defaultCharset().name());
-			domOutput.setCharacterStream(stringWriter);
-			// Prepare the serializer
-			LSSerializer domWriter = impls.createLSSerializer();
-			DOMConfiguration domConfig = domWriter.getDomConfig();
-			secureSetParameter(domConfig, "format-pretty-print", true);
-			secureSetParameter(domConfig, "element-content-whitespace", this.preserveSpace);
-			domWriter.setNewLine("\r\n");
-			// And finaly, write
-			domWriter.write(source, domOutput);
-			subscrXML = domOutput.getCharacterStream().toString();
+		OutputFormat of = new OutputFormat(source);
 
-			/*
-			 * DOMStringList dsl = domConfig.getParameterNames(); // Just for
-			 * curiosity.... for(int i=0;i<dsl.getLength();i++){
-			 * System.out.println(dsl.item(i)+" =
-			 * ["+domConfig.getParameter(dsl.item(i))+"]"); }
-			 */
+		if (cDataElements != null) {
+			of.setCDataElements(cDataElements);
+		}
+
+		of.setOmitXMLDeclaration(false);
+		of.setIndenting(true);
+		of.setPreserveSpace(preserveSpace);
+		of.setLineSeparator("\r\n");
+
+		StringWriter stringWriter = new StringWriter();
+		XMLSerializer serializer = new XMLSerializer(stringWriter, of);
+		ByteArrayOutputStream os = new ByteArrayOutputStream();
+
+		try {
+			serializer.serialize(source);
+			os.write(stringWriter.toString().getBytes());
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 		}
 
-		return subscrXML;
-	}
-
-	protected void secureSetParameter(DOMConfiguration domConfig, String name, Object value) {
-		if (domConfig.canSetParameter(name, value))
-			domConfig.setParameter(name, value);
+		return os.toString();
 	}
 
 	public Document fromXML(String source) {
 		Document document = null;
-
+		
 		try {
 			document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(new StringReader(source)));
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 		}
-
+		
 		return document;
 	}
 
-	public Map<String, String> getMetadata() {
+	public Map<String, String> getMetadata() throws SerializerException {
+		// TODO Auto-generated method stub
 		return null;
 	}
-
 }
