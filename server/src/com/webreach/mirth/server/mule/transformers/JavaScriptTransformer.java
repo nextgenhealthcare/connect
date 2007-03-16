@@ -340,9 +340,9 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 		StringBuilder script = new StringBuilder();
 		script.append("importPackage(Packages.com.webreach.mirth.server.util);\n	");
 		script.append("function $(string) { ");
-		script.append("if (connectorMap.get(string) != null) { return connectorMap.get(string).toString()} else ");
-		script.append("if (channelMap.get(string) != null) { return channelMap.get(string).toString()} else ");
-		script.append("if (globalMap.get(string) != null) { return globalMap.get(string).toString()} else ");
+		script.append("if (connectorMap.get(string) != null) { return connectorMap.get(string);} else ");
+		script.append("if (channelMap.get(string) != null) { return channelMap.get(string);} else ");
+		script.append("if (globalMap.get(string) != null) { return globalMap.get(string);} else ");
 		script.append("{ return ''; }}");
 			
 		script.append("function doFilter() {");
@@ -360,7 +360,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 		StringBuilder script = new StringBuilder();
 		script.append("importPackage(Packages.com.webreach.mirth.server.util);\n");
 		// script used to check for exitence of segment
-		script.append("function validate(mapping, defaultValue, replacement) { var result = ''; if (mapping != undefined) {result = mapping.toString();} if (result.length == 0) {result = defaultValue;} if (replacement != undefined) { for (i = 0; i < replacement.length; i++) { var entry = replacement[0]; result = result.replace(entry[0],entry[1]); \n} } return result; }");
+		script.append("function validate(mapping, defaultValue, replacement) { var result = ''; if (mapping != undefined) {result = mapping.toString();} if (result.length == 0) {result = defaultValue;} if (replacement != undefined) { for (i = 0; i < replacement.length; i++) { var entry = replacement[i]; result = result.replace(entry[0],entry[1]); \n} } return result; }");
 		script.append("function $(string) { ");
 		script.append("if (connectorMap.get(string) != null) { return connectorMap.get(string)} else ");
 		script.append("if (channelMap.get(string) != null) { return channelMap.get(string)} else ");
