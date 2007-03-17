@@ -26,8 +26,11 @@ public class TemplateValueReplacer {
 	}
 
 	public String replaceValues(String template, MessageObject messageObject) {
+		return replaceValues(template, messageObject, new String());
+	}
+	public String replaceValues(String template, MessageObject messageObject, String originalFilename){
 		VelocityContext context = new VelocityContext();
-		loadContext(context, messageObject);
+		loadContext(context, messageObject, originalFilename);
 		StringWriter writer = new StringWriter();
 
 		try {
@@ -39,8 +42,10 @@ public class TemplateValueReplacer {
 
 		return writer.toString();
 	}
-
-	private void loadContext(VelocityContext context, MessageObject messageObject) {
+	public String replaceValues(String template, String originalFilename) {
+		return replaceValues(template, null, originalFilename);
+	}
+	private void loadContext(VelocityContext context, MessageObject messageObject, String originalFilename) {
 		// message variables
 		if (messageObject != null) {
 			context.put("message", messageObject);
@@ -70,13 +75,11 @@ public class TemplateValueReplacer {
 				context.put(channelKeys[i].toString(),channelMap.get(channelKeys[i]));
 			}
 		}
-
-		String originalFilename;
-				
+			
 		//we might have the originalfilename in the context
 		if (context.get("originalFilename") != null){
 			originalFilename = (String)context.get("originalFilename");
-		} else {
+		} else if (originalFilename == null || originalFilename.length() == 0) {
 			originalFilename = System.currentTimeMillis() + ".dat";
 		}
 
