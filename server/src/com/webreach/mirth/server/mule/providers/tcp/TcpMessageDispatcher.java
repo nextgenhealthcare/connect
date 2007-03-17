@@ -255,7 +255,6 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 				}
 			}
 		} catch (Exception e) {
-			messageObjectController.setError(data, Constants.ERROR_411, "Socket write exception", e);
 			logger.warn("Write raised exception: '" + e.getMessage() + "' desisting reconnecting.");
 			sendException = e;
 		}

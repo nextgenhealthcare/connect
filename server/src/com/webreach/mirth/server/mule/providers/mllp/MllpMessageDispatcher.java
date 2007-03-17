@@ -262,10 +262,9 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher {
 				}
 			}
 		} catch (Exception e) {
-			messageObjectController.setError(data, Constants.ERROR_408, "Socket write exception", e);
-			logger.warn("Write raised exception: '" + e.getMessage() + "' desisting reconnecting.");
 			sendException = e;
 		}
+		
 		if ((result == false) || (sendException != null)) {
 			if (sendException != null) {
 				messageObjectController.setError(data, Constants.ERROR_408, "Socket write exception", sendException);
