@@ -95,7 +95,9 @@ public class FtpConnector extends AbstractServiceEnabledConnector {
     //ast: encoding charset
     private String charsetEncoding = DEFAULT_CHARSET_ENCODING;
     private String channelId;
-	
+	public FtpConnector(){
+		filenameParser = new VariableFilenameParser();
+	}
 	public String getChannelId() {
 		return this.channelId;
 	}

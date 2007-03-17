@@ -105,7 +105,9 @@ public class SftpConnector extends AbstractServiceEnabledConnector {
 			}
 		}
 	}
-
+	public void SftpConnector(){
+		filenameParser = new VariableFilenameParser();
+	}
 	public void destroyClient(UMOEndpointURI uri, ChannelSftp client) throws Exception {
 		if ((client != null) && (client.isConnected())) {
 			ObjectPool pool = getClientPool(uri);
