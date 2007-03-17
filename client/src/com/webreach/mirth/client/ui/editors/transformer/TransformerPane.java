@@ -25,8 +25,6 @@
 
 package com.webreach.mirth.client.ui.editors.transformer;
 
-import com.webreach.mirth.client.ui.util.VariableListUtil;
-import com.webreach.mirth.model.Rule;
 import java.awt.BorderLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -45,10 +43,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.prefs.Preferences;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.swing.Action;
 import javax.swing.BorderFactory;
@@ -89,13 +84,15 @@ import com.webreach.mirth.client.ui.editors.MapperPanel;
 import com.webreach.mirth.client.ui.editors.MessageBuilder;
 import com.webreach.mirth.client.ui.editors.MirthEditorPane;
 import com.webreach.mirth.client.ui.util.FileUtil;
-import com.webreach.mirth.model.util.ImportConverter;
+import com.webreach.mirth.client.ui.util.VariableListUtil;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.Connector;
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.model.Rule;
 import com.webreach.mirth.model.Step;
 import com.webreach.mirth.model.Transformer;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
+import com.webreach.mirth.model.util.ImportConverter;
 
 public class TransformerPane extends MirthEditorPane
 {
@@ -1107,20 +1104,18 @@ public class TransformerPane extends MirthEditorPane
 
     private String buildRegexArray(HashMap map)
     {
-        TreeMap regexes = (TreeMap) map.get("RegularExpressions");
+        ArrayList<String[]> regexes = (ArrayList<String[]>) map.get("RegularExpressions");
 
         StringBuilder regexArray = new StringBuilder();
 
         regexArray.append("new Array(");
 
-        Iterator iter = regexes.keySet().iterator();
-        if (iter.hasNext())
+        if(regexes.size() > 0)
         {
-            while (iter.hasNext())
+            for(int i = 0; i < regexes.size(); i++)
             {
-                String key = (String) iter.next();
-                regexArray.append("new Array(" + key + ", " + regexes.get(key) + ")");
-                if (!iter.hasNext())
+                regexArray.append("new Array(" + regexes.get(i)[0] + ", " + regexes.get(i)[1] + ")");
+                if (i+1 == regexes.size())
                     regexArray.append(")");
                 else
                     regexArray.append(",");

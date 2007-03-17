@@ -312,7 +312,7 @@ public class DatabaseReader extends ConnectorClass
                 List<Connector> list = parent.channelEditPanel.currentChannel.getDestinationConnectors();
                 for (Connector c : list)
                 {
-                    c.getTransformer().setInboundTemplate(xml);
+                    c.getTransformer().setInboundTemplate(xml.replaceAll("\\r\\n", "\n"));
                 }
             }
         }

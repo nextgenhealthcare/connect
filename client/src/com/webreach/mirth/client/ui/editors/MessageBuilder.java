@@ -8,11 +8,10 @@ package com.webreach.mirth.client.ui.editors;
 
 import java.awt.Component;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.prefs.Preferences;
 
 import javax.swing.AbstractCellEditor;
@@ -145,37 +144,33 @@ public class MessageBuilder extends BasePanel
             mappingTextField.setText((String) data.get("Mapping"));
             defaultValueTextField.setText((String) data.get("DefaultValue"));
 
-            TreeMap p = (TreeMap) data.get("RegularExpressions");
+            ArrayList<String[]> p = (ArrayList<String[]>) data.get("RegularExpressions");
             if (p != null)
                 setRegexProperties(p);
             else
-                setRegexProperties(new TreeMap());
+                setRegexProperties(new ArrayList<String[]>());
         }
         else
         {
             variableTextField.setText("");
             mappingTextField.setText("");
             defaultValueTextField.setText("");
-            setRegexProperties(new TreeMap());
+            setRegexProperties(new ArrayList<String[]>());
         }
 
         parent.modified = modified;
     }
 
-    public void setRegexProperties(TreeMap properties)
+    public void setRegexProperties(ArrayList<String[]> properties)
     {
         Object[][] tableData = new Object[properties.size()][2];
 
         regularExpressionsTable = new MirthTable();
 
-        int j = 0;
-        Iterator i = properties.entrySet().iterator();
-        while (i.hasNext())
+        for(int i = 0; i < properties.size(); i++)
         {
-            Map.Entry entry = (Map.Entry) i.next();
-            tableData[j][REGEX_COLUMN] = (String) entry.getKey();
-            tableData[j][REPLACEWITH_COLUMN] = (String) entry.getValue();
-            j++;
+            tableData[i][REGEX_COLUMN] = properties.get(i)[0];
+            tableData[i][REPLACEWITH_COLUMN] = properties.get(i)[1];
         }
 
         regularExpressionsTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[] { REGEX_COLUMN_NAME, REPLACEWITH_COLUMN_NAME })
@@ -285,14 +280,14 @@ public class MessageBuilder extends BasePanel
         regularExpressionsScrollPane.setViewportView(regularExpressionsTable);
     }
 
-    public TreeMap getRegexProperties()
+    public ArrayList<String[]> getRegexProperties()
     {
-        TreeMap properties = new TreeMap();
+        ArrayList<String[]> properties = new ArrayList<String[]>();
 
         for (int i = 0; i < regularExpressionsTable.getRowCount(); i++)
             if (((String) regularExpressionsTable.getValueAt(i, REGEX_COLUMN)).length() > 0)
-                properties.put(((String) regularExpressionsTable.getValueAt(i, REGEX_COLUMN)), ((String) regularExpressionsTable.getValueAt(i, REPLACEWITH_COLUMN)));
-
+                properties.add(new String[]{((String) regularExpressionsTable.getValueAt(i, REGEX_COLUMN)), ((String) regularExpressionsTable.getValueAt(i, REPLACEWITH_COLUMN))});
+        
         return properties;
     }
 
