@@ -20,7 +20,6 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 import org.apache.commons.net.ftp.FTPClient;
@@ -40,11 +39,8 @@ import sun.misc.BASE64Decoder;
 
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.Constants;
-import com.webreach.mirth.server.controllers.ChannelController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.mule.providers.file.filters.FilenameWildcardFilter;
-import com.webreach.mirth.server.util.StackTracePrinter;
-import com.webreach.mirth.server.util.UUIDGenerator;
 
 /**
  * @author <a href="mailto:gnt@codehaus.org">Guillaume Nodet</a>
@@ -71,43 +67,43 @@ public class FtpMessageDispatcher extends AbstractMessageDispatcher {
 		}
 
 		try {
-				String filename = (String) event.getProperty(FtpConnector.PROPERTY_FILENAME);
+			String filename = (String) event.getProperty(FtpConnector.PROPERTY_FILENAME);
 
-				if (filename == null) {
-					String pattern = (String) event.getProperty(FtpConnector.PROPERTY_OUTPUT_PATTERN);
+			if (filename == null) {
+				String pattern = (String) event.getProperty(FtpConnector.PROPERTY_OUTPUT_PATTERN);
 
-					if (pattern == null) {
-						pattern = connector.getOutputPattern();
-					}
-
-					filename = generateFilename(event, pattern, messageObject);
+				if (pattern == null) {
+					pattern = connector.getOutputPattern();
 				}
 
-				if (filename == null) {
-					throw new IOException("Filename is null");
-				}
+				filename = generateFilename(event, pattern, messageObject);
+			}
 
-				String template = replacer.replaceValues(connector.getTemplate(), messageObject);
-				byte[] buffer = null;
-				if (connector.isBinary()) {
-					BASE64Decoder base64 = new BASE64Decoder();
-					buffer = base64.decodeBuffer(template);
-				} else {
-					buffer = template.getBytes();
-					//TODO: Add support for Charset encodings in 1.4.1
-				}
-				client = connector.getFtp(uri);
-				if (!client.changeWorkingDirectory(uri.getPath())) {
-					throw new IOException("Ftp error: " + client.getReplyCode());
-				}
+			if (filename == null) {
+				throw new IOException("Filename is null");
+			}
 
-				if (!client.storeFile(filename, new ByteArrayInputStream(buffer))) {
-					throw new IOException("Ftp error: " + client.getReplyCode());
-				}
+			String template = replacer.replaceValues(connector.getTemplate(), messageObject);
+			byte[] buffer = null;
+			if (connector.isBinary()) {
+				BASE64Decoder base64 = new BASE64Decoder();
+				buffer = base64.decodeBuffer(template);
+			} else {
+				buffer = template.getBytes();
+				// TODO: Add support for Charset encodings in 1.4.1
+			}
+			client = connector.getFtp(uri);
+			if (!client.changeWorkingDirectory(uri.getPath())) {
+				throw new IOException("Ftp error: " + client.getReplyCode());
+			}
 
-				// update the message status to sent
-				messageObjectController.setSuccess(messageObject, "File successfully written: " + filename);
-			
+			if (!client.storeFile(filename, new ByteArrayInputStream(buffer))) {
+				throw new IOException("Ftp error: " + client.getReplyCode());
+			}
+
+			// update the message status to sent
+			messageObjectController.setSuccess(messageObject, "File successfully written: " + filename);
+
 		} catch (Exception e) {
 			messageObjectController.setError(messageObject, Constants.ERROR_405, "Error writing to FTP", e);
 			connector.handleException(e);
@@ -173,8 +169,7 @@ public class FtpMessageDispatcher extends AbstractMessageDispatcher {
 		return null;
 	}
 
-	public void doDispose() {
-	}
+	public void doDispose() {}
 
 	private String generateFilename(UMOEvent event, String pattern, MessageObject messageObject) {
 		if (connector.getFilenameParser() instanceof VariableFilenameParser) {

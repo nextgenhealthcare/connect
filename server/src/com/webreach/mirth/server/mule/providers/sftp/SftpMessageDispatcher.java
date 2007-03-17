@@ -6,7 +6,6 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
@@ -26,11 +25,8 @@ import sun.misc.BASE64Decoder;
 import com.jcraft.jsch.ChannelSftp;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.Constants;
-import com.webreach.mirth.server.controllers.ChannelController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.mule.providers.file.filters.FilenameWildcardFilter;
-import com.webreach.mirth.server.util.StackTracePrinter;
-import com.webreach.mirth.server.util.UUIDGenerator;
 
 public class SftpMessageDispatcher extends AbstractMessageDispatcher {
 	protected SftpConnector connector;

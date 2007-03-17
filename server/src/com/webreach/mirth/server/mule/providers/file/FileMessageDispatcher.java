@@ -19,7 +19,6 @@ import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URLDecoder;
-import java.util.List;
 
 import org.mule.MuleException;
 import org.mule.MuleManager;
@@ -35,14 +34,11 @@ import org.mule.umo.endpoint.UMOEndpointURI;
 import org.mule.util.Utility;
 
 import sun.misc.BASE64Decoder;
-import sun.misc.BASE64Encoder;
 
 import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.model.Response;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.mule.providers.file.filters.FilenameWildcardFilter;
-import com.webreach.mirth.server.util.StackTracePrinter;
 
 /**
  * <code>FileMessageDispatcher</code> is used to read/write files to the
