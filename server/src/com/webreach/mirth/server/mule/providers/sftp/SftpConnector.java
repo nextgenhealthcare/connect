@@ -20,6 +20,8 @@ import org.mule.umo.provider.UMOMessageDispatcher;
 import org.mule.umo.provider.UMOMessageReceiver;
 
 import com.jcraft.jsch.ChannelSftp;
+import com.webreach.mirth.model.SystemEvent;
+import com.webreach.mirth.server.controllers.SystemLogger;
 import com.webreach.mirth.server.mule.providers.file.FilenameParser;
 
 public class SftpConnector extends AbstractServiceEnabledConnector {
@@ -278,14 +280,6 @@ public class SftpConnector extends AbstractServiceEnabledConnector {
 		this.outputAppend = outputAppend;
 	}
 
-	public String getCharsetEncoding() {
-		return charsetEncoding;
-	}
-
-	public void setCharsetEncoding(String charsetEncoding) {
-		this.charsetEncoding = charsetEncoding;
-	}
-
 	public String getChannelId() {
 		return channelId;
 	}
@@ -294,4 +288,33 @@ public class SftpConnector extends AbstractServiceEnabledConnector {
 		this.channelId = channelId;
 	}
 
+	// ast: set the charset Encoding
+	public void setCharsetEncoding(String charsetEncoding) {
+		if ((charsetEncoding == null) || (charsetEncoding == "") || (charsetEncoding.equalsIgnoreCase("DEFAULT_ENCODING")))
+			charsetEncoding = DEFAULT_CHARSET_ENCODING;
+		logger.debug("FileConnector: trying to set the encoding to " + charsetEncoding);
+		try {
+			byte b[] = { 20, 21, 22, 23 };
+			String k = new String(b, charsetEncoding);
+			this.charsetEncoding = charsetEncoding;
+		} catch (Exception e) {
+			// set the encoding to the default one: this charset can't launch an
+			// exception
+			this.charsetEncoding = java.nio.charset.Charset.defaultCharset().name();
+			logger.error("Impossible to use [" + charsetEncoding + "] as the Charset Encoding: changing to the platform default [" + this.charsetEncoding + "]");
+			SystemLogger systemLogger = new SystemLogger();
+			SystemEvent event = new SystemEvent("Exception occured in channel.");
+			event.setDescription("Impossible to use [" + charsetEncoding + "] as the Charset Encoding: changing to the platform default [" + this.charsetEncoding + "]");
+			systemLogger.logSystemEvent(event);
+		}
+	}
+
+	// ast: get the charset encoding
+	public String getCharsetEncoding() {
+		if ((this.charsetEncoding == null) || (this.charsetEncoding == "") || (this.charsetEncoding.equalsIgnoreCase("DEFAULT_ENCODING"))) {
+			// Default Charset
+			return DEFAULT_CHARSET_ENCODING;
+		}
+		return (this.charsetEncoding);
+	}
 }
