@@ -76,47 +76,47 @@ import com.webreach.mirth.model.filters.MessageObjectFilter;
 public class MessageBrowser extends javax.swing.JPanel
 {
     private final int FIRST_PAGE = 0;
-
+    
     private final int PREVIOUS_PAGE = -1;
-
+    
     private final int NEXT_PAGE = 1;
-
+    
     private final String MESSAGE_ID_COLUMN_NAME = "Message ID";
-
+    
     private final String DATE_COLUMN_NAME = "Date";
-
+    
     private final String CONNECTOR_COLUMN_NAME = "Connector";
-
+    
     private final String STATUS_COLUMN_NAME = "Status";
-
+    
     private final String SCORE_COLUMN_NAME = "Scope";
     
     private final String KEY_COLUMN_NAME = "Variable";
-
+    
     private final String VALUE_COLUMN_NAME = "Value";
-
+    
     private final String TYPE_COLUMN_NAME = "Type";
-
+    
     private final String SOURCE_COLUMN_NAME = "Source";
-
+    
     private final String PROTOCOL_COLUMN_NAME = "Protocol";
-
+    
     private JScrollPane eventPane;
-
+    
     private JScrollPane mappingsPane;
-
+    
     private JXTable eventTable;
-
+    
     private Frame parent;
-
+    
     private MessageListHandler messageListHandler;
-
+    
     private List<MessageObject> messageObjectList;
-
+    
     private MessageObjectFilter messageObjectFilter;
-
+    
     private DefaultTableModel messageTableModel;
-
+    
     /**
      * Constructs the new message browser and sets up its default
      * information/layout.
@@ -125,15 +125,15 @@ public class MessageBrowser extends javax.swing.JPanel
     {
         this.parent = PlatformUI.MIRTH_FRAME;
         initComponents();
-
+        
         mappingsPane = new JScrollPane();
         makeMappingsTable(new String[0][0], true);
-
+        
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(MappingsPanel);
         MappingsPanel.setLayout(layout);
         layout.setHorizontalGroup(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(mappingsPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE));
         layout.setVerticalGroup(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(mappingsPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 300, Short.MAX_VALUE));
-
+        
         this.addMouseListener(new java.awt.event.MouseAdapter()
         {
             public void mousePressed(java.awt.event.MouseEvent evt)
@@ -141,62 +141,62 @@ public class MessageBrowser extends javax.swing.JPanel
                 if (evt.isPopupTrigger())
                     parent.messagePopupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
             }
-
+            
             public void mouseReleased(java.awt.event.MouseEvent evt)
             {
                 if (evt.isPopupTrigger())
                     parent.messagePopupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
             }
         });
-
+        
         pageSizeField.setDocument(new MirthFieldConstraints(3, false, false, true));
-
+        
         String[] statusValues = new String[MessageObject.Status.values().length + 1];
         statusValues[0] = "ALL";
         for (int i = 1; i < statusValues.length; i++)
             statusValues[i] = MessageObject.Status.values()[i - 1].toString();
-
+        
         statusComboBox.setModel(new javax.swing.DefaultComboBoxModel(statusValues));
-
+        
         String[] protocolValues = new String[MessageObject.Protocol.values().length + 1];
         protocolValues[0] = "ALL";
         for (int i = 1; i < protocolValues.length; i++)
             protocolValues[i] = MessageObject.Protocol.values()[i - 1].toString();
-
+        
         protocolComboBox.setModel(new javax.swing.DefaultComboBoxModel(protocolValues));
-
+        
         eventPane = new JScrollPane();
-
+        
         eventPane.addMouseListener(new java.awt.event.MouseAdapter()
         {
             public void mousePressed(java.awt.event.MouseEvent evt)
             {
                 showEventPopupMenu(evt, false);
             }
-
+            
             public void mouseReleased(java.awt.event.MouseEvent evt)
             {
                 showEventPopupMenu(evt, false);
             }
-
+            
             public void mouseClicked(java.awt.event.MouseEvent evt)
             {
                 deselectRows();
             }
         });
-
+        
         eventPane.setViewportView(eventTable);
-
+        
         jPanel2.removeAll();
-
+        
         org.jdesktop.layout.GroupLayout jPanel2Layout = new org.jdesktop.layout.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(eventPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 526, Short.MAX_VALUE));
         jPanel2Layout.setVerticalGroup(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(eventPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 185, Short.MAX_VALUE));
-
+        
         jPanel2.updateUI();
     }
-
+    
     /**
      * Loads up a clean message browser as if a new one was constructed.
      */
@@ -216,7 +216,7 @@ public class MessageBrowser extends javax.swing.JPanel
         filterButtonActionPerformed(null);
         descriptionTabbedPane.setSelectedIndex(0);
     }
-
+    
     /**
      * Refreshes the panel with the curent filter information.
      */
@@ -224,14 +224,14 @@ public class MessageBrowser extends javax.swing.JPanel
     {
         filterButtonActionPerformed(null);
     }
-
+    
     /**
      * Export the current messages to XML or HTML
      */
     public void export()
     {
         String answer = "";
-
+        
         JOptionPane pane = new JOptionPane("Would you like to export the file to XML or HTML?");
         Object[] options = new String[] { "XML", "HTML", "Cancel" };
         pane.setOptions(options);
@@ -241,17 +241,17 @@ public class MessageBrowser extends javax.swing.JPanel
         for (int k = 0; k < options.length; k++)
             if (options[k].equals(obj))
                 answer = obj.toString();
-
+        
         if (answer.length() == 0 || answer.equals(options[2]))
             return;
-
+        
         JFileChooser exportFileChooser = new JFileChooser();
         exportFileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
         exportFileChooser.setFileFilter(new MirthFileFilter(answer));
         int returnVal = exportFileChooser.showSaveDialog(parent);
         File exportFile = null;
         File exportDirectory = null;
-
+        
         if (returnVal == JFileChooser.APPROVE_OPTION)
         {
             try
@@ -260,26 +260,26 @@ public class MessageBrowser extends javax.swing.JPanel
                 int length = exportFile.getName().length();
                 String messages = "";
                 List<MessageObject> messageObjects = messageListHandler.getAllPages();
-
+                
                 if (answer.equals("HTML"))
                 {
                     String name = parent.status.get(parent.dashboardPanel.getSelectedStatus()).getName();
                     File rawFile = new File(exportFile.getParent() + "/" + name + "_raw_messages.txt");
                     File transformedFile = new File(exportFile.getParent() + "/" + name + "_transformed_messages.txt");
                     File encodedFile = new File(exportFile.getParent() + "/" + name + "_encoded_messages.txt");
-
+                    
                     MessageObjectHtmlSerializer serializer = new MessageObjectHtmlSerializer();
                     messages = serializer.toHtml(messageObjects);
-
+                    
                     if (length < 5 || !exportFile.getName().substring(length - 5, length).equals(".html"))
                         exportFile = new File(exportFile.getAbsolutePath() + ".html");
-
+                    
                     if (exportFile.exists() || rawFile.exists() || transformedFile.exists() || encodedFile.exists())
                         if (!parent.alertOption("Some of the files already exist.  Would you like to overwrite them?"))
                             return;
-
+                    
                     serializer.outputMessages(messageObjects, rawFile, transformedFile, encodedFile);
-
+                    
                     FileUtil.write(exportFile, messages);
                     parent.alertInformation("All message data was written successfully.");
                 }
@@ -288,17 +288,17 @@ public class MessageBrowser extends javax.swing.JPanel
                     if (exportFile.exists())
                         if (!parent.alertOption("The file " + exportFile.getName() + " already exists.  Would you like to overwrite it?"))
                             return;
-
+                    
                     ObjectXMLSerializer serializer = new ObjectXMLSerializer();
                     for (int i = 0; i < messageObjects.size(); i++)
                     {
                         messages += serializer.toXML(messageObjects.get(i));
                         messages += "\n";
                     }
-
+                    
                     if (length < 4 || !exportFile.getName().substring(length - 4, length).equals(".xml"))
                         exportFile = new File(exportFile.getAbsolutePath() + ".xml");
-
+                    
                     FileUtil.write(exportFile, messages);
                     parent.alertInformation("All messages were written successfully to " + exportFile.getPath() + ".");
                 }
@@ -313,7 +313,7 @@ public class MessageBrowser extends javax.swing.JPanel
             }
         }
     }
-
+    
     /**
      * Creates the table with all of the information given after being filtered
      * by the specified 'filter'
@@ -337,23 +337,23 @@ public class MessageBrowser extends javax.swing.JPanel
                     if (messageObjectList.size() == 0)
                         messageObjectList = handler.getPreviousPage();
                 }
-
+                
                 int messageCount = handler.getSize();
                 int currentPage = handler.getCurrentPage();
                 int pageSize = handler.getPageSize();
-
+                
                 if (pageSize == -1)
                     pageSize = 0;
-
+                
                 pageSizeField.setText(pageSize + "");
-
+                
                 if (handler.getCurrentPage() == 0)
                     previousPageButton.setEnabled(false);
                 else
                     previousPageButton.setEnabled(true);
-
+                
                 int numberOfPages;
-
+                
                 if (pageSize == 0)
                     numberOfPages = 0;
                 else
@@ -362,51 +362,51 @@ public class MessageBrowser extends javax.swing.JPanel
                     if ((messageCount != 0) && ((messageCount % pageSize) == 0))
                         numberOfPages--;
                 }
-
+                
                 if (currentPage == numberOfPages)
                     nextPageButton.setEnabled(false);
                 else
                     nextPageButton.setEnabled(true);
-
+                
                 int startResult;
                 if (messageCount == 0)
                     startResult = 0;
                 else
                     startResult = (currentPage * pageSize) + 1;
-
+                
                 int endResult;
                 if (pageSize == 0)
                     endResult = messageCount;
                 else
                     endResult = (currentPage + 1) * pageSize;
-
+                
                 if (messageCount < endResult)
                     endResult = messageCount;
                 resultsLabel.setText("Results " + startResult + " - " + endResult + " of " + messageCount);
-
+                
             }
             catch (ListHandlerException e)
             {
                 messageObjectList = null;
                 parent.alertException(e.getStackTrace(), e.getMessage());
             }
-
+            
             if (messageObjectList != null)
             {
-
+                
                 tableData = new Object[messageObjectList.size()][7];
-
+                
                 for (int i = 0; i < messageObjectList.size(); i++)
                 {
                     MessageObject messageObject = messageObjectList.get(i);
-
+                    
                     tableData[i][0] = messageObject.getId();
-
+                    
                     Calendar calendar = messageObject.getDateCreated();
-
+                    
                     tableData[i][1] = String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS", calendar);
                     tableData[i][2] = messageObject.getConnectorName();
-
+                    
                     tableData[i][3] = messageObject.getType();
                     tableData[i][4] = messageObject.getSource();
                     tableData[i][5] = messageObject.getStatus();
@@ -422,37 +422,37 @@ public class MessageBrowser extends javax.swing.JPanel
         {
             tableData = new Object[0][7];
         }
-
+        
         eventTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[] { MESSAGE_ID_COLUMN_NAME, DATE_COLUMN_NAME, CONNECTOR_COLUMN_NAME, TYPE_COLUMN_NAME, SOURCE_COLUMN_NAME, STATUS_COLUMN_NAME, PROTOCOL_COLUMN_NAME })
         {
             boolean[] canEdit = new boolean[] { false, false, false, false, false, false, false };
-
+            
             public boolean isCellEditable(int rowIndex, int columnIndex)
             {
                 return canEdit[columnIndex];
             }
         });
-
+        
         messageTableModel = (DefaultTableModel) eventTable.getModel();
-
+        
         eventTable.setSelectionMode(0);
-
+        
         eventTable.getColumnExt(MESSAGE_ID_COLUMN_NAME).setVisible(false);
-
+        
         eventTable.setRowHeight(UIConstants.ROW_HEIGHT);
         eventTable.setOpaque(true);
         eventTable.setRowSelectionAllowed(true);
         deselectRows();
-
+        
         if (Preferences.systemNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
         {
             HighlighterPipeline highlighter = new HighlighterPipeline();
             highlighter.addHighlighter(new AlternateRowHighlighter(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR, UIConstants.TITLE_TEXT_COLOR));
             eventTable.setHighlighters(highlighter);
         }
-
+        
         eventPane.setViewportView(eventTable);
-
+        
         eventTable.getSelectionModel().addListSelectionListener(new ListSelectionListener()
         {
             public void valueChanged(ListSelectionEvent evt)
@@ -460,21 +460,21 @@ public class MessageBrowser extends javax.swing.JPanel
                 EventListSelected(evt);
             }
         });
-
+        
         eventTable.addMouseListener(new java.awt.event.MouseAdapter()
         {
             public void mousePressed(java.awt.event.MouseEvent evt)
             {
                 showEventPopupMenu(evt, true);
             }
-
+            
             public void mouseReleased(java.awt.event.MouseEvent evt)
             {
                 showEventPopupMenu(evt, true);
             }
         });
     }
-
+    
     private void makeMappingsTable(String[][] tableData, boolean cleared)
     {
         if (tableData.length == 0)
@@ -488,23 +488,23 @@ public class MessageBrowser extends javax.swing.JPanel
             tableData[0][2] = "";
         }
         JXTable mappingsTable = new JXTable();
-
+        
         mappingsTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[] { SCORE_COLUMN_NAME, KEY_COLUMN_NAME, VALUE_COLUMN_NAME })
         {
             boolean[] canEdit = new boolean[] { false, false, false };
-
+            
             public boolean isCellEditable(int rowIndex, int columnIndex)
             {
                 return canEdit[columnIndex];
             }
         });
-
+        
         mappingsTable.setSelectionMode(0);
         mappingsTable.getColumnExt(SCORE_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
         mappingsTable.getColumnExt(SCORE_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
         mappingsPane.setViewportView(mappingsTable);
     }
-
+    
     /**
      * Shows the trigger button (right-click) popup menu.
      */
@@ -525,7 +525,7 @@ public class MessageBrowser extends javax.swing.JPanel
             parent.messagePopupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
         }
     }
-
+    
     /**
      * Deselects all rows in the table and clears the description information.
      */
@@ -539,7 +539,7 @@ public class MessageBrowser extends javax.swing.JPanel
             clearDescription();
         }
     }
-
+    
     /**
      * Clears all description information.
      */
@@ -555,7 +555,7 @@ public class MessageBrowser extends javax.swing.JPanel
         ErrorsTextPane.setText("Select a message to view any errors.");
         makeMappingsTable(new String[0][0], true);
     }
-
+    
     /**
      * An action for when a row is selected in the table.
      */
@@ -568,12 +568,12 @@ public class MessageBrowser extends javax.swing.JPanel
             {
                 row = eventTable.convertRowIndexToModel(eventTable.getSelectedRow());
             }
-
+            
             if (row >= 0)
             {
                 parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 4, -1, true);
                 this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-
+                
                 MessageObject currentMessage = messageObjectList.get(row);
                 
                 setCorrectDocument(RawMessageTextPane, currentMessage.getRawData(), currentMessage.getRawDataProtocol());
@@ -584,7 +584,7 @@ public class MessageBrowser extends javax.swing.JPanel
                 Map connectorMap = currentMessage.getConnectorMap();
                 Map channelMap = currentMessage.getChannelMap();
                 Map responseMap = currentMessage.getResponseMap();
-
+                
                 String[][] tableData = new String[connectorMap.size() + channelMap.size() + responseMap.size()][3];
                 int i = 0;
                 
@@ -617,16 +617,16 @@ public class MessageBrowser extends javax.swing.JPanel
                 
                 
                 makeMappingsTable(tableData, false);
-
+                
                 this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
             }
         }
     }
-
+    
     private void setCorrectDocument(MirthSyntaxTextArea textPane, String message, MessageObject.Protocol protocol)
     {
         SyntaxDocument newDoc = new SyntaxDocument();
-
+        
         if (message != null)
         {
             if (protocol != null)
@@ -640,37 +640,46 @@ public class MessageBrowser extends javax.swing.JPanel
                     // The syntax editor box only recognizes \n
                     // Add \n to make things look normal
                 }
-                else if (protocol.equals(MessageObject.Protocol.XML) || protocol.equals(Protocol.HL7V3)){
+                else if (protocol.equals(MessageObject.Protocol.XML) || protocol.equals(Protocol.HL7V3))
+                {
                     newDoc.setTokenMarker(new XMLTokenMarker());
                     DocumentSerializer serializer = new DocumentSerializer();
                     serializer.setPreserveSpace(false);
-                    if (protocol.equals(Protocol.XML)){
-                    	try{
-                    		Document doc = serializer.fromXML(message);
-                    		message = serializer.toXML(doc);
-                    	}catch(Exception e){
-                    		System.out.println(e.getMessage());
-                    	}
+                    if (protocol.equals(Protocol.XML))
+                    {
+                        try
+                        {
+                            Document doc = serializer.fromXML(message);
+                            message = serializer.toXML(doc);
+                        }
+                        catch(Exception e)
+                        {
+                            System.out.println(e.getMessage());
+                        }
                     }
-                }else if (protocol.equals(MessageObject.Protocol.X12)){
+                }
+                else if (protocol.equals(MessageObject.Protocol.X12))
+                {
                     newDoc.setTokenMarker(new XMLTokenMarker());
-                }else if (protocol.equals(MessageObject.Protocol.EDI)){
+                }
+                else if (protocol.equals(MessageObject.Protocol.EDI))
+                {
                     newDoc.setTokenMarker(new XMLTokenMarker());
-            	}
+                }
             }
-
+            
             textPane.setDocument(newDoc);
-            textPane.setText(message); 
+            textPane.setText(message);
         }
         else
         {
             textPane.setDocument(newDoc);
             textPane.setText("");
         }
-
+        
         textPane.setCaretPosition(0);
     }
-
+    
     /**
      * Returns the ID of the selected message in the table.
      */
@@ -684,7 +693,7 @@ public class MessageBrowser extends javax.swing.JPanel
         }
         return ((String) messageTableModel.getValueAt(eventTable.convertRowIndexToModel(eventTable.getSelectedRow()), column));
     }
-
+    
     /**
      * Returns the current MessageObjectFilter that is set.
      */
@@ -692,7 +701,7 @@ public class MessageBrowser extends javax.swing.JPanel
     {
         return messageObjectFilter;
     }
-
+    
     // <editor-fold defaultstate="collapsed" desc=" Generated Code
     // ">//GEN-BEGIN:initComponents
     private void initComponents()
@@ -875,11 +884,11 @@ public class MessageBrowser extends javax.swing.JPanel
         layout.setHorizontalGroup(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(org.jdesktop.layout.GroupLayout.TRAILING, jSplitPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 666, Short.MAX_VALUE).add(filterPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 666, Short.MAX_VALUE));
         layout.setVerticalGroup(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(layout.createSequentialGroup().add(filterPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(4, 4, 4).add(jSplitPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 303, Short.MAX_VALUE)));
     }// </editor-fold>//GEN-END:initComponents
-
+    
     private void nextPageButtonActionPerformed(java.awt.event.ActionEvent evt)
     {// GEN-FIRST:event_nextPageButtonActionPerformed
         parent.setWorking(true);
-
+        
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
             public Void doInBackground()
@@ -887,20 +896,20 @@ public class MessageBrowser extends javax.swing.JPanel
                 makeMessageTable(messageListHandler, NEXT_PAGE);
                 return null;
             }
-
+            
             public void done()
             {
                 parent.setWorking(false);
             }
         };
         worker.execute();
-
+        
     }// GEN-LAST:event_nextPageButtonActionPerformed
-
+    
     private void previousPageButtonActionPerformed(java.awt.event.ActionEvent evt)
     {// GEN-FIRST:event_previousPageButtonActionPerformed
         parent.setWorking(true);
-
+        
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
             public Void doInBackground()
@@ -908,7 +917,7 @@ public class MessageBrowser extends javax.swing.JPanel
                 makeMessageTable(messageListHandler, PREVIOUS_PAGE);
                 return null;
             }
-
+            
             public void done()
             {
                 parent.setWorking(false);
@@ -916,7 +925,7 @@ public class MessageBrowser extends javax.swing.JPanel
         };
         worker.execute();
     }// GEN-LAST:event_previousPageButtonActionPerformed
-
+    
     /**
      * An action when the filter button is pressed. Creates the actual filter
      * and remakes the table with that filter.
@@ -924,7 +933,7 @@ public class MessageBrowser extends javax.swing.JPanel
     private void filterButtonActionPerformed(java.awt.event.ActionEvent evt)
     {// GEN-FIRST:event_filterButtonActionPerformed
         int pageSize = 0;
-
+        
         if (mirthDatePicker1.getDate() != null && mirthDatePicker2.getDate() != null)
         {
             if (mirthDatePicker1.getDateInMillis() > mirthDatePicker2.getDateInMillis())
@@ -933,18 +942,18 @@ public class MessageBrowser extends javax.swing.JPanel
                 return;
             }
         }
-
+        
         messageObjectFilter = new MessageObjectFilter();
-
+        
         messageObjectFilter.setChannelId(parent.status.get(parent.dashboardPanel.getSelectedStatus()).getChannelId());
-
+        
         if (!connectorField.getText().equals(""))
             messageObjectFilter.setConnectorName(connectorField.getText());
         if (!messageSourceField.getText().equals(""))
             messageObjectFilter.setSource(messageSourceField.getText());
         if (!messageTypeField.getText().equals(""))
             messageObjectFilter.setType(messageTypeField.getText());
-
+        
         if (!((String) statusComboBox.getSelectedItem()).equalsIgnoreCase("ALL"))
         {
             for (int i = 0; i < MessageObject.Status.values().length; i++)
@@ -953,7 +962,7 @@ public class MessageBrowser extends javax.swing.JPanel
                     messageObjectFilter.setStatus(MessageObject.Status.values()[i]);
             }
         }
-
+        
         if (!((String) protocolComboBox.getSelectedItem()).equalsIgnoreCase("ALL"))
         {
             for (int i = 0; i < MessageObject.Protocol.values().length; i++)
@@ -962,7 +971,7 @@ public class MessageBrowser extends javax.swing.JPanel
                     messageObjectFilter.setProtocol(MessageObject.Protocol.values()[i]);
             }
         }
-
+        
         if (mirthDatePicker1.getDate() != null)
         {
             Calendar calendarStart = Calendar.getInstance();
@@ -975,10 +984,10 @@ public class MessageBrowser extends javax.swing.JPanel
             calendarEnd.setTimeInMillis(mirthDatePicker2.getDateInMillis());
             messageObjectFilter.setEndDate(calendarEnd);
         }
-
+        
         if (!pageSizeField.getText().equals(""))
             pageSize = Integer.parseInt(pageSizeField.getText());
-
+        
         parent.setWorking(true);
         if (messageListHandler == null)
         {
@@ -992,13 +1001,13 @@ public class MessageBrowser extends javax.swing.JPanel
             class MessageWorker extends SwingWorker<Void, Void>
             {
                 protected int pageSize;
-
+                
                 public Void doInBackground()
                 {
                     messageListHandler = parent.mirthClient.getMessageListHandler(messageObjectFilter, pageSize);
                     return null;
                 }
-
+                
                 public void done()
                 {
                     makeMessageTable(messageListHandler, FIRST_PAGE);
@@ -1010,7 +1019,7 @@ public class MessageBrowser extends javax.swing.JPanel
             worker.execute();
         }
     }// GEN-LAST:event_filterButtonActionPerformed
-
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel EncodedMessagePanel;
 
@@ -1084,5 +1093,5 @@ public class MessageBrowser extends javax.swing.JPanel
 
     private javax.swing.JComboBox statusComboBox;
     // End of variables declaration//GEN-END:variables
-
+    
 }
