@@ -303,7 +303,7 @@ public class DatabaseReader extends ConnectorClass
 
             String xml = docSerializer.toXML(document);
 
-            parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().setInboundTemplate(xml);
+            parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().setInboundTemplate(xml.replaceAll("\\r\\n", "\n"));
 
             if (parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().getOutboundProtocol() == MessageObject.Protocol.XML 
             		&& parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().getOutboundTemplate() != null
