@@ -3563,7 +3563,7 @@ public class HL7Reference
         map.put("ORC.7", "Timing/Quantity");
         map.put("ORC.8", "Parent");
         map.put("ORC.9", "Date/Time of Transaction");
-        map.put("ORC.10", "Enterted By");
+        map.put("ORC.10", "Entered By");
         map.put("ORC.11", "Verified By");
         map.put("ORC.12", "Ordering Provider");
         map.put("ORC.13", "Enterer's Location");
@@ -4208,7 +4208,7 @@ public class HL7Reference
         map.put("ORC.7", "Timing/Quantity");
         map.put("ORC.8", "Parent");
         map.put("ORC.9", "Date/Time of Transaction");
-        map.put("ORC.10", "Enterted By");
+        map.put("ORC.10", "Entered By");
         map.put("ORC.11", "Verified By");
         map.put("ORC.12", "Ordering Provider");
         map.put("ORC.13", "Enterer's Location");
