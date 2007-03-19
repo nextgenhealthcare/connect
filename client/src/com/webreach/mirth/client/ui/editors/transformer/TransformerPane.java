@@ -26,6 +26,7 @@
 package com.webreach.mirth.client.ui.editors.transformer;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -325,11 +326,16 @@ public class TransformerPane extends MirthEditorPane
         // BGN LAYOUT
         transformerTable.setBorder(BorderFactory.createEmptyBorder());
         transformerTablePane.setBorder(BorderFactory.createEmptyBorder());
+        transformerTablePane.setMinimumSize(new Dimension(0, 40));
         stepPanel.setBorder(BorderFactory.createEmptyBorder());
 
         hSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, transformerTablePane, stepPanel);
         hSplitPane.setContinuousLayout(true);
+        //hSplitPane.setDividerSize(6);
+        hSplitPane.setOneTouchExpandable(true);
         vSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, hSplitPane, refPanel);
+        //vSplitPane.setDividerSize(6);
+        vSplitPane.setOneTouchExpandable(true);
         vSplitPane.setContinuousLayout(true);
         resizePanes();
 

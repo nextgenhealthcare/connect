@@ -6,14 +6,22 @@
 
 package com.webreach.mirth.client.ui.editors;
 
+import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.ui.beans.HL7Properties;
+
+import java.awt.Dimension;
 import java.util.Properties;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import org.jdesktop.swingworker.SwingWorker;
 import org.syntax.jedit.SyntaxDocument;
+import org.syntax.jedit.tokenmarker.EDITokenMarker;
 import org.syntax.jedit.tokenmarker.HL7TokenMarker;
+import org.syntax.jedit.tokenmarker.X12TokenMarker;
 
 import com.webreach.mirth.client.ui.PlatformUI;
 import com.webreach.mirth.client.ui.TreePanel;
@@ -40,6 +48,8 @@ public class MessageTreeTemplate extends javax.swing.JPanel
     private String data;
 
     private Properties dataProperties;
+    
+    private Timer timer;
 
     /** Creates new form MessageTreeTemplate */
     public MessageTreeTemplate()
@@ -78,7 +88,8 @@ public class MessageTreeTemplate extends javax.swing.JPanel
         HL7Doc = new SyntaxDocument();
         HL7Doc.setTokenMarker(new HL7TokenMarker());
         pasteBox.setDocument(HL7Doc);
-        pasteBox.setFont(EditorConstants.DEFAULT_FONT);
+      //  pasteBox.setPreferredSize(new Dimension(100,100));
+      //  pasteBox.setFont(EditorConstants.DEFAULT_FONT);
 
         // handles updating the tree
         pasteBox.getDocument().addDocumentListener(new DocumentListener()
@@ -102,10 +113,31 @@ public class MessageTreeTemplate extends javax.swing.JPanel
 
     private void updateText()
     {
-        String message = pasteBox.getText();
-        treePanel.setMessage(dataProperties, (String) dataType.getSelectedItem(), message, DEFAULT_TEXT, dataProperties);
-        treePanel.revalidate();
-        treePanel.repaint();
+    	class UpdateTimer extends TimerTask{
+		
+		@Override
+		public void run() {
+	
+        	PlatformUI.MIRTH_FRAME.setWorking(true);
+
+        	 String message = pasteBox.getText();
+             treePanel.setMessage(dataProperties, (String) dataType.getSelectedItem(), message, DEFAULT_TEXT, dataProperties);
+             PlatformUI.MIRTH_FRAME.setWorking(false);
+			
+		}
+		
+	}
+	if (timer == null){
+		timer = new Timer();
+		timer.schedule(new UpdateTimer(), 1000);
+	}else{
+		timer.cancel();
+		timer = new Timer();
+		timer.schedule(new UpdateTimer(), 1000);
+	}
+	
+        //treePanel.revalidate();
+        //treePanel.repaint();
     }
 
     public void setTreePanel(String prefix, String suffix)
@@ -124,11 +156,18 @@ public class MessageTreeTemplate extends javax.swing.JPanel
 
     public void setMessage(String msg)
     {
-        if (msg != null)
+
+    	
+    	
+
+    	if (msg != null)
             msg = msg.replace('\r', '\n');
         pasteBox.setText(msg);
         pasteBoxFocusLost(null);
         updateText();
+
+        
+        
     }
 
     public void clearMessage()
@@ -142,13 +181,22 @@ public class MessageTreeTemplate extends javax.swing.JPanel
     {
         dataType.setSelectedItem(protocol);
         
-        if (protocol.equals("HL7 v2.x") || protocol.equals("EDI") || protocol.equals("X12"))
-            HL7Doc.setTokenMarker(new HL7TokenMarker());
-        else if (protocol.equals("HL7 v3.0") || protocol.equals("XML"))
-            HL7Doc.setTokenMarker(new XMLTokenMarker());
-        
-        pasteBox.setDocument(HL7Doc);
+        setDocType(protocol);
     }
+
+	private void setDocType(String protocol) {
+		if (protocol.equals("HL7 v2.x")){
+            HL7Doc.setTokenMarker(new HL7TokenMarker());
+        } else if (protocol.equals("EDI")){
+        	HL7Doc.setTokenMarker(new EDITokenMarker());
+        } else if (protocol.equals("X12")){
+        	HL7Doc.setTokenMarker(new X12TokenMarker());
+        }
+        else if (protocol.equals("HL7 v3.0") || protocol.equals("XML")){
+            HL7Doc.setTokenMarker(new XMLTokenMarker());
+        }
+        pasteBox.setDocument(HL7Doc);
+	}
 
     public String getProtocol()
     {
@@ -277,6 +325,9 @@ public class MessageTreeTemplate extends javax.swing.JPanel
         else
             properties.setEnabled(false);
         dataProperties = new Properties();
+        setDocType((String)dataType.getSelectedItem());
+        updateText();
+        
     }// GEN-LAST:event_dataTypeActionPerformed
     
     // GEN-FIRST:event_pasteBoxFocusLost

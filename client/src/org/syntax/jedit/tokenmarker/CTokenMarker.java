@@ -329,18 +329,22 @@ public class CTokenMarker extends TokenMarker
 
     private boolean doKeyword(Segment line, int i, char c)
     {
-        int i1 = i + 1;
-
-        int len = i - lastKeyword;
-        byte id = keywords.lookup(line, lastKeyword, len);
-        if (id != Token.NULL)
-        {
-            if (lastKeyword != lastOffset)
-                addToken(lastKeyword - lastOffset, Token.NULL);
-            addToken(len, id);
-            lastOffset = i;
-        }
-        lastKeyword = i1;
+    	try{
+	        int i1 = i + 1;
+	
+	        int len = i - lastKeyword;
+	        byte id = keywords.lookup(line, lastKeyword, len);
+	        if (id != Token.NULL)
+	        {
+	            if (lastKeyword != lastOffset)
+	                addToken(lastKeyword - lastOffset, Token.NULL);
+	            addToken(len, id);
+	            lastOffset = i;
+	        }
+	        lastKeyword = i1;
+    	}catch (Exception e){
+    		return false;
+    	}
         return false;
     }
 }

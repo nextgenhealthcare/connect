@@ -310,11 +310,13 @@ public class MessageBuilder extends BasePanel
     public void setHighlighters()
     {
         variableTextField.setBackground(UIConstants.DRAG_HIGHLIGHTER_COLOR);
+        mappingTextField.setBackground(UIConstants.DRAG_HIGHLIGHTER_COLOR);
     }
 
     public void unsetHighlighters()
     {
         variableTextField.setBackground(UIConstants.BACKGROUND_COLOR);
+        mappingTextField.setBackground(UIConstants.BACKGROUND_COLOR);
     }
 
     /**

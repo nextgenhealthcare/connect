@@ -47,28 +47,6 @@ public class X12Properties extends EDIProperties implements Serializable
         this.inferX12Delimiters = inferX12Delimiters;
     }
 
-    /**
-     * Holds value of property useStrictParser.
-     */
-    private boolean useStrictParser = true;
-
-    /**
-     * Getter for property validateMessage.
-     * @return Value of property validateMessage.
-     */
-    public boolean isUseStrictParser()
-    {
-        return this.useStrictParser;
-    }
-
-    /**
-     * Setter for property validateMessage.
-     * @param validateMessage New value of property validateMessage.
-     */
-    public void setUseStrictParser(boolean useStrictParser)
-    {
-        this.useStrictParser = useStrictParser;
-    }
 
     
 }

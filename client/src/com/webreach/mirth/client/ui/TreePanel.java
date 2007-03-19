@@ -32,15 +32,24 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
 import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTree;
+import javax.swing.JViewport;
 import javax.swing.TransferHandler;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.xml.parsers.DocumentBuilder;
@@ -65,6 +74,7 @@ import ca.uhn.hl7v2.parser.XMLParser;
 import ca.uhn.hl7v2.util.Terser;
 import ca.uhn.hl7v2.validation.impl.NoValidation;
 
+import com.webreach.mirth.client.ui.editors.TreeExpandedRestorer;
 import com.webreach.mirth.client.ui.util.HL7Reference;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.MessageObject.Protocol;
@@ -74,15 +84,20 @@ import com.webreach.mirth.model.converters.IXMLSerializer;
 import com.webreach.mirth.model.converters.SerializerException;
 import com.webreach.mirth.model.converters.SerializerFactory;
 import com.webreach.mirth.model.converters.X12Serializer;
+import com.webreach.mirth.model.util.MessageVocabulary;
+import com.webreach.mirth.model.util.MessageVocabularyFactory;
 
 public class TreePanel extends JPanel
 {
     private String version = "";
+    private String type = "";
     private JTree tree;
     private Logger logger = Logger.getLogger(this.getClass());
     private String _dropPrefix;
     private String _dropSuffix;
     private String messageName;
+    TreeExpandedRestorer restorer;
+    private MessageVocabulary vocabulary;
     public TreePanel(String prefix, String suffix)
     {
         _dropPrefix = prefix;
@@ -94,191 +109,80 @@ public class TreePanel extends JPanel
 
     public void setMessage(Properties protocolProperties, String messageType, String source, String ignoreText, Properties dataProperties)
     {
+    	
         Document xmlDoc = null;
-        messageName = "";
-        String messageDescription = "";
-
-        source = source.replaceAll("\\n", "\r").trim();
         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder docBuilder;
-      
+        
+        messageName = "";
+        version = "";
+        type = "";
+        String messageDescription = "";
+        Protocol protocol = null;
+        
+        source = source.replaceAll("\\n", "\r").trim();        
         if (source.length() > 0 && !source.equals(ignoreText))
         {
         	IXMLSerializer<String> serializer;
             if (PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.HL7V2).equals(messageType))
             { 
-            	serializer = SerializerFactory.getSerializer(Protocol.HL7V2, protocolProperties);
-                //Message message = null;
-                //logger.debug("encoding HL7 message to XML:\n" + message);
-            	boolean useStrictParser = true;
-                if (source != null && !source.equals(""))
-                {
-                	if (protocolProperties != null && protocolProperties.get("useStrictParser") != null){
-                		useStrictParser = Boolean.parseBoolean(protocolProperties.get("useStrictParser").toString());
-                	}
-                    // This message might come from a system that doesn't use
-                    // carriage returns
-                    // Since hapi requires a CR for the end of segment character
-                    // we will force it.
-                    try
-                    {
-                    	docBuilder = docFactory.newDocumentBuilder();
-                    	String er7Message = serializer.toXML(source);
-                    	xmlDoc = docBuilder.parse(new InputSource(new StringReader(er7Message)));
-                    	if (useStrictParser){
-	                        Message message = new PipeParser().parse(source);
-	                        Terser terser = new Terser(message);
-	                        version = message.getVersion();
-	                        try
-	                        {
-	                            messageName = terser.get("/MSH-9-1") + "-" + terser.get("/MSH-9-2") + " (" + version + ")";
-	                            messageDescription = HL7Reference.getInstance().getDescription(terser.get("/MSH-9-1") + terser.get("/MSH-9-2"), version);
-	                        }
-	                        catch (HL7Exception e)
-	                        {
-	                            // TODO Auto-generated catch block
-	                            logger.error(e);
-	                        }
-                    	}else{
- 	                        version = "Unknown"; // TODO: add hooks to get from DOM tree
- 	                        messageName = "HL7Message"; // TODO: add hooks to get from DOM tree
- 	                        
-                    	}
-                    }
-                    catch (SerializerException e)
-                    {
-                        // PlatformUI.MIRTH_FRAME.alertWarning( "Encoding not
-                        // supported.\n" +
-                        // "Please check the syntax of your message\n" +
-                        // "and try again.");
-                    }
-                    catch (EncodingNotSupportedException e)
-                    {
-                        // PlatformUI.MIRTH_FRAME.alertWarning( "Encoding not
-                        // supported.\n" +
-                        // "Please check the syntax of your message\n" +
-                        // "and try again.");
-                    }
-                    catch (HL7Exception e)
-                    {
-                        // PlatformUI.MIRTH_FRAME.alertError( "HL7 Error!\n" +
-                        // "Please check the syntax of your message\n" +
-                        // "and try again.");
-                    }
-                    catch (Exception e)
-                    {
-                        // PlatformUI.MIRTH_FRAME.alertException(e.getStackTrace(),
-                        // e.getMessage());
-                        //e.printStackTrace();
-                    }
-                }
-             
+            	protocol = Protocol.HL7V2;
             }
             else if (PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.HL7V3).equals(messageType))
             {
-                try
-                {
-                    docBuilder = docFactory.newDocumentBuilder();
-                    xmlDoc = docBuilder.parse(new InputSource(new StringReader(source)));
-                }
-                catch (Exception e)
-                {
-                    // e.printStackTrace();
-                }
-
-                if (xmlDoc != null)
-                {
-                    version = "3.0";
-                    messageName = xmlDoc.getDocumentElement().getNodeName() + " -" + " (" + version + ")";
-                    messageDescription = "";
-                }
+            	protocol = Protocol.HL7V3;
             }
             else if (PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.X12).equals(messageType))
             {
-                try
-                {
-                    docBuilder = docFactory.newDocumentBuilder();
-                    String x12message = new X12Serializer(dataProperties).toXML(source);
-                    xmlDoc = docBuilder.parse(new InputSource(new StringReader(x12message)));
-                }
-                catch (Exception e)
-                {
-                    // TODO Auto-generated catch block
-                    // e.printStackTrace();
-                }
-                if (xmlDoc != null)
-                {
-                    messageDescription = "";
-                    version = "";
-                    String event = "Unknown";
-                    if (xmlDoc.getElementsByTagName("ST.1") != null)
-                    {
-                        Node type = xmlDoc.getElementsByTagName("ST.1").item(0);
-                        type = type.getFirstChild();
-                        event = type.getNodeValue();
-                    }
-                    version = "";
-                    if (xmlDoc.getElementsByTagName("GS.8") != null)
-                    {
-                        Node versionNode = xmlDoc.getElementsByTagName("GS.8").item(0);
-                        versionNode = versionNode.getFirstChild();
-                        version = versionNode.getNodeValue();
-                    }
-                    messageName = xmlDoc.getDocumentElement().getNodeName() + " - " + event + " (" + version + ")";
-                    messageDescription = "";// HL7Reference.getInstance().getDescription(terser.get("/MSH-9-1")
-                    // + terser.get("/MSH-9-2"),
-                    // version);
-                }
+            	protocol = Protocol.X12;
             }
             else if (PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.XML).equals(messageType))
             {
-                try
-                {
-                    docBuilder = docFactory.newDocumentBuilder();
-                    xmlDoc = docBuilder.parse(new InputSource(new StringReader(source)));
-                }
-                catch (Exception e)
-                {
-                    // e.printStackTrace();
-                }
-                if (xmlDoc != null)
-                {
-                    version = "";
-                    messageDescription = "";
-                    messageName = xmlDoc.getDocumentElement().getNodeName();
-                }
+            	protocol = Protocol.XML;
             }
             else if (PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.EDI).equals(messageType))
             {
-                try
-                {
-                    docBuilder = docFactory.newDocumentBuilder();
-                    String ediMessage = new EDISerializer(dataProperties).toXML(source);
-                    xmlDoc = docBuilder.parse(new InputSource(new StringReader(ediMessage)));
-                }
-                catch (Exception e)
-                {
-                    // TODO Auto-generated catch block
-                    // e.printStackTrace();
-                }
-                if (xmlDoc != null)
-                {
-                    messageDescription = "";
-                    version = "";
-                    messageName = xmlDoc.getDocumentElement().getNodeName() + "-" + " (" + version + ")";
-                    messageDescription = "";// HL7Reference.getInstance().getDescription(terser.get("/MSH-9-1")
-                    // + terser.get("/MSH-9-2"),
-                    // version);
-                }
+            	protocol = Protocol.EDI;
+            }else{
+            	logger.error("Invalid protocol");
+            	return;
             }
 
+            
+            try
+            {
+            	serializer = SerializerFactory.getSerializer(protocol, protocolProperties);
+            	docBuilder = docFactory.newDocumentBuilder();
+            	String message = serializer.toXML(source);
+            	xmlDoc = docBuilder.parse(new InputSource(new StringReader(message)));
+           
+                if (xmlDoc != null)
+                {
+                	Map<String, String> metadata = serializer.getMetadata(xmlDoc);
+                    version = metadata.get("version");
+                    type = metadata.get("type");
+                    messageName =  type + " (" + version + ")";
+                	vocabulary = new MessageVocabularyFactory().getVocabulary(protocol, version, type);
+                    if (vocabulary != null);
+                    	messageDescription = vocabulary.getDescription(type);
+                }
+            }
+            catch (Exception e)
+            {
+                // TODO Auto-generated catch block
+                 e.printStackTrace();
+
+            }
+            
             if (xmlDoc != null)
                 createTree(xmlDoc, messageName, messageDescription);
             else
                 setInvalidMessage(messageType);
+            
         }
-        else
+        else{
             clearMessage();
+        }
     }
 
     /**
@@ -286,7 +190,7 @@ public class TreePanel extends JPanel
      */
     private void createTree(Document xmlDoc, String messageName, String messageDescription)
     {
-        PlatformUI.MIRTH_FRAME.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        
 
         Element el = xmlDoc.getDocumentElement();
         DefaultMutableTreeNode top;
@@ -302,8 +206,11 @@ public class TreePanel extends JPanel
         }
         // processElement(xmlDoc.getDocumentElement(), top);
         // addChildren(message, top);
-
+       
         tree = new JTree(top);
+        JScrollPane scrollPane = new JScrollPane();
+        JViewport viewPort = scrollPane.getViewport();
+        
         tree.setDragEnabled(true);
         tree.setTransferHandler(new TreeTransferHandler());
         tree.addMouseMotionListener(new MouseMotionAdapter()
@@ -327,17 +234,43 @@ public class TreePanel extends JPanel
                 refTableMouseMoved(evt);
             }
         });
-        tree.addMouseListener(new MouseAdapter()
-        {
-            public void mouseExited(MouseEvent evt)
-            {
-                refTableMouseExited(evt);
+        tree.addMouseListener(new MouseListener(){
 
-            }
+			public void mouseClicked(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			public void mouseEntered(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			public void mouseExited(MouseEvent e) {
+				 refTableMouseExited(e);
+				
+			}
+
+			public void mousePressed(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			public void mouseReleased(MouseEvent e) {
+				unsetHighlighters();
+				
+			}
+        	
         });
-
+        		
+        		
+        		
+     
+    
+        tree.setScrollsOnExpand(true);
+        viewPort.add(tree);
         removeAll();
-        add(tree);
+        add(viewPort);
         revalidate();
 
         PlatformUI.MIRTH_FRAME.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
@@ -376,9 +309,9 @@ public class TreePanel extends JPanel
         if (elo instanceof Element)
         {
             Element el = (Element) elo;
-            String description = HL7Reference.getInstance().getDescription(el.getNodeName(), version);
+            String description = vocabulary.getDescription(el.getNodeName());
             DefaultMutableTreeNode currentNode;
-            if (description.length() > 0)
+            if (description != null && description.length() > 0)
                 currentNode = new DefaultMutableTreeNode(el.getNodeName() + " (" + description + ")");
             else
                 currentNode = new DefaultMutableTreeNode(el.getNodeName());
@@ -393,14 +326,12 @@ public class TreePanel extends JPanel
                 // text = el.getTextContent();
             }
 
-            if (text != null)
+            
+            if ((text == null) || (text.equals("") || text.trim().length() == 0))
             {
-                text = text.trim();
-            }
-            if ((text != null) && (!text.equals("")))
-            {
-
-                currentNode.add(new DefaultMutableTreeNode(text));
+                currentNode.add(new DefaultMutableTreeNode(el.getNodeName()));
+            }else{
+            	currentNode.add(new DefaultMutableTreeNode(text));
             }
 
             processAttributes(el, currentNode);
@@ -473,7 +404,10 @@ public class TreePanel extends JPanel
         DefaultMutableTreeNode top = new DefaultMutableTreeNode("Paste a sample message above to view the message tree.");
         JTree tree = new JTree(top);
         removeAll();
-        add(tree);
+        JScrollPane scrollPane = new JScrollPane();
+        JViewport viewPort = scrollPane.getViewport();
+        viewPort.add(tree);
+        add(viewPort);
         revalidate();
     }
 
@@ -482,7 +416,10 @@ public class TreePanel extends JPanel
         DefaultMutableTreeNode top = new DefaultMutableTreeNode("The message pasted above does not appear to be valid " + messageType + ".");
         JTree tree = new JTree(top);
         removeAll();
-        add(tree);
+        JScrollPane scrollPane = new JScrollPane();
+        JViewport viewPort = scrollPane.getViewport();
+        viewPort.add(tree);
+        add(viewPort);
         revalidate();
     }
 }
