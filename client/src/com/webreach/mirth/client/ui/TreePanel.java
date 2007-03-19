@@ -30,14 +30,10 @@ import java.awt.Cursor;
 import java.awt.GridLayout;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
 import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
@@ -48,8 +44,6 @@ import javax.swing.JTree;
 import javax.swing.JViewport;
 import javax.swing.TransferHandler;
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.xml.parsers.DocumentBuilder;
@@ -60,30 +54,13 @@ import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
-import ca.uhn.hl7v2.HL7Exception;
-import ca.uhn.hl7v2.model.Message;
-import ca.uhn.hl7v2.parser.DefaultXMLParser;
-import ca.uhn.hl7v2.parser.EncodingCharacters;
-import ca.uhn.hl7v2.parser.EncodingNotSupportedException;
-import ca.uhn.hl7v2.parser.PipeParser;
-import ca.uhn.hl7v2.parser.XMLParser;
-import ca.uhn.hl7v2.util.Terser;
-import ca.uhn.hl7v2.validation.impl.NoValidation;
-
-import com.webreach.mirth.client.ui.editors.TreeExpandedRestorer;
-import com.webreach.mirth.client.ui.util.HL7Reference;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.MessageObject.Protocol;
-import com.webreach.mirth.model.converters.EDISerializer;
-import com.webreach.mirth.model.converters.ER7Serializer;
 import com.webreach.mirth.model.converters.IXMLSerializer;
-import com.webreach.mirth.model.converters.SerializerException;
 import com.webreach.mirth.model.converters.SerializerFactory;
-import com.webreach.mirth.model.converters.X12Serializer;
 import com.webreach.mirth.model.util.MessageVocabulary;
 import com.webreach.mirth.model.util.MessageVocabularyFactory;
 
@@ -96,7 +73,6 @@ public class TreePanel extends JPanel
     private String _dropPrefix;
     private String _dropSuffix;
     private String messageName;
-    TreeExpandedRestorer restorer;
     private MessageVocabulary vocabulary;
     public TreePanel(String prefix, String suffix)
     {
