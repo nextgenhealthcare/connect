@@ -33,6 +33,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.ListIterator;
 import java.util.Properties;
 
@@ -81,7 +82,7 @@ public class DatabaseConnection {
 	 * @return the result of the query.
 	 * @throws SQLException
 	 */
-	public synchronized ResultSet executeQuery(String expression) throws SQLException {
+	public ResultSet executeQuery(String expression) throws SQLException {
 		Statement statement = null;
 
 		try {
@@ -103,7 +104,7 @@ public class DatabaseConnection {
 	 * @return the result of the query.
 	 * @throws SQLException
 	 */
-	public synchronized CachedRowSet executeCachedQuery(String expression) throws SQLException {
+	public CachedRowSet executeCachedQuery(String expression) throws SQLException {
 		Statement statement = null;
 
 		try {
@@ -129,7 +130,7 @@ public class DatabaseConnection {
 	 * @return a count of the number of updated rows.
 	 * @throws SQLException
 	 */
-	public synchronized int executeUpdate(String expression) throws SQLException {
+	public int executeUpdate(String expression) throws SQLException {
 		Statement statement = null;
 
 		try {
@@ -153,7 +154,7 @@ public class DatabaseConnection {
 	 * @return a count of the number of updated rows.
 	 * @throws SQLException
 	 */
-	public synchronized int executeUpdate(String expression, ArrayList parameters) throws SQLException {
+	public int executeUpdate(String expression, List parameters) throws SQLException {
 		PreparedStatement statement = null;
 
 		try {
@@ -176,7 +177,79 @@ public class DatabaseConnection {
 			DatabaseUtil.close(statement);
 		}
 	}
+	
+	/**
+	 * Executes a prepared statement on the database and returns the row count.
+	 * 
+	 * @param expression
+	 *            the prepared statement to be executed
+	 * @param parameters
+	 *            the parameteres for the prepared statement
+	 * @return a count of the number of updated rows.
+	 * @throws SQLException
+	 */
+	public ResultSet executeQuery(String expression, List parameters) throws SQLException {
+		PreparedStatement statement = null;
 
+		try {
+			statement = connection.prepareStatement(expression);
+			logger.debug("executing prepared statement:\n" + expression);
+
+			ListIterator iterator = parameters.listIterator();
+
+			while (iterator.hasNext()) {
+				int index = iterator.nextIndex() + 1;
+				Object value = iterator.next();
+				logger.debug("adding parameter: index=" + index + ", value=" + value);
+				statement.setObject(index, value);
+			}
+
+			return statement.executeQuery();
+		} catch (SQLException e) {
+			throw e;
+		} finally {
+			DatabaseUtil.close(statement);
+		}
+	}
+
+	/**
+	 * Executes a prepared statement on the database and returns the row count.
+	 * 
+	 * @param expression
+	 *            the prepared statement to be executed
+	 * @param parameters
+	 *            the parameteres for the prepared statement
+	 * @return a count of the number of updated rows.
+	 * @throws SQLException
+	 */
+	public CachedRowSet executeCachedQuery(String expression, List parameters) throws SQLException {
+		PreparedStatement statement = null;
+
+		try {
+			statement = connection.prepareStatement(expression);
+			logger.debug("executing prepared statement:\n" + expression);
+
+			ListIterator iterator = parameters.listIterator();
+
+			while (iterator.hasNext()) {
+				int index = iterator.nextIndex() + 1;
+				Object value = iterator.next();
+				logger.debug("adding parameter: index=" + index + ", value=" + value);
+				statement.setObject(index, value);
+			}
+			ResultSet result = statement.executeQuery();
+			CachedRowSetImpl crs = new CachedRowSetImpl();
+			crs.populate(result);
+			DatabaseUtil.close(result);
+			return crs;
+		} catch (SQLException e) {
+			throw e;
+		} finally {
+			DatabaseUtil.close(statement);
+		}
+	}
+
+	
 	/**
 	 * Closes the database connection.
 	 * 

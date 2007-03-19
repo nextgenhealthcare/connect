@@ -38,7 +38,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map Config 2.0//EN"
 			<property name="JDBC.Password" value="${password}" />
 		</dataSource>
 	</transactionManager>
-
+	<sqlMap resource="postgres-alert.xml" />
 	<sqlMap resource="postgres-user.xml" />
 	<sqlMap resource="postgres-channel.xml" />
 	<sqlMap resource="postgres-message.xml" />

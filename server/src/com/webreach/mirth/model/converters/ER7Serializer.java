@@ -45,6 +45,7 @@ import ca.uhn.hl7v2.parser.DefaultXMLParser;
 import ca.uhn.hl7v2.parser.PipeParser;
 import ca.uhn.hl7v2.parser.XMLParser;
 import ca.uhn.hl7v2.util.Terser;
+import ca.uhn.hl7v2.validation.ValidationContext;
 import ca.uhn.hl7v2.validation.impl.NoValidation;
 
 public class ER7Serializer implements IXMLSerializer<String> {
@@ -56,10 +57,13 @@ public class ER7Serializer implements IXMLSerializer<String> {
 	private String currentXML = null;
 	private String currentER7 = null;
 	private boolean useStrictParser = true;
-
+	private boolean useStrictValidation = false;
 	public ER7Serializer(Map er7Properties) {
 		if (er7Properties != null &&  er7Properties.get("useStrictParser") != null) {
 			this.useStrictParser = Boolean.parseBoolean((String)er7Properties.get("useStrictParser"));
+		}
+		if (er7Properties != null &&  er7Properties.get("useStrictValidation") != null) {
+			this.useStrictValidation = Boolean.parseBoolean((String)er7Properties.get("useStrictValidation"));
 		}
 		if (!useStrictParser) {
 			er7Parser = new ER7Reader();
@@ -74,9 +78,13 @@ public class ER7Serializer implements IXMLSerializer<String> {
 
 	private void initializeHapiParser() {
 		pipeParser = new PipeParser();
-		pipeParser.setValidationContext(new NoValidation());
 		xmlParser = new DefaultXMLParser();
-		xmlParser.setValidationContext(new NoValidation());
+		// Turn off strict validation if needed
+		if (!this.useStrictValidation){
+			pipeParser.setValidationContext(new NoValidation());
+			xmlParser.setValidationContext(new NoValidation());
+		}
+		
 		xmlParser.setKeepAsOriginalNodes(new String[] { "NTE.3", "OBX.5" });
 	}
 
@@ -172,7 +180,7 @@ public class ER7Serializer implements IXMLSerializer<String> {
 
 		if (useStrictParser){
 			try{
-	            Message message = new PipeParser().parse(source.replaceAll("\n", "\r").trim());
+	            Message message = pipeParser.parse(source.replaceAll("\n", "\r").trim());
 	            Terser terser = new Terser(message);
 				String sendingFacility = terser.get("/MSH-4-1");
 				String event = terser.get("/MSH-9-1") + "-" + terser.get("/MSH-9-2");

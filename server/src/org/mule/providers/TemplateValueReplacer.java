@@ -42,6 +42,22 @@ public class TemplateValueReplacer {
 
 		return writer.toString();
 	}
+	public String replaceValues(String template, Map values) {
+		VelocityContext context = new VelocityContext();
+		for (Iterator iter = values.entrySet().iterator(); iter.hasNext();) {
+			Entry element = (Entry)iter.next();
+			context.put(element.getKey().toString(), element.getValue());
+		}
+		StringWriter writer = new StringWriter();
+
+		try {
+			Velocity.init();
+			Velocity.evaluate(context, writer, "LOG", template);
+		} catch (Exception e) {
+			logger.warn("could not replace template values", e);
+		}
+		return writer.toString();
+	}
 	public String replaceValues(String template, String originalFilename) {
 		return replaceValues(template, null, originalFilename);
 	}
@@ -54,13 +70,11 @@ public class TemplateValueReplacer {
 			// we don't use an iterator here because of concurrent modification
 			// issues
 			Map<String, Object> globalVariables = GlobalVariableStore.getInstance().getVariables();
-			String[] keys = {};
-			keys = globalVariables.keySet().toArray(keys);
-
-			for (int i = 0; i < keys.length; i++) {
-				context.put(keys[i], globalVariables.get(keys[i]));
+			for (Iterator iter = globalVariables.entrySet().iterator(); iter.hasNext();) {
+				Entry element = (Entry)iter.next();
+				context.put(element.getKey().toString(), element.getValue());
 			}
-
+			
 			// load variables from local map
 			for (Iterator iter = messageObject.getConnectorMap().entrySet().iterator(); iter.hasNext();) {
 				Entry entry = (Entry) iter.next();
@@ -70,7 +84,6 @@ public class TemplateValueReplacer {
 			Map channelMap = messageObject.getChannelMap();
 			Object[] channelKeys = {};
 			channelKeys = channelMap.keySet().toArray(channelKeys);
-
 			for (int i = 0; i < channelKeys.length; i++) {
 				context.put(channelKeys[i].toString(),channelMap.get(channelKeys[i]));
 			}

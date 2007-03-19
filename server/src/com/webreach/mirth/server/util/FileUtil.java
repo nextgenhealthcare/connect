@@ -40,17 +40,17 @@ import sun.misc.BASE64Encoder;
 
 public class FileUtil
 {
-    public void write(String fileName, boolean append, String data) throws IOException
+    public static void write(String fileName, boolean append, String data) throws IOException
     {
     	write(fileName, append, data.getBytes());
     }
-    public byte[] decode(String data) throws IOException{
+    public static byte[] decode(String data) throws IOException{
     	return new BASE64Decoder().decodeBuffer(data);
     }
-    public String encode(byte[] data) throws IOException{
+    public static String encode(byte[] data) throws IOException{
     	return new BASE64Encoder().encode(data);
     }
-    public void write(String fileName, boolean append, byte[] bytes) throws IOException{
+    public static void write(String fileName, boolean append, byte[] bytes) throws IOException{
     	File file = new File(fileName);
         FileOutputStream fos = null;
         try
@@ -66,7 +66,7 @@ public class FileUtil
         }
     }
     //Returns the contents of the file in a byte array.
-	private byte[] readBytes(String fileName) throws IOException {
+	private static byte[] readBytes(String fileName) throws IOException {
 		File file = new File(fileName);
 		InputStream is = new FileInputStream(file);
 
@@ -101,7 +101,7 @@ public class FileUtil
 		is.close();
 		return bytes;
 	}
-    public String read(String fileName) throws IOException
+    public static String read(String fileName) throws IOException
     {
     	File file = new File(fileName);
         BufferedReader reader = new BufferedReader(new FileReader(file));

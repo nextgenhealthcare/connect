@@ -3,6 +3,7 @@ package com.webreach.mirth.server.util;
 import org.apache.commons.logging.Log;
 import org.apache.log4j.Logger;
 import org.mozilla.javascript.Scriptable;
+import org.mule.providers.TemplateValueReplacer;
 
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.converters.SerializerFactory;
@@ -23,11 +24,9 @@ public class JavaScriptScopeFactory {
 	public void buildScope(Scriptable scope, String channelId) {
 		scope.put("alerts", scope, new AlertSender(channelId));
 		scope.put("router", scope, new VMRouter());
-		scope.put("response", scope, new ResponseFactory());
 		scope.put("globalMap", scope, GlobalVariableStore.getInstance());
-		scope.put("fileUtil", scope, new FileUtil());
-		scope.put("dateUtil", scope, new DateUtil());
-		scope.put("serializerFactory", scope, new SerializerFactory());
+		scope.put("channelId", scope, channelId);
+		scope.put("replacer", scope, new TemplateValueReplacer());
 	}
 
 	// Logger builders

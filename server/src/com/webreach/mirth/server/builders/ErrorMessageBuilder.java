@@ -28,9 +28,11 @@ public class ErrorMessageBuilder {
 		
 		if (customMessage != null && customMessage.length() > 0) {
 			customMessage += lineSeperator;
+			errorMessage.append("ERROR MESSAGE:\t" + customMessage + StackTracePrinter.stackTraceToString(e) + lineSeperator);
+		}else{
+			errorMessage.append(StackTracePrinter.stackTraceToString(e) + lineSeperator);
 		}
 		
-		errorMessage.append("ERROR MESSAGE:\t" + customMessage + StackTracePrinter.stackTraceToString(e) + lineSeperator);
 		return errorMessage.toString();
 	}
 }

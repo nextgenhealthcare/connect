@@ -31,6 +31,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
@@ -180,7 +182,11 @@ public class AlertController {
 		if ((expression == null) || !(expression.length() > 0)) {
 			return false;
 		} else {
-			return errorMessage.contains(expression);
+			Pattern p = Pattern.compile(expression);
+	        // Create a matcher with an input string
+	        Matcher m = p.matcher(errorMessage);
+	        boolean result = m.find();
+			return result;
 		}
 	}
 
@@ -193,6 +199,7 @@ public class AlertController {
 			TemplateEvaluator evaluator = new TemplateEvaluator();
 			Map<String, Object> context = new HashMap<String, Object>();
 			context.put("ERROR", errorMessage);
+			context.put("error", errorMessage);
 			context.put("SYSTIME", String.valueOf(System.currentTimeMillis()));
 			String body = evaluator.evaluate(template, context);
 
