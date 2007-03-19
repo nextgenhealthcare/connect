@@ -1,23 +1,13 @@
 package com.webreach.mirth.model.converters;
 
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.StringReader;
-import java.io.StringWriter;
 
-import org.apache.xml.serialize.OutputFormat;
-import org.apache.xml.serialize.XMLSerializer;
-import org.junit.Assert;
+import junit.framework.Assert;
+
 import org.w3c.dom.Document;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.XMLReaderFactory;
 
 public class X12Test {
 	public static void main(String[] args) {
@@ -28,32 +18,32 @@ public class X12Test {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}try {
-
+		}
+		
+		try {
 			X12Serializer serializer = new X12Serializer(true);
 			String xmloutput = serializer.toXML(testMessage);
-		
 
-			//System.out.println(xmloutput);
+			// System.out.println(xmloutput);
 			DocumentSerializer docser = new DocumentSerializer();
 			docser.setPreserveSpace(false);
 			Document doc = docser.fromXML(xmloutput);
-			
-			System.out.println(docser.toXML(doc)); //handler.getOutput());
-			
-			
+
+			System.out.println(docser.toXML(doc)); // handler.getOutput());
+
 			String x12 = serializer.fromXML(xmloutput);
 			System.out.println(x12);
 			Assert.assertTrue(x12.replace('\n', '\r').trim().equals(testMessage.replaceAll("\\r\\n", "\r").trim()));
+			
 			if (x12.replace('\n', '\r').trim().equals(testMessage.replaceAll("\\r\\n", "\r").trim())) {
 				System.out.println("Test Successful!");
 			} else {
 				String original = testMessage.replaceAll("\\r\\n", "\r").trim();
 				String newm = x12.replace('\n', '\r').trim();
-				for (int i = 0; i < original.length(); i++){
-					if (original.charAt(i) == newm.charAt(i)){
+				for (int i = 0; i < original.length(); i++) {
+					if (original.charAt(i) == newm.charAt(i)) {
 						System.out.print(newm.charAt(i));
-					}else{
+					} else {
 						System.out.println("");
 						System.out.print("Saw: ");
 						System.out.println(newm.charAt(i));
@@ -71,8 +61,6 @@ public class X12Test {
 			e.printStackTrace();
 		}
 	}
-	
-
 
 	// Returns the contents of the file in a byte array.
 	private static byte[] getBytesFromFile(File file) throws IOException {
