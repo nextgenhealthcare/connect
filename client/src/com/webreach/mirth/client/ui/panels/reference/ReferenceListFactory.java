@@ -10,7 +10,7 @@ public class ReferenceListFactory
 {
     public enum ListType
     {
-        ALL, CONVERSION, LOGGING_AND_ALERTS, DATABASE, MESSAGE, XML, HL7, MAP, UTILITY
+        ALL, CONVERSION, LOGGING_AND_ALERTS, DATABASE, MESSAGE, XML, HL7, MAP, UTILITY, DATE
     };
 
     public ArrayList<ReferenceListItem> getVariableListItems(ListType itemName)
@@ -35,21 +35,26 @@ public class ReferenceListFactory
             return getMapItems();
         case UTILITY:
             return getUtilityItems();
-        }
+    	case DATE:
+             return getDateItems();
+         }
         return null;
     }
     
     private ArrayList<ReferenceListItem> getAllItems()
     {
         ArrayList<ReferenceListItem> variablelistItems = new ArrayList<ReferenceListItem>();
+        variablelistItems.addAll(getUtilityItems());
+        variablelistItems.addAll(getDateItems());
         variablelistItems.addAll(getConversionItems());
         variablelistItems.addAll(getLoggingAndAlertsItems());
         variablelistItems.addAll(getDatabaseItems());
         variablelistItems.addAll(getMessageItems());
       //  variablelistItems.addAll(getXMLItems());
       //  variablelistItems.addAll(getHL7Items());
+        
         variablelistItems.addAll(getMapItems());
-        variablelistItems.addAll(getUtilityItems());
+        
 
         return variablelistItems;
     }
@@ -156,13 +161,22 @@ public class ReferenceListFactory
         variablelistItems.add(new ReferenceListItem("Write Bytes to File", "Write bytes to file", "FileUtil.write('filename', append(true/false), byteData);", CodeSnippetType.FUNCTION));
         variablelistItems.add(new ReferenceListItem("BASE-64 Encode Data", "Encode a byte array to a BASE-64 string", "FileUtil.encode(data);", CodeSnippetType.FUNCTION));
         variablelistItems.add(new ReferenceListItem("Decode BASE-64 Data", "Decode a BASE-64 string to a byte array", "FileUtil.decode(data);", CodeSnippetType.FUNCTION));
-        variablelistItems.add(new ReferenceListItem("Get Date Object From Pattern", "Parse a date according to specified pattern", "var date = DateUtil.getDate(pattern, date);", CodeSnippetType.FUNCTION));
-        variablelistItems.add(new ReferenceListItem("Format Date Object", "Formats a date object based on specified format", "var dateString = DateUtil.formatDate(pattern, date) ;", CodeSnippetType.FUNCTION));
         variablelistItems.add(new ReferenceListItem("Route Message to Channel", "Sends the specified data to a different channel", "router.routeMessage(channelName, 'message');", CodeSnippetType.FUNCTION));
         variablelistItems.add(new ReferenceListItem("Perform Message Object Value Replacement", "Returns a string that has been run through Velocity replacer with a messageObject context", "var results = replacer.replaceValues(template, messageObject);", CodeSnippetType.FUNCTION));
         variablelistItems.add(new ReferenceListItem("Perform Map Value Replacement", "Returns a string that has been run through Velocity replacer with a map context", "var results = replacer.replaceValues(template, map);", CodeSnippetType.FUNCTION));
         
         return variablelistItems;
     }
+    private ArrayList<ReferenceListItem> getDateItems()
+    {
+        ArrayList<ReferenceListItem> variablelistItems = new ArrayList<ReferenceListItem>();
+        variablelistItems.add(new ReferenceListItem("Get Date Object From Pattern", "Parse a date according to specified pattern", "var date = DateUtil.getDate(pattern, date);", CodeSnippetType.FUNCTION));
+        variablelistItems.add(new ReferenceListItem("Format Date Object", "Formats a date object based on specified format", "var dateString = DateUtil.formatDate(pattern, date) ;", CodeSnippetType.FUNCTION));
+        variablelistItems.add(new ReferenceListItem("Convert Date String", "Parse a date and return a newly formatted date", "var datestring = DateUtil.convertDate(inpattern, outpattern, date);", CodeSnippetType.FUNCTION));
+        variablelistItems.add(new ReferenceListItem("Get Current Date", "Returns the current date/time in specified format", "var dateString = DateUtil.getCurrentDate(pattern) ;", CodeSnippetType.FUNCTION));
+        
     
+        return variablelistItems;
+    }
+
 }

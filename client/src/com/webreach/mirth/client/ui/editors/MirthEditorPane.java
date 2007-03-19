@@ -90,6 +90,7 @@ public class MirthEditorPane extends JPanel
         tabTemplatePanel = new TabbedTemplatePanel(this);
         tabTemplatePanel.addPanel(new ReferenceListPanel("All", builder.getVariableListItems(ListType.ALL)), "All");
         tabTemplatePanel.addPanel(new ReferenceListPanel("Utility Functions", builder.getVariableListItems(ListType.UTILITY)), "Utility Functions");
+        tabTemplatePanel.addPanel(new ReferenceListPanel("Date Functions", builder.getVariableListItems(ListType.DATE)), "Date Functions");
 
         tabTemplatePanel.addPanel(new ReferenceListPanel("Conversion Functions", builder.getVariableListItems(ListType.CONVERSION)), "Conversion Functions");
         tabTemplatePanel.addPanel(new ReferenceListPanel("Logging and Alerts", builder.getVariableListItems(ListType.LOGGING_AND_ALERTS)), "Logging and Alerts");
