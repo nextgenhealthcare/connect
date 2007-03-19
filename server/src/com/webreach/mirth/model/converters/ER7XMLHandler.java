@@ -46,6 +46,8 @@ public class ER7XMLHandler extends DefaultHandler {
 	private Location currentLocation = Location.DOCUMENT;
 	private boolean sawHeader = false;
 	private boolean lastinSubelement = false;
+	private boolean inMSH1 = false;
+	private boolean inMSH2 = false;
 	private StringBuilder output = new StringBuilder();
 	private Entities encoder = new Entities();
 	private String segmentDelim;
@@ -75,8 +77,12 @@ public class ER7XMLHandler extends DefaultHandler {
 		if (sawHeader == false){
 			sawHeader = true;
 		}else{
+			if (name.equals("MSH.2") || name.equals("BHS.2") || name.equals("FHS.2")){
+				inMSH2 = true;
+			}
 			if (name.equals("MSH.1") || name.equals("BHS.1") || name.equals("FHS.1")){
 				lastinSubelement = false;
+				inMSH1 = true;
 			}else if (currentLocation.equals(Location.DOCUMENT)){
 				output.append(name);
 				currentLocation = Location.SEGMENT;
@@ -96,12 +102,14 @@ public class ER7XMLHandler extends DefaultHandler {
 	}
 
 	public void endElement(String uri, String name, String qName) {
+		if (name.equals("MSH.2") || name.equals("BHS.2") || name.equals("FHS.2")){
+			inMSH2 = false;
+		}
+		
 		if (name.equals("MSH.1") || name.equals("BHS.1") || name.equals("FHS.1")){
-			//output.append("|");
-			//currentLocation = Location.DOCUMENT;
+			inMSH1 = false;
 			output.deleteCharAt(output.length() - 1);
 		}else if (currentLocation.equals(Location.SEGMENT)){
-			//output.deleteCharAt(output.length() - 1);
 			output.append(segmentDelim);
 			currentLocation = Location.DOCUMENT;
 		}else if (currentLocation.equals(Location.ELEMENT)){
@@ -117,7 +125,13 @@ public class ER7XMLHandler extends DefaultHandler {
 	}
 
 	public void characters(char ch[], int start, int length) {
-		
+		if (inMSH1){
+			fieldDelim = ch[start] + "";
+			inMSH1 = false;
+		}else if (inMSH2){
+			componentDelim = ch[start] + "";
+			inMSH2 = false;
+		}
 		for (int i = start; i < start + length; i++) {
 			switch (ch[i]) {
 				/*

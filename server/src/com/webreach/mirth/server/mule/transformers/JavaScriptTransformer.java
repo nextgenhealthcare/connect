@@ -355,7 +355,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 			
 		script.append("function doFilter() {");
 
-        script.append("default xml namespace = new Namespace(\"urn:hl7-org:v2xml\");");
+        script.append("default xml namespace = new Namespace(\"urn:mirthproject-org\");");
 
 		script.append("var msg = new XML(message);\n " + filterScript + " }\n");
 		script.append("doFilter()\n");
@@ -379,7 +379,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 
 		// RHINO seems to need this in order to function properly.
 		// TODO: Figure out why.
-		script.append("default xml namespace = new Namespace(\"urn:hl7-org:v2xml\");");
+		script.append("default xml namespace = new Namespace(\"urn:mirthproject-org\");");
 
 		// ast: Allow ending whitespaces from the input XML
 		script.append("XML.ignoreWhitespace=false;");

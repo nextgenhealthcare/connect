@@ -1,7 +1,11 @@
 package com.webreach.mirth.model.util;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringReader;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -11,6 +15,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import com.webreach.mirth.model.Connector;
@@ -29,20 +34,39 @@ public class ImportConverter
     {
         ROUTER, BROADCAST
     }
+    private static String read(File file) throws IOException
+    {
+        BufferedReader reader = new BufferedReader(new FileReader(file));
+        StringBuilder contents = new StringBuilder();
+        String line = null;
 
+        try
+        {
+            while ((line = reader.readLine()) != null)
+            {
+                contents.append(line + "\n");
+            }
+        }
+        finally
+        {
+            reader.close();
+        }
+
+        return contents.toString();
+    }
     /*
      * Upgrade pre-1.4 channels to work with 1.4+
      */
     public static String convertChannel(File channel) throws Exception
     {
         String channelXML = "";
-
+        String contents = read(channel);
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         Document document;
         DocumentBuilder builder;
 
         builder = factory.newDocumentBuilder();
-        document = builder.parse(channel);
+        document = builder.parse(new InputSource(new StringReader(contents)));
         Element channelRoot = document.getDocumentElement();
 
         Direction direction = null;
@@ -437,15 +461,14 @@ public class ImportConverter
     {
         Element entryElement = document.createElement("entry");
         Element regexElement = document.createElement("string");
-        Element treeElement = document.createElement("tree-map");
-        Element comparatorElement = document.createElement("no-comparator");
+        Element stringArrayElement = document.createElement("string-array");
+        Element listElement = document.createElement("list");
 
         regexElement.setTextContent("RegularExpressions");
 
-        treeElement.appendChild(comparatorElement);
 
         entryElement.appendChild(regexElement);
-        entryElement.appendChild(treeElement);
+        entryElement.appendChild(listElement);
 
         return entryElement;
     }

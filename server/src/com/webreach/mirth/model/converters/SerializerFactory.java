@@ -19,4 +19,21 @@ public class SerializerFactory {
 			return new DefaultXMLSerializer();
 		}
 	}
+	public ER7Serializer getHL7Serializer(boolean useStrictParser) {
+		Properties properties = new Properties();
+		properties.put("useStrictParser", Boolean.toString(useStrictParser));
+		return new ER7Serializer(properties);
+	}
+	public X12Serializer getX12Serializer(boolean inferDelimiters) {
+		Properties properties = new Properties();
+		properties.put("inferDelimiters", Boolean.toString(inferDelimiters));
+		return new X12Serializer(inferDelimiters);
+	}
+	public EDISerializer getEDISerializer(String segmentDelim, String elementDelim, String subelementDelim) {
+		Properties properties = new Properties();
+		properties.put("segmentDelimiter", segmentDelim);
+		properties.put("elementDelimiter", elementDelim);
+		properties.put("subelementDelimiter", subelementDelim);
+		return new EDISerializer(properties);
+	}
 }

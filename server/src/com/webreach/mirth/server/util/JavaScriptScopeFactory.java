@@ -5,6 +5,7 @@ import org.apache.log4j.Logger;
 import org.mozilla.javascript.Scriptable;
 
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.model.converters.SerializerFactory;
 
 public class JavaScriptScopeFactory {
 	// MessageObject builder
@@ -20,10 +21,13 @@ public class JavaScriptScopeFactory {
 
 	// Generic and Channel Builder
 	public void buildScope(Scriptable scope, String channelId) {
-		scope.put("alert", scope, new AlertSender(channelId));
+		scope.put("alerts", scope, new AlertSender(channelId));
 		scope.put("router", scope, new VMRouter());
 		scope.put("response", scope, new ResponseFactory());
 		scope.put("globalMap", scope, GlobalVariableStore.getInstance());
+		scope.put("fileUtil", scope, new FileUtil());
+		scope.put("dateUtil", scope, new DateUtil());
+		scope.put("serializerFactory", scope, new SerializerFactory());
 	}
 
 	// Logger builders

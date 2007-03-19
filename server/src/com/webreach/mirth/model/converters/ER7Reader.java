@@ -128,7 +128,7 @@ public class ER7Reader extends SAXParser {
 						}
 						if (inMSH && fieldID == 1) {
 							contentHandler.startElement("", segmentID + "." + fieldID, "", null);
-							contentHandler.characters(new char[] { '|' }, 0, 1);
+							contentHandler.characters(fieldDelim.toCharArray(), 0, 1);
 							contentHandler.endElement("", segmentID + "." + (fieldID), null);
 							fieldID++;
 							contentHandler.startElement("", segmentID + "." + fieldID, "", null);
