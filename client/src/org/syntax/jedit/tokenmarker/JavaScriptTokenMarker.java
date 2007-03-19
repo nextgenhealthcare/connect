@@ -9,13 +9,7 @@
 
 package org.syntax.jedit.tokenmarker;
 
-import org.mozilla.javascript.Scriptable;
-import org.mule.providers.TemplateValueReplacer;
 import org.syntax.jedit.KeywordMap;
-
-import com.webreach.mirth.server.util.AlertSender;
-import com.webreach.mirth.server.util.GlobalVariableStore;
-import com.webreach.mirth.server.util.VMRouter;
 
 /**
  * JavaScript token marker.
