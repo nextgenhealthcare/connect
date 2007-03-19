@@ -36,4 +36,13 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 			CHANNEL_ID = #channelId# AND
 			STATUS='FILTERED'
 	</select>
+	
+	<select id="getQueuedCount" parameterClass="java.lang.String" resultClass="java.lang.Integer">
+		SELECT COUNT(*)
+		FROM MESSAGE
+		WHERE
+			CHANNEL_ID = #channelId# AND
+			STATUS='QUEUED'
+	</select>
+	
 </sqlMap>

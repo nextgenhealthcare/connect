@@ -11,7 +11,6 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		WHERE 
 			CHANNEL_ID = #channelId# AND
 			CORRELATION_ID IS NULL
-		
 	</select>
 	
 	<select id="getSentCount" parameterClass="java.lang.String" resultClass="java.lang.Integer">

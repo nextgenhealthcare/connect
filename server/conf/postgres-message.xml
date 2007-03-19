@@ -14,27 +14,31 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		<parameter property="version" jdbcType="VARCHAR" />
 		<parameter property="encrypted" jdbcType="SMALLINT" />
 		<parameter property="status" jdbcType="VARCHAR" />
-		<parameter property="rawData" jdbcType="CLOB" />
+		<parameter property="rawData" jdbcType="TEXT" />
 		<parameter property="rawDataProtocol" jdbcType="VARCHAR" />
-		<parameter property="transformedData" jdbcType="CLOB" />
+		<parameter property="transformedData" jdbcType="TEXT" />
 		<parameter property="transformedDataProtocol" jdbcType="VARCHAR" />
-		<parameter property="encodedData" jdbcType="CLOB" />
+		<parameter property="encodedData" jdbcType="TEXT" />
 		<parameter property="encodedDataProtocol" jdbcType="VARCHAR" />
-		<parameter property="variableMap" jdbcType="CLOB" />
 		<parameter property="connectorName" jdbcType="VARCHAR" />
-		<parameter property="errors" jdbcType="CLOB" />
+		<parameter property="errors" jdbcType="TEXT" />
 		<parameter property="correlationId" jdbcType="VARCHAR" />
+		<parameter property="connectorMap" jdbcType="TEXT" />
+		<parameter property="channelMap" jdbcType="TEXT" />
+		<parameter property="responseMap" jdbcType="TEXT" />
 	</parameterMap>
 
 	<parameterMap class="com.webreach.mirth.model.MessageObject" id="update-message-param">
 		<parameter property="status" jdbcType="VARCHAR" />
-		<parameter property="rawData" jdbcType="CLOB" />
-		<parameter property="transformedData" jdbcType="CLOB" />
-		<parameter property="encodedData" jdbcType="CLOB" />
-		<parameter property="variableMap" jdbcType="CLOB" />
-		<parameter property="errors" jdbcType="CLOB" />
+		<parameter property="rawData" jdbcType="TEXT" />
+		<parameter property="transformedData" jdbcType="TEXT" />
+		<parameter property="encodedData" jdbcType="TEXT" />
+		<parameter property="errors" jdbcType="TEXT" />
 		<parameter property="correlationId" jdbcType="VARCHAR" />
 		<parameter property="id" jdbcType="VARCHAR" />
+		<parameter property="connectorMap" jdbcType="TEXT" />
+		<parameter property="channelMap" jdbcType="TEXT" />
+		<parameter property="responseMap" jdbcType="TEXT" />		
 	</parameterMap>
 
 	<resultMap class="com.webreach.mirth.model.MessageObject" id="get-message-result">
@@ -52,10 +56,12 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		<result property="transformedDataProtocol" column="TRANSFORMED_DATA_PROTOCOL" />
 		<result property="encodedData" column="ENCODED_DATA" />
 		<result property="encodedDataProtocol" column="ENCODED_DATA_PROTOCOL" />
-		<result property="variableMap" column="VARIABLE_MAP" />
 		<result property="connectorName" column="CONNECTOR_NAME" />
 		<result property="errors" column="ERRORS" />
 		<result property="correlationId" column="CORRELATION_ID" />
+		<result property="connectorMap" column="CONNECTOR_MAP" />
+		<result property="channelMap" column="CHANNEL_MAP" />
+		<result property="responseMap" column="RESPONSE_MAP" />
 	</resultMap>
 
 	<sql id="messageFilterCriteria">
@@ -111,7 +117,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 					</isNotNull>
 				</isNotNull>
 			</dynamic>
-			ORDER BY TEMP_TABLE.DATE_CREATED
+		ORDER BY TEMP_TABLE.DATE_CREATED DESC
 	</select>
 
 	<statement id="dropTempMessageTable" parameterClass="java.lang.String">
@@ -138,8 +144,8 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 	
 	<insert id="insertMessage" parameterMap="insert-message-param">
 		INSERT INTO
-		MESSAGE (ID, CHANNEL_ID, SOURCE, TYPE, DATE_CREATED, VERSION, IS_ENCRYPTED, STATUS, RAW_DATA, RAW_DATA_PROTOCOL, TRANSFORMED_DATA, TRANSFORMED_DATA_PROTOCOL, ENCODED_DATA, ENCODED_DATA_PROTOCOL, VARIABLE_MAP, CONNECTOR_NAME, ERRORS, CORRELATION_ID)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		MESSAGE (ID, CHANNEL_ID, SOURCE, TYPE, DATE_CREATED, VERSION, IS_ENCRYPTED, STATUS, RAW_DATA, RAW_DATA_PROTOCOL, TRANSFORMED_DATA, TRANSFORMED_DATA_PROTOCOL, ENCODED_DATA, ENCODED_DATA_PROTOCOL, CONNECTOR_NAME, ERRORS, CORRELATION_ID, CONNECTOR_MAP, CHANNEL_MAP, RESPONSE_MAP)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	</insert>
 	
 	<update id="updateMessage" parameterMap="update-message-param">
@@ -148,9 +154,11 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 			RAW_DATA = ?,
 			TRANSFORMED_DATA = ?,
 			ENCODED_DATA = ?,
-			VARIABLE_MAP = ?,
 			ERRORS = ?,
-			CORRELATION_ID = ?
+			CORRELATION_ID = ?,
+			CONNECTOR_MAP = ?,
+			CHANNEL_MAP = ?,
+			RESPONSE_MAP = ?
 		WHERE ID = ?
 	</update>
 	
