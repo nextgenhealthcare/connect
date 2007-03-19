@@ -39,8 +39,6 @@ import com.ibatis.sqlmap.client.SqlMapClient;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.Response;
-import com.webreach.mirth.model.converters.ObjectCloner;
-import com.webreach.mirth.model.converters.ObjectClonerException;
 import com.webreach.mirth.model.filters.MessageObjectFilter;
 import com.webreach.mirth.server.builders.ErrorMessageBuilder;
 import com.webreach.mirth.server.util.SqlConfig;
@@ -58,7 +56,8 @@ public class MessageObjectController {
 
 	public void updateMessage(MessageObject messageObject) {
 		try {
-			//MessageObject messageObject = (MessageObject)ObjectCloner.deepCopy(incomingMessageObject);
+			// MessageObject messageObject =
+			// (MessageObject)ObjectCloner.deepCopy(incomingMessageObject);
 			String channelId = messageObject.getChannelId();
 			HashMap<String, Channel> channelCache = ChannelController.getChannelCache();
 
@@ -71,7 +70,8 @@ public class MessageObjectController {
 						// If we don't want to store messages, then lets
 						// sanitize the data in a clone
 						// TODO: Check if pass by value
-						//messageObject = (MessageObject) messageObject.clone();
+						// messageObject = (MessageObject)
+						// messageObject.clone();
 						messageObject.setRawData(MESSAGE_NO_DATA_STORE);
 						messageObject.setEncodedData(MESSAGE_NO_DATA_STORE);
 						messageObject.setTransformedData(MESSAGE_NO_DATA_STORE);
@@ -235,7 +235,7 @@ public class MessageObjectController {
 		return parameterMap;
 	}
 
-	public MessageObject cloneMessageObjectForBroadcast(MessageObject messageObject, String connectorName)  {
+	public MessageObject cloneMessageObjectForBroadcast(MessageObject messageObject, String connectorName) {
 		MessageObject clone = new MessageObject();
 		// We could use deep copy here, but see the notes below
 		clone.setId(UUIDGenerator.getUUID());
@@ -252,18 +252,18 @@ public class MessageObjectController {
 	public MessageObject getMessageObjectFromEvent(UMOEvent event) throws Exception {
 		MessageObject messageObject = null;
 		Object incomingData = incomingData = event.getTransformedMessage();
-		
+
 		if (incomingData == null || !(incomingData instanceof MessageObject)) {
 			logger.warn("received data is not of expected type");
 			return null;
 		}
-		
+
 		messageObject = (MessageObject) incomingData;
-		
+
 		if (messageObject.getStatus().equals(MessageObject.Status.FILTERED)) {
 			return null;
 		}
-		
+
 		return messageObject;
 	}
 
@@ -296,14 +296,13 @@ public class MessageObjectController {
 	}
 
 	private void setStatus(MessageObject messageObject, MessageObject.Status status, Response.Status responseStatus, String responseMessage) {
-		if (messageObject != null) {
-			messageObject.setStatus(status);
-			updateMessage(messageObject);
-		}
-		
 		if (messageObject.getResponseMap() != null) {
 			Response response = new Response(responseStatus, responseMessage);
 			messageObject.getResponseMap().put(messageObject.getConnectorName(), response);
+		}
+		if (messageObject != null) {
+			messageObject.setStatus(status);
+			updateMessage(messageObject);
 		}
 	}
 }
