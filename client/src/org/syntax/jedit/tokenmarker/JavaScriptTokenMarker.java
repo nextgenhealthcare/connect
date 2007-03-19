@@ -9,7 +9,13 @@
 
 package org.syntax.jedit.tokenmarker;
 
+import org.mozilla.javascript.Scriptable;
+import org.mule.providers.TemplateValueReplacer;
 import org.syntax.jedit.KeywordMap;
+
+import com.webreach.mirth.server.util.AlertSender;
+import com.webreach.mirth.server.util.GlobalVariableStore;
+import com.webreach.mirth.server.util.VMRouter;
 
 /**
  * JavaScript token marker.
@@ -54,12 +60,10 @@ public class JavaScriptTokenMarker extends CTokenMarker
             javaScriptKeywords.add("tmp", Token.KEYWORD1);
             javaScriptKeywords.add("message", Token.KEYWORD1);
             javaScriptKeywords.add("version", Token.KEYWORD1);
-            javaScriptKeywords.add("hl7_xml", Token.KEYWORD1);
             javaScriptKeywords.add("connectorMap", Token.KEYWORD1);
             javaScriptKeywords.add("channelMap", Token.KEYWORD1);
             javaScriptKeywords.add("globalMap", Token.KEYWORD1);
             javaScriptKeywords.add("responseMap", Token.KEYWORD1);
-            javaScriptKeywords.add("hl7_er7", Token.KEYWORD1);
             javaScriptKeywords.add("logger", Token.KEYWORD3);
             javaScriptKeywords.add("message", Token.KEYWORD3);
             javaScriptKeywords.add("SMTPConnectionFactory", Token.KEYWORD3);
@@ -68,6 +72,14 @@ public class JavaScriptTokenMarker extends CTokenMarker
             javaScriptKeywords.add("createDatabaseConnection", Token.KEYWORD1);
             javaScriptKeywords.add("createSMTPConnection", Token.KEYWORD1);
             javaScriptKeywords.add("executeUpdate", Token.KEYWORD1);
+            javaScriptKeywords.add("SerializerFactory", Token.KEYWORD3);
+            javaScriptKeywords.add("messageObject", Token.KEYWORD1);
+            javaScriptKeywords.add("alerts", Token.KEYWORD3);
+            javaScriptKeywords.add("router", Token.KEYWORD3);
+            javaScriptKeywords.add("channelId", Token.KEYWORD1);
+            javaScriptKeywords.add("replacer", Token.KEYWORD3);
+            javaScriptKeywords.add("FileUtil", Token.KEYWORD3);
+            javaScriptKeywords.add("DateUtil", Token.KEYWORD3);
             javaScriptKeywords.add("ABS", Token.KEYWORD3);
 
             javaScriptKeywords.add("ACC", Token.KEYWORD3);

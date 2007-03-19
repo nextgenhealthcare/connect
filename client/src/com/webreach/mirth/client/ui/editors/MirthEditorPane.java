@@ -89,15 +89,16 @@ public class MirthEditorPane extends JPanel
         ReferenceListFactory builder = new ReferenceListFactory();
         tabTemplatePanel = new TabbedTemplatePanel(this);
         tabTemplatePanel.addPanel(new ReferenceListPanel("All", builder.getVariableListItems(ListType.ALL)), "All");
+        tabTemplatePanel.addPanel(new ReferenceListPanel("Utility Functions", builder.getVariableListItems(ListType.UTILITY)), "Utility Functions");
+
         tabTemplatePanel.addPanel(new ReferenceListPanel("Conversion Functions", builder.getVariableListItems(ListType.CONVERSION)), "Conversion Functions");
         tabTemplatePanel.addPanel(new ReferenceListPanel("Logging and Alerts", builder.getVariableListItems(ListType.LOGGING_AND_ALERTS)), "Logging and Alerts");
         tabTemplatePanel.addPanel(new ReferenceListPanel("Database Functions", builder.getVariableListItems(ListType.DATABASE)), "Database Functions");
         tabTemplatePanel.addPanel(new ReferenceListPanel("Message Functions", builder.getVariableListItems(ListType.MESSAGE)), "Message Functions");
-        tabTemplatePanel.addPanel(new ReferenceListPanel("XML Functions", builder.getVariableListItems(ListType.XML)), "XML Functions");
-        tabTemplatePanel.addPanel(new ReferenceListPanel("HL7 Functions", builder.getVariableListItems(ListType.HL7)), "HL7 Functions");
+        //tabTemplatePanel.addPanel(new ReferenceListPanel("XML Functions", builder.getVariableListItems(ListType.XML)), "XML Functions");
+        //tabTemplatePanel.addPanel(new ReferenceListPanel("HL7 Functions", builder.getVariableListItems(ListType.HL7)), "HL7 Functions");
         tabTemplatePanel.addPanel(new ReferenceListPanel("Map Functions", builder.getVariableListItems(ListType.MAP)), "Map Functions");
-        tabTemplatePanel.addPanel(new ReferenceListPanel("Utility Functions", builder.getVariableListItems(ListType.UTILITY)), "Utility Functions");
-
+        
         tabTemplatePanel.setReferencePanel();
         tabTemplatePanel.setBorder(BorderFactory.createEmptyBorder());
         refPanel = new JPanel();

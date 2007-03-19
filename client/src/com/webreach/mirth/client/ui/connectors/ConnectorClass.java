@@ -47,7 +47,7 @@ public class ConnectorClass extends javax.swing.JPanel
 
     Frame parent;
 
-    final String RESULT_PATTERN = "resultMap.put\\(['|\"]([^'|^\"]*)[\"|']";
+    final String RESULT_PATTERN = "responseMap.put\\(['|\"]([^'|^\"]*)[\"|']";
     
     /** Creates new form ConnectorClass */
     public ConnectorClass()

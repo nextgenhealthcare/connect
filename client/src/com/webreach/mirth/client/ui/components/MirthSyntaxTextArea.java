@@ -121,7 +121,7 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
             hl7list = new JMenu("HL7 Helpers");
             funclist = new JMenu("Built-in Functions");
             ReferenceListFactory functionBuilder = new ReferenceListFactory();
-            ArrayList<ReferenceListItem> jshelpers = functionBuilder.getVariableListItems(ListType.MESSAGE);
+            ArrayList<ReferenceListItem> jshelpers = functionBuilder.getVariableListItems(ListType.ALL);
             Iterator<ReferenceListItem> it = jshelpers.iterator();
 
             while (it.hasNext())

@@ -48,6 +48,8 @@
           </Border>
         </Property>
         <Property name="autoscrolls" type="boolean" value="true"/>
+        <Property name="descriptionVisible" type="boolean" value="true"/>
+        <Property name="toolBarVisible" type="boolean" value="true"/>
       </Properties>
     </Component>
   </SubComponents>

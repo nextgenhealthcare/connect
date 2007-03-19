@@ -50,7 +50,9 @@ import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.AlternateRowHighlighter;
 import org.jdesktop.swingx.decorator.HighlighterPipeline;
 import org.syntax.jedit.SyntaxDocument;
+import org.syntax.jedit.tokenmarker.EDITokenMarker;
 import org.syntax.jedit.tokenmarker.HL7TokenMarker;
+import org.syntax.jedit.tokenmarker.X12TokenMarker;
 import org.syntax.jedit.tokenmarker.XMLTokenMarker;
 import org.w3c.dom.Document;
 
@@ -660,11 +662,11 @@ public class MessageBrowser extends javax.swing.JPanel
                 }
                 else if (protocol.equals(MessageObject.Protocol.X12))
                 {
-                    newDoc.setTokenMarker(new XMLTokenMarker());
+                    newDoc.setTokenMarker(new X12TokenMarker());
                 }
                 else if (protocol.equals(MessageObject.Protocol.EDI))
                 {
-                    newDoc.setTokenMarker(new XMLTokenMarker());
+                    newDoc.setTokenMarker(new EDITokenMarker());
                 }
             }
             

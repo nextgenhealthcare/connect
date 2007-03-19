@@ -244,9 +244,9 @@ public class TreePanel extends JPanel
      
     
         tree.setScrollsOnExpand(true);
-        viewPort.add(tree);
+      
         removeAll();
-        add(viewPort);
+        add(tree);
         revalidate();
 
         PlatformUI.MIRTH_FRAME.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
@@ -380,10 +380,8 @@ public class TreePanel extends JPanel
         DefaultMutableTreeNode top = new DefaultMutableTreeNode("Paste a sample message above to view the message tree.");
         JTree tree = new JTree(top);
         removeAll();
-        JScrollPane scrollPane = new JScrollPane();
-        JViewport viewPort = scrollPane.getViewport();
-        viewPort.add(tree);
-        add(viewPort);
+ 
+        add(tree);
         revalidate();
     }
 
@@ -392,10 +390,7 @@ public class TreePanel extends JPanel
         DefaultMutableTreeNode top = new DefaultMutableTreeNode("The message pasted above does not appear to be valid " + messageType + ".");
         JTree tree = new JTree(top);
         removeAll();
-        JScrollPane scrollPane = new JScrollPane();
-        JViewport viewPort = scrollPane.getViewport();
-        viewPort.add(tree);
-        add(viewPort);
+        add(tree);
         revalidate();
     }
 }

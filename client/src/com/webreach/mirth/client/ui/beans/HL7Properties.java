@@ -47,4 +47,25 @@ public class HL7Properties implements Serializable
         this.useStrictParser = useStrictParser;
     }
 
+    /**
+     * Holds value of property useStrictValidation.
+     */
+    private boolean useStrictValidation;
+
+    /**
+     * Getter for property useStrictValidation.
+     * @return Value of property useStrictValidation.
+     */
+    public boolean isUseStrictValidation() {
+        return this.useStrictValidation;
+    }
+
+    /**
+     * Setter for property useStrictValidation.
+     * @param useStrictValidation New value of property useStrictValidation.
+     */
+    public void setUseStrictValidation(boolean useStrictValidation) {
+        this.useStrictValidation = useStrictValidation;
+    }
+
 }

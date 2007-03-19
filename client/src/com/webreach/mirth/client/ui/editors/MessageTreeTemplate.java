@@ -314,6 +314,7 @@ public class MessageTreeTemplate extends javax.swing.JPanel
             new BoundPropertiesSheetDialog(dataProperties, new X12Properties());
         else if (((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.HL7V2)))
             new BoundPropertiesSheetDialog(dataProperties, new HL7Properties());
+        updateText();
     }// GEN-LAST:event_propertiesActionPerformed
     
     // GEN-FIRST:event_dataTypeActionPerformed

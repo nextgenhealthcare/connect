@@ -26,17 +26,22 @@ public class HL7PropertiesBeanInfo extends SimpleBeanInfo
     
     // Property identifiers//GEN-FIRST:Properties
     private static final int PROPERTY_useStrictParser = 0;
+    private static final int PROPERTY_useStrictValidation = 1;
 
     // Property array 
     /*lazy PropertyDescriptor*/
     private static PropertyDescriptor[] getPdescriptor(){
-        PropertyDescriptor[] properties = new PropertyDescriptor[1];
+        PropertyDescriptor[] properties = new PropertyDescriptor[2];
     
         try {
             properties[PROPERTY_useStrictParser] = new PropertyDescriptor ( "useStrictParser", com.webreach.mirth.client.ui.beans.HL7Properties.class, "isUseStrictParser", "setUseStrictParser" ); // NOI18N
             properties[PROPERTY_useStrictParser].setDisplayName ( "Use Strict Parser" );
-            properties[PROPERTY_useStrictParser].setShortDescription ( "Validate messages based upon message specifications." );
+            properties[PROPERTY_useStrictParser].setShortDescription ( "Parse messages based upon strict HL7 specifications." );
             properties[PROPERTY_useStrictParser].setBound ( true );
+            properties[PROPERTY_useStrictValidation] = new PropertyDescriptor ( "useStrictValidation", com.webreach.mirth.client.ui.beans.HL7Properties.class, "isUseStrictValidation", "setUseStrictValidation" ); // NOI18N
+            properties[PROPERTY_useStrictValidation].setDisplayName ( "Validate in Strict Parser" );
+            properties[PROPERTY_useStrictValidation].setShortDescription ( "Validate messages using HL7 specifications (applies to Strict Parser only)" );
+            properties[PROPERTY_useStrictValidation].setBound ( true );
         }
         catch(IntrospectionException e) {
             e.printStackTrace();
