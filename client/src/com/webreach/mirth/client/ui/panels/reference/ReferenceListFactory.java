@@ -25,10 +25,10 @@ public class ReferenceListFactory
             return getDatabaseItems();
         case MESSAGE:
             return getMessageItems();
-        case XML:
-            return getXMLItems();
-        case HL7:
-            return getHL7Items();
+       // case XML:
+       //     return getXMLItems();
+      //  case HL7:
+      //      return getHL7Items();
         case MAP:
             return getMapItems();
         case UTILITY:
@@ -44,8 +44,8 @@ public class ReferenceListFactory
         variablelistItems.addAll(getLoggingAndAlertsItems());
         variablelistItems.addAll(getDatabaseItems());
         variablelistItems.addAll(getMessageItems());
-        variablelistItems.addAll(getXMLItems());
-        variablelistItems.addAll(getHL7Items());
+      //  variablelistItems.addAll(getXMLItems());
+      //  variablelistItems.addAll(getHL7Items());
         variablelistItems.addAll(getMapItems());
         variablelistItems.addAll(getUtilityItems());
 
@@ -56,8 +56,14 @@ public class ReferenceListFactory
     {
         ArrayList<ReferenceListItem> variablelistItems = new ArrayList<ReferenceListItem>();
         
-        variablelistItems.add(new ReferenceListItem("Convert to HL7-XML", "Converts an ER7 encoded HL7 string to XML", "serializer.toXML(message);", CodeSnippetType.FUNCTION));
-        variablelistItems.add(new ReferenceListItem("Convert to HL7-ER7", "Converts an XML encoded HL7 string to ER7", "serializer.fromXML(message);", CodeSnippetType.FUNCTION));
+        variablelistItems.add(new ReferenceListItem("Convert HL7 to XML", "Converts an encoded HL7 string to XML", "serializerFactory.getHL7Serializer(useStrictParser).toXML(message);", CodeSnippetType.FUNCTION));
+        variablelistItems.add(new ReferenceListItem("Convert XML to HL7", "Converts an XML string to HL7", "serializerFactory.getHL7Serializer(useStrictParser).fromXML(message);", CodeSnippetType.FUNCTION));
+
+        variablelistItems.add(new ReferenceListItem("Convert X12 to XML", "Converts an encoded X12 string to XML", "serializerFactory.getX12Serializer(inferDelimiters).toXML(message);", CodeSnippetType.FUNCTION));
+        variablelistItems.add(new ReferenceListItem("Convert XML to X12", "Converts an XML string to X12", "serializerFactory.getX12Serializer(inferDelimiters).fromXML(message);", CodeSnippetType.FUNCTION));
+
+        variablelistItems.add(new ReferenceListItem("Convert EDI to XML", "Converts an encoded EDI string to XML", "serializerFactory.getEDISerializer(segmentDelim, elementDelim, subelementDelim).toXML(message);", CodeSnippetType.FUNCTION));
+        variablelistItems.add(new ReferenceListItem("Convert XML to EDI", "Converts an XML string to EDI", "serializerFactory.getEDISerializer(segmentDelim, elementDelim, subelementDelim).fromXML(message);", CodeSnippetType.FUNCTION));
 
         return variablelistItems;
     }
@@ -68,6 +74,7 @@ public class ReferenceListFactory
         variablelistItems.add(new ReferenceListItem("Log an Info Statement", "Outputs the message to the system info log.", "logger.info('message');", CodeSnippetType.FUNCTION));
         variablelistItems.add(new ReferenceListItem("Log an Error Statement", "Outputs the message to the system error log.", "logger.error('message');", CodeSnippetType.FUNCTION));
         variablelistItems.add(new ReferenceListItem("Send an Email", "Sends an alert email using the alert SMTP properties.", "var smtpConn = SMTPConnectionFactory.createSMTPConnection();\nsmtpConn.send('to', 'cc', 'from', 'subject', 'body');", CodeSnippetType.FUNCTION));
+        variablelistItems.add(new ReferenceListItem("Trigger an Alert", "Trigger a custom alert for the current channel.", "alert.sendAlert('message');", CodeSnippetType.FUNCTION));
 
     
         return variablelistItems;
@@ -86,16 +93,19 @@ public class ReferenceListFactory
     {
         ArrayList<ReferenceListItem> variablelistItems = new ArrayList<ReferenceListItem>();
 
-        variablelistItems.add(new ReferenceListItem("Incoming Message", "The original incoming ER7 or XML string as received.", "messageObject.getRawData()", CodeSnippetType.VARIABLE));
-        variablelistItems.add(new ReferenceListItem("Message Type", "The HL7 or EDI message type (ex. ADT-A01)", "messageObject.getType()", CodeSnippetType.VARIABLE));
-        variablelistItems.add(new ReferenceListItem("Message Source", "The HL7 or EDI message source (sending facility)", "messageObject.getSource()", CodeSnippetType.VARIABLE));
-        variablelistItems.add(new ReferenceListItem("Message Version", "The HL7 or EDI message version", "messageObject.getVersion()", CodeSnippetType.VARIABLE));
+        variablelistItems.add(new ReferenceListItem("Incoming Message", "The original message received.", "messageObject.getRawData()", CodeSnippetType.VARIABLE));
+        variablelistItems.add(new ReferenceListItem("Incoming Message (XML)", "The original message as XML", "msg", CodeSnippetType.VARIABLE));
+        variablelistItems.add(new ReferenceListItem("Message Type", "The message type", "messageObject.getType()", CodeSnippetType.VARIABLE));
+        variablelistItems.add(new ReferenceListItem("Message Source", "The message source (sending facility)", "messageObject.getSource()", CodeSnippetType.VARIABLE));
+        variablelistItems.add(new ReferenceListItem("Message Version", "The message version", "messageObject.getVersion()", CodeSnippetType.VARIABLE));
         variablelistItems.add(new ReferenceListItem("Message ID", "The unique id of the message in Mirth", "messageObject.getId()", CodeSnippetType.VARIABLE));
-        variablelistItems.add(new ReferenceListItem("Incoming Message (XML)", "The original incoming ER7 or XML string as XML.", "msg['']", CodeSnippetType.VARIABLE));
+        variablelistItems.add(new ReferenceListItem("Message Protocol", "The message protocol", "messageObject.getProtocol().toString()", CodeSnippetType.VARIABLE));
         
+
         return variablelistItems;
     }
-
+    
+/* FOR FUTURE USE
     private ArrayList<ReferenceListItem> getXMLItems()
     {
         ArrayList<ReferenceListItem> variablelistItems = new ArrayList<ReferenceListItem>();
@@ -109,10 +119,12 @@ public class ReferenceListFactory
 
         return variablelistItems;
     }
+  */ 
     
     private ArrayList<ReferenceListItem> getMapItems()
     {
         ArrayList<ReferenceListItem> variablelistItems = new ArrayList<ReferenceListItem>();
+        variablelistItems.add(new ReferenceListItem("Lookup value in all maps", "Returns the value of the key if it exists in any map.", "$('key')", CodeSnippetType.VARIABLE));
         variablelistItems.add(new ReferenceListItem("Get Connector Variable Map", "The variable map that will be sent to the connector.", "connectorMap.get('')", CodeSnippetType.VARIABLE));
         variablelistItems.add(new ReferenceListItem("Get Channel Variable Map", "The variable map that can be used anywhere in the channel.", "channelMap.get('')", CodeSnippetType.VARIABLE));
         variablelistItems.add(new ReferenceListItem("Get Global Variable Map", "The variable map that persists values between channels.", "globalMap.get('')", CodeSnippetType.VARIABLE));
@@ -128,9 +140,15 @@ public class ReferenceListFactory
     private ArrayList<ReferenceListItem> getUtilityItems()
     {
         ArrayList<ReferenceListItem> variablelistItems = new ArrayList<ReferenceListItem>();
-        variablelistItems.add(new ReferenceListItem("Use JAVA Class", "Access any Java class in the current classpath", "var object = Packages.[fully-qualified name];", CodeSnippetType.FUNCTION));
+        variablelistItems.add(new ReferenceListItem("Use Java Class", "Access any Java class in the current classpath", "var object = Packages.[fully-qualified name];", CodeSnippetType.FUNCTION));
         variablelistItems.add(new ReferenceListItem("Generate Unique ID", "Generate a Universally Unique Identifier", "var uuid = UUIDGenerator.getUUID();", CodeSnippetType.FUNCTION));
         variablelistItems.add(new ReferenceListItem("Call System Function", "Execute a command on server system. Must have proper security enabled.", "java.lang.Runtime.getRuntime().exec(\"system_command\");", CodeSnippetType.FUNCTION));
+        variablelistItems.add(new ReferenceListItem("Read File As String)", "Read file contents into string", "var contents = fileUtil.read('filename');", CodeSnippetType.FUNCTION));
+        variablelistItems.add(new ReferenceListItem("Read File As Bytes)", "Read file contents into byte array", "var contents = fileUtil.readBytes('filename');", CodeSnippetType.FUNCTION));
+        variablelistItems.add(new ReferenceListItem("Write String to File", "Write string to file", "fileUtil.write('filename', append(true/false), stringData);", CodeSnippetType.FUNCTION));
+        variablelistItems.add(new ReferenceListItem("Write Bytes to File", "Write bytes to file", "fileUtil.write('filename', append(true/false), byteData);", CodeSnippetType.FUNCTION));
+        variablelistItems.add(new ReferenceListItem("BASE-64 Encode Data", "Encode a byte array to a BASE-64 string", "fileUtil.encode(data);", CodeSnippetType.FUNCTION));
+        variablelistItems.add(new ReferenceListItem("Decode BASE-64 Data", "Decode a BASE-64 string to a byte array", "fileUtil.decode(data);", CodeSnippetType.FUNCTION));
         
         return variablelistItems;
     }
