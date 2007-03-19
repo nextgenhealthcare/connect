@@ -142,6 +142,7 @@ public class ER7Serializer implements IXMLSerializer<String> {
 				xr = XMLReaderFactory.createXMLReader();
 				// The delimiters below need to come from the XML somehow...the
 				// ER7 handler should take care of it
+				//TODO: Ensure you get these elements from the XML
 				ER7XMLHandler handler = new ER7XMLHandler("\r", "|", "^", "&", "~", "\\");
 				xr.setContentHandler(handler);
 				xr.setErrorHandler(handler);
@@ -190,14 +191,14 @@ public class ER7Serializer implements IXMLSerializer<String> {
     	}
 	}
 	
-	private Map<String, String> getMetadata(Document document) {
+	public Map<String, String> getMetadata(Document document) {
 		Map<String, String> map = new HashMap<String, String>();
 		if (useStrictParser){
 			try{
 				DocumentSerializer serializer = new DocumentSerializer();
 				serializer.setPreserveSpace(true);
 				String source = serializer.toXML(document);
-	            Message message = new PipeParser().parse(source.replaceAll("\n", "\r").trim());
+	            Message message = xmlParser.parse(source);
 	            Terser terser = new Terser(message);
 				String sendingFacility = terser.get("/MSH-4-1");
 				String event = terser.get("/MSH-9-1") + "-" + terser.get("/MSH-9-2");
@@ -215,7 +216,7 @@ public class ER7Serializer implements IXMLSerializer<String> {
     		if (document.getElementsByTagName("MSH.4.1") != null) {
     			Node sender = document.getElementsByTagName("MSH.4.1").item(0);
     			if (sender != null){
-    				sendingFacility = sender.getFirstChild().getNodeValue();
+    				sendingFacility = sender.getFirstChild().getTextContent();
     			}
     		} 
     		String event = "Unknown";
@@ -226,7 +227,7 @@ public class ER7Serializer implements IXMLSerializer<String> {
 	        			event = type.getFirstChild().getNodeValue();
 	        			if (document.getElementsByTagName("MSH.9.2") != null) {
 	            			Node subtype = document.getElementsByTagName("MSH.9.2").item(0);
-	            			event += "-" + subtype.getFirstChild().getNodeValue();
+	            			event += "-" + subtype.getFirstChild().getTextContent();
 	            		}
         			}
         		}
@@ -235,7 +236,7 @@ public class ER7Serializer implements IXMLSerializer<String> {
     		if (document.getElementsByTagName("MSH.12.1") != null) {
     			Node versionNode = document.getElementsByTagName("MSH.12.1").item(0);
     			if (versionNode != null){
-    				version = versionNode.getFirstChild().getNodeValue();
+    				version = versionNode.getFirstChild().getTextContent();
     			}
     		}
     		map.put("version", version);

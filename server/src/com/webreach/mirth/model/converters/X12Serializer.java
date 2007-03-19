@@ -22,12 +22,18 @@ public class X12Serializer extends EDISerializer {
 		this.inferX12Delimiters = inferX12Delimiters;
 	}
 	public String toXML(String source) throws SerializerException {
+		source = source.replaceAll("\\r\\n", "\n");
+		source = source.replaceAll("\\n\\n", "\n" );
 		if (this.inferX12Delimiters){
 			String x12message = source;
 			if (x12message.startsWith("ISA")){
 				super.setElementDelim(x12message.charAt(3) + "");
-				super.setSubelementDelim(x12message.charAt(105) + "");
-				super.setSegmentDelim(x12message.charAt(106) + "");
+				super.setSubelementDelim(x12message.charAt(104) + "");
+				super.setSegmentDelim(x12message.charAt(105) + "");
+				//hack to handle newlines
+				if (x12message.charAt(106) == '\n'){
+					setSegmentDelim(getSegmentDelim() + x12message.charAt(106));
+				}
 			}
 		}
 		return super.toXML(source);

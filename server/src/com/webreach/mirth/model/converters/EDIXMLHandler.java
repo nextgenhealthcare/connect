@@ -27,7 +27,6 @@ package com.webreach.mirth.model.converters;
 import org.apache.log4j.Logger;
 import org.xml.sax.Attributes;
 import org.xml.sax.helpers.DefaultHandler;
-
 import com.webreach.mirth.util.Entities;
 
 public class EDIXMLHandler extends DefaultHandler {
@@ -67,65 +66,71 @@ public class EDIXMLHandler extends DefaultHandler {
 	}
 
 	public void startElement(String uri, String name, String qName, Attributes atts) {
-		if (sawHeader == false) {
+		if (sawHeader == false){
 			sawHeader = true;
-		} else {
-
-			if (currentLocation.equals(Location.DOCUMENT)) {
+		}else{
+			if (currentLocation.equals(Location.DOCUMENT)){
 				output.append(name);
 				currentLocation = Location.SEGMENT;
 				lastinSubelement = false;
-			} else if (currentLocation.equals(Location.SEGMENT)) {
-				if (lastinSubelement) {
-					output.deleteCharAt(output.length() - 1);
-				}
-				lastinSubelement = false;
+			}else if (currentLocation.equals(Location.SEGMENT)){
 				output.append(elementDelim);
 				currentLocation = Location.ELEMENT;
-			} else if (currentLocation.equals(Location.ELEMENT)) {
+				lastinSubelement = false;
+			}else if (currentLocation.equals(Location.ELEMENT)){
+				if (lastinSubelement){
+					output.append(subelementDelim);
+				}
 				currentLocation = Location.SUBELEMENT;
+				lastinSubelement = true;
 			}
 		}
 	}
 
 	public void endElement(String uri, String name, String qName) {
-
-		if (currentLocation.equals(Location.SEGMENT)) {
+		if (currentLocation.equals(Location.SEGMENT)){
+			//output.deleteCharAt(output.length() - 1);
 			output.append(segmentDelim);
 			currentLocation = Location.DOCUMENT;
-		} else if (currentLocation.equals(Location.ELEMENT)) {
+		}else if (currentLocation.equals(Location.ELEMENT)){
+			
 			currentLocation = Location.SEGMENT;
-		} else if (currentLocation.equals(Location.SUBELEMENT)) {
-			output.append(subelementDelim);
-			lastinSubelement = true;
+		}else if (currentLocation.equals(Location.SUBELEMENT)){
+			
 			currentLocation = Location.ELEMENT;
+		}else if (currentLocation.equals(Location.DOCUMENT)){
+			
 		}
+		
 	}
 
 	public void characters(char ch[], int start, int length) {
-
+		
 		for (int i = start; i < start + length; i++) {
 			switch (ch[i]) {
-				case '\\':
-					output.append("\\\\");
-					break;
-				case '"':
-					output.append("\\\"");
-					break;
-				case '\n':
-					output.append("\\n");
-					break;
-				case '\r':
-					output.append("\\r");
-					break;
-				case '\t':
-					output.append("\\t");
-					break;
-				default:
-					output.append(encoder.encode(ch[i]));
-					break;
+				/*
+			case '\\':
+				output.append("\\\\");
+				break;
+			case '"':
+				output.append("\\\"");
+				break;
+			case '\n':
+				output.append("\n");
+				break;
+			case '\r':
+				output.append("\r");
+				break;
+			case '\t':
+				output.append("\t");
+				break;
+				*/
+			default:
+				output.append(ch[i]);
+				break;
 			}
 		}
+		//System.out.print("\"\n");
 	}
 
 	public StringBuilder getOutput() {

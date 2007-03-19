@@ -53,5 +53,10 @@ public class ObjectXMLSerializer implements IXMLSerializer<Object>{
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	public Map<String, String> getMetadata(Document doc) throws SerializerException {
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
 }

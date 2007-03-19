@@ -32,10 +32,10 @@ import java.util.Map;
 import org.w3c.dom.Document;
 
 
-public class DefaultXMLSerializer implements IXMLSerializer<String> {
+public class HL7V3Serializer implements IXMLSerializer<String> {
 
 
-	public DefaultXMLSerializer() {
+	public HL7V3Serializer() {
 
 	}
 
@@ -53,17 +53,17 @@ public class DefaultXMLSerializer implements IXMLSerializer<String> {
 		return source;
 	}
 
-
-
 	public Map<String, String> getMetadata() throws SerializerException {
 		Map<String, String> map = new HashMap<String, String>();
-		map.put("version", "1.0");
-		map.put("type", "XML-Message");
+		map.put("version", "3.0");
+		map.put("type", "HL7v3-Message");
 		map.put("source", "");
 		return map;
 	}
 
 	public Map<String, String> getMetadata(Document doc) throws SerializerException {
-		return getMetadata();
+		Map<String, String> map = getMetadata();
+		map.put("type",doc.getDocumentElement().getNodeName());
+		return map;
 	}
 }

@@ -138,47 +138,48 @@ public class EDISerializer implements IXMLSerializer<String> {
 	}
 	public Map<String, String> getMetadata() throws SerializerException{
 		if (metadata == null){
-			metadata = getMetadata(currentEDI);
+			metadata = getMetadata(currentXML);
 		}
 		return metadata;
 	}
 	private Map<String, String> getMetadata(String sourceMessage) throws SerializerException{
 		DocumentSerializer docSerializer = new DocumentSerializer();
 		docSerializer.setPreserveSpace(true);
-		Document document = docSerializer.fromXML(this.toXML(sourceMessage));
+		Document document = docSerializer.fromXML(sourceMessage);
 		return getMetadata(document);
 	}
-	private Map<String, String> getMetadata(Document document) {
+	public Map<String, String> getMetadata(Document document) {
 		Map<String, String> map = new HashMap<String, String>();
 		String sendingFacility = "";
-		if (document.getElementsByTagName("ISA.6") != null) {
-			Node sender = document.getElementsByTagName("ISA.6").item(0);
+		if (document.getElementsByTagName("ISA.06.1") != null) {
+			Node sender = document.getElementsByTagName("ISA.06.1").item(0);
 			if (sender != null){
-				sendingFacility = sender.getNodeValue();
+				sendingFacility = sender.getTextContent();
 			}
-		} else if (document.getElementsByTagName("GS.2") != null) {
-			Node sender = document.getElementsByTagName("GS.2").item(0);
+		} 
+		if (sendingFacility == null && document.getElementsByTagName("GS.02.1") != null) {
+			Node sender = document.getElementsByTagName("GS.02.1").item(0);
 			if (sender != null){
-				sendingFacility = sender.getNodeValue();
+				sendingFacility = sender.getTextContent();
 			}
 		}
-		String event = "Unknown";
-		if (document.getElementsByTagName("ST.1") != null) {
-			Node type = document.getElementsByTagName("ST.1").item(0);
+		String event = document.getDocumentElement().getNodeName();
+		if (document.getElementsByTagName("ST.01.1") != null) {
+			Node type = document.getElementsByTagName("ST.01.1").item(0);
 			if (type != null){
-				event = type.getNodeValue();
+				event = type.getTextContent();
 			}
 		}
 		String version = "";
-		if (document.getElementsByTagName("GS.8") != null) {
-			Node versionNode = document.getElementsByTagName("GS.8").item(0);
-			if (version != null){
-				version = versionNode.getNodeValue();
+		if (document.getElementsByTagName("GS.08.1") != null) {
+			Node versionNode = document.getElementsByTagName("GS.08.1").item(0);
+			if (versionNode != null){
+				version = versionNode.getTextContent();
 			}
 		}
-
+		
 		map.put("version", version);
-		map.put("event", event);
+		map.put("type", event);
 		map.put("source", sendingFacility);
 		return map;
 	}

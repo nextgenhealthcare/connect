@@ -12,6 +12,7 @@ import java.io.StringWriter;
 
 import org.apache.xml.serialize.OutputFormat;
 import org.apache.xml.serialize.XMLSerializer;
+import org.junit.Assert;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -29,18 +30,9 @@ public class X12Test {
 			e.printStackTrace();
 		}try {
 
-			EDIReader ediReader = new EDIReader("~", "*", ":");
-			StringWriter stringWriter = new StringWriter();
-			XMLPrettyPrinter serializer = new XMLPrettyPrinter(stringWriter);
-			ByteArrayOutputStream os = new ByteArrayOutputStream();
-			try {
-				ediReader.setContentHandler(serializer);
-				ediReader.parse(new InputSource(new StringReader(testMessage)));
-				os.write(stringWriter.toString().getBytes());
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			String xmloutput = os.toString();
+			X12Serializer serializer = new X12Serializer(true);
+			String xmloutput = serializer.toXML(testMessage);
+		
 
 			//System.out.println(xmloutput);
 			DocumentSerializer docser = new DocumentSerializer();
@@ -49,17 +41,15 @@ public class X12Test {
 			
 			System.out.println(docser.toXML(doc)); //handler.getOutput());
 			
-			XMLReader xr = XMLReaderFactory.createXMLReader();
-			EDIXMLHandler handler = new EDIXMLHandler("~", "*", ":");
-			xr.setContentHandler(handler);
-			xr.setErrorHandler(handler);
-			xr.parse(new InputSource(new StringReader(xmloutput)));
-			System.out.println(handler.getOutput());
-			if (handler.getOutput().toString().replace('\n', '\r').trim().equals(testMessage.replaceAll("\\r\\n", "\r").trim())) {
+			
+			String x12 = serializer.fromXML(xmloutput);
+			System.out.println(x12);
+			Assert.assertTrue(x12.replace('\n', '\r').trim().equals(testMessage.replaceAll("\\r\\n", "\r").trim()));
+			if (x12.replace('\n', '\r').trim().equals(testMessage.replaceAll("\\r\\n", "\r").trim())) {
 				System.out.println("Test Successful!");
 			} else {
 				String original = testMessage.replaceAll("\\r\\n", "\r").trim();
-				String newm = handler.getOutput().toString().replace('\n', '\r').trim();
+				String newm = x12.replace('\n', '\r').trim();
 				for (int i = 0; i < original.length(); i++){
 					if (original.charAt(i) == newm.charAt(i)){
 						System.out.print(newm.charAt(i));
@@ -76,10 +66,7 @@ public class X12Test {
 			}
 		}
 		// System.out.println(new X12Serializer().toXML("SEG*1*2**4*5"));
-		catch (SAXException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (Exception e) {
+		catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

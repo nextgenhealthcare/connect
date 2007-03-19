@@ -25,46 +25,23 @@ package com.webreach.mirth.model.converters;
  *
  * ***** END LICENSE BLOCK ***** */
 
-
-
-
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.StringReader;
-import java.text.ParseException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.StringTokenizer;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.apache.log4j.Logger;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.DTDHandler;
-import org.xml.sax.EntityResolver;
-import org.xml.sax.ErrorHandler;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 import org.xml.sax.ContentHandler;
-import org.xml.sax.SAXNotRecognizedException;
-import org.xml.sax.SAXNotSupportedException;
-import org.xml.sax.XMLReader;
-
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import com.sun.org.apache.xerces.internal.parsers.SAXParser;
+
 /*
  * Converts EDI message to XML
  */
 public class ER7Reader extends SAXParser {
 	private Logger logger = Logger.getLogger(this.getClass());
-
 
 	public void parse(InputSource input) throws SAXException, IOException {
 		// Read the data from the InputSource
@@ -87,11 +64,19 @@ public class ER7Reader extends SAXParser {
 			throw new SAXException("Unable to parse, message is null or too short: " + message);
 		}
 		String segmentDelim = "\r";
-		String fieldDelim = new String(new char[]{message.charAt(3)}); //Usually |
-		String componentDelim = new String(new char[]{message.charAt(4)}); //Usually ^
-		String subcomponentDelim = new String(new char[]{message.charAt(7)}); //Usually &
-		String repetitionSep = new String(new char[]{message.charAt(5)}); //Usually ~ (not used here)
-		String escapeChar = new String(new char[]{message.charAt(6)}); //Usually \
+		String fieldDelim = new String(new char[] { message.charAt(3) }); // Usually
+																			// |
+		String componentDelim = new String(new char[] { message.charAt(4) }); // Usually
+																				// ^
+		String subcomponentDelim = new String(new char[] { message.charAt(7) }); // Usually
+																					// &
+		String repetitionSep = new String(new char[] { message.charAt(5) }); // Usually
+																				// ~
+																				// (not
+																				// used
+																				// here)
+		String escapeChar = new String(new char[] { message.charAt(6) }); // Usually
+																			// \
 		// Tokenize the segments first
 		StringTokenizer segmentTokenizer = new StringTokenizer(message, segmentDelim);
 		int segmentCounter = 0;
@@ -106,9 +91,9 @@ public class ER7Reader extends SAXParser {
 				String segmentID = elementTokenizer.nextToken().trim();
 				// check if we have EDI or X12
 				if (segmentCounter == 0) {
-					
+
 					documentHead = "HL7Message";
-					
+
 					contentHandler.startElement("", documentHead, "", null);
 				}
 				contentHandler.startElement("", segmentID, "", null);
@@ -126,10 +111,9 @@ public class ER7Reader extends SAXParser {
 					String element = elementTokenizer.nextToken();
 					// System.out.println("EL:" + element);
 					// The naming is SEG.<field number>
-					
-					
+
 					if (element.equals(fieldDelim)) {
-						
+
 						if (lastsegElement) {
 							contentHandler.startElement("", segmentID + "." + fieldID, "", null);
 							contentHandler.endElement("", segmentID + "." + fieldID, "");
@@ -138,22 +122,22 @@ public class ER7Reader extends SAXParser {
 						lastsegElement = true;
 					} else {
 						lastsegElement = false;
-						//batch supports
-						if (segmentID.equals("MSH") || segmentID.equals("FHS") || segmentID.equals("BHS")){
+						// batch supports
+						if (segmentID.equals("MSH") || segmentID.equals("FHS") || segmentID.equals("BHS")) {
 							inMSH = true;
 						}
-						if (inMSH && fieldID == 1){
+						if (inMSH && fieldID == 1) {
 							contentHandler.startElement("", segmentID + "." + fieldID, "", null);
-							contentHandler.characters(new char[]{'|'}, 0, 1);
+							contentHandler.characters(new char[] { '|' }, 0, 1);
 							contentHandler.endElement("", segmentID + "." + (fieldID), null);
 							fieldID++;
 							contentHandler.startElement("", segmentID + "." + fieldID, "", null);
 							String specialChars = (componentDelim + repetitionSep + escapeChar + subcomponentDelim);
 							contentHandler.characters(specialChars.toCharArray(), 0, specialChars.length());
 							contentHandler.endElement("", segmentID + "." + (fieldID), null);
-						}else if (inMSH && fieldID ==2){
-							
-						}else if (element.indexOf(componentDelim) > -1) {
+						} else if (inMSH && fieldID == 2) {
+
+						} else if (element.indexOf(componentDelim) > -1) {
 							contentHandler.startElement("", segmentID + "." + fieldID, "", null);
 							// check if we have sub-elements, if so add them
 							StringTokenizer subelementTokenizer = new StringTokenizer(element, componentDelim, true);
@@ -162,7 +146,6 @@ public class ER7Reader extends SAXParser {
 							while (subelementTokenizer.hasMoreTokens()) {
 								String subelement = subelementTokenizer.nextToken();
 								if (subelement.equals(componentDelim)) {
-									
 									String subelementName = segmentID + "." + fieldID + "." + subelementID;
 									if (lastsegSubelement) {
 										contentHandler.startElement("", subelementName, "", null);
@@ -172,7 +155,6 @@ public class ER7Reader extends SAXParser {
 									subelementID++;
 									lastsegSubelement = true;
 								} else {
-									
 									String subelementName = segmentID + "." + fieldID + "." + subelementID;
 									lastsegSubelement = false;
 									// The naming is SEG.<field
@@ -193,15 +175,15 @@ public class ER7Reader extends SAXParser {
 						} else {
 							contentHandler.startElement("", segmentID + "." + fieldID, "", null);
 							contentHandler.startElement("", segmentID + "." + fieldID + ".1", "", null);
-							
+
 							// Set the text contents to the value
 							contentHandler.characters(element.toCharArray(), 0, element.length());
 							contentHandler.endElement("", segmentID + "." + (fieldID) + ".1", null);
 							contentHandler.endElement("", segmentID + "." + (fieldID), null);
 						}
-						
+
 					}
-					
+
 				}
 				if (lastsegElement) {
 					contentHandler.startElement("", segmentID + "." + fieldID, "", null);
@@ -217,6 +199,5 @@ public class ER7Reader extends SAXParser {
 		contentHandler.endElement("", documentHead, "");
 		contentHandler.endDocument();
 	}
-	
 
 }

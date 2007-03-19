@@ -27,32 +27,12 @@ package com.webreach.mirth.model.converters;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.StringReader;
-import java.text.ParseException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.StringTokenizer;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.apache.log4j.Logger;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.DTDHandler;
-import org.xml.sax.EntityResolver;
-import org.xml.sax.ErrorHandler;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 import org.xml.sax.ContentHandler;
-import org.xml.sax.SAXNotRecognizedException;
-import org.xml.sax.SAXNotSupportedException;
-import org.xml.sax.XMLReader;
-
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import com.sun.org.apache.xerces.internal.parsers.SAXParser;
@@ -118,9 +98,14 @@ public class EDIReader extends SAXParser {
 				contentHandler.startElement("", segmentID, "", null);
 
 				int fieldID = 0;
+				String field = "00";
+				int subelementID = 1;
 				Element elementElement = null;
 				boolean lastsegElement = false;
+				boolean lastsegSubelement = true;
 				while (elementTokenizer.hasMoreTokens()) {
+					//Codes should be in the form ISA.01, etc
+					field = fieldID < 10 ? "0" + fieldID : "" + fieldID;
 					// Go through each element and add as new child under
 					// the segment element
 					String element = elementTokenizer.nextToken();
@@ -128,25 +113,24 @@ public class EDIReader extends SAXParser {
 					// The naming is SEG.<field number>
 					if (element.equals(elementDelim)) {
 						if (lastsegElement) {
-							contentHandler.startElement("", segmentID + "." + fieldID, "", null);
-							contentHandler.endElement("", segmentID + "." + fieldID, "");
+							contentHandler.startElement("", segmentID + "." + field, "", null);
+							contentHandler.endElement("", segmentID + "." + field, "");
 						}
 						fieldID++;
 						lastsegElement = true;
 					} else {
 						lastsegElement = false;
-						contentHandler.startElement("", segmentID + "." + fieldID, "", null);
+						
 						if (element.indexOf(subelementDelim) > -1) {
+							contentHandler.startElement("", segmentID + "." + field, "", null);
 							// check if we have sub-elements, if so add them
 							StringTokenizer subelementTokenizer = new StringTokenizer(element, subelementDelim, true);
-							int subelementID = 1;
-							boolean lastsegSubelement = true;
+							subelementID = 1;
+							lastsegSubelement = true;
 							while (subelementTokenizer.hasMoreTokens()) {
 								String subelement = subelementTokenizer.nextToken();
-								
 								if (subelement.equals(subelementDelim)) {
-									
-									String subelementName = segmentID + "." + fieldID + "." + subelementID;
+									String subelementName = segmentID + "." + field + "." + subelementID;
 									if (lastsegSubelement) {
 										contentHandler.startElement("", subelementName, "", null);
 										contentHandler.characters("".toCharArray(), 0, 0);
@@ -155,8 +139,8 @@ public class EDIReader extends SAXParser {
 									subelementID++;
 									lastsegSubelement = true;
 								} else {
-									
-									String subelementName = segmentID + "." + fieldID + "." + subelementID;
+
+									String subelementName = segmentID + "." + field + "." + subelementID;
 									lastsegSubelement = false;
 									// The naming is SEG.<field
 									// number>.<element number>
@@ -166,13 +150,29 @@ public class EDIReader extends SAXParser {
 
 								}
 							}
+							String subelementName = segmentID + "." + (field) + "." + subelementID;
+							if (lastsegSubelement) {
+								contentHandler.startElement("", subelementName, "", null);
+								contentHandler.characters("".toCharArray(), 0, 0);
+								contentHandler.endElement("", subelementName, "");
+							}
+							contentHandler.endElement("", segmentID + "." + (field), null);
 						} else {
+							contentHandler.startElement("", segmentID + "." + field, "", null);
+							contentHandler.startElement("", segmentID + "." + field + ".1", "", null);
+
 							// Set the text contents to the value
 							contentHandler.characters(element.toCharArray(), 0, element.length());
+							contentHandler.endElement("", segmentID + "." + (field) + ".1", null);
+							contentHandler.endElement("", segmentID + "." + (field), null);
+
 						}
-						contentHandler.endElement("", segmentID + "." + (fieldID), null);
 					}
 
+				}
+				if (lastsegElement) {
+					contentHandler.startElement("", segmentID + "." + field, "", null);
+					contentHandler.endElement("", segmentID + "." + field, "");
 				}
 				contentHandler.endElement("", segmentID, "");
 
@@ -184,6 +184,5 @@ public class EDIReader extends SAXParser {
 		contentHandler.endElement("", documentHead, "");
 		contentHandler.endDocument();
 	}
-	
 
 }

@@ -34,4 +34,5 @@ public interface IXMLSerializer<E> {
 	public String toXML(E source) throws SerializerException;
 	public E fromXML(String source) throws SerializerException;
 	public Map<String, String> getMetadata() throws SerializerException;
+	public Map<String, String> getMetadata(Document doc) throws SerializerException;
 }

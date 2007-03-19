@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.Properties;
 
 import org.apache.xml.serialize.OutputFormat;
 import org.apache.xml.serialize.XMLSerializer;
@@ -30,19 +31,10 @@ public class HL7Test {
 			e.printStackTrace();
 		}
 		try {
-
-			ER7Reader ediReader = new ER7Reader();
-			StringWriter stringWriter = new StringWriter();
-			XMLPrettyPrinter serializer = new XMLPrettyPrinter(stringWriter);
-			ByteArrayOutputStream os = new ByteArrayOutputStream();
-			try {
-				ediReader.setContentHandler(serializer);
-				ediReader.parse(new InputSource(new StringReader(testMessage)));
-				os.write(stringWriter.toString().getBytes());
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			String xmloutput = os.toString();
+			Properties properties = new Properties();
+			properties.put("useStrictParser", "false");
+			ER7Serializer serializer = new ER7Serializer(properties);
+			String xmloutput = serializer.toXML(testMessage);
 
 			//System.out.println(xmloutput);
 			DocumentSerializer docser = new DocumentSerializer();
