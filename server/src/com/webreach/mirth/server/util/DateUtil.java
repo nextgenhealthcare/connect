@@ -14,4 +14,12 @@ public class DateUtil {
 		SimpleDateFormat formatter = new SimpleDateFormat(pattern);
 		return formatter.format(date);
 	}
+	
+	public static String getCurrentDate(String pattern){
+		return formatDate(pattern, new Date());
+	}
+	public static String convertDate(String inPattern, String outPattern, String date) throws Exception{
+		Date newDate = getDate(inPattern, date);
+		return formatDate(outPattern, newDate);
+	}
 }

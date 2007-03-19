@@ -136,7 +136,12 @@ public class DatabaseConnection {
 		try {
 			statement = connection.createStatement();
 			logger.debug("executing update:\n" + expression);
-			return statement.executeUpdate(expression);
+			boolean results = statement.execute(expression);
+			if (results){
+				return 1;
+			}else{
+				return 0;
+			}
 		} catch (SQLException e) {
 			throw e;
 		} finally {
@@ -170,7 +175,12 @@ public class DatabaseConnection {
 				statement.setObject(index, value);
 			}
 
-			return statement.executeUpdate();
+			boolean results = statement.execute();
+			if (results){
+				return 1;
+			}else{
+				return 0;
+			}
 		} catch (SQLException e) {
 			throw e;
 		} finally {
