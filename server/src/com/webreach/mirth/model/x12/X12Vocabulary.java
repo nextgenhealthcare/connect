@@ -32,7 +32,7 @@ public class X12Vocabulary implements MessageVocabulary {
 			try{
 				loadData();
 			}catch (Exception e){
-				logger.error("Error loading xml data: " + StackTracePrinter.stackTraceToString(e));
+				logger.error("Error loading xml data: " + e.getMessage());
 				vocab = new HashMap<String, String>();
 				return new String();
 			}
@@ -43,8 +43,9 @@ public class X12Vocabulary implements MessageVocabulary {
 	private void loadData() throws Exception{
 			JAXBContext jc = JAXBContext.newInstance(JAXB_CONTEXT);
 			Unmarshaller unmarshaller = jc.createUnmarshaller();
+			
 			String fileName = XML_PATH + "/" + type + "." + version + ".xml"; // i.e. 837.004010X096.xml
-			TransactionType collection = (TransactionType) ((JAXBElement<TransactionType>) unmarshaller.unmarshal(X12Vocabulary.class.getResourceAsStream(fileName))).getValue();
+			TransactionType collection = (TransactionType) ((JAXBElement<TransactionType>) unmarshaller.unmarshal(this.getClass().getResourceAsStream(fileName))).getValue();
 
 			vocab = new LinkedHashMap<String, String>();
 			vocab.put(collection.getId(), collection.getName());

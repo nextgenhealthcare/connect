@@ -155,6 +155,17 @@
 		<url-pattern>/webstart</url-pattern>
 	</servlet-mapping>
 
+	<servlet>
+		<servlet-name>Activation</servlet-name>
+		<servlet-class>
+			com.webreach.mirth.server.servlets.ActivationServlet
+		</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Activation</servlet-name>
+		<url-pattern>/activation</url-pattern>
+	</servlet-mapping>
 
 	<servlet>
 		<servlet-name>JnlpDownloadServlet</servlet-name>

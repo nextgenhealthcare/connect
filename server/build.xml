@@ -44,6 +44,11 @@
 			<entry key="mirth.version" value="${version}" />
 			<entry key="mirth.date" type="date" value="today" pattern="MMMM d, yyyy" />
 		</propertyfile>
+		
+		<!-- copy the xml files so they will be included in jar -->
+			<copy todir="${classes}/com/webreach/mirth/model/x12/xml">
+				<fileset dir="${src}/com/webreach/mirth/model/x12/xml" />
+			</copy>
 	</target>
 
 	<target name="create-client-core" depends="compile">
@@ -89,6 +94,9 @@
 			<fileset file="${webapp.lib}/xercesImpl.jar" />
 			<fileset file="${webapp.lib}/xpp3_min-1.1.3.4.O.jar" />
 			<fileset file="${webapp.lib}/xstream-1.2.jar" />
+			<fileset file="${webapp.lib}/jaxb-api.jar" />
+			<fileset file="${webapp.lib}/jaxb-impl.jar" />
+			<fileset file="${webapp.lib}/jsr173_1.0_api.jar" />
 		</signjar>
 
 		<!-- create the webapp war in the web webapps directory -->
@@ -154,6 +162,7 @@
 			<fileset file="${basedir}/wrapper.exe" />
 			<fileset file="${basedir}/mirth-daemon" />
 			<fileset file="${basedir}/wrapper-x86-32bit" />
+			<fileset file="${basedir}/activation.jnlp" />
 		</copy>
 
 		<!-- create the Mirth server jar -->
