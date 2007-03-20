@@ -403,7 +403,9 @@ public class JEditTextArea extends JComponent {
 		}
 
 		int width = painter.getWidth() - vertical.getWidth();
-
+		// System.out.println("Width: " + width);
+		// System.out.println("HorizontalOffset: " + horizontalOffset);
+		// System.out.println("Longestline Size: " + longestLineSize);
 		if (horizontalOffset > 0) {
 			horizontalOffset = 0;
 		}
@@ -596,7 +598,7 @@ public class JEditTextArea extends JComponent {
 				// if we are typing (or scrolling) and we reached the right
 				// edger
 				// of the component, we need to move the contents over a bit
-				newHorizontalOffset = horizontalOffset + (painter.getWidth() - x) - width;
+				newHorizontalOffset = horizontalOffset + (painter.getWidth() - (x + width - 4));
 			} else if (horizontalOffset < 0) {
 				// if we are scrolled over we need to see if we are on the
 				// longest line or not
@@ -949,10 +951,14 @@ public class JEditTextArea extends JComponent {
 	 */
 	public int getLineLength(int line) {
 		Element lineElement = document.getDefaultRootElement().getElement(line);
+
 		if (lineElement == null)
 			return -1;
 		else
-			return lineElement.getEndOffset() - lineElement.getStartOffset() - 1;
+			return getLineText(line).replaceAll("\\t", "        ").length();// lineElement.getEndOffset()
+																			// -
+																			// lineElement.getStartOffset()
+																			// - 1;
 	}
 
 	/**
@@ -1463,7 +1469,7 @@ public class JEditTextArea extends JComponent {
 		for (int i = 0; i < size; i++) {
 			String line = getLineText(i).replaceAll("\\t", "        ");
 			int lsize = painter.getFontMetrics().charsWidth(line.toCharArray(), 0, line.length());
-			
+
 			if (lsize >= max_size) {
 				longestLine = i;
 				longestLineSize = lsize + 10; // added padding
