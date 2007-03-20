@@ -47,6 +47,9 @@ public class EDISerializer implements IXMLSerializer<String> {
 	private String currentEDI = null;
 	
 	public EDISerializer(Map ediProperties) {
+		if (ediProperties == null){
+			return;
+		}
 		if(ediProperties.get("segmentDelimiter") != null)
 		{
 			this.segmentDelim = convertNonPrintableCharacters((String) ediProperties.get("segmentDelimiter"));
