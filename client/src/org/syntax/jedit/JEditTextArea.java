@@ -537,7 +537,7 @@ public class JEditTextArea extends JComponent {
 	public boolean scrollToCaret() {
 		int line = getCaretLine();
 		int lineStart = getLineStartOffset(line);
-		int offset = Math.max(0, Math.min(getLineLength(line) - 1, getCaretPosition() - lineStart) + vertical.getWidth());
+		int offset = Math.max(0, Math.min(getLineLength(line) - 1, getCaretPosition() - lineStart));
 		return scrollTo(line, offset);
 	}
 
