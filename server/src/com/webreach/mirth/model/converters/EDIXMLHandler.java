@@ -42,7 +42,6 @@ public class EDIXMLHandler extends DefaultHandler {
 	private Location currentLocation = Location.DOCUMENT;
 	private boolean sawHeader = false;
 	private boolean lastinSubelement = false;
-	private Entities encoder = new Entities();
 	private StringBuilder output = new StringBuilder();
 
 	public EDIXMLHandler(String segmentDelim, String elementDelim, String subelementDelim) {

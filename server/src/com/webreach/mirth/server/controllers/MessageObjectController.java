@@ -251,7 +251,7 @@ public class MessageObjectController {
 
 	public MessageObject getMessageObjectFromEvent(UMOEvent event) throws Exception {
 		MessageObject messageObject = null;
-		Object incomingData = incomingData = event.getTransformedMessage();
+		Object incomingData = event.getTransformedMessage();
 
 		if (incomingData == null || !(incomingData instanceof MessageObject)) {
 			logger.warn("received data is not of expected type");

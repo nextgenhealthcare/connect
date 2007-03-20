@@ -8,7 +8,6 @@ import org.apache.log4j.Logger;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.converters.DefaultXMLSerializer;
 import com.webreach.mirth.model.converters.IXMLSerializer;
-import com.webreach.mirth.model.converters.ObjectClonerException;
 import com.webreach.mirth.model.converters.SerializerException;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.MessageObjectController;
@@ -25,9 +24,7 @@ public abstract class Adaptor {
 	public MessageObject getMessage(String source, String channelId, boolean encryptData, Map properties) throws AdaptorException {
 		this.source = source;
         this.properties = properties;
-        this.messageObject = messageObject;
         this.serializer = getSerializer(properties);
-        
 		messageObject = new MessageObject();
 		messageObject.setId(UUIDGenerator.getUUID());
 		messageObject.setChannelId(channelId);
