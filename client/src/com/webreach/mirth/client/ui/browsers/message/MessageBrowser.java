@@ -647,8 +647,7 @@ public class MessageBrowser extends javax.swing.JPanel
                     newDoc.setTokenMarker(new XMLTokenMarker());
                     DocumentSerializer serializer = new DocumentSerializer();
                     serializer.setPreserveSpace(false);
-                    if (protocol.equals(Protocol.XML))
-                    {
+                   
                         try
                         {
                             Document doc = serializer.fromXML(message);
@@ -658,7 +657,7 @@ public class MessageBrowser extends javax.swing.JPanel
                         {
                             System.out.println(e.getMessage());
                         }
-                    }
+                    
                 }
                 else if (protocol.equals(MessageObject.Protocol.X12))
                 {

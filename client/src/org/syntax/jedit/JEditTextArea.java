@@ -537,7 +537,7 @@ public class JEditTextArea extends JComponent {
 	public boolean scrollToCaret() {
 		int line = getCaretLine();
 		int lineStart = getLineStartOffset(line);
-		int offset = Math.max(0, Math.min(getLineLength(line) - 1, getCaretPosition() - lineStart));
+		int offset = Math.max(0, Math.min(getLineLength(line) - 1, getCaretPosition() - lineStart) + vertical.getWidth());
 		return scrollTo(line, offset);
 	}
 
@@ -1461,8 +1461,9 @@ public class JEditTextArea extends JComponent {
 		int size = getLineCount();
 		int max_size = 0;
 		for (int i = 0; i < size; i++) {
-			String line = getLineText(i);
+			String line = getLineText(i).replaceAll("\\t", "        ");
 			int lsize = painter.getFontMetrics().charsWidth(line.toCharArray(), 0, line.length());
+			
 			if (lsize >= max_size) {
 				longestLine = i;
 				longestLineSize = lsize + 10; // added padding
