@@ -2734,6 +2734,9 @@ public class Frame extends JXFrame
                 alertError("Could not get the clients version.");
                 return;
             }
+            
+            if(option != JOptionPane.YES_OPTION)
+                return;
 
             try
             {

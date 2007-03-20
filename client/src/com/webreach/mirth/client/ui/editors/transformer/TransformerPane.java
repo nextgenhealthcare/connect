@@ -716,9 +716,7 @@ public class TransformerPane extends MirthEditorPane
     private void setPanelData(String type, Map<Object, Object> data)
     {
         if (type.equalsIgnoreCase(MAPPER_TYPE))
-        {
             mapperPanel.setData(data);
-        }
         else if (type.equalsIgnoreCase(JAVASCRIPT_TYPE))
             jsPanel.setData(data);
         else if (type.equalsIgnoreCase(MESSAGE_TYPE))
@@ -1063,7 +1061,7 @@ public class TransformerPane extends MirthEditorPane
     
     private List<Rule> getGlobalRuleVariables()
     {
-        List<Rule> concatenatedRules = new ArrayList<Rule>();
+        ArrayList<Rule> concatenatedRules = new ArrayList<Rule>();
         VariableListUtil.getRuleGlobalVariables(concatenatedRules, channel.getSourceConnector());
         
         List<Connector> destinationConnectors = channel.getDestinationConnectors();
@@ -1087,7 +1085,7 @@ public class TransformerPane extends MirthEditorPane
     
     private List<Step> getGlobalStepVariables()
     {
-        List<Step> concatenatedSteps = new ArrayList<Step>();
+        ArrayList<Step> concatenatedSteps = new ArrayList<Step>();
         VariableListUtil.getStepGlobalVariables(concatenatedSteps, channel.getSourceConnector());
         
         List<Connector> destinationConnectors = channel.getDestinationConnectors();
