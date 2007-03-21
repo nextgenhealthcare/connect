@@ -44,7 +44,7 @@ public class JavaScriptTransformerBuilder {
 		for (Iterator iter = transformer.getSteps().iterator(); iter.hasNext();) {
 			Step step = (Step) iter.next();
 			logger.debug("adding step: " + step.getScript());
-			builder.append(step.getScript());
+			builder.append(step.getScript() + "\n");
 		}
 
 		return builder.toString();

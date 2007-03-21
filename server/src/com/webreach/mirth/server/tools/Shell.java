@@ -116,7 +116,7 @@ public class Shell {
 									try{
 										executeStatement(statement);
 									}catch (Exception e){
-										System.out.println("Invalid statment. Use \"help\" for list of valid statements");
+										System.out.println("Invalid statment. Use \"help\" for list of valid statements\n" + e.getMessage());
 									}
 									System.out.print("$");
 								}
@@ -213,21 +213,20 @@ public class Shell {
 				String arg1 = arguments[0];
 				if (arg1.equals("help")){
 					System.out.println("Available Commands:");
-					System.out.println("status\t\t\t\t\t\tReturns status of deployed channels");
-					System.out.println("start\t\t\t\t\t\tStarts all Channels");
-					System.out.println("stop\t\t\t\t\t\tStops all Channels");
-					System.out.println("pause\t\t\t\t\t\tPauses all Channels");
-					System.out.println("resume\t\t\t\t\t\tResumes all Channels");
-					System.out.println("deploy\t\t\t\t\t\tDeploys all Channels");
-					System.out.println("import \"path\"\t\t\t\t\tImports channel specified by <path>");
-					System.out.println("export id|\"name\"|* \"path\"\t\t\tExports the specified channel to <path>");
-					System.out.println("channel start|stop|pause|resume|* id|\"name\"\tPerforms specified channel action");
-					System.out.println("channel stats|export|* id|\"name\"\t\tPerforms specified channel action");
-					System.out.println("channel remove|enable|disable|* id|\"name\"\tRemove, enable or disable specified channel");
-					System.out.println("channel list\t\t\t\t\tLists all Channels");
-					System.out.println("clear\t\t\t\t\t\tRemoves all messages from all Channels");
-					System.out.println("dump stats|events \"path\"\t\t\tDumps stats or events to specified file");
-					System.out.println("quit\t\t\t\t\t\tQuits Mirth Shell");
+					System.out.println("status\n\tReturns status of deployed channels");
+					System.out.println("start\n\tStarts all Channels");
+					System.out.println("stop\n\tStops all Channels");
+					System.out.println("pause\n\tPauses all Channels");
+					System.out.println("resume\n\tResumes all Channels");
+					System.out.println("deploy\n\tDeploys all Channels");
+					System.out.println("import \"path\"\n\tImports channel specified by <path>");
+					System.out.println("export id|\"name\"|* \"path\"\n\tExports the specified channel to <path>");
+					System.out.println("channel start|stop|pause|resume|stats id|\"name\"|*\n\tPerforms specified channel action");
+					System.out.println("channel remove|enable|disable id|\"name\"|*\n\tRemove, enable or disable specified channel");
+					System.out.println("channel list\n\tLists all Channels");
+					System.out.println("clear\n\tRemoves all messages from all Channels");
+					System.out.println("dump stats|events \"path\"\n\tDumps stats or events to specified file");
+					System.out.println("quit\n\tQuits Mirth Shell");
 					return;
 				}
 				else if (arg1.equalsIgnoreCase("start") || arg1.equalsIgnoreCase("stop")|| arg1.equalsIgnoreCase("pause") || arg1.equalsIgnoreCase("resume")) {

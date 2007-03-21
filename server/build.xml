@@ -163,6 +163,7 @@
 			<fileset file="${basedir}/mirth-daemon" />
 			<fileset file="${basedir}/wrapper-x86-32bit" />
 			<fileset file="${basedir}/activation.jnlp" />
+			<fileset file="${basedir}/mirth-client-core.jar" />
 		</copy>
 
 		<!-- create the Mirth server jar -->
@@ -185,6 +186,15 @@
 			</manifest>
 		</jar>
 
+		<!-- create the Mirth launcher jar -->
+		<jar destfile="${setup}/shell.jar" basedir="${classes}">
+			<include name="com/webreach/mirth/server/tools/Shell.class" />
+			<manifest>
+				<attribute name="Main-Class" value="com.webreach.mirth.server.tools.Shell" />
+				<attribute name="Class-Path" value="lib/log4j-1.2.13.jar conf/ lib/commons-cli-1.0.jar lib/log4j-1.2.13.jar lib/xstream-1.2.jar lib/commons-httpclient-3.0.1.jar lib/xpp3_min-1.1.3.4.O.jar mirth-client-core.jar lib/jetty/commons-logging.jar lib/mule/commons-codec-1.3.jar" />
+			</manifest>
+		</jar>
+		
 		<!-- copy web -->
 		<copy todir="${setup.web}">
 			<fileset dir="${web}" />
@@ -218,7 +228,8 @@
 		<copy file="${basedir}/Mirth.bat" todir="${setup}" />
 		<copy file="${basedir}/mirth.sh" todir="${setup}" />
 		<copy file="${basedir}/Mirth.ico" todir="${setup}" />
-
+		<copy file="${basedir}/Shell.bat" todir="${setup}" />
+		<copy file="${basedir}/shell.sh" todir="${setup}" />
 		<!-- zip the source code -->
 		<!-- zip basedir="${setup.source}" destfile="${setup}/mirth-server-src.zip" / -->
 

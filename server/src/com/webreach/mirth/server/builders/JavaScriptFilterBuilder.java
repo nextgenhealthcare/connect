@@ -67,7 +67,7 @@ public class JavaScriptFilterBuilder {
 				builder.append(operator + "filterRule" + iter.nextIndex() + "()");
 			}
 
-			builder.append(");");
+			builder.append(");\n");
 		}
 
 		return builder.toString();

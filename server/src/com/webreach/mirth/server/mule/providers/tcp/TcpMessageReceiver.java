@@ -263,6 +263,9 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
 		protected byte[] processData(byte[] data) throws Exception {
 			// TODO: Add option to handle binary data
 			String charset = connector.getCharsetEncoding();
+			if (data == null){
+				return null;
+			}
 			String str_data = new String(data, charset);
 			UMOMessage returnMessage = null;
 			OutputStream os;
