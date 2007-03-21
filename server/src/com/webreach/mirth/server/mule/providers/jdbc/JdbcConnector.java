@@ -65,7 +65,7 @@ public class JdbcConnector extends AbstractServiceEnabledConnector {
 	private String scriptId;
 	private String ackScriptId;
 	private String channelId;
-	
+
 	public String getChannelId() {
 		return this.channelId;
 	}
@@ -79,12 +79,12 @@ public class JdbcConnector extends AbstractServiceEnabledConnector {
 	@Override
 	protected synchronized void initFromServiceDescriptor() throws InitialisationException {
 		super.initFromServiceDescriptor();
+		org.mozilla.javascript.Context context = org.mozilla.javascript.Context.enter();
 
 		try {
-			if (scriptId != null){
-				org.mozilla.javascript.Context context = org.mozilla.javascript.Context.enter();
+			if (scriptId != null) {
 				String databaseScript = scriptController.getScript(scriptId);
-	
+
 				if (databaseScript != null) {
 					String generatedDatabaseScript = generateDatabaseScript(databaseScript, false);
 					logger.debug("compiling database script");
@@ -92,11 +92,10 @@ public class JdbcConnector extends AbstractServiceEnabledConnector {
 					compiledScriptCache.putCompiledScript(scriptId, compiledDatabaseScript);
 				}
 			}
-			
-			if (ackScriptId != null){
-				org.mozilla.javascript.Context context = org.mozilla.javascript.Context.enter();
+
+			if (ackScriptId != null) {
 				String ackScript = scriptController.getScript(ackScriptId);
-				
+
 				if (ackScript != null) {
 					String generatedDatabaseScript = generateDatabaseScript(ackScript, true);
 					logger.debug("compiling database ack script");
@@ -104,7 +103,7 @@ public class JdbcConnector extends AbstractServiceEnabledConnector {
 					compiledScriptCache.putCompiledScript(ackScriptId, compiledDatabaseScript);
 				}
 			}
-			
+
 		} catch (Exception e) {
 			throw new InitialisationException(e, this);
 		} finally {
@@ -117,20 +116,19 @@ public class JdbcConnector extends AbstractServiceEnabledConnector {
 		logger.debug("generating database script");
 		StringBuilder script = new StringBuilder();
 		script.append("importPackage(Packages.com.webreach.mirth.server.util);\n");
-		
-		
-		//TODO: FIX THIS - the scope lookup should be connector->channel->global
+
+		// TODO: FIX THIS - the scope lookup should be
+		// connector->channel->global
 		script.append("function $(string) { ");
-		if (ack){
-			
+		if (ack) {
+
 			script.append("if (result.get(string) != null) { return result.get(string) } else ");
 		}
 		script.append("if (connectorMap.get(string) != null) { return connectorMap.get(string)} else ");
 		script.append("if (channelMap.get(string) != null) { return channelMap.get(string)} else ");
 		script.append("if (globalMap.get(string) != null) { return globalMap.get(string)} else ");
 		script.append("{ return ''; }}");
-			
-		
+
 		script.append("function doDatabaseScript() {");
 		script.append(databaseScript + "}\n");
 		script.append("doDatabaseScript()\n");
@@ -148,7 +146,7 @@ public class JdbcConnector extends AbstractServiceEnabledConnector {
 
 	public UMOMessageReceiver createReceiver(UMOComponent component, UMOEndpoint endpoint) throws Exception {
 		String[] params = {};
-		if (!this.useScript){
+		if (!this.useScript) {
 			params = getReadAndAckStatements(endpoint.getEndpointURI(), endpoint);
 		}
 		return getServiceDescriptor().createMessageReceiver(this, component, endpoint, params);
