@@ -45,6 +45,7 @@ import com.webreach.mirth.server.util.SqlConfig;
 import com.webreach.mirth.server.util.UUIDGenerator;
 import com.webreach.mirth.server.util.VMRouter;
 import com.webreach.mirth.util.Encrypter;
+import com.webreach.mirth.util.EncryptionException;
 
 public class MessageObjectController {
 	private Logger logger = Logger.getLogger(this.getClass());
@@ -96,31 +97,45 @@ public class MessageObjectController {
 		}
 	}
 
-	private void encryptMessageData(MessageObject messageObject) {
+	private void encryptMessageData(MessageObject messageObject) throws EncryptionException {
 		Encrypter encrypter = new Encrypter(configurationController.getEncryptionKey());
 
-		String encryptedRawData = encrypter.encrypt(messageObject.getRawData());
-		String encryptedTransformedData = encrypter.encrypt(messageObject.getTransformedData());
-		String encryptedEncodedData = encrypter.encrypt(messageObject.getEncodedData());
-
-		messageObject.setRawData(encryptedRawData);
-		messageObject.setTransformedData(encryptedTransformedData);
-		messageObject.setEncodedData(encryptedEncodedData);
+		if (messageObject.getRawData() != null) {
+			String encryptedRawData = encrypter.encrypt(messageObject.getRawData());
+			messageObject.setRawData(encryptedRawData);
+		}
+		
+		if (messageObject.getTransformedData() != null) {
+			String encryptedTransformedData = encrypter.encrypt(messageObject.getTransformedData());
+			messageObject.setTransformedData(encryptedTransformedData);
+		}
+		
+		if (messageObject.getEncodedData() != null) {
+			String encryptedEncodedData = encrypter.encrypt(messageObject.getEncodedData());
+			messageObject.setEncodedData(encryptedEncodedData);
+		}
 
 		messageObject.setEncrypted(true);
 	}
 
-	private void decryptMessageData(MessageObject messageObject) {
+	private void decryptMessageData(MessageObject messageObject) throws EncryptionException {
 		if (messageObject.isEncrypted()) {
 			Encrypter encrypter = new Encrypter(configurationController.getEncryptionKey());
 
-			String decryptedRawData = encrypter.decrypt(messageObject.getRawData());
-			String decryptedTransformedData = encrypter.decrypt(messageObject.getTransformedData());
-			String decryptedEncodedData = encrypter.decrypt(messageObject.getEncodedData());
+			if (messageObject.getRawData() != null) {
+				String decryptedRawData = encrypter.decrypt(messageObject.getRawData());
+				messageObject.setRawData(decryptedRawData);
+			}
 
-			messageObject.setRawData(decryptedRawData);
-			messageObject.setTransformedData(decryptedTransformedData);
-			messageObject.setEncodedData(decryptedEncodedData);
+			if (messageObject.getTransformedData() != null) {
+				String decryptedTransformedData = encrypter.decrypt(messageObject.getTransformedData());
+				messageObject.setTransformedData(decryptedTransformedData);
+			}
+
+			if (messageObject.getEncodedData() != null) {
+				String decryptedEncodedData = encrypter.decrypt(messageObject.getEncodedData());
+				messageObject.setEncodedData(decryptedEncodedData);
+			}
 		}
 	}
 
@@ -165,7 +180,7 @@ public class MessageObjectController {
 			}
 
 			return messages;
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			throw new ControllerException(e);
 		}
 	}

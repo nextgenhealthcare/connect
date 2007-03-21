@@ -64,20 +64,19 @@ public class Encrypter {
 	 * @param source
 	 * @return the encrypted string
 	 */
-	public String encrypt(String source) {
+	public String encrypt(String source) throws EncryptionException {
+		if (source == null) {
+			throw new EncryptionException("Invalid source string: " + source);
+		}
+		
 		try {
-			if (source == null){
-				source = new String();
-			}
 			byte[] utf8 = source.getBytes(UTF8_ENCODING);
 			byte[] enc = ecipher.doFinal(utf8);
 
 			return new BASE64Encoder().encode(enc);
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new EncryptionException("Could not encrypt string.", e);
 		}
-
-		return null;
 	}
 
 	/**
@@ -86,16 +85,18 @@ public class Encrypter {
 	 * @param source
 	 * @return the decrypted string.
 	 */
-	public String decrypt(String source) {
+	public String decrypt(String source) throws EncryptionException {
+		if (source == null) {
+			throw new EncryptionException("Invalid source string: " + source);
+		}
+
 		try {
 			byte[] dec = new BASE64Decoder().decodeBuffer(source);
 			byte[] utf8 = dcipher.doFinal(dec);
 
 			return new String(utf8, UTF8_ENCODING);
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new EncryptionException("Could not encrypt string.", e);
 		}
-
-		return null;
 	}
 }
