@@ -33,38 +33,23 @@ import org.apache.log4j.Logger;
 import com.ibatis.sqlmap.client.SqlMapClient;
 import com.webreach.mirth.model.User;
 import com.webreach.mirth.server.util.SqlConfig;
-import com.webreach.mirth.util.Encrypter;
 
 public class UserController {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private SqlMapClient sqlMap = SqlConfig.getSqlMapInstance();
-	private ConfigurationController configurationController = new ConfigurationController();
-	
+
 	public List<User> getUser(User user) throws ControllerException {
 		logger.debug("getting user: " + user);
-		String originalPassword = new String();
-		if (user != null){
-			originalPassword = user.getPassword();
-			Encrypter encrypter = new Encrypter(configurationController.getEncryptionKey());
-			user.setPassword(encrypter.encrypt(originalPassword));
-		}
-		
+
 		try {
 			return sqlMap.queryForList("getUser", user);
 		} catch (SQLException e) {
 			throw new ControllerException(e);
-		}finally{
-			if (user != null){
-				user.setPassword(originalPassword);
-			}
 		}
 	}
 
 	public void updateUser(User user) throws ControllerException {
-		String originalPassword = user.getPassword();
 		try {
-			Encrypter encrypter = new Encrypter(configurationController.getEncryptionKey());
-			user.setPassword(encrypter.encrypt(originalPassword));
 			if (user.getId() == null) {
 				logger.debug("adding user: " + user);
 				sqlMap.insert("insertUser", user);
@@ -74,8 +59,6 @@ public class UserController {
 			}
 		} catch (SQLException e) {
 			throw new ControllerException(e);
-		} finally {
-			user.setPassword(originalPassword);
 		}
 	}
 
