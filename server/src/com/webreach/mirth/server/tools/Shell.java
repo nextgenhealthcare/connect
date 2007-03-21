@@ -227,6 +227,8 @@ public class Shell {
 					System.out.println("dump stats|events \"path\"\n\tDumps stats or events to specified file");
 					System.out.println("user list\n\tReturns a list of the current users");
 					System.out.println("user add username \"password\" \"name\" \"email\"\n\tAdds the specified user");
+					System.out.println("user remove id|username\n\tRemoves the specified user");
+					System.out.println("user changepw id|username \"newpassword\"\n\tChanges the specified user's password.");
 					System.out.println("quit\n\tQuits Mirth Shell");
 					return;
 				} else if (arg1.equalsIgnoreCase("user")) {
