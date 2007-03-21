@@ -56,6 +56,7 @@ import com.webreach.mirth.model.Configuration;
 import com.webreach.mirth.model.DriverInfo;
 import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.model.Transport;
+import com.webreach.mirth.model.User;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.server.Command;
 import com.webreach.mirth.server.CommandQueue;
@@ -319,12 +320,19 @@ public class ConfigurationController {
 				logger.debug("no key found, creating new encryption key");
 				encryptionKey = KeyGenerator.getInstance(Encrypter.DES_ALGORITHM).generateKey();
 				sqlMap.insert("insertKey", serializer.toXML(encryptionKey));
+				insertDefaultUser();
 			}
 		} catch (Exception e) {
 			throw new ControllerException("error loading encryption key", e);
 		}
 	}
-
+	private void insertDefaultUser() throws ControllerException{
+		UserController controller = new UserController();
+		User user = new User();
+		user.setUsername("admin");
+		user.setPassword("admin");
+		controller.updateUser(user);
+	}
 	public List<DriverInfo> getDatabaseDrivers() throws ControllerException {
 		logger.debug("retrieving database driver list");
 		File driversFile = new File(CONF_FOLDER + "dbdrivers.xml");

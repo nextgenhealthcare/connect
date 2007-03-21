@@ -9,7 +9,7 @@ Name Mirth
 !define URL http://www.webreachinc.com
 
 # MUI defines
-!define MUI_ICON "${NSISDIR}\Contrib\Graphics\Icons\nsis1-install.ico"
+!define MUI_ICON "${NSISDIR}\Contrib\Graphics\Icons\win-install.ico"
 !define MUI_LICENSEPAGE_RADIOBUTTONS
 !define MUI_STARTMENUPAGE_REGISTRY_ROOT HKLM
 !define MUI_STARTMENUPAGE_NODISABLE
@@ -93,6 +93,11 @@ Section -Main SEC0000
     File setup\StopMirth-NT.bat
     File setup\UninstallMirth-NT.bat
     File setup\wrapper.exe
+    File setup\Shell.bat
+    File setup\Shell.jar
+    File setup\Shell.sh
+    File setup\activation.jnlp
+    File setup\mirth-client-core.jar
     SetOutPath $SMPROGRAMS\$StartMenuGroup
     
     # set the working directory in order for .bat files to work
@@ -105,7 +110,10 @@ Section -Main SEC0000
     CreateShortcut "$SMPROGRAMS\$StartMenuGroup\Uninstall Mirth Service.lnk" $INSTDIR\UninstallMirth-NT.bat
     ShellLink::SetShortCutWorkingDirectory "$SMPROGRAMS\$StartMenuGroup\Uninstall Mirth Service.lnk" $INSTDIR
     
-    CreateShortcut "$SMPROGRAMS\$StartMenuGroup\Start Mirth Administrator.lnk" http://localhost:8080 "" $INSTDIR\Mirth.ico
+    CreateShortcut "$SMPROGRAMS\$StartMenuGroup\Start Mirth Administrator.lnk" http://localhost:8080/webstart "" $INSTDIR\Mirth.ico
+    
+    CreateShortcut "$SMPROGRAMS\$StartMenuGroup\Start Mirth Shell.lnk" $INSTDIR\Shell.bat
+    ShellLink::SetShortCutWorkingDirectory "$SMPROGRAMS\$StartMenuGroup\Start Mirth Shell.lnk" $INSTDIR
     
     WriteRegStr HKLM "${REGKEY}\Components" Main 1
 SectionEnd
@@ -146,6 +154,8 @@ Section /o un.Main UNSEC0000
     Delete /REBOOTOK "$SMPROGRAMS\$StartMenuGroup\Uninstall Mirth Service.lnk"
     Delete /REBOOTOK "$SMPROGRAMS\$StartMenuGroup\Install Mirth Service.lnk"
     Delete /REBOOTOK "$SMPROGRAMS\$StartMenuGroup\Start Mirth Server.lnk"
+    Delete /REBOOTOK "$SMPROGRAMS\$StartMenuGroup\Start Mirth Shell.lnk"
+    
     Delete /REBOOTOK $INSTDIR\wrapper.exe
     Delete /REBOOTOK $INSTDIR\UninstallMirth-NT.bat
     Delete /REBOOTOK $INSTDIR\StopMirth-NT.bat
@@ -162,6 +172,11 @@ Section /o un.Main UNSEC0000
     Delete /REBOOTOK $INSTDIR\InstallMirth-NT.bat
     Delete /REBOOTOK $INSTDIR\derby-database.sql
     Delete /REBOOTOK $INSTDIR\wrapper-x86-32bit
+    Delete /REBOOTOK $INSTDIR\Shell.bat
+    Delete /REBOOTOK $INSTDIR\Shell.jar
+    Delete /REBOOTOK $INSTDIR\Shell.sh
+    Delete /REBOOTOK $INSTDIR\activation.jnlp
+    Delete /REBOOTOK $INSTDIR\mirth-client-core.jar
     RmDir /r /REBOOTOK $INSTDIR\logs
     RmDir /r /REBOOTOK $INSTDIR\licenses
     RmDir /r /REBOOTOK $INSTDIR\web
