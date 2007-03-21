@@ -63,13 +63,13 @@ public class ReferenceListFactory
     {
         ArrayList<ReferenceListItem> variablelistItems = new ArrayList<ReferenceListItem>();
         
-        variablelistItems.add(new ReferenceListItem("Convert HL7 to XML", "Converts an encoded HL7 string to XML", "SerializerFactory.getHL7Serializer(useStrictParser, useStrictValidation).toXML(message);\ndefault xml namespace = new Namespace('urn:hl7-org:v2xml')\n", CodeSnippetType.FUNCTION));
+        variablelistItems.add(new ReferenceListItem("Convert HL7 to XML", "Converts an encoded HL7 string to XML", "SerializerFactory.getHL7Serializer(useStrictParser, useStrictValidation).toXML(message);\ndefault xml namespace = new Namespace('urn:hl7-org:v2xml');\n", CodeSnippetType.FUNCTION));
         variablelistItems.add(new ReferenceListItem("Convert XML to HL7", "Converts an XML string to HL7", "SerializerFactory.getHL7Serializer(useStrictParser).fromXML(message);", CodeSnippetType.FUNCTION));
 
-        variablelistItems.add(new ReferenceListItem("Convert X12 to XML", "Converts an encoded X12 string to XML", "SerializerFactory.getX12Serializer(inferDelimiters).toXML(message);\ndefault xml namespace = new Namespace('urn:mirthproject-org:x12:xml')\n", CodeSnippetType.FUNCTION));
+        variablelistItems.add(new ReferenceListItem("Convert X12 to XML", "Converts an encoded X12 string to XML", "SerializerFactory.getX12Serializer(inferDelimiters).toXML(message);\ndefault xml namespace = new Namespace('urn:mirthproject-org:x12:xml');\n", CodeSnippetType.FUNCTION));
         variablelistItems.add(new ReferenceListItem("Convert XML to X12", "Converts an XML string to X12", "SerializerFactory.getX12Serializer(inferDelimiters).fromXML(message);", CodeSnippetType.FUNCTION));
 
-        variablelistItems.add(new ReferenceListItem("Convert EDI to XML", "Converts an encoded EDI string to XML", "SerializerFactory.getEDISerializer(segmentDelim, elementDelim, subelementDelim).toXML(message);\ndefault xml namespace = new Namespace('urn:mirthproject-org:edi:xml')\n", CodeSnippetType.FUNCTION));
+        variablelistItems.add(new ReferenceListItem("Convert EDI to XML", "Converts an encoded EDI string to XML", "SerializerFactory.getEDISerializer(segmentDelim, elementDelim, subelementDelim).toXML(message);\ndefault xml namespace = new Namespace('urn:mirthproject-org:edi:xml');\n", CodeSnippetType.FUNCTION));
         variablelistItems.add(new ReferenceListItem("Convert XML to EDI", "Converts an XML string to EDI", "SerializerFactory.getEDISerializer(segmentDelim, elementDelim, subelementDelim).fromXML(message);", CodeSnippetType.FUNCTION));
 
         return variablelistItems;
@@ -171,9 +171,9 @@ public class ReferenceListFactory
     {
         ArrayList<ReferenceListItem> variablelistItems = new ArrayList<ReferenceListItem>();
         variablelistItems.add(new ReferenceListItem("Get Date Object From Pattern", "Parse a date according to specified pattern", "var date = DateUtil.getDate(pattern, date);", CodeSnippetType.FUNCTION));
-        variablelistItems.add(new ReferenceListItem("Format Date Object", "Formats a date object based on specified format", "var dateString = DateUtil.formatDate(pattern, date) ;", CodeSnippetType.FUNCTION));
+        variablelistItems.add(new ReferenceListItem("Format Date Object", "Formats a date object based on specified format", "var dateString = DateUtil.formatDate(pattern, date);", CodeSnippetType.FUNCTION));
         variablelistItems.add(new ReferenceListItem("Convert Date String", "Parse a date and return a newly formatted date", "var datestring = DateUtil.convertDate(inpattern, outpattern, date);", CodeSnippetType.FUNCTION));
-        variablelistItems.add(new ReferenceListItem("Get Current Date", "Returns the current date/time in specified format", "var dateString = DateUtil.getCurrentDate(pattern) ;", CodeSnippetType.FUNCTION));
+        variablelistItems.add(new ReferenceListItem("Get Current Date", "Returns the current date/time in specified format", "var dateString = DateUtil.getCurrentDate(pattern);", CodeSnippetType.FUNCTION));
         
     
         return variablelistItems;
