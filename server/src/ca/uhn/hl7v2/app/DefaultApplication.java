@@ -159,6 +159,7 @@ public class DefaultApplication implements Application {
         terser.set("/MSA-1", statusCode);
         terser.set("/MSA-2", terser.get(inboundHeader, 10, 0, 1, 1));
         terser.set("/MSA-3", textMessage);
+        
         terser.set("/MSH-3", terser.get(inboundHeader, 5, 0, 1, 1));
         terser.set("/MSH-4", terser.get(inboundHeader, 6, 0, 1, 1));
         terser.set("/MSH-5", terser.get(inboundHeader, 3, 0, 1, 1));

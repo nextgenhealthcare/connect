@@ -638,10 +638,10 @@ public class PipeParser extends Parser {
             if (fields[10] != null)
             	procIDComps = split(fields[10], String.valueOf(compSep));
             
-            String sendingApp = (fields[3] == null) ? "" : fields[3];
-            String sendingFacility = (fields[4] == null) ? "" : fields[4];
-            String receivingApp = (fields[5] == null) ? "" : fields[5];
-            String receivingFacility = (fields[6] == null) ? "" : fields[6];
+            String sendingApp = (fields[2] == null) ? "" : fields[2];
+            String sendingFacility = (fields[3] == null) ? "" : fields[3];
+            String receivingApp = (fields[4] == null) ? "" : fields[4];
+            String receivingFacility = (fields[5] == null) ? "" : fields[5];
             
             //fill MSH segment
             String version = "2.4"; //default

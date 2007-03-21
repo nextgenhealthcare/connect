@@ -69,7 +69,7 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
 	protected ServerSocket serverSocket = null;
 	protected TcpConnector connector;
 	private AlertController alertController = new AlertController();
-
+	private TcpWorker work;
 	public TcpMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint) throws InitialisationException {
 		super(connector, component, endpoint);
 		TcpConnector tcpConnector = (TcpConnector) connector;
@@ -142,7 +142,7 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
 				}
 				if (socket != null) {
 					try {
-						Work work = createWork(socket);
+						work = (TcpWorker)createWork(socket);
 						try {
 							getWorkManager().scheduleWork(work, WorkManager.IMMEDIATE, null, null);
 						} catch (WorkException e) {
@@ -165,7 +165,9 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
 			if (serverSocket != null && !serverSocket.isClosed())
 				serverSocket.close();
 			serverSocket = null;
-
+			if (work != null){
+				work.dispose();
+			}
 		} catch (Exception e) {
 			logger.error(new DisposeException(new Message("tcp", 2), e));
 		}

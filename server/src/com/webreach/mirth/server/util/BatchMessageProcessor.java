@@ -61,7 +61,7 @@ public class BatchMessageProcessor {
 		StringBuilder message = new StringBuilder();
 		char data[] = { (char) startOfMessage, (char) endOfMessage };
 		while (scanner.hasNextLine()) {
-			String line = scanner.nextLine().replaceAll(new String(data, 0, 1), "").replaceAll(new String(data, 1, 1), "");
+			String line = scanner.nextLine().replaceAll(new String(data, 0, 1), "").replaceAll(new String(data, 1, 1), "").trim();
 
 			if ((line.length() == 0) || line.equals((char) endOfMessage) || line.startsWith("MSH")) {
 				if (message.length() > 0) {

@@ -83,7 +83,7 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 	// (usually same as end of record)
 	private MllpConnector connector;
 	private AlertController alertController = new AlertController();
-
+	private TcpWorker work;
 	public MllpMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint) throws InitialisationException {
 		super(connector, component, endpoint);
 		MllpConnector tcpConnector = (MllpConnector) connector;
@@ -168,7 +168,7 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 				}
 				if (socket != null) {
 					try {
-						Work work = createWork(socket);
+						work = (TcpWorker)createWork(socket);
 						try {
 							getWorkManager().scheduleWork(work, WorkManager.IMMEDIATE, null, null);
 						} catch (WorkException e) {
@@ -188,10 +188,13 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 
 	public void doDispose() {
 		try {
-			if (serverSocket != null && !serverSocket.isClosed())
+			if (serverSocket != null && !serverSocket.isClosed()){
 				serverSocket.close();
+			}
 			serverSocket = null;
-
+			if (work != null){
+				work.dispose();
+			}
 		} catch (Exception e) {
 			logger.error(new DisposeException(new Message("tcp", 2), e));
 		}
@@ -241,8 +244,8 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 			try {
 				if (socket != null && !socket.isClosed()) {
 					logger.debug("Closing listener: " + socket.getLocalSocketAddress().toString());
-					// socket.shutdownInput();
-					// socket.shutdownOutput();
+					socket.shutdownInput();
+					socket.shutdownOutput();
 					socket.close();
 				}
 			} catch (IOException e) {
@@ -301,6 +304,9 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 			while (it.hasNext()) {
 				data = (it.next()).getBytes(charset);
 				UMOMessageAdapter adapter = connector.getMessageAdapter(new String(data, charset));
+				if (socket.isClosed()){
+					return null;
+				}
 				os = new ResponseOutputStream(socket.getOutputStream(), socket);
 				try {
 					returnMessage = routeMessage(new MuleMessage(adapter), endpoint.isSynchronous(), os);

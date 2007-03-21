@@ -54,10 +54,9 @@ public class MessageObjectController {
 	private String lineSeperator = System.getProperty("line.separator");
 	private ErrorMessageBuilder errorBuilder = new ErrorMessageBuilder();
 
-	public void updateMessage(MessageObject messageObject) {
+	public void updateMessage(MessageObject incomingMessageObject) {
 		try {
-			// MessageObject messageObject =
-			// (MessageObject)ObjectCloner.deepCopy(incomingMessageObject);
+			MessageObject messageObject = (MessageObject)incomingMessageObject.clone();
 			String channelId = messageObject.getChannelId();
 			HashMap<String, Channel> channelCache = ChannelController.getChannelCache();
 
@@ -93,7 +92,7 @@ public class MessageObjectController {
 				sqlMap.update("updateMessage", messageObject);
 			}
 		} catch (Exception e) {
-			logger.error("could not log message: id=" + messageObject.getId(), e);
+			logger.error("could not log message: id=" + incomingMessageObject.getId(), e);
 		}
 	}
 

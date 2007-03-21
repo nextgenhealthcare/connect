@@ -100,7 +100,7 @@ public class ER7Serializer implements IXMLSerializer<String> {
 		StringBuilder builder = new StringBuilder();
 		if (useStrictParser) {
 			try {
-				builder.append(xmlParser.encode(pipeParser.parse(source)));
+				builder.append(xmlParser.encode(pipeParser.parse(source.trim())));
 			} catch (HL7Exception e) {
 				throw new SerializerException(e);
 			}

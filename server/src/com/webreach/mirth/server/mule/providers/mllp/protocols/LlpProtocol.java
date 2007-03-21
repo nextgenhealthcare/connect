@@ -77,23 +77,28 @@ public class LlpProtocol implements TcpProtocol {
             logger.debug("Socket timeout, returning null.");
             return null;
         }
-        if (len == -1) {
-            return null;
-        } else {
-            do {
-                baos.write(buffer, 0, len);
-                if (len < buffer.length) {
-                    break;
-                }
-                int av = is.available();
-                if (av == 0) {
-                    break;
-                }
-            } while ((len = is.read(buffer)) > 0);
-
-            baos.flush();
-            baos.close();
-            return baos.toByteArray();
+        try{
+	        if (len == -1) {
+	            return null;
+	        } else {
+	            do {
+	                baos.write(buffer, 0, len);
+	                if (len < buffer.length) {
+	                    break;
+	                }
+	                int av = is.available();
+	                if (av == 0) {
+	                    break;
+	                }
+	            } while ((len = is.read(buffer)) > 0);
+	
+	            baos.flush();
+	            baos.close();
+	            return baos.toByteArray();
+	        }
+        }finally{
+        	baos.flush();
+        	baos.close();
         }
 	}
 
@@ -106,7 +111,11 @@ public class LlpProtocol implements TcpProtocol {
 		if (END_OF_RECORD != 0) {
 			dos.writeByte(END_OF_RECORD);
 		}
-		dos.flush();
+		try{
+			dos.flush();
+		}catch (SocketException se){
+			logger.debug("Socket closed while trying to flush");
+		}
 	}
         
         //ast: a class to read both types of stream;  bytes ( char limits ) and chars (byte limits)

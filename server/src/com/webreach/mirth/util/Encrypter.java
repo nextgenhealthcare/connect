@@ -66,6 +66,9 @@ public class Encrypter {
 	 */
 	public String encrypt(String source) {
 		try {
+			if (source == null){
+				source = new String();
+			}
 			byte[] utf8 = source.getBytes(UTF8_ENCODING);
 			byte[] enc = ecipher.doFinal(utf8);
 
