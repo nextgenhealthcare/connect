@@ -27,6 +27,8 @@ package com.webreach.mirth.client.ui.connectors;
 
 import java.util.List;
 import java.util.Properties;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -40,6 +42,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.webreach.mirth.client.core.ClientException;
+import com.webreach.mirth.client.ui.PlatformUI;
 import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
 import com.webreach.mirth.client.ui.util.SQLParserUtil;
@@ -92,7 +95,9 @@ public class DatabaseReader extends ConnectorClass
     private static SyntaxDocument jsUpdateMappingDoc;
 
     private List<DriverInfo> drivers;
-
+    
+    private Timer timer;
+    
     public DatabaseReader()
     {
         name = "Database Reader";
@@ -134,12 +139,12 @@ public class DatabaseReader extends ConnectorClass
 
             public void removeUpdate(DocumentEvent e)
             {
-                updateSQL();
+                update();
             }
 
             public void insertUpdate(DocumentEvent e)
             {
-                updateSQL();
+                update();
             }
         });
 
@@ -264,7 +269,31 @@ public class DatabaseReader extends ConnectorClass
         }
         return false;
     }
-
+    
+    private void update()
+    {
+        class UpdateTimer extends TimerTask
+        {
+            public void run() {
+        
+                PlatformUI.MIRTH_FRAME.setWorking(true);
+                updateSQL();
+                PlatformUI.MIRTH_FRAME.setWorking(false);                
+            }
+        }
+        if (timer == null)
+        {
+            timer = new Timer();
+            timer.schedule(new UpdateTimer(), 1000);
+        }
+        else
+        {           
+            timer.cancel();
+            timer = new Timer();
+            timer.schedule(new UpdateTimer(), 1000);
+        }
+    }
+    
     private void updateSQL()
     {
         Object sqlStatement = databaseSQLTextPane.getText();
@@ -283,7 +312,7 @@ public class DatabaseReader extends ConnectorClass
         dbVarList.setListData(data);
         updateIncomingData(data);
     }
-
+    
     private void updateIncomingData(String[] data)
     {
         try
