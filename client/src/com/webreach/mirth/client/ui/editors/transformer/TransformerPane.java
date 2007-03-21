@@ -1184,6 +1184,8 @@ public class TransformerPane extends MirthEditorPane
                 parent.channelEditPanel.updateComponentShown();                
                 modified = false;
             }
+            
+            invalidVar = false;
         }
     }
 
