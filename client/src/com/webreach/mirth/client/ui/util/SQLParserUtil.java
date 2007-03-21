@@ -46,7 +46,7 @@ public class SQLParserUtil
 
     public SQLParserUtil(String statement)
     {
-        _sqlStatement = statement;
+        _sqlStatement = statement.replace('\n', ' ').replace('\r', ' ');
     }
 
     public SQLParserUtil()
@@ -56,7 +56,7 @@ public class SQLParserUtil
 
     public String[] Parse(String statement)
     {
-        _sqlStatement = statement;
+        _sqlStatement = statement.replace('\n', ' ').replace('\r', ' ');
         return Parse();
     }
 
@@ -66,7 +66,7 @@ public class SQLParserUtil
         {
             LinkedHashSet<String> varList = new LinkedHashSet<String>();
             
-            Pattern pattern = Pattern.compile(SQL_PATTERN);
+            Pattern pattern = Pattern.compile(SQL_PATTERN, Pattern.MULTILINE);
             Matcher matcher = pattern.matcher(_sqlStatement);
             while (matcher.find())
             {
