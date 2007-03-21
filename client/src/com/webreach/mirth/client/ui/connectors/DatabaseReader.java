@@ -130,8 +130,25 @@ public class DatabaseReader extends ConnectorClass
 
         databaseSQLTextPane.setDocument(sqlMappingDoc);
         databaseUpdateSQLTextPane.setDocument(sqlUpdateMappingDoc);
+        
+        sqlMappingDoc.addDocumentListener(new DocumentListener()
+        {
+            public void changedUpdate(DocumentEvent e)
+            {
+            }
 
-        databaseSQLTextPane.getDocument().addDocumentListener(new DocumentListener()
+            public void removeUpdate(DocumentEvent e)
+            {
+                update();
+            }
+
+            public void insertUpdate(DocumentEvent e)
+            {
+                update();
+            }
+        });
+        
+        jsMappingDoc.addDocumentListener(new DocumentListener()
         {
             public void changedUpdate(DocumentEvent e)
             {
@@ -642,7 +659,6 @@ public class DatabaseReader extends ConnectorClass
         databaseUpdateSQLTextPane.setDocument(sqlUpdateMappingDoc);
         // databaseSQLTextPane.setText("SELECT FROM");
         generateConnection.setEnabled(false);
-        dbVarList.setEnabled(true);
         updateSQL();
         
         insertUpdateConnections.setEnabled(false);
@@ -655,7 +671,6 @@ public class DatabaseReader extends ConnectorClass
         databaseSQLTextPane.setDocument(jsMappingDoc);
         databaseUpdateSQLTextPane.setDocument(jsUpdateMappingDoc);
         generateConnection.setEnabled(true);
-        dbVarList.setEnabled(false);
         updateSQL();
         
         if (readOnUpdateYes.isSelected())

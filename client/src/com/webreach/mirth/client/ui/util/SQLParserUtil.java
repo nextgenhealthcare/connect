@@ -25,7 +25,9 @@
 
 package com.webreach.mirth.client.ui.util;
 
-import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
@@ -37,7 +39,9 @@ public class SQLParserUtil
     private Logger logger = Logger.getLogger(this.getClass());
 
     private String[] keywords = { "INTO", "DISTINCT", "UNIQUE", "FIRST", "MIDDLE", "SKIP", "LIMIT" };
-
+    
+    private final String SQL_PATTERN = "[s|S][e|E][l|L][e|E][c|C][t|T].*[f|F][r|R][o|O][m|M]";
+    
     String _sqlStatement = "";
 
     public SQLParserUtil(String statement)
@@ -60,52 +64,55 @@ public class SQLParserUtil
     {
         try
         {
-            // Pattern pattern = Pattern.compile(REGEX);
-            ArrayList<String> varList = new ArrayList<String>();
-            int fromClause = _sqlStatement.toUpperCase().indexOf("FROM");
-            int selectClause = _sqlStatement.toUpperCase().indexOf("SELECT");
-            if (fromClause > 0)
+            LinkedHashSet<String> varList = new LinkedHashSet<String>();
+            
+            Pattern pattern = Pattern.compile(SQL_PATTERN);
+            Matcher matcher = pattern.matcher(_sqlStatement);
+            while (matcher.find())
             {
-                String columnText = _sqlStatement.substring(selectClause + 6, fromClause); // replaceAll("
-                // ",
-                // "").replaceAll("\\(","").replaceAll("\\)","")
-                String[] vars = columnText.replaceAll("`", "").split(",");
-                for (int i = 0; i < vars.length; i++)
+                String key = matcher.group();
+                int fromClause = key.toUpperCase().indexOf("FROM");
+                
+                if (fromClause > 0)
                 {
-                    vars[i] = vars[i].trim();
-                    if (vars[i].length() > 0)
+                    String columnText = key.substring(6, fromClause); 
+                    String[] vars = columnText.replaceAll("`", "").split(",");
+                    for (int i = 0; i < vars.length; i++)
                     {
-                        for (int j = 0; j < keywords.length; j++)
-                        {
-                            int index = vars[i].toUpperCase().indexOf(keywords[j] + " ");
-                            int size = (keywords[j] + " ").length();
-                            if (index != -1)
-                            {
-                                vars[i] = vars[i].replaceAll(vars[i].substring(index, index + size), "");
-                            }
-                        }
                         vars[i] = vars[i].trim();
-                        vars[i] = vars[i].toLowerCase();
                         if (vars[i].length() > 0)
                         {
-                            if (vars[i].toUpperCase().indexOf(" AS ") != -1)
+                            for (int j = 0; j < keywords.length; j++)
                             {
-                                varList.add((vars[i].substring(vars[i].toUpperCase().indexOf(" AS ") + 4)).replaceAll(" ", "").replaceAll("\\(", "").replaceAll("\\)", ""));
+                                int index = vars[i].toUpperCase().indexOf(keywords[j] + " ");
+                                int size = (keywords[j] + " ").length();
+                                if (index != -1)
+                                {
+                                    vars[i] = vars[i].replaceAll(vars[i].substring(index, index + size), "");
+                                }
                             }
-                            else if (vars[i].indexOf('(') != -1 || vars[i].indexOf(')') != -1 || vars[i].indexOf('}') != -1 || vars[i].indexOf('{') != -1 || vars[i].indexOf('*') != -1)
+                            vars[i] = vars[i].trim();
+                            vars[i] = vars[i].toLowerCase();
+                            if (vars[i].length() > 0)
                             {
-                                continue;
-                            }
-                            else
-                            {
-                                varList.add(vars[i].replaceAll(" ", "").replaceAll("\\(", "").replaceAll("\\)", ""));
+                                if (vars[i].toUpperCase().indexOf(" AS ") != -1)
+                                {
+                                    varList.add((vars[i].substring(vars[i].toUpperCase().indexOf(" AS ") + 4)).replaceAll(" ", "").replaceAll("\\(", "").replaceAll("\\)", ""));
+                                }
+                                else if (vars[i].indexOf('(') != -1 || vars[i].indexOf(')') != -1 || vars[i].indexOf('}') != -1 || vars[i].indexOf('{') != -1 || vars[i].indexOf('*') != -1)
+                                {
+                                    continue;
+                                }
+                                else
+                                {
+                                    varList.add(vars[i].replaceAll(" ", "").replaceAll("\\(", "").replaceAll("\\)", ""));
+                                }
                             }
                         }
-
                     }
                 }
-                return varList.toArray(new String[varList.size()]);
             }
+            return varList.toArray(new String[varList.size()]);
         }
         catch (Exception e)
         {
