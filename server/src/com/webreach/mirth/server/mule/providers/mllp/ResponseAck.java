@@ -42,7 +42,7 @@ public class ResponseAck {
         try {        
             xmlAck=serializer.toXML(ackMessageString);            
             logger.debug("ACK: "+xmlAck);            
-            this.ackMessageDocument = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(xmlAck.getBytes()));            
+            this.ackMessageDocument = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(xmlAck.getBytes("UTF-8")));            
         } catch (Exception e) {
                 errorMessage=" Message is not a valid ACK";
                 errorMessage+="\n"+e+"\n"+ackMessageString;
