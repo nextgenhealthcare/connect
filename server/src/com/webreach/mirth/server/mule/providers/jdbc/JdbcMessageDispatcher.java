@@ -114,7 +114,7 @@ public class JdbcMessageDispatcher extends AbstractMessageDispatcher {
 				}
 				List paramNames = new ArrayList();
 				writeStmt = JdbcUtils.parseStatement(writeStmt, paramNames);
-				Object[] paramValues = JdbcUtils.getParams(endpointURI, paramNames, data);
+				Object[] paramValues = JdbcUtils.getParams(endpointURI, paramNames, messageObject);
 
 				tx = TransactionCoordination.getInstance().getTransaction();
 

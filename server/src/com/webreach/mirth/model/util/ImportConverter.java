@@ -54,13 +54,29 @@ public class ImportConverter
 
         return contents.toString();
     }
+    /** Removes certain invalid characters
+    */
+    public static String removeInvalidHexChar(String string) {
+	    String result = string;
+	    for (char i = 0x0; i <= 0x8; i++) {
+	    	result = result.replace(i, ' ');
+	    }
+	    for (char i = 0xB; i <= 0xC; i++) {
+	    	result = result.replace(i, ' ');
+	    }
+	    for (char i = 0xE; i <= 0x1F; i++) {
+	    	result = result.replace(i, ' ');
+	    }
+	    return result;
+    }
+
     /*
      * Upgrade pre-1.4 channels to work with 1.4+
      */
     public static String convertChannel(File channel) throws Exception
     {
         String channelXML = "";
-        String contents = read(channel);
+        String contents = removeInvalidHexChar(read(channel));
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         Document document;
         DocumentBuilder builder;
