@@ -364,8 +364,10 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 		script.append("if (globalMap.get(string) != null) { return globalMap.get(string);} else ");
 		script.append("{ return ''; }}");	
 		script.append("function doFilter() {");
+		
         script.append("var newMessage = message.replace(/xmlns:?[^=]*=[\"\"][^\"\"]*[\"\"]/g, '');\n");
         script.append("msg = new XML(newMessage);");
+        
 		script.append(filterScript + " }\n");
 		script.append("doFilter()\n");
 		return script.toString();
@@ -399,6 +401,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
             script.append("var newTemplate = template.replace(/xmlns:?[^=]*=[\"\"][^\"\"]*[\"\"]/g, '');\n");
 			script.append("tmp = new XML(newTemplate);");
 		}
+		
 		script.append("var newMessage = message.replace(/xmlns:?[^=]*=[\"\"][^\"\"]*[\"\"]/g, '');\n");
 		script.append("msg = new XML(newMessage);");
         

@@ -57,7 +57,7 @@ public class MessageObjectController {
 
 	public void updateMessage(MessageObject incomingMessageObject) {
 		try {
-			MessageObject messageObject = (MessageObject)incomingMessageObject.clone();
+			MessageObject messageObject = (MessageObject) incomingMessageObject.clone();
 			String channelId = messageObject.getChannelId();
 			HashMap<String, Channel> channelCache = ChannelController.getChannelCache();
 
@@ -104,12 +104,12 @@ public class MessageObjectController {
 			String encryptedRawData = encrypter.encrypt(messageObject.getRawData());
 			messageObject.setRawData(encryptedRawData);
 		}
-		
+
 		if (messageObject.getTransformedData() != null) {
 			String encryptedTransformedData = encrypter.encrypt(messageObject.getTransformedData());
 			messageObject.setTransformedData(encryptedTransformedData);
 		}
-		
+
 		if (messageObject.getEncodedData() != null) {
 			String encryptedEncodedData = encrypter.encrypt(messageObject.getEncodedData());
 			messageObject.setEncodedData(encryptedEncodedData);
@@ -158,7 +158,8 @@ public class MessageObjectController {
 		}
 	}
 
-	public List<MessageObject> getMessagesByPage(int page, int pageSize, String uid) throws ControllerException {
+	// ast: allow ordering with derby
+	public List<MessageObject> getMessagesByPage(int page, int pageSize, int maxMessages, String uid) throws ControllerException {
 		logger.debug("retrieving messages by page: page=" + page);
 
 		try {
@@ -166,8 +167,8 @@ public class MessageObjectController {
 			parameterMap.put("uid", uid);
 
 			if ((page != -1) && (pageSize != -1)) {
-				int first = (page * pageSize) + 1;
-				int last = (first + pageSize) - 1;
+				int last = maxMessages - (page * pageSize);
+				int first = last - pageSize + 1;
 				parameterMap.put("first", first);
 				parameterMap.put("last", last);
 			}
@@ -208,18 +209,25 @@ public class MessageObjectController {
 	}
 
 	public void reprocessMessages(MessageObjectFilter filter, String uid) throws ControllerException {
-		createMessagesTempTable(filter, uid);
-		List<MessageObject> messages = getMessagesByPage(-1, -1, uid);
+		int size = createMessagesTempTable(filter, uid);
+		int page = 0;
+		int interval = 10;
 
-		try {
-			VMRouter router = new VMRouter();
+		while ((page * interval) < size) {
+			List<MessageObject> messages = getMessagesByPage(page, interval, size, uid);
 
-			for (Iterator iter = messages.iterator(); iter.hasNext();) {
-				MessageObject message = (MessageObject) iter.next();
-				router.routeMessageByChannelId(message.getChannelId(), message.getRawData(), true);
+			try {
+				VMRouter router = new VMRouter();
+
+				for (Iterator<MessageObject> iter = messages.iterator(); iter.hasNext();) {
+					MessageObject message = iter.next();
+					router.routeMessageByChannelId(message.getChannelId(), message.getRawData(), true);
+				}
+			} catch (Exception e) {
+				throw new ControllerException("could not reprocess message", e);
 			}
-		} catch (Exception e) {
-			throw new ControllerException("could not reprocess message", e);
+
+			page++;
 		}
 	}
 
@@ -314,6 +322,7 @@ public class MessageObjectController {
 			Response response = new Response(responseStatus, responseMessage);
 			messageObject.getResponseMap().put(messageObject.getConnectorName(), response);
 		}
+
 		if (messageObject != null) {
 			messageObject.setStatus(status);
 			updateMessage(messageObject);

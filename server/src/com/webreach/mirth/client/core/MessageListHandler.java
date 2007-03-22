@@ -118,7 +118,7 @@ public class MessageListHandler implements ListHandler {
 	}
 	
 	private List<MessageObject> getMessagesByPage(int page) throws ListHandlerException {
-		NameValuePair[] params = { new NameValuePair("op", "getMessagesByPage"), new NameValuePair("page", String.valueOf(page)), new NameValuePair("pageSize", String.valueOf(pageSize)) };
+		NameValuePair[] params = { new NameValuePair("op", "getMessagesByPage"), new NameValuePair("page", String.valueOf(page)), new NameValuePair("pageSize", String.valueOf(pageSize)), new NameValuePair("maxMessages", String.valueOf(size)) };
 		
 		try {
 			return (List<MessageObject>) serializer.fromXML(connection.executePostMethod(Client.MESSAGE_SERVLET, params));	
