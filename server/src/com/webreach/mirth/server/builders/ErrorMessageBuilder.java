@@ -20,6 +20,10 @@ public class ErrorMessageBuilder {
 
 		// construct the error message
 		StringBuilder errorMessage = new StringBuilder();
+        String stackTrace = new String();
+        if (e != null){
+            stackTrace = StackTracePrinter.stackTraceToString(e);
+        }
 		errorMessage.append(errorType + lineSeperator);
 
 		if (lineSource != null && lineSource.length() > 0) {
@@ -28,9 +32,9 @@ public class ErrorMessageBuilder {
 		
 		if (customMessage != null && customMessage.length() > 0) {
 			customMessage += lineSeperator;
-			errorMessage.append("ERROR MESSAGE:\t" + customMessage + StackTracePrinter.stackTraceToString(e) + lineSeperator);
+			errorMessage.append("ERROR MESSAGE:\t" + customMessage + stackTrace + lineSeperator);
 		}else{
-			errorMessage.append(StackTracePrinter.stackTraceToString(e) + lineSeperator);
+			errorMessage.append(stackTrace + lineSeperator);
 		}
 		
 		return errorMessage.toString();

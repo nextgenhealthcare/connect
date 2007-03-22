@@ -44,6 +44,7 @@ import com.webreach.mirth.model.converters.IXMLSerializer;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.builders.ErrorMessageBuilder;
 import com.webreach.mirth.server.controllers.AlertController;
+import com.webreach.mirth.server.controllers.ControllerException;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.controllers.ScriptController;
 import com.webreach.mirth.server.controllers.TemplateController;
@@ -145,16 +146,24 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 
 	public void setTemplateId(String templateId) {
 		this.templateId = templateId;
+//       grab the template
+        if (templateId != null) {
+            try
+            {
+                this.template = templateController.getTemplate(templateId);
+            }
+            catch (ControllerException e)
+            {
+                logger.error(errorBuilder.buildErrorMessage(Constants.ERROR_300, null, e));
+            }
+        }
 	}
 
 	@Override
 	public void initialise() throws InitialisationException {
 		Context context = Context.enter();
 		try {
-			// grab the template
-			if (templateId != null) {
-				this.template = templateController.getTemplate(templateId);
-			}
+			
 			String filterScript = scriptController.getScript(filterScriptId);
 
 			if (filterScript != null) {
@@ -348,20 +357,15 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 		StringBuilder script = new StringBuilder();
 		script.append("importPackage(Packages.com.webreach.mirth.server.util);\n");
 		script.append("importPackage(Packages.com.webreach.mirth.model.converters);\n");
-		
+        script.append("default xml namespace = '';\n");
 		script.append("function $(string) { ");
 		script.append("if (connectorMap.get(string) != null) { return connectorMap.get(string);} else ");
 		script.append("if (channelMap.get(string) != null) { return channelMap.get(string);} else ");
 		script.append("if (globalMap.get(string) != null) { return globalMap.get(string);} else ");
-		script.append("{ return ''; }}");
-			
+		script.append("{ return ''; }}");	
 		script.append("function doFilter() {");
-		setDefaultNamespace(script, inboundProtocol);
-		
-       // script.append("default xml namespace = new Namespace(\"urn:mirthproject-org\");");
-
-		script.append("var msg = new XML(message);\n ");
-		setProperNamespace(script, inboundProtocol, "msg");
+        script.append("var newMessage = message.replace(/xmlns:?[^=]*=[\"\"][^\"\"]*[\"\"]/g, '');\n");
+        script.append("msg = new XML(newMessage);");
 		script.append(filterScript + " }\n");
 		script.append("doFilter()\n");
 		return script.toString();
@@ -381,15 +385,8 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 		script.append("if (channelMap.get(string) != null) { return channelMap.get(string)} else ");
 		script.append("if (globalMap.get(string) != null) { return globalMap.get(string)} else ");
 		script.append("{ return ''; }}");
-			
+        script.append("default xml namespace = '';");
 		script.append("function doTransform() {");
-
-		// RHINO seems to need this in order to function properly.
-		// TODO: Figure out why.
-		// script.append("default xml namespace = new Namespace(\"urn:mirthproject-org:xml\");");
-		//script.append("default xml namespace = new Namespace(\"urn:hl7-org:v2xml\");");
-		
-		setDefaultNamespace(script, inboundProtocol);
 		
 		// ast: Allow ending whitespaces from the input XML
 		script.append("XML.ignoreWhitespace=false;");
@@ -398,46 +395,19 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 		// turn the template into an E4X XML object
 
 		if (template != null && template.length() > 0) {
-			script.append("tmp = new XML(template);");
-			//setProperNamespace(script, outboundProtocol, "tmp");
+            //We have to remove the namespaces so E4X allows use to use the msg[''] syntax
+            script.append("var newTemplate = template.replace(/xmlns:?[^=]*=[\"\"][^\"\"]*[\"\"]/g, '');\n");
+			script.append("tmp = new XML(newTemplate);");
 		}
-		
-		script.append("msg = new XML(message);");
-		setProperNamespace(script, inboundProtocol, "msg");
+		script.append("var newMessage = message.replace(/xmlns:?[^=]*=[\"\"][^\"\"]*[\"\"]/g, '');\n");
+		script.append("msg = new XML(newMessage);");
+        
 		script.append(transformerScript);
 		script.append(" }");
 		script.append("doTransform()\n");
 		return script.toString();
 	}
-	private void setDefaultNamespace(StringBuilder script, String protocol) {
-
-		if (protocol.equals(Protocol.HL7V2.toString())){
-			script.append("default xml namespace = new Namespace('urn:hl7-org:v2xml');");
-		}else if (protocol.equals(Protocol.HL7V3.toString())){
-			script.append("default xml namespace = new Namespace('urn:hl7-org:v3');");
-		} else if (protocol.equals(Protocol.EDI.toString())){
-			script.append("default xml namespace = new Namespace('urn:mirthproject-org:edi:xml');");
-		} else if (protocol.equals(Protocol.X12.toString())){
-			script.append("default xml namespace = new Namespace('urn:mirthproject-org:x12:xml');");
-		} else if (protocol.equals(Protocol.XML.toString())){
-			script.append("default xml namespace = new Namespace('urn:mirthproject-org:xml');");
-		}
-	}
-	private void setProperNamespace(StringBuilder script, String protocol, String var) {
-		script.append(var);
-		if (protocol.equals(Protocol.HL7V2.toString())){
-			script.append(".setNamespace(new Namespace('hl7', 'urn:hl7-org:v2xml'));\n");
-		}else if (protocol.equals(Protocol.HL7V3.toString())){
-			script.append(".setNamespace(new Namespace('hl7', 'urn:hl7-org:v3'));");
-		} else if (protocol.equals(Protocol.EDI.toString())){
-			script.append(".setNamespace(new Namespace('edi', 'urn:mirthproject-org:edi:xml'));");
-		} else if (protocol.equals(Protocol.X12.toString())){
-			script.append(".setNamespace(new Namespace('x12', 'urn:mirthproject-org:x12:xml'));");
-		} else if (protocol.equals(Protocol.XML.toString())){
-			script.append(".setNamespace(new Namespace('msg', 'urn:mirthproject-org:xml'));");
-		}
-	}
-
+	
 	public Map getInboundProperties() {
 		return inboundProperties;
 	}
