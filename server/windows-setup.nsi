@@ -94,8 +94,8 @@ Section -Main SEC0000
     File setup\UninstallMirth-NT.bat
     File setup\wrapper.exe
     File setup\Shell.bat
-    File setup\Shell.jar
-    File setup\Shell.sh
+    File setup\shell.jar
+    File setup\shell.sh
     File setup\activation.jnlp
     File setup\mirth-client-core.jar
     SetOutPath $SMPROGRAMS\$StartMenuGroup
