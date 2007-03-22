@@ -1,0 +1,261 @@
+<project name="mirth" basedir="." default="help">
+	<!-- <taskdef name="nsis" classname="net.sf.nsisant.Task">
+		<classpath location="nsisant-1.2.jar" />
+	</taskdef> -->
+
+	<target name="help">
+		<echo>Mirth Build Help</echo>
+		<echo>----------------</echo>
+	</target>
+
+	<target name="init">
+		<echo>Version: ${version}</echo>
+
+		<property file="build.properties" />
+
+		<path id="classpath">
+			<fileset dir="${lib}" includes="*.jar" />
+			<fileset dir="${lib}/mule" includes="*.jar" />
+			<fileset dir="${lib}/jetty" includes="*.jar" />
+		</path>
+	</target>
+
+	<target name="clean" depends="init">
+		<delete dir="${logs}" />
+		<mkdir dir="${logs}" />
+
+		<delete dir="${classes}" />
+		<delete dir="${web}" />
+		<delete dir="${webapp.classes}" />
+		<delete dir="${setup}" />
+		<delete dir="${dist}" />
+	</target>
+
+	<target name="compile" depends="clean, init">
+		<!-- compile the source -->
+		<mkdir dir="${classes}" />
+
+		<javac srcdir="${src}" destdir="${classes}" debug="${javac.debug}" verbose="${javac.verbose}" deprecation="${javac.deprecation}" optimize="${javac.optimize}">
+			<classpath refid="classpath" />
+		</javac>
+
+		<!-- create version.properties file -->
+		<propertyfile file="${conf}/version.properties">
+			<entry key="mirth.version" value="${version}" />
+			<entry key="mirth.date" type="date" value="today" pattern="MMMM d, yyyy" />
+		</propertyfile>
+		
+		<!-- copy the xml files so they will be included in jar -->
+			<copy todir="${classes}/com/webreach/mirth/model/x12/xml">
+				<fileset dir="${src}/com/webreach/mirth/model/x12/xml" />
+			</copy>
+	</target>
+
+	<target name="create-client-core" depends="compile">
+		<jar destfile="${client-core.jar}" basedir="${classes}">
+			<include name="com/webreach/mirth/client/core/**" />
+			<include name="com/webreach/mirth/model/**" />
+			<include name="com/webreach/mirth/util/**" />
+			<include name="com/thoughtworks/**" />
+		</jar>
+	</target>
+
+	<target name="create-web" depends="compile">
+		<delete dir="${web}" />
+
+		<mkdir dir="${web}" />
+		<mkdir dir="${web.webapps}" />
+		<mkdir dir="${webapp.classes}" />
+
+		<copy todir="${webapp.classes}">
+			<fileset dir="${classes}/com/webreach/mirth/server/servlets" />
+		</copy>
+
+		<!-- sign jars for webstart -->
+		<signjar alias="mirth" keystore="${basedir}/keystore" storepass="abc12345" keypass="abc12345">
+			<fileset file="${webapp.lib}/mirth-client.jar" />
+			<fileset file="${webapp.lib}/mirth-client-core.jar" />
+			<fileset file="${webapp.lib}/commons-codec-1.3.jar" />
+			<fileset file="${webapp.lib}/commons-httpclient-3.0.1.jar" />
+			<fileset file="${webapp.lib}/commons-logging-1.1.jar" />
+			<fileset file="${webapp.lib}/databinding-0.8.0.jar" />
+			<fileset file="${webapp.lib}/hapi-0.5.jar" />
+			<fileset file="${webapp.lib}/jdic-0.8.0.jar" />
+			<fileset file="${webapp.lib}/l2fprod-common-sheet.jar" />
+			<fileset file="${webapp.lib}/log4j-1.2.14.jar" />
+			<fileset file="${webapp.lib}/looks-2.1.1.jar" />
+			<fileset file="${webapp.lib}/qname.jar" />
+			<fileset file="${webapp.lib}/rhino-1.6r2.jar" />
+			<fileset file="${webapp.lib}/swing-layout-1.0.1.jar" />
+			<fileset file="${webapp.lib}/swingworker-0.8.0.jar" />
+			<fileset file="${webapp.lib}/swingx-0.8.0.jar" />
+			<fileset file="${webapp.lib}/wsdl4j.jar" />
+			<fileset file="${webapp.lib}/wsif.jar" />
+			<fileset file="${webapp.lib}/xercesImpl.jar" />
+			<fileset file="${webapp.lib}/xpp3_min-1.1.3.4.O.jar" />
+			<fileset file="${webapp.lib}/xstream-1.2.jar" />
+			<fileset file="${webapp.lib}/jaxb-api.jar" />
+			<fileset file="${webapp.lib}/jaxb-impl.jar" />
+			<fileset file="${webapp.lib}/jsr173_1.0_api.jar" />
+		</signjar>
+
+		<!-- create the webapp war in the web webapps directory -->
+		<jar basedir="${webapp}" destfile="${web.webapps}/mirth.war" />
+	</target>
+
+	<target name="create-setup" depends="create-web">
+		<!-- create the setup directory -->
+		<mkdir dir="${setup}" />
+		<mkdir dir="${setup.conf}" />
+		<mkdir dir="${setup.lib}" />
+		<mkdir dir="${setup.web}" />
+		<mkdir dir="${setup.source}" />
+		<mkdir dir="${setup.logs}" />
+		<mkdir dir="${setup.licenses}" />
+		<mkdir dir="${setup.conf}/META-INF" />
+
+		<!-- copy source files -->
+		<copy todir="${setup.source}">
+			<fileset dir="${src}" />
+		</copy>
+
+		<!-- copy lib -->
+		<copy todir="${setup.lib}">
+			<fileset dir="${lib}" />
+		</copy>
+
+		<!-- copy conf files -->
+		<copy todir="${setup.conf}">
+			<fileset file="${conf}/dbdrivers.xml" />
+			<fileset file="${conf}/mule-boot.xml" />
+			<fileset file="${conf}/mirth.properties" />
+			<fileset file="${conf}/log4j.properties" />
+			<fileset file="${conf}/wrapper.conf" />
+			<fileset file="${conf}/derby-*" />
+			<fileset file="${conf}/postgres-*" />
+			<fileset file="${conf}/sql-map-config-2.dtd" />
+			<fileset file="${conf}/sql-map-2.dtd" />
+		</copy>
+
+		<!-- copy WEB-INF files -->
+		<copy todir="${setup.conf}/META-INF">
+			<fileset dir="${conf}/META-INF" />
+		</copy>
+
+		<!-- create version.properties file -->
+		<propertyfile file="${setup.conf}/version.properties">
+			<entry key="mirth.version" value="${version}" />
+			<entry key="mirth.date" type="date" value="today" pattern="MMMM d, yyyy" />
+		</propertyfile>
+
+		<!-- copy misc files -->
+		<copy todir="${setup}">
+			<fileset file="${basedir}/derby-database.sql" />
+			<fileset file="${basedir}/postgres-database.sql" />
+			<fileset file="${basedir}/launcher.xml" />
+			<fileset file="${basedir}/mirth-client.jnlp" />
+			<fileset file="${basedir}/keystore" />
+			<fileset file="${basedir}/InstallMirth-NT.bat" />
+			<fileset file="${basedir}/UninstallMirth-NT.bat" />
+			<fileset file="${basedir}/StartMirth-NT.bat" />
+			<fileset file="${basedir}/StopMirth-NT.bat" />
+			<fileset file="${basedir}/wrapper.exe" />
+			<fileset file="${basedir}/mirth-daemon" />
+			<fileset file="${basedir}/wrapper-x86-32bit" />
+			<fileset file="${basedir}/activation.jnlp" />
+			<fileset file="${basedir}/mirth-client-core.jar" />
+		</copy>
+
+		<!-- create the Mirth server jar -->
+		<jar destfile="${setup}/${server.jar}" basedir="${classes}">
+			<include name="com/thoughtworks/**" />
+			<include name="com/webreach/mirth/server/**" />
+			<include name="com/webreach/mirth/model/**" />
+			<include name="com/webreach/mirth/util/**" />
+			<include name="org/**" />
+			<include name="ca/**" />
+			<exclude name="com/webreach/mirth/server/launcher/**" />
+		</jar>
+
+		<!-- create the Mirth launcher jar -->
+		<jar destfile="${setup}/${launcher.jar}" basedir="${classes}">
+			<include name="com/webreach/mirth/server/launcher/**" />
+			<manifest>
+				<attribute name="Main-Class" value="com.webreach.mirth.server.launcher.Launcher" />
+				<attribute name="Class-Path" value="lib/log4j-1.2.13.jar conf/" />
+			</manifest>
+		</jar>
+
+		<!-- create the Mirth launcher jar -->
+		<jar destfile="${setup}/shell.jar" basedir="${classes}">
+			<include name="com/webreach/mirth/server/tools/Shell.class" />
+			<include name="com/thoughtworks/xstream/converters/collections/PropertiesConverter.class" />
+			<manifest>
+				<attribute name="Main-Class" value="com.webreach.mirth.server.tools.Shell" />
+				<attribute name="Class-Path" value="lib/log4j-1.2.13.jar conf/ lib/commons-cli-1.0.jar lib/log4j-1.2.13.jar lib/xstream-1.2.jar lib/commons-httpclient-3.0.1.jar lib/xpp3_min-1.1.3.4.O.jar mirth-server.jar mirth-client-core.jar lib/jetty/commons-logging.jar lib/mule/commons-codec-1.3.jar" />
+			</manifest>
+		</jar>
+		
+		<!-- copy web -->
+		<copy todir="${setup.web}">
+			<fileset dir="${web}" />
+		</copy>
+
+		<!-- remove svn folders -->
+		<delete>
+			<fileset dir="${setup}" includes="**/.svn" />
+		</delete>
+
+		<delete dir="mirthdb" />
+		<java classname="com.webreach.mirth.server.tools.ScriptRunner" failonerror="true">
+			<classpath>
+				<pathelement location="${setup}/mirth-server.jar" />
+				<pathelement location="${setup.conf}" />
+				<fileset dir="${lib}">
+					<include name="log4j-1.2.13.jar" />
+					<include name="derby.jar" />
+					<include name="derbytools.jar" />
+				</fileset>
+			</classpath>
+			<arg value="derby-database.sql" />
+		</java>
+
+		<!-- copy the newly created database over -->
+		<copy todir="${setup}/mirthdb">
+			<fileset dir="${basedir}/mirthdb" />
+		</copy>
+
+		<!-- copy the batch scripts and icons -->
+		<copy file="${basedir}/Mirth.bat" todir="${setup}" />
+		<copy file="${basedir}/mirth.sh" todir="${setup}" />
+		<copy file="${basedir}/Mirth.ico" todir="${setup}" />
+		<copy file="${basedir}/Shell.bat" todir="${setup}" />
+		<copy file="${basedir}/shell.sh" todir="${setup}" />
+		<!-- zip the source code -->
+		<!-- zip basedir="${setup.source}" destfile="${setup}/mirth-server-src.zip" / -->
+
+		<!-- remove the source code -->
+		<delete dir="${setup.source}" />
+
+		<!-- copy license files -->
+		<copy todir="${setup.licenses}">
+			<fileset dir="${licenses}" />
+		</copy>
+	</target>
+
+	<target name="create-dist" depends="create-setup">
+		<!-- create the dist directory -->
+		<mkdir dir="${dist}" />
+
+		<!-- create the distribution zip -->
+		<zip basedir="${setup}" destfile="${dist}/mirth-${version}.zip" />
+
+		<!-- create the distribution tar.gzip -->
+		<tar basedir="${setup}" tarfile="${dist}/mirth-${version}.tar" />
+		<gzip src="${dist}/mirth-${version}.tar" zipfile="${dist}/mirth-${version}.tar.gz" />
+		<delete file="${dist}/mirth-${version}.tar" />
+
+		<!-- create the win32 distribution exe -->
+		<!-- <nsis script="setup.nsi" verbosity="2"/> -->
+	</target>
+</project>

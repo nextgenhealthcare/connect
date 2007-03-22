@@ -1,0 +1,15 @@
+set SERVER_PATH="YOUR SERVER PATH"
+set CLIENT_PATH="YOUR CLIENT PATH"
+set VERSION=1.4.0
+
+cd %SERVER_PATH%
+call ant create-client-core
+copy %SERVER_PATH%\mirth-client-core.jar %CLIENT_PATH%\lib\
+cd %CLIENT_PATH%
+call ant -buildfile ant-build.xml create-client
+copy %CLIENT_PATH%\dist\mirth-client.jar %SERVER_PATH%\webapp\lib\
+copy %SERVER_PATH%\mirth-client-core.jar %SERVER_PATH%\webapp\lib\
+copy %CLIENT_PATH%\lib\*.jar %SERVER_PATH%\webapp\lib\
+cd %SERVER_PATH%
+call ant create-setup -Dversion=%VERSION%
+pause
