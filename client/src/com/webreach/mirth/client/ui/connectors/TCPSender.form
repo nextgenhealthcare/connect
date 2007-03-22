@@ -1,0 +1,382 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Form version="1.3" type="org.netbeans.modules.form.forminfo.JPanelFormInfo">
+  <NonVisualComponents>
+    <Component class="javax.swing.ButtonGroup" name="keepConnectionOpenGroup">
+    </Component>
+    <Component class="javax.swing.ButtonGroup" name="buttonGroup1">
+    </Component>
+    <Component class="javax.swing.ButtonGroup" name="usePersistenceQueuesGroup">
+    </Component>
+  </NonVisualComponents>
+  <Properties>
+    <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+      <Color blue="ff" green="ff" red="ff" type="rgb"/>
+    </Property>
+    <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+      <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+        <EmptyBorder/>
+      </Border>
+    </Property>
+  </Properties>
+  <AuxValues>
+    <AuxValue name="FormSettings_generateMnemonicsCode" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_i18nAutoMode" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_layoutCodeTarget" type="java.lang.Integer" value="2"/>
+    <AuxValue name="FormSettings_listenerGenerationStyle" type="java.lang.Integer" value="0"/>
+    <AuxValue name="FormSettings_variablesLocal" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_variablesModifier" type="java.lang.Integer" value="2"/>
+  </AuxValues>
+
+  <Layout>
+    <DimensionLayout dim="0">
+      <Group type="103" groupAlignment="0" attributes="0">
+          <Group type="102" attributes="0">
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="jLabel18" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel17" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel16" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel15" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel13" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel8" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel36" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel19" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel20" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="URL" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel7" alignment="1" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="102" attributes="0">
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="channelNames" min="-2" pref="150" max="-2" attributes="0"/>
+                          <Component id="charsetEncodingCombobox" min="-2" max="-2" attributes="0"/>
+                          <Group type="102" attributes="0">
+                              <Component id="usePersistentQueuesYesRadio" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="usePersistentQueuesNoRadio" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Component id="ackTimeoutField" min="-2" pref="75" max="-2" attributes="0"/>
+                      </Group>
+                  </Group>
+                  <Component id="bufferSizeField" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
+                  <Component id="serverTimeoutField" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Group type="103" groupAlignment="1" max="-2" attributes="0">
+                          <Component id="maximumRetryCountField" alignment="0" max="32767" attributes="1"/>
+                          <Component id="keepConnectionOpenYesRadio" alignment="0" max="32767" attributes="1"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="keepConnectionOpenNoRadio" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="hostIPAddressField" min="-2" pref="31" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="jLabel9" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="hostIPAddressField1" min="-2" pref="31" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="jLabel26" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="hostIPAddressField2" min="-2" pref="31" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="jLabel25" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="hostIPAddressField3" min="-2" pref="31" max="-2" attributes="0"/>
+                  </Group>
+                  <Component id="hostPortField" alignment="0" min="-2" pref="50" max="-2" attributes="0"/>
+                  <Component id="template" pref="193" max="32767" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+          </Group>
+      </Group>
+    </DimensionLayout>
+    <DimensionLayout dim="1">
+      <Group type="103" groupAlignment="0" attributes="0">
+          <Group type="102" alignment="0" max="-2" attributes="0">
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="103" groupAlignment="1" attributes="0">
+                      <Group type="103" alignment="1" groupAlignment="3" attributes="0">
+                          <Component id="hostIPAddressField" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="hostIPAddressField1" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="jLabel18" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <Component id="jLabel9" alignment="1" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <Group type="103" groupAlignment="1" attributes="0">
+                      <Component id="jLabel26" alignment="1" min="-2" max="-2" attributes="0"/>
+                      <Group type="103" alignment="1" groupAlignment="0" attributes="0">
+                          <Group type="103" alignment="0" groupAlignment="1" attributes="0">
+                              <Component id="hostIPAddressField3" alignment="1" min="-2" max="-2" attributes="0"/>
+                              <Component id="jLabel25" alignment="1" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Component id="hostIPAddressField2" alignment="0" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                  </Group>
+              </Group>
+              <EmptySpace min="-2" pref="6" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="hostPortField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel17" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="jLabel16" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="serverTimeoutField" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="bufferSizeField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel15" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="keepConnectionOpenYesRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel13" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="keepConnectionOpenNoRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="jLabel8" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="maximumRetryCountField" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="jLabel36" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="usePersistentQueuesYesRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="usePersistentQueuesNoRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="jLabel19" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="ackTimeoutField" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="jLabel20" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="charsetEncodingCombobox" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="URL" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="channelNames" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="jLabel7" min="-2" max="-2" attributes="0"/>
+                  <Component id="template" pref="126" max="32767" attributes="0"/>
+              </Group>
+              <EmptySpace max="32767" attributes="0"/>
+          </Group>
+      </Group>
+    </DimensionLayout>
+  </Layout>
+  <SubComponents>
+    <Component class="javax.swing.JLabel" name="jLabel13">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Keep Connection Open:"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="jLabel15">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Buffer Size (bytes):"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="jLabel16">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Send Timeout (ms):"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="jLabel17">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Host Port:"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="jLabel18">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Host IP Address:"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="jLabel8">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Maximum Retry Count:"/>
+      </Properties>
+    </Component>
+    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="hostPortField">
+    </Component>
+    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="serverTimeoutField">
+    </Component>
+    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="bufferSizeField">
+    </Component>
+    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="maximumRetryCountField">
+    </Component>
+    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="keepConnectionOpenYesRadio">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="keepConnectionOpenGroup"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="Yes"/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+    </Component>
+    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="keepConnectionOpenNoRadio">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="keepConnectionOpenGroup"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="No"/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+    </Component>
+    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="hostIPAddressField3">
+    </Component>
+    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="hostIPAddressField2">
+    </Component>
+    <Component class="javax.swing.JLabel" name="jLabel25">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="."/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="jLabel26">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="."/>
+      </Properties>
+    </Component>
+    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="hostIPAddressField1">
+    </Component>
+    <Component class="javax.swing.JLabel" name="jLabel9">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="."/>
+      </Properties>
+    </Component>
+    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="hostIPAddressField">
+    </Component>
+    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="ackTimeoutField">
+    </Component>
+    <Component class="javax.swing.JLabel" name="jLabel19">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Response Timeout (ms):"/>
+      </Properties>
+    </Component>
+    <Component class="com.webreach.mirth.client.ui.components.MirthComboBox" name="charsetEncodingCombobox">
+      <Properties>
+        <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
+          <StringArray count="7">
+            <StringItem index="0" value="Default"/>
+            <StringItem index="1" value="UTF-8"/>
+            <StringItem index="2" value="ISO-8859-1"/>
+            <StringItem index="3" value="UTF-16 (le)"/>
+            <StringItem index="4" value="UTF-16 (be)"/>
+            <StringItem index="5" value="UTF-16 (bom)"/>
+            <StringItem index="6" value="US-ASCII"/>
+          </StringArray>
+        </Property>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="charsetEncodingComboboxActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JLabel" name="jLabel20">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Encoding:"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="jLabel36">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Use Persistent Queues:"/>
+      </Properties>
+    </Component>
+    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="usePersistentQueuesYesRadio">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="usePersistenceQueuesGroup"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="Yes"/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+    </Component>
+    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="usePersistentQueuesNoRadio">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="usePersistenceQueuesGroup"/>
+        </Property>
+        <Property name="selected" type="boolean" value="true"/>
+        <Property name="text" type="java.lang.String" value="No"/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="jLabel7">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Template:"/>
+      </Properties>
+    </Component>
+    <Component class="com.webreach.mirth.client.ui.components.MirthSyntaxTextArea" name="template">
+      <Properties>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EtchedBorderInfo">
+            <EtchetBorder/>
+          </Border>
+        </Property>
+      </Properties>
+    </Component>
+    <Component class="com.webreach.mirth.client.ui.components.MirthComboBox" name="channelNames">
+      <Properties>
+        <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
+          <StringArray count="4">
+            <StringItem index="0" value="Item 1"/>
+            <StringItem index="1" value="Item 2"/>
+            <StringItem index="2" value="Item 3"/>
+            <StringItem index="3" value="Item 4"/>
+          </StringArray>
+        </Property>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="URL">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Send Response to:"/>
+      </Properties>
+    </Component>
+  </SubComponents>
+</Form>
