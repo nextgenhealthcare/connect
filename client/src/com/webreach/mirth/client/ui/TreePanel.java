@@ -140,7 +140,7 @@ public class TreePanel extends JPanel
                     messageName =  type + " (" + version + ")";
                 	vocabulary = new MessageVocabularyFactory().getVocabulary(protocol, version, type);
                     if (vocabulary != null);
-                    	messageDescription = vocabulary.getDescription(type);
+                    	messageDescription = vocabulary.getDescription(type.replaceAll("-", ""));
                 }
             }
             catch (Exception e)
