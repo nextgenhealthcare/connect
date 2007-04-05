@@ -66,7 +66,7 @@ public class FileUtil
         }
     }
     //Returns the contents of the file in a byte array.
-	private static byte[] readBytes(String fileName) throws IOException {
+	public static byte[] readBytes(String fileName) throws IOException {
 		File file = new File(fileName);
 		InputStream is = new FileInputStream(file);
 
