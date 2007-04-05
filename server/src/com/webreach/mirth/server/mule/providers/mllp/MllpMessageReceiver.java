@@ -80,6 +80,7 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 	private char START_MESSAGE = 0x0B; // first character of a new message
 	private char END_OF_RECORD = 0x0D; // character sent between messages
 	private char END_OF_SEGMENT = 0x0D; // character sent between hl7 segments
+    private StringBuffer buffer = new StringBuffer();
 	// (usually same as end of record)
 	private MllpConnector connector;
 	private AlertController alertController = new AlertController();
@@ -263,19 +264,22 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 				dataIn = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
 				dataOut = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
 
-				while (!socket.isClosed() && !disposing.get()) {
-
+				while (!socket.isClosed() && !disposing.get()) {                    
 					byte[] b;
 					try {
-						b = protocol.read(dataIn);
+                        b = protocol.read(dataIn);
+
 						// end of stream
 						if (b == null) {
 							if (!connector.isKeepSendSocketOpen()) {
 								break;
 							}
+                            else{
+                                Thread.sleep(100);
+                            }
 						} else {
-
-							processData(b);
+							
+						    preprocessData(b);
 							dataOut.flush();
 						}
 					} catch (SocketTimeoutException e) {
@@ -290,16 +294,59 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 				dispose();
 			}
 		}
-
-		protected byte[] processData(byte[] data) throws Exception {
-			String charset = connector.getCharsetEncoding();
-			String str_data = new String(data, charset);
-			BatchMessageProcessor batchProcessor = new BatchMessageProcessor();
-			batchProcessor.setEndOfMessage((byte) END_MESSAGE);
-			batchProcessor.setStartOfMessage((byte) START_MESSAGE);
-			batchProcessor.setEndOfRecord((byte) END_OF_RECORD);
-			Iterator<String> it = batchProcessor.processHL7Messages(str_data).iterator();
-			UMOMessage returnMessage = null;
+        
+        /*
+         * If the option is set to wait for end charactor, the LLP listener will continue accepting data until it finds one.
+         */
+        protected byte[] preprocessData(byte[] data) throws Exception {     
+            byte[] processedData = null; 
+            
+            if(connector.isWaitForEndOfMessageCharacter())
+            {
+                synchronized(buffer)
+                {
+                    String charset = connector.getCharsetEncoding();
+                    String str_data = new String(data, charset);
+                    buffer.append(str_data);
+                    
+                    int startCharLocation = buffer.toString().indexOf(START_MESSAGE);
+                    int endCharLocation = buffer.toString().indexOf(END_MESSAGE  + "" + END_OF_RECORD);
+                    
+                    while(startCharLocation >= 0 &&  endCharLocation >= 0 && startCharLocation < endCharLocation)
+                    {                            
+                        String message = buffer.toString().substring(startCharLocation, endCharLocation);
+                        processedData = processData(message.getBytes());
+                        
+                        //clear the buffer up to the next message, if there is one
+                        buffer.delete(startCharLocation, endCharLocation + ((String)(END_MESSAGE  + "" + END_OF_RECORD)).length());
+                        
+                        startCharLocation = buffer.toString().indexOf(START_MESSAGE);
+                        endCharLocation = buffer.toString().indexOf(END_MESSAGE  + "" + END_OF_RECORD);
+                    }
+                    
+                    if (buffer.length() > 0 && startCharLocation == -1)
+                    {
+                        // clear junk data that cannot be processed
+                        buffer.delete(0, buffer.length());
+                    }
+                }
+            }
+            else
+            {
+                processedData = processData(data);
+            }
+            return processedData;
+        }
+        
+        protected byte[] processData(byte[] data) throws Exception {
+            String charset = connector.getCharsetEncoding();
+            String str_data = new String(data, charset);
+            BatchMessageProcessor batchProcessor = new BatchMessageProcessor();
+            batchProcessor.setEndOfMessage((byte) END_MESSAGE);
+            batchProcessor.setStartOfMessage((byte) START_MESSAGE);
+            batchProcessor.setEndOfRecord((byte) END_OF_RECORD);
+            Iterator<String> it = batchProcessor.processHL7Messages(str_data).iterator();
+            UMOMessage returnMessage = null;
 			OutputStream os;
 			while (it.hasNext()) {
 				data = (it.next()).getBytes(charset);

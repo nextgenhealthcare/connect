@@ -56,7 +56,7 @@ public class MllpConnector extends AbstractServiceEnabledConnector {
 	public static final String PROPERTY_ACK_NEW_CONNECTION_IP = "ackIP";
 	public static final String PROPERTY_ACK_NEW_CONNECTION_PORT = "ackPort";
 	public static final String PROPERTY_REPLY_CHANNEL_ID = "replyChannelId";
-
+    public static final String PROPERTY_WAIT_FOR_EOM_CHAR = "waitForEndOfMessageCharacter";
 	public static final String PROPERTY_TRANSFORMER_ACK = "responseFromTransformer";
 	public static final String PROPERTY_RESPONSE_VALUE = "responseValue";
 	// custom properties
@@ -74,6 +74,7 @@ public class MllpConnector extends AbstractServiceEnabledConnector {
 	private boolean responseFromTransformer = false;
 	private String responseValue = "None";
 	private String channelId;
+    private boolean waitForEndOfMessageCharacter = false;
 
 	// ack properties
 	public static final String PROPERTY_ACKCODE_SUCCESSFUL = "ackCodeSuccessful";
@@ -269,8 +270,18 @@ public class MllpConnector extends AbstractServiceEnabledConnector {
 			this.receiveSocketsCount--;
 		}
 	}
+    
+	public boolean isWaitForEndOfMessageCharacter()
+    {
+        return waitForEndOfMessageCharacter;
+    }
 
-	public int getBufferSize() {
+    public void setWaitForEndOfMessageCharacter(boolean waitForEndOfMessageCharacter)
+    {
+        this.waitForEndOfMessageCharacter = waitForEndOfMessageCharacter;
+    }
+
+    public int getBufferSize() {
 		return bufferSize;
 	}
 
