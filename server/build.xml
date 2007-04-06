@@ -207,7 +207,7 @@
 		</delete>
 
 		<delete dir="mirthdb" />
-		<java classname="com.webreach.mirth.server.tools.ScriptRunner" failonerror="true">
+		<java classname="com.webreach.mirth.server.tools.ScriptRunner" fork="true" dir="${basedir}" failonerror="true">
 			<classpath>
 				<pathelement location="${setup}/mirth-server.jar" />
 				<pathelement location="${setup.conf}" />
