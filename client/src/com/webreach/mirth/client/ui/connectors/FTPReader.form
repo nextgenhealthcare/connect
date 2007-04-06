@@ -86,9 +86,9 @@
                       <Group type="103" groupAlignment="1" attributes="0">
                           <Component id="jLabel12" alignment="1" min="-2" max="-2" attributes="0"/>
                           <Component id="jLabel11" alignment="1" min="-2" max="-2" attributes="0"/>
-                          <Component id="jLabel5" alignment="1" min="-2" max="-2" attributes="0"/>
+                          <Component id="moveToDirectoryLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                           <Component id="jLabel9" alignment="1" min="-2" max="-2" attributes="0"/>
-                          <Component id="jLabel4" alignment="1" min="-2" max="-2" attributes="0"/>
+                          <Component id="moveToFileLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                           <Component id="jLabel7" min="-2" max="-2" attributes="0"/>
                           <Component id="jLabel41" min="-2" max="-2" attributes="0"/>
                           <Component id="jLabel3" min="-2" max="-2" attributes="0"/>
@@ -185,12 +185,12 @@
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="jLabel5" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="moveToDirectoryLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="moveToDirectory" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="jLabel4" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="moveToFileLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="moveToPattern" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace min="-2" pref="6" max="-2" attributes="0"/>
@@ -468,12 +468,12 @@
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="fileNameFilter">
     </Component>
-    <Component class="javax.swing.JLabel" name="jLabel5">
+    <Component class="javax.swing.JLabel" name="moveToDirectoryLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Move-to Directory:"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="jLabel4">
+    <Component class="javax.swing.JLabel" name="moveToFileLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Move-to File Name:"/>
       </Properties>
@@ -505,6 +505,9 @@
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="deleteAfterReadYesActionPerformed"/>
+      </Events>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="deleteAfterReadNo">
       <Properties>
@@ -525,6 +528,9 @@
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="deleteAfterReadNoActionPerformed"/>
+      </Events>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="checkFileAgeNo">
       <Properties>

@@ -144,9 +144,15 @@ public class SFTPReader extends ConnectorClass
         moveToPattern.setText((String) props.get(FILE_MOVE_TO_PATTERN));
         moveToDirectory.setText((String) props.get(FILE_MOVE_TO_DIRECTORY));
         if (((String) props.get(FILE_DELETE_AFTER_READ)).equalsIgnoreCase(UIConstants.YES_OPTION))
+        {
             deleteAfterReadYes.setSelected(true);
+            deleteAfterReadYesActionPerformed(null);
+        }
         else
+        {
             deleteAfterReadNo.setSelected(true);
+            deleteAfterReadNoActionPerformed(null);
+        }
         if (((String) props.get(FILE_CHECK_FILE_AGE)).equalsIgnoreCase(UIConstants.YES_OPTION))
         {
             checkFileAgeYes.setSelected(true);
@@ -241,8 +247,8 @@ public class SFTPReader extends ConnectorClass
         pollingFrequencyField = new com.webreach.mirth.client.ui.components.MirthTextField();
         jLabel8 = new javax.swing.JLabel();
         fileNameFilter = new com.webreach.mirth.client.ui.components.MirthTextField();
-        jLabel5 = new javax.swing.JLabel();
-        jLabel4 = new javax.swing.JLabel();
+        moveToDirectoryLabel = new javax.swing.JLabel();
+        moveToFileLabel = new javax.swing.JLabel();
         moveToPattern = new com.webreach.mirth.client.ui.components.MirthTextField();
         moveToDirectory = new com.webreach.mirth.client.ui.components.MirthTextField();
         jLabel11 = new javax.swing.JLabel();
@@ -292,9 +298,9 @@ public class SFTPReader extends ConnectorClass
 
         jLabel8.setText("Filename Filter Pattern:");
 
-        jLabel5.setText("Move-to Directory:");
+        moveToDirectoryLabel.setText("Move-to Directory:");
 
-        jLabel4.setText("Move-to File Name:");
+        moveToFileLabel.setText("Move-to File Name:");
 
         jLabel11.setText("Delete File After Read:");
 
@@ -303,6 +309,13 @@ public class SFTPReader extends ConnectorClass
         buttonGroup5.add(deleteAfterReadYes);
         deleteAfterReadYes.setText("Yes");
         deleteAfterReadYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        deleteAfterReadYes.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                deleteAfterReadYesActionPerformed(evt);
+            }
+        });
 
         deleteAfterReadNo.setBackground(new java.awt.Color(255, 255, 255));
         deleteAfterReadNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -310,6 +323,13 @@ public class SFTPReader extends ConnectorClass
         deleteAfterReadNo.setSelected(true);
         deleteAfterReadNo.setText("No");
         deleteAfterReadNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        deleteAfterReadNo.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                deleteAfterReadNoActionPerformed(evt);
+            }
+        });
 
         checkFileAgeNo.setBackground(new java.awt.Color(255, 255, 255));
         checkFileAgeNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -399,8 +419,8 @@ public class SFTPReader extends ConnectorClass
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, FTPPasswordLabel)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel8)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel9)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel5)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel4)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, moveToDirectoryLabel)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, moveToFileLabel)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel11)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel12)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, fileAgeLabel1)
@@ -466,11 +486,11 @@ public class SFTPReader extends ConnectorClass
                             .add(pollingFrequencyField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(jLabel5)
+                            .add(moveToDirectoryLabel)
                             .add(moveToDirectory, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(jLabel4)
+                            .add(moveToFileLabel)
                             .add(moveToPattern, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                         .add(6, 6, 6)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
@@ -511,6 +531,27 @@ public class SFTPReader extends ConnectorClass
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void deleteAfterReadYesActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_deleteAfterReadYesActionPerformed
+    {//GEN-HEADEREND:event_deleteAfterReadYesActionPerformed
+        moveToDirectory.setEnabled(false);
+        moveToPattern.setEnabled(false);
+        
+        moveToDirectoryLabel.setEnabled(false);
+        moveToFileLabel.setEnabled(false);
+        
+        moveToDirectory.setText("");
+        moveToPattern.setText("");
+    }//GEN-LAST:event_deleteAfterReadYesActionPerformed
+
+    private void deleteAfterReadNoActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_deleteAfterReadNoActionPerformed
+    {//GEN-HEADEREND:event_deleteAfterReadNoActionPerformed
+        moveToDirectory.setEnabled(true);
+        moveToPattern.setEnabled(true);
+        
+        moveToDirectoryLabel.setEnabled(true);
+        moveToFileLabel.setEnabled(true);
+    }//GEN-LAST:event_deleteAfterReadNoActionPerformed
 
     private void charsetEncodingComboboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_charsetEncodingComboboxActionPerformed
 // TODO add your handling code here:
@@ -556,14 +597,14 @@ public class SFTPReader extends ConnectorClass
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel41;
-    private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private com.webreach.mirth.client.ui.components.MirthVariableList mirthVariableList1;
     private com.webreach.mirth.client.ui.components.MirthTextField moveToDirectory;
+    private javax.swing.JLabel moveToDirectoryLabel;
+    private javax.swing.JLabel moveToFileLabel;
     private com.webreach.mirth.client.ui.components.MirthTextField moveToPattern;
     private com.webreach.mirth.client.ui.components.MirthTextField pollingFrequencyField;
     private com.webreach.mirth.client.ui.components.MirthRadioButton processBatchFilesNo;
