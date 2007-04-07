@@ -496,7 +496,7 @@ public class Frame extends JXFrame
     {
         if (container == currentTaskPaneContainer)
             return;
-
+            
         if (currentTaskPaneContainer != null)
             taskPane.getViewport().remove(currentTaskPaneContainer);
 
@@ -1819,6 +1819,7 @@ public class Frame extends JXFrame
                 refreshAlerts();
                 alertPanel.setDefaultAlert();
                 setFocus(alertTasks);
+                disableSave();
                 return null;
             }
 
