@@ -93,12 +93,12 @@ public class FtpMessageDispatcher extends AbstractMessageDispatcher {
 				// TODO: Add support for Charset encodings in 1.4.1
 			}
 			client = connector.getFtp(uri);
-			try{
+			try {
 				if (!client.changeWorkingDirectory(uri.getPath())) {
 					throw new IOException("Ftp error: " + client.getReplyCode() + client.getReplyString());
 				}
-			}catch (Exception exception){
-				connector.releaseFtp(uri, client);
+			} catch (Exception exception) {
+				connector.destroyFtp(uri, client);
 				client = connector.getFtp(uri);
 				if (!client.changeWorkingDirectory(uri.getPath())) {
 					throw new IOException("Ftp error: " + client.getReplyCode() + client.getReplyString());
@@ -113,10 +113,19 @@ public class FtpMessageDispatcher extends AbstractMessageDispatcher {
 			messageObjectController.setSuccess(messageObject, "File successfully written: " + filename);
 
 		} catch (Exception e) {
-			messageObjectController.setError(messageObject, Constants.ERROR_405, "Error writing to FTP: " + client.getReplyCode() + client.getReplyString(), e );
+			if (client != null) {
+				messageObjectController.setError(messageObject, Constants.ERROR_405, "Error writing to FTP: " + client.getReplyCode() + client.getReplyString(), e);
+			} else {
+				messageObjectController.setError(messageObject, Constants.ERROR_405, "Error writing to FTP", e);
+			}
 			connector.handleException(e);
 		} finally {
-			connector.releaseFtp(uri, client);
+			try {
+				connector.releaseFtp(uri, client);
+			} catch (Exception e) {
+				logger.debug("Could not release FTP connection.", e);
+				connector.destroyFtp(uri, client);
+			}
 		}
 	}
 

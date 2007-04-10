@@ -65,11 +65,12 @@ public class FtpConnector extends AbstractServiceEnabledConnector {
 	public static final String SORT_DATE = "date";
 	public static final String SORT_SIZE = "size";
 	public static final long DEFAULT_POLLING_FREQUENCY = 1000;
-    //ast: encoding Charset
-    public static final String PROPERTY_CHARSET_ENCODING = "charsetEncoding";
-    public static final String CHARSET_KEY = "ca.uhn.hl7v2.llp.charset";
-    public static final String DEFAULT_CHARSET_ENCODING =System.getProperty(CHARSET_KEY, java.nio.charset.Charset.defaultCharset().name());
-    
+	// ast: encoding Charset
+	public static final String PROPERTY_CHARSET_ENCODING = "charsetEncoding";
+	public static final String CHARSET_KEY = "ca.uhn.hl7v2.llp.charset";
+	public static final String DEFAULT_CHARSET_ENCODING = System.getProperty(CHARSET_KEY, java.nio.charset.Charset.defaultCharset().name());
+
+	public static final String PROPERTY_VALIDATE_CONNECTION = "validateConnections";
 	/**
 	 * Time in milliseconds to poll. On each poll the poll() method is called
 	 */
@@ -83,7 +84,7 @@ public class FtpConnector extends AbstractServiceEnabledConnector {
 	private boolean binary;
 	private String moveToPattern = null;
 	private String writeToDirectoryName = null;
-	private String moveToDirectory= null;
+	private String moveToDirectory = null;
 	private String sortAttribute = SORT_NAME;
 	private boolean outputAppend = false;
 	private boolean autoDelete = true;
@@ -94,14 +95,15 @@ public class FtpConnector extends AbstractServiceEnabledConnector {
 	private boolean serialiseObjects = false;
 	private UMOMessageReceiver receiver = null;
 	private boolean processBatchFiles = true;
-    //ast: encoding charset
-    private String charsetEncoding = DEFAULT_CHARSET_ENCODING;
-    private String channelId;
-    
-	public FtpConnector(){
+	private boolean validateConnections = true;
+	// ast: encoding charset
+	private String charsetEncoding = DEFAULT_CHARSET_ENCODING;
+	private String channelId;
+
+	public FtpConnector() {
 		filenameParser = new VariableFilenameParser();
 	}
-	
+
 	// ast: set the charset Encoding
 	public void setCharsetEncoding(String charsetEncoding) {
 		if ((charsetEncoding == null) || (charsetEncoding == "") || (charsetEncoding.equalsIgnoreCase("DEFAULT_ENCODING")))
@@ -131,7 +133,7 @@ public class FtpConnector extends AbstractServiceEnabledConnector {
 		}
 		return (this.charsetEncoding);
 	}
-	
+
 	public String getChannelId() {
 		return this.channelId;
 	}
@@ -248,7 +250,7 @@ public class FtpConnector extends AbstractServiceEnabledConnector {
 		logger.debug("set polling frequency to: " + polling);
 		return serviceDescriptor.createMessageReceiver(this, component, endpoint, new Object[] { new Long(polling) });
 	}
-	
+
 	public String getPassword() {
 		return this.password;
 	}
@@ -298,7 +300,7 @@ public class FtpConnector extends AbstractServiceEnabledConnector {
 	}
 
 	public void destroyFtp(UMOEndpointURI uri, FTPClient client) throws Exception {
-		if (client != null && client.isConnected()) {
+		if (client != null) {
 			ObjectPool pool = getFtpPool(uri);
 			pool.invalidateObject(client);
 		}
@@ -308,7 +310,13 @@ public class FtpConnector extends AbstractServiceEnabledConnector {
 		String key = uri.getUsername() + ":" + uri.getPassword() + "@" + uri.getHost() + ":" + uri.getPort();
 		ObjectPool pool = (ObjectPool) pools.get(key);
 		if (pool == null) {
-			pool = new GenericObjectPool(new FtpConnectionFactory(uri, username, password));
+			GenericObjectPool.Config config = new GenericObjectPool.Config();
+			if (isValidateConnections()) {
+				config.testOnBorrow = true;
+				config.testOnReturn = true;
+			}
+			pool = new GenericObjectPool(new FtpConnectionFactory(uri, username, password), config);
+
 			pools.put(key, pool);
 		}
 		return pool;
@@ -355,9 +363,13 @@ public class FtpConnector extends AbstractServiceEnabledConnector {
 		}
 
 		public void destroyObject(Object obj) throws Exception {
-			FTPClient client = (FTPClient) obj;
-			client.logout();
-			client.disconnect();
+			try{
+				FTPClient client = (FTPClient) obj;
+				client.logout();
+				client.disconnect();
+			} catch (Exception e){
+				logger.debug(e);
+			}
 		}
 
 		public boolean validateObject(Object obj) {
@@ -436,5 +448,13 @@ public class FtpConnector extends AbstractServiceEnabledConnector {
 
 	public void setBinary(boolean binary) {
 		this.binary = binary;
+	}
+
+	public boolean isValidateConnections() {
+		return validateConnections;
+	}
+
+	public void setValidateConnections(boolean validateConnections) {
+		this.validateConnections = validateConnections;
 	}
 }

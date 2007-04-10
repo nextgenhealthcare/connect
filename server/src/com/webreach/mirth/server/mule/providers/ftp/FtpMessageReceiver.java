@@ -149,7 +149,12 @@ public class FtpMessageReceiver extends PollingMessageReceiver {
 			return (FTPFile[]) v.toArray(new FTPFile[v.size()]);
 
 		} finally {
-			connector.releaseFtp(uri, client);
+			try {
+				connector.releaseFtp(uri, client);
+			} catch (Exception e) {
+				logger.debug("Could not release FTP connection.", e);
+				connector.destroyFtp(uri, client);
+			}
 		}
 	}
 
@@ -267,7 +272,12 @@ public class FtpMessageReceiver extends PollingMessageReceiver {
 			// TODO: This was commented out (above). Do we need it?
 			routingError = true;
 		} finally {
-			connector.releaseFtp(uri, client);
+			try {
+				connector.releaseFtp(uri, client);
+			} catch (Exception e) {
+				logger.debug("Could not release FTP connection.", e);
+				connector.destroyFtp(uri, client);
+			}
 		}
 	}
 
