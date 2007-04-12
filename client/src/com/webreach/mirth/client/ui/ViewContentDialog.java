@@ -41,7 +41,7 @@ public class ViewContentDialog extends javax.swing.JDialog
         super(PlatformUI.MIRTH_FRAME);
         this.parent = PlatformUI.MIRTH_FRAME;
         initComponents();
-        messageContent.setText(text);
+        messageContent.setText(text.replaceAll("\\t", "\n"));
         messageContent.setCaretPosition(0);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setModal(true);
