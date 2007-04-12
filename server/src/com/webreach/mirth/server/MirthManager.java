@@ -133,9 +133,9 @@ public class MirthManager {
 	 * @param user
 	 * @throws MirthException
 	 */
-	public void updateUser(User user) throws MirthException {
+	public void updateUser(User user, String password) throws MirthException {
 		try {
-			userController.updateUser(user);
+			userController.updateUser(user, password);
 		} catch (ControllerException e) {
 			throw new MirthException(e);
 		}

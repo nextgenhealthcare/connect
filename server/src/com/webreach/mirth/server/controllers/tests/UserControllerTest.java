@@ -31,7 +31,7 @@ public class UserControllerTest extends TestCase {
 		for (int i = 0; i < 10; i++) {
 			User sampleUser = new User();
 			sampleUser.setUsername("user" + i);
-			sampleUser.setPassword("password");
+			sampleUser.setFullName("User " + i);
 			sampleUser.setEmail("user" + i + "@email.com");
 			sampleUserList.add(sampleUser);
 		}
@@ -43,13 +43,12 @@ public class UserControllerTest extends TestCase {
 	
 	public void testUpdateUser() throws ControllerException {
 		User sampleUser = sampleUserList.get(0);
-		userController.updateUser(sampleUser);
+		userController.updateUser(sampleUser, "password");
 		List<User> testUserList = userController.getUser(sampleUser);
 		User testUser = testUserList.get(0);
 		
 		Assert.assertEquals(1, testUserList.size());
 		Assert.assertEquals(sampleUser.getUsername(), testUser.getUsername());
-		Assert.assertEquals(sampleUser.getPassword(), testUser.getPassword());
 	}
 	
 	public void testGetUser() throws ControllerException {
@@ -72,10 +71,18 @@ public class UserControllerTest extends TestCase {
 		Assert.assertFalse(testUserList.contains(sampleUser));
 	}
 	
+	public void testAuthorizeUser() throws ControllerException {
+		insertSampleUsers();
+		
+		User user = new User();
+		user.setUsername("user0");
+		assertTrue(userController.authorizeUser(user, "password"));
+	}
+	
 	public void insertSampleUsers() throws ControllerException {
 		for (Iterator iter = sampleUserList.iterator(); iter.hasNext();) {
 			User sampleUser = (User) iter.next();
-			userController.updateUser(sampleUser);
+			userController.updateUser(sampleUser, "password");
 		}
 	}
 

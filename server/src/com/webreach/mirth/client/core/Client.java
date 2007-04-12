@@ -212,9 +212,9 @@ public class Client {
 	 * @param user
 	 * @throws ClientException
 	 */
-	public synchronized void updateUser(User user) throws ClientException {
+	public synchronized void updateUser(User user, String password) throws ClientException {
 		logger.debug("updating user: " + user);
-		NameValuePair[] params = { new NameValuePair("op", "updateUser"), new NameValuePair("user", serializer.toXML(user)) };
+		NameValuePair[] params = { new NameValuePair("op", "updateUser"), new NameValuePair("user", serializer.toXML(user)), new NameValuePair("password", password) };
 		serverConnection.executePostMethod(USER_SERVLET, params);
 	}
 
@@ -228,6 +228,18 @@ public class Client {
 		logger.debug("removing user: " + user);
 		NameValuePair[] params = { new NameValuePair("op", "removeUser"), new NameValuePair("user", serializer.toXML(user)) };
 		serverConnection.executePostMethod(USER_SERVLET, params);
+	}
+
+	/**
+	 * Returns a true if the password matches the pasword stored in the database for the specified user.
+	 * 
+	 * @return
+	 * @throws ClientException
+	 */
+	public synchronized boolean authorizeUser(User user, String password) throws ClientException {
+		logger.debug("authorizing user: " + user);
+		NameValuePair[] params = { new NameValuePair("op", "authorizeUser"), new NameValuePair("user", serializer.toXML(user)), new NameValuePair("password", password) };
+		return Boolean.valueOf(serverConnection.executePostMethod(USER_SERVLET, params));
 	}
 
 	/**

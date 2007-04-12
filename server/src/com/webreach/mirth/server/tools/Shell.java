@@ -260,7 +260,6 @@ public class Shell {
 						String email = arguments[5];
 						User user = new User();
 						user.setUsername(username);
-						user.setPassword(password);
 						user.setFullName(name);
 						user.setEmail(email);
 						
@@ -274,7 +273,7 @@ public class Shell {
 						}
 						
 						try {
-							client.updateUser(user);
+							client.updateUser(user, password);
 							System.out.println("User \"" + username + "\" added successfully.");
 						} catch (Exception e) {
 							System.out.println("Error adding user \"" + username + "\".");
@@ -310,8 +309,7 @@ public class Shell {
 						for (Iterator<User> iter = users.iterator(); iter.hasNext();) {
 							User user = iter.next();
 							if (user.getId().equalsIgnoreCase(key) || user.getUsername().equalsIgnoreCase(key)) {
-								user.setPassword(newPassword);
-								client.updateUser(user);
+								client.updateUser(user, newPassword);
 								System.out.println("User \"" + user.getUsername() + "\" password updated.");
 								return;
 							}

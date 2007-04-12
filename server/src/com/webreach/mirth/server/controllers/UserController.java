@@ -26,17 +26,22 @@
 package com.webreach.mirth.server.controllers;
 
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
 import com.ibatis.sqlmap.client.SqlMapClient;
 import com.webreach.mirth.model.User;
 import com.webreach.mirth.server.util.SqlConfig;
+import com.webreach.mirth.util.EncryptionException;
+import com.webreach.mirth.util.FIPSEncrypter;
 
 public class UserController {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private SqlMapClient sqlMap = SqlConfig.getSqlMapInstance();
+	private FIPSEncrypter encrypter = FIPSEncrypter.getInstance();
 
 	public List<User> getUser(User user) throws ControllerException {
 		logger.debug("getting user: " + user);
@@ -48,20 +53,20 @@ public class UserController {
 		}
 	}
 
-	public void updateUser(User user) throws ControllerException {
+	public void updateUser(User user, String plainTextPassword) throws ControllerException {
 		try {
 			if (user.getId() == null) {
 				logger.debug("adding user: " + user);
-				sqlMap.insert("insertUser", user);
+				sqlMap.insert("insertUser", getUserMap(user, plainTextPassword));
 			} else {
 				logger.debug("updating user: " + user);
-				sqlMap.update("updateUser", user);
+				sqlMap.update("updateUser", getUserMap(user, plainTextPassword));
 			}
 		} catch (SQLException e) {
 			throw new ControllerException(e);
 		}
 	}
-
+	
 	public void removeUser(User user) throws ControllerException {
 		logger.debug("removing user: " + user);
 
@@ -70,5 +75,38 @@ public class UserController {
 		} catch (SQLException e) {
 			throw new ControllerException(e);
 		}
+	}
+	
+	public boolean authorizeUser(User user, String plainTextPassword) throws ControllerException {
+		try {
+			String checkPasswordHash = encrypter.encrypt(plainTextPassword);
+			String realPasswordHash = (String) sqlMap.queryForObject("getUserPassword", user);
+			return checkPasswordHash.equals(realPasswordHash);
+		} catch (Exception e) {
+			throw new ControllerException(e);
+		}
+	}
+	
+	private Map getUserMap(User user, String plainTextPassword) {
+		Map parameterMap = new HashMap();
+		
+		if (user.getId() != null) {
+			parameterMap.put("id", user.getId());	
+		}
+		
+		parameterMap.put("username", user.getUsername());
+		parameterMap.put("fullName", user.getFullName());	
+		parameterMap.put("email", user.getEmail());
+		parameterMap.put("phoneNumber", user.getPhoneNumber());
+		parameterMap.put("description", user.getDescription());
+		
+		// hash the user's password before storing it in the database
+		try {
+			parameterMap.put("password", encrypter.encrypt(plainTextPassword));	
+		} catch (EncryptionException ee) {
+			// ignore this
+		}
+		
+		return parameterMap;
 	}
 }

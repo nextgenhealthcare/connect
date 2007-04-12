@@ -5,29 +5,9 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 "conf/sql-map-2.dtd">
 
 <sqlMap namespace="User">
-	<parameterMap class="com.webreach.mirth.model.User" id="insert-user-param">
-		<parameter property="username" />
-		<parameter property="password" />
-		<parameter property="fullName" jdbcType="VARCHAR" />
-		<parameter property="email" jdbcType="VARCHAR" />
-		<parameter property="phoneNumber" jdbcType="VARCHAR" />
-		<parameter property="description" jdbcType="VARCHAR" />
-	</parameterMap>
-
-	<parameterMap class="com.webreach.mirth.model.User" id="update-user-param">
-		<parameter property="username" />
-		<parameter property="password" />
-		<parameter property="fullName" jdbcType="VARCHAR" />
-		<parameter property="email" jdbcType="VARCHAR" />
-		<parameter property="phoneNumber" jdbcType="VARCHAR" />
-		<parameter property="description" jdbcType="VARCHAR" />
-		<parameter property="id" jdbcType="INTEGER" />
-	</parameterMap>
-
 	<resultMap class="com.webreach.mirth.model.User" id="get-user-result">
 		<result property="id" column="ID" jdbcType="INTEGER" />
 		<result property="username" column="USERNAME" />
-		<result property="password" column="PASSWORD" />
 		<result property="fullName" column="FULLNAME" />
 		<result property="email" column="EMAIL" />
 		<result property="phoneNumber" column="PHONENUMBER" />
@@ -35,36 +15,43 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 	</resultMap>
 
 	<select id="getUser" parameterClass="com.webreach.mirth.model.User" resultMap="get-user-result">
-		SELECT *
+		SELECT ID, USERNAME, FULLNAME, EMAIL, PHONENUMBER, DESCRIPTION
 		FROM PERSON
 		<dynamic prepend="WHERE">
 			<isNotNull prepend="AND" property="id">
-				ID=#id#
+				ID = #id#
 			</isNotNull>
 			<isNotNull prepend="AND" property="username">
-				USERNAME=#username#
+				USERNAME = #username#
 			</isNotNull>
-			<isNotNull prepend="AND" property="password">
-				PASSWORD=#password#
+		</dynamic>
+	</select>
+
+	<select id="getUserPassword" parameterClass="com.webreach.mirth.model.User" resultClass="java.lang.String">
+		SELECT PASSWORD
+		FROM PERSON
+		<dynamic prepend="WHERE">
+			<isNotNull prepend="AND" property="username">
+				USERNAME = #username#
 			</isNotNull>
 		</dynamic>
 	</select>
 	
-	<insert id="insertUser" parameterMap="insert-user-param">
+	<insert id="insertUser" parameterClass="java.util.Map">
 		INSERT INTO
 		PERSON (USERNAME, PASSWORD, FULLNAME, EMAIL, PHONENUMBER, DESCRIPTION)
-		VALUES (?, ?, ?, ?, ?, ?)
+		VALUES (#username#, #password#, #fullName:VARCHAR#, #email:VARCHAR#, #phoneNumber:VARCHAR#, #description:VARCHAR#)
 	</insert>
 	
-	<update id="updateUser" parameterMap="update-user-param">
+	<update id="updateUser" parameterClass="java.util.Map">
 		UPDATE PERSON
-		SET USERNAME = ?,
-			PASSWORD = ?,
-			FULLNAME = ?,
-			EMAIL = ?,
-			PHONENUMBER = ?,
-			DESCRIPTION = ?
-		WHERE ID = ?
+		SET USERNAME = #username#,
+			PASSWORD = #password#,
+			FULLNAME = #fullName:VARCHAR#,
+			EMAIL = #email:VARCHAR#,
+			PHONENUMBER = #phoneNumber:VARCHAR#,
+			DESCRIPTION = #description:VARCHAR#
+		WHERE ID = #id#
 	</update>
 	
 	<delete id="deleteUser" parameterClass="com.webreach.mirth.model.User">

@@ -71,10 +71,16 @@ public class UserServlet extends MirthServlet {
 					out.println(serializer.toXML(userController.getUser(user)));
 				} else if (operation.equals("updateUser")) {
 					User user = (User) serializer.fromXML(request.getParameter("user"));
-					userController.updateUser(user);
+					String password = request.getParameter("password");
+					userController.updateUser(user, password);
 				} else if (operation.equals("removeUser")) {
 					User user = (User) serializer.fromXML(request.getParameter("user"));
 					userController.removeUser(user);
+				} else if (operation.equals("authorizeUser")) {
+					response.setContentType("text/plain");
+					User user = (User) serializer.fromXML(request.getParameter("user"));
+					String password = request.getParameter("password");
+					out.print(userController.authorizeUser(user, password));
 				} else if (operation.equals("logout")) {
 					logout(request, systemLogger);
 				}
@@ -90,11 +96,9 @@ public class UserServlet extends MirthServlet {
 			
 			User user = new User();
 			user.setUsername(username);
-			user.setPassword(password);
-			List<User> users = userController.getUser(user);
 			
-			if (!users.isEmpty()) {
-				User validUser = users.get(0);
+			if (userController.authorizeUser(user, password)) {
+				User validUser =  userController.getUser(user).get(0);
 				
 				session.setAttribute(SESSION_USER, validUser.getId());
 				session.setAttribute(SESSION_AUTHORIZED, true);

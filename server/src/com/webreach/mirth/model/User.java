@@ -33,7 +33,6 @@ import com.webreach.mirth.util.EqualsUtil;
 public class User implements Serializable {
 	private String id;
 	private String username;
-	private String password;
 	private String email;
 	private String fullName;
 	private String description;
@@ -45,14 +44,6 @@ public class User implements Serializable {
 
 	public void setId(String id) {
 		this.id = id;
-	}
-
-	public String getPassword() {
-		return this.password;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
 	}
 
 	public String getUsername() {
@@ -109,7 +100,6 @@ public class User implements Serializable {
 		return
 			EqualsUtil.areEqual(this.getId(), user.getId()) &&
 			EqualsUtil.areEqual(this.getUsername(), user.getUsername()) &&
-			EqualsUtil.areEqual(this.getPassword(), user.getPassword()) &&
 			EqualsUtil.areEqual(this.getEmail(), user.getEmail()) &&
 			EqualsUtil.areEqual(this.getFullName(), user.getFullName()) &&
 			EqualsUtil.areEqual(this.getDescription(), user.getDescription()) &&
@@ -121,7 +111,6 @@ public class User implements Serializable {
 		builder.append(this.getClass().getName() + "[");
 		builder.append("id=" + getId() + ", ");
 		builder.append("username=" + getUsername() + ", ");
-		builder.append("password=" + getPassword() + ", ");
 		builder.append("email=" + getEmail() + ", ");
 		builder.append("fullname=" + getFullName() + ", ");
 		builder.append("description=" + getDescription() + ", ");
