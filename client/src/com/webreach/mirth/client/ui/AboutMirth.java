@@ -26,6 +26,8 @@
 package com.webreach.mirth.client.ui;
 
 import com.webreach.mirth.client.core.ClientException;
+import java.awt.Dimension;
+import java.awt.Point;
 
 /** Creates the About Mirth dialog. The content is loaded from about.txt. */
 public class AboutMirth extends javax.swing.JDialog
@@ -42,6 +44,13 @@ public class AboutMirth extends javax.swing.JDialog
         aboutContent.setCaretPosition(0);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         this.setResizable(false);
+        setModal(true);
+        pack();
+        Dimension dlgSize = getPreferredSize();
+        Dimension frmSize = parent.getSize();
+        Point loc = parent.getLocation();
+        setLocation((frmSize.width - dlgSize.width) / 2 + loc.x, (frmSize.height - dlgSize.height) / 2 + loc.y);
+        setVisible(true);
     }
 
     /** Loads the contents of about.txt */

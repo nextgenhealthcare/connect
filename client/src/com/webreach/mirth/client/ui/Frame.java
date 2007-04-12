@@ -1399,13 +1399,6 @@ public class Frame extends JXFrame
             stackTrace += strace[i].toString() + "\n";
 
         ErrorDialog dlg = new ErrorDialog(stackTrace);
-        Dimension dlgSize = dlg.getPreferredSize();
-        Dimension frmSize = getSize();
-        Point loc = getLocation();
-        dlg.setLocation((frmSize.width - dlgSize.width) / 2 + loc.x, (frmSize.height - dlgSize.height) / 2 + loc.y);
-        dlg.setModal(true);
-        dlg.pack();
-        dlg.setVisible(true);
     }
 
     /*
@@ -1553,11 +1546,11 @@ public class Frame extends JXFrame
     /**
      * Sends the passed in user to the server, updating it or adding it.
      */
-    public void updateUser(User curr)
+    public void updateUser(User curr, String password)
     {
         try
         {
-            mirthClient.updateUser(curr);
+            mirthClient.updateUser(curr, password);
             users = mirthClient.getUser(null);
             userPanel.updateUserTable();
         }
@@ -1663,14 +1656,7 @@ public class Frame extends JXFrame
 
     public void goToAbout()
     {
-        AboutMirth dlg = new AboutMirth();
-        Dimension dlgSize = dlg.getPreferredSize();
-        Dimension frmSize = getSize();
-        Point loc = getLocation();
-        dlg.setLocation((frmSize.width - dlgSize.width) / 2 + loc.x, (frmSize.height - dlgSize.height) / 2 + loc.y);
-        dlg.setModal(true);
-        dlg.pack();
-        dlg.setVisible(true);
+        new AboutMirth();
     }
 
     public void doShowDashboard()
@@ -2353,14 +2339,7 @@ public class Frame extends JXFrame
 
     public void doNewUser()
     {
-        UserWizard userWizard = new UserWizard(UIConstants.ERROR_CONSTANT);
-        Dimension userWizardSize = userWizard.getPreferredSize();
-        Dimension frmSize = getSize();
-        Point loc = getLocation();
-        userWizard.setLocation((frmSize.width - userWizardSize.width) / 2 + loc.x, (frmSize.height - userWizardSize.height) / 2 + loc.y);
-        userWizard.setModal(true);
-        userWizard.setResizable(false);
-        userWizard.setVisible(true);
+        new UserWizard(null);
     }
 
     public void doEditUser()
@@ -2373,13 +2352,7 @@ public class Frame extends JXFrame
             JOptionPane.showMessageDialog(this, "User no longer exists.");
         else
         {
-            UserWizard userDialog = new UserWizard(index);
-            Dimension dialogSize = userDialog.getPreferredSize();
-            Dimension frmSize = getSize();
-            Point loc = getLocation();
-            userDialog.setLocation((frmSize.width - dialogSize.width) / 2 + loc.x, (frmSize.height - dialogSize.height) / 2 + loc.y);
-            userDialog.setResizable(false);
-            userDialog.setVisible(true);
+            new UserWizard(users.get(index));
         }
     }
 

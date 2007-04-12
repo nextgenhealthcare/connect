@@ -25,6 +25,7 @@
 
 package com.webreach.mirth.client.ui.browsers.message;
 
+import com.webreach.mirth.client.ui.ViewContentDialog;
 import java.awt.Cursor;
 import java.awt.Point;
 import java.io.File;
@@ -91,7 +92,7 @@ public class MessageBrowser extends javax.swing.JPanel
     
     private final String STATUS_COLUMN_NAME = "Status";
     
-    private final String SCORE_COLUMN_NAME = "Scope";
+    private final String SCOPE_COLUMN_NAME = "Scope";
     
     private final String KEY_COLUMN_NAME = "Variable";
     
@@ -118,6 +119,8 @@ public class MessageBrowser extends javax.swing.JPanel
     private MessageObjectFilter messageObjectFilter;
     
     private DefaultTableModel messageTableModel;
+    
+    private JXTable mappingsTable;
     
     /**
      * Constructs the new message browser and sets up its default
@@ -489,9 +492,9 @@ public class MessageBrowser extends javax.swing.JPanel
             tableData[0][0] = "";
             tableData[0][2] = "";
         }
-        JXTable mappingsTable = new JXTable();
+        mappingsTable = new JXTable();
         
-        mappingsTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[] { SCORE_COLUMN_NAME, KEY_COLUMN_NAME, VALUE_COLUMN_NAME })
+        mappingsTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[] { SCOPE_COLUMN_NAME, KEY_COLUMN_NAME, VALUE_COLUMN_NAME })
         {
             boolean[] canEdit = new boolean[] { false, false, false };
             
@@ -501,9 +504,21 @@ public class MessageBrowser extends javax.swing.JPanel
             }
         });
         
+         // listen for trigger button and double click to edit channel.
+        mappingsTable.addMouseListener(new java.awt.event.MouseAdapter()
+        {
+            public void mouseClicked(java.awt.event.MouseEvent evt)
+            {
+                if (evt.getClickCount() >= 2)
+                {
+                    new ViewContentDialog((String) mappingsTable.getModel().getValueAt(mappingsTable.convertRowIndexToModel(mappingsTable.getSelectedRow()), 2));
+                }
+            }
+        });
+        
         mappingsTable.setSelectionMode(0);
-        mappingsTable.getColumnExt(SCORE_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
-        mappingsTable.getColumnExt(SCORE_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
+        mappingsTable.getColumnExt(SCOPE_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
+        mappingsTable.getColumnExt(SCOPE_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
         mappingsPane.setViewportView(mappingsTable);
     }
     

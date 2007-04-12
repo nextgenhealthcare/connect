@@ -25,6 +25,8 @@
 
 package com.webreach.mirth.client.ui;
 
+import java.awt.Dimension;
+import java.awt.Point;
 import java.io.UnsupportedEncodingException;
 
 import javax.swing.Icon;
@@ -56,6 +58,13 @@ public class ErrorDialog extends javax.swing.JDialog
         loadContent(message);
         errorContent.setCaretPosition(0);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        setModal(true);
+        pack();
+        Dimension dlgSize = getPreferredSize();
+        Dimension frmSize = parent.getSize();
+        Point loc = parent.getLocation();
+        setLocation((frmSize.width - dlgSize.width) / 2 + loc.x, (frmSize.height - dlgSize.height) / 2 + loc.y);
+        setVisible(true);
     }
 
     /** Loads the contents of the error */
