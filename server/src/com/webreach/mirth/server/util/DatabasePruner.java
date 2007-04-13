@@ -77,7 +77,6 @@ public class DatabasePruner extends Thread {
 						endDate.set(Calendar.DATE, endDate.get(Calendar.DATE) - numDays);
 
 						MessageObjectFilter filter = new MessageObjectFilter();
-						filter.setStatus(MessageObject.Status.TRANSFORMED);
 						filter.setChannelId(channel.getId());
 						filter.setEndDate(endDate);
 						messageObjectController.removeMessages(filter);
