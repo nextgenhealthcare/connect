@@ -28,8 +28,9 @@ public class ChannelPanel extends javax.swing.JPanel
     private final String STATUS_COLUMN_NAME = "Status";
     private final String PROTOCOL_COLUMN_NAME = "Protocol";
     private final String NAME_COLUMN_NAME = "Name";
+    private final String DESCRIPTION_COLUMN_NAME = "Description";
     private final String ID_COLUMN_NAME = "Id";
-    private final int ID_COLUMN_NUMBER = 3;
+    private final int ID_COLUMN_NUMBER = 4;
     private final String ENABLED_STATUS = "Enabled";
     private int lastRow;
     private Frame parent;
@@ -75,6 +76,9 @@ public class ChannelPanel extends javax.swing.JPanel
         
         channelTable.getColumnExt(PROTOCOL_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
         channelTable.getColumnExt(PROTOCOL_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
+        
+        channelTable.getColumnExt(NAME_COLUMN_NAME).setMaxWidth(350);
+        channelTable.getColumnExt(NAME_COLUMN_NAME).setMinWidth(250);
         
         channelTable.getColumnExt(STATUS_COLUMN_NAME).setCellRenderer(new ImageCellRenderer());
         channelTable.getColumnExt(ID_COLUMN_NAME).setVisible(false);
@@ -129,7 +133,7 @@ public class ChannelPanel extends javax.swing.JPanel
 
         if (parent.channels != null)
         {
-            tableData = new Object[parent.channels.size()][4];
+            tableData = new Object[parent.channels.size()][5];
 
             int i = 0;
             for (Channel channel : parent.channels.values())
@@ -140,7 +144,8 @@ public class ChannelPanel extends javax.swing.JPanel
                     tableData[i][0] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_black.png")), "Disabled");
                 tableData[i][1] = parent.protocols.get(channel.getSourceConnector().getTransformer().getInboundProtocol());
                 tableData[i][2] = channel.getName();
-                tableData[i][3] = channel.getId();
+                tableData[i][3] = channel.getDescription();
+                tableData[i][4] = channel.getId();
                 i++;
             }
         }
@@ -154,9 +159,9 @@ public class ChannelPanel extends javax.swing.JPanel
         else
         {
             channelTable = new MirthTable();
-            channelTable.setModel(new RefreshTableModel(tableData, new String[] { STATUS_COLUMN_NAME, PROTOCOL_COLUMN_NAME, NAME_COLUMN_NAME, ID_COLUMN_NAME })
+            channelTable.setModel(new RefreshTableModel(tableData, new String[] { STATUS_COLUMN_NAME, PROTOCOL_COLUMN_NAME, NAME_COLUMN_NAME, DESCRIPTION_COLUMN_NAME, ID_COLUMN_NAME})
             {
-                boolean[] canEdit = new boolean[] { false, false, false, false };
+                boolean[] canEdit = new boolean[] { false, false, false, false, false };
 
                 public boolean isCellEditable(int rowIndex, int columnIndex)
                 {
