@@ -79,6 +79,22 @@ public class UserControllerTest extends TestCase {
 		assertTrue(userController.authorizeUser(user, "password"));
 	}
 	
+	public void testLoginUser() throws ControllerException {
+		insertSampleUsers();
+
+		User testUser = userController.getUser(null).get(0);
+		userController.loginUser(testUser);
+		assertTrue(userController.isUserLoggedIn(testUser));
+	}
+
+	public void testLogoutUser() throws ControllerException {
+		insertSampleUsers();
+
+		User testUser = userController.getUser(null).get(0);
+		userController.logoutUser(testUser);
+		assertFalse(userController.isUserLoggedIn(testUser));
+	}
+
 	public void insertSampleUsers() throws ControllerException {
 		for (Iterator iter = sampleUserList.iterator(); iter.hasNext();) {
 			User sampleUser = (User) iter.next();

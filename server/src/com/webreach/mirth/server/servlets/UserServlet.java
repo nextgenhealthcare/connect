@@ -28,7 +28,6 @@ package com.webreach.mirth.server.servlets;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -82,8 +81,12 @@ public class UserServlet extends MirthServlet {
 					String password = request.getParameter("password");
 					out.print(userController.authorizeUser(user, password));
 				} else if (operation.equals("logout")) {
-					logout(request, systemLogger);
-				}
+					logout(request, userController, systemLogger);
+				} else if (operation.equals("isUserLoggedIn")) {
+					response.setContentType("text/plain");
+					User user = (User) serializer.fromXML(request.getParameter("user"));
+					out.print(userController.isUserLoggedIn(user));
+				} 
 			} catch (Exception e) {
 				throw new ServletException(e);
 			}
@@ -100,11 +103,15 @@ public class UserServlet extends MirthServlet {
 			if (userController.authorizeUser(user, password)) {
 				User validUser =  userController.getUser(user).get(0);
 				
+				// set the sessions attributes
 				session.setAttribute(SESSION_USER, validUser.getId());
 				session.setAttribute(SESSION_AUTHORIZED, true);
 				
 				// this prevents the session from timing out
 				session.setMaxInactiveInterval(-1);
+
+				// set the user status to logged in in the database
+				userController.loginUser(validUser);
 
 				// log the event
 				SystemEvent event = new SystemEvent("User logged in.");
@@ -112,7 +119,7 @@ public class UserServlet extends MirthServlet {
 				event.getAttributes().put("User ID", validUser.getId());
 				event.getAttributes().put("User Name", validUser.getUsername());
 				systemLogger.logSystemEvent(event);
-
+				
 				return true;
 			}
 
@@ -122,12 +129,27 @@ public class UserServlet extends MirthServlet {
 		}
 	}
 
-	private void logout(HttpServletRequest request, SystemLogger systemLogger) {
+	private void logout(HttpServletRequest request, UserController userController, SystemLogger systemLogger) throws ServletException {
 		HttpSession session = request.getSession();
+		
+		// set the sessions attributes
 		session.removeAttribute(SESSION_USER);
 		session.removeAttribute(SESSION_AUTHORIZED);
+		
+		// invalidate the current sessions
 		session.invalidate();
 
+		// set the user status to logged out in the database
+		String userId = (String) session.getAttribute(SESSION_USER);
+		User user = new User();
+		user.setId(userId);
+
+		try {
+			userController.logoutUser(user);	
+		} catch (ControllerException ce) {
+			throw new ServletException(ce);
+		}
+		
 		// log the event
 		SystemEvent event = new SystemEvent("User logged out.");
 		event.getAttributes().put("Session ID", session.getId());

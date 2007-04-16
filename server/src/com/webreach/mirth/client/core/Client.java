@@ -243,6 +243,18 @@ public class Client {
 	}
 
 	/**
+	 * Returns a true if the specified user is logged in to the server.
+	 * 
+	 * @return
+	 * @throws ClientException
+	 */
+	public synchronized boolean isUserLoggedIn(User user) throws ClientException {
+		logger.debug("checking if user logged in: " + user);
+		NameValuePair[] params = { new NameValuePair("op", "isUserLoggedIn"), new NameValuePair("user", serializer.toXML(user)) };
+		return Boolean.valueOf(serverConnection.executePostMethod(USER_SERVLET, params));
+	}
+
+	/**
 	 * Returns a List of all alerts.
 	 * 
 	 * @return

@@ -87,6 +87,31 @@ public class UserController {
 		}
 	}
 	
+	public void loginUser(User user) throws ControllerException {
+		try {
+			sqlMap.update("loginUser", user.getId());
+		} catch (Exception e) {
+			throw new ControllerException(e);
+		}
+	}
+	
+	public void logoutUser(User user) throws ControllerException {
+		try {
+			sqlMap.update("logoutUser", user.getId());
+		} catch (Exception e) {
+			throw new ControllerException(e);
+		}
+
+	}
+	
+	public boolean isUserLoggedIn(User user) throws ControllerException {
+		try {
+			return (Boolean) sqlMap.queryForObject("isUserLoggedIn", user.getId());
+		} catch (Exception e) {
+			throw new ControllerException(e);
+		}
+	}
+	
 	private Map getUserMap(User user, String plainTextPassword) {
 		Map parameterMap = new HashMap();
 		
