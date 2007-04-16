@@ -33,7 +33,6 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.filters.MessageObjectFilter;
 import com.webreach.mirth.server.controllers.ChannelController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
@@ -80,6 +79,9 @@ public class DatabasePruner extends Thread {
 						filter.setChannelId(channel.getId());
 						filter.setEndDate(endDate);
 						messageObjectController.removeMessages(filter);
+						
+						// rebuild the indexes on the message table
+						messageObjectController.rebuildMessageIndex();
 					}
 				}
 			}

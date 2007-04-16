@@ -38,6 +38,7 @@ import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.model.User;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.server.controllers.ControllerException;
+import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.controllers.SystemLogger;
 import com.webreach.mirth.server.controllers.UserController;
 
@@ -131,8 +132,11 @@ public class UserServlet extends MirthServlet {
 
 	private void logout(HttpServletRequest request, UserController userController, SystemLogger systemLogger) throws ServletException {
 		HttpSession session = request.getSession();
+
+		// save the session id before removing them from the session
+		String userId = (String) session.getAttribute(SESSION_USER);
 		
-		// set the sessions attributes
+		// remove the sessions attributes
 		session.removeAttribute(SESSION_USER);
 		session.removeAttribute(SESSION_AUTHORIZED);
 		
@@ -140,12 +144,20 @@ public class UserServlet extends MirthServlet {
 		session.invalidate();
 
 		// set the user status to logged out in the database
-		String userId = (String) session.getAttribute(SESSION_USER);
 		User user = new User();
 		user.setId(userId);
 
 		try {
 			userController.logoutUser(user);	
+		} catch (ControllerException ce) {
+			throw new ServletException(ce);
+		}
+		
+		// delete any temp tables created for this session
+		MessageObjectController messageObjectController = new MessageObjectController();
+		
+		try {
+			messageObjectController.removeFilterTables(userId);	
 		} catch (ControllerException ce) {
 			throw new ServletException(ce);
 		}

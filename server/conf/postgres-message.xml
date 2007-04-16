@@ -166,4 +166,16 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		DELETE FROM MESSAGE
 		<include refid="messageFilterCriteria" />
 	</delete>
+	
+	<delete id="deleteTempMessageTable" parameterClass="java.lang.String">
+		DROP TABLE MESSAGE_TEMP_$uid$
+	</delete>
+
+	<delete id="deleteTempMessageTableIndex" parameterClass="java.lang.String">
+		DROP INDEX INDEX_MESSAGE_TEMP_$uid$;
+	</delete>
+	
+	<statement id="rebuildMessageIndex">
+		REINDEX TABLE MESSAGE
+	</statement>
 </sqlMap>
