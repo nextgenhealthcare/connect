@@ -82,5 +82,4 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		FROM PERSON
 		WHERE ID = #id#
 	</select>
-
 </sqlMap>

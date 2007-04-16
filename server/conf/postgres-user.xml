@@ -39,8 +39,8 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 	
 	<insert id="insertUser" parameterClass="java.util.Map">
 		INSERT INTO
-		PERSON (USERNAME, PASSWORD, FULLNAME, EMAIL, PHONENUMBER, DESCRIPTION)
-		VALUES (#username#, #password#, #fullName:VARCHAR#, #email:VARCHAR#, #phoneNumber:VARCHAR#, #description:VARCHAR#)
+		PERSON (USERNAME, PASSWORD, FULLNAME, EMAIL, PHONENUMBER, DESCRIPTION, LOGGED_IN)
+		VALUES (#username#, #password#, #fullName:VARCHAR#, #email:VARCHAR#, #phoneNumber:VARCHAR#, #description:VARCHAR#, FALSE)
 	</insert>
 	
 	<update id="updateUser" parameterClass="java.util.Map">
@@ -62,4 +62,24 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 			</isNotNull>
 		</dynamic>
 	</delete>
+
+	<!-- Login/Logout Procedures -->
+
+	<update id="loginUser" parameterClass="java.lang.String">
+		UPDATE PERSON
+		SET LOGGED_IN = TRUE
+		WHERE ID = #id#
+	</update>
+
+	<update id="logoutUser" parameterClass="java.lang.String">
+		UPDATE PERSON
+		SET LOGGED_IN = FALSE
+		WHERE ID = #id#
+	</update>
+
+	<select id="isUserLoggedIn" parameterClass="java.lang.String" resultClass="java.lang.Boolean">
+		SELECT LOGGED_IN
+		FROM PERSON
+		WHERE ID = #id#
+	</select>
 </sqlMap>
