@@ -135,6 +135,7 @@ public class UserServlet extends MirthServlet {
 
 		// save the session id before removing them from the session
 		String userId = (String) session.getAttribute(SESSION_USER);
+		String sessionId = session.getId();
 		
 		// remove the sessions attributes
 		session.removeAttribute(SESSION_USER);
@@ -155,12 +156,7 @@ public class UserServlet extends MirthServlet {
 		
 		// delete any temp tables created for this session
 		MessageObjectController messageObjectController = new MessageObjectController();
-		
-		try {
-			messageObjectController.removeFilterTables(userId);	
-		} catch (ControllerException ce) {
-			throw new ServletException(ce);
-		}
+		messageObjectController.removeFilterTables(sessionId);	
 		
 		// log the event
 		SystemEvent event = new SystemEvent("User logged out.");

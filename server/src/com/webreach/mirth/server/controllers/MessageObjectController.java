@@ -206,13 +206,13 @@ public class MessageObjectController {
 		}
 	}
 
-	public void removeFilterTables(String uid) throws ControllerException {
+	public void removeFilterTables(String uid) {
 		logger.debug("removing temporary filter tables");
 		
 		try {
 			sqlMap.delete("deleteTempMessageTable", uid);
 		} catch (SQLException e) {
-			throw new ControllerException(e);
+			logger.warn(e);
 		}
 	}
 	
