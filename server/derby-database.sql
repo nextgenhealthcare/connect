@@ -114,7 +114,7 @@ DROP TABLE ENCRYPTION_KEY;
 CREATE TABLE ENCRYPTION_KEY
 	(DATA CLOB NOT NULL);
 
-INSERT INTO PERSON (USERNAME, PASSWORD) VALUES('admin', '0DPiKuNIrrVmD8IUCuw1hQxNqZc=');
+INSERT INTO PERSON (USERNAME, PASSWORD, LOGGED_IN) VALUES('admin', '0DPiKuNIrrVmD8IUCuw1hQxNqZc=', 0);
 INSERT INTO TRANSPORT (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE) VALUES ('FTP Reader', 'com.webreach.mirth.server.mule.providers.ftp.FtpConnector', 'ftp', 'ByteArrayToString', 'LISTENER');
 INSERT INTO TRANSPORT (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE) VALUES ('SFTP Reader', 'com.webreach.mirth.server.mule.providers.sftp.SftpConnector', 'sftp', 'ByteArrayToString', 'LISTENER');
 INSERT INTO TRANSPORT (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE) VALUES ('JMS Reader', 'com.webreach.mirth.server.mule.providers.jms.JmsConnector', 'jms', 'JMSMessageToObject ObjectToString', 'LISTENER');
