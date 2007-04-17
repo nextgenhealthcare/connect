@@ -38,7 +38,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 				DATE_CREATED <![CDATA[ <= ]]> #endDate#
 			</isNotNull>
 		</dynamic>
-		ORDER BY DATE_CREATED
+		ORDER BY DATE_CREATED DESC
 	</select>
 
 	<insert id="insertEvent" parameterMap="insert-event-param">
