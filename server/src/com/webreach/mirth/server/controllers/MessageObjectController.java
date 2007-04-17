@@ -212,7 +212,7 @@ public class MessageObjectController {
 		try {
 			sqlMap.delete("deleteTempMessageTable", uid);
 		} catch (SQLException e) {
-			logger.warn(e);
+			logger.debug("Fitler table no found: " + uid);
 		}
 	}
 	
