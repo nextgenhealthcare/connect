@@ -2376,13 +2376,18 @@ public class Frame extends JXFrame
                 }
 
                 int userToDelete = userPanel.getUserIndex();
-                String userName = ((CellData) userPanel.usersTable.getValueAt(userPanel.getSelectedRow(), userPanel.usersTable.getColumnNumber("Username"))).getText();
 
                 setWorking(true);
                 try
                 {
                     if (userToDelete != UIConstants.ERROR_CONSTANT)
                     {
+                        if (mirthClient.isUserLoggedIn(users.get(userToDelete)))
+                        {
+                            alertWarning("You cannot delete a user that is currently logged in.");
+                            return null;
+                        }
+                        
                         mirthClient.removeUser(users.get(userToDelete));
                         users = mirthClient.getUser(null);
                         userPanel.updateUserTable();
