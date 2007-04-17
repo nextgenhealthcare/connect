@@ -37,12 +37,6 @@ public class FIPSEncrypter {
 				throw new EncryptionException("Providers not FIPS certified.");
 			}
 
-			// salt hash
-			SecureRandom random = new SecureRandom();
-			byte[] salt = new byte[8];
-			random.engineNextBytes(salt);
-			digest.update(salt);
-			
 			digest.update(plainText.getBytes("UTF-8"));
 			byte raw[] = digest.digest();
 			String hash = (new BASE64Encoder()).encode(raw);
