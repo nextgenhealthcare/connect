@@ -10,6 +10,6 @@ public class FIPSEncrypterTest extends TestCase {
 	
 	public void testEncrypt() throws Exception {
 		FIPSEncrypter fips = FIPSEncrypter.getInstance();
-		assertEquals(fips.encrypt(plainText), hashText);
+		assertEquals(fips.getHash(plainText), hashText);
 	}
 }
