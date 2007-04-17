@@ -4,7 +4,6 @@ import java.security.MessageDigest;
 import java.security.Security;
 
 import com.ibm.crypto.fips.provider.IBMJCEFIPS;
-import com.ibm.crypto.fips.provider.SecureRandom;
 import com.ibm.misc.BASE64Encoder;
 
 public class FIPSEncrypter {
@@ -24,23 +23,34 @@ public class FIPSEncrypter {
 		}
 	}
 
-	public synchronized String getHash(String plainText) throws EncryptionException {
+	public synchronized String getHash(String password, byte[] salt) throws EncryptionException {
 		try {
-			if ((plainText == null) || !(plainText.length() > 0)) {
+			if ((password == null) || !(password.length() > 0)) {
 				throw new EncryptionException("Invalid input.");
 			}
-			
+
 			MessageDigest digest = MessageDigest.getInstance(SHA1_HASH, "IBMJCEFIPS");
-			IBMJCEFIPS provider = (IBMJCEFIPS) digest.getProvider();
 			
+			// check if the providers is FIPS certified
+			IBMJCEFIPS provider = (IBMJCEFIPS) digest.getProvider();
+
 			if (!provider.isFipsCertified()) {
 				throw new EncryptionException("Providers not FIPS certified.");
 			}
 
-			digest.update(plainText.getBytes("UTF-8"));
-			byte raw[] = digest.digest();
-			String hash = (new BASE64Encoder()).encode(raw);
-			return hash;
+			// reset the digest string
+			digest.reset();
+			
+			// pre-pend the salt to the password
+			if (salt != null) {
+				digest.update(salt);	
+			}
+			
+			// hash the password
+			byte[] hashedPassword = digest.digest(password.getBytes("UTF-8"));
+			
+			// convert the hashed byte array to a String
+			return (new BASE64Encoder()).encode(hashedPassword);
 		} catch (Exception e) {
 			throw new EncryptionException(e);
 		}

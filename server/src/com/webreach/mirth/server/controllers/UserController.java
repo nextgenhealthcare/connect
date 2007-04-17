@@ -87,7 +87,7 @@ public class UserController {
 	
 	public boolean authorizeUser(User user, String plainTextPassword) throws ControllerException {
 		try {
-			String checkPasswordHash = encrypter.getHash(plainTextPassword);
+			String checkPasswordHash = encrypter.getHash(plainTextPassword, null);
 			String realPasswordHash = (String) sqlMap.queryForObject("getUserPassword", user);
 			return checkPasswordHash.equals(realPasswordHash);
 		} catch (Exception e) {
@@ -135,7 +135,7 @@ public class UserController {
 		
 		// hash the user's password before storing it in the database
 		try {
-			parameterMap.put("password", encrypter.getHash(plainTextPassword));	
+			parameterMap.put("password", encrypter.getHash(plainTextPassword, null));	
 		} catch (EncryptionException ee) {
 			// ignore this
 		}
