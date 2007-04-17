@@ -4,6 +4,7 @@ import java.security.MessageDigest;
 import java.security.Security;
 
 import com.ibm.crypto.fips.provider.IBMJCEFIPS;
+import com.ibm.crypto.fips.provider.SecureRandom;
 import com.ibm.misc.BASE64Encoder;
 
 public class FIPSEncrypter {
@@ -23,7 +24,7 @@ public class FIPSEncrypter {
 		}
 	}
 
-	public synchronized String encrypt(String plainText) throws EncryptionException {
+	public synchronized String getHash(String plainText) throws EncryptionException {
 		try {
 			if ((plainText == null) || !(plainText.length() > 0)) {
 				throw new EncryptionException("Invalid input.");
@@ -36,6 +37,12 @@ public class FIPSEncrypter {
 				throw new EncryptionException("Providers not FIPS certified.");
 			}
 
+			// salt hash
+			SecureRandom random = new SecureRandom();
+			byte[] salt = new byte[8];
+			random.engineNextBytes(salt);
+			digest.update(salt);
+			
 			digest.update(plainText.getBytes("UTF-8"));
 			byte raw[] = digest.digest();
 			String hash = (new BASE64Encoder()).encode(raw);
