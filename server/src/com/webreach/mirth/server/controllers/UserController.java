@@ -43,6 +43,14 @@ public class UserController {
 	private SqlMapClient sqlMap = SqlConfig.getSqlMapInstance();
 	private FIPSEncrypter encrypter = FIPSEncrypter.getInstance();
 
+	public void initialize() {
+		try {
+			sqlMap.update("resetUserStatus");
+		} catch (SQLException e) {
+			logger.error("Could not reset user status.");
+		}
+	}
+
 	public List<User> getUser(User user) throws ControllerException {
 		logger.debug("getting user: " + user);
 

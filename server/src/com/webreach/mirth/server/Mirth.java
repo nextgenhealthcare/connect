@@ -43,6 +43,7 @@ import com.webreach.mirth.server.controllers.ChannelController;
 import com.webreach.mirth.server.controllers.ConfigurationController;
 import com.webreach.mirth.server.controllers.ControllerException;
 import com.webreach.mirth.server.controllers.SystemLogger;
+import com.webreach.mirth.server.controllers.UserController;
 import com.webreach.mirth.server.util.DatabasePruner;
 import com.webreach.mirth.server.util.StackTracePrinter;
 import com.webreach.mirth.server.util.VMRegistry;
@@ -65,6 +66,7 @@ public class Mirth extends Thread {
 	private MirthManager manager = new MirthManager();
 	private ConfigurationController configurationController = new ConfigurationController();
 	private ChannelController channelController = new ChannelController();
+	private UserController userController = new UserController();
 	private DatabasePruner pruner = new DatabasePruner();
 
 	public static void main(String[] args) {
@@ -81,9 +83,16 @@ public class Mirth extends Thread {
 			logger.info("starting mirth server...");
 			running = true;
 			startWebServer();
+			
+			// initialize controllers
 			configurationController.initialize();
 			channelController.initialize();
+			userController.initialize();
+			
+			// start the database pruning thread
 			pruner.start();
+			
+			// add the start command to the queue
 			commandQueue.addCommand(new Command(Command.Operation.START));
 
 			Runtime.getRuntime().addShutdownHook(new ShutdownHook());

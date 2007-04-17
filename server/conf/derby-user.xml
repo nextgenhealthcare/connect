@@ -82,4 +82,9 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		FROM PERSON
 		WHERE ID = #id#
 	</select>
+	
+	<update id="resetUserStatus">
+		UPDATE PERSON
+		SET LOGGED_IN = 0
+	</update>
 </sqlMap>
