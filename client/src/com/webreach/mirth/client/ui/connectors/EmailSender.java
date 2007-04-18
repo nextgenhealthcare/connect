@@ -37,23 +37,14 @@ public class EmailSender extends ConnectorClass
 {
     /** Creates new form EmailSender */
     private final String DATATYPE = "DataType";
-
     private final String EMAIL_ADDRESS = "hostname";
-
-    private final String EMAIL_PORT = "port";
-
+    private final String EMAIL_PORT = "smtpPort";
     private final String EMAIL_USERNAME = "username";
-
     private final String EMAIL_PASSWORD = "password";
-
     private final String EMAIL_TO = "toAddresses";
-
     private final String EMAIL_FROM = "fromAddress";
-
     private final String EMAIL_SUBJECT = "subject";
-
     private final String EMAIL_BODY = "body";
-    
     private final String EMAIL_REPLY_TO = "replyToAddresses"; //TODO: Add field for this
 
     public EmailSender()
