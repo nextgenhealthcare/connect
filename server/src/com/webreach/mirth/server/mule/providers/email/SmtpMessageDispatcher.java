@@ -14,11 +14,18 @@
  */
 package com.webreach.mirth.server.mule.providers.email;
 
+import java.util.Calendar;
+
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.URLName;
+
 import org.mule.MuleException;
 import org.mule.config.i18n.Messages;
 import org.mule.providers.AbstractMessageDispatcher;
 import org.mule.umo.UMOEvent;
-import org.mule.umo.UMOEventContext;
 import org.mule.umo.UMOException;
 import org.mule.umo.UMOMessage;
 import org.mule.umo.endpoint.UMOEndpointURI;
@@ -26,15 +33,9 @@ import org.mule.umo.provider.DispatchException;
 import org.mule.umo.provider.UMOConnector;
 
 import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.model.Response;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.mule.providers.email.transformers.MessageObjectToEmailMessage;
-import com.webreach.mirth.server.util.StackTracePrinter;
-
-import javax.mail.*;
-import java.util.Calendar;
-import java.util.List;
 
 /**
  * @author Ross Mason
