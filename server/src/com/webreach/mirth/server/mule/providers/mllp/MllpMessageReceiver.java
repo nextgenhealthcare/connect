@@ -250,7 +250,7 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 					socket.close();
 				}
 			} catch (IOException e) {
-				logger.error("Socket close failed with: " + e);
+				logger.debug("Socket close failed with: " + e);
 			} finally {
 				connector.updateReceiveSocketsCount(false);
 			}
@@ -278,8 +278,11 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
                                 Thread.sleep(10);
                             }
 						} else {
-							
-						    preprocessData(b);
+							if (connector.isWaitForEndOfMessageCharacter()){
+								preprocessData(b);
+							}else{
+								processData(b);
+							}
 							dataOut.flush();
 						}
 					} catch (SocketTimeoutException e) {

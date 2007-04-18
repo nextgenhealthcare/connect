@@ -56,9 +56,10 @@ public class MllpConnector extends AbstractServiceEnabledConnector {
 	public static final String PROPERTY_ACK_NEW_CONNECTION_IP = "ackIP";
 	public static final String PROPERTY_ACK_NEW_CONNECTION_PORT = "ackPort";
 	public static final String PROPERTY_REPLY_CHANNEL_ID = "replyChannelId";
-    public static final String PROPERTY_WAIT_FOR_EOM_CHAR = "waitForEndOfMessageCharacter";
+	public static final String PROPERTY_WAIT_FOR_EOM_CHAR = "waitForEndOfMessageCharacter";
 	public static final String PROPERTY_TRANSFORMER_ACK = "responseFromTransformer";
 	public static final String PROPERTY_RESPONSE_VALUE = "responseValue";
+	public static final String PROPERTY_USE_STRICT_LLP = "useStrictLLP";
 	// custom properties
 	private String charEncoding = "hex";
 	private String messageStart = "0x1C";
@@ -74,8 +75,8 @@ public class MllpConnector extends AbstractServiceEnabledConnector {
 	private boolean responseFromTransformer = false;
 	private String responseValue = "None";
 	private String channelId;
-    private boolean waitForEndOfMessageCharacter = false;
-
+	private boolean waitForEndOfMessageCharacter = false;
+	private boolean useStrictLLP = true;
 	// ack properties
 	public static final String PROPERTY_ACKCODE_SUCCESSFUL = "ackCodeSuccessful";
 	public static final String PROPERTY_ACKMSG_SUCCESSFUL = "ackMsgSuccessful";
@@ -103,7 +104,6 @@ public class MllpConnector extends AbstractServiceEnabledConnector {
 	private int bufferSize = DEFAULT_BUFFER_SIZE;
 	private int backlog = DEFAULT_BACKLOG;
 	private boolean sendACK = false;
-	private String tcpProtocolClassName = DefaultProtocol.class.getName();
 	private LlpProtocol llpProtocol;
 
 	// ast: Queue variables
@@ -191,6 +191,11 @@ public class MllpConnector extends AbstractServiceEnabledConnector {
 			try {
 				llpProtocol = new LlpProtocol();
 				llpProtocol.setTcpConnector(this);
+				if (isUseStrictLLP()) {
+					llpProtocol.setUseLLP(true);
+				} else {
+					llpProtocol.setUseLLP(false);
+				}
 			} catch (Exception e) {
 				throw new InitialisationException(new Message("mllp", 3), e);
 			}
@@ -270,18 +275,16 @@ public class MllpConnector extends AbstractServiceEnabledConnector {
 			this.receiveSocketsCount--;
 		}
 	}
-    
-	public boolean isWaitForEndOfMessageCharacter()
-    {
-        return waitForEndOfMessageCharacter;
-    }
 
-    public void setWaitForEndOfMessageCharacter(boolean waitForEndOfMessageCharacter)
-    {
-        this.waitForEndOfMessageCharacter = waitForEndOfMessageCharacter;
-    }
+	public boolean isWaitForEndOfMessageCharacter() {
+		return waitForEndOfMessageCharacter;
+	}
 
-    public int getBufferSize() {
+	public void setWaitForEndOfMessageCharacter(boolean waitForEndOfMessageCharacter) {
+		this.waitForEndOfMessageCharacter = waitForEndOfMessageCharacter;
+	}
+
+	public int getBufferSize() {
 		return bufferSize;
 	}
 
@@ -301,18 +304,6 @@ public class MllpConnector extends AbstractServiceEnabledConnector {
 
 	public LlpProtocol getLlpProtocol() {
 		return llpProtocol;
-	}
-
-	public void setLlpProtocol(LlpProtocol llpProtocol) {
-		this.llpProtocol = llpProtocol;
-	}
-
-	public String getTcpProtocolClassName() {
-		return tcpProtocolClassName;
-	}
-
-	public void setTcpProtocolClassName(String protocolClassName) {
-		this.tcpProtocolClassName = protocolClassName;
 	}
 
 	public boolean isRemoteSyncEnabled() {
@@ -681,5 +672,13 @@ public class MllpConnector extends AbstractServiceEnabledConnector {
 
 	public void setResponseValue(String responseValue) {
 		this.responseValue = responseValue;
+	}
+
+	public boolean isUseStrictLLP() {
+		return useStrictLLP;
+	}
+
+	public void setUseStrictLLP(boolean useStrictLLP) {
+		this.useStrictLLP = useStrictLLP;
 	}
 }
