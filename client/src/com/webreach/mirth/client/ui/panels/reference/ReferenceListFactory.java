@@ -64,7 +64,7 @@ public class ReferenceListFactory
         ArrayList<ReferenceListItem> variablelistItems = new ArrayList<ReferenceListItem>();
         
         variablelistItems.add(new ReferenceListItem("Convert HL7 to XML", "Converts an encoded HL7 string to XML", "SerializerFactory.getHL7Serializer(useStrictParser, useStrictValidation).toXML(message);\ndefault xml namespace = new Namespace('urn:hl7-org:v2xml');\n", CodeSnippetType.FUNCTION));
-        variablelistItems.add(new ReferenceListItem("Convert XML to HL7", "Converts an XML string to HL7", "SerializerFactory.getHL7Serializer(useStrictParser).fromXML(message);", CodeSnippetType.FUNCTION));
+        variablelistItems.add(new ReferenceListItem("Convert XML to HL7", "Converts an XML string to HL7", "SerializerFactory.getHL7Serializer(useStrictParser, useStrictValidation).fromXML(message);", CodeSnippetType.FUNCTION));
 
         variablelistItems.add(new ReferenceListItem("Convert X12 to XML", "Converts an encoded X12 string to XML", "SerializerFactory.getX12Serializer(inferDelimiters).toXML(message);\ndefault xml namespace = new Namespace('urn:mirthproject-org:x12:xml');\n", CodeSnippetType.FUNCTION));
         variablelistItems.add(new ReferenceListItem("Convert XML to X12", "Converts an XML string to X12", "SerializerFactory.getX12Serializer(inferDelimiters).fromXML(message);", CodeSnippetType.FUNCTION));
