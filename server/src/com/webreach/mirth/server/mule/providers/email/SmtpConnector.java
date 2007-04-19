@@ -60,6 +60,7 @@ public class SmtpConnector extends AbstractServiceEnabledConnector implements Ma
 {
     public static final int DEFAULT_SMTP_PORT = 25;
     public static final String DEFAULT_CONTENT_TYPE = "text/plain";
+    
     private String body;
     /**
      * Holds value of to addresses.
@@ -108,7 +109,7 @@ public class SmtpConnector extends AbstractServiceEnabledConnector implements Ma
     /**
      * Holds value of property port for the smtp server.
      */
-    private int port = DEFAULT_SMTP_PORT;
+    private int smtpPort = DEFAULT_SMTP_PORT;
 
     /**
      * Holds value of property SMTPusername.
@@ -385,12 +386,12 @@ public class SmtpConnector extends AbstractServiceEnabledConnector implements Ma
 
     public int getPort()
     {
-        return port;
+        return smtpPort;
     }
 
     public void setPort(int port)
     {
-        this.port = port;
+        this.smtpPort = port;
     }
 
     public String getReplyToAddresses() {
@@ -436,4 +437,11 @@ public class SmtpConnector extends AbstractServiceEnabledConnector implements Ma
 	public void setBody(String body) {
 		this.body = body;
 	}
+	public int getSmtpPort() {
+		return smtpPort;
+	}
+	public void setSmtpPort(int smtpPort) {
+		this.smtpPort = smtpPort;
+	}
+
 }

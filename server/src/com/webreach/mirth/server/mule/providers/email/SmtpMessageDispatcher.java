@@ -51,9 +51,7 @@ public class SmtpMessageDispatcher extends AbstractMessageDispatcher {
 	public SmtpMessageDispatcher(SmtpConnector connector) {
 		super(connector);
 		this.connector = connector;
-
-		URLName url = new URLName(connector.getProtocol(), connector.getHostname(), connector.getPort(), null, connector.getUsername(), connector.getPassword());
-
+		URLName url = new URLName(connector.getProtocol(), connector.getHostname(), connector.getSmtpPort(), null, connector.getUsername(), connector.getPassword());
 		session = MailUtils.createMailSession(url, connector);
 		session.setDebug(logger.isDebugEnabled());
 	}
