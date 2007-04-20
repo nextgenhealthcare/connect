@@ -68,4 +68,27 @@ public class HL7Properties implements Serializable
         this.useStrictValidation = useStrictValidation;
     }
 
+    /**
+     * Holds value of property handleRepetitions.
+     */
+    private boolean handleRepetitions;
+
+    /**
+     * Getter for property handleRepetitions.
+     * @return Value of property handleRepetitions.
+     */
+    public boolean isHandleRepetitions()
+    {
+        return this.handleRepetitions;
+    }
+
+    /**
+     * Setter for property handleRepetitions.
+     * @param handleRepetitions New value of property handleRepetitions.
+     */
+    public void setHandleRepetitions(boolean handleRepetitions)
+    {
+        this.handleRepetitions = handleRepetitions;
+    }
+
 }

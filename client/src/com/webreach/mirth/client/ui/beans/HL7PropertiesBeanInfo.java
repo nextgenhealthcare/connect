@@ -25,15 +25,20 @@ public class HL7PropertiesBeanInfo extends SimpleBeanInfo
     
     
     // Property identifiers//GEN-FIRST:Properties
-    private static final int PROPERTY_useStrictParser = 0;
-    private static final int PROPERTY_useStrictValidation = 1;
+    private static final int PROPERTY_handleRepetitions = 0;
+    private static final int PROPERTY_useStrictParser = 1;
+    private static final int PROPERTY_useStrictValidation = 2;
 
     // Property array 
     /*lazy PropertyDescriptor*/
     private static PropertyDescriptor[] getPdescriptor(){
-        PropertyDescriptor[] properties = new PropertyDescriptor[2];
+        PropertyDescriptor[] properties = new PropertyDescriptor[3];
     
         try {
+            properties[PROPERTY_handleRepetitions] = new PropertyDescriptor ( "handleRepetitions", com.webreach.mirth.client.ui.beans.HL7Properties.class, "isHandleRepetitions", "setHandleRepetitions" ); // NOI18N
+            properties[PROPERTY_handleRepetitions].setDisplayName ( "Handle Repetitions" );
+            properties[PROPERTY_handleRepetitions].setShortDescription ( "Handle repetition characters. Only applicable to non-strict parser." );
+            properties[PROPERTY_handleRepetitions].setBound ( true );
             properties[PROPERTY_useStrictParser] = new PropertyDescriptor ( "useStrictParser", com.webreach.mirth.client.ui.beans.HL7Properties.class, "isUseStrictParser", "setUseStrictParser" ); // NOI18N
             properties[PROPERTY_useStrictParser].setDisplayName ( "Use Strict Parser" );
             properties[PROPERTY_useStrictParser].setShortDescription ( "Parse messages based upon strict HL7 specifications." );
