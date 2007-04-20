@@ -174,7 +174,7 @@ public class ER7Reader extends SAXParser {
 		while (repTokenizer.hasMoreTokens()) {
 			element = repTokenizer.nextToken();
 			if (element.equals(repetitionSep)) {
-
+				//check for ~~
 				if (lastrepElement) {
 					contentHandler.startElement("", segmentID + "." + fieldID, "", null);
 					contentHandler.characters("".toCharArray(), 0, 0);
