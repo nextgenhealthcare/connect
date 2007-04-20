@@ -301,7 +301,7 @@ public class TcpConnector extends AbstractServiceEnabledConnector {
 
 	// ast: set the charset Encoding
 	public void setCharsetEncoding(String charsetEncoding) {
-		if ((charsetEncoding == null) || (charsetEncoding == "") || (charsetEncoding.equalsIgnoreCase("DEFAULT_ENCODING")))
+		if ((charsetEncoding == null) || (charsetEncoding.equals("")) || (charsetEncoding.equalsIgnoreCase("DEFAULT_ENCODING")))
 			charsetEncoding = DEFAULT_CHARSET_ENCODING;
 		logger.debug("FileConnector: trying to set the encoding to " + charsetEncoding);
 		try {
@@ -322,7 +322,7 @@ public class TcpConnector extends AbstractServiceEnabledConnector {
 
 	// ast: get the charset Encoding
 	public String getCharsetEncoding() {
-		if ((this.charsetEncoding == null) || (this.charsetEncoding == "") || (this.charsetEncoding.equalsIgnoreCase("DEFAULT_ENCODING"))) {
+		if ((this.charsetEncoding == null) || (this.charsetEncoding.equals("")) || (this.charsetEncoding.equalsIgnoreCase("DEFAULT_ENCODING"))) {
 			// Default Charset
 			return DEFAULT_CHARSET_ENCODING;
 		}

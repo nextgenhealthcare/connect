@@ -44,7 +44,7 @@ public class XMLPrettyPrinter implements ContentHandler {
 
 		depth = 0; // so instance can be reused
 		try {
-			out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n");
+			out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
 		} catch (IOException e) {
 			throw new SAXException(e);
 		}

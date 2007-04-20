@@ -316,7 +316,7 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher {
 				messageObjectController.setSuccess(messageObject, m.getPayloadAsString());
 			}
 			// handle reply to
-			if (connector.getReplyChannelId() != null) {
+			if (connector.getReplyChannelId() != null && !connector.getReplyChannelId().equals("sink")) {
 				VMRouter router = new VMRouter();
 				router.routeMessageByChannelId(connector.getReplyChannelId(), m.getPayload(), true);
 			}

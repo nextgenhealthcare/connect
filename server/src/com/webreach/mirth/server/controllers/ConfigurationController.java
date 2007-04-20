@@ -124,7 +124,7 @@ public class ConfigurationController {
 				String charsetName = charset.name();
 
 				try {
-					if ((charsetName == null) || (charsetName == ""))
+					if ((charsetName == null) || (charsetName.equals("")))
 						charsetName = charset.aliases().iterator().next();
 				} catch (Exception e) {
 					charsetName = "UNKNOWN";

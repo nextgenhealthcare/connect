@@ -58,6 +58,7 @@ public class ER7Serializer implements IXMLSerializer<String> {
 	private String currentER7 = null;
 	private boolean useStrictParser = true;
 	private boolean useStrictValidation = false;
+	private boolean handleRepetitions = false;
 	public ER7Serializer(Map er7Properties) {
 		if (er7Properties != null &&  er7Properties.get("useStrictParser") != null) {
 			this.useStrictParser = Boolean.parseBoolean((String)er7Properties.get("useStrictParser"));
@@ -65,8 +66,11 @@ public class ER7Serializer implements IXMLSerializer<String> {
 		if (er7Properties != null &&  er7Properties.get("useStrictValidation") != null) {
 			this.useStrictValidation = Boolean.parseBoolean((String)er7Properties.get("useStrictValidation"));
 		}
+		if (er7Properties != null &&  er7Properties.get("handleRepetitions") != null) {
+			this.handleRepetitions = Boolean.parseBoolean((String)er7Properties.get("handleRepetitions"));
+		}
 		if (!useStrictParser) {
-			er7Parser = new ER7Reader();
+			er7Parser = new ER7Reader(handleRepetitions);
 		} else {
 			initializeHapiParser();
 		}
@@ -107,7 +111,7 @@ public class ER7Serializer implements IXMLSerializer<String> {
 		} else {
 			try {
 
-				ER7Reader er7Reader = new ER7Reader();
+				ER7Reader er7Reader = new ER7Reader(handleRepetitions);
 				StringWriter stringWriter = new StringWriter();
 				XMLPrettyPrinter serializer = new XMLPrettyPrinter(stringWriter);
 				ByteArrayOutputStream os = new ByteArrayOutputStream();

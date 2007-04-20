@@ -48,6 +48,7 @@ public class ER7XMLHandler extends DefaultHandler {
 	private boolean lastinSubelement = false;
 	private boolean inMSH1 = false;
 	private boolean inMSH2 = false;
+	private String currentSegment = new String();
 	private StringBuilder output = new StringBuilder();
 	private Entities encoder = new Entities();
 	private String segmentDelim;
@@ -85,10 +86,17 @@ public class ER7XMLHandler extends DefaultHandler {
 				inMSH1 = true;
 			}else if (currentLocation.equals(Location.DOCUMENT)){
 				output.append(name);
+				
 				currentLocation = Location.SEGMENT;
 				lastinSubelement = false;
 			}else if (currentLocation.equals(Location.SEGMENT)){
-				output.append(fieldDelim);
+				if (currentSegment.equals(name)){
+					output.append(repetitionSep);
+				}else{
+					output.append(fieldDelim);
+					currentSegment = name;
+				}
+
 				currentLocation = Location.ELEMENT;
 				lastinSubelement = false;
 			}else if (currentLocation.equals(Location.ELEMENT)){

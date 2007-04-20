@@ -229,7 +229,7 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher {
 		// call.invoke(args);
 		Object result = call.invoke(reqMessage);
 		AxisConnector axisConnector = (AxisConnector)connector;
-		if (axisConnector.getReplyChannelId() != null & axisConnector.getReplyChannelId() != ""){
+		if (axisConnector.getReplyChannelId() != null && !axisConnector.getReplyChannelId().equals("")  && !axisConnector.getReplyChannelId().equals("sink")){
 			//reply back to channel
 			VMRouter router = new VMRouter();
 			router.routeMessageByChannelId(axisConnector.getReplyChannelId(), result.toString(), true);

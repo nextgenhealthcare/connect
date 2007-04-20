@@ -274,7 +274,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 	}
 
 	private void writeTemplatedData(Socket socket, MessageObject data) throws Exception {
-		if (connector.getTemplate() != "") {
+		if (!connector.getTemplate().equals("")) {
 			String template = replacer.replaceValues(connector.getTemplate(), data);
 			write(socket, template);
 		} else {
@@ -304,7 +304,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 		}
 		try {
 			String ackString = new String(theAck, connector.getCharsetEncoding());
-			if (connector.getReplyChannelId() != null & connector.getReplyChannelId() != "") {
+			if (connector.getReplyChannelId() != null & !connector.getReplyChannelId().equals("") && !connector.getReplyChannelId().equals("sink")) {
 				// reply back to channel
 				VMRouter router = new VMRouter();
 				router.routeMessageByChannelId(connector.getReplyChannelId(), ackString, true);

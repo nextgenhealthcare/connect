@@ -19,10 +19,25 @@ public class SerializerFactory {
 			return new DefaultXMLSerializer();
 		}
 	}
+	public static ER7Serializer getHL7Serializer(boolean useStrictParser, boolean useStrictValidation, boolean handleRepetitions) {
+		Properties properties = new Properties();
+		properties.put("useStrictParser", Boolean.toString(useStrictParser));
+		properties.put("useStrictValidation", Boolean.toString(useStrictValidation));
+		properties.put("handleRepetitions", Boolean.toString(handleRepetitions));
+		return new ER7Serializer(properties);
+	}
 	public static ER7Serializer getHL7Serializer(boolean useStrictParser, boolean useStrictValidation) {
 		Properties properties = new Properties();
 		properties.put("useStrictParser", Boolean.toString(useStrictParser));
 		properties.put("useStrictValidation", Boolean.toString(useStrictValidation));
+		properties.put("handleRepetitions", false);
+		return new ER7Serializer(properties);
+	}
+	public static ER7Serializer getHL7Serializer() {
+		Properties properties = new Properties();
+		properties.put("useStrictParser", true);
+		properties.put("useStrictValidation", false);
+		properties.put("handleRepetitions", false);
 		return new ER7Serializer(properties);
 	}
 	public static X12Serializer getX12Serializer(boolean inferDelimiters) {
