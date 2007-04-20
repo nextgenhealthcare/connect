@@ -38,6 +38,7 @@ public class X12PropertiesBeanInfo extends EDIPropertiesBeanInfo
         try {
             properties[PROPERTY_elementDelimiter] = new PropertyDescriptor ( "elementDelimiter", com.webreach.mirth.client.ui.beans.X12Properties.class, "getElementDelimiter", "setElementDelimiter" ); // NOI18N
             properties[PROPERTY_elementDelimiter].setDisplayName ( "Element Delimiter" );
+            properties[PROPERTY_elementDelimiter].setShortDescription ( "Characters that delimit the elements in the message." );
             properties[PROPERTY_elementDelimiter].setBound ( true );
             properties[PROPERTY_inferX12Delimiters] = new PropertyDescriptor ( "inferX12Delimiters", com.webreach.mirth.client.ui.beans.X12Properties.class, "isInferX12Delimiters", "setInferX12Delimiters" ); // NOI18N
             properties[PROPERTY_inferX12Delimiters].setDisplayName ( "Infer X12 Delimiters" );
@@ -45,9 +46,11 @@ public class X12PropertiesBeanInfo extends EDIPropertiesBeanInfo
             properties[PROPERTY_inferX12Delimiters].setBound ( true );
             properties[PROPERTY_segmentDelimiter] = new PropertyDescriptor ( "segmentDelimiter", com.webreach.mirth.client.ui.beans.X12Properties.class, "getSegmentDelimiter", "setSegmentDelimiter" ); // NOI18N
             properties[PROPERTY_segmentDelimiter].setDisplayName ( "Segment Delimiter" );
+            properties[PROPERTY_segmentDelimiter].setShortDescription ( "Characters that delimit the segments in the message." );
             properties[PROPERTY_segmentDelimiter].setBound ( true );
             properties[PROPERTY_subelementDelimiter] = new PropertyDescriptor ( "subelementDelimiter", com.webreach.mirth.client.ui.beans.X12Properties.class, "getSubelementDelimiter", "setSubelementDelimiter" ); // NOI18N
             properties[PROPERTY_subelementDelimiter].setDisplayName ( "Subelement Delimiter" );
+            properties[PROPERTY_subelementDelimiter].setShortDescription ( "Characters that delimit the subelements in the message." );
             properties[PROPERTY_subelementDelimiter].setBound ( true );
         }
         catch(IntrospectionException e) {

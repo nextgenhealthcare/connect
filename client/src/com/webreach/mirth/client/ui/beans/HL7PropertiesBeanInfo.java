@@ -45,7 +45,7 @@ public class HL7PropertiesBeanInfo extends SimpleBeanInfo
             properties[PROPERTY_useStrictParser].setBound ( true );
             properties[PROPERTY_useStrictValidation] = new PropertyDescriptor ( "useStrictValidation", com.webreach.mirth.client.ui.beans.HL7Properties.class, "isUseStrictValidation", "setUseStrictValidation" ); // NOI18N
             properties[PROPERTY_useStrictValidation].setDisplayName ( "Validate in Strict Parser" );
-            properties[PROPERTY_useStrictValidation].setShortDescription ( "Validate messages using HL7 specifications (applies to Strict Parser only)" );
+            properties[PROPERTY_useStrictValidation].setShortDescription ( "Validate messages using HL7 specifications (applies to Strict Parser only)." );
             properties[PROPERTY_useStrictValidation].setBound ( true );
         }
         catch(IntrospectionException e) {

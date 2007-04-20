@@ -636,7 +636,7 @@ public class TransformerPane extends MirthEditorPane
                 data = mapperPanel.getData();
                 String var = data.get("Variable").toString();
 
-                if (var == null || var.equals("") || !isUnique(var, row, false))
+                if (var == null || var.equals("") || !isUnique(var, row, false) || var.indexOf(" ") != -1 || var.indexOf(".") != -1)
                 {
                     invalidVar = true;
                     String msg = "";
@@ -645,6 +645,8 @@ public class TransformerPane extends MirthEditorPane
 
                     if (var == null || var.equals(""))
                         msg = "The variable name cannot be blank.";
+                    else if (var.indexOf(" ") != -1 || var.indexOf(".") != -1)
+                        msg = "The variable name contains invalid characters.";
                     else
                         // var is not unique
                         msg = "'" + data.get("Variable") + "'" + " is not unique.";
@@ -852,17 +854,7 @@ public class TransformerPane extends MirthEditorPane
             Preferences.systemNodeForPackage(Mirth.class).put("currentDirectory", importFileChooser.getCurrentDirectory().getPath());
             importFile = importFileChooser.getSelectedFile();
             String transformerXML = "";
-
-            /*try
-            {
-                transformerXML = FileUtil.read(importFile);
-            }
-            catch (IOException e)
-            {
-                parent.alertError("File could not be read.");
-                return;
-            }*/
-            
+           
             MessageObject.Protocol incomingProtocol = null, outgoingProtocol = null;
             
             for (MessageObject.Protocol protocol : MessageObject.Protocol.values())
