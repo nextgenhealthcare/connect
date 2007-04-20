@@ -55,7 +55,7 @@ public class HL7V3Serializer implements IXMLSerializer<String> {
 
 	public Map<String, String> getMetadata() throws SerializerException {
 		Map<String, String> map = new HashMap<String, String>();
-		map.put("version", "3.0");
+		map.put("version", "3.0"); //TODO: Update this to real version codes
 		map.put("type", "HL7v3-Message");
 		map.put("source", "");
 		return map;
