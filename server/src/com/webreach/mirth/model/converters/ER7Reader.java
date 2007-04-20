@@ -54,7 +54,7 @@ public class ER7Reader extends SAXParser {
 		StringBuffer sb = new StringBuffer();
 		while ((nextLine = in.readLine()) != null) {
 			sb.append(nextLine);
-			sb.append("\r");
+			sb.append("\r"); // TODO: This should be configurable
 		}
 		String message = sb.toString();
 		message = message.trim();
