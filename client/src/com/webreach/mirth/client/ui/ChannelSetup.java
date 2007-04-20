@@ -1164,21 +1164,24 @@ public class ChannelSetup extends javax.swing.JPanel
             summaryLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(summaryLayout.createSequentialGroup()
                 .addContainerGap()
-                .add(summaryLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(jLabel1)
-                    .add(summaryPatternLabel1)
-                    .add(jLabel3)
-                    .add(summaryDescriptionLabel)
-                    .add(jLabel2)
-                    .add(summaryNameLabel))
+                .add(summaryLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 101, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, summaryDescriptionLabel)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel3)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel1)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, summaryPatternLabel1)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, summaryNameLabel))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(summaryLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(preprocessor, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 547, Short.MAX_VALUE)
+                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 547, Short.MAX_VALUE)
                     .add(storeMessages, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(summaryLayout.createSequentialGroup()
                         .add(35, 35, 35)
                         .add(summaryLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(storeMessagesAll, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(summaryLayout.createSequentialGroup()
+                                .add(storeMessagesAll, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                                 .add(storeMessagesDays, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                                 .add(4, 4, 4)
                                 .add(numDays, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 30, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -1198,11 +1201,7 @@ public class ChannelSetup extends javax.swing.JPanel
                             .add(summaryEnabledCheckbox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(transactionalCheckBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(synchronousCheckBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                        .add(3, 3, 3))
-                    .add(preprocessor, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 547, Short.MAX_VALUE)
-                    .add(summaryLayout.createSequentialGroup()
-                        .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 547, Short.MAX_VALUE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)))
+                        .add(3, 3, 3)))
                 .addContainerGap())
         );
         summaryLayout.setVerticalGroup(
@@ -1233,9 +1232,8 @@ public class ChannelSetup extends javax.swing.JPanel
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(storeMessagesErrors, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(storeMessagesAll, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(summaryLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                            .add(storeMessagesAll, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(numDays, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(days)
                             .add(storeMessagesDays, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
@@ -1248,11 +1246,11 @@ public class ChannelSetup extends javax.swing.JPanel
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(summaryLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(summaryDescriptionLabel)
-                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 134, Short.MAX_VALUE))
+                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 148, Short.MAX_VALUE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(summaryLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jLabel2)
-                    .add(preprocessor, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 136, Short.MAX_VALUE))
+                    .add(preprocessor, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 148, Short.MAX_VALUE)
+                    .add(jLabel2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 14, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
         channelView.addTab("Summary", summary);
@@ -1316,7 +1314,7 @@ public class ChannelSetup extends javax.swing.JPanel
                     .add(sourceSourceLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 15, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(sourceSourceDropdown, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(sourceConnectorPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 459, Short.MAX_VALUE)
+                .add(sourceConnectorPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 464, Short.MAX_VALUE)
                 .addContainerGap())
         );
         channelView.addTab("Source", source);
@@ -1403,8 +1401,8 @@ public class ChannelSetup extends javax.swing.JPanel
                     .add(destinationSourceDropdown, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(destinationLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(destinationVariableList, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 288, Short.MAX_VALUE)
-                    .add(destinationConnectorPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 288, Short.MAX_VALUE))
+                    .add(destinationVariableList, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 293, Short.MAX_VALUE)
+                    .add(destinationConnectorPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 293, Short.MAX_VALUE))
                 .addContainerGap())
         );
         channelView.addTab("Destinations", destination);
@@ -1417,7 +1415,7 @@ public class ChannelSetup extends javax.swing.JPanel
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(channelView, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 537, Short.MAX_VALUE)
+            .add(channelView)
         );
     }// </editor-fold>//GEN-END:initComponents
 
