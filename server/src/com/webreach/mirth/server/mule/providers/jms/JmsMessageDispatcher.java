@@ -114,8 +114,9 @@ public class JmsMessageDispatcher extends AbstractMessageDispatcher {
 
             Destination dest = connector.getJmsSupport().createDestination(session, endpointUri.getAddress(), topic);
             producer = connector.getJmsSupport().createProducer(session, dest);
-
-            Object message = new MessageObjectToJMSMessage(this.connector).doTransform(messageObject);
+            MessageObjectToJMSMessage transformer = new MessageObjectToJMSMessage(connector);
+            transformer.setEndpoint(event.getEndpoint());
+            Object message = transformer.doTransform(messageObject);
             if (!(message instanceof Message)) {
                 throw new DispatchException(new org.mule.config.i18n.Message(Messages.MESSAGE_NOT_X_IT_IS_TYPE_X_CHECK_TRANSFORMER_ON_X,
                         "JMS message",
@@ -218,6 +219,8 @@ public class JmsMessageDispatcher extends AbstractMessageDispatcher {
                         messageObjectController.setSuccess(messageObject, resultObject.toString());
                         return new MuleMessage(resultObject);
                     }
+                }else{
+                	messageObjectController.setSuccess(messageObject, "Jms message sent");
                 }
             }
             return null;
