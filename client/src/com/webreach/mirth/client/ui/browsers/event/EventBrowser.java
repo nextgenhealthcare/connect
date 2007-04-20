@@ -193,7 +193,7 @@ public class EventBrowser extends javax.swing.JPanel
         
                     Calendar calendar = systemEvent.getDate();
         
-                    tableData[i][1] = String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS", calendar);
+                    tableData[i][1] = String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS:%1$tL", calendar);
         
                     tableData[i][2] = systemEvent.getLevel().toString();
                     tableData[i][3] = systemEvent.getEvent();

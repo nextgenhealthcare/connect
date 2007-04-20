@@ -409,7 +409,7 @@ public class MessageBrowser extends javax.swing.JPanel
                     
                     Calendar calendar = messageObject.getDateCreated();
                     
-                    tableData[i][1] = String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS", calendar);
+                    tableData[i][1] = String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS:%1$tL", calendar);
                     tableData[i][2] = messageObject.getConnectorName();
                     
                     tableData[i][3] = messageObject.getType();
