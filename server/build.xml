@@ -164,6 +164,7 @@
 			<fileset file="${basedir}/wrapper-x86-32bit" />
 			<fileset file="${basedir}/activation.jnlp" />
 			<fileset file="${basedir}/mirth-client-core.jar" />
+			<fileset file="${basedir}/mirth-manager.jar" />
 		</copy>
 
 		<!-- create the Mirth server jar -->
