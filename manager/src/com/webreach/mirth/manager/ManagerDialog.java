@@ -35,12 +35,18 @@ public class ManagerDialog extends javax.swing.JDialog
     
     private static final String DATABASE_DERBY = "derby";
     private static final String DATABASE_POSTGRES = "postgres";
+    private static final String DATABASE_MYSQL = "mysql";
+    private static final String DATABASE_SQLSERVER = "sqlserver";
+    private static final String DATABASE_ORACLE = "oracle";
     
     private static final String log4jPropertiesPath = "conf\\log4j.properties";
     private static final String serverPropertiesPath = "conf\\mirth.properties";
     private static final String serverLogsPath = "logs\\";
     private static final String derbyPropertiesPath = "conf\\derby-SqlMapConfig.properties";
     private static final String postgresPropertiesPath = "conf\\postgres-SqlMapConfig.properties";
+    private static final String mysqlPropertiesPath = "conf\\mysql-SqlMapConfig.properties";
+    private static final String sqlserverPropertiesPath = "conf\\sqlserver-SqlMapConfig.properties";
+    private static final String oraclePropertiesPath = "conf\\oracle-SqlMapConfig.properties";
     
     private static final String[] log4jErrorCodes = new String[]{"ERROR", "WARN", "DEBUG", "INFO"};
     
@@ -357,7 +363,7 @@ public class ManagerDialog extends javax.swing.JDialog
 
         jLabel8.setText(" URL:");
 
-        databaseType.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "derby", "postgres" }));
+        databaseType.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "derby", "postgres", "mysql", "sqlserver", "oracle" }));
         databaseType.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -509,11 +515,6 @@ public class ManagerDialog extends javax.swing.JDialog
 
     private void databaseTypeActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_databaseTypeActionPerformed
     {//GEN-HEADEREND:event_databaseTypeActionPerformed
-        if(((String)databaseType.getSelectedItem()).equals(DATABASE_DERBY))
-            databaseProperties = ManagerController.getInstance().getProperties(PlatformUI.MIRTH_PATH + derbyPropertiesPath);
-        else if(((String)databaseType.getSelectedItem()).equals(DATABASE_POSTGRES))
-            databaseProperties = ManagerController.getInstance().getProperties(PlatformUI.MIRTH_PATH + postgresPropertiesPath);
-        
         loadDatabaseProperties();
     }//GEN-LAST:event_databaseTypeActionPerformed
 
@@ -592,6 +593,17 @@ public class ManagerDialog extends javax.swing.JDialog
     
     private void loadDatabaseProperties()
     {
+        if(((String)databaseType.getSelectedItem()).equals(DATABASE_DERBY))
+            databaseProperties = ManagerController.getInstance().getProperties(PlatformUI.MIRTH_PATH + derbyPropertiesPath);
+        else if(((String)databaseType.getSelectedItem()).equals(DATABASE_POSTGRES))
+            databaseProperties = ManagerController.getInstance().getProperties(PlatformUI.MIRTH_PATH + postgresPropertiesPath);
+        else if(((String)databaseType.getSelectedItem()).equals(DATABASE_MYSQL))
+            databaseProperties = ManagerController.getInstance().getProperties(PlatformUI.MIRTH_PATH + mysqlPropertiesPath);
+        else if(((String)databaseType.getSelectedItem()).equals(DATABASE_SQLSERVER))
+            databaseProperties = ManagerController.getInstance().getProperties(PlatformUI.MIRTH_PATH + sqlserverPropertiesPath);
+        else if(((String)databaseType.getSelectedItem()).equals(DATABASE_ORACLE))
+            databaseProperties = ManagerController.getInstance().getProperties(PlatformUI.MIRTH_PATH + oraclePropertiesPath);
+        
         if(databaseProperties.getProperty(DATABASE_URL) != null)
             databaseUrl.setText(databaseProperties.getProperty(DATABASE_URL));
         else
@@ -619,6 +631,12 @@ public class ManagerDialog extends javax.swing.JDialog
             ManagerController.getInstance().setProperties(databaseProperties, PlatformUI.MIRTH_PATH + derbyPropertiesPath);
         else if(((String)databaseType.getSelectedItem()).equals(DATABASE_POSTGRES))
             ManagerController.getInstance().setProperties(databaseProperties, PlatformUI.MIRTH_PATH + postgresPropertiesPath);
+        else if(((String)databaseType.getSelectedItem()).equals(DATABASE_MYSQL))
+            ManagerController.getInstance().setProperties(databaseProperties, PlatformUI.MIRTH_PATH + mysqlPropertiesPath);
+        else if(((String)databaseType.getSelectedItem()).equals(DATABASE_SQLSERVER))
+            ManagerController.getInstance().setProperties(databaseProperties, PlatformUI.MIRTH_PATH + sqlserverPropertiesPath);
+        else if(((String)databaseType.getSelectedItem()).equals(DATABASE_ORACLE))
+            ManagerController.getInstance().setProperties(databaseProperties, PlatformUI.MIRTH_PATH + oraclePropertiesPath);
     }
     
     private void updateAllProperties(Properties serverProperties, Properties log4jProperties, Properties databaseProperties)

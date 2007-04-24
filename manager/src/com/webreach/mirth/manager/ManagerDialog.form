@@ -531,9 +531,12 @@
                 <Component class="javax.swing.JComboBox" name="databaseType">
                   <Properties>
                     <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-                      <StringArray count="2">
+                      <StringArray count="5">
                         <StringItem index="0" value="derby"/>
                         <StringItem index="1" value="postgres"/>
+                        <StringItem index="2" value="mysql"/>
+                        <StringItem index="3" value="sqlserver"/>
+                        <StringItem index="4" value="oracle"/>
                       </StringArray>
                     </Property>
                   </Properties>

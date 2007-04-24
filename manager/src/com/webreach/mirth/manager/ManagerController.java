@@ -166,7 +166,6 @@ public class ManagerController
         }
         catch (IOException ex)
         {
-            properties = null;
             alertError("Could not load file: " + path);
         }
         return properties;
