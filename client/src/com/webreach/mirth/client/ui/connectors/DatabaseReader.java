@@ -362,7 +362,7 @@ public class DatabaseReader extends ConnectorClass
                 }
             }
         }
-        catch (ParserConfigurationException ex)
+        catch (Exception ex)
         {
         }
     }

@@ -448,6 +448,9 @@ public class AlertPanel extends javax.swing.JPanel
     public void setAlertErrorList()
     {
         ArrayList<String> variables = new ArrayList<String>();
+        variables.add("Any error");
+        variables.add("Server error");
+        variables.add("Client error");
         variables.add("200: Filter error");
         variables.add("300: Transformer error");
         variables.add("301: Transformer conversion error");
