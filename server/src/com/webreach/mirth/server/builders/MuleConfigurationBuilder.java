@@ -288,7 +288,10 @@ public class MuleConfigurationBuilder {
 				// 2. finally, append any transformers needed by the transport
 				// (ie. StringToByteArray)
 				Transport transport = transports.get(connector.getTransportName());
-				transformers.append(transport.getTransformers());
+
+				if (transport.getTransformers() != null) {
+					transformers.append(transport.getTransformers());	
+				}
 
 				// enable transactions for the outbount router only if it has a
 				// JDBC connector

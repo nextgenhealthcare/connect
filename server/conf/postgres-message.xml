@@ -120,13 +120,19 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		ORDER BY TEMP_TABLE.DATE_CREATED DESC
 	</select>
 
+	<statement id="dropTempMessageTableSequence" parameterClass="java.lang.String">
+		DROP SEQUENCE SEQUENCE_MESSAGE_TEMP_$uid$ CASCADE
+	</statement>
+
 	<statement id="dropTempMessageTable" parameterClass="java.lang.String">
-		DROP SEQUENCE SEQUENCE_MESSAGE_TEMP_$uid$ CASCADE;
 		DROP TABLE MESSAGE_TEMP_$uid$
 	</statement>
 
-	<statement id="createTempMessageTable" parameterClass="java.lang.String">
-		CREATE SEQUENCE SEQUENCE_MESSAGE_TEMP_$uid$ START WITH 1;	
+	<statement id="createTempMessageTableSequence" parameterClass="java.lang.String">
+		CREATE SEQUENCE SEQUENCE_MESSAGE_TEMP_$uid$ START WITH 1
+	</statement>
+
+	<statement id="createTempMessageTable" parameterClass="java.lang.String">	
 		CREATE TABLE MESSAGE_TEMP_$uid$ (ID INTEGER, SEQUENCE_ORDER INTEGER DEFAULT NEXTVAL('SEQUENCE_MESSAGE_TEMP_$uid$'), DATE_CREATED TIMESTAMP)
 	</statement>
 
@@ -172,7 +178,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 	</delete>
 
 	<delete id="deleteTempMessageTableIndex" parameterClass="java.lang.String">
-		DROP INDEX INDEX_MESSAGE_TEMP_$uid$;
+		DROP INDEX INDEX_MESSAGE_TEMP_$uid$
 	</delete>
 	
 	<statement id="rebuildMessageIndex">

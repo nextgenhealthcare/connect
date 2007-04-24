@@ -36,6 +36,9 @@ import org.apache.log4j.Logger;
 import org.mule.umo.UMOEvent;
 
 import com.ibatis.sqlmap.client.SqlMapClient;
+import com.ibatis.sqlmap.client.SqlMapException;
+import com.ibatis.sqlmap.engine.impl.ExtendedSqlMapClient;
+import com.ibatis.sqlmap.engine.impl.SqlMapExecutorDelegate;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.Response;
@@ -145,6 +148,8 @@ public class MessageObjectController {
 		logger.debug("creating temporary message table: filter=" + filter.toString());
 
 		try {
+			if (statementExists("dropTempMessageTableSequence"))
+				sqlMap.update("dropTempMessageTableSequence", uid);
 			sqlMap.update("dropTempMessageTable", uid);
 		} catch (SQLException e) {
 			// supress any warnings about the table not existing
@@ -152,6 +157,8 @@ public class MessageObjectController {
 		}
 
 		try {
+			if (statementExists("createTempMessageTableSequence"))
+				sqlMap.update("createTempMessageTableSequence", uid);
 			sqlMap.update("createTempMessageTable", uid);
 			sqlMap.update("createTempMessageTableIndex", uid);
 			return sqlMap.update("populateTempMessageTable", getFilterMap(filter, uid));
@@ -349,5 +356,20 @@ public class MessageObjectController {
 			messageObject.setStatus(status);
 			updateMessage(messageObject);
 		}
+	}
+	
+	private boolean statementExists(String statement)
+	{
+		try
+		{
+			SqlMapExecutorDelegate delegate = ((ExtendedSqlMapClient)sqlMap).getDelegate();
+			delegate.getMappedStatement(statement);
+		}
+		catch (SqlMapException sme)
+		{
+			// The statement does not exist
+			return false;
+		}
+		return true;
 	}
 }

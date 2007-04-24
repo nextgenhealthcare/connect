@@ -35,10 +35,10 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		<parameter property="encodedData" jdbcType="CLOB" />
 		<parameter property="errors" jdbcType="CLOB" />
 		<parameter property="correlationId" jdbcType="VARCHAR" />
+		<parameter property="id" jdbcType="VARCHAR" />
 		<parameter property="connectorMap" jdbcType="CLOB" />
 		<parameter property="channelMap" jdbcType="CLOB" />
-		<parameter property="responseMap" jdbcType="CLOB" />	
-		<parameter property="id" jdbcType="VARCHAR" />			
+		<parameter property="responseMap" jdbcType="CLOB" />		
 	</parameterMap>
 
 	<resultMap class="com.webreach.mirth.model.MessageObject" id="get-message-result">
@@ -88,10 +88,10 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 				LOWER(CONNECTOR_NAME) LIKE LOWER(#connectorName#)
 			</isNotNull>
 			<isNotNull prepend="AND" property="startDate">
-				DATE_CREATED <![CDATA[ >= ]]> #startDate#
+				DATE_CREATED <![CDATA[ >= ]]> to_date(#startDate#,'YYYY-MM-DD HH24:MI:SS')
 			</isNotNull>
 			<isNotNull prepend="AND" property="endDate">
-				DATE_CREATED <![CDATA[ <= ]]> #endDate#
+				DATE_CREATED <![CDATA[ <= ]]> to_date(#endDate#,'YYYY-MM-DD HH24:MI:SS')
 			</isNotNull>
 		</dynamic>
 	</sql>
@@ -106,7 +106,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		SELECT
 			MESSAGE.*
 		FROM
-			MESSAGE_TEMP_$uid$ AS TEMP_TABLE,
+			MSG_TMP_$uid$ TEMP_TABLE,
 			MESSAGE
 		WHERE
 			TEMP_TABLE.ID = MESSAGE.SEQUENCE_ID
@@ -120,30 +120,38 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		ORDER BY TEMP_TABLE.DATE_CREATED DESC
 	</select>
 
+	<statement id="dropTempMessageTableSequence" parameterClass="java.lang.String">
+		DROP SEQUENCE SEQ_MSG_TMP_$uid$
+	</statement>
+	
 	<statement id="dropTempMessageTable" parameterClass="java.lang.String">
-		DROP TABLE MESSAGE_TEMP_$uid$
+		DROP TABLE MSG_TMP_$uid$
 	</statement>
 
-	<statement id="createTempMessageTable" parameterClass="java.lang.String">
-		CREATE TABLE MESSAGE_TEMP_$uid$ (ID INTEGER, SEQUENCE_ORDER INTEGER IDENTITY (0, 1) NOT NULL, DATE_CREATED TIMESTAMP)
+	<statement id="createTempMessageTableSequence" parameterClass="java.lang.String">
+		CREATE SEQUENCE SEQ_MSG_TMP_$uid$ START WITH 1 INCREMENT BY 1
+	</statement>
+	
+	<statement id="createTempMessageTable" parameterClass="java.lang.String">	
+		CREATE TABLE MSG_TMP_$uid$ (ID INTEGER, SEQUENCE_ORDER INTEGER, DATE_CREATED TIMESTAMP)
 	</statement>
 
 	<statement id="createTempMessageTableIndex" parameterClass="java.lang.String">
-		CREATE INDEX INDEX_MESSAGE_TEMP_$uid$ ON MESSAGE_TEMP_$uid$ (SEQUENCE_ORDER, ID)
+		CREATE INDEX IDX_MSG_TMP_$uid$ ON MSG_TMP_$uid$ (SEQUENCE_ORDER, ID)
 	</statement>
 
 	<!-- NOTE: The nested SELECT needs an ORDER BY DATE_CREATED, which Derby does not support -->
 	<insert id="populateTempMessageTable" parameterClass="java.util.Map">
-		INSERT INTO MESSAGE_TEMP_$uid$ (ID)
-			(SELECT SEQUENCE_ID
+		INSERT INTO MSG_TMP_$uid$ (ID, SEQUENCE_ORDER, DATE_CREATED)
+			(SELECT SEQUENCE_ID, SEQ_MSG_TMP_$uid$.NEXTVAL, DATE_CREATED
 			FROM MESSAGE
 			<include refid="messageFilterCriteria" />)
 	</insert>
 	
 	<insert id="insertMessage" parameterMap="insert-message-param">
 		INSERT INTO
-		MESSAGE (ID, CHANNEL_ID, SOURCE, TYPE, DATE_CREATED, VERSION, IS_ENCRYPTED, STATUS, RAW_DATA, RAW_DATA_PROTOCOL, TRANSFORMED_DATA, TRANSFORMED_DATA_PROTOCOL, ENCODED_DATA, ENCODED_DATA_PROTOCOL, CONNECTOR_NAME, ERRORS, CORRELATION_ID, CONNECTOR_MAP, CHANNEL_MAP, RESPONSE_MAP)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		MESSAGE (SEQUENCE_ID, ID, CHANNEL_ID, SOURCE, TYPE, DATE_CREATED, VERSION, IS_ENCRYPTED, STATUS, RAW_DATA, RAW_DATA_PROTOCOL, TRANSFORMED_DATA, TRANSFORMED_DATA_PROTOCOL, ENCODED_DATA, ENCODED_DATA_PROTOCOL, CONNECTOR_NAME, ERRORS, CORRELATION_ID, CONNECTOR_MAP, CHANNEL_MAP, RESPONSE_MAP)
+		VALUES (MESSAGE_SEQUENCE.NEXTVAL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	</insert>
 	
 	<update id="updateMessage" parameterMap="update-message-param">
@@ -166,14 +174,14 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 	</delete>
 	
 	<delete id="deleteTempMessageTable" parameterClass="java.lang.String">
-		DROP TABLE MESSAGE_TEMP_$uid$
+		DROP TABLE MSG_TMP_$uid$
 	</delete>
 
 	<delete id="deleteTempMessageTableIndex" parameterClass="java.lang.String">
-		DROP INDEX INDEX_MESSAGE_TEMP_$uid$
+		DROP INDEX IDX_MSG_TMP_$uid$
 	</delete>
 	
 	<statement id="rebuildMessageIndex">
-
+		REINDEX TABLE MESSAGE
 	</statement>
 </sqlMap>
