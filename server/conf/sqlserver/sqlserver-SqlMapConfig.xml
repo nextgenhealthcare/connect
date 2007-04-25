@@ -5,7 +5,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map Config 2.0//EN"
 "conf/sql-map-config-2.dtd">
 
 <sqlMapConfig>
-	<properties resource="mysql-SqlMapConfig.properties" />
+	<properties resource="sqlserver/sqlserver-SqlMapConfig.properties" />
 
 	<settings cacheModelsEnabled="true" enhancementEnabled="true"
 		lazyLoadingEnabled="true" maxRequests="32" maxSessions="10"
@@ -39,13 +39,13 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map Config 2.0//EN"
 		</dataSource>
 	</transactionManager>
 
-	<sqlMap resource="mysql-user.xml" />
-	<sqlMap resource="mysql-channel.xml" />
-	<sqlMap resource="mysql-message.xml" />
-	<sqlMap resource="mysql-script.xml" />
-	<sqlMap resource="mysql-template.xml" />
-	<sqlMap resource="mysql-configuration.xml" />
-	<sqlMap resource="mysql-event.xml" />
-	<sqlMap resource="mysql-statistic.xml" />
-	<sqlMap resource="mysql-alert.xml" />
+	<sqlMap resource="${database}/${database}-user.xml" />
+	<sqlMap resource="${database}/${database}-channel.xml" />
+	<sqlMap resource="${database}/${database}-message.xml" />
+	<sqlMap resource="${database}/${database}-script.xml" />
+	<sqlMap resource="${database}/${database}-template.xml" />
+	<sqlMap resource="${database}/${database}-configuration.xml" />
+	<sqlMap resource="${database}/${database}-event.xml" />
+	<sqlMap resource="${database}/${database}-statistic.xml" />
+	<sqlMap resource="${database}/${database}-alert.xml" />
 </sqlMapConfig>

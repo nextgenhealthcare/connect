@@ -16,7 +16,7 @@ public class SqlConfig {
 	static {
 		try {
 			String database = mirthProperties.getProperty("database");
-			String resource = database + "-SqlMapConfig.xml";
+			String resource = database + System.getProperty("file.separator") + database + "-SqlMapConfig.xml";
 			LogFactory.selectLog4JLogging();
 			Reader reader = Resources.getResourceAsReader(resource);
 			sqlMap = SqlMapClientBuilder.buildSqlMapClient(reader);

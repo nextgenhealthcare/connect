@@ -5,7 +5,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map Config 2.0//EN"
 "conf/sql-map-config-2.dtd">
 
 <sqlMapConfig>
-	<properties resource="derby-SqlMapConfig.properties" />
+	<properties resource="derby/derby-SqlMapConfig.properties" />
 
 	<settings cacheModelsEnabled="true" enhancementEnabled="true"
 		lazyLoadingEnabled="true" maxRequests="32" maxSessions="10"
@@ -39,13 +39,13 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map Config 2.0//EN"
 		</dataSource>
 	</transactionManager>
 
-	<sqlMap resource="derby-user.xml" />
-	<sqlMap resource="derby-channel.xml" />
-	<sqlMap resource="derby-message.xml" />
-	<sqlMap resource="derby-script.xml" />
-	<sqlMap resource="derby-template.xml" />
-	<sqlMap resource="derby-configuration.xml" />
-	<sqlMap resource="derby-event.xml" />
-	<sqlMap resource="derby-statistic.xml" />
-	<sqlMap resource="derby-alert.xml" />
+	<sqlMap resource="${database}/${database}-user.xml" />
+	<sqlMap resource="${database}/${database}-channel.xml" />
+	<sqlMap resource="${database}/${database}-message.xml" />
+	<sqlMap resource="${database}/${database}-script.xml" />
+	<sqlMap resource="${database}/${database}-template.xml" />
+	<sqlMap resource="${database}/${database}-configuration.xml" />
+	<sqlMap resource="${database}/${database}-event.xml" />
+	<sqlMap resource="${database}/${database}-statistic.xml" />
+	<sqlMap resource="${database}/${database}-alert.xml" />
 </sqlMapConfig>

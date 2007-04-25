@@ -5,7 +5,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map Config 2.0//EN"
 "conf/sql-map-config-2.dtd">
 
 <sqlMapConfig>
-	<properties resource="oracle-SqlMapConfig.properties" />
+	<properties resource="mysql/mysql-SqlMapConfig.properties" />
 
 	<settings cacheModelsEnabled="true" enhancementEnabled="true"
 		lazyLoadingEnabled="true" maxRequests="32" maxSessions="10"
@@ -38,13 +38,14 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map Config 2.0//EN"
 			<property name="JDBC.Password" value="${password}" />
 		</dataSource>
 	</transactionManager>
-	<sqlMap resource="oracle-alert.xml" />
-	<sqlMap resource="oracle-user.xml" />
-	<sqlMap resource="oracle-channel.xml" />
-	<sqlMap resource="oracle-message.xml" />
-	<sqlMap resource="oracle-script.xml" />
-	<sqlMap resource="oracle-template.xml" />
-	<sqlMap resource="oracle-configuration.xml" />
-	<sqlMap resource="oracle-event.xml" />
-	<sqlMap resource="oracle-statistic.xml" />
+
+	<sqlMap resource="${database}/${database}-user.xml" />
+	<sqlMap resource="${database}/${database}-channel.xml" />
+	<sqlMap resource="${database}/${database}-message.xml" />
+	<sqlMap resource="${database}/${database}-script.xml" />
+	<sqlMap resource="${database}/${database}-template.xml" />
+	<sqlMap resource="${database}/${database}-configuration.xml" />
+	<sqlMap resource="${database}/${database}-event.xml" />
+	<sqlMap resource="${database}/${database}-statistic.xml" />
+	<sqlMap resource="${database}/${database}-alert.xml" />
 </sqlMapConfig>

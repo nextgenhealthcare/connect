@@ -5,7 +5,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map Config 2.0//EN"
 "conf/sql-map-config-2.dtd">
 
 <sqlMapConfig>
-	<properties resource="postgres-SqlMapConfig.properties" />
+	<properties resource="oracle/oracle-SqlMapConfig.properties" />
 
 	<settings cacheModelsEnabled="true" enhancementEnabled="true"
 		lazyLoadingEnabled="true" maxRequests="32" maxSessions="10"
@@ -38,13 +38,14 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map Config 2.0//EN"
 			<property name="JDBC.Password" value="${password}" />
 		</dataSource>
 	</transactionManager>
-	<sqlMap resource="postgres-alert.xml" />
-	<sqlMap resource="postgres-user.xml" />
-	<sqlMap resource="postgres-channel.xml" />
-	<sqlMap resource="postgres-message.xml" />
-	<sqlMap resource="postgres-script.xml" />
-	<sqlMap resource="postgres-template.xml" />
-	<sqlMap resource="postgres-configuration.xml" />
-	<sqlMap resource="postgres-event.xml" />
-	<sqlMap resource="postgres-statistic.xml" />
+	
+	<sqlMap resource="${database}/${database}-user.xml" />
+	<sqlMap resource="${database}/${database}-channel.xml" />
+	<sqlMap resource="${database}/${database}-message.xml" />
+	<sqlMap resource="${database}/${database}-script.xml" />
+	<sqlMap resource="${database}/${database}-template.xml" />
+	<sqlMap resource="${database}/${database}-configuration.xml" />
+	<sqlMap resource="${database}/${database}-event.xml" />
+	<sqlMap resource="${database}/${database}-statistic.xml" />
+	<sqlMap resource="${database}/${database}-alert.xml" />
 </sqlMapConfig>
