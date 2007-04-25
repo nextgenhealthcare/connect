@@ -32,6 +32,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.model.filters.MessageObjectFilter;
 import com.webreach.mirth.server.controllers.MessageObjectController;
@@ -67,7 +68,10 @@ public class MessageObjectServlet extends MirthServlet {
 				} else if (operation.equals("reprocessMessages")) {
 					String filter = request.getParameter("filter");
 					messageObjectController.reprocessMessages((MessageObjectFilter) serializer.fromXML(filter), sessionId);
-				}
+				} else if (operation.equals("importMessage")) {
+                    String message = request.getParameter("message");
+                    messageObjectController.updateMessage((MessageObject) serializer.fromXML(message));
+                }
 			} catch (Exception e) {
 				throw new ServletException(e);
 			}

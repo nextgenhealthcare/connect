@@ -69,7 +69,16 @@ public class ImportConverter
 	    }
 	    return result;
     }
-
+    
+    /*
+     * Method used to convert messages from one version to another.
+     * Right now this method does nothing more than returning the string contents.
+     */
+    public static String convertMessage(String message) throws Exception
+    {
+        return message;
+    }
+    
     /*
      * Upgrade pre-1.4 channels to work with 1.4+
      */

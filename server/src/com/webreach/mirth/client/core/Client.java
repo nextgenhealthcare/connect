@@ -444,6 +444,12 @@ public class Client {
 		NameValuePair[] params = { new NameValuePair("op", "reprocessMessages"), new NameValuePair("filter", serializer.toXML(filter)) };
 		serverConnection.executePostMethod(MESSAGE_SERVLET, params);
 	}
+    
+    public synchronized void importMessage(MessageObject message) throws ClientException {
+        logger.debug("importing message");
+        NameValuePair[] params = { new NameValuePair("op", "importMessage"), new NameValuePair("message", serializer.toXML(message)) };
+        serverConnection.executePostMethod(MESSAGE_SERVLET, params);
+    }
 
 	/**
 	 * Clears the message list for the channel with the specified id.
