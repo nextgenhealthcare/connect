@@ -40,12 +40,11 @@ public class LoginPanel extends javax.swing.JFrame
     private Frame parent;
     private Channel channel;
     private Client client;
-    private String version;
 
     /** Creates new form WizardDialog */
     public LoginPanel(String mirthServer, String version)
     {
-        this.version = version;
+        PlatformUI.CLIENT_VERSION = version;
         initComponents();
         setTitle("Mirth Administrator - Login");
         serverName.setText(mirthServer);
@@ -267,7 +266,7 @@ public class LoginPanel extends javax.swing.JFrame
             String server = serverName.getText();
             client = new Client(server);
             PlatformUI.SERVER_NAME = server;
-            if (client.login(username.getText(), String.valueOf(password.getPassword()), version))
+            if (client.login(username.getText(), String.valueOf(password.getPassword()), PlatformUI.CLIENT_VERSION))
             {
                 PlatformUI.USER_NAME = username.getText();
                 return true;
@@ -277,10 +276,10 @@ public class LoginPanel extends javax.swing.JFrame
         }
         catch (ClientException ex)
         {
-        	if (ex.getCause() instanceof VersionMismatchException)
+            if (ex.getCause() instanceof VersionMismatchException)
                 error.setText("The version of this client does not match the version\nof the server.  Please clear your Java cache and\nrelaunch the client from the server webpage.");
-        	else
-        		error.setText("There was a problem authenticating the information that\nwas entered.  Please verify that the server is up and \nrunning and that the user information is valid.");	
+            else
+                error.setText("There was a problem authenticating the information that\nwas entered.  Please verify that the server is up and \nrunning and that the user information is valid.");	
         }
         return false;
     }

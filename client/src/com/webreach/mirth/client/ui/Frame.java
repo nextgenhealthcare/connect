@@ -1841,7 +1841,7 @@ public class Frame extends JXFrame
         {
             mirthClient.logout();
             this.dispose();
-            Mirth.main(new String[] { PlatformUI.SERVER_NAME });
+            Mirth.main(new String[] { PlatformUI.SERVER_NAME, PlatformUI.CLIENT_VERSION });
         }
         catch (ClientException e)
         {
