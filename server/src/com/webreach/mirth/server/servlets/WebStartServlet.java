@@ -53,6 +53,13 @@ public class WebStartServlet extends HttpServlet {
 
 			Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse("mirth-client.jnlp");
 			Element jnlpElement = document.getDocumentElement();
+			
+			// Change the title to include the version of Mirth
+			Properties versionProperties = PropertyLoader.loadProperties("version");
+			String version = versionProperties.getProperty("mirth.version");
+			Element informationElement = (Element)jnlpElement.getElementsByTagName("information").item(0);
+			Element title = (Element)informationElement.getElementsByTagName("title").item(0);
+			title.setTextContent(title.getTextContent() + " " + version);
 
 			String scheme = request.getScheme();
 			String serverName = request.getServerName();
@@ -78,9 +85,12 @@ public class WebStartServlet extends HttpServlet {
 			
 			jnlpElement.setAttribute("codebase", codebase);
 			Element applicationDescElement = (Element) jnlpElement.getElementsByTagName("application-desc").item(0);
-			Element argumentElement = document.createElement("argument");
-			argumentElement.setTextContent(server);
-			applicationDescElement.appendChild(argumentElement);
+			Element serverArgumentElement = document.createElement("argument");
+			serverArgumentElement.setTextContent(server);
+			applicationDescElement.appendChild(serverArgumentElement);
+			Element versionArgumentElement = document.createElement("argument");
+			versionArgumentElement.setTextContent(version);
+			applicationDescElement.appendChild(versionArgumentElement);
 
 			out.println(docSerializer.toXML(document));
 		} catch (Exception e) {
