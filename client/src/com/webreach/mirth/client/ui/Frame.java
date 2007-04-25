@@ -160,6 +160,7 @@ public class Frame extends JXFrame
     private List<String> charsetEncodings = null;
     private boolean highlightersSet = false;
     private boolean isEditingChannel = false;
+    private int workingCounter = 0;
     public LinkedHashMap<MessageObject.Protocol, String> protocols;
 
     public Frame()
@@ -445,7 +446,17 @@ public class Frame extends JXFrame
     public void setWorking(final boolean working)
     {
         if (statusBar != null)
-            statusBar.setWorking(working);
+        {
+            if(working)
+                workingCounter++;
+            else
+                workingCounter--;
+            System.out.println(workingCounter);
+            if(workingCounter > 0)
+                statusBar.setWorking(true);
+            else
+                statusBar.setWorking(false);
+        }
     }
 
     /**
@@ -1030,9 +1041,21 @@ public class Frame extends JXFrame
             }
         });
         messagePopupMenu.add(refresh);
-
-        messageTasks.add(initActionCallback("doExportMessages", "Export all currently viewed messages.", ActionFactory.createBoundAction("doExportMessages", "Export Messages", ""), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/export.png"))));
-        JMenuItem exportMessages = new JMenuItem("Export Messages");
+        
+        messageTasks.add(initActionCallback("doImportMessages", "Import all currently viewed messages.", ActionFactory.createBoundAction("doImportMessages", "Import Messages", ""), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/import.png"))));
+        JMenuItem importMessages = new JMenuItem("Import Messages");
+        importMessages.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/import.png")));
+        importMessages.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                doImportMessages();
+            }
+        });
+        messagePopupMenu.add(importMessages);
+        
+        messageTasks.add(initActionCallback("doExportMessages", "Export all currently viewed messages.", ActionFactory.createBoundAction("doExportMessages", "Export Filtered Messages", ""), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/export.png"))));
+        JMenuItem exportMessages = new JMenuItem("Export Filtered Messages");
         exportMessages.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/export.png")));
         exportMessages.addActionListener(new ActionListener()
         {
@@ -1104,8 +1127,8 @@ public class Frame extends JXFrame
         messagePopupMenu.add(reprocessMessage);
 
         setNonFocusable(messageTasks);
-        setVisibleTasks(messageTasks, messagePopupMenu, 4, -1, false);
-        setVisibleTasks(messageTasks, messagePopupMenu, 5, 5, true);
+        setVisibleTasks(messageTasks, messagePopupMenu, 5, -1, false);
+        setVisibleTasks(messageTasks, messagePopupMenu, 6, 6, true);
         taskPaneContainer.add(messageTasks);
     }
 
@@ -2569,9 +2592,7 @@ public class Frame extends JXFrame
 
             public void done()
             {
-                // We don't want to turn off the working
-                // because load new is on a diff thread
-                // setWorking(false);
+                setWorking(false);
             }
         };
         worker.execute();
@@ -2806,7 +2827,7 @@ public class Frame extends JXFrame
 
             try
             {
-                FileUtil.write(exportFile, channelXML);
+                FileUtil.write(exportFile, channelXML, false);
                 alertInformation(channel.getName() + " was written to " + exportFile.getPath() + ".");
             }
             catch (IOException ex)
@@ -2853,7 +2874,7 @@ public class Frame extends JXFrame
                         if (!alertOption("The file " + channel.getName() + ".xml already exists.  Would you like to overwrite it?"))
                             continue;
 
-                    FileUtil.write(exportFile, channelXML);
+                    FileUtil.write(exportFile, channelXML, false);
                 }
                 alertInformation("All files were written successfully to " + exportDirectory.getPath() + ".");
             }
@@ -2922,10 +2943,47 @@ public class Frame extends JXFrame
 
         worker.execute();
     }
+    
+    public void doImportMessages()
+    {
+        setWorking(true);
 
+        SwingWorker worker = new SwingWorker<Void, Void>()
+        {
+            public Void doInBackground()
+            {
+                messageBrowser.importMessages();
+                return null;
+            }
+
+            public void done()
+            {
+                setWorking(false);
+            }
+        };
+
+        worker.execute();
+    }
+    
     public void doExportMessages()
     {
-        messageBrowser.export();
+        setWorking(true);
+
+        SwingWorker worker = new SwingWorker<Void, Void>()
+        {
+            public Void doInBackground()
+            {
+                messageBrowser.exportMessages();
+                return null;
+            }
+
+            public void done()
+            {
+                setWorking(false);
+            }
+        };
+
+        worker.execute();
     }
 
     public void doRemoveAllMessages()

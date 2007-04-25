@@ -74,47 +74,47 @@ public class VariableTransferable implements Transferable
             this.data = "date.get('yyyy-M-d H.m.s')";
         else if (data.equals("Entity Encoder"))
             this.data = "encoder.encode()";
-        else if (data.equals("Any error"))
+        else if (data.equals("Any"))
             this.data = "ERROR";
-        else if (data.equals("Server error"))
+        else if (data.equals("Server"))
             this.data = "ERROR-000";
-        else if (data.equals("Client error"))
+        else if (data.equals("Client"))
             this.data = "ERROR-100";
-        else if (data.equals("200: Filter error"))
+        else if (data.equals("200: Filter"))
             this.data = "ERROR-200";
-        else if (data.equals("300: Transformer error"))
+        else if (data.equals("300: Transformer"))
             this.data = "ERROR-300";
-        else if (data.equals("301: Transformer conversion error"))
+        else if (data.equals("301: Transformer conversion"))
             this.data = "ERROR-301";
-        else if (data.equals("302: Custom transformer error"))
+        else if (data.equals("302: Custom transformer"))
             this.data = "ERROR-302";
-        else if (data.equals("400: Connector error"))
+        else if (data.equals("400: Connector"))
             this.data = "ERROR-400";
-        else if (data.equals("401: Document connector error"))
+        else if (data.equals("401: Document connector"))
             this.data = "ERROR-401";
-        else if (data.equals("402: SMTP connector error"))
+        else if (data.equals("402: SMTP connector"))
             this.data = "ERROR-402";
-        else if (data.equals("403: File connector error"))
+        else if (data.equals("403: File connector"))
             this.data = "ERROR-403";
-        else if (data.equals("404: HTTP connector error"))
+        else if (data.equals("404: HTTP connector"))
             this.data = "ERROR-404";
-        else if (data.equals("405: FTP connector error"))
+        else if (data.equals("405: FTP connector"))
             this.data = "ERROR-405";
-        else if (data.equals("406: JDBC Connector error"))
+        else if (data.equals("406: JDBC Connector"))
             this.data = "ERROR-406";
-        else if (data.equals("407: JMS Connector error"))
+        else if (data.equals("407: JMS Connector"))
             this.data = "ERROR-407";
-        else if (data.equals("408: MLLP Connector error"))
+        else if (data.equals("408: MLLP Connector"))
             this.data = "ERROR-408";
-        else if (data.equals("409: SFTP Connector error"))
+        else if (data.equals("409: SFTP Connector"))
             this.data = "ERROR-409";
-        else if (data.equals("410: SOAP Connector error"))
+        else if (data.equals("410: SOAP Connector"))
             this.data = "ERROR-410";
-        else if (data.equals("411: TCP Connector error"))
+        else if (data.equals("411: TCP Connector"))
             this.data = "ERROR-411";
-        else if (data.equals("412: VM Connector error"))
+        else if (data.equals("412: VM Connector"))
             this.data = "ERROR-412";
-        else if (data.equals("413: Email Connector error"))
+        else if (data.equals("413: Email Connector"))
             this.data = "ERROR-413";        
         else
             this.data = data;

@@ -920,7 +920,7 @@ public class TransformerPane extends MirthEditorPane
 
             try
             {
-                FileUtil.write(exportFile, transformerXML);
+                FileUtil.write(exportFile, transformerXML, false);
                 parent.alertInformation("Transformer was written to " + exportFile.getPath() + ".");
             }
             catch (IOException ex)

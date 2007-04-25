@@ -129,8 +129,8 @@ public class MessageObjectHtmlSerializer
             encodedData += "\n\n";
         }
 
-        FileUtil.write(rawFile, rawData);
-        FileUtil.write(transformedFile, transformedData);
-        FileUtil.write(encodedFile, encodedData);
+        FileUtil.write(rawFile, rawData, false);
+        FileUtil.write(transformedFile, transformedData, false);
+        FileUtil.write(encodedFile, encodedData, false);
     }
 }

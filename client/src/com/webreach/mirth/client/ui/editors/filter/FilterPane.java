@@ -734,7 +734,7 @@ public class FilterPane extends MirthEditorPane
 
             try
             {
-                FileUtil.write(exportFile, filterXML);
+                FileUtil.write(exportFile, filterXML, false);
                 parent.alertInformation("Filter was written to " + exportFile.getPath() + ".");
             }
             catch (IOException ex)

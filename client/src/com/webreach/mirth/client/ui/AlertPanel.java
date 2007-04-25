@@ -448,27 +448,27 @@ public class AlertPanel extends javax.swing.JPanel
     public void setAlertErrorList()
     {
         ArrayList<String> variables = new ArrayList<String>();
-        variables.add("Any error");
-        variables.add("Server error");
-        variables.add("Client error");
-        variables.add("200: Filter error");
-        variables.add("300: Transformer error");
-        variables.add("301: Transformer conversion error");
-        variables.add("302: Custom transformer error");
-        variables.add("400: Connector error");
-        variables.add("401: Document connector error");
-        variables.add("402: SMTP connector error");
-        variables.add("403: File connector error");
-        variables.add("404: HTTP connector error");
-        variables.add("405: FTP connector error");
-        variables.add("406: JDBC Connector error");
-        variables.add("407: JMS Connector error");
-        variables.add("408: MLLP Connector error");
-        variables.add("409: SFTP Connector error");
-        variables.add("410: SOAP Connector error");
-        variables.add("411: TCP Connector error");
-        variables.add("412: VM Connector error");
-        variables.add("413: Email Connector error");
+        variables.add("Any");
+        variables.add("Server");
+        variables.add("Client");
+        variables.add("200: Filter");
+        variables.add("300: Transformer");
+        variables.add("301: Transformer conversion");
+        variables.add("302: Custom transformer");
+        variables.add("400: Connector");
+        variables.add("401: Document connector");
+        variables.add("402: SMTP connector");
+        variables.add("403: File connector");
+        variables.add("404: HTTP connector");
+        variables.add("405: FTP connector");
+        variables.add("406: JDBC Connector");
+        variables.add("407: JMS Connector");
+        variables.add("408: MLLP Connector");
+        variables.add("409: SFTP Connector");
+        variables.add("410: SOAP Connector");
+        variables.add("411: TCP Connector");
+        variables.add("412: VM Connector");
+        variables.add("413: Email Connector");
             	
         errorList.removeAll();
         errorList.setListData(variables.toArray());

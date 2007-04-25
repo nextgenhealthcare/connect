@@ -25,6 +25,7 @@
 
 package com.webreach.mirth.client.ui.browsers.message;
 
+import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.ui.ViewContentDialog;
 import java.awt.Cursor;
 import java.awt.Point;
@@ -59,6 +60,7 @@ import org.w3c.dom.Document;
 
 import com.webreach.mirth.client.core.ListHandlerException;
 import com.webreach.mirth.client.core.MessageListHandler;
+import com.webreach.mirth.client.ui.ChannelSetup;
 import com.webreach.mirth.client.ui.Frame;
 import com.webreach.mirth.client.ui.Mirth;
 import com.webreach.mirth.client.ui.MirthFileFilter;
@@ -67,11 +69,15 @@ import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
 import com.webreach.mirth.client.ui.components.MirthSyntaxTextArea;
 import com.webreach.mirth.client.ui.util.FileUtil;
+import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.MessageObject.Protocol;
 import com.webreach.mirth.model.converters.DocumentSerializer;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.model.filters.MessageObjectFilter;
+import com.webreach.mirth.model.util.ImportConverter;
+import java.io.BufferedReader;
+import java.io.FileReader;
 
 /**
  * The message browser panel.
@@ -208,8 +214,8 @@ public class MessageBrowser extends javax.swing.JPanel
     public void loadNew()
     {
         // use the start filters and make the table.
-        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 4, -1, false);
-        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 5, 5, true);
+        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 5, -1, false);
+        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 6, 6, true);
         statusComboBox.setSelectedIndex(0);
         protocolComboBox.setSelectedIndex(0);
         long currentTime = System.currentTimeMillis();
@@ -230,29 +236,90 @@ public class MessageBrowser extends javax.swing.JPanel
         filterButtonActionPerformed(null);
     }
     
+    public void importMessages()
+    {
+        JFileChooser importFileChooser = new JFileChooser();
+        importFileChooser.setFileFilter(new MirthFileFilter("XML"));
+        
+        File currentDir = new File(Preferences.systemNodeForPackage(Mirth.class).get("currentDirectory", ""));
+        if (currentDir.exists())
+            importFileChooser.setCurrentDirectory(currentDir);
+        
+        int returnVal = importFileChooser.showOpenDialog(this);
+        File importFile = null;
+
+        if (returnVal == JFileChooser.APPROVE_OPTION)
+        {
+            Preferences.systemNodeForPackage(Mirth.class).put("currentDirectory", importFileChooser.getCurrentDirectory().getPath());
+            importFile = importFileChooser.getSelectedFile();
+            String messageXML = "";
+            BufferedReader br = null;
+            
+            try
+            {
+                String endOfMessage = "</com.webreach.mirth.model.MessageObject>";
+                br = new BufferedReader(new FileReader(importFile));
+                StringBuffer buffer = new StringBuffer();
+                
+                String line;
+                while((line = br.readLine()) != null)
+                {
+                    buffer.append(line);
+                
+                    if(line.equals(endOfMessage))
+                    {
+                        messageXML = ImportConverter.convertMessage(buffer.toString());
+
+                        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+                        MessageObject importMessage;
+                        importMessage = (MessageObject) serializer.fromXML(messageXML);
+                        importMessage.setChannelId(parent.status.get(parent.dashboardPanel.getSelectedStatus()).getChannelId());
+                            
+                        try
+                        {
+                            parent.mirthClient.importMessage(importMessage);
+                        }
+                        catch (Exception e)
+                        {
+                            parent.alertException(e.getStackTrace(),"Unable to connect to server. Stopping import. " + e.getMessage());
+                            br.close();
+                            return;
+                        }
+                        
+                        buffer.delete(0, buffer.length());
+                    }
+                    
+                }
+                parent.alertInformation("All messages have been successfully imported.");
+                filterButtonActionPerformed(null);
+                br.close();
+            }
+            catch (Exception e)
+            {
+                if(br != null)
+                {    
+                    try
+                    {
+                        br.close();
+                    } 
+                    catch (IOException ex)
+                    {
+                        ex.printStackTrace();
+                    }
+                }
+                parent.alertException(e.getStackTrace(), "Invalid message file. Message importing will stop. " + e.getMessage());
+            }
+        }
+    }
+    
     /**
      * Export the current messages to XML or HTML
      */
-    public void export()
+    public void exportMessages()
     {
-        String answer = "";
-        
-        JOptionPane pane = new JOptionPane("Would you like to export the file to XML or HTML?");
-        Object[] options = new String[] { "XML", "HTML", "Cancel" };
-        pane.setOptions(options);
-        JDialog dialog = pane.createDialog(new JFrame(), "Select an Option");
-        dialog.setVisible(true);
-        Object obj = pane.getValue();
-        for (int k = 0; k < options.length; k++)
-            if (options[k].equals(obj))
-                answer = obj.toString();
-        
-        if (answer.length() == 0 || answer.equals(options[2]))
-            return;
-        
         JFileChooser exportFileChooser = new JFileChooser();
         exportFileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-        exportFileChooser.setFileFilter(new MirthFileFilter(answer));
+        exportFileChooser.setFileFilter(new MirthFileFilter("XML"));
         int returnVal = exportFileChooser.showSaveDialog(parent);
         File exportFile = null;
         File exportDirectory = null;
@@ -263,56 +330,36 @@ public class MessageBrowser extends javax.swing.JPanel
             {
                 exportFile = exportFileChooser.getSelectedFile();
                 int length = exportFile.getName().length();
-                String messages = "";
-                List<MessageObject> messageObjects = messageListHandler.getAllPages();
+                StringBuffer messages = new StringBuffer();
+
+                if (exportFile.exists())
+                    if (!parent.alertOption("The file " + exportFile.getName() + " already exists.  Would you like to overwrite it?"))
+                        return;
                 
-                if (answer.equals("HTML"))
+                if (length < 4 || !exportFile.getName().substring(length - 4, length).equals(".xml"))
+                    exportFile = new File(exportFile.getAbsolutePath() + ".xml");
+                
+                FileUtil.write(exportFile, "", false);
+                
+                ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+                List<MessageObject> messageObjects = messageListHandler.getFirstPage();
+                
+                while(messageObjects.size() > 0)
                 {
-                    String name = parent.status.get(parent.dashboardPanel.getSelectedStatus()).getName();
-                    File rawFile = new File(exportFile.getParent() + "/" + name + "_raw_messages.txt");
-                    File transformedFile = new File(exportFile.getParent() + "/" + name + "_transformed_messages.txt");
-                    File encodedFile = new File(exportFile.getParent() + "/" + name + "_encoded_messages.txt");
-                    
-                    MessageObjectHtmlSerializer serializer = new MessageObjectHtmlSerializer();
-                    messages = serializer.toHtml(messageObjects);
-                    
-                    if (length < 5 || !exportFile.getName().substring(length - 5, length).equals(".html"))
-                        exportFile = new File(exportFile.getAbsolutePath() + ".html");
-                    
-                    if (exportFile.exists() || rawFile.exists() || transformedFile.exists() || encodedFile.exists())
-                        if (!parent.alertOption("Some of the files already exist.  Would you like to overwrite them?"))
-                            return;
-                    
-                    serializer.outputMessages(messageObjects, rawFile, transformedFile, encodedFile);
-                    
-                    FileUtil.write(exportFile, messages);
-                    parent.alertInformation("All message data was written successfully.");
-                }
-                else
-                {
-                    if (exportFile.exists())
-                        if (!parent.alertOption("The file " + exportFile.getName() + " already exists.  Would you like to overwrite it?"))
-                            return;
-                    
-                    ObjectXMLSerializer serializer = new ObjectXMLSerializer();
                     for (int i = 0; i < messageObjects.size(); i++)
                     {
-                        messages += serializer.toXML(messageObjects.get(i));
-                        messages += "\n";
+                        messages.append(serializer.toXML(messageObjects.get(i)));
+                        messages.append("\n");
+                        FileUtil.write(exportFile, messages.toString(), true);
+                        messages.delete(0,messages.length());
                     }
                     
-                    if (length < 4 || !exportFile.getName().substring(length - 4, length).equals(".xml"))
-                        exportFile = new File(exportFile.getAbsolutePath() + ".xml");
-                    
-                    FileUtil.write(exportFile, messages);
-                    parent.alertInformation("All messages were written successfully to " + exportFile.getPath() + ".");
+                    messageObjects = messageListHandler.getNextPage();
                 }
+                
+                parent.alertInformation("All messages were written successfully to " + exportFile.getPath() + ".");
             }
-            catch (ListHandlerException ex)
-            {
-                parent.alertError("File could not be written.");
-            }
-            catch (IOException ex)
+            catch (Exception ex)
             {
                 parent.alertError("File could not be written.");
             }
@@ -548,8 +595,8 @@ public class MessageBrowser extends javax.swing.JPanel
      */
     public void deselectRows()
     {
-        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 4, -1, false);
-        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 5, 5, true);
+        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 5, -1, false);
+        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 6, 6, true);
         if (eventTable != null)
         {
             eventTable.clearSelection();
@@ -588,7 +635,7 @@ public class MessageBrowser extends javax.swing.JPanel
             
             if (row >= 0)
             {
-                parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 4, -1, true);
+                parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 5, -1, true);
                 this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                 
                 MessageObject currentMessage = messageObjectList.get(row);

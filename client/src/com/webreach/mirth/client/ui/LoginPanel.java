@@ -222,18 +222,25 @@ public class LoginPanel extends javax.swing.JFrame
         {
             public Void doInBackground()
             {
-                if (login())
+                try
                 {
-                    setStatus("Authenticated...");
-                    new Mirth(client);
-                    closeButtonActionPerformed(null);
+                    if (login())
+                    {
+                        setStatus("Authenticated...");
+                        new Mirth(client);
+                        closeButtonActionPerformed(null);
+                    }
+                    else
+                    {
+                        errorPane.setVisible(true);
+                        loggingIn.setVisible(false);
+                        loginMain.setVisible(true);
+                        loginProgress.setIndeterminate(false);
+                    }
                 }
-                else
+                catch(Exception e)
                 {
-                    errorPane.setVisible(true);
-                    loggingIn.setVisible(false);
-                    loginMain.setVisible(true);
-                    loginProgress.setIndeterminate(false);
+                    e.printStackTrace();
                 }
                 return null;
             }

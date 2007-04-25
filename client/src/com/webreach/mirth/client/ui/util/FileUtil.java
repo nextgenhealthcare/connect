@@ -34,9 +34,9 @@ import java.io.IOException;
 
 public class FileUtil
 {
-    public static void write(File file, String data) throws IOException
+    public static void write(File file, String data, boolean append) throws IOException
     {
-        BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+        BufferedWriter writer = new BufferedWriter(new FileWriter(file, append));
 
         try
         {
