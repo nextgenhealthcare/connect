@@ -80,9 +80,9 @@ public class Client {
 	 * @return
 	 * @throws ClientException
 	 */
-	public synchronized boolean login(String username, String password) throws ClientException {
+	public synchronized boolean login(String username, String password, String version) throws ClientException {
 		logger.debug("attempting to login user: username=" + username);
-		NameValuePair[] params = { new NameValuePair("op", "login"), new NameValuePair("username", username), new NameValuePair("password", password) };
+		NameValuePair[] params = { new NameValuePair("op", "login"), new NameValuePair("username", username), new NameValuePair("password", password), new NameValuePair("version", version) };
 		return Boolean.valueOf(serverConnection.executePostMethod(USER_SERVLET, params)).booleanValue();	
 	}
 

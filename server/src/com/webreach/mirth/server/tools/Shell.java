@@ -99,13 +99,15 @@ public class Shell {
 				String server = line.getOptionValue("a");
 				String user = line.getOptionValue("u");
 				String password = line.getOptionValue("p");
+				String version = line.getOptionValue("v");
+				
 				currentUser = user;
 				try {
 					client = new Client(server);
 					if (line.hasOption("s")) {
-						runScript(line, server, user, password);
+						runScript(line, server, user, password, version);
 					} else {
-						if (client.login(user, password)) {
+						if (client.login(user, password, version)) {
 							System.out.println("Connected to Mirth server @ " + server + " (" + client.getVersion() + ")");
 							BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
@@ -143,10 +145,10 @@ public class Shell {
 		}
 	}
 
-	private void runScript(CommandLine line, String server, String user, String password) throws ClientException, FileNotFoundException, IOException {
+	private void runScript(CommandLine line, String server, String user, String password, String version) throws ClientException, FileNotFoundException, IOException {
 		String script = line.getOptionValue("s");
 		currentUser = user;
-		if (client.login(user, password)) {
+		if (client.login(user, password, version)) {
 			System.out.println("Connected to Mirth server @ " + server + " (" + client.getVersion() + ")");
 
 			BufferedReader reader = new BufferedReader(new FileReader(script));
