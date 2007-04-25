@@ -13,6 +13,12 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		<result property="phoneNumber" column="PHONENUMBER" />
 		<result property="description" column="DESCRIPTION" />
 	</resultMap>
+	
+	<resultMap class="com.webreach.mirth.model.Credentials" id="get-user-credentials">
+		<result property="username" column="USERNAME" />
+		<result property="password" column="PASSWORD" />
+		<result property="salt" column="SALT" />
+	</resultMap>
 
 	<select id="getUser" parameterClass="com.webreach.mirth.model.User" resultMap="get-user-result">
 		SELECT ID, USERNAME, FULLNAME, EMAIL, PHONENUMBER, DESCRIPTION
@@ -27,26 +33,23 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		</dynamic>
 	</select>
 
-	<select id="getUserPassword" parameterClass="com.webreach.mirth.model.User" resultClass="java.lang.String">
-		SELECT PASSWORD
+	<select id="getUserCredentials" parameterClass="com.webreach.mirth.model.User" resultMap="get-user-credentials">
+		SELECT USERNAME, PASSWORD, SALT
 		FROM PERSON
-		<dynamic prepend="WHERE">
-			<isNotNull prepend="AND" property="username">
-				USERNAME = #username#
-			</isNotNull>
-		</dynamic>
+		WHERE USERNAME = #username#
 	</select>
 	
 	<insert id="insertUser" parameterClass="java.util.Map">
 		INSERT INTO
-		PERSON (USERNAME, PASSWORD, FULLNAME, EMAIL, PHONENUMBER, DESCRIPTION, LOGGED_IN)
-		VALUES (#username#, #password#, #fullName:VARCHAR#, #email:VARCHAR#, #phoneNumber:VARCHAR#, #description:VARCHAR#, FALSE)
+		PERSON (USERNAME, PASSWORD, SALT, FULLNAME, EMAIL, PHONENUMBER, DESCRIPTION, LOGGED_IN)
+		VALUES (#username#, #password#, #salt#, #fullName:VARCHAR#, #email:VARCHAR#, #phoneNumber:VARCHAR#, #description:VARCHAR#, 0)
 	</insert>
 	
 	<update id="updateUser" parameterClass="java.util.Map">
 		UPDATE PERSON
 		SET USERNAME = #username#,
 			PASSWORD = #password#,
+			SALT = #salt#,
 			FULLNAME = #fullName:VARCHAR#,
 			EMAIL = #email:VARCHAR#,
 			PHONENUMBER = #phoneNumber:VARCHAR#,
