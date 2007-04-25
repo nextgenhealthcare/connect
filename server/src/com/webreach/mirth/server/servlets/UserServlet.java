@@ -37,6 +37,7 @@ import javax.servlet.http.HttpSession;
 import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.model.User;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
+import com.webreach.mirth.server.controllers.ConfigurationController;
 import com.webreach.mirth.server.controllers.ControllerException;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.controllers.SystemLogger;
@@ -56,8 +57,9 @@ public class UserServlet extends MirthServlet {
 		if (operation.equals("login")) {
 			String username = request.getParameter("username");
 			String password = request.getParameter("password");
+			String version = request.getParameter("version");
 			response.setContentType("text/plain");
-			out.print(login(request, userController, systemLogger, username, password));
+			out.print(login(request, response, userController, systemLogger, username, password, version));
 		} else if (operation.equals("isLoggedIn")) {
 			response.setContentType("text/plain");
 			out.print(isUserLoggedIn(request));
@@ -94,8 +96,16 @@ public class UserServlet extends MirthServlet {
 		}
 	}
 
-	private boolean login(HttpServletRequest request, UserController userController, SystemLogger systemLogger, String username, String password) throws ServletException {
+	private boolean login(HttpServletRequest request, HttpServletResponse response, UserController userController, SystemLogger systemLogger, String username, String password, String version) throws ServletException {
 		try {
+			ConfigurationController configurationController = new ConfigurationController();
+			
+			// if the version of the client in is not the same as the server
+			if (version.equals(configurationController.getVersion())) {
+				response.sendError(HttpServletResponse.SC_NOT_ACCEPTABLE);
+				return false;
+			}
+			
 			HttpSession session = request.getSession();
 			
 			User user = new User();
@@ -124,8 +134,10 @@ public class UserServlet extends MirthServlet {
 				return true;
 			}
 
+			// failed to login
+			response.sendError(HttpServletResponse.SC_FORBIDDEN);
 			return false;
-		} catch (ControllerException e) {
+		} catch (Exception e) {
 			throw new ServletException(e);
 		}
 	}

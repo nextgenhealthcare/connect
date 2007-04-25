@@ -70,7 +70,11 @@ public class ServerConnection {
 
 			int statusCode = client.executeMethod(post);
 
-			if ((statusCode != HttpStatus.SC_OK) && (statusCode != HttpStatus.SC_MOVED_TEMPORARILY)) {
+			if (statusCode == HttpStatus.SC_NOT_ACCEPTABLE) {
+				throw new VersionMismatchException(post.getStatusLine().toString());
+			} else if (statusCode == HttpStatus.SC_FORBIDDEN) {
+				throw new InvalidLoginException(post.getStatusLine().toString());
+			} else if ((statusCode != HttpStatus.SC_OK) && (statusCode != HttpStatus.SC_MOVED_TEMPORARILY)) {
 				throw new ClientException("method failed: " + post.getStatusLine());
 			}
 
@@ -88,9 +92,9 @@ public class ServerConnection {
 		} catch (Exception e) {
 			throw new ClientException(e);
 		} finally {
-			if (post != null)
+			if (post != null) {
 				post.releaseConnection();
+			}
 		}
 	}
-
 }
