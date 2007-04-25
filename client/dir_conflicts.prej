@@ -1,0 +1,15 @@
+Trying to change property 'svn:ignore' from '
+logs
+classes
+' to 'logs
+classes
+dist
+about.txt
+.classpath
+.project
+bin
+',
+but property already exists with value 'logs
+build
+dist
+'.

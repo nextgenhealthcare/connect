@@ -25,6 +25,7 @@
 
 package com.webreach.mirth.client.ui;
 
+import com.webreach.mirth.client.core.VersionMismatchException;
 import javax.swing.ImageIcon;
 
 import org.jdesktop.swingx.util.SwingWorker;
@@ -39,10 +40,12 @@ public class LoginPanel extends javax.swing.JFrame
     private Frame parent;
     private Channel channel;
     private Client client;
+    private String version;
 
     /** Creates new form WizardDialog */
-    public LoginPanel(String mirthServer)
+    public LoginPanel(String mirthServer, String version)
     {
+        this.version = version;
         initComponents();
         setTitle("Mirth Administrator - Login");
         serverName.setText(mirthServer);
@@ -264,15 +267,21 @@ public class LoginPanel extends javax.swing.JFrame
             String server = serverName.getText();
             client = new Client(server);
             PlatformUI.SERVER_NAME = server;
-            if (client.login(username.getText(), String.valueOf(password.getPassword())))
+            if (client.login(username.getText(), String.valueOf(password.getPassword()), version))
             {
                 PlatformUI.USER_NAME = username.getText();
                 return true;
             }
+            else
+                error.setText("There was a problem authenticating the information that\nwas entered.  Please verify that the server is up and \nrunning and that the user information is valid.");
+        }
+        catch (VersionMismatchException e)
+        {
+            error.setText("The version of this client does not match the version\nof the server.  Please clear your Java cache and\nrelaunch the client from the server webpage.");
         }
         catch (ClientException ex)
         {
-            System.out.println("Could not connect to server...");
+            error.setText("There was a problem authenticating the information that\nwas entered.  Please verify that the server is up and \nrunning and that the user information is valid.");
         }
         return false;
     }
