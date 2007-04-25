@@ -275,13 +275,12 @@ public class LoginPanel extends javax.swing.JFrame
             else
                 error.setText("There was a problem authenticating the information that\nwas entered.  Please verify that the server is up and \nrunning and that the user information is valid.");
         }
-        catch (VersionMismatchException e)
-        {
-            error.setText("The version of this client does not match the version\nof the server.  Please clear your Java cache and\nrelaunch the client from the server webpage.");
-        }
         catch (ClientException ex)
         {
-            error.setText("There was a problem authenticating the information that\nwas entered.  Please verify that the server is up and \nrunning and that the user information is valid.");
+        	if (ex.getCause() instanceof VersionMismatchException)
+                error.setText("The version of this client does not match the version\nof the server.  Please clear your Java cache and\nrelaunch the client from the server webpage.");
+        	else
+        		error.setText("There was a problem authenticating the information that\nwas entered.  Please verify that the server is up and \nrunning and that the user information is valid.");	
         }
         return false;
     }
