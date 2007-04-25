@@ -204,16 +204,6 @@ public class MessageObjectController {
 			throw new ControllerException(e);
 		}
 	}
-	
-	public void rebuildMessageIndex() throws ControllerException {
-		logger.debug("rebuilding message index");
-		
-		try {
-			sqlMap.update("rebuildMessageIndex");
-		} catch (SQLException e) {
-			throw new ControllerException(e);
-		}
-	}
 
 	public void removeFilterTables(String uid) {
 		logger.debug("removing temporary filter tables");

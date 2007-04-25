@@ -173,7 +173,4 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		DROP INDEX INDEX_MESSAGE_TEMP_$uid$
 	</delete>
 	
-	<statement id="rebuildMessageIndex">
-
-	</statement>
 </sqlMap>

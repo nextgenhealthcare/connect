@@ -79,9 +79,6 @@ public class DatabasePruner extends Thread {
 						filter.setChannelId(channel.getId());
 						filter.setEndDate(endDate);
 						messageObjectController.removeMessages(filter);
-						
-						// rebuild the indexes on the message table
-						messageObjectController.rebuildMessageIndex();
 					}
 				}
 			}
