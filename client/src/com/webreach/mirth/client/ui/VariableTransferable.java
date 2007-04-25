@@ -71,7 +71,7 @@ public class VariableTransferable implements Transferable
         else if (data.equals("Count"))
             this.data = "COUNT";
         else if (data.equals("Formatted Date"))
-            this.data = "date.get('yyyy-M-d H:m:s')";
+            this.data = "date.get('yyyy-M-d H.m.s')";
         else if (data.equals("Entity Encoder"))
             this.data = "encoder.encode()";
         else if (data.equals("Any error"))
