@@ -33,6 +33,7 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import com.ibatis.sqlmap.client.SqlMapClient;
+import com.webreach.mirth.model.Credentials;
 import com.webreach.mirth.model.User;
 import com.webreach.mirth.server.util.SqlConfig;
 import com.webreach.mirth.util.EncryptionException;
@@ -87,9 +88,9 @@ public class UserController {
 	
 	public boolean authorizeUser(User user, String plainTextPassword) throws ControllerException {
 		try {
-			String checkPasswordHash = encrypter.getHash(plainTextPassword, null);
-			String realPasswordHash = (String) sqlMap.queryForObject("getUserPassword", user);
-			return checkPasswordHash.equals(realPasswordHash);
+			Credentials credentials = (Credentials) sqlMap.queryForObject("getUserCredentials", user);
+			String checkPasswordHash = encrypter.getHash(plainTextPassword, credentials.getSalt());
+			return checkPasswordHash.equals(credentials.getPassword());
 		} catch (Exception e) {
 			throw new ControllerException(e);
 		}
@@ -135,7 +136,9 @@ public class UserController {
 		
 		// hash the user's password before storing it in the database
 		try {
-			parameterMap.put("password", encrypter.getHash(plainTextPassword, null));	
+			String salt = encrypter.getSalt();
+			parameterMap.put("password", encrypter.getHash(plainTextPassword, salt));
+			parameterMap.put("salt", salt);
 		} catch (EncryptionException ee) {
 			// ignore this
 		}
