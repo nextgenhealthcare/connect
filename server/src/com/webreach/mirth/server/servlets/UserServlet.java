@@ -101,7 +101,7 @@ public class UserServlet extends MirthServlet {
 			ConfigurationController configurationController = new ConfigurationController();
 			
 			// if the version of the client in is not the same as the server
-			if (version.equals(configurationController.getVersion())) {
+			if (!version.equals(configurationController.getVersion())) {
 				response.sendError(HttpServletResponse.SC_NOT_ACCEPTABLE);
 				return false;
 			}
