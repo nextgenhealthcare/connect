@@ -847,7 +847,13 @@ public class ChannelSetup extends javax.swing.JPanel
 
     public void cloneDestination(int destinationIndex)
     {
-        parent.doSaveChannel();
+        if (parent.changesHaveBeenMade())
+        {
+            if (parent.alertOption("You must save your channel before cloning.  Would you like to save your channel now?"))
+                saveChanges();
+            else
+                return;
+        }
         List<Connector> destinationConnectors = currentChannel.getDestinationConnectors();
         String destinationName = (String) destinationTable.getValueAt(getSelectedDestinationIndex(), getColumnNumber(DESTINATION_COLUMN_NAME));
 
