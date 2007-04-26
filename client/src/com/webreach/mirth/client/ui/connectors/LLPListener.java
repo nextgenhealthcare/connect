@@ -216,21 +216,26 @@ public class LLPListener extends ConnectorClass
         segmentEnd.setText((String) props.get(LLP_SEGMENT_END));
         boolean visible = parent.channelEditTasks.getContentPane().getComponent(0).isVisible();
         
-        if (((String) props.get(LLP_SEND_ACK)).equals(UIConstants.YES_OPTION))
-        {
-            sendACKYesActionPerformed(null);
-            sendACKYes.setSelected(true);
-        }
-        else if (((String) props.get(LLP_SEND_ACK)).equals(UIConstants.NO_OPTION))
-        {
-            sendACKNoActionPerformed(null);
-            sendACKNo.setSelected(true);
-        }
-        else if (((String) props.get(LLP_RESPONSE_FROM_TRANSFORMER)).equals(UIConstants.YES_OPTION))
+        if (((String) props.get(LLP_RESPONSE_FROM_TRANSFORMER)).equals(UIConstants.YES_OPTION))
         {
             sendACKTransformerActionPerformed(null);
             sendACKTransformer.setSelected(true);
         }
+        else
+        {
+            if (((String) props.get(LLP_SEND_ACK)).equals(UIConstants.YES_OPTION))
+            {
+                sendACKYesActionPerformed(null);
+                sendACKYes.setSelected(true);
+            }
+            else if (((String) props.get(LLP_SEND_ACK)).equals(UIConstants.NO_OPTION))
+            {
+                sendACKNoActionPerformed(null);
+                sendACKNo.setSelected(true);
+            }
+        }
+        
+        
         
         updateResponseDropDown();
         responseFromTransformer.setSelectedItem((String) props.getProperty(LLP_RESPONSE_VALUE));

@@ -451,7 +451,7 @@ public class Frame extends JXFrame
                 workingCounter++;
             else
                 workingCounter--;
-            System.out.println(workingCounter);
+
             if(workingCounter > 0)
                 statusBar.setWorking(true);
             else
