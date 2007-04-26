@@ -25,12 +25,14 @@ import sun.misc.BASE64Decoder;
 import com.jcraft.jsch.ChannelSftp;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.Constants;
+import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.mule.providers.file.filters.FilenameWildcardFilter;
 
 public class SftpMessageDispatcher extends AbstractMessageDispatcher {
 	protected SftpConnector connector;
 	private MessageObjectController messageObjectController = new MessageObjectController();
+	private AlertController alertController = new AlertController();
 
 	public SftpMessageDispatcher(SftpConnector connector) {
 		super(connector);
@@ -76,6 +78,7 @@ public class SftpMessageDispatcher extends AbstractMessageDispatcher {
 				//update the message status to sent
 				messageObjectController.setSuccess(messageObject, "File successfully written: " + filename);
 		} catch (Exception e) {
+			alertController.sendAlerts(((SftpConnector) connector).getChannelId(), Constants.ERROR_409, null, e);
 			messageObjectController.setError(messageObject, Constants.ERROR_409, "Error writing to Sftp", e);
 			connector.handleException(e);
 		} finally {

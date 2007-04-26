@@ -14,7 +14,14 @@
  */
 package com.webreach.mirth.server.mule.providers.jms;
 
-import edu.emory.mathcs.backport.java.util.concurrent.TimeUnit;
+import javax.jms.DeliveryMode;
+import javax.jms.Destination;
+import javax.jms.Message;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageListener;
+import javax.jms.MessageProducer;
+import javax.jms.Session;
+
 import org.mule.MuleException;
 import org.mule.config.i18n.Messages;
 import org.mule.impl.MuleMessage;
@@ -31,16 +38,11 @@ import org.mule.util.concurrent.Latch;
 
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.Constants;
+import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.mule.providers.jms.transformers.MessageObjectToJMSMessage;
 
-import javax.jms.DeliveryMode;
-import javax.jms.Destination;
-import javax.jms.Message;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageListener;
-import javax.jms.MessageProducer;
-import javax.jms.Session;
+import edu.emory.mathcs.backport.java.util.concurrent.TimeUnit;
 
 /**
  * <code>JmsMessageDispatcher</code> is responsible for dispatching messages
@@ -57,7 +59,8 @@ public class JmsMessageDispatcher extends AbstractMessageDispatcher {
     private JmsConnector connector;
     private Session delegateSession;
 	private MessageObjectController messageObjectController = new MessageObjectController();
-
+	private AlertController alertController = new AlertController();
+	
     public JmsMessageDispatcher(JmsConnector connector) {
         super(connector);
         this.connector = connector;
@@ -225,6 +228,7 @@ public class JmsMessageDispatcher extends AbstractMessageDispatcher {
             }
             return null;
         } catch (Exception e){
+        	alertController.sendAlerts(((JmsConnector) connector).getChannelId(), Constants.ERROR_407, null, e);
         	messageObjectController.setError(messageObject, Constants.ERROR_407, "Jms Error", e);
         	connector.handleException(e);
         } finally {

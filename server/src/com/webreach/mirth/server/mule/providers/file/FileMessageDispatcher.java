@@ -37,6 +37,7 @@ import sun.misc.BASE64Decoder;
 
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.Constants;
+import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.mule.providers.file.filters.FilenameWildcardFilter;
 
@@ -52,6 +53,7 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
 	private FileConnector connector;
 
 	private MessageObjectController messageObjectController = new MessageObjectController();
+	private AlertController alertController = new AlertController();
 
 	public FileMessageDispatcher(FileConnector connector) {
 		super(connector);
@@ -111,6 +113,7 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
 			// update the message status to sent
 			messageObjectController.setSuccess(messageObject, "File successfully written: " + filename);
 		} catch (Exception e) {
+			alertController.sendAlerts(((FileConnector) connector).getChannelId(), Constants.ERROR_403, null, e);
 			messageObjectController.setError(messageObject, Constants.ERROR_403, "Error writing file", e);
 			connector.handleException(e);
 		} finally {

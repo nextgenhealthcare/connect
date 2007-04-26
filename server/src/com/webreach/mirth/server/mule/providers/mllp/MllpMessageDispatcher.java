@@ -23,7 +23,6 @@ import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Calendar;
 import java.util.Iterator;
 
 import org.apache.commons.logging.Log;
@@ -37,17 +36,14 @@ import org.mule.umo.UMOMessage;
 import org.mule.umo.endpoint.UMOEndpoint;
 import org.mule.umo.endpoint.UMOEndpointURI;
 import org.mule.umo.provider.UMOConnector;
-import org.mule.util.Utility;
 import org.mule.util.queue.Queue;
 
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.Constants;
-import com.webreach.mirth.server.controllers.ChannelController;
+import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.mule.providers.mllp.protocols.LlpProtocol;
 import com.webreach.mirth.server.util.BatchMessageProcessor;
-import com.webreach.mirth.server.util.StackTracePrinter;
-import com.webreach.mirth.server.util.UUIDGenerator;
 import com.webreach.mirth.server.util.VMRouter;
 
 /**
@@ -79,9 +75,8 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher {
 	protected static transient Log logger = LogFactory.getLog(MllpMessageDispatcher.class);
 
 	private MllpConnector connector;
-
 	private MessageObjectController messageObjectController = new MessageObjectController();
-
+	private AlertController alertController = new AlertController();
 	private TemplateValueReplacer replacer = new TemplateValueReplacer();
 
 	public MllpMessageDispatcher(MllpConnector connector) {
@@ -178,6 +173,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher {
 			}
 		} catch (Exception exu) {
 			exceptionMessage = exu.getMessage();
+			alertController.sendAlerts(((MllpConnector) connector).getChannelId(), Constants.ERROR_408, null, exu);
 			logger.error("Unknown exception dispatching " + exu);
 			exceptionWriting = exu;
 		} 

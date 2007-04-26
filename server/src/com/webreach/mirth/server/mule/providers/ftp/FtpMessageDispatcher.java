@@ -39,6 +39,7 @@ import sun.misc.BASE64Decoder;
 
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.Constants;
+import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.mule.providers.file.filters.FilenameWildcardFilter;
 
@@ -51,6 +52,7 @@ public class FtpMessageDispatcher extends AbstractMessageDispatcher {
 	protected FtpConnector connector;
 
 	private MessageObjectController messageObjectController = new MessageObjectController();
+	private AlertController alertController = new AlertController();
 
 	public FtpMessageDispatcher(FtpConnector connector) {
 		super(connector);
@@ -113,6 +115,8 @@ public class FtpMessageDispatcher extends AbstractMessageDispatcher {
 			messageObjectController.setSuccess(messageObject, "File successfully written: " + filename);
 
 		} catch (Exception e) {
+			alertController.sendAlerts(((FtpConnector) connector).getChannelId(), Constants.ERROR_405, null, e);
+			
 			if (client != null) {
 				messageObjectController.setError(messageObject, Constants.ERROR_405, "Error writing to FTP: " + client.getReplyCode() + client.getReplyString(), e);
 			} else {

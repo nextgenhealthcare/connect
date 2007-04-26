@@ -20,13 +20,15 @@ import com.lowagie.text.pdf.PdfWriter;
 import com.lowagie.text.rtf.RtfWriter2;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.Constants;
+import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 
 public class DocumentMessageDispatcher extends AbstractMessageDispatcher {
 	private DocumentConnector connector;
 
 	private MessageObjectController messageObjectController = new MessageObjectController();
-
+	private AlertController alertController = new AlertController();
+	
 	public DocumentMessageDispatcher(DocumentConnector connector) {
 		super(connector);
 		this.connector = connector;
@@ -66,6 +68,7 @@ public class DocumentMessageDispatcher extends AbstractMessageDispatcher {
 			// update the message status to sent
 			messageObjectController.setSuccess(messageObject, "Document successfully written: " + filename);
 		} catch (Exception e) {
+			alertController.sendAlerts(((DocumentConnector) connector).getChannelId(), Constants.ERROR_401, null, e);
 			messageObjectController.setError(messageObject, Constants.ERROR_401, "Error writing document", e);
 			connector.handleException(e);
 		}

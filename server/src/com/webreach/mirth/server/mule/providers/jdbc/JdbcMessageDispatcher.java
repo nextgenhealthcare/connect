@@ -39,15 +39,15 @@ import org.mule.umo.provider.UMOMessageAdapter;
 
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.Constants;
+import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.util.CompiledScriptCache;
-import com.webreach.mirth.server.util.GlobalVariableStore;
 import com.webreach.mirth.server.util.JavaScriptScopeFactory;
-import com.webreach.mirth.server.util.StackTracePrinter;
 
 public class JdbcMessageDispatcher extends AbstractMessageDispatcher {
 	private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
 	private MessageObjectController messageObjectController = new MessageObjectController();
+	private AlertController alertController = new AlertController();
 	private JdbcConnector connector;
 
 	public JdbcMessageDispatcher(JdbcConnector connector) {
@@ -56,7 +56,7 @@ public class JdbcMessageDispatcher extends AbstractMessageDispatcher {
 	}
 
 	public void doDispose() {
-		
+
 	}
 
 	public void doDispatch(UMOEvent event) throws Exception {
@@ -90,10 +90,11 @@ public class JdbcMessageDispatcher extends AbstractMessageDispatcher {
 				} else {
 					compiledScript.exec(context, scope);
 					String response = "Database write success";
-					//the user could write Javascript that sets the response for this connector
-					//if that's the case, then let's save it
-					if (messageObject.getResponseMap().containsKey(messageObject.getConnectorName())){
-						response = (String)messageObject.getResponseMap().get(messageObject.getConnectorName());
+					// the user could write Javascript that sets the response
+					// for this connector
+					// if that's the case, then let's save it
+					if (messageObject.getResponseMap().containsKey(messageObject.getConnectorName())) {
+						response = (String) messageObject.getResponseMap().get(messageObject.getConnectorName());
 					}
 					messageObjectController.setSuccess(messageObject, response);
 				}
@@ -132,10 +133,12 @@ public class JdbcMessageDispatcher extends AbstractMessageDispatcher {
 			}
 		} catch (Exception e) {
 			logger.debug("Error dispatching event: " + e.getMessage(), e);
-			
+
 			if (tx == null) {
 				JdbcUtils.rollbackAndClose(con);
 			}
+
+			alertController.sendAlerts(((JdbcConnector) connector).getChannelId(), Constants.ERROR_406, null, e);
 			messageObjectController.setError(messageObject, Constants.ERROR_406, "Error writing to database: ", e);
 			connector.handleException(e);
 		}

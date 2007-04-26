@@ -54,6 +54,7 @@ import sun.misc.BASE64Encoder;
 
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.Constants;
+import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.util.VMRouter;
 
@@ -66,13 +67,11 @@ import com.webreach.mirth.server.util.VMRouter;
  */
 public class HttpClientMessageDispatcher extends AbstractMessageDispatcher {
 	private HttpConnector connector;
-
 	private HttpState state;
-
 	private UMOTransformer receiveTransformer;
-
 	private MessageObjectController messageObjectController = new MessageObjectController();
-
+	private AlertController alertController = new AlertController();
+	
 	public HttpClientMessageDispatcher(HttpConnector connector) {
 		super(connector);
 		this.connector = connector;
@@ -325,6 +324,7 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher {
 
 			return m;
 		} catch (Exception e) {
+			alertController.sendAlerts(((HttpConnector) connector).getChannelId(), Constants.ERROR_404, null, e);
 			messageObjectController.setError(messageObject,Constants.ERROR_404, "HTTP Error", e);
 			throw new DispatchException(event.getMessage(), event.getEndpoint(), e);
 		} finally {

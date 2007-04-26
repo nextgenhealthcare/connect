@@ -40,7 +40,9 @@ import org.mule.util.queue.Queue;
 
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.Constants;
+import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
+import com.webreach.mirth.server.mule.providers.mllp.MllpConnector;
 import com.webreach.mirth.server.util.VMRouter;
 
 /**
@@ -72,11 +74,10 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 	protected static transient Log logger = LogFactory.getLog(TcpMessageDispatcher.class);
 
 	private TcpConnector connector;
-
 	private MessageObjectController messageObjectController = new MessageObjectController();
-
 	private TemplateValueReplacer replacer = new TemplateValueReplacer();
-
+	private AlertController alertController = new AlertController();
+	
 	public TcpMessageDispatcher(TcpConnector connector) {
 		super(connector);
 		this.connector = connector;
@@ -171,6 +172,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 			}
 		} catch (Exception exu) {
 			exceptionMessage = exu.getMessage();
+			alertController.sendAlerts(((TcpConnector) connector).getChannelId(), Constants.ERROR_411, null, exu);
 			logger.error("Unknown exception dispatching " + exu);
 			exceptionWriting = exu;
 		}
