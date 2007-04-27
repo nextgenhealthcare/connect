@@ -235,8 +235,6 @@ public class LLPListener extends ConnectorClass
             }
         }
         
-        
-        
         updateResponseDropDown();
         responseFromTransformer.setSelectedItem((String) props.getProperty(LLP_RESPONSE_VALUE));
         

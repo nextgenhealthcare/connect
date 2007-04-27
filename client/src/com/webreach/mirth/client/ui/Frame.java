@@ -451,7 +451,7 @@ public class Frame extends JXFrame
                 workingCounter++;
             else
                 workingCounter--;
-
+            
             if(workingCounter > 0)
                 statusBar.setWorking(true);
             else
@@ -1042,7 +1042,7 @@ public class Frame extends JXFrame
         });
         messagePopupMenu.add(refresh);
         
-        messageTasks.add(initActionCallback("doImportMessages", "Import all currently viewed messages.", ActionFactory.createBoundAction("doImportMessages", "Import Messages", ""), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/import.png"))));
+        messageTasks.add(initActionCallback("doImportMessages", "Import messages from a file.", ActionFactory.createBoundAction("doImportMessages", "Import Messages", ""), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/import.png"))));
         JMenuItem importMessages = new JMenuItem("Import Messages");
         importMessages.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/import.png")));
         importMessages.addActionListener(new ActionListener()
@@ -2581,7 +2581,6 @@ public class Frame extends JXFrame
 
                 if (dashboardPanel.getSelectedStatus() == -1)
                     return null;
-                messageBrowser.makeMessageTable(null, 1);
                 setBold(viewPane, -1);
                 setPanelName("Channel Messages - " + status.get(dashboardPanel.getSelectedStatus()).getName());
                 setCurrentContentPage(messageBrowser);
@@ -2613,14 +2612,13 @@ public class Frame extends JXFrame
                 setPanelName("System Events");
                 setCurrentContentPage(eventBrowser);
                 setFocus(eventTasks);
-                setWorking(false);
                 eventBrowser.loadNew();
                 return null;
             }
 
             public void done()
             {
-                
+                setWorking(false);
             }
         };
 

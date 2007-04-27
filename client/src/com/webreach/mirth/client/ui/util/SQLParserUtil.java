@@ -46,7 +46,7 @@ public class SQLParserUtil
 
     public SQLParserUtil(String statement)
     {
-        _sqlStatement = statement.replace('\n', ' ').replace('\r', ' ');
+        _sqlStatement = statement.replaceAll("\\[","").replaceAll("\\]", "").replace('\n', ' ').replace('\r', ' ');
     }
 
     public SQLParserUtil()
@@ -56,7 +56,7 @@ public class SQLParserUtil
 
     public String[] Parse(String statement)
     {
-        _sqlStatement = statement.replace('\n', ' ').replace('\r', ' ');
+        _sqlStatement = statement.replaceAll("\\[","").replaceAll("\\]", "").replace('\n', ' ').replace('\r', ' ');
         return Parse();
     }
 

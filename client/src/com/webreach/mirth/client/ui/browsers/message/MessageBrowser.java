@@ -27,6 +27,7 @@ package com.webreach.mirth.client.ui.browsers.message;
 
 import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.ui.ViewContentDialog;
+import com.webreach.mirth.model.converters.ObjectCloner;
 import java.awt.Cursor;
 import java.awt.Point;
 import java.io.File;
@@ -85,48 +86,28 @@ import java.io.FileReader;
 public class MessageBrowser extends javax.swing.JPanel
 {
     private final int FIRST_PAGE = 0;
-    
     private final int PREVIOUS_PAGE = -1;
-    
     private final int NEXT_PAGE = 1;
-    
     private final String MESSAGE_ID_COLUMN_NAME = "Message ID";
-    
     private final String DATE_COLUMN_NAME = "Date";
-    
     private final String CONNECTOR_COLUMN_NAME = "Connector";
-    
     private final String STATUS_COLUMN_NAME = "Status";
-    
     private final String SCOPE_COLUMN_NAME = "Scope";
-    
     private final String KEY_COLUMN_NAME = "Variable";
-    
     private final String VALUE_COLUMN_NAME = "Value";
-    
     private final String TYPE_COLUMN_NAME = "Type";
-    
     private final String SOURCE_COLUMN_NAME = "Source";
-    
     private final String PROTOCOL_COLUMN_NAME = "Protocol";
-    
     private JScrollPane eventPane;
-    
     private JScrollPane mappingsPane;
-    
     private JXTable eventTable;
-    
     private Frame parent;
-    
     private MessageListHandler messageListHandler;
-    
     private List<MessageObject> messageObjectList;
-    
     private MessageObjectFilter messageObjectFilter;
-    
     private DefaultTableModel messageTableModel;
-    
     private JXTable mappingsTable;
+    private boolean isExporting = false;
     
     /**
      * Constructs the new message browser and sets up its default
@@ -213,17 +194,21 @@ public class MessageBrowser extends javax.swing.JPanel
      */
     public void loadNew()
     {
-        // use the start filters and make the table.
-        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 5, -1, false);
-        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 6, 6, true);
+        // Clear the table first
+        // makeMessageTable(null, FIRST_PAGE);
+        if(!isExporting)
+        {
+            // use the start filters and make the table.
+            parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 5, -1, false);
+            parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 6, 6, true);
+            makeMessageTable(null, 1);
+        }
         statusComboBox.setSelectedIndex(0);
         protocolComboBox.setSelectedIndex(0);
         long currentTime = System.currentTimeMillis();
         mirthDatePicker1.setDateInMillis(currentTime);
         mirthDatePicker2.setDateInMillis(currentTime);
-        pageSizeField.setText("20");
-        // Clear the table first
-        // makeMessageTable(null, FIRST_PAGE);
+        pageSizeField.setText("20");        
         filterButtonActionPerformed(null);
         descriptionTabbedPane.setSelectedIndex(0);
     }
@@ -247,7 +232,8 @@ public class MessageBrowser extends javax.swing.JPanel
         
         int returnVal = importFileChooser.showOpenDialog(this);
         File importFile = null;
-
+        String channelId = parent.status.get(parent.dashboardPanel.getSelectedStatus()).getChannelId();
+        
         if (returnVal == JFileChooser.APPROVE_OPTION)
         {
             Preferences.systemNodeForPackage(Mirth.class).put("currentDirectory", importFileChooser.getCurrentDirectory().getPath());
@@ -260,8 +246,8 @@ public class MessageBrowser extends javax.swing.JPanel
                 String endOfMessage = "</com.webreach.mirth.model.MessageObject>";
                 br = new BufferedReader(new FileReader(importFile));
                 StringBuffer buffer = new StringBuffer();
-                
                 String line;
+                
                 while((line = br.readLine()) != null)
                 {
                     buffer.append(line);
@@ -273,7 +259,7 @@ public class MessageBrowser extends javax.swing.JPanel
                         ObjectXMLSerializer serializer = new ObjectXMLSerializer();
                         MessageObject importMessage;
                         importMessage = (MessageObject) serializer.fromXML(messageXML);
-                        importMessage.setChannelId(parent.status.get(parent.dashboardPanel.getSelectedStatus()).getChannelId());
+                        importMessage.setChannelId(channelId);
                             
                         try
                         {
@@ -317,7 +303,14 @@ public class MessageBrowser extends javax.swing.JPanel
      */
     public void exportMessages()
     {
+        isExporting = true;
+        
         JFileChooser exportFileChooser = new JFileChooser();
+        
+        File currentDir = new File(Preferences.systemNodeForPackage(Mirth.class).get("currentDirectory", ""));
+        if (currentDir.exists())
+            exportFileChooser.setCurrentDirectory(currentDir);
+        
         exportFileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
         exportFileChooser.setFileFilter(new MirthFileFilter("XML"));
         int returnVal = exportFileChooser.showSaveDialog(parent);
@@ -342,6 +335,9 @@ public class MessageBrowser extends javax.swing.JPanel
                 FileUtil.write(exportFile, "", false);
                 
                 ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+                
+                //MessageListHandler tempMessageListHandler = (MessageListHandler)ObjectCloner.deepCopy(messageListHandler);
+                //List<MessageObject> messageObjects = tempMessageListHandler.getFirstPage();
                 List<MessageObject> messageObjects = messageListHandler.getFirstPage();
                 
                 while(messageObjects.size() > 0)
@@ -364,6 +360,7 @@ public class MessageBrowser extends javax.swing.JPanel
                 parent.alertError("File could not be written.");
             }
         }
+        isExporting = false;
     }
     
     /**
@@ -995,91 +992,96 @@ public class MessageBrowser extends javax.swing.JPanel
      */
     private void filterButtonActionPerformed(java.awt.event.ActionEvent evt)
     {// GEN-FIRST:event_filterButtonActionPerformed
-        int pageSize = 0;
-        
-        if (mirthDatePicker1.getDate() != null && mirthDatePicker2.getDate() != null)
-        {
-            if (mirthDatePicker1.getDateInMillis() > mirthDatePicker2.getDateInMillis())
-            {
-                JOptionPane.showMessageDialog(parent, "Start date cannot be after the end date.");
-                return;
-            }
-        }
-        
-        messageObjectFilter = new MessageObjectFilter();
-        
-        messageObjectFilter.setChannelId(parent.status.get(parent.dashboardPanel.getSelectedStatus()).getChannelId());
-        
-        if (!connectorField.getText().equals(""))
-            messageObjectFilter.setConnectorName(connectorField.getText());
-        if (!messageSourceField.getText().equals(""))
-            messageObjectFilter.setSource(messageSourceField.getText());
-        if (!messageTypeField.getText().equals(""))
-            messageObjectFilter.setType(messageTypeField.getText());
-        
-        if (!((String) statusComboBox.getSelectedItem()).equalsIgnoreCase("ALL"))
-        {
-            for (int i = 0; i < MessageObject.Status.values().length; i++)
-            {
-                if (((String) statusComboBox.getSelectedItem()).equalsIgnoreCase(MessageObject.Status.values()[i].toString()))
-                    messageObjectFilter.setStatus(MessageObject.Status.values()[i]);
-            }
-        }
-        
-        if (!((String) protocolComboBox.getSelectedItem()).equalsIgnoreCase("ALL"))
-        {
-            for (int i = 0; i < MessageObject.Protocol.values().length; i++)
-            {
-                if (((String) protocolComboBox.getSelectedItem()).equalsIgnoreCase(MessageObject.Protocol.values()[i].toString()))
-                    messageObjectFilter.setProtocol(MessageObject.Protocol.values()[i]);
-            }
-        }
-        
-        if (mirthDatePicker1.getDate() != null)
-        {
-            Calendar calendarStart = Calendar.getInstance();
-            calendarStart.setTimeInMillis(mirthDatePicker1.getDateInMillis());
-            messageObjectFilter.setStartDate(calendarStart);
-        }
-        if (mirthDatePicker2.getDate() != null)
-        {
-            Calendar calendarEnd = Calendar.getInstance();
-            calendarEnd.setTimeInMillis(mirthDatePicker2.getDateInMillis());
-            messageObjectFilter.setEndDate(calendarEnd);
-        }
-        
-        if (!pageSizeField.getText().equals(""))
-            pageSize = Integer.parseInt(pageSizeField.getText());
-        
-        parent.setWorking(true);
-        if (messageListHandler == null)
-        {
-            makeMessageTable(null, FIRST_PAGE);
-            messageListHandler = parent.mirthClient.getMessageListHandler(messageObjectFilter, pageSize);
-            makeMessageTable(messageListHandler, FIRST_PAGE);
-            parent.setWorking(false);
-        }
+        if(isExporting)
+            parent.alertError("The nessage browser cannot refresh while it is in the process of exporting.");
         else
         {
-            class MessageWorker extends SwingWorker<Void, Void>
+            int pageSize = 0;
+        
+            if (mirthDatePicker1.getDate() != null && mirthDatePicker2.getDate() != null)
             {
-                protected int pageSize;
-                
-                public Void doInBackground()
+                if (mirthDatePicker1.getDateInMillis() > mirthDatePicker2.getDateInMillis())
                 {
-                    messageListHandler = parent.mirthClient.getMessageListHandler(messageObjectFilter, pageSize);
-                    return null;
+                    JOptionPane.showMessageDialog(parent, "Start date cannot be after the end date.");
+                    return;
                 }
-                
-                public void done()
+            }
+
+            messageObjectFilter = new MessageObjectFilter();
+
+            messageObjectFilter.setChannelId(parent.status.get(parent.dashboardPanel.getSelectedStatus()).getChannelId());
+
+            if (!connectorField.getText().equals(""))
+                messageObjectFilter.setConnectorName(connectorField.getText());
+            if (!messageSourceField.getText().equals(""))
+                messageObjectFilter.setSource(messageSourceField.getText());
+            if (!messageTypeField.getText().equals(""))
+                messageObjectFilter.setType(messageTypeField.getText());
+
+            if (!((String) statusComboBox.getSelectedItem()).equalsIgnoreCase("ALL"))
+            {
+                for (int i = 0; i < MessageObject.Status.values().length; i++)
                 {
-                    makeMessageTable(messageListHandler, FIRST_PAGE);
-                    parent.setWorking(false);
+                    if (((String) statusComboBox.getSelectedItem()).equalsIgnoreCase(MessageObject.Status.values()[i].toString()))
+                        messageObjectFilter.setStatus(MessageObject.Status.values()[i]);
                 }
-            };
-            MessageWorker worker = new MessageWorker();
-            worker.pageSize = pageSize;
-            worker.execute();
+            }
+
+            if (!((String) protocolComboBox.getSelectedItem()).equalsIgnoreCase("ALL"))
+            {
+                for (int i = 0; i < MessageObject.Protocol.values().length; i++)
+                {
+                    if (((String) protocolComboBox.getSelectedItem()).equalsIgnoreCase(MessageObject.Protocol.values()[i].toString()))
+                        messageObjectFilter.setProtocol(MessageObject.Protocol.values()[i]);
+                }
+            }
+
+            if (mirthDatePicker1.getDate() != null)
+            {
+                Calendar calendarStart = Calendar.getInstance();
+                calendarStart.setTimeInMillis(mirthDatePicker1.getDateInMillis());
+                messageObjectFilter.setStartDate(calendarStart);
+            }
+            if (mirthDatePicker2.getDate() != null)
+            {
+                Calendar calendarEnd = Calendar.getInstance();
+                calendarEnd.setTimeInMillis(mirthDatePicker2.getDateInMillis());
+                messageObjectFilter.setEndDate(calendarEnd);
+            }
+
+            if (!pageSizeField.getText().equals(""))
+                pageSize = Integer.parseInt(pageSizeField.getText());
+
+            parent.setWorking(true);
+            if (messageListHandler == null)
+            {
+                makeMessageTable(null, FIRST_PAGE);
+                messageListHandler = parent.mirthClient.getMessageListHandler(messageObjectFilter, pageSize);
+                makeMessageTable(messageListHandler, FIRST_PAGE);
+                parent.setWorking(false);
+            }
+            else
+            {
+                class MessageWorker extends SwingWorker<Void, Void>
+                {
+                    protected int pageSize;
+
+                    public Void doInBackground()
+                    {
+                        messageListHandler = parent.mirthClient.getMessageListHandler(messageObjectFilter, pageSize);
+                        return null;
+                    }
+
+                    public void done()
+                    {
+                        makeMessageTable(messageListHandler, FIRST_PAGE);
+                        parent.setWorking(false);
+                    }
+                };
+                MessageWorker worker = new MessageWorker();
+                worker.pageSize = pageSize;
+                worker.execute();
+            }
         }
     }// GEN-LAST:event_filterButtonActionPerformed
     
