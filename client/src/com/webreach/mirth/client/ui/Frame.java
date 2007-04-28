@@ -1398,7 +1398,7 @@ public class Frame extends JXFrame
             if (!exportChannelOnError())
                 return;
             this.dispose();
-            Mirth.main(new String[] { PlatformUI.SERVER_NAME });
+            Mirth.main(new String[] { PlatformUI.SERVER_NAME, PlatformUI.CLIENT_VERSION });
             return;
         }
 
@@ -1411,7 +1411,7 @@ public class Frame extends JXFrame
             if (!exportChannelOnError())
                 return;
             this.dispose();
-            Mirth.main(new String[] { PlatformUI.SERVER_NAME });
+            Mirth.main(new String[] { PlatformUI.SERVER_NAME, PlatformUI.CLIENT_VERSION });
             return;
         }
 
