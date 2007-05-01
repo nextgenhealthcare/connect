@@ -57,7 +57,8 @@ public class JavaScriptPreprocessor extends AbstractTransformer {
 			Context context = Context.enter();
 
 			String preprocessingScript = scriptController.getScript(preprocessingScriptId);
-			if ((preprocessingScript != null) && !preprocessingScript.equals("")) {
+			
+			if ((preprocessingScript != null) && (preprocessingScript.length() > 0) && !preprocessingScript.equals("// Modify the message variable below to pre process data\nreturn message;")) {
 				String generatedPreprocessingScript = generatePreprocessingScript(preprocessingScript);
 				logger.debug("compiling preprocessing script");
 				Script compiledPreprocessingScript = context.compileString(generatedPreprocessingScript, preprocessingScriptId, 1, null);
