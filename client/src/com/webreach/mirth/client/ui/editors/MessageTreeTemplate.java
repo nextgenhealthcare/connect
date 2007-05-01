@@ -118,11 +118,11 @@ public class MessageTreeTemplate extends javax.swing.JPanel
 		@Override
 		public void run() {
 	
-        	PlatformUI.MIRTH_FRAME.setWorking(true);
+        	PlatformUI.MIRTH_FRAME.setWorking("Parsing...", true);
 
         	 String message = pasteBox.getText();
              treePanel.setMessage(dataProperties, (String) dataType.getSelectedItem(), message, DEFAULT_TEXT, dataProperties);
-             PlatformUI.MIRTH_FRAME.setWorking(false);
+             PlatformUI.MIRTH_FRAME.setWorking("", false);
 			
 		}
 		

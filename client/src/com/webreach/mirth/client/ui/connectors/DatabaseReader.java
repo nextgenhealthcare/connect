@@ -293,9 +293,9 @@ public class DatabaseReader extends ConnectorClass
         {
             public void run() {
         
-                PlatformUI.MIRTH_FRAME.setWorking(true);
+                PlatformUI.MIRTH_FRAME.setWorking("Parsing...", true);
                 updateSQL();
-                PlatformUI.MIRTH_FRAME.setWorking(false);                
+                PlatformUI.MIRTH_FRAME.setWorking("", false);                
             }
         }
         if (timer == null)

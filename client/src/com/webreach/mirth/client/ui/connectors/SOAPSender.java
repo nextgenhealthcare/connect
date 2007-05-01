@@ -649,7 +649,7 @@ public class SOAPSender extends ConnectorClass
     private void getMethodsButtonActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_getMethodsButtonActionPerformed
     {// GEN-HEADEREND:event_getMethodsButtonActionPerformed
 
-        parent.setWorking(true);
+        parent.setWorking("Getting methods...", true);
 
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
@@ -692,7 +692,7 @@ public class SOAPSender extends ConnectorClass
 	                    buildSoapEnvelope();
 	                }
             	}
-                parent.setWorking(false);
+                parent.setWorking("", false);
             }
 
         };

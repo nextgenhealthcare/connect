@@ -425,7 +425,7 @@ public class EventBrowser extends javax.swing.JPanel
             filter.setEndDate(calendarEnd);
         }
         
-        parent.setWorking(true);
+        parent.setWorking("Loading events...", true);
         class EventWorker extends SwingWorker<Void, Void>
         {
             public Void doInBackground()
@@ -436,7 +436,7 @@ public class EventBrowser extends javax.swing.JPanel
 
             public void done()
             {
-                parent.setWorking(false);
+                parent.setWorking("", false);
             }
         };
         EventWorker worker = new EventWorker();

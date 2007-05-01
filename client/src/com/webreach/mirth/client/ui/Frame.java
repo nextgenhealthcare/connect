@@ -50,6 +50,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Stack;
 import java.util.prefs.Preferences;
 
 import javax.swing.Action;
@@ -160,9 +161,9 @@ public class Frame extends JXFrame
     private List<String> charsetEncodings = null;
     private boolean highlightersSet = false;
     private boolean isEditingChannel = false;
-    private int workingCounter = 0;
+    private Stack<String> workingStack = new Stack<String>();
     public LinkedHashMap<MessageObject.Protocol, String> protocols;
-
+   
     public Frame()
     {
         dsb = BorderFactory.createEmptyBorder();
@@ -443,19 +444,23 @@ public class Frame extends JXFrame
         rightContainer.setTitle(name);
     }
 
-    public void setWorking(final boolean working)
+    public void setWorking(final String displayText, final boolean working)
     {
         if (statusBar != null)
         {
-            if(working)
-                workingCounter++;
-            else
-                workingCounter--;
+            String text = displayText;
             
-            if(workingCounter > 0)
+            if(working)
+                workingStack.push(statusBar.getText());
+            else if(workingStack.size() > 0)
+                text = workingStack.pop();
+            
+            if(workingStack.size() > 0)
                 statusBar.setWorking(true);
             else
                 statusBar.setWorking(false);
+            
+            statusBar.setText(text);
         }
     }
 
@@ -1695,7 +1700,7 @@ public class Frame extends JXFrame
         setCurrentContentPage(dashboardPanel);
         setFocus(statusTasks);
 
-        setWorking(true);
+        setWorking("Loading statistics...", true);
 
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
@@ -1707,7 +1712,7 @@ public class Frame extends JXFrame
 
             public void done()
             {
-                setWorking(false);
+                setWorking("", false);
             }
         };
 
@@ -1722,7 +1727,7 @@ public class Frame extends JXFrame
         if (!confirmLeave())
             return;
 
-        setWorking(true);
+        setWorking("Loading channels...", true);
 
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
@@ -1739,7 +1744,7 @@ public class Frame extends JXFrame
                 setCurrentContentPage(channelPanel);
                 setFocus(channelTasks);
                 channelPanel.deselectRows();
-                setWorking(false);
+                setWorking("", false);
             }
         };
 
@@ -1754,7 +1759,7 @@ public class Frame extends JXFrame
         if (!confirmLeave())
             return;
 
-        setWorking(true);
+        setWorking("Loading users...", true);
 
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
@@ -1770,7 +1775,7 @@ public class Frame extends JXFrame
 
             public void done()
             {
-                setWorking(false);
+                setWorking("", false);
             }
         };
 
@@ -1785,7 +1790,7 @@ public class Frame extends JXFrame
         if (!confirmLeave())
             return;
 
-        setWorking(true);
+        setWorking("Loading settings...", true);
 
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
@@ -1801,7 +1806,7 @@ public class Frame extends JXFrame
 
             public void done()
             {
-                setWorking(false);
+                setWorking("", false);
             }
         };
 
@@ -1816,7 +1821,7 @@ public class Frame extends JXFrame
         if (!confirmLeave())
             return;
 
-        setWorking(true);
+        setWorking("Loading alerts...", true);
 
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
@@ -1835,7 +1840,7 @@ public class Frame extends JXFrame
             public void done()
             {
                 setCurrentContentPage(alertPanel);
-                setWorking(false);
+                setWorking("", false);
             }
         };
 
@@ -1907,7 +1912,7 @@ public class Frame extends JXFrame
             return;
         else
             isEditingChannel = true;
-        setWorking(true);
+        setWorking("Loading channel...", true);
 
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
@@ -1931,7 +1936,7 @@ public class Frame extends JXFrame
                         // TODO Auto-generated catch block
                         e.printStackTrace();
                     }
-                setWorking(false);
+                setWorking("", false);
                 isEditingChannel = false;
             }
         };
@@ -1942,7 +1947,7 @@ public class Frame extends JXFrame
 
     public void doDeleteChannel()
     {
-        setWorking(true);
+        setWorking("Deleting channel...", true);
 
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
@@ -1990,7 +1995,7 @@ public class Frame extends JXFrame
             public void done()
             {
                 doShowChannel();
-                setWorking(false);
+                setWorking("", false);
             }
         };
 
@@ -1999,7 +2004,7 @@ public class Frame extends JXFrame
 
     public void doRefreshChannels()
     {
-        setWorking(true);
+        setWorking("Loading channels...", true);
 
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
@@ -2011,7 +2016,7 @@ public class Frame extends JXFrame
 
             public void done()
             {
-                setWorking(false);
+                setWorking("", false);
             }
         };
 
@@ -2101,7 +2106,7 @@ public class Frame extends JXFrame
 
     public void doRefreshStatuses()
     {
-        setWorking(true);
+        setWorking("Loading statistics...", true);
 
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
@@ -2113,7 +2118,7 @@ public class Frame extends JXFrame
 
             public void done()
             {
-                setWorking(false);
+                setWorking("", false);
             }
         };
 
@@ -2141,7 +2146,7 @@ public class Frame extends JXFrame
 
     public void doStartAll()
     {
-        setWorking(true);
+        setWorking("Starting all channels...", true);
 
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
@@ -2167,7 +2172,7 @@ public class Frame extends JXFrame
             public void done()
             {
                 refreshStatuses();
-                setWorking(false);
+                setWorking("", false);
             }
         };
 
@@ -2176,7 +2181,7 @@ public class Frame extends JXFrame
 
     public void doStart()
     {
-        setWorking(true);
+        setWorking("Starting channel...", true);
 
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
@@ -2203,7 +2208,7 @@ public class Frame extends JXFrame
             public void done()
             {
                 refreshStatuses();
-                setWorking(false);
+                setWorking("", false);
             }
         };
 
@@ -2212,7 +2217,7 @@ public class Frame extends JXFrame
 
     public void doStop()
     {
-        setWorking(true);
+        setWorking("Stopping channel...", true);
 
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
@@ -2236,7 +2241,7 @@ public class Frame extends JXFrame
             public void done()
             {
                 refreshStatuses();
-                setWorking(false);
+                setWorking("", false);
             }
         };
 
@@ -2245,7 +2250,7 @@ public class Frame extends JXFrame
 
     public void doPause()
     {
-        setWorking(true);
+        setWorking("Pausing channel...", true);
 
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
@@ -2265,7 +2270,7 @@ public class Frame extends JXFrame
             public void done()
             {
                 refreshStatuses();
-                setWorking(false);
+                setWorking("", false);
             }
         };
 
@@ -2294,7 +2299,7 @@ public class Frame extends JXFrame
 
     public void doEnableChannel()
     {
-        setWorking(true);
+        setWorking("Enabling channel...", true);
 
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
@@ -2322,7 +2327,7 @@ public class Frame extends JXFrame
 
             public void done()
             {
-                setWorking(false);
+                setWorking("", false);
             }
         };
 
@@ -2331,7 +2336,7 @@ public class Frame extends JXFrame
 
     public void doDisableChannel()
     {
-        setWorking(true);
+        setWorking("Disabling channel...", true);
 
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
@@ -2353,7 +2358,7 @@ public class Frame extends JXFrame
 
             public void done()
             {
-                setWorking(false);
+                setWorking("", false);
             }
         };
 
@@ -2384,7 +2389,7 @@ public class Frame extends JXFrame
         if (!alertOption("Are you sure you want to delete this user?"))
             return;
 
-        setWorking(true);
+        setWorking("Deleting user...", true);
 
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
@@ -2400,7 +2405,6 @@ public class Frame extends JXFrame
 
                 int userToDelete = userPanel.getUserIndex();
 
-                setWorking(true);
                 try
                 {
                     if (userToDelete != UIConstants.ERROR_CONSTANT)
@@ -2426,7 +2430,7 @@ public class Frame extends JXFrame
 
             public void done()
             {
-                setWorking(false);
+                setWorking("", false);
             }
         };
 
@@ -2435,7 +2439,7 @@ public class Frame extends JXFrame
 
     public void doRefreshUser()
     {
-        setWorking(true);
+        setWorking("Loading users...", true);
 
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
@@ -2475,7 +2479,7 @@ public class Frame extends JXFrame
 
             public void done()
             {
-                setWorking(false);
+                setWorking("", false);
             }
         };
 
@@ -2484,7 +2488,7 @@ public class Frame extends JXFrame
 
     public void doDeployAll()
     {
-        setWorking(true);
+        setWorking("Deploying channels...", true);
 
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
@@ -2506,7 +2510,7 @@ public class Frame extends JXFrame
             public void done()
             {
                 doShowDashboard();
-                setWorking(false);
+                setWorking("", false);
             }
         };
 
@@ -2515,7 +2519,7 @@ public class Frame extends JXFrame
 
     public void doSaveChannel()
     {
-        setWorking(true);
+        setWorking("Saving channel...", true);
 
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
@@ -2545,7 +2549,7 @@ public class Frame extends JXFrame
 
             public void done()
             {
-                setWorking(false);
+                setWorking("", false);
             }
         };
 
@@ -2570,7 +2574,7 @@ public class Frame extends JXFrame
 
     public void doShowMessages()
     {
-        setWorking(true);
+        setWorking("Loading messages...", true);
 
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
@@ -2591,7 +2595,7 @@ public class Frame extends JXFrame
 
             public void done()
             {
-                setWorking(false);
+                setWorking("", false);
             }
         };
         worker.execute();
@@ -2599,7 +2603,7 @@ public class Frame extends JXFrame
 
     public void doShowEvents()
     {
-        setWorking(true);
+        setWorking("Loading events...", true);
 
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
@@ -2618,7 +2622,7 @@ public class Frame extends JXFrame
 
             public void done()
             {
-                setWorking(false);
+                setWorking("", false);
             }
         };
 
@@ -2645,7 +2649,7 @@ public class Frame extends JXFrame
 
     public void doSaveSettings()
     {
-        setWorking(true);
+        setWorking("Saving settings...", true);
 
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
@@ -2657,7 +2661,7 @@ public class Frame extends JXFrame
 
             public void done()
             {
-                setWorking(false);
+                setWorking("", false);
             }
         };
 
@@ -2923,7 +2927,7 @@ public class Frame extends JXFrame
 
     public void doRefreshMessages()
     {
-        setWorking(true);
+        setWorking("Loading messages...", true);
 
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
@@ -2935,7 +2939,7 @@ public class Frame extends JXFrame
 
             public void done()
             {
-                setWorking(false);
+                setWorking("", false);
             }
         };
 
@@ -2944,7 +2948,7 @@ public class Frame extends JXFrame
     
     public void doImportMessages()
     {
-        setWorking(true);
+        setWorking("Importing messages...", true);
 
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
@@ -2956,7 +2960,7 @@ public class Frame extends JXFrame
 
             public void done()
             {
-                setWorking(false);
+                setWorking("", false);
             }
         };
 
@@ -2965,7 +2969,7 @@ public class Frame extends JXFrame
     
     public void doExportMessages()
     {
-        setWorking(true);
+        setWorking("Exporting messages...", true);
 
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
@@ -2977,7 +2981,7 @@ public class Frame extends JXFrame
 
             public void done()
             {
-                setWorking(false);
+                setWorking("", false);
             }
         };
 
@@ -2988,7 +2992,7 @@ public class Frame extends JXFrame
     {
         if (alertOption("Are you sure you would like to remove all messages in this channel?"))
         {
-            setWorking(true);
+            setWorking("Removing messages...", true);
 
             SwingWorker worker = new SwingWorker<Void, Void>()
             {
@@ -3011,7 +3015,7 @@ public class Frame extends JXFrame
                 public void done()
                 {
 
-                    setWorking(false);
+                    setWorking("", false);
                 }
             };
 
@@ -3023,7 +3027,7 @@ public class Frame extends JXFrame
     {
         if (alertOption("Are you sure you would like to remove all currently filtered messages in this channel?"))
         {
-            setWorking(true);
+            setWorking("Removing messages...", true);
 
             SwingWorker worker = new SwingWorker<Void, Void>()
             {
@@ -3044,7 +3048,7 @@ public class Frame extends JXFrame
                 {
                     messageBrowser.refresh();
                     refreshStatuses();
-                    setWorking(false);
+                    setWorking("", false);
                 }
             };
 
@@ -3057,7 +3061,7 @@ public class Frame extends JXFrame
     {
         if (alertOption("Are you sure you would like to remove the selected message?"))
         {
-            setWorking(true);
+            setWorking("Removing message...", true);
 
             SwingWorker worker = new SwingWorker<Void, Void>()
             {
@@ -3080,7 +3084,7 @@ public class Frame extends JXFrame
                 {
                     messageBrowser.refresh();
                     refreshStatuses();
-                    setWorking(false);
+                    setWorking("", false);
                 }
             };
 
@@ -3090,7 +3094,7 @@ public class Frame extends JXFrame
 
     public void doReprocessFilteredMessages()
     {
-        setWorking(true);
+        setWorking("Reprocessing messages...", true);
 
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
@@ -3110,7 +3114,7 @@ public class Frame extends JXFrame
             public void done()
             {
                 messageBrowser.refresh();
-                setWorking(false);
+                setWorking("", false);
             }
         };
 
@@ -3119,7 +3123,7 @@ public class Frame extends JXFrame
 
     public void doReprocessMessage()
     {
-        setWorking(true);
+        setWorking("Reprocessing message...", true);
 
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
@@ -3141,7 +3145,7 @@ public class Frame extends JXFrame
             public void done()
             {
                 messageBrowser.refresh();
-                setWorking(false);
+                setWorking("", false);
             }
         };
 
@@ -3150,7 +3154,7 @@ public class Frame extends JXFrame
 
     public void doRefreshEvents()
     {
-        setWorking(true);
+        setWorking("Loading events...", true);
 
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
@@ -3162,7 +3166,7 @@ public class Frame extends JXFrame
 
             public void done()
             {
-                setWorking(false);
+                setWorking("", false);
             }
         };
 
@@ -3173,7 +3177,7 @@ public class Frame extends JXFrame
     {
         if (alertOption("Are you sure you would like to clear all system events?"))
         {
-            setWorking(true);
+            setWorking("Clearing events...", true);
 
             SwingWorker worker = new SwingWorker<Void, Void>()
             {
@@ -3193,7 +3197,7 @@ public class Frame extends JXFrame
                 public void done()
                 {
                     eventBrowser.refresh();
-                    setWorking(false);
+                    setWorking("", false);
                 }
             };
 
@@ -3203,7 +3207,7 @@ public class Frame extends JXFrame
 
     public void doRefreshSettings()
     {
-        setWorking(true);
+        setWorking("Loading settings...", true);
 
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
@@ -3215,7 +3219,7 @@ public class Frame extends JXFrame
 
             public void done()
             {
-                setWorking(false);
+                setWorking("", false);
             }
         };
 
@@ -3225,7 +3229,7 @@ public class Frame extends JXFrame
 
     public void doRefreshAlerts()
     {
-        setWorking(true);
+        setWorking("Loading alerts...", true);
 
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
@@ -3237,7 +3241,7 @@ public class Frame extends JXFrame
 
             public void done()
             {
-                setWorking(false);
+                setWorking("", false);
             }
         };
 
@@ -3259,21 +3263,37 @@ public class Frame extends JXFrame
 
     public void doSaveAlerts()
     {
-        try
+        setWorking("Saving alerts...", true);
+        
+        SwingWorker worker = new SwingWorker<Void, Void>()
         {
-            Properties serverProperties = mirthClient.getServerProperties();
-            if(!(serverProperties.getProperty("smtp.host") != null && ((String)serverProperties.getProperty("smtp.host")).length() > 0) || !(serverProperties.getProperty("smtp.port") != null && ((String)serverProperties.getProperty("smtp.port")).length() > 0))
-                alertWarning("The SMTP server on the settings page is not specified or is incomplete.  An SMTP server is required to send alerts.");
-            
-            alertPanel.saveAlert();
-            mirthClient.updateAlerts(alerts);
-            alertPanel.updateAlertTable(false);
-            disableSave();
-        }
-        catch (ClientException e)
-        {
-            alertException(e.getStackTrace(), e.getMessage());
-        }
+            public Void doInBackground()
+            {
+                try
+                {
+                    Properties serverProperties = mirthClient.getServerProperties();
+                    if(!(serverProperties.getProperty("smtp.host") != null && ((String)serverProperties.getProperty("smtp.host")).length() > 0) || !(serverProperties.getProperty("smtp.port") != null && ((String)serverProperties.getProperty("smtp.port")).length() > 0))
+                        alertWarning("The SMTP server on the settings page is not specified or is incomplete.  An SMTP server is required to send alerts.");
+
+                    alertPanel.saveAlert();
+                    mirthClient.updateAlerts(alerts);
+                    alertPanel.updateAlertTable(false);
+                    disableSave();
+                }
+                catch (ClientException e)
+                {
+                    alertException(e.getStackTrace(), e.getMessage());
+                }
+                return null;
+            }
+
+            public void done()
+            {
+                setWorking("", false);
+            }
+        };
+
+        worker.execute();
     }
 
     public void doDeleteAlert()

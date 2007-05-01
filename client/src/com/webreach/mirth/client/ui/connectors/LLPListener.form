@@ -65,8 +65,8 @@
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="listenerPortField" alignment="0" min="-2" pref="50" max="-2" attributes="0"/>
-                  <Component id="receiveTimeoutField" alignment="0" min="-2" pref="160" max="-2" attributes="1"/>
-                  <Component id="bufferSizeField" alignment="0" min="-2" pref="160" max="-2" attributes="1"/>
+                  <Component id="receiveTimeoutField" alignment="0" min="-2" pref="100" max="-2" attributes="1"/>
+                  <Component id="bufferSizeField" alignment="0" min="-2" pref="100" max="-2" attributes="1"/>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="keepConnectionOpenYesRadio" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>

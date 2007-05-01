@@ -277,7 +277,6 @@ public class MessageBrowser extends javax.swing.JPanel
                     
                 }
                 parent.alertInformation("All messages have been successfully imported.");
-                filterButtonActionPerformed(null);
                 br.close();
             }
             catch (Exception e)
@@ -1137,7 +1136,7 @@ public class MessageBrowser extends javax.swing.JPanel
     
     private void nextPageButtonActionPerformed(java.awt.event.ActionEvent evt)
     {// GEN-FIRST:event_nextPageButtonActionPerformed
-        parent.setWorking(true);
+        parent.setWorking("Loading next page...", true);
         
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
@@ -1149,7 +1148,7 @@ public class MessageBrowser extends javax.swing.JPanel
             
             public void done()
             {
-                parent.setWorking(false);
+                parent.setWorking("", false);
             }
         };
         worker.execute();
@@ -1158,7 +1157,7 @@ public class MessageBrowser extends javax.swing.JPanel
     
     private void previousPageButtonActionPerformed(java.awt.event.ActionEvent evt)
     {// GEN-FIRST:event_previousPageButtonActionPerformed
-        parent.setWorking(true);
+        parent.setWorking("Loading previous page...", true);
         
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
@@ -1170,7 +1169,7 @@ public class MessageBrowser extends javax.swing.JPanel
             
             public void done()
             {
-                parent.setWorking(false);
+                parent.setWorking("", false);
             }
         };
         worker.execute();
@@ -1242,13 +1241,13 @@ public class MessageBrowser extends javax.swing.JPanel
             if (!pageSizeField.getText().equals(""))
                 pageSize = Integer.parseInt(pageSizeField.getText());
 
-            parent.setWorking(true);
+            parent.setWorking("Loading messages...", true);
             if (messageListHandler == null)
             {
                 makeMessageTable(null, FIRST_PAGE);
                 messageListHandler = parent.mirthClient.getMessageListHandler(messageObjectFilter, pageSize);
                 makeMessageTable(messageListHandler, FIRST_PAGE);
-                parent.setWorking(false);
+                parent.setWorking("", false);
             }
             else
             {
@@ -1265,7 +1264,7 @@ public class MessageBrowser extends javax.swing.JPanel
                     public void done()
                     {
                         makeMessageTable(messageListHandler, FIRST_PAGE);
-                        parent.setWorking(false);
+                        parent.setWorking("", false);
                     }
                 };
                 MessageWorker worker = new MessageWorker();
