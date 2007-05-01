@@ -207,14 +207,14 @@ public class MessageObjectController {
 
 	public void removeFilterTables(String uid) {
 		logger.debug("removing temporary filter tables");
-		
+
 		try {
 			sqlMap.delete("deleteTempMessageTable", uid);
 		} catch (SQLException e) {
 			logger.debug("Fitler table no found: " + uid);
 		}
 	}
-	
+
 	public void clearMessages(String channelId) throws ControllerException {
 		logger.debug("clearing messages: channelId=" + channelId);
 
@@ -227,27 +227,44 @@ public class MessageObjectController {
 		}
 	}
 
-	public void reprocessMessages(MessageObjectFilter filter, String uid) throws ControllerException {
-		int size = createMessagesTempTable(filter, uid);
-		int page = 0;
-		int interval = 10;
+	public void reprocessMessages(final MessageObjectFilter filter, final String uid) throws ControllerException {
+		Thread reprocessThread = new Thread(new Runnable() {
+			public void run() {
+				try {
+					int size = createMessagesTempTable(filter, uid);
+					int page = 0;
+					int interval = 10;
 
-		while ((page * interval) < size) {
-			List<MessageObject> messages = getMessagesByPage(page, interval, size, uid);
+					while ((page * interval) < size) {
 
-			try {
-				VMRouter router = new VMRouter();
+						List<MessageObject> messages = getMessagesByPage(page, interval, size, uid);
 
-				for (Iterator<MessageObject> iter = messages.iterator(); iter.hasNext();) {
-					MessageObject message = iter.next();
-					router.routeMessageByChannelId(message.getChannelId(), message.getRawData(), true);
+						try {
+							VMRouter router = new VMRouter();
+
+							for (Iterator<MessageObject> iter = messages.iterator(); iter.hasNext();) {
+								try {
+									Thread.sleep(100);
+								} catch (InterruptedException e1) {
+									logger.debug(e1);
+								}
+								MessageObject message = iter.next();
+								router.routeMessageByChannelId(message.getChannelId(), message.getRawData(), true);
+							}
+						} catch (Exception e) {
+							throw new ControllerException("could not reprocess message", e);
+						}
+
+						page++;
+					}
+				} catch (Exception e) {
+					logger.error(e);
 				}
-			} catch (Exception e) {
-				throw new ControllerException("could not reprocess message", e);
-			}
 
-			page++;
-		}
+			}
+		});
+		reprocessThread.start();
+		return;
 	}
 
 	private Map getFilterMap(MessageObjectFilter filter, String uid) {
@@ -347,16 +364,12 @@ public class MessageObjectController {
 			updateMessage(messageObject);
 		}
 	}
-	
-	private boolean statementExists(String statement)
-	{
-		try
-		{
-			SqlMapExecutorDelegate delegate = ((ExtendedSqlMapClient)sqlMap).getDelegate();
+
+	private boolean statementExists(String statement) {
+		try {
+			SqlMapExecutorDelegate delegate = ((ExtendedSqlMapClient) sqlMap).getDelegate();
 			delegate.getMappedStatement(statement);
-		}
-		catch (SqlMapException sme)
-		{
+		} catch (SqlMapException sme) {
 			// The statement does not exist
 			return false;
 		}

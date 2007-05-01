@@ -19,51 +19,51 @@ import com.webreach.mirth.server.mule.providers.vm.VMConnector;
 import com.webreach.mirth.server.mule.providers.vm.VMMessageReceiver;
 
 public class VMRouter {
-    /**
-     * logger used by this class
-     */
-    private static transient Log logger = LogFactory.getLog(VMRouter.class);
-    public void routeMessage(String channelName, String message){
-    	routeMessage(channelName, message, true);
-    }
-    public void routeMessage(String channelName, String message, boolean useQueue){
-    	String channelId = ChannelController.getChannelId(channelName);
-    	routeMessageByChannelId(channelId, message, useQueue);
-    }
-    public void routeMessageByChannelId(String channelId, Object message, boolean useQueue){
-    	UMOMessage umoMessage = new MuleMessage(message);
-    	VMMessageReceiver receiver = VMRegistry.getInstance().get(channelId);
-    	UMOEvent event = new MuleEvent(umoMessage, receiver.getEndpoint(), new MuleSession(), false);
-    	try {
+	/**
+	 * logger used by this class
+	 */
+	private static transient Log logger = LogFactory.getLog(VMRouter.class);
+
+	public void routeMessage(String channelName, String message) {
+		routeMessage(channelName, message, true);
+	}
+
+	public void routeMessage(String channelName, String message, boolean useQueue) {
+		String channelId = ChannelController.getChannelId(channelName);
+		routeMessageByChannelId(channelId, message, useQueue);
+	}
+
+	public void routeMessageByChannelId(String channelId, Object message, boolean useQueue) {
+		UMOMessage umoMessage = new MuleMessage(message);
+		VMMessageReceiver receiver = VMRegistry.getInstance().get(channelId);
+		UMOEvent event = new MuleEvent(umoMessage, receiver.getEndpoint(), new MuleSession(), false);
+		try {
 			doDispatch(event, receiver, useQueue);
 		} catch (Exception e) {
 			logger.error("Unable to route: " + e.getMessage());
 		}
-    }
-   
-	 private void doDispatch(UMOEvent event, VMMessageReceiver receiver, boolean useQueue) throws Exception
-	    {
-	        UMOEndpointURI endpointUri = event.getEndpoint().getEndpointURI();
+	}
 
-	        if (endpointUri == null) {
-	            throw new DispatchException(new Message(Messages.X_IS_NULL, "Endpoint"),
-	                                        event.getMessage(),
-	                                        event.getEndpoint());
-	        }
-	        if (useQueue) {
-	            QueueSession session = ((VMConnector)receiver.getConnector()).getQueueSession();
-	            Queue queue = session.getQueue(endpointUri.getAddress());
-	            queue.put(event);
-	        } else {
-	            if (receiver == null) {
-	                logger.warn("No receiver for endpointUri: " + event.getEndpoint().getEndpointURI());
-	                return;
-	            }
-	            receiver.onEvent(event);
-	        }
-	        if (logger.isDebugEnabled()) {
-	            logger.debug("dispatched Event on endpointUri: " + endpointUri);
-	        }
-	    }
+	private void doDispatch(UMOEvent event, VMMessageReceiver receiver, boolean useQueue) throws Exception {
+		UMOEndpointURI endpointUri = event.getEndpoint().getEndpointURI();
+
+		if (endpointUri == null) {
+			throw new DispatchException(new Message(Messages.X_IS_NULL, "Endpoint"), event.getMessage(), event.getEndpoint());
+		}
+		if (useQueue) {
+			QueueSession session = ((VMConnector) receiver.getConnector()).getQueueSession();
+			Queue queue = session.getQueue(endpointUri.getAddress());
+			queue.put(event);
+		} else {
+			if (receiver == null) {
+				logger.warn("No receiver for endpointUri: " + event.getEndpoint().getEndpointURI());
+				return;
+			}
+			receiver.routeMessage(event.getMessage(), false);
+		}
+		if (logger.isDebugEnabled()) {
+			logger.debug("dispatched Event on endpointUri: " + endpointUri);
+		}
+	}
 
 }

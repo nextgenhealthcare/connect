@@ -175,12 +175,14 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 
 			String transformerScript = scriptController.getScript(transformerScriptId);
 
-			if (transformerScript != null) {
-				String generatedTransformerScript = generateTransformerScript(transformerScript);
-				logger.debug("compiling transformer script");
-				Script compiledTransformerScript = context.compileString(generatedTransformerScript, transformerScriptId, 1, null);
-				compiledScriptCache.putCompiledScript(transformerScriptId, compiledTransformerScript);
+			if (transformerScript == null) {
+				transformerScript = "";
 			}
+			String generatedTransformerScript = generateTransformerScript(transformerScript);
+			logger.debug("compiling transformer script");
+			Script compiledTransformerScript = context.compileString(generatedTransformerScript, transformerScriptId, 1, null);
+			compiledScriptCache.putCompiledScript(transformerScriptId, compiledTransformerScript);
+		
 		} catch (Exception e) {
 			logger.error(errorBuilder.buildErrorMessage(Constants.ERROR_300, null, e));
 			throw new InitialisationException(e, this);
