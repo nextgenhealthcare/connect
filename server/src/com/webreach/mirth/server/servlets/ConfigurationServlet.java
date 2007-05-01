@@ -33,20 +33,25 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.webreach.mirth.model.ServerConfiguration;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.server.controllers.ConfigurationController;
 import com.webreach.mirth.server.util.WebServiceReader;
 
 public class ConfigurationServlet extends MirthServlet {
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		if (!isUserLoggedIn(request)) {
-			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-		} else {
-			try {
+		try {
+			PrintWriter out = response.getWriter();
+			String operation = request.getParameter("op");
+			
+			if (operation.equals("getStatus")) {
+				response.setContentType("text/plain");
+				out.println(new ConfigurationController().getStatus());
+			} else if (!isUserLoggedIn(request)) {
+				response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+			} else {
 				ConfigurationController configurationController = new ConfigurationController();
 				ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-				PrintWriter out = response.getWriter();
-				String operation = request.getParameter("op");
 
 				if (operation.equals("getTransports")) {
 					response.setContentType("application/xml");
@@ -79,10 +84,16 @@ public class ConfigurationServlet extends MirthServlet {
 					String address = request.getParameter("address");
 					WebServiceReader wsReader = new WebServiceReader(address);
 					out.println(serializer.toXML(wsReader.getWSDefinition()));
+				} else if (operation.equals("getServerConfiguration")) {
+					response.setContentType("application/xml");
+					out.println(serializer.toXML(configurationController.getServerConfiguration()));
+				} else if (operation.equals("setServerConfiguration")) {
+					String serverConfiguration = request.getParameter("data");
+					configurationController.setServerConfiguration((ServerConfiguration) serializer.fromXML(serverConfiguration));
 				}
-			} catch (Exception e) {
-				throw new ServletException(e);
 			}
+		} catch (Exception e) {
+			throw new ServletException(e);
 		}
 	}
 }

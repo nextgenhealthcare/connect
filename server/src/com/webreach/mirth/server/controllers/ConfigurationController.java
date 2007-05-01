@@ -50,12 +50,15 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.ibatis.sqlmap.client.SqlMapClient;
+import com.webreach.mirth.model.Alert;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.ChannelStatus;
 import com.webreach.mirth.model.Configuration;
 import com.webreach.mirth.model.DriverInfo;
+import com.webreach.mirth.model.ServerConfiguration;
 import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.model.Transport;
+import com.webreach.mirth.model.User;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.server.Command;
 import com.webreach.mirth.server.CommandQueue;
@@ -79,6 +82,7 @@ public class ConfigurationController {
 	private final String CONF_FOLDER = "conf/";
 	private SqlMapClient sqlMap = SqlConfig.getSqlMapInstance();
 	private static final String CHARSET = "ca.uhn.hl7v2.llp.charset";
+	private static final int STATUS_OK = 0;
 
 	public void initialize() {
 		try {
@@ -156,6 +160,26 @@ public class ConfigurationController {
 		} finally {
 			try {
 				fileInputStream.close();
+			} catch (IOException e) {
+				logger.warn(e);
+			}
+		}
+	}
+	
+	public void setServerProperties(Properties properties) throws ControllerException {
+		logger.debug("setting properties");
+
+		FileOutputStream fileOutputStream = null;
+
+		try {
+			serverPropertiesFile.createNewFile();
+			fileOutputStream = new FileOutputStream(serverPropertiesFile);
+			properties.store(fileOutputStream, "Updated server properties");
+		} catch (Exception e) {
+			throw new ControllerException(e);
+		} finally {
+			try {
+				fileOutputStream.close();
 			} catch (IOException e) {
 				logger.warn(e);
 			}
@@ -357,5 +381,37 @@ public class ConfigurationController {
 
 	public String getBuildDate() {
 		return versionProperties.getProperty("mirth.date");
+	}
+	
+	public int getStatus() {
+		return STATUS_OK;
+	}
+	
+	public ServerConfiguration getServerConfiguration() throws ControllerException {
+		ChannelController channelController = new ChannelController();
+		AlertController alertController = new AlertController();
+		UserController userController = new UserController();
+		ServerConfiguration serverConfig = new ServerConfiguration();
+		serverConfig.setChannels(channelController.getChannel(null));
+		serverConfig.setAlerts(alertController.getAlert(null));
+		serverConfig.setUsers(userController.getUser(null));
+		serverConfig.setProperties(getServerProperties());
+		return serverConfig;
+	}
+	
+	public void setServerConfiguration(ServerConfiguration serverConfiguration) throws ControllerException {
+		ChannelController channelController = new ChannelController();
+		AlertController alertController = new AlertController();
+		
+		channelController.removeChannel(null);
+		alertController.removeAlert(null);
+		
+		setServerProperties(serverConfiguration.getProperties());
+		
+		for (Channel channel : serverConfiguration.getChannels()) {
+			channelController.updateChannel(channel, true);
+		}
+
+		alertController.updateAlerts(serverConfiguration.getAlerts());
 	}
 }

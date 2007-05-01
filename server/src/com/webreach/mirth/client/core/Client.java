@@ -118,12 +118,22 @@ public class Client {
 	 * @throws ClientException
 	 */
 	public ServerConfiguration getServerConfiguration() throws ClientException {
-		ServerConfiguration serverConfig = new ServerConfiguration();
-		serverConfig.setChannels(getChannel(null));
-		serverConfig.setAlerts(getAlert(null));
-		serverConfig.setUsers(getUser(null));
-		serverConfig.setProperties(getServerProperties());
-		return serverConfig;
+		logger.debug("getting server configuration");
+		NameValuePair[] params = { new NameValuePair("op", "getServerConfiguration") };
+		return (ServerConfiguration) serializer.fromXML(serverConnection.executePostMethod(CONFIGURATION_SERVLET, params));
+	}
+	
+	/**
+	 * Sets a ServerConfiguration object which sets all of the channels, 
+	 * alerts and properties stored on the Mirth server.
+	 * 
+	 * @return
+	 * @throws ClientException
+	 */
+	public synchronized void setServerConfiguration() throws ClientException {
+		logger.debug("setting server configuration");
+		NameValuePair[] params = { new NameValuePair("op", "setServerConfiguration") };
+		serverConnection.executePostMethod(CONFIGURATION_SERVLET, params);
 	}
 
 	/**
@@ -514,6 +524,18 @@ public class Client {
 		logger.debug("retrieving version");
 		NameValuePair[] params = { new NameValuePair("op", "getVersion") };
 		return serverConnection.executePostMethod(CONFIGURATION_SERVLET, params);
+	}
+	
+	/**
+	 * Returns the status of the Mirth server.
+	 * 
+	 * @return
+	 * @throws ClientException
+	 */
+	public synchronized int getStatus() throws ClientException {
+		logger.debug("retrieving status");
+		NameValuePair[] params = { new NameValuePair("op", "getStatus") };
+		return Integer.valueOf(serverConnection.executePostMethod(CONFIGURATION_SERVLET, params));
 	}
 
 	/**

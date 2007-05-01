@@ -8,6 +8,7 @@ import java.util.Properties;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
+import com.webreach.mirth.model.Alert;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.Connector;
 import com.webreach.mirth.server.controllers.ChannelController;
@@ -82,6 +83,15 @@ public class ChannelControllerTest extends TestCase {
 		List<Channel> testChannelList = channelController.getChannel(null);
 
 		Assert.assertFalse(testChannelList.contains(sampleChannel));
+	}
+	
+	public void testRemoveAllChannels() throws ControllerException {
+		insertSampleChannels();
+		
+		channelController.removeChannel(null);
+		List<Channel> testChannelList = channelController.getChannel(null);
+
+		Assert.assertTrue(testChannelList.isEmpty());
 	}
 	
 	public void insertSampleChannels() throws ControllerException {
