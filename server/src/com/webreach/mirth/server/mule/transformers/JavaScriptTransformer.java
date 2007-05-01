@@ -231,7 +231,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 				if (this.getMode().equals(Mode.SOURCE.toString())) {
 					// only update on the source - it doesn't matter on each
 					// destination
-					messageObjectController.updateMessage(transformedMessageObject);
+					messageObjectController.updateMessage(transformedMessageObject, false);
 				}
 				return transformedMessageObject;
 

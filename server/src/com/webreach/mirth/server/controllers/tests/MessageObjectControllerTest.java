@@ -121,7 +121,7 @@ public class MessageObjectControllerTest extends TestCase {
 
 	public void testUpdateMessage() throws ControllerException {
 		MessageObject sampleMessageObject = sampleMessageObjectList.get(0);
-		messageObjectController.updateMessage(sampleMessageObject);
+		messageObjectController.updateMessage(sampleMessageObject, true);
 		
 		MessageObjectFilter testFilter = new MessageObjectFilter();
 		testFilter.setId(sampleMessageObject.getId());
@@ -214,7 +214,7 @@ public class MessageObjectControllerTest extends TestCase {
 	private void insertSampleMessages() {
 		for (Iterator iter = sampleMessageObjectList.iterator(); iter.hasNext();) {
 			MessageObject messageObject = (MessageObject) iter.next();
-			messageObjectController.updateMessage(messageObject);
+			messageObjectController.updateMessage(messageObject, true);
 		}
 	}
 }

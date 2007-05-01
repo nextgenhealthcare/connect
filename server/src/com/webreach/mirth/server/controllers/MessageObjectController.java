@@ -58,7 +58,7 @@ public class MessageObjectController {
 	private String lineSeperator = System.getProperty("line.separator");
 	private ErrorMessageBuilder errorBuilder = new ErrorMessageBuilder();
 
-	public void updateMessage(MessageObject incomingMessageObject) {
+	public void updateMessage(MessageObject incomingMessageObject, boolean checkIfMessageExists) {
 		try {
 			MessageObject messageObject = (MessageObject) incomingMessageObject.clone();
 			String channelId = messageObject.getChannelId();
@@ -88,14 +88,19 @@ public class MessageObjectController {
 
 			}
 
-			int count = (Integer) sqlMap.queryForObject("getMessageCount", messageObject.getId());
+			if (checkIfMessageExists) {
+				int count = (Integer) sqlMap.queryForObject("getMessageCount", messageObject.getId());
 
-			if (count == 0) {
+				if (count == 0) {
+					logger.debug("adding message: id=" + messageObject.getId());
+					sqlMap.insert("insertMessage", messageObject);
+				} else {
+					logger.debug("updating message: id=" + messageObject.getId());
+					sqlMap.update("updateMessage", messageObject);
+				}
+			} else {
 				logger.debug("adding message: id=" + messageObject.getId());
 				sqlMap.insert("insertMessage", messageObject);
-			} else {
-				logger.debug("updating message: id=" + messageObject.getId());
-				sqlMap.update("updateMessage", messageObject);
 			}
 		} catch (Exception e) {
 			logger.error("could not log message: id=" + incomingMessageObject.getId(), e);
@@ -361,7 +366,7 @@ public class MessageObjectController {
 
 		if (messageObject != null) {
 			messageObject.setStatus(status);
-			updateMessage(messageObject);
+			updateMessage(messageObject, status.equals(MessageObject.Status.QUEUED));
 		}
 	}
 
