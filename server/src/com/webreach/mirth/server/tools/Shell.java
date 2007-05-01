@@ -37,12 +37,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-
-import javax.swing.JOptionPane;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -58,14 +54,12 @@ import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.ChannelStatistics;
 import com.webreach.mirth.model.ChannelStatus;
-import com.webreach.mirth.model.ChannelSummary;
 import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.model.User;
 import com.webreach.mirth.model.ChannelStatus.State;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.model.filters.SystemEventFilter;
 import com.webreach.mirth.model.util.ImportConverter;
-import com.webreach.mirth.server.controllers.ChannelController;
 
 public class Shell {
 	private Client client;
@@ -81,21 +75,23 @@ public class Shell {
 		Option userOption = OptionBuilder.withArgName("user").hasArg().withDescription("user login").create("u");
 		Option passwordOption = OptionBuilder.withArgName("password").hasArg().withDescription("user password").create("p");
 		Option scriptOption = OptionBuilder.withArgName("script").hasArg().withDescription("script file").create("s");
+		Option versionOption = OptionBuilder.withArgName("version").hasArg().withDescription("version").create("v");
 		Option helpOption = new Option("h", "help");
 
 		Options options = new Options();
 		options.addOption(serverOption);
 		options.addOption(userOption);
 		options.addOption(passwordOption);
-		options.addOption(helpOption);
 		options.addOption(scriptOption);
+		options.addOption(versionOption);
+		options.addOption(helpOption);
 
 		CommandLineParser parser = new GnuParser();
 
 		try {
 			CommandLine line = parser.parse(options, args);
 
-			if (line.hasOption("a") && line.hasOption("u") && line.hasOption("p")) {
+			if (line.hasOption("a") && line.hasOption("u") && line.hasOption("p") && line.hasOption("v")) {
 				String server = line.getOptionValue("a");
 				String user = line.getOptionValue("u");
 				String password = line.getOptionValue("p");
