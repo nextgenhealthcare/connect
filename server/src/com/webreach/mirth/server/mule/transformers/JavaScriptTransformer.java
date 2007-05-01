@@ -62,7 +62,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 	private ScriptController scriptController = new ScriptController();
 	private JavaScriptScopeFactory scopeFactory = new JavaScriptScopeFactory();
 	private ErrorMessageBuilder errorBuilder = new ErrorMessageBuilder();
-	
+
 	private String inboundProtocol;
 	private String outboundProtocol;
 	private Map inboundProperties;
@@ -146,27 +146,27 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 
 	public void setTemplateId(String templateId) {
 		this.templateId = templateId;
-//       grab the template
-        if (templateId != null) {
-            try
-            {
-                this.template = templateController.getTemplate(templateId);
-            }
-            catch (ControllerException e)
-            {
-                logger.error(errorBuilder.buildErrorMessage(Constants.ERROR_300, null, e));
-            }
-        }
+		// grab the template
+		if (templateId != null) {
+			try {
+				this.template = templateController.getTemplate(templateId);
+			} catch (ControllerException e) {
+				logger.error(errorBuilder.buildErrorMessage(Constants.ERROR_300, null, e));
+			}
+		}
 	}
 
 	@Override
 	public void initialise() throws InitialisationException {
 		Context context = Context.enter();
 		try {
-			
+			// Scripts are not compiled is they are blank or do not exist in the
+			// database. Note that in Oracle, a blank script is the same as a
+			// NULL script.
+
 			String filterScript = scriptController.getScript(filterScriptId);
 
-			if (filterScript != null) {
+			if ((filterScript != null) && (filterScript.length() > 0)) {
 				String generatedFilterScript = generateFilterScript(filterScript);
 				logger.debug("compiling filter script");
 				Script compiledFilterScript = context.compileString(generatedFilterScript, filterScriptId, 1, null);
@@ -175,14 +175,12 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 
 			String transformerScript = scriptController.getScript(transformerScriptId);
 
-			if (transformerScript == null) {
-				transformerScript = "";
+			if ((transformerScript != null) && (transformerScript.length() > 0)) {
+				String generatedTransformerScript = generateTransformerScript(transformerScript);
+				logger.debug("compiling transformer script");
+				Script compiledTransformerScript = context.compileString(generatedTransformerScript, transformerScriptId, 1, null);
+				compiledScriptCache.putCompiledScript(transformerScriptId, compiledTransformerScript);
 			}
-			String generatedTransformerScript = generateTransformerScript(transformerScript);
-			logger.debug("compiling transformer script");
-			Script compiledTransformerScript = context.compileString(generatedTransformerScript, transformerScriptId, 1, null);
-			compiledScriptCache.putCompiledScript(transformerScriptId, compiledTransformerScript);
-		
 		} catch (Exception e) {
 			logger.error(errorBuilder.buildErrorMessage(Constants.ERROR_300, null, e));
 			throw new InitialisationException(e, this);
@@ -264,7 +262,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 			boolean messageAccepted;
 
 			if (compiledScript == null) {
-				logger.error("filter script could not be found in cache");
+				logger.debug("filter script could not be found in cache");
 				messageAccepted = false;
 			} else {
 				result = compiledScript.exec(context, scope);
@@ -293,7 +291,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 			// load variables in JavaScript scope
 			scopeFactory.buildScope(scope, messageObject, scriptLogger);
 			scope.put("template", scope, template);
-			
+
 			// TODO: have function list provide all serializers - maybe we
 			// import a top level package or create a helper class
 			// TODO: this is going to break backwards compatability
@@ -305,7 +303,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 			Script compiledScript = compiledScriptCache.getCompiledScript(transformerScriptId);
 
 			if (compiledScript == null) {
-				logger.warn("transformer script could not be found in cache");
+				logger.debug("transformer script could not be found in cache");
 			} else {
 				compiledScript.exec(context, scope);
 			}
@@ -320,12 +318,13 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 				encodedDataProtocol = Protocol.valueOf(this.getOutboundProtocol());
 				encodedDataProperties = this.getOutboundProperties();
 			} else {
-				if (this.getInboundProtocol().equals(Protocol.XML.toString()) && !this.getOutboundProtocol().equals(Protocol.XML.toString())){
-					//we don't have a template and we have XML coming in, let's convert it
+				if (this.getInboundProtocol().equals(Protocol.XML.toString()) && !this.getOutboundProtocol().equals(Protocol.XML.toString())) {
+					// we don't have a template and we have XML coming in, let's
+					// convert it
 					transformedData = scope.get("msg", scope);
 					encodedDataProtocol = Protocol.valueOf(this.getOutboundProtocol());
 					encodedDataProperties = this.getOutboundProperties();
-				}else{
+				} else {
 					transformedData = scope.get("msg", scope);
 					encodedDataProtocol = Protocol.valueOf(this.getInboundProtocol());
 					encodedDataProperties = this.getInboundProperties();
@@ -359,17 +358,17 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 		StringBuilder script = new StringBuilder();
 		script.append("importPackage(Packages.com.webreach.mirth.server.util);\n");
 		script.append("importPackage(Packages.com.webreach.mirth.model.converters);\n");
-        script.append("default xml namespace = '';\n");
+		script.append("default xml namespace = '';\n");
 		script.append("function $(string) { ");
 		script.append("if (connectorMap.get(string) != null) { return connectorMap.get(string);} else ");
 		script.append("if (channelMap.get(string) != null) { return channelMap.get(string);} else ");
 		script.append("if (globalMap.get(string) != null) { return globalMap.get(string);} else ");
-		script.append("{ return ''; }}");	
+		script.append("{ return ''; }}");
 		script.append("function doFilter() {");
-		
-        script.append("var newMessage = message.replace(/xmlns:?[^=]*=[\"\"][^\"\"]*[\"\"]/g, '');\n");
-        script.append("msg = new XML(newMessage);");
-        
+
+		script.append("var newMessage = message.replace(/xmlns:?[^=]*=[\"\"][^\"\"]*[\"\"]/g, '');\n");
+		script.append("msg = new XML(newMessage);");
+
 		script.append(filterScript + " }\n");
 		script.append("doFilter()\n");
 		return script.toString();
@@ -381,7 +380,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 		StringBuilder script = new StringBuilder();
 		script.append("importPackage(Packages.com.webreach.mirth.server.util);\n");
 		script.append("importPackage(Packages.com.webreach.mirth.model.converters);\n");
-		
+
 		// script used to check for exitence of segment
 		script.append("function validate(mapping, defaultValue, replacement) { var result; if (mapping != undefined) {result = new java.lang.String(mapping.toString());} if ((result == undefined) || (result.length() == 0)) {result = defaultValue;} if (replacement != undefined) { for (i = 0; i < replacement.length; i++) { var entry = replacement[i]; result = result.replaceAll(entry[0],entry[1]); \n} } return result; }");
 		script.append("function $(string) { ");
@@ -389,9 +388,9 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 		script.append("if (channelMap.get(string) != null) { return channelMap.get(string)} else ");
 		script.append("if (globalMap.get(string) != null) { return globalMap.get(string)} else ");
 		script.append("{ return ''; }}");
-        script.append("default xml namespace = '';");
+		script.append("default xml namespace = '';");
 		script.append("function doTransform() {");
-		
+
 		// ast: Allow ending whitespaces from the input XML
 		script.append("XML.ignoreWhitespace=false;");
 		// ast: Allow ending whitespaces to the output XML
@@ -399,20 +398,21 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 		// turn the template into an E4X XML object
 
 		if (template != null && template.length() > 0) {
-            //We have to remove the namespaces so E4X allows use to use the msg[''] syntax
-            script.append("var newTemplate = template.replace(/xmlns:?[^=]*=[\"\"][^\"\"]*[\"\"]/g, '');\n");
+			// We have to remove the namespaces so E4X allows use to use the
+			// msg[''] syntax
+			script.append("var newTemplate = template.replace(/xmlns:?[^=]*=[\"\"][^\"\"]*[\"\"]/g, '');\n");
 			script.append("tmp = new XML(newTemplate);");
 		}
-		
+
 		script.append("var newMessage = message.replace(/xmlns:?[^=]*=[\"\"][^\"\"]*[\"\"]/g, '');\n");
 		script.append("msg = new XML(newMessage);");
-        
+
 		script.append(transformerScript);
 		script.append(" }");
 		script.append("doTransform()\n");
 		return script.toString();
 	}
-	
+
 	public Map getInboundProperties() {
 		return inboundProperties;
 	}
