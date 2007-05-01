@@ -84,11 +84,21 @@ public class SQLParserUtil
                         {
                             for (int j = 0; j < keywords.length; j++)
                             {
-                                int index = vars[i].toUpperCase().indexOf(keywords[j] + " ");
-                                int size = (keywords[j] + " ").length();
+                                int index = vars[i].toUpperCase().indexOf(keywords[j]);
+                                int size = (keywords[j]).length();
                                 if (index != -1)
                                 {
-                                    vars[i] = vars[i].replaceAll(vars[i].substring(index, index + size), "");
+                                	if(index > 0)
+                                	{
+                                		if(vars[i].substring(index-1, index).equals(" ") && (vars[i].length() == index+size || vars[i].substring(index + size, index + size + 1).equals(" ")))
+                                		{
+                                			vars[i] = vars[i].replaceAll(vars[i].substring(index, index + size), "");
+                                		}
+                                	}
+                                	else if (vars[i].length() == index+size || vars[i].substring(index + size, index + size + 1).equals(" "))
+                                	{
+                                		vars[i] = vars[i].replaceAll(vars[i].substring(index, index + size), "");
+                                	}
                                 }
                             }
                             vars[i] = vars[i].trim();
