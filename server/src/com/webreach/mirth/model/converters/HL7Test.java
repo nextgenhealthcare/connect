@@ -11,6 +11,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Properties;
 
+import org.apache.derby.tools.sysinfo;
 import org.apache.xml.serialize.OutputFormat;
 import org.apache.xml.serialize.XMLSerializer;
 
@@ -31,43 +32,14 @@ public class HL7Test {
 			e.printStackTrace();
 		}
 		try {
-			Properties properties = new Properties();
-			properties.put("useStrictParser", "false");
-			ER7Serializer serializer = new ER7Serializer(properties);
-			String xmloutput = serializer.toXML(testMessage);
-
-			//System.out.println(xmloutput);
-			DocumentSerializer docser = new DocumentSerializer();
-			docser.setPreserveSpace(false);
-			Document doc = docser.fromXML(xmloutput);
 			
-			System.out.println(docser.toXML(doc)); //handler.getOutput());
-			
-			XMLReader xr = XMLReaderFactory.createXMLReader();
-			ER7XMLHandler handler = new ER7XMLHandler("\r", "|", "^", "&", "~", "\\");
-			xr.setContentHandler(handler);
-			xr.setErrorHandler(handler);
-			xr.parse(new InputSource(new StringReader(xmloutput)));
-			System.out.println(handler.getOutput());
-			if (handler.getOutput().toString().replace('\n', '\r').trim().equals(testMessage.replaceAll("\\r\\n", "\r").trim())) {
-				System.out.println("Test Successful!");
-			} else {
-				String original = testMessage.replaceAll("\\r\\n", "\r").trim();
-				String newm = handler.getOutput().toString().replace('\n', '\r').trim();
-				for (int i = 0; i < original.length(); i++){
-					if (original.charAt(i) == newm.charAt(i)){
-						System.out.print(newm.charAt(i));
-					}else{
-						System.out.println("");
-						System.out.print("Saw: ");
-						System.out.println(newm.charAt(i));
-						System.out.print("Expected: ");
-						System.out.print(original.charAt(i));
-						break;
-					}
-				}
-				System.out.println("Test Failed!");
+			long totalExecutionTime = 0;
+			int iterations = 100;
+			for (int i = 0; i < iterations; i++) {
+				totalExecutionTime+=runTest(testMessage);
 			}
+			
+			System.out.println("Execution time average: " + totalExecutionTime/iterations + " ms");
 		}
 		// System.out.println(new X12Serializer().toXML("SEG*1*2**4*5"));
 		catch (SAXException e) {
@@ -78,6 +50,48 @@ public class HL7Test {
 			e.printStackTrace();
 		}
 
+	}
+
+	private static long runTest(String testMessage) throws SerializerException, SAXException, IOException {
+		Stopwatch stopwatch = new Stopwatch();
+		Properties properties = new Properties();
+		properties.put("useStrictParser", "false");
+		stopwatch.start();
+		ER7Serializer serializer = new ER7Serializer(properties);
+		String xmloutput = serializer.toXML(testMessage);
+		//System.out.println(xmloutput);
+		DocumentSerializer docser = new DocumentSerializer();
+		docser.setPreserveSpace(false);
+		Document doc = docser.fromXML(xmloutput);
+		XMLReader xr = XMLReaderFactory.createXMLReader();
+		ER7XMLHandler handler = new ER7XMLHandler("\r", "|", "^", "&", "~", "\\");
+		xr.setContentHandler(handler);
+		xr.setErrorHandler(handler);
+		xr.parse(new InputSource(new StringReader(xmloutput)));
+		stopwatch.stop();
+		
+		//System.out.println(docser.toXML(doc)); //handler.getOutput());
+		//System.out.println(handler.getOutput());
+		if (handler.getOutput().toString().replace('\n', '\r').trim().equals(testMessage.replaceAll("\\r\\n", "\r").trim())) {
+			System.out.println("Test Successful!");
+		} else {
+			String original = testMessage.replaceAll("\\r\\n", "\r").trim();
+			String newm = handler.getOutput().toString().replace('\n', '\r').trim();
+			for (int i = 0; i < original.length(); i++){
+				if (original.charAt(i) == newm.charAt(i)){
+					System.out.print(newm.charAt(i));
+				}else{
+					System.out.println("");
+					System.out.print("Saw: ");
+					System.out.println(newm.charAt(i));
+					System.out.print("Expected: ");
+					System.out.print(original.charAt(i));
+					break;
+				}
+			}
+			System.out.println("Test Failed!");
+		}
+		return stopwatch.toValue();
 	}
 
 	// Returns the contents of the file in a byte array.

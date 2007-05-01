@@ -104,7 +104,8 @@ public class EDIXMLHandler extends DefaultHandler {
 	}
 
 	public void characters(char ch[], int start, int length) {
-		
+		output.append(ch, start, length);
+		/*
 		for (int i = start; i < start + length; i++) {
 			switch (ch[i]) {
 				/*
@@ -123,12 +124,13 @@ public class EDIXMLHandler extends DefaultHandler {
 			case '\t':
 				output.append("\t");
 				break;
-				*/
+				
 			default:
 				output.append(ch[i]);
 				break;
 			}
 		}
+		*/
 		//System.out.print("\"\n");
 	}
 

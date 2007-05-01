@@ -4,10 +4,16 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
+import java.util.Properties;
 
 import junit.framework.Assert;
 
 import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.XMLReaderFactory;
 
 public class X12Test {
 	public static void main(String[] args) {
@@ -19,48 +25,66 @@ public class X12Test {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
 		try {
-			X12Serializer serializer = new X12Serializer(true);
-			String xmloutput = serializer.toXML(testMessage);
-
-			// System.out.println(xmloutput);
-			DocumentSerializer docser = new DocumentSerializer();
-			docser.setPreserveSpace(false);
-			Document doc = docser.fromXML(xmloutput);
-
-			System.out.println(docser.toXML(doc)); // handler.getOutput());
-
-			String x12 = serializer.fromXML(xmloutput);
-			System.out.println(x12);
-			Assert.assertTrue(x12.replace('\n', '\r').trim().equals(testMessage.replaceAll("\\r\\n", "\r").trim()));
 			
-			if (x12.replace('\n', '\r').trim().equals(testMessage.replaceAll("\\r\\n", "\r").trim())) {
-				System.out.println("Test Successful!");
-			} else {
-				String original = testMessage.replaceAll("\\r\\n", "\r").trim();
-				String newm = x12.replace('\n', '\r').trim();
-				for (int i = 0; i < original.length(); i++) {
-					if (original.charAt(i) == newm.charAt(i)) {
-						System.out.print(newm.charAt(i));
-					} else {
-						System.out.println("");
-						System.out.print("Saw: ");
-						System.out.println(newm.charAt(i));
-						System.out.print("Expected: ");
-						System.out.print(original.charAt(i));
-						break;
-					}
-				}
-				System.out.println("Test Failed!");
+			long totalExecutionTime = 0;
+			int iterations = 100;
+			for (int i = 0; i < iterations; i++) {
+				totalExecutionTime+=runTest(testMessage);
 			}
+			
+			System.out.println("Execution time average: " + totalExecutionTime/iterations + " ms");
 		}
 		// System.out.println(new X12Serializer().toXML("SEG*1*2**4*5"));
-		catch (Exception e) {
+		catch (SAXException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+
 	}
+
+	private static long runTest(String testMessage) throws SerializerException, SAXException, IOException {
+		Stopwatch stopwatch = new Stopwatch();
+		stopwatch.start();
+		X12Serializer serializer = new X12Serializer(true);
+		String xmloutput = serializer.toXML(testMessage);
+
+		// System.out.println(xmloutput);
+		DocumentSerializer docser = new DocumentSerializer();
+		docser.setPreserveSpace(false);
+		Document doc = docser.fromXML(xmloutput);
+		String x12 = serializer.fromXML(xmloutput);
+		stopwatch.stop();
+		
+		//System.out.println(docser.toXML(doc)); // handler.getOutput());
+		//System.out.println(x12);
+		Assert.assertTrue(x12.replace('\n', '\r').trim().equals(testMessage.replaceAll("\\r\\n", "\r").trim()));
+		
+		if (x12.replace('\n', '\r').trim().equals(testMessage.replaceAll("\\r\\n", "\r").trim())) {
+			System.out.println("Test Successful!");
+		} else {
+			String original = testMessage.replaceAll("\\r\\n", "\r").trim();
+			String newm = x12.replace('\n', '\r').trim();
+			for (int i = 0; i < original.length(); i++) {
+				if (original.charAt(i) == newm.charAt(i)) {
+					System.out.print(newm.charAt(i));
+				} else {
+					System.out.println("");
+					System.out.print("Saw: ");
+					System.out.println(newm.charAt(i));
+					System.out.print("Expected: ");
+					System.out.print(original.charAt(i));
+					break;
+				}
+			}
+			System.out.println("Test Failed!");
+		}
+		return stopwatch.toValue();
+	}
+
 
 	// Returns the contents of the file in a byte array.
 	private static byte[] getBytesFromFile(File file) throws IOException {

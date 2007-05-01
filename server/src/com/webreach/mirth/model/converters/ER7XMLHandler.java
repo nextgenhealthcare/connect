@@ -140,6 +140,8 @@ public class ER7XMLHandler extends DefaultHandler {
 			componentDelim = ch[start] + "";
 			inMSH2 = false;
 		}
+		output.append(ch, start, length);
+		/*
 		for (int i = start; i < start + length; i++) {
 			switch (ch[i]) {
 				/*
@@ -158,12 +160,13 @@ public class ER7XMLHandler extends DefaultHandler {
 			case '\t':
 				output.append("\t");
 				break;
-				*/
+				
 			default:
 				output.append(ch[i]);
 				break;
 			}
 		}
+		*/
 		//System.out.print("\"\n");
 	}
 
