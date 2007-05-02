@@ -72,9 +72,6 @@ public class MessageObjectController {
 					if (channel.getProperties().get("store_messages").equals("false") || (channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("error_messages_only").equals("true") && !messageObject.getStatus().equals(MessageObject.Status.ERROR)) || (channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("dont_store_filtered").equals("true") && messageObject.getStatus().equals(MessageObject.Status.FILTERED))) {
 						// If we don't want to store messages, then lets
 						// sanitize the data in a clone
-						// TODO: Check if pass by value
-						// messageObject = (MessageObject)
-						// messageObject.clone();
 						messageObject.setRawData(MESSAGE_NO_DATA_STORE);
 						messageObject.setEncodedData(MESSAGE_NO_DATA_STORE);
 						messageObject.setTransformedData(MESSAGE_NO_DATA_STORE);
@@ -85,7 +82,6 @@ public class MessageObjectController {
 						encryptMessageData(messageObject);
 					}
 				}
-
 			}
 
 			if (checkIfMessageExists) {
@@ -99,7 +95,7 @@ public class MessageObjectController {
 					sqlMap.update("updateMessage", messageObject);
 				}
 			} else {
-				logger.debug("adding message: id=" + messageObject.getId());
+				logger.debug("adding message (not checking for message): id=" + messageObject.getId());
 				sqlMap.insert("insertMessage", messageObject);
 			}
 		} catch (Exception e) {
@@ -153,8 +149,10 @@ public class MessageObjectController {
 		logger.debug("creating temporary message table: filter=" + filter.toString());
 
 		try {
-			if (statementExists("dropTempMessageTableSequence"))
+			if (statementExists("dropTempMessageTableSequence")) {
 				sqlMap.update("dropTempMessageTableSequence", uid);
+			}
+				
 			sqlMap.update("dropTempMessageTable", uid);
 		} catch (SQLException e) {
 			// supress any warnings about the table not existing
@@ -358,15 +356,16 @@ public class MessageObjectController {
 		setStatus(messageObject, MessageObject.Status.FILTERED, Response.Status.FILTERED, responseMessage);
 	}
 
-	private void setStatus(MessageObject messageObject, MessageObject.Status status, Response.Status responseStatus, String responseMessage) {
+	private void setStatus(MessageObject messageObject, MessageObject.Status newStatus, Response.Status responseStatus, String responseMessage) {
 		if (messageObject.getResponseMap() != null) {
 			Response response = new Response(responseStatus, responseMessage);
 			messageObject.getResponseMap().put(messageObject.getConnectorName(), response);
 		}
 
 		if (messageObject != null) {
-			messageObject.setStatus(status);
-			updateMessage(messageObject, status.equals(MessageObject.Status.QUEUED));
+			MessageObject.Status oldStatus = messageObject.getStatus();
+			messageObject.setStatus(newStatus);
+			updateMessage(messageObject, oldStatus.equals(MessageObject.Status.QUEUED));
 		}
 	}
 
