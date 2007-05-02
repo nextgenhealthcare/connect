@@ -47,7 +47,7 @@ import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.util.CompiledScriptCache;
-import com.webreach.mirth.server.util.JavaScriptScopeFactory;
+import com.webreach.mirth.server.util.JavaScriptScopeBuilder;
 
 /**
  * @author Guillaume Nodet
@@ -110,7 +110,7 @@ public class JdbcMessageReceiver extends TransactedPollingMessageReceiver {
 				Context context = Context.enter();
 				Scriptable scope = new ImporterTopLevel(context);
 				// load variables in JavaScript scope
-				new JavaScriptScopeFactory().buildScope(scope, connector.getName(), scriptLogger);
+				new JavaScriptScopeBuilder().buildScope(scope, connector.getName(), scriptLogger);
 				scope.put("dbMap", scope, jdbcMap);
 				scope.put("result", scope, message);
 				if (umoMessage != null) {
@@ -171,7 +171,7 @@ public class JdbcMessageReceiver extends TransactedPollingMessageReceiver {
 				Scriptable scope = new ImporterTopLevel(context);
 
 				// load variables in JavaScript scope
-				new JavaScriptScopeFactory().buildScope(scope, connector.getName(), scriptLogger);
+				new JavaScriptScopeBuilder().buildScope(scope, connector.getName(), scriptLogger);
 				// each time we poll, we want to clear the map.
 				// we need to document this
 				jdbcMap = new HashMap();

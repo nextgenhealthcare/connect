@@ -51,7 +51,7 @@ import com.webreach.mirth.server.controllers.TemplateController;
 import com.webreach.mirth.server.mule.adaptors.Adaptor;
 import com.webreach.mirth.server.mule.adaptors.AdaptorFactory;
 import com.webreach.mirth.server.util.CompiledScriptCache;
-import com.webreach.mirth.server.util.JavaScriptScopeFactory;
+import com.webreach.mirth.server.util.JavaScriptScopeBuilder;
 
 public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 	private Logger logger = Logger.getLogger(this.getClass());
@@ -60,7 +60,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 	private TemplateController templateController = new TemplateController();
 	private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
 	private ScriptController scriptController = new ScriptController();
-	private JavaScriptScopeFactory scopeFactory = new JavaScriptScopeFactory();
+	private JavaScriptScopeBuilder scopeBuilder = new JavaScriptScopeBuilder();
 	private ErrorMessageBuilder errorBuilder = new ErrorMessageBuilder();
 
 	private String inboundProtocol;
@@ -254,7 +254,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 			Scriptable scope = new ImporterTopLevel(context);
 
 			// load variables in JavaScript scope
-			scopeFactory.buildScope(scope, messageObject, scriptLogger);
+			scopeBuilder.buildScope(scope, messageObject, scriptLogger);
 
 			// get the script from the cache and execute it
 			Script compiledScript = compiledScriptCache.getCompiledScript(filterScriptId);
@@ -289,7 +289,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 			Scriptable scope = new ImporterTopLevel(context);
 
 			// load variables in JavaScript scope
-			scopeFactory.buildScope(scope, messageObject, scriptLogger);
+			scopeBuilder.buildScope(scope, messageObject, scriptLogger);
 			scope.put("template", scope, template);
 
 			// TODO: have function list provide all serializers - maybe we

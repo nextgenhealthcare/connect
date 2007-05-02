@@ -6,9 +6,8 @@ import org.mozilla.javascript.Scriptable;
 import org.mule.providers.TemplateValueReplacer;
 
 import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.model.converters.SerializerFactory;
 
-public class JavaScriptScopeFactory {
+public class JavaScriptScopeBuilder {
 	// MessageObject builder
 	public void buildScope(Scriptable scope, MessageObject messageObject) {
 		buildScope(scope, messageObject.getChannelId());

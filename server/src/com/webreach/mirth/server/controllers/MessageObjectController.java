@@ -160,8 +160,10 @@ public class MessageObjectController {
 		}
 
 		try {
-			if (statementExists("createTempMessageTableSequence"))
+			if (statementExists("createTempMessageTableSequence")) {
 				sqlMap.update("createTempMessageTableSequence", uid);
+			}
+				
 			sqlMap.update("createTempMessageTable", uid);
 			sqlMap.update("createTempMessageTableIndex", uid);
 			return sqlMap.update("populateTempMessageTable", getFilterMap(filter, uid));
@@ -248,9 +250,10 @@ public class MessageObjectController {
 							for (Iterator<MessageObject> iter = messages.iterator(); iter.hasNext();) {
 								try {
 									Thread.sleep(100);
-								} catch (InterruptedException e1) {
-									logger.debug(e1);
+								} catch (InterruptedException ie) {
+									logger.debug(ie);
 								}
+								
 								MessageObject message = iter.next();
 								router.routeMessageByChannelId(message.getChannelId(), message.getRawData(), true);
 							}
@@ -377,6 +380,7 @@ public class MessageObjectController {
 			// The statement does not exist
 			return false;
 		}
+		
 		return true;
 	}
 }
