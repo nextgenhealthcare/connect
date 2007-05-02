@@ -130,9 +130,9 @@ public class Client {
 	 * @return
 	 * @throws ClientException
 	 */
-	public synchronized void setServerConfiguration() throws ClientException {
+	public synchronized void setServerConfiguration(ServerConfiguration serverConfiguration) throws ClientException {
 		logger.debug("setting server configuration");
-		NameValuePair[] params = { new NameValuePair("op", "setServerConfiguration") };
+		NameValuePair[] params = { new NameValuePair("op", "setServerConfiguration"), new NameValuePair("data", serializer.toXML(serverConfiguration)) };
 		serverConnection.executePostMethod(CONFIGURATION_SERVLET, params);
 	}
 
