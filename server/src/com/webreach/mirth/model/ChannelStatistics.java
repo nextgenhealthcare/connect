@@ -31,18 +31,18 @@ import com.webreach.mirth.util.EqualsUtil;
 
 public class ChannelStatistics implements Serializable {
 	private String channelId;
-	private int receivedCount = 0;
-	private int sentCount = 0;
-	private int errorCount = 0;
-	private int filteredCount = 0;
-	private int queuedCount = 0;
+	private int received = 0;
+	private int sent = 0;
+	private int error = 0;
+	private int filtered = 0;
+	private int queued = 0;
 	
-	public int getFilteredCount() {
-		return filteredCount;
+	public int getFiltered() {
+		return filtered;
 	}
 
-	public void setFilteredCount(int filteredCount) {
-		this.filteredCount = filteredCount;
+	public void setFiltered(int filteredCount) {
+		this.filtered = filteredCount;
 	}
 
 	public String getChannelId() {
@@ -53,36 +53,36 @@ public class ChannelStatistics implements Serializable {
 		this.channelId = channelId;
 	}
 
-	public int getErrorCount() {
-		return this.errorCount;
+	public int getError() {
+		return this.error;
 	}
 
-	public void setErrorCount(int errorCount) {
-		this.errorCount = errorCount;
+	public void setError(int errorCount) {
+		this.error = errorCount;
 	}
 
-	public int getReceivedCount() {
-		return this.receivedCount;
+	public int getReceived() {
+		return this.received;
 	}
 
-	public void setReceivedCount(int receivedCount) {
-		this.receivedCount = receivedCount;
+	public void setReceived(int receivedCount) {
+		this.received = receivedCount;
 	}
 
-	public int getSentCount() {
-		return this.sentCount;
+	public int getSent() {
+		return this.sent;
 	}
 
-	public void setSentCount(int sentCount) {
-		this.sentCount = sentCount;
+	public void setSent(int sentCount) {
+		this.sent = sentCount;
 	}
 	
-	public int getQueuedCount() {
-		return this.queuedCount;
+	public int getQueued() {
+		return this.queued;
 	}
 
-	public void setQueuedCount(int queuedCount) {
-		this.queuedCount = queuedCount;
+	public void setQueued(int queuedCount) {
+		this.queued = queuedCount;
 	}
 
 	public boolean equals(Object that) {
@@ -98,21 +98,22 @@ public class ChannelStatistics implements Serializable {
 		
 		return
 			EqualsUtil.areEqual(this.getChannelId(), statistic.getChannelId()) &&
-			EqualsUtil.areEqual(this.getReceivedCount(), statistic.getReceivedCount()) &&
-			EqualsUtil.areEqual(this.getSentCount(), statistic.getSentCount()) &&
-			EqualsUtil.areEqual(this.getErrorCount(), statistic.getErrorCount()) &&
-			EqualsUtil.areEqual(this.getFilteredCount(), statistic.getReceivedCount()) &&
-			EqualsUtil.areEqual(this.getQueuedCount(), statistic.getQueuedCount());
+			EqualsUtil.areEqual(this.getReceived(), statistic.getReceived()) &&
+			EqualsUtil.areEqual(this.getSent(), statistic.getSent()) &&
+			EqualsUtil.areEqual(this.getError(), statistic.getError()) &&
+			EqualsUtil.areEqual(this.getFiltered(), statistic.getReceived()) &&
+			EqualsUtil.areEqual(this.getQueued(), statistic.getQueued());
 	}	
 
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append(this.getClass().getName() + "[");
 		builder.append("channelId=" + getChannelId() + ", ");
-		builder.append("receivedCount=" + getReceivedCount() + ", ");
-		builder.append("sentCount=" + getSentCount() + ", ");
-		builder.append("queuedCount=" + getQueuedCount() + ", ");
-		builder.append("errorCount=" + getErrorCount());
+		builder.append("received=" + getReceived() + ", ");
+		builder.append("filtered=" + getFiltered() + ", ");
+		builder.append("sent=" + getSent() + ", ");
+		builder.append("queued=" + getQueued() + ", ");
+		builder.append("error=" + getError());
 		builder.append("]");
 		return builder.toString();
 	}

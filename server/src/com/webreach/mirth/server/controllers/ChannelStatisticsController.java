@@ -26,11 +26,13 @@
 package com.webreach.mirth.server.controllers;
 
 import java.sql.SQLException;
+import java.util.HashMap;
 
 import org.apache.log4j.Logger;
 
 import com.ibatis.sqlmap.client.SqlMapClient;
 import com.webreach.mirth.model.ChannelStatistics;
+import com.webreach.mirth.server.util.ChannelStatisticsCache;
 import com.webreach.mirth.server.util.SqlConfig;
 
 /**
@@ -42,55 +44,67 @@ import com.webreach.mirth.server.util.SqlConfig;
 public class ChannelStatisticsController {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private SqlMapClient sqlMap = SqlConfig.getSqlMapInstance();
+	private static ChannelStatisticsCache statsCache;
 
-	public ChannelStatistics getStatistics(String channelId) throws ControllerException {
-		ChannelStatistics statistics = new ChannelStatistics();
-		statistics.setChannelId(channelId);
-		statistics.setReceivedCount(getReceivedCount(channelId));
-		statistics.setSentCount(getSentCount(channelId));
-		statistics.setErrorCount(getErrorCount(channelId));
-		statistics.setFilteredCount(getFilteredCount(channelId));
-		statistics.setQueuedCount(getQueuedCount(channelId));
-		return statistics;
-	}
-
-	public Integer getReceivedCount(String channelId) throws ControllerException {
+	public void initialize() {
+		logger.debug("initialzing statistics controller");
+		
+		statsCache = ChannelStatisticsCache.getInstance();
+		
 		try {
-			return (Integer) sqlMap.queryForObject("getReceivedCount", channelId);
+			statsCache.setCache((HashMap<String, ChannelStatistics>) sqlMap.queryForMap("getStatistics", null, "channelId"));
 		} catch (SQLException e) {
-			throw new ControllerException(e);
+			logger.error("Could not initialize channel statistics.");
 		}
 	}
 
-	public Integer getSentCount(String channelId) throws ControllerException {
-		try {
-			return (Integer) sqlMap.queryForObject("getSentCount", channelId);
-		} catch (SQLException e) {
-			throw new ControllerException(e);
-		}
+	public ChannelStatistics getStatistics(String channelId) {
+		return statsCache.getCache().get(channelId);
 	}
 
-	public Integer getErrorCount(String channelId) throws ControllerException {
-		try {
-			return (Integer) sqlMap.queryForObject("getErrorCount", channelId);
-		} catch (SQLException e) {
-			throw new ControllerException(e);
-		}
+	public void incrementReceivedCount(String channelId) {
+		statsCache.getCache().get(channelId).setReceived(statsCache.getCache().get(channelId).getReceived() + 1);
+		updateStatistics(channelId);
 	}
 
-	public Integer getFilteredCount(String channelId) throws ControllerException {
+	public void incrementSentCount(String channelId) {
+		statsCache.getCache().get(channelId).setSent(statsCache.getCache().get(channelId).getSent() + 1);
+		updateStatistics(channelId);
+	}
+
+	public void incrementFilteredCount(String channelId) {
+		statsCache.getCache().get(channelId).setFiltered(statsCache.getCache().get(channelId).getFiltered() + 1);
+		updateStatistics(channelId);
+	}
+
+	public void incrementErrorCount(String channelId) {
+		statsCache.getCache().get(channelId).setError(statsCache.getCache().get(channelId).getError() + 1);
+		updateStatistics(channelId);
+	}
+
+	public void incrementQueuedCount(String channelId) {
+		statsCache.getCache().get(channelId).setQueued(statsCache.getCache().get(channelId).getQueued() + 1);
+		updateStatistics(channelId);
+	}
+
+	public void decrementQueuedCount(String channelId) {
+		statsCache.getCache().get(channelId).setQueued(statsCache.getCache().get(channelId).getQueued() - 1);
+		updateStatistics(channelId);
+	}
+
+	private void updateStatistics(String channelId) {
 		try {
-			return (Integer) sqlMap.queryForObject("getFilteredCount", channelId);
+			sqlMap.update("updateStatistics", statsCache.getCache().get(channelId));
 		} catch (SQLException e) {
-			throw new ControllerException(e);
+			logger.warn("could not update statistics");
 		}
 	}
 	
-	public Integer getQueuedCount(String channelId) throws ControllerException {
+	public void clearStatistics(String channelId) throws ControllerException {
 		try {
-			return (Integer) sqlMap.queryForObject("getQueuedCount", channelId);
+			sqlMap.update("clearStatistics", channelId);
 		} catch (SQLException e) {
 			throw new ControllerException(e);
-		}
+		}		
 	}
 }

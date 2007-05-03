@@ -45,6 +45,7 @@ public class ChannelController {
 	private SqlMapClient sqlMap = SqlConfig.getSqlMapInstance();
 	private static HashMap<String, Channel> channelCache;
 	private static HashMap<String, String> channelIdLookup;
+	private ChannelStatisticsController statisticsController = new ChannelStatisticsController();
 
 	public void initialize() {
 		try {
@@ -188,6 +189,8 @@ public class ChannelController {
 			if (getChannel(channelFilter).isEmpty()) {
 				logger.debug("adding channel");
 				sqlMap.insert("insertChannel", channel);
+				sqlMap.insert("createStatistics", channel.getId());
+				statisticsController.initialize();
 			} else {
 				logger.debug("updating channel");
 				sqlMap.update("updateChannel", channel);

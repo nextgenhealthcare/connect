@@ -23,10 +23,10 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
 package com.webreach.mirth.server.controllers;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
@@ -45,7 +45,7 @@ import com.webreach.mirth.server.util.JMXConnectionFactory;
 public class ChannelStatusController {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private SystemLogger systemLogger = new SystemLogger();
-	private	ChannelController channelController = new ChannelController();
+	private ChannelController channelController = new ChannelController();
 
 	/**
 	 * Starts the channel with the specified id.
@@ -55,9 +55,9 @@ public class ChannelStatusController {
 	 */
 	public void startChannel(String channelId) throws ControllerException {
 		logger.debug("starting channel: " + channelId);
-		
+
 		JMXConnection jmxConnection = null;
-		
+
 		try {
 			jmxConnection = JMXConnectionFactory.createJMXConnection();
 			Hashtable<String, String> properties = new Hashtable<String, String>();
@@ -85,15 +85,15 @@ public class ChannelStatusController {
 	 */
 	public void stopChannel(String channelId) throws ControllerException {
 		logger.debug("stopping channel: channelId=" + channelId);
-		
+
 		// if paused, must be resumed before stopped
 		if (getState(channelId).equals(ChannelStatus.State.PAUSED)) {
 			logger.debug("channel is paused, must resume before stopping");
 			resumeChannel(channelId);
 		}
-		
+
 		JMXConnection jmxConnection = null;
-		
+
 		try {
 			jmxConnection = JMXConnectionFactory.createJMXConnection();
 			Hashtable<String, String> properties = new Hashtable<String, String>();
@@ -121,9 +121,9 @@ public class ChannelStatusController {
 	 */
 	public void pauseChannel(String channelId) throws ControllerException {
 		logger.debug("pausing channel: channelId=" + channelId);
-		
+
 		JMXConnection jmxConnection = null;
-		
+
 		try {
 			jmxConnection = JMXConnectionFactory.createJMXConnection();
 			Hashtable<String, String> properties = new Hashtable<String, String>();
@@ -151,9 +151,9 @@ public class ChannelStatusController {
 	 */
 	public void resumeChannel(String channelId) throws ControllerException {
 		logger.debug("resuming channel: channelId=" + channelId);
-		
+
 		JMXConnection jmxConnection = null;
-		
+
 		try {
 			jmxConnection = JMXConnectionFactory.createJMXConnection();
 			Hashtable<String, String> properties = new Hashtable<String, String>();
@@ -172,9 +172,10 @@ public class ChannelStatusController {
 		systemEvent.getAttributes().put("channelId", channelId);
 		systemLogger.logSystemEvent(systemEvent);
 	}
-	
+
 	/**
-	 * Returns a list of ChannelStatus objects representing the running channels. 
+	 * Returns a list of ChannelStatus objects representing the running
+	 * channels.
 	 * 
 	 * @return
 	 * @throws ControllerException
@@ -185,26 +186,28 @@ public class ChannelStatusController {
 
 		try {
 			List<String> deployedChannelIdList = getDeployedIds();
-			
+
 			for (Iterator iter = deployedChannelIdList.iterator(); iter.hasNext();) {
 				String channelId = (String) iter.next();
-				Channel channel = new Channel();
-				channel.setId(channelId);
-				
+
 				ChannelStatus channelStatus = new ChannelStatus();
 				channelStatus.setChannelId(channelId);
-				
-				// check if the channel is running but has been removed from the channel list
-				if (channelController.getChannel(channel).size() != 0) {
-					channelStatus.setName(channelController.getChannel(channel).get(0).getName());	
+
+				// check if the channel is running but has been removed from the
+				// channel list
+				HashMap<String, Channel> channelCache = ChannelController.getChannelCache();
+
+				if ((channelCache != null) && channelCache.containsKey(channelId)) {
+					Channel cachedChannel = channelCache.get(channelId);
+					channelStatus.setName(cachedChannel.getName());
 				} else {
 					channelStatus.setName("Channel has been deleted.");
 				}
-				
+
 				channelStatus.setState(getState(channelId));
 				channelStatusList.add(channelStatus);
 			}
-			
+
 			return channelStatusList;
 		} catch (Exception e) {
 			logger.debug("could not retrieve channel status list");
@@ -212,7 +215,7 @@ public class ChannelStatusController {
 			return channelStatusList;
 		}
 	}
-	
+
 	/**
 	 * Returns a list of the ids of all running channels.
 	 * 
@@ -222,9 +225,9 @@ public class ChannelStatusController {
 	private List<String> getDeployedIds() throws ControllerException {
 		logger.debug("retrieving deployed channel id list");
 		List<String> deployedChannelIdList = new ArrayList<String>();
-		
+
 		JMXConnection jmxConnection = null;
-		
+
 		try {
 			jmxConnection = JMXConnectionFactory.createJMXConnection();
 			Set beanObjectNames = jmxConnection.getMBeanNames();
@@ -234,13 +237,9 @@ public class ChannelStatusController {
 
 				// only add valid mirth channels
 				// format: MirthConfiguration:type=statistics,name=*
-				if ((objectName.getKeyProperty("type") != null)
-						&& objectName.getKeyProperty("type").equals("statistics")
-						&& (objectName.getKeyProperty("name") != null)
-						&& !objectName.getKeyProperty("name").startsWith("_")
-						// NOTE: We don't want the "sink" channel showing up.
-						&& !objectName.getKeyProperty("name").equals("MessageSink")
-						&& (objectName.getKeyProperty("router") == null)) {
+				if ((objectName.getKeyProperty("type") != null) && objectName.getKeyProperty("type").equals("statistics") && (objectName.getKeyProperty("name") != null) && !objectName.getKeyProperty("name").startsWith("_")
+				// NOTE: We don't want the "sink" channel showing up.
+				&& !objectName.getKeyProperty("name").equals("MessageSink") && (objectName.getKeyProperty("router") == null)) {
 					deployedChannelIdList.add(objectName.getKeyProperty("name"));
 				}
 			}
@@ -251,11 +250,11 @@ public class ChannelStatusController {
 		} finally {
 			// to prevent closing the connection when the server is restarting
 			if (jmxConnection != null) {
-				jmxConnection.close();	
+				jmxConnection.close();
 			}
 		}
 	}
-	
+
 	/**
 	 * Returns the state of a channel with the specified id.
 	 * 
@@ -265,9 +264,9 @@ public class ChannelStatusController {
 	 */
 	private ChannelStatus.State getState(String channelId) throws ControllerException {
 		logger.debug("retrieving channel state: channelId=" + channelId);
-		
+
 		JMXConnection jmxConnection = null;
-		
+
 		try {
 			jmxConnection = JMXConnectionFactory.createJMXConnection();
 			Hashtable<String, String> properties = new Hashtable<String, String>();

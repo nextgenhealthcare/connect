@@ -467,7 +467,7 @@ public class Shell {
 						for (Iterator iter = channels.iterator(); iter.hasNext();) {
 							Channel channel = (Channel) iter.next();
 							ChannelStatistics stats = client.getStatistics(channel.getId());
-							System.out.println(stats.getReceivedCount() + "\t\t" + stats.getFilteredCount() + "\t\t" + stats.getSentCount() + "\t\t" + stats.getErrorCount() + "\t\t" + channel.getName());
+							System.out.println(stats.getReceived() + "\t\t" + stats.getFiltered() + "\t\t" + stats.getSent() + "\t\t" + stats.getError() + "\t\t" + channel.getName());
 						}
 						return;
 					}
@@ -542,10 +542,10 @@ public class Shell {
 							} else if (comm.equalsIgnoreCase("stats")) {
 								ChannelStatistics stats = client.getStatistics(channel.getChannelId());
 								System.out.println("Channel Stats for " + channel.getName());
-								System.out.println("Received: " + stats.getReceivedCount());
-								System.out.println("Filtered: " + stats.getFilteredCount());
-								System.out.println("Sent: " + stats.getSentCount());
-								System.out.println("Error: " + stats.getErrorCount());
+								System.out.println("Received: " + stats.getReceived());
+								System.out.println("Filtered: " + stats.getFiltered());
+								System.out.println("Sent: " + stats.getSent());
+								System.out.println("Error: " + stats.getError());
 							}
 							if (!key.equalsIgnoreCase("*"))
 								return;
@@ -578,7 +578,7 @@ public class Shell {
 							for (Iterator iter = channels.iterator(); iter.hasNext();) {
 								Channel channel = (Channel) iter.next();
 								ChannelStatistics stats = client.getStatistics(channel.getId());
-								builder.append(channel.getName() + ", " + stats.getReceivedCount() + ", " + stats.getFilteredCount() + ", " + stats.getSentCount() + ", " + stats.getErrorCount() + "\n");
+								builder.append(channel.getName() + ", " + stats.getReceived() + ", " + stats.getFiltered() + ", " + stats.getSent() + ", " + stats.getError() + "\n");
 							}
 
 							File dumpFile = new File(dumpFilename);

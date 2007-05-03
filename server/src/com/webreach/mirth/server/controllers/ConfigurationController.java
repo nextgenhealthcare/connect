@@ -50,7 +50,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.ibatis.sqlmap.client.SqlMapClient;
-import com.webreach.mirth.model.Alert;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.ChannelStatus;
 import com.webreach.mirth.model.Configuration;
@@ -58,7 +57,6 @@ import com.webreach.mirth.model.DriverInfo;
 import com.webreach.mirth.model.ServerConfiguration;
 import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.model.Transport;
-import com.webreach.mirth.model.User;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.server.Command;
 import com.webreach.mirth.server.CommandQueue;

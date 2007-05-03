@@ -23,7 +23,6 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
 package com.webreach.mirth.server;
 
 import java.util.List;
@@ -259,11 +258,7 @@ public class MirthManager {
 	 * @throws MirthException
 	 */
 	public ChannelStatistics getStatistics(String channelId) throws MirthException {
-		try {
-			return channelStatisticsController.getStatistics(channelId);
-		} catch (ControllerException e) {
-			throw new MirthException(e);
-		}
+		return channelStatisticsController.getStatistics(channelId);
 	}
 
 	/**

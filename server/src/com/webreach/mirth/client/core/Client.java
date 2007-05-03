@@ -420,6 +420,18 @@ public class Client {
 	}
 
 	/**
+	 * Clears the Statistics for the channel with the specified id.
+	 * 
+	 * @return
+	 * @throws ClientException
+	 */
+	public void clearStatistics(String channelId) throws ClientException {
+		logger.debug("clearing channel statistics: channelId=" + channelId);
+		NameValuePair[] params = { new NameValuePair("op", "clearStatistics"), new NameValuePair("id", channelId) };
+		serverConnection.executePostMethod(CHANNEL_STATISTICS_SERVLET, params);
+	}
+
+	/**
 	 * Returns a list of system events.
 	 * 
 	 * @param filter

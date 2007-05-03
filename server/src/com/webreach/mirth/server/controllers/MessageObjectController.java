@@ -55,12 +55,27 @@ public class MessageObjectController {
 	private SqlMapClient sqlMap = SqlConfig.getSqlMapInstance();
 	private static final String MESSAGE_NO_DATA_STORE = "No data stored for this message.";
 	private ConfigurationController configurationController = new ConfigurationController();
+	private ChannelStatisticsController statisticsController = new ChannelStatisticsController();
 	private String lineSeperator = System.getProperty("line.separator");
 	private ErrorMessageBuilder errorBuilder = new ErrorMessageBuilder();
 
 	public void updateMessage(MessageObject incomingMessageObject, boolean checkIfMessageExists) {
 		try {
 			MessageObject messageObject = (MessageObject) incomingMessageObject.clone();
+			
+			// update the stats counts
+			if (messageObject.getStatus().equals(MessageObject.Status.TRANSFORMED)) {
+				statisticsController.incrementReceivedCount(messageObject.getChannelId());
+			} else if (messageObject.getStatus().equals(MessageObject.Status.FILTERED)) {
+				statisticsController.incrementFilteredCount(messageObject.getChannelId());
+			} else if (messageObject.getStatus().equals(MessageObject.Status.ERROR)) {
+				statisticsController.incrementErrorCount(messageObject.getChannelId());
+			} else if (messageObject.getStatus().equals(MessageObject.Status.SENT)) {
+				statisticsController.incrementSentCount(messageObject.getChannelId());
+			} else if (messageObject.getStatus().equals(MessageObject.Status.QUEUED)) {
+				statisticsController.incrementQueuedCount(messageObject.getChannelId());
+			}
+			
 			String channelId = messageObject.getChannelId();
 			HashMap<String, Channel> channelCache = ChannelController.getChannelCache();
 
@@ -368,6 +383,12 @@ public class MessageObjectController {
 		if (messageObject != null) {
 			MessageObject.Status oldStatus = messageObject.getStatus();
 			messageObject.setStatus(newStatus);
+
+			if (oldStatus.equals(MessageObject.Status.QUEUED) && newStatus.equals(MessageObject.Status.SENT)) {
+				
+				statisticsController.decrementQueuedCount(messageObject.getChannelId());	
+			}
+
 			updateMessage(messageObject, oldStatus.equals(MessageObject.Status.QUEUED));
 		}
 	}
