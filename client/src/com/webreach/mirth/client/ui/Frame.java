@@ -1572,7 +1572,6 @@ public class Frame extends JXFrame
                 else
                     return false;
             }
-            refreshChannels();
         }
         catch (ClientException e)
         {
@@ -1586,18 +1585,34 @@ public class Frame extends JXFrame
     /**
      * Sends the passed in user to the server, updating it or adding it.
      */
-    public void updateUser(User curr, String password)
+    public void updateUser(final User curr, final String password)
     {
-        try
+        setWorking("Saving user...", true);
+               
+        SwingWorker worker = new SwingWorker<Void, Void>()
         {
-            mirthClient.updateUser(curr, password);
-            users = mirthClient.getUser(null);
-            userPanel.updateUserTable();
-        }
-        catch (ClientException e)
-        {
-            alertException(e.getStackTrace(), e.getMessage());
-        }
+            public Void doInBackground()
+            {
+                try
+                {
+                    mirthClient.updateUser(curr, password);
+                    users = mirthClient.getUser(null);
+                }
+                catch (ClientException e)
+                {
+                    alertException(e.getStackTrace(), e.getMessage());
+                }
+                return null;
+            }
+            
+            public void done()
+            {
+                userPanel.updateUserTable();
+                setWorking("", false);
+            }
+        };
+        
+        worker.execute();
     }
 
     /**
@@ -1711,24 +1726,8 @@ public class Frame extends JXFrame
         setPanelName("Dashboard");
         setCurrentContentPage(dashboardPanel);
         setFocus(statusTasks);
-
-        setWorking("Loading statistics...", true);
-
-        SwingWorker worker = new SwingWorker<Void, Void>()
-        {
-            public Void doInBackground()
-            {
-                refreshStatuses();
-                return null;
-            }
-
-            public void done()
-            {
-                setWorking("", false);
-            }
-        };
-
-        worker.execute();
+        
+        doRefreshStatuses();
     }
 
     public void doShowChannel()
@@ -1738,29 +1737,13 @@ public class Frame extends JXFrame
 
         if (!confirmLeave())
             return;
-
-        setWorking("Loading channels...", true);
-
-        SwingWorker worker = new SwingWorker<Void, Void>()
-        {
-            public Void doInBackground()
-            {
-                refreshChannels();
-                return null;
-            }
-
-            public void done()
-            {
-                setBold(viewPane, 1);
-                setPanelName("Channels");
-                setCurrentContentPage(channelPanel);
-                setFocus(channelTasks);
-                channelPanel.deselectRows();
-                setWorking("", false);
-            }
-        };
-
-        worker.execute();
+                    
+        setBold(viewPane, 1);
+        setPanelName("Channels");
+        setCurrentContentPage(channelPanel);
+        setFocus(channelTasks);
+        
+        doRefreshChannels();
     }
 
     public void doShowUsers()
@@ -1772,21 +1755,22 @@ public class Frame extends JXFrame
             return;
 
         setWorking("Loading users...", true);
-
+        
+        setBold(viewPane, 2);
+        setPanelName("Users");
+        setCurrentContentPage(userPanel);
+        
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
             public Void doInBackground()
             {
-                setBold(viewPane, 2);
-                setPanelName("Users");
-                setCurrentContentPage(userPanel);
-                doRefreshUser();
-                setFocus(userTasks);
+                refreshUser();
                 return null;
             }
 
             public void done()
             {
+                setFocus(userTasks);
                 setWorking("", false);
             }
         };
@@ -1803,21 +1787,21 @@ public class Frame extends JXFrame
             return;
 
         setWorking("Loading settings...", true);
-
+        
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
             public Void doInBackground()
             {
-                setBold(viewPane, 3);
-                setPanelName("Settings");
-                setCurrentContentPage(settingsPanel);
-                doRefreshUser();
-                setFocus(settingsTasks);
+                settingsPanel.loadSettings();
                 return null;
             }
 
             public void done()
             {
+                setBold(viewPane, 3);
+                setPanelName("Settings");
+                setCurrentContentPage(settingsPanel);
+                setFocus(settingsTasks);
                 setWorking("", false);
             }
         };
@@ -1834,24 +1818,26 @@ public class Frame extends JXFrame
             return;
 
         setWorking("Loading alerts...", true);
-
+        
+        setBold(viewPane, 4);
+        setPanelName("Alerts");
+        
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
             public Void doInBackground()
             {
                 retrieveChannels();
-                setBold(viewPane, 4);
-                setPanelName("Alerts");
                 refreshAlerts();
-                alertPanel.setDefaultAlert();
-                setFocus(alertTasks);
-                disableSave();
                 return null;
             }
 
             public void done()
             {
+                alertPanel.updateAlertTable(false);
                 setCurrentContentPage(alertPanel);
+                alertPanel.setDefaultAlert();
+                setFocus(alertTasks);
+                disableSave();
                 setWorking("", false);
             }
         };
@@ -1924,41 +1910,29 @@ public class Frame extends JXFrame
             return;
         else
             isEditingChannel = true;
-        setWorking("Loading channel...", true);
 
-        SwingWorker worker = new SwingWorker<Void, Void>()
+        if (channelPanel.getSelectedChannel() == null)
+            JOptionPane.showMessageDialog(Frame.this, "Channel no longer exists.");
+        else
         {
-            public Void doInBackground()
+            try
             {
-                refreshChannels();
-                return null;
+                editChannel((Channel) ObjectCloner.deepCopy(channelPanel.getSelectedChannel()));
             }
-
-            public void done()
+            catch (ObjectClonerException e)
             {
-                if (channelPanel.getSelectedChannel() == null)
-                    JOptionPane.showMessageDialog(Frame.this, "Channel no longer exists.");
-                else
-                    try
-                    {
-                        editChannel((Channel) ObjectCloner.deepCopy(channelPanel.getSelectedChannel()));
-                    }
-                    catch (ObjectClonerException e)
-                    {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
-                setWorking("", false);
-                isEditingChannel = false;
+                // TODO Auto-generated catch block
+                e.printStackTrace();
             }
-        };
-
-        worker.execute();
-
+        }
+        isEditingChannel = false;
     }
 
     public void doDeleteChannel()
     {
+        if (!alertOption("Are you sure you want to delete this channel?"))
+            return;
+        
         setWorking("Deleting channel...", true);
 
         SwingWorker worker = new SwingWorker<Void, Void>()
@@ -1979,6 +1953,7 @@ public class Frame extends JXFrame
                 {
                     return null;
                 }
+                
                 String channelId = channel.getId();
                 for (int i = 0; i < status.size(); i++)
                 {
@@ -1989,13 +1964,9 @@ public class Frame extends JXFrame
                     }
                 }
 
-                if (!alertOption("Are you sure you want to delete this channel?"))
-                    return null;
-
                 try
                 {
                     mirthClient.removeChannel(channel);
-                    refreshChannels();
                 }
                 catch (ClientException e)
                 {
@@ -2006,7 +1977,7 @@ public class Frame extends JXFrame
 
             public void done()
             {
-                doShowChannel();
+                doRefreshChannels();
                 setWorking("", false);
             }
         };
@@ -2017,49 +1988,46 @@ public class Frame extends JXFrame
     public void doRefreshChannels()
     {
         setWorking("Loading channels...", true);
+        
+        final String channelId;
 
+        if (channelPanel.getSelectedChannel() != null)
+            channelId = channelPanel.getSelectedChannel().getId();
+        else
+            channelId = null;
+        
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
             public Void doInBackground()
             {
-                refreshChannels();
+                retrieveChannels();
                 return null;
             }
 
             public void done()
             {
+                channelPanel.updateChannelTable();
+
+                if (channels.size() > 0)
+                {
+                    setVisibleTasks(channelTasks, channelPopupMenu, 1, 1, true);
+                    setVisibleTasks(channelTasks, channelPopupMenu, 4, 4, true);
+                }
+                else
+                {
+                    setVisibleTasks(channelTasks, channelPopupMenu, 1, 1, false);
+                    setVisibleTasks(channelTasks, channelPopupMenu, 4, 4, false);
+                }
+
+                // as long as the channel was not deleted
+                if (channels.containsKey(channelId))
+                    channelPanel.setSelectedChannel(channelId);
+                
                 setWorking("", false);
             }
         };
 
         worker.execute();
-    }
-
-    public void refreshChannels()
-    {
-        String channelId = null;
-
-        if (channelPanel.getSelectedChannel() != null)
-            channelId = channelPanel.getSelectedChannel().getId();
-
-        retrieveChannels();
-
-        channelPanel.updateChannelTable();
-
-        if (channels.size() > 0)
-        {
-            setVisibleTasks(channelTasks, channelPopupMenu, 1, 1, true);
-            setVisibleTasks(channelTasks, channelPopupMenu, 4, 4, true);
-        }
-        else
-        {
-            setVisibleTasks(channelTasks, channelPopupMenu, 1, 1, false);
-            setVisibleTasks(channelTasks, channelPopupMenu, 4, 4, false);
-        }
-
-        // as long as the channel was not deleted
-        if (channels.containsKey(channelId))
-            channelPanel.setSelectedChannel(channelId);
     }
 
     public void retrieveChannels()
@@ -2119,7 +2087,8 @@ public class Frame extends JXFrame
     public void doRefreshStatuses()
     {
         setWorking("Loading statistics...", true);
-
+        statusUpdateComplete = false;
+        
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
             public Void doInBackground()
@@ -2130,6 +2099,13 @@ public class Frame extends JXFrame
 
             public void done()
             {
+                dashboardPanel.updateTable();
+                statusUpdateComplete = true;
+                if (status.size() > 0)
+                    setVisibleTasks(statusTasks, statusPopupMenu, 1, 1, true);
+                else
+                    setVisibleTasks(statusTasks, statusPopupMenu, 1, 1, false);
+                
                 setWorking("", false);
             }
         };
@@ -2141,14 +2117,7 @@ public class Frame extends JXFrame
     {
         try
         {
-            statusUpdateComplete = false;
             status = mirthClient.getChannelStatusList();
-            dashboardPanel.updateTable();
-            statusUpdateComplete = true;
-            if (status.size() > 0)
-                setVisibleTasks(statusTasks, statusPopupMenu, 1, 1, true);
-            else
-                setVisibleTasks(statusTasks, statusPopupMenu, 1, 1, false);
         }
         catch (ClientException e)
         {
@@ -2183,7 +2152,7 @@ public class Frame extends JXFrame
 
             public void done()
             {
-                refreshStatuses();
+                doRefreshStatuses();
                 setWorking("", false);
             }
         };
@@ -2193,18 +2162,17 @@ public class Frame extends JXFrame
 
     public void doStart()
     {
+        if (dashboardPanel.getSelectedStatus() == -1)
+            return;
+        
         setWorking("Starting channel...", true);
-
+        
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
             public Void doInBackground()
             {
                 try
                 {
-                    if (dashboardPanel.getSelectedStatus() == -1)
-                    {
-                        return null;
-                    }
                     if (status.get(dashboardPanel.getSelectedStatus()).getState() == ChannelStatus.State.STOPPED)
                         mirthClient.startChannel(status.get(dashboardPanel.getSelectedStatus()).getChannelId());
                     else if (status.get(dashboardPanel.getSelectedStatus()).getState() == ChannelStatus.State.PAUSED)
@@ -2219,7 +2187,7 @@ public class Frame extends JXFrame
 
             public void done()
             {
-                refreshStatuses();
+                doRefreshStatuses();
                 setWorking("", false);
             }
         };
@@ -2229,6 +2197,9 @@ public class Frame extends JXFrame
 
     public void doStop()
     {
+        if (dashboardPanel.getSelectedStatus() == -1)
+            return;
+        
         setWorking("Stopping channel...", true);
 
         SwingWorker worker = new SwingWorker<Void, Void>()
@@ -2237,10 +2208,6 @@ public class Frame extends JXFrame
             {
                 try
                 {
-                    if (dashboardPanel.getSelectedStatus() == -1)
-                    {
-                        return null;
-                    }
                     mirthClient.stopChannel(status.get(dashboardPanel.getSelectedStatus()).getChannelId());
                 }
                 catch (ClientException e)
@@ -2252,7 +2219,7 @@ public class Frame extends JXFrame
 
             public void done()
             {
-                refreshStatuses();
+                doRefreshStatuses();
                 setWorking("", false);
             }
         };
@@ -2262,6 +2229,9 @@ public class Frame extends JXFrame
 
     public void doPause()
     {
+        if (dashboardPanel.getSelectedStatus() == -1)
+            return;
+        
         setWorking("Pausing channel...", true);
 
         SwingWorker worker = new SwingWorker<Void, Void>()
@@ -2281,7 +2251,7 @@ public class Frame extends JXFrame
 
             public void done()
             {
-                refreshStatuses();
+                doRefreshStatuses();
                 setWorking("", false);
             }
         };
@@ -2310,35 +2280,34 @@ public class Frame extends JXFrame
     }
 
     public void doEnableChannel()
-    {
+    {               
+        final Channel channel = channelPanel.getSelectedChannel();
+        if (channel == null)
+        {
+            alertWarning("Channel no longer exists.");
+            return;
+        }
+        if (channelEditPanel.checkAllForms(channel))
+        {
+            alertWarning("Channel was not configured properly.  Please fix the problems in the forms before trying to enable it again.");
+            return;
+        }
+        
         setWorking("Enabling channel...", true);
-
+        
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
             public Void doInBackground()
-            {
-                refreshChannels();
-                if (channelPanel.getSelectedChannel() == null)
-                    alertWarning("Channel no longer exists.");
-                else
-                {
-                    Channel channel = channelPanel.getSelectedChannel();
-
-                    if (channelEditPanel.checkAllForms(channel))
-                    {
-                        alertWarning("Channel was not configured properly.  Please fix the problems in the forms before trying to enable it again.");
-                        return null;
-                    }
-                    channel.setEnabled(true);
-                    updateChannel(channel);
-                    channelPanel.deselectRows();
-                    channelPanel.setSelectedChannel(channel.getId());
-                }
+            {        
+                
+                channel.setEnabled(true);
+                updateChannel(channel);
                 return null;
             }
 
             public void done()
             {
+                doRefreshChannels();
                 setWorking("", false);
             }
         };
@@ -2347,29 +2316,28 @@ public class Frame extends JXFrame
     }
 
     public void doDisableChannel()
-    {
+    {        
+        final Channel channel = channelPanel.getSelectedChannel();
+        if (channel == null)
+        {
+            alertWarning("Channel no longer exists.");
+            return;
+        }
+        
         setWorking("Disabling channel...", true);
-
+        
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
             public Void doInBackground()
-            {
-                refreshChannels();
-                if (channelPanel.getSelectedChannel() == null)
-                    alertWarning("Channel no longer exists.");
-                else
-                {
-                    Channel channel = channelPanel.getSelectedChannel();
-                    channel.setEnabled(false);
-                    updateChannel(channel);
-                    channelPanel.deselectRows();
-                    channelPanel.setSelectedChannel(channel.getId());
-                }
+            {   
+                channel.setEnabled(false);
+                updateChannel(channel);
                 return null;
             }
 
             public void done()
             {
+                doRefreshChannels();
                 setWorking("", false);
             }
         };
@@ -2383,9 +2351,7 @@ public class Frame extends JXFrame
     }
 
     public void doEditUser()
-    {
-        doRefreshUser();
-
+    {       
         int index = userPanel.getUserIndex();
 
         if (index == UIConstants.ERROR_CONSTANT)
@@ -2402,13 +2368,11 @@ public class Frame extends JXFrame
             return;
 
         setWorking("Deleting user...", true);
-
+               
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
             public Void doInBackground()
             {
-                doRefreshUser();
-
                 if (users.size() == 1)
                 {
                     alertWarning("You must have at least one user account.");
@@ -2429,8 +2393,6 @@ public class Frame extends JXFrame
                         
                         mirthClient.removeUser(users.get(userToDelete));
                         users = mirthClient.getUser(null);
-                        userPanel.updateUserTable();
-                        userPanel.deselectRows();
                     }
                 }
                 catch (ClientException e)
@@ -2442,6 +2404,8 @@ public class Frame extends JXFrame
 
             public void done()
             {
+                userPanel.updateUserTable();
+                userPanel.deselectRows();
                 setWorking("", false);
             }
         };
@@ -2452,50 +2416,55 @@ public class Frame extends JXFrame
     public void doRefreshUser()
     {
         setWorking("Loading users...", true);
-
+               
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
             public Void doInBackground()
             {
-                User user = null;
-                String userName = null;
-                int index = userPanel.getUserIndex();
-
-                if (index != UIConstants.ERROR_CONSTANT)
-                    user = users.get(index);
-
-                try
-                {
-                    users = mirthClient.getUser(null);
-                    userPanel.updateUserTable();
-
-                    if (user != null)
-                    {
-                        for (int i = 0; i < users.size(); i++)
-                        {
-                            if (user.equals(users.get(i)))
-                                userName = users.get(i).getUsername();
-                        }
-                    }
-                }
-                catch (ClientException e)
-                {
-                    alertException(e.getStackTrace(), e.getMessage());
-                }
-
-                // as long as the channel was not deleted
-                if (userName != null)
-                    userPanel.setSelectedUser(userName);
+                refreshUser();
                 return null;
             }
-
+            
             public void done()
             {
-                setWorking("", false);
+                setWorking("",false);
             }
         };
-
+        
         worker.execute();
+    }
+    
+    public void refreshUser()
+    {
+        User user = null;
+        String userName = null;
+        int index = userPanel.getUserIndex();
+
+        if (index != UIConstants.ERROR_CONSTANT)
+            user = users.get(index);
+
+        try
+        {
+            users = mirthClient.getUser(null);
+            userPanel.updateUserTable();
+
+            if (user != null)
+            {
+                for (int i = 0; i < users.size(); i++)
+                {
+                    if (user.equals(users.get(i)))
+                        userName = users.get(i).getUsername();
+                }
+            }
+        }
+        catch (ClientException e)
+        {
+            alertException(e.getStackTrace(), e.getMessage());
+        }
+
+        // as long as the channel was not deleted
+        if (userName != null)
+            userPanel.setSelectedUser(userName);
     }
 
     public void doDeployAll()
@@ -2506,11 +2475,9 @@ public class Frame extends JXFrame
         {
             public Void doInBackground()
             {
-                refreshChannels();
                 try
                 {
                     mirthClient.deployChannels();
-                    dashboardPanel.deselectRows();
                 }
                 catch (ClientException e)
                 {
@@ -2522,6 +2489,7 @@ public class Frame extends JXFrame
             public void done()
             {
                 doShowDashboard();
+                dashboardPanel.deselectRows();
                 setWorking("", false);
             }
         };
@@ -2587,20 +2555,22 @@ public class Frame extends JXFrame
     public void doShowMessages()
     {
         setWorking("Loading messages...", true);
+        
+        if (messageBrowser == null)
+            messageBrowser = new MessageBrowser();
 
+        if (dashboardPanel.getSelectedStatus() == -1)
+            return;
+        
+        setBold(viewPane, -1);
+        setPanelName("Channel Messages - " + status.get(dashboardPanel.getSelectedStatus()).getName());
+        setCurrentContentPage(messageBrowser);
+        setFocus(messageTasks);
+        
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
             public Void doInBackground()
             {
-                if (messageBrowser == null)
-                    messageBrowser = new MessageBrowser();
-
-                if (dashboardPanel.getSelectedStatus() == -1)
-                    return null;
-                setBold(viewPane, -1);
-                setPanelName("Channel Messages - " + status.get(dashboardPanel.getSelectedStatus()).getName());
-                setCurrentContentPage(messageBrowser);
-                setFocus(messageTasks);
                 messageBrowser.loadNew();
                 return null;
             }
@@ -2616,18 +2586,19 @@ public class Frame extends JXFrame
     public void doShowEvents()
     {
         setWorking("Loading events...", true);
-
+        
+        if (eventBrowser == null)
+            eventBrowser = new EventBrowser();
+        eventBrowser.makeEventTable(null);
+        setBold(viewPane, 5);
+        setPanelName("System Events");
+        setCurrentContentPage(eventBrowser);
+        setFocus(eventTasks);
+        
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
             public Void doInBackground()
             {
-                if (eventBrowser == null)
-                    eventBrowser = new EventBrowser();
-                eventBrowser.makeEventTable(null);
-                setBold(viewPane, 5);
-                setPanelName("System Events");
-                setCurrentContentPage(eventBrowser);
-                setFocus(eventTasks);
                 eventBrowser.loadNew();
                 return null;
             }
@@ -3025,7 +2996,7 @@ public class Frame extends JXFrame
                 public void done()
                 {
                     if(currentContentPage == dashboardPanel)
-                        refreshStatuses();
+                        doRefreshStatuses();
                     else if(currentContentPage == messageBrowser)
                         messageBrowser.refresh();
                     setWorking("", false);
@@ -3060,7 +3031,7 @@ public class Frame extends JXFrame
 
                 public void done()
                 {
-                    refreshStatuses();
+                    doRefreshStatuses();
                     setWorking("", false);
                 }
             };
@@ -3092,8 +3063,10 @@ public class Frame extends JXFrame
 
                 public void done()
                 {
-                    messageBrowser.refresh();
-                    refreshStatuses();
+                    if(currentContentPage == dashboardPanel)
+                        doRefreshStatuses();
+                    else if(currentContentPage == messageBrowser)
+                        messageBrowser.refresh();
                     setWorking("", false);
                 }
             };
@@ -3127,8 +3100,10 @@ public class Frame extends JXFrame
 
                 public void done()
                 {
-                    messageBrowser.refresh();
-                    refreshStatuses();
+                    if(currentContentPage == dashboardPanel)
+                        doRefreshStatuses();
+                    else if(currentContentPage == messageBrowser)
+                        messageBrowser.refresh();
                     setWorking("", false);
                 }
             };
@@ -3252,6 +3227,14 @@ public class Frame extends JXFrame
 
     public void doRefreshSettings()
     {
+        if(changesHaveBeenMade())
+        {
+            if(!alertOption("Are you sure you would like to reload the settings from the server and lose your changes?"))
+                return;
+            else
+                disableSave();
+        }
+        
         setWorking("Loading settings...", true);
 
         SwingWorker worker = new SwingWorker<Void, Void>()
@@ -3269,7 +3252,6 @@ public class Frame extends JXFrame
         };
 
         worker.execute();
-
     }
 
     public void doRefreshAlerts()
@@ -3286,6 +3268,7 @@ public class Frame extends JXFrame
 
             public void done()
             {
+                alertPanel.updateAlertTable(false);
                 setWorking("", false);
             }
         };
@@ -3298,7 +3281,6 @@ public class Frame extends JXFrame
         try
         {
             alerts = mirthClient.getAlert(null);
-            alertPanel.updateAlertTable(false);
         }
         catch (ClientException e)
         {
@@ -3322,8 +3304,6 @@ public class Frame extends JXFrame
 
                     alertPanel.saveAlert();
                     mirthClient.updateAlerts(alerts);
-                    alertPanel.updateAlertTable(false);
-                    disableSave();
                 }
                 catch (ClientException e)
                 {
@@ -3334,6 +3314,7 @@ public class Frame extends JXFrame
 
             public void done()
             {
+                disableSave();
                 setWorking("", false);
             }
         };

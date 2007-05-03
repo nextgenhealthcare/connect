@@ -826,8 +826,6 @@ public class ChannelSetup extends javax.swing.JPanel
                 currentChannel.setId(parent.mirthClient.getGuid());
 
             updated = parent.updateChannel(currentChannel);
-            currentChannel = parent.channels.get(currentChannel.getId());
-            parent.channelPanel.makeChannelTable();
         }
         catch (ClientException e)
         {

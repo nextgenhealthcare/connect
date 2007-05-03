@@ -60,8 +60,6 @@ public class SettingsPanel extends javax.swing.JPanel
                 showSettingsPopupMenu(evt);
             }
         });
-
-        loadSettings();
     }
 
     /** Shows the right click popup menu */
