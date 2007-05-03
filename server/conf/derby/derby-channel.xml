@@ -34,10 +34,11 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 				NAME=#name#
 			</isNotNull>
 		</dynamic>
+		WITH UR
 	</select>
 	
 	<select id="getChannelRevision" resultMap="get-channel-revision-result">
-		SELECT ID, REVISION FROM CHANNEL
+		SELECT ID, REVISION FROM CHANNEL WITH UR
 	</select>
 	
 	<insert id="insertChannel" parameterClass="com.webreach.mirth.model.Channel">

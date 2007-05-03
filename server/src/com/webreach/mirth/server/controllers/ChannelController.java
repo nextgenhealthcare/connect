@@ -59,11 +59,9 @@ public class ChannelController {
 		channelCache = new HashMap<String, Channel>();
 		channelIdLookup = new HashMap<String, String>();
 		Iterator<Channel> it = channels.iterator();
-
 		while (it.hasNext()) {
 			Channel channel = it.next();
-			channelCache.put(channel.getId(), channel);
-			channelIdLookup.put(channel.getName().toUpperCase(), channel.getId());
+			updateChannelInCache(channel);
 		}
 	}
 
@@ -182,7 +180,10 @@ public class ChannelController {
 		ConfigurationController configurationController = new ConfigurationController();
 		channel.setVersion(configurationController.getVersion());
 
+		updateChannelInCache(channel);
 		try {
+			channelCache.put(channel.getId(), channel);
+			
 			Channel channelFilter = new Channel();
 			channelFilter.setId(channel.getId());
 
@@ -195,7 +196,6 @@ public class ChannelController {
 				logger.debug("updating channel");
 				sqlMap.update("updateChannel", channel);
 			}
-
 			return true;
 		} catch (SQLException e) {
 			throw new ControllerException(e);
@@ -206,7 +206,8 @@ public class ChannelController {
 		logger.debug("removing channel");
 
 		try {
-			sqlMap.delete("deleteChannel", channel);
+			removeChannelFromCache(channel);
+			sqlMap.delete("deleteChannel", channel);			
 		} catch (SQLException e) {
 			throw new ControllerException(e);
 		}
@@ -215,7 +216,15 @@ public class ChannelController {
 	public static HashMap<String, Channel> getChannelCache() {
 		return channelCache;
 	}
-
+	
+	private static void removeChannelFromCache(Channel channel){
+		channelCache.remove(channel.getId());
+		channelIdLookup.remove(channel.getId());
+	}
+	private static void updateChannelInCache(Channel channel){
+		channelCache.put(channel.getId(), channel);
+		channelIdLookup.put(channel.getName().toUpperCase(), channel.getId());
+	}
 	public static void setChannelCache(HashMap<String, Channel> channelCache) {
 		ChannelController.channelCache = channelCache;
 	}

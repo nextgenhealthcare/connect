@@ -162,18 +162,7 @@ public class MessageObjectController {
 
 	public int createMessagesTempTable(MessageObjectFilter filter, String uid) throws ControllerException {
 		logger.debug("creating temporary message table: filter=" + filter.toString());
-
-		try {
-			if (statementExists("dropTempMessageTableSequence")) {
-				sqlMap.update("dropTempMessageTableSequence", uid);
-			}
-				
-			sqlMap.update("dropTempMessageTable", uid);
-		} catch (SQLException e) {
-			// supress any warnings about the table not existing
-			logger.debug(e);
-		}
-
+		removeFilterTables(uid);
 		try {
 			if (statementExists("createTempMessageTableSequence")) {
 				sqlMap.update("createTempMessageTableSequence", uid);
@@ -226,12 +215,17 @@ public class MessageObjectController {
 	}
 
 	public void removeFilterTables(String uid) {
-		logger.debug("removing temporary filter tables");
-
 		try {
-			sqlMap.delete("deleteTempMessageTable", uid);
+			if (statementExists("dropTempMessageTableSequence")) {
+				sqlMap.update("dropTempMessageTableSequence", uid);
+			}
+			if (statementExists("deleteTempMessageTableIndex")) {
+				sqlMap.update("deleteTempMessageTableIndex", uid);
+			}
+			sqlMap.update("dropTempMessageTable", uid);
 		} catch (SQLException e) {
-			logger.debug("Fitler table no found: " + uid);
+			// supress any warnings about the table not existing
+			logger.debug(e);
 		}
 	}
 
@@ -247,9 +241,11 @@ public class MessageObjectController {
 		}
 	}
 
-	public void reprocessMessages(final MessageObjectFilter filter, final String uid) throws ControllerException {
+	public void reprocessMessages(final MessageObjectFilter filter) throws ControllerException {
 		Thread reprocessThread = new Thread(new Runnable() {
 			public void run() {
+				//Create a unique id, however get rid of the dashes
+				String uid = UUIDGenerator.getUUID().replaceAll("-", "");
 				try {
 					int size = createMessagesTempTable(filter, uid);
 					int page = 0;
@@ -280,6 +276,10 @@ public class MessageObjectController {
 					}
 				} catch (Exception e) {
 					logger.error(e);
+					
+				}finally{
+					//Remove any temp tables we created
+					removeFilterTables(uid);
 				}
 
 			}

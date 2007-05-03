@@ -99,7 +99,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 	<select id="getMessageCount" parameterClass="java.lang.String" resultClass="java.lang.Integer">
 		SELECT COUNT(*) AS VALUE
 		FROM MESSAGE
-		WHERE ID = #id#	
+		WHERE ID = #id#	WITH UR
 	</select>
 	
 	<select id="getMessageByPage" parameterClass="java.util.Map" resultMap="get-message-result">
@@ -117,7 +117,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 					</isNotNull>
 				</isNotNull>
 			</dynamic>
-		ORDER BY TEMP_TABLE.DATE_CREATED DESC
+		ORDER BY TEMP_TABLE.DATE_CREATED DESC WITH UR
 	</select>
 
 	<statement id="dropTempMessageTable" parameterClass="java.lang.String">
