@@ -162,7 +162,12 @@ public class MessageObjectController {
 
 	public int createMessagesTempTable(MessageObjectFilter filter, String uid) throws ControllerException {
 		logger.debug("creating temporary message table: filter=" + filter.toString());
+		
+		if (statementExists("getMessageByPageLimit")){
+			return -1;
+		}
 		removeFilterTables(uid);
+
 		try {
 			if (statementExists("createTempMessageTableSequence")) {
 				sqlMap.update("createTempMessageTableSequence", uid);
@@ -175,11 +180,36 @@ public class MessageObjectController {
 			throw new ControllerException(e);
 		}
 	}
+	// ast: allow ordering with derby
+	public List<MessageObject> getMessagesByPageLimit(int page, int pageSize, int maxMessages, String uid, MessageObjectFilter filter) throws ControllerException {
+		logger.debug("retrieving messages by page: page=" + page);
+		
+		try {
+			Map parameterMap = new HashMap();
+			parameterMap.put("uid", uid);
+			int offset = page * pageSize;
+			
+			parameterMap.put("offset", offset);
+			parameterMap.put("limit", pageSize);
+			
+			parameterMap.putAll(getFilterMap(filter, uid));
+			
+			List<MessageObject> messages = sqlMap.queryForList("getMessageByPageLimit", parameterMap);
 
+			for (Iterator iter = messages.iterator(); iter.hasNext();) {
+				MessageObject messageObject = (MessageObject) iter.next();
+				decryptMessageData(messageObject);
+			}
+
+			return messages;
+		} catch (Exception e) {
+			throw new ControllerException(e);
+		}
+	}
 	// ast: allow ordering with derby
 	public List<MessageObject> getMessagesByPage(int page, int pageSize, int maxMessages, String uid) throws ControllerException {
 		logger.debug("retrieving messages by page: page=" + page);
-
+		
 		try {
 			Map parameterMap = new HashMap();
 			parameterMap.put("uid", uid);
@@ -302,6 +332,7 @@ public class MessageObjectController {
 		parameterMap.put("status", filter.getStatus());
 		parameterMap.put("connectorName", filter.getConnectorName());
 		parameterMap.put("protocol", filter.getProtocol());
+		parameterMap.put("source", filter.getSource());
 
 		if (filter.getStartDate() != null) {
 			parameterMap.put("startDate", String.format("%1$tY-%1$tm-%1$td 00:00:00", filter.getStartDate()));

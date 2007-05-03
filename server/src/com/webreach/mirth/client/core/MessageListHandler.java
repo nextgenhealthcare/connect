@@ -43,6 +43,7 @@ public class MessageListHandler implements ListHandler {
 	private int pageSize;
 	private int currentPage;
 	private int size = 0;
+	private boolean tempEnabled = true;
 	
 	public MessageListHandler(MessageObjectFilter filter, int pageSize, ServerConnection connection) {
 		this.filter = filter;
@@ -52,6 +53,9 @@ public class MessageListHandler implements ListHandler {
 		// TODO: have this method throw a ListHandlerException
 		try {
 			size = createMessagesTempTable();
+			if (size == -1) {
+				tempEnabled = false;
+			}
 		} catch (Exception e) {
 			logger.error(e);
 		}
@@ -117,9 +121,13 @@ public class MessageListHandler implements ListHandler {
 		}
 	}
 	
-	private List<MessageObject> getMessagesByPage(int page) throws ListHandlerException {
-		NameValuePair[] params = { new NameValuePair("op", "getMessagesByPage"), new NameValuePair("page", String.valueOf(page)), new NameValuePair("pageSize", String.valueOf(pageSize)), new NameValuePair("maxMessages", String.valueOf(size)) };
-		
+	private List<MessageObject> getMessagesByPage(int page) throws ListHandlerException {	
+		NameValuePair[] params = { (tempEnabled ? new NameValuePair("op", "getMessagesByPage") : new NameValuePair("op", "getMessagesByPageLimit")), 
+				new NameValuePair("page", String.valueOf(page)), 
+				new NameValuePair("pageSize", String.valueOf(pageSize)), 
+				new NameValuePair("maxMessages", String.valueOf(size)), 
+				(tempEnabled ? new NameValuePair("filter", "") : new NameValuePair("filter", serializer.toXML(filter)))};
+
 		try {
 			return (List<MessageObject>) serializer.fromXML(connection.executePostMethod(Client.MESSAGE_SERVLET, params));	
 		} catch (ClientException e) {
