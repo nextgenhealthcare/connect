@@ -3133,7 +3133,6 @@ public class Frame extends JXFrame
 
             public void done()
             {
-                messageBrowser.refresh();
                 setWorking("", false);
             }
         };
