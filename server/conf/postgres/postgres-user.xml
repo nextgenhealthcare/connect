@@ -42,7 +42,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 	<insert id="insertUser" parameterClass="java.util.Map">
 		INSERT INTO
 		PERSON (USERNAME, PASSWORD, SALT, FULLNAME, EMAIL, PHONENUMBER, DESCRIPTION, LOGGED_IN)
-		VALUES (#username#, #password#, #salt#, #fullName:VARCHAR#, #email:VARCHAR#, #phoneNumber:VARCHAR#, #description:VARCHAR#, 0)
+		VALUES (#username#, #password#, #salt#, #fullName:VARCHAR#, #email:VARCHAR#, #phoneNumber:VARCHAR#, #description:VARCHAR#, FALSE)
 	</insert>
 	
 	<update id="updateUser" parameterClass="java.util.Map">
