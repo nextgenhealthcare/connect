@@ -161,11 +161,11 @@ public class DashboardPanel extends javax.swing.JPanel
                 try
                 {
                     ChannelStatistics tempStats = parent.mirthClient.getStatistics(tempStatus.getChannelId());
-                    tableData[i][2] = tempStats.getReceivedCount();
-                    tableData[i][3] = tempStats.getFilteredCount();
-                    tableData[i][4] = tempStats.getQueuedCount();
-                    tableData[i][5] = tempStats.getSentCount();
-                    tableData[i][6] = tempStats.getErrorCount();
+                    tableData[i][2] = tempStats.getReceived();
+                    tableData[i][3] = tempStats.getFiltered();
+                    tableData[i][4] = tempStats.getQueued();
+                    tableData[i][5] = tempStats.getSent();
+                    tableData[i][6] = tempStats.getError();
                 }
                 catch (ClientException ex)
                 {
