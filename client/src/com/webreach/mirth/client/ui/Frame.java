@@ -943,7 +943,7 @@ public class Frame extends JXFrame
         });
         statusPopupMenu.add(removeAllMessages);
         
-        statusTasks.add(initActionCallback("doClearStats", "Reset the statistics for this channel.", ActionFactory.createBoundAction("doRemoveAllMessages", "Remove All Messages", ""), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/stats.png"))));
+        statusTasks.add(initActionCallback("doClearStats", "Reset the statistics for this channel.", ActionFactory.createBoundAction("doClearStats", "Clear Statistics", ""), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/stats.png"))));
         JMenuItem clearStats = new JMenuItem("Clear Statistics");
         clearStats.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/stats.png")));
         clearStats.addActionListener(new ActionListener()
