@@ -953,7 +953,7 @@ public class Frame extends JXFrame
                 doClearStats();
             }
         });
-        statusPopupMenu.add(removeAllMessages);
+        statusPopupMenu.add(clearStats);
 
         statusTasks.add(initActionCallback("doStart", "Start the currently selected channel.", ActionFactory.createBoundAction("doStart", "Start Channel", ""), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/start.png"))));
         JMenuItem startChannel = new JMenuItem("Start Channel");
