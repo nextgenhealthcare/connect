@@ -403,9 +403,6 @@ public class MessageBrowser extends javax.swing.JPanel
                     currentPage = handler.getCurrentPage();
                 }
                 
-                if (pageSize == -1)
-                    pageSize = 0;
-                
                 pageSizeField.setText(pageSize + "");
                 
                 if (currentPage == 0)
@@ -414,27 +411,32 @@ public class MessageBrowser extends javax.swing.JPanel
                     previousPageButton.setEnabled(true);
                 
                 int numberOfPages = getNumberOfPages(pageSize, messageCount);
-                
-                if (currentPage == numberOfPages)
+                if (messageObjectList.size() < pageSize || pageSize == 0)
+                	nextPageButton.setEnabled(false);
+                else if (currentPage == numberOfPages)
                     nextPageButton.setEnabled(false);
                 else
                     nextPageButton.setEnabled(true);
                 
                 int startResult;
-                if (messageCount == 0)
+                if (messageObjectList.size() == 0)
                     startResult = 0;
                 else
                     startResult = (currentPage * pageSize) + 1;
                 
                 int endResult;
                 if (pageSize == 0)
-                    endResult = messageCount;
+                    endResult = messageObjectList.size();
                 else
                     endResult = (currentPage + 1) * pageSize;
                 
-                if (messageCount < endResult)
-                    endResult = messageCount;
-                resultsLabel.setText("Results " + startResult + " - " + endResult + " of " + messageCount);
+                if (messageObjectList.size() < pageSize)
+                    endResult = endResult - (pageSize - messageObjectList.size());
+                
+                if (messageCount == -1)
+                	resultsLabel.setText("Results " + startResult + " - " + endResult);
+                else
+                	resultsLabel.setText("Results " + startResult + " - " + endResult + " of " + messageCount);
                 
             }
             catch (ListHandlerException e)
@@ -530,7 +532,8 @@ public class MessageBrowser extends javax.swing.JPanel
     private int getNumberOfPages(int pageSize, int messageCount)
     {
         int numberOfPages;
-
+        if (messageCount == -1)
+        	return -1;
         if (pageSize == 0)
             numberOfPages = 0;
         else
@@ -1258,12 +1261,12 @@ public class MessageBrowser extends javax.swing.JPanel
                     public Void doInBackground()
                     {
                         messageListHandler = parent.mirthClient.getMessageListHandler(messageObjectFilter, pageSize);
+                        makeMessageTable(messageListHandler, FIRST_PAGE);
                         return null;
                     }
 
                     public void done()
                     {
-                        makeMessageTable(messageListHandler, FIRST_PAGE);
                         parent.setWorking("", false);
                     }
                 };
