@@ -931,7 +931,7 @@ public class Frame extends JXFrame
         });
         statusPopupMenu.add(showMessages);
 
-        statusTasks.add(initActionCallback("doRemoveAllMessages", "Remove all Message Events in this channel.", ActionFactory.createBoundAction("doRemoveAllMessages", "Remove All Messages", ""), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png"))));
+        statusTasks.add(initActionCallback("doRemoveAllMessages", "Remove all Messages in this channel.", ActionFactory.createBoundAction("doRemoveAllMessages", "Remove All Messages", ""), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png"))));
         JMenuItem removeAllMessages = new JMenuItem("Remove All Messages");
         removeAllMessages.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png")));
         removeAllMessages.addActionListener(new ActionListener()
@@ -939,6 +939,18 @@ public class Frame extends JXFrame
             public void actionPerformed(ActionEvent e)
             {
                 doRemoveAllMessages();
+            }
+        });
+        statusPopupMenu.add(removeAllMessages);
+        
+        statusTasks.add(initActionCallback("doClearStats", "Reset the statistics for this channel.", ActionFactory.createBoundAction("doRemoveAllMessages", "Remove All Messages", ""), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/stats.png"))));
+        JMenuItem clearStats = new JMenuItem("Clear Statistics");
+        clearStats.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/stats.png")));
+        clearStats.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                doClearStats();
             }
         });
         statusPopupMenu.add(removeAllMessages);
@@ -3002,8 +3014,6 @@ public class Frame extends JXFrame
                     {
                         if (dashboardPanel.getSelectedStatus() > -1)
                             mirthClient.clearMessages(status.get(dashboardPanel.getSelectedStatus()).getChannelId());
-                        messageBrowser.refresh();
-                        refreshStatuses();
                     }
                     catch (ClientException e)
                     {
@@ -3014,7 +3024,43 @@ public class Frame extends JXFrame
 
                 public void done()
                 {
+                    if(currentContentPage == dashboardPanel)
+                        refreshStatuses();
+                    else if(currentContentPage == messageBrowser)
+                        messageBrowser.refresh();
+                    setWorking("", false);
+                }
+            };
 
+            worker.execute();
+        }
+    }
+    
+    public void doClearStats()
+    {
+        if (alertOption("Are you sure you would like to clear the statistics for this channel?"))
+        {
+            setWorking("Clearing statistics...", true);
+
+            SwingWorker worker = new SwingWorker<Void, Void>()
+            {
+                public Void doInBackground()
+                {
+                    try
+                    {
+                        if (dashboardPanel.getSelectedStatus() > -1)
+                            mirthClient.clearStatistics(status.get(dashboardPanel.getSelectedStatus()).getChannelId());
+                    }
+                    catch (ClientException e)
+                    {
+                        alertException(e.getStackTrace(), e.getMessage());
+                    }
+                    return null;
+                }
+
+                public void done()
+                {
+                    refreshStatuses();
                     setWorking("", false);
                 }
             };
@@ -3053,7 +3099,6 @@ public class Frame extends JXFrame
             };
 
             worker.execute();
-
         }
     }
 
