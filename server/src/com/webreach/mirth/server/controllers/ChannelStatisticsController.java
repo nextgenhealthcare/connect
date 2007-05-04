@@ -100,11 +100,18 @@ public class ChannelStatisticsController {
 		}
 	}
 	
-	public void clearStatistics(String channelId) throws ControllerException {
-		try {
-			sqlMap.update("clearStatistics", channelId);
-		} catch (SQLException e) {
-			throw new ControllerException(e);
-		}		
+	public void clearStatistics(String channelId, boolean received, boolean filtered, boolean queued, boolean sent, boolean errored) throws ControllerException {
+        if(received)
+            statsCache.getCache().get(channelId).setReceived(0);
+        if(filtered)
+            statsCache.getCache().get(channelId).setFiltered(0);
+        if(queued)
+            statsCache.getCache().get(channelId).setQueued(0);
+        if(sent)
+            statsCache.getCache().get(channelId).setSent(0);
+        if(errored)
+            statsCache.getCache().get(channelId).setError(0);
+		
+        updateStatistics(channelId) ;
 	}
 }

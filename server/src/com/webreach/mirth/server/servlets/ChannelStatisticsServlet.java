@@ -52,7 +52,12 @@ public class ChannelStatisticsServlet extends MirthServlet {
 					response.setContentType("application/xml");
 					out.println(serializer.toXML(statisticsController.getStatistics(channelId)));
 				} else if (operation.equals("clearStatistics")) {
-					statisticsController.clearStatistics(channelId);
+                    boolean deleteReceived = Boolean.valueOf(request.getParameter("deleteReceived"));
+                    boolean deleteFiltered = Boolean.valueOf(request.getParameter("deleteFiltered"));
+                    boolean deleteQueued = Boolean.valueOf(request.getParameter("deleteQueued"));
+                    boolean deleteSent = Boolean.valueOf(request.getParameter("deleteSent"));
+                    boolean deleteErrored = Boolean.valueOf(request.getParameter("deleteErrored"));
+					statisticsController.clearStatistics(channelId, deleteReceived, deleteFiltered, deleteQueued, deleteSent, deleteErrored);
 				}
 			} catch (Exception e) {
 				throw new ServletException(e);

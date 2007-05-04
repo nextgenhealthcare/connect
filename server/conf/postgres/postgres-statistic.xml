@@ -34,12 +34,6 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		SET RECEIVED = ?, FILTERED = ?, SENT = ?, ERROR = ?, QUEUED = ?
 		WHERE CHANNEL_ID = ?
 	</update>
-
-	<update id="clearStatistics" parameterClass="java.lang.String">
-		UPDATE STATISTICS
-		SET RECEIVED = 0, FILTERED = 0, SENT = 0, ERROR = 0, QUEUED = 0
-		WHERE CHANNEL_ID = #channelId#
-	</update>
 	
 	<select id="getStatistics" resultMap="get-statistics-result">
 		SELECT CHANNEL_ID, RECEIVED, FILTERED, SENT, ERROR, QUEUED

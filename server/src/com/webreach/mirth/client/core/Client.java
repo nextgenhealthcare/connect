@@ -425,9 +425,11 @@ public class Client {
 	 * @return
 	 * @throws ClientException
 	 */
-	public void clearStatistics(String channelId) throws ClientException {
+	public void clearStatistics(String channelId, boolean received, boolean filtered, boolean queued, boolean sent, boolean error) throws ClientException {
 		logger.debug("clearing channel statistics: channelId=" + channelId);
-		NameValuePair[] params = { new NameValuePair("op", "clearStatistics"), new NameValuePair("id", channelId) };
+		NameValuePair[] params = { new NameValuePair("op", "clearStatistics"), new NameValuePair("id", channelId), new NameValuePair("deleteReceived", new Boolean(received).toString()),
+                new NameValuePair("deleteFiltered", new Boolean(filtered).toString()), new NameValuePair("deleteQueued", new Boolean(queued).toString()), new NameValuePair("deleteSent", new Boolean(sent).toString()),
+                new NameValuePair("deleteErrored", new Boolean(error).toString())};
 		serverConnection.executePostMethod(CHANNEL_STATISTICS_SERVLET, params);
 	}
 
