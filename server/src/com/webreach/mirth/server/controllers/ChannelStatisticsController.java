@@ -27,6 +27,7 @@ package com.webreach.mirth.server.controllers;
 
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -45,6 +46,7 @@ public class ChannelStatisticsController {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private SqlMapClient sqlMap = SqlConfig.getSqlMapInstance();
 	private static ChannelStatisticsCache statsCache;
+    private ConfigurationController configurationController = new ConfigurationController();
 
 	public void initialize() {
 		logger.debug("initialzing statistics controller");
@@ -52,12 +54,44 @@ public class ChannelStatisticsController {
 		statsCache = ChannelStatisticsCache.getInstance();
 		
 		try {
-			statsCache.setCache((HashMap<String, ChannelStatistics>) sqlMap.queryForMap("getStatistics", null, "channelId"));
+            Map parameterMap = new HashMap();
+            parameterMap.put("serverId", configurationController.getServerId());
+			statsCache.setCache((HashMap<String, ChannelStatistics>) sqlMap.queryForMap("getStatistics", parameterMap, "channelId"));
 		} catch (SQLException e) {
 			logger.error("Could not initialize channel statistics.");
 		}
 	}
-
+	
+    public void createStatistics(String channelId)
+    {
+        Map parameterMap = new HashMap();
+        parameterMap.put("serverId", configurationController.getServerId());
+        parameterMap.put("channelId", channelId);
+        
+        try{
+            sqlMap.insert("createStatistics", parameterMap);
+        } catch (SQLException e) {
+            logger.warn("could not update statistics");
+        }
+    }
+    
+    public boolean checkIfStatisticsExist(String channelId)
+    {
+        try {
+            
+            Map parameterMap = new HashMap();
+            parameterMap.put("serverId", configurationController.getServerId());
+            parameterMap.put("channelId", channelId);
+            
+            Map<String, ChannelStatistics> tempStats = (HashMap<String, ChannelStatistics>) sqlMap.queryForMap("getStatistics", parameterMap, "channelId");
+            if(tempStats != null && tempStats.size() > 0)
+                return true;
+        } catch (SQLException e) {
+            logger.error("Could not get channel statistics.");
+        }
+        return false;
+    }
+    
 	public ChannelStatistics getStatistics(String channelId) {
 		return statsCache.getCache().get(channelId);
 	}

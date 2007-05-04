@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.management.ObjectName;
@@ -46,7 +47,8 @@ public class ChannelStatusController {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private SystemLogger systemLogger = new SystemLogger();
 	private ChannelController channelController = new ChannelController();
-
+    private ChannelStatisticsController statisticsController = new ChannelStatisticsController();
+    
 	/**
 	 * Starts the channel with the specified id.
 	 * 

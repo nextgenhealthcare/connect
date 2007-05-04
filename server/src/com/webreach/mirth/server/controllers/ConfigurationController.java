@@ -77,6 +77,7 @@ public class ConfigurationController {
 	private static File serverPropertiesFile = new File("server.properties");
 	private static Properties versionProperties = PropertyLoader.loadProperties("version");
 	private static SecretKey encryptionKey = null;
+    private static String serverId = null;
 	private final String CONF_FOLDER = "conf/";
 	private SqlMapClient sqlMap = SqlConfig.getSqlMapInstance();
 	private static final String CHARSET = "ca.uhn.hl7v2.llp.charset";
@@ -91,6 +92,18 @@ public class ConfigurationController {
 			if (mirthProperties.getProperty(CHARSET) != null) {
 				System.setProperty(CHARSET, mirthProperties.getProperty(CHARSET));
 			}
+            
+            // Check for server GUID and generate a new one if it doesn't exist            
+            Properties serverProperties = getServerProperties();
+            if(serverProperties.getProperty("server.id") != null && serverProperties.getProperty("server.id").length() > 0)
+                serverId = serverProperties.getProperty("server.id");
+            else {
+                logger.debug("generating server id");
+                serverId = getGuid();
+                serverProperties.setProperty("server.id", serverId);
+                setServerProperties(serverProperties);
+            }
+                
 		} catch (Exception e) {
 			logger.warn(e);
 		}
@@ -112,7 +125,15 @@ public class ConfigurationController {
 			throw new ControllerException(e);
 		}
 	}
-
+	
+    /*
+     * Return the server GUID
+     */
+    public String getServerId()
+    {
+        return serverId;
+    }
+    
 	// ast: Get the list of all avaiable encodings for this JVM
 	public List<String> getAvaiableCharsetEncodings() throws ControllerException {
 		logger.debug("Retrieving avaiable character encodings");
@@ -225,7 +246,8 @@ public class ConfigurationController {
 
 		try {
 			ChannelController channelController = new ChannelController();
-			
+            channelController.initialize();
+            
 			// instantiate a new configuration builder given the current channel
 			// and transport list
 			List<Channel> channels = channelController.getChannel(null);
@@ -234,7 +256,7 @@ public class ConfigurationController {
 			addConfiguration(builder.getConfiguration());
 			// update the storeMessages reference
 			channelController.updateChannelCache(channels);
-
+			
 			// restart the mule engine which will grab the latest configuration
 			// from the database
 			CommandQueue queue = CommandQueue.getInstance();

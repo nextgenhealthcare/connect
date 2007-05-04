@@ -160,10 +160,10 @@ public class MessageObjectController {
 		}
 	}
 
-	public int createMessagesTempTable(MessageObjectFilter filter, String uid) throws ControllerException {
+	public int createMessagesTempTable(MessageObjectFilter filter, String uid, boolean overrideLimit) throws ControllerException {
 		logger.debug("creating temporary message table: filter=" + filter.toString());
 		
-		if (statementExists("getMessageByPageLimit")){
+		if (!overrideLimit && statementExists("getMessageByPageLimit")){
 			return -1;
 		}
 		removeFilterTables(uid);
@@ -277,7 +277,7 @@ public class MessageObjectController {
 				//Create a unique id, however get rid of the dashes
 				String uid = UUIDGenerator.getUUID().replaceAll("-", "");
 				try {
-					int size = createMessagesTempTable(filter, uid);
+					int size = createMessagesTempTable(filter, uid, true);
 					int page = 0;
 					int interval = 10;
 

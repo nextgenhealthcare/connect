@@ -30,35 +30,31 @@ import java.io.Serializable;
 import com.webreach.mirth.util.EqualsUtil;
 
 public class ChannelStatistics implements Serializable {
-	private String channelId;
+    private String serverId;
+    private String channelId;
 	private int received = 0;
 	private int sent = 0;
 	private int error = 0;
 	private int filtered = 0;
 	private int queued = 0;
 	
-	public int getFiltered() {
-		return filtered;
-	}
 
-	public void setFiltered(int filteredCount) {
-		this.filtered = filteredCount;
-	}
+    public String getServerId()
+    {
+        return serverId;
+    }
 
+    public void setServerId(String serverId)
+    {
+        this.serverId = serverId;
+    }
+    
 	public String getChannelId() {
 		return this.channelId;
 	}
 
 	public void setChannelId(String channelId) {
 		this.channelId = channelId;
-	}
-
-	public int getError() {
-		return this.error;
-	}
-
-	public void setError(int errorCount) {
-		this.error = errorCount;
 	}
 
 	public int getReceived() {
@@ -68,7 +64,23 @@ public class ChannelStatistics implements Serializable {
 	public void setReceived(int receivedCount) {
 		this.received = receivedCount;
 	}
+    
+    public int getFiltered() {
+        return filtered;
+    }
 
+    public void setFiltered(int filteredCount) {
+        this.filtered = filteredCount;
+    }
+
+    public int getQueued() {
+        return this.queued;
+    }
+
+    public void setQueued(int queuedCount) {
+        this.queued = queuedCount;
+    }
+    
 	public int getSent() {
 		return this.sent;
 	}
@@ -76,14 +88,14 @@ public class ChannelStatistics implements Serializable {
 	public void setSent(int sentCount) {
 		this.sent = sentCount;
 	}
-	
-	public int getQueued() {
-		return this.queued;
-	}
+    
+    public int getError() {
+        return this.error;
+    }
 
-	public void setQueued(int queuedCount) {
-		this.queued = queuedCount;
-	}
+    public void setError(int errorCount) {
+        this.error = errorCount;
+    }
 
 	public boolean equals(Object that) {
 		if (this == that) {
@@ -97,6 +109,7 @@ public class ChannelStatistics implements Serializable {
 		ChannelStatistics statistic = (ChannelStatistics) that;
 		
 		return
+            EqualsUtil.areEqual(this.getServerId(), statistic.getServerId()) &&
 			EqualsUtil.areEqual(this.getChannelId(), statistic.getChannelId()) &&
 			EqualsUtil.areEqual(this.getReceived(), statistic.getReceived()) &&
 			EqualsUtil.areEqual(this.getSent(), statistic.getSent()) &&
@@ -108,6 +121,7 @@ public class ChannelStatistics implements Serializable {
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append(this.getClass().getName() + "[");
+        builder.append("serverId=" + getServerId() + ", ");
 		builder.append("channelId=" + getChannelId() + ", ");
 		builder.append("received=" + getReceived() + ", ");
 		builder.append("filtered=" + getFiltered() + ", ");
@@ -117,5 +131,4 @@ public class ChannelStatistics implements Serializable {
 		builder.append("]");
 		return builder.toString();
 	}
-
 }

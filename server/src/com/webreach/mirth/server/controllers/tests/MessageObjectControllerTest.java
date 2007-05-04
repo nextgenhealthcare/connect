@@ -125,7 +125,7 @@ public class MessageObjectControllerTest extends TestCase {
 		
 		MessageObjectFilter testFilter = new MessageObjectFilter();
 		testFilter.setId(sampleMessageObject.getId());
-		messageObjectController.createMessagesTempTable(testFilter, "test");
+		messageObjectController.createMessagesTempTable(testFilter, "test", false);
 		List<MessageObject> testMessageObjectList = messageObjectController.getMessagesByPage(-1, -1, 0, "test");
 		MessageObject testMessageObject = testMessageObjectList.get(0);
 
@@ -141,7 +141,7 @@ public class MessageObjectControllerTest extends TestCase {
 		testFilter.setStartDate(Calendar.getInstance());
 		testFilter.setEndDate(Calendar.getInstance());
 		
-		messageObjectController.createMessagesTempTable(testFilter, "test");
+		messageObjectController.createMessagesTempTable(testFilter, "test", false);
 		List<MessageObject> testMessageObjectList = messageObjectController.getMessagesByPage(-1, -1, 0, "test");
 
 		for (Iterator iter = sampleMessageObjectList.iterator(); iter.hasNext();) {
@@ -160,14 +160,14 @@ public class MessageObjectControllerTest extends TestCase {
 		testFilter.setChannelId(channelId);
 		testFilter.setStartDate(Calendar.getInstance());
 		testFilter.setEndDate(Calendar.getInstance());
-		messageObjectController.createMessagesTempTable(testFilter, "test");
+		messageObjectController.createMessagesTempTable(testFilter, "test", false);
 		testMessageObjectList = messageObjectController.getMessagesByPage(-1, -1, 0, "test");
 		Assert.assertEquals(10, testMessageObjectList.size());
 
 		testFilter = new MessageObjectFilter();
 		testFilter.setType("ADT-A01");
 		testFilter.setSource("SendingFacility1");
-		messageObjectController.createMessagesTempTable(testFilter, "test");
+		messageObjectController.createMessagesTempTable(testFilter, "test", false);
 		testMessageObjectList = messageObjectController.getMessagesByPage(-1, -1, 0, "test");
 		Assert.assertEquals(1, testMessageObjectList.size());
 	}
@@ -177,9 +177,9 @@ public class MessageObjectControllerTest extends TestCase {
 		
 		MessageObjectFilter testFilter = new MessageObjectFilter();
 		testFilter.setChannelId(channelId);
-		messageObjectController.createMessagesTempTable(testFilter, "test");
+		messageObjectController.createMessagesTempTable(testFilter, "test", false);
 		List<MessageObject> testMessageObjectList = messageObjectController.getMessagesByPage(-1, -1, 0, "test");
-		Assert.assertEquals(testMessageObjectList.size(), messageObjectController.createMessagesTempTable(testFilter, "test"));
+		Assert.assertEquals(testMessageObjectList.size(), messageObjectController.createMessagesTempTable(testFilter, "test", false));
 	}
 
 	public void testRemoveMessages() throws ControllerException {
@@ -193,7 +193,7 @@ public class MessageObjectControllerTest extends TestCase {
 
 		MessageObjectFilter testFilter = new MessageObjectFilter();
 		testFilter.setChannelId(channelId);
-		messageObjectController.createMessagesTempTable(testFilter, "test");
+		messageObjectController.createMessagesTempTable(testFilter, "test", false);
 		List<MessageObject> testMessageObjectList = messageObjectController.getMessagesByPage(-1, -1, 0, "test");
 
 		Assert.assertEquals(sampleMessageObjectList.size() - 1, testMessageObjectList.size());
@@ -205,7 +205,7 @@ public class MessageObjectControllerTest extends TestCase {
 
 		MessageObjectFilter testFilter = new MessageObjectFilter();
 		testFilter.setChannelId(channelId);
-		messageObjectController.createMessagesTempTable(testFilter, "test");
+		messageObjectController.createMessagesTempTable(testFilter, "test", false);
 		List<MessageObject> testMessageObjectList = messageObjectController.getMessagesByPage(-1, -1, 0, "test");
 
 		Assert.assertEquals(0, testMessageObjectList.size());
