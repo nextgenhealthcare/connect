@@ -5,49 +5,40 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 "conf/sql-map-2.dtd">
 
 <sqlMap namespace="Statistic">
-	<select id="getReceivedCount" parameterClass="java.lang.String" resultClass="java.lang.Integer">
-		SELECT COUNT(*)
-		FROM MESSAGE
-		WHERE 
-			CHANNEL_ID = #channelId# AND
-			CORRELATION_ID IS NULL
+	<parameterMap class="com.webreach.mirth.model.ChannelStatistics" id="update-statistics-param">
+		<parameter property="received" jdbcType="NUMERIC" />
+		<parameter property="filtered" jdbcType="NUMERIC" />
+		<parameter property="sent" jdbcType="NUMERIC" />
+		<parameter property="error" jdbcType="NUMERIC" />		
+		<parameter property="queued" jdbcType="NUMERIC" />
+		<parameter property="channelId" jdbcType="VARCHAR" />
+	</parameterMap>
+
+	<resultMap class="com.webreach.mirth.model.ChannelStatistics" id="get-statistics-result">
+		<result property="channelId" column="CHANNEL_ID" />
+		<result property="received" column="RECEIVED" />
+		<result property="filtered" column="FILTERED" />
+		<result property="sent" column="SENT" />
+		<result property="error" column="ERROR" />		
+		<result property="queued" column="QUEUED" />
+	</resultMap>
+
+	<insert id="createStatistics" parameterClass="java.lang.String">
+		INSERT INTO
+		STATISTICS (CHANNEL_ID, RECEIVED, FILTERED, SENT, ERROR, QUEUED)
+		VALUES (#channelId#, 0, 0, 0, 0, 0)
+	</insert>
+
+	<update id="updateStatistics" parameterMap="update-statistics-param">
+		UPDATE STATISTICS
+		SET RECEIVED = ?, FILTERED = ?, SENT = ?, ERROR = ?, QUEUED = ?
+		WHERE CHANNEL_ID = ?
+	</update>
+	
+	<select id="getStatistics" resultMap="get-statistics-result">
+		SELECT CHANNEL_ID, RECEIVED, FILTERED, SENT, ERROR, QUEUED
+		FROM STATISTICS
 		WITH UR
 	</select>
-	
-	<select id="getSentCount" parameterClass="java.lang.String" resultClass="java.lang.Integer">
-		SELECT COUNT(*)
-		FROM MESSAGE
-		WHERE
-			CHANNEL_ID = #channelId# AND
-			STATUS='SENT'
-		WITH UR
-	</select>
-	
-	<select id="getErrorCount" parameterClass="java.lang.String" resultClass="java.lang.Integer">
-		SELECT COUNT(*)
-		FROM MESSAGE
-		WHERE
-			CHANNEL_ID = #channelId# AND
-			STATUS='ERROR'
-		WITH UR
-	</select>
-	
-	<select id="getFilteredCount" parameterClass="java.lang.String" resultClass="java.lang.Integer">
-		SELECT COUNT(*)
-		FROM MESSAGE
-		WHERE
-			CHANNEL_ID = #channelId# AND
-			STATUS='FILTERED'
-		WITH UR
-	</select>
-	
-	<select id="getQueuedCount" parameterClass="java.lang.String" resultClass="java.lang.Integer">
-		SELECT COUNT(*)
-		FROM MESSAGE
-		WHERE
-			CHANNEL_ID = #channelId# AND
-			STATUS='QUEUED'
-		WITH UR
-	</select>
-	
+
 </sqlMap>

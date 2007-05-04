@@ -67,31 +67,31 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 	<sql id="messageFilterCriteria">
 		<dynamic prepend="WHERE">
 			<isNotNull prepend="AND" property="id">
-				ID = #id#
+				ID = '$id$'
 			</isNotNull>
 			<isNotNull prepend="AND" property="channelId">
-				CHANNEL_ID = #channelId#
+				CHANNEL_ID = '$channelId$'
 			</isNotNull>
 			<isNotNull prepend="AND" property="source">
-				LOWER(SOURCE) LIKE LOWER(#source#)
+				SOURCE = '$source$'
 			</isNotNull>
 			<isNotNull prepend="AND" property="type">
-				TYPE = #type#
+				TYPE = '$type$'
 			</isNotNull>
 			<isNotNull prepend="AND" property="status">
-				STATUS = #status#
+				STATUS = '$status$'
 			</isNotNull>
 			<isNotNull prepend="AND" property="protocol">
-				RAW_DATA_PROTOCOL = #protocol#
+				RAW_DATA_PROTOCOL = '$protocol$'
 			</isNotNull>			
 			<isNotNull prepend="AND" property="connectorName">
-				LOWER(CONNECTOR_NAME) LIKE LOWER(#connectorName#)
+				CONNECTOR_NAME = '$connectorName$'
 			</isNotNull>
 			<isNotNull prepend="AND" property="startDate">
-				DATE_CREATED <![CDATA[ >= ]]> #startDate#
+				DATE_CREATED <![CDATA[ >= ]]> '$startDate$'
 			</isNotNull>
 			<isNotNull prepend="AND" property="endDate">
-				DATE_CREATED <![CDATA[ <= ]]> #endDate#
+				DATE_CREATED <![CDATA[ <= ]]> '$endDate$'
 			</isNotNull>
 		</dynamic>
 	</sql>
@@ -118,6 +118,17 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 				</isNotNull>
 			</dynamic>
 		ORDER BY TEMP_TABLE.DATE_CREATED DESC
+	</select>
+	
+	<select id="getMessageByPageLimit" parameterClass="java.util.Map" resultMap="get-message-result">
+		SELECT
+			MESSAGE.*
+		FROM
+			MESSAGE
+		<include refid="messageFilterCriteria" />
+		ORDER BY DATE_CREATED DESC
+		OFFSET $offset$
+		LIMIT $limit$
 	</select>
 
 	<statement id="dropTempMessageTable" parameterClass="java.lang.String">
