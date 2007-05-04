@@ -2022,6 +2022,8 @@ public class Frame extends JXFrame
                 // as long as the channel was not deleted
                 if (channels.containsKey(channelId))
                     channelPanel.setSelectedChannel(channelId);
+                else
+                    channelPanel.deselectRows();
                 
                 setWorking("", false);
             }
@@ -2087,8 +2089,7 @@ public class Frame extends JXFrame
     public void doRefreshStatuses()
     {
         setWorking("Loading statistics...", true);
-        statusUpdateComplete = false;
-        
+               
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
             public Void doInBackground()
@@ -2099,13 +2100,6 @@ public class Frame extends JXFrame
 
             public void done()
             {
-                dashboardPanel.updateTable();
-                statusUpdateComplete = true;
-                if (status.size() > 0)
-                    setVisibleTasks(statusTasks, statusPopupMenu, 1, 1, true);
-                else
-                    setVisibleTasks(statusTasks, statusPopupMenu, 1, 1, false);
-                
                 setWorking("", false);
             }
         };
@@ -2115,6 +2109,8 @@ public class Frame extends JXFrame
 
     public void refreshStatuses()
     {
+        statusUpdateComplete = false;
+        
         try
         {
             status = mirthClient.getChannelStatusList();
@@ -2123,6 +2119,14 @@ public class Frame extends JXFrame
         {
             alertException(e.getStackTrace(), e.getMessage());
         }
+        
+        dashboardPanel.updateTable();
+        if (status.size() > 0)
+            setVisibleTasks(statusTasks, statusPopupMenu, 1, 1, true);
+        else
+            setVisibleTasks(statusTasks, statusPopupMenu, 1, 1, false);
+        
+        statusUpdateComplete = true;
     }
 
     public void doStartAll()
@@ -2585,6 +2589,9 @@ public class Frame extends JXFrame
 
     public void doShowEvents()
     {
+         if (!confirmLeave())
+            return;
+        
         setWorking("Loading events...", true);
         
         if (eventBrowser == null)
