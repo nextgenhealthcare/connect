@@ -3009,35 +3009,41 @@ public class Frame extends JXFrame
     
     public void doClearStats()
     {
-        if (alertOption("Are you sure you would like to clear the statistics for this channel?"))
+        int selectedStatus = dashboardPanel.getSelectedStatus();
+        
+        if(selectedStatus != -1)
+            new DeleteStatisticsDialog(selectedStatus);
+        else
+            dashboardPanel.deselectRows();
+    }
+    
+    public void clearStats(final int statusToClear, final boolean deleteReceived, final boolean deleteFiltered, final boolean deleteQueued, final boolean deleteSent, final boolean deleteErrored)
+    {
+        setWorking("Clearing statistics...", true);
+
+        SwingWorker worker = new SwingWorker<Void, Void>()
         {
-            setWorking("Clearing statistics...", true);
-
-            SwingWorker worker = new SwingWorker<Void, Void>()
+            public Void doInBackground()
             {
-                public Void doInBackground()
+                try
                 {
-                    try
-                    {
-                        if (dashboardPanel.getSelectedStatus() > -1)
-                            mirthClient.clearStatistics(status.get(dashboardPanel.getSelectedStatus()).getChannelId());
-                    }
-                    catch (ClientException e)
-                    {
-                        alertException(e.getStackTrace(), e.getMessage());
-                    }
-                    return null;
+                    mirthClient.clearStatistics(status.get(statusToClear).getChannelId(), deleteReceived, deleteFiltered, deleteQueued, deleteSent, deleteErrored);
                 }
-
-                public void done()
+                catch (ClientException e)
                 {
-                    doRefreshStatuses();
-                    setWorking("", false);
+                    alertException(e.getStackTrace(), e.getMessage());
                 }
-            };
+                return null;
+            }
 
-            worker.execute();
-        }
+            public void done()
+            {
+                doRefreshStatuses();
+                setWorking("", false);
+            }
+        };
+
+        worker.execute();
     }
 
     public void doRemoveFilteredMessages()

@@ -45,7 +45,7 @@ public class UIConstants
     public static final int TASK_PANE_WIDTH = 170;
     public static final String TITLE_TEXT = "Mirth Administrator";
     public static final int MIRTH_WIDTH = 950;
-    public static final int MIRTH_HEIGHT = 660;
+    public static final int MIRTH_HEIGHT = 650;
 
     // for error checking
     public static final int ERROR_CONSTANT = -1;
