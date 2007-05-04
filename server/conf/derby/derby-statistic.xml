@@ -25,19 +25,19 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 
 	<insert id="createStatistics" parameterClass="java.lang.String">
 		INSERT INTO
-		STATISTICS (CHANNEL_ID, RECEIVED, FILTERED, SENT, ERROR, QUEUED)
+		CHANNEL_STATISTICS (CHANNEL_ID, RECEIVED, FILTERED, SENT, ERROR, QUEUED)
 		VALUES (#channelId#, 0, 0, 0, 0, 0)
 	</insert>
 
 	<update id="updateStatistics" parameterMap="update-statistics-param">
-		UPDATE STATISTICS
+		UPDATE CHANNEL_STATISTICS
 		SET RECEIVED = ?, FILTERED = ?, SENT = ?, ERROR = ?, QUEUED = ?
 		WHERE CHANNEL_ID = ?
 	</update>
 	
 	<select id="getStatistics" resultMap="get-statistics-result">
 		SELECT CHANNEL_ID, RECEIVED, FILTERED, SENT, ERROR, QUEUED
-		FROM STATISTICS
+		FROM CHANNEL_STATISTICS
 		WITH UR
 	</select>
 
