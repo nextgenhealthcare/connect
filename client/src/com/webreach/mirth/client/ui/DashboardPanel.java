@@ -6,6 +6,8 @@
 
 package com.webreach.mirth.client.ui;
 
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.Point;
 import java.util.prefs.Preferences;
 
@@ -14,6 +16,9 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.jdesktop.swingx.decorator.AlternateRowHighlighter;
+import org.jdesktop.swingx.decorator.ComponentAdapter;
+import org.jdesktop.swingx.decorator.ConditionalHighlighter;
+import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterPipeline;
 
 import com.webreach.mirth.client.core.ClientException;
@@ -116,6 +121,29 @@ public class DashboardPanel extends javax.swing.JPanel
         {
             HighlighterPipeline highlighter = new HighlighterPipeline();
             highlighter.addHighlighter(new AlternateRowHighlighter(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR, UIConstants.TITLE_TEXT_COLOR));
+            
+            Highlighter errorHighlighter = new ConditionalHighlighter(Color.PINK, null, -1, -1)
+            {
+				@Override
+				protected Color computeBackground(Component arg0, ComponentAdapter arg1)
+				{
+					arg0.setBackground(Color.PINK);
+					return super.computeBackground(arg0, arg1);
+				}
+				            	
+				@Override
+				protected boolean test(ComponentAdapter adapter)
+				{
+					if (adapter.column == statusTable.getColumnNumber(ERROR_COLUMN_NAME))
+					{
+						if (((Integer)statusTable.getValueAt(adapter.row, adapter.column)).intValue() > 0)
+							return true;
+					}
+					return false;
+				}
+    		};
+            
+    		highlighter.addHighlighter(errorHighlighter);
             statusTable.setHighlighters(highlighter);
         }
 
