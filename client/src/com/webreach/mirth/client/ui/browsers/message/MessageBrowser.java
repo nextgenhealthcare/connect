@@ -109,6 +109,10 @@ public class MessageBrowser extends javax.swing.JPanel
     private JXTable mappingsTable;
     private boolean isExporting = false;
     
+    private int messageCount = -1;
+    private int currentPage = 0;
+    private int pageSize = 20;
+    
     /**
      * Constructs the new message browser and sets up its default
      * information/layout.
@@ -195,20 +199,20 @@ public class MessageBrowser extends javax.swing.JPanel
     public void loadNew()
     {
         // Clear the table first
-        // makeMessageTable(null, FIRST_PAGE);
+    	
         if(!isExporting)
         {
             // use the start filters and make the table.
             parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 5, -1, false);
             parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 6, 6, true);
-            makeMessageTable(null, 1);
+            messageListHandler = null;
         }
+        
         statusComboBox.setSelectedIndex(0);
         protocolComboBox.setSelectedIndex(0);
         long currentTime = System.currentTimeMillis();
         mirthDatePicker1.setDateInMillis(currentTime);
-        mirthDatePicker2.setDateInMillis(currentTime);
-        pageSizeField.setText("20");        
+        mirthDatePicker2.setDateInMillis(currentTime);     
         filterButtonActionPerformed(null);
         descriptionTabbedPane.setSelectedIndex(0);
     }
@@ -366,116 +370,48 @@ public class MessageBrowser extends javax.swing.JPanel
      * Creates the table with all of the information given after being filtered
      * by the specified 'filter'
      */
-    public void makeMessageTable(MessageListHandler handler, int page)
+    private void makeMessageTable(Object[][] tableData)
     {
         eventTable = new JXTable();
-        Object[][] tableData = null;
-        if (handler != null)
-        {
-            // Do all paging information below.
-            try
-            {
-                int messageCount = handler.getSize();
-                int currentPage = handler.getCurrentPage();
-                int pageSize = handler.getPageSize();
-                
-                if (page == FIRST_PAGE)
-                {
-                    messageObjectList = handler.getFirstPage();
-                    currentPage = handler.getCurrentPage();
-                }
-                else if (page == PREVIOUS_PAGE)
-                {
-                    if (currentPage == 0)
-                        return;
-                    messageObjectList = handler.getPreviousPage();
-                    currentPage = handler.getCurrentPage();
-                }
-                else if (page == NEXT_PAGE)
-                {
-                    int numberOfPages = getNumberOfPages(pageSize, messageCount);
-                    if (currentPage == numberOfPages)
-                        return;
-                    
-                    messageObjectList = handler.getNextPage();
-                    if (messageObjectList.size() == 0)
-                        messageObjectList = handler.getPreviousPage();
-                    currentPage = handler.getCurrentPage();
-                }
-                
-                pageSizeField.setText(pageSize + "");
-                
-                if (currentPage == 0)
-                    previousPageButton.setEnabled(false);
-                else
-                    previousPageButton.setEnabled(true);
-                
-                int numberOfPages = getNumberOfPages(pageSize, messageCount);
-                if (messageObjectList.size() < pageSize || pageSize == 0)
-                	nextPageButton.setEnabled(false);
-                else if (currentPage == numberOfPages)
-                    nextPageButton.setEnabled(false);
-                else
-                    nextPageButton.setEnabled(true);
-                
-                int startResult;
-                if (messageObjectList.size() == 0)
-                    startResult = 0;
-                else
-                    startResult = (currentPage * pageSize) + 1;
-                
-                int endResult;
-                if (pageSize == 0)
-                    endResult = messageObjectList.size();
-                else
-                    endResult = (currentPage + 1) * pageSize;
-                
-                if (messageObjectList.size() < pageSize)
-                    endResult = endResult - (pageSize - messageObjectList.size());
-                
-                if (messageCount == -1)
-                	resultsLabel.setText("Results " + startResult + " - " + endResult);
-                else
-                	resultsLabel.setText("Results " + startResult + " - " + endResult + " of " + messageCount);
-                
-            }
-            catch (ListHandlerException e)
-            {
-                messageObjectList = null;
-                parent.alertException(e.getStackTrace(), e.getMessage());
-            }
-            
-            if (messageObjectList != null)
-            {
-                
-                tableData = new Object[messageObjectList.size()][7];
-                
-                for (int i = 0; i < messageObjectList.size(); i++)
-                {
-                    MessageObject messageObject = messageObjectList.get(i);
-                    
-                    tableData[i][0] = messageObject.getId();
-                    
-                    Calendar calendar = messageObject.getDateCreated();
-                    
-                    tableData[i][1] = String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS:%1$tL", calendar);
-                    tableData[i][2] = messageObject.getConnectorName();
-                    
-                    tableData[i][3] = messageObject.getType();
-                    tableData[i][4] = messageObject.getSource();
-                    tableData[i][5] = messageObject.getStatus();
-                    tableData[i][6] = messageObject.getRawDataProtocol();
-                }
-            }
-            else
-            {
-                tableData = new Object[0][7];
-            }
-        }
+        
+        int messageObjectListSize = 0;
+        if (messageObjectList != null)
+        	messageObjectListSize = messageObjectList.size();
+        
+        pageSizeField.setText(pageSize + "");
+        
+        if (currentPage == 0)
+            previousPageButton.setEnabled(false);
         else
-        {
-            tableData = new Object[0][7];
-        }
+            previousPageButton.setEnabled(true);
+        
+        int numberOfPages = getNumberOfPages(pageSize, messageCount);
+        if (messageObjectListSize < pageSize || pageSize == 0)
+        	nextPageButton.setEnabled(false);
+        else if (currentPage == numberOfPages)
+            nextPageButton.setEnabled(false);
+        else
+            nextPageButton.setEnabled(true);
+        
+        int startResult;
+        if (messageObjectListSize == 0)
+            startResult = 0;
+        else
+            startResult = (currentPage * pageSize) + 1;
+        
+        int endResult;
+        if (pageSize == 0)
+            endResult = messageObjectListSize;
+        else
+            endResult = (currentPage + 1) * pageSize;
+        
+        if (messageObjectListSize < pageSize)
+            endResult = endResult - (pageSize - messageObjectListSize);
+        
+        if (messageCount == -1)
+        	resultsLabel.setText("Results " + startResult + " - " + endResult);
+        else
+        	resultsLabel.setText("Results " + startResult + " - " + endResult + " of " + messageCount);
         
         eventTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[] { MESSAGE_ID_COLUMN_NAME, DATE_COLUMN_NAME, CONNECTOR_COLUMN_NAME, TYPE_COLUMN_NAME, SOURCE_COLUMN_NAME, STATUS_COLUMN_NAME, PROTOCOL_COLUMN_NAME })
         {
@@ -527,6 +463,85 @@ public class MessageBrowser extends javax.swing.JPanel
                 showEventPopupMenu(evt, true);
             }
         });
+    }
+    
+    private Object[][] getMessageTableData(MessageListHandler handler, int page)
+    {
+    	Object[][] tableData = null;
+    	
+        if (handler != null)
+        {
+            // Do all paging information below.
+            try
+            {
+                messageCount = handler.getSize();
+                currentPage = handler.getCurrentPage();
+                pageSize = handler.getPageSize();
+                
+                if (page == FIRST_PAGE)
+                {
+                    messageObjectList = handler.getFirstPage();
+                    currentPage = handler.getCurrentPage();
+                }
+                else if (page == PREVIOUS_PAGE)
+                {
+                    if (currentPage == 0)
+                        return null;
+                    messageObjectList = handler.getPreviousPage();
+                    currentPage = handler.getCurrentPage();
+                }
+                else if (page == NEXT_PAGE)
+                {
+                    int numberOfPages = getNumberOfPages(pageSize, messageCount);
+                    if (currentPage == numberOfPages)
+                        return null;
+                    
+                    messageObjectList = handler.getNextPage();
+                    if (messageObjectList.size() == 0)
+                        messageObjectList = handler.getPreviousPage();
+                    currentPage = handler.getCurrentPage();
+                }
+                
+            }
+            catch (ListHandlerException e)
+            {
+                messageObjectList = null;
+                parent.alertException(e.getStackTrace(), e.getMessage());
+            }
+            
+            if (messageObjectList != null)
+            {
+                
+                tableData = new Object[messageObjectList.size()][7];
+                
+                for (int i = 0; i < messageObjectList.size(); i++)
+                {
+                    MessageObject messageObject = messageObjectList.get(i);
+                    
+                    tableData[i][0] = messageObject.getId();
+                    
+                    Calendar calendar = messageObject.getDateCreated();
+                    
+                    tableData[i][1] = String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS:%1$tL", calendar);
+                    tableData[i][2] = messageObject.getConnectorName();
+                    
+                    tableData[i][3] = messageObject.getType();
+                    tableData[i][4] = messageObject.getSource();
+                    tableData[i][5] = messageObject.getStatus();
+                    tableData[i][6] = messageObject.getRawDataProtocol();
+                }
+            }
+            else
+            {
+                tableData = new Object[0][7];
+            }
+        }
+        else
+        {
+            tableData = new Object[0][7];
+        }
+        
+        return tableData;
     }
     
     private int getNumberOfPages(int pageSize, int messageCount)
@@ -1143,14 +1158,16 @@ public class MessageBrowser extends javax.swing.JPanel
         
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
+        	Object[][] data = null;
             public Void doInBackground()
             {
-                makeMessageTable(messageListHandler, NEXT_PAGE);
+            	data = getMessageTableData(messageListHandler, NEXT_PAGE);
                 return null;
             }
             
             public void done()
             {
+            	makeMessageTable(data);
                 parent.setWorking("", false);
             }
         };
@@ -1164,14 +1181,16 @@ public class MessageBrowser extends javax.swing.JPanel
         
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
+        	Object[][] data = null;
             public Void doInBackground()
             {
-                makeMessageTable(messageListHandler, PREVIOUS_PAGE);
+            	data = getMessageTableData(messageListHandler, PREVIOUS_PAGE);
                 return null;
             }
             
             public void done()
             {
+            	makeMessageTable(data);
                 parent.setWorking("", false);
             }
         };
@@ -1187,9 +1206,7 @@ public class MessageBrowser extends javax.swing.JPanel
         if(isExporting)
             parent.alertError("The nessage browser cannot refresh while it is in the process of exporting.");
         else
-        {
-            int pageSize = 0;
-        
+        {        
             if (mirthDatePicker1.getDate() != null && mirthDatePicker2.getDate() != null)
             {
                 if (mirthDatePicker1.getDateInMillis() > mirthDatePicker2.getDateInMillis())
@@ -1245,35 +1262,29 @@ public class MessageBrowser extends javax.swing.JPanel
                 pageSize = Integer.parseInt(pageSizeField.getText());
 
             parent.setWorking("Loading messages...", true);
+            
             if (messageListHandler == null)
+                makeMessageTable(new Object[0][7]);
+
+            class MessageWorker extends SwingWorker<Void, Void>
             {
-                makeMessageTable(null, FIRST_PAGE);
-                messageListHandler = parent.mirthClient.getMessageListHandler(messageObjectFilter, pageSize);
-                makeMessageTable(messageListHandler, FIRST_PAGE);
-                parent.setWorking("", false);
-            }
-            else
-            {
-                class MessageWorker extends SwingWorker<Void, Void>
+                Object[][] data;
+
+                public Void doInBackground()
                 {
-                    protected int pageSize;
+                    messageListHandler = parent.mirthClient.getMessageListHandler(messageObjectFilter, pageSize);
+                    data = getMessageTableData(messageListHandler, FIRST_PAGE);
+                    return null;
+                }
 
-                    public Void doInBackground()
-                    {
-                        messageListHandler = parent.mirthClient.getMessageListHandler(messageObjectFilter, pageSize);
-                        makeMessageTable(messageListHandler, FIRST_PAGE);
-                        return null;
-                    }
-
-                    public void done()
-                    {
-                        parent.setWorking("", false);
-                    }
-                };
-                MessageWorker worker = new MessageWorker();
-                worker.pageSize = pageSize;
-                worker.execute();
-            }
+                public void done()
+                {
+                	makeMessageTable(data);
+                    parent.setWorking("", false);
+                }
+            };
+            MessageWorker worker = new MessageWorker();
+            worker.execute();
         }
     }// GEN-LAST:event_filterButtonActionPerformed
     

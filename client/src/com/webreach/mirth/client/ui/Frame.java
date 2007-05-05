@@ -2568,9 +2568,7 @@ public class Frame extends JXFrame
     }
 
     public void doShowMessages()
-    {
-        setWorking("Loading messages...", true);
-        
+    {        
         if (messageBrowser == null)
             messageBrowser = new MessageBrowser();
 
@@ -2582,20 +2580,7 @@ public class Frame extends JXFrame
         setCurrentContentPage(messageBrowser);
         setFocus(messageTasks);
         
-        SwingWorker worker = new SwingWorker<Void, Void>()
-        {
-            public Void doInBackground()
-            {
-                messageBrowser.loadNew();
-                return null;
-            }
-
-            public void done()
-            {
-                setWorking("", false);
-            }
-        };
-        worker.execute();
+        messageBrowser.loadNew();
     }
 
     public void doShowEvents()
@@ -2603,31 +2588,15 @@ public class Frame extends JXFrame
          if (!confirmLeave())
             return;
         
-        setWorking("Loading events...", true);
-        
         if (eventBrowser == null)
             eventBrowser = new EventBrowser();
-        eventBrowser.makeEventTable(null);
+
         setBold(viewPane, 5);
         setPanelName("System Events");
         setCurrentContentPage(eventBrowser);
         setFocus(eventTasks);
         
-        SwingWorker worker = new SwingWorker<Void, Void>()
-        {
-            public Void doInBackground()
-            {
-                eventBrowser.loadNew();
-                return null;
-            }
-
-            public void done()
-            {
-                setWorking("", false);
-            }
-        };
-
-        worker.execute();
+        eventBrowser.loadNew();
     }
 
     public void doEditTransformer()

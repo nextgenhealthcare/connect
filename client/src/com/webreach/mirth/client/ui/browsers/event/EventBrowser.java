@@ -146,6 +146,8 @@ public class EventBrowser extends javax.swing.JPanel
         mirthDatePicker1.setDateInMillis(currentTime);
         mirthDatePicker2.setDateInMillis(currentTime);
 
+        makeEventTable(null);
+        
         filterButtonActionPerformed(null);
         clearDescription();
     }
@@ -163,43 +165,9 @@ public class EventBrowser extends javax.swing.JPanel
      * Creates the table with all of the information given after being filtered
      * by the specified 'filter'
      */
-    public void makeEventTable(SystemEventFilter filter)
-    {
-        Object[][] tableData = null;
-        
+    private void makeEventTable(Object[][] tableData)
+    {        
         eventTable = new JXTable();
-
-        if (filter != null)
-        {
-            try
-            {
-                systemEventList = parent.mirthClient.getSystemEvents(filter);
-            }
-            catch (ClientException e)
-            {
-                systemEventList = null;
-                parent.alertException(e.getStackTrace(), e.getMessage());
-            }
-            
-            if(systemEventList != null)
-            {
-                tableData = new Object[systemEventList.size()][4];
-        
-                for (int i = 0; i < systemEventList.size(); i++)
-                {
-                    SystemEvent systemEvent = systemEventList.get(i);
-        
-                    tableData[i][0] = systemEvent.getId();
-        
-                    Calendar calendar = systemEvent.getDate();
-        
-                    tableData[i][1] = String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS:%1$tL", calendar);
-        
-                    tableData[i][2] = systemEvent.getLevel().toString();
-                    tableData[i][3] = systemEvent.getEvent();
-                }
-            }
-        }
 
         eventTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[] { EVENT_ID_COLUMN_NAME, DATE_COLUMN_NAME, LEVEL_COLUMN_NAME, EVENT_COLUMN_NAME })
         {
@@ -255,6 +223,45 @@ public class EventBrowser extends javax.swing.JPanel
                 showEventPopupMenu(evt, true);
             }
         });
+    }
+    
+    private Object[][] getEventTableData(SystemEventFilter filter)
+    {
+    	Object[][] tableData = null;
+    	
+        if (filter != null)
+        {
+            try
+            {
+                systemEventList = parent.mirthClient.getSystemEvents(filter);
+            }
+            catch (ClientException e)
+            {
+                systemEventList = null;
+                parent.alertException(e.getStackTrace(), e.getMessage());
+            }
+            
+            if(systemEventList != null)
+            {
+                tableData = new Object[systemEventList.size()][4];
+        
+                for (int i = 0; i < systemEventList.size(); i++)
+                {
+                    SystemEvent systemEvent = systemEventList.get(i);
+        
+                    tableData[i][0] = systemEvent.getId();
+        
+                    Calendar calendar = systemEvent.getDate();
+        
+                    tableData[i][1] = String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS:%1$tL", calendar);
+        
+                    tableData[i][2] = systemEvent.getLevel().toString();
+                    tableData[i][3] = systemEvent.getEvent();
+                }
+            }
+        }
+        
+        return tableData;
     }
 
     /**
@@ -428,14 +435,17 @@ public class EventBrowser extends javax.swing.JPanel
         parent.setWorking("Loading events...", true);
         class EventWorker extends SwingWorker<Void, Void>
         {
+        	Object[][] data = null;
+        	
             public Void doInBackground()
             {
-                makeEventTable(filter);
+            	data = getEventTableData(filter);
                 return null;
             }
 
             public void done()
             {
+            	makeEventTable(data);
                 parent.setWorking("", false);
             }
         };
