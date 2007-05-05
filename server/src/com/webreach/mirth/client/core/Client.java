@@ -96,7 +96,20 @@ public class Client {
 		NameValuePair[] params = { new NameValuePair("op", "logout") };
 		serverConnection.executePostMethod(USER_SERVLET, params);
 	}
-
+	
+    /**
+     * Returns <code>true</code> if the user is logged in, <code>false</code>
+     * otherwise.
+     * 
+     * @return
+     * @throws ClientException
+     */
+    public String getServerId() throws ClientException {
+        logger.debug("retrieving server's id");
+        NameValuePair[] params = { new NameValuePair("op", "getServerId") };
+        return serverConnection.executePostMethod(CONFIGURATION_SERVLET, params);
+    }
+    
 	/**
 	 * Returns <code>true</code> if the user is logged in, <code>false</code>
 	 * otherwise.

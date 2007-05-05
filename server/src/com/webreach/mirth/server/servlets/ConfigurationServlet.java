@@ -27,6 +27,7 @@ package com.webreach.mirth.server.servlets;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.servlet.ServletException;
@@ -90,7 +91,10 @@ public class ConfigurationServlet extends MirthServlet {
 				} else if (operation.equals("setServerConfiguration")) {
 					String serverConfiguration = request.getParameter("data");
 					configurationController.setServerConfiguration((ServerConfiguration) serializer.fromXML(serverConfiguration));
-				}
+				} else if (operation.equals("getServerId")) {
+                    response.setContentType("application/xml");
+                    out.println(configurationController.getServerId());
+                }
 			}
 		} catch (Exception e) {
 			throw new ServletException(e);
