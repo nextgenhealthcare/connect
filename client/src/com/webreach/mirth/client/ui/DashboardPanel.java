@@ -37,7 +37,7 @@ public class DashboardPanel extends javax.swing.JPanel
     private final String RECEIVED_COLUMN_NAME = "Received";
     private final String QUEUED_COLUMN_NAME = "Queued";
     private final String SENT_COLUMN_NAME = "Sent";
-    private final String ERROR_COLUMN_NAME = "Errors";
+    private final String ERROR_COLUMN_NAME = "Errored";
     private final String FILTERED_COLUMN_NAME = "Filtered";
     private int lastRow;
     private Frame parent;

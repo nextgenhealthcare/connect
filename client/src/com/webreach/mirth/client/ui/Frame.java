@@ -389,7 +389,18 @@ public class Frame extends JXFrame
 
         contentPanel.add(statusBar, BorderLayout.SOUTH);
         contentPanel.add(splitPane, java.awt.BorderLayout.CENTER);
-
+        
+        try
+        {
+            PlatformUI.SERVER_ID = mirthClient.getServerId();
+            PlatformUI.SERVER_VERSION = mirthClient.getVersion();
+            PlatformUI.BUILD_DATE = mirthClient.getBuildDate();
+        }
+        catch(ClientException e)
+        {
+            alertError("Could not get server's id.");
+        }
+        
         setCurrentTaskPaneContainer(taskPaneContainer);
         doShowDashboard();
         channelEditPanel = new ChannelSetup();
@@ -2029,7 +2040,7 @@ public class Frame extends JXFrame
             }
         };
 
-        worker.execute();
+        worker.execute(); 
     }
 
     public void retrieveChannels()
