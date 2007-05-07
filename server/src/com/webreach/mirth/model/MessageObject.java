@@ -42,6 +42,7 @@ public class MessageObject implements Serializable {
 	}
 
 	private String id;
+    private String serverId;
 	private String channelId;
 	private String source;
 	private String type;
@@ -208,6 +209,7 @@ public class MessageObject implements Serializable {
 
 	public Object clone() {
 		MessageObject messageObject = new MessageObject();
+        messageObject.setServerId(this.getServerId());
 		messageObject.setChannelId(this.getChannelId());
 		messageObject.setSource(this.getSource());
 		messageObject.setType(this.getType());
@@ -244,6 +246,7 @@ public class MessageObject implements Serializable {
 
 		return
 			EqualsUtil.areEqual(this.getId(), messageObject.getId()) &&
+            EqualsUtil.areEqual(this.getServerId(), messageObject.getServerId()) &&
 			EqualsUtil.areEqual(this.getChannelId(), messageObject.getChannelId()) &&
 			EqualsUtil.areEqual(this.getSource(), messageObject.getSource()) &&
 			EqualsUtil.areEqual(this.getType(), messageObject.getType()) &&
@@ -279,6 +282,9 @@ public class MessageObject implements Serializable {
 		sb.append("id=");
 		sb.append(this.getId());
 		sb.append(", ");
+        sb.append("serverId=");
+        sb.append(this.getServerId());
+        sb.append(", ");
 		sb.append("channelId=");
 		sb.append(this.getChannelId());
 		sb.append(", ");
@@ -328,4 +334,14 @@ public class MessageObject implements Serializable {
 	public void setChannelMap(Map contextMap) {
 		this.channelMap = contextMap;
 	}
+
+    public String getServerId()
+    {
+        return serverId;
+    }
+
+    public void setServerId(String serverId)
+    {
+        this.serverId = serverId;
+    }
 }

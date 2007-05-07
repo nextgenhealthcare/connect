@@ -10,6 +10,7 @@ import com.webreach.mirth.model.converters.DefaultXMLSerializer;
 import com.webreach.mirth.model.converters.IXMLSerializer;
 import com.webreach.mirth.model.converters.SerializerException;
 import com.webreach.mirth.server.Constants;
+import com.webreach.mirth.server.controllers.ConfigurationController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.util.UUIDGenerator;
 
@@ -20,7 +21,7 @@ public abstract class Adaptor {
 	protected Map properties;
 	protected IXMLSerializer<String> serializer;
 	private MessageObjectController messageObjectController = new MessageObjectController();
-
+    
 	public MessageObject getMessage(String source, String channelId, boolean encryptData, Map properties) throws AdaptorException {
 		this.source = source;
         this.properties = properties;

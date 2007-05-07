@@ -85,6 +85,7 @@ public class MessageObjectControllerTest extends TestCase {
 		for (int i = 0; i < 10; i++) {
 			MessageObject sampleMessageObject = new MessageObject();
 			sampleMessageObject.setId(UUID.randomUUID().toString());
+            sampleMessageObject.setServerId(configurationController.getServerId());
 			sampleMessageObject.setChannelId(channelId);
 			
 			sampleMessageObject.setSource("SendingFacility" + i);

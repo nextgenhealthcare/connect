@@ -78,7 +78,9 @@ public class MessageObjectController {
 			
 			String channelId = messageObject.getChannelId();
 			HashMap<String, Channel> channelCache = ChannelController.getChannelCache();
-
+			
+            messageObject.setServerId(configurationController.getServerId());
+            
 			// Check the cache for the channel
 			if (channelCache != null && channelCache.containsKey(channelId)) {
 				Channel channel = channelCache.get(channelId);
