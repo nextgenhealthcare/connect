@@ -44,20 +44,23 @@ public class MessageListHandler implements ListHandler {
 	private int currentPage;
 	private int size = 0;
 	private boolean tempEnabled = true;
+	private String uid;
 	
-	public MessageListHandler(MessageObjectFilter filter, int pageSize, ServerConnection connection) {
+	public MessageListHandler(MessageObjectFilter filter, int pageSize, String uid, ServerConnection connection) throws ClientException {
 		this.filter = filter;
 		this.pageSize = pageSize;
 		this.connection = connection;
+		this.uid = uid;
 
-		// TODO: have this method throw a ListHandlerException
 		try {
-			size = createMessagesTempTable();
+			size = createMessagesTempTable(uid);
+			
 			if (size == -1) {
 				tempEnabled = false;
 			}
 		} catch (Exception e) {
 			logger.error(e);
+			throw new ClientException (e);
 		}
 	}
 	
@@ -111,8 +114,13 @@ public class MessageListHandler implements ListHandler {
 		}
 	}
 	
-	private int createMessagesTempTable() throws ListHandlerException {
-		NameValuePair[] params = { new NameValuePair("op", "createMessagesTempTable"), new NameValuePair("filter", serializer.toXML(filter)) };
+	public void removeFilterTables() throws ClientException {
+		NameValuePair[] params = { new NameValuePair("op", "removeFilterTables"), new NameValuePair("uid", uid) };
+		connection.executePostMethod(Client.MESSAGE_SERVLET, params);
+	}
+	
+	private int createMessagesTempTable(String uid) throws ListHandlerException {
+		NameValuePair[] params = { new NameValuePair("op", "createMessagesTempTable"), new NameValuePair("filter", serializer.toXML(filter)), new NameValuePair("uid", uid) };
 		
 		try {
 			return Integer.parseInt(connection.executePostMethod(Client.MESSAGE_SERVLET, params));	
@@ -126,6 +134,7 @@ public class MessageListHandler implements ListHandler {
 				new NameValuePair("page", String.valueOf(page)), 
 				new NameValuePair("pageSize", String.valueOf(pageSize)), 
 				new NameValuePair("maxMessages", String.valueOf(size)), 
+				new NameValuePair("uid", uid), 
 				(tempEnabled ? new NameValuePair("filter", "") : new NameValuePair("filter", serializer.toXML(filter)))};
 
 		try {

@@ -160,13 +160,17 @@ public class MessageObjectController {
 		}
 	}
 
-	public int createMessagesTempTable(MessageObjectFilter filter, String uid, boolean overrideLimit) throws ControllerException {
+	public int createMessagesTempTable(MessageObjectFilter filter, String uid, boolean forceTemp) throws ControllerException {
 		logger.debug("creating temporary message table: filter=" + filter.toString());
 		
-		if (!overrideLimit && statementExists("getMessageByPageLimit")){
+		if (!forceTemp && statementExists("getMessageByPageLimit")){
 			return -1;
 		}
-		removeFilterTables(uid);
+		// If it's not forcing temp tables (export or reprocessing), 
+		// then it's reusing the same ones, so remove them.
+		if (!forceTemp) {
+			removeFilterTables(uid);
+		}
 
 		try {
 			if (statementExists("createTempMessageTableSequence")) {
@@ -272,50 +276,52 @@ public class MessageObjectController {
 	}
 
 	public void reprocessMessages(final MessageObjectFilter filter) throws ControllerException {
-		Thread reprocessThread = new Thread(new Runnable() {
-			public void run() {
-				//Create a unique id, however get rid of the dashes
-				String uid = UUIDGenerator.getUUID().replaceAll("-", "");
-				try {
-					int size = createMessagesTempTable(filter, uid, true);
-					int page = 0;
-					int interval = 10;
-
-					while ((page * interval) < size) {
-
-						List<MessageObject> messages = getMessagesByPage(page, interval, size, uid);
-
-						try {
-							VMRouter router = new VMRouter();
-
-							for (Iterator<MessageObject> iter = messages.iterator(); iter.hasNext();) {
-								try {
-									Thread.sleep(100);
-								} catch (InterruptedException ie) {
-									logger.debug(ie);
+		try {
+			final String uid = System.currentTimeMillis() + "";
+			final int size = createMessagesTempTable(filter, uid, true);
+			
+			Thread reprocessThread = new Thread(new Runnable() {
+				public void run() {
+					try {
+						int page = 0;
+						int interval = 10;
+	
+						while ((page * interval) < size) {
+							List<MessageObject> messages = getMessagesByPage(page, interval, size, uid);
+	
+							try {
+								VMRouter router = new VMRouter();
+	
+								for (Iterator<MessageObject> iter = messages.iterator(); iter.hasNext();) {
+									try {
+										Thread.sleep(100);
+									} catch (InterruptedException ie) {
+										logger.debug(ie);
+									}
+									
+									MessageObject message = iter.next();
+									router.routeMessageByChannelId(message.getChannelId(), message.getRawData(), true);
 								}
-								
-								MessageObject message = iter.next();
-								router.routeMessageByChannelId(message.getChannelId(), message.getRawData(), true);
+							} catch (Exception e) {
+								throw new ControllerException("could not reprocess message", e);
 							}
-						} catch (Exception e) {
-							throw new ControllerException("could not reprocess message", e);
+							
+							page++;
 						}
-
-						page++;
+					} catch (Exception e) {
+						logger.error(e);
+						
+					} finally{
+						//Remove any temp tables we created
+						removeFilterTables(uid);
 					}
-				} catch (Exception e) {
-					logger.error(e);
-					
-				}finally{
-					//Remove any temp tables we created
-					removeFilterTables(uid);
+	
 				}
-
-			}
-		});
-		reprocessThread.start();
-		return;
+			});
+			reprocessThread.start();
+		} catch (ControllerException e) {
+			throw new ControllerException(e);
+		}
 	}
 
 	private Map getFilterMap(MessageObjectFilter filter, String uid) {

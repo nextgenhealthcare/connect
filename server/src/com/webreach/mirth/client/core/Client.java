@@ -513,8 +513,8 @@ public class Client {
 		return (List<MessageObject>) serializer.fromXML(serverConnection.executePostMethod(MESSAGE_SERVLET, params));
 	}
 
-	public MessageListHandler getMessageListHandler(MessageObjectFilter filter, int pageSize) {
-		return new MessageListHandler(filter, pageSize, serverConnection);
+	public MessageListHandler getMessageListHandler(MessageObjectFilter filter, int pageSize, boolean newInstance) throws ClientException {
+		return new MessageListHandler(filter, pageSize, (newInstance ? (System.currentTimeMillis() + "") : null), serverConnection);
 	}
 
 	/**

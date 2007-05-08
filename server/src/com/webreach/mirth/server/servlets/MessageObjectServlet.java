@@ -47,25 +47,36 @@ public class MessageObjectServlet extends MirthServlet {
 				ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 				PrintWriter out = response.getWriter();
 				String operation = request.getParameter("op");
-				String sessionId = request.getSession().getId();
+				String uid = null;
+				boolean useNewTempTable = false;
+				
+				if (request.getParameter("uid") != null) {
+					uid = request.getParameter("uid");
+					useNewTempTable = true;
+				}
+				else {
+					uid = request.getSession().getId();
+				}
 
 				if (operation.equals("createMessagesTempTable")) {
 					String filter = request.getParameter("filter");
 					response.setContentType("text/plain");
-					out.println(messageObjectController.createMessagesTempTable((MessageObjectFilter) serializer.fromXML(filter), sessionId, false));
+					out.println(messageObjectController.createMessagesTempTable((MessageObjectFilter) serializer.fromXML(filter), uid, useNewTempTable));
+				} else if (operation.equals("removeFilterTables")) {
+					messageObjectController.removeFilterTables(uid);
 				} else if (operation.equals("getMessagesByPage")) {
 					String page = request.getParameter("page");
 					String pageSize = request.getParameter("pageSize");
 					String maxMessages = request.getParameter("maxMessages");
 					response.setContentType("application/xml");
-					out.print(serializer.toXML(messageObjectController.getMessagesByPage(Integer.parseInt(page), Integer.parseInt(pageSize), Integer.parseInt(maxMessages), sessionId)));
+					out.print(serializer.toXML(messageObjectController.getMessagesByPage(Integer.parseInt(page), Integer.parseInt(pageSize), Integer.parseInt(maxMessages), uid)));
 				} else if (operation.equals("getMessagesByPageLimit")) {
 					String page = request.getParameter("page");
 					String pageSize = request.getParameter("pageSize");
 					String maxMessages = request.getParameter("maxMessages");
 					String filter = request.getParameter("filter");
 					response.setContentType("application/xml");
-					out.print(serializer.toXML(messageObjectController.getMessagesByPageLimit(Integer.parseInt(page), Integer.parseInt(pageSize), Integer.parseInt(maxMessages), sessionId, (MessageObjectFilter) serializer.fromXML(filter))));
+					out.print(serializer.toXML(messageObjectController.getMessagesByPageLimit(Integer.parseInt(page), Integer.parseInt(pageSize), Integer.parseInt(maxMessages), uid, (MessageObjectFilter) serializer.fromXML(filter))));
 				} else if (operation.equals("removeMessages")) {
 					String filter = request.getParameter("filter");
 					messageObjectController.removeMessages((MessageObjectFilter) serializer.fromXML(filter));
