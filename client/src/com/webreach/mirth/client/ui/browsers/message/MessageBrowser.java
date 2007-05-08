@@ -107,7 +107,6 @@ public class MessageBrowser extends javax.swing.JPanel
     private MessageObjectFilter messageObjectFilter;
     private DefaultTableModel messageTableModel;
     private JXTable mappingsTable;
-    private boolean isExporting = false;
     
     private int messageCount = -1;
     private int currentPage = 0;
@@ -200,13 +199,10 @@ public class MessageBrowser extends javax.swing.JPanel
     {
         // Clear the table first
     	
-        if(!isExporting)
-        {
-            // use the start filters and make the table.
-            parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 5, -1, false);
-            parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 6, 6, true);
-            messageListHandler = null;
-        }
+        // use the start filters and make the table.
+        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 5, -1, false);
+        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 6, 6, true);
+        messageListHandler = null;
         
         statusComboBox.setSelectedIndex(0);
         protocolComboBox.setSelectedIndex(0);
@@ -305,9 +301,7 @@ public class MessageBrowser extends javax.swing.JPanel
      * Export the current messages to XML or HTML
      */
     public void exportMessages()
-    {
-        isExporting = true;
-        
+    {        
         JFileChooser exportFileChooser = new JFileChooser();
         
         File currentDir = new File(Preferences.systemNodeForPackage(Mirth.class).get("currentDirectory", ""));
@@ -322,6 +316,7 @@ public class MessageBrowser extends javax.swing.JPanel
         
         if (returnVal == JFileChooser.APPROVE_OPTION)
         {
+        	MessageListHandler tempMessageListHandler = null;
             try
             {
                 exportFile = exportFileChooser.getSelectedFile();
@@ -339,9 +334,8 @@ public class MessageBrowser extends javax.swing.JPanel
                 
                 ObjectXMLSerializer serializer = new ObjectXMLSerializer();
                 
-                //MessageListHandler tempMessageListHandler = (MessageListHandler)ObjectCloner.deepCopy(messageListHandler);
-                //List<MessageObject> messageObjects = tempMessageListHandler.getFirstPage();
-                List<MessageObject> messageObjects = messageListHandler.getFirstPage();
+                tempMessageListHandler = parent.mirthClient.getMessageListHandler(messageListHandler.getFilter(), pageSize, true);
+                List<MessageObject> messageObjects = tempMessageListHandler.getFirstPage();
                 
                 while(messageObjects.size() > 0)
                 {
@@ -353,7 +347,7 @@ public class MessageBrowser extends javax.swing.JPanel
                         messages.delete(0,messages.length());
                     }
                     
-                    messageObjects = messageListHandler.getNextPage();
+                    messageObjects = tempMessageListHandler.getNextPage();
                 }
                 
                 parent.alertInformation("All messages were written successfully to " + exportFile.getPath() + ".");
@@ -362,8 +356,21 @@ public class MessageBrowser extends javax.swing.JPanel
             {
                 parent.alertError("File could not be written.");
             }
+            finally
+            {
+            	if (tempMessageListHandler != null)
+            	{
+					try
+					{
+						tempMessageListHandler.removeFilterTables();
+					}
+					catch (ClientException e)
+					{
+						parent.alertException(e.getStackTrace(), e.getMessage());
+					}
+            	}
+            }
         }
-        isExporting = false;
     }
     
     /**
@@ -1202,90 +1209,92 @@ public class MessageBrowser extends javax.swing.JPanel
      * and remakes the table with that filter.
      */
     private void filterButtonActionPerformed(java.awt.event.ActionEvent evt)
-    {// GEN-FIRST:event_filterButtonActionPerformed
-        if(isExporting)
-            parent.alertError("The nessage browser cannot refresh while it is in the process of exporting.");
-        else
-        {        
-            if (mirthDatePicker1.getDate() != null && mirthDatePicker2.getDate() != null)
+    {// GEN-FIRST:event_filterButtonActionPerformed      
+        if (mirthDatePicker1.getDate() != null && mirthDatePicker2.getDate() != null)
+        {
+            if (mirthDatePicker1.getDateInMillis() > mirthDatePicker2.getDateInMillis())
             {
-                if (mirthDatePicker1.getDateInMillis() > mirthDatePicker2.getDateInMillis())
-                {
-                    JOptionPane.showMessageDialog(parent, "Start date cannot be after the end date.");
-                    return;
-                }
+                JOptionPane.showMessageDialog(parent, "Start date cannot be after the end date.");
+                return;
             }
-
-            messageObjectFilter = new MessageObjectFilter();
-
-            messageObjectFilter.setChannelId(parent.status.get(parent.dashboardPanel.getSelectedStatus()).getChannelId());
-
-            if (!connectorField.getText().equals(""))
-                messageObjectFilter.setConnectorName(connectorField.getText());
-            if (!messageSourceField.getText().equals(""))
-                messageObjectFilter.setSource(messageSourceField.getText());
-            if (!messageTypeField.getText().equals(""))
-                messageObjectFilter.setType(messageTypeField.getText());
-
-            if (!((String) statusComboBox.getSelectedItem()).equalsIgnoreCase("ALL"))
-            {
-                for (int i = 0; i < MessageObject.Status.values().length; i++)
-                {
-                    if (((String) statusComboBox.getSelectedItem()).equalsIgnoreCase(MessageObject.Status.values()[i].toString()))
-                        messageObjectFilter.setStatus(MessageObject.Status.values()[i]);
-                }
-            }
-
-            if (!((String) protocolComboBox.getSelectedItem()).equalsIgnoreCase("ALL"))
-            {
-                for (int i = 0; i < MessageObject.Protocol.values().length; i++)
-                {
-                    if (((String) protocolComboBox.getSelectedItem()).equalsIgnoreCase(MessageObject.Protocol.values()[i].toString()))
-                        messageObjectFilter.setProtocol(MessageObject.Protocol.values()[i]);
-                }
-            }
-
-            if (mirthDatePicker1.getDate() != null)
-            {
-                Calendar calendarStart = Calendar.getInstance();
-                calendarStart.setTimeInMillis(mirthDatePicker1.getDateInMillis());
-                messageObjectFilter.setStartDate(calendarStart);
-            }
-            if (mirthDatePicker2.getDate() != null)
-            {
-                Calendar calendarEnd = Calendar.getInstance();
-                calendarEnd.setTimeInMillis(mirthDatePicker2.getDateInMillis());
-                messageObjectFilter.setEndDate(calendarEnd);
-            }
-
-            if (!pageSizeField.getText().equals(""))
-                pageSize = Integer.parseInt(pageSizeField.getText());
-
-            parent.setWorking("Loading messages...", true);
-            
-            if (messageListHandler == null)
-                makeMessageTable(new Object[0][7]);
-
-            class MessageWorker extends SwingWorker<Void, Void>
-            {
-                Object[][] data;
-
-                public Void doInBackground()
-                {
-                    messageListHandler = parent.mirthClient.getMessageListHandler(messageObjectFilter, pageSize);
-                    data = getMessageTableData(messageListHandler, FIRST_PAGE);
-                    return null;
-                }
-
-                public void done()
-                {
-                	makeMessageTable(data);
-                    parent.setWorking("", false);
-                }
-            };
-            MessageWorker worker = new MessageWorker();
-            worker.execute();
         }
+
+        messageObjectFilter = new MessageObjectFilter();
+
+        messageObjectFilter.setChannelId(parent.status.get(parent.dashboardPanel.getSelectedStatus()).getChannelId());
+
+        if (!connectorField.getText().equals(""))
+            messageObjectFilter.setConnectorName(connectorField.getText());
+        if (!messageSourceField.getText().equals(""))
+            messageObjectFilter.setSource(messageSourceField.getText());
+        if (!messageTypeField.getText().equals(""))
+            messageObjectFilter.setType(messageTypeField.getText());
+
+        if (!((String) statusComboBox.getSelectedItem()).equalsIgnoreCase("ALL"))
+        {
+            for (int i = 0; i < MessageObject.Status.values().length; i++)
+            {
+                if (((String) statusComboBox.getSelectedItem()).equalsIgnoreCase(MessageObject.Status.values()[i].toString()))
+                    messageObjectFilter.setStatus(MessageObject.Status.values()[i]);
+            }
+        }
+
+        if (!((String) protocolComboBox.getSelectedItem()).equalsIgnoreCase("ALL"))
+        {
+            for (int i = 0; i < MessageObject.Protocol.values().length; i++)
+            {
+                if (((String) protocolComboBox.getSelectedItem()).equalsIgnoreCase(MessageObject.Protocol.values()[i].toString()))
+                    messageObjectFilter.setProtocol(MessageObject.Protocol.values()[i]);
+            }
+        }
+
+        if (mirthDatePicker1.getDate() != null)
+        {
+            Calendar calendarStart = Calendar.getInstance();
+            calendarStart.setTimeInMillis(mirthDatePicker1.getDateInMillis());
+            messageObjectFilter.setStartDate(calendarStart);
+        }
+        if (mirthDatePicker2.getDate() != null)
+        {
+            Calendar calendarEnd = Calendar.getInstance();
+            calendarEnd.setTimeInMillis(mirthDatePicker2.getDateInMillis());
+            messageObjectFilter.setEndDate(calendarEnd);
+        }
+
+        if (!pageSizeField.getText().equals(""))
+            pageSize = Integer.parseInt(pageSizeField.getText());
+
+        parent.setWorking("Loading messages...", true);
+        
+        if (messageListHandler == null)
+            makeMessageTable(new Object[0][7]);
+
+        class MessageWorker extends SwingWorker<Void, Void>
+        {
+            Object[][] data;
+
+            public Void doInBackground()
+            {
+                try
+				{
+					messageListHandler = parent.mirthClient.getMessageListHandler(messageObjectFilter, pageSize, false);
+				}
+				catch (ClientException e)
+				{
+					parent.alertException(e.getStackTrace(), e.getMessage());
+				}
+                data = getMessageTableData(messageListHandler, FIRST_PAGE);
+                return null;
+            }
+
+            public void done()
+            {
+            	makeMessageTable(data);
+                parent.setWorking("", false);
+            }
+        };
+        MessageWorker worker = new MessageWorker();
+        worker.execute();
     }// GEN-LAST:event_filterButtonActionPerformed
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
