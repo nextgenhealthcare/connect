@@ -25,6 +25,7 @@
 
 package com.webreach.mirth.server.controllers;
 
+import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -62,9 +63,12 @@ public class MessageObjectController {
 	private ErrorMessageBuilder errorBuilder = new ErrorMessageBuilder();
 	
 	public void initialize() {
+
+    	Connection conn = null;
 	    try {
+	    	conn = sqlMap.getDataSource().getConnection();
 	        // Gets the database metadata
-	        DatabaseMetaData dbmd = sqlMap.getDataSource().getConnection().getMetaData();
+	        DatabaseMetaData dbmd = conn.getMetaData();
 	    
 	        // Specify the type of object; in this case we want tables
 	        String[] types = {"TABLE"};
@@ -78,6 +82,14 @@ public class MessageObjectController {
         }
 	    } catch (SQLException e) {
 	    	logger.error(e);
+	    } finally {
+	    	if (conn != null) {
+				try {
+					conn.close();
+				} catch (SQLException e) {
+					logger.error(e);
+				}
+	    	}
 	    }
 
 	}
