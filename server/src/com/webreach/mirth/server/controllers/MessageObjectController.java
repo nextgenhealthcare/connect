@@ -78,8 +78,6 @@ public class MessageObjectController {
 			
 			String channelId = messageObject.getChannelId();
 			HashMap<String, Channel> channelCache = ChannelController.getChannelCache();
-			
-            messageObject.setServerId(configurationController.getServerId());
             
 			// Check the cache for the channel
 			if (channelCache != null && channelCache.containsKey(channelId)) {
@@ -351,6 +349,7 @@ public class MessageObjectController {
 		MessageObject clone = new MessageObject();
 		// We could use deep copy here, but see the notes below
 		clone.setId(UUIDGenerator.getUUID());
+        clone.setServerId(configurationController.getServerId());
 		clone.setDateCreated(Calendar.getInstance());
 		clone.setCorrelationId(messageObject.getId());
 		clone.setConnectorName(connectorName);

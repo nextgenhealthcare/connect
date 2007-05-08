@@ -21,6 +21,7 @@ public abstract class Adaptor {
 	protected Map properties;
 	protected IXMLSerializer<String> serializer;
 	private MessageObjectController messageObjectController = new MessageObjectController();
+    private ConfigurationController configurationController = new ConfigurationController();
     
 	public MessageObject getMessage(String source, String channelId, boolean encryptData, Map properties) throws AdaptorException {
 		this.source = source;
@@ -28,6 +29,7 @@ public abstract class Adaptor {
         this.serializer = getSerializer(properties);
 		messageObject = new MessageObject();
 		messageObject.setId(UUIDGenerator.getUUID());
+        messageObject.setServerId(configurationController.getServerId());
 		messageObject.setChannelId(channelId);
 		messageObject.setDateCreated(Calendar.getInstance());
 		messageObject.setConnectorName("Source");
