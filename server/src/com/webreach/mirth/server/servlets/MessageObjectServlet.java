@@ -50,7 +50,7 @@ public class MessageObjectServlet extends MirthServlet {
 				String uid = null;
 				boolean useNewTempTable = false;
 				
-				if (request.getParameter("uid") != null) {
+				if (request.getParameter("uid") != null && !request.getParameter("uid").equals("")) {
 					uid = request.getParameter("uid");
 					useNewTempTable = true;
 				}

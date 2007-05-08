@@ -253,9 +253,19 @@ public class MessageObjectController {
 			if (statementExists("dropTempMessageTableSequence")) {
 				sqlMap.update("dropTempMessageTableSequence", uid);
 			}
+		} catch (SQLException e) {
+			// supress any warnings about the sequence not existing
+			logger.debug(e);
+		}
+		try {
 			if (statementExists("deleteTempMessageTableIndex")) {
 				sqlMap.update("deleteTempMessageTableIndex", uid);
 			}
+		} catch (SQLException e) {
+			// supress any warnings about the index not existing
+			logger.debug(e);
+		}
+		try {
 			sqlMap.update("dropTempMessageTable", uid);
 		} catch (SQLException e) {
 			// supress any warnings about the table not existing

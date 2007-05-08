@@ -53,7 +53,7 @@ public class MessageListHandler implements ListHandler {
 		this.uid = uid;
 
 		try {
-			size = createMessagesTempTable(uid);
+			size = createMessagesTempTable();
 			
 			if (size == -1) {
 				tempEnabled = false;
@@ -119,7 +119,7 @@ public class MessageListHandler implements ListHandler {
 		connection.executePostMethod(Client.MESSAGE_SERVLET, params);
 	}
 	
-	private int createMessagesTempTable(String uid) throws ListHandlerException {
+	private int createMessagesTempTable() throws ListHandlerException {
 		NameValuePair[] params = { new NameValuePair("op", "createMessagesTempTable"), new NameValuePair("filter", serializer.toXML(filter)), new NameValuePair("uid", uid) };
 		
 		try {
