@@ -47,4 +47,3 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		WITH UR
 	</select>
 </sqlMap>
-<?xml version="1.0" encoding="UTF-8" ?>
