@@ -74,12 +74,13 @@ public class MessageObjectController {
 	        String[] types = {"TABLE"};
 	        ResultSet resultSet = dbmd.getTables(null, null, "MSG_TMP_%", types);
 	    
-	        // Get the table names
 	        while (resultSet.next()) {
 	            // Get the table name
 	            String tableName = resultSet.getString(3);
+	            // Get the uid and remove its filter tables/indexes/sequences
 	            removeFilterTables(tableName.substring(8));
-        }
+	        }
+	        resultSet.close();
 	    } catch (SQLException e) {
 	    	logger.error(e);
 	    } finally {
