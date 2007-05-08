@@ -40,10 +40,9 @@ import org.mule.config.builders.MuleXmlConfigurationBuilder;
 
 import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.server.controllers.ChannelController;
-import com.webreach.mirth.server.controllers.ChannelStatisticsController;
-import com.webreach.mirth.server.controllers.ChannelStatusController;
 import com.webreach.mirth.server.controllers.ConfigurationController;
 import com.webreach.mirth.server.controllers.ControllerException;
+import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.controllers.SystemLogger;
 import com.webreach.mirth.server.controllers.UserController;
 import com.webreach.mirth.server.util.DatabasePruner;
@@ -70,6 +69,7 @@ public class Mirth extends Thread {
 	private ChannelController channelController = new ChannelController();
 	private UserController userController = new UserController();
 	private DatabasePruner pruner = new DatabasePruner();
+	private MessageObjectController messageObjectController = new MessageObjectController();
 
 	public static void main(String[] args) {
 		Mirth mirth = new Mirth();
@@ -87,6 +87,7 @@ public class Mirth extends Thread {
 			startWebServer();
 			
 			// initialize controllers
+			messageObjectController.initialize();
 			configurationController.initialize();
 			channelController.initialize();
 			userController.initialize();

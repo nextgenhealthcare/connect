@@ -25,6 +25,8 @@
 
 package com.webreach.mirth.server.controllers;
 
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -58,6 +60,27 @@ public class MessageObjectController {
 	private ChannelStatisticsController statisticsController = new ChannelStatisticsController();
 	private String lineSeperator = System.getProperty("line.separator");
 	private ErrorMessageBuilder errorBuilder = new ErrorMessageBuilder();
+	
+	public void initialize() {
+	    try {
+	        // Gets the database metadata
+	        DatabaseMetaData dbmd = sqlMap.getDataSource().getConnection().getMetaData();
+	    
+	        // Specify the type of object; in this case we want tables
+	        String[] types = {"TABLE"};
+	        ResultSet resultSet = dbmd.getTables(null, null, "MSG_TMP_%", types);
+	    
+	        // Get the table names
+	        while (resultSet.next()) {
+	            // Get the table name
+	            String tableName = resultSet.getString(3);
+	            removeFilterTables(tableName.substring(8));
+        }
+	    } catch (SQLException e) {
+	    	logger.error(e);
+	    }
+
+	}
 
 	public void updateMessage(MessageObject incomingMessageObject, boolean checkIfMessageExists) {
 		try {
@@ -249,6 +272,7 @@ public class MessageObjectController {
 	}
 
 	public void removeFilterTables(String uid) {
+		logger.debug("Removing temporary message table: uid=" + uid);
 		try {
 			if (statementExists("dropTempMessageTableSequence")) {
 				sqlMap.update("dropTempMessageTableSequence", uid);

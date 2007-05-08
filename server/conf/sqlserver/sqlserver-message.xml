@@ -108,7 +108,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		SELECT
 			MESSAGE.*
 		FROM
-			MESSAGE_TEMP_$uid$ AS TEMP_TABLE,
+			MSG_TMP_$uid$ AS TEMP_TABLE,
 			MESSAGE
 		WHERE
 			TEMP_TABLE.ID = MESSAGE.SEQUENCE_ID
@@ -136,20 +136,20 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 	</select>
 
 	<statement id="dropTempMessageTable" parameterClass="java.lang.String">
-		DROP TABLE MESSAGE_TEMP_$uid$
+		DROP TABLE MSG_TMP_$uid$
 	</statement>
 
 	<statement id="createTempMessageTable" parameterClass="java.lang.String">
-		CREATE TABLE MESSAGE_TEMP_$uid$ (ID INTEGER, SEQUENCE_ORDER INTEGER IDENTITY (0, 1) NOT NULL, DATE_CREATED TIMESTAMP)
+		CREATE TABLE MSG_TMP_$uid$ (ID INTEGER, SEQUENCE_ORDER INTEGER IDENTITY (0, 1) NOT NULL, DATE_CREATED TIMESTAMP)
 	</statement>
 
 	<statement id="createTempMessageTableIndex" parameterClass="java.lang.String">
-		CREATE INDEX INDEX_MESSAGE_TEMP_$uid$ ON MESSAGE_TEMP_$uid$ (SEQUENCE_ORDER, ID)
+		CREATE INDEX IDX_MSG_TMP_$uid$ ON MSG_TMP_$uid$ (SEQUENCE_ORDER, ID)
 	</statement>
 
 	<!-- NOTE: The nested SELECT needs an ORDER BY DATE_CREATED, which Derby does not support -->
 	<insert id="populateTempMessageTable" parameterClass="java.util.Map">
-		INSERT INTO MESSAGE_TEMP_$uid$ (ID)
+		INSERT INTO MSG_TMP_$uid$ (ID)
 			(SELECT SEQUENCE_ID
 			FROM MESSAGE
 			<include refid="messageFilterCriteria" />)
@@ -181,11 +181,11 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 	</delete>
 	
 	<delete id="deleteTempMessageTable" parameterClass="java.lang.String">
-		DROP TABLE MESSAGE_TEMP_$uid$
+		DROP TABLE MSG_TMP_$uid$
 	</delete>
 
 	<delete id="deleteTempMessageTableIndex" parameterClass="java.lang.String">
-		DROP INDEX INDEX_MESSAGE_TEMP_$uid$
+		DROP INDEX IDX_MSG_TMP_$uid$
 	</delete>
 	
 </sqlMap>
