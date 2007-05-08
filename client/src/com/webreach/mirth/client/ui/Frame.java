@@ -398,7 +398,7 @@ public class Frame extends JXFrame
         }
         catch(ClientException e)
         {
-            alertError("Could not get server's id.");
+            alertError("Could not get server information.");
         }
         
         setCurrentTaskPaneContainer(taskPaneContainer);
@@ -1429,8 +1429,7 @@ public class Frame extends JXFrame
             Mirth.main(new String[] { PlatformUI.SERVER_NAME, PlatformUI.CLIENT_VERSION });
             return;
         }
-
-        if (message.indexOf("Connection refused") != -1)
+        else if (message.indexOf("Connection refused") != -1)
         {
             connectionError = true;
             if (currentContentPage == dashboardPanel)
@@ -3166,23 +3165,7 @@ public class Frame extends JXFrame
 
     public void doRefreshEvents()
     {
-        setWorking("Loading events...", true);
-
-        SwingWorker worker = new SwingWorker<Void, Void>()
-        {
-            public Void doInBackground()
-            {
-                eventBrowser.refresh();
-                return null;
-            }
-
-            public void done()
-            {
-                setWorking("", false);
-            }
-        };
-
-        worker.execute();
+        eventBrowser.refresh();
     }
 
     public void doClearEvents()

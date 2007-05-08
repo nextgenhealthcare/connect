@@ -197,7 +197,7 @@ public class DashboardPanel extends javax.swing.JPanel
                 }
                 catch (ClientException ex)
                 {
-                    ex.printStackTrace();
+                    parent.alertException(ex.getStackTrace(), ex.getMessage());
                 }
 
                 if (tempStatus.getState() == ChannelStatus.State.STARTED)
