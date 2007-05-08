@@ -267,26 +267,24 @@ public class DashboardPanel extends javax.swing.JPanel
         int row = statusTable.getSelectedRow();
         if (row >= 0 && row < statusTable.getRowCount())
         {
-            parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 2, -1, true);
-
             int columnNumber = statusTable.getColumnNumber(STATUS_COLUMN_NAME);
             if (((CellData) statusTable.getValueAt(row, columnNumber)).getText().equals("Started"))
             {
-                parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 3, 4, true);
+                parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 2, 4, true);
                 parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 5, 5, false);
                 parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 6, 6, true);
                 parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 7, 7, true);
             }
             else if (((CellData) statusTable.getValueAt(row, columnNumber)).getText().equals("Paused"))
             {
-                parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 3, 4, true);
+                parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 2, 4, true);
                 parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 5, 5, true);
                 parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 6, 6, false);
                 parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 7, 7, true);
             }
             else
             {
-                parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 3, 4, true);
+                parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 2, 4, true);
                 parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 5, 5, true);
                 parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 6, 6, false);
                 parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 7, 7, false);

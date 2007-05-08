@@ -59,8 +59,6 @@ public class UserWizard extends javax.swing.JDialog
         if (currentUser != null)
         {
             jLabel2.setText("Edit User");
-            passwordLabel1.setText("New Password:");
-            passwordLabel2.setText("Re-type New Password:");
             jLabel2.setForeground(UIConstants.HEADER_TITLE_TEXT_COLOR);
             username.setText(currentUser.getUsername());
             password1.setText("");
@@ -74,8 +72,6 @@ public class UserWizard extends javax.swing.JDialog
         else
         {
             jLabel2.setText("New User");
-            passwordLabel1.setText("Password:");
-            passwordLabel2.setText("Re-type Password:");
             jLabel2.setForeground(UIConstants.HEADER_TITLE_TEXT_COLOR);
             editingUser = false;
         }
@@ -185,7 +181,7 @@ public class UserWizard extends javax.swing.JDialog
             .add(mirthHeadingPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .add(jLabel2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 135, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(236, Short.MAX_VALUE))
+                .addContainerGap(234, Short.MAX_VALUE))
         );
         mirthHeadingPanel1Layout.setVerticalGroup(
             mirthHeadingPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -245,15 +241,15 @@ public class UserWizard extends javax.swing.JDialog
         channelOverviewLayout.setHorizontalGroup(
             channelOverviewLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(channelOverviewLayout.createSequentialGroup()
-                .addContainerGap(236, Short.MAX_VALUE)
+                .addContainerGap(234, Short.MAX_VALUE)
                 .add(cancelButton)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(finishButton)
                 .add(9, 9, 9))
-            .add(mirthHeadingPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 381, Short.MAX_VALUE)
+            .add(mirthHeadingPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 379, Short.MAX_VALUE)
             .add(org.jdesktop.layout.GroupLayout.TRAILING, channelOverviewLayout.createSequentialGroup()
                 .addContainerGap()
-                .add(jSeparator1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 361, Short.MAX_VALUE)
+                .add(jSeparator1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 359, Short.MAX_VALUE)
                 .addContainerGap())
             .add(channelOverviewLayout.createSequentialGroup()
                 .add(26, 26, 26)
@@ -274,7 +270,7 @@ public class UserWizard extends javax.swing.JDialog
                     .add(username, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 175, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(password2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 175, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(jScrollPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 228, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(31, Short.MAX_VALUE))
+                .addContainerGap(29, Short.MAX_VALUE))
         );
 
         channelOverviewLayout.linkSize(new java.awt.Component[] {cancelButton, finishButton}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
