@@ -164,7 +164,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 	<insert id="insertMessage" parameterMap="insert-message-param">
 		INSERT INTO
 		MESSAGE (SEQUENCE_ID, ID, SERVER_ID, CHANNEL_ID, SOURCE, TYPE, DATE_CREATED, VERSION, IS_ENCRYPTED, STATUS, RAW_DATA, RAW_DATA_PROTOCOL, TRANSFORMED_DATA, TRANSFORMED_DATA_PROTOCOL, ENCODED_DATA, ENCODED_DATA_PROTOCOL, CONNECTOR_NAME, ERRORS, CORRELATION_ID, CONNECTOR_MAP, CHANNEL_MAP, RESPONSE_MAP)
-		VALUES (MESSAGE_SEQUENCE.NEXTVAL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		VALUES (MESSAGE_SEQUENCE.NEXTVAL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	</insert>
 	
 	<update id="updateMessage" parameterMap="update-message-param">
