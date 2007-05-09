@@ -125,12 +125,12 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 	<select id="getMessageByPageLimit" parameterClass="java.util.Map" resultMap="get-message-result">
 		SELECT * FROM (
 			SELECT
-				MESSAGE.*
+				ROWNUM AS ROWCOUNT, MESSAGE.*
 			FROM
 				MESSAGE
 			<include refid="messageFilterCriteria" />
 			ORDER BY DATE_CREATED DESC
-		) WHERE ROWNUM <![CDATA[ > ]]> $offset$ AND ROWNUM <![CDATA[ <= ]]> $limit$
+		) WHERE ROWCOUNT <![CDATA[ > ]]> $offset$ AND ROWCOUNT <![CDATA[ <= ]]> ($offset$ + $limit$)
 	</select>
 
 	<statement id="dropTempMessageTableSequence" parameterClass="java.lang.String">
