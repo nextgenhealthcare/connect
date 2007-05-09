@@ -435,6 +435,7 @@ public class MessageBrowser extends javax.swing.JPanel
         eventTable.setSelectionMode(0);
         
         eventTable.getColumnExt(MESSAGE_ID_COLUMN_NAME).setVisible(false);
+        eventTable.getColumnExt(DATE_COLUMN_NAME).setMinWidth(100);
         
         eventTable.setRowHeight(UIConstants.ROW_HEIGHT);
         eventTable.setOpaque(true);
