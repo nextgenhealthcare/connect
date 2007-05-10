@@ -826,6 +826,14 @@ public class ChannelSetup extends javax.swing.JPanel
                 currentChannel.setId(parent.mirthClient.getGuid());
 
             updated = parent.updateChannel(currentChannel);
+            try
+			{
+				currentChannel = (Channel)ObjectCloner.deepCopy(parent.channels.get(currentChannel.getId()));
+			}
+			catch (ObjectClonerException e)
+			{
+				parent.alertException(e.getStackTrace(), e.getMessage());
+			}
         }
         catch (ClientException e)
         {

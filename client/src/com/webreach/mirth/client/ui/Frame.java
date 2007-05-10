@@ -1582,6 +1582,7 @@ public class Frame extends JXFrame
                 else
                     return false;
             }
+            retrieveChannels();
         }
         catch (ClientException e)
         {
@@ -1931,8 +1932,7 @@ public class Frame extends JXFrame
             }
             catch (ObjectClonerException e)
             {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                alertException(e.getStackTrace(), e.getMessage());
             }
         }
         isEditingChannel = false;
