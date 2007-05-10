@@ -123,12 +123,14 @@ public class MessageObjectController {
 					if (channel.getProperties().get("store_messages").equals("false") || (channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("error_messages_only").equals("true") && !messageObject.getStatus().equals(MessageObject.Status.ERROR)) || (channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("dont_store_filtered").equals("true") && messageObject.getStatus().equals(MessageObject.Status.FILTERED))) {
 						// If we don't want to store messages, then lets
 						// sanitize the data in a clone
-						messageObject.setRawData(MESSAGE_NO_DATA_STORE);
-						messageObject.setEncodedData(MESSAGE_NO_DATA_STORE);
-						messageObject.setTransformedData(MESSAGE_NO_DATA_STORE);
-						messageObject.setConnectorMap(new HashMap());
-						messageObject.setChannelMap(new HashMap());
-						messageObject.setResponseMap(new HashMap());
+						//messageObject.setRawData(MESSAGE_NO_DATA_STORE);
+						//messageObject.setEncodedData(MESSAGE_NO_DATA_STORE);
+						//messageObject.setTransformedData(MESSAGE_NO_DATA_STORE);
+						//messageObject.setConnectorMap(new HashMap());
+						//messageObject.setChannelMap(new HashMap());
+						//messageObject.setResponseMap(new HashMap());
+						logger.debug("message is not stored");
+						return;
 					} else if (channel.getProperties().getProperty("encryptData").equals("true")) {
 						encryptMessageData(messageObject);
 					}
@@ -341,7 +343,7 @@ public class MessageObjectController {
 	
 								for (Iterator<MessageObject> iter = messages.iterator(); iter.hasNext();) {
 									try {
-										Thread.sleep(100);
+										Thread.sleep(10);
 									} catch (InterruptedException ie) {
 										logger.debug(ie);
 									}
