@@ -121,11 +121,13 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 			</dynamic>
 		ORDER BY TEMP_TABLE.DATE_CREATED DESC
 	</select>
-	
+
+<!-- Uncomment to enable fast paging by limit.  However, there will be no "last page", because the last pages will always display the last $pageSize$ results.
+
 	<select id="getMessageByPageLimit" parameterClass="java.util.Map" resultMap="get-message-result">
 		SELECT * FROM (
 			SELECT TOP $limit$ * FROM (
-				SELECT TOP ($offset$+$limit$)
+				SELECT TOP ($offset$ + $limit$)
 					MESSAGE.*
 				FROM
 					MESSAGE
@@ -134,13 +136,15 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 			) AS OFFSETANDLIMIT ORDER BY DATE_CREATED ASC
 		) AS PAGE ORDER BY DATE_CREATED DESC
 	</select>
+	
+-->
 
 	<statement id="dropTempMessageTable" parameterClass="java.lang.String">
 		DROP TABLE MSG_TMP_$uid$
 	</statement>
 
 	<statement id="createTempMessageTable" parameterClass="java.lang.String">
-		CREATE TABLE MSG_TMP_$uid$ (ID INTEGER, SEQUENCE_ORDER INTEGER IDENTITY (0, 1) NOT NULL, DATE_CREATED TIMESTAMP)
+		CREATE TABLE MSG_TMP_$uid$ (ID INTEGER, SEQUENCE_ORDER INTEGER IDENTITY (1, 1) NOT NULL, DATE_CREATED TIMESTAMP)
 	</statement>
 
 	<statement id="createTempMessageTableIndex" parameterClass="java.lang.String">
