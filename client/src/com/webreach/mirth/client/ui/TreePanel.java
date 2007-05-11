@@ -134,7 +134,7 @@ public class TreePanel extends JPanel
            
                 if (xmlDoc != null)
                 {
-                	Map<String, String> metadata = serializer.getMetadata(xmlDoc);
+                	Map<String, String> metadata = serializer.getMetadataFromDocument(xmlDoc);
                     version = metadata.get("version");
                     type = metadata.get("type");
                     messageName =  type + " (" + version + ")";
