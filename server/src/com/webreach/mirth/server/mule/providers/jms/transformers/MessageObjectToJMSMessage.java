@@ -14,7 +14,7 @@ import com.webreach.mirth.server.mule.providers.jms.JmsConnector;
 import com.webreach.mirth.server.util.StackTracePrinter;
 
 public class MessageObjectToJMSMessage extends AbstractJmsTransformer {
-	private MessageObjectController messageObjectController = new MessageObjectController();
+	private MessageObjectController messageObjectController = MessageObjectController.getInstance();
     private static transient Log logger = LogFactory.getLog(MessageObjectToJMSMessage.class);
     private JmsConnector connector;
     private TemplateValueReplacer replacer = new TemplateValueReplacer();

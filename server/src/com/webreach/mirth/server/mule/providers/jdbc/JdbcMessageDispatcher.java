@@ -46,7 +46,7 @@ import com.webreach.mirth.server.util.JavaScriptScopeBuilder;
 
 public class JdbcMessageDispatcher extends AbstractMessageDispatcher {
 	private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
-	private MessageObjectController messageObjectController = new MessageObjectController();
+	private MessageObjectController messageObjectController = MessageObjectController.getInstance();
 	private AlertController alertController = new AlertController();
 	private JdbcConnector connector;
 

@@ -40,7 +40,7 @@ import com.webreach.mirth.server.controllers.MessageObjectController;
 public class DatabasePruner extends Thread {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private ChannelController channelController = new ChannelController();
-	private MessageObjectController messageObjectController = new MessageObjectController();
+	private MessageObjectController messageObjectController = MessageObjectController.getInstance();
 	private static final int SLEEP_INTERVAL = 1000 * 60 * 60; // prune every 5 mintes
 
 	public DatabasePruner() {

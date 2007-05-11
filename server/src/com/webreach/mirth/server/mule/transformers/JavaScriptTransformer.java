@@ -32,6 +32,7 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ImporterTopLevel;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.ScriptableObject;
 import org.mule.transformers.AbstractEventAwareTransformer;
 import org.mule.umo.UMOEventContext;
 import org.mule.umo.lifecycle.InitialisationException;
@@ -52,10 +53,11 @@ import com.webreach.mirth.server.mule.adaptors.Adaptor;
 import com.webreach.mirth.server.mule.adaptors.AdaptorFactory;
 import com.webreach.mirth.server.util.CompiledScriptCache;
 import com.webreach.mirth.server.util.JavaScriptScopeBuilder;
+import com.webreach.mirth.server.util.UUIDGenerator;
 
 public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 	private Logger logger = Logger.getLogger(this.getClass());
-	private MessageObjectController messageObjectController = new MessageObjectController();
+	private MessageObjectController messageObjectController = MessageObjectController.getInstance();
 	private AlertController alertController = new AlertController();
 	private TemplateController templateController = new TemplateController();
 	private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
@@ -75,6 +77,44 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 	private String templateId;
 	private String mode;
 	private String template;
+	private static ScriptableObject sealedSharedScope;
+	private Scriptable currentScope;
+	public static Context getContext() {
+		Context context = Context.enter();
+		if (sealedSharedScope == null) {
+			String importScript = getJavascriptImportScript();
+			sealedSharedScope = new ImporterTopLevel(context);
+			new JavaScriptScopeBuilder().buildScope(sealedSharedScope);
+			Script script = context.compileString(importScript, UUIDGenerator.getUUID(), 1, null);
+			script.exec(context, sealedSharedScope);
+			sealedSharedScope.sealObject();
+		}
+		return context;
+	}
+
+	public static String getJavascriptImportScript() {
+		StringBuilder script = new StringBuilder();
+		script.append("importPackage(Packages.com.webreach.mirth.server.util);\n");
+		script.append("importPackage(Packages.com.webreach.mirth.model.converters);\n");
+		script.append("regex = new RegExp('');\n");
+		script.append("xml = new XML('');\n");
+		script.append("xmllist = new XMLList();\n");
+		script.append("namespace = new Namespace();\n");
+		script.append("qname = new QName();\n");
+		// ast: Allow ending whitespaces from the input XML
+		script.append("XML.ignoreWhitespace=false;");
+		// ast: Allow ending whitespaces to the output XML
+		script.append("XML.prettyPrinting=false;");
+		return script.toString();
+
+	}
+
+	public Scriptable getScope() {
+		Scriptable scope = getContext().newObject(sealedSharedScope);
+		scope.setPrototype(sealedSharedScope);
+		scope.setParentScope(null);
+		return scope;
+	}
 
 	public String getChannelId() {
 		return this.channelId;
@@ -89,6 +129,8 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 	}
 
 	public void setChannelId(String channelId) {
+		currentScope = getScope();
+		scopeBuilder.buildScope(currentScope, channelId);
 		this.channelId = channelId;
 	}
 
@@ -158,12 +200,12 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 
 	@Override
 	public void initialise() throws InitialisationException {
-		Context context = Context.enter();
+		Context context = getContext();
+
 		try {
 			// Scripts are not compiled is they are blank or do not exist in the
 			// database. Note that in Oracle, a blank script is the same as a
 			// NULL script.
-
 			String filterScript = scriptController.getScript(filterScriptId);
 
 			if ((filterScript != null) && (filterScript.length() > 0)) {
@@ -184,8 +226,6 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 		} catch (Exception e) {
 			logger.error(errorBuilder.buildErrorMessage(Constants.ERROR_300, null, e));
 			throw new InitialisationException(e, this);
-		} finally {
-			Context.exit();
 		}
 	}
 
@@ -250,12 +290,12 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 		try {
 			Logger scriptLogger = Logger.getLogger("filter");
 
-			Context context = Context.enter();
-			Scriptable scope = new ImporterTopLevel(context);
+			Context context = getContext();
+			Scriptable scope = getScope();
 
 			// load variables in JavaScript scope
-			scopeBuilder.buildScope(scope, messageObject, scriptLogger);
-
+			scopeBuilder.buildScope(scope, messageObject);
+			scopeBuilder.buildScope(scope, scriptLogger);
 			// get the script from the cache and execute it
 			Script compiledScript = compiledScriptCache.getCompiledScript(filterScriptId);
 			Object result = null;
@@ -263,7 +303,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 
 			if (compiledScript == null) {
 				logger.debug("filter script could not be found in cache");
-				messageAccepted = false;
+				messageAccepted = true;
 			} else {
 				result = compiledScript.exec(context, scope);
 				messageAccepted = ((Boolean) Context.jsToJava(result, java.lang.Boolean.class)).booleanValue();
@@ -285,11 +325,11 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 	private MessageObject evaluateTransformerScript(MessageObject messageObject) throws TransformerException {
 		try {
 			Logger scriptLogger = Logger.getLogger(getMode().toLowerCase() + "-transformation");
-			Context context = Context.enter();
-			Scriptable scope = new ImporterTopLevel(context);
-
+			Context context = getContext();
+			Scriptable scope = getScope();
 			// load variables in JavaScript scope
-			scopeBuilder.buildScope(scope, messageObject, scriptLogger);
+			scopeBuilder.buildScope(scope, messageObject);
+			scopeBuilder.buildScope(scope, scriptLogger);
 			scope.put("template", scope, template);
 
 			// TODO: have function list provide all serializers - maybe we
@@ -356,8 +396,6 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 		logger.debug("generating filter script");
 
 		StringBuilder script = new StringBuilder();
-		script.append("importPackage(Packages.com.webreach.mirth.server.util);\n");
-		script.append("importPackage(Packages.com.webreach.mirth.model.converters);\n");
 		script.append("default xml namespace = '';\n");
 		script.append("function $(string) { ");
 		script.append("if (connectorMap.get(string) != null) { return connectorMap.get(string);} else ");
@@ -376,11 +414,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 
 	private String generateTransformerScript(String transformerScript) {
 		logger.debug("generator transformer script");
-
 		StringBuilder script = new StringBuilder();
-		script.append("importPackage(Packages.com.webreach.mirth.server.util);\n");
-		script.append("importPackage(Packages.com.webreach.mirth.model.converters);\n");
-
 		// script used to check for exitence of segment
 		script.append("function validate(mapping, defaultValue, replacement) { var result; if (mapping != undefined) {result = new java.lang.String(mapping.toString());} if ((result == undefined) || (result.length() == 0)) {result = defaultValue;} if (replacement != undefined) { for (i = 0; i < replacement.length; i++) { var entry = replacement[i]; result = result.replaceAll(entry[0],entry[1]); \n} } return result; }");
 		script.append("function $(string) { ");
@@ -391,10 +425,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 		script.append("default xml namespace = '';");
 		script.append("function doTransform() {");
 
-		// ast: Allow ending whitespaces from the input XML
-		script.append("XML.ignoreWhitespace=false;");
-		// ast: Allow ending whitespaces to the output XML
-		script.append("XML.prettyPrinting=false;");
+
 		// turn the template into an E4X XML object
 
 		if (template != null && template.length() > 0) {

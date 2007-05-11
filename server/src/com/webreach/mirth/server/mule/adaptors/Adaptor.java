@@ -20,7 +20,7 @@ public abstract class Adaptor {
 	protected String source;
 	protected Map properties;
 	protected IXMLSerializer<String> serializer;
-	private MessageObjectController messageObjectController = new MessageObjectController();
+	private MessageObjectController messageObjectController = MessageObjectController.getInstance();
     private ConfigurationController configurationController = new ConfigurationController();
     
 	public MessageObject getMessage(String source, String channelId, boolean encryptData, Map properties) throws AdaptorException {
@@ -64,8 +64,8 @@ public abstract class Adaptor {
 		messageObjectController.setError(messageObject, Constants.ERROR_301, "Error adapting message", e);
 		throw new AdaptorException(e);
 	}
-	protected void populateMetadata(String source) throws SerializerException{
-		Map<String, String> metadata = serializer.getMetadata();
+	protected void populateMetadataFromXML(String source) throws SerializerException{
+		Map<String, String> metadata = serializer.getMetadataFromXML(source);
 		messageObject.setType(metadata.get("type"));
 		messageObject.setVersion(metadata.get("version"));
 		messageObject.setSource(metadata.get("source"));

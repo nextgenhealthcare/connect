@@ -4,16 +4,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringReader;
-import java.util.Properties;
 
 import junit.framework.Assert;
 
-import org.w3c.dom.Document;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.XMLReaderFactory;
 
 public class X12Test {
 	public static void main(String[] args) {
@@ -26,14 +20,14 @@ public class X12Test {
 			e.printStackTrace();
 		}
 		try {
-			
+
 			long totalExecutionTime = 0;
 			int iterations = 100;
 			for (int i = 0; i < iterations; i++) {
-				totalExecutionTime+=runTest(testMessage);
+				totalExecutionTime += runTest(testMessage);
 			}
-			
-			System.out.println("Execution time average: " + totalExecutionTime/iterations + " ms");
+
+			System.out.println("Execution time average: " + totalExecutionTime / iterations + " ms");
 		}
 		// System.out.println(new X12Serializer().toXML("SEG*1*2**4*5"));
 		catch (SAXException e) {
@@ -55,14 +49,13 @@ public class X12Test {
 		// System.out.println(xmloutput);
 		DocumentSerializer docser = new DocumentSerializer();
 		docser.setPreserveSpace(false);
-		Document doc = docser.fromXML(xmloutput);
 		String x12 = serializer.fromXML(xmloutput);
 		stopwatch.stop();
-		
-		//System.out.println(docser.toXML(doc)); // handler.getOutput());
-		//System.out.println(x12);
+
+		// System.out.println(docser.toXML(doc)); // handler.getOutput());
+		// System.out.println(x12);
 		Assert.assertTrue(x12.replace('\n', '\r').trim().equals(testMessage.replaceAll("\\r\\n", "\r").trim()));
-		
+
 		if (x12.replace('\n', '\r').trim().equals(testMessage.replaceAll("\\r\\n", "\r").trim())) {
 			System.out.println("Test Successful!");
 		} else {
@@ -84,7 +77,6 @@ public class X12Test {
 		}
 		return stopwatch.toValue();
 	}
-
 
 	// Returns the contents of the file in a byte array.
 	private static byte[] getBytesFromFile(File file) throws IOException {

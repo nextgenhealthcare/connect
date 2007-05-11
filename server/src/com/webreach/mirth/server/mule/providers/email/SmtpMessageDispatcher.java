@@ -42,7 +42,7 @@ import com.webreach.mirth.server.mule.providers.email.transformers.MessageObject
  */
 public class SmtpMessageDispatcher extends AbstractMessageDispatcher {
 	private Session session;
-	private MessageObjectController messageObjectController = new MessageObjectController();
+	private MessageObjectController messageObjectController = MessageObjectController.getInstance();
 	private SmtpConnector connector;
 
 	/**

@@ -1,8 +1,9 @@
 package com.webreach.mirth.model.converters;
 
-import java.io.*;
-
-import org.apache.log4j.Logger;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 public class ObjectCloner
 {
@@ -14,7 +15,6 @@ public class ObjectCloner
 	// returns a deep copy of an object
 	public static Object deepCopy(Object oldObj) throws ObjectClonerException
 	{
-		Logger logger = Logger.getLogger(ObjectCloner.class);
 		ObjectOutputStream oos = null;
 		ObjectInputStream ois = null;
 		try

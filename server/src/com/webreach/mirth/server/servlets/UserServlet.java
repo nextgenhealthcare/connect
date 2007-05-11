@@ -167,7 +167,7 @@ public class UserServlet extends MirthServlet {
 		}
 		
 		// delete any temp tables created for this session
-		MessageObjectController messageObjectController = new MessageObjectController();
+		MessageObjectController messageObjectController = MessageObjectController.getInstance();
 		messageObjectController.removeFilterTables(sessionId);	
 		
 		// log the event

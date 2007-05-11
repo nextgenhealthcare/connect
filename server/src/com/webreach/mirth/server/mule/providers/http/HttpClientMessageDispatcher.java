@@ -69,7 +69,7 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher {
 	private HttpConnector connector;
 	private HttpState state;
 	private UMOTransformer receiveTransformer;
-	private MessageObjectController messageObjectController = new MessageObjectController();
+	private MessageObjectController messageObjectController = MessageObjectController.getInstance();
 	private AlertController alertController = new AlertController();
 	
 	public HttpClientMessageDispatcher(HttpConnector connector) {

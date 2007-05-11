@@ -31,7 +31,7 @@ import com.webreach.mirth.server.mule.providers.file.filters.FilenameWildcardFil
 
 public class SftpMessageDispatcher extends AbstractMessageDispatcher {
 	protected SftpConnector connector;
-	private MessageObjectController messageObjectController = new MessageObjectController();
+	private MessageObjectController messageObjectController = MessageObjectController.getInstance();
 	private AlertController alertController = new AlertController();
 
 	public SftpMessageDispatcher(SftpConnector connector) {

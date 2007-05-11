@@ -26,7 +26,7 @@ import com.webreach.mirth.server.controllers.MessageObjectController;
 public class DocumentMessageDispatcher extends AbstractMessageDispatcher {
 	private DocumentConnector connector;
 
-	private MessageObjectController messageObjectController = new MessageObjectController();
+	private MessageObjectController messageObjectController = MessageObjectController.getInstance();
 	private AlertController alertController = new AlertController();
 	
 	public DocumentMessageDispatcher(DocumentConnector connector) {

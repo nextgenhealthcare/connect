@@ -58,9 +58,21 @@ public class MessageObjectController {
 	private SqlMapClient sqlMap = SqlConfig.getSqlMapInstance();
 	private static final String MESSAGE_NO_DATA_STORE = "No data stored for this message.";
 	private ConfigurationController configurationController = new ConfigurationController();
-	private ChannelStatisticsController statisticsController = new ChannelStatisticsController();
+	private ChannelStatisticsController statisticsController = ChannelStatisticsController.getInstance();
 	private String lineSeperator = System.getProperty("line.separator");
 	private ErrorMessageBuilder errorBuilder = new ErrorMessageBuilder();
+	
+	private static MessageObjectController instance = null;
+
+	public static MessageObjectController getInstance() {
+		synchronized (MessageObjectController.class) {
+			if (instance == null) {
+				instance = new MessageObjectController();
+				instance.initialize();
+			}
+			return instance;
+		}
+	}
 	
 	public void initialize() {
 
@@ -136,13 +148,14 @@ public class MessageObjectController {
 					}
 				}
 			}
-
+			
 			if (checkIfMessageExists) {
 				int count = (Integer) sqlMap.queryForObject("getMessageCount", messageObject.getId());
 
 				if (count == 0) {
 					logger.debug("adding message: id=" + messageObject.getId());
 					sqlMap.insert("insertMessage", messageObject);
+					
 				} else {
 					logger.debug("updating message: id=" + messageObject.getId());
 					sqlMap.update("updateMessage", messageObject);

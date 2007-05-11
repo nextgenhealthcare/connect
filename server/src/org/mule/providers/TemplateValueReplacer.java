@@ -105,6 +105,6 @@ public class TemplateValueReplacer {
 		context.put("UUID", (new UUID()).getUUID());
 		context.put("SYSTIME", String.valueOf(System.currentTimeMillis()));
 		context.put("ORIGINALNAME", originalFilename);
-		context.put("encoder", new Entities());
+		context.put("encoder", Entities.getInstance());
 	}
 }

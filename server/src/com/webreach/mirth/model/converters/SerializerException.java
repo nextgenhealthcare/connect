@@ -27,6 +27,8 @@
 package com.webreach.mirth.model.converters;
 
 public class SerializerException extends Exception {
+	private static final long serialVersionUID = 1L;
+
 	public SerializerException(Throwable cause) {
 		super(cause);
 	}

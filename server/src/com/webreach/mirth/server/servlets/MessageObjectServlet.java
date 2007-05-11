@@ -43,7 +43,7 @@ public class MessageObjectServlet extends MirthServlet {
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 		} else {
 			try {
-				MessageObjectController messageObjectController = new MessageObjectController();
+				MessageObjectController messageObjectController = MessageObjectController.getInstance();
 				ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 				PrintWriter out = response.getWriter();
 				String operation = request.getParameter("op");

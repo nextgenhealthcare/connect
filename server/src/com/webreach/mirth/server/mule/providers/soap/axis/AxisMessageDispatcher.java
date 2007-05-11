@@ -95,7 +95,7 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher {
 	private Map<String, SoapMethod> callParameters;
 
 	protected SimpleProvider clientConfig;
-	private MessageObjectController messageObjectController = new MessageObjectController();
+	private MessageObjectController messageObjectController = MessageObjectController.getInstance();
 
 	public AxisMessageDispatcher(AxisConnector connector) throws UMOException {
 		super(connector);

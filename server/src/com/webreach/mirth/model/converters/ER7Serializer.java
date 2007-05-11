@@ -30,12 +30,12 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
@@ -45,33 +45,26 @@ import ca.uhn.hl7v2.parser.DefaultXMLParser;
 import ca.uhn.hl7v2.parser.PipeParser;
 import ca.uhn.hl7v2.parser.XMLParser;
 import ca.uhn.hl7v2.util.Terser;
-import ca.uhn.hl7v2.validation.ValidationContext;
 import ca.uhn.hl7v2.validation.impl.NoValidation;
 
 public class ER7Serializer implements IXMLSerializer<String> {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private PipeParser pipeParser;
 	private XMLParser xmlParser;
-	private ER7Reader er7Parser;
-	private Map<String, String> metadata = null;
-	private String currentXML = null;
-	private String currentER7 = null;
 	private boolean useStrictParser = true;
 	private boolean useStrictValidation = false;
 	private boolean handleRepetitions = false;
 	public ER7Serializer(Map er7Properties) {
-		if (er7Properties != null &&  er7Properties.get("useStrictParser") != null) {
-			this.useStrictParser = Boolean.parseBoolean((String)er7Properties.get("useStrictParser"));
+		if (er7Properties != null && er7Properties.get("useStrictParser") != null) {
+			this.useStrictParser = Boolean.parseBoolean((String) er7Properties.get("useStrictParser"));
 		}
-		if (er7Properties != null &&  er7Properties.get("useStrictValidation") != null) {
-			this.useStrictValidation = Boolean.parseBoolean((String)er7Properties.get("useStrictValidation"));
+		if (er7Properties != null && er7Properties.get("useStrictValidation") != null) {
+			this.useStrictValidation = Boolean.parseBoolean((String) er7Properties.get("useStrictValidation"));
 		}
-		if (er7Properties != null &&  er7Properties.get("handleRepetitions") != null) {
-			this.handleRepetitions = Boolean.parseBoolean((String)er7Properties.get("handleRepetitions"));
+		if (er7Properties != null && er7Properties.get("handleRepetitions") != null) {
+			this.handleRepetitions = Boolean.parseBoolean((String) er7Properties.get("handleRepetitions"));
 		}
-		if (!useStrictParser) {
-			er7Parser = new ER7Reader(handleRepetitions);
-		} else {
+		if (useStrictParser) {
 			initializeHapiParser();
 		}
 	}
@@ -84,11 +77,11 @@ public class ER7Serializer implements IXMLSerializer<String> {
 		pipeParser = new PipeParser();
 		xmlParser = new DefaultXMLParser();
 		// Turn off strict validation if needed
-		if (!this.useStrictValidation){
+		if (!this.useStrictValidation) {
 			pipeParser.setValidationContext(new NoValidation());
 			xmlParser.setValidationContext(new NoValidation());
 		}
-		
+
 		xmlParser.setKeepAsOriginalNodes(new String[] { "NTE.3", "OBX.5" });
 	}
 
@@ -100,7 +93,6 @@ public class ER7Serializer implements IXMLSerializer<String> {
 	 * @return
 	 */
 	public String toXML(String source) throws SerializerException {
-		currentER7 = source;
 		StringBuilder builder = new StringBuilder();
 		if (useStrictParser) {
 			try {
@@ -128,9 +120,7 @@ public class ER7Serializer implements IXMLSerializer<String> {
 				logger.error(exceptionMessage);
 			}
 		}
-		metadata = null;
-		currentXML = sanitize(builder.toString());
-		return currentXML;
+		return sanitize(builder.toString());
 	}
 
 	/**
@@ -149,13 +139,13 @@ public class ER7Serializer implements IXMLSerializer<String> {
 				throw new SerializerException(e);
 			}
 		} else {
-			XMLReader xr;
+
 			try {
-				xr = XMLReaderFactory.createXMLReader();
 				// The delimiters below need to come from the XML somehow...the
 				// ER7 handler should take care of it
-				//TODO: Ensure you get these elements from the XML
+				// TODO: Ensure you get these elements from the XML
 				ER7XMLHandler handler = new ER7XMLHandler("\r", "|", "^", "&", "~", "\\");
+				XMLReader xr = XMLReaderFactory.createXMLReader();
 				xr.setContentHandler(handler);
 				xr.setErrorHandler(handler);
 				xr.parse(new InputSource(new StringReader(source)));
@@ -173,88 +163,137 @@ public class ER7Serializer implements IXMLSerializer<String> {
 	public String sanitize(String source) {
 		return source;
 	}
-	public Map<String, String> getMetadata() throws SerializerException{
-		if (metadata == null){
-			metadata = getMetadata(currentER7);
-		}
-		return metadata;
-	}
-	private Map<String, String> getMetadata(String source) throws SerializerException {
+
+	public Map<String, String> getMetadataFromXML(String xmlSource) throws SerializerException {
 		Map<String, String> map = new HashMap<String, String>();
 
-		if (useStrictParser){
-			try{
-	            Message message = pipeParser.parse(source.replaceAll("\n", "\r").trim());
-	            Terser terser = new Terser(message);
+		if (useStrictParser) {
+			try {
+				Message message = xmlParser.parse(xmlSource);
+				Terser terser = new Terser(message);
 				String sendingFacility = terser.get("/MSH-4-1");
 				String event = terser.get("/MSH-9-1") + "-" + terser.get("/MSH-9-2");
 				map.put("version", message.getVersion());
-				map.put("type",event);
+				map.put("type", event);
 				map.put("source", sendingFacility);
-			}catch (Exception e){
+			} catch (Exception e) {
 				new SerializerException(e);
 			}
 			return map;
-    	}else{
-			DocumentSerializer docSerializer = new DocumentSerializer();
-			docSerializer.setPreserveSpace(true);
-			Document document = docSerializer.fromXML(this.currentXML);
-			return getMetadata(document);
-    	}
+		} else {
+			String sendingFacility = getXMLValue(xmlSource, "<MSH.4.1>", "</MSH.4.1>");
+			String event = getXMLValue(xmlSource, "<MSH.9.1>", "</MSH.9.1>");
+			String subType = getXMLValue(xmlSource, "<MSH.9.2>", "</MSH.9.2>");
+			if (!subType.equals("")) {
+				event += "-" + subType;
+			}
+			if (event.equals("")) {
+				event = "Unknown";
+			}
+			String version = getXMLValue(xmlSource, "<MSH.12.1>", "</MSH.12.1>");
+			map.put("version", version);
+			map.put("type", event);
+			map.put("source", sendingFacility);
+			return map;
+		}
 	}
-	
-	public Map<String, String> getMetadata(Document document) {
+
+	public Map<String, String> getMetadataFromEncoded(String source) throws SerializerException {
 		Map<String, String> map = new HashMap<String, String>();
-		if (useStrictParser){
-			try{
-				DocumentSerializer serializer = new DocumentSerializer();
-				serializer.setPreserveSpace(true);
-				String source = serializer.toXML(document);
-	            Message message = xmlParser.parse(source);
-	            Terser terser = new Terser(message);
+
+		if (useStrictParser) {
+			try {
+				Message message = pipeParser.parse(source.replaceAll("\n", "\r").trim());
+				Terser terser = new Terser(message);
 				String sendingFacility = terser.get("/MSH-4-1");
 				String event = terser.get("/MSH-9-1") + "-" + terser.get("/MSH-9-2");
 				map.put("version", message.getVersion());
-				map.put("type",event);
-				map.put("source", sendingFacility);	
+				map.put("type", event);
+				map.put("source", sendingFacility);
+			} catch (Exception e) {
+				new SerializerException(e);
+			}
+			return map;
+		} else {
+			source = toXML(source);
+			String sendingFacility = getXMLValue(source, "<MSH.4.1>", "</MSH.4.1>");
+			String event = getXMLValue(source, "<MSH.9.1>", "</MSH.9.1>");
+			String subType = getXMLValue(source, "<MSH.9.2>", "</MSH.9.2>");
+			if (!subType.equals("")) {
+				event += "-" + subType;
+			}
+			if (event.equals("")) {
+				event = "Unknown";
+			}
+			String version = getXMLValue(source, "<MSH.12.1>", "</MSH.12.1>");
+			map.put("version", version);
+			map.put("type", event);
+			map.put("source", sendingFacility);
+			return map;
+		}
+	}
+
+	private String getXMLValue(String source, String startTag, String endTag) {
+		String returnValue = "";
+		int startLoc = -1;
+		if ((startLoc = source.indexOf(startTag)) != -1) {
+			returnValue = source.substring(startLoc + startTag.length(), source.indexOf(endTag, startLoc));
+		}
+		return returnValue;
+	}
+
+	public Map<String, String> getMetadataFromDocument(Document document) {
+		Map<String, String> map = new HashMap<String, String>();
+		if (useStrictParser) {
+			try {
+				DocumentSerializer serializer = new DocumentSerializer();
+				serializer.setPreserveSpace(true);
+				String source = serializer.toXML(document);
+				Message message = xmlParser.parse(source);
+				Terser terser = new Terser(message);
+				String sendingFacility = terser.get("/MSH-4-1");
+				String event = terser.get("/MSH-9-1") + "-" + terser.get("/MSH-9-2");
+				map.put("version", message.getVersion());
+				map.put("type", event);
+				map.put("source", sendingFacility);
 				return map;
-			}catch (Exception e){
+			} catch (Exception e) {
 				logger.error(e.getMessage());
 				return map;
 			}
-    	}else{
+		} else {
 
-    		String sendingFacility = "";
-    		if (document.getElementsByTagName("MSH.4.1") != null) {
-    			Node sender = document.getElementsByTagName("MSH.4.1").item(0);
-    			if (sender != null){
-    				sendingFacility = sender.getFirstChild().getTextContent();
-    			}
-    		} 
-    		String event = "Unknown";
-    		if (document.getElementsByTagName("MSH.9") != null) {
-    			if (document.getElementsByTagName("MSH.9.1") != null) {
-        			Node type = document.getElementsByTagName("MSH.9.1").item(0);
-        			if (type != null){
-	        			event = type.getFirstChild().getNodeValue();
-	        			if (document.getElementsByTagName("MSH.9.2") != null) {
-	            			Node subtype = document.getElementsByTagName("MSH.9.2").item(0);
-	            			event += "-" + subtype.getFirstChild().getTextContent();
-	            		}
-        			}
-        		}
-    		}
-    		String version = "";
-    		if (document.getElementsByTagName("MSH.12.1") != null) {
-    			Node versionNode = document.getElementsByTagName("MSH.12.1").item(0);
-    			if (versionNode != null){
-    				version = versionNode.getFirstChild().getTextContent();
-    			}
-    		}
-    		map.put("version", version);
-			map.put("type",event);
+			String sendingFacility = "";
+			if (document.getElementsByTagName("MSH.4.1") != null) {
+				Node sender = document.getElementsByTagName("MSH.4.1").item(0);
+				if (sender != null) {
+					sendingFacility = sender.getFirstChild().getTextContent();
+				}
+			}
+			String event = "Unknown";
+			if (document.getElementsByTagName("MSH.9") != null) {
+				if (document.getElementsByTagName("MSH.9.1") != null) {
+					Node type = document.getElementsByTagName("MSH.9.1").item(0);
+					if (type != null) {
+						event = type.getFirstChild().getNodeValue();
+						if (document.getElementsByTagName("MSH.9.2") != null) {
+							Node subtype = document.getElementsByTagName("MSH.9.2").item(0);
+							event += "-" + subtype.getFirstChild().getTextContent();
+						}
+					}
+				}
+			}
+			String version = "";
+			if (document.getElementsByTagName("MSH.12.1") != null) {
+				Node versionNode = document.getElementsByTagName("MSH.12.1").item(0);
+				if (versionNode != null) {
+					version = versionNode.getFirstChild().getTextContent();
+				}
+			}
+			map.put("version", version);
+			map.put("type", event);
 			map.put("source", sendingFacility);
 			return map;
-    	}
+		}
 	}
 }

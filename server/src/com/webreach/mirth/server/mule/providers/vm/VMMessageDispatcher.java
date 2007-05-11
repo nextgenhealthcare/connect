@@ -50,7 +50,7 @@ public class VMMessageDispatcher extends AbstractMessageDispatcher {
 	private static transient Log logger = LogFactory.getLog(VMMessageDispatcher.class);
 
 	private VMConnector connector;
-	private MessageObjectController messageObjectController = new MessageObjectController();
+	private MessageObjectController messageObjectController = MessageObjectController.getInstance();
 
 	public VMMessageDispatcher(VMConnector connector) {
 		super(connector);

@@ -43,7 +43,7 @@ public class JavaScriptFilterBuilder {
 
 		if (filter.getRules().isEmpty()) {
 			logger.debug("filter is emtpy, setting to accept all messages");
-			builder.append("return true;");
+			//builder.append("return true;");
 		} else {
 			// generate the functions
 			for (ListIterator iter = filter.getRules().listIterator(); iter.hasNext();) {

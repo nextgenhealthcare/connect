@@ -24,13 +24,10 @@
  * ***** END LICENSE BLOCK ***** */
 package com.webreach.mirth.model.converters;
 
-import org.apache.log4j.Logger;
 import org.xml.sax.Attributes;
 import org.xml.sax.helpers.DefaultHandler;
-import com.webreach.mirth.util.Entities;
 
 public class EDIXMLHandler extends DefaultHandler {
-	private Logger logger = Logger.getLogger(this.getClass());
 	private String segmentDelim;
 	private String elementDelim;
 	private String subelementDelim;
@@ -49,7 +46,6 @@ public class EDIXMLHandler extends DefaultHandler {
 		this.segmentDelim = segmentDelim;
 		this.elementDelim = elementDelim;
 		this.subelementDelim = subelementDelim;
-
 	}
 
 	// //////////////////////////////////////////////////////////////////

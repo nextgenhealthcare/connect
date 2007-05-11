@@ -39,6 +39,7 @@ import org.mule.config.ConfigurationException;
 import org.mule.config.builders.MuleXmlConfigurationBuilder;
 
 import com.webreach.mirth.model.SystemEvent;
+import com.webreach.mirth.model.converters.SerializerFactory;
 import com.webreach.mirth.server.controllers.ChannelController;
 import com.webreach.mirth.server.controllers.ConfigurationController;
 import com.webreach.mirth.server.controllers.ControllerException;
@@ -69,7 +70,7 @@ public class Mirth extends Thread {
 	private ChannelController channelController = new ChannelController();
 	private UserController userController = new UserController();
 	private DatabasePruner pruner = new DatabasePruner();
-	private MessageObjectController messageObjectController = new MessageObjectController();
+	private MessageObjectController messageObjectController = MessageObjectController.getInstance();
 
 	public static void main(String[] args) {
 		Mirth mirth = new Mirth();
@@ -171,6 +172,7 @@ public class Mirth extends Thread {
 			// disables validation of Mule configuration files
 			System.setProperty("org.mule.xml.validate", "false");
 			VMRegistry.getInstance().rebuild();
+			SerializerFactory.rebuildSerializerCache();
 			MuleXmlConfigurationBuilder builder = new MuleXmlConfigurationBuilder();
 			muleManager = (MuleManager) builder.configure(configurationFilePath);
 		} catch (ConfigurationException e) {

@@ -52,7 +52,7 @@ import com.webreach.mirth.server.mule.providers.file.filters.FilenameWildcardFil
 public class FileMessageDispatcher extends AbstractMessageDispatcher {
 	private FileConnector connector;
 
-	private MessageObjectController messageObjectController = new MessageObjectController();
+	private MessageObjectController messageObjectController = MessageObjectController.getInstance();
 	private AlertController alertController = new AlertController();
 
 	public FileMessageDispatcher(FileConnector connector) {

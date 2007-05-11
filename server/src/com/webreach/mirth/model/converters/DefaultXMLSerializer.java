@@ -53,9 +53,7 @@ public class DefaultXMLSerializer implements IXMLSerializer<String> {
 		return source;
 	}
 
-
-
-	public Map<String, String> getMetadata() throws SerializerException {
+	private Map<String, String> getMetadata() throws SerializerException {
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("version", "1.0");
 		map.put("type", "XML-Message");
@@ -63,7 +61,15 @@ public class DefaultXMLSerializer implements IXMLSerializer<String> {
 		return map;
 	}
 
-	public Map<String, String> getMetadata(Document doc) throws SerializerException {
+	public Map<String, String> getMetadataFromDocument(Document doc) throws SerializerException {
+		return getMetadata();
+	}
+
+	public Map<String, String> getMetadataFromEncoded(String source) throws SerializerException {
+		return getMetadata();
+	}
+
+	public Map<String, String> getMetadataFromXML(String xmlSource) throws SerializerException {
 		return getMetadata();
 	}
 }

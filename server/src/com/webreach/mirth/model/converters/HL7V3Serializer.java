@@ -61,9 +61,18 @@ public class HL7V3Serializer implements IXMLSerializer<String> {
 		return map;
 	}
 
-	public Map<String, String> getMetadata(Document doc) throws SerializerException {
+	public Map<String, String> getMetadataFromDocument(Document doc) throws SerializerException {
 		Map<String, String> map = getMetadata();
 		map.put("type",doc.getDocumentElement().getNodeName());
 		return map;
+	}
+
+
+	public Map<String, String> getMetadataFromEncoded(String source) throws SerializerException {
+		return getMetadata();
+	}
+
+	public Map<String, String> getMetadataFromXML(String xmlSource) throws SerializerException {
+		return getMetadata();
 	}
 }

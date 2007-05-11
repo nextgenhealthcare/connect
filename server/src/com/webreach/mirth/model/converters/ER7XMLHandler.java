@@ -24,42 +24,30 @@
  * ***** END LICENSE BLOCK ***** */
 package com.webreach.mirth.model.converters;
 
-import java.io.FileReader;
-
-import org.apache.log4j.Logger;
-import org.xml.sax.XMLReader;
 import org.xml.sax.Attributes;
-import org.xml.sax.InputSource;
-import org.xml.sax.helpers.XMLReaderFactory;
 import org.xml.sax.helpers.DefaultHandler;
 
-import com.webreach.mirth.util.Entities;
-
 public class ER7XMLHandler extends DefaultHandler {
-	private Logger logger = Logger.getLogger(this.getClass());
 	private String fieldDelim;
 	private String componentDelim;
-	private String subcomponentDelim;
 	private String repetitionSep;
-	private String escapeChar;
 	private enum Location {DOCUMENT, SEGMENT, ELEMENT, SUBELEMENT};
 	private Location currentLocation = Location.DOCUMENT;
 	private boolean sawHeader = false;
 	private boolean lastinSubelement = false;
 	private boolean inMSH1 = false;
 	private boolean inMSH2 = false;
+	private boolean sawMSH1 = false;
+	private boolean sawMSH2 = false;
 	private String currentSegment = new String();
 	private StringBuilder output = new StringBuilder();
-	private Entities encoder = new Entities();
 	private String segmentDelim;
 	public ER7XMLHandler(String segmentDelim, String fieldDelim, String componentDelim, String subcomponentDelim, String repetitionSep, String escapeChar) {
 		super();
 		this.segmentDelim = segmentDelim;
 		this.fieldDelim = fieldDelim;
 		this.componentDelim = componentDelim;
-		this.subcomponentDelim = subcomponentDelim;
 		this.repetitionSep = repetitionSep;
-		this.escapeChar = escapeChar;
 	}
 
 	// //////////////////////////////////////////////////////////////////
@@ -78,12 +66,14 @@ public class ER7XMLHandler extends DefaultHandler {
 		if (sawHeader == false){
 			sawHeader = true;
 		}else{
-			if (name.equals("MSH.2") || name.equals("BHS.2") || name.equals("FHS.2")){
+			if (!sawMSH2 && (name.equals("MSH.2") || name.equals("BHS.2") || name.equals("FHS.2"))){
 				inMSH2 = true;
+				sawMSH2 = true;
 			}
-			if (name.equals("MSH.1") || name.equals("BHS.1") || name.equals("FHS.1")){
+			if (!sawMSH1 && (name.equals("MSH.1") || name.equals("BHS.1") || name.equals("FHS.1"))){
 				lastinSubelement = false;
 				inMSH1 = true;
+				sawMSH1 = true;
 			}else if (currentLocation.equals(Location.DOCUMENT)){
 				output.append(name);
 				
@@ -110,12 +100,13 @@ public class ER7XMLHandler extends DefaultHandler {
 	}
 
 	public void endElement(String uri, String name, String qName) {
-		if (name.equals("MSH.2") || name.equals("BHS.2") || name.equals("FHS.2")){
+		if (sawMSH2 && (name.equals("MSH.2") || name.equals("BHS.2") || name.equals("FHS.2"))){
 			inMSH2 = false;
+			sawMSH2 = false;
 		}
-		
-		if (name.equals("MSH.1") || name.equals("BHS.1") || name.equals("FHS.1")){
+		if (sawMSH1 && (name.equals("MSH.1") || name.equals("BHS.1") || name.equals("FHS.1"))){
 			inMSH1 = false;
+			sawMSH2 = false;
 			output.deleteCharAt(output.length() - 1);
 		}else if (currentLocation.equals(Location.SEGMENT)){
 			output.append(segmentDelim);

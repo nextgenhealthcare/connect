@@ -19,12 +19,20 @@ package com.webreach.mirth.util;
 import java.util.Hashtable;
 
 public class Entities {
+	private static Entities instance = null;
+
+	public static Entities getInstance() {
+		if (instance == null)
+			instance = new Entities();
+		return instance;
+	}
+
 	final Hashtable decoder = new Hashtable(300);
 	final String[] encoder = new String[0x100];
 
 	public String decode(String entity) {
 		if (entity.charAt(entity.length() - 1) == ';') // remove trailing
-														// semicolon
+			// semicolon
 			entity = entity.substring(0, entity.length() - 1);
 		if (entity.charAt(1) == '#') {
 			int start = 2;
@@ -66,7 +74,7 @@ public class Entities {
 		StringBuffer buffer = new StringBuffer(length * 2);
 		for (int i = 0; i < length; i++) {
 			char c = s.charAt(i);
-			buffer.append(encode(s));
+			buffer.append(encode(c));
 		}
 
 		return buffer.toString();
@@ -350,6 +358,5 @@ public class Entities {
 		add("&lsaquo", 8249);
 		add("&rsaquo", 8250);
 		add("&euro", 8364);
-
 	}
 }

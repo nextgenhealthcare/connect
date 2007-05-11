@@ -58,7 +58,7 @@ public class JmsMessageDispatcher extends AbstractMessageDispatcher {
 
     private JmsConnector connector;
     private Session delegateSession;
-	private MessageObjectController messageObjectController = new MessageObjectController();
+	private MessageObjectController messageObjectController = MessageObjectController.getInstance();
 	private AlertController alertController = new AlertController();
 	
     public JmsMessageDispatcher(JmsConnector connector) {

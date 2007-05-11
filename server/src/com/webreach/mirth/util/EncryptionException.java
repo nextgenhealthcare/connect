@@ -27,6 +27,8 @@
 package com.webreach.mirth.util;
 
 public class EncryptionException extends Exception {
+	private static final long serialVersionUID = 1L;
+
 	public EncryptionException(Throwable cause) {
 		super(cause);
 	}

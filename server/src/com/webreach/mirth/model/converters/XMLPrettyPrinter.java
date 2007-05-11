@@ -19,7 +19,7 @@ public class XMLPrettyPrinter implements ContentHandler {
 	private Writer out;
 	private int depth = 0; // depth in hierarchy
 
-	private Entities encoder = new Entities();
+	private Entities encoder = Entities.getInstance();
 
 	// I could allow the user to set a lot more details about
 	// how the XML is indented; e.g. how many spaces, tabs or spaces,
@@ -62,7 +62,9 @@ public class XMLPrettyPrinter implements ContentHandler {
 	public void startElement(String name, AttributeList atts) throws SAXException {
 		try {
 			// indent();
-			out.write("<" + name + ">");
+			out.write("<");
+			out.write(name);
+			out.write(">");
 			depth++;
 		} catch (IOException e) {
 			throw new SAXException(e);
@@ -73,7 +75,9 @@ public class XMLPrettyPrinter implements ContentHandler {
 		try {
 			depth--;
 			// indent();
-			out.write("</" + name + ">");
+			out.write("</");
+			out.write(name);
+			out.write(">");
 		} catch (IOException e) {
 			throw new SAXException(e);
 		}
@@ -96,7 +100,11 @@ public class XMLPrettyPrinter implements ContentHandler {
 	public void processingInstruction(String target, String data) throws SAXException {
 		try {
 			// indent();
-			out.write("<?" + target + " " + data + "?>");
+			out.write("<?");
+			out.write(target);
+			out.write(" ");
+			out.write(data);
+			out.write("?>");
 		} catch (IOException e) {
 			throw new SAXException(e);
 		}

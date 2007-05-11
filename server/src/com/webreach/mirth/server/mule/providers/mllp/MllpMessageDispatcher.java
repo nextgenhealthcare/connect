@@ -75,7 +75,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher {
 	protected static transient Log logger = LogFactory.getLog(MllpMessageDispatcher.class);
 
 	private MllpConnector connector;
-	private MessageObjectController messageObjectController = new MessageObjectController();
+	private MessageObjectController messageObjectController = MessageObjectController.getInstance();
 	private AlertController alertController = new AlertController();
 	private TemplateValueReplacer replacer = new TemplateValueReplacer();
 

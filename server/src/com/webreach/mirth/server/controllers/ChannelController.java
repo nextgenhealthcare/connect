@@ -46,7 +46,7 @@ public class ChannelController {
 	private static HashMap<String, Channel> channelCache = new HashMap<String, Channel>();
 	private static HashMap<String, String> channelIdLookup = new HashMap<String, String>();
     private ConfigurationController configurationController = new ConfigurationController();
-    private ChannelStatisticsController statisticsController = new ChannelStatisticsController();
+    private ChannelStatisticsController statisticsController = ChannelStatisticsController.getInstance();
     
 	public void initialize() {
 		try {
@@ -59,7 +59,7 @@ public class ChannelController {
                     statisticsController.createStatistics(channel.getId());
                 }
             } 
-            statisticsController.initialize();
+            statisticsController.reloadLocalCache();
 		} catch (Exception e) {
 			logger.warn(e);
 		}

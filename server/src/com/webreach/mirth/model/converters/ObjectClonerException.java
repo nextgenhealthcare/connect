@@ -27,6 +27,8 @@
 package com.webreach.mirth.model.converters;
 
 public class ObjectClonerException extends Exception {
+	private static final long serialVersionUID = 1L;
+
 	public ObjectClonerException(Throwable cause) {
 		super(cause);
 	}

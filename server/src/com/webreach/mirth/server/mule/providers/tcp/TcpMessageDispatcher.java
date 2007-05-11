@@ -74,7 +74,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 	protected static transient Log logger = LogFactory.getLog(TcpMessageDispatcher.class);
 
 	private TcpConnector connector;
-	private MessageObjectController messageObjectController = new MessageObjectController();
+	private MessageObjectController messageObjectController = MessageObjectController.getInstance();
 	private TemplateValueReplacer replacer = new TemplateValueReplacer();
 	private AlertController alertController = new AlertController();
 	

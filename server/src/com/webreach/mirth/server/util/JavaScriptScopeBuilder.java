@@ -8,9 +8,9 @@ import org.mule.providers.TemplateValueReplacer;
 import com.webreach.mirth.model.MessageObject;
 
 public class JavaScriptScopeBuilder {
+
 	// MessageObject builder
 	public void buildScope(Scriptable scope, MessageObject messageObject) {
-		buildScope(scope, messageObject.getChannelId());
 		scope.put("messageObject", scope, messageObject);
 		scope.put("message", scope, messageObject.getTransformedData());
 		scope.put("connectorMap", scope, messageObject.getConnectorMap());
@@ -18,16 +18,17 @@ public class JavaScriptScopeBuilder {
 		scope.put("responseMap", scope, messageObject.getResponseMap());
 		scope.put("connector", scope, messageObject.getConnectorName());
 	}
-
 	// Generic and Channel Builder
 	public void buildScope(Scriptable scope, String channelId) {
 		scope.put("alerts", scope, new AlertSender(channelId));
-		scope.put("router", scope, new VMRouter());
 		scope.put("globalMap", scope, GlobalVariableStore.getInstance());
 		scope.put("channelId", scope, channelId);
+	}
+	public void buildScope(Scriptable scope) {
+		scope.put("router", scope, new VMRouter());
 		scope.put("replacer", scope, new TemplateValueReplacer());
 	}
-
+	
 	// Logger builders
 	public void buildScope(Scriptable scope, Log scriptLogger) {
 		scope.put("logger", scope, scriptLogger);
@@ -39,11 +40,13 @@ public class JavaScriptScopeBuilder {
 
 	// Composite scopes
 	public void buildScope(Scriptable scope, MessageObject messageObject, Log scriptLogger) {
+		buildScope(scope, messageObject.getChannelId());
 		buildScope(scope, messageObject);
 		buildScope(scope, scriptLogger);
 	}
 
 	public void buildScope(Scriptable scope, MessageObject messageObject, Logger scriptLogger) {
+		buildScope(scope, messageObject.getChannelId());
 		buildScope(scope, messageObject);
 		buildScope(scope, scriptLogger);
 	}

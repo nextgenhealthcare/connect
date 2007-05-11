@@ -29,8 +29,8 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
+import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
@@ -39,38 +39,35 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
 public class EDISerializer implements IXMLSerializer<String> {
+	private Logger logger = Logger.getLogger(this.getClass());
 	private String segmentDelim = "~";
 	private String elementDelim = "*";
 	private String subelementDelim = ":";
-	private Map<String, String> metadata = null;
-	private String currentXML = null;
-	private String currentEDI = null;
-	
+
 	public EDISerializer(Map ediProperties) {
-		if (ediProperties == null){
+		if (ediProperties == null) {
 			return;
 		}
-		if(ediProperties.get("segmentDelimiter") != null)
-		{
+		if (ediProperties.get("segmentDelimiter") != null) {
 			this.segmentDelim = convertNonPrintableCharacters((String) ediProperties.get("segmentDelimiter"));
 
 		}
-		if(ediProperties.get("elementDelimiter") != null)
-		{
+		if (ediProperties.get("elementDelimiter") != null) {
 			this.elementDelim = convertNonPrintableCharacters((String) ediProperties.get("elementDelimiter"));
 		}
-		if(ediProperties.get("subelementDelimiter") != null)
-		{
+		if (ediProperties.get("subelementDelimiter") != null) {
 			this.subelementDelim = convertNonPrintableCharacters((String) ediProperties.get("subelementDelimiter"));
 		}
 		return;
 	}
-	private String convertNonPrintableCharacters(String delimiter){
+
+	private String convertNonPrintableCharacters(String delimiter) {
 		return delimiter.replaceAll("\\\\r", "\r").replaceAll("\\\\n", "\n").replaceAll("\\\\t", "\t");
-		
+
 	}
+
 	public EDISerializer() {
-		
+
 	}
 
 	public String fromXML(String source) throws SerializerException {
@@ -87,13 +84,12 @@ public class EDISerializer implements IXMLSerializer<String> {
 			xr.parse(new InputSource(new StringReader(source)));
 		} catch (Exception e) {
 			throw new SerializerException(e.getMessage());
-		} 
+		}
 		return handler.getOutput().toString();
 	}
 
 	public String toXML(String source) throws SerializerException {
 		try {
-			currentEDI = source;
 			EDIReader ediReader = new EDIReader("~", "*", ":");
 			StringWriter stringWriter = new StringWriter();
 			XMLPrettyPrinter serializer = new XMLPrettyPrinter(stringWriter);
@@ -105,14 +101,10 @@ public class EDISerializer implements IXMLSerializer<String> {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			metadata = null;
-			currentXML = os.toString();
-			return currentXML;
+			return os.toString();
 		} catch (Exception e) {
-			String exceptionMessage = e.getClass().getName() + ":" + e.getMessage();
-			System.out.println(exceptionMessage);
+			logger.error(e);
 		}
-		
 		return new String();
 	}
 
@@ -139,52 +131,58 @@ public class EDISerializer implements IXMLSerializer<String> {
 	public void setSubelementDelim(String subelementDelim) {
 		this.subelementDelim = subelementDelim;
 	}
-	public Map<String, String> getMetadata() throws SerializerException{
-		if (metadata == null){
-			metadata = getMetadata(currentXML);
-		}
-		return metadata;
-	}
-	private Map<String, String> getMetadata(String sourceMessage) throws SerializerException{
+
+	private Map<String, String> getMetadata(String sourceMessage) throws SerializerException {
 		DocumentSerializer docSerializer = new DocumentSerializer();
 		docSerializer.setPreserveSpace(true);
 		Document document = docSerializer.fromXML(sourceMessage);
-		return getMetadata(document);
+		return getMetadataFromDocument(document);
 	}
-	public Map<String, String> getMetadata(Document document) {
+
+	public Map<String, String> getMetadataFromDocument(Document document) {
 		Map<String, String> map = new HashMap<String, String>();
 		String sendingFacility = "";
 		if (document.getElementsByTagName("ISA.06.1") != null) {
 			Node sender = document.getElementsByTagName("ISA.06.1").item(0);
-			if (sender != null){
+			if (sender != null) {
 				sendingFacility = sender.getTextContent();
 			}
-		} 
+		}
 		if (sendingFacility == null && document.getElementsByTagName("GS.02.1") != null) {
 			Node sender = document.getElementsByTagName("GS.02.1").item(0);
-			if (sender != null){
+			if (sender != null) {
 				sendingFacility = sender.getTextContent();
 			}
 		}
 		String event = document.getDocumentElement().getNodeName();
 		if (document.getElementsByTagName("ST.01.1") != null) {
 			Node type = document.getElementsByTagName("ST.01.1").item(0);
-			if (type != null){
+			if (type != null) {
 				event = type.getTextContent();
 			}
 		}
 		String version = "";
 		if (document.getElementsByTagName("GS.08.1") != null) {
 			Node versionNode = document.getElementsByTagName("GS.08.1").item(0);
-			if (versionNode != null){
+			if (versionNode != null) {
 				version = versionNode.getTextContent();
 			}
 		}
-		
+
 		map.put("version", version);
 		map.put("type", event);
 		map.put("source", sendingFacility);
 		return map;
+	}
+
+	public Map<String, String> getMetadataFromEncoded(String source) throws SerializerException {
+		String ediXML = fromXML(source);
+		return getMetadata(ediXML);
+	}
+
+	public Map<String, String> getMetadataFromXML(String xmlSource) throws SerializerException {
+		return getMetadata(xmlSource);
+		// TODO: Make this actually use a helper string parser
 	}
 
 }

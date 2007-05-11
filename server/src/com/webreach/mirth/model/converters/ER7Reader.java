@@ -30,7 +30,6 @@ import java.io.IOException;
 import java.util.StringTokenizer;
 
 import org.apache.log4j.Logger;
-import org.w3c.dom.Element;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -44,9 +43,10 @@ public class ER7Reader extends SAXParser {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private boolean handleRepetitions = false;
 
-	public ER7Reader(boolean handleRepetitions){
+	public ER7Reader(boolean handleRepetitions) {
 		this.handleRepetitions = handleRepetitions;
 	}
+
 	public void parse(InputSource input) throws SAXException, IOException {
 		// Read the data from the InputSource
 		BufferedReader in = new BufferedReader(input.getCharacterStream());
@@ -115,13 +115,11 @@ public class ER7Reader extends SAXParser {
 
 	private void handleElement(ContentHandler contentHandler, String fieldDelim, String componentDelim, String subcomponentDelim, String repetitionSep, String escapeChar, StringTokenizer elementTokenizer, String segmentID) throws SAXException {
 		int fieldID = 0;
-		Element elementElement = null;
 		boolean lastsegElement = false;
-		int subelementID = 1;
-		boolean lastsegSubelement = true;
 		boolean inMSH = false;
 		while (elementTokenizer.hasMoreTokens()) {
 			inMSH = false;
+
 			// Go through each element and add as new child under
 			// the segment element
 			String element = elementTokenizer.nextToken();
@@ -153,9 +151,9 @@ public class ER7Reader extends SAXParser {
 				} else if (inMSH && fieldID == 2) {
 
 				} else {
-					if (handleRepetitions){
+					if (handleRepetitions) {
 						handleRepetitions(contentHandler, componentDelim, repetitionSep, segmentID, fieldID, element);
-					}else{
+					} else {
 						handleElementsInternal(contentHandler, componentDelim, segmentID, fieldID, element);
 					}
 				}
@@ -168,13 +166,12 @@ public class ER7Reader extends SAXParser {
 	}
 
 	private void handleRepetitions(ContentHandler contentHandler, String componentDelim, String repetitionSep, String segmentID, int fieldID, String element) throws SAXException {
-		int subelementID;
 		StringTokenizer repTokenizer = new StringTokenizer(element, repetitionSep, true);
 		boolean lastrepElement = true;
 		while (repTokenizer.hasMoreTokens()) {
 			element = repTokenizer.nextToken();
 			if (element.equals(repetitionSep)) {
-				//check for ~~
+				// check for ~~
 				if (lastrepElement) {
 					contentHandler.startElement("", segmentID + "." + fieldID, "", null);
 					contentHandler.characters("".toCharArray(), 0, 0);
@@ -193,6 +190,7 @@ public class ER7Reader extends SAXParser {
 			contentHandler.endElement("", segmentID + "." + (fieldID), "");
 		}
 	}
+
 	private void handleElementsInternal(ContentHandler contentHandler, String componentDelim, String segmentID, int fieldID, String element) throws SAXException {
 		int subelementID;
 		if (element.indexOf(componentDelim) > -1) {
