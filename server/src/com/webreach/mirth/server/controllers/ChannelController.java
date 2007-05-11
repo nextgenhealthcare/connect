@@ -59,7 +59,7 @@ public class ChannelController {
                     statisticsController.createStatistics(channel.getId());
                 }
             } 
-            statisticsController.reloadLocalCache();
+            statisticsController.initialize();
 		} catch (Exception e) {
 			logger.warn(e);
 		}
