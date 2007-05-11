@@ -43,10 +43,10 @@ import com.webreach.mirth.server.util.SqlConfig;
 public class ChannelController {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private SqlMapClient sqlMap = SqlConfig.getSqlMapInstance();
-	private static HashMap<String, Channel> channelCache;
-	private static HashMap<String, String> channelIdLookup;
+	private static HashMap<String, Channel> channelCache = new HashMap<String, Channel>();
+	private static HashMap<String, String> channelIdLookup = new HashMap<String, String>();
     private ConfigurationController configurationController = new ConfigurationController();
-    private ChannelStatisticsController statisticsController = new ChannelStatisticsController();
+    private ChannelStatisticsController statisticsController = ChannelStatisticsController.getInstance();
     
 	public void initialize() {
 		try {
@@ -59,7 +59,7 @@ public class ChannelController {
                     statisticsController.createStatistics(channel.getId());
                 }
             } 
-            statisticsController.initialize();
+            statisticsController.reloadLocalCache();
 		} catch (Exception e) {
 			logger.warn(e);
 		}
@@ -226,8 +226,10 @@ public class ChannelController {
 	}
 	
 	private static void removeChannelFromCache(Channel channel){
-		channelCache.remove(channel.getId());
-		channelIdLookup.remove(channel.getId());
+		if (channel != null){
+			channelCache.remove(channel.getId());
+			channelIdLookup.remove(channel.getId());
+		}
 	}
 	private static void updateChannelInCache(Channel channel){
 		channelCache.put(channel.getId(), channel);
