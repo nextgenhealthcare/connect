@@ -2484,7 +2484,8 @@ public class Frame extends JXFrame
     public void doDeployAll()
     {
         setWorking("Deploying channels...", true);
-
+        dashboardPanel.deselectRows();
+        
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
             public Void doInBackground()
@@ -2503,7 +2504,6 @@ public class Frame extends JXFrame
             public void done()
             {
                 doShowDashboard();
-                dashboardPanel.deselectRows();
                 setWorking("", false);
             }
         };
