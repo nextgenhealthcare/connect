@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -61,6 +62,8 @@ import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.server.Command;
 import com.webreach.mirth.server.CommandQueue;
 import com.webreach.mirth.server.builders.MuleConfigurationBuilder;
+import com.webreach.mirth.server.util.JMXConnection;
+import com.webreach.mirth.server.util.JMXConnectionFactory;
 import com.webreach.mirth.server.util.SqlConfig;
 import com.webreach.mirth.util.Encrypter;
 import com.webreach.mirth.util.PropertyLoader;
@@ -81,7 +84,10 @@ public class ConfigurationController {
 	private final String CONF_FOLDER = "conf/";
 	private SqlMapClient sqlMap = SqlConfig.getSqlMapInstance();
 	private static final String CHARSET = "ca.uhn.hl7v2.llp.charset";
+	
+	// Mirth status codes
 	private static final int STATUS_OK = 0;
+	private static final int STATUS_UNAVAILABLE = 1;
 
 	public void initialize() {
 		try {
@@ -406,19 +412,39 @@ public class ConfigurationController {
 	}
 	
 	public int getStatus() {
-		return STATUS_OK;
+		logger.debug("getting Mirth status");
+		
+		JMXConnection jmxConnection = null;
+		
+		try {
+			jmxConnection = JMXConnectionFactory.createJMXConnection();
+			Hashtable<String, String> properties = new Hashtable<String, String>();
+			properties.put("type", "control");
+			properties.put("name", "MuleService");
+			
+			if (!((Boolean) jmxConnection.getAttribute(properties, "Stopped"))) {
+				return STATUS_OK;	
+			} else {
+				return STATUS_UNAVAILABLE;
+			}
+		} catch (Exception e) {
+			logger.warn("could not retrieve status");
+			return STATUS_UNAVAILABLE;
+		}
 	}
 	
 	public ServerConfiguration getServerConfiguration() throws ControllerException {
 		ChannelController channelController = new ChannelController();
 		AlertController alertController = new AlertController();
 		UserController userController = new UserController();
-		ServerConfiguration serverConfig = new ServerConfiguration();
-		serverConfig.setChannels(channelController.getChannel(null));
-		serverConfig.setAlerts(alertController.getAlert(null));
-		serverConfig.setUsers(userController.getUser(null));
-		serverConfig.setProperties(getServerProperties());
-		return serverConfig;
+		
+		ServerConfiguration serverConfiguration = new ServerConfiguration();
+		serverConfiguration.setChannels(channelController.getChannel(null));
+		serverConfiguration.setAlerts(alertController.getAlert(null));
+		serverConfiguration.setUsers(userController.getUser(null));
+		serverConfiguration.setProperties(getServerProperties());
+		
+		return serverConfiguration;
 	}
 	
 	public void setServerConfiguration(ServerConfiguration serverConfiguration) throws ControllerException {
