@@ -199,7 +199,6 @@ public class ConfigurationController {
 		try {
 			serverPropertiesFile.createNewFile();
 			fileOutputStream = new FileOutputStream(serverPropertiesFile);
-            properties.setProperty("server.id", serverId);
 			properties.store(fileOutputStream, "Updated server properties");
 		} catch (Exception e) {
 			throw new ControllerException(e);
@@ -219,7 +218,6 @@ public class ConfigurationController {
 
 		try {
 			fileOuputStream = new FileOutputStream(serverPropertiesFile);
-            properties.setProperty("server.id", serverId);
 			properties.store(fileOuputStream, null);
 		} catch (Exception e) {
 			throw new ControllerException(e);

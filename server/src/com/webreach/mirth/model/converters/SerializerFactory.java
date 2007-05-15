@@ -32,15 +32,15 @@ public class SerializerFactory {
 		Properties properties = new Properties();
 		properties.put("useStrictParser", Boolean.toString(useStrictParser));
 		properties.put("useStrictValidation", Boolean.toString(useStrictValidation));
-		properties.put("handleRepetitions", false);
+		properties.put("handleRepetitions", Boolean.toString(false));
 		return new ER7Serializer(properties);
 	}
 
 	public static ER7Serializer getHL7Serializer() {
 		Properties properties = new Properties();
-		properties.put("useStrictParser", true);
-		properties.put("useStrictValidation", false);
-		properties.put("handleRepetitions", false);
+		properties.put("useStrictParser", Boolean.toString(true));
+		properties.put("useStrictValidation", Boolean.toString(false));
+		properties.put("handleRepetitions", Boolean.toString(false));
 		return new ER7Serializer(properties);
 	}
 
