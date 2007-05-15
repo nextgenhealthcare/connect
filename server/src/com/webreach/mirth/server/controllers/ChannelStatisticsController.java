@@ -165,8 +165,11 @@ public class ChannelStatisticsController {
 	}
 
 	public synchronized void decrementQueuedCount(String channelId) {
-		statsCache.getCache().get(channelId).setQueued(statsCache.getCache().get(channelId).getQueued() - 1);
-		statsChanged = true;
+        if(statsCache.getCache().get(channelId).getQueued() > 0)
+        {
+            statsCache.getCache().get(channelId).setQueued(statsCache.getCache().get(channelId).getQueued() - 1);
+            statsChanged = true;
+        }
 	}
 
 	private void updateStatistics(String channelId) {
