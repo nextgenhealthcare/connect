@@ -42,7 +42,7 @@ import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.util.CompiledScriptCache;
-import com.webreach.mirth.server.util.JavaScriptScopeBuilder;
+import com.webreach.mirth.server.util.JavaScriptScopeUtil;
 
 public class JdbcMessageDispatcher extends AbstractMessageDispatcher {
 	private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
@@ -79,7 +79,7 @@ public class JdbcMessageDispatcher extends AbstractMessageDispatcher {
 				Scriptable scope = new ImporterTopLevel(context);
 
 				// load variables in JavaScript scope
-				new JavaScriptScopeBuilder().buildScope(scope, messageObject, logger);
+				JavaScriptScopeUtil.buildScope(scope, messageObject, logger);
 
 				// get the script from the cache and execute it
 				Script compiledScript = compiledScriptCache.getCompiledScript(this.connector.getScriptId());

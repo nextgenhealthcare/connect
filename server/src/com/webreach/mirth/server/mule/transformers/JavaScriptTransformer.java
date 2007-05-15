@@ -52,7 +52,7 @@ import com.webreach.mirth.server.controllers.TemplateController;
 import com.webreach.mirth.server.mule.adaptors.Adaptor;
 import com.webreach.mirth.server.mule.adaptors.AdaptorFactory;
 import com.webreach.mirth.server.util.CompiledScriptCache;
-import com.webreach.mirth.server.util.JavaScriptScopeBuilder;
+import com.webreach.mirth.server.util.JavaScriptScopeUtil;
 import com.webreach.mirth.server.util.UUIDGenerator;
 
 public class JavaScriptTransformer extends AbstractEventAwareTransformer {
@@ -62,7 +62,6 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 	private TemplateController templateController = new TemplateController();
 	private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
 	private ScriptController scriptController = new ScriptController();
-	private JavaScriptScopeBuilder scopeBuilder = new JavaScriptScopeBuilder();
 	private ErrorMessageBuilder errorBuilder = new ErrorMessageBuilder();
 
 	private String inboundProtocol;
@@ -79,16 +78,19 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 	private String template;
 	private static ScriptableObject sealedSharedScope;
 	private Scriptable currentScope;
+
 	public static Context getContext() {
 		Context context = Context.enter();
+		
 		if (sealedSharedScope == null) {
 			String importScript = getJavascriptImportScript();
 			sealedSharedScope = new ImporterTopLevel(context);
-			new JavaScriptScopeBuilder().buildScope(sealedSharedScope);
+			JavaScriptScopeUtil.buildScope(sealedSharedScope);
 			Script script = context.compileString(importScript, UUIDGenerator.getUUID(), 1, null);
 			script.exec(context, sealedSharedScope);
 			sealedSharedScope.sealObject();
 		}
+		
 		return context;
 	}
 
@@ -130,7 +132,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 
 	public void setChannelId(String channelId) {
 		currentScope = getScope();
-		scopeBuilder.buildScope(currentScope, channelId);
+		JavaScriptScopeUtil.addChannel(currentScope, channelId);
 		this.channelId = channelId;
 	}
 
@@ -294,8 +296,8 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 			Scriptable scope = getScope();
 
 			// load variables in JavaScript scope
-			scopeBuilder.buildScope(scope, messageObject);
-			scopeBuilder.buildScope(scope, scriptLogger);
+			JavaScriptScopeUtil.addMessageObject(scope, messageObject);
+			JavaScriptScopeUtil.addLogger(scope, scriptLogger);
 			// get the script from the cache and execute it
 			Script compiledScript = compiledScriptCache.getCompiledScript(filterScriptId);
 			Object result = null;
@@ -328,8 +330,8 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 			Context context = getContext();
 			Scriptable scope = getScope();
 			// load variables in JavaScript scope
-			scopeBuilder.buildScope(scope, messageObject);
-			scopeBuilder.buildScope(scope, scriptLogger);
+			JavaScriptScopeUtil.addMessageObject(scope, messageObject);
+			JavaScriptScopeUtil.addLogger(scope, scriptLogger);
 			scope.put("template", scope, template);
 
 			// TODO: have function list provide all serializers - maybe we
@@ -424,7 +426,6 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 		script.append("{ return ''; }}");
 		script.append("default xml namespace = '';");
 		script.append("function doTransform() {");
-
 
 		// turn the template into an E4X XML object
 

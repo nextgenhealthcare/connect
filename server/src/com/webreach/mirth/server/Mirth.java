@@ -41,6 +41,7 @@ import org.mule.config.builders.MuleXmlConfigurationBuilder;
 import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.model.converters.SerializerFactory;
 import com.webreach.mirth.server.controllers.ChannelController;
+import com.webreach.mirth.server.controllers.ChannelStatisticsController;
 import com.webreach.mirth.server.controllers.ConfigurationController;
 import com.webreach.mirth.server.controllers.ControllerException;
 import com.webreach.mirth.server.controllers.MessageObjectController;
@@ -71,6 +72,7 @@ public class Mirth extends Thread {
 	private UserController userController = new UserController();
 	private DatabasePruner pruner = new DatabasePruner();
 	private MessageObjectController messageObjectController = MessageObjectController.getInstance();
+	private ChannelStatisticsController channelStatisticsController = ChannelStatisticsController.getInstance();
 
 	public static void main(String[] args) {
 		Mirth mirth = new Mirth();
@@ -142,6 +144,7 @@ public class Mirth extends Thread {
 	public void shutdown() {
 		logger.info("shutting down mirth due to normal request");
 		stopMule();
+		channelStatisticsController.updateAllStatistics(); // do one last update to the stats table
 		stopWebServer();
 		pruner.interrupt();
 		running = false;
@@ -172,7 +175,6 @@ public class Mirth extends Thread {
 			// disables validation of Mule configuration files
 			System.setProperty("org.mule.xml.validate", "false");
 			VMRegistry.getInstance().rebuild();
-			SerializerFactory.rebuildSerializerCache();
 			MuleXmlConfigurationBuilder builder = new MuleXmlConfigurationBuilder();
 			muleManager = (MuleManager) builder.configure(configurationFilePath);
 		} catch (ConfigurationException e) {

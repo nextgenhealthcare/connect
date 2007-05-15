@@ -47,6 +47,7 @@ import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.Response;
 import com.webreach.mirth.model.filters.MessageObjectFilter;
 import com.webreach.mirth.server.builders.ErrorMessageBuilder;
+import com.webreach.mirth.server.util.DatabaseUtil;
 import com.webreach.mirth.server.util.SqlConfig;
 import com.webreach.mirth.server.util.UUIDGenerator;
 import com.webreach.mirth.server.util.VMRouter;
@@ -61,7 +62,7 @@ public class MessageObjectController {
 	private ChannelStatisticsController statisticsController = ChannelStatisticsController.getInstance();
 	private String lineSeperator = System.getProperty("line.separator");
 	private ErrorMessageBuilder errorBuilder = new ErrorMessageBuilder();
-	
+
 	private static MessageObjectController instance = null;
 
 	public static MessageObjectController getInstance() {
@@ -73,44 +74,43 @@ public class MessageObjectController {
 			return instance;
 		}
 	}
-	
+
 	public void initialize() {
+		removeAllFilterTables();
+	}
 
-    	Connection conn = null;
-	    try {
-	    	conn = sqlMap.getDataSource().getConnection();
-	        // Gets the database metadata
-	        DatabaseMetaData dbmd = conn.getMetaData();
-	    
-	        // Specify the type of object; in this case we want tables
-	        String[] types = {"TABLE"};
-	        ResultSet resultSet = dbmd.getTables(null, null, "MSG_TMP_%", types);
-	    
-	        while (resultSet.next()) {
-	            // Get the table name
-	            String tableName = resultSet.getString(3);
-	            // Get the uid and remove its filter tables/indexes/sequences
-	            removeFilterTables(tableName.substring(8));
-	        }
-	        resultSet.close();
-	    } catch (SQLException e) {
-	    	logger.error(e);
-	    } finally {
-	    	if (conn != null) {
-				try {
-					conn.close();
-				} catch (SQLException e) {
-					logger.error(e);
-				}
-	    	}
-	    }
+	public void removeAllFilterTables() {
+		Connection conn = null;
+		ResultSet resultSet = null;
 
+		try {
+			conn = sqlMap.getDataSource().getConnection();
+			// Gets the database metadata
+			DatabaseMetaData dbmd = conn.getMetaData();
+
+			// Specify the type of object; in this case we want tables
+			String[] types = { "TABLE" };
+			resultSet = dbmd.getTables(null, null, "MSG_TMP_%", types);
+
+			while (resultSet.next()) {
+				// Get the table name
+				String tableName = resultSet.getString(3);
+				// Get the uid and remove its filter tables/indexes/sequences
+				removeFilterTable(tableName.substring(8));
+			}
+
+		} catch (SQLException e) {
+			logger.error(e);
+		} finally {
+			DatabaseUtil.close(resultSet);
+			DatabaseUtil.close(conn);
+		}
 	}
 
 	public void updateMessage(MessageObject incomingMessageObject, boolean checkIfMessageExists) {
 		try {
 			MessageObject messageObject = (MessageObject) incomingMessageObject.clone();
-			
+
 			// update the stats counts
 			if (messageObject.getStatus().equals(MessageObject.Status.TRANSFORMED)) {
 				statisticsController.incrementReceivedCount(messageObject.getChannelId());
@@ -123,24 +123,16 @@ public class MessageObjectController {
 			} else if (messageObject.getStatus().equals(MessageObject.Status.QUEUED)) {
 				statisticsController.incrementQueuedCount(messageObject.getChannelId());
 			}
-			
+
 			String channelId = messageObject.getChannelId();
 			HashMap<String, Channel> channelCache = ChannelController.getChannelCache();
-            
+
 			// Check the cache for the channel
 			if (channelCache != null && channelCache.containsKey(channelId)) {
 				Channel channel = channelCache.get(channelId);
 
 				if (channel.getProperties().containsKey("store_messages")) {
 					if (channel.getProperties().get("store_messages").equals("false") || (channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("error_messages_only").equals("true") && !messageObject.getStatus().equals(MessageObject.Status.ERROR)) || (channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("dont_store_filtered").equals("true") && messageObject.getStatus().equals(MessageObject.Status.FILTERED))) {
-						// If we don't want to store messages, then lets
-						// sanitize the data in a clone
-						//messageObject.setRawData(MESSAGE_NO_DATA_STORE);
-						//messageObject.setEncodedData(MESSAGE_NO_DATA_STORE);
-						//messageObject.setTransformedData(MESSAGE_NO_DATA_STORE);
-						//messageObject.setConnectorMap(new HashMap());
-						//messageObject.setChannelMap(new HashMap());
-						//messageObject.setResponseMap(new HashMap());
 						logger.debug("message is not stored");
 						return;
 					} else if (channel.getProperties().getProperty("encryptData").equals("true")) {
@@ -148,14 +140,14 @@ public class MessageObjectController {
 					}
 				}
 			}
-			
+
 			if (checkIfMessageExists) {
 				int count = (Integer) sqlMap.queryForObject("getMessageCount", messageObject.getId());
 
 				if (count == 0) {
 					logger.debug("adding message: id=" + messageObject.getId());
 					sqlMap.insert("insertMessage", messageObject);
-					
+
 				} else {
 					logger.debug("updating message: id=" + messageObject.getId());
 					sqlMap.update("updateMessage", messageObject);
@@ -213,21 +205,21 @@ public class MessageObjectController {
 
 	public int createMessagesTempTable(MessageObjectFilter filter, String uid, boolean forceTemp) throws ControllerException {
 		logger.debug("creating temporary message table: filter=" + filter.toString());
-		
-		if (!forceTemp && statementExists("getMessageByPageLimit")){
+
+		if (!forceTemp && statementExists("getMessageByPageLimit")) {
 			return -1;
 		}
-		// If it's not forcing temp tables (export or reprocessing), 
+		// If it's not forcing temp tables (export or reprocessing),
 		// then it's reusing the same ones, so remove them.
 		if (!forceTemp) {
-			removeFilterTables(uid);
+			removeFilterTable(uid);
 		}
 
 		try {
 			if (statementExists("createTempMessageTableSequence")) {
 				sqlMap.update("createTempMessageTableSequence", uid);
 			}
-				
+
 			sqlMap.update("createTempMessageTable", uid);
 			sqlMap.update("createTempMessageTableIndex", uid);
 			return sqlMap.update("populateTempMessageTable", getFilterMap(filter, uid));
@@ -235,20 +227,21 @@ public class MessageObjectController {
 			throw new ControllerException(e);
 		}
 	}
+
 	// ast: allow ordering with derby
 	public List<MessageObject> getMessagesByPageLimit(int page, int pageSize, int maxMessages, String uid, MessageObjectFilter filter) throws ControllerException {
 		logger.debug("retrieving messages by page: page=" + page);
-		
+
 		try {
 			Map parameterMap = new HashMap();
 			parameterMap.put("uid", uid);
 			int offset = page * pageSize;
-			
+
 			parameterMap.put("offset", offset);
 			parameterMap.put("limit", pageSize);
-			
+
 			parameterMap.putAll(getFilterMap(filter, uid));
-			
+
 			List<MessageObject> messages = sqlMap.queryForList("getMessageByPageLimit", parameterMap);
 
 			for (Iterator iter = messages.iterator(); iter.hasNext();) {
@@ -261,10 +254,11 @@ public class MessageObjectController {
 			throw new ControllerException(e);
 		}
 	}
+
 	// ast: allow ordering with derby
 	public List<MessageObject> getMessagesByPage(int page, int pageSize, int maxMessages, String uid) throws ControllerException {
 		logger.debug("retrieving messages by page: page=" + page);
-		
+
 		try {
 			Map parameterMap = new HashMap();
 			parameterMap.put("uid", uid);
@@ -299,7 +293,7 @@ public class MessageObjectController {
 		}
 	}
 
-	public void removeFilterTables(String uid) {
+	public void removeFilterTable(String uid) {
 		logger.debug("Removing temporary message table: uid=" + uid);
 		try {
 			if (statementExists("dropTempMessageTableSequence")) {
@@ -341,45 +335,46 @@ public class MessageObjectController {
 		try {
 			final String uid = System.currentTimeMillis() + "";
 			final int size = createMessagesTempTable(filter, uid, true);
-			
+
 			Thread reprocessThread = new Thread(new Runnable() {
 				public void run() {
 					try {
 						int page = 0;
 						int interval = 10;
-	
+
 						while ((page * interval) < size) {
 							List<MessageObject> messages = getMessagesByPage(page, interval, size, uid);
-	
+
 							try {
 								VMRouter router = new VMRouter();
-	
+
 								for (Iterator<MessageObject> iter = messages.iterator(); iter.hasNext();) {
 									try {
 										Thread.sleep(10);
 									} catch (InterruptedException ie) {
 										logger.debug(ie);
 									}
-									
+
 									MessageObject message = iter.next();
 									router.routeMessageByChannelId(message.getChannelId(), message.getRawData(), true);
 								}
 							} catch (Exception e) {
 								throw new ControllerException("could not reprocess message", e);
 							}
-							
+
 							page++;
 						}
 					} catch (Exception e) {
 						logger.error(e);
-						
-					} finally{
-						//Remove any temp tables we created
-						removeFilterTables(uid);
+
+					} finally {
+						// Remove any temp tables we created
+						removeFilterTable(uid);
 					}
-	
+
 				}
 			});
+			
 			reprocessThread.start();
 		} catch (ControllerException e) {
 			throw new ControllerException(e);
@@ -417,7 +412,7 @@ public class MessageObjectController {
 		MessageObject clone = new MessageObject();
 		// We could use deep copy here, but see the notes below
 		clone.setId(UUIDGenerator.getUUID());
-        clone.setServerId(configurationController.getServerId());
+		clone.setServerId(configurationController.getServerId());
 		clone.setDateCreated(Calendar.getInstance());
 		clone.setCorrelationId(messageObject.getId());
 		clone.setConnectorName(connectorName);
@@ -485,8 +480,8 @@ public class MessageObjectController {
 			messageObject.setStatus(newStatus);
 
 			if (oldStatus.equals(MessageObject.Status.QUEUED) && newStatus.equals(MessageObject.Status.SENT)) {
-				
-				statisticsController.decrementQueuedCount(messageObject.getChannelId());	
+
+				statisticsController.decrementQueuedCount(messageObject.getChannelId());
 			}
 
 			updateMessage(messageObject, oldStatus.equals(MessageObject.Status.QUEUED));
@@ -501,7 +496,7 @@ public class MessageObjectController {
 			// The statement does not exist
 			return false;
 		}
-		
+
 		return true;
 	}
 }

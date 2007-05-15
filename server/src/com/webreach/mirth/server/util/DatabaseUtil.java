@@ -23,47 +23,59 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
 package com.webreach.mirth.server.util;
 
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
 
 public class DatabaseUtil {
-	
+
 	/**
 	 * Closes the specified ResultSet.
 	 * 
-	 * @param result the ResultSet to be closed.
+	 * @param result
+	 *            the ResultSet to be closed.
 	 * @throws RuntimeException
 	 */
 	public static void close(ResultSet result) throws RuntimeException {
 		try {
 			if (result != null) {
-				result.close();	
+				result.close();
 			}
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	/**
 	 * Closes the specified Statement.
 	 * 
-	 * @param statement the Statement to be closed.
+	 * @param statement
+	 *            the Statement to be closed.
 	 * @throws RuntimeException
 	 */
 	public static void close(Statement statement) throws RuntimeException {
 		try {
 			if (statement != null) {
-				statement.close();	
+				statement.close();
 			}
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	public static void close(DatabaseConnection connection) throws RuntimeException {
+		try {
+			if (connection != null) {
+				connection.close();
+			}
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public static void close(Connection connection) throws RuntimeException {
 		try {
 			if (connection != null) {
 				connection.close();

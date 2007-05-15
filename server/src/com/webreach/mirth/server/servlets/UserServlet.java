@@ -168,7 +168,7 @@ public class UserServlet extends MirthServlet {
 		
 		// delete any temp tables created for this session
 		MessageObjectController messageObjectController = MessageObjectController.getInstance();
-		messageObjectController.removeFilterTables(sessionId);	
+		messageObjectController.removeFilterTable(sessionId);	
 		
 		// log the event
 		SystemEvent event = new SystemEvent("User logged out.");
