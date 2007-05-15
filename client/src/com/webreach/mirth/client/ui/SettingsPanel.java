@@ -37,7 +37,7 @@ import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
 public class SettingsPanel extends javax.swing.JPanel
 {
     private static Preferences userPreferences;
-
+    private Properties serverProperties;
     private Frame parent;
 
     /**
@@ -216,7 +216,7 @@ public class SettingsPanel extends javax.swing.JPanel
             rowHighlightNo.setSelected(true);
         try
         {
-            Properties serverProperties = parent.mirthClient.getServerProperties();
+            serverProperties = parent.mirthClient.getServerProperties();
 
             if (serverProperties.getProperty("smtp.host") != null)
                 smtpHost.setText((String) serverProperties.getProperty("smtp.host"));
@@ -282,8 +282,6 @@ public class SettingsPanel extends javax.swing.JPanel
             userPreferences.putInt("intervalTime", Integer.parseInt(intervalTime.getText()));
             parent.settingsTasks.getContentPane().getComponent(1).setVisible(false);
             userPreferences.putBoolean("highlightRows", rowHighlightYes.isSelected());
-
-            Properties serverProperties = new Properties();
 
             serverProperties.put("smtp.host", smtpHost.getText());
             serverProperties.put("smtp.port", smtpPort.getText());
