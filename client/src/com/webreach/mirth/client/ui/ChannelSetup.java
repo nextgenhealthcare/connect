@@ -1884,7 +1884,7 @@ public class ChannelSetup extends javax.swing.JPanel
     private javax.swing.JScrollPane jScrollPane1;
     private com.webreach.mirth.client.ui.components.MirthTextField numDays;
     private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea preprocessor;
-    public com.webreach.mirth.client.ui.components.MirthCheckBox removeNamespaceCheckBox;
+    private com.webreach.mirth.client.ui.components.MirthCheckBox removeNamespaceCheckBox;
     private javax.swing.JPanel source;
     private com.webreach.mirth.client.ui.connectors.ConnectorClass sourceConnectorClass;
     private javax.swing.JScrollPane sourceConnectorPane;
@@ -1902,7 +1902,7 @@ public class ChannelSetup extends javax.swing.JPanel
     private com.webreach.mirth.client.ui.components.MirthTextField summaryNameField;
     private javax.swing.JLabel summaryNameLabel;
     private javax.swing.JLabel summaryPatternLabel1;
-    private com.webreach.mirth.client.ui.components.MirthCheckBox synchronousCheckBox;
+    public com.webreach.mirth.client.ui.components.MirthCheckBox synchronousCheckBox;
     private com.webreach.mirth.client.ui.components.MirthCheckBox transactionalCheckBox;
     private javax.swing.ButtonGroup validationButtonGroup;
     // End of variables declaration//GEN-END:variables

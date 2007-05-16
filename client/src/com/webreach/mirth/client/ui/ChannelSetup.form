@@ -415,9 +415,6 @@
                   <Insets value="[0, 0, 0, 0]"/>
                 </Property>
               </Properties>
-              <AuxValues>
-                <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>
-              </AuxValues>
             </Component>
             <Component class="com.webreach.mirth.client.ui.components.MirthComboBox" name="incomingProtocol">
               <Properties>
@@ -462,6 +459,9 @@
                   <Insets value="[0, 0, 0, 0]"/>
                 </Property>
               </Properties>
+              <AuxValues>
+                <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>
+              </AuxValues>
             </Component>
           </SubComponents>
         </Container>
