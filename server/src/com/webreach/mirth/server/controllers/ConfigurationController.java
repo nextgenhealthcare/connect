@@ -77,7 +77,8 @@ import com.webreach.mirth.util.PropertyLoader;
 public class ConfigurationController {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private SystemLogger systemLogger = new SystemLogger();
-	private static File serverPropertiesFile = new File("server.properties");
+	public static File serverPropertiesFile = new File("server.properties");
+    public static File serverIdPropertiesFile = new File("server.id");
 	private static Properties versionProperties = PropertyLoader.loadProperties("version");
 	private static SecretKey encryptionKey = null;
 	private static String serverId = null;
@@ -100,15 +101,15 @@ public class ConfigurationController {
 			}
 
 			// Check for server GUID and generate a new one if it doesn't exist
-			Properties serverProperties = getServerProperties();
+			Properties serverIdProperties = getPropertiesFromFile(serverIdPropertiesFile);
 
-			if ((serverProperties.getProperty("server.id") != null) && (serverProperties.getProperty("server.id").length() > 0)) {
-				serverId = serverProperties.getProperty("server.id");
+			if ((serverIdProperties.getProperty("server.id") != null) && (serverIdProperties.getProperty("server.id").length() > 0)) {
+				serverId = serverIdProperties.getProperty("server.id");
 			} else {
 				logger.debug("generating unique server id");
 				serverId = getGuid();
-				serverProperties.setProperty("server.id", serverId);
-				setServerProperties(serverProperties);
+                serverIdProperties.setProperty("server.id", serverId);
+				setPropertiesToFile(serverIdPropertiesFile, serverIdProperties);
 			}
 		} catch (Exception e) {
 			logger.warn(e);
@@ -167,15 +168,27 @@ public class ConfigurationController {
 			throw new ControllerException(e);
 		}
 	}
+	
+    public Properties getServerProperties() throws ControllerException {
+        return getPropertiesFromFile(serverPropertiesFile);
+    }
+    
+    public void setServerProperties(Properties properties) throws ControllerException {
+        setPropertiesToFile(serverPropertiesFile, properties);
+    }
 
-	public Properties getServerProperties() throws ControllerException {
-		logger.debug("retrieving properties");
+    public void updateServerProperties(Properties properties) throws ControllerException {
+        updatePropertiesToFile(serverPropertiesFile, properties);
+    }
+    
+	public Properties getPropertiesFromFile(File inputFile) throws ControllerException {
+		logger.debug("retrieving " + inputFile.getName() + " properties");
 
 		FileInputStream fileInputStream = null;
 
 		try {
-			serverPropertiesFile.createNewFile();
-			fileInputStream = new FileInputStream(serverPropertiesFile);
+            inputFile.createNewFile();
+			fileInputStream = new FileInputStream(inputFile);
 			Properties properties = new Properties();
 			properties.load(fileInputStream);
 			return properties;
@@ -190,14 +203,14 @@ public class ConfigurationController {
 		}
 	}
 
-	public void setServerProperties(Properties properties) throws ControllerException {
-		logger.debug("setting properties");
+	public void setPropertiesToFile(File inputFile, Properties properties) throws ControllerException {
+		logger.debug("setting " + inputFile.getName() + " properties");
 
 		FileOutputStream fileOutputStream = null;
 
 		try {
-			serverPropertiesFile.createNewFile();
-			fileOutputStream = new FileOutputStream(serverPropertiesFile);
+            inputFile.createNewFile();
+			fileOutputStream = new FileOutputStream(inputFile);
 			properties.store(fileOutputStream, "Updated server properties");
 		} catch (Exception e) {
 			throw new ControllerException(e);
@@ -210,8 +223,8 @@ public class ConfigurationController {
 		}
 	}
 
-	public void updateServerProperties(Properties properties) throws ControllerException {
-		logger.debug("updating server properties");
+	public void updatePropertiesToFile(File inputFile, Properties properties) throws ControllerException {
+		logger.debug("updating " + inputFile.getName() + " properties");
 
 		FileOutputStream fileOuputStream = null;
 
