@@ -357,6 +357,7 @@ public class MuleConfigurationBuilder {
 			properties.put("inboundProtocol", transformer.getInboundProtocol());
 			properties.put("outboundProtocol", transformer.getOutboundProtocol());
 			properties.put("encryptData", channel.getProperties().get("encryptData"));
+			properties.put("removeNamespace", channel.getProperties().get("removeNamespace"));
 			properties.put("mode", connector.getMode().toString());
 
 			// put the outbound template in the templates table
@@ -364,6 +365,7 @@ public class MuleConfigurationBuilder {
 				TemplateController templateController = new TemplateController();
 				IXMLSerializer<String> serializer = AdaptorFactory.getAdaptor(transformer.getOutboundProtocol()).getSerializer(transformer.getOutboundProperties());
 				String templateId = UUIDGenerator.getUUID();
+				
 				if (transformer.getOutboundTemplate().length() > 0) {
 					templateController.putTemplate(templateId, serializer.toXML(transformer.getOutboundTemplate()));
 				}
@@ -381,6 +383,7 @@ public class MuleConfigurationBuilder {
 			scriptController.putScript(transformerScriptId, transformerBuilder.getScript(transformer, channel));
 			properties.put("transformerScriptId", transformerScriptId);
 			properties.put("connectorName", connector.getName());
+			
 			Element propertiesElement = getProperties(document, properties, null);
 
 			if (transformer.getInboundProperties() != null && transformer.getInboundProperties().size() > 0) {

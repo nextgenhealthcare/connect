@@ -71,6 +71,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 	private String channelId;
 	private String connectorName;
 	private boolean encryptData;
+	private boolean removeNamespace;
 	private String transformerScriptId;
 	private String filterScriptId;
 	private String templateId;
@@ -166,6 +167,14 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 
 	public void setEncryptData(boolean encryptData) {
 		this.encryptData = encryptData;
+	}
+	
+	public boolean isRemoveNamespace() {
+		return this.removeNamespace;
+	}
+
+	public void setRemoveNamespace(boolean removeNamespace) {
+		this.removeNamespace = removeNamespace;
 	}
 
 	public String getFilterScriptId() {
@@ -406,7 +415,12 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 		script.append("{ return ''; }}");
 		script.append("function doFilter() {");
 
-		script.append("var newMessage = message.replace(/xmlns:?[^=]*=[\"\"][^\"\"]*[\"\"]/g, '');\n");
+		if (removeNamespace) {
+			script.append("var newMessage = message.replace(/xmlns:?[^=]*=[\"\"][^\"\"]*[\"\"]/g, '');\n");	
+		} else {
+			script.append("var newMessage = message;\n");
+		}
+		
 		script.append("msg = new XML(newMessage);");
 
 		script.append(filterScript + " }\n");
@@ -436,7 +450,12 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 			script.append("tmp = new XML(newTemplate);");
 		}
 
-		script.append("var newMessage = message.replace(/xmlns:?[^=]*=[\"\"][^\"\"]*[\"\"]/g, '');\n");
+		if (removeNamespace) {
+			script.append("var newMessage = message.replace(/xmlns:?[^=]*=[\"\"][^\"\"]*[\"\"]/g, '');\n");	
+		} else {
+			script.append("var newMessage = message;\n");
+		}
+		
 		script.append("msg = new XML(newMessage);");
 
 		script.append(transformerScript);
