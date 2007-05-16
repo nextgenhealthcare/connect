@@ -46,8 +46,6 @@ public class FTPWriter extends ConnectorClass
 
     private final String FTP_PASSWORD = "password";
 
-    private final String FTP_FILENAME_PARSER = "filenameParser ";
-
     private final String FTP_OUTPUT_PATTERN = "outputPattern";
 
     private final String FTP_PASSIVE_MODE = "passive";
@@ -142,7 +140,6 @@ public class FTPWriter extends ConnectorClass
         properties.put(FTP_ANONYMOUS, UIConstants.YES_OPTION);
         properties.put(FTP_USERNAME, "");
         properties.put(FTP_PASSWORD, "");
-        properties.put(FTP_FILENAME_PARSER, "");
         properties.put(FTP_OUTPUT_PATTERN, "");
         properties.put(FTP_PASSIVE_MODE, UIConstants.YES_OPTION);
         properties.put(FTP_FILE_TYPE, UIConstants.YES_OPTION);
@@ -155,7 +152,7 @@ public class FTPWriter extends ConnectorClass
     {
         if (((String) props.get(FTP_ANONYMOUS)).equals(UIConstants.YES_OPTION))
         {
-            if (((String) props.get(FTP_URL)).length() > 0 && ((String) props.get(FTP_FILENAME_PARSER)).length() > 0 && ((String) props.get(FTP_OUTPUT_PATTERN)).length() > 0 && ((String) props.get(FTP_CONTENTS)).length() > 0)
+            if (((String) props.get(FTP_URL)).length() > 0 && ((String) props.get(FTP_OUTPUT_PATTERN)).length() > 0 && ((String) props.get(FTP_CONTENTS)).length() > 0)
                 return true;
         }
         else
