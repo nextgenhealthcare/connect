@@ -45,21 +45,19 @@ public class ChannelController {
 	private SqlMapClient sqlMap = SqlConfig.getSqlMapInstance();
 	private static HashMap<String, Channel> channelCache = new HashMap<String, Channel>();
 	private static HashMap<String, String> channelIdLookup = new HashMap<String, String>();
-    private ConfigurationController configurationController = new ConfigurationController();
-    private ChannelStatisticsController statisticsController = ChannelStatisticsController.getInstance();
-    
+	private ChannelStatisticsController statisticsController = ChannelStatisticsController.getInstance();
+
 	public void initialize() {
 		try {
 			updateChannelCache(getChannel(null));
-            
-            for(Channel channel : channelCache.values() )
-            {
-                if(!statisticsController.checkIfStatisticsExist(channel.getId()))
-                {
-                    statisticsController.createStatistics(channel.getId());
-                }
-            } 
-            statisticsController.reloadLocalCache();
+
+			for (Channel channel : channelCache.values()) {
+				if (!statisticsController.checkIfStatisticsExist(channel.getId())) {
+					statisticsController.createStatistics(channel.getId());
+				}
+			}
+			
+			statisticsController.reloadLocalCache();
 		} catch (Exception e) {
 			logger.warn(e);
 		}
@@ -68,7 +66,9 @@ public class ChannelController {
 	public void updateChannelCache(List<Channel> channels) throws ControllerException {
 		channelCache = new HashMap<String, Channel>();
 		channelIdLookup = new HashMap<String, String>();
+		
 		Iterator<Channel> it = channels.iterator();
+		
 		while (it.hasNext()) {
 			Channel channel = it.next();
 			updateChannelInCache(channel);
@@ -109,6 +109,7 @@ public class ChannelController {
 	public List<ChannelSummary> getChannelSummary(Map<String, Integer> cachedChannels) throws ControllerException {
 		logger.debug("getting channel summary");
 		List<ChannelSummary> channelSummaries = new ArrayList<ChannelSummary>();
+		
 		try {
 			Map<String, Integer> serverChannels = sqlMap.queryForMap("getChannelRevision", null, "id", "revision");
 
@@ -193,7 +194,7 @@ public class ChannelController {
 		updateChannelInCache(channel);
 		try {
 			channelCache.put(channel.getId(), channel);
-			
+
 			Channel channelFilter = new Channel();
 			channelFilter.setId(channel.getId());
 
@@ -215,7 +216,7 @@ public class ChannelController {
 
 		try {
 			removeChannelFromCache(channel);
-			sqlMap.delete("deleteChannel", channel);			
+			sqlMap.delete("deleteChannel", channel);
 		} catch (SQLException e) {
 			throw new ControllerException(e);
 		}
@@ -224,17 +225,19 @@ public class ChannelController {
 	public static HashMap<String, Channel> getChannelCache() {
 		return channelCache;
 	}
-	
-	private static void removeChannelFromCache(Channel channel){
-		if (channel != null){
+
+	private static void removeChannelFromCache(Channel channel) {
+		if (channel != null) {
 			channelCache.remove(channel.getId());
 			channelIdLookup.remove(channel.getId());
 		}
 	}
-	private static void updateChannelInCache(Channel channel){
+
+	private static void updateChannelInCache(Channel channel) {
 		channelCache.put(channel.getId(), channel);
 		channelIdLookup.put(channel.getName().toUpperCase(), channel.getId());
 	}
+
 	public static void setChannelCache(HashMap<String, Channel> channelCache) {
 		ChannelController.channelCache = channelCache;
 	}

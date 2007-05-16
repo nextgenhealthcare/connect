@@ -52,12 +52,17 @@ public class ChannelStatisticsController {
 	private ConfigurationController configurationController = new ConfigurationController();
 	private static ChannelStatisticsController instance = null;
 
+	private ChannelStatisticsController() {
+		
+	}
+	
 	public static ChannelStatisticsController getInstance() {
 		synchronized (ChannelStatisticsController.class) {
 			if (instance == null) {
 				instance = new ChannelStatisticsController();
 				instance.initialize();
 			}
+			
 			return instance;
 		}
 	}
@@ -173,7 +178,7 @@ public class ChannelStatisticsController {
 			for (ChannelStatistics stats : statsCache.getCache().values()) {
 				updateStatistics(stats.getChannelId());
 			}
-			
+
 			statsChanged = false;
 		}
 	}

@@ -65,12 +65,17 @@ public class MessageObjectController {
 
 	private static MessageObjectController instance = null;
 
+	private MessageObjectController() {
+		
+	}
+	
 	public static MessageObjectController getInstance() {
 		synchronized (MessageObjectController.class) {
 			if (instance == null) {
 				instance = new MessageObjectController();
 				instance.initialize();
 			}
+			
 			return instance;
 		}
 	}
