@@ -119,6 +119,7 @@
                               <Group type="103" groupAlignment="0" attributes="0">
                                   <Component id="summaryEnabledCheckbox" min="-2" max="-2" attributes="0"/>
                                   <Component id="transactionalCheckBox" min="-2" max="-2" attributes="0"/>
+                                  <Component id="removeNamespaceCheckBox" min="-2" max="-2" attributes="0"/>
                                   <Component id="synchronousCheckBox" min="-2" max="-2" attributes="0"/>
                               </Group>
                               <EmptySpace min="-2" pref="3" max="-2" attributes="0"/>
@@ -133,7 +134,7 @@
                   <Group type="102" alignment="1" attributes="0">
                       <EmptySpace min="-2" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="102" alignment="0" attributes="0">
+                          <Group type="102" attributes="0">
                               <Group type="103" groupAlignment="3" attributes="0">
                                   <Component id="summaryNameLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                                   <Component id="summaryNameField" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -159,21 +160,23 @@
                               <Component id="storeFiltered" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="storeMessagesErrors" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace min="-2" max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="3" attributes="0">
-                                  <Component id="storeMessagesAll" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  <Component id="numDays" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  <Component id="days" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  <Component id="storeMessagesDays" alignment="3" min="-2" max="-2" attributes="0"/>
-                              </Group>
                           </Group>
                           <Group type="102" alignment="0" attributes="0">
                               <Component id="summaryEnabledCheckbox" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="transactionalCheckBox" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
+                              <Component id="removeNamespaceCheckBox" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
                               <Component id="synchronousCheckBox" min="-2" max="-2" attributes="0"/>
                           </Group>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="storeMessagesAll" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="numDays" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="days" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="storeMessagesDays" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace min="-2" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
@@ -397,7 +400,7 @@
                 <Property name="text" type="java.lang.String" value="Preprocessing Script:"/>
               </Properties>
             </Component>
-            <Component class="com.webreach.mirth.client.ui.components.MirthCheckBox" name="synchronousCheckBox">
+            <Component class="com.webreach.mirth.client.ui.components.MirthCheckBox" name="removeNamespaceCheckBox">
               <Properties>
                 <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                   <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -407,7 +410,7 @@
                     <EmptyBorder bottom="0" left="0" right="0" top="0"/>
                   </Border>
                 </Property>
-                <Property name="text" type="java.lang.String" value="Synchronize channel"/>
+                <Property name="text" type="java.lang.String" value="Strip namespace from messages"/>
                 <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
                   <Insets value="[0, 0, 0, 0]"/>
                 </Property>
@@ -439,6 +442,22 @@
                   </Border>
                 </Property>
                 <Property name="text" type="java.lang.String" value="Do not store filtered messages"/>
+                <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+                  <Insets value="[0, 0, 0, 0]"/>
+                </Property>
+              </Properties>
+            </Component>
+            <Component class="com.webreach.mirth.client.ui.components.MirthCheckBox" name="synchronousCheckBox">
+              <Properties>
+                <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                  <Color blue="ff" green="ff" red="ff" type="rgb"/>
+                </Property>
+                <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+                  <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+                    <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+                  </Border>
+                </Property>
+                <Property name="text" type="java.lang.String" value="Synchronize channel"/>
                 <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
                   <Insets value="[0, 0, 0, 0]"/>
                 </Property>

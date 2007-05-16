@@ -629,6 +629,11 @@ public class ChannelSetup extends javax.swing.JPanel
         else
             transactionalCheckBox.setSelected(false);
 
+        if ((currentChannel.getProperties().get("removeNamespace")) != null && ((String) currentChannel.getProperties().get("removeNamespace")).equalsIgnoreCase("false"))
+            removeNamespaceCheckBox.setSelected(false);
+        else
+            removeNamespaceCheckBox.setSelected(true);
+        
         if ((currentChannel.getProperties().get("synchronous")) != null && ((String) currentChannel.getProperties().get("synchronous")).equalsIgnoreCase("false"))
             synchronousCheckBox.setSelected(false);
         else
@@ -778,6 +783,11 @@ public class ChannelSetup extends javax.swing.JPanel
             currentChannel.getProperties().put("transactional", "true");
         else
             currentChannel.getProperties().put("transactional", "false");
+            
+        if (removeNamespaceCheckBox.isSelected())
+            currentChannel.getProperties().put("removeNamespace", "true");
+        else
+            currentChannel.getProperties().put("removeNamespace", "false");
 
         if (synchronousCheckBox.isSelected())
             currentChannel.getProperties().put("synchronous", "true");
@@ -1033,9 +1043,10 @@ public class ChannelSetup extends javax.swing.JPanel
         transactionalCheckBox = new com.webreach.mirth.client.ui.components.MirthCheckBox();
         preprocessor = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea(true,false);
         jLabel2 = new javax.swing.JLabel();
-        synchronousCheckBox = new com.webreach.mirth.client.ui.components.MirthCheckBox();
+        removeNamespaceCheckBox = new com.webreach.mirth.client.ui.components.MirthCheckBox();
         incomingProtocol = new com.webreach.mirth.client.ui.components.MirthComboBox();
         storeFiltered = new com.webreach.mirth.client.ui.components.MirthCheckBox();
+        synchronousCheckBox = new com.webreach.mirth.client.ui.components.MirthCheckBox();
         source = new javax.swing.JPanel();
         sourceSourceDropdown = new com.webreach.mirth.client.ui.components.MirthComboBox();
         sourceSourceLabel = new javax.swing.JLabel();
@@ -1158,10 +1169,10 @@ public class ChannelSetup extends javax.swing.JPanel
 
         jLabel2.setText("Preprocessing Script:");
 
-        synchronousCheckBox.setBackground(new java.awt.Color(255, 255, 255));
-        synchronousCheckBox.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        synchronousCheckBox.setText("Synchronize channel");
-        synchronousCheckBox.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        removeNamespaceCheckBox.setBackground(new java.awt.Color(255, 255, 255));
+        removeNamespaceCheckBox.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        removeNamespaceCheckBox.setText("Strip namespace from messages");
+        removeNamespaceCheckBox.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         incomingProtocol.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
@@ -1169,6 +1180,11 @@ public class ChannelSetup extends javax.swing.JPanel
         storeFiltered.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         storeFiltered.setText("Do not store filtered messages");
         storeFiltered.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
+        synchronousCheckBox.setBackground(new java.awt.Color(255, 255, 255));
+        synchronousCheckBox.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        synchronousCheckBox.setText("Synchronize channel");
+        synchronousCheckBox.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         org.jdesktop.layout.GroupLayout summaryLayout = new org.jdesktop.layout.GroupLayout(summary);
         summary.setLayout(summaryLayout);
@@ -1212,6 +1228,7 @@ public class ChannelSetup extends javax.swing.JPanel
                         .add(summaryLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(summaryEnabledCheckbox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(transactionalCheckBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(removeNamespaceCheckBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(synchronousCheckBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                         .add(3, 3, 3)))
                 .addContainerGap())
@@ -1242,19 +1259,21 @@ public class ChannelSetup extends javax.swing.JPanel
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(storeFiltered, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(storeMessagesErrors, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(summaryLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(storeMessagesAll, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(numDays, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(days)
-                            .add(storeMessagesDays, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                        .add(storeMessagesErrors, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                     .add(summaryLayout.createSequentialGroup()
                         .add(summaryEnabledCheckbox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(transactionalCheckBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(removeNamespaceCheckBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(synchronousCheckBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(summaryLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(storeMessagesAll, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(numDays, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(days)
+                    .add(storeMessagesDays, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(summaryLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(summaryDescriptionLabel)
@@ -1865,6 +1884,7 @@ public class ChannelSetup extends javax.swing.JPanel
     private javax.swing.JScrollPane jScrollPane1;
     private com.webreach.mirth.client.ui.components.MirthTextField numDays;
     private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea preprocessor;
+    public com.webreach.mirth.client.ui.components.MirthCheckBox removeNamespaceCheckBox;
     private javax.swing.JPanel source;
     private com.webreach.mirth.client.ui.connectors.ConnectorClass sourceConnectorClass;
     private javax.swing.JScrollPane sourceConnectorPane;
@@ -1882,7 +1902,7 @@ public class ChannelSetup extends javax.swing.JPanel
     private com.webreach.mirth.client.ui.components.MirthTextField summaryNameField;
     private javax.swing.JLabel summaryNameLabel;
     private javax.swing.JLabel summaryPatternLabel1;
-    public com.webreach.mirth.client.ui.components.MirthCheckBox synchronousCheckBox;
+    private com.webreach.mirth.client.ui.components.MirthCheckBox synchronousCheckBox;
     private com.webreach.mirth.client.ui.components.MirthCheckBox transactionalCheckBox;
     private javax.swing.ButtonGroup validationButtonGroup;
     // End of variables declaration//GEN-END:variables
