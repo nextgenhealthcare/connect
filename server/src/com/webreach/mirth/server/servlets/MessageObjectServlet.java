@@ -88,7 +88,7 @@ public class MessageObjectServlet extends MirthServlet {
 					messageObjectController.reprocessMessages((MessageObjectFilter) serializer.fromXML(filter));
 				} else if (operation.equals("importMessage")) {
                     String message = request.getParameter("message");
-                    messageObjectController.updateMessage((MessageObject) serializer.fromXML(message), false);
+                    messageObjectController.importMessage((MessageObject) serializer.fromXML(message));
                 }
 			} catch (Exception e) {
 				throw new ServletException(e);

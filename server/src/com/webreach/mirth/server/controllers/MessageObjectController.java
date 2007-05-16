@@ -113,7 +113,6 @@ public class MessageObjectController {
 	}
 
 	public void updateMessage(MessageObject incomingMessageObject, boolean checkIfMessageExists) {
-		try {
 			MessageObject messageObject = (MessageObject) incomingMessageObject.clone();
 
 			// update the stats counts
@@ -141,30 +140,48 @@ public class MessageObjectController {
 						logger.debug("message is not stored");
 						return;
 					} else if (channel.getProperties().getProperty("encryptData").equals("true")) {
-						encryptMessageData(messageObject);
+						try{
+                            encryptMessageData(messageObject);
+                        }
+                        catch (EncryptionException e) {
+                            logger.error("message logging halted. could not encrypt message. id=" + messageObject.getId(), e);
+                        }
 					}
 				}
 			}
-
-			if (checkIfMessageExists) {
-				int count = (Integer) sqlMap.queryForObject("getMessageCount", messageObject.getId());
-
-				if (count == 0) {
-					logger.debug("adding message: id=" + messageObject.getId());
-					sqlMap.insert("insertMessage", messageObject);
-
-				} else {
-					logger.debug("updating message: id=" + messageObject.getId());
-					sqlMap.update("updateMessage", messageObject);
-				}
-			} else {
-				logger.debug("adding message (not checking for message): id=" + messageObject.getId());
-				sqlMap.insert("insertMessage", messageObject);
-			}
-		} catch (Exception e) {
-			logger.error("could not log message: id=" + incomingMessageObject.getId(), e);
-		}
+			
+            writeMessageToDatabase(messageObject, checkIfMessageExists);
 	}
+    
+    public void importMessage(MessageObject messageObject)
+    {
+        writeMessageToDatabase(messageObject, true);
+    }
+    
+    private void writeMessageToDatabase(MessageObject messageObject, boolean checkIfMessageExists)
+    {
+        try {
+            if (checkIfMessageExists) {
+                int count = (Integer) sqlMap.queryForObject("getMessageCount", messageObject.getId());
+    
+                if (count == 0) {
+                    logger.debug("adding message: id=" + messageObject.getId());
+                    sqlMap.insert("insertMessage", messageObject);
+    
+                } else {
+                    logger.debug("updating message: id=" + messageObject.getId());
+                    sqlMap.update("updateMessage", messageObject);
+                }
+            }
+            else {
+                logger.debug("adding message (not checking for message): id=" + messageObject.getId());
+                sqlMap.insert("insertMessage", messageObject);
+            }
+        }
+        catch (SQLException e) {
+            logger.error("could not log message: id=" + messageObject.getId(), e);
+        }
+    }
 
 	private void encryptMessageData(MessageObject messageObject) throws EncryptionException {
 		Encrypter encrypter = new Encrypter(configurationController.getEncryptionKey());
