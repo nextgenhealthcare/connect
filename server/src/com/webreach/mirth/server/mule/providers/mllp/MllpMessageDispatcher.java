@@ -296,6 +296,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher {
 			// ACK" or document this
 			// We aren't waiting for an ACK
 			messageObjectController.setSuccess(messageObject, "Message successfully sent");
+			
 			return;
 		}
 		byte[] theAck = getAck(socket, endpoint);
@@ -303,6 +304,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher {
 		if (theAck == null) {
 			// NACK
 			messageObjectController.setError(messageObject,Constants.ERROR_408,  "Timeout waiting for ACK", null);
+			alertController.sendAlerts(((MllpConnector) connector).getChannelId(), Constants.ERROR_408, null, null);
 			return;
 		}
 		try {
@@ -315,6 +317,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher {
 		} catch (UnsupportedEncodingException e) {
 			logger.error(e.getMessage());
 			messageObjectController.setError(messageObject,Constants.ERROR_408,  "Error setting encoding: " + connector.getCharsetEncoding(), e);
+			alertController.sendAlerts(((MllpConnector) connector).getChannelId(), Constants.ERROR_408, null, e);
 		}
 		String ackString = null;
 		try {
@@ -325,6 +328,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher {
 		if (ackString == null) {
 			// NACK
 			messageObjectController.setError(messageObject, Constants.ERROR_408, "ACK message violates LLP protocol", null);
+			alertController.sendAlerts(((MllpConnector) connector).getChannelId(), Constants.ERROR_408, null, null);
 			return;
 		}
 		ResponseAck rack = new ResponseAck(ackString);
@@ -332,7 +336,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher {
 			messageObjectController.setSuccess(messageObject, ackString);
 		} else {
 			messageObjectController.setError(messageObject, Constants.ERROR_408, "NACK sent from receiver: " + rack.getErrorDescription() + ": " + ackString, null);
-		
+			alertController.sendAlerts(((MllpConnector) connector).getChannelId(), Constants.ERROR_408, null, null);
 		}
 	}
 
