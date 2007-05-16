@@ -109,10 +109,10 @@ public class FTPWriter extends ConnectorClass
         {
             anonymousNo.setSelected(true);
             anonymousNoActionPerformed(null);
+            FTPUsernameField.setText((String) props.get(FTP_USERNAME));
+            FTPPasswordField.setText((String) props.get(FTP_PASSWORD));
         }
 
-        FTPUsernameField.setText((String) props.get(FTP_USERNAME));
-        FTPPasswordField.setText((String) props.get(FTP_PASSWORD));
         outputPatternField.setText((String) props.get(FTP_OUTPUT_PATTERN));
 
         if (((String) props.get(FTP_PASSIVE_MODE)).equalsIgnoreCase(UIConstants.YES_OPTION))
@@ -138,8 +138,8 @@ public class FTPWriter extends ConnectorClass
         properties.put(DATATYPE, name);
         properties.put(FTP_URL, "");
         properties.put(FTP_ANONYMOUS, UIConstants.YES_OPTION);
-        properties.put(FTP_USERNAME, "");
-        properties.put(FTP_PASSWORD, "");
+        properties.put(FTP_USERNAME, "anonymous");
+        properties.put(FTP_PASSWORD, "anonymous");
         properties.put(FTP_OUTPUT_PATTERN, "");
         properties.put(FTP_PASSIVE_MODE, UIConstants.YES_OPTION);
         properties.put(FTP_FILE_TYPE, UIConstants.YES_OPTION);
@@ -396,6 +396,8 @@ public class FTPWriter extends ConnectorClass
         FTPUsernameField.setEnabled(false);
         FTPPasswordLabel.setEnabled(false);
         FTPPasswordField.setEnabled(false);
+        FTPUsernameField.setText("anonymous");
+        FTPPasswordField.setText("anonymous");
     }// GEN-LAST:event_anonymousYesActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
