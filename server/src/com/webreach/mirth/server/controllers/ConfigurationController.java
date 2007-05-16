@@ -80,11 +80,11 @@ public class ConfigurationController {
 	private static File serverPropertiesFile = new File("server.properties");
 	private static Properties versionProperties = PropertyLoader.loadProperties("version");
 	private static SecretKey encryptionKey = null;
-    private static String serverId = null;
+	private static String serverId = null;
 	private final String CONF_FOLDER = "conf/";
 	private SqlMapClient sqlMap = SqlConfig.getSqlMapInstance();
 	private static final String CHARSET = "ca.uhn.hl7v2.llp.charset";
-	
+
 	// Mirth status codes
 	private static final int STATUS_OK = 0;
 	private static final int STATUS_UNAVAILABLE = 1;
@@ -98,18 +98,18 @@ public class ConfigurationController {
 			if (mirthProperties.getProperty(CHARSET) != null) {
 				System.setProperty(CHARSET, mirthProperties.getProperty(CHARSET));
 			}
-            
-            // Check for server GUID and generate a new one if it doesn't exist            
-            Properties serverProperties = getServerProperties();
-            if(serverProperties.getProperty("server.id") != null && serverProperties.getProperty("server.id").length() > 0)
-                serverId = serverProperties.getProperty("server.id");
-            else {
-                logger.debug("generating server id");
-                serverId = getGuid();
-                serverProperties.setProperty("server.id", serverId);
-                setServerProperties(serverProperties);
-            }
-                
+
+			// Check for server GUID and generate a new one if it doesn't exist
+			Properties serverProperties = getServerProperties();
+
+			if ((serverProperties.getProperty("server.id") != null) && (serverProperties.getProperty("server.id").length() > 0)) {
+				serverId = serverProperties.getProperty("server.id");
+			} else {
+				logger.debug("generating unique server id");
+				serverId = getGuid();
+				serverProperties.setProperty("server.id", serverId);
+				setServerProperties(serverProperties);
+			}
 		} catch (Exception e) {
 			logger.warn(e);
 		}
@@ -131,15 +131,14 @@ public class ConfigurationController {
 			throw new ControllerException(e);
 		}
 	}
-	
-    /*
-     * Return the server GUID
-     */
-    public String getServerId()
-    {
-        return serverId;
-    }
-    
+
+	/*
+	 * Return the server GUID
+	 */
+	public String getServerId() {
+		return serverId;
+	}
+
 	// ast: Get the list of all avaiable encodings for this JVM
 	public List<String> getAvaiableCharsetEncodings() throws ControllerException {
 		logger.debug("Retrieving avaiable character encodings");
@@ -190,7 +189,7 @@ public class ConfigurationController {
 			}
 		}
 	}
-	
+
 	public void setServerProperties(Properties properties) throws ControllerException {
 		logger.debug("setting properties");
 
@@ -252,8 +251,8 @@ public class ConfigurationController {
 
 		try {
 			ChannelController channelController = new ChannelController();
-            channelController.initialize();
-            
+			channelController.initialize();
+
 			// instantiate a new configuration builder given the current channel
 			// and transport list
 			List<Channel> channels = channelController.getChannel(null);
@@ -262,7 +261,7 @@ public class ConfigurationController {
 			addConfiguration(builder.getConfiguration());
 			// update the storeMessages reference
 			channelController.updateChannelCache(channels);
-			
+
 			// restart the mule engine which will grab the latest configuration
 			// from the database
 			CommandQueue queue = CommandQueue.getInstance();
@@ -273,11 +272,11 @@ public class ConfigurationController {
 
 		systemLogger.logSystemEvent(new SystemEvent("Channels deployed."));
 	}
-	
+
 	private void stopAllChannels() throws ControllerException {
 		ChannelStatusController channelStatusController = new ChannelStatusController();
 		List<ChannelStatus> deployedChannels = channelStatusController.getChannelStatusList();
-		
+
 		for (Iterator iter = deployedChannels.iterator(); iter.hasNext();) {
 			ChannelStatus status = (ChannelStatus) iter.next();
 			channelStatusController.stopChannel(status.getChannelId());
@@ -408,20 +407,20 @@ public class ConfigurationController {
 	public String getBuildDate() {
 		return versionProperties.getProperty("mirth.date");
 	}
-	
+
 	public int getStatus() {
 		logger.debug("getting Mirth status");
-		
+
 		JMXConnection jmxConnection = null;
-		
+
 		try {
 			jmxConnection = JMXConnectionFactory.createJMXConnection();
 			Hashtable<String, String> properties = new Hashtable<String, String>();
 			properties.put("type", "control");
 			properties.put("name", "MuleService");
-			
+
 			if (!((Boolean) jmxConnection.getAttribute(properties, "Stopped"))) {
-				return STATUS_OK;	
+				return STATUS_OK;
 			} else {
 				return STATUS_UNAVAILABLE;
 			}
@@ -430,30 +429,30 @@ public class ConfigurationController {
 			return STATUS_UNAVAILABLE;
 		}
 	}
-	
+
 	public ServerConfiguration getServerConfiguration() throws ControllerException {
 		ChannelController channelController = new ChannelController();
 		AlertController alertController = new AlertController();
 		UserController userController = new UserController();
-		
+
 		ServerConfiguration serverConfiguration = new ServerConfiguration();
 		serverConfiguration.setChannels(channelController.getChannel(null));
 		serverConfiguration.setAlerts(alertController.getAlert(null));
 		serverConfiguration.setUsers(userController.getUser(null));
 		serverConfiguration.setProperties(getServerProperties());
-		
+
 		return serverConfiguration;
 	}
-	
+
 	public void setServerConfiguration(ServerConfiguration serverConfiguration) throws ControllerException {
 		ChannelController channelController = new ChannelController();
 		AlertController alertController = new AlertController();
-		
+
 		channelController.removeChannel(null);
 		alertController.removeAlert(null);
-		
+
 		setServerProperties(serverConfiguration.getProperties());
-		
+
 		for (Channel channel : serverConfiguration.getChannels()) {
 			channelController.updateChannel(channel, true);
 		}
