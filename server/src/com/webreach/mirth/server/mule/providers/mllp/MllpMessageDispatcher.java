@@ -179,7 +179,8 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher {
 		} 
 		if (!success) {
 			messageObjectController.setError(messageObject, Constants.ERROR_408, exceptionMessage, exceptionWriting);
-		}
+            alertController.sendAlerts(((MllpConnector) connector).getChannelId(), Constants.ERROR_408, null, exceptionWriting);
+        }
 		if (success && (exceptionWriting == null)) {
 			manageResponseAck(socket, event.getEndpoint(), messageObject);
 		}
@@ -304,7 +305,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher {
 		if (theAck == null) {
 			// NACK
 			messageObjectController.setError(messageObject,Constants.ERROR_408,  "Timeout waiting for ACK", null);
-			alertController.sendAlerts(((MllpConnector) connector).getChannelId(), Constants.ERROR_408, null, null);
+			alertController.sendAlerts(((MllpConnector) connector).getChannelId(), Constants.ERROR_408, "Timeout waiting for ACK", null);
 			return;
 		}
 		try {
@@ -328,7 +329,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher {
 		if (ackString == null) {
 			// NACK
 			messageObjectController.setError(messageObject, Constants.ERROR_408, "ACK message violates LLP protocol", null);
-			alertController.sendAlerts(((MllpConnector) connector).getChannelId(), Constants.ERROR_408, null, null);
+			alertController.sendAlerts(((MllpConnector) connector).getChannelId(), Constants.ERROR_408, "ACK message violates LLP protocol", null);
 			return;
 		}
 		ResponseAck rack = new ResponseAck(ackString);
@@ -336,7 +337,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher {
 			messageObjectController.setSuccess(messageObject, ackString);
 		} else {
 			messageObjectController.setError(messageObject, Constants.ERROR_408, "NACK sent from receiver: " + rack.getErrorDescription() + ": " + ackString, null);
-			alertController.sendAlerts(((MllpConnector) connector).getChannelId(), Constants.ERROR_408, null, null);
+			alertController.sendAlerts(((MllpConnector) connector).getChannelId(), Constants.ERROR_408, "NACK sent from receiver: " + rack.getErrorDescription() + ": " + ackString, null);
 		}
 	}
 

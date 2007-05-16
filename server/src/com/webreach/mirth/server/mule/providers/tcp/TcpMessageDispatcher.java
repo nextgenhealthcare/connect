@@ -178,6 +178,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 		}
 		if (!success) {
 			messageObjectController.setError(messageObject, Constants.ERROR_411, exceptionMessage, exceptionWriting);
+            alertController.sendAlerts(((TcpConnector) connector).getChannelId(), Constants.ERROR_411, null, exceptionWriting);
 		}
 		if (success && (exceptionWriting == null)) {
 			manageResponseAck(socket, event.getEndpoint(), messageObject);
@@ -315,6 +316,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 		} catch (UnsupportedEncodingException e) {
 			logger.error(e.getMessage());
 			messageObjectController.setError(messageObject, Constants.ERROR_411, "Error setting encoding: " + connector.getCharsetEncoding(), e);
+            alertController.sendAlerts(((TcpConnector) connector).getChannelId(), Constants.ERROR_411, null, e);
 		}
 	}
 
