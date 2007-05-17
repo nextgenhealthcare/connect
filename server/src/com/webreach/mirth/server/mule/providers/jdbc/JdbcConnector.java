@@ -121,8 +121,7 @@ public class JdbcConnector extends AbstractServiceEnabledConnector {
 		// connector->channel->global
 		script.append("function $(string) { ");
 		if (ack) {
-
-			script.append("if (result.get(string) != null) { return result.get(string) } else ");
+			script.append("if (resultMap.get(string) != null) { return resultMap.get(string) } else ");
 		}
 		script.append("if (connectorMap.get(string) != null) { return connectorMap.get(string)} else ");
 		script.append("if (channelMap.get(string) != null) { return channelMap.get(string)} else ");

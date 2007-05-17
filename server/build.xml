@@ -144,6 +144,10 @@
 		<copy todir="${setup}">
 			<fileset file="${basedir}/derby-database.sql" />
 			<fileset file="${basedir}/postgres-database.sql" />
+			<fileset file="${basedir}/mysql-database.sql" />
+			<fileset file="${basedir}/sqlserver-database.sql" />
+			<fileset file="${basedir}/oracle-database.sql" />
+			<fileset file="${basedir}/sqlserver2005-database.sql" />
 			<fileset file="${basedir}/launcher.xml" />
 			<fileset file="${basedir}/mirth-client.jnlp" />
 			<fileset file="${basedir}/keystore" />

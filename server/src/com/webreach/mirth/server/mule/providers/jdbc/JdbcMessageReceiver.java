@@ -112,7 +112,7 @@ public class JdbcMessageReceiver extends TransactedPollingMessageReceiver {
 				// load variables in JavaScript scope
 				JavaScriptScopeUtil.buildScope(scope, connector.getName(), scriptLogger);
 				scope.put("dbMap", scope, jdbcMap);
-				scope.put("result", scope, message);
+				scope.put("resultMap", scope, message);
 				if (umoMessage != null) {
 					MessageObject messageObject = (MessageObject) umoMessage.getPayload();
 					scope.put("responseMap", scope, messageObject.getResponseMap());
