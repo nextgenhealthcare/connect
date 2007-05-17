@@ -241,13 +241,16 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
      */
     public void setText(String t)
     {
-        boolean visible = parent.channelEditTasks.getContentPane().getComponent(0).isVisible();
+        boolean visible = parent.changesHaveBeenMade();
         
         // if (t != null)
         // t = t.replaceAll("\r", "\n");
         super.setText(t);
 
-        parent.channelEditTasks.getContentPane().getComponent(0).setVisible(visible);
+        if(visible)
+            parent.enableSave();
+        else
+            parent.disableSave();
     }
 
     public String getText()

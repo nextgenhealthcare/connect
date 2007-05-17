@@ -1527,7 +1527,7 @@ public class Frame extends JXFrame
      */
     public boolean confirmLeave()
     {
-        if (channelEditPanel != null && (channelEditTasks.getContentPane().getComponent(0).isVisible() || (currentContentPage == channelEditPanel.transformerPane && channelEditPanel.transformerPane.modified) || (currentContentPage == channelEditPanel.filterPane && channelEditPanel.filterPane.modified)))
+        if (channelEditPanel != null && (currentContentPage == channelEditPanel && channelEditTasks.getContentPane().getComponent(0).isVisible() || (currentContentPage == channelEditPanel.transformerPane && channelEditPanel.transformerPane.modified) || (currentContentPage == channelEditPanel.filterPane && channelEditPanel.filterPane.modified)))
         {
             int option = JOptionPane.showConfirmDialog(this, "Would you like to save the channel changes?");
             if (option == JOptionPane.YES_OPTION)
@@ -1540,7 +1540,7 @@ public class Frame extends JXFrame
 
             channelEditTasks.getContentPane().getComponent(0).setVisible(false);
         }
-        else if (settingsPanel != null && settingsTasks.getContentPane().getComponent(1).isVisible())
+        else if (settingsPanel != null && currentContentPage == settingsPanel && settingsTasks.getContentPane().getComponent(1).isVisible())
         {
             int option = JOptionPane.showConfirmDialog(this, "Would you like to save the settings?");
 
@@ -1553,7 +1553,7 @@ public class Frame extends JXFrame
 
             settingsTasks.getContentPane().getComponent(1).setVisible(false);
         }
-        else if (alertPanel != null && alertTasks.getContentPane().getComponent(1).isVisible())
+        else if (alertPanel != null && currentContentPage == alertPanel && alertTasks.getContentPane().getComponent(1).isVisible())
         {
             int option = JOptionPane.showConfirmDialog(this, "Would you like to save the alerts?");
 
@@ -1829,10 +1829,7 @@ public class Frame extends JXFrame
             return;
 
         setWorking("Loading alerts...", true);
-        
-        setBold(viewPane, 4);
-        setPanelName("Alerts");
-        
+                
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
             public Void doInBackground()
@@ -1845,6 +1842,8 @@ public class Frame extends JXFrame
             public void done()
             {
                 alertPanel.updateAlertTable(false);
+                setBold(viewPane, 4);
+                setPanelName("Alerts");
                 setCurrentContentPage(alertPanel);
                 alertPanel.setDefaultAlert();
                 setFocus(alertTasks);
