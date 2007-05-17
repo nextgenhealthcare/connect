@@ -605,30 +605,20 @@ public class DatabaseReader extends ConnectorClass
 
     private void insertUpdateConnectionsActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_insertUpdateConnectionsActionPerformed
     {//GEN-HEADEREND:event_insertUpdateConnectionsActionPerformed
-        String driver = "";
-
-        for (int i = 0; i < drivers.size(); i++)
-        {
-            DriverInfo driverInfo = drivers.get(i);
-            if (driverInfo.getName().equalsIgnoreCase(((String) databaseDriverCombobox.getSelectedItem())))
-                driver = driverInfo.getClassName();
-        }
-        StringBuilder connectionString = new StringBuilder();
-        connectionString.append("var dbConn = DatabaseConnectionFactory.createDatabaseConnection('");
-        connectionString.append(driver + "','" + databaseURLField.getText() + "','");
-        connectionString.append(databaseUsernameField.getText() + "','" +  new String(databasePasswordField.getPassword()) + "\');\n");
-        
-        connectionString.append("var result = dbConn.executeUpdate(\"");
-        connectionString.append( "expression");
-        connectionString.append("\");\n\n// YOUR CODE GOES HERE \n\ndbConn.close();");
-        databaseUpdateSQLTextPane.setText(connectionString.toString() +"\n\n" + databaseUpdateSQLTextPane.getText());
+        databaseUpdateSQLTextPane.setText(generateUpdateString() +"\n\n" + databaseUpdateSQLTextPane.getText());
 
         parent.enableSave();
     }//GEN-LAST:event_insertUpdateConnectionsActionPerformed
 
     private void generateConnectionActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_generateConnectionActionPerformed
     {// GEN-HEADEREND:event_generateConnectionActionPerformed
+        databaseSQLTextPane.setText(generateConnectionString() +"\n\n" + databaseSQLTextPane.getText());
 
+        parent.enableSave();
+    }// GEN-LAST:event_generateConnectionActionPerformed
+    
+    private String generateUpdateString()
+    {
         String driver = "";
 
         for (int i = 0; i < drivers.size(); i++)
@@ -637,6 +627,30 @@ public class DatabaseReader extends ConnectorClass
             if (driverInfo.getName().equalsIgnoreCase(((String) databaseDriverCombobox.getSelectedItem())))
                 driver = driverInfo.getClassName();
         }
+        
+        StringBuilder connectionString = new StringBuilder();
+        connectionString.append("// This update script will be executed once for ever result returned from the above query.\nvar dbConn = DatabaseConnectionFactory.createDatabaseConnection('");
+        connectionString.append(driver + "','" + databaseURLField.getText() + "','");
+        connectionString.append(databaseUsernameField.getText() + "','" +  new String(databasePasswordField.getPassword()) + "\');\n");
+        
+        connectionString.append("var result = dbConn.executeUpdate(\"");
+        connectionString.append( "expression");
+        connectionString.append("\");\n\n// YOUR CODE GOES HERE \n\ndbConn.close();");
+        
+        return connectionString.toString();
+    }
+    
+    private String generateConnectionString()
+    {
+        String driver = "";
+
+        for (int i = 0; i < drivers.size(); i++)
+        {
+            DriverInfo driverInfo = drivers.get(i);
+            if (driverInfo.getName().equalsIgnoreCase(((String) databaseDriverCombobox.getSelectedItem())))
+                driver = driverInfo.getClassName();
+        }
+        
         StringBuilder connectionString = new StringBuilder();
         connectionString.append("var dbConn = DatabaseConnectionFactory.createDatabaseConnection('");
         connectionString.append(driver + "','" + databaseURLField.getText() + "','");
@@ -645,23 +659,24 @@ public class DatabaseReader extends ConnectorClass
         connectionString.append("var result = dbConn.executeCachedQuery(\"");
         connectionString.append( "expression");
         connectionString.append("\");\n\n// YOUR CODE GOES HERE \n\ndbConn.close();\n");
-        connectionString.append("return result;\n\n// You may access this result with $(result)");
-        databaseSQLTextPane.setText(connectionString.toString() +"\n\n" + databaseSQLTextPane.getText());
-
-        parent.enableSave();
-    }// GEN-LAST:event_generateConnectionActionPerformed
-
+        connectionString.append("return result;\n\n// You may access this result with $('column_name')");
+        
+        return connectionString.toString();
+    }
+    
     private void useJavaScriptNoActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_useJavaScriptNoActionPerformed
     {// GEN-HEADEREND:event_useJavaScriptNoActionPerformed
         sqlLabel.setText("SQL:");
         onUpdateLabel.setText("On-Update SQL:");
         databaseSQLTextPane.setDocument(sqlMappingDoc);
         databaseUpdateSQLTextPane.setDocument(sqlUpdateMappingDoc);
-        // databaseSQLTextPane.setText("SELECT FROM");
+        databaseSQLTextPane.setText("SELECT FROM");
+        databaseUpdateSQLTextPane.setText("UPDATE");
         generateConnection.setEnabled(false);
         updateSQL();
         
         insertUpdateConnections.setEnabled(false);
+        dbVarList.setPrefixAndSuffix("${", "}");
     }// GEN-LAST:event_useJavaScriptNoActionPerformed
 
     private void useJavaScriptYesActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_useJavaScriptYesActionPerformed
@@ -670,11 +685,14 @@ public class DatabaseReader extends ConnectorClass
         onUpdateLabel.setText("On-Update JavaScript:");
         databaseSQLTextPane.setDocument(jsMappingDoc);
         databaseUpdateSQLTextPane.setDocument(jsUpdateMappingDoc);
+        databaseSQLTextPane.setText(generateConnectionString());
+        databaseUpdateSQLTextPane.setText(generateUpdateString());
         generateConnection.setEnabled(true);
         updateSQL();
         
         if (readOnUpdateYes.isSelected())
-            insertUpdateConnections.setEnabled(true);       
+            insertUpdateConnections.setEnabled(true);     
+        dbVarList.setPrefixAndSuffix("$('", "')");
     }// GEN-LAST:event_useJavaScriptYesActionPerformed
 
     private void readOnUpdateNoActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_readOnUpdateNoActionPerformed

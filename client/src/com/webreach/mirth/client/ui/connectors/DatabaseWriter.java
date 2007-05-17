@@ -266,9 +266,9 @@ public class DatabaseWriter extends ConnectorClass
         layout.setHorizontalGroup(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(layout.createSequentialGroup().addContainerGap().add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING).add(jLabel2).add(jLabel1).add(jLabel3).add(jLabel4).add(jLabel6).add(sqlLabel)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(databaseURLField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 250, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(databaseDriverCombobox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(databaseUsernameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(layout.createSequentialGroup().add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(layout.createSequentialGroup().add(useJavaScriptYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(useJavaScriptNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).add(databasePasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 62, Short.MAX_VALUE).add(generateConnection).addContainerGap()).add(layout.createSequentialGroup().add(databaseSQLTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 306, Short.MAX_VALUE).addContainerGap()))));
         layout.setVerticalGroup(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(layout.createSequentialGroup().add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING).add(layout.createSequentialGroup().add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(jLabel1).add(databaseDriverCombobox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(jLabel2).add(databaseURLField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(jLabel3).add(databaseUsernameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(jLabel4).add(databasePasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(useJavaScriptYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(useJavaScriptNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(jLabel6))).add(generateConnection)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(sqlLabel).add(databaseSQLTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 146, Short.MAX_VALUE)).addContainerGap()));
     }// </editor-fold>//GEN-END:initComponents
-
-    private void generateConnectionActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_generateConnectionActionPerformed
-    {// GEN-HEADEREND:event_generateConnectionActionPerformed
+    
+    private String generateConnectionString()
+    {
         String driver = "";
 
         for (int i = 0; i < drivers.size(); i++)
@@ -277,23 +277,30 @@ public class DatabaseWriter extends ConnectorClass
             if (driverInfo.getName().equalsIgnoreCase(((String) databaseDriverCombobox.getSelectedItem())))
                 driver = driverInfo.getClassName();
         }
+        
         StringBuilder connectionString = new StringBuilder();
         connectionString.append("var dbConn = DatabaseConnectionFactory.createDatabaseConnection('");
         connectionString.append(driver + "','" + databaseURLField.getText() + "','");
         connectionString.append(databaseUsernameField.getText() + "','" +  new String(databasePasswordField.getPassword()) + "\');\n");
         
         connectionString.append("var result = dbConn.executeUpdate(\"");
-        connectionString.append( "expression");
+        connectionString.append("expression");
         connectionString.append("\");\n\n// YOUR CODE GOES HERE \n\ndbConn.close();");
-        databaseSQLTextPane.setText(connectionString.toString() +"\n\n" + databaseSQLTextPane.getText());
+        return connectionString.toString();
+    }
+    
+    private void generateConnectionActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_generateConnectionActionPerformed
+    {// GEN-HEADEREND:event_generateConnectionActionPerformed
+        databaseSQLTextPane.setText(generateConnectionString() +"\n\n" + databaseSQLTextPane.getText());
 
         parent.enableSave();
     }// GEN-LAST:event_generateConnectionActionPerformed
-
+    
     private void useJavaScriptYesActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_useJavaScriptYesActionPerformed
     {// GEN-HEADEREND:event_useJavaScriptYesActionPerformed
         sqlLabel.setText("JavaScript:");
         databaseSQLTextPane.setDocument(jsMappingDoc);
+        databaseSQLTextPane.setText(generateConnectionString());
         generateConnection.setEnabled(true);
     }// GEN-LAST:event_useJavaScriptYesActionPerformed
 
@@ -301,7 +308,7 @@ public class DatabaseWriter extends ConnectorClass
     {// GEN-HEADEREND:event_useJavaScriptNoActionPerformed
         sqlLabel.setText("SQL:");
         databaseSQLTextPane.setDocument(sqlMappingDoc);
-        // databaseSQLTextPane.setText("SELECT FROM");
+        databaseSQLTextPane.setText("SELECT FROM");
         generateConnection.setEnabled(false);
     }// GEN-LAST:event_useJavaScriptNoActionPerformed
 

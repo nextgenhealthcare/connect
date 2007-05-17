@@ -43,7 +43,10 @@ public class MirthVariableList extends JXList
     {
         this("${", "}");
     }
-
+    
+    public void setPrefixAndSuffix(String prefix, String suffix){
+        this.setTransferHandler(new VariableListHandler(prefix, suffix));
+    }
     /**
      * Creates a new instance of MirthVariableList
      */
@@ -51,7 +54,7 @@ public class MirthVariableList extends JXList
     {
         super();
         this.setDragEnabled(true);
-        this.setTransferHandler(new VariableListHandler(prefix, suffix));
+        setPrefixAndSuffix(prefix, suffix);
         this.setFocusable(false);
         this.addMouseMotionListener(new java.awt.event.MouseMotionAdapter()
         {
