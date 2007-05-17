@@ -33,6 +33,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -62,6 +63,7 @@ import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.server.Command;
 import com.webreach.mirth.server.CommandQueue;
 import com.webreach.mirth.server.builders.MuleConfigurationBuilder;
+import com.webreach.mirth.server.util.DatabaseUtil;
 import com.webreach.mirth.server.util.JMXConnection;
 import com.webreach.mirth.server.util.JMXConnectionFactory;
 import com.webreach.mirth.server.util.SqlConfig;
@@ -424,8 +426,11 @@ public class ConfigurationController {
 	public int getStatus() {
 		logger.debug("getting Mirth status");
 
+		// check if mule engine is running
+		
+		boolean isEngineRunning = false;
 		JMXConnection jmxConnection = null;
-
+		
 		try {
 			jmxConnection = JMXConnectionFactory.createJMXConnection();
 			Hashtable<String, String> properties = new Hashtable<String, String>();
@@ -433,12 +438,32 @@ public class ConfigurationController {
 			properties.put("name", "MuleService");
 
 			if (!((Boolean) jmxConnection.getAttribute(properties, "Stopped"))) {
-				return STATUS_OK;
-			} else {
-				return STATUS_UNAVAILABLE;
+				isEngineRunning = true;
 			}
 		} catch (Exception e) {
-			logger.warn("could not retrieve status");
+			logger.warn("could not retrieve status of engine");
+			isEngineRunning = false;
+		}
+		
+		// check if database is running
+		
+		boolean isDatabaseRunning = false;
+		Statement statement = null;
+		
+		try {
+			statement = sqlMap.getDataSource().getConnection().createStatement();
+			statement.execute("SELECT NULL FROM CONFIGURATION");
+			isDatabaseRunning = true;
+		} catch (Exception e) {
+			logger.warn("could not retrieve status of database", e);
+			isDatabaseRunning = false;
+		} finally {
+			DatabaseUtil.close(statement);
+		}
+		
+		if (isEngineRunning && isDatabaseRunning) {
+			return STATUS_OK;
+		} else {
 			return STATUS_UNAVAILABLE;
 		}
 	}
