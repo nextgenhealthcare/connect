@@ -26,6 +26,7 @@
 package com.webreach.mirth.server;
 
 import java.util.Date;
+import java.util.Hashtable;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
@@ -47,6 +48,8 @@ import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.controllers.SystemLogger;
 import com.webreach.mirth.server.controllers.UserController;
 import com.webreach.mirth.server.util.DatabasePruner;
+import com.webreach.mirth.server.util.JMXConnection;
+import com.webreach.mirth.server.util.JMXConnectionFactory;
 import com.webreach.mirth.server.util.StackTracePrinter;
 import com.webreach.mirth.server.util.VMRegistry;
 import com.webreach.mirth.util.PropertyLoader;
@@ -72,6 +75,7 @@ public class Mirth extends Thread {
 	private DatabasePruner pruner = new DatabasePruner();
 	private MessageObjectController messageObjectController = MessageObjectController.getInstance();
 	private ChannelStatisticsController channelStatisticsController = ChannelStatisticsController.getInstance();
+	public static boolean isEngineStarting = false;
 
 	public static void main(String[] args) {
 		Mirth mirth = new Mirth();
@@ -166,7 +170,7 @@ public class Mirth extends Thread {
 	 */
 	private void startMule() {
 		ConfigurationController configurationController = new ConfigurationController();
-
+		isEngineStarting = true;
 		try {
 			String configurationFilePath = configurationController.getLatestConfiguration().getAbsolutePath();
 			logger.debug("starting mule with configuration file: " + configurationFilePath);
@@ -192,6 +196,7 @@ public class Mirth extends Thread {
 		} catch (Exception e) {
 			logger.error("Could not start Mule.");
 		}
+		isEngineStarting = false;
 	}
 
 	/**

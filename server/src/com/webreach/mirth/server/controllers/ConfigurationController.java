@@ -32,6 +32,7 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -62,6 +63,7 @@ import com.webreach.mirth.model.Transport;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.server.Command;
 import com.webreach.mirth.server.CommandQueue;
+import com.webreach.mirth.server.Mirth;
 import com.webreach.mirth.server.builders.MuleConfigurationBuilder;
 import com.webreach.mirth.server.util.DatabaseUtil;
 import com.webreach.mirth.server.util.JMXConnection;
@@ -91,6 +93,7 @@ public class ConfigurationController {
 	// Mirth status codes
 	private static final int STATUS_OK = 0;
 	private static final int STATUS_UNAVAILABLE = 1;
+	private static final int STATUS_ENGINE_STARTING = 2;
 
 	public void initialize() {
 		try {
@@ -425,46 +428,69 @@ public class ConfigurationController {
 
 	public int getStatus() {
 		logger.debug("getting Mirth status");
-
-		// check if mule engine is running
 		
+		// Check if mule engine is running.  First check if it is starting.
+		// Also, if it is not running, double-check to see that it was not starting.
+		// This double-check is not foolproof, but works in most cases.
 		boolean isEngineRunning = false;
-		JMXConnection jmxConnection = null;
-		
-		try {
-			jmxConnection = JMXConnectionFactory.createJMXConnection();
-			Hashtable<String, String> properties = new Hashtable<String, String>();
-			properties.put("type", "control");
-			properties.put("name", "MuleService");
-
-			if (!((Boolean) jmxConnection.getAttribute(properties, "Stopped"))) {
-				isEngineRunning = true;
+		boolean isEngineStarting = false;
+		if (Mirth.isEngineStarting) {
+			isEngineStarting = true;
+		} else {
+			JMXConnection jmxConnection = null;
+			
+			try {
+				jmxConnection = JMXConnectionFactory.createJMXConnection();
+				Hashtable<String, String> properties = new Hashtable<String, String>();
+				properties.put("type", "control");
+				properties.put("name", "MuleService");
+	
+				if (!((Boolean) jmxConnection.getAttribute(properties, "Stopped"))) {
+					isEngineRunning = true;
+				}
+			} catch (Exception e) {
+				if (Mirth.isEngineStarting) {
+					isEngineStarting = true;
+				} else {
+					logger.warn("could not retrieve status of engine");
+					isEngineRunning = false;
+				}
+			} finally {
+				if (jmxConnection != null) {
+					jmxConnection.close();
+				}
 			}
-		} catch (Exception e) {
-			logger.warn("could not retrieve status of engine");
-			isEngineRunning = false;
 		}
 		
 		// check if database is running
-		
 		boolean isDatabaseRunning = false;
 		Statement statement = null;
-		
+		Connection connection = null;
 		try {
-			statement = sqlMap.getDataSource().getConnection().createStatement();
-			statement.execute("SELECT NULL FROM CONFIGURATION");
+			connection = sqlMap.getDataSource().getConnection();
+			statement = connection.createStatement();
+			statement.execute("SELECT 'STATUS_OK' FROM CONFIGURATION");
 			isDatabaseRunning = true;
 		} catch (Exception e) {
 			logger.warn("could not retrieve status of database", e);
 			isDatabaseRunning = false;
 		} finally {
 			DatabaseUtil.close(statement);
+			DatabaseUtil.close(connection);
 		}
 		
-		if (isEngineRunning && isDatabaseRunning) {
-			return STATUS_OK;
-		} else {
+		// If the database isn't running or the engine isn't running (only if it isn't starting) return STATUS_UNAVAILABLE.
+		// If it's starting, return STATUS_ENGINE_STARTING.
+		// All other cases return STATUS_OK.
+		if (!isDatabaseRunning || (!isEngineRunning && !isEngineStarting)) {
+			System.out.println(STATUS_UNAVAILABLE);
 			return STATUS_UNAVAILABLE;
+		} else if (isEngineStarting) {
+			System.out.println(STATUS_ENGINE_STARTING);
+			return STATUS_ENGINE_STARTING;
+		} else {
+			System.out.println(STATUS_OK);
+			return STATUS_OK;
 		}
 	}
 
