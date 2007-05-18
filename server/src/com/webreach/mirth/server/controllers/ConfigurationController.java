@@ -63,7 +63,6 @@ import com.webreach.mirth.model.Transport;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.server.Command;
 import com.webreach.mirth.server.CommandQueue;
-import com.webreach.mirth.server.Mirth;
 import com.webreach.mirth.server.builders.MuleConfigurationBuilder;
 import com.webreach.mirth.server.util.DatabaseUtil;
 import com.webreach.mirth.server.util.JMXConnection;
@@ -89,6 +88,7 @@ public class ConfigurationController {
 	private final String CONF_FOLDER = "conf/";
 	private SqlMapClient sqlMap = SqlConfig.getSqlMapInstance();
 	private static final String CHARSET = "ca.uhn.hl7v2.llp.charset";
+	private boolean isEngineStarting = false;
 
 	// Mirth status codes
 	private static final int STATUS_OK = 0;
@@ -450,9 +450,9 @@ public class ConfigurationController {
 		// starting.
 		// This double-check is not foolproof, but works in most cases.
 		boolean isEngineRunning = false;
-		boolean isEngineStarting = false;
-		if (Mirth.isEngineStarting) {
-			isEngineStarting = true;
+		boolean localIsEngineStarting = false;
+		if (isEngineStarting()) {
+			localIsEngineStarting = true;
 		} else {
 			JMXConnection jmxConnection = null;
 
@@ -466,8 +466,8 @@ public class ConfigurationController {
 					isEngineRunning = true;
 				}
 			} catch (Exception e) {
-				if (Mirth.isEngineStarting) {
-					isEngineStarting = true;
+				if (isEngineStarting()) {
+					localIsEngineStarting = true;
 				} else {
 					logger.warn("could not retrieve status of engine");
 					isEngineRunning = false;
@@ -500,14 +500,11 @@ public class ConfigurationController {
 		// isn't starting) return STATUS_UNAVAILABLE.
 		// If it's starting, return STATUS_ENGINE_STARTING.
 		// All other cases return STATUS_OK.
-		if (!isDatabaseRunning || (!isEngineRunning && !isEngineStarting)) {
-			System.out.println(STATUS_UNAVAILABLE);
+		if (!isDatabaseRunning || (!isEngineRunning && !localIsEngineStarting)) {
 			return STATUS_UNAVAILABLE;
-		} else if (isEngineStarting) {
-			System.out.println(STATUS_ENGINE_STARTING);
+		} else if (localIsEngineStarting) {
 			return STATUS_ENGINE_STARTING;
 		} else {
-			System.out.println(STATUS_OK);
 			return STATUS_OK;
 		}
 	}
@@ -540,5 +537,13 @@ public class ConfigurationController {
 		}
 
 		alertController.updateAlerts(serverConfiguration.getAlerts());
+	}
+
+	public boolean isEngineStarting() {
+		return isEngineStarting;
+	}
+
+	public void setEngineStarting(boolean isEngineStarting) {
+		this.isEngineStarting = isEngineStarting;
 	}
 }
