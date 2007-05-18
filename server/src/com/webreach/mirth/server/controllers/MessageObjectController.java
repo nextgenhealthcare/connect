@@ -57,8 +57,7 @@ import com.webreach.mirth.util.EncryptionException;
 public class MessageObjectController {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private SqlMapClient sqlMap = SqlConfig.getSqlMapInstance();
-	private static final String MESSAGE_NO_DATA_STORE = "No data stored for this message.";
-	private ConfigurationController configurationController = new ConfigurationController();
+	private ConfigurationController configurationController = ConfigurationController.getInstance();
 	private ChannelStatisticsController statisticsController = ChannelStatisticsController.getInstance();
 	private String lineSeperator = System.getProperty("line.separator");
 	private ErrorMessageBuilder errorBuilder = new ErrorMessageBuilder();

@@ -51,7 +51,7 @@ public class MirthManager {
 	private ChannelController channelController = new ChannelController();
 	private ChannelStatusController channelStatusController = new ChannelStatusController();
 	private ChannelStatisticsController channelStatisticsController = ChannelStatisticsController.getInstance();
-	private ConfigurationController configurationController = new ConfigurationController();
+	private ConfigurationController configurationController = ConfigurationController.getInstance();
 	private MessageObjectController messageObjectController = MessageObjectController.getInstance();
 	private SystemLogger systemLogger = new SystemLogger();
 	private UserController userController = new UserController();

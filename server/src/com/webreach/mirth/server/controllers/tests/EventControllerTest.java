@@ -16,7 +16,7 @@ import com.webreach.mirth.server.tools.ScriptRunner;
 
 public class EventControllerTest extends TestCase {
 	private SystemLogger eventController = new SystemLogger();
-	private ConfigurationController configurationController = new ConfigurationController();
+	private ConfigurationController configurationController = ConfigurationController.getInstance();
 	private List<SystemEvent> sampleEventList;
 
 	protected void setUp() throws Exception {

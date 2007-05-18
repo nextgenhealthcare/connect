@@ -46,11 +46,11 @@ public class ConfigurationServlet extends MirthServlet {
 			
 			if (operation.equals("getStatus")) {
 				response.setContentType("text/plain");
-				out.println(new ConfigurationController().getStatus());
+				out.println(ConfigurationController.getInstance().getStatus());
 			} else if (!isUserLoggedIn(request)) {
 				response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 			} else {
-				ConfigurationController configurationController = new ConfigurationController();
+				ConfigurationController configurationController = ConfigurationController.getInstance();
 				ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 
 				if (operation.equals("getTransports")) {

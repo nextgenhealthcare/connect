@@ -192,7 +192,7 @@ public class AlertController {
 
 	private void sentAlertEmails(List<String> emails, String template, String errorMessage) throws ControllerException {
 		try {
-			Properties properties = (new ConfigurationController()).getServerProperties();
+			Properties properties = ConfigurationController.getInstance().getServerProperties();
 			String fromAddress = properties.getProperty("smtp.from");
 			String toAddressList = generateEmailList(emails);
 

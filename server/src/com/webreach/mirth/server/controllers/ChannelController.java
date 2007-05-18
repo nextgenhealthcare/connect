@@ -188,7 +188,7 @@ public class ChannelController {
 			channel.setRevision(channel.getRevision() + 1);
 		}
 
-		ConfigurationController configurationController = new ConfigurationController();
+		ConfigurationController configurationController = ConfigurationController.getInstance();
 		channel.setVersion(configurationController.getVersion());
 
 		updateChannelInCache(channel);

@@ -18,7 +18,7 @@ import com.webreach.mirth.server.tools.ScriptRunner;
 
 public class ChannelControllerTest extends TestCase {
 	private ChannelController channelController = new ChannelController();
-	private ConfigurationController configurationController = new ConfigurationController();
+	private ConfigurationController configurationController = ConfigurationController.getInstance();
 	private List<Channel> sampleChannelList;
 	
 	protected void setUp() throws Exception {

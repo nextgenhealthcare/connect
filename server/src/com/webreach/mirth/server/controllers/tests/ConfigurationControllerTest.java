@@ -11,7 +11,7 @@ import com.webreach.mirth.server.controllers.ControllerException;
 import com.webreach.mirth.server.tools.ScriptRunner;
 
 public class ConfigurationControllerTest extends TestCase {
-	private ConfigurationController configurationController = new ConfigurationController();
+	private ConfigurationController configurationController = ConfigurationController.getInstance();
 
 	protected void setUp() throws Exception {
 		super.setUp();

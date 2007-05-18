@@ -50,7 +50,7 @@ import com.webreach.mirth.server.tools.ScriptRunner;
 
 public class MessageObjectControllerTest extends TestCase {
 	private MessageObjectController messageObjectController = MessageObjectController.getInstance();
-	private ConfigurationController configurationController = new ConfigurationController();
+	private ConfigurationController configurationController = ConfigurationController.getInstance();
 	private ChannelController channelController = new ChannelController();
 	private List<MessageObject> sampleMessageObjectList;
 	private String channelId;

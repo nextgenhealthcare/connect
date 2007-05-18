@@ -69,7 +69,7 @@ public class Mirth extends Thread {
 	private CommandQueue commandQueue = CommandQueue.getInstance();
 	private SystemLogger systemLogger = new SystemLogger();
 	private MirthManager manager = new MirthManager();
-	private ConfigurationController configurationController = new ConfigurationController();
+	private ConfigurationController configurationController = ConfigurationController.getInstance();
 	private ChannelController channelController = new ChannelController();
 	private UserController userController = new UserController();
 	private DatabasePruner pruner = new DatabasePruner();
@@ -169,8 +169,8 @@ public class Mirth extends Thread {
 	 * 
 	 */
 	private void startMule() {
-		ConfigurationController configurationController = new ConfigurationController();
 		isEngineStarting = true;
+		
 		try {
 			String configurationFilePath = configurationController.getLatestConfiguration().getAbsolutePath();
 			logger.debug("starting mule with configuration file: " + configurationFilePath);
@@ -196,6 +196,7 @@ public class Mirth extends Thread {
 		} catch (Exception e) {
 			logger.error("Could not start Mule.");
 		}
+		
 		isEngineStarting = false;
 	}
 

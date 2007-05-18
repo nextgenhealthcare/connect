@@ -82,7 +82,7 @@ public class ConfigurationController {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private SystemLogger systemLogger = new SystemLogger();
 	public static File serverPropertiesFile = new File("server.properties");
-    public static File serverIdPropertiesFile = new File("server.id");
+	public static File serverIdPropertiesFile = new File("server.id");
 	private static Properties versionProperties = PropertyLoader.loadProperties("version");
 	private static SecretKey encryptionKey = null;
 	private static String serverId = null;
@@ -94,6 +94,22 @@ public class ConfigurationController {
 	private static final int STATUS_OK = 0;
 	private static final int STATUS_UNAVAILABLE = 1;
 	private static final int STATUS_ENGINE_STARTING = 2;
+
+	// singleton pattern
+	private static ConfigurationController instance = null;
+
+	private ConfigurationController() {
+
+	}
+
+	public static ConfigurationController getInstance() {
+		synchronized (ConfigurationController.class) {
+			if (instance == null)
+				instance = new ConfigurationController();
+
+			return instance;
+		}
+	}
 
 	public void initialize() {
 		try {
@@ -113,7 +129,7 @@ public class ConfigurationController {
 			} else {
 				logger.debug("generating unique server id");
 				serverId = getGuid();
-                serverIdProperties.setProperty("server.id", serverId);
+				serverIdProperties.setProperty("server.id", serverId);
 				setPropertiesToFile(serverIdPropertiesFile, serverIdProperties);
 			}
 		} catch (Exception e) {
@@ -173,26 +189,26 @@ public class ConfigurationController {
 			throw new ControllerException(e);
 		}
 	}
-	
-    public Properties getServerProperties() throws ControllerException {
-        return getPropertiesFromFile(serverPropertiesFile);
-    }
-    
-    public void setServerProperties(Properties properties) throws ControllerException {
-        setPropertiesToFile(serverPropertiesFile, properties);
-    }
 
-    public void updateServerProperties(Properties properties) throws ControllerException {
-        updatePropertiesToFile(serverPropertiesFile, properties);
-    }
-    
+	public Properties getServerProperties() throws ControllerException {
+		return getPropertiesFromFile(serverPropertiesFile);
+	}
+
+	public void setServerProperties(Properties properties) throws ControllerException {
+		setPropertiesToFile(serverPropertiesFile, properties);
+	}
+
+	public void updateServerProperties(Properties properties) throws ControllerException {
+		updatePropertiesToFile(serverPropertiesFile, properties);
+	}
+
 	public Properties getPropertiesFromFile(File inputFile) throws ControllerException {
 		logger.debug("retrieving " + inputFile.getName() + " properties");
 
 		FileInputStream fileInputStream = null;
 
 		try {
-            inputFile.createNewFile();
+			inputFile.createNewFile();
 			fileInputStream = new FileInputStream(inputFile);
 			Properties properties = new Properties();
 			properties.load(fileInputStream);
@@ -214,7 +230,7 @@ public class ConfigurationController {
 		FileOutputStream fileOutputStream = null;
 
 		try {
-            inputFile.createNewFile();
+			inputFile.createNewFile();
 			fileOutputStream = new FileOutputStream(inputFile);
 			properties.store(fileOutputStream, "Updated server properties");
 		} catch (Exception e) {
@@ -428,9 +444,10 @@ public class ConfigurationController {
 
 	public int getStatus() {
 		logger.debug("getting Mirth status");
-		
-		// Check if mule engine is running.  First check if it is starting.
-		// Also, if it is not running, double-check to see that it was not starting.
+
+		// Check if mule engine is running. First check if it is starting.
+		// Also, if it is not running, double-check to see that it was not
+		// starting.
 		// This double-check is not foolproof, but works in most cases.
 		boolean isEngineRunning = false;
 		boolean isEngineStarting = false;
@@ -438,13 +455,13 @@ public class ConfigurationController {
 			isEngineStarting = true;
 		} else {
 			JMXConnection jmxConnection = null;
-			
+
 			try {
 				jmxConnection = JMXConnectionFactory.createJMXConnection();
 				Hashtable<String, String> properties = new Hashtable<String, String>();
 				properties.put("type", "control");
 				properties.put("name", "MuleService");
-	
+
 				if (!((Boolean) jmxConnection.getAttribute(properties, "Stopped"))) {
 					isEngineRunning = true;
 				}
@@ -461,7 +478,7 @@ public class ConfigurationController {
 				}
 			}
 		}
-		
+
 		// check if database is running
 		boolean isDatabaseRunning = false;
 		Statement statement = null;
@@ -478,8 +495,9 @@ public class ConfigurationController {
 			DatabaseUtil.close(statement);
 			DatabaseUtil.close(connection);
 		}
-		
-		// If the database isn't running or the engine isn't running (only if it isn't starting) return STATUS_UNAVAILABLE.
+
+		// If the database isn't running or the engine isn't running (only if it
+		// isn't starting) return STATUS_UNAVAILABLE.
 		// If it's starting, return STATUS_ENGINE_STARTING.
 		// All other cases return STATUS_OK.
 		if (!isDatabaseRunning || (!isEngineRunning && !isEngineStarting)) {

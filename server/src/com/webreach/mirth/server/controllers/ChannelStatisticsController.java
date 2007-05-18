@@ -49,7 +49,7 @@ public class ChannelStatisticsController {
 	private StatisticsUpdater statsUpdater = null;
 	private Thread updaterThread = null;
 	private boolean statsChanged = false;
-	private ConfigurationController configurationController = new ConfigurationController();
+	private ConfigurationController configurationController = ConfigurationController.getInstance();
 	private static ChannelStatisticsController instance = null;
 
 	private ChannelStatisticsController() {

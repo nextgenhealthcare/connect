@@ -16,7 +16,7 @@ import com.webreach.mirth.server.util.UUIDGenerator;
 
 public class AlertControllerTest extends TestCase {
 	private AlertController alertController = new AlertController();
-	private ConfigurationController configurationController = new ConfigurationController();
+	private ConfigurationController configurationController = ConfigurationController.getInstance();
 	private List<Alert> sampleAlertList;
 	
 	protected void setUp() throws Exception {

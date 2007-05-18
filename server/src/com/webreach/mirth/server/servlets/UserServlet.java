@@ -98,7 +98,7 @@ public class UserServlet extends MirthServlet {
 
 	private boolean login(HttpServletRequest request, HttpServletResponse response, UserController userController, SystemLogger systemLogger, String username, String password, String version) throws ServletException {
 		try {
-			ConfigurationController configurationController = new ConfigurationController();
+			ConfigurationController configurationController = ConfigurationController.getInstance();
 			
 			// if the version of the client in is not the same as the server and the version is not 0.0.0 (bypass)
 			if (!version.equals(configurationController.getVersion()) && !version.equals("0.0.0")) {

@@ -31,7 +31,7 @@ import com.webreach.mirth.server.controllers.ConfigurationController;
 
 public class SMTPConnectionFactory {
 	public static SMTPConnection createSMTPConnection() throws Exception {
-		Properties properties = (new ConfigurationController()).getServerProperties();
+		Properties properties = ConfigurationController.getInstance().getServerProperties();
 		String host = properties.getProperty("smtp.host");
 		String username = properties.getProperty("smtp.username");
 		String password = properties.getProperty("smtp.password");

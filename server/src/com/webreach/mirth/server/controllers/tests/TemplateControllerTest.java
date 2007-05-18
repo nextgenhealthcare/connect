@@ -10,7 +10,7 @@ import com.webreach.mirth.server.tools.ScriptRunner;
 
 public class TemplateControllerTest extends TestCase {
 	private TemplateController templateController = new TemplateController();
-	private ConfigurationController configurationController = new ConfigurationController();
+	private ConfigurationController configurationController = ConfigurationController.getInstance();
 
 	protected void setUp() throws Exception {
 		super.setUp();
