@@ -89,8 +89,13 @@ public class UserController {
 	public boolean authorizeUser(User user, String plainTextPassword) throws ControllerException {
 		try {
 			Credentials credentials = (Credentials) sqlMap.queryForObject("getUserCredentials", user);
-			String checkPasswordHash = encrypter.getHash(plainTextPassword, credentials.getSalt());
-			return checkPasswordHash.equals(credentials.getPassword());
+            
+            if(credentials != null) {
+                String checkPasswordHash = encrypter.getHash(plainTextPassword, credentials.getSalt());
+                return checkPasswordHash.equals(credentials.getPassword());
+            }
+            
+            return false;
 		} catch (Exception e) {
 			throw new ControllerException(e);
 		}
