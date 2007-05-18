@@ -27,7 +27,7 @@ public class HL7Properties implements Serializable
     /**
      * Holds value of property useStrictParser.
      */
-    private boolean useStrictParser = true;
+    private boolean useStrictParser = false;
 
     /**
      * Getter for property validateMessage.
