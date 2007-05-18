@@ -4,7 +4,7 @@
 Name Mirth
 # Defines
 !define REGKEY "SOFTWARE\$(^Name)"
-!define VERSION 1.4.0
+!define VERSION 1.5.0
 !define COMPANY "WebReach, Inc."
 !define URL http://www.webreachinc.com
 
@@ -47,7 +47,7 @@ InstallDir $PROGRAMFILES\Mirth
 CRCCheck on
 XPStyle on
 ShowInstDetails show
-VIProductVersion 1.4.0.0
+VIProductVersion 1.5.0.0
 VIAddVersionKey ProductName Mirth
 VIAddVersionKey ProductVersion "${VERSION}"
 VIAddVersionKey CompanyName "${COMPANY}"
