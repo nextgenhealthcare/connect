@@ -37,6 +37,7 @@ public class ManagerDialog extends javax.swing.JDialog
     private static final String DATABASE_POSTGRES = "postgres";
     private static final String DATABASE_MYSQL = "mysql";
     private static final String DATABASE_SQLSERVER = "sqlserver";
+    private static final String DATABASE_SQLSERVER2005 = "sqlserver2005";
     private static final String DATABASE_ORACLE = "oracle";
     
     private static final String log4jPropertiesPath = "conf\\log4j.properties";
@@ -46,6 +47,7 @@ public class ManagerDialog extends javax.swing.JDialog
     private static final String postgresPropertiesPath = "conf\\postgres-SqlMapConfig.properties";
     private static final String mysqlPropertiesPath = "conf\\mysql-SqlMapConfig.properties";
     private static final String sqlserverPropertiesPath = "conf\\sqlserver-SqlMapConfig.properties";
+    private static final String sqlserver2005PropertiesPath = "conf\\sqlserver2005-SqlMapConfig.properties";
     private static final String oraclePropertiesPath = "conf\\oracle-SqlMapConfig.properties";
     
     private static final String[] log4jErrorCodes = new String[]{"ERROR", "WARN", "DEBUG", "INFO"};
@@ -363,7 +365,7 @@ public class ManagerDialog extends javax.swing.JDialog
 
         jLabel8.setText(" URL:");
 
-        databaseType.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "derby", "postgres", "mysql", "sqlserver", "oracle" }));
+        databaseType.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "derby", "postgres", "mysql", "oracle", "sqlserver", "sqlserver2005" }));
         databaseType.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -391,7 +393,7 @@ public class ManagerDialog extends javax.swing.JDialog
                     .add(jLabel7))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(databasePanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(databaseType, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(databaseType, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 100, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(databaseUrl, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 288, Short.MAX_VALUE)
                     .add(databaseUsername, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 150, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(databasePassword, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 150, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
@@ -601,6 +603,8 @@ public class ManagerDialog extends javax.swing.JDialog
             databaseProperties = ManagerController.getInstance().getProperties(PlatformUI.MIRTH_PATH + mysqlPropertiesPath);
         else if(((String)databaseType.getSelectedItem()).equals(DATABASE_SQLSERVER))
             databaseProperties = ManagerController.getInstance().getProperties(PlatformUI.MIRTH_PATH + sqlserverPropertiesPath);
+        else if(((String)databaseType.getSelectedItem()).equals(DATABASE_SQLSERVER2005))
+            databaseProperties = ManagerController.getInstance().getProperties(PlatformUI.MIRTH_PATH + sqlserver2005PropertiesPath);
         else if(((String)databaseType.getSelectedItem()).equals(DATABASE_ORACLE))
             databaseProperties = ManagerController.getInstance().getProperties(PlatformUI.MIRTH_PATH + oraclePropertiesPath);
         
@@ -635,6 +639,8 @@ public class ManagerDialog extends javax.swing.JDialog
             ManagerController.getInstance().setProperties(databaseProperties, PlatformUI.MIRTH_PATH + mysqlPropertiesPath);
         else if(((String)databaseType.getSelectedItem()).equals(DATABASE_SQLSERVER))
             ManagerController.getInstance().setProperties(databaseProperties, PlatformUI.MIRTH_PATH + sqlserverPropertiesPath);
+        else if(((String)databaseType.getSelectedItem()).equals(DATABASE_SQLSERVER2005))
+            ManagerController.getInstance().setProperties(databaseProperties, PlatformUI.MIRTH_PATH + sqlserver2005PropertiesPath);
         else if(((String)databaseType.getSelectedItem()).equals(DATABASE_ORACLE))
             ManagerController.getInstance().setProperties(databaseProperties, PlatformUI.MIRTH_PATH + oraclePropertiesPath);
     }
