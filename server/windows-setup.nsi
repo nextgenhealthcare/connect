@@ -42,7 +42,7 @@ Var StartMenuGroup
 !insertmacro MUI_LANGUAGE English
 
 # Installer attributes
-OutFile mirth-setup.exe
+OutFile dist\mirth-${VERSION}-setup.exe
 InstallDir $PROGRAMFILES\Mirth
 CRCCheck on
 XPStyle on
