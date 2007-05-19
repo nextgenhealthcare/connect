@@ -51,7 +51,7 @@ public class ER7Serializer implements IXMLSerializer<String> {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private PipeParser pipeParser;
 	private XMLParser xmlParser;
-	private boolean useStrictParser = true;
+	private boolean useStrictParser = false;
 	private boolean useStrictValidation = false;
 	private boolean handleRepetitions = false;
 	public ER7Serializer(Map er7Properties) {
