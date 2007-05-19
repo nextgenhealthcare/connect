@@ -183,6 +183,9 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 		if (success && (exceptionWriting == null)) {
 			manageResponseAck(socket, event.getEndpoint(), messageObject);
 		}
+		if (!connector.isKeepSendSocketOpen()) {
+			doDispose(socket);
+		}
 	}
 
 	protected Socket createSocket(int port, InetAddress inetAddress) throws IOException {
@@ -395,6 +398,17 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 
 	public UMOConnector getConnector() {
 		return connector;
+	}
+	
+	public void doDispose(Socket socket) {
+		if (null != socket && !socket.isClosed()) {
+			try {
+				socket.close();
+				socket = null;
+			} catch (IOException e) {
+				logger.warn("ConnectedSocked close raised exception. Reason: " + e.getMessage());
+			}
+		}
 	}
 
 	public void doDispose() {

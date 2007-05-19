@@ -236,19 +236,18 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
 				dataIn = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
 				dataOut = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
 
-				while (!socket.isClosed() && !disposing.get()) {
-
+				while (!socket.isClosed() && !disposing.get()) {                    
 					byte[] b;
 					try {
-						b = protocol.read(dataIn);
+                        b = protocol.read(dataIn);
+
 						// end of stream
 						if (b == null) {
-							if (!connector.isKeepSendSocketOpen()) {
-								break;
-							}
+							break;	
+						} else {
+							processData(b);
+							dataOut.flush();
 						}
-						processData(b);
-						dataOut.flush();
 					} catch (SocketTimeoutException e) {
 						if (!socket.getKeepAlive()) {
 							break;
