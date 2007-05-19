@@ -63,8 +63,6 @@ public class TCPListener extends ConnectorClass
 
     private final String TCP_BUFFER_SIZE = "bufferSize";
 
-    private final String TCP_KEEP_CONNECTION_OPEN = "keepSendSocketOpen";
-
     private final String TCP_CHAR_ENCODING = "charEncoding";
 
     private final String TCP_ACK_NEW_CONNECTION = "ackOnNewConnection";
@@ -101,11 +99,6 @@ public class TCPListener extends ConnectorClass
         properties.put(TCP_PORT, listenerPortField.getText());
         properties.put(TCP_RECEIVE_TIMEOUT, receiveTimeoutField.getText());
         properties.put(TCP_BUFFER_SIZE, bufferSizeField.getText());
-
-        if (keepConnectionOpenYesRadio.isSelected())
-            properties.put(TCP_KEEP_CONNECTION_OPEN, UIConstants.YES_OPTION);
-        else
-            properties.put(TCP_KEEP_CONNECTION_OPEN, UIConstants.NO_OPTION);
 
         properties.put(TCP_RESPONSE_VALUE, (String)responseFromTransformer.getSelectedItem());
 
@@ -147,11 +140,6 @@ public class TCPListener extends ConnectorClass
         listenerPortField.setText((String) props.get(TCP_PORT));
         receiveTimeoutField.setText((String) props.get(TCP_RECEIVE_TIMEOUT));
         bufferSizeField.setText((String) props.get(TCP_BUFFER_SIZE));
-
-        if (((String) props.get(TCP_KEEP_CONNECTION_OPEN)).equals(UIConstants.YES_OPTION))
-            keepConnectionOpenYesRadio.setSelected(true);
-        else
-            keepConnectionOpenNoRadio.setSelected(true);
 
         boolean visible = parent.channelEditTasks.getContentPane().getComponent(0).isVisible();
         
@@ -203,7 +191,6 @@ public class TCPListener extends ConnectorClass
         properties.put(TCP_PORT, "6661");
         properties.put(TCP_RECEIVE_TIMEOUT, "5000");
         properties.put(TCP_BUFFER_SIZE, "65536");
-        properties.put(TCP_KEEP_CONNECTION_OPEN, UIConstants.NO_OPTION);
         properties.put(TCP_ACK_NEW_CONNECTION, UIConstants.NO_OPTION);
         properties.put(TCP_ACK_NEW_CONNECTION_IP, "..."); // hack to get
         // around defaults
@@ -243,12 +230,9 @@ public class TCPListener extends ConnectorClass
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
-        jLabel5 = new javax.swing.JLabel();
         bufferSizeField = new com.webreach.mirth.client.ui.components.MirthTextField();
         receiveTimeoutField = new com.webreach.mirth.client.ui.components.MirthTextField();
         listenerPortField = new com.webreach.mirth.client.ui.components.MirthTextField();
-        keepConnectionOpenYesRadio = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        keepConnectionOpenNoRadio = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         listenerIPAddressField3 = new com.webreach.mirth.client.ui.components.MirthTextField();
         jLabel25 = new javax.swing.JLabel();
         listenerIPAddressField2 = new com.webreach.mirth.client.ui.components.MirthTextField();
@@ -283,20 +267,6 @@ public class TCPListener extends ConnectorClass
         jLabel3.setText("Receive Timeout (ms):");
 
         jLabel4.setText("Buffer Size (bytes):");
-
-        jLabel5.setText("Keep Connection Open:");
-
-        keepConnectionOpenYesRadio.setBackground(new java.awt.Color(255, 255, 255));
-        keepConnectionOpenYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        keepConnectionOpenGroup.add(keepConnectionOpenYesRadio);
-        keepConnectionOpenYesRadio.setText("Yes");
-        keepConnectionOpenYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
-
-        keepConnectionOpenNoRadio.setBackground(new java.awt.Color(255, 255, 255));
-        keepConnectionOpenNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        keepConnectionOpenGroup.add(keepConnectionOpenNoRadio);
-        keepConnectionOpenNoRadio.setText("No");
-        keepConnectionOpenNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         jLabel25.setText(".");
 
@@ -362,43 +332,36 @@ public class TCPListener extends ConnectorClass
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(ackPortLabel)
-                    .add(ackIPLabel)
-                    .add(ackOnNewConnectionLabel)
-                    .add(jLabel39)
-                    .add(jLabel1)
-                    .add(jLabel2)
-                    .add(jLabel3)
-                    .add(jLabel5)
-                    .add(jLabel4)
-                    .add(jLabel6))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(listenerPortField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(receiveTimeoutField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 160, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(bufferSizeField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 160, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(layout.createSequentialGroup()
-                        .add(keepConnectionOpenYesRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(10, 10, 10)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, ackPortLabel)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, ackOnNewConnectionLabel)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, ackIPLabel)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel6)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel39)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel4)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel3)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel2)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel1))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(keepConnectionOpenNoRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(responseFromTransformer, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 150, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(charsetEncodingCombobox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(bufferSizeField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 160, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(receiveTimeoutField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 160, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(listenerPortField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
                     .add(layout.createSequentialGroup()
-                        .add(listenerIPAddressField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 31, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(161, 161, 161)
+                        .add(ackOnNewConnectionYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jLabel9)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(listenerIPAddressField1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 31, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jLabel26)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(listenerIPAddressField2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 31, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jLabel25)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(listenerIPAddressField3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 31, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(charsetEncodingCombobox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(ackOnNewConnectionNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                     .add(layout.createSequentialGroup()
+                        .add(161, 161, 161)
+                        .add(ackPortField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(layout.createSequentialGroup()
+                        .add(161, 161, 161)
                         .add(ackIPAddressField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 31, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .add(4, 4, 4)
                         .add(ipDot)
@@ -412,13 +375,22 @@ public class TCPListener extends ConnectorClass
                         .add(ipDot2)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(ackIPAddressField3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 31, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(ackPortField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(layout.createSequentialGroup()
-                        .add(ackOnNewConnectionYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(161, 161, 161)
+                        .add(listenerIPAddressField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 31, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(ackOnNewConnectionNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(responseFromTransformer, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 150, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(52, Short.MAX_VALUE))
+                        .add(jLabel9)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(listenerIPAddressField1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 31, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(jLabel26)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(listenerIPAddressField2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 31, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(jLabel25)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(listenerIPAddressField3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 31, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -446,11 +418,6 @@ public class TCPListener extends ConnectorClass
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel4)
                     .add(bufferSizeField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel5)
-                    .add(keepConnectionOpenYesRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(keepConnectionOpenNoRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel39)
@@ -610,12 +577,9 @@ public class TCPListener extends ConnectorClass
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel39;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel9;
     private javax.swing.ButtonGroup keepConnectionOpenGroup;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton keepConnectionOpenNoRadio;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton keepConnectionOpenYesRadio;
     private com.webreach.mirth.client.ui.components.MirthTextField listenerIPAddressField;
     private com.webreach.mirth.client.ui.components.MirthTextField listenerIPAddressField1;
     private com.webreach.mirth.client.ui.components.MirthTextField listenerIPAddressField2;

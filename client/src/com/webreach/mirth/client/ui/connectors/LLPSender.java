@@ -229,7 +229,7 @@ public class LLPSender extends ConnectorClass
         properties.put(LLP_END_OF_MESSAGE_CHARACTER, "0x1C");
         properties.put(LLP_RECORD_SEPARATOR, "0x0D");
         properties.put(LLP_SEGMENT_END, "0x0D");
-        properties.put(LLP_USE_PERSISTENT_QUEUES, UIConstants.YES_OPTION);
+        properties.put(LLP_USE_PERSISTENT_QUEUES, UIConstants.NO_OPTION);
         properties.put(LLP_ACK_TIMEOUT, "5000");
         properties.put(CONNECTOR_CHARSET_ENCODING, UIConstants.DEFAULT_ENCODING_OPTION);
         properties.put(LLP_TEMPLATE, "${message.encodedData}");
