@@ -135,7 +135,7 @@ public class EditMessageDialog extends javax.swing.JDialog
         messageContent = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("Mapping Value");
+        setTitle("Raw Message Data");
         getAccessibleContext().setAccessibleName("Raw Message Data");
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
         closeButton.setText("Close");
