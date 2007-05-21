@@ -12,7 +12,7 @@ public class TCPSender
         {
             s = new Socket(outputIP, Integer.parseInt(outputPort));
             DataOutputStream out = new DataOutputStream(s.getOutputStream());
-            out.writeBytes(LLPUtil.HL7Encode(hl7));
+            out.write(LLPUtil.HL7Encode(hl7).getBytes());
         }
         finally
         {
