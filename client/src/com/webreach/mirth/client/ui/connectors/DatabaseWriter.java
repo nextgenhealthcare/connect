@@ -168,7 +168,7 @@ public class DatabaseWriter extends ConnectorClass
         properties.put(DATABASE_URL, "");
         properties.put(DATABASE_USERNAME, "");
         properties.put(DATABASE_PASSWORD, "");
-        properties.put(DATABASE_SQL_STATEMENT, "SELECT FROM");
+        properties.put(DATABASE_SQL_STATEMENT, "INSERT INTO");
         properties.put(DATABASE_USE_JS, UIConstants.NO_OPTION);
         properties.put(DATABASE_JS_SQL_STATEMENT, "");
         return properties;
@@ -308,7 +308,7 @@ public class DatabaseWriter extends ConnectorClass
     {// GEN-HEADEREND:event_useJavaScriptNoActionPerformed
         sqlLabel.setText("SQL:");
         databaseSQLTextPane.setDocument(sqlMappingDoc);
-        databaseSQLTextPane.setText("SELECT FROM");
+        databaseSQLTextPane.setText("INSERT INTO");
         generateConnection.setEnabled(false);
     }// GEN-LAST:event_useJavaScriptNoActionPerformed
 
