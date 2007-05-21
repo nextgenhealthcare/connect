@@ -401,6 +401,16 @@ public class MessageObjectController {
 			throw new ControllerException(e);
 		}
 	}
+    
+    public void processMessage(MessageObject message) throws ControllerException
+    {
+        try {
+            VMRouter router = new VMRouter();
+            router.routeMessageByChannelId(message.getChannelId(), message.getRawData(), true);
+        } catch (Exception e) {
+            throw new ControllerException("could not reprocess message", e);
+        }
+    }
 
 	private Map getFilterMap(MessageObjectFilter filter, String uid) {
 		Map parameterMap = new HashMap();
@@ -458,7 +468,7 @@ public class MessageObjectController {
 		if (messageObject.getStatus().equals(MessageObject.Status.FILTERED)) {
 			return null;
 		}
-
+		
 		return messageObject;
 	}
 
@@ -504,8 +514,9 @@ public class MessageObjectController {
 
 				statisticsController.decrementQueuedCount(messageObject.getChannelId());
 			}
-
-			updateMessage(messageObject, oldStatus.equals(MessageObject.Status.QUEUED));
+            else if (!(oldStatus.equals(MessageObject.Status.QUEUED) && newStatus.equals(MessageObject.Status.ERROR))) {
+                updateMessage(messageObject, oldStatus.equals(MessageObject.Status.QUEUED));
+            }
 		}
 	}
 

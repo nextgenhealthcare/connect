@@ -482,6 +482,12 @@ public class Client {
 		serverConnection.executePostMethod(MESSAGE_SERVLET, params);
 	}
     
+	public void processMessage(MessageObject message) throws ClientException {
+            logger.debug("processing message");
+            NameValuePair[] params = { new NameValuePair("op", "processMessage"), new NameValuePair("message", serializer.toXML(message)) };
+            serverConnection.executePostMethod(MESSAGE_SERVLET, params);
+    }
+    
     public void importMessage(MessageObject message) throws ClientException {
         logger.debug("importing message");
         NameValuePair[] params = { new NameValuePair("op", "importMessage"), new NameValuePair("message", serializer.toXML(message)) };
