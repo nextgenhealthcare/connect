@@ -26,6 +26,7 @@
 package com.webreach.mirth.client.ui.browsers.message;
 
 import com.webreach.mirth.client.core.ClientException;
+import com.webreach.mirth.client.ui.EditMessageDialog;
 import com.webreach.mirth.client.ui.ViewContentDialog;
 import com.webreach.mirth.model.converters.ObjectCloner;
 import java.awt.Cursor;
@@ -100,7 +101,7 @@ public class MessageBrowser extends javax.swing.JPanel
     private final String PROTOCOL_COLUMN_NAME = "Protocol";
     private JScrollPane eventPane;
     private JScrollPane mappingsPane;
-    private JXTable eventTable;
+    private JXTable messageTable;
     private Frame parent;
     private MessageListHandler messageListHandler;
     private List<MessageObject> messageObjectList;
@@ -166,12 +167,12 @@ public class MessageBrowser extends javax.swing.JPanel
         {
             public void mousePressed(java.awt.event.MouseEvent evt)
             {
-                showEventPopupMenu(evt, false);
+                showMessagePopupMenu(evt, false);
             }
             
             public void mouseReleased(java.awt.event.MouseEvent evt)
             {
-                showEventPopupMenu(evt, false);
+                showMessagePopupMenu(evt, false);
             }
             
             public void mouseClicked(java.awt.event.MouseEvent evt)
@@ -180,7 +181,7 @@ public class MessageBrowser extends javax.swing.JPanel
             }
         });
         
-        eventPane.setViewportView(eventTable);
+        eventPane.setViewportView(messageTable);
         
         jPanel2.removeAll();
         
@@ -379,7 +380,7 @@ public class MessageBrowser extends javax.swing.JPanel
      */
     private void makeMessageTable(Object[][] tableData)
     {
-        eventTable = new JXTable();
+        messageTable = new JXTable();
         
         int messageObjectListSize = 0;
         if (messageObjectList != null)
@@ -420,7 +421,7 @@ public class MessageBrowser extends javax.swing.JPanel
         else
         	resultsLabel.setText("Results " + startResult + " - " + endResult + " of " + messageCount);
         
-        eventTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[] { MESSAGE_ID_COLUMN_NAME, DATE_COLUMN_NAME, CONNECTOR_COLUMN_NAME, TYPE_COLUMN_NAME, SOURCE_COLUMN_NAME, STATUS_COLUMN_NAME, PROTOCOL_COLUMN_NAME })
+        messageTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[] { MESSAGE_ID_COLUMN_NAME, DATE_COLUMN_NAME, CONNECTOR_COLUMN_NAME, TYPE_COLUMN_NAME, SOURCE_COLUMN_NAME, STATUS_COLUMN_NAME, PROTOCOL_COLUMN_NAME })
         {
             boolean[] canEdit = new boolean[] { false, false, false, false, false, false, false };
             
@@ -430,45 +431,58 @@ public class MessageBrowser extends javax.swing.JPanel
             }
         });
         
-        messageTableModel = (DefaultTableModel) eventTable.getModel();
+        messageTableModel = (DefaultTableModel) messageTable.getModel();
         
-        eventTable.setSelectionMode(0);
+        messageTable.setSelectionMode(0);
         
-        eventTable.getColumnExt(MESSAGE_ID_COLUMN_NAME).setVisible(false);
-        eventTable.getColumnExt(DATE_COLUMN_NAME).setMinWidth(100);
+        messageTable.getColumnExt(MESSAGE_ID_COLUMN_NAME).setVisible(false);
+        messageTable.getColumnExt(DATE_COLUMN_NAME).setMinWidth(100);
         
-        eventTable.setRowHeight(UIConstants.ROW_HEIGHT);
-        eventTable.setOpaque(true);
-        eventTable.setRowSelectionAllowed(true);
+        messageTable.setRowHeight(UIConstants.ROW_HEIGHT);
+        messageTable.setOpaque(true);
+        messageTable.setRowSelectionAllowed(true);
         deselectRows();
         
         if (Preferences.systemNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
         {
             HighlighterPipeline highlighter = new HighlighterPipeline();
             highlighter.addHighlighter(new AlternateRowHighlighter(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR, UIConstants.TITLE_TEXT_COLOR));
-            eventTable.setHighlighters(highlighter);
+            messageTable.setHighlighters(highlighter);
         }
         
-        eventPane.setViewportView(eventTable);
+        eventPane.setViewportView(messageTable);
         
-        eventTable.getSelectionModel().addListSelectionListener(new ListSelectionListener()
+        messageTable.getSelectionModel().addListSelectionListener(new ListSelectionListener()
         {
             public void valueChanged(ListSelectionEvent evt)
             {
-                EventListSelected(evt);
+                MessageListSelected(evt);
             }
         });
         
-        eventTable.addMouseListener(new java.awt.event.MouseAdapter()
+        messageTable.addMouseListener(new java.awt.event.MouseAdapter()
         {
             public void mousePressed(java.awt.event.MouseEvent evt)
             {
-                showEventPopupMenu(evt, true);
+                showMessagePopupMenu(evt, true);
             }
             
             public void mouseReleased(java.awt.event.MouseEvent evt)
             {
-                showEventPopupMenu(evt, true);
+                showMessagePopupMenu(evt, true);
+            }
+            
+            public void mouseClicked(java.awt.event.MouseEvent evt)
+            {
+                if (evt.getClickCount() >= 2)
+                {
+                    int row = getSelectedMessageIndex();
+                    if(row >= 0)
+                    {
+                        MessageObject currentMessage = messageObjectList.get(row);
+                        new EditMessageDialog(currentMessage);
+                    }
+                }
             }
         });
     }
@@ -614,16 +628,16 @@ public class MessageBrowser extends javax.swing.JPanel
     /**
      * Shows the trigger button (right-click) popup menu.
      */
-    private void showEventPopupMenu(java.awt.event.MouseEvent evt, boolean onTable)
+    private void showMessagePopupMenu(java.awt.event.MouseEvent evt, boolean onTable)
     {
         if (evt.isPopupTrigger())
         {
             if (onTable)
             {
-                int row = eventTable.rowAtPoint(new Point(evt.getX(), evt.getY()));
+                int row = messageTable.rowAtPoint(new Point(evt.getX(), evt.getY()));
                 if (row > -1)
                 {
-                    eventTable.setRowSelectionInterval(row, row);
+                    messageTable.setRowSelectionInterval(row, row);
                 }
             }
             else
@@ -639,9 +653,9 @@ public class MessageBrowser extends javax.swing.JPanel
     {
         parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 5, -1, false);
         parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 6, 6, true);
-        if (eventTable != null)
+        if (messageTable != null)
         {
-            eventTable.clearSelection();
+            messageTable.clearSelection();
             clearDescription();
         }
     }
@@ -662,18 +676,24 @@ public class MessageBrowser extends javax.swing.JPanel
         makeMappingsTable(new String[0][0], true);
     }
     
+    private int getSelectedMessageIndex()
+    {
+        int row = -1;
+        if (messageTable.getSelectedRow() > -1)
+        {
+            row = messageTable.convertRowIndexToModel(messageTable.getSelectedRow());
+        }
+        return row;
+    }
+    
     /**
      * An action for when a row is selected in the table.
      */
-    private void EventListSelected(ListSelectionEvent evt)
+    private void MessageListSelected(ListSelectionEvent evt)
     {
         if (!evt.getValueIsAdjusting())
         {
-            int row = -1;
-            if (eventTable.getSelectedRow() > -1)
-            {
-                row = eventTable.convertRowIndexToModel(eventTable.getSelectedRow());
-            }
+            int row = getSelectedMessageIndex();
             
             if (row >= 0)
             {
@@ -796,7 +816,7 @@ public class MessageBrowser extends javax.swing.JPanel
             if (messageTableModel.getColumnName(i).equals(MESSAGE_ID_COLUMN_NAME))
                 column = i;
         }
-        return ((String) messageTableModel.getValueAt(eventTable.convertRowIndexToModel(eventTable.getSelectedRow()), column));
+        return ((String) messageTableModel.getValueAt(messageTable.convertRowIndexToModel(messageTable.getSelectedRow()), column));
     }
     
     /**
@@ -1277,13 +1297,13 @@ public class MessageBrowser extends javax.swing.JPanel
             public Void doInBackground()
             {
                 try
-				{
-					messageListHandler = parent.mirthClient.getMessageListHandler(messageObjectFilter, pageSize, false);
-				}
-				catch (ClientException e)
-				{
-					parent.alertException(e.getStackTrace(), e.getMessage());
-				}
+                {
+                    messageListHandler = parent.mirthClient.getMessageListHandler(messageObjectFilter, pageSize, false);
+                }
+                catch (ClientException e)
+                {
+                    parent.alertException(e.getStackTrace(), e.getMessage());
+                }
                 data = getMessageTableData(messageListHandler, FIRST_PAGE);
                 return null;
             }

@@ -2872,7 +2872,6 @@ public class Frame extends JXFrame
         {
             channel.setRevision(0);
             channel.setId(mirthClient.getGuid());
-            channels.put(channel.getId(), channel);
         }
         catch (ClientException e)
         {
@@ -2888,7 +2887,8 @@ public class Frame extends JXFrame
         } while (!checkChannelName(channelName, channel.getId()));
 
         channel.setName(channelName);
-
+        channels.put(channel.getId(), channel);
+        
         editChannel(channel);
         channelEditTasks.getContentPane().getComponent(0).setVisible(true);
     }
@@ -3161,6 +3161,35 @@ public class Frame extends JXFrame
 
         worker.execute();
     }
+    
+   public void processMessage(final MessageObject message)
+   {
+        setWorking("Processing message...", true);
+
+        SwingWorker worker = new SwingWorker<Void, Void>()
+        {
+            public Void doInBackground()
+            {
+                try
+                {
+                    mirthClient.processMessage(message);
+                }
+                catch (ClientException e)
+                {
+                    alertException(e.getStackTrace(), e.getMessage());
+                }
+                return null;
+            }
+
+            public void done()
+            {
+                messageBrowser.refresh();
+                setWorking("", false);
+            }
+        };
+
+        worker.execute();
+   }
 
     public void doRefreshEvents()
     {
