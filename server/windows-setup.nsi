@@ -137,12 +137,8 @@ Section -Main SEC0000
         #Create shortcut to Manager in startup directory and start manager
         CreateShortcut "$SMPROGRAMS\Startup\Mirth Server Manager.lnk" "$INSTDIR\java -jar manager.jar" "" $INSTDIR\Mirth.ico
         ShellLink::SetShortCutWorkingDirectory "$SMPROGRAMS\Startup\Mirth Server Manager.lnk" $INSTDIR
-        Push $R4
-        StrCpy $R4 $OUTDIR
-        StrCpy $OUTDIR $INSTDIR
+        SetOutPath $INSTDIR
         Exec $INSTDIR\Manager.bat
-        StrCpy $OUTDIR $R4
-        Pop $R4
     ${endif}
 
     Pop $R0
