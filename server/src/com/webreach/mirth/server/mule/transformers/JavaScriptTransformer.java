@@ -384,7 +384,8 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 
 			if (transformedData != Scriptable.NOT_FOUND) {
 				// set the transformedData to the template
-				messageObject.setTransformedData(Context.toString(transformedData));
+                // We replace all here because we do not want pretty-printed XML
+				messageObject.setTransformedData(context.toString(transformedData));
 			}
 
 			if ((messageObject.getTransformedData() != null)) {
@@ -414,7 +415,10 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 		script.append("if (globalMap.get(string) != null) { return globalMap.get(string);} else ");
 		script.append("{ return ''; }}");
 		script.append("function doFilter() {");
-
+        // ast: Allow ending whitespaces from the input XML
+        script.append("XML.ignoreWhitespace=false;");
+        // ast: Allow ending whitespaces to the output XML
+        script.append("XML.prettyPrinting=false;");
 		if (removeNamespace) {
 			script.append("var newMessage = message.replace(/xmlns:?[^=]*=[\"\"][^\"\"]*[\"\"]/g, '');\n");	
 		} else {
@@ -440,7 +444,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 		script.append("{ return ''; }}");
 		script.append("default xml namespace = '';");
 		script.append("function doTransform() {");
-
+		
 		// turn the template into an E4X XML object
 
 		if (template != null && template.length() > 0) {

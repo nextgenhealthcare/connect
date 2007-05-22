@@ -81,7 +81,8 @@ public class EDISerializer implements IXMLSerializer<String> {
 		xr.setContentHandler(handler);
 		xr.setErrorHandler(handler);
 		try {
-			xr.parse(new InputSource(new StringReader(source)));
+            //Parse, but first replace all spaces between brackets. This fixes pretty-printed XML we might receive
+            xr.parse(new InputSource(new StringReader(source.replaceAll(">\\s+<", "><"))));
 		} catch (Exception e) {
 			throw new SerializerException(e.getMessage());
 		}

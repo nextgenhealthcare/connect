@@ -148,7 +148,8 @@ public class ER7Serializer implements IXMLSerializer<String> {
 				XMLReader xr = XMLReaderFactory.createXMLReader();
 				xr.setContentHandler(handler);
 				xr.setErrorHandler(handler);
-				xr.parse(new InputSource(new StringReader(source)));
+                //Parse, but first replace all spaces between brackets. This fixes pretty-printed XML we might receive
+				xr.parse(new InputSource(new StringReader(source.replaceAll(">\\s+<", "><"))));
 				builder.append(handler.getOutput());
 			} catch (Exception e) {
 				String exceptionMessage = e.getClass().getName() + ":" + e.getMessage();

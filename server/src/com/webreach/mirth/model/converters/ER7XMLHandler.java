@@ -27,6 +27,8 @@ package com.webreach.mirth.model.converters;
 import org.xml.sax.Attributes;
 import org.xml.sax.helpers.DefaultHandler;
 
+import com.webreach.mirth.util.Entities;
+
 public class ER7XMLHandler extends DefaultHandler {
 	private String fieldDelim;
 	private String componentDelim;
@@ -39,6 +41,7 @@ public class ER7XMLHandler extends DefaultHandler {
 	private boolean inMSH2 = false;
 	private boolean sawMSH1 = false;
 	private boolean sawMSH2 = false;
+    private boolean inElement = false;
 	private String currentSegment = new String();
 	private StringBuilder output = new StringBuilder();
 	private String segmentDelim;
@@ -55,14 +58,17 @@ public class ER7XMLHandler extends DefaultHandler {
 	// //////////////////////////////////////////////////////////////////
 
 	public void startDocument() {
+        inElement = false;
 		currentLocation = Location.DOCUMENT;
 	}
 
 	public void endDocument() {
+        inElement = false;
 		currentLocation = Location.DOCUMENT;
 	}
 
 	public void startElement(String uri, String name, String qName, Attributes atts) {
+        inElement = true;
 		if (sawHeader == false){
 			sawHeader = true;
 		}else{
@@ -100,6 +106,7 @@ public class ER7XMLHandler extends DefaultHandler {
 	}
 
 	public void endElement(String uri, String name, String qName) {
+        inElement = false;
 		if (sawMSH2 && (name.equals("MSH.2") || name.equals("BHS.2") || name.equals("FHS.2"))){
 			inMSH2 = false;
 			sawMSH2 = false;
@@ -131,11 +138,13 @@ public class ER7XMLHandler extends DefaultHandler {
 			componentDelim = ch[start] + "";
 			inMSH2 = false;
 		}
-		output.append(ch, start, length);
+		
+        output.append(ch, start, length);
+
 		/*
 		for (int i = start; i < start + length; i++) {
 			switch (ch[i]) {
-				/*
+				
 			case '\\':
 				output.append("\\\\");
 				break;
