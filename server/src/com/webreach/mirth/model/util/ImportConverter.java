@@ -204,6 +204,15 @@ public class ImportConverter
                 }
             }
         }
+        
+        if(channelRoot.getElementsByTagName("version").getLength() > 0)
+        {
+            String version = channelRoot.getElementsByTagName("version").item(0).getTextContent();
+            if(Integer.parseInt(version.split(".")[1]) < 5)
+            {
+                updateTransformerFor1_5(document);
+            }
+        }
 
         DocumentSerializer docSerializer = new DocumentSerializer();
         channelXML = docSerializer.toXML(document);
@@ -330,7 +339,65 @@ public class ImportConverter
 
         return document;
     }
+    
+    private static void updateTransformerFor1_5(Document document)
+    {
+        Element inboundPropertiesElement, outboundPropertiesElement;
+        
+        NodeList transformers = document.getElementsByTagName("transformer");
 
+        for (int i = 0; i < transformers.getLength(); i++)
+        {
+            Element transformerRoot = (Element) transformers.item(i);
+            
+            if(transformerRoot.getElementsByTagName("inboundProtocol").item(0).getTextContent().equals("HL7V2") && transformerRoot.getElementsByTagName("inboundProperties").getLength() == 0)
+            {
+                inboundPropertiesElement = document.createElement("inboundProperties");
+                
+                Element handleRepetitionsProperty = document.createElement("property");
+                handleRepetitionsProperty.setAttribute("name", "handleRepetitions");
+                handleRepetitionsProperty.setNodeValue("false");
+                
+                Element useStrictValidationProperty = document.createElement("property");
+                handleRepetitionsProperty.setAttribute("name", "useStrictValidation");
+                handleRepetitionsProperty.setNodeValue("false");
+                
+                Element useStrictParserProperty = document.createElement("property");
+                handleRepetitionsProperty.setAttribute("name", "useStrictParser");
+                handleRepetitionsProperty.setNodeValue("true");
+                
+                inboundPropertiesElement.appendChild(handleRepetitionsProperty);
+                inboundPropertiesElement.appendChild(useStrictValidationProperty);
+                inboundPropertiesElement.appendChild(useStrictParserProperty);
+                
+                transformerRoot.appendChild(inboundPropertiesElement);
+            }
+            
+            if(transformerRoot.getElementsByTagName("outboundProtocol").item(0).getTextContent().equals("HL7V2") && transformerRoot.getElementsByTagName("outboundProperties").getLength() == 0)
+            {
+                outboundPropertiesElement = document.createElement("outboundProperties");
+                
+                Element handleRepetitionsProperty = document.createElement("property");
+                handleRepetitionsProperty.setAttribute("name", "handleRepetitions");
+                handleRepetitionsProperty.setNodeValue("false");
+                
+                Element useStrictValidationProperty = document.createElement("property");
+                handleRepetitionsProperty.setAttribute("name", "useStrictValidation");
+                handleRepetitionsProperty.setNodeValue("false");
+                
+                Element useStrictParserProperty = document.createElement("property");
+                handleRepetitionsProperty.setAttribute("name", "useStrictParser");
+                handleRepetitionsProperty.setNodeValue("true");
+                
+                outboundPropertiesElement.appendChild(handleRepetitionsProperty);
+                outboundPropertiesElement.appendChild(useStrictValidationProperty);
+                outboundPropertiesElement.appendChild(useStrictParserProperty);
+                
+                transformerRoot.appendChild(outboundPropertiesElement);
+            }
+        }
+    }
+    
     public static String convertTransformer(File transformer, Protocol incoming, Protocol outgoing) throws Exception
     {
         String transformerXML = "";
