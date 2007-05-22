@@ -22,7 +22,8 @@ Name Mirth
 # Included files
 !include Sections.nsh
 !include MUI.nsh
-
+!include LogicLib.nsh
+#!include servicelib.nsh
 # Reserved Files
 
 # Variables
@@ -33,6 +34,7 @@ Var StartMenuGroup
 !insertmacro MUI_PAGE_LICENSE licenses\license-mirth.txt
 !insertmacro MUI_PAGE_DIRECTORY
 !insertmacro MUI_PAGE_STARTMENU Application $StartMenuGroup
+Page custom ServiceOptions
 !insertmacro MUI_PAGE_INSTFILES
 !insertmacro MUI_PAGE_FINISH
 !insertmacro MUI_UNPAGE_CONFIRM
@@ -98,6 +100,8 @@ Section -Main SEC0000
     File setup\shell.sh
     File setup\activation.jnlp
     File setup\mirth-client-core.jar
+    File setup\mirth-manager.jar
+    File setup\Manager.bat
     SetOutPath $SMPROGRAMS\$StartMenuGroup
     
     # set the working directory in order for .bat files to work
@@ -110,13 +114,45 @@ Section -Main SEC0000
     CreateShortcut "$SMPROGRAMS\$StartMenuGroup\Uninstall Mirth Service.lnk" $INSTDIR\UninstallMirth-NT.bat
     ShellLink::SetShortCutWorkingDirectory "$SMPROGRAMS\$StartMenuGroup\Uninstall Mirth Service.lnk" $INSTDIR
     
-    CreateShortcut "$SMPROGRAMS\$StartMenuGroup\Start Mirth Administrator.lnk" http://localhost:8080/webstart "" $INSTDIR\Mirth.ico
+    CreateShortcut "$SMPROGRAMS\$StartMenuGroup\Start Mirth Administrator.lnk" javaws "http://localhost:8080/webstart" $INSTDIR\Mirth.ico
     
     CreateShortcut "$SMPROGRAMS\$StartMenuGroup\Start Mirth Shell.lnk" $INSTDIR\Shell.bat
     ShellLink::SetShortCutWorkingDirectory "$SMPROGRAMS\$StartMenuGroup\Start Mirth Shell.lnk" $INSTDIR
     
+    CreateShortcut "$SMPROGRAMS\$StartMenuGroup\Mirth Server Manager.lnk" $INSTDIR\Manager.bat "" $INSTDIR\Mirth.ico
+    ShellLink::SetShortCutWorkingDirectory "$SMPROGRAMS\$StartMenuGroup\Mirth Server Manager.lnk" $INSTDIR
+    
     WriteRegStr HKLM "${REGKEY}\Components" Main 1
+    
+    #Get the service fields from the service.ini
+    !insertmacro MUI_INSTALLOPTIONS_READ $R0 "service.ini" "Field 2" "State" #Service Install
+    !insertmacro MUI_INSTALLOPTIONS_READ $R1 "service.ini" "Field 3" "State" #Run server manager
+    ${if} $R0 == 1
+         #Install and Start Service
+         ExecWait $INSTDIR\InstallMirth-NT.bat
+         ExecWait $INSTDIR\StartMirth-NT.bat
+    ${endif}
+  
+    ${if} $R1 == 1
+        #Create shortcut to Manager in startup directory and start manager
+        CreateShortcut "$SMPROGRAMS\Startup\Mirth Server Manager.lnk" "$INSTDIR\java -jar manager.jar" "" $INSTDIR\Mirth.ico
+        ShellLink::SetShortCutWorkingDirectory "$SMPROGRAMS\Startup\Mirth Server Manager.lnk" $INSTDIR
+        Push $R4
+        StrCpy $R4 $OUTDIR
+        StrCpy $OUTDIR $INSTDIR
+        ExecWait $INSTDIR\Manager.bat
+        StrCpy $OUTDIR $R4
+        Pop $R4
+    ${endif}
+
+    Pop $R0
+    Pop $R1
 SectionEnd
+ 
+Function ServiceOptions 
+  !insertmacro MUI_HEADER_TEXT "Windows Service Options" "Configure the Mirth service and server manager installation"
+  !insertmacro MUI_INSTALLOPTIONS_DISPLAY "service.ini"
+FunctionEnd
 
 Section -post SEC0001
     WriteRegStr HKLM "${REGKEY}" Path $INSTDIR
@@ -155,7 +191,12 @@ Section /o un.Main UNSEC0000
     Delete /REBOOTOK "$SMPROGRAMS\$StartMenuGroup\Install Mirth Service.lnk"
     Delete /REBOOTOK "$SMPROGRAMS\$StartMenuGroup\Start Mirth Server.lnk"
     Delete /REBOOTOK "$SMPROGRAMS\$StartMenuGroup\Start Mirth Shell.lnk"
-    
+    Delete /REBOOTOK "$SMPROGRAMS\Startup\Mirth Server Manager.lnk"
+    Delete /REBOOTOK "$SMPROGRAMS\$StartMenuGroup\Mirth Server Manager.lnk"
+    Delete /REBOOTOK "$SMPROGRAMS\$StartMenuGroup\"
+    #Uninstall the service
+    ExecWait $INSTDIR\UninstallMirth-NT.bat
+    #Remove the files
     Delete /REBOOTOK $INSTDIR\wrapper.exe
     Delete /REBOOTOK $INSTDIR\UninstallMirth-NT.bat
     Delete /REBOOTOK $INSTDIR\StopMirth-NT.bat
@@ -177,6 +218,15 @@ Section /o un.Main UNSEC0000
     Delete /REBOOTOK $INSTDIR\Shell.sh
     Delete /REBOOTOK $INSTDIR\activation.jnlp
     Delete /REBOOTOK $INSTDIR\mirth-client-core.jar
+    Delete /REBOOTOK $INSTDIR\mirth-manager.jar
+    Delete /REBOOTOK $INSTDIR\Manager.bat
+    Delete /REBOOTOK $INSTDIR\Mirth.ico
+    Delete /REBOOTOK $INSTDIR\derby.log
+    Delete /REBOOTOK $INSTDIR\id_file
+    Delete /REBOOTOK $INSTDIR\server.id
+    Delete /REBOOTOK $INSTDIR\server.properties
+    Delete /REBOOTOK $INSTDIR\velocity.log
+    RmDir /r /REBOOTOK $INSTDIR\.mule
     RmDir /r /REBOOTOK $INSTDIR\logs
     RmDir /r /REBOOTOK $INSTDIR\licenses
     RmDir /r /REBOOTOK $INSTDIR\web
@@ -201,6 +251,7 @@ SectionEnd
 # Installer functions
 Function .onInit
     InitPluginsDir
+    !insertmacro MUI_INSTALLOPTIONS_EXTRACT "service.ini"
 FunctionEnd
 
 # Uninstaller functions
