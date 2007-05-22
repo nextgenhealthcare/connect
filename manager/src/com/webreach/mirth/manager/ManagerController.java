@@ -39,6 +39,7 @@ public class ManagerController
     private final String serviceName = "Mirth";
     private final String CMD_START = "cmd /c net start \"";
     private final String CMD_STOP = "cmd /c net stop \"";
+    private final String CMD_WEBSTART = "cmd /c javaws http://localhost:8080/webstart";
     private final String CMD_STATUS = "sc query \"";    
     
     private final String CMD_QUERY_REGEX = ".*STATE.* :.(.)";
@@ -88,7 +89,7 @@ public class ManagerController
     {
         try
         {
-            if(execCmd(CMD_START + serviceName + "\"") != 0)
+            if(execCmd(CMD_START + serviceName + "\"", true) != 0)
             {
                 alertError("The Mirth service could not be started.  Please verify that it is installed and not already started.");
                 updateMirthServiceStatus();
@@ -115,7 +116,7 @@ public class ManagerController
     {
         try
         {
-            if(execCmd(CMD_STOP + serviceName + "\"") != 0)
+            if(execCmd(CMD_STOP + serviceName + "\"", true) != 0)
             {
                 alertError("The Mirth service could not be stopped.  Please verify that it is installed and started.");
                 updateMirthServiceStatus();
@@ -152,7 +153,17 @@ public class ManagerController
     
     public void launchAdministrator()
     {
-        BareBonesBrowserLaunch.openURL("http://localhost:8080/webstart");
+        try
+        {
+            if(execCmd(CMD_WEBSTART, false) != 0)
+            {
+                alertError("The Mirth Administator could not be launched.");
+            }
+        }
+        catch (Exception ex)
+        {
+            ex.printStackTrace();
+        }
     }
     
     public Properties getProperties(String path)
@@ -309,14 +320,18 @@ public class ManagerController
             return false;
     }
     
-    private int execCmd(String cmdLine) throws Exception
+    private int execCmd(String cmdLine, boolean waitFor) throws Exception
     {
         Process process = Runtime.getRuntime().exec(cmdLine);
+        
+        if(!waitFor)
+            return 0;
+        
         StreamPumper outPumper = new StreamPumper(process.getInputStream(), System.out);
         StreamPumper errPumper = new StreamPumper(process.getErrorStream(), System.err);
         
         outPumper.start();
-        errPumper.start();
+        errPumper.start();    
         process.waitFor();
         outPumper.join();
         errPumper.join();
