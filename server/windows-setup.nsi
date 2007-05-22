@@ -140,7 +140,7 @@ Section -Main SEC0000
         Push $R4
         StrCpy $R4 $OUTDIR
         StrCpy $OUTDIR $INSTDIR
-        ExecWait $INSTDIR\Manager.bat
+        Exec $INSTDIR\Manager.bat
         StrCpy $OUTDIR $R4
         Pop $R4
     ${endif}
@@ -193,7 +193,7 @@ Section /o un.Main UNSEC0000
     Delete /REBOOTOK "$SMPROGRAMS\$StartMenuGroup\Start Mirth Shell.lnk"
     Delete /REBOOTOK "$SMPROGRAMS\Startup\Mirth Server Manager.lnk"
     Delete /REBOOTOK "$SMPROGRAMS\$StartMenuGroup\Mirth Server Manager.lnk"
-    Delete /REBOOTOK "$SMPROGRAMS\$StartMenuGroup\"
+    
     #Uninstall the service
     ExecWait $INSTDIR\UninstallMirth-NT.bat
     #Remove the files
@@ -233,6 +233,7 @@ Section /o un.Main UNSEC0000
     RmDir /r /REBOOTOK $INSTDIR\conf
     RmDir /r /REBOOTOK $INSTDIR\mirthdb
     RmDir /r /REBOOTOK $INSTDIR\lib
+    RmDir /r /REBOOTOK "$SMPROGRAMS\$StartMenuGroup\"
     DeleteRegValue HKLM "${REGKEY}\Components" Main
 SectionEnd
 
