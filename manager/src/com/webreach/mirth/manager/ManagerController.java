@@ -9,7 +9,6 @@
 
 package com.webreach.mirth.manager;
 
-import com.webreach.mirth.manager.util.BareBonesBrowserLaunch;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
