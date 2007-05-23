@@ -23,14 +23,9 @@ import org.mule.providers.AbstractMessageAdapter;
 import org.mule.umo.MessagingException;
 import org.mule.umo.provider.MessageTypeNotSupportedException;
 import org.mule.umo.provider.UniqueIdNotSupportedException;
-import org.mule.umo.transformer.TransformerException;
-
-import com.webreach.mirth.server.mule.providers.file.transformers.FileToByteArray;
 
 public class TextLineMessageAdapter extends AbstractMessageAdapter
 {
-    private FileToByteArray transformer = new FileToByteArray();
-
     private String message = null;
     private File file;
     public TextLineMessageAdapter(Object message) throws MessagingException
