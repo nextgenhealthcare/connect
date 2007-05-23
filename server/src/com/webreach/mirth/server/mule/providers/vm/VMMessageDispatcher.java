@@ -35,7 +35,6 @@ import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
-import com.webreach.mirth.server.mule.providers.tcp.TcpConnector;
 
 /**
  * <code>VMMessageDispatcher</code> is used for providing in memory
