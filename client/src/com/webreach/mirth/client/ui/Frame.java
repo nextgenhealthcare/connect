@@ -2682,22 +2682,14 @@ public class Frame extends JXFrame
              */
             int option;
 
-            try
+            option = JOptionPane.YES_OPTION;
+            if (importChannel.getVersion() == null)
             {
-                option = JOptionPane.YES_OPTION;
-                if (importChannel.getVersion() == null)
-                {
-                    option = JOptionPane.showConfirmDialog(this, "The channel being imported is from an unknown version of Mirth." + "\nSome channel properties may not be the same.  Would you like to automatically convert the properties?", "Select an Option", JOptionPane.YES_NO_CANCEL_OPTION);
-                }
-                else if (!importChannel.getVersion().equals(mirthClient.getVersion()))
-                {
-                    option = JOptionPane.showConfirmDialog(this, "The channel being imported is from Mirth version " + importChannel.getVersion() + ". You are using Mirth version " + mirthClient.getVersion() + ".\nSome channel properties may not be the same.  Would you like to automatically convert the properties?", "Select an Option", JOptionPane.YES_NO_CANCEL_OPTION);
-                }
+                option = JOptionPane.showConfirmDialog(this, "The channel being imported is from an unknown version of Mirth." + "\nSome channel properties may not be the same.  Would you like to automatically convert the properties?", "Select an Option", JOptionPane.YES_NO_CANCEL_OPTION);
             }
-            catch (ClientException e)
+            else if (!importChannel.getVersion().equals(PlatformUI.SERVER_VERSION))
             {
-                alertError("Could not get the clients version.");
-                return;
+                option = JOptionPane.showConfirmDialog(this, "The channel being imported is from Mirth version " + importChannel.getVersion() + ". You are using Mirth version " + PlatformUI.SERVER_VERSION + ".\nSome channel properties may not be the same.  Would you like to automatically convert the properties?", "Select an Option", JOptionPane.YES_NO_CANCEL_OPTION);
             }
             
             if(option != JOptionPane.YES_OPTION)
