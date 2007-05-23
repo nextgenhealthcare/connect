@@ -101,7 +101,7 @@ Section -Main SEC0000
     File setup\activation.jnlp
     File setup\mirth-client-core.jar
     File setup\mirth-manager.jar
-    File setup\Mirth Manager.exe
+    File "setup\Mirth Manager.exe"
     File setup\Mirth.exe
     SetOutPath $SMPROGRAMS\$StartMenuGroup
     
