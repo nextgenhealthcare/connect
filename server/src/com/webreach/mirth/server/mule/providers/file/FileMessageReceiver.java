@@ -58,9 +58,6 @@ import com.webreach.mirth.server.util.StackTracePrinter;
  */
 
 public class FileMessageReceiver extends PollingMessageReceiver {
-	private static byte startOfMessage = (byte) 0x0B;
-	private static byte endOfMessage = (byte) 0x1C;
-	private static byte endOfRecord = (byte) 0x0D;
 	private String readDir = null;
 	private String moveDir = null;
 	private File readDirectory = null;
