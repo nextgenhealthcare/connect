@@ -208,7 +208,7 @@ public class ImportConverter
         if(channelRoot.getElementsByTagName("version").getLength() > 0)
         {
             String version = channelRoot.getElementsByTagName("version").item(0).getTextContent();
-            if(Integer.parseInt(version.split(".")[1]) < 5)
+            if(Integer.parseInt(version.split("\\.")[1]) < 5)
             {
                 updateTransformerFor1_5(document);
             }
@@ -356,15 +356,15 @@ public class ImportConverter
                 
                 Element handleRepetitionsProperty = document.createElement("property");
                 handleRepetitionsProperty.setAttribute("name", "handleRepetitions");
-                handleRepetitionsProperty.setNodeValue("false");
+                handleRepetitionsProperty.setTextContent("false");
                 
                 Element useStrictValidationProperty = document.createElement("property");
-                handleRepetitionsProperty.setAttribute("name", "useStrictValidation");
-                handleRepetitionsProperty.setNodeValue("false");
+                useStrictValidationProperty.setAttribute("name", "useStrictValidation");
+                useStrictValidationProperty.setTextContent("false");
                 
                 Element useStrictParserProperty = document.createElement("property");
-                handleRepetitionsProperty.setAttribute("name", "useStrictParser");
-                handleRepetitionsProperty.setNodeValue("true");
+                useStrictParserProperty.setAttribute("name", "useStrictParser");
+                useStrictParserProperty.setTextContent("true");
                 
                 inboundPropertiesElement.appendChild(handleRepetitionsProperty);
                 inboundPropertiesElement.appendChild(useStrictValidationProperty);
@@ -379,15 +379,15 @@ public class ImportConverter
                 
                 Element handleRepetitionsProperty = document.createElement("property");
                 handleRepetitionsProperty.setAttribute("name", "handleRepetitions");
-                handleRepetitionsProperty.setNodeValue("false");
+                handleRepetitionsProperty.setTextContent("false");
                 
                 Element useStrictValidationProperty = document.createElement("property");
-                handleRepetitionsProperty.setAttribute("name", "useStrictValidation");
-                handleRepetitionsProperty.setNodeValue("false");
+                useStrictValidationProperty.setAttribute("name", "useStrictValidation");
+                useStrictValidationProperty.setTextContent("false");
                 
                 Element useStrictParserProperty = document.createElement("property");
-                handleRepetitionsProperty.setAttribute("name", "useStrictParser");
-                handleRepetitionsProperty.setNodeValue("true");
+                useStrictParserProperty.setAttribute("name", "useStrictParser");
+                useStrictParserProperty.setTextContent("true");
                 
                 outboundPropertiesElement.appendChild(handleRepetitionsProperty);
                 outboundPropertiesElement.appendChild(useStrictValidationProperty);
