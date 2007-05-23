@@ -176,7 +176,7 @@ public class DashboardPanel extends javax.swing.JPanel
         });
     }
 
-    public void updateTable()
+    public synchronized void updateTable()
     {
         Object[][] tableData = null;
 

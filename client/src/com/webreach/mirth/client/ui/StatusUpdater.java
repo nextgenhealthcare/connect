@@ -58,7 +58,7 @@ public class StatusUpdater implements Runnable
                 if (interrupted)
                     return;
 
-                if (parent.currentContentPage != null && parent.currentContentPage == parent.dashboardPanel && parent.isStatusUpdateComplete())
+                if (parent.currentContentPage != null && parent.currentContentPage == parent.dashboardPanel)
                 {
                     parent.refreshStatuses();
                 }

@@ -156,7 +156,6 @@ public class Frame extends JXFrame
     private static Preferences userPreferences;
     private StatusUpdater su;
     private boolean connectionError;
-    private boolean statusUpdateComplete = true;
     private ArrayList<CharsetEncodingInformation> avaiableCharsetEncodings = null;
     private List<String> charsetEncodings = null;
     private boolean highlightersSet = false;
@@ -2117,9 +2116,7 @@ public class Frame extends JXFrame
     }
 
     public void refreshStatuses()
-    {
-        statusUpdateComplete = false;
-        
+    {        
         try
         {
             status = mirthClient.getChannelStatusList();
@@ -2134,8 +2131,6 @@ public class Frame extends JXFrame
             setVisibleTasks(statusTasks, statusPopupMenu, 1, 1, true);
         else
             setVisibleTasks(statusTasks, statusPopupMenu, 1, 1, false);
-        
-        statusUpdateComplete = true;
     }
 
     public void doStartAll()
@@ -2502,8 +2497,8 @@ public class Frame extends JXFrame
 
             public void done()
             {
-                doShowDashboard();
                 setWorking("", false);
+                doShowDashboard();
             }
         };
 
@@ -3462,16 +3457,6 @@ public class Frame extends JXFrame
         {
             this.description = d;
         }
-    }
-
-    public boolean isStatusUpdateComplete()
-    {
-        return statusUpdateComplete;
-    }
-
-    public void setStatusUpdateComplete(boolean statusUpdateComplete)
-    {
-        this.statusUpdateComplete = statusUpdateComplete;
     }
 
     public void setHighlighters()
