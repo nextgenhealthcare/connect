@@ -226,10 +226,17 @@ public class ManagerController
         {
             Desktop.open(file);
         } 
-        catch (DesktopException ex)
+        catch (DesktopException e)
         {
-            alertError("Could not open file: " + path);
-            ex.printStackTrace();
+            try
+            {
+                Runtime.getRuntime().exec("notepad \"" + path + "\"");
+            }
+            catch (IOException ex)
+            {
+                alertError("Could not open file: " + path);
+                ex.printStackTrace();
+            }
         }
     }
     
