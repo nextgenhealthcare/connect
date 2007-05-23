@@ -54,6 +54,7 @@ import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.ChannelStatistics;
 import com.webreach.mirth.model.ChannelStatus;
+import com.webreach.mirth.model.ServerConfiguration;
 import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.model.User;
 import com.webreach.mirth.model.ChannelStatus.State;
@@ -380,6 +381,45 @@ public class Shell {
 						System.out.println("No Channels to Deploy");
 					}
 
+				} else if (arg1.equalsIgnoreCase("exportcfg")) {
+					String path = arguments[1];
+					ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+					
+					try {
+						ServerConfiguration configuration = client.getServerConfiguration();
+						File fXml = new File(path);
+						System.out.println("Exporting Configuration");
+						String configurationXML = serializer.toXML(configuration);
+						writeFile(fXml, configurationXML);
+					} catch (IOException e) {
+						System.out.println("Error Writing File " + path);
+					}
+			
+					System.out.println("Configuration Export Complete.");
+					return;
+
+				} else if (arg1.equalsIgnoreCase("importcfg")) {
+					String path = arguments[1];
+					File fXml = new File(path);
+					if (!fXml.exists()) {
+						System.out.println(path + " not found");
+						return;
+					} else if (!fXml.canRead()) {
+						System.out.println("Can not read " + path);
+						return;
+					} else {
+						ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+						try {
+							client.setServerConfiguration((ServerConfiguration)serializer.fromXML(readFile(fXml)));
+						} catch (IOException e) {
+							System.out.println("Can not read " + path);
+							e.printStackTrace();
+							return;
+						}
+
+					}
+					return;
+
 				} else if (arg1.equalsIgnoreCase("import")) {
 					String path = arguments[1];
 					File fXml = new File(path);
@@ -392,7 +432,6 @@ public class Shell {
 					} else {
 						doImportChannel(fXml);
 					}
-
 				} else if (arg1.equalsIgnoreCase("status")) {
 
 					System.out.println("ID\t\t\t\t\tStatus\t\tName");

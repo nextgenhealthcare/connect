@@ -28,6 +28,7 @@ import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.util.queue.Queue;
 
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.server.controllers.MessageObjectController;
 
 /**
  * <code>TcpMessageReceiver</code> acts like a tcp server to receive socket
@@ -102,8 +103,9 @@ public class MllpMessageResponseQueued extends PollingMessageReceiver {
 		// If the endopoint is active, try to send without waiting for another
 		// pool()
 		while ((queue.size() > 0) && open) {
+			MessageObject thePayload= null;
 			try {
-				MessageObject thePayload = (MessageObject)queue.peek();
+				thePayload = (MessageObject)queue.peek();
 				if (auxDispatcher.sendPayload(thePayload, endpoint)) {
 					queue.poll(pollMaxTime);
 					open = true;
@@ -111,8 +113,13 @@ public class MllpMessageResponseQueued extends PollingMessageReceiver {
 					// um=auxDispatcher.doTheRemoteSyncStuff(endpoint);
 					// if (um!=null) System.out.println("MENSAJE RECIBIDO \r\n
 					// ["+um.getPayloadAsString()+"]");
+				}else{
+					MessageObjectController.getInstance().resetQueuedStatus(thePayload);
 				}
 			} catch (Throwable t) {
+				if (thePayload != null){
+					MessageObjectController.getInstance().resetQueuedStatus(thePayload);
+				}
 				logger.debug("Conection error [" + t + "] " + " at " + endpoint.getEndpointURI() + " queue size " + new Integer(queue.size()).toString());
 				open = false;
 			}

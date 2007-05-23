@@ -152,7 +152,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 						success = true;
 					} catch (Exception exs) {
 						if (retryCount < maxRetries) {
-							logger.warn("Can't connect to the endopint,waiting" + new Float(connector.getReconnectMillisecs() / 1000) + "seconds for reconnecting \r\n(" + exs + ")");
+							logger.debug("Can't connect to the endopint,waiting" + new Float(connector.getReconnectMillisecs() / 1000) + "seconds for reconnecting \r\n(" + exs + ")");
 							try {
 								Thread.sleep(connector.getReconnectMillisecs());
 							} catch (Throwable t) {
@@ -248,7 +248,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 				// If we're doing sync receive try and read return info from
 				// socket
 			} catch (IOException e) {
-				logger.warn("Write raised exception: '" + e.getMessage() + "' attempting to reconnect.");
+				logger.debug("Write raised exception: '" + e.getMessage() + "' attempting to reconnect.");
 				doDispose();
 				try {
 					if (reconnect(endpoint, connector.getMaxRetryCount())) {
@@ -256,12 +256,12 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 						result = true;
 					}
 				} catch (Exception ers) {
-					logger.warn("Write raised exception: '" + e.getMessage() + "' ceasing reconnecting.");
+					logger.debug("Write raised exception: '" + e.getMessage() + "' ceasing reconnecting.");
 					sendException = ers;
 				}
 			}
 		} catch (Exception e) {
-			logger.warn("Write raised exception: '" + e.getMessage() + "' desisting reconnecting.");
+			logger.debug("Write raised exception: '" + e.getMessage() + "' desisting reconnecting.");
 			sendException = e;
 		}
 		if ((result == false) || (sendException != null)) {
@@ -406,7 +406,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 				socket.close();
 				socket = null;
 			} catch (IOException e) {
-				logger.warn("ConnectedSocked close raised exception. Reason: " + e.getMessage());
+				logger.debug("ConnectedSocked close raised exception. Reason: " + e.getMessage());
 			}
 		}
 	}

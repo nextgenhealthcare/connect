@@ -165,6 +165,12 @@ public class ChannelStatisticsController {
 		}
 	}
 
+	public synchronized void decrementErrorCount(String channelId) {
+		if (statsCache.getCache().get(channelId).getError() > 0) {
+			statsCache.getCache().get(channelId).setError(statsCache.getCache().get(channelId).getError() - 1);
+			statsChanged = true;
+		}
+	}
 	private void updateStatistics(String channelId) {
 		try {
 			sqlMap.update("updateStatistics", statsCache.getCache().get(channelId));

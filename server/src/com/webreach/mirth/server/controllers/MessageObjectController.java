@@ -45,6 +45,7 @@ import com.ibatis.sqlmap.engine.impl.SqlMapExecutorDelegate;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.Response;
+import com.webreach.mirth.model.MessageObject.Status;
 import com.webreach.mirth.model.filters.MessageObjectFilter;
 import com.webreach.mirth.server.builders.ErrorMessageBuilder;
 import com.webreach.mirth.server.util.DatabaseUtil;
@@ -510,16 +511,21 @@ public class MessageObjectController {
 			MessageObject.Status oldStatus = messageObject.getStatus();
 			messageObject.setStatus(newStatus);
 
-			if (oldStatus.equals(MessageObject.Status.QUEUED) && newStatus.equals(MessageObject.Status.SENT)) {
-
+			if (oldStatus.equals(MessageObject.Status.QUEUED) && !newStatus.equals(MessageObject.Status.QUEUED)) {
 				statisticsController.decrementQueuedCount(messageObject.getChannelId());
 			}
-            else if (!(oldStatus.equals(MessageObject.Status.QUEUED) && newStatus.equals(MessageObject.Status.ERROR))) {
-                updateMessage(messageObject, oldStatus.equals(MessageObject.Status.QUEUED));
-            }
+            updateMessage(messageObject, oldStatus.equals(MessageObject.Status.QUEUED));
+            
 		}
 	}
+	public void resetQueuedStatus(MessageObject messageObject) {
 
+		if (messageObject != null) {
+			messageObject.setStatus(Status.QUEUED);
+			updateMessage(messageObject, true);
+			statisticsController.decrementErrorCount(messageObject.getChannelId());
+		}
+	}
 	private boolean statementExists(String statement) {
 		try {
 			SqlMapExecutorDelegate delegate = ((ExtendedSqlMapClient) sqlMap).getDelegate();

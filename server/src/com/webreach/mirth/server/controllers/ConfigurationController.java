@@ -410,7 +410,7 @@ public class ConfigurationController {
 
 	public List<DriverInfo> getDatabaseDrivers() throws ControllerException {
 		logger.debug("retrieving database driver list");
-		File driversFile = new File(CONF_FOLDER + "dbdrivers.xml");
+		File driversFile = new File(CONF_FOLDER + "custom\\dbdrivers.xml");
 
 		if (driversFile.exists()) {
 			try {

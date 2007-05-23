@@ -465,10 +465,9 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher {
 		if (null != connectedSocket && !connectedSocket.isClosed()) {
 			try {
 				connectedSocket.close();
-
 				connectedSocket = null;
 			} catch (IOException e) {
-				logger.warn("ConnectedSocked close raised exception. Reason: " + e.getMessage());
+				logger.debug("ConnectedSocked close raised exception. Reason: " + e.getMessage());
 			}
 		}
 	}
@@ -503,13 +502,13 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher {
 					retryCount++;
 				}
 				// ast: we now work with the endpoint
-				logger.warn("run() warning at host: '" + endpoint.getEndpointURI().getAddress() + "'. Reason: " + e.getMessage());
+				logger.debug("run() warning at host: '" + endpoint.getEndpointURI().getAddress() + "'. Reason: " + e.getMessage());
 
 				if (retryCount < maxRetries) {
 					try {
 						Thread.sleep(connector.getReconnectMillisecs());
 					} catch (Exception ex) {
-						logger.warn("SocketConnector threadsleep interrupted. Reason: " + ex.getMessage());
+						logger.debug("SocketConnector threadsleep interrupted. Reason: " + ex.getMessage());
 					}
 				} else {
 					throw e;
