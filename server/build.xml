@@ -229,7 +229,8 @@
 		<copy file="${basedir}/Mirth.ico" todir="${setup}" />
 		<copy file="${basedir}/Shell.bat" todir="${setup}" />
 		<copy file="${basedir}/shell.sh" todir="${setup}" />
-		<copy file="${basedir}/Manager.bat" todir="${setup}" />
+		<copy file="${basedir}/Mirth Manager.exe" todir="${setup}" />
+		<copy file="${basedir}/Mirth.exe" todir="${setup}" />
 		<!-- zip the source code -->
 		<!-- zip basedir="${setup.source}" destfile="${setup}/mirth-server-src.zip" / -->
 

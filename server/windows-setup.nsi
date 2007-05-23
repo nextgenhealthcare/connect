@@ -101,11 +101,12 @@ Section -Main SEC0000
     File setup\activation.jnlp
     File setup\mirth-client-core.jar
     File setup\mirth-manager.jar
-    File setup\Manager.bat
+    File setup\Mirth Manager.exe
+    File setup\Mirth.exe
     SetOutPath $SMPROGRAMS\$StartMenuGroup
     
     # set the working directory in order for .bat files to work
-    CreateShortcut "$SMPROGRAMS\$StartMenuGroup\Start Mirth Server.lnk" $INSTDIR\Mirth.bat
+    CreateShortcut "$SMPROGRAMS\$StartMenuGroup\Start Mirth Server.lnk" $INSTDIR\Mirth.exe
     ShellLink::SetShortCutWorkingDirectory "$SMPROGRAMS\$StartMenuGroup\Start Mirth Server.lnk" $INSTDIR
     
     CreateShortcut "$SMPROGRAMS\$StartMenuGroup\Install Mirth Service.lnk" $INSTDIR\InstallMirth-NT.bat
@@ -119,7 +120,7 @@ Section -Main SEC0000
     CreateShortcut "$SMPROGRAMS\$StartMenuGroup\Start Mirth Shell.lnk" $INSTDIR\Shell.bat
     ShellLink::SetShortCutWorkingDirectory "$SMPROGRAMS\$StartMenuGroup\Start Mirth Shell.lnk" $INSTDIR
     
-    CreateShortcut "$SMPROGRAMS\$StartMenuGroup\Mirth Server Manager.lnk" $INSTDIR\Manager.bat "" $INSTDIR\Mirth.ico
+    CreateShortcut "$SMPROGRAMS\$StartMenuGroup\Mirth Server Manager.lnk" "$INSTDIR\Mirth Manager.exe" "" $INSTDIR\Mirth.ico
     ShellLink::SetShortCutWorkingDirectory "$SMPROGRAMS\$StartMenuGroup\Mirth Server Manager.lnk" $INSTDIR
     
     WriteRegStr HKLM "${REGKEY}\Components" Main 1
@@ -136,7 +137,7 @@ Section -Main SEC0000
   
     ${if} $R1 == 1
         #Create shortcut to Manager in startup directory and start manager
-        CreateShortcut "$SMPROGRAMS\Startup\Mirth Server Manager.lnk" "$INSTDIR\java -jar manager.jar" "" $INSTDIR\Mirth.ico
+        CreateShortcut "$SMPROGRAMS\Startup\Mirth Server Manager.lnk" "$INSTDIR\Mirth Manager.exe" "" $INSTDIR\Mirth.ico
         ShellLink::SetShortCutWorkingDirectory "$SMPROGRAMS\Startup\Mirth Server Manager.lnk" $INSTDIR
         Exec $INSTDIR\Manager.bat
     ${endif}
@@ -215,7 +216,8 @@ Section /o un.Main UNSEC0000
     Delete /REBOOTOK $INSTDIR\activation.jnlp
     Delete /REBOOTOK $INSTDIR\mirth-client-core.jar
     Delete /REBOOTOK $INSTDIR\mirth-manager.jar
-    Delete /REBOOTOK $INSTDIR\Manager.bat
+    Delete /REBOOTOK "$INSTDIR\Mirth Manager.exe"
+    Delete /REBOOTOK $INSTDIR\Mirth.exe
     Delete /REBOOTOK $INSTDIR\Mirth.ico
     Delete /REBOOTOK $INSTDIR\derby.log
     Delete /REBOOTOK $INSTDIR\id_file
