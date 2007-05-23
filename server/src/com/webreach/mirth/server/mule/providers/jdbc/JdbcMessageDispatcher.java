@@ -138,7 +138,7 @@ public class JdbcMessageDispatcher extends AbstractMessageDispatcher {
 				JdbcUtils.rollbackAndClose(con);
 			}
 
-			alertController.sendAlerts(((JdbcConnector) connector).getChannelId(), Constants.ERROR_406, null, e);
+			alertController.sendAlerts(((JdbcConnector) connector).getChannelId(), Constants.ERROR_406, "Error writing to database", e);
 			messageObjectController.setError(messageObject, Constants.ERROR_406, "Error writing to database: ", e);
 			connector.handleException(e);
 		}

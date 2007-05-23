@@ -228,7 +228,7 @@ public class JmsMessageDispatcher extends AbstractMessageDispatcher {
             }
             return null;
         } catch (Exception e){
-        	alertController.sendAlerts(((JmsConnector) connector).getChannelId(), Constants.ERROR_407, null, e);
+        	alertController.sendAlerts(((JmsConnector) connector).getChannelId(), Constants.ERROR_407, "Jms Error", e);
         	messageObjectController.setError(messageObject, Constants.ERROR_407, "Jms Error", e);
         	connector.handleException(e);
         } finally {

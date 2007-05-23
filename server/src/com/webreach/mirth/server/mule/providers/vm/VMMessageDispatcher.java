@@ -33,7 +33,9 @@ import org.mule.util.queue.QueueSession;
 
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.Constants;
+import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
+import com.webreach.mirth.server.mule.providers.tcp.TcpConnector;
 
 /**
  * <code>VMMessageDispatcher</code> is used for providing in memory
@@ -51,7 +53,7 @@ public class VMMessageDispatcher extends AbstractMessageDispatcher {
 
 	private VMConnector connector;
 	private MessageObjectController messageObjectController = MessageObjectController.getInstance();
-
+	private AlertController alertController = new AlertController();
 	public VMMessageDispatcher(VMConnector connector) {
 		super(connector);
 		this.connector = connector;
@@ -146,6 +148,7 @@ public class VMMessageDispatcher extends AbstractMessageDispatcher {
 				logger.debug("dispatched Event on endpointUri: " + endpointUri);
 			}
 		} catch (Exception e) {
+			alertController.sendAlerts(((VMConnector) connector).getChannelId(), Constants.ERROR_412, "Error routing message", e);
 			messageObjectController.setError(messageObject, Constants.ERROR_412, "Error routing message", e);
 			throw (e);
 		}
@@ -182,6 +185,7 @@ public class VMMessageDispatcher extends AbstractMessageDispatcher {
 			messageObjectController.setSuccess(messageObject, "Message routed successfully");
 			logger.debug("sent event on endpointUri: " + event.getEndpoint().getEndpointURI());
 		} catch (Exception e) {
+			alertController.sendAlerts(((VMConnector) connector).getChannelId(), Constants.ERROR_412, "Error routing message", e);
 			messageObjectController.setError(messageObject, Constants.ERROR_412, "Error routing message", e);
 			throw (e);
 		}

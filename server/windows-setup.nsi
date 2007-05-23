@@ -124,6 +124,7 @@ Section -Main SEC0000
     
     WriteRegStr HKLM "${REGKEY}\Components" Main 1
     
+    SetOutPath $INSTDIR
     #Get the service fields from the service.ini
     !insertmacro MUI_INSTALLOPTIONS_READ $R0 "service.ini" "Field 2" "State" #Service Install
     !insertmacro MUI_INSTALLOPTIONS_READ $R1 "service.ini" "Field 3" "State" #Run server manager
@@ -137,7 +138,6 @@ Section -Main SEC0000
         #Create shortcut to Manager in startup directory and start manager
         CreateShortcut "$SMPROGRAMS\Startup\Mirth Server Manager.lnk" "$INSTDIR\java -jar manager.jar" "" $INSTDIR\Mirth.ico
         ShellLink::SetShortCutWorkingDirectory "$SMPROGRAMS\Startup\Mirth Server Manager.lnk" $INSTDIR
-        SetOutPath $INSTDIR
         Exec $INSTDIR\Manager.bat
     ${endif}
 

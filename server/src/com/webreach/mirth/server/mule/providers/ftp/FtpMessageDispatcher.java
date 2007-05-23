@@ -114,12 +114,12 @@ public class FtpMessageDispatcher extends AbstractMessageDispatcher {
 			// update the message status to sent
 			messageObjectController.setSuccess(messageObject, "File successfully written: " + filename);
 
-		} catch (Exception e) {
-			alertController.sendAlerts(((FtpConnector) connector).getChannelId(), Constants.ERROR_405, null, e);
-			
+		} catch (Exception e) {			
 			if (client != null) {
+				alertController.sendAlerts(((FtpConnector) connector).getChannelId(), Constants.ERROR_405, "Error writing to FTP: " + client.getReplyCode() + client.getReplyString(), e);
 				messageObjectController.setError(messageObject, Constants.ERROR_405, "Error writing to FTP: " + client.getReplyCode() + client.getReplyString(), e);
 			} else {
+				alertController.sendAlerts(((FtpConnector) connector).getChannelId(), Constants.ERROR_405, "Error writing to FTP", e);
 				messageObjectController.setError(messageObject, Constants.ERROR_405, "Error writing to FTP", e);
 			}
 			connector.handleException(e);

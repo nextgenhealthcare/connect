@@ -179,7 +179,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher {
 		} 
 		if (!success) {
 			messageObjectController.setError(messageObject, Constants.ERROR_408, exceptionMessage, exceptionWriting);
-            alertController.sendAlerts(((MllpConnector) connector).getChannelId(), Constants.ERROR_408, null, exceptionWriting);
+            alertController.sendAlerts(((MllpConnector) connector).getChannelId(), Constants.ERROR_408, exceptionMessage, exceptionWriting);
         }
 		if (success && (exceptionWriting == null)) {
 			manageResponseAck(socket, event.getEndpoint(), messageObject);
@@ -318,7 +318,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher {
 		} catch (UnsupportedEncodingException e) {
 			logger.error(e.getMessage());
 			messageObjectController.setError(messageObject,Constants.ERROR_408,  "Error setting encoding: " + connector.getCharsetEncoding(), e);
-			alertController.sendAlerts(((MllpConnector) connector).getChannelId(), Constants.ERROR_408, null, e);
+			alertController.sendAlerts(((MllpConnector) connector).getChannelId(), Constants.ERROR_408, "Error setting encoding: " + connector.getCharsetEncoding(), e);
 		}
 		String ackString = null;
 		try {

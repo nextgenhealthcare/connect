@@ -78,7 +78,7 @@ public class SftpMessageDispatcher extends AbstractMessageDispatcher {
 				//update the message status to sent
 				messageObjectController.setSuccess(messageObject, "File successfully written: " + filename);
 		} catch (Exception e) {
-			alertController.sendAlerts(((SftpConnector) connector).getChannelId(), Constants.ERROR_409, null, e);
+			alertController.sendAlerts(((SftpConnector) connector).getChannelId(), Constants.ERROR_409, "Error writing to Sftp", e);
 			messageObjectController.setError(messageObject, Constants.ERROR_409, "Error writing to Sftp", e);
 			connector.handleException(e);
 		} finally {

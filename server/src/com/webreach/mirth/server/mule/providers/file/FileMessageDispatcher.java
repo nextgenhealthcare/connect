@@ -113,7 +113,7 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
 			// update the message status to sent
 			messageObjectController.setSuccess(messageObject, "File successfully written: " + filename);
 		} catch (Exception e) {
-			alertController.sendAlerts(((FileConnector) connector).getChannelId(), Constants.ERROR_403, null, e);
+			alertController.sendAlerts(((FileConnector) connector).getChannelId(), Constants.ERROR_403, "Error writing file", e);
 			messageObjectController.setError(messageObject, Constants.ERROR_403, "Error writing file", e);
 			connector.handleException(e);
 		} finally {

@@ -75,8 +75,10 @@ import org.mule.util.TemplateParser;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.ws.WSParameter;
 import com.webreach.mirth.server.Constants;
+import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.ChannelController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
+import com.webreach.mirth.server.mule.providers.sftp.SftpConnector;
 import com.webreach.mirth.server.util.GlobalVariableStore;
 import com.webreach.mirth.server.util.StackTracePrinter;
 import com.webreach.mirth.server.util.UUIDGenerator;
@@ -96,7 +98,7 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher {
 
 	protected SimpleProvider clientConfig;
 	private MessageObjectController messageObjectController = MessageObjectController.getInstance();
-
+	private AlertController alertController = new AlertController();
 	public AxisMessageDispatcher(AxisConnector connector) throws UMOException {
 		super(connector);
 		AxisProperties.setProperty("axis.doAutoTypes", "true");
@@ -242,6 +244,7 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher {
 		retVal[1] = call.getMessageContext();
 		return retVal;
 		}catch(Exception e){
+			alertController.sendAlerts(messageObject.getChannelId(), Constants.ERROR_410, "Error invoking WebService", e);
 			messageObjectController.setError(messageObject, Constants.ERROR_410, "Error invoking WebService", e);
 			connector.handleException(e);
 			return null;

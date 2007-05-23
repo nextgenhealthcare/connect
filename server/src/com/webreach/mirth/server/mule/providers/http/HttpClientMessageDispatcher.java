@@ -56,6 +56,7 @@ import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
+import com.webreach.mirth.server.mule.providers.ftp.FtpConnector;
 import com.webreach.mirth.server.util.VMRouter;
 
 /**
@@ -100,6 +101,7 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher {
 			if (httpMethod.getStatusCode() >= 400) {
 				logger.error(httpMethod.getResponseBodyAsString());
 				Exception exception = new DispatchException(event.getMessage(), event.getEndpoint(), new Exception("HTTP call returned a status of: " + httpMethod.getStatusCode() + " " + httpMethod.getStatusText()));
+				alertController.sendAlerts(((HttpConnector) connector).getChannelId(), Constants.ERROR_404, "HTTP Error: " + httpMethod.getResponseBodyAsString(), exception);
 				messageObjectController.setError(messageObject, Constants.ERROR_404, httpMethod.getResponseBodyAsString(), exception);
 				throw exception;
 			} else {
