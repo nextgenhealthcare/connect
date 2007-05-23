@@ -219,6 +219,8 @@ public class Shell {
 					System.out.println("deploy\n\tDeploys all Channels\n");
 					System.out.println("import \"path\"\n\tImports channel specified by <path>\n");
 					System.out.println("export id|\"name\"|* \"path\"\n\tExports the specified channel to <path>\n");
+					System.out.println("importcfg \"path\"\n\tImports configuration specified by <path>\n");
+					System.out.println("exportcfg \"path\"\n\tExports the configuration to <path>\n");
 					System.out.println("channel start|stop|pause|resume|stats id|\"name\"|*\n\tPerforms specified channel action\n");
 					System.out.println("channel remove|enable|disable id|\"name\"|*\n\tRemove, enable or disable specified channel\n");
 					System.out.println("channel list\n\tLists all Channels\n");
@@ -418,6 +420,7 @@ public class Shell {
 						}
 
 					}
+					System.out.println("Configuration Import Complete.");
 					return;
 
 				} else if (arg1.equalsIgnoreCase("import")) {
