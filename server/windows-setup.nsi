@@ -101,8 +101,8 @@ Section -Main SEC0000
     File setup\activation.jnlp
     File setup\mirth-client-core.jar
     File setup\mirth-manager.jar
-    File "setup\Mirth Manager.exe"
     File setup\Mirth.exe
+    File "setup\Mirth Manager.exe"
     SetOutPath $SMPROGRAMS\$StartMenuGroup
     
     # set the working directory in order for .bat files to work
@@ -116,6 +116,7 @@ Section -Main SEC0000
     ShellLink::SetShortCutWorkingDirectory "$SMPROGRAMS\$StartMenuGroup\Uninstall Mirth Service.lnk" $INSTDIR
     
     CreateShortcut "$SMPROGRAMS\$StartMenuGroup\Start Mirth Administrator.lnk" javaws "http://localhost:8080/webstart" $INSTDIR\Mirth.ico
+    ShellLink::SetShortCutWorkingDirectory "$SMPROGRAMS\$StartMenuGroup\Start Mirth Administrator.lnk" $INSTDIR
     
     CreateShortcut "$SMPROGRAMS\$StartMenuGroup\Start Mirth Shell.lnk" $INSTDIR\Shell.bat
     ShellLink::SetShortCutWorkingDirectory "$SMPROGRAMS\$StartMenuGroup\Start Mirth Shell.lnk" $INSTDIR
@@ -139,7 +140,7 @@ Section -Main SEC0000
         #Create shortcut to Manager in startup directory and start manager
         CreateShortcut "$SMPROGRAMS\Startup\Mirth Server Manager.lnk" "$INSTDIR\Mirth Manager.exe" "" $INSTDIR\Mirth.ico
         ShellLink::SetShortCutWorkingDirectory "$SMPROGRAMS\Startup\Mirth Server Manager.lnk" $INSTDIR
-        Exec $INSTDIR\Manager.bat
+        ExecWait '"$INSTDIR\Mirth Manager.exe"'
     ${endif}
 
     Pop $R0
