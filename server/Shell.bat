@@ -1,1 +1,1 @@
-java -jar shell.jar -a https://127.0.0.1:8443 -u admin -p admin 
+java -jar shell.jar -a https://127.0.0.1:8443 -u admin -p admin -v 0.0.0

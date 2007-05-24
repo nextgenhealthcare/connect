@@ -132,8 +132,6 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 	}
 
 	public void setChannelId(String channelId) {
-		currentScope = getScope();
-		JavaScriptScopeUtil.addChannel(currentScope, channelId);
 		this.channelId = channelId;
 	}
 
@@ -307,6 +305,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 			// load variables in JavaScript scope
 			JavaScriptScopeUtil.addMessageObject(scope, messageObject);
 			JavaScriptScopeUtil.addLogger(scope, scriptLogger);
+			JavaScriptScopeUtil.addChannel(scope, channelId);
 			// get the script from the cache and execute it
 			Script compiledScript = compiledScriptCache.getCompiledScript(filterScriptId);
 			Object result = null;
@@ -341,6 +340,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 			// load variables in JavaScript scope
 			JavaScriptScopeUtil.addMessageObject(scope, messageObject);
 			JavaScriptScopeUtil.addLogger(scope, scriptLogger);
+			JavaScriptScopeUtil.addChannel(scope, channelId);
 			scope.put("template", scope, template);
 
 			// TODO: have function list provide all serializers - maybe we
