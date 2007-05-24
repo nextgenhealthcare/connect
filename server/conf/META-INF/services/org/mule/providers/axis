@@ -1,0 +1,7 @@
+connector=com.webreach.mirth.server.mule.providers.soap.axis.AxisConnector
+dispatcher.factory=com.webreach.mirth.server.mule.providers.soap.axis.AxisMessageDispatcherFactory
+message.receiver=com.webreach.mirth.server.mule.providers.soap.axis.AxisMessageReceiver
+message.adapter=com.webreach.mirth.server.mule.providers.soap.axis.AxisMessageAdapter
+inbound.transformer=
+outbound.transformer=
+endpoint.builder=org.mule.impl.endpoint.UrlEndpointBuilder
