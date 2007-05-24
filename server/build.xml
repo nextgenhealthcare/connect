@@ -256,6 +256,8 @@
 		<delete file="${dist}/mirth-${version}.tar" />
 
 		<!-- create the win32 distribution exe -->
-		<nsis script="windows-setup.nsi" verbosity="2"/>
+		<nsis script="windows-setup.nsi" verbosity="2">
+			<define name="VERSION" value="${version}"/>
+		</nsis>
 	</target>
 </project>
