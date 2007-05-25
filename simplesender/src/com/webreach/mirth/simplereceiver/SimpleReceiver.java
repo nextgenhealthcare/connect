@@ -1,5 +1,8 @@
 package com.webreach.mirth.simplereceiver;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.net.ServerSocket;
@@ -15,16 +18,19 @@ public class SimpleReceiver
 	public static void main(String args[]) throws Exception
 	{
 
-		if (args.length != 1)
+		if (args.length < 1)
 		{
-			System.out.println("Correct usage:  java SimpleReceiver <port>");
+			System.out.println("Correct usage:  java SimpleReceiver <port> [time in seconds]");
 			return;
 		}
 		SimpleReceiver simpleReceiver = new SimpleReceiver();
-		simpleReceiver.receive(Integer.parseInt(args[0]));
+		int time = 0;
+		if (args.length > 1)
+			time = Integer.parseInt(args[1]);
+		simpleReceiver.receive(Integer.parseInt(args[0]), time);
 	}
 
-	public void receive(int port) throws Exception
+	public void receive(int port, final int time) throws Exception
 	{
 		startTime = System.currentTimeMillis();
 		lastTime = startTime;
@@ -63,6 +69,48 @@ public class SimpleReceiver
 			}
 		}.start();
 
+		new Thread()
+		{
+			public void run()
+			{
+				while (true)
+				{
+					if (time != 0 && (System.currentTimeMillis() - startTime) >= (time * 1000))
+					{
+						double messagesPerSec = (count*1000)/(System.currentTimeMillis() - startTime);
+						String output = "Messages received: " + count + "  -  Messages/Second: " + Math.round(messagesPerSec * 100.0) / 100.0;
+						System.out.println(output);
+						File outputFile = new File("output.txt");
+						
+						try
+						{
+							FileWriter writer = new FileWriter(outputFile, true);
+							writer.write(output + "\r\n");
+							writer.close();
+						}
+						catch (IOException e)
+						{
+							e.printStackTrace();
+						}
+						
+						System.exit(0);
+					}
+					else
+					{
+						try
+						{
+							Thread.sleep(100);
+						}
+						catch (InterruptedException e)
+						{
+							e.printStackTrace();
+						}
+					}
+						
+				}
+			}
+		}.start();
+		
 		while (true)
 		{
 			final Socket sock = ssock.accept();
