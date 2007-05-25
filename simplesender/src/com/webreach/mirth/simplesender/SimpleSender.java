@@ -17,7 +17,7 @@ public class SimpleSender
 	{
 		if (args.length < 3)
 		{
-			System.out.println("Correct usage:  java SimpleSender <MessageFile.txt> <IP> <port> [iterations]\n" +
+			System.out.println("Correct usage:  java SimpleSender <MessageFile.txt> <IP> <port> [-i | -s <iterations_or_seconds>] \n" +
 								"             or java SimpleSender postgres <IP> <port> <schema> <username> <password>");
 			return;
 		}
@@ -115,15 +115,26 @@ public class SimpleSender
 		String port = args[2];
 		
 		int iterations = 0;
-		if (args.length > 3)
-			iterations = Integer.parseInt(args[3]);
+		int seconds = 0;
+		if (args.length > 4)
+		{
+			String iterationsOrTime = args[3];
+			if (iterationsOrTime.equalsIgnoreCase("-s"))
+				seconds = Integer.parseInt(args[4]);
+			else if (iterationsOrTime.equalsIgnoreCase("-i"))
+				iterations = Integer.parseInt(args[4]);
+		}
 		
-
         long startTime = System.currentTimeMillis();
-        while(iterations == 0 || iteration < iterations)
+        while((iterations == 0 || iteration < iterations) && (seconds == 0 || (System.currentTimeMillis() - startTime) < (seconds*1000)))
 		{
         	for (int j = 0; j < hl7messages.size(); j++)
         	{
+        		if (seconds != 0)
+            	{
+            		if ((System.currentTimeMillis() - startTime) >= (seconds*1000))
+            			break;
+            	}
 				boolean sent = false;
 				while (!sent)
 				{
@@ -143,6 +154,7 @@ public class SimpleSender
 		}
         long endTime = System.currentTimeMillis();
         System.out.println("Total time to send " + count + " messages: " + ((endTime-startTime)/1000) + " seconds.");
+        System.exit(0);
 	}
 	
 	private void runPostgresSender(String[] args)
