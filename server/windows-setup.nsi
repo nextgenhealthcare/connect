@@ -90,6 +90,10 @@ Section -Main SEC0000
     File setup\mirth-launcher.jar
     File setup\mirth-server.jar
     File setup\postgres-database.sql
+	File setup\oracle-database.sql
+	File setup\mysql-database.sql
+	File setup\sqlserver2005-database.sql
+	File setup\sqlserver-database.sql
     File setup\StartMirth-NT.bat
     File setup\StopMirth-NT.bat
     File setup\UninstallMirth-NT.bat
@@ -199,6 +203,10 @@ Section /o un.Main UNSEC0000
     Delete /REBOOTOK $INSTDIR\StopMirth-NT.bat
     Delete /REBOOTOK $INSTDIR\StartMirth-NT.bat
     Delete /REBOOTOK $INSTDIR\postgres-database.sql
+	Delete /REBOOTOK $INSTDIR\oracle-database.sql
+	Delete /REBOOTOK $INSTDIR\mysql-database.sql
+	Delete /REBOOTOK $INSTDIR\sqlserver2005-database.sql
+	Delete /REBOOTOK $INSTDIR\sqlserver-database.sql
     Delete /REBOOTOK $INSTDIR\mirth-server.jar
     Delete /REBOOTOK $INSTDIR\mirth-launcher.jar
     Delete /REBOOTOK $INSTDIR\mirth-daemon
