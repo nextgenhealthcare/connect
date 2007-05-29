@@ -73,6 +73,8 @@ public class MirthTextField extends javax.swing.JTextField implements MirthTextI
     {
         super();
         this.parent = PlatformUI.MIRTH_FRAME;
+        this.setFocusable(true);
+        
         cutAction = new CutAction(this);
         copyAction = new CopyAction(this);
 

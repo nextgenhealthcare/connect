@@ -66,6 +66,7 @@ public class MirthTextArea extends javax.swing.JTextArea implements MirthTextInt
     {
         super();
         this.parent = PlatformUI.MIRTH_FRAME;
+        this.setFocusable(true);
 
         cutAction = new CutAction(this);
         copyAction = new CopyAction(this);

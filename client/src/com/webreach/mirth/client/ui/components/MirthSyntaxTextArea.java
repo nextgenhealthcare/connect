@@ -92,6 +92,7 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
     private void initialize(boolean lineNumbers, final boolean showSnippets)
     {
         this.parent = PlatformUI.MIRTH_FRAME;
+        this.setFocusable(true);
         this.showSnippets = showSnippets;
         this.setCaretVisible(false);
         // Setup menu actions

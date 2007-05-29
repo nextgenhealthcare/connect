@@ -66,6 +66,7 @@ public class MirthTextPane extends javax.swing.JTextPane implements MirthTextInt
     {
         super();
         this.parent = PlatformUI.MIRTH_FRAME;
+        this.setFocusable(true);
 
         cutAction = new CutAction(this);
         copyAction = new CopyAction(this);

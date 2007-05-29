@@ -39,7 +39,7 @@ public class MirthRadioButton extends javax.swing.JRadioButton
     public MirthRadioButton()
     {
         super();
-        this.setFocusable(false);
+        this.setFocusable(true);
         this.parent = PlatformUI.MIRTH_FRAME;
         this.addActionListener(new java.awt.event.ActionListener()
         {

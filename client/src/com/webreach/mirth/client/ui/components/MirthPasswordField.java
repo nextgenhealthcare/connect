@@ -73,6 +73,7 @@ public class MirthPasswordField extends javax.swing.JPasswordField implements Mi
     {
         super();
         this.parent = PlatformUI.MIRTH_FRAME;
+        this.setFocusable(true);
 
         cutAction = new CutAction(this);
         copyAction = new CopyAction(this);

@@ -40,6 +40,7 @@ public class MirthButton extends javax.swing.JButton
     {
         super();
         this.parent = PlatformUI.MIRTH_FRAME;
+        this.setFocusable(true);
         this.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
