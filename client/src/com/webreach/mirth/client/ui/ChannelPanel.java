@@ -88,14 +88,6 @@ public class ChannelPanel extends javax.swing.JPanel
         channelTable.setOpaque(true);
         channelTable.setRowSelectionAllowed(true);
 
-        // Set highlighter.
-        if (Preferences.systemNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
-        {
-            HighlighterPipeline highlighter = new HighlighterPipeline();
-            highlighter.addHighlighter(new AlternateRowHighlighter(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR, UIConstants.TITLE_TEXT_COLOR));
-            channelTable.setHighlighters(highlighter);
-        }
-
         channelPane.setViewportView(channelTable);
 
         channelTable.getSelectionModel().addListSelectionListener(new ListSelectionListener()
@@ -174,6 +166,14 @@ public class ChannelPanel extends javax.swing.JPanel
             channelTable.setRowSelectionInterval(lastRow, lastRow);
         else
             lastRow = UIConstants.ERROR_CONSTANT;
+        
+        // Set highlighter.
+        HighlighterPipeline highlighter = new HighlighterPipeline();
+        if (Preferences.systemNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
+        {
+            highlighter.addHighlighter(new AlternateRowHighlighter(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR, UIConstants.TITLE_TEXT_COLOR));
+        }
+        channelTable.setHighlighters(highlighter);
     }
 
     /**

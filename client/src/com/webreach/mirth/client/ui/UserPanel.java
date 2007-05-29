@@ -87,13 +87,6 @@ public class UserPanel extends javax.swing.JPanel
         usersTable.setCellSelectionEnabled(false);
         usersTable.setRowSelectionAllowed(true);
 
-        if (Preferences.systemNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
-        {
-            HighlighterPipeline highlighter = new HighlighterPipeline();
-            highlighter.addHighlighter(new AlternateRowHighlighter(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR, UIConstants.TITLE_TEXT_COLOR));
-            usersTable.setHighlighters(highlighter);
-        }
-
         usersPane.setViewportView(usersTable);
 
         usersTable.getSelectionModel().addListSelectionListener(new ListSelectionListener()
@@ -168,6 +161,14 @@ public class UserPanel extends javax.swing.JPanel
             usersTable.setRowSelectionInterval(lastRow, lastRow);
         else
             lastRow = UIConstants.ERROR_CONSTANT;
+        
+        // Set highlighter.
+        HighlighterPipeline highlighter = new HighlighterPipeline();
+        if (Preferences.systemNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
+        {
+            highlighter.addHighlighter(new AlternateRowHighlighter(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR, UIConstants.TITLE_TEXT_COLOR));
+        }
+        usersTable.setHighlighters(highlighter);
     }
 
     /**
