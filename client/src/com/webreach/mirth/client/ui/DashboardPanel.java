@@ -117,35 +117,37 @@ public class DashboardPanel extends javax.swing.JPanel
 
         statusTable.setSortable(true);
 
+        // Add the highlighters.  Always add the error highlighter.
+        HighlighterPipeline highlighter = new HighlighterPipeline();
+        
         if (Preferences.systemNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
         {
-            HighlighterPipeline highlighter = new HighlighterPipeline();
             highlighter.addHighlighter(new AlternateRowHighlighter(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR, UIConstants.TITLE_TEXT_COLOR));
-            
-            Highlighter errorHighlighter = new ConditionalHighlighter(Color.PINK, null, -1, -1)
-            {
-				@Override
-				protected Color computeBackground(Component arg0, ComponentAdapter arg1)
-				{
-					arg0.setBackground(Color.PINK);
-					return super.computeBackground(arg0, arg1);
-				}
-				            	
-				@Override
-				protected boolean test(ComponentAdapter adapter)
-				{
-					if (adapter.column == statusTable.getColumnNumber(ERROR_COLUMN_NAME))
-					{
-						if (((Integer)statusTable.getValueAt(adapter.row, adapter.column)).intValue() > 0)
-							return true;
-					}
-					return false;
-				}
-    		};
-            
-    		highlighter.addHighlighter(errorHighlighter);
-            statusTable.setHighlighters(highlighter);
         }
+        
+        Highlighter errorHighlighter = new ConditionalHighlighter(Color.PINK, null, -1, -1)
+        {
+            @Override
+            protected Color computeBackground(Component arg0, ComponentAdapter arg1)
+            {
+                    arg0.setBackground(Color.PINK);
+                    return super.computeBackground(arg0, arg1);
+            }
+
+            @Override
+            protected boolean test(ComponentAdapter adapter)
+            {
+                    if (adapter.column == statusTable.getColumnNumber(ERROR_COLUMN_NAME))
+                    {
+                            if (((Integer)statusTable.getValueAt(adapter.row, adapter.column)).intValue() > 0)
+                                    return true;
+                    }
+                    return false;
+            }
+        };
+
+        highlighter.addHighlighter(errorHighlighter);
+        statusTable.setHighlighters(highlighter);
 
         statusPane.setViewportView(statusTable);
 
