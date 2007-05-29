@@ -54,7 +54,7 @@ public class ChannelReader extends ConnectorClass
 
     public void setProperties(Properties props)
     {
-
+        resetInvalidProperties();
     }
 
     public Properties getDefaults()
@@ -66,7 +66,14 @@ public class ChannelReader extends ConnectorClass
 
     public boolean checkProperties(Properties props)
     {
-        return true;
+        resetInvalidProperties();
+        boolean valid = true;
+        
+        return valid;
+    }
+    
+    private void resetInvalidProperties()
+    {
     }
 
     /**

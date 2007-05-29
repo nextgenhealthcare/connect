@@ -25,6 +25,7 @@
 
 package com.webreach.mirth.client.ui.connectors;
 
+import java.awt.Color;
 import java.util.Properties;
 
 import com.webreach.mirth.client.ui.UIConstants;
@@ -154,6 +155,8 @@ public class FTPReader extends ConnectorClass
 
     public void setProperties(Properties props)
     {
+        resetInvalidProperties();
+        
         FTPURLField.setText((String) props.get(FTP_HOST));
 
         if (((String) props.get(FTP_ANONYMOUS)).equalsIgnoreCase(UIConstants.YES_OPTION))
@@ -256,17 +259,57 @@ public class FTPReader extends ConnectorClass
 
     public boolean checkProperties(Properties props)
     {
-        if (((String) props.get(FTP_ANONYMOUS)).equals(UIConstants.YES_OPTION))
+        resetInvalidProperties();
+        boolean valid = true;
+        
+        if (((String) props.get(FTP_HOST)).length() == 0)
         {
-            if (((String) props.get(FTP_HOST)).length() > 0 && ((String) props.get(FTP_POLLING_FREQUENCY)).length() > 0)
-                return true;
+            valid = false;
+            FTPURLField.setBackground(UIConstants.INVALID_COLOR);
         }
-        else
+        if (((String) props.get(FILE_FILTER)).length() == 0)
         {
-            if (((String) props.get(FTP_HOST)).length() > 0 && ((String) props.get(FTP_USERNAME)).length() > 0 && ((String) props.get(FTP_PASSWORD)).length() > 0 && ((String) props.get(FTP_POLLING_FREQUENCY)).length() > 0)
-                return true;
+            valid = false;
+            fileNameFilter.setBackground(UIConstants.INVALID_COLOR);
         }
-        return false;
+        if (((String) props.get(FTP_POLLING_FREQUENCY)).length() == 0)
+        {
+            valid = false;
+            pollingFrequencyField.setBackground(UIConstants.INVALID_COLOR);
+        }
+        if (((String) props.get(FTP_ANONYMOUS)).equals(UIConstants.NO_OPTION))
+        {
+            if (((String) props.get(FTP_USERNAME)).length() == 0)
+            {
+                valid = false;
+                FTPUsernameField.setBackground(UIConstants.INVALID_COLOR);
+            }
+            if (((String) props.get(FTP_PASSWORD)).length() == 0)
+            {
+                valid = false;
+                FTPPasswordField.setBackground(UIConstants.INVALID_COLOR);
+            }
+        }
+        if (((String) props.get(FILE_CHECK_FILE_AGE)).equals(UIConstants.YES_OPTION))
+        {
+            if (((String) props.get(FILE_FILE_AGE)).length() == 0)
+            {
+                valid = false;
+                fileAge.setBackground(UIConstants.INVALID_COLOR);
+            }
+        }
+        
+        return valid;
+    }
+    
+    private void resetInvalidProperties()
+    {
+        FTPURLField.setBackground(null);
+        fileNameFilter.setBackground(null);
+        pollingFrequencyField.setBackground(null);
+        FTPUsernameField.setBackground(null);
+        FTPPasswordField.setBackground(null);
+        fileAge.setBackground(null);
     }
 
     /**
@@ -723,11 +766,13 @@ public class FTPReader extends ConnectorClass
     }//GEN-LAST:event_processBatchFilesNoActionPerformed
 
     private void checkFileAgeYesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkFileAgeYesActionPerformed
-// TODO add your handling code here:
+        fileAgeLabel.setEnabled(true);
+        fileAge.setEnabled(true);
     }//GEN-LAST:event_checkFileAgeYesActionPerformed
 
     private void checkFileAgeNoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkFileAgeNoActionPerformed
-// TODO add your handling code here:
+        fileAgeLabel.setEnabled(false);
+        fileAge.setEnabled(false);
     }//GEN-LAST:event_checkFileAgeNoActionPerformed
 
     private void anonymousNoActionPerformed(java.awt.event.ActionEvent evt)

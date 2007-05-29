@@ -25,6 +25,7 @@
 
 package com.webreach.mirth.client.ui.connectors;
 
+import java.awt.Color;
 import java.util.Properties;
 import java.util.StringTokenizer;
 
@@ -91,6 +92,8 @@ public class HTTPListener extends ConnectorClass
 
     public void setProperties(Properties props)
     {
+        resetInvalidProperties();
+        
         String listenerIPAddress = (String) props.get(HTTP_ADDRESS);
         StringTokenizer IP = new StringTokenizer(listenerIPAddress, ".");
         if (IP.hasMoreTokens())
@@ -139,9 +142,45 @@ public class HTTPListener extends ConnectorClass
 
     public boolean checkProperties(Properties props)
     {
-        if (((String) props.get(HTTP_ADDRESS)).length() > 0 && ((String) props.get(HTTP_PORT)).length() > 0 && ((String) props.get(HTTP_RECEIVE_TIMEOUT)).length() > 0 && ((String) props.get(HTTP_BUFFER_SIZE)).length() > 0)
-            return true;
-        return false;
+        resetInvalidProperties();
+        boolean valid = true;
+        
+        if (((String) props.get(HTTP_ADDRESS)).length() <= 3)
+        {
+            valid = false;
+            listenerIPAddressField.setBackground(UIConstants.INVALID_COLOR);
+            listenerIPAddressField1.setBackground(UIConstants.INVALID_COLOR);
+            listenerIPAddressField2.setBackground(UIConstants.INVALID_COLOR);
+            listenerIPAddressField3.setBackground(UIConstants.INVALID_COLOR);            
+        }
+        if (((String) props.get(HTTP_PORT)).length() == 0)
+        {
+            valid = false;
+            listenerPortField.setBackground(UIConstants.INVALID_COLOR);            
+        }
+        if (((String) props.get(HTTP_RECEIVE_TIMEOUT)).length() == 0)
+        {
+            valid = false;
+            receiveTimeoutField.setBackground(UIConstants.INVALID_COLOR);            
+        }
+        if (((String) props.get(HTTP_BUFFER_SIZE)).length() == 0)
+        {
+            valid = false;
+            bufferSizeField.setBackground(UIConstants.INVALID_COLOR);            
+        }
+        
+        return valid;
+    }
+    
+    private void resetInvalidProperties()
+    {
+        listenerIPAddressField.setBackground(null);
+        listenerIPAddressField1.setBackground(null);
+        listenerIPAddressField2.setBackground(null);
+        listenerIPAddressField3.setBackground(null);
+        listenerPortField.setBackground(null);
+        receiveTimeoutField.setBackground(null);
+        bufferSizeField.setBackground(null);
     }
     
     /**

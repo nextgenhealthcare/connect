@@ -25,6 +25,7 @@
 
 package com.webreach.mirth.client.ui.connectors;
 
+import java.awt.Color;
 import java.util.Properties;
 import java.util.StringTokenizer;
 
@@ -118,6 +119,8 @@ public class TCPListener extends ConnectorClass
 
     public void setProperties(Properties props)
     {
+        resetInvalidProperties();
+        
         String listenerIPAddress = (String) props.get(TCP_ADDRESS);
         StringTokenizer IP = new StringTokenizer(listenerIPAddress, ".");
         if (IP.hasMoreTokens())
@@ -203,12 +206,66 @@ public class TCPListener extends ConnectorClass
 
     public boolean checkProperties(Properties props)
     {
-        if (((String) props.get(TCP_ACK_NEW_CONNECTION)).equals(UIConstants.YES_OPTION) && (((String) props.get(TCP_ACK_NEW_CONNECTION_IP)).length() == 0 || ((String) props.get(TCP_ACK_NEW_CONNECTION_PORT)).length() == 0))
-            return false;
-
-        if (((String) props.get(TCP_ADDRESS)).length() > 0 && ((String) props.get(TCP_PORT)).length() > 0 && ((String) props.get(TCP_RECEIVE_TIMEOUT)).length() > 0 && ((String) props.get(TCP_BUFFER_SIZE)).length() > 0)
-            return true;
-        return false;
+        resetInvalidProperties();
+        boolean valid = true;
+        
+        if (((String) props.get(TCP_ADDRESS)).length() <= 3)
+        {
+            valid = false;
+            listenerIPAddressField.setBackground(UIConstants.INVALID_COLOR);
+            listenerIPAddressField1.setBackground(UIConstants.INVALID_COLOR);
+            listenerIPAddressField2.setBackground(UIConstants.INVALID_COLOR);
+            listenerIPAddressField3.setBackground(UIConstants.INVALID_COLOR);            
+        }
+        if (((String) props.get(TCP_PORT)).length() == 0)
+        {
+            valid = false;
+            listenerPortField.setBackground(UIConstants.INVALID_COLOR);
+        }
+        if (((String) props.get(TCP_RECEIVE_TIMEOUT)).length() == 0)
+        {
+            valid = false;
+            receiveTimeoutField.setBackground(UIConstants.INVALID_COLOR);
+        }
+        if (((String) props.get(TCP_BUFFER_SIZE)).length() == 0)
+        {
+            valid = false;
+            bufferSizeField.setBackground(UIConstants.INVALID_COLOR);
+        }
+        if (((String) props.get(TCP_ACK_NEW_CONNECTION)).equals(UIConstants.YES_OPTION))
+        {
+            if (((String) props.get(TCP_ACK_NEW_CONNECTION_IP)).length() <= 3)
+            {
+                valid = false;
+                ackIPAddressField.setBackground(UIConstants.INVALID_COLOR);
+                ackIPAddressField1.setBackground(UIConstants.INVALID_COLOR);
+                ackIPAddressField2.setBackground(UIConstants.INVALID_COLOR);
+                ackIPAddressField3.setBackground(UIConstants.INVALID_COLOR);
+            }
+            if (((String) props.get(TCP_ACK_NEW_CONNECTION_PORT)).length() == 0)
+            {
+                valid = false;
+                ackPortField.setBackground(UIConstants.INVALID_COLOR);
+            }
+        }
+        
+        return valid;
+    }
+    
+    private void resetInvalidProperties()
+    {
+        listenerIPAddressField.setBackground(null);
+        listenerIPAddressField1.setBackground(null);
+        listenerIPAddressField2.setBackground(null);
+        listenerIPAddressField3.setBackground(null);
+        listenerPortField.setBackground(null);
+        receiveTimeoutField.setBackground(null);
+        bufferSizeField.setBackground(null);
+        ackIPAddressField.setBackground(null);
+        ackIPAddressField1.setBackground(null);
+        ackIPAddressField2.setBackground(null);
+        ackIPAddressField3.setBackground(null);
+        ackPortField.setBackground(null);
     }
 
     /**

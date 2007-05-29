@@ -25,6 +25,7 @@
 
 package com.webreach.mirth.client.ui.connectors;
 
+import java.awt.Color;
 import java.util.Properties;
 
 import com.webreach.mirth.client.ui.UIConstants;
@@ -126,6 +127,8 @@ public class FileReader extends ConnectorClass
 
     public void setProperties(Properties props)
     {
+        resetInvalidProperties();
+        
         directoryField.setText((String) props.get(FILE_DIRECTORY));
         pollingFreq.setText((String) props.get(FILE_POLLING_FREQUENCY));
         moveToPattern.setText((String) props.get(FILE_MOVE_TO_PATTERN));
@@ -202,9 +205,42 @@ public class FileReader extends ConnectorClass
 
     public boolean checkProperties(Properties props)
     {
-        if (((String) props.get(FILE_DIRECTORY)).length() > 0 && ((String) props.get(FILE_POLLING_FREQUENCY)).length() > 0 && ((String) props.get(FILE_FILE_AGE)).length() > 0)
-            return true;
-        return false;
+        resetInvalidProperties();
+        boolean valid = true;
+        
+        if (((String) props.get(FILE_DIRECTORY)).length() == 0)
+        {
+            valid = false;
+            directoryField.setBackground(UIConstants.INVALID_COLOR);
+        }
+        if (((String) props.get(FILE_FILTER)).length() == 0)
+        {
+            valid = false;
+            fileNameFilter.setBackground(UIConstants.INVALID_COLOR);
+        }
+        if (((String) props.get(FILE_POLLING_FREQUENCY)).length() == 0)
+        {
+            valid = false;
+            pollingFreq.setBackground(UIConstants.INVALID_COLOR);
+        }
+        if (((String) props.get(FILE_CHECK_FILE_AGE)).equals(UIConstants.YES_OPTION))
+        {
+            if (((String) props.get(FILE_FILE_AGE)).length() == 0)
+            {
+                valid = false;
+                fileAge.setBackground(UIConstants.INVALID_COLOR);
+            }
+        }
+        
+        return valid;
+    }
+    
+    private void resetInvalidProperties()
+    {
+        directoryField.setBackground(null);
+        fileNameFilter.setBackground(null);
+        pollingFreq.setBackground(null);
+        fileAge.setBackground(null);
     }
 
     /**

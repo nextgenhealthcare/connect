@@ -95,6 +95,7 @@ public class UIConstants
     // for Forms
     public static final String YES_OPTION = "1";
     public static final String NO_OPTION = "0";
+    public static final Color INVALID_COLOR = Color.PINK;
 
     // ast: encodings
     public static final String DEFAULT_ENCODING_OPTION = "DEFAULT_ENCODING";

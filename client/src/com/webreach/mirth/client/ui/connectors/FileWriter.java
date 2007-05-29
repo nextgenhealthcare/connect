@@ -25,6 +25,7 @@
 
 package com.webreach.mirth.client.ui.connectors;
 
+import java.awt.Color;
 import java.util.Properties;
 
 import com.webreach.mirth.client.ui.UIConstants;
@@ -83,6 +84,8 @@ public class FileWriter extends ConnectorClass
 
     public void setProperties(Properties props)
     {
+        resetInvalidProperties();
+        
         directoryField.setText((String) props.get(FILE_DIRECTORY));
         fileNameField.setText((String) props.get(FILE_NAME));
 
@@ -123,9 +126,33 @@ public class FileWriter extends ConnectorClass
 
     public boolean checkProperties(Properties props)
     {
-        if (((String) props.get(FILE_DIRECTORY)).length() > 0 && ((String) props.get(FILE_NAME)).length() > 0 && ((String) props.get(FILE_CONTENTS)).length() > 0)
-            return true;
-        return false;
+        resetInvalidProperties();
+        boolean valid = true;
+        
+        if (((String) props.get(FILE_DIRECTORY)).length() == 0)
+        {
+            valid = false;
+            directoryField.setBackground(UIConstants.INVALID_COLOR);
+        }
+        if (((String) props.get(FILE_NAME)).length() == 0)
+        {
+            valid = false;
+            fileNameField.setBackground(UIConstants.INVALID_COLOR);
+        }
+        if (((String) props.get(FILE_CONTENTS)).length() == 0)
+        {
+            valid = false;
+            fileContentsTextPane.setBackground(UIConstants.INVALID_COLOR);
+        }
+        
+        return valid;
+    }
+    
+    private void resetInvalidProperties()
+    {
+        directoryField.setBackground(null);
+        fileNameField.setBackground(null);
+        fileContentsTextPane.setBackground(null);
     }
 
     /**

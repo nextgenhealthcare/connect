@@ -58,6 +58,7 @@ import org.w3c.dom.Element;
 import com.l2fprod.common.propertysheet.Property;
 import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.ui.BeanBinder;
+import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.model.ws.WSDefinition;
@@ -155,6 +156,8 @@ public class SOAPSender extends ConnectorClass
 
     public void setProperties(Properties props)
     {
+        resetInvalidProperties();
+        
         definition = (WSDefinition) (serializer.fromXML(props.getProperty(SOAP_DEFINITION)));
 
         wsdlUrl.setText((String) props.get(SOAP_URL));
@@ -214,9 +217,33 @@ public class SOAPSender extends ConnectorClass
 
     public boolean checkProperties(Properties props)
     {
-        if (!((String) props.getProperty(SOAP_METHOD)).equals(SOAP_DEFAULT_DROPDOWN) && ((String) props.getProperty(SOAP_URL)).length() > 0 && ((String) props.getProperty(SOAP_SERVICE_ENDPOINT)).length() > 0 && ((String) props.getProperty(SOAP_ENVELOPE)).length() > 0)
-            return true;
-        return false;
+        resetInvalidProperties();
+        boolean valid = true;
+        
+        if (((String) props.getProperty(SOAP_METHOD)).equals(SOAP_DEFAULT_DROPDOWN))
+        {
+            valid = false;
+            method.setBackground(UIConstants.INVALID_COLOR);
+        }
+        if (((String) props.getProperty(SOAP_URL)).length() == 0)
+        {
+            valid = false;
+            wsdlUrl.setBackground(UIConstants.INVALID_COLOR);
+        }
+        if (((String) props.getProperty(SOAP_ENVELOPE)).length() == 0)
+        {
+            valid = false;
+            soapEnvelope.setBackground(UIConstants.INVALID_COLOR);
+        }
+        
+        return valid;
+    }
+    
+    private void resetInvalidProperties()
+    {
+        method.setBackground(null);
+        wsdlUrl.setBackground(null);
+        soapEnvelope.setBackground(null);
     }
 
     public String buildHost()

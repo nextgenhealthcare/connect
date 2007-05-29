@@ -25,6 +25,7 @@
 
 package com.webreach.mirth.client.ui.connectors;
 
+import java.awt.Color;
 import java.util.List;
 import java.util.Properties;
 import java.util.Timer;
@@ -213,6 +214,8 @@ public class DatabaseReader extends ConnectorClass
 
     public void setProperties(Properties props)
     {
+        resetInvalidProperties();
+        
         boolean visible = parent.channelEditTasks.getContentPane().getComponent(0).isVisible();
 
         for (int i = 0; i < drivers.size(); i++)
@@ -277,14 +280,43 @@ public class DatabaseReader extends ConnectorClass
 
     public boolean checkProperties(Properties props)
     {
-        if (((String) props.get(DATABASE_URL)).length() > 0 && ((String) props.get(DATABASE_POLLING_FREQUENCY)).length() > 0 && ( (((String) props.get(DATABASE_SQL_STATEMENT)).length() > 0) || (((String) props.get(DATABASE_JS_SQL_STATEMENT)).length() > 0) ))
+        resetInvalidProperties();
+        boolean valid = true;
+        
+        if (((String) props.get(DATABASE_URL)).length() == 0)
         {
-            if ( ((String) props.get(DATABASE_USE_ACK)).equalsIgnoreCase(UIConstants.YES_OPTION) && ( (((String) props.get(DATABASE_JS_ACK)).length() > 0) || ( ((String) props.get(DATABASE_ACK)).length() > 0)))
-                return true;
-            else if (((String) props.get(DATABASE_USE_ACK)).equalsIgnoreCase(UIConstants.NO_OPTION))
-                return true;
+            valid = false;
+            databaseURLField.setBackground(UIConstants.INVALID_COLOR);
         }
-        return false;
+        if (((String) props.get(DATABASE_POLLING_FREQUENCY)).length() == 0)
+        {
+            valid = false;
+            pollingFreq.setBackground(UIConstants.INVALID_COLOR);
+        }
+        if ((((String) props.get(DATABASE_SQL_STATEMENT)).length() == 0) && (((String) props.get(DATABASE_JS_SQL_STATEMENT)).length() == 0))
+        {
+            valid = false;
+            databaseSQLTextPane.setBackground(UIConstants.INVALID_COLOR);
+        }
+        
+        if (((String) props.get(DATABASE_USE_ACK)).equalsIgnoreCase(UIConstants.YES_OPTION))
+        {
+            if (((((String) props.get(DATABASE_JS_ACK)).length() == 0) && (((String) props.get(DATABASE_ACK)).length() == 0)))
+            {
+                valid = false;
+                databaseUpdateSQLTextPane.setBackground(UIConstants.INVALID_COLOR);
+            }
+        }
+        
+        return valid;
+    }
+    
+    private void resetInvalidProperties()
+    {
+        databaseURLField.setBackground(null);
+        pollingFreq.setBackground(null);
+        databaseSQLTextPane.setBackground(null);
+        databaseUpdateSQLTextPane.setBackground(null);
     }
     
     private void update()

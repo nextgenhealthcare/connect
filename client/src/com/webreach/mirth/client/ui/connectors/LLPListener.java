@@ -25,6 +25,7 @@
 
 package com.webreach.mirth.client.ui.connectors;
 
+import java.awt.Color;
 import java.util.Properties;
 import java.util.StringTokenizer;
 
@@ -177,6 +178,8 @@ public class LLPListener extends ConnectorClass
 
     public void setProperties(Properties props)
     {
+        resetInvalidProperties();
+        
         String listenerIPAddress = (String) props.get(LLP_ADDRESS);
         StringTokenizer IP = new StringTokenizer(listenerIPAddress, ".");
         if (IP.hasMoreTokens())
@@ -339,12 +342,111 @@ public class LLPListener extends ConnectorClass
 
     public boolean checkProperties(Properties props)
     {
-        if (((String) props.get(LLP_ADDRESS)).equals(UIConstants.YES_OPTION) && (((String) props.get(LLP_ACK_NEW_CONNECTION_IP)).length() == 0 || ((String) props.get(LLP_ACK_NEW_CONNECTION_PORT)).length() == 0))
-            return false;
-
-        if (((String) props.get(LLP_ADDRESS)).length() > 0 && ((String) props.get(LLP_PORT)).length() > 0 && ((String) props.get(LLP_RECEIVE_TIMEOUT)).length() > 0 && ((String) props.get(LLP_BUFFER_SIZE)).length() > 0 && ((String) props.get(LLP_START_OF_MESSAGE_CHARACTER)).length() > 0 && ((String) props.get(LLP_END_OF_MESSAGE_CHARACTER)).length() > 0 && ((String) props.get(LLP_RECORD_SEPARATOR)).length() > 0 && ((String) props.get(LLP_SEGMENT_END)).length() > 0)
-            return true;
-        return false;
+        resetInvalidProperties();
+        boolean valid = true;
+        
+        if (((String) props.get(LLP_ADDRESS)).length() <= 3)
+        {
+            valid = false;
+            listenerIPAddressField.setBackground(UIConstants.INVALID_COLOR);
+            listenerIPAddressField1.setBackground(UIConstants.INVALID_COLOR);
+            listenerIPAddressField2.setBackground(UIConstants.INVALID_COLOR);
+            listenerIPAddressField3.setBackground(UIConstants.INVALID_COLOR);            
+        }
+        if (((String) props.get(LLP_PORT)).length() == 0)
+        {
+            valid = false;
+            listenerPortField.setBackground(UIConstants.INVALID_COLOR);
+        }
+        if (((String) props.get(LLP_RECEIVE_TIMEOUT)).length() == 0)
+        {
+            valid = false;
+            receiveTimeoutField.setBackground(UIConstants.INVALID_COLOR);
+        }
+        if (((String) props.get(LLP_BUFFER_SIZE)).length() == 0)
+        {
+            valid = false;
+            bufferSizeField.setBackground(UIConstants.INVALID_COLOR);
+        }
+        if (((String) props.get(LLP_END_OF_MESSAGE_CHARACTER)).length() == 0)
+        {
+            valid = false;
+            endOfMessageCharacterField.setBackground(UIConstants.INVALID_COLOR);
+        }
+        if (((String) props.get(LLP_START_OF_MESSAGE_CHARACTER)).length() == 0)
+        {
+            valid = false;
+            startOfMessageCharacterField.setBackground(UIConstants.INVALID_COLOR);
+        }
+        if (((String) props.get(LLP_RECORD_SEPARATOR)).length() == 0)
+        {
+            valid = false;
+            recordSeparatorField.setBackground(UIConstants.INVALID_COLOR);
+        }
+        if (((String) props.get(LLP_SEGMENT_END)).length() == 0)
+        {
+            valid = false;
+            segmentEnd.setBackground(UIConstants.INVALID_COLOR);
+        }
+        if (((String) props.get(LLP_SEND_ACK)).equals(UIConstants.YES_OPTION))
+        {
+            if (((String) props.get(LLP_ACKCODE_SUCCESSFUL)).length() == 0)
+            {
+                valid = false;
+                successACKCode.setBackground(UIConstants.INVALID_COLOR);
+            }
+            if (((String) props.get(LLP_ACKCODE_ERROR)).length() == 0)
+            {
+                valid = false;
+                errorACKCode.setBackground(UIConstants.INVALID_COLOR);
+            }
+            if (((String) props.get(LLP_ACKCODE_REJECTED)).length() == 0)
+            {
+                valid = false;
+                rejectedACKCode.setBackground(UIConstants.INVALID_COLOR);
+            }
+        }
+        if (((String) props.get(LLP_ACK_NEW_CONNECTION)).equals(UIConstants.YES_OPTION) && (((String) props.get(LLP_SEND_ACK)).equals(UIConstants.YES_OPTION) || ((String) props.get(LLP_RESPONSE_FROM_TRANSFORMER)).equals(UIConstants.YES_OPTION)))
+        {
+            if (((String) props.get(LLP_ACK_NEW_CONNECTION_IP)).length() <= 3)
+            {
+                valid = false;
+                ackIPAddressField.setBackground(UIConstants.INVALID_COLOR);
+                ackIPAddressField1.setBackground(UIConstants.INVALID_COLOR);
+                ackIPAddressField2.setBackground(UIConstants.INVALID_COLOR);
+                ackIPAddressField3.setBackground(UIConstants.INVALID_COLOR);
+            }
+            if (((String) props.get(LLP_ACK_NEW_CONNECTION_PORT)).length() == 0)
+            {
+                valid = false;
+                ackPortField.setBackground(UIConstants.INVALID_COLOR);
+            }
+        }
+        
+        return valid;
+    }
+    
+    private void resetInvalidProperties()
+    {
+        listenerIPAddressField.setBackground(null);
+        listenerIPAddressField1.setBackground(null);
+        listenerIPAddressField2.setBackground(null);
+        listenerIPAddressField3.setBackground(null);
+        listenerPortField.setBackground(null);
+        receiveTimeoutField.setBackground(null);
+        bufferSizeField.setBackground(null);
+        endOfMessageCharacterField.setBackground(null);
+        startOfMessageCharacterField.setBackground(null);
+        recordSeparatorField.setBackground(null);
+        segmentEnd.setBackground(null);
+        successACKCode.setBackground(null);
+        errorACKCode.setBackground(null);
+        rejectedACKCode.setBackground(null);
+        ackIPAddressField.setBackground(null);
+        ackIPAddressField1.setBackground(null);
+        ackIPAddressField2.setBackground(null);
+        ackIPAddressField3.setBackground(null);
+        ackPortField.setBackground(null);
     }
 
     /**

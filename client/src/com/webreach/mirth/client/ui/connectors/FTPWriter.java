@@ -25,6 +25,7 @@
 
 package com.webreach.mirth.client.ui.connectors;
 
+import java.awt.Color;
 import java.util.Properties;
 
 import com.webreach.mirth.client.ui.UIConstants;
@@ -98,6 +99,8 @@ public class FTPWriter extends ConnectorClass
 
     public void setProperties(Properties props)
     {
+        resetInvalidProperties();
+        
         FTPURLField.setText((String) props.get(FTP_URL));
 
         if (((String) props.get(FTP_ANONYMOUS)).equalsIgnoreCase(UIConstants.YES_OPTION))
@@ -150,17 +153,48 @@ public class FTPWriter extends ConnectorClass
 
     public boolean checkProperties(Properties props)
     {
-        if (((String) props.get(FTP_ANONYMOUS)).equals(UIConstants.YES_OPTION))
+        resetInvalidProperties();
+        boolean valid = true;
+        
+        if (((String) props.get(FTP_URL)).length() == 0)
         {
-            if (((String) props.get(FTP_URL)).length() > 0 && ((String) props.get(FTP_OUTPUT_PATTERN)).length() > 0 && ((String) props.get(FTP_CONTENTS)).length() > 0)
-                return true;
+            valid = false;
+            FTPURLField.setBackground(UIConstants.INVALID_COLOR);
         }
-        else
+        if (((String) props.get(FTP_OUTPUT_PATTERN)).length() == 0)
         {
-            if (((String) props.get(FTP_URL)).length() > 0 && ((String) props.get(FTP_USERNAME)).length() > 0 && ((String) props.get(FTP_PASSWORD)).length() > 0 && ((String) props.get(FTP_OUTPUT_PATTERN)).length() > 0 && ((String) props.get(FTP_CONTENTS)).length() > 0)
-                return true;
+            valid = false;
+            outputPatternField.setBackground(UIConstants.INVALID_COLOR);
         }
-        return false;
+        if (((String) props.get(FTP_CONTENTS)).length() == 0)
+        {
+            valid = false;
+            ftpContentsTextPane.setBackground(UIConstants.INVALID_COLOR);
+        }
+        if (((String) props.get(FTP_ANONYMOUS)).equals(UIConstants.NO_OPTION))
+        {
+            if (((String) props.get(FTP_USERNAME)).length() == 0)
+            {
+                valid = false;
+                FTPUsernameField.setBackground(UIConstants.INVALID_COLOR);
+            }
+            if (((String) props.get(FTP_PASSWORD)).length() == 0)
+            {
+                valid = false;
+                FTPPasswordField.setBackground(UIConstants.INVALID_COLOR);
+            }
+        }
+        
+        return valid;
+    }
+    
+    private void resetInvalidProperties()
+    {
+        FTPURLField.setBackground(null);
+        outputPatternField.setBackground(null);
+        ftpContentsTextPane.setBackground(null);
+        FTPUsernameField.setBackground(null);
+        FTPPasswordField.setBackground(null);
     }
 
     /**

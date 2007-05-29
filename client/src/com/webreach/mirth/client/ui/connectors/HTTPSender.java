@@ -25,6 +25,7 @@
 
 package com.webreach.mirth.client.ui.connectors;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -119,6 +120,8 @@ public class HTTPSender extends ConnectorClass
 
     public void setProperties(Properties props)
     {
+        resetInvalidProperties();
+        
         boolean visible = parent.channelEditTasks.getContentPane().getComponent(0).isVisible();
 
         httpURL.setText((String) props.get(HTTP_URL));
@@ -359,10 +362,21 @@ public class HTTPSender extends ConnectorClass
 
     public boolean checkProperties(Properties props)
     {
-        if (((String) props.getProperty(HTTP_URL)).length() > 0)
-            return true;
-        else
-            return false;
+        resetInvalidProperties();
+        boolean valid = true;
+        
+        if (((String) props.getProperty(HTTP_URL)).length() == 0)
+        {
+            valid = false;
+            httpURL.setBackground(UIConstants.INVALID_COLOR);
+        }
+        
+        return valid;
+    }
+    
+    private void resetInvalidProperties()
+    {
+        httpURL.setBackground(null);
     }
 
     /**

@@ -7,7 +7,7 @@
  * http://www.mozilla.org/MPL/
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
- * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+* WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
  * for the specific language governing rights and limitations under the
  * License.
  *
@@ -25,6 +25,7 @@
 
 package com.webreach.mirth.client.ui.connectors;
 
+import java.awt.Color;
 import java.util.List;
 import java.util.Properties;
 
@@ -131,6 +132,8 @@ public class DatabaseWriter extends ConnectorClass
 
     public void setProperties(Properties props)
     {
+        resetInvalidProperties();
+        
         boolean visible = parent.channelEditTasks.getContentPane().getComponent(0).isVisible();
 
         for (int i = 0; i < drivers.size(); i++)
@@ -176,9 +179,27 @@ public class DatabaseWriter extends ConnectorClass
 
     public boolean checkProperties(Properties props)
     {
-        if (((String) props.get(DATABASE_URL)).length() > 0 && (((String) props.get(DATABASE_SQL_STATEMENT)).length() > 0 || ((String) props.get(DATABASE_JS_SQL_STATEMENT)).length() > 0))
-            return true;
-        return false;
+        resetInvalidProperties();
+        boolean valid = true;
+        
+        if (((String) props.get(DATABASE_URL)).length() == 0)
+        {
+            valid = false;
+            databaseURLField.setBackground(UIConstants.INVALID_COLOR);
+        }
+        if ((((String) props.get(DATABASE_SQL_STATEMENT)).length() == 0) && (((String) props.get(DATABASE_JS_SQL_STATEMENT)).length() == 0))
+        {
+            valid = false;
+            databaseSQLTextPane.setBackground(UIConstants.INVALID_COLOR);
+        }
+        
+        return valid;
+    }
+    
+    private void resetInvalidProperties()
+    {
+        databaseURLField.setBackground(null);
+        databaseSQLTextPane.setBackground(null);
     }
 
     /**

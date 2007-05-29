@@ -92,32 +92,6 @@ public class ConnectorClass extends javax.swing.JPanel
     {
         return true;
     }
-    /*
-    public void makeResponseStep()
-    {
-        responseStep = new Step();
-        HashMap<String, String> data = new HashMap<String, String>();
-        data.put("Script", "var response;\n\n// YOUR CUSTOM RESPONSE CODE GOES HERE\n\nlocalMap.put('" + MessageObject.RESPONSE_VARIABLE + "', response);");
-
-        responseStep.setName("Set ACK Response");
-        responseStep.setType(MirthEditorPane.JAVASCRIPT_TYPE);
-        responseStep.setData(data);
-        responseStep.setScript(data.get("Script").toString());
-    }
-
-    public void setResponseStep()
-    {
-        ArrayList<Step> list = (ArrayList<Step>) parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().getSteps();
-        responseStep.setSequenceNumber(list.size());
-        list.add(responseStep);
-    }
-
-    public void removeResponseStep()
-    {
-        ArrayList<Step> list = (ArrayList<Step>) parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().getSteps();
-        if (list.contains(responseStep))
-            list.remove(responseStep);
-    }*/
     
     public void updateResponseDropDown()
     {

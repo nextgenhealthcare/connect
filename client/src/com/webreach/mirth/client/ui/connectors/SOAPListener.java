@@ -30,6 +30,7 @@ import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.Connector;
 import com.webreach.mirth.model.Step;
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -85,6 +86,8 @@ public class SOAPListener extends ConnectorClass
 
     public void setProperties(Properties props)
     {
+        resetInvalidProperties();
+        
         listenerAddress.setText((String) props.get(SOAP_LISTENER_ADDRESS));
         port.setText((String) props.getProperty(SOAP_PORT));
         serviceName.setText((String) props.getProperty(SOAP_SERVICE_NAME));
@@ -119,9 +122,33 @@ public class SOAPListener extends ConnectorClass
 
     public boolean checkProperties(Properties props)
     {
-        if (((String) props.get(SOAP_LISTENER_ADDRESS)).length() > 0 && ((String) props.get(SOAP_PORT)).length() > 0 && ((String) props.get(SOAP_SERVICE_NAME)).length() > 0)
-            return true;
-        return false;
+        resetInvalidProperties();
+        boolean valid = true;
+        
+        if (((String) props.get(SOAP_LISTENER_ADDRESS)).length() > 0)
+        {
+            valid = false;
+            listenerAddress.setBackground(UIConstants.INVALID_COLOR);
+        }
+        if (((String) props.get(SOAP_PORT)).length() > 0)
+        {
+            valid = false;
+            port.setBackground(UIConstants.INVALID_COLOR);
+        }
+        if (((String) props.get(SOAP_SERVICE_NAME)).length() > 0)
+        {
+            valid = false;
+            serviceName.setBackground(UIConstants.INVALID_COLOR);
+        }
+        
+        return valid;
+    }
+    
+    private void resetInvalidProperties()
+    {
+        listenerAddress.setBackground(null);
+        port.setBackground(null);
+        serviceName.setBackground(null);
     }
 
     /**

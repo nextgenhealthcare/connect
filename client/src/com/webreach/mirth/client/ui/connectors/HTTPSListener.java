@@ -139,6 +139,8 @@ public class HTTPSListener extends ConnectorClass
 
     public void setProperties(Properties props)
     {
+        resetInvalidProperties();
+        
         String listenerIPAddress = (String) props.get(HTTPS_ADDRESS);
         StringTokenizer IP = new StringTokenizer(listenerIPAddress, ".");
         if (IP.hasMoreTokens())
@@ -231,10 +233,14 @@ public class HTTPSListener extends ConnectorClass
 
     public boolean checkProperties(Properties props)
     {
-        /*
-         * if() { return true; }
-         */
-        return false;
+        resetInvalidProperties();
+        boolean valid = true;
+        
+        return valid;
+    }
+    
+    private void resetInvalidProperties()
+    {
     }
 
     /**

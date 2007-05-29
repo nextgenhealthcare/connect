@@ -25,6 +25,7 @@
 
 package com.webreach.mirth.client.ui.connectors;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.MouseEvent;
 import java.util.EventObject;
@@ -133,6 +134,8 @@ public class JMSWriter extends ConnectorClass
 
     public void setProperties(Properties props)
     {
+        resetInvalidProperties();
+        
         boolean visible = parent.channelEditTasks.getContentPane().getComponent(0).isVisible();
 
         specDropDown.setSelectedItem(props.get(JMS_SPECIFICATION));
@@ -381,12 +384,54 @@ public class JMSWriter extends ConnectorClass
 
     public boolean checkProperties(Properties props)
     {
-        if (((String) props.getProperty(JMS_DURABLE)).equals(UIConstants.YES_OPTION) && ((String) props.getProperty(JMS_CLIENT_ID)).length() == 0)
-            return false;
-        else if (((String) props.getProperty(JMS_URL)).length() > 0 && ((String) props.getProperty(JMS_CONNECTION_FACTORY)).length() > 0 && ((String) props.getProperty(JMS_QUEUE)).length() > 0 && ((String) props.getProperty(JMS_INITIAL_FACTORY)).length() > 0 && ((String) props.getProperty(JMS_CONNECTION_FACTORY)).length() > 0 && ((String) props.getProperty(JMS_TEMPLATE)).length() > 0)
-            return true;
-        else
-            return false;
+        resetInvalidProperties();
+        boolean valid = true;
+        
+        if (((String) props.getProperty(JMS_URL)).length() == 0)
+        {
+            valid = false;
+            jmsURL.setBackground(UIConstants.INVALID_COLOR);
+        }
+        if (((String) props.getProperty(JMS_CONNECTION_FACTORY)).length() == 0)
+        {
+            valid = false;
+            connectionFactory.setBackground(UIConstants.INVALID_COLOR);
+        }
+        if (((String) props.getProperty(JMS_QUEUE)).length() == 0)
+        {
+            valid = false;
+            queue.setBackground(UIConstants.INVALID_COLOR);
+        }
+        if (((String) props.getProperty(JMS_INITIAL_FACTORY)).length() == 0)
+        {
+            valid = false;
+            jndiInitialFactory.setBackground(UIConstants.INVALID_COLOR);
+        }
+        if (((String) props.getProperty(JMS_TEMPLATE)).length() == 0)
+        {
+            valid = false;
+            templateTextArea.setBackground(UIConstants.INVALID_COLOR);
+        }
+        if (((String) props.getProperty(JMS_DURABLE)).equals(UIConstants.YES_OPTION))
+        {
+            if (((String) props.getProperty(JMS_CLIENT_ID)).length() == 0)
+            {
+                valid = false;
+                cliendId.setBackground(UIConstants.INVALID_COLOR);
+            }
+        }
+        
+        return valid;
+    }
+    
+    private void resetInvalidProperties()
+    {
+        jmsURL.setBackground(null);
+        connectionFactory.setBackground(null);
+        queue.setBackground(null);
+        jndiInitialFactory.setBackground(null);
+        templateTextArea.setBackground(null);
+        cliendId.setBackground(null);
     }
 
     /**

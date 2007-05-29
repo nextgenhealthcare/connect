@@ -63,6 +63,8 @@ public class ChannelWriter extends ConnectorClass
 
     public void setProperties(Properties props)
     {
+        resetInvalidProperties();
+        
         ArrayList<String> channelNameArray = new ArrayList<String>();
         channelList = new HashMap();
         channelList.put("None", "sink");
@@ -93,7 +95,14 @@ public class ChannelWriter extends ConnectorClass
 
     public boolean checkProperties(Properties props)
     {
-        return true;
+        resetInvalidProperties();
+        boolean valid = true;
+        
+        return valid;
+    }
+    
+    private void resetInvalidProperties()
+    {
     }
 
     /**

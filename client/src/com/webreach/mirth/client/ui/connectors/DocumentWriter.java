@@ -25,6 +25,7 @@
 
 package com.webreach.mirth.client.ui.connectors;
 
+import java.awt.Color;
 import java.util.Properties;
 
 import com.webreach.mirth.client.ui.UIConstants;
@@ -83,6 +84,8 @@ public class DocumentWriter extends ConnectorClass
 
     public void setProperties(Properties props)
     {
+        resetInvalidProperties();
+        
         directoryField.setText((String) props.get(FILE_DIRECTORY));
         fileNameField.setText((String) props.get(FILE_NAME));
 
@@ -122,17 +125,42 @@ public class DocumentWriter extends ConnectorClass
 
     public boolean checkProperties(Properties props)
     {
+        resetInvalidProperties();
+        boolean valid = true;
+        
+        if (((String) props.get(FILE_DIRECTORY)).length() == 0)
+        {
+            valid = false;
+            directoryField.setBackground(UIConstants.INVALID_COLOR);
+        }
+        if (((String) props.get(FILE_NAME)).length() == 0)
+        {
+            valid = false;
+            fileNameField.setBackground(UIConstants.INVALID_COLOR);
+        }
+        if (((String) props.get(FILE_CONTENTS)).length() == 0)
+        {
+            valid = false;
+            fileContentsTextPane.setBackground(UIConstants.INVALID_COLOR);
+        }
         if (((String) props.get(DOCUMENT_PASSWORD_PROTECTED)).equals(UIConstants.YES_OPTION))
         {
-            if (((String) props.get(FILE_DIRECTORY)).length() > 0 && ((String) props.get(FILE_NAME)).length() > 0 && ((String) props.get(DOCUMENT_PASSWORD)).length() > 0 && ((String) props.get(FILE_CONTENTS)).length() > 0)
-                return true;
+            if (((String) props.get(DOCUMENT_PASSWORD)).length() == 0)
+            {
+                valid = false;
+                passwordField.setBackground(UIConstants.INVALID_COLOR);
+            }
         }
-        else
-        {
-            if (((String) props.get(FILE_DIRECTORY)).length() > 0 && ((String) props.get(FILE_NAME)).length() > 0 && ((String) props.get(FILE_CONTENTS)).length() > 0)
-                return true;
-        }
-        return false;
+        
+        return valid;
+    }
+    
+    private void resetInvalidProperties()
+    {
+        directoryField.setBackground(null);
+        fileNameField.setBackground(null);
+        fileContentsTextPane.setBackground(null);
+        passwordField.setBackground(null);
     }
 
     /**

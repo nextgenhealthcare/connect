@@ -25,6 +25,7 @@
 
 package com.webreach.mirth.client.ui.connectors;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Properties;
@@ -126,6 +127,8 @@ public class TCPSender extends ConnectorClass
 
     public void setProperties(Properties props)
     {
+        resetInvalidProperties();
+        
         String hostIPAddress = (String) props.get(TCP_ADDRESS);
         StringTokenizer IP = new StringTokenizer(hostIPAddress, ".");
         if (IP.hasMoreTokens())
@@ -208,9 +211,63 @@ public class TCPSender extends ConnectorClass
 
     public boolean checkProperties(Properties props)
     {
-        if (((String) props.get(TCP_ADDRESS)).length() > 0 && ((String) props.get(TCP_PORT)).length() > 0 && ((String) props.get(TCP_SERVER_TIMEOUT)).length() > 0 && ((String) props.get(TCP_BUFFER_SIZE)).length() > 0 && ((String) props.get(TCP_MAX_RETRY_COUNT)).length() > 0 && ((String) props.get(TCP_TEMPLATE)).length() > 0)
-            return true;
-        return false;
+        resetInvalidProperties();
+        boolean valid = true;
+        
+        if (((String) props.get(TCP_ADDRESS)).length() <= 3)
+        {
+            valid = false;
+            hostIPAddressField.setBackground(UIConstants.INVALID_COLOR);
+            hostIPAddressField1.setBackground(UIConstants.INVALID_COLOR);
+            hostIPAddressField2.setBackground(UIConstants.INVALID_COLOR);
+            hostIPAddressField3.setBackground(UIConstants.INVALID_COLOR);            
+        }
+        if (((String) props.get(TCP_PORT)).length() == 0)
+        {
+            valid = false;
+            hostPortField.setBackground(UIConstants.INVALID_COLOR);
+        }
+        if (((String) props.get(TCP_SERVER_TIMEOUT)).length() == 0)
+        {
+            valid = false;
+            serverTimeoutField.setBackground(UIConstants.INVALID_COLOR);
+        }
+        if (((String) props.get(TCP_BUFFER_SIZE)).length() == 0)
+        {
+            valid = false;
+            bufferSizeField.setBackground(UIConstants.INVALID_COLOR);
+        }
+        if (((String) props.get(TCP_MAX_RETRY_COUNT)).length() == 0)
+        {
+            valid = false;
+            maximumRetryCountField.setBackground(UIConstants.INVALID_COLOR);
+        }
+        if (((String) props.get(TCP_TEMPLATE)).length() == 0)
+        {
+            valid = false;
+            template.setBackground(UIConstants.INVALID_COLOR);
+        }
+        if (((String) props.get(TCP_ACK_TIMEOUT)).length() == 0)
+        {
+            valid = false;
+            ackTimeoutField.setBackground(UIConstants.INVALID_COLOR);
+        }
+        
+        return valid;
+    }
+    
+    private void resetInvalidProperties()
+    {
+        hostIPAddressField.setBackground(null);
+        hostIPAddressField1.setBackground(null);
+        hostIPAddressField2.setBackground(null);
+        hostIPAddressField3.setBackground(null);
+        hostPortField.setBackground(null);
+        serverTimeoutField.setBackground(null);
+        bufferSizeField.setBackground(null);
+        maximumRetryCountField.setBackground(null);
+        template.setBackground(null);
+        ackTimeoutField.setBackground(null);
     }
 
     /**

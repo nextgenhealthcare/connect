@@ -25,6 +25,7 @@
 
 package com.webreach.mirth.client.ui.connectors;
 
+import java.awt.Color;
 import java.util.Properties;
 
 import com.webreach.mirth.client.ui.UIConstants;
@@ -134,6 +135,8 @@ public class SFTPReader extends ConnectorClass
 
     public void setProperties(Properties props)
     {
+        resetInvalidProperties();
+        
         FTPURLField.setText((String) props.get(FTP_HOST));
 
         FTPUsernameField.setText((String) props.get(FTP_USERNAME));
@@ -213,9 +216,54 @@ public class SFTPReader extends ConnectorClass
 
     public boolean checkProperties(Properties props)
     {
-        if (((String) props.get(FTP_HOST)).length() > 0 && ((String) props.get(FTP_USERNAME)).length() > 0 && ((String) props.get(FTP_PASSWORD)).length() > 0 && ((String) props.get(FTP_POLLING_FREQUENCY)).length() > 0)
-            return true;
-        return false;
+        resetInvalidProperties();
+        boolean valid = true;
+        
+        if (((String) props.get(FTP_HOST)).length() == 0)
+        {
+            valid = false;
+            FTPURLField.setBackground(UIConstants.INVALID_COLOR);
+        }
+        if (((String) props.get(FILE_FILTER)).length() == 0)
+        {
+            valid = false;
+            fileNameFilter.setBackground(UIConstants.INVALID_COLOR);
+        }
+        if (((String) props.get(FTP_POLLING_FREQUENCY)).length() == 0)
+        {
+            valid = false;
+            pollingFrequencyField.setBackground(UIConstants.INVALID_COLOR);
+        }
+        if (((String) props.get(FTP_USERNAME)).length() == 0)
+        {
+            valid = false;
+            FTPUsernameField.setBackground(UIConstants.INVALID_COLOR);
+        }
+        if (((String) props.get(FTP_PASSWORD)).length() == 0)
+        {
+            valid = false;
+            FTPPasswordField.setBackground(UIConstants.INVALID_COLOR);
+        }
+        if (((String) props.get(FILE_CHECK_FILE_AGE)).equals(UIConstants.YES_OPTION))
+        {
+            if (((String) props.get(FILE_FILE_AGE)).length() == 0)
+            {
+                valid = false;
+                fileAge.setBackground(UIConstants.INVALID_COLOR);
+            }
+        }
+        
+        return valid;
+    }
+    
+    private void resetInvalidProperties()
+    {
+        FTPURLField.setBackground(null);
+        fileNameFilter.setBackground(null);
+        pollingFrequencyField.setBackground(null);
+        FTPUsernameField.setBackground(null);
+        FTPPasswordField.setBackground(null);
+        fileAge.setBackground(null);
     }
 
     /**
@@ -257,7 +305,7 @@ public class SFTPReader extends ConnectorClass
         checkFileAgeNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         checkFileAgeYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         jLabel12 = new javax.swing.JLabel();
-        fileAgeLabel1 = new javax.swing.JLabel();
+        fileAgeLabel = new javax.swing.JLabel();
         fileAge = new com.webreach.mirth.client.ui.components.MirthTextField();
         processBatchFilesNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         processBatchFilesYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
@@ -360,7 +408,7 @@ public class SFTPReader extends ConnectorClass
 
         jLabel12.setText("Check File Age:");
 
-        fileAgeLabel1.setText("File Age (ms):");
+        fileAgeLabel.setText("File Age (ms):");
 
         processBatchFilesNo.setBackground(new java.awt.Color(255, 255, 255));
         processBatchFilesNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -423,7 +471,7 @@ public class SFTPReader extends ConnectorClass
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, moveToFileLabel)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel11)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel12)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, fileAgeLabel1)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, fileAgeLabel)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel7)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel14)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel3)
@@ -506,7 +554,7 @@ public class SFTPReader extends ConnectorClass
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                             .add(fileAge, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(fileAgeLabel1))
+                            .add(fileAgeLabel))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                             .add(fileTypeASCII, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -562,11 +610,13 @@ public class SFTPReader extends ConnectorClass
     }//GEN-LAST:event_processBatchFilesNoActionPerformed
 
     private void checkFileAgeYesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkFileAgeYesActionPerformed
-// TODO add your handling code here:
+        fileAgeLabel.setEnabled(true);
+        fileAge.setEnabled(true);
     }//GEN-LAST:event_checkFileAgeYesActionPerformed
 
     private void checkFileAgeNoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkFileAgeNoActionPerformed
-// TODO add your handling code here:
+        fileAgeLabel.setEnabled(false);
+        fileAge.setEnabled(false);
     }//GEN-LAST:event_checkFileAgeNoActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -589,7 +639,7 @@ public class SFTPReader extends ConnectorClass
     private com.webreach.mirth.client.ui.components.MirthRadioButton deleteAfterReadNo;
     private com.webreach.mirth.client.ui.components.MirthRadioButton deleteAfterReadYes;
     private com.webreach.mirth.client.ui.components.MirthTextField fileAge;
-    private javax.swing.JLabel fileAgeLabel1;
+    private javax.swing.JLabel fileAgeLabel;
     private com.webreach.mirth.client.ui.components.MirthTextField fileNameFilter;
     private com.webreach.mirth.client.ui.components.MirthRadioButton fileTypeASCII;
     private com.webreach.mirth.client.ui.components.MirthRadioButton fileTypeBinary;

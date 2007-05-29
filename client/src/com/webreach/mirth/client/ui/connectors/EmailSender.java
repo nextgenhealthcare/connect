@@ -25,6 +25,7 @@
 
 package com.webreach.mirth.client.ui.connectors;
 
+import com.webreach.mirth.client.ui.UIConstants;
 import java.util.Properties;
 
 import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
@@ -71,6 +72,8 @@ public class EmailSender extends ConnectorClass
 
     public void setProperties(Properties props)
     {
+        resetInvalidProperties();
+        
         SMTPServerHostField.setText((String) props.get(EMAIL_ADDRESS));
         SMTPServerPortField.setText((String) props.get(EMAIL_PORT));
         emailUsernameField.setText((String) props.get(EMAIL_USERNAME));
@@ -98,9 +101,33 @@ public class EmailSender extends ConnectorClass
 
     public boolean checkProperties(Properties props)
     {
-        if (((String) props.get(EMAIL_ADDRESS)).length() > 0 && ((String) props.get(EMAIL_PORT)).length() > 0 && ((String) props.get(EMAIL_TO)).length() > 0)
-            return true;
-        return false;
+        resetInvalidProperties();
+        boolean valid = true;
+        
+        if (((String) props.get(EMAIL_ADDRESS)).length() == 0)
+        {
+            valid = false;
+            SMTPServerHostField.setBackground(UIConstants.INVALID_COLOR);
+        }
+        if (((String) props.get(EMAIL_PORT)).length() == 0)
+        {
+            valid = false;
+            SMTPServerPortField.setBackground(UIConstants.INVALID_COLOR);
+        }
+        if (((String) props.get(EMAIL_TO)).length() == 0)
+        {
+            valid = false;
+            emailToField.setBackground(UIConstants.INVALID_COLOR);
+        }
+        
+        return valid;
+    }
+    
+    private void resetInvalidProperties()
+    {
+        SMTPServerHostField.setBackground(null);
+        SMTPServerPortField.setBackground(null);
+        emailToField.setBackground(null);
     }
 
     /**

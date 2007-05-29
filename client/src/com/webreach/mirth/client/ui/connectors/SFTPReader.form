@@ -53,7 +53,7 @@
                   <Component id="moveToFileLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel11" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel12" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="fileAgeLabel1" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="fileAgeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel7" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel14" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel3" alignment="1" min="-2" max="-2" attributes="0"/>
@@ -154,7 +154,7 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="fileAge" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="fileAgeLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="fileAgeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
@@ -388,7 +388,7 @@
         <Property name="text" type="java.lang.String" value="Check File Age:"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="fileAgeLabel1">
+    <Component class="javax.swing.JLabel" name="fileAgeLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="File Age (ms):"/>
       </Properties>
