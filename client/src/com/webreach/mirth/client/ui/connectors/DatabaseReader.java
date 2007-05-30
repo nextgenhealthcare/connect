@@ -690,8 +690,8 @@ public class DatabaseReader extends ConnectorClass
         
         connectionString.append("var result = dbConn.executeCachedQuery(\"");
         connectionString.append( "expression");
-        connectionString.append("\");\n\n// YOUR CODE GOES HERE \n\ndbConn.close();\n");
-        connectionString.append("return result;\n\n// You may access this result with $('column_name')");
+        connectionString.append("\");\n\n// YOUR CODE GOES HERE \n\ndbConn.close();\n\n");
+        connectionString.append("// You may access this result with $('column_name')\nreturn result;");
         
         return connectionString.toString();
     }
