@@ -41,22 +41,22 @@ public class DatabasePruner extends Thread {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private ChannelController channelController = new ChannelController();
 	private MessageObjectController messageObjectController = MessageObjectController.getInstance();
-	private static final int SLEEP_INTERVAL = 1000 * 60 * 60; // prune every 5 mintes
+	private static final int SLEEP_INTERVAL = 1000 * 60;// * 60; // prune every 5 mintes
 
 	public DatabasePruner() {
 		setName("DatabasePruner");
 	}
 	
 	public void run() {
-		while (!isInterrupted()) {
-			pruneDatabase();
-			
-			try {
-				sleep(SLEEP_INTERVAL);
-			} catch (InterruptedException e) {
-				logger.debug("exiting database pruner");
-			}
-		}
+        try {
+    		while (true) {
+    			pruneDatabase();
+			    sleep(SLEEP_INTERVAL);
+    		}
+        }
+        catch (InterruptedException e) {
+            logger.debug("exiting database pruner");
+        }
 	}
 
 	public void pruneDatabase() {
