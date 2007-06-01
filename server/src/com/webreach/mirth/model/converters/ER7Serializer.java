@@ -265,19 +265,19 @@ public class ER7Serializer implements IXMLSerializer<String> {
 		} else {
 
 			String sendingFacility = "";
-			if (document.getElementsByTagName("MSH.4.1") != null) {
+			if (document.getElementsByTagName("MSH.4.1").getLength() > 0) {
 				Node sender = document.getElementsByTagName("MSH.4.1").item(0);
 				if (sender != null) {
 					sendingFacility = sender.getFirstChild().getTextContent();
 				}
 			}
 			String event = "Unknown";
-			if (document.getElementsByTagName("MSH.9") != null) {
-				if (document.getElementsByTagName("MSH.9.1") != null) {
+			if (document.getElementsByTagName("MSH.9").getLength() > 0) {
+				if (document.getElementsByTagName("MSH.9.1").getLength() > 0) {
 					Node type = document.getElementsByTagName("MSH.9.1").item(0);
 					if (type != null) {
 						event = type.getFirstChild().getNodeValue();
-						if (document.getElementsByTagName("MSH.9.2") != null) {
+						if (document.getElementsByTagName("MSH.9.2").getLength() > 0) {
 							Node subtype = document.getElementsByTagName("MSH.9.2").item(0);
 							event += "-" + subtype.getFirstChild().getTextContent();
 						}
@@ -285,7 +285,7 @@ public class ER7Serializer implements IXMLSerializer<String> {
 				}
 			}
 			String version = "";
-			if (document.getElementsByTagName("MSH.12.1") != null) {
+			if (document.getElementsByTagName("MSH.12.1").getLength() > 0) {
 				Node versionNode = document.getElementsByTagName("MSH.12.1").item(0);
 				if (versionNode != null) {
 					version = versionNode.getFirstChild().getTextContent();
