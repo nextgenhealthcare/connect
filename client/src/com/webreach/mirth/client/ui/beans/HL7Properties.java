@@ -91,4 +91,27 @@ public class HL7Properties implements Serializable
         this.handleRepetitions = handleRepetitions;
     }
 
+    /**
+     * Holds value of property encodeEntities.
+     */
+    private boolean encodeEntities = true;
+
+    /**
+     * Getter for property encodeEntities.
+     * @return Value of property encodeEntities.
+     */
+    public boolean isEncodeEntities()
+    {
+        return this.encodeEntities;
+    }
+
+    /**
+     * Setter for property encodeEntities.
+     * @param encodeEntities New value of property encodeEntities.
+     */
+    public void setEncodeEntities(boolean encodeEntities)
+    {
+        this.encodeEntities = encodeEntities;
+    }
+
 }

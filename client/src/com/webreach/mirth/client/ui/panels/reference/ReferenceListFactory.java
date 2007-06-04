@@ -55,7 +55,6 @@ public class ReferenceListFactory
         
         variablelistItems.addAll(getMapItems());
         
-
         return variablelistItems;
     }
 

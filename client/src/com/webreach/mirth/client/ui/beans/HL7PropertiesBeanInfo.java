@@ -25,16 +25,21 @@ public class HL7PropertiesBeanInfo extends SimpleBeanInfo
     
     
     // Property identifiers//GEN-FIRST:Properties
-    private static final int PROPERTY_handleRepetitions = 0;
-    private static final int PROPERTY_useStrictParser = 1;
-    private static final int PROPERTY_useStrictValidation = 2;
+    private static final int PROPERTY_encodeEntities = 0;
+    private static final int PROPERTY_handleRepetitions = 1;
+    private static final int PROPERTY_useStrictParser = 2;
+    private static final int PROPERTY_useStrictValidation = 3;
 
     // Property array 
     /*lazy PropertyDescriptor*/
     private static PropertyDescriptor[] getPdescriptor(){
-        PropertyDescriptor[] properties = new PropertyDescriptor[3];
+        PropertyDescriptor[] properties = new PropertyDescriptor[4];
     
         try {
+            properties[PROPERTY_encodeEntities] = new PropertyDescriptor ( "encodeEntities", com.webreach.mirth.client.ui.beans.HL7Properties.class, "isEncodeEntities", "setEncodeEntities" ); // NOI18N
+            properties[PROPERTY_encodeEntities].setDisplayName ( "Encode Entities" );
+            properties[PROPERTY_encodeEntities].setShortDescription ( "Automatically convert non-standard XML entities to the proper encoding." );
+            properties[PROPERTY_encodeEntities].setBound ( true );
             properties[PROPERTY_handleRepetitions] = new PropertyDescriptor ( "handleRepetitions", com.webreach.mirth.client.ui.beans.HL7Properties.class, "isHandleRepetitions", "setHandleRepetitions" ); // NOI18N
             properties[PROPERTY_handleRepetitions].setDisplayName ( "Handle Repetitions" );
             properties[PROPERTY_handleRepetitions].setShortDescription ( "Handle repetition characters. Only applicable to non-strict parser." );
