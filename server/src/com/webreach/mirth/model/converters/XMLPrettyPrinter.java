@@ -59,18 +59,6 @@ public class XMLPrettyPrinter implements ContentHandler {
 		}
 	}
 
-	public void startElement(String name, AttributeList atts) throws SAXException {
-		try {
-			// indent();
-			out.write("<");
-			out.write(name);
-			out.write(">");
-			depth++;
-		} catch (IOException e) {
-			throw new SAXException(e);
-		}
-	}
-
 	public void endElement(String name) throws SAXException {
 		try {
 			depth--;
@@ -135,10 +123,24 @@ public class XMLPrettyPrinter implements ContentHandler {
 	}
 
 	public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
-
-		startElement(localName, (AttributeList) atts);
-
+	    try {
+	        // if (indentation) indent();
+	        out.write("<");
+	        out.write(localName);
+	        if (atts != null) {
+	            int i = 0;
+	            while (i < atts.getLength()) {
+	                out.write(" " + atts.getLocalName(i) + "=\"" + atts.getValue(i) + "\"");
+	                i++;
+	            }                
+	        }            
+	        out.write(">");
+	        depth++;
+	    } catch (IOException e) {
+	        throw new SAXException(e);
+	    }
 	}
+
 
 	public void startPrefixMapping(String prefix, String uri) throws SAXException {
 	// TODO Auto-generated method stub
