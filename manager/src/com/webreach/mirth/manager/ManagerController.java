@@ -39,15 +39,15 @@ public class ManagerController
     private final String CMD_START = "cmd /c net start \"";
     private final String CMD_STOP = "cmd /c net stop \"";
     private final String CMD_WEBSTART = "cmd /c javaws http://localhost:8080/webstart";
-    private final String CMD_STATUS = "sc query \"";    
+    private final String CMD_STATUS = "cmd /c net continue \"";
     
-    private final String CMD_QUERY_REGEX = ".*STATE.* :.(.)";
+    private static final int STATUS_RUNNING = 2191;
+    private static final int STATUS_STOPPED = 2184;
     
-    private static final int STATUS_STOPPED = 1;
-    private static final int STATUS_START_PENDING = 2;
-    private static final int STATUS_STOP_PENDING = 3;
-    private static final int STATUS_RUNNING = 4;    
+    private static final String STATUS_CHANGING = "2189";
     
+    private static final String CMD_QUERY_REGEX = "NET HELPMSG (.*)\\.";  
+    //private final String CMD_QUERY_REGEX = ".*STATE.* :.(.)";
     public static ManagerController getInstance()
     {
         if(assistantController == null)
@@ -67,21 +67,32 @@ public class ManagerController
         Pattern pattern = Pattern.compile(CMD_QUERY_REGEX);
         Matcher matcher;
         String key = "-1";
-        
-        try
+        do
         {
-            matcher = pattern.matcher(execCmdWithOutput(CMD_STATUS + serviceName + "\""));
-            
-            while (matcher.find())
+            try
             {
-                key = matcher.group(1);
+                matcher = pattern.matcher(execCmdWithErrorOutput(CMD_STATUS + serviceName + "\"").replace('\n', ' ').replace('\r', ' '));
+                while (matcher.find())
+                {
+                    key = matcher.group(1);
+                }              
+                
+                if(key.equals(STATUS_CHANGING))
+                {
+                    Thread.sleep(100);
+                }
+                else
+                {
+                    return Integer.parseInt(key);
+                }
             }
-        }
-        catch (Exception ex)
-        {
-        }
+            catch (Exception ex)
+            {
+            }
+        } 
+        while(key.equals(STATUS_CHANGING));
         
-        return Integer.valueOf(key);
+        return -1;
     }
     
     public boolean startMirth(boolean alert)
@@ -268,12 +279,6 @@ public class ManagerController
             case STATUS_STOPPED:
                 ManagerController.getInstance().setEnabledOptions(true,false,false);
                 break;
-            case STATUS_START_PENDING:
-                ManagerController.getInstance().setEnabledOptions(false,true,true);
-                break;
-            case STATUS_STOP_PENDING:
-                ManagerController.getInstance().setEnabledOptions(true,false,false);
-                break;
             case STATUS_RUNNING:
                 ManagerController.getInstance().setEnabledOptions(false,true,true);
                 break;
@@ -358,6 +363,21 @@ public class ManagerController
         errPumper.join();
         
         return outPumper.getOutput();
+    }
+    
+    private String execCmdWithErrorOutput(String cmdLine) throws Exception
+    {
+        Process process = Runtime.getRuntime().exec(cmdLine);
+        StreamPumper outPumper = new StreamPumper(process.getInputStream(), System.out);
+        StreamPumper errPumper = new StreamPumper(process.getErrorStream(), System.err);
+        
+        outPumper.start();
+        errPumper.start();
+        process.waitFor();
+        outPumper.join();
+        errPumper.join();
+        
+        return errPumper.getOutput();
     }
     
     private class StreamPumper extends Thread
