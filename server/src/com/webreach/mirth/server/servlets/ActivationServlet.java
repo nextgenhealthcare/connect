@@ -51,7 +51,12 @@ public class ActivationServlet extends HttpServlet {
 			response.setContentType("application/x-java-jnlp-file");
 			response.setHeader("Pragma", "no-cache");
 
-			Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse("activation.jnlp");
+			// Cannot get the real path if it is not in the classpath.  If it is null,
+			// try it with just the filename.
+			String jnlpPath = this.getServletContext().getRealPath("activation.jnlp");
+			if (jnlpPath == null)
+				jnlpPath = "activation.jnlp";
+			Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(jnlpPath);
 			Element jnlpElement = document.getDocumentElement();
 
 			String scheme = request.getScheme();
@@ -59,22 +64,6 @@ public class ActivationServlet extends HttpServlet {
 			int serverPort = request.getServerPort();
 			String contextPath = request.getContextPath();
 			String codebase = scheme + "://" + serverName + ":" + serverPort + contextPath;
-			
-			Properties mirthProperties = PropertyLoader.loadProperties("mirth");
-			
-			String server;
-			
-			if ((mirthProperties.getProperty("server.url") != null) && !mirthProperties.getProperty("server.url").equals("")) {
-				server = mirthProperties.getProperty("server.url"); 
-			} else {
-				int httpsPort = 8443;
-
-				if ((mirthProperties.getProperty("https.port") != null) && !mirthProperties.getProperty("https.port").equals("")) {
-					httpsPort = Integer.valueOf(mirthProperties.getProperty("https.port")).intValue();
-				}
-
-				server = "https://" + serverName + ":" + httpsPort;
-			}
 			
 			jnlpElement.setAttribute("codebase", codebase);
 			out.println(docSerializer.toXML(document));

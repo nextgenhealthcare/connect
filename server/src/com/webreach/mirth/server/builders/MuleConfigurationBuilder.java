@@ -50,6 +50,7 @@ import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.server.controllers.ScriptController;
 import com.webreach.mirth.server.controllers.TemplateController;
 import com.webreach.mirth.server.mule.adaptors.AdaptorFactory;
+import com.webreach.mirth.server.tools.ClassPathResource;
 import com.webreach.mirth.server.util.UUIDGenerator;
 import com.webreach.mirth.util.PropertyLoader;
 
@@ -87,7 +88,7 @@ public class MuleConfigurationBuilder {
 
 		try {
 			Properties properties = PropertyLoader.loadProperties("mirth");
-			File muleBootstrapFile = new File(properties.getProperty("mule.boot"));
+			File muleBootstrapFile = new File(ClassPathResource.getResourceURI(properties.getProperty("mule.boot")));
 
 			Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(muleBootstrapFile);
 			Element muleConfigurationElement = document.getDocumentElement();

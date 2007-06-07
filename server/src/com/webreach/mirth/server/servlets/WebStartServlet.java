@@ -51,7 +51,12 @@ public class WebStartServlet extends HttpServlet {
 			response.setContentType("application/x-java-jnlp-file");
 			response.setHeader("Pragma", "no-cache");
 
-			Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse("mirth-client.jnlp");
+			// Cannot get the real path if it is not in the classpath.  If it is null,
+			// try it with just the filename.
+			String jnlpPath = this.getServletContext().getRealPath("mirth-client.jnlp");
+			if (jnlpPath == null)
+				jnlpPath = "mirth-client.jnlp";
+			Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(jnlpPath);
 			Element jnlpElement = document.getDocumentElement();
 			
 			// Change the title to include the version of Mirth

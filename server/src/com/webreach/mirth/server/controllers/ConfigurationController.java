@@ -64,6 +64,7 @@ import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.server.Command;
 import com.webreach.mirth.server.CommandQueue;
 import com.webreach.mirth.server.builders.MuleConfigurationBuilder;
+import com.webreach.mirth.server.tools.ClassPathResource;
 import com.webreach.mirth.server.util.DatabaseUtil;
 import com.webreach.mirth.server.util.JMXConnection;
 import com.webreach.mirth.server.util.JMXConnectionFactory;
@@ -85,7 +86,6 @@ public class ConfigurationController {
 	private static Properties versionProperties = PropertyLoader.loadProperties("version");
 	private static SecretKey encryptionKey = null;
 	private static String serverId = null;
-	private final String CONF_FOLDER = "conf/";
 	private SqlMapClient sqlMap = SqlConfig.getSqlMapInstance();
 	private static final String CHARSET = "ca.uhn.hl7v2.llp.charset";
 	private boolean isEngineStarting = false;
@@ -333,14 +333,21 @@ public class ConfigurationController {
 
 			if (latestConfiguration != null) {
 				logger.debug("using configuration " + latestConfiguration.getId() + " created on " + latestConfiguration.getDateCreated());
-				BufferedWriter out = new BufferedWriter(new FileWriter(properties.getProperty("mule.config")));
+				
+				// Find the path of mule.boot because mule.config may not exist.
+				// Then generate the path of mule.config in the same directory as mule.boot.
+				String fileSeparator = System.getProperty("file.separator");
+				File muleBootFile = new File(ClassPathResource.getResourceURI(properties.getProperty("mule.boot")));
+				String muleConfigPath = muleBootFile.getParent() + fileSeparator + properties.getProperty("mule.config");
+				
+				BufferedWriter out = new BufferedWriter(new FileWriter(new File(muleConfigPath)));
 				out.write(latestConfiguration.getData());
 				out.close();
-				return new File(properties.getProperty("mule.config"));
+				return new File(muleConfigPath);
 			}
 
 			logger.debug("no configuration found, using default boot file");
-			return new File(properties.getProperty("mule.boot"));
+			return new File(ClassPathResource.getResourceURI(properties.getProperty("mule.boot")));
 		} catch (Exception e) {
 			logger.error("Could not retrieve latest configuration.", e);
 			return null;
@@ -410,7 +417,7 @@ public class ConfigurationController {
 
 	public List<DriverInfo> getDatabaseDrivers() throws ControllerException {
 		logger.debug("retrieving database driver list");
-		File driversFile = new File(CONF_FOLDER + "custom/dbdrivers.xml");
+		File driversFile = new File(ClassPathResource.getResourceURI("/custom/dbdrivers.xml"));
 
 		if (driversFile.exists()) {
 			try {
