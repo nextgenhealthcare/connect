@@ -9,7 +9,11 @@
 	
 	<agents>
 		<agent name="RMI"
-			className="org.mule.management.agents.RmiRegistryAgent" />
+			className="org.mule.management.agents.RmiRegistryAgent">
+      <properties>
+        <property name="serverUri" value="rmi://localhost:1099" />
+      </properties>	
+		</agent>
 		<agent name="JMX" className="org.mule.management.agents.JmxAgent">
 			<properties>
 				<property name="connectorServerUrl"
