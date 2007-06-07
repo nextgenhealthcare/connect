@@ -28,7 +28,6 @@ package com.webreach.mirth.server.servlets;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Properties;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -40,7 +39,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.webreach.mirth.model.converters.DocumentSerializer;
-import com.webreach.mirth.util.PropertyLoader;
 
 public class ActivationServlet extends HttpServlet {
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
