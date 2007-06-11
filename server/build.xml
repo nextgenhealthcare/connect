@@ -61,16 +61,20 @@
 	</target>
 	
 	<target name="create-connectors" depends="create-client-core">
-		
 		<delete dir="${connectors}" />
 		<mkdir dir="${connectors}"/>
-		
+
 		<jar destfile="${connectors}/doc-shared.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/connectors/doc/DocumentWriterProperties.class" />
 		</jar>
-		<jar destfile="${connectors}/doc-server.jar" basedir="${classes}">
-			<include name="com/webreach/mirth/connectors/doc/**" />
-			<exclude name="com/webreach/mirth/connectors/doc/DocumentWriterProperties.class" />
+		<jar destfile="${connectors}/doc-server.jar">
+			<fileset dir="${classes}">
+				<include name="com/webreach/mirth/connectors/doc/**" />
+				<exclude name="com/webreach/mirth/connectors/doc/DocumentWriterProperties.class" />
+			</fileset>
+			<fileset dir="${conf}">
+				<include name="META-INF/services/org/mule/providers/doc" />
+			</fileset>
 		</jar>
 		
 		<jar destfile="${connectors}/email-shared.jar" basedir="${classes}">
