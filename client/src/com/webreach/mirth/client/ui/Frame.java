@@ -30,7 +30,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Point;
 import java.awt.dnd.DragSource;
 import java.awt.dnd.DragSourceDragEvent;
 import java.awt.dnd.DragSourceDropEvent;
@@ -81,7 +80,7 @@ import com.webreach.mirth.client.core.Client;
 import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.ui.browsers.event.EventBrowser;
 import com.webreach.mirth.client.ui.browsers.message.MessageBrowser;
-import com.webreach.mirth.client.ui.connectors.ConnectorClass;
+import com.webreach.mirth.connectors.ConnectorClass;
 import com.webreach.mirth.client.ui.editors.filter.FilterPane;
 import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
 import com.webreach.mirth.client.ui.util.FileUtil;
@@ -410,13 +409,15 @@ public class Frame extends JXFrame
 
         // DEBUGGING THE UIDefaults:
         /*
-         * UIDefaults uiDefaults = UIManager.getDefaults(); Enumeration enum1 =
-         * uiDefaults.keys(); while (enum1.hasMoreElements()) { Object key =
-         * enum1.nextElement(); Object val = uiDefaults.get(key);
-         * if(key.toString().indexOf("Tab") != -1)
-         * System.out.println("UIManager.put(\"" + key.toString() + "\",\"" +
-         * (null != val ? val.toString() : "(null)") + "\");"); }
-         */
+         UIDefaults uiDefaults = UIManager.getDefaults(); 
+         Enumeration enum1 = uiDefaults.keys(); 
+         while (enum1.hasMoreElements()) { 
+             Object key = enum1.nextElement(); 
+             Object val = uiDefaults.get(key);
+             if(key.toString().indexOf("ComboBox") != -1)
+                System.out.println("UIManager.put(\"" + key.toString() + "\",\"" + (null != val ? val.toString() : "(null)") + "\");");
+         }*/
+         
     }
 
     /**

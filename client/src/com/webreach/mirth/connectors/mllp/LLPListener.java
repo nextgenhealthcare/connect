@@ -23,26 +23,26 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-package com.webreach.mirth.client.ui.connectors;
+package com.webreach.mirth.connectors.mllp;
 
-import java.awt.Color;
-import java.util.Properties;
-import java.util.StringTokenizer;
-
-import com.webreach.mirth.client.ui.PlatformUI;
-import com.webreach.mirth.client.ui.UIConstants;
-import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
-import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
-import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.Connector;
-import com.webreach.mirth.model.Step;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
+import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import javax.swing.DefaultComboBoxModel;
+
+import com.webreach.mirth.client.ui.UIConstants;
+import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
+import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
+import com.webreach.mirth.connectors.ConnectorClass;
+import com.webreach.mirth.model.Channel;
+import com.webreach.mirth.model.Connector;
+import com.webreach.mirth.model.Step;
 
 /**
  * A form that extends from ConnectorClass. All methods implemented are
@@ -51,39 +51,10 @@ import javax.swing.DefaultComboBoxModel;
 public class LLPListener extends ConnectorClass
 {
     /** Creates new form LLPListener */    
-    private final String DATATYPE = "DataType";
-    private final String LLP_PROTOCOL_NAME = "tcpProtocolClassName";
-    private final String LLP_PROTOCOL_NAME_VALUE = "org.mule.providers.tcp.protocols.TcpProtocol";
-    private final String LLP_ADDRESS = "host";
-    private final String LLP_PORT = "port";
-    private final String LLP_RECEIVE_TIMEOUT = "receiveTimeout";
-    private final String LLP_BUFFER_SIZE = "bufferSize";
-    private final String LLP_KEEP_CONNECTION_OPEN = "keepSendSocketOpen";
-    private final String LLP_CHAR_ENCODING = "charEncoding";
-    private final String LLP_START_OF_MESSAGE_CHARACTER = "messageStart";
-    private final String LLP_END_OF_MESSAGE_CHARACTER = "messageEnd";
-    private final String LLP_RECORD_SEPARATOR = "recordSeparator";
-    private final String LLP_SEND_ACK = "sendACK";
-    private final String LLP_SEGMENT_END = "segmentEnd";
-    private final String LLP_ACKCODE_SUCCESSFUL = "ackCodeSuccessful";
-    private final String LLP_ACKMSG_SUCCESSFUL = "ackMsgSuccessful";
-    private final String LLP_ACKCODE_ERROR = "ackCodeError";
-    private final String LLP_ACKMSG_ERROR = "ackMsgError";
-    private final String LLP_ACKCODE_REJECTED = "ackCodeRejected";
-    private final String LLP_ACKMSG_REJECTED = "ackMsgRejected";
-    private final String LLP_ACK_MSH_15 = "checkMSH15";
-    private final String LLP_ACK_NEW_CONNECTION = "ackOnNewConnection";
-    private final String LLP_ACK_NEW_CONNECTION_IP = "ackIP";
-    private final String LLP_ACK_NEW_CONNECTION_PORT = "ackPort";    
-    private final String LLP_RESPONSE_FROM_TRANSFORMER = "responseFromTransformer";
-    private final String LLP_RESPONSE_VALUE = "responseValue";
-    private final String LLP_WAIT_FOR_END_OF_MESSAGE_CHAR = "waitForEndOfMessageCharacter";
-    private final String LLP_USE_STRICT_LLP = "useStrictLLP";
-    private final String CONNECTOR_CHARSET_ENCODING = "charsetEncoding";
 
     public LLPListener()
     {
-        name = "LLP Listener";
+        name = LLPListenerProperties.name;
         initComponents();
         listenerIPAddressField.setDocument(new MirthFieldConstraints(3, false, false, true));
         listenerIPAddressField1.setDocument(new MirthFieldConstraints(3, false, false, true));
@@ -97,81 +68,81 @@ public class LLPListener extends ConnectorClass
     public Properties getProperties()
     {
         Properties properties = new Properties();
-        properties.put(DATATYPE, name);
-        properties.put(LLP_PROTOCOL_NAME, LLP_PROTOCOL_NAME_VALUE);
+        properties.put(LLPListenerProperties.DATATYPE, name);
+        properties.put(LLPListenerProperties.LLP_PROTOCOL_NAME, LLPListenerProperties.LLP_PROTOCOL_NAME_VALUE);
         String listenerIPAddress = listenerIPAddressField.getText() + "." + listenerIPAddressField1.getText() + "." + listenerIPAddressField2.getText() + "." + listenerIPAddressField3.getText();
-        properties.put(LLP_ADDRESS, listenerIPAddress);
-        properties.put(LLP_PORT, listenerPortField.getText());
-        properties.put(LLP_RECEIVE_TIMEOUT, receiveTimeoutField.getText());
-        properties.put(LLP_BUFFER_SIZE, bufferSizeField.getText());
+        properties.put(LLPListenerProperties.LLP_ADDRESS, listenerIPAddress);
+        properties.put(LLPListenerProperties.LLP_PORT, listenerPortField.getText());
+        properties.put(LLPListenerProperties.LLP_RECEIVE_TIMEOUT, receiveTimeoutField.getText());
+        properties.put(LLPListenerProperties.LLP_BUFFER_SIZE, bufferSizeField.getText());
 
         if (keepConnectionOpenYesRadio.isSelected())
-            properties.put(LLP_KEEP_CONNECTION_OPEN, UIConstants.YES_OPTION);
+            properties.put(LLPListenerProperties.LLP_KEEP_CONNECTION_OPEN, UIConstants.YES_OPTION);
         else
-            properties.put(LLP_KEEP_CONNECTION_OPEN, UIConstants.NO_OPTION);
+            properties.put(LLPListenerProperties.LLP_KEEP_CONNECTION_OPEN, UIConstants.NO_OPTION);
 
-        properties.put(LLP_START_OF_MESSAGE_CHARACTER, startOfMessageCharacterField.getText());
-        properties.put(LLP_END_OF_MESSAGE_CHARACTER, endOfMessageCharacterField.getText());
+        properties.put(LLPListenerProperties.LLP_START_OF_MESSAGE_CHARACTER, startOfMessageCharacterField.getText());
+        properties.put(LLPListenerProperties.LLP_END_OF_MESSAGE_CHARACTER, endOfMessageCharacterField.getText());
 
         if (ascii.isSelected())
-            properties.put(LLP_CHAR_ENCODING, "ascii");
+            properties.put(LLPListenerProperties.LLP_CHAR_ENCODING, "ascii");
         else
-            properties.put(LLP_CHAR_ENCODING, "hex");
+            properties.put(LLPListenerProperties.LLP_CHAR_ENCODING, "hex");
 
-        properties.put(LLP_RECORD_SEPARATOR, recordSeparatorField.getText());
-        properties.put(LLP_SEGMENT_END, segmentEnd.getText());
+        properties.put(LLPListenerProperties.LLP_RECORD_SEPARATOR, recordSeparatorField.getText());
+        properties.put(LLPListenerProperties.LLP_SEGMENT_END, segmentEnd.getText());
 
         if (sendACKYes.isSelected())
         {
-            properties.put(LLP_SEND_ACK, UIConstants.YES_OPTION);
-            properties.put(LLP_RESPONSE_FROM_TRANSFORMER, UIConstants.NO_OPTION);
-            properties.put(LLP_RESPONSE_VALUE, "None");
+            properties.put(LLPListenerProperties.LLP_SEND_ACK, UIConstants.YES_OPTION);
+            properties.put(LLPListenerProperties.LLP_RESPONSE_FROM_TRANSFORMER, UIConstants.NO_OPTION);
+            properties.put(LLPListenerProperties.LLP_RESPONSE_VALUE, "None");
         }
         else if (sendACKNo.isSelected())
         {
-            properties.put(LLP_SEND_ACK, UIConstants.NO_OPTION);
-            properties.put(LLP_RESPONSE_FROM_TRANSFORMER, UIConstants.NO_OPTION);
-            properties.put(LLP_RESPONSE_VALUE, "None");
+            properties.put(LLPListenerProperties.LLP_SEND_ACK, UIConstants.NO_OPTION);
+            properties.put(LLPListenerProperties.LLP_RESPONSE_FROM_TRANSFORMER, UIConstants.NO_OPTION);
+            properties.put(LLPListenerProperties.LLP_RESPONSE_VALUE, "None");
         }
         else if (sendACKTransformer.isSelected())
         {
-            properties.put(LLP_RESPONSE_FROM_TRANSFORMER, UIConstants.YES_OPTION);
-            properties.put(LLP_SEND_ACK, UIConstants.NO_OPTION);
-            properties.put(LLP_RESPONSE_VALUE, (String)responseFromTransformer.getSelectedItem());
+            properties.put(LLPListenerProperties.LLP_RESPONSE_FROM_TRANSFORMER, UIConstants.YES_OPTION);
+            properties.put(LLPListenerProperties.LLP_SEND_ACK, UIConstants.NO_OPTION);
+            properties.put(LLPListenerProperties.LLP_RESPONSE_VALUE, (String)responseFromTransformer.getSelectedItem());
         }
 
 
-        properties.put(CONNECTOR_CHARSET_ENCODING, parent.getSelectedEncodingForChannel(charsetEncodingCombobox));
-        properties.put(LLP_ACKCODE_SUCCESSFUL, successACKCode.getText());
-        properties.put(LLP_ACKMSG_SUCCESSFUL, successACKMessage.getText());
-        properties.put(LLP_ACKCODE_ERROR, errorACKCode.getText());
-        properties.put(LLP_ACKMSG_ERROR, errorACKMessage.getText());
-        properties.put(LLP_ACKCODE_REJECTED, rejectedACKCode.getText());
-        properties.put(LLP_ACKMSG_REJECTED, rejectedACKMessage.getText());
+        properties.put(LLPListenerProperties.CONNECTOR_CHARSET_ENCODING, parent.getSelectedEncodingForChannel(charsetEncodingCombobox));
+        properties.put(LLPListenerProperties.LLP_ACKCODE_SUCCESSFUL, successACKCode.getText());
+        properties.put(LLPListenerProperties.LLP_ACKMSG_SUCCESSFUL, successACKMessage.getText());
+        properties.put(LLPListenerProperties.LLP_ACKCODE_ERROR, errorACKCode.getText());
+        properties.put(LLPListenerProperties.LLP_ACKMSG_ERROR, errorACKMessage.getText());
+        properties.put(LLPListenerProperties.LLP_ACKCODE_REJECTED, rejectedACKCode.getText());
+        properties.put(LLPListenerProperties.LLP_ACKMSG_REJECTED, rejectedACKMessage.getText());
 
         if (mshAckAcceptYes.isSelected())
-            properties.put(LLP_ACK_MSH_15, UIConstants.YES_OPTION);
+            properties.put(LLPListenerProperties.LLP_ACK_MSH_15, UIConstants.YES_OPTION);
         else
-            properties.put(LLP_ACK_MSH_15, UIConstants.NO_OPTION);
+            properties.put(LLPListenerProperties.LLP_ACK_MSH_15, UIConstants.NO_OPTION);
 
         if (ackOnNewConnectionYes.isSelected())
-            properties.put(LLP_ACK_NEW_CONNECTION, UIConstants.YES_OPTION);
+            properties.put(LLPListenerProperties.LLP_ACK_NEW_CONNECTION, UIConstants.YES_OPTION);
         else
-            properties.put(LLP_ACK_NEW_CONNECTION, UIConstants.NO_OPTION);
+            properties.put(LLPListenerProperties.LLP_ACK_NEW_CONNECTION, UIConstants.NO_OPTION);
 
         String ackIPAddress = ackIPAddressField.getText() + "." + ackIPAddressField1.getText() + "." + ackIPAddressField2.getText() + "." + ackIPAddressField3.getText();
-        properties.put(LLP_ACK_NEW_CONNECTION_IP, ackIPAddress);
-        properties.put(LLP_ACK_NEW_CONNECTION_PORT, ackPortField.getText());
+        properties.put(LLPListenerProperties.LLP_ACK_NEW_CONNECTION_IP, ackIPAddress);
+        properties.put(LLPListenerProperties.LLP_ACK_NEW_CONNECTION_PORT, ackPortField.getText());
         
         if (waitForEndOfMessageCharYes.isSelected())
-            properties.put(LLP_WAIT_FOR_END_OF_MESSAGE_CHAR, UIConstants.YES_OPTION);
+            properties.put(LLPListenerProperties.LLP_WAIT_FOR_END_OF_MESSAGE_CHAR, UIConstants.YES_OPTION);
         else
-            properties.put(LLP_WAIT_FOR_END_OF_MESSAGE_CHAR, UIConstants.NO_OPTION);
+            properties.put(LLPListenerProperties.LLP_WAIT_FOR_END_OF_MESSAGE_CHAR, UIConstants.NO_OPTION);
         
         if (useStrictLLPYes.isSelected())
-            properties.put(LLP_USE_STRICT_LLP, UIConstants.YES_OPTION);
+            properties.put(LLPListenerProperties.LLP_USE_STRICT_LLP, UIConstants.YES_OPTION);
         else
-            properties.put(LLP_USE_STRICT_LLP, UIConstants.NO_OPTION);
+            properties.put(LLPListenerProperties.LLP_USE_STRICT_LLP, UIConstants.NO_OPTION);
         
         return properties;
     }
@@ -180,7 +151,7 @@ public class LLPListener extends ConnectorClass
     {
         resetInvalidProperties();
         
-        String listenerIPAddress = (String) props.get(LLP_ADDRESS);
+        String listenerIPAddress = (String) props.get(LLPListenerProperties.LLP_ADDRESS);
         StringTokenizer IP = new StringTokenizer(listenerIPAddress, ".");
         if (IP.hasMoreTokens())
             listenerIPAddressField.setText(IP.nextToken());
@@ -199,39 +170,39 @@ public class LLPListener extends ConnectorClass
         else
             listenerIPAddressField3.setText("");
 
-        listenerPortField.setText((String) props.get(LLP_PORT));
-        receiveTimeoutField.setText((String) props.get(LLP_RECEIVE_TIMEOUT));
-        bufferSizeField.setText((String) props.get(LLP_BUFFER_SIZE));
+        listenerPortField.setText((String) props.get(LLPListenerProperties.LLP_PORT));
+        receiveTimeoutField.setText((String) props.get(LLPListenerProperties.LLP_RECEIVE_TIMEOUT));
+        bufferSizeField.setText((String) props.get(LLPListenerProperties.LLP_BUFFER_SIZE));
 
-        if (((String) props.get(LLP_KEEP_CONNECTION_OPEN)).equals(UIConstants.YES_OPTION))
+        if (((String) props.get(LLPListenerProperties.LLP_KEEP_CONNECTION_OPEN)).equals(UIConstants.YES_OPTION))
             keepConnectionOpenYesRadio.setSelected(true);
         else
             keepConnectionOpenNoRadio.setSelected(true);
 
-        if (((String) props.get(LLP_CHAR_ENCODING)).equals("ascii"))
+        if (((String) props.get(LLPListenerProperties.LLP_CHAR_ENCODING)).equals("ascii"))
             ascii.setSelected(true);
         else
             hex.setSelected(true);
 
-        startOfMessageCharacterField.setText((String) props.get(LLP_START_OF_MESSAGE_CHARACTER));
-        endOfMessageCharacterField.setText((String) props.get(LLP_END_OF_MESSAGE_CHARACTER));
-        recordSeparatorField.setText((String) props.get(LLP_RECORD_SEPARATOR));
-        segmentEnd.setText((String) props.get(LLP_SEGMENT_END));
+        startOfMessageCharacterField.setText((String) props.get(LLPListenerProperties.LLP_START_OF_MESSAGE_CHARACTER));
+        endOfMessageCharacterField.setText((String) props.get(LLPListenerProperties.LLP_END_OF_MESSAGE_CHARACTER));
+        recordSeparatorField.setText((String) props.get(LLPListenerProperties.LLP_RECORD_SEPARATOR));
+        segmentEnd.setText((String) props.get(LLPListenerProperties.LLP_SEGMENT_END));
         boolean visible = parent.channelEditTasks.getContentPane().getComponent(0).isVisible();
         
-        if (((String) props.get(LLP_RESPONSE_FROM_TRANSFORMER)).equals(UIConstants.YES_OPTION))
+        if (((String) props.get(LLPListenerProperties.LLP_RESPONSE_FROM_TRANSFORMER)).equals(UIConstants.YES_OPTION))
         {
             sendACKTransformerActionPerformed(null);
             sendACKTransformer.setSelected(true);
         }
         else
         {
-            if (((String) props.get(LLP_SEND_ACK)).equals(UIConstants.YES_OPTION))
+            if (((String) props.get(LLPListenerProperties.LLP_SEND_ACK)).equals(UIConstants.YES_OPTION))
             {
                 sendACKYesActionPerformed(null);
                 sendACKYes.setSelected(true);
             }
-            else if (((String) props.get(LLP_SEND_ACK)).equals(UIConstants.NO_OPTION))
+            else if (((String) props.get(LLPListenerProperties.LLP_SEND_ACK)).equals(UIConstants.NO_OPTION))
             {
                 sendACKNoActionPerformed(null);
                 sendACKNo.setSelected(true);
@@ -239,23 +210,23 @@ public class LLPListener extends ConnectorClass
         }
         
         updateResponseDropDown();
-        responseFromTransformer.setSelectedItem((String) props.getProperty(LLP_RESPONSE_VALUE));
+        responseFromTransformer.setSelectedItem((String) props.getProperty(LLPListenerProperties.LLP_RESPONSE_VALUE));
         
-        parent.sePreviousSelectedEncodingForChannel(charsetEncodingCombobox, (String) props.get(CONNECTOR_CHARSET_ENCODING));
+        parent.sePreviousSelectedEncodingForChannel(charsetEncodingCombobox, (String) props.get(LLPListenerProperties.CONNECTOR_CHARSET_ENCODING));
 
-        successACKCode.setText((String) props.get(LLP_ACKCODE_SUCCESSFUL));
-        successACKMessage.setText((String) props.get(LLP_ACKMSG_SUCCESSFUL));
-        errorACKCode.setText((String) props.get(LLP_ACKCODE_ERROR));
-        errorACKMessage.setText((String) props.get(LLP_ACKMSG_ERROR));
-        rejectedACKCode.setText((String) props.get(LLP_ACKCODE_REJECTED));
-        rejectedACKMessage.setText((String) props.get(LLP_ACKMSG_REJECTED));
+        successACKCode.setText((String) props.get(LLPListenerProperties.LLP_ACKCODE_SUCCESSFUL));
+        successACKMessage.setText((String) props.get(LLPListenerProperties.LLP_ACKMSG_SUCCESSFUL));
+        errorACKCode.setText((String) props.get(LLPListenerProperties.LLP_ACKCODE_ERROR));
+        errorACKMessage.setText((String) props.get(LLPListenerProperties.LLP_ACKMSG_ERROR));
+        rejectedACKCode.setText((String) props.get(LLPListenerProperties.LLP_ACKCODE_REJECTED));
+        rejectedACKMessage.setText((String) props.get(LLPListenerProperties.LLP_ACKMSG_REJECTED));
 
-        if (((String) props.get(LLP_ACK_MSH_15)).equals(UIConstants.YES_OPTION))
+        if (((String) props.get(LLPListenerProperties.LLP_ACK_MSH_15)).equals(UIConstants.YES_OPTION))
             mshAckAcceptYes.setSelected(true);
         else
             mshAckAcceptNo.setSelected(true);
 
-        if (((String) props.get(LLP_ACK_NEW_CONNECTION)).equalsIgnoreCase(UIConstants.YES_OPTION))
+        if (((String) props.get(LLPListenerProperties.LLP_ACK_NEW_CONNECTION)).equalsIgnoreCase(UIConstants.YES_OPTION))
         {
             ackOnNewConnectionYesActionPerformed(null);
             ackOnNewConnectionYes.setSelected(true);
@@ -266,7 +237,7 @@ public class LLPListener extends ConnectorClass
             ackOnNewConnectionNo.setSelected(true);
         }
 
-        String ackIPAddress = (String) props.get(LLP_ACK_NEW_CONNECTION_IP);
+        String ackIPAddress = (String) props.get(LLPListenerProperties.LLP_ACK_NEW_CONNECTION_IP);
         StringTokenizer ackIP = new StringTokenizer(ackIPAddress, ".");
         if (ackIP.hasMoreTokens())
             ackIPAddressField.setText(ackIP.nextToken());
@@ -285,14 +256,14 @@ public class LLPListener extends ConnectorClass
         else
             ackIPAddressField3.setText("");
 
-        ackPortField.setText((String) props.get(LLP_ACK_NEW_CONNECTION_PORT));
+        ackPortField.setText((String) props.get(LLPListenerProperties.LLP_ACK_NEW_CONNECTION_PORT));
         
-        if (((String) props.get(LLP_WAIT_FOR_END_OF_MESSAGE_CHAR)).equals(UIConstants.YES_OPTION))
+        if (((String) props.get(LLPListenerProperties.LLP_WAIT_FOR_END_OF_MESSAGE_CHAR)).equals(UIConstants.YES_OPTION))
             waitForEndOfMessageCharYes.setSelected(true);
         else
             waitForEndOfMessageCharNo.setSelected(true);
           
-        if (((String) props.get(LLP_USE_STRICT_LLP)).equals(UIConstants.YES_OPTION))
+        if (((String) props.get(LLPListenerProperties.LLP_USE_STRICT_LLP)).equals(UIConstants.YES_OPTION))
         {
             useStrictLLPYesActionPerformed(null);
             useStrictLLPYes.setSelected(true);
@@ -308,36 +279,7 @@ public class LLPListener extends ConnectorClass
 
     public Properties getDefaults()
     {
-        Properties properties = new Properties();
-        properties.put(DATATYPE, name);
-        properties.put(LLP_PROTOCOL_NAME, LLP_PROTOCOL_NAME_VALUE);
-        properties.put(LLP_ADDRESS, "127.0.0.1");
-        properties.put(LLP_PORT, "6661");
-        properties.put(LLP_RECEIVE_TIMEOUT, "5000");
-        properties.put(LLP_BUFFER_SIZE, "65536");
-        properties.put(LLP_KEEP_CONNECTION_OPEN, UIConstants.NO_OPTION);
-        properties.put(LLP_CHAR_ENCODING, "hex");
-        properties.put(LLP_START_OF_MESSAGE_CHARACTER, "0x0B");
-        properties.put(LLP_END_OF_MESSAGE_CHARACTER, "0x1C");
-        properties.put(LLP_RECORD_SEPARATOR, "0x0D");
-        properties.put(LLP_SEGMENT_END, "0x0D");
-        properties.put(LLP_SEND_ACK, UIConstants.YES_OPTION);
-        properties.put(LLP_ACKCODE_SUCCESSFUL, "AA");
-        properties.put(LLP_ACKMSG_SUCCESSFUL, "");
-        properties.put(LLP_ACKCODE_ERROR, "AE");
-        properties.put(LLP_ACKMSG_ERROR, "An Error Occured Processing Message.");
-        properties.put(LLP_ACKCODE_REJECTED, "AR");
-        properties.put(LLP_ACKMSG_REJECTED, "Message Rejected.");
-        properties.put(LLP_ACK_MSH_15, UIConstants.NO_OPTION);
-        properties.put(LLP_ACK_NEW_CONNECTION, UIConstants.NO_OPTION);
-        properties.put(LLP_ACK_NEW_CONNECTION_IP, "...");
-        properties.put(LLP_ACK_NEW_CONNECTION_PORT, "");
-        properties.put(LLP_RESPONSE_FROM_TRANSFORMER, UIConstants.NO_OPTION);
-        properties.put(LLP_RESPONSE_VALUE, "None");
-        properties.put(LLP_WAIT_FOR_END_OF_MESSAGE_CHAR, UIConstants.NO_OPTION);
-        properties.put(LLP_USE_STRICT_LLP, UIConstants.YES_OPTION);
-        properties.put(CONNECTOR_CHARSET_ENCODING, UIConstants.DEFAULT_ENCODING_OPTION);
-        return properties;
+        return LLPListenerProperties.getDefaults();
     }
 
     public boolean checkProperties(Properties props)
@@ -345,7 +287,7 @@ public class LLPListener extends ConnectorClass
         resetInvalidProperties();
         boolean valid = true;
         
-        if (((String) props.get(LLP_ADDRESS)).length() <= 3)
+        if (((String) props.get(LLPListenerProperties.LLP_ADDRESS)).length() <= 3)
         {
             valid = false;
             listenerIPAddressField.setBackground(UIConstants.INVALID_COLOR);
@@ -353,62 +295,62 @@ public class LLPListener extends ConnectorClass
             listenerIPAddressField2.setBackground(UIConstants.INVALID_COLOR);
             listenerIPAddressField3.setBackground(UIConstants.INVALID_COLOR);            
         }
-        if (((String) props.get(LLP_PORT)).length() == 0)
+        if (((String) props.get(LLPListenerProperties.LLP_PORT)).length() == 0)
         {
             valid = false;
             listenerPortField.setBackground(UIConstants.INVALID_COLOR);
         }
-        if (((String) props.get(LLP_RECEIVE_TIMEOUT)).length() == 0)
+        if (((String) props.get(LLPListenerProperties.LLP_RECEIVE_TIMEOUT)).length() == 0)
         {
             valid = false;
             receiveTimeoutField.setBackground(UIConstants.INVALID_COLOR);
         }
-        if (((String) props.get(LLP_BUFFER_SIZE)).length() == 0)
+        if (((String) props.get(LLPListenerProperties.LLP_BUFFER_SIZE)).length() == 0)
         {
             valid = false;
             bufferSizeField.setBackground(UIConstants.INVALID_COLOR);
         }
-        if (((String) props.get(LLP_END_OF_MESSAGE_CHARACTER)).length() == 0)
+        if (((String) props.get(LLPListenerProperties.LLP_END_OF_MESSAGE_CHARACTER)).length() == 0)
         {
             valid = false;
             endOfMessageCharacterField.setBackground(UIConstants.INVALID_COLOR);
         }
-        if (((String) props.get(LLP_START_OF_MESSAGE_CHARACTER)).length() == 0)
+        if (((String) props.get(LLPListenerProperties.LLP_START_OF_MESSAGE_CHARACTER)).length() == 0)
         {
             valid = false;
             startOfMessageCharacterField.setBackground(UIConstants.INVALID_COLOR);
         }
-        if (((String) props.get(LLP_RECORD_SEPARATOR)).length() == 0)
+        if (((String) props.get(LLPListenerProperties.LLP_RECORD_SEPARATOR)).length() == 0)
         {
             valid = false;
             recordSeparatorField.setBackground(UIConstants.INVALID_COLOR);
         }
-        if (((String) props.get(LLP_SEGMENT_END)).length() == 0)
+        if (((String) props.get(LLPListenerProperties.LLP_SEGMENT_END)).length() == 0)
         {
             valid = false;
             segmentEnd.setBackground(UIConstants.INVALID_COLOR);
         }
-        if (((String) props.get(LLP_SEND_ACK)).equals(UIConstants.YES_OPTION))
+        if (((String) props.get(LLPListenerProperties.LLP_SEND_ACK)).equals(UIConstants.YES_OPTION))
         {
-            if (((String) props.get(LLP_ACKCODE_SUCCESSFUL)).length() == 0)
+            if (((String) props.get(LLPListenerProperties.LLP_ACKCODE_SUCCESSFUL)).length() == 0)
             {
                 valid = false;
                 successACKCode.setBackground(UIConstants.INVALID_COLOR);
             }
-            if (((String) props.get(LLP_ACKCODE_ERROR)).length() == 0)
+            if (((String) props.get(LLPListenerProperties.LLP_ACKCODE_ERROR)).length() == 0)
             {
                 valid = false;
                 errorACKCode.setBackground(UIConstants.INVALID_COLOR);
             }
-            if (((String) props.get(LLP_ACKCODE_REJECTED)).length() == 0)
+            if (((String) props.get(LLPListenerProperties.LLP_ACKCODE_REJECTED)).length() == 0)
             {
                 valid = false;
                 rejectedACKCode.setBackground(UIConstants.INVALID_COLOR);
             }
         }
-        if (((String) props.get(LLP_ACK_NEW_CONNECTION)).equals(UIConstants.YES_OPTION) && (((String) props.get(LLP_SEND_ACK)).equals(UIConstants.YES_OPTION) || ((String) props.get(LLP_RESPONSE_FROM_TRANSFORMER)).equals(UIConstants.YES_OPTION)))
+        if (((String) props.get(LLPListenerProperties.LLP_ACK_NEW_CONNECTION)).equals(UIConstants.YES_OPTION) && (((String) props.get(LLPListenerProperties.LLP_SEND_ACK)).equals(UIConstants.YES_OPTION) || ((String) props.get(LLPListenerProperties.LLP_RESPONSE_FROM_TRANSFORMER)).equals(UIConstants.YES_OPTION)))
         {
-            if (((String) props.get(LLP_ACK_NEW_CONNECTION_IP)).length() <= 3)
+            if (((String) props.get(LLPListenerProperties.LLP_ACK_NEW_CONNECTION_IP)).length() <= 3)
             {
                 valid = false;
                 ackIPAddressField.setBackground(UIConstants.INVALID_COLOR);
@@ -416,7 +358,7 @@ public class LLPListener extends ConnectorClass
                 ackIPAddressField2.setBackground(UIConstants.INVALID_COLOR);
                 ackIPAddressField3.setBackground(UIConstants.INVALID_COLOR);
             }
-            if (((String) props.get(LLP_ACK_NEW_CONNECTION_PORT)).length() == 0)
+            if (((String) props.get(LLPListenerProperties.LLP_ACK_NEW_CONNECTION_PORT)).length() == 0)
             {
                 valid = false;
                 ackPortField.setBackground(UIConstants.INVALID_COLOR);

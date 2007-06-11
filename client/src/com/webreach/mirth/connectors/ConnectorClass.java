@@ -23,59 +23,75 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-package com.webreach.mirth.client.ui.connectors;
+package com.webreach.mirth.connectors;
 
-import java.util.HashMap;
 import java.util.Properties;
 
+import com.webreach.mirth.client.ui.Frame;
+import com.webreach.mirth.client.ui.PlatformUI;
+
 /**
- * A form that extends from ConnectorClass. All methods implemented are
- * described in ConnectorClass.
+ * Used to extend from for all of the Connectors. Each method is re-implemented
+ * in each Connector.
  */
-public class ChannelReader extends ConnectorClass
+public class ConnectorClass extends javax.swing.JPanel
 {
-    /** Creates new form ChannelReader */
-    private final String DATATYPE = "DataType";
+    public String name;
 
-    private HashMap channelList;
+    public Properties properties = new Properties();
 
-    public ChannelReader()
+    public Frame parent;
+
+    public final String RESULT_PATTERN = "responseMap.put\\(['|\"]([^'|^\"]*)[\"|']";
+    
+    /** Creates new form ConnectorClass */
+    public ConnectorClass()
     {
-        name = "Channel Reader";
+        this.parent = PlatformUI.MIRTH_FRAME;
         initComponents();
     }
 
+    /** Gets the name of the connector */
+    public String getName()
+    {
+        return name;
+    }
+
+    /**
+     * Gets a properties object with all of the current data in the connector's
+     * form.
+     */
     public Properties getProperties()
     {
-        Properties properties = new Properties();
-        properties.put(DATATYPE, name);
         return properties;
     }
 
+    /**
+     * Sets all of the current data in the connector's form to the data in the
+     * properties object parameter
+     */
     public void setProperties(Properties props)
     {
-        resetInvalidProperties();
     }
 
+    /**
+     * Gets a properties object with all of the default settings for that form
+     * as the data.
+     */
     public Properties getDefaults()
     {
-        Properties properties = new Properties();
-        properties.put(DATATYPE, name);
         return properties;
     }
 
     public boolean checkProperties(Properties props)
     {
-        resetInvalidProperties();
-        boolean valid = true;
-        
-        return valid;
+        return true;
     }
     
-    private void resetInvalidProperties()
+    public void updateResponseDropDown()
     {
     }
-
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -85,32 +101,14 @@ public class ChannelReader extends ConnectorClass
     // ">//GEN-BEGIN:initComponents
     private void initComponents()
     {
-        buttonGroup1 = new javax.swing.ButtonGroup();
-        buttonGroup2 = new javax.swing.ButtonGroup();
-        buttonGroup3 = new javax.swing.ButtonGroup();
-        buttonGroup4 = new javax.swing.ButtonGroup();
-        URL = new javax.swing.JLabel();
-
-        setBackground(new java.awt.Color(255, 255, 255));
-        setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
-        URL.setText("This connector has no properties.");
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
-        layout.setHorizontalGroup(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(layout.createSequentialGroup().addContainerGap().add(URL).addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)));
-        layout.setVerticalGroup(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(URL));
+        layout.setHorizontalGroup(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(0, 400, Short.MAX_VALUE));
+        layout.setVerticalGroup(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(0, 300, Short.MAX_VALUE));
     }// </editor-fold>//GEN-END:initComponents
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel URL;
-
-    private javax.swing.ButtonGroup buttonGroup1;
-
-    private javax.swing.ButtonGroup buttonGroup2;
-
-    private javax.swing.ButtonGroup buttonGroup3;
-
-    private javax.swing.ButtonGroup buttonGroup4;
     // End of variables declaration//GEN-END:variables
 
 }

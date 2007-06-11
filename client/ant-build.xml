@@ -37,8 +37,58 @@
 		<mkdir dir="${dist}" />
 		<mkdir dir="${dist.source}" />
 
-		<jar destfile="${dist}/${client.jar}" basedir="${classes}" />
-
+		<jar destfile="${dist}/${client.jar}" basedir="${classes}">
+			<exclude name="com/webreach/mirth/connectors/**" />
+		</jar>
+		
+		<jar destfile="${dist}/doc-client.jar" basedir="${classes}">
+			<include name="com/webreach/mirth/connectors/doc/**" />
+		</jar>
+		
+		<jar destfile="${dist}/email-client.jar" basedir="${classes}">
+			<include name="com/webreach/mirth/connectors/email/**" />
+		</jar>
+		
+		<jar destfile="${dist}/file-client.jar" basedir="${classes}">
+			<include name="com/webreach/mirth/connectors/file/**" />
+		</jar>
+		
+		<jar destfile="${dist}/ftp-client.jar" basedir="${classes}">
+			<include name="com/webreach/mirth/connectors/ftp/**" />
+		</jar>
+		
+		<jar destfile="${dist}/http-client.jar" basedir="${classes}">
+			<include name="com/webreach/mirth/connectors/http/**" />
+		</jar>
+		
+		<jar destfile="${dist}/jdbc-client.jar" basedir="${classes}">
+			<include name="com/webreach/mirth/connectors/jdbc/**" />
+		</jar>
+		
+		<jar destfile="${dist}/jms-client.jar" basedir="${classes}">
+			<include name="com/webreach/mirth/connectors/jms/**" />
+		</jar>
+		
+		<jar destfile="${dist}/mllp-client.jar" basedir="${classes}">
+			<include name="com/webreach/mirth/connectors/mllp/**" />
+		</jar>
+		
+		<jar destfile="${dist}/sftp-client.jar" basedir="${classes}">
+			<include name="com/webreach/mirth/connectors/sftp/**" />
+		</jar>
+		
+		<jar destfile="${dist}/soap-client.jar" basedir="${classes}">
+			<include name="com/webreach/mirth/connectors/soap/**" />
+		</jar>
+		
+		<jar destfile="${dist}/tcp-client.jar" basedir="${classes}">
+			<include name="com/webreach/mirth/connectors/tcp/**" />
+		</jar>
+		
+		<jar destfile="${dist}/vm-client.jar" basedir="${classes}">
+			<include name="com/webreach/mirth/connectors/vm/**" />
+		</jar>
+		
 		<!-- copy source files -->
 		<copy todir="${dist.source}">
 			<fileset dir="${src}">

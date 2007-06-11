@@ -23,13 +23,12 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-package com.webreach.mirth.client.ui.connectors;
+package com.webreach.mirth.connectors.sftp;
 
-import java.awt.Color;
 import java.util.Properties;
 
 import com.webreach.mirth.client.ui.UIConstants;
-import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
+import com.webreach.mirth.connectors.ConnectorClass;
 
 /**
  * A form that extends from ConnectorClass. All methods implemented are
@@ -38,39 +37,26 @@ import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
 public class SFTPWriter extends ConnectorClass
 {
     /** Creates new form FTPReader */
-    private final String DATATYPE = "DataType";
-
-    private final String SFTP_ADDRESS = "host";
-
-    private final String SFTP_USERNAME = "username";
-
-    private final String SFTP_PASSWORD = "password";
-    
-    private final String SFTP_OUTPUT_PATTERN = "outputPattern";
-
-    private final String SFTP_CONTENTS = "template";
-    
-    private final String SFTP_BINARY = "binary";
 
     public SFTPWriter()
     {
-        name = "SFTP Writer";
+        name = SFTPWriterProperties.name;
         initComponents();
     }
 
     public Properties getProperties()
     {
         Properties properties = new Properties();
-        properties.put(DATATYPE, name);
-        properties.put(SFTP_ADDRESS, FTPURLField.getText());
-        properties.put(SFTP_USERNAME, FTPUsernameField.getText());
-        properties.put(SFTP_PASSWORD, new String(FTPPasswordField.getPassword()));
-        properties.put(SFTP_OUTPUT_PATTERN, outputPatternField.getText());
-        properties.put(SFTP_CONTENTS, ftpContentsTextPane.getText());
+        properties.put(SFTPWriterProperties.DATATYPE, name);
+        properties.put(SFTPWriterProperties.SFTP_ADDRESS, FTPURLField.getText());
+        properties.put(SFTPWriterProperties.SFTP_USERNAME, FTPUsernameField.getText());
+        properties.put(SFTPWriterProperties.SFTP_PASSWORD, new String(FTPPasswordField.getPassword()));
+        properties.put(SFTPWriterProperties.SFTP_OUTPUT_PATTERN, outputPatternField.getText());
+        properties.put(SFTPWriterProperties.SFTP_CONTENTS, ftpContentsTextPane.getText());
         if (fileTypeBinary.isSelected())
-            properties.put(SFTP_BINARY, UIConstants.YES_OPTION);
+            properties.put(SFTPWriterProperties.SFTP_BINARY, UIConstants.YES_OPTION);
         else
-            properties.put(SFTP_BINARY, UIConstants.NO_OPTION);
+            properties.put(SFTPWriterProperties.SFTP_BINARY, UIConstants.NO_OPTION);
 
         return properties;
     }
@@ -79,12 +65,12 @@ public class SFTPWriter extends ConnectorClass
     {
         resetInvalidProperties();
         
-        FTPURLField.setText((String) props.get(SFTP_ADDRESS));
-        FTPUsernameField.setText((String) props.get(SFTP_USERNAME));
-        FTPPasswordField.setText((String) props.get(SFTP_PASSWORD));
-        outputPatternField.setText((String) props.get(SFTP_OUTPUT_PATTERN));
-        ftpContentsTextPane.setText((String) props.get(SFTP_CONTENTS));
-        if (((String) props.get(SFTP_BINARY)).equalsIgnoreCase(UIConstants.YES_OPTION))
+        FTPURLField.setText((String) props.get(SFTPWriterProperties.SFTP_ADDRESS));
+        FTPUsernameField.setText((String) props.get(SFTPWriterProperties.SFTP_USERNAME));
+        FTPPasswordField.setText((String) props.get(SFTPWriterProperties.SFTP_PASSWORD));
+        outputPatternField.setText((String) props.get(SFTPWriterProperties.SFTP_OUTPUT_PATTERN));
+        ftpContentsTextPane.setText((String) props.get(SFTPWriterProperties.SFTP_CONTENTS));
+        if (((String) props.get(SFTPWriterProperties.SFTP_BINARY)).equalsIgnoreCase(UIConstants.YES_OPTION))
             fileTypeBinary.setSelected(true);
         else
             fileTypeASCII.setSelected(true);
@@ -92,15 +78,7 @@ public class SFTPWriter extends ConnectorClass
 
     public Properties getDefaults()
     {
-        Properties properties = new Properties();
-        properties.put(DATATYPE, name);
-        properties.put(SFTP_ADDRESS, "");
-        properties.put(SFTP_USERNAME, "");
-        properties.put(SFTP_PASSWORD, "");
-        properties.put(SFTP_OUTPUT_PATTERN, "");
-        properties.put(SFTP_CONTENTS, "");
-        properties.put(SFTP_BINARY, UIConstants.NO_OPTION);
-        return properties;
+        return SFTPWriterProperties.getDefaults();
     }
 
     public boolean checkProperties(Properties props)
@@ -108,27 +86,27 @@ public class SFTPWriter extends ConnectorClass
         resetInvalidProperties();
         boolean valid = true;
         
-        if (((String) props.get(SFTP_ADDRESS)).length() == 0)
+        if (((String) props.get(SFTPWriterProperties.SFTP_ADDRESS)).length() == 0)
         {
             valid = false;
             FTPURLField.setBackground(UIConstants.INVALID_COLOR);
         }
-        if (((String) props.get(SFTP_OUTPUT_PATTERN)).length() == 0)
+        if (((String) props.get(SFTPWriterProperties.SFTP_OUTPUT_PATTERN)).length() == 0)
         {
             valid = false;
             outputPatternField.setBackground(UIConstants.INVALID_COLOR);
         }
-        if (((String) props.get(SFTP_CONTENTS)).length() == 0)
+        if (((String) props.get(SFTPWriterProperties.SFTP_CONTENTS)).length() == 0)
         {
             valid = false;
             ftpContentsTextPane.setBackground(UIConstants.INVALID_COLOR);
         }
-        if (((String) props.get(SFTP_USERNAME)).length() == 0)
+        if (((String) props.get(SFTPWriterProperties.SFTP_USERNAME)).length() == 0)
         {
             valid = false;
             FTPUsernameField.setBackground(UIConstants.INVALID_COLOR);
         }
-        if (((String) props.get(SFTP_PASSWORD)).length() == 0)
+        if (((String) props.get(SFTPWriterProperties.SFTP_PASSWORD)).length() == 0)
         {
             valid = false;
             FTPPasswordField.setBackground(UIConstants.INVALID_COLOR);

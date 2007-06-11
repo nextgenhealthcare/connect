@@ -66,6 +66,7 @@ public class UIConstants
     public static final Color BANNER_LIGHT_BACKGROUND = new Color(220, 220, 220);
     public static final Color NONEDITABLE_LINE_BACKGROUND = new Color(255, 255, 224);
     public static final Color DRAG_HIGHLIGHTER_COLOR = new Color(255, 255, 220);
+    public static final Color COMBO_BOX_BACKGROUND = new Color(220, 220, 220);
 
     // for JSplitPane
     public static final int DIVIDER_SIZE = 12;

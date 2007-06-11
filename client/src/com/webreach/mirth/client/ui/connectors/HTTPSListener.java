@@ -25,6 +25,7 @@
 
 package com.webreach.mirth.client.ui.connectors;
 
+import com.webreach.mirth.connectors.ConnectorClass;
 import java.util.Properties;
 import java.util.StringTokenizer;
 

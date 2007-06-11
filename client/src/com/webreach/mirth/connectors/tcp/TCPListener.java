@@ -23,27 +23,27 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-package com.webreach.mirth.client.ui.connectors;
+package com.webreach.mirth.connectors.tcp;
 
-import java.awt.Color;
-import java.util.Properties;
-import java.util.StringTokenizer;
-
-import com.webreach.mirth.client.ui.Frame;
-import com.webreach.mirth.client.ui.PlatformUI;
-import com.webreach.mirth.client.ui.UIConstants;
-import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
-import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
-import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.Connector;
-import com.webreach.mirth.model.Step;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
+import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import javax.swing.DefaultComboBoxModel;
+
+import com.webreach.mirth.client.ui.PlatformUI;
+import com.webreach.mirth.client.ui.UIConstants;
+import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
+import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
+import com.webreach.mirth.connectors.ConnectorClass;
+import com.webreach.mirth.model.Channel;
+import com.webreach.mirth.model.Connector;
+import com.webreach.mirth.model.Step;
 
 /**
  * A form that extends from ConnectorClass. All methods implemented are
@@ -51,35 +51,12 @@ import javax.swing.DefaultComboBoxModel;
  */
 public class TCPListener extends ConnectorClass
 {
-    Frame parent;
-
     /** Creates new form TCPListener */
-    private final String DATATYPE = "DataType";
-
-    private final String TCP_ADDRESS = "host";
-
-    private final String TCP_PORT = "port";
-
-    private final String TCP_RECEIVE_TIMEOUT = "receiveTimeout";
-
-    private final String TCP_BUFFER_SIZE = "bufferSize";
-
-    private final String TCP_CHAR_ENCODING = "charEncoding";
-
-    private final String TCP_ACK_NEW_CONNECTION = "ackOnNewConnection";
-
-    private final String TCP_ACK_NEW_CONNECTION_IP = "ackIP";
-
-    private final String TCP_ACK_NEW_CONNECTION_PORT = "ackPort";
-
-    private final String TCP_RESPONSE_VALUE = "responseValue";
-
-    private final String CONNECTOR_CHARSET_ENCODING = "charsetEncoding";
 
     public TCPListener()
     {
         this.parent = PlatformUI.MIRTH_FRAME;
-        name = "TCP Listener";
+        name = TCPListenerProperties.name;
         initComponents();
         listenerIPAddressField.setDocument(new MirthFieldConstraints(3, false, false, true));
         listenerIPAddressField1.setDocument(new MirthFieldConstraints(3, false, false, true));
@@ -94,26 +71,26 @@ public class TCPListener extends ConnectorClass
     public Properties getProperties()
     {
         Properties properties = new Properties();
-        properties.put(DATATYPE, name);
+        properties.put(TCPListenerProperties.DATATYPE, name);
         String listenerIPAddress = listenerIPAddressField.getText() + "." + listenerIPAddressField1.getText() + "." + listenerIPAddressField2.getText() + "." + listenerIPAddressField3.getText();
-        properties.put(TCP_ADDRESS, listenerIPAddress);
-        properties.put(TCP_PORT, listenerPortField.getText());
-        properties.put(TCP_RECEIVE_TIMEOUT, receiveTimeoutField.getText());
-        properties.put(TCP_BUFFER_SIZE, bufferSizeField.getText());
+        properties.put(TCPListenerProperties.TCP_ADDRESS, listenerIPAddress);
+        properties.put(TCPListenerProperties.TCP_PORT, listenerPortField.getText());
+        properties.put(TCPListenerProperties.TCP_RECEIVE_TIMEOUT, receiveTimeoutField.getText());
+        properties.put(TCPListenerProperties.TCP_BUFFER_SIZE, bufferSizeField.getText());
 
-        properties.put(TCP_RESPONSE_VALUE, (String)responseFromTransformer.getSelectedItem());
+        properties.put(TCPListenerProperties.TCP_RESPONSE_VALUE, (String)responseFromTransformer.getSelectedItem());
 
         // ast:encoding
-        properties.put(CONNECTOR_CHARSET_ENCODING, parent.getSelectedEncodingForChannel(charsetEncodingCombobox));
+        properties.put(TCPListenerProperties.CONNECTOR_CHARSET_ENCODING, parent.getSelectedEncodingForChannel(charsetEncodingCombobox));
 
         if (ackOnNewConnectionYes.isSelected())
-            properties.put(TCP_ACK_NEW_CONNECTION, UIConstants.YES_OPTION);
+            properties.put(TCPListenerProperties.TCP_ACK_NEW_CONNECTION, UIConstants.YES_OPTION);
         else
-            properties.put(TCP_ACK_NEW_CONNECTION, UIConstants.NO_OPTION);
+            properties.put(TCPListenerProperties.TCP_ACK_NEW_CONNECTION, UIConstants.NO_OPTION);
 
         String ackIPAddress = ackIPAddressField.getText() + "." + ackIPAddressField1.getText() + "." + ackIPAddressField2.getText() + "." + ackIPAddressField3.getText();
-        properties.put(TCP_ACK_NEW_CONNECTION_IP, ackIPAddress);
-        properties.put(TCP_ACK_NEW_CONNECTION_PORT, ackPortField.getText());
+        properties.put(TCPListenerProperties.TCP_ACK_NEW_CONNECTION_IP, ackIPAddress);
+        properties.put(TCPListenerProperties.TCP_ACK_NEW_CONNECTION_PORT, ackPortField.getText());
         return properties;
     }
 
@@ -121,7 +98,7 @@ public class TCPListener extends ConnectorClass
     {
         resetInvalidProperties();
         
-        String listenerIPAddress = (String) props.get(TCP_ADDRESS);
+        String listenerIPAddress = (String) props.get(TCPListenerProperties.TCP_ADDRESS);
         StringTokenizer IP = new StringTokenizer(listenerIPAddress, ".");
         if (IP.hasMoreTokens())
             listenerIPAddressField.setText(IP.nextToken());
@@ -140,18 +117,18 @@ public class TCPListener extends ConnectorClass
         else
             listenerIPAddressField3.setText("");
 
-        listenerPortField.setText((String) props.get(TCP_PORT));
-        receiveTimeoutField.setText((String) props.get(TCP_RECEIVE_TIMEOUT));
-        bufferSizeField.setText((String) props.get(TCP_BUFFER_SIZE));
+        listenerPortField.setText((String) props.get(TCPListenerProperties.TCP_PORT));
+        receiveTimeoutField.setText((String) props.get(TCPListenerProperties.TCP_RECEIVE_TIMEOUT));
+        bufferSizeField.setText((String) props.get(TCPListenerProperties.TCP_BUFFER_SIZE));
 
         boolean visible = parent.channelEditTasks.getContentPane().getComponent(0).isVisible();
         
         updateResponseDropDown();
-        properties.put(TCP_RESPONSE_VALUE, (String)responseFromTransformer.getSelectedItem());
+        properties.put(TCPListenerProperties.TCP_RESPONSE_VALUE, (String)responseFromTransformer.getSelectedItem());
 
-        parent.sePreviousSelectedEncodingForChannel(charsetEncodingCombobox, (String) props.get(CONNECTOR_CHARSET_ENCODING));
+        parent.sePreviousSelectedEncodingForChannel(charsetEncodingCombobox, (String) props.get(TCPListenerProperties.CONNECTOR_CHARSET_ENCODING));
 
-        if (((String) props.get(TCP_ACK_NEW_CONNECTION)).equalsIgnoreCase(UIConstants.YES_OPTION))
+        if (((String) props.get(TCPListenerProperties.TCP_ACK_NEW_CONNECTION)).equalsIgnoreCase(UIConstants.YES_OPTION))
         {
             ackOnNewConnectionYesActionPerformed(null);
             ackOnNewConnectionYes.setSelected(true);
@@ -162,7 +139,7 @@ public class TCPListener extends ConnectorClass
             ackOnNewConnectionNo.setSelected(true);
         }
 
-        String ackIPAddress = (String) props.get(TCP_ACK_NEW_CONNECTION_IP);
+        String ackIPAddress = (String) props.get(TCPListenerProperties.TCP_ACK_NEW_CONNECTION_IP);
         StringTokenizer ackIP = new StringTokenizer(ackIPAddress, ".");
         if (ackIP.hasMoreTokens())
             ackIPAddressField.setText(ackIP.nextToken());
@@ -181,27 +158,14 @@ public class TCPListener extends ConnectorClass
         else
             ackIPAddressField3.setText("");
 
-        ackPortField.setText((String) props.get(TCP_ACK_NEW_CONNECTION_PORT));
+        ackPortField.setText((String) props.get(TCPListenerProperties.TCP_ACK_NEW_CONNECTION_PORT));
 
         parent.channelEditTasks.getContentPane().getComponent(0).setVisible(visible);
     }
 
     public Properties getDefaults()
     {
-        Properties properties = new Properties();
-        properties.put(DATATYPE, name);
-        properties.put(TCP_ADDRESS, "127.0.0.1");
-        properties.put(TCP_PORT, "6661");
-        properties.put(TCP_RECEIVE_TIMEOUT, "5000");
-        properties.put(TCP_BUFFER_SIZE, "65536");
-        properties.put(TCP_ACK_NEW_CONNECTION, UIConstants.NO_OPTION);
-        properties.put(TCP_ACK_NEW_CONNECTION_IP, "..."); // hack to get
-        // around defaults
-        properties.put(TCP_ACK_NEW_CONNECTION_PORT, "");
-        properties.put(TCP_RESPONSE_VALUE, "None");
-        // ast:encoding
-        properties.put(CONNECTOR_CHARSET_ENCODING, UIConstants.DEFAULT_ENCODING_OPTION);
-        return properties;
+        return TCPListenerProperties.getDefaults();
     }
 
     public boolean checkProperties(Properties props)
@@ -209,7 +173,7 @@ public class TCPListener extends ConnectorClass
         resetInvalidProperties();
         boolean valid = true;
         
-        if (((String) props.get(TCP_ADDRESS)).length() <= 3)
+        if (((String) props.get(TCPListenerProperties.TCP_ADDRESS)).length() <= 3)
         {
             valid = false;
             listenerIPAddressField.setBackground(UIConstants.INVALID_COLOR);
@@ -217,24 +181,24 @@ public class TCPListener extends ConnectorClass
             listenerIPAddressField2.setBackground(UIConstants.INVALID_COLOR);
             listenerIPAddressField3.setBackground(UIConstants.INVALID_COLOR);            
         }
-        if (((String) props.get(TCP_PORT)).length() == 0)
+        if (((String) props.get(TCPListenerProperties.TCP_PORT)).length() == 0)
         {
             valid = false;
             listenerPortField.setBackground(UIConstants.INVALID_COLOR);
         }
-        if (((String) props.get(TCP_RECEIVE_TIMEOUT)).length() == 0)
+        if (((String) props.get(TCPListenerProperties.TCP_RECEIVE_TIMEOUT)).length() == 0)
         {
             valid = false;
             receiveTimeoutField.setBackground(UIConstants.INVALID_COLOR);
         }
-        if (((String) props.get(TCP_BUFFER_SIZE)).length() == 0)
+        if (((String) props.get(TCPListenerProperties.TCP_BUFFER_SIZE)).length() == 0)
         {
             valid = false;
             bufferSizeField.setBackground(UIConstants.INVALID_COLOR);
         }
-        if (((String) props.get(TCP_ACK_NEW_CONNECTION)).equals(UIConstants.YES_OPTION))
+        if (((String) props.get(TCPListenerProperties.TCP_ACK_NEW_CONNECTION)).equals(UIConstants.YES_OPTION))
         {
-            if (((String) props.get(TCP_ACK_NEW_CONNECTION_IP)).length() <= 3)
+            if (((String) props.get(TCPListenerProperties.TCP_ACK_NEW_CONNECTION_IP)).length() <= 3)
             {
                 valid = false;
                 ackIPAddressField.setBackground(UIConstants.INVALID_COLOR);
@@ -242,7 +206,7 @@ public class TCPListener extends ConnectorClass
                 ackIPAddressField2.setBackground(UIConstants.INVALID_COLOR);
                 ackIPAddressField3.setBackground(UIConstants.INVALID_COLOR);
             }
-            if (((String) props.get(TCP_ACK_NEW_CONNECTION_PORT)).length() == 0)
+            if (((String) props.get(TCPListenerProperties.TCP_ACK_NEW_CONNECTION_PORT)).length() == 0)
             {
                 valid = false;
                 ackPortField.setBackground(UIConstants.INVALID_COLOR);

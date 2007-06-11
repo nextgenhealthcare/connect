@@ -23,14 +23,8 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-package com.webreach.mirth.client.ui.connectors;
+package com.webreach.mirth.connectors.soap;
 
-import com.webreach.mirth.client.ui.UIConstants;
-import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
-import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.Connector;
-import com.webreach.mirth.model.Step;
-import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -38,7 +32,15 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import javax.swing.DefaultComboBoxModel;
+
+import com.webreach.mirth.client.ui.UIConstants;
+import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
+import com.webreach.mirth.connectors.ConnectorClass;
+import com.webreach.mirth.model.Channel;
+import com.webreach.mirth.model.Connector;
+import com.webreach.mirth.model.Step;
 
 /**
  * A form that extends from ConnectorClass. All methods implemented are
@@ -49,23 +51,10 @@ public class SOAPListener extends ConnectorClass
     /**
      * Creates new form SOAPListener
      */
-    private final String DATATYPE = "DataType";
-
-    private final String SOAP_HOST = "host";
-
-    private final String SOAP_LISTENER_ADDRESS = "listenerAddress";
-
-    private final String SOAP_SERVICE_NAME = "serviceName";
-
-    private final String SOAP_PORT = "port";
-
-    private final String SOAP_CONTENT_TYPE = "Content-Type";
-
-    private final String SOAP_RESPONSE_VALUE = "responseValue";
 
     public SOAPListener()
     {
-        name = "SOAP Listener";
+        name = SOAPListenerProperties.name;
         initComponents();
         wsdlURL.setEditable(false);
         method.setEditable(false);
@@ -74,13 +63,13 @@ public class SOAPListener extends ConnectorClass
     public Properties getProperties()
     {
         Properties properties = new Properties();
-        properties.put(DATATYPE, name);
-        properties.put(SOAP_LISTENER_ADDRESS, listenerAddress.getText());
-        properties.put(SOAP_PORT, port.getText());
-        properties.put(SOAP_SERVICE_NAME, serviceName.getText());
-        properties.put(SOAP_HOST, buildHost());
-        properties.put(SOAP_CONTENT_TYPE, "text/xml");
-        properties.put(SOAP_RESPONSE_VALUE, (String)responseFromTransformer.getSelectedItem());
+        properties.put(SOAPListenerProperties.DATATYPE, name);
+        properties.put(SOAPListenerProperties.SOAP_LISTENER_ADDRESS, listenerAddress.getText());
+        properties.put(SOAPListenerProperties.SOAP_PORT, port.getText());
+        properties.put(SOAPListenerProperties.SOAP_SERVICE_NAME, serviceName.getText());
+        properties.put(SOAPListenerProperties.SOAP_HOST, buildHost());
+        properties.put(SOAPListenerProperties.SOAP_CONTENT_TYPE, "text/xml");
+        properties.put(SOAPListenerProperties.SOAP_RESPONSE_VALUE, (String)responseFromTransformer.getSelectedItem());
         return properties;
     }
 
@@ -88,25 +77,17 @@ public class SOAPListener extends ConnectorClass
     {
         resetInvalidProperties();
         
-        listenerAddress.setText((String) props.get(SOAP_LISTENER_ADDRESS));
-        port.setText((String) props.getProperty(SOAP_PORT));
-        serviceName.setText((String) props.getProperty(SOAP_SERVICE_NAME));
+        listenerAddress.setText((String) props.get(SOAPListenerProperties.SOAP_LISTENER_ADDRESS));
+        port.setText((String) props.getProperty(SOAPListenerProperties.SOAP_PORT));
+        serviceName.setText((String) props.getProperty(SOAPListenerProperties.SOAP_SERVICE_NAME));
         updateResponseDropDown();
-        responseFromTransformer.setSelectedItem((String) props.getProperty(SOAP_RESPONSE_VALUE));
+        responseFromTransformer.setSelectedItem((String) props.getProperty(SOAPListenerProperties.SOAP_RESPONSE_VALUE));
         updateWSDL();
     }
 
     public Properties getDefaults()
     {
-        Properties properties = new Properties();
-        properties.put(DATATYPE, name);
-        properties.put(SOAP_HOST, "axis:soap://localhost:8081/services");
-        properties.put(SOAP_LISTENER_ADDRESS, "localhost");
-        properties.put(SOAP_PORT, "8081");
-        properties.put(SOAP_SERVICE_NAME, "Mirth");
-        properties.put(SOAP_CONTENT_TYPE, "text/xml");
-        properties.put(SOAP_RESPONSE_VALUE, "None");
-        return properties;
+        return SOAPListenerProperties.getDefaults();
     }
 
     public String buildHost()
@@ -125,17 +106,17 @@ public class SOAPListener extends ConnectorClass
         resetInvalidProperties();
         boolean valid = true;
         
-        if (((String) props.get(SOAP_LISTENER_ADDRESS)).length() > 0)
+        if (((String) props.get(SOAPListenerProperties.SOAP_LISTENER_ADDRESS)).length() > 0)
         {
             valid = false;
             listenerAddress.setBackground(UIConstants.INVALID_COLOR);
         }
-        if (((String) props.get(SOAP_PORT)).length() > 0)
+        if (((String) props.get(SOAPListenerProperties.SOAP_PORT)).length() > 0)
         {
             valid = false;
             port.setBackground(UIConstants.INVALID_COLOR);
         }
-        if (((String) props.get(SOAP_SERVICE_NAME)).length() > 0)
+        if (((String) props.get(SOAPListenerProperties.SOAP_SERVICE_NAME)).length() > 0)
         {
             valid = false;
             serviceName.setBackground(UIConstants.INVALID_COLOR);

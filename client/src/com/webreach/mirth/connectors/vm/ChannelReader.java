@@ -23,74 +23,44 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-package com.webreach.mirth.client.ui.connectors;
+package com.webreach.mirth.connectors.vm;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Properties;
 
-import com.webreach.mirth.model.Channel;
+import com.webreach.mirth.connectors.ConnectorClass;
 
 /**
  * A form that extends from ConnectorClass. All methods implemented are
  * described in ConnectorClass.
  */
-public class ChannelWriter extends ConnectorClass
+public class ChannelReader extends ConnectorClass
 {
-    /** Creates new form FTPReader */
-    private final String DATATYPE = "DataType";
-
-    private final String CHANNEL_ID = "host";
-
-    private final String CHANNEL_NAME = "channelName";
+    /** Creates new form ChannelReader */
 
     private HashMap channelList;
 
-    public ChannelWriter()
+    public ChannelReader()
     {
-        name = "Channel Writer";
+        name = ChannelReaderProperties.name;
         initComponents();
     }
 
     public Properties getProperties()
     {
         Properties properties = new Properties();
-        properties.put(DATATYPE, name);
-        properties.put(CHANNEL_ID, channelList.get((String) channelNames.getSelectedItem()));
-        properties.put(CHANNEL_NAME, (String) channelNames.getSelectedItem());
+        properties.put(ChannelReaderProperties.DATATYPE, name);
         return properties;
     }
 
     public void setProperties(Properties props)
     {
         resetInvalidProperties();
-        
-        ArrayList<String> channelNameArray = new ArrayList<String>();
-        channelList = new HashMap();
-        channelList.put("None", "sink");
-        channelNameArray.add("None");
-        for (Channel channel : parent.channels.values())
-        {
-            channelList.put(channel.getName(), channel.getId());
-            channelNameArray.add(channel.getName());
-        }
-        channelNames.setModel(new javax.swing.DefaultComboBoxModel(channelNameArray.toArray()));
-
-        boolean visible = parent.channelEditTasks.getContentPane().getComponent(0).isVisible();
-
-        if (props.get(CHANNEL_NAME) != null)
-            channelNames.setSelectedItem((String) props.get(CHANNEL_NAME));
-
-        parent.channelEditTasks.getContentPane().getComponent(0).setVisible(visible);
     }
 
     public Properties getDefaults()
     {
-        Properties properties = new Properties();
-        properties.put(DATATYPE, name);
-        properties.put(CHANNEL_ID, "sink");
-        properties.put(CHANNEL_NAME, "None");
-        return properties;
+        return ChannelReaderProperties.getDefaults();
     }
 
     public boolean checkProperties(Properties props)
@@ -119,18 +89,15 @@ public class ChannelWriter extends ConnectorClass
         buttonGroup3 = new javax.swing.ButtonGroup();
         buttonGroup4 = new javax.swing.ButtonGroup();
         URL = new javax.swing.JLabel();
-        channelNames = new com.webreach.mirth.client.ui.components.MirthComboBox();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
-        URL.setText("Channel Name:");
-
-        channelNames.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        URL.setText("This connector has no properties.");
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
-        layout.setHorizontalGroup(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(layout.createSequentialGroup().addContainerGap().add(URL).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(channelNames, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 150, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)));
-        layout.setVerticalGroup(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(URL).add(channelNames, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)));
+        layout.setHorizontalGroup(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(layout.createSequentialGroup().addContainerGap().add(URL).addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)));
+        layout.setVerticalGroup(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(URL));
     }// </editor-fold>//GEN-END:initComponents
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -143,8 +110,6 @@ public class ChannelWriter extends ConnectorClass
     private javax.swing.ButtonGroup buttonGroup3;
 
     private javax.swing.ButtonGroup buttonGroup4;
-
-    private com.webreach.mirth.client.ui.components.MirthComboBox channelNames;
     // End of variables declaration//GEN-END:variables
 
 }

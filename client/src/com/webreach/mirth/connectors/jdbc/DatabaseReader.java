@@ -23,9 +23,8 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-package com.webreach.mirth.client.ui.connectors;
+package com.webreach.mirth.connectors.jdbc;
 
-import java.awt.Color;
 import java.util.List;
 import java.util.Properties;
 import java.util.Timer;
@@ -34,7 +33,6 @@ import java.util.TimerTask;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.syntax.jedit.SyntaxDocument;
 import org.syntax.jedit.tokenmarker.JavaScriptTokenMarker;
@@ -47,6 +45,7 @@ import com.webreach.mirth.client.ui.PlatformUI;
 import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
 import com.webreach.mirth.client.ui.util.SQLParserUtil;
+import com.webreach.mirth.connectors.ConnectorClass;
 import com.webreach.mirth.model.Connector;
 import com.webreach.mirth.model.DriverInfo;
 import com.webreach.mirth.model.MessageObject;
@@ -59,33 +58,6 @@ import com.webreach.mirth.model.converters.DocumentSerializer;
 public class DatabaseReader extends ConnectorClass
 {
     /** Creates new form DatabaseWriter */
-    private final String DATATYPE = "DataType";
-
-    private final String DATABASE_HOST = "host";
-
-    private final String DATABASE_HOST_VALUE = "query";
-
-    private final String DATABASE_DRIVER = "driver";
-
-    private final String DATABASE_URL = "URL";
-
-    private final String DATABASE_USERNAME = "username";
-
-    private final String DATABASE_PASSWORD = "password";
-
-    private final String DATABASE_POLLING_FREQUENCY = "pollingFrequency";
-
-    private final String DATABASE_SQL_STATEMENT = "query";
-
-    private final String DATABASE_JS_SQL_STATEMENT = "script";
-
-    private final String DATABASE_USE_JS = "useScript";
-
-    private final String DATABASE_USE_ACK = "useAck";
-
-    private final String DATABASE_ACK = "ack";
-
-    private final String DATABASE_JS_ACK = "ackScript";
 
     private static SyntaxDocument sqlMappingDoc;
 
@@ -101,7 +73,7 @@ public class DatabaseReader extends ConnectorClass
     
     public DatabaseReader()
     {
-        name = "Database Reader";
+        name = DatabaseReaderProperties.name;
 
         try
         {
@@ -113,13 +85,17 @@ public class DatabaseReader extends ConnectorClass
         }
 
         initComponents();
+        
+        drivers.add(0, new DriverInfo("Please Select One", "Please Select One"));
         String[] driverNames = new String[drivers.size()];
+        
         for (int i = 0; i < drivers.size(); i++)
         {
             driverNames[i] = drivers.get(i).getName();
         }
-
+        
         databaseDriverCombobox.setModel(new javax.swing.DefaultComboBoxModel(driverNames));
+        
         sqlMappingDoc = new SyntaxDocument();
         sqlMappingDoc.setTokenMarker(new TSQLTokenMarker());
         sqlUpdateMappingDoc = new SyntaxDocument();
@@ -172,42 +148,42 @@ public class DatabaseReader extends ConnectorClass
     public Properties getProperties()
     {
         Properties properties = new Properties();
-        properties.put(DATATYPE, name);
-        properties.put(DATABASE_HOST, DATABASE_HOST_VALUE);
+        properties.put(DatabaseReaderProperties.DATATYPE, name);
+        properties.put(DatabaseReaderProperties.DATABASE_HOST, DatabaseReaderProperties.DATABASE_HOST_VALUE);
 
         for (int i = 0; i < drivers.size(); i++)
         {
             DriverInfo driver = drivers.get(i);
             if (driver.getName().equalsIgnoreCase(((String) databaseDriverCombobox.getSelectedItem())))
-                properties.put(DATABASE_DRIVER, driver.getClassName());
+                properties.put(DatabaseReaderProperties.DATABASE_DRIVER, driver.getClassName());
         }
 
-        properties.put(DATABASE_URL, databaseURLField.getText());
-        properties.put(DATABASE_USERNAME, databaseUsernameField.getText());
-        properties.put(DATABASE_PASSWORD, new String(databasePasswordField.getPassword()));
-        properties.put(DATABASE_POLLING_FREQUENCY, pollingFreq.getText());
+        properties.put(DatabaseReaderProperties.DATABASE_URL, databaseURLField.getText());
+        properties.put(DatabaseReaderProperties.DATABASE_USERNAME, databaseUsernameField.getText());
+        properties.put(DatabaseReaderProperties.DATABASE_PASSWORD, new String(databasePasswordField.getPassword()));
+        properties.put(DatabaseReaderProperties.DATABASE_POLLING_FREQUENCY, pollingFreq.getText());
 
         if (useJavaScriptYes.isSelected())
         {
-            properties.put(DATABASE_USE_JS, UIConstants.YES_OPTION);
-            properties.put(DATABASE_JS_SQL_STATEMENT, databaseSQLTextPane.getText());
-            properties.put(DATABASE_JS_ACK, databaseUpdateSQLTextPane.getText());
-            properties.put(DATABASE_SQL_STATEMENT, "");
-            properties.put(DATABASE_ACK, "");
+            properties.put(DatabaseReaderProperties.DATABASE_USE_JS, UIConstants.YES_OPTION);
+            properties.put(DatabaseReaderProperties.DATABASE_JS_SQL_STATEMENT, databaseSQLTextPane.getText());
+            properties.put(DatabaseReaderProperties.DATABASE_JS_ACK, databaseUpdateSQLTextPane.getText());
+            properties.put(DatabaseReaderProperties.DATABASE_SQL_STATEMENT, "");
+            properties.put(DatabaseReaderProperties.DATABASE_ACK, "");
         }
         else
         {
-            properties.put(DATABASE_USE_JS, UIConstants.NO_OPTION);
-            properties.put(DATABASE_SQL_STATEMENT, databaseSQLTextPane.getText());
-            properties.put(DATABASE_ACK, databaseUpdateSQLTextPane.getText());
-            properties.put(DATABASE_JS_SQL_STATEMENT, "");
-            properties.put(DATABASE_JS_ACK, "");
+            properties.put(DatabaseReaderProperties.DATABASE_USE_JS, UIConstants.NO_OPTION);
+            properties.put(DatabaseReaderProperties.DATABASE_SQL_STATEMENT, databaseSQLTextPane.getText());
+            properties.put(DatabaseReaderProperties.DATABASE_ACK, databaseUpdateSQLTextPane.getText());
+            properties.put(DatabaseReaderProperties.DATABASE_JS_SQL_STATEMENT, "");
+            properties.put(DatabaseReaderProperties.DATABASE_JS_ACK, "");
         }
 
         if (readOnUpdateYes.isSelected())
-            properties.put(DATABASE_USE_ACK, UIConstants.YES_OPTION);
+            properties.put(DatabaseReaderProperties.DATABASE_USE_ACK, UIConstants.YES_OPTION);
         else
-            properties.put(DATABASE_USE_ACK, UIConstants.NO_OPTION);
+            properties.put(DatabaseReaderProperties.DATABASE_USE_ACK, UIConstants.NO_OPTION);
 
         return properties;
     }
@@ -215,39 +191,39 @@ public class DatabaseReader extends ConnectorClass
     public void setProperties(Properties props)
     {
         resetInvalidProperties();
-        
+                
         boolean visible = parent.channelEditTasks.getContentPane().getComponent(0).isVisible();
 
         for (int i = 0; i < drivers.size(); i++)
         {
             DriverInfo driver = drivers.get(i);
-            if (driver.getClassName().equalsIgnoreCase(((String) props.get(DATABASE_DRIVER))))
+            if (driver.getClassName().equalsIgnoreCase(((String) props.get(DatabaseReaderProperties.DATABASE_DRIVER))))
                 databaseDriverCombobox.setSelectedItem(driver.getName());
         }
 
         parent.channelEditTasks.getContentPane().getComponent(0).setVisible(visible);
-        databaseURLField.setText((String) props.get(DATABASE_URL));
-        databaseUsernameField.setText((String) props.get(DATABASE_USERNAME));
-        databasePasswordField.setText((String) props.get(DATABASE_PASSWORD));
-        pollingFreq.setText((String) props.get(DATABASE_POLLING_FREQUENCY));
-        databaseSQLTextPane.setText((String) props.get(DATABASE_SQL_STATEMENT));
+        databaseURLField.setText((String) props.get(DatabaseReaderProperties.DATABASE_URL));
+        databaseUsernameField.setText((String) props.get(DatabaseReaderProperties.DATABASE_USERNAME));
+        databasePasswordField.setText((String) props.get(DatabaseReaderProperties.DATABASE_PASSWORD));
+        pollingFreq.setText((String) props.get(DatabaseReaderProperties.DATABASE_POLLING_FREQUENCY));
+        databaseSQLTextPane.setText((String) props.get(DatabaseReaderProperties.DATABASE_SQL_STATEMENT));
 
-        if (((String) props.get(DATABASE_USE_JS)).equals(UIConstants.YES_OPTION))
+        if (((String) props.get(DatabaseReaderProperties.DATABASE_USE_JS)).equals(UIConstants.YES_OPTION))
         {
             useJavaScriptYes.setSelected(true);
             useJavaScriptYesActionPerformed(null);
-            databaseSQLTextPane.setText((String) props.get(DATABASE_JS_SQL_STATEMENT));
-            databaseUpdateSQLTextPane.setText((String) props.get(DATABASE_JS_ACK));
+            databaseSQLTextPane.setText((String) props.get(DatabaseReaderProperties.DATABASE_JS_SQL_STATEMENT));
+            databaseUpdateSQLTextPane.setText((String) props.get(DatabaseReaderProperties.DATABASE_JS_ACK));
         }
         else
         {
             useJavaScriptNo.setSelected(true);
             useJavaScriptNoActionPerformed(null);
-            databaseSQLTextPane.setText((String) props.get(DATABASE_SQL_STATEMENT));
-            databaseUpdateSQLTextPane.setText((String) props.get(DATABASE_ACK));
+            databaseSQLTextPane.setText((String) props.get(DatabaseReaderProperties.DATABASE_SQL_STATEMENT));
+            databaseUpdateSQLTextPane.setText((String) props.get(DatabaseReaderProperties.DATABASE_ACK));
         }
 
-        if (((String) props.get(DATABASE_USE_ACK)).equalsIgnoreCase(UIConstants.YES_OPTION))
+        if (((String) props.get(DatabaseReaderProperties.DATABASE_USE_ACK)).equalsIgnoreCase(UIConstants.YES_OPTION))
         {
             readOnUpdateYes.setSelected(true);
             readOnUpdateYesActionPerformed(null);
@@ -261,21 +237,7 @@ public class DatabaseReader extends ConnectorClass
 
     public Properties getDefaults()
     {
-        Properties properties = new Properties();
-        properties.put(DATATYPE, name);
-        properties.put(DATABASE_HOST, DATABASE_HOST_VALUE);
-        properties.put(DATABASE_DRIVER, drivers.get(0).getClassName());
-        properties.put(DATABASE_URL, "");
-        properties.put(DATABASE_USERNAME, "");
-        properties.put(DATABASE_PASSWORD, "");
-        properties.put(DATABASE_POLLING_FREQUENCY, "5000");
-        properties.put(DATABASE_SQL_STATEMENT, "SELECT FROM");
-        properties.put(DATABASE_USE_JS, UIConstants.NO_OPTION);
-        properties.put(DATABASE_JS_SQL_STATEMENT, "");
-        properties.put(DATABASE_USE_ACK, UIConstants.NO_OPTION);
-        properties.put(DATABASE_ACK, "UPDATE");
-        properties.put(DATABASE_JS_ACK, "");
-        return properties;
+        return DatabaseReaderProperties.getDefaults();
     }
 
     public boolean checkProperties(Properties props)
@@ -283,29 +245,34 @@ public class DatabaseReader extends ConnectorClass
         resetInvalidProperties();
         boolean valid = true;
         
-        if (((String) props.get(DATABASE_URL)).length() == 0)
+        if (((String) props.get(DatabaseReaderProperties.DATABASE_URL)).length() == 0)
         {
             valid = false;
             databaseURLField.setBackground(UIConstants.INVALID_COLOR);
         }
-        if (((String) props.get(DATABASE_POLLING_FREQUENCY)).length() == 0)
+        if (((String) props.get(DatabaseReaderProperties.DATABASE_POLLING_FREQUENCY)).length() == 0)
         {
             valid = false;
             pollingFreq.setBackground(UIConstants.INVALID_COLOR);
         }
-        if ((((String) props.get(DATABASE_SQL_STATEMENT)).length() == 0) && (((String) props.get(DATABASE_JS_SQL_STATEMENT)).length() == 0))
+        if ((((String) props.get(DatabaseReaderProperties.DATABASE_SQL_STATEMENT)).length() == 0) && (((String) props.get(DatabaseReaderProperties.DATABASE_JS_SQL_STATEMENT)).length() == 0))
         {
             valid = false;
             databaseSQLTextPane.setBackground(UIConstants.INVALID_COLOR);
         }
         
-        if (((String) props.get(DATABASE_USE_ACK)).equalsIgnoreCase(UIConstants.YES_OPTION))
+        if (((String) props.get(DatabaseReaderProperties.DATABASE_USE_ACK)).equalsIgnoreCase(UIConstants.YES_OPTION))
         {
-            if (((((String) props.get(DATABASE_JS_ACK)).length() == 0) && (((String) props.get(DATABASE_ACK)).length() == 0)))
+            if (((((String) props.get(DatabaseReaderProperties.DATABASE_JS_ACK)).length() == 0) && (((String) props.get(DatabaseReaderProperties.DATABASE_ACK)).length() == 0)))
             {
                 valid = false;
                 databaseUpdateSQLTextPane.setBackground(UIConstants.INVALID_COLOR);
             }
+        }
+        if ((((String) props.get(DatabaseReaderProperties.DATABASE_DRIVER)).equals("Please Select One")))
+        {
+            valid = false;
+            databaseDriverCombobox.setBackground(UIConstants.INVALID_COLOR);
         }
         
         return valid;
@@ -317,6 +284,7 @@ public class DatabaseReader extends ConnectorClass
         pollingFreq.setBackground(null);
         databaseSQLTextPane.setBackground(null);
         databaseUpdateSQLTextPane.setBackground(null);
+        databaseDriverCombobox.setBackground(UIConstants.COMBO_BOX_BACKGROUND);
     }
     
     private void update()

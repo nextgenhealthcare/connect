@@ -23,7 +23,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-package com.webreach.mirth.client.ui.connectors;
+package com.webreach.mirth.connectors.soap;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -59,6 +59,7 @@ import com.l2fprod.common.propertysheet.Property;
 import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.ui.BeanBinder;
 import com.webreach.mirth.client.ui.UIConstants;
+import com.webreach.mirth.connectors.ConnectorClass;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.model.ws.WSDefinition;
@@ -83,36 +84,6 @@ public class SOAPSender extends ConnectorClass
 
     public final String VALUE_COLUMN_NAME = "Value";
 
-    private final String SOAP_ENVELOPE_HEADER = "<?xml version=\"1.0\" encoding=\"utf-16\"?>\n<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:soapenc=\"http://schemas.xmlsoap.org/soap/encoding/\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\n";
-
-    private final String SOAP_BODY_HEADER = "<soap:Body soap:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\">\n";
-
-    private final String SOAP_BODY_FOOTER = "</soap:Body>\n";
-
-    private final String SOAP_ENVELOPE_FOOTER = "</soap:Envelope>";
-
-    private final String DATATYPE = "DataType";
-
-    private final String SOAP_HOST = "host";
-
-    private final String SOAP_SERVICE_ENDPOINT = "serviceEndpoint";
-
-    private final String SOAP_URL = "wsdlUrl";
-
-    private final String SOAP_METHOD = "method";
-
-    private final String SOAP_DEFINITION = "definition";
-
-    private final String SOAP_DEFAULT_DROPDOWN = "Press Get Methods";
-
-    private final String SOAP_ENVELOPE = "soapEnvelope";
-
-    private final String SOAP_ACTION_URI = "soapActionURI";
-
-    private final String CHANNEL_ID = "replyChannelId";
-
-    private final String CHANNEL_NAME = "channelName";
-
     WSDefinition definition = new WSDefinition();
 
     ObjectXMLSerializer serializer = new ObjectXMLSerializer();
@@ -125,7 +96,7 @@ public class SOAPSender extends ConnectorClass
 
     public SOAPSender()
     {
-        name = "SOAP Sender";
+        name = SOAPSenderProperties.name;
         initComponents();
         propertySheetPanel1.setRestoreToggleStates(true);
         SyntaxDocument document = new SyntaxDocument();
@@ -136,21 +107,21 @@ public class SOAPSender extends ConnectorClass
     public Properties getProperties()
     {
         Properties properties = new Properties();
-        properties.put(SOAP_ENVELOPE, soapEnvelope.getText());
-        properties.put(DATATYPE, name);
+        properties.put(SOAPSenderProperties.SOAP_ENVELOPE, soapEnvelope.getText());
+        properties.put(SOAPSenderProperties.DATATYPE, name);
         //TODO: This won't work for HTTPS. WARNING.
-        properties.put(SOAP_URL, wsdlUrl.getText());
-        properties.put(SOAP_SERVICE_ENDPOINT, serviceEndpoint.getText());
+        properties.put(SOAPSenderProperties.SOAP_URL, wsdlUrl.getText());
+        properties.put(SOAPSenderProperties.SOAP_SERVICE_ENDPOINT, serviceEndpoint.getText());
         if (method.getSelectedIndex() != -1)
-            properties.put(SOAP_METHOD, (String) method.getSelectedItem());
+            properties.put(SOAPSenderProperties.SOAP_METHOD, (String) method.getSelectedItem());
         if (definition == null)
             definition = new WSDefinition();
-        properties.put(SOAP_DEFINITION, (String) serializer.toXML(definition));// getParameters());
-        properties.put(SOAP_HOST, buildHost());
+        properties.put(SOAPSenderProperties.SOAP_DEFINITION, (String) serializer.toXML(definition));// getParameters());
+        properties.put(SOAPSenderProperties.SOAP_HOST, buildHost());
 
-        properties.put(SOAP_ACTION_URI, soapActionURI.getText());
-        properties.put(CHANNEL_ID, channelList.get((String) channelNames.getSelectedItem()));
-        properties.put(CHANNEL_NAME, (String) channelNames.getSelectedItem());
+        properties.put(SOAPSenderProperties.SOAP_ACTION_URI, soapActionURI.getText());
+        properties.put(SOAPSenderProperties.CHANNEL_ID, channelList.get((String) channelNames.getSelectedItem()));
+        properties.put(SOAPSenderProperties.CHANNEL_NAME, (String) channelNames.getSelectedItem());
         return properties;
     }
 
@@ -158,21 +129,21 @@ public class SOAPSender extends ConnectorClass
     {
         resetInvalidProperties();
         
-        definition = (WSDefinition) (serializer.fromXML(props.getProperty(SOAP_DEFINITION)));
+        definition = (WSDefinition) (serializer.fromXML(props.getProperty(SOAPSenderProperties.SOAP_DEFINITION)));
 
-        wsdlUrl.setText((String) props.get(SOAP_URL));
-        serviceEndpoint.setText((String) props.get(SOAP_SERVICE_ENDPOINT));
-        soapEnvelope.setText((String) props.getProperty(SOAP_ENVELOPE));
-        soapActionURI.setText((String) props.getProperty(SOAP_ACTION_URI));
+        wsdlUrl.setText((String) props.get(SOAPSenderProperties.SOAP_URL));
+        serviceEndpoint.setText((String) props.get(SOAPSenderProperties.SOAP_SERVICE_ENDPOINT));
+        soapEnvelope.setText((String) props.getProperty(SOAPSenderProperties.SOAP_ENVELOPE));
+        soapActionURI.setText((String) props.getProperty(SOAPSenderProperties.SOAP_ACTION_URI));
 
-        if (props.getProperty(SOAP_METHOD) != null)
+        if (props.getProperty(SOAPSenderProperties.SOAP_METHOD) != null)
         {
-            method.setModel(new javax.swing.DefaultComboBoxModel(new String[] { (String) props.getProperty(SOAP_METHOD) }));
+            method.setModel(new javax.swing.DefaultComboBoxModel(new String[] { (String) props.getProperty(SOAPSenderProperties.SOAP_METHOD) }));
         }
 
-        if (props.get(SOAP_DEFINITION) != null)
+        if (props.get(SOAPSenderProperties.SOAP_DEFINITION) != null)
         {
-            WSOperation operation = definition.getOperation((String) props.getProperty(SOAP_METHOD));
+            WSOperation operation = definition.getOperation((String) props.getProperty(SOAPSenderProperties.SOAP_METHOD));
             if (operation != null)
                 setupTable(operation.getParameters());
 
@@ -193,44 +164,33 @@ public class SOAPSender extends ConnectorClass
 
         boolean visible = parent.channelEditTasks.getContentPane().getComponent(0).isVisible();
 
-        if (props.get(CHANNEL_NAME) != null)
-            channelNames.setSelectedItem((String) props.get(CHANNEL_NAME));
+        if (props.get(SOAPSenderProperties.CHANNEL_NAME) != null)
+            channelNames.setSelectedItem((String) props.get(SOAPSenderProperties.CHANNEL_NAME));
 
         parent.channelEditTasks.getContentPane().getComponent(0).setVisible(visible);
     }
-
+    
     public Properties getDefaults()
     {
-        Properties properties = new Properties();
-        properties.put(DATATYPE, name);
-        properties.put(SOAP_URL, "");
-        properties.put(SOAP_SERVICE_ENDPOINT, "");
-        properties.put(SOAP_METHOD, SOAP_DEFAULT_DROPDOWN);
-        properties.put(SOAP_DEFINITION, (String) serializer.toXML(new WSDefinition()));
-        properties.put(SOAP_HOST, buildHost());
-        properties.put(SOAP_ENVELOPE, "");
-        properties.put(SOAP_ACTION_URI, "");
-        properties.put(CHANNEL_ID, "sink");
-        properties.put(CHANNEL_NAME, "None");
-        return properties;
+        return SOAPSenderProperties.getDefaults();
     }
-
+    
     public boolean checkProperties(Properties props)
     {
         resetInvalidProperties();
         boolean valid = true;
         
-        if (((String) props.getProperty(SOAP_METHOD)).equals(SOAP_DEFAULT_DROPDOWN))
+        if (((String) props.getProperty(SOAPSenderProperties.SOAP_METHOD)).equals(SOAPSenderProperties.SOAP_DEFAULT_DROPDOWN))
         {
             valid = false;
             method.setBackground(UIConstants.INVALID_COLOR);
         }
-        if (((String) props.getProperty(SOAP_URL)).length() == 0)
+        if (((String) props.getProperty(SOAPSenderProperties.SOAP_URL)).length() == 0)
         {
             valid = false;
             wsdlUrl.setBackground(UIConstants.INVALID_COLOR);
         }
-        if (((String) props.getProperty(SOAP_ENVELOPE)).length() == 0)
+        if (((String) props.getProperty(SOAPSenderProperties.SOAP_ENVELOPE)).length() == 0)
         {
             valid = false;
             soapEnvelope.setBackground(UIConstants.INVALID_COLOR);
@@ -241,7 +201,7 @@ public class SOAPSender extends ConnectorClass
     
     private void resetInvalidProperties()
     {
-        method.setBackground(null);
+        method.setBackground(UIConstants.COMBO_BOX_BACKGROUND);
         wsdlUrl.setBackground(null);
         soapEnvelope.setBackground(null);
     }
@@ -531,9 +491,9 @@ public class SOAPSender extends ConnectorClass
     private void buildSoapEnvelope()
     {
         StringBuilder soapEnvelopeString = new StringBuilder();
-        soapEnvelopeString.append(SOAP_ENVELOPE_HEADER);
+        soapEnvelopeString.append(SOAPSenderProperties.SOAP_ENVELOPE_HEADER);
         // TODO: Grab header parameters
-        soapEnvelopeString.append(SOAP_BODY_HEADER);
+        soapEnvelopeString.append(SOAPSenderProperties.SOAP_BODY_HEADER);
         WSOperation operation = definition.getOperation(method.getSelectedItem().toString());
         if (operation != null)
         {
@@ -610,8 +570,8 @@ public class SOAPSender extends ConnectorClass
             }
 
         }
-        soapEnvelopeString.append(SOAP_BODY_FOOTER);
-        soapEnvelopeString.append(SOAP_ENVELOPE_FOOTER);
+        soapEnvelopeString.append(SOAPSenderProperties.SOAP_BODY_FOOTER);
+        soapEnvelopeString.append(SOAPSenderProperties.SOAP_ENVELOPE_FOOTER);
         soapEnvelope.setText(soapEnvelopeString.toString());
         parent.enableSave();
     }
@@ -661,7 +621,7 @@ public class SOAPSender extends ConnectorClass
             if (evt.getStateChange() == evt.SELECTED)
             {
                 String item = evt.getItem().toString();
-                if (item.equals(SOAP_DEFAULT_DROPDOWN))
+                if (item.equals(SOAPSenderProperties.SOAP_DEFAULT_DROPDOWN))
                     return;
                 else
                 {

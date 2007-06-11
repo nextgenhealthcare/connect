@@ -23,9 +23,8 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-package com.webreach.mirth.client.ui.connectors;
+package com.webreach.mirth.connectors.jdbc;
 
-import java.awt.Color;
 import java.util.List;
 import java.util.Properties;
 
@@ -35,6 +34,7 @@ import org.syntax.jedit.tokenmarker.TSQLTokenMarker;
 
 import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.ui.UIConstants;
+import com.webreach.mirth.connectors.ConnectorClass;
 import com.webreach.mirth.model.DriverInfo;
 
 /**
@@ -44,25 +44,6 @@ import com.webreach.mirth.model.DriverInfo;
 public class DatabaseWriter extends ConnectorClass
 {
     /** Creates new form DatabaseWriter */
-    private final String DATATYPE = "DataType";
-
-    private final String DATABASE_HOST = "host";
-
-    private final String DATABASE_HOST_VALUE = "query";
-
-    private final String DATABASE_DRIVER = "driver";
-
-    private final String DATABASE_URL = "URL";
-
-    private final String DATABASE_USERNAME = "username";
-
-    private final String DATABASE_PASSWORD = "password";
-
-    private final String DATABASE_SQL_STATEMENT = "query";
-
-    private final String DATABASE_JS_SQL_STATEMENT = "script";
-
-    private final String DATABASE_USE_JS = "useScript";
 
     private static SyntaxDocument sqlMappingDoc;
 
@@ -72,7 +53,7 @@ public class DatabaseWriter extends ConnectorClass
 
     public DatabaseWriter()
     {
-        name = "Database Writer";
+        name = DatabaseWriterProperties.name;
 
         try
         {
@@ -84,11 +65,15 @@ public class DatabaseWriter extends ConnectorClass
         }
 
         initComponents();
+        
+        drivers.add(0, new DriverInfo("Please Select One", "Please Select One"));
         String[] driverNames = new String[drivers.size()];
+        
         for (int i = 0; i < drivers.size(); i++)
         {
             driverNames[i] = drivers.get(i).getName();
         }
+        
         databaseDriverCombobox.setModel(new javax.swing.DefaultComboBoxModel(driverNames));
 
         sqlMappingDoc = new SyntaxDocument();
@@ -100,31 +85,31 @@ public class DatabaseWriter extends ConnectorClass
     public Properties getProperties()
     {
         Properties properties = new Properties();
-        properties.put(DATATYPE, name);
-        properties.put(DATABASE_HOST, DATABASE_HOST_VALUE);
+        properties.put(DatabaseWriterProperties.DATATYPE, name);
+        properties.put(DatabaseWriterProperties.DATABASE_HOST, DatabaseWriterProperties.DATABASE_HOST_VALUE);
 
         for (int i = 0; i < drivers.size(); i++)
         {
             DriverInfo driver = drivers.get(i);
             if (driver.getName().equalsIgnoreCase(((String) databaseDriverCombobox.getSelectedItem())))
-                properties.put(DATABASE_DRIVER, driver.getClassName());
+                properties.put(DatabaseWriterProperties.DATABASE_DRIVER, driver.getClassName());
         }
 
-        properties.put(DATABASE_URL, databaseURLField.getText());
-        properties.put(DATABASE_USERNAME, databaseUsernameField.getText());
-        properties.put(DATABASE_PASSWORD, new String(databasePasswordField.getPassword()));
+        properties.put(DatabaseWriterProperties.DATABASE_URL, databaseURLField.getText());
+        properties.put(DatabaseWriterProperties.DATABASE_USERNAME, databaseUsernameField.getText());
+        properties.put(DatabaseWriterProperties.DATABASE_PASSWORD, new String(databasePasswordField.getPassword()));
 
         if (useJavaScriptYes.isSelected())
         {
-            properties.put(DATABASE_USE_JS, UIConstants.YES_OPTION);
-            properties.put(DATABASE_JS_SQL_STATEMENT, databaseSQLTextPane.getText());
-            properties.put(DATABASE_SQL_STATEMENT, "");
+            properties.put(DatabaseWriterProperties.DATABASE_USE_JS, UIConstants.YES_OPTION);
+            properties.put(DatabaseWriterProperties.DATABASE_JS_SQL_STATEMENT, databaseSQLTextPane.getText());
+            properties.put(DatabaseWriterProperties.DATABASE_SQL_STATEMENT, "");
         }
         else
         {
-            properties.put(DATABASE_USE_JS, UIConstants.NO_OPTION);
-            properties.put(DATABASE_SQL_STATEMENT, databaseSQLTextPane.getText());
-            properties.put(DATABASE_JS_SQL_STATEMENT, "");
+            properties.put(DatabaseWriterProperties.DATABASE_USE_JS, UIConstants.NO_OPTION);
+            properties.put(DatabaseWriterProperties.DATABASE_SQL_STATEMENT, databaseSQLTextPane.getText());
+            properties.put(DatabaseWriterProperties.DATABASE_JS_SQL_STATEMENT, "");
         }
 
         return properties;
@@ -133,48 +118,38 @@ public class DatabaseWriter extends ConnectorClass
     public void setProperties(Properties props)
     {
         resetInvalidProperties();
-        
+                
         boolean visible = parent.channelEditTasks.getContentPane().getComponent(0).isVisible();
 
         for (int i = 0; i < drivers.size(); i++)
         {
             DriverInfo driver = drivers.get(i);
-            if (driver.getClassName().equalsIgnoreCase(((String) props.get(DATABASE_DRIVER))))
+            if (driver.getClassName().equalsIgnoreCase(((String) props.get(DatabaseWriterProperties.DATABASE_DRIVER))))
                 databaseDriverCombobox.setSelectedItem(driver.getName());
         }
 
         parent.channelEditTasks.getContentPane().getComponent(0).setVisible(visible);
-        databaseURLField.setText((String) props.get(DATABASE_URL));
-        databaseUsernameField.setText((String) props.get(DATABASE_USERNAME));
-        databasePasswordField.setText((String) props.get(DATABASE_PASSWORD));
-        if (((String) props.get(DATABASE_USE_JS)).equals(UIConstants.YES_OPTION))
+        databaseURLField.setText((String) props.get(DatabaseWriterProperties.DATABASE_URL));
+        databaseUsernameField.setText((String) props.get(DatabaseWriterProperties.DATABASE_USERNAME));
+        databasePasswordField.setText((String) props.get(DatabaseWriterProperties.DATABASE_PASSWORD));
+        if (((String) props.get(DatabaseWriterProperties.DATABASE_USE_JS)).equals(UIConstants.YES_OPTION))
         {
             useJavaScriptYes.setSelected(true);
             useJavaScriptYesActionPerformed(null);
-            databaseSQLTextPane.setText((String) props.get(DATABASE_JS_SQL_STATEMENT));
+            databaseSQLTextPane.setText((String) props.get(DatabaseWriterProperties.DATABASE_JS_SQL_STATEMENT));
         }
         else
         {
             useJavaScriptNo.setSelected(true);
             useJavaScriptNoActionPerformed(null);
-            databaseSQLTextPane.setText((String) props.get(DATABASE_SQL_STATEMENT));
+            databaseSQLTextPane.setText((String) props.get(DatabaseWriterProperties.DATABASE_SQL_STATEMENT));
         }
 
     }
 
     public Properties getDefaults()
     {
-        Properties properties = new Properties();
-        properties.put(DATATYPE, name);
-        properties.put(DATABASE_HOST, DATABASE_HOST_VALUE);
-        properties.put(DATABASE_DRIVER, drivers.get(0).getClassName());
-        properties.put(DATABASE_URL, "");
-        properties.put(DATABASE_USERNAME, "");
-        properties.put(DATABASE_PASSWORD, "");
-        properties.put(DATABASE_SQL_STATEMENT, "INSERT INTO");
-        properties.put(DATABASE_USE_JS, UIConstants.NO_OPTION);
-        properties.put(DATABASE_JS_SQL_STATEMENT, "");
-        return properties;
+        return DatabaseWriterProperties.getDefaults();
     }
 
     public boolean checkProperties(Properties props)
@@ -182,15 +157,20 @@ public class DatabaseWriter extends ConnectorClass
         resetInvalidProperties();
         boolean valid = true;
         
-        if (((String) props.get(DATABASE_URL)).length() == 0)
+        if (((String) props.get(DatabaseWriterProperties.DATABASE_URL)).length() == 0)
         {
             valid = false;
             databaseURLField.setBackground(UIConstants.INVALID_COLOR);
         }
-        if ((((String) props.get(DATABASE_SQL_STATEMENT)).length() == 0) && (((String) props.get(DATABASE_JS_SQL_STATEMENT)).length() == 0))
+        if ((((String) props.get(DatabaseWriterProperties.DATABASE_SQL_STATEMENT)).length() == 0) && (((String) props.get(DatabaseWriterProperties.DATABASE_JS_SQL_STATEMENT)).length() == 0))
         {
             valid = false;
             databaseSQLTextPane.setBackground(UIConstants.INVALID_COLOR);
+        }
+        if ((((String) props.get(DatabaseWriterProperties.DATABASE_DRIVER)).equals("Please Select One")))
+        {
+            valid = false;
+            databaseDriverCombobox.setBackground(UIConstants.INVALID_COLOR);
         }
         
         return valid;
@@ -200,6 +180,7 @@ public class DatabaseWriter extends ConnectorClass
     {
         databaseURLField.setBackground(null);
         databaseSQLTextPane.setBackground(null);
+        databaseDriverCombobox.setBackground(UIConstants.COMBO_BOX_BACKGROUND);
     }
 
     /**

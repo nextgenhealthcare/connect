@@ -23,13 +23,13 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-package com.webreach.mirth.client.ui.connectors;
+package com.webreach.mirth.connectors.sftp;
 
-import java.awt.Color;
 import java.util.Properties;
 
 import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
+import com.webreach.mirth.connectors.ConnectorClass;
 
 /**
  * A form that extends from ConnectorClass. All methods implemented are
@@ -38,45 +38,10 @@ import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
 public class SFTPReader extends ConnectorClass
 {
     /** Creates new form FTPReader */
-    private final String DATATYPE = "DataType";
-
-    private final String FTP_HOST = "host";
-
-    private final String FTP_USERNAME = "username";
-
-    private final String FTP_PASSWORD = "password";
-
-    private final String FTP_POLLING_FREQUENCY = "pollingFrequency";
-
-    private final String FILE_MOVE_TO_PATTERN = "moveToPattern";
-
-    private final String FILE_MOVE_TO_DIRECTORY = "moveToDirectory";
-
-    private final String FILE_DELETE_AFTER_READ = "autoDelete";
-
-    private final String FILE_CHECK_FILE_AGE = "checkFileAge";
-
-    private final String FILE_FILE_AGE = "fileAge";
-
-    private final String FILE_SORT_BY = "sortAttribute";
-
-    private final String FILE_PROCESS_BATCH_FILES = "processBatchFiles";
-
-    private final String SORT_BY_NAME = "name";
-
-    private final String SORT_BY_SIZE = "size";
-
-    private final String SORT_BY_DATE = "date";
-
-    private final String CONNECTOR_CHARSET_ENCODING = "charsetEncoding";
-
-    private final String FILE_FILTER = "fileFilter";
-
-    private final String FILE_TYPE = "binary";
 
     public SFTPReader()
     {
-        name = "SFTP Reader";
+        name = SFTPReaderProperties.name;
         initComponents();
         pollingFrequencyField.setDocument(new MirthFieldConstraints(0, false, false, true));
         fileAge.setDocument(new MirthFieldConstraints(0, false, false, true));
@@ -87,48 +52,48 @@ public class SFTPReader extends ConnectorClass
     public Properties getProperties()
     {
         Properties properties = new Properties();
-        properties.put(DATATYPE, name);
-        properties.put(FTP_HOST, FTPURLField.getText());
+        properties.put(SFTPReaderProperties.DATATYPE, name);
+        properties.put(SFTPReaderProperties.FTP_HOST, FTPURLField.getText());
 
-        properties.put(FTP_USERNAME, FTPUsernameField.getText());
-        properties.put(FTP_PASSWORD, new String(FTPPasswordField.getPassword()));
-        properties.put(FTP_POLLING_FREQUENCY, pollingFrequencyField.getText());
+        properties.put(SFTPReaderProperties.FTP_USERNAME, FTPUsernameField.getText());
+        properties.put(SFTPReaderProperties.FTP_PASSWORD, new String(FTPPasswordField.getPassword()));
+        properties.put(SFTPReaderProperties.FTP_POLLING_FREQUENCY, pollingFrequencyField.getText());
         
         //common file properties
-        properties.put(FILE_MOVE_TO_PATTERN, moveToPattern.getText());
-        properties.put(FILE_MOVE_TO_DIRECTORY, moveToDirectory.getText().replace('\\', '/'));
+        properties.put(SFTPReaderProperties.FILE_MOVE_TO_PATTERN, moveToPattern.getText());
+        properties.put(SFTPReaderProperties.FILE_MOVE_TO_DIRECTORY, moveToDirectory.getText().replace('\\', '/'));
 
         if (deleteAfterReadYes.isSelected())
-            properties.put(FILE_DELETE_AFTER_READ, UIConstants.YES_OPTION);
+            properties.put(SFTPReaderProperties.FILE_DELETE_AFTER_READ, UIConstants.YES_OPTION);
         else
-            properties.put(FILE_DELETE_AFTER_READ, UIConstants.NO_OPTION);
+            properties.put(SFTPReaderProperties.FILE_DELETE_AFTER_READ, UIConstants.NO_OPTION);
 
         if (checkFileAgeYes.isSelected())
-            properties.put(FILE_CHECK_FILE_AGE, UIConstants.YES_OPTION);
+            properties.put(SFTPReaderProperties.FILE_CHECK_FILE_AGE, UIConstants.YES_OPTION);
         else
-            properties.put(FILE_CHECK_FILE_AGE, UIConstants.NO_OPTION);
+            properties.put(SFTPReaderProperties.FILE_CHECK_FILE_AGE, UIConstants.NO_OPTION);
 
-        properties.put(FILE_FILE_AGE, fileAge.getText());
+        properties.put(SFTPReaderProperties.FILE_FILE_AGE, fileAge.getText());
 
         if (((String) sortBy.getSelectedItem()).equals("Name"))
-            properties.put(FILE_SORT_BY, SORT_BY_NAME);
+            properties.put(SFTPReaderProperties.FILE_SORT_BY, SFTPReaderProperties.SORT_BY_NAME);
         else if (((String) sortBy.getSelectedItem()).equals("Size"))
-            properties.put(FILE_SORT_BY, SORT_BY_SIZE);
+            properties.put(SFTPReaderProperties.FILE_SORT_BY, SFTPReaderProperties.SORT_BY_SIZE);
         else if (((String) sortBy.getSelectedItem()).equals("Date"))
-            properties.put(FILE_SORT_BY, SORT_BY_DATE);
+            properties.put(SFTPReaderProperties.FILE_SORT_BY, SFTPReaderProperties.SORT_BY_DATE);
         // ast:encoding
-        properties.put(CONNECTOR_CHARSET_ENCODING, parent.getSelectedEncodingForChannel(charsetEncodingCombobox));
-        properties.put(FILE_FILTER, fileNameFilter.getText());
+        properties.put(SFTPReaderProperties.CONNECTOR_CHARSET_ENCODING, parent.getSelectedEncodingForChannel(charsetEncodingCombobox));
+        properties.put(SFTPReaderProperties.FILE_FILTER, fileNameFilter.getText());
 
         if (processBatchFilesYes.isSelected())
-            properties.put(FILE_PROCESS_BATCH_FILES, UIConstants.YES_OPTION);
+            properties.put(SFTPReaderProperties.FILE_PROCESS_BATCH_FILES, UIConstants.YES_OPTION);
         else
-            properties.put(FILE_PROCESS_BATCH_FILES, UIConstants.NO_OPTION);
+            properties.put(SFTPReaderProperties.FILE_PROCESS_BATCH_FILES, UIConstants.NO_OPTION);
 
         if (fileTypeBinary.isSelected())
-            properties.put(FILE_TYPE, UIConstants.YES_OPTION);
+            properties.put(SFTPReaderProperties.FILE_TYPE, UIConstants.YES_OPTION);
         else
-            properties.put(FILE_TYPE, UIConstants.NO_OPTION);
+            properties.put(SFTPReaderProperties.FILE_TYPE, UIConstants.NO_OPTION);
        
         return properties;
     }
@@ -137,16 +102,16 @@ public class SFTPReader extends ConnectorClass
     {
         resetInvalidProperties();
         
-        FTPURLField.setText((String) props.get(FTP_HOST));
+        FTPURLField.setText((String) props.get(SFTPReaderProperties.FTP_HOST));
 
-        FTPUsernameField.setText((String) props.get(FTP_USERNAME));
-        FTPPasswordField.setText((String) props.get(FTP_PASSWORD));
-        pollingFrequencyField.setText((String) props.get(FTP_POLLING_FREQUENCY));
+        FTPUsernameField.setText((String) props.get(SFTPReaderProperties.FTP_USERNAME));
+        FTPPasswordField.setText((String) props.get(SFTPReaderProperties.FTP_PASSWORD));
+        pollingFrequencyField.setText((String) props.get(SFTPReaderProperties.FTP_POLLING_FREQUENCY));
         
         //common file properties
-        moveToPattern.setText((String) props.get(FILE_MOVE_TO_PATTERN));
-        moveToDirectory.setText((String) props.get(FILE_MOVE_TO_DIRECTORY));
-        if (((String) props.get(FILE_DELETE_AFTER_READ)).equalsIgnoreCase(UIConstants.YES_OPTION))
+        moveToPattern.setText((String) props.get(SFTPReaderProperties.FILE_MOVE_TO_PATTERN));
+        moveToDirectory.setText((String) props.get(SFTPReaderProperties.FILE_MOVE_TO_DIRECTORY));
+        if (((String) props.get(SFTPReaderProperties.FILE_DELETE_AFTER_READ)).equalsIgnoreCase(UIConstants.YES_OPTION))
         {
             deleteAfterReadYes.setSelected(true);
             deleteAfterReadYesActionPerformed(null);
@@ -156,7 +121,7 @@ public class SFTPReader extends ConnectorClass
             deleteAfterReadNo.setSelected(true);
             deleteAfterReadNoActionPerformed(null);
         }
-        if (((String) props.get(FILE_CHECK_FILE_AGE)).equalsIgnoreCase(UIConstants.YES_OPTION))
+        if (((String) props.get(SFTPReaderProperties.FILE_CHECK_FILE_AGE)).equalsIgnoreCase(UIConstants.YES_OPTION))
         {
             checkFileAgeYes.setSelected(true);
             checkFileAgeYesActionPerformed(null);
@@ -167,24 +132,24 @@ public class SFTPReader extends ConnectorClass
             checkFileAgeNoActionPerformed(null);
         }
 
-        fileAge.setText((String) props.get(FILE_FILE_AGE));
+        fileAge.setText((String) props.get(SFTPReaderProperties.FILE_FILE_AGE));
 
-        if (props.get(FILE_SORT_BY).equals(SORT_BY_NAME))
+        if (props.get(SFTPReaderProperties.FILE_SORT_BY).equals(SFTPReaderProperties.SORT_BY_NAME))
             sortBy.setSelectedItem("Name");
-        else if (props.get(FILE_SORT_BY).equals(SORT_BY_SIZE))
+        else if (props.get(SFTPReaderProperties.FILE_SORT_BY).equals(SFTPReaderProperties.SORT_BY_SIZE))
             sortBy.setSelectedItem("Size");
-        else if (props.get(FILE_SORT_BY).equals(SORT_BY_DATE))
+        else if (props.get(SFTPReaderProperties.FILE_SORT_BY).equals(SFTPReaderProperties.SORT_BY_DATE))
             sortBy.setSelectedItem("Date");
         // ast:encoding
-        parent.sePreviousSelectedEncodingForChannel(charsetEncodingCombobox, (String) props.get(CONNECTOR_CHARSET_ENCODING));
-        fileNameFilter.setText((String) props.get(FILE_FILTER));
+        parent.sePreviousSelectedEncodingForChannel(charsetEncodingCombobox, (String) props.get(SFTPReaderProperties.CONNECTOR_CHARSET_ENCODING));
+        fileNameFilter.setText((String) props.get(SFTPReaderProperties.FILE_FILTER));
 
-        if (((String) props.get(FILE_PROCESS_BATCH_FILES)).equalsIgnoreCase(UIConstants.YES_OPTION))
+        if (((String) props.get(SFTPReaderProperties.FILE_PROCESS_BATCH_FILES)).equalsIgnoreCase(UIConstants.YES_OPTION))
             processBatchFilesYes.setSelected(true);
         else
             processBatchFilesNo.setSelected(true);
 
-        if (((String) props.get(FILE_TYPE)).equalsIgnoreCase(UIConstants.YES_OPTION))
+        if (((String) props.get(SFTPReaderProperties.FILE_TYPE)).equalsIgnoreCase(UIConstants.YES_OPTION))
             fileTypeBinary.setSelected(true);
         else
             fileTypeASCII.setSelected(true);
@@ -192,26 +157,7 @@ public class SFTPReader extends ConnectorClass
 
     public Properties getDefaults()
     {
-        Properties properties = new Properties();
-        properties.put(DATATYPE, name);
-        properties.put(FTP_HOST, "");
-        properties.put(FTP_USERNAME, "");
-        properties.put(FTP_PASSWORD, "");
-        properties.put(FTP_POLLING_FREQUENCY, "1000");
-        
-        //common file properties
-        properties.put(FILE_MOVE_TO_PATTERN, "");
-        properties.put(FILE_MOVE_TO_DIRECTORY, "");
-        properties.put(FILE_DELETE_AFTER_READ, UIConstants.NO_OPTION);
-        properties.put(FILE_CHECK_FILE_AGE, UIConstants.NO_OPTION);
-        properties.put(FILE_FILE_AGE, "0");
-        properties.put(FILE_SORT_BY, SORT_BY_DATE);
-        properties.put(FILE_TYPE, UIConstants.NO_OPTION);
-        // ast: encoding
-        properties.put(CONNECTOR_CHARSET_ENCODING, UIConstants.DEFAULT_ENCODING_OPTION);
-        properties.put(FILE_FILTER, "*.*");
-        properties.put(FILE_PROCESS_BATCH_FILES, UIConstants.YES_OPTION);
-        return properties;
+        return SFTPReaderProperties.getDefaults();
     }
 
     public boolean checkProperties(Properties props)
@@ -219,34 +165,34 @@ public class SFTPReader extends ConnectorClass
         resetInvalidProperties();
         boolean valid = true;
         
-        if (((String) props.get(FTP_HOST)).length() == 0)
+        if (((String) props.get(SFTPReaderProperties.FTP_HOST)).length() == 0)
         {
             valid = false;
             FTPURLField.setBackground(UIConstants.INVALID_COLOR);
         }
-        if (((String) props.get(FILE_FILTER)).length() == 0)
+        if (((String) props.get(SFTPReaderProperties.FILE_FILTER)).length() == 0)
         {
             valid = false;
             fileNameFilter.setBackground(UIConstants.INVALID_COLOR);
         }
-        if (((String) props.get(FTP_POLLING_FREQUENCY)).length() == 0)
+        if (((String) props.get(SFTPReaderProperties.FTP_POLLING_FREQUENCY)).length() == 0)
         {
             valid = false;
             pollingFrequencyField.setBackground(UIConstants.INVALID_COLOR);
         }
-        if (((String) props.get(FTP_USERNAME)).length() == 0)
+        if (((String) props.get(SFTPReaderProperties.FTP_USERNAME)).length() == 0)
         {
             valid = false;
             FTPUsernameField.setBackground(UIConstants.INVALID_COLOR);
         }
-        if (((String) props.get(FTP_PASSWORD)).length() == 0)
+        if (((String) props.get(SFTPReaderProperties.FTP_PASSWORD)).length() == 0)
         {
             valid = false;
             FTPPasswordField.setBackground(UIConstants.INVALID_COLOR);
         }
-        if (((String) props.get(FILE_CHECK_FILE_AGE)).equals(UIConstants.YES_OPTION))
+        if (((String) props.get(SFTPReaderProperties.FILE_CHECK_FILE_AGE)).equals(UIConstants.YES_OPTION))
         {
-            if (((String) props.get(FILE_FILE_AGE)).length() == 0)
+            if (((String) props.get(SFTPReaderProperties.FILE_FILE_AGE)).length() == 0)
             {
                 valid = false;
                 fileAge.setBackground(UIConstants.INVALID_COLOR);
