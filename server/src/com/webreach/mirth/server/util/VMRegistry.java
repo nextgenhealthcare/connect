@@ -30,7 +30,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.webreach.mirth.server.mule.providers.vm.VMMessageReceiver;
+import com.webreach.mirth.connectors.vm.VMMessageReceiver;
 
 public class VMRegistry {
 	public Map<String, VMMessageReceiver> vmRegistry = new ConcurrentHashMap<String, VMMessageReceiver>();

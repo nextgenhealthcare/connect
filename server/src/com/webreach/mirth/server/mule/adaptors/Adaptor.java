@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import com.webreach.mirth.connectors.file.FileConnector;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.converters.DefaultXMLSerializer;
 import com.webreach.mirth.model.converters.IXMLSerializer;
@@ -13,7 +14,6 @@ import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.ConfigurationController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
-import com.webreach.mirth.server.mule.providers.file.FileConnector;
 import com.webreach.mirth.server.util.UUIDGenerator;
 
 public abstract class Adaptor {

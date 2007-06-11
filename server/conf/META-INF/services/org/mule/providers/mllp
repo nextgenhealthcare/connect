@@ -1,7 +1,7 @@
-connector=com.webreach.mirth.server.mule.providers.mllp.MllpConnector
-dispatcher.factory=com.webreach.mirth.server.mule.providers.mllp.MllpMessageDispatcherFactory
-message.receiver=com.webreach.mirth.server.mule.providers.mllp.MllpMessageReceiver
-message.adapter=com.webreach.mirth.server.mule.providers.mllp.MllpMessageAdapter
+connector=com.webreach.mirth.connectors.mllp.MllpConnector
+dispatcher.factory=com.webreach.mirth.connectors.mllp.MllpMessageDispatcherFactory
+message.receiver=com.webreach.mirth.connectors.mllp.MllpMessageReceiver
+message.adapter=com.webreach.mirth.connectors.mllp.MllpMessageAdapter
 inbound.transformer=org.mule.transformers.simple.ByteArrayToString
 outbound.transformer=org.mule.transformers.simple.StringToByteArray
 endpoint.builder=org.mule.impl.endpoint.SocketEndpointBuilder

@@ -1,6 +1,6 @@
-connector=com.webreach.mirth.server.mule.providers.http.HttpConnector
-dispatcher.factory=com.webreach.mirth.server.mule.providers.http.HttpClientMessageDispatcherFactory
-message.receiver=com.webreach.mirth.server.mule.providers.http.HttpMessageReceiver
+connector=com.webreach.mirth.connectors.http.HttpConnector
+dispatcher.factory=com.webreach.mirth.connectors.http.HttpClientMessageDispatcherFactory
+message.receiver=com.webreach.mirth.connectors.http.HttpMessageReceiver
 message.adapter=org.mule.providers.http.HttpMessageAdapter
 outbound.transformer=org.mule.providers.http.transformers.ObjectToHttpClientMethodRequest
-response.transformer=com.webreach.mirth.server.mule.providers.http.transformers.UMOMessageToHttpResponse
+response.transformer=com.webreach.mirth.connectors.http.transformers.UMOMessageToHttpResponse

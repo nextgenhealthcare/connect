@@ -14,9 +14,9 @@ import org.mule.umo.provider.DispatchException;
 import org.mule.util.queue.Queue;
 import org.mule.util.queue.QueueSession;
 
+import com.webreach.mirth.connectors.vm.VMConnector;
+import com.webreach.mirth.connectors.vm.VMMessageReceiver;
 import com.webreach.mirth.server.controllers.ChannelController;
-import com.webreach.mirth.server.mule.providers.vm.VMConnector;
-import com.webreach.mirth.server.mule.providers.vm.VMMessageReceiver;
 
 public class VMRouter {
 	/**

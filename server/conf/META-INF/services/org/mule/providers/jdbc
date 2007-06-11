@@ -1,5 +1,5 @@
-connector=com.webreach.mirth.server.mule.providers.jdbc.JdbcConnector
-dispatcher.factory=com.webreach.mirth.server.mule.providers.jdbc.JdbcMessageDispatcherFactory
-message.receiver=com.webreach.mirth.server.mule.providers.jdbc.JdbcMessageReceiver
-message.adapter=com.webreach.mirth.server.mule.providers.jdbc.JdbcMessageAdapter
-endpoint.builder=com.webreach.mirth.server.mule.providers.jdbc.JdbcEndpointBuilder
+connector=com.webreach.mirth.connectors.jdbc.JdbcConnector
+dispatcher.factory=com.webreach.mirth.connectors.jdbc.JdbcMessageDispatcherFactory
+message.receiver=com.webreach.mirth.connectors.jdbc.JdbcMessageReceiver
+message.adapter=com.webreach.mirth.connectors.jdbc.JdbcMessageAdapter
+endpoint.builder=com.webreach.mirth.connectors.jdbc.JdbcEndpointBuilder

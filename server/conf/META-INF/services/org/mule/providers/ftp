@@ -1,5 +1,5 @@
-connector=com.webreach.mirth.server.mule.providers.ftp.FtpConnector
-dispatcher.factory=com.webreach.mirth.server.mule.providers.ftp.FtpMessageDispatcherFactory
-message.receiver=com.webreach.mirth.server.mule.providers.ftp.FtpMessageReceiver
-message.adapter=com.webreach.mirth.server.mule.providers.ftp.FtpMessageAdapter
+connector=com.webreach.mirth.connectors.ftp.FtpConnector
+dispatcher.factory=com.webreach.mirth.connectors.ftp.FtpMessageDispatcherFactory
+message.receiver=com.webreach.mirth.connectors.ftp.FtpMessageReceiver
+message.adapter=com.webreach.mirth.connectors.ftp.FtpMessageAdapter
 endpoint.builder=org.mule.impl.endpoint.SocketEndpointBuilder
