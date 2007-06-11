@@ -10,15 +10,10 @@
 	<agents>
 		<agent name="RMI"
 			className="org.mule.management.agents.RmiRegistryAgent">
-      <properties>
-        <property name="serverUri" value="rmi://localhost:1099" />
-      </properties>	
+      <properties/>
 		</agent>
 		<agent name="JMX" className="org.mule.management.agents.JmxAgent">
 			<properties>
-				<property name="connectorServerUrl"
-					value="service:jmx:rmi:///jndi/rmi://localhost:1099/server" />
-
 				<map name="connectorServerProperties">
 					<property name="jmx.remote.jndi.rebind" value="true" />
 				</map>

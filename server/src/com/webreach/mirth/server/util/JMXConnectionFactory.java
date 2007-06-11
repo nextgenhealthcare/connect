@@ -33,6 +33,8 @@ import com.webreach.mirth.util.PropertyLoader;
 public class JMXConnectionFactory {
 	public static JMXConnection createJMXConnection() throws Exception {
 		Properties properties = PropertyLoader.loadProperties("mirth");
-		return new JMXConnection(properties.getProperty("jmx.url"), properties.getProperty("configuration.id"));
+		String port = properties.getProperty("jmx.port");
+		String jmxUrl = "service:jmx:rmi:///jndi/rmi://localhost:" + port + "/server";
+		return new JMXConnection(jmxUrl, properties.getProperty("configuration.id"));
 	}
 }

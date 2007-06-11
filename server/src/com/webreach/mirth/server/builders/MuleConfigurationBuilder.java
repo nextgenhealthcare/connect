@@ -39,6 +39,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.Connector;
@@ -92,6 +93,28 @@ public class MuleConfigurationBuilder {
 
 			Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(muleBootstrapFile);
 			Element muleConfigurationElement = document.getDocumentElement();
+			
+			// set the server address
+			Element agentsElement = (Element) muleConfigurationElement.getElementsByTagName("agents").item(0);
+			NodeList agents = (NodeList) agentsElement.getElementsByTagName("agent");
+			String port = properties.getProperty("jmx.port");
+			
+			for (int i = 0; i < agents.getLength(); i++) {
+				Element agent = (Element) agents.item(i);
+				Element agentProperties = (Element) agent.getElementsByTagName("properties").item(0);
+				Element propertyElement = document.createElement("property");
+				
+				if (agent.getAttribute("name").toLowerCase().equals("rmi")) {
+					propertyElement.setAttribute("name", "serverUri");
+					propertyElement.setAttribute("value", "rmi://localhost:" + port);
+				} else if (agent.getAttribute("name").toLowerCase().equals("jmx")) {
+					propertyElement.setAttribute("name", "connectorServerUrl");
+					propertyElement.setAttribute("value", "service:jmx:rmi:///jndi/rmi://localhost:" + port + "/server");
+				}
+				
+				agentProperties.appendChild(propertyElement);
+			}
+			
 			Element modelElement = (Element) muleConfigurationElement.getElementsByTagName("model").item(0);
 
 			// create descriptors
