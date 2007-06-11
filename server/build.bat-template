@@ -4,12 +4,43 @@ set MANAGER_PATH="YOUR MANAGER PATH"
 set VERSION=1.4.0
 
 cd %SERVER_PATH%
-call ant create-client-core
+
+call ant create-connectors
+
+copy %SERVER_PATH%\connectors\doc-shared.jar %CLIENT_PATH%\lib\
+copy %SERVER_PATH%\connectors\email-shared.jar %CLIENT_PATH%\lib\
+copy %SERVER_PATH%\connectors\file-shared.jar %CLIENT_PATH%\lib\
+copy %SERVER_PATH%\connectors\ftp-shared.jar %CLIENT_PATH%\lib\
+copy %SERVER_PATH%\connectors\http-shared.jar %CLIENT_PATH%\lib\
+copy %SERVER_PATH%\connectors\jdbc-shared.jar %CLIENT_PATH%\lib\
+copy %SERVER_PATH%\connectors\jms-shared.jar %CLIENT_PATH%\lib\
+copy %SERVER_PATH%\connectors\mllp-shared.jar %CLIENT_PATH%\lib\
+copy %SERVER_PATH%\connectors\sftp-shared.jar %CLIENT_PATH%\lib\
+copy %SERVER_PATH%\connectors\soap-shared.jar %CLIENT_PATH%\lib\
+copy %SERVER_PATH%\connectors\tcp-shared.jar %CLIENT_PATH%\lib\
+copy %SERVER_PATH%\connectors\vm-shared.jar %CLIENT_PATH%\lib\
+
 copy %SERVER_PATH%\mirth-client-core.jar %CLIENT_PATH%\lib\
+
 cd %CLIENT_PATH%
 call ant -buildfile ant-build.xml create-client
 copy %CLIENT_PATH%\dist\mirth-client.jar %SERVER_PATH%\webapp\lib\
+
+copy %CLIENT_PATH%\dist\doc-client.jar %SERVER_PATH%\webapp\lib\
+copy %CLIENT_PATH%\dist\email-client.jar %SERVER_PATH%\webapp\lib\
+copy %CLIENT_PATH%\dist\file-client.jar %SERVER_PATH%\webapp\lib\
+copy %CLIENT_PATH%\dist\ftp-client.jar %SERVER_PATH%\webapp\lib\
+copy %CLIENT_PATH%\dist\http-client.jar %SERVER_PATH%\webapp\lib\
+copy %CLIENT_PATH%\dist\jdbc-client.jar %SERVER_PATH%\webapp\lib\
+copy %CLIENT_PATH%\dist\jms-client.jar %SERVER_PATH%\webapp\lib\
+copy %CLIENT_PATH%\dist\mllp-client.jar %SERVER_PATH%\webapp\lib\
+copy %CLIENT_PATH%\dist\sftp-client.jar %SERVER_PATH%\webapp\lib\
+copy %CLIENT_PATH%\dist\soap-client.jar %SERVER_PATH%\webapp\lib\
+copy %CLIENT_PATH%\dist\tcp-client.jar %SERVER_PATH%\webapp\lib\
+copy %CLIENT_PATH%\dist\vm-client.jar %SERVER_PATH%\webapp\lib\
+
 copy %SERVER_PATH%\mirth-client-core.jar %SERVER_PATH%\webapp\lib\
+
 copy %CLIENT_PATH%\lib\*.jar %SERVER_PATH%\webapp\lib\
 cd %SERVER_PATH%
 call ant create-setup -Dversion=%VERSION%
