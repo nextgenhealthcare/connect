@@ -15,8 +15,6 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map Config 2.0//EN"
 		callback="com.webreach.mirth.server.sqlmap.extensions.MessageProtocolTypeHandler" />
 	<typeHandler javaType="com.webreach.mirth.model.MessageObject$Status"
 		callback="com.webreach.mirth.server.sqlmap.extensions.MessageStatusTypeHandler" />
-	<typeHandler javaType="com.webreach.mirth.model.Transport$Type"
-		callback="com.webreach.mirth.server.sqlmap.extensions.TransportTypeTypeHandler" />
 	<typeHandler javaType="com.webreach.mirth.model.SystemEvent$Level"
 		callback="com.webreach.mirth.server.sqlmap.extensions.EventLevelTypeHandler" />
 	<typeHandler javaType="com.webreach.mirth.model.Connector"

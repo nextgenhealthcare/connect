@@ -41,7 +41,7 @@ import com.webreach.mirth.model.DriverInfo;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.ServerConfiguration;
 import com.webreach.mirth.model.SystemEvent;
-import com.webreach.mirth.model.Transport;
+import com.webreach.mirth.model.ConnectorMetaData;
 import com.webreach.mirth.model.User;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.model.filters.MessageObjectFilter;
@@ -197,10 +197,10 @@ public class Client {
 	 * @return
 	 * @throws ClientException
 	 */
-	public Map<String, Transport> getTransports() throws ClientException {
+	public Map<String, ConnectorMetaData> getConnectorMetaData() throws ClientException {
 		logger.debug("retrieving transport list");
-		NameValuePair[] params = { new NameValuePair("op", "getTransports") };
-		return (Map<String, Transport>) serializer.fromXML(serverConnection.executePostMethod(CONFIGURATION_SERVLET, params));
+		NameValuePair[] params = { new NameValuePair("op", "getConnectorMetaData") };
+		return (Map<String, ConnectorMetaData>) serializer.fromXML(serverConnection.executePostMethod(CONFIGURATION_SERVLET, params));
 	}
 
 	/**

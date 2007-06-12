@@ -30,23 +30,32 @@ import java.io.Serializable;
 
 import com.webreach.mirth.util.EqualsUtil;
 
-public class Transport implements Serializable {
+public class ConnectorMetaData implements Serializable {
 	public enum Type {
 		LISTENER, SENDER
 	};
 
 	private String name;
-	private String className;
+	private String serverClassName;
+	private String clientClassName;
 	private String transformers;
 	private String protocol;
 	private Type type;
 
-	public String getClassName() {
-		return this.className;
+	public String getServerClassName() {
+		return this.serverClassName;
 	}
 
-	public void setClassName(String className) {
-		this.className = className;
+	public void setServerClassName(String serverClassName) {
+		this.serverClassName = serverClassName;
+	}
+
+	public String getClientClassName() {
+		return clientClassName;
+	}
+
+	public void setClientClassName(String clientClassName) {
+		this.clientClassName = clientClassName;
 	}
 
 	public String getName() {
@@ -86,15 +95,15 @@ public class Transport implements Serializable {
 			return true;
 		}
 		
-		if (!(that instanceof Transport)) {
+		if (!(that instanceof ConnectorMetaData)) {
 			return false;
 		}
 		
-		Transport transport = (Transport) that;
+		ConnectorMetaData transport = (ConnectorMetaData) that;
 		
 		return
 			EqualsUtil.areEqual(this.getName(), transport.getName()) &&
-			EqualsUtil.areEqual(this.getClassName(), transport.getClassName()) &&
+			EqualsUtil.areEqual(this.getServerClassName(), transport.getServerClassName()) &&
 			EqualsUtil.areEqual(this.getProtocol(), transport.getProtocol()) &&
 			EqualsUtil.areEqual(this.getTransformers(), transport.getTransformers()) &&
 			EqualsUtil.areEqual(this.getType(), transport.getType());
@@ -105,7 +114,7 @@ public class Transport implements Serializable {
 		builder.append(this.getClass().getName() + "[");
 		builder.append("name=" + getName() + ", ");
 		builder.append("type=" + getType().toString() + ", ");
-		builder.append("className=" + getClassName() + ", ");
+		builder.append("className=" + getServerClassName() + ", ");
 		builder.append("transformers=" + getTransformers() + ", ");
 		builder.append("protocol=" + getProtocol());
 		builder.append("]");

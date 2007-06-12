@@ -5,7 +5,7 @@ import java.util.Map;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
-import com.webreach.mirth.model.Transport;
+import com.webreach.mirth.model.ConnectorMetaData;
 import com.webreach.mirth.server.controllers.ConfigurationController;
 import com.webreach.mirth.server.controllers.ControllerException;
 import com.webreach.mirth.server.tools.ScriptRunner;
@@ -27,13 +27,13 @@ public class ConfigurationControllerTest extends TestCase {
 	}
 
 	public void testGetTransports() throws ControllerException {
-		Transport sampleTransport = new Transport();
+		ConnectorMetaData sampleTransport = new ConnectorMetaData();
 		sampleTransport.setName("FTP Reader");
-		sampleTransport.setClassName("com.webreach.mirth.server.mule.providers.ftp.FtpConnector");
+		sampleTransport.setServerClassName("com.webreach.mirth.server.mule.providers.ftp.FtpConnector");
 		sampleTransport.setProtocol("ftp");
 		sampleTransport.setTransformers("ByteArrayToString");
-		sampleTransport.setType(Transport.Type.LISTENER);
-		Map<String, Transport> testTransportList = configurationController.getTransports();
+		sampleTransport.setType(ConnectorMetaData.Type.LISTENER);
+		Map<String, ConnectorMetaData> testTransportList = configurationController.getConnectorMetaData();
 
 		Assert.assertTrue(testTransportList.containsValue(sampleTransport));
 	}

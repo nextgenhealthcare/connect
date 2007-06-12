@@ -27,6 +27,7 @@ package com.webreach.mirth.server.controllers;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
@@ -36,6 +37,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
@@ -56,16 +58,17 @@ import com.ibatis.sqlmap.client.SqlMapClient;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.ChannelStatus;
 import com.webreach.mirth.model.Configuration;
+import com.webreach.mirth.model.ConnectorMetaData;
 import com.webreach.mirth.model.DriverInfo;
 import com.webreach.mirth.model.ServerConfiguration;
 import com.webreach.mirth.model.SystemEvent;
-import com.webreach.mirth.model.Transport;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.server.Command;
 import com.webreach.mirth.server.CommandQueue;
 import com.webreach.mirth.server.builders.MuleConfigurationBuilder;
 import com.webreach.mirth.server.tools.ClassPathResource;
 import com.webreach.mirth.server.util.DatabaseUtil;
+import com.webreach.mirth.server.util.FileUtil;
 import com.webreach.mirth.server.util.JMXConnection;
 import com.webreach.mirth.server.util.JMXConnectionFactory;
 import com.webreach.mirth.server.util.SqlConfig;
@@ -144,14 +147,32 @@ public class ConfigurationController {
 		}
 	}
 
-	public Map<String, Transport> getTransports() throws ControllerException {
-		logger.debug("retrieving transport list");
+	public Map<String, ConnectorMetaData> getConnectorMetaData() throws ControllerException {
+		logger.debug("retrieving connector metadata");
 
+		FileFilter fileFilter = new FileFilter() {
+			public boolean accept(File file) {
+				return (!file.isDirectory() && file.getName().endsWith(".xml"));
+			}
+		};
+		
+		Map<String, ConnectorMetaData> connectors = new HashMap<String, ConnectorMetaData>();
+		File path = new File("connectors");
+		File[] connectorFiles = path.listFiles(fileFilter);
+		ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+		
 		try {
-			return (Map<String, Transport>) sqlMap.queryForMap("getTransports", null, "name");
-		} catch (SQLException e) {
-			throw new ControllerException(e);
+			for (int i = 0; i < connectorFiles.length; i++) {
+				File connectorFile = connectorFiles[i];
+				String xml = FileUtil.read(connectorFile.getAbsolutePath());
+				ConnectorMetaData connectorMetadata = (ConnectorMetaData) serializer.fromXML(xml);
+				connectors.put(connectorMetadata.getName(), connectorMetadata);	
+			}
+		} catch (IOException ioe) {
+			throw new ControllerException(ioe);
 		}
+		
+		return connectors;
 	}
 
 	/*
@@ -290,7 +311,7 @@ public class ConfigurationController {
 			// instantiate a new configuration builder given the current channel
 			// and transport list
 			List<Channel> channels = channelController.getChannel(null);
-			MuleConfigurationBuilder builder = new MuleConfigurationBuilder(channels, getTransports());
+			MuleConfigurationBuilder builder = new MuleConfigurationBuilder(channels, getConnectorMetaData());
 			// add the newly generated configuration to the database
 			addConfiguration(builder.getConfiguration());
 			// update the storeMessages reference

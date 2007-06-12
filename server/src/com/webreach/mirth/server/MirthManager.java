@@ -34,7 +34,7 @@ import com.webreach.mirth.model.ChannelStatistics;
 import com.webreach.mirth.model.ChannelStatus;
 import com.webreach.mirth.model.DriverInfo;
 import com.webreach.mirth.model.SystemEvent;
-import com.webreach.mirth.model.Transport;
+import com.webreach.mirth.model.ConnectorMetaData;
 import com.webreach.mirth.model.User;
 import com.webreach.mirth.model.filters.MessageObjectFilter;
 import com.webreach.mirth.model.filters.SystemEventFilter;
@@ -104,9 +104,9 @@ public class MirthManager {
 	 * @return
 	 * @throws MirthException
 	 */
-	public Map<String, Transport> getTransports() throws MirthException {
+	public Map<String, ConnectorMetaData> getTransports() throws MirthException {
 		try {
-			return configurationController.getTransports();
+			return configurationController.getConnectorMetaData();
 		} catch (ControllerException e) {
 			throw new MirthException(e);
 		}

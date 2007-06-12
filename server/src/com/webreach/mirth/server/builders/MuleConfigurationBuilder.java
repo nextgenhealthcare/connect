@@ -44,7 +44,7 @@ import org.w3c.dom.NodeList;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.Connector;
 import com.webreach.mirth.model.Transformer;
-import com.webreach.mirth.model.Transport;
+import com.webreach.mirth.model.ConnectorMetaData;
 import com.webreach.mirth.model.converters.DocumentSerializer;
 import com.webreach.mirth.model.converters.IXMLSerializer;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
@@ -65,12 +65,12 @@ import com.webreach.mirth.util.PropertyLoader;
 public class MuleConfigurationBuilder {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private List<Channel> channels = null;
-	private Map<String, Transport> transports = null;
+	private Map<String, ConnectorMetaData> transports = null;
 	private JavaScriptFilterBuilder filterBuilder = new JavaScriptFilterBuilder();
 	private JavaScriptTransformerBuilder transformerBuilder = new JavaScriptTransformerBuilder();
 	private ScriptController scriptController = new ScriptController();
 
-	public MuleConfigurationBuilder(List<Channel> channels, Map<String, Transport> transports) {
+	public MuleConfigurationBuilder(List<Channel> channels, Map<String, ConnectorMetaData> transports) {
 		this.channels = channels;
 		this.transports = transports;
 	}
@@ -226,7 +226,7 @@ public class MuleConfigurationBuilder {
 
 			// 1. append the default transformers required by the transport (ex.
 			// ByteArrayToString)
-			Transport transport = transports.get(channel.getSourceConnector().getTransportName());
+			ConnectorMetaData transport = transports.get(channel.getSourceConnector().getTransportName());
 			endpointTransformers.append(transport.getTransformers() + " ");
 
 			// 2. append the preprocessing transformer
@@ -311,7 +311,7 @@ public class MuleConfigurationBuilder {
 
 				// 2. finally, append any transformers needed by the transport
 				// (ie. StringToByteArray)
-				Transport transport = transports.get(connector.getTransportName());
+				ConnectorMetaData transport = transports.get(connector.getTransportName());
 
 				if (transport.getTransformers() != null) {
 					transformers.append(transport.getTransformers());	
@@ -430,10 +430,10 @@ public class MuleConfigurationBuilder {
 		try {
 			// get the transport associated with this class from the transport
 			// map
-			Transport transport = transports.get(connector.getTransportName());
+			ConnectorMetaData transport = transports.get(connector.getTransportName());
 			Element connectorElement = document.createElement("connector");
 			connectorElement.setAttribute("name", name);
-			connectorElement.setAttribute("className", transport.getClassName());
+			connectorElement.setAttribute("className", transport.getServerClassName());
 
 			// exception-strategy
 			Element exceptionStrategyElement = document.createElement("exception-strategy");

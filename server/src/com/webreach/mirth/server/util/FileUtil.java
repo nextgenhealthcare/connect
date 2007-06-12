@@ -26,46 +26,43 @@
 package com.webreach.mirth.server.util;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 
 import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
 
-public class FileUtil
-{
-    public static void write(String fileName, boolean append, String data) throws IOException
-    {
-    	write(fileName, append, data.getBytes());
-    }
-    public static byte[] decode(String data) throws IOException{
-    	return new BASE64Decoder().decodeBuffer(data);
-    }
-    public static String encode(byte[] data) throws IOException{
-    	return new BASE64Encoder().encode(data);
-    }
-    public static void write(String fileName, boolean append, byte[] bytes) throws IOException{
-    	File file = new File(fileName);
-        FileOutputStream fos = null;
-        try
-        {
-        	fos = new FileOutputStream(file, append);
-    		fos.write(bytes);
-        }
-        finally
-        {
-        	if (fos != null){
-        		fos.close();
-        	}
-        }
-    }
-    //Returns the contents of the file in a byte array.
+public class FileUtil {
+	public static void write(String fileName, boolean append, String data) throws IOException {
+		write(fileName, append, data.getBytes());
+	}
+
+	public static byte[] decode(String data) throws IOException {
+		return new BASE64Decoder().decodeBuffer(data);
+	}
+
+	public static String encode(byte[] data) throws IOException {
+		return new BASE64Encoder().encode(data);
+	}
+
+	public static void write(String fileName, boolean append, byte[] bytes) throws IOException {
+		File file = new File(fileName);
+		FileOutputStream fos = null;
+		try {
+			fos = new FileOutputStream(file, append);
+			fos.write(bytes);
+		} finally {
+			if (fos != null) {
+				fos.close();
+			}
+		}
+	}
+
+	// Returns the contents of the file in a byte array.
 	public static byte[] readBytes(String fileName) throws IOException {
 		File file = new File(fileName);
 		InputStream is = new FileInputStream(file);
@@ -101,25 +98,21 @@ public class FileUtil
 		is.close();
 		return bytes;
 	}
-    public static String read(String fileName) throws IOException
-    {
-    	File file = new File(fileName);
-        BufferedReader reader = new BufferedReader(new FileReader(file));
-        StringBuilder contents = new StringBuilder();
-        String line = null;
 
-        try
-        {
-            while ((line = reader.readLine()) != null)
-            {
-                contents.append(line + "\n");
-            }
-        }
-        finally
-        {
-            reader.close();
-        }
+	public static String read(String fileName) throws IOException {
+		File file = new File(fileName);
+		BufferedReader reader = new BufferedReader(new FileReader(file));
+		StringBuilder contents = new StringBuilder();
+		String line = null;
 
-        return contents.toString();
-    }
+		try {
+			while ((line = reader.readLine()) != null) {
+				contents.append(line + "\n");
+			}
+		} finally {
+			reader.close();
+		}
+
+		return contents.toString();
+	}
 }

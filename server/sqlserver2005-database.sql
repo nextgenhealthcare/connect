@@ -171,16 +171,6 @@ ADD CONSTRAINT ALERT_ID_AE_FK
 FOREIGN KEY (ALERT_ID)
 REFERENCES ALERT(ID) ON DELETE CASCADE;
 
-IF EXISTS(SELECT 1 FROM sysobjects WHERE ID = OBJECT_ID(N'TRANSPORT') AND type = (N'U'))
-    DROP TABLE TRANSPORT;
-
-CREATE TABLE TRANSPORT
-	(NAME VARCHAR(255) NOT NULL PRIMARY KEY,
-	CLASS_NAME VARCHAR(255) NOT NULL,
-	PROTOCOL VARCHAR(255) NOT NULL,
-	TRANSFORMERS VARCHAR(255) NOT NULL,
-	TYPE VARCHAR(255) NOT NULL);
-
 IF EXISTS(SELECT 1 FROM sysobjects WHERE ID = OBJECT_ID(N'CONFIGURATION') AND type = (N'U'))
     DROP TABLE CONFIGURATION;
 
@@ -196,47 +186,3 @@ CREATE TABLE ENCRYPTION_KEY
 	(DATA TEXT NOT NULL);
 
 INSERT INTO PERSON (USERNAME, PASSWORD, SALT, LOGGED_IN) VALUES('admin', 'NdgB6ojoGb/uFa5amMEyBNG16mE=', 'Np+FZYzu4M0=', 0);
-
-INSERT INTO TRANSPORT (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE) VALUES ('FTP Reader', 'com.webreach.mirth.connectors.ftp.FtpConnector', 'ftp', 'ByteArrayToString', 'LISTENER');
-
-INSERT INTO TRANSPORT (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE) VALUES ('SFTP Reader', 'com.webreach.mirth.connectors.sftp.SftpConnector', 'sftp', 'ByteArrayToString', 'LISTENER');
-
-INSERT INTO TRANSPORT (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE) VALUES ('JMS Reader', 'com.webreach.mirth.connectors.jms.JmsConnector', 'jms', 'JMSMessageToObject ObjectToString', 'LISTENER');
-
-INSERT INTO TRANSPORT (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE) VALUES ('SOAP Listener', 'com.webreach.mirth.connectors.soap.axis.AxisConnector', 'axis', 'SOAPRequestToString', 'LISTENER');
-
-INSERT INTO TRANSPORT (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE) VALUES ('File Reader', 'com.webreach.mirth.connectors.file.FileConnector', 'file', 'ByteArrayToString', 'LISTENER');
-
-INSERT INTO TRANSPORT (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE) VALUES ('Database Reader', 'com.webreach.mirth.connectors.jdbc.JdbcConnector', 'jdbc', 'ResultMapToXML', 'LISTENER');
-
-INSERT INTO TRANSPORT (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE) VALUES ('LLP Listener', 'com.webreach.mirth.connectors.mllp.MllpConnector', 'mllp', 'ByteArrayToString', 'LISTENER');
-
-INSERT INTO TRANSPORT (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE) VALUES ('TCP Listener', 'com.webreach.mirth.connectors.tcp.TcpConnector', 'tcp', 'ByteArrayToString', 'LISTENER');
-
-INSERT INTO TRANSPORT (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE) VALUES ('Channel Reader', 'com.webreach.mirth.connectors.vm.VMConnector', 'vm', '', 'LISTENER');
-
-INSERT INTO TRANSPORT (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE) VALUES ('HTTP Listener', 'com.webreach.mirth.connectors.http.HttpConnector', 'http', 'HttpRequestToString HttpStringToXML', 'LISTENER');
-
-INSERT INTO TRANSPORT (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE) VALUES ('FTP Writer', 'com.webreach.mirth.connectors.ftp.FtpConnector', 'ftp', '', 'SENDER');
-
-INSERT INTO TRANSPORT (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE) VALUES ('SFTP Writer', 'com.webreach.mirth.connectors.sftp.SftpConnector', 'sftp', '', 'SENDER');
-
-INSERT INTO TRANSPORT (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE) VALUES ('JMS Writer', 'com.webreach.mirth.connectors.jms.JmsConnector', 'jms', '', 'SENDER');
-
-INSERT INTO TRANSPORT (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE) VALUES ('SOAP Sender', 'com.webreach.mirth.connectors.soap.axis.AxisConnector', 'axis', '', 'SENDER');
-
-INSERT INTO TRANSPORT (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE) VALUES ('Document Writer', 'com.webreach.mirth.connectors.doc.DocumentConnector', 'doc', '', 'SENDER');
-
-INSERT INTO TRANSPORT (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE) VALUES ('File Writer', 'com.webreach.mirth.connectors.file.FileConnector', 'file', '', 'SENDER');
-
-INSERT INTO TRANSPORT (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE) VALUES ('Database Writer', 'com.webreach.mirth.connectors.jdbc.JdbcConnector', 'jdbc', '', 'SENDER');
-
-INSERT INTO TRANSPORT (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE) VALUES ('LLP Sender', 'com.webreach.mirth.connectors.mllp.MllpConnector', 'mllp', '', 'SENDER');
-
-INSERT INTO TRANSPORT (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE) VALUES ('TCP Sender', 'com.webreach.mirth.connectors.tcp.TcpConnector', 'tcp', '', 'SENDER');
-
-INSERT INTO TRANSPORT (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE) VALUES ('Channel Writer', 'com.webreach.mirth.connectors.vm.VMConnector', 'vm', '', 'SENDER');
-
-INSERT INTO TRANSPORT (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE) VALUES ('Email Sender', 'com.webreach.mirth.connectors.email.SmtpConnector', 'smtp', '', 'SENDER');
-
-INSERT INTO TRANSPORT (NAME, CLASS_NAME, PROTOCOL, TRANSFORMERS, TYPE) VALUES ('HTTP Sender', 'com.webreach.mirth.connectors.http.HttpConnector', 'http', '', 'SENDER');
