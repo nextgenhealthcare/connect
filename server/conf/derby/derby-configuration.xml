@@ -5,14 +5,6 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 "conf/sql-map-2.dtd">
 
 <sqlMap namespace="Configuration">
-	<resultMap class="com.webreach.mirth.model.Transport" id="get-transport-result">
-		<result property="name" column="NAME" />
-		<result property="className" column="CLASS_NAME" />
-		<result property="protocol" column="PROTOCOL" />
-		<result property="transformers" column="TRANSFORMERS" />
-		<result property="type" column="TYPE" />
-	</resultMap>
-
 	<resultMap class="com.webreach.mirth.model.Configuration" id="get-configuration-result">
 		<result property="id" column="ID" />
 		<result property="dateCreated" column="DATE_CREATED" />
@@ -29,11 +21,6 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		ENCRYPTION_KEY (DATA)
 		VALUES (#data#)
 	</insert>
-
-	<select id="getTransports" resultClass="com.webreach.mirth.model.Transport" resultMap="get-transport-result">
-		SELECT *
-		FROM TRANSPORT
-	</select>
 
 	<select id="getLatestConfiguration" resultClass="com.webreach.mirth.model.Configuration">
 		SELECT *

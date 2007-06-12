@@ -104,6 +104,7 @@ public class ConnectorMetaData implements Serializable {
 		return
 			EqualsUtil.areEqual(this.getName(), transport.getName()) &&
 			EqualsUtil.areEqual(this.getServerClassName(), transport.getServerClassName()) &&
+            EqualsUtil.areEqual(this.getClientClassName(), transport.getClientClassName()) &&
 			EqualsUtil.areEqual(this.getProtocol(), transport.getProtocol()) &&
 			EqualsUtil.areEqual(this.getTransformers(), transport.getTransformers()) &&
 			EqualsUtil.areEqual(this.getType(), transport.getType());
@@ -114,7 +115,8 @@ public class ConnectorMetaData implements Serializable {
 		builder.append(this.getClass().getName() + "[");
 		builder.append("name=" + getName() + ", ");
 		builder.append("type=" + getType().toString() + ", ");
-		builder.append("className=" + getServerClassName() + ", ");
+		builder.append("serverClassName=" + getServerClassName() + ", ");
+        builder.append("clientClassName=" + getClientClassName() + ", ");
 		builder.append("transformers=" + getTransformers() + ", ");
 		builder.append("protocol=" + getProtocol());
 		builder.append("]");

@@ -86,7 +86,7 @@
 		<jar destfile="${connectors}/email-shared.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/connectors/email/EmailSenderProperties.class" />
 		</jar>
-		<jar destfile="${connectors}/email-server.jar" basedir="${classes}">
+		<jar destfile="${connectors}/email-server.jar">
 			<fileset dir="${classes}">
 				<include name="com/webreach/mirth/connectors/email/**" />
 				<exclude name="com/webreach/mirth/connectors/email/EmailSenderProperties.class" />
@@ -100,7 +100,7 @@
 			<include name="com/webreach/mirth/connectors/file/FileReaderProperties.class" />
 			<include name="com/webreach/mirth/connectors/file/FileWriterProperties.class" />
 		</jar>
-		<jar destfile="${connectors}/file-server.jar" basedir="${classes}">
+		<jar destfile="${connectors}/file-server.jar">
 			<fileset dir="${classes}">
 				<include name="com/webreach/mirth/connectors/file/**" />
 				<exclude name="com/webreach/mirth/connectors/file/FileReaderProperties.class" />
@@ -115,7 +115,7 @@
 			<include name="com/webreach/mirth/connectors/ftp/FTPReaderProperties.class" />
 			<include name="com/webreach/mirth/connectors/ftp/FTPWriterProperties.class" />
 		</jar>
-		<jar destfile="${connectors}/ftp-server.jar" basedir="${classes}">
+		<jar destfile="${connectors}/ftp-server.jar">
 			<fileset dir="${classes}">
 				<include name="com/webreach/mirth/connectors/ftp/**" />
 				<exclude name="com/webreach/mirth/connectors/ftp/FTPReaderProperties.class" />
@@ -130,7 +130,7 @@
 			<include name="com/webreach/mirth/connectors/http/HTTPListenerProperties.class" />
 			<include name="com/webreach/mirth/connectors/http/HTTPSenderProperties.class" />
 		</jar>
-		<jar destfile="${connectors}/http-server.jar" basedir="${classes}">
+		<jar destfile="${connectors}/http-server.jar">
 			<fileset dir="${classes}">
 				<include name="com/webreach/mirth/connectors/http/**" />
 				<exclude name="com/webreach/mirth/connectors/http/HTTPListenerProperties.class" />
@@ -145,7 +145,7 @@
 			<include name="com/webreach/mirth/connectors/jdbc/DatabaseReaderProperties.class" />
 			<include name="com/webreach/mirth/connectors/jdbc/DatabaseWriterProperties.class" />
 		</jar>
-		<jar destfile="${connectors}/jdbc-server.jar" basedir="${classes}">
+		<jar destfile="${connectors}/jdbc-server.jar">
 			<fileset dir="${classes}">
 				<include name="com/webreach/mirth/connectors/jdbc/**" />
 				<exclude name="com/webreach/mirth/connectors/jdbc/DatabaseReaderProperties.class" />
@@ -160,7 +160,7 @@
 			<include name="com/webreach/mirth/connectors/jms/JMSReaderProperties.class" />
 			<include name="com/webreach/mirth/connectors/jms/JMSWriterProperties.class" />
 		</jar>
-		<jar destfile="${connectors}/jms-server.jar" basedir="${classes}">
+		<jar destfile="${connectors}/jms-server.jar">
 			<fileset dir="${classes}">
 				<include name="com/webreach/mirth/connectors/jms/**" />
 				<exclude name="com/webreach/mirth/connectors/jms/JMSReaderProperties.class" />
@@ -175,7 +175,7 @@
 			<include name="com/webreach/mirth/connectors/mllp/LLPListenerProperties.class" />
 			<include name="com/webreach/mirth/connectors/mllp/LLPSenderProperties.class" />
 		</jar>
-		<jar destfile="${connectors}/mllp-server.jar" basedir="${classes}">
+		<jar destfile="${connectors}/mllp-server.jar">
 			<fileset dir="${classes}">
 				<include name="com/webreach/mirth/connectors/mllp/**" />
 				<exclude name="com/webreach/mirth/connectors/mllp/LLPListenerProperties.class" />
@@ -190,7 +190,7 @@
 			<include name="com/webreach/mirth/connectors/sftp/SFTPReaderProperties.class" />
 			<include name="com/webreach/mirth/connectors/sftp/SFTPWriterProperties.class" />
 		</jar>
-		<jar destfile="${connectors}/sftp-server.jar" basedir="${classes}">
+		<jar destfile="${connectors}/sftp-server.jar">
 			<fileset dir="${classes}">
 				<include name="com/webreach/mirth/connectors/sftp/**" />
 				<exclude name="com/webreach/mirth/connectors/sftp/SFTPReaderProperties.class" />
@@ -205,7 +205,7 @@
 			<include name="com/webreach/mirth/connectors/soap/SOAPListenerProperties.class" />
 			<include name="com/webreach/mirth/connectors/soap/SOAPSenderProperties.class" />
 		</jar>
-		<jar destfile="${connectors}/soap-server.jar" basedir="${classes}">
+		<jar destfile="${connectors}/soap-server.jar">
 			<fileset dir="${classes}">
 				<include name="com/webreach/mirth/connectors/soap/**" />
 				<exclude name="com/webreach/mirth/connectors/soap/SOAPListenerProperties.class" />
@@ -220,11 +220,11 @@
 			<include name="com/webreach/mirth/connectors/tcp/TCPListenerProperties.class" />
 			<include name="com/webreach/mirth/connectors/tcp/TCPSenderProperties.class" />
 		</jar>
-		<jar destfile="${connectors}/tcp-server.jar" basedir="${classes}">
+		<jar destfile="${connectors}/tcp-server.jar">
 			<fileset dir="${classes}">
-				<include name="com/webreach/mirth/connectors/tcp/**" />
-				<exclude name="com/webreach/mirth/connectors/tcp/TCPListenerProperties.class" />
-				<exclude name="com/webreach/mirth/connectors/tcp/TCPSenderProperties.class" />
+				<include name="${classes}/com/webreach/mirth/connectors/tcp/" />
+				<exclude name="TCPListenerProperties.class" />
+				<exclude name="TCPSenderProperties.class" />
 			</fileset>
 			<fileset dir="${conf}">
 				<include name="META-INF/services/org/mule/providers/tcp" />
@@ -235,7 +235,7 @@
 			<include name="com/webreach/mirth/connectors/vm/ChannelReaderProperties.class" />
 			<include name="com/webreach/mirth/connectors/vm/ChannelWriterProperties.class" />
 		</jar>
-		<jar destfile="${connectors}/vm-server.jar" basedir="${classes}">
+		<jar destfile="${connectors}/vm-server.jar">
 			<fileset dir="${classes}">
 				<include name="com/webreach/mirth/connectors/vm/**" />
 				<exclude name="com/webreach/mirth/connectors/vm/ChannelReaderProperties.class" />
