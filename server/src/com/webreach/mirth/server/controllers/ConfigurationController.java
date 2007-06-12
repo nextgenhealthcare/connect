@@ -92,6 +92,7 @@ public class ConfigurationController {
 	private SqlMapClient sqlMap = SqlConfig.getSqlMapInstance();
 	private static final String CHARSET = "ca.uhn.hl7v2.llp.charset";
 	private boolean isEngineStarting = false;
+	private Map<String, ConnectorMetaData> connectors = null;
 
 	// Mirth status codes
 	private static final int STATUS_OK = 0;
@@ -142,6 +143,7 @@ public class ConfigurationController {
 		// critical steps
 		try {
 			loadEncryptionKey();
+			loadConnectorMetaData();
 		} catch (Exception e) {
 			logger.error("could not initialize configuration settings", e);
 		}
@@ -149,6 +151,11 @@ public class ConfigurationController {
 
 	public Map<String, ConnectorMetaData> getConnectorMetaData() throws ControllerException {
 		logger.debug("retrieving connector metadata");
+		return this.connectors;
+	}
+	
+	private void loadConnectorMetaData() throws ControllerException {
+		logger.debug("loading connector metadata");
 
 		FileFilter fileFilter = new FileFilter() {
 			public boolean accept(File file) {
@@ -156,7 +163,7 @@ public class ConfigurationController {
 			}
 		};
 		
-		Map<String, ConnectorMetaData> connectors = new HashMap<String, ConnectorMetaData>();
+		Map<String, ConnectorMetaData> connectorsMap = new HashMap<String, ConnectorMetaData>();
 		File path = new File("connectors");
 		File[] connectorFiles = path.listFiles(fileFilter);
 		ObjectXMLSerializer serializer = new ObjectXMLSerializer();
@@ -166,13 +173,13 @@ public class ConfigurationController {
 				File connectorFile = connectorFiles[i];
 				String xml = FileUtil.read(connectorFile.getAbsolutePath());
 				ConnectorMetaData connectorMetadata = (ConnectorMetaData) serializer.fromXML(xml);
-				connectors.put(connectorMetadata.getName(), connectorMetadata);	
+				connectorsMap.put(connectorMetadata.getName(), connectorMetadata);	
 			}
 		} catch (IOException ioe) {
 			throw new ControllerException(ioe);
 		}
 		
-		return connectors;
+		this.connectors = connectorsMap;
 	}
 
 	/*
