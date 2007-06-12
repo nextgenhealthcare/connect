@@ -84,7 +84,7 @@ import com.webreach.mirth.model.Filter;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.Step;
 import com.webreach.mirth.model.Transformer;
-import com.webreach.mirth.model.Transport;
+import com.webreach.mirth.model.ConnectorMetaData;
 import com.webreach.mirth.model.MessageObject.Protocol;
 import com.webreach.mirth.model.converters.ObjectCloner;
 import com.webreach.mirth.model.converters.ObjectClonerException;
@@ -107,7 +107,7 @@ public class ChannelSetup extends javax.swing.JPanel
     private Frame parent;
     private boolean isDeleting = false;
     private boolean loadingChannel = false;
-    private Map<String, Transport> transports;
+    private Map<String, ConnectorMetaData> transports;
     private ArrayList<String> sourceConnectors;
     private ArrayList<String> destinationConnectors;
     private static SyntaxDocument preprocessorDoc;
@@ -175,21 +175,21 @@ public class ChannelSetup extends javax.swing.JPanel
 
         try
         {
-            transports = this.parent.mirthClient.getTransports();
+            transports = this.parent.mirthClient.getConnectorMetaData();
             sourceConnectors = new ArrayList<String>();
             destinationConnectors = new ArrayList<String>();
             Iterator i = transports.entrySet().iterator();
             while (i.hasNext())
             {
                 Entry entry = (Entry) i.next();
-                if (transports.get(entry.getKey()).getType() == Transport.Type.LISTENER)
+                if (transports.get(entry.getKey()).getType() == ConnectorMetaData.Type.LISTENER)
                 {
                     if (entry.getKey().equals(SOURCE_DEFAULT))
                         sourceConnectors.add(0, transports.get(entry.getKey()).getName());
                     else
                         sourceConnectors.add(transports.get(entry.getKey()).getName());
                 }
-                if (transports.get(entry.getKey()).getType() == Transport.Type.SENDER)
+                if (transports.get(entry.getKey()).getType() == ConnectorMetaData.Type.SENDER)
                 {
                     if (entry.getKey().equals(DESTINATION_DEFAULT))
                         destinationConnectors.add(0, transports.get(entry.getKey()).getName());
