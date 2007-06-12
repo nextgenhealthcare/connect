@@ -23,6 +23,7 @@
 	</security>
 	
 	<resources>
+		<property name="java.endorsed.dirs " value="lib/"/>
 		<j2se href="http://java.sun.com/products/autodl/j2se" version="1.5+" />
 		<jar download="eager" href="lib/mirth-client.jar" main="true" />
 		<jar download="eager" href="lib/mirth-client-core.jar" />
