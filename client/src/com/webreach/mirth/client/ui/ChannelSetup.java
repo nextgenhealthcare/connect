@@ -188,6 +188,15 @@ public class ChannelSetup extends javax.swing.JPanel
                         sourceConnectors.add(0, transports.get(entry.getKey()).getName());
                     else
                         sourceConnectors.add(transports.get(entry.getKey()).getName());
+                    
+                    try
+                    {
+                        parent.sourceConnectors.add((ConnectorClass) Class.forName(transports.get(entry.getKey()).getClientClassName()).newInstance());
+                    }
+                    catch (Exception e)
+                    {
+                        parent.alertError("Could not load class: " + transports.get(entry.getKey()).getClientClassName());
+                    }
                 }
                 if (transports.get(entry.getKey()).getType() == ConnectorMetaData.Type.SENDER)
                 {
@@ -195,6 +204,15 @@ public class ChannelSetup extends javax.swing.JPanel
                         destinationConnectors.add(0, transports.get(entry.getKey()).getName());
                     else
                         destinationConnectors.add(transports.get(entry.getKey()).getName());
+                    
+                    try
+                    {
+                        parent.destinationConnectors.add((ConnectorClass) Class.forName(transports.get(entry.getKey()).getClientClassName()).newInstance());
+                    }
+                    catch (Exception e)
+                    {
+                        parent.alertError("Could not load class: " + transports.get(entry.getKey()).getClientClassName());
+                    }
                 }
             }
         }
