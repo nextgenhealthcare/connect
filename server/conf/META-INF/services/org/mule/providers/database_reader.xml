@@ -1,0 +1,8 @@
+<com.webreach.mirth.model.ConnectorMetaData>
+  <name>Database Reader</name>
+  <clientClassName>com.webreach.mirth.connectors.jdbc.DatabaseReader</clientClassName>
+  <serverClassName>com.webreach.mirth.connectors.jdbc.JdbcConnector</serverClassName>
+  <transformers>ResultMapToXML</transformers>
+  <protocol>jdbc</protocol>
+  <type>LISTENER</type>
+</com.webreach.mirth.model.ConnectorMetaData>

@@ -63,7 +63,13 @@
 	<target name="create-connectors" depends="create-client-core">
 		<delete dir="${connectors}" />
 		<mkdir dir="${connectors}"/>
-
+		
+		<copy todir="${connectors}">
+			<fileset dir="${conf}/META-INF/services/org/mule/providers/">
+				<include name="*.xml"/>
+			</fileset>
+		</copy>
+		
 		<jar destfile="${connectors}/doc-shared.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/connectors/doc/DocumentWriterProperties.class" />
 		</jar>

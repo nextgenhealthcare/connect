@@ -1,0 +1,8 @@
+<com.webreach.mirth.model.ConnectorMetaData>
+  <name>Database Writer</name>
+  <clientClassName>com.webreach.mirth.connectors.jdbc.DatabaseWriter</clientClassName>
+  <serverClassName>com.webreach.mirth.connectors.jdbc.JdbcConnector</serverClassName>
+  <transformers></transformers>
+  <protocol>jdbc</protocol>
+  <type>SENDER</type>
+</com.webreach.mirth.model.ConnectorMetaData>

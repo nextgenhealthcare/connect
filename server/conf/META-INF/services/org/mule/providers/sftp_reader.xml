@@ -1,0 +1,8 @@
+<com.webreach.mirth.model.ConnectorMetaData>
+  <name>SFTP Reader</name>
+  <clientClassName>com.webreach.mirth.connectors.sftp.SFTPReader</clientClassName>
+  <serverClassName>com.webreach.mirth.connectors.sftp.SftpConnector</serverClassName>
+  <transformers>ByteArrayToString</transformers>
+  <protocol>sftp</protocol>
+  <type>LISTENER</type>
+</com.webreach.mirth.model.ConnectorMetaData>

@@ -1,0 +1,8 @@
+<com.webreach.mirth.model.ConnectorMetaData>
+  <name>JMS Writer</name>
+  <clientClassName>com.webreach.mirth.connectors.jms.JMSWriter</clientClassName>
+  <serverClassName>com.webreach.mirth.connectors.jms.JmsConnector</serverClassName>
+  <transformers></transformers>
+  <protocol>jms</protocol>
+  <type>SENDER</type>
+</com.webreach.mirth.model.ConnectorMetaData>

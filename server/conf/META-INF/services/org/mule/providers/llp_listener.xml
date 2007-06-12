@@ -1,0 +1,8 @@
+<com.webreach.mirth.model.ConnectorMetaData>
+  <name>LLP Listener</name>
+  <clientClassName>com.webreach.mirth.connectors.mllp.LLPListener</clientClassName>
+  <serverClassName>com.webreach.mirth.connectors.mllp.MllpConnector</serverClassName>
+  <transformers>ByteArrayToString</transformers>
+  <protocol>mllp</protocol>
+  <type>LISTENER</type>
+</com.webreach.mirth.model.ConnectorMetaData>

@@ -1,0 +1,8 @@
+<com.webreach.mirth.model.ConnectorMetaData>
+  <name>SOAP Sender</name>
+  <clientClassName>com.webreach.mirth.connectors.soap.SOAPSender</clientClassName>
+  <serverClassName>com.webreach.mirth.connectors.soap.axis.AxisConnector</serverClassName>
+  <transformers></transformers>
+  <protocol>axis</protocol>
+  <type>SENDER</type>
+</com.webreach.mirth.model.ConnectorMetaData>

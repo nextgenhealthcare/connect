@@ -1,0 +1,8 @@
+<com.webreach.mirth.model.ConnectorMetaData>
+  <name>File Reader</name>
+  <clientClassName>com.webreach.mirth.connectors.file.FileReader</clientClassName>
+  <serverClassName>com.webreach.mirth.connectors.file.FileConnector</serverClassName>
+  <transformers>ByteArrayToString</transformers>
+  <protocol>file</protocol>
+  <type>LISTENER</type>
+</com.webreach.mirth.model.ConnectorMetaData>

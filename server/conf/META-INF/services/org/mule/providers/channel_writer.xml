@@ -1,0 +1,8 @@
+<com.webreach.mirth.model.ConnectorMetaData>
+  <name>Channel Writer</name>
+  <clientClassName>com.webreach.mirth.connectors.vm.ChannelWriter</clientClassName>
+  <serverClassName>com.webreach.mirth.connectors.vm.VMConnector</serverClassName>
+  <transformers></transformers>
+  <protocol>vm</protocol>
+  <type>SENDER</type>
+</com.webreach.mirth.model.ConnectorMetaData>

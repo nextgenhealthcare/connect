@@ -1,0 +1,8 @@
+<com.webreach.mirth.model.ConnectorMetaData>
+  <name>File Writer</name>
+  <clientClassName>com.webreach.mirth.connectors.file.FileWriter</clientClassName>
+  <serverClassName>com.webreach.mirth.connectors.file.FileConnector</serverClassName>
+  <transformers></transformers>
+  <protocol>file</protocol>
+  <type>SENDER</type>
+</com.webreach.mirth.model.ConnectorMetaData>

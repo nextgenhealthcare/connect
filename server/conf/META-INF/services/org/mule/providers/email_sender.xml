@@ -1,0 +1,8 @@
+<com.webreach.mirth.model.ConnectorMetaData>
+  <name>Email Sender</name>
+  <clientClassName>com.webreach.mirth.connectors.email.EmailSender</clientClassName>
+  <serverClassName>com.webreach.mirth.connectors.email.SmtpConnector</serverClassName>
+  <transformers></transformers>
+  <protocol>smtp</protocol>
+  <type>SENDER</type>
+</com.webreach.mirth.model.ConnectorMetaData>
