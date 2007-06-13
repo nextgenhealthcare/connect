@@ -102,4 +102,27 @@ public class EDIProperties extends Object implements Serializable
         this.subelementDelimiter = subelementDelimiter;
     }
 
+    /**
+     * Holds value of property encodeEntities.
+     */
+    private boolean encodeEntities = false;
+
+    /**
+     * Getter for property encodeEntities.
+     * @return Value of property encodeEntities.
+     */
+    public boolean isEncodeEntities()
+    {
+        return this.encodeEntities;
+    }
+
+    /**
+     * Setter for property encodeEntities.
+     * @param encodeEntities New value of property encodeEntities.
+     */
+    public void setEncodeEntities(boolean encodeEntities)
+    {
+        this.encodeEntities = encodeEntities;
+    }
+
 }

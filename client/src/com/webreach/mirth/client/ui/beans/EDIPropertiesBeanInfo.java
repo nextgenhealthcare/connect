@@ -26,19 +26,24 @@ public class EDIPropertiesBeanInfo extends SimpleBeanInfo
     
     // Property identifiers//GEN-FIRST:Properties
     private static final int PROPERTY_elementDelimiter = 0;
-    private static final int PROPERTY_segmentDelimiter = 1;
-    private static final int PROPERTY_subelementDelimiter = 2;
+    private static final int PROPERTY_encodeEntities = 1;
+    private static final int PROPERTY_segmentDelimiter = 2;
+    private static final int PROPERTY_subelementDelimiter = 3;
 
     // Property array 
     /*lazy PropertyDescriptor*/
     private static PropertyDescriptor[] getPdescriptor(){
-        PropertyDescriptor[] properties = new PropertyDescriptor[3];
+        PropertyDescriptor[] properties = new PropertyDescriptor[4];
     
         try {
             properties[PROPERTY_elementDelimiter] = new PropertyDescriptor ( "elementDelimiter", com.webreach.mirth.client.ui.beans.EDIProperties.class, "getElementDelimiter", "setElementDelimiter" ); // NOI18N
             properties[PROPERTY_elementDelimiter].setDisplayName ( "Element Delimiter" );
             properties[PROPERTY_elementDelimiter].setShortDescription ( "Characters that delimit the elements in the message." );
             properties[PROPERTY_elementDelimiter].setBound ( true );
+            properties[PROPERTY_encodeEntities] = new PropertyDescriptor ( "encodeEntities", com.webreach.mirth.client.ui.beans.EDIProperties.class, "isEncodeEntities", "setEncodeEntities" ); // NOI18N
+            properties[PROPERTY_encodeEntities].setDisplayName ( "Encode Entities" );
+            properties[PROPERTY_encodeEntities].setShortDescription ( "Automatically convert non-standard XML entities to the proper encoding." );
+            properties[PROPERTY_encodeEntities].setBound ( true );
             properties[PROPERTY_segmentDelimiter] = new PropertyDescriptor ( "segmentDelimiter", com.webreach.mirth.client.ui.beans.EDIProperties.class, "getSegmentDelimiter", "setSegmentDelimiter" ); // NOI18N
             properties[PROPERTY_segmentDelimiter].setDisplayName ( "Segment Delimiter" );
             properties[PROPERTY_segmentDelimiter].setShortDescription ( "Characters that delimit the segments in the message." );

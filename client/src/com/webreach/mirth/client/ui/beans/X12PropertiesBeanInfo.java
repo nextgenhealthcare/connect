@@ -26,20 +26,25 @@ public class X12PropertiesBeanInfo extends EDIPropertiesBeanInfo
     
     // Property identifiers//GEN-FIRST:Properties
     private static final int PROPERTY_elementDelimiter = 0;
-    private static final int PROPERTY_inferX12Delimiters = 1;
-    private static final int PROPERTY_segmentDelimiter = 2;
-    private static final int PROPERTY_subelementDelimiter = 3;
+    private static final int PROPERTY_encodeEntities = 1;
+    private static final int PROPERTY_inferX12Delimiters = 2;
+    private static final int PROPERTY_segmentDelimiter = 3;
+    private static final int PROPERTY_subelementDelimiter = 4;
 
     // Property array 
     /*lazy PropertyDescriptor*/
     private static PropertyDescriptor[] getPdescriptor(){
-        PropertyDescriptor[] properties = new PropertyDescriptor[4];
+        PropertyDescriptor[] properties = new PropertyDescriptor[5];
     
         try {
             properties[PROPERTY_elementDelimiter] = new PropertyDescriptor ( "elementDelimiter", com.webreach.mirth.client.ui.beans.X12Properties.class, "getElementDelimiter", "setElementDelimiter" ); // NOI18N
             properties[PROPERTY_elementDelimiter].setDisplayName ( "Element Delimiter" );
             properties[PROPERTY_elementDelimiter].setShortDescription ( "Characters that delimit the elements in the message." );
             properties[PROPERTY_elementDelimiter].setBound ( true );
+            properties[PROPERTY_encodeEntities] = new PropertyDescriptor ( "encodeEntities", com.webreach.mirth.client.ui.beans.X12Properties.class, "getEncodeEntities", "setEncodeEntities" ); // NOI18N
+            properties[PROPERTY_encodeEntities].setDisplayName ( "Encode Entities" );
+            properties[PROPERTY_encodeEntities].setShortDescription ( "Automatically convert non-standard XML entities to the proper encoding." );
+            properties[PROPERTY_encodeEntities].setBound ( true );
             properties[PROPERTY_inferX12Delimiters] = new PropertyDescriptor ( "inferX12Delimiters", com.webreach.mirth.client.ui.beans.X12Properties.class, "isInferX12Delimiters", "setInferX12Delimiters" ); // NOI18N
             properties[PROPERTY_inferX12Delimiters].setDisplayName ( "Infer X12 Delimiters" );
             properties[PROPERTY_inferX12Delimiters].setShortDescription ( "Infer the standard X12 delimiters." );
