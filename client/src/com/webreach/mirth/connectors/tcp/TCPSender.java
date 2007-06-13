@@ -157,7 +157,7 @@ public class TCPSender extends ConnectorClass
 
     public Properties getDefaults()
     {
-        return TCPSenderProperties.getDefaults();
+        return new TCPSenderProperties().getDefaults();
     }
 
     public boolean checkProperties(Properties props)

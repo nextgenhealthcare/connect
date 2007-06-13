@@ -172,7 +172,7 @@ public class SOAPSender extends ConnectorClass
     
     public Properties getDefaults()
     {
-        return SOAPSenderProperties.getDefaults();
+        return new SOAPSenderProperties().getDefaults();
     }
     
     public boolean checkProperties(Properties props)

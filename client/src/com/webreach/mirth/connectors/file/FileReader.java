@@ -156,7 +156,7 @@ public class FileReader extends ConnectorClass
 
     public Properties getDefaults()
     {
-        return FileReaderProperties.getDefaults();
+        return new FileReaderProperties().getDefaults();
     }
 
     public boolean checkProperties(Properties props)

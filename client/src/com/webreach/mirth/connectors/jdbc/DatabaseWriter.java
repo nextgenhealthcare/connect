@@ -149,7 +149,7 @@ public class DatabaseWriter extends ConnectorClass
 
     public Properties getDefaults()
     {
-        return DatabaseWriterProperties.getDefaults();
+        return new DatabaseWriterProperties().getDefaults();
     }
 
     public boolean checkProperties(Properties props)

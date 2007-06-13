@@ -165,7 +165,7 @@ public class TCPListener extends ConnectorClass
 
     public Properties getDefaults()
     {
-        return TCPListenerProperties.getDefaults();
+        return new TCPListenerProperties().getDefaults();
     }
 
     public boolean checkProperties(Properties props)

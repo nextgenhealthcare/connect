@@ -77,7 +77,7 @@ public class EmailSender extends ConnectorClass
 
     public Properties getDefaults()
     {
-        return EmailSenderProperties.getDefaults();
+        return new EmailSenderProperties().getDefaults();
     }
 
     public boolean checkProperties(Properties props)

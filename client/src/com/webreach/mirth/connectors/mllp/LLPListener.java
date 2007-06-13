@@ -279,7 +279,7 @@ public class LLPListener extends ConnectorClass
 
     public Properties getDefaults()
     {
-        return LLPListenerProperties.getDefaults();
+        return new LLPListenerProperties().getDefaults();
     }
 
     public boolean checkProperties(Properties props)

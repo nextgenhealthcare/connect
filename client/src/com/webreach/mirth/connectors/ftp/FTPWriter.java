@@ -118,7 +118,7 @@ public class FTPWriter extends ConnectorClass
 
     public Properties getDefaults()
     {
-        return FTPWriterProperties.getDefaults();
+        return new FTPWriterProperties().getDefaults();
     }
 
     public boolean checkProperties(Properties props)

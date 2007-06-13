@@ -25,7 +25,6 @@
 
 package com.webreach.mirth.client.ui;
 
-import com.webreach.mirth.model.Rule;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.KeyEvent;
@@ -40,54 +39,37 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Map.Entry;
 import java.util.prefs.Preferences;
+
 import javax.swing.JOptionPane;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.AlternateRowHighlighter;
 import org.jdesktop.swingx.decorator.HighlighterPipeline;
 import org.syntax.jedit.SyntaxDocument;
 import org.syntax.jedit.tokenmarker.JavaScriptTokenMarker;
+
 import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
 import com.webreach.mirth.client.ui.components.MirthTable;
-import com.webreach.mirth.connectors.vm.ChannelReader;
-import com.webreach.mirth.connectors.vm.ChannelWriter;
-import com.webreach.mirth.connectors.ConnectorClass;
-import com.webreach.mirth.connectors.jdbc.DatabaseReader;
-import com.webreach.mirth.connectors.jdbc.DatabaseWriter;
-import com.webreach.mirth.connectors.doc.DocumentWriter;
-import com.webreach.mirth.connectors.email.EmailSender;
-import com.webreach.mirth.connectors.ftp.FTPReader;
-import com.webreach.mirth.connectors.ftp.FTPWriter;
-import com.webreach.mirth.connectors.file.FileReader;
-import com.webreach.mirth.connectors.file.FileWriter;
-import com.webreach.mirth.connectors.http.HTTPListener;
-import com.webreach.mirth.connectors.http.HTTPSender;
-import com.webreach.mirth.connectors.jms.JMSReader;
-import com.webreach.mirth.connectors.jms.JMSWriter;
-import com.webreach.mirth.connectors.mllp.LLPListener;
-import com.webreach.mirth.connectors.mllp.LLPSender;
-import com.webreach.mirth.connectors.sftp.SFTPReader;
-import com.webreach.mirth.connectors.sftp.SFTPWriter;
-import com.webreach.mirth.connectors.soap.SOAPListener;
-import com.webreach.mirth.connectors.soap.SOAPSender;
-import com.webreach.mirth.connectors.tcp.TCPListener;
-import com.webreach.mirth.connectors.tcp.TCPSender;
 import com.webreach.mirth.client.ui.editors.filter.FilterPane;
 import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
 import com.webreach.mirth.client.ui.util.VariableListUtil;
+import com.webreach.mirth.connectors.ConnectorClass;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.Connector;
+import com.webreach.mirth.model.ConnectorMetaData;
 import com.webreach.mirth.model.Filter;
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.model.Rule;
 import com.webreach.mirth.model.Step;
 import com.webreach.mirth.model.Transformer;
-import com.webreach.mirth.model.ConnectorMetaData;
 import com.webreach.mirth.model.MessageObject.Protocol;
 import com.webreach.mirth.model.converters.ObjectCloner;
 import com.webreach.mirth.model.converters.ObjectClonerException;
+import com.webreach.mirth.util.PropertyVerifier;
 
 /** The channel editor panel. Majority of the client application */
 public class ChannelSetup extends javax.swing.JPanel
@@ -120,37 +102,6 @@ public class ChannelSetup extends javax.swing.JPanel
     {
         this.parent = PlatformUI.MIRTH_FRAME;
 
-        if (parent.sourceConnectors.size() == 0)
-        {
-            parent.sourceConnectors.add(new DatabaseReader());
-            parent.sourceConnectors.add(new HTTPListener());
-            // parent.sourceConnectors.add(new HTTPSListener());
-            parent.sourceConnectors.add(new LLPListener());
-            parent.sourceConnectors.add(new FileReader());
-            parent.sourceConnectors.add(new FTPReader());
-            parent.sourceConnectors.add(new SFTPReader());
-            parent.sourceConnectors.add(new JMSReader());
-            parent.sourceConnectors.add(new SOAPListener());
-            parent.sourceConnectors.add(new ChannelReader());
-            parent.sourceConnectors.add(new TCPListener());
-        }
-        if (parent.destinationConnectors.size() == 0)
-        {
-            parent.destinationConnectors.add(new DatabaseWriter());
-            parent.destinationConnectors.add(new EmailSender());
-            parent.destinationConnectors.add(new FileWriter());
-            parent.destinationConnectors.add(new LLPSender());
-            parent.destinationConnectors.add(new JMSWriter());
-            parent.destinationConnectors.add(new FTPWriter());
-            parent.destinationConnectors.add(new SFTPWriter());
-            parent.destinationConnectors.add(new DocumentWriter());
-            parent.destinationConnectors.add(new JMSWriter());
-            parent.destinationConnectors.add(new SOAPSender());
-            parent.destinationConnectors.add(new ChannelWriter());
-            parent.destinationConnectors.add(new TCPSender());
-            parent.destinationConnectors.add(new HTTPSender());
-        }
-
         initComponents();
         preprocessorDoc = new SyntaxDocument();
         preprocessorDoc.setTokenMarker(new JavaScriptTokenMarker());
@@ -182,6 +133,7 @@ public class ChannelSetup extends javax.swing.JPanel
             while (i.hasNext())
             {
                 Entry entry = (Entry) i.next();
+                
                 if (transports.get(entry.getKey()).getType() == ConnectorMetaData.Type.LISTENER)
                 {
                     if (entry.getKey().equals(SOURCE_DEFAULT))
@@ -570,13 +522,7 @@ public class ChannelSetup extends javax.swing.JPanel
         lastIndex = "";
         currentChannel = channel;
 
-        checkPropertyValidity(currentChannel.getSourceConnector(), parent.sourceConnectors);
-
-        List<Connector> destinations = currentChannel.getDestinationConnectors();
-        for (int i = 0; i < destinations.size(); i++)
-        {
-            checkPropertyValidity(destinations.get(i), parent.destinationConnectors);
-        }
+        PropertyVerifier.checkConnectorProperties(currentChannel, transports);
 
         sourceSourceDropdown.setModel(new javax.swing.DefaultComboBoxModel(sourceConnectors.toArray()));
         destinationSourceDropdown.setModel(new javax.swing.DefaultComboBoxModel(destinationConnectors.toArray()));
@@ -1547,7 +1493,7 @@ public class ChannelSetup extends javax.swing.JPanel
             if (sourceConnectorClass.getName() != null && sourceConnectorClass.getName().equals((String) sourceSourceDropdown.getSelectedItem()))
                 return;
 
-            if (!compareProps(sourceConnectorClass.getProperties(), sourceConnectorClass.getDefaults()) || currentChannel.getSourceConnector().getFilter().getRules().size() > 0 || currentChannel.getSourceConnector().getTransformer().getSteps().size() > 0)
+            if (!PropertyVerifier.compareProps(sourceConnectorClass.getProperties(), sourceConnectorClass.getDefaults()) || currentChannel.getSourceConnector().getFilter().getRules().size() > 0 || currentChannel.getSourceConnector().getTransformer().getSteps().size() > 0)
             {
                 boolean changeType = parent.alertOption("Are you sure you would like to change this connector type and lose all of the current connector data?");
                 if (!changeType)
@@ -1616,7 +1562,7 @@ public class ChannelSetup extends javax.swing.JPanel
             // properties/transformer/filter have
             // not been changed from defaults then ask if the user would
             // like to really change connector type.
-            if (lastIndex.equals((String) destinationTable.getValueAt(getSelectedDestinationIndex(), getColumnNumber(DESTINATION_COLUMN_NAME))) && (!compareProps(destinationConnectorClass.getProperties(), destinationConnectorClass.getDefaults()) || currentChannel.getDestinationConnectors().get(getDestinationConnectorIndex((String) destinationTable.getValueAt(getSelectedDestinationIndex(), getColumnNumber(DESTINATION_COLUMN_NAME)))).getFilter().getRules().size() > 0 || currentChannel.getDestinationConnectors().get(getDestinationConnectorIndex((String) destinationTable.getValueAt(getSelectedDestinationIndex(), getColumnNumber(DESTINATION_COLUMN_NAME)))).getTransformer().getSteps().size() > 0))
+            if (lastIndex.equals((String) destinationTable.getValueAt(getSelectedDestinationIndex(), getColumnNumber(DESTINATION_COLUMN_NAME))) && (!PropertyVerifier.compareProps(destinationConnectorClass.getProperties(), destinationConnectorClass.getDefaults()) || currentChannel.getDestinationConnectors().get(getDestinationConnectorIndex((String) destinationTable.getValueAt(getSelectedDestinationIndex(), getColumnNumber(DESTINATION_COLUMN_NAME)))).getFilter().getRules().size() > 0 || currentChannel.getDestinationConnectors().get(getDestinationConnectorIndex((String) destinationTable.getValueAt(getSelectedDestinationIndex(), getColumnNumber(DESTINATION_COLUMN_NAME)))).getTransformer().getSteps().size() > 0))
             {
                 boolean changeType = parent.alertOption("Are you sure you would like to change this connector type and lose all of the current connector data?");
                 if (!changeType)
@@ -1789,65 +1735,6 @@ public class ChannelSetup extends javax.swing.JPanel
     public ConnectorClass getDestinationConnector()
     {
         return destinationConnectorClass;
-    }
-
-    /**
-     * Checks for properties that are new or not used and adds or removes them.
-     */
-    private void checkPropertyValidity(Connector connector, ArrayList<ConnectorClass> connectors)
-    {
-        Enumeration<?> propertyKeys;
-        Properties properties = connector.getProperties();
-        Properties propertiesDefaults = null;
-
-        for (int j = 0; j < connectors.size(); j++)
-        {
-            if (connectors.get(j).getName().equalsIgnoreCase(connector.getTransportName()))
-            {
-                propertiesDefaults = connectors.get(j).getDefaults();
-            }
-        }
-
-        propertyKeys = properties.propertyNames();
-        while (propertyKeys.hasMoreElements())
-        {
-            String key = (String) propertyKeys.nextElement();
-            if (propertiesDefaults.getProperty(key) == null)
-            {
-                properties.remove(key);
-            }
-        }
-
-        propertyKeys = propertiesDefaults.propertyNames();
-        while (propertyKeys.hasMoreElements())
-        {
-            String key = (String) propertyKeys.nextElement();
-            if (properties.getProperty(key) == null)
-            {
-                if (propertiesDefaults.getProperty(key) != null)
-                    properties.put(key, propertiesDefaults.getProperty(key));
-            }
-        }
-    }
-
-    /** A method to compare two properties file to check if they are the same. */
-    private boolean compareProps(Properties p1, Properties p2)
-    {
-        Enumeration<?> propertyKeys = p1.propertyNames();
-        while (propertyKeys.hasMoreElements())
-        {
-            String key = (String) propertyKeys.nextElement();
-            // System.out.println(key + " " + p1.getProperty(key) + " " +
-            // p2.getProperty(key));
-            if (p1.getProperty(key) == null)
-            {
-                if (p2.getProperty(key) != null)
-                    return false;
-            }
-            else if (!p1.getProperty(key).equals(p2.getProperty(key)))
-                return false;
-        }
-        return true;
     }
 
     public void checkSourceDataType()

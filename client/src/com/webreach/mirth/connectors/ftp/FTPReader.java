@@ -234,28 +234,7 @@ public class FTPReader extends ConnectorClass
 
     public Properties getDefaults()
     {
-        Properties properties = new Properties();
-        properties.put(DATATYPE, name);
-        properties.put(FTP_HOST, "");
-        properties.put(FTP_ANONYMOUS, UIConstants.YES_OPTION);
-        properties.put(FTP_USERNAME, "anonymous");
-        properties.put(FTP_PASSWORD, "anonymous");
-        properties.put(FTP_POLLING_FREQUENCY, "1000");
-        properties.put(FTP_PASSIVE_MODE, UIConstants.YES_OPTION);
-        properties.put(FTP_VALIDATE_CONNECTION, UIConstants.YES_OPTION);
-        
-        //common file properties
-        properties.put(FILE_MOVE_TO_PATTERN, "");
-        properties.put(FILE_MOVE_TO_DIRECTORY, "");
-        properties.put(FILE_DELETE_AFTER_READ, UIConstants.NO_OPTION);
-        properties.put(FILE_CHECK_FILE_AGE, UIConstants.NO_OPTION);
-        properties.put(FILE_FILE_AGE, "0");
-        properties.put(FILE_SORT_BY, SORT_BY_DATE);
-        properties.put(FILE_TYPE, UIConstants.NO_OPTION);
-        properties.put(CONNECTOR_CHARSET_ENCODING, UIConstants.DEFAULT_ENCODING_OPTION);
-        properties.put(FILE_FILTER, "*.*");
-        properties.put(FILE_PROCESS_BATCH_FILES, UIConstants.YES_OPTION);
-        return properties;
+        return new FTPReaderProperties().getDefaults();
     }
 
     public boolean checkProperties(Properties props)

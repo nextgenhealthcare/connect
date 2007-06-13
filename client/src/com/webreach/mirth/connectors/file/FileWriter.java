@@ -99,7 +99,7 @@ public class FileWriter extends ConnectorClass
 
     public Properties getDefaults()
     {
-        return FileWriterProperties.getDefaults();
+        return new FileWriterProperties().getDefaults();
     }
 
     public boolean checkProperties(Properties props)

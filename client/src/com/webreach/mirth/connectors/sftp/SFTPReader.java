@@ -157,7 +157,7 @@ public class SFTPReader extends ConnectorClass
 
     public Properties getDefaults()
     {
-        return SFTPReaderProperties.getDefaults();
+        return new SFTPReaderProperties().getDefaults();
     }
 
     public boolean checkProperties(Properties props)

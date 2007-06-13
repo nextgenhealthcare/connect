@@ -78,7 +78,7 @@ public class SFTPWriter extends ConnectorClass
 
     public Properties getDefaults()
     {
-        return SFTPWriterProperties.getDefaults();
+        return new SFTPWriterProperties().getDefaults();
     }
 
     public boolean checkProperties(Properties props)

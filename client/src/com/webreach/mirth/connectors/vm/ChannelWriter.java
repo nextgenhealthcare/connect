@@ -82,7 +82,7 @@ public class ChannelWriter extends ConnectorClass
 
     public Properties getDefaults()
     {
-        return ChannelWriterProperties.getDefaults();
+        return new ChannelWriterProperties().getDefaults();
     }
 
     public boolean checkProperties(Properties props)

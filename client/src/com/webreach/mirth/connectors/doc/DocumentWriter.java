@@ -100,7 +100,7 @@ public class DocumentWriter extends ConnectorClass
 
     public Properties getDefaults()
     {
-        return DocumentWriterProperties.getDefaults();
+        return new DocumentWriterProperties().getDefaults();
     }
 
     public boolean checkProperties(Properties props)

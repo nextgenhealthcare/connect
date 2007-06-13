@@ -115,7 +115,7 @@ public class HTTPListener extends ConnectorClass
 
     public Properties getDefaults()
     {
-        return HTTPListenerProperties.getDefaults();
+        return new HTTPListenerProperties().getDefaults();
     }
 
     public boolean checkProperties(Properties props)

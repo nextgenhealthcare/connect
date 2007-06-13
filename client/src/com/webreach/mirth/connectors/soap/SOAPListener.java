@@ -87,7 +87,7 @@ public class SOAPListener extends ConnectorClass
 
     public Properties getDefaults()
     {
-        return SOAPListenerProperties.getDefaults();
+        return new SOAPListenerProperties().getDefaults();
     }
 
     public String buildHost()

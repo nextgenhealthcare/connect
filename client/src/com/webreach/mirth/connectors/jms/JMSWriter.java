@@ -150,7 +150,7 @@ public class JMSWriter extends ConnectorClass
 
     public Properties getDefaults()
     {
-        return JMSWriterProperties.getDefaults();
+        return new JMSWriterProperties().getDefaults();
     }
 
     public void setAdditionalProperties(Properties properties)

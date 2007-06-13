@@ -145,7 +145,7 @@ public class HTTPSender extends ConnectorClass
 
     public Properties getDefaults()
     {
-        return HTTPSenderProperties.getDefaults();
+        return new HTTPSenderProperties().getDefaults();
     }
 
     public void setAdditionalProperties(Properties properties)

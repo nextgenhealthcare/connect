@@ -237,7 +237,7 @@ public class DatabaseReader extends ConnectorClass
 
     public Properties getDefaults()
     {
-        return DatabaseReaderProperties.getDefaults();
+        return new DatabaseReaderProperties().getDefaults();
     }
 
     public boolean checkProperties(Properties props)

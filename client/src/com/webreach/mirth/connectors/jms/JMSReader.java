@@ -149,7 +149,7 @@ public class JMSReader extends ConnectorClass
 
     public Properties getDefaults()
     {
-        return JMSReaderProperties.getDefaults();
+        return new JMSReaderProperties().getDefaults();
     }
 
     public void setAdditionalProperties(Properties properties)

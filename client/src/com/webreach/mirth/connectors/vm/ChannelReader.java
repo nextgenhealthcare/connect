@@ -60,7 +60,7 @@ public class ChannelReader extends ConnectorClass
 
     public Properties getDefaults()
     {
-        return ChannelReaderProperties.getDefaults();
+        return new ChannelReaderProperties().getDefaults();
     }
 
     public boolean checkProperties(Properties props)

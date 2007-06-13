@@ -179,7 +179,7 @@ public class LLPSender extends ConnectorClass
 
     public Properties getDefaults()
     {
-        return LLPSenderProperties.getDefaults();
+        return new LLPSenderProperties().getDefaults();
     }
 
     public boolean checkProperties(Properties props)
