@@ -27,9 +27,9 @@ package com.webreach.mirth.connectors.vm;
 
 import java.util.Properties;
 
-import com.webreach.mirth.connectors.ConnectorProperties;
+import com.webreach.mirth.model.ComponentProperties;
 
-public class ChannelWriterProperties implements ConnectorProperties
+public class ChannelWriterProperties implements ComponentProperties
 {
 	public static final String name = "Channel Writer";
 	

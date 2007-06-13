@@ -27,9 +27,9 @@ package com.webreach.mirth.connectors.soap;
 
 import java.util.Properties;
 
-import com.webreach.mirth.connectors.ConnectorProperties;
+import com.webreach.mirth.model.ComponentProperties;
 
-public class SOAPListenerProperties implements ConnectorProperties
+public class SOAPListenerProperties implements ComponentProperties
 {
 	public static final String name = "SOAP Listener";
 	

@@ -27,9 +27,9 @@ package com.webreach.mirth.connectors.tcp;
 
 import java.util.Properties;
 
-import com.webreach.mirth.connectors.ConnectorProperties;
+import com.webreach.mirth.model.ComponentProperties;
 
-public class TCPListenerProperties implements ConnectorProperties
+public class TCPListenerProperties implements ComponentProperties
 {
 	public static final String name = "TCP Listener";
 	

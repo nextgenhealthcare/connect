@@ -27,9 +27,9 @@ package com.webreach.mirth.connectors.mllp;
 
 import java.util.Properties;
 
-import com.webreach.mirth.connectors.ConnectorProperties;
+import com.webreach.mirth.model.ComponentProperties;
 
-public class LLPSenderProperties implements ConnectorProperties
+public class LLPSenderProperties implements ComponentProperties
 {
 	public static final String name = "LLP Sender";
 	

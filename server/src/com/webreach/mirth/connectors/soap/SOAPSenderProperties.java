@@ -27,11 +27,11 @@ package com.webreach.mirth.connectors.soap;
 
 import java.util.Properties;
 
-import com.webreach.mirth.connectors.ConnectorProperties;
+import com.webreach.mirth.model.ComponentProperties;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.model.ws.WSDefinition;
 
-public class SOAPSenderProperties implements ConnectorProperties
+public class SOAPSenderProperties implements ComponentProperties
 { 
     public static final String name = "SOAP Sender";
 

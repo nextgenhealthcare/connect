@@ -27,9 +27,9 @@ package com.webreach.mirth.connectors.http;
 
 import java.util.Properties;
 
-import com.webreach.mirth.connectors.ConnectorProperties;
+import com.webreach.mirth.model.ComponentProperties;
 
-public class HTTPSListenerProperties implements ConnectorProperties
+public class HTTPSListenerProperties implements ComponentProperties
 {
     public static final String name = "HTTPS Listener";
 	

@@ -27,9 +27,9 @@ package com.webreach.mirth.connectors.file;
 
 import java.util.Properties;
 
-import com.webreach.mirth.connectors.ConnectorProperties;
+import com.webreach.mirth.model.ComponentProperties;
 
-public class FileReaderProperties implements ConnectorProperties
+public class FileReaderProperties implements ComponentProperties
 {
     public static final String name = "File Reader";
 	

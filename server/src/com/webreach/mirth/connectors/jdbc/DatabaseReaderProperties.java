@@ -27,9 +27,9 @@ package com.webreach.mirth.connectors.jdbc;
 
 import java.util.Properties;
 
-import com.webreach.mirth.connectors.ConnectorProperties;
+import com.webreach.mirth.model.ComponentProperties;
 
-public class DatabaseReaderProperties implements ConnectorProperties
+public class DatabaseReaderProperties implements ComponentProperties
 {
 	public static final String name = "Database Reader";
 	

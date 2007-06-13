@@ -61,6 +61,7 @@ import com.webreach.mirth.model.ChannelStatus.State;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.model.filters.SystemEventFilter;
 import com.webreach.mirth.model.util.ImportConverter;
+import com.webreach.mirth.util.PropertyVerifier;
 
 public class Shell {
 	private Client client;
@@ -700,7 +701,10 @@ public class Shell {
 
 		try {
 			importChannel = (Channel) serializer.fromXML(channelXML.replaceAll("\\&\\#x0D;\\n", "\n").replaceAll("\\&\\#x0D;", "\n"));
-		} catch (Exception e) {
+            PropertyVerifier.checkChannelProperties(importChannel);
+            PropertyVerifier.checkConnectorProperties(importChannel, client.getConnectorMetaData());
+        
+        } catch (Exception e) {
 			System.out.println("Invalid channel file.");
 			return;
 		}

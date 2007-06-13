@@ -27,9 +27,9 @@ package com.webreach.mirth.connectors.ftp;
 
 import java.util.Properties;
 
-import com.webreach.mirth.connectors.ConnectorProperties;
+import com.webreach.mirth.model.ComponentProperties;
 
-public class FTPReaderProperties implements ConnectorProperties
+public class FTPReaderProperties implements ComponentProperties
 {
     public static final String name = "FTP Reader";
 

@@ -27,9 +27,9 @@ package com.webreach.mirth.connectors.sftp;
 
 import java.util.Properties;
 
-import com.webreach.mirth.connectors.ConnectorProperties;
+import com.webreach.mirth.model.ComponentProperties;
 
-public class SFTPWriterProperties implements ConnectorProperties
+public class SFTPWriterProperties implements ComponentProperties
 {
 	public static final String name = "SFTP Writer";
 	

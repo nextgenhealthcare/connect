@@ -27,9 +27,9 @@ package com.webreach.mirth.connectors.vm;
 
 import java.util.Properties;
 
-import com.webreach.mirth.connectors.ConnectorProperties;
+import com.webreach.mirth.model.ComponentProperties;
 
-public class ChannelReaderProperties implements ConnectorProperties
+public class ChannelReaderProperties implements ComponentProperties
 {
     public static final String name = "Channel Reader";
 	

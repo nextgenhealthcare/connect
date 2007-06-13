@@ -27,9 +27,9 @@ package com.webreach.mirth.connectors.email;
 
 import java.util.Properties;
 
-import com.webreach.mirth.connectors.ConnectorProperties;
+import com.webreach.mirth.model.ComponentProperties;
 
-public class EmailSenderProperties implements ConnectorProperties
+public class EmailSenderProperties implements ComponentProperties
 {
     public static final String name = "Email Sender";
 

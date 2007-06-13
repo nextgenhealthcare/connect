@@ -27,9 +27,9 @@ package com.webreach.mirth.connectors.tcp;
 
 import java.util.Properties;
 
-import com.webreach.mirth.connectors.ConnectorProperties;
+import com.webreach.mirth.model.ComponentProperties;
 
-public class TCPSenderProperties implements ConnectorProperties
+public class TCPSenderProperties implements ComponentProperties
 {
 	public static final String name = "TCP Sender";
 	
