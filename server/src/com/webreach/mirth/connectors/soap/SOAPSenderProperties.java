@@ -27,11 +27,12 @@ package com.webreach.mirth.connectors.soap;
 
 import java.util.Properties;
 
+import com.webreach.mirth.connectors.ConnectorProperties;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.model.ws.WSDefinition;
 
-public class SOAPSenderProperties
-{
+public class SOAPSenderProperties implements ConnectorProperties
+{ 
     public static final String name = "SOAP Sender";
 
     public static final String SOAP_ENVELOPE_HEADER = "<?xml version=\"1.0\" encoding=\"utf-16\"?>\n<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:soapenc=\"http://schemas.xmlsoap.org/soap/encoding/\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\n";
@@ -50,7 +51,7 @@ public class SOAPSenderProperties
     public static final String CHANNEL_ID = "replyChannelId";
     public static final String CHANNEL_NAME = "channelName";
 
-    public static Properties getDefaults()
+    public Properties getDefaults()
     {
         Properties properties = new Properties();
         properties.put(DATATYPE, name);

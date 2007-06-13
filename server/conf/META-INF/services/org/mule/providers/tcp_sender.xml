@@ -1,6 +1,7 @@
 <com.webreach.mirth.model.ConnectorMetaData>
   <name>TCP Sender</name>
   <clientClassName>com.webreach.mirth.connectors.tcp.TCPSender</clientClassName>
+  <sharedClassName>com.webreach.mirth.connectors.tcp.TCPSenderProperties</sharedClassName>
   <serverClassName>com.webreach.mirth.connectors.tcp.TcpConnector</serverClassName>
   <transformers></transformers>
   <protocol>tcp</protocol>

@@ -1,6 +1,7 @@
 <com.webreach.mirth.model.ConnectorMetaData>
   <name>Document Writer</name>
   <clientClassName>com.webreach.mirth.connectors.doc.DocumentWriter</clientClassName>
+  <sharedClassName>com.webreach.mirth.connectors.doc.DocumentWriterProperties</sharedClassName>
   <serverClassName>com.webreach.mirth.connectors.doc.DocumentConnector</serverClassName>
   <transformers></transformers>
   <protocol>doc</protocol>

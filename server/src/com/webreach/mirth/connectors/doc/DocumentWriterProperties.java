@@ -27,7 +27,9 @@ package com.webreach.mirth.connectors.doc;
 
 import java.util.Properties;
 
-public class DocumentWriterProperties
+import com.webreach.mirth.connectors.ConnectorProperties;
+
+public class DocumentWriterProperties implements ConnectorProperties
 {
 	public static final String name = "Document Writer";
 	
@@ -39,7 +41,7 @@ public class DocumentWriterProperties
     public static final String DOCUMENT_PASSWORD = "password";
     public static final String FILE_CONTENTS = "template";
 
-    public static Properties getDefaults()
+    public Properties getDefaults()
     {
         Properties properties = new Properties();
         properties.put(DATATYPE, name);

@@ -27,7 +27,9 @@ package com.webreach.mirth.connectors.soap;
 
 import java.util.Properties;
 
-public class SOAPListenerProperties
+import com.webreach.mirth.connectors.ConnectorProperties;
+
+public class SOAPListenerProperties implements ConnectorProperties
 {
 	public static final String name = "SOAP Listener";
 	
@@ -39,7 +41,7 @@ public class SOAPListenerProperties
     public static final String SOAP_CONTENT_TYPE = "Content-Type";
     public static final String SOAP_RESPONSE_VALUE = "responseValue";
 
-    public static Properties getDefaults()
+    public Properties getDefaults()
     {
         Properties properties = new Properties();
         properties.put(DATATYPE, name);

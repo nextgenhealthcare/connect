@@ -27,7 +27,9 @@ package com.webreach.mirth.connectors.tcp;
 
 import java.util.Properties;
 
-public class TCPSenderProperties
+import com.webreach.mirth.connectors.ConnectorProperties;
+
+public class TCPSenderProperties implements ConnectorProperties
 {
 	public static final String name = "TCP Sender";
 	
@@ -46,7 +48,7 @@ public class TCPSenderProperties
     public static final String CHANNEL_ID = "replyChannelId";
     public static final String CHANNEL_NAME = "channelName";
 
-    public static Properties getDefaults()
+    public Properties getDefaults()
     {
         Properties properties = new Properties();
         properties.put(DATATYPE, name);

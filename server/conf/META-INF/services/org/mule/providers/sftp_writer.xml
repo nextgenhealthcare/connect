@@ -1,6 +1,7 @@
 <com.webreach.mirth.model.ConnectorMetaData>
   <name>SFTP Writer</name>
   <clientClassName>com.webreach.mirth.connectors.sftp.SFTPWriter</clientClassName>
+  <sharedClassName>com.webreach.mirth.connectors.sftp.SFTPWriterProperties</sharedClassName>
   <serverClassName>com.webreach.mirth.connectors.sftp.SftpConnector</serverClassName>
   <transformers></transformers>
   <protocol>sftp</protocol>

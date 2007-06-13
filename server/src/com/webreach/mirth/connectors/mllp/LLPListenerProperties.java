@@ -27,7 +27,9 @@ package com.webreach.mirth.connectors.mllp;
 
 import java.util.Properties;
 
-public class LLPListenerProperties
+import com.webreach.mirth.connectors.ConnectorProperties;
+
+public class LLPListenerProperties implements ConnectorProperties
 {
 	public static final String name = "LLP Listener";
 	
@@ -61,7 +63,7 @@ public class LLPListenerProperties
     public static final String LLP_USE_STRICT_LLP = "useStrictLLP";
     public static final String CONNECTOR_CHARSET_ENCODING = "charsetEncoding";
 
-    public static Properties getDefaults()
+    public Properties getDefaults()
     {
         Properties properties = new Properties();
         properties.put(DATATYPE, name);

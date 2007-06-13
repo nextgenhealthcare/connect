@@ -27,7 +27,9 @@ package com.webreach.mirth.connectors.mllp;
 
 import java.util.Properties;
 
-public class LLPSenderProperties
+import com.webreach.mirth.connectors.ConnectorProperties;
+
+public class LLPSenderProperties implements ConnectorProperties
 {
 	public static final String name = "LLP Sender";
 	
@@ -52,7 +54,7 @@ public class LLPSenderProperties
     public static final String CHANNEL_ID = "replyChannelId";
     public static final String CHANNEL_NAME = "channelName";
     
-    public static Properties getDefaults()
+    public Properties getDefaults()
     {
         Properties properties = new Properties();
         properties.put(DATATYPE, name);

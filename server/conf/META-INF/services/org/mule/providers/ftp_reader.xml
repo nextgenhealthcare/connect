@@ -1,6 +1,7 @@
 <com.webreach.mirth.model.ConnectorMetaData>
   <name>FTP Reader</name>
   <clientClassName>com.webreach.mirth.connectors.ftp.FTPReader</clientClassName>
+  <sharedClassName>com.webreach.mirth.connectors.ftp.FTPReaderProperties</sharedClassName>
   <serverClassName>com.webreach.mirth.connectors.ftp.FtpConnector</serverClassName>
   <transformers>ByteArrayToString</transformers>
   <protocol>ftp</protocol>

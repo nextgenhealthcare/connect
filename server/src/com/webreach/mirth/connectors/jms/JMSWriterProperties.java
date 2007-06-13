@@ -27,9 +27,10 @@ package com.webreach.mirth.connectors.jms;
 
 import java.util.Properties;
 
+import com.webreach.mirth.connectors.ConnectorProperties;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 
-public class JMSWriterProperties
+public class JMSWriterProperties implements ConnectorProperties
 {
 	public static final String name = "JMS Writer";
 	
@@ -46,7 +47,7 @@ public class JMSWriterProperties
     public static final String JMS_ADDITIONAL_PROPERTIES = "connectionFactoryProperties";
     public static final String JMS_TEMPLATE = "template";
 
-    public static Properties getDefaults()
+    public Properties getDefaults()
     {
         Properties properties = new Properties();
         properties.put(DATATYPE, name);

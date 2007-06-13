@@ -1,6 +1,7 @@
 <com.webreach.mirth.model.ConnectorMetaData>
   <name>HTTP Listener</name>
   <clientClassName>com.webreach.mirth.connectors.http.HTTPListener</clientClassName>
+  <sharedClassName>com.webreach.mirth.connectors.http.HTTPListenerProperties</sharedClassName>
   <serverClassName>com.webreach.mirth.connectors.http.HttpConnector</serverClassName>
   <transformers>HttpRequestToString HttpStringToXML</transformers>
   <protocol>http</protocol>

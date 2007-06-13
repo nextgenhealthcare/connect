@@ -1,6 +1,7 @@
 <com.webreach.mirth.model.ConnectorMetaData>
   <name>JMS Reader</name>
   <clientClassName>com.webreach.mirth.connectors.jms.JMSReader</clientClassName>
+  <sharedClassName>com.webreach.mirth.connectors.jms.JMSReaderProperties</sharedClassName>
   <serverClassName>com.webreach.mirth.connectors.jms.JmsConnector</serverClassName>
   <transformers>JMSMessageToObject ObjectToString</transformers>
   <protocol>jms</protocol>

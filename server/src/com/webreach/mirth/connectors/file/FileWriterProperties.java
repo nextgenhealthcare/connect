@@ -27,7 +27,9 @@ package com.webreach.mirth.connectors.file;
 
 import java.util.Properties;
 
-public class FileWriterProperties
+import com.webreach.mirth.connectors.ConnectorProperties;
+
+public class FileWriterProperties implements ConnectorProperties
 {
 	public static final String name = "File Writer";
 	
@@ -39,7 +41,7 @@ public class FileWriterProperties
     public static final String CONNECTOR_CHARSET_ENCODING = "charsetEncoding";
     public static final String FILE_TYPE = "binary";
 
-    public static Properties getDefaults()
+    public Properties getDefaults()
     {
         Properties properties = new Properties();
         properties.put(DATATYPE, name);

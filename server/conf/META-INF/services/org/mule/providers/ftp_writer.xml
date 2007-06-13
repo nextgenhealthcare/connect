@@ -1,6 +1,7 @@
 <com.webreach.mirth.model.ConnectorMetaData>
   <name>FTP Writer</name>
   <clientClassName>com.webreach.mirth.connectors.ftp.FTPWriter</clientClassName>
+  <sharedClassName>com.webreach.mirth.connectors.ftp.FTPWriterProperties</sharedClassName>
   <serverClassName>com.webreach.mirth.connectors.ftp.FtpConnector</serverClassName>
   <transformers></transformers>
   <protocol>ftp</protocol>

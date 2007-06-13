@@ -1,6 +1,7 @@
 <com.webreach.mirth.model.ConnectorMetaData>
   <name>Channel Reader</name>
   <clientClassName>com.webreach.mirth.connectors.vm.ChannelReader</clientClassName>
+  <sharedClassName>com.webreach.mirth.connectors.vm.ChannelReaderProperties</sharedClassName>
   <serverClassName>com.webreach.mirth.connectors.vm.VMConnector</serverClassName>
   <transformers></transformers>
   <protocol>vm</protocol>

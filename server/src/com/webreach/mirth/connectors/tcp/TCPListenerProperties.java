@@ -27,7 +27,9 @@ package com.webreach.mirth.connectors.tcp;
 
 import java.util.Properties;
 
-public class TCPListenerProperties
+import com.webreach.mirth.connectors.ConnectorProperties;
+
+public class TCPListenerProperties implements ConnectorProperties
 {
 	public static final String name = "TCP Listener";
 	
@@ -43,7 +45,7 @@ public class TCPListenerProperties
     public static final String TCP_RESPONSE_VALUE = "responseValue";
     public static final String CONNECTOR_CHARSET_ENCODING = "charsetEncoding";
 
-    public static Properties getDefaults()
+    public Properties getDefaults()
     {
         Properties properties = new Properties();
         properties.put(DATATYPE, name);

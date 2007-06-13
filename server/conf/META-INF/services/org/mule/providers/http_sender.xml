@@ -1,6 +1,7 @@
 <com.webreach.mirth.model.ConnectorMetaData>
   <name>HTTP Sender</name>
   <clientClassName>com.webreach.mirth.connectors.http.HTTPSender</clientClassName>
+  <sharedClassName>com.webreach.mirth.connectors.http.HTTPSenderProperties</sharedClassName>
   <serverClassName>com.webreach.mirth.connectors.http.HttpConnector</serverClassName>
   <transformers></transformers>
   <protocol>http</protocol>

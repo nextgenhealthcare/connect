@@ -26,9 +26,11 @@
 package com.webreach.mirth.connectors.http;
 
 import java.util.Properties;
+
+import com.webreach.mirth.connectors.ConnectorProperties;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 
-public class HTTPSenderProperties
+public class HTTPSenderProperties implements ConnectorProperties
 {
     public static final String name = "HTTP Sender";
 	
@@ -39,7 +41,7 @@ public class HTTPSenderProperties
     public static final String CHANNEL_ID = "replyChannelId";
     public static final String CHANNEL_NAME = "channelName";
 
-    public static Properties getDefaults()
+    public Properties getDefaults()
     {
         Properties properties = new Properties();
         properties.put(DATATYPE, name);

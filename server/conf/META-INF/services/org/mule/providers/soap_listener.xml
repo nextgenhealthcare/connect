@@ -1,6 +1,7 @@
 <com.webreach.mirth.model.ConnectorMetaData>
   <name>SOAP Listener</name>
   <clientClassName>com.webreach.mirth.connectors.soap.SOAPListener</clientClassName>
+  <sharedClassName>com.webreach.mirth.connectors.soap.SOAPListenerProperties</sharedClassName>
   <serverClassName>com.webreach.mirth.connectors.soap.axis.AxisConnector</serverClassName>
   <transformers>SOAPRequestToString</transformers>
   <protocol>axis</protocol>

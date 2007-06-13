@@ -27,7 +27,9 @@ package com.webreach.mirth.connectors.ftp;
 
 import java.util.Properties;
 
-public class FTPReaderProperties
+import com.webreach.mirth.connectors.ConnectorProperties;
+
+public class FTPReaderProperties implements ConnectorProperties
 {
     public static final String name = "FTP Reader";
 
@@ -53,7 +55,7 @@ public class FTPReaderProperties
     public static final String FILE_FILTER = "fileFilter";
     public static final String FILE_TYPE = "binary";
 
-    public static Properties getDefaults()
+    public Properties getDefaults()
     {
         Properties properties = new Properties();
         properties.put(DATATYPE, name);

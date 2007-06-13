@@ -27,7 +27,9 @@ package com.webreach.mirth.connectors.jdbc;
 
 import java.util.Properties;
 
-public class DatabaseWriterProperties
+import com.webreach.mirth.connectors.ConnectorProperties;
+
+public class DatabaseWriterProperties implements ConnectorProperties
 {
     public static final String name = "Database Writer";
     
@@ -42,7 +44,7 @@ public class DatabaseWriterProperties
     public static final String DATABASE_JS_SQL_STATEMENT = "script";
     public static final String DATABASE_USE_JS = "useScript";        
 
-    public static Properties getDefaults()
+    public Properties getDefaults()
     {
         Properties properties = new Properties();
         properties.put(DATATYPE, name);

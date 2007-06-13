@@ -1,6 +1,7 @@
 <com.webreach.mirth.model.ConnectorMetaData>
   <name>File Writer</name>
   <clientClassName>com.webreach.mirth.connectors.file.FileWriter</clientClassName>
+  <sharedClassName>com.webreach.mirth.connectors.file.FileWriterProperties</sharedClassName>
   <serverClassName>com.webreach.mirth.connectors.file.FileConnector</serverClassName>
   <transformers></transformers>
   <protocol>file</protocol>

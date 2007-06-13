@@ -27,7 +27,9 @@ package com.webreach.mirth.connectors.sftp;
 
 import java.util.Properties;
 
-public class SFTPReaderProperties
+import com.webreach.mirth.connectors.ConnectorProperties;
+
+public class SFTPReaderProperties implements ConnectorProperties
 {
 	public static final String name = "SFTP Reader";
 
@@ -50,7 +52,7 @@ public class SFTPReaderProperties
     public static final String FILE_FILTER = "fileFilter";
     public static final String FILE_TYPE = "binary";
 
-    public static Properties getDefaults()
+    public Properties getDefaults()
     {
         Properties properties = new Properties();
         properties.put(DATATYPE, name);

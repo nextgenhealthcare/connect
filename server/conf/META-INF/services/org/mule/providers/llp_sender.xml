@@ -1,6 +1,7 @@
 <com.webreach.mirth.model.ConnectorMetaData>
   <name>LLP Sender</name>
   <clientClassName>com.webreach.mirth.connectors.mllp.LLPSender</clientClassName>
+  <sharedClassName>com.webreach.mirth.connectors.mllp.LLPSenderProperties</sharedClassName>
   <serverClassName>com.webreach.mirth.connectors.mllp.MllpConnector</serverClassName>
   <transformers></transformers>
   <protocol>mllp</protocol>

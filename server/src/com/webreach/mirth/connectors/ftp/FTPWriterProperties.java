@@ -27,7 +27,9 @@ package com.webreach.mirth.connectors.ftp;
 
 import java.util.Properties;
 
-public class FTPWriterProperties
+import com.webreach.mirth.connectors.ConnectorProperties;
+
+public class FTPWriterProperties implements ConnectorProperties
 {
 	public static final String name = "FTP Writer";
 	
@@ -42,7 +44,7 @@ public class FTPWriterProperties
     public static final String FTP_VALIDATE_CONNECTION = "validateConnections";
     public static final String FTP_CONTENTS = "template";
 
-    public static Properties getDefaults()
+    public Properties getDefaults()
     {
         Properties properties = new Properties();
         properties.put(DATATYPE, name);

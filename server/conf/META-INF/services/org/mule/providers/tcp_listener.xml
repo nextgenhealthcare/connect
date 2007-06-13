@@ -1,8 +1,9 @@
 <com.webreach.mirth.model.ConnectorMetaData>
   <name>TCP Listener</name>
   <clientClassName>com.webreach.mirth.connectors.tcp.TCPListener</clientClassName>
+  <sharedClassName>com.webreach.mirth.connectors.tcp.TCPListenerProperties</sharedClassName>
   <serverClassName>com.webreach.mirth.connectors.tcp.TcpConnector</serverClassName>
   <transformers>ByteArrayToString</transformers>
   <protocol>tcp</protocol>
   <type>LISTENER</type>
-</com.webreach.mirth.model.ConnectorMetaData
+</com.webreach.mirth.model.ConnectorMetaData>

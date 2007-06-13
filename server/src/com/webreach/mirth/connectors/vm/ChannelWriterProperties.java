@@ -27,7 +27,9 @@ package com.webreach.mirth.connectors.vm;
 
 import java.util.Properties;
 
-public class ChannelWriterProperties
+import com.webreach.mirth.connectors.ConnectorProperties;
+
+public class ChannelWriterProperties implements ConnectorProperties
 {
 	public static final String name = "Channel Writer";
 	
@@ -35,7 +37,7 @@ public class ChannelWriterProperties
     public static final String CHANNEL_ID = "host";
     public static final String CHANNEL_NAME = "channelName";
 
-    public static Properties getDefaults()
+    public Properties getDefaults()
     {
         Properties properties = new Properties();
         properties.put(DATATYPE, name);

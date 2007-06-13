@@ -27,7 +27,9 @@ package com.webreach.mirth.connectors.email;
 
 import java.util.Properties;
 
-public class EmailSenderProperties
+import com.webreach.mirth.connectors.ConnectorProperties;
+
+public class EmailSenderProperties implements ConnectorProperties
 {
     public static final String name = "Email Sender";
 
@@ -42,7 +44,7 @@ public class EmailSenderProperties
     public static final String EMAIL_BODY = "body";
     public static final String EMAIL_REPLY_TO = "replyToAddresses"; 
 
-    public static Properties getDefaults()
+    public Properties getDefaults()
     {
         Properties properties = new Properties();
         properties.put(DATATYPE, name);

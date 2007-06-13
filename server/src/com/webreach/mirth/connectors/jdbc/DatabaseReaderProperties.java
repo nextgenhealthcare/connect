@@ -27,7 +27,9 @@ package com.webreach.mirth.connectors.jdbc;
 
 import java.util.Properties;
 
-public class DatabaseReaderProperties
+import com.webreach.mirth.connectors.ConnectorProperties;
+
+public class DatabaseReaderProperties implements ConnectorProperties
 {
 	public static final String name = "Database Reader";
 	
@@ -46,7 +48,7 @@ public class DatabaseReaderProperties
     public static final String DATABASE_ACK = "ack";
     public static final String DATABASE_JS_ACK = "ackScript";
  
-    public static Properties getDefaults()
+    public Properties getDefaults()
     {
         Properties properties = new Properties();
         properties.put(DATATYPE, name);

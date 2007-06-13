@@ -27,13 +27,15 @@ package com.webreach.mirth.connectors.vm;
 
 import java.util.Properties;
 
-public class ChannelReaderProperties
+import com.webreach.mirth.connectors.ConnectorProperties;
+
+public class ChannelReaderProperties implements ConnectorProperties
 {
     public static final String name = "Channel Reader";
 	
     public static final String DATATYPE = "DataType";
 
-    public static Properties getDefaults()
+    public Properties getDefaults()
     {
         Properties properties = new Properties();
         properties.put(DATATYPE, name);

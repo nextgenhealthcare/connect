@@ -27,7 +27,9 @@ package com.webreach.mirth.connectors.file;
 
 import java.util.Properties;
 
-public class FileReaderProperties
+import com.webreach.mirth.connectors.ConnectorProperties;
+
+public class FileReaderProperties implements ConnectorProperties
 {
     public static final String name = "File Reader";
 	
@@ -48,7 +50,7 @@ public class FileReaderProperties
     public static final String FILE_FILTER = "fileFilter";
     public static final String FILE_TYPE = "binary";
 
-    public static Properties getDefaults()
+    public Properties getDefaults()
     {
         Properties properties = new Properties();
         properties.put(DATATYPE, name);

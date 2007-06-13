@@ -27,7 +27,9 @@ package com.webreach.mirth.connectors.http;
 
 import java.util.Properties;
 
-public class HTTPSListenerProperties
+import com.webreach.mirth.connectors.ConnectorProperties;
+
+public class HTTPSListenerProperties implements ConnectorProperties
 {
     public static final String name = "HTTPS Listener";
 	
@@ -56,7 +58,7 @@ public class HTTPSListenerProperties
     public static final String HTTPS_TRUST_KEYSTORE_PASSWORD = "trustStorePassword";
     public static final String HTTPS_EXPLICIT_TRUST_STORE_ONLY = "explicitTrustStoreOnly";
 
-    public static Properties getDefaults()
+    public Properties getDefaults()
     {
         Properties properties = new Properties();
         properties.put(DATATYPE, name);
