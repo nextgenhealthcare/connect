@@ -572,7 +572,7 @@ public class ChannelSetup extends javax.swing.JPanel
         parent.setPanelName("Edit Channel - " + currentChannel.getName());
         summaryNameField.setText(currentChannel.getName());
         summaryDescriptionText.setText(currentChannel.getDescription());
-
+        
         if (currentChannel.isEnabled())
             summaryEnabledCheckbox.setSelected(true);
         else
@@ -587,23 +587,25 @@ public class ChannelSetup extends javax.swing.JPanel
             preprocessor.setText(currentChannel.getPreprocessingScript());
         else
             preprocessor.setText("// Modify the message variable below to pre process data\r\nreturn message;");
-
-        if ((currentChannel.getProperties().get("transactional")) != null && ((String) currentChannel.getProperties().get("transactional")).equalsIgnoreCase("true"))
+        
+        PropertyVerifier.checkChannelProperties(currentChannel);
+        
+        if (((String) currentChannel.getProperties().get("transactional")).equalsIgnoreCase("true"))
             transactionalCheckBox.setSelected(true);
         else
             transactionalCheckBox.setSelected(false);
 
-        if ((currentChannel.getProperties().get("removeNamespace")) != null && ((String) currentChannel.getProperties().get("removeNamespace")).equalsIgnoreCase("false"))
+        if (((String) currentChannel.getProperties().get("removeNamespace")).equalsIgnoreCase("false"))
             removeNamespaceCheckBox.setSelected(false);
         else
             removeNamespaceCheckBox.setSelected(true);
         
-        if ((currentChannel.getProperties().get("synchronous")) != null && ((String) currentChannel.getProperties().get("synchronous")).equalsIgnoreCase("false"))
+        if (((String) currentChannel.getProperties().get("synchronous")).equalsIgnoreCase("false"))
             synchronousCheckBox.setSelected(false);
         else
             synchronousCheckBox.setSelected(true);
 
-        if ((currentChannel.getProperties().get("encryptData")) != null && ((String) currentChannel.getProperties().get("encryptData")).equalsIgnoreCase("true"))
+        if (((String) currentChannel.getProperties().get("encryptData")).equalsIgnoreCase("true"))
             encryptMessagesCheckBox.setSelected(true);
         else
             encryptMessagesCheckBox.setSelected(false);
@@ -611,7 +613,7 @@ public class ChannelSetup extends javax.swing.JPanel
         if (currentChannel.getSourceConnector().getTransformer().getInboundProtocol() == null)
             currentChannel.getSourceConnector().getTransformer().setInboundProtocol(MessageObject.Protocol.HL7V2);
 
-        if ((currentChannel.getProperties().get("store_messages")) != null && ((String) currentChannel.getProperties().get("store_messages")).equalsIgnoreCase("false"))
+        if (((String) currentChannel.getProperties().get("store_messages")).equalsIgnoreCase("false"))
         {
             storeMessages.setSelected(false);
             storeMessagesAll.setEnabled(false);
@@ -627,19 +629,19 @@ public class ChannelSetup extends javax.swing.JPanel
         {
             storeMessages.setSelected(true);
 
-            if (currentChannel.getProperties().get("error_messages_only") != null && ((String) currentChannel.getProperties().get("error_messages_only")).equalsIgnoreCase("true"))
+            if (((String) currentChannel.getProperties().get("error_messages_only")).equalsIgnoreCase("true"))
                 storeMessagesErrors.setSelected(true);
             else
                 storeMessagesErrors.setSelected(false);
             
             storeFiltered.setEnabled(true);
             
-            if ((currentChannel.getProperties().get("dont_store_filtered")) != null && ((String) currentChannel.getProperties().get("dont_store_filtered")).equalsIgnoreCase("true"))
+            if (((String) currentChannel.getProperties().get("dont_store_filtered")).equalsIgnoreCase("true"))
                 storeFiltered.setSelected(true);
             else
                 storeFiltered.setSelected(false);
             
-            if (currentChannel.getProperties().get("max_message_age") != null && !((String) currentChannel.getProperties().get("max_message_age")).equalsIgnoreCase("-1"))
+            if (!((String) currentChannel.getProperties().get("max_message_age")).equalsIgnoreCase("-1"))
             {
                 numDays.setText((String) currentChannel.getProperties().get("max_message_age"));
                 storeMessagesDays.setSelected(true);
@@ -657,7 +659,7 @@ public class ChannelSetup extends javax.swing.JPanel
         sourceSourceDropdown.setSelectedItem(currentChannel.getSourceConnector().getTransportName());
         checkSourceDataType();
 
-        if ((currentChannel.getProperties().get("initialState")) != null && ((String) currentChannel.getProperties().get("initialState")).equalsIgnoreCase("started"))
+        if (((String) currentChannel.getProperties().get("initialState")).equalsIgnoreCase("started"))
             initialState.setSelectedItem("Started");
         else
             initialState.setSelectedItem("Stopped");
