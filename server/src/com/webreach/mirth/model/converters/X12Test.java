@@ -45,8 +45,6 @@ public class X12Test {
 		stopwatch.start();
 		X12Serializer serializer = new X12Serializer(true);
 		String xmloutput = serializer.toXML(testMessage);
-
-		// System.out.println(xmloutput);
 		DocumentSerializer docser = new DocumentSerializer();
 		docser.setPreserveSpace(false);
 		String x12 = serializer.fromXML(xmloutput);
@@ -54,7 +52,7 @@ public class X12Test {
 
 		// System.out.println(docser.toXML(doc)); // handler.getOutput());
 		// System.out.println(x12);
-		Assert.assertTrue(x12.replace('\n', '\r').trim().equals(testMessage.replaceAll("\\r\\n", "\r").trim()));
+	    Assert.assertTrue(x12.replace('\n', '\r').trim().equals(testMessage.replaceAll("\\r\\n", "\r").trim()));
 
 		if (x12.replace('\n', '\r').trim().equals(testMessage.replaceAll("\\r\\n", "\r").trim())) {
 			System.out.println("Test Successful!");

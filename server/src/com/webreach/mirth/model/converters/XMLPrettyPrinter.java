@@ -18,7 +18,7 @@ public class XMLPrettyPrinter implements ContentHandler {
 
 	private Writer out;
 	private int depth = 0; // depth in hierarchy
-
+	private boolean encodeEntities;
 	private Entities encoder = Entities.getInstance();
 
 	// I could allow the user to set a lot more details about
@@ -74,7 +74,11 @@ public class XMLPrettyPrinter implements ContentHandler {
 	public void characters(char[] text, int start, int length) throws SAXException {
 		try {
 			// indent();
-			out.write(encoder.encode(text, start, length));
+			if (encodeEntities){
+				out.write(encoder.encode(text, start, length));
+			}else{
+				out.write(text, start, length);
+			}
 			// out.write("\r\n");
 		} catch (IOException e) {
 			throw new SAXException(e);
@@ -145,6 +149,14 @@ public class XMLPrettyPrinter implements ContentHandler {
 	public void startPrefixMapping(String prefix, String uri) throws SAXException {
 	// TODO Auto-generated method stub
 
+	}
+
+	public boolean isEncodeEntities() {
+		return encodeEntities;
+	}
+
+	public void setEncodeEntities(boolean encodeEntities) {
+		this.encodeEntities = encodeEntities;
 	}
 
 }

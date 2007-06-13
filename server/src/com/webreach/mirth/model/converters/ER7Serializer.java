@@ -54,6 +54,7 @@ public class ER7Serializer implements IXMLSerializer<String> {
 	private boolean useStrictParser = false;
 	private boolean useStrictValidation = false;
 	private boolean handleRepetitions = false;
+	private boolean encodeEntities = false;
 	public ER7Serializer(Map er7Properties) {
 		if (er7Properties != null && er7Properties.get("useStrictParser") != null) {
 			this.useStrictParser = Boolean.parseBoolean((String) er7Properties.get("useStrictParser"));
@@ -63,6 +64,9 @@ public class ER7Serializer implements IXMLSerializer<String> {
 		}
 		if (er7Properties != null && er7Properties.get("handleRepetitions") != null) {
 			this.handleRepetitions = Boolean.parseBoolean((String) er7Properties.get("handleRepetitions"));
+		}
+		if (er7Properties != null && er7Properties.get("encodeEntities") != null){
+			this.encodeEntities = Boolean.parseBoolean((String) er7Properties.get("encodeEntities"));
 		}
 		if (useStrictParser) {
 			initializeHapiParser();
@@ -106,6 +110,7 @@ public class ER7Serializer implements IXMLSerializer<String> {
 				ER7Reader er7Reader = new ER7Reader(handleRepetitions);
 				StringWriter stringWriter = new StringWriter();
 				XMLPrettyPrinter serializer = new XMLPrettyPrinter(stringWriter);
+				serializer.setEncodeEntities(encodeEntities);
 				ByteArrayOutputStream os = new ByteArrayOutputStream();
 				try {
 					er7Reader.setContentHandler(serializer);
@@ -149,7 +154,7 @@ public class ER7Serializer implements IXMLSerializer<String> {
 				xr.setContentHandler(handler);
 				xr.setErrorHandler(handler);
                 //Parse, but first replace all spaces between brackets. This fixes pretty-printed XML we might receive
-				xr.parse(new InputSource(new StringReader(source.replaceAll(">\\s+<", "><"))));
+				xr.parse(new InputSource(new StringReader(source.replaceAll("</([^>]*)>\\s+<", "</$1><"))));
 				builder.append(handler.getOutput());
 			} catch (Exception e) {
 				String exceptionMessage = e.getClass().getName() + ":" + e.getMessage();

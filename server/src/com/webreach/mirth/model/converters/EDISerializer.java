@@ -43,7 +43,8 @@ public class EDISerializer implements IXMLSerializer<String> {
 	private String segmentDelim = "~";
 	private String elementDelim = "*";
 	private String subelementDelim = ":";
-
+	private boolean encodeEntities = false;
+	
 	public EDISerializer(Map ediProperties) {
 		if (ediProperties == null) {
 			return;
@@ -57,6 +58,9 @@ public class EDISerializer implements IXMLSerializer<String> {
 		}
 		if (ediProperties.get("subelementDelimiter") != null) {
 			this.subelementDelim = convertNonPrintableCharacters((String) ediProperties.get("subelementDelimiter"));
+		}
+		if (ediProperties.get("encodeEntities") != null) {
+			this.encodeEntities = Boolean.parseBoolean((String) ediProperties.get("encodeEntities"));
 		}
 		return;
 	}
@@ -82,7 +86,7 @@ public class EDISerializer implements IXMLSerializer<String> {
 		xr.setErrorHandler(handler);
 		try {
             //Parse, but first replace all spaces between brackets. This fixes pretty-printed XML we might receive
-            xr.parse(new InputSource(new StringReader(source.replaceAll(">\\s+<", "><"))));
+            xr.parse(new InputSource(new StringReader(source.replaceAll("</([^>]*)>\\s+<", "</$1><"))));
 		} catch (Exception e) {
 			throw new SerializerException(e.getMessage());
 		}
@@ -94,6 +98,7 @@ public class EDISerializer implements IXMLSerializer<String> {
 			EDIReader ediReader = new EDIReader("~", "*", ":");
 			StringWriter stringWriter = new StringWriter();
 			XMLPrettyPrinter serializer = new XMLPrettyPrinter(stringWriter);
+			serializer.setEncodeEntities(encodeEntities);
 			ByteArrayOutputStream os = new ByteArrayOutputStream();
 			try {
 				ediReader.setContentHandler(serializer);
@@ -184,6 +189,14 @@ public class EDISerializer implements IXMLSerializer<String> {
 	public Map<String, String> getMetadataFromXML(String xmlSource) throws SerializerException {
 		return getMetadata(xmlSource);
 		// TODO: Make this actually use a helper string parser
+	}
+
+	public boolean isEncodeEntities() {
+		return encodeEntities;
+	}
+
+	public void setEncodeEntities(boolean encodeEntities) {
+		this.encodeEntities = encodeEntities;
 	}
 
 }
