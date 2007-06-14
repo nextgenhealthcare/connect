@@ -226,10 +226,6 @@ public class ConfigurationController {
 		setPropertiesToFile(serverPropertiesFile, properties);
 	}
 
-	public void updateServerProperties(Properties properties) throws ControllerException {
-		updatePropertiesToFile(serverPropertiesFile, properties);
-	}
-
 	public Properties getPropertiesFromFile(File inputFile) throws ControllerException {
 		logger.debug("retrieving " + inputFile.getName() + " properties");
 
@@ -265,27 +261,8 @@ public class ConfigurationController {
 			throw new ControllerException(e);
 		} finally {
 			try {
+				fileOutputStream.flush();
 				fileOutputStream.close();
-			} catch (IOException e) {
-				logger.warn(e);
-			}
-		}
-	}
-
-	public void updatePropertiesToFile(File inputFile, Properties properties) throws ControllerException {
-		logger.debug("updating " + inputFile.getName() + " properties");
-
-		FileOutputStream fileOuputStream = null;
-
-		try {
-			fileOuputStream = new FileOutputStream(serverPropertiesFile);
-			properties.store(fileOuputStream, null);
-		} catch (Exception e) {
-			throw new ControllerException(e);
-		} finally {
-			try {
-				fileOuputStream.flush();
-				fileOuputStream.close();
 			} catch (IOException e) {
 				logger.warn(e);
 			}

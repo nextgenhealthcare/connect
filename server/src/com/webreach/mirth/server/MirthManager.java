@@ -174,9 +174,9 @@ public class MirthManager {
 	 * @param properties
 	 * @throws MirthException
 	 */
-	public void updateServerProperties(Properties properties) throws MirthException {
+	public void setServerProperties(Properties properties) throws MirthException {
 		try {
-			configurationController.updateServerProperties(properties);
+			configurationController.setServerProperties(properties);
 		} catch (ControllerException e) {
 			throw new MirthException(e);
 		}

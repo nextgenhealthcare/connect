@@ -343,9 +343,9 @@ public class Client {
 	 * @param properties
 	 * @throws ClientException
 	 */
-	public synchronized void updateServerProperties(Properties properties) throws ClientException {
+	public synchronized void setServerProperties(Properties properties) throws ClientException {
 		logger.debug("updating server properties");
-		NameValuePair[] params = { new NameValuePair("op", "updateServerProperties"), new NameValuePair("data", serializer.toXML(properties)) };
+		NameValuePair[] params = { new NameValuePair("op", "setServerProperties"), new NameValuePair("data", serializer.toXML(properties)) };
 		serverConnection.executePostMethod(CONFIGURATION_SERVLET, params);
 	}
 
