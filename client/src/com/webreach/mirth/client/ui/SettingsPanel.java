@@ -302,7 +302,7 @@ public class SettingsPanel extends javax.swing.JPanel
 
             try
             {
-                parent.mirthClient.updateServerProperties(serverProperties);
+                parent.mirthClient.setServerProperties(serverProperties);
             }
             catch (ClientException ex)
             {
