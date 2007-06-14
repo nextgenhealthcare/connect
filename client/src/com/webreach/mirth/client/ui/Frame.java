@@ -25,6 +25,7 @@
 
 package com.webreach.mirth.client.ui;
 
+import com.webreach.mirth.model.ChannelProperties;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -44,6 +45,7 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -1070,6 +1072,18 @@ public class Frame extends JXFrame
         });
         messagePopupMenu.add(refresh);
         
+        messageTasks.add(initActionCallback("doSendMessage", "Send a message to the channel.", ActionFactory.createBoundAction("doSendMessage", "Send Message", ""), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/messages.png"))));
+        JMenuItem sendMessage = new JMenuItem("Send Message");
+        sendMessage.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/messages.png")));
+        sendMessage.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                doSendMessage();
+            }
+        });
+        messagePopupMenu.add(sendMessage);
+        
         messageTasks.add(initActionCallback("doImportMessages", "Import messages from a file.", ActionFactory.createBoundAction("doImportMessages", "Import Messages", ""), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/import.png"))));
         JMenuItem importMessages = new JMenuItem("Import Messages");
         importMessages.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/import.png")));
@@ -1155,8 +1169,8 @@ public class Frame extends JXFrame
         messagePopupMenu.add(reprocessMessage);
 
         setNonFocusable(messageTasks);
-        setVisibleTasks(messageTasks, messagePopupMenu, 5, -1, false);
-        setVisibleTasks(messageTasks, messagePopupMenu, 6, 6, true);
+        setVisibleTasks(messageTasks, messagePopupMenu, 6, -1, false);
+        setVisibleTasks(messageTasks, messagePopupMenu, 7, 7, true);
         taskPaneContainer.add(messageTasks);
     }
 
@@ -2900,6 +2914,30 @@ public class Frame extends JXFrame
         };
 
         worker.execute();
+    }
+    
+    public void doSendMessage()
+    {
+        try
+        {
+            Channel channel = channels.get(status.get(dashboardPanel.getSelectedStatus()).getChannelId());
+            
+            MessageObject messageObject = new MessageObject();
+            messageObject.setId(mirthClient.getGuid());        
+            messageObject.setServerId(PlatformUI.SERVER_ID);
+            messageObject.setChannelId(channel.getId());
+            messageObject.setRawDataProtocol(channel.getSourceConnector().getTransformer().getInboundProtocol());
+            messageObject.setDateCreated(Calendar.getInstance());
+            messageObject.setConnectorName("Source");
+            messageObject.setEncrypted(Boolean.valueOf(channel.getProperties().getProperty(ChannelProperties.ENCRYPT_DATA)).booleanValue());
+            messageObject.setRawData("");
+            
+            new EditMessageDialog(messageObject);
+        } 
+        catch (ClientException e)
+        {
+            alertException(e.getStackTrace(), e.getMessage());
+        }
     }
     
     public void doImportMessages()

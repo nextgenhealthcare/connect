@@ -201,8 +201,8 @@ public class MessageBrowser extends javax.swing.JPanel
         // Clear the table first
     	
         // use the start filters and make the table.
-        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 5, -1, false);
-        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 6, 6, true);
+        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 6, -1, false);
+        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 7, 7, true);
         messageListHandler = null;
         
         statusComboBox.setSelectedIndex(0);
@@ -651,8 +651,8 @@ public class MessageBrowser extends javax.swing.JPanel
      */
     public void deselectRows()
     {
-        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 5, -1, false);
-        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 6, 6, true);
+        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 6, -1, false);
+        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 7, 7, true);
         if (messageTable != null)
         {
             messageTable.clearSelection();
@@ -697,7 +697,7 @@ public class MessageBrowser extends javax.swing.JPanel
             
             if (row >= 0)
             {
-                parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 5, -1, true);
+                parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 6, -1, true);
                 this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                 
                 MessageObject currentMessage = messageObjectList.get(row);
