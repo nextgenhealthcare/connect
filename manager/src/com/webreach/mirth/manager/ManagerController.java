@@ -38,7 +38,7 @@ public class ManagerController
     private final String serviceName = "Mirth";
     private final String CMD_START = "cmd /c net start \"";
     private final String CMD_STOP = "cmd /c net stop \"";
-    private final String CMD_WEBSTART = "cmd /c javaws http://localhost:8080/webstart";
+    private final String CMD_WEBSTART = "cmd /c javaws http://localhost:8080/webstart.jnlp";
     private final String CMD_STATUS = "cmd /c net continue \"";
     
     private static final int STATUS_RUNNING = 2191;
