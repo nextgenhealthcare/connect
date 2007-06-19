@@ -1,14 +1,11 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<jnlp>
+<jnlp href="activation.jnlp">
    <information>
       <title>Activation</title>
       <vendor>Sun Microsystems, Inc.</vendor>
-      <offline-allowed/>
    </information>
    <security>
       <all-permissions/>
    </security>
-   <offline-allowed/>
    <resources>
       <jar download="eager" href="lib/activation.jar" />
    </resources>

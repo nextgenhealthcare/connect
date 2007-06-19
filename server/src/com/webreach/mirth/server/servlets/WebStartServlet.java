@@ -43,13 +43,21 @@ import com.webreach.mirth.model.converters.DocumentSerializer;
 import com.webreach.mirth.util.PropertyLoader;
 
 public class WebStartServlet extends HttpServlet {
-	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    
+	/*
+     * Override last modified time to always be modified so it updates changes to JNLP.
+	 */
+	protected long getLastModified(HttpServletRequest arg0)	{
+	    return System.currentTimeMillis();
+	}
+    
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		try {
 			DocumentSerializer docSerializer = new DocumentSerializer();
 			PrintWriter out = response.getWriter();
-
+			
 			response.setContentType("application/x-java-jnlp-file");
-			response.setHeader("Pragma", "no-cache");
+            response.setHeader("Pragma", "no-cache");
 
 			// Cannot get the real path if it is not in the classpath.  If it is null,
 			// try it with just the filename.
@@ -96,7 +104,7 @@ public class WebStartServlet extends HttpServlet {
 			Element versionArgumentElement = document.createElement("argument");
 			versionArgumentElement.setTextContent(version);
 			applicationDescElement.appendChild(versionArgumentElement);
-
+			
 			out.println(docSerializer.toXML(document));
 		} catch (Exception e) {
 			throw new ServletException(e);

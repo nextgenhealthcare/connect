@@ -154,6 +154,10 @@
 		<servlet-name>WebStart</servlet-name>
 		<url-pattern>/webstart</url-pattern>
 	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>WebStart</servlet-name>
+		<url-pattern>/webstart.jnlp</url-pattern>
+	</servlet-mapping>
 
 	<servlet>
 		<servlet-name>Activation</servlet-name>
@@ -165,6 +169,10 @@
 	<servlet-mapping>
 		<servlet-name>Activation</servlet-name>
 		<url-pattern>/activation</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>Activation</servlet-name>
+		<url-pattern>/activation.jnlp</url-pattern>
 	</servlet-mapping>
 
 	<servlet>

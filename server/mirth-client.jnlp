@@ -1,4 +1,4 @@
-<jnlp>
+<jnlp href="webstart.jnlp">
 	<information>
 		<title>Mirth Administrator</title>
 		<vendor>WebReach, Inc.</vendor>
@@ -6,14 +6,13 @@
 		<description>Open source HL7 integration engine.</description>
 		
 		<icon href="mirth_logo_64.jpg" />
-		<offline-allowed />
-		<shortcut online="false">
-		
-		            <!-- put a shortcut on the desktop -->
-		            <desktop/>
-		            <!-- put shortcut in start menu too -->
-		            <menu submenu="Mirth Project"/>
-        	</shortcut>
+
+		<shortcut online="true">
+            <!-- put a shortcut on the desktop -->
+            <desktop/>
+            <!-- put shortcut in start menu too -->
+            <menu submenu="Mirth Project"/>
+    	</shortcut>
 	</information>
 	
 	

@@ -331,7 +331,7 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
                         endCharLocation = buffer.toString().indexOf(END_MESSAGE  + "" + END_OF_RECORD);
                     }
                     
-                    if (buffer.length() > 0 && startCharLocation == -1)
+                    if (buffer.length() > 0 && startCharLocation == -1)// || endCharLocation > startCharLocation)
                     {
                         // clear junk data that cannot be processed
                         buffer.delete(0, buffer.length());
