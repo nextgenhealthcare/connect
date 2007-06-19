@@ -488,7 +488,7 @@ public class ImportConverter
                             {
                                 if(strings.item(1).getTextContent().equals("0"))
                                     strings.item(1).setTextContent("channel");
-                                else
+                                else if(strings.item(1).getTextContent().equals("1"))
                                     strings.item(1).setTextContent("global");
                             }
                         }
