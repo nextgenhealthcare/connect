@@ -28,6 +28,14 @@ package com.webreach.mirth.client.ui.editors.transformer;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DropTarget;
+import java.awt.dnd.DropTargetDragEvent;
+import java.awt.dnd.DropTargetDropEvent;
+import java.awt.dnd.DropTargetEvent;
+import java.awt.dnd.DropTargetListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -95,9 +103,34 @@ import com.webreach.mirth.model.Transformer;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.model.util.ImportConverter;
 
-public class TransformerPane extends MirthEditorPane
+public class TransformerPane extends MirthEditorPane implements DropTargetListener
 {
-
+    // used to load the pane
+    private Transformer transformer;
+    // fields
+    private JXTable transformerTable;
+    private DefaultTableModel transformerTableModel;
+    private JScrollPane transformerTablePane;
+    private JSplitPane vSplitPane;
+    private JSplitPane hSplitPane;
+    private JXTaskPaneContainer transformerTaskPaneContainer;
+    private JXTaskPane transformerTasks;
+    private JPopupMenu transformerPopupMenu;
+    private JXTaskPane viewTasks;
+    private Channel channel;
+    private Connector connector;
+    public boolean updating; // flow control
+    private boolean invalidVar; // selection control
+    // panels using CardLayout
+    protected BasePanel stepPanel; // the card holder
+    protected BasePanel blankPanel;
+    protected MapperPanel mapperPanel;
+    protected MessageBuilder builderPanel;
+    protected JavaScriptPanel jsPanel;
+    public static final int NUMBER_OF_COLUMNS = 4;
+    private String[] defaultComboBoxValues = { MAPPER_TYPE, MESSAGE_TYPE, JAVASCRIPT_TYPE };
+    private DropTarget dropTarget;
+        
     /**
      * CONSTRUCTOR
      */
@@ -105,6 +138,7 @@ public class TransformerPane extends MirthEditorPane
     {
         prevSelRow = -1;
         modified = false;
+        new DropTarget(this,this);
         initComponents();
         setBorder(BorderFactory.createEmptyBorder());
     }
@@ -192,6 +226,83 @@ public class TransformerPane extends MirthEditorPane
             modified = false;
     }
 
+    public void dragEnter(DropTargetDragEvent dtde)
+    {
+        try
+        {
+            Transferable tr = dtde.getTransferable();
+            if (tr.isDataFlavorSupported(DataFlavor.javaFileListFlavor))
+            {
+                
+                dtde.acceptDrag(DnDConstants.ACTION_COPY_OR_MOVE);
+                
+                List fileList = (List) tr.getTransferData(DataFlavor.javaFileListFlavor);
+                Iterator iterator = fileList.iterator();
+                while (iterator.hasNext())
+                {
+                    String fileName = ((File)iterator.next()).getName();
+                    if(!fileName.substring(fileName.lastIndexOf(".")).equalsIgnoreCase("xml"))
+                    {
+                        dtde.rejectDrag();
+                        return;
+                    }
+                }
+            }
+            else
+                dtde.rejectDrag();
+        }
+        catch (Exception e)
+        {
+            dtde.rejectDrag();
+        }
+    }
+    
+    public void dragOver(DropTargetDragEvent dtde)
+    {
+    }
+    
+    public void dropActionChanged(DropTargetDragEvent dtde)
+    {
+    }
+    
+    public void dragExit(DropTargetEvent dte)
+    {
+    }
+    
+    public void drop(DropTargetDropEvent dtde)
+    {
+        try
+        {
+            Transferable tr = dtde.getTransferable();
+            if (tr.isDataFlavorSupported(DataFlavor.javaFileListFlavor))
+            {
+                
+                dtde.acceptDrop(DnDConstants.ACTION_COPY_OR_MOVE);
+                
+                List fileList = (List) tr.getTransferData(DataFlavor.javaFileListFlavor);
+                Iterator iterator = fileList.iterator();
+                
+                if(fileList.size() == 1)
+                {
+                    File file = (File)iterator.next();
+                    importTransformer(file);
+                }
+                else
+                {
+                    while (iterator.hasNext())
+                    {
+                        File file = (File)iterator.next();
+                        importTransformer(file);
+                    }
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            dtde.rejectDrop();
+        }
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      */
@@ -354,18 +465,18 @@ public class TransformerPane extends MirthEditorPane
         transformerTable.setBorder(BorderFactory.createEmptyBorder());
         transformerTable.setModel(new DefaultTableModel(new String[] { "#", "Name", "Type", "Data" }, 0)
         { // Data column is hidden
-                    public boolean isCellEditable(int rowIndex, int columnIndex)
-                    {
-                        boolean[] canEdit;
+            public boolean isCellEditable(int rowIndex, int columnIndex)
+            {
+                boolean[] canEdit;
 
-                        if (!((String) transformerTableModel.getValueAt(rowIndex, STEP_TYPE_COL)).equals(JAVASCRIPT_TYPE))
-                            canEdit = new boolean[] { false, false, true, true };
-                        else
-                            canEdit = new boolean[] { false, true, true, true };
+                if (!((String) transformerTableModel.getValueAt(rowIndex, STEP_TYPE_COL)).equals(JAVASCRIPT_TYPE))
+                    canEdit = new boolean[] { false, false, true, true };
+                else
+                    canEdit = new boolean[] { false, true, true, true };
 
-                        return canEdit[columnIndex];
-                    }
-                });
+                return canEdit[columnIndex];
+            }
+        });
 
         transformerTableModel = (DefaultTableModel) transformerTable.getModel();
 
@@ -449,7 +560,10 @@ public class TransformerPane extends MirthEditorPane
             highlighter.addHighlighter(new AlternateRowHighlighter(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR, UIConstants.TITLE_TEXT_COLOR));
             transformerTable.setHighlighters(highlighter);
         }
-
+        
+        transformerTable.setDropTarget(dropTarget);
+        transformerTablePane.setDropTarget(dropTarget);
+        
         transformerTable.setBorder(BorderFactory.createEmptyBorder());
         transformerTablePane.setBorder(BorderFactory.createEmptyBorder());
         transformerTablePane.setViewportView(transformerTable);
@@ -853,36 +967,41 @@ public class TransformerPane extends MirthEditorPane
         {
             Preferences.systemNodeForPackage(Mirth.class).put("currentDirectory", importFileChooser.getCurrentDirectory().getPath());
             importFile = importFileChooser.getSelectedFile();
-            String transformerXML = "";
-           
-            MessageObject.Protocol incomingProtocol = null, outgoingProtocol = null;
-            
-            for (MessageObject.Protocol protocol : MessageObject.Protocol.values())
+            importTransformer(importFile);
+        }
+    }
+    
+    private void importTransformer(File importFile)
+    {
+        String transformerXML = "";
+       
+        MessageObject.Protocol incomingProtocol = null, outgoingProtocol = null;
+        
+        for (MessageObject.Protocol protocol : MessageObject.Protocol.values())
+        {
+            if (PlatformUI.MIRTH_FRAME.protocols.get(protocol).equals(tabTemplatePanel.getIncomingDataType()))
             {
-                if (PlatformUI.MIRTH_FRAME.protocols.get(protocol).equals(tabTemplatePanel.getIncomingDataType()))
-                {
-                    incomingProtocol = protocol;
-                }
-                if (PlatformUI.MIRTH_FRAME.protocols.get(protocol).equals(tabTemplatePanel.getOutgoingDataType()))
-                {
-                    outgoingProtocol = protocol;
-                }
+                incomingProtocol = protocol;
             }
+            if (PlatformUI.MIRTH_FRAME.protocols.get(protocol).equals(tabTemplatePanel.getOutgoingDataType()))
+            {
+                outgoingProtocol = protocol;
+            }
+        }
 
-            ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-            try
-            {
-                transformerXML = ImportConverter.convertTransformer(importFile, incomingProtocol, outgoingProtocol);
-                Transformer importTransformer = (Transformer) serializer.fromXML(transformerXML);
-                prevSelRow = -1;
-                modified = true;
-                connector.setTransformer(importTransformer);
-                load(connector, importTransformer, modified);
-            }
-            catch (Exception e)
-            {
-                parent.alertError("Invalid transformer file.");
-            }
+        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+        try
+        {
+            transformerXML = ImportConverter.convertTransformer(importFile, incomingProtocol, outgoingProtocol);
+            Transformer importTransformer = (Transformer) serializer.fromXML(transformerXML);
+            prevSelRow = -1;
+            modified = true;
+            connector.setTransformer(importTransformer);
+            load(connector, importTransformer, modified);
+        }
+        catch (Exception e)
+        {
+            parent.alertError("Invalid transformer file.");
         }
     }
 
@@ -1279,34 +1398,4 @@ public class TransformerPane extends MirthEditorPane
         mapperPanel.unsetHighlighters();
         builderPanel.unsetHighlighters();
     }
-
-    // ............................................................................\\
-
-    // used to load the pane
-    private Transformer transformer;
-    // fields
-    private JXTable transformerTable;
-    private DefaultTableModel transformerTableModel;
-    private JScrollPane transformerTablePane;
-    private JSplitPane vSplitPane;
-    private JSplitPane hSplitPane;
-    private JXTaskPaneContainer transformerTaskPaneContainer;
-    private JXTaskPane transformerTasks;
-    private JPopupMenu transformerPopupMenu;
-    private JXTaskPane viewTasks;
-    private JXTaskPane otherTasks;
-    private Channel channel;
-    private Connector connector;
-    public boolean updating; // flow control
-    private boolean invalidVar; // selection control
-    // panels using CardLayout
-    protected BasePanel stepPanel; // the card holder
-    protected BasePanel blankPanel;
-    protected MapperPanel mapperPanel;
-    protected MessageBuilder builderPanel;
-    protected JavaScriptPanel jsPanel;
-    public static final int NUMBER_OF_COLUMNS = 4;
-    private String[] defaultComboBoxValues = { MAPPER_TYPE, MESSAGE_TYPE, JAVASCRIPT_TYPE };
-    private String[] transformerComboBoxValues = { MESSAGE_TYPE, MAPPER_TYPE, JAVASCRIPT_TYPE };
-
 }

@@ -89,7 +89,7 @@ public class ChannelSetup extends javax.swing.JPanel
     private Frame parent;
     private boolean isDeleting = false;
     private boolean loadingChannel = false;
-    private Map<String, ConnectorMetaData> transports;
+    public Map<String, ConnectorMetaData> transports;
     private ArrayList<String> sourceConnectors;
     private ArrayList<String> destinationConnectors;
     private static SyntaxDocument preprocessorDoc;
@@ -803,13 +803,13 @@ public class ChannelSetup extends javax.swing.JPanel
 
             updated = parent.updateChannel(currentChannel);
             try
-			{
-				currentChannel = (Channel)ObjectCloner.deepCopy(parent.channels.get(currentChannel.getId()));
-			}
-			catch (ObjectClonerException e)
-			{
-				parent.alertException(e.getStackTrace(), e.getMessage());
-			}
+            {
+                currentChannel = (Channel)ObjectCloner.deepCopy(parent.channels.get(currentChannel.getId()));
+            }
+            catch (ObjectClonerException e)
+            {
+                parent.alertException(e.getStackTrace(), e.getMessage());
+            }
         }
         catch (ClientException e)
         {

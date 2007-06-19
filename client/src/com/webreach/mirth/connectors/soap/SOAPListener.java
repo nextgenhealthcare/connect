@@ -106,17 +106,17 @@ public class SOAPListener extends ConnectorClass
         resetInvalidProperties();
         boolean valid = true;
         
-        if (((String) props.get(SOAPListenerProperties.SOAP_LISTENER_ADDRESS)).length() > 0)
+        if (((String) props.get(SOAPListenerProperties.SOAP_LISTENER_ADDRESS)).length() == 0)
         {
             valid = false;
             listenerAddress.setBackground(UIConstants.INVALID_COLOR);
         }
-        if (((String) props.get(SOAPListenerProperties.SOAP_PORT)).length() > 0)
+        if (((String) props.get(SOAPListenerProperties.SOAP_PORT)).length() == 0)
         {
             valid = false;
             port.setBackground(UIConstants.INVALID_COLOR);
         }
-        if (((String) props.get(SOAPListenerProperties.SOAP_SERVICE_NAME)).length() > 0)
+        if (((String) props.get(SOAPListenerProperties.SOAP_SERVICE_NAME)).length() == 0)
         {
             valid = false;
             serviceName.setBackground(UIConstants.INVALID_COLOR);

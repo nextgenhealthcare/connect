@@ -81,6 +81,7 @@ public class UserWizard extends javax.swing.JDialog
         Dimension frmSize = parent.getSize();
         Point loc = parent.getLocation();
         setLocation((frmSize.width - dlgSize.width) / 2 + loc.x, (frmSize.height - dlgSize.height) / 2 + loc.y);
+        setResizable(false);
         setVisible(true);
         this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
     }

@@ -7,6 +7,10 @@
 package com.webreach.mirth.client.ui;
 
 import java.awt.Point;
+import java.awt.dnd.DropTarget;
+import java.awt.dnd.DropTargetDragEvent;
+import java.awt.dnd.DropTargetListener;
+import java.util.List;
 import java.util.prefs.Preferences;
 
 import javax.swing.ImageIcon;
@@ -17,13 +21,21 @@ import org.jdesktop.swingx.decorator.AlternateRowHighlighter;
 import org.jdesktop.swingx.decorator.HighlighterPipeline;
 
 import com.webreach.mirth.client.ui.components.MirthTable;
+import com.webreach.mirth.client.ui.util.FileUtil;
 import com.webreach.mirth.model.Channel;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DropTargetDropEvent;
+import java.awt.dnd.DropTargetEvent;
+import java.io.File;
+import java.util.Iterator;
 
 /**
  * 
  * @author brendanh
  */
-public class ChannelPanel extends javax.swing.JPanel
+public class ChannelPanel extends javax.swing.JPanel implements DropTargetListener
 {
     private final String STATUS_COLUMN_NAME = "Status";
     private final String PROTOCOL_COLUMN_NAME = "Protocol";
@@ -34,12 +46,14 @@ public class ChannelPanel extends javax.swing.JPanel
     private final String ENABLED_STATUS = "Enabled";
     private int lastRow;
     private Frame parent;
+    private DropTarget dropTarget;
 
     /** Creates new form ChannelPanel */
     public ChannelPanel()
     {
         this.parent = PlatformUI.MIRTH_FRAME;
         initComponents();
+        dropTarget = new DropTarget(this, this);
         lastRow = -1;
         makeChannelTable();
 
@@ -89,7 +103,10 @@ public class ChannelPanel extends javax.swing.JPanel
         channelTable.setRowSelectionAllowed(true);
 
         channelPane.setViewportView(channelTable);
-
+        
+        channelTable.setDropTarget(dropTarget);
+        channelPane.setDropTarget(dropTarget);
+        
         channelTable.getSelectionModel().addListSelectionListener(new ListSelectionListener()
         {
             public void valueChanged(ListSelectionEvent evt)
@@ -250,6 +267,83 @@ public class ChannelPanel extends javax.swing.JPanel
     {
         channelTable.deselectRows();
         parent.setVisibleTasks(parent.channelTasks, parent.channelPopupMenu, 5, -1, false);
+    }
+    
+    public void dragEnter(DropTargetDragEvent dtde)
+    {
+        try
+        {
+            Transferable tr = dtde.getTransferable();
+            if (tr.isDataFlavorSupported(DataFlavor.javaFileListFlavor))
+            {
+                
+                dtde.acceptDrag(DnDConstants.ACTION_COPY_OR_MOVE);
+                
+                List fileList = (List) tr.getTransferData(DataFlavor.javaFileListFlavor);
+                Iterator iterator = fileList.iterator();
+                while (iterator.hasNext())
+                {
+                    String fileName = ((File)iterator.next()).getName();
+                    if(!fileName.substring(fileName.lastIndexOf(".")).equalsIgnoreCase(".xml"))
+                    {
+                        dtde.rejectDrag();
+                        return;
+                    }
+                }
+            }
+            else
+                dtde.rejectDrag();
+        }
+        catch (Exception e)
+        {
+            dtde.rejectDrag();
+        }
+    }
+    
+    public void dragOver(DropTargetDragEvent dtde)
+    {
+    }
+    
+    public void dropActionChanged(DropTargetDragEvent dtde)
+    {
+    }
+    
+    public void dragExit(DropTargetEvent dte)
+    {
+    }
+    
+    public void drop(DropTargetDropEvent dtde)
+    {
+        try
+        {
+            Transferable tr = dtde.getTransferable();
+            if (tr.isDataFlavorSupported(DataFlavor.javaFileListFlavor))
+            {
+                
+                dtde.acceptDrop(DnDConstants.ACTION_COPY_OR_MOVE);
+                
+                List fileList = (List) tr.getTransferData(DataFlavor.javaFileListFlavor);
+                Iterator iterator = fileList.iterator();
+                
+                if(fileList.size() == 1)
+                {
+                    File file = (File)iterator.next();
+                    parent.importChannel(file, true);
+                }
+                else
+                {
+                    while (iterator.hasNext())
+                    {
+                        File file = (File)iterator.next();
+                        parent.importChannel(file, false);
+                    }
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            dtde.rejectDrop();
+        }
     }
 
     /**

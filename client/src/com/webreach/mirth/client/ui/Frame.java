@@ -26,6 +26,7 @@
 package com.webreach.mirth.client.ui;
 
 import com.webreach.mirth.model.ChannelProperties;
+import com.webreach.mirth.util.PropertyVerifier;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -931,10 +932,22 @@ public class Frame extends JXFrame
             }
         });
         statusPopupMenu.add(startAllChannels);
-
-        statusTasks.add(initActionCallback("doShowMessages", "Show the messages for the currently selected channel.", ActionFactory.createBoundAction("doShowMessages", "View Messages", ""), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/messages.png"))));
+        
+        statusTasks.add(initActionCallback("doSendMessage", "Send messages to the currently selected channel.", ActionFactory.createBoundAction("doSendMessage", "Send Message", ""), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/messages.png"))));
+        JMenuItem sendMessages = new JMenuItem("Send Message");
+        sendMessages.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/messages.png")));
+        sendMessages.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                doSendMessage();
+            }
+        });
+        statusPopupMenu.add(sendMessages);
+        
+        statusTasks.add(initActionCallback("doShowMessages", "Show the messages for the currently selected channel.", ActionFactory.createBoundAction("doShowMessages", "View Messages", ""), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/messages2.png"))));
         JMenuItem showMessages = new JMenuItem("View Messages");
-        showMessages.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/messages.png")));
+        showMessages.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/messages2.png")));
         showMessages.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent e)
@@ -1005,8 +1018,7 @@ public class Frame extends JXFrame
         statusPopupMenu.add(stopChannel);
 
         setNonFocusable(statusTasks);
-        setVisibleTasks(statusTasks, statusPopupMenu, 1, 1, false);
-        setVisibleTasks(statusTasks, statusPopupMenu, 2, -1, false);
+        setVisibleTasks(statusTasks, statusPopupMenu, 1, -1, false);
         taskPaneContainer.add(statusTasks);
     }
 
@@ -1684,7 +1696,7 @@ public class Frame extends JXFrame
         {
             if (channel.getName().equalsIgnoreCase(name) && !channel.getId().equals(id))
             {
-                alertWarning("Channel name already exists. Please choose a unique name.");
+                alertWarning("Channel \"" + name + "\" already exists. Please choose a unique name.");
                 return false;
             }
         }
@@ -2667,34 +2679,44 @@ public class Frame extends JXFrame
         {
             userPreferences.put("currentDirectory", importFileChooser.getCurrentDirectory().getPath());
             importFile = importFileChooser.getSelectedFile();
-            String channelXML = "";
-            
-            try
-            {
-                channelXML = ImportConverter.convertChannel(importFile);
-            }
-            catch (Exception e1)
-            {
+            importChannel(importFile, true);
+        }
+    }
+        
+    public void importChannel(File importFile, boolean showAlerts)
+    {
+        String channelXML = "";
+
+        try
+        {
+            channelXML = ImportConverter.convertChannel(importFile);
+        }
+        catch (Exception e1)
+        {
+            if(showAlerts)
                 alertException(e1.getStackTrace(),"Invalid channel file. " + e1.getMessage());
-            }
+        }
 
-            ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-            Channel importChannel;
+        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+        Channel importChannel;
 
-            try
-            {
-                importChannel = (Channel) serializer.fromXML(channelXML.replaceAll("\\&\\#x0D;\\n", "\n").replaceAll("\\&\\#x0D;", "\n"));
-            }
-            catch (Exception e)
-            {
-            	alertException(e.getStackTrace(),"Invalid channel file. " + e.getMessage());
-                return;
-            }
+        try
+        {
+            importChannel = (Channel) serializer.fromXML(channelXML.replaceAll("\\&\\#x0D;\\n", "\n").replaceAll("\\&\\#x0D;", "\n"));
+        }
+        catch (Exception e)
+        {
+            if(showAlerts)
+                alertException(e.getStackTrace(),"Invalid channel file. " + e.getMessage());
+            return;
+        }
 
-           /**
-             * Checks to see if the passed in channel version is current, and
-             * prompts the user if it is not.
-             */
+       /**
+         * Checks to see if the passed in channel version is current, and
+         * prompts the user if it is not.
+         */
+        if(showAlerts)
+        {
             int option;
 
             option = JOptionPane.YES_OPTION;
@@ -2706,46 +2728,60 @@ public class Frame extends JXFrame
             {
                 option = JOptionPane.showConfirmDialog(this, "The channel being imported is from Mirth version " + importChannel.getVersion() + ". You are using Mirth version " + PlatformUI.SERVER_VERSION + ".\nSome channel properties may not be the same.  Would you like to automatically convert the properties?", "Select an Option", JOptionPane.YES_NO_CANCEL_OPTION);
             }
-            
+
             if(option != JOptionPane.YES_OPTION)
                 return;
+        }
 
-            try
+        try
+        {
+            importChannel.setRevision(0);
+            importChannel.setId(mirthClient.getGuid());
+
+            String channelName = importChannel.getName();
+            while (!checkChannelName(channelName, importChannel.getId()))
             {
-                importChannel.setRevision(0);
-                importChannel.setId(mirthClient.getGuid());
-                
-                String channelName = importChannel.getName();
-                while (!checkChannelName(channelName, importChannel.getId()))
-                {
-                    channelName = JOptionPane.showInputDialog(this, "Please enter a new name for the channel.");
-                    if (channelName == null)
-                        return;
-                }
-                
-                importChannel.setName(channelName);
-                
-                importChannel.setVersion(mirthClient.getVersion());
-                channels.put(importChannel.getId(), importChannel);
-            }
-            catch (ClientException e)
-            {
-                alertException(e.getStackTrace(), e.getMessage());
+                channelName = JOptionPane.showInputDialog(this, "Please enter a new name for the channel.");
+                if (channelName == null)
+                    return;
             }
 
-            try
+            importChannel.setName(channelName);
+
+            importChannel.setVersion(mirthClient.getVersion());
+            channels.put(importChannel.getId(), importChannel);
+        }
+        catch (ClientException e)
+        {
+            alertException(e.getStackTrace(), e.getMessage());
+        }
+
+        try
+        {
+            if(showAlerts)
             {
                 editChannel(importChannel);
                 channelEditTasks.getContentPane().getComponent(0).setVisible(true);
             }
-            catch (Exception e)
+            else
+            {
+                PropertyVerifier.checkChannelProperties(importChannel);
+                PropertyVerifier.checkConnectorProperties(importChannel, channelEditPanel.transports);
+                updateChannel(importChannel);
+                doShowChannel();
+            }
+        }
+        catch (Exception e)
+        {
+            channels.remove(importChannel.getId());
+            
+            if(showAlerts)
             {
                 alertError("Channel had an unknown problem. Channel import aborted.");
-                channels.remove(importChannel.getId());
                 channelEditPanel = new ChannelSetup();
-                this.doShowChannel();
             }
-
+            
+            doShowChannel();
         }
     }
 
@@ -2920,7 +2956,15 @@ public class Frame extends JXFrame
     {
         try
         {
+            retrieveChannels();
+            
             Channel channel = channels.get(status.get(dashboardPanel.getSelectedStatus()).getChannelId());
+            
+            if(channel == null)
+            {
+                alertError("Channel no longer exists!");
+                return;
+            }
             
             MessageObject messageObject = new MessageObject();
             messageObject.setId(mirthClient.getGuid());        

@@ -27,6 +27,14 @@ package com.webreach.mirth.client.ui.editors.filter;
 
 import java.awt.BorderLayout;
 import java.awt.Point;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DropTarget;
+import java.awt.dnd.DropTargetDragEvent;
+import java.awt.dnd.DropTargetDropEvent;
+import java.awt.dnd.DropTargetEvent;
+import java.awt.dnd.DropTargetListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -92,9 +100,36 @@ import com.webreach.mirth.model.Transformer;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import java.util.Iterator;
 
-public class FilterPane extends MirthEditorPane
+public class FilterPane extends MirthEditorPane implements DropTargetListener
 {
-
+    // used to load this pane
+    private Filter filter;
+    private Transformer transformer;
+    // fields
+    private JXTable filterTable;
+    private DefaultTableModel filterTableModel;
+    private JScrollPane filterTablePane;
+    private JSplitPane hSplitPane;
+    private JSplitPane vSplitPane;
+    private boolean updating; // allow the selection listener to breathe
+    JXTaskPaneContainer filterTaskPaneContainer;
+    JXTaskPane viewTasks;
+    JXTaskPane filterTasks;
+    JPopupMenu filterPopupMenu;
+    // this little sucker is used to track the last row that had
+    // focus after a new row is selected
+    private Connector connector;
+    // panels using CardLayout
+    protected BasePanel rulePanel; // the card holder
+    protected BasePanel blankPanel;
+    protected JavaScriptPanel jsPanel;
+    public static final int NUMBER_OF_COLUMNS = 4;
+    public static final String BLANK_TYPE = "";
+    public static final String JAVASCRIPT_TYPE = "JavaScript";
+    private String[] comboBoxValues = new String[] { Rule.Operator.AND.toString(), Rule.Operator.OR.toString() };
+    private Channel channel;
+    private DropTarget dropTarget;
+    
     /**
      * CONSTRUCTOR
      */
@@ -102,6 +137,7 @@ public class FilterPane extends MirthEditorPane
     {
         prevSelRow = -1;
         modified = false;
+        new DropTarget(this,this);
         initComponents();
     }
 
@@ -174,6 +210,83 @@ public class FilterPane extends MirthEditorPane
             modified = true;
         else
             modified = false;
+    }
+    
+    public void dragEnter(DropTargetDragEvent dtde)
+    {
+        try
+        {
+            Transferable tr = dtde.getTransferable();
+            if (tr.isDataFlavorSupported(DataFlavor.javaFileListFlavor))
+            {
+                
+                dtde.acceptDrag(DnDConstants.ACTION_COPY_OR_MOVE);
+                
+                List fileList = (List) tr.getTransferData(DataFlavor.javaFileListFlavor);
+                Iterator iterator = fileList.iterator();
+                while (iterator.hasNext())
+                {
+                    String fileName = ((File)iterator.next()).getName();
+                    if(!fileName.substring(fileName.lastIndexOf(".")).equalsIgnoreCase("xml"))
+                    {
+                        dtde.rejectDrag();
+                        return;
+                    }
+                }
+            }
+            else
+                dtde.rejectDrag();
+        }
+        catch (Exception e)
+        {
+            dtde.rejectDrag();
+        }
+    }
+    
+    public void dragOver(DropTargetDragEvent dtde)
+    {
+    }
+    
+    public void dropActionChanged(DropTargetDragEvent dtde)
+    {
+    }
+    
+    public void dragExit(DropTargetEvent dte)
+    {
+    }
+    
+    public void drop(DropTargetDropEvent dtde)
+    {
+        try
+        {
+            Transferable tr = dtde.getTransferable();
+            if (tr.isDataFlavorSupported(DataFlavor.javaFileListFlavor))
+            {
+                
+                dtde.acceptDrop(DnDConstants.ACTION_COPY_OR_MOVE);
+                
+                List fileList = (List) tr.getTransferData(DataFlavor.javaFileListFlavor);
+                Iterator iterator = fileList.iterator();
+                
+                if(fileList.size() == 1)
+                {
+                    File file = (File)iterator.next();
+                    importFilter(file);
+                }
+                else
+                {
+                    while (iterator.hasNext())
+                    {
+                        File file = (File)iterator.next();
+                        importFilter(file);
+                    }
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            dtde.rejectDrop();
+        }
     }
 
     /**
@@ -383,6 +496,9 @@ public class FilterPane extends MirthEditorPane
             highlighter.addHighlighter(new AlternateRowHighlighter(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR, UIConstants.TITLE_TEXT_COLOR));
             filterTable.setHighlighters(highlighter);
         }
+        
+        filterTable.setDropTarget(dropTarget);
+        filterTablePane.setDropTarget(dropTarget);
 
         filterTable.setBorder(BorderFactory.createEmptyBorder());
         filterTablePane.setBorder(BorderFactory.createEmptyBorder());
@@ -670,33 +786,28 @@ public class FilterPane extends MirthEditorPane
         {
             Preferences.systemNodeForPackage(Mirth.class).put("currentDirectory", importFileChooser.getCurrentDirectory().getPath());
             importFile = importFileChooser.getSelectedFile();
-            String filterXML = "";
-            /*
-            try
-            {
-                filterXML = FileUtil.read(importFile);
-            }
-            catch (IOException e)
-            {
-                parent.alertError("File could not be read.");
-                return;
-            }*/
+            importFilter(importFile);
+        }
+    }
+    
+    public void importFilter(File importFile)
+    {
+        String filterXML = "";
 
-            ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-            try
-            {
-                filterXML = ImportConverter.convertFilter(importFile);
-                Filter importFilter = (Filter) serializer.fromXML(filterXML);
-                prevSelRow = -1;
-                modified = true;
-                connector.setFilter(importFilter);
-                load(connector, importFilter, transformer, modified);
-            }
-            catch (Exception e)
-            {
-                e.printStackTrace();
-                parent.alertError("Invalid filter file.");
-            }
+        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+        try
+        {
+            filterXML = ImportConverter.convertFilter(importFile);
+            Filter importFilter = (Filter) serializer.fromXML(filterXML);
+            prevSelRow = -1;
+            modified = true;
+            connector.setFilter(importFilter);
+            load(connector, importFilter, transformer, modified);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            parent.alertError("Invalid filter file.");
         }
     }
 
@@ -968,35 +1079,4 @@ public class FilterPane extends MirthEditorPane
     {
         jsPanel.unsetHighlighters();
     }
-
-    // ............................................................................\\
-
-    // used to load this pane
-    private Filter filter;
-    private Transformer transformer;
-    // fields
-    private JXTable filterTable;
-    private DefaultTableModel filterTableModel;
-    private JScrollPane filterTablePane;
-    private JSplitPane hSplitPane;
-    private JSplitPane vSplitPane;
-    private boolean updating; // allow the selection listener to breathe
-    JXTaskPaneContainer filterTaskPaneContainer;
-    JXTaskPane viewTasks;
-    JXTaskPane filterTasks;
-    JXTaskPane otherTasks;
-    JPopupMenu filterPopupMenu;
-    // this little sucker is used to track the last row that had
-    // focus after a new row is selected
-    private Connector connector;
-    // panels using CardLayout
-    protected BasePanel rulePanel; // the card holder
-    protected BasePanel blankPanel;
-    protected JavaScriptPanel jsPanel;
-    public static final int NUMBER_OF_COLUMNS = 4;
-    public static final String BLANK_TYPE = "";
-    public static final String JAVASCRIPT_TYPE = "JavaScript";
-    private String[] comboBoxValues = new String[] { Rule.Operator.AND.toString(), Rule.Operator.OR.toString() };
-    private Channel channel;
-
 }

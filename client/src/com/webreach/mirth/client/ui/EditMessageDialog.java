@@ -26,11 +26,26 @@
 package com.webreach.mirth.client.ui;
 
 import com.webreach.mirth.client.ui.components.MirthSyntaxTextArea;
+import com.webreach.mirth.client.ui.util.FileUtil;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.MessageObject.Protocol;
 import com.webreach.mirth.model.converters.DocumentSerializer;
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DropTarget;
+import java.awt.dnd.DropTargetDragEvent;
+import java.awt.dnd.DropTargetDropEvent;
+import java.awt.dnd.DropTargetEvent;
+import java.awt.dnd.DropTargetListener;
+import java.io.File;
+import java.util.Iterator;
+import javax.swing.JLayeredPane;
+import javax.swing.JRootPane;
 import org.syntax.jedit.SyntaxDocument;
 import org.syntax.jedit.tokenmarker.EDITokenMarker;
 import org.syntax.jedit.tokenmarker.HL7TokenMarker;
@@ -39,7 +54,7 @@ import org.syntax.jedit.tokenmarker.XMLTokenMarker;
 import org.w3c.dom.Document;
 
 /** Creates the About Mirth dialog. The content is loaded from about.txt. */
-public class EditMessageDialog extends javax.swing.JDialog
+public class EditMessageDialog extends javax.swing.JDialog implements DropTargetListener
 {
     private Frame parent;
     private MessageObject message;
@@ -57,11 +72,77 @@ public class EditMessageDialog extends javax.swing.JDialog
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setModal(true);
         pack();
+        new DropTarget(messageContent, this);
         Dimension dlgSize = getPreferredSize();
         Dimension frmSize = parent.getSize();
         Point loc = parent.getLocation();
         setLocation((frmSize.width - dlgSize.width) / 2 + loc.x, (frmSize.height - dlgSize.height) / 2 + loc.y);
         setVisible(true);
+    }
+    
+    public void dragEnter(DropTargetDragEvent dtde)
+    {
+        try
+        {
+            Transferable tr = dtde.getTransferable();
+            if (tr.isDataFlavorSupported(DataFlavor.javaFileListFlavor))
+            {
+                
+                dtde.acceptDrag(DnDConstants.ACTION_COPY_OR_MOVE);
+                
+                java.util.List fileList = (java.util.List) tr.getTransferData(DataFlavor.javaFileListFlavor);
+                Iterator iterator = fileList.iterator();
+                while (iterator.hasNext())
+                {
+                    iterator.next();
+                }
+            }
+            else
+                dtde.rejectDrag();
+        }
+        catch (Exception e)
+        {
+            dtde.rejectDrag();
+        }
+    }
+    
+    public void dragOver(DropTargetDragEvent dtde)
+    {
+    }
+    
+    public void dropActionChanged(DropTargetDragEvent dtde)
+    {
+    }
+    
+    public void dragExit(DropTargetEvent dte)
+    {
+    }
+    
+    public void drop(DropTargetDropEvent dtde)
+    {
+        try
+        {
+            Transferable tr = dtde.getTransferable();
+            if (tr.isDataFlavorSupported(DataFlavor.javaFileListFlavor))
+            {
+                
+                dtde.acceptDrop(DnDConstants.ACTION_COPY_OR_MOVE);
+                
+                java.util.List fileList = (java.util.List) tr.getTransferData(DataFlavor.javaFileListFlavor);
+                Iterator iterator = fileList.iterator();
+                while (iterator.hasNext())
+                {
+                    File file = (File)iterator.next();
+                    
+                    messageContent.setText(messageContent.getText() + FileUtil.read(file));
+                    parent.setEnabled(true);
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            dtde.rejectDrop();
+        }
     }
     
     private void setCorrectDocument(MirthSyntaxTextArea textPane, String message, MessageObject.Protocol protocol)
@@ -86,7 +167,7 @@ public class EditMessageDialog extends javax.swing.JDialog
                     newDoc.setTokenMarker(new XMLTokenMarker());
                     DocumentSerializer serializer = new DocumentSerializer();
                     serializer.setPreserveSpace(false);
-                   
+                    
                     try
                     {
                         Document doc = serializer.fromXML(message);
@@ -117,7 +198,7 @@ public class EditMessageDialog extends javax.swing.JDialog
         }
         
         textPane.setCaretPosition(0);
-    }   
+    }
     
     /**
      * This method is called from within the constructor to initialize the form.
@@ -195,25 +276,24 @@ public class EditMessageDialog extends javax.swing.JDialog
         );
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
+    
     private void closeButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_closeButtonActionPerformed
     {//GEN-HEADEREND:event_closeButtonActionPerformed
         this.dispose();
     }//GEN-LAST:event_closeButtonActionPerformed
-
+    
     private void processMessageButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_processMessageButtonActionPerformed
     {//GEN-HEADEREND:event_processMessageButtonActionPerformed
         message.setRawData(messageContent.getText());
         parent.processMessage(message);
         this.dispose();
     }//GEN-LAST:event_processMessageButtonActionPerformed
-
-
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton closeButton;
     private javax.swing.JPanel jPanel1;
     private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea messageContent;
     private javax.swing.JButton processMessageButton;
     // End of variables declaration//GEN-END:variables
-
+    
 }
