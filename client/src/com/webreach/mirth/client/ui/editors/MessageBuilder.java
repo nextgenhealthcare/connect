@@ -98,6 +98,23 @@ public class MessageBuilder extends BasePanel
                 parent.modified = true;
             }
         });
+        
+        defaultValueTextField.getDocument().addDocumentListener(new DocumentListener()
+        {
+            public void changedUpdate(DocumentEvent arg0)
+            {
+            }
+
+            public void insertUpdate(DocumentEvent arg0)
+            {
+                parent.modified = true;
+            }
+
+            public void removeUpdate(DocumentEvent arg0)
+            {
+                parent.modified = true;
+            }
+        });
 
         regularExpressionsScrollPane.addMouseListener(new java.awt.event.MouseAdapter()
         {
