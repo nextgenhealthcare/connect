@@ -224,15 +224,14 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
                 
                 List fileList = (List) tr.getTransferData(DataFlavor.javaFileListFlavor);
                 Iterator iterator = fileList.iterator();
-                while (iterator.hasNext())
+                if (iterator.hasNext() && fileList.size() == 1)
                 {
                     String fileName = ((File)iterator.next()).getName();
-                    if(!fileName.substring(fileName.lastIndexOf(".")).equalsIgnoreCase("xml"))
-                    {
+                    if(!fileName.substring(fileName.lastIndexOf(".")).equalsIgnoreCase(".xml"))
                         dtde.rejectDrag();
-                        return;
-                    }
                 }
+                else
+                    dtde.rejectDrag();
             }
             else
                 dtde.rejectDrag();
@@ -272,14 +271,6 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
                 {
                     File file = (File)iterator.next();
                     importFilter(file);
-                }
-                else
-                {
-                    while (iterator.hasNext())
-                    {
-                        File file = (File)iterator.next();
-                        importFilter(file);
-                    }
                 }
             }
         }
