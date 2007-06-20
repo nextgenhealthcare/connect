@@ -99,7 +99,10 @@ public class Mirth extends Thread {
 
 			// start the database pruning thread
 			pruner.start();
-
+			
+			// add the start command to the queue
+			CommandQueue.getInstance().addCommand(new Command(Command.Operation.START));
+			
 			Runtime.getRuntime().addShutdownHook(new ShutdownHook());
 
 			// pulls commands off of the command queue

@@ -41,9 +41,6 @@ public class Launcher {
 				Thread mirthThread = (Thread) mirthClass.newInstance();
 				mirthThread.setContextClassLoader(classLoader);
 				mirthThread.start();
-				
-				// add the start command to the queue
-				CommandQueue.getInstance().addCommand(new Command(Command.Operation.START));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
