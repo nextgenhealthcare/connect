@@ -28,6 +28,9 @@ package com.webreach.mirth.server.launcher;
 
 import java.net.URLClassLoader;
 
+import com.webreach.mirth.server.Command;
+import com.webreach.mirth.server.CommandQueue;
+
 public class Launcher {
 	public static void main(String[] args) {
 		if (args[0] != null) {
@@ -38,6 +41,9 @@ public class Launcher {
 				Thread mirthThread = (Thread) mirthClass.newInstance();
 				mirthThread.setContextClassLoader(classLoader);
 				mirthThread.start();
+				
+				// add the start command to the queue
+				CommandQueue.getInstance().addCommand(new Command(Command.Operation.START));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
