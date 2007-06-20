@@ -37,8 +37,13 @@
 		<mkdir dir="${dist}" />
 		<mkdir dir="${dist.source}" />
 
-		<jar destfile="${dist}/${client.jar}" basedir="${classes}">
-			<exclude name="com/webreach/mirth/connectors/**" />
+		<jar destfile="${dist}/${client.jar}">
+			<fileset dir="${classes}">
+				<exclude name="com/webreach/mirth/connectors/**/**" />
+			</fileset>
+			<fileset dir="${classes}">
+				<include name="com/webreach/mirth/connectors/ConnectorClass.class" />
+			</fileset>
 		</jar>
 		
 		<jar destfile="${dist}/doc-client.jar" basedir="${classes}">
