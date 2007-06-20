@@ -37,4 +37,11 @@ public class JMXConnectionFactory {
 		String jmxUrl = "service:jmx:rmi:///jndi/rmi://localhost:" + port + "/server";
 		return new JMXConnection(jmxUrl, properties.getProperty("configuration.id"));
 	}
+	
+	public static JMXConnection createJMXConnection(String domain) throws Exception {
+		Properties properties = PropertyLoader.loadProperties("mirth");
+		String port = properties.getProperty("jmx.port");
+		String jmxUrl = "service:jmx:rmi:///jndi/rmi://localhost:" + port + "/server";
+		return new JMXConnection(jmxUrl, domain);
+	}
 }

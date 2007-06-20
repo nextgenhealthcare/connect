@@ -67,7 +67,7 @@ public class JMXConnection {
 	 */
 	public Object invokeOperation(Hashtable properties, String operation, Object[] params, String[] signature) throws Exception {
 		logger.debug("invoking mbean operation: " + operation);
-		return jmxConnection.invoke(new ObjectName(domain, properties), operation, params, signature);
+		return jmxConnection.invoke(getObjectName(properties), operation, params, signature);
 	}
 
 	/**
@@ -79,7 +79,7 @@ public class JMXConnection {
 	 */
 	public Object getAttribute(Hashtable properties, String attribute) throws Exception {
 		logger.debug("getting mbean attribute: " + attribute);
-		return jmxConnection.getAttribute(new ObjectName(domain, properties), attribute);
+		return jmxConnection.getAttribute(getObjectName(properties), attribute);
 	}
 
 	public Set getMBeanNames() throws Exception {
@@ -97,5 +97,16 @@ public class JMXConnection {
 		} catch (Exception e) {
 			logger.warn(e.getMessage());
 		}
+	}
+	
+	private ObjectName getObjectName(Hashtable properties) throws Exception {
+		ObjectName objectName = null;
+		if (properties == null) {
+			objectName = (ObjectName)jmxConnection.queryNames(new ObjectName(domain), null).toArray()[0];
+		}
+		else {
+			objectName = new ObjectName(domain, properties);		
+		}
+		return objectName;
 	}
 }
