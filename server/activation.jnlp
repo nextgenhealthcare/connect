@@ -7,7 +7,7 @@
       <all-permissions/>
    </security>
    <resources>
-      <jar download="eager" href="lib/activation.jar" />
+      <jar download="eager" href="client-lib/activation.jar" />
    </resources>
    <component-desc/>
 </jnlp>

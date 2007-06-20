@@ -24,9 +24,10 @@
 		<delete dir="${logs}" />
 		<mkdir dir="${logs}" />
 
+		<delete dir="${client.lib}" />
+		<mkdir dir="${client.lib}" />
+
 		<delete dir="${classes}" />
-		<delete dir="${web}" />
-		<delete dir="${webapp.classes}" />
 		<delete dir="${setup}" />
 		<delete dir="${dist}" />
 	</target>
@@ -61,7 +62,7 @@
 	</target>
 	
 	<target name="create-connectors" depends="create-client-core">
-		<delete dir="${connectors}" />
+    <delete dir="${connectors}" />
 		<mkdir dir="${connectors}"/>
 		
 		<copy todir="${connectors}">
@@ -245,59 +246,26 @@
 				<include name="META-INF/services/org/mule/providers/vm" />
 			</fileset>		
 		</jar>
-		
 	</target>
 
-	<target name="create-web" depends="compile">
-		<delete dir="${web}" />
-
-		<mkdir dir="${web}" />
-		<mkdir dir="${web.webapps}" />
-		<mkdir dir="${webapp.classes}" />
-
-		<copy todir="${webapp.classes}">
-			<fileset dir="${classes}/com/webreach/mirth/server/servlets" />
-		</copy>
-
-		<!-- sign jars for webstart -->
+  <target name="create-client-lib" depends="init">
+  
+    <!-- sign jars for webstart -->
 		<signjar alias="mirth" keystore="${basedir}/keystore" storepass="abc12345" keypass="abc12345">
-			<fileset file="${webapp.lib}/mirth-client.jar" />
-			<fileset file="${webapp.lib}/mirth-client-core.jar" />
-			<fileset file="${webapp.lib}/commons-codec-1.3.jar" />
-			<fileset file="${webapp.lib}/commons-httpclient-3.0.1.jar" />
-			<fileset file="${webapp.lib}/commons-logging-1.1.jar" />
-			<fileset file="${webapp.lib}/databinding-0.8.0.jar" />
-			<fileset file="${webapp.lib}/hapi-0.5.jar" />
-			<fileset file="${webapp.lib}/jdic-0.8.0.jar" />
-			<fileset file="${webapp.lib}/l2fprod-common-sheet.jar" />
-			<fileset file="${webapp.lib}/log4j-1.2.14.jar" />
-			<fileset file="${webapp.lib}/looks-2.1.1.jar" />
-			<fileset file="${webapp.lib}/qname.jar" />
-			<fileset file="${webapp.lib}/rhino-1.6r2.jar" />
-			<fileset file="${webapp.lib}/swing-layout-1.0.1.jar" />
-			<fileset file="${webapp.lib}/swingworker-0.8.0.jar" />
-			<fileset file="${webapp.lib}/swingx-0.8.0.jar" />
-			<fileset file="${webapp.lib}/wsdl4j.jar" />
-			<fileset file="${webapp.lib}/wsif.jar" />
-			<fileset file="${webapp.lib}/xercesImpl.jar" />
-			<fileset file="${webapp.lib}/xpp3_min-1.1.3.4.O.jar" />
-			<fileset file="${webapp.lib}/xstream-1.2.jar" />
-			<fileset file="${webapp.lib}/jaxb-api.jar" />
-			<fileset file="${webapp.lib}/jaxb-impl.jar" />
-			<fileset file="${webapp.lib}/jsr173_1.0_api.jar" />
+			<fileset file="${client.lib}/*.jar" />
+			<fileset file="${connectors}/*-shared.jar" />
+			<fileset file="${connectors}/*-client.jar" />
 		</signjar>
+  </target>
 
-		<!-- create the webapp war in the web webapps directory -->
-		<jar basedir="${webapp}" destfile="${web.webapps}/mirth.war" />
-	</target>
-
-	<target name="create-setup" depends="create-web">
+	<target name="create-setup" depends="create-client-lib">
 		<!-- create the setup directory -->
 		<mkdir dir="${setup}" />
 		<mkdir dir="${setup.conf}" />
+		<mkdir dir="${setup.plugins}" />
 		<mkdir dir="${setup.connectors}" />
 		<mkdir dir="${setup.lib}" />
-		<mkdir dir="${setup.web}" />
+		<mkdir dir="${setup.client.lib}" />
 		<mkdir dir="${setup.source}" />
 		<mkdir dir="${setup.logs}" />
 		<mkdir dir="${setup.licenses}" />
@@ -311,6 +279,11 @@
 		<!-- copy lib -->
 		<copy todir="${setup.lib}">
 			<fileset dir="${lib}" />
+		</copy>
+
+		<!-- copy client-lib -->
+		<copy todir="${setup.client.lib}">
+			<fileset dir="${client.lib}" />
 		</copy>
 
 		<!-- copy conf files -->
@@ -364,16 +337,16 @@
 			<exclude name="com/webreach/mirth/server/launcher/**" />
 		</jar>
 
-		<!-- create the Mirth launcher jar -->
+		<!-- create the launcher jar -->
 		<jar destfile="${setup}/${launcher.jar}" basedir="${classes}">
 			<include name="com/webreach/mirth/server/launcher/**" />
 			<manifest>
 				<attribute name="Main-Class" value="com.webreach.mirth.server.launcher.Launcher" />
-				<attribute name="Class-Path" value="lib/log4j-1.2.13.jar conf/" />
+				<attribute name="Class-Path" value="lib/log4j-1.2.13.jar conf/ plugins/" />
 			</manifest>
 		</jar>
 
-		<!-- create the Mirth launcher jar -->
+		<!-- create the shell jar -->
 		<jar destfile="${setup}/shell.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/server/tools/Shell.class" />
 			<include name="com/thoughtworks/xstream/converters/collections/PropertiesConverter.class" />
@@ -382,11 +355,6 @@
 				<attribute name="Class-Path" value="lib/log4j-1.2.13.jar conf/ lib/commons-cli-1.0.jar lib/log4j-1.2.13.jar lib/xstream-1.2.jar lib/commons-httpclient-3.0.1.jar lib/xpp3_min-1.1.3.4.O.jar mirth-server.jar mirth-client-core.jar lib/jetty/commons-logging.jar lib/mule/commons-codec-1.3.jar" />
 			</manifest>
 		</jar>
-		
-		<!-- copy web -->
-		<copy todir="${setup.web}">
-			<fileset dir="${web}" />
-		</copy>
 
 		<!-- remove svn folders -->
 		<delete>

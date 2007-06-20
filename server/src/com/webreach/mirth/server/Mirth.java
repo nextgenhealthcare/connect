@@ -25,15 +25,17 @@
 
 package com.webreach.mirth.server;
 
+import java.io.File;
 import java.util.Date;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
 import org.mortbay.http.HttpContext;
+import org.mortbay.http.HttpServer;
 import org.mortbay.http.SocketListener;
 import org.mortbay.http.SslListener;
 import org.mortbay.http.handler.ResourceHandler;
-import org.mortbay.jetty.Server;
+import org.mortbay.jetty.servlet.ServletHandler;
 import org.mule.MuleManager;
 import org.mule.config.ConfigurationException;
 import org.mule.config.builders.MuleXmlConfigurationBuilder;
@@ -46,6 +48,7 @@ import com.webreach.mirth.server.controllers.ControllerException;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.controllers.SystemLogger;
 import com.webreach.mirth.server.controllers.UserController;
+import com.webreach.mirth.server.tools.ClassPathResource;
 import com.webreach.mirth.server.util.DatabasePruner;
 import com.webreach.mirth.server.util.StackTracePrinter;
 import com.webreach.mirth.server.util.VMRegistry;
@@ -62,7 +65,7 @@ public class Mirth extends Thread {
 	private Properties mirthProperties = null;
 	private Properties versionProperties = null;
 	private MuleManager muleManager = null;
-	private Server webServer = null;
+	private HttpServer webServer = null;
 	private CommandQueue commandQueue = CommandQueue.getInstance();
 	private SystemLogger systemLogger = new SystemLogger();
 	private MirthManager manager = new MirthManager();
@@ -87,16 +90,16 @@ public class Mirth extends Thread {
 			logger.info("starting mirth server...");
 			running = true;
 			startWebServer();
-			
+
 			// initialize controllers
 			messageObjectController.initialize();
 			configurationController.initialize();
 			channelController.initialize();
 			userController.initialize();
-			
+
 			// start the database pruning thread
 			pruner.start();
-			
+
 			// add the start command to the queue
 			commandQueue.addCommand(new Command(Command.Operation.START));
 
@@ -143,7 +146,9 @@ public class Mirth extends Thread {
 	public void shutdown() {
 		logger.info("shutting down mirth due to normal request");
 		stopMule();
-		channelStatisticsController.updateAllStatistics(); // do one last update to the stats table
+		channelStatisticsController.updateAllStatistics(); // do one last
+		// update to the
+		// stats table
 		stopWebServer();
 		pruner.interrupt();
 		running = false;
@@ -166,7 +171,7 @@ public class Mirth extends Thread {
 	 */
 	private void startMule() {
 		configurationController.setEngineStarting(true);
-		
+
 		try {
 			String configurationFilePath = configurationController.getLatestConfiguration().getAbsolutePath();
 			logger.debug("starting mule with configuration file: " + configurationFilePath);
@@ -192,7 +197,7 @@ public class Mirth extends Thread {
 		} catch (Exception e) {
 			logger.error("Could not start Mule.");
 		}
-		
+
 		configurationController.setEngineStarting(false);
 	}
 
@@ -234,7 +239,7 @@ public class Mirth extends Thread {
 			// form size to infinite
 			System.setProperty("org.mortbay.http.HttpRequest.maxFormContentSize", "0");
 
-			webServer = new Server();
+			webServer = new HttpServer();
 
 			// add HTTPS listener
 			SslListener sslListener = new SslListener();
@@ -248,18 +253,50 @@ public class Mirth extends Thread {
 			SocketListener listener = new SocketListener();
 			listener.setPort(Integer.valueOf(mirthProperties.getProperty("http.port")).intValue());
 			webServer.addListener(listener);
+			
+			// Create the lib context
+			HttpContext libContext = new HttpContext();
+			libContext.setContextPath("/client-lib/");
+			webServer.addContext(libContext);
+			
+			// Serve static content from the lib context
+			File connectors = new File(ClassPathResource.getResourceURI("connectors"));
+			String libPath = connectors.getParentFile().getParent() + System.getProperty("file.separator") + "client-lib";
+			libContext.setResourceBase(libPath);
+			libContext.addHandler(new ResourceHandler());
 
-			// add a context for sharing files
-			String htdocs = mirthProperties.getProperty("http.htdocs");
-			HttpContext context = new HttpContext();
-			context.setContextPath("/" + htdocs + "/*");
-			webServer.addContext(context);
-			context.setResourceBase("./web/" + htdocs + "/");
-			context.addHandler(new ResourceHandler());
+			// Create the connectors context
+			HttpContext connectorsContext = new HttpContext();
+			connectorsContext.setContextPath("/connectors/");
+			webServer.addContext(connectorsContext);
+			
+			// Serve static content from the connectors context
+			String connectorsPath = connectors.getPath();
+			connectorsContext.setResourceBase(connectorsPath);
+			connectorsContext.addHandler(new ResourceHandler());
+			
+			// Create a servlet container
+			ServletHandler servlets = new ServletHandler();
+			HttpContext servletContext = new HttpContext();
+			servletContext.setContextPath("/");
+			servletContext.addHandler(servlets);
+			webServer.addContext(servletContext);
 
-			// add the war
-			webServer.addWebApplication("/", "./web/webapps/mirth.war");
+			// Map a servlet onto the container
+			servlets.addServlet("Alerts", "/alerts", "com.webreach.mirth.server.servlets.AlertServlet");
+			servlets.addServlet("Channels", "/channels", "com.webreach.mirth.server.servlets.ChannelServlet");
+			servlets.addServlet("ChannelStatistics", "/channelstatistics", "com.webreach.mirth.server.servlets.ChannelStatisticsServlet");
+			servlets.addServlet("ChannelStatus", "/channelstatus", "com.webreach.mirth.server.servlets.ChannelStatusServlet");
+			servlets.addServlet("Configuration", "/configuration", "com.webreach.mirth.server.servlets.ConfigurationServlet");
+			servlets.addServlet("MessageObject", "/messages", "com.webreach.mirth.server.servlets.MessageObjectServlet");
+			servlets.addServlet("SystemEvent", "/events", "com.webreach.mirth.server.servlets.SystemEventServlet");
+			servlets.addServlet("Users", "/users", "com.webreach.mirth.server.servlets.UserServlet");
+			servlets.addServlet("WebStart", "/webstart.jnlp", "com.webreach.mirth.server.servlets.WebStartServlet");
+			servlets.addServlet("Activation", "/activation.jnlp", "com.webreach.mirth.server.servlets.ActivationServlet");			
+
+			// start the web server
 			webServer.start();
+
 			logger.debug("started jetty web server on ports: " + listener.getPort() + ", " + sslListener.getPort());
 		} catch (Exception e) {
 			logger.warn("Could not start web server.", e);
@@ -275,7 +312,7 @@ public class Mirth extends Thread {
 
 		try {
 			webServer.stop();
-		} catch (InterruptedException e) {
+		} catch (Exception e) {
 			logger.warn("Could not stop web server.", e);
 		}
 	}

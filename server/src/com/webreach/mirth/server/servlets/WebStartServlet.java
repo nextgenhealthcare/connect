@@ -23,11 +23,12 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
 package com.webreach.mirth.server.servlets;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Properties;
 
 import javax.servlet.ServletException;
@@ -40,6 +41,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.webreach.mirth.model.converters.DocumentSerializer;
+import com.webreach.mirth.server.controllers.ConfigurationController;
 import com.webreach.mirth.util.PropertyLoader;
 
 public class WebStartServlet extends HttpServlet {
@@ -53,25 +55,30 @@ public class WebStartServlet extends HttpServlet {
     
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		try {
+			ConfigurationController configurationController = ConfigurationController.getInstance();
 			DocumentSerializer docSerializer = new DocumentSerializer();
 			PrintWriter out = response.getWriter();
 			
 			response.setContentType("application/x-java-jnlp-file");
             response.setHeader("Pragma", "no-cache");
 
-			// Cannot get the real path if it is not in the classpath.  If it is null,
+			// Cannot get the real path if it is not in the classpath. If it is
+			// null,
 			// try it with just the filename.
 			String jnlpPath = this.getServletContext().getRealPath("mirth-client.jnlp");
-			if (jnlpPath == null)
+
+			if (jnlpPath == null) {
 				jnlpPath = "mirth-client.jnlp";
+			}
+
 			Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(jnlpPath);
 			Element jnlpElement = document.getDocumentElement();
-			
+
 			// Change the title to include the version of Mirth
 			Properties versionProperties = PropertyLoader.loadProperties("version");
 			String version = versionProperties.getProperty("mirth.version");
-			Element informationElement = (Element)jnlpElement.getElementsByTagName("information").item(0);
-			Element title = (Element)informationElement.getElementsByTagName("title").item(0);
+			Element informationElement = (Element) jnlpElement.getElementsByTagName("information").item(0);
+			Element title = (Element) informationElement.getElementsByTagName("title").item(0);
 			title.setTextContent(title.getTextContent() + " " + version);
 
 			String scheme = request.getScheme();
@@ -79,13 +86,13 @@ public class WebStartServlet extends HttpServlet {
 			int serverPort = request.getServerPort();
 			String contextPath = request.getContextPath();
 			String codebase = scheme + "://" + serverName + ":" + serverPort + contextPath;
-			
+
 			Properties mirthProperties = PropertyLoader.loadProperties("mirth");
-			
+
 			String server;
-			
+
 			if ((mirthProperties.getProperty("server.url") != null) && !mirthProperties.getProperty("server.url").equals("")) {
-				server = mirthProperties.getProperty("server.url"); 
+				server = mirthProperties.getProperty("server.url");
 			} else {
 				int httpsPort = 8443;
 
@@ -95,7 +102,7 @@ public class WebStartServlet extends HttpServlet {
 
 				server = "https://" + serverName + ":" + httpsPort;
 			}
-			
+
 			jnlpElement.setAttribute("codebase", codebase);
 			Element applicationDescElement = (Element) jnlpElement.getElementsByTagName("application-desc").item(0);
 			Element serverArgumentElement = document.createElement("argument");
@@ -105,6 +112,23 @@ public class WebStartServlet extends HttpServlet {
 			versionArgumentElement.setTextContent(version);
 			applicationDescElement.appendChild(versionArgumentElement);
 			
+			// add the connector client jars to the classpath
+			Element resourcesElement = (Element) jnlpElement.getElementsByTagName("resources").item(0);
+			List<String> libraries = configurationController.getConnectorLibraries();
+
+			for (Iterator iter = libraries.iterator(); iter.hasNext();) {
+				String lib = (String) iter.next();
+
+				Element jarElement = document.createElement("jar");
+				jarElement.setAttribute("download", "eager");
+				
+//				File jar = new File(ClassPathResource.getResourceURI("connectors/" + lib));
+				jarElement.setAttribute("href", "connectors/" + lib);
+				
+				resourcesElement.appendChild(jarElement);
+			}
+
+			System.out.println(docSerializer.toXML(document));
 			out.println(docSerializer.toXML(document));
 		} catch (Exception e) {
 			throw new ServletException(e);

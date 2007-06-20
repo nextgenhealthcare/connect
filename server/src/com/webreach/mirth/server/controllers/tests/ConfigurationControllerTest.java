@@ -1,5 +1,7 @@
 package com.webreach.mirth.server.controllers.tests;
 
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import junit.framework.Assert;
@@ -26,15 +28,24 @@ public class ConfigurationControllerTest extends TestCase {
 		super.tearDown();
 	}
 
-	public void testGetTransports() throws ControllerException {
-		ConnectorMetaData sampleTransport = new ConnectorMetaData();
-		sampleTransport.setName("FTP Reader");
-		sampleTransport.setServerClassName("com.webreach.mirth.server.mule.providers.ftp.FtpConnector");
-		sampleTransport.setProtocol("ftp");
-		sampleTransport.setTransformers("ByteArrayToString");
-		sampleTransport.setType(ConnectorMetaData.Type.LISTENER);
+	public void testGetConnectorMetaData() throws ControllerException {
+		ConnectorMetaData sampleConnector = new ConnectorMetaData();
+		sampleConnector.setName("FTP Reader");
+		sampleConnector.setServerClassName("com.webreach.mirth.server.mule.providers.ftp.FtpConnector");
+		sampleConnector.setProtocol("ftp");
+		sampleConnector.setTransformers("ByteArrayToString");
+		sampleConnector.setType(ConnectorMetaData.Type.LISTENER);
 		Map<String, ConnectorMetaData> testTransportList = configurationController.getConnectorMetaData();
 
-		Assert.assertTrue(testTransportList.containsValue(sampleTransport));
+		Assert.assertTrue(testTransportList.containsValue(sampleConnector));
+	}
+	
+	public void testGetConnectorLibraries() throws ControllerException {
+		List<String> libraries = configurationController.getConnectorLibraries();
+		
+		for (Iterator iter = libraries.iterator(); iter.hasNext();) {
+			String library = (String) iter.next();
+			System.out.println(library);
+		}
 	}
 }

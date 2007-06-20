@@ -93,6 +93,7 @@ public class ConfigurationController {
 	private static final String CHARSET = "ca.uhn.hl7v2.llp.charset";
 	private boolean isEngineStarting = false;
 	private Map<String, ConnectorMetaData> connectors = null;
+	private List<String> connectorLibraries = null;
 
 	// Mirth status codes
 	private static final int STATUS_OK = 0;
@@ -144,6 +145,7 @@ public class ConfigurationController {
 		try {
 			loadEncryptionKey();
 			loadConnectorMetaData();
+			loadConnectorLibraries();
 		} catch (Exception e) {
 			logger.error("could not initialize configuration settings", e);
 		}
@@ -153,7 +155,7 @@ public class ConfigurationController {
 		logger.debug("retrieving connector metadata");
 		return this.connectors;
 	}
-	
+
 	private void loadConnectorMetaData() throws ControllerException {
 		logger.debug("loading connector metadata");
 
@@ -162,24 +164,51 @@ public class ConfigurationController {
 				return (!file.isDirectory() && file.getName().endsWith(".xml"));
 			}
 		};
-		
+
 		Map<String, ConnectorMetaData> connectorsMap = new HashMap<String, ConnectorMetaData>();
-		File path = new File("connectors");
+		File path = new File(ClassPathResource.getResourceURI("connectors"));
 		File[] connectorFiles = path.listFiles(fileFilter);
 		ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-		
+
 		try {
 			for (int i = 0; i < connectorFiles.length; i++) {
 				File connectorFile = connectorFiles[i];
 				String xml = FileUtil.read(connectorFile.getAbsolutePath());
 				ConnectorMetaData connectorMetadata = (ConnectorMetaData) serializer.fromXML(xml);
-				connectorsMap.put(connectorMetadata.getName(), connectorMetadata);	
+				connectorsMap.put(connectorMetadata.getName(), connectorMetadata);
 			}
 		} catch (IOException ioe) {
 			throw new ControllerException(ioe);
 		}
-		
+
 		this.connectors = connectorsMap;
+	}
+
+	public List<String> getConnectorLibraries() throws ControllerException {
+		logger.debug("retrieving connector libraries");
+		return this.connectorLibraries;
+	}
+
+	private void loadConnectorLibraries() throws ControllerException {
+		logger.debug("loading connector libraries");
+
+		// update this to use regular expression to get the client and shared libraries
+		FileFilter libraryFilter = new FileFilter() {
+			public boolean accept(File file) {
+				return (!file.isDirectory() && (file.getName().contains("client") || file.getName().contains("shared")));
+			}
+		};
+
+		List<String> connectorLibs = new ArrayList<String>();
+		File path = new File(ClassPathResource.getResourceURI("connectors"));
+		File[] connectorFiles = path.listFiles(libraryFilter);
+
+		for (int i = 0; i < connectorFiles.length; i++) {
+			File connectorFile = connectorFiles[i];
+			connectorLibs.add(connectorFile.getName());
+		}
+
+		this.connectorLibraries = connectorLibs;
 	}
 
 	/*
@@ -338,13 +367,14 @@ public class ConfigurationController {
 
 			if (latestConfiguration != null) {
 				logger.debug("using configuration " + latestConfiguration.getId() + " created on " + latestConfiguration.getDateCreated());
-				
+
 				// Find the path of mule.boot because mule.config may not exist.
-				// Then generate the path of mule.config in the same directory as mule.boot.
+				// Then generate the path of mule.config in the same directory
+				// as mule.boot.
 				String fileSeparator = System.getProperty("file.separator");
 				File muleBootFile = new File(ClassPathResource.getResourceURI(properties.getProperty("mule.boot")));
 				String muleConfigPath = muleBootFile.getParent() + fileSeparator + properties.getProperty("mule.config");
-				
+
 				BufferedWriter out = new BufferedWriter(new FileWriter(new File(muleConfigPath)));
 				out.write(latestConfiguration.getData());
 				out.close();
