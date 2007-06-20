@@ -121,14 +121,11 @@ public class WebStartServlet extends HttpServlet {
 
 				Element jarElement = document.createElement("jar");
 				jarElement.setAttribute("download", "eager");
-				
-//				File jar = new File(ClassPathResource.getResourceURI("connectors/" + lib));
 				jarElement.setAttribute("href", "connectors/" + lib);
 				
 				resourcesElement.appendChild(jarElement);
 			}
 
-			System.out.println(docSerializer.toXML(document));
 			out.println(docSerializer.toXML(document));
 		} catch (Exception e) {
 			throw new ServletException(e);
