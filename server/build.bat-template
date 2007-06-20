@@ -7,18 +7,18 @@ cd %SERVER_PATH%
 
 call ant create-connectors
 
-copy %SERVER_PATH%\connectors\doc-shared.jar %CLIENT_PATH%\lib\
-copy %SERVER_PATH%\connectors\email-shared.jar %CLIENT_PATH%\lib\
-copy %SERVER_PATH%\connectors\file-shared.jar %CLIENT_PATH%\lib\
-copy %SERVER_PATH%\connectors\ftp-shared.jar %CLIENT_PATH%\lib\
-copy %SERVER_PATH%\connectors\http-shared.jar %CLIENT_PATH%\lib\
-copy %SERVER_PATH%\connectors\jdbc-shared.jar %CLIENT_PATH%\lib\
-copy %SERVER_PATH%\connectors\jms-shared.jar %CLIENT_PATH%\lib\
-copy %SERVER_PATH%\connectors\mllp-shared.jar %CLIENT_PATH%\lib\
-copy %SERVER_PATH%\connectors\sftp-shared.jar %CLIENT_PATH%\lib\
-copy %SERVER_PATH%\connectors\soap-shared.jar %CLIENT_PATH%\lib\
-copy %SERVER_PATH%\connectors\tcp-shared.jar %CLIENT_PATH%\lib\
-copy %SERVER_PATH%\connectors\vm-shared.jar %CLIENT_PATH%\lib\
+copy %SERVER_PATH%\plugins\connectors\doc-shared.jar %CLIENT_PATH%\lib\
+copy %SERVER_PATH%\plugins\connectors\email-shared.jar %CLIENT_PATH%\lib\
+copy %SERVER_PATH%\plugins\connectors\file-shared.jar %CLIENT_PATH%\lib\
+copy %SERVER_PATH%\plugins\connectors\ftp-shared.jar %CLIENT_PATH%\lib\
+copy %SERVER_PATH%\plugins\connectors\http-shared.jar %CLIENT_PATH%\lib\
+copy %SERVER_PATH%\plugins\connectors\jdbc-shared.jar %CLIENT_PATH%\lib\
+copy %SERVER_PATH%\plugins\connectors\jms-shared.jar %CLIENT_PATH%\lib\
+copy %SERVER_PATH%\plugins\connectors\mllp-shared.jar %CLIENT_PATH%\lib\
+copy %SERVER_PATH%\plugins\connectors\sftp-shared.jar %CLIENT_PATH%\lib\
+copy %SERVER_PATH%\plugins\connectors\soap-shared.jar %CLIENT_PATH%\lib\
+copy %SERVER_PATH%\plugins\connectors\tcp-shared.jar %CLIENT_PATH%\lib\
+copy %SERVER_PATH%\plugins\connectors\vm-shared.jar %CLIENT_PATH%\lib\
 
 copy %SERVER_PATH%\mirth-client-core.jar %CLIENT_PATH%\lib\
 
