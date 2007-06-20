@@ -274,7 +274,16 @@ public class Mirth extends Thread {
 			String connectorsPath = connectors.getPath();
 			connectorsContext.setResourceBase(connectorsPath);
 			connectorsContext.addHandler(new ResourceHandler());
-			
+            
+		    // Create the public_html context
+            HttpContext publicContext = new HttpContext();
+            publicContext.setContextPath("/");
+            webServer.addContext(publicContext);
+            
+            String publicPath = connectors.getParentFile().getParent() + System.getProperty("file.separator") + "public_html";
+            publicContext.setResourceBase(publicPath);
+            publicContext.addHandler(new ResourceHandler());
+            
 			// Create a servlet container
 			ServletHandler servlets = new ServletHandler();
 			HttpContext servletContext = new HttpContext();
