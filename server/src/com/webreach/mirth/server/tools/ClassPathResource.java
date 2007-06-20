@@ -13,7 +13,9 @@ public class ClassPathResource {
     	URI uri = null;
     	try
 		{
-			URL url = ClassPathResource.class.getResource(resource);
+            logger.debug("Loading: " + resource);
+            URL url = ClassPathResource.class.getResource(resource);
+            
 			// If nothing is found, try it with or without the '/' in front.
 			// Without a '/' in front java prepends the full package name.
 			if (url == null) {
