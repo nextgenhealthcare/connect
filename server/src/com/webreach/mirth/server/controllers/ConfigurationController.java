@@ -96,9 +96,9 @@ public class ConfigurationController {
 	private List<String> connectorLibraries = null;
 
 	// Mirth status codes
-	private static final int STATUS_OK = 0;
-	private static final int STATUS_UNAVAILABLE = 1;
-	private static final int STATUS_ENGINE_STARTING = 2;
+	public static final int STATUS_OK = 0;
+	public static final int STATUS_UNAVAILABLE = 1;
+	public static final int STATUS_ENGINE_STARTING = 2;
 
 	// singleton pattern
 	private static ConfigurationController instance = null;
