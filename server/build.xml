@@ -263,6 +263,7 @@
 		<mkdir dir="${setup}" />
 		<mkdir dir="${setup.conf}" />
 		<mkdir dir="${setup.plugins}" />
+		<mkdir dir="${setup.public_html}" />
 		<mkdir dir="${setup.connectors}" />
 		<mkdir dir="${setup.lib}" />
 		<mkdir dir="${setup.client.lib}" />
@@ -270,7 +271,7 @@
 		<mkdir dir="${setup.logs}" />
 		<mkdir dir="${setup.licenses}" />
 		<mkdir dir="${setup.conf}/META-INF" />
-
+	
 		<!-- copy source files -->
 		<copy todir="${setup.source}">
 			<fileset dir="${src}" />
@@ -290,7 +291,12 @@
 		<copy todir="${setup.conf}">
 			<fileset dir="${conf}"/>
 		</copy>
-
+		
+		<!-- copy connector files -->
+		<copy todir="${setup.public_html}">
+			<fileset dir="${public_html}"/>
+		</copy>
+		
 		<!-- copy connector files -->
 		<copy todir="${setup.connectors}">
 			<fileset dir="${connectors}"/>
