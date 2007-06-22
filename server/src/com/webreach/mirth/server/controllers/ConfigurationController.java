@@ -84,7 +84,7 @@ import com.webreach.mirth.util.PropertyLoader;
 public class ConfigurationController {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private SystemLogger systemLogger = new SystemLogger();
-	public static String mirthHomeDir = new File(ClassPathResource.getResourceURI("mirth-server.jar")).getParent();
+	public static String mirthHomeDir = new File(ClassPathResource.getResourceURI("mirth.properties")).getParentFile().getParent();
 	public static File serverPropertiesFile = new File(mirthHomeDir + System.getProperty("file.separator") + "server.properties");
 	public static File serverIdPropertiesFile = new File(mirthHomeDir + System.getProperty("file.separator") + "server.id");
 	private static Properties versionProperties = PropertyLoader.loadProperties("version");

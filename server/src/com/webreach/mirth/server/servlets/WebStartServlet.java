@@ -27,6 +27,7 @@ package com.webreach.mirth.server.servlets;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URI;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
@@ -65,10 +66,11 @@ public class WebStartServlet extends HttpServlet {
 
 			// Cannot get the real path if it is not in the classpath.
             // If it is null, try it with just the filename.
-			String jnlpPath = ClassPathResource.getResourceURI("mirth-client.jnlp").toString();
-			if (jnlpPath == null) {
-				jnlpPath = "mirth-client.jnlp";
-			}
+            String jnlpPath = "mirth-client.jnlp";
+            URI jnlpURI = ClassPathResource.getResourceURI(jnlpPath);
+            if (jnlpURI != null) {
+            	jnlpPath = ClassPathResource.getResourceURI(jnlpPath).toString();
+            }
 
 			Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(jnlpPath);
 			Element jnlpElement = document.getDocumentElement();

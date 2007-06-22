@@ -26,7 +26,8 @@ public class ClassPathResource {
 				}
 				url = ClassPathResource.class.getResource(resource);
 			}
-			uri = url.toURI();
+			if (url != null)
+				uri = url.toURI();
 		}
 		catch (Exception e) {
 			logger.error("Could not load resource.", e);

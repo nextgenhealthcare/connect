@@ -28,6 +28,7 @@ package com.webreach.mirth.server.servlets;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URI;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -60,10 +61,11 @@ public class ActivationServlet extends HttpServlet {
 
 			// Cannot get the real path if it is not in the classpath.
             // If it is null, try it with just the filename.
-			String jnlpPath = ClassPathResource.getResourceURI("activation.jnlp").toString();
-			if (jnlpPath == null) {
-				jnlpPath = "activation.jnlp";
-			}
+            String jnlpPath = "activation.jnlp";
+            URI jnlpURI = ClassPathResource.getResourceURI(jnlpPath);
+            if (jnlpURI != null) {
+            	jnlpPath = ClassPathResource.getResourceURI(jnlpPath).toString();
+            }
 			
 			Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(jnlpPath);
 			Element jnlpElement = document.getDocumentElement();
