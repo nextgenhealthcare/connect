@@ -79,4 +79,12 @@ public class CommandQueue {
 			System.out.println(iter.next());
 		}
 	}
+	
+	/**
+	 * Clears the contents of the command queue.
+	 * 
+	 */
+	public void clear() {
+		commandQueue.clear();
+	}
 }

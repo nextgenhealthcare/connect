@@ -48,6 +48,7 @@ import com.webreach.mirth.model.ConnectorMetaData;
 import com.webreach.mirth.model.converters.DocumentSerializer;
 import com.webreach.mirth.model.converters.IXMLSerializer;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
+import com.webreach.mirth.server.controllers.ConfigurationController;
 import com.webreach.mirth.server.controllers.ScriptController;
 import com.webreach.mirth.server.controllers.TemplateController;
 import com.webreach.mirth.server.mule.adaptors.AdaptorFactory;
@@ -114,6 +115,10 @@ public class MuleConfigurationBuilder {
 				
 				agentProperties.appendChild(propertyElement);
 			}
+			
+			// set the Mule working directory
+			Element muleEnvironmentPropertiesElement = (Element) muleConfigurationElement.getElementsByTagName("mule-environment-properties").item(0);
+			muleEnvironmentPropertiesElement.setAttribute("workingDirectory", ConfigurationController.mirthHomeDir + System.getProperty("file.separator") + ".mule");
 			
 			Element modelElement = (Element) muleConfigurationElement.getElementsByTagName("model").item(0);
 

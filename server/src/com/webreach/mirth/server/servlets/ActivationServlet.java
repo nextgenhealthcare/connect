@@ -39,6 +39,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.webreach.mirth.model.converters.DocumentSerializer;
+import com.webreach.mirth.server.tools.ClassPathResource;
 
 public class ActivationServlet extends HttpServlet {
 
@@ -57,11 +58,13 @@ public class ActivationServlet extends HttpServlet {
 			response.setContentType("application/x-java-jnlp-file");
             response.setHeader("Pragma", "no-cache");
 
-			// Cannot get the real path if it is not in the classpath.  If it is null,
-			// try it with just the filename.
-			String jnlpPath = this.getServletContext().getRealPath("activation.jnlp");
-			if (jnlpPath == null)
+			// Cannot get the real path if it is not in the classpath.
+            // If it is null, try it with just the filename.
+			String jnlpPath = ClassPathResource.getResourceURI("activation.jnlp").toString();
+			if (jnlpPath == null) {
 				jnlpPath = "activation.jnlp";
+			}
+			
 			Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(jnlpPath);
 			Element jnlpElement = document.getDocumentElement();
 

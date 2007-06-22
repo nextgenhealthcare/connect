@@ -101,6 +101,7 @@ public class Mirth extends Thread {
 			pruner.start();
 			
 			// add the start command to the queue
+			CommandQueue.getInstance().clear();
 			CommandQueue.getInstance().addCommand(new Command(Command.Operation.START));
 			
 			Runtime.getRuntime().addShutdownHook(new ShutdownHook());
@@ -244,7 +245,7 @@ public class Mirth extends Thread {
 			// add HTTPS listener
 			SslListener sslListener = new SslListener();
 			sslListener.setPort(Integer.valueOf(mirthProperties.getProperty("https.port")).intValue());
-			sslListener.setKeystore(mirthProperties.getProperty("https.keystore"));
+			sslListener.setKeystore(ConfigurationController.mirthHomeDir + System.getProperty("file.separator") + mirthProperties.getProperty("https.keystore"));
 			sslListener.setPassword(mirthProperties.getProperty("https.password"));
 			sslListener.setKeyPassword(mirthProperties.getProperty("https.keypassword"));
 			webServer.addListener(sslListener);
@@ -260,8 +261,7 @@ public class Mirth extends Thread {
 			webServer.addContext(libContext);
 			
 			// Serve static content from the lib context
-			File connectors = new File(ClassPathResource.getResourceURI("connectors"));
-			String libPath = connectors.getParentFile().getParent() + System.getProperty("file.separator") + "client-lib";
+			String libPath = ConfigurationController.mirthHomeDir + System.getProperty("file.separator") + "client-lib";
 			libContext.setResourceBase(libPath);
 			libContext.addHandler(new ResourceHandler());
 
@@ -271,7 +271,7 @@ public class Mirth extends Thread {
 			webServer.addContext(connectorsContext);
 			
 			// Serve static content from the connectors context
-			String connectorsPath = connectors.getPath();
+			String connectorsPath = ConfigurationController.mirthHomeDir + System.getProperty("file.separator") + "plugins" + System.getProperty("file.separator") + "connectors";
 			connectorsContext.setResourceBase(connectorsPath);
 			connectorsContext.addHandler(new ResourceHandler());
             
@@ -280,7 +280,7 @@ public class Mirth extends Thread {
             publicContext.setContextPath("/");
             webServer.addContext(publicContext);
             
-            String publicPath = connectors.getParentFile().getParent() + System.getProperty("file.separator") + "public_html";
+            String publicPath = ConfigurationController.mirthHomeDir + System.getProperty("file.separator") + "public_html";
             publicContext.setResourceBase(publicPath);
             publicContext.addHandler(new ResourceHandler());
             
