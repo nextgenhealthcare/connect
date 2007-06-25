@@ -68,8 +68,10 @@ Section -Main SEC0000
     File /r setup\mirthdb\*
     SetOutPath $INSTDIR\conf
     File /r setup\conf\*
-    SetOutPath $INSTDIR\web
-    File /r setup\web\*
+    SetOutPath $INSTDIR\client-lib
+    File /r setup\client-lib\*
+	SetOutPath $INSTDIR\plugins
+    File /r setup\plugins\*
     SetOutPath $INSTDIR\licenses
     File /r setup\licenses\*
     
