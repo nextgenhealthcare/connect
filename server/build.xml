@@ -223,9 +223,9 @@
 		</jar>
 		<jar destfile="${connectors}/tcp-server.jar">
 			<fileset dir="${classes}">
-				<include name="${classes}/com/webreach/mirth/connectors/tcp/" />
-				<exclude name="TCPListenerProperties.class" />
-				<exclude name="TCPSenderProperties.class" />
+				<include name="com/webreach/mirth/connectors/tcp/**" />
+				<exclude name="com/webreach/mirth/connectors/tcp/TCPListenerProperties.class" />
+				<exclude name="com/webreach/mirth/connectors/tcp/TCPSenderProperties.class" />
 			</fileset>
 			<fileset dir="${conf}">
 				<include name="META-INF/services/org/mule/providers/tcp" />
