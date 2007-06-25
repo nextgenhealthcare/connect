@@ -72,6 +72,8 @@ Section -Main SEC0000
     File /r setup\client-lib\*
 	SetOutPath $INSTDIR\plugins
     File /r setup\plugins\*
+	SetOutPath $INSTDIR\public_html
+    File /r setup\public_html\*
     SetOutPath $INSTDIR\licenses
     File /r setup\licenses\*
     
