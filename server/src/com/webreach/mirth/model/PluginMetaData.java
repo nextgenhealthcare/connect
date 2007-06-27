@@ -30,18 +30,11 @@ import java.io.Serializable;
 
 import com.webreach.mirth.util.EqualsUtil;
 
-public class ConnectorMetaData implements MetaData, Serializable {
-	public enum Type {
-		LISTENER, SENDER
-	};
-
+public class PluginMetaData implements MetaData, Serializable {
 	private String name;
+    private String author;
 	private String serverClassName;
-    private String sharedClassName;
 	private String clientClassName;
-	private String transformers;
-	private String protocol;
-	private Type type;
 
 	public String getServerClassName() {
 		return this.serverClassName;
@@ -49,14 +42,6 @@ public class ConnectorMetaData implements MetaData, Serializable {
 
 	public void setServerClassName(String serverClassName) {
 		this.serverClassName = serverClassName;
-	}
-	
-    public String getSharedClassName() {
-        return sharedClassName;
-    }
-
-    public void setSharedClassName(String sharedClassName) {
-        this.sharedClassName = sharedClassName;
     }
     
 	public String getClientClassName() {
@@ -75,28 +60,12 @@ public class ConnectorMetaData implements MetaData, Serializable {
 		this.name = name;
 	}
 
-	public String getProtocol() {
-		return this.protocol;
+	public String getAuthor() {
+		return this.author;
 	}
 
-	public void setProtocol(String protocol) {
-		this.protocol = protocol;
-	}
-
-	public String getTransformers() {
-		return this.transformers;
-	}
-
-	public void setTransformers(String transformers) {
-		this.transformers = transformers;
-	}
-
-	public Type getType() {
-		return this.type;
-	}
-
-	public void setType(Type type) {
-		this.type = type;
+	public void setAuthor(String author) {
+		this.author = author;
 	}
 
 	public boolean equals(Object that) {
@@ -104,32 +73,26 @@ public class ConnectorMetaData implements MetaData, Serializable {
 			return true;
 		}
 		
-		if (!(that instanceof ConnectorMetaData)) {
+		if (!(that instanceof PluginMetaData)) {
 			return false;
 		}
 		
-		ConnectorMetaData transport = (ConnectorMetaData) that;
+		PluginMetaData plugin = (PluginMetaData) that;
 		
 		return
-			EqualsUtil.areEqual(this.getName(), transport.getName()) &&
-			EqualsUtil.areEqual(this.getServerClassName(), transport.getServerClassName()) &&
-            EqualsUtil.areEqual(this.getSharedClassName(), transport.getSharedClassName()) &&
-            EqualsUtil.areEqual(this.getClientClassName(), transport.getClientClassName()) &&
-			EqualsUtil.areEqual(this.getProtocol(), transport.getProtocol()) &&
-			EqualsUtil.areEqual(this.getTransformers(), transport.getTransformers()) &&
-			EqualsUtil.areEqual(this.getType(), transport.getType());
+			EqualsUtil.areEqual(this.getName(), plugin.getName()) &&
+            EqualsUtil.areEqual(this.getAuthor(), plugin.getAuthor()) &&
+            EqualsUtil.areEqual(this.getServerClassName(), plugin.getServerClassName()) &&
+            EqualsUtil.areEqual(this.getClientClassName(), plugin.getClientClassName());
 	}
 
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append(this.getClass().getName() + "[");
 		builder.append("name=" + getName() + ", ");
-		builder.append("type=" + getType().toString() + ", ");
+		builder.append("author=" + getAuthor().toString() + ", ");
 		builder.append("serverClassName=" + getServerClassName() + ", ");
-        builder.append("sharedClassName=" + getSharedClassName() + ", ");
-        builder.append("clientClassName=" + getClientClassName() + ", ");
-		builder.append("transformers=" + getTransformers() + ", ");
-		builder.append("protocol=" + getProtocol());
+        builder.append("clientClassName=" + getClientClassName());
 		builder.append("]");
 		return builder.toString();
 	}

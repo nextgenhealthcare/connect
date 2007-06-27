@@ -1,7 +1,8 @@
 package com.webreach.mirth.model.converters;
 
 import com.sun.org.apache.xerces.internal.parsers.SAXParser;
-import com.webreach.mirth.model.NCPDP.NCPDPReference;
+import com.webreach.mirth.model.NCPDP2.NCPDPReference;
+
 import org.apache.log4j.Logger;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;

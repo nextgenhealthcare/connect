@@ -1,4 +1,4 @@
-package com.webreach.mirth.model.NCPDP;
+package com.webreach.mirth.model.NCPDP2;
 
 import com.webreach.mirth.model.util.MessageVocabulary;
 import com.webreach.mirth.model.hl7v2.HL7Reference;
