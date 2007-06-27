@@ -12,7 +12,9 @@ public class AdaptorFactory {
 			return new X12Adaptor();
 		} else if (protocol.equals(Protocol.EDI)){
 			return new EDIAdaptor();
-		}else {
+		} else if (protocol.equals(Protocol.NCPDP)){
+			return new NCPDPAdaptor();
+		} else {
 			return new XMLAdaptor();
 		}
 	}
