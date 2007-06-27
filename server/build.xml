@@ -359,6 +359,7 @@
 			<include name="com/webreach/mirth/server/**" />
 			<include name="com/webreach/mirth/model/**" />
 			<include name="com/webreach/mirth/util/**" />
+			<include name="com/webreach/mirth/plugins/ServerPlugin.class" />
 			<include name="org/**" />
 			<include name="ca/**" />
 			<exclude name="com/webreach/mirth/server/launcher/**" />

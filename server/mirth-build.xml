@@ -34,50 +34,48 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************-->
-<project name="mirth" basedir="C:/Program Files/CruiseControl">
+<project name="mirth">
 	<property name="RELEASE_VERSION" value="${version}"/>
 	<property name="SERVER_HOME" value="${server}"/>
 	<property name="CLIENT_HOME" value="${client}"/>
 	<property name="MANAGER_HOME" value="${manager}"/>
 
-	<target name="create-connectors">
-		<ant antfile="${SERVER_HOME}/build.xml" dir="${SERVER_HOME}" target="create-connectors">
+	<target name="create-services">
+		<ant antfile="${SERVER_HOME}/build.xml" dir="${SERVER_HOME}" target="create-services">
 			<property name="version" value="${RELEASE_VERSION}"/>
 		</ant>
 		
-		<copy file="${SERVER_HOME}/plugins/connectors/doc-shared.jar" todir="${CLIENT_HOME}/lib"/>
-		<copy file="${SERVER_HOME}/plugins/connectors/email-shared.jar" todir="${CLIENT_HOME}/lib"/>
-		<copy file="${SERVER_HOME}/plugins/connectors/file-shared.jar" todir="${CLIENT_HOME}/lib"/>
-		<copy file="${SERVER_HOME}/plugins/connectors/ftp-shared.jar" todir="${CLIENT_HOME}/lib"/>
-		<copy file="${SERVER_HOME}/plugins/connectors/http-shared.jar" todir="${CLIENT_HOME}/lib"/>
-		<copy file="${SERVER_HOME}/plugins/connectors/jdbc-shared.jar" todir="${CLIENT_HOME}/lib"/>
-		<copy file="${SERVER_HOME}/plugins/connectors/jms-shared.jar" todir="${CLIENT_HOME}/lib"/>
-		<copy file="${SERVER_HOME}/plugins/connectors/mllp-shared.jar" todir="${CLIENT_HOME}/lib"/>
-		<copy file="${SERVER_HOME}/plugins/connectors/sftp-shared.jar" todir="${CLIENT_HOME}/lib"/>
-		<copy file="${SERVER_HOME}/plugins/connectors/soap-shared.jar" todir="${CLIENT_HOME}/lib"/>
-		<copy file="${SERVER_HOME}/plugins/connectors/tcp-shared.jar" todir="${CLIENT_HOME}/lib"/>
-		<copy file="${SERVER_HOME}/plugins/connectors/vm-shared.jar" todir="${CLIENT_HOME}/lib"/>
+		<copy todir="${CLIENT_HOME}/lib">
+			<fileset dir="${SERVER_HOME}/plugins/connectors/">
+				<include name="*-shared.jar" />
+			</fileset>
+		</copy>
 		
 		<copy file="${SERVER_HOME}/mirth-client-core.jar" todir="${CLIENT_HOME}/lib"/>
 	</target>
 	
-	<target name="create-client" depends="create-connectors">
+	<target name="create-client" depends="create-services">
 		<ant antfile="${CLIENT_HOME}/ant-build.xml" dir="${CLIENT_HOME}" target="create-client"/>
 		
 		<copy file="${CLIENT_HOME}/dist/mirth-client.jar" todir="${SERVER_HOME}/client-lib/"/>
 		
-		<copy file="${CLIENT_HOME}/dist/doc-client.jar" todir="${SERVER_HOME}/plugins/connectors/"/>
-		<copy file="${CLIENT_HOME}/dist/email-client.jar" todir="${SERVER_HOME}/plugins/connectors/"/>
-		<copy file="${CLIENT_HOME}/dist/file-client.jar" todir="${SERVER_HOME}/plugins/connectors/"/>
-		<copy file="${CLIENT_HOME}/dist/ftp-client.jar" todir="${SERVER_HOME}/plugins/connectors/"/>
-		<copy file="${CLIENT_HOME}/dist/http-client.jar" todir="${SERVER_HOME}/plugins/connectors/"/>
-		<copy file="${CLIENT_HOME}/dist/jdbc-client.jar" todir="${SERVER_HOME}/plugins/connectors/"/>
-		<copy file="${CLIENT_HOME}/dist/jms-client.jar" todir="${SERVER_HOME}/plugins/connectors/"/>
-		<copy file="${CLIENT_HOME}/dist/mllp-client.jar" todir="${SERVER_HOME}/plugins/connectors/"/>
-		<copy file="${CLIENT_HOME}/dist/sftp-client.jar" todir="${SERVER_HOME}/plugins/connectors/"/>
-		<copy file="${CLIENT_HOME}/dist/soap-client.jar" todir="${SERVER_HOME}/plugins/connectors/"/>
-		<copy file="${CLIENT_HOME}/dist/tcp-client.jar" todir="${SERVER_HOME}/plugins/connectors/"/>
-		<copy file="${CLIENT_HOME}/dist/vm-client.jar" todir="${SERVER_HOME}/plugins/connectors/"/>
+		<copy todir="${SERVER_HOME}/plugins/connectors/">
+			<fileset dir="${CLIENT_HOME}/dist/connectors/">
+				<include name="*.jar" />
+			</fileset>
+		</copy>
+		
+		<copy todir="${SERVER_HOME}/plugins/services/">
+			<fileset dir="${CLIENT_HOME}/dist/services/">
+				<include name="*.jar" />
+			</fileset>
+		</copy>
+		
+		<copy file="${SERVER_HOME}/mirth-client-core.jar" todir="${SERVER_HOME}/client-lib/"/>
+		
+		<copy todir="${SERVER_HOME}/client-lib">
+			<fileset dir="${CLIENT_HOME}/lib"/>
+		</copy>
 	</target>
 	
 	<target name="create-manager" depends="create-client">
@@ -85,17 +83,12 @@
 	</target>
 	
 	<target name="create-setup" depends="create-manager">
-		<ant antfile="${MANAGER_HOME}/ant-build.xml" dir="${MANAGER_HOME}" target="create-setup">
+		<ant antfile="${SERVER_HOME}/build.xml" dir="${SERVER_HOME}" target="create-setup">
 			<property name="version" value="${RELEASE_VERSION}"/>
 		</ant>
 	</target>
 	
 	<target name="create-dist" depends="create-manager">
-		<copy file="${SERVER_HOME}/mirth-client-core.jar" todir="${SERVER_HOME}/client-lib/"/>
-		<copy todir="${SERVER_HOME}/client-lib">
-			<fileset dir="${CLIENT_HOME}/lib"/>
-		</copy>
-		
 		<copy file="${MANAGER_HOME}/dist/mirth-manager.jar" todir="${SERVER_HOME}/"/>
 		<copy todir="${SERVER_HOME}/lib">
 			<fileset dir="${MANAGER_HOME}/lib"/>
