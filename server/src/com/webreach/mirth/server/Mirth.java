@@ -41,15 +41,16 @@ import org.mule.config.ConfigurationException;
 import org.mule.config.builders.MuleXmlConfigurationBuilder;
 
 import com.webreach.mirth.model.SystemEvent;
+import com.webreach.mirth.plugins.databasepruner.DatabasePrunerService;
 import com.webreach.mirth.server.controllers.ChannelController;
 import com.webreach.mirth.server.controllers.ChannelStatisticsController;
 import com.webreach.mirth.server.controllers.ConfigurationController;
 import com.webreach.mirth.server.controllers.ControllerException;
 import com.webreach.mirth.server.controllers.MessageObjectController;
+import com.webreach.mirth.server.controllers.PluginController;
 import com.webreach.mirth.server.controllers.SystemLogger;
 import com.webreach.mirth.server.controllers.UserController;
 import com.webreach.mirth.server.tools.ClassPathResource;
-import com.webreach.mirth.server.util.DatabasePruner;
 import com.webreach.mirth.server.util.StackTracePrinter;
 import com.webreach.mirth.server.util.VMRegistry;
 import com.webreach.mirth.util.PropertyLoader;
@@ -72,10 +73,10 @@ public class Mirth extends Thread {
 	private ConfigurationController configurationController = ConfigurationController.getInstance();
 	private ChannelController channelController = new ChannelController();
 	private UserController userController = new UserController();
-	private DatabasePruner pruner = new DatabasePruner();
 	private MessageObjectController messageObjectController = MessageObjectController.getInstance();
 	private ChannelStatisticsController channelStatisticsController = ChannelStatisticsController.getInstance();
-
+	private PluginController pluginController =  PluginController.getInstance();
+    
 	public static void main(String[] args) {
 		Mirth mirth = new Mirth();
 		mirth.run();
@@ -96,10 +97,9 @@ public class Mirth extends Thread {
 			configurationController.initialize();
 			channelController.initialize();
 			userController.initialize();
-
-			// start the database pruning thread
-			pruner.start();
-			
+            pluginController.initialize();
+            
+            pluginController.startPlugins();
 			// add the start command to the queue
 			CommandQueue.getInstance().clear();
 			CommandQueue.getInstance().addCommand(new Command(Command.Operation.START));
@@ -151,7 +151,7 @@ public class Mirth extends Thread {
 		// update to the
 		// stats table
 		stopWebServer();
-		pruner.interrupt();
+        pluginController.stopPlugins();
 		running = false;
 	}
 
@@ -261,7 +261,10 @@ public class Mirth extends Thread {
 			webServer.addContext(libContext);
 			
 			// Serve static content from the lib context
+			File connectors = new File(ClassPathResource.getResourceURI("connectors"));
+            File plugins = new File(ClassPathResource.getResourceURI("services"));
 			String libPath = ConfigurationController.mirthHomeDir + System.getProperty("file.separator") + "client-lib";
+
 			libContext.setResourceBase(libPath);
 			libContext.addHandler(new ResourceHandler());
 
@@ -274,6 +277,16 @@ public class Mirth extends Thread {
 			String connectorsPath = ConfigurationController.mirthHomeDir + System.getProperty("file.separator") + "plugins" + System.getProperty("file.separator") + "connectors";
 			connectorsContext.setResourceBase(connectorsPath);
 			connectorsContext.addHandler(new ResourceHandler());
+            
+		    // Create the connectors context
+            HttpContext pluginsContext = new HttpContext();
+            pluginsContext.setContextPath("/services/");
+            webServer.addContext(pluginsContext);
+            
+            // Serve static content from the connectors context
+            String pluginsPath = plugins.getPath();
+            pluginsContext.setResourceBase(pluginsPath);
+            pluginsContext.addHandler(new ResourceHandler());
             
 		    // Create the public_html context
             HttpContext publicContext = new HttpContext();
@@ -298,6 +311,7 @@ public class Mirth extends Thread {
 			servlets.addServlet("ChannelStatus", "/channelstatus", "com.webreach.mirth.server.servlets.ChannelStatusServlet");
 			servlets.addServlet("Configuration", "/configuration", "com.webreach.mirth.server.servlets.ConfigurationServlet");
 			servlets.addServlet("MessageObject", "/messages", "com.webreach.mirth.server.servlets.MessageObjectServlet");
+            servlets.addServlet("Plugins", "/plugins", "com.webreach.mirth.server.servlets.PluginServlet");
 			servlets.addServlet("SystemEvent", "/events", "com.webreach.mirth.server.servlets.SystemEventServlet");
 			servlets.addServlet("Users", "/users", "com.webreach.mirth.server.servlets.UserServlet");
 			servlets.addServlet("WebStart", "/webstart.jnlp", "com.webreach.mirth.server.servlets.WebStartServlet");

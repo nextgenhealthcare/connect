@@ -47,9 +47,9 @@
 		</propertyfile>
 		
 		<!-- copy the xml files so they will be included in jar -->
-			<copy todir="${classes}/com/webreach/mirth/model/x12/xml">
-				<fileset dir="${src}/com/webreach/mirth/model/x12/xml" />
-			</copy>
+		<copy todir="${classes}/com/webreach/mirth/model/x12/xml">
+			<fileset dir="${src}/com/webreach/mirth/model/x12/xml" />
+		</copy>
 	</target>
 	
 	<target name="create-client-core" depends="compile">
@@ -62,7 +62,7 @@
 	</target>
 	
 	<target name="create-connectors" depends="create-client-core">
-    <delete dir="${connectors}" />
+		<delete dir="${connectors}" />
 		<mkdir dir="${connectors}"/>
 		
 		<copy todir="${connectors}">
@@ -247,6 +247,21 @@
 			</fileset>		
 		</jar>
 	</target>
+	
+	<target name="create-services" depends="create-connectors">
+		<delete dir="${services}" />
+		<mkdir dir="${services}"/>
+		
+		<copy todir="${services}">
+			<fileset dir="${conf}/plugin-metadata">
+				<include name="*.xml"/>
+			</fileset>
+		</copy>
+		
+		<jar destfile="${services}/database-pruner-server.jar" basedir="${classes}">
+			<include name="com/webreach/mirth/plugins/databasepruner/**" />
+		</jar>
+	</target>
 
   <target name="create-client-lib" depends="init">
   
@@ -255,6 +270,7 @@
 			<fileset file="${client.lib}/*.jar" />
 			<fileset file="${connectors}/*-shared.jar" />
 			<fileset file="${connectors}/*-client.jar" />
+			<fileset file="${services}/*-client.jar" />
 		</signjar>
   </target>
 
@@ -301,7 +317,12 @@
 		<copy todir="${setup.connectors}">
 			<fileset dir="${connectors}"/>
 		</copy>
-
+	
+		<!-- copy service files -->
+		<copy todir="${setup.services}">
+			<fileset dir="${services}"/>
+		</copy>
+	
 		<!-- create version.properties file -->
 		<propertyfile file="${setup.conf}/version.properties">
 			<entry key="mirth.version" value="${version}" />

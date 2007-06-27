@@ -5,7 +5,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import com.webreach.mirth.model.NCPDP2.NCPDPReference;
+import com.webreach.mirth.model.ncpdp.NCPDPReference;
 
 /**
  * Created by IntelliJ IDEA.

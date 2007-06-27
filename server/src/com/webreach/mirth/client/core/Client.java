@@ -37,11 +37,12 @@ import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.ChannelStatistics;
 import com.webreach.mirth.model.ChannelStatus;
 import com.webreach.mirth.model.ChannelSummary;
+import com.webreach.mirth.model.ConnectorMetaData;
 import com.webreach.mirth.model.DriverInfo;
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.model.PluginMetaData;
 import com.webreach.mirth.model.ServerConfiguration;
 import com.webreach.mirth.model.SystemEvent;
-import com.webreach.mirth.model.ConnectorMetaData;
 import com.webreach.mirth.model.User;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.model.filters.MessageObjectFilter;
@@ -61,6 +62,7 @@ public class Client {
 	public final static String MESSAGE_SERVLET = "/messages";
 	public final static String EVENT_SERVLET = "/events";
 	public final static String ALERT_SERVLET = "/alerts";
+    public final static String PLUGIN_SERVLET = "/plugins";
 
 	/**
 	 * Instantiates a new Mirth client with a connection to the specified
@@ -202,6 +204,18 @@ public class Client {
 		NameValuePair[] params = { new NameValuePair("op", "getConnectorMetaData") };
 		return (Map<String, ConnectorMetaData>) serializer.fromXML(serverConnection.executePostMethod(CONFIGURATION_SERVLET, params));
 	}
+    
+    /**
+     * Returns a List of all plugins.
+     * 
+     * @return
+     * @throws ClientException
+     */
+    public Map<String, PluginMetaData> getPluginMetaData() throws ClientException {
+        logger.debug("retrieving plugin list");
+        NameValuePair[] params = { new NameValuePair("op", "getPluginMetaData") };
+        return (Map<String, PluginMetaData>) serializer.fromXML(serverConnection.executePostMethod(PLUGIN_SERVLET, params));
+    }
 
 	/**
 	 * Returns a List of all of the encodings supported by the server
@@ -493,7 +507,31 @@ public class Client {
         NameValuePair[] params = { new NameValuePair("op", "importMessage"), new NameValuePair("message", serializer.toXML(message)) };
         serverConnection.executePostMethod(MESSAGE_SERVLET, params);
     }
-
+    
+    /**
+     * Sets properties for a given plugin
+     * 
+     * @return
+     * @throws ClientException
+     */
+    public Properties getPluginProperties(String pluginName) throws ClientException {
+        logger.debug("getting " + pluginName + " properties");
+        NameValuePair[] params = { new NameValuePair("op", "getPluginProperties"), new NameValuePair("name", pluginName) };
+        return (Properties) serializer.fromXML(serverConnection.executePostMethod(PLUGIN_SERVLET, params));
+    }
+    
+    /**
+     * Gets properties for a given plugin
+     * 
+     * @return
+     * @throws ClientException
+     */
+    public void setPluginProperties(String pluginName, Properties properties) throws ClientException {
+        logger.debug("setting " + pluginName + " properties");
+        NameValuePair[] params = { new NameValuePair("op", "setPluginProperties"), new NameValuePair("name", pluginName) ,new NameValuePair("properties", serializer.toXML(properties))};
+        serverConnection.executePostMethod(PLUGIN_SERVLET, params);
+    }
+    
 	/**
 	 * Clears the message list for the channel with the specified id.
 	 * 

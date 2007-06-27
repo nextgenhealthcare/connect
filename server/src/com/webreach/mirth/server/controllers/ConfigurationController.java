@@ -71,6 +71,7 @@ import com.webreach.mirth.server.util.DatabaseUtil;
 import com.webreach.mirth.server.util.FileUtil;
 import com.webreach.mirth.server.util.JMXConnection;
 import com.webreach.mirth.server.util.JMXConnectionFactory;
+import com.webreach.mirth.server.util.PluginUtil;
 import com.webreach.mirth.server.util.SqlConfig;
 import com.webreach.mirth.util.Encrypter;
 import com.webreach.mirth.util.PropertyLoader;
@@ -88,6 +89,7 @@ public class ConfigurationController {
 	public static File serverPropertiesFile = new File(mirthHomeDir + System.getProperty("file.separator") + "server.properties");
 	public static File serverIdPropertiesFile = new File(mirthHomeDir + System.getProperty("file.separator") + "server.id");
 	private static Properties versionProperties = PropertyLoader.loadProperties("version");
+    private static String CONNECTORS_LOCATION = ClassPathResource.getResourceURI("connectors").getPath();
 	private static SecretKey encryptionKey = null;
 	private static String serverId = null;
 	private SqlMapClient sqlMap = SqlConfig.getSqlMapInstance();
@@ -159,30 +161,8 @@ public class ConfigurationController {
 
 	private void loadConnectorMetaData() throws ControllerException {
 		logger.debug("loading connector metadata");
+		this.connectors = (Map<String, ConnectorMetaData>) PluginUtil.loadPluginMetaData(CONNECTORS_LOCATION);
 
-		FileFilter fileFilter = new FileFilter() {
-			public boolean accept(File file) {
-				return (!file.isDirectory() && file.getName().endsWith(".xml"));
-			}
-		};
-
-		Map<String, ConnectorMetaData> connectorsMap = new HashMap<String, ConnectorMetaData>();
-		File path = new File(ClassPathResource.getResourceURI("connectors"));
-		File[] connectorFiles = path.listFiles(fileFilter);
-		ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-
-		try {
-			for (int i = 0; i < connectorFiles.length; i++) {
-				File connectorFile = connectorFiles[i];
-				String xml = FileUtil.read(connectorFile.getAbsolutePath());
-				ConnectorMetaData connectorMetadata = (ConnectorMetaData) serializer.fromXML(xml);
-				connectorsMap.put(connectorMetadata.getName(), connectorMetadata);
-			}
-		} catch (IOException ioe) {
-			throw new ControllerException(ioe);
-		}
-
-		this.connectors = connectorsMap;
 	}
 
 	public List<String> getConnectorLibraries() throws ControllerException {
@@ -192,24 +172,7 @@ public class ConfigurationController {
 
 	private void loadConnectorLibraries() throws ControllerException {
 		logger.debug("loading connector libraries");
-
-		// update this to use regular expression to get the client and shared libraries
-		FileFilter libraryFilter = new FileFilter() {
-			public boolean accept(File file) {
-				return (!file.isDirectory() && (file.getName().contains("client") || file.getName().contains("shared")));
-			}
-		};
-
-		List<String> connectorLibs = new ArrayList<String>();
-		File path = new File(ClassPathResource.getResourceURI("connectors"));
-		File[] connectorFiles = path.listFiles(libraryFilter);
-
-		for (int i = 0; i < connectorFiles.length; i++) {
-			File connectorFile = connectorFiles[i];
-			connectorLibs.add(connectorFile.getName());
-		}
-
-		this.connectorLibraries = connectorLibs;
+		this.connectorLibraries = PluginUtil.loadPluginLibraries(CONNECTORS_LOCATION);
 	}
 
 	/*
