@@ -3071,7 +3071,11 @@ public class Frame extends JXFrame
                 public void done()
                 {
                     if(currentContentPage == dashboardPanel)
+                    {
+                        if(alertOption("Would you also like to remove all stats?"))
+                            clearStats(dashboardPanel.getSelectedStatus(), true, true, true, true, true);
                         doRefreshStatuses();
+                    }
                     else if(currentContentPage == messageBrowser)
                         messageBrowser.refresh();
                     setWorking("", false);
