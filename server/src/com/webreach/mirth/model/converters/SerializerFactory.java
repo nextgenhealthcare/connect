@@ -15,6 +15,8 @@ public class SerializerFactory {
 			return new X12Serializer(properties);
 		} else if (protocol.equals(Protocol.EDI)) {
 			return new EDISerializer(properties);
+		} else if (protocol.equals(Protocol.NCPDP)) {
+			return new NCPDPSerializer(properties);
 		} else {
 			return new DefaultXMLSerializer();
 		}
