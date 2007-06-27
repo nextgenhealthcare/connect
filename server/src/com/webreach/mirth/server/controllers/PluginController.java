@@ -26,11 +26,9 @@
 package com.webreach.mirth.server.controllers;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,12 +36,9 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
-import com.webreach.mirth.model.ConnectorMetaData;
 import com.webreach.mirth.model.PluginMetaData;
-import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.plugins.ServerPlugin;
 import com.webreach.mirth.server.tools.ClassPathResource;
-import com.webreach.mirth.server.util.FileUtil;
 import com.webreach.mirth.server.util.PluginUtil;
 
 /**
@@ -100,7 +95,7 @@ public class PluginController
     public void initPlugins()
     {
         loadedPlugins = new HashMap<String, ServerPlugin>();
-        
+
         for (PluginMetaData metaData : plugins.values())
         {
             try

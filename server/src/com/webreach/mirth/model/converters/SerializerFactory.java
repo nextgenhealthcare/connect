@@ -59,4 +59,12 @@ public class SerializerFactory {
 		properties.put("subelementDelimiter", subelementDelim);
 		return new EDISerializer(properties);
 	}
+    
+    public static NCPDPSerializer getNCPDPSerializer(String segmentDelim, String groupDelim, String fieldDelim) {
+        Properties properties = new Properties();
+        properties.put("segmentDelimiter", segmentDelim);
+        properties.put("groupDelimiter", groupDelim);
+        properties.put("fieldDelimiter", fieldDelim);
+        return new NCPDPSerializer(properties);
+    }
 }

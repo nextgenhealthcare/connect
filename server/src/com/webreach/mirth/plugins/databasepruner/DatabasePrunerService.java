@@ -20,45 +20,48 @@ public class DatabasePrunerService implements ServerPlugin
     private MessageObjectController messageObjectController = MessageObjectController.getInstance();
     private int sleepInterval;
     private Thread pruner;
-    
+
     public void init(Properties properties)
     {
-        pruner = new Thread(new Runnable(){
-
+        pruner = new Thread(new Runnable()
+        {
             public void run()
             {
-                try {
-                    while (true) {
+                try
+                {
+                    while (true)
+                    {
                         pruneDatabase();
                         Thread.sleep(sleepInterval);
                     }
                 }
-                catch (InterruptedException e) {
+                catch (InterruptedException e)
+                {
                     logger.debug("exiting database pruner");
                 }
             }
         });
-        
+
         pruner.setName(properties.getProperty("name"));
         sleepInterval = Integer.valueOf(properties.getProperty("sleepInterval")) * 1000;
     }
 
     public void start()
     {
-        pruner.start();       
+        pruner.start();
     }
-    
+
     public void update(Properties properties)
     {
-        sleepInterval = Integer.valueOf(properties.getProperty("interval"));
+        sleepInterval = Integer.valueOf(properties.getProperty("sleepInterval"));
     }
-    
+
     public void stop()
     {
         pruner.interrupt();
-        
+
     }
-    
+
     public Properties getDefaultProperties()
     {
         Properties properties = new Properties();
@@ -66,18 +69,23 @@ public class DatabasePrunerService implements ServerPlugin
         properties.put("sleepInterval", "300"); // 5 minutes
         return properties;
     }
-    
-    public void pruneDatabase() {
+
+    public void pruneDatabase()
+    {
         logger.debug("pruning database");
-        
-        try {
+
+        try
+        {
             List<Channel> channels = channelController.getChannel(null);
 
-            for (Iterator iter = channels.iterator(); iter.hasNext();) {
+            for (Iterator iter = channels.iterator(); iter.hasNext();)
+            {
                 Channel channel = (Channel) iter.next();
 
-                if ((channel.getProperties().getProperty("store_messages") != null) && channel.getProperties().getProperty("store_messages").equals("true")) {
-                    if ((channel.getProperties().getProperty("max_message_age") != null) && !channel.getProperties().getProperty("max_message_age").equals("-1")) {
+                if ((channel.getProperties().getProperty("store_messages") != null) && channel.getProperties().getProperty("store_messages").equals("true"))
+                {
+                    if ((channel.getProperties().getProperty("max_message_age") != null) && !channel.getProperties().getProperty("max_message_age").equals("-1"))
+                    {
                         int numDays = Integer.parseInt(channel.getProperties().getProperty("max_message_age"));
 
                         Calendar endDate = Calendar.getInstance();
@@ -90,7 +98,9 @@ public class DatabasePrunerService implements ServerPlugin
                     }
                 }
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             logger.warn("could not prune database", e);
         }
     }
