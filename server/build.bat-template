@@ -5,43 +5,18 @@ set VERSION=1.5.0
 
 cd %SERVER_PATH%
 
-call ant create-connectors
+call ant create-services -Dversion=%VERSION%
 
-copy %SERVER_PATH%\plugins\connectors\doc-shared.jar %CLIENT_PATH%\lib\
-copy %SERVER_PATH%\plugins\connectors\email-shared.jar %CLIENT_PATH%\lib\
-copy %SERVER_PATH%\plugins\connectors\file-shared.jar %CLIENT_PATH%\lib\
-copy %SERVER_PATH%\plugins\connectors\ftp-shared.jar %CLIENT_PATH%\lib\
-copy %SERVER_PATH%\plugins\connectors\http-shared.jar %CLIENT_PATH%\lib\
-copy %SERVER_PATH%\plugins\connectors\jdbc-shared.jar %CLIENT_PATH%\lib\
-copy %SERVER_PATH%\plugins\connectors\jms-shared.jar %CLIENT_PATH%\lib\
-copy %SERVER_PATH%\plugins\connectors\mllp-shared.jar %CLIENT_PATH%\lib\
-copy %SERVER_PATH%\plugins\connectors\sftp-shared.jar %CLIENT_PATH%\lib\
-copy %SERVER_PATH%\plugins\connectors\soap-shared.jar %CLIENT_PATH%\lib\
-copy %SERVER_PATH%\plugins\connectors\tcp-shared.jar %CLIENT_PATH%\lib\
-copy %SERVER_PATH%\plugins\connectors\vm-shared.jar %CLIENT_PATH%\lib\
-
+copy %SERVER_PATH%\plugins\connectors\*-shared.jar %CLIENT_PATH%\lib\
 copy %SERVER_PATH%\mirth-client-core.jar %CLIENT_PATH%\lib\
 
 cd %CLIENT_PATH%
 call ant -buildfile ant-build.xml create-client
 
 copy %CLIENT_PATH%\dist\mirth-client.jar %SERVER_PATH%\client-lib\
-
-copy %CLIENT_PATH%\dist\doc-client.jar %SERVER_PATH%\plugins\connectors\
-copy %CLIENT_PATH%\dist\email-client.jar %SERVER_PATH%\plugins\connectors\
-copy %CLIENT_PATH%\dist\file-client.jar %SERVER_PATH%\plugins\connectors\
-copy %CLIENT_PATH%\dist\ftp-client.jar %SERVER_PATH%\plugins\connectors\
-copy %CLIENT_PATH%\dist\http-client.jar %SERVER_PATH%\plugins\connectors\
-copy %CLIENT_PATH%\dist\jdbc-client.jar %SERVER_PATH%\plugins\connectors\
-copy %CLIENT_PATH%\dist\jms-client.jar %SERVER_PATH%\plugins\connectors\
-copy %CLIENT_PATH%\dist\mllp-client.jar %SERVER_PATH%\plugins\connectors\
-copy %CLIENT_PATH%\dist\sftp-client.jar %SERVER_PATH%\plugins\connectors\
-copy %CLIENT_PATH%\dist\soap-client.jar %SERVER_PATH%\plugins\connectors\
-copy %CLIENT_PATH%\dist\tcp-client.jar %SERVER_PATH%\plugins\connectors\
-copy %CLIENT_PATH%\dist\vm-client.jar %SERVER_PATH%\plugins\connectors\
-
+copy %CLIENT_PATH%\dist\connectors\*.jar %SERVER_PATH%\plugins\connectors\
+copy %CLIENT_PATH%\dist\services\*.jar %SERVER_PATH%\plugins\services\
 copy %SERVER_PATH%\mirth-client-core.jar %SERVER_PATH%\client-lib\
-
 copy %CLIENT_PATH%\lib\*.jar %SERVER_PATH%\client-lib\
 
 cd %SERVER_PATH%
