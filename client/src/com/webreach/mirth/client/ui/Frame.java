@@ -107,14 +107,15 @@ public class Frame extends JXFrame
 {
     private Logger logger = Logger.getLogger(this.getClass());
     public Client mirthClient;
-    public DashboardPanel dashboardPanel;
-    public ChannelPanel channelPanel;
-    public SettingsPanel settingsPanel;
-    public UserPanel userPanel;
-    public ChannelSetup channelEditPanel;
-    public EventBrowser eventBrowser;
-    public MessageBrowser messageBrowser;
-    public AlertPanel alertPanel;
+    public DashboardPanel dashboardPanel = null;
+    public ChannelPanel channelPanel  = null;
+    public SettingsPanel settingsPanel  = null;
+    public UserPanel userPanel = null;
+    public ChannelSetup channelEditPanel = null;
+    public EventBrowser eventBrowser = null;
+    public MessageBrowser messageBrowser = null;
+    public AlertPanel alertPanel = null;
+    public PluginPanel pluginPanel = null;
     public JXTaskPaneContainer taskPaneContainer;
     public List<ChannelStatus> status = null;
     public Map<String, Channel> channels = null;
@@ -248,7 +249,7 @@ public class Frame extends JXFrame
             {
                 if (!confirmLeave())
                     return;
-
+                
                 logout();
                 System.exit(0);
             }
@@ -406,6 +407,7 @@ public class Frame extends JXFrame
         doShowDashboard();
         channelEditPanel = new ChannelSetup();
         messageBrowser = new MessageBrowser();
+        pluginPanel = new PluginPanel();
         su = new StatusUpdater();
         statusUpdater = new Thread(su);
         statusUpdater.start();
@@ -549,7 +551,6 @@ public class Frame extends JXFrame
         createUserPane();
         createAlertPane();
         createOtherPane();
-        createDetailsPane();
     }
 
     /**
@@ -567,8 +568,10 @@ public class Frame extends JXFrame
         viewPane.add(initActionCallback("doShowSettings", "Contains local and system settings.", ActionFactory.createBoundAction("showSettings", "Settings", "S"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/settings.png"))));
         viewPane.add(initActionCallback("doShowAlerts", "Contains alert settings.", ActionFactory.createBoundAction("showAlerts", "Alerts", "A"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/alerts.png"))));
         viewPane.add(initActionCallback("doShowEvents", "Show the event logs for the system.", ActionFactory.createBoundAction("doShowEvents", "Events", "E"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/logs.png"))));
+        viewPane.add(initActionCallback("doShowPlugins", "Show the plugins loaded for the system.", ActionFactory.createBoundAction("doShowPlugins", "Plugins", "P"), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/plugin.png"))));
         setNonFocusable(viewPane);
         taskPaneContainer.add(viewPane);
+        viewPane.setVisible(true);
     }
 
     /**
@@ -1355,24 +1358,12 @@ public class Frame extends JXFrame
         otherPane.add(initActionCallback("doLogout", "Logout and return to the login screen.", ActionFactory.createBoundAction("doLogout", "Logout", ""), new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/disconnect.png"))));
         setNonFocusable(otherPane);
         taskPaneContainer.add(otherPane);
+        otherPane.setVisible(true);
     }
 
     public JXTaskPane getOtherPane()
     {
         return otherPane;
-    }
-
-    /**
-     * Creates the details task pane.
-     */
-    private void createDetailsPane()
-    {
-        // Create Details Pane
-        details = new JXTaskPane();
-        details.setTitle("Details");
-        taskPaneContainer.add(details);
-        setNonFocusable(details);
-        details.setVisible(false);
     }
 
     /**
@@ -1502,15 +1493,14 @@ public class Frame extends JXFrame
      */
     public void setFocus(JXTaskPane pane)
     {
-        channelTasks.setVisible(false);
-        channelEditTasks.setVisible(false);
-        statusTasks.setVisible(false);
-        eventTasks.setVisible(false);
-        messageTasks.setVisible(false);
-        settingsTasks.setVisible(false);
-        userTasks.setVisible(false);
-        alertTasks.setVisible(false);
-        pane.setVisible(true);
+        // ignore the first and last components
+        for(int i = 1; i < taskPaneContainer.getComponentCount()-1; i++)
+        {
+            taskPaneContainer.getComponent(i).setVisible(false);
+        }
+        
+        if(pane != null)
+            pane.setVisible(true);
     }
 
     /**
@@ -1880,6 +1870,33 @@ public class Frame extends JXFrame
 
         worker.execute();
     }
+    
+    public void doShowPlugins()
+    {
+        if (!confirmLeave())
+            return;
+
+        setWorking("Loading plugins...", true);
+                
+        SwingWorker worker = new SwingWorker<Void, Void>()
+        {
+            public Void doInBackground()
+            {
+                return null;
+            }
+
+            public void done()
+            {
+                setBold(viewPane, 6);
+                setPanelName("Plugins");
+                setCurrentContentPage(pluginPanel);
+                pluginPanel.loadDefaultPanel();
+                setWorking("", false);
+            }
+        };
+
+        worker.execute();
+    }
 
     public void doLogout()
     {
@@ -1898,7 +1915,9 @@ public class Frame extends JXFrame
         userPreferences.putInt("maximizedState", getExtendedState());
         userPreferences.putInt("width", getWidth());
         userPreferences.putInt("height", getHeight());
-
+        
+        pluginPanel.stopPlugins();
+        
         try
         {
             mirthClient.logout();
