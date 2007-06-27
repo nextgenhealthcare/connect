@@ -104,6 +104,10 @@ public class TreePanel extends JPanel
             { 
             	protocol = Protocol.HL7V2;
             }
+            else if (PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.NCPDP).equals(messageType))
+            { 
+                protocol = Protocol.NCPDP;
+            }
             else if (PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.HL7V3).equals(messageType))
             {
             	protocol = Protocol.HL7V3;

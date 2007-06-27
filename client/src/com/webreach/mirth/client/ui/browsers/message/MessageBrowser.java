@@ -757,7 +757,7 @@ public class MessageBrowser extends javax.swing.JPanel
         {
             if (protocol != null)
             {
-                if (protocol.equals(MessageObject.Protocol.HL7V2))
+                if (protocol.equals(MessageObject.Protocol.HL7V2) || protocol.equals(MessageObject.Protocol.NCPDP))
                 {
                     newDoc.setTokenMarker(new HL7TokenMarker());
                     message = message.replace('\r', '\n');

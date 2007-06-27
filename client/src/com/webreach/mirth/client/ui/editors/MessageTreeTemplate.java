@@ -8,6 +8,7 @@ package com.webreach.mirth.client.ui.editors;
 
 import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.ui.beans.HL7Properties;
+import com.webreach.mirth.client.ui.beans.NCPDPProperties;
 
 import java.awt.Dimension;
 import java.util.Properties;
@@ -314,6 +315,8 @@ public class MessageTreeTemplate extends javax.swing.JPanel
             new BoundPropertiesSheetDialog(dataProperties, new X12Properties());
         else if (((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.HL7V2)))
             new BoundPropertiesSheetDialog(dataProperties, new HL7Properties());
+        else if (((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.NCPDP)))
+            new BoundPropertiesSheetDialog(dataProperties, new NCPDPProperties());
         updateText();
     }// GEN-LAST:event_propertiesActionPerformed
     
@@ -321,7 +324,10 @@ public class MessageTreeTemplate extends javax.swing.JPanel
     private void dataTypeActionPerformed(java.awt.event.ActionEvent evt)
     {// GEN-HEADEREND:event_dataTypeActionPerformed
         PlatformUI.MIRTH_FRAME.enableSave();
-        if (((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.X12)) || ((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.EDI)) || ((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.HL7V2)))
+        if (((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.X12)) || 
+                ((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.EDI)) || 
+                ((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.HL7V2)) || 
+                ((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.NCPDP)))
             properties.setEnabled(true);
         else
             properties.setEnabled(false);
