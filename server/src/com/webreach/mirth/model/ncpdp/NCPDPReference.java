@@ -1,4 +1,4 @@
-package com.webreach.mirth.model.ncpdp;
+package com.webreach.mirth.model.NCPDP;
 
 import java.util.*;
 
