@@ -1,7 +1,8 @@
 package com.webreach.mirth.model.converters;
 
 import com.sun.org.apache.xerces.internal.parsers.SAXParser;
-import com.webreach.mirth.model.ncpdp.NCPDPReference;
+import com.webreach.mirth.model.NCPDP.NCPDPReference;
+
 
 import org.apache.log4j.Logger;
 import org.xml.sax.InputSource;
@@ -139,28 +140,28 @@ public class NCPDPReader extends SAXParser {
                 contentHandler.characters(header.toCharArray(),0,6);
                 contentHandler.endElement("","BinNumber","");
                 contentHandler.startElement("","VersionReleaseNumber","", null);
-                contentHandler.characters(header.toCharArray(),6,8);
+                contentHandler.characters(header.toCharArray(),6,2);
                 contentHandler.endElement("","VersionReleaseNumber","");
                 contentHandler.startElement("","TransactionCode","", null);
-                contentHandler.characters(header.toCharArray(),8,10);
+                contentHandler.characters(header.toCharArray(),8,2);
                 contentHandler.endElement("","TransactionCode","");
                 contentHandler.startElement("","ProcessorControlNumber","", null);
-                contentHandler.characters(header.toCharArray(),10,20);
+                contentHandler.characters(header.toCharArray(),10,10);
                 contentHandler.endElement("","ProcessorControlNumber","");
                 contentHandler.startElement("","TransactionCount","", null);
-                contentHandler.characters(header.toCharArray(),20,21);
+                contentHandler.characters(header.toCharArray(),20,1);
                 contentHandler.endElement("","TransactionCount","");
                 contentHandler.startElement("","ServiceProviderIdQualifier","", null);
-                contentHandler.characters(header.toCharArray(),21,23);
+                contentHandler.characters(header.toCharArray(),21,2);
                 contentHandler.endElement("","ServiceProviderIdQualifier","");
                 contentHandler.startElement("","ServiceProviderId","", null);
-                contentHandler.characters(header.toCharArray(),23,38);
+                contentHandler.characters(header.toCharArray(),23,15);
                 contentHandler.endElement("","ServiceProviderId","");
                 contentHandler.startElement("","DateOfService","", null);
-                contentHandler.characters(header.toCharArray(),38,46);
+                contentHandler.characters(header.toCharArray(),38,8);
                 contentHandler.endElement("","DateOfService","");
                 contentHandler.startElement("","SoftwareVendorCertificationId","", null);
-                contentHandler.characters(header.toCharArray(),46,56);
+                contentHandler.characters(header.toCharArray(),46,10);
                 contentHandler.endElement("","SoftwareVendorCertificationId","");
                 contentHandler.endElement("","TransactionHeaderRequest","");
             }
@@ -173,22 +174,22 @@ public class NCPDPReader extends SAXParser {
                 contentHandler.characters(header.toCharArray(),0,2);
                 contentHandler.endElement("","VersionReleaseNumber","");
                 contentHandler.startElement("","TransactionCode","", null);
-                contentHandler.characters(header.toCharArray(),2,4);
+                contentHandler.characters(header.toCharArray(),2,2);
                 contentHandler.endElement("","TransactionCode","");
                 contentHandler.startElement("","TransactionCount","", null);
-                contentHandler.characters(header.toCharArray(),4,5);
+                contentHandler.characters(header.toCharArray(),4,1);
                 contentHandler.endElement("","TransactionCount","");                
                 contentHandler.startElement("","HeaderResponseStatus","", null);
-                contentHandler.characters(header.toCharArray(),5,6);
+                contentHandler.characters(header.toCharArray(),5,1);
                 contentHandler.endElement("","HeaderResponseStatus","");  
                 contentHandler.startElement("","ServiceProviderIdQualifier","", null);
-                contentHandler.characters(header.toCharArray(),6,8);
+                contentHandler.characters(header.toCharArray(),6,2);
                 contentHandler.endElement("","ServiceProviderIdQualifier","");
                 contentHandler.startElement("","ServiceProviderId","", null);
-                contentHandler.characters(header.toCharArray(),8,23);
+                contentHandler.characters(header.toCharArray(),8,15);
                 contentHandler.endElement("","ServiceProviderId","");
                 contentHandler.startElement("","DateOfService","", null);
-                contentHandler.characters(header.toCharArray(),23,31);
+                contentHandler.characters(header.toCharArray(),23,8);
                 contentHandler.endElement("","DateOfService","");
                 contentHandler.endElement("","TransactionHeaderResponse","");
             }
