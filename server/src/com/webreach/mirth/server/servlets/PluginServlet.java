@@ -64,6 +64,11 @@ public class PluginServlet extends MirthServlet {
                     pluginController.updatePlugin(name, properties);
 				} else if (operation.equals("getPluginMetaData")) {
                     out.println(serializer.toXML(pluginController.getPluginMetaData()));
+                } else if (operation.equals("invoke")) {
+                    String name = request.getParameter("name");
+                    String method = request.getParameter("method");
+                    Object object =(Object) serializer.fromXML(request.getParameter("object"));
+                    out.println(serializer.toXML(pluginController.invoke(name, method, object)));
                 } 
 			} catch (Exception e) {
 				throw new ServletException(e);

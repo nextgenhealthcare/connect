@@ -141,6 +141,11 @@ public class PluginController
         for (ServerPlugin plugin : loadedPlugins.values())
             plugin.stop();
     }
+    
+    public Object invoke (String name, String method, Object object)
+    {
+        return loadedPlugins.get(name).invoke(method, object);
+    }
 
     public void setPluginProperties(String pluginName, Properties properties) throws ControllerException
     {

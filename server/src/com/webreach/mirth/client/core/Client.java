@@ -216,6 +216,18 @@ public class Client {
         NameValuePair[] params = { new NameValuePair("op", "getPluginMetaData") };
         return (Map<String, PluginMetaData>) serializer.fromXML(serverConnection.executePostMethod(PLUGIN_SERVLET, params));
     }
+    
+    /**
+     * Invoke a method on a plugin and pass back the Object returned
+     * 
+     * @return
+     * @throws ClientException
+     */
+    public Object invokePluginMethod(String name, String method, Object object) throws ClientException {
+        logger.debug("invoking method " + method + " on " + name);
+        NameValuePair[] params = { new NameValuePair("op", "invoke"), new NameValuePair("name", name), new NameValuePair("method", method), new NameValuePair("object", serializer.toXML(object)) };
+        return (Object) serializer.fromXML(serverConnection.executePostMethod(PLUGIN_SERVLET, params));
+    }
 
 	/**
 	 * Returns a List of all of the encodings supported by the server

@@ -305,11 +305,11 @@ public class MessageObjectController {
 		}
 	}
 
-	public void removeMessages(MessageObjectFilter filter) throws ControllerException {
+	public int removeMessages(MessageObjectFilter filter) throws ControllerException {
 		logger.debug("removing messages: filter=" + filter.toString());
 
 		try {
-			sqlMap.delete("deleteMessage", getFilterMap(filter, null));
+			return sqlMap.delete("deleteMessage", getFilterMap(filter, null));
 		} catch (SQLException e) {
 			throw new ControllerException(e);
 		}
