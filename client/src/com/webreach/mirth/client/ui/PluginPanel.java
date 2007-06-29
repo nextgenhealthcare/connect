@@ -109,7 +109,10 @@ public class PluginPanel extends javax.swing.JPanel
     {
         ClientPlugin plugin = loadedPlugins.get(pluginName);
         if(plugin != null)
+        {
             parent.setFocus(plugin.getTaskPane());
+            plugin.display();
+        }
         else
             parent.setFocus(null);
     }

@@ -86,6 +86,7 @@ public class Mirth
             PlatformUI.MIRTH_FRAME.setExtendedState(PlatformUI.MIRTH_FRAME.MAXIMIZED_BOTH);
 
         PlatformUI.MIRTH_FRAME.setVisible(true);
+        PlatformUI.MIRTH_FRAME.loadPlugins();
         PlatformUI.MIRTH_FRAME.addComponentListener(new java.awt.event.ComponentAdapter()
         {
             public void componentResized(ComponentEvent e)

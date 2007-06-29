@@ -75,6 +75,16 @@ public abstract class ClientPlugin
     {
         return menu;
     }
+    
+    public String getName()
+    {
+        return name;
+    }
+    
+    public Object invoke (String method, Object object) throws ClientException
+    {
+        return parent.mirthClient.invokePluginMethod(name, method, object);
+    }
 
     public MouseAdapter getPopupMenuMouseAdapter()
     {
@@ -145,33 +155,28 @@ public abstract class ClientPlugin
     {
         return parent.alertOption(message);
     }
-
-    public Properties getPropertiesFromServer()
+    
+    public void setWorking(String message, boolean working)
     {
-        try
-        {
-            return parent.mirthClient.getPluginProperties(name);
-        }
-        catch (ClientException e)
-        {
-            alertException(e.getStackTrace(), "Could not get " + name + " properties.");
-        }
-        return null;
+        parent.setWorking(message, working);
     }
 
-    public void setPropertiesToServer(Properties properties)
+    public Properties getPropertiesFromServer() throws ClientException
     {
-        try
-        {
-            parent.mirthClient.setPluginProperties(name, properties);
-        }
-        catch (ClientException e)
-        {
-            alertException(e.getStackTrace(), "Could not set " + name + " properties.");
-        }
+        return parent.mirthClient.getPluginProperties(name);
     }
 
+    public void setPropertiesToServer(Properties properties) throws ClientException
+    {
+        parent.mirthClient.setPluginProperties(name, properties);
+    }
+    
+    // used for starting processes in the plugin when the program is exited
     public abstract void start();
-
+    
+    // used for stopping processes in the plugin when the program is exited
     public abstract void stop();
+    
+    // used for setting actions to be called when the plugin tab is loaded
+    public abstract void display();
 }

@@ -408,7 +408,6 @@ public class Frame extends JXFrame
         doShowDashboard();
         channelEditPanel = new ChannelSetup();
         messageBrowser = new MessageBrowser();
-        pluginPanel = new PluginPanel();
         su = new StatusUpdater();
         statusUpdater = new Thread(su);
         statusUpdater.start();
@@ -424,6 +423,11 @@ public class Frame extends JXFrame
                 System.out.println("UIManager.put(\"" + key.toString() + "\",\"" + (null != val ? val.toString() : "(null)") + "\");");
          }*/
          
+    }
+    
+    public void loadPlugins()
+    {
+        pluginPanel = new PluginPanel();
     }
 
     /**
