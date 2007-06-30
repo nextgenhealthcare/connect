@@ -1,5 +1,5 @@
 /*
- * DatabasePrunerClient.java
+ * MessagePrunerClient.java
  *
  * Created on June 22, 2007, 5:25 PM
  *
@@ -23,14 +23,14 @@ import com.webreach.mirth.plugins.ClientPlugin;
  * 
  * @author brendanh
  */
-public class DatabasePrunerClient extends ClientPlugin
+public class MessagePrunerClient extends ClientPlugin
 {
-    public DatabasePrunerClient(String name)
+    public MessagePrunerClient(String name)
     {
         super(name);
 
         getTaskPane().setTitle("Pruner Tasks");
-        setComponent(new DatabasePrunerPanel());
+        setComponent(new MessagePrunerPanel());
         addTask("doRefresh", "Refresh", "Refresh pruner properties", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png")));
         addTask("doSave", "Save", "Save pruner properties", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/save.png")));
         getComponent().addMouseListener(getPopupMenuMouseAdapter());
@@ -82,7 +82,7 @@ public class DatabasePrunerClient extends ClientPlugin
     {
         try
         {
-            ((DatabasePrunerPanel) getComponent()).setProperties(getPropertiesFromServer(), (LinkedList<String[]>) invoke("getLog", null));
+            ((MessagePrunerPanel) getComponent()).setProperties(getPropertiesFromServer(), (LinkedList<String[]>) invoke("getLog", null));
         }
         catch (ClientException e)
         {
@@ -94,7 +94,7 @@ public class DatabasePrunerClient extends ClientPlugin
     {
         try
         {
-            setPropertiesToServer(((DatabasePrunerPanel) getComponent()).getProperties());
+            setPropertiesToServer(((MessagePrunerPanel) getComponent()).getProperties());
         }
         catch (ClientException e)
         {

@@ -100,8 +100,8 @@
 		<!-- PLUGINS -->
 		<mkdir dir="${dist}/services" />		
 		
-		<jar destfile="${dist}/services/database-pruner-client.jar" basedir="${classes}">
-			<include name="com/webreach/mirth/plugins/databasepruner/**" />
+		<jar destfile="${dist}/services/message-pruner-client.jar" basedir="${classes}">
+			<include name="com/webreach/mirth/plugins/messagepruner/**" />
 		</jar>
 		
 		<!-- copy source files -->

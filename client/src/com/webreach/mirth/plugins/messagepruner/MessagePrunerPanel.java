@@ -1,5 +1,5 @@
 /*
- * DatabasePrunerPanel.java
+ * MessagePrunerPanel.java
  *
  * Created on June 22, 2007, 5:19 PM
  */
@@ -25,7 +25,7 @@ import org.jdesktop.swingx.decorator.HighlighterPipeline;
  *
  * @author  brendanh
  */
-public class DatabasePrunerPanel extends javax.swing.JPanel
+public class MessagePrunerPanel extends javax.swing.JPanel
 {
     private final String NAME_COLUMN_NAME = "Channel";
     private final String TIME_COLUMN_NAME = "Time Pruned";
@@ -33,8 +33,10 @@ public class DatabasePrunerPanel extends javax.swing.JPanel
         
     private ObjectXMLSerializer serializer = new ObjectXMLSerializer();
     
-    /** Creates new form DatabasePrunerPanel */
-    public DatabasePrunerPanel()
+    /**
+     * Creates new form MessagePrunerPanel
+     */
+    public MessagePrunerPanel()
     {
         initComponents();
         makeLogTable();
