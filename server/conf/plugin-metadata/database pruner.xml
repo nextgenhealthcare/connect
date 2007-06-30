@@ -1,6 +1,6 @@
 <com.webreach.mirth.model.PluginMetaData>
   <name>Database Pruner</name>
   <author>Brendan Haverlock</author>
-  <clientClassName>com.webreach.mirth.plugins.messagepruner.DatabasePrunerClient</clientClassName>
-  <serverClassName>com.webreach.mirth.plugins.messagepruner.DatabasePrunerService</serverClassName>
+  <clientClassName>com.webreach.mirth.plugins.messagepruner.MessagePrunerClient</clientClassName>
+  <serverClassName>com.webreach.mirth.plugins.messagepruner.MessagePrunerService</serverClassName>
 </com.webreach.mirth.model.PluginMetaData>

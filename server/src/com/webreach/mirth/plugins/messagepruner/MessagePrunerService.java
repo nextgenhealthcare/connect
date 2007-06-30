@@ -28,7 +28,7 @@ import com.webreach.mirth.plugins.ServerPlugin;
 import com.webreach.mirth.server.controllers.ChannelController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 
-public class DatabasePrunerService implements ServerPlugin, Job
+public class MessagePrunerService implements ServerPlugin, Job
 {
     private Logger logger = Logger.getLogger(this.getClass());
     private ChannelController channelController = new ChannelController();
@@ -41,7 +41,7 @@ public class DatabasePrunerService implements ServerPlugin, Job
         
     public void init(Properties properties)
     {
-        jobDetail = new JobDetail("prunerJob", Scheduler.DEFAULT_GROUP, DatabasePrunerService.class);
+        jobDetail = new JobDetail("prunerJob", Scheduler.DEFAULT_GROUP, MessagePrunerService.class);
         
         try
         {

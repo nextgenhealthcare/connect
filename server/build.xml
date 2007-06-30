@@ -258,8 +258,8 @@
 			</fileset>
 		</copy>
 		
-		<jar destfile="${services}/database-pruner-server.jar" basedir="${classes}">
-			<include name="com/webreach/mirth/plugins/databasepruner/**" />
+		<jar destfile="${services}/message-pruner-server.jar" basedir="${classes}">
+			<include name="com/webreach/mirth/plugins/messagepruner/**" />
 		</jar>
 	</target>
 

@@ -41,7 +41,7 @@ import org.mule.config.ConfigurationException;
 import org.mule.config.builders.MuleXmlConfigurationBuilder;
 
 import com.webreach.mirth.model.SystemEvent;
-import com.webreach.mirth.plugins.messagepruner.DatabasePrunerService;
+import com.webreach.mirth.plugins.messagepruner.MessagePrunerService;
 import com.webreach.mirth.server.controllers.ChannelController;
 import com.webreach.mirth.server.controllers.ChannelStatisticsController;
 import com.webreach.mirth.server.controllers.ConfigurationController;
