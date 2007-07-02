@@ -317,7 +317,7 @@ public class EventBrowser extends javax.swing.JPanel
     }
 
     // <editor-fold defaultstate="collapsed" desc=" Generated Code
-    // ">//GEN-BEGIN:initComponents
+    // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents()
     {
         filterPanel = new javax.swing.JPanel();
@@ -340,7 +340,7 @@ public class EventBrowser extends javax.swing.JPanel
 
         setBackground(new java.awt.Color(255, 255, 255));
         filterPanel.setBackground(new java.awt.Color(255, 255, 255));
-        filterPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Filter By", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(0, 0, 0)));
+        filterPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1), "Filter By", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11), new java.awt.Color(0, 0, 0)));
         eventLabel.setText("Event:");
 
         jLabel3.setText("Start Date:");
@@ -360,21 +360,82 @@ public class EventBrowser extends javax.swing.JPanel
 
         org.jdesktop.layout.GroupLayout filterPanelLayout = new org.jdesktop.layout.GroupLayout(filterPanel);
         filterPanel.setLayout(filterPanelLayout);
-        filterPanelLayout.setHorizontalGroup(filterPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(filterPanelLayout.createSequentialGroup().add(filterPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false).add(filterPanelLayout.createSequentialGroup().add(12, 12, 12).add(filterPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(org.jdesktop.layout.GroupLayout.TRAILING, eventLabel).add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel3)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(filterPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false).add(eventField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(mirthDatePicker1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).add(18, 18, 18).add(filterPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel1).add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel2)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(filterPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false).add(levelComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(mirthDatePicker2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))).add(filterPanelLayout.createSequentialGroup().add(70, 70, 70).add(filterButton))).add(127, 127, 127)));
-        filterPanelLayout.setVerticalGroup(filterPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(filterPanelLayout.createSequentialGroup().add(filterPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(eventLabel).add(jLabel1).add(eventField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(levelComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(filterPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING).add(mirthDatePicker1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(mirthDatePicker2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(jLabel2).add(jLabel3)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(filterButton).addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)));
+        filterPanelLayout.setHorizontalGroup(
+            filterPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(filterPanelLayout.createSequentialGroup()
+                .add(filterPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
+                    .add(filterPanelLayout.createSequentialGroup()
+                        .add(12, 12, 12)
+                        .add(filterPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, eventLabel)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel3))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(filterPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
+                            .add(eventField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(mirthDatePicker1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .add(18, 18, 18)
+                        .add(filterPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel1)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel2))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(filterPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
+                            .add(levelComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(mirthDatePicker2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                    .add(filterPanelLayout.createSequentialGroup()
+                        .add(70, 70, 70)
+                        .add(filterButton)))
+                .add(133, 133, 133))
+        );
+        filterPanelLayout.setVerticalGroup(
+            filterPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(filterPanelLayout.createSequentialGroup()
+                .add(filterPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(eventLabel)
+                    .add(jLabel1)
+                    .add(eventField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(levelComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(filterPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(mirthDatePicker1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(mirthDatePicker2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jLabel2)
+                    .add(jLabel3))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(filterButton)
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
 
         jPanel2.setBackground(new java.awt.Color(255, 255, 255));
         jScrollPane1.setBackground(new java.awt.Color(255, 255, 255));
         jScrollPane1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(new Object[][] { { null, null, null, null }, { null, null, null, null }, { null, null, null, null }, { null, null, null, null } }, new String[] { "Title 1", "Title 2", "Title 3", "Title 4" }));
+        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][]
+            {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String []
+            {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
         jScrollPane1.setViewportView(jTable1);
 
         org.jdesktop.layout.GroupLayout jPanel2Layout = new org.jdesktop.layout.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 533, Short.MAX_VALUE));
-        jPanel2Layout.setVerticalGroup(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 199, Short.MAX_VALUE));
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 533, Short.MAX_VALUE)
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 205, Short.MAX_VALUE)
+        );
 
         descriptionPanel.setBackground(new java.awt.Color(255, 255, 255));
+        jLabel4.setFont(new java.awt.Font("Tahoma", 1, 11));
         jLabel4.setText("Description:");
 
         description.setEditable(false);
@@ -382,13 +443,41 @@ public class EventBrowser extends javax.swing.JPanel
 
         org.jdesktop.layout.GroupLayout descriptionPanelLayout = new org.jdesktop.layout.GroupLayout(descriptionPanel);
         descriptionPanel.setLayout(descriptionPanelLayout);
-        descriptionPanelLayout.setHorizontalGroup(descriptionPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(descriptionPanelLayout.createSequentialGroup().addContainerGap().add(descriptionPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(jLabel4).add(org.jdesktop.layout.GroupLayout.TRAILING, jScrollPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 513, Short.MAX_VALUE)).addContainerGap()));
-        descriptionPanelLayout.setVerticalGroup(descriptionPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(descriptionPanelLayout.createSequentialGroup().add(jLabel4).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(jScrollPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 131, Short.MAX_VALUE).addContainerGap()));
+        descriptionPanelLayout.setHorizontalGroup(
+            descriptionPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(descriptionPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .add(descriptionPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(jLabel4)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jScrollPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 513, Short.MAX_VALUE))
+                .addContainerGap())
+        );
+        descriptionPanelLayout.setVerticalGroup(
+            descriptionPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(descriptionPanelLayout.createSequentialGroup()
+                .add(jLabel4)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(jScrollPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 131, Short.MAX_VALUE)
+                .addContainerGap())
+        );
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
-        layout.setHorizontalGroup(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(filterPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 533, Short.MAX_VALUE).add(jPanel2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE).add(descriptionPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE));
-        layout.setVerticalGroup(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(layout.createSequentialGroup().add(filterPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(jPanel2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(descriptionPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)));
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(filterPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 533, Short.MAX_VALUE)
+            .add(jPanel2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .add(descriptionPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(layout.createSequentialGroup()
+                .add(filterPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(jPanel2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(descriptionPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+        );
     }// </editor-fold>//GEN-END:initComponents
 
     /**
@@ -456,37 +545,21 @@ public class EventBrowser extends javax.swing.JPanel
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.webreach.mirth.client.ui.components.MirthTextPane description;
-
     private javax.swing.JPanel descriptionPanel;
-
     private com.webreach.mirth.client.ui.components.MirthTextField eventField;
-
     private javax.swing.JLabel eventLabel;
-
     private javax.swing.JButton filterButton;
-
     private javax.swing.JPanel filterPanel;
-
     private javax.swing.JLabel jLabel1;
-
     private javax.swing.JLabel jLabel2;
-
     private javax.swing.JLabel jLabel3;
-
     private javax.swing.JLabel jLabel4;
-
     private javax.swing.JPanel jPanel2;
-
     private javax.swing.JScrollPane jScrollPane1;
-
     private javax.swing.JScrollPane jScrollPane2;
-
     private javax.swing.JTable jTable1;
-
     private javax.swing.JComboBox levelComboBox;
-
     private com.webreach.mirth.client.ui.components.MirthDatePicker mirthDatePicker1;
-
     private com.webreach.mirth.client.ui.components.MirthDatePicker mirthDatePicker2;
     // End of variables declaration//GEN-END:variables
 

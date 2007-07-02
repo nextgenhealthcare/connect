@@ -17,7 +17,7 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Component id="filterPanel" alignment="0" max="32767" attributes="0"/>
+          <Component id="filterPanel" alignment="0" pref="533" max="32767" attributes="0"/>
           <Component id="jPanel2" alignment="0" max="32767" attributes="0"/>
           <Component id="descriptionPanel" alignment="0" max="32767" attributes="0"/>
       </Group>
@@ -43,6 +43,10 @@
         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
           <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
             <TitledBorder title="Filter By">
+              <Border PropertyName="innerBorder" info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+                <EmptyBorder/>
+              </Border>
+              <Font PropertyName="font" name="Tahoma" size="11" style="1"/>
               <Color PropertyName="color" blue="0" green="0" red="0" type="rgb"/>
             </TitledBorder>
           </Border>
@@ -81,7 +85,7 @@
                           <Component id="filterButton" min="-2" max="-2" attributes="0"/>
                       </Group>
                   </Group>
-                  <EmptySpace min="-2" pref="127" max="-2" attributes="0"/>
+                  <EmptySpace min="-2" pref="133" max="-2" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -167,7 +171,7 @@
         </DimensionLayout>
         <DimensionLayout dim="1">
           <Group type="103" groupAlignment="0" attributes="0">
-              <Component id="jScrollPane1" alignment="0" pref="199" max="32767" attributes="0"/>
+              <Component id="jScrollPane1" alignment="0" pref="205" max="32767" attributes="0"/>
           </Group>
         </DimensionLayout>
       </Layout>
@@ -239,6 +243,9 @@
       <SubComponents>
         <Component class="javax.swing.JLabel" name="jLabel4">
           <Properties>
+            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+              <Font name="Tahoma" size="11" style="1"/>
+            </Property>
             <Property name="text" type="java.lang.String" value="Description:"/>
           </Properties>
         </Component>

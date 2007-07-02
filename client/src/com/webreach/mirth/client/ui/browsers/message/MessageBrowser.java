@@ -870,7 +870,7 @@ public class MessageBrowser extends javax.swing.JPanel
 
         setBackground(new java.awt.Color(255, 255, 255));
         filterPanel.setBackground(new java.awt.Color(255, 255, 255));
-        filterPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Filter By", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(0, 0, 0)));
+        filterPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1), "Filter By", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11), new java.awt.Color(0, 0, 0)));
         jLabel3.setText("Start Date:");
 
         filterButton.setText("Filter");
@@ -950,7 +950,7 @@ public class MessageBrowser extends javax.swing.JPanel
                             .add(messageSourceField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .add(statusComboBox, 0, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, filterButton))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 21, Short.MAX_VALUE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 11, Short.MAX_VALUE)
                 .add(filterPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
                     .add(filterPanelLayout.createSequentialGroup()
                         .add(previousPageButton)
@@ -1032,7 +1032,7 @@ public class MessageBrowser extends javax.swing.JPanel
             RawMessagePanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(RawMessagePanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .add(RawMessageTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 48, Short.MAX_VALUE)
+                .add(RawMessageTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 54, Short.MAX_VALUE)
                 .addContainerGap())
         );
         descriptionTabbedPane.addTab("Raw Message", RawMessagePanel);
@@ -1055,7 +1055,7 @@ public class MessageBrowser extends javax.swing.JPanel
             TransformedMessagePanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(TransformedMessagePanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .add(TransformedMessageTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 48, Short.MAX_VALUE)
+                .add(TransformedMessageTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 54, Short.MAX_VALUE)
                 .addContainerGap())
         );
         descriptionTabbedPane.addTab("Transformed Message", TransformedMessagePanel);
@@ -1078,7 +1078,7 @@ public class MessageBrowser extends javax.swing.JPanel
             EncodedMessagePanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(EncodedMessagePanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .add(EncodedMessageTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 48, Short.MAX_VALUE)
+                .add(EncodedMessageTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 54, Short.MAX_VALUE)
                 .addContainerGap())
         );
         descriptionTabbedPane.addTab("Encoded Message", EncodedMessagePanel);
@@ -1093,7 +1093,7 @@ public class MessageBrowser extends javax.swing.JPanel
         );
         MappingsPanelLayout.setVerticalGroup(
             MappingsPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 70, Short.MAX_VALUE)
+            .add(0, 76, Short.MAX_VALUE)
         );
         descriptionTabbedPane.addTab("Mappings", MappingsPanel);
 
@@ -1115,7 +1115,7 @@ public class MessageBrowser extends javax.swing.JPanel
             ErrorsPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(ErrorsPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .add(ErrorsTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 48, Short.MAX_VALUE)
+                .add(ErrorsTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 54, Short.MAX_VALUE)
                 .addContainerGap())
         );
         descriptionTabbedPane.addTab("Errors", ErrorsPanel);
@@ -1128,7 +1128,7 @@ public class MessageBrowser extends javax.swing.JPanel
         );
         descriptionPanelLayout.setVerticalGroup(
             descriptionPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(descriptionTabbedPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 98, Short.MAX_VALUE)
+            .add(descriptionTabbedPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 104, Short.MAX_VALUE)
         );
         jSplitPane1.setBottomComponent(descriptionPanel);
 
@@ -1176,7 +1176,7 @@ public class MessageBrowser extends javax.swing.JPanel
             .add(layout.createSequentialGroup()
                 .add(filterPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .add(4, 4, 4)
-                .add(jSplitPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 303, Short.MAX_VALUE))
+                .add(jSplitPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 309, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
     
