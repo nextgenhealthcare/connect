@@ -1,5 +1,8 @@
 <com.webreach.mirth.model.ConnectorMetaData>
   <name>Channel Writer</name>
+  <author>WebREACH, Inc.</author>
+  <pluginVersion>1.6.0</pluginVersion>
+  <mirthVersion>1.6.0</mirthVersion>
   <clientClassName>com.webreach.mirth.connectors.vm.ChannelWriter</clientClassName>
   <sharedClassName>com.webreach.mirth.connectors.vm.ChannelWriterProperties</sharedClassName>
   <serverClassName>com.webreach.mirth.connectors.vm.VMConnector</serverClassName>

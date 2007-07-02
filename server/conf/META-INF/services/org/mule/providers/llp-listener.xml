@@ -1,5 +1,8 @@
 <com.webreach.mirth.model.ConnectorMetaData>
   <name>LLP Listener</name>
+  <author>WebREACH, Inc.</author>
+  <pluginVersion>1.6.0</pluginVersion>
+  <mirthVersion>1.6.0</mirthVersion>
   <clientClassName>com.webreach.mirth.connectors.mllp.LLPListener</clientClassName>
   <sharedClassName>com.webreach.mirth.connectors.mllp.LLPListenerProperties</sharedClassName>
   <serverClassName>com.webreach.mirth.connectors.mllp.MllpConnector</serverClassName>

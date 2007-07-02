@@ -1,5 +1,8 @@
 <com.webreach.mirth.model.ConnectorMetaData>
   <name>File Reader</name>
+  <author>WebREACH, Inc.</author>
+  <pluginVersion>1.6.0</pluginVersion>
+  <mirthVersion>1.6.0</mirthVersion>
   <clientClassName>com.webreach.mirth.connectors.file.FileReader</clientClassName>
   <sharedClassName>com.webreach.mirth.connectors.file.FileReaderProperties</sharedClassName>
   <serverClassName>com.webreach.mirth.connectors.file.FileConnector</serverClassName>

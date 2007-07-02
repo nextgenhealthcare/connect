@@ -33,6 +33,8 @@ import com.webreach.mirth.util.EqualsUtil;
 public class PluginMetaData implements MetaData, Serializable {
 	private String name;
     private String author;
+    private String pluginVersion;
+    private String mirthVersion;
 	private String serverClassName;
 	private String clientClassName;
 
@@ -67,6 +69,26 @@ public class PluginMetaData implements MetaData, Serializable {
 	public void setAuthor(String author) {
 		this.author = author;
 	}
+    
+    public String getMirthVersion()
+    {
+        return mirthVersion;
+    }
+    
+    public void setMirthVersion(String mirthVersion)
+    {
+        this.mirthVersion = mirthVersion;
+    }
+
+    public String getPluginVersion()
+    {
+        return pluginVersion;
+    }
+
+    public void setPluginVersion(String pluginVersion)
+    {
+        this.pluginVersion = pluginVersion;
+    }
 
 	public boolean equals(Object that) {
 		if (this == that) {
@@ -82,6 +104,8 @@ public class PluginMetaData implements MetaData, Serializable {
 		return
 			EqualsUtil.areEqual(this.getName(), plugin.getName()) &&
             EqualsUtil.areEqual(this.getAuthor(), plugin.getAuthor()) &&
+            EqualsUtil.areEqual(this.getPluginVersion(), plugin.getPluginVersion()) &&
+            EqualsUtil.areEqual(this.getMirthVersion(), plugin.getMirthVersion()) &&
             EqualsUtil.areEqual(this.getServerClassName(), plugin.getServerClassName()) &&
             EqualsUtil.areEqual(this.getClientClassName(), plugin.getClientClassName());
 	}
@@ -91,6 +115,8 @@ public class PluginMetaData implements MetaData, Serializable {
 		builder.append(this.getClass().getName() + "[");
 		builder.append("name=" + getName() + ", ");
 		builder.append("author=" + getAuthor().toString() + ", ");
+        builder.append("pluginVersion=" + getPluginVersion() + ", ");
+        builder.append("mirthVersion=" + getMirthVersion() + ", ");
 		builder.append("serverClassName=" + getServerClassName() + ", ");
         builder.append("clientClassName=" + getClientClassName());
 		builder.append("]");

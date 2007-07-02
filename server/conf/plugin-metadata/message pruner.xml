@@ -1,6 +1,8 @@
 <com.webreach.mirth.model.PluginMetaData>
   <name>Message Pruner</name>
-  <author>Brendan Haverlock</author>
+  <author>WebREACH, Inc.</author>
+  <pluginVersion>1.6.0</pluginVersion>
+  <mirthVersion>1.6.0</mirthVersion>
   <clientClassName>com.webreach.mirth.plugins.messagepruner.MessagePrunerClient</clientClassName>
   <serverClassName>com.webreach.mirth.plugins.messagepruner.MessagePrunerService</serverClassName>
 </com.webreach.mirth.model.PluginMetaData>
