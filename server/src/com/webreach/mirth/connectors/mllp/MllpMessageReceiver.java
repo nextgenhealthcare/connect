@@ -322,21 +322,23 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
                     while(startCharLocation >= 0 &&  endCharLocation >= 0 && startCharLocation < endCharLocation)
                     {                            
                         String message = buffer.toString().substring(startCharLocation, endCharLocation);
-                        
+
                         try
                         {
                             processedData = processData(message.getBytes());
                         }
                         catch (Exception e)
                         {
-                            handleException(e);
+                            throw e;
                         }
-                        
-                        //clear the buffer up to the next message, if there is one
-                        buffer.delete(startCharLocation, endCharLocation + ((String)(END_MESSAGE  + "" + END_OF_RECORD)).length());
-                        
-                        startCharLocation = buffer.toString().indexOf(START_MESSAGE);
-                        endCharLocation = buffer.toString().indexOf(END_MESSAGE  + "" + END_OF_RECORD);
+                        finally
+                        {
+                            //clear the buffer up to the next message, if there is one
+                            buffer.delete(startCharLocation, endCharLocation + ((String)(END_MESSAGE  + "" + END_OF_RECORD)).length());
+                            
+                            startCharLocation = buffer.toString().indexOf(START_MESSAGE);
+                            endCharLocation = buffer.toString().indexOf(END_MESSAGE  + "" + END_OF_RECORD);
+                        }
                     }
                     
                     if (buffer.length() > 0 && startCharLocation == -1 || endCharLocation > startCharLocation)
