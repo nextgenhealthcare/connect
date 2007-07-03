@@ -36,6 +36,7 @@ public class ChannelWriterProperties implements ComponentProperties
     public static final String DATATYPE = "DataType";
     public static final String CHANNEL_ID = "host";
     public static final String CHANNEL_NAME = "channelName";
+    public static final String CHANNEL_SYNCHRONOUS = "synchronized";
 
     public Properties getDefaults()
     {
@@ -43,6 +44,7 @@ public class ChannelWriterProperties implements ComponentProperties
         properties.put(DATATYPE, name);
         properties.put(CHANNEL_ID, "sink");
         properties.put(CHANNEL_NAME, "None");
+        properties.put(CHANNEL_SYNCHRONOUS, "0");
         return properties;
     }
 }
