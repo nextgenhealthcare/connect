@@ -28,11 +28,11 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" alignment="0" attributes="0">
+          <Group type="102" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="clientSettings" min="-2" max="-2" attributes="0"/>
                   <Component id="serverSettings" alignment="0" min="-2" max="-2" attributes="0"/>
-                  <Component id="clientSettings" alignment="0" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace pref="257" max="32767" attributes="0"/>
           </Group>
@@ -43,9 +43,9 @@
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Component id="clientSettings" min="-2" max="-2" attributes="0"/>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="19" max="-2" attributes="0"/>
               <Component id="serverSettings" min="-2" max="-2" attributes="0"/>
-              <EmptySpace pref="45" max="32767" attributes="0"/>
+              <EmptySpace pref="32" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -200,17 +200,17 @@
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="defaultFrom" max="32767" attributes="1"/>
+                              <Component id="defaultFrom" linkSize="1" max="32767" attributes="1"/>
                               <Group type="103" alignment="0" groupAlignment="0" max="-2" attributes="0">
-                                  <Component id="smtpPassword" alignment="0" pref="117" max="32767" attributes="1"/>
-                                  <Component id="smtpUsername" alignment="0" pref="117" max="32767" attributes="1"/>
+                                  <Component id="smtpPassword" linkSize="1" alignment="0" pref="117" max="32767" attributes="1"/>
+                                  <Component id="smtpUsername" linkSize="1" alignment="0" pref="117" max="32767" attributes="1"/>
                                   <Group type="102" alignment="0" attributes="0">
                                       <Component id="requireAuthenticationYes" min="-2" max="-2" attributes="0"/>
                                       <EmptySpace max="-2" attributes="0"/>
                                       <Component id="requireAuthenticationNo" min="-2" max="-2" attributes="0"/>
                                   </Group>
                                   <Component id="smtpPort" alignment="0" min="-2" pref="44" max="-2" attributes="0"/>
-                                  <Component id="smtpHost" alignment="0" min="-2" pref="117" max="-2" attributes="1"/>
+                                  <Component id="smtpHost" linkSize="1" alignment="0" min="-2" pref="117" max="-2" attributes="1"/>
                               </Group>
                           </Group>
                       </Group>
