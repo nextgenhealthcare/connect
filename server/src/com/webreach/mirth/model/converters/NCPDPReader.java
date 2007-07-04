@@ -111,7 +111,7 @@ public class NCPDPReader extends SAXParser {
                 readSegment(segment,contentHandler);
             }
             // Remove processed segment from messageBody
-            messageBody = messageBody.substring(indexOfSegment+1);
+            messageBody = messageBody.substring(indexOfSegment+segmentDelim.length());
         }
         // End group if we have started one
         if(inGroup){
@@ -200,11 +200,12 @@ public class NCPDPReader extends SAXParser {
         if(segment == null || segment.equals("")){
             return;
         }
+        segment = segment.replace("<1C>","\u001C");
         boolean inCounter = false;
         boolean inCount = false;
         Stack<String> a = new Stack<String>();
 
-        StringTokenizer fieldTokenizer = new StringTokenizer(segment, fieldDelim, false);
+        StringTokenizer fieldTokenizer = new StringTokenizer(segment, "\u001C", false);
         // first field is segment Id
         String segmentId = fieldTokenizer.nextToken();
         contentHandler.startElement("", NCPDPReference.getInstance().getSegment(segmentId),"",null);
