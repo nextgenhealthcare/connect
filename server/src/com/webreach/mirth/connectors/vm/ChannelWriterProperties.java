@@ -37,6 +37,9 @@ public class ChannelWriterProperties implements ComponentProperties
     public static final String CHANNEL_ID = "host";
     public static final String CHANNEL_NAME = "channelName";
     public static final String CHANNEL_SYNCHRONOUS = "synchronized";
+    public static final String SEND_TO_CHANNEL_ID = "replyChannelId";
+    public static final String SEND_TO_CHANNEL_NAME = "replyChannelName";
+    public static final String CHANNEL_TEMPLATE = "template";
 
     public Properties getDefaults()
     {
@@ -45,6 +48,9 @@ public class ChannelWriterProperties implements ComponentProperties
         properties.put(CHANNEL_ID, "sink");
         properties.put(CHANNEL_NAME, "None");
         properties.put(CHANNEL_SYNCHRONOUS, "0");
+        properties.put(SEND_TO_CHANNEL_ID, "sink");
+        properties.put(SEND_TO_CHANNEL_NAME, "None");
+        properties.put(CHANNEL_TEMPLATE, "${message.encodedData}");
         return properties;
     }
 }
