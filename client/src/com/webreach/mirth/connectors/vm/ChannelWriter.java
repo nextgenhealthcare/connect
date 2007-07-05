@@ -56,6 +56,11 @@ public class ChannelWriter extends ConnectorClass
         properties.put(ChannelWriterProperties.CHANNEL_ID, channelList.get((String) channelNames.getSelectedItem()));
         properties.put(ChannelWriterProperties.CHANNEL_NAME, (String) channelNames.getSelectedItem());
         
+        properties.put(ChannelWriterProperties.SEND_TO_CHANNEL_ID, channelList.get((String) replyChannelNames.getSelectedItem()));
+        properties.put(ChannelWriterProperties.SEND_TO_CHANNEL_NAME, (String) replyChannelNames.getSelectedItem());
+        
+        properties.put(ChannelWriterProperties.CHANNEL_TEMPLATE, template.getText());
+        
         if(channelResponseYes.isSelected())
             properties.put(ChannelWriterProperties.CHANNEL_SYNCHRONOUS, UIConstants.YES_OPTION);
         else
@@ -78,16 +83,19 @@ public class ChannelWriter extends ConnectorClass
             channelNameArray.add(channel.getName());
         }
         channelNames.setModel(new javax.swing.DefaultComboBoxModel(channelNameArray.toArray()));
-
+        replyChannelNames.setModel(new javax.swing.DefaultComboBoxModel(channelNameArray.toArray()));
+        
         boolean visible = parent.channelEditTasks.getContentPane().getComponent(0).isVisible();
 
-        if (props.get(ChannelWriterProperties.CHANNEL_NAME) != null)
-            channelNames.setSelectedItem((String) props.get(ChannelWriterProperties.CHANNEL_NAME));
+        channelNames.setSelectedItem((String) props.get(ChannelWriterProperties.CHANNEL_NAME));
+        replyChannelNames.setSelectedItem((String) props.get(ChannelWriterProperties.SEND_TO_CHANNEL_NAME));
 
         if(props.get(ChannelWriterProperties.CHANNEL_SYNCHRONOUS).equals(UIConstants.YES_OPTION))
             channelResponseYes.setSelected(true);
         else
             channelResponseYes.setSelected(false);
+        
+        template.setText((String)props.get(ChannelWriterProperties.CHANNEL_TEMPLATE));
         
         parent.channelEditTasks.getContentPane().getComponent(0).setVisible(visible);
     }
@@ -124,6 +132,10 @@ public class ChannelWriter extends ConnectorClass
         jLabel1 = new javax.swing.JLabel();
         channelResponseYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         channelResponseNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        URL1 = new javax.swing.JLabel();
+        replyChannelNames = new com.webreach.mirth.client.ui.components.MirthComboBox();
+        jLabel7 = new javax.swing.JLabel();
+        template = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -145,6 +157,14 @@ public class ChannelWriter extends ConnectorClass
         channelResponseNo.setText("No");
         channelResponseNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
+        URL1.setText("Send Response to:");
+
+        replyChannelNames.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+
+        jLabel7.setText("Template:");
+
+        template.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -153,15 +173,19 @@ public class ChannelWriter extends ConnectorClass
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
                     .add(jLabel1)
-                    .add(URL))
+                    .add(URL)
+                    .add(URL1)
+                    .add(jLabel7))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(replyChannelNames, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 150, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(channelNames, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 150, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(layout.createSequentialGroup()
                         .add(channelResponseYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(channelResponseNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .add(channelResponseNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(template, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 208, Short.MAX_VALUE))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -173,17 +197,30 @@ public class ChannelWriter extends ConnectorClass
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel1)
                     .add(channelResponseYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(channelResponseNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                    .add(channelResponseNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(replyChannelNames, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(URL1))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(template, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 66, Short.MAX_VALUE)
+                    .add(jLabel7))
+                .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel URL;
+    private javax.swing.JLabel URL1;
     private javax.swing.ButtonGroup buttonGroup1;
     private com.webreach.mirth.client.ui.components.MirthComboBox channelNames;
     private com.webreach.mirth.client.ui.components.MirthRadioButton channelResponseNo;
     private com.webreach.mirth.client.ui.components.MirthRadioButton channelResponseYes;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel7;
+    private com.webreach.mirth.client.ui.components.MirthComboBox replyChannelNames;
+    private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea template;
     // End of variables declaration//GEN-END:variables
 
 }
