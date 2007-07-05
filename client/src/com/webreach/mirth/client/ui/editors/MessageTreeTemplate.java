@@ -33,46 +33,46 @@ import com.webreach.mirth.model.MessageObject;
 import org.syntax.jedit.tokenmarker.XMLTokenMarker;
 
 /**
- * 
+ *
  * @author brendanh
  */
 public class MessageTreeTemplate extends javax.swing.JPanel
 {
     public final String DEFAULT_TEXT = "Paste a sample message here.";
-
+    
     private SyntaxDocument HL7Doc;
-
+    
     private TreePanel treePanel;
-
+    
     private String currentMessage = "";
-
+    
     private String data;
-
+    
     private Properties dataProperties;
     
     private Timer timer;
-
+    
     /** Creates new form MessageTreeTemplate */
     public MessageTreeTemplate()
     {
-
+        
     }
-
+    
     public MessageTreeTemplate(String data)
     {
         this.data = data;
-
+        
         initComponents();
-
+        
         try
         {
             resizePanes();
         }
         catch (Exception e)
         {
-
+            
         }
-
+        
         if (data.equals(UIConstants.INCOMING_DATA))
         {
             dataType.setEnabled(false);
@@ -83,15 +83,15 @@ public class MessageTreeTemplate extends javax.swing.JPanel
             dataType.setEnabled(true);
             setTreePanel("tmp", "");
         }
-
+        
         dataType.setModel(new javax.swing.DefaultComboBoxModel(PlatformUI.MIRTH_FRAME.protocols.values().toArray()));
-
+        
         HL7Doc = new SyntaxDocument();
         HL7Doc.setTokenMarker(new HL7TokenMarker());
         pasteBox.setDocument(HL7Doc);
-      //  pasteBox.setPreferredSize(new Dimension(100,100));
-      //  pasteBox.setFont(EditorConstants.DEFAULT_FONT);
-
+        //  pasteBox.setPreferredSize(new Dimension(100,100));
+        //  pasteBox.setFont(EditorConstants.DEFAULT_FONT);
+        
         // handles updating the tree
         pasteBox.getDocument().addDocumentListener(new DocumentListener()
         {
@@ -99,54 +99,59 @@ public class MessageTreeTemplate extends javax.swing.JPanel
             {
                 updateText();
             }
-
+            
             public void insertUpdate(DocumentEvent e)
             {
                 updateText();
             }
-
+            
             public void removeUpdate(DocumentEvent e)
             {
                 updateText();
             }
         });
     }
-
+    
     private void updateText()
     {
-    	class UpdateTimer extends TimerTask{
-		
-		@Override
-		public void run() {
-	
-        	PlatformUI.MIRTH_FRAME.setWorking("Parsing...", true);
-
-        	 String message = pasteBox.getText();
-             treePanel.setMessage(dataProperties, (String) dataType.getSelectedItem(), message, DEFAULT_TEXT, dataProperties);
-             PlatformUI.MIRTH_FRAME.setWorking("", false);
-			
-		}
-		
-	}
-	if (timer == null){
-		timer = new Timer();
-		timer.schedule(new UpdateTimer(), 1000);
-	}else{
-		timer.cancel();
-		timer = new Timer();
-		timer.schedule(new UpdateTimer(), 1000);
-	}
-	
+        class UpdateTimer extends TimerTask
+        {
+            
+            @Override
+            public void run()
+            {
+                
+                PlatformUI.MIRTH_FRAME.setWorking("Parsing...", true);
+                
+                String message = pasteBox.getText();
+                treePanel.setMessage(dataProperties, (String) dataType.getSelectedItem(), message, DEFAULT_TEXT, dataProperties);
+                PlatformUI.MIRTH_FRAME.setWorking("", false);
+            }
+            
+        }
+        if (timer == null)
+        {
+            timer = new Timer();
+            timer.schedule(new UpdateTimer(), 1000);
+        }
+        else
+        {
+            timer.cancel();
+            PlatformUI.MIRTH_FRAME.setWorking("", false);
+            timer = new Timer();
+            timer.schedule(new UpdateTimer(), 1000);
+        }
+        
         //treePanel.revalidate();
         //treePanel.repaint();
     }
-
+    
     public void setTreePanel(String prefix, String suffix)
     {
         treePanel = new TreePanel(prefix, suffix);
         treeScrollPane.setViewportView(treePanel);
     }
-
+    
     public String getMessage()
     {
         if (pasteBox.getText().equals(DEFAULT_TEXT))
@@ -154,61 +159,61 @@ public class MessageTreeTemplate extends javax.swing.JPanel
         else
             return pasteBox.getText().replace('\n', '\r');
     }
-
+    
     public void setMessage(String msg)
     {
-
-    	
-    	
-
-    	if (msg != null)
+        if (msg != null)
             msg = msg.replace('\r', '\n');
         pasteBox.setText(msg);
         pasteBoxFocusLost(null);
         updateText();
-
-        
-        
     }
-
+    
     public void clearMessage()
     {
         treePanel.clearMessage();
         pasteBoxFocusLost(null);
         updateText();
     }
-
+    
     public void setProtocol(String protocol)
     {
         dataType.setSelectedItem(protocol);
         
         setDocType(protocol);
     }
-
-	private void setDocType(String protocol) {
-		if (protocol.equals("HL7 v2.x")){
+    
+    private void setDocType(String protocol)
+    {
+        if (protocol.equals("HL7 v2.x"))
+        {
             HL7Doc.setTokenMarker(new HL7TokenMarker());
-        } else if (protocol.equals("EDI")){
-        	HL7Doc.setTokenMarker(new EDITokenMarker());
-        } else if (protocol.equals("X12")){
-        	HL7Doc.setTokenMarker(new X12TokenMarker());
         }
-        else if (protocol.equals("HL7 v3.0") || protocol.equals("XML")){
+        else if (protocol.equals("EDI"))
+        {
+            HL7Doc.setTokenMarker(new EDITokenMarker());
+        }
+        else if (protocol.equals("X12"))
+        {
+            HL7Doc.setTokenMarker(new X12TokenMarker());
+        }
+        else if (protocol.equals("HL7 v3.0") || protocol.equals("XML"))
+        {
             HL7Doc.setTokenMarker(new XMLTokenMarker());
         }
         pasteBox.setDocument(HL7Doc);
-	}
-
+    }
+    
     public String getProtocol()
     {
         return (String) dataType.getSelectedItem();
     }
-
+    
     public Properties getDataProperties()
     {
         return dataProperties;
     }
-
+    
     public void setDataProperties(Properties p)
     {
         if (p != null)
@@ -216,12 +221,12 @@ public class MessageTreeTemplate extends javax.swing.JPanel
         else
             dataProperties = new Properties();
     }
-
+    
     public void resizePanes()
     {
         split.setDividerLocation((int) (PlatformUI.MIRTH_FRAME.currentContentPage.getHeight() / 2 - PlatformUI.MIRTH_FRAME.currentContentPage.getHeight() / 10));
     }
-
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -324,9 +329,9 @@ public class MessageTreeTemplate extends javax.swing.JPanel
     private void dataTypeActionPerformed(java.awt.event.ActionEvent evt)
     {// GEN-HEADEREND:event_dataTypeActionPerformed
         PlatformUI.MIRTH_FRAME.enableSave();
-        if (((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.X12)) || 
-                ((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.EDI)) || 
-                ((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.HL7V2)) || 
+        if (((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.X12)) ||
+                ((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.EDI)) ||
+                ((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.HL7V2)) ||
                 ((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.NCPDP)))
             properties.setEnabled(true);
         else
@@ -354,7 +359,7 @@ public class MessageTreeTemplate extends javax.swing.JPanel
             pasteBox.setText("");
         }
     }// GEN-LAST:event_pasteBoxFocusGained
-
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JComboBox dataType;
     private javax.swing.JLabel jLabel1;
@@ -363,5 +368,5 @@ public class MessageTreeTemplate extends javax.swing.JPanel
     private javax.swing.JSplitPane split;
     private javax.swing.JScrollPane treeScrollPane;
     // End of variables declaration//GEN-END:variables
-
+    
 }
