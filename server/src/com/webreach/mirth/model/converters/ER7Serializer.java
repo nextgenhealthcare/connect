@@ -54,7 +54,7 @@ public class ER7Serializer implements IXMLSerializer<String> {
 	private boolean useStrictParser = false;
 	private boolean useStrictValidation = false;
 	private boolean handleRepetitions = false;
-	private boolean encodeEntities = false;
+	private boolean encodeEntities = true;
 	public ER7Serializer(Map er7Properties) {
 		if (er7Properties != null && er7Properties.get("useStrictParser") != null) {
 			this.useStrictParser = Boolean.parseBoolean((String) er7Properties.get("useStrictParser"));
