@@ -71,6 +71,9 @@ public class ReferenceListFactory
         variablelistItems.add(new ReferenceListItem("Convert EDI to XML", "Converts an encoded EDI string to XML", "SerializerFactory.getEDISerializer(segmentDelim, elementDelim, subelementDelim).toXML(message);\ndefault xml namespace = new Namespace('urn:mirthproject-org:edi:xml');\n", CodeSnippetType.FUNCTION));
         variablelistItems.add(new ReferenceListItem("Convert XML to EDI", "Converts an XML string to EDI", "SerializerFactory.getEDISerializer(segmentDelim, elementDelim, subelementDelim).fromXML(message);", CodeSnippetType.FUNCTION));
 
+        variablelistItems.add(new ReferenceListItem("Convert NCPDP to XML", "Converts an encoded NCPDP string to XML", "SerializerFactory.getNCPDPSerializer(segmentDelim, groupDelim, elementDelim).toXML(message);\ndefault xml namespace = new Namespace('urn:mirthproject-org:ncpdp:xml');\n", CodeSnippetType.FUNCTION));
+        variablelistItems.add(new ReferenceListItem("Convert XML to NCPDP", "Converts an XML string to NCPDP", "SerializerFactory.getNCPDPSerializer(segmentDelim, groupDelim, elementDelim).fromXML(message);", CodeSnippetType.FUNCTION));
+
         return variablelistItems;
     }
 
