@@ -44,7 +44,11 @@ public class VariableList extends javax.swing.JPanel
     {
         initComponents();
     }
-
+    
+    public void setPrefixAndSuffix(String prefix, String suffix){
+        mirthVariableList.setPrefixAndSuffix(prefix, suffix);
+    }
+    
     /**
      * Set the variable list from a list of steps.
      */

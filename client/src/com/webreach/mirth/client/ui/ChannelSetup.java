@@ -25,6 +25,7 @@
 
 package com.webreach.mirth.client.ui;
 
+import com.webreach.mirth.connectors.jdbc.DatabaseWriterProperties;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.KeyEvent;
@@ -508,6 +509,7 @@ public class ChannelSetup extends javax.swing.JPanel
                     boolean visible = parent.channelEditTasks.getContentPane().getComponent(0).isVisible();
                     destinationSourceDropdown.setSelectedItem(destinationConnectors.get(i).getTransportName());
                     parent.channelEditTasks.getContentPane().getComponent(0).setVisible(visible);
+                    
                     return true;
                 }
             }
@@ -1609,6 +1611,26 @@ public class ChannelSetup extends javax.swing.JPanel
             destinationConnectorClass.setProperties(destinationConnectorClass.getDefaults());
             destinationConnector.setProperties(destinationConnectorClass.getProperties());
         }
+        
+        // set db writer to have different suffix and prefix for drag and drop for js
+        try
+        {
+            if(destinationConnectorClass.getName().equals(DatabaseWriterProperties.name))
+            {
+                if(destinationConnectorClass.getProperties().getProperty(DatabaseWriterProperties.DATABASE_USE_JS).equalsIgnoreCase(UIConstants.YES_OPTION))
+                {
+                    destinationVariableList.setPrefixAndSuffix("$(", ")");
+                }
+            }
+            else
+            {
+                destinationVariableList.setPrefixAndSuffix("${", "}");
+            }
+        }
+        catch(Exception e)
+        {
+            destinationVariableList.setPrefixAndSuffix("${", "}");
+        }
 
         // Set the transport name of the destination connector and set it in the
         // list.
@@ -1780,7 +1802,7 @@ public class ChannelSetup extends javax.swing.JPanel
     private javax.swing.JLabel destinationSourceLabel;
     private com.webreach.mirth.client.ui.components.MirthTable destinationTable;
     private javax.swing.JScrollPane destinationTablePane;
-    private com.webreach.mirth.client.ui.VariableList destinationVariableList;
+    public com.webreach.mirth.client.ui.VariableList destinationVariableList;
     private com.webreach.mirth.client.ui.components.MirthCheckBox encryptMessagesCheckBox;
     private javax.swing.ButtonGroup filterButtonGroup;
     private com.webreach.mirth.client.ui.components.MirthComboBox incomingProtocol;

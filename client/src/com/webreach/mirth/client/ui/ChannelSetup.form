@@ -667,6 +667,9 @@
               </Properties>
             </Component>
             <Component class="com.webreach.mirth.client.ui.VariableList" name="destinationVariableList">
+              <AuxValues>
+                <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>
+              </AuxValues>
             </Component>
             <Container class="javax.swing.JScrollPane" name="destinationConnectorPane">
               <Properties>

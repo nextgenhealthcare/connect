@@ -58,7 +58,7 @@
                                       <Component id="readOnUpdateYes" min="-2" max="-2" attributes="0"/>
                                       <EmptySpace max="-2" attributes="0"/>
                                       <Component id="readOnUpdateNo" min="-2" max="-2" attributes="0"/>
-                                      <EmptySpace pref="78" max="32767" attributes="0"/>
+                                      <EmptySpace pref="82" max="32767" attributes="0"/>
                                       <Component id="insertUpdateConnections" min="-2" max="-2" attributes="0"/>
                                   </Group>
                                   <Component id="databaseUpdateSQLTextPane" alignment="1" pref="273" max="32767" attributes="0"/>
@@ -79,7 +79,7 @@
                           </Group>
                           <Component id="pollingFreq" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace pref="176" max="32767" attributes="0"/>
+                      <EmptySpace pref="180" max="32767" attributes="0"/>
                       <Component id="generateConnection" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
@@ -351,7 +351,7 @@
     </Component>
     <Component class="javax.swing.JButton" name="generateConnection">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Insert Connections"/>
+        <Property name="text" type="java.lang.String" value="Insert Connection"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="generateConnectionActionPerformed"/>
@@ -359,7 +359,7 @@
     </Component>
     <Component class="javax.swing.JButton" name="insertUpdateConnections">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Insert Connections"/>
+        <Property name="text" type="java.lang.String" value="Insert Connection"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="insertUpdateConnectionsActionPerformed"/>

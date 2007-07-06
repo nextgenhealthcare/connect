@@ -304,6 +304,7 @@ public class DatabaseWriter extends ConnectorClass
         databaseSQLTextPane.setDocument(jsMappingDoc);
         databaseSQLTextPane.setText(generateConnectionString());
         generateConnection.setEnabled(true);
+        parent.channelEditPanel.destinationVariableList.setPrefixAndSuffix("$(", ")");
     }// GEN-LAST:event_useJavaScriptYesActionPerformed
 
     private void useJavaScriptNoActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_useJavaScriptNoActionPerformed
@@ -312,6 +313,7 @@ public class DatabaseWriter extends ConnectorClass
         databaseSQLTextPane.setDocument(sqlMappingDoc);
         databaseSQLTextPane.setText("INSERT INTO");
         generateConnection.setEnabled(false);
+        parent.channelEditPanel.destinationVariableList.setPrefixAndSuffix("${", "}");
     }// GEN-LAST:event_useJavaScriptNoActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

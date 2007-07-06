@@ -93,7 +93,7 @@ public class ChannelWriter extends ConnectorClass
         if(props.get(ChannelWriterProperties.CHANNEL_SYNCHRONOUS).equals(UIConstants.YES_OPTION))
             channelResponseYes.setSelected(true);
         else
-            channelResponseYes.setSelected(false);
+            channelResponseNo.setSelected(true);
         
         template.setText((String)props.get(ChannelWriterProperties.CHANNEL_TEMPLATE));
         
