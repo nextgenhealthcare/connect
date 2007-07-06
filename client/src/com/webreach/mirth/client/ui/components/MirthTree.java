@@ -58,16 +58,16 @@ public class MirthTree extends JXTree
             this.filter.setFiltered(!pass);
         }
         
-        public boolean performFilter(TreeNode tn, String text, boolean ignoreChildren)
+        public boolean performFilter(TreeNode tn, String text, boolean exact, boolean ignoreChildren)
         {
             int realCount = super.getChildCount(tn);
             
-            boolean passed = filter.pass(tn, text) || ignoreChildren;
+            boolean passed = filter.pass(tn, text, exact) || ignoreChildren;
             boolean originalPassed = passed;
             
             for (int i = 0; i < realCount; i++)
             {
-                boolean childPassed = performFilter(tn.getChildAt(i), text, originalPassed);
+                boolean childPassed = performFilter(tn.getChildAt(i), text, exact, originalPassed);
                 passed = passed || childPassed;
             }
             
@@ -118,7 +118,7 @@ public class MirthTree extends JXTree
     
     interface Filter
     {
-        public boolean pass(Object obj, String text);
+        public boolean pass(Object obj, String text, boolean exact);
         
         public void setFiltered(boolean pass);
         
@@ -129,13 +129,16 @@ public class MirthTree extends JXTree
     {
         boolean pass = true;
         
-        public boolean pass(Object obj, String text)
+        public boolean pass(Object obj, String text, boolean exact)
         {
             if (pass)
                 return true;
             
             String s = obj.toString();
-            return s.toLowerCase().indexOf(text.toLowerCase()) != -1;
+            if(exact)
+                return s.equals(text);
+            else
+                return s.toLowerCase().indexOf(text.toLowerCase()) != -1;                
         }
         
         public void setFiltered(boolean pass)
