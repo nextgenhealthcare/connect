@@ -95,6 +95,7 @@
                 <EmptyBorder bottom="0" left="0" right="0" top="0"/>
               </Border>
             </Property>
+            <Property name="verticalScrollBarPolicy" type="int" value="21"/>
           </Properties>
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JSplitPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JSplitPaneSupportLayout$JSplitPaneConstraintsDescription">

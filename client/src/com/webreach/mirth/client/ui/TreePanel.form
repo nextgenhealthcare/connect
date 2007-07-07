@@ -20,11 +20,11 @@
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="treePane" alignment="0" pref="223" max="32767" attributes="0"/>
+                  <Component id="treePane" alignment="0" pref="126" max="32767" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="filterTextBox" pref="140" max="32767" attributes="0"/>
+                      <Component id="filterTextBox" pref="43" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="exact" min="-2" max="-2" attributes="0"/>
                   </Group>
@@ -43,7 +43,7 @@
                   <Component id="filterTextBox" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="treePane" pref="121" max="32767" attributes="0"/>
+              <Component id="treePane" pref="23" max="32767" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>

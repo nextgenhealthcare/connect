@@ -272,6 +272,7 @@ public class MessageTreeTemplate extends javax.swing.JPanel
         split.setLeftComponent(pasteBox);
 
         treeScrollPane.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        treeScrollPane.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
         split.setRightComponent(treeScrollPane);
 
         properties.setText("Properties");

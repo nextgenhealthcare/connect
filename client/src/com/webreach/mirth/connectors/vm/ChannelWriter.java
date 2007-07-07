@@ -90,7 +90,7 @@ public class ChannelWriter extends ConnectorClass
         channelNames.setSelectedItem((String) props.get(ChannelWriterProperties.CHANNEL_NAME));
         replyChannelNames.setSelectedItem((String) props.get(ChannelWriterProperties.SEND_TO_CHANNEL_NAME));
 
-        if(props.get(ChannelWriterProperties.CHANNEL_SYNCHRONOUS).equals(UIConstants.YES_OPTION))
+        if(((String) props.get(ChannelWriterProperties.CHANNEL_SYNCHRONOUS)).equals(UIConstants.YES_OPTION))
             channelResponseYes.setSelected(true);
         else
             channelResponseNo.setSelected(true);
