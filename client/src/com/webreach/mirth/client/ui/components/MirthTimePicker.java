@@ -10,6 +10,8 @@
 package com.webreach.mirth.client.ui.components;
 
 import com.webreach.mirth.client.ui.UIConstants;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -17,6 +19,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import javax.swing.JFormattedTextField;
 import javax.swing.JSpinner;
+import javax.swing.JSpinner.DefaultEditor;
 import javax.swing.SpinnerDateModel;
 import javax.swing.text.DateFormatter;
 import javax.swing.text.DefaultFormatterFactory;
@@ -24,15 +27,18 @@ import javax.swing.text.DefaultFormatterFactory;
 public class MirthTimePicker extends JSpinner
 {
     DateFormatter formatter;
+    final JSpinner spinner;
     
     public MirthTimePicker()
     {
         init("hh:mm aa", Calendar.MINUTE);
+        spinner = this;
     }
     
     public MirthTimePicker(String format, int accuracy)
     {
         init(format, accuracy);
+        spinner = this;
     }
     
     public void init(String format, int accuracy)
@@ -63,15 +69,6 @@ public class MirthTimePicker extends JSpinner
     
     public String getDate()
     {
-        Date date = (Date) this.getValue();
-        String formattedDate = "";
-        try
-        {
-            formattedDate = formatter.valueToString(date);
-        }
-        catch(ParseException pe)
-        {
-        }
-        return formattedDate;
+        return ((JSpinner.DefaultEditor)spinner.getEditor()).getTextField().getText();
     }
 }

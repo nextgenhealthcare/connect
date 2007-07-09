@@ -76,7 +76,7 @@ public class MessagePrunerPanel extends javax.swing.JPanel
     public Properties getProperties()
     {
         Properties properties = new Properties();
-        
+
         if(hourButton.isSelected())
         {
             properties.put("interval", "hourly");

@@ -86,7 +86,7 @@ public class MessagePrunerClient extends ClientPlugin
         }
         catch (ClientException e)
         {
-            alertException(e.getStackTrace(), "Could not get " + getName() + " properties.");
+            //alertException(e.getStackTrace(), "Could not get " + getName() + " properties.");
         }
     }
     
@@ -98,7 +98,7 @@ public class MessagePrunerClient extends ClientPlugin
         }
         catch (ClientException e)
         {
-            alertException(e.getStackTrace(), "Could not set " + getName() + " properties.");
+           //alertException(e.getStackTrace(), "Could not set " + getName() + " properties.");
         }
     }
     
