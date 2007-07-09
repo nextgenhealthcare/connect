@@ -9,6 +9,8 @@ public interface ServerPlugin
     public abstract void start();
 
     public abstract void update(Properties properties);
+    
+    public abstract void onDeploy();
 
     public abstract void stop();
     

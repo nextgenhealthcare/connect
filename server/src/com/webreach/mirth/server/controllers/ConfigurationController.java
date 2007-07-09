@@ -293,7 +293,8 @@ public class ConfigurationController {
 			addConfiguration(builder.getConfiguration());
 			// update the storeMessages reference
 			channelController.updateChannelCache(channels);
-
+			
+            PluginController.getInstance().onDeploy();
 			// restart the mule engine which will grab the latest configuration
 			// from the database
 			CommandQueue queue = CommandQueue.getInstance();
@@ -338,7 +339,7 @@ public class ConfigurationController {
 				String fileSeparator = System.getProperty("file.separator");
 				File muleBootFile = new File(ClassPathResource.getResourceURI(properties.getProperty("mule.boot")));
 				String muleConfigPath = muleBootFile.getParent() + fileSeparator + properties.getProperty("mule.config");
-
+				
 				BufferedWriter out = new BufferedWriter(new FileWriter(new File(muleConfigPath)));
 				out.write(latestConfiguration.getData());
 				out.close();

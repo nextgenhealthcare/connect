@@ -136,6 +136,12 @@ public class MessagePrunerService implements ServerPlugin, Job
             logger.error("could not reschedule the message pruner", e);
         }
     }
+    
+    public void onDeploy()
+    {
+        // TODO Auto-generated method stub
+        
+    }
 
     public void stop()
     {
