@@ -419,7 +419,7 @@ public class TreePanel extends javax.swing.JPanel
     
     public void setInvalidMessage(String messageType)
     {
-        MirthTreeNode top = new MirthTreeNode("The message pasted above does not appear to be valid " + messageType + ".");
+        MirthTreeNode top = new MirthTreeNode("The above message is not valid " + messageType + ".");
         MirthTree tree = new MirthTree(top);
         treePane.setViewportView(tree);
         revalidate();
@@ -440,6 +440,7 @@ public class TreePanel extends javax.swing.JPanel
         exact = new javax.swing.JCheckBox();
 
         setBackground(new java.awt.Color(255, 255, 255));
+        setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         jLabel1.setText("Filter:");
 
         treePane.setViewportView(tree);
@@ -453,14 +454,14 @@ public class TreePanel extends javax.swing.JPanel
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(treePane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 126, Short.MAX_VALUE)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(treePane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 113, Short.MAX_VALUE)
                     .add(layout.createSequentialGroup()
                         .add(jLabel1)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(filterTextBox, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 43, Short.MAX_VALUE)
+                        .add(filterTextBox, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 30, Short.MAX_VALUE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(exact)))
                 .addContainerGap())

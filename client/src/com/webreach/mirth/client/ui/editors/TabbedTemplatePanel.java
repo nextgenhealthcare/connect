@@ -38,16 +38,12 @@ public class TabbedTemplatePanel extends javax.swing.JPanel
 
     private MirthEditorPane parent;
 
-    private LinkedHashMap<String, JPanel> panels;
-
     /** Creates new form TabbedTemplatePanel */
     public TabbedTemplatePanel(MirthEditorPane p)
     {
         parent = p;
         initComponents();
         resizePanes();
-
-        panels = new LinkedHashMap<String, JPanel>();
 
         // ArrayList<ReferenceListItem> functionListItems = new
         // ReferenceListBuilder().getVariableListItems();
@@ -134,26 +130,6 @@ public class TabbedTemplatePanel extends javax.swing.JPanel
         tabPanel.setSelectedIndex(0);
     }
 
-    public void addPanel(JPanel panel, String name)
-    {
-        panels.put(name, panel);
-
-        String[] items = new String[panels.keySet().size()];
-        int i = 0;
-        for (String s : panels.keySet())
-        {
-            items[i] = s;
-            i++;
-        }
-
-        variableReferenceDropDown.setModel(new DefaultComboBoxModel(items));
-    }
-
-    public void setReferencePanel()
-    {
-        variableReferenceDropDownActionPerformed(null);
-    }
-
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -166,74 +142,36 @@ public class TabbedTemplatePanel extends javax.swing.JPanel
         tabPanel = new javax.swing.JTabbedPane();
         variableTab = new javax.swing.JPanel();
         variableSplitPane = new javax.swing.JSplitPane();
+        functionList = new com.webreach.mirth.client.ui.FunctionList();
         variableListScrollPane = new javax.swing.JScrollPane();
         variableTable = new com.webreach.mirth.client.ui.panels.reference.VariableReferenceTable();
-        variableReferencePane = new javax.swing.JPanel();
-        variableScrollPane = new javax.swing.JScrollPane();
-        jLabel1 = new javax.swing.JLabel();
-        variableReferenceDropDown = new javax.swing.JComboBox();
         incomingTab = new javax.swing.JPanel();
         incoming = new MessageTreeTemplate(UIConstants.INCOMING_DATA);
         outgoingTab = new javax.swing.JPanel();
         outgoing = new MessageTreeTemplate(UIConstants.OUTGOING_DATA);
 
         variableTab.setBackground(new java.awt.Color(255, 255, 255));
+        variableSplitPane.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         variableSplitPane.setDividerLocation(84);
         variableSplitPane.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
-        variableListScrollPane.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        functionList.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        variableSplitPane.setLeftComponent(functionList);
+
         variableListScrollPane.setViewportView(variableTable);
 
         variableSplitPane.setRightComponent(variableListScrollPane);
-
-        variableReferencePane.setBackground(new java.awt.Color(255, 255, 255));
-        variableScrollPane.setBackground(new java.awt.Color(255, 255, 255));
-        variableScrollPane.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        variableScrollPane.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        variableScrollPane.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
-
-        org.jdesktop.layout.GroupLayout variableReferencePaneLayout = new org.jdesktop.layout.GroupLayout(variableReferencePane);
-        variableReferencePane.setLayout(variableReferencePaneLayout);
-        variableReferencePaneLayout.setHorizontalGroup(
-            variableReferencePaneLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(variableScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 238, Short.MAX_VALUE)
-        );
-        variableReferencePaneLayout.setVerticalGroup(
-            variableReferencePaneLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, variableScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 83, Short.MAX_VALUE)
-        );
-        variableSplitPane.setLeftComponent(variableReferencePane);
-
-        jLabel1.setText("Filter:");
-
-        variableReferenceDropDown.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
-                variableReferenceDropDownActionPerformed(evt);
-            }
-        });
 
         org.jdesktop.layout.GroupLayout variableTabLayout = new org.jdesktop.layout.GroupLayout(variableTab);
         variableTab.setLayout(variableTabLayout);
         variableTabLayout.setHorizontalGroup(
             variableTabLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(variableTabLayout.createSequentialGroup()
-                .addContainerGap()
-                .add(jLabel1)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(variableReferenceDropDown, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(73, Short.MAX_VALUE))
             .add(org.jdesktop.layout.GroupLayout.TRAILING, variableSplitPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 240, Short.MAX_VALUE)
         );
         variableTabLayout.setVerticalGroup(
             variableTabLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(variableTabLayout.createSequentialGroup()
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, variableTabLayout.createSequentialGroup()
                 .addContainerGap()
-                .add(variableTabLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel1)
-                    .add(variableReferenceDropDown, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 22, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(variableSplitPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 486, Short.MAX_VALUE))
+                .add(variableSplitPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 518, Short.MAX_VALUE))
         );
         tabPanel.addTab("Reference", variableTab);
 
@@ -247,7 +185,7 @@ public class TabbedTemplatePanel extends javax.swing.JPanel
         );
         incomingTabLayout.setVerticalGroup(
             incomingTabLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, incoming, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 525, Short.MAX_VALUE)
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, incoming, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 529, Short.MAX_VALUE)
         );
         tabPanel.addTab("Incoming Data", incomingTab);
 
@@ -261,7 +199,7 @@ public class TabbedTemplatePanel extends javax.swing.JPanel
         );
         outgoingTabLayout.setVerticalGroup(
             outgoingTabLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, outgoing, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 525, Short.MAX_VALUE)
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, outgoing, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 529, Short.MAX_VALUE)
         );
         tabPanel.addTab("Outgoing Data", outgoingTab);
 
@@ -273,28 +211,18 @@ public class TabbedTemplatePanel extends javax.swing.JPanel
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(tabPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 553, Short.MAX_VALUE)
+            .add(tabPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 557, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void variableReferenceDropDownActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_variableReferenceDropDownActionPerformed
-    {// GEN-HEADEREND:event_variableReferenceDropDownActionPerformed
-        // variableViewPanel.removeAll();
-        variableScrollPane.setViewportView((panels.get((String) variableReferenceDropDown.getSelectedItem())));
-        // variableViewPanel.repaint();
-    }// GEN-LAST:event_variableReferenceDropDownActionPerformed
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private com.webreach.mirth.client.ui.FunctionList functionList;
     private com.webreach.mirth.client.ui.editors.MessageTreeTemplate incoming;
     public javax.swing.JPanel incomingTab;
-    private javax.swing.JLabel jLabel1;
     private com.webreach.mirth.client.ui.editors.MessageTreeTemplate outgoing;
     public javax.swing.JPanel outgoingTab;
     public javax.swing.JTabbedPane tabPanel;
     private javax.swing.JScrollPane variableListScrollPane;
-    private javax.swing.JComboBox variableReferenceDropDown;
-    private javax.swing.JPanel variableReferencePane;
-    private javax.swing.JScrollPane variableScrollPane;
     private javax.swing.JSplitPane variableSplitPane;
     private javax.swing.JPanel variableTab;
     private com.webreach.mirth.client.ui.panels.reference.VariableReferenceTable variableTable;

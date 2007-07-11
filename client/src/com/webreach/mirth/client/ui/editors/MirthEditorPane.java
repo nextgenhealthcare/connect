@@ -43,43 +43,28 @@ public class MirthEditorPane extends JPanel
 {
     // transformer constants
     public static final int STEP_NUMBER_COL = 0;
-
     public static final int STEP_NAME_COL = 1;
-
     public static final int STEP_TYPE_COL = 2;
-
     public static final int STEP_DATA_COL = 3;
 
     // filter constants
     public static final int RULE_NUMBER_COL = 0;
-
     public static final int RULE_OP_COL = 1;
-
     public static final int RULE_NAME_COL = 2;
-
     public static final int RULE_SCRIPT_COL = 3;
 
     // a list of panels to load
     public static final String BLANK_TYPE = "";
-
     public static final String MESSAGE_TYPE = "Message Builder";
-
     public static final String MAPPER_TYPE = "Mapper";
-
     public static final String JAVASCRIPT_TYPE = "JavaScript";
 
     public int prevSelRow = -1;
-
     public boolean updating = false;
-
     public boolean modified = false;
-
     public Frame parent = PlatformUI.MIRTH_FRAME;
-
     public JScrollPane referenceScrollPane;
-
     public JPanel refPanel;
-
     public TabbedTemplatePanel tabTemplatePanel;
 
     public MirthEditorPane()
@@ -88,19 +73,6 @@ public class MirthEditorPane extends JPanel
         this.setBorder(BorderFactory.createEmptyBorder());
         ReferenceListFactory builder = new ReferenceListFactory();
         tabTemplatePanel = new TabbedTemplatePanel(this);
-        tabTemplatePanel.addPanel(new ReferenceListPanel("All", builder.getVariableListItems(ListType.ALL)), "All");
-        tabTemplatePanel.addPanel(new ReferenceListPanel("Utility Functions", builder.getVariableListItems(ListType.UTILITY)), "Utility Functions");
-        tabTemplatePanel.addPanel(new ReferenceListPanel("Date Functions", builder.getVariableListItems(ListType.DATE)), "Date Functions");
-
-        tabTemplatePanel.addPanel(new ReferenceListPanel("Conversion Functions", builder.getVariableListItems(ListType.CONVERSION)), "Conversion Functions");
-        tabTemplatePanel.addPanel(new ReferenceListPanel("Logging and Alerts", builder.getVariableListItems(ListType.LOGGING_AND_ALERTS)), "Logging and Alerts");
-        tabTemplatePanel.addPanel(new ReferenceListPanel("Database Functions", builder.getVariableListItems(ListType.DATABASE)), "Database Functions");
-        tabTemplatePanel.addPanel(new ReferenceListPanel("Message Functions", builder.getVariableListItems(ListType.MESSAGE)), "Message Functions");
-        //tabTemplatePanel.addPanel(new ReferenceListPanel("XML Functions", builder.getVariableListItems(ListType.XML)), "XML Functions");
-        //tabTemplatePanel.addPanel(new ReferenceListPanel("HL7 Functions", builder.getVariableListItems(ListType.HL7)), "HL7 Functions");
-        tabTemplatePanel.addPanel(new ReferenceListPanel("Map Functions", builder.getVariableListItems(ListType.MAP)), "Map Functions");
-        
-        tabTemplatePanel.setReferencePanel();
         tabTemplatePanel.setBorder(BorderFactory.createEmptyBorder());
         refPanel = new JPanel();
         refPanel.setBorder(BorderFactory.createEmptyBorder());
