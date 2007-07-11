@@ -51,6 +51,7 @@ import com.webreach.mirth.server.controllers.PluginController;
 import com.webreach.mirth.server.controllers.SystemLogger;
 import com.webreach.mirth.server.controllers.UserController;
 import com.webreach.mirth.server.tools.ClassPathResource;
+import com.webreach.mirth.server.util.GlobalVariableStore;
 import com.webreach.mirth.server.util.StackTracePrinter;
 import com.webreach.mirth.server.util.VMRegistry;
 import com.webreach.mirth.util.PropertyLoader;
@@ -181,6 +182,11 @@ public class Mirth extends Thread {
 			System.setProperty("org.mule.xml.validate", "false");
 			VMRegistry.getInstance().rebuild();
 			MuleXmlConfigurationBuilder builder = new MuleXmlConfigurationBuilder();
+            
+			// clear global map and do channel deploy scripts
+            GlobalVariableStore.getInstance().globalVariableMap.clear();
+            configurationController.executeChannelDeployScripts(channelController.getChannel(null));
+            
 			muleManager = (MuleManager) builder.configure(configurationFilePath);
 		} catch (ConfigurationException e) {
 			logger.warn("Error deploying channels.", e);
@@ -212,6 +218,7 @@ public class Mirth extends Thread {
 		if (muleManager != null) {
 			try {
 				if (muleManager.isStarted()) {
+                    configurationController.executeChannelShutdownScripts(channelController.getChannel(null));
 					muleManager.stop();
 				}
 			} catch (Exception e) {

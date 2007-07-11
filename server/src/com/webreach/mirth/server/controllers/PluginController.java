@@ -136,7 +136,7 @@ public class PluginController
         loadedPlugins.get(name).update(properties);
     }
     
-    public void onDeploy()
+    public void deployTriggered()
     {
         for (ServerPlugin plugin : loadedPlugins.values())
             plugin.onDeploy();

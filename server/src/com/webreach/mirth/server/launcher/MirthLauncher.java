@@ -31,7 +31,7 @@ import java.net.URLClassLoader;
 import com.webreach.mirth.server.Command;
 import com.webreach.mirth.server.CommandQueue;
 
-public class Launcher {
+public class MirthLauncher {
 	public static void main(String[] args) {
 		if (args[0] != null) {
 			try {

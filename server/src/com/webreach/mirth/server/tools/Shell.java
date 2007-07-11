@@ -67,9 +67,14 @@ public class Shell {
 	private Client client;
 	private SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yy_HH-mm-ss.SS");
 	private String currentUser = new String();
-	public static void main(String[] args) {
-		Shell shell = new Shell();
-		shell.run(args);
+	
+    public Shell(String[] args)
+    {
+        run(args);
+    }
+    
+    public static void main(String[] args) {
+		new Shell(args);
 	}
 
 	private void run(String[] args) {

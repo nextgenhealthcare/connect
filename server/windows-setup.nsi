@@ -85,12 +85,14 @@ Section -Main SEC0000
     File setup\derby-database.sql
     File setup\InstallMirth-NT.bat
     File setup\keystore
-    File setup\launcher.xml
+    File setup\mirth-launcher.xml
+	File setup\shell-launcher.xml
     File setup\Mirth.bat
     File setup\Mirth.ico
     File setup\mirth.sh
     File setup\mirth-client.jnlp
     File setup\mirth-daemon
+	File setup\shell-launcher.jar
     File setup\mirth-launcher.jar
     File setup\mirth-server.jar
     File setup\postgres-database.sql
@@ -213,11 +215,13 @@ Section /o un.Main UNSEC0000
 	Delete /REBOOTOK $INSTDIR\sqlserver-database.sql
     Delete /REBOOTOK $INSTDIR\mirth-server.jar
     Delete /REBOOTOK $INSTDIR\mirth-launcher.jar
+	Delete /REBOOTOK $INSTDIR\shell-launcher.jar
     Delete /REBOOTOK $INSTDIR\mirth-daemon
     Delete /REBOOTOK $INSTDIR\mirth-client.jnlp
     Delete /REBOOTOK $INSTDIR\mirth.sh
     Delete /REBOOTOK $INSTDIR\Mirth.bat
-    Delete /REBOOTOK $INSTDIR\launcher.xml
+    Delete /REBOOTOK $INSTDIR\shell-launcher.xml
+	Delete /REBOOTOK $INSTDIR\mirth-launcher.xml
     Delete /REBOOTOK $INSTDIR\keystore
     Delete /REBOOTOK $INSTDIR\InstallMirth-NT.bat
     Delete /REBOOTOK $INSTDIR\derby-database.sql

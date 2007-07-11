@@ -133,6 +133,20 @@ public class ImportConverter
             Node channelProtocol = channelRoot.getElementsByTagName("protocol").item(0);
             channelRoot.removeChild(channelProtocol);
         }
+        
+        if (channelRoot.getElementsByTagName("deployScript").getLength() == 0)
+        {
+            Element deployScript = document.createElement("deployScript");
+            deployScript.setTextContent("// This script executes once when the mule engine is started\r\n// You only have access to the globalMap here to persist data\r\nreturn;");
+            channelRoot.appendChild(deployScript);
+        }
+        
+        if (channelRoot.getElementsByTagName("shutdownScript").getLength() == 0)
+        {
+            Element shutdownScript = document.createElement("shutdownScript");
+            shutdownScript.setTextContent("// This script executes once when the mule engine is stopped\r\n// You only have access to the globalMap here to persist data\r\nreturn;");
+            channelRoot.appendChild(shutdownScript);
+        }
 
         NodeList transportNames = channelRoot.getElementsByTagName("transportName");
         for (int i = 0; i < transportNames.getLength(); i++)

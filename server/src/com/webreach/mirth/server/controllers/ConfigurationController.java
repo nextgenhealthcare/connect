@@ -27,7 +27,6 @@ package com.webreach.mirth.server.controllers;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
@@ -37,7 +36,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
@@ -68,9 +66,10 @@ import com.webreach.mirth.server.CommandQueue;
 import com.webreach.mirth.server.builders.MuleConfigurationBuilder;
 import com.webreach.mirth.server.tools.ClassPathResource;
 import com.webreach.mirth.server.util.DatabaseUtil;
-import com.webreach.mirth.server.util.FileUtil;
+import com.webreach.mirth.server.util.GlobalVariableStore;
 import com.webreach.mirth.server.util.JMXConnection;
 import com.webreach.mirth.server.util.JMXConnectionFactory;
+import com.webreach.mirth.server.util.JavaScriptUtil;
 import com.webreach.mirth.server.util.PluginUtil;
 import com.webreach.mirth.server.util.SqlConfig;
 import com.webreach.mirth.util.Encrypter;
@@ -294,17 +293,37 @@ public class ConfigurationController {
 			// update the storeMessages reference
 			channelController.updateChannelCache(channels);
 			
-            PluginController.getInstance().onDeploy();
+            PluginController.getInstance().deployTriggered();
 			// restart the mule engine which will grab the latest configuration
 			// from the database
+            
 			CommandQueue queue = CommandQueue.getInstance();
 			queue.addCommand(new Command(Command.Operation.RESTART));
+            
 		} catch (Exception e) {
 			throw new ControllerException(e);
 		}
-
+        
 		systemLogger.logSystemEvent(new SystemEvent("Channels deployed."));
 	}
+    
+    public void executeChannelDeployScripts(List<Channel> channels)
+    {
+        for(Channel channel : channels)
+        {
+            String scriptType = "deploy";
+            JavaScriptUtil.getInstance().executeScript(channel.getDeployScript(), channel.getId() + "_" + scriptType, scriptType);
+        }
+    }
+    
+    public void executeChannelShutdownScripts(List<Channel> channels)
+    {
+        for(Channel channel : channels)
+        {
+            String scriptType = "shutdown";
+            JavaScriptUtil.getInstance().executeScript(channel.getShutdownScript(), channel.getId() + "_" + scriptType, scriptType);
+        }
+    }
 
 	private void stopAllChannels() throws ControllerException {
 		ChannelStatusController channelStatusController = new ChannelStatusController();

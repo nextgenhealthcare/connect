@@ -51,6 +51,8 @@ public class Channel implements Serializable {
 	private List<Connector> destinationConnectors = new ArrayList<Connector>();
 	private Properties properties = new Properties();
 	private String preprocessingScript;
+    private String deployScript;
+    private String shutdownScript;
 
 	public Channel() {
 
@@ -127,15 +129,31 @@ public class Channel implements Serializable {
 	public void setProperties(Properties properties) {
 		this.properties = properties;
 	}
-	
-	public String getPreprocessingScript() {
-		return this.preprocessingScript;
-	}
+    
+    public String getPreprocessingScript() {
+        return this.preprocessingScript;
+    }
 
-	public void setPreprocessingScript(String preprocessingScript) {
-		this.preprocessingScript = preprocessingScript;
-	}
+    public void setPreprocessingScript(String preprocessingScript) {
+        this.preprocessingScript = preprocessingScript;
+    }
 	
+    public String getDeployScript() {
+        return this.deployScript;
+    }
+
+    public void setDeployScript(String deployScript) {
+        this.deployScript = deployScript;
+    }
+    
+    public String getShutdownScript() {
+        return this.shutdownScript;
+    }
+
+    public void setShutdownScript(String shutdownScript) {
+        this.shutdownScript = shutdownScript;
+    }
+    
 	public boolean equals(Object that) {
 		if (this == that) {
 			return true;
@@ -157,6 +175,8 @@ public class Channel implements Serializable {
 			EqualsUtil.areEqual(this.getSourceConnector(), channel.getSourceConnector()) &&
 			EqualsUtil.areEqual(this.getDestinationConnectors(), channel.getDestinationConnectors()) &&
 			EqualsUtil.areEqual(this.getProperties(), channel.getProperties()) &&
+            EqualsUtil.areEqual(this.getShutdownScript(), channel.getShutdownScript()) &&
+            EqualsUtil.areEqual(this.getDeployScript(), channel.getDeployScript()) &&
 			EqualsUtil.areEqual(this.getPreprocessingScript(), channel.getPreprocessingScript());
 	}
 
