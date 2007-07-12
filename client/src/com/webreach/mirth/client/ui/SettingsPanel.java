@@ -82,6 +82,7 @@ public class SettingsPanel extends javax.swing.JPanel
     {
         buttonGroup1 = new javax.swing.ButtonGroup();
         buttonGroup2 = new javax.swing.ButtonGroup();
+        buttonGroup3 = new javax.swing.ButtonGroup();
         clientSettings = new javax.swing.JPanel();
         jLabel6 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
@@ -103,6 +104,9 @@ public class SettingsPanel extends javax.swing.JPanel
         requireAuthenticationNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         defaultFrom = new com.webreach.mirth.client.ui.components.MirthTextField();
         jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        clearGlobalMapYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        clearGlobalMapNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -201,26 +205,58 @@ public class SettingsPanel extends javax.swing.JPanel
 
         jLabel1.setText("Default From Address:");
 
+        jLabel2.setText("Clear Global Map on Deploy:");
+
+        clearGlobalMapYes.setBackground(new java.awt.Color(255, 255, 255));
+        clearGlobalMapYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        buttonGroup3.add(clearGlobalMapYes);
+        clearGlobalMapYes.setSelected(true);
+        clearGlobalMapYes.setText("Yes");
+        clearGlobalMapYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        clearGlobalMapYes.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                clearGlobalMapYesActionPerformed(evt);
+            }
+        });
+
+        clearGlobalMapNo.setBackground(new java.awt.Color(255, 255, 255));
+        clearGlobalMapNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        buttonGroup3.add(clearGlobalMapNo);
+        clearGlobalMapNo.setText("No");
+        clearGlobalMapNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        clearGlobalMapNo.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                clearGlobalMapNoActionPerformed(evt);
+            }
+        });
+
         org.jdesktop.layout.GroupLayout serverSettingsLayout = new org.jdesktop.layout.GroupLayout(serverSettings);
         serverSettings.setLayout(serverSettingsLayout);
         serverSettingsLayout.setHorizontalGroup(
             serverSettingsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, serverSettingsLayout.createSequentialGroup()
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .add(serverSettingsLayout.createSequentialGroup()
                 .add(serverSettingsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jLabel9)
                     .add(serverSettingsLayout.createSequentialGroup()
-                        .add(serverSettingsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                            .add(jLabel12)
-                            .add(jLabel11)
-                            .add(jLabel10)
-                            .add(serverSettingsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                .add(passwordLabel)
-                                .add(org.jdesktop.layout.GroupLayout.TRAILING, usernameLabel))
-                            .add(jLabel1))
+                        .addContainerGap()
+                        .add(serverSettingsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel2)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel10)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel11)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel1)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel12)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, usernameLabel)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, passwordLabel))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(serverSettingsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(defaultFrom, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .add(serverSettingsLayout.createSequentialGroup()
+                                .add(clearGlobalMapYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(clearGlobalMapNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .add(defaultFrom, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE)
                             .add(serverSettingsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
                                 .add(smtpPassword, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE)
                                 .add(smtpUsername, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE)
@@ -229,7 +265,10 @@ public class SettingsPanel extends javax.swing.JPanel
                                     .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                                     .add(requireAuthenticationNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                                 .add(smtpPort, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 44, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                .add(smtpHost, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 117, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))))
+                                .add(smtpHost, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 117, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
+                    .add(serverSettingsLayout.createSequentialGroup()
+                        .add(10, 10, 10)
+                        .add(jLabel9)))
                 .addContainerGap())
         );
 
@@ -238,6 +277,12 @@ public class SettingsPanel extends javax.swing.JPanel
         serverSettingsLayout.setVerticalGroup(
             serverSettingsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(serverSettingsLayout.createSequentialGroup()
+                .addContainerGap()
+                .add(serverSettingsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jLabel2)
+                    .add(clearGlobalMapYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(clearGlobalMapNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .add(20, 20, 20)
                 .add(jLabel9)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(serverSettingsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
@@ -274,9 +319,9 @@ public class SettingsPanel extends javax.swing.JPanel
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(clientSettings, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(serverSettings, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(257, Short.MAX_VALUE))
+                    .add(serverSettings, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(clientSettings, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(256, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -285,9 +330,19 @@ public class SettingsPanel extends javax.swing.JPanel
                 .add(clientSettings, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .add(19, 19, 19)
                 .add(serverSettings, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(32, Short.MAX_VALUE))
+                .addContainerGap(75, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void clearGlobalMapNoActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_clearGlobalMapNoActionPerformed
+    {//GEN-HEADEREND:event_clearGlobalMapNoActionPerformed
+// TODO add your handling code here:
+    }//GEN-LAST:event_clearGlobalMapNoActionPerformed
+
+    private void clearGlobalMapYesActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_clearGlobalMapYesActionPerformed
+    {//GEN-HEADEREND:event_clearGlobalMapYesActionPerformed
+// TODO add your handling code here:
+    }//GEN-LAST:event_clearGlobalMapYesActionPerformed
 
     private void requireAuthenticationNoActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_requireAuthenticationNoActionPerformed
     {// GEN-HEADEREND:event_requireAuthenticationNoActionPerformed
@@ -354,6 +409,16 @@ public class SettingsPanel extends javax.swing.JPanel
                 requireAuthenticationNo.setSelected(true);
                 requireAuthenticationNoActionPerformed(null);
             }
+            
+            if(serverProperties.getProperty("clearGlobal") != null)
+            {
+                if(serverProperties.getProperty("clearGlobal").equals(UIConstants.YES_OPTION))
+                    clearGlobalMapYes.setSelected(true);
+                else
+                    clearGlobalMapNo.setSelected(true);
+            }
+            else
+                clearGlobalMapYes.setSelected(true);
 
             if (serverProperties.getProperty("smtp.username") != null)
                 smtpUsername.setText((String) serverProperties.getProperty("smtp.username"));
@@ -385,7 +450,12 @@ public class SettingsPanel extends javax.swing.JPanel
             userPreferences.putInt("intervalTime", Integer.parseInt(intervalTime.getText()));
             parent.settingsTasks.getContentPane().getComponent(1).setVisible(false);
             userPreferences.putBoolean("highlightRows", rowHighlightYes.isSelected());
-
+            
+            if(clearGlobalMapNo.isSelected())
+                serverProperties.put("clearGlobal", UIConstants.NO_OPTION);
+            else
+                serverProperties.put("clearGlobal", UIConstants.YES_OPTION);
+            
             serverProperties.put("smtp.host", smtpHost.getText());
             serverProperties.put("smtp.port", smtpPort.getText());
             serverProperties.put("smtp.from", defaultFrom.getText());
@@ -417,6 +487,9 @@ public class SettingsPanel extends javax.swing.JPanel
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.ButtonGroup buttonGroup2;
+    private javax.swing.ButtonGroup buttonGroup3;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton clearGlobalMapNo;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton clearGlobalMapYes;
     private javax.swing.JPanel clientSettings;
     private com.webreach.mirth.client.ui.components.MirthTextField defaultFrom;
     private com.webreach.mirth.client.ui.components.MirthTextField intervalTime;
@@ -424,6 +497,7 @@ public class SettingsPanel extends javax.swing.JPanel
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel9;

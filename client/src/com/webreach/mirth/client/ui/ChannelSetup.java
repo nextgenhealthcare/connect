@@ -597,12 +597,12 @@ public class ChannelSetup extends javax.swing.JPanel
         if (currentChannel.getDeployScript() != null)
             scripts.setDeploy(currentChannel.getDeployScript());
         else
-            scripts.setDeploy("// This script executes once on each deploy in the context of this channel\r\nreturn;");
+            scripts.setDeploy("// This script executes once when the mule engine is started\r\n// You only have access to the globalMap here to persist data\r\nreturn;");
         
         if (currentChannel.getShutdownScript() != null)
             scripts.setShutdown(currentChannel.getShutdownScript());
         else
-            scripts.setShutdown("// This script executes once when Mirth or the channel is shut down\r\nreturn;");
+            scripts.setShutdown("// This script executes once when the mule engine is stopped\r\n// You only have access to the globalMap here to persist data\r\nreturn;");
         
         PropertyVerifier.checkChannelProperties(currentChannel);
         

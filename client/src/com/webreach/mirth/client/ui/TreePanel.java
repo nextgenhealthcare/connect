@@ -331,8 +331,9 @@ public class TreePanel extends javax.swing.JPanel
             }
             else
             {
-                return;
+                //return;
                 // text = el.getTextContent();
+                text = "[empty]";
             }
             
             if ((text == null) || (text.equals("") || text.trim().length() == 0))
