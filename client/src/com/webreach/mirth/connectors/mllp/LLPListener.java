@@ -76,11 +76,6 @@ public class LLPListener extends ConnectorClass
         properties.put(LLPListenerProperties.LLP_RECEIVE_TIMEOUT, receiveTimeoutField.getText());
         properties.put(LLPListenerProperties.LLP_BUFFER_SIZE, bufferSizeField.getText());
 
-        if (keepConnectionOpenYesRadio.isSelected())
-            properties.put(LLPListenerProperties.LLP_KEEP_CONNECTION_OPEN, UIConstants.YES_OPTION);
-        else
-            properties.put(LLPListenerProperties.LLP_KEEP_CONNECTION_OPEN, UIConstants.NO_OPTION);
-
         properties.put(LLPListenerProperties.LLP_START_OF_MESSAGE_CHARACTER, startOfMessageCharacterField.getText());
         properties.put(LLPListenerProperties.LLP_END_OF_MESSAGE_CHARACTER, endOfMessageCharacterField.getText());
 
@@ -173,11 +168,6 @@ public class LLPListener extends ConnectorClass
         listenerPortField.setText((String) props.get(LLPListenerProperties.LLP_PORT));
         receiveTimeoutField.setText((String) props.get(LLPListenerProperties.LLP_RECEIVE_TIMEOUT));
         bufferSizeField.setText((String) props.get(LLPListenerProperties.LLP_BUFFER_SIZE));
-
-        if (((String) props.get(LLPListenerProperties.LLP_KEEP_CONNECTION_OPEN)).equals(UIConstants.YES_OPTION))
-            keepConnectionOpenYesRadio.setSelected(true);
-        else
-            keepConnectionOpenNoRadio.setSelected(true);
 
         if (((String) props.get(LLPListenerProperties.LLP_CHAR_ENCODING)).equals("ascii"))
             ascii.setSelected(true);
@@ -400,7 +390,6 @@ public class LLPListener extends ConnectorClass
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents()
     {
-        keepConnectionOpenGroup = new javax.swing.ButtonGroup();
         buttonGroup1 = new javax.swing.ButtonGroup();
         buttonGroup2 = new javax.swing.ButtonGroup();
         buttonGroup3 = new javax.swing.ButtonGroup();
@@ -411,7 +400,6 @@ public class LLPListener extends ConnectorClass
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
-        jLabel5 = new javax.swing.JLabel();
         jLabel34 = new javax.swing.JLabel();
         jLabel35 = new javax.swing.JLabel();
         jLabel36 = new javax.swing.JLabel();
@@ -421,8 +409,6 @@ public class LLPListener extends ConnectorClass
         recordSeparatorField = new com.webreach.mirth.client.ui.components.MirthTextField();
         startOfMessageCharacterField = new com.webreach.mirth.client.ui.components.MirthTextField();
         endOfMessageCharacterField = new com.webreach.mirth.client.ui.components.MirthTextField();
-        keepConnectionOpenYesRadio = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        keepConnectionOpenNoRadio = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         listenerIPAddressField3 = new com.webreach.mirth.client.ui.components.MirthTextField();
         jLabel25 = new javax.swing.JLabel();
         listenerIPAddressField2 = new com.webreach.mirth.client.ui.components.MirthTextField();
@@ -487,25 +473,11 @@ public class LLPListener extends ConnectorClass
 
         jLabel4.setText("Buffer Size (bytes):");
 
-        jLabel5.setText("Keep Connection Open:");
-
         jLabel34.setText("Start of Message Char:");
 
         jLabel35.setText("End of Message Char:");
 
         jLabel36.setText("Record Separator Char:");
-
-        keepConnectionOpenYesRadio.setBackground(new java.awt.Color(255, 255, 255));
-        keepConnectionOpenYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        keepConnectionOpenGroup.add(keepConnectionOpenYesRadio);
-        keepConnectionOpenYesRadio.setText("Yes");
-        keepConnectionOpenYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
-
-        keepConnectionOpenNoRadio.setBackground(new java.awt.Color(255, 255, 255));
-        keepConnectionOpenNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        keepConnectionOpenGroup.add(keepConnectionOpenNoRadio);
-        keepConnectionOpenNoRadio.setText("No");
-        keepConnectionOpenNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         jLabel25.setText(".");
 
@@ -695,45 +667,30 @@ public class LLPListener extends ConnectorClass
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .add(10, 10, 10)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(jLabel8)
-                    .add(waitForEndOfMessageCharLabel)
-                    .add(jLabel1)
-                    .add(jLabel2)
-                    .add(jLabel3)
-                    .add(jLabel5)
-                    .add(jLabel4)
-                    .add(jLabel6)
-                    .add(jLabel34)
-                    .add(jLabel36)
-                    .add(jLabel39)
-                    .add(jLabel38)
-                    .add(successACKCodeLabel)
-                    .add(errorACKCodeLabel)
-                    .add(rejectedACKCodeLabel)
-                    .add(mshAckAcceptLabel)
-                    .add(ackOnNewConnectionLabel)
-                    .add(ackIPLabel)
-                    .add(ackPortLabel))
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel4)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel6)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel34)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel36)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel8)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, waitForEndOfMessageCharLabel)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel39)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel38)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, successACKCodeLabel)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, errorACKCodeLabel)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, rejectedACKCodeLabel)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, mshAckAcceptLabel)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, ackOnNewConnectionLabel)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, ackIPLabel)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, ackPortLabel)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel3)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel2)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel1))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(listenerPortField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(receiveTimeoutField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 100, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(bufferSizeField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 100, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(layout.createSequentialGroup()
-                        .add(keepConnectionOpenYesRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(keepConnectionOpenNoRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(layout.createSequentialGroup()
-                        .add(ascii, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(hex, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(layout.createSequentialGroup()
-                        .add(startOfMessageCharacterField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jLabel35)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(endOfMessageCharacterField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                     .add(layout.createSequentialGroup()
                         .add(listenerIPAddressField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 31, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -748,6 +705,16 @@ public class LLPListener extends ConnectorClass
                         .add(jLabel25)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(listenerIPAddressField3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 31, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(layout.createSequentialGroup()
+                        .add(ascii, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(hex, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(layout.createSequentialGroup()
+                        .add(startOfMessageCharacterField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(jLabel35)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(endOfMessageCharacterField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                     .add(charsetEncodingCombobox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(layout.createSequentialGroup()
                         .add(sendACKYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -842,11 +809,6 @@ public class LLPListener extends ConnectorClass
                     .add(bufferSizeField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel5)
-                    .add(keepConnectionOpenYesRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(keepConnectionOpenNoRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(hex, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(ascii, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(jLabel6))
@@ -928,7 +890,8 @@ public class LLPListener extends ConnectorClass
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(ackPortLabel)
-                    .add(ackPortField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                    .add(ackPortField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -1211,13 +1174,9 @@ public class LLPListener extends ConnectorClass
     private javax.swing.JLabel jLabel38;
     private javax.swing.JLabel jLabel39;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
-    private javax.swing.ButtonGroup keepConnectionOpenGroup;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton keepConnectionOpenNoRadio;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton keepConnectionOpenYesRadio;
     private com.webreach.mirth.client.ui.components.MirthTextField listenerIPAddressField;
     private com.webreach.mirth.client.ui.components.MirthTextField listenerIPAddressField1;
     private com.webreach.mirth.client.ui.components.MirthTextField listenerIPAddressField2;
