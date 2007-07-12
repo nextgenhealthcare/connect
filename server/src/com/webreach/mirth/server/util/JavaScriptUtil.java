@@ -84,7 +84,7 @@ public class JavaScriptUtil
         return scope;
     }
 
-    public void executeScript(String script, String scriptId, String scriptType)
+    public void executeScript(String script, String scriptId, String scriptType, String channelId)
     {
         try
         {
@@ -95,8 +95,12 @@ public class JavaScriptUtil
             Script compiledScript = context.compileString(generatedScript, scriptId, 1, null);
 
             Scriptable scope = getScope();
-            scope.put("logger", scope, logger);
-
+            
+            if(channelId != null)
+                JavaScriptScopeUtil.buildScope(scope, channelId, logger);
+            else
+                JavaScriptScopeUtil.buildScope(scope, logger);
+                
             compiledScript.exec(context, scope);
         }
         catch (Exception e)

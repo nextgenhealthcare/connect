@@ -312,7 +312,7 @@ public class ConfigurationController {
         for(Channel channel : channels)
         {
             String scriptType = "deploy";
-            JavaScriptUtil.getInstance().executeScript(channel.getDeployScript(), channel.getId() + "_" + scriptType, scriptType);
+            JavaScriptUtil.getInstance().executeScript(channel.getDeployScript(), channel.getId() + "_" + scriptType, scriptType, channel.getId());
         }
     }
     
@@ -321,7 +321,7 @@ public class ConfigurationController {
         for(Channel channel : channels)
         {
             String scriptType = "shutdown";
-            JavaScriptUtil.getInstance().executeScript(channel.getShutdownScript(), channel.getId() + "_" + scriptType, scriptType);
+            JavaScriptUtil.getInstance().executeScript(channel.getShutdownScript(), channel.getId() + "_" + scriptType, scriptType, channel.getId());
         }
     }
 

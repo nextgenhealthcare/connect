@@ -183,8 +183,10 @@ public class Mirth extends Thread {
 			VMRegistry.getInstance().rebuild();
 			MuleXmlConfigurationBuilder builder = new MuleXmlConfigurationBuilder();
             
-			// clear global map and do channel deploy scripts
-            GlobalVariableStore.getInstance().globalVariableMap.clear();
+			// clear global map and do channel deploy scripts if the user specified to
+            if(configurationController.getServerProperties().getProperty("clearGlobal") == null || configurationController.getServerProperties().getProperty("clearGlobal").equals("1"))
+                GlobalVariableStore.getInstance().globalVariableMap.clear();
+            
             configurationController.executeChannelDeployScripts(channelController.getChannel(null));
             
 			muleManager = (MuleManager) builder.configure(configurationFilePath);

@@ -15,11 +15,15 @@ public class JavaScriptScopeUtil {
 		scope.put("responseMap", scope, messageObject.getResponseMap());
 		scope.put("connector", scope, messageObject.getConnectorName());
 	}
-
+	
+    public static void addGlobalMap(Scriptable scope)
+    {
+        scope.put("globalMap", scope, GlobalVariableStore.getInstance());
+    }
+    
 	// Generic and Channel Builder
 	public static void addChannel(Scriptable scope, String channelId) {
 		scope.put("alerts", scope, new AlertSender(channelId));
-		scope.put("globalMap", scope, GlobalVariableStore.getInstance());
 		scope.put("channelId", scope, channelId);
 	}
 
@@ -35,13 +39,20 @@ public class JavaScriptScopeUtil {
 
 	// Composite scopes
 	public static void buildScope(Scriptable scope, MessageObject messageObject, Object logger) {
-		addChannel(scope, messageObject.getChannelId());
+        addGlobalMap(scope);
+        addChannel(scope, messageObject.getChannelId());
 		addMessageObject(scope, messageObject);
 		addLogger(scope, logger);
 	}
 
 	public static void buildScope(Scriptable scope, String channelId, Object logger) {
-		addChannel(scope, channelId);
+        addGlobalMap(scope);
+        addChannel(scope, channelId);
 		addLogger(scope, logger);
 	}
+    
+    public static void buildScope(Scriptable scope, Object logger) {
+        addGlobalMap(scope);
+        addLogger(scope, logger);
+    }
 }
