@@ -271,16 +271,7 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 
 						// end of stream
 						if (b == null) {
-							if (!connector.isKeepSendSocketOpen()) {
-								break;
-							}
-                            else{
-                                try {
-                                    Thread.sleep(10);
-                                }
-                                catch(InterruptedException e) {
-                                }
-                            }
+							break;
 						} else {
 							if (connector.isWaitForEndOfMessageCharacter()){
 								preprocessData(b);
