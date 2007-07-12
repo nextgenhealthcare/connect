@@ -4,4 +4,5 @@
 	<driver class="oracle.jdbc.OracleDriver" name="Oracle 10g Release 2" />
 	<driver class="org.postgresql.Driver" name="PostgreSQL" />
 	<driver class="net.sourceforge.jtds.jdbc.Driver" name="SQL Server/Sybase" />
+	<driver class="com.microsoft.jdbc.sqlserver.SQLServerDriver" name="Microsoft SQL Server" />
 </drivers>

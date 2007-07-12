@@ -39,6 +39,7 @@ import org.w3c.dom.Element;
 
 import com.webreach.mirth.model.converters.DocumentSerializer;
 import com.webreach.mirth.server.util.StackTracePrinter;
+import java.util.Map;
 
 /**
  * Transforms a database result row map into an XML string.
@@ -48,12 +49,12 @@ import com.webreach.mirth.server.util.StackTracePrinter;
 public class ResultMapToXML extends AbstractTransformer {
 	public ResultMapToXML() {
 		super();
-		registerSourceType(HashMap.class);
+        registerSourceType(Map.class);
 		setReturnClass(String.class);
 	}
 
 	public Object doTransform(Object source) throws TransformerException {
-		HashMap data = (HashMap) source;
+        Map data = (Map) source;
 
 		try {
 			Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
