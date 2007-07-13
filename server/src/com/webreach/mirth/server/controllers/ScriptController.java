@@ -75,7 +75,11 @@ public class ScriptController {
 		logger.debug("retrieving script: id=" + id);
 
 		try {
-			return (String) sqlMap.queryForObject("getScript", id);
+            Object script = sqlMap.queryForObject("getScript", id);
+            if(script != null)
+                return (String) script;
+            else 
+                return null;
 		} catch (SQLException e) {
 			throw new ControllerException(e);
 		}

@@ -520,6 +520,18 @@ public class Client {
         serverConnection.executePostMethod(MESSAGE_SERVLET, params);
     }
     
+    public Map<String, String>  getGlobalScripts() throws ClientException {
+        logger.debug("getting global scripts");
+        NameValuePair[] params = { new NameValuePair("op", "getGlobalScripts") };
+        return (Map<String, String> ) serializer.fromXML(serverConnection.executePostMethod(CONFIGURATION_SERVLET, params));
+    }
+    
+    public void setGlobalScripts(Map<String, String> scripts) throws ClientException {
+        logger.debug("setting global scripts");
+        NameValuePair[] params = { new NameValuePair("op", "setGlobalScripts"), new NameValuePair("scripts", serializer.toXML(scripts)) };
+        serverConnection.executePostMethod(CONFIGURATION_SERVLET, params);
+    }
+    
     /**
      * Sets properties for a given plugin
      * 

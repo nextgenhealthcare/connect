@@ -27,6 +27,7 @@ package com.webreach.mirth.server;
 
 import java.io.File;
 import java.util.Date;
+import java.util.List;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
@@ -40,8 +41,8 @@ import org.mule.MuleManager;
 import org.mule.config.ConfigurationException;
 import org.mule.config.builders.MuleXmlConfigurationBuilder;
 
+import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.SystemEvent;
-import com.webreach.mirth.plugins.messagepruner.MessagePrunerService;
 import com.webreach.mirth.server.controllers.ChannelController;
 import com.webreach.mirth.server.controllers.ChannelStatisticsController;
 import com.webreach.mirth.server.controllers.ConfigurationController;
@@ -187,7 +188,11 @@ public class Mirth extends Thread {
             if(configurationController.getServerProperties().getProperty("clearGlobal") == null || configurationController.getServerProperties().getProperty("clearGlobal").equals("1"))
                 GlobalVariableStore.getInstance().globalVariableMap.clear();
             
-            configurationController.executeChannelDeployScripts(channelController.getChannel(null));
+            List<Channel> channels = channelController.getChannel(null);
+            configurationController.compileScripts(channels);
+            
+            configurationController.executeGlobalDeployScript();
+            configurationController.executeChannelDeployScripts(channels);
             
 			muleManager = (MuleManager) builder.configure(configurationFilePath);
 		} catch (ConfigurationException e) {
@@ -221,7 +226,8 @@ public class Mirth extends Thread {
 			try {
 				if (muleManager.isStarted()) {
                     configurationController.executeChannelShutdownScripts(channelController.getChannel(null));
-					muleManager.stop();
+                    configurationController.executeGlobalShutdownScript();
+                    muleManager.stop();
 				}
 			} catch (Exception e) {
 				logger.error(e);

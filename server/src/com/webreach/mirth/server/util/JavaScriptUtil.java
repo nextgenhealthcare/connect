@@ -35,7 +35,7 @@ import org.mozilla.javascript.ScriptableObject;
 public class JavaScriptUtil
 {
     private Logger logger = Logger.getLogger(this.getClass());
-    
+    private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
     private static ScriptableObject sealedSharedScope;
     
     // singleton pattern
@@ -84,15 +84,13 @@ public class JavaScriptUtil
         return scope;
     }
 
-    public void executeScript(String script, String scriptId, String scriptType, String channelId)
+    public void executeScript(String scriptId, String scriptType, String channelId)
     {
         try
         {
             Context context = getContext();
 
-            logger.debug("generating " + scriptType + " script. id=" + scriptId);
-            String generatedScript = generateDeployScript(script);
-            Script compiledScript = context.compileString(generatedScript, scriptId, 1, null);
+            Script compiledScript = compiledScriptCache.getCompiledScript(scriptId);
 
             Scriptable scope = getScope();
             
@@ -100,7 +98,8 @@ public class JavaScriptUtil
                 JavaScriptScopeUtil.buildScope(scope, channelId, logger);
             else
                 JavaScriptScopeUtil.buildScope(scope, logger);
-                
+            
+            logger.debug("executing " + scriptType + " script. id=" + scriptId);    
             compiledScript.exec(context, scope);
         }
         catch (Exception e)
@@ -111,6 +110,16 @@ public class JavaScriptUtil
         {
             Context.exit();
         }
+    }
+    
+    public void compileScript(String scriptId, String script)
+    {
+        Context context = getContext();
+        logger.debug("compiling script. id=" + scriptId);
+        String generatedScript = generateDeployScript(script);
+        Script compiledScript = context.compileString(generatedScript, scriptId, 1, null);
+        compiledScriptCache.putCompiledScript(scriptId, compiledScript);
+        Context.exit();
     }
 
     public String generateDeployScript(String script)

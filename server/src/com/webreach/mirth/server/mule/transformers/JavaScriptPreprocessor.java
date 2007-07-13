@@ -92,10 +92,22 @@ public class JavaScriptPreprocessor extends AbstractTransformer {
 			Scriptable scope = new ImporterTopLevel(context);
 			scope.put("message", scope, message);
 			scope.put("logger", scope, scriptLogger);
-
+			
+            Script globalCompiledScript = compiledScriptCache.getCompiledScript("preprocessor");
 			Script compiledScript = compiledScriptCache.getCompiledScript(preprocessingScriptId);
 			String returnValue = message;
-
+			
+            if(globalCompiledScript != null)
+            {
+                Object result = globalCompiledScript.exec(context, scope);
+                String processedMessage = (String) Context.jsToJava(result, java.lang.String.class);
+                scope.put("message", scope, processedMessage);
+                
+                if (processedMessage != null) {
+                    returnValue = processedMessage;
+                }
+            }
+            
 			if (compiledScript != null) {
 				Object result = compiledScript.exec(context, scope);
 				String processedMessage = (String) Context.jsToJava(result, java.lang.String.class);

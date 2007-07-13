@@ -27,6 +27,8 @@ package com.webreach.mirth.server.servlets;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.servlet.ServletException;
@@ -93,7 +95,14 @@ public class ConfigurationServlet extends MirthServlet {
 				} else if (operation.equals("getServerId")) {
                     response.setContentType("application/xml");
                     out.println(configurationController.getServerId());
+                } else if (operation.equals("getGlobalScripts")) {
+                    response.setContentType("application/xml");
+                    out.println(serializer.toXML(configurationController.getGlobalScripts()));
+                } else if (operation.equals("setGlobalScripts")) {
+                    String scripts = request.getParameter("scripts");
+                    configurationController.setGlobalScripts((Map<String, String> )serializer.fromXML(scripts));
                 }
+                
 			}
 		} catch (Exception e) {
 			throw new ServletException(e);

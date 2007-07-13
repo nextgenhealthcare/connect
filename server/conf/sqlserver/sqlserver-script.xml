@@ -25,10 +25,9 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 
 	<delete id="deleteScript" parameterClass="java.lang.String">
 		DELETE FROM SCRIPT
-		<dynamic prepend="WHERE">
-			<isNotNull prepend="AND" property="id">
-				ID=#id#
-			</isNotNull>
-		</dynamic>
+		WHERE ID != 'deploy' AND ID != 'shutdown' AND ID != 'preprocessor'		
+		<isNotNull prepend="AND" property="id">
+			ID=#id#
+		</isNotNull>
 	</delete>
 </sqlMap>
