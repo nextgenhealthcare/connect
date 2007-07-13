@@ -6,6 +6,9 @@
 
 package com.webreach.mirth.client.ui;
 
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.EvaluatorException;
+import org.mozilla.javascript.Script;
 import org.syntax.jedit.SyntaxDocument;
 import org.syntax.jedit.tokenmarker.JavaScriptTokenMarker;
 
@@ -64,6 +67,49 @@ public class ScriptPanel extends javax.swing.JPanel
     public String getDeploy()
     {
         return deploy.getText();
+    }
+    
+    public void validateScripts()
+    {
+        StringBuilder sb = new StringBuilder();
+        Context context = Context.enter();
+        try
+        {
+            context.compileString("function rhinoDeployWrapper() {" + getDeploy() + "}", null, 1, null);
+            sb.append("Deploy JavaScript was successfully validated.");
+        }
+        catch (EvaluatorException e)
+        {
+            sb.append("Error on line " + e.lineNumber() + ": " + e.getMessage() + " of the deploy script.");
+        }
+        
+        sb.append("\n");
+        
+        try
+        {
+            context.compileString("function rhinoShutdownWrapper() {" + getShutdown() + "}", null, 1, null);
+            sb.append("Shutdown JavaScript was successfully validated.");
+        }
+        catch (EvaluatorException e)
+        {
+            sb.append("Error on line " + e.lineNumber() + ": " + e.getMessage() + " of the shutdown script.");
+        }
+        
+        sb.append("\n");
+        
+        try
+        {
+            context.compileString("function rhinoPreprocessorWrapper() {" + getPreprocessor() + "}", null, 1, null);
+            sb.append("Preprocessor JavaScript was successfully validated.");
+        }
+        catch (EvaluatorException e)
+        {
+            sb.append("Error on line " + e.lineNumber() + ": " + e.getMessage() + " of the preprocessor script.");
+        }
+        
+        Context.exit();
+        
+        PlatformUI.MIRTH_FRAME.alertInformation(sb.toString());
     }
     
     /** This method is called from within the constructor to

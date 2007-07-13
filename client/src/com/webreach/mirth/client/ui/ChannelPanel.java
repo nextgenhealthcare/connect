@@ -220,13 +220,13 @@ public class ChannelPanel extends javax.swing.JPanel implements DropTargetListen
 
         if (row >= 0 && row < channelTable.getRowCount())
         {
-            parent.setVisibleTasks(parent.channelTasks, parent.channelPopupMenu, 5, -1, true);
+            parent.setVisibleTasks(parent.channelTasks, parent.channelPopupMenu, 6, -1, true);
 
             int columnNumber = channelTable.getColumnNumber(STATUS_COLUMN_NAME);
             if (((CellData) channelTable.getValueAt(row, columnNumber)).getText().equals(ENABLED_STATUS))
-                parent.setVisibleTasks(parent.channelTasks, parent.channelPopupMenu, 9, 9, false);
-            else
                 parent.setVisibleTasks(parent.channelTasks, parent.channelPopupMenu, 10, 10, false);
+            else
+                parent.setVisibleTasks(parent.channelTasks, parent.channelPopupMenu, 11, 11, false);
         }
     }
 
@@ -266,7 +266,7 @@ public class ChannelPanel extends javax.swing.JPanel implements DropTargetListen
     public void deselectRows()
     {
         channelTable.deselectRows();
-        parent.setVisibleTasks(parent.channelTasks, parent.channelPopupMenu, 5, -1, false);
+        parent.setVisibleTasks(parent.channelTasks, parent.channelPopupMenu, 6, -1, false);
     }
     
     public void dragEnter(DropTargetDragEvent dtde)

@@ -998,6 +998,11 @@ public class ChannelSetup extends javax.swing.JPanel
         }
     }
     
+    public void validateScripts()
+    {
+        scripts.validateScripts();
+    }
+    
     // <editor-fold defaultstate="collapsed" desc=" Generated Code
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents()
@@ -1435,6 +1440,7 @@ public class ChannelSetup extends javax.swing.JPanel
     private void scriptsComponentShown(java.awt.event.ComponentEvent evt)//GEN-FIRST:event_scriptsComponentShown
     {//GEN-HEADEREND:event_scriptsComponentShown
         parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 1, 8, false);
+        parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 10, 10, true);
     }//GEN-LAST:event_scriptsComponentShown
     
     private void summaryNameFieldKeyReleased(java.awt.event.KeyEvent evt)// GEN-FIRST:event_summaryNameFieldKeyReleased
@@ -1485,6 +1491,7 @@ public class ChannelSetup extends javax.swing.JPanel
     private void summaryComponentShown(java.awt.event.ComponentEvent evt)// GEN-FIRST:event_summaryComponentShown
     {
         parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 1, 8, false);
+        parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 10, 10, false);
     }
     
     /** Action when the source tab is shown. */
@@ -1493,6 +1500,7 @@ public class ChannelSetup extends javax.swing.JPanel
         parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 1, 1, true);
         parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 2, 6, false);
         parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 7, 8, true);
+        parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 10, 10, false);
         sourceConnectorClass.updateResponseDropDown();
     }
     
@@ -1502,6 +1510,7 @@ public class ChannelSetup extends javax.swing.JPanel
         parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 1, 1, true);
         
         parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 2, 8, true);
+        parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 10, 10, false);
         checkVisibleDestinationTasks();
     }
     
