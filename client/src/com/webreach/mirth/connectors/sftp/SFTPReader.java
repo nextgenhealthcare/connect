@@ -43,7 +43,7 @@ public class SFTPReader extends ConnectorClass
     {
         name = SFTPReaderProperties.name;
         initComponents();
-        pollingFrequencyField.setDocument(new MirthFieldConstraints(0, false, false, true));
+        pollingFrequency.setDocument(new MirthFieldConstraints(0, false, false, true));
         fileAge.setDocument(new MirthFieldConstraints(0, false, false, true));
         // ast:encoding activation
         parent.setupCharsetEncodingForChannel(charsetEncodingCombobox);
@@ -57,44 +57,53 @@ public class SFTPReader extends ConnectorClass
 
         properties.put(SFTPReaderProperties.FTP_USERNAME, FTPUsernameField.getText());
         properties.put(SFTPReaderProperties.FTP_PASSWORD, new String(FTPPasswordField.getPassword()));
-        properties.put(SFTPReaderProperties.FTP_POLLING_FREQUENCY, pollingFrequencyField.getText());
         
         //common file properties
-        properties.put(SFTPReaderProperties.FILE_MOVE_TO_PATTERN, moveToPattern.getText());
-        properties.put(SFTPReaderProperties.FILE_MOVE_TO_DIRECTORY, moveToDirectory.getText().replace('\\', '/'));
+        properties.put(SFTPReaderProperties.FTP_MOVE_TO_PATTERN, moveToPattern.getText());
+        properties.put(SFTPReaderProperties.FTP_MOVE_TO_DIRECTORY, moveToDirectory.getText().replace('\\', '/'));
 
         if (deleteAfterReadYes.isSelected())
-            properties.put(SFTPReaderProperties.FILE_DELETE_AFTER_READ, UIConstants.YES_OPTION);
+            properties.put(SFTPReaderProperties.FTP_DELETE_AFTER_READ, UIConstants.YES_OPTION);
         else
-            properties.put(SFTPReaderProperties.FILE_DELETE_AFTER_READ, UIConstants.NO_OPTION);
+            properties.put(SFTPReaderProperties.FTP_DELETE_AFTER_READ, UIConstants.NO_OPTION);
 
         if (checkFileAgeYes.isSelected())
-            properties.put(SFTPReaderProperties.FILE_CHECK_FILE_AGE, UIConstants.YES_OPTION);
+            properties.put(SFTPReaderProperties.FTP_CHECK_FTP_AGE, UIConstants.YES_OPTION);
         else
-            properties.put(SFTPReaderProperties.FILE_CHECK_FILE_AGE, UIConstants.NO_OPTION);
+            properties.put(SFTPReaderProperties.FTP_CHECK_FTP_AGE, UIConstants.NO_OPTION);
 
-        properties.put(SFTPReaderProperties.FILE_FILE_AGE, fileAge.getText());
+        properties.put(SFTPReaderProperties.FTP_FTP_AGE, fileAge.getText());
 
         if (((String) sortBy.getSelectedItem()).equals("Name"))
-            properties.put(SFTPReaderProperties.FILE_SORT_BY, SFTPReaderProperties.SORT_BY_NAME);
+            properties.put(SFTPReaderProperties.FTP_SORT_BY, SFTPReaderProperties.SORT_BY_NAME);
         else if (((String) sortBy.getSelectedItem()).equals("Size"))
-            properties.put(SFTPReaderProperties.FILE_SORT_BY, SFTPReaderProperties.SORT_BY_SIZE);
+            properties.put(SFTPReaderProperties.FTP_SORT_BY, SFTPReaderProperties.SORT_BY_SIZE);
         else if (((String) sortBy.getSelectedItem()).equals("Date"))
-            properties.put(SFTPReaderProperties.FILE_SORT_BY, SFTPReaderProperties.SORT_BY_DATE);
+            properties.put(SFTPReaderProperties.FTP_SORT_BY, SFTPReaderProperties.SORT_BY_DATE);
         // ast:encoding
         properties.put(SFTPReaderProperties.CONNECTOR_CHARSET_ENCODING, parent.getSelectedEncodingForChannel(charsetEncodingCombobox));
-        properties.put(SFTPReaderProperties.FILE_FILTER, fileNameFilter.getText());
+        properties.put(SFTPReaderProperties.FTP_FILTER, fileNameFilter.getText());
 
         if (processBatchFilesYes.isSelected())
-            properties.put(SFTPReaderProperties.FILE_PROCESS_BATCH_FILES, UIConstants.YES_OPTION);
+            properties.put(SFTPReaderProperties.FTP_PROCESS_BATCH_FILES, UIConstants.YES_OPTION);
         else
-            properties.put(SFTPReaderProperties.FILE_PROCESS_BATCH_FILES, UIConstants.NO_OPTION);
+            properties.put(SFTPReaderProperties.FTP_PROCESS_BATCH_FILES, UIConstants.NO_OPTION);
 
         if (fileTypeBinary.isSelected())
-            properties.put(SFTPReaderProperties.FILE_TYPE, UIConstants.YES_OPTION);
+            properties.put(SFTPReaderProperties.FTP_TYPE, UIConstants.YES_OPTION);
         else
-            properties.put(SFTPReaderProperties.FILE_TYPE, UIConstants.NO_OPTION);
+            properties.put(SFTPReaderProperties.FTP_TYPE, UIConstants.NO_OPTION);
        
+        if (pollingIntervalButton.isSelected())
+        {
+            properties.put(SFTPReaderProperties.FTP_POLLING_TYPE, "interval");
+            properties.put(SFTPReaderProperties.FTP_POLLING_FREQUENCY, pollingFrequency.getText());
+        }
+        else
+        {
+            properties.put(SFTPReaderProperties.FTP_POLLING_TYPE, "time");
+            properties.put(SFTPReaderProperties.FTP_POLLING_TIME, pollingTime.getDate());
+        }
         return properties;
     }
 
@@ -106,12 +115,11 @@ public class SFTPReader extends ConnectorClass
 
         FTPUsernameField.setText((String) props.get(SFTPReaderProperties.FTP_USERNAME));
         FTPPasswordField.setText((String) props.get(SFTPReaderProperties.FTP_PASSWORD));
-        pollingFrequencyField.setText((String) props.get(SFTPReaderProperties.FTP_POLLING_FREQUENCY));
         
         //common file properties
-        moveToPattern.setText((String) props.get(SFTPReaderProperties.FILE_MOVE_TO_PATTERN));
-        moveToDirectory.setText((String) props.get(SFTPReaderProperties.FILE_MOVE_TO_DIRECTORY));
-        if (((String) props.get(SFTPReaderProperties.FILE_DELETE_AFTER_READ)).equalsIgnoreCase(UIConstants.YES_OPTION))
+        moveToPattern.setText((String) props.get(SFTPReaderProperties.FTP_MOVE_TO_PATTERN));
+        moveToDirectory.setText((String) props.get(SFTPReaderProperties.FTP_MOVE_TO_DIRECTORY));
+        if (((String) props.get(SFTPReaderProperties.FTP_DELETE_AFTER_READ)).equalsIgnoreCase(UIConstants.YES_OPTION))
         {
             deleteAfterReadYes.setSelected(true);
             deleteAfterReadYesActionPerformed(null);
@@ -121,7 +129,7 @@ public class SFTPReader extends ConnectorClass
             deleteAfterReadNo.setSelected(true);
             deleteAfterReadNoActionPerformed(null);
         }
-        if (((String) props.get(SFTPReaderProperties.FILE_CHECK_FILE_AGE)).equalsIgnoreCase(UIConstants.YES_OPTION))
+        if (((String) props.get(SFTPReaderProperties.FTP_CHECK_FTP_AGE)).equalsIgnoreCase(UIConstants.YES_OPTION))
         {
             checkFileAgeYes.setSelected(true);
             checkFileAgeYesActionPerformed(null);
@@ -132,27 +140,40 @@ public class SFTPReader extends ConnectorClass
             checkFileAgeNoActionPerformed(null);
         }
 
-        fileAge.setText((String) props.get(SFTPReaderProperties.FILE_FILE_AGE));
+        fileAge.setText((String) props.get(SFTPReaderProperties.FTP_FTP_AGE));
 
-        if (props.get(SFTPReaderProperties.FILE_SORT_BY).equals(SFTPReaderProperties.SORT_BY_NAME))
+        if (props.get(SFTPReaderProperties.FTP_SORT_BY).equals(SFTPReaderProperties.SORT_BY_NAME))
             sortBy.setSelectedItem("Name");
-        else if (props.get(SFTPReaderProperties.FILE_SORT_BY).equals(SFTPReaderProperties.SORT_BY_SIZE))
+        else if (props.get(SFTPReaderProperties.FTP_SORT_BY).equals(SFTPReaderProperties.SORT_BY_SIZE))
             sortBy.setSelectedItem("Size");
-        else if (props.get(SFTPReaderProperties.FILE_SORT_BY).equals(SFTPReaderProperties.SORT_BY_DATE))
+        else if (props.get(SFTPReaderProperties.FTP_SORT_BY).equals(SFTPReaderProperties.SORT_BY_DATE))
             sortBy.setSelectedItem("Date");
         // ast:encoding
         parent.sePreviousSelectedEncodingForChannel(charsetEncodingCombobox, (String) props.get(SFTPReaderProperties.CONNECTOR_CHARSET_ENCODING));
-        fileNameFilter.setText((String) props.get(SFTPReaderProperties.FILE_FILTER));
+        fileNameFilter.setText((String) props.get(SFTPReaderProperties.FTP_FILTER));
 
-        if (((String) props.get(SFTPReaderProperties.FILE_PROCESS_BATCH_FILES)).equalsIgnoreCase(UIConstants.YES_OPTION))
+        if (((String) props.get(SFTPReaderProperties.FTP_PROCESS_BATCH_FILES)).equalsIgnoreCase(UIConstants.YES_OPTION))
             processBatchFilesYes.setSelected(true);
         else
             processBatchFilesNo.setSelected(true);
 
-        if (((String) props.get(SFTPReaderProperties.FILE_TYPE)).equalsIgnoreCase(UIConstants.YES_OPTION))
+        if (((String) props.get(SFTPReaderProperties.FTP_TYPE)).equalsIgnoreCase(UIConstants.YES_OPTION))
             fileTypeBinary.setSelected(true);
         else
             fileTypeASCII.setSelected(true);
+        
+        if (((String) props.get(SFTPReaderProperties.FTP_POLLING_TYPE)).equalsIgnoreCase("interval"))
+        {
+            pollingIntervalButton.setSelected(true);
+            pollingIntervalButtonActionPerformed(null);
+            pollingFrequency.setText((String) props.get(SFTPReaderProperties.FTP_POLLING_FREQUENCY));
+        }
+        else
+        {
+            pollingTimeButton.setSelected(true);
+            pollingTimeButtonActionPerformed(null);
+            pollingTime.setDate((String) props.get(SFTPReaderProperties.FTP_POLLING_TIME));
+        }
     }
 
     public Properties getDefaults()
@@ -170,15 +191,20 @@ public class SFTPReader extends ConnectorClass
             valid = false;
             FTPURLField.setBackground(UIConstants.INVALID_COLOR);
         }
-        if (((String) props.get(SFTPReaderProperties.FILE_FILTER)).length() == 0)
+        if (((String) props.get(SFTPReaderProperties.FTP_FILTER)).length() == 0)
         {
             valid = false;
             fileNameFilter.setBackground(UIConstants.INVALID_COLOR);
         }
-        if (((String) props.get(SFTPReaderProperties.FTP_POLLING_FREQUENCY)).length() == 0)
+        if (((String) props.get(SFTPReaderProperties.FTP_POLLING_TYPE)).equalsIgnoreCase("interval") && ((String) props.get(SFTPReaderProperties.FTP_POLLING_FREQUENCY)).length() == 0)
         {
             valid = false;
-            pollingFrequencyField.setBackground(UIConstants.INVALID_COLOR);
+            pollingFrequency.setBackground(UIConstants.INVALID_COLOR);
+        }
+        if (((String) props.get(SFTPReaderProperties.FTP_POLLING_TYPE)).equalsIgnoreCase("time") && ((String) props.get(SFTPReaderProperties.FTP_POLLING_TIME)).length() == 0)
+        {
+            valid = false;
+            pollingTime.setBackground(UIConstants.INVALID_COLOR);
         }
         if (((String) props.get(SFTPReaderProperties.FTP_USERNAME)).length() == 0)
         {
@@ -190,9 +216,9 @@ public class SFTPReader extends ConnectorClass
             valid = false;
             FTPPasswordField.setBackground(UIConstants.INVALID_COLOR);
         }
-        if (((String) props.get(SFTPReaderProperties.FILE_CHECK_FILE_AGE)).equals(UIConstants.YES_OPTION))
+        if (((String) props.get(SFTPReaderProperties.FTP_CHECK_FTP_AGE)).equals(UIConstants.YES_OPTION))
         {
-            if (((String) props.get(SFTPReaderProperties.FILE_FILE_AGE)).length() == 0)
+            if (((String) props.get(SFTPReaderProperties.FTP_FTP_AGE)).length() == 0)
             {
                 valid = false;
                 fileAge.setBackground(UIConstants.INVALID_COLOR);
@@ -206,7 +232,8 @@ public class SFTPReader extends ConnectorClass
     {
         FTPURLField.setBackground(null);
         fileNameFilter.setBackground(null);
-        pollingFrequencyField.setBackground(null);
+        pollingFrequency.setBackground(null);
+        pollingTime.setBackground(null);
         FTPUsernameField.setBackground(null);
         FTPPasswordField.setBackground(null);
         fileAge.setBackground(null);
@@ -228,6 +255,7 @@ public class SFTPReader extends ConnectorClass
         buttonGroup5 = new javax.swing.ButtonGroup();
         buttonGroup6 = new javax.swing.ButtonGroup();
         buttonGroup7 = new javax.swing.ButtonGroup();
+        buttonGroup8 = new javax.swing.ButtonGroup();
         URL = new javax.swing.JLabel();
         FTPURLField = new com.webreach.mirth.client.ui.components.MirthTextField();
         jLabel7 = new javax.swing.JLabel();
@@ -237,8 +265,8 @@ public class SFTPReader extends ConnectorClass
         FTPUsernameField = new com.webreach.mirth.client.ui.components.MirthTextField();
         FTPPasswordField = new com.webreach.mirth.client.ui.components.MirthPasswordField();
         FTPPasswordLabel = new javax.swing.JLabel();
-        jLabel9 = new javax.swing.JLabel();
-        pollingFrequencyField = new com.webreach.mirth.client.ui.components.MirthTextField();
+        pollingFrequencyLabel = new javax.swing.JLabel();
+        pollingFrequency = new com.webreach.mirth.client.ui.components.MirthTextField();
         jLabel8 = new javax.swing.JLabel();
         fileNameFilter = new com.webreach.mirth.client.ui.components.MirthTextField();
         moveToDirectoryLabel = new javax.swing.JLabel();
@@ -261,6 +289,11 @@ public class SFTPReader extends ConnectorClass
         charsetEncodingCombobox = new com.webreach.mirth.client.ui.components.MirthComboBox();
         jLabel41 = new javax.swing.JLabel();
         mirthVariableList1 = new com.webreach.mirth.client.ui.components.MirthVariableList();
+        pollingTimeButton = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        pollingIntervalButton = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        jLabel4 = new javax.swing.JLabel();
+        pollingTimeLabel = new javax.swing.JLabel();
+        pollingTime = new com.webreach.mirth.client.ui.components.MirthTimePicker();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -288,7 +321,7 @@ public class SFTPReader extends ConnectorClass
 
         FTPPasswordLabel.setText("Password:");
 
-        jLabel9.setText("Polling Frequency (ms):");
+        pollingFrequencyLabel.setText("Polling Frequency (ms):");
 
         jLabel8.setText("Filename Filter Pattern:");
 
@@ -401,18 +434,50 @@ public class SFTPReader extends ConnectorClass
             public Object getElementAt(int i) { return strings[i]; }
         });
 
+        pollingTimeButton.setBackground(new java.awt.Color(255, 255, 255));
+        pollingTimeButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        buttonGroup8.add(pollingTimeButton);
+        pollingTimeButton.setText("Time");
+        pollingTimeButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        pollingTimeButton.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                pollingTimeButtonActionPerformed(evt);
+            }
+        });
+
+        pollingIntervalButton.setBackground(new java.awt.Color(255, 255, 255));
+        pollingIntervalButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        buttonGroup8.add(pollingIntervalButton);
+        pollingIntervalButton.setText("Interval");
+        pollingIntervalButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        pollingIntervalButton.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                pollingIntervalButtonActionPerformed(evt);
+            }
+        });
+
+        jLabel4.setText("Polling Type:");
+
+        pollingTimeLabel.setText("Polling Time (daily):");
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .add(11, 11, 11)
+                .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, URL)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, FTPUsernameLabel)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, URL)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, FTPPasswordLabel)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel8)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel9)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel4)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, pollingFrequencyLabel)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, pollingTimeLabel)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, moveToDirectoryLabel)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, moveToFileLabel)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel11)
@@ -428,30 +493,37 @@ public class SFTPReader extends ConnectorClass
                     .add(FTPUsernameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(FTPPasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(fileNameFilter, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 250, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(pollingFrequencyField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(moveToDirectory, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 250, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(moveToPattern, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 250, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(layout.createSequentialGroup()
-                        .add(deleteAfterReadYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(pollingIntervalButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(deleteAfterReadNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .add(pollingTimeButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(pollingTime, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(pollingFrequency, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(layout.createSequentialGroup()
-                        .add(checkFileAgeYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(checkFileAgeNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(fileAge, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(layout.createSequentialGroup()
-                        .add(fileTypeASCII, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(fileTypeBinary, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(layout.createSequentialGroup()
-                        .add(processBatchFilesYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(processBatchFilesNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(sortBy, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(charsetEncodingCombobox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .add(5, 5, 5)
-                .add(mirthVariableList1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(moveToDirectory, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 250, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(moveToPattern, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 250, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(layout.createSequentialGroup()
+                                .add(deleteAfterReadYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(deleteAfterReadNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .add(layout.createSequentialGroup()
+                                .add(checkFileAgeYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(checkFileAgeNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .add(fileAge, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(layout.createSequentialGroup()
+                                .add(fileTypeASCII, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(fileTypeBinary, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .add(layout.createSequentialGroup()
+                                .add(processBatchFilesYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(processBatchFilesNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .add(sortBy, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(charsetEncodingCombobox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .add(5, 5, 5)
+                        .add(mirthVariableList1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -469,16 +541,26 @@ public class SFTPReader extends ConnectorClass
                     .add(FTPPasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(FTPPasswordLabel))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jLabel8)
+                    .add(fileNameFilter, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jLabel4)
+                    .add(pollingIntervalButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(pollingTimeButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(pollingFrequencyLabel)
+                    .add(pollingFrequency, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(pollingTime, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(pollingTimeLabel))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(jLabel8)
-                            .add(fileNameFilter, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(jLabel9)
-                            .add(pollingFrequencyField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(1, 1, 1)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                             .add(moveToDirectoryLabel)
                             .add(moveToDirectory, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
@@ -519,12 +601,26 @@ public class SFTPReader extends ConnectorClass
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                             .add(charsetEncodingCombobox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(jLabel41)))
-                    .add(layout.createSequentialGroup()
-                        .add(49, 49, 49)
-                        .add(mirthVariableList1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                    .add(mirthVariableList1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void pollingIntervalButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_pollingIntervalButtonActionPerformed
+    {//GEN-HEADEREND:event_pollingIntervalButtonActionPerformed
+        pollingFrequencyLabel.setEnabled(true);
+        pollingTimeLabel.setEnabled(false);
+        pollingFrequency.setEnabled(true);
+        pollingTime.setEnabled(false);
+    }//GEN-LAST:event_pollingIntervalButtonActionPerformed
+
+    private void pollingTimeButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_pollingTimeButtonActionPerformed
+    {//GEN-HEADEREND:event_pollingTimeButtonActionPerformed
+        pollingFrequencyLabel.setEnabled(false);
+        pollingTimeLabel.setEnabled(true);
+        pollingFrequency.setEnabled(false);
+        pollingTime.setEnabled(true);
+    }//GEN-LAST:event_pollingTimeButtonActionPerformed
 
     private void deleteAfterReadYesActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_deleteAfterReadYesActionPerformed
     {//GEN-HEADEREND:event_deleteAfterReadYesActionPerformed
@@ -579,6 +675,7 @@ public class SFTPReader extends ConnectorClass
     private javax.swing.ButtonGroup buttonGroup5;
     private javax.swing.ButtonGroup buttonGroup6;
     private javax.swing.ButtonGroup buttonGroup7;
+    private javax.swing.ButtonGroup buttonGroup8;
     private com.webreach.mirth.client.ui.components.MirthComboBox charsetEncodingCombobox;
     private com.webreach.mirth.client.ui.components.MirthRadioButton checkFileAgeNo;
     private com.webreach.mirth.client.ui.components.MirthRadioButton checkFileAgeYes;
@@ -593,16 +690,21 @@ public class SFTPReader extends ConnectorClass
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel41;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
-    private javax.swing.JLabel jLabel9;
     private com.webreach.mirth.client.ui.components.MirthVariableList mirthVariableList1;
     private com.webreach.mirth.client.ui.components.MirthTextField moveToDirectory;
     private javax.swing.JLabel moveToDirectoryLabel;
     private javax.swing.JLabel moveToFileLabel;
     private com.webreach.mirth.client.ui.components.MirthTextField moveToPattern;
-    private com.webreach.mirth.client.ui.components.MirthTextField pollingFrequencyField;
+    private com.webreach.mirth.client.ui.components.MirthTextField pollingFrequency;
+    private javax.swing.JLabel pollingFrequencyLabel;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton pollingIntervalButton;
+    private com.webreach.mirth.client.ui.components.MirthTimePicker pollingTime;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton pollingTimeButton;
+    private javax.swing.JLabel pollingTimeLabel;
     private com.webreach.mirth.client.ui.components.MirthRadioButton processBatchFilesNo;
     private com.webreach.mirth.client.ui.components.MirthRadioButton processBatchFilesYes;
     private com.webreach.mirth.client.ui.components.MirthComboBox sortBy;

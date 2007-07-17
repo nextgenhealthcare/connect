@@ -58,15 +58,15 @@ import com.webreach.mirth.model.converters.DocumentSerializer;
 public class DatabaseReader extends ConnectorClass
 {
     /** Creates new form DatabaseWriter */
-
+    
     private static SyntaxDocument sqlMappingDoc;
-
+    
     private static SyntaxDocument sqlUpdateMappingDoc;
-
+    
     private static SyntaxDocument jsMappingDoc;
-
+    
     private static SyntaxDocument jsUpdateMappingDoc;
-
+    
     private List<DriverInfo> drivers;
     
     private Timer timer;
@@ -74,7 +74,7 @@ public class DatabaseReader extends ConnectorClass
     public DatabaseReader()
     {
         name = DatabaseReaderProperties.name;
-
+        
         try
         {
             drivers = this.parent.mirthClient.getDatabaseDrivers();
@@ -83,7 +83,7 @@ public class DatabaseReader extends ConnectorClass
         {
             ex.printStackTrace();
         }
-
+        
         initComponents();
         
         drivers.add(0, new DriverInfo("Please Select One", "Please Select One"));
@@ -104,7 +104,7 @@ public class DatabaseReader extends ConnectorClass
         jsMappingDoc.setTokenMarker(new JavaScriptTokenMarker());
         jsUpdateMappingDoc = new SyntaxDocument();
         jsUpdateMappingDoc.setTokenMarker(new JavaScriptTokenMarker());
-
+        
         databaseSQLTextPane.setDocument(sqlMappingDoc);
         databaseUpdateSQLTextPane.setDocument(sqlUpdateMappingDoc);
         
@@ -113,12 +113,12 @@ public class DatabaseReader extends ConnectorClass
             public void changedUpdate(DocumentEvent e)
             {
             }
-
+            
             public void removeUpdate(DocumentEvent e)
             {
                 update();
             }
-
+            
             public void insertUpdate(DocumentEvent e)
             {
                 update();
@@ -130,39 +130,38 @@ public class DatabaseReader extends ConnectorClass
             public void changedUpdate(DocumentEvent e)
             {
             }
-
+            
             public void removeUpdate(DocumentEvent e)
             {
                 update();
             }
-
+            
             public void insertUpdate(DocumentEvent e)
             {
                 update();
             }
         });
-
-        pollingFreq.setDocument(new MirthFieldConstraints(0, false, false, true));
+        
+        pollingFrequency.setDocument(new MirthFieldConstraints(0, false, false, true));
     }
-
+    
     public Properties getProperties()
     {
         Properties properties = new Properties();
         properties.put(DatabaseReaderProperties.DATATYPE, name);
         properties.put(DatabaseReaderProperties.DATABASE_HOST, DatabaseReaderProperties.DATABASE_HOST_VALUE);
-
+        
         for (int i = 0; i < drivers.size(); i++)
         {
             DriverInfo driver = drivers.get(i);
             if (driver.getName().equalsIgnoreCase(((String) databaseDriverCombobox.getSelectedItem())))
                 properties.put(DatabaseReaderProperties.DATABASE_DRIVER, driver.getClassName());
         }
-
+        
         properties.put(DatabaseReaderProperties.DATABASE_URL, databaseURLField.getText());
         properties.put(DatabaseReaderProperties.DATABASE_USERNAME, databaseUsernameField.getText());
         properties.put(DatabaseReaderProperties.DATABASE_PASSWORD, new String(databasePasswordField.getPassword()));
-        properties.put(DatabaseReaderProperties.DATABASE_POLLING_FREQUENCY, pollingFreq.getText());
-
+        
         if (useJavaScriptYes.isSelected())
         {
             properties.put(DatabaseReaderProperties.DATABASE_USE_JS, UIConstants.YES_OPTION);
@@ -179,35 +178,45 @@ public class DatabaseReader extends ConnectorClass
             properties.put(DatabaseReaderProperties.DATABASE_JS_SQL_STATEMENT, "");
             properties.put(DatabaseReaderProperties.DATABASE_JS_ACK, "");
         }
-
+        
         if (readOnUpdateYes.isSelected())
             properties.put(DatabaseReaderProperties.DATABASE_USE_ACK, UIConstants.YES_OPTION);
         else
             properties.put(DatabaseReaderProperties.DATABASE_USE_ACK, UIConstants.NO_OPTION);
-
+        
+        if (pollingIntervalButton.isSelected())
+        {
+            properties.put(DatabaseReaderProperties.DATABASE_POLLING_TYPE, "interval");
+            properties.put(DatabaseReaderProperties.DATABASE_POLLING_FREQUENCY, pollingFrequency.getText());
+        }
+        else
+        {
+            properties.put(DatabaseReaderProperties.DATABASE_POLLING_TYPE, "time");
+            properties.put(DatabaseReaderProperties.DATABASE_POLLING_TIME, pollingTime.getDate());
+        }
+        
         return properties;
     }
-
+    
     public void setProperties(Properties props)
     {
         resetInvalidProperties();
-                
+        
         boolean visible = parent.channelEditTasks.getContentPane().getComponent(0).isVisible();
-
+        
         for (int i = 0; i < drivers.size(); i++)
         {
             DriverInfo driver = drivers.get(i);
             if (driver.getClassName().equalsIgnoreCase(((String) props.get(DatabaseReaderProperties.DATABASE_DRIVER))))
                 databaseDriverCombobox.setSelectedItem(driver.getName());
         }
-
+        
         parent.channelEditTasks.getContentPane().getComponent(0).setVisible(visible);
         databaseURLField.setText((String) props.get(DatabaseReaderProperties.DATABASE_URL));
         databaseUsernameField.setText((String) props.get(DatabaseReaderProperties.DATABASE_USERNAME));
         databasePasswordField.setText((String) props.get(DatabaseReaderProperties.DATABASE_PASSWORD));
-        pollingFreq.setText((String) props.get(DatabaseReaderProperties.DATABASE_POLLING_FREQUENCY));
         databaseSQLTextPane.setText((String) props.get(DatabaseReaderProperties.DATABASE_SQL_STATEMENT));
-
+        
         if (((String) props.get(DatabaseReaderProperties.DATABASE_USE_JS)).equals(UIConstants.YES_OPTION))
         {
             useJavaScriptYes.setSelected(true);
@@ -222,7 +231,7 @@ public class DatabaseReader extends ConnectorClass
             databaseSQLTextPane.setText((String) props.get(DatabaseReaderProperties.DATABASE_SQL_STATEMENT));
             databaseUpdateSQLTextPane.setText((String) props.get(DatabaseReaderProperties.DATABASE_ACK));
         }
-
+        
         if (((String) props.get(DatabaseReaderProperties.DATABASE_USE_ACK)).equalsIgnoreCase(UIConstants.YES_OPTION))
         {
             readOnUpdateYes.setSelected(true);
@@ -233,13 +242,26 @@ public class DatabaseReader extends ConnectorClass
             readOnUpdateNo.setSelected(true);
             readOnUpdateNoActionPerformed(null);
         }
+        
+        if (((String) props.get(DatabaseReaderProperties.DATABASE_POLLING_TYPE)).equalsIgnoreCase("interval"))
+        {
+            pollingIntervalButton.setSelected(true);
+            pollingIntervalButtonActionPerformed(null);
+            pollingFrequency.setText((String) props.get(DatabaseReaderProperties.DATABASE_POLLING_FREQUENCY));
+        }
+        else
+        {
+            pollingTimeButton.setSelected(true);
+            pollingTimeButtonActionPerformed(null);
+            pollingTime.setDate((String) props.get(DatabaseReaderProperties.DATABASE_POLLING_TIME));
+        }
     }
-
+    
     public Properties getDefaults()
     {
         return new DatabaseReaderProperties().getDefaults();
     }
-
+    
     public boolean checkProperties(Properties props)
     {
         resetInvalidProperties();
@@ -250,10 +272,15 @@ public class DatabaseReader extends ConnectorClass
             valid = false;
             databaseURLField.setBackground(UIConstants.INVALID_COLOR);
         }
-        if (((String) props.get(DatabaseReaderProperties.DATABASE_POLLING_FREQUENCY)).length() == 0)
+        if (((String) props.get(DatabaseReaderProperties.DATABASE_POLLING_TYPE)).equalsIgnoreCase("interval") && ((String) props.get(DatabaseReaderProperties.DATABASE_POLLING_FREQUENCY)).length() == 0)
         {
             valid = false;
-            pollingFreq.setBackground(UIConstants.INVALID_COLOR);
+            pollingFrequency.setBackground(UIConstants.INVALID_COLOR);
+        }
+        if (((String) props.get(DatabaseReaderProperties.DATABASE_POLLING_TYPE)).equalsIgnoreCase("time") && ((String) props.get(DatabaseReaderProperties.DATABASE_POLLING_TIME)).length() == 0)
+        {
+            valid = false;
+            pollingTime.setBackground(UIConstants.INVALID_COLOR);
         }
         if ((((String) props.get(DatabaseReaderProperties.DATABASE_SQL_STATEMENT)).length() == 0) && (((String) props.get(DatabaseReaderProperties.DATABASE_JS_SQL_STATEMENT)).length() == 0))
         {
@@ -281,7 +308,8 @@ public class DatabaseReader extends ConnectorClass
     private void resetInvalidProperties()
     {
         databaseURLField.setBackground(null);
-        pollingFreq.setBackground(null);
+        pollingFrequency.setBackground(null);
+        pollingTime.setBackground(null);
         databaseSQLTextPane.setBackground(null);
         databaseUpdateSQLTextPane.setBackground(null);
         databaseDriverCombobox.setBackground(UIConstants.COMBO_BOX_BACKGROUND);
@@ -291,11 +319,12 @@ public class DatabaseReader extends ConnectorClass
     {
         class UpdateTimer extends TimerTask
         {
-            public void run() {
-        
+            public void run()
+            {
+                
                 PlatformUI.MIRTH_FRAME.setWorking("Parsing...", true);
                 updateSQL();
-                PlatformUI.MIRTH_FRAME.setWorking("", false);                
+                PlatformUI.MIRTH_FRAME.setWorking("", false);
             }
         }
         if (timer == null)
@@ -304,7 +333,7 @@ public class DatabaseReader extends ConnectorClass
             timer.schedule(new UpdateTimer(), 1000);
         }
         else
-        {           
+        {
             timer.cancel();
             timer = new Timer();
             timer.schedule(new UpdateTimer(), 1000);
@@ -315,12 +344,12 @@ public class DatabaseReader extends ConnectorClass
     {
         Object sqlStatement = databaseSQLTextPane.getText();
         String[] data;
-
+        
         if ((sqlStatement != null) && (!sqlStatement.equals("")))
         {
             SQLParserUtil spu = new SQLParserUtil((String) sqlStatement);
             data = spu.Parse();
-
+            
         }
         else
         {
@@ -343,17 +372,17 @@ public class DatabaseReader extends ConnectorClass
                 resultElement.appendChild(columnElement);
             }
             document.appendChild(resultElement);
-
+            
             DocumentSerializer docSerializer = new DocumentSerializer();
             docSerializer.setPreserveSpace(false);
-
+            
             String xml = docSerializer.toXML(document);
-
+            
             parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().setInboundTemplate(xml.replaceAll("\\r\\n", "\n"));
-
-            if (parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().getOutboundProtocol() == MessageObject.Protocol.XML 
-            		&& parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().getOutboundTemplate() != null
-            		&& parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().getOutboundTemplate().length() == 0)
+            
+            if (parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().getOutboundProtocol() == MessageObject.Protocol.XML
+                    && parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().getOutboundTemplate() != null
+                    && parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().getOutboundTemplate().length() == 0)
             {
                 List<Connector> list = parent.channelEditPanel.currentChannel.getDestinationConnectors();
                 for (Connector c : list)
@@ -366,7 +395,7 @@ public class DatabaseReader extends ConnectorClass
         {
         }
     }
-
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -378,6 +407,7 @@ public class DatabaseReader extends ConnectorClass
     {
         buttonGroup1 = new javax.swing.ButtonGroup();
         buttonGroup2 = new javax.swing.ButtonGroup();
+        buttonGroup3 = new javax.swing.ButtonGroup();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
@@ -388,8 +418,8 @@ public class DatabaseReader extends ConnectorClass
         databaseUsernameField = new com.webreach.mirth.client.ui.components.MirthTextField();
         databasePasswordField = new com.webreach.mirth.client.ui.components.MirthPasswordField();
         onUpdateLabel = new javax.swing.JLabel();
-        jLabel7 = new javax.swing.JLabel();
-        pollingFreq = new com.webreach.mirth.client.ui.components.MirthTextField();
+        pollingFrequencyLabel = new javax.swing.JLabel();
+        pollingFrequency = new com.webreach.mirth.client.ui.components.MirthTextField();
         readOnUpdateYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         readOnUpdateNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         jLabel8 = new javax.swing.JLabel();
@@ -402,6 +432,11 @@ public class DatabaseReader extends ConnectorClass
         useJavaScriptNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         generateConnection = new javax.swing.JButton();
         insertUpdateConnections = new javax.swing.JButton();
+        pollingTimeButton = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        pollingIntervalButton = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        jLabel5 = new javax.swing.JLabel();
+        pollingTimeLabel = new javax.swing.JLabel();
+        pollingTime = new com.webreach.mirth.client.ui.components.MirthTimePicker();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -421,7 +456,7 @@ public class DatabaseReader extends ConnectorClass
 
         onUpdateLabel.setText("On-Update SQL:");
 
-        jLabel7.setText("Polling Frequency (ms):");
+        pollingFrequencyLabel.setText("Polling Frequency (ms):");
 
         readOnUpdateYes.setBackground(new java.awt.Color(255, 255, 255));
         readOnUpdateYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -504,6 +539,36 @@ public class DatabaseReader extends ConnectorClass
             }
         });
 
+        pollingTimeButton.setBackground(new java.awt.Color(255, 255, 255));
+        pollingTimeButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        buttonGroup3.add(pollingTimeButton);
+        pollingTimeButton.setText("Time");
+        pollingTimeButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        pollingTimeButton.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                pollingTimeButtonActionPerformed(evt);
+            }
+        });
+
+        pollingIntervalButton.setBackground(new java.awt.Color(255, 255, 255));
+        pollingIntervalButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        buttonGroup3.add(pollingIntervalButton);
+        pollingIntervalButton.setText("Interval");
+        pollingIntervalButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        pollingIntervalButton.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                pollingIntervalButtonActionPerformed(evt);
+            }
+        });
+
+        jLabel5.setText("Polling Type:");
+
+        pollingTimeLabel.setText("Polling Time (daily):");
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -516,43 +581,52 @@ public class DatabaseReader extends ConnectorClass
                     .add(jLabel2)
                     .add(jLabel3)
                     .add(jLabel4)
-                    .add(jLabel7)
+                    .add(pollingFrequencyLabel)
                     .add(jLabel8)
                     .add(onUpdateLabel)
-                    .add(jLabel6))
+                    .add(jLabel6)
+                    .add(pollingTimeLabel)
+                    .add(jLabel5))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(databaseUsernameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(databaseURLField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 250, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(databaseDriverCombobox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(layout.createSequentialGroup()
-                                .add(databaseSQLTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 374, Short.MAX_VALUE)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED))
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                                    .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
-                                        .add(readOnUpdateYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                        .add(readOnUpdateNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 82, Short.MAX_VALUE)
-                                        .add(insertUpdateConnections))
-                                    .add(databaseUpdateSQLTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 273, Short.MAX_VALUE))
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(jScrollPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 95, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                        .addContainerGap())
-                    .add(databasePasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(layout.createSequentialGroup()
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(layout.createSequentialGroup()
-                                .add(useJavaScriptYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(useJavaScriptNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                            .add(pollingFreq, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 180, Short.MAX_VALUE)
-                        .add(generateConnection)
-                        .addContainerGap())))
+                        .add(pollingIntervalButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(pollingTimeButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(272, 272, 272))
+                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                        .add(layout.createSequentialGroup()
+                            .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                .add(databaseUsernameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .add(databaseURLField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 250, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .add(databaseDriverCombobox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .add(layout.createSequentialGroup()
+                                    .add(databaseSQLTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 362, Short.MAX_VALUE)
+                                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED))
+                                .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                                        .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
+                                            .add(readOnUpdateYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                            .add(readOnUpdateNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 70, Short.MAX_VALUE)
+                                            .add(insertUpdateConnections))
+                                        .add(databaseUpdateSQLTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 261, Short.MAX_VALUE))
+                                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 95, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                            .addContainerGap())
+                        .add(databasePasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(layout.createSequentialGroup()
+                            .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                .add(layout.createSequentialGroup()
+                                    .add(useJavaScriptYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                    .add(useJavaScriptNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                                .add(pollingFrequency, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .add(pollingTime, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 161, Short.MAX_VALUE)
+                            .add(generateConnection)
+                            .addContainerGap()))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -576,8 +650,17 @@ public class DatabaseReader extends ConnectorClass
                             .add(jLabel4))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(pollingFreq, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(jLabel7))
+                            .add(jLabel5)
+                            .add(pollingIntervalButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(pollingTimeButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                            .add(pollingFrequency, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(pollingFrequencyLabel))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                            .add(pollingTime, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(pollingTimeLabel))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                             .add(useJavaScriptYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -587,7 +670,7 @@ public class DatabaseReader extends ConnectorClass
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(sqlLabel)
-                    .add(databaseSQLTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE))
+                    .add(databaseSQLTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 91, Short.MAX_VALUE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel8)
@@ -597,30 +680,46 @@ public class DatabaseReader extends ConnectorClass
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(onUpdateLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 14, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(databaseUpdateSQLTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE)
-                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE))
+                    .add(databaseUpdateSQLTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 91, Short.MAX_VALUE)
+                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 91, Short.MAX_VALUE))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
-
+    
+    private void pollingIntervalButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_pollingIntervalButtonActionPerformed
+    {//GEN-HEADEREND:event_pollingIntervalButtonActionPerformed
+        pollingFrequencyLabel.setEnabled(true);
+        pollingTimeLabel.setEnabled(false);
+        pollingFrequency.setEnabled(true);
+        pollingTime.setEnabled(false);
+    }//GEN-LAST:event_pollingIntervalButtonActionPerformed
+    
+    private void pollingTimeButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_pollingTimeButtonActionPerformed
+    {//GEN-HEADEREND:event_pollingTimeButtonActionPerformed
+        pollingFrequencyLabel.setEnabled(false);
+        pollingTimeLabel.setEnabled(true);
+        pollingFrequency.setEnabled(false);
+        pollingTime.setEnabled(true);
+    }//GEN-LAST:event_pollingTimeButtonActionPerformed
+    
     private void insertUpdateConnectionsActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_insertUpdateConnectionsActionPerformed
     {//GEN-HEADEREND:event_insertUpdateConnectionsActionPerformed
         databaseUpdateSQLTextPane.setText(generateUpdateString() +"\n\n" + databaseUpdateSQLTextPane.getText());
-
+        
         parent.enableSave();
     }//GEN-LAST:event_insertUpdateConnectionsActionPerformed
-
+    
     private void generateConnectionActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_generateConnectionActionPerformed
     {// GEN-HEADEREND:event_generateConnectionActionPerformed
         databaseSQLTextPane.setText(generateConnectionString() +"\n\n" + databaseSQLTextPane.getText());
-
+        
         parent.enableSave();
     }// GEN-LAST:event_generateConnectionActionPerformed
     
     private String generateUpdateString()
     {
         String driver = "";
-
+        
         for (int i = 0; i < drivers.size(); i++)
         {
             DriverInfo driverInfo = drivers.get(i);
@@ -643,7 +742,7 @@ public class DatabaseReader extends ConnectorClass
     private String generateConnectionString()
     {
         String driver = "";
-
+        
         for (int i = 0; i < drivers.size(); i++)
         {
             DriverInfo driverInfo = drivers.get(i);
@@ -678,7 +777,7 @@ public class DatabaseReader extends ConnectorClass
         insertUpdateConnections.setEnabled(false);
         dbVarList.setPrefixAndSuffix("${", "}");
     }// GEN-LAST:event_useJavaScriptNoActionPerformed
-
+    
     private void useJavaScriptYesActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_useJavaScriptYesActionPerformed
     {// GEN-HEADEREND:event_useJavaScriptYesActionPerformed
         sqlLabel.setText("JavaScript:");
@@ -691,10 +790,10 @@ public class DatabaseReader extends ConnectorClass
         updateSQL();
         
         if (readOnUpdateYes.isSelected())
-            insertUpdateConnections.setEnabled(true);     
+            insertUpdateConnections.setEnabled(true);
         dbVarList.setPrefixAndSuffix("$('", "')");
     }// GEN-LAST:event_useJavaScriptYesActionPerformed
-
+    
     private void readOnUpdateNoActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_readOnUpdateNoActionPerformed
     {// GEN-HEADEREND:event_readOnUpdateNoActionPerformed
         onUpdateLabel.setEnabled(false);
@@ -702,7 +801,7 @@ public class DatabaseReader extends ConnectorClass
         
         insertUpdateConnections.setEnabled(false);
     }// GEN-LAST:event_readOnUpdateNoActionPerformed
-
+    
     private void readOnUpdateYesActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_readOnUpdateYesActionPerformed
     {// GEN-HEADEREND:event_readOnUpdateYesActionPerformed
         onUpdateLabel.setEnabled(true);
@@ -711,10 +810,11 @@ public class DatabaseReader extends ConnectorClass
         if (useJavaScriptYes.isSelected())
             insertUpdateConnections.setEnabled(true);
     }// GEN-LAST:event_readOnUpdateYesActionPerformed
-
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.ButtonGroup buttonGroup2;
+    private javax.swing.ButtonGroup buttonGroup3;
     private com.webreach.mirth.client.ui.components.MirthComboBox databaseDriverCombobox;
     private com.webreach.mirth.client.ui.components.MirthPasswordField databasePasswordField;
     private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea databaseSQLTextPane;
@@ -728,17 +828,22 @@ public class DatabaseReader extends ConnectorClass
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel onUpdateLabel;
-    private com.webreach.mirth.client.ui.components.MirthTextField pollingFreq;
+    private com.webreach.mirth.client.ui.components.MirthTextField pollingFrequency;
+    private javax.swing.JLabel pollingFrequencyLabel;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton pollingIntervalButton;
+    private com.webreach.mirth.client.ui.components.MirthTimePicker pollingTime;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton pollingTimeButton;
+    private javax.swing.JLabel pollingTimeLabel;
     private com.webreach.mirth.client.ui.components.MirthRadioButton readOnUpdateNo;
     private com.webreach.mirth.client.ui.components.MirthRadioButton readOnUpdateYes;
     private javax.swing.JLabel sqlLabel;
     private com.webreach.mirth.client.ui.components.MirthRadioButton useJavaScriptNo;
     private com.webreach.mirth.client.ui.components.MirthRadioButton useJavaScriptYes;
     // End of variables declaration//GEN-END:variables
-
+    
 }
