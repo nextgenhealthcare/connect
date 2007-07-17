@@ -60,23 +60,26 @@ public class PluginPanel extends javax.swing.JPanel
             {
                 try
                 {
-                    String pluginName = metaData.getName();
-                    ClientPlugin plugin = (ClientPlugin) Class.forName(metaData.getClientClassName()).getDeclaredConstructors()[0].newInstance(new Object[]{pluginName});
-                    
-                    plugin.start();
-                    
-                    // add task pane before the "other" pane
-                    if(plugin.getTaskPane() != null)
+                    if(metaData.getClientClassName() != null && metaData.getClientClassName().length() > 0)
                     {
-                        parent.setNonFocusable(plugin.getTaskPane());
-                        plugin.getTaskPane().setVisible(false);
-                        parent.taskPaneContainer.add(plugin.getTaskPane(), parent.taskPaneContainer.getComponentCount()-1);
+                            String pluginName = metaData.getName();
+                        ClientPlugin plugin = (ClientPlugin) Class.forName(metaData.getClientClassName()).getDeclaredConstructors()[0].newInstance(new Object[]{pluginName});
+
+                        plugin.start();
+
+                        // add task pane before the "other" pane
+                        if(plugin.getTaskPane() != null)
+                        {
+                            parent.setNonFocusable(plugin.getTaskPane());
+                            plugin.getTaskPane().setVisible(false);
+                            parent.taskPaneContainer.add(plugin.getTaskPane(), parent.taskPaneContainer.getComponentCount()-1);
+                        }
+
+                        if (plugin.getComponent() != null)
+                            tabs.addTab(pluginName, plugin.getComponent());
+
+                        loadedPlugins.put(pluginName, plugin);
                     }
-                    
-                    if (plugin.getComponent() != null)
-                        tabs.addTab(pluginName, plugin.getComponent());
-                    
-                    loadedPlugins.put(pluginName, plugin);
                 }
                 catch (Exception e)
                 {
