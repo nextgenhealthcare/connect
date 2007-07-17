@@ -69,6 +69,11 @@ public class JdbcMessageReceiver extends TransactedPollingMessageReceiver
     {
         super(connector, component, endpoint, new Long(((JdbcConnector) connector).getPollingFrequency()));
 
+        if(((JdbcConnector)connector).getPollingType().equals(JdbcConnector.POLLING_TYPE_TIME))
+            setTime(((JdbcConnector) connector).getPollingTime());
+        else
+            setFrequency(((JdbcConnector) connector).getPollingFrequency());
+        
         this.receiveMessagesInTransaction = false;
         this.connector = (JdbcConnector) connector;
     }
@@ -79,7 +84,12 @@ public class JdbcMessageReceiver extends TransactedPollingMessageReceiver
 
         this.receiveMessagesInTransaction = false;
         this.connector = (JdbcConnector) connector;
-
+        
+        if(((JdbcConnector)connector).getPollingType().equals(JdbcConnector.POLLING_TYPE_TIME))
+            setTime(((JdbcConnector) connector).getPollingTime());
+        else
+            setFrequency(((JdbcConnector) connector).getPollingFrequency());
+        
         this.readParams = new ArrayList();
         this.readStmt = JdbcUtils.parseStatement(readStmt, this.readParams);
         this.ackParams = new ArrayList();

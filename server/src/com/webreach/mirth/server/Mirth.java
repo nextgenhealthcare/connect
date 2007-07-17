@@ -192,9 +192,10 @@ public class Mirth extends Thread {
             configurationController.compileScripts(channels);
             
             configurationController.executeGlobalDeployScript();
-            configurationController.executeChannelDeployScripts(channels);
+            configurationController.executeChannelDeployScripts(channelController.getChannel(null));
             
 			muleManager = (MuleManager) builder.configure(configurationFilePath);
+            
 		} catch (ConfigurationException e) {
 			logger.warn("Error deploying channels.", e);
 
@@ -211,8 +212,8 @@ public class Mirth extends Thread {
 		} catch (Exception e) {
 			logger.error("Could not start Mule.");
 		}
-
-		configurationController.setEngineStarting(false);
+        
+        configurationController.setEngineStarting(false);
 	}
 
 	/**

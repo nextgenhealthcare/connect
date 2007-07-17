@@ -48,7 +48,7 @@ import java.util.List;
 public class VMMessageReceiver extends TransactedPollingMessageReceiver {
 	private VMConnector connector;
 	private Object lock = new Object();
-
+    
 	public VMMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint) throws InitialisationException {
 		super(connector, component, endpoint, new Long(10));
 		this.connector = (VMConnector) connector;

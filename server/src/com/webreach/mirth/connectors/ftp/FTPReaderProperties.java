@@ -35,25 +35,27 @@ public class FTPReaderProperties implements ComponentProperties
 
     public static final String DATATYPE = "DataType";
     public static final String FTP_HOST = "host";
+    public static final String FTP_POLLING_TYPE = "pollingType";
+    public static final String FTP_POLLING_TIME = "pollingTime";
     public static final String FTP_ANONYMOUS = "FTPAnonymous";
     public static final String FTP_USERNAME = "username";
     public static final String FTP_PASSWORD = "password";
     public static final String FTP_POLLING_FREQUENCY = "pollingFrequency";
     public static final String FTP_PASSIVE_MODE = "passive";
     public static final String FTP_VALIDATE_CONNECTION = "validateConnections";
-    public static final String FILE_MOVE_TO_PATTERN = "moveToPattern";
-    public static final String FILE_MOVE_TO_DIRECTORY = "moveToDirectory";
-    public static final String FILE_DELETE_AFTER_READ = "autoDelete";
-    public static final String FILE_CHECK_FILE_AGE = "checkFileAge";
-    public static final String FILE_FILE_AGE = "fileAge";
-    public static final String FILE_SORT_BY = "sortAttribute";
-    public static final String FILE_PROCESS_BATCH_FILES = "processBatchFiles";
+    public static final String FTP_MOVE_TO_PATTERN = "moveToPattern";
+    public static final String FTP_MOVE_TO_DIRECTORY = "moveToDirectory";
+    public static final String FTP_DELETE_AFTER_READ = "autoDelete";
+    public static final String FTP_CHECK_FTP_AGE = "checkFileAge";
+    public static final String FTP_FTP_AGE = "fileAge";
+    public static final String FTP_SORT_BY = "sortAttribute";
+    public static final String FTP_PROCESS_BATCH_FILES = "processBatchFiles";
     public static final String SORT_BY_NAME = "name";
     public static final String SORT_BY_SIZE = "size";
     public static final String SORT_BY_DATE = "date";
     public static final String CONNECTOR_CHARSET_ENCODING = "charsetEncoding";
-    public static final String FILE_FILTER = "fileFilter";
-    public static final String FILE_TYPE = "binary";
+    public static final String FTP_FILTER = "fileFilter";
+    public static final String FTP_TYPE = "binary";
 
     public Properties getDefaults()
     {
@@ -63,19 +65,21 @@ public class FTPReaderProperties implements ComponentProperties
         properties.put(FTP_ANONYMOUS, "1");
         properties.put(FTP_USERNAME, "anonymous");
         properties.put(FTP_PASSWORD, "anonymous");
+        properties.put(FTP_POLLING_TYPE, "interval");
+        properties.put(FTP_POLLING_TIME, "12:00 AM");
         properties.put(FTP_POLLING_FREQUENCY, "1000");
         properties.put(FTP_PASSIVE_MODE, "1");
         properties.put(FTP_VALIDATE_CONNECTION, "1");
-        properties.put(FILE_MOVE_TO_PATTERN, "");
-        properties.put(FILE_MOVE_TO_DIRECTORY, "");
-        properties.put(FILE_DELETE_AFTER_READ, "0");
-        properties.put(FILE_CHECK_FILE_AGE, "0");
-        properties.put(FILE_FILE_AGE, "0");
-        properties.put(FILE_SORT_BY, SORT_BY_DATE);
-        properties.put(FILE_TYPE, "0");
+        properties.put(FTP_MOVE_TO_PATTERN, "");
+        properties.put(FTP_MOVE_TO_DIRECTORY, "");
+        properties.put(FTP_DELETE_AFTER_READ, "0");
+        properties.put(FTP_CHECK_FTP_AGE, "0");
+        properties.put(FTP_FTP_AGE, "0");
+        properties.put(FTP_SORT_BY, SORT_BY_DATE);
+        properties.put(FTP_TYPE, "0");
         properties.put(CONNECTOR_CHARSET_ENCODING, "DEFAULT_ENCODING");
-        properties.put(FILE_FILTER, "*.*");
-        properties.put(FILE_PROCESS_BATCH_FILES, "1");
+        properties.put(FTP_FILTER, "*.*");
+        properties.put(FTP_PROCESS_BATCH_FILES, "1");
         return properties;
     }
 }

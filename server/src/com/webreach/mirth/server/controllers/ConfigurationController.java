@@ -323,8 +323,16 @@ public class ConfigurationController {
         
         for(Channel channel : channels)
         {
-            JavaScriptUtil.getInstance().compileScript(channel.getId() + "_deploy", channel.getDeployScript());
-            JavaScriptUtil.getInstance().compileScript(channel.getId() + "_shutdown", channel.getShutdownScript());
+            if(channel.isEnabled())
+            {
+                JavaScriptUtil.getInstance().compileScript(channel.getId() + "_deploy", channel.getDeployScript());
+                JavaScriptUtil.getInstance().compileScript(channel.getId() + "_shutdown", channel.getShutdownScript());
+            }
+            else
+            {
+                JavaScriptUtil.getInstance().removeScriptFromCache(channel.getId() + "_deploy");
+                JavaScriptUtil.getInstance().removeScriptFromCache(channel.getId() + "_shutdown");
+            }
         }
     }
     
@@ -358,14 +366,7 @@ public class ConfigurationController {
     
     public void executeGlobalScript(String scriptType)
     {
-        try
-        {
-            JavaScriptUtil.getInstance().executeScript(scriptType, scriptType, null);
-        }
-        catch(Exception e)
-        {
-            logger.error("unable to execute " + scriptType + " script.", e);
-        }
+        JavaScriptUtil.getInstance().executeScript(scriptType, scriptType, null);
     }
     
     public Map<String, String>  getGlobalScripts() throws ControllerException 

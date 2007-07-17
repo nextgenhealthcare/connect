@@ -75,7 +75,7 @@ public class TcpMessageResponseQueued extends PollingMessageReceiver {
 		}
 	}
 
-	public void doStart() throws UMOException {
+	/*public void doStart() throws UMOException {
 
 		super.doStart();
 		// System.out.println("[TcpMessageDispatcherQueued] doStart() ");
@@ -87,7 +87,7 @@ public class TcpMessageResponseQueued extends PollingMessageReceiver {
 		super.doStop();
 		// System.out.println("[TcpMessageDispatcherQueued] doStop() ");
 
-	}
+	}*/
 
 	public int getQueueSize() {
 		if (queue != null)

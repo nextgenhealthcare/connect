@@ -60,4 +60,9 @@ public class CompiledScriptCache {
 		logger.debug("adding script to cache");
 		compiledScripts.put(id, compiledScript);
 	}
+    
+    public void removeCompiledScript(String id) {
+        logger.debug("removing script from cache");
+        compiledScripts.remove(id);
+    }
 }

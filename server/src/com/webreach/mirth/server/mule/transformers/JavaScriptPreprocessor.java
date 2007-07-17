@@ -101,7 +101,6 @@ public class JavaScriptPreprocessor extends AbstractTransformer {
             {
                 Object result = globalCompiledScript.exec(context, scope);
                 String processedMessage = (String) Context.jsToJava(result, java.lang.String.class);
-                scope.put("message", scope, processedMessage);
                 
                 if (processedMessage != null) {
                     returnValue = processedMessage;

@@ -47,6 +47,12 @@ public class SftpMessageReceiver extends PollingMessageReceiver {
 	public SftpMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint, Long frequency) throws InitialisationException {
 		super(connector, component, endpoint, frequency);
 		this.connector = (SftpConnector) connector;
+        
+        if(((SftpConnector) connector).getPollingType().equals(SftpConnector.POLLING_TYPE_TIME))
+            setTime(((SftpConnector) connector).getPollingTime());
+        else
+            setFrequency(((SftpConnector) connector).getPollingFrequency());
+        
 		filenameFilter = new FilenameWildcardFilter(this.connector.getFileFilter());
 	}
 

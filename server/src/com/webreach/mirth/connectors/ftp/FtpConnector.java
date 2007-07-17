@@ -47,6 +47,8 @@ import com.webreach.mirth.server.controllers.SystemLogger;
  * @version $Revision: 1.7 $
  */
 public class FtpConnector extends AbstractServiceEnabledConnector {
+    public static final String PROPERTY_POLLING_TYPE = "pollingType";
+    public static final String PROPERTY_POLLING_TIME = "pollingTime";
 	public static final String PROPERTY_ORIGINAL_FILENAME = "originalFilename";
 	public static final String PROPERTY_POLLING_FREQUENCY = "pollingFrequency";
 	public static final String PROPERTY_FILENAME = "filename";
@@ -65,6 +67,10 @@ public class FtpConnector extends AbstractServiceEnabledConnector {
 	public static final String SORT_DATE = "date";
 	public static final String SORT_SIZE = "size";
 	public static final long DEFAULT_POLLING_FREQUENCY = 1000;
+    
+    public static final String POLLING_TYPE_INTERVAL = "interval";
+    public static final String POLLING_TYPE_TIME = "time";
+    
 	// ast: encoding Charset
 	public static final String PROPERTY_CHARSET_ENCODING = "charsetEncoding";
 	public static final String CHARSET_KEY = "ca.uhn.hl7v2.llp.charset";
@@ -74,6 +80,8 @@ public class FtpConnector extends AbstractServiceEnabledConnector {
 	/**
 	 * Time in milliseconds to poll. On each poll the poll() method is called
 	 */
+    private String pollingType = POLLING_TYPE_INTERVAL;
+    private String pollingTime = "12:00 AM";
 	private long pollingFrequency = 0;
 	private String outputPattern = null;
 	private String template = null;
@@ -243,6 +251,15 @@ public class FtpConnector extends AbstractServiceEnabledConnector {
 			if (tempPolling != null) {
 				polling = Long.parseLong(tempPolling);
 			}
+            
+            String pollingType = (String) props.get(PROPERTY_POLLING_TYPE);
+            if (pollingType != null) {
+                setPollingType(pollingType);
+            }
+            String pollingTime = (String) props.get(PROPERTY_POLLING_TIME);
+            if (pollingTime != null) {
+                setPollingTime(pollingTime);
+            }
 		}
 		if (polling <= 0) {
 			polling = 1000;
@@ -457,4 +474,23 @@ public class FtpConnector extends AbstractServiceEnabledConnector {
 	public void setValidateConnections(boolean validateConnections) {
 		this.validateConnections = validateConnections;
 	}
+    public String getPollingTime()
+    {
+        return pollingTime;
+    }
+
+    public void setPollingTime(String pollingTime)
+    {
+        this.pollingTime = pollingTime;
+    }
+
+    public String getPollingType()
+    {
+        return pollingType;
+    }
+
+    public void setPollingType(String pollingType)
+    {
+        this.pollingType = pollingType;
+    }
 }

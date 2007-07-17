@@ -35,6 +35,8 @@ public class FileReaderProperties implements ComponentProperties
 	
     public static final String DATATYPE = "DataType";
     public static final String FILE_DIRECTORY = "host";
+    public static final String FILE_POLLING_TYPE = "pollingType";
+    public static final String FILE_POLLING_TIME = "pollingTime";
     public static final String FILE_POLLING_FREQUENCY = "pollingFrequency";
     public static final String FILE_MOVE_TO_PATTERN = "moveToPattern";
     public static final String FILE_MOVE_TO_DIRECTORY = "moveToDirectory";
@@ -55,6 +57,8 @@ public class FileReaderProperties implements ComponentProperties
         Properties properties = new Properties();
         properties.put(DATATYPE, name);
         properties.put(FILE_DIRECTORY, "");
+        properties.put(FILE_POLLING_TYPE, "interval");
+        properties.put(FILE_POLLING_TIME, "12:00 AM");
         properties.put(FILE_POLLING_FREQUENCY, "1000");
         properties.put(FILE_MOVE_TO_PATTERN, "");
         properties.put(FILE_MOVE_TO_DIRECTORY, "");

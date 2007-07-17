@@ -88,9 +88,12 @@ public class JavaScriptUtil
     {
         try
         {
-            Context context = getContext();
-
             Script compiledScript = compiledScriptCache.getCompiledScript(scriptId);
+            
+            if(compiledScript == null)
+                return;
+            
+            Context context = getContext();
 
             Scriptable scope = getScope();
             
@@ -128,5 +131,11 @@ public class JavaScriptUtil
         builtScript.append("function doScript() {" + script + " }\n");
         builtScript.append("doScript()\n");
         return builtScript.toString();
+    }
+    
+    public void removeScriptFromCache(String scriptId)
+    {
+        if(compiledScriptCache.getCompiledScript(scriptId) != null)
+            compiledScriptCache.removeCompiledScript(scriptId);
     }
 }

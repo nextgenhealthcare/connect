@@ -65,6 +65,8 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 	// These are properties that can be overridden on the Receiver by the
 	// endpoint
 	// declarations
+    public static final String PROPERTY_POLLING_TYPE = "pollingType";
+    public static final String PROPERTY_POLLING_TIME = "pollingTime";
 	public static final String PROPERTY_POLLING_FREQUENCY = "pollingFrequency";
 	public static final String PROPERTY_FILE_AGE = "fileAge";
 	public static final String PROPERTY_FILE_FILTER = "fileFilter";
@@ -83,7 +85,10 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 	public static final String SORT_NAME = "name";
 	public static final String SORT_DATE = "date";
 	public static final String SORT_SIZE = "size";
-
+	
+    public static final String POLLING_TYPE_INTERVAL = "interval";
+    public static final String POLLING_TYPE_TIME = "time";
+    
 	public static final long DEFAULT_POLLING_FREQUENCY = 1000;
 
 	// ast: encoding Charset
@@ -94,6 +99,8 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 	/**
 	 * Time in milliseconds to poll. On each poll the poll() method is called
 	 */
+    private String pollingType = POLLING_TYPE_INTERVAL;
+    private String pollingTime = "12:00 AM";
 	private long pollingFrequency = 0;
 	private String moveToPattern = null;
 	private String writeToDirectoryName = null;
@@ -166,6 +173,14 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 			if (tempFileAge != null) {
 				setFileAge(tempFileAge.longValue());
 			}
+            String pollingType = (String) props.get(PROPERTY_POLLING_TYPE);
+            if (pollingType != null) {
+                setPollingType(pollingType);
+            }
+            String pollingTime = (String) props.get(PROPERTY_POLLING_TIME);
+            if (pollingTime != null) {
+                setPollingTime(pollingTime);
+            }
 		}
 		if (polling <= 0) {
 			polling = DEFAULT_POLLING_FREQUENCY;
@@ -476,4 +491,24 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 	public void setChannelId(String channelId) {
 		this.channelId = channelId;
 	}
+
+    public String getPollingTime()
+    {
+        return pollingTime;
+    }
+
+    public void setPollingTime(String pollingTime)
+    {
+        this.pollingTime = pollingTime;
+    }
+
+    public String getPollingType()
+    {
+        return pollingType;
+    }
+
+    public void setPollingType(String pollingType)
+    {
+        this.pollingType = pollingType;
+    }
 }

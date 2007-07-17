@@ -64,6 +64,12 @@ public class FtpMessageReceiver extends PollingMessageReceiver {
 	public FtpMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint, Long frequency) throws InitialisationException {
 		super(connector, component, endpoint, frequency);
 		this.connector = (FtpConnector) connector;
+        
+        if(((FtpConnector)connector).getPollingType().equals(FtpConnector.POLLING_TYPE_TIME))
+            setTime(((FtpConnector) connector).getPollingTime());
+        else
+            setFrequency(((FtpConnector) connector).getPollingFrequency());
+        
 		filenameFilter = new FilenameWildcardFilter(this.connector.getFileFilter());
 	}
 

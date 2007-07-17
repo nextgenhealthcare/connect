@@ -40,6 +40,8 @@ public class DatabaseReaderProperties implements ComponentProperties
     public static final String DATABASE_URL = "URL";
     public static final String DATABASE_USERNAME = "username";
     public static final String DATABASE_PASSWORD = "password";
+    public static final String DATABASE_POLLING_TYPE = "pollingType";
+    public static final String DATABASE_POLLING_TIME = "pollingTime";
     public static final String DATABASE_POLLING_FREQUENCY = "pollingFrequency";
     public static final String DATABASE_SQL_STATEMENT = "query";
     public static final String DATABASE_JS_SQL_STATEMENT = "script";
@@ -58,6 +60,8 @@ public class DatabaseReaderProperties implements ComponentProperties
         properties.put(DATABASE_USERNAME, "");
         properties.put(DATABASE_PASSWORD, "");
         properties.put(DATABASE_POLLING_FREQUENCY, "5000");
+        properties.put(DATABASE_POLLING_TYPE, "interval");
+        properties.put(DATABASE_POLLING_TIME, "12:00 AM");
         properties.put(DATABASE_SQL_STATEMENT, "SELECT FROM");
         properties.put(DATABASE_USE_JS, "0");
         properties.put(DATABASE_JS_SQL_STATEMENT, "");

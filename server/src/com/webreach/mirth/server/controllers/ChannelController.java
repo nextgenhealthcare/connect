@@ -46,7 +46,8 @@ public class ChannelController {
 	private static HashMap<String, Channel> channelCache = new HashMap<String, Channel>();
 	private static HashMap<String, String> channelIdLookup = new HashMap<String, String>();
 	private ChannelStatisticsController statisticsController = ChannelStatisticsController.getInstance();
-
+    private ChannelStatusController statusController = new ChannelStatusController();
+    
 	public void initialize() {
 		try {
 			updateChannelCache(getChannel(null));
@@ -105,6 +106,18 @@ public class ChannelController {
 			throw new ControllerException(e);
 		}
 	}
+    
+    public List<Channel> getEnabledChannels() throws ControllerException {
+        List<Channel> channels = getChannel(null);
+
+        for (int i = 0; i < channels.size(); i++)
+        {
+            if(!channels.get(i).isEnabled())
+                channels.remove(i);
+        }
+        
+        return channels;
+    }
 
 	public List<ChannelSummary> getChannelSummary(Map<String, Integer> cachedChannels) throws ControllerException {
 		logger.debug("getting channel summary");

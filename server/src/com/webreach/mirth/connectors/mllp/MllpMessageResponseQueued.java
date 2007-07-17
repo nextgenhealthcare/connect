@@ -75,7 +75,7 @@ public class MllpMessageResponseQueued extends PollingMessageReceiver {
 		}
 	}
 
-	public void doStart() throws UMOException {
+	/*public void doStart() throws UMOException {
 
 		super.doStart();
 		// System.out.println("[TcpMessageDispatcherQueued] doStart() ");
@@ -87,7 +87,7 @@ public class MllpMessageResponseQueued extends PollingMessageReceiver {
 		super.doStop();
 		// System.out.println("[TcpMessageDispatcherQueued] doStop() ");
 
-	}
+	}*/
 
 	public int getQueueSize() {
 		if (queue != null)

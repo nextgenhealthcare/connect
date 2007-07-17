@@ -46,7 +46,17 @@ import com.webreach.mirth.server.util.CompiledScriptCache;
 public class JdbcConnector extends AbstractServiceEnabledConnector {
 	private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
 	private ScriptController scriptController = new ScriptController();
-
+	
+    public static final String PROPERTY_POLLING_FREQUENCY = "pollingFrequency";
+    
+    public static final String PROPERTY_POLLING_TYPE = "pollingType";
+    public static final String PROPERTY_POLLING_TIME = "pollingTime";
+    
+    public static final String POLLING_TYPE_INTERVAL = "interval";
+    public static final String POLLING_TYPE_TIME = "time";
+    
+    private String pollingType = POLLING_TYPE_INTERVAL;
+    private String pollingTime = "12:00 AM";
 	private long pollingFrequency = 5000;
 	private DataSource dataSource;
 	private String driver;
@@ -148,6 +158,30 @@ public class JdbcConnector extends AbstractServiceEnabledConnector {
 		if (!this.useScript) {
 			params = getReadAndAckStatements(endpoint.getEndpointURI(), endpoint);
 		}
+        
+        long polling = pollingFrequency;
+        Map props = endpoint.getProperties();
+        if (props != null) {
+            // Override properties on the endpoint for the specific endpoint
+            String tempPolling = (String) props.get(PROPERTY_POLLING_FREQUENCY);
+            if (tempPolling != null) {
+                polling = Long.parseLong(tempPolling);
+            }
+            
+            String pollingType = (String) props.get(PROPERTY_POLLING_TYPE);
+            if (pollingType != null) {
+                setPollingType(pollingType);
+            }
+            String pollingTime = (String) props.get(PROPERTY_POLLING_TIME);
+            if (pollingTime != null) {
+                setPollingTime(pollingTime);
+            }
+        }
+        if (polling <= 0) {
+            polling = 1000;
+        }
+        logger.debug("set polling frequency to: " + polling);
+        
 		return getServiceDescriptor().createMessageReceiver(this, component, endpoint, params);
 	}
 
@@ -481,5 +515,24 @@ public class JdbcConnector extends AbstractServiceEnabledConnector {
 	public void setAckScriptId(String ackScriptId) {
 		this.ackScriptId = ackScriptId;
 	}
+	
+    public String getPollingTime()
+    {
+        return pollingTime;
+    }
 
+    public void setPollingTime(String pollingTime)
+    {
+        this.pollingTime = pollingTime;
+    }
+
+    public String getPollingType()
+    {
+        return pollingType;
+    }
+
+    public void setPollingType(String pollingType)
+    {
+        this.pollingType = pollingType;
+    }
 }

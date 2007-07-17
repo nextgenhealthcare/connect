@@ -72,6 +72,12 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 		this.readDir = readDir;
 		this.moveDir = moveDir;
 		this.moveToPattern = moveToPattern;
+        
+        if(((FileConnector) connector).getPollingType().equals(FileConnector.POLLING_TYPE_TIME))
+            setTime(((FileConnector) connector).getPollingTime());
+        else
+            setFrequency(((FileConnector) connector).getPollingFrequency());
+        
 		filenameFilter = new FilenameWildcardFilter(((FileConnector) connector).getFileFilter());
 	}
 
