@@ -100,22 +100,25 @@ public class PluginController
         {
             try
             {
-                ServerPlugin plugin = (ServerPlugin) Class.forName(metaData.getServerClassName()).newInstance();
-                String pluginName = metaData.getName();
-                Properties properties = null;
-
-                try
+                if(metaData.getServerClassName() != null && metaData.getServerClassName().length() > 0)
                 {
-                    properties = getPluginProperties(pluginName);
+                    ServerPlugin plugin = (ServerPlugin) Class.forName(metaData.getServerClassName()).newInstance();
+                    String pluginName = metaData.getName();
+                    Properties properties = null;
+    
+                    try
+                    {
+                        properties = getPluginProperties(pluginName);
+                    }
+                    catch (Exception e)
+                    {
+                        properties = plugin.getDefaultProperties();
+                        setPluginProperties(pluginName, properties);
+                    }
+    
+                    plugin.init(properties);
+                    loadedPlugins.put(pluginName, plugin);
                 }
-                catch (Exception e)
-                {
-                    properties = plugin.getDefaultProperties();
-                    setPluginProperties(pluginName, properties);
-                }
-
-                plugin.init(properties);
-                loadedPlugins.put(pluginName, plugin);
             }
             catch (Exception e)
             {

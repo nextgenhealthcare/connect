@@ -35,8 +35,8 @@ public class PluginMetaData implements MetaData, Serializable {
     private String author;
     private String pluginVersion;
     private String mirthVersion;
-	private String serverClassName;
-	private String clientClassName;
+	private String serverClassName = null;
+	private String clientClassName = null;
 
 	public String getServerClassName() {
 		return this.serverClassName;
