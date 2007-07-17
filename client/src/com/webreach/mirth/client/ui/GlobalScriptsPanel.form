@@ -23,6 +23,9 @@
   </Layout>
   <SubComponents>
     <Component class="com.webreach.mirth.client.ui.ScriptPanel" name="scriptPanel">
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new ScriptPanel(ReferenceListFactory.GLOBAL_CONTEXT);"/>
+      </AuxValues>
     </Component>
   </SubComponents>
 </Form>

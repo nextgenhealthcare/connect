@@ -6,6 +6,8 @@
 
 package com.webreach.mirth.client.ui.editors;
 
+import com.webreach.mirth.client.ui.FunctionList;
+import com.webreach.mirth.client.ui.panels.reference.ReferenceListFactory;
 import com.webreach.mirth.model.Rule;
 import java.util.List;
 import java.util.Properties;
@@ -142,7 +144,7 @@ public class TabbedTemplatePanel extends javax.swing.JPanel
         tabPanel = new javax.swing.JTabbedPane();
         variableTab = new javax.swing.JPanel();
         variableSplitPane = new javax.swing.JSplitPane();
-        functionList = new com.webreach.mirth.client.ui.FunctionList();
+        functionList = new FunctionList(ReferenceListFactory.MESSAGE_CONTEXT);
         variableListScrollPane = new javax.swing.JScrollPane();
         variableTable = new com.webreach.mirth.client.ui.panels.reference.VariableReferenceTable();
         incomingTab = new javax.swing.JPanel();

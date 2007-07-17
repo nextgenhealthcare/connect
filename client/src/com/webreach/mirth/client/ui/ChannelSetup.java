@@ -1047,7 +1047,7 @@ public class ChannelSetup extends javax.swing.JPanel
         destinationConnectorClass = new com.webreach.mirth.connectors.ConnectorClass();
         destinationTablePane = new javax.swing.JScrollPane();
         destinationTable = new com.webreach.mirth.client.ui.components.MirthTable();
-        scripts = new com.webreach.mirth.client.ui.ScriptPanel();
+        scripts = new ScriptPanel(ReferenceListFactory.CHANNEL_CONTEXT);
 
         setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         channelView.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));

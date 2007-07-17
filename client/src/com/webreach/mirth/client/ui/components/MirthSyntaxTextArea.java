@@ -50,6 +50,7 @@ import com.webreach.mirth.client.ui.actions.UndoAction;
 import com.webreach.mirth.client.ui.panels.reference.ReferenceListFactory;
 import com.webreach.mirth.client.ui.panels.reference.ReferenceListItem;
 import com.webreach.mirth.client.ui.panels.reference.ReferenceListFactory.ListType;
+import org.syntax.jedit.JEditTextArea.PopUpHandler;
 
 /**
  * Mirth's implementation of the JTextArea. Adds enabling of the save button in
@@ -86,10 +87,10 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
 
     public MirthSyntaxTextArea()
     {
-        initialize(false, false);
+        initialize(false, false, ReferenceListFactory.GLOBAL_CONTEXT);
     }
 
-    private void initialize(boolean lineNumbers, final boolean showSnippets)
+    private void initialize(boolean lineNumbers, final boolean showSnippets, final int context)
     {
         this.parent = PlatformUI.MIRTH_FRAME;
         this.setFocusable(true);
@@ -122,7 +123,7 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
             hl7list = new JMenu("HL7 Helpers");
             funclist = new JMenu("Built-in Functions");
             ReferenceListFactory functionBuilder = new ReferenceListFactory();
-            ArrayList<ReferenceListItem> jshelpers = functionBuilder.getVariableListItems(ListType.ALL);
+            ArrayList<ReferenceListItem> jshelpers = functionBuilder.getVariableListItems(ListType.ALL, context);
             Iterator<ReferenceListItem> it = jshelpers.iterator();
 
             while (it.hasNext())
@@ -171,11 +172,17 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
         };
 
     }
-
+    
     public MirthSyntaxTextArea(boolean lineNumbers, final boolean showSnippets)
     {
         super(lineNumbers);
-        initialize(lineNumbers, showSnippets);
+        initialize(lineNumbers, showSnippets, ReferenceListFactory.GLOBAL_CONTEXT);
+    }
+    
+    public MirthSyntaxTextArea(boolean lineNumbers, final boolean showSnippets, final int context)
+    {
+        super(lineNumbers);
+        initialize(lineNumbers, showSnippets, context);
     }
 
     /*

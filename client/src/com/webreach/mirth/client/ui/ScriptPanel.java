@@ -21,10 +21,18 @@ public class ScriptPanel extends javax.swing.JPanel
     private static SyntaxDocument preprocessorDoc;
     private static SyntaxDocument deployDoc;
     private static SyntaxDocument shutdownDoc;
+    private int context;
     
-    /** Creates new form ScriptPanel */
     public ScriptPanel()
     {
+        initComponents();
+    }
+    
+    /** Creates new form ScriptPanel */
+    public ScriptPanel(int context)
+    {
+        this.context = context;
+        
         initComponents();
         preprocessorDoc = new SyntaxDocument();
         preprocessorDoc.setTokenMarker(new JavaScriptTokenMarker());
@@ -120,11 +128,11 @@ public class ScriptPanel extends javax.swing.JPanel
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents()
     {
-        preprocessor = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea(true,false);
-        functionList1 = new com.webreach.mirth.client.ui.FunctionList();
+        preprocessor = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea(true,true,this.context);
+        functionList1 = new FunctionList(this.context);
         jLabel2 = new javax.swing.JLabel();
-        shutdown = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea(true,false);
-        deploy = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea(true,false);
+        shutdown = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea(true,true,this.context);
+        deploy = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea(true,true,this.context);
         jLabel5 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
 
@@ -146,31 +154,21 @@ public class ScriptPanel extends javax.swing.JPanel
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
+                .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(layout.createSequentialGroup()
-                                .addContainerGap()
-                                .add(jLabel5)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 293, Short.MAX_VALUE))
-                            .add(layout.createSequentialGroup()
-                                .addContainerGap()
-                                .add(jLabel4)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 278, Short.MAX_VALUE))
-                            .add(layout.createSequentialGroup()
-                                .addContainerGap()
-                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                    .add(deploy, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
-                                    .add(layout.createSequentialGroup()
-                                        .add(jLabel2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 101, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                        .add(259, 259, 259)))))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED))
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                        .addContainerGap()
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                            .add(org.jdesktop.layout.GroupLayout.LEADING, preprocessor, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
-                            .add(org.jdesktop.layout.GroupLayout.LEADING, shutdown, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)))
+                        .add(jLabel5)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 293, Short.MAX_VALUE))
+                    .add(layout.createSequentialGroup()
+                        .add(jLabel4)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 278, Short.MAX_VALUE))
+                    .add(deploy, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
+                    .add(layout.createSequentialGroup()
+                        .add(jLabel2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 101, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(259, 259, 259))
+                    .add(preprocessor, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
+                    .add(shutdown, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(functionList1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 199, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );

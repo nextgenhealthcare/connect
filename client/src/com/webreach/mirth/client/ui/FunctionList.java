@@ -21,20 +21,26 @@ public class FunctionList extends javax.swing.JPanel
 {
     private LinkedHashMap<String, JPanel> panels;
     
-    /** Creates new form FunctionList */
     public FunctionList()
+    {
+        initComponents();
+    }
+    
+    /** Creates new form FunctionList */
+    public FunctionList(int context)
     {
         initComponents();
         panels = new LinkedHashMap<String, JPanel>();
         ReferenceListFactory builder = new ReferenceListFactory();
-        addPanel(new ReferenceListPanel("All", builder.getVariableListItems(ListType.ALL)), "All");
-        addPanel(new ReferenceListPanel("Utility Functions", builder.getVariableListItems(ListType.UTILITY)), "Utility Functions");
-        addPanel(new ReferenceListPanel("Date Functions", builder.getVariableListItems(ListType.DATE)), "Date Functions");
-        addPanel(new ReferenceListPanel("Conversion Functions", builder.getVariableListItems(ListType.CONVERSION)), "Conversion Functions");
-        addPanel(new ReferenceListPanel("Logging and Alerts", builder.getVariableListItems(ListType.LOGGING_AND_ALERTS)), "Logging and Alerts");
-        addPanel(new ReferenceListPanel("Database Functions", builder.getVariableListItems(ListType.DATABASE)), "Database Functions");
-        addPanel(new ReferenceListPanel("Message Functions", builder.getVariableListItems(ListType.MESSAGE)), "Message Functions");
-        addPanel(new ReferenceListPanel("Map Functions", builder.getVariableListItems(ListType.MAP)), "Map Functions");
+        addPanel(new ReferenceListPanel("All", builder.getVariableListItems(ListType.ALL, context)), "All");
+        addPanel(new ReferenceListPanel("Utility Functions", builder.getVariableListItems(ListType.UTILITY, context)), "Utility Functions");
+        addPanel(new ReferenceListPanel("Date Functions", builder.getVariableListItems(ListType.DATE, context)), "Date Functions");
+        addPanel(new ReferenceListPanel("Conversion Functions", builder.getVariableListItems(ListType.CONVERSION, context)), "Conversion Functions");
+        addPanel(new ReferenceListPanel("Logging and Alerts", builder.getVariableListItems(ListType.LOGGING_AND_ALERTS, context)), "Logging and Alerts");
+        addPanel(new ReferenceListPanel("Database Functions", builder.getVariableListItems(ListType.DATABASE, context)), "Database Functions");
+        if(context >= ReferenceListFactory.MESSAGE_CONTEXT)
+            addPanel(new ReferenceListPanel("Message Functions", builder.getVariableListItems(ListType.MESSAGE, context)), "Message Functions");
+        addPanel(new ReferenceListPanel("Map Functions", builder.getVariableListItems(ListType.MAP, context)), "Map Functions");
         setReferencePanel();
     }
     
