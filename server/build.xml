@@ -368,8 +368,8 @@
 
 		<!-- create the mirth-launcher jar -->
 		<jar destfile="${setup}/${mirth-launcher.jar}" basedir="${classes}">
-			<include name="com/webreach/mirth/server/launcher/MirthLauncher.class" />
-			<include name="com/webreach/mirth/server/launcher/ClasspathBuilder.class" />
+			<include name="com/webreach/mirth/server/launcher/**" />
+			<exclude name="com/webreach/mirth/server/launcher/ShellLauncher.class" />
 			<manifest>
 				<attribute name="Main-Class" value="com.webreach.mirth.server.launcher.MirthLauncher" />
 				<attribute name="Class-Path" value="lib/log4j-1.2.13.jar conf/ plugins/" />
@@ -378,8 +378,8 @@
 		
 		<!-- create the shell-launcher jar -->
 		<jar destfile="${setup}/${shell-launcher.jar}" basedir="${classes}">
-			<include name="com/webreach/mirth/server/launcher/ShellLauncher.class" />
-			<include name="com/webreach/mirth/server/launcher/ClasspathBuilder.class" />
+			<include name="com/webreach/mirth/server/launcher/**" />
+			<exclude name="com/webreach/mirth/server/launcher/MirthLauncher.class" />
 			<manifest>
 				<attribute name="Main-Class" value="com.webreach.mirth.server.launcher.ShellLauncher" />
 				<attribute name="Class-Path" value="lib/log4j-1.2.13.jar conf/ plugins/" />
