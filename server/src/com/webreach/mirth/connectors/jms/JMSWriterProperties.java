@@ -42,8 +42,11 @@ public class JMSWriterProperties implements ComponentProperties
     public static final String JMS_PASSWORD = "password";
     public static final String JMS_QUEUE = "host";
     public static final String JMS_URL = "jndiProviderUrl";
+    public static final String JMS_USE_JNDI = "useJndi";
     public static final String JMS_INITIAL_FACTORY = "jndiInitialFactory";
-    public static final String JMS_CONNECTION_FACTORY = "connectionFactoryJndiName";
+    public static final String JMS_CONNECTION_FACTORY_JNDI = "connectionFactoryJndiName";
+    public static final String JMS_CONNECTION_FACTORY_CLASS = "connectionFactoryClass";
+    public static final String JMS_ACK_MODE = "acknowledgementMode";
     public static final String JMS_ADDITIONAL_PROPERTIES = "connectionFactoryProperties";
     public static final String JMS_TEMPLATE = "template";
 
@@ -59,7 +62,10 @@ public class JMSWriterProperties implements ComponentProperties
         properties.put(JMS_URL, "");
         properties.put(JMS_QUEUE, "");
         properties.put(JMS_INITIAL_FACTORY, "");
-        properties.put(JMS_CONNECTION_FACTORY, "");
+        properties.put(JMS_CONNECTION_FACTORY_JNDI, "");
+        properties.put(JMS_CONNECTION_FACTORY_CLASS, "");
+        properties.put(JMS_USE_JNDI, "0");
+        properties.put(JMS_ACK_MODE, "1");
         ObjectXMLSerializer serializer = new ObjectXMLSerializer();
         properties.put(JMS_ADDITIONAL_PROPERTIES, serializer.toXML(new Properties()));
         properties.put(JMS_TEMPLATE, "${message.encodedData}");
