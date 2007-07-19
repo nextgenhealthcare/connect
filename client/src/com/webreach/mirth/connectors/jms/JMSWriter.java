@@ -58,17 +58,22 @@ import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 public class JMSWriter extends ConnectorClass
 {
     private final int PROPERTY_COLUMN = 0;
-
+    
     private final int VALUE_COLUMN = 1;
-
+    
     private final String PROPERTY_COLUMN_NAME = "Property";
-
+    
     private final String VALUE_COLUMN_NAME = "Value";
-
+    
     private int lastIndex = -1;
-
+    
+    private final String TRANSACTED = "Transacted";
+    private final String AUTO_ACKNOWLEDGE = "Auto Acknowledge";
+    private final String CLIENT_ACKNOWLEDGE = "Client Acknowledge";
+    private final String DUPLICATES_OK = "Duplicates OK";
+    
     /** Creates new form JMSWriter */
-
+    
     public JMSWriter()
     {
         name = JMSWriterProperties.name;
@@ -81,42 +86,62 @@ public class JMSWriter extends ConnectorClass
                 deselectRows();
             }
         });
+        ackMode.setModel(new javax.swing.DefaultComboBoxModel(new String[] { TRANSACTED, AUTO_ACKNOWLEDGE, CLIENT_ACKNOWLEDGE, DUPLICATES_OK }));
         deleteButton.setEnabled(false);
     }
-
+    
     public Properties getProperties()
     {
         Properties properties = new Properties();
         properties.put(JMSWriterProperties.DATATYPE, name);
         properties.put(JMSWriterProperties.JMS_SPECIFICATION, (String) specDropDown.getSelectedItem());
-
+        
         if (durableNo.isSelected())
             properties.put(JMSWriterProperties.JMS_DURABLE, UIConstants.NO_OPTION);
         else
             properties.put(JMSWriterProperties.JMS_DURABLE, UIConstants.YES_OPTION);
-
+        
+        if (useJNDIYes.isSelected())
+        {
+            properties.put(JMSWriterProperties.JMS_USE_JNDI, UIConstants.YES_OPTION);
+            properties.put(JMSWriterProperties.JMS_URL, jmsURL.getText());
+            properties.put(JMSWriterProperties.JMS_INITIAL_FACTORY, jndiInitialFactory.getText());
+            properties.put(JMSWriterProperties.JMS_CONNECTION_FACTORY_JNDI, connectionFactoryJndi.getText());
+        }
+        else
+        {
+            properties.put(JMSWriterProperties.JMS_USE_JNDI, "0");
+            properties.put(JMSWriterProperties.JMS_CONNECTION_FACTORY_CLASS, connectionFactoryClass.getText());
+        }
+        
+        if(((String) ackMode.getSelectedItem()).equals(TRANSACTED))
+            properties.put(JMSWriterProperties.JMS_ACK_MODE, "0");
+        else if(((String) ackMode.getSelectedItem()).equals(AUTO_ACKNOWLEDGE))
+            properties.put(JMSWriterProperties.JMS_ACK_MODE, "1");
+        else if(((String) ackMode.getSelectedItem()).equals(CLIENT_ACKNOWLEDGE))
+            properties.put(JMSWriterProperties.JMS_ACK_MODE, "2");
+        else if(((String) ackMode.getSelectedItem()).equals(DUPLICATES_OK))
+            properties.put(JMSWriterProperties.JMS_ACK_MODE, "3");
+        
         properties.put(JMSWriterProperties.JMS_CLIENT_ID, cliendId.getText());
         properties.put(JMSWriterProperties.JMS_USERNAME, username.getText());
         properties.put(JMSWriterProperties.JMS_PASSWORD, String.valueOf(password.getPassword()));
         properties.put(JMSWriterProperties.JMS_QUEUE, queue.getText());
-        properties.put(JMSWriterProperties.JMS_URL, jmsURL.getText());
-        properties.put(JMSWriterProperties.JMS_INITIAL_FACTORY, jndiInitialFactory.getText());
-        properties.put(JMSWriterProperties.JMS_CONNECTION_FACTORY, connectionFactory.getText());
         ObjectXMLSerializer serializer = new ObjectXMLSerializer();
         properties.put(JMSWriterProperties.JMS_ADDITIONAL_PROPERTIES, serializer.toXML(getAdditionalProperties()));
         properties.put(JMSWriterProperties.JMS_TEMPLATE, templateTextArea.getText());
-
+        
         return properties;
     }
-
+    
     public void setProperties(Properties props)
     {
         resetInvalidProperties();
         
         boolean visible = parent.channelEditTasks.getContentPane().getComponent(0).isVisible();
-
+        
         specDropDown.setSelectedItem(props.get(JMSWriterProperties.JMS_SPECIFICATION));
-
+        
         if (((String) props.get(JMSWriterProperties.JMS_DURABLE)).equalsIgnoreCase(UIConstants.NO_OPTION))
         {
             durableNo.setSelected(true);
@@ -127,38 +152,59 @@ public class JMSWriter extends ConnectorClass
             durableYes.setSelected(true);
             durableYesActionPerformed(null);
         }
-
+        
         cliendId.setText((String) props.get(JMSWriterProperties.JMS_CLIENT_ID));
         username.setText((String) props.get(JMSWriterProperties.JMS_USERNAME));
         password.setText((String) props.get(JMSWriterProperties.JMS_PASSWORD));
-        jmsURL.setText((String) props.get(JMSWriterProperties.JMS_URL));
         queue.setText((String) props.get(JMSWriterProperties.JMS_QUEUE));
-        jndiInitialFactory.setText((String) props.get(JMSWriterProperties.JMS_INITIAL_FACTORY));
-        connectionFactory.setText((String) props.get(JMSWriterProperties.JMS_CONNECTION_FACTORY));
-
+        
         ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-
+        
         if (((String) props.get(JMSWriterProperties.JMS_ADDITIONAL_PROPERTIES)).length() > 0)
             setAdditionalProperties((Properties) serializer.fromXML((String) props.get(JMSWriterProperties.JMS_ADDITIONAL_PROPERTIES)));
         else
             setAdditionalProperties(new Properties());
         
+        if (((String) props.get(JMSWriterProperties.JMS_USE_JNDI)).equalsIgnoreCase(UIConstants.YES_OPTION))
+        {
+            useJNDIYes.setSelected(true);
+            useJNDIYesActionPerformed(null);
+            jmsURL.setText((String) props.get(JMSWriterProperties.JMS_URL));
+            jndiInitialFactory.setText((String) props.get(JMSWriterProperties.JMS_INITIAL_FACTORY));
+            connectionFactoryJndi.setText((String) props.get(JMSWriterProperties.JMS_CONNECTION_FACTORY_JNDI));
+        }
+        else
+        {
+            useJNDINo.setSelected(true);
+            useJNDINoActionPerformed(null);
+            connectionFactoryClass.setText((String) props.get(JMSWriterProperties.JMS_CONNECTION_FACTORY_CLASS));
+        }
+        
+        if(props.get(JMSWriterProperties.JMS_ACK_MODE).equals("0"))
+            ackMode.setSelectedItem(TRANSACTED);
+        else if(props.get(JMSWriterProperties.JMS_ACK_MODE).equals("1"))
+            ackMode.setSelectedItem(AUTO_ACKNOWLEDGE);
+        else if(props.get(JMSWriterProperties.JMS_ACK_MODE).equals("2"))
+            ackMode.setSelectedItem(CLIENT_ACKNOWLEDGE);
+        else if(props.get(JMSWriterProperties.JMS_ACK_MODE).equals("3"))
+            ackMode.setSelectedItem(DUPLICATES_OK);
+        
         templateTextArea.setText((String) props.get(JMSWriterProperties.JMS_TEMPLATE));
-
+        
         parent.channelEditTasks.getContentPane().getComponent(0).setVisible(visible);
     }
-
+    
     public Properties getDefaults()
     {
         return new JMSWriterProperties().getDefaults();
     }
-
+    
     public void setAdditionalProperties(Properties properties)
     {
         Object[][] tableData = new Object[properties.size()][2];
-
+        
         propertiesTable = new MirthTable();
-
+        
         int j = 0;
         Iterator i = properties.entrySet().iterator();
         while (i.hasNext())
@@ -168,17 +214,17 @@ public class JMSWriter extends ConnectorClass
             tableData[j][VALUE_COLUMN] = (String) entry.getValue();
             j++;
         }
-
+        
         propertiesTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[] { PROPERTY_COLUMN_NAME, VALUE_COLUMN_NAME })
         {
             boolean[] canEdit = new boolean[] { true, true };
-
+            
             public boolean isCellEditable(int rowIndex, int columnIndex)
             {
                 return canEdit[columnIndex];
             }
         });
-
+        
         propertiesTable.getSelectionModel().addListSelectionListener(new ListSelectionListener()
         {
             public void valueChanged(ListSelectionEvent evt)
@@ -192,71 +238,71 @@ public class JMSWriter extends ConnectorClass
                     deleteButton.setEnabled(false);
             }
         });
-
+        
         class JMSTableCellEditor extends AbstractCellEditor implements TableCellEditor
         {
             JComponent component = new JTextField();
-
+            
             Object originalValue;
-
+            
             boolean checkProperties;
-
+            
             public JMSTableCellEditor(boolean checkProperties)
             {
                 super();
                 this.checkProperties = checkProperties;
             }
-
+            
             public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column)
             {
                 // 'value' is value contained in the cell located at (rowIndex,
                 // vColIndex)
                 originalValue = value;
-
+                
                 if (isSelected)
                 {
                     // cell (and perhaps other cells) are selected
                 }
-
+                
                 // Configure the component with the specified value
                 ((JTextField) component).setText((String) value);
-
+                
                 // Return the configured component
                 return component;
             }
-
+            
             public Object getCellEditorValue()
             {
                 return ((JTextField) component).getText();
             }
-
+            
             public boolean stopCellEditing()
             {
                 String s = (String) getCellEditorValue();
-
+                
                 if (checkProperties && (s.length() == 0 || checkUniqueProperty(s)))
                     super.cancelCellEditing();
                 else
                     parent.enableSave();
-
+                
                 deleteButton.setEnabled(true);
-
+                
                 return super.stopCellEditing();
             }
-
+            
             public boolean checkUniqueProperty(String property)
             {
                 boolean exists = false;
-
+                
                 for (int i = 0; i < propertiesTable.getRowCount(); i++)
                 {
                     if (propertiesTable.getValueAt(i, PROPERTY_COLUMN) != null && ((String) propertiesTable.getValueAt(i, PROPERTY_COLUMN)).equalsIgnoreCase(property))
                         exists = true;
                 }
-
+                
                 return exists;
             }
-
+            
             /**
              * Enables the editor only for double-clicks.
              */
@@ -270,13 +316,13 @@ public class JMSWriter extends ConnectorClass
                 return false;
             }
         };
-
+        
         // Set the custom cell editor for the Destination Name column.
         propertiesTable.getColumnModel().getColumn(propertiesTable.getColumnModel().getColumnIndex(PROPERTY_COLUMN_NAME)).setCellEditor(new JMSTableCellEditor(true));
-
+        
         // Set the custom cell editor for the Destination Name column.
         propertiesTable.getColumnModel().getColumn(propertiesTable.getColumnModel().getColumnIndex(VALUE_COLUMN_NAME)).setCellEditor(new JMSTableCellEditor(false));
-
+        
         propertiesTable.setSelectionMode(0);
         propertiesTable.setRowSelectionAllowed(true);
         propertiesTable.setRowHeight(UIConstants.ROW_HEIGHT);
@@ -284,35 +330,35 @@ public class JMSWriter extends ConnectorClass
         propertiesTable.setOpaque(true);
         propertiesTable.setSortable(false);
         propertiesTable.getTableHeader().setReorderingAllowed(false);
-
+        
         if (Preferences.systemNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
         {
             HighlighterPipeline highlighter = new HighlighterPipeline();
             highlighter.addHighlighter(new AlternateRowHighlighter(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR, UIConstants.TITLE_TEXT_COLOR));
             propertiesTable.setHighlighters(highlighter);
         }
-
+        
         propertiesPane.setViewportView(propertiesTable);
     }
-
+    
     public Map getAdditionalProperties()
     {
         Properties properties = new Properties();
-
+        
         for (int i = 0; i < propertiesTable.getRowCount(); i++)
             if (((String) propertiesTable.getValueAt(i, PROPERTY_COLUMN)).length() > 0)
                 properties.put(((String) propertiesTable.getValueAt(i, PROPERTY_COLUMN)), ((String) propertiesTable.getValueAt(i, VALUE_COLUMN)));
-
+        
         return properties;
     }
-
+    
     /** Clears the selection in the table and sets the tasks appropriately */
     public void deselectRows()
     {
         propertiesTable.clearSelection();
         deleteButton.setEnabled(false);
     }
-
+    
     /** Get the currently selected destination index */
     public int getSelectedRow()
     {
@@ -321,14 +367,14 @@ public class JMSWriter extends ConnectorClass
         else
             return propertiesTable.getSelectedRow();
     }
-
+    
     /**
      * Get the name that should be used for a new property so that it is unique.
      */
     private String getNewPropertyName()
     {
         String temp = "Property ";
-
+        
         for (int i = 1; i <= propertiesTable.getRowCount() + 1; i++)
         {
             boolean exists = false;
@@ -344,31 +390,43 @@ public class JMSWriter extends ConnectorClass
         }
         return "";
     }
-
+    
     public boolean checkProperties(Properties props)
     {
         resetInvalidProperties();
         boolean valid = true;
         
-        if (((String) props.getProperty(JMSWriterProperties.JMS_URL)).length() == 0)
+        if (((String) props.get(JMSWriterProperties.JMS_USE_JNDI)).equalsIgnoreCase(UIConstants.YES_OPTION))
         {
-            valid = false;
-            jmsURL.setBackground(UIConstants.INVALID_COLOR);
+            if (((String) props.getProperty(JMSWriterProperties.JMS_URL)).length() == 0)
+            {
+                valid = false;
+                jmsURL.setBackground(UIConstants.INVALID_COLOR);
+            }
+            if (((String) props.getProperty(JMSWriterProperties.JMS_CONNECTION_FACTORY_JNDI)).length() == 0)
+            {
+                valid = false;
+                connectionFactoryJndi.setBackground(UIConstants.INVALID_COLOR);
+            }
+            if (((String) props.getProperty(JMSWriterProperties.JMS_INITIAL_FACTORY)).length() == 0)
+            {
+                valid = false;
+                jndiInitialFactory.setBackground(UIConstants.INVALID_COLOR);
+            }
         }
-        if (((String) props.getProperty(JMSWriterProperties.JMS_CONNECTION_FACTORY)).length() == 0)
+        else
         {
-            valid = false;
-            connectionFactory.setBackground(UIConstants.INVALID_COLOR);
+            if (((String) props.getProperty(JMSWriterProperties.JMS_CONNECTION_FACTORY_CLASS)).length() == 0)
+            {
+                valid = false;
+                connectionFactoryClass.setBackground(UIConstants.INVALID_COLOR);
+            }
         }
+        
         if (((String) props.getProperty(JMSWriterProperties.JMS_QUEUE)).length() == 0)
         {
             valid = false;
             queue.setBackground(UIConstants.INVALID_COLOR);
-        }
-        if (((String) props.getProperty(JMSWriterProperties.JMS_INITIAL_FACTORY)).length() == 0)
-        {
-            valid = false;
-            jndiInitialFactory.setBackground(UIConstants.INVALID_COLOR);
         }
         if (((String) props.getProperty(JMSWriterProperties.JMS_TEMPLATE)).length() == 0)
         {
@@ -390,13 +448,14 @@ public class JMSWriter extends ConnectorClass
     private void resetInvalidProperties()
     {
         jmsURL.setBackground(null);
-        connectionFactory.setBackground(null);
+        connectionFactoryJndi.setBackground(null);
         queue.setBackground(null);
         jndiInitialFactory.setBackground(null);
         templateTextArea.setBackground(null);
         cliendId.setBackground(null);
+        connectionFactoryClass.setBackground(null);
     }
-
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -406,24 +465,19 @@ public class JMSWriter extends ConnectorClass
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents()
     {
-        deliveryButtonGroup = new javax.swing.ButtonGroup();
         durableButtonGroup = new javax.swing.ButtonGroup();
-        recoverButtonGroup = new javax.swing.ButtonGroup();
+        useJndiButtonGroup = new javax.swing.ButtonGroup();
         jLabel3 = new javax.swing.JLabel();
         specDropDown = new com.webreach.mirth.client.ui.components.MirthComboBox();
         jLabel4 = new javax.swing.JLabel();
         clientIdLabel = new javax.swing.JLabel();
-        jLabel7 = new javax.swing.JLabel();
-        jLabel8 = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
         durableNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         durableYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         cliendId = new com.webreach.mirth.client.ui.components.MirthTextField();
         jmsURL = new com.webreach.mirth.client.ui.components.MirthTextField();
-        connectionFactory = new com.webreach.mirth.client.ui.components.MirthTextField();
         queue = new com.webreach.mirth.client.ui.components.MirthTextField();
         jndiInitialFactory = new com.webreach.mirth.client.ui.components.MirthTextField();
-        jLabel10 = new javax.swing.JLabel();
         jLabel11 = new javax.swing.JLabel();
         username = new com.webreach.mirth.client.ui.components.MirthTextField();
         password = new com.webreach.mirth.client.ui.components.MirthPasswordField();
@@ -435,6 +489,17 @@ public class JMSWriter extends ConnectorClass
         jLabel2 = new javax.swing.JLabel();
         templateLabel = new javax.swing.JLabel();
         templateTextArea = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea();
+        jmsUrlLabel = new javax.swing.JLabel();
+        jndiInitialFactoryLabel = new javax.swing.JLabel();
+        connectionFactoryJndiLabel = new javax.swing.JLabel();
+        connectionFactoryClassLabel = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
+        useJNDIYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        useJNDINo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        connectionFactoryClass = new com.webreach.mirth.client.ui.components.MirthTextField();
+        connectionFactoryJndi = new com.webreach.mirth.client.ui.components.MirthTextField();
+        jLabel13 = new javax.swing.JLabel();
+        ackMode = new com.webreach.mirth.client.ui.components.MirthComboBox();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -445,10 +510,6 @@ public class JMSWriter extends ConnectorClass
         jLabel4.setText("Durable:");
 
         clientIdLabel.setText("Client ID:");
-
-        jLabel7.setText("JNDI Provider URL:");
-
-        jLabel8.setText("Connection Factory JNDI Name:");
 
         jLabel9.setText("Destination:");
 
@@ -480,8 +541,6 @@ public class JMSWriter extends ConnectorClass
         });
 
         queue.setAutoscrolls(false);
-
-        jLabel10.setText("JNDI Initial Context Factory:");
 
         jLabel11.setText("Username:");
 
@@ -525,27 +584,76 @@ public class JMSWriter extends ConnectorClass
 
         templateTextArea.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
+        jmsUrlLabel.setText("Provider URL:");
+
+        jndiInitialFactoryLabel.setText("Initial Context Factory:");
+
+        connectionFactoryJndiLabel.setText("Connection Factory Name:");
+
+        connectionFactoryClassLabel.setText("Connection Factory Class:");
+
+        jLabel5.setText("Use JNDI:");
+
+        useJNDIYes.setBackground(new java.awt.Color(255, 255, 255));
+        useJNDIYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        useJndiButtonGroup.add(useJNDIYes);
+        useJNDIYes.setText("Yes");
+        useJNDIYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        useJNDIYes.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                useJNDIYesActionPerformed(evt);
+            }
+        });
+
+        useJNDINo.setBackground(new java.awt.Color(255, 255, 255));
+        useJNDINo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        useJndiButtonGroup.add(useJNDINo);
+        useJNDINo.setSelected(true);
+        useJNDINo.setText("No");
+        useJNDINo.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        useJNDINo.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                useJNDINoActionPerformed(evt);
+            }
+        });
+
+        connectionFactoryClass.setAutoscrolls(false);
+
+        jLabel13.setText("ACK Mode:");
+
+        ackMode.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(jLabel2)
-                    .add(clientIdLabel)
-                    .add(jLabel4)
-                    .add(jLabel12)
-                    .add(jLabel11)
-                    .add(jLabel9)
-                    .add(jLabel8)
-                    .add(jLabel10)
-                    .add(jLabel7)
-                    .add(jLabel3)
-                    .add(templateLabel))
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel3)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel5)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jmsUrlLabel)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jndiInitialFactoryLabel)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, connectionFactoryJndiLabel)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, connectionFactoryClassLabel)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel9)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel11)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel12)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel4)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, clientIdLabel)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel13)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel2)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, templateLabel))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(cliendId, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(layout.createSequentialGroup()
+                        .add(useJNDIYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(useJNDINo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                     .add(password, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(username, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(queue, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -553,7 +661,6 @@ public class JMSWriter extends ConnectorClass
                         .add(durableYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(durableNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(connectionFactory, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(specDropDown, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 150, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(jmsURL, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 300, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(jndiInitialFactory, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 300, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -563,7 +670,12 @@ public class JMSWriter extends ConnectorClass
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
                             .add(newButton)
                             .add(deleteButton)))
-                    .add(templateTextArea, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 330, Short.MAX_VALUE))
+                    .add(templateTextArea, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 330, Short.MAX_VALUE)
+                    .add(connectionFactoryJndi, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 300, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(connectionFactoryClass, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 300, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
+                        .add(org.jdesktop.layout.GroupLayout.LEADING, ackMode, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .add(org.jdesktop.layout.GroupLayout.LEADING, cliendId, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 125, Short.MAX_VALUE)))
                 .addContainerGap())
         );
 
@@ -577,16 +689,25 @@ public class JMSWriter extends ConnectorClass
                     .add(specDropDown, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel7)
-                    .add(jmsURL, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(useJNDIYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(useJNDINo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jLabel5))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel10)
-                    .add(jndiInitialFactory, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(jmsURL, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jmsUrlLabel))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel8)
-                    .add(connectionFactory, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(jndiInitialFactory, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jndiInitialFactoryLabel))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(connectionFactoryJndiLabel)
+                    .add(connectionFactoryJndi, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(connectionFactoryClassLabel)
+                    .add(connectionFactoryClass, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel9)
@@ -609,6 +730,10 @@ public class JMSWriter extends ConnectorClass
                     .add(clientIdLabel)
                     .add(cliendId, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jLabel13)
+                    .add(ackMode, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
                         .add(newButton)
@@ -619,17 +744,41 @@ public class JMSWriter extends ConnectorClass
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(templateLabel)
-                    .add(templateTextArea, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 83, Short.MAX_VALUE))
+                    .add(templateTextArea, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 71, Short.MAX_VALUE))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
-
+    
+    private void useJNDINoActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_useJNDINoActionPerformed
+    {//GEN-HEADEREND:event_useJNDINoActionPerformed
+        jmsURL.setEnabled(false);
+        jmsUrlLabel.setEnabled(false);
+        jndiInitialFactory.setEnabled(false);
+        jndiInitialFactoryLabel.setEnabled(false);
+        connectionFactoryJndi.setEnabled(false);
+        connectionFactoryJndiLabel.setEnabled(false);
+        connectionFactoryClass.setEnabled(true);
+        connectionFactoryClassLabel.setEnabled(true);
+    }//GEN-LAST:event_useJNDINoActionPerformed
+    
+    private void useJNDIYesActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_useJNDIYesActionPerformed
+    {//GEN-HEADEREND:event_useJNDIYesActionPerformed
+        jmsURL.setEnabled(true);
+        jmsUrlLabel.setEnabled(true);
+        jndiInitialFactory.setEnabled(true);
+        jndiInitialFactoryLabel.setEnabled(true);
+        connectionFactoryJndi.setEnabled(true);
+        connectionFactoryJndiLabel.setEnabled(true);
+        connectionFactoryClass.setEnabled(false);
+        connectionFactoryClassLabel.setEnabled(false);
+    }//GEN-LAST:event_useJNDIYesActionPerformed
+    
     private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_deleteButtonActionPerformed
     {// GEN-HEADEREND:event_deleteButtonActionPerformed
         if (getSelectedRow() != -1 && !propertiesTable.isEditing())
         {
             ((DefaultTableModel) propertiesTable.getModel()).removeRow(getSelectedRow());
-
+            
             if (propertiesTable.getRowCount() != 0)
             {
                 if (lastIndex == 0)
@@ -639,61 +788,67 @@ public class JMSWriter extends ConnectorClass
                 else
                     propertiesTable.setRowSelectionInterval(lastIndex, lastIndex);
             }
-
+            
             parent.enableSave();
         }
     }// GEN-LAST:event_deleteButtonActionPerformed
-
+    
     private void newButtonActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_newButtonActionPerformed
     {// GEN-HEADEREND:event_newButtonActionPerformed
         ((DefaultTableModel) propertiesTable.getModel()).addRow(new Object[] { getNewPropertyName(), "" });
         propertiesTable.setRowSelectionInterval(propertiesTable.getRowCount() - 1, propertiesTable.getRowCount() - 1);
         parent.enableSave();
     }// GEN-LAST:event_newButtonActionPerformed
-
+    
     private void durableYesActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_durableYesActionPerformed
     {// GEN-HEADEREND:event_durableYesActionPerformed
         cliendId.setEnabled(true);
         clientIdLabel.setEnabled(true);
     }// GEN-LAST:event_durableYesActionPerformed
-
+    
     private void durableNoActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_durableNoActionPerformed
     {// GEN-HEADEREND:event_durableNoActionPerformed
         cliendId.setEnabled(false);
         clientIdLabel.setEnabled(false);
         cliendId.setText("");
     }// GEN-LAST:event_durableNoActionPerformed
-
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private com.webreach.mirth.client.ui.components.MirthComboBox ackMode;
     private com.webreach.mirth.client.ui.components.MirthTextField cliendId;
     private javax.swing.JLabel clientIdLabel;
-    private com.webreach.mirth.client.ui.components.MirthTextField connectionFactory;
+    private com.webreach.mirth.client.ui.components.MirthTextField connectionFactoryClass;
+    private javax.swing.JLabel connectionFactoryClassLabel;
+    private com.webreach.mirth.client.ui.components.MirthTextField connectionFactoryJndi;
+    private javax.swing.JLabel connectionFactoryJndiLabel;
     private javax.swing.JButton deleteButton;
-    private javax.swing.ButtonGroup deliveryButtonGroup;
     private javax.swing.ButtonGroup durableButtonGroup;
     private com.webreach.mirth.client.ui.components.MirthRadioButton durableNo;
     private com.webreach.mirth.client.ui.components.MirthRadioButton durableYes;
-    private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel7;
-    private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel9;
     private com.webreach.mirth.client.ui.components.MirthTextField jmsURL;
+    private javax.swing.JLabel jmsUrlLabel;
     private com.webreach.mirth.client.ui.components.MirthTextField jndiInitialFactory;
+    private javax.swing.JLabel jndiInitialFactoryLabel;
     private javax.swing.JButton newButton;
     private com.webreach.mirth.client.ui.components.MirthPasswordField password;
     private javax.swing.JScrollPane propertiesPane;
     private com.webreach.mirth.client.ui.components.MirthTable propertiesTable;
     private com.webreach.mirth.client.ui.components.MirthTextField queue;
-    private javax.swing.ButtonGroup recoverButtonGroup;
     private com.webreach.mirth.client.ui.components.MirthComboBox specDropDown;
     private javax.swing.JLabel templateLabel;
     private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea templateTextArea;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton useJNDINo;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton useJNDIYes;
+    private javax.swing.ButtonGroup useJndiButtonGroup;
     private com.webreach.mirth.client.ui.components.MirthTextField username;
     // End of variables declaration//GEN-END:variables
-
+    
 }
