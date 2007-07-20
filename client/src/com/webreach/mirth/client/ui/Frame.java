@@ -663,6 +663,8 @@ public class Frame extends JXFrame
         addTask("doNewDestination","New Destination","Create a new destination.","N", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/add.png")), channelEditTasks, channelEditPopupMenu);
         addTask("doDeleteDestination","Delete Destination","Delete the currently selected destination.","L", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png")), channelEditTasks, channelEditPopupMenu);
         addTask("doCloneDestination","Clone Destination","Clones the currently selected destination.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/clone.png")), channelEditTasks, channelEditPopupMenu);
+        addTask("doEnableDestination","Enable Destination","Enable the currently selected destination.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/start.png")), channelEditTasks, channelEditPopupMenu);
+        addTask("doDisableDestination","Disable Destination","Disable the currently selected destination.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/stop.png")), channelEditTasks, channelEditPopupMenu);
         addTask("doMoveDestinationUp","Move Dest. Up","Move the currently selected destination up.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/arrow_up.png")), channelEditTasks, channelEditPopupMenu);
         addTask("doMoveDestinationDown","Move Dest. Down","Move the currently selected destination down.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/arrow_down.png")), channelEditTasks, channelEditPopupMenu);
         addTask("doEditFilter","Edit Filter","Edit the filter for the currently selected destination.","F", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/edit.png")), channelEditTasks, channelEditPopupMenu);
@@ -671,8 +673,8 @@ public class Frame extends JXFrame
         addTask("doValidateChannelScripts","Validate JavaScript","Validate the scripts on this page.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/accept.png")), channelEditTasks, channelEditPopupMenu);
         
         setNonFocusable(channelEditTasks);
-        setVisibleTasks(channelEditTasks, channelEditPopupMenu, 0, 8, false);
-        setVisibleTasks(channelEditTasks, channelEditPopupMenu, 9, 9, true);
+        setVisibleTasks(channelEditTasks, channelEditPopupMenu, 0, 10, false);
+        setVisibleTasks(channelEditTasks, channelEditPopupMenu, 11, 11, true);
         taskPaneContainer.add(channelEditTasks);
     }
     
@@ -1871,8 +1873,19 @@ public class Frame extends JXFrame
     
     public void doCloneDestination()
     {
-        int index = channelEditPanel.getSelectedDestinationIndex();
-        channelEditPanel.cloneDestination(index);
+        channelEditPanel.cloneDestination();
+        
+    }
+    
+    public void doEnableDestination()
+    {
+        channelEditPanel.enableDestination();
+        
+    }
+    
+    public void doDisableDestination()
+    {
+        channelEditPanel.disableDestination();
         
     }
     

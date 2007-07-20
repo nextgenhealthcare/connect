@@ -39,6 +39,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Map.Entry;
 import java.util.prefs.Preferences;
+import javax.swing.ImageIcon;
 
 import javax.swing.JOptionPane;
 import javax.swing.border.TitledBorder;
@@ -83,6 +84,7 @@ public class ChannelSetup extends javax.swing.JPanel
     private static final String DESTINATION_DEFAULT = "File Writer";
     private static final String SOURCE_DEFAULT = "LLP Listener";
     private static final String DATABASE_READER = "Database Reader";
+    private final String STATUS_COLUMN_NAME = "Status";
     private final String DESTINATION_COLUMN_NAME = "Destination";
     private final String CONNECTOR_TYPE_COLUMN_NAME = "Connector Type";
     private final int SOURCE_TAB_INDEX = 1;
@@ -256,7 +258,7 @@ public class ChannelSetup extends javax.swing.JPanel
         tableSize = destinationConnectors.size();
         if (addNew)
             tableSize++;
-        tableData = new Object[tableSize][2];
+        tableData = new Object[tableSize][3];
         for (int i = 0; i < tableSize; i++)
         {
             if (tableSize - 1 == i && addNew)
@@ -267,23 +269,32 @@ public class ChannelSetup extends javax.swing.JPanel
                 connector.setName(getNewDestinationName(tableSize));
                 connector.setTransportName((String) destinationSourceDropdown.getItemAt(0));
                 
-                tableData[i][0] = connector.getName();
-                tableData[i][1] = connector.getTransportName();
+                if (connector.isEnabled())
+                    tableData[i][0] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_blue.png")), UIConstants.ENABLED_STATUS);
+                else
+                    tableData[i][0] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_black.png")), UIConstants.DISABLED_STATUS);
+                tableData[i][1] = connector.getName();
+                tableData[i][2] = connector.getTransportName();
                 
                 destinationConnectors.add(connector);
             }
             else
             {
-                tableData[i][0] = destinationConnectors.get(i).getName();
-                tableData[i][1] = destinationConnectors.get(i).getTransportName();
+
+                if (destinationConnectors.get(i).isEnabled())
+                    tableData[i][0] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_blue.png")), UIConstants.ENABLED_STATUS);
+                else
+                    tableData[i][0] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_black.png")), UIConstants.DISABLED_STATUS);
+                tableData[i][1] = destinationConnectors.get(i).getName();
+                tableData[i][2] = destinationConnectors.get(i).getTransportName();
             }
         }
         
         destinationTable = new MirthTable();
         
-        destinationTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[] { DESTINATION_COLUMN_NAME, CONNECTOR_TYPE_COLUMN_NAME })
+        destinationTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[] { STATUS_COLUMN_NAME, DESTINATION_COLUMN_NAME, CONNECTOR_TYPE_COLUMN_NAME })
         {
-            boolean[] canEdit = new boolean[] { true, false };
+            boolean[] canEdit = new boolean[] { false, true, false };
             
             public boolean isCellEditable(int rowIndex, int columnIndex)
             {
@@ -293,6 +304,13 @@ public class ChannelSetup extends javax.swing.JPanel
         
         // Set the custom cell editor for the Destination Name column.
         destinationTable.getColumnModel().getColumn(destinationTable.getColumnModel().getColumnIndex(DESTINATION_COLUMN_NAME)).setCellEditor(new DestinationTableCellEditor());
+        
+        // Must set the maximum width on columns that should be packed.
+        destinationTable.getColumnExt(STATUS_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
+        destinationTable.getColumnExt(STATUS_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
+        
+        // Set the cell renderer for the status column.
+        destinationTable.getColumnExt(STATUS_COLUMN_NAME).setCellRenderer(new ImageCellRenderer());
         
         destinationTable.setSelectionMode(0);
         destinationTable.setRowSelectionAllowed(true);
@@ -845,7 +863,7 @@ public class ChannelSetup extends javax.swing.JPanel
         parent.enableSave();
     }
     
-    public void cloneDestination(int destinationIndex)
+    public void cloneDestination()
     {
         if (parent.changesHaveBeenMade())
         {
@@ -874,6 +892,24 @@ public class ChannelSetup extends javax.swing.JPanel
         parent.enableSave();
     }
     
+    public void enableDestination()
+    {
+        List<Connector> destinationConnectors = currentChannel.getDestinationConnectors();
+        Connector destination = destinationConnectors.get(getSelectedDestinationIndex());
+        destination.setEnabled(true);
+        makeDestinationTable(false);
+        parent.enableSave();
+    }
+    
+    public void disableDestination()
+    {
+        List<Connector> destinationConnectors = currentChannel.getDestinationConnectors();
+        Connector destination = destinationConnectors.get(getSelectedDestinationIndex());
+        destination.setEnabled(false);
+        makeDestinationTable(false);
+        parent.enableSave();
+    }
+    
     /** Deletes the selected destination. */
     public void deleteDestination()
     {
@@ -892,22 +928,37 @@ public class ChannelSetup extends javax.swing.JPanel
     }
     
     /**
-     * Checks to see which tasks, move up and move down, should be available for
+     * Checks to see which tasks (move up, move down, enable, and distable) should be available for
      * destinations and enables or disables them.
      */
     public void checkVisibleDestinationTasks()
     {
         if (channelView.getSelectedComponent() == destination)
         {
-            if (getSelectedDestinationIndex() == 0)
+            // enable and disable
+            List<Connector> destinationConnectors = currentChannel.getDestinationConnectors();
+            Connector destination = destinationConnectors.get(getSelectedDestinationIndex());
+            if (destination.isEnabled())
+            {
                 parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 5, 5, false);
+                parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 6, 6, true);
+            }
             else
+            {
                 parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 5, 5, true);
+                parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 6, 6, false);
+            }
+            
+            // move up and move down
+            if (getSelectedDestinationIndex() == 0)
+                parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 7, 7, false);
+            else
+                parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 7, 7, true);
             
             if (getSelectedDestinationIndex() == destinationTable.getRowCount() - 1)
-                parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 6, 6, false);
+                parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 8, 8, false);
             else
-                parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 6, 6, true);
+                parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 8, 8, true);
         }
     }
     
@@ -1439,8 +1490,8 @@ public class ChannelSetup extends javax.swing.JPanel
 
     private void scriptsComponentShown(java.awt.event.ComponentEvent evt)//GEN-FIRST:event_scriptsComponentShown
     {//GEN-HEADEREND:event_scriptsComponentShown
-        parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 1, 8, false);
-        parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 10, 10, true);
+        parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 1, 10, false);
+        parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 12, 12, true);
     }//GEN-LAST:event_scriptsComponentShown
     
     private void summaryNameFieldKeyReleased(java.awt.event.KeyEvent evt)// GEN-FIRST:event_summaryNameFieldKeyReleased
@@ -1490,17 +1541,17 @@ public class ChannelSetup extends javax.swing.JPanel
     /** Action when the summary tab is shown. */
     private void summaryComponentShown(java.awt.event.ComponentEvent evt)// GEN-FIRST:event_summaryComponentShown
     {
-        parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 1, 8, false);
-        parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 10, 10, false);
+        parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 1, 10, false);
+        parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 12, 12, false);
     }
     
     /** Action when the source tab is shown. */
     private void sourceComponentShown(java.awt.event.ComponentEvent evt)// GEN-FIRST:event_sourceComponentShown
     {
         parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 1, 1, true);
-        parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 2, 6, false);
-        parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 7, 8, true);
-        parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 10, 10, false);
+        parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 2, 8, false);
+        parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 9, 11, true);
+        parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 12, 12, false);
         sourceConnectorClass.updateResponseDropDown();
     }
     
@@ -1509,8 +1560,8 @@ public class ChannelSetup extends javax.swing.JPanel
     {
         parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 1, 1, true);
         
-        parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 2, 8, true);
-        parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 10, 10, false);
+        parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 2, 10, true);
+        parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 12, 12, false);
         checkVisibleDestinationTasks();
     }
     
@@ -1749,6 +1800,8 @@ public class ChannelSetup extends javax.swing.JPanel
     public Connector makeNewConnector(boolean isDestination)
     {
         Connector c = new Connector();
+        c.setEnabled(true);
+        
         Transformer dt = new Transformer();
         Filter df = new Filter();
         

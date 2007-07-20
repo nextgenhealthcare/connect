@@ -117,4 +117,8 @@ public class UIConstants
     public static final String IS_GLOBAL_CONNECTOR = "connector";
     public static final String IS_GLOBAL_GLOBAL = "global";
     public static final String IS_GLOBAL_RESPONSE = "response";
+    
+    // for tables
+    public static final String ENABLED_STATUS = "Enabled";
+    public static final String DISABLED_STATUS = "Disabled";
 }
