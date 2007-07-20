@@ -48,13 +48,13 @@ import com.webreach.mirth.server.controllers.SystemLogger;
 import com.webreach.mirth.server.controllers.UserController;
 
 public class MirthManager {
-	private ChannelController channelController = new ChannelController();
-	private ChannelStatusController channelStatusController = new ChannelStatusController();
+	private ChannelController channelController = ChannelController.getInstance();
+	private ChannelStatusController channelStatusController = ChannelStatusController.getInstance();
 	private ChannelStatisticsController channelStatisticsController = ChannelStatisticsController.getInstance();
 	private ConfigurationController configurationController = ConfigurationController.getInstance();
 	private MessageObjectController messageObjectController = MessageObjectController.getInstance();
-	private SystemLogger systemLogger = new SystemLogger();
-	private UserController userController = new UserController();
+	private SystemLogger systemLogger = SystemLogger.getInstance();
+	private UserController userController = UserController.getInstance();
 
 	/**
 	 * Returns a List of all channels.

@@ -14,7 +14,7 @@ import com.webreach.mirth.server.controllers.UserController;
 import com.webreach.mirth.server.tools.ScriptRunner;
 
 public class UserControllerTest extends TestCase {
-	private UserController userController = new UserController();
+	private UserController userController = UserController.getInstance();
 	private ConfigurationController configurationController = ConfigurationController.getInstance();
 	private List<User> sampleUserList;
 	

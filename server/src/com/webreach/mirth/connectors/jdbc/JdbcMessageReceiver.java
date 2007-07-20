@@ -63,7 +63,7 @@ public class JdbcMessageReceiver extends TransactedPollingMessageReceiver
     private List ackParams;
     private Map jdbcMap;
     private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
-    private AlertController alertController = new AlertController();
+    private AlertController alertController = AlertController.getInstance();
 
     public JdbcMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint) throws InitialisationException
     {

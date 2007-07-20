@@ -59,7 +59,7 @@ public class FtpMessageReceiver extends PollingMessageReceiver {
 	protected FtpConnector connector;
 	private FilenameFilter filenameFilter = null;
 	private boolean routingError = false;
-	private AlertController alertController = new AlertController();
+	private AlertController alertController = AlertController.getInstance();
 	
 	public FtpMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint, Long frequency) throws InitialisationException {
 		super(connector, component, endpoint, frequency);

@@ -48,8 +48,8 @@ public class UserServlet extends MirthServlet {
 	public static final String SESSION_AUTHORIZED = "authorized";
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		UserController userController = new UserController();
-		SystemLogger systemLogger = new SystemLogger();
+		UserController userController = UserController.getInstance();
+		SystemLogger systemLogger = SystemLogger.getInstance();
 		PrintWriter out = response.getWriter();
 		String operation = request.getParameter("op");
 		ObjectXMLSerializer serializer = new ObjectXMLSerializer();

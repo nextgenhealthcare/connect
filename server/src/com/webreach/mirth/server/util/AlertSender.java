@@ -4,7 +4,7 @@ import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
 
 public class AlertSender {
-	private AlertController alertController = new AlertController();
+	private AlertController alertController = AlertController.getInstance();
 	private String channelId;
 	
 	public AlertSender(String channelId) {

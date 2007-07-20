@@ -38,6 +38,22 @@ public class TemplateController {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private SqlMapClient sqlMap = SqlConfig.getSqlMapInstance();
 
+	private static TemplateController instance = null;
+	
+	private TemplateController() {
+		
+	}
+	
+	public static TemplateController getInstance() {
+		synchronized (TemplateController.class) {
+			if (instance == null) {
+				instance = new TemplateController();
+			}
+			
+			return instance;
+		}
+	}   
+	
 	/**
 	 * Adds a template with the specified id to the database. If a template with
 	 * the id already exists it will be overwritten.

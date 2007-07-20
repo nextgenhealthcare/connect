@@ -15,7 +15,7 @@ import com.webreach.mirth.server.tools.ScriptRunner;
 import com.webreach.mirth.server.util.UUIDGenerator;
 
 public class AlertControllerTest extends TestCase {
-	private AlertController alertController = new AlertController();
+	private AlertController alertController = AlertController.getInstance();
 	private ConfigurationController configurationController = ConfigurationController.getInstance();
 	private List<Alert> sampleAlertList;
 	

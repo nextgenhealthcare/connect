@@ -44,6 +44,22 @@ public class UserController {
 	private SqlMapClient sqlMap = SqlConfig.getSqlMapInstance();
 	private FIPSEncrypter encrypter = FIPSEncrypter.getInstance();
 
+	private static UserController instance = null;
+	
+	private UserController() {
+		
+	}
+	
+	public static UserController getInstance() {
+		synchronized (UserController.class) {
+			if (instance == null) {
+				instance = new UserController();
+			}
+			
+			return instance;
+		}
+	}   
+	
 	public void initialize() {
 		try {
 			sqlMap.update("resetUserStatus");

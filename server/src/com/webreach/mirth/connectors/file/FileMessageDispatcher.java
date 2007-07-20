@@ -53,7 +53,7 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
 	private FileConnector connector;
 
 	private MessageObjectController messageObjectController = MessageObjectController.getInstance();
-	private AlertController alertController = new AlertController();
+	private AlertController alertController = AlertController.getInstance();
 
 	public FileMessageDispatcher(FileConnector connector) {
 		super(connector);

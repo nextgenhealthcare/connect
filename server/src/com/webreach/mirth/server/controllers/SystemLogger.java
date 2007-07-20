@@ -42,6 +42,22 @@ public class SystemLogger {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private SqlMapClient sqlMap = SqlConfig.getSqlMapInstance();
 
+	private static SystemLogger instance = null;
+	
+	private SystemLogger() {
+		
+	}
+	
+	public static SystemLogger getInstance() {
+		synchronized (SystemLogger.class) {
+			if (instance == null) {
+				instance = new SystemLogger();
+			}
+			
+			return instance;
+		}
+	}   
+	
 	/**
 	 * Adds a new system event.
 	 * 

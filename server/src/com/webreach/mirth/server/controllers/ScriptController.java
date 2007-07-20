@@ -38,6 +38,22 @@ public class ScriptController {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private SqlMapClient sqlMap = SqlConfig.getSqlMapInstance();
 
+	private static ScriptController instance = null;
+	
+	private ScriptController() {
+		
+	}
+	
+	public static ScriptController getInstance() {
+		synchronized (ScriptController.class) {
+			if (instance == null) {
+				instance = new ScriptController();
+			}
+			
+			return instance;
+		}
+	}   
+	
 	/**
 	 * Adds a script with the specified id to the database. If a script with the
 	 * id already exists it will be overwritten.

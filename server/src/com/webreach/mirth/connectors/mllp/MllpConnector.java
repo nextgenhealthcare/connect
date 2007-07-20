@@ -377,7 +377,7 @@ public class MllpConnector extends AbstractServiceEnabledConnector {
 			// exception
 			this.charsetEncoding = java.nio.charset.Charset.defaultCharset().name();
 			logger.error("Impossible to use [" + charsetEncoding + "] as the Charset Encoding: changing to the platform default [" + this.charsetEncoding + "]");
-			SystemLogger systemLogger = new SystemLogger();
+			SystemLogger systemLogger = SystemLogger.getInstance();
 			SystemEvent event = new SystemEvent("Exception occured in channel.");
 			event.setDescription("Impossible to use [" + charsetEncoding + "] as the Charset Encoding: changing to the platform default [" + this.charsetEncoding + "]");
 			systemLogger.logSystemEvent(event);

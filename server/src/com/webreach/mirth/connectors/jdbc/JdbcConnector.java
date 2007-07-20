@@ -45,7 +45,7 @@ import com.webreach.mirth.server.util.CompiledScriptCache;
  */
 public class JdbcConnector extends AbstractServiceEnabledConnector {
 	private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
-	private ScriptController scriptController = new ScriptController();
+	private ScriptController scriptController = ScriptController.getInstance();
 	
     public static final String PROPERTY_POLLING_FREQUENCY = "pollingFrequency";
     

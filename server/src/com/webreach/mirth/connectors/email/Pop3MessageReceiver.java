@@ -61,7 +61,7 @@ public class Pop3MessageReceiver extends PollingMessageReceiver implements Messa
 	private Folder folder = null;
 	private String backupFolder = null;
 	protected Session session;
-	private AlertController alertController = new AlertController();
+	private AlertController alertController = AlertController.getInstance();
 
 	public Pop3MessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint, Long checkFrequency, String backupFolder) throws InitialisationException {
 		super(connector, component, endpoint, checkFrequency);

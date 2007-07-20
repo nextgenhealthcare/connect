@@ -51,7 +51,7 @@ public class JmsMessageReceiver extends AbstractMessageReceiver implements Messa
     protected RedeliveryHandler redeliveryHandler;
     protected MessageConsumer consumer;
     protected Session session;
-    private AlertController alertController = new AlertController();
+    private AlertController alertController = AlertController.getInstance();
 
     public JmsMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint)
             throws InitialisationException

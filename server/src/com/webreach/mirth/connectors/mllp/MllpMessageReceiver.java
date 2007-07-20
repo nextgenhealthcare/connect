@@ -83,7 +83,7 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
     private StringBuffer buffer = new StringBuffer();
 	// (usually same as end of record)
 	private MllpConnector connector;
-	private AlertController alertController = new AlertController();
+	private AlertController alertController = AlertController.getInstance();
 	private TcpWorker work;
 	public MllpMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint) throws InitialisationException {
 		super(connector, component, endpoint);

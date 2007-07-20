@@ -39,7 +39,6 @@ import org.mule.impl.MuleMessage;
 import org.mule.impl.ResponseOutputStream;
 import org.mule.providers.AbstractMessageReceiver;
 import org.mule.providers.ConnectException;
-import org.mule.providers.tcp.TcpProtocol;
 import org.mule.umo.UMOComponent;
 import org.mule.umo.UMOMessage;
 import org.mule.umo.endpoint.UMOEndpoint;
@@ -68,7 +67,7 @@ import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicBoolean;
 public class TcpMessageReceiver extends AbstractMessageReceiver implements Work {
 	protected ServerSocket serverSocket = null;
 	protected TcpConnector connector;
-	private AlertController alertController = new AlertController();
+	private AlertController alertController = AlertController.getInstance();
 	private TcpWorker work;
 	public TcpMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint) throws InitialisationException {
 		super(connector, component, endpoint);

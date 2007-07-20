@@ -65,7 +65,7 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 	private String moveToPattern = null;
 	private FilenameFilter filenameFilter = null;
 	private boolean routingError = false;
-	private AlertController alertController = new AlertController();
+	private AlertController alertController = AlertController.getInstance();
 
 	public FileMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint, String readDir, String moveDir, String moveToPattern, Long frequency) throws InitialisationException {
 		super(connector, component, endpoint, frequency);

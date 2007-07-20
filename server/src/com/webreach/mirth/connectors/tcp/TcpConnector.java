@@ -19,8 +19,6 @@ import org.mule.config.i18n.Message;
 import org.mule.impl.model.AbstractComponent;
 import org.mule.management.stats.ComponentStatistics;
 import org.mule.providers.AbstractServiceEnabledConnector;
-import org.mule.providers.tcp.TcpProtocol;
-import org.mule.providers.tcp.protocols.DefaultProtocol;
 import org.mule.umo.UMOComponent;
 import org.mule.umo.endpoint.UMOEndpoint;
 import org.mule.umo.lifecycle.InitialisationException;
@@ -29,6 +27,7 @@ import org.mule.util.queue.Queue;
 import org.mule.util.queue.QueueManager;
 import org.mule.util.queue.QueueSession;
 
+import com.webreach.mirth.connectors.tcp.protocols.DefaultProtocol;
 import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.server.controllers.SystemLogger;
 
@@ -168,6 +167,7 @@ public class TcpConnector extends AbstractServiceEnabledConnector {
 		if (tcpProtocol == null) {
 			try {
 				tcpProtocol = new DefaultProtocol();
+				tcpProtocol.setTcpConnector(this);
 
 			} catch (Exception e) {
 				throw new InitialisationException(new Message("tcp", 3), e);
@@ -313,7 +313,7 @@ public class TcpConnector extends AbstractServiceEnabledConnector {
 			// exception
 			this.charsetEncoding = java.nio.charset.Charset.defaultCharset().name();
 			logger.error("Impossible to use [" + charsetEncoding + "] as the Charset Encoding: changing to the platform default [" + this.charsetEncoding + "]");
-			SystemLogger systemLogger = new SystemLogger();
+			SystemLogger systemLogger = SystemLogger.getInstance();
 			SystemEvent event = new SystemEvent("Exception occured in channel.");
 			event.setDescription("Impossible to use [" + charsetEncoding + "] as the Charset Encoding: changing to the platform default [" + this.charsetEncoding + "]");
 			systemLogger.logSystemEvent(event);

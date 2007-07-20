@@ -41,7 +41,7 @@ import com.webreach.mirth.server.util.CompiledScriptCache;
 public class JavaScriptPreprocessor extends AbstractTransformer {
 	private String preprocessingScriptId;
 	private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
-	private ScriptController scriptController = new ScriptController();
+	private ScriptController scriptController = ScriptController.getInstance();
 
 	public String getPreprocessingScriptId() {
 		return this.preprocessingScriptId;

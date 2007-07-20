@@ -58,10 +58,10 @@ import com.webreach.mirth.server.util.UUIDGenerator;
 public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private MessageObjectController messageObjectController = MessageObjectController.getInstance();
-	private AlertController alertController = new AlertController();
-	private TemplateController templateController = new TemplateController();
+	private AlertController alertController = AlertController.getInstance();
+	private TemplateController templateController = TemplateController.getInstance();
 	private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
-	private ScriptController scriptController = new ScriptController();
+	private ScriptController scriptController = ScriptController.getInstance();
 	private ErrorMessageBuilder errorBuilder = new ErrorMessageBuilder();
 
 	private String inboundProtocol;

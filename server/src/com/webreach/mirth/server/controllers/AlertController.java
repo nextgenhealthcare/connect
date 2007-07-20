@@ -49,6 +49,22 @@ public class AlertController {
 	private SqlMapClient sqlMap = SqlConfig.getSqlMapInstance();
 	private ErrorMessageBuilder errorBuilder = new ErrorMessageBuilder();
 
+	private static AlertController instance = null;
+
+	private AlertController() {
+		
+	}
+	
+	public static AlertController getInstance() {
+		synchronized (AlertController.class) {
+			if (instance == null) {
+				instance = new AlertController();
+			}
+			
+			return instance;
+		}
+	}
+	
 	public List<Alert> getAlert(Alert alert) throws ControllerException {
 		logger.debug("getting alert: " + alert);
 

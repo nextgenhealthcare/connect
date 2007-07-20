@@ -32,7 +32,7 @@ import com.webreach.mirth.server.controllers.MessageObjectController;
 public class SftpMessageDispatcher extends AbstractMessageDispatcher {
 	protected SftpConnector connector;
 	private MessageObjectController messageObjectController = MessageObjectController.getInstance();
-	private AlertController alertController = new AlertController();
+	private AlertController alertController = AlertController.getInstance();
 
 	public SftpMessageDispatcher(SftpConnector connector) {
 		super(connector);

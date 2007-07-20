@@ -69,7 +69,7 @@ public class MuleConfigurationBuilder {
 	private Map<String, ConnectorMetaData> transports = null;
 	private JavaScriptFilterBuilder filterBuilder = new JavaScriptFilterBuilder();
 	private JavaScriptTransformerBuilder transformerBuilder = new JavaScriptTransformerBuilder();
-	private ScriptController scriptController = new ScriptController();
+	private ScriptController scriptController = ScriptController.getInstance();
 
 	public MuleConfigurationBuilder(List<Channel> channels, Map<String, ConnectorMetaData> transports) {
 		this.channels = channels;
@@ -391,7 +391,7 @@ public class MuleConfigurationBuilder {
 
 			// put the outbound template in the templates table
 			if (transformer.getOutboundTemplate() != null) {
-				TemplateController templateController = new TemplateController();
+				TemplateController templateController = TemplateController.getInstance();
 				IXMLSerializer<String> serializer = AdaptorFactory.getAdaptor(transformer.getOutboundProtocol()).getSerializer(transformer.getOutboundProperties());
 				String templateId = UUIDGenerator.getUUID();
 				

@@ -40,7 +40,7 @@ public class SftpMessageReceiver extends PollingMessageReceiver {
 	protected SftpConnector connector;
 	private FilenameFilter filenameFilter = null;
 	protected Set currentFiles = Collections.synchronizedSet(new HashSet());
-	private AlertController alertController = new AlertController();
+	private AlertController alertController = AlertController.getInstance();
 
 	private boolean routingError = false;
 

@@ -91,7 +91,7 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher {
 
 	protected SimpleProvider clientConfig;
 	private MessageObjectController messageObjectController = MessageObjectController.getInstance();
-	private AlertController alertController = new AlertController();
+	private AlertController alertController = AlertController.getInstance();
 	public AxisMessageDispatcher(AxisConnector connector) throws UMOException {
 		super(connector);
 		AxisProperties.setProperty("axis.doAutoTypes", "true");

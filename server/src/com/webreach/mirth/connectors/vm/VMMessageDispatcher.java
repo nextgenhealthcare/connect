@@ -54,7 +54,7 @@ public class VMMessageDispatcher extends AbstractMessageDispatcher
 
     private VMConnector connector;
     private MessageObjectController messageObjectController = MessageObjectController.getInstance();
-    private AlertController alertController = new AlertController();
+    private AlertController alertController = AlertController.getInstance();
 
     public VMMessageDispatcher(VMConnector connector)
     {

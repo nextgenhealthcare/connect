@@ -17,7 +17,7 @@ import com.webreach.mirth.server.controllers.ControllerException;
 import com.webreach.mirth.server.tools.ScriptRunner;
 
 public class ChannelControllerTest extends TestCase {
-	private ChannelController channelController = new ChannelController();
+	private ChannelController channelController = ChannelController.getInstance();
 	private ConfigurationController configurationController = ConfigurationController.getInstance();
 	private List<Channel> sampleChannelList;
 	

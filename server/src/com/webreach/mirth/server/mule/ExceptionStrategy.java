@@ -64,7 +64,7 @@ public class ExceptionStrategy extends DefaultComponentExceptionStrategy {
 	}
 
 	protected void logException(Throwable t) {
-		SystemLogger systemLogger = new SystemLogger();
+		SystemLogger systemLogger = SystemLogger.getInstance();
 		SystemEvent event = new SystemEvent("Exception occured in channel.");
 		event.setDescription(StackTracePrinter.stackTraceToString(t));
 		systemLogger.logSystemEvent(event);

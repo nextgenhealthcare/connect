@@ -84,7 +84,7 @@ import com.webreach.mirth.util.PropertyLoader;
  */
 public class ConfigurationController {
 	private Logger logger = Logger.getLogger(this.getClass());
-	private SystemLogger systemLogger = new SystemLogger();
+	private SystemLogger systemLogger = SystemLogger.getInstance();
 	public static String mirthHomeDir = new File(ClassPathResource.getResourceURI("mirth.properties")).getParentFile().getParent();
 	public static File serverPropertiesFile = new File(mirthHomeDir + System.getProperty("file.separator") + "server.properties");
 	public static File serverIdPropertiesFile = new File(mirthHomeDir + System.getProperty("file.separator") + "server.id");
@@ -97,7 +97,7 @@ public class ConfigurationController {
 	private boolean isEngineStarting = false;
 	private Map<String, ConnectorMetaData> connectors = null;
 	private List<String> connectorLibraries = null;
-    private ScriptController scriptController = new ScriptController();
+    private ScriptController scriptController = ScriptController.getInstance();
 
 	// Mirth status codes
 	public static final int STATUS_OK = 0;
@@ -275,15 +275,15 @@ public class ConfigurationController {
 	public void deployChannels() throws ControllerException {
 		logger.debug("deploying channels");
 
-		ScriptController scriptController = new ScriptController();
-		TemplateController templateController = new TemplateController();
+		ScriptController scriptController = ScriptController.getInstance();
+		TemplateController templateController = TemplateController.getInstance();
 
 		stopAllChannels();
 		scriptController.clearScripts();
 		templateController.clearTemplates();
 
 		try {
-			ChannelController channelController = new ChannelController();
+			ChannelController channelController = ChannelController.getInstance();
 			channelController.initialize();
 
 			// instantiate a new configuration builder given the current channel
@@ -405,7 +405,7 @@ public class ConfigurationController {
     }
 
 	private void stopAllChannels() throws ControllerException {
-		ChannelStatusController channelStatusController = new ChannelStatusController();
+		ChannelStatusController channelStatusController = ChannelStatusController.getInstance();
 		List<ChannelStatus> deployedChannels = channelStatusController.getChannelStatusList();
 
 		for (Iterator iter = deployedChannels.iterator(); iter.hasNext();) {
@@ -615,9 +615,9 @@ public class ConfigurationController {
 	}
 
 	public ServerConfiguration getServerConfiguration() throws ControllerException {
-		ChannelController channelController = new ChannelController();
-		AlertController alertController = new AlertController();
-		UserController userController = new UserController();
+		ChannelController channelController = ChannelController.getInstance();
+		AlertController alertController = AlertController.getInstance();
+		UserController userController = UserController.getInstance();
 
 		ServerConfiguration serverConfiguration = new ServerConfiguration();
 		serverConfiguration.setChannels(channelController.getChannel(null));
@@ -629,8 +629,8 @@ public class ConfigurationController {
 	}
 
 	public void setServerConfiguration(ServerConfiguration serverConfiguration) throws ControllerException {
-		ChannelController channelController = new ChannelController();
-		AlertController alertController = new AlertController();
+		ChannelController channelController = ChannelController.getInstance();
+		AlertController alertController = AlertController.getInstance();
 
 		channelController.removeChannel(null);
 		alertController.removeAlert(null);

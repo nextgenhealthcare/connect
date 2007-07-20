@@ -27,7 +27,7 @@ public class DocumentMessageDispatcher extends AbstractMessageDispatcher {
 	private DocumentConnector connector;
 
 	private MessageObjectController messageObjectController = MessageObjectController.getInstance();
-	private AlertController alertController = new AlertController();
+	private AlertController alertController = AlertController.getInstance();
 	
 	public DocumentMessageDispatcher(DocumentConnector connector) {
 		super(connector);

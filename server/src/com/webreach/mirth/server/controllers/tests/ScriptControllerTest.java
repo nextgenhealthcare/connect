@@ -9,7 +9,7 @@ import com.webreach.mirth.server.controllers.ScriptController;
 import com.webreach.mirth.server.tools.ScriptRunner;
 
 public class ScriptControllerTest extends TestCase {
-	private ScriptController scriptController = new ScriptController();
+	private ScriptController scriptController = ScriptController.getInstance();
 	private ConfigurationController configurationController = ConfigurationController.getInstance();
 
 	protected void setUp() throws Exception {

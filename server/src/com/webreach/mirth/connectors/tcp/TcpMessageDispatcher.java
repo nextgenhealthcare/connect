@@ -29,7 +29,6 @@ import org.apache.commons.logging.LogFactory;
 import org.mule.impl.MuleMessage;
 import org.mule.providers.AbstractMessageDispatcher;
 import org.mule.providers.TemplateValueReplacer;
-import org.mule.providers.tcp.TcpProtocol;
 import org.mule.umo.UMOEvent;
 import org.mule.umo.UMOException;
 import org.mule.umo.UMOMessage;
@@ -38,7 +37,6 @@ import org.mule.umo.endpoint.UMOEndpointURI;
 import org.mule.umo.provider.UMOConnector;
 import org.mule.util.queue.Queue;
 
-import com.webreach.mirth.connectors.mllp.MllpConnector;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
@@ -76,7 +74,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 	private TcpConnector connector;
 	private MessageObjectController messageObjectController = MessageObjectController.getInstance();
 	private TemplateValueReplacer replacer = new TemplateValueReplacer();
-	private AlertController alertController = new AlertController();
+	private AlertController alertController = AlertController.getInstance();
 	
 	public TcpMessageDispatcher(TcpConnector connector) {
 		super(connector);

@@ -70,11 +70,11 @@ public class Mirth extends Thread {
 	private MuleManager muleManager = null;
 	private HttpServer webServer = null;
 	private CommandQueue commandQueue = CommandQueue.getInstance();
-	private SystemLogger systemLogger = new SystemLogger();
+	private SystemLogger systemLogger = SystemLogger.getInstance();
 	private MirthManager manager = new MirthManager();
 	private ConfigurationController configurationController = ConfigurationController.getInstance();
-	private ChannelController channelController = new ChannelController();
-	private UserController userController = new UserController();
+	private ChannelController channelController = ChannelController.getInstance();
+	private UserController userController = UserController.getInstance();
 	private MessageObjectController messageObjectController = MessageObjectController.getInstance();
 	private ChannelStatisticsController channelStatisticsController = ChannelStatisticsController.getInstance();
 	private PluginController pluginController =  PluginController.getInstance();

@@ -58,43 +58,37 @@ public class LlpProtocol implements TcpProtocol {
 	}
 
 	private byte[] readTCP(InputStream is) throws IOException {
-		ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
-		byte[] buffer = new byte[BUFFER_SIZE];
-		int len = 0;
-		try {
-			while ((len = is.read(buffer)) == 0) {
-			}
-		} catch (SocketException e) {
-			// do not pollute the log with a stacktrace, log only the message
-			logger.debug("Socket exception occured: " + e.getMessage());
-			return null;
-		} catch (SocketTimeoutException e) {
-			logger.debug("Socket timeout, returning null.");
-			return null;
-		}
-		try {
-			if (len == -1) {
-				return null;
-			} else {
-				do {
-					baos.write(buffer, 0, len);
-					if (len < buffer.length) {
-						break;
-					}
-					int av = is.available();
-					if (av == 0) {
-						break;
-					}
-				} while ((len = is.read(buffer)) > 0);
+		String charset=_mllpConnector.getCharsetEncoding();
+		UtilReader myReader = new UtilReader(is, charset);
 
-				baos.flush();
-				baos.close();
-				return baos.toByteArray();
-			}
-		} finally {
-			baos.flush();
-			baos.close();
+		int c = 0;
+		try {
+			c = myReader.read();
+		} catch (SocketException e) {
+			logger.info("SocketException on read() attempt.  Socket appears to have been closed: " + e.getMessage());
+			return null;
+		} catch (SocketTimeoutException ste) {
+			logger.info("SocketTimeoutException on read() attempt.  Socket appears to have been closed: " + ste.getMessage());
+			return null;
 		}
+
+		// trying to read when there is no data (stream may have been closed at
+		// other end)
+		if (c == -1) {
+			logger.info("End of input stream reached.");
+			return null;
+		}
+
+		while (c != -1) {
+			myReader.append((char) c);
+			try {
+				c = myReader.read();
+			} catch (Exception e) {
+				c = -1;
+			}
+		}
+
+		return myReader.getBytes();
 	}
 	
 	/*

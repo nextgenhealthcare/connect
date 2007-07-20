@@ -13,7 +13,7 @@ import com.webreach.mirth.server.tools.ScriptRunner;
 
 public class StatisticsControllerTest extends TestCase {
 	private ChannelStatisticsController statisticsController = ChannelStatisticsController.getInstance();
-	private ChannelController channelController = new ChannelController();
+	private ChannelController channelController = ChannelController.getInstance();
 	private ConfigurationController configurationController = ConfigurationController.getInstance();
 	private Channel sampleChannel;
 

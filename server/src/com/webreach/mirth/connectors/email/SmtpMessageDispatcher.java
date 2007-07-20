@@ -44,7 +44,7 @@ import com.webreach.mirth.server.controllers.MessageObjectController;
 public class SmtpMessageDispatcher extends AbstractMessageDispatcher {
 	private Session session;
 	private MessageObjectController messageObjectController = MessageObjectController.getInstance();
-	private AlertController alertController = new AlertController();
+	private AlertController alertController = AlertController.getInstance();
 	private SmtpConnector connector;
 
 	/**

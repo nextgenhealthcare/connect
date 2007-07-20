@@ -43,7 +43,7 @@ public class SystemEventServlet extends MirthServlet {
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 		} else {
 			try {
-				SystemLogger systemLogger = new SystemLogger();
+				SystemLogger systemLogger = SystemLogger.getInstance();
 				ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 				PrintWriter out = response.getWriter();
 				String operation = request.getParameter("op");

@@ -31,7 +31,7 @@ import com.webreach.mirth.server.controllers.MessageObjectController;
 public class MessagePrunerService implements ServerPlugin, Job
 {
     private Logger logger = Logger.getLogger(this.getClass());
-    private ChannelController channelController = new ChannelController();
+    private ChannelController channelController = ChannelController.getInstance();
     private MessageObjectController messageObjectController = MessageObjectController.getInstance();
     private Scheduler sched = null;
     private SchedulerFactory schedFact = null;

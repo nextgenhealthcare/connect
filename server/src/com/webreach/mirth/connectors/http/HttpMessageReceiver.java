@@ -55,7 +55,7 @@ import java.util.Map.Entry;
  */
 public class HttpMessageReceiver extends TcpMessageReceiver {
     //private ExpiryMonitor keepAliveMonitor;
-	private AlertController alertController = new AlertController();
+	private AlertController alertController = AlertController.getInstance();
 	
     public HttpMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint)
             throws InitialisationException {

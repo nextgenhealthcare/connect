@@ -76,7 +76,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher {
 
 	private MllpConnector connector;
 	private MessageObjectController messageObjectController = MessageObjectController.getInstance();
-	private AlertController alertController = new AlertController();
+	private AlertController alertController = AlertController.getInstance();
 	private TemplateValueReplacer replacer = new TemplateValueReplacer();
 
 	public MllpMessageDispatcher(MllpConnector connector) {

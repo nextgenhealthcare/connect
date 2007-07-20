@@ -50,7 +50,7 @@ import com.webreach.mirth.server.util.PluginUtil;
 public class PluginController
 {
     private Logger logger = Logger.getLogger(this.getClass());
-    private SystemLogger systemLogger = new SystemLogger();
+    private SystemLogger systemLogger = SystemLogger.getInstance();
     public static final String PLUGIN_LOCATION = ClassPathResource.getResourceURI("services").getPath() + System.getProperty("file.separator");
     public static final String PLUGIN_FILE_SUFFIX = ".properties";
     private Map<String, PluginMetaData> plugins;

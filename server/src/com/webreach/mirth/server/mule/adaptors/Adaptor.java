@@ -24,7 +24,7 @@ public abstract class Adaptor {
 	protected IXMLSerializer<String> serializer;
 	private MessageObjectController messageObjectController = MessageObjectController.getInstance();
     private ConfigurationController configurationController = ConfigurationController.getInstance();
-    private AlertController alertController = new AlertController();
+    private AlertController alertController = AlertController.getInstance();
 	public MessageObject getMessage(String source, String channelId, boolean encryptData, Map properties) throws AdaptorException {
 		this.source = source;
         this.properties = properties;

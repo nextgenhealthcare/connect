@@ -44,7 +44,7 @@ public class ChannelServlet extends MirthServlet {
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 		} else {
 			try {
-				ChannelController channelController = new ChannelController();
+				ChannelController channelController = ChannelController.getInstance();
 				ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 				PrintWriter out = response.getWriter();
 				String operation = request.getParameter("op");
