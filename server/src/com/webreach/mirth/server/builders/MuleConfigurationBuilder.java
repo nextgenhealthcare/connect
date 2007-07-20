@@ -286,55 +286,57 @@ public class MuleConfigurationBuilder {
 
 			for (ListIterator iterator = channel.getDestinationConnectors().listIterator(); iterator.hasNext();) {
 				Connector connector = (Connector) iterator.next();
-
-				Element endpointElement = document.createElement("endpoint");
-				endpointElement.setAttribute("address", getEndpointUri(connector));
-
-				// if there are multiple endpoints, make them all synchronous to
-				// ensure correct ordering of fired events
-				if (channel.getDestinationConnectors().size() > 0) {
-					endpointElement.setAttribute("synchronous", "true");
-					routerElement.setAttribute("synchronous", "true");
+				
+				if (connector.isEnabled()) {	
+					Element endpointElement = document.createElement("endpoint");
+					endpointElement.setAttribute("address", getEndpointUri(connector));
+	
+					// if there are multiple endpoints, make them all synchronous to
+					// ensure correct ordering of fired events
+					if (channel.getDestinationConnectors().size() > 0) {
+						endpointElement.setAttribute("synchronous", "true");
+						routerElement.setAttribute("synchronous", "true");
+					}
+	
+					// ast: now, a funciont gets the connection reference string
+					// String connectorReference = channel.getId() + "_destination_"
+					// + String.valueOf(iterator.nextIndex());
+					String connectorReference = getConnectorReferenceForOutputRouter(channel, String.valueOf(iterator.nextIndex()));
+	
+					// add the destination connector
+					// ast: changes to get the same name for the connector and
+					String connectorName = getConnectorNameForOutputRouter(connectorReference);
+					addConnector(document, configurationElement, connector, connectorName, channel.getId());
+					endpointElement.setAttribute("connector", connectorName);
+	
+					StringBuilder transformers = new StringBuilder();
+	
+					// 1. append the JavaScriptTransformer that does the mappings
+					addTransformer(document, configurationElement, channel, connector, connectorReference + "_transformer");
+					transformers.append(connectorReference + "_transformer" + " ");
+	
+					// 2. finally, append any transformers needed by the transport
+					// (ie. StringToByteArray)
+					ConnectorMetaData transport = transports.get(connector.getTransportName());
+	
+					if (transport.getTransformers() != null) {
+						transformers.append(transport.getTransformers());	
+					}
+	
+					// enable transactions for the outbount router only if it has a
+					// JDBC connector
+					if (transport.getProtocol().equals("jdbc")) {
+						enableTransactions = true;
+					}
+	
+					// 3. add the transformer sequence as an attribute to the
+					// endpoint if not empty
+					if (!transformers.toString().trim().equals("")) {
+						endpointElement.setAttribute("transformers", transformers.toString().trim());
+					}
+	
+					routerElement.appendChild(endpointElement);
 				}
-
-				// ast: now, a funciont gets the connection reference string
-				// String connectorReference = channel.getId() + "_destination_"
-				// + String.valueOf(iterator.nextIndex());
-				String connectorReference = getConnectorReferenceForOutputRouter(channel, String.valueOf(iterator.nextIndex()));
-
-				// add the destination connector
-				// ast: changes to get the same name for the connector and
-				String connectorName = getConnectorNameForOutputRouter(connectorReference);
-				addConnector(document, configurationElement, connector, connectorName, channel.getId());
-				endpointElement.setAttribute("connector", connectorName);
-
-				StringBuilder transformers = new StringBuilder();
-
-				// 1. append the JavaScriptTransformer that does the mappings
-				addTransformer(document, configurationElement, channel, connector, connectorReference + "_transformer");
-				transformers.append(connectorReference + "_transformer" + " ");
-
-				// 2. finally, append any transformers needed by the transport
-				// (ie. StringToByteArray)
-				ConnectorMetaData transport = transports.get(connector.getTransportName());
-
-				if (transport.getTransformers() != null) {
-					transformers.append(transport.getTransformers());	
-				}
-
-				// enable transactions for the outbount router only if it has a
-				// JDBC connector
-				if (transport.getProtocol().equals("jdbc")) {
-					enableTransactions = true;
-				}
-
-				// 3. add the transformer sequence as an attribute to the
-				// endpoint if not empty
-				if (!transformers.toString().trim().equals("")) {
-					endpointElement.setAttribute("transformers", transformers.toString().trim());
-				}
-
-				routerElement.appendChild(endpointElement);
 			}
 
 			// check for enabled transactions

@@ -219,6 +219,30 @@ public class ImportConverter
             }
         }
         
+        // Go through each connector and set it to enabled if that property doesn't exist.
+        Element sourceConnectorRoot = (Element) document.getDocumentElement().getElementsByTagName("sourceConnector").item(0);
+        
+        if (sourceConnectorRoot.getElementsByTagName("enabled").getLength() == 0)
+        {
+        	Element enabled = document.createElement("enabled");
+            enabled.setTextContent("true");
+        	sourceConnectorRoot.appendChild(enabled);
+        }
+        
+        Element destinationConnectorRoot = (Element) document.getDocumentElement().getElementsByTagName("destinationConnectors").item(0);
+        NodeList destinationsConnectors = destinationConnectorRoot.getElementsByTagName("com.webreach.mirth.model.Connector");
+        
+        for (int i = 0; i < destinationsConnectors.getLength(); i++)
+        {
+        	Element destinationConnector = (Element)destinationsConnectors.item(i);
+        	if (destinationConnector.getElementsByTagName("enabled").getLength() == 0)
+        	{
+        		Element enabled = document.createElement("enabled");
+                enabled.setTextContent("true");
+        		destinationConnector.appendChild(enabled);
+        	}
+        }
+        
         if(channelRoot.getElementsByTagName("version").getLength() > 0)
         {
             String version = channelRoot.getElementsByTagName("version").item(0).getTextContent();

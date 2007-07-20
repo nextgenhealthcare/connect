@@ -50,6 +50,7 @@ public class Connector implements Serializable {
 	private Filter filter;
 	private String transportName;
 	private Mode mode;
+	private boolean enabled;
 
 	public Connector() {
 		this.properties = new Properties();
@@ -108,6 +109,14 @@ public class Connector implements Serializable {
 		this.properties = properties;
 	}
 	
+	public boolean isEnabled() {
+		return enabled;
+	}
+
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
+	
 	public boolean equals(Object that) {
 		if (this == that) {
 			return true;
@@ -121,10 +130,11 @@ public class Connector implements Serializable {
 		
 		return
 			EqualsUtil.areEqual(this.getName(), connector.getName()) &&
-			EqualsUtil.areEqual(this.getProperties(), getProperties()) &&
-			EqualsUtil.areEqual(this.getTransformer(), getTransformer()) &&
-			EqualsUtil.areEqual(this.getFilter(), getFilter()) &&
-			EqualsUtil.areEqual(this.getTransportName(), getTransportName());
+			EqualsUtil.areEqual(this.getProperties(), connector.getProperties()) &&
+			EqualsUtil.areEqual(this.getTransformer(), connector.getTransformer()) &&
+			EqualsUtil.areEqual(this.getFilter(), connector.getFilter()) &&
+			EqualsUtil.areEqual(this.isEnabled(), connector.isEnabled()) &&
+			EqualsUtil.areEqual(this.getTransportName(), connector.getTransportName());
 	}
 
 	public String toString() {
@@ -133,6 +143,7 @@ public class Connector implements Serializable {
 		builder.append("name=" + getName() + ", ");
 		builder.append("transportName=" + getTransportName() + ", ");
 		builder.append("properties=" + getProperties());
+		builder.append("enabled=" + isEnabled());
 		builder.append("]");
 		return builder.toString();
 	}
