@@ -66,7 +66,7 @@ public class ExtensionUtil
             while (i.hasNext())
             {
                 Entry entry = (Entry) i.next();
-                FileUtil.write(entry.getKey().toString() + ".xml", false, serializer.toXML(metaData.get(entry.getKey())));
+                FileUtil.write(location + entry.getKey().toString() + ".xml", false, serializer.toXML(metaData.get(entry.getKey())));
 
             }
         }
