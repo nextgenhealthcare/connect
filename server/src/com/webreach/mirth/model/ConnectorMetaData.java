@@ -44,6 +44,7 @@ public class ConnectorMetaData implements MetaData, Serializable {
 	private String protocol;
     private String pluginVersion;
     private String mirthVersion;
+    private boolean enabled;
 	private Type type;
 
 	public String getServerClassName() {
@@ -131,6 +132,14 @@ public class ConnectorMetaData implements MetaData, Serializable {
 	public void setType(Type type) {
 		this.type = type;
 	}
+    
+    public boolean isEnabled() {
+        return this.enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
 
 	public boolean equals(Object that) {
 		if (this == that) {
@@ -152,6 +161,7 @@ public class ConnectorMetaData implements MetaData, Serializable {
 			EqualsUtil.areEqual(this.getProtocol(), transport.getProtocol()) &&
             EqualsUtil.areEqual(this.getPluginVersion(), transport.getPluginVersion()) &&
             EqualsUtil.areEqual(this.getMirthVersion(), transport.getMirthVersion()) &&
+            EqualsUtil.areEqual(this.isEnabled(), transport.isEnabled()) &&
 			EqualsUtil.areEqual(this.getTransformers(), transport.getTransformers()) &&
 			EqualsUtil.areEqual(this.getType(), transport.getType());
 	}
@@ -167,6 +177,7 @@ public class ConnectorMetaData implements MetaData, Serializable {
         builder.append("clientClassName=" + getClientClassName() + ", ");
 		builder.append("transformers=" + getTransformers() + ", ");
         builder.append("protocol=" + getProtocol() + ", ");
+        builder.append("enabled=" + isEnabled() + ", ");
         builder.append("pluginVersion=" + getPluginVersion() + ", ");
 		builder.append("mirthVersion=" + getMirthVersion());
 		builder.append("]");

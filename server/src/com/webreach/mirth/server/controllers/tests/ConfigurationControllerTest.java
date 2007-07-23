@@ -27,25 +27,4 @@ public class ConfigurationControllerTest extends TestCase {
 	protected void tearDown() throws Exception {
 		super.tearDown();
 	}
-
-	public void testGetConnectorMetaData() throws ControllerException {
-		ConnectorMetaData sampleConnector = new ConnectorMetaData();
-		sampleConnector.setName("FTP Reader");
-		sampleConnector.setServerClassName("com.webreach.mirth.server.mule.providers.ftp.FtpConnector");
-		sampleConnector.setProtocol("ftp");
-		sampleConnector.setTransformers("ByteArrayToString");
-		sampleConnector.setType(ConnectorMetaData.Type.LISTENER);
-		Map<String, ConnectorMetaData> testTransportList = configurationController.getConnectorMetaData();
-
-		Assert.assertTrue(testTransportList.containsValue(sampleConnector));
-	}
-	
-	public void testGetConnectorLibraries() throws ControllerException {
-		List<String> libraries = configurationController.getConnectorLibraries();
-		
-		for (Iterator iter = libraries.iterator(); iter.hasNext();) {
-			String library = (String) iter.next();
-			System.out.println(library);
-		}
-	}
 }

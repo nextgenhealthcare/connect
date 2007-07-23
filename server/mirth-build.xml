@@ -40,13 +40,13 @@
 	<property name="CLIENT_HOME" value="${client}"/>
 	<property name="MANAGER_HOME" value="${manager}"/>
 
-	<target name="create-services">
-		<ant antfile="${SERVER_HOME}/build.xml" dir="${SERVER_HOME}" target="create-services">
+	<target name="create-extensions">
+		<ant antfile="${SERVER_HOME}/build.xml" dir="${SERVER_HOME}" target="create-plugins">
 			<property name="version" value="${RELEASE_VERSION}"/>
 		</ant>
 		
 		<copy todir="${CLIENT_HOME}/lib">
-			<fileset dir="${SERVER_HOME}/plugins/connectors/">
+			<fileset dir="${SERVER_HOME}/extensions/connectors/">
 				<include name="*-shared.jar" />
 			</fileset>
 		</copy>
@@ -54,19 +54,19 @@
 		<copy file="${SERVER_HOME}/mirth-client-core.jar" todir="${CLIENT_HOME}/lib"/>
 	</target>
 	
-	<target name="create-client" depends="create-services">
+	<target name="create-client" depends="create-extensions">
 		<ant antfile="${CLIENT_HOME}/ant-build.xml" dir="${CLIENT_HOME}" target="create-client"/>
 		
 		<copy file="${CLIENT_HOME}/dist/mirth-client.jar" todir="${SERVER_HOME}/client-lib/"/>
 		
-		<copy todir="${SERVER_HOME}/plugins/connectors/">
+		<copy todir="${SERVER_HOME}/extensions/connectors/">
 			<fileset dir="${CLIENT_HOME}/dist/connectors/">
 				<include name="*.jar" />
 			</fileset>
 		</copy>
 		
-		<copy todir="${SERVER_HOME}/plugins/services/">
-			<fileset dir="${CLIENT_HOME}/dist/services/">
+		<copy todir="${SERVER_HOME}/extensions/plugins/">
+			<fileset dir="${CLIENT_HOME}/dist/plugins/">
 				<include name="*.jar" />
 			</fileset>
 		</copy>

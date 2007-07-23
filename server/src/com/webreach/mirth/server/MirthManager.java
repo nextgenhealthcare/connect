@@ -32,9 +32,9 @@ import java.util.Properties;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.ChannelStatistics;
 import com.webreach.mirth.model.ChannelStatus;
+import com.webreach.mirth.model.ConnectorMetaData;
 import com.webreach.mirth.model.DriverInfo;
 import com.webreach.mirth.model.SystemEvent;
-import com.webreach.mirth.model.ConnectorMetaData;
 import com.webreach.mirth.model.User;
 import com.webreach.mirth.model.filters.MessageObjectFilter;
 import com.webreach.mirth.model.filters.SystemEventFilter;
@@ -43,6 +43,7 @@ import com.webreach.mirth.server.controllers.ChannelStatisticsController;
 import com.webreach.mirth.server.controllers.ChannelStatusController;
 import com.webreach.mirth.server.controllers.ConfigurationController;
 import com.webreach.mirth.server.controllers.ControllerException;
+import com.webreach.mirth.server.controllers.ExtensionController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.controllers.SystemLogger;
 import com.webreach.mirth.server.controllers.UserController;
@@ -54,6 +55,7 @@ public class MirthManager {
 	private ConfigurationController configurationController = ConfigurationController.getInstance();
 	private MessageObjectController messageObjectController = MessageObjectController.getInstance();
 	private SystemLogger systemLogger = SystemLogger.getInstance();
+    private ExtensionController extensionController = ExtensionController.getInstance();
 	private UserController userController = UserController.getInstance();
 
 	/**
@@ -106,7 +108,7 @@ public class MirthManager {
 	 */
 	public Map<String, ConnectorMetaData> getTransports() throws MirthException {
 		try {
-			return configurationController.getConnectorMetaData();
+			return extensionController.getConnectorMetaData();
 		} catch (ControllerException e) {
 			throw new MirthException(e);
 		}

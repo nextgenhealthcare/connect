@@ -62,7 +62,7 @@ public class Client {
 	public final static String MESSAGE_SERVLET = "/messages";
 	public final static String EVENT_SERVLET = "/events";
 	public final static String ALERT_SERVLET = "/alerts";
-    public final static String PLUGIN_SERVLET = "/plugins";
+    public final static String EXTENSION_SERVLET = "/extensions";
 
 	/**
 	 * Instantiates a new Mirth client with a connection to the specified
@@ -193,17 +193,41 @@ public class Client {
 		serverConnection.executePostMethod(CHANNEL_SERVLET, params);
 	}
 
+    /**
+     * Install new extension
+     * 
+     * @return
+     * @throws ClientException
+     */
+    public void installExtension(String location, String fileContents) throws ClientException {
+        logger.debug("installing extension");
+        NameValuePair[] params = { new NameValuePair("op", "installExtension"), new NameValuePair("location", location), new NameValuePair("file", fileContents) };
+        serverConnection.executePostMethod(EXTENSION_SERVLET, params);
+    }
+    
 	/**
-	 * Returns a List of all transports.
+	 * Returns a List of all connectors.
 	 * 
 	 * @return
 	 * @throws ClientException
 	 */
 	public Map<String, ConnectorMetaData> getConnectorMetaData() throws ClientException {
-		logger.debug("retrieving transport list");
+		logger.debug("retrieving connector list");
 		NameValuePair[] params = { new NameValuePair("op", "getConnectorMetaData") };
-		return (Map<String, ConnectorMetaData>) serializer.fromXML(serverConnection.executePostMethod(CONFIGURATION_SERVLET, params));
+		return (Map<String, ConnectorMetaData>) serializer.fromXML(serverConnection.executePostMethod(EXTENSION_SERVLET, params));
 	}
+    
+    /**
+     * Saves connector properties.
+     * 
+     * @return
+     * @throws ClientException
+     */
+    public void setConnectorMetaData(Map<String, ConnectorMetaData> metaData) throws ClientException {
+        logger.debug("saving connector settings");
+        NameValuePair[] params = { new NameValuePair("op", "setConnectorMetaData"), new NameValuePair("metaData", serializer.toXML(metaData)) };
+        serverConnection.executePostMethod(EXTENSION_SERVLET, params);
+    }
     
     /**
      * Returns a List of all plugins.
@@ -214,7 +238,19 @@ public class Client {
     public Map<String, PluginMetaData> getPluginMetaData() throws ClientException {
         logger.debug("retrieving plugin list");
         NameValuePair[] params = { new NameValuePair("op", "getPluginMetaData") };
-        return (Map<String, PluginMetaData>) serializer.fromXML(serverConnection.executePostMethod(PLUGIN_SERVLET, params));
+        return (Map<String, PluginMetaData>) serializer.fromXML(serverConnection.executePostMethod(EXTENSION_SERVLET, params));
+    }
+    
+    /**
+     * Saves plugin properties.
+     * 
+     * @return
+     * @throws ClientException
+     */
+    public void setPluginMetaData(Map<String, PluginMetaData> metaData) throws ClientException {
+        logger.debug("saving plugin settings");
+        NameValuePair[] params = { new NameValuePair("op", "setPluginMetaData"), new NameValuePair("metaData", serializer.toXML(metaData)) };
+        serverConnection.executePostMethod(EXTENSION_SERVLET, params);
     }
     
     /**
@@ -226,7 +262,7 @@ public class Client {
     public Object invokePluginMethod(String name, String method, Object object) throws ClientException {
         logger.debug("invoking method " + method + " on " + name);
         NameValuePair[] params = { new NameValuePair("op", "invoke"), new NameValuePair("name", name), new NameValuePair("method", method), new NameValuePair("object", serializer.toXML(object)) };
-        return (Object) serializer.fromXML(serverConnection.executePostMethod(PLUGIN_SERVLET, params));
+        return (Object) serializer.fromXML(serverConnection.executePostMethod(EXTENSION_SERVLET, params));
     }
 
 	/**
@@ -541,7 +577,7 @@ public class Client {
     public Properties getPluginProperties(String pluginName) throws ClientException {
         logger.debug("getting " + pluginName + " properties");
         NameValuePair[] params = { new NameValuePair("op", "getPluginProperties"), new NameValuePair("name", pluginName) };
-        return (Properties) serializer.fromXML(serverConnection.executePostMethod(PLUGIN_SERVLET, params));
+        return (Properties) serializer.fromXML(serverConnection.executePostMethod(EXTENSION_SERVLET, params));
     }
     
     /**
@@ -553,7 +589,7 @@ public class Client {
     public void setPluginProperties(String pluginName, Properties properties) throws ClientException {
         logger.debug("setting " + pluginName + " properties");
         NameValuePair[] params = { new NameValuePair("op", "setPluginProperties"), new NameValuePair("name", pluginName) ,new NameValuePair("properties", serializer.toXML(properties))};
-        serverConnection.executePostMethod(PLUGIN_SERVLET, params);
+        serverConnection.executePostMethod(EXTENSION_SERVLET, params);
     }
     
 	/**

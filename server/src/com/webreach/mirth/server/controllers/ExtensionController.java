@@ -36,10 +36,11 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
+import com.webreach.mirth.model.ConnectorMetaData;
 import com.webreach.mirth.model.PluginMetaData;
 import com.webreach.mirth.plugins.ServerPlugin;
 import com.webreach.mirth.server.tools.ClassPathResource;
-import com.webreach.mirth.server.util.PluginUtil;
+import com.webreach.mirth.server.util.ExtensionUtil;
 
 /**
  * The ConfigurationController provides access to the Mirth configuration.
@@ -47,31 +48,34 @@ import com.webreach.mirth.server.util.PluginUtil;
  * @author brendanh
  * 
  */
-public class PluginController
+public class ExtensionController
 {
     private Logger logger = Logger.getLogger(this.getClass());
     private SystemLogger systemLogger = SystemLogger.getInstance();
-    public static final String PLUGIN_LOCATION = ClassPathResource.getResourceURI("services").getPath() + System.getProperty("file.separator");
+    public static final String PLUGIN_LOCATION = ClassPathResource.getResourceURI("plugins").getPath() + System.getProperty("file.separator");
     public static final String PLUGIN_FILE_SUFFIX = ".properties";
     private Map<String, PluginMetaData> plugins;
     private List<String> pluginLibraries;
     private Map<String, ServerPlugin> loadedPlugins = null;
-
+    private Map<String, ConnectorMetaData> connectors = null;
+    private List<String> connectorLibraries = null;
+    private static String CONNECTORS_LOCATION = ClassPathResource.getResourceURI("connectors").getPath() + System.getProperty("file.separator");
+    
     // singleton pattern
-    private static PluginController instance = null;
+    private static ExtensionController instance = null;
 
-    public static PluginController getInstance()
+    public static ExtensionController getInstance()
     {
-        synchronized (PluginController.class)
+        synchronized (ExtensionController.class)
         {
             if (instance == null)
-                instance = new PluginController();
+                instance = new ExtensionController();
 
             return instance;
         }
     }
 
-    private PluginController()
+    private ExtensionController()
     {
 
     }
@@ -80,12 +84,14 @@ public class PluginController
     {
         try
         {
+            loadConnectorMetaData();
+            loadConnectorLibraries();
             loadPluginMetaData();
             loadPluginLibraries();
         }
         catch (Exception e)
         {
-            logger.error("could not initialize plugin settings", e);
+            logger.error("could not initialize extension settings", e);
             return;
         }
 
@@ -100,7 +106,7 @@ public class PluginController
         {
             try
             {
-                if(metaData.getServerClassName() != null && metaData.getServerClassName().length() > 0)
+                if(metaData.getServerClassName() != null && metaData.getServerClassName().length() > 0 && metaData.isEnabled())
                 {
                     ServerPlugin plugin = (ServerPlugin) Class.forName(metaData.getServerClassName()).newInstance();
                     String pluginName = metaData.getName();
@@ -154,6 +160,15 @@ public class PluginController
     public Object invoke (String name, String method, Object object)
     {
         return loadedPlugins.get(name).invoke(method, object);
+    }
+    
+    public void installExtension(String location, byte[] fileContents) throws ControllerException
+    {
+        if(location.equals("connectors"))
+            location = CONNECTORS_LOCATION;
+        else if(location.equals("plugins"))
+            location = PLUGIN_LOCATION;
+        ExtensionUtil.installExtension(location, fileContents);
     }
 
     public void setPluginProperties(String pluginName, Properties properties) throws ControllerException
@@ -222,17 +237,52 @@ public class PluginController
 
         return properties;
     }
+    
+    public Map<String, ConnectorMetaData> getConnectorMetaData() throws ControllerException {
+        logger.debug("retrieving connector metadata");
+        return this.connectors;
+    }
 
+    private void loadConnectorMetaData() throws ControllerException {
+        logger.debug("loading connector metadata");
+        this.connectors = (Map<String, ConnectorMetaData>) ExtensionUtil.loadExtensionMetaData(CONNECTORS_LOCATION);
+
+    }
+    
+    public void saveConnectorMetaData(Map<String, ConnectorMetaData> metaData) throws ControllerException
+    {
+        logger.debug("saving connector metadata");
+        this.connectors = metaData;
+        ExtensionUtil.saveExtensionMetaData(metaData, CONNECTORS_LOCATION);
+    }
+
+    public List<String> getConnectorLibraries() throws ControllerException {
+        logger.debug("retrieving connector libraries");
+        return this.connectorLibraries;
+    }
+
+    private void loadConnectorLibraries() throws ControllerException {
+        logger.debug("loading connector libraries");
+        this.connectorLibraries = ExtensionUtil.loadExtensionLibraries(CONNECTORS_LOCATION);
+    }
+    
     public Map<String, PluginMetaData> getPluginMetaData() throws ControllerException
     {
         logger.debug("retrieving plugin metadata");
         return this.plugins;
     }
+    
+    public void savePluginMetaData(Map<String, PluginMetaData> metaData) throws ControllerException
+    {
+        logger.debug("saving plugin metadata");
+        this.plugins = metaData;
+        ExtensionUtil.saveExtensionMetaData(metaData, PLUGIN_LOCATION);
+    }
 
     private void loadPluginMetaData() throws ControllerException
     {
         logger.debug("loading plugin metadata");
-        this.plugins = (Map<String, PluginMetaData>) PluginUtil.loadPluginMetaData(PLUGIN_LOCATION);
+        this.plugins = (Map<String, PluginMetaData>) ExtensionUtil.loadExtensionMetaData(PLUGIN_LOCATION);
     }
 
     public List<String> getPluginLibraries() throws ControllerException
@@ -244,6 +294,6 @@ public class PluginController
     private void loadPluginLibraries() throws ControllerException
     {
         logger.debug("loading plugin libraries");
-        this.pluginLibraries = PluginUtil.loadPluginLibraries(PLUGIN_LOCATION);;
+        this.pluginLibraries = ExtensionUtil.loadExtensionLibraries(PLUGIN_LOCATION);;
     }
 }

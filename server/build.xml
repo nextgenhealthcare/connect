@@ -248,19 +248,20 @@
 		</jar>
 	</target>
 	
-	<target name="create-services" depends="create-connectors">
-		<delete dir="${services}" />
-		<mkdir dir="${services}"/>
+	<target name="create-plugins" depends="create-connectors">
+		<delete dir="${plugins}" />
+		<mkdir dir="${plugins}"/>
 		
-		<copy todir="${services}">
+		<copy todir="${plugins}">
 			<fileset dir="${conf}/plugin-metadata">
 				<include name="*.xml"/>
 			</fileset>
 		</copy>
 		
-		<jar destfile="${services}/message-pruner-server.jar" basedir="${classes}">
+		<jar destfile="${plugins}/message-pruner-server.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/plugins/messagepruner/**" />
 		</jar>
+		
 	</target>
 
   <target name="create-client-lib" depends="init">
@@ -270,7 +271,7 @@
 			<fileset file="${client.lib}/*.jar" />
 			<fileset file="${connectors}/*-shared.jar" />
 			<fileset file="${connectors}/*-client.jar" />
-			<fileset file="${services}/*-client.jar" />
+			<fileset file="${plugins}/*-client.jar" />
 		</signjar>
   </target>
 
@@ -318,9 +319,9 @@
 			<fileset dir="${connectors}"/>
 		</copy>
 	
-		<!-- copy service files -->
-		<copy todir="${setup.services}">
-			<fileset dir="${services}"/>
+		<!-- copy plugins files -->
+		<copy todir="${setup.plugins}">
+			<fileset dir="${plugins}"/>
 		</copy>
 	
 		<!-- create version.properties file -->

@@ -44,7 +44,7 @@ import org.w3c.dom.Element;
 
 import com.webreach.mirth.model.converters.DocumentSerializer;
 import com.webreach.mirth.server.controllers.ConfigurationController;
-import com.webreach.mirth.server.controllers.PluginController;
+import com.webreach.mirth.server.controllers.ExtensionController;
 import com.webreach.mirth.server.tools.ClassPathResource;
 import com.webreach.mirth.util.PropertyLoader;
 
@@ -60,7 +60,7 @@ public class WebStartServlet extends HttpServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		try {
 			ConfigurationController configurationController = ConfigurationController.getInstance();
-            PluginController pluginController = PluginController.getInstance();
+            ExtensionController pluginController = ExtensionController.getInstance();
             
 			DocumentSerializer docSerializer = new DocumentSerializer();
 			PrintWriter out = response.getWriter();
@@ -120,7 +120,7 @@ public class WebStartServlet extends HttpServlet {
 			// add the connector client jars to the classpath
 			Element resourcesElement = (Element) jnlpElement.getElementsByTagName("resources").item(0);
 			
-            List<String> connectorLibraries = configurationController.getConnectorLibraries();
+            List<String> connectorLibraries = pluginController.getConnectorLibraries();
             List<String> pluginLibraries = pluginController.getPluginLibraries();
             
 			for (Iterator iter = connectorLibraries.iterator(); iter.hasNext();) {
@@ -138,7 +138,7 @@ public class WebStartServlet extends HttpServlet {
 
                 Element jarElement = document.createElement("jar");
                 jarElement.setAttribute("download", "eager");
-                jarElement.setAttribute("href", "services/" + lib);
+                jarElement.setAttribute("href", "plugins/" + lib);
                 
                 resourcesElement.appendChild(jarElement);
             }

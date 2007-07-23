@@ -9,4 +9,5 @@
   <transformers>ResultMapToXML</transformers>
   <protocol>jdbc</protocol>
   <type>LISTENER</type>
+  <enabled>true</enabled>
 </com.webreach.mirth.model.ConnectorMetaData>

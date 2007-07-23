@@ -54,10 +54,7 @@ public class ConfigurationServlet extends MirthServlet {
 				ConfigurationController configurationController = ConfigurationController.getInstance();
 				ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 
-				if (operation.equals("getConnectorMetaData")) {
-					response.setContentType("application/xml");
-					out.println(serializer.toXML(configurationController.getConnectorMetaData()));
-				} else if (operation.equals("getAvaiableCharsetEncodings")) {
+				if (operation.equals("getAvaiableCharsetEncodings")) {
 					response.setContentType("application/xml");
 					out.println(serializer.toXML(configurationController.getAvaiableCharsetEncodings()));
 				} else if (operation.equals("getServerProperties")) {

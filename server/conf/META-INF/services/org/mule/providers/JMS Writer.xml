@@ -1,12 +1,13 @@
 <com.webreach.mirth.model.ConnectorMetaData>
-  <name>JMS Reader</name>
+  <name>JMS Writer</name>
   <author>WebREACH, Inc.</author>
   <pluginVersion>1.6.0</pluginVersion>
   <mirthVersion>1.6.0</mirthVersion>
-  <clientClassName>com.webreach.mirth.connectors.jms.JMSReader</clientClassName>
-  <sharedClassName>com.webreach.mirth.connectors.jms.JMSReaderProperties</sharedClassName>
+  <clientClassName>com.webreach.mirth.connectors.jms.JMSWriter</clientClassName>
+  <sharedClassName>com.webreach.mirth.connectors.jms.JMSWriterProperties</sharedClassName>
   <serverClassName>com.webreach.mirth.connectors.jms.JmsConnector</serverClassName>
-  <transformers>JMSMessageToObject ObjectToString</transformers>
+  <transformers></transformers>
   <protocol>jms</protocol>
-  <type>LISTENER</type>
+  <type>SENDER</type>
+  <enabled>true</enabled>
 </com.webreach.mirth.model.ConnectorMetaData>

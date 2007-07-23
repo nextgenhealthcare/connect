@@ -1,12 +1,13 @@
 <com.webreach.mirth.model.ConnectorMetaData>
-  <name>TCP Sender</name>
+  <name>TCP Listener</name> 
   <author>WebREACH, Inc.</author>
   <pluginVersion>1.6.0</pluginVersion>
   <mirthVersion>1.6.0</mirthVersion>
-  <clientClassName>com.webreach.mirth.connectors.tcp.TCPSender</clientClassName>
-  <sharedClassName>com.webreach.mirth.connectors.tcp.TCPSenderProperties</sharedClassName>
+  <clientClassName>com.webreach.mirth.connectors.tcp.TCPListener</clientClassName>
+  <sharedClassName>com.webreach.mirth.connectors.tcp.TCPListenerProperties</sharedClassName>
   <serverClassName>com.webreach.mirth.connectors.tcp.TcpConnector</serverClassName>
-  <transformers></transformers>
+  <transformers>ByteArrayToString</transformers>
   <protocol>tcp</protocol>
-  <type>SENDER</type>
+  <type>LISTENER</type>
+  <enabled>true</enabled>
 </com.webreach.mirth.model.ConnectorMetaData>

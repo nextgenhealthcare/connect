@@ -9,4 +9,5 @@
   <transformers>ByteArrayToString</transformers>
   <protocol>ftp</protocol>
   <type>LISTENER</type>
+  <enabled>true</enabled>
 </com.webreach.mirth.model.ConnectorMetaData>

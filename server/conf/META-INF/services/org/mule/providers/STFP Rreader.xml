@@ -1,12 +1,13 @@
 <com.webreach.mirth.model.ConnectorMetaData>
-  <name>SFTP Writer</name>
+  <name>SFTP Reader</name>
   <author>WebREACH, Inc.</author>
   <pluginVersion>1.6.0</pluginVersion>
   <mirthVersion>1.6.0</mirthVersion>
-  <clientClassName>com.webreach.mirth.connectors.sftp.SFTPWriter</clientClassName>
-  <sharedClassName>com.webreach.mirth.connectors.sftp.SFTPWriterProperties</sharedClassName>
+  <clientClassName>com.webreach.mirth.connectors.sftp.SFTPReader</clientClassName>
+  <sharedClassName>com.webreach.mirth.connectors.sftp.SFTPReaderProperties</sharedClassName>
   <serverClassName>com.webreach.mirth.connectors.sftp.SftpConnector</serverClassName>
-  <transformers></transformers>
+  <transformers>ByteArrayToString</transformers>
   <protocol>sftp</protocol>
-  <type>SENDER</type>
+  <type>LISTENER</type>
+  <enabled>true</enabled>
 </com.webreach.mirth.model.ConnectorMetaData>

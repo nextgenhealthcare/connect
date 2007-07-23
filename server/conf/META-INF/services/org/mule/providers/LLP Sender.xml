@@ -9,4 +9,5 @@
   <transformers></transformers>
   <protocol>mllp</protocol>
   <type>SENDER</type>
+  <enabled>true</enabled>
 </com.webreach.mirth.model.ConnectorMetaData>

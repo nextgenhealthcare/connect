@@ -35,6 +35,7 @@ public class PluginMetaData implements MetaData, Serializable {
     private String author;
     private String pluginVersion;
     private String mirthVersion;
+    private boolean enabled;
 	private String serverClassName = null;
 	private String clientClassName = null;
 
@@ -89,6 +90,14 @@ public class PluginMetaData implements MetaData, Serializable {
     {
         this.pluginVersion = pluginVersion;
     }
+    
+    public boolean isEnabled() {
+        return this.enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
 
 	public boolean equals(Object that) {
 		if (this == that) {
@@ -106,6 +115,7 @@ public class PluginMetaData implements MetaData, Serializable {
             EqualsUtil.areEqual(this.getAuthor(), plugin.getAuthor()) &&
             EqualsUtil.areEqual(this.getPluginVersion(), plugin.getPluginVersion()) &&
             EqualsUtil.areEqual(this.getMirthVersion(), plugin.getMirthVersion()) &&
+            EqualsUtil.areEqual(this.isEnabled(), plugin.isEnabled()) &&
             EqualsUtil.areEqual(this.getServerClassName(), plugin.getServerClassName()) &&
             EqualsUtil.areEqual(this.getClientClassName(), plugin.getClientClassName());
 	}
@@ -117,6 +127,7 @@ public class PluginMetaData implements MetaData, Serializable {
 		builder.append("author=" + getAuthor().toString() + ", ");
         builder.append("pluginVersion=" + getPluginVersion() + ", ");
         builder.append("mirthVersion=" + getMirthVersion() + ", ");
+        builder.append("enabled=" + isEnabled() + ", ");
 		builder.append("serverClassName=" + getServerClassName() + ", ");
         builder.append("clientClassName=" + getClientClassName());
 		builder.append("]");

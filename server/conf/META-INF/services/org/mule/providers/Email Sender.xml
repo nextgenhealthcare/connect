@@ -9,4 +9,5 @@
   <transformers></transformers>
   <protocol>email</protocol>
   <type>SENDER</type>
+  <enabled>true</enabled>
 </com.webreach.mirth.model.ConnectorMetaData>

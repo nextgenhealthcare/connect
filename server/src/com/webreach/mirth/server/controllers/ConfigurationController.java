@@ -58,7 +58,6 @@ import com.ibatis.sqlmap.client.SqlMapClient;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.ChannelStatus;
 import com.webreach.mirth.model.Configuration;
-import com.webreach.mirth.model.ConnectorMetaData;
 import com.webreach.mirth.model.DriverInfo;
 import com.webreach.mirth.model.ServerConfiguration;
 import com.webreach.mirth.model.SystemEvent;
@@ -71,7 +70,6 @@ import com.webreach.mirth.server.util.DatabaseUtil;
 import com.webreach.mirth.server.util.JMXConnection;
 import com.webreach.mirth.server.util.JMXConnectionFactory;
 import com.webreach.mirth.server.util.JavaScriptUtil;
-import com.webreach.mirth.server.util.PluginUtil;
 import com.webreach.mirth.server.util.SqlConfig;
 import com.webreach.mirth.util.Encrypter;
 import com.webreach.mirth.util.PropertyLoader;
@@ -89,14 +87,13 @@ public class ConfigurationController {
 	public static File serverPropertiesFile = new File(mirthHomeDir + System.getProperty("file.separator") + "server.properties");
 	public static File serverIdPropertiesFile = new File(mirthHomeDir + System.getProperty("file.separator") + "server.id");
 	private static Properties versionProperties = PropertyLoader.loadProperties("version");
-    private static String CONNECTORS_LOCATION = ClassPathResource.getResourceURI("connectors").getPath();
 	private static SecretKey encryptionKey = null;
 	private static String serverId = null;
 	private SqlMapClient sqlMap = SqlConfig.getSqlMapInstance();
 	private static final String CHARSET = "ca.uhn.hl7v2.llp.charset";
 	private boolean isEngineStarting = false;
-	private Map<String, ConnectorMetaData> connectors = null;
-	private List<String> connectorLibraries = null;
+	
+    private ExtensionController extensionController = ExtensionController.getInstance();
     private ScriptController scriptController = ScriptController.getInstance();
 
 	// Mirth status codes
@@ -148,32 +145,9 @@ public class ConfigurationController {
 		// critical steps
 		try {
 			loadEncryptionKey();
-			loadConnectorMetaData();
-			loadConnectorLibraries();
 		} catch (Exception e) {
 			logger.error("could not initialize configuration settings", e);
 		}
-	}
-
-	public Map<String, ConnectorMetaData> getConnectorMetaData() throws ControllerException {
-		logger.debug("retrieving connector metadata");
-		return this.connectors;
-	}
-
-	private void loadConnectorMetaData() throws ControllerException {
-		logger.debug("loading connector metadata");
-		this.connectors = (Map<String, ConnectorMetaData>) PluginUtil.loadPluginMetaData(CONNECTORS_LOCATION);
-
-	}
-
-	public List<String> getConnectorLibraries() throws ControllerException {
-		logger.debug("retrieving connector libraries");
-		return this.connectorLibraries;
-	}
-
-	private void loadConnectorLibraries() throws ControllerException {
-		logger.debug("loading connector libraries");
-		this.connectorLibraries = PluginUtil.loadPluginLibraries(CONNECTORS_LOCATION);
 	}
 
 	/*
@@ -289,13 +263,13 @@ public class ConfigurationController {
 			// instantiate a new configuration builder given the current channel
 			// and transport list
 			List<Channel> channels = channelController.getChannel(null);
-			MuleConfigurationBuilder builder = new MuleConfigurationBuilder(channels, getConnectorMetaData());
+			MuleConfigurationBuilder builder = new MuleConfigurationBuilder(channels, extensionController.getConnectorMetaData());
 			// add the newly generated configuration to the database
 			addConfiguration(builder.getConfiguration());
 			// update the storeMessages reference
 			channelController.updateChannelCache(channels);
 			
-            PluginController.getInstance().deployTriggered();
+            ExtensionController.getInstance().deployTriggered();
 			// restart the mule engine which will grab the latest configuration
 			// from the database
             
