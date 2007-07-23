@@ -757,7 +757,7 @@ public class AlertPanel extends javax.swing.JPanel
             }
         }
 
-        if (alert != null && applyToChannelsTable != null)
+        if (alert != null && emailsTable != null)
         {
             RefreshTableModel model = (RefreshTableModel) emailsTable.getModel();
             model.refreshDataVector(tableData);

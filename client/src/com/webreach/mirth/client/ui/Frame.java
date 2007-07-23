@@ -37,8 +37,6 @@ import java.awt.dnd.DragSourceDragEvent;
 import java.awt.dnd.DragSourceDropEvent;
 import java.awt.dnd.DragSourceEvent;
 import java.awt.dnd.DragSourceListener;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.WindowAdapter;
@@ -59,7 +57,6 @@ import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
-import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -92,6 +89,7 @@ import com.webreach.mirth.model.Alert;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.ChannelStatus;
 import com.webreach.mirth.model.ChannelSummary;
+import com.webreach.mirth.model.Connector;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.User;
 import com.webreach.mirth.model.converters.ObjectCloner;
@@ -1429,6 +1427,12 @@ public class Frame extends JXFrame
     
     public void doNewChannel()
     {
+        if (sourceConnectors.size() == 0 || destinationConnectors.size() == 0)
+        {
+            alertError("You must have at least one source connector and one destination connector installed.");
+            return;
+        }
+            
         Channel channel = new Channel();
         
         try
@@ -1459,7 +1463,35 @@ public class Frame extends JXFrame
         {
             try
             {
-                editChannel((Channel) ObjectCloner.deepCopy(channelPanel.getSelectedChannel()));
+                Channel channel = channelPanel.getSelectedChannel();
+                Connector source = channel.getSourceConnector();
+                List<Connector> destinations = channel.getDestinationConnectors();
+                
+                boolean missingSourceConnector = true, missingDestinationConnector = true;
+                boolean allDesintionConnectorsFound = true;
+                
+                for(int i = 0; i < sourceConnectors.size(); i++)
+                    if(source.getTransportName().equals(sourceConnectors.get(i).getName()))
+                        missingSourceConnector = false;
+                
+                for(int i = 0; i < destinations.size(); i++)
+                {
+                    for(int j = 0; j < destinationConnectors.size(); j++)
+                    {
+                        if(destinations.get(i).getTransportName().equals(destinationConnectors.get(j).getName()))
+                        {
+                            missingDestinationConnector = false;
+                        }
+                    }
+                    
+                    if(missingDestinationConnector)
+                        allDesintionConnectorsFound = false;
+                }
+                
+                if(missingSourceConnector || !allDesintionConnectorsFound)
+                    alertError("Your Mirth installation is missing required connectors for this channel.");
+                else
+                    editChannel((Channel) ObjectCloner.deepCopy(channel));
             }
             catch (ObjectClonerException e)
             {
@@ -2621,7 +2653,7 @@ public class Frame extends JXFrame
                 {
                     if(currentContentPage == dashboardPanel)
                     {
-                        if(alertOption("Would you also like to remove all stats?"))
+                        if(alertOption("Would you also like to clear all statistics?"))
                             clearStats(dashboardPanel.getSelectedStatus(), true, true, true, true, true);
                         doRefreshStatuses();
                     }

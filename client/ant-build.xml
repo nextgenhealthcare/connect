@@ -98,10 +98,14 @@
 		</jar>
 		
 		<!-- PLUGINS -->
-		<mkdir dir="${dist}/services" />		
+		<mkdir dir="${dist}/plugins" />		
 		
-		<jar destfile="${dist}/services/message-pruner-client.jar" basedir="${classes}">
+		<jar destfile="${dist}/plugins/message-pruner-client.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/plugins/messagepruner/**" />
+		</jar>
+		
+		<jar destfile="${dist}/plugins/plugin-manager-client.jar" basedir="${classes}">
+			<include name="com/webreach/mirth/plugins/pluginmanager/**" />
 		</jar>
 		
 		<!-- copy source files -->

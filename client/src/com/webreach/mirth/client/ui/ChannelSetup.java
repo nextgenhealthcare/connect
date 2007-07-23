@@ -138,37 +138,37 @@ public class ChannelSetup extends javax.swing.JPanel
             while (i.hasNext())
             {
                 Entry entry = (Entry) i.next();
-                
-                if (transports.get(entry.getKey()).getType() == ConnectorMetaData.Type.LISTENER)
+                ConnectorMetaData metaData = transports.get(entry.getKey());
+                if (metaData.getType() == ConnectorMetaData.Type.LISTENER && metaData.isEnabled())
                 {
                     if (entry.getKey().equals(SOURCE_DEFAULT))
-                        sourceConnectors.add(0, transports.get(entry.getKey()).getName());
+                        sourceConnectors.add(0, metaData.getName());
                     else
-                        sourceConnectors.add(transports.get(entry.getKey()).getName());
+                        sourceConnectors.add(metaData.getName());
                     
                     try
                     {
-                        parent.sourceConnectors.add((ConnectorClass) Class.forName(transports.get(entry.getKey()).getClientClassName()).newInstance());
+                        parent.sourceConnectors.add((ConnectorClass) Class.forName(metaData.getClientClassName()).newInstance());
                     }
                     catch (Exception e)
                     {
-                        parent.alertError("Could not load class: " + transports.get(entry.getKey()).getClientClassName());
+                        parent.alertError("Could not load class: " + metaData.getClientClassName());
                     }
                 }
-                if (transports.get(entry.getKey()).getType() == ConnectorMetaData.Type.SENDER)
+                if (metaData.getType() == ConnectorMetaData.Type.SENDER && metaData.isEnabled())
                 {
                     if (entry.getKey().equals(DESTINATION_DEFAULT))
-                        destinationConnectors.add(0, transports.get(entry.getKey()).getName());
+                        destinationConnectors.add(0, metaData.getName());
                     else
-                        destinationConnectors.add(transports.get(entry.getKey()).getName());
+                        destinationConnectors.add(metaData.getName());
                     
                     try
                     {
-                        parent.destinationConnectors.add((ConnectorClass) Class.forName(transports.get(entry.getKey()).getClientClassName()).newInstance());
+                        parent.destinationConnectors.add((ConnectorClass) Class.forName(metaData.getClientClassName()).newInstance());
                     }
                     catch (Exception e)
                     {
-                        parent.alertError("Could not load class: " + transports.get(entry.getKey()).getClientClassName());
+                        parent.alertError("Could not load class: " + metaData.getClientClassName());
                     }
                 }
             }

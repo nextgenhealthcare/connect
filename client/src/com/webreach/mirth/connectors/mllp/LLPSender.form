@@ -109,7 +109,7 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="segmentEnd" min="-2" pref="50" max="-2" attributes="0"/>
                   </Group>
-                  <Component id="template" pref="325" max="32767" attributes="0"/>
+                  <Component id="template" pref="324" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -258,7 +258,7 @@
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel12">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Record Sparator Char:"/>
+        <Property name="text" type="java.lang.String" value="Record Separator Char:"/>
       </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="hostPortField">

@@ -63,8 +63,10 @@ public class MirthFileFilter extends javax.swing.filechooser.FileFilter
     {
         if (type.equalsIgnoreCase("xml"))
             return "XML files";
+        else if (type.equalsIgnoreCase("zip"))
+            return "ZIP files";
         else
-            return "HTML files";
+            return "ERROR";
     }
 
     // Method to get the extension of the file, in lowercase

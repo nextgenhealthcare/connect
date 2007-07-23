@@ -447,7 +447,7 @@ public class TreePanel extends javax.swing.JPanel
         treePane.setViewportView(tree);
 
         exact.setBackground(new java.awt.Color(255, 255, 255));
-        exact.setText("Exact");
+        exact.setText("Match Exact");
         exact.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         exact.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
@@ -458,11 +458,11 @@ public class TreePanel extends javax.swing.JPanel
             .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(treePane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 113, Short.MAX_VALUE)
+                    .add(treePane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 143, Short.MAX_VALUE)
                     .add(layout.createSequentialGroup()
                         .add(jLabel1)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(filterTextBox, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 30, Short.MAX_VALUE)
+                        .add(filterTextBox, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 28, Short.MAX_VALUE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(exact)))
                 .addContainerGap())

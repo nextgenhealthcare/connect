@@ -56,17 +56,19 @@ public class PluginPanel extends javax.swing.JPanel
         try
         {
             Map<String, PluginMetaData> plugins = parent.mirthClient.getPluginMetaData();
+            
             for (PluginMetaData metaData : plugins.values())
             {
                 try
                 {
-                    if(metaData.getClientClassName() != null && metaData.getClientClassName().length() > 0)
+                    if(metaData.getClientClassName() != null && metaData.getClientClassName().length() > 0 && metaData.isEnabled())
                     {
-                            String pluginName = metaData.getName();
+                        String pluginName = metaData.getName();
+                        
                         ClientPlugin plugin = (ClientPlugin) Class.forName(metaData.getClientClassName()).getDeclaredConstructors()[0].newInstance(new Object[]{pluginName});
-
+                        
                         plugin.start();
-
+                        
                         // add task pane before the "other" pane
                         if(plugin.getTaskPane() != null)
                         {
@@ -74,10 +76,15 @@ public class PluginPanel extends javax.swing.JPanel
                             plugin.getTaskPane().setVisible(false);
                             parent.taskPaneContainer.add(plugin.getTaskPane(), parent.taskPaneContainer.getComponentCount()-1);
                         }
-
+                        
                         if (plugin.getComponent() != null)
-                            tabs.addTab(pluginName, plugin.getComponent());
-
+                        {
+                            if(pluginName.equals("Extension Manager") && tabs.getTabCount() > 0)
+                                tabs.insertTab(pluginName, null, plugin.getComponent(), null, 0);
+                            else
+                                tabs.addTab(pluginName, plugin.getComponent());
+                        }
+                        
                         loadedPlugins.put(pluginName, plugin);
                     }
                 }
@@ -102,12 +109,19 @@ public class PluginPanel extends javax.swing.JPanel
     
     public void loadDefaultPanel()
     {
-        if(tabs.getComponentCount() > 0)
-            loadPlugin(loadedPlugins.keySet().iterator().next());
+        if(tabs.getTabCount() > 0)
+        {
+            if(loadedPlugins.containsKey("Extension Manager"))
+                loadPlugin("Extension Manager");
+            else
+                loadPlugin(loadedPlugins.keySet().iterator().next());
+            
+            tabs.setSelectedIndex(0);
+        }
         else
             setBlankPanel();
     }
-
+    
     public void loadPlugin(String pluginName)
     {
         ClientPlugin plugin = loadedPlugins.get(pluginName);
