@@ -904,6 +904,20 @@ public class ChannelSetup extends javax.swing.JPanel
     public void disableDestination()
     {
         List<Connector> destinationConnectors = currentChannel.getDestinationConnectors();
+        
+        // Check to make sure at least two destinations are currently enabled.
+        int enabledCount = 0;
+        for (int i = 0; i < destinationConnectors.size(); i++)
+        {
+            if (destinationConnectors.get(i).isEnabled())
+                enabledCount++;
+        }
+        if (enabledCount <= 1)
+        {
+            JOptionPane.showMessageDialog(parent, "You must have at least one destination enabled.");
+            return;
+        }
+        
         Connector destination = destinationConnectors.get(getSelectedDestinationIndex());
         destination.setEnabled(false);
         makeDestinationTable(false);
