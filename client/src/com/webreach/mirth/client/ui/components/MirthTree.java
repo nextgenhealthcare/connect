@@ -60,6 +60,9 @@ public class MirthTree extends JXTree
         
         public boolean performFilter(TreeNode tn, String text, boolean exact, boolean ignoreChildren)
         {
+            if(tn == null)
+                return false;
+            
             int realCount = super.getChildCount(tn);
             
             boolean passed = filter.pass(tn, text, exact) || ignoreChildren;

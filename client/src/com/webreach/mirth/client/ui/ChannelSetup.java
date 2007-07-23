@@ -1187,7 +1187,7 @@ public class ChannelSetup extends javax.swing.JPanel
         storeMessagesDays.setBackground(new java.awt.Color(255, 255, 255));
         storeMessagesDays.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         buttonGroup1.add(storeMessagesDays);
-        storeMessagesDays.setText("Store for ");
+        storeMessagesDays.setText("Prune messages after");
         storeMessagesDays.setMargin(new java.awt.Insets(0, 0, 0, 0));
         storeMessagesDays.addActionListener(new java.awt.event.ActionListener()
         {
