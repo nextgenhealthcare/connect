@@ -104,7 +104,7 @@ public class TreePanel extends javax.swing.JPanel
             model.setFiltered(false);
         
         model.performFilter(model.getRoot(), filterTextBox.getText(), exact.isSelected(), false);
-        
+        model.updateTreeStructure();
        if(filterTextBox.getText().length() > 0)
            tree.expandAll();
     }
@@ -276,12 +276,13 @@ public class TreePanel extends javax.swing.JPanel
             }
             
         });
-        
-        tree.setScrollsOnExpand(true);
-        
-        treePane.setViewportView(tree);
-        revalidate();
-        
+        try{
+        	tree.setScrollsOnExpand(true);
+        	treePane.setViewportView(tree);
+        	tree.revalidate();
+        }catch(Exception e){
+        	logger.error(e);
+        }
         PlatformUI.MIRTH_FRAME.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }
     

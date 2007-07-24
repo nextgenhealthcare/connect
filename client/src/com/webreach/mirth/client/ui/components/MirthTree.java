@@ -57,7 +57,14 @@ public class MirthTree extends JXTree
         {
             this.filter.setFiltered(!pass);
         }
-        
+        public void updateTreeStructure(){
+        	TreeNode tn = this.getRoot();
+        	int count = tn.getChildCount();
+            Object[] path = { tn };
+            int[] childIndices = new int[count];
+            Object[] children = new Object[count];
+        	this.fireTreeStructureChanged(tn, path, childIndices, children);
+        }
         public boolean performFilter(TreeNode tn, String text, boolean exact, boolean ignoreChildren)
         {
             if(tn == null)
@@ -80,7 +87,7 @@ public class MirthTree extends JXTree
             Object[] path = { tn };
             int[] childIndices = new int[count];
             Object[] children = new Object[count];
-            fireTreeStructureChanged(this, path, childIndices, children);
+           //
             
             return passed;
         }
