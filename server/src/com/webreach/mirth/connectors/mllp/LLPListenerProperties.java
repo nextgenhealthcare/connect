@@ -36,8 +36,10 @@ public class LLPListenerProperties implements ComponentProperties
     public static final String DATATYPE = "DataType";
     public static final String LLP_PROTOCOL_NAME = "tcpProtocolClassName";
     public static final String LLP_PROTOCOL_NAME_VALUE = "org.mule.providers.tcp.protocols.TcpProtocol";
+    public static final String LLP_SERVER_MODE = "serverMode";
     public static final String LLP_ADDRESS = "host";
     public static final String LLP_PORT = "port";
+    public static final String LLP_RECONNECT_INTERVAL = "reconnectInterval";
     public static final String LLP_RECEIVE_TIMEOUT = "receiveTimeout";
     public static final String LLP_BUFFER_SIZE = "bufferSize";
     public static final String LLP_KEEP_CONNECTION_OPEN = "keepSendSocketOpen";
@@ -68,9 +70,11 @@ public class LLPListenerProperties implements ComponentProperties
         Properties properties = new Properties();
         properties.put(DATATYPE, name);
         properties.put(LLP_PROTOCOL_NAME, LLP_PROTOCOL_NAME_VALUE);
+        properties.put(LLP_SERVER_MODE, "1");
         properties.put(LLP_ADDRESS, "127.0.0.1");
         properties.put(LLP_PORT, "6661");
-        properties.put(LLP_RECEIVE_TIMEOUT, "5000");
+        properties.put(LLP_RECONNECT_INTERVAL, "5000");
+        properties.put(LLP_RECEIVE_TIMEOUT, "0");
         properties.put(LLP_BUFFER_SIZE, "65536");
         properties.put(LLP_KEEP_CONNECTION_OPEN, "0");
         properties.put(LLP_CHAR_ENCODING, "hex");

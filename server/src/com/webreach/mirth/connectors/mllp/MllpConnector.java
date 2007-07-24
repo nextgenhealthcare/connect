@@ -13,27 +13,23 @@
  */
 package com.webreach.mirth.connectors.mllp;
 
+import org.mule.MuleManager;
+import org.mule.config.QueueProfile;
 import org.mule.config.i18n.Message;
+import org.mule.impl.model.AbstractComponent;
 import org.mule.management.stats.ComponentStatistics;
 import org.mule.providers.AbstractServiceEnabledConnector;
-import org.mule.umo.lifecycle.InitialisationException;
-import org.mule.util.ClassHelper;
-
-import org.mule.MuleManager;
+import org.mule.umo.UMOComponent;
 import org.mule.umo.endpoint.UMOEndpoint;
-import org.mule.config.QueueProfile;
-import org.mule.impl.model.AbstractComponent;
+import org.mule.umo.lifecycle.InitialisationException;
+import org.mule.umo.provider.UMOMessageReceiver;
 import org.mule.util.queue.Queue;
 import org.mule.util.queue.QueueManager;
 import org.mule.util.queue.QueueSession;
-import org.mule.umo.UMOComponent;
-import org.mule.umo.provider.UMOMessageReceiver;
 
 import com.webreach.mirth.connectors.mllp.protocols.LlpProtocol;
 import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.server.controllers.SystemLogger;
-
-import org.mule.providers.tcp.protocols.DefaultProtocol;
 
 /**
  * <code>TcpConnector</code> can bind or sent to a given tcp port on a given
@@ -62,6 +58,7 @@ public class MllpConnector extends AbstractServiceEnabledConnector {
 	public static final String PROPERTY_RESPONSE_VALUE = "responseValue";
 	public static final String PROPERTY_USE_STRICT_LLP = "useStrictLLP";
 	// custom properties
+	private boolean serverMode = true;
 	private String charEncoding = "hex";
 	private String messageStart = "0x1C";
 	private String messageEnd = "0x0B";
@@ -95,11 +92,13 @@ public class MllpConnector extends AbstractServiceEnabledConnector {
 	private String ackCodeRejected = "AR";
 	private String ackMsgRejected = "Message Rejected";
 
+	public static final int DEFAULT_RECONNECT_INTERVAL = 5000;
 	public static final int DEFAULT_SOCKET_TIMEOUT = 5000;
 	public static final int DEFAULT_ACK_TIMEOUT = 5000;
 	public static final int DEFAULT_BUFFER_SIZE = 64 * 1024;
 	public static final long DEFAULT_POLLING_FREQUENCY = 10;
 	public static final int DEFAULT_BACKLOG = 256;
+	private int reconnectInterval = DEFAULT_RECONNECT_INTERVAL;
 	private int sendTimeout = DEFAULT_SOCKET_TIMEOUT;
 	private int receiveTimeout = DEFAULT_SOCKET_TIMEOUT;
 	private int bufferSize = DEFAULT_BUFFER_SIZE;
@@ -681,5 +680,21 @@ public class MllpConnector extends AbstractServiceEnabledConnector {
 
 	public void setUseStrictLLP(boolean useStrictLLP) {
 		this.useStrictLLP = useStrictLLP;
+	}
+	
+	public boolean isServerMode() {
+		return serverMode;
+	}
+
+	public void setServerMode(boolean serverMode) {
+		this.serverMode = serverMode;
+	}
+
+	public int getReconnectInterval() {
+		return reconnectInterval;
+	}
+
+	public void setReconnectInterval(int reconnectInterval) {
+		this.reconnectInterval = reconnectInterval;
 	}
 }
