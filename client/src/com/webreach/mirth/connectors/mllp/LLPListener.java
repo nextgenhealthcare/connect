@@ -60,6 +60,7 @@ public class LLPListener extends ConnectorClass
         listenerIPAddressField1.setDocument(new MirthFieldConstraints(3, false, false, true));
         listenerIPAddressField2.setDocument(new MirthFieldConstraints(3, false, false, true));
         listenerPortField.setDocument(new MirthFieldConstraints(5, false, false, true));
+        reconnectIntervalField.setDocument(new MirthFieldConstraints(0, false, false, true));
         receiveTimeoutField.setDocument(new MirthFieldConstraints(0, false, false, true));
         bufferSizeField.setDocument(new MirthFieldConstraints(0, false, false, true));
         parent.setupCharsetEncodingForChannel(charsetEncodingCombobox);
@@ -70,9 +71,16 @@ public class LLPListener extends ConnectorClass
         Properties properties = new Properties();
         properties.put(LLPListenerProperties.DATATYPE, name);
         properties.put(LLPListenerProperties.LLP_PROTOCOL_NAME, LLPListenerProperties.LLP_PROTOCOL_NAME_VALUE);
+        
+        if (serverRadioButton.isSelected())
+            properties.put(LLPListenerProperties.LLP_SERVER_MODE, UIConstants.YES_OPTION);
+        else
+            properties.put(LLPListenerProperties.LLP_SERVER_MODE, UIConstants.NO_OPTION);
+        
         String listenerIPAddress = listenerIPAddressField.getText() + "." + listenerIPAddressField1.getText() + "." + listenerIPAddressField2.getText() + "." + listenerIPAddressField3.getText();
         properties.put(LLPListenerProperties.LLP_ADDRESS, listenerIPAddress);
         properties.put(LLPListenerProperties.LLP_PORT, listenerPortField.getText());
+        properties.put(LLPListenerProperties.LLP_RECONNECT_INTERVAL, reconnectIntervalField.getText());
         properties.put(LLPListenerProperties.LLP_RECEIVE_TIMEOUT, receiveTimeoutField.getText());
         properties.put(LLPListenerProperties.LLP_BUFFER_SIZE, bufferSizeField.getText());
 
@@ -105,7 +113,6 @@ public class LLPListener extends ConnectorClass
             properties.put(LLPListenerProperties.LLP_SEND_ACK, UIConstants.NO_OPTION);
             properties.put(LLPListenerProperties.LLP_RESPONSE_VALUE, (String)responseFromTransformer.getSelectedItem());
         }
-
 
         properties.put(LLPListenerProperties.CONNECTOR_CHARSET_ENCODING, parent.getSelectedEncodingForChannel(charsetEncodingCombobox));
         properties.put(LLPListenerProperties.LLP_ACKCODE_SUCCESSFUL, successACKCode.getText());
@@ -146,6 +153,17 @@ public class LLPListener extends ConnectorClass
     {
         resetInvalidProperties();
         
+        if (((String) props.get(LLPListenerProperties.LLP_SERVER_MODE)).equalsIgnoreCase(UIConstants.YES_OPTION))
+        {
+            serverRadioButtonActionPerformed(null);
+            serverRadioButton.setSelected(true);
+        }
+        else
+        {
+            clientRadioButtonActionPerformed(null);
+            clientRadioButton.setSelected(true);
+        }
+        
         String listenerIPAddress = (String) props.get(LLPListenerProperties.LLP_ADDRESS);
         StringTokenizer IP = new StringTokenizer(listenerIPAddress, ".");
         if (IP.hasMoreTokens())
@@ -166,6 +184,7 @@ public class LLPListener extends ConnectorClass
             listenerIPAddressField3.setText("");
 
         listenerPortField.setText((String) props.get(LLPListenerProperties.LLP_PORT));
+        reconnectIntervalField.setText((String) props.get(LLPListenerProperties.LLP_RECONNECT_INTERVAL));
         receiveTimeoutField.setText((String) props.get(LLPListenerProperties.LLP_RECEIVE_TIMEOUT));
         bufferSizeField.setText((String) props.get(LLPListenerProperties.LLP_BUFFER_SIZE));
 
@@ -290,6 +309,11 @@ public class LLPListener extends ConnectorClass
             valid = false;
             listenerPortField.setBackground(UIConstants.INVALID_COLOR);
         }
+        if (clientRadioButton.isSelected() && ((String) props.get(LLPListenerProperties.LLP_RECONNECT_INTERVAL)).length() == 0)
+        {
+            valid = false;
+            reconnectIntervalField.setBackground(UIConstants.INVALID_COLOR);
+        }
         if (((String) props.get(LLPListenerProperties.LLP_RECEIVE_TIMEOUT)).length() == 0)
         {
             valid = false;
@@ -365,6 +389,7 @@ public class LLPListener extends ConnectorClass
         listenerIPAddressField2.setBackground(null);
         listenerIPAddressField3.setBackground(null);
         listenerPortField.setBackground(null);
+        reconnectIntervalField.setBackground(null);
         receiveTimeoutField.setBackground(null);
         bufferSizeField.setBackground(null);
         endOfMessageCharacterField.setBackground(null);
@@ -396,8 +421,9 @@ public class LLPListener extends ConnectorClass
         buttonGroup4 = new javax.swing.ButtonGroup();
         buttonGroup5 = new javax.swing.ButtonGroup();
         buttonGroup6 = new javax.swing.ButtonGroup();
-        jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
+        serverClientButtonGroup = new javax.swing.ButtonGroup();
+        ipAddressLabel = new javax.swing.JLabel();
+        portLabel = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         jLabel34 = new javax.swing.JLabel();
@@ -462,12 +488,17 @@ public class LLPListener extends ConnectorClass
         jLabel8 = new javax.swing.JLabel();
         useStrictLLPYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         useStrictLLPNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        serverRadioButton = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        clientRadioButton = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        llpModeLabel = new javax.swing.JLabel();
+        reconnectIntervalField = new com.webreach.mirth.client.ui.components.MirthTextField();
+        reconnectIntervalLabel = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
-        jLabel1.setText("Listener IP Address:");
+        ipAddressLabel.setText("Listener IP Address:");
 
-        jLabel2.setText("Listener Port:");
+        portLabel.setText("Listener Port:");
 
         jLabel3.setText("Receive Timeout (ms):");
 
@@ -661,33 +692,70 @@ public class LLPListener extends ConnectorClass
             }
         });
 
+        serverRadioButton.setBackground(new java.awt.Color(255, 255, 255));
+        serverRadioButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        serverClientButtonGroup.add(serverRadioButton);
+        serverRadioButton.setText("Server");
+        serverRadioButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        serverRadioButton.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                serverRadioButtonActionPerformed(evt);
+            }
+        });
+
+        clientRadioButton.setBackground(new java.awt.Color(255, 255, 255));
+        clientRadioButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        serverClientButtonGroup.add(clientRadioButton);
+        clientRadioButton.setText("Client");
+        clientRadioButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        clientRadioButton.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                clientRadioButtonActionPerformed(evt);
+            }
+        });
+
+        llpModeLabel.setText("LLP Mode:");
+
+        reconnectIntervalLabel.setText("Reconnect Interval (ms):");
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .add(10, 10, 10)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel4)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel6)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel34)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel36)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel8)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, waitForEndOfMessageCharLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel39)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel38)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, successACKCodeLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, errorACKCodeLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, rejectedACKCodeLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, mshAckAcceptLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, ackOnNewConnectionLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, ackIPLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, ackPortLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel3)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel2)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel1))
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(jLabel4)
+                    .add(jLabel6)
+                    .add(jLabel34)
+                    .add(jLabel36)
+                    .add(jLabel8)
+                    .add(waitForEndOfMessageCharLabel)
+                    .add(jLabel39)
+                    .add(jLabel38)
+                    .add(successACKCodeLabel)
+                    .add(errorACKCodeLabel)
+                    .add(rejectedACKCodeLabel)
+                    .add(mshAckAcceptLabel)
+                    .add(ackOnNewConnectionLabel)
+                    .add(ackIPLabel)
+                    .add(ackPortLabel)
+                    .add(jLabel3)
+                    .add(portLabel)
+                    .add(ipAddressLabel)
+                    .add(llpModeLabel)
+                    .add(reconnectIntervalLabel))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(reconnectIntervalField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 100, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(layout.createSequentialGroup()
+                        .add(serverRadioButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(clientRadioButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                     .add(listenerPortField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(receiveTimeoutField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 100, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(bufferSizeField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 100, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -784,6 +852,11 @@ public class LLPListener extends ConnectorClass
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(serverRadioButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(clientRadioButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(llpModeLabel))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
                     .add(listenerIPAddressField1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
@@ -793,12 +866,16 @@ public class LLPListener extends ConnectorClass
                     .add(jLabel25)
                     .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                         .add(listenerIPAddressField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(jLabel1))
+                        .add(ipAddressLabel))
                     .add(jLabel9))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(listenerPortField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel2))
+                    .add(portLabel))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(reconnectIntervalField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(reconnectIntervalLabel))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel3)
@@ -894,6 +971,22 @@ public class LLPListener extends ConnectorClass
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void clientRadioButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_clientRadioButtonActionPerformed
+    {//GEN-HEADEREND:event_clientRadioButtonActionPerformed
+        ipAddressLabel.setText("Server IP Address");
+        portLabel.setText("Server Port");
+        reconnectIntervalField.setEnabled(true);
+        reconnectIntervalLabel.setEnabled(true);
+    }//GEN-LAST:event_clientRadioButtonActionPerformed
+
+    private void serverRadioButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_serverRadioButtonActionPerformed
+    {//GEN-HEADEREND:event_serverRadioButtonActionPerformed
+        ipAddressLabel.setText("Listener IP Address");
+        portLabel.setText("Listener Port");
+        reconnectIntervalField.setEnabled(false);
+        reconnectIntervalLabel.setEnabled(false);
+    }//GEN-LAST:event_serverRadioButtonActionPerformed
 
     private void useStrictLLPNoActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_useStrictLLPNoActionPerformed
     {//GEN-HEADEREND:event_useStrictLLPNoActionPerformed
@@ -1153,17 +1246,17 @@ public class LLPListener extends ConnectorClass
     private javax.swing.ButtonGroup buttonGroup5;
     private javax.swing.ButtonGroup buttonGroup6;
     private com.webreach.mirth.client.ui.components.MirthComboBox charsetEncodingCombobox;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton clientRadioButton;
     private com.webreach.mirth.client.ui.components.MirthTextField endOfMessageCharacterField;
     private com.webreach.mirth.client.ui.components.MirthTextField errorACKCode;
     private javax.swing.JLabel errorACKCodeLabel;
     private com.webreach.mirth.client.ui.components.MirthTextField errorACKMessage;
     private javax.swing.JLabel errorACKMessageLabel;
     private com.webreach.mirth.client.ui.components.MirthRadioButton hex;
+    private javax.swing.JLabel ipAddressLabel;
     private javax.swing.JLabel ipDot;
     private javax.swing.JLabel ipDot1;
     private javax.swing.JLabel ipDot2;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel25;
     private javax.swing.JLabel jLabel26;
     private javax.swing.JLabel jLabel3;
@@ -1182,10 +1275,14 @@ public class LLPListener extends ConnectorClass
     private com.webreach.mirth.client.ui.components.MirthTextField listenerIPAddressField2;
     private com.webreach.mirth.client.ui.components.MirthTextField listenerIPAddressField3;
     private com.webreach.mirth.client.ui.components.MirthTextField listenerPortField;
+    private javax.swing.JLabel llpModeLabel;
     private javax.swing.JLabel mshAckAcceptLabel;
     private com.webreach.mirth.client.ui.components.MirthRadioButton mshAckAcceptNo;
     private com.webreach.mirth.client.ui.components.MirthRadioButton mshAckAcceptYes;
+    private javax.swing.JLabel portLabel;
     private com.webreach.mirth.client.ui.components.MirthTextField receiveTimeoutField;
+    private com.webreach.mirth.client.ui.components.MirthTextField reconnectIntervalField;
+    private javax.swing.JLabel reconnectIntervalLabel;
     private com.webreach.mirth.client.ui.components.MirthTextField recordSeparatorField;
     private com.webreach.mirth.client.ui.components.MirthTextField rejectedACKCode;
     private javax.swing.JLabel rejectedACKCodeLabel;
@@ -1196,6 +1293,8 @@ public class LLPListener extends ConnectorClass
     private com.webreach.mirth.client.ui.components.MirthRadioButton sendACKNo;
     private com.webreach.mirth.client.ui.components.MirthRadioButton sendACKTransformer;
     private com.webreach.mirth.client.ui.components.MirthRadioButton sendACKYes;
+    private javax.swing.ButtonGroup serverClientButtonGroup;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton serverRadioButton;
     private com.webreach.mirth.client.ui.components.MirthTextField startOfMessageCharacterField;
     private com.webreach.mirth.client.ui.components.MirthTextField successACKCode;
     private javax.swing.JLabel successACKCodeLabel;
