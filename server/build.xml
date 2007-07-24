@@ -373,7 +373,7 @@
 			<exclude name="com/webreach/mirth/server/launcher/ShellLauncher.class" />
 			<manifest>
 				<attribute name="Main-Class" value="com.webreach.mirth.server.launcher.MirthLauncher" />
-				<attribute name="Class-Path" value="lib/log4j-1.2.13.jar conf/ plugins/" />
+				<attribute name="Class-Path" value="lib/log4j-1.2.13.jar conf/ extensions/" />
 			</manifest>
 		</jar>
 		
@@ -383,7 +383,7 @@
 			<exclude name="com/webreach/mirth/server/launcher/MirthLauncher.class" />
 			<manifest>
 				<attribute name="Main-Class" value="com.webreach.mirth.server.launcher.ShellLauncher" />
-				<attribute name="Class-Path" value="lib/log4j-1.2.13.jar conf/ plugins/" />
+				<attribute name="Class-Path" value="lib/log4j-1.2.13.jar conf/ extensions/" />
 			</manifest>
 		</jar>
 
