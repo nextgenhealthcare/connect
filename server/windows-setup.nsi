@@ -70,9 +70,9 @@ Section -Main SEC0000
     File /r setup\conf\*
     SetOutPath $INSTDIR\client-lib
     File /r setup\client-lib\*
-	SetOutPath $INSTDIR\plugins
-    File /r setup\plugins\*
-	SetOutPath $INSTDIR\public_html
+    SetOutPath $INSTDIR\extensions
+    File /r setup\extensions\*
+    SetOutPath $INSTDIR\public_html
     File /r setup\public_html\*
     SetOutPath $INSTDIR\licenses
     File /r setup\licenses\*
@@ -86,20 +86,20 @@ Section -Main SEC0000
     File setup\InstallMirth-NT.bat
     File setup\keystore
     File setup\mirth-launcher.xml
-	File setup\shell-launcher.xml
+    File setup\shell-launcher.xml
     File setup\Mirth.bat
     File setup\Mirth.ico
     File setup\mirth.sh
     File setup\mirth-client.jnlp
     File setup\mirth-daemon
-	File setup\shell-launcher.jar
+    File setup\shell-launcher.jar
     File setup\mirth-launcher.jar
     File setup\mirth-server.jar
     File setup\postgres-database.sql
-	File setup\oracle-database.sql
-	File setup\mysql-database.sql
-	File setup\sqlserver2005-database.sql
-	File setup\sqlserver-database.sql
+    File setup\oracle-database.sql
+    File setup\mysql-database.sql
+    File setup\sqlserver2005-database.sql
+    File setup\sqlserver-database.sql
     File setup\StartMirth-NT.bat
     File setup\StopMirth-NT.bat
     File setup\UninstallMirth-NT.bat
@@ -209,19 +209,19 @@ Section /o un.Main UNSEC0000
     Delete /REBOOTOK $INSTDIR\StopMirth-NT.bat
     Delete /REBOOTOK $INSTDIR\StartMirth-NT.bat
     Delete /REBOOTOK $INSTDIR\postgres-database.sql
-	Delete /REBOOTOK $INSTDIR\oracle-database.sql
-	Delete /REBOOTOK $INSTDIR\mysql-database.sql
-	Delete /REBOOTOK $INSTDIR\sqlserver2005-database.sql
-	Delete /REBOOTOK $INSTDIR\sqlserver-database.sql
+    Delete /REBOOTOK $INSTDIR\oracle-database.sql
+    Delete /REBOOTOK $INSTDIR\mysql-database.sql
+    Delete /REBOOTOK $INSTDIR\sqlserver2005-database.sql
+    Delete /REBOOTOK $INSTDIR\sqlserver-database.sql
     Delete /REBOOTOK $INSTDIR\mirth-server.jar
     Delete /REBOOTOK $INSTDIR\mirth-launcher.jar
-	Delete /REBOOTOK $INSTDIR\shell-launcher.jar
+    Delete /REBOOTOK $INSTDIR\shell-launcher.jar
     Delete /REBOOTOK $INSTDIR\mirth-daemon
     Delete /REBOOTOK $INSTDIR\mirth-client.jnlp
     Delete /REBOOTOK $INSTDIR\mirth.sh
     Delete /REBOOTOK $INSTDIR\Mirth.bat
     Delete /REBOOTOK $INSTDIR\shell-launcher.xml
-	Delete /REBOOTOK $INSTDIR\mirth-launcher.xml
+    Delete /REBOOTOK $INSTDIR\mirth-launcher.xml
     Delete /REBOOTOK $INSTDIR\keystore
     Delete /REBOOTOK $INSTDIR\InstallMirth-NT.bat
     Delete /REBOOTOK $INSTDIR\derby-database.sql
