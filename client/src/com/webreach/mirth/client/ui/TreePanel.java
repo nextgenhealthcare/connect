@@ -44,6 +44,8 @@ import com.webreach.mirth.model.util.MessageVocabulary;
 import com.webreach.mirth.model.util.MessageVocabularyFactory;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.util.Timer;
+import java.util.TimerTask;
 import javax.swing.tree.TreeNode;
 
 /**
@@ -59,6 +61,7 @@ public class TreePanel extends javax.swing.JPanel
     private String _dropSuffix;
     private String messageName;
     private MessageVocabulary vocabulary;
+    private Timer timer;
     
     /**
      * Creates new form TreePanel
@@ -86,7 +89,8 @@ public class TreePanel extends javax.swing.JPanel
             }
         });
         
-        exact.addActionListener(new ActionListener(){
+        exact.addActionListener(new ActionListener()
+        {
             public void actionPerformed(ActionEvent e)
             {
                 filterActionPerformed();
@@ -96,6 +100,35 @@ public class TreePanel extends javax.swing.JPanel
     
     public void filterActionPerformed()
     {
+        
+        class FilterTimer extends TimerTask
+        {
+            
+            @Override
+            public void run()
+            {
+                filter();
+            }
+            
+        }
+        
+        if (timer == null)
+        {
+            timer = new Timer();
+            timer.schedule(new FilterTimer(), 1000);
+        }
+        else
+        {
+            timer.cancel();
+            PlatformUI.MIRTH_FRAME.setWorking("", false);
+            timer = new Timer();
+            timer.schedule(new FilterTimer(), 1000);
+        }
+    }
+    
+    public void filter()
+    {
+        PlatformUI.MIRTH_FRAME.setWorking("Filtering...", true);
         FilterTreeModel model = (FilterTreeModel) tree.getModel();
         
         if(filterTextBox.getText().length() > 0)
@@ -105,8 +138,10 @@ public class TreePanel extends javax.swing.JPanel
         
         model.performFilter(model.getRoot(), filterTextBox.getText(), exact.isSelected(), false);
         model.updateTreeStructure();
-       if(filterTextBox.getText().length() > 0)
-           tree.expandAll();
+        if(filterTextBox.getText().length() > 0)
+            tree.expandAll();
+        
+        PlatformUI.MIRTH_FRAME.setWorking("", false);
     }
     
     public void setMessage(Properties protocolProperties, String messageType, String source, String ignoreText, Properties dataProperties)
@@ -184,7 +219,7 @@ public class TreePanel extends javax.swing.JPanel
             if (xmlDoc != null)
             {
                 createTree(xmlDoc, messageName, messageDescription);
-                filterActionPerformed();
+                filter();
             }
             else
                 setInvalidMessage(messageType);
@@ -276,12 +311,15 @@ public class TreePanel extends javax.swing.JPanel
             }
             
         });
-        try{
-        	tree.setScrollsOnExpand(true);
-        	treePane.setViewportView(tree);
-        	tree.revalidate();
-        }catch(Exception e){
-        	logger.error(e);
+        try
+        {
+            tree.setScrollsOnExpand(true);
+            treePane.setViewportView(tree);
+            tree.revalidate();
+        }
+        catch(Exception e)
+        {
+            logger.error(e);
         }
         PlatformUI.MIRTH_FRAME.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }
