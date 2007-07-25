@@ -935,7 +935,24 @@ public class ChannelSetup extends javax.swing.JPanel
             return;
         }
         
+        boolean enabledDestination = false;
+        // if there is an enabled destination besides the one being deleted, set enabledDestination to true.
+        for (int i = 0; i < destinationConnectors.size(); i++)
+        {
+        	if (destinationConnectors.get(i).isEnabled() && (i != getDestinationConnectorIndex((String) destinationTable.getValueAt(getSelectedDestinationIndex(), getColumnNumber(DESTINATION_COLUMN_NAME)))))
+        	{
+        		enabledDestination = true;
+        	}
+        }
+        
+        if (!enabledDestination)
+        {
+        	JOptionPane.showMessageDialog(parent, "You must have at least one destination enabled.");
+            return;
+        }
+        
         destinationConnectors.remove(getDestinationConnectorIndex((String) destinationTable.getValueAt(getSelectedDestinationIndex(), getColumnNumber(DESTINATION_COLUMN_NAME))));
+        
         makeDestinationTable(false);
         parent.enableSave();
         isDeleting = false;
@@ -1016,19 +1033,23 @@ public class ChannelSetup extends javax.swing.JPanel
         
         for (int i = 0; i < channel.getDestinationConnectors().size(); i++)
         {
-            for (int j = 0; j < parent.destinationConnectors.size(); j++)
-            {
-                if (parent.destinationConnectors.get(j).getName().equalsIgnoreCase(channel.getDestinationConnectors().get(i).getTransportName()))
-                {
-                    tempConnector = parent.destinationConnectors.get(j);
-                    tempProps = channel.getDestinationConnectors().get(i).getProperties();
-                }
-            }
-            if (tempConnector != null && !tempConnector.checkProperties(tempProps))
-                problemFound = true;
-            
-            tempConnector = null;
-            tempProps = null;
+        	// Only check the destination connector if it is enabled.
+        	if (channel.getDestinationConnectors().get(i).isEnabled())
+        	{
+	            for (int j = 0; j < parent.destinationConnectors.size(); j++)
+	            {
+	                if (parent.destinationConnectors.get(j).getName().equalsIgnoreCase(channel.getDestinationConnectors().get(i).getTransportName()))
+	                {
+	                    tempConnector = parent.destinationConnectors.get(j);
+	                    tempProps = channel.getDestinationConnectors().get(i).getProperties();
+	                }
+	            }
+	            if (tempConnector != null && !tempConnector.checkProperties(tempProps))
+	                problemFound = true;
+	            
+	            tempConnector = null;
+	            tempProps = null;
+        	}
         }
         
         for (int i = 0; i < parent.sourceConnectors.size(); i++)
