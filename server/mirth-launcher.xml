@@ -5,5 +5,7 @@
 		<lib path="lib/jetty" />
 		<lib path="lib/mule" />
 		<lib path="lib/custom" />
+		<lib path="extensions/plugins" />
+		<lib path="extensions/connectors" />
 	</classpath>
 </launcher>
