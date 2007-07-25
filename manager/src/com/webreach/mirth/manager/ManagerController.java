@@ -38,7 +38,8 @@ public class ManagerController
     private final String serviceName = "Mirth";
     private final String CMD_START = "cmd /c net start \"";
     private final String CMD_STOP = "cmd /c net stop \"";
-    private final String CMD_WEBSTART = "cmd /c javaws http://localhost:8080/webstart.jnlp";
+    private final String CMD_WEBSTART_PREFIX = "cmd /c javaws http://localhost:";
+    private final String CMD_WEBSTART_SUFFIX = "/webstart.jnlp";
     private final String CMD_STATUS = "cmd /c net continue \"";
     
     private static final int STATUS_RUNNING = 2191;
@@ -161,11 +162,11 @@ public class ManagerController
         }
     }
     
-    public void launchAdministrator()
+    public void launchAdministrator(String port)
     {
         try
         {
-            if(execCmd(CMD_WEBSTART, false) != 0)
+            if(execCmd(CMD_WEBSTART_PREFIX + port + CMD_WEBSTART_SUFFIX, false) != 0)
             {
                 alertError("The Mirth Administator could not be launched.");
             }

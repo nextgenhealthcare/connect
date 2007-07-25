@@ -68,6 +68,8 @@ public class ManagerDialog extends javax.swing.JDialog
                 close();
             }
         });       
+        
+        loadServerProperties();
     }
     
     public void open()
@@ -80,6 +82,11 @@ public class ManagerDialog extends javax.swing.JDialog
     public void close()
     {
         setVisible(false);
+    }
+    
+    public void launchAdministrator()
+    {
+        ManagerController.getInstance().launchAdministrator(serverProperties.getProperty(SERVER_WEBSTART_PORT));
     }
     
     /** This method is called from within the constructor to
@@ -522,7 +529,7 @@ public class ManagerDialog extends javax.swing.JDialog
 
     private void launchButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_launchButtonActionPerformed
     {//GEN-HEADEREND:event_launchButtonActionPerformed
-        ManagerController.getInstance().launchAdministrator();
+        launchAdministrator();
     }//GEN-LAST:event_launchButtonActionPerformed
 
     private void viewFileButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_viewFileButtonActionPerformed

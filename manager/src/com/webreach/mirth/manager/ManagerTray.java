@@ -66,7 +66,7 @@ public class ManagerTray
         {
             public void actionPerformed(ActionEvent e)
             {
-                ManagerController.getInstance().launchAdministrator();
+                PlatformUI.MANAGER_DIALOG.launchAdministrator();
             }
         });
         menu.add(administratorItem);
