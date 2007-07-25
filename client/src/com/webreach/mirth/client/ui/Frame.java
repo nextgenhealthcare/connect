@@ -186,7 +186,7 @@ public class Frame extends JXFrame
         protocols.put(MessageObject.Protocol.XML, "XML");
         protocols.put(MessageObject.Protocol.NCPDP, "NCPDP");
         
-        setTitle(UIConstants.TITLE_TEXT);
+        setTitle(UIConstants.TITLE_TEXT + " - " + PlatformUI.SERVER_NAME);
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         setIconImage(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/mirthlogo1616.png")).getImage());
         makePaneContainer();
