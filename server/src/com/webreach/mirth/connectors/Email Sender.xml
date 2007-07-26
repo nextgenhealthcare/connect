@@ -1,0 +1,20 @@
+<connectorMetaData>
+  <name>Email Sender</name>
+  <author>WebREACH, Inc.</author>
+  <pluginVersion>1.6.0</pluginVersion>
+  <mirthVersion>1.6.0</mirthVersion>
+  <clientClassName>com.webreach.mirth.connectors.email.EmailSender</clientClassName>
+  <serverClassName>com.webreach.mirth.connectors.email.SmtpConnector</serverClassName>
+  <transformers></transformers>
+  <protocol>email</protocol>
+  <type>SENDER</type>
+  <enabled>true</enabled>
+  <mule-properties>
+      <property name="connector">com.webreach.mirth.connectors.email.SmtpConnector</property>
+      <property name="dispatcher.factory">com.webreach.mirth.connectors.email.SmtpMessageDispatcherFactory</property>
+      <property name="message.adapter">com.webreach.mirth.connectors.email.MailMessageAdapter</property>
+      <property name="inbound.transformer">com.webreach.mirth.connectors.email.transformers.EmailMessageToString</property>
+      <property name="outbound.transformer">com.webreach.mirth.connectors.email.transformers.MessageObjectToEmailMessage</property>
+      <property name="endpoint.builder">org.mule.impl.endpoint.UrlEndpointBuilder</property>
+  </mule-properties>
+</connectorMetaData>

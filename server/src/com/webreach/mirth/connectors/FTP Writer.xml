@@ -1,0 +1,19 @@
+<connectorMetaData>
+  <name>FTP Writer</name>
+  <author>WebREACH, Inc.</author>
+  <pluginVersion>1.6.0</pluginVersion>
+  <mirthVersion>1.6.0</mirthVersion>
+  <clientClassName>com.webreach.mirth.connectors.ftp.FTPWriter</clientClassName>
+  <serverClassName>com.webreach.mirth.connectors.ftp.FtpConnector</serverClassName>
+  <transformers></transformers>
+  <protocol>ftp</protocol>
+  <type>SENDER</type>
+  <enabled>true</enabled>
+  <mule-properties>
+      <property name="connector">com.webreach.mirth.connectors.ftp.FtpConnector</property>
+      <property name="dispatcher.factory">com.webreach.mirth.connectors.ftp.FtpMessageDispatcherFactory</property>
+      <property name="message.receiver">com.webreach.mirth.connectors.ftp.FtpMessageReceiver</property>
+      <property name="message.adapter">com.webreach.mirth.connectors.ftp.FtpMessageAdapter</property>
+      <property name="endpoint.builder">org.mule.impl.endpoint.SocketEndpointBuilder</property>
+  </mule-properties>
+</connectorMetaData>

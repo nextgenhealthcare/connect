@@ -1,0 +1,19 @@
+<connectorMetaData>
+  <name>SFTP Writer</name>
+  <author>WebREACH, Inc.</author>
+  <pluginVersion>1.6.0</pluginVersion>
+  <mirthVersion>1.6.0</mirthVersion>
+  <clientClassName>com.webreach.mirth.connectors.sftp.SFTPWriter</clientClassName>
+  <serverClassName>com.webreach.mirth.connectors.sftp.SftpConnector</serverClassName>
+  <transformers></transformers>
+  <protocol>sftp</protocol>
+  <type>SENDER</type>
+  <enabled>true</enabled>
+  <mule-properties>
+      <property name="connector">com.webreach.mirth.connectors.sftp.SftpConnector</property>
+      <property name="dispatcher.factory">com.webreach.mirth.connectors.sftp.SftpMessageDispatcherFactory</property>
+      <property name="message.receiver">com.webreach.mirth.connectors.sftp.SftpMessageReceiver</property>
+      <property name="message.adapter">com.webreach.mirth.connectors.sftp.SftpMessageAdapter</property>
+      <property name="endpoint.builder">org.mule.impl.endpoint.SocketEndpointBuilder</property>
+  </mule-properties>
+</connectorMetaData>

@@ -1,0 +1,17 @@
+<connectorMetaData>
+  <name>Document Writer</name>
+  <author>WebREACH, Inc.</author>
+  <pluginVersion>1.6.0</pluginVersion>
+  <mirthVersion>1.6.0</mirthVersion>
+  <clientClassName>com.webreach.mirth.connectors.doc.DocumentWriter</clientClassName>
+  <serverClassName>com.webreach.mirth.connectors.doc.DocumentConnector</serverClassName>
+  <transformers></transformers>
+  <protocol>doc</protocol>
+  <type>SENDER</type>
+  <enabled>true</enabled>
+  <mule-properties>
+      <property name="connector">com.webreach.mirth.connectors.doc.DocumentConnector</property>
+      <property name="dispatcher.factory">com.webreach.mirth.connectors.doc.DocumentMessageDispatcherFactory</property>
+      <property name="endpoint.builder">org.mule.providers.file.FileEndpointBuilder</property>
+  </mule-properties>
+</connectorMetaData>

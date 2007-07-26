@@ -1,0 +1,21 @@
+<connectorMetaData>
+  <name>LLP Sender</name>
+  <author>WebREACH, Inc.</author>
+  <pluginVersion>1.6.0</pluginVersion>
+  <mirthVersion>1.6.0</mirthVersion>
+  <clientClassName>com.webreach.mirth.connectors.mllp.LLPSender</clientClassName>
+  <serverClassName>com.webreach.mirth.connectors.mllp.MllpConnector</serverClassName>
+  <transformers></transformers>
+  <protocol>mllp</protocol>
+  <type>SENDER</type>
+  <enabled>true</enabled>
+  <mule-properties>
+      <property name="connector">com.webreach.mirth.connectors.mllp.MllpConnector</property>
+      <property name="dispatcher.factory">com.webreach.mirth.connectors.mllp.MllpMessageDispatcherFactory</property>
+      <property name="message.receiver">com.webreach.mirth.connectors.mllp.MllpMessageReceiver</property>
+      <property name="message.adapter">com.webreach.mirth.connectors.mllp.MllpMessageAdapter</property>
+      <property name="inbound.transformer">org.mule.transformers.simple.ByteArrayToString</property>
+      <property name="outbound.transformer">org.mule.transformers.simple.StringToByteArray</property>
+      <property name="endpoint.builder">org.mule.impl.endpoint.SocketEndpointBuilder</property>
+  </mule-properties>
+</connectorMetaData>

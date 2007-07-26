@@ -1,0 +1,19 @@
+<connectorMetaData>
+  <name>Database Writer</name>
+  <author>WebREACH, Inc.</author>
+  <pluginVersion>1.6.0</pluginVersion>
+  <mirthVersion>1.6.0</mirthVersion>
+  <clientClassName>com.webreach.mirth.connectors.jdbc.DatabaseWriter</clientClassName>
+  <serverClassName>com.webreach.mirth.connectors.jdbc.JdbcConnector</serverClassName>
+  <transformers></transformers>
+  <protocol>jdbc</protocol>
+  <type>SENDER</type>
+  <enabled>true</enabled>
+  <mule-properties>
+      <property name="connector">com.webreach.mirth.connectors.jdbc.JdbcConnector</property>
+      <property name="dispatcher.factory">com.webreach.mirth.connectors.jdbc.JdbcMessageDispatcherFactory</property>
+      <property name="message.receiver">com.webreach.mirth.connectors.jdbc.JdbcMessageReceiver</property>
+      <property name="message.adapter">com.webreach.mirth.connectors.jdbc.JdbcMessageAdapter</property>
+      <property name="endpoint.builder">com.webreach.mirth.connectors.jdbc.JdbcEndpointBuilder</property>
+  </mule-properties>
+</connectorMetaData>

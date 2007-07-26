@@ -1,0 +1,19 @@
+<connectorMetaData>
+  <name>Channel Reader</name>
+  <author>WebREACH, Inc.</author>
+  <pluginVersion>1.6.0</pluginVersion>
+  <mirthVersion>1.6.0</mirthVersion>
+  <clientClassName>com.webreach.mirth.connectors.vm.ChannelReader</clientClassName>
+  <serverClassName>com.webreach.mirth.connectors.vm.VMConnector</serverClassName>
+  <transformers></transformers>
+  <protocol>vm</protocol>
+  <type>LISTENER</type>
+  <enabled>true</enabled>
+  <mule-properties>
+      <property name="connector">com.webreach.mirth.connectors.vm.VMConnector</property>
+      <property name="dispatcher.factory">com.webreach.mirth.connectors.vm.VMMessageDispatcherFactory</property>
+      <property name="message.receiver">com.webreach.mirth.connectors.vm.VMMessageReceiver</property>
+      <property name="message.adapter">com.webreach.mirth.connectors.vm.VMMessageAdapter</property>
+      <property name="endpoint.builder">org.mule.impl.endpoint.ResourceNameEndpointBuilder</property>
+  </mule-properties>
+</connectorMetaData>

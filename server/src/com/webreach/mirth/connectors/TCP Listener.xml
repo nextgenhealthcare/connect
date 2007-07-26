@@ -1,0 +1,21 @@
+<connectorMetaData>
+  <name>TCP Listener</name> 
+  <author>WebREACH, Inc.</author>
+  <pluginVersion>1.6.0</pluginVersion>
+  <mirthVersion>1.6.0</mirthVersion>
+  <clientClassName>com.webreach.mirth.connectors.tcp.TCPListener</clientClassName>
+  <serverClassName>com.webreach.mirth.connectors.tcp.TcpConnector</serverClassName>
+  <transformers>ByteArrayToString</transformers>
+  <protocol>tcp</protocol>
+  <type>LISTENER</type>
+  <enabled>true</enabled>
+  <mule-properties>
+      <property name="connector">com.webreach.mirth.connectors.tcp.TcpConnector</property>
+      <property name="dispatcher.factory">com.webreach.mirth.connectors.tcp.TcpMessageDispatcherFactory</property>
+      <property name="message.receiver">com.webreach.mirth.connectors.tcp.TcpMessageReceiver</property>
+      <property name="message.adapter">com.webreach.mirth.connectors.tcp.TcpMessageAdapter</property>
+      <property name="inbound.transformer">org.mule.transformers.simple.ByteArrayToString</property>
+      <property name="outbound.transformer">org.mule.transformers.simple.StringToByteArray</property>
+      <property name="endpoint.builder">org.mule.impl.endpoint.SocketEndpointBuilder</property>
+  </mule-properties>
+</connectorMetaData>
