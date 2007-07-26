@@ -1,3 +1,0 @@
-connector=com.webreach.mirth.connectors.doc.DocumentConnector
-dispatcher.factory=com.webreach.mirth.connectors.doc.DocumentMessageDispatcherFactory
-endpoint.builder=org.mule.providers.file.FileEndpointBuilder

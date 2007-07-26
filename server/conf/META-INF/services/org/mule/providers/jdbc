@@ -1,5 +1,0 @@
-connector=com.webreach.mirth.connectors.jdbc.JdbcConnector
-dispatcher.factory=com.webreach.mirth.connectors.jdbc.JdbcMessageDispatcherFactory
-message.receiver=com.webreach.mirth.connectors.jdbc.JdbcMessageReceiver
-message.adapter=com.webreach.mirth.connectors.jdbc.JdbcMessageAdapter
-endpoint.builder=com.webreach.mirth.connectors.jdbc.JdbcEndpointBuilder

@@ -456,6 +456,7 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 			if (connector.getSendACK()) {
 				// Check if we have to look at MSH15
 				if (connector.isCheckMSH15()) {
+					//TODO: Change to use non-strict parser
 					// MSH15 Dictionary:
 					// AL: Always
 					// NE: Never

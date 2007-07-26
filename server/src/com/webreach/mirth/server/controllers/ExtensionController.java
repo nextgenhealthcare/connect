@@ -38,9 +38,10 @@ import org.apache.log4j.Logger;
 
 import com.webreach.mirth.model.ConnectorMetaData;
 import com.webreach.mirth.model.PluginMetaData;
+import com.webreach.mirth.model.ExtensionPoint;
 import com.webreach.mirth.plugins.ServerPlugin;
 import com.webreach.mirth.server.tools.ClassPathResource;
-import com.webreach.mirth.server.util.ExtensionUtil;
+import com.webreach.mirth.util.ExtensionUtil;
 
 /**
  * The ConfigurationController provides access to the Mirth configuration.
@@ -59,6 +60,7 @@ public class ExtensionController
     private Map<String, ServerPlugin> loadedPlugins = null;
     private Map<String, ConnectorMetaData> connectors = null;
     private List<String> connectorLibraries = null;
+    private Map<String, ConnectorMetaData> protocols = null;
     private static String CONNECTORS_LOCATION = ClassPathResource.getResourceURI("connectors").getPath() + System.getProperty("file.separator");
     
     // singleton pattern
@@ -106,25 +108,32 @@ public class ExtensionController
         {
             try
             {
-                if(metaData.getServerClassName() != null && metaData.getServerClassName().length() > 0 && metaData.isEnabled())
-                {
-                    ServerPlugin plugin = (ServerPlugin) Class.forName(metaData.getServerClassName()).newInstance();
-                    String pluginName = metaData.getName();
-                    Properties properties = null;
-    
-                    try
-                    {
-                        properties = getPluginProperties(pluginName);
-                    }
-                    catch (Exception e)
-                    {
-                        properties = plugin.getDefaultProperties();
-                        setPluginProperties(pluginName, properties);
-                    }
-    
-                    plugin.init(properties);
-                    loadedPlugins.put(pluginName, plugin);
-                }
+            	if (metaData.isEnabled()){
+	            	for (ExtensionPoint extensionPoint : metaData.getExtensionPoints()){
+		                if(extensionPoint.getMode() == ExtensionPoint.Mode.SERVER && 
+		                		extensionPoint.getType() == ExtensionPoint.Type.SERVER_PLUGIN && 
+		                		extensionPoint.getClassName() != null && 
+		                		extensionPoint.getClassName().length() > 0)
+		                {
+		                    ServerPlugin serverPlugin = (ServerPlugin) Class.forName(extensionPoint.getClassName()).newInstance();
+		                    String pluginName = metaData.getName();
+		                    Properties properties = null;
+		    
+		                    try
+		                    {
+		                        properties = getPluginProperties(pluginName);
+		                    }
+		                    catch (Exception e)
+		                    {
+		                        properties = serverPlugin.getDefaultProperties();
+		                        setPluginProperties(pluginName, properties);
+		                    }
+		    
+		                    serverPlugin.init(properties);
+		                    loadedPlugins.put(pluginName, serverPlugin);
+		                }
+	            	}
+            	}
             }
             catch (Exception e)
             {
@@ -246,7 +255,10 @@ public class ExtensionController
     private void loadConnectorMetaData() throws ControllerException {
         logger.debug("loading connector metadata");
         this.connectors = (Map<String, ConnectorMetaData>) ExtensionUtil.loadExtensionMetaData(CONNECTORS_LOCATION);
-
+        this.protocols = new HashMap<String, ConnectorMetaData>();
+        for(ConnectorMetaData cmd: this.connectors.values()){
+        	protocols.put(cmd.getProtocol(), cmd);
+        }
     }
     
     public void saveConnectorMetaData(Map<String, ConnectorMetaData> metaData) throws ControllerException
@@ -289,6 +301,13 @@ public class ExtensionController
     {
         logger.debug("retrieving plugin libraries");
         return this.pluginLibraries;
+    }
+    public Map<String, ConnectorMetaData> getProtocols(){
+    	logger.debug("retrieving plugin protocols");
+    	return this.protocols;
+    }
+    public ConnectorMetaData getConnectorMetaDataByProtocol(String protocol){
+    	return protocols.get(protocol);
     }
 
     private void loadPluginLibraries() throws ControllerException

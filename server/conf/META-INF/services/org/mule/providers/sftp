@@ -1,5 +1,0 @@
-connector=com.webreach.mirth.connectors.sftp.SftpConnector
-dispatcher.factory=com.webreach.mirth.connectors.sftp.SftpMessageDispatcherFactory
-message.receiver=com.webreach.mirth.connectors.sftp.SftpMessageReceiver
-message.adapter=com.webreach.mirth.connectors.sftp.SftpMessageAdapter
-endpoint.builder=org.mule.impl.endpoint.SocketEndpointBuilder

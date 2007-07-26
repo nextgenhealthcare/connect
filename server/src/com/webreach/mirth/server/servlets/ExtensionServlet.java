@@ -62,15 +62,15 @@ public class ExtensionServlet extends MirthServlet {
                     extensionController.setPluginProperties(name, properties);
                     extensionController.updatePlugin(name, properties);
 				} else if (operation.equals("getPluginMetaData")) {
-                    out.println(serializer.toXML(extensionController.getPluginMetaData()));
+                    out.println(serializer.toXML(extensionController.getPluginMetaData(),new Class[]{PluginMetaData.class}));
                 } else if (operation.equals("setPluginMetaData")) {
-                    Map<String, PluginMetaData> metaData = (Map<String, PluginMetaData>) serializer.fromXML(request.getParameter("metaData"));
+                    Map<String, PluginMetaData> metaData = (Map<String, PluginMetaData>) serializer.fromXML(request.getParameter("metaData"),new Class[]{PluginMetaData.class});
                     extensionController.savePluginMetaData(metaData);
                 } else if (operation.equals("getConnectorMetaData")) {
                     response.setContentType("application/xml");
-                    out.println(serializer.toXML(extensionController.getConnectorMetaData()));
+                    out.println(serializer.toXML(extensionController.getConnectorMetaData(), new Class[]{ConnectorMetaData.class}));
                 } else if (operation.equals("setConnectorMetaData")) {
-                    Map<String, ConnectorMetaData> metaData = (Map<String, ConnectorMetaData>) serializer.fromXML(request.getParameter("metaData"));
+                    Map<String, ConnectorMetaData> metaData = (Map<String, ConnectorMetaData>) serializer.fromXML(request.getParameter("metaData"),new Class[]{ConnectorMetaData.class});
                     extensionController.saveConnectorMetaData(metaData);
                 } else if (operation.equals("invoke")) {
                     String name = request.getParameter("name");

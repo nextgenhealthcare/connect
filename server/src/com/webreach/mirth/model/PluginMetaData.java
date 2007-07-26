@@ -27,33 +27,27 @@
 package com.webreach.mirth.model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
+import com.sun.tools.xjc.Plugin;
+import com.thoughtworks.xstream.annotations.XStreamAlias;
+import com.thoughtworks.xstream.annotations.XStreamImplicitCollection;
+import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.util.EqualsUtil;
-
+@XStreamAlias("pluginMetaData")
+@XStreamImplicitCollection(value="extensionPoints", item="extensionPoint")
 public class PluginMetaData implements MetaData, Serializable {
 	private String name;
     private String author;
     private String pluginVersion;
     private String mirthVersion;
+    private String url;
+    private String updateUrl;
+	private String versionUrl;
     private boolean enabled;
-	private String serverClassName = null;
-	private String clientClassName = null;
-
-	public String getServerClassName() {
-		return this.serverClassName;
-	}
-
-	public void setServerClassName(String serverClassName) {
-		this.serverClassName = serverClassName;
-    }
-    
-	public String getClientClassName() {
-		return clientClassName;
-	}
-
-	public void setClientClassName(String clientClassName) {
-		this.clientClassName = clientClassName;
-	}
+	private List<ExtensionPoint> extensionPoints;
 
 	public String getName() {
 		return this.name;
@@ -116,8 +110,9 @@ public class PluginMetaData implements MetaData, Serializable {
             EqualsUtil.areEqual(this.getPluginVersion(), plugin.getPluginVersion()) &&
             EqualsUtil.areEqual(this.getMirthVersion(), plugin.getMirthVersion()) &&
             EqualsUtil.areEqual(this.isEnabled(), plugin.isEnabled()) &&
-            EqualsUtil.areEqual(this.getServerClassName(), plugin.getServerClassName()) &&
-            EqualsUtil.areEqual(this.getClientClassName(), plugin.getClientClassName());
+			EqualsUtil.areEqual(this.getExtensionPoints(), plugin.getExtensionPoints())&&
+			EqualsUtil.areEqual(this.getUpdateUrl(), plugin.getUpdateUrl())&&
+			EqualsUtil.areEqual(this.getVersionUrl(), plugin.getVersionUrl());
 	}
 
 	public String toString() {
@@ -127,11 +122,46 @@ public class PluginMetaData implements MetaData, Serializable {
 		builder.append("author=" + getAuthor().toString() + ", ");
         builder.append("pluginVersion=" + getPluginVersion() + ", ");
         builder.append("mirthVersion=" + getMirthVersion() + ", ");
-        builder.append("enabled=" + isEnabled() + ", ");
-		builder.append("serverClassName=" + getServerClassName() + ", ");
-        builder.append("clientClassName=" + getClientClassName());
-		builder.append("]");
+        for (Iterator iter = extensionPoints.iterator(); iter.hasNext();) {
+			ExtensionPoint extensionPoint = (ExtensionPoint) iter.next();
+			builder.append("extention-point=" + extensionPoint.toString() + ", ");
+		}
+        builder.append("updateUrl=" + getUpdateUrl() + ", ");
+        builder.append("versionUrl=" + getVersionUrl() + ", ");
+        builder.append("enabled=" + isEnabled() + "]");
 		return builder.toString();
+	}
+
+	public List<ExtensionPoint> getExtensionPoints() {
+		return extensionPoints;
+	}
+
+	public void setExtensionPoints(List<ExtensionPoint> plugins) {
+		this.extensionPoints = plugins;
+	}
+
+	public String getUrl() {
+		return url;
+	}
+
+	public void setUrl(String url) {
+		this.url = url;
+	}
+
+	public String getUpdateUrl() {
+		return updateUrl;
+	}
+
+	public void setUpdateUrl(String updateUrl) {
+		this.updateUrl = updateUrl;
+	}
+
+	public String getVersionUrl() {
+		return versionUrl;
+	}
+
+	public void setVersionUrl(String versionUrl) {
+		this.versionUrl = versionUrl;
 	}
 
 }

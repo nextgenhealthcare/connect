@@ -1,6 +1,0 @@
-connector=com.webreach.mirth.connectors.file.FileConnector
-dispatcher.factory=com.webreach.mirth.connectors.file.FileMessageDispatcherFactory
-message.receiver=com.webreach.mirth.connectors.file.FileMessageReceiver
-message.adapter=com.webreach.mirth.connectors.file.FileContentsMessageAdapter
-endpoint.builder=com.webreach.mirth.connectors.file.FileEndpointBuilder
-inbound.transformer=com.webreach.mirth.connectors.file.transformers.FileToString

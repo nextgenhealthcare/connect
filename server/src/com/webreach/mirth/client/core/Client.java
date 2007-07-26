@@ -214,7 +214,7 @@ public class Client {
 	public Map<String, ConnectorMetaData> getConnectorMetaData() throws ClientException {
 		logger.debug("retrieving connector list");
 		NameValuePair[] params = { new NameValuePair("op", "getConnectorMetaData") };
-		return (Map<String, ConnectorMetaData>) serializer.fromXML(serverConnection.executePostMethod(EXTENSION_SERVLET, params));
+		return (Map<String, ConnectorMetaData>) serializer.fromXML(serverConnection.executePostMethod(EXTENSION_SERVLET, params),new Class[]{ConnectorMetaData.class});
 	}
     
     /**
@@ -225,7 +225,7 @@ public class Client {
      */
     public void setConnectorMetaData(Map<String, ConnectorMetaData> metaData) throws ClientException {
         logger.debug("saving connector settings");
-        NameValuePair[] params = { new NameValuePair("op", "setConnectorMetaData"), new NameValuePair("metaData", serializer.toXML(metaData)) };
+        NameValuePair[] params = { new NameValuePair("op", "setConnectorMetaData"), new NameValuePair("metaData", serializer.toXML(metaData, new Class[]{ConnectorMetaData.class})) };
         serverConnection.executePostMethod(EXTENSION_SERVLET, params);
     }
     
@@ -238,7 +238,7 @@ public class Client {
     public Map<String, PluginMetaData> getPluginMetaData() throws ClientException {
         logger.debug("retrieving plugin list");
         NameValuePair[] params = { new NameValuePair("op", "getPluginMetaData") };
-        return (Map<String, PluginMetaData>) serializer.fromXML(serverConnection.executePostMethod(EXTENSION_SERVLET, params));
+        return (Map<String, PluginMetaData>) serializer.fromXML(serverConnection.executePostMethod(EXTENSION_SERVLET, params),new Class[]{PluginMetaData.class});
     }
     
     /**
@@ -249,7 +249,7 @@ public class Client {
      */
     public void setPluginMetaData(Map<String, PluginMetaData> metaData) throws ClientException {
         logger.debug("saving plugin settings");
-        NameValuePair[] params = { new NameValuePair("op", "setPluginMetaData"), new NameValuePair("metaData", serializer.toXML(metaData)) };
+        NameValuePair[] params = { new NameValuePair("op", "setPluginMetaData"), new NameValuePair("metaData", serializer.toXML(metaData, new Class[]{PluginMetaData.class})) };
         serverConnection.executePostMethod(EXTENSION_SERVLET, params);
     }
     

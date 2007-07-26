@@ -1,8 +1,0 @@
-connector=com.webreach.mirth.connectors.email.SmtpConnector
-dispatcher.factory=com.webreach.mirth.connectors.email.SmtpMessageDispatcherFactory
-#message.receiver=
-message.adapter=com.webreach.mirth.connectors.email.MailMessageAdapter
-inbound.transformer=com.webreach.mirth.connectors.email.transformers.EmailMessageToString
-outbound.transformer=com.webreach.mirth.connectors.email.transformers.MessageObjectToEmailMessage
-#endpoint.builder=org.mule.impl.endpoint.UserInfoEndpointBuilder
-endpoint.builder=org.mule.impl.endpoint.UrlEndpointBuilder

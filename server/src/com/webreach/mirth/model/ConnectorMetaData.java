@@ -27,9 +27,15 @@
 package com.webreach.mirth.model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
 
+import com.thoughtworks.xstream.annotations.XStreamAlias;
+import com.thoughtworks.xstream.annotations.XStreamImplicitCollection;
+import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.util.EqualsUtil;
-
+@XStreamAlias("connectorMetaData")
 public class ConnectorMetaData implements MetaData, Serializable {
 	public enum Type {
 		LISTENER, SENDER
@@ -44,8 +50,13 @@ public class ConnectorMetaData implements MetaData, Serializable {
 	private String protocol;
     private String pluginVersion;
     private String mirthVersion;
+    private String url;
+    private String updateUrl;
+	private String versionUrl;
     private boolean enabled;
 	private Type type;
+	@XStreamAlias("mule-properties")
+	private Properties properties;
 
 	public String getServerClassName() {
 		return this.serverClassName;
@@ -163,7 +174,9 @@ public class ConnectorMetaData implements MetaData, Serializable {
             EqualsUtil.areEqual(this.getMirthVersion(), transport.getMirthVersion()) &&
             EqualsUtil.areEqual(this.isEnabled(), transport.isEnabled()) &&
 			EqualsUtil.areEqual(this.getTransformers(), transport.getTransformers()) &&
-			EqualsUtil.areEqual(this.getType(), transport.getType());
+			EqualsUtil.areEqual(this.getType(), transport.getType())  &&
+			EqualsUtil.areEqual(this.getVersionUrl(), transport.getVersionUrl()) &&
+			EqualsUtil.areEqual(this.getUpdateUrl(), transport.getUpdateUrl());
 	}
 
 	public String toString() {
@@ -179,8 +192,42 @@ public class ConnectorMetaData implements MetaData, Serializable {
         builder.append("protocol=" + getProtocol() + ", ");
         builder.append("enabled=" + isEnabled() + ", ");
         builder.append("pluginVersion=" + getPluginVersion() + ", ");
-		builder.append("mirthVersion=" + getMirthVersion());
+		builder.append("mirthVersion=" + getMirthVersion() + ", ");
+        builder.append("updateUrl=" + getUpdateUrl() + ", ");
+        builder.append("versionUrl=" + getVersionUrl());
 		builder.append("]");
 		return builder.toString();
+	}
+
+	public Properties getProperties() {
+		return properties;
+	}
+
+	public void setProperties(Properties properties) {
+		this.properties = properties;
+	}
+
+	public String getUrl() {
+		return url;
+	}
+
+	public void setUrl(String url) {
+		this.url = url;
+	}
+
+	public String getUpdateUrl() {
+		return updateUrl;
+	}
+
+	public void setUpdateUrl(String updateUrl) {
+		this.updateUrl = updateUrl;
+	}
+
+	public String getVersionUrl() {
+		return versionUrl;
+	}
+
+	public void setVersionUrl(String versionUrl) {
+		this.versionUrl = versionUrl;
 	}
 }

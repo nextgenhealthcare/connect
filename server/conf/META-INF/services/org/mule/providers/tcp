@@ -1,7 +1,0 @@
-connector=com.webreach.mirth.connectors.tcp.TcpConnector
-dispatcher.factory=com.webreach.mirth.connectors.tcp.TcpMessageDispatcherFactory
-message.receiver=com.webreach.mirth.connectors.tcp.TcpMessageReceiver
-message.adapter=com.webreach.mirth.connectors.tcp.TcpMessageAdapter
-inbound.transformer=org.mule.transformers.simple.ByteArrayToString
-outbound.transformer=org.mule.transformers.simple.StringToByteArray
-endpoint.builder=org.mule.impl.endpoint.SocketEndpointBuilder
