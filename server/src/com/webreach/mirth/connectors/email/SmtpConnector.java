@@ -443,5 +443,13 @@ public class SmtpConnector extends AbstractServiceEnabledConnector implements Ma
 	public void setSmtpPort(int smtpPort) {
 		this.smtpPort = smtpPort;
 	}
+	public String getStatusMode() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	public String getStatusMessage() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 }

@@ -353,4 +353,15 @@ public class SftpConnector extends AbstractServiceEnabledConnector {
     {
         this.pollingType = pollingType;
     }
+
+	public String getStatusMode() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	public String getStatusMessage() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

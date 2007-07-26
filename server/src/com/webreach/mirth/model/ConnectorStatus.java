@@ -36,46 +36,33 @@ import com.webreach.mirth.util.EqualsUtil;
  * @author <a href="mailto:geraldb@webreachinc.com">Gerald Bortis</a>
  * 
  */
-public class ChannelStatus implements Serializable {
-	public enum State {
-		STARTED, STOPPED, PAUSED
+public class ConnectorStatus implements Serializable {
+	public enum Mode {
+		CONNECTED, IDLE, DISCONNECTED
 	};
 
-	private String channelId;
-	private String name;
-	private State state;
-	private ConnectorStatus connectorStatus;
-
-	public String getChannelId() {
-		return this.channelId;
+	private String message;
+	private Mode mode;
+	
+	public ConnectorStatus(Mode mode, String message) {
+		this.mode = mode;
+		this.message = message;
+	}
+	
+	public String getMessage() {
+		return message;
 	}
 
-	public void setChannelId(String channelId) {
-		this.channelId = channelId;
+	public void setMessage(String message) {
+		this.message = message;
 	}
 
-	public String getName() {
-		return this.name;
+	public Mode getMode() {
+		return mode;
 	}
 
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public State getState() {
-		return this.state;
-	}
-
-	public void setState(State state) {
-		this.state = state;
-	}
-
-	public ConnectorStatus getConnectorStatus() {
-		return connectorStatus;
-	}
-
-	public void setConnectorStatus(ConnectorStatus connectorStatus) {
-		this.connectorStatus = connectorStatus;
+	public void setMode(Mode mode) {
+		this.mode = mode;
 	}
 
 	public boolean equals(Object that) {
@@ -87,22 +74,18 @@ public class ChannelStatus implements Serializable {
 			return false;
 		}
 		
-		ChannelStatus status = (ChannelStatus) that;
+		ConnectorStatus status = (ConnectorStatus) that;
 		
 		return
-			EqualsUtil.areEqual(this.getChannelId(), status.getChannelId()) &&
-			EqualsUtil.areEqual(this.getName(), status.getName()) &&
-			EqualsUtil.areEqual(this.getConnectorStatus(), status.getConnectorStatus()) &&
-			EqualsUtil.areEqual(this.getState(), status.getState());
+			EqualsUtil.areEqual(this.getMessage(), status.getMessage()) &&
+			EqualsUtil.areEqual(this.getMode(), status.getMode());
 	}
 	
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append(this.getClass().getName() + "[");
-		builder.append("channeldId=" + getChannelId() + ", ");
-		builder.append("name=" + getName() + ", ");
-		builder.append("connectorStatus=" + getConnectorStatus() + ", ");
-		builder.append("state=" + getState().toString());
+		builder.append("mode=" + getMode() + ", ");
+		builder.append("message=" + getMessage().toString());
 		builder.append("]");
 		return builder.toString();
 	}

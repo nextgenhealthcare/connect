@@ -86,12 +86,13 @@ public class JavaScriptUtil
 
     public void executeScript(String scriptId, String scriptType, String channelId)
     {
+        Script compiledScript = compiledScriptCache.getCompiledScript(scriptId);
+        
+        if(compiledScript == null)
+            return;
+
         try
         {
-            Script compiledScript = compiledScriptCache.getCompiledScript(scriptId);
-            
-            if(compiledScript == null)
-                return;
             
             Context context = getContext();
 

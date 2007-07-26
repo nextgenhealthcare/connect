@@ -697,4 +697,15 @@ public class MllpConnector extends AbstractServiceEnabledConnector {
 	public void setReconnectInterval(int reconnectInterval) {
 		this.reconnectInterval = reconnectInterval;
 	}
+
+	public String getStatusMode() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	public String getStatusMessage() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

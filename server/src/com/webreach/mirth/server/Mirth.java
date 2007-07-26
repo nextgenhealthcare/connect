@@ -210,7 +210,7 @@ public class Mirth extends Thread {
 		} catch (ControllerException e) {
 			logger.warn("Could not retrieve latest configuration.", e);
 		} catch (Exception e) {
-			logger.error("Could not start Mule.");
+			logger.error("Could not start Mule.", e);
 		}
         
         configurationController.setEngineStarting(false);

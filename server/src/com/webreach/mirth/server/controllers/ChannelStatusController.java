@@ -38,6 +38,7 @@ import org.apache.log4j.Logger;
 
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.ChannelStatus;
+import com.webreach.mirth.model.ConnectorStatus;
 import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.server.util.JMXConnection;
 import com.webreach.mirth.server.util.JMXConnectionFactory;
@@ -220,6 +221,7 @@ public class ChannelStatusController {
 				}
 
 				channelStatus.setState(getState(channelId));
+				channelStatus.setConnectorStatus(getConnectorStatus(channelId));
 				channelStatusList.add(channelStatus);
 			}
 
@@ -301,4 +303,38 @@ public class ChannelStatusController {
 			jmxConnection.close();
 		}
 	}
+	
+	/**
+	 * Returns the state of a channel with the specified id.
+	 * 
+	 * @param channelId
+	 * @return
+	 * @throws ControllerException
+	 */
+	private ConnectorStatus getConnectorStatus(String channelId) throws ControllerException {
+		logger.debug("retrieving channel source connector status: channelId=" + channelId);
+
+		JMXConnection jmxConnection = null;
+
+		try {
+			jmxConnection = JMXConnectionFactory.createJMXConnection();
+			Hashtable<String, String> properties = new Hashtable<String, String>();
+			properties.put("type", "control");
+			properties.put("name", channelId + "_source_connectorService");
+
+			String mode = ((String) jmxConnection.getAttribute(properties, "StatusMode"));
+			String message = ((String) jmxConnection.getAttribute(properties, "StatusMessage"));
+			
+			if (mode == null) {
+				mode = "DISCONNECTED";
+			}
+			
+			return new ConnectorStatus(ConnectorStatus.Mode.valueOf(mode), message);
+		} catch (Exception e) {
+			throw new ControllerException(e);
+		} finally {
+			jmxConnection.close();
+		}
+	}
+	
 }

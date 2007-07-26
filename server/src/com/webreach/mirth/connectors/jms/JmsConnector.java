@@ -588,4 +588,15 @@ public class JmsConnector extends AbstractServiceEnabledConnector implements Con
 	public void setTemplate(String template) {
 		this.template = template;
 	}
+
+	public String getStatusMode() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	public String getStatusMessage() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }
