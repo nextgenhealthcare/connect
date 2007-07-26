@@ -16,7 +16,7 @@ import org.jdesktop.swingworker.SwingWorker;
 
 import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.ui.PlatformUI;
-import com.webreach.mirth.plugins.ClientPlugin;
+import com.webreach.mirth.plugins.ClientPanelPlugin;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -28,7 +28,7 @@ import sun.misc.BASE64Encoder;
  *
  * @author brendanh
  */
-public class PluginManagerClient extends ClientPlugin
+public class PluginManagerClient extends ClientPanelPlugin
 {
     public PluginManagerClient(String name)
     {

@@ -13,13 +13,13 @@ import java.util.Map;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
-import javax.swing.border.LineBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import com.webreach.mirth.client.core.ClientException;
+import com.webreach.mirth.model.ExtensionPoint;
 import com.webreach.mirth.model.PluginMetaData;
-import com.webreach.mirth.plugins.ClientPlugin;
+import com.webreach.mirth.plugins.ClientPanelPlugin;
 
 /**
  *
@@ -27,8 +27,10 @@ import com.webreach.mirth.plugins.ClientPlugin;
  */
 public class PluginPanel extends javax.swing.JPanel
 {
-    Frame parent;
-    Map<String, ClientPlugin> loadedPlugins;
+
+	private static final String EXTENSION_MANAGER = "Extension Manager";
+	Frame parent;
+    Map<String, ClientPanelPlugin> loadedPlugins;
     
     /** Creates new form PluginPanel */
     public PluginPanel()
@@ -48,10 +50,10 @@ public class PluginPanel extends javax.swing.JPanel
         };
         tabs.addChangeListener(changeListener);
     }
-    
+    //Extension point for ExtensionPoint.Type.CLIENT_PANEL
     public void loadPlugins()
     {
-        loadedPlugins = new HashMap<String,ClientPlugin>();
+        loadedPlugins = new HashMap<String,ClientPanelPlugin>();
         
         try
         {
@@ -59,40 +61,43 @@ public class PluginPanel extends javax.swing.JPanel
             
             for (PluginMetaData metaData : plugins.values())
             {
-                try
-                {
-                    if(metaData.getClientClassName() != null && metaData.getClientClassName().length() > 0 && metaData.isEnabled())
-                    {
-                        String pluginName = metaData.getName();
-                        
-                        ClientPlugin plugin = (ClientPlugin) Class.forName(metaData.getClientClassName()).getDeclaredConstructors()[0].newInstance(new Object[]{pluginName});
-                        
-                        plugin.start();
-                        
-                        // add task pane before the "other" pane
-                        if(plugin.getTaskPane() != null)
-                        {
-                            parent.setNonFocusable(plugin.getTaskPane());
-                            plugin.getTaskPane().setVisible(false);
-                            parent.taskPaneContainer.add(plugin.getTaskPane(), parent.taskPaneContainer.getComponentCount()-1);
-                        }
-                        
-                        if (plugin.getComponent() != null)
-                        {
-                            if(pluginName.equals("Extension Manager") && tabs.getTabCount() > 0)
-                                tabs.insertTab(pluginName, null, plugin.getComponent(), null, 0);
-                            else
-                                tabs.addTab(pluginName, plugin.getComponent());
-                        }
-                        
-                        loadedPlugins.put(pluginName, plugin);
-                    }
-                }
-                catch (Exception e)
-                {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
+	        	try{
+	            	if (metaData.isEnabled()){
+		            	for (ExtensionPoint extensionPoint : metaData.getExtensionPoints()){
+			                if(extensionPoint.getMode() == ExtensionPoint.Mode.CLIENT && extensionPoint.getType() == ExtensionPoint.Type.CLIENT_PANEL && extensionPoint.getClassName() != null && extensionPoint.getClassName().length() > 0)
+			                {
+		                        String pluginName = metaData.getName();
+		                        
+		                        ClientPanelPlugin clientPlugin = (ClientPanelPlugin) Class.forName(extensionPoint.getClassName()).getDeclaredConstructors()[0].newInstance(new Object[]{pluginName});
+		                        
+		                        clientPlugin.start();
+		                        
+		                        // add task pane before the "other" pane
+		                        if(clientPlugin.getTaskPane() != null)
+		                        {
+		                            parent.setNonFocusable(clientPlugin.getTaskPane());
+		                            clientPlugin.getTaskPane().setVisible(false);
+		                            parent.taskPaneContainer.add(clientPlugin.getTaskPane(), parent.taskPaneContainer.getComponentCount()-1);
+		                        }
+		                        
+		                        if (clientPlugin.getComponent() != null)
+		                        {
+		                            if(pluginName.equals(EXTENSION_MANAGER) && tabs.getTabCount() > 0)
+		                                tabs.insertTab(pluginName, null, clientPlugin.getComponent(), null, 0);
+		                            else
+		                                tabs.addTab(pluginName, clientPlugin.getComponent());
+		                        }
+		                        
+		                        loadedPlugins.put(pluginName, clientPlugin);
+			                }
+	                    }
+	                }
+	        	}
+	            catch (Exception e)
+	            {
+	                // TODO Auto-generated catch block
+	                e.printStackTrace();
+	            }
             }
         }
         catch (ClientException ex)
@@ -103,7 +108,7 @@ public class PluginPanel extends javax.swing.JPanel
     
     public void stopPlugins()
     {
-        for(ClientPlugin plugin : loadedPlugins.values())
+        for(ClientPanelPlugin plugin : loadedPlugins.values())
             plugin.stop();
     }
     
@@ -111,11 +116,13 @@ public class PluginPanel extends javax.swing.JPanel
     {
         if(tabs.getTabCount() > 0)
         {
-            if(loadedPlugins.containsKey("Extension Manager"))
-                loadPlugin("Extension Manager");
-            else
-                loadPlugin(loadedPlugins.keySet().iterator().next());
-            
+            if(loadedPlugins.containsKey(EXTENSION_MANAGER))
+                loadPlugin(EXTENSION_MANAGER);
+            else{
+            	if (loadedPlugins.keySet().iterator().hasNext()){
+            		loadPlugin(loadedPlugins.keySet().iterator().next());
+            	}
+            }
             tabs.setSelectedIndex(0);
         }
         else
@@ -124,7 +131,7 @@ public class PluginPanel extends javax.swing.JPanel
     
     public void loadPlugin(String pluginName)
     {
-        ClientPlugin plugin = loadedPlugins.get(pluginName);
+        ClientPanelPlugin plugin = loadedPlugins.get(pluginName);
         if(plugin != null)
         {
             parent.setFocus(plugin.getTaskPane());

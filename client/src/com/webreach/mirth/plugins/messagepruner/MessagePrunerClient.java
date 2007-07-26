@@ -17,13 +17,13 @@ import javax.swing.ImageIcon;
 import org.jdesktop.swingworker.SwingWorker;
 
 import com.webreach.mirth.client.core.ClientException;
-import com.webreach.mirth.plugins.ClientPlugin;
+import com.webreach.mirth.plugins.ClientPanelPlugin;
 
 /**
  * 
  * @author brendanh
  */
-public class MessagePrunerClient extends ClientPlugin
+public class MessagePrunerClient extends ClientPanelPlugin
 {
     public MessagePrunerClient(String name)
     {

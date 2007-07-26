@@ -138,38 +138,44 @@ public class ChannelSetup extends javax.swing.JPanel
             while (i.hasNext())
             {
                 Entry entry = (Entry) i.next();
-                ConnectorMetaData metaData = transports.get(entry.getKey());
-                if (metaData.getType() == ConnectorMetaData.Type.LISTENER && metaData.isEnabled())
-                {
-                    if (entry.getKey().equals(SOURCE_DEFAULT))
-                        sourceConnectors.add(0, metaData.getName());
-                    else
-                        sourceConnectors.add(metaData.getName());
-                    
-                    try
-                    {
-                        parent.sourceConnectors.add((ConnectorClass) Class.forName(metaData.getClientClassName()).newInstance());
-                    }
-                    catch (Exception e)
-                    {
-                        parent.alertError("Could not load class: " + metaData.getClientClassName());
-                    }
-                }
-                if (metaData.getType() == ConnectorMetaData.Type.SENDER && metaData.isEnabled())
-                {
-                    if (entry.getKey().equals(DESTINATION_DEFAULT))
-                        destinationConnectors.add(0, metaData.getName());
-                    else
-                        destinationConnectors.add(metaData.getName());
-                    
-                    try
-                    {
-                        parent.destinationConnectors.add((ConnectorClass) Class.forName(metaData.getClientClassName()).newInstance());
-                    }
-                    catch (Exception e)
-                    {
-                        parent.alertError("Could not load class: " + metaData.getClientClassName());
-                    }
+                try{
+                
+                	ConnectorMetaData metaData = transports.get(entry.getKey());
+               
+	                if (metaData.getType() == ConnectorMetaData.Type.LISTENER && metaData.isEnabled())
+	                {
+	                    if (entry.getKey().equals(SOURCE_DEFAULT))
+	                        sourceConnectors.add(0, metaData.getName());
+	                    else
+	                        sourceConnectors.add(metaData.getName());
+	                    
+	                    try
+	                    {
+	                        parent.sourceConnectors.add((ConnectorClass) Class.forName(metaData.getClientClassName()).newInstance());
+	                    }
+	                    catch (Exception e)
+	                    {
+	                        parent.alertError("Could not load class: " + metaData.getClientClassName());
+	                    }
+	                }
+	                if (metaData.getType() == ConnectorMetaData.Type.SENDER && metaData.isEnabled())
+	                {
+	                    if (entry.getKey().equals(DESTINATION_DEFAULT))
+	                        destinationConnectors.add(0, metaData.getName());
+	                    else
+	                        destinationConnectors.add(metaData.getName());
+	                    
+	                    try
+	                    {
+	                        parent.destinationConnectors.add((ConnectorClass) Class.forName(metaData.getClientClassName()).newInstance());
+	                    }
+	                    catch (Exception e)
+	                    {
+	                        parent.alertError("Could not load class: " + metaData.getClientClassName());
+	                    }
+	                }
+                }catch(ClassCastException castException){
+                	System.out.println("Unable to load plugin");
                 }
             }
         }

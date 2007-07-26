@@ -31,7 +31,7 @@ import com.webreach.mirth.client.ui.PlatformUI;
  * 
  * @author brendanh
  */
-public abstract class ClientPlugin
+public abstract class ClientPanelPlugin
 {
     private JComponent component = new JPanel();
     private JXTaskPane pane = new JXTaskPane();
@@ -39,7 +39,7 @@ public abstract class ClientPlugin
     private Frame parent = PlatformUI.MIRTH_FRAME;
     private String name;
 
-    public ClientPlugin(String name)
+    public ClientPanelPlugin(String name)
     {
         this.name = name;
         getTaskPane().setTitle(name + " Tasks");
