@@ -26,7 +26,7 @@
           <Group type="102" alignment="0" attributes="0">
               <Component id="filterPanel" min="-2" max="-2" attributes="0"/>
               <EmptySpace min="-2" pref="4" max="-2" attributes="0"/>
-              <Component id="jSplitPane1" pref="309" max="32767" attributes="0"/>
+              <Component id="jSplitPane1" pref="305" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -41,7 +41,7 @@
           <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
             <TitledBorder title="Filter By">
               <Border PropertyName="innerBorder" info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-                <EmptyBorder/>
+                <EmptyBorder bottom="3" left="3" right="3" top="3"/>
               </Border>
               <Font PropertyName="font" name="Tahoma" size="11" style="1"/>
               <Color PropertyName="color" blue="0" green="0" red="0" type="rgb"/>
@@ -559,7 +559,7 @@
             </DimensionLayout>
             <DimensionLayout dim="1">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="jScrollPane1" alignment="0" pref="200" max="32767" attributes="0"/>
+                  <Component id="jScrollPane1" alignment="0" pref="196" max="32767" attributes="0"/>
               </Group>
             </DimensionLayout>
           </Layout>
