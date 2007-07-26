@@ -326,7 +326,7 @@ public class ChannelStatusController {
 			String message = ((String) jmxConnection.getAttribute(properties, "StatusMessage"));
 			
 			if (mode == null) {
-				mode = "DISCONNECTED";
+				mode = ConnectorStatus.Mode.DISCONNECTED.toString();
 			}
 			
 			return new ConnectorStatus(ConnectorStatus.Mode.valueOf(mode), message);
