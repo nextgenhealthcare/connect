@@ -5,6 +5,7 @@
   <mirthVersion>1.6.0</mirthVersion>
   <clientClassName>com.webreach.mirth.connectors.jms.JMSWriter</clientClassName>
   <serverClassName>com.webreach.mirth.connectors.jms.JmsConnector</serverClassName>
+  <sharedClassName>com.webreach.mirth.connectors.jms.JMSWriterProperties</sharedClassName>
   <transformers></transformers>
   <protocol>jms</protocol>
   <type>SENDER</type>

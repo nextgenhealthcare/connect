@@ -5,6 +5,7 @@
   <mirthVersion>1.6.0</mirthVersion>
   <clientClassName>com.webreach.mirth.connectors.jms.JMSReader</clientClassName>
   <serverClassName>com.webreach.mirth.connectors.jms.JmsConnector</serverClassName>
+  <sharedClassName>com.webreach.mirth.connectors.jms.JMSReaderProperties</sharedClassName>
   <transformers>JMSMessageToObject ObjectToString</transformers>
   <protocol>jms</protocol>
   <type>LISTENER</type>

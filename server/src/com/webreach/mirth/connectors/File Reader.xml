@@ -5,6 +5,7 @@
   <mirthVersion>1.6.0</mirthVersion>
   <clientClassName>com.webreach.mirth.connectors.file.FileReader</clientClassName>
   <serverClassName>com.webreach.mirth.connectors.file.FileConnector</serverClassName>
+  <sharedClassName>com.webreach.mirth.connectors.file.FileReaderProperties</sharedClassName>
   <transformers>ByteArrayToString</transformers>
   <protocol>file</protocol>
   <type>LISTENER</type>

@@ -5,6 +5,7 @@
   <mirthVersion>1.6.0</mirthVersion>
   <clientClassName>com.webreach.mirth.connectors.soap.SOAPSender</clientClassName>
   <serverClassName>com.webreach.mirth.connectors.soap.axis.AxisConnector</serverClassName>
+  <sharedClassName>com.webreach.mirth.connectors.soap.SOAPSenderProperties</sharedClassName>
   <transformers></transformers>
   <protocol>axis</protocol>
   <type>SENDER</type>

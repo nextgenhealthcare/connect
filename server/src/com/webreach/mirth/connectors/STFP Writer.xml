@@ -5,6 +5,7 @@
   <mirthVersion>1.6.0</mirthVersion>
   <clientClassName>com.webreach.mirth.connectors.sftp.SFTPWriter</clientClassName>
   <serverClassName>com.webreach.mirth.connectors.sftp.SftpConnector</serverClassName>
+  <sharedClassName>com.webreach.mirth.connectors.sftp.SFTPWriterProperties</sharedClassName>
   <transformers></transformers>
   <protocol>sftp</protocol>
   <type>SENDER</type>

@@ -1,4 +1,4 @@
-<com.webreach.mirth.model.ConnectorMetaData>
+<connectorMetaData>
   <name>FTP Reader</name>
   <author>WebREACH, Inc.</author>
   <pluginVersion>1.6.0</pluginVersion>
@@ -10,4 +10,11 @@
   <protocol>ftp</protocol>
   <type>LISTENER</type>
   <enabled>true</enabled>
-</com.webreach.mirth.model.ConnectorMetaData>
+  <mule-properties>
+      <property name="connector">com.webreach.mirth.connectors.ftp.FtpConnector</property>
+      <property name="dispatcher.factory">com.webreach.mirth.connectors.ftp.FtpMessageDispatcherFactory</property>
+      <property name="message.receiver">com.webreach.mirth.connectors.ftp.FtpMessageReceiver</property>
+      <property name="message.adapter">com.webreach.mirth.connectors.ftp.FtpMessageAdapter</property>
+      <property name="endpoint.builder">org.mule.impl.endpoint.SocketEndpointBuilder</property>
+  </mule-properties>
+</connectorMetaData>

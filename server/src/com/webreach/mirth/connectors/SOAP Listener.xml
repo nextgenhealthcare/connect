@@ -5,6 +5,7 @@
   <mirthVersion>1.6.0</mirthVersion>
   <clientClassName>com.webreach.mirth.connectors.soap.SOAPListener</clientClassName>
   <serverClassName>com.webreach.mirth.connectors.soap.axis.AxisConnector</serverClassName>
+  <sharedClassName>com.webreach.mirth.connectors.soap.SOAPListenerProperties</sharedClassName>
   <transformers>SOAPRequestToString</transformers>
   <protocol>axis</protocol>
   <type>LISTENER</type>
