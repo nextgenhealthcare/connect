@@ -1,0 +1,12 @@
+<pluginMetaData>
+  <name>Extension Manager</name>
+  <author>WebREACH, Inc.</author>
+  <pluginVersion>1.6.0</pluginVersion>
+  <mirthVersion>1.6.0</mirthVersion>
+  <enabled>true</enabled>
+  <extensionPoint>
+    <type>CLIENT_PANEL</type>
+    <className>com.webreach.mirth.plugins.pluginmanager.PluginManagerClient</className>
+    <mode>CLIENT</mode>
+  </extensionPoint>
+</pluginMetaData>

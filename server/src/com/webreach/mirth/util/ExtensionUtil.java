@@ -1,4 +1,4 @@
-package com.webreach.mirth.server.util;
+package com.webreach.mirth.util;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -17,9 +17,13 @@ import java.util.Map.Entry;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import com.webreach.mirth.model.ConnectorMetaData;
 import com.webreach.mirth.model.MetaData;
+import com.webreach.mirth.model.PluginMetaData;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.server.controllers.ControllerException;
+import com.webreach.mirth.server.util.FileUtil;
+import com.webreach.mirth.server.util.UUIDGenerator;
 
 public class ExtensionUtil
 {
@@ -36,7 +40,7 @@ public class ExtensionUtil
         Map<String, MetaData> extensionMap = new HashMap<String, MetaData>();
         File path = new File(location);
         File[] extensionFiles = path.listFiles(fileFilter);
-        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+        ObjectXMLSerializer serializer = new ObjectXMLSerializer(new Class[]{PluginMetaData.class, ConnectorMetaData.class});
 
         try
         {
