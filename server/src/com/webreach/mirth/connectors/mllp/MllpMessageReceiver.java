@@ -53,7 +53,6 @@ import ca.uhn.hl7v2.parser.PipeParser;
 import ca.uhn.hl7v2.util.Terser;
 import ca.uhn.hl7v2.validation.impl.NoValidation;
 
-import com.webreach.mirth.connectors.ftp.FtpConnector;
 import com.webreach.mirth.connectors.mllp.protocols.LlpProtocol;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.Response;
@@ -76,15 +75,17 @@ import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicBoolean;
  */
 public class MllpMessageReceiver extends AbstractMessageReceiver implements Work {
 	protected ServerSocket serverSocket = null;
+	protected Socket clientSocket = null;
 	private char END_MESSAGE = 0x1C; // character indicating end of message
 	private char START_MESSAGE = 0x0B; // first character of a new message
 	private char END_OF_RECORD = 0x0D; // character sent between messages
 	private char END_OF_SEGMENT = 0x0D; // character sent between hl7 segments
-    private StringBuffer buffer = new StringBuffer();
+	private StringBuffer buffer = new StringBuffer();
 	// (usually same as end of record)
 	private MllpConnector connector;
 	private AlertController alertController = AlertController.getInstance();
 	private TcpWorker work;
+
 	public MllpMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint) throws InitialisationException {
 		super(connector, component, endpoint);
 		MllpConnector tcpConnector = (MllpConnector) connector;
@@ -105,17 +106,22 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 
 	public void doConnect() throws ConnectException {
 		disposing.set(false);
-		URI uri = endpoint.getEndpointURI().getUri();
-		try {
-			serverSocket = createSocket(uri);
-		} catch (Exception e) {
-			throw new org.mule.providers.ConnectException(new Message("tcp", 1, uri), e, this);
-		}
-
-		try {
-			getWorkManager().scheduleWork(this, WorkManager.INDEFINITE, null, null);
-		} catch (WorkException e) {
-			throw new ConnectException(new Message(Messages.FAILED_TO_SCHEDULE_WORK), e, this);
+		if (connector.isServerMode()) {
+			URI uri = endpoint.getEndpointURI().getUri();
+			try {
+				serverSocket = createServerSocket(uri);
+			} catch (Exception e) {
+				throw new org.mule.providers.ConnectException(new Message("tcp", 1, uri), e, this);
+			}
+			try {
+				getWorkManager().scheduleWork(this, WorkManager.INDEFINITE, null, null);
+			} catch (WorkException e) {
+				throw new ConnectException(new Message(Messages.FAILED_TO_SCHEDULE_WORK), e, this);
+			}
+		} else {
+			// If client mode, just start up one thread.
+			Thread llpReceiver = new Thread(this);
+			llpReceiver.start();
 		}
 	}
 
@@ -123,15 +129,21 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 		// this will cause the server thread to quit
 		disposing.set(true);
 		try {
-			if (serverSocket != null) {
-				serverSocket.close();
+			if (connector.isServerMode()) {
+				if (serverSocket != null) {
+					serverSocket.close();
+				}
+			} else {
+				if (clientSocket != null) {
+					clientSocket.close();
+				}
 			}
 		} catch (IOException e) {
 			logger.warn("Failed to close server socket: " + e.getMessage(), e);
 		}
 	}
 
-	protected ServerSocket createSocket(URI uri) throws Exception {
+	protected ServerSocket createServerSocket(URI uri) throws Exception {
 		String host = uri.getHost();
 		int backlog = connector.getBacklog();
 		if (host == null || host.length() == 0) {
@@ -145,35 +157,58 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 		}
 	}
 
-	/**
-	 * Obtain the serverSocket
-	 */
-	public ServerSocket getServerSocket() {
-		return serverSocket;
+	protected Socket createClientSocket(URI uri) throws Exception {
+		String host = uri.getHost();
+		InetAddress inetAddress = InetAddress.getByName(host);
+		return new Socket(inetAddress, uri.getPort());
 	}
 
 	public void run() {
 		while (!disposing.get()) {
 			if (connector.isStarted() && !disposing.get()) {
 				Socket socket = null;
-				try {
-					socket = serverSocket.accept();
-					logger.trace("Server socket Accepted on: " + serverSocket.getLocalPort());
-				} catch (java.io.InterruptedIOException iie) {
-					logger.debug("Interupted IO doing serverSocket.accept: " + iie.getMessage());
-				} catch (Exception e) {
-					if (!connector.isDisposed() && !disposing.get()) {
-						logger.warn("Accept failed on socket: " + e, e);
-						handleException(new ConnectException(e, this));
+
+				if (connector.isServerMode()) {
+					try {
+						socket = serverSocket.accept();
+						logger.trace("Server socket Accepted on: " + serverSocket.getLocalPort());
+					} catch (java.io.InterruptedIOException iie) {
+						logger.debug("Interupted IO doing serverSocket.accept: " + iie.getMessage());
+					} catch (Exception e) {
+						if (!connector.isDisposed() && !disposing.get()) {
+							logger.warn("Accept failed on socket: " + e, e);
+							handleException(new ConnectException(e, this));
+						}
+					}
+				} else {
+					// Create the client socket. If it can't create the
+					// client socket, sleep through the reconnect interval and
+					// try again.
+					URI uri = endpoint.getEndpointURI().getUri();
+					try {
+						clientSocket = createClientSocket(uri);
+						socket = clientSocket;
+						logger.trace("Server socket Accepted on: " + clientSocket.getLocalPort());
+					} catch (Exception e) {
+						try {
+							logger.debug("Socket connection to " + uri.getHost() + ":" + uri.getPort() + " failed, waiting " + connector.getReconnectInterval() + "ms.");
+							Thread.sleep(connector.getReconnectInterval());
+						} catch (Exception ex) {
+						}
 					}
 				}
+
 				if (socket != null) {
 					try {
-						work = (TcpWorker)createWork(socket);
-						try {
-							getWorkManager().scheduleWork(work, WorkManager.IMMEDIATE, null, null);
-						} catch (WorkException e) {
-							logger.error("Tcp Server receiver Work was not processed: " + e.getMessage(), e);
+						work = (TcpWorker) createWork(socket);
+						if (connector.isServerMode()) {
+							try {
+								getWorkManager().scheduleWork(work, WorkManager.IMMEDIATE, null, null);
+							} catch (WorkException e) {
+								logger.error("Tcp Server receiver Work was not processed: " + e.getMessage(), e);
+							}
+						} else {
+							work.run();
 						}
 					} catch (SocketException e) {
 						alertController.sendAlerts(((MllpConnector) connector).getChannelId(), Constants.ERROR_408, null, e);
@@ -189,12 +224,22 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 
 	public void doDispose() {
 		try {
-			if (serverSocket != null && !serverSocket.isClosed()){
-				serverSocket.close();
-			}
-			serverSocket = null;
-			if (work != null){
-				work.dispose();
+			if (connector.isServerMode()) {
+				if (serverSocket != null && !serverSocket.isClosed()) {
+					serverSocket.close();
+				}
+				serverSocket = null;
+				if (work != null) {
+					work.dispose();
+				}
+			} else {
+				if (clientSocket != null && !clientSocket.isClosed()) {
+					clientSocket.close();
+				}
+				clientSocket = null;
+				if (work != null) {
+					work.dispose();
+				}
 			}
 		} catch (Exception e) {
 			logger.error(new DisposeException(new Message("tcp", 2), e));
@@ -264,18 +309,18 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 				dataIn = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
 				dataOut = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
 
-				while (!socket.isClosed() && !disposing.get()) {                    
+				while (!socket.isClosed() && !disposing.get()) {
 					byte[] b;
 					try {
-                        b = protocol.read(dataIn);
+						b = protocol.read(dataIn);
 
 						// end of stream
 						if (b == null) {
 							break;
 						} else {
-							if (connector.isWaitForEndOfMessageCharacter()){
+							if (connector.isWaitForEndOfMessageCharacter()) {
 								preprocessData(b);
-							}else{
+							} else {
 								processData(b);
 							}
 							dataOut.flush();
@@ -292,74 +337,65 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 				dispose();
 			}
 		}
-        
-        /*
-         * If the option is set to wait for end charactor, the LLP listener will continue accepting data until it finds one.
-         */
-        protected byte[] preprocessData(byte[] data) throws Exception {     
-            byte[] processedData = null; 
-            
-            if(connector.isWaitForEndOfMessageCharacter())
-            {
-                synchronized(buffer)
-                {
-                    String charset = connector.getCharsetEncoding();
-                    String str_data = new String(data, charset);
-                    buffer.append(str_data);
-                    
-                    int startCharLocation = buffer.toString().indexOf(START_MESSAGE);
-                    int endCharLocation = buffer.toString().indexOf(END_MESSAGE  + "" + END_OF_RECORD);
-                    
-                    while(startCharLocation >= 0 &&  endCharLocation >= 0 && startCharLocation < endCharLocation)
-                    {                            
-                        String message = buffer.toString().substring(startCharLocation, endCharLocation);
 
-                        try
-                        {
-                            processedData = processData(message.getBytes());
-                        }
-                        catch (Exception e)
-                        {
-                            throw e;
-                        }
-                        finally
-                        {
-                            //clear the buffer up to the next message, if there is one
-                            buffer.delete(startCharLocation, endCharLocation + ((String)(END_MESSAGE  + "" + END_OF_RECORD)).length());
-                            
-                            startCharLocation = buffer.toString().indexOf(START_MESSAGE);
-                            endCharLocation = buffer.toString().indexOf(END_MESSAGE  + "" + END_OF_RECORD);
-                        }
-                    }
-                    
-                    if (buffer.length() > 0 && startCharLocation == -1 || endCharLocation > startCharLocation)
-                    {
-                        // clear junk data that cannot be processed
-                        buffer.delete(0, buffer.length());
-                    }
-                }
-            }
-            else
-            {
-                processedData = processData(data);
-            }
-            return processedData;
-        }
-        
-        protected byte[] processData(byte[] data) throws Exception {
-            String charset = connector.getCharsetEncoding();
-            String str_data = new String(data, charset);
-            BatchMessageProcessor batchProcessor = new BatchMessageProcessor();
-            batchProcessor.setEndOfMessage((byte) END_MESSAGE);
-            batchProcessor.setStartOfMessage((byte) START_MESSAGE);
-            batchProcessor.setEndOfRecord((byte) END_OF_RECORD);
-            Iterator<String> it = batchProcessor.processHL7Messages(str_data).iterator();
-            UMOMessage returnMessage = null;
+		/*
+		 * If the option is set to wait for end charactor, the LLP listener will
+		 * continue accepting data until it finds one.
+		 */
+		protected byte[] preprocessData(byte[] data) throws Exception {
+			byte[] processedData = null;
+
+			if (connector.isWaitForEndOfMessageCharacter()) {
+				synchronized (buffer) {
+					String charset = connector.getCharsetEncoding();
+					String str_data = new String(data, charset);
+					buffer.append(str_data);
+
+					int startCharLocation = buffer.toString().indexOf(START_MESSAGE);
+					int endCharLocation = buffer.toString().indexOf(END_MESSAGE + "" + END_OF_RECORD);
+
+					while (startCharLocation >= 0 && endCharLocation >= 0 && startCharLocation < endCharLocation) {
+						String message = buffer.toString().substring(startCharLocation, endCharLocation);
+
+						try {
+							processedData = processData(message.getBytes());
+						} catch (Exception e) {
+							throw e;
+						} finally {
+							// clear the buffer up to the next message, if there
+							// is one
+							buffer.delete(startCharLocation, endCharLocation + ((String) (END_MESSAGE + "" + END_OF_RECORD)).length());
+
+							startCharLocation = buffer.toString().indexOf(START_MESSAGE);
+							endCharLocation = buffer.toString().indexOf(END_MESSAGE + "" + END_OF_RECORD);
+						}
+					}
+
+					if (buffer.length() > 0 && startCharLocation == -1 || endCharLocation > startCharLocation) {
+						// clear junk data that cannot be processed
+						buffer.delete(0, buffer.length());
+					}
+				}
+			} else {
+				processedData = processData(data);
+			}
+			return processedData;
+		}
+
+		protected byte[] processData(byte[] data) throws Exception {
+			String charset = connector.getCharsetEncoding();
+			String str_data = new String(data, charset);
+			BatchMessageProcessor batchProcessor = new BatchMessageProcessor();
+			batchProcessor.setEndOfMessage((byte) END_MESSAGE);
+			batchProcessor.setStartOfMessage((byte) START_MESSAGE);
+			batchProcessor.setEndOfRecord((byte) END_OF_RECORD);
+			Iterator<String> it = batchProcessor.processHL7Messages(str_data).iterator();
+			UMOMessage returnMessage = null;
 			OutputStream os;
 			while (it.hasNext()) {
 				data = (it.next()).getBytes(charset);
 				UMOMessageAdapter adapter = connector.getMessageAdapter(new String(data, charset));
-				if (socket.isClosed()){
+				if (socket.isClosed()) {
 					return null;
 				}
 				os = new ResponseOutputStream(socket.getOutputStream(), socket);
