@@ -25,6 +25,7 @@
 
 package com.webreach.mirth.server.controllers;
 
+import java.io.File;
 import java.sql.SQLException;
 
 import org.apache.log4j.Logger;
@@ -86,20 +87,38 @@ public class MigrationController
             else
                 oldSchemaVersion = ((Integer)result).intValue();
             
-            if(oldSchemaVersion == 0 && newSchemaVersion > 0)
-            {
-                migrate0to1();
-                oldSchemaVersion++;
-            }
-            if(oldSchemaVersion == 1 && newSchemaVersion > 1)
-            {
-                // next time
-            }
-            
-            if(result == null)
-                sqlMap.update("setInitialSchemaVersion", newSchemaVersion);
+            if (oldSchemaVersion == newSchemaVersion)
+                return;
             else
-                sqlMap.update("updateSchemaVersion", newSchemaVersion);
+            {                
+                if(oldSchemaVersion == 0 && newSchemaVersion > 0)
+                {
+                    migrate0to1();
+                    oldSchemaVersion++;
+                }
+                if(oldSchemaVersion == 1 && newSchemaVersion > 1)
+                {
+                    // next time
+                }
+                
+                if(result == null)
+                    sqlMap.update("setInitialSchemaVersion", newSchemaVersion);
+                else
+                    sqlMap.update("updateSchemaVersion", newSchemaVersion);
+                
+                try
+                {
+                    sqlMap.update("clearConfiguration");
+                    File configurationFile = new File(configurationController.getMuleConfigurationPath());
+                    
+                    if(configurationFile != null)
+                        configurationFile.delete();
+                }
+                catch(Exception e)
+                {
+                    logger.error("Could not remove previous configuration.", e);
+                }
+            }
         }
         catch(Exception e)
         {

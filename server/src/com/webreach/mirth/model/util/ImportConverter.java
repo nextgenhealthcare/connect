@@ -90,7 +90,7 @@ public class ImportConverter
         DocumentBuilder builder;
 
         builder = factory.newDocumentBuilder();
-        document = builder.parse(channelXML);
+        document = builder.parse(new InputSource(new StringReader(channelXML)));
         
         return (Channel) serializer.fromXML(convertChannel(document));
     }

@@ -31,6 +31,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.charset.Charset;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -388,6 +389,15 @@ public class ConfigurationController {
 		}
 	}
 
+    public String getMuleConfigurationPath()
+    {
+        Properties properties = PropertyLoader.loadProperties("mirth");
+        
+        String fileSeparator = System.getProperty("file.separator");
+        File muleBootFile = new File(ClassPathResource.getResourceURI(properties.getProperty("mule.boot")));
+        return muleBootFile.getParent() + fileSeparator + properties.getProperty("mule.config");
+    }
+    
 	/**
 	 * Returns a File with the latest Mule configuration.
 	 * 
@@ -395,35 +405,34 @@ public class ConfigurationController {
 	 * @throws ControllerException
 	 */
 	public File getLatestConfiguration() throws ControllerException {
-		logger.debug("retrieving latest configuration");
+        logger.debug("retrieving latest configuration");
 
-		Properties properties = PropertyLoader.loadProperties("mirth");
+        Properties properties = PropertyLoader.loadProperties("mirth");
 
-		try {
-			Configuration latestConfiguration = (Configuration) sqlMap.queryForObject("getLatestConfiguration");
+        try {
+            Configuration latestConfiguration = (Configuration) sqlMap.queryForObject("getLatestConfiguration");
 
-			if (latestConfiguration != null) {
-				logger.debug("using configuration " + latestConfiguration.getId() + " created on " + latestConfiguration.getDateCreated());
+            if (latestConfiguration != null) {
+                logger.debug("using configuration " + latestConfiguration.getId() + " created on " + latestConfiguration.getDateCreated());
 
-				// Find the path of mule.boot because mule.config may not exist.
-				// Then generate the path of mule.config in the same directory
-				// as mule.boot.
-				String fileSeparator = System.getProperty("file.separator");
-				File muleBootFile = new File(ClassPathResource.getResourceURI(properties.getProperty("mule.boot")));
-				String muleConfigPath = muleBootFile.getParent() + fileSeparator + properties.getProperty("mule.config");
-				
-				BufferedWriter out = new BufferedWriter(new FileWriter(new File(muleConfigPath)));
-				out.write(latestConfiguration.getData());
-				out.close();
-				return new File(muleConfigPath);
-			}
+                // Find the path of mule.boot because mule.config may not exist.
+                // Then generate the path of mule.config in the same directory
+                // as mule.boot.
 
-			logger.debug("no configuration found, using default boot file");
-			return new File(ClassPathResource.getResourceURI(properties.getProperty("mule.boot")));
-		} catch (Exception e) {
-			logger.error("Could not retrieve latest configuration.", e);
-			return null;
-		}
+                String muleConfigPath = getMuleConfigurationPath();
+                
+                BufferedWriter out = new BufferedWriter(new FileWriter(new File(muleConfigPath)));
+                out.write(latestConfiguration.getData());
+                out.close();
+                return new File(muleConfigPath);
+            }
+
+            logger.debug("no configuration found, using default boot file");
+            return new File(ClassPathResource.getResourceURI(properties.getProperty("mule.boot")));
+        } catch (Exception e) {
+            logger.error("Could not retrieve latest configuration.", e);
+            return null;
+        }
 	}
 
 	/**
