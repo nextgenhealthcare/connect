@@ -79,6 +79,7 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EvaluatorException;
 import org.mozilla.javascript.Script;
 
+import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.ui.CenterCellRenderer;
 import com.webreach.mirth.client.ui.Frame;
 import com.webreach.mirth.client.ui.Mirth;
@@ -96,16 +97,24 @@ import com.webreach.mirth.client.ui.util.FileUtil;
 import com.webreach.mirth.client.ui.util.VariableListUtil;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.Connector;
+import com.webreach.mirth.model.ExtensionPoint;
+import com.webreach.mirth.model.ExtensionPointDefinition;
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.model.PluginMetaData;
 import com.webreach.mirth.model.Rule;
 import com.webreach.mirth.model.Step;
 import com.webreach.mirth.model.Transformer;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.model.util.ImportConverter;
+import com.webreach.mirth.plugins.ClientPanelPlugin;
+import com.webreach.mirth.plugins.TransformerStepPlugin;
 
 public class TransformerPane extends MirthEditorPane implements DropTargetListener
 {
-    // used to load the pane
+    public static final String MAPPER = "Mapper";
+	public static final String MESSAGE_BUILDER = "Message Builder";
+	public static final String JAVASCRIPT = "Javascript";
+	// used to load the pane
     private Transformer transformer;
     // fields
     private JXTable transformerTable;
@@ -124,13 +133,48 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
     // panels using CardLayout
     protected BasePanel stepPanel; // the card holder
     protected BasePanel blankPanel;
-    protected MapperPanel mapperPanel;
-    protected MessageBuilder builderPanel;
-    protected JavaScriptPanel jsPanel;
+  
     public static final int NUMBER_OF_COLUMNS = 4;
-    private String[] defaultComboBoxValues = { MAPPER_TYPE, MESSAGE_TYPE, JAVASCRIPT_TYPE };
+    
+    private Map<String,TransformerStepPlugin> loadedPlugins = new HashMap<String, TransformerStepPlugin>();
+    
     private DropTarget dropTarget;
-        
+      
+    //Extension point for ExtensionPoint.Type.CLIENT_TRANSFORMER_STEP
+    @ExtensionPointDefinition(mode=ExtensionPoint.Mode.CLIENT, type=ExtensionPoint.Type.CLIENT_TRANSFORMER_STEP)
+    public void loadPlugins()
+    {
+        loadedPlugins = new HashMap<String,TransformerStepPlugin>();
+        try
+        {
+            Map<String, PluginMetaData> plugins = parent.mirthClient.getPluginMetaData();
+            for (PluginMetaData metaData : plugins.values())
+            {
+	        	
+            	if (metaData.isEnabled()){
+	            	for (ExtensionPoint extensionPoint : metaData.getExtensionPoints()){
+	            		try{
+			                if(extensionPoint.getMode() == ExtensionPoint.Mode.CLIENT && extensionPoint.getType() == ExtensionPoint.Type.CLIENT_TRANSFORMER_STEP && extensionPoint.getClassName() != null && extensionPoint.getClassName().length() > 0)
+			                {
+		                        String pluginName = extensionPoint.getName();
+		                        TransformerStepPlugin stepPlugin = (TransformerStepPlugin) Class.forName(extensionPoint.getClassName()).getDeclaredConstructors()[0].newInstance(new Object[]{pluginName, this});
+		                        loadedPlugins.put(stepPlugin.getDisplayName(), stepPlugin);
+			                }
+	            		} 
+	            		catch (Exception e)
+	            		{
+	            			e.printStackTrace();
+	            		}
+	                }
+	        	}
+	           
+            }
+        }
+        catch (ClientException ex)
+        {
+            ex.printStackTrace();
+        }
+    }
     /**
      * CONSTRUCTOR
      */
@@ -148,6 +192,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
      */
     public void load(Connector c, Transformer t, boolean channelHasBeenChanged)
     {
+    	
         prevSelRow = -1;
         connector = c;
         transformer = t;
@@ -159,7 +204,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
         
         tabTemplatePanel.setDefaultComponent();
         tabTemplatePanel.tabPanel.add("Outgoing Data", tabTemplatePanel.outgoingTab);
-
+        
         // add any existing steps to the model
         List<Step> list = transformer.getSteps();
         ListIterator<Step> li = list.listIterator();
@@ -179,9 +224,9 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
         else
         {
             stepPanel.showCard(BLANK_TYPE);
-            mapperPanel.setData(null);
-            jsPanel.setData(null);
-            builderPanel.setData(null);
+            for(TransformerStepPlugin plugin : loadedPlugins.values()){
+            	plugin.getPanel().setData(null);
+            }
             loadData(-1);
         }
         
@@ -218,13 +263,16 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
         parent.setCurrentTaskPaneContainer(transformerTaskPaneContainer);
 
         updateStepNumbers();
-        updateTaskPane();
+        if (transformerTableModel.getRowCount() >0){
+        	updateTaskPane((String)transformerTableModel.getValueAt(0, STEP_TYPE_COL));
+        }
         
         if (channelHasBeenChanged)
             modified = true;
         else
             modified = false;
     }
+   
 
     public void dragEnter(DropTargetDragEvent dtde)
     {
@@ -303,17 +351,13 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
         // the available panels (cards)
         stepPanel = new BasePanel();
         blankPanel = new BasePanel();
-        builderPanel = new MessageBuilder(this);
-        mapperPanel = new MapperPanel(this);
-        jsPanel = new JavaScriptPanel(this);
+        loadPlugins();
 
         // establish the cards to use in the Transformer
         stepPanel.addCard(blankPanel, BLANK_TYPE);
-        stepPanel.addCard(mapperPanel, MAPPER_TYPE);
-
-        stepPanel.addCard(jsPanel, JAVASCRIPT_TYPE);
-        stepPanel.addCard(builderPanel, MESSAGE_TYPE);
-
+        for(TransformerStepPlugin plugin : loadedPlugins.values()){
+        	stepPanel.addCard(plugin.getPanel(), plugin.getDisplayName());
+        }
         transformerTablePane = new JScrollPane();
         transformerTablePane.setBorder(BorderFactory.createEmptyBorder());
         // make and place the task pane in the parent Frame
@@ -459,12 +503,13 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
             public boolean isCellEditable(int rowIndex, int columnIndex)
             {
                 boolean[] canEdit;
-
-                if (!((String) transformerTableModel.getValueAt(rowIndex, STEP_TYPE_COL)).equals(JAVASCRIPT_TYPE))
-                    canEdit = new boolean[] { false, false, true, true };
-                else
-                    canEdit = new boolean[] { false, true, true, true };
-
+                TransformerStepPlugin plugin;
+				try {
+					plugin = getPlugin((String) transformerTableModel.getValueAt(rowIndex, STEP_TYPE_COL));
+					canEdit = new boolean[] { false, plugin.isStepNameEditable(), true, true };
+				} catch (Exception e) {
+					canEdit = new boolean[] { false, false, true, true };
+				}
                 return canEdit[columnIndex];
             }
         });
@@ -474,6 +519,11 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
         transformerTable.getColumnModel().getColumn(STEP_NAME_COL).setCellEditor(new EditorTableCellEditor(this));
 
         // Set the combobox editor on the type column, and add action listener
+        String[] defaultComboBoxValues = new String[loadedPlugins.size()];
+        TransformerStepPlugin[] pluginArray = loadedPlugins.values().toArray(new TransformerStepPlugin[0]);
+        for (int i = 0; i < pluginArray.length; i++) {
+        	defaultComboBoxValues[i] = pluginArray[i].getDisplayName();
+		}
         MirthComboBoxCellEditor comboBox = new MirthComboBoxCellEditor(defaultComboBoxValues, this);
 
         ((JXComboBox) comboBox.getComponent()).addItemListener(new ItemListener()
@@ -489,33 +539,19 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
                         return;
 
                     modified = true;
+                    TransformerStepPlugin plugin;
+					try {
+						plugin = getPlugin(type);
+						plugin.initData();	
+						transformerTableModel.setValueAt(plugin.getNewStepName(), row, STEP_NAME_COL);
+	                    stepPanel.showCard(type);
+	                    updateTaskPane(type);
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 
-                    if (type.equalsIgnoreCase(JAVASCRIPT_TYPE))
-                    {
-                        jsPanel.setData(null);
-                        updateTaskPane();
-                        getTableModel().setValueAt("New Step", row, STEP_NAME_COL);
-                    }
-                    else if (type.equalsIgnoreCase(MAPPER_TYPE))
-                    {
-                        Map<Object, Object> data = mapperPanel.getData();
-                        data.put("Variable", "");
-                        data.put("Mapping", "");
-                        data.put(UIConstants.IS_GLOBAL, UIConstants.IS_GLOBAL_CONNECTOR);
-                        mapperPanel.setData(data);
-                        updateTaskPane();
-                        getTableModel().setValueAt("", row, STEP_NAME_COL);
-                    }
-                    else if (type.equalsIgnoreCase(MESSAGE_TYPE))
-                    {
-                        Map<Object, Object> data = builderPanel.getData();
-                        data.put("Variable", "");
-                        data.put("Mapping", "");
-                        builderPanel.setData(data);
-                        updateTaskPane();
-                        getTableModel().setValueAt("", row, STEP_NAME_COL);
-                    }
-                    stepPanel.showCard(type);
+
                 }
             }
         });
@@ -679,7 +715,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
             transformerTable.setRowSelectionInterval(row, row);
 
             prevSelRow = row;
-            updateTaskPane();
+            updateTaskPane(type);
         }
 
         updating = false;
@@ -729,76 +765,19 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
         if (transformerTable.isEditing())
             transformerTable.getCellEditor(transformerTable.getEditingRow(), transformerTable.getEditingColumn()).stopCellEditing();
 
-        //updating = true;
-
         if (isValid(row))
         {
-            Map<Object, Object> data = new HashMap<Object, Object>();
             String type = (String) transformerTable.getValueAt(row, STEP_TYPE_COL);
-
-            if (type.equals(MAPPER_TYPE))
-            {
-                data = mapperPanel.getData();
-                String var = data.get("Variable").toString();
-
-                if (var == null || var.equals("") || !isUnique(var, row, false) || var.indexOf(" ") != -1 || var.indexOf(".") != -1)
-                {
-                    invalidVar = true;
-                    String msg = "";
-
-                    transformerTable.setRowSelectionInterval(row, row);
-
-                    if (var == null || var.equals(""))
-                        msg = "The variable name cannot be blank.";
-                    else if (var.indexOf(" ") != -1 || var.indexOf(".") != -1)
-                        msg = "The variable name contains invalid characters.";
-                    else
-                        // var is not unique
-                        msg = "'" + data.get("Variable") + "'" + " is not unique.";
-                    msg += "\nPlease enter a new variable name.\n";
-
-                    parent.alertWarning(msg);
-                }
-                else
-                {
-                    invalidVar = false;
-                }
-                data = mapperPanel.getData();
-
-            }
-            else if (type.equals(JAVASCRIPT_TYPE))
-            {
-                data = jsPanel.getData();
-            }
-            else if (type.equals(MESSAGE_TYPE))
-            {
-                data = builderPanel.getData();
-                String var = data.get("Variable").toString();
-
-                // check for empty variable names
-                if (var == null || var.equals(""))
-                {
-                    invalidVar = true;
-                    String msg = "";
-
-                    transformerTable.setRowSelectionInterval(row, row);
-
-                    if (var == null || var.equals(""))
-                        msg = "The mapping field cannot be blank.";
-
-                    msg += "\nPlease enter a new mapping field name.\n";
-
-                    parent.alertWarning(msg);
-                }
-                else
-                    invalidVar = false;
-
-                data = builderPanel.getData();
-            }
-            transformerTableModel.setValueAt(data, row, STEP_DATA_COL);
+            Map<Object, Object> data;
+			try {
+				data = getPlugin(type).getData(row);
+				transformerTableModel.setValueAt(data, row, STEP_DATA_COL);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+            
         }
-
-        //updating = false;
     }
 
     /**
@@ -810,7 +789,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
         {
             String type = (String) transformerTableModel.getValueAt(row, STEP_TYPE_COL);
             Map<Object, Object> data = (Map<Object, Object>) transformerTableModel.getValueAt(row, STEP_DATA_COL);
-
+            
             setPanelData(type, data);
         }
 
@@ -822,14 +801,26 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
 
     private void setPanelData(String type, Map<Object, Object> data)
     {
-        if (type.equalsIgnoreCase(MAPPER_TYPE))
-            mapperPanel.setData(data);
-        else if (type.equalsIgnoreCase(JAVASCRIPT_TYPE))
-            jsPanel.setData(data);
-        else if (type.equalsIgnoreCase(MESSAGE_TYPE))
-            builderPanel.setData(data);
+    	TransformerStepPlugin plugin;
+		try {
+			plugin = getPlugin(type);
+			plugin.setData(data);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
-
+    private TransformerStepPlugin getPlugin(String name) throws Exception{
+    	TransformerStepPlugin plugin = loadedPlugins.get(name);
+    	if (plugin == null){
+    		String message = "Unable to find Transformer Step Plugin: " + name;
+    		Exception e = new Exception(message);
+        	parent.alertException(e.getStackTrace(), message);
+        	throw new Exception(e);
+        }else{
+        	return plugin;
+        }
+    }
     /**
      * prepData( int row ) works to move the data in a panel for moves or
      * deletes
@@ -843,20 +834,30 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
 
     private void setRowData(Step step, int row)
     {
+    	//TODO: Check the logic of this with plugins
         Object[] tableData = new Object[NUMBER_OF_COLUMNS];
 
         tableData[STEP_NUMBER_COL] = step.getSequenceNumber();
-        if (step.getType().equalsIgnoreCase(MAPPER_TYPE) || step.getType().equalsIgnoreCase(MESSAGE_TYPE))
-            tableData[STEP_NAME_COL] = (String) ((Map<Object, Object>) step.getData()).get("Variable");
-        else
-            tableData[STEP_NAME_COL] = step.getName();
-        tableData[STEP_TYPE_COL] = step.getType();
-        tableData[STEP_DATA_COL] = step.getData();
+        TransformerStepPlugin plugin;
+		try {
+			plugin = getPlugin(step.getType());
+			String stepName = plugin.getStepName();
+	        if (stepName == null){
+	        	stepName = step.getName();
+	        }
+	        tableData[STEP_NAME_COL] = stepName;
+	        tableData[STEP_TYPE_COL] = step.getType();
+	        tableData[STEP_DATA_COL] = step.getData();
 
-        updating = true;
-        transformerTableModel.addRow(tableData);
-        transformerTable.setRowSelectionInterval(row, row);
-        updating = false;
+	        updating = true;
+	        transformerTableModel.addRow(tableData);
+	        transformerTable.setRowSelectionInterval(row, row);
+	        updating = false;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+       
     }
 
     /**
@@ -873,30 +874,37 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
             Step step = new Step();
             step.setSequenceNumber(rowCount);
             step.setScript("");
-
-            Map<Object, Object> data = new HashMap<Object, Object>();
-            data.put("Mapping", "");
             step.setName("");
-            data.put("Variable", step.getName());
 
+            for (TransformerStepPlugin plugin : loadedPlugins.values()){
+        		plugin.clearData();
+        	}
             if (tabTemplatePanel.tabPanel.getSelectedComponent() == tabTemplatePanel.outgoingTab)
             {
-                step.setType(MESSAGE_TYPE); // hl7 message type by default,
-                // outbound
-                builderPanel.setData(data);
-                mapperPanel.setData(null);
-                jsPanel.setData(null);
+            	if (loadedPlugins.containsKey(MESSAGE_BUILDER)){
+            		step.setType(MESSAGE_BUILDER);// hl7 message type by default, outbound
+            		
+            		loadedPlugins.get(MESSAGE_BUILDER).initData();
+            	}else{
+            		step.setType(loadedPlugins.keySet().iterator().next());
+            	}
             }
             else
             {
-                step.setType(MAPPER_TYPE); // mapper type by default, inbound
-                mapperPanel.setData(data);
-                builderPanel.setData(null);
-                jsPanel.setData(null);
+            	if (loadedPlugins.containsKey(MAPPER)){
+            		step.setType(MAPPER); // mapper type by default, inbound
+            		loadedPlugins.get(MAPPER).initData();
+            	}else{
+            		System.out.println("Mapper Plugin not found");
+            		step.setType(loadedPlugins.keySet().iterator().next());
+            	}
             }
-
-            step.setData(data);
-            setRowData(step, rowCount);
+			Map<Object, Object> data = new HashMap<Object, Object>();
+            data.put("Mapping", "");
+            data.put("Variable", step.getName());
+			
+			step.setData(data);
+			setRowData(step, rowCount);
             prevSelRow = rowCount;
             updateStepNumbers();
             transformerTable.setRowSelectionInterval(rowCount, rowCount);
@@ -932,10 +940,10 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
         else
         {
             stepPanel.showCard(BLANK_TYPE);
-            mapperPanel.setData(null);
-            jsPanel.setData(null);
+            for (TransformerStepPlugin plugin : loadedPlugins.values()){
+            	plugin.clearData();
+            }
         }
-
         updateStepNumbers();
     }
 
@@ -1045,20 +1053,14 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
      */
     public void doValidate()
     {
-        try
-        {
-            Context context = Context.enter();
-            Script compiledFilterScript = context.compileString("function rhinoWrapper() {" + jsPanel.getJavaScript() + "}", null, 1, null);
-            parent.alertInformation("JavaScript was successfully validated.");
-        }
-        catch (EvaluatorException e)
-        {
-            parent.alertInformation("Error on line " + e.lineNumber() + ": " + e.getMessage() + ".");
-        }
-        finally
-        {
-            Context.exit();
-        }
+    	String type = (String) transformerTable.getValueAt(transformerTable.getSelectedRow(), STEP_TYPE_COL);
+		try {
+			getPlugin(type).doValidate();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	
     }
 
     /**
@@ -1104,58 +1106,12 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
             step.setData((Map) transformerTableModel.getValueAt(i, STEP_DATA_COL));
 
             HashMap map = (HashMap) step.getData();
-            if (step.getType().equals(TransformerPane.MAPPER_TYPE))
-            {
-                String regexArray = buildRegexArray(map);
-
-                StringBuilder script = new StringBuilder();
-
-                if (map.get(UIConstants.IS_GLOBAL) != null)
-                    script.append((String)map.get(UIConstants.IS_GLOBAL) + "Map.put(");
-                else
-                    script.append(UIConstants.IS_GLOBAL_CONNECTOR + "Map.put(");
-
-                // default values need to be provided
-                // so we don't cause syntax errors in the JS
-                script.append("'" + map.get("Variable") + "', ");
-                String defaultValue = (String) map.get("DefaultValue");
-                if (defaultValue.length() == 0)
-                {
-                    defaultValue = "''";
-                }
-                String mapping = (String) map.get("Mapping");
-                if (mapping.length() == 0)
-                {
-                    mapping = "''";
-                }
-                script.append("validate(" + mapping + ", " + defaultValue + ", " + regexArray + "));");
-                step.setScript(script.toString());
-            }
-            else if (step.getType().equals(TransformerPane.JAVASCRIPT_TYPE))
-            {
-                step.setScript(map.get("Script").toString());
-            }
-            else if (step.getType().equals(TransformerPane.MESSAGE_TYPE))
-            {
-                String regexArray = buildRegexArray(map);
-                StringBuilder script = new StringBuilder();
-                String variable = (String) map.get("Variable");
-                String defaultValue = (String) map.get("DefaultValue");
-                if (defaultValue.length() == 0)
-                {
-                    defaultValue = "''";
-                }
-                String mapping = (String) map.get("Mapping");
-                if (mapping.length() == 0)
-                {
-                    mapping = "''";
-                }
-                script.append(variable);
-                script.append(" = ");
-                script.append("validate(" + mapping + ", " + defaultValue + ", " + regexArray + ");");
-                step.setScript(script.toString());
-            }
-
+            try {
+				step.setScript(getPlugin(step.getType()).getScript(map));
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
             list.add(step);
         }
         return list;
@@ -1208,32 +1164,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
         return concatenatedSteps;
     }
 
-    private String buildRegexArray(HashMap map)
-    {
-        ArrayList<String[]> regexes = (ArrayList<String[]>) map.get("RegularExpressions");
-
-        StringBuilder regexArray = new StringBuilder();
-
-        regexArray.append("new Array(");
-
-        if(regexes.size() > 0)
-        {
-            for(int i = 0; i < regexes.size(); i++)
-            {
-                regexArray.append("new Array(" + regexes.get(i)[0] + ", " + regexes.get(i)[1] + ")");
-                if (i+1 == regexes.size())
-                    regexArray.append(")");
-                else
-                    regexArray.append(",");
-            }
-        }
-        else
-        {
-            regexArray.append(")");
-        }
-
-        return regexArray.toString();
-    }
+    
 
     /**
      * void accept(MouseEvent evt) returns a vector of vectors to the caller of
@@ -1290,7 +1221,14 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
             invalidVar = false;
         }
     }
-
+    public void setRowSelectionInterval(int index0, int index1){
+    	//if (transformerTable.getRowCount() > index0 && transformerTable.getRowCount() >= index1){
+    		transformerTable.setRowSelectionInterval(index0, index1);
+    	//}
+    }
+    public Frame getParentFrame(){
+    	return parent;
+    }
     /**
      * void updateStepNumbers() traverses the table and updates all data
      * numbers, both in the model and the view, after any change to the table
@@ -1301,7 +1239,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
 
         int rowCount = transformerTableModel.getRowCount();
         int selRow = transformerTable.getSelectedRow();
-
+        String type = new String();
         for (int i = 0; i < rowCount; i++)
             transformerTableModel.setValueAt(i, i, STEP_NUMBER_COL);
 
@@ -1309,16 +1247,19 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
         {
             transformerTable.setRowSelectionInterval(selRow, selRow);
             loadData(selRow);
-            stepPanel.showCard(transformerTableModel.getValueAt(selRow, STEP_TYPE_COL).toString());
+            type = transformerTableModel.getValueAt(selRow, STEP_TYPE_COL).toString();
+            stepPanel.showCard(type);
         }
         else if (rowCount > 0)
         {
             transformerTable.setRowSelectionInterval(0, 0);
             loadData(0);
-            stepPanel.showCard(transformerTableModel.getValueAt(0, STEP_TYPE_COL).toString());
+            type = transformerTableModel.getValueAt(0, STEP_TYPE_COL).toString();
+            stepPanel.showCard(type);
+            
         }
 
-        updateTaskPane();
+        updateTaskPane(type);
         updating = false;
     }
 
@@ -1326,7 +1267,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
      * updateTaskPane() configure the task pane so that it shows only relevant
      * tasks
      */
-    public void updateTaskPane()
+    public void updateTaskPane(String newType)
     {
         int rowCount = transformerTableModel.getRowCount();
         if (rowCount <= 0)
@@ -1347,16 +1288,16 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
                 parent.setVisibleTasks(transformerTasks, transformerPopupMenu, 6, 6, false);
         }
         parent.setVisibleTasks(transformerTasks, transformerPopupMenu, 2, 3, true);
-        String type = null;
-        int selectedRow = getSelectedRow();
-        if (selectedRow > -1)
-        {
-            type = (String) transformerTableModel.getValueAt(getSelectedRow(), STEP_TYPE_COL);
-        }
-        if (type != null && type.equals(JAVASCRIPT_TYPE))
-            parent.setVisibleTasks(transformerTasks, transformerPopupMenu, 4, 4, true);
-        else
-            parent.setVisibleTasks(transformerTasks, transformerPopupMenu, 4, 4, false);
+       
+        try {
+        	if (newType != null && !newType.equals(""))
+        		parent.setVisibleTasks(transformerTasks, transformerPopupMenu, 4, 4, getPlugin(newType).showValidateTask());
+        	else
+        		parent.setVisibleTasks(transformerTasks, transformerPopupMenu, 4, 4, false);
+		} catch (Exception e) {
+			
+			e.printStackTrace();
+		}
     }
 
     public int getSelectedRow()
@@ -1378,15 +1319,21 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
 
     public void setHighlighters()
     {
-        jsPanel.setHighlighters();
-        mapperPanel.setHighlighters();
-        builderPanel.setHighlighters();
+    	for (TransformerStepPlugin plugin : loadedPlugins.values()){
+    		plugin.setHighlighters();
+    	}
     }
 
     public void unsetHighlighters()
     {
-        jsPanel.unsetHighlighters();
-        mapperPanel.unsetHighlighters();
-        builderPanel.unsetHighlighters();
+    	for (TransformerStepPlugin plugin : loadedPlugins.values()){
+    		plugin.unsetHighlighters();
+    	}
     }
+	public boolean isInvalidVar() {
+		return invalidVar;
+	}
+	public void setInvalidVar(boolean invalidVar) {
+		this.invalidVar = invalidVar;
+	}
 }

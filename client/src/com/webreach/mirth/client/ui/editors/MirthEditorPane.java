@@ -66,7 +66,10 @@ public class MirthEditorPane extends JPanel
     public JScrollPane referenceScrollPane;
     public JPanel refPanel;
     public TabbedTemplatePanel tabTemplatePanel;
-
+    
+    public void updateTaskPane(String type){
+    	
+    }
     public MirthEditorPane()
     {
         super();
@@ -82,9 +85,6 @@ public class MirthEditorPane extends JPanel
         this.setPreferredSize(new Dimension(0, 0));
     }
 
-    public void updateTaskPane()
-    {
-    }
 
     public int getSelectedRow()
     {

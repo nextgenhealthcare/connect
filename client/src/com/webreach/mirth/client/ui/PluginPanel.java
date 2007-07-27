@@ -18,6 +18,7 @@ import javax.swing.event.ChangeListener;
 
 import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.model.ExtensionPoint;
+import com.webreach.mirth.model.ExtensionPointDefinition;
 import com.webreach.mirth.model.PluginMetaData;
 import com.webreach.mirth.plugins.ClientPanelPlugin;
 
@@ -51,6 +52,7 @@ public class PluginPanel extends javax.swing.JPanel
         tabs.addChangeListener(changeListener);
     }
     //Extension point for ExtensionPoint.Type.CLIENT_PANEL
+    @ExtensionPointDefinition(mode=ExtensionPoint.Mode.CLIENT, type=ExtensionPoint.Type.CLIENT_PANEL)
     public void loadPlugins()
     {
         loadedPlugins = new HashMap<String,ClientPanelPlugin>();
@@ -66,7 +68,7 @@ public class PluginPanel extends javax.swing.JPanel
 		            	for (ExtensionPoint extensionPoint : metaData.getExtensionPoints()){
 			                if(extensionPoint.getMode() == ExtensionPoint.Mode.CLIENT && extensionPoint.getType() == ExtensionPoint.Type.CLIENT_PANEL && extensionPoint.getClassName() != null && extensionPoint.getClassName().length() > 0)
 			                {
-		                        String pluginName = metaData.getName();
+		                        String pluginName = extensionPoint.getName();
 		                        
 		                        ClientPanelPlugin clientPlugin = (ClientPanelPlugin) Class.forName(extensionPoint.getClassName()).getDeclaredConstructors()[0].newInstance(new Object[]{pluginName});
 		                        

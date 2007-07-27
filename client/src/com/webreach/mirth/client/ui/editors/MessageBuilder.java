@@ -135,7 +135,7 @@ public class MessageBuilder extends BasePanel
                 public void run()
                 {
                     parent.getTableModel().setValueAt(variableTextField.getText(), parent.getSelectedRow(), parent.STEP_NAME_COL);
-                    parent.updateTaskPane();
+                    parent.updateTaskPane(parent.getTableModel().getValueAt(parent.getSelectedRow(), parent.STEP_TYPE_COL).toString());
                 }
             });
         }

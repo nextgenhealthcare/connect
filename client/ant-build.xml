@@ -108,6 +108,12 @@
 			<include name="com/webreach/mirth/plugins/pluginmanager/**" />
 		</jar>
 		
+		<jar destfile="${dist}/plugins/mirth-core-transformer-steps-client.jar" basedir="${classes}">
+			<include name="com/webreach/mirth/plugins/transformer/step/javascript/**" />
+			<include name="com/webreach/mirth/plugins/transformer/step/mapper/**" />
+			<include name="com/webreach/mirth/plugins/transformer/step/messagebuilder/**" />
+		</jar>
+		
 		<!-- copy source files -->
 		<copy todir="${dist.source}">
 			<fileset dir="${src}">
