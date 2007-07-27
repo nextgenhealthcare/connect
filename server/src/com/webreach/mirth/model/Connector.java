@@ -50,7 +50,7 @@ public class Connector implements Serializable {
 	private Filter filter;
 	private String transportName;
 	private Mode mode;
-	private boolean enabled;
+	private boolean enabled = true;
 
 	public Connector() {
 		this.properties = new Properties();
