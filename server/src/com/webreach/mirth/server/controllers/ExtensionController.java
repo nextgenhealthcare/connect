@@ -37,6 +37,7 @@ import java.util.Properties;
 import org.apache.log4j.Logger;
 
 import com.webreach.mirth.model.ConnectorMetaData;
+import com.webreach.mirth.model.ExtensionPointDefinition;
 import com.webreach.mirth.model.PluginMetaData;
 import com.webreach.mirth.model.ExtensionPoint;
 import com.webreach.mirth.plugins.ServerPlugin;
@@ -99,7 +100,8 @@ public class ExtensionController
 
         initPlugins();
     }
-
+    //Extension point for ExtensionPoint.Type.SERVER_PLUGIN
+    @ExtensionPointDefinition(mode=ExtensionPoint.Mode.SERVER, type=ExtensionPoint.Type.SERVER_PLUGIN)
     public void initPlugins()
     {
         loadedPlugins = new HashMap<String, ServerPlugin>();
@@ -116,7 +118,7 @@ public class ExtensionController
 		                		extensionPoint.getClassName().length() > 0)
 		                {
 		                    ServerPlugin serverPlugin = (ServerPlugin) Class.forName(extensionPoint.getClassName()).newInstance();
-		                    String pluginName = metaData.getName();
+		                    String pluginName = extensionPoint.getName();
 		                    Properties properties = null;
 		    
 		                    try

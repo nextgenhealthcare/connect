@@ -7,11 +7,18 @@ public class ExtensionPoint {
 		SERVER, CLIENT
 	};
 	public enum Type{
-		SERVER_PLUGIN, SERVER_CONNECTOR_STATUS, CLIENT_PANEL, CLIENT_VOCABULARY, CLIENT_STEP_TYPE, CLIENT_DASHBOARD
+		SERVER_PLUGIN, SERVER_CONNECTOR_STATUS, CLIENT_PANEL, CLIENT_VOCABULARY, CLIENT_TRANSFORMER_STEP, CLIENT_DASHBOARD
 	};
+	private String name;
 	private Type type;
 	private String className;
 	private Mode mode;
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
 	public String getClassName() {
 		return className;
 	}
@@ -55,4 +62,5 @@ public class ExtensionPoint {
         builder.append("type=" + getType() + "]");
 		return builder.toString();
 	}
+	
 }

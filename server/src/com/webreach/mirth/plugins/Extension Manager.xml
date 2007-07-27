@@ -5,6 +5,7 @@
   <mirthVersion>1.6.0</mirthVersion>
   <enabled>true</enabled>
   <extensionPoint>
+  	<name>Extension Manager</name>
     <type>CLIENT_PANEL</type>
     <className>com.webreach.mirth.plugins.pluginmanager.PluginManagerClient</className>
     <mode>CLIENT</mode>

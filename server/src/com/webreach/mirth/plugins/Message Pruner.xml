@@ -5,11 +5,13 @@
   <mirthVersion>1.6.0</mirthVersion>
   <enabled>true</enabled>
   <extensionPoint>
+  	<name>Message Pruner</name>
     <type>CLIENT_PANEL</type>
     <className>com.webreach.mirth.plugins.messagepruner.MessagePrunerClient</className>
     <mode>CLIENT</mode>
   </extensionPoint>
   <extensionPoint>
+  	<name>Message Pruner</name>
     <type>SERVER_PLUGIN</type>
     <className>com.webreach.mirth.plugins.messagepruner.MessagePrunerService</className>
     <mode>SERVER</mode>
