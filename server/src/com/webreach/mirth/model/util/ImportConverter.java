@@ -115,7 +115,13 @@ public class ImportConverter
     {
         String channelXML = "";
         Element channelRoot = document.getDocumentElement();
-
+        
+        String version = channelRoot.getElementsByTagName("version").item(0).getTextContent();
+        
+        int majorVersion = Integer.parseInt(version.split("\\.")[0]);
+        int minorVersion = Integer.parseInt(version.split("\\.")[1]);
+        int patchVersion = Integer.parseInt(version.split("\\.")[2]);
+        
         Direction direction = null;
         Mode mode = null;
 
@@ -239,38 +245,47 @@ public class ImportConverter
                     document = getUpdatedTransformer(document, Direction.INBOUND, (Element) destinationsConnectors.item(i));
                 }
             }
+        }        
+        
+        if(minorVersion < 5)
+        {
+            updateTransformerFor1_5(document);
         }
         
-        // Go through each connector and set it to enabled if that property doesn't exist.
-        Element sourceConnectorRoot = (Element) document.getDocumentElement().getElementsByTagName("sourceConnector").item(0);
-        
-        if (sourceConnectorRoot.getElementsByTagName("enabled").getLength() == 0)
+        if(minorVersion < 6)
         {
-        	Element enabled = document.createElement("enabled");
-            enabled.setTextContent("true");
-        	sourceConnectorRoot.appendChild(enabled);
-        }
-        
-        Element destinationConnectorRoot = (Element) document.getDocumentElement().getElementsByTagName("destinationConnectors").item(0);
-        NodeList destinationsConnectors = destinationConnectorRoot.getElementsByTagName("com.webreach.mirth.model.Connector");
-        
-        for (int i = 0; i < destinationsConnectors.getLength(); i++)
-        {
-        	Element destinationConnector = (Element)destinationsConnectors.item(i);
-        	if (destinationConnector.getElementsByTagName("enabled").getLength() == 0)
-        	{
-        		Element enabled = document.createElement("enabled");
-                enabled.setTextContent("true");
-        		destinationConnector.appendChild(enabled);
-        	}
-        }
-        
-        if(channelRoot.getElementsByTagName("version").getLength() > 0)
-        {
-            String version = channelRoot.getElementsByTagName("version").item(0).getTextContent();
-            if(Integer.parseInt(version.split("\\.")[1]) < 5)
+            // Go through each connector and set it to enabled if that property doesn't exist.
+            Element sourceConnectorRoot = (Element) document.getDocumentElement().getElementsByTagName("sourceConnector").item(0);
+            
+            if (sourceConnectorRoot.getElementsByTagName("enabled").getLength() == 0)
             {
-                updateTransformerFor1_5(document);
+                Element enabled = document.createElement("enabled");
+                enabled.setTextContent("true");
+                sourceConnectorRoot.appendChild(enabled);
+            }
+            else
+            {
+                Element enabled = (Element)sourceConnectorRoot.getElementsByTagName("enabled").item(0);
+                enabled.setTextContent("true");
+            }
+            
+            Element destinationConnectorRoot = (Element) document.getDocumentElement().getElementsByTagName("destinationConnectors").item(0);
+            NodeList destinationsConnectors = destinationConnectorRoot.getElementsByTagName("com.webreach.mirth.model.Connector");
+            
+            for (int i = 0; i < destinationsConnectors.getLength(); i++)
+            {
+                Element destinationConnector = (Element)destinationsConnectors.item(i);
+                if (destinationConnector.getElementsByTagName("enabled").getLength() == 0)
+                {
+                    Element enabled = document.createElement("enabled");
+                    enabled.setTextContent("true");
+                    destinationConnector.appendChild(enabled);
+                }
+                else
+                {
+                    Element enabled = (Element)destinationConnector.getElementsByTagName("enabled").item(0);
+                    enabled.setTextContent("true");
+                }
             }
         }
 
