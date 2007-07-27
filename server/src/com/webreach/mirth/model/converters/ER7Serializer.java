@@ -119,7 +119,13 @@ public class ER7Serializer implements IXMLSerializer<String> {
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-				builder.append(os.toString());
+				//Allow non entity encoded messages to work
+				if (encodeEntities){
+					builder.append(os.toString());
+				}else{
+					builder.append(os.toString().replaceAll("&","&amp;"));
+				}
+				
 			} catch (Exception e) {
 				String exceptionMessage = e.getClass().getName() + ":" + e.getMessage();
 				logger.error(exceptionMessage);
