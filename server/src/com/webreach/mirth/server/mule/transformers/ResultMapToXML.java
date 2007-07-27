@@ -27,8 +27,8 @@ package com.webreach.mirth.server.mule.transformers;
 
 import java.io.IOException;
 import java.io.Reader;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -39,7 +39,6 @@ import org.w3c.dom.Element;
 
 import com.webreach.mirth.model.converters.DocumentSerializer;
 import com.webreach.mirth.server.util.StackTracePrinter;
-import java.util.Map;
 
 /**
  * Transforms a database result row map into an XML string.
