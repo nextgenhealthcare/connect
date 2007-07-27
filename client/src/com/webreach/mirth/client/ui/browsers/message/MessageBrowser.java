@@ -111,7 +111,7 @@ public class MessageBrowser extends javax.swing.JPanel
     
     private int messageCount = -1;
     private int currentPage = 0;
-    private int pageSize = 20;
+    private int pageSize;
     
     /**
      * Constructs the new message browser and sets up its default
@@ -198,8 +198,10 @@ public class MessageBrowser extends javax.swing.JPanel
      */
     public void loadNew()
     {
-        // Clear the table first
-    	
+        // Set the default page size
+        pageSize = Preferences.systemNodeForPackage(Mirth.class).getInt("messageBrowserPageSize", 20);
+    	pageSizeField.setText(pageSize + "");
+        
         // use the start filters and make the table.
         parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 6, -1, false);
         parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 7, 7, true);
@@ -385,8 +387,6 @@ public class MessageBrowser extends javax.swing.JPanel
         int messageObjectListSize = 0;
         if (messageObjectList != null)
         	messageObjectListSize = messageObjectList.size();
-        
-        pageSizeField.setText(pageSize + "");
         
         if (currentPage == 0)
             previousPageButton.setEnabled(false);

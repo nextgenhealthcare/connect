@@ -89,6 +89,8 @@ public class SettingsPanel extends javax.swing.JPanel
         intervalTime = new com.webreach.mirth.client.ui.components.MirthTextField();
         rowHighlightYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         rowHighlightNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        messageBrowserPageSizeField = new com.webreach.mirth.client.ui.components.MirthTextField();
+        jLabel3 = new javax.swing.JLabel();
         serverSettings = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
         clearGlobalMapYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
@@ -112,7 +114,7 @@ public class SettingsPanel extends javax.swing.JPanel
         setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         clientSettings.setBackground(new java.awt.Color(255, 255, 255));
         clientSettings.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1), "Client", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11), new java.awt.Color(0, 0, 0)));
-        jLabel6.setText("Status refresh interval (in seconds):");
+        jLabel6.setText("Status refresh interval (seconds):");
 
         jLabel7.setText("Alternate row highlighting in tables:");
 
@@ -129,6 +131,8 @@ public class SettingsPanel extends javax.swing.JPanel
         rowHighlightNo.setText("No");
         rowHighlightNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
+        jLabel3.setText("Message Browser Page Size:");
+
         org.jdesktop.layout.GroupLayout clientSettingsLayout = new org.jdesktop.layout.GroupLayout(clientSettings);
         clientSettings.setLayout(clientSettingsLayout);
         clientSettingsLayout.setHorizontalGroup(
@@ -137,9 +141,11 @@ public class SettingsPanel extends javax.swing.JPanel
                 .addContainerGap()
                 .add(clientSettingsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
                     .add(jLabel6)
-                    .add(jLabel7))
+                    .add(jLabel7)
+                    .add(jLabel3))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(clientSettingsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(messageBrowserPageSizeField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 78, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(clientSettingsLayout.createSequentialGroup()
                         .add(rowHighlightYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -157,7 +163,12 @@ public class SettingsPanel extends javax.swing.JPanel
                 .add(clientSettingsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(rowHighlightYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(rowHighlightNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel7)))
+                    .add(jLabel7))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .add(clientSettingsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(messageBrowserPageSizeField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jLabel3))
+                .addContainerGap())
         );
 
         serverSettings.setBackground(new java.awt.Color(255, 255, 255));
@@ -326,7 +337,7 @@ public class SettingsPanel extends javax.swing.JPanel
                     .add(serverSettings, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(clientSettings, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(jPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(15, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -371,9 +382,13 @@ public class SettingsPanel extends javax.swing.JPanel
     public void loadSettings()
     {
         intervalTime.setDocument(new MirthFieldConstraints(3, false, false, true));
+        messageBrowserPageSizeField.setDocument(new MirthFieldConstraints(3, false, false, true));
         userPreferences = Preferences.systemNodeForPackage(Mirth.class);
         int interval = userPreferences.getInt("intervalTime", 10);
         intervalTime.setText(interval + "");
+        
+        int messageBrowserPageSize = userPreferences.getInt("messageBrowserPageSize", 20);
+        messageBrowserPageSizeField.setText(messageBrowserPageSize + "");
 
         if (userPreferences.getBoolean("highlightRows", true))
             rowHighlightYes.setSelected(true);
@@ -446,16 +461,28 @@ public class SettingsPanel extends javax.swing.JPanel
     /** Saves the current settings from the settings form */
     public void saveSettings()
     {
-        int interval = Integer.parseInt(intervalTime.getText());
-
         if (intervalTime.getText().length() == 0)
+        {
             parent.alertWarning("Please enter a valid interval time.");
-        else if (interval <= 0)
+            return;
+        }
+        if (messageBrowserPageSizeField.getText().length() == 0)
+        {
+            parent.alertWarning("Please enter a valid message browser page size.");
+            return;
+        }
+        
+        int interval = Integer.parseInt(intervalTime.getText());
+        int messageBrowserPageSize = Integer.parseInt(messageBrowserPageSizeField.getText());
+        
+        if (interval <= 0)
             parent.alertWarning("Please enter an interval time that is larger than 0.");
+        else if (messageBrowserPageSize <= 0)
+            parent.alertWarning("Please enter an message browser page size larger than 0.");
         else
         {
-            userPreferences.putInt("intervalTime", Integer.parseInt(intervalTime.getText()));
-            parent.settingsTasks.getContentPane().getComponent(1).setVisible(false);
+            userPreferences.putInt("intervalTime", interval);
+            userPreferences.putInt("messageBrowserPageSize", messageBrowserPageSize);
             userPreferences.putBoolean("highlightRows", rowHighlightYes.isSelected());
             
             if(clearGlobalMapNo.isSelected())
@@ -488,6 +515,7 @@ public class SettingsPanel extends javax.swing.JPanel
             {
                 ex.printStackTrace();
             }
+            parent.settingsTasks.getContentPane().getComponent(1).setVisible(false);
         }
     }
 
@@ -505,9 +533,11 @@ public class SettingsPanel extends javax.swing.JPanel
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JPanel jPanel1;
+    private com.webreach.mirth.client.ui.components.MirthTextField messageBrowserPageSizeField;
     private javax.swing.JLabel passwordLabel;
     private com.webreach.mirth.client.ui.components.MirthRadioButton requireAuthenticationNo;
     private com.webreach.mirth.client.ui.components.MirthRadioButton requireAuthenticationYes;
