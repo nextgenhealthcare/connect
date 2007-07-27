@@ -245,7 +245,7 @@ public class ER7Serializer implements IXMLSerializer<String> {
 		}
 	}
 
-	private String getXMLValue(String source, String startTag, String endTag) {
+	public String getXMLValue(String source, String startTag, String endTag) {
 		String returnValue = "";
 		int startLoc = -1;
 		if ((startLoc = source.indexOf(startTag)) != -1) {

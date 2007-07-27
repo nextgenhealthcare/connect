@@ -58,6 +58,8 @@ import ca.uhn.hl7v2.validation.impl.NoValidation;
 import com.webreach.mirth.connectors.mllp.protocols.LlpProtocol;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.Response;
+import com.webreach.mirth.model.converters.ER7Serializer;
+import com.webreach.mirth.model.converters.SerializerFactory;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.util.BatchMessageProcessor;
@@ -425,17 +427,7 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 					Object payload = returnMessage.getPayload();
 					if (payload instanceof MessageObject) {
 						MessageObject messageObjectResponse = (MessageObject) payload;
-						// DEBUG ONLY!!!
 						Map responseMap = messageObjectResponse.getResponseMap();
-						// for (Iterator iter =
-						// responseMap.entrySet().iterator();
-						// iter.hasNext();) {
-						// java.util.Map.Entry element =
-						// (java.util.Map.Entry) iter.next();
-						// System.out.println(element.getKey() + ": " +
-						// element.getValue());
-						// }
-						// DEBUG ONLY END
 						String errorString = "";
 
 						if (connector.isResponseFromTransformer() && !connector.getResponseValue().equalsIgnoreCase("None")) {
@@ -448,7 +440,6 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 								bos.close();
 							} else {
 								protocol.write(os, ((Response) responseMap.get(connector.getResponseValue())).getMessage().getBytes(connector.getCharsetEncoding()));
-
 							}
 						} else {
 							// we only want the first line
@@ -503,17 +494,14 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 			if (connector.getSendACK()) {
 				// Check if we have to look at MSH15
 				if (connector.isCheckMSH15()) {
-					//TODO: Change to use non-strict parser
 					// MSH15 Dictionary:
 					// AL: Always
 					// NE: Never
 					// ER: Error / Reject condition
 					// SU: Successful completion only
-					PipeParser parser = new PipeParser();
-					parser.setValidationContext(new NoValidation());
-					ca.uhn.hl7v2.model.Message hl7message = parser.parse(message.trim());
-					Terser terser = new Terser(hl7message);
-					String msh15 = terser.get("/MSH-15-1");
+					ER7Serializer serializer = SerializerFactory.getHL7Serializer(false, false);
+					String xmlMessage = serializer.toXML(message.trim());
+					String msh15 = serializer.getXMLValue(xmlMessage, "<msh.15.1>", "</msh.15.1>");
 					if (msh15 != null && !msh15.equals("")) {
 						if (msh15.equalsIgnoreCase("AL")) {
 							always = true;
