@@ -31,7 +31,7 @@ public class StatisticsControllerTest extends TestCase {
 		sampleChannel.setName("Sample Channel");
 		sampleChannel.setDescription("This is a sample channel");
 		sampleChannel.setEnabled(true);
-		sampleChannel.setVersion(configurationController.getVersion());
+		sampleChannel.setVersion(configurationController.getServerVersion());
 		sampleChannel.setRevision(0);
 		sampleChannel.setSourceConnector(new Connector());
 		sampleChannel.setPreprocessingScript("return 1;");

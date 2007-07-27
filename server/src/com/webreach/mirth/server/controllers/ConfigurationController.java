@@ -513,10 +513,14 @@ public class ConfigurationController {
 		}
 	}
 
-	public String getVersion() {
+	public String getServerVersion() {
 		return versionProperties.getProperty("mirth.version");
 	}
-
+	
+    public int getSchemaVersion() {
+        return Integer.parseInt(versionProperties.getProperty("schema.version"));
+    }
+    
 	public String getBuildDate() {
 		return versionProperties.getProperty("mirth.date");
 	}

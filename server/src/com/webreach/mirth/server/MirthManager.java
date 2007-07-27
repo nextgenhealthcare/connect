@@ -350,7 +350,7 @@ public class MirthManager {
 	 * @throws MirthException
 	 */
 	public String getVersion() {
-		return configurationController.getVersion();
+		return configurationController.getServerVersion();
 	}
 
 	/**

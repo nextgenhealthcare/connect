@@ -31,6 +31,10 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 			FROM CONFIGURATION)
 	</select>
 	
+	<select id="getSchemaVersion" resultClass="java.lang.Integer">
+		SELECT VERSION FROM SCHEMA_INFO
+	</select>
+	
 	<delete id="deleteLatestConfiguration">
 		DELETE FROM CONFIGURATION
 		WHERE DATE_CREATED IN

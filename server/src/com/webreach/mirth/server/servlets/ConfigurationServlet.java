@@ -73,7 +73,7 @@ public class ConfigurationServlet extends MirthServlet {
 					out.println(serializer.toXML(configurationController.getDatabaseDrivers()));
 				} else if (operation.equals("getVersion")) {
 					response.setContentType("text/plain");
-					out.print(configurationController.getVersion());
+					out.print(configurationController.getServerVersion());
 				} else if (operation.equals("getBuildDate")) {
 					response.setContentType("text/plain");
 					out.print(configurationController.getBuildDate());

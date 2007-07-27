@@ -695,7 +695,7 @@ public class Shell {
 		String channelXML = "";
 
 		try {
-			channelXML = ImportConverter.convertChannel(importFile);
+			channelXML = ImportConverter.convertChannelFile(importFile);
 		} catch (Exception e1) {
 			System.out.println("Invalid channel file.");
 			return;

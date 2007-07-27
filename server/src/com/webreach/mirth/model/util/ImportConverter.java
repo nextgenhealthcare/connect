@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.StringReader;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -18,10 +17,12 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.Connector;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.MessageObject.Protocol;
 import com.webreach.mirth.model.converters.DocumentSerializer;
+import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 
 public class ImportConverter
 {
@@ -79,12 +80,23 @@ public class ImportConverter
         return message;
     }
     
-    /*
-     * Upgrade pre-1.4 channels to work with 1.4+
-     */
-    public static String convertChannel(File channel) throws Exception
+    public static Channel convertChannelObject(Channel channel) throws Exception
     {
-        String channelXML = "";
+        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+        String channelXML = removeInvalidHexChar(serializer.toXML(channel));
+        
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        Document document;
+        DocumentBuilder builder;
+
+        builder = factory.newDocumentBuilder();
+        document = builder.parse(channelXML);
+        
+        return (Channel) serializer.fromXML(convertChannel(document));
+    }
+    
+    public static String convertChannelFile(File channel) throws Exception
+    {
         String contents = removeInvalidHexChar(read(channel));
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         Document document;
@@ -92,6 +104,16 @@ public class ImportConverter
 
         builder = factory.newDocumentBuilder();
         document = builder.parse(new InputSource(new StringReader(contents)));
+        
+        return convertChannel(document);
+    }
+    
+    /*
+     * Upgrade pre-1.4 channels to work with 1.4+
+     */
+    public static String convertChannel(Document document) throws Exception
+    {
+        String channelXML = "";
         Element channelRoot = document.getDocumentElement();
 
         Direction direction = null;

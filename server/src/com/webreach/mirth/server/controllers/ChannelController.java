@@ -38,7 +38,9 @@ import org.apache.log4j.Logger;
 import com.ibatis.sqlmap.client.SqlMapClient;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.ChannelSummary;
+import com.webreach.mirth.model.util.ImportConverter;
 import com.webreach.mirth.server.util.SqlConfig;
+import com.webreach.mirth.util.PropertyVerifier;
 
 public class ChannelController {
 	private Logger logger = Logger.getLogger(this.getClass());
@@ -46,7 +48,8 @@ public class ChannelController {
 	private static HashMap<String, Channel> channelCache = new HashMap<String, Channel>();
 	private static HashMap<String, String> channelIdLookup = new HashMap<String, String>();
 	private ChannelStatisticsController statisticsController = ChannelStatisticsController.getInstance();
-    private ChannelStatusController statusController = ChannelStatusController.getInstance();
+    private ExtensionController extensionController = ExtensionController.getInstance();
+    private ConfigurationController configurationController = ConfigurationController.getInstance();
     
 	private static ChannelController instance = null;
 
@@ -69,6 +72,12 @@ public class ChannelController {
 			updateChannelCache(getChannel(null));
 
 			for (Channel channel : channelCache.values()) {
+                if(!channel.getVersion().equals(configurationController.getServerVersion())) {
+                    Channel updatedChannel = ImportConverter.convertChannelObject(channel);
+                    PropertyVerifier.checkChannelProperties(updatedChannel);
+                    PropertyVerifier.checkConnectorProperties(updatedChannel, extensionController.getConnectorMetaData());
+                    updateChannel(updatedChannel, true);
+                }
 				if (!statisticsController.checkIfStatisticsExist(channel.getId())) {
 					statisticsController.createStatistics(channel.getId());
 				}
@@ -218,7 +227,7 @@ public class ChannelController {
 		}
 
 		ConfigurationController configurationController = ConfigurationController.getInstance();
-		channel.setVersion(configurationController.getVersion());
+		channel.setVersion(configurationController.getServerVersion());
 
 		updateChannelInCache(channel);
 		try {
