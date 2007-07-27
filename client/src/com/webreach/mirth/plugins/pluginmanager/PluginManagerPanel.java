@@ -27,6 +27,7 @@ public class PluginManagerPanel extends javax.swing.JPanel
     
     private final String PLUGIN_NAME_COLUMN_NAME = "Plugin Name";
     private final String PLUGIN_AUTHOR_COLUMN_NAME = "Author";
+    private final String PLUGIN_URL_COLUMN_NAME = "URL";
     private final String PLUGIN_VERSION_COLUMN_NAME = "Plugin Version";
     private final String PLUGIN_MIRTH_VERSION_COLUMN_NAME = "Mirth Version";
     private final String PLUGIN_ENABLED_COLUMN_NAME = "Enabled";
@@ -58,6 +59,12 @@ public class PluginManagerPanel extends javax.swing.JPanel
         loadedConnectorsTable.getTableHeader().setReorderingAllowed(true);
         loadedConnectorsTable.setSortable(true);
         
+        loadedConnectorsTable.getColumnExt(PLUGIN_VERSION_COLUMN_NAME).setMaxWidth(75);
+        loadedConnectorsTable.getColumnExt(PLUGIN_VERSION_COLUMN_NAME).setMinWidth(75);
+        
+        loadedConnectorsTable.getColumnExt(PLUGIN_MIRTH_VERSION_COLUMN_NAME).setMaxWidth(75);
+        loadedConnectorsTable.getColumnExt(PLUGIN_MIRTH_VERSION_COLUMN_NAME).setMinWidth(75);
+        
         loadedConnectorsTable.getColumnExt(PLUGIN_ENABLED_COLUMN_NAME).setMaxWidth(50);
         loadedConnectorsTable.getColumnExt(PLUGIN_ENABLED_COLUMN_NAME).setMinWidth(50);
         
@@ -81,7 +88,7 @@ public class PluginManagerPanel extends javax.swing.JPanel
     {
         for(int i = 0; i < loadedConnectorsTable.getRowCount(); i++)
         {
-            connectorData.get(loadedConnectorsTable.getModel().getValueAt(i,0)).setEnabled(((Boolean)loadedConnectorsTable.getModel().getValueAt(i,4)).booleanValue());
+            connectorData.get(loadedConnectorsTable.getModel().getValueAt(i,0)).setEnabled(((Boolean)loadedConnectorsTable.getModel().getValueAt(i,5)).booleanValue());
         }
         return this.connectorData;
     }
@@ -94,19 +101,20 @@ public class PluginManagerPanel extends javax.swing.JPanel
         if (connectorData != null)
         {
             tableSize = connectorData.size();
-            tableData = new Object[tableSize][5];
+            tableData = new Object[tableSize][6];
             
             int i = 0;
             for (ConnectorMetaData metaData : connectorData.values())
             {
                 tableData[i][0] = metaData.getName();
                 tableData[i][1] = metaData.getAuthor();
-                tableData[i][2] = metaData.getPluginVersion();
-                tableData[i][3] = metaData.getMirthVersion();
+                tableData[i][2] = metaData.getUrl();
+                tableData[i][3] = metaData.getPluginVersion();
+                tableData[i][4] = metaData.getMirthVersion();
                 if (metaData.isEnabled())
-                    tableData[i][4] = Boolean.TRUE;
+                    tableData[i][5] = Boolean.TRUE;
                 else
-                    tableData[i][4] = Boolean.FALSE;
+                    tableData[i][5] = Boolean.FALSE;
                 i++;
             }
         }
@@ -119,9 +127,9 @@ public class PluginManagerPanel extends javax.swing.JPanel
         else
         {
             loadedConnectorsTable = new MirthTable();
-            loadedConnectorsTable.setModel(new RefreshTableModel(tableData, new String[] { PLUGIN_NAME_COLUMN_NAME, PLUGIN_AUTHOR_COLUMN_NAME, PLUGIN_VERSION_COLUMN_NAME, PLUGIN_MIRTH_VERSION_COLUMN_NAME, PLUGIN_ENABLED_COLUMN_NAME })
+            loadedConnectorsTable.setModel(new RefreshTableModel(tableData, new String[] { PLUGIN_NAME_COLUMN_NAME, PLUGIN_AUTHOR_COLUMN_NAME, PLUGIN_URL_COLUMN_NAME, PLUGIN_VERSION_COLUMN_NAME, PLUGIN_MIRTH_VERSION_COLUMN_NAME, PLUGIN_ENABLED_COLUMN_NAME })
             {
-                boolean[] canEdit = new boolean[] { false, false, false, false, true };
+                boolean[] canEdit = new boolean[] { false, false, false, false, false, true };
                 
                 public boolean isCellEditable(int rowIndex, int columnIndex)
                 {
@@ -147,6 +155,12 @@ public class PluginManagerPanel extends javax.swing.JPanel
         loadedPluginsTable.getTableHeader().setReorderingAllowed(true);
         loadedPluginsTable.setSortable(true);
         
+        loadedPluginsTable.getColumnExt(PLUGIN_VERSION_COLUMN_NAME).setMaxWidth(75);
+        loadedPluginsTable.getColumnExt(PLUGIN_VERSION_COLUMN_NAME).setMinWidth(75);
+        
+        loadedPluginsTable.getColumnExt(PLUGIN_MIRTH_VERSION_COLUMN_NAME).setMaxWidth(75);
+        loadedPluginsTable.getColumnExt(PLUGIN_MIRTH_VERSION_COLUMN_NAME).setMinWidth(75);
+        
         loadedPluginsTable.getColumnExt(PLUGIN_ENABLED_COLUMN_NAME).setMaxWidth(50);
         loadedPluginsTable.getColumnExt(PLUGIN_ENABLED_COLUMN_NAME).setMinWidth(50);
         
@@ -170,7 +184,7 @@ public class PluginManagerPanel extends javax.swing.JPanel
     {
         for(int i = 0; i < loadedPluginsTable.getRowCount(); i++)
         {
-            pluginData.get(loadedPluginsTable.getModel().getValueAt(i,0)).setEnabled(((Boolean)loadedPluginsTable.getModel().getValueAt(i,4)).booleanValue());
+            pluginData.get(loadedPluginsTable.getModel().getValueAt(i,0)).setEnabled(((Boolean)loadedPluginsTable.getModel().getValueAt(i,5)).booleanValue());
         }
         return this.pluginData;
     }
@@ -183,19 +197,20 @@ public class PluginManagerPanel extends javax.swing.JPanel
         if (pluginData != null)
         {
             tableSize = pluginData.size();
-            tableData = new Object[tableSize][5];
+            tableData = new Object[tableSize][6];
             
             int i = 0;
             for (PluginMetaData metaData : pluginData.values())
             {
                 tableData[i][0] = metaData.getName();
                 tableData[i][1] = metaData.getAuthor();
-                tableData[i][2] = metaData.getPluginVersion();
-                tableData[i][3] = metaData.getMirthVersion();
+                tableData[i][2] = metaData.getUrl();
+                tableData[i][3] = metaData.getPluginVersion();
+                tableData[i][4] = metaData.getMirthVersion();
                 if (metaData.isEnabled())
-                    tableData[i][4] = Boolean.TRUE;
+                    tableData[i][5] = Boolean.TRUE;
                 else
-                    tableData[i][4] = Boolean.FALSE;
+                    tableData[i][5] = Boolean.FALSE;
                 i++;
             }
         }
@@ -208,9 +223,9 @@ public class PluginManagerPanel extends javax.swing.JPanel
         else
         {
             loadedPluginsTable = new MirthTable();
-            loadedPluginsTable.setModel(new RefreshTableModel(tableData, new String[] { PLUGIN_NAME_COLUMN_NAME, PLUGIN_AUTHOR_COLUMN_NAME, PLUGIN_VERSION_COLUMN_NAME, PLUGIN_MIRTH_VERSION_COLUMN_NAME, PLUGIN_ENABLED_COLUMN_NAME })
+            loadedPluginsTable.setModel(new RefreshTableModel(tableData, new String[] { PLUGIN_NAME_COLUMN_NAME, PLUGIN_AUTHOR_COLUMN_NAME, PLUGIN_URL_COLUMN_NAME, PLUGIN_VERSION_COLUMN_NAME, PLUGIN_MIRTH_VERSION_COLUMN_NAME, PLUGIN_ENABLED_COLUMN_NAME })
             {
-                boolean[] canEdit = new boolean[] { false, false, false, false, true };
+                boolean[] canEdit = new boolean[] { false, false, false, false, false, true };
                 
                 public boolean isCellEditable(int rowIndex, int columnIndex)
                 {
