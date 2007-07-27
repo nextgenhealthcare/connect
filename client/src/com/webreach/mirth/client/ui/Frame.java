@@ -2290,7 +2290,7 @@ public class Frame extends JXFrame
         
         try
         {
-            channelXML = ImportConverter.convertChannel(importFile);
+            channelXML = ImportConverter.convertChannelFile(importFile);
         }
         catch (Exception e1)
         {
