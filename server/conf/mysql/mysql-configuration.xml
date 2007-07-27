@@ -38,8 +38,8 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 	<delete id="deleteLatestConfiguration">
 		DELETE FROM CONFIGURATION
 		WHERE DATE_CREATED IN
-			(SELECT MAX(DATE_CREATED)
-			FROM CONFIGURATION)
+			(SELECT DATE_CREATED FROM (SELECT MAX(DATE_CREATED)
+			FROM CONFIGURATION) AS LATEST_CONFIG) 
 	</delete>
 	
 	<insert id="insertConfiguration" parameterClass="java.lang.String">
