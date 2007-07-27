@@ -28,7 +28,9 @@ public class Entities {
 	}
 
 	final Hashtable decoder = new Hashtable(300);
+	final Hashtable decoderXML = new Hashtable(10);
 	final String[] encoder = new String[0x100];
+	final String[] encoderXML = new String[0x100];
 
 	public String decode(String entity) {
 		if (entity.charAt(entity.length() - 1) == ';') // remove trailing
@@ -56,8 +58,8 @@ public class Entities {
 		StringBuffer buffer = new StringBuffer(4);
 		char c = s;
 		int j = (int) c;
-		if (j < 0x100 && encoder[j] != null) {
-			buffer.append(encoder[j]); // have a named encoding
+		if (j < 0x100 && encoderXML[j] != null) {
+			buffer.append(encoderXML[j]); // have a named encoding
 			buffer.append(';');
 		} else if (j < 0x80) {
 			buffer.append(c); // use ASCII value
@@ -85,8 +87,8 @@ public class Entities {
 		for (int i = start; i < length; i++) {
 			char c = text[i];
 			int j = (int) c;
-			if (j < 0x100 && encoder[j] != null) {
-				buffer.append(encoder[j]); // have a named encoding
+			if (j < 0x100 && encoderXML[j] != null) {
+				buffer.append(encoderXML[j]); // have a named encoding
 				buffer.append(';');
 			} else if (j < 0x80) {
 				buffer.append(c); // use ASCII value
@@ -103,6 +105,11 @@ public class Entities {
 		decoder.put(entity, (new Character((char) value)).toString());
 		if (value < 0x100)
 			encoder[value] = entity;
+	}
+	public void addXML(String entity, int value) {
+		decoderXML.put(entity, (new Character((char) value)).toString());
+		if (value < 0x100)
+			encoderXML[value] = entity;
 	}
 
 	public Entities() {
@@ -328,6 +335,7 @@ public class Entities {
 		add("&diams", 9830);
 		add("&quot", 34);
 		add("&amp", 38);
+//		add("&apos",39);
 		add("&lt", 60);
 		add("&gt", 62);
 		add("&OElig", 338);
@@ -358,5 +366,12 @@ public class Entities {
 		add("&lsaquo", 8249);
 		add("&rsaquo", 8250);
 		add("&euro", 8364);
+
+		//XML predefined entities
+		addXML("&lt", 60);
+		addXML("&gt", 62);
+		addXML("&apos",39);
+		addXML("&amp", 38);
+		addXML("&quot",34);
 	}
 }
