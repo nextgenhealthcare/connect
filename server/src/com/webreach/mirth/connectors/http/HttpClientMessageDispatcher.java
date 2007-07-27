@@ -156,7 +156,7 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher {
 				header.append(new BASE64Encoder().encode(endpointUri.getUserInfo().getBytes()));
 				httpMethod.addRequestHeader(HttpConstants.HEADER_AUTHORIZATION, header.toString());
 			}
-
+			
 			httpMethod.execute(state, connection);
 
 			if (httpMethod.getStatusCode() == HttpStatus.SC_OK) {
@@ -184,9 +184,11 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher {
 		if (connector.getMethod().equals("post")) {
 			// We add all the paramerters from the connector to the post
 			PostMethod postMethod = new PostMethod(uri.toString());
-			for (Iterator iter = requestVariables.keySet().iterator(); iter.hasNext();) {
-				String key = (String) iter.next();
-				postMethod.addParameter(key, replacer.replaceValues((String) requestVariables.get(key), messageObject));
+			if (requestVariables != null && requestVariables.size() > 0){
+				for (Iterator iter = requestVariables.keySet().iterator(); iter.hasNext();) {
+					String key = (String) iter.next();
+					postMethod.addParameter(key, replacer.replaceValues((String) requestVariables.get(key), messageObject));
+				}
 			}
 			httpMethod = postMethod;
 		} else if (connector.getMethod().equals("get")) {
@@ -199,13 +201,15 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher {
 			} else {
 				urlBuilder.append("?");
 			}
-			for (Iterator iter = requestVariables.keySet().iterator(); iter.hasNext();) {
-				String key = (String) iter.next();
-				urlBuilder.append(key);
-				urlBuilder.append("=");
-				urlBuilder.append(replacer.replaceValues((String) requestVariables.get(key), messageObject));
-				if (iter.hasNext()) {
-					urlBuilder.append("&");
+			if (requestVariables != null && requestVariables.size() > 0){
+				for (Iterator iter = requestVariables.keySet().iterator(); iter.hasNext();) {
+					String key = (String) iter.next();
+					urlBuilder.append(key);
+					urlBuilder.append("=");
+					urlBuilder.append(replacer.replaceValues((String) requestVariables.get(key), messageObject));
+					if (iter.hasNext()) {
+						urlBuilder.append("&");
+					}
 				}
 			}
 			httpMethod = new GetMethod(urlBuilder.toString());
@@ -245,7 +249,19 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher {
 				header.append(new BASE64Encoder().encode(creds.getBytes()));
 				httpMethod.addRequestHeader(HttpConstants.HEADER_AUTHORIZATION, header.toString());
 			}
-
+			//add headers
+			Map headerVariables = connector.getHeaderVariables();
+			if (headerVariables != null && headerVariables.size() > 0){
+				for (Iterator iter = headerVariables.keySet().iterator(); iter.hasNext();) {
+					String key = (String) iter.next();
+					Header httpHeader = httpMethod.getRequestHeader(key);
+					//TODO: Verify this in testing
+					if (httpHeader != null){
+						httpMethod.removeRequestHeader(httpHeader);
+					}
+					httpMethod.addRequestHeader(key, replacer.replaceValues((String) headerVariables.get(key), messageObject));
+				}	
+			}
 			try {
 				httpMethod.execute(state, connection);
 			} catch (BindException e) {

@@ -70,7 +70,7 @@ public class HttpConnector extends TcpConnector
     public static final String PROPERTY_METHOD = "method";
     public static final String PROPERTY_REPLY_CHANNEL_ID = "replyChannelId";
     public static final String PROPERTY_EXTENDED_PAYLOAD = "extendedPayload";
-    
+    public static final String PROPERTY_HEADER_VARIABLES = "headerVariables";
     
     private String proxyHostname = null;
     private int proxyPort = DEFAULT_PORT;
@@ -84,7 +84,7 @@ public class HttpConnector extends TcpConnector
     private String method;
     private String replyChannelId;
     private String channelId;
-    
+    private Map headerVariables;
     public String getChannelId() {
 		return this.channelId;
 	}
@@ -256,5 +256,13 @@ public class HttpConnector extends TcpConnector
 
 	public void setResponseValue(String responseValue) {
 		this.responseValue = responseValue;
+	}
+
+	public Map getHeaderVariables() {
+		return headerVariables;
+	}
+
+	public void setHeaderVariables(Map headerVariables) {
+		this.headerVariables = headerVariables;
 	}
 }

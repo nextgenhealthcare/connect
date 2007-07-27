@@ -63,6 +63,7 @@ import com.webreach.mirth.model.DriverInfo;
 import com.webreach.mirth.model.ServerConfiguration;
 import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
+import com.webreach.mirth.model.util.ImportConverter;
 import com.webreach.mirth.server.Command;
 import com.webreach.mirth.server.CommandQueue;
 import com.webreach.mirth.server.builders.MuleConfigurationBuilder;
@@ -74,6 +75,7 @@ import com.webreach.mirth.server.util.JavaScriptUtil;
 import com.webreach.mirth.server.util.SqlConfig;
 import com.webreach.mirth.util.Encrypter;
 import com.webreach.mirth.util.PropertyLoader;
+import com.webreach.mirth.util.PropertyVerifier;
 
 /**
  * The ConfigurationController provides access to the Mirth configuration.
@@ -93,9 +95,9 @@ public class ConfigurationController {
 	private SqlMapClient sqlMap = SqlConfig.getSqlMapInstance();
 	private static final String CHARSET = "ca.uhn.hl7v2.llp.charset";
 	private boolean isEngineStarting = false;
-	
-    private ExtensionController extensionController = ExtensionController.getInstance();
-    private ScriptController scriptController = ScriptController.getInstance();
+
+	private ExtensionController extensionController = ExtensionController.getInstance();
+	private ScriptController scriptController = ScriptController.getInstance();
 
 	// Mirth status codes
 	public static final int STATUS_OK = 0;
@@ -269,115 +271,98 @@ public class ConfigurationController {
 			addConfiguration(builder.getConfiguration());
 			// update the storeMessages reference
 			channelController.updateChannelCache(channels);
-			
-            ExtensionController.getInstance().deployTriggered();
+
+			ExtensionController.getInstance().deployTriggered();
 			// restart the mule engine which will grab the latest configuration
 			// from the database
-            
+
 			CommandQueue queue = CommandQueue.getInstance();
 			queue.addCommand(new Command(Command.Operation.RESTART));
-            
+
 		} catch (Exception e) {
 			throw new ControllerException(e);
 		}
-        
+
 		systemLogger.logSystemEvent(new SystemEvent("Channels deployed."));
 	}
-    
-    public void compileScripts(List<Channel> channels) throws ControllerException 
-    {
-        Map<String, String> globalScripts = getGlobalScripts();
-        
-        Iterator i = globalScripts.entrySet().iterator();
-        while (i.hasNext())
-        {
-            Entry entry = (Entry) i.next();
-            if(!(entry.getKey().toString().equals("preprocessor") && globalScripts.get(entry.getKey()).equals("// Modify the message variable below to pre process data\r\n// This script applies across all channels\r\nreturn message;")))
-                JavaScriptUtil.getInstance().compileScript(entry.getKey().toString(), globalScripts.get(entry.getKey()));
-        }
-        
-        for(Channel channel : channels)
-        {
-            if(channel.isEnabled())
-            {
-                JavaScriptUtil.getInstance().compileScript(channel.getId() + "_deploy", channel.getDeployScript());
-                JavaScriptUtil.getInstance().compileScript(channel.getId() + "_shutdown", channel.getShutdownScript());
-            }
-            else
-            {
-                JavaScriptUtil.getInstance().removeScriptFromCache(channel.getId() + "_deploy");
-                JavaScriptUtil.getInstance().removeScriptFromCache(channel.getId() + "_shutdown");
-            }
-        }
-    }
-    
-    public void executeChannelDeployScripts(List<Channel> channels)
-    {
-        for(Channel channel : channels)
-        {
-            String scriptType = "deploy";
-            JavaScriptUtil.getInstance().executeScript(channel.getId() + "_" + scriptType, scriptType, channel.getId());
-        }
-    }
-    
-    public void executeChannelShutdownScripts(List<Channel> channels)
-    {
-        for(Channel channel : channels)
-        {
-            String scriptType = "shutdown";
-            JavaScriptUtil.getInstance().executeScript(channel.getId() + "_" + scriptType, scriptType, channel.getId());
-        }
-    }
-    
-    public void executeGlobalDeployScript()
-    {
-        executeGlobalScript("deploy");
-    }
-    
-    public void executeGlobalShutdownScript()
-    {
-        executeGlobalScript("shutdown");
-    }
-    
-    public void executeGlobalScript(String scriptType)
-    {
-        JavaScriptUtil.getInstance().executeScript(scriptType, scriptType, null);
-    }
-    
-    public Map<String, String>  getGlobalScripts() throws ControllerException 
-    {
-        Map<String, String>  scripts = new HashMap<String, String> ();
-        
-        String deployScript = scriptController.getScript("deploy");
-        String shutdownScript = scriptController.getScript("shutdown");
-        String preprocessorScript = scriptController.getScript("preprocessor");
-        
-        if(deployScript == null)
-            deployScript = "// This script executes once when the mule engine is started\r\n// You only have access to the globalMap here to persist data\r\nreturn;";
 
-        if(shutdownScript == null)
-            shutdownScript = "// This script executes once when the mule engine is stopped\r\n// You only have access to the globalMap here to persist data\r\nreturn;";
+	public void compileScripts(List<Channel> channels) throws ControllerException {
+		Map<String, String> globalScripts = getGlobalScripts();
 
-        if(preprocessorScript == null)
-            preprocessorScript = "// Modify the message variable below to pre process data\r\n// This script applies across all channels\r\nreturn message;";
-        
-        
-        scripts.put("deploy", deployScript);
-        scripts.put("shutdown", shutdownScript);
-        scripts.put("preprocessor", preprocessorScript);
-        
-        return scripts;
-    }
-    
-    public void setGlobalScripts(Map<String, String> scripts) throws ControllerException 
-    {
-        Iterator i = scripts.entrySet().iterator();
-        while (i.hasNext())
-        {
-            Entry entry = (Entry) i.next();
-            scriptController.putScript(entry.getKey().toString(), scripts.get(entry.getKey()));
-        }
-    }
+		Iterator i = globalScripts.entrySet().iterator();
+		while (i.hasNext()) {
+			Entry entry = (Entry) i.next();
+			if (!(entry.getKey().toString().equals("preprocessor") && globalScripts.get(entry.getKey()).equals("// Modify the message variable below to pre process data\r\n// This script applies across all channels\r\nreturn message;")))
+				JavaScriptUtil.getInstance().compileScript(entry.getKey().toString(), globalScripts.get(entry.getKey()));
+		}
+
+		for (Channel channel : channels) {
+			if (channel.isEnabled()) {
+				JavaScriptUtil.getInstance().compileScript(channel.getId() + "_deploy", channel.getDeployScript());
+				JavaScriptUtil.getInstance().compileScript(channel.getId() + "_shutdown", channel.getShutdownScript());
+			} else {
+				JavaScriptUtil.getInstance().removeScriptFromCache(channel.getId() + "_deploy");
+				JavaScriptUtil.getInstance().removeScriptFromCache(channel.getId() + "_shutdown");
+			}
+		}
+	}
+
+	public void executeChannelDeployScripts(List<Channel> channels) {
+		for (Channel channel : channels) {
+			String scriptType = "deploy";
+			JavaScriptUtil.getInstance().executeScript(channel.getId() + "_" + scriptType, scriptType, channel.getId());
+		}
+	}
+
+	public void executeChannelShutdownScripts(List<Channel> channels) {
+		for (Channel channel : channels) {
+			String scriptType = "shutdown";
+			JavaScriptUtil.getInstance().executeScript(channel.getId() + "_" + scriptType, scriptType, channel.getId());
+		}
+	}
+
+	public void executeGlobalDeployScript() {
+		executeGlobalScript("deploy");
+	}
+
+	public void executeGlobalShutdownScript() {
+		executeGlobalScript("shutdown");
+	}
+
+	public void executeGlobalScript(String scriptType) {
+		JavaScriptUtil.getInstance().executeScript(scriptType, scriptType, null);
+	}
+
+	public Map<String, String> getGlobalScripts() throws ControllerException {
+		Map<String, String> scripts = new HashMap<String, String>();
+
+		String deployScript = scriptController.getScript("deploy");
+		String shutdownScript = scriptController.getScript("shutdown");
+		String preprocessorScript = scriptController.getScript("preprocessor");
+
+		if (deployScript == null)
+			deployScript = "// This script executes once when the mule engine is started\r\n// You only have access to the globalMap here to persist data\r\nreturn;";
+
+		if (shutdownScript == null)
+			shutdownScript = "// This script executes once when the mule engine is stopped\r\n// You only have access to the globalMap here to persist data\r\nreturn;";
+
+		if (preprocessorScript == null)
+			preprocessorScript = "// Modify the message variable below to pre process data\r\n// This script applies across all channels\r\nreturn message;";
+
+		scripts.put("deploy", deployScript);
+		scripts.put("shutdown", shutdownScript);
+		scripts.put("preprocessor", preprocessorScript);
+
+		return scripts;
+	}
+
+	public void setGlobalScripts(Map<String, String> scripts) throws ControllerException {
+		Iterator i = scripts.entrySet().iterator();
+		while (i.hasNext()) {
+			Entry entry = (Entry) i.next();
+			scriptController.putScript(entry.getKey().toString(), scripts.get(entry.getKey()));
+		}
+	}
 
 	private void stopAllChannels() throws ControllerException {
 		ChannelStatusController channelStatusController = ChannelStatusController.getInstance();
@@ -414,13 +399,10 @@ public class ConfigurationController {
 
             if (latestConfiguration != null) {
                 logger.debug("using configuration " + latestConfiguration.getId() + " created on " + latestConfiguration.getDateCreated());
-
                 // Find the path of mule.boot because mule.config may not exist.
                 // Then generate the path of mule.config in the same directory
                 // as mule.boot.
-
                 String muleConfigPath = getMuleConfigurationPath();
-                
                 BufferedWriter out = new BufferedWriter(new FileWriter(new File(muleConfigPath)));
                 out.write(latestConfiguration.getData());
                 out.close();
@@ -525,11 +507,11 @@ public class ConfigurationController {
 	public String getServerVersion() {
 		return versionProperties.getProperty("mirth.version");
 	}
-	
-    public int getSchemaVersion() {
-        return Integer.parseInt(versionProperties.getProperty("schema.version"));
-    }
-    
+
+	public int getSchemaVersion() {
+		return Integer.parseInt(versionProperties.getProperty("schema.version"));
+	}
+
 	public String getBuildDate() {
 		return versionProperties.getProperty("mirth.date");
 	}
@@ -625,9 +607,19 @@ public class ConfigurationController {
 		setServerProperties(serverConfiguration.getProperties());
 
 		for (Channel channel : serverConfiguration.getChannels()) {
+			if (!channel.getVersion().equals(getServerVersion())) {
+				Channel updatedChannel;
+				try {
+					updatedChannel = ImportConverter.convertChannelObject(channel);
+					PropertyVerifier.checkChannelProperties(updatedChannel);
+					PropertyVerifier.checkConnectorProperties(updatedChannel, extensionController.getConnectorMetaData());
+
+				} catch (Exception e) {
+					logger.error("Unable to convert channel: " + e.getStackTrace());
+				}
+			}
 			channelController.updateChannel(channel, true);
 		}
-
 		alertController.updateAlerts(serverConfiguration.getAlerts());
 	}
 
