@@ -40,7 +40,8 @@ public class HTTPSenderProperties implements ComponentProperties
     public static final String HTTP_ADDITIONAL_PROPERTIES = "requestVariables";
     public static final String CHANNEL_ID = "replyChannelId";
     public static final String CHANNEL_NAME = "channelName";
-
+    public static final String HTTP_HEADER_PROPERTIES = "headerVariables";
+    
     public Properties getDefaults()
     {
         Properties properties = new Properties();
@@ -49,6 +50,7 @@ public class HTTPSenderProperties implements ComponentProperties
         properties.put(HTTP_METHOD, "post");
         ObjectXMLSerializer serializer = new ObjectXMLSerializer();
         properties.put(HTTP_ADDITIONAL_PROPERTIES, serializer.toXML(new Properties()));
+        properties.put(HTTP_HEADER_PROPERTIES, serializer.toXML(new Properties()));
         properties.put(CHANNEL_ID, "sink");
         properties.put(CHANNEL_NAME, "None");
         return properties;
