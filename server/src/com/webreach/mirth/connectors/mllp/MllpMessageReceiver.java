@@ -20,6 +20,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -40,6 +41,7 @@ import org.mule.impl.MuleMessage;
 import org.mule.impl.ResponseOutputStream;
 import org.mule.providers.AbstractMessageReceiver;
 import org.mule.providers.ConnectException;
+import org.mule.umo.MessagingException;
 import org.mule.umo.UMOComponent;
 import org.mule.umo.UMOMessage;
 import org.mule.umo.endpoint.UMOEndpoint;
@@ -383,81 +385,24 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 		}
 
 		protected byte[] processData(byte[] data) throws Exception {
-			String charset = connector.getCharsetEncoding();
-			String str_data = new String(data, charset);
-			BatchMessageProcessor batchProcessor = new BatchMessageProcessor();
-			batchProcessor.setEndOfMessage((byte) END_MESSAGE);
-			batchProcessor.setStartOfMessage((byte) START_MESSAGE);
-			batchProcessor.setEndOfRecord((byte) END_OF_RECORD);
-			Iterator<String> it = batchProcessor.processHL7Messages(str_data).iterator();
-			UMOMessage returnMessage = null;
-			OutputStream os;
-			while (it.hasNext()) {
-				data = (it.next()).getBytes(charset);
-				UMOMessageAdapter adapter = connector.getMessageAdapter(new String(data, charset));
-				if (socket.isClosed()) {
-					return null;
+            String charset = connector.getCharsetEncoding();
+            String str_data = new String(data, charset);
+            UMOMessage returnMessage = null;
+            if (connector.isProcessBatchFiles()){
+	            BatchMessageProcessor batchProcessor = new BatchMessageProcessor();
+	            batchProcessor.setEndOfMessage((byte) END_MESSAGE);
+	            batchProcessor.setStartOfMessage((byte) START_MESSAGE);
+	            batchProcessor.setEndOfRecord((byte) END_OF_RECORD);
+	            Iterator<String> it = batchProcessor.processHL7Messages(str_data).iterator();
+				while (it.hasNext()) {
+					returnMessage = processHL7Data(it.next(), returnMessage);
 				}
-				os = new ResponseOutputStream(socket.getOutputStream(), socket);
-				try {
-					returnMessage = routeMessage(new MuleMessage(adapter), endpoint.isSynchronous(), os);
-					// We need to check the message status
-					if (returnMessage != null && returnMessage instanceof MuleMessage) {
-
-						Object payload = returnMessage.getPayload();
-						if (payload instanceof MessageObject) {
-							MessageObject messageObjectResponse = (MessageObject) payload;
-							// DEBUG ONLY!!!
-							Map responseMap = messageObjectResponse.getResponseMap();
-							// for (Iterator iter =
-							// responseMap.entrySet().iterator();
-							// iter.hasNext();) {
-							// java.util.Map.Entry element =
-							// (java.util.Map.Entry) iter.next();
-							// System.out.println(element.getKey() + ": " +
-							// element.getValue());
-							// }
-							// DEBUG ONLY END
-							String errorString = "";
-
-							if (connector.isResponseFromTransformer() && !connector.getResponseValue().equalsIgnoreCase("None")) {
-								if (connector.isAckOnNewConnection()) {
-									String endpointURI = connector.getAckIP() + ":" + connector.getAckPort();
-									Socket socket = initSocket("mllp://" + endpointURI);
-									BufferedOutputStream bos = new BufferedOutputStream(socket.getOutputStream());
-									protocol.write(bos, ((Response) responseMap.get(connector.getResponseValue())).getMessage().getBytes(connector.getCharsetEncoding()));
-									bos.flush();
-									bos.close();
-								} else {
-									protocol.write(os, ((Response) responseMap.get(connector.getResponseValue())).getMessage().getBytes(connector.getCharsetEncoding()));
-
-								}
-							} else {
-								// we only want the first line
-								if (messageObjectResponse.getStatus().equals(MessageObject.Status.ERROR) && messageObjectResponse.getErrors() != null) {
-									if (messageObjectResponse.getErrors().indexOf('\n') > -1) {
-										errorString = messageObjectResponse.getErrors().substring(0, messageObjectResponse.getErrors().indexOf('\n'));
-									} else {
-										errorString = messageObjectResponse.getErrors();
-									}
-								}
-								generateACK(new String(data, charset), os, messageObjectResponse.getStatus(), errorString);
-							}
-						}
-					} else {
-						generateACK(new String(data, charset), os, MessageObject.Status.RECEIVED, new String());
-					}
-				} catch (Exception e) {
-					generateACK(new String(data, charset), os, MessageObject.Status.ERROR, e.getMessage());
-					throw e;
-				} finally {
-					// Let the dispatcher take care of closing the socket +
-					// stream
-				}
-			}
+            }else{
+            	returnMessage = processHL7Data(str_data, returnMessage);
+            }
 			// The return message is always the last message routed if in a
 			// batch
-			// TODO: Check this for 1.2.1
+			// TODO: Fix in 1.7!
 			if (returnMessage != null) {
 				return returnMessage.getPayloadAsBytes();
 			} else {
@@ -465,6 +410,72 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 			}
 		}
 
+		private UMOMessage processHL7Data(String data, UMOMessage returnMessage) throws MessagingException, UnsupportedEncodingException, IOException, Exception {
+			OutputStream os;
+			UMOMessageAdapter adapter = connector.getMessageAdapter(data);
+			if (socket.isClosed()){
+				return null;
+			}
+			os = new ResponseOutputStream(socket.getOutputStream(), socket);
+			try {
+				returnMessage = routeMessage(new MuleMessage(adapter), endpoint.isSynchronous(), os);
+				// We need to check the message status
+				if (returnMessage != null && returnMessage instanceof MuleMessage) {
+
+					Object payload = returnMessage.getPayload();
+					if (payload instanceof MessageObject) {
+						MessageObject messageObjectResponse = (MessageObject) payload;
+						// DEBUG ONLY!!!
+						Map responseMap = messageObjectResponse.getResponseMap();
+						// for (Iterator iter =
+						// responseMap.entrySet().iterator();
+						// iter.hasNext();) {
+						// java.util.Map.Entry element =
+						// (java.util.Map.Entry) iter.next();
+						// System.out.println(element.getKey() + ": " +
+						// element.getValue());
+						// }
+						// DEBUG ONLY END
+						String errorString = "";
+
+						if (connector.isResponseFromTransformer() && !connector.getResponseValue().equalsIgnoreCase("None")) {
+							if (connector.isAckOnNewConnection()) {
+								String endpointURI = connector.getAckIP() + ":" + connector.getAckPort();
+								Socket socket = initSocket("mllp://" + endpointURI);
+								BufferedOutputStream bos = new BufferedOutputStream(socket.getOutputStream());
+								protocol.write(bos, ((Response) responseMap.get(connector.getResponseValue())).getMessage().getBytes(connector.getCharsetEncoding()));
+								bos.flush();
+								bos.close();
+							} else {
+								protocol.write(os, ((Response) responseMap.get(connector.getResponseValue())).getMessage().getBytes(connector.getCharsetEncoding()));
+
+							}
+						} else {
+							// we only want the first line
+							if (messageObjectResponse.getStatus().equals(MessageObject.Status.ERROR) && messageObjectResponse.getErrors() != null) {
+								if (messageObjectResponse.getErrors().indexOf('\n') > -1) {
+									errorString = messageObjectResponse.getErrors().substring(0, messageObjectResponse.getErrors().indexOf('\n'));
+								} else {
+									errorString = messageObjectResponse.getErrors();
+								}
+							}
+							generateACK(data, os, messageObjectResponse.getStatus(), errorString);
+						}
+					}
+				} else {
+					generateACK(data, os, MessageObject.Status.RECEIVED, new String());
+				}
+			} catch (Exception e) {
+				generateACK(data, os, MessageObject.Status.ERROR, e.getMessage());
+				throw e;
+			} finally {
+				// Let the dispatcher take care of closing the socket +
+				// stream
+			}
+			return returnMessage;
+		}
+		
+		
 		protected Socket initSocket(String endpoint) throws IOException, URISyntaxException {
 			URI uri = new URI(endpoint);
 			int port = uri.getPort();

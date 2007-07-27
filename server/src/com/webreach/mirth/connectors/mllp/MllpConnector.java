@@ -137,7 +137,7 @@ public class MllpConnector extends AbstractServiceEnabledConnector {
 	// -1 try to reconnect forever
 	private int maxRetryCount = DEFAULT_RETRY_TIMES;
 	private boolean keepAlive = true;
-
+	private boolean processBatchFiles = true;
 	public String getChannelId() {
 		return this.channelId;
 	}
@@ -706,6 +706,14 @@ public class MllpConnector extends AbstractServiceEnabledConnector {
 	public String getStatusMessage() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	public boolean isProcessBatchFiles() {
+		return processBatchFiles;
+	}
+
+	public void setProcessBatchFiles(boolean processBatchFiles) {
+		this.processBatchFiles = processBatchFiles;
 	}
 
 }
