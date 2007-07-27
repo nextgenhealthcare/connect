@@ -91,6 +91,11 @@ public class LLPListener extends ConnectorClass
             properties.put(LLPListenerProperties.LLP_CHAR_ENCODING, "ascii");
         else
             properties.put(LLPListenerProperties.LLP_CHAR_ENCODING, "hex");
+        
+        if (processBatchYes.isSelected())
+            properties.put(LLPListenerProperties.LLP_PROCESS_BATCH_FILES, UIConstants.YES_OPTION);
+        else
+            properties.put(LLPListenerProperties.LLP_PROCESS_BATCH_FILES, UIConstants.NO_OPTION);
 
         properties.put(LLPListenerProperties.LLP_RECORD_SEPARATOR, recordSeparatorField.getText());
         properties.put(LLPListenerProperties.LLP_SEGMENT_END, segmentEnd.getText());
@@ -192,6 +197,11 @@ public class LLPListener extends ConnectorClass
             ascii.setSelected(true);
         else
             hex.setSelected(true);
+        
+        if (((String) props.get(LLPListenerProperties.LLP_PROCESS_BATCH_FILES)).equals(UIConstants.YES_OPTION))
+            processBatchYes.setSelected(true);
+        else
+            processBatchNo.setSelected(true);
 
         startOfMessageCharacterField.setText((String) props.get(LLPListenerProperties.LLP_START_OF_MESSAGE_CHARACTER));
         endOfMessageCharacterField.setText((String) props.get(LLPListenerProperties.LLP_END_OF_MESSAGE_CHARACTER));
@@ -422,6 +432,7 @@ public class LLPListener extends ConnectorClass
         buttonGroup5 = new javax.swing.ButtonGroup();
         buttonGroup6 = new javax.swing.ButtonGroup();
         serverClientButtonGroup = new javax.swing.ButtonGroup();
+        processBatchGroup = new javax.swing.ButtonGroup();
         ipAddressLabel = new javax.swing.JLabel();
         portLabel = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
@@ -493,6 +504,9 @@ public class LLPListener extends ConnectorClass
         llpModeLabel = new javax.swing.JLabel();
         reconnectIntervalField = new com.webreach.mirth.client.ui.components.MirthTextField();
         reconnectIntervalLabel = new javax.swing.JLabel();
+        processBatchYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        processBatchNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        jLabel1 = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -722,6 +736,20 @@ public class LLPListener extends ConnectorClass
 
         reconnectIntervalLabel.setText("Reconnect Interval (ms):");
 
+        processBatchYes.setBackground(new java.awt.Color(255, 255, 255));
+        processBatchYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        processBatchGroup.add(processBatchYes);
+        processBatchYes.setText("Yes");
+        processBatchYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
+        processBatchNo.setBackground(new java.awt.Color(255, 255, 255));
+        processBatchNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        processBatchGroup.add(processBatchNo);
+        processBatchNo.setText("No");
+        processBatchNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
+        jLabel1.setText("Process Batch:");
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -748,7 +776,8 @@ public class LLPListener extends ConnectorClass
                     .add(portLabel)
                     .add(ipAddressLabel)
                     .add(llpModeLabel)
-                    .add(reconnectIntervalLabel))
+                    .add(reconnectIntervalLabel)
+                    .add(jLabel1))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(reconnectIntervalField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 100, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -773,10 +802,6 @@ public class LLPListener extends ConnectorClass
                         .add(jLabel25)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(listenerIPAddressField3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 31, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(layout.createSequentialGroup()
-                        .add(ascii, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(hex, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                     .add(layout.createSequentialGroup()
                         .add(startOfMessageCharacterField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -846,7 +871,15 @@ public class LLPListener extends ConnectorClass
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(useStrictLLPNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(waitForEndOfMessageCharNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
+                            .add(waitForEndOfMessageCharNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                    .add(layout.createSequentialGroup()
+                        .add(ascii, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(hex, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(layout.createSequentialGroup()
+                        .add(processBatchYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(processBatchNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -884,6 +917,11 @@ public class LLPListener extends ConnectorClass
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel4)
                     .add(bufferSizeField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(processBatchYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(processBatchNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jLabel1))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(hex, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -1257,6 +1295,7 @@ public class LLPListener extends ConnectorClass
     private javax.swing.JLabel ipDot;
     private javax.swing.JLabel ipDot1;
     private javax.swing.JLabel ipDot2;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel25;
     private javax.swing.JLabel jLabel26;
     private javax.swing.JLabel jLabel3;
@@ -1280,6 +1319,9 @@ public class LLPListener extends ConnectorClass
     private com.webreach.mirth.client.ui.components.MirthRadioButton mshAckAcceptNo;
     private com.webreach.mirth.client.ui.components.MirthRadioButton mshAckAcceptYes;
     private javax.swing.JLabel portLabel;
+    private javax.swing.ButtonGroup processBatchGroup;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton processBatchNo;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton processBatchYes;
     private com.webreach.mirth.client.ui.components.MirthTextField receiveTimeoutField;
     private com.webreach.mirth.client.ui.components.MirthTextField reconnectIntervalField;
     private javax.swing.JLabel reconnectIntervalLabel;
