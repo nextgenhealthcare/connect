@@ -25,11 +25,22 @@
 
 package com.webreach.mirth.client.ui;
 
+import com.webreach.mirth.client.ui.util.FileUtil;
+import com.webreach.mirth.model.ServerConfiguration;
+import com.webreach.mirth.model.converters.ObjectXMLSerializer;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Properties;
 import java.util.prefs.Preferences;
 
 import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 
 /**
  * The main configuration panel.
@@ -109,6 +120,11 @@ public class SettingsPanel extends javax.swing.JPanel
         smtpPort = new com.webreach.mirth.client.ui.components.MirthTextField();
         smtpHost = new com.webreach.mirth.client.ui.components.MirthTextField();
         jLabel10 = new javax.swing.JLabel();
+        backupPanel = new javax.swing.JPanel();
+        backupButton = new javax.swing.JButton();
+        restoreButton = new javax.swing.JButton();
+        jLabel4 = new javax.swing.JLabel();
+        lastBackup = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -327,6 +343,60 @@ public class SettingsPanel extends javax.swing.JPanel
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
+        backupPanel.setBackground(new java.awt.Color(255, 255, 255));
+        backupPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1), "Backup or Restore", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11), new java.awt.Color(0, 0, 0)));
+        backupButton.setText("Backup");
+        backupButton.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                backupButtonActionPerformed(evt);
+            }
+        });
+
+        restoreButton.setText("Restore");
+        restoreButton.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                restoreButtonActionPerformed(evt);
+            }
+        });
+
+        jLabel4.setText("Last Backup:");
+
+        lastBackup.setText("None");
+
+        org.jdesktop.layout.GroupLayout backupPanelLayout = new org.jdesktop.layout.GroupLayout(backupPanel);
+        backupPanel.setLayout(backupPanelLayout);
+        backupPanelLayout.setHorizontalGroup(
+            backupPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(backupPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .add(backupPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(backupPanelLayout.createSequentialGroup()
+                        .add(backupButton)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(restoreButton))
+                    .add(backupPanelLayout.createSequentialGroup()
+                        .add(jLabel4)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(lastBackup)))
+                .addContainerGap(79, Short.MAX_VALUE))
+        );
+        backupPanelLayout.setVerticalGroup(
+            backupPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(backupPanelLayout.createSequentialGroup()
+                .add(backupPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jLabel4)
+                    .add(lastBackup))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(backupPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(restoreButton)
+                    .add(backupButton))
+                .addContainerGap())
+        );
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -336,8 +406,9 @@ public class SettingsPanel extends javax.swing.JPanel
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(serverSettings, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(clientSettings, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(15, Short.MAX_VALUE))
+                    .add(jPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(backupPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(302, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -348,9 +419,132 @@ public class SettingsPanel extends javax.swing.JPanel
                 .add(serverSettings, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .add(30, 30, 30)
                 .add(jPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(backupPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(58, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void restoreButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_restoreButtonActionPerformed
+    {//GEN-HEADEREND:event_restoreButtonActionPerformed
+        if (parent.settingsTasks.getContentPane().getComponent(1).isVisible())
+        {
+            if (!parent.alertOkCancel("Your new settings will first be saved.  Continue?"))
+                return;
+            saveSettings();
+        }
+        
+        JFileChooser backupFileChooser = new JFileChooser();
+        backupFileChooser.setFileFilter(new MirthFileFilter("XML"));
+        
+        File currentDir = new File(userPreferences.get("currentDirectory", ""));
+        if (currentDir.exists())
+            backupFileChooser.setCurrentDirectory(currentDir);
+        
+        int returnVal = backupFileChooser.showOpenDialog(this);
+        File backupFile = null;
+        
+        if (returnVal == JFileChooser.APPROVE_OPTION)
+        {
+            userPreferences.put("currentDirectory", backupFileChooser.getCurrentDirectory().getPath());
+            backupFile = backupFileChooser.getSelectedFile();
+            
+            String backupXML = null;
+            try
+            {
+                backupXML = FileUtil.read(backupFile);
+            }
+            catch (IOException ex)
+            {
+                parent.alertError("File could not be read.");
+                return;
+            }
+
+            ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+            ServerConfiguration configuration = (ServerConfiguration) serializer.fromXML(backupXML);
+            
+            if (parent.alertOption("Import configuration from " + configuration.getDate() + "?\nWARNING: This will overwrite all current channels, alerts, and server properties."))
+            {
+                boolean replaceUsers = parent.alertOption("Would you also like to restore the user accounts?\nWARNING: This will force a logout.");
+                // TODO: Use this boolean to determine whether or not to replace users.  Force logoout with parent.doLogout();
+                try
+                {
+                    parent.mirthClient.setServerConfiguration(configuration);
+                    loadSettings();
+                }
+                catch (ClientException e)
+                {
+                    parent.alertException(e.getStackTrace(), e.getMessage());
+                }
+            }
+        }
+    }//GEN-LAST:event_restoreButtonActionPerformed
+
+    private void backupButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_backupButtonActionPerformed
+    {//GEN-HEADEREND:event_backupButtonActionPerformed
+        if (parent.settingsTasks.getContentPane().getComponent(1).isVisible())
+        {
+            int option = JOptionPane.showConfirmDialog(this, "Would you like to save the settings first?");
+
+            if (option == JOptionPane.YES_OPTION)
+                saveSettings();
+            else if (option == JOptionPane.CANCEL_OPTION || option == JOptionPane.CLOSED_OPTION)
+                return;
+        }
+        
+        JFileChooser backupFileChooser = new JFileChooser();
+        backupFileChooser.setSelectedFile(new File(""));
+        backupFileChooser.setFileFilter(new MirthFileFilter("XML"));
+        
+        File currentDir = new File(userPreferences.get("currentDirectory", ""));
+        if (currentDir.exists())
+            backupFileChooser.setCurrentDirectory(currentDir);
+        
+        int returnVal = backupFileChooser.showSaveDialog(this);
+        File backupFile = null;
+        
+        if (returnVal == JFileChooser.APPROVE_OPTION)
+        {
+            userPreferences.put("currentDirectory", backupFileChooser.getCurrentDirectory().getPath());
+            ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+            ServerConfiguration configuration = null;
+            try
+            {
+                configuration = parent.mirthClient.getServerConfiguration();
+            }
+            catch (ClientException e)
+            {
+                parent.alertException(e.getStackTrace(), e.getMessage());
+                return;
+            }
+            String backupDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+            configuration.setDate(backupDate);
+            String backupXML = serializer.toXML(configuration);
+            backupFile = backupFileChooser.getSelectedFile();
+            
+            int length = backupFile.getName().length();
+            
+            if (length < 4 || !backupFile.getName().substring(length - 4, length).equals(".xml"))
+                backupFile = new File(backupFile.getAbsolutePath() + ".xml");
+            
+            if (backupFile.exists())
+                if (!parent.alertOption("This file already exists.  Would you like to overwrite it?"))
+                    return;
+            
+            try
+            {
+                FileUtil.write(backupFile, backupXML, false);
+                parent.alertInformation("The current server configuration was written to " + backupFile.getPath() + ".");
+                userPreferences.put("lastBackup", backupDate);
+                lastBackup.setText(backupDate);
+            }
+            catch (IOException ex)
+            {
+                parent.alertError("File could not be written.");
+            }
+            
+        }
+    }//GEN-LAST:event_backupButtonActionPerformed
 
     private void clearGlobalMapNoActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_clearGlobalMapNoActionPerformed
     {//GEN-HEADEREND:event_clearGlobalMapNoActionPerformed
@@ -451,6 +645,8 @@ public class SettingsPanel extends javax.swing.JPanel
                 smtpPassword.setText((String) serverProperties.getProperty("smtp.password"));
             else
                 smtpPassword.setText("");
+            
+            lastBackup.setText(userPreferences.get("lastBackup", "None"));
         }
         catch (ClientException e)
         {
@@ -520,6 +716,8 @@ public class SettingsPanel extends javax.swing.JPanel
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton backupButton;
+    private javax.swing.JPanel backupPanel;
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.ButtonGroup buttonGroup2;
     private javax.swing.ButtonGroup buttonGroup3;
@@ -534,13 +732,16 @@ public class SettingsPanel extends javax.swing.JPanel
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JLabel lastBackup;
     private com.webreach.mirth.client.ui.components.MirthTextField messageBrowserPageSizeField;
     private javax.swing.JLabel passwordLabel;
     private com.webreach.mirth.client.ui.components.MirthRadioButton requireAuthenticationNo;
     private com.webreach.mirth.client.ui.components.MirthRadioButton requireAuthenticationYes;
+    private javax.swing.JButton restoreButton;
     private com.webreach.mirth.client.ui.components.MirthRadioButton rowHighlightNo;
     private com.webreach.mirth.client.ui.components.MirthRadioButton rowHighlightYes;
     private javax.swing.JPanel serverSettings;
