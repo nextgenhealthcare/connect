@@ -6,6 +6,8 @@
 
 package com.webreach.mirth.client.ui;
 
+import java.util.Map;
+import javax.swing.DefaultComboBoxModel;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EvaluatorException;
 import org.mozilla.javascript.Script;
@@ -18,14 +20,23 @@ import org.syntax.jedit.tokenmarker.JavaScriptTokenMarker;
  */
 public class ScriptPanel extends javax.swing.JPanel
 {
-    private static SyntaxDocument preprocessorDoc;
-    private static SyntaxDocument deployDoc;
-    private static SyntaxDocument shutdownDoc;
+    private static SyntaxDocument scriptDoc;
+    private String selectedItem = null;
     private int context;
+    
+    public static String DEPLOY_SCRIPT = "Deploy";
+    public static String SHUTDOWN_SCRIPT = "Shutdown";
+    public static String PREPROCESSOR_SCRIPT = "Preprocessor";
+    public static String POSTPROCESSOR_SCRIPT = "Postprocessor";
+    
+    Map<String, String> loadedScripts;
+    
+    private String[] scripts = new String[]{DEPLOY_SCRIPT, SHUTDOWN_SCRIPT, PREPROCESSOR_SCRIPT, POSTPROCESSOR_SCRIPT};
     
     public ScriptPanel()
     {
         initComponents();
+        scriptList.setModel(new DefaultComboBoxModel(scripts));
     }
     
     /** Creates new form ScriptPanel */
@@ -34,85 +45,37 @@ public class ScriptPanel extends javax.swing.JPanel
         this.context = context;
         
         initComponents();
-        preprocessorDoc = new SyntaxDocument();
-        preprocessorDoc.setTokenMarker(new JavaScriptTokenMarker());
-        preprocessor.setDocument(preprocessorDoc);
+        scriptDoc = new SyntaxDocument();
+        scriptDoc.setTokenMarker(new JavaScriptTokenMarker());
+        script.setDocument(scriptDoc);
         
-        deployDoc = new SyntaxDocument();
-        deployDoc.setTokenMarker(new JavaScriptTokenMarker());
-        deploy.setDocument(deployDoc);
-        
-        shutdownDoc = new SyntaxDocument();
-        shutdownDoc.setTokenMarker(new JavaScriptTokenMarker());
-        shutdown.setDocument(shutdownDoc);       
+        scriptList.setModel(new DefaultComboBoxModel(scripts));
     }
     
-    public void setPreprocessor(String script)
+    public void setScripts(Map<String, String> scripts)
     {
-        preprocessor.setText(script);
+        this.loadedScripts = scripts;
+        scriptListActionPerformed(null);
     }
     
-    public void setShutdown(String script)
+    public Map<String, String> getScripts()
     {
-        shutdown.setText(script);
+        loadedScripts.put(((String)scriptList.getSelectedItem()), script.getText());
+        return this.loadedScripts;
     }
     
-    public void setDeploy(String script)
-    {
-        deploy.setText(script);
-    }
-    
-    public String getPreprocessor()
-    {
-        return preprocessor.getText();
-    }
-    
-    public String getShutdown()
-    {
-        return shutdown.getText();
-    }
-    
-    public String getDeploy()
-    {
-        return deploy.getText();
-    }
-    
-    public void validateScripts()
+    public void validateCurrentScript()
     {
         StringBuilder sb = new StringBuilder();
         Context context = Context.enter();
         try
         {
-            context.compileString("function rhinoDeployWrapper() {" + getDeploy() + "}", null, 1, null);
-            sb.append("Deploy JavaScript was successfully validated.");
+            context.compileString("function rhinoDeployWrapper() {" + script.getText() + "}", null, 1, null);
+            sb.append("JavaScript was successfully validated.");
         }
         catch (EvaluatorException e)
         {
-            sb.append("Error on line " + e.lineNumber() + ": " + e.getMessage() + " of the deploy script.");
-        }
-        
-        sb.append("\n");
-        
-        try
-        {
-            context.compileString("function rhinoShutdownWrapper() {" + getShutdown() + "}", null, 1, null);
-            sb.append("Shutdown JavaScript was successfully validated.");
-        }
-        catch (EvaluatorException e)
-        {
-            sb.append("Error on line " + e.lineNumber() + ": " + e.getMessage() + " of the shutdown script.");
-        }
-        
-        sb.append("\n");
-        
-        try
-        {
-            context.compileString("function rhinoPreprocessorWrapper() {" + getPreprocessor() + "}", null, 1, null);
-            sb.append("Preprocessor JavaScript was successfully validated.");
-        }
-        catch (EvaluatorException e)
-        {
-            sb.append("Error on line " + e.lineNumber() + ": " + e.getMessage() + " of the preprocessor script.");
+            sb.append("Error on line " + e.lineNumber() + ": " + e.getMessage() + " of the current script.");
         }
         
         Context.exit();
@@ -128,26 +91,25 @@ public class ScriptPanel extends javax.swing.JPanel
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents()
     {
-        preprocessor = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea(true,true,this.context);
         functionList1 = new FunctionList(this.context);
-        jLabel2 = new javax.swing.JLabel();
-        shutdown = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea(true,true,this.context);
-        deploy = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea(true,true,this.context);
+        script = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea(true,true,this.context);
         jLabel5 = new javax.swing.JLabel();
-        jLabel4 = new javax.swing.JLabel();
+        scriptList = new javax.swing.JComboBox();
 
         setBackground(new java.awt.Color(255, 255, 255));
-        preprocessor.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
-        jLabel2.setText("Preprocessing Script:");
+        script.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
-        shutdown.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        jLabel5.setText("Script:");
 
-        deploy.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-
-        jLabel5.setText("Deploy Script:");
-
-        jLabel4.setText("Shutdown Script:");
+        scriptList.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        scriptList.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                scriptListActionPerformed(evt);
+            }
+        });
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
@@ -158,16 +120,9 @@ public class ScriptPanel extends javax.swing.JPanel
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
                         .add(jLabel5)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 293, Short.MAX_VALUE))
-                    .add(layout.createSequentialGroup()
-                        .add(jLabel4)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 278, Short.MAX_VALUE))
-                    .add(deploy, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
-                    .add(layout.createSequentialGroup()
-                        .add(jLabel2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 101, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(259, 259, 259))
-                    .add(preprocessor, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
-                    .add(shutdown, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(scriptList, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 100, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(script, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(functionList1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 199, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
@@ -179,30 +134,30 @@ public class ScriptPanel extends javax.swing.JPanel
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, functionList1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 437, Short.MAX_VALUE)
                     .add(layout.createSequentialGroup()
-                        .add(jLabel5)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                            .add(jLabel5)
+                            .add(scriptList, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(deploy, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 121, Short.MAX_VALUE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jLabel4)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(shutdown, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 121, Short.MAX_VALUE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jLabel2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 14, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(preprocessor, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 123, Short.MAX_VALUE)))
+                        .add(script, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 409, Short.MAX_VALUE)))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void scriptListActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_scriptListActionPerformed
+    {//GEN-HEADEREND:event_scriptListActionPerformed
+        if(selectedItem != null)
+            loadedScripts.put(selectedItem, script.getText());
+        
+        selectedItem = (String)scriptList.getSelectedItem();
+        script.setText(loadedScripts.get(selectedItem));
+    }//GEN-LAST:event_scriptListActionPerformed
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea deploy;
     private com.webreach.mirth.client.ui.FunctionList functionList1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
-    private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea preprocessor;
-    private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea shutdown;
+    private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea script;
+    private javax.swing.JComboBox scriptList;
     // End of variables declaration//GEN-END:variables
     
 }

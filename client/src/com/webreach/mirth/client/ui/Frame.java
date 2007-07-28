@@ -668,7 +668,7 @@ public class Frame extends JXFrame
         addTask("doEditFilter","Edit Filter","Edit the filter for the currently selected destination.","F", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/edit.png")), channelEditTasks, channelEditPopupMenu);
         addTask("doEditTransformer","Edit Transformer","Edit the transformer for the currently selected destination.","T", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/edit.png")), channelEditTasks, channelEditPopupMenu);
         addTask("doExport","Export Channel","Export the currently selected channel to an XML file.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/export.png")), channelEditTasks, channelEditPopupMenu);
-        addTask("doValidateChannelScripts","Validate JavaScript","Validate the scripts on this page.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/accept.png")), channelEditTasks, channelEditPopupMenu);
+        addTask("doValidateChannelScripts","Validate JavaScript","Validate the currently viewed script.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/accept.png")), channelEditTasks, channelEditPopupMenu);
         
         setNonFocusable(channelEditTasks);
         setVisibleTasks(channelEditTasks, channelEditPopupMenu, 0, 10, false);
@@ -806,7 +806,7 @@ public class Frame extends JXFrame
         globalScriptsTasks.setFocusable(false);
         
         addTask("doSaveGlobalScripts","Save Scripts","Save all changes made to all scripts.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/save.png")), globalScriptsTasks, globalScriptsPopupMenu);
-        addTask("doValidateGlobalScripts","Validate JavaScript","Validate the scripts on this page.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/accept.png")), globalScriptsTasks, globalScriptsPopupMenu);
+        addTask("doValidateGlobalScripts","Validate JavaScript","Validate the currently viewed script.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/accept.png")), globalScriptsTasks, globalScriptsPopupMenu);
         
         setVisibleTasks(globalScriptsTasks, globalScriptsPopupMenu, 0, 0, false);
         //setVisibleTasks(globalScriptsTasks, globalScriptsPopupMenu, 1, -1, true);

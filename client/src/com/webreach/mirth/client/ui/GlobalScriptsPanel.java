@@ -30,12 +30,8 @@ public class GlobalScriptsPanel extends javax.swing.JPanel
     public void edit()
     {
         try
-        {
-            Map<String, String> scripts = parent.mirthClient.getGlobalScripts();
-            
-            scriptPanel.setDeploy(scripts.get("deploy"));
-            scriptPanel.setShutdown(scripts.get("shutdown"));
-            scriptPanel.setPreprocessor(scripts.get("preprocessor"));
+        {           
+            scriptPanel.setScripts(parent.mirthClient.getGlobalScripts());
         }
         catch(ClientException e)
         {
@@ -45,20 +41,14 @@ public class GlobalScriptsPanel extends javax.swing.JPanel
     
     public void validateScripts()
     {
-        scriptPanel.validateScripts();
+        scriptPanel.validateCurrentScript();
     }
     
     public void save()
     {
         try
-        {
-            HashMap<String, String> scripts = new HashMap<String, String>();
-            
-            scripts.put("deploy", scriptPanel.getDeploy());
-            scripts.put("shutdown", scriptPanel.getShutdown());
-            scripts.put("preprocessor", scriptPanel.getPreprocessor());
-            
-            parent.mirthClient.setGlobalScripts(scripts);
+        {            
+            parent.mirthClient.setGlobalScripts(scriptPanel.getScripts());
         }
         catch(ClientException e)
         {

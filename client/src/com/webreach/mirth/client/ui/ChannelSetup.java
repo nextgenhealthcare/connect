@@ -613,20 +613,29 @@ public class ChannelSetup extends javax.swing.JPanel
             incomingProtocol.setSelectedItem(parent.protocols.get(currentChannel.getSourceConnector().getTransformer().getInboundProtocol()));
         }
         
+        
+        LinkedHashMap<String, String> scriptMap = new LinkedHashMap<String, String>();
         if (currentChannel.getPreprocessingScript() != null)
-            scripts.setPreprocessor(currentChannel.getPreprocessingScript());
+            scriptMap.put(ScriptPanel.PREPROCESSOR_SCRIPT, currentChannel.getPreprocessingScript());
         else
-            scripts.setPreprocessor("// Modify the message variable below to pre process data\r\nreturn message;");
+            scriptMap.put(ScriptPanel.PREPROCESSOR_SCRIPT, "// Modify the message variable below to pre process data\r\nreturn message;");
         
         if (currentChannel.getDeployScript() != null)
-            scripts.setDeploy(currentChannel.getDeployScript());
+            scriptMap.put(ScriptPanel.DEPLOY_SCRIPT, currentChannel.getDeployScript());
         else
-            scripts.setDeploy("// This script executes once when the mule engine is started\r\n// You only have access to the globalMap here to persist data\r\nreturn;");
+            scriptMap.put(ScriptPanel.DEPLOY_SCRIPT, "// This script executes once when the mule engine is started\r\n// You only have access to the globalMap here to persist data\r\nreturn;");
         
         if (currentChannel.getShutdownScript() != null)
-            scripts.setShutdown(currentChannel.getShutdownScript());
+            scriptMap.put(ScriptPanel.SHUTDOWN_SCRIPT, currentChannel.getShutdownScript());
         else
-            scripts.setShutdown("// This script executes once when the mule engine is stopped\r\n// You only have access to the globalMap here to persist data\r\nreturn;");
+            scriptMap.put(ScriptPanel.SHUTDOWN_SCRIPT, "// This script executes once when the mule engine is stopped\r\n// You only have access to the globalMap here to persist data\r\nreturn;");
+        
+        if (currentChannel.getShutdownScript() != null)
+            scriptMap.put(ScriptPanel.POSTPROCESSOR_SCRIPT, currentChannel.getPostprocessingScript());
+        else
+            scriptMap.put(ScriptPanel.POSTPROCESSOR_SCRIPT, "// This script executes once after a message has been processed\r\nreturn;");
+        
+        scripts.setScripts(scriptMap);
         
         PropertyVerifier.checkChannelProperties(currentChannel);
         
@@ -753,9 +762,10 @@ public class ChannelSetup extends javax.swing.JPanel
         currentChannel.setDescription(summaryDescriptionText.getText());
         currentChannel.setEnabled(enabled);
         
-        currentChannel.setPreprocessingScript(scripts.getPreprocessor());
-        currentChannel.setDeployScript(scripts.getDeploy());
-        currentChannel.setShutdownScript(scripts.getShutdown());
+        currentChannel.setPreprocessingScript(scripts.getScripts().get(ScriptPanel.PREPROCESSOR_SCRIPT));
+        currentChannel.setDeployScript(scripts.getScripts().get(ScriptPanel.DEPLOY_SCRIPT));
+        currentChannel.setShutdownScript(scripts.getScripts().get(ScriptPanel.SHUTDOWN_SCRIPT));
+        currentChannel.setPostprocessingScript(scripts.getScripts().get(ScriptPanel.POSTPROCESSOR_SCRIPT));
         
         // Set the default protocols if transformers have never been visited
         
@@ -1092,7 +1102,7 @@ public class ChannelSetup extends javax.swing.JPanel
     
     public void validateScripts()
     {
-        scripts.validateScripts();
+        scripts.validateCurrentScript();
     }
     
     // <editor-fold defaultstate="collapsed" desc=" Generated Code
