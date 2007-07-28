@@ -31,6 +31,14 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		   )
 	</update>
 	
+	<update id="addPostprocessorScriptColumn">
+		ALTER TABLE CHANNEL 
+		ADD 
+		   (
+		      POSTPROCESSING_SCRIPT   CLOB DEFAULT NULL
+		   )
+	</update>
+	
 	<insert id="setInitialSchemaVersion" parameterClass="int">
 		INSERT INTO SCHEMA_INFO (VERSION) VALUES (#value#)
 	</insert>

@@ -51,6 +51,7 @@ public class Channel implements Serializable {
 	private List<Connector> destinationConnectors = new ArrayList<Connector>();
 	private Properties properties = new Properties();
 	private String preprocessingScript;
+    private String postprocessingScript;
     private String deployScript;
     private String shutdownScript;
 
@@ -134,7 +135,15 @@ public class Channel implements Serializable {
         return this.preprocessingScript;
     }
 
-    public void setPreprocessingScript(String preprocessingScript) {
+    public void setPreprocessingScript(String postprocessingScript) {
+        this.postprocessingScript = postprocessingScript;
+    }
+    
+    public String getPostprocessingScript() {
+        return this.postprocessingScript;
+    }
+
+    public void setPostprocessingScript(String preprocessingScript) {
         this.preprocessingScript = preprocessingScript;
     }
 	
@@ -177,6 +186,7 @@ public class Channel implements Serializable {
 			EqualsUtil.areEqual(this.getProperties(), channel.getProperties()) &&
             EqualsUtil.areEqual(this.getShutdownScript(), channel.getShutdownScript()) &&
             EqualsUtil.areEqual(this.getDeployScript(), channel.getDeployScript()) &&
+            EqualsUtil.areEqual(this.getPostprocessingScript(), channel.getPostprocessingScript()) &&
 			EqualsUtil.areEqual(this.getPreprocessingScript(), channel.getPreprocessingScript());
 	}
 

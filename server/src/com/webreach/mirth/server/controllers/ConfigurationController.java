@@ -292,41 +292,42 @@ public class ConfigurationController {
 		Iterator i = globalScripts.entrySet().iterator();
 		while (i.hasNext()) {
 			Entry entry = (Entry) i.next();
-			if (!(entry.getKey().toString().equals("preprocessor") && globalScripts.get(entry.getKey()).equals("// Modify the message variable below to pre process data\r\n// This script applies across all channels\r\nreturn message;")))
+			if (!(entry.getKey().toString().equals("Preprocessor") && globalScripts.get(entry.getKey()).equals("// Modify the message variable below to pre process data\r\n// This script applies across all channels\r\nreturn message;")) &&
+                    !(entry.getKey().toString().equals("Postprocessor")&& globalScripts.get(entry.getKey()).equals("// This script executes once after a message has been processed\r\n// This script applies across all channels\r\nreturn message;")))
 				JavaScriptUtil.getInstance().compileScript(entry.getKey().toString(), globalScripts.get(entry.getKey()));
 		}
 
 		for (Channel channel : channels) {
 			if (channel.isEnabled()) {
-				JavaScriptUtil.getInstance().compileScript(channel.getId() + "_deploy", channel.getDeployScript());
-				JavaScriptUtil.getInstance().compileScript(channel.getId() + "_shutdown", channel.getShutdownScript());
+				JavaScriptUtil.getInstance().compileScript(channel.getId() + "_Deploy", channel.getDeployScript());
+				JavaScriptUtil.getInstance().compileScript(channel.getId() + "_Shutdown", channel.getShutdownScript());
 			} else {
-				JavaScriptUtil.getInstance().removeScriptFromCache(channel.getId() + "_deploy");
-				JavaScriptUtil.getInstance().removeScriptFromCache(channel.getId() + "_shutdown");
+				JavaScriptUtil.getInstance().removeScriptFromCache(channel.getId() + "_Deploy");
+				JavaScriptUtil.getInstance().removeScriptFromCache(channel.getId() + "_Shutdown");
 			}
 		}
 	}
 
 	public void executeChannelDeployScripts(List<Channel> channels) {
 		for (Channel channel : channels) {
-			String scriptType = "deploy";
+			String scriptType = "Deploy";
 			JavaScriptUtil.getInstance().executeScript(channel.getId() + "_" + scriptType, scriptType, channel.getId());
 		}
 	}
 
 	public void executeChannelShutdownScripts(List<Channel> channels) {
 		for (Channel channel : channels) {
-			String scriptType = "shutdown";
+			String scriptType = "Shutdown";
 			JavaScriptUtil.getInstance().executeScript(channel.getId() + "_" + scriptType, scriptType, channel.getId());
 		}
 	}
 
 	public void executeGlobalDeployScript() {
-		executeGlobalScript("deploy");
+		executeGlobalScript("Deploy");
 	}
 
 	public void executeGlobalShutdownScript() {
-		executeGlobalScript("shutdown");
+		executeGlobalScript("Shutdown");
 	}
 
 	public void executeGlobalScript(String scriptType) {
@@ -336,9 +337,10 @@ public class ConfigurationController {
 	public Map<String, String> getGlobalScripts() throws ControllerException {
 		Map<String, String> scripts = new HashMap<String, String>();
 
-		String deployScript = scriptController.getScript("deploy");
-		String shutdownScript = scriptController.getScript("shutdown");
-		String preprocessorScript = scriptController.getScript("preprocessor");
+		String deployScript = scriptController.getScript("Deploy");
+		String shutdownScript = scriptController.getScript("Shutdown");
+		String preprocessorScript = scriptController.getScript("Preprocessor");
+        String postprocessorScript = scriptController.getScript("Postprocessor");
 
 		if (deployScript == null)
 			deployScript = "// This script executes once when the mule engine is started\r\n// You only have access to the globalMap here to persist data\r\nreturn;";
@@ -348,10 +350,14 @@ public class ConfigurationController {
 
 		if (preprocessorScript == null)
 			preprocessorScript = "// Modify the message variable below to pre process data\r\n// This script applies across all channels\r\nreturn message;";
+        
+        if (postprocessorScript == null)
+            postprocessorScript = "// This script executes once after a message has been processed\r\n// This script applies across all channels\r\nreturn message;";
 
-		scripts.put("deploy", deployScript);
-		scripts.put("shutdown", shutdownScript);
-		scripts.put("preprocessor", preprocessorScript);
+		scripts.put("Deploy", deployScript);
+		scripts.put("Shutdown", shutdownScript);
+		scripts.put("Preprocessor", preprocessorScript);
+        scripts.put("Postprocessor", postprocessorScript);
 
 		return scripts;
 	}

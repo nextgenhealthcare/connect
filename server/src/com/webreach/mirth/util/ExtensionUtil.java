@@ -62,7 +62,7 @@ public class ExtensionUtil
 
     public static void saveExtensionMetaData(Map<String, ? extends MetaData> metaData, String location) throws ControllerException
     {
-        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+        ObjectXMLSerializer serializer = new ObjectXMLSerializer(new Class[]{PluginMetaData.class, ConnectorMetaData.class});
 
         try
         {

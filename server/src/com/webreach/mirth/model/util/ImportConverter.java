@@ -175,6 +175,13 @@ public class ImportConverter
             shutdownScript.setTextContent("// This script executes once when the mule engine is stopped\r\n// You only have access to the globalMap here to persist data\r\nreturn;");
             channelRoot.appendChild(shutdownScript);
         }
+        
+        if (channelRoot.getElementsByTagName("postprocessorScript").getLength() == 0)
+        {
+            Element postprocessorScript = document.createElement("postprocessorScript");
+            postprocessorScript.setTextContent("// This script executes once after a message has been processed\r\nreturn;");
+            channelRoot.appendChild(postprocessorScript);
+        }
 
         NodeList transportNames = channelRoot.getElementsByTagName("transportName");
         for (int i = 0; i < transportNames.getLength(); i++)

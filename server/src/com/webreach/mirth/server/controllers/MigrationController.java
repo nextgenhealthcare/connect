@@ -163,5 +163,14 @@ public class MigrationController
         {
             logger.warn("could not add shutdown script column to channel");
         }
+        
+        try
+        {
+            sqlMap.update("addPostprocessorScriptColumn");
+        }
+        catch (SQLException e)
+        {
+            logger.warn("could not add postprocessor script column to channel");
+        }
     }
 }
