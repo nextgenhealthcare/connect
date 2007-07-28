@@ -841,9 +841,9 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
         TransformerStepPlugin plugin;
 		try {
 			plugin = getPlugin(step.getType());
-			String stepName = plugin.getStepName();
-	        if (stepName == null){
-	        	stepName = step.getName();
+			String stepName = step.getName();
+	        if (stepName == null || stepName.equals("")){
+	        	stepName = plugin.getStepName();
 	        }
 	        tableData[STEP_NAME_COL] = stepName;
 	        tableData[STEP_TYPE_COL] = step.getType();
@@ -1179,7 +1179,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
     {
         saveData(transformerTable.getSelectedRow());
 
-        if (!invalidVar || transformerTable.getRowCount() == 0)
+        if (!invalidVar)
         {
             List<Step> list = buildStepList(new ArrayList<Step>(), transformerTable.getRowCount());
 
