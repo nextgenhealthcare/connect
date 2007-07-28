@@ -220,7 +220,21 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher {
 		
 		call.setProperty("axis.one.way", Boolean.TRUE);
 		call.setProperty(MuleProperties.MULE_EVENT_PROPERTY, event);
-
+		//ast: Get possible user auth info from endpoint
+		// this only resolves basic and NTLM
+		// For auth/digest protocol://user:pass@uri
+		// For NTLM protocol://domain%5Cuser:pass@uri
+		// (%5C is the urlencoding for '\')
+		UMOEndpointURI endpointUri = event.getEndpoint().getEndpointURI();
+		if (endpointUri.getUserInfo() != null) {
+			call.setProperty(Call.USERNAME_PROPERTY, endpointUri.getUsername());
+			call.setProperty(Call.PASSWORD_PROPERTY, endpointUri.getPassword());
+			logger.trace("HTTP auth sec detected: ["+endpointUri.getUsername()+"] Clave: ["+endpointUri.getPassword()+"]");			
+		}else{
+			logger.trace("No HTTP auth sec detected");
+		}
+		
+		
 		// call.invoke(args);
 		Object result = call.invoke(reqMessage);
 		AxisConnector axisConnector = (AxisConnector)connector;
@@ -235,6 +249,7 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher {
 		Object[] retVal = new Object[2];
 		retVal[0] = result;
 		retVal[1] = call.getMessageContext();
+		logger.debug("WS ("+endpointUri.toString()+" returned \r\n["+result+"]");
 		return retVal;
 		}catch(Exception e){
 			alertController.sendAlerts(messageObject.getChannelId(), Constants.ERROR_410, "Error invoking WebService", e);

@@ -26,6 +26,13 @@
 
 package com.webreach.mirth.server.util;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -44,8 +51,19 @@ import javax.wsdl.extensions.soap.SOAPAddress;
 import javax.wsdl.extensions.soap.SOAPBody;
 import javax.wsdl.extensions.soap.SOAPOperation;
 import javax.wsdl.xml.WSDLLocator;
+import javax.wsdl.xml.WSDLReader;
 import javax.xml.namespace.QName;
 
+import org.apache.axis.utils.NetworkUtils;
+import org.apache.commons.httpclient.Credentials;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpException;
+import org.apache.commons.httpclient.HttpMethod;
+import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.httpclient.NTCredentials;
+import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.commons.httpclient.auth.AuthScope;
+import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.log4j.Logger;
 import org.apache.wsif.WSIFException;
 import org.apache.wsif.schema.ComplexType;
@@ -72,7 +90,104 @@ public class WebServiceReader {
 			return this.loc;
 		}
 	}
-
+/**
+ * 
+ * @param WSDLUri  URL where is the WSDL
+ * 
+ * This method allows the user to pass a user/pass credentials in the URL 
+ * of the WSDL file
+ * 
+ * The code is similar to the used at axis in CommonsHTTPSender  
+ * 
+ * 
+ */
+	public String getFromURi(URI WSDLUri){
+		
+		
+		try {
+			if (WSDLUri.toURL().getProtocol().equalsIgnoreCase("FILE")) return WSDLUri.toString();
+		} catch (MalformedURLException e1) {
+			logger.error(" Malformed URI ["+WSDLUri+"] "+e1);
+			return WSDLUri.toString();
+		}
+		
+		HttpClient httpClient = new HttpClient();
+		HttpMethod getMethod = new GetMethod(WSDLUri.toString());
+		String userID=null;
+		String passwd=null;	
+		String info=WSDLUri.getUserInfo();
+		 if ( ( info != null)) {
+			    logger.debug("WSDL detected user info: "+info);
+	            int sep = info.indexOf(':');	            
+	            if ((sep >= 0) && (sep + 1 < info.length())) {
+	                userID = info.substring(0, sep);
+	                passwd = info.substring(sep + 1);
+	            } else {
+	                userID = info;
+	            }
+	     }
+		 //Check for NTLM HTTP auth
+		 if (userID == null) return WSDLUri.toString(); 
+	            Credentials proxyCred =
+	                new UsernamePasswordCredentials(userID, passwd);
+	            // if the username is in the form "user\domain"
+	            // then use NTCredentials instead.
+	            int domainIndex = userID.indexOf("\\");	            
+	            if (domainIndex > 0) {	            	
+	                String domain = userID.substring(0, domainIndex);
+	                if (userID.length() > domainIndex + 1) {
+	                    String user = userID.substring(domainIndex + 1);
+	                    proxyCred = new NTCredentials(user,
+	                                    passwd,
+	                                    NetworkUtils.getLocalHostname(), domain);
+	                    logger.trace("Detected NTLM credentials usr ["+user+"] pass: ["+passwd+"] ln ["+NetworkUtils.getLocalHostname()+"] dm ["+domain+"]");
+	                }
+	            }else{
+	                logger.trace("Detected User/Pass credentials usr ["+userID+"] pass: ["+passwd+"]");
+	            }
+	            httpClient.getState().setCredentials(AuthScope.ANY, proxyCred);
+	        
+		
+		byte[] responseBody=null;
+		try {
+			int statusCode = httpClient.executeMethod(getMethod);
+			responseBody = getMethod.getResponseBody();
+			if (statusCode != HttpStatus.SC_OK) {
+		        logger.error("Method failed: " + getMethod.getStatusLine());
+		    }else{
+		    	  logger.error(new String(responseBody));
+		    }		
+		} catch (HttpException e) {
+		      logger.error("Fatal protocol violation: " + e.getMessage());
+		      return WSDLUri.toString();
+		} catch (IOException e) {
+			logger.error("I/O Exception "+e.getMessage());
+			return WSDLUri.toString();
+		}finally {
+		      // Release the connection.
+			getMethod.releaseConnection();
+		} 
+		if (responseBody!=null){
+		    try {		    
+		        // Create temp file.
+		        File temp = File.createTempFile("pattern", ".wsdl");		    
+		        // Delete temp file when program exits.
+		        temp.deleteOnExit();		    
+		        // Write to temp file
+		        FileOutputStream fos = new FileOutputStream(temp);
+		        fos.write(responseBody);
+	            fos.close();
+	            return temp.toURL().toString();
+		    } catch (IOException e) {
+		    	logger.error("I/O Exception writting wsdl to a temp file: "+ e.getMessage());
+			    //e.printStackTrace();
+			    return WSDLUri.toString();
+		    }			
+		}
+		return WSDLUri.toString();
+	}
+	
+	
 	public Map<String, SchemaType> typesToMap(List typeList) {
 		HashMap<String, SchemaType> map = new HashMap<String, SchemaType>();
 		Iterator<SchemaType> it = typeList.iterator();
@@ -86,11 +201,12 @@ public class WebServiceReader {
 
 	public WSDefinition getWSDefinition() throws Exception {
 		WSDefinition wsDefinition = new WSDefinition();
-		WSDLReaderImpl reader = new WSDLReaderImpl();
+		//WSDLReaderImpl reader = new WSDLReaderImpl();
+		WSDLReader reader= javax.wsdl.factory.WSDLFactory.newInstance().newWSDLReader();				
 		Definition definition = null;
 		// Read in the WSDL
 		try{
-			definition = reader.readWSDL(address);
+			definition = reader.readWSDL(getFromURi(new URI(address)));
 		}catch (Exception e){
 			logger.warn("Unable to read WSDL location: " + address);
 			//e.printStackTrace();
@@ -212,13 +328,8 @@ public class WebServiceReader {
 				WSParameter newParam = new WSParameter();
 				// if we have a complex type, set the param name
 				newParam.setName(seqElement.getTypeName().getLocalPart());
-				//patch ast:
-				if (seqElement.getElementType()==null) {
-					newParam.setType("anyType");
-				}
-				else {
-					newParam.setType(seqElement.getElementType().getLocalPart());
-				}
+				if (seqElement.getElementType()==null) newParam.setType("anyType");
+				else newParam.setType(seqElement.getElementType().getLocalPart());
 				// Can we have multiple?
 				QName maxOccurs = seqElement.getXMLAttribute("maxOccurs");
 				if (maxOccurs != null)
