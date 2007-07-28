@@ -58,7 +58,7 @@ public class LlpProtocol implements TcpProtocol {
 	}
 
 	private byte[] readTCP(InputStream is) throws IOException {
-		String charset=_mllpConnector.getCharsetEncoding();
+		String charset = _mllpConnector.getCharsetEncoding();
 		UtilReader myReader = new UtilReader(is, charset);
 
 		int c = 0;
@@ -90,7 +90,7 @@ public class LlpProtocol implements TcpProtocol {
 
 		return myReader.getBytes();
 	}
-	
+
 	/*
 	 * Reads an inputstream and parses messages based on HL7 delimiters @param
 	 * is The InputStream to read from @return <code>byte[]</code> containing
@@ -101,9 +101,9 @@ public class LlpProtocol implements TcpProtocol {
 
 		// ast: new function to process the MLLP protocol
 		// ast: wrapper for the reader
-		String charset=_mllpConnector.getCharsetEncoding();
-		UtilReader myReader = new UtilReader(is, charset);		
-		
+		String charset = _mllpConnector.getCharsetEncoding();
+		UtilReader myReader = new UtilReader(is, charset);
+
 		boolean end_of_message = false;
 
 		int c = 0;
@@ -124,25 +124,22 @@ public class LlpProtocol implements TcpProtocol {
 			return null;
 		}
 
-		if ((c!=START_MESSAGE) && (c!=-1)) {
-			while (c != -1) {
-				myReader.append((char) c);
-				try {
-					c = myReader.read();
-				} catch (Exception e) {
-					c = -1;
-				}
+		while ((c != START_MESSAGE) && (c != -1)) {
+			try {
+				c = myReader.read();
+			} catch (Exception e) {
+				c = -1;
 			}
-			String message = myReader.toString();			
-			logger.error("Bytes received violate the MLLP: no start of message indicator received.\r\n"+message);
-			if (c!=START_MESSAGE){// If the socket is closed, launch an exception 
-				throw new IOException("Message violates the minimal lower layer protocol: no start of message indicator received");
-			}
-			myReader.reset();
-			myReader.append((char) c);
-		}else{
-			myReader.append((char) c);
 		}
+		
+		if (c == -1) {  // End of stream reached without start of message character.
+			String message = myReader.toString();
+			logger.error("Bytes received violate the MLLP: no start of message indicator received.\r\n" + message);
+			throw new IOException("Message violates the minimal lower layer protocol: no start of message indicator received");
+		}
+		
+		myReader.append((char) c);
+		
 		while (!end_of_message) {
 			c = myReader.read();
 
@@ -155,7 +152,7 @@ public class LlpProtocol implements TcpProtocol {
 				if (END_OF_RECORD != 0) {
 					// subsequent character should be a carriage return
 					try {
-						c = myReader.read();						
+						c = myReader.read();
 						if (END_OF_RECORD != 0 && c != END_OF_RECORD) {
 							logger.error("Message terminator was: " + c + "  Expected terminator: " + END_OF_RECORD);
 							throw new IOException("Message " + "violates the minimal lower layer protocol: " + "message terminator not followed by a return " + "character." + myReader.toString());
@@ -168,18 +165,12 @@ public class LlpProtocol implements TcpProtocol {
 					}
 				}
 				end_of_message = true;
-				
-			} else {
-				// the character wasn't the end of message, append it to the
-				// message
-				//myReader.append((char) c);
 			}
 		} // end while
 
 		return myReader.getBytes();
 	}
 
-	
 	public byte[] read(InputStream is) throws IOException {
 		if (useLLP) {
 			return readLLP(is);
@@ -207,39 +198,44 @@ public class LlpProtocol implements TcpProtocol {
 	// ast: a class to read both types of stream; bytes ( char limits ) and
 	// chars (byte limits)
 	protected class UtilReader {
-		InputStream byteReader=null;
+		InputStream byteReader = null;
 		ByteArrayOutputStream baos = null;
-		String charset="";		
+		String charset = "";
 
 		public UtilReader(InputStream is, String charset) {
-			this.charset=charset;
-			this.byteReader=is;			
+			this.charset = charset;
+			this.byteReader = is;
 			baos = new ByteArrayOutputStream();
 		}
-	
+
 		public int read() throws java.io.IOException {
-			if (byteReader!=null) return byteReader.read();
-			else return -1;
+			if (byteReader != null)
+				return byteReader.read();
+			else
+				return -1;
 		}
 
 		public void close() throws java.io.IOException {
-			if (byteReader!=null) 	byteReader.close();
+			if (byteReader != null)
+				byteReader.close();
 
 		}
+
 		public void append(int c) throws java.io.IOException {
-			baos.write(c);			
+			baos.write(c);
 		}
-		public String toString() {	
-            try{
-                baos.flush();
-                baos.close();
-            }catch(Throwable t){
-                logger.error("Error closing the auxiliar buffer "+t);
-            }
-			try{
-				return new String(baos.toByteArray(),this.charset);
-			}catch(java.io.UnsupportedEncodingException e){
-				logger.error("Error: "+charset+" is unsupported, changing to default encoding");
+
+		public String toString() {
+			try {
+				baos.flush();
+				baos.close();
+			} catch (Throwable t) {
+				logger.error("Error closing the auxiliar buffer " + t);
+			}
+			try {
+				return new String(baos.toByteArray(), this.charset);
+			} catch (java.io.UnsupportedEncodingException e) {
+				logger.error("Error: " + charset + " is unsupported, changing to default encoding");
 				return new String(baos.toByteArray());
 			}
 		}
@@ -249,7 +245,8 @@ public class LlpProtocol implements TcpProtocol {
 			baos.close();
 			return baos.toByteArray();
 		}
-		public void reset(){
+
+		public void reset() {
 			baos.reset();
 		}
 
