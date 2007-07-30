@@ -27,7 +27,9 @@ package com.webreach.mirth.connectors.http;
 
 import java.util.Properties;
 
-public class HTTPListenerProperties
+import com.webreach.mirth.model.ComponentProperties;
+
+public class HTTPListenerProperties implements ComponentProperties
 {
     public static final String name = "HTTP Listener";
 	
@@ -40,7 +42,7 @@ public class HTTPListenerProperties
     public static final String HTTP_RESPONSE_VALUE = "responseValue";   
     public static final String HTTP_EXTENDED_PAYLOAD = "extendedPayload";
 
-    public static Properties getDefaults()
+    public Properties getDefaults()
     {
         Properties properties = new Properties();
         properties.put(DATATYPE, name);

@@ -126,6 +126,14 @@ public class HttpMessageReceiver extends TcpMessageReceiver {
                     if (payload == null) {
                         break;
                     }
+                    if (headers.get("Expect") != null && headers.get("Expect").equals("100-continue")){
+                    	dataOut.write("HTTP/1.1 100 Continue\r\n\r\n".getBytes());
+                    	payload = parseRequest(dataIn, headers, httpConnector.isExtendedPayload());
+                        if (payload == null) {
+                             break;
+                        }
+                    }
+                   
                     UMOMessageAdapter adapter = connector.getMessageAdapter(new Object[]{payload, headers});
                     //Removed the keep alive monitoring stuff for now
                     //nstead just wait for the client to disconnect
