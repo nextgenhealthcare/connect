@@ -1,0 +1,16 @@
+<pluginMetaData>
+  <name>Mapper Transformer Step</name>
+  <author>WebREACH, Inc.</author>
+  <pluginVersion>1.6.0</pluginVersion>
+  <mirthVersion>1.6.0</mirthVersion>
+  <url>http://www.mirthproject.org</url>
+  <updateUrl><![CDATA[http://www.mirthproject.org/update/plugins/MapperTransformerStep/?pluginVersion=1.6.0&mirthVersion=1.6.0]]></updateUrl>
+  <versionUrl>http://www.mirthproject.org/update/plugins/MapperTransformerStep/version</versionUrl>
+  <enabled>true</enabled>
+  <extensionPoint>
+  	<name>Mapper</name>
+    <type>CLIENT_TRANSFORMER_STEP</type>
+    <className>com.webreach.mirth.plugins.transformer.step.mapper.MapperStepPlugin</className>
+    <mode>CLIENT</mode>
+  </extensionPoint>
+</pluginMetaData>

@@ -1,0 +1,16 @@
+<pluginMetaData>
+  <name>Message Builder Transformer Step</name>
+  <author>WebREACH, Inc.</author>
+  <pluginVersion>1.6.0</pluginVersion>
+  <mirthVersion>1.6.0</mirthVersion>
+  <url>http://www.mirthproject.org</url>
+  <updateUrl><![CDATA[http://www.mirthproject.org/update/plugins/MessageBuilderTransformerStep/?pluginVersion=1.6.0&mirthVersion=1.6.0]]></updateUrl>
+  <versionUrl>http://www.mirthproject.org/update/plugins/MessageBuilderTransformerStep/version</versionUrl>
+  <enabled>true</enabled>
+  <extensionPoint>
+  	<name>Message Builder</name>
+    <type>CLIENT_TRANSFORMER_STEP</type>
+    <className>com.webreach.mirth.plugins.transformer.step.messagebuilder.MessageBuilderPlugin</className>
+    <mode>CLIENT</mode>
+  </extensionPoint>
+</pluginMetaData>
