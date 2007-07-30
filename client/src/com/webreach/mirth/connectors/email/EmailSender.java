@@ -43,7 +43,6 @@ public class EmailSender extends ConnectorClass
     {
         name = EmailSenderProperties.name;
         initComponents();
-        SMTPServerPortField.setDocument(new MirthFieldConstraints(5, false, false, true));
     }
 
     public Properties getProperties()

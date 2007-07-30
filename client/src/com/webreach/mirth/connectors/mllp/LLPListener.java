@@ -56,10 +56,6 @@ public class LLPListener extends ConnectorClass
     {
         name = LLPListenerProperties.name;
         initComponents();
-        listenerIPAddressField.setDocument(new MirthFieldConstraints(3, false, false, true));
-        listenerIPAddressField1.setDocument(new MirthFieldConstraints(3, false, false, true));
-        listenerIPAddressField2.setDocument(new MirthFieldConstraints(3, false, false, true));
-        listenerPortField.setDocument(new MirthFieldConstraints(5, false, false, true));
         reconnectIntervalField.setDocument(new MirthFieldConstraints(0, false, false, true));
         receiveTimeoutField.setDocument(new MirthFieldConstraints(0, false, false, true));
         bufferSizeField.setDocument(new MirthFieldConstraints(0, false, false, true));
@@ -77,8 +73,7 @@ public class LLPListener extends ConnectorClass
         else
             properties.put(LLPListenerProperties.LLP_SERVER_MODE, UIConstants.NO_OPTION);
         
-        String listenerIPAddress = listenerIPAddressField.getText() + "." + listenerIPAddressField1.getText() + "." + listenerIPAddressField2.getText() + "." + listenerIPAddressField3.getText();
-        properties.put(LLPListenerProperties.LLP_ADDRESS, listenerIPAddress);
+        properties.put(LLPListenerProperties.LLP_ADDRESS, listenerAddressField.getText());
         properties.put(LLPListenerProperties.LLP_PORT, listenerPortField.getText());
         properties.put(LLPListenerProperties.LLP_RECONNECT_INTERVAL, reconnectIntervalField.getText());
         properties.put(LLPListenerProperties.LLP_RECEIVE_TIMEOUT, receiveTimeoutField.getText());
@@ -137,8 +132,7 @@ public class LLPListener extends ConnectorClass
         else
             properties.put(LLPListenerProperties.LLP_ACK_NEW_CONNECTION, UIConstants.NO_OPTION);
 
-        String ackIPAddress = ackIPAddressField.getText() + "." + ackIPAddressField1.getText() + "." + ackIPAddressField2.getText() + "." + ackIPAddressField3.getText();
-        properties.put(LLPListenerProperties.LLP_ACK_NEW_CONNECTION_IP, ackIPAddress);
+        properties.put(LLPListenerProperties.LLP_ACK_NEW_CONNECTION_IP, ackAddressField.getText());
         properties.put(LLPListenerProperties.LLP_ACK_NEW_CONNECTION_PORT, ackPortField.getText());
         
         if (waitForEndOfMessageCharYes.isSelected())
@@ -169,25 +163,7 @@ public class LLPListener extends ConnectorClass
             clientRadioButton.setSelected(true);
         }
         
-        String listenerIPAddress = (String) props.get(LLPListenerProperties.LLP_ADDRESS);
-        StringTokenizer IP = new StringTokenizer(listenerIPAddress, ".");
-        if (IP.hasMoreTokens())
-            listenerIPAddressField.setText(IP.nextToken());
-        else
-            listenerIPAddressField.setText("");
-        if (IP.hasMoreTokens())
-            listenerIPAddressField1.setText(IP.nextToken());
-        else
-            listenerIPAddressField1.setText("");
-        if (IP.hasMoreTokens())
-            listenerIPAddressField2.setText(IP.nextToken());
-        else
-            listenerIPAddressField2.setText("");
-        if (IP.hasMoreTokens())
-            listenerIPAddressField3.setText(IP.nextToken());
-        else
-            listenerIPAddressField3.setText("");
-
+        listenerAddressField.setText((String) props.get(LLPListenerProperties.LLP_ADDRESS));
         listenerPortField.setText((String) props.get(LLPListenerProperties.LLP_PORT));
         reconnectIntervalField.setText((String) props.get(LLPListenerProperties.LLP_RECONNECT_INTERVAL));
         receiveTimeoutField.setText((String) props.get(LLPListenerProperties.LLP_RECEIVE_TIMEOUT));
@@ -256,24 +232,7 @@ public class LLPListener extends ConnectorClass
             ackOnNewConnectionNo.setSelected(true);
         }
 
-        String ackIPAddress = (String) props.get(LLPListenerProperties.LLP_ACK_NEW_CONNECTION_IP);
-        StringTokenizer ackIP = new StringTokenizer(ackIPAddress, ".");
-        if (ackIP.hasMoreTokens())
-            ackIPAddressField.setText(ackIP.nextToken());
-        else
-            ackIPAddressField.setText("");
-        if (ackIP.hasMoreTokens())
-            ackIPAddressField1.setText(ackIP.nextToken());
-        else
-            ackIPAddressField1.setText("");
-        if (ackIP.hasMoreTokens())
-            ackIPAddressField2.setText(ackIP.nextToken());
-        else
-            ackIPAddressField2.setText("");
-        if (ackIP.hasMoreTokens())
-            ackIPAddressField3.setText(ackIP.nextToken());
-        else
-            ackIPAddressField3.setText("");
+        ackAddressField.setText((String) props.get(LLPListenerProperties.LLP_ACK_NEW_CONNECTION_IP));
 
         ackPortField.setText((String) props.get(LLPListenerProperties.LLP_ACK_NEW_CONNECTION_PORT));
         
@@ -306,13 +265,10 @@ public class LLPListener extends ConnectorClass
         resetInvalidProperties();
         boolean valid = true;
         
-        if (((String) props.get(LLPListenerProperties.LLP_ADDRESS)).length() <= 3)
+        if (((String) props.get(LLPListenerProperties.LLP_ADDRESS)).length() == 0)
         {
             valid = false;
-            listenerIPAddressField.setBackground(UIConstants.INVALID_COLOR);
-            listenerIPAddressField1.setBackground(UIConstants.INVALID_COLOR);
-            listenerIPAddressField2.setBackground(UIConstants.INVALID_COLOR);
-            listenerIPAddressField3.setBackground(UIConstants.INVALID_COLOR);            
+            listenerAddressField.setBackground(UIConstants.INVALID_COLOR);        
         }
         if (((String) props.get(LLPListenerProperties.LLP_PORT)).length() == 0)
         {
@@ -374,13 +330,10 @@ public class LLPListener extends ConnectorClass
         }
         if (((String) props.get(LLPListenerProperties.LLP_ACK_NEW_CONNECTION)).equals(UIConstants.YES_OPTION) && (((String) props.get(LLPListenerProperties.LLP_SEND_ACK)).equals(UIConstants.YES_OPTION) || ((String) props.get(LLPListenerProperties.LLP_RESPONSE_FROM_TRANSFORMER)).equals(UIConstants.YES_OPTION)))
         {
-            if (((String) props.get(LLPListenerProperties.LLP_ACK_NEW_CONNECTION_IP)).length() <= 3)
+            if (((String) props.get(LLPListenerProperties.LLP_ACK_NEW_CONNECTION_IP)).length() == 0)
             {
                 valid = false;
-                ackIPAddressField.setBackground(UIConstants.INVALID_COLOR);
-                ackIPAddressField1.setBackground(UIConstants.INVALID_COLOR);
-                ackIPAddressField2.setBackground(UIConstants.INVALID_COLOR);
-                ackIPAddressField3.setBackground(UIConstants.INVALID_COLOR);
+                ackAddressField.setBackground(UIConstants.INVALID_COLOR);
             }
             if (((String) props.get(LLPListenerProperties.LLP_ACK_NEW_CONNECTION_PORT)).length() == 0)
             {
@@ -394,10 +347,7 @@ public class LLPListener extends ConnectorClass
     
     private void resetInvalidProperties()
     {
-        listenerIPAddressField.setBackground(null);
-        listenerIPAddressField1.setBackground(null);
-        listenerIPAddressField2.setBackground(null);
-        listenerIPAddressField3.setBackground(null);
+        listenerAddressField.setBackground(null);
         listenerPortField.setBackground(null);
         reconnectIntervalField.setBackground(null);
         receiveTimeoutField.setBackground(null);
@@ -409,10 +359,7 @@ public class LLPListener extends ConnectorClass
         successACKCode.setBackground(null);
         errorACKCode.setBackground(null);
         rejectedACKCode.setBackground(null);
-        ackIPAddressField.setBackground(null);
-        ackIPAddressField1.setBackground(null);
-        ackIPAddressField2.setBackground(null);
-        ackIPAddressField3.setBackground(null);
+        ackAddressField.setBackground(null);
         ackPortField.setBackground(null);
     }
 
@@ -433,7 +380,7 @@ public class LLPListener extends ConnectorClass
         buttonGroup6 = new javax.swing.ButtonGroup();
         serverClientButtonGroup = new javax.swing.ButtonGroup();
         processBatchGroup = new javax.swing.ButtonGroup();
-        ipAddressLabel = new javax.swing.JLabel();
+        addressLabel = new javax.swing.JLabel();
         portLabel = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
@@ -446,13 +393,7 @@ public class LLPListener extends ConnectorClass
         recordSeparatorField = new com.webreach.mirth.client.ui.components.MirthTextField();
         startOfMessageCharacterField = new com.webreach.mirth.client.ui.components.MirthTextField();
         endOfMessageCharacterField = new com.webreach.mirth.client.ui.components.MirthTextField();
-        listenerIPAddressField3 = new com.webreach.mirth.client.ui.components.MirthTextField();
-        jLabel25 = new javax.swing.JLabel();
-        listenerIPAddressField2 = new com.webreach.mirth.client.ui.components.MirthTextField();
-        jLabel26 = new javax.swing.JLabel();
-        listenerIPAddressField1 = new com.webreach.mirth.client.ui.components.MirthTextField();
-        jLabel9 = new javax.swing.JLabel();
-        listenerIPAddressField = new com.webreach.mirth.client.ui.components.MirthTextField();
+        listenerAddressField = new com.webreach.mirth.client.ui.components.MirthTextField();
         jLabel6 = new javax.swing.JLabel();
         ascii = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         hex = new com.webreach.mirth.client.ui.components.MirthRadioButton();
@@ -483,14 +424,8 @@ public class LLPListener extends ConnectorClass
         ackOnNewConnectionNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         ackIPLabel = new javax.swing.JLabel();
         ackPortLabel = new javax.swing.JLabel();
-        ackIPAddressField1 = new com.webreach.mirth.client.ui.components.MirthTextField();
         ackPortField = new com.webreach.mirth.client.ui.components.MirthTextField();
-        ipDot1 = new javax.swing.JLabel();
-        ackIPAddressField3 = new com.webreach.mirth.client.ui.components.MirthTextField();
-        ipDot2 = new javax.swing.JLabel();
-        ackIPAddressField = new com.webreach.mirth.client.ui.components.MirthTextField();
-        ackIPAddressField2 = new com.webreach.mirth.client.ui.components.MirthTextField();
-        ipDot = new javax.swing.JLabel();
+        ackAddressField = new com.webreach.mirth.client.ui.components.MirthTextField();
         sendACKTransformer = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         responseFromTransformer = new com.webreach.mirth.client.ui.components.MirthComboBox();
         waitForEndOfMessageCharLabel = new javax.swing.JLabel();
@@ -510,7 +445,7 @@ public class LLPListener extends ConnectorClass
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
-        ipAddressLabel.setText("Listener IP Address:");
+        addressLabel.setText("Listener Address:");
 
         portLabel.setText("Listener Port:");
 
@@ -523,12 +458,6 @@ public class LLPListener extends ConnectorClass
         jLabel35.setText("End of Message Char:");
 
         jLabel36.setText("Record Separator Char:");
-
-        jLabel25.setText(".");
-
-        jLabel26.setText(".");
-
-        jLabel9.setText(".");
 
         jLabel6.setText("LLP Frame Encoding:");
 
@@ -632,15 +561,9 @@ public class LLPListener extends ConnectorClass
             }
         });
 
-        ackIPLabel.setText("ACK IP Address:");
+        ackIPLabel.setText("ACK Address:");
 
         ackPortLabel.setText("ACK Port:");
-
-        ipDot1.setText(".");
-
-        ipDot2.setText(".");
-
-        ipDot.setText(".");
 
         sendACKTransformer.setBackground(new java.awt.Color(255, 255, 255));
         sendACKTransformer.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -774,7 +697,7 @@ public class LLPListener extends ConnectorClass
                     .add(ackPortLabel)
                     .add(jLabel3)
                     .add(portLabel)
-                    .add(ipAddressLabel)
+                    .add(addressLabel)
                     .add(llpModeLabel)
                     .add(reconnectIntervalLabel)
                     .add(jLabel1))
@@ -788,20 +711,7 @@ public class LLPListener extends ConnectorClass
                     .add(listenerPortField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(receiveTimeoutField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 100, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(bufferSizeField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 100, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(layout.createSequentialGroup()
-                        .add(listenerIPAddressField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 31, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jLabel9)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(listenerIPAddressField1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 31, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jLabel26)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(listenerIPAddressField2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 31, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jLabel25)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(listenerIPAddressField3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 31, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(listenerAddressField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(layout.createSequentialGroup()
                         .add(startOfMessageCharacterField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -840,20 +750,7 @@ public class LLPListener extends ConnectorClass
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(mshAckAcceptNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                     .add(ackPortField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(layout.createSequentialGroup()
-                        .add(ackIPAddressField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 31, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(4, 4, 4)
-                        .add(ipDot)
-                        .add(4, 4, 4)
-                        .add(ackIPAddressField1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 31, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(4, 4, 4)
-                        .add(ipDot1)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(ackIPAddressField2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 31, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(ipDot2)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(ackIPAddressField3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 31, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(ackAddressField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(layout.createSequentialGroup()
                         .add(ackOnNewConnectionYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -890,17 +787,9 @@ public class LLPListener extends ConnectorClass
                     .add(clientRadioButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(llpModeLabel))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(listenerIPAddressField1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                        .add(listenerIPAddressField2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(listenerIPAddressField3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(jLabel26)
-                    .add(jLabel25)
-                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                        .add(listenerIPAddressField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(ipAddressLabel))
-                    .add(jLabel9))
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(listenerAddressField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(addressLabel))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(listenerPortField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -989,19 +878,9 @@ public class LLPListener extends ConnectorClass
                     .add(ackOnNewConnectionYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(ackOnNewConnectionNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(ackIPAddressField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(ackIPLabel))
-                        .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                            .add(ipDot))
-                        .add(org.jdesktop.layout.GroupLayout.TRAILING, ackIPAddressField1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(ipDot1)
-                    .add(ackIPAddressField2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(ackIPAddressField3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(ipDot2))
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(ackAddressField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(ackIPLabel))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(ackPortLabel)
@@ -1012,7 +891,7 @@ public class LLPListener extends ConnectorClass
 
     private void clientRadioButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_clientRadioButtonActionPerformed
     {//GEN-HEADEREND:event_clientRadioButtonActionPerformed
-        ipAddressLabel.setText("Server IP Address");
+        addressLabel.setText("Server Address");
         portLabel.setText("Server Port");
         reconnectIntervalField.setEnabled(true);
         reconnectIntervalLabel.setEnabled(true);
@@ -1020,7 +899,7 @@ public class LLPListener extends ConnectorClass
 
     private void serverRadioButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_serverRadioButtonActionPerformed
     {//GEN-HEADEREND:event_serverRadioButtonActionPerformed
-        ipAddressLabel.setText("Listener IP Address");
+        addressLabel.setText("Listener Address");
         portLabel.setText("Listener Port");
         reconnectIntervalField.setEnabled(false);
         reconnectIntervalLabel.setEnabled(false);
@@ -1133,15 +1012,8 @@ public class LLPListener extends ConnectorClass
 
         if (ackOnNewConnectionYes.isSelected())
         {
-            ackIPAddressField.setEnabled(true);
-            ackIPAddressField1.setEnabled(true);
-            ackIPAddressField2.setEnabled(true);
-            ackIPAddressField3.setEnabled(true);
+            ackAddressField.setEnabled(true);
             ackPortField.setEnabled(true);
-
-            ipDot.setEnabled(true);
-            ipDot1.setEnabled(true);
-            ipDot2.setEnabled(true);
             ackIPLabel.setEnabled(true);
             ackPortLabel.setEnabled(true);
         }
@@ -1151,30 +1023,16 @@ public class LLPListener extends ConnectorClass
 
     private void ackOnNewConnectionNoActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_ackOnNewConnectionNoActionPerformed
     {// GEN-HEADEREND:event_ackOnNewConnectionNoActionPerformed
-        ackIPAddressField.setEnabled(false);
-        ackIPAddressField1.setEnabled(false);
-        ackIPAddressField2.setEnabled(false);
-        ackIPAddressField3.setEnabled(false);
+        ackAddressField.setEnabled(false);
         ackPortField.setEnabled(false);
-
-        ipDot.setEnabled(false);
-        ipDot1.setEnabled(false);
-        ipDot2.setEnabled(false);
         ackIPLabel.setEnabled(false);
         ackPortLabel.setEnabled(false);
     }// GEN-LAST:event_ackOnNewConnectionNoActionPerformed
 
     private void ackOnNewConnectionYesActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_ackOnNewConnectionYesActionPerformed
     {// GEN-HEADEREND:event_ackOnNewConnectionYesActionPerformed
-        ackIPAddressField.setEnabled(true);
-        ackIPAddressField1.setEnabled(true);
-        ackIPAddressField2.setEnabled(true);
-        ackIPAddressField3.setEnabled(true);
+        ackAddressField.setEnabled(true);
         ackPortField.setEnabled(true);
-
-        ipDot.setEnabled(true);
-        ipDot1.setEnabled(true);
-        ipDot2.setEnabled(true);
         ackIPLabel.setEnabled(true);
         ackPortLabel.setEnabled(true);
     }// GEN-LAST:event_ackOnNewConnectionYesActionPerformed
@@ -1210,15 +1068,8 @@ public class LLPListener extends ConnectorClass
 
         if (ackOnNewConnectionYes.isSelected())
         {
-            ackIPAddressField.setEnabled(true);
-            ackIPAddressField1.setEnabled(true);
-            ackIPAddressField2.setEnabled(true);
-            ackIPAddressField3.setEnabled(true);
+            ackAddressField.setEnabled(true);
             ackPortField.setEnabled(true);
-
-            ipDot.setEnabled(true);
-            ipDot1.setEnabled(true);
-            ipDot2.setEnabled(true);
             ackIPLabel.setEnabled(true);
             ackPortLabel.setEnabled(true);
         }
@@ -1242,15 +1093,8 @@ public class LLPListener extends ConnectorClass
         rejectedACKCodeLabel.setEnabled(false);
         rejectedACKMessageLabel.setEnabled(false);
 
-        ackIPAddressField.setEnabled(false);
-        ackIPAddressField1.setEnabled(false);
-        ackIPAddressField2.setEnabled(false);
-        ackIPAddressField3.setEnabled(false);
+        ackAddressField.setEnabled(false);
         ackPortField.setEnabled(false);
-
-        ipDot.setEnabled(false);
-        ipDot1.setEnabled(false);
-        ipDot2.setEnabled(false);
         ackIPLabel.setEnabled(false);
         ackPortLabel.setEnabled(false);
 
@@ -1265,16 +1109,14 @@ public class LLPListener extends ConnectorClass
     }// GEN-LAST:event_sendACKNoActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private com.webreach.mirth.client.ui.components.MirthTextField ackIPAddressField;
-    private com.webreach.mirth.client.ui.components.MirthTextField ackIPAddressField1;
-    private com.webreach.mirth.client.ui.components.MirthTextField ackIPAddressField2;
-    private com.webreach.mirth.client.ui.components.MirthTextField ackIPAddressField3;
+    private com.webreach.mirth.client.ui.components.MirthTextField ackAddressField;
     private javax.swing.JLabel ackIPLabel;
     private javax.swing.JLabel ackOnNewConnectionLabel;
     private com.webreach.mirth.client.ui.components.MirthRadioButton ackOnNewConnectionNo;
     private com.webreach.mirth.client.ui.components.MirthRadioButton ackOnNewConnectionYes;
     private com.webreach.mirth.client.ui.components.MirthTextField ackPortField;
     private javax.swing.JLabel ackPortLabel;
+    private javax.swing.JLabel addressLabel;
     private com.webreach.mirth.client.ui.components.MirthRadioButton ascii;
     private com.webreach.mirth.client.ui.components.MirthTextField bufferSizeField;
     private javax.swing.ButtonGroup buttonGroup1;
@@ -1291,13 +1133,7 @@ public class LLPListener extends ConnectorClass
     private com.webreach.mirth.client.ui.components.MirthTextField errorACKMessage;
     private javax.swing.JLabel errorACKMessageLabel;
     private com.webreach.mirth.client.ui.components.MirthRadioButton hex;
-    private javax.swing.JLabel ipAddressLabel;
-    private javax.swing.JLabel ipDot;
-    private javax.swing.JLabel ipDot1;
-    private javax.swing.JLabel ipDot2;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel25;
-    private javax.swing.JLabel jLabel26;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel34;
     private javax.swing.JLabel jLabel35;
@@ -1308,11 +1144,7 @@ public class LLPListener extends ConnectorClass
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel8;
-    private javax.swing.JLabel jLabel9;
-    private com.webreach.mirth.client.ui.components.MirthTextField listenerIPAddressField;
-    private com.webreach.mirth.client.ui.components.MirthTextField listenerIPAddressField1;
-    private com.webreach.mirth.client.ui.components.MirthTextField listenerIPAddressField2;
-    private com.webreach.mirth.client.ui.components.MirthTextField listenerIPAddressField3;
+    private com.webreach.mirth.client.ui.components.MirthTextField listenerAddressField;
     private com.webreach.mirth.client.ui.components.MirthTextField listenerPortField;
     private javax.swing.JLabel llpModeLabel;
     private javax.swing.JLabel mshAckAcceptLabel;

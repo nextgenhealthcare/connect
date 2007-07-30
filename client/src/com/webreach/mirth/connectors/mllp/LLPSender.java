@@ -49,10 +49,6 @@ public class LLPSender extends ConnectorClass
     {
         name = LLPSenderProperties.name;
         initComponents();
-        hostIPAddressField.setDocument(new MirthFieldConstraints(3, false, false, true));
-        hostIPAddressField1.setDocument(new MirthFieldConstraints(3, false, false, true));
-        hostIPAddressField2.setDocument(new MirthFieldConstraints(3, false, false, true));
-        hostPortField.setDocument(new MirthFieldConstraints(5, false, false, true));
         serverTimeoutField.setDocument(new MirthFieldConstraints(0, false, false, true));
         bufferSizeField.setDocument(new MirthFieldConstraints(0, false, false, true));
         maximumRetryCountField.setDocument(new MirthFieldConstraints(2, false, false, true));
@@ -67,8 +63,7 @@ public class LLPSender extends ConnectorClass
         Properties properties = new Properties();
         properties.put(LLPSenderProperties.DATATYPE, name);
         properties.put(LLPSenderProperties.LLP_PROTOCOL_NAME, LLPSenderProperties.LLP_PROTOCOL_NAME_VALUE);
-        String hostIPAddress = hostIPAddressField.getText() + "." + hostIPAddressField1.getText() + "." + hostIPAddressField2.getText() + "." + hostIPAddressField3.getText();
-        properties.put(LLPSenderProperties.LLP_ADDRESS, hostIPAddress);
+        properties.put(LLPSenderProperties.LLP_ADDRESS, hostAddressField.getText());
         properties.put(LLPSenderProperties.LLP_PORT, hostPortField.getText());
         properties.put(LLPSenderProperties.LLP_SERVER_TIMEOUT, serverTimeoutField.getText());
         properties.put(LLPSenderProperties.LLP_BUFFER_SIZE, bufferSizeField.getText());
@@ -108,25 +103,7 @@ public class LLPSender extends ConnectorClass
     {
         resetInvalidProperties();
         
-        String hostIPAddress = (String) props.get(LLPSenderProperties.LLP_ADDRESS);
-        StringTokenizer IP = new StringTokenizer(hostIPAddress, ".");
-        if (IP.hasMoreTokens())
-            hostIPAddressField.setText(IP.nextToken());
-        else
-            hostIPAddressField.setText("");
-        if (IP.hasMoreTokens())
-            hostIPAddressField1.setText(IP.nextToken());
-        else
-            hostIPAddressField1.setText("");
-        if (IP.hasMoreTokens())
-            hostIPAddressField2.setText(IP.nextToken());
-        else
-            hostIPAddressField2.setText("");
-        if (IP.hasMoreTokens())
-            hostIPAddressField3.setText(IP.nextToken());
-        else
-            hostIPAddressField3.setText("");
-
+        hostAddressField.setText((String) props.get(LLPSenderProperties.LLP_ADDRESS));
         hostPortField.setText((String) props.get(LLPSenderProperties.LLP_PORT));
         serverTimeoutField.setText((String) props.get(LLPSenderProperties.LLP_SERVER_TIMEOUT));
         bufferSizeField.setText((String) props.get(LLPSenderProperties.LLP_BUFFER_SIZE));
@@ -187,13 +164,10 @@ public class LLPSender extends ConnectorClass
         resetInvalidProperties();
         boolean valid = true;
         
-        if (((String) props.get(LLPSenderProperties.LLP_ADDRESS)).length() <= 3)
+        if (((String) props.get(LLPSenderProperties.LLP_ADDRESS)).length() == 0)
         {
             valid = false;
-            hostIPAddressField.setBackground(UIConstants.INVALID_COLOR);
-            hostIPAddressField1.setBackground(UIConstants.INVALID_COLOR);
-            hostIPAddressField2.setBackground(UIConstants.INVALID_COLOR);
-            hostIPAddressField3.setBackground(UIConstants.INVALID_COLOR);            
+            hostAddressField.setBackground(UIConstants.INVALID_COLOR);     
         }
         if (((String) props.get(LLPSenderProperties.LLP_PORT)).length() == 0)
         {
@@ -251,10 +225,7 @@ public class LLPSender extends ConnectorClass
     
     private void resetInvalidProperties()
     {
-        hostIPAddressField.setBackground(null);
-        hostIPAddressField1.setBackground(null);
-        hostIPAddressField2.setBackground(null);
-        hostIPAddressField3.setBackground(null);
+        hostAddressField.setBackground(null);
         hostPortField.setBackground(null);
         serverTimeoutField.setBackground(null);
         bufferSizeField.setBackground(null);
@@ -297,13 +268,7 @@ public class LLPSender extends ConnectorClass
         recordSeparatorField = new com.webreach.mirth.client.ui.components.MirthTextField();
         keepConnectionOpenYesRadio = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         keepConnectionOpenNoRadio = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        hostIPAddressField3 = new com.webreach.mirth.client.ui.components.MirthTextField();
-        hostIPAddressField2 = new com.webreach.mirth.client.ui.components.MirthTextField();
-        jLabel25 = new javax.swing.JLabel();
-        jLabel26 = new javax.swing.JLabel();
-        hostIPAddressField1 = new com.webreach.mirth.client.ui.components.MirthTextField();
-        jLabel9 = new javax.swing.JLabel();
-        hostIPAddressField = new com.webreach.mirth.client.ui.components.MirthTextField();
+        hostAddressField = new com.webreach.mirth.client.ui.components.MirthTextField();
         jLabel14 = new javax.swing.JLabel();
         ascii = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         hex = new com.webreach.mirth.client.ui.components.MirthRadioButton();
@@ -331,7 +296,7 @@ public class LLPSender extends ConnectorClass
 
         jLabel17.setText("Host Port:");
 
-        jLabel18.setText("Host IP Address:");
+        jLabel18.setText("Host Address:");
 
         jLabel8.setText("Maximum Retry Count:");
 
@@ -352,12 +317,6 @@ public class LLPSender extends ConnectorClass
         keepConnectionOpenGroup.add(keepConnectionOpenNoRadio);
         keepConnectionOpenNoRadio.setText("No");
         keepConnectionOpenNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
-
-        jLabel25.setText(".");
-
-        jLabel26.setText(".");
-
-        jLabel9.setText(".");
 
         jLabel14.setText("LLP Frame Encoding:");
 
@@ -462,20 +421,7 @@ public class LLPSender extends ConnectorClass
                             .add(org.jdesktop.layout.GroupLayout.LEADING, keepConnectionOpenYesRadio, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(keepConnectionOpenNoRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(layout.createSequentialGroup()
-                        .add(hostIPAddressField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 31, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jLabel9)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(hostIPAddressField1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 31, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jLabel26)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(hostIPAddressField2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 31, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jLabel25)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(hostIPAddressField3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 31, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(hostAddressField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(hostPortField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(layout.createSequentialGroup()
                         .add(recordSeparatorField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -489,20 +435,9 @@ public class LLPSender extends ConnectorClass
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(hostIPAddressField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(hostIPAddressField1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(jLabel18))
-                        .add(jLabel9))
-                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                        .add(jLabel26)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                                .add(hostIPAddressField3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                .add(jLabel25))
-                            .add(hostIPAddressField2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(hostAddressField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jLabel18))
                 .add(6, 6, 6)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(hostPortField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -581,10 +516,7 @@ public class LLPSender extends ConnectorClass
     private com.webreach.mirth.client.ui.components.MirthComboBox charsetEncodingCombobox;
     private com.webreach.mirth.client.ui.components.MirthTextField endOfMessageCharacterField;
     private com.webreach.mirth.client.ui.components.MirthRadioButton hex;
-    private com.webreach.mirth.client.ui.components.MirthTextField hostIPAddressField;
-    private com.webreach.mirth.client.ui.components.MirthTextField hostIPAddressField1;
-    private com.webreach.mirth.client.ui.components.MirthTextField hostIPAddressField2;
-    private com.webreach.mirth.client.ui.components.MirthTextField hostIPAddressField3;
+    private com.webreach.mirth.client.ui.components.MirthTextField hostAddressField;
     private com.webreach.mirth.client.ui.components.MirthTextField hostPortField;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
@@ -597,13 +529,10 @@ public class LLPSender extends ConnectorClass
     private javax.swing.JLabel jLabel18;
     private javax.swing.JLabel jLabel19;
     private javax.swing.JLabel jLabel20;
-    private javax.swing.JLabel jLabel25;
-    private javax.swing.JLabel jLabel26;
     private javax.swing.JLabel jLabel36;
     private javax.swing.JLabel jLabel37;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
-    private javax.swing.JLabel jLabel9;
     private javax.swing.ButtonGroup keepConnectionOpenGroup;
     private com.webreach.mirth.client.ui.components.MirthRadioButton keepConnectionOpenNoRadio;
     private com.webreach.mirth.client.ui.components.MirthRadioButton keepConnectionOpenYesRadio;

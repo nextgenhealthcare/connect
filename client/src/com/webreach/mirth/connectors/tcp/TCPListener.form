@@ -52,41 +52,13 @@
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="listenerIPAddressField" min="-2" pref="31" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jLabel9" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="listenerIPAddressField1" min="-2" pref="31" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jLabel26" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="listenerIPAddressField2" min="-2" pref="31" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jLabel25" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="listenerIPAddressField3" min="-2" pref="31" max="-2" attributes="0"/>
-                  </Group>
+                  <Component id="listenerAddressField" alignment="0" min="-2" pref="200" max="-2" attributes="0"/>
                   <Component id="listenerPortField" alignment="0" min="-2" pref="50" max="-2" attributes="0"/>
                   <Component id="receiveTimeoutField" alignment="0" min="-2" pref="160" max="-2" attributes="1"/>
                   <Component id="bufferSizeField" alignment="0" min="-2" pref="160" max="-2" attributes="1"/>
                   <Component id="charsetEncodingCombobox" alignment="0" min="-2" max="-2" attributes="0"/>
                   <Component id="responseFromTransformer" alignment="0" min="-2" pref="150" max="-2" attributes="0"/>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="ackIPAddressField" min="-2" pref="31" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="ipDot" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace min="4" pref="4" max="-2" attributes="0"/>
-                      <Component id="ackIPAddressField1" min="-2" pref="31" max="-2" attributes="0"/>
-                      <EmptySpace min="-2" pref="4" max="-2" attributes="0"/>
-                      <Component id="ipDot1" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="ackIPAddressField2" min="-2" pref="31" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="ipDot2" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="ackIPAddressField3" min="-2" pref="31" max="-2" attributes="0"/>
-                  </Group>
+                  <Component id="ackAddressField" alignment="0" min="-2" pref="200" max="-2" attributes="0"/>
                   <Component id="ackPortField" alignment="0" min="-2" pref="50" max="-2" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="ackOnNewConnectionYes" min="-2" max="-2" attributes="0"/>
@@ -101,21 +73,9 @@
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" attributes="0">
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="listenerIPAddressField" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="jLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <Group type="103" groupAlignment="1" attributes="0">
-                      <Component id="listenerIPAddressField1" alignment="1" min="-2" max="-2" attributes="0"/>
-                      <Group type="103" alignment="1" groupAlignment="3" attributes="0">
-                          <Component id="listenerIPAddressField2" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="listenerIPAddressField3" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <Component id="jLabel26" alignment="1" min="-2" max="-2" attributes="0"/>
-                      <Component id="jLabel25" alignment="1" min="-2" max="-2" attributes="0"/>
-                      <Component id="jLabel9" alignment="1" min="-2" max="-2" attributes="0"/>
-                  </Group>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="listenerAddressField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
@@ -151,13 +111,7 @@
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="1" attributes="0">
                   <Component id="ackIPLabel" min="-2" max="-2" attributes="0"/>
-                  <Component id="ackIPAddressField" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="ipDot" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="ackIPAddressField1" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="ipDot1" min="-2" max="-2" attributes="0"/>
-                  <Component id="ackIPAddressField2" min="-2" max="-2" attributes="0"/>
-                  <Component id="ackIPAddressField3" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="ipDot2" min="-2" max="-2" attributes="0"/>
+                  <Component id="ackAddressField" alignment="1" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
@@ -172,7 +126,7 @@
   <SubComponents>
     <Component class="javax.swing.JLabel" name="jLabel1">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Listener IP Address:"/>
+        <Property name="text" type="java.lang.String" value="Listener Address:"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel2">
@@ -196,28 +150,7 @@
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="listenerPortField">
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="listenerIPAddressField3">
-    </Component>
-    <Component class="javax.swing.JLabel" name="jLabel25">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="."/>
-      </Properties>
-    </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="listenerIPAddressField2">
-    </Component>
-    <Component class="javax.swing.JLabel" name="jLabel26">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="."/>
-      </Properties>
-    </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="listenerIPAddressField1">
-    </Component>
-    <Component class="javax.swing.JLabel" name="jLabel9">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="."/>
-      </Properties>
-    </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="listenerIPAddressField">
+    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="listenerAddressField">
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthComboBox" name="charsetEncodingCombobox">
       <Properties>
@@ -290,7 +223,7 @@
     </Component>
     <Component class="javax.swing.JLabel" name="ackIPLabel">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Response IP Address:"/>
+        <Property name="text" type="java.lang.String" value="Response Address:"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="ackPortLabel">
@@ -298,30 +231,9 @@
         <Property name="text" type="java.lang.String" value="Response Port:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="ackIPAddressField1">
-    </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="ackPortField">
     </Component>
-    <Component class="javax.swing.JLabel" name="ipDot1">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="."/>
-      </Properties>
-    </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="ackIPAddressField3">
-    </Component>
-    <Component class="javax.swing.JLabel" name="ipDot2">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="."/>
-      </Properties>
-    </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="ackIPAddressField">
-    </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="ackIPAddressField2">
-    </Component>
-    <Component class="javax.swing.JLabel" name="ipDot">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="."/>
-      </Properties>
+    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="ackAddressField">
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel6">
       <Properties>

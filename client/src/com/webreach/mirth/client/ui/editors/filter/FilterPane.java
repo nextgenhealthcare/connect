@@ -413,8 +413,10 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
 
         hSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, filterTablePane, rulePanel);
         hSplitPane.setContinuousLayout(true);
+        hSplitPane.setOneTouchExpandable(true);
         vSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, hSplitPane, refPanel);
         vSplitPane.setContinuousLayout(true);
+        vSplitPane.setOneTouchExpandable(true);
         resizePanes();
 
         this.setLayout(new BorderLayout());

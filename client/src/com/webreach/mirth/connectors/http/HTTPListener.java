@@ -61,8 +61,7 @@ public class HTTPListener extends ConnectorClass
     {
         Properties properties = new Properties();
         properties.put(HTTPListenerProperties.DATATYPE, name);
-        String listenerIPAddress = listenerIPAddressField.getText() + "." + listenerIPAddressField1.getText() + "." + listenerIPAddressField2.getText() + "." + listenerIPAddressField3.getText();
-        properties.put(HTTPListenerProperties.HTTP_ADDRESS, listenerIPAddress);
+        properties.put(HTTPListenerProperties.HTTP_ADDRESS, listenerAddressField.getText());
         properties.put(HTTPListenerProperties.HTTP_PORT, listenerPortField.getText());
         properties.put(HTTPListenerProperties.HTTP_RECEIVE_TIMEOUT, receiveTimeoutField.getText());
         properties.put(HTTPListenerProperties.HTTP_BUFFER_SIZE, bufferSizeField.getText());
@@ -81,25 +80,7 @@ public class HTTPListener extends ConnectorClass
     {
         resetInvalidProperties();
         
-        String listenerIPAddress = (String) props.get(HTTPListenerProperties.HTTP_ADDRESS);
-        StringTokenizer IP = new StringTokenizer(listenerIPAddress, ".");
-        if (IP.hasMoreTokens())
-            listenerIPAddressField.setText(IP.nextToken());
-        else
-            listenerIPAddressField.setText("");
-        if (IP.hasMoreTokens())
-            listenerIPAddressField1.setText(IP.nextToken());
-        else
-            listenerIPAddressField1.setText("");
-        if (IP.hasMoreTokens())
-            listenerIPAddressField2.setText(IP.nextToken());
-        else
-            listenerIPAddressField2.setText("");
-        if (IP.hasMoreTokens())
-            listenerIPAddressField3.setText(IP.nextToken());
-        else
-            listenerIPAddressField3.setText("");
-
+        listenerAddressField.setText((String) props.get(HTTPListenerProperties.HTTP_ADDRESS));
         listenerPortField.setText((String) props.get(HTTPListenerProperties.HTTP_PORT));
         receiveTimeoutField.setText((String) props.get(HTTPListenerProperties.HTTP_RECEIVE_TIMEOUT));
         bufferSizeField.setText((String) props.get(HTTPListenerProperties.HTTP_BUFFER_SIZE));
@@ -123,13 +104,10 @@ public class HTTPListener extends ConnectorClass
         resetInvalidProperties();
         boolean valid = true;
         
-        if (((String) props.get(HTTPListenerProperties.HTTP_ADDRESS)).length() <= 3)
+        if (((String) props.get(HTTPListenerProperties.HTTP_ADDRESS)).length() == 0)
         {
             valid = false;
-            listenerIPAddressField.setBackground(UIConstants.INVALID_COLOR);
-            listenerIPAddressField1.setBackground(UIConstants.INVALID_COLOR);
-            listenerIPAddressField2.setBackground(UIConstants.INVALID_COLOR);
-            listenerIPAddressField3.setBackground(UIConstants.INVALID_COLOR);            
+            listenerAddressField.setBackground(UIConstants.INVALID_COLOR);   
         }
         if (((String) props.get(HTTPListenerProperties.HTTP_PORT)).length() == 0)
         {
@@ -152,10 +130,7 @@ public class HTTPListener extends ConnectorClass
     
     private void resetInvalidProperties()
     {
-        listenerIPAddressField.setBackground(null);
-        listenerIPAddressField1.setBackground(null);
-        listenerIPAddressField2.setBackground(null);
-        listenerIPAddressField3.setBackground(null);
+        listenerAddressField.setBackground(null);
         listenerPortField.setBackground(null);
         receiveTimeoutField.setBackground(null);
         bufferSizeField.setBackground(null);
@@ -179,22 +154,16 @@ public class HTTPListener extends ConnectorClass
         jLabel5 = new javax.swing.JLabel();
         bufferSizeField = new com.webreach.mirth.client.ui.components.MirthTextField();
         receiveTimeoutField = new com.webreach.mirth.client.ui.components.MirthTextField();
-        listenerIPAddressField = new com.webreach.mirth.client.ui.components.MirthTextField();
+        listenerAddressField = new com.webreach.mirth.client.ui.components.MirthTextField();
         listenerPortField = new com.webreach.mirth.client.ui.components.MirthTextField();
         keepConnectionOpenYesRadio = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         keepConnectionOpenNoRadio = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        listenerIPAddressField1 = new com.webreach.mirth.client.ui.components.MirthTextField();
-        listenerIPAddressField2 = new com.webreach.mirth.client.ui.components.MirthTextField();
-        listenerIPAddressField3 = new com.webreach.mirth.client.ui.components.MirthTextField();
-        jLabel6 = new javax.swing.JLabel();
-        jLabel7 = new javax.swing.JLabel();
-        jLabel8 = new javax.swing.JLabel();
         jLabel38 = new javax.swing.JLabel();
         responseFromTransformer = new com.webreach.mirth.client.ui.components.MirthComboBox();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
-        jLabel1.setText("Listener IP Address:");
+        jLabel1.setText("Listener Address:");
 
         jLabel2.setText("Listener Port:");
 
@@ -215,15 +184,6 @@ public class HTTPListener extends ConnectorClass
         keepConnectionOpenGroup.add(keepConnectionOpenNoRadio);
         keepConnectionOpenNoRadio.setText("No");
         keepConnectionOpenNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
-
-        jLabel6.setFont(new java.awt.Font("Tahoma", 1, 11));
-        jLabel6.setText(".");
-
-        jLabel7.setFont(new java.awt.Font("Tahoma", 1, 11));
-        jLabel7.setText(".");
-
-        jLabel8.setFont(new java.awt.Font("Tahoma", 1, 11));
-        jLabel8.setText(".");
 
         jLabel38.setText("Respond from:");
 
@@ -258,36 +218,16 @@ public class HTTPListener extends ConnectorClass
                     .add(receiveTimeoutField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(listenerPortField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(bufferSizeField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(layout.createSequentialGroup()
-                        .add(listenerIPAddressField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 31, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jLabel6)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(listenerIPAddressField1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 31, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jLabel7)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(listenerIPAddressField2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 31, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jLabel8)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(listenerIPAddressField3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 31, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(listenerAddressField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(responseFromTransformer, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 150, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(30, Short.MAX_VALUE))
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                        .add(listenerIPAddressField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(listenerIPAddressField1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(jLabel1))
-                    .add(jLabel6)
-                    .add(listenerIPAddressField2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel8)
-                    .add(listenerIPAddressField3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel7))
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(listenerAddressField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jLabel1))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(listenerPortField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -389,16 +329,10 @@ public class HTTPListener extends ConnectorClass
     private javax.swing.JLabel jLabel38;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel7;
-    private javax.swing.JLabel jLabel8;
     private javax.swing.ButtonGroup keepConnectionOpenGroup;
     private com.webreach.mirth.client.ui.components.MirthRadioButton keepConnectionOpenNoRadio;
     private com.webreach.mirth.client.ui.components.MirthRadioButton keepConnectionOpenYesRadio;
-    private com.webreach.mirth.client.ui.components.MirthTextField listenerIPAddressField;
-    private com.webreach.mirth.client.ui.components.MirthTextField listenerIPAddressField1;
-    private com.webreach.mirth.client.ui.components.MirthTextField listenerIPAddressField2;
-    private com.webreach.mirth.client.ui.components.MirthTextField listenerIPAddressField3;
+    private com.webreach.mirth.client.ui.components.MirthTextField listenerAddressField;
     private com.webreach.mirth.client.ui.components.MirthTextField listenerPortField;
     private com.webreach.mirth.client.ui.components.MirthTextField receiveTimeoutField;
     private com.webreach.mirth.client.ui.components.MirthComboBox responseFromTransformer;
