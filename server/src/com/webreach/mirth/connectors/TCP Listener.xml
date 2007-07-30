@@ -3,6 +3,7 @@
   <author>WebREACH, Inc.</author>
   <pluginVersion>1.6.0</pluginVersion>
   <mirthVersion>1.6.0</mirthVersion>
+  <url>http://www.mirthproject.org</url>
   <clientClassName>com.webreach.mirth.connectors.tcp.TCPListener</clientClassName>
   <serverClassName>com.webreach.mirth.connectors.tcp.TcpConnector</serverClassName>
   <sharedClassName>com.webreach.mirth.connectors.tcp.TCPListenerProperties</sharedClassName>

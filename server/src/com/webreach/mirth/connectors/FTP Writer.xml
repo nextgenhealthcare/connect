@@ -3,6 +3,7 @@
   <author>WebREACH, Inc.</author>
   <pluginVersion>1.6.0</pluginVersion>
   <mirthVersion>1.6.0</mirthVersion>
+  <url>http://www.mirthproject.org</url>
   <clientClassName>com.webreach.mirth.connectors.ftp.FTPWriter</clientClassName>
   <serverClassName>com.webreach.mirth.connectors.ftp.FtpConnector</serverClassName>
   <sharedClassName>com.webreach.mirth.connectors.ftp.FTPWriterProperties</sharedClassName>

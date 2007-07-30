@@ -3,6 +3,7 @@
   <author>WebREACH, Inc.</author>
   <pluginVersion>1.6.0</pluginVersion>
   <mirthVersion>1.6.0</mirthVersion>
+  <url>http://www.mirthproject.org</url>
   <clientClassName>com.webreach.mirth.connectors.file.FileReader</clientClassName>
   <serverClassName>com.webreach.mirth.connectors.file.FileConnector</serverClassName>
   <sharedClassName>com.webreach.mirth.connectors.file.FileReaderProperties</sharedClassName>

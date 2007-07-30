@@ -3,6 +3,7 @@
   <author>WebREACH, Inc.</author>
   <pluginVersion>1.6.0</pluginVersion>
   <mirthVersion>1.6.0</mirthVersion>
+  <url>http://www.mirthproject.org</url>
   <enabled>true</enabled>
   <extensionPoint>
   	<name>Extension Manager</name>
