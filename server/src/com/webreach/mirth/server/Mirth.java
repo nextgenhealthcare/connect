@@ -335,7 +335,11 @@ public class Mirth extends Thread {
 			servlets.addServlet("Users", "/users", "com.webreach.mirth.server.servlets.UserServlet");
 			servlets.addServlet("WebStart", "/webstart.jnlp", "com.webreach.mirth.server.servlets.WebStartServlet");
 			servlets.addServlet("Activation", "/activation.jnlp", "com.webreach.mirth.server.servlets.ActivationServlet");			
-
+			
+			// Servlets for backwards compatibility
+			servlets.addServlet("WebStart", "/webstart", "com.webreach.mirth.server.servlets.WebStartServlet");
+			servlets.addServlet("Activation", "/activation", "com.webreach.mirth.server.servlets.ActivationServlet");
+			
 			// start the web server
 			webServer.start();
 
