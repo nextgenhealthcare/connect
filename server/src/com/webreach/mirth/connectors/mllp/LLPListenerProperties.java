@@ -92,7 +92,7 @@ public class LLPListenerProperties implements ComponentProperties
         properties.put(LLP_ACKMSG_REJECTED, "Message Rejected.");
         properties.put(LLP_ACK_MSH_15, "0");
         properties.put(LLP_ACK_NEW_CONNECTION, "0");
-        properties.put(LLP_ACK_NEW_CONNECTION_IP, "...");
+        properties.put(LLP_ACK_NEW_CONNECTION_IP, "");
         properties.put(LLP_ACK_NEW_CONNECTION_PORT, "");
         properties.put(LLP_RESPONSE_FROM_TRANSFORMER, "0");
         properties.put(LLP_RESPONSE_VALUE, "None");

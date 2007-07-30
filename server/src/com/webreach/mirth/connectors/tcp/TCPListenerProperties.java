@@ -54,7 +54,7 @@ public class TCPListenerProperties implements ComponentProperties
         properties.put(TCP_RECEIVE_TIMEOUT, "5000");
         properties.put(TCP_BUFFER_SIZE, "65536");
         properties.put(TCP_ACK_NEW_CONNECTION, "0");
-        properties.put(TCP_ACK_NEW_CONNECTION_IP, "...");
+        properties.put(TCP_ACK_NEW_CONNECTION_IP, "");
         properties.put(TCP_ACK_NEW_CONNECTION_PORT, "");
         properties.put(TCP_RESPONSE_VALUE, "None");
         properties.put(CONNECTOR_CHARSET_ENCODING, "DEFAULT_ENCODING");
