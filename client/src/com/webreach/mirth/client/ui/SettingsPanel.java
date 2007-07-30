@@ -465,16 +465,9 @@ public class SettingsPanel extends javax.swing.JPanel
             
             if (parent.alertOption("Import configuration from " + configuration.getDate() + "?\nWARNING: This will overwrite all current channels, alerts, and server properties."))
             {
-                boolean replaceUsers = parent.alertOption("Would you also like to restore the user accounts?\nWARNING: This will force a logout.");
-                // TODO: Use this boolean to determine whether or not to replace users in the setServerConfiguration()
                 try
                 {
                     parent.mirthClient.setServerConfiguration(configuration);
-                    if (replaceUsers)
-                    {
-                        parent.doLogout();
-                        return;
-                    }
                     loadSettings();
                 }
                 catch (ClientException e)
