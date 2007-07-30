@@ -176,9 +176,9 @@ public class ImportConverter
             channelRoot.appendChild(shutdownScript);
         }
         
-        if (channelRoot.getElementsByTagName("postprocessorScript").getLength() == 0)
+        if (channelRoot.getElementsByTagName("postprocessingScript").getLength() == 0)
         {
-            Element postprocessorScript = document.createElement("postprocessorScript");
+            Element postprocessorScript = document.createElement("postprocessingScript");
             postprocessorScript.setTextContent("// This script executes once after a message has been processed\r\nreturn;");
             channelRoot.appendChild(postprocessorScript);
         }
