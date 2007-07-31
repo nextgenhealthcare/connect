@@ -89,21 +89,19 @@ public class JavaScriptUtil
     public void executeScript(String scriptId, String scriptType, String channelId)
     {
         Script compiledScript = compiledScriptCache.getCompiledScript(scriptId);
-        
+        Logger scriptLogger = Logger.getLogger(scriptType);
         if(compiledScript == null)
             return;
 
         try
         {
-            
             Context context = getContext();
-
             Scriptable scope = getScope();
             
             if(channelId != null && channelId.length() > 0)
-                JavaScriptScopeUtil.buildScope(scope, channelId, logger);
+                JavaScriptScopeUtil.buildScope(scope, channelId, scriptLogger);
             else
-                JavaScriptScopeUtil.buildScope(scope, logger);
+                JavaScriptScopeUtil.buildScope(scope, scriptLogger);
             
             logger.debug("executing " + scriptType + " script. id=" + scriptId);    
             compiledScript.exec(context, scope);
@@ -120,7 +118,7 @@ public class JavaScriptUtil
     public void executeScript(String scriptId, String scriptType, MessageObject messageObject)
     {
         Script compiledScript = compiledScriptCache.getCompiledScript(scriptId);
-        
+        Logger scriptLogger = Logger.getLogger(scriptType);
         if(compiledScript == null)
             return;
 
@@ -129,7 +127,7 @@ public class JavaScriptUtil
             Context context = getContext();
             Scriptable scope = getScope();
             
-            JavaScriptScopeUtil.buildScope(scope, messageObject, logger);
+            JavaScriptScopeUtil.buildScope(scope, messageObject, scriptLogger);
             logger.debug("executing " + scriptType + " script. id=" + scriptId);    
 			compiledScript.exec(context, scope);
 			

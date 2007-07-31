@@ -297,7 +297,7 @@ public class ConfigurationController {
 		while (i.hasNext()) {
 			Entry entry = (Entry) i.next();
 			if (!(entry.getKey().toString().equals(PREPROCESSOR) && globalScripts.get(entry.getKey()).equals("// Modify the message variable below to pre process data\r\n// This script applies across all channels\r\nreturn message;")) &&
-                    !(entry.getKey().toString().equals(POSTPROCESSOR)&& globalScripts.get(entry.getKey()).equals("// This script executes once after a message has been processed\r\n// This script applies across all channels\r\nreturn message;")))
+                    !(entry.getKey().toString().equals(POSTPROCESSOR)&& globalScripts.get(entry.getKey()).equals("// This script executes once after a message has been processed\r\n// This script applies across all channels\r\nreturn;")))
 				JavaScriptUtil.getInstance().compileScript(entry.getKey().toString(), globalScripts.get(entry.getKey()));
 		}
 
