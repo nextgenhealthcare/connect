@@ -45,7 +45,7 @@ public class PluginMetaData implements MetaData, Serializable {
     private String mirthVersion;
     private String url;
     private String updateUrl;
-	private String versionUrl;
+	private String description;
     private boolean enabled;
 	private List<ExtensionPoint> extensionPoints;
 
@@ -112,7 +112,7 @@ public class PluginMetaData implements MetaData, Serializable {
             EqualsUtil.areEqual(this.isEnabled(), plugin.isEnabled()) &&
 			EqualsUtil.areEqual(this.getExtensionPoints(), plugin.getExtensionPoints())&&
 			EqualsUtil.areEqual(this.getUpdateUrl(), plugin.getUpdateUrl())&&
-			EqualsUtil.areEqual(this.getVersionUrl(), plugin.getVersionUrl());
+			EqualsUtil.areEqual(this.getDescription(), plugin.getDescription());
 	}
 
 	public String toString() {
@@ -127,7 +127,7 @@ public class PluginMetaData implements MetaData, Serializable {
 			builder.append("extention-point=" + extensionPoint.toString() + ", ");
 		}
         builder.append("updateUrl=" + getUpdateUrl() + ", ");
-        builder.append("versionUrl=" + getVersionUrl() + ", ");
+        builder.append("versionUrl=" + getDescription() + ", ");
         builder.append("enabled=" + isEnabled() + "]");
 		return builder.toString();
 	}
@@ -156,12 +156,12 @@ public class PluginMetaData implements MetaData, Serializable {
 		this.updateUrl = updateUrl;
 	}
 
-	public String getVersionUrl() {
-		return versionUrl;
+	public String getDescription() {
+		return description;
 	}
 
-	public void setVersionUrl(String versionUrl) {
-		this.versionUrl = versionUrl;
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 }

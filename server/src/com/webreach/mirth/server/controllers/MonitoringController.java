@@ -13,7 +13,7 @@ import com.webreach.mirth.plugins.ConnectorStatusPlugin;
 
 public class MonitoringController {
 	public enum Status {CONNECTED, DISCONNECTED, WAITING_FOR_CONNECTION, IDLE, WAITING, POLLING, PROCESSING, RETRYING};
-	public enum Priority {VERY_LOw, LOW, NORMAL, HIGH, VERY_HIGH, CRITICAL};
+	public enum Priority {VERY_LOW, LOW, NORMAL, HIGH, VERY_HIGH, CRITICAL};
 	private static MonitoringController instance = null;
 	private Logger logger = Logger.getLogger(this.getClass());
 	private Map<String, ConnectorStatusPlugin> loadedPlugins;

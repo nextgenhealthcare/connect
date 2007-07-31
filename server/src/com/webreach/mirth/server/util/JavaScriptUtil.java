@@ -85,8 +85,13 @@ public class JavaScriptUtil
         scope.setParentScope(null);
         return scope;
     }
-
-    public void executeScript(String scriptId, String scriptType, String channelId)
+    public void executeScript(String scriptId, String scriptType, MessageObject messageObject){
+    	executeScript(scriptId, scriptType, null, messageObject);
+    }
+    public void executeScript(String scriptId, String scriptType, String channelId){
+    	executeScript(scriptId, scriptType, channelId, null);
+    }
+    private void executeScript(String scriptId, String scriptType, String channelId, MessageObject messageObject)
     {
         Script compiledScript = compiledScriptCache.getCompiledScript(scriptId);
         Logger scriptLogger = Logger.getLogger(scriptType);
@@ -98,39 +103,15 @@ public class JavaScriptUtil
             Context context = getContext();
             Scriptable scope = getScope();
             
-            if(channelId != null && channelId.length() > 0)
+            if (messageObject != null)
+            	JavaScriptScopeUtil.buildScope(scope, messageObject, scriptLogger);
+            else if(channelId != null && channelId.length() > 0)
                 JavaScriptScopeUtil.buildScope(scope, channelId, scriptLogger);
             else
                 JavaScriptScopeUtil.buildScope(scope, scriptLogger);
             
             logger.debug("executing " + scriptType + " script. id=" + scriptId);    
             compiledScript.exec(context, scope);
-        }
-        catch (Exception e)
-        {
-            logger.error("failure to execute: " +  scriptType + " script. id=" + scriptId, e);
-        }
-        finally
-        {
-            Context.exit();
-        }
-    }
-    public void executeScript(String scriptId, String scriptType, MessageObject messageObject)
-    {
-        Script compiledScript = compiledScriptCache.getCompiledScript(scriptId);
-        Logger scriptLogger = Logger.getLogger(scriptType);
-        if(compiledScript == null)
-            return;
-
-        try
-        {
-            Context context = getContext();
-            Scriptable scope = getScope();
-            
-            JavaScriptScopeUtil.buildScope(scope, messageObject, scriptLogger);
-            logger.debug("executing " + scriptType + " script. id=" + scriptId);    
-			compiledScript.exec(context, scope);
-			
         }
         catch (Exception e)
         {
