@@ -173,9 +173,10 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
 
 	public void doDispose() {
 		try {
-			if (serverSocket != null && !serverSocket.isClosed())
+			if (serverSocket != null && !serverSocket.isClosed()){
 				monitoringController.updateStatus(connector, Status.DISCONNECTED, Priority.HIGH, serverSocket.toString());
 				serverSocket.close();
+			}
 			serverSocket = null;
 			if (work != null){
 				work.dispose();
