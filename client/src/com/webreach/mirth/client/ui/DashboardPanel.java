@@ -193,7 +193,6 @@ public class DashboardPanel extends javax.swing.JPanel
         else
         {
             statusTable = new MirthTable();
-            //statusTable.setColumnControlVisible(true);
             statusTable.setModel(new RefreshTableModel(tableData, new String[] { STATUS_COLUMN_NAME, NAME_COLUMN_NAME, RECEIVED_COLUMN_NAME, FILTERED_COLUMN_NAME, QUEUED_COLUMN_NAME, SENT_COLUMN_NAME, ERROR_COLUMN_NAME })
             {
                 boolean[] canEdit = new boolean[] { false, false, false, false, false, false, false, false };
