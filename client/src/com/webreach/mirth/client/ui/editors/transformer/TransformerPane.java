@@ -641,7 +641,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
                 // TODO Auto-generated method stub
                 if (e.getKeyCode() == KeyEvent.VK_S && e.isControlDown())
                 {
-                    PlatformUI.MIRTH_FRAME.doSaveChannel();
+                	PlatformUI.MIRTH_FRAME.doContextSensitiveSave();
                 }
             }
 
@@ -815,7 +815,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
     	if (plugin == null){
     		String message = "Unable to find Transformer Step Plugin: " + name;
     		Exception e = new Exception(message);
-        	parent.alertException(e.getStackTrace(), message);
+        	parent.alertError(message);
         	throw new Exception(e);
         }else{
         	return plugin;

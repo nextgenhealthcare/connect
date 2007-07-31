@@ -55,6 +55,7 @@ public class ScriptPanel extends javax.swing.JPanel
     public void setScripts(Map<String, String> scripts)
     {
         this.loadedScripts = scripts;
+        selectedItem = null;
         scriptListActionPerformed(null);
     }
     

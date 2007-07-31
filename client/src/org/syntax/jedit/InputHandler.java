@@ -1181,7 +1181,7 @@ public abstract class InputHandler extends KeyAdapter
     {
         public void actionPerformed(ActionEvent evt)
         {
-            PlatformUI.MIRTH_FRAME.doSaveChannel();
+        	PlatformUI.MIRTH_FRAME.doContextSensitiveSave();
         }
     }
 }

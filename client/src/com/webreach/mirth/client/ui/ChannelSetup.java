@@ -425,7 +425,7 @@ public class ChannelSetup extends javax.swing.JPanel
                 // TODO Auto-generated method stub
                 if (e.getKeyCode() == KeyEvent.VK_S && e.isControlDown())
                 {
-                    PlatformUI.MIRTH_FRAME.doSaveChannel();
+                	PlatformUI.MIRTH_FRAME.doContextSensitiveSave();
                 }
             }
             

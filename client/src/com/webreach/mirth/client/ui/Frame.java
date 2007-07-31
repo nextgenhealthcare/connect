@@ -3046,6 +3046,23 @@ public class Frame extends JXFrame
         return true;
     }
     
+    public void doContextSensitiveSave(){
+    	if (currentContentPage == channelEditPanel){
+    		doSaveChannel();
+    	}else if(currentContentPage == channelEditPanel.filterPane){
+    		channelEditPanel.filterPane.accept(false);
+    		doSaveChannel();
+    	}else if(currentContentPage == channelEditPanel.transformerPane){
+    		channelEditPanel.transformerPane.accept(false);
+    		doSaveChannel();
+    	}else if(currentContentPage == globalScriptsPanel){
+    		doSaveGlobalScripts();
+    	}else if(currentContentPage == settingsPanel){
+    		doSaveSettings();
+    	}else if (currentContentPage == alertPanel){
+    		doSaveAlerts();
+    	}
+    }
     public void doHelp()
     {
         if (currentContentPage == channelEditPanel)
