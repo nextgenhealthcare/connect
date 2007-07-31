@@ -31,7 +31,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.URI;
 import java.nio.charset.Charset;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -296,8 +295,7 @@ public class ConfigurationController {
 		Iterator i = globalScripts.entrySet().iterator();
 		while (i.hasNext()) {
 			Entry entry = (Entry) i.next();
-			if (!(entry.getKey().toString().equals(PREPROCESSOR) && globalScripts.get(entry.getKey()).equals("// Modify the message variable below to pre process data\r\n// This script applies across all channels\r\nreturn message;")) &&
-                    !(entry.getKey().toString().equals(POSTPROCESSOR)&& globalScripts.get(entry.getKey()).equals("// This script executes once after a message has been processed\r\n// This script applies across all channels\r\nreturn;")))
+			if (!(entry.getKey().toString().equals(PREPROCESSOR) && globalScripts.get(entry.getKey()).equals("// Modify the message variable below to pre process data\r\n// This script applies across all channels\r\nreturn message;")) && !(entry.getKey().toString().equals(POSTPROCESSOR) && globalScripts.get(entry.getKey()).equals("// This script executes once after a message has been processed\r\n// This script applies across all channels\r\nreturn;")))
 				JavaScriptUtil.getInstance().compileScript(entry.getKey().toString(), globalScripts.get(entry.getKey()));
 		}
 
@@ -346,7 +344,7 @@ public class ConfigurationController {
 		String deployScript = scriptController.getScript(DEPLOY);
 		String shutdownScript = scriptController.getScript(SHUTDOWN);
 		String preprocessorScript = scriptController.getScript(PREPROCESSOR);
-        String postprocessorScript = scriptController.getScript(POSTPROCESSOR);
+		String postprocessorScript = scriptController.getScript(POSTPROCESSOR);
 
 		if (deployScript == null)
 			deployScript = "// This script executes once when the mule engine is started\r\n// You only have access to the globalMap here to persist data\r\nreturn;";
@@ -356,14 +354,14 @@ public class ConfigurationController {
 
 		if (preprocessorScript == null)
 			preprocessorScript = "// Modify the message variable below to pre process data\r\n// This script applies across all channels\r\nreturn message;";
-        
-        if (postprocessorScript == null)
-            postprocessorScript = "// This script executes once after a message has been processed\r\n// This script applies across all channels\r\nreturn;";
+
+		if (postprocessorScript == null)
+			postprocessorScript = "// This script executes once after a message has been processed\r\n// This script applies across all channels\r\nreturn;";
 
 		scripts.put(DEPLOY, deployScript);
 		scripts.put(SHUTDOWN, shutdownScript);
 		scripts.put(PREPROCESSOR, preprocessorScript);
-        scripts.put(POSTPROCESSOR, postprocessorScript);
+		scripts.put(POSTPROCESSOR, postprocessorScript);
 
 		return scripts;
 	}
@@ -386,15 +384,14 @@ public class ConfigurationController {
 		}
 	}
 
-    public String getMuleConfigurationPath()
-    {
-        Properties properties = PropertyLoader.loadProperties("mirth");
-        
-        String fileSeparator = System.getProperty("file.separator");
-        File muleBootFile = new File(ClassPathResource.getResourceURI(properties.getProperty("mule.boot")));
-        return muleBootFile.getParent() + fileSeparator + properties.getProperty("mule.config");
-    }
-    
+	public String getMuleConfigurationPath() {
+		Properties properties = PropertyLoader.loadProperties("mirth");
+
+		String fileSeparator = System.getProperty("file.separator");
+		File muleBootFile = new File(ClassPathResource.getResourceURI(properties.getProperty("mule.boot")));
+		return muleBootFile.getParent() + fileSeparator + properties.getProperty("mule.config");
+	}
+
 	/**
 	 * Returns a File with the latest Mule configuration.
 	 * 
@@ -402,31 +399,31 @@ public class ConfigurationController {
 	 * @throws ControllerException
 	 */
 	public File getLatestConfiguration() throws ControllerException {
-        logger.debug("retrieving latest configuration");
+		logger.debug("retrieving latest configuration");
 
-        Properties properties = PropertyLoader.loadProperties("mirth");
+		Properties properties = PropertyLoader.loadProperties("mirth");
 
-        try {
-            Configuration latestConfiguration = (Configuration) sqlMap.queryForObject("getLatestConfiguration");
+		try {
+			Configuration latestConfiguration = (Configuration) sqlMap.queryForObject("getLatestConfiguration");
 
-            if (latestConfiguration != null) {
-                logger.debug("using configuration " + latestConfiguration.getId() + " created on " + latestConfiguration.getDateCreated());
-                // Find the path of mule.boot because mule.config may not exist.
-                // Then generate the path of mule.config in the same directory
-                // as mule.boot.
-                String muleConfigPath = getMuleConfigurationPath();
-                BufferedWriter out = new BufferedWriter(new FileWriter(new File(muleConfigPath)));
-                out.write(latestConfiguration.getData());
-                out.close();
-                return new File(muleConfigPath);
-            }
+			if (latestConfiguration != null) {
+				logger.debug("using configuration " + latestConfiguration.getId() + " created on " + latestConfiguration.getDateCreated());
+				// Find the path of mule.boot because mule.config may not exist.
+				// Then generate the path of mule.config in the same directory
+				// as mule.boot.
+				String muleConfigPath = getMuleConfigurationPath();
+				BufferedWriter out = new BufferedWriter(new FileWriter(new File(muleConfigPath)));
+				out.write(latestConfiguration.getData());
+				out.close();
+				return new File(muleConfigPath);
+			}
 
-            logger.debug("no configuration found, using default boot file");
-            return new File(ClassPathResource.getResourceURI(properties.getProperty("mule.boot")));
-        } catch (Exception e) {
-            logger.error("Could not retrieve latest configuration.", e);
-            return null;
-        }
+			logger.debug("no configuration found, using default boot file");
+			return new File(ClassPathResource.getResourceURI(properties.getProperty("mule.boot")));
+		} catch (Exception e) {
+			logger.error("Could not retrieve latest configuration.", e);
+			return null;
+		}
 	}
 
 	/**
@@ -521,7 +518,12 @@ public class ConfigurationController {
 	}
 
 	public int getSchemaVersion() {
-		return Integer.parseInt(versionProperties.getProperty("schema.version"));
+		try {
+			return Integer.parseInt(versionProperties.getProperty("schema.version"));
+		} catch (Exception e) {
+			logger.error("Missing schema.version property.");
+			return -1;
+		}
 	}
 
 	public String getBuildDate() {
