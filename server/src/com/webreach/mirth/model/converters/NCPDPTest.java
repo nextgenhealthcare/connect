@@ -114,7 +114,7 @@ public class NCPDPTest {
 	private static long runTest(String testMessage) throws SerializerException, SAXException, IOException {
 		Stopwatch stopwatch = new Stopwatch();
 		Properties properties = new Properties();
-        String SchemaUrl = "file://c:/ncpdp.xsd";
+        String SchemaUrl = "/ncpdp.xsd";
         properties.put("useStrictParser", "true");
         properties.put("http://java.sun.com/xml/jaxp/properties/schemaSource",SchemaUrl);
         stopwatch.start();
@@ -135,7 +135,7 @@ public class NCPDPTest {
         xr.setFeature("http://apache.org/xml/features/validation/schema-full-checking",true);
         xr.setProperty("http://java.sun.com/xml/jaxp/properties/schemaLanguage","http://www.w3.org/2001/XMLSchema");
         xr.setProperty("http://apache.org/xml/properties/schema/external-noNamespaceSchemaLocation",SchemaUrl);
-        xr.setProperty("http://java.sun.com/xml/jaxp/properties/schemaSource","c:\\ncpdp.xsd");
+        xr.setProperty("http://java.sun.com/xml/jaxp/properties/schemaSource","/ncpdp.xsd");
         xr.parse(new InputSource(new StringReader(xmloutput)));
 		stopwatch.stop();
 
