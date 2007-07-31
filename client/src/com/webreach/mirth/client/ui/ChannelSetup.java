@@ -613,7 +613,6 @@ public class ChannelSetup extends javax.swing.JPanel
             incomingProtocol.setSelectedItem(parent.protocols.get(currentChannel.getSourceConnector().getTransformer().getInboundProtocol()));
         }
         
-        
         LinkedHashMap<String, String> scriptMap = new LinkedHashMap<String, String>();
         if (currentChannel.getPreprocessingScript() != null)
             scriptMap.put(ScriptPanel.PREPROCESSOR_SCRIPT, currentChannel.getPreprocessingScript());

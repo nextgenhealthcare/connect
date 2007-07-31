@@ -114,16 +114,36 @@ public class Mirth
     {
         final String server;
         final String version;
-
-        if (args.length > 1)
+        final String username;
+        final String password;
+        
+        if (args.length == 2)
         {
             server = args[0];
             version = args[1];
+            username = "";
+            password = "";
+        }
+        else if(args.length == 3)
+        {
+            server = args[0];
+            version = args[1];
+            username = args[2];
+            password = "";
+        }
+        else if(args.length == 4)
+        {
+            server = args[0];
+            version = args[1];
+            username = args[2];
+            password = args[3];
         }
         else
         {
             server = "https://localhost:8443";
             version = "";
+            username = "";
+            password = "";
         }
 
         SwingUtilities.invokeLater(new Runnable()
@@ -193,7 +213,7 @@ public class Mirth
                 UIManager.put("TaskPane.titleBackgroundGradientStart", new Color(0xffffff));
                 UIManager.put("TaskPane.titleBackgroundGradientEnd", new Color(0xffffff));
                 PlatformUI.BACKGROUND_IMAGE = new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/header.jpg"));
-                login = new LoginPanel(server, version);
+                login = new LoginPanel(server, version, username, password);
             }
         });
     }

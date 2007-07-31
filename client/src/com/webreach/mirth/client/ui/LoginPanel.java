@@ -42,7 +42,7 @@ public class LoginPanel extends javax.swing.JFrame
     private Client client;
 
     /** Creates new form WizardDialog */
-    public LoginPanel(String mirthServer, String version)
+    public LoginPanel(String mirthServer, String version, String user, String pass)
     {
         PlatformUI.CLIENT_VERSION = version;
         initComponents();
@@ -55,7 +55,12 @@ public class LoginPanel extends javax.swing.JFrame
         setLocationRelativeTo(null);
         setVisible(true);
         username.grabFocus();
+        username.setText(user);
+        password.setText(pass);        
         errorPane.setVisible(false);
+        
+        if(user.length() > 0 && pass.length() > 0)
+            loginButtonActionPerformed(null);
     }
 
     /**
