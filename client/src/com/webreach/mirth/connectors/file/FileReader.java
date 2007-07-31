@@ -146,11 +146,6 @@ public class FileReader extends ConnectorClass
         
         fileNameFilter.setText((String) props.get(FileReaderProperties.FILE_FILTER));
         
-        if (((String) props.get(FileReaderProperties.FILE_PROCESS_BATCH_FILES)).equalsIgnoreCase(UIConstants.YES_OPTION))
-            processBatchFilesYes.setSelected(true);
-        else
-            processBatchFilesNo.setSelected(true);
-        
         if (((String) props.get(FileReaderProperties.FILE_TYPE)).equalsIgnoreCase(UIConstants.YES_OPTION))
         {
             fileTypeBinary.setSelected(true);
@@ -161,6 +156,11 @@ public class FileReader extends ConnectorClass
             fileTypeASCII.setSelected(true);
             fileTypeASCIIActionPerformed(null);
         }
+        
+        if (((String) props.get(FileReaderProperties.FILE_PROCESS_BATCH_FILES)).equalsIgnoreCase(UIConstants.YES_OPTION))
+            processBatchFilesYes.setSelected(true);
+        else
+            processBatchFilesNo.setSelected(true);
         
         if (((String) props.get(FileReaderProperties.FILE_POLLING_TYPE)).equalsIgnoreCase("interval"))
         {
