@@ -14,6 +14,8 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.ByteArrayOutputStream;
 
+import com.webreach.mirth.model.ncpdp.NCPDPReference;
+
 /**
  * Created by IntelliJ IDEA.
  * User: dans
@@ -26,22 +28,44 @@ public class NCPDPSerializer  implements IXMLSerializer<String> {
 	private String segmentDelim = "\u001E";
 	private String groupDelim = "\u001D";
 	private String fieldDelim = "\u001C";
+	private boolean useStrictValidation = false;
 
     public NCPDPSerializer(Map NCPDPProperties){
 		if (NCPDPProperties == null) {
 			return;
 		}
 		if (NCPDPProperties.get("segmentDelimiter") != null) {
-			this.segmentDelim = convertNonPrintableCharacters((String) NCPDPProperties.get("segmentDelimiter"));
+            String segDel = convertNonPrintableCharacters((String) NCPDPProperties.get("segmentDelimiter"));
+            if(segDel.equals("0x1E")){
+                this.segmentDelim = "\u001E";
+            }
+            else {
+                this.segmentDelim = segDel;
+            }
 
-		}
+        }
 		if (NCPDPProperties.get("groupDelimiter") != null) {
-			this.groupDelim = convertNonPrintableCharacters((String) NCPDPProperties.get("groupDelimiter"));
-		}
+            String grpDel = convertNonPrintableCharacters((String) NCPDPProperties.get("groupDelimiter"));
+            if(grpDel.equals("0x1D")){
+                this.groupDelim = "\u001D";
+            }
+            else {
+                this.groupDelim = grpDel;
+            }
+        }
 		if (NCPDPProperties.get("fieldDelimiter") != null) {
-			this.fieldDelim = convertNonPrintableCharacters((String) NCPDPProperties.get("fieldDelimiter"));
+            String fieldDel = convertNonPrintableCharacters((String) NCPDPProperties.get("fieldDelimiter"));
+            if(fieldDel.equals("0x1C")){
+                this.fieldDelim = "\u001C";
+            }
+            else {
+                this.fieldDelim = fieldDel;
+            }
+        }
+		if (NCPDPProperties.get("useStrictValidation") != null) {
+			this.useStrictValidation = Boolean.parseBoolean((String) NCPDPProperties.get("useStrictValidation"));
 		}
-		return;
+        return;
     }
 
 	private String convertNonPrintableCharacters(String delimiter) {
@@ -66,7 +90,15 @@ public class NCPDPSerializer  implements IXMLSerializer<String> {
 		try {
             //Parse, but first replace all spaces between brackets. This fixes pretty-printed XML we might receive
             // change from source.replaceAll(">\\s+<", "><")
-            xr.parse(new InputSource(new StringReader(source)));
+            if(useStrictValidation){
+                xr.setFeature("http://xml.org/sax/features/validation", true);
+                xr.setFeature("http://apache.org/xml/features/validation/schema", true);
+                xr.setFeature("http://apache.org/xml/features/validation/schema-full-checking",true);
+                xr.setProperty("http://java.sun.com/xml/jaxp/properties/schemaLanguage","http://www.w3.org/2001/XMLSchema");
+                xr.setProperty("http://apache.org/xml/properties/schema/external-noNamespaceSchemaLocation","ncpdp.xsd");
+                xr.setProperty("http://java.sun.com/xml/jaxp/properties/schemaSource","/ncpdp.xsd");
+            }
+            xr.parse(new InputSource(new StringReader(source.replaceAll("</([^>]*)>\\s+<", "</$1><"))));
 		} catch (Exception e) {
 			throw new SerializerException(e.getMessage());
 		}
@@ -127,21 +159,21 @@ public class NCPDPSerializer  implements IXMLSerializer<String> {
 	public Map<String, String> getMetadataFromDocument(Document document) {
 		Map<String, String> map = new HashMap<String, String>();
 		String sendingFacility = "";
-		if (document.getElementsByTagName("ServiceProviderId") != null) {
+		if (document != null && document.getElementsByTagName("ServiceProviderId") != null) {
 			Node sender = document.getElementsByTagName("ServiceProviderId").item(0);
 			if (sender != null) {
 				sendingFacility = sender.getTextContent();
 			}
 		}
-		String event = document.getDocumentElement().getNodeName();
-		if (document.getElementsByTagName("TransactionCode") != null) {
+		String event = "";
+		if (document != null && document.getElementsByTagName("TransactionCode") != null) {
 			Node type = document.getElementsByTagName("TransactionCode").item(0);
 			if (type != null) {
-				event = type.getTextContent();
+				event = NCPDPReference.getInstance().getTransactionName(type.getTextContent());
 			}
 		}
-		String version = "";
-		if (document.getElementsByTagName("VersionReleaseNumber") != null) {
+		String version = "5.1";
+		if (document != null && document.getElementsByTagName("VersionReleaseNumber") != null) {
 			Node versionNode = document.getElementsByTagName("VersionReleaseNumber").item(0);
 			if (versionNode != null) {
 				version = versionNode.getTextContent();
