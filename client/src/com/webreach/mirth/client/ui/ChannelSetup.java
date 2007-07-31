@@ -929,7 +929,7 @@ public class ChannelSetup extends javax.swing.JPanel
         }
         if (enabledCount <= 1)
         {
-            JOptionPane.showMessageDialog(parent, "You must have at least one destination enabled.");
+            parent.alertError("You must have at least one destination enabled.");
             return;
         }
         
