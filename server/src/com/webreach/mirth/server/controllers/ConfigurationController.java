@@ -358,7 +358,7 @@ public class ConfigurationController {
 			preprocessorScript = "// Modify the message variable below to pre process data\r\n// This script applies across all channels\r\nreturn message;";
         
         if (postprocessorScript == null)
-            postprocessorScript = "// This script executes once after a message has been processed\r\n// This script applies across all channels\r\nreturn message;";
+            postprocessorScript = "// This script executes once after a message has been processed\r\n// This script applies across all channels\r\nreturn;";
 
 		scripts.put(DEPLOY, deployScript);
 		scripts.put(SHUTDOWN, shutdownScript);
