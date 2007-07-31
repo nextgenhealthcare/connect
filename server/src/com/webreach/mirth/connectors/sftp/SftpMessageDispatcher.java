@@ -12,6 +12,7 @@ import java.util.Vector;
 
 import org.mule.MuleManager;
 import org.mule.impl.MuleMessage;
+import org.mule.impl.endpoint.MuleEndpointURI;
 import org.mule.providers.AbstractMessageDispatcher;
 import org.mule.providers.TemplateValueReplacer;
 import org.mule.providers.VariableFilenameParser;
@@ -52,6 +53,7 @@ public class SftpMessageDispatcher extends AbstractMessageDispatcher {
 			return;
 		}
 		try{
+				uri = new MuleEndpointURI(replacer.replaceURLValues(uri.toString(), messageObject));
 				String filename = (String) event.getProperty(SftpConnector.PROPERTY_FILENAME);
 
 				if (filename == null) {
@@ -76,7 +78,7 @@ public class SftpMessageDispatcher extends AbstractMessageDispatcher {
 				}
 				// TODO: have this mode be set by the connector
 				int mode = ChannelSftp.OVERWRITE;
-				client = connector.getClient(uri);
+				client = connector.getClient(uri, messageObject);
 				client.put(new ByteArrayInputStream(buffer), filename, mode);
 				
 				//update the message status to sent
@@ -86,7 +88,7 @@ public class SftpMessageDispatcher extends AbstractMessageDispatcher {
 			messageObjectController.setError(messageObject, Constants.ERROR_409, "Error writing to Sftp", e);
 			connector.handleException(e);
 		} finally {
-			connector.releaseClient(uri, client);
+			connector.releaseClient(uri, client, messageObject);
 			monitoringController.updateStatus(connector, Status.IDLE);
 		}
 	}
@@ -95,7 +97,7 @@ public class SftpMessageDispatcher extends AbstractMessageDispatcher {
 		ChannelSftp client = null;
 
 		try {
-			client = connector.getClient(endpointUri);
+			client = connector.getClient(endpointUri, null);
 
 			FilenameFilter filenameFilter = null;
 			String filter = (String) endpointUri.getParams().get("filter");
@@ -132,7 +134,7 @@ public class SftpMessageDispatcher extends AbstractMessageDispatcher {
 			return message;
 
 		} finally {
-			connector.releaseClient(endpointUri, client);
+			connector.releaseClient(endpointUri, client, null);
 		}
 	}
 

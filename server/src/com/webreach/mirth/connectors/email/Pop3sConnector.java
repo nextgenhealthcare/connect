@@ -30,7 +30,7 @@ public class Pop3sConnector extends Pop3Connector {
     private String trustStore = null;
     private String trustStorePassword = null;
 
-    public static final int DEFAULT_POP3S_PORT = 995;
+    public static final String DEFAULT_POP3S_PORT = "995";
 
     public Pop3sConnector() {
         setPort(DEFAULT_POP3S_PORT);

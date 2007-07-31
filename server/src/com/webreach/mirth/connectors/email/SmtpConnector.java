@@ -58,7 +58,7 @@ import java.util.Properties;
  */
 public class SmtpConnector extends AbstractServiceEnabledConnector implements MailConnector
 {
-    public static final int DEFAULT_SMTP_PORT = 25;
+    public static final String DEFAULT_SMTP_PORT = "25";
     public static final String DEFAULT_CONTENT_TYPE = "text/plain";
     
     private String body;
@@ -109,7 +109,7 @@ public class SmtpConnector extends AbstractServiceEnabledConnector implements Ma
     /**
      * Holds value of property port for the smtp server.
      */
-    private int smtpPort = DEFAULT_SMTP_PORT;
+    private String smtpPort = DEFAULT_SMTP_PORT;
 
     /**
      * Holds value of property SMTPusername.
@@ -384,12 +384,12 @@ public class SmtpConnector extends AbstractServiceEnabledConnector implements Ma
         username = string;
     }
 
-    public int getPort()
+    public String getPort()
     {
         return smtpPort;
     }
 
-    public void setPort(int port)
+    public void setPort(String port)
     {
         this.smtpPort = port;
     }
@@ -437,10 +437,10 @@ public class SmtpConnector extends AbstractServiceEnabledConnector implements Ma
 	public void setBody(String body) {
 		this.body = body;
 	}
-	public int getSmtpPort() {
+	public String getSmtpPort() {
 		return smtpPort;
 	}
-	public void setSmtpPort(int smtpPort) {
+	public void setSmtpPort(String smtpPort) {
 		this.smtpPort = smtpPort;
 	}
 

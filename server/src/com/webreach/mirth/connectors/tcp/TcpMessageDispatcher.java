@@ -148,7 +148,8 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 				while (!success && !disposed && (retryCount < maxRetries)) {
 					retryCount++;
 					try {
-						socket = initSocket(event.getEndpoint().getEndpointURI().getAddress());
+						String host = replacer.replaceURLValues(event.getEndpoint().getEndpointURI().toString(), messageObject);
+						socket = initSocket(host);
 						monitoringController.updateStatus(connector, Status.PROCESSING);
 						writeTemplatedData(socket, messageObject);
 						success = true;

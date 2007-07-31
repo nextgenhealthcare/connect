@@ -29,6 +29,7 @@ import org.mule.impl.endpoint.MuleEndpoint;
 import org.mule.impl.internal.events.ModelEvent;
 import org.mule.impl.internal.events.ModelEventListener;
 import org.mule.providers.AbstractServiceEnabledConnector;
+import org.mule.providers.TemplateValueReplacer;
 import org.mule.providers.service.ConnectorFactory;
 import org.mule.providers.soap.axis.extensions.MuleConfigProvider;
 import org.mule.providers.soap.axis.extensions.MuleTransport;
@@ -122,6 +123,7 @@ public class AxisConnector extends AbstractServiceEnabledConnector implements Mo
     private String currentDescriptorName = null;
     private boolean keepAlive = false;
     private int keepAliveTimeout = 5000;
+    private TemplateValueReplacer replacer = new TemplateValueReplacer();
     /**
      * These protocols will be set on client invocations.  by default Mule uses it's own transports
      * rather that Axis's.  This is only because it gives us more flexibility inside Mule and
@@ -567,7 +569,8 @@ public class AxisConnector extends AbstractServiceEnabledConnector implements Mo
 	}
 
 	public void setServiceName(String serviceName) {
-		this.serviceName = serviceName;
+		//Run replacer
+		this.serviceName = replacer.replaceValuesFromGlobal(serviceName, true);
 	}
 
 	public List getParameterMapping() {

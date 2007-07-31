@@ -362,7 +362,6 @@ public class FtpConnector extends AbstractServiceEnabledConnector {
 		private String password;
 		private String host;
 		int port;
-		private TemplateValueReplacer replacer = new TemplateValueReplacer();
 		public FtpConnectionFactory(String host, int port, String username, String password) {			
 			this.username = username;
 			this.password = password;

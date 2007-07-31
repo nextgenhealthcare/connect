@@ -21,7 +21,7 @@ package com.webreach.mirth.connectors.email;
  */
 public class ImapConnector extends Pop3Connector {
 
-    public static final int DEFAULT_IMAP_PORT = 143;
+    public static final String DEFAULT_IMAP_PORT = "143";
 
     public ImapConnector() {
         setPort(DEFAULT_IMAP_PORT);

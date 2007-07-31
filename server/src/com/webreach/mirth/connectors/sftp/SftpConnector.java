@@ -10,6 +10,7 @@ import org.apache.commons.pool.impl.GenericObjectPool;
 import org.mule.config.i18n.Message;
 import org.mule.config.i18n.Messages;
 import org.mule.providers.AbstractServiceEnabledConnector;
+import org.mule.providers.TemplateValueReplacer;
 import org.mule.providers.VariableFilenameParser;
 import org.mule.umo.UMOComponent;
 import org.mule.umo.UMOException;
@@ -21,6 +22,7 @@ import org.mule.umo.provider.UMOMessageReceiver;
 
 import com.jcraft.jsch.ChannelSftp;
 import com.webreach.mirth.connectors.file.FilenameParser;
+import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.server.controllers.SystemLogger;
 
@@ -76,7 +78,7 @@ public class SftpConnector extends AbstractServiceEnabledConnector {
 	private boolean processBatchFiles = true;
 	private String channelId;
 	private String charsetEncoding = DEFAULT_CHARSET_ENCODING;
-
+	private TemplateValueReplacer replacer = new TemplateValueReplacer();
 	public UMOMessageReceiver createReceiver(UMOComponent component, UMOEndpoint endpoint) throws Exception {
 		long polling = pollingFrequency;
 		Map props = endpoint.getProperties();
@@ -107,18 +109,18 @@ public class SftpConnector extends AbstractServiceEnabledConnector {
 		return serviceDescriptor.createMessageReceiver(this, component, endpoint, new Object[] { new Long(polling) });
 	}
 
-	public ChannelSftp getClient(UMOEndpointURI uri) throws Exception {
-		ObjectPool pool = getClientPool(uri);
+	public ChannelSftp getClient(UMOEndpointURI uri, MessageObject messageObject) throws Exception {
+		ObjectPool pool = getClientPool(uri, messageObject);
 		return (ChannelSftp) pool.borrowObject();
 	}
 
-	public void releaseClient(UMOEndpointURI uri, ChannelSftp client) throws Exception {
+	public void releaseClient(UMOEndpointURI uri, ChannelSftp client, MessageObject messageObject) throws Exception {
 		if (isCreateDispatcherPerRequest()) {
-			destroyClient(uri, client);
+			destroyClient(uri, client, messageObject);
 			UMOMessageDispatcher dispatcher = getDispatcher(uri.toString());
 		} else {
 			if (client != null && client.isConnected()) {
-				ObjectPool pool = getClientPool(uri);
+				ObjectPool pool = getClientPool(uri, messageObject);
 				pool.returnObject(client);
 			}
 		}
@@ -126,19 +128,31 @@ public class SftpConnector extends AbstractServiceEnabledConnector {
 	public void SftpConnector(){
 		filenameParser = new VariableFilenameParser();
 	}
-	public void destroyClient(UMOEndpointURI uri, ChannelSftp client) throws Exception {
+	public void destroyClient(UMOEndpointURI uri, ChannelSftp client, MessageObject messageObject) throws Exception {
 		if ((client != null) && (client.isConnected())) {
-			ObjectPool pool = getClientPool(uri);
+			ObjectPool pool = getClientPool(uri, messageObject);
 			pool.invalidateObject(client);
 		}
 	}
 
-	protected synchronized ObjectPool getClientPool(UMOEndpointURI uri) {
-		String key = uri.getUsername() + ":" + uri.getPassword() + "@" + uri.getHost() + ":" + uri.getPort();
+	protected synchronized ObjectPool getClientPool(UMOEndpointURI uri, MessageObject messageObject) {
+		String username = getUsername();
+		String password = getPassword();
+		if (messageObject == null){
+			username = replacer.replaceValuesFromGlobal(username, true);
+			password = replacer.replaceValuesFromGlobal(password, true);
+		}else{
+			if (username.indexOf('$') > -1)
+				username = replacer.replaceValues(username, messageObject);
+			if (password.indexOf('$') > -1)
+				password = replacer.replaceValues(password, messageObject);
+		}
+		String key = username + ":" + password + "@" + uri.getHost() + ":" + uri.getPort();
+
 		ObjectPool pool = (ObjectPool) pools.get(key);
 
 		if (pool == null) {
-			pool = new GenericObjectPool(new SftpConnectionFactory(uri, username, password));
+			pool = new GenericObjectPool(new SftpConnectionFactory(uri.getHost(), uri.getPort(), username, password, uri.getPath()));
 			pools.put(key, pool);
 		}
 

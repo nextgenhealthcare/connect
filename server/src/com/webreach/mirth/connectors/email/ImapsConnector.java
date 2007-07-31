@@ -21,7 +21,7 @@ package com.webreach.mirth.connectors.email;
  */
 public class ImapsConnector extends Pop3sConnector {
 
-    public static final int DEFAULT_IMAPS_PORT = 993;
+    public static final String DEFAULT_IMAPS_PORT = "993";
 
     public ImapsConnector() {
         setPort(DEFAULT_IMAPS_PORT);

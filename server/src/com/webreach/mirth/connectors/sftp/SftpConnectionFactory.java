@@ -10,16 +10,20 @@ import com.jcraft.jsch.Session;
 import com.jcraft.jsch.UserInfo;
 
 public class SftpConnectionFactory implements PoolableObjectFactory {
-	private UMOEndpointURI uri;
 	private String username;
 	private String password;
+	private String host;
+	private String path;
+	int port;
 	
-	public SftpConnectionFactory(UMOEndpointURI uri, String username, String password) {
-		this.uri = uri;
+	public SftpConnectionFactory(String host, int port, String username, String password, String path) {
 		this.username = username;
 		this.password = password;
+		this.port = port;
+		this.host = host;
+		this.path = path;
 	}
-
+	
 	public Object makeObject() throws Exception {
 		JSch jsch = new JSch();
 		ChannelSftp client = new ChannelSftp();
@@ -27,10 +31,10 @@ public class SftpConnectionFactory implements PoolableObjectFactory {
 		try {
 			Session session = null;
 
-			if (uri.getPort() > 0) {
-				session = jsch.getSession(username, uri.getHost(), uri.getPort());
+			if (port > 0) {
+				session = jsch.getSession(username, host, port);
 			} else {
-				session = jsch.getSession(username, uri.getHost());
+				session = jsch.getSession(username, host);
 			}
 
 			UserInfo userInfo = new SftpUserInfo(password);
@@ -42,7 +46,7 @@ public class SftpConnectionFactory implements PoolableObjectFactory {
 			client = (ChannelSftp) channel;
 
 			// FIXME: find elegant way to work even with starting slash
-			String path = uri.getPath().substring(1, uri.getPath().length());
+			path = path.substring(1, path.length());
 			client.cd(path);
 		} catch (Exception e) {
 			if (client.isConnected()) {

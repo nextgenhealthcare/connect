@@ -127,7 +127,7 @@ public class PluginMetaData implements MetaData, Serializable {
 			builder.append("extention-point=" + extensionPoint.toString() + ", ");
 		}
         builder.append("updateUrl=" + getUpdateUrl() + ", ");
-        builder.append("versionUrl=" + getDescription() + ", ");
+        builder.append("description=" + getDescription() + ", ");
         builder.append("enabled=" + isEnabled() + "]");
 		return builder.toString();
 	}

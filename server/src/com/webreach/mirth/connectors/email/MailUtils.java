@@ -67,7 +67,7 @@ public class MailUtils
         props.put("mail." + protocol +".host", url.getHost());
         int port = url.getPort();
         if(port==-1) {
-            port = connector.getPort();
+            port = Integer.parseInt(connector.getPort());
         }
         props.put("mail." + protocol + ".port", String.valueOf(port));
 

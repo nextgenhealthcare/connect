@@ -29,7 +29,7 @@ import javax.mail.Authenticator;
  */
 public class Pop3Connector extends AbstractServiceEnabledConnector implements MailConnector {
 	public static final String MAILBOX = "INBOX";
-	public static final int DEFAULT_POP3_PORT = 110;
+	public static final String DEFAULT_POP3_PORT = "110";
 	public static final int DEFAULT_CHECK_FREQUENCY = 60000;
 
 	/**
@@ -53,7 +53,7 @@ public class Pop3Connector extends AbstractServiceEnabledConnector implements Ma
 	/**
 	 * Default mail port if one is not set
 	 */
-	private int port = DEFAULT_POP3_PORT;
+	private String port = DEFAULT_POP3_PORT;
 
 	private String channelId;
 
@@ -124,11 +124,11 @@ public class Pop3Connector extends AbstractServiceEnabledConnector implements Ma
 		this.authenticator = authenticator;
 	}
 
-	public int getPort() {
+	public String getPort() {
 		return port;
 	}
 
-	public void setPort(int port) {
+	public void setPort(String port) {
 		this.port = port;
 	}
 

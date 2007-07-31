@@ -5,7 +5,6 @@
   <mirthVersion>1.6.0</mirthVersion>
   <url>http://www.mirthproject.org</url>
   <updateUrl><![CDATA[http://www.mirthproject.org/update/plugins/MessageBuilderTransformerStep/?pluginVersion=1.6.0&mirthVersion=1.6.0]]></updateUrl>
-  <versionUrl>http://www.mirthproject.org/update/plugins/MessageBuilderTransformerStep/version</versionUrl>
   <enabled>true</enabled>
   <extensionPoint>
   	<name>Message Builder</name>

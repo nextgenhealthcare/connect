@@ -31,7 +31,7 @@ public class SmtpsConnector extends SmtpConnector {
     private String trustStore = null;
     private String trustStorePassword = null;
 
-    public static final int DEFAULT_SMTPS_PORT = 465;
+    public static final String DEFAULT_SMTPS_PORT = "465";
 
     public SmtpsConnector() throws InitialisationException {
         setPort(DEFAULT_SMTPS_PORT);

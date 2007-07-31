@@ -39,6 +39,7 @@ import org.mule.impl.MuleMessage;
 import org.mule.impl.ResponseOutputStream;
 import org.mule.providers.AbstractMessageReceiver;
 import org.mule.providers.ConnectException;
+import org.mule.providers.TemplateValueReplacer;
 import org.mule.umo.UMOComponent;
 import org.mule.umo.UMOMessage;
 import org.mule.umo.endpoint.UMOEndpoint;
@@ -74,6 +75,7 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
 	private AlertController alertController = AlertController.getInstance();
 	private MonitoringController monitoringController = MonitoringController.getInstance();
 	private JavaScriptPostprocessor postProcessor = new JavaScriptPostprocessor();
+	private TemplateValueReplacer replacer = new TemplateValueReplacer();
 	private TcpWorker work;
 	public TcpMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint) throws InitialisationException {
 		super(connector, component, endpoint);
@@ -302,6 +304,7 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
 						if (connector.isResponseFromTransformer() && !connector.getResponseValue().equalsIgnoreCase("None")) {
 							if (connector.isAckOnNewConnection()) {
 								String endpointURI = connector.getAckIP() + ":" + connector.getAckPort();
+								endpointURI = replacer.replaceURLValues(endpointURI, messageObjectResponse);
 								Socket socket = initSocket("tcp://" + endpointURI);
 								BufferedOutputStream bos = new BufferedOutputStream(socket.getOutputStream());
 								protocol.write(bos, ((Response) responseMap.get(connector.getResponseValue())).getMessage().getBytes(connector.getCharsetEncoding()));

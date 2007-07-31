@@ -103,7 +103,7 @@ public class SftpMessageReceiver extends PollingMessageReceiver {
 		UMOEndpointURI uri = endpoint.getEndpointURI();
 
 		try {
-			client = connector.getClient(uri);
+			client = connector.getClient(uri, null);
 			Vector entries = client.ls(".");
 			List<ChannelSftp.LsEntry> files = new ArrayList<ChannelSftp.LsEntry>();
 
@@ -119,7 +119,7 @@ public class SftpMessageReceiver extends PollingMessageReceiver {
 
 			return files;
 		} finally {
-			connector.releaseClient(uri, client);
+			connector.releaseClient(uri, client, null);
 		}
 	}
 
@@ -169,7 +169,7 @@ public class SftpMessageReceiver extends PollingMessageReceiver {
 		String moveDir = connector.getMoveToDirectory();
 
 		try {
-			client = connector.getClient(uri);
+			client = connector.getClient(uri, null);
 			if (moveDir != null) {
 
 				String fileName = file.getFilename();
@@ -248,13 +248,13 @@ public class SftpMessageReceiver extends PollingMessageReceiver {
 			// TODO: This was commented out (above). Do we need it?
 			routingError = true;
 		} finally {
-			connector.releaseClient(uri, client);
+			connector.releaseClient(uri, client, null);
 		}
 	}
 
 	public void doConnect() throws Exception {
-		ChannelSftp client = connector.getClient(getEndpointURI());
-		connector.releaseClient(getEndpointURI(), client);
+		ChannelSftp client = connector.getClient(getEndpointURI(), null);
+		connector.releaseClient(getEndpointURI(), client, null);
 	}
 
 	public void doDisconnect() throws Exception {

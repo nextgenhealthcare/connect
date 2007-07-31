@@ -27,5 +27,5 @@ public interface MailConnector extends UMOConnector
  {
     public Authenticator getAuthenticator();
 
-    public int getPort();
+    public String getPort();
 }

@@ -25,6 +25,7 @@ import javax.mail.URLName;
 import org.mule.MuleException;
 import org.mule.config.i18n.Messages;
 import org.mule.providers.AbstractMessageDispatcher;
+import org.mule.providers.TemplateValueReplacer;
 import org.mule.umo.UMOEvent;
 import org.mule.umo.UMOException;
 import org.mule.umo.UMOMessage;
@@ -48,6 +49,7 @@ public class SmtpMessageDispatcher extends AbstractMessageDispatcher {
 	private MessageObjectController messageObjectController = MessageObjectController.getInstance();
 	private AlertController alertController = AlertController.getInstance();
 	private MonitoringController monitoringController = MonitoringController.getInstance();
+	private TemplateValueReplacer replacer = new TemplateValueReplacer();
 	private SmtpConnector connector;
 
 	/**
@@ -60,16 +62,25 @@ public class SmtpMessageDispatcher extends AbstractMessageDispatcher {
 		String username = new String();
 		String password = new String();
 		if (connector.getUsername() != null){
-			username = connector.getUsername();
+			username = replacer.replaceValuesFromGlobal(connector.getUsername(), true);
 		}
 		if (connector.getPassword() != null){
-			password = connector.getPassword();
+			password = replacer.replaceValuesFromGlobal(connector.getPassword(), true);
 		}
-		URLName url = new URLName(connector.getProtocol(), connector.getHostname(), connector.getSmtpPort(), null, username, password);
+		URLName url = new URLName(connector.getProtocol(), replacer.replaceValuesFromGlobal(connector.getHostname(), true), Integer.parseInt(replacer.replaceValuesFromGlobal(connector.getSmtpPort(), true)), null, username, password);
 		session = MailUtils.createMailSession(url, connector);
 		session.setDebug(logger.isDebugEnabled());
 	}
-
+	private Session createSession(String hostname, String username, String password, String port, MessageObject messageObject){
+		hostname = replacer.replaceValues(hostname, messageObject);
+		username = replacer.replaceURLValues(username, messageObject);
+		password = replacer.replaceURLValues(password, messageObject);
+		port = replacer.replaceURLValues(port, messageObject);
+		URLName url = new URLName(connector.getProtocol(), hostname, Integer.parseInt(port), null, username, password);
+		Session session = MailUtils.createMailSession(url, connector);
+		session.setDebug(logger.isDebugEnabled());
+		return session;
+	}
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -79,11 +90,19 @@ public class SmtpMessageDispatcher extends AbstractMessageDispatcher {
 	public void doDispatch(UMOEvent event) throws Exception {
 		monitoringController.updateStatus(connector, Status.PROCESSING);
 		Message msg = null;
+		
 		MessageObject messageObject = messageObjectController.getMessageObjectFromEvent(event);
 		if (messageObject == null) {
 			return;
 		}
 		try{
+			if (connector.getUsername().indexOf('$') > -1 ||
+				connector.getHostname().indexOf('$') > -1 ||
+				connector.getPassword().indexOf('$') > -1 ||
+				connector.getPort().indexOf('$') > -1){
+				//recreate session
+				session = createSession(connector.getHostname(), connector.getUsername(), connector.getPassword(), connector.getPort(), messageObject);
+			}
 			MessageObjectToEmailMessage motoEmail = new MessageObjectToEmailMessage();
 			motoEmail.setEndpoint(event.getEndpoint());
 			
