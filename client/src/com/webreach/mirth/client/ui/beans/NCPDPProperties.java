@@ -27,7 +27,7 @@ public class NCPDPProperties extends Object implements Serializable
     /**
      * Holds value of property segmentDelimiter.
      */
-    private String segmentDelimiter = "\u001E";
+    private String segmentDelimiter = "0x1E";
 
     /**
      * Getter for property segmentDelimeter.
@@ -42,7 +42,7 @@ public class NCPDPProperties extends Object implements Serializable
     /**
      * Setter for property segmentDelimeter.
      * 
-     * @param segmentDelimeter
+     * @param segmentDelimiter
      *            New value of property segmentDelimeter.
      */
     public void setSegmentDelimiter(String segmentDelimiter)
@@ -53,7 +53,7 @@ public class NCPDPProperties extends Object implements Serializable
     /**
      * Holds value of property groupDelimiter.
      */
-    private String groupDelimiter = "\u001D";
+    private String groupDelimiter = "0x1D";
 
     /**
      * Getter for property elementDelimiter.
@@ -68,7 +68,7 @@ public class NCPDPProperties extends Object implements Serializable
     /**
      * Setter for property elementDelimiter.
      * 
-     * @param elementDelimiter
+     * @param groupDelimiter
      *            New value of property elementDelimiter.
      */
     public void setGroupDelimiter(String groupDelimiter)
@@ -79,7 +79,7 @@ public class NCPDPProperties extends Object implements Serializable
     /**
      * Holds value of property fieldDelimiter.
      */
-    private String fieldDelimiter = "\u001C";
+    private String fieldDelimiter = "0x1C";
 
     /**
      * Getter for property subelementDelimiter.
@@ -94,7 +94,7 @@ public class NCPDPProperties extends Object implements Serializable
     /**
      * Setter for property subelementDelimiter.
      * 
-     * @param subelementDelimiter
+     * @param fieldDelimiter
      *            New value of property subelementDelimiter.
      */
     public void setFieldDelimiter(String fieldDelimiter)
