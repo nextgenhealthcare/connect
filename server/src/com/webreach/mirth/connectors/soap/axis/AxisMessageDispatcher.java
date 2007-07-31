@@ -48,6 +48,7 @@ import org.apache.axis.wsdl.symbolTable.ServiceEntry;
 import org.apache.axis.wsdl.symbolTable.SymTabEntry;
 import org.mule.config.MuleProperties;
 import org.mule.config.i18n.Messages;
+import org.mule.impl.MuleEvent;
 import org.mule.impl.MuleMessage;
 import org.mule.impl.endpoint.MuleEndpoint;
 import org.mule.impl.endpoint.MuleEndpointURI;
@@ -95,6 +96,7 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher {
 	private MessageObjectController messageObjectController = MessageObjectController.getInstance();
 	private AlertController alertController = AlertController.getInstance();
 	private MonitoringController monitoringController = MonitoringController.getInstance();
+	private TemplateValueReplacer replacer = new TemplateValueReplacer();
 	public AxisMessageDispatcher(AxisConnector connector) throws UMOException {
 		super(connector);
 		AxisProperties.setProperty("axis.doAutoTypes", "true");
@@ -203,13 +205,16 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher {
 	private Object[] invokeWebService(UMOEvent event, MessageObject messageObject) throws Exception {
 		try{
 			monitoringController.updateStatus(connector, Status.PROCESSING);
+			//set the uri for the event
+			String uri = "axis:" + replacer.replaceURLValues(event.getEndpoint().getEndpointURI().toString(), messageObject);
+			event.getEndpoint().setEndpointURI(new MuleEndpointURI(uri));
 			AxisProperties.setProperty("axis.doAutoTypes", "true");
 			Object[] args = new Object[0];// getArgs(event);
 			Call call = getCall(event, args);
 			call = new Call(((AxisConnector) connector).getServiceEndpoint());
 			String requestMessage = ((AxisConnector) connector).getSoapEnvelope();
 			// Run the template replacer on the xml
-			TemplateValueReplacer replacer = new TemplateValueReplacer();
+			
 			requestMessage = replacer.replaceValues(requestMessage, messageObject);
 			Message reqMessage = new Message(requestMessage);
 			// Only set the actionURI if we have one explicitly defined
