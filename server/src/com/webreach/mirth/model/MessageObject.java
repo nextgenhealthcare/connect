@@ -206,6 +206,30 @@ public class MessageObject implements Serializable {
 	public void setErrors(String errors) {
 		this.errors = errors;
 	}
+	
+	public Map getResponseMap() {
+		return responseMap;
+	}
+
+	public void setResponseMap(Map responseMap) {
+		this.responseMap = responseMap;
+	}
+
+	public Map getChannelMap() {
+		return channelMap;
+	}
+
+	public void setChannelMap(Map contextMap) {
+		this.channelMap = contextMap;
+	}
+
+    public String getServerId() {
+        return serverId;
+    }
+
+    public void setServerId(String serverId) {
+        this.serverId = serverId;
+    }
 
 	public Object clone() {
 		MessageObject messageObject = new MessageObject();
@@ -277,71 +301,45 @@ public class MessageObject implements Serializable {
 	}
 
 	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		sb.append(this.getClass().getName() + "[");
-		sb.append("id=");
-		sb.append(this.getId());
-		sb.append(", ");
-        sb.append("serverId=");
-        sb.append(this.getServerId());
-        sb.append(", ");
-		sb.append("channelId=");
-		sb.append(this.getChannelId());
-		sb.append(", ");
-		sb.append("correlationId=");
-		sb.append(this.getCorrelationId());
-		sb.append(", ");
-		sb.append("type=");
-		sb.append(this.getType());
-		sb.append(", ");
-		sb.append("status=");
-		sb.append(this.getStatus().toString());
-		sb.append(", ");
-		sb.append("date-created=");
-		sb.append(this.getDateCreated().getTime().toLocaleString());
-		sb.append(", ");
-		sb.append("version=");
-		sb.append(this.getVersion());
-		sb.append(", ");
-		sb.append("raw-data protocol=");
-		sb.append(this.getRawDataProtocol());
-		sb.append(", ");
-		sb.append("transformed-data protocol=");
-		sb.append(this.getTransformedDataProtocol());
-		sb.append(", ");
-		sb.append("encoded-data protocol=");
-		sb.append(this.getEncodedDataProtocol());
-		sb.append(", ");
-		sb.append("errors=");
-		sb.append(this.getErrors());
-		sb.append("]");
-		return sb.toString();
+		StringBuilder builder = new StringBuilder();
+		builder.append(this.getClass().getName() + "[");
+		builder.append("id=");
+		builder.append(this.getId());
+		builder.append(", ");
+        builder.append("serverId=");
+        builder.append(this.getServerId());
+        builder.append(", ");
+		builder.append("channelId=");
+		builder.append(this.getChannelId());
+		builder.append(", ");
+		builder.append("correlationId=");
+		builder.append(this.getCorrelationId());
+		builder.append(", ");
+		builder.append("type=");
+		builder.append(this.getType());
+		builder.append(", ");
+		builder.append("status=");
+		builder.append(this.getStatus().toString());
+		builder.append(", ");
+		builder.append("date-created=");
+		builder.append(this.getDateCreated().toString());
+		builder.append(", ");
+		builder.append("version=");
+		builder.append(this.getVersion());
+		builder.append(", ");
+		builder.append("raw-data protocol=");
+		builder.append(this.getRawDataProtocol());
+		builder.append(", ");
+		builder.append("transformed-data protocol=");
+		builder.append(this.getTransformedDataProtocol());
+		builder.append(", ");
+		builder.append("encoded-data protocol=");
+		builder.append(this.getEncodedDataProtocol());
+		builder.append(", ");
+		builder.append("errors=");
+		builder.append(this.getErrors());
+		builder.append("]");
+		return builder.toString();
 
 	}
-
-	public Map getResponseMap() {
-		return responseMap;
-	}
-
-	public void setResponseMap(Map responseMap) {
-		this.responseMap = responseMap;
-	}
-
-	public Map getChannelMap() {
-		return channelMap;
-	}
-
-	public void setChannelMap(Map contextMap) {
-		this.channelMap = contextMap;
-	}
-
-    public String getServerId()
-    {
-        return serverId;
-    }
-
-    public void setServerId(String serverId)
-    {
-        this.serverId = serverId;
-    }
 }

@@ -23,30 +23,27 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
 package com.webreach.mirth.model;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 
-import com.sun.tools.xjc.Plugin;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamImplicitCollection;
-import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.util.EqualsUtil;
+
 @XStreamAlias("pluginMetaData")
-@XStreamImplicitCollection(value="extensionPoints", item="extensionPoint")
+@XStreamImplicitCollection(value = "extensionPoints", item = "extensionPoint")
 public class PluginMetaData implements MetaData, Serializable {
 	private String name;
-    private String author;
-    private String pluginVersion;
-    private String mirthVersion;
-    private String url;
-    private String updateUrl;
+	private String author;
+	private String pluginVersion;
+	private String mirthVersion;
+	private String url;
+	private String updateUrl;
 	private String description;
-    private boolean enabled;
+	private boolean enabled;
 	private List<ExtensionPoint> extensionPoints;
 
 	public String getName() {
@@ -64,72 +61,29 @@ public class PluginMetaData implements MetaData, Serializable {
 	public void setAuthor(String author) {
 		this.author = author;
 	}
-    
-    public String getMirthVersion()
-    {
-        return mirthVersion;
-    }
-    
-    public void setMirthVersion(String mirthVersion)
-    {
-        this.mirthVersion = mirthVersion;
-    }
 
-    public String getPluginVersion()
-    {
-        return pluginVersion;
-    }
-
-    public void setPluginVersion(String pluginVersion)
-    {
-        this.pluginVersion = pluginVersion;
-    }
-    
-    public boolean isEnabled() {
-        return this.enabled;
-    }
-
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
-
-	public boolean equals(Object that) {
-		if (this == that) {
-			return true;
-		}
-		
-		if (!(that instanceof PluginMetaData)) {
-			return false;
-		}
-		
-		PluginMetaData plugin = (PluginMetaData) that;
-		
-		return
-			EqualsUtil.areEqual(this.getName(), plugin.getName()) &&
-            EqualsUtil.areEqual(this.getAuthor(), plugin.getAuthor()) &&
-            EqualsUtil.areEqual(this.getPluginVersion(), plugin.getPluginVersion()) &&
-            EqualsUtil.areEqual(this.getMirthVersion(), plugin.getMirthVersion()) &&
-            EqualsUtil.areEqual(this.isEnabled(), plugin.isEnabled()) &&
-			EqualsUtil.areEqual(this.getExtensionPoints(), plugin.getExtensionPoints())&&
-			EqualsUtil.areEqual(this.getUpdateUrl(), plugin.getUpdateUrl())&&
-			EqualsUtil.areEqual(this.getDescription(), plugin.getDescription());
+	public String getMirthVersion() {
+		return mirthVersion;
 	}
 
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append(this.getClass().getName() + "[");
-		builder.append("name=" + getName() + ", ");
-		builder.append("author=" + getAuthor().toString() + ", ");
-        builder.append("pluginVersion=" + getPluginVersion() + ", ");
-        builder.append("mirthVersion=" + getMirthVersion() + ", ");
-        for (Iterator iter = extensionPoints.iterator(); iter.hasNext();) {
-			ExtensionPoint extensionPoint = (ExtensionPoint) iter.next();
-			builder.append("extention-point=" + extensionPoint.toString() + ", ");
-		}
-        builder.append("updateUrl=" + getUpdateUrl() + ", ");
-        builder.append("description=" + getDescription() + ", ");
-        builder.append("enabled=" + isEnabled() + "]");
-		return builder.toString();
+	public void setMirthVersion(String mirthVersion) {
+		this.mirthVersion = mirthVersion;
+	}
+
+	public String getPluginVersion() {
+		return pluginVersion;
+	}
+
+	public void setPluginVersion(String pluginVersion) {
+		this.pluginVersion = pluginVersion;
+	}
+
+	public boolean isEnabled() {
+		return this.enabled;
+	}
+
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
 	}
 
 	public List<ExtensionPoint> getExtensionPoints() {
@@ -164,4 +118,44 @@ public class PluginMetaData implements MetaData, Serializable {
 		this.description = description;
 	}
 
+	public boolean equals(Object that) {
+		if (this == that) {
+			return true;
+		}
+
+		if (!(that instanceof PluginMetaData)) {
+			return false;
+		}
+
+		PluginMetaData plugin = (PluginMetaData) that;
+
+		return
+			EqualsUtil.areEqual(this.getName(), plugin.getName()) &&
+			EqualsUtil.areEqual(this.getAuthor(), plugin.getAuthor()) &&
+			EqualsUtil.areEqual(this.getPluginVersion(), plugin.getPluginVersion()) &&
+			EqualsUtil.areEqual(this.getMirthVersion(), plugin.getMirthVersion()) &&
+			EqualsUtil.areEqual(this.isEnabled(), plugin.isEnabled()) &&
+			EqualsUtil.areEqual(this.getExtensionPoints(), plugin.getExtensionPoints()) &&
+			EqualsUtil.areEqual(this.getUpdateUrl(), plugin.getUpdateUrl()) &&
+			EqualsUtil.areEqual(this.getDescription(), plugin.getDescription());
+	}
+
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append(this.getClass().getName() + "[");
+		builder.append("name=" + getName() + ", ");
+		builder.append("author=" + getAuthor().toString() + ", ");
+		builder.append("pluginVersion=" + getPluginVersion() + ", ");
+		builder.append("mirthVersion=" + getMirthVersion() + ", ");
+		
+		for (ListIterator iter = extensionPoints.listIterator(); iter.hasNext();) {
+			ExtensionPoint extensionPoint = (ExtensionPoint) iter.next();
+			builder.append("extention-point" + iter.nextIndex() + "=" + extensionPoint.toString() + ", ");
+		}
+		
+		builder.append("updateUrl=" + getUpdateUrl() + ", ");
+		builder.append("description=" + getDescription());
+		builder.append("enabled=" + isEnabled() + "]");
+		return builder.toString();
+	}
 }

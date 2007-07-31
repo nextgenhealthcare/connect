@@ -23,18 +23,14 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
 package com.webreach.mirth.model;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamImplicitCollection;
-import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.util.EqualsUtil;
+
 @XStreamAlias("connectorMetaData")
 public class ConnectorMetaData implements MetaData, Serializable {
 	public enum Type {
@@ -42,18 +38,18 @@ public class ConnectorMetaData implements MetaData, Serializable {
 	};
 
 	private String name;
-    private String author;
+	private String author;
 	private String serverClassName;
-    private String sharedClassName;
+	private String sharedClassName;
 	private String clientClassName;
 	private String transformers;
 	private String protocol;
-    private String pluginVersion;
-    private String mirthVersion;
-    private String url;
-    private String updateUrl;
+	private String pluginVersion;
+	private String mirthVersion;
+	private String url;
+	private String updateUrl;
 	private String versionUrl;
-    private boolean enabled;
+	private boolean enabled;
 	private Type type;
 	@XStreamAlias("mule-properties")
 	private Properties properties;
@@ -65,15 +61,15 @@ public class ConnectorMetaData implements MetaData, Serializable {
 	public void setServerClassName(String serverClassName) {
 		this.serverClassName = serverClassName;
 	}
-	
-    public String getSharedClassName() {
-        return sharedClassName;
-    }
 
-    public void setSharedClassName(String sharedClassName) {
-        this.sharedClassName = sharedClassName;
-    }
-    
+	public String getSharedClassName() {
+		return sharedClassName;
+	}
+
+	public void setSharedClassName(String sharedClassName) {
+		this.sharedClassName = sharedClassName;
+	}
+
 	public String getClientClassName() {
 		return clientClassName;
 	}
@@ -89,16 +85,14 @@ public class ConnectorMetaData implements MetaData, Serializable {
 	public void setName(String name) {
 		this.name = name;
 	}
-    
-    public String getAuthor()
-    {
-        return author;
-    }
 
-    public void setAuthor(String author)
-    {
-        this.author = author;
-    }
+	public String getAuthor() {
+		return author;
+	}
+
+	public void setAuthor(String author) {
+		this.author = author;
+	}
 
 	public String getProtocol() {
 		return this.protocol;
@@ -107,26 +101,22 @@ public class ConnectorMetaData implements MetaData, Serializable {
 	public void setProtocol(String protocol) {
 		this.protocol = protocol;
 	}
-    
-    public String getMirthVersion()
-    {
-        return mirthVersion;
-    }
 
-    public void setMirthVersion(String mirthVersion)
-    {
-        this.mirthVersion = mirthVersion;
-    }
+	public String getMirthVersion() {
+		return mirthVersion;
+	}
 
-    public String getPluginVersion()
-    {
-        return pluginVersion;
-    }
+	public void setMirthVersion(String mirthVersion) {
+		this.mirthVersion = mirthVersion;
+	}
 
-    public void setPluginVersion(String pluginVersion)
-    {
-        this.pluginVersion = pluginVersion;
-    }
+	public String getPluginVersion() {
+		return pluginVersion;
+	}
+
+	public void setPluginVersion(String pluginVersion) {
+		this.pluginVersion = pluginVersion;
+	}
 
 	public String getTransformers() {
 		return this.transformers;
@@ -143,38 +133,38 @@ public class ConnectorMetaData implements MetaData, Serializable {
 	public void setType(Type type) {
 		this.type = type;
 	}
-    
-    public boolean isEnabled() {
-        return this.enabled;
-    }
 
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
+	public boolean isEnabled() {
+		return this.enabled;
+	}
+
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
 
 	public boolean equals(Object that) {
 		if (this == that) {
 			return true;
 		}
-		
+
 		if (!(that instanceof ConnectorMetaData)) {
 			return false;
 		}
-		
+
 		ConnectorMetaData transport = (ConnectorMetaData) that;
-		
+
 		return
 			EqualsUtil.areEqual(this.getName(), transport.getName()) &&
-            EqualsUtil.areEqual(this.getAuthor(), transport.getAuthor()) &&
+			EqualsUtil.areEqual(this.getAuthor(), transport.getAuthor()) &&
 			EqualsUtil.areEqual(this.getServerClassName(), transport.getServerClassName()) &&
-            EqualsUtil.areEqual(this.getSharedClassName(), transport.getSharedClassName()) &&
-            EqualsUtil.areEqual(this.getClientClassName(), transport.getClientClassName()) &&
+			EqualsUtil.areEqual(this.getSharedClassName(), transport.getSharedClassName()) &&
+			EqualsUtil.areEqual(this.getClientClassName(), transport.getClientClassName()) &&
 			EqualsUtil.areEqual(this.getProtocol(), transport.getProtocol()) &&
-            EqualsUtil.areEqual(this.getPluginVersion(), transport.getPluginVersion()) &&
-            EqualsUtil.areEqual(this.getMirthVersion(), transport.getMirthVersion()) &&
-            EqualsUtil.areEqual(this.isEnabled(), transport.isEnabled()) &&
+			EqualsUtil.areEqual(this.getPluginVersion(), transport.getPluginVersion()) &&
+			EqualsUtil.areEqual(this.getMirthVersion(), transport.getMirthVersion()) &&
+			EqualsUtil.areEqual(this.isEnabled(), transport.isEnabled()) &&
 			EqualsUtil.areEqual(this.getTransformers(), transport.getTransformers()) &&
-			EqualsUtil.areEqual(this.getType(), transport.getType())  &&
+			EqualsUtil.areEqual(this.getType(), transport.getType()) &&
 			EqualsUtil.areEqual(this.getVersionUrl(), transport.getVersionUrl()) &&
 			EqualsUtil.areEqual(this.getUpdateUrl(), transport.getUpdateUrl());
 	}
@@ -183,18 +173,18 @@ public class ConnectorMetaData implements MetaData, Serializable {
 		StringBuilder builder = new StringBuilder();
 		builder.append(this.getClass().getName() + "[");
 		builder.append("name=" + getName() + ", ");
-        builder.append("author=" + getAuthor() + ", ");
+		builder.append("author=" + getAuthor() + ", ");
 		builder.append("type=" + getType().toString() + ", ");
 		builder.append("serverClassName=" + getServerClassName() + ", ");
-        builder.append("sharedClassName=" + getSharedClassName() + ", ");
-        builder.append("clientClassName=" + getClientClassName() + ", ");
+		builder.append("sharedClassName=" + getSharedClassName() + ", ");
+		builder.append("clientClassName=" + getClientClassName() + ", ");
 		builder.append("transformers=" + getTransformers() + ", ");
-        builder.append("protocol=" + getProtocol() + ", ");
-        builder.append("enabled=" + isEnabled() + ", ");
-        builder.append("pluginVersion=" + getPluginVersion() + ", ");
+		builder.append("protocol=" + getProtocol() + ", ");
+		builder.append("enabled=" + isEnabled() + ", ");
+		builder.append("pluginVersion=" + getPluginVersion() + ", ");
 		builder.append("mirthVersion=" + getMirthVersion() + ", ");
-        builder.append("updateUrl=" + getUpdateUrl() + ", ");
-        builder.append("versionUrl=" + getVersionUrl());
+		builder.append("updateUrl=" + getUpdateUrl() + ", ");
+		builder.append("versionUrl=" + getVersionUrl());
 		builder.append("]");
 		return builder.toString();
 	}
