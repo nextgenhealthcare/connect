@@ -1,17 +1,26 @@
 package com.webreach.mirth.server.mule.transformers;
 
 import org.apache.log4j.Logger;
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.ImporterTopLevel;
+import org.mozilla.javascript.Script;
+import org.mozilla.javascript.Scriptable;
+import org.mule.umo.transformer.TransformerException;
+
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.server.util.CompiledScriptCache;
+import com.webreach.mirth.server.util.JavaScriptUtil;
 
 public class JavaScriptPostprocessor {
 	private Logger logger = Logger.getLogger(this.getClass());
-	public MessageObject doPostProcess(MessageObject messageObject){
-		System.out.println("Doing postprocess: " + messageObject.getId());
-		return messageObject;
+	private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
+	public void doPostProcess(MessageObject messageObject){
+		JavaScriptUtil.getInstance().executeScript("Postprocessor", "Postprocessor", messageObject);
+		JavaScriptUtil.getInstance().executeScript(messageObject.getChannelId() + "_Postprocessor", "Postprocessor", messageObject);
 	}
-	public MessageObject doPostProcess(Object object) throws IllegalArgumentException{
+	public void doPostProcess(Object object) throws IllegalArgumentException{
 		if (object instanceof MessageObject){
-			return doPostProcess((MessageObject)object);
+			doPostProcess((MessageObject)object);
 		}else{
 			logger.error("could not postprocess, object is not of type MessageObject");
 			throw new IllegalArgumentException("Object is not of type MessageObject");

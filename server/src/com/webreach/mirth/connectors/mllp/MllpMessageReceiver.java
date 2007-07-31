@@ -445,7 +445,7 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 					Object payload = returnMessage.getPayload();
 					if (payload instanceof MessageObject) {
 						MessageObject messageObjectResponse = (MessageObject) payload;
-						messageObjectResponse = postProcessor.doPostProcess(messageObjectResponse);
+						postProcessor.doPostProcess(messageObjectResponse);
 						Map responseMap = messageObjectResponse.getResponseMap();
 						String errorString = "";
 

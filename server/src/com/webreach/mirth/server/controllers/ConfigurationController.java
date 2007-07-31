@@ -289,18 +289,6 @@ public class ConfigurationController {
 
 		systemLogger.logSystemEvent(new SystemEvent("Channels deployed."));
 	}
-	public void compileGlobalScripts(){
-		try {
-			JavaScriptUtil.getInstance().compileScript(DEPLOY, scriptController.getScript(DEPLOY));
-			JavaScriptUtil.getInstance().compileScript(SHUTDOWN, scriptController.getScript(SHUTDOWN));
-			JavaScriptUtil.getInstance().compileScript(PREPROCESSOR, scriptController.getScript(PREPROCESSOR));
-			JavaScriptUtil.getInstance().compileScript(POSTPROCESSOR, scriptController.getScript(POSTPROCESSOR));
-		} catch (ControllerException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-	}
 
 	public void compileScripts(List<Channel> channels) throws ControllerException {
 		Map<String, String> globalScripts = getGlobalScripts();
@@ -317,9 +305,11 @@ public class ConfigurationController {
 			if (channel.isEnabled()) {
 				JavaScriptUtil.getInstance().compileScript(channel.getId() + "_Deploy", channel.getDeployScript());
 				JavaScriptUtil.getInstance().compileScript(channel.getId() + "_Shutdown", channel.getShutdownScript());
+				JavaScriptUtil.getInstance().compileScript(channel.getId() + "_Postprocessor", channel.getPostprocessingScript());
 			} else {
 				JavaScriptUtil.getInstance().removeScriptFromCache(channel.getId() + "_Deploy");
 				JavaScriptUtil.getInstance().removeScriptFromCache(channel.getId() + "_Shutdown");
+				JavaScriptUtil.getInstance().removeScriptFromCache(channel.getId() + "_Postprocessor");
 			}
 		}
 	}
@@ -347,7 +337,7 @@ public class ConfigurationController {
 	}
 
 	public void executeGlobalScript(String scriptType) {
-		JavaScriptUtil.getInstance().executeScript(scriptType, scriptType, null);
+		JavaScriptUtil.getInstance().executeScript(scriptType, scriptType, "");
 	}
 
 	public Map<String, String> getGlobalScripts() throws ControllerException {

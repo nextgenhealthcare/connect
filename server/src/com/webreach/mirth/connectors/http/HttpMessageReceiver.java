@@ -164,7 +164,7 @@ public class HttpMessageReceiver extends TcpMessageReceiver {
                     }
                     Object response = returnMessage.getPayload();
                     if (response instanceof MessageObject){
-                    	response = postprocessor.doPostProcess((MessageObject)response);
+                    	postprocessor.doPostProcess((MessageObject)response);
                     }
                     if(transformResponse) {
                         response = connector.getDefaultResponseTransformer().transform(response);

@@ -134,7 +134,7 @@ public class JdbcMessageReceiver extends TransactedPollingMessageReceiver {
 				scope.put("resultMap", scope, message);
 				if (umoMessage != null) {
 					MessageObject messageObject = (MessageObject) umoMessage.getPayload();
-					messageObject = postprocessor.doPostProcess(messageObject);
+					postprocessor.doPostProcess(messageObject);
 					scope.put("responseMap", scope, messageObject.getResponseMap());
 				}
 				// get the script from the cache and execute it

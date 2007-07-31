@@ -32,6 +32,8 @@ import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 
+import com.webreach.mirth.model.MessageObject;
+
 public class JavaScriptUtil
 {
     private Logger logger = Logger.getLogger(this.getClass());
@@ -98,7 +100,7 @@ public class JavaScriptUtil
 
             Scriptable scope = getScope();
             
-            if(channelId != null)
+            if(channelId != null && channelId.length() > 0)
                 JavaScriptScopeUtil.buildScope(scope, channelId, logger);
             else
                 JavaScriptScopeUtil.buildScope(scope, logger);
@@ -115,25 +117,53 @@ public class JavaScriptUtil
             Context.exit();
         }
     }
-    
+    public void executeScript(String scriptId, String scriptType, MessageObject messageObject)
+    {
+        Script compiledScript = compiledScriptCache.getCompiledScript(scriptId);
+        
+        if(compiledScript == null)
+            return;
+
+        try
+        {
+            Context context = getContext();
+            Scriptable scope = getScope();
+            
+            JavaScriptScopeUtil.buildScope(scope, messageObject, logger);
+            logger.debug("executing " + scriptType + " script. id=" + scriptId);    
+			compiledScript.exec(context, scope);
+			
+        }
+        catch (Exception e)
+        {
+            logger.error("failure to execute: " +  scriptType + " script. id=" + scriptId, e);
+        }
+        finally
+        {
+            Context.exit();
+        }
+    }
     public void compileScript(String scriptId, String script)
     {
         Context context = getContext();
         logger.debug("compiling script. id=" + scriptId);
-        String generatedScript = generateDeployScript(script);
+        String generatedScript = generateScript(script);
         Script compiledScript = context.compileString(generatedScript, scriptId, 1, null);
         compiledScriptCache.putCompiledScript(scriptId, compiledScript);
         Context.exit();
     }
 
-    public String generateDeployScript(String script)
+    public String generateScript(String script)
     {
         StringBuilder builtScript = new StringBuilder();
+        builtScript.append("function $(string) { ");
+        builtScript.append("if (globalMap.get(string) != null) { return globalMap.get(string)} else ");
+        builtScript.append("{ return ''; }}");
         builtScript.append("function doScript() {" + script + " }\n");
         builtScript.append("doScript()\n");
         return builtScript.toString();
     }
-    
+
     public void removeScriptFromCache(String scriptId)
     {
         if(compiledScriptCache.getCompiledScript(scriptId) != null)

@@ -193,7 +193,6 @@ public class Mirth extends Thread {
             
             List<Channel> channels = channelController.getChannel(null);
             configurationController.compileScripts(channels);
-            configurationController.compileGlobalScripts();
             configurationController.executeGlobalDeployScript();
             configurationController.executeChannelDeployScripts(channelController.getChannel(null));
             

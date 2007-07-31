@@ -164,7 +164,7 @@ public class ServiceProxy {
 	            	Object data = message.getPayload();
 	            	if (data instanceof MessageObject){
 	            		MessageObject messageObject = (MessageObject)data;
-	            		messageObject = new JavaScriptPostprocessor().doPostProcess(messageObject);
+	            		postProcessor.doPostProcess(messageObject);
 	            		Map responseMap = messageObject.getResponseMap();
 						
 						String errorString = "";
