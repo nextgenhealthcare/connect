@@ -129,9 +129,8 @@ public class NCPDPReader extends SAXParser {
         if(message.indexOf(segmentDelim) != -1){
             position = message.indexOf(segmentDelim);
             String header = message.substring(0,position);
-            String docAttr =  " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"ncpdp.xsd\"";
+            String docAttr =  "";//" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"ncpdp.xsd\"";
             if(header.length() > 40){
-                docHead = "NCPDP_51_Req";
                 String transaction = NCPDPReference.getInstance().getTransactionName(header.substring(8,10));
                 docHead = "NCPDP_51_" + transaction + "_Request";
                 contentHandler.startElement("", docHead+docAttr,"", null);
@@ -200,17 +199,41 @@ public class NCPDPReader extends SAXParser {
         if(segment == null || segment.equals("")){
             return;
         }
-        segment = segment.replace("<1C>","\u001C");
         boolean inCounter = false;
         boolean inCount = false;
+        boolean hasMoreFields = true;
+        String segmentId = "";
         Stack<String> a = new Stack<String>();
+        String subSegment = "";
 
-        StringTokenizer fieldTokenizer = new StringTokenizer(segment, "\u001C", false);
-        // first field is segment Id
-        String segmentId = fieldTokenizer.nextToken();
+        int indexOfField = segment.indexOf(fieldDelim);
+        if(indexOfField == 0) {
+            segment = segment.substring(indexOfField+fieldDelim.length());
+            indexOfField = segment.indexOf(fieldDelim);
+        }
+        if(indexOfField == -1) {
+            logger.debug("Empty Segment, No field Seperators. Make sure batch file processing is disabled");
+            hasMoreFields = false;
+            segmentId = segment;
+        }
+        else {
+            segmentId = segment.substring(0,indexOfField);
+            subSegment = segment.substring(indexOfField+fieldDelim.length(),segment.length());
+        }
+        //
         contentHandler.startElement("", NCPDPReference.getInstance().getSegment(segmentId),"",null);
-        while (fieldTokenizer.hasMoreTokens()){
-            String field = fieldTokenizer.nextToken();
+        while (hasMoreFields){
+            indexOfField = subSegment.indexOf(fieldDelim);
+            // not last field
+            String field;
+            if(indexOfField != -1){
+                field = subSegment.substring(0,subSegment.indexOf(fieldDelim));
+                subSegment = subSegment.substring(indexOfField+fieldDelim.length());
+            }
+            else {
+                field = subSegment;
+                hasMoreFields = false;
+            }
             String fieldId = field.substring(0,2);
             String fieldDesc = NCPDPReference.getInstance().getDescription(fieldId);
             String fieldMessage = field.substring(2);
