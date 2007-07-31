@@ -131,19 +131,19 @@ public class Channel implements Serializable {
 		this.properties = properties;
 	}
     
-    public String getPreprocessingScript() {
-        return this.preprocessingScript;
+    public String getPostprocessingScript() {
+        return postprocessingScript;
     }
 
-    public void setPreprocessingScript(String postprocessingScript) {
+    public void setPostprocessingScript(String postprocessingScript) {
         this.postprocessingScript = postprocessingScript;
     }
-    
-    public String getPostprocessingScript() {
-        return this.postprocessingScript;
+
+    public String getPreprocessingScript() {
+        return preprocessingScript;
     }
 
-    public void setPostprocessingScript(String preprocessingScript) {
+    public void setPreprocessingScript(String preprocessingScript) {
         this.preprocessingScript = preprocessingScript;
     }
 	
