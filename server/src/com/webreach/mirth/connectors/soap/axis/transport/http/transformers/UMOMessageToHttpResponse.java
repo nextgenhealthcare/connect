@@ -70,6 +70,9 @@ public class UMOMessageToHttpResponse extends AbstractEventAwareTransformer
         String version = (String) context.getProperty(HttpConnector.HTTP_VERSION_PROPERTY, HttpConstants.HTTP11);
         String date = format.format(new Date());
         byte[] response = null;
+        //TODO: Make this dynamic 1.6.1
+        boolean closeConnection = true;
+        
         String contentType = (String) context.getProperty(HttpConstants.HEADER_CONTENT_TYPE, HttpConnector.DEFAULT_CONTENT_TYPE);
 
         if (src instanceof byte[]) {
@@ -94,6 +97,10 @@ public class UMOMessageToHttpResponse extends AbstractEventAwareTransformer
         httpMessage.append(": ").append(date).append(HttpConstants.CRLF);
         httpMessage.append(HttpConstants.HEADER_SERVER);
         httpMessage.append(": ").append(server).append(HttpConstants.CRLF);
+        if (closeConnection){
+        	httpMessage.append(HttpConstants.HEADER_CONNECTION);
+        	httpMessage.append(": close").append(HttpConstants.CRLF);
+        }
         if (context.getProperty(HttpConstants.HEADER_EXPIRES) == null) {
             httpMessage.append(HttpConstants.HEADER_EXPIRES);
             httpMessage.append(": ").append(date).append(HttpConstants.CRLF);
