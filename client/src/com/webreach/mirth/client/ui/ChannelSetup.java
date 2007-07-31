@@ -630,7 +630,7 @@ public class ChannelSetup extends javax.swing.JPanel
         else
             scriptMap.put(ScriptPanel.SHUTDOWN_SCRIPT, "// This script executes once when the mule engine is stopped\r\n// You only have access to the globalMap here to persist data\r\nreturn;");
         
-        if (currentChannel.getShutdownScript() != null)
+        if (currentChannel.getPostprocessingScript() != null)
             scriptMap.put(ScriptPanel.POSTPROCESSOR_SCRIPT, currentChannel.getPostprocessingScript());
         else
             scriptMap.put(ScriptPanel.POSTPROCESSOR_SCRIPT, "// This script executes once after a message has been processed\r\nreturn;");

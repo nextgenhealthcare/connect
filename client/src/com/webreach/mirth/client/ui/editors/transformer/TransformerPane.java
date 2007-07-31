@@ -425,8 +425,8 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
         });
         transformerPopupMenu.add(exportTransformer);
 
-        transformerTasks.add(initActionCallback("doValidate", ActionFactory.createBoundAction("doValidate", "Validate JavaScript", "V"), new ImageIcon(Frame.class.getResource("images/accept.png"))));
-        JMenuItem validateStep = new JMenuItem("Validate JavaScript");
+        transformerTasks.add(initActionCallback("doValidate", ActionFactory.createBoundAction("doValidate", "Validate Step", "V"), new ImageIcon(Frame.class.getResource("images/accept.png"))));
+        JMenuItem validateStep = new JMenuItem("Validate Step");
         validateStep.setIcon(new ImageIcon(Frame.class.getResource("images/accept.png")));
         validateStep.addActionListener(new ActionListener()
         {
