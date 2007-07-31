@@ -4,6 +4,7 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.helpers.DefaultHandler;
+import org.apache.log4j.Logger;
 
 import com.webreach.mirth.model.ncpdp.NCPDPReference;
 
@@ -15,7 +16,8 @@ import com.webreach.mirth.model.ncpdp.NCPDPReference;
  * To change this template use File | Settings | File Templates.
  */
 public class NCPDPXMLHandler  extends DefaultHandler {
-	private String segmentDelim;
+	private Logger logger = Logger.getLogger(this.getClass());
+    private String segmentDelim;
 	private String groupDelim;
 	private String fieldDelim;
     public boolean validationError = false;
@@ -230,6 +232,7 @@ public class NCPDPXMLHandler  extends DefaultHandler {
   public void error(SAXParseException exception)
       throws SAXException {
       System.out.println("SAXException" + exception.getMessage());
+      logger.error("SAXException" + exception.getMessage());
       validationError = true;
       saxParseException = exception;
 
@@ -237,6 +240,7 @@ public class NCPDPXMLHandler  extends DefaultHandler {
   public void fatalError(SAXParseException exception)
       throws SAXException {
       System.out.println("SAXException" + exception.getMessage());
+      logger.error("SAXException" + exception.getMessage());
       validationError = true;
       saxParseException=exception;
   }
