@@ -478,7 +478,7 @@ public class MuleConfigurationBuilder {
 						textPropertyElement.setAttribute("name", "template");
 						textPropertyElement.setTextContent(property.getValue().toString());
 						propertiesElement.appendChild(textPropertyElement);
-					} else if (property.getKey().equals("connectionFactoryProperties") || property.getKey().equals("requestVariables")) {
+					} else if (property.getKey().equals("connectionFactoryProperties") || property.getKey().equals("requestVariables") || property.getKey().equals("headerVariables")) {
 						ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 						Properties connectionFactoryProperties = (Properties) serializer.fromXML(property.getValue().toString());
 						Element connectionFactoryPropertiesMapElement = getPropertiesMap(document, connectionFactoryProperties, null, property.getKey().toString());

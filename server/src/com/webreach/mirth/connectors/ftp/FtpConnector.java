@@ -28,10 +28,13 @@ import org.apache.commons.pool.PoolableObjectFactory;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.mule.config.i18n.Message;
 import org.mule.config.i18n.Messages;
+import org.mule.impl.endpoint.MuleEndpointURI;
 import org.mule.providers.AbstractServiceEnabledConnector;
+import org.mule.providers.TemplateValueReplacer;
 import org.mule.providers.VariableFilenameParser;
 import org.mule.umo.UMOComponent;
 import org.mule.umo.UMOException;
+import org.mule.umo.endpoint.MalformedEndpointException;
 import org.mule.umo.endpoint.UMOEndpoint;
 import org.mule.umo.endpoint.UMOEndpointURI;
 import org.mule.umo.provider.ConnectorException;
@@ -39,6 +42,7 @@ import org.mule.umo.provider.UMOMessageDispatcher;
 import org.mule.umo.provider.UMOMessageReceiver;
 
 import com.webreach.mirth.connectors.file.FilenameParser;
+import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.server.controllers.SystemLogger;
 
@@ -107,7 +111,7 @@ public class FtpConnector extends AbstractServiceEnabledConnector {
 	// ast: encoding charset
 	private String charsetEncoding = DEFAULT_CHARSET_ENCODING;
 	private String channelId;
-
+	private TemplateValueReplacer replacer = new TemplateValueReplacer();
 	public FtpConnector() {
 		filenameParser = new VariableFilenameParser();
 	}
@@ -299,32 +303,43 @@ public class FtpConnector extends AbstractServiceEnabledConnector {
 		this.pollingFrequency = pollingFrequency;
 	}
 
-	public FTPClient getFtp(UMOEndpointURI uri) throws Exception {
-		ObjectPool pool = getFtpPool(uri);
+	public FTPClient getFtp(UMOEndpointURI uri, MessageObject messageObject) throws Exception {
+		ObjectPool pool = getFtpPool(uri, messageObject);
 		return (FTPClient) pool.borrowObject();
 	}
 
-	public void releaseFtp(UMOEndpointURI uri, FTPClient client) throws Exception {
+	public void releaseFtp(UMOEndpointURI uri, FTPClient client, MessageObject messageObject) throws Exception {
 		if (isCreateDispatcherPerRequest()) {
-			destroyFtp(uri, client);
+			destroyFtp(uri, client, messageObject);
 			UMOMessageDispatcher dispatcher = getDispatcher(uri.toString());
 		} else {
 			if (client != null && client.isConnected()) {
-				ObjectPool pool = getFtpPool(uri);
+				ObjectPool pool = getFtpPool(uri, messageObject);
 				pool.returnObject(client);
 			}
 		}
 	}
 
-	public void destroyFtp(UMOEndpointURI uri, FTPClient client) throws Exception {
+	public void destroyFtp(UMOEndpointURI uri, FTPClient client, MessageObject messageObject) throws Exception {
 		if (client != null) {
-			ObjectPool pool = getFtpPool(uri);
+			ObjectPool pool = getFtpPool(uri, messageObject);
 			pool.invalidateObject(client);
 		}
 	}
 
-	protected synchronized ObjectPool getFtpPool(UMOEndpointURI uri) {
-		String key = uri.getUsername() + ":" + uri.getPassword() + "@" + uri.getHost() + ":" + uri.getPort();
+	protected synchronized ObjectPool getFtpPool(UMOEndpointURI uri, MessageObject messageObject) {
+		String username = getUsername();
+		String password = getPassword();
+		if (messageObject == null){
+			username = replacer.replaceValuesFromGlobal(username, true);
+			password = replacer.replaceValuesFromGlobal(password, true);
+		}else{
+			if (username.indexOf('$') > -1)
+				username = replacer.replaceValues(username, messageObject);
+			if (password.indexOf('$') > -1)
+				password = replacer.replaceValues(password, messageObject);
+		}
+		String key = username + ":" + password + "@" + uri.getHost() + ":" + uri.getPort();
 		ObjectPool pool = (ObjectPool) pools.get(key);
 		if (pool == null) {
 			GenericObjectPool.Config config = new GenericObjectPool.Config();
@@ -332,7 +347,7 @@ public class FtpConnector extends AbstractServiceEnabledConnector {
 				config.testOnBorrow = true;
 				config.testOnReturn = true;
 			}
-			pool = new GenericObjectPool(new FtpConnectionFactory(uri, username, password), config);
+			pool = new GenericObjectPool(new FtpConnectionFactory(uri.getHost(), uri.getPort(), username, password), config);
 
 			pools.put(key, pool);
 		}
@@ -343,23 +358,25 @@ public class FtpConnector extends AbstractServiceEnabledConnector {
 	 * @author <a href="mailto:gnt@codehaus.org">Guillaume Nodet</a>
 	 */
 	protected class FtpConnectionFactory implements PoolableObjectFactory {
-		private UMOEndpointURI uri;
 		private String username;
 		private String password;
-
-		public FtpConnectionFactory(UMOEndpointURI uri, String username, String password) {
-			this.uri = uri;
+		private String host;
+		int port;
+		private TemplateValueReplacer replacer = new TemplateValueReplacer();
+		public FtpConnectionFactory(String host, int port, String username, String password) {			
 			this.username = username;
 			this.password = password;
+			this.port = port;
+			this.host = host;
 		}
 
 		public Object makeObject() throws Exception {
 			FTPClient client = new FTPClient();
 			try {
-				if (uri.getPort() > 0) {
-					client.connect(uri.getHost(), uri.getPort());
+				if (port > 0) {
+					client.connect(host, port);
 				} else {
-					client.connect(uri.getHost());
+					client.connect(host);
 				}
 				if (!FTPReply.isPositiveCompletion(client.getReplyCode())) {
 					throw new IOException("Ftp error: " + client.getReplyCode());
@@ -493,15 +510,5 @@ public class FtpConnector extends AbstractServiceEnabledConnector {
     {
         this.pollingType = pollingType;
     }
-
-	public String getStatusMode() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	public String getStatusMessage() {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 }

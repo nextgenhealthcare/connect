@@ -120,6 +120,8 @@ public class AxisConnector extends AbstractServiceEnabledConnector implements Mo
     private String soapEnvelope;
     private String responseValue = "None";
     private String currentDescriptorName = null;
+    private boolean keepAlive = false;
+    private int keepAliveTimeout = 5000;
     /**
      * These protocols will be set on client invocations.  by default Mule uses it's own transports
      * rather that Axis's.  This is only because it gives us more flexibility inside Mule and
@@ -664,14 +666,20 @@ public class AxisConnector extends AbstractServiceEnabledConnector implements Mo
 		this.responseValue = responseValue;
 	}
 
-	public String getStatusMode() {
-		// TODO Auto-generated method stub
-		return null;
+	public boolean isKeepAlive() {
+		return keepAlive;
 	}
-	
-	public String getStatusMessage() {
-		// TODO Auto-generated method stub
-		return null;
+
+	public void setKeepAlive(boolean keepAlive) {
+		this.keepAlive = keepAlive;
+	}
+
+	public int getKeepAliveTimeout() {
+		return keepAliveTimeout;
+	}
+
+	public void setKeepAliveTimeout(int keepAliveTimeout) {
+		this.keepAliveTimeout = keepAliveTimeout;
 	}
 
 }

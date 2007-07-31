@@ -28,18 +28,22 @@ import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
+import com.webreach.mirth.server.controllers.MonitoringController;
+import com.webreach.mirth.server.controllers.MonitoringController.Status;
 
 public class SftpMessageDispatcher extends AbstractMessageDispatcher {
 	protected SftpConnector connector;
 	private MessageObjectController messageObjectController = MessageObjectController.getInstance();
 	private AlertController alertController = AlertController.getInstance();
-
+	private MonitoringController monitoringController = MonitoringController.getInstance();
 	public SftpMessageDispatcher(SftpConnector connector) {
 		super(connector);
 		this.connector = connector;
+		monitoringController.updateStatus(connector, Status.IDLE);
 	}
 
 	public void doDispatch(UMOEvent event) throws Exception {
+		monitoringController.updateStatus(connector, Status.PROCESSING);
 		TemplateValueReplacer replacer = new TemplateValueReplacer();
 		UMOEndpointURI uri = event.getEndpoint().getEndpointURI();
 		ChannelSftp client = null;
@@ -83,6 +87,7 @@ public class SftpMessageDispatcher extends AbstractMessageDispatcher {
 			connector.handleException(e);
 		} finally {
 			connector.releaseClient(uri, client);
+			monitoringController.updateStatus(connector, Status.IDLE);
 		}
 	}
 

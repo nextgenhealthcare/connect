@@ -27,6 +27,7 @@ import org.mozilla.javascript.Script;
 import org.mule.config.i18n.Message;
 import org.mule.config.i18n.Messages;
 import org.mule.providers.AbstractServiceEnabledConnector;
+import org.mule.providers.TemplateValueReplacer;
 import org.mule.transaction.TransactionCoordination;
 import org.mule.umo.TransactionException;
 import org.mule.umo.UMOComponent;
@@ -36,6 +37,7 @@ import org.mule.umo.endpoint.UMOEndpointURI;
 import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.provider.UMOMessageReceiver;
 
+import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.controllers.ScriptController;
 import com.webreach.mirth.server.util.CompiledScriptCache;
 
@@ -75,7 +77,7 @@ public class JdbcConnector extends AbstractServiceEnabledConnector {
 	private String scriptId;
 	private String ackScriptId;
 	private String channelId;
-
+	private TemplateValueReplacer replacer = new TemplateValueReplacer();
 	public String getChannelId() {
 		return this.channelId;
 	}
@@ -468,7 +470,7 @@ public class JdbcConnector extends AbstractServiceEnabledConnector {
 		return dataSource;
 	}
 
-	public Connection getConnection() throws Exception {
+	public Connection getConnection(MessageObject messageObject) throws Exception {
 		UMOTransaction tx = TransactionCoordination.getInstance().getTransaction();
 		if (tx != null) {
 			if (tx.hasResource(URL)) {
@@ -478,6 +480,20 @@ public class JdbcConnector extends AbstractServiceEnabledConnector {
 		}
 		Connection con;
 		if (URL != null && driver != null) {
+			if (messageObject == null){
+				username = replacer.replaceValuesFromGlobal(username, true);
+				password = replacer.replaceValuesFromGlobal(password, true);
+				URL = replacer.replaceValuesFromGlobal(URL, true);
+			}else{
+				if (username.indexOf('$') > -1)
+					username = replacer.replaceValues(username, messageObject);
+				if (password.indexOf('$') > -1)
+					password = replacer.replaceValues(password, messageObject);
+				URL = replacer.replaceValues(URL, messageObject);
+			}
+			username = replacer.replaceValuesFromGlobal(username, true);
+			password = replacer.replaceValuesFromGlobal(password, true);
+			
 			logger.debug("Retrieving new connection from data source: " + URL + " (" + driver + ")");
 			Class.forName(driver);
 
@@ -535,15 +551,5 @@ public class JdbcConnector extends AbstractServiceEnabledConnector {
     {
         this.pollingType = pollingType;
     }
-
-	public String getStatusMode() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	public String getStatusMessage() {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 }

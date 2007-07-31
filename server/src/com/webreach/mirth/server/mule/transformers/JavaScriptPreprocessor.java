@@ -93,7 +93,7 @@ public class JavaScriptPreprocessor extends AbstractTransformer {
 			scope.put("message", scope, message);
 			scope.put("logger", scope, scriptLogger);
 			
-            Script globalCompiledScript = compiledScriptCache.getCompiledScript("preprocessor");
+            Script globalCompiledScript = compiledScriptCache.getCompiledScript("Preprocessor");
 			Script compiledScript = compiledScriptCache.getCompiledScript(preprocessingScriptId);
 			String returnValue = message;
 			

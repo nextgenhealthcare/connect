@@ -1,17 +1,3 @@
-/* 
- * $Header: /home/projects/mule/scm/mule/providers/http/src/java/org/mule/providers/http/HttpMessageReceiver.java,v 1.46 2005/11/12 09:04:17 rossmason Exp $
- * $Revision: 1.46 $
- * $Date: 2005/11/12 09:04:17 $
- * ------------------------------------------------------------------------------------------------------
- *
- * Copyright (c) SymphonySoft Limited. All rights reserved.
- * http://www.symphonysoft.com
- *
- * The software in this package is published under the terms of the BSD
- * style license a copy of which has been included with this distribution in
- * the LICENSE.txt file.
- *
- */
 package com.webreach.mirth.connectors.http;
 
 import org.apache.commons.httpclient.ChunkedInputStream;
@@ -33,9 +19,12 @@ import org.mule.umo.provider.UMOMessageAdapter;
 import org.mule.util.PropertiesHelper;
 import org.mule.util.monitor.Expirable;
 
-import com.webreach.mirth.connectors.ftp.FtpConnector;
+import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
+import com.webreach.mirth.server.controllers.MonitoringController;
+import com.webreach.mirth.server.controllers.MonitoringController.Status;
+import com.webreach.mirth.server.mule.transformers.JavaScriptPostprocessor;
 
 import javax.resource.spi.work.Work;
 import java.io.*;
@@ -56,10 +45,12 @@ import java.util.Map.Entry;
 public class HttpMessageReceiver extends TcpMessageReceiver {
     //private ExpiryMonitor keepAliveMonitor;
 	private AlertController alertController = AlertController.getInstance();
-	
+	private MonitoringController monitoringController = MonitoringController.getInstance();
+	private JavaScriptPostprocessor postprocessor = new JavaScriptPostprocessor();
     public HttpMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint)
             throws InitialisationException {
         super(connector, component, endpoint);
+        monitoringController.updateStatus(connector, Status.DISCONNECTED);
 //        if (((HttpConnector) connector).isKeepAlive()) {
 //            keepAliveMonitor = new ExpiryMonitor(1000);
 //        }
@@ -74,6 +65,7 @@ public class HttpMessageReceiver extends TcpMessageReceiver {
         //start another serversocket
         if (shouldConnect()) {
             super.doConnect();
+            monitoringController.updateStatus(this.getConnector(), Status.WAITING_FOR_CONNECTION);
         }
     }
 
@@ -114,40 +106,22 @@ public class HttpMessageReceiver extends TcpMessageReceiver {
 
         public void run() {
         	HttpConnector httpConnector = ((HttpConnector) connector);
+        	monitoringController.updateStatus(httpConnector, Status.PROCESSING);
             boolean keepAlive = httpConnector.isKeepAlive();
             try {
                 dataIn = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
                 dataOut = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
+                
                 do {
                     Properties headers = new Properties();
                     Object payload = null;
-                    payload = parseRequest(dataIn, headers, httpConnector.isExtendedPayload());
-                   
+                    payload = parseRequest(dataIn, dataOut, headers, httpConnector.isExtendedPayload());
+                    
                     if (payload == null) {
                         break;
                     }
-                    if (headers.get("Expect") != null && headers.get("Expect").equals("100-continue")){
-                    	dataOut.write("HTTP/1.1 100 Continue\r\n\r\n".getBytes());
-                    	payload = parseRequest(dataIn, headers, httpConnector.isExtendedPayload());
-                        if (payload == null) {
-                             break;
-                        }
-                    }
-                   
+                    
                     UMOMessageAdapter adapter = connector.getMessageAdapter(new Object[]{payload, headers});
-                    //Removed the keep alive monitoring stuff for now
-                    //nstead just wait for the client to disconnect
-                    //keepAlive = adapter.getBooleanProperty(HttpConstants.HEADER_KEEP_ALIVE, keepAlive);
-//                    if (keepAlive && !keepAliveRegistered) {
-//                        keepAliveRegistered = true;
-//                        if (keepAliveMonitor != null) {
-//                            keepAliveMonitor.addExpirable(((HttpConnector) connector).getKeepAliveTimeout(), this);
-//                        } else {
-//                            logger.info("Request has Keep alive set but the HttpConnector has keep alive disables");
-//                            keepAlive = false;
-//                        }
-//                    }
-
                     UMOMessage message = new MuleMessage(adapter);
 
                     if (logger.isDebugEnabled()) {
@@ -162,7 +136,16 @@ public class HttpMessageReceiver extends TcpMessageReceiver {
                     //the respone only needs to be transformed explicitly if A) the request was not served or a null result was returned
                     boolean transformResponse = false;
                     if (receiver != null) {
-                        returnMessage = receiver.routeMessage(message, endpoint.isSynchronous(), os);
+                    	
+                		try{
+                			returnMessage = receiver.routeMessage(message, endpoint.isSynchronous(), os);
+                		}catch (Exception e){
+                			logger.error(e);
+                			transformResponse = true;
+                			returnMessage = new MuleMessage(new Message(Messages.ROUTING_ERROR).toString());
+                            returnMessage.setIntProperty(HttpConnector.HTTP_STATUS_PROPERTY, HttpConstants.SC_INTERNAL_SERVER_ERROR);
+                            RequestContext.setEvent(new MuleEvent(returnMessage, endpoint, new MuleSession(), true));
+                		}
                         if (returnMessage == null) {
                             returnMessage = new MuleMessage("");
                             transformResponse = true;
@@ -180,6 +163,9 @@ public class HttpMessageReceiver extends TcpMessageReceiver {
                         RequestContext.setEvent(new MuleEvent(returnMessage, endpoint, new MuleSession(), true));
                     }
                     Object response = returnMessage.getPayload();
+                    if (response instanceof MessageObject){
+                    	response = postprocessor.doPostProcess((MessageObject)response);
+                    }
                     if(transformResponse) {
                         response = connector.getDefaultResponseTransformer().transform(response);
                     }
@@ -190,9 +176,7 @@ public class HttpMessageReceiver extends TcpMessageReceiver {
                         dataOut.write(response.toString().getBytes());
                     }
                     dataOut.flush();
-//                        if (keepAliveMonitor != null) {
-//                            keepAliveMonitor.resetExpirable(this);
-//                        }
+                    monitoringController.updateStatus(httpConnector, Status.CONNECTED);
                 } while (!socket.isClosed() && !disposing.get() && keepAlive);
                 if (logger.isDebugEnabled() && socket.isClosed()) {
                     logger.debug("Peer closed connection");
@@ -201,9 +185,7 @@ public class HttpMessageReceiver extends TcpMessageReceiver {
             	alertController.sendAlerts(((HttpConnector) connector).getChannelId(), Constants.ERROR_404, null, e);
                 handleException(e);
             } finally {
-//                if (keepAliveMonitor != null) {
-//                    keepAliveMonitor.removeExpirable(this);
-//                }
+            	monitoringController.updateStatus(httpConnector, Status.WAITING_FOR_CONNECTION);
                 dispose();
             }
         }
@@ -249,7 +231,7 @@ public class HttpMessageReceiver extends TcpMessageReceiver {
         return receiver;
     }
 
-    protected Object parseRequest(InputStream is, Properties p, boolean includeHTTPElements) throws IOException {
+    protected Object parseRequest(InputStream is, DataOutputStream dataOut, Properties p, boolean includeHTTPElements) throws IOException {
         RequestInputStream req = new RequestInputStream(is);
         Object payload = null;
         String startLine = null;
@@ -257,7 +239,7 @@ public class HttpMessageReceiver extends TcpMessageReceiver {
             try {
                 startLine = req.readline();
             } catch (IOException e) {
-                logger.debug(e.getMessage());
+                logger.error(e.getMessage());
             }
             if (startLine == null) return null;
         } while (startLine.trim().length() == 0);
@@ -290,6 +272,11 @@ public class HttpMessageReceiver extends TcpMessageReceiver {
         		payload = request.getBytes();
         	}
         } else {
+        	//Handle HTTP/1.1 100 Continue requirement
+        	if (p.get("Expect") != null && p.get("Expect").equals("100-continue")){
+            	dataOut.write(("HTTP/1.1 100 Continue\r\n\r\n").getBytes());
+            	dataOut.flush();
+            }
             boolean multipart = p.getProperty(HttpConstants.HEADER_CONTENT_TYPE, "").indexOf("multipart/related") > -1;
             String contentLengthHeader = p.getProperty(HttpConstants.HEADER_CONTENT_LENGTH, null);
             String chunkedString = PropertiesHelper.getStringProperty(p, HttpConstants.HEADER_TRANSFER_ENCODING, null);
@@ -337,6 +324,7 @@ public class HttpMessageReceiver extends TcpMessageReceiver {
                     }
                     os.close();
                 } else {
+                	
                     byte[] buffer = new byte[contentLength];
 
                     int length = -1;

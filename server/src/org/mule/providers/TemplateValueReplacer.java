@@ -1,6 +1,8 @@
 package org.mule.providers;
 
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -18,9 +20,10 @@ import com.webreach.mirth.server.util.GlobalVariableStore;
 import com.webreach.mirth.util.Entities;
 
 public class TemplateValueReplacer {
+	private static final String UTF_8 = "utf-8";
 	private Logger logger = Logger.getLogger(this.getClass());
 	private long count = 1;
-
+	private URLDecoder decoder = new URLDecoder();
 	protected synchronized long getCount() {
 		return count++;
 	}
@@ -61,20 +64,50 @@ public class TemplateValueReplacer {
 	public String replaceValues(String template, String originalFilename) {
 		return replaceValues(template, null, originalFilename);
 	}
+	public String replaceValuesFromGlobal(String template, boolean checkValidTemplate){
+		if (checkValidTemplate){
+			if (template.indexOf('$') == -1){
+				return template;
+			}
+		}
+		VelocityContext context = new VelocityContext();
+		Map<String, Object> globalVariables = GlobalVariableStore.getInstance().getVariables();
+		for (Iterator iter = globalVariables.entrySet().iterator(); iter.hasNext();) {
+			Entry element = (Entry)iter.next();
+			context.put(element.getKey().toString(), element.getValue());
+		}
+		StringWriter writer = new StringWriter();
+		try {
+			Velocity.init();
+			Velocity.evaluate(context, writer, "LOG", template);
+		} catch (Exception e) {
+			logger.warn("could not replace template values", e);
+		}
+		return writer.toString();	
+
+	}
+	public String replaceURLValues(String template, MessageObject messageObject){
+		String host = "";
+		if (template != null && template.length() > 0){
+			try {
+				host = decoder.decode(template, UTF_8);
+			} catch (UnsupportedEncodingException e) {
+				try {
+					host = decoder.decode(template, "default");
+				} catch (UnsupportedEncodingException e1) {
+					host = decoder.decode(template);
+				}
+			}
+			if (host.indexOf('$') > -1){
+				host = replaceValues(host, messageObject);
+			}
+		}
+		return host;
+	}
 	private void loadContext(VelocityContext context, MessageObject messageObject, String originalFilename) {
 		// message variables
 		if (messageObject != null) {
 			context.put("message", messageObject);
-
-			// load variables from global map
-			// we don't use an iterator here because of concurrent modification
-			// issues
-			Map<String, Object> globalVariables = GlobalVariableStore.getInstance().getVariables();
-			for (Iterator iter = globalVariables.entrySet().iterator(); iter.hasNext();) {
-				Entry element = (Entry)iter.next();
-				context.put(element.getKey().toString(), element.getValue());
-			}
-			
 			// load variables from local map
 			for (Iterator iter = messageObject.getConnectorMap().entrySet().iterator(); iter.hasNext();) {
 				Entry entry = (Entry) iter.next();
@@ -88,7 +121,12 @@ public class TemplateValueReplacer {
 				context.put(channelKeys[i].toString(),channelMap.get(channelKeys[i]));
 			}
 		}
-			
+		Map<String, Object> globalVariables = GlobalVariableStore.getInstance().getVariables();
+		for (Iterator iter = globalVariables.entrySet().iterator(); iter.hasNext();) {
+			Entry element = (Entry)iter.next();
+			context.put(element.getKey().toString(), element.getValue());
+		}
+		
 		//we might have the originalfilename in the context
 		if (context.get("originalFilename") != null){
 			originalFilename = (String)context.get("originalFilename");

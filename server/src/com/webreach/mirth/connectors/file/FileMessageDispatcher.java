@@ -40,6 +40,8 @@ import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
+import com.webreach.mirth.server.controllers.MonitoringController;
+import com.webreach.mirth.server.controllers.MonitoringController.Status;
 
 /**
  * <code>FileMessageDispatcher</code> is used to read/write files to the
@@ -54,10 +56,11 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
 
 	private MessageObjectController messageObjectController = MessageObjectController.getInstance();
 	private AlertController alertController = AlertController.getInstance();
-
+	private MonitoringController monitoringController = MonitoringController.getInstance();
 	public FileMessageDispatcher(FileConnector connector) {
 		super(connector);
 		this.connector = connector;
+		monitoringController.updateStatus(connector, Status.IDLE);
 	}
 
 	/*
@@ -66,6 +69,7 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
 	 * @see org.mule.umo.provider.UMOConnectorSession#dispatch(org.mule.umo.UMOEvent)
 	 */
 	public void doDispatch(UMOEvent event) throws Exception {
+		monitoringController.updateStatus(connector, Status.PROCESSING);
 		TemplateValueReplacer replacer = new TemplateValueReplacer();
 		UMOEndpointURI uri = event.getEndpoint().getEndpointURI();
 		FileOutputStream fos = null;
@@ -120,6 +124,7 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
 			if (fos != null) {
 				fos.close();
 			}
+			monitoringController.updateStatus(connector, Status.IDLE);
 		}
 	}
 

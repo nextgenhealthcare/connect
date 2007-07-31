@@ -46,6 +46,9 @@ import org.mule.umo.provider.UMOMessageAdapter;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
+import com.webreach.mirth.server.controllers.MonitoringController;
+import com.webreach.mirth.server.controllers.MonitoringController.Status;
+import com.webreach.mirth.server.mule.transformers.JavaScriptPostprocessor;
 import com.webreach.mirth.server.util.CompiledScriptCache;
 import com.webreach.mirth.server.util.JavaScriptScopeUtil;
 
@@ -63,7 +66,8 @@ public class JdbcMessageReceiver extends TransactedPollingMessageReceiver {
 	private Map jdbcMap;
 	private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
 	private AlertController alertController = AlertController.getInstance();
-
+	private MonitoringController monitoringController = MonitoringController.getInstance();
+	private JavaScriptPostprocessor postprocessor = new JavaScriptPostprocessor();
 	public JdbcMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint) throws InitialisationException {
 		super(connector, component, endpoint, new Long(((JdbcConnector) connector).getPollingFrequency()));
 
@@ -74,6 +78,7 @@ public class JdbcMessageReceiver extends TransactedPollingMessageReceiver {
 
 		this.receiveMessagesInTransaction = false;
 		this.connector = (JdbcConnector) connector;
+		monitoringController.updateStatus(connector, Status.IDLE);
 	}
 
 	public JdbcMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint, String readStmt, String ackStmt) throws InitialisationException {
@@ -91,13 +96,14 @@ public class JdbcMessageReceiver extends TransactedPollingMessageReceiver {
 		this.readStmt = JdbcUtils.parseStatement(readStmt, this.readParams);
 		this.ackParams = new ArrayList();
 		this.ackStmt = JdbcUtils.parseStatement(ackStmt, this.ackParams);
+		monitoringController.updateStatus(connector, Status.IDLE);
 	}
 
 	public void doConnect() throws Exception {
 		if (!connector.isUseScript()) {
 			Connection con = null;
 			try {
-				con = this.connector.getConnection();
+				con = this.connector.getConnection(null);
 			} catch (Exception e) {
 				throw new ConnectException(e, this);
 			} finally {
@@ -111,6 +117,7 @@ public class JdbcMessageReceiver extends TransactedPollingMessageReceiver {
 	}
 
 	public void processMessage(Object message) throws Exception {
+		monitoringController.updateStatus(connector, Status.PROCESSING);
 		try {
 			if (this.connector.isUseScript() && connector.isUseAck()) {
 				// dispatch messages
@@ -127,6 +134,7 @@ public class JdbcMessageReceiver extends TransactedPollingMessageReceiver {
 				scope.put("resultMap", scope, message);
 				if (umoMessage != null) {
 					MessageObject messageObject = (MessageObject) umoMessage.getPayload();
+					messageObject = postprocessor.doPostProcess(messageObject);
 					scope.put("responseMap", scope, messageObject.getResponseMap());
 				}
 				// get the script from the cache and execute it
@@ -145,7 +153,7 @@ public class JdbcMessageReceiver extends TransactedPollingMessageReceiver {
 				try {
 					try {
 						if (connector.isUseAck() && this.ackStmt != null) {
-							con = this.connector.getConnection();
+							con = this.connector.getConnection(null);
 							Object[] ackParams = JdbcUtils.getParams(getEndpointURI(), this.ackParams, message);
 							int nbRows = new QueryRunner().update(con, this.ackStmt, ackParams);
 							if (nbRows != 1) {
@@ -158,7 +166,8 @@ public class JdbcMessageReceiver extends TransactedPollingMessageReceiver {
 					}
 					UMOMessageAdapter msgAdapter = this.connector.getMessageAdapter(message);
 					UMOMessage umoMessage = new MuleMessage(msgAdapter);
-					routeMessage(umoMessage, tx, tx != null || endpoint.isSynchronous());
+					UMOMessage retMessage = routeMessage(umoMessage, tx, tx != null || endpoint.isSynchronous());
+					postprocessor.doPostProcess(retMessage.getPayload());
 					if (ackException != null)
 						throw ackException;
 				} catch (ConnectException ce) {
@@ -177,6 +186,7 @@ public class JdbcMessageReceiver extends TransactedPollingMessageReceiver {
 	}
 
 	public List getMessages() throws Exception {
+		monitoringController.updateStatus(connector, Status.POLLING);
 		try {
 			if (this.connector.isUseScript()) {
 				Context context = Context.enter();
@@ -226,7 +236,7 @@ public class JdbcMessageReceiver extends TransactedPollingMessageReceiver {
 
 				try {
 					try {
-						con = this.connector.getConnection();
+						con = this.connector.getConnection(null);
 					} catch (SQLException e) {
 						throw new ConnectException(e, this);
 					}
@@ -242,6 +252,8 @@ public class JdbcMessageReceiver extends TransactedPollingMessageReceiver {
 		} catch (Exception e) {
 			alertController.sendAlerts(((JdbcConnector) connector).getChannelId(), Constants.ERROR_406, null, e);
 			throw e;
+		}finally{
+			monitoringController.updateStatus(connector, Status.IDLE);
 		}
 	}
 

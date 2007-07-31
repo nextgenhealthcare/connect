@@ -32,6 +32,9 @@ import org.mule.util.queue.QueueSession;
 import com.webreach.mirth.connectors.jdbc.JdbcConnector;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
+import com.webreach.mirth.server.controllers.MonitoringController;
+import com.webreach.mirth.server.controllers.MonitoringController.Status;
+import com.webreach.mirth.server.mule.transformers.JavaScriptPostprocessor;
 import com.webreach.mirth.server.util.VMRegistry;
 
 import java.util.List;
@@ -48,12 +51,14 @@ import java.util.List;
 public class VMMessageReceiver extends TransactedPollingMessageReceiver {
 	private VMConnector connector;
 	private Object lock = new Object();
-    
+    private MonitoringController monitoringController = MonitoringController.getInstance();
+    private JavaScriptPostprocessor postProcessor = new JavaScriptPostprocessor();
 	public VMMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint) throws InitialisationException {
 		super(connector, component, endpoint, new Long(10));
 		this.connector = (VMConnector) connector;
 		receiveMessagesInTransaction = endpoint.getTransactionConfig().isTransacted();
 		VMRegistry.getInstance().register(this.getEndpointURI().getAddress(), this);
+		monitoringController.updateStatus(connector, Status.IDLE);
 	}
 
 	public void doConnect() throws Exception {
@@ -72,6 +77,7 @@ public class VMMessageReceiver extends TransactedPollingMessageReceiver {
 	 * @see org.mule.umo.UMOEventListener#onEvent(org.mule.umo.UMOEvent)
 	 */
 	public void onEvent(UMOEvent event) throws UMOException {
+		monitoringController.updateStatus(connector, Status.PROCESSING);
 		if (connector.isQueueEvents()) {
 			QueueSession queueSession = connector.getQueueSession();
 			Queue queue = queueSession.getQueue(endpoint.getEndpointURI().getAddress());
@@ -86,6 +92,7 @@ public class VMMessageReceiver extends TransactedPollingMessageReceiver {
 				routeMessage(msg);
 			}
 		}
+		monitoringController.updateStatus(connector, Status.IDLE);
 	}
 
 	/*
@@ -94,13 +101,15 @@ public class VMMessageReceiver extends TransactedPollingMessageReceiver {
 	 * @see org.mule.umo.UMOSyncChainSupport#onCall(org.mule.umo.UMOEvent)
 	 */
 	public Object onCall(UMOEvent event) throws UMOException {
-		return routeMessage(new MuleMessage(event.getTransformedMessage(), event.getProperties(), event.getMessage()), event.isSynchronous());
+		UMOMessage umoMessage = routeMessage(new MuleMessage(event.getTransformedMessage(), event.getProperties(), event.getMessage()), event.isSynchronous());
+		return postProcessor.doPostProcess(umoMessage.getPayload());
 	}
 
 	protected List getMessages() throws Exception {
 		QueueSession qs = connector.getQueueSession();
 		Queue queue = qs.getQueue(endpoint.getEndpointURI().getAddress());
 		UMOEvent event = (UMOEvent) queue.take();
+		//TODO: Check post processor logic on this
 		routeMessage(new MuleMessage(event.getTransformedMessage(), event.getProperties()));
 		return null;
 	}

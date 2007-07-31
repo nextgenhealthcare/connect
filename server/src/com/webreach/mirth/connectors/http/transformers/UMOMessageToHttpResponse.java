@@ -76,13 +76,15 @@ public class UMOMessageToHttpResponse extends AbstractEventAwareTransformer
         String date = format.format(new Date());
         byte[] response = null;
         String contentType = (String) context.getProperty(HttpConstants.HEADER_CONTENT_TYPE, HttpConnector.DEFAULT_CONTENT_TYPE);
-
+        boolean closeConnection = false;
         if (src instanceof MessageObject){
         	MessageObject messageObject = (MessageObject)src;
         	HttpConnector connector = (HttpConnector) this.getEndpoint().getConnector();
      
-             String respondFrom = connector.getResponseValue();
-              
+            String respondFrom = connector.getResponseValue();
+            if (!connector.isKeepAlive()){
+            	closeConnection = true;
+            }
  
         	if (respondFrom != null && !respondFrom.equalsIgnoreCase("None")){
         		Response ackResponse = (Response)messageObject.getResponseMap().get(respondFrom);
@@ -118,11 +120,18 @@ public class UMOMessageToHttpResponse extends AbstractEventAwareTransformer
                                                e);
             }
         }
-
+        if (response == null){
+        	response = new String().getBytes();
+        }
         StringBuffer httpMessage = new StringBuffer(512);
 
         httpMessage.append(version).append(" ");
         httpMessage.append(status).append(HttpConstants.CRLF);
+        if (closeConnection){
+        	httpMessage.append(HttpConstants.HEADER_CONNECTION);
+        	httpMessage.append(": close").append(HttpConstants.CRLF);
+        }
+        
         httpMessage.append(HttpConstants.HEADER_DATE);
         httpMessage.append(": ").append(date).append(HttpConstants.CRLF);
         httpMessage.append(HttpConstants.HEADER_SERVER);

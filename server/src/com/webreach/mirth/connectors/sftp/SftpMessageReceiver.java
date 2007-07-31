@@ -18,6 +18,7 @@ import org.apache.log4j.Logger;
 import org.mule.impl.MuleMessage;
 import org.mule.providers.PollingMessageReceiver;
 import org.mule.umo.UMOComponent;
+import org.mule.umo.UMOMessage;
 import org.mule.umo.endpoint.UMOEndpoint;
 import org.mule.umo.endpoint.UMOEndpointURI;
 import org.mule.umo.lifecycle.InitialisationException;
@@ -32,6 +33,9 @@ import com.webreach.mirth.connectors.file.FileConnector;
 import com.webreach.mirth.connectors.file.filters.FilenameWildcardFilter;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
+import com.webreach.mirth.server.controllers.MonitoringController;
+import com.webreach.mirth.server.controllers.MonitoringController.Status;
+import com.webreach.mirth.server.mule.transformers.JavaScriptPostprocessor;
 import com.webreach.mirth.server.util.BatchMessageProcessor;
 import com.webreach.mirth.server.util.StackTracePrinter;
 
@@ -41,7 +45,8 @@ public class SftpMessageReceiver extends PollingMessageReceiver {
 	private FilenameFilter filenameFilter = null;
 	protected Set currentFiles = Collections.synchronizedSet(new HashSet());
 	private AlertController alertController = AlertController.getInstance();
-
+	private MonitoringController monitoringController = MonitoringController.getInstance();
+	private JavaScriptPostprocessor postProcessor = new JavaScriptPostprocessor();
 	private boolean routingError = false;
 
 	public SftpMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint, Long frequency) throws InitialisationException {
@@ -54,9 +59,11 @@ public class SftpMessageReceiver extends PollingMessageReceiver {
             setFrequency(((SftpConnector) connector).getPollingFrequency());
         
 		filenameFilter = new FilenameWildcardFilter(this.connector.getFileFilter());
+		monitoringController.updateStatus(connector, Status.IDLE);
 	}
 
 	public void poll() {
+		monitoringController.updateStatus(connector, Status.POLLING);
 		try {
 			List files = listFiles();
 			sortFiles(files);
@@ -69,8 +76,10 @@ public class SftpMessageReceiver extends PollingMessageReceiver {
 						public void run() {
 							try {
 								currentFiles.add(entry.getFilename());
-								if (!routingError)
+								if (!routingError){
+									monitoringController.updateStatus(connector, Status.PROCESSING);
 									processFile(entry);
+								}
 							} catch (Exception e) {
 								alertController.sendAlerts(((SftpConnector) connector).getChannelId(), Constants.ERROR_409, null, e);
 								connector.handleException(e);
@@ -181,7 +190,8 @@ public class SftpMessageReceiver extends PollingMessageReceiver {
 					String message = (String) iter.next();
 					adapter = connector.getMessageAdapter(message.getBytes(connector.getCharsetEncoding()));
 					adapter.setProperty(FileConnector.PROPERTY_ORIGINAL_FILENAME, originalFilename);
-					routeMessage(new MuleMessage(adapter), endpoint.isSynchronous());
+					UMOMessage umoMessage = routeMessage(new MuleMessage(adapter), endpoint.isSynchronous());
+					postProcessor.doPostProcess(umoMessage.getPayload());
 				}
 			} else {
 				String message = "";

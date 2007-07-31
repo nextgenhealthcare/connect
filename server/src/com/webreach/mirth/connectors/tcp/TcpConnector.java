@@ -570,15 +570,4 @@ public class TcpConnector extends AbstractServiceEnabledConnector {
 	public void setResponseValue(String responseValue) {
 		this.responseValue = responseValue;
 	}
-
-	public String getStatusMode() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	public String getStatusMessage() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 }

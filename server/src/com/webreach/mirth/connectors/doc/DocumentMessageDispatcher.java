@@ -22,19 +22,23 @@ import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
+import com.webreach.mirth.server.controllers.MonitoringController;
+import com.webreach.mirth.server.controllers.MonitoringController.Status;
 
 public class DocumentMessageDispatcher extends AbstractMessageDispatcher {
 	private DocumentConnector connector;
 
 	private MessageObjectController messageObjectController = MessageObjectController.getInstance();
 	private AlertController alertController = AlertController.getInstance();
-	
+	private MonitoringController monitoringController = MonitoringController.getInstance();
 	public DocumentMessageDispatcher(DocumentConnector connector) {
 		super(connector);
 		this.connector = connector;
+		monitoringController.updateStatus(connector, Status.IDLE);
 	}
 
 	public void doDispatch(UMOEvent event) throws Exception {
+		monitoringController.updateStatus(connector, Status.PROCESSING);
 		TemplateValueReplacer replacer = new TemplateValueReplacer();
 		String endpoint = event.getEndpoint().getEndpointURI().getAddress();
 		MessageObject messageObject = messageObjectController.getMessageObjectFromEvent(event);
@@ -71,6 +75,8 @@ public class DocumentMessageDispatcher extends AbstractMessageDispatcher {
 			alertController.sendAlerts(((DocumentConnector) connector).getChannelId(), Constants.ERROR_401, "Error writing document", e);
 			messageObjectController.setError(messageObject, Constants.ERROR_401, "Error writing document", e);
 			connector.handleException(e);
+		}finally{
+			monitoringController.updateStatus(connector, Status.IDLE);
 		}
 	}
 

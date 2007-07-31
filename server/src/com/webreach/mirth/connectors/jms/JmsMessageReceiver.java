@@ -19,6 +19,7 @@ import org.mule.providers.AbstractMessageReceiver;
 import org.mule.providers.ConnectException;
 import org.mule.umo.UMOComponent;
 import org.mule.umo.UMOException;
+import org.mule.umo.UMOMessage;
 import org.mule.umo.endpoint.UMOEndpoint;
 import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.lifecycle.LifecycleException;
@@ -30,6 +31,9 @@ import com.webreach.mirth.connectors.ftp.FtpConnector;
 import com.webreach.mirth.connectors.jms.filters.JmsSelectorFilter;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
+import com.webreach.mirth.server.controllers.MonitoringController;
+import com.webreach.mirth.server.controllers.MonitoringController.Status;
+import com.webreach.mirth.server.mule.transformers.JavaScriptPostprocessor;
 
 import javax.jms.Destination;
 import javax.jms.JMSException;
@@ -52,7 +56,8 @@ public class JmsMessageReceiver extends AbstractMessageReceiver implements Messa
     protected MessageConsumer consumer;
     protected Session session;
     private AlertController alertController = AlertController.getInstance();
-
+    private MonitoringController monitoringController = MonitoringController.getInstance();
+    private JavaScriptPostprocessor postProcessor = new JavaScriptPostprocessor();
     public JmsMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint)
             throws InitialisationException
     {
@@ -65,6 +70,7 @@ public class JmsMessageReceiver extends AbstractMessageReceiver implements Messa
         } catch (Exception e) {
             throw new InitialisationException(e, this);
         }
+        monitoringController.updateStatus(connector, Status.IDLE);
     }
 
     public void doConnect() throws Exception
@@ -79,6 +85,7 @@ public class JmsMessageReceiver extends AbstractMessageReceiver implements Messa
 
     public void onMessage(Message message)
     {
+    	monitoringController.updateStatus(connector, Status.PROCESSING);
         try {
             if (logger.isDebugEnabled()) {
                 logger.debug("Message received it is of type: " + message.getClass().getName());
@@ -101,10 +108,13 @@ public class JmsMessageReceiver extends AbstractMessageReceiver implements Messa
             }
 
             UMOMessageAdapter adapter = connector.getMessageAdapter(message);
-            routeMessage(new MuleMessage(adapter));
+            UMOMessage umoMessage = routeMessage(new MuleMessage(adapter), endpoint.isSynchronous());
+            postProcessor.doPostProcess(umoMessage.getPayload());
         } catch (Exception e) {
         	alertController.sendAlerts(((JmsConnector) connector).getChannelId(), Constants.ERROR_407, null, e);
             handleException(e);
+        }finally{
+        	monitoringController.updateStatus(connector, Status.IDLE);
         }
     }
 

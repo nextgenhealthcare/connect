@@ -37,6 +37,8 @@ import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
+import com.webreach.mirth.server.controllers.MonitoringController;
+import com.webreach.mirth.server.controllers.MonitoringController.Status;
 
 /**
  * @author Ross Mason
@@ -45,6 +47,7 @@ public class SmtpMessageDispatcher extends AbstractMessageDispatcher {
 	private Session session;
 	private MessageObjectController messageObjectController = MessageObjectController.getInstance();
 	private AlertController alertController = AlertController.getInstance();
+	private MonitoringController monitoringController = MonitoringController.getInstance();
 	private SmtpConnector connector;
 
 	/**
@@ -53,6 +56,7 @@ public class SmtpMessageDispatcher extends AbstractMessageDispatcher {
 	public SmtpMessageDispatcher(SmtpConnector connector) {
 		super(connector);
 		this.connector = connector;
+		monitoringController.updateStatus(connector, Status.IDLE);
 		String username = new String();
 		String password = new String();
 		if (connector.getUsername() != null){
@@ -73,6 +77,7 @@ public class SmtpMessageDispatcher extends AbstractMessageDispatcher {
 	 *      org.mule.providers.MuleEndpoint)
 	 */
 	public void doDispatch(UMOEvent event) throws Exception {
+		monitoringController.updateStatus(connector, Status.PROCESSING);
 		Message msg = null;
 		MessageObject messageObject = messageObjectController.getMessageObjectFromEvent(event);
 		if (messageObject == null) {
@@ -97,6 +102,8 @@ public class SmtpMessageDispatcher extends AbstractMessageDispatcher {
 			alertController.sendAlerts(messageObject.getChannelId(),  Constants.ERROR_402, "Error sending email", e);
 			messageObjectController.setError(messageObject, Constants.ERROR_402, "Error sending email", e);
 			connector.handleException(e);
+		}finally{
+			monitoringController.updateStatus(connector, Status.IDLE);
 		}
 	}
 

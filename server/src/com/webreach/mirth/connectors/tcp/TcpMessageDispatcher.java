@@ -41,6 +41,8 @@ import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
+import com.webreach.mirth.server.controllers.MonitoringController;
+import com.webreach.mirth.server.controllers.MonitoringController.Status;
 import com.webreach.mirth.server.util.VMRouter;
 
 /**
@@ -75,10 +77,11 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 	private MessageObjectController messageObjectController = MessageObjectController.getInstance();
 	private TemplateValueReplacer replacer = new TemplateValueReplacer();
 	private AlertController alertController = AlertController.getInstance();
-	
+	private MonitoringController monitoringController = MonitoringController.getInstance();
 	public TcpMessageDispatcher(TcpConnector connector) {
 		super(connector);
 		this.connector = connector;
+		monitoringController.updateStatus(connector, Status.IDLE);
 	}
 
 	// ast: set queues
@@ -146,6 +149,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 					retryCount++;
 					try {
 						socket = initSocket(event.getEndpoint().getEndpointURI().getAddress());
+						monitoringController.updateStatus(connector, Status.PROCESSING);
 						writeTemplatedData(socket, messageObject);
 						success = true;
 					} catch (Exception exs) {
@@ -173,6 +177,8 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 			alertController.sendAlerts(((TcpConnector) connector).getChannelId(), Constants.ERROR_411, null, exu);
 			logger.error("Unknown exception dispatching " + exu);
 			exceptionWriting = exu;
+		}finally {
+			monitoringController.updateStatus(connector, Status.IDLE);
 		}
 		if (!success) {
 			messageObjectController.setError(messageObject, Constants.ERROR_411, exceptionMessage, exceptionWriting);
@@ -223,6 +229,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 	// ast: sendPayload is called from the doSend method, or from
 	// MessageResponseQueued
 	public boolean sendPayload(MessageObject data, UMOEndpoint endpoint) throws Exception {
+		monitoringController.updateStatus(connector, Status.PROCESSING);
 		Boolean result = false;
 		Exception sendException = null;
 		if (this.queue == null)
@@ -261,6 +268,8 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 		} catch (Exception e) {
 			logger.debug("Write raised exception: '" + e.getMessage() + "' desisting reconnecting.");
 			sendException = e;
+		}finally{
+			monitoringController.updateStatus(connector, Status.IDLE);
 		}
 		if ((result == false) || (sendException != null)) {
 			if (sendException != null) {

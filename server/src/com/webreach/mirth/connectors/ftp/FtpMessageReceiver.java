@@ -34,6 +34,7 @@ import org.apache.commons.net.ftp.FTPReply;
 import org.mule.impl.MuleMessage;
 import org.mule.providers.PollingMessageReceiver;
 import org.mule.umo.UMOComponent;
+import org.mule.umo.UMOMessage;
 import org.mule.umo.endpoint.UMOEndpoint;
 import org.mule.umo.endpoint.UMOEndpointURI;
 import org.mule.umo.lifecycle.InitialisationException;
@@ -47,6 +48,10 @@ import com.webreach.mirth.connectors.file.FileConnector;
 import com.webreach.mirth.connectors.file.filters.FilenameWildcardFilter;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
+import com.webreach.mirth.server.controllers.MonitoringController;
+import com.webreach.mirth.server.controllers.MonitoringController.Priority;
+import com.webreach.mirth.server.controllers.MonitoringController.Status;
+import com.webreach.mirth.server.mule.transformers.JavaScriptPostprocessor;
 import com.webreach.mirth.server.util.BatchMessageProcessor;
 import com.webreach.mirth.server.util.StackTracePrinter;
 
@@ -60,7 +65,8 @@ public class FtpMessageReceiver extends PollingMessageReceiver {
 	private FilenameFilter filenameFilter = null;
 	private boolean routingError = false;
 	private AlertController alertController = AlertController.getInstance();
-	
+	private MonitoringController monitoringController = MonitoringController.getInstance();
+	private JavaScriptPostprocessor postProcessor = new JavaScriptPostprocessor();
 	public FtpMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint, Long frequency) throws InitialisationException {
 		super(connector, component, endpoint, frequency);
 		this.connector = (FtpConnector) connector;
@@ -71,13 +77,15 @@ public class FtpMessageReceiver extends PollingMessageReceiver {
             setFrequency(((FtpConnector) connector).getPollingFrequency());
         
 		filenameFilter = new FilenameWildcardFilter(this.connector.getFileFilter());
+		monitoringController.updateStatus(connector, Status.IDLE);
 	}
 
 	public void poll() {
 		try {
+			monitoringController.updateStatus(connector, Status.POLLING);
 			FTPFile[] files = listFiles();
 			sortFiles(files);
-
+			monitoringController.updateStatus(connector, Status.PROCESSING);
 			for (int i = 0; i < files.length; i++) {
 				final FTPFile file = files[i];
 				if (!currentFiles.contains(file.getName())) {
@@ -102,6 +110,8 @@ public class FtpMessageReceiver extends PollingMessageReceiver {
 		} catch (Exception e) {
 			alertController.sendAlerts(((FtpConnector) connector).getChannelId(), Constants.ERROR_405, null, e);
 			handleException(e);
+		} finally{
+			monitoringController.updateStatus(connector, Status.IDLE);
 		}
 	}
 
@@ -133,7 +143,7 @@ public class FtpMessageReceiver extends PollingMessageReceiver {
 		FTPClient client = null;
 		UMOEndpointURI uri = endpoint.getEndpointURI();
 		try {
-			client = connector.getFtp(uri);
+			client = connector.getFtp(uri, null);
 			if (!client.changeWorkingDirectory(uri.getPath())) {
 				throw new IOException("Ftp error: " + client.getReplyCode());
 			}
@@ -156,10 +166,10 @@ public class FtpMessageReceiver extends PollingMessageReceiver {
 
 		} finally {
 			try {
-				connector.releaseFtp(uri, client);
+				connector.releaseFtp(uri, client, null);
 			} catch (Exception e) {
 				logger.debug("Could not release FTP connection.", e);
-				connector.destroyFtp(uri, client);
+				connector.destroyFtp(uri, client, null);
 			}
 		}
 	}
@@ -184,7 +194,7 @@ public class FtpMessageReceiver extends PollingMessageReceiver {
 
 		try {
 
-			client = connector.getFtp(uri);
+			client = connector.getFtp(uri, null);
 			if (moveDir != null) {
 
 				String fileName = file.getName();
@@ -210,7 +220,8 @@ public class FtpMessageReceiver extends PollingMessageReceiver {
 					String message = (String) iter.next();
 					adapter = connector.getMessageAdapter(message.getBytes(connector.getCharsetEncoding()));
 					adapter.setProperty(FileConnector.PROPERTY_ORIGINAL_FILENAME, originalFilename);
-					routeMessage(new MuleMessage(adapter), endpoint.isSynchronous());
+					UMOMessage umoMessage = routeMessage(new MuleMessage(adapter), endpoint.isSynchronous());
+					postProcessor.doPostProcess(umoMessage.getPayload());
 				}
 			} else {
 				String message = "";
@@ -223,7 +234,8 @@ public class FtpMessageReceiver extends PollingMessageReceiver {
 					adapter = connector.getMessageAdapter(contents);
 				}
 				adapter.setProperty(FileConnector.PROPERTY_ORIGINAL_FILENAME, originalFilename);
-				routeMessage(new MuleMessage(adapter), endpoint.isSynchronous());
+				UMOMessage umoMessage = routeMessage(new MuleMessage(adapter), endpoint.isSynchronous());
+				postProcessor.doPostProcess(umoMessage.getPayload());
 			}
 			// move the file if needed
 			if (destinationFile != null) {
@@ -279,17 +291,17 @@ public class FtpMessageReceiver extends PollingMessageReceiver {
 			routingError = true;
 		} finally {
 			try {
-				connector.releaseFtp(uri, client);
+				connector.releaseFtp(uri, client, null);
 			} catch (Exception e) {
 				logger.debug("Could not release FTP connection.", e);
-				connector.destroyFtp(uri, client);
+				connector.destroyFtp(uri, client, null);
 			}
 		}
 	}
 
 	public void doConnect() throws Exception {
-		FTPClient client = connector.getFtp(getEndpointURI());
-		connector.releaseFtp(getEndpointURI(), client);
+		FTPClient client = connector.getFtp(getEndpointURI(), null);
+		connector.releaseFtp(getEndpointURI(), client, null);
 
 	}
 

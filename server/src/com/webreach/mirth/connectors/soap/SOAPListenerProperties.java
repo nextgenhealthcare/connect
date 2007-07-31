@@ -40,6 +40,8 @@ public class SOAPListenerProperties implements ComponentProperties
     public static final String SOAP_PORT = "port";
     public static final String SOAP_CONTENT_TYPE = "Content-Type";
     public static final String SOAP_RESPONSE_VALUE = "responseValue";
+    public static final String SOAP_RECEIVE_TIMEOUT = "keepAliveTimeout";
+    public static final String SOAP_KEEP_CONNECTION_OPEN = "keepAlive";
 
     public Properties getDefaults()
     {

@@ -40,6 +40,8 @@ import com.webreach.mirth.connectors.soap.axis.AxisConnector;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.Response;
 import com.webreach.mirth.model.MessageObject.Status;
+import com.webreach.mirth.server.controllers.MonitoringController;
+import com.webreach.mirth.server.mule.transformers.JavaScriptPostprocessor;
 import com.webreach.mirth.server.util.StackTracePrinter;
 
 
@@ -137,18 +139,21 @@ public class ServiceProxy {
 		 */
 		protected static Log logger = LogFactory.getLog(AxisServiceHandler.class);
 		private AbstractMessageReceiver receiver;
-
+		private JavaScriptPostprocessor postProcessor = new JavaScriptPostprocessor();
+		private MonitoringController monitoringController = MonitoringController.getInstance();
 		private boolean synchronous = true;
 
 		public AxisServiceHandler(AbstractMessageReceiver receiver,
 				boolean synchronous) {
 			this.receiver = receiver;
 			this.synchronous = synchronous;
+			monitoringController.updateStatus(receiver.getConnector(), com.webreach.mirth.server.controllers.MonitoringController.Status.IDLE);
 		}
 	
 		public Object invoke(Object proxy, Method method, Object[] args)
 				throws Throwable {
 			try{
+				monitoringController.updateStatus(receiver.getConnector(), com.webreach.mirth.server.controllers.MonitoringController.Status.PROCESSING);
 				AxisConnector connector = (AxisConnector)receiver.getConnector();
 				UMOMessageAdapter messageAdapter = connector.getMessageAdapter(args);
 				// messageAdapter.setProperty(MuleProperties.MULE_METHOD_PROPERTY,
@@ -159,7 +164,7 @@ public class ServiceProxy {
 	            	Object data = message.getPayload();
 	            	if (data instanceof MessageObject){
 	            		MessageObject messageObject = (MessageObject)data;
-	            		
+	            		messageObject = new JavaScriptPostprocessor().doPostProcess(messageObject);
 	            		Map responseMap = messageObject.getResponseMap();
 						
 						String errorString = "";
@@ -188,6 +193,8 @@ public class ServiceProxy {
 			}catch (Exception e){
 				logger.error(e);
 				return e.getMessage();
+			}finally{
+				monitoringController.updateStatus(receiver.getConnector(), com.webreach.mirth.server.controllers.MonitoringController.Status.IDLE);
 			}
 		}
 	}

@@ -34,6 +34,7 @@ import org.mule.providers.ConnectException;
 import org.mule.providers.PollingMessageReceiver;
 import org.mule.umo.UMOComponent;
 import org.mule.umo.UMOException;
+import org.mule.umo.UMOMessage;
 import org.mule.umo.endpoint.UMOEndpoint;
 import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.provider.UMOConnector;
@@ -46,6 +47,9 @@ import sun.misc.BASE64Encoder;
 import com.webreach.mirth.connectors.file.filters.FilenameWildcardFilter;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
+import com.webreach.mirth.server.controllers.MonitoringController;
+import com.webreach.mirth.server.controllers.MonitoringController.Status;
+import com.webreach.mirth.server.mule.transformers.JavaScriptPostprocessor;
 import com.webreach.mirth.server.util.BatchMessageProcessor;
 import com.webreach.mirth.server.util.StackTracePrinter;
 
@@ -66,7 +70,8 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 	private FilenameFilter filenameFilter = null;
 	private boolean routingError = false;
 	private AlertController alertController = AlertController.getInstance();
-
+	private MonitoringController monitoringController = MonitoringController.getInstance();
+	private JavaScriptPostprocessor postProcessor = new JavaScriptPostprocessor();
 	public FileMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint, String readDir, String moveDir, String moveToPattern, Long frequency) throws InitialisationException {
 		super(connector, component, endpoint, frequency);
 		this.readDir = readDir;
@@ -79,6 +84,7 @@ public class FileMessageReceiver extends PollingMessageReceiver {
             setFrequency(((FileConnector) connector).getPollingFrequency());
         
 		filenameFilter = new FilenameWildcardFilter(((FileConnector) connector).getFileFilter());
+		monitoringController.updateStatus(connector, Status.IDLE);
 	}
 
 	public void doConnect() throws Exception {
@@ -102,6 +108,7 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 	public void doDisconnect() throws Exception {}
 
 	public void poll() {
+		monitoringController.updateStatus(connector, Status.POLLING);
 		try {
 			File[] files = listFiles();
 
@@ -112,13 +119,17 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 			// sort files by specified attribute before sorting
 			sortFiles(files);
 			routingError = false;
+			monitoringController.updateStatus(connector, Status.PROCESSING);
 			for (int i = 0; i < files.length; i++) {
+				
 				if (!routingError)
 					processFile(files[i]);
 			}
 		} catch (Exception e) {
 			alertController.sendAlerts(((FileConnector) connector).getChannelId(), Constants.ERROR_403, null, e);
 			handleException(e);
+		}finally{
+			monitoringController.updateStatus(connector, Status.IDLE);
 		}
 	}
 
@@ -186,7 +197,8 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 
 						for (Iterator iter = messages.iterator(); iter.hasNext() && (fileProcesedException == null);) {
 							String message = (String) iter.next();
-							routeMessage(new MuleMessage(connector.getMessageAdapter(message)), endpoint.isSynchronous());
+							UMOMessage umoMessage = routeMessage(new MuleMessage(connector.getMessageAdapter(message)), endpoint.isSynchronous());
+							postProcessor.doPostProcess(umoMessage.getPayload());
 						}
 					} else {
 
@@ -200,7 +212,8 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 						}
 						adapter = connector.getMessageAdapter(message);
 						adapter.setProperty(FileConnector.PROPERTY_ORIGINAL_FILENAME, originalFilename);
-						routeMessage(new MuleMessage(adapter), endpoint.isSynchronous());
+						UMOMessage umoMessage =	routeMessage(new MuleMessage(adapter), endpoint.isSynchronous());
+						postProcessor.doPostProcess(umoMessage.getPayload());
 					}
 				} catch (RoutingException e) {
 					logger.error("Unable to route. Stopping Connector: " + StackTracePrinter.stackTraceToString(e));

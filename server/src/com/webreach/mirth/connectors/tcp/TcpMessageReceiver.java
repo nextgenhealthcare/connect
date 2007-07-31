@@ -52,6 +52,10 @@ import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.Response;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
+import com.webreach.mirth.server.controllers.MonitoringController;
+import com.webreach.mirth.server.controllers.MonitoringController.Priority;
+import com.webreach.mirth.server.controllers.MonitoringController.Status;
+import com.webreach.mirth.server.mule.transformers.JavaScriptPostprocessor;
 
 import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicBoolean;
 
@@ -68,11 +72,14 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
 	protected ServerSocket serverSocket = null;
 	protected TcpConnector connector;
 	private AlertController alertController = AlertController.getInstance();
+	private MonitoringController monitoringController = MonitoringController.getInstance();
+	private JavaScriptPostprocessor postProcessor = new JavaScriptPostprocessor();
 	private TcpWorker work;
 	public TcpMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint) throws InitialisationException {
 		super(connector, component, endpoint);
 		TcpConnector tcpConnector = (TcpConnector) connector;
 		this.connector = tcpConnector;
+		monitoringController.updateStatus(connector, Status.DISCONNECTED);
 	}
 
 	public void doConnect() throws ConnectException {
@@ -80,6 +87,7 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
 		URI uri = endpoint.getEndpointURI().getUri();
 		try {
 			serverSocket = createSocket(uri);
+			monitoringController.updateStatus(connector, Status.WAITING_FOR_CONNECTION, Priority.HIGH, serverSocket.toString());
 		} catch (Exception e) {
 			throw new org.mule.providers.ConnectException(new Message("tcp", 1, uri), e, this);
 		}
@@ -96,6 +104,7 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
 		disposing.set(true);
 		try {
 			if (serverSocket != null) {
+				monitoringController.updateStatus(connector, Status.DISCONNECTED, Priority.HIGH, serverSocket.toString());
 				serverSocket.close();
 			}
 		} catch (IOException e) {
@@ -130,6 +139,7 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
 				Socket socket = null;
 				try {
 					socket = serverSocket.accept();
+					monitoringController.updateStatus(connector, Status.CONNECTED, Priority.HIGH, socket.toString());
 					logger.trace("Server socket Accepted on: " + serverSocket.getLocalPort());
 				} catch (java.io.InterruptedIOException iie) {
 					logger.debug("Interupted IO doing serverSocket.accept: " + iie.getMessage());
@@ -162,6 +172,7 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
 	public void doDispose() {
 		try {
 			if (serverSocket != null && !serverSocket.isClosed())
+				monitoringController.updateStatus(connector, Status.DISCONNECTED, Priority.HIGH, serverSocket.toString());
 				serverSocket.close();
 			serverSocket = null;
 			if (work != null){
@@ -239,23 +250,28 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
 					byte[] b;
 					try {
                         b = protocol.read(dataIn);
-
+                        monitoringController.updateStatus(connector, Status.PROCESSING, Priority.NORMAL, socket.toString());
+						
 						// end of stream
 						if (b == null) {
+							monitoringController.updateStatus(connector, Status.DISCONNECTED, Priority.HIGH, socket.toString());
 							break;	
 						} else {
 							processData(b);
 							dataOut.flush();
 						}
+						monitoringController.updateStatus(connector, Status.CONNECTED, Priority.HIGH, socket.toString());
 					} catch (SocketTimeoutException e) {
 						if (!socket.getKeepAlive()) {
 							break;
 						}
 					}
+					
 				}
 			} catch (Exception e) {
 				handleException(e);
 			} finally {
+				monitoringController.updateStatus(connector, Status.WAITING_FOR_CONNECTION, Priority.HIGH);
 				dispose();
 			}
 		}
@@ -279,15 +295,8 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
 					Object payload = returnMessage.getPayload();
 					if (payload instanceof MessageObject) {
 						MessageObject messageObjectResponse = (MessageObject) payload;
+						messageObjectResponse = postProcessor.doPostProcess(messageObjectResponse);
 						Map responseMap = messageObjectResponse.getResponseMap();
-						// for (Iterator iter =
-						// responseMap.entrySet().iterator(); iter.hasNext();) {
-						// java.util.Map.Entry element = (java.util.Map.Entry)
-						// iter.next();
-						// System.out.println(element.getKey() + ": " +
-						// element.getValue());
-						// }
-						// DEBUG ONLY END
 						String errorString = "";
 
 						if (connector.isResponseFromTransformer() && !connector.getResponseValue().equalsIgnoreCase("None")) {

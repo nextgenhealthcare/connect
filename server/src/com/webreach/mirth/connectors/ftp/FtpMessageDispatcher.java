@@ -27,6 +27,7 @@ import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
 import org.mule.MuleManager;
 import org.mule.impl.MuleMessage;
+import org.mule.impl.endpoint.MuleEndpointURI;
 import org.mule.providers.AbstractMessageDispatcher;
 import org.mule.providers.TemplateValueReplacer;
 import org.mule.providers.VariableFilenameParser;
@@ -42,6 +43,9 @@ import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
+import com.webreach.mirth.server.controllers.MonitoringController;
+import com.webreach.mirth.server.controllers.MonitoringController.Priority;
+import com.webreach.mirth.server.controllers.MonitoringController.Status;
 
 /**
  * @author <a href="mailto:gnt@codehaus.org">Guillaume Nodet</a>
@@ -53,22 +57,25 @@ public class FtpMessageDispatcher extends AbstractMessageDispatcher {
 
 	private MessageObjectController messageObjectController = MessageObjectController.getInstance();
 	private AlertController alertController = AlertController.getInstance();
-
+	private MonitoringController monitoringController = MonitoringController.getInstance();
+	private TemplateValueReplacer replacer = new TemplateValueReplacer();
 	public FtpMessageDispatcher(FtpConnector connector) {
 		super(connector);
 		this.connector = connector;
+		monitoringController.updateStatus(connector, Status.IDLE);
 	}
 
 	public void doDispatch(UMOEvent event) throws Exception {
 		UMOEndpointURI uri = event.getEndpoint().getEndpointURI();
-		TemplateValueReplacer replacer = new TemplateValueReplacer();
+		
 		FTPClient client = null;
 		MessageObject messageObject = messageObjectController.getMessageObjectFromEvent(event);
 		if (messageObject == null) {
 			return;
 		}
-
+		
 		try {
+			uri = new MuleEndpointURI(replacer.replaceURLValues(uri.toString(), messageObject));
 			String filename = (String) event.getProperty(FtpConnector.PROPERTY_FILENAME);
 
 			if (filename == null) {
@@ -94,15 +101,18 @@ public class FtpMessageDispatcher extends AbstractMessageDispatcher {
 				buffer = template.getBytes();
 				// TODO: Add support for Charset encodings in 1.4.1
 			}
-			client = connector.getFtp(uri);
+			client = connector.getFtp(uri, messageObject);
+			monitoringController.updateStatus(connector, Status.PROCESSING, Priority.HIGH);
 			try {
 				if (!client.changeWorkingDirectory(uri.getPath())) {
+					monitoringController.updateStatus(connector, Status.DISCONNECTED, Priority.HIGH);
 					throw new IOException("Ftp error: " + client.getReplyCode() + client.getReplyString());
 				}
 			} catch (Exception exception) {
-				connector.destroyFtp(uri, client);
-				client = connector.getFtp(uri);
+				connector.destroyFtp(uri, client, messageObject);
+				client = connector.getFtp(uri, messageObject);
 				if (!client.changeWorkingDirectory(uri.getPath())) {
+					monitoringController.updateStatus(connector, Status.DISCONNECTED, Priority.HIGH);
 					throw new IOException("Ftp error: " + client.getReplyCode() + client.getReplyString());
 				}
 			}
@@ -122,63 +132,17 @@ public class FtpMessageDispatcher extends AbstractMessageDispatcher {
 				alertController.sendAlerts(((FtpConnector) connector).getChannelId(), Constants.ERROR_405, "Error writing to FTP", e);
 				messageObjectController.setError(messageObject, Constants.ERROR_405, "Error writing to FTP", e);
 			}
+			monitoringController.updateStatus(connector, Status.DISCONNECTED, Priority.HIGH);
 			connector.handleException(e);
 		} finally {
 			try {
-				connector.releaseFtp(uri, client);
+				connector.releaseFtp(uri, client, messageObject);
 			} catch (Exception e) {
 				logger.debug("Could not release FTP connection.", e);
-				connector.destroyFtp(uri, client);
+				connector.destroyFtp(uri, client, messageObject);
 			}
-		}
-	}
-
-	public UMOMessage receive(UMOEndpointURI endpointUri, long timeout) throws Exception {
-		FTPClient client = null;
-
-		try {
-			client = connector.getFtp(endpointUri);
-
-			if (!client.changeWorkingDirectory(endpointUri.getPath())) {
-				throw new IOException("Ftp error: " + client.getReplyCode());
-			}
-
-			FilenameFilter filenameFilter = null;
-			String filter = (String) endpointUri.getParams().get("filter");
-			if (filter != null) {
-				filter = URLDecoder.decode(filter, MuleManager.getConfiguration().getEncoding());
-				filenameFilter = new FilenameWildcardFilter(filter);
-			}
-			FTPFile[] files = client.listFiles();
-			if (!FTPReply.isPositiveCompletion(client.getReplyCode())) {
-				throw new IOException("Ftp error: " + client.getReplyCode());
-			}
-			if (files == null || files.length == 0) {
-				return null;
-			}
-			List fileList = new ArrayList();
-			for (int i = 0; i < files.length; i++) {
-				if (files[i].isFile()) {
-					if (filenameFilter == null || filenameFilter.accept(null, files[i].getName())) {
-						fileList.add(files[i]);
-						// only read the first one
-						break;
-					}
-				}
-			}
-			if (fileList.size() == 0)
-				return null;
-
-			FTPFile file = (FTPFile) fileList.get(0);
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			if (!client.retrieveFile(file.getName(), baos)) {
-				throw new IOException("Ftp error: " + client.getReplyCode());
-			}
-			return new MuleMessage(connector.getMessageAdapter(baos.toByteArray()));
-
-		} finally {
-			connector.releaseFtp(endpointUri, client);
-		}
+			monitoringController.updateStatus(connector, Status.IDLE);
+		} 
 	}
 
 	public UMOMessage doSend(UMOEvent event) throws Exception {
@@ -200,6 +164,11 @@ public class FtpMessageDispatcher extends AbstractMessageDispatcher {
 		} else {
 			return connector.getFilenameParser().getFilename(event.getMessage(), pattern);
 		}
+	}
+
+	public UMOMessage receive(UMOEndpointURI endpointUri, long timeout) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

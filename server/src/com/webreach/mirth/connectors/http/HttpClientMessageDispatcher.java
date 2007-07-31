@@ -57,6 +57,8 @@ import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
+import com.webreach.mirth.server.controllers.MonitoringController;
+import com.webreach.mirth.server.controllers.MonitoringController.Status;
 import com.webreach.mirth.server.util.VMRouter;
 
 /**
@@ -72,7 +74,8 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher {
 	private UMOTransformer receiveTransformer;
 	private MessageObjectController messageObjectController = MessageObjectController.getInstance();
 	private AlertController alertController = AlertController.getInstance();
-	
+	private MonitoringController monitoringController = MonitoringController.getInstance();
+	private TemplateValueReplacer replacer = new TemplateValueReplacer();
 	public HttpClientMessageDispatcher(HttpConnector connector) {
 		super(connector);
 		this.connector = connector;
@@ -82,6 +85,7 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher {
 		if (connector.getProxyUsername() != null) {
 			state.setProxyCredentials(new AuthScope(null, -1, null, null), new UsernamePasswordCredentials(connector.getProxyUsername(), connector.getProxyPassword()));
 		}
+		monitoringController.updateStatus(connector, Status.IDLE);
 	}
 
 	/*
@@ -136,6 +140,7 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher {
 	 *      org.mule.umo.UMOEvent)
 	 */
 	public UMOMessage receive(UMOEndpointURI endpointUri, long timeout) throws Exception {
+		monitoringController.updateStatus(connector, Status.PROCESSING);
 		if (endpointUri == null)
 			return null;
 
@@ -171,13 +176,16 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher {
 		} finally {
 			if (httpMethod != null)
 				httpMethod.releaseConnection();
+			monitoringController.updateStatus(connector, Status.IDLE);
 		}
 	}
 
 	protected HttpMethod execute(UMOEvent event, boolean closeConnection, MessageObject messageObject) throws Exception {
-		TemplateValueReplacer replacer = new TemplateValueReplacer();
+		
+		
 		String method = (String) event.getProperty(HttpConnector.HTTP_METHOD_PROPERTY, HttpConstants.METHOD_POST);
-		URI uri = event.getEndpoint().getEndpointURI().getUri();
+		URI uri = new URI(replacer.replaceURLValues(event.getEndpoint().getEndpointURI().toString()	, messageObject));
+		
 		HttpMethod httpMethod = null;
 
 		Map requestVariables = connector.getRequestVariables();
@@ -292,6 +300,7 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher {
 	 * @see org.mule.umo.provider.UMOConnector#send(org.mule.umo.UMOEvent)
 	 */
 	public UMOMessage doSend(UMOEvent event) throws Exception {
+		monitoringController.updateStatus(connector, Status.PROCESSING);
 		MessageObject messageObject = messageObjectController.getMessageObjectFromEvent(event);
 		if (messageObject == null) {
 			return null;
@@ -348,6 +357,7 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher {
 		} finally {
 			if (httpMethod != null)
 				httpMethod.releaseConnection();
+			monitoringController.updateStatus(connector, Status.IDLE);
 		}
 	}
 

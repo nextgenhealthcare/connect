@@ -84,6 +84,10 @@ import com.webreach.mirth.util.PropertyVerifier;
  * 
  */
 public class ConfigurationController {
+	private static final String POSTPROCESSOR = "Postprocessor";
+	private static final String PREPROCESSOR = "Preprocessor";
+	private static final String SHUTDOWN = "Shutdown";
+	private static final String DEPLOY = "Deploy";
 	private Logger logger = Logger.getLogger(this.getClass());
 	private SystemLogger systemLogger = SystemLogger.getInstance();
 	public static String mirthHomeDir = new File(ClassPathResource.getResourceURI("mirth.properties")).getParentFile().getParent();
@@ -285,6 +289,18 @@ public class ConfigurationController {
 
 		systemLogger.logSystemEvent(new SystemEvent("Channels deployed."));
 	}
+	public void compileGlobalScripts(){
+		try {
+			JavaScriptUtil.getInstance().compileScript(DEPLOY, scriptController.getScript(DEPLOY));
+			JavaScriptUtil.getInstance().compileScript(SHUTDOWN, scriptController.getScript(SHUTDOWN));
+			JavaScriptUtil.getInstance().compileScript(PREPROCESSOR, scriptController.getScript(PREPROCESSOR));
+			JavaScriptUtil.getInstance().compileScript(POSTPROCESSOR, scriptController.getScript(POSTPROCESSOR));
+		} catch (ControllerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
 
 	public void compileScripts(List<Channel> channels) throws ControllerException {
 		Map<String, String> globalScripts = getGlobalScripts();
@@ -292,8 +308,8 @@ public class ConfigurationController {
 		Iterator i = globalScripts.entrySet().iterator();
 		while (i.hasNext()) {
 			Entry entry = (Entry) i.next();
-			if (!(entry.getKey().toString().equals("Preprocessor") && globalScripts.get(entry.getKey()).equals("// Modify the message variable below to pre process data\r\n// This script applies across all channels\r\nreturn message;")) &&
-                    !(entry.getKey().toString().equals("Postprocessor")&& globalScripts.get(entry.getKey()).equals("// This script executes once after a message has been processed\r\n// This script applies across all channels\r\nreturn message;")))
+			if (!(entry.getKey().toString().equals(PREPROCESSOR) && globalScripts.get(entry.getKey()).equals("// Modify the message variable below to pre process data\r\n// This script applies across all channels\r\nreturn message;")) &&
+                    !(entry.getKey().toString().equals(POSTPROCESSOR)&& globalScripts.get(entry.getKey()).equals("// This script executes once after a message has been processed\r\n// This script applies across all channels\r\nreturn message;")))
 				JavaScriptUtil.getInstance().compileScript(entry.getKey().toString(), globalScripts.get(entry.getKey()));
 		}
 
@@ -310,24 +326,24 @@ public class ConfigurationController {
 
 	public void executeChannelDeployScripts(List<Channel> channels) {
 		for (Channel channel : channels) {
-			String scriptType = "Deploy";
+			String scriptType = DEPLOY;
 			JavaScriptUtil.getInstance().executeScript(channel.getId() + "_" + scriptType, scriptType, channel.getId());
 		}
 	}
 
 	public void executeChannelShutdownScripts(List<Channel> channels) {
 		for (Channel channel : channels) {
-			String scriptType = "Shutdown";
+			String scriptType = SHUTDOWN;
 			JavaScriptUtil.getInstance().executeScript(channel.getId() + "_" + scriptType, scriptType, channel.getId());
 		}
 	}
 
 	public void executeGlobalDeployScript() {
-		executeGlobalScript("Deploy");
+		executeGlobalScript(DEPLOY);
 	}
 
 	public void executeGlobalShutdownScript() {
-		executeGlobalScript("Shutdown");
+		executeGlobalScript(SHUTDOWN);
 	}
 
 	public void executeGlobalScript(String scriptType) {
@@ -337,10 +353,10 @@ public class ConfigurationController {
 	public Map<String, String> getGlobalScripts() throws ControllerException {
 		Map<String, String> scripts = new HashMap<String, String>();
 
-		String deployScript = scriptController.getScript("Deploy");
-		String shutdownScript = scriptController.getScript("Shutdown");
-		String preprocessorScript = scriptController.getScript("Preprocessor");
-        String postprocessorScript = scriptController.getScript("Postprocessor");
+		String deployScript = scriptController.getScript(DEPLOY);
+		String shutdownScript = scriptController.getScript(SHUTDOWN);
+		String preprocessorScript = scriptController.getScript(PREPROCESSOR);
+        String postprocessorScript = scriptController.getScript(POSTPROCESSOR);
 
 		if (deployScript == null)
 			deployScript = "// This script executes once when the mule engine is started\r\n// You only have access to the globalMap here to persist data\r\nreturn;";
@@ -354,10 +370,10 @@ public class ConfigurationController {
         if (postprocessorScript == null)
             postprocessorScript = "// This script executes once after a message has been processed\r\n// This script applies across all channels\r\nreturn message;";
 
-		scripts.put("Deploy", deployScript);
-		scripts.put("Shutdown", shutdownScript);
-		scripts.put("Preprocessor", preprocessorScript);
-        scripts.put("Postprocessor", postprocessorScript);
+		scripts.put(DEPLOY, deployScript);
+		scripts.put(SHUTDOWN, shutdownScript);
+		scripts.put(PREPROCESSOR, preprocessorScript);
+        scripts.put(POSTPROCESSOR, postprocessorScript);
 
 		return scripts;
 	}

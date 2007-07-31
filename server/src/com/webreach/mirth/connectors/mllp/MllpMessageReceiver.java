@@ -41,6 +41,7 @@ import org.mule.impl.MuleMessage;
 import org.mule.impl.ResponseOutputStream;
 import org.mule.providers.AbstractMessageReceiver;
 import org.mule.providers.ConnectException;
+import org.mule.providers.TemplateValueReplacer;
 import org.mule.umo.MessagingException;
 import org.mule.umo.UMOComponent;
 import org.mule.umo.UMOMessage;
@@ -62,6 +63,10 @@ import com.webreach.mirth.model.converters.ER7Serializer;
 import com.webreach.mirth.model.converters.SerializerFactory;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
+import com.webreach.mirth.server.controllers.MonitoringController;
+import com.webreach.mirth.server.controllers.MonitoringController.Priority;
+import com.webreach.mirth.server.controllers.MonitoringController.Status;
+import com.webreach.mirth.server.mule.transformers.JavaScriptPostprocessor;
 import com.webreach.mirth.server.util.BatchMessageProcessor;
 import com.webreach.mirth.server.util.StackTracePrinter;
 import com.webreach.mirth.util.ACKGenerator;
@@ -89,7 +94,9 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 	private MllpConnector connector;
 	private AlertController alertController = AlertController.getInstance();
 	private TcpWorker work;
-
+	private MonitoringController monitoringController = MonitoringController.getInstance();
+	private JavaScriptPostprocessor postProcessor = new JavaScriptPostprocessor();
+	private TemplateValueReplacer replacer = new TemplateValueReplacer();
 	public MllpMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint) throws InitialisationException {
 		super(connector, component, endpoint);
 		MllpConnector tcpConnector = (MllpConnector) connector;
@@ -106,6 +113,7 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 			END_OF_RECORD = tcpConnector.getRecordSeparator().charAt(0);
 			END_OF_SEGMENT = tcpConnector.getSegmentEnd().charAt(0);
 		}
+		monitoringController.updateStatus(connector, Status.IDLE);
 	}
 
 	public void doConnect() throws ConnectException {
@@ -114,6 +122,7 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 			URI uri = endpoint.getEndpointURI().getUri();
 			try {
 				serverSocket = createServerSocket(uri);
+				monitoringController.updateStatus(connector, Status.WAITING_FOR_CONNECTION);
 			} catch (Exception e) {
 				throw new org.mule.providers.ConnectException(new Message("tcp", 1, uri), e, this);
 			}
@@ -175,6 +184,7 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 				if (connector.isServerMode()) {
 					try {
 						socket = serverSocket.accept();
+						monitoringController.updateStatus(connector, Status.CONNECTED, Priority.HIGH, socket.toString());
 						logger.trace("Server socket Accepted on: " + serverSocket.getLocalPort());
 					} catch (java.io.InterruptedIOException iie) {
 						logger.debug("Interupted IO doing serverSocket.accept: " + iie.getMessage());
@@ -192,6 +202,7 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 					try {
 						clientSocket = createClientSocket(uri);
 						socket = clientSocket;
+						monitoringController.updateStatus(connector, Status.CONNECTED, Priority.HIGH, socket.toString());
 						logger.trace("Server socket Accepted on: " + clientSocket.getLocalPort());
 					} catch (Exception e) {
 						try {
@@ -230,14 +241,17 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 		try {
 			if (connector.isServerMode()) {
 				if (serverSocket != null && !serverSocket.isClosed()) {
+					monitoringController.updateStatus(connector, Status.DISCONNECTED, Priority.HIGH, serverSocket.toString());
 					serverSocket.close();
 				}
 				serverSocket = null;
 				if (work != null) {
 					work.dispose();
 				}
+				
 			} else {
 				if (clientSocket != null && !clientSocket.isClosed()) {
+					monitoringController.updateStatus(connector, Status.DISCONNECTED, Priority.HIGH, clientSocket.toString());
 					clientSocket.close();
 				}
 				clientSocket = null;
@@ -246,8 +260,9 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 				}
 			}
 		} catch (Exception e) {
+			monitoringController.updateStatus(connector, Status.DISCONNECTED, Priority.HIGH);
 			logger.error(new DisposeException(new Message("tcp", 2), e));
-		}
+		} 
 		logger.info("Closed Tcp port");
 	}
 
@@ -317,9 +332,10 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 					byte[] b;
 					try {
 						b = protocol.read(dataIn);
-
+						monitoringController.updateStatus(connector, Status.PROCESSING, Priority.NORMAL, socket.toString());
 						// end of stream
 						if (b == null) {
+							monitoringController.updateStatus(connector, Status.DISCONNECTED, Priority.HIGH, socket.toString());
 							break;
 						} else {
 							if (connector.isWaitForEndOfMessageCharacter()) {
@@ -329,6 +345,7 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 							}
 							dataOut.flush();
 						}
+						monitoringController.updateStatus(connector, Status.CONNECTED, Priority.HIGH, socket.toString());
 					} catch (SocketTimeoutException e) {
 						if (!socket.getKeepAlive()) {
 							break;
@@ -338,6 +355,7 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 			} catch (Exception e) {
 				handleException(e);
 			} finally {
+				monitoringController.updateStatus(connector, Status.WAITING_FOR_CONNECTION, Priority.HIGH);
 				dispose();
 			}
 		}
@@ -427,6 +445,7 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 					Object payload = returnMessage.getPayload();
 					if (payload instanceof MessageObject) {
 						MessageObject messageObjectResponse = (MessageObject) payload;
+						messageObjectResponse = postProcessor.doPostProcess(messageObjectResponse);
 						Map responseMap = messageObjectResponse.getResponseMap();
 						String errorString = "";
 
@@ -450,14 +469,14 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 									errorString = messageObjectResponse.getErrors();
 								}
 							}
-							generateACK(data, os, messageObjectResponse.getStatus(), errorString);
+							generateACK(data, os, messageObjectResponse.getStatus(), errorString, messageObjectResponse);
 						}
 					}
 				} else {
-					generateACK(data, os, MessageObject.Status.RECEIVED, new String());
+					generateACK(data, os, MessageObject.Status.RECEIVED, new String(), null);
 				}
 			} catch (Exception e) {
-				generateACK(data, os, MessageObject.Status.ERROR, e.getMessage());
+				generateACK(data, os, MessageObject.Status.ERROR, e.getMessage(), null);
 				throw e;
 			} finally {
 				// Let the dispatcher take care of closing the socket +
@@ -483,7 +502,7 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 			return new Socket(inetAddress, port);
 		}
 
-		private void generateACK(String message, OutputStream os, MessageObject.Status status, String error) throws Exception, IOException {
+		private void generateACK(String message, OutputStream os, MessageObject.Status status, String error, MessageObject messageObject) throws Exception, IOException {
 			boolean errorOnly = false;
 			boolean always = false;
 			boolean successOnly = false;
@@ -539,12 +558,17 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 					ackCode = connector.getAckCodeSuccessful();
 					textMessage = connector.getAckMsgSuccessful();
 				}
+				//MIRTH-435
+				if (textMessage.indexOf('$') > -1){
+					textMessage = replacer.replaceValues(textMessage, messageObject);
+				}
 				String ACK = new ACKGenerator().generateAckResponse(message.trim(), ackCode, textMessage);
 
 				logger.debug("Sending ACK: " + ACK);
 				try {
 					if (connector.isAckOnNewConnection()) {
 						String endpointURI = connector.getAckIP() + ":" + connector.getAckPort();
+						endpointURI = replacer.replaceURLValues(endpointURI, messageObject);
 						Socket socket = initSocket("mllp://" + endpointURI);
 						BufferedOutputStream bos = new BufferedOutputStream(socket.getOutputStream());
 						protocol.write(bos, ACK.getBytes((connector).getCharsetEncoding()));

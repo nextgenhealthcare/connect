@@ -23,6 +23,7 @@ import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
 import java.util.Iterator;
 
 import org.apache.commons.logging.Log;
@@ -43,6 +44,8 @@ import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
+import com.webreach.mirth.server.controllers.MonitoringController;
+import com.webreach.mirth.server.controllers.MonitoringController.Status;
 import com.webreach.mirth.server.util.BatchMessageProcessor;
 import com.webreach.mirth.server.util.VMRouter;
 
@@ -78,10 +81,12 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher {
 	private MessageObjectController messageObjectController = MessageObjectController.getInstance();
 	private AlertController alertController = AlertController.getInstance();
 	private TemplateValueReplacer replacer = new TemplateValueReplacer();
-
+	private MonitoringController monitoringController = MonitoringController.getInstance();
+	private URLDecoder decoder = new URLDecoder();
 	public MllpMessageDispatcher(MllpConnector connector) {
 		super(connector);
 		this.connector = connector;
+		monitoringController.updateStatus(connector, Status.IDLE);
 	}
 
 	// ast: set queues
@@ -148,11 +153,14 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher {
 				while (!success && !disposed && (retryCount < maxRetries)) {
 					retryCount++;
 					try {
-						socket = initSocket(event.getEndpoint().getEndpointURI().getAddress());
+						String host = replacer.replaceURLValues(event.getEndpoint().getEndpointURI().toString(), messageObject);
+						socket = initSocket(host);
+						monitoringController.updateStatus(connector, Status.PROCESSING);
 						writeTemplatedData(socket, messageObject);
 						success = true;
 					} catch (Exception exs) {
 						if (retryCount < maxRetries) {
+							monitoringController.updateStatus(connector, Status.RETRYING);
 							logger.warn("Can't connect to the endopint,waiting" + new Float(connector.getReconnectMillisecs() / 1000) + "seconds for reconnecting \r\n(" + exs + ")");
 							try {
 								Thread.sleep(connector.getReconnectMillisecs());
@@ -176,7 +184,9 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher {
 			alertController.sendAlerts(((MllpConnector) connector).getChannelId(), Constants.ERROR_408, null, exu);
 			logger.error("Unknown exception dispatching " + exu);
 			exceptionWriting = exu;
-		} 
+		} finally {
+			monitoringController.updateStatus(connector, Status.IDLE);
+		}
 		if (!success) {
 			messageObjectController.setError(messageObject, Constants.ERROR_408, exceptionMessage, exceptionWriting);
             alertController.sendAlerts(((MllpConnector) connector).getChannelId(), Constants.ERROR_408, exceptionMessage, exceptionWriting);
@@ -223,6 +233,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher {
 	// ast: sendPayload is called from the doSend method, or from
 	// MessageResponseQueued
 	public boolean sendPayload(MessageObject data, UMOEndpoint endpoint) throws Exception {
+		monitoringController.updateStatus(connector, Status.PROCESSING);
 		Boolean result = false;
 		Exception sendException = null;
 		if (this.queue == null)
@@ -260,6 +271,8 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher {
 			}
 		} catch (Exception e) {
 			sendException = e;
+		} finally{
+			monitoringController.updateStatus(connector, Status.IDLE);
 		}
 		
 		if ((result == false) || (sendException != null)) {

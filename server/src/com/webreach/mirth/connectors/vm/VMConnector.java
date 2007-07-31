@@ -242,14 +242,4 @@ public class VMConnector extends AbstractServiceEnabledConnector
         return true;
 }
 
-	public String getStatusMode() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	public String getStatusMessage() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 }

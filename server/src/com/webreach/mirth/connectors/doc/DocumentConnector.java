@@ -77,15 +77,4 @@ public class DocumentConnector extends AbstractServiceEnabledConnector {
 	public void setChannelId(String channelId) {
 		this.channelId = channelId;
 	}
-
-	public String getStatusMode() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public String getStatusMessage() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 }

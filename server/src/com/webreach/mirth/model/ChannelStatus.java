@@ -44,7 +44,6 @@ public class ChannelStatus implements Serializable {
 	private String channelId;
 	private String name;
 	private State state;
-	private ConnectorStatus connectorStatus;
 
 	public String getChannelId() {
 		return this.channelId;
@@ -70,14 +69,6 @@ public class ChannelStatus implements Serializable {
 		this.state = state;
 	}
 
-	public ConnectorStatus getConnectorStatus() {
-		return connectorStatus;
-	}
-
-	public void setConnectorStatus(ConnectorStatus connectorStatus) {
-		this.connectorStatus = connectorStatus;
-	}
-
 	public boolean equals(Object that) {
 		if (this == that) {
 			return true;
@@ -92,7 +83,6 @@ public class ChannelStatus implements Serializable {
 		return
 			EqualsUtil.areEqual(this.getChannelId(), status.getChannelId()) &&
 			EqualsUtil.areEqual(this.getName(), status.getName()) &&
-			EqualsUtil.areEqual(this.getConnectorStatus(), status.getConnectorStatus()) &&
 			EqualsUtil.areEqual(this.getState(), status.getState());
 	}
 	
@@ -101,7 +91,6 @@ public class ChannelStatus implements Serializable {
 		builder.append(this.getClass().getName() + "[");
 		builder.append("channeldId=" + getChannelId() + ", ");
 		builder.append("name=" + getName() + ", ");
-		builder.append("connectorStatus=" + getConnectorStatus() + ", ");
 		builder.append("state=" + getState().toString());
 		builder.append("]");
 		return builder.toString();

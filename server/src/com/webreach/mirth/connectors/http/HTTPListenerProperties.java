@@ -36,9 +36,9 @@ public class HTTPListenerProperties implements ComponentProperties
     public static final String DATATYPE = "DataType";
     public static final String HTTP_ADDRESS = "host";
     public static final String HTTP_PORT = "port";
-    public static final String HTTP_RECEIVE_TIMEOUT = "receiveTimeout";
+    public static final String HTTP_RECEIVE_TIMEOUT = "keepAliveTimeout";
     public static final String HTTP_BUFFER_SIZE = "bufferSize";
-    public static final String HTTP_KEEP_CONNECTION_OPEN = "keepSendSocketOpen";
+    public static final String HTTP_KEEP_CONNECTION_OPEN = "keepAlive";
     public static final String HTTP_RESPONSE_VALUE = "responseValue";   
     public static final String HTTP_EXTENDED_PAYLOAD = "extendedPayload";
 

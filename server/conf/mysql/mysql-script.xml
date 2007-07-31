@@ -25,7 +25,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 
 	<delete id="deleteScript" parameterClass="java.lang.String">
 		DELETE FROM SCRIPT
-		WHERE ID != 'deploy' AND ID != 'shutdown' AND ID != 'preprocessor'		
+		WHERE ID != 'Deploy' AND ID != 'Shutdown' AND ID != 'Preprocessor'	AND ID != 'Postprocessor'	
 		<isNotNull prepend="AND" property="id">
 			ID=#id#
 		</isNotNull>

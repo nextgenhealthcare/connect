@@ -26,6 +26,7 @@ import org.mule.MuleException;
 import org.mule.config.i18n.Messages;
 import org.mule.impl.MuleMessage;
 import org.mule.providers.AbstractMessageDispatcher;
+import org.mule.providers.TemplateValueReplacer;
 import org.mule.transaction.IllegalTransactionStateException;
 import org.mule.umo.UMOEvent;
 import org.mule.umo.UMOException;
@@ -41,6 +42,8 @@ import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
+import com.webreach.mirth.server.controllers.MonitoringController;
+import com.webreach.mirth.server.controllers.MonitoringController.Status;
 
 import edu.emory.mathcs.backport.java.util.concurrent.TimeUnit;
 
@@ -60,10 +63,12 @@ public class JmsMessageDispatcher extends AbstractMessageDispatcher {
     private Session delegateSession;
 	private MessageObjectController messageObjectController = MessageObjectController.getInstance();
 	private AlertController alertController = AlertController.getInstance();
-	
+	private MonitoringController monitoringController = MonitoringController.getInstance();
+	private TemplateValueReplacer replacer = new TemplateValueReplacer();
     public JmsMessageDispatcher(JmsConnector connector) {
         super(connector);
         this.connector = connector;
+        monitoringController.updateStatus(connector, Status.IDLE);
     }
 
     /*
@@ -77,6 +82,7 @@ public class JmsMessageDispatcher extends AbstractMessageDispatcher {
     }
 
     private UMOMessage dispatchMessage(UMOEvent event) throws Exception {
+    	monitoringController.updateStatus(connector, Status.PROCESSING);
     	MessageObject messageObject = messageObjectController.getMessageObjectFromEvent(event);
 		if (messageObject == null) {
 			return null;
@@ -114,7 +120,7 @@ public class JmsMessageDispatcher extends AbstractMessageDispatcher {
             topic = (resourceInfo != null && "topic".equalsIgnoreCase(resourceInfo));
             //todo MULE20 remove resource info support
             if(!topic) topic = PropertiesHelper.getBooleanProperty(event.getEndpoint().getProperties(), "topic", false);
-
+            String host = replacer.replaceValues(endpointUri.toString(), messageObject);
             Destination dest = connector.getJmsSupport().createDestination(session, endpointUri.getAddress(), topic);
             producer = connector.getJmsSupport().createProducer(session, dest);
             MessageObjectToJMSMessage transformer = new MessageObjectToJMSMessage(connector);
@@ -237,6 +243,7 @@ public class JmsMessageDispatcher extends AbstractMessageDispatcher {
             if (session != null && session != txSession) {
                 JmsUtils.closeQuietly(session);
             }
+            monitoringController.updateStatus(connector, Status.IDLE);
         }
 		return null;
     }

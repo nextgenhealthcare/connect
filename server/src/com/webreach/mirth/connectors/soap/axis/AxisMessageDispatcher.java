@@ -75,6 +75,8 @@ import com.webreach.mirth.model.ws.WSParameter;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
+import com.webreach.mirth.server.controllers.MonitoringController;
+import com.webreach.mirth.server.controllers.MonitoringController.Status;
 import com.webreach.mirth.server.util.VMRouter;
 
 /**
@@ -92,6 +94,7 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher {
 	protected SimpleProvider clientConfig;
 	private MessageObjectController messageObjectController = MessageObjectController.getInstance();
 	private AlertController alertController = AlertController.getInstance();
+	private MonitoringController monitoringController = MonitoringController.getInstance();
 	public AxisMessageDispatcher(AxisConnector connector) throws UMOException {
 		super(connector);
 		AxisProperties.setProperty("axis.doAutoTypes", "true");
@@ -99,6 +102,7 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher {
 		// Should be loading this from a WSDD but for some reason it is not
 		// working for me??
 		createClientConfig();
+		monitoringController.updateStatus(connector, Status.IDLE);
 	}
 
 	public void doDispose() {
@@ -198,64 +202,67 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher {
 
 	private Object[] invokeWebService(UMOEvent event, MessageObject messageObject) throws Exception {
 		try{
-		AxisProperties.setProperty("axis.doAutoTypes", "true");
-		Object[] args = new Object[0];// getArgs(event);
-		Call call = getCall(event, args);
-		call = new Call(((AxisConnector) connector).getServiceEndpoint());
-		String requestMessage = ((AxisConnector) connector).getSoapEnvelope();
-		// Run the template replacer on the xml
-		TemplateValueReplacer replacer = new TemplateValueReplacer();
-		requestMessage = replacer.replaceValues(requestMessage, messageObject);
-		Message reqMessage = new Message(requestMessage);
-		// Only set the actionURI if we have one explicitly defined
-		if (((AxisConnector) connector).getSoapActionURI() != null && ((AxisConnector) connector).getSoapActionURI().length() > 0)
-			call.setSOAPActionURI(((AxisConnector) connector).getSoapActionURI());
-		call.setTargetEndpointAddress(((AxisConnector) connector).getServiceEndpoint());
-
-		// dont use invokeOneWay here as we are already in a thread pool.
-		// Axis creates a new thread for every invoke one way call. nasty!
-		// Mule overides the default Axis HttpSender to return immediately if
-		// the axis.one.way property is set
-		// Change this to FALSE to debug
-		
-		call.setProperty("axis.one.way", Boolean.TRUE);
-		call.setProperty(MuleProperties.MULE_EVENT_PROPERTY, event);
-		//ast: Get possible user auth info from endpoint
-		// this only resolves basic and NTLM
-		// For auth/digest protocol://user:pass@uri
-		// For NTLM protocol://domain%5Cuser:pass@uri
-		// (%5C is the urlencoding for '\')
-		UMOEndpointURI endpointUri = event.getEndpoint().getEndpointURI();
-		if (endpointUri.getUserInfo() != null) {
-			call.setProperty(Call.USERNAME_PROPERTY, endpointUri.getUsername());
-			call.setProperty(Call.PASSWORD_PROPERTY, endpointUri.getPassword());
-			logger.trace("HTTP auth sec detected: ["+endpointUri.getUsername()+"] Clave: ["+endpointUri.getPassword()+"]");			
-		}else{
-			logger.trace("No HTTP auth sec detected");
-		}
-		
-		
-		// call.invoke(args);
-		Object result = call.invoke(reqMessage);
-		AxisConnector axisConnector = (AxisConnector)connector;
-		if (axisConnector.getReplyChannelId() != null && !axisConnector.getReplyChannelId().equals("")  && !axisConnector.getReplyChannelId().equals("sink")){
-			//reply back to channel
-			VMRouter router = new VMRouter();
-			router.routeMessageByChannelId(axisConnector.getReplyChannelId(), result.toString(), true);
-		}
-		// update the message status to sent
-		
-		messageObjectController.setSuccess(messageObject, result.toString());
-		Object[] retVal = new Object[2];
-		retVal[0] = result;
-		retVal[1] = call.getMessageContext();
-		logger.debug("WS ("+endpointUri.toString()+" returned \r\n["+result+"]");
-		return retVal;
+			monitoringController.updateStatus(connector, Status.PROCESSING);
+			AxisProperties.setProperty("axis.doAutoTypes", "true");
+			Object[] args = new Object[0];// getArgs(event);
+			Call call = getCall(event, args);
+			call = new Call(((AxisConnector) connector).getServiceEndpoint());
+			String requestMessage = ((AxisConnector) connector).getSoapEnvelope();
+			// Run the template replacer on the xml
+			TemplateValueReplacer replacer = new TemplateValueReplacer();
+			requestMessage = replacer.replaceValues(requestMessage, messageObject);
+			Message reqMessage = new Message(requestMessage);
+			// Only set the actionURI if we have one explicitly defined
+			if (((AxisConnector) connector).getSoapActionURI() != null && ((AxisConnector) connector).getSoapActionURI().length() > 0)
+				call.setSOAPActionURI(((AxisConnector) connector).getSoapActionURI());
+			call.setTargetEndpointAddress(((AxisConnector) connector).getServiceEndpoint());
+	
+			// dont use invokeOneWay here as we are already in a thread pool.
+			// Axis creates a new thread for every invoke one way call. nasty!
+			// Mule overides the default Axis HttpSender to return immediately if
+			// the axis.one.way property is set
+			// Change this to FALSE to debug
+			
+			call.setProperty("axis.one.way", Boolean.TRUE);
+			call.setProperty(MuleProperties.MULE_EVENT_PROPERTY, event);
+			//ast: Get possible user auth info from endpoint
+			// this only resolves basic and NTLM
+			// For auth/digest protocol://user:pass@uri
+			// For NTLM protocol://domain%5Cuser:pass@uri
+			// (%5C is the urlencoding for '\')
+			UMOEndpointURI endpointUri = event.getEndpoint().getEndpointURI();
+			if (endpointUri.getUserInfo() != null) {
+				call.setProperty(Call.USERNAME_PROPERTY, endpointUri.getUsername());
+				call.setProperty(Call.PASSWORD_PROPERTY, endpointUri.getPassword());
+				logger.trace("HTTP auth sec detected: ["+endpointUri.getUsername()+"] Clave: ["+endpointUri.getPassword()+"]");			
+			}else{
+				logger.trace("No HTTP auth sec detected");
+			}
+			
+			
+			// call.invoke(args);
+			Object result = call.invoke(reqMessage);
+			AxisConnector axisConnector = (AxisConnector)connector;
+			if (axisConnector.getReplyChannelId() != null && !axisConnector.getReplyChannelId().equals("")  && !axisConnector.getReplyChannelId().equals("sink")){
+				//reply back to channel
+				VMRouter router = new VMRouter();
+				router.routeMessageByChannelId(axisConnector.getReplyChannelId(), result.toString(), true);
+			}
+			// update the message status to sent
+			
+			messageObjectController.setSuccess(messageObject, result.toString());
+			Object[] retVal = new Object[2];
+			retVal[0] = result;
+			retVal[1] = call.getMessageContext();
+			logger.debug("WS ("+endpointUri.toString()+" returned \r\n["+result+"]");
+			return retVal;
 		}catch(Exception e){
 			alertController.sendAlerts(messageObject.getChannelId(), Constants.ERROR_410, "Error invoking WebService", e);
 			messageObjectController.setError(messageObject, Constants.ERROR_410, "Error invoking WebService", e);
 			connector.handleException(e);
 			return null;
+		}finally{
+			monitoringController.updateStatus(connector, Status.IDLE);
 		}
 
 	}
