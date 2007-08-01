@@ -33,7 +33,7 @@
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="1" attributes="0">
                   <Component id="URL1" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel2" alignment="1" min="-2" max="-2" attributes="0"/>
@@ -43,30 +43,33 @@
                   <Component id="jLabel4" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                  <Component id="channelNames" min="-2" pref="150" max="-2" attributes="0"/>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="method" min="-2" pref="182" max="-2" attributes="1"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="rebuildEnvelope" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <Group type="102" alignment="0" attributes="1">
-                      <Group type="103" groupAlignment="1" max="-2" attributes="0">
-                          <Component id="soapActionURI" alignment="0" max="32767" attributes="1"/>
-                          <Component id="serviceEndpoint" alignment="0" max="32767" attributes="1"/>
-                          <Component id="wsdlUrl" alignment="0" pref="300" max="32767" attributes="1"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="soapEnvelope" pref="330" max="32767" attributes="2"/>
+                  <Group type="102" alignment="1" attributes="0">
+                      <Group type="103" groupAlignment="1" attributes="0">
+                          <Component id="soapActionURI" alignment="0" pref="231" max="32767" attributes="2"/>
+                          <Component id="serviceEndpoint" alignment="0" pref="231" max="32767" attributes="2"/>
+                          <Component id="wsdlUrl" alignment="1" pref="231" max="32767" attributes="2"/>
                       </Group>
-                      <EmptySpace max="32767" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
                       <Component id="getMethodsButton" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Group type="102" alignment="0" attributes="1">
-                      <Component id="jScrollPane1" min="-2" pref="202" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="propertySheetPanel1" min="0" pref="0" max="32767" attributes="0"/>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="jScrollPane1" pref="153" max="32767" attributes="0"/>
+                      <EmptySpace min="-2" max="-2" attributes="0"/>
+                      <Component id="propertySheetPanel1" pref="171" max="32767" attributes="0"/>
+                      <EmptySpace min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Component id="soapEnvelope" alignment="0" max="32767" attributes="3"/>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Group type="103" groupAlignment="1" max="-2" attributes="0">
+                          <Component id="method" alignment="0" max="32767" attributes="1"/>
+                          <Component id="channelNames" alignment="0" pref="153" max="32767" attributes="1"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="rebuildEnvelope" min="-2" pref="115" max="-2" attributes="0"/>
+                  </Group>
               </Group>
-              <EmptySpace max="32767" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -75,8 +78,8 @@
           <Group type="102" alignment="0" attributes="0">
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="URL" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="wsdlUrl" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="getMethodsButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="wsdlUrl" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
@@ -101,8 +104,8 @@
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="jScrollPane1" min="0" pref="0" max="32767" attributes="2"/>
                   <Component id="propertySheetPanel1" pref="68" max="32767" attributes="2"/>
-                  <Component id="jScrollPane1" alignment="0" min="0" pref="0" max="32767" attributes="2"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
