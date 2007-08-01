@@ -29,6 +29,7 @@ public class NCPDPSerializer  implements IXMLSerializer<String> {
 	private String groupDelim = "\u001D";
 	private String fieldDelim = "\u001C";
 	private boolean useStrictValidation = false;
+    public boolean validationError = false;
 
     public NCPDPSerializer(Map NCPDPProperties){
 		if (NCPDPProperties == null) {
@@ -99,7 +100,9 @@ public class NCPDPSerializer  implements IXMLSerializer<String> {
                 xr.setProperty("http://java.sun.com/xml/jaxp/properties/schemaSource","/ncpdp.xsd");
             }
             xr.parse(new InputSource(new StringReader(source.replaceAll("</([^>]*)>\\s+<", "</$1><"))));
-		} catch (Exception e) {
+            validationError = handler.validationError;    
+
+        } catch (Exception e) {
 			throw new SerializerException(e.getMessage());
 		}
 		return handler.getOutput().toString();
