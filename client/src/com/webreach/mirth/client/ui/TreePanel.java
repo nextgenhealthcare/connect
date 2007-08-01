@@ -54,7 +54,8 @@ import javax.swing.tree.TreeNode;
  */
 public class TreePanel extends javax.swing.JPanel
 {
-    private String version = "";
+    private static final String EMPTY = "[empty]";
+	private String version = "";
     private String type = "";
     private Logger logger = Logger.getLogger(this.getClass());
     private String _dropPrefix;
@@ -367,23 +368,33 @@ public class TreePanel extends javax.swing.JPanel
             if (el.hasChildNodes())
             {
                 text = el.getFirstChild().getNodeValue();
+                if ((text == null) || (text.equals("") || text.trim().length() == 0))
+                {
+                    currentNode.add(new MirthTreeNode(el.getNodeName()));
+                }
+                else
+                {
+                    currentNode.add(new MirthTreeNode(text));
+                }
             }
             else
             {
-                //return;
-                // text = el.getTextContent();
-                text = "[empty]";
+                //Check if we are in the format SEG.1.1
+            	if (el.getNodeName().matches(".*\\..*\\..")){
+            		//We already at the last possible child segment, so just add empty node
+            		currentNode.add(new MirthTreeNode(EMPTY));
+            	}else{
+            		//We have empty node and possibly empty children
+            		//Add the sub-node handler (SEG.1)
+	            	currentNode.add(new MirthTreeNode(el.getNodeName()));         	
+            		//Add a sub node (SEG.1.1)
+	            	MirthTreeNode parentNode = new MirthTreeNode(el.getNodeName() + ".1");
+	            	parentNode.add(new MirthTreeNode(EMPTY));
+	            	currentNode.add(parentNode);
+            	}
+                
             }
-            
-            if ((text == null) || (text.equals("") || text.trim().length() == 0))
-            {
-                currentNode.add(new MirthTreeNode(el.getNodeName()));
-            }
-            else
-            {
-                currentNode.add(new MirthTreeNode(text));
-            }
-            
+                        
             processAttributes(el, currentNode);
             
             NodeList children = el.getChildNodes();
