@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+
+<shortcuts>
+  <skipIfNotSupported />
+  <programGroup defaultName="Mirth" location="startMenu" />
+  
+  <shortcut
+    name="Start Mirth Server"
+    target="$INSTALL_PATH\Mirth.exe" 
+    workingDirectory="$INSTALL_PATH"
+    description="Start the Mirth Server"
+    initialState="normal"
+    programGroup="yes"
+    desktop="no"
+    applications="no"
+    startMenu="no"
+    startup="no">
+    <createForPack name="Core" />
+  </shortcut>
+  
+  <shortcut
+    name="Start Mirth Administrator"
+    target="javaws" 
+    commandLine="http://localhost:8080/webstart"
+    workingDirectory="$INSTALL_PATH"
+    description="Start the Mirth Administrator"
+    iconFile="$INSTALL_PATH\Mirth.ico"
+    initialState="normal"
+    programGroup="yes"
+    desktop="no"
+    applications="no"
+    startMenu="no"
+    startup="no">
+    <createForPack name="Core" />
+  </shortcut>
+  
+  <shortcut
+    name="Start Mirth Shell"
+    target="$INSTALL_PATH\Shell.bat" 
+    commandLine=""
+    workingDirectory="$INSTALL_PATH"
+    description="Start Mirth Shell"
+    initialState="normal"
+    programGroup="yes"
+    desktop="no"
+    applications="no"
+    startMenu="no"
+    startup="no">
+    <createForPack name="Shell" />
+  </shortcut>
+
+  <shortcut
+    name="Start Mirth Server Manager"
+    target="$INSTALL_PATH\Mirth Manager.exe" 
+    workingDirectory="$INSTALL_PATH"
+    description="Start the Mirth Server Manager"
+    initialState="normal"
+    programGroup="yes"
+    desktop="no"
+    applications="no"
+    startMenu="no"
+    startup="no">
+    <createForPack name="Manager" />
+  </shortcut>
+
+</shortcuts>

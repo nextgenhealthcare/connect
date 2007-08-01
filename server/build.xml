@@ -1,23 +1,20 @@
 <project name="mirth" basedir="." default="help">
-	<taskdef name="nsis" classname="net.sf.nsisant.Task">
-    <classpath location="nsisant-1.2.jar" />
-  </taskdef>
-
 	<target name="help">
 		<echo>Mirth Build Help</echo>
 		<echo>----------------</echo>
 	</target>
 
 	<target name="init">
+    <property file="build.properties" />
 		<echo>Version: ${version}</echo>
-
-		<property file="build.properties" />
-
 		<path id="classpath">
 			<fileset dir="${lib}" includes="*.jar" />
 			<fileset dir="${lib}/mule" includes="*.jar" />
 			<fileset dir="${lib}/jetty" includes="*.jar" />
 		</path>
+		
+    <taskdef name="izpack" classpath="${installer.lib}/standalone-compiler.jar" classname="com.izforge.izpack.ant.IzPackTask" />
+    <taskdef classpath="${installer.lib}/orangevolt-ant-tasks-1.3.5.jar:${basedir}/installer/lib/roxes-win32forjava-1.0.4.jar" resource="com/orangevolt/tools/ant/taskdefs.properties" />
 	</target>
 
 	<target name="clean" depends="init">
@@ -426,8 +423,15 @@
 		<delete file="${dist}/mirth-${version}.tar" />
 
 		<!-- create the win32 distribution exe -->
-		<nsis script="windows-setup.nsi" verbosity="4">
-			<define name="VERSION" value="${version}"/>
-		</nsis>
+		<copy file="${installer}/install.xml" tofile="${installer}/install-tmp.xml"/>
+		<replace file="${installer}/install-tmp.xml" token="@version@" value="${version}" />
+		<izpack input="${installer}/install-tmp.xml" output="${dist}/install.jar" basedir="${setup}"/>
+		<zip destfile="${dist}/install.zip" basedir="${dist}" includes="install.jar" />
+    <sfx archive="${dist}/install.zip" mode="win32" execute="install.jar" output="${dist}/install-${version}.exe"/>
+    <sfx archive="${dist}/install.zip" mode="unix" execute="install.jar" output="${dist}/install-${version}"/>
+    
+    <delete file="${dist}/install.jar" />
+    <delete file="${dist}/install.zip" />
+    <delete file="${installer}/install-tmp.xml" />
 	</target>
 </project>
