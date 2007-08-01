@@ -212,18 +212,26 @@ public class ChannelSetup extends javax.swing.JPanel
     {
         String name = "";
         boolean changed = parent.changesHaveBeenMade();
-        
+        boolean transformerPaneLoaded = false;
         if (channelView.getSelectedIndex() == SOURCE_TAB_INDEX)
         {
             name = "Source";
-            transformerPane.load(currentChannel.getSourceConnector(), currentChannel.getSourceConnector().getTransformer(), changed);
+            transformerPaneLoaded = transformerPane.load(currentChannel.getSourceConnector(), currentChannel.getSourceConnector().getTransformer(), changed);
         }
         
         else if (channelView.getSelectedIndex() == DESTINATIONS_TAB_INDEX)
         {
             int destination = getDestinationConnectorIndex((String) destinationTable.getValueAt(getSelectedDestinationIndex(), getColumnNumber(DESTINATION_COLUMN_NAME)));
-            transformerPane.load(currentChannel.getDestinationConnectors().get(destination), currentChannel.getDestinationConnectors().get(destination).getTransformer(), changed);
+            transformerPaneLoaded = transformerPane.load(currentChannel.getDestinationConnectors().get(destination), currentChannel.getDestinationConnectors().get(destination).getTransformer(), changed);
             name = currentChannel.getDestinationConnectors().get(destination).getName();
+        }
+        if (!transformerPaneLoaded)
+        {
+            parent.taskPaneContainer.add(parent.getOtherPane());
+            parent.setCurrentContentPage(parent.channelEditPanel);
+            parent.setCurrentTaskPaneContainer(parent.taskPaneContainer);
+            name = "Edit Channel - " + parent.channelEditPanel.currentChannel.getName();            
+            parent.channelEditPanel.updateComponentShown();                
         }
         return name;
     }

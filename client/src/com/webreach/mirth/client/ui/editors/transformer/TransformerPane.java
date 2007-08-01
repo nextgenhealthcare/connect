@@ -190,7 +190,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
     /**
      * load( Transformer t ) now that the components have been initialized...
      */
-    public void load(Connector c, Transformer t, boolean channelHasBeenChanged)
+    public boolean load(Connector c, Transformer t, boolean channelHasBeenChanged)
     {
     	
         prevSelRow = -1;
@@ -200,20 +200,24 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
         
         makeTransformerTable();
         
-        parent.setCurrentContentPage((JPanel) this);
-        
-        tabTemplatePanel.setDefaultComponent();
-        tabTemplatePanel.tabPanel.add("Outgoing Data", tabTemplatePanel.outgoingTab);
-        
         // add any existing steps to the model
         List<Step> list = transformer.getSteps();
         ListIterator<Step> li = list.listIterator();
         while (li.hasNext())
         {
             Step s = li.next();
+            if (!loadedPlugins.containsKey(s.getType())){
+            	parent.alertError("Unable to load transformer step plugin \"" + s.getType() + "\"\r\nPlease install plugin and try again.");
+            	return false;
+            }
             int row = s.getSequenceNumber();
             setRowData(s, row);
         }
+        
+        parent.setCurrentContentPage((JPanel) this);
+        
+        tabTemplatePanel.setDefaultComponent();
+        tabTemplatePanel.tabPanel.add("Outgoing Data", tabTemplatePanel.outgoingTab);
         // select the first row if there is one
         int rowCount = transformerTableModel.getRowCount();
         if (rowCount > 0)
@@ -271,6 +275,8 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
             modified = true;
         else
             modified = false;
+        
+        return true;
     }
    
 
@@ -987,7 +993,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
                 outgoingProtocol = protocol;
             }
         }
-
+        Transformer previousTransformer = connector.getTransformer();
         ObjectXMLSerializer serializer = new ObjectXMLSerializer();
         try
         {
@@ -996,7 +1002,10 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
             prevSelRow = -1;
             modified = true;
             connector.setTransformer(importTransformer);
-            load(connector, importTransformer, modified);
+            if (!load(connector, importTransformer, modified)){
+            	connector.setTransformer(previousTransformer);
+            	load(connector, previousTransformer, modified);
+            }
         }
         catch (Exception e)
         {

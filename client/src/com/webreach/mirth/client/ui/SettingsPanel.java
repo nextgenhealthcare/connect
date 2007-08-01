@@ -496,9 +496,9 @@ public class SettingsPanel extends javax.swing.JPanel
             else if (option == JOptionPane.CANCEL_OPTION || option == JOptionPane.CLOSED_OPTION)
                 return;
         }
-        
+        String backupDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
         JFileChooser backupFileChooser = new JFileChooser();
-        backupFileChooser.setSelectedFile(new File(""));
+        backupFileChooser.setSelectedFile(new File(backupDate.substring(0,10) + " Mirth Backup.xml"));
         backupFileChooser.setFileFilter(new MirthFileFilter("XML"));
         
         File currentDir = new File(userPreferences.get("currentDirectory", ""));
@@ -522,7 +522,7 @@ public class SettingsPanel extends javax.swing.JPanel
                 parent.alertException(e.getStackTrace(), e.getMessage());
                 return;
             }
-            String backupDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+            
             configuration.setDate(backupDate);
             String backupXML = serializer.toXML(configuration);
             backupFile = backupFileChooser.getSelectedFile();

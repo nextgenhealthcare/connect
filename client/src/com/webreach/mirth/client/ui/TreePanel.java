@@ -63,6 +63,7 @@ public class TreePanel extends javax.swing.JPanel
     private String messageName;
     private MessageVocabulary vocabulary;
     private Timer timer;
+    private MessageVocabularyFactory vocabFactory;
     
     /**
      * Creates new form TreePanel
@@ -205,9 +206,9 @@ public class TreePanel extends javax.swing.JPanel
                     version = metadata.get("version");
                     type = metadata.get("type");
                     messageName =  type + " (" + version + ")";
-                    vocabulary = new MessageVocabularyFactory().getVocabulary(protocol, version, type);
-                    if (vocabulary != null);
+                    vocabulary = vocabFactory.getInstance(PlatformUI.MIRTH_FRAME.mirthClient).getVocabulary(protocol, version, type);
                     messageDescription = vocabulary.getDescription(type.replaceAll("-", ""));
+                    
                 }
             }
             catch (Exception e)
@@ -364,6 +365,7 @@ public class TreePanel extends javax.swing.JPanel
                 currentNode = new MirthTreeNode(el.getNodeName() + " (" + description + ")");
             else
                 currentNode = new MirthTreeNode(el.getNodeName());
+            
             String text = "";
             if (el.hasChildNodes())
             {
@@ -388,7 +390,14 @@ public class TreePanel extends javax.swing.JPanel
             		//Add the sub-node handler (SEG.1)
 	            	currentNode.add(new MirthTreeNode(el.getNodeName()));         	
             		//Add a sub node (SEG.1.1)
-	            	MirthTreeNode parentNode = new MirthTreeNode(el.getNodeName() + ".1");
+	            	String newNodeName = el.getNodeName() + ".1";
+	            	description = vocabulary.getDescription(newNodeName);
+	            	MirthTreeNode parentNode;
+	            	if (description != null && description.length() > 0){
+	            		parentNode = new MirthTreeNode(newNodeName + " (" + description + ")");
+	            	}else{
+	            		parentNode = new MirthTreeNode(newNodeName);
+	            	}
 	            	parentNode.add(new MirthTreeNode(EMPTY));
 	            	currentNode.add(parentNode);
             	}
