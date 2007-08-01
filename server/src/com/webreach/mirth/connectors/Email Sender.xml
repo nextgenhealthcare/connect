@@ -8,7 +8,7 @@
   <serverClassName>com.webreach.mirth.connectors.email.SmtpConnector</serverClassName>
   <sharedClassName>com.webreach.mirth.connectors.email.EmailSenderProperties</sharedClassName>
   <transformers></transformers>
-  <protocol>email</protocol>
+  <protocol>smtp</protocol>
   <type>SENDER</type>
   <enabled>true</enabled>
   <mule-properties>
