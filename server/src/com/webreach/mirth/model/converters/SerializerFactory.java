@@ -67,4 +67,12 @@ public class SerializerFactory {
         properties.put("fieldDelimiter", fieldDelim);
         return new NCPDPSerializer(properties);
     }
+    public static NCPDPSerializer getNCPDPSerializer(String segmentDelim, String groupDelim, String fieldDelim, boolean useStrictValidation) {
+        Properties properties = new Properties();
+        properties.put("segmentDelimiter", segmentDelim);
+        properties.put("groupDelimiter", groupDelim);
+        properties.put("fieldDelimiter", fieldDelim);
+		properties.put("useStrictValidation", Boolean.toString(useStrictValidation));
+        return new NCPDPSerializer(properties);
+    }
 }
