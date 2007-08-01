@@ -130,7 +130,7 @@ public class SettingsPanel extends javax.swing.JPanel
         setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         clientSettings.setBackground(new java.awt.Color(255, 255, 255));
         clientSettings.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createMatteBorder(1, 0, 0, 0, new java.awt.Color(153, 153, 153)), "Client", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11), new java.awt.Color(0, 0, 0)));
-        jLabel6.setText("Status refresh interval (seconds):");
+        jLabel6.setText("Dashboard refresh interval (seconds):");
 
         jLabel7.setText("Alternate row highlighting in tables:");
 
@@ -147,7 +147,7 @@ public class SettingsPanel extends javax.swing.JPanel
         rowHighlightNo.setText("No");
         rowHighlightNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-        jLabel3.setText("Message Browser Page Size:");
+        jLabel3.setText("Message Browser page size:");
 
         org.jdesktop.layout.GroupLayout clientSettingsLayout = new org.jdesktop.layout.GroupLayout(clientSettings);
         clientSettings.setLayout(clientSettingsLayout);
@@ -167,7 +167,7 @@ public class SettingsPanel extends javax.swing.JPanel
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(rowHighlightNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                     .add(intervalTime, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 78, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(439, Short.MAX_VALUE))
+                .addContainerGap(426, Short.MAX_VALUE))
         );
         clientSettingsLayout.setVerticalGroup(
             clientSettingsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -189,7 +189,7 @@ public class SettingsPanel extends javax.swing.JPanel
 
         serverSettings.setBackground(new java.awt.Color(255, 255, 255));
         serverSettings.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createMatteBorder(1, 0, 0, 0, new java.awt.Color(153, 153, 153)), "Server", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11), new java.awt.Color(0, 0, 0)));
-        jLabel2.setText("Clear Global Map on Deploy:");
+        jLabel2.setText("Clear global map on deploy:");
 
         clearGlobalMapYes.setBackground(new java.awt.Color(255, 255, 255));
         clearGlobalMapYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -229,7 +229,7 @@ public class SettingsPanel extends javax.swing.JPanel
                 .add(clearGlobalMapYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(clearGlobalMapNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(480, Short.MAX_VALUE))
+                .addContainerGap(482, Short.MAX_VALUE))
         );
         serverSettingsLayout.setVerticalGroup(
             serverSettingsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -278,7 +278,7 @@ public class SettingsPanel extends javax.swing.JPanel
 
         jLabel12.setText("Require Authentication:");
 
-        jLabel1.setText("Default From Address:");
+        jLabel1.setText("Default from Address:");
 
         jLabel11.setText("SMTP Port:");
 
@@ -364,7 +364,7 @@ public class SettingsPanel extends javax.swing.JPanel
             }
         });
 
-        jLabel4.setText("Last Configuration Backup:");
+        jLabel4.setText("Last configuration backup:");
 
         lastBackup.setText("None");
 
@@ -383,7 +383,7 @@ public class SettingsPanel extends javax.swing.JPanel
                         .add(jLabel4)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(lastBackup)))
-                .addContainerGap(531, Short.MAX_VALUE))
+                .addContainerGap(533, Short.MAX_VALUE))
         );
         backupPanelLayout.setVerticalGroup(
             backupPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)

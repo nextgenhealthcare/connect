@@ -35,21 +35,31 @@ public class PluginManagerClient extends ClientPanelPlugin
         
         getTaskPane().setTitle("Manager Tasks");
         setComponent(new PluginManagerPanel(this));
-        addTask("doCheckForUpdates", "Check for Updates", "Checks for updates.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/world_go.png")));
         
         addTask("doRefresh", "Refresh", "Refresh loaded plugins.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png")));
         addTask("doSave", "Save", "Save plugin settings.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/save.png")));
+        addTask("doCheckForUpdates", "Check for Updates", "Checks for updates.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/world_go.png")));
+        addTask("doEnable","Enable Extension","Enable the currently selected extension.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/start.png")));
+        addTask("doDisable","Disable Extension","Disable the currently selected extension.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/stop.png")));
         
+        setVisibleTasks(0, 2, true);
+        setVisibleTasks(3, -1, false);
         getComponent().addMouseListener(getPopupMenuMouseAdapter());
     }
-    public void doCheckForUpdates(){
-    	try {
-			new UpdateDialog(this);
-		} catch (ClientException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+    
+    public void doCheckForUpdates()
+    {
+        try
+        {
+            new UpdateDialog(this);
+        }
+        catch (ClientException e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
+    
     public void doRefresh()
     {
         setWorking("Loading plugin settings...", true);
@@ -93,6 +103,16 @@ public class PluginManagerClient extends ClientPanelPlugin
         worker.execute();
     }
     
+    public void doEnable()
+    {
+        ((PluginManagerPanel) getComponent()).enableExtension();
+    }
+    
+    public void doDisable()
+    {
+        ((PluginManagerPanel) getComponent()).disableExtension();
+    }
+    
     public void refresh()
     {
         try
@@ -131,7 +151,7 @@ public class PluginManagerClient extends ClientPanelPlugin
         }
         catch(Exception e)
         {
-            alertError("Invalid extenstion file.");
+            alertError("Invalid extension file.");
             return false;
         }
         return true;

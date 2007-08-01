@@ -9,11 +9,16 @@ package com.webreach.mirth.plugins.pluginmanager;
 import com.webreach.mirth.client.ui.*;
 import com.webreach.mirth.client.ui.components.MirthTable;
 import com.webreach.mirth.model.ConnectorMetaData;
+import com.webreach.mirth.model.MetaData;
 import com.webreach.mirth.model.PluginMetaData;
+import java.awt.Point;
 import java.io.File;
 import java.util.Map;
 import java.util.prefs.Preferences;
+import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import org.jdesktop.swingx.decorator.AlternateRowHighlighter;
 import org.jdesktop.swingx.decorator.HighlighterPipeline;
 
@@ -25,13 +30,20 @@ public class PluginManagerPanel extends javax.swing.JPanel
 {
     private PluginManagerClient parent;
     
+    private final String PLUGIN_STATUS_COLUMN_NAME = "Status";
     private final String PLUGIN_NAME_COLUMN_NAME = "Plugin Name";
     private final String PLUGIN_AUTHOR_COLUMN_NAME = "Author";
     private final String PLUGIN_URL_COLUMN_NAME = "URL";
     private final String PLUGIN_VERSION_COLUMN_NAME = "Plugin Version";
     private final String PLUGIN_MIRTH_VERSION_COLUMN_NAME = "Mirth Version";
-    private final String PLUGIN_ENABLED_COLUMN_NAME = "Enabled";
     
+    private final int PLUGIN_NAME_COLUMN_NUMBER = 1;
+    
+    private int lastConnectorRow = -1;
+    private int lastPluginRow = -1;
+    
+    private final String ENABLED_STATUS = "Enabled";
+       
     private Map<String, PluginMetaData> pluginData = null;
     private Map<String, ConnectorMetaData> connectorData = null;    
     
@@ -45,12 +57,57 @@ public class PluginManagerPanel extends javax.swing.JPanel
     }
     
     /**
+     * Gets the selected extension index that corresponds to the saved extensions
+     * list
+     */
+    public MetaData getSelectedExtension()
+    {
+        if(loadedConnectorsTable.getSelectedRowCount() > 0)
+        {
+            int selectedRow = loadedConnectorsTable.getSelectedRow();
+            
+            if (selectedRow != -1)
+            {
+                String extensionName = (String) loadedConnectorsTable.getModel().getValueAt(loadedConnectorsTable.convertRowIndexToModel(selectedRow), PLUGIN_NAME_COLUMN_NUMBER);
+                return connectorData.get(extensionName);
+            }
+        }
+        else if (loadedPluginsTable.getSelectedRowCount() > 0)
+        {
+            int selectedRow = loadedPluginsTable.getSelectedRow();
+            
+            if (selectedRow != -1)
+            {
+                String extensionName = (String) loadedPluginsTable.getModel().getValueAt(loadedPluginsTable.convertRowIndexToModel(selectedRow), PLUGIN_NAME_COLUMN_NUMBER);
+                return pluginData.get(extensionName);
+            }
+        }
+
+        return null;
+    }
+    
+    public void enableExtension()
+    {
+        getSelectedExtension().setEnabled(true);
+        updateLoadedConnectorsTable();
+        updateLoadedPluginsTable();
+    }
+    
+    public void disableExtension()
+    {
+        getSelectedExtension().setEnabled(false);
+        updateLoadedConnectorsTable();
+        updateLoadedPluginsTable();
+    }
+    
+    /**
      * Makes the loaded connectors table
      */
     public void makeLoadedConnectorsTable()
     {
         updateLoadedConnectorsTable();
         
+        loadedConnectorsTable.setSelectionMode(0);
         loadedConnectorsTable.setDragEnabled(false);
         loadedConnectorsTable.setRowSelectionAllowed(true);
         loadedConnectorsTable.setRowHeight(UIConstants.ROW_HEIGHT);
@@ -65,8 +122,10 @@ public class PluginManagerPanel extends javax.swing.JPanel
         loadedConnectorsTable.getColumnExt(PLUGIN_MIRTH_VERSION_COLUMN_NAME).setMaxWidth(75);
         loadedConnectorsTable.getColumnExt(PLUGIN_MIRTH_VERSION_COLUMN_NAME).setMinWidth(75);
         
-        loadedConnectorsTable.getColumnExt(PLUGIN_ENABLED_COLUMN_NAME).setMaxWidth(50);
-        loadedConnectorsTable.getColumnExt(PLUGIN_ENABLED_COLUMN_NAME).setMinWidth(50);
+        loadedConnectorsTable.getColumnExt(PLUGIN_STATUS_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
+        loadedConnectorsTable.getColumnExt(PLUGIN_STATUS_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
+        
+        loadedConnectorsTable.getColumnExt(PLUGIN_STATUS_COLUMN_NAME).setCellRenderer(new ImageCellRenderer());
         
         if (Preferences.systemNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
         {
@@ -74,6 +133,32 @@ public class PluginManagerPanel extends javax.swing.JPanel
             highlighter.addHighlighter(new AlternateRowHighlighter(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR, UIConstants.TITLE_TEXT_COLOR));
             loadedConnectorsTable.setHighlighters(highlighter);
         }
+        
+        loadedConnectorsTable.getSelectionModel().addListSelectionListener(new ListSelectionListener()
+        {
+            public void valueChanged(ListSelectionEvent evt)
+            {
+                ConnectorListSelected(evt);
+            }
+        });
+
+        // listen for trigger button and double click to edit channel.
+        loadedConnectorsTable.addMouseListener(new java.awt.event.MouseAdapter()
+        {
+            public void mousePressed(java.awt.event.MouseEvent evt)
+            {
+                showConnectorPopupMenu(evt, true);
+            }
+
+            public void mouseReleased(java.awt.event.MouseEvent evt)
+            {
+                showConnectorPopupMenu(evt, true);
+            }
+
+            public void mouseClicked(java.awt.event.MouseEvent evt)
+            {
+            }
+        });
         
         loadedConnectorsScrollPane.setViewportView(loadedConnectorsTable);
     }
@@ -86,10 +171,6 @@ public class PluginManagerPanel extends javax.swing.JPanel
     
     public Map<String, ConnectorMetaData> getConnectorData()
     {
-        for(int i = 0; i < loadedConnectorsTable.getRowCount(); i++)
-        {
-            connectorData.get(loadedConnectorsTable.getModel().getValueAt(i,0)).setEnabled(((Boolean)loadedConnectorsTable.getModel().getValueAt(i,5)).booleanValue());
-        }
         return this.connectorData;
     }
     
@@ -106,30 +187,33 @@ public class PluginManagerPanel extends javax.swing.JPanel
             int i = 0;
             for (ConnectorMetaData metaData : connectorData.values())
             {
-                tableData[i][0] = metaData.getName();
-                tableData[i][1] = metaData.getAuthor();
-                tableData[i][2] = metaData.getUrl();
-                tableData[i][3] = metaData.getPluginVersion();
-                tableData[i][4] = metaData.getMirthVersion();
                 if (metaData.isEnabled())
-                    tableData[i][5] = Boolean.TRUE;
+                    tableData[i][0] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_blue.png")), "Enabled");
                 else
-                    tableData[i][5] = Boolean.FALSE;
+                    tableData[i][0] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_black.png")), "Disabled");
+                
+                tableData[i][1] = metaData.getName();
+                tableData[i][2] = metaData.getAuthor();
+                tableData[i][3] = metaData.getUrl();
+                tableData[i][4] = metaData.getPluginVersion();
+                tableData[i][5] = metaData.getMirthVersion();
+                
                 i++;
             }
         }
         
         if (connectorData != null && loadedConnectorsTable != null)
         {
+            lastConnectorRow = loadedConnectorsTable.getSelectedRow();
             RefreshTableModel model = (RefreshTableModel) loadedConnectorsTable.getModel();
             model.refreshDataVector(tableData);
         }
         else
         {
             loadedConnectorsTable = new MirthTable();
-            loadedConnectorsTable.setModel(new RefreshTableModel(tableData, new String[] { PLUGIN_NAME_COLUMN_NAME, PLUGIN_AUTHOR_COLUMN_NAME, PLUGIN_URL_COLUMN_NAME, PLUGIN_VERSION_COLUMN_NAME, PLUGIN_MIRTH_VERSION_COLUMN_NAME, PLUGIN_ENABLED_COLUMN_NAME })
+            loadedConnectorsTable.setModel(new RefreshTableModel(tableData, new String[] { PLUGIN_STATUS_COLUMN_NAME, PLUGIN_NAME_COLUMN_NAME, PLUGIN_AUTHOR_COLUMN_NAME, PLUGIN_URL_COLUMN_NAME, PLUGIN_VERSION_COLUMN_NAME, PLUGIN_MIRTH_VERSION_COLUMN_NAME })
             {
-                boolean[] canEdit = new boolean[] { false, false, false, false, false, true };
+                boolean[] canEdit = new boolean[] { false, false, false, false, false, false };
                 
                 public boolean isCellEditable(int rowIndex, int columnIndex)
                 {
@@ -137,6 +221,64 @@ public class PluginManagerPanel extends javax.swing.JPanel
                 }
             });
         }
+        
+        if (lastConnectorRow >= 0 && lastConnectorRow < loadedConnectorsTable.getRowCount())
+            loadedConnectorsTable.setRowSelectionInterval(lastConnectorRow, lastConnectorRow);
+        else
+            lastConnectorRow = UIConstants.ERROR_CONSTANT;
+        
+        // Set highlighter.
+        HighlighterPipeline highlighter = new HighlighterPipeline();
+        if (Preferences.systemNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
+        {
+            highlighter.addHighlighter(new AlternateRowHighlighter(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR, UIConstants.TITLE_TEXT_COLOR));
+        }
+        loadedConnectorsTable.setHighlighters(highlighter);
+    }
+    
+    /** The action called when a connector is selected. Sets tasks as well. */
+    private void ConnectorListSelected(ListSelectionEvent evt)
+    {
+        int row = loadedConnectorsTable.getSelectedRow();
+
+        if (row >= 0 && row < loadedConnectorsTable.getRowCount())
+        {
+            loadedPluginsTable.deselectRows();
+            
+            parent.setVisibleTasks(3, -1, true);
+
+            int columnNumber = loadedConnectorsTable.getColumnNumber(PLUGIN_STATUS_COLUMN_NAME);
+            if (((CellData) loadedConnectorsTable.getValueAt(row, columnNumber)).getText().equals(ENABLED_STATUS))
+                parent.setVisibleTasks(3, 3, false);
+            else
+                parent.setVisibleTasks(4, 4, false);
+        }
+    }
+    
+     /**
+     * Show the popup menu on trigger button press (right-click). If it's on the
+     * table then the row should be selected, if not any selected rows should be
+     * deselected first.
+     */
+    private void showConnectorPopupMenu(java.awt.event.MouseEvent evt, boolean onTable)
+    {
+        if (evt.isPopupTrigger())
+        {
+            if (onTable)
+            {
+                int row = loadedConnectorsTable.rowAtPoint(new Point(evt.getX(), evt.getY()));
+                loadedConnectorsTable.setRowSelectionInterval(row, row);
+            }
+            else
+                deselectConnectorRows();
+            parent.getPopupMenu().show(evt.getComponent(), evt.getX(), evt.getY());
+        }
+    }
+    
+    public void deselectConnectorRows()
+    {
+        loadedConnectorsTable.deselectRows();
+        parent.setVisibleTasks(3, -1, false);
     }
     
     /**
@@ -147,6 +289,7 @@ public class PluginManagerPanel extends javax.swing.JPanel
     {
         updateLoadedPluginsTable();
         
+        loadedPluginsTable.setSelectionMode(0);
         loadedPluginsTable.setDragEnabled(false);
         loadedPluginsTable.setRowSelectionAllowed(true);
         loadedPluginsTable.setRowHeight(UIConstants.ROW_HEIGHT);
@@ -161,8 +304,10 @@ public class PluginManagerPanel extends javax.swing.JPanel
         loadedPluginsTable.getColumnExt(PLUGIN_MIRTH_VERSION_COLUMN_NAME).setMaxWidth(75);
         loadedPluginsTable.getColumnExt(PLUGIN_MIRTH_VERSION_COLUMN_NAME).setMinWidth(75);
         
-        loadedPluginsTable.getColumnExt(PLUGIN_ENABLED_COLUMN_NAME).setMaxWidth(50);
-        loadedPluginsTable.getColumnExt(PLUGIN_ENABLED_COLUMN_NAME).setMinWidth(50);
+        loadedPluginsTable.getColumnExt(PLUGIN_STATUS_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
+        loadedPluginsTable.getColumnExt(PLUGIN_STATUS_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
+        
+        loadedPluginsTable.getColumnExt(PLUGIN_STATUS_COLUMN_NAME).setCellRenderer(new ImageCellRenderer());
         
         if (Preferences.systemNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
         {
@@ -170,6 +315,32 @@ public class PluginManagerPanel extends javax.swing.JPanel
             highlighter.addHighlighter(new AlternateRowHighlighter(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR, UIConstants.TITLE_TEXT_COLOR));
             loadedPluginsTable.setHighlighters(highlighter);
         }
+        
+        loadedPluginsTable.getSelectionModel().addListSelectionListener(new ListSelectionListener()
+        {
+            public void valueChanged(ListSelectionEvent evt)
+            {
+                PluginListSelected(evt);
+            }
+        });
+
+        // listen for trigger button and double click to edit channel.
+        loadedPluginsTable.addMouseListener(new java.awt.event.MouseAdapter()
+        {
+            public void mousePressed(java.awt.event.MouseEvent evt)
+            {
+                showPluginPopupMenu(evt, true);
+            }
+
+            public void mouseReleased(java.awt.event.MouseEvent evt)
+            {
+                showPluginPopupMenu(evt, true);
+            }
+
+            public void mouseClicked(java.awt.event.MouseEvent evt)
+            {
+            }
+        });
         
         loadedPluginsScrollPane.setViewportView(loadedPluginsTable);
     }
@@ -182,10 +353,6 @@ public class PluginManagerPanel extends javax.swing.JPanel
     
     public Map<String, PluginMetaData> getPluginData()
     {
-        for(int i = 0; i < loadedPluginsTable.getRowCount(); i++)
-        {
-            pluginData.get(loadedPluginsTable.getModel().getValueAt(i,0)).setEnabled(((Boolean)loadedPluginsTable.getModel().getValueAt(i,5)).booleanValue());
-        }
         return this.pluginData;
     }
     
@@ -202,30 +369,33 @@ public class PluginManagerPanel extends javax.swing.JPanel
             int i = 0;
             for (PluginMetaData metaData : pluginData.values())
             {
-                tableData[i][0] = metaData.getName();
-                tableData[i][1] = metaData.getAuthor();
-                tableData[i][2] = metaData.getUrl();
-                tableData[i][3] = metaData.getPluginVersion();
-                tableData[i][4] = metaData.getMirthVersion();
                 if (metaData.isEnabled())
-                    tableData[i][5] = Boolean.TRUE;
+                    tableData[i][0] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_blue.png")), "Enabled");
                 else
-                    tableData[i][5] = Boolean.FALSE;
+                    tableData[i][0] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_black.png")), "Disabled");
+                
+                tableData[i][1] = metaData.getName();
+                tableData[i][2] = metaData.getAuthor();
+                tableData[i][3] = metaData.getUrl();
+                tableData[i][4] = metaData.getPluginVersion();
+                tableData[i][5] = metaData.getMirthVersion();
+                
                 i++;
             }
         }
         
         if (pluginData != null && loadedPluginsTable != null)
         {
+            lastPluginRow = loadedPluginsTable.getSelectedRow();
             RefreshTableModel model = (RefreshTableModel) loadedPluginsTable.getModel();
             model.refreshDataVector(tableData);
         }
         else
         {
             loadedPluginsTable = new MirthTable();
-            loadedPluginsTable.setModel(new RefreshTableModel(tableData, new String[] { PLUGIN_NAME_COLUMN_NAME, PLUGIN_AUTHOR_COLUMN_NAME, PLUGIN_URL_COLUMN_NAME, PLUGIN_VERSION_COLUMN_NAME, PLUGIN_MIRTH_VERSION_COLUMN_NAME, PLUGIN_ENABLED_COLUMN_NAME })
+            loadedPluginsTable.setModel(new RefreshTableModel(tableData, new String[] { PLUGIN_STATUS_COLUMN_NAME, PLUGIN_NAME_COLUMN_NAME, PLUGIN_AUTHOR_COLUMN_NAME, PLUGIN_URL_COLUMN_NAME, PLUGIN_VERSION_COLUMN_NAME, PLUGIN_MIRTH_VERSION_COLUMN_NAME })
             {
-                boolean[] canEdit = new boolean[] { false, false, false, false, false, true };
+                boolean[] canEdit = new boolean[] { false, false, false, false, false, false };
                 
                 public boolean isCellEditable(int rowIndex, int columnIndex)
                 {
@@ -233,6 +403,64 @@ public class PluginManagerPanel extends javax.swing.JPanel
                 }
             });
         }
+        
+        if (lastPluginRow >= 0 && lastPluginRow < loadedPluginsTable.getRowCount())
+            loadedPluginsTable.setRowSelectionInterval(lastPluginRow, lastPluginRow);
+        else
+            lastPluginRow = UIConstants.ERROR_CONSTANT;
+        
+        // Set highlighter.
+        HighlighterPipeline highlighter = new HighlighterPipeline();
+        if (Preferences.systemNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
+        {
+            highlighter.addHighlighter(new AlternateRowHighlighter(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR, UIConstants.TITLE_TEXT_COLOR));
+        }
+        loadedPluginsTable.setHighlighters(highlighter);
+    }
+    
+        /** The action called when a plugin is selected. Sets tasks as well. */
+    private void PluginListSelected(ListSelectionEvent evt)
+    {
+        int row = loadedPluginsTable.getSelectedRow();
+
+        if (row >= 0 && row < loadedPluginsTable.getRowCount())
+        {
+            loadedConnectorsTable.deselectRows();
+            
+            parent.setVisibleTasks(3, -1, true);
+
+            int columnNumber = loadedPluginsTable.getColumnNumber(PLUGIN_STATUS_COLUMN_NAME);
+            if (((CellData) loadedPluginsTable.getValueAt(row, columnNumber)).getText().equals(ENABLED_STATUS))
+                parent.setVisibleTasks(3, 3, false);
+            else
+                parent.setVisibleTasks(4, 4, false);
+        }
+    }
+    
+     /**
+     * Show the popup menu on trigger button press (right-click). If it's on the
+     * table then the row should be selected, if not any selected rows should be
+     * deselected first.
+     */
+    private void showPluginPopupMenu(java.awt.event.MouseEvent evt, boolean onTable)
+    {
+        if (evt.isPopupTrigger())
+        {
+            if (onTable)
+            {
+                int row = loadedPluginsTable.rowAtPoint(new Point(evt.getX(), evt.getY()));
+                loadedPluginsTable.setRowSelectionInterval(row, row);
+            }
+            else
+                deselectPluginRows();
+            parent.getPopupMenu().show(evt.getComponent(), evt.getX(), evt.getY());
+        }
+    }
+    
+    public void deselectPluginRows()
+    {
+        loadedPluginsTable.deselectRows();
+        parent.setVisibleTasks(3, -1, false);
     }
     
     /** This method is called from within the constructor to

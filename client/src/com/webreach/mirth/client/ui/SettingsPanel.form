@@ -99,7 +99,7 @@
                       </Group>
                       <Component id="intervalTime" alignment="0" min="-2" pref="78" max="-2" attributes="0"/>
                   </Group>
-                  <EmptySpace pref="439" max="32767" attributes="0"/>
+                  <EmptySpace pref="426" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -129,7 +129,7 @@
       <SubComponents>
         <Component class="javax.swing.JLabel" name="jLabel6">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Status refresh interval (seconds):"/>
+            <Property name="text" type="java.lang.String" value="Dashboard refresh interval (seconds):"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel7">
@@ -182,7 +182,7 @@
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel3">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Message Browser Page Size:"/>
+            <Property name="text" type="java.lang.String" value="Message Browser page size:"/>
           </Properties>
         </Component>
       </SubComponents>
@@ -217,7 +217,7 @@
                   <Component id="clearGlobalMapYes" min="-2" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="clearGlobalMapNo" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace pref="480" max="32767" attributes="0"/>
+                  <EmptySpace pref="482" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -237,7 +237,7 @@
       <SubComponents>
         <Component class="javax.swing.JLabel" name="jLabel2">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Clear Global Map on Deploy:"/>
+            <Property name="text" type="java.lang.String" value="Clear global map on deploy:"/>
           </Properties>
         </Component>
         <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="clearGlobalMapYes">
@@ -449,7 +449,7 @@
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel1">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Default From Address:"/>
+            <Property name="text" type="java.lang.String" value="Default from Address:"/>
           </Properties>
         </Component>
         <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="defaultFrom">
@@ -507,7 +507,7 @@
                           <Component id="lastBackup" min="-2" max="-2" attributes="0"/>
                       </Group>
                   </Group>
-                  <EmptySpace pref="531" max="32767" attributes="0"/>
+                  <EmptySpace pref="533" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -547,7 +547,7 @@
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel4">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Last Configuration Backup:"/>
+            <Property name="text" type="java.lang.String" value="Last configuration backup:"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JLabel" name="lastBackup">
