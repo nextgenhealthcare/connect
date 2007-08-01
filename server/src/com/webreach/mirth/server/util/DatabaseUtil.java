@@ -25,12 +25,21 @@
 
 package com.webreach.mirth.server.util;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Scanner;
+
+import org.apache.log4j.Logger;
+
+import com.ibatis.sqlmap.client.SqlMapClient;
 
 public class DatabaseUtil {
-
+    
+    private Logger logger = Logger.getLogger(this.getClass());
+    
 	/**
 	 * Closes the specified ResultSet.
 	 * 
@@ -84,4 +93,45 @@ public class DatabaseUtil {
 			throw new RuntimeException(e);
 		}
 	}
+    
+    public static void executeScript(File script) throws Exception {
+        SqlMapClient sqlMap = SqlConfig.getSqlMapInstance();
+        
+        Connection conn = null;
+        ResultSet resultSet = null;
+        Statement statement = null;
+        
+        try {
+            conn = sqlMap.getDataSource().getConnection();
+            statement = conn.createStatement();
+            
+            Scanner s = new Scanner(script);
+            while(s.hasNextLine()) {
+                String statementString = "";
+                boolean blankLine = false;
+                
+                while(s.hasNextLine() && !blankLine)
+                {
+                    String temp = s.nextLine();
+                    
+                    if (temp.length() > 0)
+                        statementString += temp + " ";
+                    else
+                        blankLine = true;
+                }
+                
+                if(statementString.trim().length() > 0)
+                    statement.addBatch(statementString.trim());
+            }
+            
+            statement.executeBatch();
+                  
+        } catch (Exception e) {
+            throw new Exception(e);
+        } finally {
+            close(statement);    
+            close(resultSet);
+            close(conn);
+        }
+    }
 }

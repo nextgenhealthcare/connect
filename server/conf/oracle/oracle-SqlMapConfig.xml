@@ -46,5 +46,4 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map Config 2.0//EN"
 	<sqlMap resource="${database}/${database}-event.xml" />
 	<sqlMap resource="${database}/${database}-statistic.xml" />
 	<sqlMap resource="${database}/${database}-alert.xml" />
-	<sqlMap resource="${database}/${database}-migration.xml" />
 </sqlMapConfig>

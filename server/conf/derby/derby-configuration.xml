@@ -33,6 +33,14 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 	<select id="getSchemaVersion" resultClass="java.lang.Integer">
 		SELECT VERSION FROM SCHEMA_INFO
 	</select>
+
+	<insert id="setInitialSchemaVersion" parameterClass="int">
+		INSERT INTO SCHEMA_INFO (VERSION) VALUES (#value#)
+	</insert>
+
+	<update id="updateSchemaVersion" parameterClass="int">
+		UPDATE SCHEMA_INFO SET VERSION = #value#
+	</update>
 	
 	<delete id="deleteLatestConfiguration">
 		DELETE FROM CONFIGURATION

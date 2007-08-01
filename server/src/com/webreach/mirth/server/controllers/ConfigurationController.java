@@ -383,7 +383,13 @@ public class ConfigurationController {
 			channelStatusController.stopChannel(status.getChannelId());
 		}
 	}
-
+	
+    public String getDatabaseType()
+    {
+        Properties properties = PropertyLoader.loadProperties("mirth");
+        return properties.getProperty("database");
+    }
+    
 	public String getMuleConfigurationPath() {
 		Properties properties = PropertyLoader.loadProperties("mirth");
 

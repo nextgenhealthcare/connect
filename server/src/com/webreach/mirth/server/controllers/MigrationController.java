@@ -31,6 +31,8 @@ import java.sql.SQLException;
 import org.apache.log4j.Logger;
 
 import com.ibatis.sqlmap.client.SqlMapClient;
+import com.webreach.mirth.server.tools.ClassPathResource;
+import com.webreach.mirth.server.util.DatabaseUtil;
 import com.webreach.mirth.server.util.SqlConfig;
 
 /**
@@ -39,108 +41,102 @@ import com.webreach.mirth.server.util.SqlConfig;
  * @author geraldb
  * 
  */
-public class MigrationController {
-	private Logger logger = Logger.getLogger(this.getClass());
-	private SqlMapClient sqlMap = SqlConfig.getSqlMapInstance();
-	ConfigurationController configurationController = ConfigurationController.getInstance();
+public class MigrationController
+{
+    private static final String DELTA_FOLDER = "deltas";
+    
+    private Logger logger = Logger.getLogger(this.getClass());
+    private SqlMapClient sqlMap = SqlConfig.getSqlMapInstance();
+    ConfigurationController configurationController = ConfigurationController.getInstance();
 
-	// singleton pattern
-	private static MigrationController instance = null;
+    // singleton pattern
+    private static MigrationController instance = null;
 
-	private MigrationController() {
+    private MigrationController()
+    {
 
-	}
+    }
 
-	public static MigrationController getInstance() {
-		synchronized (MigrationController.class) {
-			if (instance == null)
-				instance = new MigrationController();
+    public static MigrationController getInstance()
+    {
+        synchronized (MigrationController.class)
+        {
+            if (instance == null)
+                instance = new MigrationController();
 
-			return instance;
-		}
-	}
+            return instance;
+        }
+    }
 
-	public void initialize() {
-		try {
-			int newSchemaVersion = configurationController.getSchemaVersion();
+    public void initialize()
+    {
+        try
+        {
+            int newSchemaVersion = configurationController.getSchemaVersion();
 			int oldSchemaVersion;
-
+			
 			if (newSchemaVersion == -1)
 				return;
+				
+            Object result = null;
+            
+            try
+            {
+                result = sqlMap.queryForObject("getSchemaVersion");
+            }
+            catch(SQLException e)
+            {
+                
+            }
+            
+            if(result == null)
+                oldSchemaVersion = 0;
+            else
+                oldSchemaVersion = ((Integer)result).intValue();
+            
+            if (oldSchemaVersion == newSchemaVersion)
+                return;
+            else
+            {                
+                migrate(oldSchemaVersion, newSchemaVersion);
+                
+                if(result == null)
+                    sqlMap.update("setInitialSchemaVersion", newSchemaVersion);
+                else
+                    sqlMap.update("updateSchemaVersion", newSchemaVersion);
+                
+                try
+                {
+                    sqlMap.update("clearConfiguration");
+                    File configurationFile = new File(configurationController.getMuleConfigurationPath());
+                    
+                    if(configurationFile != null)
+                        configurationFile.delete();
+                }
+                catch(Exception e)
+                {
+                    logger.error("Could not remove previous configuration.", e);
+                }
+            }
+        }
+        catch(Exception e)
+        {
+            logger.error("Could not initialize migration controller.", e);
+        }        
+    }
 
-			Object result = null;
-
-			try {
-				result = sqlMap.queryForObject("getSchemaVersion");
-			} catch (SQLException e) {
-
-			}
-
-			if (result == null)
-				oldSchemaVersion = 0;
-			else
-				oldSchemaVersion = ((Integer) result).intValue();
-
-			if (oldSchemaVersion == newSchemaVersion)
-				return;
-			else {
-				if (oldSchemaVersion == 0 && newSchemaVersion > 0) {
-					migrate0to1();
-					oldSchemaVersion++;
-				}
-				if (oldSchemaVersion == 1 && newSchemaVersion > 1) {
-					// next time
-				}
-
-				if (result == null)
-					sqlMap.update("setInitialSchemaVersion", newSchemaVersion);
-				else
-					sqlMap.update("updateSchemaVersion", newSchemaVersion);
-
-				try {
-					sqlMap.update("clearConfiguration");
-					File configurationFile = new File(configurationController.getMuleConfigurationPath());
-
-					if (configurationFile != null)
-						configurationFile.delete();
-				} catch (Exception e) {
-					logger.error("Could not remove previous configuration.", e);
-				}
-			}
-		} catch (Exception e) {
-			logger.error("Could not initialize migration controller.", e);
-		}
-	}
-
-	private void migrate0to1() {
-		try {
-			sqlMap.update("createSchemaInfoTable");
-		} catch (SQLException e) {
-			logger.warn("could not create schema_info table");
-		}
-
-		try {
-			sqlMap.update("dropTransportsTable");
-		} catch (SQLException e) {
-			logger.warn("transport table not found");
-		}
-
-		try {
-			sqlMap.update("addDeployScriptColumn");
-		} catch (SQLException e) {
-			logger.warn("could not add deploy script column to channel");
-		}
-
-		try {
-			sqlMap.update("addShutdownScriptColumn");
-		} catch (SQLException e) {
-			logger.warn("could not add shutdown script column to channel");
-		}
-
-		try {
-			sqlMap.update("addPostprocessorScriptColumn");
-		} catch (SQLException e) {
-			logger.warn("could not add postprocessor script column to channel");
-		}
-	}
+    private void migrate(int oldVersion, int newVersion) throws Exception
+    {
+        File deltaFolder = new File(ClassPathResource.getResourceURI(DELTA_FOLDER));
+        String deltaPath = deltaFolder.getPath() + System.getProperty("file.separator");
+        String databaseType = configurationController.getDatabaseType();
+        
+        while (oldVersion < newVersion)
+        {
+            // gets the correct migration script based on dbtype and versions
+            File migrationFile = new File(deltaPath + databaseType + "-" + oldVersion + "-" + newVersion + ".sql");
+            DatabaseUtil.executeScript(migrationFile);
+            oldVersion++;
+        }
+    }
 }
