@@ -8,21 +8,20 @@
  */
 
 package com.webreach.mirth.plugins.pluginmanager;
-
-
-import javax.swing.ImageIcon;
-
-import org.jdesktop.swingworker.SwingWorker;
-
-import com.webreach.mirth.client.core.ClientException;
-import com.webreach.mirth.client.ui.PlatformUI;
-import com.webreach.mirth.plugins.ClientPanelPlugin;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import javax.swing.ImageIcon;
+
+import org.jdesktop.swingworker.SwingWorker;
+
 import sun.misc.BASE64Encoder;
+
+import com.webreach.mirth.client.core.ClientException;
+import com.webreach.mirth.client.ui.PlatformUI;
+import com.webreach.mirth.plugins.ClientPanelPlugin;
 
 /**
  *
@@ -36,11 +35,21 @@ public class PluginManagerClient extends ClientPanelPlugin
         
         getTaskPane().setTitle("Manager Tasks");
         setComponent(new PluginManagerPanel(this));
+        addTask("doCheckForUpdates", "Check for Updates", "Checks for updates.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/world_go.png")));
+        
         addTask("doRefresh", "Refresh", "Refresh loaded plugins.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png")));
         addTask("doSave", "Save", "Save plugin settings.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/save.png")));
+        
         getComponent().addMouseListener(getPopupMenuMouseAdapter());
     }
-    
+    public void doCheckForUpdates(){
+    	try {
+			new UpdateDialog(this);
+		} catch (ClientException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    }
     public void doRefresh()
     {
         setWorking("Loading plugin settings...", true);
