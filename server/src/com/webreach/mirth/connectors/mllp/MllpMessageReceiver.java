@@ -67,9 +67,9 @@ import com.webreach.mirth.server.controllers.MonitoringController;
 import com.webreach.mirth.server.controllers.MonitoringController.Priority;
 import com.webreach.mirth.server.controllers.MonitoringController.Status;
 import com.webreach.mirth.server.mule.transformers.JavaScriptPostprocessor;
+import com.webreach.mirth.server.util.ACKGenerator;
 import com.webreach.mirth.server.util.BatchMessageProcessor;
 import com.webreach.mirth.server.util.StackTracePrinter;
-import com.webreach.mirth.util.ACKGenerator;
 
 import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicBoolean;
 

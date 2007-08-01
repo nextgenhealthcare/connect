@@ -24,7 +24,7 @@
  * ***** END LICENSE BLOCK ***** */
 
 
-package com.webreach.mirth.util;
+package com.webreach.mirth.server.util;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -38,8 +38,6 @@ import org.xml.sax.SAXException;
 import com.webreach.mirth.model.converters.ER7Serializer;
 import com.webreach.mirth.model.converters.SerializerException;
 import com.webreach.mirth.model.converters.SerializerFactory;
-import com.webreach.mirth.server.util.DateUtil;
-import com.webreach.mirth.server.util.FileUtil;
 
 import ca.uhn.hl7v2.app.DefaultApplication;
 import ca.uhn.hl7v2.model.Message;

@@ -11,11 +11,12 @@ import javax.xml.bind.Unmarshaller;
 
 import org.apache.log4j.Logger;
 
+import com.webreach.mirth.model.MessageObject.Protocol;
 import com.webreach.mirth.model.converters.ObjectCloner;
 import com.webreach.mirth.model.util.MessageVocabulary;
 import com.webreach.mirth.server.util.StackTracePrinter;
 
-public class X12Vocabulary implements MessageVocabulary {
+public class X12Vocabulary extends MessageVocabulary {
 	Map<String, String> vocab;
 	Logger logger = Logger.getLogger(ObjectCloner.class);
 	private static final String JAXB_CONTEXT = "com.webreach.mirth.model.x12";
@@ -24,6 +25,7 @@ public class X12Vocabulary implements MessageVocabulary {
 	private String type = "";
 	
 	public X12Vocabulary(String version, String type){
+		super(version, type);
 		this.version = version;
 		this.type = type;
 	}
@@ -106,5 +108,9 @@ public class X12Vocabulary implements MessageVocabulary {
 			addEntry(element.getXid(), element.getName(), mappings);
 
 		}
+	}
+	@Override
+	public Protocol getProtocol() {
+		return Protocol.X12;
 	}
 }

@@ -180,7 +180,7 @@ public class VMMessageDispatcher extends AbstractMessageDispatcher
                     return;
                 }
 
-                UMOMessage response = receiver.routeMessage(new MuleMessage(messageObject.getEncodedData()), false);
+                UMOMessage response = receiver.routeMessage(new MuleMessage(messageObject.getEncodedData()), connector.isSynchronised());
                 if (response != null && response instanceof MuleMessage)
                 {
 
@@ -248,7 +248,7 @@ public class VMMessageDispatcher extends AbstractMessageDispatcher
                 }
             }
 
-            UMOMessage response = receiver.routeMessage(new MuleMessage(messageObject.getEncodedData()), true);
+            UMOMessage response = receiver.routeMessage(new MuleMessage(messageObject.getEncodedData()), connector.isSynchronised());
 
             if (response != null && response instanceof MuleMessage)
             {

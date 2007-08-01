@@ -1,6 +1,7 @@
 package com.webreach.mirth.model.ncpdp;
 
 import com.webreach.mirth.model.util.MessageVocabulary;
+import com.webreach.mirth.model.MessageObject.Protocol;
 import com.webreach.mirth.model.hl7v2.HL7Reference;
 
 import java.util.Map;
@@ -13,12 +14,13 @@ import java.util.HashMap;
  * Time: 2:45:53 PM
  * To change this template use File | Settings | File Templates.
  */
-public class NCPDPVocabulary implements MessageVocabulary {
+public class NCPDPVocabulary extends MessageVocabulary {
 	Map<String, String> vocab = new HashMap<String, String>();
 	private NCPDPReference reference = null;
 	private String version;
 	private String type;
 	public NCPDPVocabulary(String version, String type){
+		super(version, type);
 		this.version = version;
 		this.type = type;
 		reference = NCPDPReference.getInstance();
@@ -29,7 +31,9 @@ public class NCPDPVocabulary implements MessageVocabulary {
 	public String getDescription(String elementId) {
 		return reference.getDescription(elementId);
 	}
-	private void loadData(){
 
+	@Override
+	public Protocol getProtocol() {
+		return Protocol.NCPDP;
 	}
 }

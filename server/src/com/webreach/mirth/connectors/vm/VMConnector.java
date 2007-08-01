@@ -59,7 +59,7 @@ public class VMConnector extends AbstractServiceEnabledConnector
     private QueueProfile queueProfile;
     private Class adapterClass = null;
     private String channelId;
-
+    private boolean synchronised = false;
     public String getChannelId() {
 		return this.channelId;
 	}
@@ -241,5 +241,13 @@ public class VMConnector extends AbstractServiceEnabledConnector
     public boolean isRemoteSyncEnabled() {
         return true;
 }
+
+	public boolean isSynchronised() {
+		return synchronised;
+	}
+
+	public void setSynchronised(boolean synchronised) {
+		this.synchronised = synchronised;
+	}
 
 }
