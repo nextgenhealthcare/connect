@@ -9,6 +9,11 @@ package com.webreach.mirth.client.ui;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Point;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.prefs.Preferences;
 
 import javax.swing.ImageIcon;
@@ -25,6 +30,13 @@ import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.ui.components.MirthTable;
 import com.webreach.mirth.model.ChannelStatistics;
 import com.webreach.mirth.model.ChannelStatus;
+import com.webreach.mirth.model.ExtensionPoint;
+import com.webreach.mirth.model.ExtensionPointDefinition;
+import com.webreach.mirth.model.PluginMetaData;
+import com.webreach.mirth.model.MessageObject.Protocol;
+import com.webreach.mirth.model.util.MessageVocabulary;
+import com.webreach.mirth.plugins.DashboardColumnPlugin;
+import com.webreach.mirth.plugins.TransformerStepPlugin;
 
 /**
  * 
@@ -41,7 +53,8 @@ public class DashboardPanel extends javax.swing.JPanel
     private final String FILTERED_COLUMN_NAME = "Filtered";
     private int lastRow;
     private Frame parent;
-
+	private Map<String, DashboardColumnPlugin> loadedPlugins = new HashMap<String, DashboardColumnPlugin>();
+	
     /** Creates new form DashboardPanel */
     public DashboardPanel()
     {
@@ -49,6 +62,7 @@ public class DashboardPanel extends javax.swing.JPanel
         lastRow = -1;
         initComponents();
         statusPane.setDoubleBuffered(true);
+        loadPlugins();
         makeStatusTable();
         statusPane.addMouseListener(new java.awt.event.MouseAdapter()
         {
@@ -69,7 +83,31 @@ public class DashboardPanel extends javax.swing.JPanel
         });
         this.setDoubleBuffered(true);
     }
+    // Extension point for ExtensionPoint.Type.CLIENT_VOCABULARY
+	@ExtensionPointDefinition(mode = ExtensionPoint.Mode.CLIENT, type = ExtensionPoint.Type.CLIENT_DASHBOARD_COLUMN)
+	public void loadPlugins() {
+		try {
+			Map<String, PluginMetaData> plugins = parent.mirthClient.getPluginMetaData();
+			for (PluginMetaData metaData : plugins.values()) {
+				if (metaData.isEnabled()) {
+					for (ExtensionPoint extensionPoint : metaData.getExtensionPoints()) {
+						try {
+							if (extensionPoint.getMode().equals(ExtensionPoint.Mode.CLIENT) && extensionPoint.getType().equals(ExtensionPoint.Type.CLIENT_DASHBOARD_COLUMN) && extensionPoint.getClassName() != null && extensionPoint.getClassName().length() > 0) {
+								String pluginName = extensionPoint.getName();
+								DashboardColumnPlugin columnPlugin = (DashboardColumnPlugin) Class.forName(extensionPoint.getClassName()).getDeclaredConstructors()[0].newInstance(new Object[]{pluginName, this});
+		                        loadedPlugins.put(columnPlugin.getColumnHeader(), columnPlugin);
+		                       }
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					}
+				}
 
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
     /**
      * Makes the status table with all current server information.
      */
@@ -108,7 +146,15 @@ public class DashboardPanel extends javax.swing.JPanel
         statusTable.getColumnExt(ERROR_COLUMN_NAME).setHeaderRenderer(PlatformUI.CENTER_COLUMN_HEADER_RENDERER);
         statusTable.getColumnExt(FILTERED_COLUMN_NAME).setHeaderRenderer(PlatformUI.CENTER_COLUMN_HEADER_RENDERER);
         statusTable.getColumnExt(QUEUED_COLUMN_NAME).setHeaderRenderer(PlatformUI.CENTER_COLUMN_HEADER_RENDERER);
-
+        
+        for(DashboardColumnPlugin plugin : loadedPlugins.values()){
+        	String columnName = plugin.getColumnHeader();
+        	statusTable.getColumnExt(columnName).setMaxWidth(UIConstants.MAX_WIDTH);
+        	statusTable.getColumnExt(columnName).setMinWidth(UIConstants.MIN_WIDTH);
+        	statusTable.getColumnExt(columnName).setCellRenderer(plugin.getCellRenderer());
+        	statusTable.getColumnExt(columnName).setHeaderRenderer(PlatformUI.CENTER_COLUMN_HEADER_RENDERER);
+        }
+        	
         statusTable.packTable(UIConstants.COL_MARGIN);
 
         statusTable.setRowHeight(UIConstants.ROW_HEIGHT);
@@ -152,7 +198,7 @@ public class DashboardPanel extends javax.swing.JPanel
 
         if (parent.status != null)
         {
-            tableData = new Object[parent.status.size()][7];
+            tableData = new Object[parent.status.size()][7 + loadedPlugins.size()];
             for (int i = 0; i < parent.status.size(); i++)
             {
                 ChannelStatus tempStatus = parent.status.get(i);
@@ -164,7 +210,11 @@ public class DashboardPanel extends javax.swing.JPanel
                     tableData[i][4] = tempStats.getQueued();
                     tableData[i][5] = tempStats.getSent();
                     tableData[i][6] = tempStats.getError();
-                   
+                    int j = 7;
+                    for (DashboardColumnPlugin plugin : loadedPlugins.values()){
+                    	tableData[i][j] = plugin.getTableData(tempStatus);
+                    	j++;
+                    } 
                 }
                 catch (ClientException ex)
                 {
@@ -193,13 +243,23 @@ public class DashboardPanel extends javax.swing.JPanel
         else
         {
             statusTable = new MirthTable();
-            statusTable.setModel(new RefreshTableModel(tableData, new String[] { STATUS_COLUMN_NAME, NAME_COLUMN_NAME, RECEIVED_COLUMN_NAME, FILTERED_COLUMN_NAME, QUEUED_COLUMN_NAME, SENT_COLUMN_NAME, ERROR_COLUMN_NAME })
+            String[] defaultColumns = new String[] { STATUS_COLUMN_NAME, 
+            		NAME_COLUMN_NAME, RECEIVED_COLUMN_NAME, 
+            		FILTERED_COLUMN_NAME, QUEUED_COLUMN_NAME, 
+            		SENT_COLUMN_NAME, ERROR_COLUMN_NAME };
+            ArrayList<String> columns = new ArrayList<String>();
+            for (int i = 0; i < defaultColumns.length; i++){
+            	columns.add(defaultColumns[i]);
+            }
+            for (DashboardColumnPlugin plugin : loadedPlugins.values()){
+            	columns.add(plugin.getColumnHeader());
+            } 
+            
+            statusTable.setModel(new RefreshTableModel(tableData, columns.toArray(new String[0]))
             {
-                boolean[] canEdit = new boolean[] { false, false, false, false, false, false, false, false };
-
                 public boolean isCellEditable(int rowIndex, int columnIndex)
                 {
-                    return canEdit[columnIndex];
+                	return false;
                 }
             });
         }
