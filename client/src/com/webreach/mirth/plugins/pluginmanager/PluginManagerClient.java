@@ -44,6 +44,7 @@ public class PluginManagerClient extends ClientPanelPlugin
         
         setVisibleTasks(0, 2, true);
         setVisibleTasks(3, -1, false);
+        
         getComponent().addMouseListener(getPopupMenuMouseAdapter());
     }
     
@@ -68,7 +69,14 @@ public class PluginManagerClient extends ClientPanelPlugin
         {
             public Void doInBackground()
             {
-                refresh();
+                try
+                {
+                    refresh();
+                }
+                catch (ClientException e)
+                {
+                    alertException(e.getStackTrace(), e.getMessage());
+                }
                 return null;
             }
             
@@ -89,14 +97,21 @@ public class PluginManagerClient extends ClientPanelPlugin
         {
             public Void doInBackground()
             {
-                save();
+                try
+                {
+                    save();
+                    alertInformation("A restart is required before your changes will take effect.");
+                }
+                catch (ClientException e)
+                {
+                    alertException(e.getStackTrace(), e.getMessage());
+                }
                 return null;
             }
             
             public void done()
             {
                 setWorking("", false);
-                alertInformation("A restart is required before your changes will take effect.");
             }
         };
         
@@ -113,30 +128,16 @@ public class PluginManagerClient extends ClientPanelPlugin
         ((PluginManagerPanel) getComponent()).disableExtension();
     }
     
-    public void refresh()
+    public void refresh() throws ClientException
     {
-        try
-        {
-            ((PluginManagerPanel) getComponent()).setPluginData(PlatformUI.MIRTH_FRAME.mirthClient.getPluginMetaData());
-            ((PluginManagerPanel) getComponent()).setConnectorData(PlatformUI.MIRTH_FRAME.mirthClient.getConnectorMetaData());
-        }
-        catch (ClientException e)
-        {
-            //alertException(e.getStackTrace(), "Could not get " + getName() + " properties.");
-        }
+        ((PluginManagerPanel) getComponent()).setPluginData(PlatformUI.MIRTH_FRAME.mirthClient.getPluginMetaData());
+        ((PluginManagerPanel) getComponent()).setConnectorData(PlatformUI.MIRTH_FRAME.mirthClient.getConnectorMetaData());
     }
     
-    public void save()
+    public void save() throws ClientException
     {
-        try
-        {
-            PlatformUI.MIRTH_FRAME.mirthClient.setPluginMetaData(((PluginManagerPanel) getComponent()).getPluginData());
-            PlatformUI.MIRTH_FRAME.mirthClient.setConnectorMetaData(((PluginManagerPanel) getComponent()).getConnectorData());
-        }
-        catch (ClientException e)
-        {
-            //alertException(e.getStackTrace(), "Could not set " + getName() + " properties.");
-        }
+        PlatformUI.MIRTH_FRAME.mirthClient.setPluginMetaData(((PluginManagerPanel) getComponent()).getPluginData());
+        PlatformUI.MIRTH_FRAME.mirthClient.setConnectorMetaData(((PluginManagerPanel) getComponent()).getConnectorData());
     }
     
     public boolean install(String location, File file)
@@ -198,16 +199,37 @@ public class PluginManagerClient extends ClientPanelPlugin
     
     public void start()
     {
-        refresh();
+        try
+        {
+            refresh();
+        }
+        catch(ClientException e)
+        {
+            
+        }
     }
     
     public void stop()
     {
-        save();
+        try
+        {
+            save();
+        }
+        catch(ClientException e)
+        {
+            
+        }
     }
     
     public void display()
     {
-        refresh();
+        try
+        {
+            refresh();
+        }
+        catch(ClientException e)
+        {
+            
+        }
     }
 }

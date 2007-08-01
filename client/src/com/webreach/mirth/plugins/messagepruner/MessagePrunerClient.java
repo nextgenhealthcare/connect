@@ -44,7 +44,14 @@ public class MessagePrunerClient extends ClientPanelPlugin
         {
             public Void doInBackground()
             {
-                refresh();
+                try
+                {
+                    refresh();
+                }
+                catch (ClientException e)
+                {
+                    alertException(e.getStackTrace(), e.getMessage());
+                }
                 return null;
             }
 
@@ -65,7 +72,14 @@ public class MessagePrunerClient extends ClientPanelPlugin
         {
             public Void doInBackground()
             {
-                save();
+                try
+                {
+                    save();
+                }
+                catch (ClientException e)
+                {
+                    alertException(e.getStackTrace(), e.getMessage());
+                }
                 return null;
             }
 
@@ -78,42 +92,49 @@ public class MessagePrunerClient extends ClientPanelPlugin
         worker.execute();
     }
     
-    public void refresh()
+    public void refresh() throws ClientException
     {
-        try
-        {
-            ((MessagePrunerPanel) getComponent()).setProperties(getPropertiesFromServer(), (LinkedList<String[]>) invoke("getLog", null));
-        }
-        catch (ClientException e)
-        {
-            //alertException(e.getStackTrace(), "Could not get " + getName() + " properties.");
-        }
+        ((MessagePrunerPanel) getComponent()).setProperties(getPropertiesFromServer(), (LinkedList<String[]>) invoke("getLog", null));
     }
     
-    public void save()
+    public void save() throws ClientException
     {
-        try
-        {
-            setPropertiesToServer(((MessagePrunerPanel) getComponent()).getProperties());
-        }
-        catch (ClientException e)
-        {
-           //alertException(e.getStackTrace(), "Could not set " + getName() + " properties.");
-        }
+        setPropertiesToServer(((MessagePrunerPanel) getComponent()).getProperties());
     }
     
     public void start()
     {
-        refresh();
+        try
+        {
+            refresh();
+        }
+        catch (ClientException e)
+        {
+            
+        }
     }
 
     public void stop()
     {
-        save();
+        try
+        {
+            save();
+        }
+        catch (ClientException e)
+        {
+            
+        }
     }
     
     public void display()
     {
-        refresh();
+        try
+        {
+            refresh();
+        }
+        catch (ClientException e)
+        {
+            
+        }
     }
 }
