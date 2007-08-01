@@ -73,7 +73,7 @@ public class MessageVocabularyFactory {
 		return vocab;
 	}
 
-	// Extension point for ExtensionPoint.Type.CLIENT_TRANSFORMER_STEP
+	// Extension point for ExtensionPoint.Type.CLIENT_VOCABULARY
 	@ExtensionPointDefinition(mode = ExtensionPoint.Mode.CLIENT, type = ExtensionPoint.Type.CLIENT_VOCABULARY)
 	public void loadPlugins(Map<String, PluginMetaData> plugins) {
 		try {
