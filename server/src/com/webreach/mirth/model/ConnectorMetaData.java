@@ -32,24 +32,17 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.webreach.mirth.util.EqualsUtil;
 
 @XStreamAlias("connectorMetaData")
-public class ConnectorMetaData implements MetaData, Serializable {
+public class ConnectorMetaData extends MetaData implements Serializable {
 	public enum Type {
 		LISTENER, SENDER
 	};
 
-	private String name;
-	private String author;
 	private String serverClassName;
 	private String sharedClassName;
 	private String clientClassName;
 	private String transformers;
 	private String protocol;
-	private String pluginVersion;
-	private String mirthVersion;
-	private String url;
-	private String updateUrl;
-	private String versionUrl;
-	private boolean enabled;
+
 	private Type type;
 	@XStreamAlias("mule-properties")
 	private Properties properties;
@@ -78,44 +71,12 @@ public class ConnectorMetaData implements MetaData, Serializable {
 		this.clientClassName = clientClassName;
 	}
 
-	public String getName() {
-		return this.name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getAuthor() {
-		return author;
-	}
-
-	public void setAuthor(String author) {
-		this.author = author;
-	}
-
 	public String getProtocol() {
 		return this.protocol;
 	}
 
 	public void setProtocol(String protocol) {
 		this.protocol = protocol;
-	}
-
-	public String getMirthVersion() {
-		return mirthVersion;
-	}
-
-	public void setMirthVersion(String mirthVersion) {
-		this.mirthVersion = mirthVersion;
-	}
-
-	public String getPluginVersion() {
-		return pluginVersion;
-	}
-
-	public void setPluginVersion(String pluginVersion) {
-		this.pluginVersion = pluginVersion;
 	}
 
 	public String getTransformers() {
@@ -132,14 +93,6 @@ public class ConnectorMetaData implements MetaData, Serializable {
 
 	public void setType(Type type) {
 		this.type = type;
-	}
-
-	public boolean isEnabled() {
-		return this.enabled;
-	}
-
-	public void setEnabled(boolean enabled) {
-		this.enabled = enabled;
 	}
 
 	public boolean equals(Object that) {
@@ -165,7 +118,7 @@ public class ConnectorMetaData implements MetaData, Serializable {
 			EqualsUtil.areEqual(this.isEnabled(), transport.isEnabled()) &&
 			EqualsUtil.areEqual(this.getTransformers(), transport.getTransformers()) &&
 			EqualsUtil.areEqual(this.getType(), transport.getType()) &&
-			EqualsUtil.areEqual(this.getVersionUrl(), transport.getVersionUrl()) &&
+			EqualsUtil.areEqual(this.getDescription(), transport.getDescription()) &&
 			EqualsUtil.areEqual(this.getUpdateUrl(), transport.getUpdateUrl());
 	}
 
@@ -184,7 +137,7 @@ public class ConnectorMetaData implements MetaData, Serializable {
 		builder.append("pluginVersion=" + getPluginVersion() + ", ");
 		builder.append("mirthVersion=" + getMirthVersion() + ", ");
 		builder.append("updateUrl=" + getUpdateUrl() + ", ");
-		builder.append("versionUrl=" + getVersionUrl());
+		builder.append("description=" + getDescription());
 		builder.append("]");
 		return builder.toString();
 	}
@@ -197,27 +150,4 @@ public class ConnectorMetaData implements MetaData, Serializable {
 		this.properties = properties;
 	}
 
-	public String getUrl() {
-		return url;
-	}
-
-	public void setUrl(String url) {
-		this.url = url;
-	}
-
-	public String getUpdateUrl() {
-		return updateUrl;
-	}
-
-	public void setUpdateUrl(String updateUrl) {
-		this.updateUrl = updateUrl;
-	}
-
-	public String getVersionUrl() {
-		return versionUrl;
-	}
-
-	public void setVersionUrl(String versionUrl) {
-		this.versionUrl = versionUrl;
-	}
 }

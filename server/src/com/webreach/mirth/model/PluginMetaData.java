@@ -35,56 +35,9 @@ import com.webreach.mirth.util.EqualsUtil;
 
 @XStreamAlias("pluginMetaData")
 @XStreamImplicitCollection(value = "extensionPoints", item = "extensionPoint")
-public class PluginMetaData implements MetaData, Serializable {
-	private String name;
-	private String author;
-	private String pluginVersion;
-	private String mirthVersion;
-	private String url;
-	private String updateUrl;
-	private String description;
-	private boolean enabled;
+public class PluginMetaData extends MetaData implements Serializable {
+
 	private List<ExtensionPoint> extensionPoints;
-
-	public String getName() {
-		return this.name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getAuthor() {
-		return this.author;
-	}
-
-	public void setAuthor(String author) {
-		this.author = author;
-	}
-
-	public String getMirthVersion() {
-		return mirthVersion;
-	}
-
-	public void setMirthVersion(String mirthVersion) {
-		this.mirthVersion = mirthVersion;
-	}
-
-	public String getPluginVersion() {
-		return pluginVersion;
-	}
-
-	public void setPluginVersion(String pluginVersion) {
-		this.pluginVersion = pluginVersion;
-	}
-
-	public boolean isEnabled() {
-		return this.enabled;
-	}
-
-	public void setEnabled(boolean enabled) {
-		this.enabled = enabled;
-	}
 
 	public List<ExtensionPoint> getExtensionPoints() {
 		return extensionPoints;
@@ -92,30 +45,6 @@ public class PluginMetaData implements MetaData, Serializable {
 
 	public void setExtensionPoints(List<ExtensionPoint> plugins) {
 		this.extensionPoints = plugins;
-	}
-
-	public String getUrl() {
-		return url;
-	}
-
-	public void setUrl(String url) {
-		this.url = url;
-	}
-
-	public String getUpdateUrl() {
-		return updateUrl;
-	}
-
-	public void setUpdateUrl(String updateUrl) {
-		this.updateUrl = updateUrl;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
 	}
 
 	public boolean equals(Object that) {
