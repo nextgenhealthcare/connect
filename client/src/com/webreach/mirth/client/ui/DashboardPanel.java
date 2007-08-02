@@ -455,7 +455,8 @@ public class DashboardPanel extends javax.swing.JPanel
                 parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 8, 8, false);
             }
             
-            loadPanelPlugin(tabs.getTitleAt(tabs.getSelectedIndex()));
+            if(loadedPanelPlugins.size() > 0)
+                loadPanelPlugin(tabs.getTitleAt(tabs.getSelectedIndex()));
         }
     }
     
@@ -476,7 +477,8 @@ public class DashboardPanel extends javax.swing.JPanel
     {
         statusTable.deselectRows();
         parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 2, -1, false);
-        loadPanelPlugin(tabs.getTitleAt(tabs.getSelectedIndex()));
+        if(loadedPanelPlugins.size() > 0)
+            loadPanelPlugin(tabs.getTitleAt(tabs.getSelectedIndex()));
     }
     
     /**
