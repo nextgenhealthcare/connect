@@ -42,6 +42,7 @@ public class HTTPListenerProperties implements ComponentProperties
     public static final String HTTP_RESPONSE_VALUE = "responseValue";   
     public static final String HTTP_EXTENDED_PAYLOAD = "extendedPayload";
     public static final String HTTP_PAYLOAD_ENCODING = "payloadEncoding";
+    public static final String HTTP_APPEND_PAYLOAD = "appendPayload";
     public Properties getDefaults()
     {
         Properties properties = new Properties();
@@ -54,6 +55,7 @@ public class HTTPListenerProperties implements ComponentProperties
         properties.put(HTTP_RESPONSE_VALUE, "None");
         properties.put(HTTP_EXTENDED_PAYLOAD, "1");
         properties.put(HTTP_PAYLOAD_ENCODING, "None");
+        properties.put(HTTP_APPEND_PAYLOAD, false);
         return properties;
     }
 }
