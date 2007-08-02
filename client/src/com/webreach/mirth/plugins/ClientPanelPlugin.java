@@ -28,7 +28,7 @@ import com.webreach.mirth.client.ui.Frame;
 import com.webreach.mirth.client.ui.PlatformUI;
 
 /**
- * 
+ *
  * @author brendanh
  */
 public abstract class ClientPanelPlugin
@@ -38,39 +38,39 @@ public abstract class ClientPanelPlugin
     private JPopupMenu menu = new JPopupMenu();
     private Frame parent = PlatformUI.MIRTH_FRAME;
     private String name;
-
+    
     public ClientPanelPlugin(String name)
     {
         this.name = name;
         getTaskPane().setTitle(name + " Tasks");
         getTaskPane().setFocusable(false);
     }
-
+    
     public void setComponent(JComponent component)
     {
         this.component = component;
     }
-
+    
     public void setTaskPane(JXTaskPane pane)
     {
         this.pane = pane;
     }
-
+    
     public void setPopupMenu(JPopupMenu menu)
     {
         this.menu = menu;
     }
-
+    
     public JComponent getComponent()
     {
         return component;
     }
-
+    
     public JXTaskPane getTaskPane()
     {
         return pane;
     }
-
+    
     public JPopupMenu getPopupMenu()
     {
         return menu;
@@ -81,11 +81,11 @@ public abstract class ClientPanelPlugin
         return name;
     }
     
-    public Object invoke (String method, Object object) throws ClientException
+    public Object invoke(String method, Object object) throws ClientException
     {
         return parent.mirthClient.invokePluginMethod(name, method, object);
     }
-
+    
     public MouseAdapter getPopupMenuMouseAdapter()
     {
         return new MouseAdapter()
@@ -95,7 +95,7 @@ public abstract class ClientPanelPlugin
                 if (evt.isPopupTrigger())
                     getPopupMenu().show(evt.getComponent(), evt.getX(), evt.getY());
             }
-
+            
             public void mouseReleased(MouseEvent evt)
             {
                 if (evt.isPopupTrigger())
@@ -103,7 +103,7 @@ public abstract class ClientPanelPlugin
             }
         };
     }
-
+    
     /**
      * Initializes the bound method call for the task pane actions and adds them
      * to the taskpane/popupmenu.
@@ -111,46 +111,46 @@ public abstract class ClientPanelPlugin
     public void addTask(String callbackMethod, String displayName, String toolTip, String shortcutKey, ImageIcon icon)
     {
         BoundAction boundAction = ActionFactory.createBoundAction(callbackMethod, displayName, shortcutKey);
-
+        
         if (icon != null)
             boundAction.putValue(Action.SMALL_ICON, icon);
         boundAction.putValue(Action.SHORT_DESCRIPTION, toolTip);
         boundAction.registerCallback(this, callbackMethod);
-
+        
         getTaskPane().add(boundAction);
         getPopupMenu().add(boundAction);
     }
-
+    
     public void setVisibleTasks(int start, int end, boolean visible)
     {
         parent.setVisibleTasks(getTaskPane(), getPopupMenu(), start, end, visible);
     }
-
+    
     public void alertException(StackTraceElement[] strace, String message)
     {
         parent.alertException(strace, message);
     }
-
+    
     public void alertWarning(String message)
     {
         parent.alertWarning(message);
     }
-
+    
     public void alertInformation(String message)
     {
         parent.alertInformation(message);
     }
-
+    
     public void alertError(String message)
     {
         parent.alertError(message);
     }
-
+    
     public boolean alertOkCancel(String message)
     {
         return parent.alertOkCancel(message);
     }
-
+    
     public boolean alertOption(String message)
     {
         return parent.alertOption(message);
@@ -160,12 +160,12 @@ public abstract class ClientPanelPlugin
     {
         parent.setWorking(message, working);
     }
-
+    
     public Properties getPropertiesFromServer() throws ClientException
     {
         return parent.mirthClient.getPluginProperties(name);
     }
-
+    
     public void setPropertiesToServer(Properties properties) throws ClientException
     {
         parent.mirthClient.setPluginProperties(name, properties);

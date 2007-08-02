@@ -10,9 +10,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Point;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.prefs.Preferences;
 
@@ -33,10 +31,11 @@ import com.webreach.mirth.model.ChannelStatus;
 import com.webreach.mirth.model.ExtensionPoint;
 import com.webreach.mirth.model.ExtensionPointDefinition;
 import com.webreach.mirth.model.PluginMetaData;
-import com.webreach.mirth.model.MessageObject.Protocol;
-import com.webreach.mirth.model.util.MessageVocabulary;
 import com.webreach.mirth.plugins.DashboardColumnPlugin;
-import com.webreach.mirth.plugins.TransformerStepPlugin;
+import com.webreach.mirth.plugins.DashboardPanelPlugin;
+import javax.swing.JTabbedPane;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 /**
  *
@@ -54,6 +53,7 @@ public class DashboardPanel extends javax.swing.JPanel
     private int lastRow;
     private Frame parent;
     private Map<String, DashboardColumnPlugin> loadedColumnPlugins = new HashMap<String, DashboardColumnPlugin>();
+    private Map<String, DashboardPanelPlugin> loadedPanelPlugins = new HashMap<String, DashboardPanelPlugin>();
     
     /** Creates new form DashboardPanel */
     public DashboardPanel()
@@ -62,7 +62,22 @@ public class DashboardPanel extends javax.swing.JPanel
         lastRow = -1;
         initComponents();
         statusPane.setDoubleBuffered(true);
-        loadPlugins();
+        loadColumnPlugins();
+        split.setBottomComponent(null);
+        split.setDividerSize(0);
+        loadPanelPlugins();
+        
+        ChangeListener changeListener = new ChangeListener()
+        {
+            public void stateChanged(ChangeEvent changeEvent)
+            {
+                JTabbedPane sourceTabbedPane = (JTabbedPane) changeEvent.getSource();
+                int index = sourceTabbedPane.getSelectedIndex();
+                loadPanelPlugin(sourceTabbedPane.getTitleAt(index));
+            }
+        };
+        tabs.addChangeListener(changeListener);
+        
         makeStatusTable();
         statusPane.addMouseListener(new java.awt.event.MouseAdapter()
         {
@@ -81,11 +96,13 @@ public class DashboardPanel extends javax.swing.JPanel
                 deselectRows();
             }
         });
+        
         this.setDoubleBuffered(true);
     }
-    // Extension point for ExtensionPoint.Type.CLIENT_VOCABULARY
+    
+    // Extension point for ExtensionPoint.Type.CLIENT_DASHBOARD_COLUMN
     @ExtensionPointDefinition(mode = ExtensionPoint.Mode.CLIENT, type = ExtensionPoint.Type.CLIENT_DASHBOARD_COLUMN)
-    public void loadPlugins()
+    public void loadColumnPlugins()
     {
         try
         {
@@ -107,18 +124,87 @@ public class DashboardPanel extends javax.swing.JPanel
                         }
                         catch (Exception e)
                         {
-                            e.printStackTrace();
+                            parent.alertException(e.getStackTrace(), e.getMessage());
                         }
                     }
                 }
-                
             }
         }
-        catch (Exception ex)
+        catch (Exception e)
         {
-            ex.printStackTrace();
+            parent.alertException(e.getStackTrace(), e.getMessage());
         }
     }
+    
+    // Extension point for ExtensionPoint.Type.CLIENT_DASHBOARD_PANE
+    @ExtensionPointDefinition(mode = ExtensionPoint.Mode.CLIENT, type = ExtensionPoint.Type.CLIENT_DASHBOARD_PANE)
+    public void loadPanelPlugins()
+    {
+        try
+        {
+            Map<String, PluginMetaData> plugins = parent.mirthClient.getPluginMetaData();
+            for (PluginMetaData metaData : plugins.values())
+            {
+                if (metaData.isEnabled())
+                {
+                    for (ExtensionPoint extensionPoint : metaData.getExtensionPoints())
+                    {
+                        try
+                        {
+                            if (extensionPoint.getMode().equals(ExtensionPoint.Mode.CLIENT) && extensionPoint.getType().equals(ExtensionPoint.Type.CLIENT_DASHBOARD_PANE) && extensionPoint.getClassName() != null && extensionPoint.getClassName().length() > 0)
+                            {
+                                String pluginName = extensionPoint.getName();
+                                DashboardPanelPlugin panelPlugin = (DashboardPanelPlugin) Class.forName(extensionPoint.getClassName()).getDeclaredConstructors()[0].newInstance(new Object[]{pluginName});
+                                loadedPanelPlugins.put(pluginName, panelPlugin);
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            parent.alertException(e.getStackTrace(), e.getMessage());
+                        }
+                    }
+                }
+            }
+            
+            if(loadedPanelPlugins.size() > 0)
+            {
+                for(DashboardPanelPlugin plugin : loadedPanelPlugins.values())
+                {
+                    if (plugin.getComponent() != null)
+                    {
+                        tabs.addTab(plugin.getName(), plugin.getComponent());
+                    }
+                }
+                
+                split.setBottomComponent(tabs);
+                split.setDividerSize(6);
+                split.setDividerLocation((int)(3 * Preferences.systemNodeForPackage(Mirth.class).getInt("height", UIConstants.MIRTH_HEIGHT)/5));
+                split.setResizeWeight(0.5);
+            }
+        }
+        catch (Exception e)
+        {
+            parent.alertException(e.getStackTrace(), e.getMessage());
+        }
+    }
+    
+    public void loadDefaultPanel()
+    {
+        if (loadedPanelPlugins.keySet().iterator().hasNext())
+        {
+            loadPanelPlugin(loadedPanelPlugins.keySet().iterator().next());
+        }
+    }
+    
+    public void loadPanelPlugin(String pluginName)
+    {
+        DashboardPanelPlugin plugin = loadedPanelPlugins.get(pluginName);
+        if(plugin != null && getSelectedStatus() != UIConstants.ERROR_CONSTANT)
+            plugin.display(parent.status.get(getSelectedStatus()));
+        else
+            plugin.display();
+    }  
+    
     /**
      * Makes the status table with all current server information.
      */
@@ -368,6 +454,8 @@ public class DashboardPanel extends javax.swing.JPanel
                 parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 7, 7, false);
                 parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 8, 8, false);
             }
+            
+            loadPanelPlugin(tabs.getTitleAt(tabs.getSelectedIndex()));
         }
     }
     
@@ -388,6 +476,7 @@ public class DashboardPanel extends javax.swing.JPanel
     {
         statusTable.deselectRows();
         parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 2, -1, false);
+        loadPanelPlugin(tabs.getTitleAt(tabs.getSelectedIndex()));
     }
     
     /**
@@ -396,25 +485,40 @@ public class DashboardPanel extends javax.swing.JPanel
      * regenerated by the Form Editor.
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code
-    // ">//GEN-BEGIN:initComponents
+    // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents()
     {
+        split = new javax.swing.JSplitPane();
         statusPane = new javax.swing.JScrollPane();
         statusTable = null;
+        tabs = new javax.swing.JTabbedPane();
 
+        split.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        split.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
         statusPane.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         statusPane.setViewportView(statusTable);
 
+        split.setTopComponent(statusPane);
+
+        split.setRightComponent(tabs);
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
-        layout.setHorizontalGroup(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(statusPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE));
-        layout.setVerticalGroup(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(statusPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 300, Short.MAX_VALUE));
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(split, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, split, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 300, Short.MAX_VALUE)
+        );
     }// </editor-fold>//GEN-END:initComponents
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JSplitPane split;
     private javax.swing.JScrollPane statusPane;
-
     private com.webreach.mirth.client.ui.components.MirthTable statusTable;
+    private javax.swing.JTabbedPane tabs;
     // End of variables declaration//GEN-END:variables
     
 }
