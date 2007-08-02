@@ -41,7 +41,7 @@ public class HTTPListenerProperties implements ComponentProperties
     public static final String HTTP_KEEP_CONNECTION_OPEN = "keepAlive";
     public static final String HTTP_RESPONSE_VALUE = "responseValue";   
     public static final String HTTP_EXTENDED_PAYLOAD = "extendedPayload";
-
+    public static final String HTTP_PAYLOAD_ENCODING = "payloadEncoding";
     public Properties getDefaults()
     {
         Properties properties = new Properties();
@@ -53,6 +53,7 @@ public class HTTPListenerProperties implements ComponentProperties
         properties.put(HTTP_KEEP_CONNECTION_OPEN, "0");
         properties.put(HTTP_RESPONSE_VALUE, "None");
         properties.put(HTTP_EXTENDED_PAYLOAD, "1");
+        properties.put(HTTP_PAYLOAD_ENCODING, "None");
         return properties;
     }
 }
