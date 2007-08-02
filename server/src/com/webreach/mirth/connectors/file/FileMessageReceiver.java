@@ -32,6 +32,7 @@ import org.mule.config.i18n.Messages;
 import org.mule.impl.MuleMessage;
 import org.mule.providers.ConnectException;
 import org.mule.providers.PollingMessageReceiver;
+import org.mule.providers.TemplateValueReplacer;
 import org.mule.umo.UMOComponent;
 import org.mule.umo.UMOException;
 import org.mule.umo.UMOMessage;
@@ -72,18 +73,19 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 	private AlertController alertController = AlertController.getInstance();
 	private MonitoringController monitoringController = MonitoringController.getInstance();
 	private JavaScriptPostprocessor postProcessor = new JavaScriptPostprocessor();
+	private TemplateValueReplacer replacer = new TemplateValueReplacer();
 	public FileMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint, String readDir, String moveDir, String moveToPattern, Long frequency) throws InitialisationException {
 		super(connector, component, endpoint, frequency);
-		this.readDir = readDir;
-		this.moveDir = moveDir;
-		this.moveToPattern = moveToPattern;
+		this.readDir = replacer.replaceValuesFromGlobal(readDir, true);
+		this.moveDir = replacer.replaceValuesFromGlobal(moveDir, true);
+		this.moveToPattern = replacer.replaceValuesFromGlobal(moveToPattern, true);
         
         if(((FileConnector) connector).getPollingType().equals(FileConnector.POLLING_TYPE_TIME))
             setTime(((FileConnector) connector).getPollingTime());
         else
             setFrequency(((FileConnector) connector).getPollingFrequency());
         
-		filenameFilter = new FilenameWildcardFilter(((FileConnector) connector).getFileFilter());
+		filenameFilter = new FilenameWildcardFilter(replacer.replaceValuesFromGlobal(((FileConnector) connector).getFileFilter(), true));
 		monitoringController.updateStatus(connector, Status.IDLE);
 	}
 
