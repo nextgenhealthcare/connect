@@ -426,12 +426,11 @@
 		<copy file="${installer}/install.xml" tofile="${installer}/install-tmp.xml"/>
 		<replace file="${installer}/install-tmp.xml" token="@version@" value="${version}" />
 		<izpack input="${installer}/install-tmp.xml" output="${dist}/install.jar" basedir="${setup}"/>
-		<zip destfile="${dist}/install.zip" basedir="${dist}" includes="install.jar" />
-    <sfx archive="${dist}/install.zip" mode="win32" execute="install.jar" output="${dist}/install-${version}.exe"/>
-    <sfx archive="${dist}/install.zip" mode="unix" execute="install.jar" output="${dist}/install-${version}"/>
+
+    <sfx archive="${dist}/install.jar" mode="win32" execute="javaw -jar install.jar" output="${dist}/mirth-${version}-win32.exe"/>
+    <sfx archive="${dist}/install.jar" mode="unix" execute="javaw -jar install.jar" output="${dist}/mirth-${version}-unix"/>
     
     <delete file="${dist}/install.jar" />
-    <delete file="${dist}/install.zip" />
     <delete file="${installer}/install-tmp.xml" />
 	</target>
 </project>

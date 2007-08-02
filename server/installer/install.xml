@@ -102,6 +102,7 @@
       <file src="mirth.sh" targetdir="$INSTALL_PATH" override="true" os="unix" />
       
       <fileset dir="." targetdir="$INSTALL_PATH" os="windows">
+        <include name="Mirth.bat" override="true" />
         <include name="Mirth.exe" override="true" />
         <include name="Mirth.ico" override="true" />
       </fileset>
@@ -208,7 +209,7 @@
 			<file src="Mirth Manager.exe" targetdir="$INSTALL_PATH" override="true" />
 			<file src="mirth-manager.jar" targetdir="$INSTALL_PATH" override="true" />
 			
-			<executable targetfile="$INSTALL_PATH/Mirth Manager.exe" stage="install" failure="when" />
+			<executable targetfile="$INSTALL_PATH/Mirth Manager.exe" stage="install" failure="warn" />
 		</pack>
 		
 		<!--
