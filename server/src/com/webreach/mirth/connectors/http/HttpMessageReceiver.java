@@ -351,11 +351,11 @@ public class HttpMessageReceiver extends TcpMessageReceiver {
         		propertyString.append("&");
         	}
         	String payloadEncoding = httpConnector.getPayloadEncoding();
-        	if (payloadEncoding == null || payloadEncoding.equalsIgnoreCase("none")){
+        	if (payloadEncoding == null || payloadEncoding.equalsIgnoreCase(HTTPListenerProperties.PAYLOAD_ENCODING_NONE)){
         		propertyString.append(new String((byte[])payload));
-        	}else if (payloadEncoding.equals("encode")){
+        	}else if (payloadEncoding.equalsIgnoreCase(HTTPListenerProperties.PAYLOAD_ENCODING_ENCODE)){
         		propertyString.append(URLEncoder.encode(new String((byte[])payload)));
-        	}else if (payloadEncoding.equals("decode")){
+        	}else if (payloadEncoding.equalsIgnoreCase(HTTPListenerProperties.PAYLOAD_ENCODING_DECODE)){
         		propertyString.append(URLDecoder.decode(new String((byte[])payload)));
         	}
         	
