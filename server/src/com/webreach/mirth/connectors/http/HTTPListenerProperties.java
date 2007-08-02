@@ -58,7 +58,7 @@ public class HTTPListenerProperties implements ComponentProperties
         properties.put(HTTP_RESPONSE_VALUE, "None");
         properties.put(HTTP_EXTENDED_PAYLOAD, "1");
         properties.put(HTTP_PAYLOAD_ENCODING, PAYLOAD_ENCODING_NONE);
-        properties.put(HTTP_APPEND_PAYLOAD, false);
+        properties.put(HTTP_APPEND_PAYLOAD, "0");
         return properties;
     }
 }
