@@ -84,7 +84,7 @@ public class NCPDPUtil {
             origNumber = "-" + origNumber;
         }
 
-        if(decimalPoints > 0) {
+        if(decimalPoints > 0 && decimalPoints < origNumber.length()) {
             return origNumber.substring(0, origNumber.length()-decimalPoints) + "." + origNumber.substring(origNumber.length()-decimalPoints);
         }
         return origNumber;
