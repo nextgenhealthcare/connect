@@ -66,12 +66,25 @@ public class HTTPListener extends ConnectorClass
         properties.put(HTTPListenerProperties.HTTP_RECEIVE_TIMEOUT, receiveTimeoutField.getText());
         properties.put(HTTPListenerProperties.HTTP_BUFFER_SIZE, bufferSizeField.getText());
         properties.put(HTTPListenerProperties.HTTP_EXTENDED_PAYLOAD, UIConstants.YES_OPTION);
+        
         if (keepConnectionOpenYesRadio.isSelected())
             properties.put(HTTPListenerProperties.HTTP_KEEP_CONNECTION_OPEN, UIConstants.YES_OPTION);
         else
             properties.put(HTTPListenerProperties.HTTP_KEEP_CONNECTION_OPEN, UIConstants.NO_OPTION);
 
         properties.put(HTTPListenerProperties.HTTP_RESPONSE_VALUE, (String)responseFromTransformer.getSelectedItem());
+        
+        if (appendPayloadYesRadio.isSelected())
+            properties.put(HTTPListenerProperties.HTTP_APPEND_PAYLOAD, UIConstants.YES_OPTION);
+        else
+            properties.put(HTTPListenerProperties.HTTP_APPEND_PAYLOAD, UIConstants.NO_OPTION);
+        
+        if (((String) payloadURLEncodingComboBox.getSelectedItem()).equals(HTTPListenerProperties.PAYLOAD_ENCODING_NONE))
+            properties.put(HTTPListenerProperties.HTTP_PAYLOAD_ENCODING, HTTPListenerProperties.PAYLOAD_ENCODING_NONE);
+        else if (((String) payloadURLEncodingComboBox.getSelectedItem()).equals(HTTPListenerProperties.PAYLOAD_ENCODING_ENCODE))
+            properties.put(HTTPListenerProperties.HTTP_PAYLOAD_ENCODING, HTTPListenerProperties.PAYLOAD_ENCODING_ENCODE);
+        else if (((String) payloadURLEncodingComboBox.getSelectedItem()).equals(HTTPListenerProperties.PAYLOAD_ENCODING_DECODE))
+            properties.put(HTTPListenerProperties.HTTP_PAYLOAD_ENCODING, HTTPListenerProperties.PAYLOAD_ENCODING_DECODE);
 
         return properties;
     }
@@ -92,6 +105,18 @@ public class HTTPListener extends ConnectorClass
         
         updateResponseDropDown();
         responseFromTransformer.setSelectedItem((String) props.getProperty(HTTPListenerProperties.HTTP_RESPONSE_VALUE));
+        
+        if (((String) props.get(HTTPListenerProperties.HTTP_APPEND_PAYLOAD)).equals(UIConstants.YES_OPTION))
+            appendPayloadYesRadio.setSelected(true);
+        else
+            appendPayloadNoRadio.setSelected(true);
+        
+        if (props.get(HTTPListenerProperties.HTTP_PAYLOAD_ENCODING).equals(HTTPListenerProperties.PAYLOAD_ENCODING_NONE))
+            payloadURLEncodingComboBox.setSelectedItem(HTTPListenerProperties.PAYLOAD_ENCODING_NONE);
+        else if (props.get(HTTPListenerProperties.HTTP_PAYLOAD_ENCODING).equals(HTTPListenerProperties.PAYLOAD_ENCODING_ENCODE))
+            payloadURLEncodingComboBox.setSelectedItem(HTTPListenerProperties.PAYLOAD_ENCODING_ENCODE);
+        else if (props.get(HTTPListenerProperties.HTTP_PAYLOAD_ENCODING).equals(HTTPListenerProperties.PAYLOAD_ENCODING_DECODE))
+            payloadURLEncodingComboBox.setSelectedItem(HTTPListenerProperties.PAYLOAD_ENCODING_DECODE);
     }
 
     public Properties getDefaults()
@@ -146,7 +171,7 @@ public class HTTPListener extends ConnectorClass
     private void initComponents()
     {
         keepConnectionOpenGroup = new javax.swing.ButtonGroup();
-        buttonGroup1 = new javax.swing.ButtonGroup();
+        appendPayloadGroup = new javax.swing.ButtonGroup();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
@@ -160,6 +185,11 @@ public class HTTPListener extends ConnectorClass
         keepConnectionOpenNoRadio = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         jLabel38 = new javax.swing.JLabel();
         responseFromTransformer = new com.webreach.mirth.client.ui.components.MirthComboBox();
+        appendPayloadYesRadio = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        appendPayloadNoRadio = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        jLabel6 = new javax.swing.JLabel();
+        payloadURLEncodingComboBox = new com.webreach.mirth.client.ui.components.MirthComboBox();
+        jLabel7 = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -196,30 +226,62 @@ public class HTTPListener extends ConnectorClass
             }
         });
 
+        appendPayloadYesRadio.setBackground(new java.awt.Color(255, 255, 255));
+        appendPayloadYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        appendPayloadGroup.add(appendPayloadYesRadio);
+        appendPayloadYesRadio.setText("Yes");
+        appendPayloadYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
+        appendPayloadNoRadio.setBackground(new java.awt.Color(255, 255, 255));
+        appendPayloadNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        appendPayloadGroup.add(appendPayloadNoRadio);
+        appendPayloadNoRadio.setText("No");
+        appendPayloadNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
+        jLabel6.setText("Append Payload Variable:");
+
+        payloadURLEncodingComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "None", "Encode", "Decode" }));
+        payloadURLEncodingComboBox.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                payloadURLEncodingComboBoxActionPerformed(evt);
+            }
+        });
+
+        jLabel7.setText("Payload URL Encoding:");
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(jLabel38)
-                    .add(jLabel2)
-                    .add(jLabel1)
-                    .add(jLabel3)
-                    .add(jLabel4)
-                    .add(jLabel5))
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel7)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel6)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel38)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel5)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel4)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel3)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel2)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel1))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(payloadURLEncodingComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 150, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(layout.createSequentialGroup()
+                        .add(appendPayloadYesRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(appendPayloadNoRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(responseFromTransformer, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 150, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(layout.createSequentialGroup()
                         .add(keepConnectionOpenYesRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(keepConnectionOpenNoRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(bufferSizeField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(receiveTimeoutField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(listenerPortField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(bufferSizeField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(listenerAddressField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(responseFromTransformer, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 150, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(listenerAddressField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -249,9 +311,23 @@ public class HTTPListener extends ConnectorClass
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel38)
                     .add(responseFromTransformer, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(appendPayloadYesRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(appendPayloadNoRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jLabel6))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(payloadURLEncodingComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jLabel7))
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void payloadURLEncodingComboBoxActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_payloadURLEncodingComboBoxActionPerformed
+    {//GEN-HEADEREND:event_payloadURLEncodingComboBoxActionPerformed
+// TODO add your handling code here:
+    }//GEN-LAST:event_payloadURLEncodingComboBoxActionPerformed
 
     private void responseFromTransformerActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_responseFromTransformerActionPerformed
     {//GEN-HEADEREND:event_responseFromTransformerActionPerformed
@@ -321,19 +397,24 @@ public class HTTPListener extends ConnectorClass
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.ButtonGroup appendPayloadGroup;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton appendPayloadNoRadio;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton appendPayloadYesRadio;
     private com.webreach.mirth.client.ui.components.MirthTextField bufferSizeField;
-    private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel38;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
     private javax.swing.ButtonGroup keepConnectionOpenGroup;
     private com.webreach.mirth.client.ui.components.MirthRadioButton keepConnectionOpenNoRadio;
     private com.webreach.mirth.client.ui.components.MirthRadioButton keepConnectionOpenYesRadio;
     private com.webreach.mirth.client.ui.components.MirthTextField listenerAddressField;
     private com.webreach.mirth.client.ui.components.MirthTextField listenerPortField;
+    private com.webreach.mirth.client.ui.components.MirthComboBox payloadURLEncodingComboBox;
     private com.webreach.mirth.client.ui.components.MirthTextField receiveTimeoutField;
     private com.webreach.mirth.client.ui.components.MirthComboBox responseFromTransformer;
     // End of variables declaration//GEN-END:variables
