@@ -47,13 +47,13 @@ public class PluginManagerPanel extends javax.swing.JPanel
     private int lastPluginRow = -1;
     
     private final String ENABLED_STATUS = "Enabled";
-       
+    
     private Map<String, PluginMetaData> pluginData = null;
-    private Map<String, ConnectorMetaData> connectorData = null;    
+    private Map<String, ConnectorMetaData> connectorData = null;
     
     /** Creates new form PluginManagerPanel */
     public PluginManagerPanel(PluginManagerClient parent)
-    {        
+    {
         this.parent = parent;
         initComponents();
         makeLoadedConnectorsTable();
@@ -86,17 +86,21 @@ public class PluginManagerPanel extends javax.swing.JPanel
                 return pluginData.get(extensionName);
             }
         }
-
+        
         return null;
     }
-     public void showExtensionProperties()
+    public void showExtensionProperties()
     {
         MetaData metaData = getSelectedExtension();
-        if (metaData != null){
+        if (metaData != null)
+        {
             String type = "";
-            if (metaData instanceof ConnectorMetaData){
+            if (metaData instanceof ConnectorMetaData)
+            {
                 type = "Connector";
-            }else if (metaData instanceof PluginMetaData){
+            }
+            else if (metaData instanceof PluginMetaData)
+            {
                 type = "Plugin";
             }
             
@@ -106,7 +110,7 @@ public class PluginManagerPanel extends javax.swing.JPanel
             String author =  metaData.getAuthor();
             String url =  metaData.getUrl();
             String description  = metaData.getDescription();
-                        
+            
             new PluginInfoDialog(name, type, author,mirthVersion, version, url, description);
         }
     }
@@ -166,7 +170,7 @@ public class PluginManagerPanel extends javax.swing.JPanel
                 ConnectorListSelected(evt);
             }
         });
-
+        
         // listen for trigger button and double click to edit channel.
         loadedConnectorsTable.addMouseListener(new java.awt.event.MouseAdapter()
         {
@@ -174,16 +178,17 @@ public class PluginManagerPanel extends javax.swing.JPanel
             {
                 showConnectorPopupMenu(evt, true);
             }
-
+            
             public void mouseReleased(java.awt.event.MouseEvent evt)
             {
                 showConnectorPopupMenu(evt, true);
             }
-
+            
             public void mouseClicked(java.awt.event.MouseEvent evt)
             {
-                if (evt.getClickCount() == 2){
-                   showExtensionProperties();
+                if (evt.getClickCount() == 2)
+                {
+                    showExtensionProperties();
                 }
             }
         });
@@ -191,7 +196,7 @@ public class PluginManagerPanel extends javax.swing.JPanel
         {
             public void mouseWheelMoved(MouseWheelEvent e)
             {
-            	loadedConnectorsScrollPane.getMouseWheelListeners()[0].mouseWheelMoved(e);
+                loadedConnectorsScrollPane.getMouseWheelListeners()[0].mouseWheelMoved(e);
             }
             
         });
@@ -275,13 +280,13 @@ public class PluginManagerPanel extends javax.swing.JPanel
     private void ConnectorListSelected(ListSelectionEvent evt)
     {
         int row = loadedConnectorsTable.getSelectedRow();
-
+        
         if (row >= 0 && row < loadedConnectorsTable.getRowCount())
         {
             loadedPluginsTable.deselectRows();
             
             parent.setVisibleTasks(4, -1, true);
-
+            
             int columnNumber = loadedConnectorsTable.getColumnNumber(PLUGIN_STATUS_COLUMN_NAME);
             if (((CellData) loadedConnectorsTable.getValueAt(row, columnNumber)).getText().equals(ENABLED_STATUS))
                 parent.setVisibleTasks(4, 4, false);
@@ -290,7 +295,7 @@ public class PluginManagerPanel extends javax.swing.JPanel
         }
     }
     
-     /**
+    /**
      * Show the popup menu on trigger button press (right-click). If it's on the
      * table then the row should be selected, if not any selected rows should be
      * deselected first.
@@ -358,7 +363,7 @@ public class PluginManagerPanel extends javax.swing.JPanel
                 PluginListSelected(evt);
             }
         });
-
+        
         // listen for trigger button and double click to edit channel.
         loadedPluginsTable.addMouseListener(new java.awt.event.MouseAdapter()
         {
@@ -366,17 +371,18 @@ public class PluginManagerPanel extends javax.swing.JPanel
             {
                 showPluginPopupMenu(evt, true);
             }
-
+            
             public void mouseReleased(java.awt.event.MouseEvent evt)
             {
                 showPluginPopupMenu(evt, true);
             }
-
+            
             public void mouseClicked(java.awt.event.MouseEvent evt)
             {
-            	 if (evt.getClickCount() == 2){
-                     showExtensionProperties();
-                  }
+                if (evt.getClickCount() == 2)
+                {
+                    showExtensionProperties();
+                }
             }
         });
         
@@ -464,17 +470,17 @@ public class PluginManagerPanel extends javax.swing.JPanel
         loadedPluginsTable.setHighlighters(highlighter);
     }
     
-        /** The action called when a plugin is selected. Sets tasks as well. */
+    /** The action called when a plugin is selected. Sets tasks as well. */
     private void PluginListSelected(ListSelectionEvent evt)
     {
         int row = loadedPluginsTable.getSelectedRow();
-
+        
         if (row >= 0 && row < loadedPluginsTable.getRowCount())
         {
             loadedConnectorsTable.deselectRows();
             
             parent.setVisibleTasks(4, -1, true);
-
+            
             int columnNumber = loadedPluginsTable.getColumnNumber(PLUGIN_STATUS_COLUMN_NAME);
             if (((CellData) loadedPluginsTable.getValueAt(row, columnNumber)).getText().equals(ENABLED_STATUS))
                 parent.setVisibleTasks(4, 4, false);
@@ -483,7 +489,7 @@ public class PluginManagerPanel extends javax.swing.JPanel
         }
     }
     
-     /**
+    /**
      * Show the popup menu on trigger button press (right-click). If it's on the
      * table then the row should be selected, if not any selected rows should be
      * deselected first.
@@ -515,7 +521,8 @@ public class PluginManagerPanel extends javax.swing.JPanel
      * always regenerated by the Form Editor.
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
-    private void initComponents() {
+    private void initComponents()
+    {
         buttonGroup1 = new javax.swing.ButtonGroup();
         loadedPluginsPanel = new javax.swing.JPanel();
         loadedPluginsScrollPane = new javax.swing.JScrollPane();
@@ -549,19 +556,23 @@ public class PluginManagerPanel extends javax.swing.JPanel
         );
 
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
-        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1), "Install Extension", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11), new java.awt.Color(0, 0, 0)));
+        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1), "Install Extension from File System", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11), new java.awt.Color(0, 0, 0)));
         jLabel1.setText("File:");
 
         browseButton.setText("Browse");
-        browseButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        browseButton.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
                 browseButtonActionPerformed(evt);
             }
         });
 
         installButton.setText("Install");
-        installButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        installButton.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
                 installButtonActionPerformed(evt);
             }
         });
@@ -659,7 +670,7 @@ public class PluginManagerPanel extends javax.swing.JPanel
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
-
+    
     private void installButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_installButtonActionPerformed
     {//GEN-HEADEREND:event_installButtonActionPerformed
         String location;
@@ -674,9 +685,9 @@ public class PluginManagerPanel extends javax.swing.JPanel
             parent.alertInformation("Mirth must be restarted in order to load the extension.");
             fileText.setText("");
         }
-            
+        
     }//GEN-LAST:event_installButtonActionPerformed
-
+    
     private void browseButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_browseButtonActionPerformed
     {//GEN-HEADEREND:event_browseButtonActionPerformed
         JFileChooser pluginFileChooser = new JFileChooser();

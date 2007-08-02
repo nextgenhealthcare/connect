@@ -49,10 +49,10 @@ import com.webreach.mirth.model.MetaData;
 import com.webreach.mirth.model.PluginMetaData;
 
 /** Creates the About Mirth dialog. The content is loaded from about.txt. */
-public class UpdateDialog extends javax.swing.JDialog 
+public class UpdateDialog extends javax.swing.JDialog
 {
     private PluginManagerClient parent;
-  
+    
     private final String EXTENSION_NAME_COLUMN_NAME = "Extension Name";
     private final String EXTENSION_INSTALLED_VERSION_COLUMN_NAME = "Installed Version";
     private final String EXTENSION_INSTALL_UPDATE_COLUMN_NAME = "Update";
@@ -72,18 +72,18 @@ public class UpdateDialog extends javax.swing.JDialog
         initComponents();
         extensions.putAll(PlatformUI.MIRTH_FRAME.mirthClient.getPluginMetaData());
         extensions.putAll(PlatformUI.MIRTH_FRAME.mirthClient.getConnectorMetaData());
-        //extensions.put      
+        //extensions.put
         //setPreferredSize(new Dimension(400,400));
-       
+        
         Dimension dlgSize = getPreferredSize();
         Dimension frmSize = PlatformUI.MIRTH_FRAME.getSize();
         Point loc = PlatformUI.MIRTH_FRAME.getLocation();
         setLocation((frmSize.width - dlgSize.width) / 2 + loc.x, (frmSize.height - dlgSize.height) / 2 + loc.y);
         
         makeLoadedExtensionsTable();
-        
+        progressBar.setVisible(false);
         setVisible(true);
-        checkForUpdatesButtonActionPerformed(null);         
+        checkForUpdatesButtonActionPerformed(null);
     }
     /**
      * Makes the loaded connectors table
@@ -91,7 +91,7 @@ public class UpdateDialog extends javax.swing.JDialog
     public void makeLoadedExtensionsTable()
     {
         updateLoadedExtensionsTable();
-
+        
         loadedExtensionTable = new MirthTable();
         loadedExtensionTable.setModel(new RefreshTableModel(new Object[][]{}, new String[] { EXTENSION_NAME_COLUMN_NAME, EXTENSION_INSTALLED_VERSION_COLUMN_NAME,  EXTENSION_UPDATE_VERSION_COLUMN_NAME, EXTENSION_INSTALL_UPDATE_COLUMN_NAME })
         {
@@ -132,72 +132,87 @@ public class UpdateDialog extends javax.swing.JDialog
         {
             public void mouseWheelMoved(MouseWheelEvent e)
             {
-            	loadedExtensionScrollPane.getMouseWheelListeners()[0].mouseWheelMoved(e);
+                loadedExtensionScrollPane.getMouseWheelListeners()[0].mouseWheelMoved(e);
             }
             
         });
         loadedExtensionScrollPane.setViewportView(loadedExtensionTable);
     }
     
-   
-
-    public boolean isUpdateAvailable(MetaData extension){
+    
+    
+    public boolean isUpdateAvailable(MetaData extension)
+    {
         return false;
     }
-    public void installUpdates(){
-    	//progressBar.setIndeterminate(true);
+    public void installUpdates()
+    {
+        //progressBar.setIndeterminate(true);
         
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
             public Void doInBackground()
             {
-            	for (int i = 0; i < loadedExtensionTable.getModel().getRowCount(); i++){
-            		boolean update = ((Boolean)loadedExtensionTable.getModel().getValueAt(i,3)).booleanValue();
-            		if (update){
-            			String name = (String)loadedExtensionTable.getModel().getValueAt(i, 0);
-            			MetaData plugin = updatableExtensions.get(name);
-	            		if(plugin instanceof ConnectorMetaData){
-	            			statusLabel.setText("Downloading connector: " + plugin.getName());
-	            		}else if (plugin instanceof PluginMetaData){
-	            			statusLabel.setText("Downloading plugin: " + plugin.getName());
-	            		}
-	            		if (cancel){
-	            			break;
-	            		}
-	            		try {
-							Thread.sleep(1000);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-						progressBar.setVisible(true);
-						pluginUtil.downloadFile("http://www.fotw.net/upload-download/firetest041206.jpg", statusLabel, progressBar);
-						progressBar.setVisible(false);
-						if (cancel){
-	            			break;
-	            		}
-	            		statusLabel.setText("Updating extension: " + plugin.getName());
-	            		try {
-							Thread.sleep(500);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-            		}
-            	}
-            	
+                for (int i = 0; i < loadedExtensionTable.getModel().getRowCount(); i++)
+                {
+                    boolean update = ((Boolean)loadedExtensionTable.getModel().getValueAt(i,3)).booleanValue();
+                    if (update)
+                    {
+                        String name = (String)loadedExtensionTable.getModel().getValueAt(i, 0);
+                        MetaData plugin = updatableExtensions.get(name);
+                        if(plugin instanceof ConnectorMetaData)
+                        {
+                            statusLabel.setText("Downloading connector: " + plugin.getName());
+                        }
+                        else if (plugin instanceof PluginMetaData)
+                        {
+                            statusLabel.setText("Downloading plugin: " + plugin.getName());
+                        }
+                        if (cancel)
+                        {
+                            break;
+                        }
+                        try
+                        {
+                            Thread.sleep(1000);
+                        }
+                        catch (InterruptedException e)
+                        {
+                            e.printStackTrace();
+                        }
+                        progressBar.setVisible(true);
+                        pluginUtil.downloadFile("http://www.fotw.net/upload-download/firetest041206.jpg", statusLabel, progressBar);
+                        progressBar.setVisible(false);
+                        if (cancel)
+                        {
+                            break;
+                        }
+                        statusLabel.setText("Updating extension: " + plugin.getName());
+                        try
+                        {
+                            Thread.sleep(500);
+                        }
+                        catch (InterruptedException e)
+                        {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                
                 return null;
             }
             
             public void done()
             {
-            	statusLabel.setText("Updates Installed!");
-            	PlatformUI.MIRTH_FRAME.alertInformation("Updates successfully installed.\r\nYou must restart Mirth to refresh plugin status");
-            	dispose();
+                statusLabel.setText("Updates Installed!");
+                PlatformUI.MIRTH_FRAME.alertInformation("Updates successfully installed.\r\nYou must restart Mirth to refresh plugin status");
+                dispose();
             }
         };
         
         worker.execute();
     }
-  
+    
     public void updateLoadedExtensionsTable()
     {
         Object[][] tableData = null;
@@ -205,11 +220,13 @@ public class UpdateDialog extends javax.swing.JDialog
         ArrayList<String> updateVersion = new ArrayList<String>();
         for (MetaData metaData : extensions.values())
         {
-            if (metaData.getUpdateUrl() != null){
+            if (metaData.getUpdateUrl() != null)
+            {
                 statusLabel.setText("Checking: " + metaData.getName());
                 String updateText = pluginUtil.getStringFromURL("http://www.mirthproject.org");//metaData.getUpdateUrl());
                 System.out.println(updateText);
-                if (updateText.length() > 0){
+                if (updateText.length() > 0)
+                {
                     updatableExtensions.put(metaData.getName(), metaData);
                     updateVersion.add("1.1.1");
                 }
@@ -217,9 +234,9 @@ public class UpdateDialog extends javax.swing.JDialog
         }
         statusLabel.setText("Ready to Install Updates!");
         tableSize = updatableExtensions.size();
-       
+        
         tableData = new Object[tableSize][4];
-
+        
         int i = 0;
         for (MetaData metaData : updatableExtensions.values())
         {
@@ -241,7 +258,7 @@ public class UpdateDialog extends javax.swing.JDialog
         {
         }
     }
-
+    
     
     /**
      * This method is called from within the constructor to initialize the form.
@@ -351,41 +368,41 @@ public class UpdateDialog extends javax.swing.JDialog
         );
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
+    
     private void checkForUpdatesButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkForUpdatesButtonActionPerformed
 // TODO add your handling code here:
-    	//Probably should be a swing worker
-    	
-    	 PlatformUI.MIRTH_FRAME.setWorking("Checking for updates...", true);
-         
-         SwingWorker worker = new SwingWorker<Void, Void>()
-         {
-             public Void doInBackground()
-             {
-                 updateLoadedExtensionsTable();
-                 return null;
-             }
-             
-             public void done()
-             {
-            	 PlatformUI.MIRTH_FRAME.setWorking("", false);
-             }
-         };
-         
-         worker.execute();
-
+        //Probably should be a swing worker
+        
+        PlatformUI.MIRTH_FRAME.setWorking("Checking for updates...", true);
+        
+        SwingWorker worker = new SwingWorker<Void, Void>()
+        {
+            public Void doInBackground()
+            {
+                updateLoadedExtensionsTable();
+                return null;
+            }
+            
+            public void done()
+            {
+                PlatformUI.MIRTH_FRAME.setWorking("", false);
+            }
+        };
+        
+        worker.execute();
+        
     }//GEN-LAST:event_checkForUpdatesButtonActionPerformed
-
+    
     private void installUpdatesButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_installUpdatesButtonActionPerformed
-    	installUpdates();
+        installUpdates();
     }//GEN-LAST:event_installUpdatesButtonActionPerformed
     
     private void closeButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_closeButtonActionPerformed
     {//GEN-HEADEREND:event_closeButtonActionPerformed
-    	cancel = true;
+        cancel = true;
         this.dispose();
     }//GEN-LAST:event_closeButtonActionPerformed
-        
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton checkForUpdatesButton;
     private javax.swing.JButton closeButton;

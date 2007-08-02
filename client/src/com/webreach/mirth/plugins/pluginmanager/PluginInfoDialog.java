@@ -35,21 +35,21 @@ import com.webreach.mirth.client.ui.BareBonesBrowserLaunch;
 import com.webreach.mirth.client.ui.PlatformUI;
 
 /** Creates the About Mirth dialog. The content is loaded from about.txt. */
-public class PluginInfoDialog extends javax.swing.JDialog 
+public class PluginInfoDialog extends javax.swing.JDialog
 {
     /**
      * Creates new form ViewContentDialog
      */
     public PluginInfoDialog(String name,
-        String type,
-	String author,
-	String mirthVersion,
-	String pluginVersion,
-	String url,
-	String description) 
+            String type,
+            String author,
+            String mirthVersion,
+            String pluginVersion,
+            String url,
+            String description)
     {
         super(PlatformUI.MIRTH_FRAME);
-
+        
         initComponents();
         nameLabel.setText(name);
         typeLabel.setText(type);
@@ -65,10 +65,8 @@ public class PluginInfoDialog extends javax.swing.JDialog
         Point loc = PlatformUI.MIRTH_FRAME.getLocation();
         setLocation((frmSize.width - dlgSize.width) / 2 + loc.x, (frmSize.height - dlgSize.height) / 2 + loc.y);
         setVisible(true);
-             
-    }
-    
-
+        
+    }  
     
     /**
      * This method is called from within the constructor to initialize the form.
@@ -252,18 +250,17 @@ public class PluginInfoDialog extends javax.swing.JDialog
         );
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
+    
     private void urlLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_urlLabelMouseClicked
-// TODO add your handling code here:
+        // TODO add your handling code here:
         BareBonesBrowserLaunch.openURL(urlLabel.getText());
     }//GEN-LAST:event_urlLabelMouseClicked
     
     private void closeButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_closeButtonActionPerformed
     {//GEN-HEADEREND:event_closeButtonActionPerformed
-
         this.dispose();
     }//GEN-LAST:event_closeButtonActionPerformed
-        
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel authorLabel;
     private javax.swing.JButton closeButton;

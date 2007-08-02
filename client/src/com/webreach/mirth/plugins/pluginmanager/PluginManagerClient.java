@@ -48,10 +48,10 @@ public class PluginManagerClient extends ClientPanelPlugin
         
         getComponent().addMouseListener(getPopupMenuMouseAdapter());
     }
-     public void doShowProperties()
+    public void doShowProperties()
     {
         ((PluginManagerPanel) getComponent()).showExtensionProperties();
-    } 
+    }
     public void doCheckForUpdates()
     {
         try
@@ -63,7 +63,7 @@ public class PluginManagerClient extends ClientPanelPlugin
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-    } 
+    }
     public void doShowRepository()
     {
         try

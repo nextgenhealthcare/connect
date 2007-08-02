@@ -65,7 +65,7 @@ import com.webreach.mirth.model.MetaData;
 import com.webreach.mirth.model.PluginMetaData;
 
 /** Creates the About Mirth dialog. The content is loaded from about.txt. */
-public class RepositoryDialog extends javax.swing.JDialog 
+public class RepositoryDialog extends javax.swing.JDialog
 {
     private PluginManagerClient parent;
     private final String EXTENSION_TYPE_COLUMN_NAME = "Type";
@@ -97,7 +97,7 @@ public class RepositoryDialog extends javax.swing.JDialog
         makeLoadedExtensionsTable();
         
         
-        checkForUpdatesButtonActionPerformed(null);         
+        checkForUpdatesButtonActionPerformed(null);
     }
     /**
      * Makes the loaded connectors table
@@ -105,7 +105,7 @@ public class RepositoryDialog extends javax.swing.JDialog
     public void makeLoadedExtensionsTable()
     {
         //updateLoadedExtensionsTable();
-
+        
         loadedExtensionTable = new MirthTable();
         loadedExtensionTable.setModel(new RefreshTableModel(new Object[][]{}, new String[] {EXTENSION_TYPE_COLUMN_NAME,
         EXTENSION_NAME_COLUMN_NAME, EXTENSION_VERSION_COLUMN_NAME,
@@ -129,7 +129,7 @@ public class RepositoryDialog extends javax.swing.JDialog
         loadedExtensionTable.setSelectionMode(0);
         loadedExtensionTable.getColumnExt(EXTENSION_TYPE_COLUMN_NAME).setMinWidth(75);
         loadedExtensionTable.getColumnExt(EXTENSION_TYPE_COLUMN_NAME).setMaxWidth(280);
-       
+        
         loadedExtensionTable.getColumnExt(EXTENSION_NAME_COLUMN_NAME).setMinWidth(75);
         
         loadedExtensionTable.getColumnExt(EXTENSION_VERSION_COLUMN_NAME).setMaxWidth(120);
@@ -139,11 +139,11 @@ public class RepositoryDialog extends javax.swing.JDialog
         loadedExtensionTable.getColumnExt(EXTENSION_AUTHOR_COLUMN_NAME).setMaxWidth(120);
         loadedExtensionTable.getColumnExt(EXTENSION_AUTHOR_COLUMN_NAME).setMinWidth(90);
         
-       // loadedExtensionTable.getColumnExt(EXTENSION_DESCRIPTION_COLUMN_NAME).setMaxWidth(50);
+        // loadedExtensionTable.getColumnExt(EXTENSION_DESCRIPTION_COLUMN_NAME).setMaxWidth(50);
         loadedExtensionTable.getColumnExt(EXTENSION_DESCRIPTION_COLUMN_NAME).setMinWidth(150);
         
-      //  loadedExtensionTable.getColumnExt(EXTENSION_URL_COLUMN_NAME).setMaxWidth(50);
-      //  loadedExtensionTable.getColumnExt(EXTENSION_URL_COLUMN_NAME).setMinWidth(75);
+        //  loadedExtensionTable.getColumnExt(EXTENSION_URL_COLUMN_NAME).setMaxWidth(50);
+        //  loadedExtensionTable.getColumnExt(EXTENSION_URL_COLUMN_NAME).setMinWidth(75);
         
         loadedExtensionTable.getColumnExt(EXTENSION_INSTALL_COLUMN_NAME).setMaxWidth(50);
         loadedExtensionTable.getColumnExt(EXTENSION_INSTALL_COLUMN_NAME).setMinWidth(50);
@@ -154,13 +154,17 @@ public class RepositoryDialog extends javax.swing.JDialog
             highlighter.addHighlighter(new AlternateRowHighlighter(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR, UIConstants.TITLE_TEXT_COLOR));
             loadedExtensionTable.setHighlighters(highlighter);
         }
-      //  loadedExtensionTable.packTable(UIConstants.COL_MARGIN);
+        //  loadedExtensionTable.packTable(UIConstants.COL_MARGIN);
         loadedExtensionScrollPane.setViewportView(loadedExtensionTable);
-        loadedExtensionTable.addMouseListener(new MouseListener() {
-            public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() == 2){
+        loadedExtensionTable.addMouseListener(new MouseListener()
+        {
+            public void mouseClicked(MouseEvent e)
+            {
+                if (e.getClickCount() == 2)
+                {
                     int row = loadedExtensionTable.getSelectedRow();
-                    if (row > -1 && extensionInfo != null){
+                    if (row > -1 && extensionInfo != null)
+                    {
                         
                         String type = extensionInfo[row].getType();
                         String name =  extensionInfo[row].getName();
@@ -172,94 +176,110 @@ public class RepositoryDialog extends javax.swing.JDialog
                         
                         new PluginInfoDialog(name, type, author,mirthVersion, version, url, description);
                     }
-                }else{
-                	int col = loadedExtensionTable.getSelectedColumn();
-                	if (col == 5){
-                		int row = loadedExtensionTable.getSelectedRow();
-                		boolean value = ((Boolean)loadedExtensionTable.getModel().getValueAt(row,5)).booleanValue();   
-                		loadedExtensionTable.getModel().setValueAt(!value, row, col);
-                	}
-                	
+                }
+                else
+                {
+                    int col = loadedExtensionTable.getSelectedColumn();
+                    if (col == 5)
+                    {
+                        int row = loadedExtensionTable.getSelectedRow();
+                        boolean value = ((Boolean)loadedExtensionTable.getModel().getValueAt(row,5)).booleanValue();
+                        loadedExtensionTable.getModel().setValueAt(!value, row, col);
+                    }
+                    
                 }
             }
-            public void mouseEntered(MouseEvent e) {
+            public void mouseEntered(MouseEvent e)
+            {
             }
-            public void mouseExited(MouseEvent e) {
+            public void mouseExited(MouseEvent e)
+            {
             }
-            public void mousePressed(MouseEvent e) {
+            public void mousePressed(MouseEvent e)
+            {
             }
-            public void mouseReleased(MouseEvent e) {
+            public void mouseReleased(MouseEvent e)
+            {
             }
         });
         loadedExtensionTable.addMouseWheelListener(new MouseWheelListener()
         {
             public void mouseWheelMoved(MouseWheelEvent e)
             {
-            	loadedExtensionScrollPane.getMouseWheelListeners()[0].mouseWheelMoved(e);
+                loadedExtensionScrollPane.getMouseWheelListeners()[0].mouseWheelMoved(e);
             }
             
         });
     }
     
-   
-
-  
-    public void installUpdates(){
-    	
-        
+    public void installUpdates()
+    {        
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
             public Void doInBackground()
             {
-            	for (int i = 0; i < loadedExtensionTable.getModel().getRowCount(); i++){
-            		if (cancel){
-            			break;
-            		}
-            		boolean update = ((Boolean)loadedExtensionTable.getModel().getValueAt(i,5)).booleanValue();
-            		if (update){
-            			String name = (String)loadedExtensionTable.getModel().getValueAt(i, 1);
-            			String type = (String)loadedExtensionTable.getModel().getValueAt(i, 0);
-                        if (type.equals("Connector")){
+                for (int i = 0; i < loadedExtensionTable.getModel().getRowCount(); i++)
+                {
+                    if (cancel)
+                    {
+                        break;
+                    }
+                    boolean update = ((Boolean)loadedExtensionTable.getModel().getValueAt(i,5)).booleanValue();
+                    if (update)
+                    {
+                        String name = (String)loadedExtensionTable.getModel().getValueAt(i, 1);
+                        String type = (String)loadedExtensionTable.getModel().getValueAt(i, 0);
+                        if (type.equals("Connector"))
+                        {
                             statusLabel.setText("Downloading connector: " + name);
-                        }else if (type.equals("Plugin")){
+                        }
+                        else if (type.equals("Plugin"))
+                        {
                             statusLabel.setText("Downloading plugin: " + name);
                         }
-	            		
-	            		try {
-                                Thread.sleep(1000);
-                        } catch (InterruptedException e) {
-                                e.printStackTrace();
+                        
+                        try
+                        {
+                            Thread.sleep(1000);
                         }
-                        progressBar.setVisible(true); 
+                        catch (InterruptedException e)
+                        {
+                            e.printStackTrace();
+                        }
+                        progressBar.setVisible(true);
                         pluginUtil.downloadFile("http://www.fotw.net/upload-download/firetest041206.jpg", statusLabel, progressBar);
-                        if (cancel){
-                			break;
-                		}
+                        if (cancel)
+                        {
+                            break;
+                        }
                         progressBar.setVisible(false);
                         statusLabel.setText("Installing extension: " + name);
-	            		try {
-                                Thread.sleep(500);
-                        } catch (InterruptedException e) {
-                                e.printStackTrace();
+                        try
+                        {
+                            Thread.sleep(500);
                         }
-            		}
-            	}
-            	
+                        catch (InterruptedException e)
+                        {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                
                 return null;
             }
             
             public void done()
             {
-            	
-            	statusLabel.setText("Extensions Installed!");
-            	PlatformUI.MIRTH_FRAME.alertInformation("Extensions successfully installed.\r\nMirth Server must be restarted in order to load the extension.");
-            	dispose();
+                
+                statusLabel.setText("Extensions Installed!");
+                PlatformUI.MIRTH_FRAME.alertInformation("Extensions successfully installed.\r\nMirth Server must be restarted in order to load the extension.");
+                dispose();
             }
         };
         
         worker.execute();
     }
-  
+    
     public void updateLoadedExtensionsTable()
     {
         Object[][] tableData = null;
@@ -269,21 +289,25 @@ public class RepositoryDialog extends javax.swing.JDialog
         progressBar.setIndeterminate(true);
         String extensionInfoXML = pluginUtil.getStringFromURL("http://extensions.mirthproject.org/repository/");
         ObjectXMLSerializer serializer = new ObjectXMLSerializer(new Class[]{ExtensionInfo.class});
-        try{
-        	extensionInfo = (ExtensionInfo[]) serializer.fromXML(extensionInfoXML);
-        }catch (Exception e){
-        	e.printStackTrace();
+        try
+        {
+            extensionInfo = (ExtensionInfo[]) serializer.fromXML(extensionInfoXML);
         }
-        if (extensionInfo == null){
-        	return;
+        catch (Exception e)
+        {
+            e.printStackTrace();
         }
-
+        if (extensionInfo == null)
+        {
+            return;
+        }
+        
         statusLabel.setText("Ready to Install Extensions!");
         progressBar.setIndeterminate(false);
         tableSize = extensionInfo.length;
-       
+        
         tableData = new Object[tableSize][7];
-
+        
         
         for (int i = 0; i < extensionInfo.length; i++)
         {
@@ -292,8 +316,8 @@ public class RepositoryDialog extends javax.swing.JDialog
             tableData[i][2] = extensionInfo[i].getVersion();
             tableData[i][3] = extensionInfo[i].getAuthor();
             tableData[i][4] = extensionInfo[i].getDescription();
-           // tableData[i][5] = extensionInfo[i].getDescription();
-           // tableData[i][5] = extensionInfo[i].getUrl();
+            // tableData[i][5] = extensionInfo[i].getDescription();
+            // tableData[i][5] = extensionInfo[i].getUrl();
             tableData[i][5] = Boolean.TRUE;
         }
         
@@ -307,7 +331,7 @@ public class RepositoryDialog extends javax.swing.JDialog
         {
         }
     }
-
+    
     
     /**
      * This method is called from within the constructor to initialize the form.
@@ -420,41 +444,41 @@ jPanel1Layout.setHorizontalGroup(
     );
     pack();
     }// </editor-fold>//GEN-END:initComponents
-
+    
     private void checkForUpdatesButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkForUpdatesButtonActionPerformed
 // TODO add your handling code here:
-    	//Probably should be a swing worker
-    	
-    	 PlatformUI.MIRTH_FRAME.setWorking("Checking for updates...", true);
-         
-         SwingWorker worker = new SwingWorker<Void, Void>()
-         {
-             public Void doInBackground()
-             {
-                 updateLoadedExtensionsTable();
-                 return null;
-             }
-             
-             public void done()
-             {
-            	 PlatformUI.MIRTH_FRAME.setWorking("", false);
-             }
-         };
-         
-         worker.execute();
-
+        //Probably should be a swing worker
+        
+        PlatformUI.MIRTH_FRAME.setWorking("Checking for updates...", true);
+        
+        SwingWorker worker = new SwingWorker<Void, Void>()
+        {
+            public Void doInBackground()
+            {
+                updateLoadedExtensionsTable();
+                return null;
+            }
+            
+            public void done()
+            {
+                PlatformUI.MIRTH_FRAME.setWorking("", false);
+            }
+        };
+        
+        worker.execute();
+        
     }//GEN-LAST:event_checkForUpdatesButtonActionPerformed
-
+    
     private void installUpdatesButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_installUpdatesButtonActionPerformed
-    	installUpdates();
+        installUpdates();
     }//GEN-LAST:event_installUpdatesButtonActionPerformed
     
     private void closeButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_closeButtonActionPerformed
     {//GEN-HEADEREND:event_closeButtonActionPerformed
-    	cancel = true;
+        cancel = true;
         this.dispose();
     }//GEN-LAST:event_closeButtonActionPerformed
-        
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton checkForUpdatesButton;
     private javax.swing.JButton closeButton;
