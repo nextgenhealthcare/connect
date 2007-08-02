@@ -30,6 +30,8 @@ import javax.resource.spi.work.Work;
 import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.Iterator;
 import java.util.Properties;
 import java.util.StringTokenizer;
@@ -233,6 +235,7 @@ public class HttpMessageReceiver extends TcpMessageReceiver {
 
     protected Object parseRequest(InputStream is, DataOutputStream dataOut, Properties p, boolean includeHTTPElements) throws IOException {
         RequestInputStream req = new RequestInputStream(is);
+        HttpConnector httpConnector = (HttpConnector)connector;
         Object payload = null;
         String startLine = null;
         do {
@@ -342,8 +345,20 @@ public class HttpMessageReceiver extends TcpMessageReceiver {
         }
         
         if (payload != null && payload instanceof byte[] && includeHTTPElements){
-        	propertyString.append("&");
-        	propertyString.append(new String((byte[])payload));
+        	if (httpConnector.isAppendPayload()){
+        		propertyString.append("&payload=");
+        	}else{
+        		propertyString.append("&");
+        	}
+        	String payloadEncoding = httpConnector.getPayloadEncoding();
+        	if (payloadEncoding == null || payloadEncoding.equalsIgnoreCase("none")){
+        		propertyString.append(new String((byte[])payload));
+        	}else if (payloadEncoding.equals("encode")){
+        		propertyString.append(URLEncoder.encode(new String((byte[])payload)));
+        	}else if (payloadEncoding.equals("decode")){
+        		propertyString.append(URLDecoder.decode(new String((byte[])payload)));
+        	}
+        	
         	payload = propertyString.toString().getBytes();
         }
         return payload;

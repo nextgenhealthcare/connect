@@ -85,6 +85,8 @@ public class HttpConnector extends TcpConnector
     private String replyChannelId;
     private String channelId;
     private Map headerVariables;
+    private String payloadEncoding;
+    private boolean appendPayload;
     public String getChannelId() {
 		return this.channelId;
 	}
@@ -264,5 +266,21 @@ public class HttpConnector extends TcpConnector
 
 	public void setHeaderVariables(Map headerVariables) {
 		this.headerVariables = headerVariables;
+	}
+
+	public String getPayloadEncoding() {
+		return payloadEncoding;
+	}
+
+	public void setPayloadEncoding(String payloadEncoding) {
+		this.payloadEncoding = payloadEncoding;
+	}
+
+	public boolean isAppendPayload() {
+		return appendPayload;
+	}
+
+	public void setAppendPayload(boolean appendPayload) {
+		this.appendPayload = appendPayload;
 	}
 }
