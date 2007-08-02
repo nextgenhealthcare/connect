@@ -38,7 +38,7 @@ public class PluginManagerClient extends ClientPanelPlugin
         
         addTask("doRefresh", "Refresh", "Refresh loaded plugins.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png")));
         addTask("doSave", "Save", "Save plugin settings.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/save.png")));
-        addTask("doShowRepository", "Extension Repository", "Browse the public Mirth Extension Repository.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/database_gear.png")));
+        addTask("doShowRepository", "Download Extensions", "Browse the public Mirth Extension Repository.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/database_gear.png")));
         addTask("doCheckForUpdates", "Check for Updates", "Checks for updates.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/world_go.png")));
         addTask("doEnable","Enable Extension","Enable the currently selected extension.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/start.png")));
         addTask("doDisable","Disable Extension","Disable the currently selected extension.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/stop.png")));

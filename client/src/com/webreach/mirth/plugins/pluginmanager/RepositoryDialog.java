@@ -27,6 +27,7 @@ package com.webreach.mirth.plugins.pluginmanager;
 
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import java.awt.Dimension;
+import java.awt.Event;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -91,6 +92,7 @@ public class RepositoryDialog extends javax.swing.JDialog
         Dimension frmSize = PlatformUI.MIRTH_FRAME.getSize();
         Point loc = PlatformUI.MIRTH_FRAME.getLocation();
         setLocation((frmSize.width - dlgSize.width) / 2 + loc.x, (frmSize.height - dlgSize.height) / 2 + loc.y);
+        progressBar.setVisible(false);
         setVisible(true);
         makeLoadedExtensionsTable();
         
@@ -170,6 +172,14 @@ public class RepositoryDialog extends javax.swing.JDialog
                         
                         new PluginInfoDialog(name, type, author,mirthVersion, version, url, description);
                     }
+                }else{
+                	int col = loadedExtensionTable.getSelectedColumn();
+                	if (col == 5){
+                		int row = loadedExtensionTable.getSelectedRow();
+                		boolean value = ((Boolean)loadedExtensionTable.getModel().getValueAt(row,5)).booleanValue();   
+                		loadedExtensionTable.getModel().setValueAt(!value, row, col);
+                	}
+                	
                 }
             }
             public void mouseEntered(MouseEvent e) {
@@ -195,35 +205,43 @@ public class RepositoryDialog extends javax.swing.JDialog
 
   
     public void installUpdates(){
-    	progressBar.setIndeterminate(true);
+    	
         
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
             public Void doInBackground()
             {
             	for (int i = 0; i < loadedExtensionTable.getModel().getRowCount(); i++){
-            		boolean update = ((Boolean)loadedExtensionTable.getModel().getValueAt(i,6)).booleanValue();
+            		if (cancel){
+            			break;
+            		}
+            		boolean update = ((Boolean)loadedExtensionTable.getModel().getValueAt(i,5)).booleanValue();
             		if (update){
             			String name = (String)loadedExtensionTable.getModel().getValueAt(i, 1);
             			String type = (String)loadedExtensionTable.getModel().getValueAt(i, 0);
-                                if (type.equals("Connector")){
-                                    statusLabel.setText("Downloading connector: " + name);
-                                }else if (type.equals("Plugin")){
-                                    statusLabel.setText("Downloading plugin: " + name);
-                                }
+                        if (type.equals("Connector")){
+                            statusLabel.setText("Downloading connector: " + name);
+                        }else if (type.equals("Plugin")){
+                            statusLabel.setText("Downloading plugin: " + name);
+                        }
 	            		
 	            		try {
-                                        Thread.sleep(1000);
-                                } catch (InterruptedException e) {
-                                        e.printStackTrace();
-                                }
-                                pluginUtil.downloadFile("http://www.fotw.net/upload-download/firetest041206.jpg", statusLabel);
-	            		statusLabel.setText("Installing extension: " + name);
+                                Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                                e.printStackTrace();
+                        }
+                        progressBar.setVisible(true); 
+                        pluginUtil.downloadFile("http://www.fotw.net/upload-download/firetest041206.jpg", statusLabel, progressBar);
+                        if (cancel){
+                			break;
+                		}
+                        progressBar.setVisible(false);
+                        statusLabel.setText("Installing extension: " + name);
 	            		try {
-                                        Thread.sleep(500);
-                                } catch (InterruptedException e) {
-                                        e.printStackTrace();
-                                }
+                                Thread.sleep(500);
+                        } catch (InterruptedException e) {
+                                e.printStackTrace();
+                        }
             		}
             	}
             	
@@ -232,7 +250,7 @@ public class RepositoryDialog extends javax.swing.JDialog
             
             public void done()
             {
-            	progressBar.setIndeterminate(false);
+            	
             	statusLabel.setText("Extensions Installed!");
             	PlatformUI.MIRTH_FRAME.alertInformation("Extensions successfully installed.\r\nMirth Server must be restarted in order to load the extension.");
             	dispose();
@@ -311,7 +329,7 @@ public class RepositoryDialog extends javax.swing.JDialog
         progressBar = new javax.swing.JProgressBar();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("Mirth Extension Repository");
+        setTitle("Available Extensions");
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
         jPanel1.setMaximumSize(null);
         closeButton.setText("Close");
@@ -338,7 +356,7 @@ public class RepositoryDialog extends javax.swing.JDialog
         });
 
         jLabel2.setFont(new java.awt.Font("Tahoma", 1, 11));
-        jLabel2.setText("Mirth Extension Repository");
+        jLabel2.setText("Available Extensions");
 
         loadedExtensionScrollPane.setMaximumSize(null);
         loadedExtensionScrollPane.setMinimumSize(null);

@@ -145,7 +145,7 @@ public class UpdateDialog extends javax.swing.JDialog
         return false;
     }
     public void installUpdates(){
-    	progressBar.setIndeterminate(true);
+    	//progressBar.setIndeterminate(true);
         
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
@@ -169,8 +169,10 @@ public class UpdateDialog extends javax.swing.JDialog
 						} catch (InterruptedException e) {
 							e.printStackTrace();
 						}
-						pluginUtil.downloadFile("http://www.fotw.net/upload-download/firetest041206.jpg", statusLabel);
-	            		if (cancel){
+						progressBar.setVisible(true);
+						pluginUtil.downloadFile("http://www.fotw.net/upload-download/firetest041206.jpg", statusLabel, progressBar);
+						progressBar.setVisible(false);
+						if (cancel){
 	            			break;
 	            		}
 	            		statusLabel.setText("Updating extension: " + plugin.getName());
@@ -187,7 +189,6 @@ public class UpdateDialog extends javax.swing.JDialog
             
             public void done()
             {
-            	progressBar.setIndeterminate(false);
             	statusLabel.setText("Updates Installed!");
             	PlatformUI.MIRTH_FRAME.alertInformation("Updates successfully installed.\r\nYou must restart Mirth to refresh plugin status");
             	dispose();

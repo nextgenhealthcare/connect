@@ -12,6 +12,7 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
 import javax.swing.JLabel;
+import javax.swing.JProgressBar;
 
 public class PluginUtil {
 	  public String getStringFromURL(String urlString){
@@ -35,7 +36,7 @@ public class PluginUtil {
 	        return "";
 	    }
 	  
-	  public byte[] downloadFile(String address, JLabel statusLabel) {
+	  public byte[] downloadFile(String address, JLabel statusLabel, JProgressBar progressBar) {
 	    	ByteArrayOutputStream out = null;
 			URLConnection conn = null;
 			InputStream  in = null;
@@ -44,14 +45,31 @@ public class PluginUtil {
 				URL url = new URL(address);
 				out = new ByteArrayOutputStream(1024);
 				conn = url.openConnection();
+				int length = conn.getContentLength();
 				in = conn.getInputStream();
+				if (length != -1 ){
+					progressBar.setMaximum(length);
+				}else{
+					progressBar.setIndeterminate(true);
+				}
 				byte[] buffer = new byte[1024];
 				int inread;
 				float outwrite = 0;
 				while ((inread = in.read(buffer)) != -1) {
 					out.write(buffer, 0, inread);
 					outwrite += inread;
-					statusLabel.setText("Downloaded: " + formatter.format(outwrite/1000) + " Kbytes");
+					
+					if (length != -1){
+						progressBar.setValue(progressBar.getValue() + inread);
+						statusLabel.setText("Downloaded: " + formatter.format(outwrite/1000) + " Kbytes/" + formatter.format(length/1000) + " Kbytes");
+					}else{
+						statusLabel.setText("Downloaded: " + formatter.format(outwrite/1000) + " Kbytes");
+					}
+				}
+				if (length != -1){
+					progressBar.setValue(0);
+				}else{
+					progressBar.setIndeterminate(false);
 				}
 				return out.toByteArray();
 			} catch (Exception e) {
