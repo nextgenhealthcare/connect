@@ -192,7 +192,10 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
      */
     public boolean load(Connector c, Transformer t, boolean channelHasBeenChanged)
     {
-    	
+    	if (loadedPlugins.values().size() == 0){
+    		parent.alertError("No transformer step plugins loaded.\r\nPlease install plugins and try again.");
+        	return false;
+    	}
         prevSelRow = -1;
         connector = c;
         transformer = t;
