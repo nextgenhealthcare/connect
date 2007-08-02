@@ -96,10 +96,10 @@ public class SmtpMessageDispatcher extends AbstractMessageDispatcher {
 			return;
 		}
 		try{
-			if (connector.getUsername().indexOf('$') > -1 ||
-				connector.getHostname().indexOf('$') > -1 ||
-				connector.getPassword().indexOf('$') > -1 ||
-				connector.getPort().indexOf('$') > -1){
+			if ((connector.getUsername() != null && connector.getUsername().indexOf('$') > -1) ||
+				(connector.getHostname() != null && connector.getHostname().indexOf('$') > -1) ||
+				(connector.getPassword() != null && connector.getPassword().indexOf('$') > -1 )||
+				(connector.getPort() != null && connector.getPort().indexOf('$') > -1)){
 				//recreate session
 				session = createSession(connector.getHostname(), connector.getUsername(), connector.getPassword(), connector.getPort(), messageObject);
 			}
