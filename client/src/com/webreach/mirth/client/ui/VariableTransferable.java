@@ -116,6 +116,11 @@ public class VariableTransferable implements Transferable
             this.data = "ERROR-412";
         else if (data.equals("413: Email Connector"))
             this.data = "ERROR-413";        
+        else if (data.equals("CDATA Tag")){
+            this.data = "<![CDATA[]]>";
+            prefix = "";
+            suffix = "";
+        }
         else
             this.data = data;
         _prefix = prefix;

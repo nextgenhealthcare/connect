@@ -27,17 +27,8 @@ package com.webreach.mirth.plugins.pluginmanager;
 
 import java.awt.Dimension;
 import java.awt.Point;
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -68,6 +59,7 @@ public class UpdateDialog extends javax.swing.JDialog
     private final String EXTENSION_UPDATE_VERSION_COLUMN_NAME = "Update Version";
     private Map<String, MetaData> extensions = new HashMap<String, MetaData>();
     private Map<String, MetaData> updatableExtensions = new HashMap<String, MetaData>();
+    private PluginUtil pluginUtil = new PluginUtil();
     private boolean cancel = false;
     /**
      * Creates new form ViewContentDialog
@@ -111,13 +103,13 @@ public class UpdateDialog extends javax.swing.JDialog
             }
         });
         loadedExtensionTable.setDragEnabled(false);
-        loadedExtensionTable.setRowSelectionAllowed(true);
+        loadedExtensionTable.setRowSelectionAllowed(false);
         loadedExtensionTable.setRowHeight(UIConstants.ROW_HEIGHT);
         loadedExtensionTable.setFocusable(false);
         loadedExtensionTable.setOpaque(true);
         loadedExtensionTable.getTableHeader().setReorderingAllowed(true);
         loadedExtensionTable.setSortable(true);
-        
+        loadedExtensionTable.setSelectionMode(0);
         //loadedExtensionTable.getColumnExt(EXTENSION_NAME_COLUMN_NAME).setMaxWidth(280);
         loadedExtensionTable.getColumnExt(EXTENSION_NAME_COLUMN_NAME).setMinWidth(75);
         
@@ -136,7 +128,14 @@ public class UpdateDialog extends javax.swing.JDialog
             highlighter.addHighlighter(new AlternateRowHighlighter(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR, UIConstants.TITLE_TEXT_COLOR));
             loadedExtensionTable.setHighlighters(highlighter);
         }
-      //  loadedExtensionTable.packTable(UIConstants.COL_MARGIN);
+        loadedExtensionTable.addMouseWheelListener(new MouseWheelListener()
+        {
+            public void mouseWheelMoved(MouseWheelEvent e)
+            {
+            	loadedExtensionScrollPane.getMouseWheelListeners()[0].mouseWheelMoved(e);
+            }
+            
+        });
         loadedExtensionScrollPane.setViewportView(loadedExtensionTable);
     }
     
@@ -170,7 +169,7 @@ public class UpdateDialog extends javax.swing.JDialog
 						} catch (InterruptedException e) {
 							e.printStackTrace();
 						}
-	            		downloadFile("http://www.fotw.net/upload-download/firetest041206.jpg");
+						pluginUtil.downloadFile("http://www.fotw.net/upload-download/firetest041206.jpg", statusLabel);
 	            		if (cancel){
 	            			break;
 	            		}
@@ -197,67 +196,7 @@ public class UpdateDialog extends javax.swing.JDialog
         
         worker.execute();
     }
-    public String downloadFromURL(String urlString){
-        try {
-            StringBuffer buffer = new StringBuffer();
-            // Create a URL for the desired page
-            URL url = new URL(urlString);
-
-            // Read all the text returned by the server
-            BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
-            String str;
-            while ((str = in.readLine()) != null) {
-                buffer.append(str);
-                buffer.append("\r\n");
-            }
-            in.close();
-            return buffer.toString();
-        } catch (MalformedURLException e) {
-        } catch (IOException e) {
-        }
-        return "";
-    }
-
-    public byte[] downloadFile(String address) {
-    	ByteArrayOutputStream out = null;
-		URLConnection conn = null;
-		InputStream  in = null;
-		NumberFormat formatter = new DecimalFormat("#.00");
-		try {
-			URL url = new URL(address);
-			out = new ByteArrayOutputStream(1024);
-			conn = url.openConnection();
-			in = conn.getInputStream();
-			byte[] buffer = new byte[1024];
-			int inread;
-			float outwrite = 0;
-			while ((inread = in.read(buffer)) != -1) {
-				if (cancel){
-					statusLabel.setText("Cancelling");
-					in.close();
-					out.close();
-					break;
-				}
-				out.write(buffer, 0, inread);
-				outwrite += inread;
-				statusLabel.setText("Downloaded: " + formatter.format(outwrite/1000) + " Kbytes");
-			}
-			return out.toByteArray();
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			try {
-				if (in != null) {
-					in.close();
-				}
-				if (out != null) {
-					out.close();
-				}
-			} catch (IOException ioe) {
-			}
-		}
-		return null;
-	}
+  
     public void updateLoadedExtensionsTable()
     {
         Object[][] tableData = null;
@@ -267,7 +206,7 @@ public class UpdateDialog extends javax.swing.JDialog
         {
             if (metaData.getUpdateUrl() != null){
                 statusLabel.setText("Checking: " + metaData.getName());
-                String updateText = downloadFromURL("http://www.mirthproject.org");//metaData.getUpdateUrl());
+                String updateText = pluginUtil.getStringFromURL("http://www.mirthproject.org");//metaData.getUpdateUrl());
                 System.out.println(updateText);
                 if (updateText.length() > 0){
                     updatableExtensions.put(metaData.getName(), metaData);

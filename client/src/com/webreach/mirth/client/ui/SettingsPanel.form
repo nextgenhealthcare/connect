@@ -69,7 +69,7 @@
             <TitledBorder title="Client">
               <Border PropertyName="innerBorder" info="org.netbeans.modules.form.compat2.border.MatteColorBorderInfo">
                 <MatteColorBorder bottom="0" left="0" right="0" top="1">
-                  <Color PropertyName="color" blue="99" green="99" red="99" type="rgb"/>
+                  <Color PropertyName="color" blue="cc" green="cc" red="cc" type="rgb"/>
                 </MatteColorBorder>
               </Border>
               <Font PropertyName="font" name="Tahoma" size="11" style="1"/>
@@ -197,7 +197,7 @@
             <TitledBorder title="Server">
               <Border PropertyName="innerBorder" info="org.netbeans.modules.form.compat2.border.MatteColorBorderInfo">
                 <MatteColorBorder bottom="0" left="0" right="0" top="1">
-                  <Color PropertyName="color" blue="99" green="99" red="99" type="rgb"/>
+                  <Color PropertyName="color" blue="cc" green="cc" red="cc" type="rgb"/>
                 </MatteColorBorder>
               </Border>
               <Font PropertyName="font" name="Tahoma" size="11" style="1"/>
@@ -297,7 +297,7 @@
             <TitledBorder title="Email">
               <Border PropertyName="innerBorder" info="org.netbeans.modules.form.compat2.border.MatteColorBorderInfo">
                 <MatteColorBorder bottom="0" left="0" right="0" top="1">
-                  <Color PropertyName="color" blue="99" green="99" red="99" type="rgb"/>
+                  <Color PropertyName="color" blue="cc" green="cc" red="cc" type="rgb"/>
                 </MatteColorBorder>
               </Border>
               <Font PropertyName="font" name="Tahoma" size="11" style="1"/>
@@ -480,7 +480,7 @@
             <TitledBorder title="Server Configuration">
               <Border PropertyName="innerBorder" info="org.netbeans.modules.form.compat2.border.MatteColorBorderInfo">
                 <MatteColorBorder bottom="0" left="0" right="0" top="1">
-                  <Color PropertyName="color" blue="99" green="99" red="99" type="rgb"/>
+                  <Color PropertyName="color" blue="cc" green="cc" red="cc" type="rgb"/>
                 </MatteColorBorder>
               </Border>
               <Font PropertyName="font" name="Tahoma" size="11" style="1"/>

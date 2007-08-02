@@ -255,6 +255,11 @@ public class SOAPSender extends ConnectorClass
         });
 
         jScrollPane1.setViewportView(jTree1);
+        int row = 0;
+        while (row < jTree1.getRowCount()) {
+        	jTree1.expandRow(row);
+            row++;
+        }
         if (!(soapEnvelope.getText().length() > 0))
             buildSoapEnvelope();
     }
@@ -574,7 +579,7 @@ public class SOAPSender extends ConnectorClass
         }
         soapEnvelopeString.append(SOAPSenderProperties.SOAP_BODY_FOOTER);
         soapEnvelopeString.append(SOAPSenderProperties.SOAP_ENVELOPE_FOOTER);
-        soapEnvelope.setText(soapEnvelopeString.toString());
+        soapEnvelope.setText(soapEnvelopeString.toString().replaceAll("&gt;", ">").replaceAll("&lt;", "<").replaceAll("&apos;", "'").replaceAll("&quot;", "\"").replaceAll("&amp;", "&"));
         parent.enableSave();
     }
 

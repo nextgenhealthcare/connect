@@ -38,21 +38,37 @@ public class PluginManagerClient extends ClientPanelPlugin
         
         addTask("doRefresh", "Refresh", "Refresh loaded plugins.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png")));
         addTask("doSave", "Save", "Save plugin settings.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/save.png")));
+        addTask("doShowRepository", "Extension Repository", "Browse the public Mirth Extension Repository.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/database_gear.png")));
         addTask("doCheckForUpdates", "Check for Updates", "Checks for updates.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/world_go.png")));
         addTask("doEnable","Enable Extension","Enable the currently selected extension.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/start.png")));
         addTask("doDisable","Disable Extension","Disable the currently selected extension.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/stop.png")));
-        
-        setVisibleTasks(0, 2, true);
-        setVisibleTasks(3, -1, false);
+        addTask("doShowProperties","Show Properties","Display the currently selected extension properties.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/application_view_list.png")));
+        setVisibleTasks(0, 3, true);
+        setVisibleTasks(4, -1, false);
         
         getComponent().addMouseListener(getPopupMenuMouseAdapter());
     }
-    
+     public void doShowProperties()
+    {
+        ((PluginManagerPanel) getComponent()).showExtensionProperties();
+    } 
     public void doCheckForUpdates()
     {
         try
         {
             new UpdateDialog(this);
+        }
+        catch (ClientException e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    } 
+    public void doShowRepository()
+    {
+        try
+        {
+            new RepositoryDialog(this);
         }
         catch (ClientException e)
         {

@@ -12,6 +12,10 @@ import com.webreach.mirth.model.ConnectorMetaData;
 import com.webreach.mirth.model.MetaData;
 import com.webreach.mirth.model.PluginMetaData;
 import java.awt.Point;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.io.File;
 import java.util.Map;
 import java.util.prefs.Preferences;
@@ -85,6 +89,27 @@ public class PluginManagerPanel extends javax.swing.JPanel
 
         return null;
     }
+     public void showExtensionProperties()
+    {
+        MetaData metaData = getSelectedExtension();
+        if (metaData != null){
+            String type = "";
+            if (metaData instanceof ConnectorMetaData){
+                type = "Connector";
+            }else if (metaData instanceof PluginMetaData){
+                type = "Plugin";
+            }
+            
+            String name =  metaData.getName();
+            String version =  metaData.getPluginVersion();
+            String mirthVersion =  metaData.getMirthVersion();
+            String author =  metaData.getAuthor();
+            String url =  metaData.getUrl();
+            String description  = metaData.getDescription();
+                        
+            new PluginInfoDialog(name, type, author,mirthVersion, version, url, description);
+        }
+    }
     
     public void enableExtension()
     {
@@ -157,9 +182,19 @@ public class PluginManagerPanel extends javax.swing.JPanel
 
             public void mouseClicked(java.awt.event.MouseEvent evt)
             {
+                if (evt.getClickCount() == 2){
+                   showExtensionProperties();
+                }
             }
         });
-        
+        loadedConnectorsTable.addMouseWheelListener(new MouseWheelListener()
+        {
+            public void mouseWheelMoved(MouseWheelEvent e)
+            {
+            	loadedConnectorsScrollPane.getMouseWheelListeners()[0].mouseWheelMoved(e);
+            }
+            
+        });
         loadedConnectorsScrollPane.setViewportView(loadedConnectorsTable);
     }
     
@@ -245,13 +280,13 @@ public class PluginManagerPanel extends javax.swing.JPanel
         {
             loadedPluginsTable.deselectRows();
             
-            parent.setVisibleTasks(3, -1, true);
+            parent.setVisibleTasks(4, -1, true);
 
             int columnNumber = loadedConnectorsTable.getColumnNumber(PLUGIN_STATUS_COLUMN_NAME);
             if (((CellData) loadedConnectorsTable.getValueAt(row, columnNumber)).getText().equals(ENABLED_STATUS))
-                parent.setVisibleTasks(3, 3, false);
-            else
                 parent.setVisibleTasks(4, 4, false);
+            else
+                parent.setVisibleTasks(5, 5, false);
         }
     }
     
@@ -278,7 +313,7 @@ public class PluginManagerPanel extends javax.swing.JPanel
     public void deselectConnectorRows()
     {
         loadedConnectorsTable.deselectRows();
-        parent.setVisibleTasks(3, -1, false);
+        parent.setVisibleTasks(4, -1, false);
     }
     
     /**
@@ -339,9 +374,20 @@ public class PluginManagerPanel extends javax.swing.JPanel
 
             public void mouseClicked(java.awt.event.MouseEvent evt)
             {
+            	 if (evt.getClickCount() == 2){
+                     showExtensionProperties();
+                  }
             }
         });
         
+        loadedPluginsTable.addMouseWheelListener(new MouseWheelListener()
+        {
+            public void mouseWheelMoved(MouseWheelEvent e)
+            {
+                loadedPluginsScrollPane.getMouseWheelListeners()[0].mouseWheelMoved(e);
+            }
+            
+        });
         loadedPluginsScrollPane.setViewportView(loadedPluginsTable);
     }
     
@@ -427,13 +473,13 @@ public class PluginManagerPanel extends javax.swing.JPanel
         {
             loadedConnectorsTable.deselectRows();
             
-            parent.setVisibleTasks(3, -1, true);
+            parent.setVisibleTasks(4, -1, true);
 
             int columnNumber = loadedPluginsTable.getColumnNumber(PLUGIN_STATUS_COLUMN_NAME);
             if (((CellData) loadedPluginsTable.getValueAt(row, columnNumber)).getText().equals(ENABLED_STATUS))
-                parent.setVisibleTasks(3, 3, false);
-            else
                 parent.setVisibleTasks(4, 4, false);
+            else
+                parent.setVisibleTasks(5, 5, false);
         }
     }
     
@@ -460,7 +506,7 @@ public class PluginManagerPanel extends javax.swing.JPanel
     public void deselectPluginRows()
     {
         loadedPluginsTable.deselectRows();
-        parent.setVisibleTasks(3, -1, false);
+        parent.setVisibleTasks(4, -1, false);
     }
     
     /** This method is called from within the constructor to

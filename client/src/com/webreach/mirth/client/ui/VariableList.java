@@ -70,6 +70,7 @@ public class VariableList extends javax.swing.JPanel
         variables.add("Original File Name");
         variables.add("Count");
         variables.add("Entity Encoder");
+        variables.add("CDATA Tag");
         variables.addAll(VariableListUtil.getRuleVariables(rules));
         variables.addAll(VariableListUtil.getStepVariables(steps));
 

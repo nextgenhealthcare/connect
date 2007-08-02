@@ -25,4 +25,8 @@ public abstract class DashboardColumnPlugin {
 	public abstract Object getTableData(ChannelStatus status);
 	
 	public abstract TableCellRenderer getCellRenderer();
+	
+	public abstract int getMaxWidth();
+	
+	public abstract int getMinWidth();
 }
