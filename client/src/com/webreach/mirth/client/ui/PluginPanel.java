@@ -7,6 +7,8 @@
 package com.webreach.mirth.client.ui;
 
 import java.awt.Color;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.util.HashMap;
 import java.util.Map;
 

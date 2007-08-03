@@ -67,7 +67,8 @@ import com.webreach.mirth.model.PluginMetaData;
 /** Creates the About Mirth dialog. The content is loaded from about.txt. */
 public class RepositoryDialog extends javax.swing.JDialog
 {
-    private PluginManagerClient parent;
+    private static final int INSTALL_COLUMN = 4;
+	private PluginManagerClient parent;
     private final String EXTENSION_TYPE_COLUMN_NAME = "Type";
     private final String EXTENSION_NAME_COLUMN_NAME = "Extension Name";
     private final String EXTENSION_VERSION_COLUMN_NAME = "Version";
@@ -109,10 +110,10 @@ public class RepositoryDialog extends javax.swing.JDialog
         loadedExtensionTable = new MirthTable();
         loadedExtensionTable.setModel(new RefreshTableModel(new Object[][]{}, new String[] {EXTENSION_TYPE_COLUMN_NAME,
         EXTENSION_NAME_COLUMN_NAME, EXTENSION_VERSION_COLUMN_NAME,
-        EXTENSION_AUTHOR_COLUMN_NAME, EXTENSION_DESCRIPTION_COLUMN_NAME,
+        EXTENSION_AUTHOR_COLUMN_NAME,
         EXTENSION_INSTALL_COLUMN_NAME})
         {
-            boolean[] canEdit = new boolean[] { false, false, false, false, false, false, true };
+            boolean[] canEdit = new boolean[] { false, false, false, false, false, true };
             
             public boolean isCellEditable(int rowIndex, int columnIndex)
             {
@@ -127,8 +128,8 @@ public class RepositoryDialog extends javax.swing.JDialog
         loadedExtensionTable.getTableHeader().setReorderingAllowed(true);
         loadedExtensionTable.setSortable(true);
         loadedExtensionTable.setSelectionMode(0);
-        loadedExtensionTable.getColumnExt(EXTENSION_TYPE_COLUMN_NAME).setMinWidth(75);
-        loadedExtensionTable.getColumnExt(EXTENSION_TYPE_COLUMN_NAME).setMaxWidth(280);
+        loadedExtensionTable.getColumnExt(EXTENSION_TYPE_COLUMN_NAME).setMinWidth(60);
+        loadedExtensionTable.getColumnExt(EXTENSION_TYPE_COLUMN_NAME).setMaxWidth(60);
         
         loadedExtensionTable.getColumnExt(EXTENSION_NAME_COLUMN_NAME).setMinWidth(75);
         
@@ -140,7 +141,7 @@ public class RepositoryDialog extends javax.swing.JDialog
         loadedExtensionTable.getColumnExt(EXTENSION_AUTHOR_COLUMN_NAME).setMinWidth(90);
         
         // loadedExtensionTable.getColumnExt(EXTENSION_DESCRIPTION_COLUMN_NAME).setMaxWidth(50);
-        loadedExtensionTable.getColumnExt(EXTENSION_DESCRIPTION_COLUMN_NAME).setMinWidth(150);
+        // loadedExtensionTable.getColumnExt(EXTENSION_DESCRIPTION_COLUMN_NAME).setMinWidth(100);
         
         //  loadedExtensionTable.getColumnExt(EXTENSION_URL_COLUMN_NAME).setMaxWidth(50);
         //  loadedExtensionTable.getColumnExt(EXTENSION_URL_COLUMN_NAME).setMinWidth(75);
@@ -162,7 +163,7 @@ public class RepositoryDialog extends javax.swing.JDialog
             {
                 if (e.getClickCount() == 2)
                 {
-                    int row = loadedExtensionTable.getSelectedRow();
+                    int row = loadedExtensionTable.convertRowIndexToModel(loadedExtensionTable.getSelectedRow());
                     if (row > -1 && extensionInfo != null)
                     {
                         
@@ -179,11 +180,11 @@ public class RepositoryDialog extends javax.swing.JDialog
                 }
                 else
                 {
-                    int col = loadedExtensionTable.getSelectedColumn();
-                    if (col == 5)
+                    int col = loadedExtensionTable.convertColumnIndexToModel(loadedExtensionTable.getSelectedColumn());
+                    if (col == INSTALL_COLUMN)
                     {
-                        int row = loadedExtensionTable.getSelectedRow();
-                        boolean value = ((Boolean)loadedExtensionTable.getModel().getValueAt(row,5)).booleanValue();
+                        int row = loadedExtensionTable.convertRowIndexToModel(loadedExtensionTable.getSelectedRow());
+                        boolean value = ((Boolean)loadedExtensionTable.getModel().getValueAt(row,INSTALL_COLUMN)).booleanValue();
                         loadedExtensionTable.getModel().setValueAt(!value, row, col);
                     }
                     
@@ -224,7 +225,7 @@ public class RepositoryDialog extends javax.swing.JDialog
                     {
                         break;
                     }
-                    boolean update = ((Boolean)loadedExtensionTable.getModel().getValueAt(i,5)).booleanValue();
+                    boolean update = ((Boolean)loadedExtensionTable.getModel().getValueAt(i,INSTALL_COLUMN)).booleanValue();
                     if (update)
                     {
                         String name = (String)loadedExtensionTable.getModel().getValueAt(i, 1);
@@ -315,10 +316,10 @@ public class RepositoryDialog extends javax.swing.JDialog
             tableData[i][1] = extensionInfo[i].getName();
             tableData[i][2] = extensionInfo[i].getVersion();
             tableData[i][3] = extensionInfo[i].getAuthor();
-            tableData[i][4] = extensionInfo[i].getDescription();
+            //tableData[i][4] = extensionInfo[i].getDescription();
             // tableData[i][5] = extensionInfo[i].getDescription();
             // tableData[i][5] = extensionInfo[i].getUrl();
-            tableData[i][5] = Boolean.TRUE;
+            tableData[i][INSTALL_COLUMN] = Boolean.FALSE;
         }
         
         
@@ -354,8 +355,10 @@ public class RepositoryDialog extends javax.swing.JDialog
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Available Extensions");
+        setResizable(false);
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
         jPanel1.setMaximumSize(null);
+        jPanel1.setMinimumSize(new java.awt.Dimension(400, 400));
         closeButton.setText("Close");
         closeButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -387,7 +390,7 @@ public class RepositoryDialog extends javax.swing.JDialog
         loadedExtensionScrollPane.setPreferredSize(new java.awt.Dimension(350, 200));
         loadedExtensionTable.setModel(new RefreshTableModel(new Object[][]{}, new String[] {EXTENSION_TYPE_COLUMN_NAME,
             EXTENSION_NAME_COLUMN_NAME, EXTENSION_VERSION_COLUMN_NAME,
-            EXTENSION_AUTHOR_COLUMN_NAME, EXTENSION_DESCRIPTION_COLUMN_NAME,
+            EXTENSION_AUTHOR_COLUMN_NAME,
             EXTENSION_INSTALL_COLUMN_NAME}));
 loadedExtensionScrollPane.setViewportView(loadedExtensionTable);
 
@@ -398,19 +401,17 @@ jPanel1Layout.setHorizontalGroup(
     .add(jPanel1Layout.createSequentialGroup()
         .addContainerGap()
         .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(loadedExtensionScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 507, Short.MAX_VALUE)
             .add(jLabel2)
-            .add(loadedExtensionScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 567, Short.MAX_VALUE)
-            .add(jPanel1Layout.createSequentialGroup()
-                .add(statusLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 458, Short.MAX_VALUE)
-                .add(9, 9, 9)
-                .add(progressBar, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
             .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel1Layout.createSequentialGroup()
-                .add(113, 113, 113)
+                .add(progressBar, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(installUpdatesButton)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(checkForUpdatesButton)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(closeButton)))
+                .add(closeButton))
+            .add(statusLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 497, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
         .addContainerGap())
     );
     jPanel1Layout.setVerticalGroup(
@@ -419,16 +420,16 @@ jPanel1Layout.setHorizontalGroup(
             .addContainerGap()
             .add(jLabel2)
             .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-            .add(loadedExtensionScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 296, Short.MAX_VALUE)
+            .add(loadedExtensionScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 305, Short.MAX_VALUE)
             .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-            .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                .add(progressBar, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(statusLabel))
-            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-            .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                .add(closeButton)
-                .add(checkForUpdatesButton)
-                .add(installUpdatesButton))
+            .add(statusLabel)
+            .add(10, 10, 10)
+            .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(closeButton)
+                    .add(checkForUpdatesButton)
+                    .add(installUpdatesButton))
+                .add(progressBar, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
             .addContainerGap())
     );
 
@@ -436,7 +437,7 @@ jPanel1Layout.setHorizontalGroup(
     getContentPane().setLayout(layout);
     layout.setHorizontalGroup(
         layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-        .add(jPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        .add(jPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
     );
     layout.setVerticalGroup(
         layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
