@@ -200,10 +200,16 @@ public class DashboardPanel extends javax.swing.JPanel
     {
         DashboardPanelPlugin plugin = loadedPanelPlugins.get(pluginName);
         if(plugin != null && getSelectedStatus() != UIConstants.ERROR_CONSTANT)
-            plugin.display(parent.status.get(getSelectedStatus()));
+            plugin.update(parent.status.get(getSelectedStatus()));
         else
-            plugin.display();
-    }  
+            plugin.update();
+    }
+    
+    public synchronized void updateCurrentPluginPanel()
+    {
+        if(loadedPanelPlugins.size() > 0)
+            loadPanelPlugin(tabs.getTitleAt(tabs.getSelectedIndex()));
+    }
     
     /**
      * Makes the status table with all current server information.
@@ -455,8 +461,7 @@ public class DashboardPanel extends javax.swing.JPanel
                 parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 8, 8, false);
             }
             
-            if(loadedPanelPlugins.size() > 0)
-                loadPanelPlugin(tabs.getTitleAt(tabs.getSelectedIndex()));
+            updateCurrentPluginPanel();
         }
     }
     
@@ -477,8 +482,7 @@ public class DashboardPanel extends javax.swing.JPanel
     {
         statusTable.deselectRows();
         parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 2, -1, false);
-        if(loadedPanelPlugins.size() > 0)
-            loadPanelPlugin(tabs.getTitleAt(tabs.getSelectedIndex()));
+        updateCurrentPluginPanel();
     }
     
     /**

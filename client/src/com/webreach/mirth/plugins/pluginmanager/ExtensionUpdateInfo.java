@@ -10,6 +10,7 @@ public class ExtensionUpdateInfo
     private String version;
     private String mirthVersion;
     private String downloadUrl;
+    
     public String getDownloadUrl()
     {
         return downloadUrl;

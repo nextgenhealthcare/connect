@@ -1750,6 +1750,8 @@ public class Frame extends JXFrame
         }
         
         dashboardPanel.updateTable();
+        dashboardPanel.updateCurrentPluginPanel();
+                
         if (status.size() > 0)
             setVisibleTasks(statusTasks, statusPopupMenu, 1, 1, true);
         else

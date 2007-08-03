@@ -65,7 +65,6 @@ public class PluginInfoDialog extends javax.swing.JDialog
         Point loc = PlatformUI.MIRTH_FRAME.getLocation();
         setLocation((frmSize.width - dlgSize.width) / 2 + loc.x, (frmSize.height - dlgSize.height) / 2 + loc.y);
         setVisible(true);
-        
     }  
     
     /**

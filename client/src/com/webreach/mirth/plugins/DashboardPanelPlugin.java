@@ -91,18 +91,12 @@ public abstract class DashboardPanelPlugin
     {
         parent.mirthClient.setPluginProperties(name, properties);
     }
+        
+    // used for setting actions to be called for updating when there is no status selected
+    public abstract void update();
     
-    // used for starting processes in the plugin when the program is exited
-    public abstract void start();
-    
-    // used for stopping processes in the plugin when the program is exited
-    public abstract void stop();
-    
-    // used for setting actions to be called when the plugin tab is loaded
-    public abstract void display();
-    
-    // used for setting actions to be called when the plugin tab is loaded
-    public abstract void display(ChannelStatus status);
+    // used for setting actions to be called for updating when there is a status selected
+    public abstract void update(ChannelStatus status);
     
     public Object invoke (String method, Object object) throws ClientException
     {
