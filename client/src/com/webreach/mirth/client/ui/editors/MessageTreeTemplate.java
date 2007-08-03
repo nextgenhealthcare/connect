@@ -11,6 +11,8 @@ import com.webreach.mirth.client.ui.beans.HL7Properties;
 import com.webreach.mirth.client.ui.beans.NCPDPProperties;
 
 import java.awt.Dimension;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -109,6 +111,44 @@ public class MessageTreeTemplate extends javax.swing.JPanel
             {
                 updateText();
             }
+        });
+        pasteBox.addMouseListener(new MouseListener(){
+
+			public void mouseClicked(MouseEvent e) {
+				// TODO Auto-generated method stub
+				if (e.getButton() == MouseEvent.BUTTON2){
+					if (pasteBox.getText().equals(DEFAULT_TEXT))
+			        {
+			            pasteBox.setText("");
+			        }
+				}
+			}
+
+			public void mouseEntered(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			public void mouseExited(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			public void mousePressed(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			public void mouseReleased(MouseEvent e) {
+				// TODO Auto-generated method stub
+				if (e.getButton() == MouseEvent.BUTTON2){
+					 if (pasteBox.getText().length() == 0)
+				     {
+				         pasteBox.setText(DEFAULT_TEXT);
+				     }
+				}
+			}
+        
         });
     }
     
@@ -319,6 +359,7 @@ public class MessageTreeTemplate extends javax.swing.JPanel
     private void propertiesActionPerformed(java.awt.event.ActionEvent evt)
     {// GEN-HEADEREND:event_propertiesActionPerformed
         PlatformUI.MIRTH_FRAME.enableSave();
+        currentMessage = "";
         if (((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.EDI)))
             new BoundPropertiesSheetDialog(dataProperties, new EDIProperties());
         else if (((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.X12)))
@@ -334,6 +375,7 @@ public class MessageTreeTemplate extends javax.swing.JPanel
     private void dataTypeActionPerformed(java.awt.event.ActionEvent evt)
     {// GEN-HEADEREND:event_dataTypeActionPerformed
         PlatformUI.MIRTH_FRAME.enableSave();
+        currentMessage = "";
         if (((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.X12)) ||
                 ((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.EDI)) ||
                 ((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.HL7V2)) ||
