@@ -689,16 +689,22 @@ public class Frame extends JXFrame
         
         addTask("doRefreshStatuses","Refresh","Refresh the list of statuses.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png")), statusTasks, statusPopupMenu);
         addTask("doStartAll","Start All Channels","Start all channels that are currently deployed.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/start1.png")), statusTasks, statusPopupMenu);
+        addTask("doStopAll","Stop All Channels","Stop all channels that are currently deployed.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/stop1.png")), statusTasks, statusPopupMenu);
+       
         addTask("doSendMessage","Send Message","Send messages to the currently selected channel.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/messages.png")), statusTasks, statusPopupMenu);
         addTask("doShowMessages","View Messages","Show the messages for the currently selected channel.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/messages2.png")), statusTasks, statusPopupMenu);
         addTask("doRemoveAllMessages","Remove All Messages","Remove all Messages in this channel.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png")), statusTasks, statusPopupMenu);
-        addTask("doClearStats","Clear Statistics","Reset the statistics for this channel.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/stats.png")), statusTasks, statusPopupMenu);
+        //addTask("doRemoveAllMessagesAllChannels","Clear Msgs in All Channels","Remove all Messages in all channels.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png")), statusTasks, statusPopupMenu);
+        
+        addTask("doClearStats","Clear Statistics","Reset the statistics for this channel.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/chart_curve_delete.png")), statusTasks, statusPopupMenu);
+        //addTask("doClearStatsAllChannels","Clear Stats in All Channels","Reset the statistics for all channels.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/chart_curve_delete.png")), statusTasks, statusPopupMenu);
+        
         addTask("doStart","Start Channel","Start the currently selected channel.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/start.png")), statusTasks, statusPopupMenu);
         addTask("doPause","Pause Channel","Pause the currently selected channel.","",new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/pause.png")) , statusTasks, statusPopupMenu);
         addTask("doStop","Stop Channel","Stop the currently selected channel.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/stop.png")), statusTasks, statusPopupMenu);
         
         setNonFocusable(statusTasks);
-        setVisibleTasks(statusTasks, statusPopupMenu, 1, -1, false);
+        setVisibleTasks(statusTasks, statusPopupMenu, 3, -1, false);
         taskPaneContainer.add(statusTasks);
     }
     
@@ -1753,9 +1759,9 @@ public class Frame extends JXFrame
         dashboardPanel.updateCurrentPluginPanel();
                 
         if (status.size() > 0)
-            setVisibleTasks(statusTasks, statusPopupMenu, 1, 1, true);
+            setVisibleTasks(statusTasks, statusPopupMenu, 1, 2, true);
         else
-            setVisibleTasks(statusTasks, statusPopupMenu, 1, 1, false);
+            setVisibleTasks(statusTasks, statusPopupMenu, 1, 2, false);
     }
     
     public void doStartAll()
@@ -1774,6 +1780,39 @@ public class Frame extends JXFrame
                             mirthClient.startChannel(status.get(i).getChannelId());
                         else if (status.get(i).getState() == ChannelStatus.State.PAUSED)
                             mirthClient.resumeChannel(status.get(i).getChannelId());
+                    }
+                }
+                catch (ClientException e)
+                {
+                    alertException(e.getStackTrace(), e.getMessage());
+                }
+                return null;
+            }
+            
+            public void done()
+            {
+                doRefreshStatuses();
+                setWorking("", false);
+            }
+        };
+        
+        worker.execute();
+    }
+    
+    public void doStopAll()
+    {
+        setWorking("Stopping all channels...", true);
+        
+        SwingWorker worker = new SwingWorker<Void, Void>()
+        {
+            public Void doInBackground()
+            {
+                try
+                {
+                    for (int i = 0; i < status.size(); i++)
+                    {
+                        if (status.get(i).getState() == ChannelStatus.State.STARTED || status.get(i).getState() == ChannelStatus.State.PAUSED)
+                            mirthClient.stopChannel(status.get(i).getChannelId());
                     }
                 }
                 catch (ClientException e)
@@ -2628,7 +2667,87 @@ public class Frame extends JXFrame
         
         worker.execute();
     }
-    
+    public void doRemoveAllMessagesAllChannels()
+    {
+    	
+    	
+    	if (alertOption("Are you sure you would like to remove all messages in all channels?"))
+        {
+            setWorking("Removing messages...", true);
+            
+            SwingWorker worker = new SwingWorker<Void, Void>()
+            {
+                public Void doInBackground()
+                {
+                	for (int i = 0; i < status.size(); i++)
+                    {
+                		 try
+                         {
+                			 mirthClient.clearMessages(status.get(i).getChannelId());
+                         }
+                         catch (ClientException e)
+                         {
+                             alertException(e.getStackTrace(), e.getMessage());
+                         }
+                		
+                    }
+                	
+                   
+                    return null;
+                }
+                
+                public void done()
+                {
+                    if(currentContentPage == dashboardPanel)
+                    {
+                        if(alertOption("Would you also like to clear all statistics in all channels?"))
+                        	clearStatsAllChannels(true, true, true, true, true);
+                        doRefreshStatuses();
+                    }
+                    else if(currentContentPage == messageBrowser)
+                        messageBrowser.refresh();
+                    setWorking("", false);
+                }
+            };
+            
+            worker.execute();
+        }
+    	
+    }
+    public void clearStatsAllChannels(final boolean deleteReceived, final boolean deleteFiltered, final boolean deleteQueued, final boolean deleteSent, final boolean deleteErrored){
+  
+            setWorking("Clearing statistics...", true);
+            
+            SwingWorker worker = new SwingWorker<Void, Void>()
+            {
+                public Void doInBackground()
+                {
+                	
+                	for (int i = 0; i < status.size(); i++)
+                    {
+                		 try
+                         {
+                			 mirthClient.clearStatistics(status.get(i).getChannelId(), deleteReceived, deleteFiltered, deleteQueued, deleteSent, deleteErrored);
+                         }
+                         catch (ClientException e)
+                         {
+                             alertException(e.getStackTrace(), e.getMessage());
+                         }
+                		
+                    }
+                
+                    return null;
+                }
+                
+                public void done()
+                {
+                    doRefreshStatuses();
+                    setWorking("", false);
+                }
+            };
+            
+            worker.execute();
+    }
     public void doRemoveAllMessages()
     {
         if (alertOption("Are you sure you would like to remove all messages in this channel?"))
@@ -2674,11 +2793,16 @@ public class Frame extends JXFrame
         int selectedStatus = dashboardPanel.getSelectedStatus();
         
         if(selectedStatus != -1)
-            new DeleteStatisticsDialog(selectedStatus);
+            new DeleteStatisticsDialog(selectedStatus, false);
         else
             dashboardPanel.deselectRows();
     }
-    
+    public void doClearStatsAllChannels()
+    {
+        
+         new DeleteStatisticsDialog(-1, true);
+ 
+    }
     public void clearStats(final int statusToClear, final boolean deleteReceived, final boolean deleteFiltered, final boolean deleteQueued, final boolean deleteSent, final boolean deleteErrored)
     {
         setWorking("Clearing statistics...", true);

@@ -33,14 +33,16 @@ public class DeleteStatisticsDialog extends javax.swing.JDialog
 {
     private Frame parent;
     private int statusToClear;
+    private boolean clearAll;
     /**
      * Creates new form ViewContentDialog
      */
-    public DeleteStatisticsDialog(int statusToClear)
+    public DeleteStatisticsDialog(int statusToClear, boolean clearAll)
     {
         super(PlatformUI.MIRTH_FRAME);
         this.parent = PlatformUI.MIRTH_FRAME;
         this.statusToClear = statusToClear;
+        this.clearAll = clearAll;
         initComponents();
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setModal(true);
@@ -203,8 +205,11 @@ public class DeleteStatisticsDialog extends javax.swing.JDialog
 
     private void okButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_okButtonActionPerformed
     {//GEN-HEADEREND:event_okButtonActionPerformed
-        if(deleteReceived.isSelected() || deleteFiltered.isSelected() || deleteQueued.isSelected() || deleteSent.isSelected() || deleteErrored.isSelected())
+        if(!clearAll && (deleteReceived.isSelected() || deleteFiltered.isSelected() || deleteQueued.isSelected() || deleteSent.isSelected() || deleteErrored.isSelected()))
             parent.clearStats(statusToClear, deleteReceived.isSelected(), deleteFiltered.isSelected(), deleteQueued.isSelected(), deleteSent.isSelected(), deleteErrored.isSelected());
+        else if(clearAll && (deleteReceived.isSelected() || deleteFiltered.isSelected() || deleteQueued.isSelected() || deleteSent.isSelected() || deleteErrored.isSelected()))
+            parent.clearStatsAllChannels(deleteReceived.isSelected(), deleteFiltered.isSelected(), deleteQueued.isSelected(), deleteSent.isSelected(), deleteErrored.isSelected());
+        
         this.dispose();
     }//GEN-LAST:event_okButtonActionPerformed
 
