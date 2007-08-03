@@ -51,6 +51,7 @@ public class PluginInfoDialog extends javax.swing.JDialog
         super(PlatformUI.MIRTH_FRAME);
         
         initComponents();
+        setModal(true);
         nameLabel.setText(name);
         typeLabel.setText(type);
         authorLabel.setText(author);

@@ -121,7 +121,7 @@ public class RepositoryDialog extends javax.swing.JDialog
             }
         });
         loadedExtensionTable.setDragEnabled(false);
-        loadedExtensionTable.setRowSelectionAllowed(false);
+        loadedExtensionTable.setRowSelectionAllowed(true);
         loadedExtensionTable.setRowHeight(UIConstants.ROW_HEIGHT);
         loadedExtensionTable.setFocusable(false);
         loadedExtensionTable.setOpaque(true);
