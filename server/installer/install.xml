@@ -53,7 +53,8 @@
 			<param name="variant" value="extwin" />
 		</laf>
 
-		<modifier key="labelGap" value="5" />
+		<modifier key="labelYGap" value="5" />
+		<modifier key="labelToTextYGap" value="5" />
 	</guiprefs>
 
 	<!-- 
@@ -71,7 +72,7 @@
 	<resources>
 		<res id="Installer.image" src="../installer/sidebar.png" />
 		<res id="LicencePanel.licence" src="licenses/license-mirth.txt" />
-		<res id="InfoPanel.info" src="../installer/readme.txt" />
+		<res id="HTMLInfoPanel.info" src="../installer/install-readme.html" />
 		<res id="shortcutSpec.xml" src="../installer/default_shortcut_specification.xml" />
 		<res id="ProcessPanel.Spec.xml" src="../installer/process_panel_spec.xml" />
 		<res id="AntActionsSpec.xml" src="../installer/ant_actions_spec.xml" />
@@ -85,7 +86,7 @@
 	<panels>
 		<panel classname="HelloPanel" />
 		<panel classname="LicencePanel" />
-		<panel classname="InfoPanel" />
+		<panel classname="HTMLInfoPanel" />
 		<panel classname="TargetPanel" />
 		<panel classname="PacksPanel" />
 		<panel classname="InstallPanel" />
