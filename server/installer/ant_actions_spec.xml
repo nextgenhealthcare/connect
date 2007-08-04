@@ -4,11 +4,13 @@
 	<pack name="Core">
 		<antcall order="beforepack" buildfile="upgrade.xml">
 			<property name="install.path" value="$INSTALL_PATH" />
+			<target name="cleanOldInstaller" />
 			<target name="backup" />
 		</antcall>
 		<antcall order="afterpack" buildfile="upgrade.xml">
 			<property name="install.path" value="$INSTALL_PATH" />
 			<target name="restore" />
+			<target name="finalize" />			
 		</antcall>
 	</pack>
 </antactions>

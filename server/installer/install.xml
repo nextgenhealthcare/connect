@@ -17,9 +17,15 @@
 
 	<!-- Native libraries to use -->
 	<native type="izpack" name="ShellLink.dll" stage="install" />
+	<native type="3rdparty" name="COIOSHelper.dll" stage="both">
+		<os family="windows" />
+	</native>
 
 	<listeners>
 		<listener installer="AntActionInstallerListener" uninstaller="AntActionUninstallerListener" />
+		<listener installer="RegistryInstallerListener" uninstaller="RegistryUninstallerListener">
+			<os family="windows" />
+		</listener>
 	</listeners>
 
 	<!-- 
@@ -44,7 +50,7 @@
 		The gui preferences indication.
 		Sets the installer window to 640x480. It will not be able to change the size.
 	-->
-	<guiprefs width="620" height="425" resizable="no">
+	<guiprefs width="640" height="425" resizable="no">
 		<laf name="metouia">
 			<os family="unix" />
 		</laf>
@@ -76,6 +82,7 @@
 		<res id="shortcutSpec.xml" src="../installer/default_shortcut_specification.xml" />
 		<res id="ProcessPanel.Spec.xml" src="../installer/process_panel_spec.xml" />
 		<res id="AntActionsSpec.xml" src="../installer/ant_actions_spec.xml" />
+		<!-- res id="ReigstrySpec.xml" src="../installer/registry_spec.xml" /-->
 		<!--res id="Unix_shortcutSpec.xml" src="../unix_shortcut_specification.xml" /-->
 	</resources>
 
@@ -84,7 +91,7 @@
 		We indicate here which panels we want to use. The order will be respected.
 	-->
 	<panels>
-		<panel classname="HelloPanel" />
+		<panel classname="CheckedHelloPanel" />
 		<panel classname="LicencePanel" />
 		<panel classname="HTMLInfoPanel" />
 		<panel classname="TargetPanel" />

@@ -1,5 +1,16 @@
 <project name="upgrade" basedir=".">
 	<taskdef resource="net/sf/antcontrib/antcontrib.properties" classpath="lib/ant-contrib-0.6.jar" />
+	<taskdef classpath="lib/orangevolt-ant-tasks-1.3.5.jar:lib/roxes-win32forjava-1.0.4.jar" resource="com/orangevolt/tools/ant/taskdefs.properties" />
+
+	<target name="cleanOldInstaller">
+		<win32.registry root="HKEY_LOCAL_MACHINE" key="SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Mirth">
+			<delete />
+		</win32.registry>
+
+		<win32.registry root="HKEY_LOCAL_MACHINE" key="SOFTWARE\Mirth">
+			<delete />
+		</win32.registry>
+	</target>
 
 	<target name="backup">
 		<mkdir dir="${install.path}/conf" />
@@ -32,5 +43,9 @@
 			<entry key="username" value="${username.tmp}" />
 			<entry key="password" value="${password.tmp}" />
 		</propertyfile>
+	</target>
+
+	<target name="finalize">
+		<chmod file="${install.path}/mirth.sh" perm="+x" />
 	</target>
 </project>
