@@ -125,7 +125,8 @@ public class DatabaseUtil {
             }
             
             statement.executeBatch();
-                  
+            
+            conn.commit();                 
         } catch (Exception e) {
             throw new Exception(e);
         } finally {
