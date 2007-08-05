@@ -15,6 +15,11 @@ import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
 import com.webreach.mirth.server.controllers.MonitoringController.Event;
 
 public class DashboardConnectorStatusMonitor implements ServerPlugin{
+	private static final String UNKNOWN = "Unknown";
+	private static final String BLACK = "black";
+	private static final String IDLE = "Idle";
+	private static final String RECEIVING = "Receiving";
+	private static final String READING = "Reading";
 	private static final String POLLING = "Polling";
 	private static final String NOT_POLLING = "Not Polling";
 	private static final String YELLOW = "yellow";
@@ -24,15 +29,14 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin{
 	private static final String CONNECTED = "Connected";
 	private static final String DISCONNECTED = "Disconnected";
 	private static final String GET_STATES = "getStates";
-	private HashMap<String, Channel> channels;
 	private HashMap<String, String[]> currentStates;
 	private HashMap<String, Set<Socket>> socketSets;
 
 	public void updateStatus(String connectorName, ConnectorType type, Event event, Socket socket) {
 		// TODO Auto-generated method stub
 		String connectorId = connectorName;
-		String stateImage = "black";
-		String statusText = "Unknown";
+		String stateImage = BLACK;
+		String statusText = UNKNOWN;
 		boolean updateState = false;
 		switch (event){
 			case INITIALIZED:
@@ -43,7 +47,7 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin{
 						break;
 					case READER:
 						stateImage = GREEN;
-						statusText = "Polling";
+						statusText = POLLING;
 						break;
 				}
 				updateState = true;
@@ -90,12 +94,12 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin{
 				switch (type){
 					case READER:
 						stateImage = GREEN;
-						statusText = "Reading";
+						statusText = READING;
 						updateState = true;
 						break;
 					case LISTENER:
 						stateImage = GREEN;
-						statusText = "Receiving";
+						statusText = RECEIVING;
 						updateState = true;
 						break;
 				}
@@ -104,7 +108,7 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin{
 				switch (type){
 					case READER:
 						stateImage = YELLOW;
-						statusText = "Idle";
+						statusText = IDLE;
 						updateState = true;
 						break;
 					case LISTENER:
@@ -166,7 +170,6 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin{
 	}
 
 	private void initialize() {
-		this.channels = ChannelController.getChannelCache();
 		this.socketSets = new HashMap<String, Set<Socket>>();
 		this.currentStates = new HashMap<String, String[]>();
 	}
