@@ -145,37 +145,32 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
     public void loadPlugins()
     {
         loadedPlugins = new HashMap<String,TransformerStepPlugin>();
-        try
+
+        Map<String, PluginMetaData> plugins = parent.getPluginMetaData();
+        for (PluginMetaData metaData : plugins.values())
         {
-            Map<String, PluginMetaData> plugins = parent.mirthClient.getPluginMetaData();
-            for (PluginMetaData metaData : plugins.values())
+            
+            if (metaData.isEnabled())
             {
-                
-                if (metaData.isEnabled())
+                for (ExtensionPoint extensionPoint : metaData.getExtensionPoints())
                 {
-                    for (ExtensionPoint extensionPoint : metaData.getExtensionPoints())
+                    try
                     {
-                        try
+                        if(extensionPoint.getMode() == ExtensionPoint.Mode.CLIENT && extensionPoint.getType() == ExtensionPoint.Type.CLIENT_TRANSFORMER_STEP && extensionPoint.getClassName() != null && extensionPoint.getClassName().length() > 0)
                         {
-                            if(extensionPoint.getMode() == ExtensionPoint.Mode.CLIENT && extensionPoint.getType() == ExtensionPoint.Type.CLIENT_TRANSFORMER_STEP && extensionPoint.getClassName() != null && extensionPoint.getClassName().length() > 0)
-                            {
-                                String pluginName = extensionPoint.getName();
-                                TransformerStepPlugin stepPlugin = (TransformerStepPlugin) Class.forName(extensionPoint.getClassName()).getDeclaredConstructors()[0].newInstance(new Object[]{pluginName, this});
-                                loadedPlugins.put(stepPlugin.getDisplayName(), stepPlugin);
-                            }
+                            String pluginName = extensionPoint.getName();
+                            TransformerStepPlugin stepPlugin = (TransformerStepPlugin) Class.forName(extensionPoint.getClassName()).getDeclaredConstructors()[0].newInstance(new Object[]{pluginName, this});
+                            loadedPlugins.put(stepPlugin.getDisplayName(), stepPlugin);
                         }
-                        catch (Exception e)
-                        {
-                            parent.alertException(e.getStackTrace(), e.getMessage());
-                        }
+                    }
+                    catch (Exception e)
+                    {
+                        parent.alertException(e.getStackTrace(), e.getMessage());
                     }
                 }
             }
         }
-        catch (ClientException e)
-        {
-            parent.alertException(e.getStackTrace(), e.getMessage());
-        }
+
     }
     /**
      * CONSTRUCTOR

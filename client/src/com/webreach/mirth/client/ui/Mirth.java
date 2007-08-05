@@ -66,9 +66,9 @@ public class Mirth
         UIManager.put("Tree.openIcon", UIConstants.OPEN_ICON);
         UIManager.put("Tree.closedIcon", UIConstants.CLOSED_ICON);
 
-        userPreferences = Preferences.systemNodeForPackage(Mirth.class);
+        userPreferences = Preferences.systemNodeForPackage(Mirth.class);        
         login.setStatus("Loading components...");
-        PlatformUI.MIRTH_FRAME.setupFrame(m);
+        PlatformUI.MIRTH_FRAME.setupFrame(m, login);
 
         int width = UIConstants.MIRTH_WIDTH;
         int height = UIConstants.MIRTH_HEIGHT;
@@ -86,7 +86,7 @@ public class Mirth
             PlatformUI.MIRTH_FRAME.setExtendedState(PlatformUI.MIRTH_FRAME.MAXIMIZED_BOTH);
 
         PlatformUI.MIRTH_FRAME.setVisible(true);
-        PlatformUI.MIRTH_FRAME.loadPlugins();
+        
         PlatformUI.MIRTH_FRAME.addComponentListener(new java.awt.event.ComponentAdapter()
         {
             public void componentResized(ComponentEvent e)

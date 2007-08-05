@@ -84,6 +84,7 @@ public class ChannelSetup extends javax.swing.JPanel
     private static final String DESTINATION_DEFAULT = "File Writer";
     private static final String SOURCE_DEFAULT = "LLP Listener";
     private static final String DATABASE_READER = "Database Reader";
+    private static final String HTTP_LISTENER = "HTTP Listener";
     private final String STATUS_COLUMN_NAME = "Status";
     private final String DESTINATION_COLUMN_NAME = "Destination";
     private final String CONNECTOR_TYPE_COLUMN_NAME = "Connector Type";
@@ -129,61 +130,56 @@ public class ChannelSetup extends javax.swing.JPanel
             }
         });
         
-        try
+    
+        transports = this.parent.getConnectorMetaData();
+        sourceConnectors = new ArrayList<String>();
+        destinationConnectors = new ArrayList<String>();
+        Iterator i = transports.entrySet().iterator();
+        while (i.hasNext())
         {
-            transports = this.parent.mirthClient.getConnectorMetaData();
-            sourceConnectors = new ArrayList<String>();
-            destinationConnectors = new ArrayList<String>();
-            Iterator i = transports.entrySet().iterator();
-            while (i.hasNext())
-            {
-                Entry entry = (Entry) i.next();
-                try{
-                
-                	ConnectorMetaData metaData = transports.get(entry.getKey());
-               
-	                if (metaData.getType() == ConnectorMetaData.Type.LISTENER && metaData.isEnabled())
-	                {
-	                    if (entry.getKey().equals(SOURCE_DEFAULT))
-	                        sourceConnectors.add(0, metaData.getName());
-	                    else
-	                        sourceConnectors.add(metaData.getName());
-	                    
-	                    try
-	                    {
-	                        parent.sourceConnectors.add((ConnectorClass) Class.forName(metaData.getClientClassName()).newInstance());
-	                    }
-	                    catch (Exception e)
-	                    {
-	                        parent.alertError("Could not load class: " + metaData.getClientClassName());
-	                    }
-	                }
-	                if (metaData.getType() == ConnectorMetaData.Type.SENDER && metaData.isEnabled())
-	                {
-	                    if (entry.getKey().equals(DESTINATION_DEFAULT))
-	                        destinationConnectors.add(0, metaData.getName());
-	                    else
-	                        destinationConnectors.add(metaData.getName());
-	                    
-	                    try
-	                    {
-	                        parent.destinationConnectors.add((ConnectorClass) Class.forName(metaData.getClientClassName()).newInstance());
-	                    }
-	                    catch (Exception e)
-	                    {
-	                        parent.alertError("Could not load class: " + metaData.getClientClassName());
-	                    }
-	                }
-                }catch(ClassCastException castException){
-                	System.out.println("Unable to load plugin");
+            Entry entry = (Entry) i.next();
+            try{
+            
+            	ConnectorMetaData metaData = transports.get(entry.getKey());
+           
+                if (metaData.getType() == ConnectorMetaData.Type.LISTENER && metaData.isEnabled())
+                {
+                    if (entry.getKey().equals(SOURCE_DEFAULT))
+                        sourceConnectors.add(0, metaData.getName());
+                    else
+                        sourceConnectors.add(metaData.getName());
+                    
+                    try
+                    {
+                        parent.sourceConnectors.add((ConnectorClass) Class.forName(metaData.getClientClassName()).newInstance());
+                    }
+                    catch (Exception e)
+                    {
+                        parent.alertError("Could not load class: " + metaData.getClientClassName());
+                    }
                 }
+                if (metaData.getType() == ConnectorMetaData.Type.SENDER && metaData.isEnabled())
+                {
+                    if (entry.getKey().equals(DESTINATION_DEFAULT))
+                        destinationConnectors.add(0, metaData.getName());
+                    else
+                        destinationConnectors.add(metaData.getName());
+                    
+                    try
+                    {
+                        parent.destinationConnectors.add((ConnectorClass) Class.forName(metaData.getClientClassName()).newInstance());
+                    }
+                    catch (Exception e)
+                    {
+                        parent.alertError("Could not load class: " + metaData.getClientClassName());
+                    }
+                }
+            }catch(ClassCastException castException){
+            	System.out.println("Unable to load plugin");
             }
         }
-        catch (ClientException e)
-        {
-            parent.alertException(e.getStackTrace(), e.getMessage());
-        }
         
+       
         channelView.setMaximumSize(new Dimension(450, 3000));
     }
     
@@ -1902,7 +1898,7 @@ public class ChannelSetup extends javax.swing.JPanel
     
     public void checkSourceDataType()
     {
-        if (((String) sourceSourceDropdown.getSelectedItem()).equals(DATABASE_READER))
+        if (((String) sourceSourceDropdown.getSelectedItem()).equals(DATABASE_READER) || ((String) sourceSourceDropdown.getSelectedItem()).equals(HTTP_LISTENER))
         {
             incomingProtocol.setSelectedItem((String) parent.protocols.get(MessageObject.Protocol.XML));
             incomingProtocol.setEnabled(false);

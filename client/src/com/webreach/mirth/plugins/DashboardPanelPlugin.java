@@ -30,6 +30,7 @@ public abstract class DashboardPanelPlugin
      public DashboardPanelPlugin(String name)
     {
         this.name = name;
+        
     }
 
     public void setComponent(JComponent component)

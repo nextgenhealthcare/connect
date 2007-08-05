@@ -117,7 +117,10 @@
 		<jar destfile="${dist}/plugins/messagebuilder-transformer-step-client.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/plugins/transformer/step/messagebuilder/**" />
 		</jar>
-
+		<jar destfile="${dist}/plugins/dashboard-status-monitor-server-client.jar" basedir="${classes}">
+			<include name="com/webreach/mirth/plugins/dashboardstatus/**" />
+		</jar>
+		
 		<!-- copy source files -->
 		<copy todir="${dist.source}">
 			<fileset dir="${src}">

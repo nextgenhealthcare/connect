@@ -8,6 +8,7 @@ package com.webreach.mirth.client.ui;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Image;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -52,8 +53,12 @@ public class DashboardPanel extends javax.swing.JPanel
     private final String FILTERED_COLUMN_NAME = "Filtered";
     private int lastRow;
     private Frame parent;
-    private Map<String, DashboardColumnPlugin> loadedColumnPlugins = new HashMap<String, DashboardColumnPlugin>();
+    private Map<String, DashboardColumnPlugin> loadedColumnPluginsBeforeStatus = new HashMap<String, DashboardColumnPlugin>();
+    private Map<String, DashboardColumnPlugin> loadedColumnPluginsAfterStats = new HashMap<String, DashboardColumnPlugin>();
     private Map<String, DashboardPanelPlugin> loadedPanelPlugins = new HashMap<String, DashboardPanelPlugin>();
+    private ImageIcon greenBullet;
+    private ImageIcon yellowBullet;
+    private ImageIcon redBullet;
     
     /** Creates new form DashboardPanel */
     public DashboardPanel()
@@ -66,7 +71,9 @@ public class DashboardPanel extends javax.swing.JPanel
         split.setBottomComponent(null);
         split.setDividerSize(0);
         loadPanelPlugins();
-        
+        greenBullet = new ImageIcon(Frame.class.getResource("images/bullet_green.png"));
+        yellowBullet = new ImageIcon(Frame.class.getResource("images/bullet_yellow.png"));
+        redBullet = new ImageIcon(Frame.class.getResource("images/bullet_red.png"));
         ChangeListener changeListener = new ChangeListener()
         {
             public void stateChanged(ChangeEvent changeEvent)
@@ -106,7 +113,7 @@ public class DashboardPanel extends javax.swing.JPanel
     {
         try
         {
-            Map<String, PluginMetaData> plugins = parent.mirthClient.getPluginMetaData();
+            Map<String, PluginMetaData> plugins = parent.getPluginMetaData();
             for (PluginMetaData metaData : plugins.values())
             {
                 if (metaData.isEnabled())
@@ -119,7 +126,12 @@ public class DashboardPanel extends javax.swing.JPanel
                             {
                                 String pluginName = extensionPoint.getName();
                                 DashboardColumnPlugin columnPlugin = (DashboardColumnPlugin) Class.forName(extensionPoint.getClassName()).getDeclaredConstructors()[0].newInstance(new Object[]{pluginName, this});
-                                loadedColumnPlugins.put(columnPlugin.getColumnHeader(), columnPlugin);
+                                if (columnPlugin.showBeforeStatusColumn()){
+                                	loadedColumnPluginsBeforeStatus.put(columnPlugin.getColumnHeader(), columnPlugin);
+                                }else{
+                                	loadedColumnPluginsAfterStats.put(columnPlugin.getColumnHeader(), columnPlugin);
+                                }
+                                
                             }
                         }
                         catch (Exception e)
@@ -142,7 +154,7 @@ public class DashboardPanel extends javax.swing.JPanel
     {
         try
         {
-            Map<String, PluginMetaData> plugins = parent.mirthClient.getPluginMetaData();
+            Map<String, PluginMetaData> plugins = parent.getPluginMetaData();
             for (PluginMetaData metaData : plugins.values())
             {
                 if (metaData.isEnabled())
@@ -222,6 +234,15 @@ public class DashboardPanel extends javax.swing.JPanel
         
         statusTable.setSelectionMode(0);
         
+        for(DashboardColumnPlugin plugin : loadedColumnPluginsBeforeStatus.values())
+        {
+            String columnName = plugin.getColumnHeader();
+            statusTable.getColumnExt(columnName).setMaxWidth(plugin.getMaxWidth());;
+            statusTable.getColumnExt(columnName).setMinWidth(plugin.getMinWidth());
+            statusTable.getColumnExt(columnName).setCellRenderer(plugin.getCellRenderer());
+            statusTable.getColumnExt(columnName).setHeaderRenderer(PlatformUI.CENTER_COLUMN_HEADER_RENDERER);
+        }
+        
         statusTable.getColumnExt(STATUS_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
         statusTable.getColumnExt(RECEIVED_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
         statusTable.getColumnExt(SENT_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
@@ -250,7 +271,8 @@ public class DashboardPanel extends javax.swing.JPanel
         statusTable.getColumnExt(FILTERED_COLUMN_NAME).setHeaderRenderer(PlatformUI.CENTER_COLUMN_HEADER_RENDERER);
         statusTable.getColumnExt(QUEUED_COLUMN_NAME).setHeaderRenderer(PlatformUI.CENTER_COLUMN_HEADER_RENDERER);
         
-        for(DashboardColumnPlugin plugin : loadedColumnPlugins.values())
+        
+        for(DashboardColumnPlugin plugin : loadedColumnPluginsAfterStats.values())
         {
             String columnName = plugin.getColumnHeader();
             statusTable.getColumnExt(columnName).setMaxWidth(plugin.getMaxWidth());;
@@ -302,20 +324,38 @@ public class DashboardPanel extends javax.swing.JPanel
         
         if (parent.status != null)
         {
-            tableData = new Object[parent.status.size()][7 + loadedColumnPlugins.size()];
+        	for (DashboardColumnPlugin plugin : loadedColumnPluginsBeforeStatus.values())
+            {
+                plugin.tableUpdate(parent.status);
+            }
+        	for (DashboardColumnPlugin plugin : loadedColumnPluginsAfterStats.values())
+            {
+                plugin.tableUpdate(parent.status);
+            }
+        	
+            tableData = new Object[parent.status.size()][7 + loadedColumnPluginsAfterStats.size() + loadedColumnPluginsBeforeStatus.size()];
             for (int i = 0; i < parent.status.size(); i++)
             {
                 ChannelStatus tempStatus = parent.status.get(i);
+                int statusColumn = 0;
                 try
                 {
                     ChannelStatistics tempStats = parent.mirthClient.getStatistics(tempStatus.getChannelId());
-                    tableData[i][2] = tempStats.getReceived();
-                    tableData[i][3] = tempStats.getFiltered();
-                    tableData[i][4] = tempStats.getQueued();
-                    tableData[i][5] = tempStats.getSent();
-                    tableData[i][6] = tempStats.getError();
-                    int j = 7;
-                    for (DashboardColumnPlugin plugin : loadedColumnPlugins.values())
+                    int j = 0;
+                    for (DashboardColumnPlugin plugin : loadedColumnPluginsBeforeStatus.values())
+                    {
+                    	tableData[i][j] = plugin.getTableData(tempStatus);
+                        j++;
+                    }
+                    statusColumn = j;
+                    j+=2;
+                    tableData[i][j] = tempStats.getReceived();
+                    tableData[i][++j] = tempStats.getFiltered();
+                    tableData[i][++j] = tempStats.getQueued();
+                    tableData[i][++j] = tempStats.getSent();
+                    tableData[i][++j] = tempStats.getError();
+                    j++;
+                    for (DashboardColumnPlugin plugin : loadedColumnPluginsAfterStats.values())
                     {
                         tableData[i][j] = plugin.getTableData(tempStatus);
                         j++;
@@ -327,13 +367,13 @@ public class DashboardPanel extends javax.swing.JPanel
                 }
                 
                 if (tempStatus.getState() == ChannelStatus.State.STARTED)
-                    tableData[i][0] = new CellData(new ImageIcon(Frame.class.getResource("images/bullet_green.png")), "Started");
+                    tableData[i][statusColumn] = new CellData(greenBullet, "Started");
                 else if (tempStatus.getState() == ChannelStatus.State.STOPPED)
-                    tableData[i][0] = new CellData(new ImageIcon(Frame.class.getResource("images/bullet_red.png")), "Stopped");
+                    tableData[i][statusColumn] = new CellData(redBullet, "Stopped");
                 else if (tempStatus.getState() == ChannelStatus.State.PAUSED)
-                    tableData[i][0] = new CellData(new ImageIcon(Frame.class.getResource("images/bullet_yellow.png")), "Paused");
+                    tableData[i][statusColumn] = new CellData(yellowBullet, "Paused");
                 
-                tableData[i][1] = tempStatus.getName();
+                tableData[i][statusColumn + 1] = tempStatus.getName();
                 
             }
             
@@ -353,11 +393,15 @@ public class DashboardPanel extends javax.swing.JPanel
             FILTERED_COLUMN_NAME, QUEUED_COLUMN_NAME,
             SENT_COLUMN_NAME, ERROR_COLUMN_NAME };
             ArrayList<String> columns = new ArrayList<String>();
+            for (DashboardColumnPlugin plugin : loadedColumnPluginsBeforeStatus.values())
+            {
+                columns.add(plugin.getColumnHeader());
+            }
             for (int i = 0; i < defaultColumns.length; i++)
             {
                 columns.add(defaultColumns[i]);
             }
-            for (DashboardColumnPlugin plugin : loadedColumnPlugins.values())
+            for (DashboardColumnPlugin plugin : loadedColumnPluginsAfterStats.values())
             {
                 columns.add(plugin.getColumnHeader());
             }

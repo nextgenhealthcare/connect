@@ -70,8 +70,8 @@ public class UpdateDialog extends javax.swing.JDialog
         this.parent = parent;
         
         initComponents();
-        extensions.putAll(PlatformUI.MIRTH_FRAME.mirthClient.getPluginMetaData());
-        extensions.putAll(PlatformUI.MIRTH_FRAME.mirthClient.getConnectorMetaData());
+        extensions.putAll(PlatformUI.MIRTH_FRAME.getPluginMetaData());
+        extensions.putAll(PlatformUI.MIRTH_FRAME.getConnectorMetaData());
         //extensions.put
         //setPreferredSize(new Dimension(400,400));
         

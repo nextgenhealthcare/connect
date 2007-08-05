@@ -1,5 +1,6 @@
 package com.webreach.mirth.plugins;
 
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.table.TableCellRenderer;
@@ -14,6 +15,7 @@ public abstract class DashboardColumnPlugin
 {
     protected String name;
     protected DashboardPanel parent;
+   
     public DashboardColumnPlugin(String name, DashboardPanel parent)
     {
         this.name = name;
@@ -32,4 +34,8 @@ public abstract class DashboardColumnPlugin
     public abstract int getMaxWidth();
     
     public abstract int getMinWidth();
+    
+    public abstract boolean showBeforeStatusColumn();
+    
+    public abstract void tableUpdate(List<ChannelStatus> status);
 }

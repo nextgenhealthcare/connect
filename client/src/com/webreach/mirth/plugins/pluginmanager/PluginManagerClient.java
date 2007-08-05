@@ -146,8 +146,8 @@ public class PluginManagerClient extends ClientPanelPlugin
     
     public void refresh() throws ClientException
     {
-        ((PluginManagerPanel) getComponent()).setPluginData(PlatformUI.MIRTH_FRAME.mirthClient.getPluginMetaData());
-        ((PluginManagerPanel) getComponent()).setConnectorData(PlatformUI.MIRTH_FRAME.mirthClient.getConnectorMetaData());
+        ((PluginManagerPanel) getComponent()).setPluginData(PlatformUI.MIRTH_FRAME.getPluginMetaData());
+        ((PluginManagerPanel) getComponent()).setConnectorData(PlatformUI.MIRTH_FRAME.getConnectorMetaData());
     }
     
     public void save() throws ClientException

@@ -90,7 +90,10 @@ import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.ChannelStatus;
 import com.webreach.mirth.model.ChannelSummary;
 import com.webreach.mirth.model.Connector;
+import com.webreach.mirth.model.ConnectorMetaData;
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.model.MetaData;
+import com.webreach.mirth.model.PluginMetaData;
 import com.webreach.mirth.model.User;
 import com.webreach.mirth.model.converters.ObjectCloner;
 import com.webreach.mirth.model.converters.ObjectClonerException;
@@ -166,7 +169,8 @@ public class Frame extends JXFrame
     private boolean isEditingChannel = false;
     private Stack<String> workingStack = new Stack<String>();
     public LinkedHashMap<MessageObject.Protocol, String> protocols;
-    
+    private Map<String, PluginMetaData> loadedPlugins;
+    private Map<String, ConnectorMetaData> loadedConnectors;
     public Frame()
     {
         dsb = BorderFactory.createEmptyBorder();
@@ -365,13 +369,16 @@ public class Frame extends JXFrame
     /**
      * Called to set up this main window frame.
      */
-    public void setupFrame(Client mirthClient)
+    public void setupFrame(Client mirthClient, LoginPanel login)
     {
+    	
         this.mirthClient = mirthClient;
-        
+        login.setStatus("Loading plugins...");
+        loadPlugins();
+        login.setStatus("Loading preferences...");
         userPreferences = Preferences.systemNodeForPackage(Mirth.class);
         userPreferences.put("defaultServer", PlatformUI.SERVER_NAME);
-        
+        login.setStatus("Loading GUI components...");
         splitPane.setDividerSize(0);
         splitPane.setBorder(BorderFactory.createEmptyBorder());
         
@@ -406,8 +413,11 @@ public class Frame extends JXFrame
         }
         
         setCurrentTaskPaneContainer(taskPaneContainer);
+        login.setStatus("Loading dashboard...");
         doShowDashboard();
+        login.setStatus("Loading channel editor...");
         channelEditPanel = new ChannelSetup();
+        login.setStatus("Loading message browser...");
         messageBrowser = new MessageBrowser();
         su = new StatusUpdater();
         statusUpdater = new Thread(su);
@@ -428,6 +438,12 @@ public class Frame extends JXFrame
     
     public void loadPlugins()
     {
+    	try {
+			loadedPlugins = mirthClient.getPluginMetaData();
+			loadedConnectors = mirthClient.getConnectorMetaData();
+		} catch (ClientException e) {
+			alertException(e.getStackTrace(), "Unable to load plugins");
+		}
         pluginPanel = new PluginPanel();
     }
     
@@ -3305,4 +3321,11 @@ public class Frame extends JXFrame
             channelEditPanel.transformerPane.unsetHighlighters();
         this.highlightersSet = false;
     }
+
+	public Map<String, PluginMetaData> getPluginMetaData() {
+		return this.loadedPlugins;
+	}
+	public Map<String, ConnectorMetaData> getConnectorMetaData() {
+		return this.loadedConnectors;
+	}
 }
