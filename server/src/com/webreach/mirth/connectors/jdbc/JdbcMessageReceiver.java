@@ -47,7 +47,8 @@ import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.MonitoringController;
-import com.webreach.mirth.server.controllers.MonitoringController.Status;
+import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
+import com.webreach.mirth.server.controllers.MonitoringController.Event;
 import com.webreach.mirth.server.mule.transformers.JavaScriptPostprocessor;
 import com.webreach.mirth.server.util.CompiledScriptCache;
 import com.webreach.mirth.server.util.JavaScriptScopeUtil;
@@ -68,6 +69,7 @@ public class JdbcMessageReceiver extends TransactedPollingMessageReceiver {
 	private AlertController alertController = AlertController.getInstance();
 	private MonitoringController monitoringController = MonitoringController.getInstance();
 	private JavaScriptPostprocessor postprocessor = new JavaScriptPostprocessor();
+	private ConnectorType connectorType = ConnectorType.READER;
 	public JdbcMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint) throws InitialisationException {
 		super(connector, component, endpoint, new Long(((JdbcConnector) connector).getPollingFrequency()));
 
@@ -78,7 +80,7 @@ public class JdbcMessageReceiver extends TransactedPollingMessageReceiver {
 
 		this.receiveMessagesInTransaction = false;
 		this.connector = (JdbcConnector) connector;
-		monitoringController.updateStatus(connector, Status.IDLE);
+		monitoringController.updateStatus(connector, connectorType, Event.INITIALIZED);
 	}
 
 	public JdbcMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint, String readStmt, String ackStmt) throws InitialisationException {
@@ -96,7 +98,7 @@ public class JdbcMessageReceiver extends TransactedPollingMessageReceiver {
 		this.readStmt = JdbcUtils.parseStatement(readStmt, this.readParams);
 		this.ackParams = new ArrayList();
 		this.ackStmt = JdbcUtils.parseStatement(ackStmt, this.ackParams);
-		monitoringController.updateStatus(connector, Status.IDLE);
+		monitoringController.updateStatus(connector, connectorType, Event.INITIALIZED);
 	}
 
 	public void doConnect() throws Exception {
@@ -117,7 +119,6 @@ public class JdbcMessageReceiver extends TransactedPollingMessageReceiver {
 	}
 
 	public void processMessage(Object message) throws Exception {
-		monitoringController.updateStatus(connector, Status.PROCESSING);
 		try {
 			if (this.connector.isUseScript() && connector.isUseAck()) {
 				// dispatch messages
@@ -186,7 +187,7 @@ public class JdbcMessageReceiver extends TransactedPollingMessageReceiver {
 	}
 
 	public List getMessages() throws Exception {
-		monitoringController.updateStatus(connector, Status.POLLING);
+		monitoringController.updateStatus(connector, connectorType, Event.BUSY);
 		try {
 			if (this.connector.isUseScript()) {
 				Context context = Context.enter();
@@ -253,7 +254,7 @@ public class JdbcMessageReceiver extends TransactedPollingMessageReceiver {
 			alertController.sendAlerts(((JdbcConnector) connector).getChannelId(), Constants.ERROR_406, null, e);
 			throw e;
 		}finally{
-			monitoringController.updateStatus(connector, Status.IDLE);
+			monitoringController.updateStatus(connector, connectorType, Event.DONE);
 		}
 	}
 

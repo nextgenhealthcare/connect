@@ -52,13 +52,13 @@ import org.mule.umo.transformer.UMOTransformer;
 
 import sun.misc.BASE64Encoder;
 
-import com.webreach.mirth.connectors.ftp.FtpConnector;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.controllers.MonitoringController;
-import com.webreach.mirth.server.controllers.MonitoringController.Status;
+import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
+import com.webreach.mirth.server.controllers.MonitoringController.Event;
 import com.webreach.mirth.server.util.VMRouter;
 
 /**
@@ -76,6 +76,7 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher {
 	private AlertController alertController = AlertController.getInstance();
 	private MonitoringController monitoringController = MonitoringController.getInstance();
 	private TemplateValueReplacer replacer = new TemplateValueReplacer();
+	private ConnectorType connectorType = ConnectorType.SENDER;
 	public HttpClientMessageDispatcher(HttpConnector connector) {
 		super(connector);
 		this.connector = connector;
@@ -85,7 +86,7 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher {
 		if (connector.getProxyUsername() != null) {
 			state.setProxyCredentials(new AuthScope(null, -1, null, null), new UsernamePasswordCredentials(connector.getProxyUsername(), connector.getProxyPassword()));
 		}
-		monitoringController.updateStatus(connector, Status.IDLE);
+		monitoringController.updateStatus(connector, connectorType, Event.INITIALIZED);
 	}
 
 	/*
@@ -94,25 +95,7 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher {
 	 * @see org.mule.providers.AbstractConnectorSession#doDispatch(org.mule.umo.UMOEvent)
 	 */
 	public void doDispatch(UMOEvent event) throws Exception {
-		MessageObject messageObject = messageObjectController.getMessageObjectFromEvent(event);
-		if (messageObject == null) {
-			return;
-		}
-
-		HttpMethod httpMethod = execute(event, true, messageObject);
-		if (httpMethod != null) {
-			httpMethod.releaseConnection();
-			if (httpMethod.getStatusCode() >= 400) {
-				logger.error(httpMethod.getResponseBodyAsString());
-				Exception exception = new DispatchException(event.getMessage(), event.getEndpoint(), new Exception("HTTP call returned a status of: " + httpMethod.getStatusCode() + " " + httpMethod.getStatusText()));
-				alertController.sendAlerts(((HttpConnector) connector).getChannelId(), Constants.ERROR_404, "HTTP Error: " + httpMethod.getResponseBodyAsString(), exception);
-				messageObjectController.setError(messageObject, Constants.ERROR_404, httpMethod.getResponseBodyAsString(), exception);
-				throw exception;
-			} else {
-				messageObjectController.setSuccess(messageObject, httpMethod.getResponseBodyAsString());
-			}
-		}
-
+		doSend(event);
 	}
 
 	/*
@@ -140,7 +123,7 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher {
 	 *      org.mule.umo.UMOEvent)
 	 */
 	public UMOMessage receive(UMOEndpointURI endpointUri, long timeout) throws Exception {
-		monitoringController.updateStatus(connector, Status.PROCESSING);
+		monitoringController.updateStatus(connector, connectorType, Event.BUSY);
 		if (endpointUri == null)
 			return null;
 
@@ -176,7 +159,7 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher {
 		} finally {
 			if (httpMethod != null)
 				httpMethod.releaseConnection();
-			monitoringController.updateStatus(connector, Status.IDLE);
+			monitoringController.updateStatus(connector, connectorType, Event.DONE);
 		}
 	}
 
@@ -300,7 +283,7 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher {
 	 * @see org.mule.umo.provider.UMOConnector#send(org.mule.umo.UMOEvent)
 	 */
 	public UMOMessage doSend(UMOEvent event) throws Exception {
-		monitoringController.updateStatus(connector, Status.PROCESSING);
+		monitoringController.updateStatus(connector, connectorType, Event.BUSY);
 		MessageObject messageObject = messageObjectController.getMessageObjectFromEvent(event);
 		if (messageObject == null) {
 			return null;
@@ -357,7 +340,7 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher {
 		} finally {
 			if (httpMethod != null)
 				httpMethod.releaseConnection();
-			monitoringController.updateStatus(connector, Status.IDLE);
+			monitoringController.updateStatus(connector, connectorType, Event.DONE);
 		}
 	}
 

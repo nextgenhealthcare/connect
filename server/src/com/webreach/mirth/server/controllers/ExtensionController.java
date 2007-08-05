@@ -269,4 +269,8 @@ public class ExtensionController {
 		logger.debug("loading plugin libraries");
 		this.pluginLibraries = ExtensionUtil.loadExtensionLibraries(PLUGIN_LOCATION);
 	}
+
+	public Map<String, ServerPlugin> getLoadedPlugins() {
+		return loadedPlugins;
+	}
 }

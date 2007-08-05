@@ -1,0 +1,25 @@
+<pluginMetaData>
+  <name>Dashboard Connector Status Monitor</name>
+  <author>Webreach, Inc.</author>
+  <pluginVersion>1.6.0</pluginVersion>
+  <mirthVersion>1.6.0</mirthVersion>
+  <enabled>true</enabled>
+  <extensionPoint>
+  	<name>Dashboard Status Logger</name>
+    <type>SERVER_CONNECTOR_STATUS</type>
+    <className>com.webreach.mirth.plugins.dashboardstatus.DashboardConnectorStatusMonitorLogger</className>
+    <mode>SERVER</mode>
+  </extensionPoint>
+  <extensionPoint>
+  	<name>Dashboard Status Column Server</name>
+    <type>SERVER_PLUGIN</type>
+    <className>com.webreach.mirth.plugins.dashboardstatus.DashboardConnectorStatusMonitor</className>
+    <mode>SERVER</mode>
+  </extensionPoint>
+  <extensionPoint>
+  	<name>Dashboard Status Column</name>
+    <type>CLIENT_DASHBOARD_COLUMN</type>
+    <className>com.webreach.mirth.plugins.dashboardstatus.DashboardConnectorStatusColumn</className>
+    <mode>CLIENT</mode>
+  </extensionPoint>
+</pluginMetaData>

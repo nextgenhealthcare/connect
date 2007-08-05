@@ -41,7 +41,8 @@ import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.controllers.MonitoringController;
-import com.webreach.mirth.server.controllers.MonitoringController.Status;
+import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
+import com.webreach.mirth.server.controllers.MonitoringController.Event;
 
 /**
  * <code>FileMessageDispatcher</code> is used to read/write files to the
@@ -57,10 +58,11 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
 	private MessageObjectController messageObjectController = MessageObjectController.getInstance();
 	private AlertController alertController = AlertController.getInstance();
 	private MonitoringController monitoringController = MonitoringController.getInstance();
+	private ConnectorType connectorType = ConnectorType.WRITER;
 	public FileMessageDispatcher(FileConnector connector) {
 		super(connector);
 		this.connector = connector;
-		monitoringController.updateStatus(connector, Status.IDLE);
+		monitoringController.updateStatus(connector, connectorType, Event.INITIALIZED);
 	}
 
 	/*
@@ -69,7 +71,7 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
 	 * @see org.mule.umo.provider.UMOConnectorSession#dispatch(org.mule.umo.UMOEvent)
 	 */
 	public void doDispatch(UMOEvent event) throws Exception {
-		monitoringController.updateStatus(connector, Status.PROCESSING);
+		monitoringController.updateStatus(connector, connectorType, Event.BUSY);
 		TemplateValueReplacer replacer = new TemplateValueReplacer();
 		UMOEndpointURI uri = event.getEndpoint().getEndpointURI();
 		FileOutputStream fos = null;
@@ -124,7 +126,7 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
 			if (fos != null) {
 				fos.close();
 			}
-			monitoringController.updateStatus(connector, Status.IDLE);
+			monitoringController.updateStatus(connector, connectorType, Event.DONE);
 		}
 	}
 

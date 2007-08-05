@@ -54,8 +54,8 @@ import com.webreach.mirth.model.Response;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.MonitoringController;
-import com.webreach.mirth.server.controllers.MonitoringController.Priority;
-import com.webreach.mirth.server.controllers.MonitoringController.Status;
+import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
+import com.webreach.mirth.server.controllers.MonitoringController.Event;
 import com.webreach.mirth.server.mule.transformers.JavaScriptPostprocessor;
 
 import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicBoolean;
@@ -77,11 +77,11 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
 	private JavaScriptPostprocessor postProcessor = new JavaScriptPostprocessor();
 	private TemplateValueReplacer replacer = new TemplateValueReplacer();
 	private TcpWorker work;
+	private ConnectorType connectorType = ConnectorType.LISTENER;
 	public TcpMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint) throws InitialisationException {
 		super(connector, component, endpoint);
 		TcpConnector tcpConnector = (TcpConnector) connector;
 		this.connector = tcpConnector;
-		monitoringController.updateStatus(connector, Status.DISCONNECTED);
 	}
 
 	public void doConnect() throws ConnectException {
@@ -89,7 +89,7 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
 		URI uri = endpoint.getEndpointURI().getUri();
 		try {
 			serverSocket = createSocket(uri);
-			monitoringController.updateStatus(connector, Status.WAITING_FOR_CONNECTION, Priority.HIGH, serverSocket.toString());
+			monitoringController.updateStatus(connector, connectorType, Event.INITIALIZED);
 		} catch (Exception e) {
 			throw new org.mule.providers.ConnectException(new Message("tcp", 1, uri), e, this);
 		}
@@ -106,11 +106,12 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
 		disposing.set(true);
 		try {
 			if (serverSocket != null) {
-				monitoringController.updateStatus(connector, Status.DISCONNECTED, Priority.HIGH, serverSocket.toString());
 				serverSocket.close();
 			}
 		} catch (IOException e) {
 			logger.warn("Failed to close server socket: " + e.getMessage(), e);
+		} finally{
+			monitoringController.updateStatus(connector, connectorType, Event.DISCONNECTED);
 		}
 	}
 
@@ -141,7 +142,6 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
 				Socket socket = null;
 				try {
 					socket = serverSocket.accept();
-					monitoringController.updateStatus(connector, Status.CONNECTED, Priority.HIGH, socket.toString());
 					logger.trace("Server socket Accepted on: " + serverSocket.getLocalPort());
 				} catch (java.io.InterruptedIOException iie) {
 					logger.debug("Interupted IO doing serverSocket.accept: " + iie.getMessage());
@@ -153,6 +153,7 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
 				}
 				if (socket != null) {
 					try {
+						monitoringController.updateStatus(connector, connectorType, Event.CONNECTED, socket);
 						work = (TcpWorker)createWork(socket);
 						try {
 							getWorkManager().scheduleWork(work, WorkManager.IMMEDIATE, null, null);
@@ -161,6 +162,7 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
 						}
 					} catch (SocketException e) {
 						alertController.sendAlerts(((TcpConnector) connector).getChannelId(), Constants.ERROR_411, null, e);
+						monitoringController.updateStatus(connector, connectorType, Event.DISCONNECTED, socket);
 						handleException(e);
 					}
 
@@ -174,7 +176,7 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
 	public void doDispose() {
 		try {
 			if (serverSocket != null && !serverSocket.isClosed()){
-				monitoringController.updateStatus(connector, Status.DISCONNECTED, Priority.HIGH, serverSocket.toString());
+				monitoringController.updateStatus(connector, connectorType, Event.DISCONNECTED);
 				serverSocket.close();
 			}
 			serverSocket = null;
@@ -230,8 +232,8 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
 			try {
 				if (socket != null && !socket.isClosed()) {
 					logger.debug("Closing listener: " + socket.getLocalSocketAddress().toString());
-					// socket.shutdownInput();
-					// socket.shutdownOutput();
+					socket.shutdownInput();
+					socket.shutdownOutput();
 					socket.close();
 				}
 			} catch (IOException e) {
@@ -253,17 +255,16 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
 					byte[] b;
 					try {
                         b = protocol.read(dataIn);
-                        monitoringController.updateStatus(connector, Status.PROCESSING, Priority.NORMAL, socket.toString());
-						
 						// end of stream
 						if (b == null) {
-							monitoringController.updateStatus(connector, Status.DISCONNECTED, Priority.HIGH, socket.toString());
 							break;	
 						} else {
+							monitoringController.updateStatus(connector, connectorType, Event.BUSY, socket);
 							processData(b);
 							dataOut.flush();
+							monitoringController.updateStatus(connector, connectorType, Event.DONE, socket);
 						}
-						monitoringController.updateStatus(connector, Status.CONNECTED, Priority.HIGH, socket.toString());
+						
 					} catch (SocketTimeoutException e) {
 						if (!socket.getKeepAlive()) {
 							break;
@@ -274,7 +275,7 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
 			} catch (Exception e) {
 				handleException(e);
 			} finally {
-				monitoringController.updateStatus(connector, Status.WAITING_FOR_CONNECTION, Priority.HIGH);
+				monitoringController.updateStatus(connector, connectorType, Event.DISCONNECTED, socket);
 				dispose();
 			}
 		}

@@ -77,7 +77,8 @@ import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.controllers.MonitoringController;
-import com.webreach.mirth.server.controllers.MonitoringController.Status;
+import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
+import com.webreach.mirth.server.controllers.MonitoringController.Event;
 import com.webreach.mirth.server.util.VMRouter;
 
 /**
@@ -97,6 +98,7 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher {
 	private AlertController alertController = AlertController.getInstance();
 	private MonitoringController monitoringController = MonitoringController.getInstance();
 	private TemplateValueReplacer replacer = new TemplateValueReplacer();
+	private ConnectorType connectorType= ConnectorType.SENDER;
 	public AxisMessageDispatcher(AxisConnector connector) throws UMOException {
 		super(connector);
 		AxisProperties.setProperty("axis.doAutoTypes", "true");
@@ -104,7 +106,7 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher {
 		// Should be loading this from a WSDD but for some reason it is not
 		// working for me??
 		createClientConfig();
-		monitoringController.updateStatus(connector, Status.IDLE);
+		monitoringController.updateStatus(connector, connectorType, Event.INITIALIZED);
 	}
 
 	public void doDispose() {
@@ -204,7 +206,7 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher {
 
 	private Object[] invokeWebService(UMOEvent event, MessageObject messageObject) throws Exception {
 		try{
-			monitoringController.updateStatus(connector, Status.PROCESSING);
+			monitoringController.updateStatus(connector, connectorType, Event.BUSY);
 			//set the uri for the event
 			String uri = "axis:" + replacer.replaceURLValues(event.getEndpoint().getEndpointURI().toString(), messageObject);
 			event.getEndpoint().setEndpointURI(new MuleEndpointURI(uri));
@@ -267,7 +269,7 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher {
 			connector.handleException(e);
 			return null;
 		}finally{
-			monitoringController.updateStatus(connector, Status.IDLE);
+			monitoringController.updateStatus(connector, connectorType, Event.DONE);
 		}
 
 	}

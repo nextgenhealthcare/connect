@@ -39,7 +39,8 @@ import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.controllers.MonitoringController;
-import com.webreach.mirth.server.controllers.MonitoringController.Status;
+import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
+import com.webreach.mirth.server.controllers.MonitoringController.Event;
 
 /**
  * @author Ross Mason
@@ -51,14 +52,14 @@ public class SmtpMessageDispatcher extends AbstractMessageDispatcher {
 	private MonitoringController monitoringController = MonitoringController.getInstance();
 	private TemplateValueReplacer replacer = new TemplateValueReplacer();
 	private SmtpConnector connector;
-
+	private ConnectorType connectorType = ConnectorType.SENDER;
 	/**
 	 * @param connector
 	 */
 	public SmtpMessageDispatcher(SmtpConnector connector) {
 		super(connector);
 		this.connector = connector;
-		monitoringController.updateStatus(connector, Status.IDLE);
+		monitoringController.updateStatus(connector, connectorType, Event.INITIALIZED);
 		String username = new String();
 		String password = new String();
 		if (connector.getUsername() != null){
@@ -88,7 +89,7 @@ public class SmtpMessageDispatcher extends AbstractMessageDispatcher {
 	 *      org.mule.providers.MuleEndpoint)
 	 */
 	public void doDispatch(UMOEvent event) throws Exception {
-		monitoringController.updateStatus(connector, Status.PROCESSING);
+		monitoringController.updateStatus(connector, connectorType, Event.BUSY);
 		Message msg = null;
 		
 		MessageObject messageObject = messageObjectController.getMessageObjectFromEvent(event);
@@ -122,7 +123,7 @@ public class SmtpMessageDispatcher extends AbstractMessageDispatcher {
 			messageObjectController.setError(messageObject, Constants.ERROR_402, "Error sending email", e);
 			connector.handleException(e);
 		}finally{
-			monitoringController.updateStatus(connector, Status.IDLE);
+			monitoringController.updateStatus(connector, connectorType, Event.DONE);
 		}
 	}
 

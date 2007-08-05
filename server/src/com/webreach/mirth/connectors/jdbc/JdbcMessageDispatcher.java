@@ -42,7 +42,8 @@ import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.controllers.MonitoringController;
-import com.webreach.mirth.server.controllers.MonitoringController.Status;
+import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
+import com.webreach.mirth.server.controllers.MonitoringController.Event;
 import com.webreach.mirth.server.util.CompiledScriptCache;
 import com.webreach.mirth.server.util.JavaScriptScopeUtil;
 
@@ -52,10 +53,11 @@ public class JdbcMessageDispatcher extends AbstractMessageDispatcher {
 	private AlertController alertController = AlertController.getInstance();
 	private JdbcConnector connector;
 	private MonitoringController monitoringController = MonitoringController.getInstance();
+	private ConnectorType connectorType = ConnectorType.WRITER;
 	public JdbcMessageDispatcher(JdbcConnector connector) {
 		super(connector);
 		this.connector = connector;
-		monitoringController.updateStatus(connector, Status.IDLE);
+		monitoringController.updateStatus(connector, connectorType, Event.INITIALIZED);
 	}
 
 	public void doDispose() {
@@ -63,7 +65,7 @@ public class JdbcMessageDispatcher extends AbstractMessageDispatcher {
 	}
 
 	public void doDispatch(UMOEvent event) throws Exception {
-		monitoringController.updateStatus(connector, Status.PROCESSING);
+		monitoringController.updateStatus(connector, connectorType, Event.BUSY);
 		if (logger.isDebugEnabled()) {
 			logger.debug("Dispatch event: " + event);
 		}
@@ -146,7 +148,7 @@ public class JdbcMessageDispatcher extends AbstractMessageDispatcher {
 			messageObjectController.setError(messageObject, Constants.ERROR_406, "Error writing to database: ", e);
 			connector.handleException(e);
 		}finally{
-			monitoringController.updateStatus(connector, Status.IDLE);
+			monitoringController.updateStatus(connector, connectorType, Event.DONE);
 		}
 
 	}

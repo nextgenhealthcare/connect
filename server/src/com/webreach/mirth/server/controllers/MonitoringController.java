@@ -1,5 +1,6 @@
 package com.webreach.mirth.server.controllers;
 
+import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.log4j.Logger;
@@ -12,8 +13,8 @@ import com.webreach.mirth.model.PluginMetaData;
 import com.webreach.mirth.plugins.ConnectorStatusPlugin;
 
 public class MonitoringController {
-	public enum Status {CONNECTED, DISCONNECTED, WAITING_FOR_CONNECTION, IDLE, WAITING, POLLING, PROCESSING, RETRYING};
-	public enum Priority {VERY_LOW, LOW, NORMAL, HIGH, VERY_HIGH, CRITICAL};
+	public enum Event {CONNECTED, DISCONNECTED, INITIALIZED, BUSY, DONE };
+	public enum ConnectorType {LISTENER, SENDER, READER, WRITER};
 	private static MonitoringController instance = null;
 	private Logger logger = Logger.getLogger(this.getClass());
 	private Map<String, ConnectorStatusPlugin> loadedPlugins;
@@ -30,19 +31,22 @@ public class MonitoringController {
 		}
 	}   	
 	
-	public void updateStatus(String connectorName, Status status, Priority priority, String connectionId){
+	private void updateStatus(String connectorName, ConnectorType type, Event event, Socket socket){
 		for(ConnectorStatusPlugin plugin : loadedPlugins.values()){
-			plugin.updateStatus(connectorName, status, priority, connectionId);
+			try{
+				plugin.updateStatus(connectorName, type, event, socket);
+			}catch (Exception e){
+				logger.error(e);
+			}
 		}
 	}
-	public void updateStatus(UMOConnector connector, Status status){
-		updateStatus(connector.getName(), status, Priority.NORMAL, null);
+
+	public void updateStatus(UMOConnector connector, ConnectorType type, Event event){
+		updateStatus(connector.getName(), type, event, null);
 	}
-	public void updateStatus(UMOConnector connector, Status status, Priority priority){
-		updateStatus(connector.getName(), status, priority, null);
-	}
-	public void updateStatus(UMOConnector connector, Status status, Priority priority, String connectionId){
-		updateStatus(connector.getName(), status, priority, connectionId);
+	
+	public void updateStatus(UMOConnector connector, ConnectorType type, Event event, Socket socket){
+		updateStatus(connector.getName(), type, event, socket);
 	}
 	//Extension point for ExtensionPoint.Type.SERVER_PLUGIN
     @ExtensionPointDefinition(mode=ExtensionPoint.Mode.SERVER, type=ExtensionPoint.Type.SERVER_CONNECTOR_STATUS)

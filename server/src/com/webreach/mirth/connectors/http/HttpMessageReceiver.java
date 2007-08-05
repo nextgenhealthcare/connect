@@ -1,15 +1,40 @@
 package com.webreach.mirth.connectors.http;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.Socket;
+import java.net.SocketException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.util.Iterator;
+import java.util.Properties;
+import java.util.StringTokenizer;
+import java.util.Map.Entry;
+
+import javax.resource.spi.work.Work;
+
 import org.apache.commons.httpclient.ChunkedInputStream;
 import org.mule.config.MuleProperties;
 import org.mule.config.i18n.Message;
 import org.mule.config.i18n.Messages;
-import org.mule.impl.*;
+import org.mule.impl.MuleEvent;
+import org.mule.impl.MuleMessage;
+import org.mule.impl.MuleSession;
+import org.mule.impl.RequestContext;
+import org.mule.impl.ResponseOutputStream;
 import org.mule.providers.AbstractMessageReceiver;
 import org.mule.providers.ConnectException;
-import org.mule.providers.tcp.TcpMessageReceiver;
 import org.mule.providers.http.HttpConstants;
 import org.mule.providers.http.RequestInputStream;
+import org.mule.providers.tcp.TcpMessageReceiver;
 import org.mule.umo.UMOComponent;
 import org.mule.umo.UMOMessage;
 import org.mule.umo.endpoint.UMOEndpoint;
@@ -23,19 +48,9 @@ import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.MonitoringController;
-import com.webreach.mirth.server.controllers.MonitoringController.Status;
+import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
+import com.webreach.mirth.server.controllers.MonitoringController.Event;
 import com.webreach.mirth.server.mule.transformers.JavaScriptPostprocessor;
-
-import javax.resource.spi.work.Work;
-import java.io.*;
-import java.net.Socket;
-import java.net.SocketException;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.util.Iterator;
-import java.util.Properties;
-import java.util.StringTokenizer;
-import java.util.Map.Entry;
 
 /**
  * <code>HttpMessageReceiver</code> is a simple http server that can be used
@@ -49,13 +64,10 @@ public class HttpMessageReceiver extends TcpMessageReceiver {
 	private AlertController alertController = AlertController.getInstance();
 	private MonitoringController monitoringController = MonitoringController.getInstance();
 	private JavaScriptPostprocessor postprocessor = new JavaScriptPostprocessor();
+	private ConnectorType connectorType = ConnectorType.LISTENER;
     public HttpMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint)
             throws InitialisationException {
         super(connector, component, endpoint);
-        monitoringController.updateStatus(connector, Status.DISCONNECTED);
-//        if (((HttpConnector) connector).isKeepAlive()) {
-//            keepAliveMonitor = new ExpiryMonitor(1000);
-//        }
     }
 
     protected Work createWork(Socket socket) throws SocketException {
@@ -67,7 +79,7 @@ public class HttpMessageReceiver extends TcpMessageReceiver {
         //start another serversocket
         if (shouldConnect()) {
             super.doConnect();
-            monitoringController.updateStatus(this.getConnector(), Status.WAITING_FOR_CONNECTION);
+            monitoringController.updateStatus(this.getConnector(), connectorType, Event.INITIALIZED);
         }
     }
 
@@ -95,22 +107,22 @@ public class HttpMessageReceiver extends TcpMessageReceiver {
     }
 
     private class HttpWorker extends TcpWorker implements Expirable {
-
+    	HttpConnector httpConnector = ((HttpConnector) connector);
         public HttpWorker(Socket socket) throws SocketException {
             super(socket);
-            boolean keepAlive = ((HttpConnector) connector).isKeepAlive();
+            boolean keepAlive = httpConnector.isKeepAlive();
             if (keepAlive) {
                 socket.setKeepAlive(true);
-                socket.setSoTimeout(((HttpConnector) connector).getKeepAliveTimeout());
+                socket.setSoTimeout(httpConnector.getKeepAliveTimeout());
             }
-
+            monitoringController.updateStatus(httpConnector, connectorType, Event.CONNECTED, socket);
         }
 
         public void run() {
-        	HttpConnector httpConnector = ((HttpConnector) connector);
-        	monitoringController.updateStatus(httpConnector, Status.PROCESSING);
-            boolean keepAlive = httpConnector.isKeepAlive();
+        	
+        	boolean keepAlive = httpConnector.isKeepAlive();
             try {
+            	monitoringController.updateStatus(httpConnector, connectorType, Event.BUSY, socket);
                 dataIn = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
                 dataOut = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
                 
@@ -178,7 +190,7 @@ public class HttpMessageReceiver extends TcpMessageReceiver {
                         dataOut.write(response.toString().getBytes());
                     }
                     dataOut.flush();
-                    monitoringController.updateStatus(httpConnector, Status.CONNECTED);
+                    monitoringController.updateStatus(httpConnector, connectorType, Event.DONE, socket);
                 } while (!socket.isClosed() && !disposing.get() && keepAlive);
                 if (logger.isDebugEnabled() && socket.isClosed()) {
                     logger.debug("Peer closed connection");
@@ -187,7 +199,6 @@ public class HttpMessageReceiver extends TcpMessageReceiver {
             	alertController.sendAlerts(((HttpConnector) connector).getChannelId(), Constants.ERROR_404, null, e);
                 handleException(e);
             } finally {
-            	monitoringController.updateStatus(httpConnector, Status.WAITING_FOR_CONNECTION);
                 dispose();
             }
         }
@@ -195,6 +206,11 @@ public class HttpMessageReceiver extends TcpMessageReceiver {
         public void expired() {
             logger.debug("Keep alive timed out");
             dispose();
+        }
+        
+        public void dispose(){
+        	monitoringController.updateStatus(httpConnector, connectorType, Event.DISCONNECTED, socket);
+        	super.dispose();
         }
     }
 

@@ -34,7 +34,8 @@ import com.webreach.mirth.connectors.file.filters.FilenameWildcardFilter;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.MonitoringController;
-import com.webreach.mirth.server.controllers.MonitoringController.Status;
+import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
+import com.webreach.mirth.server.controllers.MonitoringController.Event;
 import com.webreach.mirth.server.mule.transformers.JavaScriptPostprocessor;
 import com.webreach.mirth.server.util.BatchMessageProcessor;
 import com.webreach.mirth.server.util.StackTracePrinter;
@@ -47,6 +48,7 @@ public class SftpMessageReceiver extends PollingMessageReceiver {
 	private AlertController alertController = AlertController.getInstance();
 	private MonitoringController monitoringController = MonitoringController.getInstance();
 	private JavaScriptPostprocessor postProcessor = new JavaScriptPostprocessor();
+	private ConnectorType connectorType = ConnectorType.READER;
 	private boolean routingError = false;
 
 	public SftpMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint, Long frequency) throws InitialisationException {
@@ -59,11 +61,11 @@ public class SftpMessageReceiver extends PollingMessageReceiver {
             setFrequency(((SftpConnector) connector).getPollingFrequency());
         
 		filenameFilter = new FilenameWildcardFilter(this.connector.getFileFilter());
-		monitoringController.updateStatus(connector, Status.IDLE);
+		monitoringController.updateStatus(connector, connectorType, Event.INITIALIZED);
 	}
 
 	public void poll() {
-		monitoringController.updateStatus(connector, Status.POLLING);
+		monitoringController.updateStatus(connector, connectorType, Event.BUSY);
 		try {
 			List files = listFiles();
 			sortFiles(files);
@@ -77,7 +79,6 @@ public class SftpMessageReceiver extends PollingMessageReceiver {
 							try {
 								currentFiles.add(entry.getFilename());
 								if (!routingError){
-									monitoringController.updateStatus(connector, Status.PROCESSING);
 									processFile(entry);
 								}
 							} catch (Exception e) {
@@ -95,6 +96,8 @@ public class SftpMessageReceiver extends PollingMessageReceiver {
 		} catch (Exception e) {
 			alertController.sendAlerts(((SftpConnector) connector).getChannelId(), Constants.ERROR_409, null, e);
 			handleException(e);
+		} finally{
+			monitoringController.updateStatus(connector, connectorType, Event.DONE);
 		}
 	}
 

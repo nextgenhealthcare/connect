@@ -49,8 +49,8 @@ import com.webreach.mirth.connectors.file.filters.FilenameWildcardFilter;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.MonitoringController;
-import com.webreach.mirth.server.controllers.MonitoringController.Priority;
-import com.webreach.mirth.server.controllers.MonitoringController.Status;
+import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
+import com.webreach.mirth.server.controllers.MonitoringController.Event;
 import com.webreach.mirth.server.mule.transformers.JavaScriptPostprocessor;
 import com.webreach.mirth.server.util.BatchMessageProcessor;
 import com.webreach.mirth.server.util.StackTracePrinter;
@@ -67,6 +67,7 @@ public class FtpMessageReceiver extends PollingMessageReceiver {
 	private AlertController alertController = AlertController.getInstance();
 	private MonitoringController monitoringController = MonitoringController.getInstance();
 	private JavaScriptPostprocessor postProcessor = new JavaScriptPostprocessor();
+	private ConnectorType connectorType = ConnectorType.READER;
 	public FtpMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint, Long frequency) throws InitialisationException {
 		super(connector, component, endpoint, frequency);
 		this.connector = (FtpConnector) connector;
@@ -77,15 +78,14 @@ public class FtpMessageReceiver extends PollingMessageReceiver {
             setFrequency(((FtpConnector) connector).getPollingFrequency());
         
 		filenameFilter = new FilenameWildcardFilter(this.connector.getFileFilter());
-		monitoringController.updateStatus(connector, Status.IDLE);
+		monitoringController.updateStatus(connector, connectorType, Event.INITIALIZED);
 	}
 
 	public void poll() {
 		try {
-			monitoringController.updateStatus(connector, Status.POLLING);
+			monitoringController.updateStatus(connector, connectorType, Event.BUSY);
 			FTPFile[] files = listFiles();
 			sortFiles(files);
-			monitoringController.updateStatus(connector, Status.PROCESSING);
 			for (int i = 0; i < files.length; i++) {
 				final FTPFile file = files[i];
 				if (!currentFiles.contains(file.getName())) {
@@ -111,7 +111,7 @@ public class FtpMessageReceiver extends PollingMessageReceiver {
 			alertController.sendAlerts(((FtpConnector) connector).getChannelId(), Constants.ERROR_405, null, e);
 			handleException(e);
 		} finally{
-			monitoringController.updateStatus(connector, Status.IDLE);
+			monitoringController.updateStatus(connector, connectorType, Event.DONE);
 		}
 	}
 

@@ -43,7 +43,8 @@ import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.controllers.MonitoringController;
-import com.webreach.mirth.server.controllers.MonitoringController.Status;
+import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
+import com.webreach.mirth.server.controllers.MonitoringController.Event;
 
 import edu.emory.mathcs.backport.java.util.concurrent.TimeUnit;
 
@@ -65,10 +66,11 @@ public class JmsMessageDispatcher extends AbstractMessageDispatcher {
 	private AlertController alertController = AlertController.getInstance();
 	private MonitoringController monitoringController = MonitoringController.getInstance();
 	private TemplateValueReplacer replacer = new TemplateValueReplacer();
+	private ConnectorType connectorType = ConnectorType.WRITER;
     public JmsMessageDispatcher(JmsConnector connector) {
         super(connector);
         this.connector = connector;
-        monitoringController.updateStatus(connector, Status.IDLE);
+        monitoringController.updateStatus(connector, connectorType, Event.INITIALIZED);
     }
 
     /*
@@ -82,7 +84,7 @@ public class JmsMessageDispatcher extends AbstractMessageDispatcher {
     }
 
     private UMOMessage dispatchMessage(UMOEvent event) throws Exception {
-    	monitoringController.updateStatus(connector, Status.PROCESSING);
+    	monitoringController.updateStatus(connector, connectorType, Event.BUSY);
     	MessageObject messageObject = messageObjectController.getMessageObjectFromEvent(event);
 		if (messageObject == null) {
 			return null;
@@ -243,7 +245,7 @@ public class JmsMessageDispatcher extends AbstractMessageDispatcher {
             if (session != null && session != txSession) {
                 JmsUtils.closeQuietly(session);
             }
-            monitoringController.updateStatus(connector, Status.IDLE);
+            monitoringController.updateStatus(connector, connectorType, Event.DONE);
         }
 		return null;
     }

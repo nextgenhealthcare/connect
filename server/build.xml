@@ -234,6 +234,9 @@
 			<include name="com/webreach/mirth/plugins/messagepruner/**" />
 		</jar>
 		
+		<jar destfile="${plugins}/dashboard-status-monitor-server.jar" basedir="${classes}">
+			<include name="com/webreach/mirth/plugins/dashboardstatus/**" />
+		</jar>
 	</target>
 
   <target name="create-client-lib" depends="init">

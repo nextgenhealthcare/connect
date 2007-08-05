@@ -41,6 +41,7 @@ import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.Response;
 import com.webreach.mirth.model.MessageObject.Status;
 import com.webreach.mirth.server.controllers.MonitoringController;
+import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
 import com.webreach.mirth.server.mule.transformers.JavaScriptPostprocessor;
 import com.webreach.mirth.server.util.StackTracePrinter;
 
@@ -141,19 +142,20 @@ public class ServiceProxy {
 		private AbstractMessageReceiver receiver;
 		private JavaScriptPostprocessor postProcessor = new JavaScriptPostprocessor();
 		private MonitoringController monitoringController = MonitoringController.getInstance();
+		private ConnectorType connectorType = ConnectorType.SENDER;
 		private boolean synchronous = true;
 
 		public AxisServiceHandler(AbstractMessageReceiver receiver,
 				boolean synchronous) {
 			this.receiver = receiver;
 			this.synchronous = synchronous;
-			monitoringController.updateStatus(receiver.getConnector(), com.webreach.mirth.server.controllers.MonitoringController.Status.IDLE);
+			monitoringController.updateStatus(receiver.getConnector(), connectorType, com.webreach.mirth.server.controllers.MonitoringController.Event.INITIALIZED);
 		}
 	
 		public Object invoke(Object proxy, Method method, Object[] args)
 				throws Throwable {
 			try{
-				monitoringController.updateStatus(receiver.getConnector(), com.webreach.mirth.server.controllers.MonitoringController.Status.PROCESSING);
+				monitoringController.updateStatus(receiver.getConnector(), connectorType, com.webreach.mirth.server.controllers.MonitoringController.Event.BUSY);
 				AxisConnector connector = (AxisConnector)receiver.getConnector();
 				UMOMessageAdapter messageAdapter = connector.getMessageAdapter(args);
 				// messageAdapter.setProperty(MuleProperties.MULE_METHOD_PROPERTY,
@@ -194,7 +196,7 @@ public class ServiceProxy {
 				logger.error(e);
 				return e.getMessage();
 			}finally{
-				monitoringController.updateStatus(receiver.getConnector(), com.webreach.mirth.server.controllers.MonitoringController.Status.IDLE);
+				monitoringController.updateStatus(receiver.getConnector(), connectorType, com.webreach.mirth.server.controllers.MonitoringController.Event.DONE);
 			}
 		}
 	}

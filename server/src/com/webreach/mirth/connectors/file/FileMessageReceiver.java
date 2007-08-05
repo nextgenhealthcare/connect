@@ -49,7 +49,8 @@ import com.webreach.mirth.connectors.file.filters.FilenameWildcardFilter;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.MonitoringController;
-import com.webreach.mirth.server.controllers.MonitoringController.Status;
+import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
+import com.webreach.mirth.server.controllers.MonitoringController.Event;
 import com.webreach.mirth.server.mule.transformers.JavaScriptPostprocessor;
 import com.webreach.mirth.server.util.BatchMessageProcessor;
 import com.webreach.mirth.server.util.StackTracePrinter;
@@ -74,6 +75,7 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 	private MonitoringController monitoringController = MonitoringController.getInstance();
 	private JavaScriptPostprocessor postProcessor = new JavaScriptPostprocessor();
 	private TemplateValueReplacer replacer = new TemplateValueReplacer();
+	private ConnectorType connectorType = ConnectorType.READER;
 	public FileMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint, String readDir, String moveDir, String moveToPattern, Long frequency) throws InitialisationException {
 		super(connector, component, endpoint, frequency);
 		this.readDir = replacer.replaceValuesFromGlobal(readDir, true);
@@ -86,7 +88,7 @@ public class FileMessageReceiver extends PollingMessageReceiver {
             setFrequency(((FileConnector) connector).getPollingFrequency());
         
 		filenameFilter = new FilenameWildcardFilter(replacer.replaceValuesFromGlobal(((FileConnector) connector).getFileFilter(), true));
-		monitoringController.updateStatus(connector, Status.IDLE);
+		monitoringController.updateStatus(connector, connectorType, Event.INITIALIZED);
 	}
 
 	public void doConnect() throws Exception {
@@ -110,7 +112,7 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 	public void doDisconnect() throws Exception {}
 
 	public void poll() {
-		monitoringController.updateStatus(connector, Status.POLLING);
+		monitoringController.updateStatus(connector, connectorType, Event.BUSY);
 		try {
 			File[] files = listFiles();
 
@@ -121,7 +123,6 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 			// sort files by specified attribute before sorting
 			sortFiles(files);
 			routingError = false;
-			monitoringController.updateStatus(connector, Status.PROCESSING);
 			for (int i = 0; i < files.length; i++) {
 				
 				if (!routingError)
@@ -131,7 +132,7 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 			alertController.sendAlerts(((FileConnector) connector).getChannelId(), Constants.ERROR_403, null, e);
 			handleException(e);
 		}finally{
-			monitoringController.updateStatus(connector, Status.IDLE);
+			monitoringController.updateStatus(connector, connectorType, Event.DONE);
 		}
 	}
 

@@ -37,7 +37,8 @@ import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.controllers.MonitoringController;
-import com.webreach.mirth.server.controllers.MonitoringController.Status;
+import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
+import com.webreach.mirth.server.controllers.MonitoringController.Event;
 
 /**
  * <code>VMMessageDispatcher</code> is used for providing in memory
@@ -58,12 +59,12 @@ public class VMMessageDispatcher extends AbstractMessageDispatcher
     private MessageObjectController messageObjectController = MessageObjectController.getInstance();
     private AlertController alertController = AlertController.getInstance();
     private MonitoringController monitoringController = MonitoringController.getInstance();
-    
+    private ConnectorType connectorType = ConnectorType.SENDER;
     public VMMessageDispatcher(VMConnector connector)
     {
         super(connector);
         this.connector = connector;
-        monitoringController.updateStatus(connector, Status.IDLE);
+        monitoringController.updateStatus(connector, connectorType,  Event.INITIALIZED);
     }
 
     /*
@@ -84,7 +85,7 @@ public class VMMessageDispatcher extends AbstractMessageDispatcher
      */
     public UMOMessage receive(UMOEndpointURI endpointUri, long timeout) throws Exception
     {
-    	monitoringController.updateStatus(connector, Status.PROCESSING);
+    	monitoringController.updateStatus(connector, connectorType, Event.BUSY);
         if (!connector.isQueueEvents())
         {
             throw new UnsupportedOperationException("Receive only supported on the VM Queue Connector");
@@ -140,7 +141,7 @@ public class VMMessageDispatcher extends AbstractMessageDispatcher
             throw e;
         }
         finally{
-        	 monitoringController.updateStatus(connector, Status.IDLE);
+        	 monitoringController.updateStatus(connector, connectorType, Event.DONE);
         }
     }
 
@@ -151,7 +152,7 @@ public class VMMessageDispatcher extends AbstractMessageDispatcher
      */
     public void doDispatch(UMOEvent event) throws Exception
     {
-    	monitoringController.updateStatus(connector, Status.PROCESSING);
+    	monitoringController.updateStatus(connector, connectorType, Event.BUSY);
         MessageObject messageObject = messageObjectController.getMessageObjectFromEvent(event);
         if (messageObject == null)
         {
@@ -208,7 +209,7 @@ public class VMMessageDispatcher extends AbstractMessageDispatcher
             throw (e);
         }
         finally{
-        	 monitoringController.updateStatus(connector, Status.IDLE);
+        	 monitoringController.updateStatus(connector, connectorType, Event.DONE);
         }
     }
 
@@ -220,7 +221,7 @@ public class VMMessageDispatcher extends AbstractMessageDispatcher
     public UMOMessage doSend(UMOEvent event) throws Exception
     {
 
-    	monitoringController.updateStatus(connector, Status.PROCESSING);
+    	monitoringController.updateStatus(connector, connectorType, Event.BUSY);
         UMOMessage retMessage = null;
         UMOEndpointURI endpointUri = event.getEndpoint().getEndpointURI();
         MessageObject messageObject = messageObjectController.getMessageObjectFromEvent(event);
@@ -272,7 +273,7 @@ public class VMMessageDispatcher extends AbstractMessageDispatcher
             messageObjectController.setError(messageObject, Constants.ERROR_412, "Error routing message", e);
             throw (e);
         }finally{
-        	 monitoringController.updateStatus(connector, Status.IDLE);
+        	 monitoringController.updateStatus(connector, connectorType, Event.DONE);
         }
         return retMessage;
     }

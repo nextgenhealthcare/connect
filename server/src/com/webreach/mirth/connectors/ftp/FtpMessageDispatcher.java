@@ -15,18 +15,9 @@
 package com.webreach.mirth.connectors.ftp;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.FilenameFilter;
 import java.io.IOException;
-import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.commons.net.ftp.FTPClient;
-import org.apache.commons.net.ftp.FTPFile;
-import org.apache.commons.net.ftp.FTPReply;
-import org.mule.MuleManager;
-import org.mule.impl.MuleMessage;
 import org.mule.impl.endpoint.MuleEndpointURI;
 import org.mule.providers.AbstractMessageDispatcher;
 import org.mule.providers.TemplateValueReplacer;
@@ -38,14 +29,13 @@ import org.mule.umo.endpoint.UMOEndpointURI;
 
 import sun.misc.BASE64Decoder;
 
-import com.webreach.mirth.connectors.file.filters.FilenameWildcardFilter;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.controllers.MonitoringController;
-import com.webreach.mirth.server.controllers.MonitoringController.Priority;
-import com.webreach.mirth.server.controllers.MonitoringController.Status;
+import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
+import com.webreach.mirth.server.controllers.MonitoringController.Event;
 
 /**
  * @author <a href="mailto:gnt@codehaus.org">Guillaume Nodet</a>
@@ -59,13 +49,15 @@ public class FtpMessageDispatcher extends AbstractMessageDispatcher {
 	private AlertController alertController = AlertController.getInstance();
 	private MonitoringController monitoringController = MonitoringController.getInstance();
 	private TemplateValueReplacer replacer = new TemplateValueReplacer();
+	private ConnectorType connectorType = ConnectorType.WRITER;
 	public FtpMessageDispatcher(FtpConnector connector) {
 		super(connector);
 		this.connector = connector;
-		monitoringController.updateStatus(connector, Status.IDLE);
+		monitoringController.updateStatus(connector, connectorType, Event.INITIALIZED);
 	}
 
 	public void doDispatch(UMOEvent event) throws Exception {
+		monitoringController.updateStatus(connector, connectorType, Event.BUSY);
 		UMOEndpointURI uri = event.getEndpoint().getEndpointURI();
 		
 		FTPClient client = null;
@@ -102,17 +94,14 @@ public class FtpMessageDispatcher extends AbstractMessageDispatcher {
 				// TODO: Add support for Charset encodings in 1.4.1
 			}
 			client = connector.getFtp(uri, messageObject);
-			monitoringController.updateStatus(connector, Status.PROCESSING, Priority.HIGH);
 			try {
 				if (!client.changeWorkingDirectory(uri.getPath())) {
-					monitoringController.updateStatus(connector, Status.DISCONNECTED, Priority.HIGH);
 					throw new IOException("Ftp error: " + client.getReplyCode() + client.getReplyString());
 				}
 			} catch (Exception exception) {
 				connector.destroyFtp(uri, client, messageObject);
 				client = connector.getFtp(uri, messageObject);
 				if (!client.changeWorkingDirectory(uri.getPath())) {
-					monitoringController.updateStatus(connector, Status.DISCONNECTED, Priority.HIGH);
 					throw new IOException("Ftp error: " + client.getReplyCode() + client.getReplyString());
 				}
 			}
@@ -132,7 +121,6 @@ public class FtpMessageDispatcher extends AbstractMessageDispatcher {
 				alertController.sendAlerts(((FtpConnector) connector).getChannelId(), Constants.ERROR_405, "Error writing to FTP", e);
 				messageObjectController.setError(messageObject, Constants.ERROR_405, "Error writing to FTP", e);
 			}
-			monitoringController.updateStatus(connector, Status.DISCONNECTED, Priority.HIGH);
 			connector.handleException(e);
 		} finally {
 			try {
@@ -141,7 +129,7 @@ public class FtpMessageDispatcher extends AbstractMessageDispatcher {
 				logger.debug("Could not release FTP connection.", e);
 				connector.destroyFtp(uri, client, messageObject);
 			}
-			monitoringController.updateStatus(connector, Status.IDLE);
+			monitoringController.updateStatus(connector, connectorType, Event.DONE);
 		} 
 	}
 

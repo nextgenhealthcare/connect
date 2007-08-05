@@ -23,7 +23,8 @@ import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.controllers.MonitoringController;
-import com.webreach.mirth.server.controllers.MonitoringController.Status;
+import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
+import com.webreach.mirth.server.controllers.MonitoringController.Event;
 
 public class DocumentMessageDispatcher extends AbstractMessageDispatcher {
 	private DocumentConnector connector;
@@ -31,14 +32,15 @@ public class DocumentMessageDispatcher extends AbstractMessageDispatcher {
 	private MessageObjectController messageObjectController = MessageObjectController.getInstance();
 	private AlertController alertController = AlertController.getInstance();
 	private MonitoringController monitoringController = MonitoringController.getInstance();
+	private ConnectorType connectorType = ConnectorType.WRITER;
 	public DocumentMessageDispatcher(DocumentConnector connector) {
 		super(connector);
 		this.connector = connector;
-		monitoringController.updateStatus(connector, Status.IDLE);
+		monitoringController.updateStatus(connector, connectorType, Event.INITIALIZED);
 	}
 
 	public void doDispatch(UMOEvent event) throws Exception {
-		monitoringController.updateStatus(connector, Status.PROCESSING);
+		monitoringController.updateStatus(connector, connectorType, Event.BUSY);
 		TemplateValueReplacer replacer = new TemplateValueReplacer();
 		String endpoint = event.getEndpoint().getEndpointURI().getAddress();
 		MessageObject messageObject = messageObjectController.getMessageObjectFromEvent(event);
@@ -76,7 +78,7 @@ public class DocumentMessageDispatcher extends AbstractMessageDispatcher {
 			messageObjectController.setError(messageObject, Constants.ERROR_401, "Error writing document", e);
 			connector.handleException(e);
 		}finally{
-			monitoringController.updateStatus(connector, Status.IDLE);
+			monitoringController.updateStatus(connector, connectorType, Event.DONE);
 		}
 	}
 

@@ -1,11 +1,11 @@
 package com.webreach.mirth.plugins;
 
-import java.util.Properties;
+import java.net.Socket;
 
-import com.webreach.mirth.server.controllers.MonitoringController.Priority;
-import com.webreach.mirth.server.controllers.MonitoringController.Status;
+import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
+import com.webreach.mirth.server.controllers.MonitoringController.Event;
 
 public interface ConnectorStatusPlugin
 {
-    public abstract void updateStatus(String connectorName, Status status, Priority priority, String connectionId);
+    public abstract void updateStatus(String connectorName, ConnectorType type, Event event, Socket socket);
 }
