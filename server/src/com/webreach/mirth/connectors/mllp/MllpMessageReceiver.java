@@ -435,6 +435,7 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 			if (socket.isClosed()){
 				return null;
 			}
+			adapter.setProperty("receiverSocket", socket);
 			os = new ResponseOutputStream(socket.getOutputStream(), socket);
 			try {
 				returnMessage = routeMessage(new MuleMessage(adapter), endpoint.isSynchronous(), os);

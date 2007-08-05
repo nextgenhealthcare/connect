@@ -63,7 +63,6 @@ public class HttpMessageReceiver extends TcpMessageReceiver {
     //private ExpiryMonitor keepAliveMonitor;
 	private AlertController alertController = AlertController.getInstance();
 	private MonitoringController monitoringController = MonitoringController.getInstance();
-	private JavaScriptPostprocessor postprocessor = new JavaScriptPostprocessor();
 	private ConnectorType connectorType = ConnectorType.LISTENER;
     public HttpMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint)
             throws InitialisationException {
@@ -103,6 +102,7 @@ public class HttpMessageReceiver extends TcpMessageReceiver {
 //        if (keepAliveMonitor != null) {
 //            keepAliveMonitor.dispose();
 //        }
+    	monitoringController.updateStatus(connector, connectorType, Event.DISCONNECTED);
         super.doDispose();
     }
 
@@ -136,6 +136,7 @@ public class HttpMessageReceiver extends TcpMessageReceiver {
                     }
                     
                     UMOMessageAdapter adapter = connector.getMessageAdapter(new Object[]{payload, headers});
+                    adapter.setProperty("receiverSocket", socket);
                     UMOMessage message = new MuleMessage(adapter);
 
                     if (logger.isDebugEnabled()) {
@@ -177,9 +178,7 @@ public class HttpMessageReceiver extends TcpMessageReceiver {
                         RequestContext.setEvent(new MuleEvent(returnMessage, endpoint, new MuleSession(), true));
                     }
                     Object response = returnMessage.getPayload();
-                    if (response instanceof MessageObject){
-                    	postprocessor.doPostProcess((MessageObject)response);
-                    }
+                    
                     if(transformResponse) {
                         response = connector.getDefaultResponseTransformer().transform(response);
                     }

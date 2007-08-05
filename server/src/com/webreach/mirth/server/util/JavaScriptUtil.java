@@ -122,21 +122,24 @@ public class JavaScriptUtil
             Context.exit();
         }
     }
-    public void compileScript(String scriptId, String script)
+    public void compileScript(String scriptId, String script, boolean includeChannelMap)
     {
         Context context = getContext();
         logger.debug("compiling script. id=" + scriptId);
-        String generatedScript = generateScript(script);
+        String generatedScript = generateScript(script, includeChannelMap);
         Script compiledScript = context.compileString(generatedScript, scriptId, 1, null);
         compiledScriptCache.putCompiledScript(scriptId, compiledScript);
         Context.exit();
     }
 
-    public String generateScript(String script)
+    public String generateScript(String script, boolean includeChannelMap)
     {
         StringBuilder builtScript = new StringBuilder();
         builtScript.append("function $(string) { ");
-        builtScript.append("if (globalMap.get(string) != null) { return globalMap.get(string)} else ");
+        if (includeChannelMap){
+        	builtScript.append("if (channelMap.containsKey(string)) { return channelMap.get(string);} else ");
+        }
+        builtScript.append("if (globalMap.containsKey(string)) { return globalMap.get(string);} else ");
         builtScript.append("{ return ''; }}");
         builtScript.append("function doScript() {" + script + " }\n");
         builtScript.append("doScript()\n");

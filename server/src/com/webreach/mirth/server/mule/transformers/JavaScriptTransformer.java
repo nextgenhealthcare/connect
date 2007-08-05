@@ -412,9 +412,9 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 		StringBuilder script = new StringBuilder();
 		script.append("default xml namespace = '';\n");
 		script.append("function $(string) { ");
-		script.append("if (connectorMap.get(string) != null) { return connectorMap.get(string);} else ");
-		script.append("if (channelMap.get(string) != null) { return channelMap.get(string);} else ");
-		script.append("if (globalMap.get(string) != null) { return globalMap.get(string);} else ");
+		script.append("if (connectorMap.containsKey(string)) { return connectorMap.get(string);} else ");
+		script.append("if (channelMap.containsKey(string)) { return channelMap.get(string);} else ");
+		script.append("if (globalMap.containsKey(string)) { return globalMap.get(string);} else ");
 		script.append("{ return ''; }}");
 		script.append("function doFilter() {");
         // ast: Allow ending whitespaces from the input XML
@@ -440,9 +440,9 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 		// script used to check for exitence of segment
 		script.append("function validate(mapping, defaultValue, replacement) { var result; if (mapping != undefined) {result = new java.lang.String(mapping.toString());} if ((result == undefined) || (result.length() == 0)) {result = defaultValue;} if (replacement != undefined) { for (i = 0; i < replacement.length; i++) { var entry = replacement[i]; result = result.replaceAll(entry[0],entry[1]); \n} } return result; }");
 		script.append("function $(string) { ");
-		script.append("if (connectorMap.get(string) != null) { return connectorMap.get(string)} else ");
-		script.append("if (channelMap.get(string) != null) { return channelMap.get(string)} else ");
-		script.append("if (globalMap.get(string) != null) { return globalMap.get(string)} else ");
+		script.append("if (connectorMap.containsKey(string)) { return connectorMap.get(string);} else ");
+		script.append("if (channelMap.containsKey(string)) { return channelMap.get(string);} else ");
+		script.append("if (globalMap.containsKey(string)) { return globalMap.get(string);} else ");
 		script.append("{ return ''; }}");
 		script.append("default xml namespace = '';");
 		script.append("function doTransform() {");

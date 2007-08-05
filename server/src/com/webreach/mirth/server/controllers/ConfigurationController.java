@@ -83,6 +83,9 @@ import com.webreach.mirth.util.PropertyVerifier;
  * 
  */
 public class ConfigurationController {
+	private static final String CHANNEL_POSTPROCESSOR_DEFAULT_SCRIPT = "// This script executes once after a message has been processed\r\nreturn;";
+	private static final String GLOBAL_PREPROCESSOR_DEFAULT_SCRIPT = "// Modify the message variable below to pre process data\r\n// This script applies across all channels\r\nreturn message;";
+	private static final String GLOBAL_POSTPROCESSOR_DEFAULT_SCRIPT = "// This script executes once after a message has been processed\r\n// This script applies across all channels\r\nreturn;";
 	private static final String POSTPROCESSOR = "Postprocessor";
 	private static final String PREPROCESSOR = "Preprocessor";
 	private static final String SHUTDOWN = "Shutdown";
@@ -295,15 +298,20 @@ public class ConfigurationController {
 		Iterator i = globalScripts.entrySet().iterator();
 		while (i.hasNext()) {
 			Entry entry = (Entry) i.next();
-			if (!(entry.getKey().toString().equals(PREPROCESSOR) && globalScripts.get(entry.getKey()).equals("// Modify the message variable below to pre process data\r\n// This script applies across all channels\r\nreturn message;")) && !(entry.getKey().toString().equals(POSTPROCESSOR) && globalScripts.get(entry.getKey()).equals("// This script executes once after a message has been processed\r\n// This script applies across all channels\r\nreturn;")))
-				JavaScriptUtil.getInstance().compileScript(entry.getKey().toString(), globalScripts.get(entry.getKey()));
+			if (!(entry.getKey().toString().equals(PREPROCESSOR) && globalScripts.get(entry.getKey()).equals(GLOBAL_PREPROCESSOR_DEFAULT_SCRIPT)) && !(entry.getKey().toString().equals(POSTPROCESSOR) && globalScripts.get(entry.getKey()).equals(GLOBAL_POSTPROCESSOR_DEFAULT_SCRIPT)))
+				JavaScriptUtil.getInstance().compileScript(entry.getKey().toString(), globalScripts.get(entry.getKey()), false);
 		}
 
 		for (Channel channel : channels) {
 			if (channel.isEnabled()) {
-				JavaScriptUtil.getInstance().compileScript(channel.getId() + "_Deploy", channel.getDeployScript());
-				JavaScriptUtil.getInstance().compileScript(channel.getId() + "_Shutdown", channel.getShutdownScript());
-				JavaScriptUtil.getInstance().compileScript(channel.getId() + "_Postprocessor", channel.getPostprocessingScript());
+				JavaScriptUtil.getInstance().compileScript(channel.getId() + "_Deploy", channel.getDeployScript(), false);
+				JavaScriptUtil.getInstance().compileScript(channel.getId() + "_Shutdown", channel.getShutdownScript(), false);
+				//only compile and run post processor if its not the default
+				if (!channel.getPostprocessingScript().equals(CHANNEL_POSTPROCESSOR_DEFAULT_SCRIPT)){
+					JavaScriptUtil.getInstance().compileScript(channel.getId() + "_Postprocessor", channel.getPostprocessingScript(), true);
+				}else{
+					JavaScriptUtil.getInstance().removeScriptFromCache(channel.getId() + "_Postprocessor");
+				}
 			} else {
 				JavaScriptUtil.getInstance().removeScriptFromCache(channel.getId() + "_Deploy");
 				JavaScriptUtil.getInstance().removeScriptFromCache(channel.getId() + "_Shutdown");
@@ -353,10 +361,10 @@ public class ConfigurationController {
 			shutdownScript = "// This script executes once when the mule engine is stopped\r\n// You only have access to the globalMap here to persist data\r\nreturn;";
 
 		if (preprocessorScript == null)
-			preprocessorScript = "// Modify the message variable below to pre process data\r\n// This script applies across all channels\r\nreturn message;";
+			preprocessorScript = GLOBAL_PREPROCESSOR_DEFAULT_SCRIPT;
 
 		if (postprocessorScript == null)
-			postprocessorScript = "// This script executes once after a message has been processed\r\n// This script applies across all channels\r\nreturn;";
+			postprocessorScript = GLOBAL_POSTPROCESSOR_DEFAULT_SCRIPT;
 
 		scripts.put(DEPLOY, deployScript);
 		scripts.put(SHUTDOWN, shutdownScript);

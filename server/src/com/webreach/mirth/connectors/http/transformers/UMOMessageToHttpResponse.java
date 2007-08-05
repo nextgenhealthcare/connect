@@ -29,6 +29,8 @@ import org.mule.util.Utility;
 import com.webreach.mirth.connectors.http.HttpConnector;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.Response;
+import com.webreach.mirth.server.mule.transformers.JavaScriptPostprocessor;
+
 import org.mule.providers.http.HttpConstants;
 
 import java.io.IOException;
@@ -47,7 +49,7 @@ public class UMOMessageToHttpResponse extends AbstractEventAwareTransformer
 {
     private SimpleDateFormat format = null;
     private String server = null;
-
+    private JavaScriptPostprocessor postProcessor = new JavaScriptPostprocessor();
     public UMOMessageToHttpResponse()
     {
         registerSourceType(Object.class);
@@ -79,6 +81,8 @@ public class UMOMessageToHttpResponse extends AbstractEventAwareTransformer
         boolean closeConnection = false;
         if (src instanceof MessageObject){
         	MessageObject messageObject = (MessageObject)src;
+        	postProcessor.doPostProcess(messageObject);
+            
         	HttpConnector connector = (HttpConnector) this.getEndpoint().getConnector();
      
             String respondFrom = connector.getResponseValue();

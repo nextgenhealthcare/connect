@@ -135,9 +135,9 @@ public class JdbcConnector extends AbstractServiceEnabledConnector {
 		if (ack) {
 			script.append("if (resultMap.get(string) != null) { return resultMap.get(string) } else ");
 		}
-		script.append("if (connectorMap.get(string) != null) { return connectorMap.get(string)} else ");
-		script.append("if (channelMap.get(string) != null) { return channelMap.get(string)} else ");
-		script.append("if (globalMap.get(string) != null) { return globalMap.get(string)} else ");
+		script.append("if (connectorMap.containsKey(string)) { return connectorMap.get(string);} else ");
+		script.append("if (channelMap.containsKey(string)) { return channelMap.get(string);} else ");
+		script.append("if (globalMap.containsKey(string)) { return globalMap.get(string);} else ");
 		script.append("{ return ''; }}");
 
 		script.append("function doDatabaseScript() {");

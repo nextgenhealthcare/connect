@@ -25,6 +25,7 @@
 
 package com.webreach.mirth.server.controllers;
 
+import java.net.Socket;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
@@ -46,6 +47,8 @@ import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.Response;
 import com.webreach.mirth.model.MessageObject.Status;
+import com.webreach.mirth.model.converters.ObjectCloner;
+import com.webreach.mirth.model.converters.ObjectClonerException;
 import com.webreach.mirth.model.filters.MessageObjectFilter;
 import com.webreach.mirth.server.builders.ErrorMessageBuilder;
 import com.webreach.mirth.server.util.DatabaseUtil;
@@ -56,6 +59,7 @@ import com.webreach.mirth.util.Encrypter;
 import com.webreach.mirth.util.EncryptionException;
 
 public class MessageObjectController {
+	private static final String RECEIVE_SOCKET = "receiverSocket";
 	private Logger logger = Logger.getLogger(this.getClass());
 	private SqlMapClient sqlMap = SqlConfig.getSqlMapInstance();
 	private ConfigurationController configurationController = ConfigurationController.getInstance();
@@ -114,7 +118,17 @@ public class MessageObjectController {
 
 	public void updateMessage(MessageObject incomingMessageObject, boolean checkIfMessageExists) {
 			MessageObject messageObject = (MessageObject) incomingMessageObject.clone();
-
+			Socket socket = null;
+			try{
+				//Check if we have a socket. We need to replace with a string because
+				//Sockets are not serializable and we want to retain the socket
+				if (messageObject.getChannelMap().containsKey(RECEIVE_SOCKET)){
+					socket = (Socket) messageObject.getChannelMap().get(RECEIVE_SOCKET);
+					messageObject.getChannelMap().put(RECEIVE_SOCKET, socket.toString());
+				}
+			}catch (Exception e){
+				logger.error(e);
+			}
 			// update the stats counts
 			if (messageObject.getStatus().equals(MessageObject.Status.TRANSFORMED)) {
 				statisticsController.incrementReceivedCount(messageObject.getChannelId());
@@ -151,6 +165,9 @@ public class MessageObjectController {
 			}
 			
             writeMessageToDatabase(messageObject, checkIfMessageExists);
+            if (socket != null){
+            	messageObject.getChannelMap().put(RECEIVE_SOCKET, socket);
+            }
 	}
     
     public void importMessage(MessageObject messageObject)

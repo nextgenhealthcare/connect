@@ -155,6 +155,7 @@ public class ServiceProxy {
 		public Object invoke(Object proxy, Method method, Object[] args)
 				throws Throwable {
 			try{
+				
 				monitoringController.updateStatus(receiver.getConnector(), connectorType, com.webreach.mirth.server.controllers.MonitoringController.Event.BUSY);
 				AxisConnector connector = (AxisConnector)receiver.getConnector();
 				UMOMessageAdapter messageAdapter = connector.getMessageAdapter(args);

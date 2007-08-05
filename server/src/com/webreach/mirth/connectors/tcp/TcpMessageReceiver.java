@@ -291,6 +291,7 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
 			OutputStream os;
 			// data = (it.next()).getBytes(charset);
 			UMOMessageAdapter adapter = connector.getMessageAdapter(str_data);
+			adapter.setProperty("receiverSocket", socket);
 			os = new ResponseOutputStream(socket.getOutputStream(), socket);
 			try {
 				returnMessage = routeMessage(new MuleMessage(adapter), endpoint.isSynchronous(), os);
