@@ -70,6 +70,16 @@ public class ChannelWriter extends ConnectorClass
     {
         resetInvalidProperties();
         
+        ArrayList<String> channelNameArray = new ArrayList<String>();
+        channelList = new HashMap();
+        channelList.put("None", "sink");
+        channelNameArray.add("None");
+        for (Channel channel : parent.channels.values())
+        {
+            channelList.put(channel.getName(), channel.getId());
+            channelNameArray.add(channel.getName());
+        }
+        channelNames.setModel(new javax.swing.DefaultComboBoxModel(channelNameArray.toArray()));
 
         boolean visible = parent.channelEditTasks.getContentPane().getComponent(0).isVisible();
 
