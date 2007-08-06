@@ -22,7 +22,7 @@ public class SqlConfig {
 			Reader reader = Resources.getResourceAsReader(resource);
 			if (database.equalsIgnoreCase("derby")) {
 				Properties props = PropertyLoader.loadProperties(database + "-SqlMapConfig");
-				props.setProperty("mirthHomeDir", ConfigurationController.mirthHomeDir + System.getProperty("file.separator"));
+				props.setProperty("mirthHomeDir", ConfigurationController.mirthHomeDir);
 				sqlMap = SqlMapClientBuilder.buildSqlMapClient(reader, props);
 			} else {			
 				sqlMap = SqlMapClientBuilder.buildSqlMapClient(reader);

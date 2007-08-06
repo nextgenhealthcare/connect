@@ -117,8 +117,10 @@ public class MuleConfigurationBuilder {
 			}
 			
 			// set the Mule working directory
+			String muleQueue = properties.getProperty("mule.queue");
+			muleQueue.replace("${mirthHomeDir}", ConfigurationController.mirthHomeDir);
 			Element muleEnvironmentPropertiesElement = (Element) muleConfigurationElement.getElementsByTagName("mule-environment-properties").item(0);
-			muleEnvironmentPropertiesElement.setAttribute("workingDirectory", ConfigurationController.mirthHomeDir + System.getProperty("file.separator") + ".mule");
+			muleEnvironmentPropertiesElement.setAttribute("workingDirectory", muleQueue);
 			
 			Element modelElement = (Element) muleConfigurationElement.getElementsByTagName("model").item(0);
 
