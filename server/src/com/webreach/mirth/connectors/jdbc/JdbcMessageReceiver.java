@@ -206,8 +206,14 @@ public class JdbcMessageReceiver extends TransactedPollingMessageReceiver {
 					logger.error("Database script could not be found in cache");
 					throw new Exception("Database script could not be found in cache");
 				} else {
-					Object result = compiledScript.exec(context, scope);
-
+					Object result = null;
+					try{
+						result = compiledScript.exec(context, scope);
+					} catch (Exception e){
+						logger.error(e);
+						alertController.sendAlerts(((JdbcConnector) connector).getChannelId(), Constants.ERROR_406, null, e);
+						return null;
+					}
 					if (result instanceof NativeJavaObject) {
 						Object javaRetVal = ((NativeJavaObject) result).unwrap();
 
