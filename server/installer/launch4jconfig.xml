@@ -1,0 +1,6 @@
+<launch4jConfig>
+	<headerType>0</headerType>
+	<jre>
+		<minVersion>1.5.0</minVersion>
+	</jre>
+</launch4jConfig>
