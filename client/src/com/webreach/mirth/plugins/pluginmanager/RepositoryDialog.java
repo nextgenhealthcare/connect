@@ -217,6 +217,7 @@ public class RepositoryDialog extends javax.swing.JDialog
     {        
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
+        	private boolean installedExtensions = false;
             public Void doInBackground()
             {
                 for (int i = 0; i < loadedExtensionTable.getModel().getRowCount(); i++)
@@ -228,41 +229,23 @@ public class RepositoryDialog extends javax.swing.JDialog
                     boolean update = ((Boolean)loadedExtensionTable.getModel().getValueAt(i,INSTALL_COLUMN)).booleanValue();
                     if (update)
                     {
-                        String name = (String)loadedExtensionTable.getModel().getValueAt(i, 1);
-                        String type = (String)loadedExtensionTable.getModel().getValueAt(i, 0);
-                        if (type.equals("Connector"))
-                        {
-                            statusLabel.setText("Downloading connector: " + name);
-                        }
-                        else if (type.equals("Plugin"))
-                        {
-                            statusLabel.setText("Downloading plugin: " + name);
-                        }
-                        
-                        try
-                        {
-                            Thread.sleep(1000);
-                        }
-                        catch (InterruptedException e)
-                        {
-                            e.printStackTrace();
-                        }
-                        progressBar.setVisible(true);
-                        pluginUtil.downloadFile("http://www.fotw.net/upload-download/firetest041206.jpg", statusLabel, progressBar);
+                        String name = extensionInfo[i].getName();                
+                        statusLabel.setText("Downloading extension: " + name);
                         if (cancel)
                         {
                             break;
                         }
+                        progressBar.setVisible(true);
+                        byte[] pluginData = pluginUtil.downloadFile(pluginUtil.getDynamicURL(extensionInfo[i].getDownloadUrl(), extensionInfo[i].getVersion(), extensionInfo[i].getName(), extensionInfo[i].getId()), statusLabel, progressBar);
                         progressBar.setVisible(false);
                         statusLabel.setText("Installing extension: " + name);
-                        try
+                        if (cancel)
                         {
-                            Thread.sleep(500);
+                            break;
                         }
-                        catch (InterruptedException e)
-                        {
-                            e.printStackTrace();
-                        }
+                        statusLabel.setText("Updating extension: " + extensionInfo[i].getName());
+                        parent.install(extensionInfo[i].getType().toLowerCase() + "s", pluginData);
+                        installedExtensions = true;
                     }
                 }
                 
@@ -271,10 +254,11 @@ public class RepositoryDialog extends javax.swing.JDialog
             
             public void done()
             {
-                
-                statusLabel.setText("Extensions Installed!");
-                PlatformUI.MIRTH_FRAME.alertInformation("Extensions successfully installed.\r\nMirth Server must be restarted in order to load the extension.");
-                dispose();
+            	if (installedExtensions){
+	                statusLabel.setText("Extensions Installed!");
+	                PlatformUI.MIRTH_FRAME.alertInformation("Extensions successfully installed.\r\nMirth Server must be restarted in order to load the extension.");
+	                dispose();
+            	}
             }
         };
         

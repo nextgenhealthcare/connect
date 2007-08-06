@@ -27,8 +27,11 @@ package com.webreach.mirth.plugins.pluginmanager;
 
 import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -47,6 +50,7 @@ import com.webreach.mirth.client.ui.components.MirthTable;
 import com.webreach.mirth.model.ConnectorMetaData;
 import com.webreach.mirth.model.MetaData;
 import com.webreach.mirth.model.PluginMetaData;
+import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 
 /** Creates the About Mirth dialog. The content is loaded from about.txt. */
 public class UpdateDialog extends javax.swing.JDialog
@@ -58,7 +62,7 @@ public class UpdateDialog extends javax.swing.JDialog
     private final String EXTENSION_INSTALL_UPDATE_COLUMN_NAME = "Update";
     private final String EXTENSION_UPDATE_VERSION_COLUMN_NAME = "Update Version";
     private Map<String, MetaData> extensions = new HashMap<String, MetaData>();
-    private Map<String, MetaData> updatableExtensions = new HashMap<String, MetaData>();
+    private Map<String, ExtensionInfo> updatableExtensions = new HashMap<String, ExtensionInfo>();
     private PluginUtil pluginUtil = new PluginUtil();
     private boolean cancel = false;
     /**
@@ -79,18 +83,18 @@ public class UpdateDialog extends javax.swing.JDialog
         Dimension frmSize = PlatformUI.MIRTH_FRAME.getSize();
         Point loc = PlatformUI.MIRTH_FRAME.getLocation();
         setLocation((frmSize.width - dlgSize.width) / 2 + loc.x, (frmSize.height - dlgSize.height) / 2 + loc.y);
-        
+        checkForUpdatesButtonActionPerformed(null);
         makeLoadedExtensionsTable();
         progressBar.setVisible(false);
         setVisible(true);
-        checkForUpdatesButtonActionPerformed(null);
+        
+      
     }
     /**
      * Makes the loaded connectors table
      */
     public void makeLoadedExtensionsTable()
     {
-        updateLoadedExtensionsTable();
         
         loadedExtensionTable = new MirthTable();
         loadedExtensionTable.setModel(new RefreshTableModel(new Object[][]{}, new String[] { EXTENSION_NAME_COLUMN_NAME, EXTENSION_INSTALLED_VERSION_COLUMN_NAME,  EXTENSION_UPDATE_VERSION_COLUMN_NAME, EXTENSION_INSTALL_UPDATE_COLUMN_NAME })
@@ -128,6 +132,54 @@ public class UpdateDialog extends javax.swing.JDialog
             highlighter.addHighlighter(new AlternateRowHighlighter(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR, UIConstants.TITLE_TEXT_COLOR));
             loadedExtensionTable.setHighlighters(highlighter);
         }
+        loadedExtensionTable.addMouseListener(new MouseListener()
+        {
+            public void mouseClicked(MouseEvent e)
+            {
+                if (e.getClickCount() == 2)
+                {
+                    int row = loadedExtensionTable.convertRowIndexToModel(loadedExtensionTable.getSelectedRow());
+                    if (row > -1 && updatableExtensions != null)
+                    {
+                        ExtensionInfo extensionInfo = updatableExtensions.get(loadedExtensionTable.getModel().getValueAt(row, 0) + "" + loadedExtensionTable.getModel().getValueAt(row, 2));
+                        String type = extensionInfo.getType();
+                        String name =  extensionInfo.getName();
+                        String version =  extensionInfo.getVersion();
+                        String mirthVersion =  extensionInfo.getMirthVersion();
+                        String author =  extensionInfo.getAuthor();
+                        String url =  extensionInfo.getUrl();
+                        String description  = extensionInfo.getDescription();
+                                            
+                        new PluginInfoDialog(name, type, author,mirthVersion, version, url, description);
+                    }
+                }
+                else
+                {
+                    /*
+                    int col = loadedExtensionTable.convertColumnIndexToModel(loadedExtensionTable.getSelectedColumn());
+                    if (col == 3)
+                    {
+                        int row = loadedExtensionTable.convertRowIndexToModel(loadedExtensionTable.getSelectedRow());
+                        boolean value = ((Boolean)loadedExtensionTable.getModel().getValueAt(row,3)).booleanValue();
+                        loadedExtensionTable.getModel().setValueAt(!value, row, col);
+                    }
+                    */
+                    
+                }
+            }
+            public void mouseEntered(MouseEvent e)
+            {
+            }
+            public void mouseExited(MouseEvent e)
+            {
+            }
+            public void mousePressed(MouseEvent e)
+            {
+            }
+            public void mouseReleased(MouseEvent e)
+            {
+            }
+        });
         loadedExtensionTable.addMouseWheelListener(new MouseWheelListener()
         {
             public void mouseWheelMoved(MouseWheelEvent e)
@@ -151,6 +203,7 @@ public class UpdateDialog extends javax.swing.JDialog
         
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
+        	private boolean installedUpdates = false;
             public Void doInBackground()
             {
                 for (int i = 0; i < loadedExtensionTable.getModel().getRowCount(); i++)
@@ -159,43 +212,23 @@ public class UpdateDialog extends javax.swing.JDialog
                     if (update)
                     {
                         String name = (String)loadedExtensionTable.getModel().getValueAt(i, 0);
-                        MetaData plugin = updatableExtensions.get(name);
-                        if(plugin instanceof ConnectorMetaData)
-                        {
-                            statusLabel.setText("Downloading connector: " + plugin.getName());
-                        }
-                        else if (plugin instanceof PluginMetaData)
-                        {
-                            statusLabel.setText("Downloading plugin: " + plugin.getName());
-                        }
+                        String version = (String)loadedExtensionTable.getModel().getValueAt(i, 2);
+                        ExtensionInfo plugin = updatableExtensions.get(name + version);
+                        statusLabel.setText("Downloading extension: " + plugin.getName());
                         if (cancel)
                         {
                             break;
                         }
-                        try
-                        {
-                            Thread.sleep(1000);
-                        }
-                        catch (InterruptedException e)
-                        {
-                            e.printStackTrace();
-                        }
                         progressBar.setVisible(true);
-                        pluginUtil.downloadFile("http://www.fotw.net/upload-download/firetest041206.jpg", statusLabel, progressBar);
+                        byte[] pluginData = pluginUtil.downloadFile(pluginUtil.getDynamicURL(plugin.getDownloadUrl(), plugin.getVersion(), plugin.getName(), plugin.getId()), statusLabel, progressBar);
                         progressBar.setVisible(false);
                         if (cancel)
                         {
                             break;
                         }
                         statusLabel.setText("Updating extension: " + plugin.getName());
-                        try
-                        {
-                            Thread.sleep(500);
-                        }
-                        catch (InterruptedException e)
-                        {
-                            e.printStackTrace();
-                        }
+                        parent.install(plugin.getType().toLowerCase() + "s", pluginData);
+                        installedUpdates = true;
                     }
                 }
                 
@@ -204,9 +237,11 @@ public class UpdateDialog extends javax.swing.JDialog
             
             public void done()
             {
-                statusLabel.setText("Updates Installed!");
-                PlatformUI.MIRTH_FRAME.alertInformation("Updates successfully installed.\r\nYou must restart Mirth to refresh plugin status");
-                dispose();
+            	if (installedUpdates){
+	                statusLabel.setText("Updates Installed!");
+	                PlatformUI.MIRTH_FRAME.alertInformation("Updates successfully installed.\r\nYou must restart Mirth to refresh plugin status");
+	                dispose();
+            	}
             }
         };
         
@@ -217,33 +252,40 @@ public class UpdateDialog extends javax.swing.JDialog
     {
         Object[][] tableData = null;
         int tableSize = 0;
-        ArrayList<String> updateVersion = new ArrayList<String>();
+        ObjectXMLSerializer serializer = new ObjectXMLSerializer(new Class[]{ExtensionInfo.class});
+        progressBar.setValue(0);
+        progressBar.setVisible(true);
+        progressBar.setMaximum(extensions.size());
         for (MetaData metaData : extensions.values())
         {
             if (metaData.getUpdateUrl() != null)
             {
                 statusLabel.setText("Checking: " + metaData.getName());
-                String updateText = pluginUtil.getStringFromURL("http://www.mirthproject.org");//metaData.getUpdateUrl());
-                System.out.println(updateText);
+                String url = pluginUtil.getDynamicURL(metaData.getUpdateUrl(), metaData.getPluginVersion(), metaData.getName());
+                String updateText = pluginUtil.getStringFromURL(url);
+                //System.out.println(updateText);
                 if (updateText.length() > 0)
                 {
-                    updatableExtensions.put(metaData.getName(), metaData);
-                    updateVersion.add("1.1.1");
+                	ExtensionInfo[] extensionInfo = (ExtensionInfo[]) serializer.fromXML(updateText);
+                	for (int i = 0; i < extensionInfo.length; i++){
+                		updatableExtensions.put(extensionInfo[i].getName() + extensionInfo[i].getVersion(), extensionInfo[i]);
+                	}
                 }
             }
+            progressBar.setValue(progressBar.getValue()+1);
         }
         statusLabel.setText("Ready to Install Updates!");
         tableSize = updatableExtensions.size();
-        
+        progressBar.setVisible(false);
         tableData = new Object[tableSize][4];
         
         int i = 0;
-        for (MetaData metaData : updatableExtensions.values())
+        for (ExtensionInfo metaData : updatableExtensions.values())
         {
             
             tableData[i][0] = metaData.getName();
-            tableData[i][1] = metaData.getPluginVersion();
-            tableData[i][2] = updateVersion.get(i);
+            tableData[i][1] = extensions.get(metaData.getName()).getPluginVersion();
+            tableData[i][2] = metaData.getVersion();
             tableData[i][3] = Boolean.TRUE;
             i++;
         }
@@ -257,7 +299,9 @@ public class UpdateDialog extends javax.swing.JDialog
         else
         {
         }
+        progressBar.setValue(0);
     }
+	
     
     
     /**
@@ -373,7 +417,7 @@ public class UpdateDialog extends javax.swing.JDialog
 // TODO add your handling code here:
         //Probably should be a swing worker
         
-        PlatformUI.MIRTH_FRAME.setWorking("Checking for updates...", true);
+        //PlatformUI.MIRTH_FRAME.setWorking("Checking for updates...", true);
         
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
@@ -385,7 +429,8 @@ public class UpdateDialog extends javax.swing.JDialog
             
             public void done()
             {
-                PlatformUI.MIRTH_FRAME.setWorking("", false);
+                //PlatformUI.MIRTH_FRAME.setWorking("", false);
+            	//makeLoadedExtensionsTable();
             }
         };
         

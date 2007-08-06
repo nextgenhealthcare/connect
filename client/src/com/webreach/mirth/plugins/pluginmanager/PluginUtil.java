@@ -8,11 +8,14 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLEncoder;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
 import javax.swing.JLabel;
 import javax.swing.JProgressBar;
+
+import com.webreach.mirth.client.ui.PlatformUI;
 
 public class PluginUtil
 {
@@ -43,7 +46,12 @@ public class PluginUtil
         }
         return "";
     }
-    
+    public String getDynamicURL(String url, String pluginVersion, String name) {
+		return url.replaceAll("\\$\\{mirthVersion\\}", PlatformUI.SERVER_VERSION).replaceAll("\\$\\{version\\}", pluginVersion).replaceAll("\\$\\{name\\}", URLEncoder.encode(name)).replaceAll("\\$\\{serverid\\}", PlatformUI.SERVER_ID);
+	}
+    public String getDynamicURL(String url, String pluginVersion, String name, String id) {
+		return url.replaceAll("\\$\\{mirthVersion\\}", PlatformUI.SERVER_VERSION).replaceAll("\\$\\{version\\}", pluginVersion).replaceAll("\\$\\{name\\}", URLEncoder.encode(name)).replaceAll("\\$\\{serverid\\}", PlatformUI.SERVER_ID).replaceAll("\\$\\{id\\}", id);
+	}
     public byte[] downloadFile(String address, JLabel statusLabel, JProgressBar progressBar)
     {
         ByteArrayOutputStream out = null;

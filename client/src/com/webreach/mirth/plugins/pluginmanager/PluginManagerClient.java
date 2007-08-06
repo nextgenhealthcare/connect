@@ -158,9 +158,20 @@ public class PluginManagerClient extends ClientPanelPlugin
     
     public boolean install(String location, File file)
     {
+        byte[] bytes;
+		try {
+			bytes = getBytesFromFile(file);
+			return install(location, bytes);
+		} catch (IOException e) {
+			alertException(e.getStackTrace(), "Error reading file");
+			return false;
+		}
+    }
+    
+    public boolean install(String location, byte[] bytes)
+    {
         try
         {
-            byte[] bytes = getBytesFromFile(file);
             String contents = "";
             BASE64Encoder encoder = new BASE64Encoder();
             contents = encoder.encode(bytes);
@@ -173,7 +184,6 @@ public class PluginManagerClient extends ClientPanelPlugin
         }
         return true;
     }
-    
     // Returns the contents of the file in a byte array.
     private byte[] getBytesFromFile(File file) throws IOException
     {
