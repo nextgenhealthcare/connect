@@ -36,6 +36,7 @@ import java.util.Map.Entry;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -118,7 +119,7 @@ public class MuleConfigurationBuilder {
 			
 			// set the Mule working directory
 			String muleQueue = properties.getProperty("mule.queue");
-			muleQueue.replace("${mirthHomeDir}", ConfigurationController.mirthHomeDir);
+			muleQueue = StringUtils.replace(muleQueue, "${mirthHomeDir}", ConfigurationController.mirthHomeDir);
 			Element muleEnvironmentPropertiesElement = (Element) muleConfigurationElement.getElementsByTagName("mule-environment-properties").item(0);
 			muleEnvironmentPropertiesElement.setAttribute("workingDirectory", muleQueue);
 			
