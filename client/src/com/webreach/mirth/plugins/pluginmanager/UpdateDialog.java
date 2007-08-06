@@ -263,7 +263,7 @@ public class UpdateDialog extends javax.swing.JDialog
                 statusLabel.setText("Checking: " + metaData.getName());
                 String url = pluginUtil.getDynamicURL(metaData.getUpdateUrl(), metaData.getPluginVersion(), metaData.getName());
                 String updateText = pluginUtil.getStringFromURL(url);
-                //System.out.println(updateText);
+                System.out.println(updateText);
                 if (updateText.length() > 0)
                 {
                 	ExtensionInfo[] extensionInfo = (ExtensionInfo[]) serializer.fromXML(updateText);
