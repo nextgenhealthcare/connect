@@ -13,6 +13,9 @@
 	<jar src="../installer/lib/ant.jar" stage="both" />
 	<jar src="../installer/lib/ant-launcher.jar" stage="both" />
 	<jar src="../installer/lib/ant-nodeps.jar" stage="both" />
+	<jar src="../installer/lib/ant-contrib-0.6.jar" stage="install" />	
+	<jar src="../installer/lib/orangevolt-ant-tasks-1.3.5.jar" stage="install" />
+	<jar src="../installer/lib/roxes-win32forjava-1.0.4.jar" stage="install" />
 
 	<!-- Native libraries to use -->
 	<native type="izpack" name="ShellLink.dll" stage="install" />
