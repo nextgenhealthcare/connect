@@ -46,6 +46,9 @@ import org.mule.util.ClassHelper;
 
 import com.webreach.mirth.connectors.soap.ServiceProxy;
 import com.webreach.mirth.connectors.soap.axis.extensions.MuleProvider;
+import com.webreach.mirth.server.controllers.MonitoringController;
+import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
+import com.webreach.mirth.server.controllers.MonitoringController.Event;
 
 /**
  * <code>AxisMessageReceiver</code> is used to register a component as a
@@ -59,7 +62,8 @@ public class AxisMessageReceiver extends AbstractMessageReceiver
 {
     protected AxisConnector connector;
     protected SOAPService service;
-
+    private MonitoringController monitoringController = MonitoringController.getInstance();
+    private ConnectorType connectorType = ConnectorType.LISTENER;
     public AxisMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint)
             throws InitialisationException
     {
@@ -70,6 +74,7 @@ public class AxisMessageReceiver extends AbstractMessageReceiver
         } catch (Exception e) {
             throw new InitialisationException(e, this);
         }
+        monitoringController.updateStatus(connector, connectorType, Event.INITIALIZED);
     }
 
     protected void init() throws Exception
@@ -240,6 +245,7 @@ public class AxisMessageReceiver extends AbstractMessageReceiver
 
     public void doDisconnect() throws Exception
     {
+    	monitoringController.updateStatus(connector, connectorType, Event.DISCONNECTED);
         try {
             doStop();
         } catch (UMOException e) {

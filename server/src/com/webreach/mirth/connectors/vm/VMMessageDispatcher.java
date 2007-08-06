@@ -21,6 +21,7 @@ import org.mule.config.i18n.Message;
 import org.mule.config.i18n.Messages;
 import org.mule.impl.MuleMessage;
 import org.mule.providers.AbstractMessageDispatcher;
+import org.mule.providers.TemplateValueReplacer;
 import org.mule.umo.UMOEvent;
 import org.mule.umo.UMOException;
 import org.mule.umo.UMOExceptionPayload;
@@ -60,6 +61,7 @@ public class VMMessageDispatcher extends AbstractMessageDispatcher
     private AlertController alertController = AlertController.getInstance();
     private MonitoringController monitoringController = MonitoringController.getInstance();
     private ConnectorType connectorType = ConnectorType.SENDER;
+    private TemplateValueReplacer replacer = new TemplateValueReplacer();
     public VMMessageDispatcher(VMConnector connector)
     {
         super(connector);
@@ -180,22 +182,7 @@ public class VMMessageDispatcher extends AbstractMessageDispatcher
                     logger.warn("No receiver for endpointUri: " + event.getEndpoint().getEndpointURI());
                     return;
                 }
-
-                UMOMessage response = receiver.routeMessage(new MuleMessage(messageObject.getEncodedData()), connector.isSynchronised());
-                if (response != null && response instanceof MuleMessage)
-                {
-
-                    UMOExceptionPayload payload = response.getExceptionPayload();
-                    if (payload != null)
-                    {
-                        alertController.sendAlerts(((VMConnector) connector).getChannelId(), Constants.ERROR_412, "Error routing message", payload.getException());
-                        messageObjectController.setError(messageObject, Constants.ERROR_412, "Error routing message", payload.getException());
-                    }
-                    else
-                    {
-                        messageObjectController.setSuccess(messageObject, "Message routed successfully");
-                    }
-                }
+                routeTemplatedMessage(messageObject, receiver);
             }
             if (logger.isDebugEnabled())
             {
@@ -212,6 +199,41 @@ public class VMMessageDispatcher extends AbstractMessageDispatcher
         	 monitoringController.updateStatus(connector, connectorType, Event.DONE);
         }
     }
+
+	private void routeTemplatedMessage(MessageObject messageObject, VMMessageReceiver receiver) throws UMOException {
+		String template = connector.getTemplate();
+		if (template != null){
+			template = replacer.replaceValues(template, messageObject);
+		}else{
+			template = messageObject.getEncodedData();
+		}
+		//this could be done with the one-liner below, however we need to ensure something
+		UMOMessage response = null;
+		if (connector.isSynchronised()){
+			response = receiver.routeMessage(new MuleMessage(template), true);
+		    
+		}else{
+			response = receiver.routeMessage(new MuleMessage(template));
+		    
+		}
+		//UMOMessage response = receiver.routeMessage(new MuleMessage(messageObject.getEncodedData()), connector.isSynchronised());
+		if (response != null && response instanceof MuleMessage)
+		{
+
+		    UMOExceptionPayload payload = response.getExceptionPayload();
+		    if (payload != null)
+		    {
+		        alertController.sendAlerts(((VMConnector) connector).getChannelId(), Constants.ERROR_412, "Error routing message", payload.getException());
+		        messageObjectController.setError(messageObject, Constants.ERROR_412, "Error routing message", payload.getException());
+		    }
+		    else
+		    {
+		        messageObjectController.setSuccess(messageObject, "Message routed successfully");
+		    }
+		}else{
+			messageObjectController.setSuccess(messageObject, "Message routed successfully");
+		}
+	}
 
     /*
      * (non-Javadoc)
@@ -249,22 +271,7 @@ public class VMMessageDispatcher extends AbstractMessageDispatcher
                 }
             }
 
-            UMOMessage response = receiver.routeMessage(new MuleMessage(messageObject.getEncodedData()), connector.isSynchronised());
-
-            if (response != null && response instanceof MuleMessage)
-            {
-
-                UMOExceptionPayload payload = response.getExceptionPayload();
-                if (payload != null)
-                {
-                    alertController.sendAlerts(((VMConnector) connector).getChannelId(), Constants.ERROR_412, "Error routing message", payload.getException());
-                    messageObjectController.setError(messageObject, Constants.ERROR_412, "Error routing message", payload.getException());
-                }
-                else
-                {
-                    messageObjectController.setSuccess(messageObject, "Message routed successfully");
-                }
-            }
+            routeTemplatedMessage(messageObject, receiver);
             logger.debug("sent event on endpointUri: " + event.getEndpoint().getEndpointURI());
         }
         catch (Exception e)

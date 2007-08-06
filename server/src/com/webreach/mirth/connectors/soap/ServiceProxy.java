@@ -142,14 +142,14 @@ public class ServiceProxy {
 		private AbstractMessageReceiver receiver;
 		private JavaScriptPostprocessor postProcessor = new JavaScriptPostprocessor();
 		private MonitoringController monitoringController = MonitoringController.getInstance();
-		private ConnectorType connectorType = ConnectorType.SENDER;
+		private ConnectorType connectorType = ConnectorType.LISTENER;
 		private boolean synchronous = true;
 
 		public AxisServiceHandler(AbstractMessageReceiver receiver,
 				boolean synchronous) {
 			this.receiver = receiver;
 			this.synchronous = synchronous;
-			monitoringController.updateStatus(receiver.getConnector(), connectorType, com.webreach.mirth.server.controllers.MonitoringController.Event.INITIALIZED);
+			//
 		}
 	
 		public Object invoke(Object proxy, Method method, Object[] args)
@@ -198,6 +198,8 @@ public class ServiceProxy {
 				return e.getMessage();
 			}finally{
 				monitoringController.updateStatus(receiver.getConnector(), connectorType, com.webreach.mirth.server.controllers.MonitoringController.Event.DONE);
+				//monitoringController.updateStatus(receiver.getConnector(), connectorType, com.webreach.mirth.server.controllers.MonitoringController.Event.DISCONNECTED);
+				
 			}
 		}
 	}

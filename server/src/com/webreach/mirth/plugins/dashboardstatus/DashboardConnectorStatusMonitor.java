@@ -55,9 +55,14 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin{
 			case CONNECTED:
 				switch (type){
 					case LISTENER:
-						addConnectionToSocketSet(socket, connectorId);
-						stateImage = GREEN;
-						statusText = CONNECTED + " (" + getSocketSetCount(connectorId) + ")";
+						if (socket != null){
+							addConnectionToSocketSet(socket, connectorId);
+							stateImage = GREEN;
+							statusText = CONNECTED + " (" + getSocketSetCount(connectorId) + ")";
+						} else {
+							stateImage = GREEN;
+							statusText = CONNECTED;
+						}
 						break;
 					case READER:
 						break;
@@ -112,10 +117,17 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin{
 						updateState = true;
 						break;
 					case LISTENER:
-						stateImage = GREEN;
-						statusText = CONNECTED + " (" + getSocketSetCount(connectorId) + ")";
-						updateState = true;
-						break;
+						if (socket != null){
+							stateImage = GREEN;
+							statusText = CONNECTED + " (" + getSocketSetCount(connectorId) + ")";
+							updateState = true;
+							break;
+						} else {
+							stateImage = YELLOW;
+							statusText = IDLE;
+							updateState = true;
+							break;
+						}
 				}
 				break;
 			default:
