@@ -3,8 +3,9 @@
   <author>WebReach, Inc.</author>
   <pluginVersion>1.6.0</pluginVersion>
   <mirthVersion>1.6.0</mirthVersion>
-  <url>http://www.mirthproject.org</url>
-  <updateUrl><![CDATA[http://www.mirthproject.org/update/plugins/MapperTransformerStep/?pluginVersion=1.6.0&mirthVersion=1.6.0]]></updateUrl>
+  <updateUrl><![CDATA[http://extensions.mirthproject.org/updates/?mirthversion=${mirthVersion}&version=${version}&name=${name}&serverid=${serverid}]]></updateUrl>
+  <url>http://extensions.mirthproject.org</url>
+  <description>This plugin provides a Mapping step type for Mirth transformers</description>
   <enabled>true</enabled>
   <extensionPoint>
   	<name>Mapper</name>

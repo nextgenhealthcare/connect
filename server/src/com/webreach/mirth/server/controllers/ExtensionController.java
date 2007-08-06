@@ -108,11 +108,19 @@ public class ExtensionController {
 
 							try {
 								properties = getPluginProperties(pluginName);
+								if (properties == null){
+									properties = serverPlugin.getDefaultProperties();
+									if (properties != null){
+										setPluginProperties(pluginName, properties);
+									}
+								}
 							} catch (Exception e) {
 								properties = serverPlugin.getDefaultProperties();
+								if (properties == null){
+									properties = new Properties();
+								}
 								setPluginProperties(pluginName, properties);
 							}
-
 							serverPlugin.init(properties);
 							loadedPlugins.put(pluginName, serverPlugin);
 						}
@@ -187,6 +195,9 @@ public class ExtensionController {
 
 		try {
 			File propertiesFile = new File(PLUGIN_LOCATION + pluginName + PLUGIN_FILE_SUFFIX);
+			if (!propertiesFile.exists()){
+				return null;
+			}
 			fileInputStream = new FileInputStream(propertiesFile);
 			properties = new Properties();
 			properties.load(fileInputStream);
