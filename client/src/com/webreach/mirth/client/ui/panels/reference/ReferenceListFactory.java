@@ -190,7 +190,7 @@ public class ReferenceListFactory
             variablelistItems.add(new ReferenceListItem("Perform Message Object Value Replacement", "Returns a string that has been run through Velocity replacer with a messageObject context", "var results = replacer.replaceValues(template, messageObject);", CodeSnippetType.FUNCTION));
         }
         variablelistItems.add(new ReferenceListItem("Perform Map Value Replacement", "Returns a string that has been run through Velocity replacer with a map context", "var results = replacer.replaceValues(template, map);", CodeSnippetType.FUNCTION));
-        variablelistItems.add(new ReferenceListItem("Format Overpunch NCPDP number", "Returns number with decimal points and correct sign", "var number = NCPDPUtil.formatNCPDPNumber('number', decimalpoints);", CodeSnippetType.FUNCTION));
+        variablelistItems.add(new ReferenceListItem("Format Overpunch NCPDP Number", "Returns number with decimal points and correct sign", "var number = NCPDPUtil.formatNCPDPNumber('number', decimalpoints);", CodeSnippetType.FUNCTION));
         return variablelistItems;
     }
     private ArrayList<ReferenceListItem> getDateItems()

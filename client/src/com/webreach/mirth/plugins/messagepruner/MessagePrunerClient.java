@@ -104,14 +104,7 @@ public class MessagePrunerClient extends ClientPanelPlugin
     
     public void start()
     {
-        try
-        {
-            refresh();
-        }
-        catch (ClientException e)
-        {
-            
-        }
+
     }
 
     public void stop()
