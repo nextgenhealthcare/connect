@@ -32,6 +32,20 @@
     startup="no">
     <createForPack name="Core" />
   </shortcut>
+
+  <shortcut
+    name="$APP_NAME Server Manager"
+    target="$INSTALL_PATH\Mirth Manager.exe" 
+    workingDirectory="$INSTALL_PATH"
+    description="Start the $APP_NAME Server Manager"
+    initialState="normal"
+    programGroup="yes"
+    desktop="no"
+    applications="no"
+    startMenu="no"
+    startup="yes">
+    <createForPack name="Server Manager" />
+  </shortcut>
   
   <shortcut
     name="$APP_NAME Shell"
@@ -47,19 +61,4 @@
     startup="no">
     <createForPack name="Shell" />
   </shortcut>
-
-  <shortcut
-    name="Mirth Server Manager"
-    target="$INSTALL_PATH\Mirth Manager.exe" 
-    workingDirectory="$INSTALL_PATH"
-    description="Start the Mirth Server Manager"
-    initialState="normal"
-    programGroup="yes"
-    desktop="no"
-    applications="no"
-    startMenu="no"
-    startup="yes">
-    <createForPack name="Server Manager" />
-  </shortcut>
-
 </shortcuts>

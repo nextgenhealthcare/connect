@@ -10,10 +10,9 @@
 -->
 
 <installation version="1.0">
-
-	<jar src="../installer/lib/ant.jar" stage="install" />
-	<jar src="../installer/lib/ant-launcher.jar" stage="install" />
-	<jar src="../installer/lib/ant-nodeps.jar" stage="install" />
+	<jar src="../installer/lib/ant.jar" stage="both" />
+	<jar src="../installer/lib/ant-launcher.jar" stage="both" />
+	<jar src="../installer/lib/ant-nodeps.jar" stage="both" />
 
 	<!-- Native libraries to use -->
 	<native type="izpack" name="ShellLink.dll" stage="install" />
@@ -41,6 +40,7 @@
 			<author name="Jacob Brauer" email="jacobb@webreachinc.com" />
 			<author name="Brendan Haverlock" email="brendanh@webreachinc.com" />
 			<author name="Chris Lang" email="chrisl@webreachinc.com" />
+			<author name="Dan Svanstedt" email="dans@webreachltd.co.uk" />
 			<author name="Alberto Sáez Torres" email="albersato@gmail.com" />
 		</authors>
 		<url>http://www.mirthproject.org/</url>
@@ -80,10 +80,10 @@
 		<res id="LicencePanel.licence" src="licenses/license-mirth.txt" />
 		<res id="HTMLInfoPanel.info" src="../installer/install-readme.html" />
 		<res id="shortcutSpec.xml" src="../installer/default_shortcut_specification.xml" />
-		<res id="ProcessPanel.Spec.xml" src="../installer/process_panel_spec.xml" />
 		<res id="AntActionsSpec.xml" src="../installer/ant_actions_spec.xml" />
+		<!-- res id="ProcessPanel.Spec.xml" src="../installer/process_panel_spec.xml" /-->
 		<!-- res id="ReigstrySpec.xml" src="../installer/registry_spec.xml" /-->
-		<!--res id="Unix_shortcutSpec.xml" src="../unix_shortcut_specification.xml" /-->
+		<!-- res id="Unix_shortcutSpec.xml" src="../unix_shortcut_specification.xml" /-->
 	</resources>
 
 	<!-- 
@@ -98,7 +98,7 @@
 		<panel classname="PacksPanel" />
 		<panel classname="InstallPanel" />
 		<panel classname="ShortcutPanel" />
-		<!--panel classname="ProcessPanel" /-->
+		<!-- panel classname="ProcessPanel" /-->
 		<panel classname="SimpleFinishPanel" />
 	</panels>
 
@@ -206,17 +206,17 @@
 			</updatecheck>
 
 			<file src="InstallMirth-NT.bat" targetdir="$INSTALL_PATH" override="true" />
+			<file src="UninstallMirth-NT.bat" targetdir="$INSTALL_PATH" override="true" />
 			<file src="StartMirth-NT.bat" targetdir="$INSTALL_PATH" override="true" />
 			<file src="StopMirth-NT.bat" targetdir="$INSTALL_PATH" override="true" />
-			<file src="UninstallMirth-NT.bat" targetdir="$INSTALL_PATH" override="true" />
 			<file src="wrapper.exe" targetdir="$INSTALL_PATH" override="true" />
 			<file src="wrapper-x86-32bit" targetdir="$INSTALL_PATH" override="true" />
+			
+			<executable targetfile="$INSTALL_PATH/InstallMirth-NT.bat" type="bin" stage="postinstall" failure="warn" keep="true" />
+			<executable targetfile="$INSTALL_PATH/StartMirth-NT.bat" type="bin" stage="postinstall" failure="warn" keep="true" />			
 
-			<executable targetfile="$INSTALL_PATH/InstallMirth-NT.bat" stage="install" failure="warn" />
-			<executable targetfile="$INSTALL_PATH/StartMirth-NT.bat" stage="install" failure="warn" />
-
-			<executable targetfile="$INSTALL_PATH/StopMirth-NT.bat" stage="uninstall" failure="warn" />
-			<executable targetfile="$INSTALL_PATH/UninstallMirth-NT.bat" stage="uninstall" failure="warn" />
+			<executable targetfile="$INSTALL_PATH/StopMirth-NT.bat" type="bin" stage="uninstall" failure="warn" />			
+			<executable targetfile="$INSTALL_PATH/UninstallMirth-NT.bat" type="bin" stage="uninstall" failure="warn" />
 		</pack>
 
 		<pack name="Server Manager" required="no" os="windows">
@@ -229,8 +229,6 @@
 			<depends packname="Windows NT/2000/2003/XP Service" />
 			<file src="Mirth Manager.exe" targetdir="$INSTALL_PATH" override="true" />
 			<file src="mirth-manager.jar" targetdir="$INSTALL_PATH" override="true" />
-
-			<executable targetfile="$INSTALL_PATH/Mirth Manager.exe" stage="install" failure="warn" />
 		</pack>
 
 		<!--

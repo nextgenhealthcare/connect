@@ -5,16 +5,16 @@
 	</target>
 
 	<target name="init">
-    <property file="build.properties" />
+		<property file="build.properties" />
 		<echo>Version: ${version}</echo>
 		<path id="classpath">
 			<fileset dir="${lib}" includes="*.jar" />
 			<fileset dir="${lib}/mule" includes="*.jar" />
 			<fileset dir="${lib}/jetty" includes="*.jar" />
 		</path>
-		
-    <taskdef name="izpack" classpath="${installer.lib}/standalone-compiler.jar" classname="com.izforge.izpack.ant.IzPackTask" />
-    <taskdef classpath="${installer.lib}/orangevolt-ant-tasks-1.3.5.jar:${basedir}/installer/lib/roxes-win32forjava-1.0.4.jar" resource="com/orangevolt/tools/ant/taskdefs.properties" />
+
+		<taskdef name="izpack" classpath="${installer.lib}/standalone-compiler.jar" classname="com.izforge.izpack.ant.IzPackTask" />
+		<taskdef classpath="${installer.lib}/orangevolt-ant-tasks-1.3.5.jar:${basedir}/installer/lib/roxes-win32forjava-1.0.4.jar" resource="com/orangevolt/tools/ant/taskdefs.properties" />
 	</target>
 
 	<target name="clean" depends="init">
@@ -43,23 +43,23 @@
 			<entry key="schema.version" value="${schemaVersion}" />
 			<entry key="mirth.date" type="date" value="today" pattern="MMMM d, yyyy" />
 		</propertyfile>
-		
+
 		<!-- copy the xml files so they will be included in jar -->
 		<copy todir="${classes}/com/webreach/mirth/model/x12/xml">
 			<fileset dir="${src}/com/webreach/mirth/model/x12/xml" />
 		</copy>
 		<copy todir="${classes}/com/webreach/mirth/connectors">
 			<fileset dir="${src}/com/webreach/mirth/connectors">
-				<include name="*.xml"/>
+				<include name="*.xml" />
 			</fileset>
 		</copy>
 		<copy todir="${classes}/com/webreach/mirth/plugins">
 			<fileset dir="${src}/com/webreach/mirth/plugins">
-				<include name="*.xml"/>
+				<include name="*.xml" />
 			</fileset>
 		</copy>
 	</target>
-	
+
 	<target name="create-client-core" depends="compile">
 		<jar destfile="${client-core.jar}" basedir="${classes}">
 			<include name="com/webreach/mirth/client/core/**" />
@@ -68,17 +68,17 @@
 			<include name="com/thoughtworks/**" />
 		</jar>
 	</target>
-	
+
 	<target name="create-connectors" depends="create-client-core">
 		<delete dir="${connectors}" />
-		<mkdir dir="${connectors}"/>
-		
+		<mkdir dir="${connectors}" />
+
 		<copy todir="${connectors}">
 			<fileset dir="${classes}/com/webreach/mirth/connectors">
-				<include name="*.xml"/>
+				<include name="*.xml" />
 			</fileset>
 		</copy>
-		
+
 		<jar destfile="${connectors}/doc-shared.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/connectors/doc/DocumentWriterProperties.class" />
 		</jar>
@@ -88,7 +88,7 @@
 				<exclude name="com/webreach/mirth/connectors/doc/DocumentWriterProperties.class" />
 			</fileset>
 		</jar>
-		
+
 		<jar destfile="${connectors}/email-shared.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/connectors/email/EmailSenderProperties.class" />
 		</jar>
@@ -98,7 +98,7 @@
 				<exclude name="com/webreach/mirth/connectors/email/EmailSenderProperties.class" />
 			</fileset>
 		</jar>
-		
+
 		<jar destfile="${connectors}/file-shared.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/connectors/file/FileReaderProperties.class" />
 			<include name="com/webreach/mirth/connectors/file/FileWriterProperties.class" />
@@ -110,7 +110,7 @@
 				<exclude name="com/webreach/mirth/connectors/file/FileWriterProperties.class" />
 			</fileset>
 		</jar>
-		
+
 		<jar destfile="${connectors}/ftp-shared.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/connectors/ftp/FTPReaderProperties.class" />
 			<include name="com/webreach/mirth/connectors/ftp/FTPWriterProperties.class" />
@@ -122,7 +122,7 @@
 				<exclude name="com/webreach/mirth/connectors/ftp/FTPWriterProperties.class" />
 			</fileset>
 		</jar>
-		
+
 		<jar destfile="${connectors}/http-shared.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/connectors/http/HTTPListenerProperties.class" />
 			<include name="com/webreach/mirth/connectors/http/HTTPSenderProperties.class" />
@@ -134,7 +134,7 @@
 				<exclude name="com/webreach/mirth/connectors/http/HTTPSenderProperties.class" />
 			</fileset>
 		</jar>
-		
+
 		<jar destfile="${connectors}/jdbc-shared.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/connectors/jdbc/DatabaseReaderProperties.class" />
 			<include name="com/webreach/mirth/connectors/jdbc/DatabaseWriterProperties.class" />
@@ -146,7 +146,7 @@
 				<exclude name="com/webreach/mirth/connectors/jdbc/DatabaseWriterProperties.class" />
 			</fileset>
 		</jar>
-		
+
 		<jar destfile="${connectors}/jms-shared.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/connectors/jms/JMSReaderProperties.class" />
 			<include name="com/webreach/mirth/connectors/jms/JMSWriterProperties.class" />
@@ -158,7 +158,7 @@
 				<exclude name="com/webreach/mirth/connectors/jms/JMSWriterProperties.class" />
 			</fileset>
 		</jar>
-		
+
 		<jar destfile="${connectors}/mllp-shared.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/connectors/mllp/LLPListenerProperties.class" />
 			<include name="com/webreach/mirth/connectors/mllp/LLPSenderProperties.class" />
@@ -170,7 +170,7 @@
 				<exclude name="com/webreach/mirth/connectors/mllp/LLPSenderProperties.class" />
 			</fileset>
 		</jar>
-		
+
 		<jar destfile="${connectors}/sftp-shared.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/connectors/sftp/SFTPReaderProperties.class" />
 			<include name="com/webreach/mirth/connectors/sftp/SFTPWriterProperties.class" />
@@ -182,7 +182,7 @@
 				<exclude name="com/webreach/mirth/connectors/sftp/SFTPWriterProperties.class" />
 			</fileset>
 		</jar>
-		
+
 		<jar destfile="${connectors}/soap-shared.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/connectors/soap/SOAPListenerProperties.class" />
 			<include name="com/webreach/mirth/connectors/soap/SOAPSenderProperties.class" />
@@ -192,9 +192,9 @@
 				<include name="com/webreach/mirth/connectors/soap/**" />
 				<exclude name="com/webreach/mirth/connectors/soap/SOAPListenerProperties.class" />
 				<exclude name="com/webreach/mirth/connectors/soap/SOAPSenderProperties.class" />
-			</fileset>	
+			</fileset>
 		</jar>
-		
+
 		<jar destfile="${connectors}/tcp-shared.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/connectors/tcp/TCPListenerProperties.class" />
 			<include name="com/webreach/mirth/connectors/tcp/TCPSenderProperties.class" />
@@ -204,9 +204,9 @@
 				<include name="com/webreach/mirth/connectors/tcp/**" />
 				<exclude name="com/webreach/mirth/connectors/tcp/TCPListenerProperties.class" />
 				<exclude name="com/webreach/mirth/connectors/tcp/TCPSenderProperties.class" />
-			</fileset>	
+			</fileset>
 		</jar>
-		
+
 		<jar destfile="${connectors}/vm-shared.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/connectors/vm/ChannelReaderProperties.class" />
 			<include name="com/webreach/mirth/connectors/vm/ChannelWriterProperties.class" />
@@ -219,36 +219,36 @@
 			</fileset>
 		</jar>
 	</target>
-	
+
 	<target name="create-plugins" depends="create-connectors">
 		<delete dir="${plugins}" />
-		<mkdir dir="${plugins}"/>
-		
+		<mkdir dir="${plugins}" />
+
 		<copy todir="${plugins}">
 			<fileset dir="${classes}/com/webreach/mirth/plugins">
-				<include name="*.xml"/>
+				<include name="*.xml" />
 			</fileset>
 		</copy>
-		
+
 		<jar destfile="${plugins}/message-pruner-server.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/plugins/messagepruner/**" />
 		</jar>
-		
+
 		<jar destfile="${plugins}/dashboard-status-monitor-server.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/plugins/dashboardstatus/**" />
 		</jar>
 	</target>
 
-  <target name="create-client-lib" depends="init">
-  
-    <!-- sign jars for webstart -->
+	<target name="create-client-lib" depends="init">
+
+		<!-- sign jars for webstart -->
 		<signjar alias="mirth" keystore="${basedir}/keystore" storepass="abc12345" keypass="abc12345">
 			<fileset file="${client.lib}/*.jar" />
 			<fileset file="${connectors}/*-shared.jar" />
 			<fileset file="${connectors}/*-client.jar" />
 			<fileset file="${plugins}/*-client.jar" />
 		</signjar>
-  </target>
+	</target>
 
 	<target name="create-setup" depends="create-client-lib">
 		<!-- create the setup directory -->
@@ -263,7 +263,7 @@
 		<mkdir dir="${setup.logs}" />
 		<mkdir dir="${setup.licenses}" />
 		<mkdir dir="${setup.conf}/META-INF" />
-	
+
 		<!-- copy source files -->
 		<copy todir="${setup.source}">
 			<fileset dir="${src}" />
@@ -281,24 +281,24 @@
 
 		<!-- copy conf files -->
 		<copy todir="${setup.conf}">
-			<fileset dir="${conf}"/>
+			<fileset dir="${conf}" />
 		</copy>
-		
+
 		<!-- copy connector files -->
 		<copy todir="${setup.public_html}">
-			<fileset dir="${public_html}"/>
+			<fileset dir="${public_html}" />
 		</copy>
-		
+
 		<!-- copy connector files -->
 		<copy todir="${setup.connectors}">
-			<fileset dir="${connectors}"/>
+			<fileset dir="${connectors}" />
 		</copy>
-	
+
 		<!-- copy plugins files -->
 		<copy todir="${setup.plugins}">
-			<fileset dir="${plugins}"/>
+			<fileset dir="${plugins}" />
 		</copy>
-	
+
 		<!-- create version.properties file -->
 		<propertyfile file="${setup.conf}/version.properties">
 			<entry key="mirth.version" value="${version}" />
@@ -327,7 +327,7 @@
 			<fileset file="${basedir}/activation.jnlp" />
 			<fileset file="${basedir}/mirth-client-core.jar" />
 			<fileset file="${basedir}/mirth-manager.jar" />
-			
+
 		</copy>
 
 		<!-- create the Mirth server jar -->
@@ -351,7 +351,7 @@
 				<attribute name="Class-Path" value="lib/log4j-1.2.13.jar conf/ extensions/" />
 			</manifest>
 		</jar>
-		
+
 		<!-- create the shell-launcher jar -->
 		<jar destfile="${setup}/${shell-launcher.jar}" basedir="${classes}">
 			<include name="com/webreach/mirth/server/launcher/**" />
@@ -426,14 +426,14 @@
 		<delete file="${dist}/mirth-${version}.tar" />
 
 		<!-- create the win32 distribution exe -->
-		<copy file="${installer}/install.xml" tofile="${installer}/install-tmp.xml"/>
+		<copy file="${installer}/install.xml" tofile="${installer}/install-tmp.xml" />
 		<replace file="${installer}/install-tmp.xml" token="@version@" value="${version}" />
-		<izpack input="${installer}/install-tmp.xml" output="${dist}/install.jar" basedir="${setup}"/>
+		<izpack input="${installer}/install-tmp.xml" output="${dist}/install.jar" basedir="${setup}" />
 
-    <sfx archive="${dist}/install.jar" mode="win32" execute="javaw -jar install.jar" output="${dist}/mirth-${version}-win32.exe"/>
-    <sfx archive="${dist}/install.jar" mode="unix" execute="javaw -jar install.jar" output="${dist}/mirth-${version}-unix"/>
-    
-    <delete file="${dist}/install.jar" />
-    <delete file="${installer}/install-tmp.xml" />
+		<sfx archive="${dist}/install.jar" mode="win32" execute="javaw -jar install.jar" output="${dist}/mirth-${version}-win32.exe" />
+		<sfx archive="${dist}/install.jar" mode="unix" execute="javaw -jar install.jar" output="${dist}/mirth-${version}-unix" />
+
+		<delete file="${dist}/install.jar" />
+		<delete file="${installer}/install-tmp.xml" />
 	</target>
 </project>

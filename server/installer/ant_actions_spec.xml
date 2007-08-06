@@ -10,7 +10,14 @@
 		<antcall order="afterpack" buildfile="upgrade.xml">
 			<property name="install.path" value="$INSTALL_PATH" />
 			<target name="restore" />
-			<target name="finalize" />			
+			<target name="finalize" />
+		</antcall>
+	</pack>
+
+	<pack name="Server Manager">
+		<antcall order="afterpack" buildfile="upgrade.xml">
+			<property name="install.path" value="$INSTALL_PATH" />
+			<target name="startManager" />
 		</antcall>
 	</pack>
 </antactions>

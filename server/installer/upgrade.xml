@@ -48,4 +48,11 @@
 	<target name="finalize">
 		<chmod file="${install.path}/mirth.sh" perm="+x" />
 	</target>
+
+	<target name="startManager">
+		<exec executable="cmd" dir="${install.path}" spawn="true">
+			<arg value="/c" />
+			<arg value="Mirth Manager.exe" />
+		</exec>
+	</target>
 </project>
