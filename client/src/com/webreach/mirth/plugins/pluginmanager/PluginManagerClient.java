@@ -237,14 +237,7 @@ public class PluginManagerClient extends ClientPanelPlugin
     
     public void stop()
     {
-        try
-        {
-            save();
-        }
-        catch(ClientException e)
-        {
-            
-        }
+
     }
     
     public void display()
