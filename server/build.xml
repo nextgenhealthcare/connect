@@ -12,9 +12,6 @@
 			<fileset dir="${lib}/mule" includes="*.jar" />
 			<fileset dir="${lib}/jetty" includes="*.jar" />
 		</path>
-
-		<taskdef name="izpack" classpath="${installer.lib}/standalone-compiler.jar" classname="com.izforge.izpack.ant.IzPackTask" />
-		<taskdef classpath="${installer.lib}/orangevolt-ant-tasks-1.3.5.jar:${basedir}/installer/lib/roxes-win32forjava-1.0.4.jar" resource="com/orangevolt/tools/ant/taskdefs.properties" />
 	</target>
 
 	<target name="clean" depends="init">
@@ -327,7 +324,7 @@
 			<fileset file="${basedir}/activation.jnlp" />
 			<fileset file="${basedir}/mirth-client-core.jar" />
 			<fileset file="${basedir}/mirth-manager.jar" />
-
+			<fileset file="${installer}/upgrade.xml" />
 		</copy>
 
 		<!-- create the Mirth server jar -->
@@ -414,6 +411,12 @@
 	</target>
 
 	<target name="create-dist" depends="create-setup">
+		<property environment="env" />
+		<echo message="LAUNCH4J_HOME=${env.LAUNCH4J_HOME}" />
+		<taskdef name="launch4j" classname="net.sf.launch4j.ant.Launch4jTask" classpath="${env.LAUNCH4J_HOME}/launch4j.jar:${env.LAUNCH4J_HOME}/lib/xstream.jar" />
+		<taskdef name="izpack" classpath="${installer.lib}/standalone-compiler.jar" classname="com.izforge.izpack.ant.IzPackTask" />
+		<taskdef classpath="${installer.lib}/orangevolt-ant-tasks-1.3.5.jar:${basedir}/installer/lib/roxes-win32forjava-1.0.4.jar" resource="com/orangevolt/tools/ant/taskdefs.properties" />
+
 		<!-- create the dist directory -->
 		<mkdir dir="${dist}" />
 
@@ -430,9 +433,7 @@
 		<replace file="${installer}/install-tmp.xml" token="@version@" value="${version}" />
 		<izpack input="${installer}/install-tmp.xml" output="${dist}/mirth-${version}.jar" basedir="${setup}" />
 
-		<sfx archive="${dist}/mirth-${version}.jar" mode="win32" execute="javaw -jar mirth-${version}.jar" output="${dist}/mirth-${version}-win32.exe" />
-		<sfx archive="${dist}/mirth-${version}.jar" mode="unix" execute="javaw -jar mirth-${version}.jar" output="${dist}/mirth-${version}-unix" />
-
+		<!-- launch4j configFile="${installer}/launch4jconfig.xml" fileVersion="${version}" productVersion="${version}" jar="${dir}/mirth-${version}.jar" outfile="${dir}/mirth-${version}.exe" /-->
 		<delete file="${installer}/install-tmp.xml" />
 	</target>
 </project>

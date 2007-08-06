@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="iso-8859-1" standalone="yes" ?>
 
 <antactions>
-	<pack name="Core">
-		<antcall order="beforepack" buildfile="upgrade.xml">
+	<pack name="Configuration">
+		<antcall order="beforepack" buildfile="$INSTALL_PATH/upgrade.xml">
 			<property name="install.path" value="$INSTALL_PATH" />
 			<target name="cleanOldInstaller" />
 			<target name="backup" />
 		</antcall>
-		<antcall order="afterpack" buildfile="upgrade.xml">
+		<antcall order="afterpack" buildfile="$INSTALL_PATH/upgrade.xml">
 			<property name="install.path" value="$INSTALL_PATH" />
 			<target name="restore" />
 			<target name="finalize" />
@@ -15,7 +15,7 @@
 	</pack>
 
 	<pack name="Server Manager">
-		<antcall order="afterpack" buildfile="upgrade.xml">
+		<antcall order="afterpack" buildfile="$INSTALL_PATH/upgrade.xml">
 			<property name="install.path" value="$INSTALL_PATH" />
 			<target name="startManager" />
 		</antcall>

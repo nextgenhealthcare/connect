@@ -112,11 +112,11 @@
 
 			<updatecheck>
 				<include name="**" />
-				<exclude name="conf" />
 				<exclude name="mirthdb" />
 				<exclude name="public_html" />
 			</updatecheck>
 
+			<file src="upgrade.xml" targetdir="$INSTALL_PATH" override="true" />
 			<file src="mirth-server.jar" targetdir="$INSTALL_PATH" override="true" />
 			<file src="mirth-client-core.jar" targetdir="$INSTALL_PATH" override="true" />
 			<file src="mirth-launcher.jar" targetdir="$INSTALL_PATH" override="true" />
@@ -131,6 +131,23 @@
 				<include name="Mirth.exe" override="true" />
 				<include name="Mirth.ico" override="true" />
 			</fileset>
+
+			<file src="lib" targetdir="$INSTALL_PATH" override="true" />
+			<file src="client-lib" targetdir="$INSTALL_PATH" override="true" />
+			<file src="extensions" targetdir="$INSTALL_PATH" override="true" />
+			<file src="licenses" targetdir="$INSTALL_PATH" override="true" />
+			<file src="logs" targetdir="$INSTALL_PATH" override="true" />
+
+			<file src="mirthdb" targetdir="$INSTALL_PATH" override="false" />
+			<file src="public_html" targetdir="$INSTALL_PATH" override="false" />
+		</pack>
+
+		<pack name="Configuration" required="yes">
+			<description>Mirth configuration files</description>
+
+			<updatecheck>
+				<exclude name="conf" />
+			</updatecheck>
 
 			<fileset dir="conf" targetdir="$INSTALL_PATH/conf" override="true">
 				<include name="mirth.properties" />
@@ -158,15 +175,6 @@
 				<include name="sqlserver/**" />
 				<include name="sqlserver2005/**" />
 			</fileset>
-
-			<file src="lib" targetdir="$INSTALL_PATH" override="true" />
-			<file src="client-lib" targetdir="$INSTALL_PATH" override="true" />
-			<file src="extensions" targetdir="$INSTALL_PATH" override="true" />
-			<file src="licenses" targetdir="$INSTALL_PATH" override="true" />
-			<file src="logs" targetdir="$INSTALL_PATH" override="true" />
-
-			<file src="mirthdb" targetdir="$INSTALL_PATH" override="false" />
-			<file src="public_html" targetdir="$INSTALL_PATH" override="false" />
 		</pack>
 
 		<pack name="Shell" required="no">
@@ -211,11 +219,11 @@
 			<file src="StopMirth-NT.bat" targetdir="$INSTALL_PATH" override="true" />
 			<file src="wrapper.exe" targetdir="$INSTALL_PATH" override="true" />
 			<file src="wrapper-x86-32bit" targetdir="$INSTALL_PATH" override="true" />
-			
-			<executable targetfile="$INSTALL_PATH/InstallMirth-NT.bat" type="bin" stage="postinstall" failure="warn" keep="true" />
-			<executable targetfile="$INSTALL_PATH/StartMirth-NT.bat" type="bin" stage="postinstall" failure="warn" keep="true" />			
 
-			<executable targetfile="$INSTALL_PATH/StopMirth-NT.bat" type="bin" stage="uninstall" failure="warn" />			
+			<executable targetfile="$INSTALL_PATH/InstallMirth-NT.bat" type="bin" stage="postinstall" failure="warn" keep="true" />
+			<executable targetfile="$INSTALL_PATH/StartMirth-NT.bat" type="bin" stage="postinstall" failure="warn" keep="true" />
+
+			<executable targetfile="$INSTALL_PATH/StopMirth-NT.bat" type="bin" stage="uninstall" failure="warn" />
 			<executable targetfile="$INSTALL_PATH/UninstallMirth-NT.bat" type="bin" stage="uninstall" failure="warn" />
 		</pack>
 
