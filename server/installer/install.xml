@@ -169,8 +169,8 @@
 				<include name="wrapper.conf" />
 
 				<include name="META-INF" />
-				<include name="plugin-metadata" />
-
+				
+				<include name="deltas/**" />
 				<include name="derby/**" />
 				<include name="mysql/**" />
 				<include name="oracle/**" />

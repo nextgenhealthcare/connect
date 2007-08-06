@@ -278,7 +278,9 @@
 
 		<!-- copy conf files -->
 		<copy todir="${setup.conf}">
-			<fileset dir="${conf}" />
+			<fileset dir="${conf}">
+				<exclude name="mule-config.xml" />
+			</fileset>
 		</copy>
 
 		<!-- copy connector files -->
@@ -433,7 +435,7 @@
 		<replace file="${installer}/install-tmp.xml" token="@version@" value="${version}" />
 		<izpack input="${installer}/install-tmp.xml" output="${dist}/mirth-${version}-setup.jar" basedir="${setup}" />
 		<launch4j configFile="${installer}/launch4jconfig.xml" jar="${dist}/mirth-${version}-setup.jar" outfile="${dist}/mirth-${version}-setup.exe" />
-		<sfx archive="${dist}/mirth-${version}-setup.jar" mode="unix" execute="javaw -jar ${dist}/mirth-${version}-setup.jar" output="${dist}/mirth-${version}-unix"/>
+		<sfx archive="${dist}/mirth-${version}-setup.jar" mode="unix" execute="javaw -jar ${dist}/mirth-${version}-setup.jar" output="${dist}/mirth-${version}-unix" />
 		<delete file="${installer}/install-tmp.xml" />
 	</target>
 </project>
