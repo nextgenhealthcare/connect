@@ -25,7 +25,6 @@
 
 package com.webreach.mirth.client.ui;
 
-import com.webreach.mirth.client.core.ClientException;
 import java.awt.Dimension;
 import java.awt.Point;
 
@@ -62,8 +61,8 @@ public class AboutMirth extends javax.swing.JDialog
         content.append("Version " + PlatformUI.SERVER_VERSION + "\n\n");
         content.append("Built on " + PlatformUI.BUILD_DATE + "\n\n");
         content.append("Server ID: " + PlatformUI.SERVER_ID + "\n\n");
-
-        content.append("Developed by:\nGerald Bortis (geraldb@webreachinc.com)\nChris Lang (chrisl@webreachinc.com)\nBrendan Haverlock (brendanh@webreachinc.com)\nJacob Brauer (jacobb@webreachinc.com)\nAlberto Sáez Torres (albersato@gmail.com)\n\n");
+        
+        content.append("Developed by:\nGerald Bortis (geraldb@webreachinc.com)\nChris Lang (chrisl@webreachinc.com)\nBrendan Haverlock (brendanh@webreachinc.com)\nJacob Brauer (jacobb@webreachinc.com)\nDan Svanstedt (dans@webreachltd.co.uk)\nAlberto Sáez Torres (albersato@gmail.com)\n\n");
         content.append("(c) Copyright Mirth contributors and others 2007. All rights reserved. Visit http://www.mirthproject.org\n\n");
         content.append("This product includes software developed by SymphonySoft Limited (http://www.symphonysoft.com) and its contributors.\n\n");
         content.append("This product includes software developed by the Apache Software Foundation (http://www.apache.org/).\n\n");
