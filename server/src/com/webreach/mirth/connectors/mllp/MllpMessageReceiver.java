@@ -44,6 +44,7 @@ import org.mule.providers.ConnectException;
 import org.mule.providers.TemplateValueReplacer;
 import org.mule.umo.MessagingException;
 import org.mule.umo.UMOComponent;
+import org.mule.umo.UMOException;
 import org.mule.umo.UMOMessage;
 import org.mule.umo.endpoint.UMOEndpoint;
 import org.mule.umo.lifecycle.Disposable;
@@ -239,9 +240,9 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 
 	public void doDispose() {
 		try {
+			monitoringController.updateStatus(connector, connectorType, Event.DISCONNECTED);
 			if (connector.isServerMode()) {
 				if (serverSocket != null && !serverSocket.isClosed()) {
-					monitoringController.updateStatus(connector, connectorType, Event.DISCONNECTED);
 					serverSocket.close();
 				}
 				serverSocket = null;
@@ -251,7 +252,6 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 				
 			} else {
 				if (clientSocket != null && !clientSocket.isClosed()) {
-					monitoringController.updateStatus(connector, connectorType, Event.DISCONNECTED);
 					clientSocket.close();
 				}
 				clientSocket = null;
