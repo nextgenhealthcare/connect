@@ -265,6 +265,7 @@ public class AxisMessageReceiver extends AbstractMessageReceiver
 
     public void doStop() throws UMOException
     {
+    	monitoringController.updateStatus(connector, connectorType, Event.DISCONNECTED);
         if (service != null)
             service.stop();
     }

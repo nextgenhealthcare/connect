@@ -31,7 +31,7 @@ public class MonitoringController {
 		}
 	}   	
 	
-	private void updateStatus(String connectorName, ConnectorType type, Event event, Socket socket){
+	public void updateStatus(String connectorName, ConnectorType type, Event event, Socket socket){
 		for(ConnectorStatusPlugin plugin : loadedPlugins.values()){
 			try{
 				plugin.updateStatus(connectorName, type, event, socket);

@@ -50,38 +50,47 @@ import java.util.List;
  * @version $Revision: 1.19 $
  */
 public class VMMessageReceiver extends TransactedPollingMessageReceiver {
-	private VMConnector connector;
+	private VMConnector vmConnector;
+	private String componentName;
 	private Object lock = new Object();
     private MonitoringController monitoringController = MonitoringController.getInstance();
     private JavaScriptPostprocessor postProcessor = new JavaScriptPostprocessor();
     private ConnectorType connectorType = ConnectorType.LISTENER;
 	public VMMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint) throws InitialisationException {
 		super(connector, component, endpoint, new Long(10));
-		this.connector = (VMConnector) connector;
+		this.vmConnector = (VMConnector) connector;
+		componentName = component.getDescriptor().getName() + "_source_connector";
 		receiveMessagesInTransaction = endpoint.getTransactionConfig().isTransacted();
 		VMRegistry.getInstance().register(this.getEndpointURI().getAddress(), this);
-		monitoringController.updateStatus(connector, connectorType,  Event.INITIALIZED);
+		
 	}
+	
+	
 
 	public void doConnect() throws Exception {
-		if (connector.isQueueEvents()) {
+		if (vmConnector.isQueueEvents()) {
 			// Ensure we can create a vm queue
-			QueueSession queueSession = connector.getQueueSession();
+			QueueSession queueSession = vmConnector.getQueueSession();
 			queueSession.getQueue(endpoint.getEndpointURI().getAddress());
 		}
+		monitoringController.updateStatus(componentName, connectorType,  Event.INITIALIZED, null);
 	}
-
+	
 	public void doDisconnect() throws Exception {}
 
+	public void doStop() throws UMOException{
+		super.doStop();
+		monitoringController.updateStatus(componentName, connectorType, Event.DISCONNECTED, null);
+	}
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see org.mule.umo.UMOEventListener#onEvent(org.mule.umo.UMOEvent)
 	 */
 	public void onEvent(UMOEvent event) throws UMOException {
-		monitoringController.updateStatus(connector, connectorType, Event.BUSY);
-		if (connector.isQueueEvents()) {
-			QueueSession queueSession = connector.getQueueSession();
+		monitoringController.updateStatus(componentName, connectorType, Event.BUSY, null);
+		if (vmConnector.isQueueEvents()) {
+			QueueSession queueSession = vmConnector.getQueueSession();
 			Queue queue = queueSession.getQueue(endpoint.getEndpointURI().getAddress());
 			try {
 				queue.put(event);
@@ -90,11 +99,12 @@ public class VMMessageReceiver extends TransactedPollingMessageReceiver {
 			}
 		} else {
 			UMOMessage msg = new MuleMessage(event.getTransformedMessage(), event.getProperties());
+			postProcessor.doPostProcess(msg.getPayload());
 			synchronized (lock) {
 				routeMessage(msg);
 			}
 		}
-		monitoringController.updateStatus(connector, connectorType, Event.DONE);
+		monitoringController.updateStatus(componentName, connectorType, Event.DONE, null);
 	}
 
 	/*
@@ -103,17 +113,22 @@ public class VMMessageReceiver extends TransactedPollingMessageReceiver {
 	 * @see org.mule.umo.UMOSyncChainSupport#onCall(org.mule.umo.UMOEvent)
 	 */
 	public Object onCall(UMOEvent event) throws UMOException {
+		monitoringController.updateStatus(componentName, connectorType, Event.BUSY, null);
 		UMOMessage umoMessage = routeMessage(new MuleMessage(event.getTransformedMessage(), event.getProperties(), event.getMessage()), event.isSynchronous());
 		postProcessor.doPostProcess(umoMessage.getPayload());
+		monitoringController.updateStatus(componentName, connectorType, Event.DONE, null);
 		return umoMessage;
 	}
 
 	protected List getMessages() throws Exception {
-		QueueSession qs = connector.getQueueSession();
+		QueueSession qs = vmConnector.getQueueSession();
 		Queue queue = qs.getQueue(endpoint.getEndpointURI().getAddress());
 		UMOEvent event = (UMOEvent) queue.take();
 		//TODO: Check post processor logic on this
-		routeMessage(new MuleMessage(event.getTransformedMessage(), event.getProperties()));
+		monitoringController.updateStatus(componentName, connectorType, Event.BUSY, null);
+		UMOMessage umoMessage = routeMessage(new MuleMessage(event.getTransformedMessage(), event.getProperties()), true);
+		postProcessor.doPostProcess(umoMessage.getPayload());
+		monitoringController.updateStatus(componentName, connectorType, Event.DONE, null);
 		return null;
 	}
 

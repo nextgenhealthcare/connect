@@ -29,6 +29,7 @@ import org.mule.transaction.TransactionCoordination;
 import org.mule.umo.MessagingException;
 import org.mule.umo.TransactionException;
 import org.mule.umo.UMOComponent;
+import org.mule.umo.UMOException;
 import org.mule.umo.UMOTransaction;
 import org.mule.umo.endpoint.EndpointException;
 import org.mule.umo.endpoint.UMOEndpoint;
@@ -41,6 +42,7 @@ import org.mule.util.ClassHelper;
 import org.mule.util.queue.QueueManager;
 import org.mule.util.queue.QueueSession;
 
+import com.webreach.mirth.server.controllers.MonitoringController.Event;
 import com.webreach.mirth.server.util.VMRegistry;
 
 /**
@@ -142,7 +144,7 @@ public class VMConnector extends AbstractServiceEnabledConnector
     protected void doDispose()
     {
     }
-
+   
     public boolean isQueueEvents()
     {
         return queueEvents;

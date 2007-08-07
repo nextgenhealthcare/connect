@@ -124,7 +124,7 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin{
 							break;
 						} else {
 							stateImage = YELLOW;
-							statusText = IDLE;
+							statusText = WAITING;
 							updateState = true;
 							break;
 						}
