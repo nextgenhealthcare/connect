@@ -252,9 +252,9 @@ public class ConnectorFactory
         ConnectorServiceDescriptor csd = (ConnectorServiceDescriptor) csdCache.get(new CSDKey(protocol, overrides));
         if (csd == null) {
         	ExtensionController extensionController = ExtensionController.getInstance();
-        	ConnectorMetaData cmd = extensionController.getConnectorMetaDataByProtocol(protocol);
-        	if (cmd != null && cmd.getProperties() != null){
-        		csd = loadCsdFromProperties(protocol, overrides, null, (Properties)cmd.getProperties().clone());
+        	ConnectorMetaData connectorMetaData = extensionController.getConnectorMetaDataByProtocol(protocol);
+        	if (connectorMetaData != null && connectorMetaData.getProperties() != null){
+        		csd = loadCsdFromProperties(protocol, overrides, null, (Properties) connectorMetaData.getProperties().clone());
         	}else{
         		String location = SpiHelper.SERVICE_ROOT + PROVIDER_SERVICES_PATH;
                 InputStream is = SpiHelper.findServiceDescriptor(PROVIDER_SERVICES_PATH, protocol, ConnectorFactory.class);

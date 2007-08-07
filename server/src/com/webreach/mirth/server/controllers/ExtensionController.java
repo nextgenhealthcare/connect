@@ -52,15 +52,15 @@ import com.webreach.mirth.util.ExtensionUtil;
  */
 public class ExtensionController {
 	private Logger logger = Logger.getLogger(this.getClass());
-	public static final String PLUGIN_LOCATION = ClassPathResource.getResourceURI("plugins").getPath() + System.getProperty("file.separator");
-	public static final String PLUGIN_FILE_SUFFIX = ".properties";
+	private static final String PLUGIN_LOCATION = ClassPathResource.getResourceURI("plugins").getPath() + System.getProperty("file.separator");
+	private static String CONNECTORS_LOCATION = ClassPathResource.getResourceURI("connectors").getPath() + System.getProperty("file.separator");
+	private static final String PLUGIN_FILE_SUFFIX = ".properties";
 	private Map<String, PluginMetaData> plugins;
 	private List<String> pluginLibraries;
 	private Map<String, ServerPlugin> loadedPlugins = null;
 	private Map<String, ConnectorMetaData> connectors = null;
 	private List<String> connectorLibraries = null;
 	private Map<String, ConnectorMetaData> protocols = null;
-	private static String CONNECTORS_LOCATION = ClassPathResource.getResourceURI("connectors").getPath() + System.getProperty("file.separator");
 
 	// singleton pattern
 	private static ExtensionController instance = null;
@@ -225,8 +225,8 @@ public class ExtensionController {
 		this.connectors = (Map<String, ConnectorMetaData>) ExtensionUtil.loadExtensionMetaData(CONNECTORS_LOCATION);
 		this.protocols = new HashMap<String, ConnectorMetaData>();
 		
-		for (ConnectorMetaData cmd : this.connectors.values()) {
-			protocols.put(cmd.getProtocol(), cmd);
+		for (ConnectorMetaData connectorMetaData : this.connectors.values()) {
+			protocols.put(connectorMetaData.getProtocol(), connectorMetaData);
 		}
 	}
 

@@ -94,6 +94,14 @@ public class ConnectorMetaData extends MetaData implements Serializable {
 	public void setType(Type type) {
 		this.type = type;
 	}
+	
+	public Properties getProperties() {
+		return properties;
+	}
+
+	public void setProperties(Properties properties) {
+		this.properties = properties;
+	}
 
 	public boolean equals(Object that) {
 		if (this == that) {
@@ -119,6 +127,7 @@ public class ConnectorMetaData extends MetaData implements Serializable {
 			EqualsUtil.areEqual(this.getTransformers(), transport.getTransformers()) &&
 			EqualsUtil.areEqual(this.getType(), transport.getType()) &&
 			EqualsUtil.areEqual(this.getDescription(), transport.getDescription()) &&
+			EqualsUtil.areEqual(this.getProperties(), transport.getProperties()) &&
 			EqualsUtil.areEqual(this.getUpdateUrl(), transport.getUpdateUrl());
 	}
 
@@ -141,13 +150,4 @@ public class ConnectorMetaData extends MetaData implements Serializable {
 		builder.append("]");
 		return builder.toString();
 	}
-
-	public Properties getProperties() {
-		return properties;
-	}
-
-	public void setProperties(Properties properties) {
-		this.properties = properties;
-	}
-
 }
