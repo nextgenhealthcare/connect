@@ -53,6 +53,7 @@ public class LLPSenderProperties implements ComponentProperties
     public static final String CONNECTOR_CHARSET_ENCODING = "charsetEncoding";
     public static final String CHANNEL_ID = "replyChannelId";
     public static final String CHANNEL_NAME = "channelName";
+    public static final String LLP_RECONNECT_INTERVAL = "reconnectMillisecs";
     
     public Properties getDefaults()
     {
@@ -76,6 +77,7 @@ public class LLPSenderProperties implements ComponentProperties
         properties.put(LLP_TEMPLATE, "${message.encodedData}");
         properties.put(CHANNEL_ID, "sink");
         properties.put(CHANNEL_NAME, "None");
+        properties.put(LLP_RECONNECT_INTERVAL, "10000");
         return properties;
     }
 }

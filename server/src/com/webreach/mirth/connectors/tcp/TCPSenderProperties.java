@@ -47,6 +47,7 @@ public class TCPSenderProperties implements ComponentProperties
     public static final String CONNECTOR_CHARSET_ENCODING = "charsetEncoding";
     public static final String CHANNEL_ID = "replyChannelId";
     public static final String CHANNEL_NAME = "channelName";
+    public static final String TCP_RECONNECT_INTERVAL = "reconnectMillisecs";
 
     public Properties getDefaults()
     {
@@ -65,6 +66,7 @@ public class TCPSenderProperties implements ComponentProperties
         properties.put(TCP_TEMPLATE, "${message.encodedData}");
         properties.put(CHANNEL_ID, "sink");
         properties.put(CHANNEL_NAME, "None");
+        properties.put(TCP_RECONNECT_INTERVAL, "10000");
         return properties;
     }
 }
