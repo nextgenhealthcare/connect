@@ -283,8 +283,7 @@ public class FTPReader extends ConnectorClass
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
-    private void initComponents()
-    {
+    private void initComponents() {
         buttonGroup1 = new javax.swing.ButtonGroup();
         buttonGroup2 = new javax.swing.ButtonGroup();
         buttonGroup3 = new javax.swing.ButtonGroup();
@@ -297,7 +296,7 @@ public class FTPReader extends ConnectorClass
         FTPURLField = new com.webreach.mirth.client.ui.components.MirthTextField();
         jLabel6 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
-        fileAgeLabel = new javax.swing.JLabel();
+        validateConnectionLabel = new javax.swing.JLabel();
         passiveModeYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         passiveModeNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         fileTypeBinary = new com.webreach.mirth.client.ui.components.MirthRadioButton();
@@ -325,7 +324,7 @@ public class FTPReader extends ConnectorClass
         checkFileAgeNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         checkFileAgeYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         jLabel12 = new javax.swing.JLabel();
-        fileAgeLabel1 = new javax.swing.JLabel();
+        fileAgeLabel = new javax.swing.JLabel();
         fileAge = new com.webreach.mirth.client.ui.components.MirthTextField();
         processBatchFilesNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         processBatchFilesYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
@@ -350,7 +349,7 @@ public class FTPReader extends ConnectorClass
 
         jLabel7.setText("File Type:");
 
-        fileAgeLabel.setText("Validate Connection:");
+        validateConnectionLabel.setText("Validate Connection:");
 
         passiveModeYes.setBackground(new java.awt.Color(255, 255, 255));
         passiveModeYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -404,10 +403,8 @@ public class FTPReader extends ConnectorClass
         buttonGroup4.add(anonymousYes);
         anonymousYes.setText("Yes");
         anonymousYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        anonymousYes.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
+        anonymousYes.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
                 anonymousYesActionPerformed(evt);
             }
         });
@@ -420,10 +417,8 @@ public class FTPReader extends ConnectorClass
         anonymousNo.setSelected(true);
         anonymousNo.setText("No");
         anonymousNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        anonymousNo.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
+        anonymousNo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
                 anonymousNoActionPerformed(evt);
             }
         });
@@ -441,10 +436,8 @@ public class FTPReader extends ConnectorClass
         buttonGroup5.add(deleteAfterReadYes);
         deleteAfterReadYes.setText("Yes");
         deleteAfterReadYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        deleteAfterReadYes.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
+        deleteAfterReadYes.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
                 deleteAfterReadYesActionPerformed(evt);
             }
         });
@@ -455,10 +448,8 @@ public class FTPReader extends ConnectorClass
         deleteAfterReadNo.setSelected(true);
         deleteAfterReadNo.setText("No");
         deleteAfterReadNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        deleteAfterReadNo.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
+        deleteAfterReadNo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
                 deleteAfterReadNoActionPerformed(evt);
             }
         });
@@ -469,10 +460,8 @@ public class FTPReader extends ConnectorClass
         checkFileAgeNo.setSelected(true);
         checkFileAgeNo.setText("No");
         checkFileAgeNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        checkFileAgeNo.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
+        checkFileAgeNo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
                 checkFileAgeNoActionPerformed(evt);
             }
         });
@@ -482,17 +471,15 @@ public class FTPReader extends ConnectorClass
         buttonGroup6.add(checkFileAgeYes);
         checkFileAgeYes.setText("Yes");
         checkFileAgeYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        checkFileAgeYes.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
+        checkFileAgeYes.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
                 checkFileAgeYesActionPerformed(evt);
             }
         });
 
         jLabel12.setText("Check File Age:");
 
-        fileAgeLabel1.setText("File Age (ms):");
+        fileAgeLabel.setText("File Age (ms):");
 
         processBatchFilesNo.setBackground(new java.awt.Color(255, 255, 255));
         processBatchFilesNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -500,10 +487,8 @@ public class FTPReader extends ConnectorClass
         processBatchFilesNo.setSelected(true);
         processBatchFilesNo.setText("No");
         processBatchFilesNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        processBatchFilesNo.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
+        processBatchFilesNo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
                 processBatchFilesNoActionPerformed(evt);
             }
         });
@@ -521,10 +506,8 @@ public class FTPReader extends ConnectorClass
         sortBy.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Date", "Name", "Size" }));
 
         charsetEncodingCombobox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Default", "UTF-8", "ISO-8859-1", "UTF-16 (le)", "UTF-16 (be)", "UTF-16 (bom)", "US-ASCII" }));
-        charsetEncodingCombobox.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
+        charsetEncodingCombobox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
                 charsetEncodingComboboxActionPerformed(evt);
             }
         });
@@ -532,8 +515,7 @@ public class FTPReader extends ConnectorClass
         jLabel41.setText("Encoding:");
 
         mirthVariableList1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        mirthVariableList1.setModel(new javax.swing.AbstractListModel()
-        {
+        mirthVariableList1.setModel(new javax.swing.AbstractListModel() {
             String[] strings = { "DATE", "COUNT", "UUID", "SYSTIME", "ORIGINALNAME" };
             public int getSize() { return strings.length; }
             public Object getElementAt(int i) { return strings[i]; }
@@ -544,10 +526,8 @@ public class FTPReader extends ConnectorClass
         buttonGroup8.add(pollingTimeButton);
         pollingTimeButton.setText("Time");
         pollingTimeButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        pollingTimeButton.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
+        pollingTimeButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
                 pollingTimeButtonActionPerformed(evt);
             }
         });
@@ -557,10 +537,8 @@ public class FTPReader extends ConnectorClass
         buttonGroup8.add(pollingIntervalButton);
         pollingIntervalButton.setText("Interval");
         pollingIntervalButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        pollingIntervalButton.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
+        pollingIntervalButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
                 pollingIntervalButtonActionPerformed(evt);
             }
         });
@@ -580,7 +558,7 @@ public class FTPReader extends ConnectorClass
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel3)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel14)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel7)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, fileAgeLabel1)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, fileAgeLabel)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel12)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel11)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, moveToFileLabel)
@@ -590,7 +568,7 @@ public class FTPReader extends ConnectorClass
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel4)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel8)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel6)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, fileAgeLabel)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, validateConnectionLabel)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, FTPPasswordLabel)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, FTPUsernameLabel)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel10)
@@ -667,7 +645,7 @@ public class FTPReader extends ConnectorClass
                     .add(FTPPasswordLabel))
                 .add(6, 6, 6)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(fileAgeLabel)
+                    .add(validateConnectionLabel)
                     .add(validateConnectionYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(validateConnectionNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -717,7 +695,7 @@ public class FTPReader extends ConnectorClass
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                             .add(fileAge, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(fileAgeLabel1))
+                            .add(fileAgeLabel))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                             .add(fileTypeASCII, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -838,7 +816,6 @@ public class FTPReader extends ConnectorClass
     private com.webreach.mirth.client.ui.components.MirthRadioButton deleteAfterReadYes;
     private com.webreach.mirth.client.ui.components.MirthTextField fileAge;
     private javax.swing.JLabel fileAgeLabel;
-    private javax.swing.JLabel fileAgeLabel1;
     private com.webreach.mirth.client.ui.components.MirthTextField fileNameFilter;
     private com.webreach.mirth.client.ui.components.MirthRadioButton fileTypeASCII;
     private com.webreach.mirth.client.ui.components.MirthRadioButton fileTypeBinary;
@@ -868,6 +845,7 @@ public class FTPReader extends ConnectorClass
     private com.webreach.mirth.client.ui.components.MirthRadioButton processBatchFilesNo;
     private com.webreach.mirth.client.ui.components.MirthRadioButton processBatchFilesYes;
     private com.webreach.mirth.client.ui.components.MirthComboBox sortBy;
+    private javax.swing.JLabel validateConnectionLabel;
     private com.webreach.mirth.client.ui.components.MirthRadioButton validateConnectionNo;
     private com.webreach.mirth.client.ui.components.MirthRadioButton validateConnectionYes;
     // End of variables declaration//GEN-END:variables

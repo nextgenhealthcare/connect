@@ -50,7 +50,7 @@
                   <Component id="jLabel3" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel14" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel7" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="fileAgeLabel1" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="fileAgeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel12" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel11" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="moveToFileLabel" alignment="1" min="-2" max="-2" attributes="0"/>
@@ -60,7 +60,7 @@
                   <Component id="jLabel4" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel8" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel6" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="fileAgeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="validateConnectionLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="FTPPasswordLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="FTPUsernameLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel10" alignment="1" min="-2" max="-2" attributes="0"/>
@@ -155,7 +155,7 @@
               </Group>
               <EmptySpace min="-2" pref="6" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="fileAgeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="validateConnectionLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="validateConnectionYes" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="validateConnectionNo" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
@@ -216,7 +216,7 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="fileAge" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="fileAgeLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="fileAgeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
@@ -266,7 +266,7 @@
         <Property name="text" type="java.lang.String" value="File Type:"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="fileAgeLabel">
+    <Component class="javax.swing.JLabel" name="validateConnectionLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Validate Connection:"/>
       </Properties>
@@ -585,7 +585,7 @@
         <Property name="text" type="java.lang.String" value="Check File Age:"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="fileAgeLabel1">
+    <Component class="javax.swing.JLabel" name="fileAgeLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="File Age (ms):"/>
       </Properties>
