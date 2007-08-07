@@ -4,7 +4,7 @@
 	<programGroup defaultName="$APP_NAME" location="applications" />
   
 	<shortcut
-	name="$APP_NAME $APP_VER Server"
+	name="$APP_NAME Server"
 	target="$INSTALL_PATH\Mirth.exe" 
 	workingDirectory="$INSTALL_PATH"
 	description="Start the $APP_NAME Server"
@@ -18,7 +18,7 @@
 	</shortcut>
   
 	<shortcut
-	name="$APP_NAME $APP_VER Administrator"
+	name="$APP_NAME Administrator"
 	target="javaws" 
 	commandLine="http://localhost:8080/webstart"
 	workingDirectory="$INSTALL_PATH"
@@ -34,7 +34,7 @@
 	</shortcut>
 
 	<shortcut
-	name="$APP_NAME $APP_VER Server Manager"
+	name="$APP_NAME Server Manager"
 	target="$INSTALL_PATH\Mirth Manager.exe" 
 	workingDirectory="$INSTALL_PATH"
 	description="Start the $APP_NAME Server Manager"
@@ -48,7 +48,7 @@
 	</shortcut>
   
 	<shortcut
-    name="$APP_NAME $APP_VER Shell"
+    name="$APP_NAME Shell"
     target="$INSTALL_PATH\Shell.bat" 
     commandLine=""
     workingDirectory="$INSTALL_PATH"
