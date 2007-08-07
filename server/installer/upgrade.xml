@@ -14,7 +14,7 @@
 		
 		<property environment="env"/>
 		<echo>removing ${env.HOMEPATH}\Start Menu\Programs\Mirth</echo>
-		<delete dir="${env.HOMEPATH}\Start Menu\Programs\Mirth" />
+		<delete dir="${env.HOMEPATH}\Start Menu\Programs\Mirth" failonerror="false" />
 	</target>
 
 	<target name="backup">
