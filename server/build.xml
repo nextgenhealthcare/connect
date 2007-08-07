@@ -419,6 +419,7 @@
 		<taskdef name="launch4j" classname="net.sf.launch4j.ant.Launch4jTask" classpath="${env.LAUNCH4J_HOME}/launch4j.jar:${env.LAUNCH4J_HOME}/lib/xstream.jar" />
 		<taskdef name="izpack" classpath="${installer.lib}/standalone-compiler.jar" classname="com.izforge.izpack.ant.IzPackTask" />
 		<taskdef classpath="${installer.lib}/orangevolt-ant-tasks-1.3.5.jar:${basedir}/installer/lib/roxes-win32forjava-1.0.4.jar" resource="com/orangevolt/tools/ant/taskdefs.properties" />
+		<taskdef name="jarbundler" classname="net.sourceforge.jarbundler.JarBundler" classpath="${installer.lib}/jarbundler-1.9.jar" />
 
 		<!-- create the dist directory -->
 		<mkdir dir="${dist}" />
@@ -434,9 +435,12 @@
 		<!-- create the win32 distribution exe -->
 		<copy file="${installer}/install.xml" tofile="${installer}/install-tmp.xml" />
 		<replace file="${installer}/install-tmp.xml" token="@version@" value="${version}" />
+
 		<izpack input="${installer}/install-tmp.xml" output="${dist}/mirth-${version}-setup.jar" basedir="${setup}" />
 		<launch4j configFile="${installer}/launch4jconfig.xml" jar="${dist}/mirth-${version}-setup.jar" outfile="${dist}/mirth-${version}-setup.exe" />
 		<sfx archive="${dist}/mirth-${version}-setup.jar" mode="unix" execute="javaw -jar ${dist}/mirth-${version}-setup.jar" output="${dist}/mirth-${version}-unix" />
+		<jarbundler dir="${dist}" name="Mirth ${version}" mainclass="com.izforge.izpack.installer.Installer" jar="${dist}/mirth-${version}-setup.jar" stubfile="${installer}/JavaApplicationStub" />
+
 		<delete file="${installer}/install-tmp.xml" />
 	</target>
 </project>
