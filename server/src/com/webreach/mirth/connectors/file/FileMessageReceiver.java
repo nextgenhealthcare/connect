@@ -112,7 +112,7 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 	public void doDisconnect() throws Exception {}
 
 	public void poll() {
-		monitoringController.updateStatus(connector, connectorType, Event.BUSY);
+		monitoringController.updateStatus(connector, connectorType, Event.CONNECTED);
 		try {
 			File[] files = listFiles();
 
@@ -125,8 +125,11 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 			routingError = false;
 			for (int i = 0; i < files.length; i++) {
 				
-				if (!routingError)
+				if (!routingError){
+					monitoringController.updateStatus(connector, connectorType, Event.BUSY);
 					processFile(files[i]);
+					monitoringController.updateStatus(connector, connectorType, Event.DONE);
+				}
 			}
 		} catch (Exception e) {
 			alertController.sendAlerts(((FileConnector) connector).getChannelId(), Constants.ERROR_403, null, e);
@@ -200,7 +203,9 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 
 						for (Iterator iter = messages.iterator(); iter.hasNext() && (fileProcesedException == null);) {
 							String message = (String) iter.next();
-							UMOMessage umoMessage = routeMessage(new MuleMessage(connector.getMessageAdapter(message)), endpoint.isSynchronous());
+							UMOMessageAdapter batchAdapter = connector.getMessageAdapter(message);
+							batchAdapter.setProperty(FileConnector.PROPERTY_ORIGINAL_FILENAME, originalFilename);
+							UMOMessage umoMessage = routeMessage(new MuleMessage(batchAdapter), endpoint.isSynchronous());
 							postProcessor.doPostProcess(umoMessage.getPayload());
 						}
 					} else {
