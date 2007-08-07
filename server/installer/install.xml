@@ -13,7 +13,7 @@
 	<jar src="../installer/lib/ant.jar" stage="both" />
 	<jar src="../installer/lib/ant-launcher.jar" stage="both" />
 	<jar src="../installer/lib/ant-nodeps.jar" stage="both" />
-	<jar src="../installer/lib/ant-contrib-0.6.jar" stage="install" />	
+	<jar src="../installer/lib/ant-contrib-0.6.jar" stage="install" />
 	<jar src="../installer/lib/orangevolt-ant-tasks-1.3.5.jar" stage="install" />
 	<jar src="../installer/lib/roxes-win32forjava-1.0.4.jar" stage="install" />
 
@@ -27,7 +27,7 @@
 		<listener installer="AntActionInstallerListener" uninstaller="AntActionUninstallerListener" />
 		<!-- listener installer="RegistryInstallerListener" uninstaller="RegistryUninstallerListener">
 			<os family="windows" />
-		</listener-->
+			</listener-->
 	</listeners>
 
 	<!-- 
@@ -147,7 +147,7 @@
 		</pack>
 
 		<pack name="Configuration" required="yes">
-			<description>Mirth configuration files</description>
+			<description>Mirth configuration and database files</description>
 
 			<updatecheck>
 				<exclude name="conf" />
@@ -170,14 +170,23 @@
 				<include name="wrapper.conf" />
 
 				<include name="META-INF" />
-				
+
 				<include name="deltas/**" />
 				<include name="derby/**" />
+				<include name="postgres/**" />
 				<include name="mysql/**" />
 				<include name="oracle/**" />
-				<include name="postgres/**" />
 				<include name="sqlserver/**" />
 				<include name="sqlserver2005/**" />
+			</fileset>
+
+			<fileset dir="." targetdir="$INSTALL_PATH" override="true">
+				<file src="derby-database.sql" targetdir="$INSTALL_PATH" />
+				<file src="postgres-database.sql" targetdir="$INSTALL_PATH" />
+				<file src="mysql-database.sql" targetdir="$INSTALL_PATH" />
+				<file src="oracle-database.sql" targetdir="$INSTALL_PATH" />
+				<file src="sqlserver-database.sql" targetdir="$INSTALL_PATH" />
+				<file src="sqlserver2005-database.sql" targetdir="$INSTALL_PATH" />
 			</fileset>
 		</pack>
 
@@ -193,21 +202,6 @@
 			<file src="shell-launcher.xml" targetdir="$INSTALL_PATH" override="true" />
 			<file src="Shell.bat" targetdir="$INSTALL_PATH" override="true" os="windows" />
 			<file src="shell.sh" targetdir="$INSTALL_PATH" override="true" os="unix" />
-		</pack>
-
-		<pack name="Database SQL scripts" required="no">
-			<description>Database SQL scripts for Apache Derby, PostgreSQL, MySQL, Oracle, and Microsoft SQL Server</description>
-
-			<updatecheck>
-				<include name="**" />
-			</updatecheck>
-
-			<file src="derby-database.sql" targetdir="$INSTALL_PATH" override="true" />
-			<file src="postgres-database.sql" targetdir="$INSTALL_PATH" override="true" />
-			<file src="mysql-database.sql" targetdir="$INSTALL_PATH" override="true" />
-			<file src="oracle-database.sql" targetdir="$INSTALL_PATH" override="true" />
-			<file src="sqlserver-database.sql" targetdir="$INSTALL_PATH" override="true" />
-			<file src="sqlserver2005-database.sql" targetdir="$INSTALL_PATH" override="true" />
 		</pack>
 
 		<pack name="Windows NT/2000/2003/XP Service" required="no" os="windows">
