@@ -22,16 +22,16 @@
 		<if>
 			<equals arg1="${do.upgrade}" arg2="true" />
 			<then>
-				<echo>performing backup of configuration properties</echo>
-				<propertyfile file="${install.path}/conf/install.tmp.properties">
-					<entry key="do.upgrade" value="${do.upgrade}" />
-				</propertyfile>
 				<property file="${install.path}/conf/mirth.properties" />
 				<echo>database: ${database}</echo>
 				<if>
 					<equals arg1="${database}" arg2="derby" />
 					<then />
 					<else>
+						<propertyfile file="${install.path}/conf/install.tmp.properties">
+							<entry key="do.upgrade" value="true" />
+						</propertyfile>
+						<echo>creating temp database properties</echo>
 						<property file="${install.path}/conf/${database}-SqlMapConfig.properties" />
 						<propertyfile file="${install.path}/conf/database.tmp.properties">
 							<entry key="database.tmp" value="${database}" />
@@ -42,6 +42,12 @@
 					</else>
 				</if>
 			</then>
+			<else>
+				<echo>no previous installation found</echo>
+				<propertyfile file="${install.path}/conf/install.tmp.properties">
+					<entry key="do.upgrade" value="false" />
+				</propertyfile>
+			</else>
 		</if>
 	</target>
 
@@ -55,6 +61,7 @@
 				<propertyfile file="${install.path}/conf/mirth.properties">
 					<entry key="database" value="${database.tmp}" />
 				</propertyfile>
+				<echo>updating database properties: ${database.tmp}</echo>
 				<propertyfile file="${install.path}/conf/${database.tmp}-SqlMapConfig.properties">
 					<entry key="database" value="${database.tmp}" />
 					<entry key="url" value="${url.tmp}" />
