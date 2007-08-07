@@ -133,6 +133,7 @@
 				<include name="Mirth.bat" override="true" />
 				<include name="Mirth.exe" override="true" />
 				<include name="Mirth.ico" override="true" />
+				<include name="uninstall.ico" override="true" />
 			</fileset>
 
 			<file src="lib" targetdir="$INSTALL_PATH" override="true" />
