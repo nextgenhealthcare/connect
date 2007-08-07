@@ -83,28 +83,28 @@ public class FtpMessageReceiver extends PollingMessageReceiver {
 
 	public void poll() {
 		try {
-			monitoringController.updateStatus(connector, connectorType, Event.BUSY);
+			monitoringController.updateStatus(connector, connectorType, Event.CONNECTED);
 			FTPFile[] files = listFiles();
 			sortFiles(files);
+			
 			for (int i = 0; i < files.length; i++) {
+				
 				final FTPFile file = files[i];
 				if (!currentFiles.contains(file.getName())) {
-					getWorkManager().scheduleWork(new Work() {
-						public void run() {
-							try {
-								currentFiles.add(file.getName());
-								if (!routingError)
-									processFile(file);
-							} catch (Exception e) {
-								alertController.sendAlerts(((FtpConnector) connector).getChannelId(), Constants.ERROR_405, null, e);
-								connector.handleException(e);
-							} finally {
-								currentFiles.remove(file.getName());
-							}
+					
+					try {
+						monitoringController.updateStatus(connector, connectorType, Event.BUSY);
+						currentFiles.add(file.getName());
+						if (!routingError){
+							processFile(file);
 						}
-
-						public void release() {}
-					});
+					} catch (Exception e) {
+						alertController.sendAlerts(((FtpConnector) connector).getChannelId(), Constants.ERROR_405, null, e);
+						connector.handleException(e);
+					} finally {
+						monitoringController.updateStatus(connector, connectorType, Event.DONE);
+						currentFiles.remove(file.getName());
+					}
 				}
 			}
 		} catch (Exception e) {
@@ -209,7 +209,8 @@ public class FtpMessageReceiver extends PollingMessageReceiver {
 			}
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			if (!client.retrieveFile(file.getName(), baos)) {
-				throw new IOException("Ftp error: " + client.getReplyCode());
+				//this might happen if another thread already processed file
+				throw new IOException("Ftp error: " + client.getReplyCode() + " error retrieving file: " + file.getName() + ". Might be thread race condition.");
 			}
 			byte[] contents = baos.toByteArray();
 			if (connector.isProcessBatchFiles()) {

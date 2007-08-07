@@ -54,49 +54,45 @@ public class SftpMessageReceiver extends PollingMessageReceiver {
 	public SftpMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint, Long frequency) throws InitialisationException {
 		super(connector, component, endpoint, frequency);
 		this.connector = (SftpConnector) connector;
-        
-        if(((SftpConnector) connector).getPollingType().equals(SftpConnector.POLLING_TYPE_TIME))
-            setTime(((SftpConnector) connector).getPollingTime());
-        else
-            setFrequency(((SftpConnector) connector).getPollingFrequency());
-        
+
+		if (((SftpConnector) connector).getPollingType().equals(SftpConnector.POLLING_TYPE_TIME))
+			setTime(((SftpConnector) connector).getPollingTime());
+		else
+			setFrequency(((SftpConnector) connector).getPollingFrequency());
+
 		filenameFilter = new FilenameWildcardFilter(this.connector.getFileFilter());
 		monitoringController.updateStatus(connector, connectorType, Event.INITIALIZED);
 	}
 
 	public void poll() {
-		monitoringController.updateStatus(connector, connectorType, Event.BUSY);
+		monitoringController.updateStatus(connector, connectorType, Event.CONNECTED);
 		try {
 			List files = listFiles();
 			sortFiles(files);
-			
+
 			for (Iterator iter = files.iterator(); iter.hasNext();) {
 				final ChannelSftp.LsEntry entry = (ChannelSftp.LsEntry) iter.next();
 
 				if (!currentFiles.contains(entry.getFilename())) {
-					getWorkManager().scheduleWork(new Work() {
-						public void run() {
-							try {
-								currentFiles.add(entry.getFilename());
-								if (!routingError){
-									processFile(entry);
-								}
-							} catch (Exception e) {
-								alertController.sendAlerts(((SftpConnector) connector).getChannelId(), Constants.ERROR_409, null, e);
-								connector.handleException(e);
-							} finally {
-								currentFiles.remove(entry.getFilename());
-							}
+					try {
+						monitoringController.updateStatus(connector, connectorType, Event.BUSY);
+						currentFiles.add(entry.getFilename());
+						if (!routingError) {
+							processFile(entry);
 						}
-
-						public void release() {}
-					});
+					} catch (Exception e) {
+						alertController.sendAlerts(((SftpConnector) connector).getChannelId(), Constants.ERROR_409, null, e);
+						connector.handleException(e);
+					} finally {
+						monitoringController.updateStatus(connector, connectorType, Event.DONE);
+						currentFiles.remove(entry.getFilename());
+					}
 				}
 			}
 		} catch (Exception e) {
 			alertController.sendAlerts(((SftpConnector) connector).getChannelId(), Constants.ERROR_409, null, e);
 			handleException(e);
-		} finally{
+		} finally {
 			monitoringController.updateStatus(connector, connectorType, Event.DONE);
 		}
 	}
@@ -235,7 +231,8 @@ public class SftpMessageReceiver extends PollingMessageReceiver {
 					logger.info("Unable to delete destination file");
 				}
 				client.cd(client.getHome());
-				client.cd(uri.getPath().substring(1) + "/"); // remove the first slash
+				client.cd(uri.getPath().substring(1) + "/"); // remove the
+																// first slash
 				client.rename((file.getFilename()).replaceAll("//", "/"), (moveDir + "/" + destinationFile).replaceAll("//", "/"));
 			}
 			if (connector.isAutoDelete()) {

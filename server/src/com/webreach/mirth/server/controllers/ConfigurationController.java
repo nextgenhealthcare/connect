@@ -298,8 +298,22 @@ public class ConfigurationController {
 		Iterator i = globalScripts.entrySet().iterator();
 		while (i.hasNext()) {
 			Entry entry = (Entry) i.next();
-			if (!(entry.getKey().toString().equals(PREPROCESSOR) && globalScripts.get(entry.getKey()).equals(GLOBAL_PREPROCESSOR_DEFAULT_SCRIPT)) && !(entry.getKey().toString().equals(POSTPROCESSOR) && globalScripts.get(entry.getKey()).equals(GLOBAL_POSTPROCESSOR_DEFAULT_SCRIPT)))
-				JavaScriptUtil.getInstance().compileScript(entry.getKey().toString(), globalScripts.get(entry.getKey()), false);
+			if (entry.getKey().toString().equals(PREPROCESSOR)){
+				if (!globalScripts.get(PREPROCESSOR).equals(GLOBAL_POSTPROCESSOR_DEFAULT_SCRIPT) && !globalScripts.get(PREPROCESSOR).equals("")){
+					JavaScriptUtil.getInstance().compileScript(PREPROCESSOR, globalScripts.get(PREPROCESSOR), false);
+				} else{
+					JavaScriptUtil.getInstance().removeScriptFromCache(PREPROCESSOR);
+				}
+				
+			}
+			else if (entry.getKey().toString().equals(POSTPROCESSOR)){
+				if (!globalScripts.get(POSTPROCESSOR).equals(GLOBAL_POSTPROCESSOR_DEFAULT_SCRIPT) && !globalScripts.get(POSTPROCESSOR).equals("")){
+					JavaScriptUtil.getInstance().compileScript(POSTPROCESSOR, globalScripts.get(POSTPROCESSOR), false);
+				} else{
+					JavaScriptUtil.getInstance().removeScriptFromCache(POSTPROCESSOR);
+				}
+				
+			}
 		}
 
 		for (Channel channel : channels) {
@@ -307,7 +321,7 @@ public class ConfigurationController {
 				JavaScriptUtil.getInstance().compileScript(channel.getId() + "_Deploy", channel.getDeployScript(), false);
 				JavaScriptUtil.getInstance().compileScript(channel.getId() + "_Shutdown", channel.getShutdownScript(), false);
 				//only compile and run post processor if its not the default
-				if (!channel.getPostprocessingScript().equals(CHANNEL_POSTPROCESSOR_DEFAULT_SCRIPT)){
+				if (!channel.getPostprocessingScript().equals(CHANNEL_POSTPROCESSOR_DEFAULT_SCRIPT) && !channel.getPostprocessingScript().equals("")){
 					JavaScriptUtil.getInstance().compileScript(channel.getId() + "_Postprocessor", channel.getPostprocessingScript(), true);
 				}else{
 					JavaScriptUtil.getInstance().removeScriptFromCache(channel.getId() + "_Postprocessor");
@@ -354,16 +368,16 @@ public class ConfigurationController {
 		String preprocessorScript = scriptController.getScript(PREPROCESSOR);
 		String postprocessorScript = scriptController.getScript(POSTPROCESSOR);
 
-		if (deployScript == null)
+		if (deployScript == null || deployScript.equals(""))
 			deployScript = "// This script executes once when the mule engine is started\r\n// You only have access to the globalMap here to persist data\r\nreturn;";
 
-		if (shutdownScript == null)
+		if (shutdownScript == null || shutdownScript.equals(""))
 			shutdownScript = "// This script executes once when the mule engine is stopped\r\n// You only have access to the globalMap here to persist data\r\nreturn;";
 
-		if (preprocessorScript == null)
+		if (preprocessorScript == null || preprocessorScript.equals(""))
 			preprocessorScript = GLOBAL_PREPROCESSOR_DEFAULT_SCRIPT;
 
-		if (postprocessorScript == null)
+		if (postprocessorScript == null || postprocessorScript.equals(""))
 			postprocessorScript = GLOBAL_POSTPROCESSOR_DEFAULT_SCRIPT;
 
 		scripts.put(DEPLOY, deployScript);

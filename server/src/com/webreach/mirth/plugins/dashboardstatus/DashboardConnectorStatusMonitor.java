@@ -46,8 +46,8 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin{
 						statusText = WAITING;
 						break;
 					case READER:
-						stateImage = GREEN;
-						statusText = POLLING;
+						stateImage = YELLOW;
+						statusText = IDLE;
 						break;
 				}
 				updateState = true;
@@ -65,6 +65,8 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin{
 						}
 						break;
 					case READER:
+						stateImage = GREEN;
+						statusText = POLLING;
 						break;
 				}
 				updateState = true;

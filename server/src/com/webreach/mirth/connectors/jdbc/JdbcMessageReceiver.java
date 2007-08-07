@@ -120,6 +120,7 @@ public class JdbcMessageReceiver extends TransactedPollingMessageReceiver {
 
 	public void processMessage(Object message) throws Exception {
 		try {
+			monitoringController.updateStatus(connector, connectorType, Event.BUSY);
 			if (this.connector.isUseScript() && connector.isUseAck()) {
 				// dispatch messages
 				UMOMessageAdapter msgAdapter = this.connector.getMessageAdapter(message);
@@ -183,11 +184,13 @@ public class JdbcMessageReceiver extends TransactedPollingMessageReceiver {
 		} catch (Exception e) {
 			alertController.sendAlerts(((JdbcConnector) connector).getChannelId(), Constants.ERROR_406, null, e);
 			throw e;
+		}finally{
+			monitoringController.updateStatus(connector, connectorType, Event.DONE);
 		}
 	}
 
 	public List getMessages() throws Exception {
-		monitoringController.updateStatus(connector, connectorType, Event.BUSY);
+		monitoringController.updateStatus(connector, connectorType, Event.CONNECTED);
 		try {
 			if (this.connector.isUseScript()) {
 				Context context = Context.enter();
