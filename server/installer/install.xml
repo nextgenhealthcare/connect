@@ -25,9 +25,9 @@
 
 	<listeners>
 		<listener installer="AntActionInstallerListener" uninstaller="AntActionUninstallerListener" />
-		<listener installer="RegistryInstallerListener" uninstaller="RegistryUninstallerListener">
+		<!-- listener installer="RegistryInstallerListener" uninstaller="RegistryUninstallerListener">
 			<os family="windows" />
-		</listener>
+		</listener-->
 	</listeners>
 
 	<!-- 
