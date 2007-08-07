@@ -438,7 +438,7 @@
 
 		<izpack input="${installer}/install-tmp.xml" output="${dist}/mirth-${version}-setup.jar" basedir="${setup}" />
 		<launch4j configFile="${installer}/launch4jconfig.xml" jar="${dist}/mirth-${version}-setup.jar" outfile="${dist}/mirth-${version}-setup.exe" />
-		<sfx archive="${dist}/mirth-${version}-setup.jar" mode="unix" execute="java -jar ${dist}/mirth-${version}-setup.jar" output="${dist}/mirth-${version}-setup" />
+		<sfx archive="${dist}/mirth-${version}-setup.jar" mode="unix" execute="mirth-${version}-setup.jar" output="${dist}/mirth-${version}-setup" />
 		<jarbundler dir="${dist}" name="Mirth ${version}" mainclass="com.izforge.izpack.installer.Installer" jar="${dist}/mirth-${version}-setup.jar" stubfile="${installer}/JavaApplicationStub" icon="${installer}/install.ico" />
 
 		<delete file="${installer}/install-tmp.xml" />
