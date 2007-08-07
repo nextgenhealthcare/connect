@@ -14,35 +14,49 @@
 
 	<target name="backup">
 		<mkdir dir="${install.path}/conf" />
+		<available property="do.upgrade" value="true" file="${install.path}/conf/mirth.properties" />
+		
+		<if>
+			<equals arg1="${do.upgrade}" arg2="true" />
+			<then>
+				<echo>performing backup of configuration properties</echo>
+				<property file="${install.path}/conf/mirth.properties" />
+				<echo>database: ${database}</echo>
+				<if>
+					<equals arg1="${database}" arg2="derby" />
+					<then />
+					<else>
+						<property file="${install.path}/conf/${database}-SqlMapConfig.properties" />
+						<propertyfile file="${install.path}/conf/database.tmp.properties">
+							<entry key="database.tmp" value="${database}" />
+							<entry key="url.tmp" value="${url}" />
+							<entry key="username.tmp" value="${username}" />
+							<entry key="password.tmp" value="${password}" />
+						</propertyfile>
 
-		<property file="${install.path}/conf/mirth.properties" />
-		<echo>database: ${database}</echo>
-
-		<assert name="database" value="derby" execute="false">
-			<property file="${install.path}/conf/${database}-SqlMapConfig.properties" />
-
-			<propertyfile file="${install.path}/conf/database.tmp.properties">
-				<entry key="database.tmp" value="${database}" />
-				<entry key="url.tmp" value="${url}" />
-				<entry key="username.tmp" value="${username}" />
-				<entry key="password.tmp" value="${password}" />
-			</propertyfile>
-		</assert>
+					</else>
+				</if>
+			</then>
+		</if>
 	</target>
 
 	<target name="restore">
-		<property file="${install.path}/conf/database.tmp.properties" />
-
-		<propertyfile file="${install.path}/conf/mirth.properties">
-			<entry key="database" value="${database.tmp}" />
-		</propertyfile>
-
-		<propertyfile file="${install.path}/conf/${database.tmp}-SqlMapConfig.properties">
-			<entry key="database" value="${database.tmp}" />
-			<entry key="url" value="${url.tmp}" />
-			<entry key="username" value="${username.tmp}" />
-			<entry key="password" value="${password.tmp}" />
-		</propertyfile>
+		<if>
+			<equals arg1="${do.upgrade}" arg2="true" />
+			<then>
+				<echo>performing restore of configuration properties</echo>
+				<property file="${install.path}/conf/database.tmp.properties" />
+				<propertyfile file="${install.path}/conf/mirth.properties">
+					<entry key="database" value="${database.tmp}" />
+				</propertyfile>
+				<propertyfile file="${install.path}/conf/${database.tmp}-SqlMapConfig.properties">
+					<entry key="database" value="${database.tmp}" />
+					<entry key="url" value="${url.tmp}" />
+					<entry key="username" value="${username.tmp}" />
+					<entry key="password" value="${password.tmp}" />
+				</propertyfile>
+			</then>
+		</if>
 	</target>
 
 	<target name="finalize">
