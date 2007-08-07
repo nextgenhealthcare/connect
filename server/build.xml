@@ -396,7 +396,7 @@
 		<copy file="${basedir}/Mirth.bat" todir="${setup}" />
 		<copy file="${basedir}/mirth.sh" todir="${setup}" />
 		<copy file="${basedir}/Mirth.ico" todir="${setup}" />
-		<copy file="${basedir}/uninstall.ico" todir="${setup}" />
+		<copy file="${installer}/uninstall.ico" todir="${setup}" />
 		<copy file="${basedir}/Shell.bat" todir="${setup}" />
 		<copy file="${basedir}/shell.sh" todir="${setup}" />
 		<copy file="${basedir}/Mirth Manager.exe" todir="${setup}" />
