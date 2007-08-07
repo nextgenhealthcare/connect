@@ -83,9 +83,10 @@ public class UpdateDialog extends javax.swing.JDialog
         Dimension frmSize = PlatformUI.MIRTH_FRAME.getSize();
         Point loc = PlatformUI.MIRTH_FRAME.getLocation();
         setLocation((frmSize.width - dlgSize.width) / 2 + loc.x, (frmSize.height - dlgSize.height) / 2 + loc.y);
+        progressBar.setVisible(false);
         checkForUpdatesButtonActionPerformed(null);
         makeLoadedExtensionsTable();
-        progressBar.setVisible(false);
+        
         setVisible(true);
         
       
