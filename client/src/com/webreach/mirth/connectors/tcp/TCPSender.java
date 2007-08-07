@@ -48,6 +48,7 @@ public class TCPSender extends ConnectorClass
         name = TCPSenderProperties.name;
         initComponents();
         serverTimeoutField.setDocument(new MirthFieldConstraints(0, false, false, true));
+        reconnectInterval.setDocument(new MirthFieldConstraints(0, false, false, true));
         bufferSizeField.setDocument(new MirthFieldConstraints(0, false, false, true));
         maximumRetryCountField.setDocument(new MirthFieldConstraints(2, false, false, true));
         // ast: Acktimeout constrain
@@ -63,6 +64,7 @@ public class TCPSender extends ConnectorClass
         properties.put(TCPSenderProperties.TCP_ADDRESS, hostAddressField.getText());
         properties.put(TCPSenderProperties.TCP_PORT, hostPortField.getText());
         properties.put(TCPSenderProperties.TCP_SERVER_TIMEOUT, serverTimeoutField.getText());
+        properties.put(TCPSenderProperties.TCP_RECONNECT_INTERVAL, reconnectInterval.getText());
         properties.put(TCPSenderProperties.TCP_BUFFER_SIZE, bufferSizeField.getText());
 
         if (keepConnectionOpenYesRadio.isSelected())
@@ -93,6 +95,7 @@ public class TCPSender extends ConnectorClass
         hostAddressField.setText((String) props.get(TCPSenderProperties.TCP_ADDRESS));
         hostPortField.setText((String) props.get(TCPSenderProperties.TCP_PORT));
         serverTimeoutField.setText((String) props.get(TCPSenderProperties.TCP_SERVER_TIMEOUT));
+        reconnectInterval.setText((String) props.get(TCPSenderProperties.TCP_RECONNECT_INTERVAL));
         bufferSizeField.setText((String) props.get(TCPSenderProperties.TCP_BUFFER_SIZE));
 
         if (((String) props.get(TCPSenderProperties.TCP_KEEP_CONNECTION_OPEN)).equals(UIConstants.YES_OPTION))
@@ -157,6 +160,11 @@ public class TCPSender extends ConnectorClass
             valid = false;
             serverTimeoutField.setBackground(UIConstants.INVALID_COLOR);
         }
+        if (((String) props.get(TCPSenderProperties.TCP_RECONNECT_INTERVAL)).length() == 0)
+        {
+            valid = false;
+            reconnectInterval.setBackground(UIConstants.INVALID_COLOR);
+        }
         if (((String) props.get(TCPSenderProperties.TCP_BUFFER_SIZE)).length() == 0)
         {
             valid = false;
@@ -190,6 +198,7 @@ public class TCPSender extends ConnectorClass
         maximumRetryCountField.setBackground(null);
         template.setBackground(null);
         ackTimeoutField.setBackground(null);
+        reconnectInterval.setBackground(null);
     }
 
     /**
@@ -228,6 +237,8 @@ public class TCPSender extends ConnectorClass
         template = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea();
         channelNames = new com.webreach.mirth.client.ui.components.MirthComboBox();
         URL = new javax.swing.JLabel();
+        reconnectInterval = new com.webreach.mirth.client.ui.components.MirthTextField();
+        jLabel1 = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -291,26 +302,30 @@ public class TCPSender extends ConnectorClass
 
         URL.setText("Send Response to:");
 
+        jLabel1.setText("Reconnect Interval (ms):");
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel18)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel17)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel16)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel15)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel13)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel8)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel36)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel19)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel20)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, URL)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel7))
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(jLabel18)
+                    .add(jLabel17)
+                    .add(jLabel16)
+                    .add(jLabel15)
+                    .add(jLabel13)
+                    .add(jLabel8)
+                    .add(jLabel36)
+                    .add(jLabel19)
+                    .add(jLabel20)
+                    .add(URL)
+                    .add(jLabel7)
+                    .add(jLabel1))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(reconnectInterval, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(layout.createSequentialGroup()
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -350,6 +365,10 @@ public class TCPSender extends ConnectorClass
                     .add(serverTimeoutField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(reconnectInterval, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jLabel1))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(bufferSizeField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(jLabel15))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -381,7 +400,7 @@ public class TCPSender extends ConnectorClass
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jLabel7)
-                    .add(template, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 119, Short.MAX_VALUE))
+                    .add(template, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 94, Short.MAX_VALUE))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -400,6 +419,7 @@ public class TCPSender extends ConnectorClass
     private com.webreach.mirth.client.ui.components.MirthComboBox charsetEncodingCombobox;
     private com.webreach.mirth.client.ui.components.MirthTextField hostAddressField;
     private com.webreach.mirth.client.ui.components.MirthTextField hostPortField;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel16;
@@ -414,6 +434,7 @@ public class TCPSender extends ConnectorClass
     private com.webreach.mirth.client.ui.components.MirthRadioButton keepConnectionOpenNoRadio;
     private com.webreach.mirth.client.ui.components.MirthRadioButton keepConnectionOpenYesRadio;
     private com.webreach.mirth.client.ui.components.MirthTextField maximumRetryCountField;
+    private com.webreach.mirth.client.ui.components.MirthTextField reconnectInterval;
     private com.webreach.mirth.client.ui.components.MirthTextField serverTimeoutField;
     private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea template;
     private javax.swing.ButtonGroup usePersistenceQueuesGroup;

@@ -2688,7 +2688,7 @@ public class Frame extends JXFrame
     {
     	
     	
-    	if (alertOption("Are you sure you would like to remove all messages and all stats in all channels?"))
+    	if (alertOption("Are you sure you would like to remove all messages and all statistics for all channels?"))
         {
             setWorking("Removing messages...", true);
             

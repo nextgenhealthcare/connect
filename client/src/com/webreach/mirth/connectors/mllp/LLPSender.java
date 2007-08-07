@@ -50,6 +50,7 @@ public class LLPSender extends ConnectorClass
         name = LLPSenderProperties.name;
         initComponents();
         serverTimeoutField.setDocument(new MirthFieldConstraints(0, false, false, true));
+        reconnectInterval.setDocument(new MirthFieldConstraints(0, false, false, true));
         bufferSizeField.setDocument(new MirthFieldConstraints(0, false, false, true));
         maximumRetryCountField.setDocument(new MirthFieldConstraints(2, false, false, true));
         // ast: Acktimeout constrain
@@ -66,6 +67,7 @@ public class LLPSender extends ConnectorClass
         properties.put(LLPSenderProperties.LLP_ADDRESS, hostAddressField.getText());
         properties.put(LLPSenderProperties.LLP_PORT, hostPortField.getText());
         properties.put(LLPSenderProperties.LLP_SERVER_TIMEOUT, serverTimeoutField.getText());
+        properties.put(LLPSenderProperties.LLP_RECONNECT_INTERVAL, reconnectInterval.getText());
         properties.put(LLPSenderProperties.LLP_BUFFER_SIZE, bufferSizeField.getText());
 
         if (keepConnectionOpenYesRadio.isSelected())
@@ -106,6 +108,7 @@ public class LLPSender extends ConnectorClass
         hostAddressField.setText((String) props.get(LLPSenderProperties.LLP_ADDRESS));
         hostPortField.setText((String) props.get(LLPSenderProperties.LLP_PORT));
         serverTimeoutField.setText((String) props.get(LLPSenderProperties.LLP_SERVER_TIMEOUT));
+        reconnectInterval.setText((String) props.get(LLPSenderProperties.LLP_RECONNECT_INTERVAL));
         bufferSizeField.setText((String) props.get(LLPSenderProperties.LLP_BUFFER_SIZE));
 
         if (((String) props.get(LLPSenderProperties.LLP_KEEP_CONNECTION_OPEN)).equals(UIConstants.YES_OPTION))
@@ -179,6 +182,11 @@ public class LLPSender extends ConnectorClass
             valid = false;
             serverTimeoutField.setBackground(UIConstants.INVALID_COLOR);
         }
+        if (((String) props.get(LLPSenderProperties.LLP_RECONNECT_INTERVAL)).length() == 0)
+        {
+            valid = false;
+            reconnectInterval.setBackground(UIConstants.INVALID_COLOR);
+        }
         if (((String) props.get(LLPSenderProperties.LLP_BUFFER_SIZE)).length() == 0)
         {
             valid = false;
@@ -236,6 +244,7 @@ public class LLPSender extends ConnectorClass
         startOfMessageCharacterField.setBackground(null);
         recordSeparatorField.setBackground(null);
         segmentEnd.setBackground(null);
+        reconnectInterval.setBackground(null);
     }
 
     /**
@@ -285,6 +294,8 @@ public class LLPSender extends ConnectorClass
         template = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea();
         channelNames = new com.webreach.mirth.client.ui.components.MirthComboBox();
         URL = new javax.swing.JLabel();
+        reconnectInterval = new com.webreach.mirth.client.ui.components.MirthTextField();
+        jLabel1 = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -370,29 +381,33 @@ public class LLPSender extends ConnectorClass
 
         URL.setText("Send Response to:");
 
+        jLabel1.setText("Reconnect Interval (ms):");
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel18)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel17)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel16)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel15)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel13)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel8)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel14)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel10)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel12)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel36)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel19)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel20)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, URL)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel7))
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(jLabel18)
+                    .add(jLabel17)
+                    .add(jLabel16)
+                    .add(jLabel15)
+                    .add(jLabel13)
+                    .add(jLabel8)
+                    .add(jLabel14)
+                    .add(jLabel10)
+                    .add(jLabel12)
+                    .add(jLabel36)
+                    .add(jLabel19)
+                    .add(jLabel20)
+                    .add(URL)
+                    .add(jLabel7)
+                    .add(jLabel1))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(reconnectInterval, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(layout.createSequentialGroup()
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -429,7 +444,7 @@ public class LLPSender extends ConnectorClass
                         .add(jLabel37)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(segmentEnd, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(template, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 324, Short.MAX_VALUE))
+                    .add(template, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 319, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -446,6 +461,10 @@ public class LLPSender extends ConnectorClass
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel16)
                     .add(serverTimeoutField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(reconnectInterval, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jLabel1))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(bufferSizeField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -496,7 +515,7 @@ public class LLPSender extends ConnectorClass
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jLabel7)
-                    .add(template, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 47, Short.MAX_VALUE))
+                    .add(template, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -518,6 +537,7 @@ public class LLPSender extends ConnectorClass
     private com.webreach.mirth.client.ui.components.MirthRadioButton hex;
     private com.webreach.mirth.client.ui.components.MirthTextField hostAddressField;
     private com.webreach.mirth.client.ui.components.MirthTextField hostPortField;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
@@ -537,6 +557,7 @@ public class LLPSender extends ConnectorClass
     private com.webreach.mirth.client.ui.components.MirthRadioButton keepConnectionOpenNoRadio;
     private com.webreach.mirth.client.ui.components.MirthRadioButton keepConnectionOpenYesRadio;
     private com.webreach.mirth.client.ui.components.MirthTextField maximumRetryCountField;
+    private com.webreach.mirth.client.ui.components.MirthTextField reconnectInterval;
     private com.webreach.mirth.client.ui.components.MirthTextField recordSeparatorField;
     private com.webreach.mirth.client.ui.components.MirthTextField segmentEnd;
     private com.webreach.mirth.client.ui.components.MirthTextField serverTimeoutField;
