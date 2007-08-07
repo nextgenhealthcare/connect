@@ -76,7 +76,7 @@ public class DashboardConnectorStatusColumn extends DashboardColumnPlugin {
 	@Override
 	public boolean showBeforeStatusColumn() {
 		// TODO Auto-generated method stub
-		return true;
+		return false;
 	}
 	
 	

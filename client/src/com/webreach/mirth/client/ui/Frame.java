@@ -160,7 +160,7 @@ public class Frame extends JXFrame
     public ArrayList<ConnectorClass> destinationConnectors;
     private Thread statusUpdater;
     private Border dsb;
-    private static Preferences userPreferences;
+    public static Preferences userPreferences;
     private StatusUpdater su;
     private boolean connectionError;
     private ArrayList<CharsetEncodingInformation> avaiableCharsetEncodings = null;
@@ -706,12 +706,13 @@ public class Frame extends JXFrame
         addTask("doRefreshStatuses","Refresh","Refresh the list of statuses.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png")), statusTasks, statusPopupMenu);
         addTask("doStartAll","Start All Channels","Start all channels that are currently deployed.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/start1.png")), statusTasks, statusPopupMenu);
         addTask("doStopAll","Stop All Channels","Stop all channels that are currently deployed.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/stop1.png")), statusTasks, statusPopupMenu);
-       
-        addTask("doSendMessage","Send Message","Send messages to the currently selected channel.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/messages.png")), statusTasks, statusPopupMenu);
-        addTask("doShowMessages","View Messages","Show the messages for the currently selected channel.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/messages2.png")), statusTasks, statusPopupMenu);
-        addTask("doRemoveAllMessages","Remove All Messages","Remove all Messages in this channel.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png")), statusTasks, statusPopupMenu);
-        //addTask("doRemoveAllMessagesAllChannels","Clear Msgs in All Channels","Remove all Messages in all channels.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png")), statusTasks, statusPopupMenu);
+        addTask("doRemoveAllMessagesAllChannels","Reset All Channels","Remove all messages and statistics in all channels.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png")), statusTasks, statusPopupMenu);
         
+        
+        addTask("doSendMessage","Send Message","Send messages to the currently selected channel.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/email_go.png")), statusTasks, statusPopupMenu);
+        addTask("doShowMessages","View Messages","Show the messages for the currently selected channel.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/messages2.png")), statusTasks, statusPopupMenu);
+        addTask("doRemoveAllMessages","Remove All Messages","Remove all Messages in this channel.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/email_delete.png")), statusTasks, statusPopupMenu);
+        //
         addTask("doClearStats","Clear Statistics","Reset the statistics for this channel.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/chart_curve_delete.png")), statusTasks, statusPopupMenu);
         //addTask("doClearStatsAllChannels","Clear Stats in All Channels","Reset the statistics for all channels.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/chart_curve_delete.png")), statusTasks, statusPopupMenu);
         
@@ -720,7 +721,7 @@ public class Frame extends JXFrame
         addTask("doStop","Stop Channel","Stop the currently selected channel.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/stop.png")), statusTasks, statusPopupMenu);
         
         setNonFocusable(statusTasks);
-        setVisibleTasks(statusTasks, statusPopupMenu, 3, -1, false);
+        setVisibleTasks(statusTasks, statusPopupMenu, 4, -1, false);
         taskPaneContainer.add(statusTasks);
     }
     
@@ -754,11 +755,11 @@ public class Frame extends JXFrame
         messageTasks.setFocusable(false);
         
         addTask("doRefreshMessages","Refresh","Refresh the list of messages with the given filter.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png")), messageTasks, messagePopupMenu);
-        addTask("doSendMessage","Send Message","Send a message to the channel.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/messages.png")), messageTasks, messagePopupMenu);
+        addTask("doSendMessage","Send Message","Send a message to the channel.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/email_go.png")), messageTasks, messagePopupMenu);
         addTask("doImportMessages","Import Messages","Import messages from a file.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/import.png")), messageTasks, messagePopupMenu);
         addTask("doExportMessages","Export Filtered Messages","Export all currently viewed messages.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/export.png")), messageTasks, messagePopupMenu);
-        addTask("doRemoveAllMessages","Remove All Messages","Remove all Message Events in this channel.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png")), messageTasks, messagePopupMenu);
-        addTask("doRemoveFilteredMessages","Remove Filtered Messages","Remove all Message Events in the current filter.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png")), messageTasks, messagePopupMenu);
+        addTask("doRemoveAllMessages","Remove All Messages","Remove all Message Events in this channel.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/email_delete.png")), messageTasks, messagePopupMenu);
+        addTask("doRemoveFilteredMessages","Remove Filtered Messages","Remove all Message Events in the current filter.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/email_delete.png")), messageTasks, messagePopupMenu);
         addTask("doRemoveMessage","Remove Message","Remove the selected Message.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png")), messageTasks, messagePopupMenu);
         addTask("doReprocessFilteredMessages","Reprocess Filtered Messages","Reprocess all Message Events in the current filter.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/deployall.png")), messageTasks, messagePopupMenu);
         addTask("doReprocessMessage","Reprocess Message","Reprocess the selected Message.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/deploy.png")), messageTasks, messagePopupMenu);
@@ -1775,9 +1776,9 @@ public class Frame extends JXFrame
         dashboardPanel.updateCurrentPluginPanel();
                 
         if (status.size() > 0)
-            setVisibleTasks(statusTasks, statusPopupMenu, 1, 2, true);
+            setVisibleTasks(statusTasks, statusPopupMenu, 1, 3, true);
         else
-            setVisibleTasks(statusTasks, statusPopupMenu, 1, 2, false);
+            setVisibleTasks(statusTasks, statusPopupMenu, 1, 3, false);
     }
     
     public void doStartAll()
@@ -2687,7 +2688,7 @@ public class Frame extends JXFrame
     {
     	
     	
-    	if (alertOption("Are you sure you would like to remove all messages in all channels?"))
+    	if (alertOption("Are you sure you would like to remove all messages and all stats in all channels?"))
         {
             setWorking("Removing messages...", true);
             
@@ -2707,22 +2708,19 @@ public class Frame extends JXFrame
                          }
                 		
                     }
-                	
+                	setWorking("", false);
+                	setWorking("Clearing statistics...", true);
+                	clearStatsAllChannels(true, true, true, true, true);
+                	setWorking("", false);
                    
                     return null;
                 }
                 
                 public void done()
                 {
-                    if(currentContentPage == dashboardPanel)
-                    {
-                        if(alertOption("Would you also like to clear all statistics in all channels?"))
-                        	clearStatsAllChannels(true, true, true, true, true);
-                        doRefreshStatuses();
-                    }
-                    else if(currentContentPage == messageBrowser)
-                        messageBrowser.refresh();
-                    setWorking("", false);
+                    doRefreshStatuses();
+
+                    
                 }
             };
             
