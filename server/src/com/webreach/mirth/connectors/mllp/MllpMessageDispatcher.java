@@ -19,6 +19,7 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.net.URI;
@@ -118,7 +119,9 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher {
 		URI uri = new URI(endpoint);
 		int port = uri.getPort();
 		InetAddress inetAddress = InetAddress.getByName(uri.getHost());
-		Socket socket = createSocket(port, inetAddress);
+		InetSocketAddress inetSocketAddress = new InetSocketAddress(inetAddress, port);
+		Socket socket = new Socket();
+		createSocket(socket, inetSocketAddress);
 		socket.setReuseAddress(true);
 		socket.setReceiveBufferSize(connector.getBufferSize());
 		socket.setSendBufferSize(connector.getBufferSize());
@@ -234,8 +237,8 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher {
 		}
 	}
 
-	protected Socket createSocket(int port, InetAddress inetAddress) throws IOException {
-		return new Socket(inetAddress, port);
+	protected void createSocket(Socket socket, InetSocketAddress inetAddress) throws IOException {
+		socket.connect(inetAddress, connector.getReconnectMillisecs());
 	}
 
 	protected void write(Socket socket, byte[] data) throws IOException {
