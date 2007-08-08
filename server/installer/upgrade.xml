@@ -60,9 +60,6 @@
 			</then>
 			<else>
 				<echo>no previous installation found</echo>
-				<propertyfile file="${install.path}/conf/install.tmp.properties">
-					<entry key="do.upgrade" value="false" />
-				</propertyfile>
 			</else>
 		</if>
 	</target>
