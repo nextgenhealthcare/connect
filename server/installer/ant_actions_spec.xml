@@ -13,7 +13,6 @@
 			<target name="finalize" />
 		</antcall>
 	</pack>
-
 	<pack name="Server Manager">
 		<antcall order="afterpack" buildfile="$INSTALL_PATH/upgrade.xml">
 			<property name="install.path" value="$INSTALL_PATH" />

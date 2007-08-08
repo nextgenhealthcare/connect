@@ -79,10 +79,12 @@
 	</target>
 
 	<target name="finalize">
+		<echo>setting permissions on mirth.sh</echo>
 		<chmod file="${install.path}/mirth.sh" perm="+x" />
 	</target>
 
 	<target name="startManager">
+		<echo>starting manager</echo>
 		<exec executable="cmd" dir="${install.path}" spawn="true">
 			<arg value="/c" />
 			<arg value="Mirth Manager.exe" />
