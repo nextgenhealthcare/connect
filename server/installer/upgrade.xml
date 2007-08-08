@@ -1,20 +1,26 @@
 <project name="upgrade" basedir=".">
 	<taskdef resource="net/sf/antcontrib/antcontrib.properties" classpath="lib/ant-contrib-0.6.jar" />
-	<taskdef classpath="lib/orangevolt-ant-tasks-1.3.5.jar:lib/roxes-win32forjava-1.0.4.jar" resource="com/orangevolt/tools/ant/taskdefs.properties" />
 
 	<target name="cleanOldInstaller">
-		<echo>clearing registry settings</echo>
-		<win32.registry root="HKEY_LOCAL_MACHINE" key="SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Mirth">
-			<delete />
-		</win32.registry>
-
-		<win32.registry root="HKEY_LOCAL_MACHINE" key="SOFTWARE\Mirth">
-			<delete />
-		</win32.registry>
-		
-		<property environment="env"/>
-		<echo>removing ${env.HOMEPATH}\Start Menu\Programs\Mirth</echo>
-		<delete dir="${env.HOMEPATH}\Start Menu\Programs\Mirth" failonerror="false" />
+		<condition property="os.windows" value="true">
+			<os family="windows" />
+		</condition>
+		<if>
+			<equals arg1="${os.windows}" arg2="true" />
+			<then>
+				<taskdef classpath="lib/orangevolt-ant-tasks-1.3.5.jar:lib/roxes-win32forjava-1.0.4.jar" resource="com/orangevolt/tools/ant/taskdefs.properties" />
+				<echo>clearing registry settings</echo>
+				<win32.registry root="HKEY_LOCAL_MACHINE" key="SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Mirth">
+					<delete />
+				</win32.registry>
+				<win32.registry root="HKEY_LOCAL_MACHINE" key="SOFTWARE\Mirth">
+					<delete />
+				</win32.registry>
+				<property environment="env" />
+				<echo>removing ${env.HOMEPATH}\Start Menu\Programs\Mirth</echo>
+				<delete dir="${env.HOMEPATH}\Start Menu\Programs\Mirth" failonerror="false" />
+			</then>
+		</if>
 	</target>
 
 	<target name="backup">
