@@ -129,11 +129,11 @@
 			<file src="mirth-client.jnlp" targetdir="$INSTALL_PATH" override="true" />
 			<file src="mirth.sh" targetdir="$INSTALL_PATH" override="true" os="unix" />
 
-			<fileset dir="." targetdir="$INSTALL_PATH" os="windows">
-				<include name="Mirth.bat" override="true" />
-				<include name="Mirth.exe" override="true" />
-				<include name="Mirth.ico" override="true" />
-				<include name="uninstall.ico" override="true" />
+			<fileset dir="." targetdir="$INSTALL_PATH" os="windows" override="true">
+				<include name="Mirth.bat" />
+				<include name="Mirth.exe" />
+				<include name="Mirth.ico" />
+				<include name="uninstall.ico" />
 			</fileset>
 
 			<file src="lib" targetdir="$INSTALL_PATH" override="true" />
@@ -150,6 +150,7 @@
 			<description>Mirth configuration and database files</description>
 
 			<updatecheck>
+				<include name="**" />
 				<exclude name="conf" />
 			</updatecheck>
 

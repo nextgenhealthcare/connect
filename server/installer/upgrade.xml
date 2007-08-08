@@ -19,6 +19,16 @@
 				<property environment="env" />
 				<echo>removing ${env.HOMEPATH}\Start Menu\Programs\Mirth</echo>
 				<delete dir="${env.HOMEPATH}\Start Menu\Programs\Mirth" failonerror="false" />
+
+				<echo>stopping and uninstalling service</echo>
+				<exec executable="cmd" dir="${install.path}" failifexecutionfails="false">
+					<arg value="/c" />
+					<arg value="StopMirth-NT.bat" />
+				</exec>
+				<exec executable="cmd" dir="${install.path}" failifexecutionfails="false">
+					<arg value="/c" />
+					<arg value="UninstallMirth-NT.bat" />
+				</exec>
 			</then>
 		</if>
 	</target>

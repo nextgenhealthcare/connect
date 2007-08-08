@@ -237,7 +237,6 @@
 	</target>
 
 	<target name="create-client-lib" depends="init">
-
 		<!-- sign jars for webstart -->
 		<signjar alias="mirth" keystore="${basedir}/keystore" storepass="abc12345" keypass="abc12345">
 			<fileset file="${client.lib}/*.jar" />
@@ -306,30 +305,47 @@
 
 		<!-- copy misc files -->
 		<copy todir="${setup}">
+			<!-- database creation scripts -->
 			<fileset file="${basedir}/derby-database.sql" />
 			<fileset file="${basedir}/postgres-database.sql" />
 			<fileset file="${basedir}/mysql-database.sql" />
 			<fileset file="${basedir}/sqlserver-database.sql" />
 			<fileset file="${basedir}/oracle-database.sql" />
 			<fileset file="${basedir}/sqlserver2005-database.sql" />
+
+			<!-- launcher configurations -->
 			<fileset file="${basedir}/mirth-launcher.xml" />
 			<fileset file="${basedir}/shell-launcher.xml" />
 			<fileset file="${basedir}/mirth-client.jnlp" />
+			<fileset file="${basedir}/activation.jnlp" />
 			<fileset file="${basedir}/keystore" />
+
+			<!-- windows service files -->
 			<fileset file="${basedir}/InstallMirth-NT.bat" />
 			<fileset file="${basedir}/UninstallMirth-NT.bat" />
 			<fileset file="${basedir}/StartMirth-NT.bat" />
 			<fileset file="${basedir}/StopMirth-NT.bat" />
+
+			<!-- executables -->
 			<fileset file="${basedir}/wrapper.exe" />
 			<fileset file="${basedir}/mirth-daemon" />
 			<fileset file="${basedir}/wrapper-x86-32bit" />
-			<fileset file="${basedir}/activation.jnlp" />
 			<fileset file="${basedir}/mirth-client-core.jar" />
 			<fileset file="${basedir}/mirth-manager.jar" />
+
+			<!-- batch scripts and icons -->
+			<fileset file="${basedir}/Mirth.bat" />
+			<fileset file="${basedir}/mirth.sh" />
+			<fileset file="${basedir}/Mirth.ico" />
+			<fileset file="${basedir}/Shell.bat" />
+			<fileset file="${basedir}/shell.sh" />
+			<fileset file="${basedir}/Mirth Manager.exe" />
+			<fileset file="${basedir}/Mirth.exe" />
 			<fileset file="${installer}/upgrade.xml" />
+			<fileset file="${installer}/uninstall.ico" />
 		</copy>
 
-		<!-- create the Mirth server jar -->
+		<!-- create the server jar -->
 		<jar destfile="${setup}/${server.jar}" basedir="${classes}">
 			<include name="com/thoughtworks/**" />
 			<include name="com/webreach/mirth/server/**" />
@@ -351,6 +367,12 @@
 			</manifest>
 		</jar>
 
+		<!-- create the shell jar -->
+		<jar destfile="${setup}/shell.jar" basedir="${classes}">
+			<include name="com/webreach/mirth/server/tools/Shell.class" />
+			<include name="com/thoughtworks/xstream/converters/collections/PropertiesConverter.class" />
+		</jar>
+
 		<!-- create the shell-launcher jar -->
 		<jar destfile="${setup}/${shell-launcher.jar}" basedir="${classes}">
 			<include name="com/webreach/mirth/server/launcher/**" />
@@ -361,18 +383,12 @@
 			</manifest>
 		</jar>
 
-
-		<!-- create the shell jar -->
-		<jar destfile="${setup}/shell.jar" basedir="${classes}">
-			<include name="com/webreach/mirth/server/tools/Shell.class" />
-			<include name="com/thoughtworks/xstream/converters/collections/PropertiesConverter.class" />
-		</jar>
-
 		<!-- remove svn folders -->
 		<delete>
 			<fileset dir="${setup}" includes="**/.svn" />
 		</delete>
 
+		<!-- re-create the embedded database -->
 		<delete dir="mirthdb" />
 		<java classname="com.webreach.mirth.server.tools.ScriptRunner" fork="true" dir="${basedir}" failonerror="true">
 			<classpath>
@@ -392,15 +408,6 @@
 			<fileset dir="${basedir}/mirthdb" />
 		</copy>
 
-		<!-- copy the batch scripts and icons -->
-		<copy file="${basedir}/Mirth.bat" todir="${setup}" />
-		<copy file="${basedir}/mirth.sh" todir="${setup}" />
-		<copy file="${basedir}/Mirth.ico" todir="${setup}" />
-		<copy file="${installer}/uninstall.ico" todir="${setup}" />
-		<copy file="${basedir}/Shell.bat" todir="${setup}" />
-		<copy file="${basedir}/shell.sh" todir="${setup}" />
-		<copy file="${basedir}/Mirth Manager.exe" todir="${setup}" />
-		<copy file="${basedir}/Mirth.exe" todir="${setup}" />
 		<!-- zip the source code -->
 		<!-- zip basedir="${setup.source}" destfile="${setup}/mirth-server-src.zip" / -->
 
@@ -414,33 +421,64 @@
 	</target>
 
 	<target name="create-dist" depends="create-setup">
-		<property environment="env" />
-		<echo message="LAUNCH4J_HOME=${env.LAUNCH4J_HOME}" />
-		<taskdef name="launch4j" classname="net.sf.launch4j.ant.Launch4jTask" classpath="${env.LAUNCH4J_HOME}/launch4j.jar:${env.LAUNCH4J_HOME}/lib/xstream.jar" />
-		<taskdef name="izpack" classpath="${installer.lib}/standalone-compiler.jar" classname="com.izforge.izpack.ant.IzPackTask" />
-		<taskdef classpath="${installer.lib}/orangevolt-ant-tasks-1.3.5.jar:${basedir}/installer/lib/roxes-win32forjava-1.0.4.jar" resource="com/orangevolt/tools/ant/taskdefs.properties" />
-		<taskdef name="jarbundler" classname="net.sourceforge.jarbundler.JarBundler" classpath="${installer.lib}/jarbundler-1.9.jar" />
-
 		<!-- create the dist directory -->
 		<mkdir dir="${dist}" />
 
-		<!-- create the distribution zip -->
-		<zip basedir="${setup}" destfile="${dist}/mirth-${version}.zip" />
+		<!-- create the zip -->
+		<zip basedir="${setup}" destfile="${dist}/mirth-${version}.zip" excludes="META-INF/**" />
 
-		<!-- create the distribution tar.gzip -->
+		<!-- create the tar.gz -->
 		<tar basedir="${setup}" tarfile="${dist}/mirth-${version}.tar" />
 		<gzip src="${dist}/mirth-${version}.tar" zipfile="${dist}/mirth-${version}.tar.gz" />
 		<delete file="${dist}/mirth-${version}.tar" />
 
-		<!-- create the distributions -->
+		<!-- create the executable installer jar -->
+		<taskdef name="izpack" classpath="${installer.lib}/standalone-compiler.jar" classname="com.izforge.izpack.ant.IzPackTask" />
 		<copy file="${installer}/install.xml" tofile="${installer}/install-tmp.xml" />
 		<replace file="${installer}/install-tmp.xml" token="@version@" value="${version}" />
-
 		<izpack input="${installer}/install-tmp.xml" output="${dist}/mirth-${version}-setup.jar" basedir="${setup}" />
-		<launch4j configFile="${installer}/launch4jconfig.xml" jar="${dist}/mirth-${version}-setup.jar" outfile="${dist}/mirth-${version}-setup.exe" />
-		<sfx archive="${dist}/mirth-${version}-setup.jar" mode="unix" execute="mirth-${version}-setup.jar" output="${dist}/mirth-${version}-setup" />
-		<jarbundler dir="${dist}" name="Mirth ${version}" mainclass="com.izforge.izpack.installer.Installer" jar="${dist}/mirth-${version}-setup.jar" stubfile="${installer}/JavaApplicationStub" icon="${installer}/install.ico" />
-
 		<delete file="${installer}/install-tmp.xml" />
+
+		<!-- create the win32 installer -->
+		<property environment="env" />
+		<echo message="LAUNCH4J_HOME=${env.LAUNCH4J_HOME}" />
+		<taskdef name="launch4j" classname="net.sf.launch4j.ant.Launch4jTask" classpath="${env.LAUNCH4J_HOME}/launch4j.jar:${env.LAUNCH4J_HOME}/lib/xstream.jar" />
+		<launch4j configFile="${installer}/launch4jconfig.xml" jar="${dist}/mirth-${version}-setup.jar" outfile="${dist}/mirth-${version}-setup.exe" />
+
+		<!-- create the unix installer -->
+		<taskdef classpath="${installer.lib}/orangevolt-ant-tasks-1.3.5.jar:${basedir}/installer/lib/roxes-win32forjava-1.0.4.jar" resource="com/orangevolt/tools/ant/taskdefs.properties" />
+		<sfx archive="${dist}/mirth-${version}-setup.jar" mode="unix" execute="mirth-${version}-setup.jar" output="${dist}/mirth-${version}-setup" />
+
+		<!-- create the mac osx installer -->
+		<taskdef name="jarbundler" classname="net.sourceforge.jarbundler.JarBundler" classpath="${installer.lib}/jarbundler-1.9.jar" />
+		<jarbundler dir="${dist}" name="mirth-${version}" mainclass="com.izforge.izpack.installer.Installer" jar="${dist}/mirth-${version}-setup.jar" stubfile="${installer}/JavaApplicationStub" icon="${installer}/install.ico" />
+		<zip basedir="${dist}" destfile="${dist}/mirth-${version}.app.zip" includes="mirth-${version}.app/**" />
+		<delete dir="${dist}/mirth-${version}.app" />
+
+		<!-- create the JBoss service archive -->
+		<mkdir dir="${dist}/mirth-${version}.sar" />
+		<copy todir="${dist}/mirth-${version}.sar">
+			<fileset dir="${setup}">
+				<exclude name="*.bat" />
+				<exclude name="*.exe" />
+				<exclude name="*.ico" />
+				<exclude name="*.sh" />
+				<exclude name="*-launcher.xml" />
+				<exclude name="*-launcher.jar" />
+				<exclude name="shell.jar" />
+				<exclude name="wrapper-x86-32bit" />
+				<exclude name="mirth-daemon" />
+				<exclude name="mirth-manager.jar" />
+				<exclude name="upgrade.xml" />
+				<exclude name="source/**" />
+				<exclude name="conf/wrapper.conf" />
+			</fileset>
+		</copy>
+		<mkdir dir="${dist}/mirth-${version}.sar/META-INF" />
+		<copy todir="${dist}/mirth-${version}.sar/META-INF">
+			<fileset file="${basedir}/jboss-service.xml" />
+		</copy>
+		<zip basedir="${dist}" destfile="${dist}/mirth-${version}-jboss-sar.zip" includes="mirth-${version}.sar/**" />
+		<delete dir="${dist}/mirth-${version}.sar" />
 	</target>
 </project>
