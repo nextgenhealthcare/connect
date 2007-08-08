@@ -129,7 +129,7 @@
 			<file src="mirth-client.jnlp" targetdir="$INSTALL_PATH" override="true" />
 			<file src="mirth.sh" targetdir="$INSTALL_PATH" override="true" os="unix" />
 
-			<fileset dir="." targetdir="$INSTALL_PATH" os="windows" override="true">
+			<fileset dir="/" targetdir="$INSTALL_PATH" os="windows" override="true">
 				<include name="Mirth.bat" />
 				<include name="Mirth.exe" />
 				<include name="Mirth.ico" />
@@ -181,7 +181,7 @@
 				<include name="sqlserver2005/**" />
 			</fileset>
 
-			<fileset dir="." targetdir="$INSTALL_PATH" override="true">
+			<fileset dir="/" targetdir="$INSTALL_PATH" override="true">
 				<file src="derby-database.sql" targetdir="$INSTALL_PATH" />
 				<file src="postgres-database.sql" targetdir="$INSTALL_PATH" />
 				<file src="mysql-database.sql" targetdir="$INSTALL_PATH" />

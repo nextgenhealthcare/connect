@@ -258,7 +258,6 @@
 		<mkdir dir="${setup.source}" />
 		<mkdir dir="${setup.logs}" />
 		<mkdir dir="${setup.licenses}" />
-		<mkdir dir="${setup.conf}/META-INF" />
 
 		<!-- copy source files -->
 		<copy todir="${setup.source}">
@@ -456,8 +455,8 @@
 		<delete dir="${dist}/mirth-${version}.app" />
 
 		<!-- create the JBoss service archive -->
-		<mkdir dir="${dist}/mirth-${version}.sar" />
-		<copy todir="${dist}/mirth-${version}.sar">
+		<mkdir dir="${dist}/mirth.sar" />
+		<copy todir="${dist}/mirth.sar">
 			<fileset dir="${setup}">
 				<exclude name="*.bat" />
 				<exclude name="*.exe" />
@@ -474,11 +473,11 @@
 				<exclude name="conf/wrapper.conf" />
 			</fileset>
 		</copy>
-		<mkdir dir="${dist}/mirth-${version}.sar/META-INF" />
-		<copy todir="${dist}/mirth-${version}.sar/META-INF">
+		<mkdir dir="${dist}/mirth.sar/META-INF" />
+		<copy todir="${dist}/mirth.sar/META-INF">
 			<fileset file="${basedir}/jboss-service.xml" />
 		</copy>
-		<zip basedir="${dist}" destfile="${dist}/mirth-${version}-jboss-sar.zip" includes="mirth-${version}.sar/**" />
-		<delete dir="${dist}/mirth-${version}.sar" />
+		<zip basedir="${dist}" destfile="${dist}/mirth-${version}-jboss-sar.zip" includes="mirth.sar/**" />
+		<delete dir="${dist}/mirth.sar" />
 	</target>
 </project>
