@@ -226,7 +226,15 @@ public class ExtensionController {
 		this.protocols = new HashMap<String, ConnectorMetaData>();
 		
 		for (ConnectorMetaData connectorMetaData : this.connectors.values()) {
-			protocols.put(connectorMetaData.getProtocol(), connectorMetaData);
+			String protocol = connectorMetaData.getProtocol();
+			if (protocol.indexOf(':') > -1){
+				String[] protocolStrings = protocol.split(":");
+				for (int i = 0; i < protocolStrings.length; i++){
+					protocols.put(protocolStrings[i], connectorMetaData);
+				}
+			}else{
+				protocols.put(connectorMetaData.getProtocol(), connectorMetaData);
+			}
 		}
 	}
 

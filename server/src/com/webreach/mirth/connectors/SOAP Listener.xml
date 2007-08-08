@@ -10,7 +10,7 @@
   <serverClassName>com.webreach.mirth.connectors.soap.axis.AxisConnector</serverClassName>
   <sharedClassName>com.webreach.mirth.connectors.soap.SOAPListenerProperties</sharedClassName>
   <transformers>SOAPRequestToString</transformers>
-  <protocol>axis</protocol>
+  <protocol>soap</protocol>
   <type>LISTENER</type>
   <enabled>true</enabled>
   <mule-properties>
