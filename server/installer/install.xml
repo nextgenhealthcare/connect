@@ -120,8 +120,8 @@
 
 			<updatecheck>
 				<include name="**" />
-				<exclude name="mirthdb" />
-				<exclude name="public_html" />
+				<exclude name="mirthdb/**" />
+				<exclude name="public_html/**" />
 			</updatecheck>
 
 			<file src="mirth-server.jar" targetdir="$INSTALL_PATH" override="true" />
