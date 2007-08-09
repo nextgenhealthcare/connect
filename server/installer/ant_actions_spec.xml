@@ -2,7 +2,7 @@
 
 <antactions>
 	<pack name="Core">
-		<antcall order="beforepack" buildfile="$INSTALL_PATH/upgrade.xml">
+		<antcall order="beforepack" buildfile="upgrade.xml">
 			<property name="install.path" value="$INSTALL_PATH" />
 			<target name="cleanOldInstaller" />
 		</antcall>
