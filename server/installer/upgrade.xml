@@ -5,9 +5,21 @@
 		<condition property="os.windows" value="true">
 			<os family="windows" />
 		</condition>
+		<condition property="os.unix" value="true">
+			<os family="unix" />
+		</condition>
 		<if>
 			<equals arg1="${os.windows}" arg2="true" />
 			<then>
+				<available property="manager.installed" value="true" file="${install.path}/mirth-manager.jar" />
+				<if>
+					<equals arg1="${manager.installed}" arg2="true" />
+					<then>
+						<echo>deleting manager</echo>
+						<delete file="${install.path}/mirth-manager.jar" />
+					</then>
+				</if>
+
 				<taskdef classpath="lib/orangevolt-ant-tasks-1.3.5.jar:lib/roxes-win32forjava-1.0.4.jar" resource="com/orangevolt/tools/ant/taskdefs.properties" />
 				<echo>clearing registry settings</echo>
 				<win32.registry root="HKEY_LOCAL_MACHINE" key="SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Mirth">
@@ -30,6 +42,15 @@
 					<arg value="UninstallMirth-NT.bat" />
 				</exec>
 			</then>
+			<elseif>
+				<equals arg1="${os.unix}" arg2="true" />
+				<then>
+					<echo>stopping daemon</echo>
+					<exec executable="mirth-daemon" dir="${install.path}" failifexecutionfails="false">
+						<arg value="stop" />
+					</exec>
+				</then>
+			</elseif>
 		</if>
 	</target>
 

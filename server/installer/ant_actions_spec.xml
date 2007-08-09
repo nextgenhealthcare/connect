@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="iso-8859-1" standalone="yes" ?>
 
 <antactions>
-	<pack name="Configuration">
+	<pack name="Core">
 		<antcall order="beforepack" buildfile="$INSTALL_PATH/upgrade.xml">
 			<property name="install.path" value="$INSTALL_PATH" />
 			<target name="cleanOldInstaller" />
+		</antcall>
+	</pack>
+	<pack name="Configuration">
+		<antcall order="beforepack" buildfile="$INSTALL_PATH/upgrade.xml">
+			<property name="install.path" value="$INSTALL_PATH" />
 			<target name="backup" />
 		</antcall>
 		<antcall order="afterpack" buildfile="$INSTALL_PATH/upgrade.xml">
