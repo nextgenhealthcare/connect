@@ -89,7 +89,8 @@ public class SettingsPanel extends javax.swing.JPanel
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
-    private void initComponents() {
+    private void initComponents()
+    {
         buttonGroup1 = new javax.swing.ButtonGroup();
         buttonGroup2 = new javax.swing.ButtonGroup();
         buttonGroup3 = new javax.swing.ButtonGroup();
@@ -196,8 +197,10 @@ public class SettingsPanel extends javax.swing.JPanel
         clearGlobalMapYes.setSelected(true);
         clearGlobalMapYes.setText("Yes");
         clearGlobalMapYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        clearGlobalMapYes.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        clearGlobalMapYes.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
                 clearGlobalMapYesActionPerformed(evt);
             }
         });
@@ -207,8 +210,10 @@ public class SettingsPanel extends javax.swing.JPanel
         buttonGroup3.add(clearGlobalMapNo);
         clearGlobalMapNo.setText("No");
         clearGlobalMapNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        clearGlobalMapNo.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        clearGlobalMapNo.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
                 clearGlobalMapNoActionPerformed(evt);
             }
         });
@@ -250,8 +255,10 @@ public class SettingsPanel extends javax.swing.JPanel
         requireAuthenticationYes.setSelected(true);
         requireAuthenticationYes.setText("Yes");
         requireAuthenticationYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        requireAuthenticationYes.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        requireAuthenticationYes.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
                 requireAuthenticationYesActionPerformed(evt);
             }
         });
@@ -261,8 +268,10 @@ public class SettingsPanel extends javax.swing.JPanel
         buttonGroup2.add(requireAuthenticationNo);
         requireAuthenticationNo.setText("No");
         requireAuthenticationNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        requireAuthenticationNo.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        requireAuthenticationNo.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
                 requireAuthenticationNoActionPerformed(evt);
             }
         });
@@ -337,16 +346,20 @@ public class SettingsPanel extends javax.swing.JPanel
 
         backupPanel.setBackground(new java.awt.Color(255, 255, 255));
         backupPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createMatteBorder(1, 0, 0, 0, new java.awt.Color(204, 204, 204)), "Server Configuration", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11), new java.awt.Color(0, 0, 0)));
-        backupButton.setText("Backup");
-        backupButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        backupButton.setText("Backup...");
+        backupButton.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
                 backupButtonActionPerformed(evt);
             }
         });
 
-        restoreButton.setText("Restore");
-        restoreButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        restoreButton.setText("Restore...");
+        restoreButton.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
                 restoreButtonActionPerformed(evt);
             }
         });
@@ -370,7 +383,7 @@ public class SettingsPanel extends javax.swing.JPanel
                         .add(jLabel4)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(lastBackup)))
-                .addContainerGap(533, Short.MAX_VALUE))
+                .addContainerGap(523, Short.MAX_VALUE))
         );
         backupPanelLayout.setVerticalGroup(
             backupPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)

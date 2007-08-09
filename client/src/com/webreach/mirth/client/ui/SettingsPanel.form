@@ -507,7 +507,7 @@
                           <Component id="lastBackup" min="-2" max="-2" attributes="0"/>
                       </Group>
                   </Group>
-                  <EmptySpace pref="533" max="32767" attributes="0"/>
+                  <EmptySpace pref="523" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -531,7 +531,7 @@
       <SubComponents>
         <Component class="javax.swing.JButton" name="backupButton">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Backup"/>
+            <Property name="text" type="java.lang.String" value="Backup..."/>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="backupButtonActionPerformed"/>
@@ -539,7 +539,7 @@
         </Component>
         <Component class="javax.swing.JButton" name="restoreButton">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Restore"/>
+            <Property name="text" type="java.lang.String" value="Restore..."/>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="restoreButtonActionPerformed"/>
