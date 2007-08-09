@@ -1,5 +1,5 @@
 <server>
-	<classpath codebase="deploy/mirth.sar" archives="mirth-server.jar"/>
+	<classpath codebase="deploy/mirth.sar" archives="*"/>
 	<classpath codebase="deploy/mirth.sar/lib" archives="*"/>
 	<classpath codebase="deploy/mirth.sar/lib/jetty" archives="*"/>
 	<classpath codebase="deploy/mirth.sar/lib/mule" archives="*"/>
