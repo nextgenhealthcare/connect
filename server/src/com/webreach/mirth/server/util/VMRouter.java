@@ -30,21 +30,26 @@ public class VMRouter {
 
 	public void routeMessage(String channelName, String message, boolean useQueue) {
 		String channelId = ChannelController.getChannelId(channelName);
-		routeMessageByChannelId(channelId, message, useQueue);
+		routeMessageByChannelId(channelId, message, useQueue, true);
 	}
 
-	public void routeMessageByChannelId(String channelId, Object message, boolean useQueue) {
+	public void routeMessage(String channelName, String message, boolean useQueue, boolean synchronised) {
+		String channelId = ChannelController.getChannelId(channelName);
+		routeMessageByChannelId(channelId, message, useQueue, synchronised);
+	}
+	
+	public void routeMessageByChannelId(String channelId, Object message, boolean useQueue, boolean synchronised) {
 		UMOMessage umoMessage = new MuleMessage(message);
 		VMMessageReceiver receiver = VMRegistry.getInstance().get(channelId);
 		UMOEvent event = new MuleEvent(umoMessage, receiver.getEndpoint(), new MuleSession(), false);
 		try {
-			doDispatch(event, receiver, useQueue);
+			doDispatch(event, receiver, useQueue, synchronised);
 		} catch (Exception e) {
 			logger.error("Unable to route: " + e.getMessage());
 		}
 	}
 
-	private void doDispatch(UMOEvent event, VMMessageReceiver receiver, boolean useQueue) throws Exception {
+	private void doDispatch(UMOEvent event, VMMessageReceiver receiver, boolean useQueue, boolean synchronised) throws Exception {
 		UMOEndpointURI endpointUri = event.getEndpoint().getEndpointURI();
 
 		if (endpointUri == null) {
@@ -59,7 +64,7 @@ public class VMRouter {
 				logger.warn("No receiver for endpointUri: " + event.getEndpoint().getEndpointURI());
 				return;
 			}
-			receiver.routeMessage(event.getMessage(), false);
+			receiver.routeMessage(event.getMessage(), synchronised);
 		}
 		if (logger.isDebugEnabled()) {
 			logger.debug("dispatched Event on endpointUri: " + endpointUri);

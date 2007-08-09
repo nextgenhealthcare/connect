@@ -364,7 +364,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 			if (connector.getReplyChannelId() != null & !connector.getReplyChannelId().equals("") && !connector.getReplyChannelId().equals("sink")) {
 				// reply back to channel
 				VMRouter router = new VMRouter();
-				router.routeMessageByChannelId(connector.getReplyChannelId(), ackString, true);
+				router.routeMessageByChannelId(connector.getReplyChannelId(), ackString, true, true);
 			}
 			messageObjectController.setSuccess(messageObject, ackString);
 		} catch (UnsupportedEncodingException e) {

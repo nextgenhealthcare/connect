@@ -253,7 +253,7 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher {
 			if (axisConnector.getReplyChannelId() != null && !axisConnector.getReplyChannelId().equals("")  && !axisConnector.getReplyChannelId().equals("sink")){
 				//reply back to channel
 				VMRouter router = new VMRouter();
-				router.routeMessageByChannelId(axisConnector.getReplyChannelId(), result.toString(), true);
+				router.routeMessageByChannelId(axisConnector.getReplyChannelId(), result.toString(), true, true);
 			}
 			// update the message status to sent
 			

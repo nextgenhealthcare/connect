@@ -327,7 +327,7 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher {
 			// handle reply to
 			if (connector.getReplyChannelId() != null && !connector.getReplyChannelId().equals("sink")) {
 				VMRouter router = new VMRouter();
-				router.routeMessageByChannelId(connector.getReplyChannelId(), m.getPayload(), true);
+				router.routeMessageByChannelId(connector.getReplyChannelId(), m.getPayload(), true, true);
 			}
 
 			m.setExceptionPayload(ep);

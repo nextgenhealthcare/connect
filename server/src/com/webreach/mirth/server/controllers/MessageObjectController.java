@@ -395,7 +395,7 @@ public class MessageObjectController {
 									}
 
 									MessageObject message = iter.next();
-									router.routeMessageByChannelId(message.getChannelId(), message.getRawData(), true);
+									router.routeMessageByChannelId(message.getChannelId(), message.getRawData(), true, true);
 								}
 							} catch (Exception e) {
 								throw new ControllerException("could not reprocess message", e);
@@ -424,7 +424,7 @@ public class MessageObjectController {
     {
         try {
             VMRouter router = new VMRouter();
-            router.routeMessageByChannelId(message.getChannelId(), message.getRawData(), true);
+            router.routeMessageByChannelId(message.getChannelId(), message.getRawData(), true, true);
         } catch (Exception e) {
             throw new ControllerException("could not reprocess message", e);
         }
