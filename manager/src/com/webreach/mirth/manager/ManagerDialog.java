@@ -69,6 +69,29 @@ public class ManagerDialog extends javax.swing.JDialog
             }
         });       
         
+         // listen for trigger button and double click to edit channel.
+        serverLogFiles.addMouseListener(new java.awt.event.MouseAdapter()
+        {
+            public void mousePressed(java.awt.event.MouseEvent evt)
+            {
+
+            }
+
+            public void mouseReleased(java.awt.event.MouseEvent evt)
+            {
+
+            }
+
+            public void mouseClicked(java.awt.event.MouseEvent evt)
+            {
+                if (evt.getClickCount() >= 2)
+                {
+                    if(serverLogFiles.getSelectedIndex() != -1)
+                        viewFileButtonActionPerformed(null);
+                }
+            }
+        });
+        
         loadServerProperties();
     }
     
