@@ -452,7 +452,7 @@
 		<taskdef name="jarbundler" classname="net.sourceforge.jarbundler.JarBundler" classpath="${installer.lib}/jarbundler-1.9.jar" />
 		<jarbundler dir="${dist}" name="mirth-${version}-setup" mainclass="com.izforge.izpack.installer.Installer" jar="${dist}/mirth-${version}-setup.jar" stubfile="${installer}/JavaApplicationStub" icon="${installer}/mirth.icns" />
 		<zip basedir="${dist}" destfile="${dist}/mirth-${version}-setup.app.zip" includes="mirth-${version}-setup.app/**" />
-		<delete dir="${dist}/mirth-${version}.app" />
+		<delete dir="${dist}/mirth-${version}-setup.app" />
 
 		<!-- create the JBoss service archive -->
 		<mkdir dir="${dist}/mirth.sar" />

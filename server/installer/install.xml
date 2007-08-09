@@ -129,7 +129,7 @@
 			<file src="mirth-client.jnlp" targetdir="$INSTALL_PATH" override="true" />
 			<file src="mirth.sh" targetdir="$INSTALL_PATH" override="true" os="unix" />
 
-			<fileset dir="/" targetdir="$INSTALL_PATH" os="windows" override="true">
+			<fileset dir="." targetdir="$INSTALL_PATH" os="windows" override="true">
 				<include name="Mirth.bat" />
 				<include name="Mirth.exe" />
 				<include name="Mirth.ico" />
@@ -181,13 +181,13 @@
 				<include name="sqlserver2005/**" />
 			</fileset>
 
-			<fileset dir="/" targetdir="$INSTALL_PATH" override="true">
-				<file src="derby-database.sql" targetdir="$INSTALL_PATH" />
-				<file src="postgres-database.sql" targetdir="$INSTALL_PATH" />
-				<file src="mysql-database.sql" targetdir="$INSTALL_PATH" />
-				<file src="oracle-database.sql" targetdir="$INSTALL_PATH" />
-				<file src="sqlserver-database.sql" targetdir="$INSTALL_PATH" />
-				<file src="sqlserver2005-database.sql" targetdir="$INSTALL_PATH" />
+			<fileset dir="." targetdir="$INSTALL_PATH" override="true">
+				<include name="derby-database.sql" />
+				<include name="postgres-database.sql" />
+				<include name="mysql-database.sql" />
+				<include name="oracle-database.sql" />
+				<include name="sqlserver-database.sql" />
+				<include name="sqlserver2005-database.sql" />
 			</fileset>
 		</pack>
 
@@ -212,12 +212,14 @@
 				<include name="**" />
 			</updatecheck>
 
-			<file src="InstallMirth-NT.bat" targetdir="$INSTALL_PATH" override="true" />
-			<file src="UninstallMirth-NT.bat" targetdir="$INSTALL_PATH" override="true" />
-			<file src="StartMirth-NT.bat" targetdir="$INSTALL_PATH" override="true" />
-			<file src="StopMirth-NT.bat" targetdir="$INSTALL_PATH" override="true" />
-			<file src="wrapper.exe" targetdir="$INSTALL_PATH" override="true" />
-			<file src="wrapper-x86-32bit" targetdir="$INSTALL_PATH" override="true" />
+			<fileset dir="." targetdir="$INSTALL_PATH" override="true">
+				<include name="InstallMirth-NT.bat" />
+				<include name="UninstallMirth-NT.bat" />
+				<include name="StartMirth-NT.bat" />
+				<include name="StopMirth-NT.bat" />
+				<include name="wrapper.exe" />
+				<include name="wrapper-x86-32bit" />
+			</fileset>
 
 			<executable targetfile="$INSTALL_PATH/InstallMirth-NT.bat" type="bin" stage="postinstall" failure="warn" keep="true" />
 			<executable targetfile="$INSTALL_PATH/StartMirth-NT.bat" type="bin" stage="postinstall" failure="warn" keep="true" />
