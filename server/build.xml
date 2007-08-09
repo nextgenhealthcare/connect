@@ -354,6 +354,7 @@
 			<include name="org/**" />
 			<include name="ca/**" />
 			<exclude name="com/webreach/mirth/server/launcher/**" />
+			<exclude name="com/webreach/mirth/server/mbeans/**" />
 		</jar>
 
 		<!-- create the mirth-launcher jar -->
@@ -458,17 +459,23 @@
 		<mkdir dir="${dist}/mirth.sar" />
 		<copy todir="${dist}/mirth.sar">
 			<fileset dir="${setup}">
-				<exclude name="*.bat" />
-				<exclude name="*.exe" />
-				<exclude name="*.ico" />
-				<exclude name="*.sh" />
-				<exclude name="*-launcher.xml" />
-				<exclude name="*-launcher.jar" />
-				<exclude name="shell.jar" />
-				<exclude name="wrapper-x86-32bit" />
+				<exclude name="InstallMirth-NT.bat" />
+				<exclude name="Mirth Manager.exe" />
+				<exclude name="Mirth.bat" />
+				<exclude name="Mirth.exe" />
+				<exclude name="Mirth.ico" />
+				<exclude name="mirth.sh" />
 				<exclude name="mirth-daemon" />
+				<exclude name="mirth-launcher.jar" />
+				<exclude name="mirth-launcher.xml" />
 				<exclude name="mirth-manager.jar" />
+				<exclude name="StartMirth-NT.bat" />
+				<exclude name="StopMirth-NT.bat" />
+				<exclude name="uninstall.ico" />
+				<exclude name="UninstallMirth-NT.bat" />
 				<exclude name="upgrade.xml" />
+				<exclude name="wrapper.exe" />
+				<exclude name="wrapper-x86-32bit" />
 				<exclude name="source/**" />
 				<exclude name="conf/wrapper.conf" />
 			</fileset>
@@ -477,6 +484,14 @@
 		<copy todir="${dist}/mirth.sar/META-INF">
 			<fileset file="${basedir}/jboss-service.xml" />
 		</copy>
+
+		<!-- create the mbeans jar -->
+		<jar destfile="${dist}/mirth.sar/mirth-jboss.jar" basedir="${classes}">
+			<include name="com/webreach/mirth/server/mbeans/**" />
+			<manifest>
+				<attribute name="Class-Path" value="conf/ extensions/" />
+			</manifest>
+		</jar>
 		<zip basedir="${dist}" destfile="${dist}/mirth-${version}-jboss-sar.zip" includes="mirth.sar/**" />
 		<delete dir="${dist}/mirth.sar" />
 	</target>
