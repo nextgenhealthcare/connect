@@ -363,8 +363,8 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
         });
         filterPopupMenu.add(exportFilter);
 
-        filterTasks.add(initActionCallback("doValidate", ActionFactory.createBoundAction("doValidate", "Validate JavaScript", "V"), new ImageIcon(Frame.class.getResource("images/accept.png"))));
-        JMenuItem validateStep = new JMenuItem("Validate JavaScript");
+        filterTasks.add(initActionCallback("doValidate", ActionFactory.createBoundAction("doValidate", "Validate Script", "V"), new ImageIcon(Frame.class.getResource("images/accept.png"))));
+        JMenuItem validateStep = new JMenuItem("Validate Script");
         validateStep.setIcon(new ImageIcon(Frame.class.getResource("images/accept.png")));
         validateStep.addActionListener(new ActionListener()
         {
