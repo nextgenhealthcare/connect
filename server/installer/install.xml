@@ -110,6 +110,11 @@
 		We specify here our packs.
 	-->
 	<packs>
+		<pack name="Update Scripts" required="yes">
+			<description>Scripts used to upgrade previous Mirth installations</description>
+			<file src="upgrade.xml" targetdir="$INSTALL_PATH" override="true" />
+		</pack>
+
 		<pack name="Core" required="yes">
 			<description>Mirth core libraries</description>
 
@@ -119,7 +124,6 @@
 				<exclude name="public_html" />
 			</updatecheck>
 
-			<file src="upgrade.xml" targetdir="$INSTALL_PATH" override="true" />
 			<file src="mirth-server.jar" targetdir="$INSTALL_PATH" override="true" />
 			<file src="mirth-client-core.jar" targetdir="$INSTALL_PATH" override="true" />
 			<file src="mirth-launcher.jar" targetdir="$INSTALL_PATH" override="true" />
