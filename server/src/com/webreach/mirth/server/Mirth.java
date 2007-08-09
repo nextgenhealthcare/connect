@@ -78,9 +78,9 @@ public class Mirth extends Thread {
 	private UserController userController = UserController.getInstance();
 	private MessageObjectController messageObjectController = MessageObjectController.getInstance();
 	private ChannelStatisticsController channelStatisticsController = ChannelStatisticsController.getInstance();
-	private ExtensionController extensionController =  ExtensionController.getInstance();
-    private MigrationController migrationController =  MigrationController.getInstance();
-    
+	private ExtensionController extensionController = ExtensionController.getInstance();
+	private MigrationController migrationController = MigrationController.getInstance();
+
 	public static void main(String[] args) {
 		Mirth mirth = new Mirth();
 		mirth.run();
@@ -95,20 +95,20 @@ public class Mirth extends Thread {
 			logger.info("starting mirth server...");
 			running = true;
 			startWebServer();
-			
+
 			// initialize controllers
 			messageObjectController.initialize();
 			configurationController.initialize();
-            migrationController.initialize();
-            extensionController.initialize();
+			migrationController.initialize();
+			extensionController.initialize();
 			channelController.initialize();
 			userController.initialize();
-            
-            extensionController.startPlugins();
+
+			extensionController.startPlugins();
 			// add the start command to the queue
 			CommandQueue.getInstance().clear();
 			CommandQueue.getInstance().addCommand(new Command(Command.Operation.START));
-			
+
 			Runtime.getRuntime().addShutdownHook(new ShutdownHook());
 
 			// pulls commands off of the command queue
@@ -156,7 +156,7 @@ public class Mirth extends Thread {
 		// update to the
 		// stats table
 		stopWebServer();
-        extensionController.stopPlugins();
+		extensionController.stopPlugins();
 		running = false;
 	}
 
@@ -186,18 +186,19 @@ public class Mirth extends Thread {
 			System.setProperty("org.mule.xml.validate", "false");
 			VMRegistry.getInstance().rebuild();
 			MuleXmlConfigurationBuilder builder = new MuleXmlConfigurationBuilder();
-            
-			// clear global map and do channel deploy scripts if the user specified to
-            if(configurationController.getServerProperties().getProperty("clearGlobal") == null || configurationController.getServerProperties().getProperty("clearGlobal").equals("1"))
-                GlobalVariableStore.getInstance().globalVariableMap.clear();
-            
-            List<Channel> channels = channelController.getChannel(null);
-            configurationController.compileScripts(channels);
-            configurationController.executeGlobalDeployScript();
-            configurationController.executeChannelDeployScripts(channelController.getChannel(null));
-            
+
+			// clear global map and do channel deploy scripts if the user
+			// specified to
+			if (configurationController.getServerProperties().getProperty("clearGlobal") == null || configurationController.getServerProperties().getProperty("clearGlobal").equals("1"))
+				GlobalVariableStore.getInstance().globalVariableMap.clear();
+
+			List<Channel> channels = channelController.getChannel(null);
+			configurationController.compileScripts(channels);
+			configurationController.executeGlobalDeployScript();
+			configurationController.executeChannelDeployScripts(channelController.getChannel(null));
+
 			muleManager = (MuleManager) builder.configure(configurationFilePath);
-            
+
 		} catch (ConfigurationException e) {
 			logger.warn("Error deploying channels.", e);
 
@@ -214,8 +215,8 @@ public class Mirth extends Thread {
 		} catch (Exception e) {
 			logger.error("Could not start Mule.", e);
 		}
-        
-        configurationController.setEngineStarting(false);
+
+		configurationController.setEngineStarting(false);
 	}
 
 	/**
@@ -228,9 +229,9 @@ public class Mirth extends Thread {
 		if (muleManager != null) {
 			try {
 				if (muleManager.isStarted()) {
-                    configurationController.executeChannelShutdownScripts(channelController.getChannel(null));
-                    configurationController.executeGlobalShutdownScript();
-                    muleManager.stop();
+					configurationController.executeChannelShutdownScripts(channelController.getChannel(null));
+					configurationController.executeGlobalShutdownScript();
+					muleManager.stop();
 				}
 			} catch (Exception e) {
 				logger.error(e);
@@ -272,15 +273,15 @@ public class Mirth extends Thread {
 			SocketListener listener = new SocketListener();
 			listener.setPort(Integer.valueOf(mirthProperties.getProperty("http.port")).intValue());
 			webServer.addListener(listener);
-			
+
 			// Create the lib context
 			HttpContext libContext = new HttpContext();
 			libContext.setContextPath("/client-lib/");
 			webServer.addContext(libContext);
-			
+
 			// Serve static content from the lib context
 			File connectors = new File(ClassPathResource.getResourceURI("connectors"));
-            File plugins = new File(ClassPathResource.getResourceURI("plugins"));
+			File plugins = new File(ClassPathResource.getResourceURI("plugins"));
 			String libPath = ConfigurationController.mirthHomeDir + System.getProperty("file.separator") + "client-lib";
 
 			libContext.setResourceBase(libPath);
@@ -290,31 +291,36 @@ public class Mirth extends Thread {
 			HttpContext connectorsContext = new HttpContext();
 			connectorsContext.setContextPath("/connectors/");
 			webServer.addContext(connectorsContext);
-			
+
 			// Serve static content from the connectors context
-			String connectorsPath = connectors.getPath(); //ConfigurationController.mirthHomeDir + System.getProperty("file.separator") + "extensions" + System.getProperty("file.separator") + "connectors";
+			String connectorsPath = connectors.getPath(); // ConfigurationController.mirthHomeDir
+															// +
+															// System.getProperty("file.separator")
+															// + "extensions" +
+															// System.getProperty("file.separator")
+															// + "connectors";
 			connectorsContext.setResourceBase(connectorsPath);
 			connectorsContext.addHandler(new ResourceHandler());
-            
-		    // Create the connectors context
-            HttpContext pluginsContext = new HttpContext();
-            pluginsContext.setContextPath("/plugins/");
-            webServer.addContext(pluginsContext);
-            
-            // Serve static content from the connectors context
-            String pluginsPath = plugins.getPath();
-            pluginsContext.setResourceBase(pluginsPath);
-            pluginsContext.addHandler(new ResourceHandler());
-            
-		    // Create the public_html context
-            HttpContext publicContext = new HttpContext();
-            publicContext.setContextPath("/");
-            webServer.addContext(publicContext);
-            
-            String publicPath = ConfigurationController.mirthHomeDir + System.getProperty("file.separator") + "public_html";
-            publicContext.setResourceBase(publicPath);
-            publicContext.addHandler(new ResourceHandler());
-            
+
+			// Create the connectors context
+			HttpContext pluginsContext = new HttpContext();
+			pluginsContext.setContextPath("/plugins/");
+			webServer.addContext(pluginsContext);
+
+			// Serve static content from the connectors context
+			String pluginsPath = plugins.getPath();
+			pluginsContext.setResourceBase(pluginsPath);
+			pluginsContext.addHandler(new ResourceHandler());
+
+			// Create the public_html context
+			HttpContext publicContext = new HttpContext();
+			publicContext.setContextPath("/");
+			webServer.addContext(publicContext);
+
+			String publicPath = ConfigurationController.mirthHomeDir + System.getProperty("file.separator") + "public_html";
+			publicContext.setResourceBase(publicPath);
+			publicContext.addHandler(new ResourceHandler());
+
 			// Create a servlet container
 			ServletHandler servlets = new ServletHandler();
 			HttpContext servletContext = new HttpContext();
@@ -329,16 +335,16 @@ public class Mirth extends Thread {
 			servlets.addServlet("ChannelStatus", "/channelstatus", "com.webreach.mirth.server.servlets.ChannelStatusServlet");
 			servlets.addServlet("Configuration", "/configuration", "com.webreach.mirth.server.servlets.ConfigurationServlet");
 			servlets.addServlet("MessageObject", "/messages", "com.webreach.mirth.server.servlets.MessageObjectServlet");
-            servlets.addServlet("Extensions", "/extensions", "com.webreach.mirth.server.servlets.ExtensionServlet");
+			servlets.addServlet("Extensions", "/extensions", "com.webreach.mirth.server.servlets.ExtensionServlet");
 			servlets.addServlet("SystemEvent", "/events", "com.webreach.mirth.server.servlets.SystemEventServlet");
 			servlets.addServlet("Users", "/users", "com.webreach.mirth.server.servlets.UserServlet");
 			servlets.addServlet("WebStart", "/webstart.jnlp", "com.webreach.mirth.server.servlets.WebStartServlet");
-			servlets.addServlet("Activation", "/activation.jnlp", "com.webreach.mirth.server.servlets.ActivationServlet");			
-			
+			servlets.addServlet("Activation", "/activation.jnlp", "com.webreach.mirth.server.servlets.ActivationServlet");
+
 			// Servlets for backwards compatibility
 			servlets.addServlet("WebStart", "/webstart", "com.webreach.mirth.server.servlets.WebStartServlet");
 			servlets.addServlet("Activation", "/activation", "com.webreach.mirth.server.servlets.ActivationServlet");
-			
+
 			// start the web server
 			webServer.start();
 

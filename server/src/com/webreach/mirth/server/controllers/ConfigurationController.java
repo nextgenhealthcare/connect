@@ -298,21 +298,20 @@ public class ConfigurationController {
 		Iterator i = globalScripts.entrySet().iterator();
 		while (i.hasNext()) {
 			Entry entry = (Entry) i.next();
-			if (entry.getKey().toString().equals(PREPROCESSOR)){
-				if (!globalScripts.get(PREPROCESSOR).equals(GLOBAL_POSTPROCESSOR_DEFAULT_SCRIPT) && !globalScripts.get(PREPROCESSOR).equals("")){
+			if (entry.getKey().toString().equals(PREPROCESSOR)) {
+				if (!globalScripts.get(PREPROCESSOR).equals(GLOBAL_POSTPROCESSOR_DEFAULT_SCRIPT) && !globalScripts.get(PREPROCESSOR).equals("")) {
 					JavaScriptUtil.getInstance().compileScript(PREPROCESSOR, globalScripts.get(PREPROCESSOR), false);
-				} else{
+				} else {
 					JavaScriptUtil.getInstance().removeScriptFromCache(PREPROCESSOR);
 				}
-				
-			}
-			else if (entry.getKey().toString().equals(POSTPROCESSOR)){
-				if (!globalScripts.get(POSTPROCESSOR).equals(GLOBAL_POSTPROCESSOR_DEFAULT_SCRIPT) && !globalScripts.get(POSTPROCESSOR).equals("")){
+
+			} else if (entry.getKey().toString().equals(POSTPROCESSOR)) {
+				if (!globalScripts.get(POSTPROCESSOR).equals(GLOBAL_POSTPROCESSOR_DEFAULT_SCRIPT) && !globalScripts.get(POSTPROCESSOR).equals("")) {
 					JavaScriptUtil.getInstance().compileScript(POSTPROCESSOR, globalScripts.get(POSTPROCESSOR), false);
-				} else{
+				} else {
 					JavaScriptUtil.getInstance().removeScriptFromCache(POSTPROCESSOR);
 				}
-				
+
 			}
 		}
 
@@ -320,10 +319,10 @@ public class ConfigurationController {
 			if (channel.isEnabled()) {
 				JavaScriptUtil.getInstance().compileScript(channel.getId() + "_Deploy", channel.getDeployScript(), false);
 				JavaScriptUtil.getInstance().compileScript(channel.getId() + "_Shutdown", channel.getShutdownScript(), false);
-				//only compile and run post processor if its not the default
-				if (!channel.getPostprocessingScript().equals(CHANNEL_POSTPROCESSOR_DEFAULT_SCRIPT) && !channel.getPostprocessingScript().equals("")){
+				// only compile and run post processor if its not the default
+				if (!channel.getPostprocessingScript().equals(CHANNEL_POSTPROCESSOR_DEFAULT_SCRIPT) && !channel.getPostprocessingScript().equals("")) {
 					JavaScriptUtil.getInstance().compileScript(channel.getId() + "_Postprocessor", channel.getPostprocessingScript(), true);
-				}else{
+				} else {
 					JavaScriptUtil.getInstance().removeScriptFromCache(channel.getId() + "_Postprocessor");
 				}
 			} else {
@@ -405,13 +404,12 @@ public class ConfigurationController {
 			channelStatusController.stopChannel(status.getChannelId());
 		}
 	}
-	
-    public String getDatabaseType()
-    {
-        Properties properties = PropertyLoader.loadProperties("mirth");
-        return properties.getProperty("database");
-    }
-    
+
+	public String getDatabaseType() {
+		Properties properties = PropertyLoader.loadProperties("mirth");
+		return properties.getProperty("database");
+	}
+
 	public String getMuleConfigurationPath() {
 		Properties properties = PropertyLoader.loadProperties("mirth");
 
