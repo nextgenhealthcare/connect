@@ -60,7 +60,7 @@ public class ReferenceListHandler extends TransferHandler
             if (reftable == null)
                 return null;
 
-            int currRow = reftable.getSelectedRow();
+            int currRow = reftable.convertRowIndexToModel(reftable.getSelectedRow());
 
             String text;
             if (currRow >= 0 && currRow < reftable.getRowCount() && currRow < listItems.size())
