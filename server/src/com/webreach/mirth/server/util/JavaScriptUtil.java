@@ -64,18 +64,23 @@ public class JavaScriptUtil
             Script script = context.compileString(importScript, UUIDGenerator.getUUID(), 1, null);
             script.exec(context, sealedSharedScope);
             sealedSharedScope.sealObject();
-        }
-
+        }        
         return context;
     }
 
     public static String getJavascriptImportScript()
     {
-        StringBuilder script = new StringBuilder();
-        script.append("importPackage(Packages.com.webreach.mirth.server.util);\n");
-        script.append("importPackage(Packages.com.webreach.mirth.model.converters);\n");
-        return script.toString();
-
+		StringBuilder script = new StringBuilder();
+		script.append("importPackage(Packages.com.webreach.mirth.server.util);\n");
+		script.append("importPackage(Packages.com.webreach.mirth.model.converters);\n");
+		script.append("regex = new RegExp('');\n");
+		script.append("xml = new XML('');\n");
+		script.append("xmllist = new XMLList();\n");
+		script.append("namespace = new Namespace();\n");
+		script.append("qname = new QName();\n");
+		script.append("XML.ignoreWhitespace=false;");
+		script.append("XML.prettyPrinting=false;");
+		return script.toString();
     }
 
     public Scriptable getScope()
@@ -94,7 +99,7 @@ public class JavaScriptUtil
     private void executeScript(String scriptId, String scriptType, String channelId, MessageObject messageObject)
     {
         Script compiledScript = compiledScriptCache.getCompiledScript(scriptId);
-        Logger scriptLogger = Logger.getLogger(scriptType);
+        Logger scriptLogger = Logger.getLogger(scriptType.toLowerCase());
         if(compiledScript == null)
             return;
 

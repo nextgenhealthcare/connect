@@ -311,7 +311,12 @@ public class ConfigurationController {
 				} else {
 					JavaScriptUtil.getInstance().removeScriptFromCache(POSTPROCESSOR);
 				}
-
+			} else{
+				if (!globalScripts.get(entry.getKey()).equals("")){
+					JavaScriptUtil.getInstance().compileScript((String)entry.getKey(), globalScripts.get(entry.getKey()), false);
+				}else{
+					JavaScriptUtil.getInstance().removeScriptFromCache((String)entry.getKey());
+				}
 			}
 		}
 
