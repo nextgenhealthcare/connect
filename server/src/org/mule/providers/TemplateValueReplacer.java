@@ -66,7 +66,7 @@ public class TemplateValueReplacer {
 	}
 	public String replaceValuesFromGlobal(String template, boolean checkValidTemplate){
 		if (checkValidTemplate){
-			if (template.indexOf('$') == -1){
+			if (template == null || template.indexOf('$') == -1){
 				return template;
 			}
 		}

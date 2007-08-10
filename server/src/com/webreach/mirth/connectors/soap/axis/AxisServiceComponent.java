@@ -694,11 +694,22 @@ public class AxisServiceComponent implements Initialisable, Callable
 
     private String getSoapAction(UMOEventContext context) throws AxisFault
     {
-        String soapAction = (String) context.getProperty("SOAPAction");
-        if (logger.isDebugEnabled()) {
+        String soapAction = (String) context.getProperty("SOAPAction");		    
+		/*ast: SOAPAction is send in an HTTP HEADER, and this property shold be trated as case-sensitive, wich is not the way is done using getProerty
+			so, we need to check all the properties searching for a good header
+		*/		
+        if (soapAction == null) {
+			Iterator it=context.getProperties().keySet().iterator();
+			while((it.hasNext()&&(soapAction == null)) ){
+				String p=(String) it.next();
+				if ((p!=null) && (p.equalsIgnoreCase("SOAPAction"))) soapAction=(String) context.getProperty(p);
+			}
+		}
+		if (logger.isDebugEnabled()) {
             logger.debug("HEADER_SOAP_ACTION:" + soapAction);
         }
-        if (soapAction == null) {
+		//System.out.println("---------------> Soap ACTION:  ("+soapAction+")");
+		if (soapAction == null) {
             AxisFault af = new AxisFault("Client.NoSOAPAction",
                                          Messages.getMessage("noHeader00", "SOAPAction"),
                                          null,
