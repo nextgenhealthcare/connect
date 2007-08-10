@@ -79,7 +79,6 @@ public class TcpConnector extends AbstractServiceEnabledConnector {
 	private int bufferSize = DEFAULT_BUFFER_SIZE;
 	private int backlog = DEFAULT_BACKLOG;
 	private boolean sendACK = false;
-	private String tcpProtocolClassName = DefaultProtocol.class.getName();
 	private TcpProtocol tcpProtocol;
 
 	// ast: Queue variables
@@ -273,14 +272,6 @@ public class TcpConnector extends AbstractServiceEnabledConnector {
 
 	public void setTcProtocol(TcpProtocol tcpProtocol) {
 		this.tcpProtocol = tcpProtocol;
-	}
-
-	public String getTcpProtocolClassName() {
-		return tcpProtocolClassName;
-	}
-
-	public void setTcpProtocolClassName(String protocolClassName) {
-		this.tcpProtocolClassName = protocolClassName;
 	}
 
 	public boolean isRemoteSyncEnabled() {
