@@ -77,7 +77,6 @@ public class MessageObjectController {
 		synchronized (MessageObjectController.class) {
 			if (instance == null) {
 				instance = new MessageObjectController();
-				instance.initialize();
 			}
 			
 			return instance;

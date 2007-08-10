@@ -13,15 +13,22 @@ import com.webreach.mirth.model.PluginMetaData;
 import com.webreach.mirth.plugins.ConnectorStatusPlugin;
 
 public class MonitoringController {
-	public enum Event {CONNECTED, DISCONNECTED, INITIALIZED, BUSY, DONE };
-	public enum ConnectorType {LISTENER, SENDER, READER, WRITER};
+	public enum Event {
+		CONNECTED, DISCONNECTED, INITIALIZED, BUSY, DONE
+	};
+
+	public enum ConnectorType {
+		LISTENER, SENDER, READER, WRITER
+	};
+
 	private static MonitoringController instance = null;
 	private Logger logger = Logger.getLogger(this.getClass());
 	private Map<String, ConnectorStatusPlugin> loadedPlugins;
+
 	private MonitoringController() {
-		initPlugins();
+
 	}
-	
+
 	public static MonitoringController getInstance() {
 		synchronized (MonitoringController.class) {
 			if (instance == null) {
@@ -29,57 +36,54 @@ public class MonitoringController {
 			}
 			return instance;
 		}
-	}   	
-	
-	public void updateStatus(String connectorName, ConnectorType type, Event event, Socket socket){
-		for(ConnectorStatusPlugin plugin : loadedPlugins.values()){
-			try{
+	}
+
+	public void initialize() {
+		initPlugins();
+	}
+
+	public void updateStatus(String connectorName, ConnectorType type, Event event, Socket socket) {
+		for (ConnectorStatusPlugin plugin : loadedPlugins.values()) {
+			try {
 				plugin.updateStatus(connectorName, type, event, socket);
-			}catch (Exception e){
+			} catch (Exception e) {
 				logger.error(e);
 			}
 		}
 	}
 
-	public void updateStatus(UMOConnector connector, ConnectorType type, Event event){
+	public void updateStatus(UMOConnector connector, ConnectorType type, Event event) {
 		updateStatus(connector.getName(), type, event, null);
 	}
-	
-	public void updateStatus(UMOConnector connector, ConnectorType type, Event event, Socket socket){
+
+	public void updateStatus(UMOConnector connector, ConnectorType type, Event event, Socket socket) {
 		updateStatus(connector.getName(), type, event, socket);
 	}
-	//Extension point for ExtensionPoint.Type.SERVER_PLUGIN
-    @ExtensionPointDefinition(mode=ExtensionPoint.Mode.SERVER, type=ExtensionPoint.Type.SERVER_CONNECTOR_STATUS)
-    public void initPlugins()
-    {
-        loadedPlugins = new HashMap<String, ConnectorStatusPlugin>();
-        try
-        {
-            Map<String, PluginMetaData> plugins = ExtensionController.getInstance().getPluginMetaData();
-            for (PluginMetaData metaData : plugins.values())
-            {
-            	if (metaData.isEnabled()){
-	            	for (ExtensionPoint extensionPoint : metaData.getExtensionPoints()){
-	            		try{
-			                if(extensionPoint.getMode().equals(ExtensionPoint.Mode.SERVER) && extensionPoint.getType().equals(ExtensionPoint.Type.SERVER_CONNECTOR_STATUS) && extensionPoint.getClassName() != null && extensionPoint.getClassName().length() > 0)
-			                {
-		                        String pluginName = extensionPoint.getName();
-		                        ConnectorStatusPlugin statusPlugin = (ConnectorStatusPlugin) Class.forName(extensionPoint.getClassName()).getDeclaredConstructors()[0].newInstance(new Object[]{});
-		                        loadedPlugins.put(pluginName, statusPlugin);
-			                }
-	            		} 
-	            		catch (Exception e)
-	            		{
-	            			logger.error(e);
-	            		}
-	                }
-	        	}
-	           
-            }
-        }
-        catch (Exception e)
-        {
-        	logger.error(e);
-        }
-    }
+
+	// Extension point for ExtensionPoint.Type.SERVER_PLUGIN
+	@ExtensionPointDefinition(mode = ExtensionPoint.Mode.SERVER, type = ExtensionPoint.Type.SERVER_CONNECTOR_STATUS)
+	public void initPlugins() {
+		loadedPlugins = new HashMap<String, ConnectorStatusPlugin>();
+		try {
+			Map<String, PluginMetaData> plugins = ExtensionController.getInstance().getPluginMetaData();
+			for (PluginMetaData metaData : plugins.values()) {
+				if (metaData.isEnabled()) {
+					for (ExtensionPoint extensionPoint : metaData.getExtensionPoints()) {
+						try {
+							if (extensionPoint.getMode().equals(ExtensionPoint.Mode.SERVER) && extensionPoint.getType().equals(ExtensionPoint.Type.SERVER_CONNECTOR_STATUS) && extensionPoint.getClassName() != null && extensionPoint.getClassName().length() > 0) {
+								String pluginName = extensionPoint.getName();
+								ConnectorStatusPlugin statusPlugin = (ConnectorStatusPlugin) Class.forName(extensionPoint.getClassName()).getDeclaredConstructors()[0].newInstance(new Object[] {});
+								loadedPlugins.put(pluginName, statusPlugin);
+							}
+						} catch (Exception e) {
+							logger.error(e);
+						}
+					}
+				}
+
+			}
+		} catch (Exception e) {
+			logger.error(e);
+		}
+	}
 }

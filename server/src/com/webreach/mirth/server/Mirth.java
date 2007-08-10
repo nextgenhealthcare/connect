@@ -50,6 +50,7 @@ import com.webreach.mirth.server.controllers.ControllerException;
 import com.webreach.mirth.server.controllers.ExtensionController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.controllers.MigrationController;
+import com.webreach.mirth.server.controllers.MonitoringController;
 import com.webreach.mirth.server.controllers.SystemLogger;
 import com.webreach.mirth.server.controllers.UserController;
 import com.webreach.mirth.server.tools.ClassPathResource;
@@ -80,6 +81,7 @@ public class Mirth extends Thread {
 	private ChannelStatisticsController channelStatisticsController = ChannelStatisticsController.getInstance();
 	private ExtensionController extensionController = ExtensionController.getInstance();
 	private MigrationController migrationController = MigrationController.getInstance();
+	private MonitoringController monitoringController = MonitoringController.getInstance();
 
 	public static void main(String[] args) {
 		Mirth mirth = new Mirth();
@@ -98,12 +100,14 @@ public class Mirth extends Thread {
 
 			// initialize controllers
 			messageObjectController.initialize();
+			channelStatisticsController.initialize();
 			configurationController.initialize();
 			migrationController.initialize();
 			extensionController.initialize();
 			channelController.initialize();
 			userController.initialize();
-
+			monitoringController.initialize();			
+			
 			extensionController.startPlugins();
 			// add the start command to the queue
 			CommandQueue.getInstance().clear();

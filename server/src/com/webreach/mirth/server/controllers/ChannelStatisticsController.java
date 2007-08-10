@@ -60,7 +60,6 @@ public class ChannelStatisticsController {
 		synchronized (ChannelStatisticsController.class) {
 			if (instance == null) {
 				instance = new ChannelStatisticsController();
-				instance.initialize();
 			}
 			
 			return instance;
