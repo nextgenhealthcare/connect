@@ -548,7 +548,7 @@ public class PluginManagerPanel extends javax.swing.JPanel
         loadedPluginsPanel.setLayout(loadedPluginsPanelLayout);
         loadedPluginsPanelLayout.setHorizontalGroup(
             loadedPluginsPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(loadedPluginsScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 546, Short.MAX_VALUE)
+            .add(loadedPluginsScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 541, Short.MAX_VALUE)
         );
         loadedPluginsPanelLayout.setVerticalGroup(
             loadedPluginsPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -559,7 +559,7 @@ public class PluginManagerPanel extends javax.swing.JPanel
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1), "Install Extension from File System", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11), new java.awt.Color(0, 0, 0)));
         jLabel1.setText("File:");
 
-        browseButton.setText("Browse");
+        browseButton.setText("Browse...");
         browseButton.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -604,7 +604,7 @@ public class PluginManagerPanel extends javax.swing.JPanel
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .add(fileText, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 352, Short.MAX_VALUE)
+                        .add(fileText, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 335, Short.MAX_VALUE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(browseButton)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -639,7 +639,7 @@ public class PluginManagerPanel extends javax.swing.JPanel
         loadedConnectorsPanel.setLayout(loadedConnectorsPanelLayout);
         loadedConnectorsPanelLayout.setHorizontalGroup(
             loadedConnectorsPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(loadedConnectorsScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 546, Short.MAX_VALUE)
+            .add(loadedConnectorsScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 541, Short.MAX_VALUE)
         );
         loadedConnectorsPanelLayout.setVerticalGroup(
             loadedConnectorsPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
