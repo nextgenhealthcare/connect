@@ -262,13 +262,15 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
 							monitoringController.updateStatus(connector, connectorType, Event.BUSY, socket);
 							processData(b);
 							dataOut.flush();
-							monitoringController.updateStatus(connector, connectorType, Event.DONE, socket);
+							
 						}
 						
 					} catch (SocketTimeoutException e) {
 						if (!socket.getKeepAlive()) {
 							break;
 						}
+					} finally {
+						monitoringController.updateStatus(connector, connectorType, Event.DONE, socket);
 					}
 					
 				}

@@ -342,13 +342,14 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 								processData(b);
 							}
 							dataOut.flush();
-							monitoringController.updateStatus(connector, connectorType, Event.DONE, socket);
 						}
 						
 					} catch (SocketTimeoutException e) {
 						if (!socket.getKeepAlive()) {
 							break;
 						}
+					} finally {
+						monitoringController.updateStatus(connector, connectorType, Event.DONE, socket);
 					}
 				}
 			} catch (Exception e) {
