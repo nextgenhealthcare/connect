@@ -46,7 +46,7 @@ public class DashboardConnectorStatusColumn extends DashboardColumnPlugin {
 
 	@Override
 	public String getColumnHeader() {
-		return "State";
+		return "Connection";
 	}
 
 	@Override
