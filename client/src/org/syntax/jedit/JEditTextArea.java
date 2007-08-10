@@ -579,21 +579,23 @@ public class JEditTextArea extends JComponent {
 		if (offset >= 0) {
 			// x is the location we currently have the caret
 			int x = _offsetToX(line, offset) + painter.getFontMetrics().charWidth('w');
+			x = _offsetToX(line, offset) + painter.getFontMetrics().charWidth('w');
 			int width = painter.getFontMetrics().charWidth('w');
-
-			if (x < 0) {
+			//System.out.println("X: " + x + " " + "Width: " + width + " Offset: " + offset);
+			if (x < painter.getFontMetrics().charWidth('w')) {
 				// If we are scrolled over to the right and the carat is being
 				// moved
 				// towards the left side of the component edge
 				// we will get an x value less than zero
 				// in theory we should NEVER get here (see third if clause)
 				// TODO: figure out why we sometimes get here.
-				if (horizontalOffset <= 0) {
-					newHorizontalOffset = 0;
-				} else {
+				//if (horizontalOffset <= 0) {
+					newHorizontalOffset = horizontalOffset - x + painter.getFontMetrics().charWidth('w');
+				//} else {
 					// 80, eh?
-					newHorizontalOffset = horizontalOffset - x + 80;
-				}
+					//System.out.println("Moving to the left: " + newHorizontalOffset);
+				//	newHorizontalOffset = horizontalOffset + x;// + 80;
+				//}
 			} else if (x + width >= painter.getWidth()) {
 				// if we are typing (or scrolling) and we reached the right
 				// edger
@@ -615,7 +617,8 @@ public class JEditTextArea extends JComponent {
 						// moves the view area of the component
 						// so that the end of the longest line is at the very
 						// right edge
-						newHorizontalOffset = (Math.min(0, -(longestLineLen)) + painter.getWidth() - width);
+						//System.out.println("Moving over..." + longestLineLen);
+						//newHorizontalOffset = (Math.min(0, -(longestLineLen)) + painter.getWidth() - width);
 					}
 				}
 			}
@@ -683,7 +686,6 @@ public class JEditTextArea extends JComponent {
 
 		int segmentOffset = lineSegment.offset;
 		int x = horizontalOffset;
-
 		/* If syntax coloring is disabled, do simple translation */
 		if (tokenMarker == null) {
 			lineSegment.count = offset;
@@ -1234,7 +1236,6 @@ public class JEditTextArea extends JComponent {
 		if (newStart != selectionStart || newEnd != selectionEnd || newBias != biasLeft) {
 			int newStartLine = getLineOfOffset(newStart);
 			int newEndLine = getLineOfOffset(newEnd);
-
 			if (painter.isBracketHighlightEnabled()) {
 				if (bracketLine != -1)
 					painter.invalidateLine(bracketLine);
