@@ -220,7 +220,7 @@ public class TreePanel extends javax.swing.JPanel
             
             if (xmlDoc != null)
             {
-                createTree(xmlDoc, messageName, messageDescription);
+                createTree(protocol, xmlDoc, messageName, messageDescription);
                 filter();
             }
             else
@@ -235,7 +235,7 @@ public class TreePanel extends javax.swing.JPanel
     /**
      * Updates the panel with a new Message.
      */
-    private void createTree(Document xmlDoc, String messageName, String messageDescription)
+    private void createTree(Protocol protocol, Document xmlDoc, String messageName, String messageDescription)
     {
         Element el = xmlDoc.getDocumentElement();
         MirthTreeNode top;
@@ -247,7 +247,7 @@ public class TreePanel extends javax.swing.JPanel
         NodeList children = el.getChildNodes();
         for (int i = 0; i < children.getLength(); i++)
         {
-            processElement(children.item(i), top);
+            processElement(protocol, children.item(i), top);
         }
         // processElement(xmlDoc.getDocumentElement(), top);
         // addChildren(message, top);
@@ -354,7 +354,7 @@ public class TreePanel extends javax.swing.JPanel
             tree.setSelectionRow(row);
     }
     
-    private void processElement(Object elo, MirthTreeNode mtn)
+    private void processElement(Protocol protocol, Object elo, MirthTreeNode mtn)
     {
         if (elo instanceof Element)
         {
@@ -382,7 +382,7 @@ public class TreePanel extends javax.swing.JPanel
             else
             {
                 //Check if we are in the format SEG.1.1
-            	if (el.getNodeName().matches(".*\\..*\\..")){
+            	if (protocol.equals(Protocol.HL7V3) || protocol.equals(Protocol.XML) || el.getNodeName().matches(".*\\..*\\..")){
             		//We already at the last possible child segment, so just add empty node
             		currentNode.add(new MirthTreeNode(EMPTY));
             	}else{
@@ -409,7 +409,7 @@ public class TreePanel extends javax.swing.JPanel
             NodeList children = el.getChildNodes();
             for (int i = 0; i < children.getLength(); i++)
             {
-                processElement(children.item(i), currentNode);
+                processElement(protocol, children.item(i), currentNode);
             }
             mtn.add(currentNode);
         }
