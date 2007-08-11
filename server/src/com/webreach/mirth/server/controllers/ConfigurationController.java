@@ -83,9 +83,9 @@ import com.webreach.mirth.util.PropertyVerifier;
  * 
  */
 public class ConfigurationController {
-	private static final String CHANNEL_POSTPROCESSOR_DEFAULT_SCRIPT = "// This script executes once after a message has been processed\r\nreturn;";
-	private static final String GLOBAL_PREPROCESSOR_DEFAULT_SCRIPT = "// Modify the message variable below to pre process data\r\n// This script applies across all channels\r\nreturn message;";
-	private static final String GLOBAL_POSTPROCESSOR_DEFAULT_SCRIPT = "// This script executes once after a message has been processed\r\n// This script applies across all channels\r\nreturn;";
+	private static final String CHANNEL_POSTPROCESSOR_DEFAULT_SCRIPT = "// This script executes once after a message has been processed\nreturn;";
+	private static final String GLOBAL_PREPROCESSOR_DEFAULT_SCRIPT = "// Modify the message variable below to pre process data\n// This script applies across all channels\nreturn message;";
+	private static final String GLOBAL_POSTPROCESSOR_DEFAULT_SCRIPT = "// This script executes once after a message has been processed\n// This script applies across all channels\nreturn;";
 	private static final String POSTPROCESSOR = "Postprocessor";
 	private static final String PREPROCESSOR = "Preprocessor";
 	private static final String SHUTDOWN = "Shutdown";
@@ -299,22 +299,28 @@ public class ConfigurationController {
 		while (i.hasNext()) {
 			Entry entry = (Entry) i.next();
 			if (entry.getKey().toString().equals(PREPROCESSOR)) {
-				if (!globalScripts.get(PREPROCESSOR).equals(GLOBAL_POSTPROCESSOR_DEFAULT_SCRIPT) && !globalScripts.get(PREPROCESSOR).equals("")) {
+				if (!globalScripts.get(PREPROCESSOR).equals(GLOBAL_PREPROCESSOR_DEFAULT_SCRIPT) && !globalScripts.get(PREPROCESSOR).equals("")) {
 					JavaScriptUtil.getInstance().compileScript(PREPROCESSOR, globalScripts.get(PREPROCESSOR), false);
+					logger.debug("adding global preprocessor");
 				} else {
+					logger.debug("removing global preprocessor");
 					JavaScriptUtil.getInstance().removeScriptFromCache(PREPROCESSOR);
 				}
 
 			} else if (entry.getKey().toString().equals(POSTPROCESSOR)) {
 				if (!globalScripts.get(POSTPROCESSOR).equals(GLOBAL_POSTPROCESSOR_DEFAULT_SCRIPT) && !globalScripts.get(POSTPROCESSOR).equals("")) {
 					JavaScriptUtil.getInstance().compileScript(POSTPROCESSOR, globalScripts.get(POSTPROCESSOR), false);
+					logger.debug("adding global postprocessor");
 				} else {
+					logger.debug("removing global postprocessor");
 					JavaScriptUtil.getInstance().removeScriptFromCache(POSTPROCESSOR);
 				}
 			} else{
 				if (!globalScripts.get(entry.getKey()).equals("")){
 					JavaScriptUtil.getInstance().compileScript((String)entry.getKey(), globalScripts.get(entry.getKey()), false);
+					logger.debug("adding " + entry.getKey());
 				}else{
+					logger.debug("remvoing " + entry.getKey());
 					JavaScriptUtil.getInstance().removeScriptFromCache((String)entry.getKey());
 				}
 			}
@@ -327,7 +333,9 @@ public class ConfigurationController {
 				// only compile and run post processor if its not the default
 				if (!channel.getPostprocessingScript().equals(CHANNEL_POSTPROCESSOR_DEFAULT_SCRIPT) && !channel.getPostprocessingScript().equals("")) {
 					JavaScriptUtil.getInstance().compileScript(channel.getId() + "_Postprocessor", channel.getPostprocessingScript(), true);
+					logger.debug("adding " + channel.getId() + "_Postprocessor");
 				} else {
+					logger.debug("removing " + channel.getId() + "_Postprocessor");
 					JavaScriptUtil.getInstance().removeScriptFromCache(channel.getId() + "_Postprocessor");
 				}
 			} else {
@@ -373,10 +381,10 @@ public class ConfigurationController {
 		String postprocessorScript = scriptController.getScript(POSTPROCESSOR);
 
 		if (deployScript == null || deployScript.equals(""))
-			deployScript = "// This script executes once when the mule engine is started\r\n// You only have access to the globalMap here to persist data\r\nreturn;";
+			deployScript = "// This script executes once when the mule engine is started\n// You only have access to the globalMap here to persist data\nreturn;";
 
 		if (shutdownScript == null || shutdownScript.equals(""))
-			shutdownScript = "// This script executes once when the mule engine is stopped\r\n// You only have access to the globalMap here to persist data\r\nreturn;";
+			shutdownScript = "// This script executes once when the mule engine is stopped\n// You only have access to the globalMap here to persist data\nreturn;";
 
 		if (preprocessorScript == null || preprocessorScript.equals(""))
 			preprocessorScript = GLOBAL_PREPROCESSOR_DEFAULT_SCRIPT;

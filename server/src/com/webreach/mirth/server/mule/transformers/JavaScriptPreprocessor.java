@@ -63,6 +63,10 @@ public class JavaScriptPreprocessor extends AbstractTransformer {
 				logger.debug("compiling preprocessing script");
 				Script compiledPreprocessingScript = context.compileString(generatedPreprocessingScript, preprocessingScriptId, 1, null);
 				compiledScriptCache.putCompiledScript(preprocessingScriptId, compiledPreprocessingScript);
+				logger.debug("adding preprocessor script");
+			}else{
+				logger.debug("removing preprocessor script");
+				compiledScriptCache.removeCompiledScript(preprocessingScriptId);
 			}
 		} catch (Exception e) {
 			throw new InitialisationException(e, this);

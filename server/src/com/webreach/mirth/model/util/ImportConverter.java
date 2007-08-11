@@ -165,21 +165,21 @@ public class ImportConverter
         if (channelRoot.getElementsByTagName("deployScript").getLength() == 0)
         {
             Element deployScript = document.createElement("deployScript");
-            deployScript.setTextContent("// This script executes once when the mule engine is started\r\n// You only have access to the globalMap here to persist data\r\nreturn;");
+            deployScript.setTextContent("// This script executes once when the mule engine is started\n// You only have access to the globalMap here to persist data\nreturn;");
             channelRoot.appendChild(deployScript);
         }
         
         if (channelRoot.getElementsByTagName("shutdownScript").getLength() == 0)
         {
             Element shutdownScript = document.createElement("shutdownScript");
-            shutdownScript.setTextContent("// This script executes once when the mule engine is stopped\r\n// You only have access to the globalMap here to persist data\r\nreturn;");
+            shutdownScript.setTextContent("// This script executes once when the mule engine is stopped\n// You only have access to the globalMap here to persist data\nreturn;");
             channelRoot.appendChild(shutdownScript);
         }
         
         if (channelRoot.getElementsByTagName("postprocessingScript").getLength() == 0)
         {
             Element postprocessorScript = document.createElement("postprocessingScript");
-            postprocessorScript.setTextContent("// This script executes once after a message has been processed\r\nreturn;");
+            postprocessorScript.setTextContent("// This script executes once after a message has been processed\nreturn;");
             channelRoot.appendChild(postprocessorScript);
         }
 

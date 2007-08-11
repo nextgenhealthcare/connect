@@ -621,22 +621,22 @@ public class ChannelSetup extends javax.swing.JPanel
         if (currentChannel.getPreprocessingScript() != null)
             scriptMap.put(ScriptPanel.PREPROCESSOR_SCRIPT, currentChannel.getPreprocessingScript());
         else
-            scriptMap.put(ScriptPanel.PREPROCESSOR_SCRIPT, "// Modify the message variable below to pre process data\r\nreturn message;");
+            scriptMap.put(ScriptPanel.PREPROCESSOR_SCRIPT, "// Modify the message variable below to pre process data\nreturn message;");
         
         if (currentChannel.getDeployScript() != null)
             scriptMap.put(ScriptPanel.DEPLOY_SCRIPT, currentChannel.getDeployScript());
         else
-            scriptMap.put(ScriptPanel.DEPLOY_SCRIPT, "// This script executes once when the mule engine is started\r\n// You only have access to the globalMap here to persist data\r\nreturn;");
+            scriptMap.put(ScriptPanel.DEPLOY_SCRIPT, "// This script executes once when the mule engine is started\n// You only have access to the globalMap here to persist data\nreturn;");
         
         if (currentChannel.getShutdownScript() != null)
             scriptMap.put(ScriptPanel.SHUTDOWN_SCRIPT, currentChannel.getShutdownScript());
         else
-            scriptMap.put(ScriptPanel.SHUTDOWN_SCRIPT, "// This script executes once when the mule engine is stopped\r\n// You only have access to the globalMap here to persist data\r\nreturn;");
+            scriptMap.put(ScriptPanel.SHUTDOWN_SCRIPT, "// This script executes once when the mule engine is stopped\n// You only have access to the globalMap here to persist data\nreturn;");
         
         if (currentChannel.getPostprocessingScript() != null)
             scriptMap.put(ScriptPanel.POSTPROCESSOR_SCRIPT, currentChannel.getPostprocessingScript());
         else
-            scriptMap.put(ScriptPanel.POSTPROCESSOR_SCRIPT, "// This script executes once after a message has been processed\r\nreturn;");
+            scriptMap.put(ScriptPanel.POSTPROCESSOR_SCRIPT, "// This script executes once after a message has been processed\nreturn;");
         
         scripts.setScripts(scriptMap);
         
