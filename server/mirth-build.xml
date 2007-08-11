@@ -74,7 +74,9 @@
 		<copy file="${SERVER_HOME}/mirth-client-core.jar" todir="${SERVER_HOME}/client-lib/"/>
 		
 		<copy todir="${SERVER_HOME}/client-lib">
-			<fileset dir="${CLIENT_HOME}/lib"/>
+			<fileset dir="${CLIENT_HOME}/lib">
+				<exclude name="*-shared.jar" />
+			</fileset>
 		</copy>
 	</target>
 	
