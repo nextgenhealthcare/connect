@@ -596,7 +596,7 @@ public class ConfigurationController {
 				if (isEngineStarting()) {
 					localIsEngineStarting = true;
 				} else {
-					logger.warn("could not retrieve status of engine");
+					logger.warn("could not retrieve status of engine", e);
 					isEngineRunning = false;
 				}
 			} finally {
