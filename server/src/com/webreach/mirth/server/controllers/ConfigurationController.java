@@ -100,7 +100,7 @@ public class ConfigurationController {
 	private static String serverId = null;
 	private SqlMapClient sqlMap = SqlConfig.getSqlMapInstance();
 	private static final String CHARSET = "ca.uhn.hl7v2.llp.charset";
-	private boolean isEngineStarting = false;
+	private boolean isEngineStarting = true;
 
 	private ExtensionController extensionController = ExtensionController.getInstance();
 	private ScriptController scriptController = ScriptController.getInstance();
