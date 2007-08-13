@@ -158,6 +158,7 @@
 
 			<updatecheck>
 				<include name="**" />
+				<exclude name="custom/dbdrivers.xml" />
 			</updatecheck>
 
 			<fileset dir="conf" targetdir="$INSTALL_PATH/conf" override="true">
