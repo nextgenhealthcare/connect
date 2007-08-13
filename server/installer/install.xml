@@ -158,7 +158,6 @@
 
 			<updatecheck>
 				<include name="**" />
-				<exclude name="conf/custom" />
 			</updatecheck>
 
 			<fileset dir="conf" targetdir="$INSTALL_PATH/conf" override="true">
@@ -169,8 +168,7 @@
 				<include name="postgres-SqlMapConfig.properties" />
 				<include name="sqlserver2005-SqlMapConfig.properties" />
 				<include name="sqlserver-SqlMapConfig.properties" />
-
-				<include name="custom/dbdrivers.xml" />
+				
 				<include name="log4j.properties" />
 				<include name="mule-boot.xml" />
 				<include name="*.dtd" />
