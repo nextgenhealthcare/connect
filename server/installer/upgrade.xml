@@ -54,7 +54,7 @@
 		</if>
 
 		<echo>removing libraries</echo>
-		<delete>
+		<delete failonerror="false">
 			<fileset dir="${install.path}/lib">
 				<exclude name="custom/**" />
 			</fileset>
