@@ -83,10 +83,10 @@
 		<res id="LicencePanel.licence" src="licenses/license-mirth.txt" />
 		<res id="HTMLInfoPanel.info" src="../installer/install-readme.html" />
 		<res id="shortcutSpec.xml" src="../installer/default_shortcut_specification.xml" />
+		<res id="Unix_shortcutSpec.xml" src="../unix_shortcut_specification.xml" />
 		<res id="AntActionsSpec.xml" src="../installer/ant_actions_spec.xml" />
 		<!-- res id="ProcessPanel.Spec.xml" src="../installer/process_panel_spec.xml" /-->
 		<!-- res id="ReigstrySpec.xml" src="../installer/registry_spec.xml" /-->
-		<!-- res id="Unix_shortcutSpec.xml" src="../unix_shortcut_specification.xml" /-->
 	</resources>
 
 	<!-- 
