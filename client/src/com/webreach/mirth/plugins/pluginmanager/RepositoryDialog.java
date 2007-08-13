@@ -94,6 +94,7 @@ public class RepositoryDialog extends javax.swing.JDialog
         Point loc = PlatformUI.MIRTH_FRAME.getLocation();
         setLocation((frmSize.width - dlgSize.width) / 2 + loc.x, (frmSize.height - dlgSize.height) / 2 + loc.y);
         progressBar.setVisible(false);
+        installUpdatesButton.setEnabled(false);
         setVisible(true);
         makeLoadedExtensionsTable();
         
@@ -215,6 +216,8 @@ public class RepositoryDialog extends javax.swing.JDialog
     
     public void installUpdates()
     {        
+    	installUpdatesButton.setEnabled(false);
+    	checkForUpdatesButton.setEnabled(false);
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
         	private boolean installedExtensions = false;
@@ -254,6 +257,7 @@ public class RepositoryDialog extends javax.swing.JDialog
             
             public void done()
             {
+            	checkForUpdatesButton.setEnabled(true);
             	if (installedExtensions){
 	                statusLabel.setText("Extensions Installed!");
 	                PlatformUI.MIRTH_FRAME.alertInformation("Extensions successfully installed.\r\nMirth Server must be restarted in order to load the extension.");
@@ -282,12 +286,15 @@ public class RepositoryDialog extends javax.swing.JDialog
         {
             e.printStackTrace();
         }
-        if (extensionInfo == null)
-        {
-            return;
-        }
         
-        statusLabel.setText("Ready to Install Extensions!");
+        if (extensionInfo == null || extensionInfo.length == 0){
+        	
+        	statusLabel.setText("No Extensions Found.");
+        	return;
+        }else{
+        	installUpdatesButton.setEnabled(true);
+        	statusLabel.setText("Ready to Install Extensions!");
+        }
         progressBar.setIndeterminate(false);
         tableSize = extensionInfo.length;
         
@@ -431,11 +438,10 @@ jPanel1Layout.setHorizontalGroup(
     }// </editor-fold>//GEN-END:initComponents
     
     private void checkForUpdatesButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkForUpdatesButtonActionPerformed
-// TODO add your handling code here:
-        //Probably should be a swing worker
-        
+
         PlatformUI.MIRTH_FRAME.setWorking("Checking for updates...", true);
-        
+        checkForUpdatesButton.setEnabled(false);
+        installUpdatesButton.setEnabled(false);
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
             public Void doInBackground()
@@ -446,6 +452,7 @@ jPanel1Layout.setHorizontalGroup(
             
             public void done()
             {
+            	checkForUpdatesButton.setEnabled(true);
                 PlatformUI.MIRTH_FRAME.setWorking("", false);
             }
         };

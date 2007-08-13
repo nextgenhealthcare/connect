@@ -39,7 +39,9 @@ public class PluginManagerClient extends ClientPanelPlugin
         addTask("doRefresh", "Refresh", "Refresh loaded plugins.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png")));
         addTask("doSave", "Save", "Save plugin settings.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/save.png")));
         addTask("doShowRepository", "Download Extensions", "Browse the public Mirth Extension Repository.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/database_gear.png")));
-        addTask("doCheckForUpdates", "Check for Updates", "Checks for updates.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/world_go.png")));
+        addTask("doCheckAllForUpdates", "Check All for Updates", "Checks all extensions for updates.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/world_link.png")));
+        
+        addTask("doCheckForUpdates", "Check for Updates", "Checks for updates.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/plugin_link.png")));
         addTask("doEnable","Enable Extension","Enable the currently selected extension.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/start.png")));
         addTask("doDisable","Disable Extension","Disable the currently selected extension.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/stop.png")));
         addTask("doShowProperties","Show Properties","Display the currently selected extension properties.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/application_view_list.png")));
@@ -52,11 +54,23 @@ public class PluginManagerClient extends ClientPanelPlugin
     {
         ((PluginManagerPanel) getComponent()).showExtensionProperties();
     }
-    public void doCheckForUpdates()
+    public void doCheckAllForUpdates()
     {
         try
         {
             new UpdateDialog(this);
+        }
+        catch (ClientException e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+    public void doCheckForUpdates()
+    {
+        try
+        {
+            new UpdateDialog(this, ((PluginManagerPanel) getComponent()).getSelectedExtension());
         }
         catch (ClientException e)
         {

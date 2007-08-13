@@ -88,8 +88,25 @@ public class UpdateDialog extends javax.swing.JDialog
         makeLoadedExtensionsTable();
         
         setVisible(true);
+    }
+    
+    public UpdateDialog(PluginManagerClient parent, MetaData metadata) throws ClientException
+    {
+        super(PlatformUI.MIRTH_FRAME);
+        this.parent = parent;
         
-      
+        initComponents();
+        extensions.put(metadata.getName(), metadata);        
+        Dimension dlgSize = getPreferredSize();
+        Dimension frmSize = PlatformUI.MIRTH_FRAME.getSize();
+        Point loc = PlatformUI.MIRTH_FRAME.getLocation();
+        setLocation((frmSize.width - dlgSize.width) / 2 + loc.x, (frmSize.height - dlgSize.height) / 2 + loc.y);
+        progressBar.setVisible(false);
+        installUpdatesButton.setEnabled(false);
+        checkForUpdatesButtonActionPerformed(null);
+        makeLoadedExtensionsTable();
+        
+        setVisible(true);
     }
     /**
      * Makes the loaded connectors table
@@ -200,8 +217,8 @@ public class UpdateDialog extends javax.swing.JDialog
     }
     public void installUpdates()
     {
-        //progressBar.setIndeterminate(true);
-        
+        installUpdatesButton.setEnabled(false);
+        checkForUpdatesButton.setEnabled(false);
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
         	private boolean installedUpdates = false;
@@ -238,6 +255,8 @@ public class UpdateDialog extends javax.swing.JDialog
             
             public void done()
             {
+            	
+            	checkForUpdatesButton.setEnabled(true);
             	if (installedUpdates){
 	                statusLabel.setText("Updates Installed!");
 	                PlatformUI.MIRTH_FRAME.alertInformation("Updates successfully installed.\r\nYou must restart Mirth to refresh plugin status");
@@ -259,6 +278,9 @@ public class UpdateDialog extends javax.swing.JDialog
         progressBar.setMaximum(extensions.size());
         for (MetaData metaData : extensions.values())
         {
+        	if (cancel){
+        		return;
+        	}
             if (metaData.getUpdateUrl() != null)
             {
                 statusLabel.setText("Checking: " + metaData.getName());
@@ -275,7 +297,12 @@ public class UpdateDialog extends javax.swing.JDialog
             }
             progressBar.setValue(progressBar.getValue()+1);
         }
-        statusLabel.setText("Ready to Install Updates!");
+        if (updatableExtensions.size() > 0){
+        	statusLabel.setText("Ready to Install Updates!");
+        	installUpdatesButton.setEnabled(true);
+        }else{
+        	statusLabel.setText("No Updates Found.");
+        }
         tableSize = updatableExtensions.size();
         progressBar.setVisible(false);
         tableData = new Object[tableSize][4];
@@ -419,7 +446,9 @@ public class UpdateDialog extends javax.swing.JDialog
         //Probably should be a swing worker
         
         //PlatformUI.MIRTH_FRAME.setWorking("Checking for updates...", true);
-        
+        checkForUpdatesButton.setEnabled(false);
+        installUpdatesButton.setEnabled(false);
+
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
             public Void doInBackground()
@@ -430,6 +459,8 @@ public class UpdateDialog extends javax.swing.JDialog
             
             public void done()
             {
+            	checkForUpdatesButton.setEnabled(true);
+            	
                 //PlatformUI.MIRTH_FRAME.setWorking("", false);
             	//makeLoadedExtensionsTable();
             }
