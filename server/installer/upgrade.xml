@@ -52,6 +52,13 @@
 				</then>
 			</elseif>
 		</if>
+
+		<echo>removing libraries</echo>
+		<delete>
+			<fileset dir="${install.path}/lib">
+				<exclude name="custom/**" />
+			</fileset>
+		</delete>
 	</target>
 
 	<target name="backup">

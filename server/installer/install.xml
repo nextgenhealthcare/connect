@@ -122,6 +122,9 @@
 				<include name="**" />
 				<exclude name="mirthdb/**" />
 				<exclude name="public_html/**" />
+				<exclude name="lib/custom/**" />
+				<exclude name="server.properties" />
+				<exclude name="server.id" />
 			</updatecheck>
 
 			<file src="mirth-server.jar" targetdir="$INSTALL_PATH" override="true" />
@@ -155,7 +158,7 @@
 
 			<updatecheck>
 				<include name="**" />
-				<exclude name="conf" />
+				<exclude name="conf/custom" />
 			</updatecheck>
 
 			<fileset dir="conf" targetdir="$INSTALL_PATH/conf" override="true">
