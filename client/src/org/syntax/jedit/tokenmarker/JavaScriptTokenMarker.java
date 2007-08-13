@@ -58,6 +58,10 @@ public class JavaScriptTokenMarker extends CTokenMarker
             javaScriptKeywords.add("channelMap", Token.KEYWORD1);
             javaScriptKeywords.add("globalMap", Token.KEYWORD1);
             javaScriptKeywords.add("responseMap", Token.KEYWORD1);
+            javaScriptKeywords.add("$co", Token.KEYWORD1);
+            javaScriptKeywords.add("$c", Token.KEYWORD1);
+            javaScriptKeywords.add("$g", Token.KEYWORD1);
+            javaScriptKeywords.add("$r", Token.KEYWORD1);
             javaScriptKeywords.add("logger", Token.KEYWORD3);
             javaScriptKeywords.add("message", Token.KEYWORD3);
             javaScriptKeywords.add("SMTPConnectionFactory", Token.KEYWORD3);

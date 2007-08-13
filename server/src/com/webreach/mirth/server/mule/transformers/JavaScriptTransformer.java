@@ -335,7 +335,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 
 	private MessageObject evaluateTransformerScript(MessageObject messageObject) throws TransformerException {
 		try {
-			Logger scriptLogger = Logger.getLogger(getMode().toLowerCase() + "-transformation");
+			Logger scriptLogger = Logger.getLogger(getMode().toLowerCase() + "-transformer");
 			Context context = getContext();
 			Scriptable scope = getScope();
 			// load variables in JavaScript scope
@@ -416,6 +416,19 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 		script.append("if (channelMap.containsKey(string)) { return channelMap.get(string);} else ");
 		script.append("if (globalMap.containsKey(string)) { return globalMap.get(string);} else ");
 		script.append("{ return ''; }}");
+		script.append("function $g(key, value){");
+		script.append("if (arguments.length == 1){return globalMap.get(key); }");
+		script.append("else if (arguments.length == 2){globalMap.put(key, value); }}");
+		script.append("function $c(key, value){");
+		script.append("if (arguments.length == 1){return channelMap.get(key); }");
+		script.append("else if (arguments.length == 2){channelMap.put(key, value); }}");
+		script.append("function $co(key, value){");
+		script.append("if (arguments.length == 1){return connectorMap.get(key); }");
+		script.append("else if (arguments.length == 2){connectorMap.put(key, value); }}");
+		script.append("function $r(key, value){");
+		script.append("if (arguments.length == 1){return responseMap.get(key); }");
+		script.append("else if (arguments.length == 2){responseMap.put(key, value); }}");
+		
 		script.append("function doFilter() {");
         // ast: Allow ending whitespaces from the input XML
         script.append("XML.ignoreWhitespace=false;");
@@ -444,6 +457,18 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 		script.append("if (channelMap.containsKey(string)) { return channelMap.get(string);} else ");
 		script.append("if (globalMap.containsKey(string)) { return globalMap.get(string);} else ");
 		script.append("{ return ''; }}");
+		script.append("function $g(key, value){");
+		script.append("if (arguments.length == 1){return globalMap.get(key); }");
+		script.append("else if (arguments.length == 2){globalMap.put(key, value); }}");
+		script.append("function $c(key, value){");
+		script.append("if (arguments.length == 1){return channelMap.get(key); }");
+		script.append("else if (arguments.length == 2){channelMap.put(key, value); }}");
+		script.append("function $co(key, value){");
+		script.append("if (arguments.length == 1){return connectorMap.get(key); }");
+		script.append("else if (arguments.length == 2){connectorMap.put(key, value); }}");
+		script.append("function $r(key, value){");
+		script.append("if (arguments.length == 1){return responseMap.get(key); }");
+		script.append("else if (arguments.length == 2){responseMap.put(key, value); }}");
 		script.append("default xml namespace = '';");
 		script.append("function doTransform() {");
 		

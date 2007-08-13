@@ -140,12 +140,28 @@ public class JavaScriptUtil
     public String generateScript(String script, boolean includeChannelMap)
     {
         StringBuilder builtScript = new StringBuilder();
+        
         builtScript.append("function $(string) { ");
         if (includeChannelMap){
         	builtScript.append("if (channelMap.containsKey(string)) { return channelMap.get(string);} else ");
         }
         builtScript.append("if (globalMap.containsKey(string)) { return globalMap.get(string);} else ");
         builtScript.append("{ return ''; }}");
+        if (includeChannelMap){
+        	builtScript.append("function $c(key, value){");
+        	builtScript.append("if (arguments.length == 1){return channelMap.get(key); }");
+        	builtScript.append("else if (arguments.length == 2){channelMap.put(key, value); }}");
+        	builtScript.append("function $co(key, value){");
+        	builtScript.append("if (arguments.length == 1){return connectorMap.get(key); }");
+        	builtScript.append("else if (arguments.length == 2){connectorMap.put(key, value); }}");
+        	builtScript.append("function $r(key, value){");
+        	builtScript.append("if (arguments.length == 1){return responseMap.get(key); }");
+        	builtScript.append("else if (arguments.length == 2){responseMap.put(key, value); }}");
+        }
+        builtScript.append("function $g(key, value){");
+        builtScript.append("if (arguments.length == 1){return globalMap.get(key); }");
+        builtScript.append("else if (arguments.length == 2){globalMap.put(key, value); }}");
+		
         builtScript.append("function doScript() {" + script + " }\n");
         builtScript.append("doScript()\n");
         return builtScript.toString();

@@ -15,6 +15,7 @@ import javax.swing.event.DocumentListener;
 
 import org.syntax.jedit.SyntaxDocument;
 import org.syntax.jedit.tokenmarker.JavaScriptTokenMarker;
+import org.syntax.jedit.tokenmarker.TokenMarker;
 
 import com.webreach.mirth.client.ui.UIConstants;
 
@@ -22,26 +23,21 @@ import com.webreach.mirth.client.ui.UIConstants;
  * 
  * @author brendanh
  */
-public class JavaScriptPanel extends BasePanel
+public class ScriptPanel extends BasePanel
 {
-    private static SyntaxDocument scriptDoc;
+	protected static SyntaxDocument scriptDoc;
 
-    private LineNumber lineNumbers;
-
-    private MirthEditorPane parent;
-
-    private String header = "{";
-
-    private String footer = "}";
-
+    protected MirthEditorPane parent;
+    protected int context;
     /** Creates new form JavaScriptPanel */
-    public JavaScriptPanel(MirthEditorPane p)
+    public ScriptPanel(MirthEditorPane p, TokenMarker tokenMarker, int context)
     {
         super();
         parent = p;
+        this.context = context;
         initComponents();
         scriptDoc = new SyntaxDocument();
-        scriptDoc.setTokenMarker(new JavaScriptTokenMarker());
+        scriptDoc.setTokenMarker(tokenMarker);
         scriptTextPane.setDocument(scriptDoc);
         scriptTextPane.getDocument().addDocumentListener(new DocumentListener()
         {
@@ -81,7 +77,7 @@ public class JavaScriptPanel extends BasePanel
         parent.modified = modified;
     }
 
-    public String getJavaScript()
+    public String getScript()
     {
         return scriptTextPane.getText();
     }
@@ -105,7 +101,7 @@ public class JavaScriptPanel extends BasePanel
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents()
     {
-        scriptTextPane = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea(true,true,ReferenceListFactory.MESSAGE_CONTEXT);
+        scriptTextPane = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea(true,true,this.context);
 
         setBackground(new java.awt.Color(255, 255, 255));
         scriptTextPane.setBorder(javax.swing.BorderFactory.createEtchedBorder());
@@ -123,7 +119,7 @@ public class JavaScriptPanel extends BasePanel
     }// </editor-fold>//GEN-END:initComponents
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea scriptTextPane;
+    protected com.webreach.mirth.client.ui.components.MirthSyntaxTextArea scriptTextPane;
     // End of variables declaration//GEN-END:variables
 
 }

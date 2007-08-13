@@ -6,19 +6,21 @@ import java.util.Map;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EvaluatorException;
 import org.mozilla.javascript.Script;
+import org.syntax.jedit.tokenmarker.JavaScriptTokenMarker;
 
 import com.webreach.mirth.client.ui.editors.BasePanel;
-import com.webreach.mirth.client.ui.editors.JavaScriptPanel;
+import com.webreach.mirth.client.ui.editors.ScriptPanel;
 import com.webreach.mirth.client.ui.editors.MirthEditorPane;
 import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
+import com.webreach.mirth.client.ui.panels.reference.ReferenceListFactory;
 import com.webreach.mirth.plugins.TransformerStepPlugin;
 
 public class JavascriptStepPlugin extends TransformerStepPlugin{
-	private JavaScriptPanel panel;
+	private ScriptPanel panel;
 	
 	public JavascriptStepPlugin(String name, TransformerPane parent) {
 		super(name, parent);
-		panel = new JavaScriptPanel(parent);
+		panel = new ScriptPanel(parent, new JavaScriptTokenMarker(), ReferenceListFactory.MESSAGE_CONTEXT);
 	}
 
 	@Override
@@ -58,7 +60,7 @@ public class JavascriptStepPlugin extends TransformerStepPlugin{
 		 try
 	        {
 	            Context context = Context.enter();
-	            Script compiledFilterScript = context.compileString("function rhinoWrapper() {" + panel.getJavaScript() + "}", null, 1, null);
+	            Script compiledFilterScript = context.compileString("function rhinoWrapper() {" + panel.getScript() + "}", null, 1, null);
 	            parent.getParentFrame().alertInformation("JavaScript was successfully validated.");
 	        }
 	        catch (EvaluatorException e)

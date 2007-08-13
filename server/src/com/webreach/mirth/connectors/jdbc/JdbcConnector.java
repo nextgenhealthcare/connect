@@ -129,8 +129,6 @@ public class JdbcConnector extends AbstractServiceEnabledConnector {
 		StringBuilder script = new StringBuilder();
 		script.append("importPackage(Packages.com.webreach.mirth.server.util);\n");
 
-		// TODO: FIX THIS - the scope lookup should be
-		// connector->channel->global
 		script.append("function $(string) { ");
 		if (ack) {
 			script.append("if (resultMap.get(string) != null) { return resultMap.get(string) } else ");
@@ -139,7 +137,18 @@ public class JdbcConnector extends AbstractServiceEnabledConnector {
 		script.append("if (channelMap.containsKey(string)) { return channelMap.get(string);} else ");
 		script.append("if (globalMap.containsKey(string)) { return globalMap.get(string);} else ");
 		script.append("{ return ''; }}");
-
+		script.append("function $g(key, value){");
+		script.append("if (arguments.length == 1){return globalMap.get(key); }");
+		script.append("else if (arguments.length == 2){globalMap.put(key, value); }}");
+		script.append("function $c(key, value){");
+		script.append("if (arguments.length == 1){return channelMap.get(key); }");
+		script.append("else if (arguments.length == 2){channelMap.put(key, value); }}");
+		script.append("function $co(key, value){");
+		script.append("if (arguments.length == 1){return connectorMap.get(key); }");
+		script.append("else if (arguments.length == 2){connectorMap.put(key, value); }}");
+		script.append("function $r(key, value){");
+		script.append("if (arguments.length == 1){return responseMap.get(key); }");
+		script.append("else if (arguments.length == 2){responseMap.put(key, value); }}");
 		script.append("function doDatabaseScript() {");
 		script.append(databaseScript + "}\n");
 		script.append("doDatabaseScript()\n");

@@ -89,7 +89,7 @@ import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.client.ui.components.MirthComboBoxCellEditor;
 import com.webreach.mirth.client.ui.editors.BasePanel;
 import com.webreach.mirth.client.ui.editors.EditorTableCellEditor;
-import com.webreach.mirth.client.ui.editors.JavaScriptPanel;
+import com.webreach.mirth.client.ui.editors.ScriptPanel;
 import com.webreach.mirth.client.ui.editors.MapperPanel;
 import com.webreach.mirth.client.ui.editors.MessageBuilder;
 import com.webreach.mirth.client.ui.editors.MirthEditorPane;

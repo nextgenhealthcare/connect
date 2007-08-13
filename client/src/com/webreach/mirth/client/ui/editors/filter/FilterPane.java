@@ -76,6 +76,7 @@ import org.jdesktop.swingx.decorator.HighlighterPipeline;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EvaluatorException;
 import org.mozilla.javascript.Script;
+import org.syntax.jedit.tokenmarker.JavaScriptTokenMarker;
 
 import com.webreach.mirth.client.ui.CenterCellRenderer;
 import com.webreach.mirth.client.ui.Frame;
@@ -86,8 +87,9 @@ import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.client.ui.components.MirthComboBoxCellEditor;
 import com.webreach.mirth.client.ui.editors.BasePanel;
 import com.webreach.mirth.client.ui.editors.EditorTableCellEditor;
-import com.webreach.mirth.client.ui.editors.JavaScriptPanel;
+import com.webreach.mirth.client.ui.editors.ScriptPanel;
 import com.webreach.mirth.client.ui.editors.MirthEditorPane;
+import com.webreach.mirth.client.ui.panels.reference.ReferenceListFactory;
 import com.webreach.mirth.client.ui.util.FileUtil;
 import com.webreach.mirth.client.ui.util.VariableListUtil;
 import com.webreach.mirth.model.util.ImportConverter;
@@ -122,7 +124,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
     // panels using CardLayout
     protected BasePanel rulePanel; // the card holder
     protected BasePanel blankPanel;
-    protected JavaScriptPanel jsPanel;
+    protected ScriptPanel jsPanel;
     public static final int NUMBER_OF_COLUMNS = 4;
     public static final String BLANK_TYPE = "";
     public static final String JAVASCRIPT_TYPE = "JavaScript";
@@ -289,7 +291,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
         // the available panels (cards)
         rulePanel = new BasePanel();
         blankPanel = new BasePanel();
-        jsPanel = new JavaScriptPanel(this);
+        jsPanel = new ScriptPanel(this, new JavaScriptTokenMarker(), ReferenceListFactory.MESSAGE_CONTEXT);
         // establish the cards to use in the Filter
         rulePanel.addCard(blankPanel, BLANK_TYPE);
         rulePanel.addCard(jsPanel, JAVASCRIPT_TYPE);
@@ -856,7 +858,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
         try
         {
             Context context = Context.enter();
-            Script compiledFilterScript = context.compileString("function rhinoWrapper() {" + jsPanel.getJavaScript() + "}", null, 1, null);
+            Script compiledFilterScript = context.compileString("function rhinoWrapper() {" + jsPanel.getScript() + "}", null, 1, null);
             parent.alertInformation("JavaScript was successfully validated.");
         }
         catch (EvaluatorException e)
