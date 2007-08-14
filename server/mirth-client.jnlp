@@ -21,7 +21,7 @@
 	
 	<resources>
 		<property name="java.endorsed.dirs " value="client-lib/"/> 
-		<j2se href="http://java.sun.com/products/autodl/j2se" version="1.5+" />
+		<j2se href="http://java.sun.com/products/autodl/j2se" version="1.5+" max-heap-size="128M"/>
 		<extension name="activation" href="activation.jnlp"/>
 		<jar download="eager" href="client-lib/mirth-client.jar" main="true" />
 		<jar download="eager" href="client-lib/mirth-client-core.jar" />
