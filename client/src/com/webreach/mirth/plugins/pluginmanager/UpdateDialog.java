@@ -31,6 +31,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.io.File;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -238,14 +239,14 @@ public class UpdateDialog extends javax.swing.JDialog
                             break;
                         }
                         progressBar.setVisible(true);
-                        byte[] pluginData = pluginUtil.downloadFile(pluginUtil.getDynamicURL(plugin.getDownloadUrl(), plugin.getVersion(), plugin.getName(), plugin.getId()), statusLabel, progressBar);
+                        File file = pluginUtil.downloadFileToDisk(pluginUtil.getDynamicURL(plugin.getDownloadUrl(), plugin.getVersion(), plugin.getName(), plugin.getId()), statusLabel, progressBar);
                         progressBar.setVisible(false);
                         if (cancel)
                         {
                             break;
                         }
                         statusLabel.setText("Updating extension: " + plugin.getName());
-                        parent.install(plugin.getType().toLowerCase() + "s", pluginData);
+                        parent.install(plugin.getType().toLowerCase() + "s", file);
                         installedUpdates = true;
                     }
                 }

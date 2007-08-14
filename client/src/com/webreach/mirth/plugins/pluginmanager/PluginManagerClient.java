@@ -172,32 +172,26 @@ public class PluginManagerClient extends ClientPanelPlugin
     
     public boolean install(String location, File file)
     {
-        byte[] bytes;
-		try {
-			bytes = getBytesFromFile(file);
-			return install(location, bytes);
-		} catch (IOException e) {
-			alertException(e.getStackTrace(), "Error reading file");
-			return false;
-		}
-    }
-    
-    public boolean install(String location, byte[] bytes)
-    {
-        try
+    	try
         {
-            String contents = "";
-            BASE64Encoder encoder = new BASE64Encoder();
-            contents = encoder.encode(bytes);
-            PlatformUI.MIRTH_FRAME.mirthClient.installExtension(location, contents);
+    		if (file.exists()){
+    			PlatformUI.MIRTH_FRAME.mirthClient.installExtension(location, file);
+    		}
+    		else
+    		{
+    			alertError("Invalid extension file.");
+                return false;
+    		}
         }
         catch(Exception e)
         {
-            alertError("Invalid extension file.");
+            //alertError("Invalid extension file.");
             return false;
         }
         return true;
     }
+    
+   
     // Returns the contents of the file in a byte array.
     private byte[] getBytesFromFile(File file) throws IOException
     {

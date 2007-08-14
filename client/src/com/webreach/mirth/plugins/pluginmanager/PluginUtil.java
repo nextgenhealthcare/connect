@@ -2,6 +2,8 @@ package com.webreach.mirth.plugins.pluginmanager;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -11,11 +13,13 @@ import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.zip.ZipFile;
 
 import javax.swing.JLabel;
 import javax.swing.JProgressBar;
 
 import com.webreach.mirth.client.ui.PlatformUI;
+import com.webreach.mirth.server.util.UUIDGenerator;
 
 public class PluginUtil
 {
@@ -100,6 +104,82 @@ public class PluginUtil
                 progressBar.setIndeterminate(false);
             }
             return out.toByteArray();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        finally
+        {
+            try
+            {
+                if (in != null)
+                {
+                    in.close();
+                }
+                if (out != null)
+                {
+                    out.close();
+                }
+            }
+            catch (IOException ioe)
+            {
+            }
+        }
+        return null;
+    }
+    
+    public File downloadFileToDisk(String address, JLabel statusLabel, JProgressBar progressBar)
+    {
+        FileOutputStream out = null;
+        URLConnection conn = null;
+        InputStream  in = null;
+        NumberFormat formatter = new DecimalFormat("#.00");
+        String uniqueId = UUIDGenerator.getUUID();
+		ZipFile zipFile = null;
+        try
+        {
+			File file = File.createTempFile(uniqueId, ".zip");
+            URL url = new URL(address);
+            out = new FileOutputStream(file);
+            conn = url.openConnection();
+            int length = conn.getContentLength();
+            in = conn.getInputStream();
+            if (length != -1 )
+            {
+                progressBar.setMaximum(length);
+            }
+            else
+            {
+                progressBar.setIndeterminate(true);
+            }
+            byte[] buffer = new byte[1024];
+            int inread;
+            float outwrite = 0;
+            while ((inread = in.read(buffer)) != -1)
+            {
+                out.write(buffer, 0, inread);
+                outwrite += inread;
+                
+                if (length != -1)
+                {
+                    progressBar.setValue(progressBar.getValue() + inread);
+                    statusLabel.setText("Downloaded: " + formatter.format(outwrite/1000) + " Kbytes/" + formatter.format(length/1000) + " Kbytes");
+                }
+                else
+                {
+                    statusLabel.setText("Downloaded: " + formatter.format(outwrite/1000) + " Kbytes");
+                }
+            }
+            if (length != -1)
+            {
+                progressBar.setValue(0);
+            }
+            else
+            {
+                progressBar.setIndeterminate(false);
+            }
+            return file;
         }
         catch (Exception e)
         {

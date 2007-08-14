@@ -35,6 +35,7 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -239,7 +240,7 @@ public class RepositoryDialog extends javax.swing.JDialog
                             break;
                         }
                         progressBar.setVisible(true);
-                        byte[] pluginData = pluginUtil.downloadFile(pluginUtil.getDynamicURL(extensionInfo[i].getDownloadUrl(), extensionInfo[i].getVersion(), extensionInfo[i].getName(), extensionInfo[i].getId()), statusLabel, progressBar);
+                        File file = pluginUtil.downloadFileToDisk(pluginUtil.getDynamicURL(extensionInfo[i].getDownloadUrl(), extensionInfo[i].getVersion(), extensionInfo[i].getName(), extensionInfo[i].getId()), statusLabel, progressBar);
                         progressBar.setVisible(false);
                         statusLabel.setText("Installing extension: " + name);
                         if (cancel)
@@ -247,7 +248,7 @@ public class RepositoryDialog extends javax.swing.JDialog
                             break;
                         }
                         statusLabel.setText("Updating extension: " + extensionInfo[i].getName());
-                        parent.install(extensionInfo[i].getType().toLowerCase() + "s", pluginData);
+                        parent.install(extensionInfo[i].getType().toLowerCase() + "s", file);
                         installedExtensions = true;
                     }
                 }
