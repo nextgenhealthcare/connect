@@ -14,14 +14,14 @@
 	applications="no"
 	startMenu="no"
 	startup="no"
-	terminal="true">
+	terminal="true"
+	type="application">
 	<createForPack name="Core" />
 	</shortcut>
   
 	<shortcut
   name="$APP_NAME Shell"
-  target="$INSTALL_PATH/Shell.sh" 
-  commandLine=""
+  target="$INSTALL_PATH/shell.sh" 
   workingDirectory="$INSTALL_PATH"
   description="Start $APP_NAME Shell"
   initialState="normal"
@@ -30,7 +30,8 @@
   applications="no"
   startMenu="no"
   startup="no"
-  terminal="true">
+  terminal="true"
+  type="application">
   <createForPack name="Shell" />
   </shortcut>
   
@@ -44,7 +45,8 @@
 	desktop="no"
 	applications="no"
 	startMenu="no"
-	startup="no">
+	startup="no"
+	type="application">
 	<createForPack name="Core" />
 	</shortcut> 
 </shortcuts>

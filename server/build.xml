@@ -445,17 +445,10 @@
 		<taskdef name="launch4j" classname="net.sf.launch4j.ant.Launch4jTask" classpath="${env.LAUNCH4J_HOME}/launch4j.jar:${env.LAUNCH4J_HOME}/lib/xstream.jar" />
 		<launch4j configFile="${installer}/launch4jconfig.xml" jar="${dist}/mirth-${version}-setup.jar" outfile="${dist}/mirth-${version}-setup.exe" />
 
-		<!-- create the unix installer -->
-		<taskdef classpath="${installer.lib}/orangevolt-ant-tasks-1.3.5.jar:${basedir}/installer/lib/roxes-win32forjava-1.0.4.jar" resource="com/orangevolt/tools/ant/taskdefs.properties" />
-		<zip destfile="${dist}/mirth-${version}-setup.zip" basedir="${dist}" includes="mirth-${version}-setup.jar" />
-		<sfx archive="${dist}/mirth-${version}-setup.zip" mode="unix" execute="java -jar mirth-${version}-setup.jar" output="${dist}/mirth-${version}-setup" />
-		<delete file="${dist}/mirth-${version}-setup.zip" />
-
-		<!-- create the mac osx installer -->
-		<taskdef name="jarbundler" classname="net.sourceforge.jarbundler.JarBundler" classpath="${installer.lib}/jarbundler-1.9.jar" />
-		<jarbundler dir="${dist}" name="mirth-${version}-setup" mainclass="com.izforge.izpack.installer.Installer" jar="${dist}/mirth-${version}-setup.jar" stubfile="${installer}/JavaApplicationStub" icon="${installer}/mirth.icns" />
-		<zip basedir="${dist}" destfile="${dist}/mirth-${version}-setup.app.zip" includes="mirth-${version}-setup.app/**" />
-		<delete dir="${dist}/mirth-${version}-setup.app" />
+		<!-- create the linux installer -->
+		<tar basedir="${basedir}" tarfile="${dist}/mirth-${version}-setup.tar" includes="${dist}/mirth-${version}-setup.jar,${docs}/LINUX-README.txt,${installer}/script.xml" />
+		<gzip src="${dist}/mirth-${version}-setup.tar" zipfile="${dist}/mirth-${version}-setup.tar.gz" />
+		<delete file="${dist}/mirth-${version}-setup.tar" />
 
 		<!-- create the JBoss service archive -->
 		<mkdir dir="${dist}/mirth.sar" />

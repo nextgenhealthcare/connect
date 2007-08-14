@@ -115,8 +115,7 @@
 
 	<target name="finalize">
 		<echo>setting permissions on shell scripts</echo>
-		<chmod file="${install.path}/mirth.sh" perm="+x" />
-		<chmod file="${install.path}/shell.sh" perm="+x" />
+    <chmod perm="ugo+rx" dir="${install.path}" includes="**/*.sh" />
 	</target>
 
 	<target name="startManager">
