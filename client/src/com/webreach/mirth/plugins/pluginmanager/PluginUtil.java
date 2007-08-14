@@ -13,13 +13,13 @@ import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.UUID;
 import java.util.zip.ZipFile;
 
 import javax.swing.JLabel;
 import javax.swing.JProgressBar;
 
 import com.webreach.mirth.client.ui.PlatformUI;
-import com.webreach.mirth.server.util.UUIDGenerator;
 
 public class PluginUtil
 {
@@ -135,7 +135,7 @@ public class PluginUtil
         URLConnection conn = null;
         InputStream  in = null;
         NumberFormat formatter = new DecimalFormat("#.00");
-        String uniqueId = UUIDGenerator.getUUID();
+        String uniqueId = UUID.randomUUID().toString();
 		ZipFile zipFile = null;
         try
         {
