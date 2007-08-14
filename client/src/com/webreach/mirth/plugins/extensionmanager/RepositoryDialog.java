@@ -23,7 +23,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-package com.webreach.mirth.plugins.pluginmanager;
+package com.webreach.mirth.plugins.extensionmanager;
 
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import java.awt.Dimension;
@@ -69,7 +69,7 @@ import com.webreach.mirth.model.PluginMetaData;
 public class RepositoryDialog extends javax.swing.JDialog
 {
     private static final int INSTALL_COLUMN = 4;
-	private PluginManagerClient parent;
+	private ExtensionManagerClient parent;
     private final String EXTENSION_TYPE_COLUMN_NAME = "Type";
     private final String EXTENSION_NAME_COLUMN_NAME = "Extension Name";
     private final String EXTENSION_VERSION_COLUMN_NAME = "Version";
@@ -84,7 +84,7 @@ public class RepositoryDialog extends javax.swing.JDialog
     /**
      * Creates new form ViewContentDialog
      */
-    public RepositoryDialog(PluginManagerClient parent) throws ClientException
+    public RepositoryDialog(ExtensionManagerClient parent) throws ClientException
     {
         super(PlatformUI.MIRTH_FRAME);
         this.parent = parent;

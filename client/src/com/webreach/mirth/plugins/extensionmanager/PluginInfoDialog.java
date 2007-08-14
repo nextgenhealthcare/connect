@@ -23,7 +23,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-package com.webreach.mirth.plugins.pluginmanager;
+package com.webreach.mirth.plugins.extensionmanager;
 
 import java.awt.Cursor;
 import java.awt.Dimension;

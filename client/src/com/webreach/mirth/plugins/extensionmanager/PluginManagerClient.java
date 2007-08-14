@@ -7,7 +7,7 @@
  * and open the template in the editor.
  */
 
-package com.webreach.mirth.plugins.pluginmanager;
+package com.webreach.mirth.plugins.extensionmanager;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;

@@ -1,4 +1,4 @@
-package com.webreach.mirth.plugins.pluginmanager;
+package com.webreach.mirth.plugins.extensionmanager;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;

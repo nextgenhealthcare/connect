@@ -4,7 +4,7 @@
  * Created on July 17, 2007, 4:32 PM
  */
 
-package com.webreach.mirth.plugins.pluginmanager;
+package com.webreach.mirth.plugins.extensionmanager;
 
 import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.ui.*;
@@ -35,7 +35,7 @@ import org.jdesktop.swingx.decorator.HighlighterPipeline;
  */
 public class PluginManagerPanel extends javax.swing.JPanel
 {
-    private PluginManagerClient parent;
+    private ExtensionManagerClient parent;
     
     private final String PLUGIN_STATUS_COLUMN_NAME = "Status";
     private final String PLUGIN_NAME_COLUMN_NAME = "Plugin Name";
@@ -55,7 +55,7 @@ public class PluginManagerPanel extends javax.swing.JPanel
     private Map<String, ConnectorMetaData> connectorData = null;
     
     /** Creates new form PluginManagerPanel */
-    public PluginManagerPanel(PluginManagerClient parent)
+    public PluginManagerPanel(ExtensionManagerClient parent)
     {
         this.parent = parent;
         initComponents();

@@ -23,7 +23,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-package com.webreach.mirth.plugins.pluginmanager;
+package com.webreach.mirth.plugins.extensionmanager;
 
 import java.awt.Dimension;
 import java.awt.Point;
@@ -56,7 +56,7 @@ import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 /** Creates the About Mirth dialog. The content is loaded from about.txt. */
 public class UpdateDialog extends javax.swing.JDialog
 {
-    private PluginManagerClient parent;
+    private ExtensionManagerClient parent;
     
     private final String EXTENSION_NAME_COLUMN_NAME = "Extension Name";
     private final String EXTENSION_INSTALLED_VERSION_COLUMN_NAME = "Installed Version";
@@ -69,7 +69,7 @@ public class UpdateDialog extends javax.swing.JDialog
     /**
      * Creates new form ViewContentDialog
      */
-    public UpdateDialog(PluginManagerClient parent) throws ClientException
+    public UpdateDialog(ExtensionManagerClient parent) throws ClientException
     {
         super(PlatformUI.MIRTH_FRAME);
         this.parent = parent;
@@ -91,7 +91,7 @@ public class UpdateDialog extends javax.swing.JDialog
         setVisible(true);
     }
     
-    public UpdateDialog(PluginManagerClient parent, MetaData metadata) throws ClientException
+    public UpdateDialog(ExtensionManagerClient parent, MetaData metadata) throws ClientException
     {
         super(PlatformUI.MIRTH_FRAME);
         this.parent = parent;
