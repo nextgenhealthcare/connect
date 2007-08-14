@@ -339,6 +339,7 @@
 			<fileset file="${basedir}/shell.sh" />
 			<fileset file="${basedir}/Mirth Manager.exe" />
 			<fileset file="${basedir}/Mirth.exe" />
+			<fileset file="${docs}/README.txt" />
 			<fileset file="${installer}/upgrade.xml" />
 			<fileset file="${installer}/uninstall.ico" />
 		</copy>
@@ -486,7 +487,7 @@
 			<fileset file="${basedir}/jboss-service.xml" />
 		</copy>
 		<copy todir="${dist}/mirth.sar">
-			<fileset file="${basedir}/jboss-readme.txt" />
+			<fileset file="${docs}/JBOSS-README.txt" />
 		</copy>
 
 		<!-- create the mbeans jar with classpath manifest -->
