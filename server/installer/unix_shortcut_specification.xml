@@ -37,8 +37,9 @@
   
 	<shortcut
 	name="Uninstaller"
-	target="$INSTALL_PATH/Uninstaller/uninstaller.jar"     
-	commandLine="java -jar"
+	target="java -jar"     
+	commandLine="$INSTALL_PATH/Uninstaller/uninstaller.jar"
+	workingDirectory="$INSTALL_PATH"
 	description="Mirth uninstaller"
 	iconFile="$INSTALL_PATH/uninstall.ico"
 	programGroup="yes"

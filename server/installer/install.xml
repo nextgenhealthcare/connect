@@ -140,9 +140,10 @@
 			<fileset dir="." targetdir="$INSTALL_PATH" os="windows" override="true">
 				<include name="Mirth.bat" />
 				<include name="Mirth.exe" />
-				<include name="Mirth.ico" />
-				<include name="uninstall.ico" />
 			</fileset>
+
+      <file src="Mirth.ico" targetdir="$INSTALL_PATH" override="true" />
+      <file src="uninstall.ico" targetdir="$INSTALL_PATH" override="true" />
 
 			<file src="lib" targetdir="$INSTALL_PATH" override="true" />
 			<file src="client-lib" targetdir="$INSTALL_PATH" override="true" />
