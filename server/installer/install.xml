@@ -159,7 +159,7 @@
 
 			<updatecheck>
 				<include name="**" />
-				<exclude name="custom/dbdrivers.xml" />
+				<exclude name="conf/custom/dbdrivers.xml" />
 			</updatecheck>
 
 			<fileset dir="conf" targetdir="$INSTALL_PATH/conf" override="true">
@@ -171,6 +171,7 @@
 				<include name="sqlserver2005-SqlMapConfig.properties" />
 				<include name="sqlserver-SqlMapConfig.properties" />
 				
+				<include name="custom/dbdrivers.xml" />
 				<include name="log4j.properties" />
 				<include name="mule-boot.xml" />
 				<include name="*.dtd" />
