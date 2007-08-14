@@ -446,15 +446,16 @@
 		<launch4j configFile="${installer}/launch4jconfig.xml" jar="${dist}/mirth-${version}-setup.jar" outfile="${dist}/mirth-${version}-setup.exe" />
 
 		<!-- create the linux installer -->
-		<tar tarfile="${dist}/mirth-${version}-setup.tar">
-			<fileset dir="${basedir}">
-				<include name="dist/mirth-${version}-setup.jar" />
-				<include name="docs/LINUX-README.txt" />
-				<include name="installer/script.xml" />
-			</fileset>
-		</tar>
+		<mkdir dir="${dist}/setup-tar" />
+		<copy todir="${dist}/setup-tar">
+			<fileset file="${dist}/mirth-${version}-setup.jar" />
+			<fileset file="${docs}/LINUX-README.txt" />
+			<fileset file="${installer}/script.xml" />
+		</copy>
+		<tar basedir="${dist}/setup-tar" tarfile="${dist}/mirth-${version}-setup.tar" />
 		<gzip src="${dist}/mirth-${version}-setup.tar" zipfile="${dist}/mirth-${version}-setup.tar.gz" />
 		<delete file="${dist}/mirth-${version}-setup.tar" />
+		<delete dir="${dist}/setup-tar" />
 
 		<!-- create the JBoss service archive -->
 		<mkdir dir="${dist}/mirth.sar" />
