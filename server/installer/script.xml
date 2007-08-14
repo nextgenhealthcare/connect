@@ -1,0 +1,17 @@
+<AutomatedInstallation langpack="eng">
+    <com.izforge.izpack.panels.CheckedHelloPanel/>
+    <com.izforge.izpack.panels.LicencePanel/>
+    <com.izforge.izpack.panels.HTMLInfoPanel/>
+    <com.izforge.izpack.panels.TargetPanel>
+        <installpath>~/Mirth</installpath>
+    </com.izforge.izpack.panels.TargetPanel>
+    <com.izforge.izpack.panels.PacksPanel>
+        <pack name="Update Scripts" index="0" selected="true"/>
+        <pack name="Core" index="1" selected="true"/>
+        <pack name="Configuration" index="2" selected="true"/>
+        <pack name="Shell" index="3" selected="true"/>
+    </com.izforge.izpack.panels.PacksPanel>
+    <com.izforge.izpack.panels.InstallPanel/>
+    <com.izforge.izpack.panels.ShortcutPanel/>
+    <com.izforge.izpack.panels.FinishPanel/>
+</AutomatedInstallation>
