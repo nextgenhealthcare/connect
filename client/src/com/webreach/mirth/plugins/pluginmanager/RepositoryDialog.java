@@ -277,7 +277,7 @@ public class RepositoryDialog extends javax.swing.JDialog
         ArrayList<String> updateVersion = new ArrayList<String>();
         statusLabel.setText("Retrieving extension list...");
         progressBar.setIndeterminate(true);
-        String extensionInfoXML = pluginUtil.getStringFromURL("http://extensions.mirthproject.org/repository/");
+        String extensionInfoXML = pluginUtil.getStringFromURL(pluginUtil.getDynamicURL("http://extensions.mirthproject.org/repository/?mirthversion=${mirthVersion}&serverid=${serverid}", "",""));
         ObjectXMLSerializer serializer = new ObjectXMLSerializer(new Class[]{ExtensionInfo.class});
         try
         {
