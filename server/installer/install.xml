@@ -162,6 +162,8 @@
 				<exclude name="conf/custom/dbdrivers.xml" />
 			</updatecheck>
 
+			<file src="conf/custom/dbdrivers.xml" targetdir="$INSTALL_PATH/conf/custom" override="false" />
+
 			<fileset dir="conf" targetdir="$INSTALL_PATH/conf" override="true">
 				<include name="mirth.properties" />
 				<include name="derby-SqlMapConfig.properties" />
@@ -170,8 +172,7 @@
 				<include name="postgres-SqlMapConfig.properties" />
 				<include name="sqlserver2005-SqlMapConfig.properties" />
 				<include name="sqlserver-SqlMapConfig.properties" />
-				
-				<include name="custom/dbdrivers.xml" />
+
 				<include name="log4j.properties" />
 				<include name="mule-boot.xml" />
 				<include name="*.dtd" />
