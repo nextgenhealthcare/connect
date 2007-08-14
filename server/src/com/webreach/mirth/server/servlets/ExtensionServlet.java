@@ -27,6 +27,9 @@ package com.webreach.mirth.server.servlets;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -34,7 +37,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import sun.misc.BASE64Decoder;
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
 
 import com.webreach.mirth.model.ConnectorMetaData;
 import com.webreach.mirth.model.PluginMetaData;
@@ -50,8 +55,29 @@ public class ExtensionServlet extends MirthServlet {
 				ExtensionController extensionController = ExtensionController.getInstance();
 				ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 				PrintWriter out = response.getWriter();
-				String operation = request.getParameter("op");
-
+				FileItem multiPartFile = null;
+				String operation = "";
+				Map<String, String> multipartParameters = new HashMap<String, String>();
+				boolean isMultipart = ServletFileUpload.isMultipartContent(request);
+				if (isMultipart){
+					//we need to load properties from the multipart data
+					DiskFileItemFactory factory = new DiskFileItemFactory();
+                    ServletFileUpload upload = new ServletFileUpload(factory);
+                    List items = upload.parseRequest(request);
+                    Iterator iter = items.iterator();
+                    while (iter.hasNext()){
+                    	FileItem item = (FileItem)iter.next();
+                    	if (item.isFormField()){
+                    		multipartParameters.put(item.getFieldName(), item.getString());
+                    	}else{
+                    		//only supports a single file
+                    		multiPartFile = item;
+                    	}
+                    }
+                    operation = multipartParameters.get("op");
+				}else{
+					operation = request.getParameter("op");
+				}
 				if (operation.equals("getPluginProperties")) {
 					response.setContentType("application/xml");
 					String name = request.getParameter("name");
@@ -78,11 +104,9 @@ public class ExtensionServlet extends MirthServlet {
                     Object object =(Object) serializer.fromXML(request.getParameter("object"));
                     out.println(serializer.toXML(extensionController.invoke(name, method, object)));
                 } else if (operation.equals("installExtension")) {
-                    String location = request.getParameter("location");
-                    String fileContents = request.getParameter("file");
-                    BASE64Decoder decoder = new BASE64Decoder();
-                    byte[] bytes = decoder.decodeBuffer(fileContents);
-                    extensionController.installExtension(location, bytes);
+                	//This is a multi-part method, so we need our parameters from the new map
+                    String location = multipartParameters.get("location");
+                    extensionController.installExtension(location, multiPartFile);
                 } 
 			} catch (Exception e) {
 				throw new ServletException(e);

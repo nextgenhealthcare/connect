@@ -25,6 +25,7 @@
 
 package com.webreach.mirth.client.core;
 
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -199,10 +200,10 @@ public class Client {
      * @return
      * @throws ClientException
      */
-    public void installExtension(String location, String fileContents) throws ClientException {
+    public void installExtension(String location, File file) throws ClientException {
         logger.debug("installing extension");
-        NameValuePair[] params = { new NameValuePair("op", "installExtension"), new NameValuePair("location", location), new NameValuePair("file", fileContents) };
-        serverConnection.executePostMethod(EXTENSION_SERVLET, params);
+        NameValuePair[] params = { new NameValuePair("op", "installExtension"), new NameValuePair("location", location) };
+        serverConnection.executeFileUpload(EXTENSION_SERVLET, params, file);
     }
     
 	/**

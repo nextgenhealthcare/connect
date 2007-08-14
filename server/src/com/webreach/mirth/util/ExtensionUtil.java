@@ -17,6 +17,8 @@ import java.util.Map.Entry;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import org.apache.commons.fileupload.FileItem;
+
 import com.webreach.mirth.model.ConnectorMetaData;
 import com.webreach.mirth.model.MetaData;
 import com.webreach.mirth.model.PluginMetaData;
@@ -89,7 +91,7 @@ public class ExtensionUtil {
 		return extensionLibs;
 	}
 
-	public static void installExtension(String location, byte[] contents) throws ControllerException {
+	public static void installExtension(String location, FileItem fileItem) throws ControllerException {
 		// update this to use regular expression to get the client and shared
 		// libraries
 		String uniqueId = UUIDGenerator.getUUID();
@@ -98,8 +100,8 @@ public class ExtensionUtil {
 		try {
 			File file = File.createTempFile(uniqueId, ".zip");
 			String zipFileLocation = file.getAbsolutePath();
-
-			FileUtil.write(zipFileLocation, false, contents);
+			fileItem.write(file);
+			
 			zipFile = new ZipFile(zipFileLocation);
 
 			Enumeration entries = zipFile.entries();
@@ -112,7 +114,7 @@ public class ExtensionUtil {
 					// children.
 
 					// This is not robust, just for demonstration purposes.
-					(new File(entry.getName())).mkdir();
+					(new File(location + entry.getName())).mkdir();
 					continue;
 				}
 

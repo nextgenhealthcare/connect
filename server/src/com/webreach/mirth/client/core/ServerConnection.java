@@ -27,13 +27,19 @@
 package com.webreach.mirth.client.core;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStreamReader;
 
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.NameValuePair;
+import org.apache.commons.httpclient.methods.MultipartPostMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.multipart.FilePart;
+import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
+import org.apache.commons.httpclient.methods.multipart.Part;
+import org.apache.commons.httpclient.methods.multipart.StringPart;
 import org.apache.commons.httpclient.protocol.Protocol;
 
 import com.webreach.mirth.client.core.ssl.EasySSLProtocolSocketFactory;
@@ -68,6 +74,51 @@ public class ServerConnection {
 			post.addResponseFooter(new Header("Accept-Encoding", "gzip,deflate"));
 			post.setRequestBody(params);
 
+			int statusCode = client.executeMethod(post);
+
+			if (statusCode == HttpStatus.SC_NOT_ACCEPTABLE) {
+				throw new VersionMismatchException(post.getStatusLine().toString());
+			} else if (statusCode == HttpStatus.SC_FORBIDDEN) {
+				throw new InvalidLoginException(post.getStatusLine().toString());
+			} else if ((statusCode != HttpStatus.SC_OK) && (statusCode != HttpStatus.SC_MOVED_TEMPORARILY)) {
+				throw new ClientException("method failed: " + post.getStatusLine());
+			}
+
+			BufferedReader reader = new BufferedReader(new InputStreamReader(post.getResponseBodyAsStream()));
+
+			StringBuffer result = new StringBuffer();
+			String input = new String();
+			
+			while ((input = reader.readLine()) != null) {
+				result.append(input);
+				result.append('\n');
+			}
+			
+			return result.toString().trim();
+		} catch (Exception e) {
+			throw new ClientException(e);
+		} finally {
+			if (post != null) {
+				post.releaseConnection();
+			}
+		}
+	}
+	public synchronized String executeFileUpload(String servletName, NameValuePair[] params, File file) throws ClientException {
+		PostMethod post = null;
+
+		try {
+			post = new PostMethod(address + servletName);
+			post.addResponseFooter(new Header("Content-Encoding", "gzip"));
+			post.addResponseFooter(new Header("Accept-Encoding", "gzip,deflate"));
+			//Create multipart segment
+			Part[] parts = new Part[params.length + 1];
+			for (int i = 0; i < params.length; i++){
+				parts[i] = new StringPart(params[i].getName(), params[i].getValue());
+			}
+			parts[params.length] = new FilePart(file.getName(), file);
+			
+			post.setRequestEntity(new MultipartRequestEntity(parts, post.getParams()));
+			
 			int statusCode = client.executeMethod(post);
 
 			if (statusCode == HttpStatus.SC_NOT_ACCEPTABLE) {

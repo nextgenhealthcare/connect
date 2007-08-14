@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.commons.fileupload.FileItem;
 import org.apache.log4j.Logger;
 
 import com.webreach.mirth.model.ConnectorMetaData;
@@ -156,12 +157,12 @@ public class ExtensionController {
 		return loadedPlugins.get(name).invoke(method, object);
 	}
 
-	public void installExtension(String location, byte[] fileContents) throws ControllerException {
+	public void installExtension(String location, FileItem fileItem) throws ControllerException {
 		if (location.equals("connectors"))
 			location = CONNECTORS_LOCATION;
 		else if (location.equals("plugins"))
 			location = PLUGIN_LOCATION;
-		ExtensionUtil.installExtension(location, fileContents);
+		ExtensionUtil.installExtension(location, fileItem);
 	}
 
 	public void setPluginProperties(String pluginName, Properties properties) throws ControllerException {
