@@ -446,7 +446,7 @@
 
 		<!-- create the unix installer -->
 		<taskdef classpath="${installer.lib}/orangevolt-ant-tasks-1.3.5.jar:${basedir}/installer/lib/roxes-win32forjava-1.0.4.jar" resource="com/orangevolt/tools/ant/taskdefs.properties" />
-		<zip destfile="${dist}/mirth-${version}-setup.zip" file="mirth-${version}-setup.jar" />
+		<zip destfile="${dist}/mirth-${version}-setup.zip" basedir="${dist}" includes="mirth-${version}-setup.jar" />
 		<sfx archive="${dist}/mirth-${version}-setup.zip" mode="unix" execute="java -jar mirth-${version}-setup.jar" output="${dist}/mirth-${version}-setup" />
 		<delete file="${dist}/mirth-${version}-setup.zip" />
 
