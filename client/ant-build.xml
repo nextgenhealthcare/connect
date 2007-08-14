@@ -104,8 +104,8 @@
 			<include name="com/webreach/mirth/plugins/messagepruner/**" />
 		</jar>
 		
-		<jar destfile="${dist}/plugins/plugin-manager-client.jar" basedir="${classes}">
-			<include name="com/webreach/mirth/plugins/pluginmanager/**" />
+		<jar destfile="${dist}/plugins/extension-manager-client.jar" basedir="${classes}">
+			<include name="com/webreach/mirth/plugins/extensionmanager/**" />
 		</jar>
 		
 		<jar destfile="${dist}/plugins/javascript-transformer-step-client.jar" basedir="${classes}">
