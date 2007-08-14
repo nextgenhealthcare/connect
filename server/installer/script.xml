@@ -3,7 +3,7 @@
     <com.izforge.izpack.panels.LicencePanel/>
     <com.izforge.izpack.panels.HTMLInfoPanel/>
     <com.izforge.izpack.panels.TargetPanel>
-        <installpath>~/Mirth</installpath>
+        <installpath>Mirth</installpath>
     </com.izforge.izpack.panels.TargetPanel>
     <com.izforge.izpack.panels.PacksPanel>
         <pack name="Update Scripts" index="0" selected="true"/>
