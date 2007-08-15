@@ -10,6 +10,7 @@ import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.model.ExtensionPoint;
 import com.webreach.mirth.model.ExtensionPointDefinition;
 import com.webreach.mirth.model.PluginMetaData;
+import com.webreach.mirth.model.dicom.DICOMVocabulary;
 import com.webreach.mirth.model.MessageObject.Protocol;
 import com.webreach.mirth.model.hl7v2.HL7v2Vocabulary;
 import com.webreach.mirth.model.ncpdp.NCPDPVocabulary;
@@ -54,7 +55,8 @@ public class MessageVocabularyFactory {
 		loadedPlugins.put(Protocol.HL7V2, HL7v2Vocabulary.class);
 		loadedPlugins.put(Protocol.X12, X12Vocabulary.class);
 		loadedPlugins.put(Protocol.NCPDP, NCPDPVocabulary.class);
-	}
+        loadedPlugins.put(Protocol.DICOM, DICOMVocabulary.class);
+    }
 
 	public MessageVocabulary getVocabulary(Protocol protocol, String version, String type) {
 		
