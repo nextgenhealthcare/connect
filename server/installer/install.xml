@@ -135,7 +135,10 @@
 			<file src="keystore" targetdir="$INSTALL_PATH" override="true" />
 			<file src="activation.jnlp" targetdir="$INSTALL_PATH" override="true" />
 			<file src="mirth-client.jnlp" targetdir="$INSTALL_PATH" override="true" />
+			
 			<file src="mirth.sh" targetdir="$INSTALL_PATH" override="true" os="unix" />
+			<file src="mirth-daemon" targetdir="$INSTALL_PATH" override="true" os="unix" />
+			<file src="wrapper-x86-32bit" targetdir="$INSTALL_PATH" override="true" os="unix" />
 
 			<fileset dir="." targetdir="$INSTALL_PATH" os="windows" override="true">
 				<include name="Mirth.bat" />
@@ -228,7 +231,6 @@
 				<include name="StartMirth-NT.bat" />
 				<include name="StopMirth-NT.bat" />
 				<include name="wrapper.exe" />
-				<include name="wrapper-x86-32bit" />
 			</fileset>
 
 			<executable targetfile="$INSTALL_PATH/InstallMirth-NT.bat" type="bin" stage="postinstall" failure="warn" keep="true" />
