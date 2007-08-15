@@ -10,7 +10,7 @@
   <extensionPoint>
   	<name>Extension Manager</name>
     <type>CLIENT_PANEL</type>
-    <className>com.webreach.mirth.plugins.pluginmanager.PluginManagerClient</className>
+    <className>com.webreach.mirth.plugins.extensionmanager.ExtensionManagerClient</className>
     <mode>CLIENT</mode>
   </extensionPoint>
 </pluginMetaData>
