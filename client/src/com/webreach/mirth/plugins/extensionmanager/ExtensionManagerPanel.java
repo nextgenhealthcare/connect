@@ -33,7 +33,7 @@ import org.jdesktop.swingx.decorator.HighlighterPipeline;
  *
  * @author  brendanh
  */
-public class PluginManagerPanel extends javax.swing.JPanel
+public class ExtensionManagerPanel extends javax.swing.JPanel
 {
     private ExtensionManagerClient parent;
     
@@ -55,7 +55,7 @@ public class PluginManagerPanel extends javax.swing.JPanel
     private Map<String, ConnectorMetaData> connectorData = null;
     
     /** Creates new form PluginManagerPanel */
-    public PluginManagerPanel(ExtensionManagerClient parent)
+    public ExtensionManagerPanel(ExtensionManagerClient parent)
     {
         this.parent = parent;
         initComponents();
@@ -114,7 +114,7 @@ public class PluginManagerPanel extends javax.swing.JPanel
             String url =  metaData.getUrl();
             String description  = metaData.getDescription();
             
-            new PluginInfoDialog(name, type, author,mirthVersion, version, url, description);
+            new ExtensionInfoDialog(name, type, author,mirthVersion, version, url, description);
         }
     }
     

@@ -27,14 +27,14 @@ import com.webreach.mirth.plugins.ClientPanelPlugin;
  *
  * @author brendanh
  */
-public class PluginManagerClient extends ClientPanelPlugin
+public class ExtensionManagerClient extends ClientPanelPlugin
 {
-    public PluginManagerClient(String name)
+    public ExtensionManagerClient(String name)
     {
         super(name);
         
         getTaskPane().setTitle("Manager Tasks");
-        setComponent(new PluginManagerPanel(this));
+        setComponent(new ExtensionManagerPanel(this));
         
         addTask("doRefresh", "Refresh", "Refresh loaded plugins.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png")));
         addTask("doSave", "Save", "Save plugin settings.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/save.png")));
@@ -52,7 +52,7 @@ public class PluginManagerClient extends ClientPanelPlugin
     }
     public void doShowProperties()
     {
-        ((PluginManagerPanel) getComponent()).showExtensionProperties();
+        ((ExtensionManagerPanel) getComponent()).showExtensionProperties();
     }
     public void doCheckAllForUpdates()
     {
@@ -70,7 +70,7 @@ public class PluginManagerClient extends ClientPanelPlugin
     {
         try
         {
-            new UpdateDialog(this, ((PluginManagerPanel) getComponent()).getSelectedExtension());
+            new UpdateDialog(this, ((ExtensionManagerPanel) getComponent()).getSelectedExtension());
         }
         catch (ClientException e)
         {
@@ -150,24 +150,24 @@ public class PluginManagerClient extends ClientPanelPlugin
     
     public void doEnable()
     {
-        ((PluginManagerPanel) getComponent()).enableExtension();
+        ((ExtensionManagerPanel) getComponent()).enableExtension();
     }
     
     public void doDisable()
     {
-        ((PluginManagerPanel) getComponent()).disableExtension();
+        ((ExtensionManagerPanel) getComponent()).disableExtension();
     }
     
     public void refresh() throws ClientException
     {
-        ((PluginManagerPanel) getComponent()).setPluginData(PlatformUI.MIRTH_FRAME.getPluginMetaData());
-        ((PluginManagerPanel) getComponent()).setConnectorData(PlatformUI.MIRTH_FRAME.getConnectorMetaData());
+        ((ExtensionManagerPanel) getComponent()).setPluginData(PlatformUI.MIRTH_FRAME.getPluginMetaData());
+        ((ExtensionManagerPanel) getComponent()).setConnectorData(PlatformUI.MIRTH_FRAME.getConnectorMetaData());
     }
     
     public void save() throws ClientException
     {
-        PlatformUI.MIRTH_FRAME.mirthClient.setPluginMetaData(((PluginManagerPanel) getComponent()).getPluginData());
-        PlatformUI.MIRTH_FRAME.mirthClient.setConnectorMetaData(((PluginManagerPanel) getComponent()).getConnectorData());
+        PlatformUI.MIRTH_FRAME.mirthClient.setPluginMetaData(((ExtensionManagerPanel) getComponent()).getPluginData());
+        PlatformUI.MIRTH_FRAME.mirthClient.setConnectorMetaData(((ExtensionManagerPanel) getComponent()).getConnectorData());
     }
     
     public boolean install(String location, File file)

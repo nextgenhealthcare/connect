@@ -78,7 +78,7 @@ public class RepositoryDialog extends javax.swing.JDialog
     private final String EXTENSION_DESCRIPTION_COLUMN_NAME = "Description";
     //private final String EXTENSION_URL_COLUMN_NAME = "Url";
     private final String EXTENSION_INSTALL_COLUMN_NAME = "Install";
-    private PluginUtil pluginUtil = new PluginUtil();
+    private ExtensionUtil pluginUtil = new ExtensionUtil();
     private boolean cancel = false;
     private ExtensionInfo[] extensionInfo = null;
     /**
@@ -177,7 +177,7 @@ public class RepositoryDialog extends javax.swing.JDialog
                         String url =  extensionInfo[row].getUrl();
                         String description  = extensionInfo[row].getDescription();
                         
-                        new PluginInfoDialog(name, type, author,mirthVersion, version, url, description);
+                        new ExtensionInfoDialog(name, type, author,mirthVersion, version, url, description);
                     }
                 }
                 else

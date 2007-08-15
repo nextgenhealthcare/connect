@@ -35,12 +35,12 @@ import com.webreach.mirth.client.ui.BareBonesBrowserLaunch;
 import com.webreach.mirth.client.ui.PlatformUI;
 
 /** Creates the About Mirth dialog. The content is loaded from about.txt. */
-public class PluginInfoDialog extends javax.swing.JDialog
+public class ExtensionInfoDialog extends javax.swing.JDialog
 {
     /**
      * Creates new form ViewContentDialog
      */
-    public PluginInfoDialog(String name,
+    public ExtensionInfoDialog(String name,
             String type,
             String author,
             String mirthVersion,

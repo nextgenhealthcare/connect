@@ -21,7 +21,7 @@ import javax.swing.JProgressBar;
 
 import com.webreach.mirth.client.ui.PlatformUI;
 
-public class PluginUtil
+public class ExtensionUtil
 {
     public String getStringFromURL(String urlString)
     {

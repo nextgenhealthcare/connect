@@ -64,7 +64,7 @@ public class UpdateDialog extends javax.swing.JDialog
     private final String EXTENSION_UPDATE_VERSION_COLUMN_NAME = "Update Version";
     private Map<String, MetaData> extensions = new HashMap<String, MetaData>();
     private Map<String, ExtensionInfo> updatableExtensions = new HashMap<String, ExtensionInfo>();
-    private PluginUtil pluginUtil = new PluginUtil();
+    private ExtensionUtil pluginUtil = new ExtensionUtil();
     private boolean cancel = false;
     /**
      * Creates new form ViewContentDialog
@@ -169,7 +169,7 @@ public class UpdateDialog extends javax.swing.JDialog
                         String url =  extensionInfo.getUrl();
                         String description  = extensionInfo.getDescription();
                                             
-                        new PluginInfoDialog(name, type, author,mirthVersion, version, url, description);
+                        new ExtensionInfoDialog(name, type, author,mirthVersion, version, url, description);
                     }
                 }
                 else
