@@ -14,8 +14,6 @@ public class AdaptorFactory {
 			return new EDIAdaptor();
 		} else if (protocol.equals(Protocol.NCPDP)){
 			return new NCPDPAdaptor();
-		} else if (protocol.equals(Protocol.DICOM)){
-			return new DICOMAdaptor();
 		} else {
 			return new XMLAdaptor();
 		}
