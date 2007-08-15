@@ -627,12 +627,25 @@
 		<izpack input="${installer}/install-tmp.xml" output="${dist}/mirth-${version}-setup.jar" basedir="${setup}" />
 		<delete file="${installer}/install-tmp.xml" />
 
-		<!-- create the win32 installer -->
+		<!-- create the win32 installer  -->
 		<property environment="env" />
 		<echo message="LAUNCH4J_HOME=${env.LAUNCH4J_HOME}" />
 		<taskdef name="launch4j" classname="net.sf.launch4j.ant.Launch4jTask" classpath="${env.LAUNCH4J_HOME}/launch4j.jar:${env.LAUNCH4J_HOME}/lib/xstream.jar" />
 		<launch4j configFile="${installer}/launch4jconfig.xml" jar="${dist}/mirth-${version}-setup.jar" outfile="${dist}/mirth-${version}-setup.exe" />
-
+		 
+		
+		<!-- create the osx installer -->
+		<mkdir dir="${dist}/osx/mirth-${version}-setup.app" />
+		<copy todir="${dist}/osx/mirth-${version}-setup.app">
+			<fileset dir="${installer}/osx" />
+		</copy>
+		<copy todir="${dist}/osx/mirth-${version}-setup.app/Contents/Resources/Java">
+			<fileset file="${dist}/mirth-setup.jar"  />
+		</copy>
+		<chmod perm="ugo+rx" dir="${dist}/osx/mirth-${version}-setup.app/Contents/MacOS" includes="JavaApplicationStub" />
+		<zip basedir="${dist}/osx" destfile="${dist}/mirth-${version}-osx.zip" />
+		<delete dir="${dist}/osx" />
+		
 		<!-- create the linux installer -->
 		<mkdir dir="${dist}/setup-tar" />
 		<copy todir="${dist}/setup-tar">

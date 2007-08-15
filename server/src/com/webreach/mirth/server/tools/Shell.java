@@ -371,7 +371,7 @@ public class Shell {
 						}
 						List<ChannelStatus> channelStatus = client.getChannelStatusList();
 						int limit = 60; // 30 second limit
-						if (arguments[1] != null && arguments[1].length() > 0){
+						if (arguments.length > 1 && arguments[1] != null && arguments[1].length() > 0){
 							limit = Integer.parseInt(arguments[1]) * 2; //multiply by two because our sleep is 500ms
 						}
 						while (channelStatus.size() == 0 && limit > 0) {
