@@ -45,6 +45,7 @@
 		<copy todir="${classes}/com/webreach/mirth/model/x12/xml">
 			<fileset dir="${src}/com/webreach/mirth/model/x12/xml" />
 		</copy>
+		
 		<copy todir="${classes}/com/webreach/mirth/connectors">
 			<fileset dir="${src}/com/webreach/mirth/connectors">
 				<include name="*.xml" />
@@ -55,6 +56,12 @@
 				<include name="*.xml" />
 			</fileset>
 		</copy>
+		<replace dir="${classes}/com/webreach/mirth/connectors" token="@mirthversion" value="${version}">
+			<include name="*.xml"/>
+		</replace>
+		<replace dir="${classes}/com/webreach/mirth/plugins" token="@mirthversion" value="${version}">
+			<include name="*.xml"/>
+		</replace>
 	</target>
 
 	<target name="create-client-core" depends="compile">
