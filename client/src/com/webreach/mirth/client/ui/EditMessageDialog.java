@@ -158,7 +158,7 @@ public class EditMessageDialog extends javax.swing.JDialog implements DropTarget
         {
             if (protocol != null)
             {
-                if (protocol.equals(MessageObject.Protocol.HL7V2) || protocol.equals(MessageObject.Protocol.NCPDP) || protocol.equals(MessageObject.Protocol.DICOM))
+                if (protocol.equals(MessageObject.Protocol.HL7V2) || protocol.equals(MessageObject.Protocol.NCPDP))
                 {
                     newDoc.setTokenMarker(new HL7TokenMarker());
                     message = message.replace('\r', '\n');
