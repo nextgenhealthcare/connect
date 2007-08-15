@@ -11,4 +11,8 @@ java -jar mirth-[version]-setup.jar script.xml
 
 To change the installation directory for the autoamted installer, edit the following element in the script.xml file:
 
-<installpath>~/Mirth</installpath>
+<installpath>/opt/Mirth</installpath>
+
+Note that you must have permission to write to the /opt directory. Mirth must be run by a user with the same permission as the one who installed it, otherwise you will have to run the following command:
+
+chown [owner]:[group] /opt/Mirth -R
