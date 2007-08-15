@@ -222,7 +222,7 @@ public class Shell {
 					System.out.println("stop\n\tStops all Channels\n");
 					System.out.println("pause\n\tPauses all Channels\n");
 					System.out.println("resume\n\tResumes all Channels\n");
-					System.out.println("deploy\n\tDeploys all Channels\n");
+					System.out.println("deploy {timeout}\n\tDeploys all Channels with optional timeout (in seconds)\n");
 					System.out.println("import \"path\"\n\tImports channel specified by <path>\n");
 					System.out.println("export id|\"name\"|* \"path\"\n\tExports the specified channel to <path>\n");
 					System.out.println("importcfg \"path\"\n\tImports configuration specified by <path>\n");
@@ -231,6 +231,7 @@ public class Shell {
 					System.out.println("channel remove|enable|disable id|\"name\"|*\n\tRemove, enable or disable specified channel\n");
 					System.out.println("channel list\n\tLists all Channels\n");
 					System.out.println("clear\n\tRemoves all messages from all Channels\n");
+					System.out.println("resetstats\n\tRemoves all stats from all Channels\n");
 					System.out.println("dump stats|events \"path\"\n\tDumps stats or events to specified file\n");
 					System.out.println("user list\n\tReturns a list of the current users\n");
 					System.out.println("user add username \"password\" \"name\" \"email\"\n\tAdds the specified user\n");
@@ -369,7 +370,10 @@ public class Shell {
 							e.printStackTrace();
 						}
 						List<ChannelStatus> channelStatus = client.getChannelStatusList();
-						int limit = 20; // 10 second limit
+						int limit = 60; // 30 second limit
+						if (arguments[1] != null && arguments[1].length() > 0){
+							limit = Integer.parseInt(arguments[1]) * 2; //multiply by two because our sleep is 500ms
+						}
 						while (channelStatus.size() == 0 && limit > 0) {
 							try {
 								Thread.sleep(500);
@@ -609,7 +613,17 @@ public class Shell {
 						Channel channel = (Channel) iter.next();
 						client.clearMessages(channel.getId());
 					}
-				} else if (arg1.equalsIgnoreCase("dump")) {
+				} 
+				else if (arg1.equalsIgnoreCase("resetstats")) {
+
+					List<Channel> channels = client.getChannel(null);
+
+					for (Iterator iter = channels.iterator(); iter.hasNext();) {
+						Channel channel = (Channel) iter.next();
+						client.clearStatistics(channel.getId(), true, true, true, true, true);
+					}
+				} 
+				else if (arg1.equalsIgnoreCase("dump")) {
 					if (arguments.length >= 2) {
 						String arg2 = arguments[1];
 
