@@ -15,13 +15,19 @@
 		<antcall order="afterpack" buildfile="$INSTALL_PATH/upgrade.xml">
 			<property name="install.path" value="$INSTALL_PATH" />
 			<target name="restore" />
-			<target name="finalize" />
+			<target name="chmodMirth" />
 		</antcall>
 	</pack>
 	<pack name="Server Manager">
 		<antcall order="afterpack" buildfile="$INSTALL_PATH/upgrade.xml">
 			<property name="install.path" value="$INSTALL_PATH" />
 			<target name="startManager" />
+		</antcall>
+	</pack>
+	<pack name="Shell">
+		<antcall order="afterpack" buildfile="$INSTALL_PATH/upgrade.xml">
+			<property name="install.path" value="$INSTALL_PATH" />
+			<target name="chmodShell" />
 		</antcall>
 	</pack>
 </antactions>

@@ -113,9 +113,14 @@
 		</if>
 	</target>
 
-	<target name="finalize">
-		<echo>setting permissions on shell scripts</echo>
-    <chmod perm="ugo+rx" dir="${install.path}" includes="**/*.sh" />
+	<target name="chmodMirth">
+		<echo>setting permissions on mirth.sh</echo>
+		<chmod perm="ugo+rx" dir="${install.path}" includes="mirth.sh" />
+	</target>
+
+	<target name="chmodShell">
+		<echo>setting permissions on shell.sh</echo>
+		<chmod perm="ugo+rx" dir="${install.path}" includes="shell.sh" />
 	</target>
 
 	<target name="startManager">
