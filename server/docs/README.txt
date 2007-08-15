@@ -6,7 +6,7 @@ Contents
 1. General Information
 2. Installation and Upgrade
 3. Starting Mirth
-
+4. More Information
 
 1. General Information
 ==================================================
@@ -47,3 +47,12 @@ If the option is not available, you can connect to the Mirth Administrator launc
 If you are launching the administrator for the first time, you will notice that the libraries for the Mirth Administrator will be loaded. This feature allows you run the Administrator from any remote Mirth server without having to download and install a separate client.
 
 You may also notice a security warning when starting the administrator (dialog box depends on browser being used). This is normal and you should click Run to continue launching the administrator.
+
+
+4. More Information
+==================================================
+
+You can find the latest Mirth release information, documentation and more at: http://www.mirthproject.org and http://www.webreachinc.com
+
+Join the Mirth community forums at http://www.mirthproject.org/index.php?option=com_fireboard&Itemid=0
+
