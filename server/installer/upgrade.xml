@@ -29,8 +29,8 @@
 					<delete />
 				</win32.registry>
 				<property environment="env" />
-				<echo>removing ${env.HOMEPATH}\Start Menu\Programs\Mirth</echo>
 				<delete dir="${env.HOMEPATH}\Start Menu\Programs\Mirth" failonerror="false" />
+				<delete file="${env.HOMEPATH}\Start Menu\Programs\Startup\Mirth Server Manager.lnk" failonerror="false" />
 
 				<echo>stopping and uninstalling service</echo>
 				<exec executable="cmd" dir="${install.path}" failifexecutionfails="false">
