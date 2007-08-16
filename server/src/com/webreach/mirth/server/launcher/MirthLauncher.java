@@ -38,7 +38,7 @@ public class MirthLauncher {
 				ClasspathBuilder builder = new ClasspathBuilder(args[0]);
 				URLClassLoader classLoader = new URLClassLoader(builder.getClasspath());
 				try{
-					installExtensions(builder, classLoader);
+					classLoader = installExtensions(builder, classLoader);
 				}catch (Exception e){
 					e.printStackTrace();
 				}
