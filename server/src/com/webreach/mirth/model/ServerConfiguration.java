@@ -2,6 +2,7 @@ package com.webreach.mirth.model;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 public class ServerConfiguration implements Serializable {
@@ -10,7 +11,7 @@ public class ServerConfiguration implements Serializable {
 	private List<User> users;
 	private List<Alert> alerts;
 	private Properties properties;
-
+	private Map<String, String> globalScripts;
 	public List<Alert> getAlerts() {
 		return this.alerts;
 	}
@@ -49,5 +50,13 @@ public class ServerConfiguration implements Serializable {
 
 	public void setDate(String date) {
 		this.date = date;
+	}
+
+	public Map<String, String> getGlobalScripts() {
+		return globalScripts;
+	}
+
+	public void setGlobalScripts(Map<String, String> globalScripts) {
+		this.globalScripts = globalScripts;
 	}
 }

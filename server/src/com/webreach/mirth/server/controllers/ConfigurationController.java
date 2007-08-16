@@ -646,7 +646,7 @@ public class ConfigurationController {
 		serverConfiguration.setAlerts(alertController.getAlert(null));
 		serverConfiguration.setUsers(userController.getUser(null));
 		serverConfiguration.setProperties(getServerProperties());
-
+		serverConfiguration.setGlobalScripts(getGlobalScripts());
 		return serverConfiguration;
 	}
 
@@ -674,6 +674,7 @@ public class ConfigurationController {
 			channelController.updateChannel(channel, true);
 		}
 		alertController.updateAlerts(serverConfiguration.getAlerts());
+		setGlobalScripts(serverConfiguration.getGlobalScripts());
 	}
 
 	public boolean isEngineStarting() {

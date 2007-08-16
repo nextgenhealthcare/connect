@@ -45,7 +45,7 @@
 		<copy todir="${classes}/com/webreach/mirth/model/x12/xml">
 			<fileset dir="${src}/com/webreach/mirth/model/x12/xml" />
 		</copy>
-		
+
 		<copy todir="${classes}/com/webreach/mirth/connectors">
 			<fileset dir="${src}/com/webreach/mirth/connectors">
 				<include name="*.xml" />
@@ -57,10 +57,10 @@
 			</fileset>
 		</copy>
 		<replace dir="${classes}/com/webreach/mirth/connectors" token="@mirthversion" value="${version}">
-			<include name="*.xml"/>
+			<include name="*.xml" />
 		</replace>
 		<replace dir="${classes}/com/webreach/mirth/plugins" token="@mirthversion" value="${version}">
-			<include name="*.xml"/>
+			<include name="*.xml" />
 		</replace>
 	</target>
 
@@ -242,7 +242,7 @@
 			<include name="com/webreach/mirth/plugins/dashboardstatus/**" />
 		</jar>
 	</target>
-	
+
 	<target name="create-client-lib" depends="init">
 		<!-- sign jars for webstart -->
 		<signjar alias="mirth" keystore="${basedir}/keystore" storepass="abc12345" keypass="abc12345">
@@ -252,7 +252,7 @@
 		</signjar>
 	</target>
 
-	
+
 	<target name="create-setup" depends="create-client-lib">
 		<!-- create the setup directory -->
 		<mkdir dir="${setup}" />
@@ -427,12 +427,12 @@
 			<fileset dir="${licenses}" />
 		</copy>
 	</target>
-	
+
 	<target name="create-extension-zips" depends="create-setup">
-		
+
 		<delete dir="${dist.extensions}" />
 		<mkdir dir="${dist.extensions}" />
-		
+
 		<copy todir="${dist.extensions}">
 			<fileset dir="${src}/com/webreach/mirth/connectors">
 				<include name="*.xml" />
@@ -443,169 +443,210 @@
 				<include name="*.xml" />
 			</fileset>
 		</copy>
-		
+		<replace dir="${dist.extensions}" token="@mirthversion" value="${version}">
+			<include name="*.xml" />
+		</replace>
+
 		<zip destfile="${dist.extensions}/doc-${version}.zip">
-		    <fileset dir="${connectors}">
+			<fileset dir="${connectors}">
 				<include name="doc-shared.jar" />
 				<include name="doc-server.jar" />
 				<include name="doc-client.jar" />
+			</fileset>
+			<fileset dir="${dist.extensions}">
 				<include name="Document Writer.xml" />
 			</fileset>
-	    </zip>
-		
+		</zip>
+
 		<zip destfile="${dist.extensions}/email-${version}.zip">
-		    <fileset dir="${connectors}">
+			<fileset dir="${connectors}">
 				<include name="email-shared.jar" />
 				<include name="email-server.jar" />
 				<include name="email-client.jar" />
+			</fileset>
+			<fileset dir="${dist.extensions}">
 				<include name="Email Sender.xml" />
 			</fileset>
-	    </zip>
-		
+		</zip>
+
 		<zip destfile="${dist.extensions}/file-${version}.zip">
-		    <fileset dir="${connectors}">
+			<fileset dir="${connectors}">
 				<include name="file-shared.jar" />
 				<include name="file-server.jar" />
 				<include name="file-client.jar" />
+			</fileset>
+			<fileset dir="${dist.extensions}">
 				<include name="File Writer.xml" />
 				<include name="File Reader.xml" />
 			</fileset>
-	    </zip>
-		
+		</zip>
+
 		<zip destfile="${dist.extensions}/ftp-${version}.zip">
-		    <fileset dir="${connectors}">
+			<fileset dir="${connectors}">
 				<include name="ftp-shared.jar" />
 				<include name="ftp-server.jar" />
 				<include name="ftp-client.jar" />
+			</fileset>
+			<fileset dir="${dist.extensions}">
 				<include name="FTP Writer.xml" />
 				<include name="FTP Reader.xml" />
 			</fileset>
-	    </zip>
-		
+		</zip>
+
 		<zip destfile="${dist.extensions}/http-${version}.zip">
-		    <fileset dir="${connectors}">
+			<fileset dir="${connectors}">
 				<include name="http-shared.jar" />
 				<include name="http-server.jar" />
 				<include name="http-client.jar" />
-				<include name="HTTP Writer.xml" />
-				<include name="HTTP Reader.xml" />
 			</fileset>
-	    </zip>
-		
+			<fileset dir="${dist.extensions}">
+				<include name="HTTP Sender.xml" />
+				<include name="HTTP Listener.xml" />
+			</fileset>
+		</zip>
+
 		<zip destfile="${dist.extensions}/jdbc-${version}.zip">
-		    <fileset dir="${connectors}">
+			<fileset dir="${connectors}">
 				<include name="jdbc-shared.jar" />
 				<include name="jdbc-server.jar" />
 				<include name="jdbc-client.jar" />
+			</fileset>
+			<fileset dir="${dist.extensions}">
 				<include name="Database Reader.xml" />
 				<include name="Database Writer.xml" />
 			</fileset>
-	    </zip>
-		
+		</zip>
+
 		<zip destfile="${dist.extensions}/jms-${version}.zip">
-		    <fileset dir="${connectors}">
+			<fileset dir="${connectors}">
 				<include name="jms-shared.jar" />
 				<include name="jms-server.jar" />
 				<include name="jms-client.jar" />
+			</fileset>
+			<fileset dir="${dist.extensions}">
 				<include name="JMS Reader.xml" />
 				<include name="JMS Writer.xml" />
 			</fileset>
-	    </zip>
-		
+		</zip>
+
 		<zip destfile="${dist.extensions}/mllp-${version}.zip">
-		    <fileset dir="${connectors}">
+			<fileset dir="${connectors}">
 				<include name="mllp-shared.jar" />
 				<include name="mllp-server.jar" />
 				<include name="mllp-client.jar" />
+			</fileset>
+			<fileset dir="${dist.extensions}">
 				<include name="LLP Listener.xml" />
 				<include name="LLP Sender.xml" />
 			</fileset>
-	    </zip>
-		
+		</zip>
+
 		<zip destfile="${dist.extensions}/sftp-${version}.zip">
-		    <fileset dir="${connectors}">
+			<fileset dir="${connectors}">
 				<include name="sftp-shared.jar" />
 				<include name="sftp-server.jar" />
 				<include name="sftp-client.jar" />
+			</fileset>
+			<fileset dir="${dist.extensions}">
 				<include name="SFTP Reader.xml" />
 				<include name="SFTP Writer.xml" />
 			</fileset>
-	    </zip>
-		
+		</zip>
+
 		<zip destfile="${dist.extensions}/soap-${version}.zip">
-		    <fileset dir="${connectors}">
+			<fileset dir="${connectors}">
 				<include name="soap-shared.jar" />
 				<include name="soap-server.jar" />
 				<include name="soap-client.jar" />
+			</fileset>
+			<fileset dir="${dist.extensions}">
 				<include name="SOAP Listener.xml" />
 				<include name="SOAP Sender.xml" />
 			</fileset>
-	    </zip>
-		
+		</zip>
+
 		<zip destfile="${dist.extensions}/tcp-${version}.zip">
-		    <fileset dir="${connectors}">
+			<fileset dir="${connectors}">
 				<include name="tcp-shared.jar" />
 				<include name="tcp-server.jar" />
 				<include name="tcp-client.jar" />
+			</fileset>
+			<fileset dir="${dist.extensions}">
 				<include name="TCP Listener.xml" />
 				<include name="TCP Sender.xml" />
 			</fileset>
-	    </zip>
-		
+		</zip>
+
 		<zip destfile="${dist.extensions}/vm-${version}.zip">
-		    <fileset dir="${connectors}">
+			<fileset dir="${connectors}">
 				<include name="vm-shared.jar" />
 				<include name="vm-server.jar" />
 				<include name="vm-client.jar" />
+
+			</fileset>
+			<fileset dir="${dist.extensions}">
 				<include name="Channel Reader.xml" />
 				<include name="Channel Writer.xml" />
 			</fileset>
-	    </zip>
+		</zip>
+
 
 		<zip destfile="${dist.extensions}/extension-manager-${version}.zip">
-		    <fileset dir="${plugins}">
+			<fileset dir="${plugins}">
 				<include name="extension-manager-client.jar" />
+			</fileset>
+			<fileset dir="${dist.extensions}">
 				<include name="Extension Manager.xml" />
 			</fileset>
-	    </zip>
-		
+		</zip>
+
 		<zip destfile="${dist.extensions}/dashboard-status-monitor-${version}.zip">
-		    <fileset dir="${plugins}">
+			<fileset dir="${plugins}">
 				<include name="dashboard-status-monitor-server.jar" />
 				<include name="dashboard-status-monitor-client.jar" />
+			</fileset>
+			<fileset dir="${dist.extensions}">
 				<include name="Dashboard Connector Status Monitor Plugin.xml" />
 			</fileset>
-	    </zip>
-		
+		</zip>
+
 		<zip destfile="${dist.extensions}/message-pruner-${version}.zip">
-		    <fileset dir="${plugins}">
+			<fileset dir="${plugins}">
 				<include name="message-pruner-client.jar" />
 				<include name="message-pruner-server.jar" />
+			</fileset>
+			<fileset dir="${dist.extensions}">
 				<include name="Message Pruner.xml" />
 			</fileset>
-	    </zip>
-		
+		</zip>
+
 		<zip destfile="${dist.extensions}/javascript-transformer-step-${version}.zip">
-		    <fileset dir="${plugins}">
+			<fileset dir="${plugins}">
 				<include name="javascript-transformer-step-client.jar" />
+			</fileset>
+			<fileset dir="${dist.extensions}">
 				<include name="Javascript Transformer Step.xml" />
 			</fileset>
-	    </zip>
-		
+		</zip>
+
 		<zip destfile="${dist.extensions}/mapper-transformer-step-${version}.zip">
-		    <fileset dir="${plugins}">
+			<fileset dir="${plugins}">
 				<include name="mapper-transformer-step-client.jar" />
+			</fileset>
+			<fileset dir="${dist.extensions}">
 				<include name="Mapper Transformer Step.xml" />
 			</fileset>
-	    </zip>
-		
+		</zip>
+
 		<zip destfile="${dist.extensions}/message-builder-transformer-step-${version}.zip">
-		    <fileset dir="${plugins}">
+			<fileset dir="${plugins}">
 				<include name="message-builder-transformer-step-client.jar" />
+			</fileset>
+			<fileset dir="${dist.extensions}">
 				<include name="Message Builder Transformer Step.xml" />
 			</fileset>
-	    </zip>
-		
+		</zip>
+
 	</target>
 
 	<target name="create-dist" depends="create-extension-zips">
@@ -633,20 +674,20 @@
 		<taskdef name="launch4j" classname="net.sf.launch4j.ant.Launch4jTask" classpath="${env.LAUNCH4J_HOME}/launch4j.jar:${env.LAUNCH4J_HOME}/lib/xstream.jar" />
 		<launch4j configFile="${installer}/launch4jconfig.xml" jar="${dist}/mirth-${version}-setup.jar" outfile="${dist}/mirth-${version}-setup.exe" />
 		
-		
+
 		<!-- create the osx installer -->
 		<mkdir dir="${dist}/osx/mirth-${version}-setup.app" />
 		<copy todir="${dist}/osx/mirth-${version}-setup.app">
 			<fileset dir="${installer}/osx" />
 		</copy>
 		<copy todir="${dist}/osx/mirth-${version}-setup.app/Contents/Resources/Java/">
-			<fileset file="${dist}/mirth-${version}-setup.jar"  />
+			<fileset file="${dist}/mirth-${version}-setup.jar" />
 		</copy>
-		<move file="${dist}/osx/mirth-${version}-setup.app/Contents/Resources/Java/mirth-${version}-setup.jar" tofile="${dist}/osx/mirth-${version}-setup.app/Contents/Resources/Java/mirth-setup.jar"/>
+		<move file="${dist}/osx/mirth-${version}-setup.app/Contents/Resources/Java/mirth-${version}-setup.jar" tofile="${dist}/osx/mirth-${version}-setup.app/Contents/Resources/Java/mirth-setup.jar" />
 		<chmod file="${dist}/osx/mirth-${version}-setup.app/Contents/MacOS/JavaApplicationStub" perm="ugo+rx" />
 		<zip basedir="${dist}/osx" destfile="${dist}/mirth-${version}-setup-osx.zip" />
 		<delete dir="${dist}/osx" />
-		
+
 		<!-- create the linux installer -->
 		<mkdir dir="${dist}/setup-tar" />
 		<copy todir="${dist}/setup-tar">

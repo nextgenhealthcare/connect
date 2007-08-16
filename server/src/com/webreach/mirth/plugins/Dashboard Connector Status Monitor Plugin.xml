@@ -1,6 +1,6 @@
 <pluginMetaData>
   <name>Dashboard Connector Status Monitor</name>
-  <author>Webreach, Inc.</author>
+  <author>WebReach, Inc.</author>
   <pluginVersion>@mirthversion</pluginVersion>
   <mirthVersion>1.6.0-1.6.1</mirthVersion>
   <updateUrl><![CDATA[http://extensions.mirthproject.org/updates/?mirthversion=${mirthVersion}&version=${version}&name=${name}&serverid=${serverid}]]></updateUrl>
