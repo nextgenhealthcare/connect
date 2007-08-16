@@ -41,7 +41,7 @@ public class ExtensionManagerPanel extends javax.swing.JPanel
     private final String PLUGIN_NAME_COLUMN_NAME = "Extension Name";
     private final String PLUGIN_AUTHOR_COLUMN_NAME = "Author";
     private final String PLUGIN_URL_COLUMN_NAME = "URL";
-    private final String PLUGIN_VERSION_COLUMN_NAME = "Extension Version";
+    private final String PLUGIN_VERSION_COLUMN_NAME = "Version";
     private final String PLUGIN_MIRTH_VERSION_COLUMN_NAME = "Mirth Version";
     
     private final int PLUGIN_NAME_COLUMN_NUMBER = 1;

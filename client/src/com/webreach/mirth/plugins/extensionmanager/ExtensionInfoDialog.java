@@ -116,7 +116,7 @@ public class ExtensionInfoDialog extends javax.swing.JDialog
 
         jLabel5.setFont(new java.awt.Font("Tahoma", 1, 11));
         jLabel5.setLabelFor(nameLabel);
-        jLabel5.setText("Plugin Version:");
+        jLabel5.setText("Version:");
 
         jLabel6.setFont(new java.awt.Font("Tahoma", 1, 11));
         jLabel6.setLabelFor(nameLabel);
@@ -124,7 +124,7 @@ public class ExtensionInfoDialog extends javax.swing.JDialog
 
         jLabel7.setFont(new java.awt.Font("Tahoma", 1, 11));
         jLabel7.setLabelFor(nameLabel);
-        jLabel7.setText("Plugin URL:");
+        jLabel7.setText("Extension URL:");
 
         jLabel8.setFont(new java.awt.Font("Tahoma", 1, 11));
         jLabel8.setLabelFor(nameLabel);
