@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="iso-8859-1" standalone="yes" ?>
+
+<processing>
+	<logfiledir>$INSTALL_PATH</logfiledir>
+	
+	<job name="Install Windows service">
+		<executeForPack name="Windows NT/2000/2003/XP Service" />
+		<executefile name="$INSTALL_PATH/InstallMirth-NT.bat" />
+	</job>
+
+	<job name="Start Windows service">
+		<executeForPack name="Windows NT/2000/2003/XP Service" />
+		<executefile name="$INSTALL_PATH/StartMirth-NT.bat" />
+	</job>
+</processing>
