@@ -95,7 +95,12 @@ public class ExtensionUtil {
 		// update this to use regular expression to get the client and shared
 		// libraries
 		String uniqueId = UUIDGenerator.getUUID();
-
+		//append installer temp
+		location = location + "install_temp" + System.getProperty("file.separator");
+		File locationFile = new File(location);
+		if (!locationFile.exists()){
+			locationFile.mkdir();
+		}
 		ZipFile zipFile = null;
 		try {
 			File file = File.createTempFile(uniqueId, ".zip");

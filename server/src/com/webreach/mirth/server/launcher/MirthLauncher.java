@@ -26,17 +26,22 @@
 
 package com.webreach.mirth.server.launcher;
 
+import java.io.File;
 import java.net.URLClassLoader;
-
-import com.webreach.mirth.server.Command;
-import com.webreach.mirth.server.CommandQueue;
+import java.net.URLDecoder;
 
 public class MirthLauncher {
+	private static final String INSTALL_TEMP = "install_temp";
 	public static void main(String[] args) {
 		if (args[0] != null) {
 			try {
 				ClasspathBuilder builder = new ClasspathBuilder(args[0]);
 				URLClassLoader classLoader = new URLClassLoader(builder.getClasspath());
+				try{
+					installExtensions(builder, classLoader);
+				}catch (Exception e){
+					e.printStackTrace();
+				}
 				Class mirthClass = classLoader.loadClass("com.webreach.mirth.server.Mirth");
 				Thread mirthThread = (Thread) mirthClass.newInstance();
 				mirthThread.setContextClassLoader(classLoader);
@@ -48,4 +53,45 @@ public class MirthLauncher {
 			System.out.println("usage: java Launcher launcher.xml");
 		}
 	}
+	
+	public static URLClassLoader installExtensions(ClasspathBuilder builder, URLClassLoader classLoader) throws Exception{
+		//We need to find our paths from the class loader
+		String pluginLocation = URLDecoder.decode(classLoader.getResource("plugins").getPath());
+		String pluginTempLocation = pluginLocation + System.getProperty("file.separator") + INSTALL_TEMP + System.getProperty("file.separator");
+		String connectorLocation = URLDecoder.decode(classLoader.getResource("connectors").getPath());
+		String connectorTempLocation = connectorLocation + System.getProperty("file.separator") + INSTALL_TEMP + System.getProperty("file.separator");
+		
+		File pluginTemp = new File(pluginTempLocation);
+		File connectorTemp = new File(connectorTempLocation);
+		//if we have a temp folder, move the files over
+		if (pluginTemp.exists()){
+			File[] files = pluginTemp.listFiles();
+			for (int i = 0; i < files.length; i++) {
+				File target = new File(pluginLocation + System.getProperty("file.separator") + files[i].getName());
+				if (target.exists()){
+					target.delete();
+				}
+				files[i].renameTo(target);
+			}
+			pluginTemp.delete();
+		}
+		
+		if (connectorTemp.exists()){
+			File[] files = connectorTemp.listFiles();
+			for (int i = 0; i < files.length; i++) {
+				File target = new File(connectorLocation + System.getProperty("file.separator") + files[i].getName());
+				if (target.exists()){
+					target.delete();
+				}
+				files[i].renameTo(target);
+			}
+			connectorTemp.delete();
+		}
+		//Rebuild our classpath
+		URLClassLoader newClassLoader = new URLClassLoader(builder.getClasspath());
+		return newClassLoader;
+		
+	}
+
+
 }
