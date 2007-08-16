@@ -18,6 +18,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
@@ -166,7 +167,8 @@ public class ManagerController
     {
         try
         {
-            if(execCmd(CMD_WEBSTART_PREFIX + port + CMD_WEBSTART_SUFFIX, false) != 0)
+        	
+            if(execCmd(CMD_WEBSTART_PREFIX + port + CMD_WEBSTART_SUFFIX + "?time=" + new Date().getTime(), false) != 0)
             {
                 alertError("The Mirth Administator could not be launched.");
             }
