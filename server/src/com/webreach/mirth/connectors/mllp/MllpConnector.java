@@ -60,8 +60,8 @@ public class MllpConnector extends AbstractServiceEnabledConnector {
 	// custom properties
 	private boolean serverMode = true;
 	private String charEncoding = "hex";
-	private String messageStart = "0x1C";
-	private String messageEnd = "0x0B";
+	private String messageStart = "0x0B";
+	private String messageEnd = "0x1C";
 	private String recordSeparator = "0x0D";
 	private String segmentEnd = "0x0D";
 	private String template = "message.encodedData";
