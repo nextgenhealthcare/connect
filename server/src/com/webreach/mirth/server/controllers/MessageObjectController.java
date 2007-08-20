@@ -122,8 +122,14 @@ public class MessageObjectController {
 				//Check if we have a socket. We need to replace with a string because
 				//Sockets are not serializable and we want to retain the socket
 				if (messageObject.getChannelMap().containsKey(RECEIVE_SOCKET)){
-					socket = (Socket) messageObject.getChannelMap().get(RECEIVE_SOCKET);
-					messageObject.getChannelMap().put(RECEIVE_SOCKET, socket.toString());
+					Object socketObj = messageObject.getChannelMap().get(RECEIVE_SOCKET);
+					if (socketObj instanceof Socket){
+						socket = (Socket) socketObj;
+						messageObject.getChannelMap().put(RECEIVE_SOCKET, socket.toString());
+					}else{
+						messageObject.getChannelMap().put(RECEIVE_SOCKET, socketObj.toString());
+					}
+					
 				}
 			}catch (Exception e){
 				logger.error(e);
