@@ -27,6 +27,7 @@ package com.webreach.mirth.server.util;
 
 import org.apache.log4j.Logger;
 import org.mozilla.javascript.Context;
+import org.mozilla.javascript.EvaluatorException;
 import org.mozilla.javascript.ImporterTopLevel;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
@@ -34,42 +35,38 @@ import org.mozilla.javascript.ScriptableObject;
 
 import com.webreach.mirth.model.MessageObject;
 
-public class JavaScriptUtil
-{
-    private Logger logger = Logger.getLogger(this.getClass());
-    private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
-    private static ScriptableObject sealedSharedScope;
-    
-    // singleton pattern
-    private static JavaScriptUtil instance = null;
+public class JavaScriptUtil {
+	private Logger logger = Logger.getLogger(this.getClass());
+	private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
+	private static ScriptableObject sealedSharedScope;
 
-    public static JavaScriptUtil getInstance() {
-        synchronized (JavaScriptUtil.class) {
-            if (instance == null)
-                instance = new JavaScriptUtil();
+	// singleton pattern
+	private static JavaScriptUtil instance = null;
 
-            return instance;
-        }
-    }
-    
-    public static Context getContext()
-    {
-        Context context = Context.enter();
+	public static JavaScriptUtil getInstance() {
+		synchronized (JavaScriptUtil.class) {
+			if (instance == null)
+				instance = new JavaScriptUtil();
 
-        if (sealedSharedScope == null)
-        {
-            String importScript = getJavascriptImportScript();
-            sealedSharedScope = new ImporterTopLevel(context);
-            JavaScriptScopeUtil.buildScope(sealedSharedScope);
-            Script script = context.compileString(importScript, UUIDGenerator.getUUID(), 1, null);
-            script.exec(context, sealedSharedScope);
-            sealedSharedScope.sealObject();
-        }        
-        return context;
-    }
+			return instance;
+		}
+	}
 
-    public static String getJavascriptImportScript()
-    {
+	public static Context getContext() {
+		Context context = Context.enter();
+
+		if (sealedSharedScope == null) {
+			String importScript = getJavascriptImportScript();
+			sealedSharedScope = new ImporterTopLevel(context);
+			JavaScriptScopeUtil.buildScope(sealedSharedScope);
+			Script script = context.compileString(importScript, UUIDGenerator.getUUID(), 1, null);
+			script.exec(context, sealedSharedScope);
+			sealedSharedScope.sealObject();
+		}
+		return context;
+	}
+
+	public static String getJavascriptImportScript() {
 		StringBuilder script = new StringBuilder();
 		script.append("importPackage(Packages.com.webreach.mirth.server.util);\n");
 		script.append("importPackage(Packages.com.webreach.mirth.model.converters);\n");
@@ -81,95 +78,95 @@ public class JavaScriptUtil
 		script.append("XML.ignoreWhitespace=false;");
 		script.append("XML.prettyPrinting=false;");
 		return script.toString();
-    }
+	}
 
-    public Scriptable getScope()
-    {
-        Scriptable scope = getContext().newObject(sealedSharedScope);
-        scope.setPrototype(sealedSharedScope);
-        scope.setParentScope(null);
-        return scope;
-    }
-    public void executeScript(String scriptId, String scriptType, MessageObject messageObject){
-    	executeScript(scriptId, scriptType, null, messageObject);
-    }
-    public void executeScript(String scriptId, String scriptType, String channelId){
-    	executeScript(scriptId, scriptType, channelId, null);
-    }
-    private void executeScript(String scriptId, String scriptType, String channelId, MessageObject messageObject)
-    {
-        Script compiledScript = compiledScriptCache.getCompiledScript(scriptId);
-        Logger scriptLogger = Logger.getLogger(scriptType.toLowerCase());
-        if(compiledScript == null)
-            return;
+	public Scriptable getScope() {
+		Scriptable scope = getContext().newObject(sealedSharedScope);
+		scope.setPrototype(sealedSharedScope);
+		scope.setParentScope(null);
+		return scope;
+	}
 
-        try
-        {
-            Context context = getContext();
-            Scriptable scope = getScope();
-            
-            if (messageObject != null)
-            	JavaScriptScopeUtil.buildScope(scope, messageObject, scriptLogger);
-            else if(channelId != null && channelId.length() > 0)
-                JavaScriptScopeUtil.buildScope(scope, channelId, scriptLogger);
-            else
-                JavaScriptScopeUtil.buildScope(scope, scriptLogger);
-            
-            logger.debug("executing " + scriptType + " script. id=" + scriptId);    
-            compiledScript.exec(context, scope);
-        }
-        catch (Exception e)
-        {
-            logger.error("failure to execute: " +  scriptType + " script. id=" + scriptId, e);
-        }
-        finally
-        {
-            Context.exit();
-        }
-    }
-    public void compileScript(String scriptId, String script, boolean includeChannelMap)
-    {
-        Context context = getContext();
-        logger.debug("compiling script. id=" + scriptId);
-        String generatedScript = generateScript(script, includeChannelMap);
-        Script compiledScript = context.compileString(generatedScript, scriptId, 1, null);
-        compiledScriptCache.putCompiledScript(scriptId, compiledScript);
-        Context.exit();
-    }
+	public void executeScript(String scriptId, String scriptType, MessageObject messageObject) {
+		executeScript(scriptId, scriptType, null, messageObject);
+	}
 
-    public String generateScript(String script, boolean includeChannelMap)
-    {
-        StringBuilder builtScript = new StringBuilder();
-        
-        builtScript.append("function $(string) { ");
-        if (includeChannelMap){
-        	builtScript.append("if (channelMap.containsKey(string)) { return channelMap.get(string);} else ");
-        }
-        builtScript.append("if (globalMap.containsKey(string)) { return globalMap.get(string);} else ");
-        builtScript.append("{ return ''; }}");
-        if (includeChannelMap){
-        	builtScript.append("function $c(key, value){");
-        	builtScript.append("if (arguments.length == 1){return channelMap.get(key); }");
-        	builtScript.append("else if (arguments.length == 2){channelMap.put(key, value); }}");
-        	builtScript.append("function $co(key, value){");
-        	builtScript.append("if (arguments.length == 1){return connectorMap.get(key); }");
-        	builtScript.append("else if (arguments.length == 2){connectorMap.put(key, value); }}");
-        	builtScript.append("function $r(key, value){");
-        	builtScript.append("if (arguments.length == 1){return responseMap.get(key); }");
-        	builtScript.append("else if (arguments.length == 2){responseMap.put(key, value); }}");
-        }
-        builtScript.append("function $g(key, value){");
-        builtScript.append("if (arguments.length == 1){return globalMap.get(key); }");
-        builtScript.append("else if (arguments.length == 2){globalMap.put(key, value); }}");
-		
-        builtScript.append("function doScript() {" + script + " }\n");
-        builtScript.append("doScript()\n");
-        return builtScript.toString();
-    }
+	public void executeScript(String scriptId, String scriptType, String channelId) {
+		executeScript(scriptId, scriptType, channelId, null);
+	}
 
-    public void removeScriptFromCache(String scriptId)
-    {
-        if(compiledScriptCache.getCompiledScript(scriptId) != null)
-            compiledScriptCache.removeCompiledScript(scriptId);
-    }
+	private void executeScript(String scriptId, String scriptType, String channelId, MessageObject messageObject) {
+		Script compiledScript = compiledScriptCache.getCompiledScript(scriptId);
+		Logger scriptLogger = Logger.getLogger(scriptType.toLowerCase());
+		if (compiledScript == null)
+			return;
+
+		try {
+			Context context = getContext();
+			Scriptable scope = getScope();
+
+			if (messageObject != null)
+				JavaScriptScopeUtil.buildScope(scope, messageObject, scriptLogger);
+			else if (channelId != null && channelId.length() > 0)
+				JavaScriptScopeUtil.buildScope(scope, channelId, scriptLogger);
+			else
+				JavaScriptScopeUtil.buildScope(scope, scriptLogger);
+
+			logger.debug("executing " + scriptType + " script. id=" + scriptId);
+			compiledScript.exec(context, scope);
+		} catch (Exception e) {
+			logger.error("failure to execute: " + scriptType + " script. id=" + scriptId, e);
+		} finally {
+			Context.exit();
+		}
+	}
+
+	public void compileScript(String scriptId, String script, boolean includeChannelMap) throws Exception {
+		Context context = getContext();
+
+		try {
+			logger.debug("compiling script. id=" + scriptId);
+			String generatedScript = generateScript(script, includeChannelMap);
+			Script compiledScript = context.compileString(generatedScript, scriptId, 1, null);
+			compiledScriptCache.putCompiledScript(scriptId, compiledScript);
+		} catch (EvaluatorException e) {
+			throw new Exception(e);
+		} finally {
+			Context.exit();
+		}
+	}
+
+	public String generateScript(String script, boolean includeChannelMap) {
+		StringBuilder builtScript = new StringBuilder();
+
+		builtScript.append("function $(string) { ");
+		if (includeChannelMap) {
+			builtScript.append("if (channelMap.containsKey(string)) { return channelMap.get(string);} else ");
+		}
+		builtScript.append("if (globalMap.containsKey(string)) { return globalMap.get(string);} else ");
+		builtScript.append("{ return ''; }}");
+		if (includeChannelMap) {
+			builtScript.append("function $c(key, value){");
+			builtScript.append("if (arguments.length == 1){return channelMap.get(key); }");
+			builtScript.append("else if (arguments.length == 2){channelMap.put(key, value); }}");
+			builtScript.append("function $co(key, value){");
+			builtScript.append("if (arguments.length == 1){return connectorMap.get(key); }");
+			builtScript.append("else if (arguments.length == 2){connectorMap.put(key, value); }}");
+			builtScript.append("function $r(key, value){");
+			builtScript.append("if (arguments.length == 1){return responseMap.get(key); }");
+			builtScript.append("else if (arguments.length == 2){responseMap.put(key, value); }}");
+		}
+		builtScript.append("function $g(key, value){");
+		builtScript.append("if (arguments.length == 1){return globalMap.get(key); }");
+		builtScript.append("else if (arguments.length == 2){globalMap.put(key, value); }}");
+
+		builtScript.append("function doScript() {" + script + " }\n");
+		builtScript.append("doScript()\n");
+		return builtScript.toString();
+	}
+
+	public void removeScriptFromCache(String scriptId) {
+		if (compiledScriptCache.getCompiledScript(scriptId) != null)
+			compiledScriptCache.removeCompiledScript(scriptId);
+	}
 }

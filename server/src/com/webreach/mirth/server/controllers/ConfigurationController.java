@@ -51,6 +51,7 @@ import javax.crypto.SecretKey;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.log4j.Logger;
+import org.mule.config.ConfigurationException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -292,7 +293,7 @@ public class ConfigurationController {
 		systemLogger.logSystemEvent(new SystemEvent("Channels deployed."));
 	}
 
-	public void compileScripts(List<Channel> channels) throws ControllerException {
+	public void compileScripts(List<Channel> channels) throws Exception {
 		Map<String, String> globalScripts = getGlobalScripts();
 
 		Iterator i = globalScripts.entrySet().iterator();

@@ -106,8 +106,8 @@ public class Mirth extends Thread {
 			extensionController.initialize();
 			channelController.initialize();
 			userController.initialize();
-			monitoringController.initialize();			
-			
+			monitoringController.initialize();
+
 			extensionController.startPlugins();
 			// add the start command to the queue
 			CommandQueue.getInstance().clear();
@@ -180,30 +180,44 @@ public class Mirth extends Thread {
 	 * 
 	 */
 	private void startMule() {
-		configurationController.setEngineStarting(true);
-
+		
+		String configurationFilePath = null;
+		
 		try {
-			String configurationFilePath = configurationController.getLatestConfiguration().getAbsolutePath();
+			configurationFilePath = configurationController.getLatestConfiguration().getAbsolutePath();
+		} catch (Exception e) {
+			logger.warn("Could not retrieve latest configuration.", e);
+			return;
+		}
+		
+		try {
+			// clear global map and do channel deploy scripts if the user
+			// specified to
+			if (configurationController.getServerProperties().getProperty("clearGlobal") == null || configurationController.getServerProperties().getProperty("clearGlobal").equals("1"))
+				GlobalVariableStore.getInstance().globalVariableMap.clear();
+		} catch (Exception e) {
+			logger.warn("Could not clear the global map.", e);
+		}
+		
+		configurationController.setEngineStarting(true);
+		
+		try {
 			logger.debug("starting mule with configuration file: " + configurationFilePath);
 
 			// disables validation of Mule configuration files
 			System.setProperty("org.mule.xml.validate", "false");
 			VMRegistry.getInstance().rebuild();
 			MuleXmlConfigurationBuilder builder = new MuleXmlConfigurationBuilder();
-
-			// clear global map and do channel deploy scripts if the user
-			// specified to
-			if (configurationController.getServerProperties().getProperty("clearGlobal") == null || configurationController.getServerProperties().getProperty("clearGlobal").equals("1"))
-				GlobalVariableStore.getInstance().globalVariableMap.clear();
-
+			
 			List<Channel> channels = channelController.getChannel(null);
 			configurationController.compileScripts(channels);
+			
 			configurationController.executeGlobalDeployScript();
 			configurationController.executeChannelDeployScripts(channelController.getChannel(null));
 
 			muleManager = (MuleManager) builder.configure(configurationFilePath);
 
-		} catch (ConfigurationException e) {
+		} catch (Exception e) {
 			logger.warn("Error deploying channels.", e);
 
 			// if deploy fails, log to system events
@@ -214,10 +228,6 @@ public class Mirth extends Thread {
 
 			// remove the errant configuration
 			configurationController.deleteLatestConfiguration();
-		} catch (ControllerException e) {
-			logger.warn("Could not retrieve latest configuration.", e);
-		} catch (Exception e) {
-			logger.error("Could not start Mule.", e);
 		}
 
 		configurationController.setEngineStarting(false);
@@ -235,6 +245,7 @@ public class Mirth extends Thread {
 				if (muleManager.isStarted()) {
 					configurationController.executeChannelShutdownScripts(channelController.getChannel(null));
 					configurationController.executeGlobalShutdownScript();
+					
 					muleManager.stop();
 				}
 			} catch (Exception e) {
@@ -298,11 +309,11 @@ public class Mirth extends Thread {
 
 			// Serve static content from the connectors context
 			String connectorsPath = connectors.getPath(); // ConfigurationController.mirthHomeDir
-															// +
-															// System.getProperty("file.separator")
-															// + "extensions" +
-															// System.getProperty("file.separator")
-															// + "connectors";
+			// +
+			// System.getProperty("file.separator")
+			// + "extensions" +
+			// System.getProperty("file.separator")
+			// + "connectors";
 			connectorsContext.setResourceBase(connectorsPath);
 			connectorsContext.addHandler(new ResourceHandler());
 
