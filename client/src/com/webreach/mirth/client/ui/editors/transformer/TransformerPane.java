@@ -129,7 +129,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
     private Channel channel;
     private Connector connector;
     public boolean updating; // flow control
-    private boolean invalidVar; // selection control
+    public boolean invalidVar; // selection control
     // panels using CardLayout
     protected BasePanel stepPanel; // the card holder
     protected BasePanel blankPanel;

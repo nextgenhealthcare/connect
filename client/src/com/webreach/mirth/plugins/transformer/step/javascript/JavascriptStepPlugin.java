@@ -54,6 +54,7 @@ public class JavascriptStepPlugin extends TransformerStepPlugin{
 
 	@Override
 	public void initData() {
+                parent.invalidVar = false;
 		clearData();
 	}
 	public void doValidate(){
