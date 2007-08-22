@@ -69,6 +69,7 @@ public class ACKGenerator {
 		}
 		String segmentDelim = "\r";
 		char fieldDelim = message.charAt(3); // Usually |
+		char elementDelim = message.charAt(4); // Usually ^
 		StringBuilder ackBuilder = new StringBuilder();
 		ackBuilder.append(message.substring(0, 9));
 		String originalXML;
@@ -90,6 +91,8 @@ public class ACKGenerator {
 	    String receivingFacility = getXMLValue(originalXML, "<MSH.6.1>", "</MSH.6.1>");
 	    String originalid = getXMLValue(originalXML, "<MSH.10.1>", "</MSH.10.1>");
 		String version = getXMLValue(originalXML, "<MSH.12.1>", "</MSH.12.1>");
+		String procid = getXMLValue(originalXML, "<MSH.11.1>", "</MSH.11.1>");
+		String procidmode = getXMLValue(originalXML, "<MSH.11.2>", "</MSH.11.2>");
 		ackBuilder.append(receivingApplication);
 		ackBuilder.append(fieldDelim);
 		ackBuilder.append(receivingFacility);
@@ -105,7 +108,12 @@ public class ACKGenerator {
 		ackBuilder.append(fieldDelim);
 		ackBuilder.append(timestamp);
 		ackBuilder.append(fieldDelim);
-		ackBuilder.append("P");
+		ackBuilder.append(procid);
+		if (procidmode != null && procidmode.length() > 0 )
+		{		
+			ackBuilder.append(elementDelim);
+			ackBuilder.append(procidmode);
+		}
 		ackBuilder.append(fieldDelim);
 		ackBuilder.append(version);
 		ackBuilder.append(segmentDelim);
@@ -116,6 +124,7 @@ public class ACKGenerator {
 		ackBuilder.append(originalid);
 		ackBuilder.append(textMessage);
 		ackBuilder.append(errorMessage);
+		ackBuilder.append(segmentDelim);
 		//MSH|^~\\&|{sendapp}|{sendfac}|{recapp}|{recfac}|{timestamp}||ACK|{timestamp}|P|{version}\r MSA|{code}|{originalid}{textmessage}
 		return ackBuilder.toString();
 	}
