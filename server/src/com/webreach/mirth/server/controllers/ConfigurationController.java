@@ -51,7 +51,6 @@ import javax.crypto.SecretKey;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.log4j.Logger;
-import org.mule.config.ConfigurationException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -66,6 +65,7 @@ import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.model.util.ImportConverter;
 import com.webreach.mirth.server.Command;
 import com.webreach.mirth.server.CommandQueue;
+import com.webreach.mirth.server.builders.BuilderException;
 import com.webreach.mirth.server.builders.MuleConfigurationBuilder;
 import com.webreach.mirth.server.tools.ClassPathResource;
 import com.webreach.mirth.server.util.DatabaseUtil;
@@ -273,9 +273,12 @@ public class ConfigurationController {
 			// instantiate a new configuration builder given the current channel
 			// and transport list
 			List<Channel> channels = channelController.getChannel(null);
+
 			MuleConfigurationBuilder builder = new MuleConfigurationBuilder(channels, extensionController.getConnectorMetaData());
 			// add the newly generated configuration to the database
 			addConfiguration(builder.getConfiguration());
+			
+			
 			// update the storeMessages reference
 			channelController.updateChannelCache(channels);
 
@@ -316,13 +319,13 @@ public class ConfigurationController {
 					logger.debug("removing global postprocessor");
 					JavaScriptUtil.getInstance().removeScriptFromCache(POSTPROCESSOR);
 				}
-			} else{
-				if (!globalScripts.get(entry.getKey()).equals("")){
-					JavaScriptUtil.getInstance().compileScript((String)entry.getKey(), globalScripts.get(entry.getKey()), false);
+			} else {
+				if (!globalScripts.get(entry.getKey()).equals("")) {
+					JavaScriptUtil.getInstance().compileScript((String) entry.getKey(), globalScripts.get(entry.getKey()), false);
 					logger.debug("adding " + entry.getKey());
-				}else{
+				} else {
 					logger.debug("remvoing " + entry.getKey());
-					JavaScriptUtil.getInstance().removeScriptFromCache((String)entry.getKey());
+					JavaScriptUtil.getInstance().removeScriptFromCache((String) entry.getKey());
 				}
 			}
 		}
@@ -428,8 +431,16 @@ public class ConfigurationController {
 		Properties properties = PropertyLoader.loadProperties("mirth");
 
 		String fileSeparator = System.getProperty("file.separator");
-		File muleBootFile = new File(ClassPathResource.getResourceURI(properties.getProperty("mule.boot")));
+		File muleBootFile = new File(ClassPathResource.getResourceURI(properties.getProperty("mule.template")));
 		return muleBootFile.getParent() + fileSeparator + properties.getProperty("mule.config");
+	}
+
+	public String getMuleBootPath() {
+		Properties properties = PropertyLoader.loadProperties("mirth");
+
+		String fileSeparator = System.getProperty("file.separator");
+		File muleBootFile = new File(ClassPathResource.getResourceURI(properties.getProperty("mule.template")));
+		return muleBootFile.getParent() + fileSeparator + properties.getProperty("mule.boot");
 	}
 
 	/**
@@ -456,14 +467,23 @@ public class ConfigurationController {
 				out.write(latestConfiguration.getData());
 				out.close();
 				return new File(muleConfigPath);
+			} else {
+				logger.debug("no configuration found, using default boot file");
+				String muleBootPath = getMuleBootPath();
+				BufferedWriter out = new BufferedWriter(new FileWriter(new File(muleBootPath)));
+				out.write(getDefaultConfiguration());
+				out.close();
+				return new File(muleBootPath);
 			}
-
-			logger.debug("no configuration found, using default boot file");
-			return new File(ClassPathResource.getResourceURI(properties.getProperty("mule.boot")));
 		} catch (Exception e) {
 			logger.error("Could not retrieve latest configuration.", e);
 			return null;
 		}
+	}
+
+	public String getDefaultConfiguration() throws Exception {
+		MuleConfigurationBuilder builder = new MuleConfigurationBuilder(new ArrayList<Channel>(), extensionController.getConnectorMetaData());
+		return builder.getConfiguration();
 	}
 
 	/**

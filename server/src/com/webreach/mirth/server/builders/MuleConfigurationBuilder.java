@@ -91,7 +91,7 @@ public class MuleConfigurationBuilder {
 
 		try {
 			Properties properties = PropertyLoader.loadProperties("mirth");
-			File muleBootstrapFile = new File(ClassPathResource.getResourceURI(properties.getProperty("mule.boot")));
+			File muleBootstrapFile = new File(ClassPathResource.getResourceURI(properties.getProperty("mule.template")));
 
 			Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(muleBootstrapFile);
 			Element muleConfigurationElement = document.getDocumentElement();

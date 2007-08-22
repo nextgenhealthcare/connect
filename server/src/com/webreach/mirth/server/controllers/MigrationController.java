@@ -112,6 +112,11 @@ public class MigrationController
                     
                     if(configurationFile != null)
                         configurationFile.delete();
+                    
+                    File bootFile = new File(configurationController.getMuleBootPath());
+                    
+                    if(bootFile != null)
+                    	bootFile.delete();
                 }
                 catch(Exception e)
                 {
