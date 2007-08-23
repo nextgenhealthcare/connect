@@ -38,7 +38,6 @@ import org.mortbay.http.SslListener;
 import org.mortbay.http.handler.ResourceHandler;
 import org.mortbay.jetty.servlet.ServletHandler;
 import org.mule.MuleManager;
-import org.mule.config.ConfigurationException;
 import org.mule.config.builders.MuleXmlConfigurationBuilder;
 
 import com.webreach.mirth.model.Channel;
@@ -46,7 +45,6 @@ import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.server.controllers.ChannelController;
 import com.webreach.mirth.server.controllers.ChannelStatisticsController;
 import com.webreach.mirth.server.controllers.ConfigurationController;
-import com.webreach.mirth.server.controllers.ControllerException;
 import com.webreach.mirth.server.controllers.ExtensionController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.controllers.MigrationController;
@@ -96,22 +94,10 @@ public class Mirth extends Thread {
 		if (initResources()) {
 			logger.info("starting mirth server...");
 			running = true;
-			startWebServer();
 
-			// initialize controllers
-			messageObjectController.initialize();
-			channelStatisticsController.initialize();
-			configurationController.initialize();
-			migrationController.initialize();
-			extensionController.initialize();
-			channelController.initialize();
-			userController.initialize();
-			monitoringController.initialize();
-
-			extensionController.startPlugins();
 			// add the start command to the queue
 			CommandQueue.getInstance().clear();
-			CommandQueue.getInstance().addCommand(new Command(Command.Operation.START));
+			CommandQueue.getInstance().addCommand(new Command(Command.Operation.START_SERVER));
 
 			Runtime.getRuntime().addShutdownHook(new ShutdownHook());
 
@@ -119,15 +105,16 @@ public class Mirth extends Thread {
 			while (running) {
 				Command command = commandQueue.getCommand();
 
-				if (command.getOperation().equals(Command.Operation.START)) {
-					startMule();
-					printSplashScreen();
-				} else if (command.getOperation().equals(Command.Operation.STOP)) {
-					stopMule();
-				} else if (command.getOperation().equals(Command.Operation.RESTART)) {
-					restartMule();
-				} else if (command.getOperation().equals(Command.Operation.SHUTDOWN)) {
+				if (command.getOperation().equals(Command.Operation.START_SERVER)) {
+					startup();
+				} else if (command.getOperation().equals(Command.Operation.SHUTDOWN_SERVER)) {
 					shutdown();
+				} else if (command.getOperation().equals(Command.Operation.START_ENGINE)) {
+					startMule();
+				} else if (command.getOperation().equals(Command.Operation.STOP_ENGINE)) {
+					stopMule();
+				} else if (command.getOperation().equals(Command.Operation.RESTART_ENGINE)) {
+					restartMule();
 				}
 			}
 		} else {
@@ -147,6 +134,30 @@ public class Mirth extends Thread {
 		versionProperties = PropertyLoader.loadProperties("version");
 
 		return (mirthProperties != null);
+	}
+
+	/**
+	 * Starts up the server.
+	 * 
+	 */
+	public void startup() {
+		startWebServer();
+
+		// initialize controllers
+		messageObjectController.initialize();
+		channelStatisticsController.initialize();
+		configurationController.initialize();
+		migrationController.initialize();
+		extensionController.initialize();
+		channelController.initialize();
+		userController.initialize();
+		monitoringController.initialize();
+
+		extensionController.startPlugins();
+
+		startMule();
+
+		printSplashScreen();
 	}
 
 	/**
@@ -180,16 +191,16 @@ public class Mirth extends Thread {
 	 * 
 	 */
 	private void startMule() {
-		
+
 		String configurationFilePath = null;
-		
+
 		try {
 			configurationFilePath = configurationController.getLatestConfiguration().getAbsolutePath();
 		} catch (Exception e) {
 			logger.warn("Could not retrieve latest configuration.", e);
 			return;
 		}
-		
+
 		try {
 			// clear global map and do channel deploy scripts if the user
 			// specified to
@@ -198,9 +209,9 @@ public class Mirth extends Thread {
 		} catch (Exception e) {
 			logger.warn("Could not clear the global map.", e);
 		}
-		
+
 		configurationController.setEngineStarting(true);
-		
+
 		try {
 			logger.debug("starting mule with configuration file: " + configurationFilePath);
 
@@ -208,10 +219,10 @@ public class Mirth extends Thread {
 			System.setProperty("org.mule.xml.validate", "false");
 			VMRegistry.getInstance().rebuild();
 			MuleXmlConfigurationBuilder builder = new MuleXmlConfigurationBuilder();
-			
+
 			List<Channel> channels = channelController.getChannel(null);
 			configurationController.compileScripts(channels);
-			
+
 			configurationController.executeGlobalDeployScript();
 			configurationController.executeChannelDeployScripts(channelController.getChannel(null));
 
@@ -245,7 +256,7 @@ public class Mirth extends Thread {
 				if (muleManager.isStarted()) {
 					configurationController.executeChannelShutdownScripts(channelController.getChannel(null));
 					configurationController.executeGlobalShutdownScript();
-					
+
 					muleManager.stop();
 				}
 			} catch (Exception e) {

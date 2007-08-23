@@ -34,7 +34,7 @@ package com.webreach.mirth.server;
  */
 public class Command implements Comparable<Command> {
 	public enum Operation {
-		SHUTDOWN, START, STOP, RESTART
+		START_SERVER, SHUTDOWN_SERVER, START_ENGINE, STOP_ENGINE, RESTART_ENGINE
 	}
 	
 	public enum Priority {

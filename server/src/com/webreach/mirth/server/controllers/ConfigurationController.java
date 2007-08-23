@@ -287,7 +287,7 @@ public class ConfigurationController {
 			// from the database
 
 			CommandQueue queue = CommandQueue.getInstance();
-			queue.addCommand(new Command(Command.Operation.RESTART));
+			queue.addCommand(new Command(Command.Operation.RESTART_ENGINE));
 
 		} catch (Exception e) {
 			throw new ControllerException(e);
