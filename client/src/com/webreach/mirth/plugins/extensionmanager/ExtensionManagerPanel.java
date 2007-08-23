@@ -698,7 +698,7 @@ public class ExtensionManagerPanel extends javax.swing.JPanel
                 installButton.setEnabled(true);
                 if(retVal)
                 {
-                    parent.alertInformation("Mirth must be restarted in order to load the extension.");
+                	parent.finishInstall();
                     fileText.setText("");
                 }else{
                 	parent.alertError("Unable to install extension.");

@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Properties;
 
 import javax.swing.ImageIcon;
 
@@ -174,7 +175,8 @@ public class ExtensionManagerClient extends ClientPanelPlugin
     {
     	try
         {
-    		if (file.exists()){
+    		if (file.exists())
+    		{
     			PlatformUI.MIRTH_FRAME.mirthClient.installExtension(location, file);
     		}
     		else
@@ -189,6 +191,31 @@ public class ExtensionManagerClient extends ClientPanelPlugin
             return false;
         }
         return true;
+    }
+    
+    public void finishInstall()
+    {
+    	Properties props = null;
+    	try
+    	{
+    		props = this.getPropertiesFromServer();
+    	}
+    	catch (ClientException e)
+    	{
+    		alertException(e.getStackTrace(), e.getMessage());
+    	}
+    	
+		if (props != null && Boolean.getBoolean(props.getProperty("disableInstall")))
+		{
+			alertInformation("Your extension(s) have been installed to the 'install_temp' directorie in your extensions\n" +
+					"location on the server.  To load the new plugins, manually shutdown the\n" +
+					"Mirth container (e.g. JBoss), drag the plugins out of 'install_temp', and\n" +
+					"restart the Mirth container.");
+		}
+		else
+		{
+			alertInformation("The Mirth server must be restarted for the extension(s) to load.");
+		}
     }
     
    

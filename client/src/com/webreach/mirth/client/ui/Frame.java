@@ -253,11 +253,8 @@ public class Frame extends JXFrame
         {
             public void windowClosing(WindowEvent e)
             {
-                if (!confirmLeave())
-                    return;
-                
-                logout();
-                System.exit(0);
+                if (logout())
+                	System.exit(0);
             }
         });
     }
@@ -1408,14 +1405,14 @@ public class Frame extends JXFrame
     
     public void doLogout()
     {
-        if (!confirmLeave())
-            return;
-        
         logout();
     }
     
-    public void logout()
+    public boolean logout()
     {
+    	if (!confirmLeave())
+            return false;
+    	
         if (currentContentPage == dashboardPanel)
             su.interruptThread();
         
@@ -1428,7 +1425,7 @@ public class Frame extends JXFrame
         
         try
         {
-            mirthClient.logout();
+       		mirthClient.logout();
             this.dispose();
             Mirth.main(new String[] { PlatformUI.SERVER_NAME, PlatformUI.CLIENT_VERSION });
         }
@@ -1436,6 +1433,8 @@ public class Frame extends JXFrame
         {
             alertException(e.getStackTrace(), e.getMessage());
         }
+        
+        return true;
     }
     
     public void doMoveDestinationDown()

@@ -261,7 +261,7 @@ public class RepositoryDialog extends javax.swing.JDialog
             	checkForUpdatesButton.setEnabled(true);
             	if (installedExtensions){
 	                statusLabel.setText("Extensions Installed!");
-	                PlatformUI.MIRTH_FRAME.alertInformation("Extensions successfully installed.\r\nMirth Server must be restarted in order to load the extension.");
+	                parent.finishInstall();
 	                dispose();
             	}
             }

@@ -260,7 +260,7 @@ public class UpdateDialog extends javax.swing.JDialog
             	checkForUpdatesButton.setEnabled(true);
             	if (installedUpdates){
 	                statusLabel.setText("Updates Installed!");
-	                PlatformUI.MIRTH_FRAME.alertInformation("Updates successfully installed.\r\nYou must restart Mirth to refresh plugin status");
+	                parent.finishInstall();
 	                dispose();
             	}
             }
