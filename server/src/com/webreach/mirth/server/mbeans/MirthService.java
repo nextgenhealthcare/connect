@@ -12,17 +12,12 @@ public class MirthService implements MirthServiceMBean {
 	private Mirth mirthServer = null;
 	private final String EXTENSION_NAME = "Extension Manager";
 	
-	public void start()	{
-		
-		createProperties();
-		
-		if (mirthServer == null) {
+	public void start()	{		
+		if (mirthServer == null || !mirthServer.isAlive()) {
+			createProperties();
 			mirthServer = new Mirth();
 			mirthServer.start();
-		} else if (!mirthServer.isAlive()) {
-			mirthServer = new Mirth();
-			mirthServer.start();
-		}
+		} 
 	}
 
 	public void stop() {
