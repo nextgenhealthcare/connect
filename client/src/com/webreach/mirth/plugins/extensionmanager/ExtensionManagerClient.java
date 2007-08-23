@@ -205,12 +205,11 @@ public class ExtensionManagerClient extends ClientPanelPlugin
     		alertException(e.getStackTrace(), e.getMessage());
     	}
     	
-		if (props != null && Boolean.getBoolean(props.getProperty("disableInstall")))
+		if (props != null && Boolean.parseBoolean(props.getProperty("disableInstall")))
 		{
-			alertInformation("Your extension(s) have been installed to the 'install_temp' directorie in your extensions\n" +
-					"location on the server.  To load the new plugins, manually shutdown the\n" +
-					"Mirth container (e.g. JBoss), drag the plugins out of 'install_temp', and\n" +
-					"restart the Mirth container.");
+			alertInformation("Your extension(s) have been installed to the 'install_temp' directories in your extensions\n" +
+					"location on the server.  To load the new plugins, manually shutdown the Mirth container\n" +
+					"(e.g. JBoss), drag the plugins out of 'install_temp', and restart the Mirth container.\n");
 		}
 		else
 		{
