@@ -58,7 +58,7 @@ public class UpdateDialog extends javax.swing.JDialog
 {
     private ExtensionManagerClient parent;
     
-    private final String EXTENSION_NAME_COLUMN_NAME = "Extension Name";
+    private final String EXTENSION_NAME_COLUMN_NAME = "Name";
     private final String EXTENSION_INSTALLED_VERSION_COLUMN_NAME = "Installed Version";
     private final String EXTENSION_INSTALL_UPDATE_COLUMN_NAME = "Update";
     private final String EXTENSION_UPDATE_VERSION_COLUMN_NAME = "Update Version";

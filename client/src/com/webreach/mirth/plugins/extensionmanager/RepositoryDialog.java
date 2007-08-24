@@ -71,7 +71,7 @@ public class RepositoryDialog extends javax.swing.JDialog
     private static final int INSTALL_COLUMN = 4;
 	private ExtensionManagerClient parent;
     private final String EXTENSION_TYPE_COLUMN_NAME = "Type";
-    private final String EXTENSION_NAME_COLUMN_NAME = "Extension Name";
+    private final String EXTENSION_NAME_COLUMN_NAME = "Name";
     private final String EXTENSION_VERSION_COLUMN_NAME = "Version";
     //private final String EXTENSION_MIRTHVERSION_COLUMN_NAME = "Mirth Version";
     private final String EXTENSION_AUTHOR_COLUMN_NAME = "Author";
