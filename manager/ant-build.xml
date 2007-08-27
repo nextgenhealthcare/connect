@@ -24,7 +24,7 @@
 		<javac srcdir="${src}" destdir="${classes}" debug="${javac.debug}" verbose="${javac.verbose}" deprecation="${javac.deprecation}" optimize="${javac.optimize}">
 			<classpath refid="classpath" />
 		</javac>
-		
+
 		<!-- copy the image files so they will be included in jar -->
 		<copy todir="${classes}/com/webreach/mirth/manager/images">
 			<fileset dir="${src}/com/webreach/mirth/manager/images" />
@@ -34,14 +34,14 @@
 	<target name="create-manager" depends="compile">
 		<mkdir dir="${dist}" />
 		<mkdir dir="${dist.source}" />
-		
-		<manifest file="MANIFEST.MF">
-			<attribute name="Manifest-Version" value="1.0"/>
-			<attribute name="Main-Class" value="com.webreach.mirth.manager.Manager"/>
-			<attribute name="Class-Path" value="lib/jdic.jar lib/swing-layout-1.0.1.jar lib/looks-2.1.1.jar"/>
-		</manifest>
-		
-		<jar destfile="${dist}/${manager.jar}" manifest="MANIFEST.MF" basedir="${classes}" />
+
+		<jar destfile="${dist}/${manager.jar}" basedir="${classes}">
+			<manifest>
+				<attribute name="Manifest-Version" value="1.0" />
+				<attribute name="Main-Class" value="com.webreach.mirth.manager.Manager" />
+				<attribute name="Class-Path" value="lib/jdic.jar lib/swing-layout-1.0.1.jar lib/looks-2.1.1.jar" />
+			</manifest>
+		</jar>
 
 		<!-- copy source files -->
 		<copy todir="${dist.source}">
