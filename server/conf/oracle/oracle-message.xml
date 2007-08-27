@@ -125,11 +125,9 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 	<select id="getMessageByPageLimit" parameterClass="java.util.Map" resultMap="get-message-result">
 		SELECT * FROM (
 			SELECT
-				ROWNUM AS ROWCOUNT, MESSAGE.*
-			FROM
-				MESSAGE
+				ROWNUM AS ROWCOUNT, MSG.*
+			FROM (SELECT * FROM MESSAGE ORDER BY DATE_CREATED DESC) MSG
 			<include refid="messageFilterCriteria" />
-			ORDER BY DATE_CREATED DESC
 		) WHERE ROWCOUNT <![CDATA[ > ]]> $offset$ AND ROWCOUNT <![CDATA[ <= ]]> ($offset$ + $limit$)
 	</select>
 
