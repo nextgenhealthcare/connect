@@ -64,7 +64,6 @@ import com.webreach.mirth.server.controllers.MonitoringController;
 import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
 import com.webreach.mirth.server.controllers.MonitoringController.Event;
 import com.webreach.mirth.server.mule.transformers.JavaScriptPostprocessor;
-import com.webreach.mirth.server.util.ACKGenerator;
 import com.webreach.mirth.server.util.BatchMessageProcessor;
 import com.webreach.mirth.server.util.StackTracePrinter;
 
