@@ -19,6 +19,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -28,116 +29,70 @@ import java.util.regex.Pattern;
  */
 public class VariableListUtil
 {
-    final static String GLOBAL_VAR_PATTERN = "[channel|global|response]Map.put\\(['|\"]([^'|^\"]*)[\"|']";
-    final static String VAR_PATTERN = "[connector|channel|global|response]Map.put\\(['|\"]([^'|^\"]*)[\"|']";
-    
-    /* 
-     * Extract variables from a list of steps
-     */
-    public static LinkedHashSet<String> getStepVariables(List<Step> addToList)
+    final static String GLOBAL_AND_CHANNEL_VARIABLE_PATTERN = "(?:(?:(?:channel|global|response)(?:M|m)ap.put)|\\$(?:g|c|r))\\(\\s*['|\"]*([^'|^\"|^\\s]*)[\"|']*";
+    final static String LOCAL_VARIABLE_PATTERN = "(?:(?:(?:channel|global|response|connector)(?:M|m)ap.put)|\\$(?:g|c|r|co))\\(\\s*['|\"]*([^'|^\"|^\\s]*)[\"|']*";
+    final static int MATCHER_INDEX = 1;
+    public static void getStepVariables(Set<String> targetSet, Connector connector, boolean includeLocalVars)
     {
-        LinkedHashSet<String> variables = new LinkedHashSet<String>();
-        for (Iterator it = addToList.iterator(); it.hasNext();)
-        {
-            Step step = (Step) it.next();
-            Map data;
-            data = (Map) step.getData();
-            if (step.getType().equalsIgnoreCase(TransformerPane.MAPPER_TYPE))
-            {
-                variables.add((String) data.get("Variable"));
-            }
-            else if (step.getType().equalsIgnoreCase(TransformerPane.JAVASCRIPT_TYPE))
-            {
-                Pattern pattern = Pattern.compile(VAR_PATTERN);
-                Matcher matcher = pattern.matcher(step.getScript());
-                while (matcher.find())
-                {
-                    String key = matcher.group(1);
-                    variables.add(key);
-                }
-            }
-        }
-        return variables;
+    	getStepVariables(targetSet, connector, includeLocalVars, -1);
     }
-    
-    /* 
-     * Extract variables from a list of rules
-     */
-    public static LinkedHashSet<String> getRuleVariables(List<Rule> addToList)
-    {
-        LinkedHashSet<String> variables = new LinkedHashSet<String>();
-        for (Iterator it = addToList.iterator(); it.hasNext();)
-        {
-            Rule rule = (Rule) it.next();
-            Pattern pattern = Pattern.compile(VAR_PATTERN);
-            Matcher matcher = pattern.matcher(rule.getScript());
-            while (matcher.find())
-            {
-                String key = matcher.group(1);
-                variables.add(key);
-            }
-        }
-        return variables;
-    }
-    
     /* 
      * Gets all steps that have variables that should show up in the global variable list
      */
-    public static void getStepGlobalVariables(List<Step> addToList, Connector connector)
+    public static void getStepVariables(Set<String> targetSet, Connector connector, boolean includeLocalVars, int row)
     {
         
         // add only the global variables
         List<Step> connectorSteps = connector.getTransformer().getSteps();
-        Iterator stepIterator = connectorSteps.iterator();
+        Iterator<Step> stepIterator = connectorSteps.iterator();
+        String varPattern = GLOBAL_AND_CHANNEL_VARIABLE_PATTERN;
+        if (includeLocalVars){
+        	varPattern = LOCAL_VARIABLE_PATTERN;
+        }
+        int currentRow = 0;
         while (stepIterator.hasNext())
         {
-            Step step = (Step) stepIterator.next();
-            HashMap map = (HashMap) step.getData();
-            if (step.getType().equals(TransformerPane.MAPPER_TYPE))
-            {
-                // Check if the step is global
-                if (map.containsKey(UIConstants.IS_GLOBAL))
-                {
-                    if (!((String) map.get(UIConstants.IS_GLOBAL)).equalsIgnoreCase(UIConstants.IS_GLOBAL_CONNECTOR))
-                        addToList.add(step);
-                }
+        	if (row > -1 && row <= currentRow){
+        		break;
+        	}
+            Pattern pattern = Pattern.compile(varPattern);
+            Matcher matcher = pattern.matcher(stepIterator.next().getScript());
+            while (matcher.find()){
+            	targetSet.add(matcher.group(1));
             }
-            else if (step.getType().equals(TransformerPane.JAVASCRIPT_TYPE))
-            {
-                Pattern pattern = Pattern.compile(GLOBAL_VAR_PATTERN);
-                Matcher matcher = pattern.matcher(step.getScript());
-                while (matcher.find())
-                {
-                    String key = matcher.group(1);
-                    Step tempStep = new Step();
-                    Map tempMap = new HashMap();
-                    tempMap.put("Variable", key);
-                    tempStep.setData(tempMap);
-                    tempStep.setType(TransformerPane.MAPPER_TYPE);
-                    addToList.add(tempStep);
-                }
-            }
+            currentRow++;
         }
     }
-    
+    public static void getRuleVariables(Set<String> targetSet, Connector connector, boolean includeLocalVars)
+    {
+    	 getRuleVariables(targetSet, connector, includeLocalVars, -1);
+    }
     /* 
      * Gets all rules that have variables that should show up in the global variable list
      */
-    public static void getRuleGlobalVariables(List<Rule> addToList, Connector connector)
+    public static void getRuleVariables(Set<String> targetSet, Connector connector, boolean includeLocalVars, int row)
     {
         
         // add only the global variables
         List<Rule> connectorRules = connector.getFilter().getRules();
-        Iterator ruleIterator = connectorRules.iterator();
+        Iterator<Rule> ruleIterator = connectorRules.iterator();
+        String varPattern = GLOBAL_AND_CHANNEL_VARIABLE_PATTERN;
+        if (includeLocalVars){
+        	varPattern = LOCAL_VARIABLE_PATTERN;
+        }
+        int currentRow = 0;
         while (ruleIterator.hasNext())
         {
-            Rule rule = (Rule) ruleIterator.next();
-            Pattern pattern = Pattern.compile(GLOBAL_VAR_PATTERN);
-            Matcher matcher = pattern.matcher(rule.getScript());
-            if (matcher.find())
+        	if (row > -1 && row >= currentRow){
+        		break;
+        	}
+            Pattern pattern = Pattern.compile(varPattern);
+            Matcher matcher = pattern.matcher(ruleIterator.next().getScript());
+            while (matcher.find())
             {
-                addToList.add(rule);
+            	targetSet.add(matcher.group(MATCHER_INDEX));
             }
+            currentRow++;
         }
     }
 }

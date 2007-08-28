@@ -11,6 +11,7 @@ import com.webreach.mirth.client.ui.panels.reference.ReferenceListFactory;
 import com.webreach.mirth.model.Rule;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JPanel;
@@ -62,9 +63,12 @@ public class TabbedTemplatePanel extends javax.swing.JPanel
         outgoing.resizePanes();
     }
 
-    public void updateVariables(List<Rule> rules, List<Step> steps)
+    public void updateVariables(Set<String> rules, Set<String> steps)
     {
-        variableTable.updateVariables(rules, steps);
+    	if (rules != null && steps != null){
+    		rules.addAll(steps);
+    	}
+        variableTable.updateVariables(rules);
     }
 
     public String getIncomingMessage()

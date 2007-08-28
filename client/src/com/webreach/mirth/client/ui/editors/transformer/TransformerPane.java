@@ -49,9 +49,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.prefs.Preferences;
 
 import javax.swing.Action;
@@ -791,6 +793,8 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
             {
                 data = getPlugin(type).getData(row);
                 transformerTableModel.setValueAt(data, row, STEP_DATA_COL);
+                List<Step> list = buildStepList(new ArrayList<Step>(), transformerTable.getRowCount());
+                transformer.setSteps(list);
             }
             catch (Exception e)
             {
@@ -813,10 +817,15 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
             setPanelData(type, data);
         }
         
-        if (connector.getMode() == Connector.Mode.SOURCE)
-            tabTemplatePanel.updateVariables(connector.getFilter().getRules(), buildStepList(new ArrayList<Step>(), row));
-        else
-            tabTemplatePanel.updateVariables(getGlobalRuleVariables(), buildStepList(getGlobalStepVariables(), row));
+        if (connector.getMode() == Connector.Mode.SOURCE){
+        	Set<String> concatenatedRules = new LinkedHashSet<String>();
+        	Set<String> concatenatedSteps = new LinkedHashSet<String>();
+        	VariableListUtil.getRuleVariables(concatenatedRules, connector, true);
+        	VariableListUtil.getStepVariables(concatenatedSteps, connector, true, row);
+            tabTemplatePanel.updateVariables(concatenatedRules, concatenatedSteps);
+        } else {
+            tabTemplatePanel.updateVariables(getRuleVariables(row), getStepVariables(row));
+        }
     }
     
     private void setPanelData(String type, Map<Object, Object> data)
@@ -1171,10 +1180,10 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
         return list;
     }
     
-    private List<Rule> getGlobalRuleVariables()
+    private Set<String> getRuleVariables(int row)
     {
-        ArrayList<Rule> concatenatedRules = new ArrayList<Rule>();
-        VariableListUtil.getRuleGlobalVariables(concatenatedRules, channel.getSourceConnector());
+        Set<String> concatenatedRules = new LinkedHashSet<String>();
+        VariableListUtil.getRuleVariables(concatenatedRules, channel.getSourceConnector(), false);
         
         List<Connector> destinationConnectors = channel.getDestinationConnectors();
         Iterator<Connector> it = destinationConnectors.iterator();
@@ -1184,21 +1193,22 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
             Connector destination = it.next();
             if (connector == destination)
             {
-                VariableListUtil.getRuleGlobalVariables(concatenatedRules, destination);
+                VariableListUtil.getRuleVariables(concatenatedRules, destination, true, row);
                 seenCurrent = true;
             }
             else if (!seenCurrent)
             {
-                VariableListUtil.getRuleGlobalVariables(concatenatedRules, destination);
+                VariableListUtil.getRuleVariables(concatenatedRules, destination, false);
+                concatenatedRules.add(destination.getName());
             }
         }
         return concatenatedRules;
     }
     
-    private List<Step> getGlobalStepVariables()
+    private Set<String> getStepVariables(int row)
     {
-        ArrayList<Step> concatenatedSteps = new ArrayList<Step>();
-        VariableListUtil.getStepGlobalVariables(concatenatedSteps, channel.getSourceConnector());
+        Set<String> concatenatedSteps = new LinkedHashSet<String>();
+        VariableListUtil.getStepVariables(concatenatedSteps, channel.getSourceConnector(), false);
         
         List<Connector> destinationConnectors = channel.getDestinationConnectors();
         Iterator<Connector> it = destinationConnectors.iterator();
@@ -1208,11 +1218,13 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
             Connector destination = it.next();
             if (connector == destination)
             {
+            	VariableListUtil.getStepVariables(concatenatedSteps, destination, true, row);
                 seenCurrent = true;
             }
             else if (!seenCurrent)
             {
-                VariableListUtil.getStepGlobalVariables(concatenatedSteps, destination);
+                VariableListUtil.getStepVariables(concatenatedSteps, destination, false);
+                concatenatedSteps.add(destination.getName());
             }
         }
         return concatenatedSteps;

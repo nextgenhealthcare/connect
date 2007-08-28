@@ -30,6 +30,7 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.table.DefaultTableModel;
 
@@ -131,16 +132,8 @@ public class VariableReferenceTable extends ReferenceTable
         return null;
     }
 
-    public void updateVariables(List<Rule> rules, List<Step> steps)
+    public void updateVariables(Set<String> variables)
     {
-        LinkedHashSet<String> variables = new LinkedHashSet<String>();
-        
-        if(rules != null)
-            variables.addAll(VariableListUtil.getRuleVariables(rules));
-        
-        if(steps != null)
-            variables.addAll(VariableListUtil.getStepVariables(steps));
-
         Object[][] d = new String[variables.toArray().length][2];
         for (int j = 0; j < variables.toArray().length; j++)
         {

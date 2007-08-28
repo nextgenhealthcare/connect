@@ -34,9 +34,11 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.Map.Entry;
 import java.util.prefs.Preferences;
 import javax.swing.ImageIcon;
@@ -1785,10 +1787,10 @@ public class ChannelSetup extends javax.swing.JPanel
         destinationConnectorPane.repaint();
     }
     
-    private List<Rule> getMultipleDestinationRules(Connector currentDestination)
+    private Set<String> getMultipleDestinationRules(Connector currentDestination)
     {
-        List<Rule> concatenatedRules = new ArrayList<Rule>();
-        VariableListUtil.getRuleGlobalVariables(concatenatedRules, currentChannel.getSourceConnector());
+        Set<String> concatenatedRules = new LinkedHashSet<String>();
+        VariableListUtil.getRuleVariables(concatenatedRules, currentChannel.getSourceConnector(), false);
         
         // add only the global variables
         List<Connector> destinationConnectors = currentChannel.getDestinationConnectors();
@@ -1801,21 +1803,22 @@ public class ChannelSetup extends javax.swing.JPanel
             {
                 seenCurrent = true;
                 // add all the variables
-                concatenatedRules.addAll(destination.getFilter().getRules());
+                VariableListUtil.getRuleVariables(concatenatedRules, destination, true);
             }
             else if (!seenCurrent)
             {
                 // add only the global variables
-                VariableListUtil.getRuleGlobalVariables(concatenatedRules, destination);
+                VariableListUtil.getRuleVariables(concatenatedRules, destination, false);
+                concatenatedRules.add(destination.getName());
             }
         }
         return concatenatedRules;
     }
     
-    private List<Step> getMultipleDestinationSteps(Connector currentDestination)
+    private Set<String> getMultipleDestinationStepVariables(Connector currentDestination)
     {
-        List<Step> concatenatedSteps = new ArrayList<Step>();
-        VariableListUtil.getStepGlobalVariables(concatenatedSteps, currentChannel.getSourceConnector());
+        Set<String> concatenatedSteps = new LinkedHashSet<String>();
+        VariableListUtil.getStepVariables(concatenatedSteps, currentChannel.getSourceConnector(), false);
         
         // add only the global variables
         List<Connector> destinationConnectors = currentChannel.getDestinationConnectors();
@@ -1828,12 +1831,13 @@ public class ChannelSetup extends javax.swing.JPanel
             {
                 seenCurrent = true;
                 // add all the variables
-                concatenatedSteps.addAll(destination.getTransformer().getSteps());
+                VariableListUtil.getStepVariables(concatenatedSteps, destination, true);
             }
             else if (!seenCurrent)
             {
                 // add only the global variables
-                VariableListUtil.getStepGlobalVariables(concatenatedSteps, destination);
+            	VariableListUtil.getStepVariables(concatenatedSteps, destination, false);
+            	concatenatedSteps.add(destination.getName());
             }
         }
         return concatenatedSteps;
@@ -1843,9 +1847,10 @@ public class ChannelSetup extends javax.swing.JPanel
     public void setDestinationVariableList()
     {
         int destination = getDestinationConnectorIndex((String) destinationTable.getValueAt(getSelectedDestinationIndex(), getColumnNumber(DESTINATION_COLUMN_NAME)));
-        List<Rule> concatenatedRules = getMultipleDestinationRules(currentChannel.getDestinationConnectors().get(destination));
-        List<Step> concatenatedSteps = getMultipleDestinationSteps(currentChannel.getDestinationConnectors().get(destination));
-        destinationVariableList.setVariableListInbound(concatenatedRules, concatenatedSteps);
+        Set<String> concatenatedRuleVariables = getMultipleDestinationRules(currentChannel.getDestinationConnectors().get(destination));
+        Set<String> concatenatedStepVariables = getMultipleDestinationStepVariables(currentChannel.getDestinationConnectors().get(destination));
+        concatenatedRuleVariables.addAll(concatenatedStepVariables);
+        destinationVariableList.setVariableListInbound(concatenatedRuleVariables);
         destinationVariableList.setDestinationMappingsLabel();
         destinationVariableList.repaint();
     }

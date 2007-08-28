@@ -29,6 +29,8 @@ import com.webreach.mirth.client.ui.util.VariableListUtil;
 import com.webreach.mirth.model.Rule;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+
 import com.webreach.mirth.model.Step;
 import java.util.LinkedHashSet;
 
@@ -52,7 +54,7 @@ public class VariableList extends javax.swing.JPanel
     /**
      * Set the variable list from a list of steps.
      */
-    public void setVariableListInbound(List<Rule> rules, List<Step> steps)
+    public void setVariableListInbound(Set<String> additionalVariables)
     {
         LinkedHashSet<String> variables = new LinkedHashSet<String>();
         int i = 0;
@@ -71,9 +73,8 @@ public class VariableList extends javax.swing.JPanel
         variables.add("Count");
         variables.add("Entity Encoder");
         variables.add("CDATA Tag");
-        variables.addAll(VariableListUtil.getRuleVariables(rules));
-        variables.addAll(VariableListUtil.getStepVariables(steps));
-
+        variables.addAll(additionalVariables);
+    
         mirthVariableList.removeAll();
         mirthVariableList.setListData(variables.toArray());
 

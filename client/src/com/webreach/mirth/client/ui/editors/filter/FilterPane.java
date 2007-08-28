@@ -47,9 +47,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.prefs.Preferences;
 
 import javax.swing.Action;
@@ -647,10 +649,15 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
             jsPanel.setData(m);
         }
         
-        if (connector.getMode() == Connector.Mode.SOURCE)
-            tabTemplatePanel.updateVariables(buildRuleList(new ArrayList<Rule>(), row), null);
-        else
-            tabTemplatePanel.updateVariables(buildRuleList(getGlobalRuleVariables(), row), getGlobalStepVariables());
+        if (connector.getMode() == Connector.Mode.SOURCE){
+        	Set<String> concatenatedRules = new LinkedHashSet<String>();
+        	Set<String> concatenatedSteps = new LinkedHashSet<String>();
+        	VariableListUtil.getRuleVariables(concatenatedRules, connector, true);
+        	VariableListUtil.getStepVariables(concatenatedSteps, connector, true, row);
+            tabTemplatePanel.updateVariables(concatenatedRules, concatenatedSteps);
+        } else {
+            tabTemplatePanel.updateVariables(getRuleVariables(row), getGlobalStepVariables(row));
+        }
     }
 
     // display a rule in the table
@@ -890,10 +897,10 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
         return list;
     }
     
-    private List<Rule> getGlobalRuleVariables()
+    private Set<String> getRuleVariables(int row)
     {
-        List<Rule> concatenatedRules = new ArrayList<Rule>();
-        VariableListUtil.getRuleGlobalVariables(concatenatedRules, channel.getSourceConnector());
+        Set<String> concatenatedRules = new LinkedHashSet<String>();
+        VariableListUtil.getRuleVariables(concatenatedRules, channel.getSourceConnector(), false);
         
         List<Connector> destinationConnectors = channel.getDestinationConnectors();
         Iterator<Connector> it = destinationConnectors.iterator();
@@ -903,20 +910,22 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
             Connector destination = it.next();
             if (connector == destination)
             {
+            	VariableListUtil.getRuleVariables(concatenatedRules, destination, true, row);
                 seenCurrent = true;
             }
             else if (!seenCurrent)
             {
-                VariableListUtil.getRuleGlobalVariables(concatenatedRules, destination);
+                VariableListUtil.getRuleVariables(concatenatedRules, destination, false);
+                concatenatedRules.add(destination.getName());
             }
         }
         return concatenatedRules;
     }
     
-    private List<Step> getGlobalStepVariables()
+    private Set<String> getGlobalStepVariables(int row)
     {
-        List<Step> concatenatedSteps = new ArrayList<Step>();
-        VariableListUtil.getStepGlobalVariables(concatenatedSteps, channel.getSourceConnector());
+    	Set<String> concatenatedSteps = new LinkedHashSet<String>();
+        VariableListUtil.getStepVariables(concatenatedSteps, channel.getSourceConnector(), false);
         
         List<Connector> destinationConnectors = channel.getDestinationConnectors();
         Iterator<Connector> it = destinationConnectors.iterator();
@@ -927,10 +936,12 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
             if (connector == destination)
             {
                 seenCurrent = true;
+                //VariableListUtil.getStepVariables(concatenatedSteps, destination, true, row);
             }
             else if (!seenCurrent)
             {
-                VariableListUtil.getStepGlobalVariables(concatenatedSteps, destination);
+                VariableListUtil.getStepVariables(concatenatedSteps, destination, false);
+                concatenatedSteps.add(destination.getName());
             }
         }
         return concatenatedSteps;
