@@ -794,7 +794,6 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
             }
             catch (Exception e)
             {
-                // TODO Auto-generated catch block
                 parent.alertException(e.getStackTrace(), e.getMessage());
             }
             
@@ -1133,6 +1132,11 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
         if (isValid(moveTo))
         {
             saveData(selRow);
+            
+            // if the row was invalid, do not move the row.
+            if (isInvalidVar())
+            	return;
+            
             loadData(moveTo);
             transformerTableModel.moveRow(selRow, selRow, moveTo);
             transformerTable.setRowSelectionInterval(moveTo, moveTo);
