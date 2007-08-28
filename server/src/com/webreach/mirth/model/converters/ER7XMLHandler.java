@@ -43,6 +43,7 @@ public class ER7XMLHandler extends DefaultHandler {
 	private boolean sawMSH2 = false;
     private boolean inElement = false;
 	private String lastSegment = new String();
+	private String lastElement = new String();
 	private StringBuilder output = new StringBuilder();
 	private String segmentDelim;
 	public ER7XMLHandler(String segmentDelim, String fieldDelim, String componentDelim, String subcomponentDelim, String repetitionSep, String escapeChar) {
@@ -92,7 +93,7 @@ public class ER7XMLHandler extends DefaultHandler {
 				}else{
 					//System.out.println("Last segment: " + lastSegment + " Segment: " + name);
 					if (lastSegment.length() > 0){
-						//handle any missing elements
+						//handle any missing fields
 						int currentFieldId = Integer.parseInt(name.split("\\.")[1]); //get the second part, the id
 						int lastFieldId = Integer.parseInt(lastSegment.split("\\.")[1]); 
 						int difference = currentFieldId - lastFieldId;
@@ -112,6 +113,20 @@ public class ER7XMLHandler extends DefaultHandler {
 				if (lastinSubelement){
 					output.append(componentDelim);
 				}
+				
+				//System.out.println("Last element: " + lastElement + " Current element: " + name);
+				if (lastElement.length() > 0){
+					//handle any missing elements
+					int currentFieldId = Integer.parseInt(name.split("\\.")[2]); //get the third part, the id
+					int lastFieldId = Integer.parseInt(lastElement.split("\\.")[2]); 
+					int difference = currentFieldId - lastFieldId;
+				
+					for (int i = 1; i < difference; i++){
+						output.append(componentDelim);
+					}
+					
+				}
+				lastElement = name;
 				currentLocation = Location.SUBELEMENT;
 				lastinSubelement = true;
 			}
@@ -133,6 +148,7 @@ public class ER7XMLHandler extends DefaultHandler {
 			currentLocation = Location.DOCUMENT;
 			lastSegment = "";
 		}else if (currentLocation.equals(Location.ELEMENT)){
+			lastElement = "";
 			currentLocation = Location.SEGMENT;
 		}else if (currentLocation.equals(Location.SUBELEMENT)){
 			currentLocation = Location.ELEMENT;
