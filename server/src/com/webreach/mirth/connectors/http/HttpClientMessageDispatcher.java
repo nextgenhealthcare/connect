@@ -33,6 +33,7 @@ import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.mule.config.i18n.Message;
 import org.mule.impl.MuleMessage;
@@ -77,6 +78,7 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher {
 	private MonitoringController monitoringController = MonitoringController.getInstance();
 	private TemplateValueReplacer replacer = new TemplateValueReplacer();
 	private ConnectorType connectorType = ConnectorType.SENDER;
+	private final String PAYLOAD_KEY = "$payload";
 	public HttpClientMessageDispatcher(HttpConnector connector) {
 		super(connector);
 		this.connector = connector;
@@ -178,7 +180,13 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher {
 			if (requestVariables != null && requestVariables.size() > 0){
 				for (Iterator iter = requestVariables.keySet().iterator(); iter.hasNext();) {
 					String key = (String) iter.next();
-					postMethod.addParameter(key, replacer.replaceValues((String) requestVariables.get(key), messageObject));
+					//one of our variables can be $payload (or current payload_key)
+					//set our request entiity to this if set
+					if (key.equals(PAYLOAD_KEY)){
+						postMethod.setRequestEntity(new StringRequestEntity(replacer.replaceValues((String) requestVariables.get(key), messageObject)));
+					}else{
+						postMethod.addParameter(key, replacer.replaceValues((String) requestVariables.get(key), messageObject));
+					}
 				}
 			}
 			httpMethod = postMethod;

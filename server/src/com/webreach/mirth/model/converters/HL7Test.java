@@ -24,8 +24,12 @@ import org.xml.sax.helpers.XMLReaderFactory;
 public class HL7Test {
 	public static void main(String[] args) {
 		String testMessage = "";
+		String testXML = null;
 		try {
 			testMessage = new String(getBytesFromFile(new File(args[0])));
+			if (args.length>1){
+				testXML =  new String(getBytesFromFile(new File(args[1])));
+			}
 			System.out.println(testMessage);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -34,9 +38,9 @@ public class HL7Test {
 		try {
 			
 			long totalExecutionTime = 0;
-			int iterations = 100;
+			int iterations = 1;
 			for (int i = 0; i < iterations; i++) {
-				totalExecutionTime+=runTest(testMessage);
+				totalExecutionTime+=runTest(testMessage, testXML);
 			}
 			
 			System.out.println("Execution time average: " + totalExecutionTime/iterations + " ms");
@@ -52,13 +56,17 @@ public class HL7Test {
 
 	}
 
-	private static long runTest(String testMessage) throws SerializerException, SAXException, IOException {
+	private static long runTest(String testMessage, String xml) throws SerializerException, SAXException, IOException {
 		Stopwatch stopwatch = new Stopwatch();
 		Properties properties = new Properties();
 		properties.put("useStrictParser", "false");
+		properties.put("handleRepetitions", "true");
 		stopwatch.start();
 		ER7Serializer serializer = new ER7Serializer(properties);
-		String xmloutput = serializer.toXML(testMessage);
+		String xmloutput = xml;
+		if (xml == null){
+			xmloutput = serializer.toXML(testMessage);
+		}
 		//System.out.println(xmloutput);
 		DocumentSerializer docser = new DocumentSerializer();
 		docser.setPreserveSpace(false);
@@ -70,8 +78,8 @@ public class HL7Test {
 		xr.parse(new InputSource(new StringReader(xmloutput)));
 		stopwatch.stop();
 		
-		//System.out.println(docser.toXML(doc)); //handler.getOutput());
-		//System.out.println(handler.getOutput());
+		System.out.println(docser.toXML(doc)); //handler.getOutput());
+		System.out.println(handler.getOutput());
 		if (handler.getOutput().toString().replace('\n', '\r').trim().equals(testMessage.replaceAll("\\r\\n", "\r").trim())) {
 			System.out.println("Test Successful!");
 		} else {
@@ -84,12 +92,13 @@ public class HL7Test {
 					System.out.println("");
 					System.out.print("Saw: ");
 					System.out.println(newm.charAt(i));
+				
 					System.out.print("Expected: ");
 					System.out.print(original.charAt(i));
 					break;
 				}
 			}
-			System.out.println("Test Failed!");
+			System.out.println("\nTest Failed!");
 		}
 		return stopwatch.toValue();
 	}

@@ -70,14 +70,25 @@ public class ER7Reader extends SAXParser {
 		String segmentDelim = "\r";
 		String fieldDelim = new String(new char[] { message.charAt(3) }); // Usually
 		// |
-		String componentDelim = new String(new char[] { message.charAt(4) }); // Usually
-		// ^
-		String subcomponentDelim = new String(new char[] { message.charAt(7) }); // Usually
-		// &
-		String repetitionSep = new String(new char[] { message.charAt(5) }); // Usually
-		// ~
-		String escapeChar = new String(new char[] { message.charAt(6) }); // Usually
-		// \
+		int nextFieldDelim = message.indexOf(message.charAt(3), 3);
+		String componentDelim = "^";
+		String repetitionSep = "~";
+		String escapeChar = "\\";
+		String subcomponentDelim = "&";
+		if (nextFieldDelim > 4){
+			componentDelim = new String(new char[] { message.charAt(4) }); // Usually ^
+		}
+		if (nextFieldDelim > 5){
+			 repetitionSep = new String(new char[] { message.charAt(5) }); // Usually ~
+		}
+		if (nextFieldDelim > 6){
+			escapeChar = new String(new char[] { message.charAt(6) }); // Usually \
+		}
+		if (nextFieldDelim > 7){
+			subcomponentDelim = new String(new char[] { message.charAt(7) }); // Usually &
+		}
+		
+	
 		// Tokenize the segments first
 		StringTokenizer segmentTokenizer = new StringTokenizer(message, segmentDelim);
 
@@ -96,7 +107,6 @@ public class ER7Reader extends SAXParser {
 			if (elementTokenizer.hasMoreTokens()) {
 				// Our XML element is named after the first element
 				String segmentID = elementTokenizer.nextToken().trim();
-				// check if we have EDI or X12
 				if (segmentCounter == 0) {
 					documentHead = "HL7Message";
 					contentHandler.startElement("", documentHead, "", null);
@@ -123,6 +133,7 @@ public class ER7Reader extends SAXParser {
 			// Go through each element and add as new child under
 			// the segment element
 			String element = elementTokenizer.nextToken();
+			
 			// System.out.println("EL:" + element);
 			// The naming is SEG.<field number>
 			if (element.equals(fieldDelim)) {

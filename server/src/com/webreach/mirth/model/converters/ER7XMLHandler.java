@@ -42,7 +42,7 @@ public class ER7XMLHandler extends DefaultHandler {
 	private boolean sawMSH1 = false;
 	private boolean sawMSH2 = false;
     private boolean inElement = false;
-	private String currentSegment = new String();
+	private String lastSegment = new String();
 	private StringBuilder output = new StringBuilder();
 	private String segmentDelim;
 	public ER7XMLHandler(String segmentDelim, String fieldDelim, String componentDelim, String subcomponentDelim, String repetitionSep, String escapeChar) {
@@ -86,11 +86,24 @@ public class ER7XMLHandler extends DefaultHandler {
 				currentLocation = Location.SEGMENT;
 				lastinSubelement = false;
 			}else if (currentLocation.equals(Location.SEGMENT)){
-				if (currentSegment.equals(name)){
+
+				if (lastSegment.equals(name)){
 					output.append(repetitionSep);
 				}else{
+					//System.out.println("Last segment: " + lastSegment + " Segment: " + name);
+					if (lastSegment.length() > 0){
+						//handle any missing elements
+						int currentFieldId = Integer.parseInt(name.split("\\.")[1]); //get the second part, the id
+						int lastFieldId = Integer.parseInt(lastSegment.split("\\.")[1]); 
+						int difference = currentFieldId - lastFieldId;
+					
+						for (int i = 1; i < difference; i++){
+							output.append(fieldDelim);
+						}
+						
+					}
 					output.append(fieldDelim);
-					currentSegment = name;
+					lastSegment = name;
 				}
 
 				currentLocation = Location.ELEMENT;
@@ -118,11 +131,10 @@ public class ER7XMLHandler extends DefaultHandler {
 		}else if (currentLocation.equals(Location.SEGMENT)){
 			output.append(segmentDelim);
 			currentLocation = Location.DOCUMENT;
+			lastSegment = "";
 		}else if (currentLocation.equals(Location.ELEMENT)){
-			
 			currentLocation = Location.SEGMENT;
 		}else if (currentLocation.equals(Location.SUBELEMENT)){
-			
 			currentLocation = Location.ELEMENT;
 		}else if (currentLocation.equals(Location.DOCUMENT)){
 			

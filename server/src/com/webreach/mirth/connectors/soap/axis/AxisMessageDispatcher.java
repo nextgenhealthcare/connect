@@ -209,20 +209,30 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher {
 			monitoringController.updateStatus(connector, connectorType, Event.BUSY);
 			//set the uri for the event
 			String uri = "axis:" + replacer.replaceURLValues(event.getEndpoint().getEndpointURI().toString(), messageObject);
+			String serviceEndpoint = "";
+			if (((AxisConnector) connector).getServiceEndpoint() != null && ((AxisConnector) connector).getServiceEndpoint().length() > 0){
+				serviceEndpoint =  replacer.replaceURLValues(((AxisConnector) connector).getServiceEndpoint(), messageObject);
+			}
+			
 			event.getEndpoint().setEndpointURI(new MuleEndpointURI(uri));
 			AxisProperties.setProperty("axis.doAutoTypes", "true");
 			Object[] args = new Object[0];// getArgs(event);
 			Call call = getCall(event, args);
-			call = new Call(((AxisConnector) connector).getServiceEndpoint());
+			//note - this is rather strange, as we have a valid call above
+			//however the call about does not work
+			call = new Call(serviceEndpoint);
 			String requestMessage = ((AxisConnector) connector).getSoapEnvelope();
 			// Run the template replacer on the xml
 			
 			requestMessage = replacer.replaceValues(requestMessage, messageObject);
 			Message reqMessage = new Message(requestMessage);
 			// Only set the actionURI if we have one explicitly defined
-			if (((AxisConnector) connector).getSoapActionURI() != null && ((AxisConnector) connector).getSoapActionURI().length() > 0)
-				call.setSOAPActionURI(((AxisConnector) connector).getSoapActionURI());
-			call.setTargetEndpointAddress(((AxisConnector) connector).getServiceEndpoint());
+			if (((AxisConnector) connector).getSoapActionURI() != null && ((AxisConnector) connector).getSoapActionURI().length() > 0){
+				call.setSOAPActionURI(replacer.replaceURLValues(((AxisConnector) connector).getSoapActionURI(), messageObject));
+			}
+			if (serviceEndpoint.length() > 0){
+				call.setTargetEndpointAddress(serviceEndpoint);
+			}
 	
 			// dont use invokeOneWay here as we are already in a thread pool.
 			// Axis creates a new thread for every invoke one way call. nasty!
@@ -256,7 +266,9 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher {
 				router.routeMessageByChannelId(axisConnector.getReplyChannelId(), result.toString(), true, true);
 			}
 			// update the message status to sent
-			
+			if (result == null){
+				result = "";
+			}
 			messageObjectController.setSuccess(messageObject, result.toString());
 			Object[] retVal = new Object[2];
 			retVal[0] = result;
@@ -388,7 +400,7 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher {
 			call.setSOAPActionURI(soapAction);
 			call.setUseSOAPAction(Boolean.TRUE.booleanValue());
 		} else {
-			// call.setSOAPActionURI(endpointUri.getAddress());
+			//call.setSOAPActionURI(endpointUri.getAddress());
 		}
 		return call;
 	}
