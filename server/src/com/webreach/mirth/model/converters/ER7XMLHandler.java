@@ -92,19 +92,24 @@ public class ER7XMLHandler extends DefaultHandler {
 					output.append(repetitionSep);
 				}else{
 					//System.out.println("Last segment: " + lastSegment + " Segment: " + name);
-					if (lastSegment.length() > 0){
-						//handle any missing fields
+					
+					//handle any missing fields
+					if (!inMSH2){
+						int lastFieldId = 0;
+						if (lastSegment.length() > 0){
+							lastFieldId = Integer.parseInt(lastSegment.split("\\.")[1]); 
+						}
 						int currentFieldId = Integer.parseInt(name.split("\\.")[1]); //get the second part, the id
-						int lastFieldId = Integer.parseInt(lastSegment.split("\\.")[1]); 
+						
 						int difference = currentFieldId - lastFieldId;
 					
 						for (int i = 1; i < difference; i++){
 							output.append(fieldDelim);
 						}
-						
 					}
 					output.append(fieldDelim);
 					lastSegment = name;
+					
 				}
 
 				currentLocation = Location.ELEMENT;
@@ -115,17 +120,22 @@ public class ER7XMLHandler extends DefaultHandler {
 				}
 				
 				//System.out.println("Last element: " + lastElement + " Current element: " + name);
-				if (lastElement.length() > 0){
-					//handle any missing elements
-					int currentFieldId = Integer.parseInt(name.split("\\.")[2]); //get the third part, the id
-					int lastFieldId = Integer.parseInt(lastElement.split("\\.")[2]); 
-					int difference = currentFieldId - lastFieldId;
 				
-					for (int i = 1; i < difference; i++){
-						output.append(componentDelim);
-					}
-					
+				//handle any missing elements
+
+				int lastFieldId = 0;
+				if (lastElement.length() > 0){
+					lastFieldId = Integer.parseInt(lastElement.split("\\.")[2]); 
 				}
+				int currentFieldId = Integer.parseInt(name.split("\\.")[2]); //get the third part, the id
+		
+				int difference = currentFieldId - lastFieldId;
+			
+				for (int i = 1; i < difference; i++){
+					output.append(componentDelim);
+				}
+				
+				
 				lastElement = name;
 				currentLocation = Location.SUBELEMENT;
 				lastinSubelement = true;
