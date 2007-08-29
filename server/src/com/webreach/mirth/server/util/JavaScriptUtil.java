@@ -29,11 +29,13 @@ import org.apache.log4j.Logger;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EvaluatorException;
 import org.mozilla.javascript.ImporterTopLevel;
+import org.mozilla.javascript.RhinoException;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.server.MirthJavascriptTransformerException;
 
 public class JavaScriptUtil {
 	private Logger logger = Logger.getLogger(this.getClass());
@@ -115,6 +117,13 @@ public class JavaScriptUtil {
 			logger.debug("executing " + scriptType + " script. id=" + scriptId);
 			compiledScript.exec(context, scope);
 		} catch (Exception e) {
+			if (e instanceof RhinoException){
+				String connectorName = null;
+				if (messageObject != null){
+					connectorName = messageObject.getConnectorName();
+				}
+				e = new MirthJavascriptTransformerException((RhinoException)e, channelId, connectorName, 1, scriptType);
+			}
 			logger.error("failure to execute: " + scriptType + " script. id=" + scriptId, e);
 		} finally {
 			Context.exit();
@@ -130,7 +139,13 @@ public class JavaScriptUtil {
 			Script compiledScript = context.compileString(generatedScript, scriptId, 1, null);
 			compiledScriptCache.putCompiledScript(scriptId, compiledScript);
 		} catch (EvaluatorException e) {
-			throw new Exception(e);
+			if (e instanceof RhinoException){
+				MirthJavascriptTransformerException mjte = new MirthJavascriptTransformerException((RhinoException)e, null, null, 1, scriptId);
+				throw new Exception(mjte);
+			}else{
+				throw new Exception(e);
+			}
+			
 		} finally {
 			Context.exit();
 		}
@@ -160,7 +175,7 @@ public class JavaScriptUtil {
 		builtScript.append("if (arguments.length == 1){return globalMap.get(key); }");
 		builtScript.append("else if (arguments.length == 2){globalMap.put(key, value); }}");
 
-		builtScript.append("function doScript() {" + script + " }\n");
+		builtScript.append("function doScript() {\n" + script + " }\n");
 		builtScript.append("doScript()\n");
 		return builtScript.toString();
 	}

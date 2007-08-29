@@ -29,7 +29,9 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.mozilla.javascript.Context;
+import org.mozilla.javascript.EcmaError;
 import org.mozilla.javascript.ImporterTopLevel;
+import org.mozilla.javascript.RhinoException;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
@@ -38,13 +40,16 @@ import org.mule.umo.UMOEventContext;
 import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.transformer.TransformerException;
 
+import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.Connector.Mode;
 import com.webreach.mirth.model.MessageObject.Protocol;
 import com.webreach.mirth.model.converters.IXMLSerializer;
 import com.webreach.mirth.server.Constants;
+import com.webreach.mirth.server.MirthJavascriptTransformerException;
 import com.webreach.mirth.server.builders.ErrorMessageBuilder;
 import com.webreach.mirth.server.controllers.AlertController;
+import com.webreach.mirth.server.controllers.ChannelController;
 import com.webreach.mirth.server.controllers.ControllerException;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.controllers.ScriptController;
@@ -210,20 +215,20 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 	@Override
 	public void initialise() throws InitialisationException {
 		Context context = getContext();
-
+		String currentContext = "Filter";
 		try {
 			// Scripts are not compiled is they are blank or do not exist in the
 			// database. Note that in Oracle, a blank script is the same as a
 			// NULL script.
 			String filterScript = scriptController.getScript(filterScriptId);
-
+			
 			if ((filterScript != null) && (filterScript.length() > 0)) {
 				String generatedFilterScript = generateFilterScript(filterScript);
 				logger.debug("compiling filter script");
 				Script compiledFilterScript = context.compileString(generatedFilterScript, filterScriptId, 1, null);
 				compiledScriptCache.putCompiledScript(filterScriptId, compiledFilterScript);
 			}
-
+			currentContext = "Transformer";
 			String transformerScript = scriptController.getScript(transformerScriptId);
 
 			if ((transformerScript != null) && (transformerScript.length() > 0)) {
@@ -233,6 +238,9 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 				compiledScriptCache.putCompiledScript(transformerScriptId, compiledTransformerScript);
 			}
 		} catch (Exception e) {
+			if (e instanceof RhinoException){
+				e = new MirthJavascriptTransformerException((RhinoException)e, channelId, connectorName, 5, currentContext);
+			}
 			logger.error(errorBuilder.buildErrorMessage(Constants.ERROR_300, null, e));
 			throw new InitialisationException(e, this);
 		}
@@ -294,7 +302,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 			throw new TransformerException(this, e);
 		}
 	}
-
+	
 	private boolean evaluateFilterScript(MessageObject messageObject) throws TransformerException {
 		try {
 			Logger scriptLogger = Logger.getLogger("filter");
@@ -326,6 +334,9 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 
 			return messageAccepted;
 		} catch (Exception e) {
+			if (e instanceof RhinoException){
+				e = new MirthJavascriptTransformerException((RhinoException)e, channelId, connectorName, 5, "Filter");
+			}
 			messageObjectController.setError(messageObject, Constants.ERROR_200, "Error evaluating filter", e);
 			throw new TransformerException(this, e);
 		} finally {
@@ -399,6 +410,9 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 			messageObject.setStatus(MessageObject.Status.TRANSFORMED);
 			return messageObject;
 		} catch (Exception e) {
+			if (e instanceof RhinoException){
+				e = new MirthJavascriptTransformerException((RhinoException)e, channelId, connectorName, 5, "Transformer");
+			}
 			messageObjectController.setError(messageObject, Constants.ERROR_300, "Error evaluating transformer", e);
 			throw new TransformerException(this, e);
 		} finally {
@@ -440,7 +454,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 			script.append("var newMessage = message;\n");
 		}
 		
-		script.append("msg = new XML(newMessage);");
+		script.append("msg = new XML(newMessage);\n\n\n");
 
 		script.append(filterScript + " }\n");
 		script.append("doFilter()\n");
@@ -478,7 +492,9 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 			// We have to remove the namespaces so E4X allows use to use the
 			// msg[''] syntax
 			script.append("var newTemplate = template.replace(/xmlns:?[^=]*=[\"\"][^\"\"]*[\"\"]/g, '');\n");
-			script.append("tmp = new XML(newTemplate);");
+			script.append("tmp = new XML(newTemplate);\n");
+		}else{
+			script.append("\n\n");
 		}
 
 		if (removeNamespace) {
@@ -487,7 +503,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 			script.append("var newMessage = message;\n");
 		}
 		
-		script.append("msg = new XML(newMessage);");
+		script.append("msg = new XML(newMessage);\n");
 
 		script.append(transformerScript);
 		script.append(" }");
