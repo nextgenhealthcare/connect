@@ -321,7 +321,7 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher {
 			}
 			UMOMessage m = null;
 			// text or binary content?
-			if (httpMethod.getResponseHeader(HttpConstants.HEADER_CONTENT_TYPE).getValue().startsWith("text/")) {
+			if (httpMethod.getResponseHeader(HttpConstants.HEADER_CONTENT_TYPE) != null && httpMethod.getResponseHeader(HttpConstants.HEADER_CONTENT_TYPE).getValue().startsWith("text/")) {
 				m = new MuleMessage(httpMethod.getResponseBodyAsString(), h);
 			} else {
 				m = new MuleMessage(httpMethod.getResponseBody(), h);
@@ -340,7 +340,7 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher {
 
 			m.setExceptionPayload(ep);
 
-			return m;
+			return event.getMessage();
 		} catch (Exception e) {
 			alertController.sendAlerts(((HttpConnector) connector).getChannelId(), Constants.ERROR_404, null, e);
 			messageObjectController.setError(messageObject,Constants.ERROR_404, "HTTP Error", e);
