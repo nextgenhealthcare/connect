@@ -177,7 +177,7 @@
 				<include name="sqlserver-SqlMapConfig.properties" />
 
 				<include name="log4j.properties" />
-				<include name="mule-boot.xml" />
+				<include name="mule-template.xml" />				
 				<include name="*.dtd" />
 				<include name="version.properties" />
 				<include name="wrapper.conf" />
