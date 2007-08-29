@@ -1,0 +1,12 @@
+<server>
+	<classpath codebase="deploy/mirth.sar" archives="*"/>
+	<classpath codebase="deploy/mirth.sar/lib" archives="*"/>
+	<classpath codebase="deploy/mirth.sar/lib/jetty" archives="*"/>
+	<classpath codebase="deploy/mirth.sar/lib/mule" archives="*"/>
+	<classpath codebase="deploy/mirth.sar/lib/custom" archives="*"/>
+	<classpath codebase="deploy/mirth.sar/extensions/connectors" archives="*"/>
+	<classpath codebase="deploy/mirth.sar/extensions/plugins" archives="*"/>
+    <mbean code="com.webreach.mirth.server.mbeans.MirthService"
+           name="com.webreach.mirth.server.mbeans:service=MirthService">
+    </mbean>
+</server>
