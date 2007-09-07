@@ -91,7 +91,7 @@ public class MuleConfigurationBuilder {
 
 		try {
 			Properties properties = PropertyLoader.loadProperties("mirth");
-			File muleBootstrapFile = new File(ClassPathResource.getResourceURI(properties.getProperty("mule.template")));
+			File muleBootstrapFile = new File(ClassPathResource.getResourceURI(PropertyLoader.getProperty(properties, "mule.template")));
 
 			Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(muleBootstrapFile);
 			Element muleConfigurationElement = document.getDocumentElement();
@@ -99,7 +99,7 @@ public class MuleConfigurationBuilder {
 			// set the server address
 			Element agentsElement = (Element) muleConfigurationElement.getElementsByTagName("agents").item(0);
 			NodeList agents = (NodeList) agentsElement.getElementsByTagName("agent");
-			String port = properties.getProperty("jmx.port");
+			String port = PropertyLoader.getProperty(properties, "jmx.port");
 			
 			for (int i = 0; i < agents.getLength(); i++) {
 				Element agent = (Element) agents.item(i);
@@ -118,7 +118,7 @@ public class MuleConfigurationBuilder {
 			}
 			
 			// set the Mule working directory
-			String muleQueue = properties.getProperty("mule.queue");
+			String muleQueue = PropertyLoader.getProperty(properties, "mule.queue");
 			muleQueue = StringUtils.replace(muleQueue, "${mirthHomeDir}", ConfigurationController.mirthHomeDir);
 			Element muleEnvironmentPropertiesElement = (Element) muleConfigurationElement.getElementsByTagName("mule-environment-properties").item(0);
 			muleEnvironmentPropertiesElement.setAttribute("workingDirectory", muleQueue);

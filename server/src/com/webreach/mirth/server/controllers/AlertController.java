@@ -43,6 +43,7 @@ import com.webreach.mirth.server.util.SMTPConnection;
 import com.webreach.mirth.server.util.SMTPConnectionFactory;
 import com.webreach.mirth.server.util.SqlConfig;
 import com.webreach.mirth.server.util.TemplateEvaluator;
+import com.webreach.mirth.util.PropertyLoader;
 
 public class AlertController {
 	private Logger logger = Logger.getLogger(this.getClass());
@@ -209,7 +210,7 @@ public class AlertController {
 	private void sentAlertEmails(List<String> emails, String template, String errorMessage) throws ControllerException {
 		try {
 			Properties properties = ConfigurationController.getInstance().getServerProperties();
-			String fromAddress = properties.getProperty("smtp.from");
+			String fromAddress = PropertyLoader.getProperty(properties, "smtp.from");
 			String toAddressList = generateEmailList(emails);
 
 			TemplateEvaluator evaluator = new TemplateEvaluator();

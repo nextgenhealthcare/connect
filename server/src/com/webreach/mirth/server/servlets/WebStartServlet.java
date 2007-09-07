@@ -81,7 +81,7 @@ public class WebStartServlet extends HttpServlet {
 
 			// Change the title to include the version of Mirth
 			Properties versionProperties = PropertyLoader.loadProperties("version");
-			String version = versionProperties.getProperty("mirth.version");
+			String version = PropertyLoader.getProperty(versionProperties, "mirth.version");
 			Element informationElement = (Element) jnlpElement.getElementsByTagName("information").item(0);
 			Element title = (Element) informationElement.getElementsByTagName("title").item(0);
 			title.setTextContent(title.getTextContent() + " " + version);

@@ -33,14 +33,14 @@ import com.webreach.mirth.util.PropertyLoader;
 public class JMXConnectionFactory {
 	public static JMXConnection createJMXConnection() throws Exception {
 		Properties properties = PropertyLoader.loadProperties("mirth");
-		String port = properties.getProperty("jmx.port");
+		String port = PropertyLoader.getProperty(properties, "jmx.port");
 		String jmxUrl = "service:jmx:rmi:///jndi/rmi://localhost:" + port + "/server";
-		return new JMXConnection(jmxUrl, properties.getProperty("configuration.id"));
+		return new JMXConnection(jmxUrl, PropertyLoader.getProperty(properties, "configuration.id"));
 	}
 	
 	public static JMXConnection createJMXConnection(String domain) throws Exception {
 		Properties properties = PropertyLoader.loadProperties("mirth");
-		String port = properties.getProperty("jmx.port");
+		String port = PropertyLoader.getProperty(properties, "jmx.port");
 		String jmxUrl = "service:jmx:rmi:///jndi/rmi://localhost:" + port + "/server";
 		return new JMXConnection(jmxUrl, domain);
 	}

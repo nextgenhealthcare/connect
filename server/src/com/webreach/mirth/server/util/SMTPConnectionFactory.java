@@ -28,14 +28,15 @@ package com.webreach.mirth.server.util;
 import java.util.Properties;
 
 import com.webreach.mirth.server.controllers.ConfigurationController;
+import com.webreach.mirth.util.PropertyLoader;
 
 public class SMTPConnectionFactory {
 	public static SMTPConnection createSMTPConnection() throws Exception {
 		Properties properties = ConfigurationController.getInstance().getServerProperties();
-		String host = properties.getProperty("smtp.host");
-		String username = properties.getProperty("smtp.username");
-		String password = properties.getProperty("smtp.password");
-		int port = Integer.valueOf(properties.getProperty("smtp.port")).intValue();
+		String host = PropertyLoader.getProperty(properties, "smtp.host");
+		String username = PropertyLoader.getProperty(properties, "smtp.username");
+		String password = PropertyLoader.getProperty(properties, "smtp.password");
+		int port = Integer.valueOf(PropertyLoader.getProperty(properties, "smtp.port")).intValue();
 		return new SMTPConnection(host, port, username, password);
 	}
 }

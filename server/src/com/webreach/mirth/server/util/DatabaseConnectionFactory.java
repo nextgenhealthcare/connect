@@ -37,15 +37,15 @@ public class DatabaseConnectionFactory {
 		Properties properties = PropertyLoader.loadProperties("mirth");
 
 		try {
-			Class.forName(properties.getProperty("database.driver"));
+			Class.forName(PropertyLoader.getProperty(properties, "database.driver"));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
 		Properties info = new Properties();
-		info.setProperty("user", properties.getProperty("database.user"));
-		info.setProperty("password", properties.getProperty("database.password"));
-		return new DatabaseConnection(properties.getProperty("database.url"), info);
+		info.setProperty("user", PropertyLoader.getProperty(properties, "database.user"));
+		info.setProperty("password", PropertyLoader.getProperty(properties, "database.password"));
+		return new DatabaseConnection(PropertyLoader.getProperty(properties, "database.url"), info);
 	}
 
 	public static DatabaseConnection createDatabaseConnection(String driver, String address, String username, String password) throws SQLException {

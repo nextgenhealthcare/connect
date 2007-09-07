@@ -32,6 +32,8 @@ import java.util.Locale;
 import java.util.Properties;
 import java.util.ResourceBundle;
 
+import org.apache.log4j.Logger;
+
 public abstract class PropertyLoader {
 	private static final boolean THROW_ON_LOAD_FAILURE = true;
 	private static final boolean LOAD_AS_RESOURCE_BUNDLE = false;
@@ -131,5 +133,13 @@ public abstract class PropertyLoader {
 	 */
 	public static Properties loadProperties(final String name) {
 		return loadProperties(name, Thread.currentThread().getContextClassLoader());
+	}
+	
+	public static String getProperty(final Properties properties, final String propertyKey) {
+		String property = properties.getProperty(propertyKey);
+		if (property == null) {
+			Logger.getLogger(PropertyLoader.class).error("Property \"" + propertyKey + "\" was not found.");
+		}
+		return property;
 	}
 }

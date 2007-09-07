@@ -27,6 +27,7 @@ import com.webreach.mirth.model.filters.MessageObjectFilter;
 import com.webreach.mirth.plugins.ServerPlugin;
 import com.webreach.mirth.server.controllers.ChannelController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
+import com.webreach.mirth.util.PropertyLoader;
 
 public class MessagePrunerService implements ServerPlugin, Job
 {
@@ -59,7 +60,7 @@ public class MessagePrunerService implements ServerPlugin, Job
     private Trigger createTrigger(Properties properties) throws ParseException
     {
         Trigger trigger = null;
-        String interval = properties.getProperty("interval");
+        String interval = PropertyLoader.getProperty(properties, "interval");
         
         if(interval.equals("hourly"))
             trigger = TriggerUtils.makeHourlyTrigger();
@@ -68,7 +69,7 @@ public class MessagePrunerService implements ServerPlugin, Job
             SimpleDateFormat timeDateFormat = new SimpleDateFormat("hh:mm aa");
             DateFormatter timeFormatter = new DateFormatter(timeDateFormat);
             
-            String time = properties.getProperty("time");
+            String time = PropertyLoader.getProperty(properties, "time");
             Date timeDate = (Date)timeFormatter.stringToValue(time);
             Calendar timeCalendar = Calendar.getInstance();
             timeCalendar.setTime(timeDate);
@@ -82,7 +83,7 @@ public class MessagePrunerService implements ServerPlugin, Job
                 SimpleDateFormat dayDateFormat = new SimpleDateFormat("EEEEEEEE");
                 DateFormatter dayFormatter = new DateFormatter(dayDateFormat);
                 
-                String dayOfWeek = properties.getProperty("dayOfWeek");
+                String dayOfWeek = PropertyLoader.getProperty(properties, "dayOfWeek");
                 Date dayDate = (Date)dayFormatter.stringToValue(dayOfWeek);
                 Calendar dayCalendar = Calendar.getInstance();
                 dayCalendar.setTime(dayDate);
@@ -94,7 +95,7 @@ public class MessagePrunerService implements ServerPlugin, Job
                 SimpleDateFormat dayDateFormat = new SimpleDateFormat("DD");
                 DateFormatter dayFormatter = new DateFormatter(dayDateFormat);
                 
-                String dayOfMonth= properties.getProperty("dayOfMonth");
+                String dayOfMonth = PropertyLoader.getProperty(properties, "dayOfMonth");
                 Date dayDate = (Date)dayFormatter.stringToValue(dayOfMonth);
                 Calendar dayCalendar = Calendar.getInstance();
                 dayCalendar.setTime(dayDate);

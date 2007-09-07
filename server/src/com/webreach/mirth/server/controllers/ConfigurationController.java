@@ -65,7 +65,6 @@ import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.model.util.ImportConverter;
 import com.webreach.mirth.server.Command;
 import com.webreach.mirth.server.CommandQueue;
-import com.webreach.mirth.server.builders.BuilderException;
 import com.webreach.mirth.server.builders.MuleConfigurationBuilder;
 import com.webreach.mirth.server.tools.ClassPathResource;
 import com.webreach.mirth.server.util.DatabaseUtil;
@@ -424,23 +423,23 @@ public class ConfigurationController {
 
 	public String getDatabaseType() {
 		Properties properties = PropertyLoader.loadProperties("mirth");
-		return properties.getProperty("database");
+		return PropertyLoader.getProperty(properties, "database");
 	}
 
 	public String getMuleConfigurationPath() {
 		Properties properties = PropertyLoader.loadProperties("mirth");
 
 		String fileSeparator = System.getProperty("file.separator");
-		File muleBootFile = new File(ClassPathResource.getResourceURI(properties.getProperty("mule.template")));
-		return muleBootFile.getParent() + fileSeparator + properties.getProperty("mule.config");
+		File muleBootFile = new File(ClassPathResource.getResourceURI(PropertyLoader.getProperty(properties, "mule.template")));
+		return muleBootFile.getParent() + fileSeparator + PropertyLoader.getProperty(properties, "mule.config");
 	}
 
 	public String getMuleBootPath() {
 		Properties properties = PropertyLoader.loadProperties("mirth");
 
 		String fileSeparator = System.getProperty("file.separator");
-		File muleBootFile = new File(ClassPathResource.getResourceURI(properties.getProperty("mule.template")));
-		return muleBootFile.getParent() + fileSeparator + properties.getProperty("mule.boot");
+		File muleBootFile = new File(ClassPathResource.getResourceURI(PropertyLoader.getProperty(properties, "mule.template")));
+		return muleBootFile.getParent() + fileSeparator + PropertyLoader.getProperty(properties, "mule.boot");
 	}
 
 	/**
@@ -574,7 +573,7 @@ public class ConfigurationController {
 	}
 
 	public String getServerVersion() {
-		return versionProperties.getProperty("mirth.version");
+		return PropertyLoader.getProperty(versionProperties, "mirth.version");
 	}
 
 	public int getSchemaVersion() {
@@ -587,7 +586,7 @@ public class ConfigurationController {
 	}
 
 	public String getBuildDate() {
-		return versionProperties.getProperty("mirth.date");
+		return PropertyLoader.getProperty(versionProperties, "mirth.date");
 	}
 
 	public int getStatus() {

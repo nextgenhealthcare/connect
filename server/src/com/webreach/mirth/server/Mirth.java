@@ -289,15 +289,15 @@ public class Mirth extends Thread {
 
 			// add HTTPS listener
 			SslListener sslListener = new SslListener();
-			sslListener.setPort(Integer.valueOf(mirthProperties.getProperty("https.port")).intValue());
-			sslListener.setKeystore(ConfigurationController.mirthHomeDir + System.getProperty("file.separator") + mirthProperties.getProperty("https.keystore"));
-			sslListener.setPassword(mirthProperties.getProperty("https.password"));
-			sslListener.setKeyPassword(mirthProperties.getProperty("https.keypassword"));
+			sslListener.setPort(Integer.valueOf(PropertyLoader.getProperty(mirthProperties,"https.port")).intValue());
+			sslListener.setKeystore(ConfigurationController.mirthHomeDir + System.getProperty("file.separator") + PropertyLoader.getProperty(mirthProperties, "https.keystore"));
+			sslListener.setPassword(PropertyLoader.getProperty(mirthProperties, "https.password"));
+			sslListener.setKeyPassword(PropertyLoader.getProperty(mirthProperties, "https.keypassword"));
 			webServer.addListener(sslListener);
 
 			// add HTTP listener
 			SocketListener listener = new SocketListener();
-			listener.setPort(Integer.valueOf(mirthProperties.getProperty("http.port")).intValue());
+			listener.setPort(Integer.valueOf(PropertyLoader.getProperty(mirthProperties, "http.port")).intValue());
 			webServer.addListener(listener);
 
 			// Create the lib context
@@ -406,8 +406,8 @@ public class Mirth extends Thread {
 	 * 
 	 */
 	private void printSplashScreen() {
-		String version = versionProperties.getProperty("mirth.version");
-		String buildDate = versionProperties.getProperty("mirth.date");
+		String version = PropertyLoader.getProperty(versionProperties, "mirth.version");
+		String buildDate = PropertyLoader.getProperty(versionProperties, "mirth.date");
 		System.out.println("Mirth " + version + " (" + buildDate + ") server successfully started: " + (new Date()).toString());
 		System.out.println("This product includes software developed by SymphonySoft Limited (http://www.symphonysoft.com) and its contributors.");
 		System.out.println("Running Java " + System.getProperty("java.version") + " on " + System.getProperty("os.name") + " (" + System.getProperty("os.version") + ", " + System.getProperty("os.arch") + ")");
