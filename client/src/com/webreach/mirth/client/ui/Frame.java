@@ -1187,7 +1187,7 @@ public class Frame extends JXFrame
         {
             if (channel.getName().equalsIgnoreCase(name) && !channel.getId().equals(id))
             {
-                alertWarning("Channel \"" + name + "\" already exists. Please choose a unique name.");
+                alertWarning("Channel \"" + name + "\" already exists.");
                 return false;
             }
         }
@@ -2392,19 +2392,35 @@ public class Frame extends JXFrame
         }
         
         try
-        {
-            importChannel.setRevision(0);
-            importChannel.setId(mirthClient.getGuid());
-            
+        {            
             String channelName = importChannel.getName();
-            while (!checkChannelName(channelName, importChannel.getId()))
+            if (!checkChannelName(channelName, mirthClient.getGuid()))
             {
-                channelName = JOptionPane.showInputDialog(this, "Please enter a new name for the channel.");
-                if (channelName == null)
-                    return;
+            	if (!alertOption("Would you like to overwrite the existing channel?  Choose 'No' to create a new channel."))
+            	{
+            		importChannel.setRevision(0);
+                    importChannel.setId(mirthClient.getGuid());
+                    
+                    do
+                    {
+                    	channelName = JOptionPane.showInputDialog(this, "Please enter a new name for the channel.");
+                        if (channelName == null)
+                            return;
+                    } while (!checkChannelName(channelName, importChannel.getId()));
+                    
+                    importChannel.setName(channelName);
+            	}
+            	else
+            	{
+            		for (Channel channel : channels.values())
+                    {
+                        if (channel.getName().equalsIgnoreCase(channelName))
+                        {
+                            importChannel.setId(channel.getId());
+                        }
+                    }
+            	}
             }
-            
-            importChannel.setName(channelName);
             
             importChannel.setVersion(mirthClient.getVersion());
             channels.put(importChannel.getId(), importChannel);
