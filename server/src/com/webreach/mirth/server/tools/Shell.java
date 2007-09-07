@@ -222,8 +222,8 @@ public class Shell {
 					System.out.println("stop\n\tStops all Channels\n");
 					System.out.println("pause\n\tPauses all Channels\n");
 					System.out.println("resume\n\tResumes all Channels\n");
-					System.out.println("deploy {timeout}\n\tDeploys all Channels with optional timeout (in seconds)\n");
-					System.out.println("import \"path\"\n\tImports channel specified by <path>\n");
+					System.out.println("deploy [timeout]\n\tDeploys all Channels with optional timeout (in seconds)\n");
+					System.out.println("import \"path\" [force]\n\tImports channel specified by <path>.  Optional 'force' overwrites existing channels.\n");
 					System.out.println("export id|\"name\"|* \"path\"\n\tExports the specified channel to <path>\n");
 					System.out.println("importcfg \"path\"\n\tImports configuration specified by <path>\n");
 					System.out.println("exportcfg \"path\"\n\tExports the configuration to <path>\n");
@@ -435,6 +435,12 @@ public class Shell {
 
 				} else if (arg1.equalsIgnoreCase("import")) {
 					String path = arguments[1];
+					
+					boolean force = false;
+					if (arguments.length >= 3 && arguments[2].equalsIgnoreCase("force")) {
+							force = true;
+					}
+					
 					File fXml = new File(path);
 					if (!fXml.exists()) {
 						System.out.println(path + " not found");
@@ -443,7 +449,7 @@ public class Shell {
 						System.out.println("Can not read " + path);
 						return;
 					} else {
-						doImportChannel(fXml);
+						doImportChannel(fXml, force);
 					}
 				} else if (arg1.equalsIgnoreCase("status")) {
 
@@ -705,7 +711,7 @@ public class Shell {
 		return contents.toString();
 	}
 
-	private void doImportChannel(File importFile) throws ClientException {
+	private void doImportChannel(File importFile, boolean force) throws ClientException {
 		String channelXML = "";
 
 		try {
@@ -729,13 +735,23 @@ public class Shell {
 		}
 
 		String channelName = importChannel.getName();
-		if (!checkChannelName(channelName, importChannel.getId())) {
-			channelName = client.getGuid();
+		
+		if (!checkChannelName(channelName, client.getGuid())) {
+			if (!force) {
+				channelName = client.getGuid();
+				importChannel.setRevision(0);
+                importChannel.setId(channelName);
+                importChannel.setName(channelName);
+			} else {
+        		for (Channel channel : client.getChannel(null)) {
+                    if (channel.getName().equalsIgnoreCase(channelName)) {
+                        importChannel.setId(channel.getId());
+                    }
+                }
+			}
 		}
-		importChannel.setName(channelName);
-
-		importChannel.setRevision(0);
-		importChannel.setId(client.getGuid());
+		
+		importChannel.setVersion(client.getVersion());
 		client.updateChannel(importChannel, true);
 		System.out.println("Channel '" + channelName + "' imported successfully.");
 
