@@ -28,17 +28,19 @@ package com.webreach.mirth.server.tools;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -67,9 +69,13 @@ public class Shell {
 	private Client client;
 	private SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yy_HH-mm-ss.SS");
 	private String currentUser = new String();
-	
+	private PrintWriter out;
+	private PrintWriter err;
+
     public Shell(String[] args)
     {
+        out = new PrintWriter(System.out, true);
+        err = new PrintWriter(System.out, true);
         run(args);
     }
     
@@ -103,595 +109,805 @@ public class Shell {
 				String user = line.getOptionValue("u");
 				String password = line.getOptionValue("p");
 				String version = line.getOptionValue("v");
-				
-				currentUser = user;
-				try {
-					client = new Client(server);
-					if (line.hasOption("s")) {
-						runScript(line, server, user, password, version);
-					} else {
-						if (client.login(user, password, version)) {
-							System.out.println("Connected to Mirth server @ " + server + " (" + client.getVersion() + ")");
-							BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+				String script = line.getOptionValue("s");
 
-							String statement = null;
-							System.out.print("$");
-							try {
-								while (!(statement = reader.readLine()).equalsIgnoreCase("quit")) {
-									try {
-										executeStatement(statement);
-									} catch (Exception e) {
-										System.out.println("Invalid statment. Use \"help\" for list of valid statements\n" + e.getMessage());
-									}
-									System.out.print("$");
-								}
-							} finally {
-								reader.close();
-							}
-						} else {
-							System.out.println("Error: Could not login to server.");
-						}
-					}
-					client.logout();
-					System.out.println("Disconnected from server.");
-				} catch (ClientException ce) {
-					ce.printStackTrace();
-				} catch (IOException ioe) {
-					System.out.println("Error: Could not load script file.");
-				}
+				runShell(server, user, password, version, script);
 			} else if (line.hasOption("h")) {
-				HelpFormatter formatter = new HelpFormatter();
-				formatter.printHelp("Shell", options);
+				new HelpFormatter().printHelp("Shell", options);
+			} else {
+				new HelpFormatter().printHelp("Shell", options);
+				error("all of -a, -u, -p, and -v options must be supplied");
+				System.exit(2);
 			}
 		} catch (ParseException e) {
-			System.err.println("Error: Could not parse input arguments.");
+			error("Could not parse input arguments.");
+			System.exit(2);
 		}
 	}
 
-	private void runScript(CommandLine line, String server, String user, String password, String version) throws ClientException, FileNotFoundException, IOException {
-		String script = line.getOptionValue("s");
-		currentUser = user;
-		if (client.login(user, password, version)) {
-			System.out.println("Connected to Mirth server @ " + server + " (" + client.getVersion() + ")");
-
-			BufferedReader reader = new BufferedReader(new FileReader(script));
-			String statement = null;
-
-			try {
-				while ((statement = reader.readLine()) != null) {
-					if (!statement.startsWith("#")) {
-						System.out.println("Executing statement: " + statement);
-						executeStatement(statement);
-					}
-				}
-			} finally {
-				reader.close();
+	private void runShell(String server, String user, String password, String version, String script) {
+		try {
+			client = new Client(server);
+			if (!client.login(user, password, version)) {
+				error("Could not login to server.");
+				return;
 			}
-		} else {
-			System.out.println("Error: Could not login to server.");
+			out.println("Connected to Mirth server @ " + server + " (" + client.getVersion() + ")");
+			currentUser = user;
+
+			if (script != null) {
+				runScript(script);
+			} else {
+				runConsole();
+			}
+			client.logout();
+			out.println("Disconnected from server.");
+		} catch (ClientException ce) {
+			ce.printStackTrace();
+		} catch (IOException ioe) {
+			error("Could not load script file.");
 		}
 	}
+
+	private void runScript(String script) throws IOException {
+		BufferedReader reader = new BufferedReader(new FileReader(script));
+		String statement = null;
+		
+		try {
+			while ((statement = reader.readLine()) != null) {
+				out.println("Executing statement: " + statement);
+				executeStatement(statement);
+			}
+		} catch (QuitShell e) {
+			// do nothing 
+		} finally {
+			reader.close();
+		}
+	}
+
+	private void runConsole() throws IOException {
+		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+		
+		String statement = null;
+		writePrompt();
+		try {
+			while ((statement = reader.readLine()) != null) {
+				executeStatement(statement);
+				writePrompt();
+			}
+			out.println();                 // want newline before "Disconnected" message
+		} catch (QuitShell e) {
+			// do nothing 
+		} finally {
+			reader.close();
+		}
+	}
+
+    private void error(String message) {
+        err.println("Error: " + message);
+    }
+
+    private void writePrompt() {
+        out.print("$");
+        out.flush();
+    }
 
 	private void executeStatement(String command) {
 		try {
-			if (command.startsWith("#")) {
-				// Comments
-				return;
-			}
-			String[] arguments = command.split(" ");
-			ArrayList<String> newArgs = new ArrayList<String>();
-			StringBuilder quotedString = new StringBuilder();
-			boolean sawQuote = false;
-			for (int i = 0; i < arguments.length; i++) {
-				if (arguments[i].indexOf('\"') > -1) {
-					if (sawQuote) {
-						// close the quotes
-						sawQuote = false;
-						quotedString.append(" ");
-						quotedString.append(arguments[i].replace("\"", ""));
-						newArgs.add(quotedString.toString());
-					} else {
-						quotedString = new StringBuilder();
-						String arg = arguments[i].replaceFirst("\"", "");
-						if (arg.indexOf('\"') > -1) {
-							newArgs.add(arg.replaceAll("\"", ""));
-							sawQuote = false;
-						} else {
-							sawQuote = true;
-							quotedString.append(arg);
-						}
-					}
-				} else {
-					if (sawQuote) {
-						quotedString.append(" ");
-						quotedString.append(arguments[i]);
-					} else {
-						newArgs.add(arguments[i]);
-					}
-				}
-			}
+			Token[] arguments = tokenizeCommand(command);
 
-			arguments = new String[newArgs.size()];
-			newArgs.toArray(arguments);
 			if (arguments.length >= 1) {
-				String arg1 = arguments[0];
-				if (arg1.equals("help")) {
-					System.out.println("Available Commands:");
-					System.out.println("status\n\tReturns status of deployed channels\n");
-					System.out.println("start\n\tStarts all Channels\n");
-					System.out.println("stop\n\tStops all Channels\n");
-					System.out.println("pause\n\tPauses all Channels\n");
-					System.out.println("resume\n\tResumes all Channels\n");
-					System.out.println("deploy [timeout]\n\tDeploys all Channels with optional timeout (in seconds)\n");
-					System.out.println("import \"path\" [force]\n\tImports channel specified by <path>.  Optional 'force' overwrites existing channels.\n");
-					System.out.println("export id|\"name\"|* \"path\"\n\tExports the specified channel to <path>\n");
-					System.out.println("importcfg \"path\"\n\tImports configuration specified by <path>\n");
-					System.out.println("exportcfg \"path\"\n\tExports the configuration to <path>\n");
-					System.out.println("channel start|stop|pause|resume|stats id|\"name\"|*\n\tPerforms specified channel action\n");
-					System.out.println("channel remove|enable|disable id|\"name\"|*\n\tRemove, enable or disable specified channel\n");
-					System.out.println("channel list\n\tLists all Channels\n");
-					System.out.println("clear\n\tRemoves all messages from all Channels\n");
-					System.out.println("resetstats\n\tRemoves all stats from all Channels\n");
-					System.out.println("dump stats|events \"path\"\n\tDumps stats or events to specified file\n");
-					System.out.println("user list\n\tReturns a list of the current users\n");
-					System.out.println("user add username \"password\" \"name\" \"email\"\n\tAdds the specified user\n");
-					System.out.println("user remove id|username\n\tRemoves the specified user\n");
-					System.out.println("user changepw id|username \"newpassword\"\n\tChanges the specified user's password\n");
-					System.out.println("quit\n\tQuits Mirth Shell");
+				Token arg1 = arguments[0];
+				if (arg1 == Token.HELP) {
+                    commandHelp(arguments);
 					return;
-				} else if (arg1.equalsIgnoreCase("user")) {
+				} else if (arg1 == Token.USER) {
 					if (arguments.length < 2) {
-						System.out.println("Invalid number of arguments.");
+						error("invalid number of arguments.");
 						return;
 					}
-					String arg2 = arguments[1];
-					if (arg2.equalsIgnoreCase("list")) {
-						List<User> users = client.getUser(null);
-						System.out.println("ID\tUser Name\tName\t\t\tEmail");
-						for (Iterator<User> iter = users.iterator(); iter.hasNext();) {
-							User user = iter.next();
-							System.out.println(user.getId() + "\t" + user.getUsername() + "\t\t" + user.getFullName() + "\t\t" + user.getEmail());
-						}
-					} else if (arg2.equalsIgnoreCase("add")) {
-						if (arguments.length < 6) {
-							System.out.println("Invalid number of arguments. Syntax is user add username \"password\" \"name\" \"email\"");
-							return;
-						}
-						String username = arguments[2];
-						if (username.length() < 1){
-							System.out.println("Unable to add user, username too short.");
-							return;
-						}
-						
-						String password = arguments[3];
-						String name = arguments[4];
-						String email = arguments[5];
-						User user = new User();
-						user.setUsername(username);
-						user.setFullName(name);
-						user.setEmail(email);
-						
-						List<User> users = client.getUser(null);
-						for (Iterator<User> iter = users.iterator(); iter.hasNext();) {
-							User luser = iter.next();
-							if (luser.getUsername().equalsIgnoreCase(username)) {
-								System.out.println("Unable to add user, username in-use.");
-								return;
-							}
-						}
-						
-						try {
-							client.updateUser(user, password);
-							System.out.println("User \"" + username + "\" added successfully.");
-						} catch (Exception e) {
-							System.out.println("Error adding user \"" + username + "\".");
-						}
-
-					} else if (arg2.equalsIgnoreCase("remove")) {
-						if (arguments.length < 3) {
-							System.out.println("Invalid number of arguments. Syntax is user remove username|id");
-							return;
-						}
-						String key = arguments[2];
-						if (key.equalsIgnoreCase(currentUser)){
-							System.out.println("Cannot remove current user.");
-							return;
-						}
-						List<User> users = client.getUser(null);
-						for (Iterator<User> iter = users.iterator(); iter.hasNext();) {
-							User user = iter.next();
-							if (user.getId().equalsIgnoreCase(key) || user.getUsername().equalsIgnoreCase(key)) {
-								client.removeUser(user);
-								System.out.println("User \"" + user.getUsername() + "\" successfully removed.");
-								return;
-							}
-						}
-					} else if (arg2.equalsIgnoreCase("changepw")) {
-						if (arguments.length < 4) {
-							System.out.println("Invalid number of arguments. Syntax is user changepw username|id \"newpassword\"");
-							return;
-						}
-						String key = arguments[2];
-						String newPassword = arguments[3];
-						List<User> users = client.getUser(null);
-						for (Iterator<User> iter = users.iterator(); iter.hasNext();) {
-							User user = iter.next();
-							if (user.getId().equalsIgnoreCase(key) || user.getUsername().equalsIgnoreCase(key)) {
-								client.updateUser(user, newPassword);
-								System.out.println("User \"" + user.getUsername() + "\" password updated.");
-								return;
-							}
-						}
+					Token arg2 = arguments[1];
+					if (arg2 == Token.LIST) {
+                        commandUserList(arguments);
+					} else if (arg2 == Token.ADD) {
+                        commandUserAdd(arguments);
+					} else if (arg2 == Token.REMOVE) {
+                        commandUserRemove(arguments);
+					} else if (arg2 == Token.CHANGEPW) {
+                        commandUserChangePassword(arguments);
 					}
-				} else if (arg1.equalsIgnoreCase("start") || arg1.equalsIgnoreCase("stop") || arg1.equalsIgnoreCase("pause") || arg1.equalsIgnoreCase("resume")) {
-					List<ChannelStatus> channels = client.getChannelStatusList();
-
-					for (Iterator<ChannelStatus> iter = channels.iterator(); iter.hasNext();) {
-						ChannelStatus channel = iter.next();
-
-						if (arg1.equals("start") && (channel.getState().equals(State.STOPPED) || channel.getState().equals(State.PAUSED))) {
-							if (channel.getState().equals(State.PAUSED)) {
-								client.resumeChannel(channel.getChannelId());
-								System.out.println("Channel " + channel.getName() + " Resumed");
-							} else {
-								client.startChannel(channel.getChannelId());
-								System.out.println("Channel " + channel.getName() + " Started");
-							}
-
-						} else if (arg1.equals("stop") && (channel.getState().equals(State.STARTED) || channel.getState().equals(State.PAUSED))) {
-							client.stopChannel(channel.getChannelId());
-							System.out.println("Channel " + channel.getName() + " Stopped");
-						} else if (arg1.equals("pause") && channel.getState().equals(State.STARTED)) {
-							client.pauseChannel(channel.getChannelId());
-							System.out.println("Channel " + channel.getName() + " Paused");
-						} else if (arg1.equals("resume") && channel.getState().equals(State.PAUSED)) {
-							client.resumeChannel(channel.getChannelId());
-							System.out.println("Channel " + channel.getName() + " Resumed");
-						}
-					}
-				} else if (arg1.equalsIgnoreCase("deploy")) {
-					System.out.println("Deploying Channels");
-					List<Channel> channels = client.getChannel(null);
-
-					boolean hasChannels = false;
-					for (Iterator iter = channels.iterator(); iter.hasNext();) {
-						Channel channel = (Channel) iter.next();
-						if (channel.isEnabled()) {
-							hasChannels = true;
-							break;
-						}
-					}
-					client.deployChannels();
-					if (hasChannels) {
-						try {
-							Thread.sleep(500);
-						} catch (InterruptedException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-						List<ChannelStatus> channelStatus = client.getChannelStatusList();
-						int limit = 60; // 30 second limit
-						if (arguments.length > 1 && arguments[1] != null && arguments[1].length() > 0){
-							limit = Integer.parseInt(arguments[1]) * 2; //multiply by two because our sleep is 500ms
-						}
-						while (channelStatus.size() == 0 && limit > 0) {
-							try {
-								Thread.sleep(500);
-							} catch (InterruptedException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
-							channelStatus = client.getChannelStatusList();
-							limit--;
-						}
-						if (limit > 0) {
-							System.out.println("Channels Deployed");
-						} else {
-							System.out.println("Deployment Timed out");
-						}
-					} else {
-						System.out.println("No Channels to Deploy");
-					}
-
-				} else if (arg1.equalsIgnoreCase("exportcfg")) {
-					String path = arguments[1];
-					ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-					
-					try {
-						ServerConfiguration configuration = client.getServerConfiguration();
-						File fXml = new File(path);
-						System.out.println("Exporting Configuration");
-						String configurationXML = serializer.toXML(configuration);
-						writeFile(fXml, configurationXML);
-					} catch (IOException e) {
-						System.out.println("Error Writing File " + path);
-					}
-			
-					System.out.println("Configuration Export Complete.");
-					return;
-
-				} else if (arg1.equalsIgnoreCase("importcfg")) {
-					String path = arguments[1];
-					File fXml = new File(path);
-					if (!fXml.exists()) {
-						System.out.println(path + " not found");
-						return;
-					} else if (!fXml.canRead()) {
-						System.out.println("Can not read " + path);
-						return;
-					} else {
-						ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-						try {
-							client.setServerConfiguration((ServerConfiguration)serializer.fromXML(readFile(fXml)));
-						} catch (IOException e) {
-							System.out.println("Can not read " + path);
-							e.printStackTrace();
-							return;
-						}
-
-					}
-					System.out.println("Configuration Import Complete.");
-					return;
-
-				} else if (arg1.equalsIgnoreCase("import")) {
-					String path = arguments[1];
-					
-					boolean force = false;
-					if (arguments.length >= 3 && arguments[2].equalsIgnoreCase("force")) {
-							force = true;
-					}
-					
-					File fXml = new File(path);
-					if (!fXml.exists()) {
-						System.out.println(path + " not found");
-						return;
-					} else if (!fXml.canRead()) {
-						System.out.println("Can not read " + path);
-						return;
-					} else {
-						doImportChannel(fXml, force);
-					}
-				} else if (arg1.equalsIgnoreCase("status")) {
-
-					System.out.println("ID\t\t\t\t\tStatus\t\tName");
-					List<ChannelStatus> channels = client.getChannelStatusList();
-					for (Iterator<ChannelStatus> iter = channels.iterator(); iter.hasNext();) {
-						ChannelStatus channel = iter.next();
-
-						System.out.println(channel.getChannelId() + "\t" + channel.getState().toString() + "\t\t" + channel.getName());
-					}
-					return;
-				} else if (arg1.equalsIgnoreCase("export")) {
-					if (arguments.length < 3) {
-						System.out.println("Invalid number of arguments. Syntax is: export id|name|all \"path\"");
-						return;
-					}
-
-					String key = arguments[1];
-					String path = arguments[2];
-					ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-					List<Channel> channels = client.getChannel(null);
-					if (key.equalsIgnoreCase("*")) {
-						for (Iterator iter = channels.iterator(); iter.hasNext();) {
-							try {
-								Channel channel = (Channel) iter.next();
-								File fXml = new File(path + channel.getName() + ".xml");
-								System.out.println("Exporting " + channel.getName());
-								String channelXML = serializer.toXML(channel);
-								writeFile(fXml, channelXML);
-							} catch (IOException e) {
-								System.out.println("Error Writing File " + path);
-							}
-						}
-						System.out.println("Export Complete.");
-						return;
-					} else {
-						File fXml = new File(path);
-
-						for (Iterator iter = channels.iterator(); iter.hasNext();) {
-							Channel channel = (Channel) iter.next();
-							if (channel.getName().equalsIgnoreCase(key) != channel.getId().equalsIgnoreCase(key)) {
-								System.out.println("Exporting " + channel.getName());
-								String channelXML = serializer.toXML(channel);
-								try {
-									writeFile(fXml, channelXML);
-								} catch (IOException e) {
-									System.out.println("Error Writing File " + path);
-								}
-								System.out.println("Export Complete.");
-								return;
-							}
-						}
-					}
-
-				} else if (arg1.equalsIgnoreCase("channel")) {
+				} else if (arg1 == Token.START) {
+					commandStartAll(arguments);
+				} else if (arg1 == Token.STOP) {
+					commandStopAll(arguments);
+				} else if (arg1 == Token.PAUSE) {
+					commandPauseAll(arguments);
+				} else if (arg1 == Token.RESUME) {
+					commandResumeAll(arguments);
+				} else if (arg1 == Token.DEPLOY) {
+                    commandDeploy(arguments);
+				} else if (arg1 == Token.EXPORTCFG) {
+                    commandExportConfig(arguments);
+				} else if (arg1 == Token.IMPORTCFG) {
+                    commandImportConfig(arguments);
+				} else if (arg1 == Token.IMPORT) {
+                    commandImport(arguments);
+				} else if (arg1 == Token.STATUS) {
+                    commandStatus(arguments);
+				} else if (arg1 == Token.EXPORT) {
+                    commandExport(arguments);
+				} else if (arg1 == Token.CHANNEL) {
+					String syntax = "invalid number of arguments. Syntax is: channel start|stop|pause|resume|stats|remove|enable|disable <id|name> or channel list|stats";
 					if (arguments.length < 2) {
-						System.out.println("Invalid number of arguments. Syntax is: channel start|stop|pause|resume|stats|remove|enable|disable|export|list id|\"name\"");
+						error(syntax);
 						return;
-					} else if (arguments.length < 3 && !arguments[1].equalsIgnoreCase("list") && !arguments[1].equalsIgnoreCase("stats")) {
-						System.out.println("Invalid number of arguments. Syntax is: channel start|stop|pause|resume|stats|remove|enable|disable|export|list id|\"name\"");
-						return;
-					}
-
-					String comm = arguments[1];
-
-					if (comm.equalsIgnoreCase("stats") && arguments.length < 3) {
-						// System.out.println("Mirth Channel Statistics Dump: "
-						// + (new Date()).toString() + "\n");
-						System.out.println("Received\tFiltered\tSent\t\tError\t\tName");
-
-						List<Channel> channels = client.getChannel(null);
-
-						for (Iterator iter = channels.iterator(); iter.hasNext();) {
-							Channel channel = (Channel) iter.next();
-							ChannelStatistics stats = client.getStatistics(channel.getId());
-							System.out.println(stats.getReceived() + "\t\t" + stats.getFiltered() + "\t\t" + stats.getSent() + "\t\t" + stats.getError() + "\t\t" + channel.getName());
-						}
+					} else if (arguments.length < 3 && arguments[1] != Token.LIST && arguments[1] != Token.STATS) {
+						error(syntax);
 						return;
 					}
-					if (comm.equalsIgnoreCase("list")) {
-						List<Channel> allChannels = client.getChannel(null);
-						System.out.println("ID\t\t\t\t\tEnabled\t\tName");
-						String enable = "";
-						for (Iterator<Channel> iter = allChannels.iterator(); iter.hasNext();) {
-							Channel channel = iter.next();
-							if (channel.isEnabled()) {
-								enable = "ENABLED";
-							} else {
-								enable = "DISABLED";
-							}
-							System.out.println(channel.getId() + "\t" + enable + "\t\t" + channel.getName());
-						}
-						return;
-					}
-					if (comm.equalsIgnoreCase("disable") || comm.equalsIgnoreCase("enable") || comm.equalsIgnoreCase("remove")) {
-						List<Channel> channels = client.getChannel(null);
-						String key = arguments[2];
 
-						for (Iterator<Channel> iter = channels.iterator(); iter.hasNext();) {
-							Channel channel = iter.next();
-							if (key.equalsIgnoreCase("*") || channel.getName().equalsIgnoreCase(key) || channel.getId().equalsIgnoreCase(key)) {
-								if (comm.equalsIgnoreCase("disable") && channel.isEnabled()) {
-									channel.setEnabled(false);
-									client.updateChannel(channel, true);
-									System.out.println("Channel '" + channel.getName() + "' Disabled");
-								} else if (comm.equalsIgnoreCase("enable") && !channel.isEnabled()) {
-									channel.setEnabled(true);
-									client.updateChannel(channel, true);
-									System.out.println("Channel '" + channel.getName() + "' Enabled");
-								} else if (comm.equalsIgnoreCase("remove")) {
-									if (channel.isEnabled()) {
-										channel.setEnabled(false);
-									}
-									client.removeChannel(channel);
-									System.out.println("Channel '" + channel.getName() + "' Removed");
-								}
-								if (!key.equalsIgnoreCase("*"))
-									return;
-							}
-						}
+					Token comm = arguments[1];
 
-					}
-
-					List<ChannelStatus> channels = client.getChannelStatusList();
-					String key = arguments[2];
-
-					for (Iterator<ChannelStatus> iter = channels.iterator(); iter.hasNext();) {
-						ChannelStatus channel = iter.next();
-
-						if (key.equalsIgnoreCase("*") || channel.getName().equalsIgnoreCase(key) || channel.getChannelId().equalsIgnoreCase(key)) {
-							if (comm.equalsIgnoreCase("start") && (channel.getState().equals(State.PAUSED) || channel.getState().equals(State.STOPPED))) {
-								if (channel.getState().equals(State.PAUSED)) {
-									client.resumeChannel(channel.getChannelId());
-									System.out.println("Channel '" + channel.getName() + "' Resumed");
-								} else {
-									client.startChannel(channel.getChannelId());
-									System.out.println("Channel '" + channel.getName() + "' Started");
-								}
-							} else if (comm.equalsIgnoreCase("stop") && (channel.getState().equals(State.PAUSED) || channel.getState().equals(State.STARTED))) {
-								client.stopChannel(channel.getChannelId());
-								System.out.println("Channel '" + channel.getName() + "' Stopped");
-							} else if (comm.equalsIgnoreCase("pause") && channel.getState().equals(State.STARTED)) {
-								client.pauseChannel(channel.getChannelId());
-								System.out.println("Channel '" + channel.getName() + "' Paused");
-							} else if (comm.equalsIgnoreCase("resume") && channel.getState().equals(State.PAUSED)) {
-								client.resumeChannel(channel.getChannelId());
-								System.out.println("Channel '" + channel.getName() + "' Resumed");
-							} else if (comm.equalsIgnoreCase("stats")) {
-								ChannelStatistics stats = client.getStatistics(channel.getChannelId());
-								System.out.println("Channel Stats for " + channel.getName());
-								System.out.println("Received: " + stats.getReceived());
-								System.out.println("Filtered: " + stats.getFiltered());
-								System.out.println("Sent: " + stats.getSent());
-								System.out.println("Error: " + stats.getError());
-							}
-							if (!key.equalsIgnoreCase("*"))
-								return;
-						}
+					if (comm == Token.STATS && arguments.length < 3) {
+						commandAllChannelStats(arguments);
+					} else if (comm == Token.LIST) {
+						commandChannelList(arguments);
+					} else if (comm == Token.DISABLE) {
+						commandChannelDisable(arguments);
+					} else if (comm == Token.ENABLE) {
+						commandChannelEnable(arguments);
+					} else if (comm == Token.REMOVE) {
+						commandChannelRemove(arguments);
+					} else if (comm == Token.START) {
+						commandChannelStart(arguments);
+					} else if (comm == Token.STOP) {
+						commandChannelStop(arguments);
+					} else if (comm == Token.PAUSE) {
+						commandChannelPause(arguments);
+					} else if (comm == Token.RESUME) {
+						commandChannelResume(arguments);
+					} else if (comm == Token.STATS) {
+						commandChannelStats(arguments);
+					} else {
+						error("unknown channel command " + comm);
 					}
 				}
-
-				else if (arg1.equalsIgnoreCase("clear")) {
-
-					List<Channel> channels = client.getChannel(null);
-
-					for (Iterator iter = channels.iterator(); iter.hasNext();) {
-						Channel channel = (Channel) iter.next();
-						client.clearMessages(channel.getId());
-					}
+				else if (arg1 == Token.CLEAR) {
+					commandClear(arguments);
 				} 
-				else if (arg1.equalsIgnoreCase("resetstats")) {
-
-					List<Channel> channels = client.getChannel(null);
-
-					for (Iterator iter = channels.iterator(); iter.hasNext();) {
-						Channel channel = (Channel) iter.next();
-						client.clearStatistics(channel.getId(), true, true, true, true, true);
-					}
+				else if (arg1 == Token.RESETSTATS) {
+					commandResetstats(arguments);
 				} 
-				else if (arg1.equalsIgnoreCase("dump")) {
+				else if (arg1 == Token.DUMP) {
 					if (arguments.length >= 2) {
-						String arg2 = arguments[1];
+						Token arg2 = arguments[1];
 
-						if (arg2.equalsIgnoreCase("stats")) {
-							String dumpFilename = arguments[2];
-							dumpFilename = replaceValues(dumpFilename);
-
-							StringBuilder builder = new StringBuilder();
-							builder.append("Mirth Channel Statistics Dump: " + (new Date()).toString() + "\n");
-							builder.append("Name, Received, Filtered, Sent, Error\n");
-
-							List<Channel> channels = client.getChannel(null);
-
-							for (Iterator iter = channels.iterator(); iter.hasNext();) {
-								Channel channel = (Channel) iter.next();
-								ChannelStatistics stats = client.getStatistics(channel.getId());
-								builder.append(channel.getName() + ", " + stats.getReceived() + ", " + stats.getFiltered() + ", " + stats.getSent() + ", " + stats.getError() + "\n");
-							}
-
-							File dumpFile = new File(dumpFilename);
-
-							try {
-								writeFile(dumpFile, builder.toString());
-								System.out.println("Stats written to " + dumpFilename);
-							} catch (IOException e) {
-								System.out.println("Error: Could not write file: " + dumpFile.getAbsolutePath());
-							}
+						if (arg2 == Token.STATS) {
+							commandDumpStats(arguments);
 						} else if (arg2.equals("events")) {
-							String dumpFilename = arguments[2];
-							dumpFilename = replaceValues(dumpFilename);
-
-							StringBuilder builder = new StringBuilder();
-							builder.append("Mirth Event Log Dump: " + (new Date()).toString() + "\n");
-							builder.append("Id, Event, Date, Description, Level\n");
-
-							List<SystemEvent> events = client.getSystemEvents(new SystemEventFilter());
-
-							for (Iterator iter = events.iterator(); iter.hasNext();) {
-								SystemEvent event = (SystemEvent) iter.next();
-								builder.append(event.getId() + ", " + event.getEvent() + ", " + formatDate(event.getDate()) + ", " + event.getDescription() + ", " + event.getLevel() + "\n");
-							}
-
-							File dumpFile = new File(dumpFilename);
-
-							try {
-								writeFile(dumpFile, builder.toString());
-								System.out.println("Events written to " + dumpFilename);
-							} catch (IOException e) {
-								System.out.println("Error: Could not write file: " + dumpFile.getAbsolutePath());
-							}
+							commandDumpEvents(arguments);
 						} else {
-							System.out.println("Error: Unknown dump command: " + arg2);
+							error("unknown dump command: " + arg2);
 						}
 					} else {
-						System.out.println("Error: Missing dump commands.");
+						error("missing dump commands.");
 					}
+				} else if (arg1 == Token.QUIT) {
+					throw new QuitShell();
 				} else {
-					System.out.println("Error: Unknown command: " + command);
+					error("unknown command: " + command);
 				}
 			}
 		} catch (ClientException e) {
-			e.printStackTrace();
+			e.printStackTrace(err);
+		}
+	}
+
+	/** Split <code>command</code> into an array of tokens. */
+	private Token[] tokenizeCommand(String command) {
+		List<Token> tokens = new ArrayList<Token>();
+		StringBuilder currentToken = null;       // not in a token yet
+		char[] chars = command.toCharArray();
+		boolean inQuotes = false;
+		for (int idx = 0; idx < chars.length; idx++) {
+			char ch = chars[idx];
+			if (currentToken == null) {          // currently between tokens
+				if (ch == ' ') {
+					// ignore spaces between tokens (including leading space)
+					continue;
+				}
+				else {
+					// start a new token
+					currentToken = new StringBuilder();
+				}
+			}
+			
+			if (inQuotes && ch != '"') {
+				// add another char (possibly space) to the current token
+				currentToken.append(ch);
+			}
+			else if (inQuotes && ch == '"') {
+				// no longer in quotes: ignore the " char and switch modes
+				inQuotes = false;
+			}
+			else if (!inQuotes && ch == '"') {
+				// now in quotes: ignore the " char and switch modes
+				inQuotes = true;
+			}
+			else if (!inQuotes && ch == ' ') {
+				// end of current token
+				addToken(tokens, currentToken);
+				currentToken = null;
+			}
+			else if (!inQuotes && ch == '#') {
+				// start of comment: stop tokenizing now (ie. treat it as end of line)
+				break;
+			}
+			else if (!inQuotes) {
+				// any other char outside of quotes: just append to current token
+				currentToken.append(ch);
+			}
+			else {
+				// impossible state because of the first two clauses above
+				throw new IllegalStateException(
+					"impossible state in tokenizer: inQuotes=" + inQuotes + ", char=" + ch);	
+			}
+		}
+		addToken(tokens, currentToken);
+
+		//out.println("token list: " + tokens);
+		Token[] arguments = new Token[tokens.size()];
+		tokens.toArray(arguments);
+		return arguments;
+	}
+
+	private void addToken(List<Token> tokens, StringBuilder currentText) {
+		if (currentText == null || currentText.length() == 0) {
+			// empty or commented line
+			return;
+		}
+		String text = currentText.toString();
+		Token token = Token.getKeyword(text);
+		if (token == null) {
+			try {
+				token = Token.intToken(text);
+			}
+			catch (NumberFormatException e) {
+				token = Token.stringToken(text);
+			}
+		}
+		tokens.add(token);
+	}
+
+	private void commandHelp(Token[] arguments) {
+		out.println("Available Commands:");
+		out.println("status\n\tReturns status of deployed channels\n");
+		out.println("start\n\tStarts all Channels\n");
+		out.println("stop\n\tStops all Channels\n");
+		out.println("pause\n\tPauses all Channels\n");
+		out.println("resume\n\tResumes all Channels\n");
+		out.println("deploy [timeout]\n\tDeploys all Channels with optional timeout (in seconds)\n");
+		out.println("import \"path\" [force]\n\tImports channel specified by <path>.  Optional 'force' overwrites existing channels.\n");
+		out.println("export id|\"name\"|* \"path\"\n\tExports the specified channel to <path>\n");
+		out.println("importcfg \"path\"\n\tImports configuration specified by <path>\n");
+		out.println("exportcfg \"path\"\n\tExports the configuration to <path>\n");
+		out.println("channel start|stop|pause|resume|stats id|\"name\"|*\n\tPerforms specified channel action\n");
+		out.println("channel remove|enable|disable id|\"name\"|*\n\tRemove, enable or disable specified channel\n");
+		out.println("channel list\n\tLists all Channels\n");
+		out.println("clear\n\tRemoves all messages from all Channels\n");
+		out.println("resetstats\n\tRemoves all stats from all Channels\n");
+		out.println("dump stats|events \"path\"\n\tDumps stats or events to specified file\n");
+		out.println("user list\n\tReturns a list of the current users\n");
+		out.println("user add username \"password\" \"name\" \"email\"\n\tAdds the specified user\n");
+		out.println("user remove id|username\n\tRemoves the specified user\n");
+		out.println("user changepw id|username \"newpassword\"\n\tChanges the specified user's password\n");
+		out.println("quit\n\tQuits Mirth Shell");
+	}
+
+	private void commandUserList(Token[] arguments) throws ClientException {
+		List<User> users = client.getUser(null);
+		out.println("ID\tUser Name\tName\t\t\tEmail");
+		for (Iterator<User> iter = users.iterator(); iter.hasNext();) {
+			User user = iter.next();
+			out.println(user.getId() + "\t" + user.getUsername() + "\t\t" + user.getFullName() + "\t\t" + user.getEmail());
+		}
+	}
+
+	private void commandUserAdd(Token[] arguments) throws ClientException {
+		if (arguments.length < 6) {
+			error("invalid number of arguments. Syntax is user add username \"password\" \"name\" \"email\"");
+			return;
+		}
+		String username = arguments[2].getText();
+		if (username.length() < 1){
+			error("unable to add user: username too short.");
+			return;
+		}
+		
+		String password = arguments[3].getText();
+		String name = arguments[4].getText();
+		String email = arguments[5].getText();
+		User user = new User();
+		user.setUsername(username);
+		user.setFullName(name);
+		user.setEmail(email);
+		
+		List<User> users = client.getUser(null);
+		for (Iterator<User> iter = users.iterator(); iter.hasNext();) {
+			User luser = iter.next();
+			if (luser.getUsername().equalsIgnoreCase(username)) {
+				error("unable to add user: username in use.");
+				return;
+			}
+		}
+		
+		try {
+			client.updateUser(user, password);
+			out.println("User \"" + username + "\" added successfully.");
+		} catch (Exception e) {
+			error("unable to add user \"" + username + "\": " + e);
+		}
+	}
+
+	private void commandUserRemove(Token[] arguments) throws ClientException {
+		if (arguments.length < 3) {
+			error("invalid number of arguments. Syntax is user remove username|id");
+			return;
+		}
+		String key = arguments[2].getText();
+		if (key.equalsIgnoreCase(currentUser)){
+			error("cannot remove current user.");
+			return;
+		}
+		List<User> users = client.getUser(null);
+		for (Iterator<User> iter = users.iterator(); iter.hasNext();) {
+			User user = iter.next();
+			if (user.getId().equalsIgnoreCase(key) || user.getUsername().equalsIgnoreCase(key)) {
+				client.removeUser(user);
+				out.println("User \"" + user.getUsername() + "\" successfully removed.");
+				return;
+			}
+		}
+	}
+
+	private void commandUserChangePassword(Token[] arguments) throws ClientException {
+		if (arguments.length < 4) {
+			error("invalid number of arguments. Syntax is user changepw username|id \"newpassword\"");
+			return;
+		}
+		String key = arguments[2].getText();
+		String newPassword = arguments[3].getText();
+		List<User> users = client.getUser(null);
+		for (Iterator<User> iter = users.iterator(); iter.hasNext();) {
+			User user = iter.next();
+			if (user.getId().equalsIgnoreCase(key) || user.getUsername().equalsIgnoreCase(key)) {
+				client.updateUser(user, newPassword);
+				out.println("User \"" + user.getUsername() + "\" password updated.");
+				return;
+			}
+		}
+	}
+	
+	// XXX isn't this the same as "channel start *"?
+	private void commandStartAll(Token[] arguments) throws ClientException {
+		for (ChannelStatus channel : client.getChannelStatusList()) {
+			if (channel.getState().equals(State.STOPPED) || channel.getState().equals(State.PAUSED)) {
+				if (channel.getState().equals(State.PAUSED)) {
+					client.resumeChannel(channel.getChannelId());
+					out.println("Channel " + channel.getName() + " Resumed");
+				} else {
+					client.startChannel(channel.getChannelId());
+					out.println("Channel " + channel.getName() + " Started");
+				}
+			}		
+		}
+	}
+
+	// XXX isn't this the same as "channel stop *"?
+	private void commandStopAll(Token[] arguments) throws ClientException {
+		for (ChannelStatus channel : client.getChannelStatusList()) {
+			if (channel.getState().equals(State.STARTED) || channel.getState().equals(State.PAUSED)) {
+				client.stopChannel(channel.getChannelId());
+				out.println("Channel " + channel.getName() + " Stopped");
+			}
+		}
+	}
+
+	// XXX isn't this the same as "channel pause *"?
+	private void commandPauseAll(Token[] arguments) throws ClientException {
+		for (ChannelStatus channel : client.getChannelStatusList()) {
+			if (channel.getState().equals(State.STARTED)) {
+				client.pauseChannel(channel.getChannelId());
+				out.println("Channel " + channel.getName() + " Paused");
+			}			
+		}
+	}
+
+	// XXX isn't this the same as "channel resume *"?
+	private void commandResumeAll(Token[] arguments) throws ClientException {
+		for (ChannelStatus channel : client.getChannelStatusList()) {
+			if (channel.getState().equals(State.PAUSED)) {
+				client.resumeChannel(channel.getChannelId());
+				out.println("Channel " + channel.getName() + " Resumed");
+			}			
+		}
+	}
+
+	private void commandDeploy(Token[] arguments) throws ClientException {
+		out.println("Deploying Channels");
+		List<Channel> channels = client.getChannel(null);
+	
+		boolean hasChannels = false;
+		for (Iterator iter = channels.iterator(); iter.hasNext();) {
+			Channel channel = (Channel) iter.next();
+			if (channel.isEnabled()) {
+				hasChannels = true;
+				break;
+			}
+		}
+		client.deployChannels();
+		if (hasChannels) {
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			List<ChannelStatus> channelStatus = client.getChannelStatusList();
+			int limit = 60; // 30 second limit
+			if (arguments.length > 1 && arguments[1] instanceof IntToken){
+				limit = ((IntToken) arguments[1]).getValue() * 2; //multiply by two because our sleep is 500ms
+			}
+			while (channelStatus.size() == 0 && limit > 0) {
+				try {
+					Thread.sleep(500);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				channelStatus = client.getChannelStatusList();
+				limit--;
+			}
+			if (limit > 0) {
+				out.println("Channels Deployed");
+			} else {
+				out.println("Deployment Timed out");
+			}
+		} else {
+			out.println("No Channels to Deploy");
+		}
+	}
+
+	private void commandExportConfig(Token[] arguments) throws ClientException {
+		String path = arguments[1].getText();
+		ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+		
+		try {
+			ServerConfiguration configuration = client.getServerConfiguration();
+			File fXml = new File(path);
+			out.println("Exporting Configuration");
+			String configurationXML = serializer.toXML(configuration);
+			writeFile(fXml, configurationXML);
+		} catch (IOException e) {
+			error("unable to write file " + path + ": " + e);
+		}
+	
+		out.println("Configuration Export Complete.");
+	}
+
+	private void commandImportConfig(Token[] arguments) throws ClientException {
+		String path = arguments[1].getText();
+		File fXml = new File(path);
+		if (!fXml.exists()) {
+			error("" + path + " not found");
+			return;
+		} else if (!fXml.canRead()) {
+			error("cannot read " + path);
+			return;
+		} else {
+			ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+			try {
+				client.setServerConfiguration((ServerConfiguration)serializer.fromXML(readFile(fXml)));
+			} catch (IOException e) {
+				error("cannot read " + path);
+				e.printStackTrace();
+				return;
+			}
+	
+		}
+		out.println("Configuration Import Complete.");
+	}
+
+	private void commandImport(Token[] arguments) throws ClientException {
+		String path = arguments[1].getText();
+
+		boolean force = false;
+		if (arguments.length >= 3 && arguments[2] == Token.FORCE) {
+				force = true;
+		}
+
+		File fXml = new File(path);
+		if (!fXml.exists()) {
+			error("" + path + " not found");
+		} else if (!fXml.canRead()) {
+			error("cannot read " + path);
+		} else {
+			doImportChannel(fXml, force);
+		}
+	}
+
+	private void commandStatus(Token[] arguments) throws ClientException {
+		out.println("ID\t\t\t\t\tStatus\t\tName");
+		List<ChannelStatus> channels = client.getChannelStatusList();
+		for (Iterator<ChannelStatus> iter = channels.iterator(); iter.hasNext();) {
+			ChannelStatus channel = iter.next();
+	
+			out.println(channel.getChannelId() + "\t" + channel.getState().toString() + "\t\t" + channel.getName());
+		}
+	}
+
+	private void commandExport(Token[] arguments) throws ClientException {
+		if (arguments.length < 3) {
+			error("invalid number of arguments. Syntax is: export id|name|all \"path\"");
+			return;
+		}
+	
+		StringToken key = (StringToken) arguments[1];
+		String path = arguments[2].getText();
+		ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+		List<Channel> channels = client.getChannel(null);
+		if (key == Token.WILDCARD) {
+			for (Iterator iter = channels.iterator(); iter.hasNext();) {
+				try {
+					Channel channel = (Channel) iter.next();
+					File fXml = new File(path + channel.getName() + ".xml");
+					out.println("Exporting " + channel.getName());
+					String channelXML = serializer.toXML(channel);
+					writeFile(fXml, channelXML);
+				} catch (IOException e) {
+					error("unable to write file " + path + ": " + e);
+				}
+			}
+			out.println("Export Complete.");
+			return;
+		} else {
+			File fXml = new File(path);
+	
+			for (Iterator iter = channels.iterator(); iter.hasNext();) {
+				Channel channel = (Channel) iter.next();
+				if (key.equalsIgnoreCase(channel.getName()) != key.equalsIgnoreCase(channel.getId())) {
+					out.println("Exporting " + channel.getName());
+					String channelXML = serializer.toXML(channel);
+					try {
+						writeFile(fXml, channelXML);
+					} catch (IOException e) {
+						error("unable to write file " + path + ": " + e);
+					}
+					out.println("Export Complete.");
+					return;
+				}
+			}
+		}
+	}
+
+	private void commandAllChannelStats(Token[] arguments) throws ClientException {
+		// out.println("Mirth Channel Statistics Dump: "
+		// + (new Date()).toString() + "\n");
+		out.println("Received\tFiltered\tSent\t\tError\t\tName");
+	
+		List<Channel> channels = client.getChannel(null);
+	
+		for (Iterator iter = channels.iterator(); iter.hasNext();) {
+			Channel channel = (Channel) iter.next();
+			ChannelStatistics stats = client.getStatistics(channel.getId());
+			out.println(stats.getReceived() + "\t\t" + stats.getFiltered() + "\t\t" + stats.getSent() + "\t\t" + stats.getError() + "\t\t" + channel.getName());
+		}
+	}
+
+	private void commandChannelList(Token[] arguments) throws ClientException {
+		List<Channel> allChannels = client.getChannel(null);
+		out.println("ID\t\t\t\t\tEnabled\t\tName");
+		String enable = "";
+		for (Iterator<Channel> iter = allChannels.iterator(); iter.hasNext();) {
+			Channel channel = iter.next();
+			if (channel.isEnabled()) {
+				enable = "ENABLED";
+			} else {
+				enable = "DISABLED";
+			}
+			out.println(channel.getId() + "\t" + enable + "\t\t" + channel.getName());
+		}
+	}
+	
+	private void commandChannelDisable(Token[] arguments) throws ClientException {
+		for (Channel channel : getMatchingChannels(arguments[2]) ) {
+			if (channel.isEnabled()) {
+				channel.setEnabled(false);
+				client.updateChannel(channel, true);
+				out.println("Channel '" + channel.getName() + "' Disabled");
+			}
+		}
+	}
+
+	private void commandChannelEnable(Token[] arguments) throws ClientException {
+		for (Channel channel : getMatchingChannels(arguments[2]) ) {
+			if (!channel.isEnabled()) {
+				channel.setEnabled(true);
+				client.updateChannel(channel, true);
+				out.println("Channel '" + channel.getName() + "' Enabled");
+			}
+		}
+	}
+
+	private void commandChannelRemove(Token[] arguments) throws ClientException {
+		for (Channel channel : getMatchingChannels(arguments[2]) ) {
+			if (channel.isEnabled()) {
+				channel.setEnabled(false);
+			}
+			client.removeChannel(channel);
+			out.println("Channel '" + channel.getName() + "' Removed");
+		}
+	}
+
+	private void commandChannelStart(Token[] arguments) throws ClientException {
+		for (ChannelStatus channel : getMatchingChannelStatuses(arguments[2]) ) {
+			if (channel.getState().equals(State.PAUSED) || channel.getState().equals(State.STOPPED)) {
+				if (channel.getState().equals(State.PAUSED)) {
+					client.resumeChannel(channel.getChannelId());
+					out.println("Channel '" + channel.getName() + "' Resumed");
+				} else {
+					client.startChannel(channel.getChannelId());
+					out.println("Channel '" + channel.getName() + "' Started");
+				}
+			}
+		}
+	}
+
+	private void commandChannelStop(Token[] arguments) throws ClientException {
+		for (ChannelStatus channel : getMatchingChannelStatuses(arguments[2]) ) {
+			if (channel.getState().equals(State.PAUSED) || channel.getState().equals(State.STARTED)) {
+				client.stopChannel(channel.getChannelId());
+				out.println("Channel '" + channel.getName() + "' Stopped");
+			}
+		}
+	}
+
+	private void commandChannelPause(Token[] arguments) throws ClientException {
+		for (ChannelStatus channel : getMatchingChannelStatuses(arguments[2]) ) {
+			if (channel.getState().equals(State.STARTED)) {
+				client.pauseChannel(channel.getChannelId());
+				out.println("Channel '" + channel.getName() + "' Paused");
+			}
+		}
+	}
+
+	private void commandChannelResume(Token[] arguments) throws ClientException {
+		for (ChannelStatus channel : getMatchingChannelStatuses(arguments[2]) ) {
+			if (channel.getState().equals(State.PAUSED)) {
+				client.resumeChannel(channel.getChannelId());
+				out.println("Channel '" + channel.getName() + "' Resumed");
+			}
+		}
+	}
+	
+	private void commandChannelStats(Token[] arguments) throws ClientException {
+		for (ChannelStatus channel : getMatchingChannelStatuses(arguments[2]) ) {
+			ChannelStatistics stats = client.getStatistics(channel.getChannelId());
+			out.println("Channel Stats for " + channel.getName());
+			out.println("Received: " + stats.getReceived());
+			out.println("Filtered: " + stats.getFiltered());
+			out.println("Sent: " + stats.getSent());
+			out.println("Error: " + stats.getError());
+		}
+	}
+
+	private List<Channel> getMatchingChannels(Token key) throws ClientException {
+		List<Channel> result = new ArrayList();
+		for (Channel channel : client.getChannel(null)) {
+			if (matchesChannel(key, channel.getName(), channel.getId())) {
+				result.add(channel);
+			}
+
+			// What if the key matches *two* channels, e.g. it's the ID of one and
+			// the name of another?  Unlikely but possible...
+			if (key != Token.WILDCARD)
+				break;
+		}
+		return result;
+	}
+	
+	// Yuck: this is nearly identical to getMatchingChannels(), but there does
+	// not appear to be a way to go from Channel to ChannelStatus (or vice-versa).  If
+	// there was, all channel methods could operate on a Channel object (or a ChannelStatus
+	// object), and we would only need one getMatching...() method.
+	private List<ChannelStatus> getMatchingChannelStatuses(Token key) throws ClientException {
+		List<ChannelStatus> result = new ArrayList();
+		for (ChannelStatus status : client.getChannelStatusList()) {
+			if (matchesChannel(key, status.getName(), status.getChannelId())) {
+				result.add(status);
+			}
+
+			// Again, what if the key matches two channels?
+			if (key != Token.WILDCARD)
+				break;
+
+		}
+		return result;
+	}
+
+	private boolean matchesChannel(Token key, String name, String id) {
+		if (key == Token.WILDCARD)
+			return true;
+		StringToken skey = (StringToken) key;
+		return skey.equalsIgnoreCase(name) || skey.equalsIgnoreCase(id);
+	}
+	
+	private void commandClear(Token[] arguments) throws ClientException {
+		List<Channel> channels = client.getChannel(null);
+	
+		for (Iterator iter = channels.iterator(); iter.hasNext();) {
+			Channel channel = (Channel) iter.next();
+			client.clearMessages(channel.getId());
+		}
+	}
+
+	private void commandResetstats(Token[] arguments) throws ClientException {
+		List<Channel> channels = client.getChannel(null);
+	
+		for (Iterator iter = channels.iterator(); iter.hasNext();) {
+			Channel channel = (Channel) iter.next();
+			client.clearStatistics(channel.getId(), true, true, true, true, true);
+		}
+	}
+
+	private void commandDumpEvents(Token[] arguments) throws ClientException {
+		String dumpFilename = arguments[2].getText();
+		dumpFilename = replaceValues(dumpFilename);
+
+		StringBuilder builder = new StringBuilder();
+		builder.append("Mirth Event Log Dump: " + (new Date()).toString() + "\n");
+		builder.append("Id, Event, Date, Description, Level\n");
+
+		List<SystemEvent> events = client.getSystemEvents(new SystemEventFilter());
+
+		for (Iterator iter = events.iterator(); iter.hasNext();) {
+			SystemEvent event = (SystemEvent) iter.next();
+			builder.append(event.getId() + ", " + event.getEvent() + ", " + formatDate(event.getDate()) + ", " + event.getDescription() + ", " + event.getLevel() + "\n");
+		}
+
+		File dumpFile = new File(dumpFilename);
+
+		try {
+			writeFile(dumpFile, builder.toString());
+			out.println("Events written to " + dumpFilename);
+		} catch (IOException e) {
+			error("Could not write file: " + dumpFile.getAbsolutePath());
+		}
+	}
+
+	private void commandDumpStats(Token[] arguments) throws ClientException {
+		String dumpFilename = arguments[2].getText();
+		dumpFilename = replaceValues(dumpFilename);
+
+		StringBuilder builder = new StringBuilder();
+		builder.append("Mirth Channel Statistics Dump: " + (new Date()).toString() + "\n");
+		builder.append("Name, Received, Filtered, Sent, Error\n");
+
+		List<Channel> channels = client.getChannel(null);
+
+		for (Iterator iter = channels.iterator(); iter.hasNext();) {
+			Channel channel = (Channel) iter.next();
+			ChannelStatistics stats = client.getStatistics(channel.getId());
+			builder.append(channel.getName() + ", " + stats.getReceived() + ", " + stats.getFiltered() + ", " + stats.getSent() + ", " + stats.getError() + "\n");
+		}
+
+		File dumpFile = new File(dumpFilename);
+
+		try {
+			writeFile(dumpFile, builder.toString());
+			out.println("Stats written to " + dumpFilename);
+		} catch (IOException e) {
+			error("Could not write file: " + dumpFile.getAbsolutePath());
 		}
 	}
 
@@ -717,7 +933,7 @@ public class Shell {
 		try {
 			channelXML = ImportConverter.convertChannelFile(importFile);
 		} catch (Exception e1) {
-			System.out.println("Invalid channel file.");
+			error("invalid channel file.");
 			return;
 		}
 
@@ -730,7 +946,7 @@ public class Shell {
             PropertyVerifier.checkConnectorProperties(importChannel, client.getConnectorMetaData());
         
         } catch (Exception e) {
-			System.out.println("Invalid channel file.");
+			error("invalid channel file.");
 			return;
 		}
 
@@ -753,7 +969,7 @@ public class Shell {
 		
 		importChannel.setVersion(client.getVersion());
 		client.updateChannel(importChannel, true);
-		System.out.println("Channel '" + channelName + "' imported successfully.");
+		out.println("Channel '" + channelName + "' imported successfully.");
 
 	}
 
@@ -800,4 +1016,104 @@ public class Shell {
 	private String formatDate(Calendar date) {
 		return String.format("%1$tY-%1$tm-%1$td 00:00:00", date);
 	}
+}
+
+/** 
+ * Object representing one token in the command shell language.  A token is either 
+ * a keyword like "channel" or "remove" (statically defined, hardcoded), or a generic 
+ * string or int (created dynamically when seen in the input).
+ */
+class Token {
+	private static Map<String,Token> keywordMap = new HashMap<String,Token>();
+
+	private static Token addKeyword(String text) {
+		Token token = new Token(text);
+		keywordMap.put(text, token);
+		return token;
+	}
+
+	static Token getKeyword(String text) {
+		return keywordMap.get(text.toLowerCase());
+	}
+
+	// Keyword tokens
+	static Token HELP = addKeyword("help");
+	static Token USER = addKeyword("user");
+	static Token LIST = addKeyword("list");
+	static Token ADD = addKeyword("add");
+	static Token REMOVE = addKeyword("remove");
+	static Token CHANGEPW = addKeyword("changepw");
+	static Token START = addKeyword("start");
+	static Token STOP = addKeyword("stop");
+	static Token PAUSE = addKeyword("pause");
+	static Token RESUME = addKeyword("resume");
+	static Token DEPLOY = addKeyword("deploy");
+	static Token EXPORTCFG = addKeyword("exportcfg");
+	static Token IMPORTCFG = addKeyword("importcfg");
+	static Token IMPORT = addKeyword("import");
+	static Token FORCE = addKeyword("force");
+	static Token STATUS = addKeyword("status");
+	static Token EXPORT = addKeyword("export");
+	static Token CHANNEL = addKeyword("channel");
+	static Token ENABLE = addKeyword("enable");
+	static Token DISABLE = addKeyword("disable");
+	static Token STATS = addKeyword("stats");
+	static Token CLEAR = addKeyword("clear");
+	static Token RESETSTATS = addKeyword("resetstats");
+	static Token DUMP = addKeyword("dump");
+	static Token EVENTS = addKeyword("events");
+	static Token QUIT = addKeyword("quit");
+	
+	static Token WILDCARD = addKeyword("*");
+
+	static Token intToken(String value) {
+		return new IntToken(value);
+	}
+
+	static Token stringToken(String value) {
+		return new StringToken(value);
+	}
+
+	private String text;
+
+	Token(String text) {
+		this.text = text;
+	}
+
+	public String toString() {
+		return "<" + text+ ">";
+	}
+	
+	String getText() {
+		return text;
+	}
+}
+
+class StringToken extends Token {
+	private String value;
+
+	public StringToken(String value) {
+		super(value);
+		this.value = value;
+	}
+
+	boolean equalsIgnoreCase(String s) {
+		return value.equalsIgnoreCase(s);
+	}
+}
+
+class IntToken extends Token {
+	private int value;
+
+	public IntToken(String value) {
+		super(value);
+		this.value = Integer.parseInt(value);
+	}
+	
+	int getValue() {
+		return value;
+	}
+}
+
+class QuitShell extends RuntimeException {
 }
