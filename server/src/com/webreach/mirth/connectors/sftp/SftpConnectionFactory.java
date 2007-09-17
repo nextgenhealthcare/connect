@@ -45,8 +45,6 @@ public class SftpConnectionFactory implements PoolableObjectFactory {
 			channel.connect();
 			client = (ChannelSftp) channel;
 
-			// FIXME: find elegant way to work even with starting slash
-			path = path.substring(1, path.length());
 			client.cd(path);
 		} catch (Exception e) {
 			if (client.isConnected()) {
