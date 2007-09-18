@@ -37,6 +37,8 @@ public class Rule implements Serializable {
 
 	private int sequenceNumber;
 	private String name;
+	private Object data;
+	private String type;
 	private String script;
 	private Operator operator;
 
@@ -56,12 +58,12 @@ public class Rule implements Serializable {
 		this.sequenceNumber = sequenceNumber;
 	}
 
-	public String getScript() {
-		return this.script;
+	public Object getData() {
+		return this.data;
 	}
 
-	public void setScript(String script) {
-		this.script = script;
+	public void setData(Object data) {
+		this.data = data;
 	}
 
 	public Operator getOperator() {
@@ -70,6 +72,22 @@ public class Rule implements Serializable {
 
 	public void setOperator(Operator operator) {
 		this.operator = operator;
+	}
+	
+	public String getType() {
+		return this.type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+	
+	public String getScript() {
+		return this.script;
+	}
+
+	public void setScript(String script) {
+		this.script = script;
 	}
 
 	public boolean equals(Object that) {
@@ -86,6 +104,8 @@ public class Rule implements Serializable {
 		return
 			EqualsUtil.areEqual(this.getSequenceNumber(), rule.getSequenceNumber()) &&
 			EqualsUtil.areEqual(this.getName(), rule.getName()) &&
+			EqualsUtil.areEqual(this.getType(), rule.getType()) &&
+			EqualsUtil.areEqual(this.getData(), rule.getData()) &&
 			EqualsUtil.areEqual(this.getScript(), rule.getScript()) &&
 			EqualsUtil.areEqual(this.getOperator(), rule.getOperator());
 	}
@@ -96,6 +116,8 @@ public class Rule implements Serializable {
 		builder.append("name=" + getName() + " ");
 		builder.append("operator=" + getOperator().toString() + " ");
 		builder.append("script=" + getScript() + " ");
+		builder.append("data=" + getData() + " ");
+		builder.append("type=" + getType() + " ");
 		builder.append("]");
 		return builder.toString();
 	}
