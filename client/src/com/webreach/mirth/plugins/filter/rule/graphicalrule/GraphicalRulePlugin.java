@@ -1,0 +1,136 @@
+package com.webreach.mirth.plugins.filter.rule.graphicalrule;
+
+import java.util.ArrayList;
+import java.util.Map;
+
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.EvaluatorException;
+import org.mozilla.javascript.Script;
+
+import com.webreach.mirth.client.ui.UIConstants;
+import com.webreach.mirth.client.ui.editors.BasePanel;
+import com.webreach.mirth.client.ui.editors.GraphicalRulePanel;
+import com.webreach.mirth.client.ui.editors.filter.FilterPane;
+import com.webreach.mirth.plugins.FilterRulePlugin;
+
+public class GraphicalRulePlugin extends FilterRulePlugin{
+	private GraphicalRulePanel panel;
+	public GraphicalRulePlugin(String name, FilterPane parent) {
+		super(name, parent);	
+		panel = new GraphicalRulePanel(parent);
+	}
+	@Override
+	public BasePanel getPanel() {
+		return panel;
+	}
+	@Override
+	public boolean isNameEditable() {
+		return true;
+	}
+
+	@Override
+	public Map<Object, Object> getData(int row) {
+        return panel.getData();
+	}
+	@Override
+	public void setData(Map<Object, Object> data) {
+		panel.setData(data);
+	}
+
+	@Override
+	public void clearData() {
+		panel.setData(null);
+	}
+    
+	@Override
+	public void initData() {
+		clearData();
+	}
+	@Override
+	public String getScript(Map<Object, Object> map) {
+
+        StringBuilder script = new StringBuilder();
+        
+        String field = (String) map.get("Field");
+        ArrayList<String> values = (ArrayList<String>) map.get("Values");
+        String acceptReturn, finalReturn, equals, equalsOperator;
+        
+        if(((String)map.get("Accept")).equals(UIConstants.YES_OPTION))
+        {
+            acceptReturn = "true";
+            finalReturn = "false";
+        }
+        else
+        {
+            acceptReturn = "false";
+            finalReturn = "true";
+        }
+        
+        if(((String)map.get("Equals")).equals(UIConstants.YES_OPTION))
+        {
+            equals = "==";
+            equalsOperator = "||";
+        }
+        else
+        {
+            equals = "!=";
+            equalsOperator = "&&";
+        }
+        
+        
+        script.append("if(");
+        
+        for(int i = 0; i < values.size(); i++)
+        {
+            script.append(field + " " + equals + " " + values.get(i));
+            if(i + 1 == values.size())
+                script.append(")\n");
+            else
+                script.append(" " + equalsOperator + " ");
+        }
+        
+        script.append("{\n");
+        script.append("return " + acceptReturn + ";");
+        script.append("\n}\n");
+        script.append("return " + finalReturn + ";");
+
+        return script.toString();
+	}
+    
+    public void doValidate()
+    {
+        try
+        {
+            Context context = Context.enter();
+            Script compiledFilterScript = context.compileString("function rhinoWrapper() {" + getScript(panel.getData()) + "}", null, 1, null);
+            ((FilterPane)parent).getParentFrame().alertInformation("JavaScript was successfully validated.");
+        }
+        catch (EvaluatorException e)
+        {
+            ((FilterPane)parent).getParentFrame().alertInformation("Error on line " + e.lineNumber() + ": " + e.getMessage() + ".");
+        }
+        finally
+        {
+            Context.exit();
+        }
+    }
+    
+    public boolean showValidateTask()
+    {
+        return true;
+    }
+
+	@Override
+	public void setHighlighters() {
+		panel.setHighlighters();
+	}
+
+	@Override
+	public void unsetHighlighters() {
+		panel.unsetHighlighters();
+	}
+	@Override
+	public String getDisplayName() {
+		return "Graphical Rule";
+	}
+}

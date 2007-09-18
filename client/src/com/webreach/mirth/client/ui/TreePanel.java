@@ -55,7 +55,7 @@ import javax.swing.tree.TreeNode;
 public class TreePanel extends javax.swing.JPanel
 {
     private static final String EMPTY = "[empty]";
-	private String version = "";
+    private String version = "";
     private String type = "";
     private Logger logger = Logger.getLogger(this.getClass());
     private String _dropPrefix;
@@ -68,11 +68,21 @@ public class TreePanel extends javax.swing.JPanel
     /**
      * Creates new form TreePanel
      */
+    public TreePanel()
+    {
+        setup();
+    }
+    
     public TreePanel(String prefix, String suffix)
     {
         _dropPrefix = prefix;
         _dropSuffix = suffix;
         
+        setup();
+    }
+    
+    public void setup()
+    {
         initComponents();
         
         filterTextBox.addKeyListener(new KeyAdapter()
@@ -98,6 +108,21 @@ public class TreePanel extends javax.swing.JPanel
                 filterActionPerformed();
             }
         });
+    }
+    
+    public void setPrefix(String prefix)
+    {
+        _dropPrefix = prefix;
+    }
+    
+    public void setSuffix(String suffix)
+    {
+        _dropSuffix = suffix;
+    }
+    
+    public void setBorderText(String text)
+    {
+        
     }
     
     public void filterActionPerformed()
@@ -471,7 +496,7 @@ public class TreePanel extends javax.swing.JPanel
     
     public void clearMessage()
     {
-        MirthTreeNode top = new MirthTreeNode("Paste a sample message above to view the message tree.");
+        MirthTreeNode top = new MirthTreeNode("Please provide a message template.");
         MirthTree tree = new MirthTree(top);
         treePane.setViewportView(tree);
         revalidate();
@@ -500,7 +525,7 @@ public class TreePanel extends javax.swing.JPanel
         exact = new javax.swing.JCheckBox();
 
         setBackground(new java.awt.Color(255, 255, 255));
-        setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEmptyBorder(5, 1, 1, 1), "Message Tree", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11), new java.awt.Color(0, 0, 0)));
         jLabel1.setText("Filter:");
 
         treePane.setViewportView(tree);
@@ -517,25 +542,25 @@ public class TreePanel extends javax.swing.JPanel
             .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(treePane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 143, Short.MAX_VALUE)
+                    .add(treePane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 163, Short.MAX_VALUE)
                     .add(layout.createSequentialGroup()
                         .add(jLabel1)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(filterTextBox, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 28, Short.MAX_VALUE)
+                        .add(filterTextBox, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 48, Short.MAX_VALUE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(exact)))
+                        .add(exact)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel1)
-                    .add(exact)
-                    .add(filterTextBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(filterTextBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(exact))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(treePane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 23, Short.MAX_VALUE)
+                .add(treePane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 133, Short.MAX_VALUE)
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents

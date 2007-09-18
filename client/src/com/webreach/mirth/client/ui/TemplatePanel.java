@@ -1,44 +1,35 @@
 /*
- * MessageTreeTemplate.java
+ * TemplatePanel.java
  *
- * Created on February 2, 2007, 2:58 PM
+ * Created on September 11, 2007, 1:13 PM
  */
 
-package com.webreach.mirth.client.ui.editors;
+package com.webreach.mirth.client.ui;
 
-import com.webreach.mirth.client.core.ClientException;
+import com.webreach.mirth.client.ui.beans.EDIProperties;
 import com.webreach.mirth.client.ui.beans.HL7Properties;
 import com.webreach.mirth.client.ui.beans.NCPDPProperties;
-
-import java.awt.Dimension;
+import com.webreach.mirth.client.ui.beans.X12Properties;
+import com.webreach.mirth.client.ui.editors.BoundPropertiesSheetDialog;
+import com.webreach.mirth.model.MessageObject;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
-
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-
-import org.jdesktop.swingworker.SwingWorker;
 import org.syntax.jedit.SyntaxDocument;
 import org.syntax.jedit.tokenmarker.EDITokenMarker;
 import org.syntax.jedit.tokenmarker.HL7TokenMarker;
 import org.syntax.jedit.tokenmarker.X12TokenMarker;
-
-import com.webreach.mirth.client.ui.PlatformUI;
-import com.webreach.mirth.client.ui.TreePanel;
-import com.webreach.mirth.client.ui.UIConstants;
-import com.webreach.mirth.client.ui.beans.EDIProperties;
-import com.webreach.mirth.client.ui.beans.X12Properties;
-import com.webreach.mirth.model.MessageObject;
 import org.syntax.jedit.tokenmarker.XMLTokenMarker;
 
 /**
  *
- * @author brendanh
+ * @author  brendanh
  */
-public class MessageTreeTemplate extends javax.swing.JPanel
+public class TemplatePanel extends javax.swing.JPanel
 {
     public final String DEFAULT_TEXT = "Paste a sample message here.";
     
@@ -54,37 +45,10 @@ public class MessageTreeTemplate extends javax.swing.JPanel
     
     private Timer timer;
     
-    /** Creates new form MessageTreeTemplate */
-    public MessageTreeTemplate()
+    /** Creates new form MessageTreeTemplate */   
+    public TemplatePanel()
     {
-        
-    }
-    
-    public MessageTreeTemplate(String data)
-    {
-        this.data = data;
-        
         initComponents();
-        
-        try
-        {
-            resizePanes();
-        }
-        catch (Exception e)
-        {
-            
-        }
-        
-        if (data.equals(UIConstants.INCOMING_DATA))
-        {
-            dataType.setEnabled(false);
-            setTreePanel("msg", ".toString()");
-        }
-        else if (data.equals(UIConstants.OUTGOING_DATA))
-        {
-            dataType.setEnabled(true);
-            setTreePanel("tmp", "");
-        }
         
         dataType.setModel(new javax.swing.DefaultComboBoxModel(PlatformUI.MIRTH_FRAME.protocols.values().toArray()));
         
@@ -112,44 +76,62 @@ public class MessageTreeTemplate extends javax.swing.JPanel
                 updateText();
             }
         });
-        pasteBox.addMouseListener(new MouseListener(){
-
-			public void mouseClicked(MouseEvent e) {
-				// TODO Auto-generated method stub
-				if (e.getButton() == MouseEvent.BUTTON2){
-					if (pasteBox.getText().equals(DEFAULT_TEXT))
-			        {
-			            pasteBox.setText("");
-			        }
-				}
-			}
-
-			public void mouseEntered(MouseEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-
-			public void mouseExited(MouseEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-
-			public void mousePressed(MouseEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-
-			public void mouseReleased(MouseEvent e) {
-				// TODO Auto-generated method stub
-				if (e.getButton() == MouseEvent.BUTTON2){
-					 if (pasteBox.getText().length() == 0)
-				     {
-				         pasteBox.setText(DEFAULT_TEXT);
-				     }
-				}
-			}
-        
+        pasteBox.addMouseListener(new MouseListener()
+        {
+            
+            public void mouseClicked(MouseEvent e)
+            {
+                // TODO Auto-generated method stub
+                if (e.getButton() == MouseEvent.BUTTON2)
+                {
+                    if (pasteBox.getText().equals(DEFAULT_TEXT))
+                    {
+                        pasteBox.setText("");
+                    }
+                }
+            }
+            
+            public void mouseEntered(MouseEvent e)
+            {
+                // TODO Auto-generated method stub
+                
+            }
+            
+            public void mouseExited(MouseEvent e)
+            {
+                // TODO Auto-generated method stub
+                
+            }
+            
+            public void mousePressed(MouseEvent e)
+            {
+                // TODO Auto-generated method stub
+                
+            }
+            
+            public void mouseReleased(MouseEvent e)
+            {
+                // TODO Auto-generated method stub
+                if (e.getButton() == MouseEvent.BUTTON2)
+                {
+                    if (pasteBox.getText().length() == 0)
+                    {
+                        pasteBox.setText(DEFAULT_TEXT);
+                    }
+                }
+            }
+            
         });
+    }
+    
+    public void setDataTypeEnabled(boolean enabled)
+    {
+        dataType.setEnabled(enabled);
+    }
+    
+    public void setTreePanel(TreePanel tree)
+    {
+        this.treePanel = tree;
     }
     
     private void updateText()
@@ -161,14 +143,15 @@ public class MessageTreeTemplate extends javax.swing.JPanel
             public void run()
             {
                 
-                if (!currentMessage.equals(pasteBox.getText())){
-                	PlatformUI.MIRTH_FRAME.setWorking("Parsing...", true);
-                
-                	String message = pasteBox.getText();
-                	currentMessage = message;
-                	treePanel.setMessage(dataProperties, (String) dataType.getSelectedItem(), message, DEFAULT_TEXT, dataProperties);
-                	PlatformUI.MIRTH_FRAME.setWorking("", false);
-                	
+                if (!currentMessage.equals(pasteBox.getText()))
+                {
+                    PlatformUI.MIRTH_FRAME.setWorking("Parsing...", true);
+                    
+                    String message = pasteBox.getText();
+                    currentMessage = message;
+                    treePanel.setMessage(dataProperties, (String) dataType.getSelectedItem(), message, DEFAULT_TEXT, dataProperties);
+                    PlatformUI.MIRTH_FRAME.setWorking("", false);
+                    
                 }
             }
             
@@ -185,16 +168,8 @@ public class MessageTreeTemplate extends javax.swing.JPanel
             timer = new Timer();
             timer.schedule(new UpdateTimer(), 1000);
         }
-        
-        //treePanel.revalidate();
-        //treePanel.repaint();
     }
-    
-    public void setTreePanel(String prefix, String suffix)
-    {
-        treePanel = new TreePanel(prefix, suffix);
-        treeScrollPane.setViewportView(treePanel);
-    }
+   
     
     public String getMessage()
     {
@@ -265,31 +240,23 @@ public class MessageTreeTemplate extends javax.swing.JPanel
         else
             dataProperties = new Properties();
     }
-    
-    public void resizePanes()
-    {
-        split.setDividerLocation((int) (PlatformUI.MIRTH_FRAME.currentContentPage.getHeight() / 2 - PlatformUI.MIRTH_FRAME.currentContentPage.getHeight() / 10));
-    }
-    
-    /**
-     * This method is called from within the constructor to initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is always
-     * regenerated by the Form Editor.
+
+    /** This method is called from within the constructor to
+     * initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is
+     * always regenerated by the Form Editor.
      */
-    // <editor-fold defaultstate="collapsed" desc=" Generated Code
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents()
     {
-        jLabel1 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
         dataType = new javax.swing.JComboBox();
-        split = new javax.swing.JSplitPane();
-        pasteBox = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea();
-        treeScrollPane = new javax.swing.JScrollPane();
         properties = new javax.swing.JButton();
+        pasteBox = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea();
 
         setBackground(new java.awt.Color(255, 255, 255));
-        setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        jLabel1.setText("Data Type:");
+        setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEmptyBorder(5, 1, 1, 1), "Message Template", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11), new java.awt.Color(0, 51, 51)));
+        jLabel5.setText("Data Type:");
 
         dataType.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
         dataType.addActionListener(new java.awt.event.ActionListener()
@@ -300,7 +267,16 @@ public class MessageTreeTemplate extends javax.swing.JPanel
             }
         });
 
-        split.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
+        properties.setText("Properties");
+        properties.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                propertiesActionPerformed(evt);
+            }
+        });
+
+        pasteBox.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         pasteBox.addFocusListener(new java.awt.event.FocusAdapter()
         {
             public void focusGained(java.awt.event.FocusEvent evt)
@@ -313,51 +289,53 @@ public class MessageTreeTemplate extends javax.swing.JPanel
             }
         });
 
-        split.setLeftComponent(pasteBox);
-
-        treeScrollPane.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        treeScrollPane.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
-        split.setRightComponent(treeScrollPane);
-
-        properties.setText("Properties");
-        properties.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
-                propertiesActionPerformed(evt);
-            }
-        });
-
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(jLabel1)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(dataType, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 70, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(properties)
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, split, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 235, Short.MAX_VALUE)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(pasteBox, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 232, Short.MAX_VALUE)
+                    .add(layout.createSequentialGroup()
+                        .add(jLabel5)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(dataType, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 70, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(properties)))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel1)
+                    .add(jLabel5)
                     .add(dataType, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(properties))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(split, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 411, Short.MAX_VALUE))
+                .add(pasteBox, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 185, Short.MAX_VALUE)
+                .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
     
-    // GEN-FIRST:event_propertiesActionPerformed
-    private void propertiesActionPerformed(java.awt.event.ActionEvent evt)
-    {// GEN-HEADEREND:event_propertiesActionPerformed
+    private void pasteBoxFocusLost(java.awt.event.FocusEvent evt)//GEN-FIRST:event_pasteBoxFocusLost
+    {//GEN-HEADEREND:event_pasteBoxFocusLost
+        if (pasteBox.getText().length() == 0)
+        {
+            pasteBox.setText(DEFAULT_TEXT);
+        }
+    }//GEN-LAST:event_pasteBoxFocusLost
+    
+    private void pasteBoxFocusGained(java.awt.event.FocusEvent evt)//GEN-FIRST:event_pasteBoxFocusGained
+    {//GEN-HEADEREND:event_pasteBoxFocusGained
+        if (pasteBox.getText().equals(DEFAULT_TEXT))
+        {
+            pasteBox.setText("");
+        }
+    }//GEN-LAST:event_pasteBoxFocusGained
+    
+    private void propertiesActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_propertiesActionPerformed
+    {//GEN-HEADEREND:event_propertiesActionPerformed
         PlatformUI.MIRTH_FRAME.enableSave();
         currentMessage = "";
         if (((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.EDI)))
@@ -369,11 +347,10 @@ public class MessageTreeTemplate extends javax.swing.JPanel
         else if (((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.NCPDP)))
             new BoundPropertiesSheetDialog(dataProperties, new NCPDPProperties());
         updateText();
-    }// GEN-LAST:event_propertiesActionPerformed
+    }//GEN-LAST:event_propertiesActionPerformed
     
-    // GEN-FIRST:event_dataTypeActionPerformed
-    private void dataTypeActionPerformed(java.awt.event.ActionEvent evt)
-    {// GEN-HEADEREND:event_dataTypeActionPerformed
+    private void dataTypeActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_dataTypeActionPerformed
+    {//GEN-HEADEREND:event_dataTypeActionPerformed
         PlatformUI.MIRTH_FRAME.enableSave();
         currentMessage = "";
         if (((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.X12)) ||
@@ -386,34 +363,14 @@ public class MessageTreeTemplate extends javax.swing.JPanel
         dataProperties = new Properties();
         setDocType((String)dataType.getSelectedItem());
         updateText();
-        
-    }// GEN-LAST:event_dataTypeActionPerformed
+    }//GEN-LAST:event_dataTypeActionPerformed
     
-    // GEN-FIRST:event_pasteBoxFocusLost
-    private void pasteBoxFocusLost(java.awt.event.FocusEvent evt)
-    {// GEN-HEADEREND:event_pasteBoxFocusLost
-        if (pasteBox.getText().length() == 0)
-        {
-            pasteBox.setText(DEFAULT_TEXT);
-        }
-    }// GEN-LAST:event_pasteBoxFocusLost
-    
-    // GEN-FIRST:event_pasteBoxFocusGained
-    private void pasteBoxFocusGained(java.awt.event.FocusEvent evt)
-    {// GEN-HEADEREND:event_pasteBoxFocusGained
-        if (pasteBox.getText().equals(DEFAULT_TEXT))
-        {
-            pasteBox.setText("");
-        }
-    }// GEN-LAST:event_pasteBoxFocusGained
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JComboBox dataType;
-    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel5;
     private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea pasteBox;
     private javax.swing.JButton properties;
-    private javax.swing.JSplitPane split;
-    private javax.swing.JScrollPane treeScrollPane;
     // End of variables declaration//GEN-END:variables
     
 }

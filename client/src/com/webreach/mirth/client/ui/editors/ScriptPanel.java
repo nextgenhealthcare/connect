@@ -20,13 +20,13 @@ import org.syntax.jedit.tokenmarker.TokenMarker;
 import com.webreach.mirth.client.ui.UIConstants;
 
 /**
- * 
+ *
  * @author brendanh
  */
 public class ScriptPanel extends BasePanel
 {
-	protected static SyntaxDocument scriptDoc;
-
+    protected static SyntaxDocument scriptDoc;
+    
     protected MirthEditorPane parent;
     protected int context;
     /** Creates new form JavaScriptPanel */
@@ -44,54 +44,54 @@ public class ScriptPanel extends BasePanel
             public void changedUpdate(DocumentEvent arg0)
             {
             }
-
+            
             public void insertUpdate(DocumentEvent arg0)
             {
                 parent.modified = true;
             }
-
+            
             public void removeUpdate(DocumentEvent arg0)
             {
                 parent.modified = true;
             }
         });
     }
-
+    
     public Map<Object, Object> getData()
     {
         Map<Object, Object> m = new HashMap<Object, Object>();
         m.put("Script", scriptTextPane.getText().trim());
         return m;
     }
-
+    
     public void setData(Map<Object, Object> m)
     {
         boolean modified = parent.modified;
-
+        
         if (m != null)
             scriptTextPane.setText((String) m.get("Script"));
-
+        
         else
             scriptTextPane.setText("");
-
+        
         parent.modified = modified;
     }
-
+    
     public String getScript()
     {
         return scriptTextPane.getText();
     }
-
+    
     public void setHighlighters()
     {
         scriptTextPane.setBackground(UIConstants.DRAG_HIGHLIGHTER_COLOR);
     }
-
+    
     public void unsetHighlighters()
     {
         scriptTextPane.setBackground(UIConstants.BACKGROUND_COLOR);
     }
-
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -117,9 +117,9 @@ public class ScriptPanel extends BasePanel
             .add(org.jdesktop.layout.GroupLayout.TRAILING, scriptTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 311, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
-
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     protected com.webreach.mirth.client.ui.components.MirthSyntaxTextArea scriptTextPane;
     // End of variables declaration//GEN-END:variables
-
+    
 }

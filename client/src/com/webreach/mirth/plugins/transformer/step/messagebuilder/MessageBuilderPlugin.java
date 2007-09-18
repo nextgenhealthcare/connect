@@ -21,7 +21,7 @@ public class MessageBuilderPlugin extends TransformerStepPlugin{
 		return panel;
 	}
 	@Override
-	public boolean isStepNameEditable() {
+	public boolean isNameEditable() {
 		return false;
 	}
 
@@ -33,20 +33,20 @@ public class MessageBuilderPlugin extends TransformerStepPlugin{
         // check for empty variable names
         if (var == null || var.equals(""))
         {
-            parent.setInvalidVar(true);
+            ((TransformerPane)parent).setInvalidVar(true);
             String msg = "";
 
-            parent.setRowSelectionInterval(row, row);
+            ((TransformerPane)parent).setRowSelectionInterval(row, row);
 
             if (var == null || var.equals(""))
                 msg = "The mapping field cannot be blank.";
 
             msg += "\nPlease enter a new mapping field name.\n";
 
-            parent.getParentFrame().alertWarning(msg);
+            ((TransformerPane)parent).getParentFrame().alertWarning(msg);
         }
         else{
-            parent.setInvalidVar(false);
+            ((TransformerPane)parent).setInvalidVar(false);
         }
 
         return data;
@@ -55,7 +55,7 @@ public class MessageBuilderPlugin extends TransformerStepPlugin{
 	public void setData(Map<Object, Object> data) {
 		panel.setData(data);
 	}
-	public String getStepName(){
+	public String getName(){
 		 return (String) ((Map<Object, Object>) panel.getData()).get("Variable");
 	}
 	@Override

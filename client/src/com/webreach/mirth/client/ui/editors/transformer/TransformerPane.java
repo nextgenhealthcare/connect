@@ -147,7 +147,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
     public void loadPlugins()
     {
         loadedPlugins = new HashMap<String,TransformerStepPlugin>();
-
+        
         Map<String, PluginMetaData> plugins = parent.getPluginMetaData();
         for (PluginMetaData metaData : plugins.values())
         {
@@ -172,7 +172,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
                 }
             }
         }
-
+        
     }
     /**
      * CONSTRUCTOR
@@ -221,7 +221,9 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
         parent.setCurrentContentPage((JPanel) this);
         
         tabTemplatePanel.setDefaultComponent();
-        tabTemplatePanel.tabPanel.add("Outgoing Data", tabTemplatePanel.outgoingTab);
+
+        tabTemplatePanel.showOutbound();
+        
         // select the first row if there is one
         int rowCount = transformerTableModel.getRowCount();
         if (rowCount > 0)
@@ -335,7 +337,6 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
             Transferable tr = dtde.getTransferable();
             if (tr.isDataFlavorSupported(DataFlavor.javaFileListFlavor))
             {
-                
                 dtde.acceptDrop(DnDConstants.ACTION_COPY_OR_MOVE);
                 
                 List fileList = (List) tr.getTransferData(DataFlavor.javaFileListFlavor);
@@ -496,13 +497,13 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
         //vSplitPane.setDividerSize(6);
         vSplitPane.setOneTouchExpandable(true);
         vSplitPane.setContinuousLayout(true);
-        resizePanes();
         
         hSplitPane.setBorder(BorderFactory.createEmptyBorder());
         vSplitPane.setBorder(BorderFactory.createEmptyBorder());
         this.setLayout(new BorderLayout());
         this.add(vSplitPane, BorderLayout.CENTER);
         setBorder(BorderFactory.createEmptyBorder());
+        resizePanes();
         // END LAYOUT
         
     } // END initComponents()
@@ -520,7 +521,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
                 try
                 {
                     plugin = getPlugin((String) transformerTableModel.getValueAt(rowIndex, STEP_TYPE_COL));
-                    canEdit = new boolean[] { false, plugin.isStepNameEditable(), true, true };
+                    canEdit = new boolean[] { false, plugin.isNameEditable(), true, true };
                 }
                 catch (Exception e)
                 {
@@ -561,7 +562,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
                     {
                         plugin = getPlugin(type);
                         plugin.initData();
-                        transformerTableModel.setValueAt(plugin.getNewStepName(), row, STEP_NAME_COL);
+                        transformerTableModel.setValueAt(plugin.getNewName(), row, STEP_NAME_COL);
                         stepPanel.showCard(type);
                         updateTaskPane(type);
                     }
@@ -732,8 +733,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
             
             String type = (String) transformerTable.getValueAt(row, STEP_TYPE_COL);
             stepPanel.showCard(type);
-            transformerTable.setRowSelectionInterval(row, row);
-            
+            transformerTable.setRowSelectionInterval(row, row);          
             prevSelRow = row;
             updateTaskPane(type);
         }
@@ -817,13 +817,16 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
             setPanelData(type, data);
         }
         
-        if (connector.getMode() == Connector.Mode.SOURCE){
-        	Set<String> concatenatedRules = new LinkedHashSet<String>();
-        	Set<String> concatenatedSteps = new LinkedHashSet<String>();
-        	VariableListUtil.getRuleVariables(concatenatedRules, connector, true);
-        	VariableListUtil.getStepVariables(concatenatedSteps, connector, true, row);
+        if (connector.getMode() == Connector.Mode.SOURCE)
+        {
+            Set<String> concatenatedRules = new LinkedHashSet<String>();
+            Set<String> concatenatedSteps = new LinkedHashSet<String>();
+            VariableListUtil.getRuleVariables(concatenatedRules, connector, true);
+            VariableListUtil.getStepVariables(concatenatedSteps, connector, true, row);
             tabTemplatePanel.updateVariables(concatenatedRules, concatenatedSteps);
-        } else {
+        }
+        else
+        {
             tabTemplatePanel.updateVariables(getRuleVariables(row), getStepVariables(row));
         }
     }
@@ -881,7 +884,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
             String stepName = step.getName();
             if (stepName == null || stepName.equals(""))
             {
-                stepName = plugin.getStepName();
+                stepName = plugin.getName();
             }
             tableData[STEP_NAME_COL] = stepName;
             tableData[STEP_TYPE_COL] = step.getType();
@@ -920,32 +923,18 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
             {
                 plugin.clearData();
             }
-            if (tabTemplatePanel.tabPanel.getSelectedComponent() == tabTemplatePanel.outgoingTab)
+
+            if (loadedPlugins.containsKey(MAPPER))
             {
-                if (loadedPlugins.containsKey(MESSAGE_BUILDER))
-                {
-                    step.setType(MESSAGE_BUILDER);// hl7 message type by default, outbound
-                    
-                    loadedPlugins.get(MESSAGE_BUILDER).initData();
-                }
-                else
-                {
-                    step.setType(loadedPlugins.keySet().iterator().next());
-                }
+                step.setType(MAPPER); // mapper type by default, inbound
+                loadedPlugins.get(MAPPER).initData();
             }
             else
             {
-                if (loadedPlugins.containsKey(MAPPER))
-                {
-                    step.setType(MAPPER); // mapper type by default, inbound
-                    loadedPlugins.get(MAPPER).initData();
-                }
-                else
-                {
-                    System.out.println("Mapper Plugin not found");
-                    step.setType(loadedPlugins.keySet().iterator().next());
-                }
+                System.out.println("Mapper Plugin not found");
+                step.setType(loadedPlugins.keySet().iterator().next());
             }
+            
             Map<Object, Object> data = new HashMap<Object, Object>();
             data.put("Mapping", "");
             data.put("Variable", step.getName());
@@ -1144,7 +1133,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
             
             // if the row was invalid, do not move the row.
             if (isInvalidVar())
-            	return;
+                return;
             
             loadData(moveTo);
             transformerTableModel.moveRow(selRow, selRow, moveTo);
@@ -1218,7 +1207,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
             Connector destination = it.next();
             if (connector == destination)
             {
-            	VariableListUtil.getStepVariables(concatenatedSteps, destination, true, row);
+                VariableListUtil.getStepVariables(concatenatedSteps, destination, true, row);
                 seenCurrent = true;
             }
             else if (!seenCurrent)
@@ -1383,7 +1372,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
     public void resizePanes()
     {
         hSplitPane.setDividerLocation((int) (PlatformUI.MIRTH_FRAME.currentContentPage.getHeight() / 2 - PlatformUI.MIRTH_FRAME.currentContentPage.getHeight() / 3.5));
-        vSplitPane.setDividerLocation((int) (PlatformUI.MIRTH_FRAME.currentContentPage.getWidth() / 2 + PlatformUI.MIRTH_FRAME.currentContentPage.getWidth() / 5.5));
+        vSplitPane.setDividerLocation((int) (PlatformUI.MIRTH_FRAME.currentContentPage.getWidth() / 2 + PlatformUI.MIRTH_FRAME.currentContentPage.getWidth() / 6.7));
         tabTemplatePanel.resizePanes();
     }
     

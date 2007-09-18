@@ -23,7 +23,7 @@ public class MapperStepPlugin extends TransformerStepPlugin{
 		return panel;
 	}
 	@Override
-	public boolean isStepNameEditable() {
+	public boolean isNameEditable() {
 		return false;
 	}
 
@@ -32,11 +32,11 @@ public class MapperStepPlugin extends TransformerStepPlugin{
 		Map<Object, Object> data = panel.getData();
         String var = data.get("Variable").toString();
 
-        if (var == null || var.equals("") || !parent.isUnique(var, row, false) || var.indexOf(" ") != -1 || var.indexOf(".") != -1)
+        if (var == null || var.equals("") || !((TransformerPane)parent).isUnique(var, row, false) || var.indexOf(" ") != -1 || var.indexOf(".") != -1)
         {
-        	parent.setInvalidVar(true);
+            ((TransformerPane)parent).setInvalidVar(true);
             String msg = "";
-            parent.setRowSelectionInterval(row, row);
+            ((TransformerPane)parent).setRowSelectionInterval(row, row);
 
             if (var == null || var.equals(""))
                 msg = "The variable name cannot be blank.";
@@ -47,11 +47,11 @@ public class MapperStepPlugin extends TransformerStepPlugin{
                 msg = "'" + data.get("Variable") + "'" + " is not unique.";
             msg += "\nPlease enter a new variable name.\n";
 
-            parent.getParentFrame().alertWarning(msg);
+            ((TransformerPane)parent).getParentFrame().alertWarning(msg);
         }
         else
         {
-        	parent.setInvalidVar(false);
+            ((TransformerPane)parent).setInvalidVar(false);
         }
         return data;
 	}
@@ -59,7 +59,7 @@ public class MapperStepPlugin extends TransformerStepPlugin{
 	public void setData(Map<Object, Object> data) {
 		panel.setData(data);
 	}
-	public String getStepName(){
+	public String getName(){
 		 return (String) ((Map<Object, Object>) panel.getData()).get("Variable");
 	}
 	@Override

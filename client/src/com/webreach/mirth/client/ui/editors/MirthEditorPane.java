@@ -51,7 +51,8 @@ public class MirthEditorPane extends JPanel
     public static final int RULE_NUMBER_COL = 0;
     public static final int RULE_OP_COL = 1;
     public static final int RULE_NAME_COL = 2;
-    public static final int RULE_SCRIPT_COL = 3;
+    public static final int RULE_TYPE_COL = 3;
+    public static final int RULE_DATA_COL = 4;
 
     // a list of panels to load
     public static final String BLANK_TYPE = "";

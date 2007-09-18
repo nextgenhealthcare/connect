@@ -29,11 +29,11 @@ public class JavascriptStepPlugin extends TransformerStepPlugin{
 	}
 
 	@Override
-	public boolean isStepNameEditable() {
+	public boolean isNameEditable() {
 		return true;
 	}
 
-	public String getNewStepName(){
+	public String getNewName(){
 		return "New Step";
 	}
 
@@ -54,7 +54,7 @@ public class JavascriptStepPlugin extends TransformerStepPlugin{
 
 	@Override
 	public void initData() {
-                parent.invalidVar = false;
+        ((TransformerPane)parent).invalidVar = false;
 		clearData();
 	}
 	public void doValidate(){
@@ -62,11 +62,11 @@ public class JavascriptStepPlugin extends TransformerStepPlugin{
 	        {
 	            Context context = Context.enter();
 	            Script compiledFilterScript = context.compileString("function rhinoWrapper() {" + panel.getScript() + "}", null, 1, null);
-	            parent.getParentFrame().alertInformation("JavaScript was successfully validated.");
+	            ((TransformerPane)parent).getParentFrame().alertInformation("JavaScript was successfully validated.");
 	        }
 	        catch (EvaluatorException e)
 	        {
-	        	parent.getParentFrame().alertInformation("Error on line " + e.lineNumber() + ": " + e.getMessage() + ".");
+                ((TransformerPane)parent).getParentFrame().alertInformation("Error on line " + e.lineNumber() + ": " + e.getMessage() + ".");
 	        }
 	        finally
 	        {
