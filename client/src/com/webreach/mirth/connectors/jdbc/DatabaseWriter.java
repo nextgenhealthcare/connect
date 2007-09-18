@@ -304,7 +304,7 @@ public class DatabaseWriter extends ConnectorClass
         databaseSQLTextPane.setDocument(jsMappingDoc);
         databaseSQLTextPane.setText(generateConnectionString());
         generateConnection.setEnabled(true);
-        parent.channelEditPanel.destinationVariableList.setPrefixAndSuffix("$(", ")");
+        parent.channelEditPanel.destinationVariableList.setPrefixAndSuffix("$('", "')");
     }// GEN-LAST:event_useJavaScriptYesActionPerformed
 
     private void useJavaScriptNoActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_useJavaScriptNoActionPerformed
