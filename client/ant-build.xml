@@ -117,6 +117,14 @@
 		<jar destfile="${dist}/plugins/messagebuilder-transformer-step-client.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/plugins/transformer/step/messagebuilder/**" />
 		</jar>
+		
+		<jar destfile="${dist}/plugins/javascript-filter-rule-client.jar" basedir="${classes}">
+			<include name="com/webreach/mirth/plugins/filter/rule/javascript/**" />
+		</jar>
+		<jar destfile="${dist}/plugins/graphical-filter-rule-client.jar" basedir="${classes}">
+			<include name="com/webreach/mirth/plugins/filter/rule/graphicalrule/**" />
+		</jar>
+		
 		<jar destfile="${dist}/plugins/dashboard-status-monitor-server-client.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/plugins/dashboardstatus/**" />
 		</jar>
