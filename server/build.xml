@@ -649,6 +649,24 @@
 				<include name="Message Builder Transformer Step.xml" />
 			</fileset>
 		</zip>
+		
+		<zip destfile="${dist.extensions}/graphical-filter-rule-${version}.zip">
+			<fileset dir="${plugins}">
+				<include name="graphical-filter-rule-client.jar" />
+			</fileset>
+			<fileset dir="${dist.extensions}">
+				<include name="Graphical Filter Rule.xml" />
+			</fileset>
+		</zip>
+
+		<zip destfile="${dist.extensions}/javascript-filter-rule-${version}.zip">
+			<fileset dir="${plugins}">
+				<include name="javascript-filter-rule-client.jar" />
+			</fileset>
+			<fileset dir="${dist.extensions}">
+				<include name="Javascript Filter Rule.xml" />
+			</fileset>
+		</zip>
 
 	</target>
 
