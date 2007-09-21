@@ -141,7 +141,7 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin{
 		}
 	}
 
-	private void addConnectionToSocketSet(Socket socket, String connectorId) {
+	private synchronized void addConnectionToSocketSet(Socket socket, String connectorId) {
 		if (socket != null){
 			Set<Socket> socketSet = socketSets.get(connectorId);
 			if (socketSet == null){
@@ -152,7 +152,7 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin{
 		}
 	}
 	
-	private void removeConnectionInSocketSet(Socket socket, String connectorId) {
+	private synchronized void removeConnectionInSocketSet(Socket socket, String connectorId) {
 		if (socket != null){
 			Set socketSet = socketSets.get(connectorId);
 			if (socketSet != null){
@@ -160,7 +160,8 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin{
 			}
 		}
 	}
-	private void clearSocketSet(String connectorId) {
+	
+	private synchronized void clearSocketSet(String connectorId) {
 		socketSets.remove(connectorId);
 	}
 	
