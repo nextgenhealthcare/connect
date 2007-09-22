@@ -181,7 +181,7 @@ public class MapperPanel extends BasePanel
             defaultValueTextField.setText((String) data.get("DefaultValue"));
 
             if (data.get(UIConstants.IS_GLOBAL) == null)
-                addTo.setSelectedIndex(0);
+                addTo.setSelectedItem(variableTypes.get("channel"));
             else
                 addTo.setSelectedItem(variableTypes.get((String)data.get(UIConstants.IS_GLOBAL)));
             

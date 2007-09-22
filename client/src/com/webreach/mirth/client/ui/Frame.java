@@ -271,7 +271,7 @@ public class Frame extends JXFrame
         try
         {
             this.charsetEncodings = this.mirthClient.getAvaiableCharsetEncodings();
-            this.avaiableCharsetEncodings = new ArrayList();
+            this.avaiableCharsetEncodings = new ArrayList<CharsetEncodingInformation>();
             this.avaiableCharsetEncodings.add(new CharsetEncodingInformation(UIConstants.DEFAULT_ENCODING_OPTION, "Default"));
             for (int i = 0; i < charsetEncodings.size(); i++)
             {
@@ -962,7 +962,7 @@ public class Frame extends JXFrame
         for (int i = 0; i < strace.length; i++)
             stackTrace += strace[i].toString() + "\n";
         
-        ErrorDialog dlg = new ErrorDialog(stackTrace);
+        new ErrorDialog(stackTrace);
     }
     
     /*

@@ -28,6 +28,8 @@ package com.webreach.mirth.client.ui;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.util.LinkedList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.tree.TreeNode;
 
@@ -36,12 +38,14 @@ import javax.swing.tree.TreeNode;
  */
 public class TreeTransferable implements Transferable
 {
-
+    
+    public static final DataFlavor MAPPER_DATA_FLAVOR = new DataFlavor(MapperDropData.class, "MapperDropData"); 
+    
     private static DataFlavor[] flavors = null;
     private TreeNode data = null;
     private String prefix = "msg";
     private String suffix = "";
-
+    
     /**
      * @param data
      *            the type of Ant element being transferred, e.g., target, task,
@@ -64,8 +68,9 @@ public class TreeTransferable implements Transferable
     {
         try
         {
-            flavors = new DataFlavor[1];
+            flavors = new DataFlavor[2];
             flavors[0] = DataFlavor.stringFlavor;
+            flavors[1] = MAPPER_DATA_FLAVOR;
 
         }
         catch (Exception e)
@@ -88,27 +93,60 @@ public class TreeTransferable implements Transferable
 
         if (data != null)
         {
-
-            StringBuilder sb = new StringBuilder();
-            sb.insert(0, prefix);
-            TreeNode parent = data.getParent();
-            LinkedList<String> nodeQ = new LinkedList<String>();
-            while (parent != null)
+            if (df == flavors[0])
             {
-                nodeQ.add(parent.toString().replaceAll(" \\(.*\\)", ""));
-                parent = parent.getParent();
-            }
-            if (!nodeQ.isEmpty())
-                nodeQ.removeLast();
-            // if (!nodeQ.isEmpty())
-            // nodeQ.removeLast();
-            while (!nodeQ.isEmpty())
-            {
-                sb.append("['" + nodeQ.removeLast() + "']");
-            }
-            sb.append(suffix);
+                StringBuilder sb = new StringBuilder();
+                sb.insert(0, prefix);
+                TreeNode parent = data.getParent();
+                LinkedList<String> nodeQ = new LinkedList<String>();
+                while (parent != null)
+                {
+                    nodeQ.add(parent.toString().replaceAll(" \\(.*\\)", ""));
+                    parent = parent.getParent();
+                }
+                if (!nodeQ.isEmpty())
+                    nodeQ.removeLast();
+                // if (!nodeQ.isEmpty())
+                // nodeQ.removeLast();
+                while (!nodeQ.isEmpty())
+                {
+                    sb.append("['" + nodeQ.removeLast() + "']");
+                }
+                sb.append(suffix);
 
-            return sb.toString();
+                return sb.toString();
+            }
+            if (df == flavors[1])
+            {
+                String variable = "variable";
+                StringBuilder sb = new StringBuilder();
+                sb.insert(0, prefix);
+                TreeNode parent = data.getParent();
+                
+                Pattern pattern = Pattern.compile(" (\\(.*\\))");
+                Matcher matcher = pattern.matcher(parent.toString());
+                if (matcher.find()){
+                    variable = matcher.group(1);
+                }
+                
+                LinkedList<String> nodeQ = new LinkedList<String>();
+                while (parent != null)
+                {
+                    nodeQ.add(parent.toString().replaceAll(" \\(.*\\)", ""));
+                    parent = parent.getParent();
+                }
+                if (!nodeQ.isEmpty())
+                    nodeQ.removeLast();
+                // if (!nodeQ.isEmpty())
+                // nodeQ.removeLast();
+                while (!nodeQ.isEmpty())
+                {
+                    sb.append("['" + nodeQ.removeLast() + "']");
+                }
+                sb.append(suffix);
+                
+                return new MapperDropData(variable, sb.toString());
+            }
         }
         return null;
     }

@@ -77,23 +77,18 @@ import org.jdesktop.swingx.action.ActionFactory;
 import org.jdesktop.swingx.action.BoundAction;
 import org.jdesktop.swingx.decorator.AlternateRowHighlighter;
 import org.jdesktop.swingx.decorator.HighlighterPipeline;
-import org.mozilla.javascript.Context;
-import org.mozilla.javascript.EvaluatorException;
-import org.mozilla.javascript.Script;
 
-import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.ui.CenterCellRenderer;
 import com.webreach.mirth.client.ui.Frame;
+import com.webreach.mirth.client.ui.MapperDropData;
 import com.webreach.mirth.client.ui.Mirth;
 import com.webreach.mirth.client.ui.MirthFileFilter;
 import com.webreach.mirth.client.ui.PlatformUI;
+import com.webreach.mirth.client.ui.TreeTransferable;
 import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.client.ui.components.MirthComboBoxCellEditor;
 import com.webreach.mirth.client.ui.editors.BasePanel;
 import com.webreach.mirth.client.ui.editors.EditorTableCellEditor;
-import com.webreach.mirth.client.ui.editors.ScriptPanel;
-import com.webreach.mirth.client.ui.editors.MapperPanel;
-import com.webreach.mirth.client.ui.editors.MessageBuilder;
 import com.webreach.mirth.client.ui.editors.MirthEditorPane;
 import com.webreach.mirth.client.ui.util.FileUtil;
 import com.webreach.mirth.client.ui.util.VariableListUtil;
@@ -103,12 +98,10 @@ import com.webreach.mirth.model.ExtensionPoint;
 import com.webreach.mirth.model.ExtensionPointDefinition;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.PluginMetaData;
-import com.webreach.mirth.model.Rule;
 import com.webreach.mirth.model.Step;
 import com.webreach.mirth.model.Transformer;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.model.util.ImportConverter;
-import com.webreach.mirth.plugins.ClientPanelPlugin;
 import com.webreach.mirth.plugins.TransformerStepPlugin;
 
 public class TransformerPane extends MirthEditorPane implements DropTargetListener
@@ -309,6 +302,10 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
                 else
                     dtde.rejectDrag();
             }
+            else if (tr.isDataFlavorSupported(TreeTransferable.MAPPER_DATA_FLAVOR))
+            {
+                dtde.acceptDrag(DnDConstants.ACTION_COPY_OR_MOVE);
+            }
             else
                 dtde.rejectDrag();
         }
@@ -347,6 +344,14 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
                     File file = (File)iterator.next();
                     importTransformer(file);
                 }
+            }
+            else if (tr.isDataFlavorSupported(TreeTransferable.MAPPER_DATA_FLAVOR))
+            {
+                dtde.acceptDrop(DnDConstants.ACTION_COPY_OR_MOVE);
+                
+                MapperDropData data = (MapperDropData) tr.getTransferData(TreeTransferable.MAPPER_DATA_FLAVOR);
+                
+                addNewStep(data.getVariable(), data.getMapping());
             }
         }
         catch (Exception e)
@@ -908,6 +913,14 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
      */
     public void addNewStep()
     {
+        addNewStep("","");
+    }
+    
+    /**
+     * void addNewStep() add a new step to the end of the list
+     */
+    public void addNewStep(String variable, String mapping)
+    {
         saveData(transformerTable.getSelectedRow());
         
         if (!invalidVar || transformerTable.getRowCount() == 0)
@@ -917,7 +930,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
             Step step = new Step();
             step.setSequenceNumber(rowCount);
             step.setScript("");
-            step.setName("");
+            step.setName(variable);
             
             for (TransformerStepPlugin plugin : loadedPlugins.values())
             {
@@ -936,8 +949,8 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
             }
             
             Map<Object, Object> data = new HashMap<Object, Object>();
-            data.put("Mapping", "");
-            data.put("Variable", step.getName());
+            data.put("Mapping", mapping);
+            data.put("Variable", variable);
             
             step.setData(data);
             setRowData(step, rowCount);
@@ -948,6 +961,8 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
             transformerTablePane.getViewport().setViewPosition(new Point(0, transformerTable.getRowHeight() * rowCount));
         }
     }
+    
+    
     
     /**
      * void deleteStep(MouseEvent evt) delete all selected rows

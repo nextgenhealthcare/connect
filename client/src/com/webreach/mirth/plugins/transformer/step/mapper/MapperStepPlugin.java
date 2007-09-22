@@ -26,13 +26,18 @@ public class MapperStepPlugin extends TransformerStepPlugin{
 	public boolean isNameEditable() {
 		return false;
 	}
-
+	
+    private boolean isInvalidVar(String var)
+    {
+        return !var.matches("[a-zA-Z0-9_]+");
+    }
+    
 	@Override
 	public Map<Object, Object> getData(int row) {
 		Map<Object, Object> data = panel.getData();
         String var = data.get("Variable").toString();
 
-        if (var == null || var.equals("") || !((TransformerPane)parent).isUnique(var, row, false) || var.indexOf(" ") != -1 || var.indexOf(".") != -1)
+        if (var == null || var.equals("") || !((TransformerPane)parent).isUnique(var, row, false) || isInvalidVar(var))
         {
             ((TransformerPane)parent).setInvalidVar(true);
             String msg = "";
@@ -40,7 +45,7 @@ public class MapperStepPlugin extends TransformerStepPlugin{
 
             if (var == null || var.equals(""))
                 msg = "The variable name cannot be blank.";
-            else if (var.indexOf(" ") != -1 || var.indexOf(".") != -1)
+            else if (isInvalidVar(var))
                 msg = "The variable name contains invalid characters.";
             else
                 // var is not unique
@@ -71,7 +76,7 @@ public class MapperStepPlugin extends TransformerStepPlugin{
 		Map<Object, Object> data = new HashMap<Object, Object>();
         data.put("Mapping", "");
         data.put("Variable", "");
-        data.put(UIConstants.IS_GLOBAL, UIConstants.IS_GLOBAL_CONNECTOR);
+        data.put(UIConstants.IS_GLOBAL, UIConstants.IS_GLOBAL_CHANNEL);
         panel.setData(data);
 	}
 	@Override
@@ -83,7 +88,7 @@ public class MapperStepPlugin extends TransformerStepPlugin{
         if (map.get(UIConstants.IS_GLOBAL) != null)
             script.append((String)map.get(UIConstants.IS_GLOBAL) + "Map.put(");
         else
-            script.append(UIConstants.IS_GLOBAL_CONNECTOR + "Map.put(");
+            script.append(UIConstants.IS_GLOBAL_CHANNEL + "Map.put(");
 
         // default values need to be provided
         // so we don't cause syntax errors in the JS
