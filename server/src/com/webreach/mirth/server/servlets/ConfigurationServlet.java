@@ -44,7 +44,7 @@ public class ConfigurationServlet extends MirthServlet {
 		try {
 			PrintWriter out = response.getWriter();
 			String operation = request.getParameter("op");
-			
+
 			if (operation.equals("getStatus")) {
 				response.setContentType("text/plain");
 				out.println(ConfigurationController.getInstance().getStatus());
@@ -89,16 +89,16 @@ public class ConfigurationServlet extends MirthServlet {
 					String serverConfiguration = request.getParameter("data");
 					configurationController.setServerConfiguration((ServerConfiguration) serializer.fromXML(serverConfiguration));
 				} else if (operation.equals("getServerId")) {
-                    response.setContentType("application/xml");
-                    out.println(configurationController.getServerId());
-                } else if (operation.equals("getGlobalScripts")) {
-                    response.setContentType("application/xml");
-                    out.println(serializer.toXML(configurationController.getGlobalScripts()));
-                } else if (operation.equals("setGlobalScripts")) {
-                    String scripts = request.getParameter("scripts");
-                    configurationController.setGlobalScripts((Map<String, String> )serializer.fromXML(scripts));
-                }
-                
+					response.setContentType("application/xml");
+					out.println(configurationController.getServerId());
+				} else if (operation.equals("getGlobalScripts")) {
+					response.setContentType("application/xml");
+					out.println(serializer.toXML(configurationController.getGlobalScripts()));
+				} else if (operation.equals("setGlobalScripts")) {
+					String scripts = request.getParameter("scripts");
+					configurationController.setGlobalScripts((Map<String, String>) serializer.fromXML(scripts));
+				}
+
 			}
 		} catch (Exception e) {
 			throw new ServletException(e);

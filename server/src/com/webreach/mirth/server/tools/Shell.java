@@ -232,6 +232,10 @@ public class Shell {
                     commandImportConfig(arguments);
 				} else if (arg1 == Token.IMPORT) {
                     commandImport(arguments);
+				} else if (arg1 == Token.IMPORTSCRIPT) {
+					commandImportScript(arguments);
+				} else if (arg1 == Token.EXPORTSCRIPT) {
+					commandExportScript(arguments);
 				} else if (arg1 == Token.STATUS) {
                     commandStatus(arguments);
 				} else if (arg1 == Token.EXPORT) {
@@ -391,6 +395,7 @@ public class Shell {
 		out.println("export id|\"name\"|* \"path\"\n\tExports the specified channel to <path>\n");
 		out.println("importcfg \"path\"\n\tImports configuration specified by <path>\n");
 		out.println("exportcfg \"path\"\n\tExports the configuration to <path>\n");
+		out.println("importscript Deploy|Preprocessor|Postprocessor|Shutdown \"path\"\n\tImports global script specified by <path>\n");
 		out.println("channel start|stop|pause|resume|stats id|\"name\"|*\n\tPerforms specified channel action\n");
 		out.println("channel remove|enable|disable id|\"name\"|*\n\tRemove, enable or disable specified channel\n");
 		out.println("channel list\n\tLists all Channels\n");
@@ -634,6 +639,61 @@ public class Shell {
 		} else {
 			doImportChannel(fXml, force);
 		}
+	}
+	
+	private void commandExportScript(Token[] arguments) throws ClientException {
+		String name = arguments[1].getText();
+		
+		if (name.equals("deploy")) {
+			name = "Deploy";
+		} else if (name.equals("preprocessor")) {
+			name = "Proprocessor";
+		} else if (name.equals("postprocessor")) {
+			name = "Postprocessor";
+		} else if (name.equals("shutdown")) {
+			name = "Shutdown";
+		}
+
+		String path = arguments[2].getText();
+		
+		try {
+			Map<String, String> scripts = client.getGlobalScripts();
+			String script = scripts.get(name);
+			File fXml = new File(path);
+			out.println("Exporting " + name + " script" );
+			writeFile(fXml, script);
+		} catch (IOException e) {
+			error("unable to write file " + path + ": " + e);
+		}
+	
+		out.println("Script Export Complete.");
+	}
+	
+	private void commandImportScript(Token[] arguments) throws ClientException {
+		String name = arguments[1].getText();
+		
+		if (name.equals("deploy")) {
+			name = "Deploy";
+		} else if (name.equals("preprocessor")) {
+			name = "Proprocessor";
+		} else if (name.equals("postprocessor")) {
+			name = "Postprocessor";
+		} else if (name.equals("shutdown")) {
+			name = "Shutdown";
+		}
+		
+		String path = arguments[2].getText();
+
+		File fXml = new File(path);
+		
+		if (!fXml.exists()) {
+			error("" + path + " not found");
+		} else if (!fXml.canRead()) {
+			error("cannot read " + path);
+		} else {
+			doImportScript(name, fXml);
+		}
+		out.println(name + " script import complete");
 	}
 
 	private void commandStatus(Token[] arguments) throws ClientException {
@@ -926,6 +986,21 @@ public class Shell {
 
 		return contents.toString();
 	}
+	
+	private void doImportScript(String name, File scriptFile) throws ClientException {
+		String script = "";
+		
+		try {
+			script = readFile(scriptFile);
+		} catch (Exception e) {
+			error("invalid script file.");
+			return;
+		}
+		
+		Map<String, String> scriptMap = new HashMap<String, String>();
+		scriptMap.put(name, script);
+		client.setGlobalScripts(scriptMap);
+	}
 
 	private void doImportChannel(File importFile, boolean force) throws ClientException {
 		String channelXML = "";
@@ -970,7 +1045,6 @@ public class Shell {
 		importChannel.setVersion(client.getVersion());
 		client.updateChannel(importChannel, true);
 		out.println("Channel '" + channelName + "' imported successfully.");
-
 	}
 
 	/**
@@ -1016,104 +1090,4 @@ public class Shell {
 	private String formatDate(Calendar date) {
 		return String.format("%1$tY-%1$tm-%1$td 00:00:00", date);
 	}
-}
-
-/** 
- * Object representing one token in the command shell language.  A token is either 
- * a keyword like "channel" or "remove" (statically defined, hardcoded), or a generic 
- * string or int (created dynamically when seen in the input).
- */
-class Token {
-	private static Map<String,Token> keywordMap = new HashMap<String,Token>();
-
-	private static Token addKeyword(String text) {
-		Token token = new Token(text);
-		keywordMap.put(text, token);
-		return token;
-	}
-
-	static Token getKeyword(String text) {
-		return keywordMap.get(text.toLowerCase());
-	}
-
-	// Keyword tokens
-	static Token HELP = addKeyword("help");
-	static Token USER = addKeyword("user");
-	static Token LIST = addKeyword("list");
-	static Token ADD = addKeyword("add");
-	static Token REMOVE = addKeyword("remove");
-	static Token CHANGEPW = addKeyword("changepw");
-	static Token START = addKeyword("start");
-	static Token STOP = addKeyword("stop");
-	static Token PAUSE = addKeyword("pause");
-	static Token RESUME = addKeyword("resume");
-	static Token DEPLOY = addKeyword("deploy");
-	static Token EXPORTCFG = addKeyword("exportcfg");
-	static Token IMPORTCFG = addKeyword("importcfg");
-	static Token IMPORT = addKeyword("import");
-	static Token FORCE = addKeyword("force");
-	static Token STATUS = addKeyword("status");
-	static Token EXPORT = addKeyword("export");
-	static Token CHANNEL = addKeyword("channel");
-	static Token ENABLE = addKeyword("enable");
-	static Token DISABLE = addKeyword("disable");
-	static Token STATS = addKeyword("stats");
-	static Token CLEAR = addKeyword("clear");
-	static Token RESETSTATS = addKeyword("resetstats");
-	static Token DUMP = addKeyword("dump");
-	static Token EVENTS = addKeyword("events");
-	static Token QUIT = addKeyword("quit");
-	
-	static Token WILDCARD = addKeyword("*");
-
-	static Token intToken(String value) {
-		return new IntToken(value);
-	}
-
-	static Token stringToken(String value) {
-		return new StringToken(value);
-	}
-
-	private String text;
-
-	Token(String text) {
-		this.text = text;
-	}
-
-	public String toString() {
-		return "<" + text+ ">";
-	}
-	
-	String getText() {
-		return text;
-	}
-}
-
-class StringToken extends Token {
-	private String value;
-
-	public StringToken(String value) {
-		super(value);
-		this.value = value;
-	}
-
-	boolean equalsIgnoreCase(String s) {
-		return value.equalsIgnoreCase(s);
-	}
-}
-
-class IntToken extends Token {
-	private int value;
-
-	public IntToken(String value) {
-		super(value);
-		this.value = Integer.parseInt(value);
-	}
-	
-	int getValue() {
-		return value;
-	}
-}
-
-class QuitShell extends RuntimeException {
 }

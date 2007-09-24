@@ -364,8 +364,16 @@
 			<include name="com/webreach/mirth/plugins/*.class" />
 			<include name="org/**" />
 			<include name="ca/**" />
+
 			<exclude name="com/webreach/mirth/server/launcher/**" />
 			<exclude name="com/webreach/mirth/server/mbeans/**" />
+
+			<exclude name="com/webreach/mirth/server/tools/Shell.class" />
+			<exclude name="com/webreach/mirth/server/tools/Token.class" />
+			<exclude name="com/webreach/mirth/server/tools/IntToken.class" />
+			<exclude name="com/webreach/mirth/server/tools/StringToken.class" />
+			<exclude name="com/webreach/mirth/server/tools/QuitShell.class" />
+
 		</jar>
 
 		<!-- create the mirth-launcher jar -->
@@ -381,6 +389,11 @@
 		<!-- create the shell jar -->
 		<jar destfile="${setup}/shell.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/server/tools/Shell.class" />
+			<include name="com/webreach/mirth/server/tools/Token.class" />
+			<include name="com/webreach/mirth/server/tools/IntToken.class" />
+			<include name="com/webreach/mirth/server/tools/StringToken.class" />
+			<include name="com/webreach/mirth/server/tools/QuitShell.class" />
+
 			<include name="com/thoughtworks/xstream/converters/collections/PropertiesConverter.class" />
 		</jar>
 
@@ -649,7 +662,7 @@
 				<include name="Message Builder Transformer Step.xml" />
 			</fileset>
 		</zip>
-		
+
 		<zip destfile="${dist.extensions}/graphical-filter-rule-${version}.zip">
 			<fileset dir="${plugins}">
 				<include name="graphical-filter-rule-client.jar" />

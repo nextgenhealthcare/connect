@@ -309,7 +309,6 @@ public class ConfigurationController {
 					logger.debug("removing global preprocessor");
 					JavaScriptUtil.getInstance().removeScriptFromCache(PREPROCESSOR);
 				}
-
 			} else if (entry.getKey().toString().equals(POSTPROCESSOR)) {
 				if (!globalScripts.get(POSTPROCESSOR).equals(GLOBAL_POSTPROCESSOR_DEFAULT_SCRIPT) && !globalScripts.get(POSTPROCESSOR).equals("")) {
 					JavaScriptUtil.getInstance().compileScript(POSTPROCESSOR, globalScripts.get(POSTPROCESSOR), false);
@@ -383,17 +382,21 @@ public class ConfigurationController {
 		String preprocessorScript = scriptController.getScript(PREPROCESSOR);
 		String postprocessorScript = scriptController.getScript(POSTPROCESSOR);
 
-		if (deployScript == null || deployScript.equals(""))
+		if (deployScript == null || deployScript.equals("")) {
 			deployScript = "// This script executes once when the mule engine is started\n// You only have access to the globalMap here to persist data\nreturn;";
+		}
 
-		if (shutdownScript == null || shutdownScript.equals(""))
+		if (shutdownScript == null || shutdownScript.equals("")) {
 			shutdownScript = "// This script executes once when the mule engine is stopped\n// You only have access to the globalMap here to persist data\nreturn;";
+		}
 
-		if (preprocessorScript == null || preprocessorScript.equals(""))
+		if (preprocessorScript == null || preprocessorScript.equals("")) {
 			preprocessorScript = GLOBAL_PREPROCESSOR_DEFAULT_SCRIPT;
+		}
 
-		if (postprocessorScript == null || postprocessorScript.equals(""))
+		if (postprocessorScript == null || postprocessorScript.equals("")) {
 			postprocessorScript = GLOBAL_POSTPROCESSOR_DEFAULT_SCRIPT;
+		}
 
 		scripts.put(DEPLOY, deployScript);
 		scripts.put(SHUTDOWN, shutdownScript);
@@ -404,9 +407,8 @@ public class ConfigurationController {
 	}
 
 	public void setGlobalScripts(Map<String, String> scripts) throws ControllerException {
-		Iterator i = scripts.entrySet().iterator();
-		while (i.hasNext()) {
-			Entry entry = (Entry) i.next();
+		for (Iterator iterator = scripts.entrySet().iterator(); iterator.hasNext();) {
+			Entry entry = (Entry) iterator.next();
 			scriptController.putScript(entry.getKey().toString(), scripts.get(entry.getKey()));
 		}
 	}
