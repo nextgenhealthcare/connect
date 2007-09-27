@@ -25,13 +25,11 @@
 
 package com.webreach.mirth.client.ui.browsers.message;
 
-import com.webreach.mirth.client.core.ClientException;
-import com.webreach.mirth.client.ui.EditMessageDialog;
-import com.webreach.mirth.client.ui.ViewContentDialog;
-import com.webreach.mirth.model.converters.ObjectCloner;
 import java.awt.Cursor;
 import java.awt.Point;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Iterator;
@@ -40,13 +38,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.prefs.Preferences;
 
-import javax.swing.JDialog;
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
 import org.jdesktop.swingworker.SwingWorker;
@@ -60,26 +57,25 @@ import org.syntax.jedit.tokenmarker.X12TokenMarker;
 import org.syntax.jedit.tokenmarker.XMLTokenMarker;
 import org.w3c.dom.Document;
 
+import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.core.ListHandlerException;
 import com.webreach.mirth.client.core.MessageListHandler;
-import com.webreach.mirth.client.ui.ChannelSetup;
+import com.webreach.mirth.client.ui.EditMessageDialog;
 import com.webreach.mirth.client.ui.Frame;
 import com.webreach.mirth.client.ui.Mirth;
 import com.webreach.mirth.client.ui.MirthFileFilter;
 import com.webreach.mirth.client.ui.PlatformUI;
 import com.webreach.mirth.client.ui.UIConstants;
+import com.webreach.mirth.client.ui.ViewContentDialog;
 import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
 import com.webreach.mirth.client.ui.components.MirthSyntaxTextArea;
 import com.webreach.mirth.client.ui.util.FileUtil;
-import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.MessageObject.Protocol;
 import com.webreach.mirth.model.converters.DocumentSerializer;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.model.filters.MessageObjectFilter;
 import com.webreach.mirth.model.util.ImportConverter;
-import java.io.BufferedReader;
-import java.io.FileReader;
 
 /**
  * The message browser panel.
@@ -622,6 +618,12 @@ public class MessageBrowser extends javax.swing.JPanel
         mappingsTable.setSelectionMode(0);
         mappingsTable.getColumnExt(SCOPE_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
         mappingsTable.getColumnExt(SCOPE_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
+        
+        // Disable HTML in a column.
+        DefaultTableCellRenderer noHTMLRenderer = new DefaultTableCellRenderer();
+        noHTMLRenderer.putClientProperty("html.disable", Boolean.TRUE);
+        mappingsTable.getColumnExt(VALUE_COLUMN_NAME).setCellRenderer(noHTMLRenderer);
+        
         mappingsPane.setViewportView(mappingsTable);
     }
     
