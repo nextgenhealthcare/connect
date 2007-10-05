@@ -19,6 +19,11 @@ import com.webreach.mirth.client.ui.TreePanel;
  */
 public class MessageTreePanel extends javax.swing.JPanel
 {
+    public static final String MAPPER_PREFIX = "msg";
+    public static final String MAPPER_SUFFIX = ".toString()";
+    public static final String MESSAGE_BUILDER_PREFIX = "tmp";
+    public static final String MESSAGE_BUILDER_SUFFIX = "";
+    
     /** Creates new form MessageTreeTemplate */    
     public MessageTreePanel()
     {
@@ -27,11 +32,11 @@ public class MessageTreePanel extends javax.swing.JPanel
         ((TitledBorder)treePanelInbound.getBorder()).setTitle("Inbound Message Template Tree");
         ((TitledBorder)treePanelOutbound.getBorder()).setTitle("Outbound Message Template Tree");
         
-        treePanelInbound.setPrefix("msg");
-        treePanelInbound.setSuffix(".toString()");
+        treePanelInbound.setPrefix(MAPPER_PREFIX);
+        treePanelInbound.setSuffix(MAPPER_SUFFIX);
         
-        treePanelOutbound.setPrefix("tmp");
-        treePanelOutbound.setSuffix("");
+        treePanelOutbound.setPrefix(MESSAGE_BUILDER_PREFIX);
+        treePanelOutbound.setSuffix(MESSAGE_BUILDER_SUFFIX);
         
         try
         {
@@ -60,7 +65,7 @@ public class MessageTreePanel extends javax.swing.JPanel
         split.setBottomComponent(treePanelOutbound);
         split.setDividerSize(6);
         split.setDividerLocation(.5);
-        split.setResizeWeight(1);
+        split.setResizeWeight(.5);
     }
     
     public TreePanel getInboundTreePanel()
@@ -85,6 +90,7 @@ public class MessageTreePanel extends javax.swing.JPanel
         
     public void resizePanes()
     {
+        split.setResizeWeight(.5);
         split.setDividerLocation(.5);
     }
     

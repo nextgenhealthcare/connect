@@ -1,13 +1,13 @@
 package com.webreach.mirth.client.ui;
 
-public class MapperDropData
+public class MessageBuilderDropData
 {
-    private String variable;
+    private String messageSegment;
     private String mapping;
     
-    public MapperDropData(String variable, String mapping)
+    public MessageBuilderDropData(String messageSegment, String mapping)
     {
-        setVariable(variable);
+        setMessageSegment(messageSegment);
         setMapping(mapping);
     }
 
@@ -21,14 +21,14 @@ public class MapperDropData
         this.mapping = mapping;
     }
 
-    public String getVariable()
+    public String getMessageSegment()
     {
-        return variable;
+        return messageSegment;
     }
 
-    public void setVariable(String variable)
+    public void setMessageSegment(String messageSegment)
     {
-        this.variable = removeInvalidCharacters(variable);
+        this.messageSegment = messageSegment;
     }
     
     public String removeInvalidCharacters(String source)
@@ -37,7 +37,7 @@ public class MapperDropData
         source = source.replaceAll("\\/", "_or_");
         source = source.replaceAll(" - ", "_");
         source = source.replaceAll("&", "and");
-        source = source.replaceAll("\\'|\\’|\\.|\\(|\\)", "");
+        source = source.replaceAll("\\'|\\’|\\.|\\(|\\)|\\[|\\]", "");
         source = source.replaceAll(" ", "_");
         return source;
     }

@@ -12,12 +12,20 @@ import com.webreach.mirth.client.ui.components.MirthTreeNode;
 import java.awt.Cursor;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DropTargetDragEvent;
+import java.awt.dnd.DropTargetDropEvent;
+import java.awt.dnd.DropTargetEvent;
+import java.awt.dnd.DropTargetListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
+import java.io.File;
 import java.io.StringReader;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -277,9 +285,7 @@ public class TreePanel extends javax.swing.JPanel
         // processElement(xmlDoc.getDocumentElement(), top);
         // addChildren(message, top);
         
-        tree = new MirthTree(top);
-        
-        JScrollPane scrollPane = new JScrollPane();
+        tree = new MirthTree(top, _dropPrefix, _dropSuffix);
         
         tree.setDragEnabled(true);
         tree.setTransferHandler(new TreeTransferHandler());
@@ -468,7 +474,7 @@ public class TreePanel extends javax.swing.JPanel
                         return null;
                     if (!tp.isLeaf())
                         return null;
-                    String leaf = tp.toString();
+                    // String leaf = tp.toString();
                     // if (leaf.equals(DNDConstants.TASK) ||
                     // leaf.equals(DNDConstants.TYPE))
                     // return null;
@@ -497,7 +503,7 @@ public class TreePanel extends javax.swing.JPanel
     public void clearMessage()
     {
         MirthTreeNode top = new MirthTreeNode("Please provide a message template.");
-        MirthTree tree = new MirthTree(top);
+        MirthTree tree = new MirthTree(top, _dropPrefix, _dropSuffix);
         treePane.setViewportView(tree);
         revalidate();
     }
@@ -505,7 +511,7 @@ public class TreePanel extends javax.swing.JPanel
     public void setInvalidMessage(String messageType)
     {
         MirthTreeNode top = new MirthTreeNode("The above message is not valid " + messageType + ".");
-        MirthTree tree = new MirthTree(top);
+        MirthTree tree = new MirthTree(top, _dropPrefix, _dropSuffix);
         treePane.setViewportView(tree);
         revalidate();
     }
@@ -572,6 +578,5 @@ public class TreePanel extends javax.swing.JPanel
     private javax.swing.JLabel jLabel1;
     private com.webreach.mirth.client.ui.components.MirthTree tree;
     private javax.swing.JScrollPane treePane;
-    // End of variables declaration//GEN-END:variables
-    
+    // End of variables declaration//GEN-END:variables    
 }

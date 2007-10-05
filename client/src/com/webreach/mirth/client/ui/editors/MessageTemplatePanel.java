@@ -63,7 +63,7 @@ public class MessageTemplatePanel extends javax.swing.JPanel
         split.setBottomComponent(templatePanelOutbound);
         split.setDividerSize(6);
         split.setDividerLocation(.5);
-        split.setResizeWeight(1);
+        split.setResizeWeight(.5);
     }
     
     public void setInboundTreePanel(TreePanel tree)
@@ -158,8 +158,8 @@ public class MessageTemplatePanel extends javax.swing.JPanel
     
     public void resizePanes()
     {
-        //split.setDividerLocation((int) (PlatformUI.MIRTH_FRAME.currentContentPage.getHeight() / 2 - PlatformUI.MIRTH_FRAME.currentContentPage.getHeight() / 10));
         split.setDividerLocation(.5);
+        split.setResizeWeight(.5);
     }
     
     /**

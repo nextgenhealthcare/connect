@@ -9,19 +9,40 @@
 
 package com.webreach.mirth.client.ui.components;
 
-import javax.swing.tree.DefaultMutableTreeNode;
+import java.awt.Point;
+import java.awt.datatransfer.Transferable;
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DropTarget;
+import java.awt.dnd.DropTargetDragEvent;
+import java.awt.dnd.DropTargetDropEvent;
+import java.awt.dnd.DropTargetEvent;
+import java.awt.dnd.DropTargetListener;
+import java.util.LinkedList;
+
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
+
 import org.jdesktop.swingx.JXTree;
+
+import com.webreach.mirth.client.ui.Frame;
+import com.webreach.mirth.client.ui.MapperDropData;
+import com.webreach.mirth.client.ui.MessageBuilderDropData;
+import com.webreach.mirth.client.ui.PlatformUI;
+import com.webreach.mirth.client.ui.TreeTransferable;
 
 /**
  *
  * @author brendanh
  */
-public class MirthTree extends JXTree
+public class MirthTree extends JXTree implements DropTargetListener
 {
+    private Frame parent;
     private MyFilter mf;
     private FilterTreeModel ftm;
+    private String prefix;
+    private String suffix;
+    DropTarget dropTarget;
     
     /** Creates a new instance of MirthTree */
     public MirthTree()
@@ -29,13 +50,18 @@ public class MirthTree extends JXTree
         mf = new MyFilter();
         ftm = new FilterTreeModel(null, mf);
         this.setModel(ftm);
+        dropTarget = new DropTarget(this, this);
     }  
     
-    public MirthTree(MirthTreeNode root)
+    public MirthTree(MirthTreeNode root, String prefix, String suffix)
     {
+        this.parent = PlatformUI.MIRTH_FRAME;
         mf = new MyFilter();
         ftm = new FilterTreeModel(root, mf);
         this.setModel(ftm);
+        dropTarget = new DropTarget(this, this);
+        this.prefix = prefix;
+        this.suffix = suffix;
     }
     
     public class FilterTreeModel extends DefaultTreeModel
@@ -87,7 +113,6 @@ public class MirthTree extends JXTree
             Object[] path = { tn };
             int[] childIndices = new int[count];
             Object[] children = new Object[count];
-           //
             
             return passed;
         }
@@ -160,5 +185,105 @@ public class MirthTree extends JXTree
         {
             return pass;
         }
+    }
+    
+    public void dragEnter(DropTargetDragEvent dtde)
+    {
+        try
+        {
+            Transferable tr = dtde.getTransferable();
+            if (tr.isDataFlavorSupported(TreeTransferable.MAPPER_DATA_FLAVOR) || tr.isDataFlavorSupported(TreeTransferable.MESSAGE_BUILDER_DATA_FLAVOR))
+            {
+                dtde.acceptDrag(DnDConstants.ACTION_COPY_OR_MOVE);
+            }
+            else
+                dtde.rejectDrag();
+        }
+        catch (Exception e)
+        {
+            dtde.rejectDrag();
+        }
+    }
+
+    public void dragExit(DropTargetEvent dte)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public void dragOver(DropTargetDragEvent dtde)
+    {
+        Point cursorLocationBis = dtde.getLocation();
+        TreePath destinationPath = getPathForLocation(cursorLocationBis.x, cursorLocationBis.y);
+        if(destinationPath != null)
+            if(((MirthTreeNode)destinationPath.getLastPathComponent()).isLeaf())
+                this.setSelectionPath(destinationPath);
+    }
+
+    public void drop(DropTargetDropEvent dtde)
+    {
+        Point cursorLocationBis = dtde.getLocation();
+        TreePath destinationPath = getPathForLocation(cursorLocationBis.x, cursorLocationBis.y);
+        if(destinationPath == null)
+            return;
+        
+        try
+        {
+            Transferable tr = dtde.getTransferable();
+            if (tr.isDataFlavorSupported(TreeTransferable.MAPPER_DATA_FLAVOR) || tr.isDataFlavorSupported(TreeTransferable.MESSAGE_BUILDER_DATA_FLAVOR))
+            {
+                dtde.acceptDrop(DnDConstants.ACTION_COPY_OR_MOVE);
+
+                Object transferData = tr.getTransferData(TreeTransferable.MAPPER_DATA_FLAVOR);
+
+                if (transferData instanceof MapperDropData)
+                {
+                    MapperDropData data = (MapperDropData) transferData;
+                    parent.channelEditPanel.transformerPane.addMessageBuilder(constructPath().toString(), data.getMapping());
+                }
+                else if (transferData instanceof MessageBuilderDropData)
+                {
+                    MessageBuilderDropData data = (MessageBuilderDropData) transferData;
+                    parent.channelEditPanel.transformerPane.addMessageBuilder(data.getMessageSegment(), constructPath().toString());
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            dtde.rejectDrop();
+        }
+        
+    }
+
+    public void dropActionChanged(DropTargetDragEvent dtde)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+    
+    private StringBuilder constructPath()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.insert(0, prefix);
+        TreeNode parent = ((TreeNode)this.getLastSelectedPathComponent()).getParent();
+                      
+        LinkedList<String> nodeQ = new LinkedList<String>();
+        while (parent != null)
+        {
+            nodeQ.add(parent.toString().replaceAll(" \\(.*\\)", ""));
+            parent = parent.getParent();
+        }
+        if (!nodeQ.isEmpty())
+            nodeQ.removeLast();
+        // if (!nodeQ.isEmpty())
+        // nodeQ.removeLast();
+        while (!nodeQ.isEmpty())
+        {
+            sb.append("['" + nodeQ.removeLast() + "']");
+        }
+   
+        sb.append(suffix);
+        
+        return sb;
     }
 }

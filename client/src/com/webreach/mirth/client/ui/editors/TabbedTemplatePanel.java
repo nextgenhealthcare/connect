@@ -62,7 +62,8 @@ public class TabbedTemplatePanel extends javax.swing.JPanel
     
     public void resizePanes()
     {
-        variableSplitPane.setDividerLocation((int) (PlatformUI.MIRTH_FRAME.currentContentPage.getHeight() / 2 - PlatformUI.MIRTH_FRAME.currentContentPage.getHeight() / 10));
+        variableSplitPane.setDividerLocation(.5);
+        variableSplitPane.setResizeWeight(.5);
         messageTreePanel.resizePanes();
         messageTemplatePanel.resizePanes();
     }
