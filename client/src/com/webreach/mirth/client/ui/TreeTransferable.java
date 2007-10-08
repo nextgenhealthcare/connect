@@ -103,7 +103,7 @@ public class TreeTransferable implements Transferable
             }
             if (df == flavors[1])
             {
-                if(prefix == MessageTreePanel.MAPPER_PREFIX)
+                if(prefix.equals(MessageTreePanel.MAPPER_PREFIX))
                 {
                     String variable = "variable";
                     StringBuilder sb = new StringBuilder();
@@ -183,5 +183,4 @@ public class TreeTransferable implements Transferable
         }
         return false;
     }
-
 }

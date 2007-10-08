@@ -347,16 +347,19 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
             else if (tr.isDataFlavorSupported(TreeTransferable.MAPPER_DATA_FLAVOR) || tr.isDataFlavorSupported(TreeTransferable.MESSAGE_BUILDER_DATA_FLAVOR))
             {
                 dtde.acceptDrop(DnDConstants.ACTION_COPY_OR_MOVE);
-
-                Object transferData = tr.getTransferData(TreeTransferable.MAPPER_DATA_FLAVOR);
-
-                if (transferData instanceof MapperDropData)
+                
+                Object mapperTransferData = tr.getTransferData(TreeTransferable.MAPPER_DATA_FLAVOR);
+                Object messageBuilderTransferData = tr.getTransferData(TreeTransferable.MESSAGE_BUILDER_DATA_FLAVOR);
+                
+                if(mapperTransferData != null)
                 {
+                    Object transferData = tr.getTransferData(TreeTransferable.MAPPER_DATA_FLAVOR);
                     MapperDropData data = (MapperDropData) transferData;
                     addNewStep(data.getVariable(), data.getMapping(), MAPPER);
                 }
-                else if (transferData instanceof MessageBuilderDropData)
+                else if(messageBuilderTransferData != null)
                 {
+                    Object transferData = tr.getTransferData(TreeTransferable.MESSAGE_BUILDER_DATA_FLAVOR);
                     MessageBuilderDropData data = (MessageBuilderDropData) transferData;
                     addNewStep(data.getMessageSegment(), data.getMapping(), MESSAGE_BUILDER);
                 }
