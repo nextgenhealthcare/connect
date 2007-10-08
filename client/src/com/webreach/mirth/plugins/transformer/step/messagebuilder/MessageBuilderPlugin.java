@@ -112,16 +112,7 @@ public class MessageBuilderPlugin extends TransformerStepPlugin{
         }
         return regexArray.toString();
     }
-	@Override
-	public void setHighlighters() {
-		panel.setHighlighters();
-	}
 
-	@Override
-	public void unsetHighlighters() {
-		panel.unsetHighlighters();
-	}
-	@Override
 	public String getDisplayName() {
 		return "Message Builder";
 	}

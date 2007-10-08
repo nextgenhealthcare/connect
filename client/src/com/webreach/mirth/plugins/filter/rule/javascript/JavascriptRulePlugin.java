@@ -95,18 +95,6 @@ public class JavascriptRulePlugin extends FilterRulePlugin
     }
 
     @Override
-    public void setHighlighters()
-    {
-        panel.setHighlighters();
-    }
-
-    @Override
-    public void unsetHighlighters()
-    {
-        panel.unsetHighlighters();
-    }
-
-    @Override
     public String getDisplayName()
     {
         return "JavaScript";

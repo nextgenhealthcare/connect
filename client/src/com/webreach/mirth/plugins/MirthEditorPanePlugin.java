@@ -39,8 +39,7 @@ public abstract class MirthEditorPanePlugin
     {
         return false;
     }
-    public abstract void setHighlighters();
-    public abstract void unsetHighlighters();
+
     public abstract String getScript(Map<Object, Object> data);
     public abstract void clearData();
     public abstract void initData();

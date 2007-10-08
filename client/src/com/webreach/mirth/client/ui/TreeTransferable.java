@@ -42,6 +42,7 @@ public class TreeTransferable implements Transferable
 {   
     public static final DataFlavor MAPPER_DATA_FLAVOR = new DataFlavor(MapperDropData.class, "MapperDropData"); 
     public static final DataFlavor MESSAGE_BUILDER_DATA_FLAVOR = new DataFlavor(MessageBuilderDropData.class, "MessageBuilderDropData");
+    public static final DataFlavor RULE_DATA_FLAVOR = new DataFlavor(RuleDropData.class, "RuleDropData");
     
     private static DataFlavor[] flavors = null;
     private TreeNode data = null;
@@ -54,12 +55,12 @@ public class TreeTransferable implements Transferable
      *            the type of Ant element being transferred, e.g., target, task,
      *            type, etc.
      */
-    public TreeTransferable(TreeNode data, String prefix, String suffix)
+    public TreeTransferable(TreeNode data, String prefix, String suffix, DataFlavor supportedDropFlavor)
     {
         this.data = data;
         this.prefix = prefix;
         this.suffix = suffix;
-        init();
+        init(supportedDropFlavor);
     }
 
     /**
@@ -67,14 +68,14 @@ public class TreeTransferable implements Transferable
      * containing an Ant element name (e.g. task, target, etc), or an
      * ElementFlavor containing an ElementPanel.
      */
-    private void init()
+    private void init(DataFlavor supportedDropFlavor)
     {
         try
         {
             flavors = new DataFlavor[3];
             flavors[0] = DataFlavor.stringFlavor;
-            flavors[1] = MAPPER_DATA_FLAVOR;
-            flavors[2] = MESSAGE_BUILDER_DATA_FLAVOR;
+            flavors[1] = supportedDropFlavor;
+            flavors[2] = RULE_DATA_FLAVOR;
         }
         catch (Exception e)
         {
@@ -100,7 +101,7 @@ public class TreeTransferable implements Transferable
             {
                 return constructPath().toString();
             }
-            if (df == flavors[1] || df == flavors[2])
+            if (df == flavors[1])
             {
                 if(prefix == MessageTreePanel.MAPPER_PREFIX)
                 {
@@ -121,6 +122,10 @@ public class TreeTransferable implements Transferable
                 {
                     return new MessageBuilderDropData(constructPath().toString(), "");
                 }
+            }
+            if (df == flavors[2])
+            {
+                return new RuleDropData(constructPath().toString());
             }
         }
         return null;

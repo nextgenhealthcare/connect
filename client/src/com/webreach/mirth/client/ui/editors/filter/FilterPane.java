@@ -79,9 +79,13 @@ import org.jdesktop.swingx.decorator.HighlighterPipeline;
 
 import com.webreach.mirth.client.ui.CenterCellRenderer;
 import com.webreach.mirth.client.ui.Frame;
+import com.webreach.mirth.client.ui.MapperDropData;
+import com.webreach.mirth.client.ui.MessageBuilderDropData;
 import com.webreach.mirth.client.ui.Mirth;
 import com.webreach.mirth.client.ui.MirthFileFilter;
 import com.webreach.mirth.client.ui.PlatformUI;
+import com.webreach.mirth.client.ui.RuleDropData;
+import com.webreach.mirth.client.ui.TreeTransferable;
 import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.client.ui.components.MirthComboBoxCellEditor;
 import com.webreach.mirth.client.ui.editors.BasePanel;
@@ -289,6 +293,10 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
                 else
                     dtde.rejectDrag();
             }
+            else if (tr.isDataFlavorSupported(TreeTransferable.RULE_DATA_FLAVOR))
+            {
+                dtde.acceptDrag(DnDConstants.ACTION_COPY_OR_MOVE);
+            }
             else
                 dtde.rejectDrag();
         }
@@ -314,12 +322,11 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
     {
         try
         {
+            dtde.acceptDrop(DnDConstants.ACTION_COPY_OR_MOVE);
             Transferable tr = dtde.getTransferable();
+            
             if (tr.isDataFlavorSupported(DataFlavor.javaFileListFlavor))
             {
-                
-                dtde.acceptDrop(DnDConstants.ACTION_COPY_OR_MOVE);
-                
                 List fileList = (List) tr.getTransferData(DataFlavor.javaFileListFlavor);
                 Iterator iterator = fileList.iterator();
                 
@@ -327,6 +334,16 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
                 {
                     File file = (File)iterator.next();
                     importFilter(file);
+                }
+            }
+            else if (tr.isDataFlavorSupported(TreeTransferable.RULE_DATA_FLAVOR))
+            {
+                Object transferData = tr.getTransferData(TreeTransferable.RULE_DATA_FLAVOR);
+
+                if (transferData instanceof RuleDropData)
+                {
+                    RuleDropData data = (RuleDropData) transferData;
+                    addNewRule(data.getMapping());
                 }
             }
         }
@@ -835,11 +852,19 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
     {
         return parent;
     }
-
+    
     /**
      * void addNewRule() add a new rule to the end of the list
      */
     public void addNewRule()
+    {
+        addNewRule("");
+    }
+    
+    /**
+     * void addNewRule() add a new rule to the end of the list
+     */
+    public void addNewRule(String mapping)
     {
         modified = true;
         int rowCount = filterTable.getRowCount();
@@ -868,6 +893,12 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
         {
             rule.setType(GRAPHICAL_RULE); // graphical rule type by default, inbound
             loadedPlugins.get(GRAPHICAL_RULE).initData();
+            Map<Object, Object> data = new HashMap<Object, Object>();
+            data.put("Field", mapping);
+            data.put("Equals", UIConstants.YES_OPTION);
+            data.put("Values", new ArrayList());
+            data.put("Accept", UIConstants.YES_OPTION);
+            rule.setData(data);
         }
         else
         {
@@ -1291,20 +1322,4 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
         vSplitPane.setDividerLocation((int) (PlatformUI.MIRTH_FRAME.currentContentPage.getWidth() / 2 + PlatformUI.MIRTH_FRAME.currentContentPage.getWidth() / 6.7));
         tabTemplatePanel.resizePanes();
     }    
-
-    public void setHighlighters()
-    {
-        for (FilterRulePlugin plugin : loadedPlugins.values())
-        {
-            plugin.setHighlighters();
-        }
-    }
-    
-    public void unsetHighlighters()
-    {
-        for (FilterRulePlugin plugin : loadedPlugins.values())
-        {
-            plugin.unsetHighlighters();
-        }
-    }
 }

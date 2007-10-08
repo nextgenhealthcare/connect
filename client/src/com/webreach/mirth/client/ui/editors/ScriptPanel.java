@@ -82,16 +82,6 @@ public class ScriptPanel extends BasePanel
         return scriptTextPane.getText();
     }
     
-    public void setHighlighters()
-    {
-        scriptTextPane.setBackground(UIConstants.DRAG_HIGHLIGHTER_COLOR);
-    }
-    
-    public void unsetHighlighters()
-    {
-        scriptTextPane.setBackground(UIConstants.BACKGROUND_COLOR);
-    }
-    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always

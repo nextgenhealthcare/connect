@@ -196,31 +196,7 @@ public class Frame extends JXFrame
         makePaneContainer();
         
         connectionError = false;
-        DragSource ds = DragSource.getDefaultDragSource();
-        ds.addDragSourceListener(new DragSourceListener()
-        {
-            public void dragEnter(DragSourceDragEvent arg0)
-            {
-            }
-            
-            public void dragOver(DragSourceDragEvent arg0)
-            {
-            }
-            
-            public void dropActionChanged(DragSourceDragEvent arg0)
-            {
-            }
-            
-            public void dragExit(DragSourceEvent arg0)
-            {
-            }
-            
-            public void dragDropEnd(DragSourceDropEvent arg0)
-            {
-                if (highlightersSet)
-                    unsetHighlighters();
-            }
-        });
+
         this.addComponentListener(new ComponentListener()
         {
             public void componentResized(ComponentEvent e)
@@ -3309,30 +3285,6 @@ public class Frame extends JXFrame
         {
             this.description = d;
         }
-    }
-    
-    public void setHighlighters()
-    {
-        
-        if (currentContentPage == channelEditPanel.filterPane)
-        {
-            channelEditPanel.filterPane.setHighlighters();
-            this.highlightersSet = true;
-        }
-        else if (currentContentPage == channelEditPanel.transformerPane)
-        {
-            channelEditPanel.transformerPane.setHighlighters();
-            this.highlightersSet = true;
-        }
-    }
-    
-    public void unsetHighlighters()
-    {
-        if (currentContentPage == channelEditPanel.filterPane)
-            channelEditPanel.filterPane.unsetHighlighters();
-        else if (currentContentPage == channelEditPanel.transformerPane)
-            channelEditPanel.transformerPane.unsetHighlighters();
-        this.highlightersSet = false;
     }
 
 	public Map<String, PluginMetaData> getPluginMetaData() {

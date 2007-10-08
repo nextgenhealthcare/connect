@@ -9,6 +9,8 @@ package com.webreach.mirth.client.ui;
 import com.webreach.mirth.client.ui.components.MirthTree;
 import com.webreach.mirth.client.ui.components.MirthTree.FilterTreeModel;
 import com.webreach.mirth.client.ui.components.MirthTreeNode;
+import com.webreach.mirth.client.ui.editors.MessageTreePanel;
+
 import java.awt.Cursor;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
@@ -299,7 +301,6 @@ public class TreePanel extends javax.swing.JPanel
                     TreeNode tn = (TreeNode) tp.getLastPathComponent();
                     if (tn.isLeaf())
                     {
-                        setHighlighters();
                         refTableMouseDragged(evt);
                     }
                 }
@@ -338,9 +339,7 @@ public class TreePanel extends javax.swing.JPanel
             }
             
             public void mouseReleased(MouseEvent e)
-            {
-                unsetHighlighters();
-                
+            {                
             }
             
         });
@@ -355,16 +354,6 @@ public class TreePanel extends javax.swing.JPanel
             logger.error(e);
         }
         PlatformUI.MIRTH_FRAME.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-    }
-    
-    private void setHighlighters()
-    {
-        PlatformUI.MIRTH_FRAME.setHighlighters();
-    }
-    
-    private void unsetHighlighters()
-    {
-        PlatformUI.MIRTH_FRAME.unsetHighlighters();
     }
     
     private void refTableMouseExited(MouseEvent evt)
@@ -478,7 +467,11 @@ public class TreePanel extends javax.swing.JPanel
                     // if (leaf.equals(DNDConstants.TASK) ||
                     // leaf.equals(DNDConstants.TYPE))
                     // return null;
-                    return new TreeTransferable(tp, _dropPrefix, _dropSuffix);
+                    
+                    if(_dropPrefix.equals(MessageTreePanel.MAPPER_PREFIX))
+                        return new TreeTransferable(tp, _dropPrefix, _dropSuffix, TreeTransferable.MAPPER_DATA_FLAVOR);
+                    else
+                        return new TreeTransferable(tp, _dropPrefix, _dropSuffix, TreeTransferable.MESSAGE_BUILDER_DATA_FLAVOR);
                 }
                 catch (ClassCastException cce)
                 {

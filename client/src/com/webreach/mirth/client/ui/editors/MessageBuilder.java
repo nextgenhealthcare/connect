@@ -324,18 +324,6 @@ public class MessageBuilder extends BasePanel
             return regularExpressionsTable.getSelectedRow();
     }
 
-    public void setHighlighters()
-    {
-        variableTextField.setBackground(UIConstants.DRAG_HIGHLIGHTER_COLOR);
-        mappingTextField.setBackground(UIConstants.DRAG_HIGHLIGHTER_COLOR);
-    }
-
-    public void unsetHighlighters()
-    {
-        variableTextField.setBackground(UIConstants.BACKGROUND_COLOR);
-        mappingTextField.setBackground(UIConstants.BACKGROUND_COLOR);
-    }
-
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always

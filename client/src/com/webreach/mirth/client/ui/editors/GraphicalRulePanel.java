@@ -334,16 +334,6 @@ public class GraphicalRulePanel extends BasePanel
             return valuesTable.getSelectedRow();
     }
 
-    public void setHighlighters()
-    {
-        fieldTextField.setBackground(UIConstants.DRAG_HIGHLIGHTER_COLOR);
-    }
-
-    public void unsetHighlighters()
-    {
-        fieldTextField.setBackground(UIConstants.BACKGROUND_COLOR);
-    }
-
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always

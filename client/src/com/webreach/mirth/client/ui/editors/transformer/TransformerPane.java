@@ -1427,22 +1427,6 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
         tabTemplatePanel.resizePanes();
     }
 
-    public void setHighlighters()
-    {
-        for (TransformerStepPlugin plugin : loadedPlugins.values())
-        {
-            plugin.setHighlighters();
-        }
-    }
-
-    public void unsetHighlighters()
-    {
-        for (TransformerStepPlugin plugin : loadedPlugins.values())
-        {
-            plugin.unsetHighlighters();
-        }
-    }
-
     public boolean isInvalidVar()
     {
         return invalidVar;
