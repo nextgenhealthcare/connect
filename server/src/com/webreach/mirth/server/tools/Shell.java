@@ -288,7 +288,7 @@ public class Shell {
 
 						if (arg2 == Token.STATS) {
 							commandDumpStats(arguments);
-						} else if (arg2.equals("events")) {
+						} else if (arg2 == Token.EVENTS) {
 							commandDumpEvents(arguments);
 						} else {
 							error("unknown dump command: " + arg2);
