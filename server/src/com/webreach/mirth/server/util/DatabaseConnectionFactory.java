@@ -64,6 +64,21 @@ public class DatabaseConnectionFactory {
 
 		return new DatabaseConnection(address, info);
 	}
+	
+	public static DatabaseConnection createDatabaseConnection(String driver, String address) throws SQLException {
+		try {
+			Class.forName(driver);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		Properties info = new Properties();
+		
+		// this property should only be set if it's for embedded database
+		info.setProperty("shutdown", "true");
+
+		return new DatabaseConnection(address, info);
+	}
 
 	public static Connection createConnection(String driver, String address, String username, String password) throws SQLException {
 		try {
