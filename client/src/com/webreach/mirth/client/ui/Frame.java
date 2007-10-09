@@ -192,6 +192,7 @@ public class Frame extends JXFrame
         protocols.put(MessageObject.Protocol.EDI, "EDI");
         protocols.put(MessageObject.Protocol.XML, "XML");
         protocols.put(MessageObject.Protocol.NCPDP, "NCPDP");
+        protocols.put(MessageObject.Protocol.DICOM, "DICOM");
 
         setTitle(UIConstants.TITLE_TEXT + " - " + PlatformUI.SERVER_NAME);
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
