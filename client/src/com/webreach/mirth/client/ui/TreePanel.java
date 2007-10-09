@@ -47,9 +47,11 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.model.dicom.DICOMVocabulary;
 import com.webreach.mirth.model.MessageObject.Protocol;
 import com.webreach.mirth.model.converters.IXMLSerializer;
 import com.webreach.mirth.model.converters.SerializerFactory;
+import com.webreach.mirth.model.converters.DICOMSerializer;
 import com.webreach.mirth.model.util.MessageVocabulary;
 import com.webreach.mirth.model.util.MessageVocabularyFactory;
 import java.awt.event.KeyAdapter;
@@ -206,6 +208,10 @@ public class TreePanel extends javax.swing.JPanel
             {
                 protocol = Protocol.NCPDP;
             }
+            else if (PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.DICOM).equals(messageType))
+            {
+                protocol = Protocol.DICOM;
+            }
             else if (PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.HL7V3).equals(messageType))
             {
                 protocol = Protocol.HL7V3;
@@ -232,7 +238,15 @@ public class TreePanel extends javax.swing.JPanel
             {
                 serializer = SerializerFactory.getSerializer(protocol, protocolProperties);
                 docBuilder = docFactory.newDocumentBuilder();
-                String message = serializer.toXML(source);
+
+                String message;
+                if(protocol.equals(Protocol.DICOM)){
+                    DICOMSerializer dicomSerializer = new DICOMSerializer(protocolProperties);
+                    message = dicomSerializer.toXML(new File(source));        
+                }
+                else {
+                    message = serializer.toXML(source);
+                }
                 xmlDoc = docBuilder.parse(new InputSource(new StringReader(message)));
                 
                 if (xmlDoc != null)
@@ -379,10 +393,22 @@ public class TreePanel extends javax.swing.JPanel
         if (elo instanceof Element)
         {
             Element el = (Element) elo;
-            String description = vocabulary.getDescription(el.getNodeName());
+            String description;
+            if(vocabulary instanceof DICOMVocabulary){
+                description = vocabulary.getDescription(el.getAttribute("tag"));
+            }
+            else {
+                description = vocabulary.getDescription(el.getNodeName());
+            }
             MirthTreeNode currentNode;
-            if (description != null && description.length() > 0)
+            if (description != null && description.length() > 0) {
+                if(vocabulary instanceof DICOMVocabulary){
+                    currentNode = new MirthTreeNode(vocabulary.getDescription(el.getAttribute("tag").replaceAll(" ","")) + " (" + description + ")");
+                }
+                else {
                 currentNode = new MirthTreeNode(el.getNodeName() + " (" + description + ")");
+                }
+            }
             else
                 currentNode = new MirthTreeNode(el.getNodeName());
             

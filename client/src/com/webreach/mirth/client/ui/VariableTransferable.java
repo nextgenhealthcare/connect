@@ -70,6 +70,8 @@ public class VariableTransferable implements Transferable
             this.data = "ORIGINALNAME";
         else if (data.equals("Count"))
             this.data = "COUNT";
+        else if (data.equals("DICOM Message Raw Data"))
+            this.data = "DICOMMESSAGE";
         else if (data.equals("Formatted Date"))
             this.data = "date.get('yyyy-M-d H.m.s')";
         else if (data.equals("Entity Encoder"))

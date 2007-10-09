@@ -736,6 +736,7 @@ public class Frame extends JXFrame
         addTask("doRemoveMessage","Remove Message","Remove the selected Message.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png")), messageTasks, messagePopupMenu);
         addTask("doReprocessFilteredMessages","Reprocess Filtered Messages","Reprocess all Message Events in the current filter.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/deployall.png")), messageTasks, messagePopupMenu);
         addTask("doReprocessMessage","Reprocess Message","Reprocess the selected Message.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/deploy.png")), messageTasks, messagePopupMenu);
+        addTask("viewImage","View DICOM Image", "View DICOM image","",new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/palette.png")),messageTasks, messagePopupMenu);
         
         setNonFocusable(messageTasks);
         setVisibleTasks(messageTasks, messagePopupMenu, 6, -1, false);
@@ -2967,7 +2968,38 @@ public class Frame extends JXFrame
         
         worker.execute();
     }
+    public void viewImage()
+    {
+        setWorking("Opening image...", true);
     
+        SwingWorker worker = new SwingWorker<Void, Void>()
+        {
+            public Void doInBackground()
+            {
+                String messageId = messageBrowser.getSelectedMessageID();
+                try {
+                    BASE64Decoder decoder = new BASE64Decoder();
+                    MessageObject message = messageBrowser.getMessageObjectById(messageId);
+                    byte[] rawImage = decoder.decodeBuffer(mirthClient.getDICOMMessage(message));
+                    ByteArrayInputStream bis = new ByteArrayInputStream(rawImage);
+                    DICOM dcm = new DICOM(bis);
+                    dcm.run(message.getType());
+                    dcm.show();
+                }
+                catch(Exception e ){
+                    e.printStackTrace();
+                }            
+                setWorking("", false);
+                return null;
+            }
+           
+            public void done()
+            {
+                setWorking("", false);
+            }
+        };
+        worker.execute();
+    }
     public void processMessage(final MessageObject message)
     {
         setWorking("Processing message...", true);

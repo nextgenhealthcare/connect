@@ -220,6 +220,19 @@ public class MessageBrowser extends javax.swing.JPanel
         filterButtonActionPerformed(null);
     }
     
+    public MessageObject getMessageObjectById(String messageId){
+       if(messageObjectList != null){
+           Iterator i = messageObjectList.iterator();
+           while(i.hasNext()){
+                MessageObject message = (MessageObject) i.next();
+                if(message.getId().equals(messageId)){
+                    return message;
+                }
+           }
+       }  
+       return null;
+    }
+    
     public void importMessages()
     {
         JFileChooser importFileChooser = new JFileChooser();
@@ -759,7 +772,7 @@ public class MessageBrowser extends javax.swing.JPanel
         {
             if (protocol != null)
             {
-                if (protocol.equals(MessageObject.Protocol.HL7V2) || protocol.equals(MessageObject.Protocol.NCPDP))
+                if (protocol.equals(MessageObject.Protocol.HL7V2) || protocol.equals(MessageObject.Protocol.NCPDP) || protocol.equals(MessageObject.Protocol.DICOM))
                 {
                     newDoc.setTokenMarker(new HL7TokenMarker());
                     message = message.replace('\r', '\n');
