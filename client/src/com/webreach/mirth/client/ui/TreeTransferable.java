@@ -112,8 +112,13 @@ public class TreeTransferable implements Transferable
                     
                     Pattern pattern = Pattern.compile(" (\\(.*\\))");
                     Matcher matcher = pattern.matcher(parent.toString());
-                    if (matcher.find()){
+                    if (matcher.find())
+                    {
                         variable = matcher.group(1);
+                    }
+                    else
+                    {
+                        variable = parent.toString().replaceAll(" \\(.*\\)", "");
                     }
                     
                     return new MapperDropData(variable, constructPath().toString());

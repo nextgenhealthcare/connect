@@ -37,8 +37,8 @@ public class MapperDropData
         source = source.replaceAll("\\/", "_or_");
         source = source.replaceAll(" - ", "_");
         source = source.replaceAll("&", "and");
-        source = source.replaceAll("\\'|\\’|\\.|\\(|\\)", "");
-        source = source.replaceAll(" ", "_");
+        source = source.replaceAll("\\'|\\’|\\(|\\)", "");
+        source = source.replaceAll(" |\\.", "_");
         return source;
     }
 }
