@@ -5,8 +5,8 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.InputSource;
 import org.xml.sax.helpers.XMLReaderFactory;
 import org.w3c.dom.Document;
-import org.dcm4che2.tool.dcm2xml.Dcm2Xml;
-import org.dcm4che2.tool.xml2dcm.Xml2Dcm;
+//import org.dcm4che2.tool.dcm2xml.Dcm2Xml;
+//import org.dcm4che2.tool.xml2dcm.Xml2Dcm;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -107,11 +107,11 @@ public class DICOMTest {
         stopwatch.start();
 		DICOMSerializer serializer = new DICOMSerializer(properties);
 //        String xmloutput = serializer.toXML(testMessage);
-        Dcm2Xml dcm2xml = new Dcm2Xml();
+        //Dcm2Xml dcm2xml = new Dcm2Xml();
         File xmlOut = File.createTempFile("test","xml");
         File dcmInput = new File("c:\\US-PAL-8-10x-echo.dcm");
         try {
-            dcm2xml.convert(dcmInput,xmlOut);
+      //      dcm2xml.convert(dcmInput,xmlOut);
         }
         catch(Exception e){
             e.printStackTrace();
@@ -122,11 +122,11 @@ public class DICOMTest {
         args[1] = xmlOut.getAbsolutePath();
         args[2] = "-o";
         args[3] = "c:\\dcmOutput.dcm";
-        Xml2Dcm.main(args);
+        //Xml2Dcm.main(args);
         // TO XML again
         File input2 = new File("c:\\dcmOutput.dcm");
         try {
-            dcm2xml.convert(input2,xmlOut);
+   ///         dcm2xml.convert(input2,xmlOut);
         }
         catch(Exception e){
             e.printStackTrace();
@@ -137,7 +137,7 @@ public class DICOMTest {
         args[1] = xmlOut.getAbsolutePath();
         args[2] = "-o";
         args[3] = "c:\\dcmOutput2.dcm";
-        Xml2Dcm.main(args);        
+    //    Xml2Dcm.main(args);        
         //System.out.println(xmloutput);
 //		DocumentSerializer docser = new DocumentSerializer();
 //		docser.setPreserveSpace(true);
