@@ -358,6 +358,7 @@ public class GraphicalRulePanel extends BasePanel
         accept = new javax.swing.JRadioButton();
         jLabel3 = new javax.swing.JLabel();
         reject = new javax.swing.JRadioButton();
+        exists = new javax.swing.JRadioButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
         jLabel1.setText("Field:");
@@ -422,6 +423,12 @@ public class GraphicalRulePanel extends BasePanel
         reject.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         reject.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
+        exists.setBackground(new java.awt.Color(255, 255, 255));
+        buttonGroup1.add(exists);
+        exists.setText("Exists");
+        exists.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        exists.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -440,6 +447,8 @@ public class GraphicalRulePanel extends BasePanel
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(reject))
                     .add(layout.createSequentialGroup()
+                        .add(exists)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(equals)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(doesNotEqual))
@@ -471,7 +480,8 @@ public class GraphicalRulePanel extends BasePanel
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(equals)
                     .add(doesNotEqual)
-                    .add(jLabel2))
+                    .add(jLabel2)
+                    .add(exists))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
@@ -518,6 +528,7 @@ public class GraphicalRulePanel extends BasePanel
     private javax.swing.JButton deleteButton;
     private javax.swing.JRadioButton doesNotEqual;
     private javax.swing.JRadioButton equals;
+    private javax.swing.JRadioButton exists;
     private javax.swing.JTextField fieldTextField;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
