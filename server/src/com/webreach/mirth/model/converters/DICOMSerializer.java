@@ -4,7 +4,6 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.*;
 import org.dcm4che2.data.*;
 import org.dcm4che2.io.*;
-import org.dcm4che2.tool.dcm2xml.Dcm2Xml;
 import org.xml.sax.InputSource;
 import org.xml.sax.Locator;
 import org.xml.sax.helpers.LocatorImpl;
