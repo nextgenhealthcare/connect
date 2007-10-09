@@ -17,6 +17,7 @@ import org.mule.util.Utility;
 
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.util.GlobalVariableStore;
+import com.webreach.mirth.server.util.DICOMUtil;
 import com.webreach.mirth.util.Entities;
 
 public class TemplateValueReplacer {
@@ -120,6 +121,7 @@ public class TemplateValueReplacer {
 			for (int i = 0; i < channelKeys.length; i++) {
 				context.put(channelKeys[i].toString(),channelMap.get(channelKeys[i]));
 			}
+            context.put("DICOMMESSAGE", DICOMUtil.getDICOMRawData(messageObject));            
 		}
 		Map<String, Object> globalVariables = GlobalVariableStore.getInstance().getVariables();
 		for (Iterator iter = globalVariables.entrySet().iterator(); iter.hasNext();) {

@@ -27,6 +27,15 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		<parameter property="connectorMap" jdbcType="CLOB" />
 		<parameter property="channelMap" jdbcType="CLOB" />
 		<parameter property="responseMap" jdbcType="CLOB" />
+        <parameter property="attachment" jdbcType="SMALLINT" />
+    </parameterMap>
+    
+	<parameterMap class="com.webreach.mirth.model.Attachment" id="insert-attachment-param">
+		<parameter property="attachmentId" jdbcType="VARCHAR" />
+        <parameter property="messageId" jdbcType="VARCHAR" />
+        <parameter property="data" jdbcType="BLOB" />
+        <parameter property="size" jdbcType="INTEGER" />
+        <parameter property="type" jdbcType="VARCHAR" />
 	</parameterMap>
 
 	<parameterMap class="com.webreach.mirth.model.MessageObject" id="update-message-param">
@@ -39,6 +48,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		<parameter property="connectorMap" jdbcType="CLOB" />
 		<parameter property="channelMap" jdbcType="CLOB" />
 		<parameter property="responseMap" jdbcType="CLOB" />	
+        <parameter property="attachment" jdbcType="SMALLINT" />
 		<parameter property="id" jdbcType="VARCHAR" />			
 	</parameterMap>
 
@@ -64,6 +74,15 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		<result property="connectorMap" column="CONNECTOR_MAP" />
 		<result property="channelMap" column="CHANNEL_MAP" />
 		<result property="responseMap" column="RESPONSE_MAP" />
+        <result property="attachment" column="ATTACHMENT" />
+    </resultMap>
+
+	<resultMap class="com.webreach.mirth.model.Attachment" id="get-attachment-result">
+        <result property="attachmentId" column="ID" />
+		<result property="messageId" column="MESSAGE_ID" />
+		<result property="data" column="DATA" />
+		<result property="size" column="SIZE" />
+		<result property="type" column="TYPE" />        
 	</resultMap>
 
 	<sql id="messageFilterCriteria">
@@ -104,6 +123,18 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		WHERE ID = #id#	WITH UR
 	</select>
 	
+	<select id="getAttachmentsByMessageId" parameterClass="java.lang.String" resultMap="get-attachment-result">
+		SELECT ID,MESSAGE_ID, DATA, SIZE, TYPE
+        FROM ATTACHMENT
+        WHERE MESSAGE_ID = #messageId#
+    </select>
+
+	<select id="getAttachment" parameterClass="java.lang.String" resultMap="get-attachment-result">
+		SELECT ID,MESSAGE_ID, DATA, SIZE, TYPE
+        FROM ATTACHMENT
+        WHERE ID = #attachmentId#
+    </select>    
+    
 	<select id="getMessageByPage" parameterClass="java.util.Map" resultMap="get-message-result">
 		SELECT
 			MESSAGE.*
@@ -144,8 +175,14 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 	
 	<insert id="insertMessage" parameterMap="insert-message-param">
 		INSERT INTO
-		MESSAGE (ID, SERVER_ID, CHANNEL_ID, SOURCE, TYPE, DATE_CREATED, VERSION, IS_ENCRYPTED, STATUS, RAW_DATA, RAW_DATA_PROTOCOL, TRANSFORMED_DATA, TRANSFORMED_DATA_PROTOCOL, ENCODED_DATA, ENCODED_DATA_PROTOCOL, CONNECTOR_NAME, ERRORS, CORRELATION_ID, CONNECTOR_MAP, CHANNEL_MAP, RESPONSE_MAP)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		MESSAGE (ID, SERVER_ID, CHANNEL_ID, SOURCE, TYPE, DATE_CREATED, VERSION, IS_ENCRYPTED, STATUS, RAW_DATA, RAW_DATA_PROTOCOL, TRANSFORMED_DATA, TRANSFORMED_DATA_PROTOCOL, ENCODED_DATA, ENCODED_DATA_PROTOCOL, CONNECTOR_NAME, ERRORS, CORRELATION_ID, CONNECTOR_MAP, CHANNEL_MAP, RESPONSE_MAP, ATTACHMENT)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+	</insert>
+
+	<insert id="insertAttachment" parameterMap="insert-attachment-param">
+		INSERT INTO
+		ATTACHMENT (ID, MESSAGE_ID, DATA, SIZE, TYPE)
+		VALUES (?, ?, ?, ?, ?)
 	</insert>
 	
 	<update id="updateMessage" parameterMap="update-message-param">
@@ -158,7 +195,8 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 			CORRELATION_ID = ?,
 			CONNECTOR_MAP = ?,
 			CHANNEL_MAP = ?,
-			RESPONSE_MAP = ?
+			RESPONSE_MAP = ?,
+            ATTACHMENT = ?
 		WHERE ID = ?
 	</update>
 	

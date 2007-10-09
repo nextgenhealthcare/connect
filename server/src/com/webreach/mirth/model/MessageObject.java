@@ -26,15 +26,19 @@
 package com.webreach.mirth.model;
 
 import java.io.Serializable;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.IOException;
+import java.util.*;
 
 import com.webreach.mirth.util.EqualsUtil;
+import com.webreach.mirth.server.controllers.MessageObjectController;
+import com.webreach.mirth.server.controllers.ControllerException;
+import com.webreach.mirth.model.converters.DICOMSerializer;
+import sun.misc.BASE64Decoder;
+import sun.misc.BASE64Encoder;
 
 public class MessageObject implements Serializable {
 	public enum Protocol {
-		HL7V2, X12, XML, HL7V3, EDI, NCPDP
+        HL7V2, X12, XML, HL7V3, EDI, NCPDP, DICOM
 	}
 
 	public enum Status {
@@ -59,6 +63,7 @@ public class MessageObject implements Serializable {
 	private String errors;
 	private String version;
 	private String correlationId;
+    private boolean attachment;
 
 	private Map connectorMap;
 	private Map responseMap;
@@ -231,6 +236,14 @@ public class MessageObject implements Serializable {
         this.serverId = serverId;
     }
 
+    public boolean isAttachment() {
+        return attachment;
+    }
+
+    public void setAttachment(boolean attachment) {
+        this.attachment = attachment;
+    }
+
 	public Object clone() {
 		MessageObject messageObject = new MessageObject();
         messageObject.setServerId(this.getServerId());
@@ -254,6 +267,7 @@ public class MessageObject implements Serializable {
 		messageObject.setConnectorMap(this.getConnectorMap());
 		messageObject.setResponseMap(this.getResponseMap());
 		messageObject.setChannelMap(this.getChannelMap());
+        messageObject.setAttachment(this.isAttachment());
 		return messageObject;
 	}
 
@@ -289,7 +303,8 @@ public class MessageObject implements Serializable {
 			EqualsUtil.areEqual(this.getCorrelationId(), messageObject.getCorrelationId()) &&
 			EqualsUtil.areEqual(this.getConnectorMap(), messageObject.getConnectorMap()) &&
 			EqualsUtil.areEqual(this.getResponseMap(), messageObject.getResponseMap()) &&
-			EqualsUtil.areEqual(this.getChannelMap(), messageObject.getChannelMap());
+            EqualsUtil.areEqual(this.getChannelMap(), messageObject.getChannelMap()) &&
+            EqualsUtil.areEqual(this.isAttachment(), messageObject.isAttachment());
 	}
 
 	public String getCorrelationId() {
@@ -338,6 +353,9 @@ public class MessageObject implements Serializable {
 		builder.append(", ");
 		builder.append("errors=");
 		builder.append(this.getErrors());
+        builder.append(", ");
+        builder.append("attachment=");
+        builder.append(this.isAttachment());
 		builder.append("]");
 		return builder.toString();
 

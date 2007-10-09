@@ -33,18 +33,7 @@ import java.util.Properties;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.log4j.Logger;
 
-import com.webreach.mirth.model.Alert;
-import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.ChannelStatistics;
-import com.webreach.mirth.model.ChannelStatus;
-import com.webreach.mirth.model.ChannelSummary;
-import com.webreach.mirth.model.ConnectorMetaData;
-import com.webreach.mirth.model.DriverInfo;
-import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.model.PluginMetaData;
-import com.webreach.mirth.model.ServerConfiguration;
-import com.webreach.mirth.model.SystemEvent;
-import com.webreach.mirth.model.User;
+import com.webreach.mirth.model.*;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.model.filters.MessageObjectFilter;
 import com.webreach.mirth.model.filters.SystemEventFilter;
@@ -710,4 +699,26 @@ public class Client {
 		NameValuePair[] params = { new NameValuePair("op", "getWebServiceDefinition"), new NameValuePair("address", address) };
 		return (WSDefinition) serializer.fromXML(serverConnection.executePostMethod(CONFIGURATION_SERVLET, params));
 	}
+
+    public Attachment getAttachment(String attachmentId) throws ClientException {
+        logger.debug("getting Attachment: " + attachmentId);
+        NameValuePair[] params = { new NameValuePair("op","getAttachment"), new NameValuePair("attachmentId", attachmentId)};
+        return (Attachment) serializer.fromXML(serverConnection.executePostMethod(MESSAGE_SERVLET,params));
+    }
+    public List<Attachment> getAttachmentsByMessageId(String messageId) throws ClientException {
+        logger.debug("getting Attachments for message: " + messageId);
+        NameValuePair[] params = { new NameValuePair("op","getAttachmentsByMessageId"), new NameValuePair("messageId", messageId)};
+        return (List<Attachment>) serializer.fromXML(serverConnection.executePostMethod(MESSAGE_SERVLET,params));
+    }   
+    public void insertAttachment(Attachment attachment) throws ClientException {
+        logger.debug("inserting Attachment: " + attachment);
+        NameValuePair[] params = { new NameValuePair("op","insertAttachment"), new NameValuePair("attachment", serializer.toXML(attachment))};
+        serverConnection.executePostMethod(MESSAGE_SERVLET, params);
+    }   
+    
+    public String getDICOMMessage(MessageObject message) throws ClientException {
+        logger.debug("Getting DICOM message for message: " + message);
+        NameValuePair[] params = { new NameValuePair("op","getDICOMMessage"), new NameValuePair("message", serializer.toXML(message))};
+        return serverConnection.executePostMethod(MESSAGE_SERVLET,params);
+    }   
 }

@@ -27,15 +27,20 @@ package com.webreach.mirth.server.servlets;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.model.Attachment;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.model.filters.MessageObjectFilter;
 import com.webreach.mirth.server.controllers.MessageObjectController;
+import com.webreach.mirth.server.util.DICOMUtil;
+import sun.misc.BASE64Encoder;
 
 public class MessageObjectServlet extends MirthServlet {
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -92,6 +97,22 @@ public class MessageObjectServlet extends MirthServlet {
                 } else if (operation.equals("importMessage")) {
                     String message = request.getParameter("message");
                     messageObjectController.importMessage((MessageObject) serializer.fromXML(message));
+                } else if (operation.equals("getAttachment")) {
+                    response.setContentType("application/xml");
+                    Attachment attachment = messageObjectController.getAttachment((String) request.getParameter("attachmentId"));
+                    out.println(serializer.toXML(attachment));
+                } else if(operation.equals("getAttachmentsByMessageId")){
+                    response.setContentType("application/xml");
+                    List<Attachment> list = messageObjectController.getAttachmentsByMessageId((String) request.getParameter("messageId"));
+                    out.println(serializer.toXML(list));
+                } else if(operation.equals("insertAttachment")) {
+                    String attachment = request.getParameter("attachment");
+                    messageObjectController.insertAttachment((Attachment) serializer.fromXML(attachment));
+                } else if(operation.equals("getDICOMMessage")) {
+                    //response.setContentType("application/xml");
+                    String message = request.getParameter("message");
+                    String dicomMessage = DICOMUtil.getDICOMRawData((MessageObject) serializer.fromXML(message));
+                    out.println(dicomMessage);
                 }
 			} catch (Exception e) {
 				throw new ServletException(e);

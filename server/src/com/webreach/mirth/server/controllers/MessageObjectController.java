@@ -46,15 +46,14 @@ import com.ibatis.sqlmap.engine.impl.SqlMapExecutorDelegate;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.Response;
+import com.webreach.mirth.model.Attachment;
 import com.webreach.mirth.model.MessageObject.Status;
 import com.webreach.mirth.model.converters.ObjectCloner;
 import com.webreach.mirth.model.converters.ObjectClonerException;
+import com.webreach.mirth.model.converters.DICOMSerializer;
 import com.webreach.mirth.model.filters.MessageObjectFilter;
 import com.webreach.mirth.server.builders.ErrorMessageBuilder;
-import com.webreach.mirth.server.util.DatabaseUtil;
-import com.webreach.mirth.server.util.SqlConfig;
-import com.webreach.mirth.server.util.UUIDGenerator;
-import com.webreach.mirth.server.util.VMRouter;
+import com.webreach.mirth.server.util.*;
 import com.webreach.mirth.util.Encrypter;
 import com.webreach.mirth.util.EncryptionException;
 
@@ -400,6 +399,12 @@ public class MessageObjectController {
 									}
 
 									MessageObject message = iter.next();
+                                    // get attachment for old message
+                                    if(message.isAttachment()){
+                                        List attachments = getAttachmentsByMessageId(message.getId());
+                                        String rawData = DICOMUtil.mergeHeaderAttachments(message, attachments);
+                                        message.setRawData(rawData);
+                                    }
 									router.routeMessageByChannelId(message.getChannelId(), message.getRawData(), true, true);
 								}
 							} catch (Exception e) {
@@ -474,6 +479,7 @@ public class MessageObjectController {
 		clone.setResponseMap(messageObject.getResponseMap());
 		clone.setChannelMap(messageObject.getChannelMap());
 		clone.setChannelId(messageObject.getChannelId());
+        clone.setAttachment(messageObject.isAttachment());
 		return clone;
 	}
 
@@ -559,4 +565,28 @@ public class MessageObjectController {
 
 		return true;
 	}
+    
+	public Attachment getAttachment(String attachmentId) throws ControllerException {
+		try {
+			return (Attachment) sqlMap.queryForObject("getAttachment", attachmentId);
+		} catch (Exception e) {
+			throw new ControllerException(e);
+		}
+	}    
+    
+	public List<Attachment> getAttachmentsByMessageId(String messageId) throws ControllerException {
+		try {
+			return sqlMap.queryForList("getAttachmentsByMessageId", messageId);
+		} catch (Exception e) {
+			throw new ControllerException(e);
+		}
+	} 
+    public void insertAttachment(Attachment attachment) {
+        try {
+            sqlMap.insert("insertAttachment", attachment);
+        }
+        catch (SQLException e) {
+            logger.error("could not insert attachment: id=" + attachment.getAttachmentId(), e);
+        }        
+    }
 }
