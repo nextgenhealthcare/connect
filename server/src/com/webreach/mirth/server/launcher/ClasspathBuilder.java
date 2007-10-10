@@ -29,6 +29,7 @@ package com.webreach.mirth.server.launcher;
 import java.io.File;
 import java.io.FileFilter;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -71,11 +72,11 @@ public class ClasspathBuilder {
 
 						for (int j = 0; j < pathFiles.length; j++) {
 							logger.trace("adding file to path: " + pathFiles[j].getAbsolutePath());
-							urls.add(pathFiles[j].toURL());
+							urls.add(pathFiles[j].toURI().toURL());
 						}
 					} else {
 						logger.trace("adding file to path: " + path.getAbsolutePath());
-						urls.add(path.toURL());
+						urls.add(path.toURI().toURL());
 					}
 				} else {
 					logger.warn("Could not locate path: " + path.getAbsolutePath());
