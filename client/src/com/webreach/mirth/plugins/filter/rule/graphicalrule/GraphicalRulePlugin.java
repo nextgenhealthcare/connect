@@ -66,29 +66,35 @@ public class GraphicalRulePlugin extends FilterRulePlugin{
             finalReturn = "true";
         }
         
-        if(((String)map.get("Equals")).equals(UIConstants.YES_OPTION))
-        {
-            equals = "==";
-            equalsOperator = "||";
-        }
-        else
-        {
-            equals = "!=";
-            equalsOperator = "&&";
-        }
-        
-        
         script.append("if(");
         
-        for(int i = 0; i < values.size(); i++)
+        if(((String)map.get("Equals")).equals(UIConstants.EXISTS_OPTION))
         {
-            script.append(field + " " + equals + " " + values.get(i));
-            if(i + 1 == values.size())
-                script.append(")\n");
+            script.append(field + ".length > 0)\n"); 
+        }        
+        else
+        {            
+            if(((String)map.get("Equals")).equals(UIConstants.YES_OPTION))
+            {
+                equals = "==";
+                equalsOperator = "||";
+            }
             else
-                script.append(" " + equalsOperator + " ");
+            {
+                equals = "!=";
+                equalsOperator = "&&";
+            } 
+            
+            for(int i = 0; i < values.size(); i++)
+            {
+                script.append(field + " " + equals + " " + values.get(i));
+                if(i + 1 == values.size())
+                    script.append(")\n");
+                else
+                    script.append(" " + equalsOperator + " ");
+            }
         }
-        
+
         script.append("{\n");
         script.append("return " + acceptReturn + ";");
         script.append("\n}\n");

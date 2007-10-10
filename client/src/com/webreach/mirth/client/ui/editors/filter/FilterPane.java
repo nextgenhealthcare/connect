@@ -895,7 +895,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
             loadedPlugins.get(GRAPHICAL_RULE).initData();
             Map<Object, Object> data = new HashMap<Object, Object>();
             data.put("Field", mapping);
-            data.put("Equals", UIConstants.YES_OPTION);
+            data.put("Equals", UIConstants.EXISTS_OPTION);
             data.put("Values", new ArrayList());
             data.put("Accept", UIConstants.YES_OPTION);
             rule.setData(data);
