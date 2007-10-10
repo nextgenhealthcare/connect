@@ -2984,11 +2984,16 @@ public class Frame extends JXFrame
                 try {
                     BASE64Decoder decoder = new BASE64Decoder();
                     MessageObject message = messageBrowser.getMessageObjectById(messageId);
-                    byte[] rawImage = decoder.decodeBuffer(mirthClient.getDICOMMessage(message));
-                    ByteArrayInputStream bis = new ByteArrayInputStream(rawImage);
-                    DICOM dcm = new DICOM(bis);
-                    dcm.run(message.getType());
-                    dcm.show();
+                    if(message.isAttachment()){
+                        byte[] rawImage = decoder.decodeBuffer(mirthClient.getDICOMMessage(message));
+                        ByteArrayInputStream bis = new ByteArrayInputStream(rawImage);
+                        DICOM dcm = new DICOM(bis);
+                        dcm.run(message.getType());
+                        dcm.show();
+                    }
+                    else {
+                        alertInformation("This message does not contain a DICOM image.");
+                    }
                 }
                 catch(Exception e ){
                     e.printStackTrace();
