@@ -211,6 +211,7 @@ public class AlertController {
 		try {
 			Properties properties = ConfigurationController.getInstance().getServerProperties();
 			String fromAddress = PropertyLoader.getProperty(properties, "smtp.from");
+			
 			String toAddressList = generateEmailList(emails);
 
 			TemplateEvaluator evaluator = new TemplateEvaluator();

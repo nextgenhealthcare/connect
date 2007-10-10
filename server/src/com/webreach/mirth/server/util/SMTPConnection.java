@@ -64,7 +64,13 @@ public class SMTPConnection {
 			Message message = new MimeMessage(session);
 
 			// set the FROM and TO fields
-			message.setFrom(new InternetAddress(from));
+			if (from.length() > 0) {
+				message.setFrom(new InternetAddress(from));
+			} else {
+				// set a default from address if there was none specified
+				message.setFrom();
+			}
+
 			message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(to, false));
 
 			// include CC recipients

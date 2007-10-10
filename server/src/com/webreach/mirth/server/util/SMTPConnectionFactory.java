@@ -34,8 +34,13 @@ public class SMTPConnectionFactory {
 	public static SMTPConnection createSMTPConnection() throws Exception {
 		Properties properties = ConfigurationController.getInstance().getServerProperties();
 		String host = PropertyLoader.getProperty(properties, "smtp.host");
-		String username = PropertyLoader.getProperty(properties, "smtp.username");
-		String password = PropertyLoader.getProperty(properties, "smtp.password");
+		String username = null;
+		String password = null;
+		if(PropertyLoader.getProperty(properties, "smtp.requireAuthentication").equals("1"))
+		{
+			username = PropertyLoader.getProperty(properties, "smtp.username");
+			password = PropertyLoader.getProperty(properties, "smtp.password");
+		}
 		int port = Integer.valueOf(PropertyLoader.getProperty(properties, "smtp.port")).intValue();
 		return new SMTPConnection(host, port, username, password);
 	}
