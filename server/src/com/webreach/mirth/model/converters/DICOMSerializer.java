@@ -32,7 +32,7 @@ import sun.misc.BASE64Decoder;
 public class DICOMSerializer implements IXMLSerializer<String> {
 	private Logger logger = Logger.getLogger(this.getClass());
     public boolean validationError = false;
-    private boolean includeGroupLength = false;
+    //private boolean includeGroupLength = false;
     public String rawData;
     public ArrayList pixelData;
     
@@ -40,15 +40,15 @@ public class DICOMSerializer implements IXMLSerializer<String> {
         if (DICOMProperties == null) { 
 			return;
 		}
-		if (DICOMProperties.get("includeGroupLength") != null) {
-            String groupLength = convertNonPrintableCharacters((String) DICOMProperties.get("includeGroupLength"));
-            if(groupLength.equals("false")){
-                this.includeGroupLength = false;
-            }
-            else {
-                this.includeGroupLength = true;
-            }
-        } 
+//		if (DICOMProperties.get("includeGroupLength") != null) {
+//            String groupLength = convertNonPrintableCharacters((String) DICOMProperties.get("includeGroupLength"));
+//            if(groupLength.equals("false")){
+//                this.includeGroupLength = false;
+//            }
+//            else {
+//                this.includeGroupLength = true;
+//            }
+//        } 
     }
 
 	private String convertNonPrintableCharacters(String delimiter) {
