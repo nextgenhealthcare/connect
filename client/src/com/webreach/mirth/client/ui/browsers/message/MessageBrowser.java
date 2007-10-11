@@ -716,7 +716,10 @@ public class MessageBrowser extends javax.swing.JPanel
                 this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                 
                 MessageObject currentMessage = messageObjectList.get(row);
-                
+                // hide unless it is a DICOM
+                if(!currentMessage.getRawDataProtocol().equals(MessageObject.Protocol.DICOM)){
+                    parent.setVisibleTasks(parent.messageTasks,parent.messagePopupMenu, 9,9,false);
+                }
                 setCorrectDocument(RawMessageTextPane, currentMessage.getRawData(), currentMessage.getRawDataProtocol());
                 setCorrectDocument(TransformedMessageTextPane, currentMessage.getTransformedData(), currentMessage.getTransformedDataProtocol());
                 setCorrectDocument(EncodedMessageTextPane, currentMessage.getEncodedData(), currentMessage.getEncodedDataProtocol());
