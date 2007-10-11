@@ -589,6 +589,9 @@ public class Shell {
 		
 		try {
 			ServerConfiguration configuration = client.getServerConfiguration();
+			String backupDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+			configuration.setDate(backupDate);
+			
 			File fXml = new File(path);
 			out.println("Exporting Configuration");
 			String configurationXML = serializer.toXML(configuration);
