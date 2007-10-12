@@ -46,7 +46,7 @@ public class SFTPReader extends ConnectorClass
         pollingFrequency.setDocument(new MirthFieldConstraints(0, false, false, true));
         fileAge.setDocument(new MirthFieldConstraints(0, false, false, true));
         // ast:encoding activation
-        parent.setupCharsetEncodingForChannel(charsetEncodingCombobox);
+        parent.setupCharsetEncodingForConnector(charsetEncodingCombobox);
     }
 
     public Properties getProperties()
@@ -81,7 +81,7 @@ public class SFTPReader extends ConnectorClass
         else if (((String) sortBy.getSelectedItem()).equals("Date"))
             properties.put(SFTPReaderProperties.FTP_SORT_BY, SFTPReaderProperties.SORT_BY_DATE);
         // ast:encoding
-        properties.put(SFTPReaderProperties.CONNECTOR_CHARSET_ENCODING, parent.getSelectedEncodingForChannel(charsetEncodingCombobox));
+        properties.put(SFTPReaderProperties.CONNECTOR_CHARSET_ENCODING, parent.getSelectedEncodingForConnector(charsetEncodingCombobox));
         properties.put(SFTPReaderProperties.FTP_FILTER, fileNameFilter.getText());
 
         if (processBatchFilesYes.isSelected())
@@ -149,7 +149,7 @@ public class SFTPReader extends ConnectorClass
         else if (props.get(SFTPReaderProperties.FTP_SORT_BY).equals(SFTPReaderProperties.SORT_BY_DATE))
             sortBy.setSelectedItem("Date");
         // ast:encoding
-        parent.sePreviousSelectedEncodingForChannel(charsetEncodingCombobox, (String) props.get(SFTPReaderProperties.CONNECTOR_CHARSET_ENCODING));
+        parent.setPreviousSelectedEncodingForConnector(charsetEncodingCombobox, (String) props.get(SFTPReaderProperties.CONNECTOR_CHARSET_ENCODING));
         fileNameFilter.setText((String) props.get(SFTPReaderProperties.FTP_FILTER));
 
         if (((String) props.get(SFTPReaderProperties.FTP_PROCESS_BATCH_FILES)).equalsIgnoreCase(UIConstants.YES_OPTION))
@@ -181,7 +181,7 @@ public class SFTPReader extends ConnectorClass
         return new SFTPReaderProperties().getDefaults();
     }
 
-    public boolean checkProperties(Properties props)
+    public boolean checkProperties(Properties props, boolean highlight)
     {
         resetInvalidProperties();
         boolean valid = true;
@@ -189,39 +189,46 @@ public class SFTPReader extends ConnectorClass
         if (((String) props.get(SFTPReaderProperties.FTP_HOST)).length() == 0)
         {
             valid = false;
-            FTPURLField.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	FTPURLField.setBackground(UIConstants.INVALID_COLOR);
         }
         if (((String) props.get(SFTPReaderProperties.FTP_FILTER)).length() == 0)
         {
             valid = false;
-            fileNameFilter.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	fileNameFilter.setBackground(UIConstants.INVALID_COLOR);
         }
         if (((String) props.get(SFTPReaderProperties.FTP_POLLING_TYPE)).equalsIgnoreCase("interval") && ((String) props.get(SFTPReaderProperties.FTP_POLLING_FREQUENCY)).length() == 0)
         {
             valid = false;
-            pollingFrequency.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	pollingFrequency.setBackground(UIConstants.INVALID_COLOR);
         }
         if (((String) props.get(SFTPReaderProperties.FTP_POLLING_TYPE)).equalsIgnoreCase("time") && ((String) props.get(SFTPReaderProperties.FTP_POLLING_TIME)).length() == 0)
         {
             valid = false;
-            pollingTime.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	pollingTime.setBackground(UIConstants.INVALID_COLOR);
         }
         if (((String) props.get(SFTPReaderProperties.FTP_USERNAME)).length() == 0)
         {
             valid = false;
-            FTPUsernameField.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	FTPUsernameField.setBackground(UIConstants.INVALID_COLOR);
         }
         if (((String) props.get(SFTPReaderProperties.FTP_PASSWORD)).length() == 0)
         {
             valid = false;
-            FTPPasswordField.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	FTPPasswordField.setBackground(UIConstants.INVALID_COLOR);
         }
         if (((String) props.get(SFTPReaderProperties.FTP_CHECK_FTP_AGE)).equals(UIConstants.YES_OPTION))
         {
             if (((String) props.get(SFTPReaderProperties.FTP_FTP_AGE)).length() == 0)
             {
                 valid = false;
-                fileAge.setBackground(UIConstants.INVALID_COLOR);
+                if (highlight)
+                	fileAge.setBackground(UIConstants.INVALID_COLOR);
             }
         }
         

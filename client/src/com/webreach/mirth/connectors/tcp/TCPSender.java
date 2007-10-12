@@ -54,7 +54,7 @@ public class TCPSender extends ConnectorClass
         // ast: Acktimeout constrain
         ackTimeoutField.setDocument(new MirthFieldConstraints(0, false, false, true));
         // ast:encoding activation
-        parent.setupCharsetEncodingForChannel(charsetEncodingCombobox);
+        parent.setupCharsetEncodingForConnector(charsetEncodingCombobox);
     }
 
     public Properties getProperties()
@@ -81,7 +81,7 @@ public class TCPSender extends ConnectorClass
             properties.put(TCPSenderProperties.TCP_USE_PERSISTENT_QUEUES, UIConstants.NO_OPTION);
 
         properties.put(TCPSenderProperties.TCP_ACK_TIMEOUT, ackTimeoutField.getText());
-        properties.put(TCPSenderProperties.CONNECTOR_CHARSET_ENCODING, parent.getSelectedEncodingForChannel(charsetEncodingCombobox));
+        properties.put(TCPSenderProperties.CONNECTOR_CHARSET_ENCODING, parent.getSelectedEncodingForConnector(charsetEncodingCombobox));
         properties.put(TCPSenderProperties.TCP_TEMPLATE, template.getText());
         properties.put(TCPSenderProperties.CHANNEL_ID, channelList.get((String) channelNames.getSelectedItem()));
         properties.put(TCPSenderProperties.CHANNEL_NAME, (String) channelNames.getSelectedItem());
@@ -114,7 +114,7 @@ public class TCPSender extends ConnectorClass
         ackTimeoutField.setText((String) props.get(TCPSenderProperties.TCP_ACK_TIMEOUT));
 
         template.setText((String) props.get(TCPSenderProperties.TCP_TEMPLATE));
-        parent.sePreviousSelectedEncodingForChannel(charsetEncodingCombobox, (String) props.get(TCPSenderProperties.CONNECTOR_CHARSET_ENCODING));
+        parent.setPreviousSelectedEncodingForConnector(charsetEncodingCombobox, (String) props.get(TCPSenderProperties.CONNECTOR_CHARSET_ENCODING));
 
         ArrayList<String> channelNameArray = new ArrayList<String>();
         channelList = new HashMap();
@@ -140,7 +140,7 @@ public class TCPSender extends ConnectorClass
         return new TCPSenderProperties().getDefaults();
     }
 
-    public boolean checkProperties(Properties props)
+    public boolean checkProperties(Properties props, boolean highlight)
     {
         resetInvalidProperties();
         boolean valid = true;
@@ -148,42 +148,50 @@ public class TCPSender extends ConnectorClass
         if (((String) props.get(TCPSenderProperties.TCP_ADDRESS)).length() <= 3)
         {
             valid = false;
-            hostAddressField.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	hostAddressField.setBackground(UIConstants.INVALID_COLOR);
         }
         if (((String) props.get(TCPSenderProperties.TCP_PORT)).length() == 0)
         {
             valid = false;
-            hostPortField.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	hostPortField.setBackground(UIConstants.INVALID_COLOR);
         }
         if (((String) props.get(TCPSenderProperties.TCP_SERVER_TIMEOUT)).length() == 0)
         {
             valid = false;
-            serverTimeoutField.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	serverTimeoutField.setBackground(UIConstants.INVALID_COLOR);
         }
         if (((String) props.get(TCPSenderProperties.TCP_RECONNECT_INTERVAL)).length() == 0)
         {
             valid = false;
-            reconnectInterval.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	reconnectInterval.setBackground(UIConstants.INVALID_COLOR);
         }
         if (((String) props.get(TCPSenderProperties.TCP_BUFFER_SIZE)).length() == 0)
         {
             valid = false;
-            bufferSizeField.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	bufferSizeField.setBackground(UIConstants.INVALID_COLOR);
         }
         if (((String) props.get(TCPSenderProperties.TCP_MAX_RETRY_COUNT)).length() == 0)
         {
             valid = false;
-            maximumRetryCountField.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	maximumRetryCountField.setBackground(UIConstants.INVALID_COLOR);
         }
         if (((String) props.get(TCPSenderProperties.TCP_TEMPLATE)).length() == 0)
         {
             valid = false;
-            template.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	template.setBackground(UIConstants.INVALID_COLOR);
         }
         if (((String) props.get(TCPSenderProperties.TCP_ACK_TIMEOUT)).length() == 0)
         {
             valid = false;
-            ackTimeoutField.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	ackTimeoutField.setBackground(UIConstants.INVALID_COLOR);
         }
         
         return valid;

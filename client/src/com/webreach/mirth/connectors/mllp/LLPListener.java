@@ -59,7 +59,7 @@ public class LLPListener extends ConnectorClass
         reconnectIntervalField.setDocument(new MirthFieldConstraints(0, false, false, true));
         receiveTimeoutField.setDocument(new MirthFieldConstraints(0, false, false, true));
         bufferSizeField.setDocument(new MirthFieldConstraints(0, false, false, true));
-        parent.setupCharsetEncodingForChannel(charsetEncodingCombobox);
+        parent.setupCharsetEncodingForConnector(charsetEncodingCombobox);
     }
 
     public Properties getProperties()
@@ -114,7 +114,7 @@ public class LLPListener extends ConnectorClass
             properties.put(LLPListenerProperties.LLP_RESPONSE_VALUE, (String)responseFromTransformer.getSelectedItem());
         }
 
-        properties.put(LLPListenerProperties.CONNECTOR_CHARSET_ENCODING, parent.getSelectedEncodingForChannel(charsetEncodingCombobox));
+        properties.put(LLPListenerProperties.CONNECTOR_CHARSET_ENCODING, parent.getSelectedEncodingForConnector(charsetEncodingCombobox));
         properties.put(LLPListenerProperties.LLP_ACKCODE_SUCCESSFUL, successACKCode.getText());
         properties.put(LLPListenerProperties.LLP_ACKMSG_SUCCESSFUL, successACKMessage.getText());
         properties.put(LLPListenerProperties.LLP_ACKCODE_ERROR, errorACKCode.getText());
@@ -207,7 +207,7 @@ public class LLPListener extends ConnectorClass
         updateResponseDropDown();
         responseFromTransformer.setSelectedItem((String) props.getProperty(LLPListenerProperties.LLP_RESPONSE_VALUE));
         
-        parent.sePreviousSelectedEncodingForChannel(charsetEncodingCombobox, (String) props.get(LLPListenerProperties.CONNECTOR_CHARSET_ENCODING));
+        parent.setPreviousSelectedEncodingForConnector(charsetEncodingCombobox, (String) props.get(LLPListenerProperties.CONNECTOR_CHARSET_ENCODING));
 
         successACKCode.setText((String) props.get(LLPListenerProperties.LLP_ACKCODE_SUCCESSFUL));
         successACKMessage.setText((String) props.get(LLPListenerProperties.LLP_ACKMSG_SUCCESSFUL));
@@ -260,7 +260,7 @@ public class LLPListener extends ConnectorClass
         return new LLPListenerProperties().getDefaults();
     }
 
-    public boolean checkProperties(Properties props)
+    public boolean checkProperties(Properties props, boolean highlight)
     {
         resetInvalidProperties();
         boolean valid = true;
@@ -268,64 +268,76 @@ public class LLPListener extends ConnectorClass
         if (((String) props.get(LLPListenerProperties.LLP_ADDRESS)).length() == 0)
         {
             valid = false;
-            listenerAddressField.setBackground(UIConstants.INVALID_COLOR);        
+            if (highlight)
+            	listenerAddressField.setBackground(UIConstants.INVALID_COLOR);        
         }
         if (((String) props.get(LLPListenerProperties.LLP_PORT)).length() == 0)
         {
             valid = false;
-            listenerPortField.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	listenerPortField.setBackground(UIConstants.INVALID_COLOR);
         }
         if (clientRadioButton.isSelected() && ((String) props.get(LLPListenerProperties.LLP_RECONNECT_INTERVAL)).length() == 0)
         {
             valid = false;
-            reconnectIntervalField.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	reconnectIntervalField.setBackground(UIConstants.INVALID_COLOR);
         }
         if (((String) props.get(LLPListenerProperties.LLP_RECEIVE_TIMEOUT)).length() == 0)
         {
             valid = false;
-            receiveTimeoutField.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	receiveTimeoutField.setBackground(UIConstants.INVALID_COLOR);
         }
         if (((String) props.get(LLPListenerProperties.LLP_BUFFER_SIZE)).length() == 0)
         {
             valid = false;
-            bufferSizeField.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	bufferSizeField.setBackground(UIConstants.INVALID_COLOR);
         }
         if (((String) props.get(LLPListenerProperties.LLP_END_OF_MESSAGE_CHARACTER)).length() == 0)
         {
             valid = false;
-            endOfMessageCharacterField.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	endOfMessageCharacterField.setBackground(UIConstants.INVALID_COLOR);
         }
         if (((String) props.get(LLPListenerProperties.LLP_START_OF_MESSAGE_CHARACTER)).length() == 0)
         {
             valid = false;
-            startOfMessageCharacterField.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	startOfMessageCharacterField.setBackground(UIConstants.INVALID_COLOR);
         }
         if (((String) props.get(LLPListenerProperties.LLP_RECORD_SEPARATOR)).length() == 0)
         {
             valid = false;
-            recordSeparatorField.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	recordSeparatorField.setBackground(UIConstants.INVALID_COLOR);
         }
         if (((String) props.get(LLPListenerProperties.LLP_SEGMENT_END)).length() == 0)
         {
             valid = false;
-            segmentEnd.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	segmentEnd.setBackground(UIConstants.INVALID_COLOR);
         }
         if (((String) props.get(LLPListenerProperties.LLP_SEND_ACK)).equals(UIConstants.YES_OPTION))
         {
             if (((String) props.get(LLPListenerProperties.LLP_ACKCODE_SUCCESSFUL)).length() == 0)
             {
                 valid = false;
-                successACKCode.setBackground(UIConstants.INVALID_COLOR);
+                if (highlight)
+                	successACKCode.setBackground(UIConstants.INVALID_COLOR);
             }
             if (((String) props.get(LLPListenerProperties.LLP_ACKCODE_ERROR)).length() == 0)
             {
                 valid = false;
-                errorACKCode.setBackground(UIConstants.INVALID_COLOR);
+                if (highlight)
+                	errorACKCode.setBackground(UIConstants.INVALID_COLOR);
             }
             if (((String) props.get(LLPListenerProperties.LLP_ACKCODE_REJECTED)).length() == 0)
             {
                 valid = false;
-                rejectedACKCode.setBackground(UIConstants.INVALID_COLOR);
+                if (highlight)
+                	rejectedACKCode.setBackground(UIConstants.INVALID_COLOR);
             }
         }
         if (((String) props.get(LLPListenerProperties.LLP_ACK_NEW_CONNECTION)).equals(UIConstants.YES_OPTION) && (((String) props.get(LLPListenerProperties.LLP_SEND_ACK)).equals(UIConstants.YES_OPTION) || ((String) props.get(LLPListenerProperties.LLP_RESPONSE_FROM_TRANSFORMER)).equals(UIConstants.YES_OPTION)))
@@ -333,12 +345,14 @@ public class LLPListener extends ConnectorClass
             if (((String) props.get(LLPListenerProperties.LLP_ACK_NEW_CONNECTION_IP)).length() == 0)
             {
                 valid = false;
-                ackAddressField.setBackground(UIConstants.INVALID_COLOR);
+                if (highlight)
+                	ackAddressField.setBackground(UIConstants.INVALID_COLOR);
             }
             if (((String) props.get(LLPListenerProperties.LLP_ACK_NEW_CONNECTION_PORT)).length() == 0)
             {
                 valid = false;
-                ackPortField.setBackground(UIConstants.INVALID_COLOR);
+                if (highlight)
+                	ackPortField.setBackground(UIConstants.INVALID_COLOR);
             }
         }
         

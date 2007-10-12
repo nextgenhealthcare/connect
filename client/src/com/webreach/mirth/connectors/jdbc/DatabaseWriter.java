@@ -152,7 +152,7 @@ public class DatabaseWriter extends ConnectorClass
         return new DatabaseWriterProperties().getDefaults();
     }
 
-    public boolean checkProperties(Properties props)
+    public boolean checkProperties(Properties props, boolean highlight)
     {
         resetInvalidProperties();
         boolean valid = true;
@@ -160,17 +160,20 @@ public class DatabaseWriter extends ConnectorClass
         if (((String) props.get(DatabaseWriterProperties.DATABASE_URL)).length() == 0)
         {
             valid = false;
-            databaseURLField.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	databaseURLField.setBackground(UIConstants.INVALID_COLOR);
         }
         if ((((String) props.get(DatabaseWriterProperties.DATABASE_SQL_STATEMENT)).length() == 0) && (((String) props.get(DatabaseWriterProperties.DATABASE_JS_SQL_STATEMENT)).length() == 0))
         {
             valid = false;
-            databaseSQLTextPane.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	databaseSQLTextPane.setBackground(UIConstants.INVALID_COLOR);
         }
         if ((((String) props.get(DatabaseWriterProperties.DATABASE_DRIVER)).equals("Please Select One")))
         {
             valid = false;
-            databaseDriverCombobox.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	databaseDriverCombobox.setBackground(UIConstants.INVALID_COLOR);
         }
         
         return valid;

@@ -124,7 +124,7 @@ public class HTTPListener extends ConnectorClass
         return new HTTPListenerProperties().getDefaults();
     }
 
-    public boolean checkProperties(Properties props)
+    public boolean checkProperties(Properties props, boolean highlight)
     {
         resetInvalidProperties();
         boolean valid = true;
@@ -132,22 +132,26 @@ public class HTTPListener extends ConnectorClass
         if (((String) props.get(HTTPListenerProperties.HTTP_ADDRESS)).length() == 0)
         {
             valid = false;
-            listenerAddressField.setBackground(UIConstants.INVALID_COLOR);   
+            if (highlight)
+            	listenerAddressField.setBackground(UIConstants.INVALID_COLOR);   
         }
         if (((String) props.get(HTTPListenerProperties.HTTP_PORT)).length() == 0)
         {
             valid = false;
-            listenerPortField.setBackground(UIConstants.INVALID_COLOR);            
+            if (highlight)
+            	listenerPortField.setBackground(UIConstants.INVALID_COLOR);            
         }
         if (((String) props.get(HTTPListenerProperties.HTTP_RECEIVE_TIMEOUT)).length() == 0)
         {
             valid = false;
-            receiveTimeoutField.setBackground(UIConstants.INVALID_COLOR);            
+            if (highlight)
+            	receiveTimeoutField.setBackground(UIConstants.INVALID_COLOR);            
         }
         if (((String) props.get(HTTPListenerProperties.HTTP_BUFFER_SIZE)).length() == 0)
         {
             valid = false;
-            bufferSizeField.setBackground(UIConstants.INVALID_COLOR);            
+            if (highlight)
+            	bufferSizeField.setBackground(UIConstants.INVALID_COLOR);            
         }
         
         return valid;

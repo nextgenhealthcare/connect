@@ -103,7 +103,7 @@ public class DocumentWriter extends ConnectorClass
         return new DocumentWriterProperties().getDefaults();
     }
 
-    public boolean checkProperties(Properties props)
+    public boolean checkProperties(Properties props, boolean highlight)
     {
         resetInvalidProperties();
         boolean valid = true;
@@ -111,24 +111,28 @@ public class DocumentWriter extends ConnectorClass
         if (((String) props.get(DocumentWriterProperties.FILE_DIRECTORY)).length() == 0)
         {
             valid = false;
-            directoryField.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	directoryField.setBackground(UIConstants.INVALID_COLOR);
         }
         if (((String) props.get(DocumentWriterProperties.FILE_NAME)).length() == 0)
         {
             valid = false;
-            fileNameField.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	fileNameField.setBackground(UIConstants.INVALID_COLOR);
         }
         if (((String) props.get(DocumentWriterProperties.FILE_CONTENTS)).length() == 0)
         {
             valid = false;
-            fileContentsTextPane.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	fileContentsTextPane.setBackground(UIConstants.INVALID_COLOR);
         }
         if (((String) props.get(DocumentWriterProperties.DOCUMENT_PASSWORD_PROTECTED)).equals(UIConstants.YES_OPTION))
         {
             if (((String) props.get(DocumentWriterProperties.DOCUMENT_PASSWORD)).length() == 0)
             {
                 valid = false;
-                passwordField.setBackground(UIConstants.INVALID_COLOR);
+                if (highlight)
+                	passwordField.setBackground(UIConstants.INVALID_COLOR);
             }
         }
 

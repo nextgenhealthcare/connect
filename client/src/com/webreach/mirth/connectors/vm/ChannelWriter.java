@@ -100,7 +100,7 @@ public class ChannelWriter extends ConnectorClass
         return new ChannelWriterProperties().getDefaults();
     }
 
-    public boolean checkProperties(Properties props)
+    public boolean checkProperties(Properties props, boolean highlight)
     {
         resetInvalidProperties();
         boolean valid = true;

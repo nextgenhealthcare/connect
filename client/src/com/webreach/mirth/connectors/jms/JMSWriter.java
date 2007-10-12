@@ -391,7 +391,7 @@ public class JMSWriter extends ConnectorClass
         return "";
     }
     
-    public boolean checkProperties(Properties props)
+    public boolean checkProperties(Properties props, boolean highlight)
     {
         resetInvalidProperties();
         boolean valid = true;
@@ -401,17 +401,20 @@ public class JMSWriter extends ConnectorClass
             if (((String) props.getProperty(JMSWriterProperties.JMS_URL)).length() == 0)
             {
                 valid = false;
-                jmsURL.setBackground(UIConstants.INVALID_COLOR);
+                if (highlight)
+                	jmsURL.setBackground(UIConstants.INVALID_COLOR);
             }
             if (((String) props.getProperty(JMSWriterProperties.JMS_CONNECTION_FACTORY_JNDI)).length() == 0)
             {
                 valid = false;
-                connectionFactoryJndi.setBackground(UIConstants.INVALID_COLOR);
+                if (highlight)
+                	connectionFactoryJndi.setBackground(UIConstants.INVALID_COLOR);
             }
             if (((String) props.getProperty(JMSWriterProperties.JMS_INITIAL_FACTORY)).length() == 0)
             {
                 valid = false;
-                jndiInitialFactory.setBackground(UIConstants.INVALID_COLOR);
+                if (highlight)
+                	jndiInitialFactory.setBackground(UIConstants.INVALID_COLOR);
             }
         }
         else
@@ -419,26 +422,30 @@ public class JMSWriter extends ConnectorClass
             if (((String) props.getProperty(JMSWriterProperties.JMS_CONNECTION_FACTORY_CLASS)).length() == 0)
             {
                 valid = false;
-                connectionFactoryClass.setBackground(UIConstants.INVALID_COLOR);
+                if (highlight)
+                	connectionFactoryClass.setBackground(UIConstants.INVALID_COLOR);
             }
         }
         
         if (((String) props.getProperty(JMSWriterProperties.JMS_QUEUE)).length() == 0)
         {
             valid = false;
-            queue.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	queue.setBackground(UIConstants.INVALID_COLOR);
         }
         if (((String) props.getProperty(JMSWriterProperties.JMS_TEMPLATE)).length() == 0)
         {
             valid = false;
-            templateTextArea.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	templateTextArea.setBackground(UIConstants.INVALID_COLOR);
         }
         if (((String) props.getProperty(JMSWriterProperties.JMS_DURABLE)).equals(UIConstants.YES_OPTION))
         {
             if (((String) props.getProperty(JMSWriterProperties.JMS_CLIENT_ID)).length() == 0)
             {
                 valid = false;
-                cliendId.setBackground(UIConstants.INVALID_COLOR);
+                if (highlight)
+                	cliendId.setBackground(UIConstants.INVALID_COLOR);
             }
         }
         

@@ -81,7 +81,7 @@ public class SFTPWriter extends ConnectorClass
         return new SFTPWriterProperties().getDefaults();
     }
 
-    public boolean checkProperties(Properties props)
+    public boolean checkProperties(Properties props, boolean highlight)
     {
         resetInvalidProperties();
         boolean valid = true;
@@ -89,27 +89,32 @@ public class SFTPWriter extends ConnectorClass
         if (((String) props.get(SFTPWriterProperties.SFTP_ADDRESS)).length() == 0)
         {
             valid = false;
-            FTPURLField.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	FTPURLField.setBackground(UIConstants.INVALID_COLOR);
         }
         if (((String) props.get(SFTPWriterProperties.SFTP_OUTPUT_PATTERN)).length() == 0)
         {
             valid = false;
-            outputPatternField.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	outputPatternField.setBackground(UIConstants.INVALID_COLOR);
         }
         if (((String) props.get(SFTPWriterProperties.SFTP_CONTENTS)).length() == 0)
         {
             valid = false;
-            ftpContentsTextPane.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	ftpContentsTextPane.setBackground(UIConstants.INVALID_COLOR);
         }
         if (((String) props.get(SFTPWriterProperties.SFTP_USERNAME)).length() == 0)
         {
             valid = false;
-            FTPUsernameField.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	FTPUsernameField.setBackground(UIConstants.INVALID_COLOR);
         }
         if (((String) props.get(SFTPWriterProperties.SFTP_PASSWORD)).length() == 0)
         {
             valid = false;
-            FTPPasswordField.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	FTPPasswordField.setBackground(UIConstants.INVALID_COLOR);
         }
         
         return valid;

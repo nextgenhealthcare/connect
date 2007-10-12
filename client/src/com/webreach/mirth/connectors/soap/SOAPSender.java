@@ -175,7 +175,7 @@ public class SOAPSender extends ConnectorClass
         return new SOAPSenderProperties().getDefaults();
     }
     
-    public boolean checkProperties(Properties props)
+    public boolean checkProperties(Properties props, boolean highlight)
     {
         resetInvalidProperties();
         boolean valid = true;
@@ -183,17 +183,20 @@ public class SOAPSender extends ConnectorClass
         if (((String) props.getProperty(SOAPSenderProperties.SOAP_METHOD)).equals(SOAPSenderProperties.SOAP_DEFAULT_DROPDOWN))
         {
             valid = false;
-            method.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	method.setBackground(UIConstants.INVALID_COLOR);
         }
         if (((String) props.getProperty(SOAPSenderProperties.SOAP_URL)).length() == 0)
         {
             valid = false;
-            wsdlUrl.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	wsdlUrl.setBackground(UIConstants.INVALID_COLOR);
         }
         if (((String) props.getProperty(SOAPSenderProperties.SOAP_ENVELOPE)).length() == 0)
         {
             valid = false;
-            soapEnvelope.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	soapEnvelope.setBackground(UIConstants.INVALID_COLOR);
         }
         
         return valid;

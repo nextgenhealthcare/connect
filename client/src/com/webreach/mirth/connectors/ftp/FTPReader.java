@@ -45,7 +45,7 @@ public class FTPReader extends ConnectorClass
         pollingFrequency.setDocument(new MirthFieldConstraints(0, false, false, true));
         fileAge.setDocument(new MirthFieldConstraints(0, false, false, true));
         // ast:encoding activation
-        parent.setupCharsetEncodingForChannel(charsetEncodingCombobox);
+        parent.setupCharsetEncodingForConnector(charsetEncodingCombobox);
     }
     
     public Properties getProperties()
@@ -94,7 +94,7 @@ public class FTPReader extends ConnectorClass
         else if (((String) sortBy.getSelectedItem()).equals("Date"))
             properties.put(FTPReaderProperties.FTP_SORT_BY, FTPReaderProperties.SORT_BY_DATE);
         // ast:encoding
-        properties.put(FTPReaderProperties.CONNECTOR_CHARSET_ENCODING, parent.getSelectedEncodingForChannel(charsetEncodingCombobox));
+        properties.put(FTPReaderProperties.CONNECTOR_CHARSET_ENCODING, parent.getSelectedEncodingForConnector(charsetEncodingCombobox));
         properties.put(FTPReaderProperties.FTP_FILTER, fileNameFilter.getText());
         
         if (processBatchFilesYes.isSelected())
@@ -183,7 +183,7 @@ public class FTPReader extends ConnectorClass
         else if (props.get(FTPReaderProperties.FTP_SORT_BY).equals(FTPReaderProperties.SORT_BY_DATE))
             sortBy.setSelectedItem("Date");
         // ast:encoding
-        parent.sePreviousSelectedEncodingForChannel(charsetEncodingCombobox, (String) props.get(FTPReaderProperties.CONNECTOR_CHARSET_ENCODING));
+        parent.setPreviousSelectedEncodingForConnector(charsetEncodingCombobox, (String) props.get(FTPReaderProperties.CONNECTOR_CHARSET_ENCODING));
         fileNameFilter.setText((String) props.get(FTPReaderProperties.FTP_FILTER));
         
         if (((String) props.get(FTPReaderProperties.FTP_PROCESS_BATCH_FILES)).equalsIgnoreCase(UIConstants.YES_OPTION))
@@ -215,7 +215,7 @@ public class FTPReader extends ConnectorClass
         return new FTPReaderProperties().getDefaults();
     }
     
-    public boolean checkProperties(Properties props)
+    public boolean checkProperties(Properties props, boolean highlight)
     {
         resetInvalidProperties();
         boolean valid = true;
@@ -223,34 +223,40 @@ public class FTPReader extends ConnectorClass
         if (((String) props.get(FTPReaderProperties.FTP_HOST)).length() == 0)
         {
             valid = false;
-            FTPURLField.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	FTPURLField.setBackground(UIConstants.INVALID_COLOR);
         }
         if (((String) props.get(FTPReaderProperties.FTP_FILTER)).length() == 0)
         {
             valid = false;
-            fileNameFilter.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	fileNameFilter.setBackground(UIConstants.INVALID_COLOR);
         }
         if (((String) props.get(FTPReaderProperties.FTP_POLLING_TYPE)).equalsIgnoreCase("interval") && ((String) props.get(FTPReaderProperties.FTP_POLLING_FREQUENCY)).length() == 0)
         {
             valid = false;
-            pollingFrequency.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	pollingFrequency.setBackground(UIConstants.INVALID_COLOR);
         }
         if (((String) props.get(FTPReaderProperties.FTP_POLLING_TYPE)).equalsIgnoreCase("time") && ((String) props.get(FTPReaderProperties.FTP_POLLING_TIME)).length() == 0)
         {
             valid = false;
-            pollingTime.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	pollingTime.setBackground(UIConstants.INVALID_COLOR);
         }
         if (((String) props.get(FTPReaderProperties.FTP_ANONYMOUS)).equals(UIConstants.NO_OPTION))
         {
             if (((String) props.get(FTPReaderProperties.FTP_USERNAME)).length() == 0)
             {
                 valid = false;
-                FTPUsernameField.setBackground(UIConstants.INVALID_COLOR);
+                if (highlight)
+                	FTPUsernameField.setBackground(UIConstants.INVALID_COLOR);
             }
             if (((String) props.get(FTPReaderProperties.FTP_PASSWORD)).length() == 0)
             {
                 valid = false;
-                FTPPasswordField.setBackground(UIConstants.INVALID_COLOR);
+                if (highlight)
+                	FTPPasswordField.setBackground(UIConstants.INVALID_COLOR);
             }
         }
         if (((String) props.get(FTPReaderProperties.FTP_CHECK_FTP_AGE)).equals(UIConstants.YES_OPTION))
@@ -258,7 +264,8 @@ public class FTPReader extends ConnectorClass
             if (((String) props.get(FTPReaderProperties.FTP_FTP_AGE)).length() == 0)
             {
                 valid = false;
-                fileAge.setBackground(UIConstants.INVALID_COLOR);
+                if (highlight)
+                	fileAge.setBackground(UIConstants.INVALID_COLOR);
             }
         }
         

@@ -262,7 +262,7 @@ public class DatabaseReader extends ConnectorClass
         return new DatabaseReaderProperties().getDefaults();
     }
     
-    public boolean checkProperties(Properties props)
+    public boolean checkProperties(Properties props, boolean highlight)
     {
         resetInvalidProperties();
         boolean valid = true;
@@ -270,22 +270,26 @@ public class DatabaseReader extends ConnectorClass
         if (((String) props.get(DatabaseReaderProperties.DATABASE_URL)).length() == 0)
         {
             valid = false;
-            databaseURLField.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	databaseURLField.setBackground(UIConstants.INVALID_COLOR);
         }
         if (((String) props.get(DatabaseReaderProperties.DATABASE_POLLING_TYPE)).equalsIgnoreCase("interval") && ((String) props.get(DatabaseReaderProperties.DATABASE_POLLING_FREQUENCY)).length() == 0)
         {
             valid = false;
-            pollingFrequency.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	pollingFrequency.setBackground(UIConstants.INVALID_COLOR);
         }
         if (((String) props.get(DatabaseReaderProperties.DATABASE_POLLING_TYPE)).equalsIgnoreCase("time") && ((String) props.get(DatabaseReaderProperties.DATABASE_POLLING_TIME)).length() == 0)
         {
             valid = false;
-            pollingTime.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	pollingTime.setBackground(UIConstants.INVALID_COLOR);
         }
         if ((((String) props.get(DatabaseReaderProperties.DATABASE_SQL_STATEMENT)).length() == 0) && (((String) props.get(DatabaseReaderProperties.DATABASE_JS_SQL_STATEMENT)).length() == 0))
         {
             valid = false;
-            databaseSQLTextPane.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	databaseSQLTextPane.setBackground(UIConstants.INVALID_COLOR);
         }
         
         if (((String) props.get(DatabaseReaderProperties.DATABASE_USE_ACK)).equalsIgnoreCase(UIConstants.YES_OPTION))
@@ -293,13 +297,15 @@ public class DatabaseReader extends ConnectorClass
             if (((((String) props.get(DatabaseReaderProperties.DATABASE_JS_ACK)).length() == 0) && (((String) props.get(DatabaseReaderProperties.DATABASE_ACK)).length() == 0)))
             {
                 valid = false;
-                databaseUpdateSQLTextPane.setBackground(UIConstants.INVALID_COLOR);
+                if (highlight)
+                	databaseUpdateSQLTextPane.setBackground(UIConstants.INVALID_COLOR);
             }
         }
         if ((((String) props.get(DatabaseReaderProperties.DATABASE_DRIVER)).equals("Please Select One")))
         {
             valid = false;
-            databaseDriverCombobox.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	databaseDriverCombobox.setBackground(UIConstants.INVALID_COLOR);
         }
         
         return valid;

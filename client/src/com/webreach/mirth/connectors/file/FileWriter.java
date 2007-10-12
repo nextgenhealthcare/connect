@@ -42,7 +42,7 @@ public class FileWriter extends ConnectorClass
     {
         name = FileWriterProperties.name;
         initComponents();
-        parent.setupCharsetEncodingForChannel(charsetEncodingCombobox);
+        parent.setupCharsetEncodingForConnector(charsetEncodingCombobox);
     }
 
     public Properties getProperties()
@@ -59,7 +59,7 @@ public class FileWriter extends ConnectorClass
 
         properties.put(FileWriterProperties.FILE_CONTENTS, fileContentsTextPane.getText());
 
-        properties.put(FileWriterProperties.CONNECTOR_CHARSET_ENCODING, parent.getSelectedEncodingForChannel(charsetEncodingCombobox));
+        properties.put(FileWriterProperties.CONNECTOR_CHARSET_ENCODING, parent.getSelectedEncodingForConnector(charsetEncodingCombobox));
 
         if (fileTypeBinary.isSelected())
             properties.put(FileWriterProperties.FILE_TYPE, UIConstants.YES_OPTION);
@@ -81,7 +81,7 @@ public class FileWriter extends ConnectorClass
         else
             appendToFileNo.setSelected(true);
 
-        parent.sePreviousSelectedEncodingForChannel(charsetEncodingCombobox, (String) props.get(FileWriterProperties.CONNECTOR_CHARSET_ENCODING));
+        parent.setPreviousSelectedEncodingForConnector(charsetEncodingCombobox, (String) props.get(FileWriterProperties.CONNECTOR_CHARSET_ENCODING));
 
         fileContentsTextPane.setText((String) props.get(FileWriterProperties.FILE_CONTENTS));
 
@@ -102,7 +102,7 @@ public class FileWriter extends ConnectorClass
         return new FileWriterProperties().getDefaults();
     }
 
-    public boolean checkProperties(Properties props)
+    public boolean checkProperties(Properties props, boolean highlight)
     {
         resetInvalidProperties();
         boolean valid = true;
@@ -110,17 +110,20 @@ public class FileWriter extends ConnectorClass
         if (((String) props.get(FileWriterProperties.FILE_DIRECTORY)).length() == 0)
         {
             valid = false;
-            directoryField.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	directoryField.setBackground(UIConstants.INVALID_COLOR);
         }
         if (((String) props.get(FileWriterProperties.FILE_NAME)).length() == 0)
         {
             valid = false;
-            fileNameField.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	fileNameField.setBackground(UIConstants.INVALID_COLOR);
         }
         if (((String) props.get(FileWriterProperties.FILE_CONTENTS)).length() == 0)
         {
             valid = false;
-            fileContentsTextPane.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	fileContentsTextPane.setBackground(UIConstants.INVALID_COLOR);
         }
 
         return valid;

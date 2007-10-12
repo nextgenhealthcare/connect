@@ -63,7 +63,7 @@ public class ChannelReader extends ConnectorClass
         return new ChannelReaderProperties().getDefaults();
     }
 
-    public boolean checkProperties(Properties props)
+    public boolean checkProperties(Properties props, boolean highlight)
     {
         resetInvalidProperties();
         boolean valid = true;

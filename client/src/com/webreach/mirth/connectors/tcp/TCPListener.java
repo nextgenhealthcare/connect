@@ -61,7 +61,7 @@ public class TCPListener extends ConnectorClass
         receiveTimeoutField.setDocument(new MirthFieldConstraints(0, false, false, true));
         bufferSizeField.setDocument(new MirthFieldConstraints(0, false, false, true));
         // ast:encoding activation
-        parent.setupCharsetEncodingForChannel(charsetEncodingCombobox);
+        parent.setupCharsetEncodingForConnector(charsetEncodingCombobox);
     }
 
     public Properties getProperties()
@@ -76,7 +76,7 @@ public class TCPListener extends ConnectorClass
         properties.put(TCPListenerProperties.TCP_RESPONSE_VALUE, (String)responseFromTransformer.getSelectedItem());
 
         // ast:encoding
-        properties.put(TCPListenerProperties.CONNECTOR_CHARSET_ENCODING, parent.getSelectedEncodingForChannel(charsetEncodingCombobox));
+        properties.put(TCPListenerProperties.CONNECTOR_CHARSET_ENCODING, parent.getSelectedEncodingForConnector(charsetEncodingCombobox));
 
         if (ackOnNewConnectionYes.isSelected())
             properties.put(TCPListenerProperties.TCP_ACK_NEW_CONNECTION, UIConstants.YES_OPTION);
@@ -100,9 +100,8 @@ public class TCPListener extends ConnectorClass
         boolean visible = parent.channelEditTasks.getContentPane().getComponent(0).isVisible();
         
         updateResponseDropDown();
-        properties.put(TCPListenerProperties.TCP_RESPONSE_VALUE, (String)responseFromTransformer.getSelectedItem());
 
-        parent.sePreviousSelectedEncodingForChannel(charsetEncodingCombobox, (String) props.get(TCPListenerProperties.CONNECTOR_CHARSET_ENCODING));
+        parent.setPreviousSelectedEncodingForConnector(charsetEncodingCombobox, (String) props.get(TCPListenerProperties.CONNECTOR_CHARSET_ENCODING));
 
         if (((String) props.get(TCPListenerProperties.TCP_ACK_NEW_CONNECTION)).equalsIgnoreCase(UIConstants.YES_OPTION))
         {
@@ -126,7 +125,7 @@ public class TCPListener extends ConnectorClass
         return new TCPListenerProperties().getDefaults();
     }
 
-    public boolean checkProperties(Properties props)
+    public boolean checkProperties(Properties props, boolean highlight)
     {
         resetInvalidProperties();
         boolean valid = true;
@@ -134,34 +133,40 @@ public class TCPListener extends ConnectorClass
         if (((String) props.get(TCPListenerProperties.TCP_ADDRESS)).length() <= 3)
         {
             valid = false;
-            listenerAddressField.setBackground(UIConstants.INVALID_COLOR); 
+            if (highlight)
+            	listenerAddressField.setBackground(UIConstants.INVALID_COLOR); 
         }
         if (((String) props.get(TCPListenerProperties.TCP_PORT)).length() == 0)
         {
             valid = false;
-            listenerPortField.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	listenerPortField.setBackground(UIConstants.INVALID_COLOR);
         }
         if (((String) props.get(TCPListenerProperties.TCP_RECEIVE_TIMEOUT)).length() == 0)
         {
             valid = false;
-            receiveTimeoutField.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	receiveTimeoutField.setBackground(UIConstants.INVALID_COLOR);
         }
         if (((String) props.get(TCPListenerProperties.TCP_BUFFER_SIZE)).length() == 0)
         {
             valid = false;
-            bufferSizeField.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	bufferSizeField.setBackground(UIConstants.INVALID_COLOR);
         }
         if (((String) props.get(TCPListenerProperties.TCP_ACK_NEW_CONNECTION)).equals(UIConstants.YES_OPTION))
         {
             if (((String) props.get(TCPListenerProperties.TCP_ACK_NEW_CONNECTION_IP)).length() <= 3)
             {
                 valid = false;
-                ackAddressField.setBackground(UIConstants.INVALID_COLOR);
+                if (highlight)
+                	ackAddressField.setBackground(UIConstants.INVALID_COLOR);
             }
             if (((String) props.get(TCPListenerProperties.TCP_ACK_NEW_CONNECTION_PORT)).length() == 0)
             {
                 valid = false;
-                ackPortField.setBackground(UIConstants.INVALID_COLOR);
+                if (highlight)
+                	ackPortField.setBackground(UIConstants.INVALID_COLOR);
             }
         }
         

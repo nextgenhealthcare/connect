@@ -47,7 +47,7 @@ public class FileReader extends ConnectorClass
         pollingFrequency.setDocument(new MirthFieldConstraints(0, false, false, true));
         fileAge.setDocument(new MirthFieldConstraints(0, false, false, true));
         // ast:encoding activation
-        parent.setupCharsetEncodingForChannel(charsetEncodingCombobox);
+        parent.setupCharsetEncodingForConnector(charsetEncodingCombobox);
     }
     
     public Properties getProperties()
@@ -77,7 +77,7 @@ public class FileReader extends ConnectorClass
         else if (((String) sortBy.getSelectedItem()).equals("Date"))
             properties.put(FileReaderProperties.FILE_SORT_BY, FileReaderProperties.SORT_BY_DATE);
         
-        properties.put(FileReaderProperties.CONNECTOR_CHARSET_ENCODING, parent.getSelectedEncodingForChannel(charsetEncodingCombobox));
+        properties.put(FileReaderProperties.CONNECTOR_CHARSET_ENCODING, parent.getSelectedEncodingForConnector(charsetEncodingCombobox));
         
         properties.put(FileReaderProperties.FILE_FILTER, fileNameFilter.getText());
         
@@ -142,7 +142,7 @@ public class FileReader extends ConnectorClass
         else if (props.get(FileReaderProperties.FILE_SORT_BY).equals(FileReaderProperties.SORT_BY_DATE))
             sortBy.setSelectedItem("Date");
         
-        parent.sePreviousSelectedEncodingForChannel(charsetEncodingCombobox, (String) props.get(FileReaderProperties.CONNECTOR_CHARSET_ENCODING));
+        parent.setPreviousSelectedEncodingForConnector(charsetEncodingCombobox, (String) props.get(FileReaderProperties.CONNECTOR_CHARSET_ENCODING));
         
         fileNameFilter.setText((String) props.get(FileReaderProperties.FILE_FILTER));
         
@@ -181,7 +181,7 @@ public class FileReader extends ConnectorClass
         return new FileReaderProperties().getDefaults();
     }
     
-    public boolean checkProperties(Properties props)
+    public boolean checkProperties(Properties props, boolean highlight)
     {
         resetInvalidProperties();
         boolean valid = true;
@@ -189,29 +189,34 @@ public class FileReader extends ConnectorClass
         if (((String) props.get(FileReaderProperties.FILE_DIRECTORY)).length() == 0)
         {
             valid = false;
-            directoryField.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	directoryField.setBackground(UIConstants.INVALID_COLOR);
         }
         if (((String) props.get(FileReaderProperties.FILE_FILTER)).length() == 0)
         {
             valid = false;
-            fileNameFilter.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	fileNameFilter.setBackground(UIConstants.INVALID_COLOR);
         }
         if (((String) props.get(FileReaderProperties.FILE_POLLING_TYPE)).equalsIgnoreCase("interval") && ((String) props.get(FileReaderProperties.FILE_POLLING_FREQUENCY)).length() == 0)
         {
             valid = false;
-            pollingFrequency.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	pollingFrequency.setBackground(UIConstants.INVALID_COLOR);
         }
         if (((String) props.get(FileReaderProperties.FILE_POLLING_TYPE)).equalsIgnoreCase("time") && ((String) props.get(FileReaderProperties.FILE_POLLING_TIME)).length() == 0)
         {
             valid = false;
-            pollingTime.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	pollingTime.setBackground(UIConstants.INVALID_COLOR);
         }
         if (((String) props.get(FileReaderProperties.FILE_CHECK_FILE_AGE)).equals(UIConstants.YES_OPTION))
         {
             if (((String) props.get(FileReaderProperties.FILE_FILE_AGE)).length() == 0)
             {
                 valid = false;
-                fileAge.setBackground(UIConstants.INVALID_COLOR);
+                if (highlight)
+                	fileAge.setBackground(UIConstants.INVALID_COLOR);
             }
         }
         

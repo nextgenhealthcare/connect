@@ -38,8 +38,6 @@ public class ConnectorClass extends javax.swing.JPanel
 {
     public String name;
 
-    public Properties properties = new Properties();
-
     public Frame parent;
 
     public final String RESULT_PATTERN = "responseMap.put\\(['|\"]([^'|^\"]*)[\"|']";
@@ -63,7 +61,7 @@ public class ConnectorClass extends javax.swing.JPanel
      */
     public Properties getProperties()
     {
-        return properties;
+    	return new Properties();
     }
 
     /**
@@ -80,12 +78,20 @@ public class ConnectorClass extends javax.swing.JPanel
      */
     public Properties getDefaults()
     {
-        return properties;
+    	return new Properties();
     }
 
-    public boolean checkProperties(Properties props)
+    /**
+     * Checks to see if the properties in the connector are all valid.
+     * Highlights fields that are not valid if highlight=true.
+     * 
+     * @param props
+     * @param highlight
+     * @return
+     */
+    public boolean checkProperties(Properties props, boolean highlight)
     {
-        return true;
+    	return true;
     }
     
     public void updateResponseDropDown()

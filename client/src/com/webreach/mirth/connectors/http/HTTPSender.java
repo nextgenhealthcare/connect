@@ -510,7 +510,7 @@ public class HTTPSender extends ConnectorClass
         return "";
     }
     
-    public boolean checkProperties(Properties props)
+    public boolean checkProperties(Properties props, boolean highlight)
     {
         resetInvalidProperties();
         boolean valid = true;
@@ -518,7 +518,8 @@ public class HTTPSender extends ConnectorClass
         if (((String) props.getProperty(HTTPSenderProperties.HTTP_URL)).length() == 0)
         {
             valid = false;
-            httpURL.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	httpURL.setBackground(UIConstants.INVALID_COLOR);
         }
         
         return valid;

@@ -100,6 +100,7 @@ public class ChannelSetup extends javax.swing.JPanel
     private Frame parent;
     private boolean isDeleting = false;
     private boolean loadingChannel = false;
+    private boolean channelValidationFailed = false;
     public Map<String, ConnectorMetaData> transports;
     private ArrayList<String> sourceConnectors;
     private ArrayList<String> destinationConnectors;
@@ -564,6 +565,7 @@ public class ChannelSetup extends javax.swing.JPanel
     public void editChannel(Channel channel)
     {
         loadingChannel = true;
+        channelValidationFailed = false;
         lastIndex = "";
         currentChannel = channel;
         
@@ -766,6 +768,17 @@ public class ChannelSetup extends javax.swing.JPanel
         {
             enabled = false;
             
+            // If there is an error on one of the forms, then run the
+            // validation on the current form to display any errors.
+        	if (channelView.getSelectedComponent() == destination)
+        	{
+        		// If the destination is enabled...
+            	if (currentChannel.getDestinationConnectors().get(getDestinationConnectorIndex((String) destinationTable.getValueAt(getSelectedDestinationIndex(), getColumnNumber(DESTINATION_COLUMN_NAME)))).isEnabled())
+            		destinationConnectorClass.checkProperties(destinationConnectorClass.getProperties(), true);
+        	}
+        	else if (channelView.getSelectedComponent() == source)
+        		sourceConnectorClass.checkProperties(sourceConnectorClass.getProperties(), true);
+            
             if (!parent.alertOption("There was a problem with one or more of your connectors.  Please validate all of\nyour connectors to find the problem. Would you still like to save this channel even\nthough you will not be able to enable this channel until you fix the problem(s)?"))
                 return false;
             else
@@ -929,6 +942,10 @@ public class ChannelSetup extends javax.swing.JPanel
         destination.setEnabled(true);
         makeDestinationTable(false);
         parent.enableSave();
+        
+        // If validation has failed, then highlight any errors on this form.
+    	if (channelValidationFailed)
+    		destinationConnectorClass.checkProperties(destinationConnectorClass.getProperties(), true);
     }
     
     public void disableDestination()
@@ -952,6 +969,11 @@ public class ChannelSetup extends javax.swing.JPanel
         destination.setEnabled(false);
         makeDestinationTable(false);
         parent.enableSave();
+        
+        // If validation has failed then errors might be highlighted.
+        // Remove highlights on this form.
+        if (channelValidationFailed)
+        	destinationConnectorClass.checkProperties(destinationConnectorClass.getProperties(), false);
     }
     
     /** Deletes the selected destination. */
@@ -1055,6 +1077,12 @@ public class ChannelSetup extends javax.swing.JPanel
         parent.enableSave();
     }
     
+    /**
+     * Checks all of the connectors in this channel and returns true if a problem was found.
+     * 
+     * @param channel
+     * @return
+     */
     public boolean checkAllForms(Channel channel)
     {
         boolean problemFound = false;
@@ -1074,7 +1102,7 @@ public class ChannelSetup extends javax.swing.JPanel
 	                    tempProps = channel.getDestinationConnectors().get(i).getProperties();
 	                }
 	            }
-	            if (tempConnector != null && !tempConnector.checkProperties(tempProps))
+	            if (tempConnector != null && !tempConnector.checkProperties(tempProps, false))
 	                problemFound = true;
 	            
 	            tempConnector = null;
@@ -1090,9 +1118,10 @@ public class ChannelSetup extends javax.swing.JPanel
                 tempProps = channel.getSourceConnector().getProperties();
             }
         }
-        if (tempConnector != null && !tempConnector.checkProperties(tempProps))
+        if (tempConnector != null && !tempConnector.checkProperties(tempProps, false))
             problemFound = true;
         
+        channelValidationFailed = problemFound;
         return problemFound;
     }
     
@@ -1100,14 +1129,14 @@ public class ChannelSetup extends javax.swing.JPanel
     {
         if (source.isVisible())
         {
-            if (!sourceConnectorClass.checkProperties(sourceConnectorClass.getProperties()))
+            if (!sourceConnectorClass.checkProperties(sourceConnectorClass.getProperties(), true))
                 parent.alertWarning("This form is missing required data.");
             else
                 parent.alertInformation("The form was successfully validated.");
         }
         else
         {
-            if (!destinationConnectorClass.checkProperties(destinationConnectorClass.getProperties()))
+            if (!destinationConnectorClass.checkProperties(destinationConnectorClass.getProperties(), true))
                 parent.alertWarning("This form is missing required data.");
             else
                 parent.alertInformation("The form was successfully validated.");
@@ -1618,6 +1647,10 @@ public class ChannelSetup extends javax.swing.JPanel
         parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 9, 11, true);
         parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 12, 12, false);
         sourceConnectorClass.updateResponseDropDown();
+        
+        // If validation has failed, then highlight any errors on this form.
+        if (channelValidationFailed)
+        	sourceConnectorClass.checkProperties(sourceConnectorClass.getProperties(), true);
     }
     
     /** Action when the destinations tab is shown. */
@@ -1628,6 +1661,10 @@ public class ChannelSetup extends javax.swing.JPanel
         parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 2, 10, true);
         parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 12, 12, false);
         checkVisibleDestinationTasks();
+        
+        // If validation has failed and this destination is enabled, then highlight any errors on this form.
+        if (channelValidationFailed && currentChannel.getDestinationConnectors().get(getDestinationConnectorIndex((String) destinationTable.getValueAt(getSelectedDestinationIndex(), getColumnNumber(DESTINATION_COLUMN_NAME)))).isEnabled())
+        	destinationConnectorClass.checkProperties(destinationConnectorClass.getProperties(), true);
     }
     
     /** Action when an action is performed on the source connector type dropdown. */
@@ -1689,6 +1726,10 @@ public class ChannelSetup extends javax.swing.JPanel
         sourceConnectorPane.setViewportView(sourceConnectorClass);
         ((TitledBorder) sourceConnectorPane.getBorder()).setTitle(sourceConnectorClass.getName());
         sourceConnectorPane.repaint();
+        
+        // If validation has failed, then highlight any errors on this form.
+        if (channelValidationFailed)
+        	sourceConnectorClass.checkProperties(sourceConnectorClass.getProperties(), true);
     }
     
     /**
@@ -1721,6 +1762,10 @@ public class ChannelSetup extends javax.swing.JPanel
             }
         }
         generateMultipleDestinationPage();
+        
+        // If validation has failed and this destination is enabled, then highlight any errors on this form.
+        if (channelValidationFailed && currentChannel.getDestinationConnectors().get(getDestinationConnectorIndex((String) destinationTable.getValueAt(getSelectedDestinationIndex(), getColumnNumber(DESTINATION_COLUMN_NAME)))).isEnabled())
+        	destinationConnectorClass.checkProperties(destinationConnectorClass.getProperties(), true);
     }
     
     public void generateMultipleDestinationPage()

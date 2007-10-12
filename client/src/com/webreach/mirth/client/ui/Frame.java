@@ -25,25 +25,20 @@
 
 package com.webreach.mirth.client.ui;
 
-import com.webreach.mirth.model.ChannelProperties;
-import com.webreach.mirth.util.PropertyVerifier;
+import ij.plugin.DICOM;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.dnd.DragSource;
-import java.awt.dnd.DragSourceDragEvent;
-import java.awt.dnd.DragSourceDropEvent;
-import java.awt.dnd.DragSourceEvent;
-import java.awt.dnd.DragSourceListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -77,31 +72,32 @@ import org.jdesktop.swingx.action.ActionFactory;
 import org.jdesktop.swingx.action.ActionManager;
 import org.jdesktop.swingx.action.BoundAction;
 
+import sun.misc.BASE64Decoder;
+
 import com.webreach.mirth.client.core.Client;
 import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.ui.browsers.event.EventBrowser;
 import com.webreach.mirth.client.ui.browsers.message.MessageBrowser;
-import com.webreach.mirth.connectors.ConnectorClass;
 import com.webreach.mirth.client.ui.editors.filter.FilterPane;
 import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
 import com.webreach.mirth.client.ui.util.FileUtil;
-import com.webreach.mirth.model.util.ImportConverter;
+import com.webreach.mirth.connectors.ConnectorClass;
 import com.webreach.mirth.model.Alert;
 import com.webreach.mirth.model.Channel;
+import com.webreach.mirth.model.ChannelProperties;
 import com.webreach.mirth.model.ChannelStatus;
 import com.webreach.mirth.model.ChannelSummary;
 import com.webreach.mirth.model.Connector;
 import com.webreach.mirth.model.ConnectorMetaData;
 import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.model.MetaData;
 import com.webreach.mirth.model.PluginMetaData;
 import com.webreach.mirth.model.User;
 import com.webreach.mirth.model.converters.ObjectCloner;
 import com.webreach.mirth.model.converters.ObjectClonerException;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.model.filters.MessageObjectFilter;
-import ij.plugin.DICOM;
-import sun.misc.BASE64Decoder;
+import com.webreach.mirth.model.util.ImportConverter;
+import com.webreach.mirth.util.PropertyVerifier;
 
 /**
  * The main conent frame for the Mirth Client Application. Extends JXFrame and
@@ -166,7 +162,7 @@ public class Frame extends JXFrame
     public static Preferences userPreferences;
     private StatusUpdater su;
     private boolean connectionError;
-    private ArrayList<CharsetEncodingInformation> avaiableCharsetEncodings = null;
+    private ArrayList<CharsetEncodingInformation> availableCharsetEncodings = null;
     private List<String> charsetEncodings = null;
     private boolean highlightersSet = false;
     private boolean isEditingChannel = false;
@@ -240,23 +236,23 @@ public class Frame extends JXFrame
     }
 
     /**
-     * Prepares the list of the encodings This method is called from the
-     * ChannelSetup class
+     * Prepares the list of the encodings.  This method is called from the
+     * Frame class.
      *
      */
     public void setCharsetEncodings()
     {
-        if (this.avaiableCharsetEncodings != null)
+        if (this.availableCharsetEncodings != null)
             return;
         try
         {
             this.charsetEncodings = this.mirthClient.getAvaiableCharsetEncodings();
-            this.avaiableCharsetEncodings = new ArrayList<CharsetEncodingInformation>();
-            this.avaiableCharsetEncodings.add(new CharsetEncodingInformation(UIConstants.DEFAULT_ENCODING_OPTION, "Default"));
+            this.availableCharsetEncodings = new ArrayList<CharsetEncodingInformation>();
+            this.availableCharsetEncodings.add(new CharsetEncodingInformation(UIConstants.DEFAULT_ENCODING_OPTION, "Default"));
             for (int i = 0; i < charsetEncodings.size(); i++)
             {
                 String canonical = (String) charsetEncodings.get(i);
-                this.avaiableCharsetEncodings.add(new CharsetEncodingInformation(canonical, canonical));
+                this.availableCharsetEncodings.add(new CharsetEncodingInformation(canonical, canonical));
             }
         }
         catch (Exception e)
@@ -266,75 +262,75 @@ public class Frame extends JXFrame
     }
 
     /**
-     * * Creates all the items in the combo box for the channels
+     * Creates all the items in the combo box for the connectors.
      *
-     * This method is called from each channel
+     * This method is called from each connector.
      */
-    public void setupCharsetEncodingForChannel(javax.swing.JComboBox channelCombo)
+    public void setupCharsetEncodingForConnector(javax.swing.JComboBox charsetEncodingCombobox)
     {
-        if (this.avaiableCharsetEncodings == null)
+        if (this.availableCharsetEncodings == null)
         {
             this.setCharsetEncodings();
         }
-        if (this.avaiableCharsetEncodings == null)
+        if (this.availableCharsetEncodings == null)
         {
-            logger.error("Error, the are no encodings detected ");
+            logger.error("Error, the are no encodings detected.");
             return;
         }
-        channelCombo.removeAllItems();
-        for (int i = 0; i < this.avaiableCharsetEncodings.size(); i++)
+        charsetEncodingCombobox.removeAllItems();
+        for (int i = 0; i < this.availableCharsetEncodings.size(); i++)
         {
-            channelCombo.addItem(this.avaiableCharsetEncodings.get(i));
+            charsetEncodingCombobox.addItem(this.availableCharsetEncodings.get(i));
         }
     }
 
     /**
-     * stes the combobox for the string previously selected If the server can't
-     * support the encoding, the default one is selectd This method is called
-     * from each channel
+     * Sets the combobox for the string previously selected.  If the server can't
+     * support the encoding, the default one is selected.  This method is called
+     * from each connector.
      */
-    public void sePreviousSelectedEncodingForChannel(javax.swing.JComboBox channelCombo, String selectedCharset)
+    public void setPreviousSelectedEncodingForConnector(javax.swing.JComboBox charsetEncodingCombobox, String selectedCharset)
     {
-        if (this.avaiableCharsetEncodings == null)
+        if (this.availableCharsetEncodings == null)
         {
             this.setCharsetEncodings();
         }
-        if (this.avaiableCharsetEncodings == null)
+        if (this.availableCharsetEncodings == null)
         {
             logger.error("Error, there are no encodings detected.");
             return;
         }
         if ((selectedCharset == null) || (selectedCharset.equalsIgnoreCase(UIConstants.DEFAULT_ENCODING_OPTION)))
         {
-            channelCombo.setSelectedIndex(0);
+            charsetEncodingCombobox.setSelectedIndex(0);
         }
         else if (this.charsetEncodings.contains(selectedCharset))
         {
-            int index = this.avaiableCharsetEncodings.indexOf(new CharsetEncodingInformation(selectedCharset, selectedCharset));
+            int index = this.availableCharsetEncodings.indexOf(new CharsetEncodingInformation(selectedCharset, selectedCharset));
             if (index < 0)
             {
-                logger.error("Syncro lost in the list of the encoding characters");
+                logger.error("Synchronization lost in the list of the encoding characters.");
                 index = 0;
             }
-            channelCombo.setSelectedIndex(index);
+            charsetEncodingCombobox.setSelectedIndex(index);
         }
         else
         {
-            alertInformation("Sorry, the JVM of the server can't support the previously selected " + selectedCharset + " encoding. Please choose another one or install more encodings in the server");
-            channelCombo.setSelectedIndex(0);
+            alertInformation("Sorry, the JVM of the server can't support the previously selected " + selectedCharset + " encoding. Please choose another one or install more encodings in the server.");
+            charsetEncodingCombobox.setSelectedIndex(0);
         }
     }
 
     /**
-     * Get the strings which identifies the encoding selected by the user
+     * Get the strings which identifies the encoding selected by the user.
      *
-     * This method is called from each channel
+     * This method is called from each connector.
      */
-    public String getSelectedEncodingForChannel(javax.swing.JComboBox channelCombo)
+    public String getSelectedEncodingForConnector(javax.swing.JComboBox charsetEncodingCombobox)
     {
         try
         {
-            return ((CharsetEncodingInformation) channelCombo.getSelectedItem()).getCanonicalName();
+            return ((CharsetEncodingInformation) charsetEncodingCombobox.getSelectedItem()).getCanonicalName();
         }
         catch (Throwable t)
         {
@@ -2680,10 +2676,9 @@ public class Frame extends JXFrame
 
         worker.execute();
     }
+    
     public void doRemoveAllMessagesAllChannels()
     {
-
-
         if (alertOption("Are you sure you would like to remove all messages and all statistics for all channels?"))
         {
             setWorking("Removing messages...", true);
@@ -2724,6 +2719,7 @@ public class Frame extends JXFrame
         }
 
     }
+    
     public void clearStatsAllChannels(final boolean deleteReceived, final boolean deleteFiltered, final boolean deleteQueued, final boolean deleteSent, final boolean deleteErrored){
 
             setWorking("Clearing statistics...", true);
@@ -3235,6 +3231,7 @@ public class Frame extends JXFrame
             doSaveAlerts();
         }
     }
+    
     public void doHelp()
     {
         if (currentContentPage == channelEditPanel)
@@ -3255,77 +3252,6 @@ public class Frame extends JXFrame
             BareBonesBrowserLaunch.openURL(UIConstants.HELP_LOCATION + UIConstants.FILTER_HELP_LOCATION);
         else
             BareBonesBrowserLaunch.openURL(UIConstants.HELP_LOCATION);
-    }
-
-    // ast: class for encoding information
-    /*
-     * class CharsetEncodingInformation gets all the information we need for an
-     * encoding class
-     */
-    public class CharsetEncodingInformation
-    {
-        protected String canonicalName = "";
-
-        protected String description = "";
-
-        public CharsetEncodingInformation(String name, String descp)
-        {
-            this.canonicalName = name;
-            this.description = descp;
-        }
-
-        public CharsetEncodingInformation(String name)
-        {
-            this.canonicalName = name;
-            this.description = "";
-        }
-
-        /**
-         * Overloaded method to show the description in the combo box
-         */
-        public String toString()
-        {
-            return new String(this.description);
-        }
-
-        /**
-         * Overloaded method to show the description in the combo box
-         */
-        public boolean equals(Object obj)
-        {
-            if (obj instanceof String)
-            {
-                return canonicalName.equalsIgnoreCase((String) obj);
-            }
-            else if (obj instanceof CharsetEncodingInformation)
-            {
-                return canonicalName.equalsIgnoreCase(((CharsetEncodingInformation) obj).getCanonicalName());
-            }
-            else
-            {
-                return this.equals(obj);
-            }
-        }
-
-        public String getCanonicalName()
-        {
-            return this.canonicalName;
-        }
-
-        public void setCanonicalName(String c)
-        {
-            this.canonicalName = c;
-        }
-
-        public String getDescription()
-        {
-            return this.description;
-        }
-
-        public void setDescription(String d)
-        {
-            this.description = d;
-        }
     }
 
     public Map<String, PluginMetaData> getPluginMetaData() {

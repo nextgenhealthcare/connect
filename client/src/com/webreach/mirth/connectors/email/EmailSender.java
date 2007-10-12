@@ -79,7 +79,7 @@ public class EmailSender extends ConnectorClass
         return new EmailSenderProperties().getDefaults();
     }
 
-    public boolean checkProperties(Properties props)
+    public boolean checkProperties(Properties props, boolean highlight)
     {
         resetInvalidProperties();
         boolean valid = true;
@@ -87,17 +87,20 @@ public class EmailSender extends ConnectorClass
         if (((String) props.get(EmailSenderProperties.EMAIL_ADDRESS)).length() == 0)
         {
             valid = false;
-            SMTPServerHostField.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	SMTPServerHostField.setBackground(UIConstants.INVALID_COLOR);
         }
         if (((String) props.get(EmailSenderProperties.EMAIL_PORT)).length() == 0)
         {
             valid = false;
-            SMTPServerPortField.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	SMTPServerPortField.setBackground(UIConstants.INVALID_COLOR);
         }
         if (((String) props.get(EmailSenderProperties.EMAIL_TO)).length() == 0)
         {
             valid = false;
-            emailToField.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	emailToField.setBackground(UIConstants.INVALID_COLOR);
         }
         
         return valid;

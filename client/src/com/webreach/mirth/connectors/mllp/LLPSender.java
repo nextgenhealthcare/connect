@@ -56,7 +56,7 @@ public class LLPSender extends ConnectorClass
         // ast: Acktimeout constrain
         ackTimeoutField.setDocument(new MirthFieldConstraints(0, false, false, true));
         // ast:encoding activation
-        parent.setupCharsetEncodingForChannel(charsetEncodingCombobox);
+        parent.setupCharsetEncodingForConnector(charsetEncodingCombobox);
     }
 
     public Properties getProperties()
@@ -94,7 +94,7 @@ public class LLPSender extends ConnectorClass
             properties.put(LLPSenderProperties.LLP_USE_PERSISTENT_QUEUES, UIConstants.NO_OPTION);
 
         properties.put(LLPSenderProperties.LLP_ACK_TIMEOUT, ackTimeoutField.getText());
-        properties.put(LLPSenderProperties.CONNECTOR_CHARSET_ENCODING, parent.getSelectedEncodingForChannel(charsetEncodingCombobox));
+        properties.put(LLPSenderProperties.CONNECTOR_CHARSET_ENCODING, parent.getSelectedEncodingForConnector(charsetEncodingCombobox));
         properties.put(LLPSenderProperties.LLP_TEMPLATE, template.getText());
         properties.put(LLPSenderProperties.CHANNEL_ID, channelList.get((String) channelNames.getSelectedItem()));
         properties.put(LLPSenderProperties.CHANNEL_NAME, (String) channelNames.getSelectedItem());
@@ -136,7 +136,7 @@ public class LLPSender extends ConnectorClass
         ackTimeoutField.setText((String) props.get(LLPSenderProperties.LLP_ACK_TIMEOUT));
 
         template.setText((String) props.get(LLPSenderProperties.LLP_TEMPLATE));
-        parent.sePreviousSelectedEncodingForChannel(charsetEncodingCombobox, (String) props.get(LLPSenderProperties.CONNECTOR_CHARSET_ENCODING));
+        parent.setPreviousSelectedEncodingForConnector(charsetEncodingCombobox, (String) props.get(LLPSenderProperties.CONNECTOR_CHARSET_ENCODING));
 
         ArrayList<String> channelNameArray = new ArrayList<String>();
         channelList = new HashMap();
@@ -162,7 +162,7 @@ public class LLPSender extends ConnectorClass
         return new LLPSenderProperties().getDefaults();
     }
 
-    public boolean checkProperties(Properties props)
+    public boolean checkProperties(Properties props, boolean highlight)
     {
         resetInvalidProperties();
         boolean valid = true;
@@ -170,62 +170,74 @@ public class LLPSender extends ConnectorClass
         if (((String) props.get(LLPSenderProperties.LLP_ADDRESS)).length() == 0)
         {
             valid = false;
-            hostAddressField.setBackground(UIConstants.INVALID_COLOR);     
+            if (highlight)
+            	hostAddressField.setBackground(UIConstants.INVALID_COLOR);     
         }
         if (((String) props.get(LLPSenderProperties.LLP_PORT)).length() == 0)
         {
             valid = false;
-            hostPortField.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	hostPortField.setBackground(UIConstants.INVALID_COLOR);
         }
         if (((String) props.get(LLPSenderProperties.LLP_SERVER_TIMEOUT)).length() == 0)
         {
             valid = false;
-            serverTimeoutField.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	serverTimeoutField.setBackground(UIConstants.INVALID_COLOR);
         }
         if (((String) props.get(LLPSenderProperties.LLP_RECONNECT_INTERVAL)).length() == 0)
         {
             valid = false;
-            reconnectInterval.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	reconnectInterval.setBackground(UIConstants.INVALID_COLOR);
         }
         if (((String) props.get(LLPSenderProperties.LLP_BUFFER_SIZE)).length() == 0)
         {
             valid = false;
-            bufferSizeField.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	bufferSizeField.setBackground(UIConstants.INVALID_COLOR);
         }
         if (((String) props.get(LLPSenderProperties.LLP_MAX_RETRY_COUNT)).length() == 0)
         {
             valid = false;
-            maximumRetryCountField.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	maximumRetryCountField.setBackground(UIConstants.INVALID_COLOR);
         }
         if (((String) props.get(LLPSenderProperties.LLP_TEMPLATE)).length() == 0)
         {
             valid = false;
-            template.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	template.setBackground(UIConstants.INVALID_COLOR);
         }
         if (((String) props.get(LLPSenderProperties.LLP_ACK_TIMEOUT)).length() == 0)
         {
             valid = false;
-            ackTimeoutField.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	ackTimeoutField.setBackground(UIConstants.INVALID_COLOR);
         }
         if (((String) props.get(LLPSenderProperties.LLP_END_OF_MESSAGE_CHARACTER)).length() == 0)
         {
             valid = false;
-            endOfMessageCharacterField.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	endOfMessageCharacterField.setBackground(UIConstants.INVALID_COLOR);
         }
         if (((String) props.get(LLPSenderProperties.LLP_START_OF_MESSAGE_CHARACTER)).length() == 0)
         {
             valid = false;
-            startOfMessageCharacterField.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	startOfMessageCharacterField.setBackground(UIConstants.INVALID_COLOR);
         }
         if (((String) props.get(LLPSenderProperties.LLP_RECORD_SEPARATOR)).length() == 0)
         {
             valid = false;
-            recordSeparatorField.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	recordSeparatorField.setBackground(UIConstants.INVALID_COLOR);
         }
         if (((String) props.get(LLPSenderProperties.LLP_SEGMENT_END)).length() == 0)
         {
             valid = false;
-            segmentEnd.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight)
+            	segmentEnd.setBackground(UIConstants.INVALID_COLOR);
         } 
         
         return valid;
