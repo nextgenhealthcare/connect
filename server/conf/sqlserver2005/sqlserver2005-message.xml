@@ -189,8 +189,14 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		MESSAGE (ID, SERVER_ID, CHANNEL_ID, SOURCE, TYPE, DATE_CREATED, VERSION, IS_ENCRYPTED, STATUS, RAW_DATA, RAW_DATA_PROTOCOL, TRANSFORMED_DATA, TRANSFORMED_DATA_PROTOCOL, ENCODED_DATA, ENCODED_DATA_PROTOCOL, CONNECTOR_NAME, ERRORS, CORRELATION_ID, CONNECTOR_MAP, CHANNEL_MAP, RESPONSE_MAP, ATTACHMENT)
 		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	</insert>
-	
-	<update id="updateMessage" parameterMap="update-message-param">
+
+    <insert id="insertAttachment" parameterMap="insert-attachment-param">
+        INSERT INTO
+        ATTACHMENT (ID, MESSAGE_ID, DATA, SIZE, TYPE)
+        VALUES (?, ?, ?, ?, ?)
+	</insert>
+    
+    <update id="updateMessage" parameterMap="update-message-param">
 		UPDATE MESSAGE
 		SET STATUS = ?,
 			RAW_DATA = ?,
