@@ -100,10 +100,12 @@ import com.webreach.mirth.model.ExtensionPointDefinition;
 import com.webreach.mirth.model.Filter;
 import com.webreach.mirth.model.PluginMetaData;
 import com.webreach.mirth.model.Rule;
+import com.webreach.mirth.model.Step;
 import com.webreach.mirth.model.Transformer;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.model.util.ImportConverter;
 import com.webreach.mirth.plugins.FilterRulePlugin;
+import com.webreach.mirth.plugins.TransformerStepPlugin;
 
 public class FilterPane extends MirthEditorPane implements DropTargetListener
 {
@@ -134,7 +136,8 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
     private String[] comboBoxValues = new String[] { Rule.Operator.AND.toString(), Rule.Operator.OR.toString() };
     private Channel channel;
     private DropTarget dropTarget;
-    private Map<String,FilterRulePlugin> loadedPlugins = new HashMap<String, FilterRulePlugin>();
+    private Map<String, FilterRulePlugin> loadedPlugins = new HashMap<String, FilterRulePlugin>();
+    private Map<String, FilterRulePlugin> loadedPluginsCopy = new HashMap<String, FilterRulePlugin>();  // A copy of the plugins to use in the background.
     
     /**
      * CONSTRUCTOR
@@ -166,8 +169,13 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
                         if(extensionPoint.getMode() == ExtensionPoint.Mode.CLIENT && extensionPoint.getType() == ExtensionPoint.Type.CLIENT_FILTER_RULE && extensionPoint.getClassName() != null && extensionPoint.getClassName().length() > 0)
                         {
                             String pluginName = extensionPoint.getName();
-                            FilterRulePlugin rulePlugin = (FilterRulePlugin) Class.forName(extensionPoint.getClassName()).getDeclaredConstructors()[0].newInstance(new Object[]{pluginName, this});
+                            Class clazz = Class.forName(extensionPoint.getClassName());
+                            
+                            FilterRulePlugin rulePlugin = (FilterRulePlugin) clazz.getDeclaredConstructors()[0].newInstance(new Object[]{pluginName, this});
+                            FilterRulePlugin rulePluginCopy = (FilterRulePlugin) clazz.getDeclaredConstructors()[0].newInstance(new Object[]{pluginName, this});
+                            
                             loadedPlugins.put(rulePlugin.getDisplayName(), rulePlugin);
+                            loadedPluginsCopy.put(rulePluginCopy.getDisplayName(), rulePluginCopy);
                         }
                     }
                     catch (Exception e)
@@ -962,6 +970,22 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
         }
     }
     
+    private FilterRulePlugin getPluginCopy(String name) throws Exception
+    {
+        FilterRulePlugin plugin = loadedPluginsCopy.get(name);
+        if (plugin == null)
+        {
+            String message = "Unable to find Filter Rule Plugin: " + name;
+            Exception e = new Exception(message);
+            parent.alertError(message);
+            throw new Exception(e);
+        }
+        else
+        {
+            return plugin;
+        }
+    }
+    
     /**
      * void moveRule( int i ) move the selected row i places
      */
@@ -1089,12 +1113,38 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
         String type = (String) filterTable.getValueAt(filterTable.getSelectedRow(), RULE_TYPE_COL);
         try
         {
-            getPlugin(type).doValidate();
+        	FilterRulePlugin rulePlugin = getPlugin(type);
+        	String validationMessage = rulePlugin.doValidate();
+        	
+        	if (validationMessage == null)
+        		parent.alertInformation("Validation successful.");
+        	else
+        		parent.alertInformation(validationMessage);
         }
         catch (Exception e)
         {
-            // TODO Auto-generated catch block
             parent.alertException(e.getStackTrace(), e.getMessage());
+        }
+    }
+    
+    /**
+     * Run a specific rule's validator.
+     * 
+     * @param step
+     * @return
+     */
+    public String validateRule(Rule rule)
+    {
+    	try
+    	{
+    		FilterRulePlugin rulePlugin = getPluginCopy(rule.getType());
+    		rulePlugin.setData((Map)rule.getData());
+			return rulePlugin.doValidate();
+		}
+    	catch (Exception e)
+    	{
+			parent.alertException(e.getStackTrace(), e.getMessage());
+			return "Exception occurred during validation.";
         }
     }
     

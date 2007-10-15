@@ -31,9 +31,9 @@ public abstract class MirthEditorPanePlugin
     {
         return null;
     }
-    public void doValidate()
+    public String doValidate()
     {
-        return;
+        return null;
     }
     public boolean showValidateTask()
     {

@@ -1100,6 +1100,9 @@ public class ChannelSetup extends javax.swing.JPanel
 	                {
 	                    tempConnector = parent.destinationConnectors.get(j);
 	                    tempProps = channel.getDestinationConnectors().get(i).getProperties();
+	                    
+	                    problemFound = !validateFilterRules(channel.getDestinationConnectors().get(i));
+	                    problemFound = !validateTransformerSteps(channel.getDestinationConnectors().get(i));
 	                }
 	            }
 	            if (tempConnector != null && !tempConnector.checkProperties(tempProps, false))
@@ -1116,6 +1119,9 @@ public class ChannelSetup extends javax.swing.JPanel
             {
                 tempConnector = parent.sourceConnectors.get(i);
                 tempProps = channel.getSourceConnector().getProperties();
+                
+                problemFound = !validateFilterRules(channel.getSourceConnector());
+                problemFound = !validateTransformerSteps(channel.getSourceConnector());
             }
         }
         if (tempConnector != null && !tempConnector.checkProperties(tempProps, false))
@@ -1123,6 +1129,50 @@ public class ChannelSetup extends javax.swing.JPanel
         
         channelValidationFailed = problemFound;
         return problemFound;
+    }
+    
+    private boolean validateTransformerSteps(Connector connector)
+    {
+    	String errors = "";
+    	
+    	for (Step step : connector.getTransformer().getSteps())
+        {
+        	String validationMessage = this.transformerPane.validateStep(step);
+        	if (validationMessage != null)
+        	{
+        		errors += "Error in connector \"" + connector.getName() + "\" at step \"" + step.getName()+ "\":\n" + validationMessage + "\n\n";
+        	}
+        }
+    	
+    	if (!errors.equals(""))
+    	{
+    		parent.alertInformation(errors);
+    		return false;
+    	}
+    	else
+    		return true;
+    }
+    
+    private boolean validateFilterRules(Connector connector)
+    {
+    	String errors = "";
+    	
+    	for (Rule rule : connector.getFilter().getRules())
+        {
+        	String validationMessage = this.filterPane.validateRule(rule);
+        	if (validationMessage != null)
+        	{
+        		errors += "Error in connector " + connector.getName() + " at rule \"" + rule.getName()+ "\":\n" + validationMessage + "\n\n";
+        	}
+        }
+    	
+    	if (!errors.equals(""))
+    	{
+    		parent.alertInformation(errors);
+    		return false;
+    	}
+    	else
+    		return true;
     }
     
     public void validateForm()

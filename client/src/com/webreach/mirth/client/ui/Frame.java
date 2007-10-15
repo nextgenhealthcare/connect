@@ -1451,6 +1451,12 @@ public class Frame extends JXFrame
 
     public void doEditChannel()
     {
+        if (channelEditPanel.transformerPane == null)
+            channelEditPanel.transformerPane = new TransformerPane();
+        
+        if (channelEditPanel.filterPane == null)
+            channelEditPanel.filterPane = new FilterPane();
+        
         if (isEditingChannel)
             return;
         else
@@ -2256,18 +2262,12 @@ public class Frame extends JXFrame
 
     public void doEditTransformer()
     {
-        if (channelEditPanel.transformerPane == null)
-            channelEditPanel.transformerPane = new TransformerPane();
-
         String name = channelEditPanel.editTransformer();
         setPanelName("Edit Channel - " + channelEditPanel.currentChannel.getName() + " - " + name + " Transformer");
     }
 
     public void doEditFilter()
     {
-        if (channelEditPanel.filterPane == null)
-            channelEditPanel.filterPane = new FilterPane();
-
         String name = channelEditPanel.editFilter();
         setPanelName("Edit Channel - " + channelEditPanel.currentChannel.getName() + " - " + name + " Filter");
     }

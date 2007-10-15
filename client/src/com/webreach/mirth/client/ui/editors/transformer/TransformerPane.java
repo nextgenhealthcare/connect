@@ -133,7 +133,8 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
     public static final int NUMBER_OF_COLUMNS = 4;
 
     private Map<String, TransformerStepPlugin> loadedPlugins = new HashMap<String, TransformerStepPlugin>();
-
+    private Map<String, TransformerStepPlugin> loadedPluginsCopy = new HashMap<String, TransformerStepPlugin>();  // A copy of the plugins to use in the background.
+    
     private DropTarget dropTarget;
 
     // Extension point for ExtensionPoint.Type.CLIENT_TRANSFORMER_STEP
@@ -154,8 +155,13 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
                         if (extensionPoint.getMode() == ExtensionPoint.Mode.CLIENT && extensionPoint.getType() == ExtensionPoint.Type.CLIENT_TRANSFORMER_STEP && extensionPoint.getClassName() != null && extensionPoint.getClassName().length() > 0)
                         {
                             String pluginName = extensionPoint.getName();
-                            TransformerStepPlugin stepPlugin = (TransformerStepPlugin) Class.forName(extensionPoint.getClassName()).getDeclaredConstructors()[0].newInstance(new Object[] { pluginName, this });
+                            Class clazz = Class.forName(extensionPoint.getClassName());
+                            
+                            TransformerStepPlugin stepPlugin = (TransformerStepPlugin) clazz.getDeclaredConstructors()[0].newInstance(new Object[] { pluginName, this });
+                            TransformerStepPlugin stepPluginCopy = (TransformerStepPlugin) clazz.getDeclaredConstructors()[0].newInstance(new Object[] { pluginName, this });
+                            
                             loadedPlugins.put(stepPlugin.getDisplayName(), stepPlugin);
+                            loadedPluginsCopy.put(stepPluginCopy.getDisplayName(), stepPluginCopy);
                         }
                     }
                     catch (Exception e)
@@ -876,6 +882,22 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
             return plugin;
         }
     }
+    
+    private TransformerStepPlugin getPluginCopy(String name) throws Exception
+    {
+        TransformerStepPlugin plugin = loadedPluginsCopy.get(name);
+        if (plugin == null)
+        {
+            String message = "Unable to find Transformer Step Plugin: " + name;
+            Exception e = new Exception(message);
+            parent.alertError(message);
+            throw new Exception(e);
+        }
+        else
+        {
+            return plugin;
+        }
+    }
 
     /**
      * prepData( int row ) works to move the data in a panel for moves or
@@ -1149,14 +1171,39 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
         String type = (String) transformerTable.getValueAt(transformerTable.getSelectedRow(), STEP_TYPE_COL);
         try
         {
-            getPlugin(type).doValidate();
+        	TransformerStepPlugin stepPlugin = getPlugin(type);
+        	String validationMessage = stepPlugin.doValidate();
+        	
+        	if (validationMessage == null)
+        		parent.alertInformation("Validation successful.");
+        	else
+        		parent.alertInformation(validationMessage);
         }
         catch (Exception e)
         {
-            // TODO Auto-generated catch block
             parent.alertException(e.getStackTrace(), e.getMessage());
         }
-
+    }
+    
+    /**
+     * Run a specific step's validator.
+     * 
+     * @param step
+     * @return
+     */
+    public String validateStep(Step step)
+    {
+    	try
+    	{
+    		TransformerStepPlugin stepPlugin = getPluginCopy(step.getType());
+			stepPlugin.setData((Map)step.getData());
+			return stepPlugin.doValidate();
+		}
+    	catch (Exception e)
+    	{
+			parent.alertException(e.getStackTrace(), e.getMessage());
+			return "Exception occurred during validation.";
+        }
     }
 
     /**
@@ -1213,7 +1260,6 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
             }
             catch (Exception e)
             {
-                // TODO Auto-generated catch block
                 parent.alertException(e.getStackTrace(), e.getMessage());
             }
             list.add(step);

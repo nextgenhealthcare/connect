@@ -103,22 +103,22 @@ public class GraphicalRulePlugin extends FilterRulePlugin{
         return script.toString();
 	}
     
-    public void doValidate()
+    public String doValidate()
     {
         try
         {
             Context context = Context.enter();
             Script compiledFilterScript = context.compileString("function rhinoWrapper() {" + getScript(panel.getData()) + "}", null, 1, null);
-            ((FilterPane)parent).getParentFrame().alertInformation("JavaScript was successfully validated.");
         }
         catch (EvaluatorException e)
         {
-            ((FilterPane)parent).getParentFrame().alertInformation("Error on line " + e.lineNumber() + ": " + e.getMessage() + ".");
+            return "Error on line " + e.lineNumber() + ": " + e.getMessage() + ".";
         }
         finally
         {
             Context.exit();
         }
+        return null;
     }
     
     public boolean showValidateTask()

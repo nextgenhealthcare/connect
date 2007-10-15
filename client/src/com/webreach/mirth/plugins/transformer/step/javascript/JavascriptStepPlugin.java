@@ -15,9 +15,9 @@ import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
 import com.webreach.mirth.client.ui.panels.reference.ReferenceListFactory;
 import com.webreach.mirth.plugins.TransformerStepPlugin;
 
-public class JavascriptStepPlugin extends TransformerStepPlugin{
+public class JavascriptStepPlugin extends TransformerStepPlugin {
 	private ScriptPanel panel;
-	
+
 	public JavascriptStepPlugin(String name, TransformerPane parent) {
 		super(name, parent);
 		panel = new ScriptPanel(parent, new JavaScriptTokenMarker(), ReferenceListFactory.MESSAGE_CONTEXT);
@@ -33,7 +33,7 @@ public class JavascriptStepPlugin extends TransformerStepPlugin{
 		return true;
 	}
 
-	public String getNewName(){
+	public String getNewName() {
 		return "New Step";
 	}
 
@@ -54,31 +54,28 @@ public class JavascriptStepPlugin extends TransformerStepPlugin{
 
 	@Override
 	public void initData() {
-        ((TransformerPane)parent).invalidVar = false;
+		((TransformerPane) parent).invalidVar = false;
 		clearData();
 	}
-	public void doValidate(){
-		 try
-	        {
-	            Context context = Context.enter();
-	            Script compiledFilterScript = context.compileString("function rhinoWrapper() {" + panel.getScript() + "}", null, 1, null);
-	            ((TransformerPane)parent).getParentFrame().alertInformation("JavaScript was successfully validated.");
-	        }
-	        catch (EvaluatorException e)
-	        {
-                ((TransformerPane)parent).getParentFrame().alertInformation("Error on line " + e.lineNumber() + ": " + e.getMessage() + ".");
-	        }
-	        finally
-	        {
-	            Context.exit();
-	        }
+
+	public String doValidate() {
+		try {
+			Context context = Context.enter();
+			Script compiledFilterScript = context.compileString("function rhinoWrapper() {" + panel.getScript() + "}", null, 1, null);
+		} catch (EvaluatorException e) {
+			return "Error on line " + e.lineNumber() + ": " + e.getMessage() + ".";
+		} finally {
+			Context.exit();
+		}
+		return null;
 	}
 
 	@Override
 	public String getScript(Map<Object, Object> data) {
 		return data.get("Script").toString();
 	}
-	public boolean showValidateTask(){
+
+	public boolean showValidateTask() {
 		return true;
 	}
 
@@ -86,5 +83,5 @@ public class JavascriptStepPlugin extends TransformerStepPlugin{
 	public String getDisplayName() {
 		return "JavaScript";
 	}
-	
+
 }

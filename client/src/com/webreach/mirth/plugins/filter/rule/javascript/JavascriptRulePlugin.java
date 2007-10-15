@@ -65,22 +65,22 @@ public class JavascriptRulePlugin extends FilterRulePlugin
         clearData();
     }
 
-    public void doValidate()
+    public String doValidate()
     {
         try
         {
             Context context = Context.enter();
             Script compiledFilterScript = context.compileString("function rhinoWrapper() {" + panel.getScript() + "}", null, 1, null);
-            ((FilterPane)parent).getParentFrame().alertInformation("JavaScript was successfully validated.");
         }
         catch (EvaluatorException e)
         {
-            ((FilterPane)parent).getParentFrame().alertInformation("Error on line " + e.lineNumber() + ": " + e.getMessage() + ".");
+            return "Error on line " + e.lineNumber() + ": " + e.getMessage() + ".";
         }
         finally
         {
             Context.exit();
         }
+        return null;
     }
 
     @Override
