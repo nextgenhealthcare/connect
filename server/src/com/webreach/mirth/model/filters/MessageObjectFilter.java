@@ -42,8 +42,12 @@ public class MessageObjectFilter {
 	private Calendar startDate;
 	private Calendar endDate;
 	private Status status;
-	private String connectorName;
 	private String source;
+	private String connectorName;
+	private boolean searchRawData;
+	private boolean searchTransformedData;
+	private boolean searchEncodedData;
+	private String searchCriteria;
 	private String type;
 	private Protocol protocol;
 
@@ -95,14 +99,6 @@ public class MessageObjectFilter {
 		this.connectorName = connectorName;
 	}
 
-	public String getSource() {
-		return this.source;
-	}
-
-	public void setSource(String source) {
-		this.source = source;
-	}
-
 	public String getType() {
 		return this.type;
 	}
@@ -118,7 +114,47 @@ public class MessageObjectFilter {
 	public void setProtocol(Protocol protocol) {
 		this.protocol = protocol;
 	}
+	
+	public String getSearchCriteria() {
+		return searchCriteria;
+	}
 
+	public void setSearchCriteria(String searchCriteria) {
+		this.searchCriteria = searchCriteria;
+	}
+
+	public boolean isSearchEncodedData() {
+		return searchEncodedData;
+	}
+
+	public void setSearchEncodedData(boolean searchEncodedData) {
+		this.searchEncodedData = searchEncodedData;
+	}
+
+	public boolean isSearchRawData() {
+		return searchRawData;
+	}
+
+	public void setSearchRawData(boolean searchRawData) {
+		this.searchRawData = searchRawData;
+	}
+
+	public boolean isSearchTransformedData() {
+		return searchTransformedData;
+	}
+
+	public void setSearchTransformedData(boolean searchTransformedData) {
+		this.searchTransformedData = searchTransformedData;
+	}
+	
+	public String getSource() {
+		return source;
+	}
+
+	public void setSource(String source) {
+		this.source = source;
+	}
+	
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append(this.getClass().getName() + "[");
@@ -130,6 +166,10 @@ public class MessageObjectFilter {
 		builder.append("endDate=" + String.format("%1$tY-%1$tm-%1$td", getEndDate()) + ", ");
 		builder.append("status=" + getStatus() + ", ");
 		builder.append("protocol=" + getProtocol() + ", ");
+		builder.append("searchCriteria=" + getSearchCriteria() + ", ");
+		builder.append("searchEncodedData=" + isSearchEncodedData() + ", ");
+		builder.append("searchRawData=" + isSearchRawData() + ", ");
+		builder.append("searchTransformedData=" + isSearchTransformedData() + ", ");
 		builder.append("connectorName=" + getConnectorName());
 		builder.append("]");
 		return builder.toString();

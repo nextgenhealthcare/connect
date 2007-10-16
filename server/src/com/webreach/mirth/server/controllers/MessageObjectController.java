@@ -455,6 +455,10 @@ public class MessageObjectController {
 		parameterMap.put("connectorName", filter.getConnectorName());
 		parameterMap.put("protocol", filter.getProtocol());
 		parameterMap.put("source", filter.getSource());
+		parameterMap.put("searchCriteria", filter.getSearchCriteria());
+		parameterMap.put("searchRawData", filter.isSearchRawData());
+		parameterMap.put("searchTransformedData", filter.isSearchTransformedData());
+		parameterMap.put("searchEncodedData", filter.isSearchEncodedData());
 
 		if (filter.getStartDate() != null) {
 			parameterMap.put("startDate", String.format("%1$tY-%1$tm-%1$td 00:00:00", filter.getStartDate()));
