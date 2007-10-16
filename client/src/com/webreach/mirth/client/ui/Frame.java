@@ -2987,6 +2987,7 @@ public class Frame extends JXFrame
         {
             public Void doInBackground()
             {
+                boolean pictureOpen = false;        
                 String messageId = messageBrowser.getSelectedMessageID();
                 try {
                     BASE64Decoder decoder = new BASE64Decoder();
@@ -2997,13 +2998,20 @@ public class Frame extends JXFrame
                         DICOM dcm = new DICOM(bis);
                         dcm.run(message.getType());
                         dcm.show();
+                        if(dcm.getTitle() != null && dcm.getTitle().equals("DICOM")){
+                            pictureOpen = true;
+                        }
                     }
                     else {
                         alertInformation("This message does not contain a DICOM image.");
+                        pictureOpen = true;
                     }
                 }
                 catch(Exception e ){
                     e.printStackTrace();
+                }
+                if(!pictureOpen){
+                    alertInformation("Only uncompressed DICOM images can be viewed.");                    
                 }
                 setWorking("", false);
                 return null;
