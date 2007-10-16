@@ -58,6 +58,7 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.JTextArea;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
@@ -898,6 +899,22 @@ public class Frame extends JXFrame
     public void alertError(String message)
     {
         JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
+    }
+    
+    /**
+     * Alerts the user with an error dialog with the passed in 'message'
+     */
+    public void alertErrorPane(String message)
+    {
+    	JScrollPane scrollPane = new JScrollPane();
+    	JTextArea errorContent = new JTextArea();
+        errorContent.setEditable(false);
+        errorContent.setColumns(40);
+        errorContent.setRows(10);
+        errorContent.setText(message);
+        errorContent.setCaretPosition(0);
+        scrollPane.setViewportView(errorContent);
+        JOptionPane.showMessageDialog(this, scrollPane, "Error(s)", JOptionPane.ERROR_MESSAGE);
     }
 
     /**

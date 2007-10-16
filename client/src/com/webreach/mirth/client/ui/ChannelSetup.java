@@ -1086,9 +1086,26 @@ public class ChannelSetup extends javax.swing.JPanel
     public boolean checkAllForms(Channel channel)
     {
         boolean problemFound = false;
+        String errors = "";
         ConnectorClass tempConnector = null;
         Properties tempProps = null;
         
+        // Check source connector
+        for (int i = 0; i < parent.sourceConnectors.size(); i++)
+        {
+            if (parent.sourceConnectors.get(i).getName().equalsIgnoreCase(channel.getSourceConnector().getTransportName()))
+            {
+                tempConnector = parent.sourceConnectors.get(i);
+                tempProps = channel.getSourceConnector().getProperties();
+                
+                errors += validateFilterRules(channel.getSourceConnector());
+                errors += validateTransformerSteps(channel.getSourceConnector());
+            }
+        }
+        if (tempConnector != null && !tempConnector.checkProperties(tempProps, false))
+            problemFound = true;
+        
+        // Check destination connector
         for (int i = 0; i < channel.getDestinationConnectors().size(); i++)
         {
         	// Only check the destination connector if it is enabled.
@@ -1101,8 +1118,8 @@ public class ChannelSetup extends javax.swing.JPanel
 	                    tempConnector = parent.destinationConnectors.get(j);
 	                    tempProps = channel.getDestinationConnectors().get(i).getProperties();
 	                    
-	                    problemFound = !validateFilterRules(channel.getDestinationConnectors().get(i));
-	                    problemFound = !validateTransformerSteps(channel.getDestinationConnectors().get(i));
+	                    errors += validateFilterRules(channel.getDestinationConnectors().get(i));
+	                    errors += validateTransformerSteps(channel.getDestinationConnectors().get(i));
 	                }
 	            }
 	            if (tempConnector != null && !tempConnector.checkProperties(tempProps, false))
@@ -1113,25 +1130,17 @@ public class ChannelSetup extends javax.swing.JPanel
         	}
         }
         
-        for (int i = 0; i < parent.sourceConnectors.size(); i++)
+        if (!errors.equals(""))
         {
-            if (parent.sourceConnectors.get(i).getName().equalsIgnoreCase(channel.getSourceConnector().getTransportName()))
-            {
-                tempConnector = parent.sourceConnectors.get(i);
-                tempProps = channel.getSourceConnector().getProperties();
-                
-                problemFound = !validateFilterRules(channel.getSourceConnector());
-                problemFound = !validateTransformerSteps(channel.getSourceConnector());
-            }
+        	problemFound = true;
+        	parent.alertErrorPane(errors);
         }
-        if (tempConnector != null && !tempConnector.checkProperties(tempProps, false))
-            problemFound = true;
         
         channelValidationFailed = problemFound;
         return problemFound;
     }
     
-    private boolean validateTransformerSteps(Connector connector)
+    private String validateTransformerSteps(Connector connector)
     {
     	String errors = "";
     	
@@ -1144,16 +1153,10 @@ public class ChannelSetup extends javax.swing.JPanel
         	}
         }
     	
-    	if (!errors.equals(""))
-    	{
-    		parent.alertInformation(errors);
-    		return false;
-    	}
-    	else
-    		return true;
+    	return errors;
     }
     
-    private boolean validateFilterRules(Connector connector)
+    private String validateFilterRules(Connector connector)
     {
     	String errors = "";
     	
@@ -1166,13 +1169,7 @@ public class ChannelSetup extends javax.swing.JPanel
         	}
         }
     	
-    	if (!errors.equals(""))
-    	{
-    		parent.alertInformation(errors);
-    		return false;
-    	}
-    	else
-    		return true;
+    	return errors;
     }
     
     public void validateForm()
