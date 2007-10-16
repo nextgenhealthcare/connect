@@ -1467,13 +1467,7 @@ public class Frame extends JXFrame
     }
 
     public void doEditChannel()
-    {
-        if (channelEditPanel.transformerPane == null)
-            channelEditPanel.transformerPane = new TransformerPane();
-        
-        if (channelEditPanel.filterPane == null)
-            channelEditPanel.filterPane = new FilterPane();
-        
+    {        
         if (isEditingChannel)
             return;
         else
