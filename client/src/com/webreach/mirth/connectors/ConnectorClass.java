@@ -94,6 +94,11 @@ public class ConnectorClass extends javax.swing.JPanel
     	return true;
     }
     
+    public String doValidate(Properties props)
+    {
+    	return null;
+    }
+    
     public void updateResponseDropDown()
     {
     }

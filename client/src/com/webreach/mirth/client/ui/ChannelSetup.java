@@ -1111,8 +1111,15 @@ public class ChannelSetup extends javax.swing.JPanel
                 errors += validateTransformerSteps(channel.getSourceConnector());
             }
         }
-        if (tempConnector != null && !tempConnector.checkProperties(tempProps, false))
-            problemFound = true;
+        if (tempConnector != null)
+        {
+        	if (!tempConnector.checkProperties(tempProps, false))
+        		problemFound = true;
+        	
+        	String validationMessage = tempConnector.doValidate(tempProps);
+        	if (validationMessage != null)
+        		errors += validationMessage;
+        }
         
         // Check destination connector
         for (int i = 0; i < channel.getDestinationConnectors().size(); i++)
@@ -1131,13 +1138,22 @@ public class ChannelSetup extends javax.swing.JPanel
 	                    errors += validateTransformerSteps(channel.getDestinationConnectors().get(i));
 	                }
 	            }
-	            if (tempConnector != null && !tempConnector.checkProperties(tempProps, false))
-	                problemFound = true;
+	            if (tempConnector != null) 
+	            {
+	            	if (!tempConnector.checkProperties(tempProps, false))
+	                	problemFound = true;
+	            	
+	            	String validationMessage = tempConnector.doValidate(tempProps);
+	            	if (validationMessage != null)
+	            		errors += validationMessage;
+	            }
 	            
 	            tempConnector = null;
 	            tempProps = null;
         	}
         }
+        
+        errors += validateScripts(scripts.getScripts());
         
         if (!errors.equals(""))
         {
@@ -1174,7 +1190,26 @@ public class ChannelSetup extends javax.swing.JPanel
         	String validationMessage = this.filterPane.validateRule(rule);
         	if (validationMessage != null)
         	{
-        		errors += "Error in connector " + connector.getName() + " at rule \"" + rule.getName()+ "\":\n" + validationMessage + "\n\n";
+        		errors += "Error in connector \"" + connector.getName() + "\" at rule \"" + rule.getName()+ "\":\n" + validationMessage + "\n\n";
+        	}
+        }
+    	
+    	return errors;
+    }
+    
+    private String validateScripts(Map<String, String> scriptsMap)
+    {
+    	String errors = "";
+    	
+    	for (Iterator iter = scriptsMap.keySet().iterator(); iter.hasNext();)
+    	{
+            String key = (String) iter.next();
+            String value = (String)scriptsMap.get(key);
+            
+            String validationMessage = this.scripts.validateScript(value);
+        	if (validationMessage != null)
+        	{
+        		errors += "Error in channel script \"" + key + "\":\n" + validationMessage + "\n\n";
         	}
         }
     	

@@ -84,6 +84,24 @@ public class ScriptPanel extends javax.swing.JPanel
         PlatformUI.MIRTH_FRAME.alertInformation(sb.toString());
     }
     
+    public String validateScript(String script)
+    {
+    	String error = null;
+        Context context = Context.enter();
+        try
+        {
+            context.compileString("function rhinoDeployWrapper() {" + script + "}", null, 1, null);
+        }
+        catch (EvaluatorException e)
+        {
+            error = "Error on line " + e.lineNumber() + ": " + e.getMessage() + ".";
+        }
+        
+        Context.exit();
+        
+        return error;
+    }
+    
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is

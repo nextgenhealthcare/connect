@@ -28,6 +28,8 @@ package com.webreach.mirth.connectors.jdbc;
 import java.util.List;
 import java.util.Properties;
 
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.EvaluatorException;
 import org.syntax.jedit.SyntaxDocument;
 import org.syntax.jedit.tokenmarker.JavaScriptTokenMarker;
 import org.syntax.jedit.tokenmarker.TSQLTokenMarker;
@@ -184,6 +186,29 @@ public class DatabaseWriter extends ConnectorClass
         databaseURLField.setBackground(null);
         databaseSQLTextPane.setBackground(null);
         databaseDriverCombobox.setBackground(UIConstants.COMBO_BOX_BACKGROUND);
+    }
+    
+    public String doValidate(Properties props)
+    {
+    	String script = ((String) props.get(DatabaseWriterProperties.DATABASE_JS_SQL_STATEMENT));
+    	String error = null;
+    	
+    	if (script.length() != 0)
+    	{
+	    	Context context = Context.enter();
+	        try
+	        {
+	            context.compileString("function rhinoDeployWrapper() {" + script + "}", null, 1, null);
+	        }
+	        catch (EvaluatorException e)
+	        {
+	            error = "Error in connector \"" + getName() + "\" at Javascript:\nError on line " + e.lineNumber() + ": " + e.getMessage() + ".\n\n";
+	        }
+	        
+	        Context.exit();
+    	}
+	        
+        return error;
     }
 
     /**

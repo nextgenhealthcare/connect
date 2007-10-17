@@ -34,6 +34,8 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.EvaluatorException;
 import org.syntax.jedit.SyntaxDocument;
 import org.syntax.jedit.tokenmarker.JavaScriptTokenMarker;
 import org.syntax.jedit.tokenmarker.TSQLTokenMarker;
@@ -319,6 +321,49 @@ public class DatabaseReader extends ConnectorClass
         databaseSQLTextPane.setBackground(null);
         databaseUpdateSQLTextPane.setBackground(null);
         databaseDriverCombobox.setBackground(UIConstants.COMBO_BOX_BACKGROUND);
+    }
+    
+    public String doValidate(Properties props)
+    {
+    	String script = ((String) props.get(DatabaseWriterProperties.DATABASE_JS_SQL_STATEMENT));
+    	String onUpdateScript = ((String) props.get(DatabaseReaderProperties.DATABASE_JS_ACK));
+    	String error = null;
+    	
+    	if (script.length() != 0)
+    	{
+	    	Context context = Context.enter();
+	        try
+	        {
+	            context.compileString("function rhinoDeployWrapper() {" + script + "}", null, 1, null);
+	        }
+	        catch (EvaluatorException e)
+	        {
+	        	if (error == null)
+	        		error = "";
+	            error += "Error in connector \"" + getName() + "\" at Javascript:\nError on line " + e.lineNumber() + ": " + e.getMessage() + ".\n\n";
+	        }
+	        
+	        Context.exit();
+    	}
+    	
+    	if (((String) props.get(DatabaseReaderProperties.DATABASE_USE_ACK)).equalsIgnoreCase(UIConstants.YES_OPTION) && onUpdateScript.length() != 0)
+    	{
+	    	Context context = Context.enter();
+	        try
+	        {
+	            context.compileString("function rhinoDeployWrapper() {" + onUpdateScript + "}", null, 1, null);
+	        }
+	        catch (EvaluatorException e)
+	        {
+	        	if (error == null)
+	        		error = "";
+	            error += "Error in connector \"" + getName() + "\" at On-Update Javascript:\nError on line " + e.lineNumber() + ": " + e.getMessage() + ".\n\n";
+	        }
+	        
+	        Context.exit();
+    	}
+	        
+        return error;
     }
     
     private void update()
