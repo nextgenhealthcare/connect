@@ -42,6 +42,7 @@ public class Token {
 	static Token STATUS = addKeyword("status");
 	static Token EXPORT = addKeyword("export");
 	static Token CHANNEL = addKeyword("channel");
+	static Token RENAME = addKeyword("rename");
 	static Token ENABLE = addKeyword("enable");
 	static Token DISABLE = addKeyword("disable");
 	static Token STATS = addKeyword("stats");

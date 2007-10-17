@@ -241,7 +241,7 @@ public class Shell {
 				} else if (arg1 == Token.EXPORT) {
                     commandExport(arguments);
 				} else if (arg1 == Token.CHANNEL) {
-					String syntax = "invalid number of arguments. Syntax is: channel start|stop|pause|resume|stats|remove|enable|disable <id|name> or channel list|stats";
+					String syntax = "invalid number of arguments. Syntax is: channel start|stop|pause|resume|stats|remove|enable|disable <id|name>, channel rename <id|name> newname, or channel list|stats";
 					if (arguments.length < 2) {
 						error(syntax);
 						return;
@@ -272,6 +272,8 @@ public class Shell {
 						commandChannelResume(arguments);
 					} else if (comm == Token.STATS) {
 						commandChannelStats(arguments);
+					} else if (comm == Token.RENAME) {
+						commandChannelRename(arguments);
 					} else {
 						error("unknown channel command " + comm);
 					}
@@ -863,6 +865,69 @@ public class Shell {
 			out.println("Error: " + stats.getError());
 		}
 	}
+	
+	private void commandChannelRename(Token[] arguments) throws ClientException {
+		for (Channel channel : getMatchingChannels(arguments[2]) ) {
+			String oldName = channel.getName();
+			channel.setName(arguments[3].getText());
+			if(checkChannelName(channel.getName(), channel.getId()))
+			{
+				client.updateChannel(channel, true);
+				out.println("Channel '" + oldName + "' renamed to '" + channel.getName() + "'");
+			}
+		}
+	}
+	
+	/**
+     * Checks to see if the passed in channel name already exists and is formatted correctly
+     */
+    public boolean checkChannelName(String name, String id) throws ClientException 
+    {
+        if (name.equals(""))
+        {
+        	out.println("Channel name cannot be empty.");
+            return false;
+        }
+
+        if(name.length() > 40)
+        {
+        	out.println("Channel name cannot be longer than 40 characters.");
+            return false;
+        }
+
+        // Following code copied from MirthFieldConstaints, must be the same to check for valid channel names the same way.
+        char[] chars = name.toCharArray();
+        for (char c : chars)
+        {
+            int cVal = (int)c;
+            if ((cVal < 65 || cVal > 90) && (cVal < 97 || cVal > 122) && (cVal != 32) && (cVal != 45) && (cVal != 95))
+            {
+                try
+                {
+                    if (Double.isNaN(Double.parseDouble(c + "")))
+                    {
+                    	out.println("Channel name cannot have special characters besides hyphen, underscore, and space.");
+                        return false;
+                    }
+                }
+                catch (Exception e)
+                {
+                	out.println("Channel name cannot have special characters besides hyphen, underscore, and space.");
+                    return false;
+                }
+            }
+        }
+
+        for (Channel channel : client.getChannel(null))
+        {
+            if (channel.getName().equalsIgnoreCase(name) && !channel.getId().equals(id))
+            {
+            	out.println("Channel \"" + name + "\" already exists.");
+                return false;
+            }
+        }
+        return true;
+    }
 
 	private List<Channel> getMatchingChannels(Token key) throws ClientException {
 		List<Channel> result = new ArrayList();
@@ -1048,25 +1113,6 @@ public class Shell {
 		importChannel.setVersion(client.getVersion());
 		client.updateChannel(importChannel, true);
 		out.println("Channel '" + channelName + "' imported successfully.");
-	}
-
-	/**
-	 * Checks to see if the passed in channel name already exists
-	 * 
-	 * @throws ClientException
-	 */
-	public boolean checkChannelName(String name, String id) throws ClientException {
-		if (name.equals("")) {
-
-			return false;
-		}
-
-		for (Channel channel : client.getChannel(null)) {
-			if (channel.getName().equalsIgnoreCase(name) && !channel.getId().equals(id)) {
-				return false;
-			}
-		}
-		return true;
 	}
 
 	private String replaceValues(String source) {
