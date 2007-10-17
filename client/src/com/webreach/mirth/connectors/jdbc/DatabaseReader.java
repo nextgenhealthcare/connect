@@ -323,11 +323,15 @@ public class DatabaseReader extends ConnectorClass
         databaseDriverCombobox.setBackground(UIConstants.COMBO_BOX_BACKGROUND);
     }
     
-    public String doValidate(Properties props)
+    public String doValidate(Properties props, boolean highlight)
     {
+    	String error = null;
+    	
+    	if (!checkProperties(props, highlight))
+    		error = "Error in the form for connector \"" + getName() + "\".\n\n";
+    	
     	String script = ((String) props.get(DatabaseWriterProperties.DATABASE_JS_SQL_STATEMENT));
     	String onUpdateScript = ((String) props.get(DatabaseReaderProperties.DATABASE_JS_ACK));
-    	String error = null;
     	
     	if (script.length() != 0)
     	{
@@ -365,7 +369,7 @@ public class DatabaseReader extends ConnectorClass
 	        
         return error;
     }
-    
+
     private void update()
     {
         class UpdateTimer extends TimerTask

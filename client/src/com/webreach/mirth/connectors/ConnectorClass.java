@@ -94,7 +94,15 @@ public class ConnectorClass extends javax.swing.JPanel
     	return true;
     }
     
-    public String doValidate(Properties props)
+    /**
+     * Runs any custom validation that has been created on the channel.
+     * Returns null if successful, and a String error message otherwise.
+     * Also validates the form and highlights invalid fields if
+     * highlight=true.
+     * @param props
+     * @return
+     */
+    public String doValidate(Properties props, boolean highlight)
     {
     	return null;
     }

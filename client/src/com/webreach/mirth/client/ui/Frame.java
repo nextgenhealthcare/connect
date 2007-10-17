@@ -647,7 +647,7 @@ public class Frame extends JXFrame
         channelEditTasks.setFocusable(false);
 
         addTask("doSaveChannel","Save Changes","Save all changes made to this channel.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/save.png")), channelEditTasks, channelEditPopupMenu);
-        addTask("doValidate","Validate Form","Validate the currently visible form.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/accept.png")), channelEditTasks, channelEditPopupMenu);
+        addTask("doValidate","Validate Connector","Validate the currently visible connector.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/accept.png")), channelEditTasks, channelEditPopupMenu);
         addTask("doNewDestination","New Destination","Create a new destination.","N", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/add.png")), channelEditTasks, channelEditPopupMenu);
         addTask("doDeleteDestination","Delete Destination","Delete the currently selected destination.","L", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png")), channelEditTasks, channelEditPopupMenu);
         addTask("doCloneDestination","Clone Destination","Clones the currently selected destination.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/clone.png")), channelEditTasks, channelEditPopupMenu);
@@ -902,19 +902,12 @@ public class Frame extends JXFrame
     }
     
     /**
-     * Alerts the user with an error dialog with the passed in 'message'
+     * Alerts the user with an error dialog with the passed in 'message' and
+     * a 'question'.
      */
-    public void alertErrorPane(String message)
+    public void alertCustomError(String message, String question)
     {
-    	JScrollPane scrollPane = new JScrollPane();
-    	JTextArea errorContent = new JTextArea();
-        errorContent.setEditable(false);
-        errorContent.setColumns(40);
-        errorContent.setRows(10);
-        errorContent.setText(message);
-        errorContent.setCaretPosition(0);
-        scrollPane.setViewportView(errorContent);
-        JOptionPane.showMessageDialog(this, scrollPane, "Error(s)", JOptionPane.ERROR_MESSAGE);
+    	new CustomErrorDialog(message, question);
     }
 
     /**
@@ -1467,7 +1460,7 @@ public class Frame extends JXFrame
     }
 
     public void doEditChannel()
-    {        
+    {       
         if (isEditingChannel)
             return;
         else
@@ -1980,9 +1973,11 @@ public class Frame extends JXFrame
             alertWarning("Channel no longer exists.");
             return;
         }
-        if (channelEditPanel.checkAllForms(channel))
+        
+        String validationMessage = channelEditPanel.checkAllForms(channel);
+        if (validationMessage != null)
         {
-            alertWarning("Channel was not configured properly.  Please fix the problems in the forms before trying to enable it again.");
+        	alertCustomError(validationMessage, CustomErrorDialog.ERROR_ENABLING_CHANNEL);
             return;
         }
 
@@ -2306,7 +2301,7 @@ public class Frame extends JXFrame
 
     public void doValidate()
     {
-        channelEditPanel.validateForm();
+        channelEditPanel.doValidate();
     }
 
     public void doImport()

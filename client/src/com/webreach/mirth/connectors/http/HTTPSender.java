@@ -530,6 +530,16 @@ public class HTTPSender extends ConnectorClass
         httpURL.setBackground(null);
     }
     
+    public String doValidate(Properties props, boolean highlight)
+    {
+    	String error = null;
+    	
+    	if (!checkProperties(props, highlight))
+    		error = "Error in the form for connector \"" + getName() + "\".\n\n";
+    	
+    	return error;
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always

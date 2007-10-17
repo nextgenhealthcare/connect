@@ -208,6 +208,16 @@ public class SOAPSender extends ConnectorClass
         wsdlUrl.setBackground(null);
         soapEnvelope.setBackground(null);
     }
+    
+    public String doValidate(Properties props, boolean highlight)
+    {
+    	String error = null;
+    	
+    	if (!checkProperties(props, highlight))
+    		error = "Error in the form for connector \"" + getName() + "\".\n\n";
+    	
+    	return error;
+    }
 
     public String buildHost()
     {

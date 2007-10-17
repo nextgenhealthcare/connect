@@ -771,7 +771,8 @@ public class ChannelSetup extends javax.swing.JPanel
         temp = currentChannel.getDestinationConnectors().get(getDestinationConnectorIndex((String) destinationTable.getValueAt(getSelectedDestinationIndex(), getColumnNumber(DESTINATION_COLUMN_NAME))));
         temp.setProperties(destinationConnectorClass.getProperties());
         
-        if (checkAllForms(currentChannel))
+        String validationMessage = checkAllForms(currentChannel);
+        if (validationMessage != null)
         {
             enabled = false;
             
@@ -786,10 +787,9 @@ public class ChannelSetup extends javax.swing.JPanel
         	else if (channelView.getSelectedComponent() == source)
         		sourceConnectorClass.checkProperties(sourceConnectorClass.getProperties(), true);
             
-            if (!parent.alertOption("There was a problem with one or more of your connectors.  Please validate all of\nyour connectors to find the problem. Would you still like to save this channel even\nthough you will not be able to enable this channel until you fix the problem(s)?"))
-                return false;
-            else
-                summaryEnabledCheckbox.setSelected(false);
+            summaryEnabledCheckbox.setSelected(false);
+            
+            parent.alertCustomError(validationMessage, CustomErrorDialog.ERROR_SAVING_CHANNEL);
         }
         
         currentChannel.setName(summaryNameField.getText());
@@ -1087,14 +1087,13 @@ public class ChannelSetup extends javax.swing.JPanel
     }
     
     /**
-     * Checks all of the connectors in this channel and returns true if a problem was found.
+     * Checks all of the connectors in this channel and returns the errors found.
      * 
      * @param channel
      * @return
      */
-    public boolean checkAllForms(Channel channel)
+    public String checkAllForms(Channel channel)
     {
-        boolean problemFound = false;
         String errors = "";
         ConnectorClass tempConnector = null;
         Properties tempProps = null;
@@ -1112,11 +1111,8 @@ public class ChannelSetup extends javax.swing.JPanel
             }
         }
         if (tempConnector != null)
-        {
-        	if (!tempConnector.checkProperties(tempProps, false))
-        		problemFound = true;
-        	
-        	String validationMessage = tempConnector.doValidate(tempProps);
+        {        	
+        	String validationMessage = tempConnector.doValidate(tempProps, false);
         	if (validationMessage != null)
         		errors += validationMessage;
         }
@@ -1140,10 +1136,7 @@ public class ChannelSetup extends javax.swing.JPanel
 	            }
 	            if (tempConnector != null) 
 	            {
-	            	if (!tempConnector.checkProperties(tempProps, false))
-	                	problemFound = true;
-	            	
-	            	String validationMessage = tempConnector.doValidate(tempProps);
+	            	String validationMessage = tempConnector.doValidate(tempProps, false);
 	            	if (validationMessage != null)
 	            		errors += validationMessage;
 	            }
@@ -1155,14 +1148,13 @@ public class ChannelSetup extends javax.swing.JPanel
         
         errors += validateScripts(scripts.getScripts());
         
-        if (!errors.equals(""))
+        if (errors.equals(""))
         {
-        	problemFound = true;
-        	parent.alertErrorPane(errors);
+        	errors = null;
+        	channelValidationFailed = false;
         }
         
-        channelValidationFailed = problemFound;
-        return problemFound;
+        return errors;
     }
     
     private String validateTransformerSteps(Connector connector)
@@ -1174,7 +1166,7 @@ public class ChannelSetup extends javax.swing.JPanel
         	String validationMessage = this.transformerPane.validateStep(step);
         	if (validationMessage != null)
         	{
-        		errors += "Error in connector \"" + connector.getName() + "\" at step \"" + step.getName()+ "\":\n" + validationMessage + "\n\n";
+        		errors += "Error in connector \"" + connector.getName() + "\" at step " + step.getSequenceNumber() + " (\"" + step.getName()+ "\"):\n" + validationMessage + "\n\n";
         	}
         }
     	
@@ -1190,7 +1182,7 @@ public class ChannelSetup extends javax.swing.JPanel
         	String validationMessage = this.filterPane.validateRule(rule);
         	if (validationMessage != null)
         	{
-        		errors += "Error in connector \"" + connector.getName() + "\" at rule \"" + rule.getName()+ "\":\n" + validationMessage + "\n\n";
+        		errors += "Error in connector \"" + connector.getName() + "\" at rule " + rule.getSequenceNumber() + " (\"" + rule.getName()+ "\"):\n" + validationMessage + "\n\n";
         	}
         }
     	
@@ -1216,21 +1208,23 @@ public class ChannelSetup extends javax.swing.JPanel
     	return errors;
     }
     
-    public void validateForm()
+    public void doValidate()
     {
         if (source.isVisible())
         {
-            if (!sourceConnectorClass.checkProperties(sourceConnectorClass.getProperties(), true))
-                parent.alertWarning("This form is missing required data.");
+        	String validationMessage = sourceConnectorClass.doValidate(sourceConnectorClass.getProperties(), true);
+            if (validationMessage != null)
+                parent.alertCustomError(validationMessage, CustomErrorDialog.ERROR_VALIDATING_CONNECTOR);
             else
-                parent.alertInformation("The form was successfully validated.");
+                parent.alertInformation("The connector was successfully validated.");
         }
         else
         {
-            if (!destinationConnectorClass.checkProperties(destinationConnectorClass.getProperties(), true))
-                parent.alertWarning("This form is missing required data.");
+        	String validationMessage = destinationConnectorClass.doValidate(destinationConnectorClass.getProperties(), true);
+        	if (validationMessage != null)
+                parent.alertWarning(validationMessage);
             else
-                parent.alertInformation("The form was successfully validated.");
+                parent.alertInformation("The connector was successfully validated.");
         }
     }
     

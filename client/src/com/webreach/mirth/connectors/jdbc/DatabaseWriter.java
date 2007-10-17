@@ -188,10 +188,14 @@ public class DatabaseWriter extends ConnectorClass
         databaseDriverCombobox.setBackground(UIConstants.COMBO_BOX_BACKGROUND);
     }
     
-    public String doValidate(Properties props)
+    public String doValidate(Properties props, boolean highlight)
     {
-    	String script = ((String) props.get(DatabaseWriterProperties.DATABASE_JS_SQL_STATEMENT));
     	String error = null;
+    	
+    	if (!checkProperties(props, highlight))
+    		error = "Error in the form for connector \"" + getName() + "\".\n\n";
+    	
+    	String script = ((String) props.get(DatabaseWriterProperties.DATABASE_JS_SQL_STATEMENT));
     	
     	if (script.length() != 0)
     	{
@@ -202,7 +206,9 @@ public class DatabaseWriter extends ConnectorClass
 	        }
 	        catch (EvaluatorException e)
 	        {
-	            error = "Error in connector \"" + getName() + "\" at Javascript:\nError on line " + e.lineNumber() + ": " + e.getMessage() + ".\n\n";
+	        	if (error == null)
+	        		error = "";
+	            error += "Error in connector \"" + getName() + "\" at Javascript:\nError on line " + e.lineNumber() + ": " + e.getMessage() + ".\n\n";
 	        }
 	        
 	        Context.exit();
