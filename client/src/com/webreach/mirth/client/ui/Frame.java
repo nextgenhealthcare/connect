@@ -2268,12 +2268,14 @@ public class Frame extends JXFrame
 
     public void doEditTransformer()
     {
+        channelEditPanel.transformerPane.resizePanes();
         String name = channelEditPanel.editTransformer();
         setPanelName("Edit Channel - " + channelEditPanel.currentChannel.getName() + " - " + name + " Transformer");
     }
 
     public void doEditFilter()
     {
+        channelEditPanel.filterPane.resizePanes();
         String name = channelEditPanel.editFilter();
         setPanelName("Edit Channel - " + channelEditPanel.currentChannel.getName() + " - " + name + " Filter");
     }

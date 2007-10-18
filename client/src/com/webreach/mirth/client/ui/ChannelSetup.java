@@ -256,7 +256,7 @@ public class ChannelSetup extends javax.swing.JPanel
             parent.setCurrentContentPage(parent.channelEditPanel);
             parent.setCurrentTaskPaneContainer(parent.taskPaneContainer);
             name = "Edit Channel - " + parent.channelEditPanel.currentChannel.getName();            
-            parent.channelEditPanel.updateComponentShown();                
+            parent.channelEditPanel.updateComponentShown();        
         }
         return name;
     }
